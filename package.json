@@ -1,0 +1,27 @@
+{
+    "name": "construct-js-server"
+  , "version": "0.3.0"
+  , "private": true
+  , "main": "./src/tegh"
+  , "dependencies": {
+      "coffee-script": "1.6.3"
+    , "sugar": "*"
+    , "fs-extra": "*"
+    , "js-yaml": "*"
+    , "glob": "*"
+    , "request": "*"
+    , "form-data": "git+https://github.com/D1plo1d/node-form-data.git"
+    , "websocket": "*"
+    , "colors": "*"
+    , "touch": "*"
+    , "flavored-path": "*"
+    , "serialport": "*"
+    , "mocha": "*"
+    , "chai": "*"
+    , "chai-spies": "*"
+  },
+    "engines": {
+    "node": "~0.10.x",
+    "npm": "1.1.x"
+  }
+}
