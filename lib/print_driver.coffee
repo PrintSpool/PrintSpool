@@ -30,12 +30,14 @@ module.exports = class PrintDriver extends EventEmitter
       @emit("disconnect", p) if ports.none(p)
     @_ports = ports
 
-  _greetings: /^(start|Grbl |ok|.*T:)/
+  _defaultOpts: {port: null, baudrate: 115200, polling: true}
+  _greetings: /^(start|grbl |ok|.*t:)/
   _comments: /;[^\n]*|\([^\n]*\)/g
   _opened: false
   _headersReceived: false
   verbose: false
   greetingTimeout: 2000
+  pollingInterval: 700
   # The previous line is set to null after an acknowledgment ("ok") is received
   _previousLine: null
   _nextLineNumber: 1
@@ -44,13 +46,34 @@ module.exports = class PrintDriver extends EventEmitter
   _printJobLine: 0
   # Gcodes added via the sendNow function (like temperature polling)
   _sendNowQueue: []
+  # An array of extruders and beds that the printer is waiting for to reach temp
+  _blockers: []
 
-  constructor: (port, baudrate = 115200, SP = SerialPort) ->
-    @serialPort = new SP port.comName,
-      baudrate: baudrate
+  constructor: (opts = {}, SP = SerialPort) ->
+    opts = Object.merge @_defaultOpts, opts
+    @serialPort = new SP opts.port.comName,
+      baudrate: opts.baudrate
       parser: serialport.parsers.readline("\n")
     .on("data", @_onData)
     .on("open", @_onOpen)
+    @startPolling() if @polling = opts.polling
+
+  startPolling: ->
+    @on "change", @_receivePollResponse
+    @_poll()
+
+  _poll: () =>
+    console.log "polling" if @verbose
+    @_lastPoll = Date.now()
+    @sendNow "M105"
+
+  _receivePollResponse: (data) =>
+    return if !@_lastPoll? or Object.values(data).none (d) -> d.current_temp?
+    return if @_blockers.length > 0
+    nextPollTime = Math.min 0, @_lastPoll + @pollingInterval - Date.now()
+    @_lastPoll = null
+    # Requesting a temperature update from the printer in nextPollTime ms
+    @_pollingTimeout = setTimeout @_poll, nextPollTime
 
   _onOpen: =>
     @_opened = true
@@ -79,6 +102,7 @@ module.exports = class PrintDriver extends EventEmitter
     @_sendNextLine() if @isClearToSend()
 
   kill: ->
+    clearTimeout @_pollingTimeout if @_pollingTimeout?
     @removeAllListeners()
     @serialPort.close()
     @serialPort.removeAllListeners()
@@ -96,26 +120,69 @@ module.exports = class PrintDriver extends EventEmitter
   _onData: (line) =>
     console.log "received: #{line}" if @verbose
     return if line.startsWith("DEBUG_")
-    @_parseTemperatureData()
+    originalLine = line
+    line = line.toLowerCase()
     if !@_headersReceived and line.has(@_greetings)
       setTimeout @_onGreeting, @greetingTimeout
     else if line.startsWith("ok")
       @_previousLine = null
       @_sendNextLine()
       @_jobCompletionCheck()
-    else if line.startsWith('Error')
-      @emit("printer_error", line)
     else if line.toLowerCase().startsWith("resend") or line.startsWith("rs")
       lineNumber = parseInt(line.split(/N:|N|:/)[1])
       @_send(@_previousLine, lineNumber)
+    @_emitReceiveEvents(line, originalLine)
 
   _onGreeting: =>
     @_headersReceived = true
     @_sendNextLine()
     @emit("ready")
 
-  _parseTemperatureData: ->
-    # TODO
+  # Parse a line of gcode response from the printer and emit printer errors and 
+  # current_temp, target_temp_countown and blocking changes
+  _emitReceiveEvents: (l, originalLine) ->
+    data = {}
+    # Parsing temperatures
+    if l.has "t:"
+      l = l.replace("t:", "e0:").replace(/:[\s\t]*/, ':')
+      # Adds a temperature to a object of { KEY: {current_temp: VALUE}, ... }
+      addToHash = (h, t) -> h[t[0]] = {current_temp: parseFloat(t[1])}; h
+      # Construct that obj containing key-mapped current temps
+      data = l.words()[1..].map((s)->s.split(":")).reduce addToHash, {}
+    # Parsing "w" temperature countdown values
+    # see: http://git.io/FEACGw or google "TEMP_RESIDENCY_TIME"
+    w = data.w?.current_temp
+    if w? and w != "?"
+      w = parseFloat(w)*1000
+      (data[k] ?= {}).target_temp_countdown = w for k in @_blockers
+      delete data['w']
+    # Parsing ok's and removing blockers
+    if l.has "ok"
+      (data[k] ?= {}).blocking = false for k in @_blockers
+      @_blockers = []
+    # Fire the current temperature and target temp countdown changes
+    @emit("change", data) if data?
+    @emit("printer_error", originalLine) if l.startsWith('error')
+
+  # Parse a line of gcode sent to the printer and emit blocking and target_temp
+  # changes
+  _emitSendEvents: (l) ->
+    data = {}
+    # Monitor the sent commands for new extruder target temperatures
+    if l.has /M109|M104|M140|M190/
+      temp = parseFloat(/S([0-9]+)/.exec(l)?[1] || '0')
+      if l.has /M109|M104/
+        target = "e" + ( /\ P([0-9]+)/.exec(l)?[1] || '0')
+      else
+        target = "b"
+      data[target] = {target_temp: temp}
+    # Parsing the sent command for blocking operations
+    if l.has /M109|M190|M116/
+      target = "e0" if l.has 'M116'
+      (data[target] ?= {}).blocking = true
+      @_blockers.push target if @_blockers.none(target)
+    # Firing a notification of the target_temp and blocking changes
+    @emit "change", data if Object.size(data) > 0
 
   _jobCompletionCheck: ->
     return unless @isPrinting() and @_isComplete()
@@ -131,6 +198,7 @@ module.exports = class PrintDriver extends EventEmitter
     else
       return
     @_send(line, @_nextLineNumber)
+    @_emitSendEvents(line)
 
   _send: (line, lineNumber) ->
     @_previousLine = line

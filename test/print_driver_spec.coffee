@@ -10,6 +10,7 @@ EventEmitter = require('events').EventEmitter
 class SerialStub extends EventEmitter
   constructor: ->
     @write = chai.spy (line) -> @emit "test_write", line
+    @close = ->
 
 describe 'PrintDriver', ->
   printer = null
@@ -22,12 +23,13 @@ describe 'PrintDriver', ->
     receive "start"
     printer.on "ready", done
 
-  ackGCodes = ->
-    printer.serialPort.on "test_write", (line) -> receive "ok"
+  ackGCodes = (response = "ok") ->
+    printer.serialPort.on "test_write", (line) -> receive response
 
   beforeEach ->
-    printer = new PrintDriver "", "", SerialStub
+    printer = new PrintDriver port: {}, polling: false, SerialStub
     printer.greetingTimeout = 0
+    printer.pollingInterval = 0
     onWrite = printer.serialPort.write
 
   it 'should not fire a ready event on receipt of a bad greeting', ->
@@ -145,3 +147,63 @@ describe 'PrintDriver', ->
       ackGCodes()
       printer.print "M105\nM105"
       printer.isPrinting().should.equal(false)
+
+  describe "startPolling", ->
+    beforeEach receiveStart
+    afterEach -> printer.kill()
+
+    it 'should send a initial temperature request', ->
+      printer.startPolling()
+      onWrite.should.have.been.called()
+
+    it 'should send a temperature request upon receiving a response', (done) ->
+      printer.startPolling()
+      receive "ok T: 10 w:3"
+      printer.serialPort.on "test_write", ->
+        onWrite.should.have.been.called.twice()
+        done()
+
+    it 'should not send more then one request per pollingInterval', (done) ->
+      printer.pollingInterval = 1000*60
+      printer.startPolling()
+      printer.on "change", ->
+        onWrite.should.have.been.called.once()
+        done()
+      receive "ok T: 10 w:3"
+
+  describe "events", ->
+    beforeEach receiveStart
+
+    it 'should emit current_temp changes', (done) ->
+      ackGCodes("ok T: 10")
+      printer.on "change", (data) ->
+        data.e0.should.deep.equal current_temp: 10
+        done()
+      printer.sendNow "M105"
+
+    it 'should emit target_temp_countdown and blocking changes on ok', (done) ->
+      printer.sendNow "M109 S220"
+      expected = current_temp: 10, target_temp_countdown: 3000, blocking: false
+      printer.on "change", (data) ->
+        data.e0.should.deep.equal expected
+        done()
+      receive "ok T: 10 w:3"
+
+    it 'should emit a blocking and target_temp change on M109', (done) ->
+      printer.on "change", (data) ->
+        data.e0.should.deep.equal target_temp: 220, blocking: true
+        done()
+      printer.sendNow "M109 S220"
+
+    it 'should emit a blocking change after oking a M109', (done) ->
+      printer.sendNow "M109 S220"
+      printer.on "change", (data) ->
+        data.e0.should.deep.equal  current_temp: 10, blocking: false
+        done()
+      receive "ok T:10"
+
+    it 'should emit errors when a error response is received', (done) ->
+      printer.on "printer_error", (data) ->
+        data.should.equal "ERROR: this is a test"
+        done()
+      receive "ERROR: this is a test"
