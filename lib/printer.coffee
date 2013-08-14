@@ -19,9 +19,10 @@ class Printer extends EventEmitter
     conveyor: { type: 'conveyor', enabled: false }
     fan: { type: 'fan', enabled: false, speed: 255 }
 
-  constructor: (@driver, components = @_defaultComponents) ->
+  constructor: (@driver, settings = {}, components = @_defaultComponents) ->
     @_jobs = []
     @data = {status: 'idle', xy_feedrate: 3000, z_feedrate: 300}
+    Object.merge @data, settings
     @data[k] = Object.clone(@_defaultAttrs[v]) for k, v in components
     @__defineGetter__ "status", @_getStatus
     @driver.on "change", @_updateData
