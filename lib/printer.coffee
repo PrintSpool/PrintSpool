@@ -1,11 +1,13 @@
 EventEmitter = require('events').EventEmitter
 PrintDriver = require("../lib/print_driver.coffee")
+PrintJob = null
 require 'sugar'
 chai = require("chai")
 chai.should()
 
-class Printer extends EventEmitter
+module.exports = class Printer extends EventEmitter
 
+  _nextJobId: 0
   _axes: ['x','y','z','e']
   _defaultComponents:
     e0: 'heater', b: 'heater', c: 'conveyor', f: 'fan'
@@ -19,7 +21,8 @@ class Printer extends EventEmitter
     conveyor: { type: 'conveyor', enabled: false }
     fan: { type: 'fan', enabled: false, speed: 255 }
 
-  constructor: (@driver, settings = {}, components = @_defaultComponents) ->
+  constructor: (@driver, settings = {}, components, @_PrintJob=PrintJob) ->
+    components ?= @_defaultComponents
     @_jobs = []
     @data = {status: 'idle', xy_feedrate: 3000, z_feedrate: 300}
     Object.merge @data, settings
@@ -34,22 +37,57 @@ class Printer extends EventEmitter
     data.status
 
   addJob: (jobAttrs) ->
-    job = new PrintJob(jobAttrs)
+    jobAttrs =
+      id: @_nextJobId++
+      qty: jobAttrs['qty'] || 1
+      gcode: jobAttrs['gcode']
+      position: @_jobs.length
+    job = new @_PrintJob(jobAttrs)
     @_jobs.push job
     @emit "add", "jobs[#{job.id}]", job
 
-  rmJob: (job_id) ->
-    @_jobs.remove( (job) -> job.id == job_id )
-    @emit "remove", "jobs[#{job_id}]"
+  rmJob: (jobAttrs) ->
+    job = @_jobs.find (job) -> job.id == jobAttrs.id
+    throw "job does not exist" unless job?
+    @_jobs.remove(job)
+    @emit "remove", "jobs[#{jobAttrs.id}]"
 
   changeJob: (jobAttrs, whitelistAttrs = true) ->
     if whitelistAttrs
       whitelist = ['id', 'position', 'qty']
       jobAttrs = Object.reject jobAttrs, (k,v) -> whitelist.has(k)
-    job = @_jobs.find( (someJob) someJob.id == jobAttrs.id )
+    # Validations
+    for k, v of jobAttrs
+      continue if @["_validateJob#{k.capitalize()}"](v)
+      throw "Invalid #{k}: #{v}"
+    job = @_jobs.find( (someJob) -> someJob.id == jobAttrs.id )
+    throw "Invalid id: #{jobAttrs.id}" unless job?
+    event  = {}
+    # Reordering the other jobs if position has changed
+    pos = old: job.position, new: (jobAttrs?.position||job.position)
+    @_jobs.filter((j) -> j.id != job.id).each (j) ->
+      originalPosition = j.position
+      j.position += 1 if pos.old > j.position >= pos.new
+      j.position -= 1 if pos.old < j.position <= pos.new
+      return if j.position == originalPosition
+      event["jobs[#{j.id}]"] = position: j.position
+    # Saving the data
     delete jobAttrs['id']
     Object.merge job, jobAttrs
-    @emit "change", "jobs[#{job.id}]": jobAttrs
+    event["jobs[#{job.id}]"] = jobAttrs
+    @emit "change", event
+
+  _validateJobId: (val) ->
+    val >= 0
+
+  _validateJobQty: (val) ->
+    val > 0
+
+  _validateJobPosition: (val) ->
+    val >= 0 and val < @_jobs.length
+
+  getJobs: ->
+    @_jobs
 
   estop: ->
     @driver.reset()
@@ -100,7 +138,8 @@ class Printer extends EventEmitter
 
   _appendChanges: (changes, k, v) ->
     # Fail fast
-    for k2, v2 if typeof(v2) != typeof(@data[k][k2])
+    for k2, v2 in v
+      continue unless typeof(v2) != typeof(@data[k][k2])
       throw "#{k}.#{k2} must be a #{typeof(@data[k][k2])}." if @data[k][k2]?
       throw "#{k}.#{k2} does not exist."
     # Push any modified attributes to the changes
