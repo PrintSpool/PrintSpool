@@ -8,7 +8,6 @@ chai.should()
 module.exports = class Printer extends EventEmitter
 
   _nextJobId: 0
-  _axes: ['x','y','z','e']
   _defaultComponents:
     e0: 'heater', b: 'heater', c: 'conveyor', f: 'fan'
   _defaultAttrs:
@@ -17,6 +16,7 @@ module.exports = class Printer extends EventEmitter
       target_temp: 0
       current_temp: 0
       target_temp_countdown: 0
+      flowrate: 40
       blocking: false
     conveyor: { type: 'conveyor', enabled: false }
     fan: { type: 'fan', enabled: false, speed: 255 }
@@ -24,17 +24,23 @@ module.exports = class Printer extends EventEmitter
   constructor: (@driver, settings = {}, components, @_PrintJob=PrintJob) ->
     components ?= @_defaultComponents
     @_jobs = []
+    # Building the printer data
     @data = {status: 'idle', xy_feedrate: 3000, z_feedrate: 300}
     Object.merge @data, settings
-    @data[k] = Object.clone(@_defaultAttrs[v]) for k, v in components
+    @data[k] = Object.clone(@_defaultAttrs[v]) for k, v of components
+    # Adding the extruders to the axes
+    @_axes = ['x','y','z']
+    (@_axes.push k if k.startsWith 'e') for k, v of components
+    # Adding a status getter
     @__defineGetter__ "status", @_getStatus
+    # Updating data on driver change
     @driver.on "change", @_updateData
 
   _setStatus: (status) ->
     @_updateData status: status
 
   _getStatus: =>
-    data.status
+    @data.status
 
   addJob: (jobAttrs) ->
     jobAttrs =
@@ -91,7 +97,7 @@ module.exports = class Printer extends EventEmitter
 
   estop: ->
     @driver.reset()
-    @_set_status 'estopped'
+    @_setStatus 'estopped'
 
   # set any number of the following printer attributes:
   # - extruder/bed target_temp
@@ -131,19 +137,29 @@ module.exports = class Printer extends EventEmitter
     @driver.sendNow( if fan.enabled then "M106 S#{data.speed}" else "M107" )
 
   _updateData: (new_data) ->
-    changes = new_data.inject _appendChanges, {}
+    # changes = Object.map new_data, @_appendChanges, {}
+    changes = {}
+    @_appendChanges changes, k, v for k, v of new_data
     # apply the changes and emit a change event
     Object.merge @data, changes, true
     @emit "change", changes
 
   _appendChanges: (changes, k, v) ->
-    # Fail fast
-    for k2, v2 in v
-      continue unless typeof(v2) != typeof(@data[k][k2])
-      throw "#{k}.#{k2} must be a #{typeof(@data[k][k2])}." if @data[k][k2]?
-      throw "#{k}.#{k2} does not exist."
-    # Push any modified attributes to the changes
-    (changes[k]?={})[k2] = v2 for k2, v2 in v if @data[k][k2] != v2
+    if typeof(v) == "object"
+      # Fail fast
+      for k2, v2 in v
+        continue unless typeof(v2) != typeof(@data[k][k2])
+        throw "#{k}.#{k2} must be a #{typeof(@data[k][k2])}." if @data[k][k2]?
+        throw "#{k}.#{k2} does not exist."
+      # Push any modified attributes to the changes
+      (changes[k]?={})[k2] = v2 for k2, v2 in v if @data[k][k2] != v2
+
+    # Numbers and Strings
+    else if typeof(v2) != typeof(@data[k][k2])
+      throw "#{k} must be a #{typeof(@data[k])}." if @data[k]?
+      throw "#{k} does not exist."
+    else
+      changes[k] = v
     return changes
 
   print: ->
@@ -158,30 +174,40 @@ module.exports = class Printer extends EventEmitter
 
   move: (axesVals) ->
     # Fail fast
-    @_assert_not_idle 'move'
+    @_assert_idle 'move'
     err = "move must be called with a object of axes/distance key/values."
     axesVals.should.be.a 'object', err
     axesVals = Object.extended(axesVals)
-    @_asert_no_bad_axes 'move', axesVals.reject((k,v) -> @_axes.has(k)).values()
-    # Implementation
-    gcode = "G1 " + axesVals.map( (k, v) -> "#{k.toUpperCase()}#{v}" ).join ' '
-    # Feedrate
-    gcode += " F" + if axesVals.z? then @data.z_feedrate else @data.xy_feedrate
+    axes = Object.keys(axesVals).exclude((k) => @_axes.some(k))
+    @_asert_no_bad_axes 'move', axes
+    # Adding the axes values
+    # gcode = axesVals.reduce ((s, k, v) -> "#{s} #{k.toUpperCase()}#{v}"), 'G1'
+    gcode = 'G1'
+    gcode += " #{k.replace(/e\d/, 'e').toUpperCase()}#{v}" for k, v of axesVals
+    # Calculating and adding the feedrate
+    feedrate = @data["#{if axesVals.z? then 'z' else 'xy'}_feedrate"]
+    extruders = axesVals.keys().filter (k) -> k.startsWith 'e'
+    eFeedrates = extruders.map (k) => @data[k].flowrate
+    feedrate = eFeedrates.reduce ( (f1, f2) -> Math.min f1, f2 ), feedrate
+    gcode = "G1 F#{feedrate}\n#{gcode} F#{feedrate}"
+    if extruders.length > 0
+      gcode = "T#{extruders[0].replace 'e', ''}\n#{gcode}"
+    # Sending the gcode
     @driver.sendNow gcode
 
   home: (axes = ['x', 'y', 'z']) ->
     # Fail fast
-    @_assert_not_idle 'home'
+    @_assert_idle 'home'
     axes.should.be.a 'array', "home must be called with an array of axes."
     @_asert_no_bad_axes 'home', axes.reject((k,v) -> @_axes.has(k))
     # Implementation
     gcode = "G28 " + axes.map( (k) -> "#{k.toUpperCase()}0" )
     @driver.sendNow gcode
 
-  _assert_not_idle: (method_name) -> 
-    @status.should.be 'idle', "Cannot #{method_name} when #{@status}."
+  _assert_idle: (method_name) -> 
+    @status.should.equal 'idle', "Cannot #{method_name} when #{@status}."
 
   _asert_no_bad_axes: (methodName, badAxes) ->
-    s = badAxesVals.join ','
+    s = badAxes.join ','
     err = "#{methodName} must be called with valid axes. #{s} are invalid."
-    badAxesVals.should.be.empty err
+    badAxes.should.have.length 0, err

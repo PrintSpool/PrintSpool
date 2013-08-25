@@ -10,6 +10,9 @@ chai.should()
 class DriverStub extends EventEmitter
   constructor: ->
     # TODO: Stub all the things!
+    ['reset', 'sendNow'].each (key) =>
+      @[key] = chai.spy (a,b) -> @emit("test_#{key}", a, b)
+
 
 class PrintJobStub extends EventEmitter
   constructor: (attrs) ->
@@ -21,7 +24,8 @@ describe 'Printer', ->
 
   beforeEach ->
     driver  = new DriverStub()
-    printer = new Printer driver, {}, {}, PrintJobStub
+    comps = e0: 'heater', e1: 'heater', b: 'heater', c: 'conveyor', f: 'fan'
+    printer = new Printer driver, {}, comps, PrintJobStub
 
   describe 'addJob', ->
 
@@ -102,12 +106,52 @@ describe 'Printer', ->
       fn.should.throw()
 
   describe 'estop', ->
+    it 'should reset the printer', ->
+      printer.estop()
+      driver.reset.should.be.called.once()
+
+    it 'should set the status to estopped', (done) ->
+      printer.on 'change', (data) ->
+        data.status.should.equal 'estopped'
+        done()
+      printer.estop()
+
+    it 'should error on other commands once estopped', ->
+      printer.estop()
+      printer.move.bind(x: 10).should.throw()
 
   describe 'set', ->
+
 
   describe 'print', ->
 
   describe 'move', ->
+    it 'should move the printer at z_feedrate on z', (done) ->
+      driver.on 'test_sendNow', (gcode) ->
+        gcode.should.equal 'G1 F300\nG1 X10 Y20 Z5 F300'
+        done()
+      printer.move(x: 10, y:20, z: 5)
+
+    it 'should move the printer at x_feedrate on xy', (done) ->
+      driver.on 'test_sendNow', (gcode) ->
+        gcode.should.equal 'G1 F3000\nG1 X10 Y20 F3000'
+        done()
+      printer.move(x: 10, y:20)
+
+    it 'should not move the printer on bad axes', ->
+      printer.move.bind(e7: 10).should.throw()
+
+    it 'should move the printer at the correct flowrate on e0', (done) ->
+      driver.on 'test_sendNow', (gcode) ->
+        gcode.should.equal 'T0\nG1 F40\nG1 E10 F40'
+        done()
+      printer.move e0: 10
+
+    it 'should move the printer at the correct flowrate on e1', (done) ->
+      driver.on 'test_sendNow', (gcode) ->
+        gcode.should.equal 'T1\nG1 F40\nG1 E10 F40'
+        done()
+      printer.move e1: 10
 
   describe 'home', ->
 
