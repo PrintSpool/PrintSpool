@@ -10,7 +10,7 @@ chai.should()
 class DriverStub extends EventEmitter
   constructor: ->
     # TODO: Stub all the things!
-    ['reset', 'sendNow'].each (key) =>
+    ['reset', 'sendNow', 'print'].each (key) =>
       @[key] = chai.spy (a,b) -> @emit("test_#{key}", a, b)
 
 
@@ -24,8 +24,17 @@ describe 'Printer', ->
 
   beforeEach ->
     driver  = new DriverStub()
+    initPrinter()
+
+  initPrinter = (opts={}) ->
     comps = e0: 'heater', e1: 'heater', b: 'heater', c: 'conveyor', f: 'fan'
-    printer = new Printer driver, {}, comps, PrintJobStub
+    printer = new Printer driver, opts, comps, PrintJobStub
+
+  addJob = (done) ->
+    driver.emit "change", status: "idle"
+    printer.on 'add', (key, @job) -> done()
+    printer.addJob gcode: 'G1 F300\nG1 X10 Y20 Z5 F300'
+
 
   describe 'addJob', ->
 
@@ -120,10 +129,42 @@ describe 'Printer', ->
       printer.estop()
       printer.move.bind(x: 10).should.throw()
 
-  describe 'set', ->
-
-
   describe 'print', ->
+    beforeEach addJob
+
+    it 'should print if the printer is idle', (done) ->
+      driver.on 'test_print', (gcode) ->
+        gcode.should.equal 'G1 F300\nG1 X10 Y20 Z5 F300'
+        done()
+      printer.print()
+
+    it 'should change the printer\'s status to printing', (done) ->
+      printer.on 'change', (data) ->
+        data.status.should.equal 'printing'
+        done()
+      printer.print()
+
+    it 'should change the job\'s status to printing', (done) ->
+      printer.on 'change', (data) ->
+        data['jobs[0]'].status.should.equal 'printing'
+        done()
+      printer.print()
+
+    it 'should change the printer\'s status to idle after the print', (done) ->
+      printer.print()
+      printer.on 'change', (data) ->
+        data.status.should.equal 'idle'
+        printer.status.should.equal 'idle'
+        done()
+      driver.emit "print_complete", @job
+
+    it 'should print continuously if pause_between_prints is false', (done) ->
+      printer.print()
+      printer.set pause_between_prints: false
+      printer.on 'change', (data) ->
+        printer.status.should.equal 'printing'
+        done()
+      driver.emit "print_complete", @job
 
   describe 'move', ->
     it 'should move the printer at z_feedrate on z', (done) ->
@@ -154,4 +195,31 @@ describe 'Printer', ->
       printer.move e1: 10
 
   describe 'home', ->
+    beforeEach addJob
+
+    it 'should home the printer if it\'s idle', (done) ->
+      driver.on 'test_sendNow', (gcode) ->
+        gcode.should.equal 'G28 X Y Z'
+        done()
+      printer.home()
+
+    it 'should home only the axes specified', (done) ->
+      driver.on 'test_sendNow', (gcode) ->
+        gcode.should.equal 'G28 X Y'
+        done()
+      printer.home(['x', 'y'])
+
+    it 'should not home if the printer isn\'t idle', ->
+      printer.print()
+      printer.home.should.throw()
+
+    it 'should throw an error if a invalid axis is given', ->
+      printer.home.bind(printer, ['k']).should.throw()
+
+  describe 'set', ->
+    it 'should set a property on the printer'
+
+    it 'shound not set a property if it doesn\'t exist'
+
+    it 'should not change the type of a property'
 

@@ -25,7 +25,11 @@ module.exports = class Printer extends EventEmitter
     components ?= @_defaultComponents
     @_jobs = []
     # Building the printer data
-    @data = {status: 'idle', xy_feedrate: 3000, z_feedrate: 300}
+    @data =
+      status: 'idle'
+      xy_feedrate: 3000
+      z_feedrate: 300
+      pause_between_prints: true
     Object.merge @data, settings
     @data[k] = Object.clone(@_defaultAttrs[v]) for k, v of components
     # Adding the extruders to the axes
@@ -35,6 +39,7 @@ module.exports = class Printer extends EventEmitter
     @__defineGetter__ "status", @_getStatus
     # Updating data on driver change
     @driver.on "change", @_updateData
+    @driver.on "print_complete", @_onPrintComplete
 
   _setStatus: (status) ->
     @_updateData status: status
@@ -58,14 +63,14 @@ module.exports = class Printer extends EventEmitter
     @_jobs.remove(job)
     @emit "remove", "jobs[#{jobAttrs.id}]"
 
-  changeJob: (jobAttrs, whitelistAttrs = true) ->
-    if whitelistAttrs
+  changeJob: (jobAttrs, validate = true, emit = true) ->
+    if validate
       whitelist = ['id', 'position', 'qty']
       jobAttrs = Object.reject jobAttrs, (k,v) -> whitelist.has(k)
-    # Validations
-    for k, v of jobAttrs
-      continue if @["_validateJob#{k.capitalize()}"](v)
-      throw "Invalid #{k}: #{v}"
+      # Validations
+      for k, v of jobAttrs
+        continue if @["_validateJob#{k.capitalize()}"](v)
+        throw "Invalid #{k}: #{v}"
     job = @_jobs.find( (someJob) -> someJob.id == jobAttrs.id )
     throw "Invalid id: #{jobAttrs.id}" unless job?
     event  = {}
@@ -81,7 +86,8 @@ module.exports = class Printer extends EventEmitter
     delete jobAttrs['id']
     Object.merge job, jobAttrs
     event["jobs[#{job.id}]"] = jobAttrs
-    @emit "change", event
+    @emit "change", event if emit
+    return event
 
   _validateJobId: (val) ->
     val >= 0
@@ -106,17 +112,19 @@ module.exports = class Printer extends EventEmitter
   # - conveyor enabled
   set: (diff) ->
     # Fail fast (part 1)
-    diff.should.be.a 'object', 'set must be called with an object of changes.'
-    diff.should.not.include 'status', 'cannot set status directly.'
+    Object.isObject(diff).should.equal true, 'set must be called with an object of changes.'
+    (diff.status?).should.equal false, 'cannot set status directly.'
     # Setup
     diff = Object.extended(diff)
-    temps = diff.map (k, v) -> ( [k, v.target_temp] if v.target_temp ).compact()
-    conveyors = diff.filter (k, v) -> v.type == 'conveyor'
-    fans = diff.filter (k, v) -> v.type == 'fan'
+    temps = for k, v of diff
+      [k, v.target_temp] if v.target_temp
+    temps = temps.compact()
+    conveyors = Object.findAll diff, (k, v) -> v.type == 'conveyor'
+    fans = Object.findAll diff, (k, v) -> v.type == 'fan'
     # Fail fast (part 2)
     if @status == 'printing'
-      temps.should.be.empty     'cannot set temperature while printing.'
-      conveyors.should.be.empty 'cannot set conveyor while printing.'
+      throw 'cannot set temperature while printing.' if temps?.length > 0
+      throw 'cannot set conveyor while printing.' if conveyors?.length > 0
     @_updateData(diff)
     # Send gcodes to the print driver to update the printer
     @driver.sendNow("#{_tempGCode(t[0])} S#{t[1]}") for t in temps
@@ -136,7 +144,7 @@ module.exports = class Printer extends EventEmitter
     return unless fan.enabled or diff.enabled? # (enabled or en. changed)
     @driver.sendNow( if fan.enabled then "M106 S#{data.speed}" else "M107" )
 
-  _updateData: (new_data) ->
+  _updateData: (new_data) =>
     # changes = Object.map new_data, @_appendChanges, {}
     changes = {}
     @_appendChanges changes, k, v for k, v of new_data
@@ -162,15 +170,26 @@ module.exports = class Printer extends EventEmitter
       changes[k] = v
     return changes
 
-  print: ->
+  print: =>
     # Fail fast
     throw "Already printing." if @status == 'printing'
-    @_assert_not_idle 'print'
+    @_assert_idle 'print'
     # Implementation
     job = @_jobs[0]
-    @driver.print job
-    @_setStatus 'printing'
-    @changeJob id: job.id, status: 'printing', false
+    @driver.print job.gcode
+    changes = @changeJob id: job.id, status: 'printing', false, false
+    changes['status'] = 'printing'
+    @data.status = 'printing'
+    @emit 'change', changes
+
+  _onPrintComplete: =>
+    job = @_jobs[0]
+    changes = @changeJob id: job.id, status: 'done', false, false
+    if @data.pause_between_prints
+      changes['status'] = 'idle'
+      @data.status = 'idle'
+    @_jobs.shift()
+    @emit 'change', changes
 
   move: (axesVals) ->
     # Fail fast
@@ -199,9 +218,9 @@ module.exports = class Printer extends EventEmitter
     # Fail fast
     @_assert_idle 'home'
     axes.should.be.a 'array', "home must be called with an array of axes."
-    @_asert_no_bad_axes 'home', axes.reject((k,v) -> @_axes.has(k))
+    @_asert_no_bad_axes 'home', axes.exclude((k,v) => @_axes.indexOf(k) > -1)
     # Implementation
-    gcode = "G28 " + axes.map( (k) -> "#{k.toUpperCase()}0" )
+    gcode = "G28 #{axes.join(' ').toUpperCase()}"
     @driver.sendNow gcode
 
   _assert_idle: (method_name) -> 
