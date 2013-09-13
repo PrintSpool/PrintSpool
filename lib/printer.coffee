@@ -1,5 +1,5 @@
 EventEmitter = require('events').EventEmitter
-PrintDriver = require("../lib/print_driver.coffee")
+PrintDriver = require("../lib/print_driver")
 PrintJob = null
 require 'sugar'
 chai = require("chai")

@@ -11,6 +11,7 @@ module.exports = class PrintDriver extends EventEmitter
 
   # Starts polling to watch for new serial ports
   @listen: ->
+    console.log "listen"
     setTimeout(@_poll, 0)
     @_pollInterval = setInterval(@_poll, 1000)
 
@@ -22,13 +23,14 @@ module.exports = class PrintDriver extends EventEmitter
     serialport.list (err, ports) => @_update ports.findAll(@_filter)
 
   @_filter: (p) =>
-    p.comName.has(@_whiteList) and !p.comName.has(@_blackList)
+    p.comName.has(@_whiteList) and !(p.comName.has @_blackList)
 
-  @_update: (ports) =>
-    for p in ports.union(@_ports)
-      @emit("connect", p) if @_ports.none(p)
-      @emit("disconnect", p) if ports.none(p)
-    @_ports = ports
+  @_update: (newPorts) =>
+    previousPorts = @_ports
+    @_ports = newPorts
+    for p in newPorts.union(previousPorts)
+      @emit("connect", p) if previousPorts.none(p)
+      @emit("disconnect", p) if newPorts.none(p)
 
   _defaultOpts: {port: null, baudrate: 115200, polling: true}
   _greetings: /^(start|grbl |ok|.*t:)/
