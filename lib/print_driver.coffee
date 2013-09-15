@@ -11,7 +11,7 @@ module.exports = class PrintDriver extends EventEmitter
 
   # Starts polling to watch for new serial ports
   @listen: ->
-    console.log "listen"
+    # console.log "listen"
     setTimeout(@_poll, 0)
     @_pollInterval = setInterval(@_poll, 1000)
 
@@ -53,12 +53,19 @@ module.exports = class PrintDriver extends EventEmitter
 
   constructor: (opts = {}, SP = SerialPort) ->
     opts = Object.merge @_defaultOpts, opts
+    @verbose ||= opts.verbose
+    @_comName = opts.port.comName
     @serialPort = new SP opts.port.comName,
       baudrate: opts.baudrate
       parser: serialport.parsers.readline("\n")
     .on("data", @_onData)
     .on("open", @_onOpen)
     @startPolling() if @polling = opts.polling
+    PrintDriver.on 'disconnect', @_onSerialDisconnect
+
+  _onSerialDisconnect: (p) =>
+    @emit 'disconnect' if p.comName == @_comName
+    @kill()
 
   startPolling: ->
     @on "change", @_receivePollResponse
@@ -72,7 +79,7 @@ module.exports = class PrintDriver extends EventEmitter
   _receivePollResponse: (data) =>
     return if !@_lastPoll? or Object.values(data).none (d) -> d.current_temp?
     return if @_blockers.length > 0
-    nextPollTime = Math.min 0, @_lastPoll + @pollingInterval - Date.now()
+    nextPollTime = Math.max 0, @_lastPoll + @pollingInterval - Date.now()
     @_lastPoll = null
     # Requesting a temperature update from the printer in nextPollTime ms
     @_pollingTimeout = setTimeout @_poll, nextPollTime
@@ -105,6 +112,7 @@ module.exports = class PrintDriver extends EventEmitter
 
   kill: ->
     clearTimeout @_pollingTimeout if @_pollingTimeout?
+    PrintDriver.removeListener 'disconnect', @_onSerialDisconnect
     @removeAllListeners()
     @serialPort.close()
     @serialPort.removeAllListeners()
@@ -146,11 +154,14 @@ module.exports = class PrintDriver extends EventEmitter
     data = {}
     # Parsing temperatures
     if l.has "t:"
-      l = l.replace("t:", "e0:").replace(/:[\s\t]*/, ':')
+      # Filtering out non-temperature values
+      temps = l.remove(/(\/|@:)[0-9\.]*|ok/g)
+      # Normalizing the input
+      temps = temps.replace("t:", "e0:").replace(/:[\s\t]*/g, ':')
       # Adds a temperature to a object of { KEY: {current_temp: VALUE}, ... }
       addToHash = (h, t) -> h[t[0]] = {current_temp: parseFloat(t[1])}; h
       # Construct that obj containing key-mapped current temps
-      data = l.words()[1..].map((s)->s.split(":")).reduce addToHash, {}
+      data = temps.words().map((s)->s.split(":")).reduce addToHash, {}
     # Parsing "w" temperature countdown values
     # see: http://git.io/FEACGw or google "TEMP_RESIDENCY_TIME"
     w = data.w?.current_temp
@@ -163,6 +174,7 @@ module.exports = class PrintDriver extends EventEmitter
       (data[k] ?= {}).blocking = false for k in @_blockers
       @_blockers = []
     # Fire the current temperature and target temp countdown changes
+    # console.log data
     @emit("change", data) if data?
     @emit("printer_error", originalLine) if l.startsWith('error')
 

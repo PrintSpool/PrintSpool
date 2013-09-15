@@ -217,7 +217,9 @@ describe 'Printer', ->
       printer.home.bind(printer, ['k']).should.throw()
 
   describe 'set', ->
-    it 'should set a property on the printer'
+    it 'should set a non-nested property on the printer'
+
+    it 'should set a nested property on the printer'
 
     it 'shound not set a property if it doesn\'t exist'
 
