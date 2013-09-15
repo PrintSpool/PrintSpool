@@ -56,7 +56,7 @@ module.exports = class App
       path: "/printers/#{slug}/socket"
       port: port
     @printer_servers.push new PrinterServer opts
-    console.log "#{opts.name} Connected"
+    console.log "#{opts.name}: Connected"
 
   _onPrinterDisconnect: (port) =>
     @printer_servers.remove (p) -> p.port == port

@@ -13,7 +13,6 @@ module.exports = class PrinterServer
       protocolVersion: 8
 
     @wss.on "connection", @onClientConnect
-    @wss.on "close", @onClientDisconnect
 
     @ad = mdns.createAdvertisement "_construct._tcp", 2540,
       name: opts.slug
@@ -27,11 +26,12 @@ module.exports = class PrinterServer
 
   onClientConnect: (ws) =>
     ws.on 'message', @onClientMessage.fill(ws)
+    ws.on "close", @onClientDisconnect
     ws.send JSON.stringify [{type: 'initialized', data: @printer.data}]
-    console.log "client attached"
+    console.log "#{@name}: Client Attached"
 
   onClientDisconnect: (ws) =>
-    console.log "client detached"
+    console.log "#{@name}: Client Detached"
 
   onClientMessage: (ws, msgText, flags) =>
     try
@@ -59,4 +59,4 @@ module.exports = class PrinterServer
     @wss.close()
     @wss.removeAllListeners()
     @ad.stop()
-    console.log "#{@name} Disconnected"
+    console.log "#{@name}: Disconnected"
