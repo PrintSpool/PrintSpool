@@ -176,6 +176,8 @@ module.exports = class Printer extends EventEmitter
     # Fail fast
     throw "Already printing." if @status == 'printing'
     @_assert_idle 'print'
+    m = "There are no print jobs in the queue. Please add a job before printing"
+    throw m if @_jobs.length == 0
     # Implementation
     job = @_jobs[0]
     @driver.print job.gcode
