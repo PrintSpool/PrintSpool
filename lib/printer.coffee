@@ -128,7 +128,7 @@ module.exports = class Printer extends EventEmitter
       throw 'cannot set conveyor while printing.' if conveyors?.length > 0
     @_updateData(diff)
     # Send gcodes to the print driver to update the printer
-    @driver.sendNow("#{_tempGCode(t[0])} S#{t[1]}") for t in temps
+    @driver.sendNow("#{@_tempGCode(t[0])} S#{t[1]}") for t in temps
     @_updateConveyor k, @data[k], v for k, v of conveyors
     @_updateFan      k, @data[k], v for k, v of fans
 
@@ -197,7 +197,8 @@ module.exports = class Printer extends EventEmitter
     # Fail fast
     @_assert_idle 'move'
     err = "move must be called with a object of axes/distance key/values."
-    axesVals.should.be.a 'object', err
+    console.log axesVals
+    throw err unless typeof(axesVals) == 'object' and axesVals?
     axesVals = Object.extended(axesVals)
     axes = Object.keys(axesVals).exclude((k) => @_axes.some(k))
     @_asert_no_bad_axes 'move', axes

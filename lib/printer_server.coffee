@@ -22,13 +22,27 @@ module.exports = class PrinterServer
     @printer.driver.on "disconnect", @onPrinterDisconnect
 
   onClientConnect: (ws) =>
+    ws.on 'message', @onClientMessage.fill(ws)
     console.log "wutttt"
-    ws.send JSON.stringify([{type: 'initialized', data: @printer.data}])
+    ws.send JSON.stringify [{type: 'initialized', data: @printer.data}]
     console.log "started client interval"
 
   onClientDisconnect: (ws) =>
     console.log "boo"
     console.log "stopping client interval"
+
+  onClientMessage: (ws, msgText, flags) =>
+    try
+      msg = JSON.parse msgText
+      response = @printer[msg.action.camelize(false)](msg.data)
+      response = jobs: response if msg.action == 'get_jobs'
+      ws.send JSON.stringify [type: 'ack', data: response||{}]
+    catch e
+      console.log e.stack
+      data = type: 'runtime.sync', message: e.toString()
+      ws.send JSON.stringify [type: 'error', data: data]
+    console.log "client message:"
+    console.log msg
 
   onPrinterDisconnect: =>
     @printer.removeAllListeners()
