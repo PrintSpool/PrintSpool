@@ -20,16 +20,18 @@ module.exports = class PrinterServer
       txtRecord: {txtvers:'1'}
     @ad.start()
     @printer.driver.on "disconnect", @onPrinterDisconnect
+    @printer.on "change", @onPrinterChange
+
+  broadcast: (data) =>
+    client.send(data) for client in @wss.clients
 
   onClientConnect: (ws) =>
     ws.on 'message', @onClientMessage.fill(ws)
-    console.log "wutttt"
     ws.send JSON.stringify [{type: 'initialized', data: @printer.data}]
-    console.log "started client interval"
+    console.log "client attached"
 
   onClientDisconnect: (ws) =>
-    console.log "boo"
-    console.log "stopping client interval"
+    console.log "client detached"
 
   onClientMessage: (ws, msgText, flags) =>
     try
@@ -41,8 +43,16 @@ module.exports = class PrinterServer
       console.log e.stack
       data = type: 'runtime.sync', message: e.toString()
       ws.send JSON.stringify [type: 'error', data: data]
-    console.log "client message:"
-    console.log msg
+    # console.log "client message:"
+    # console.log msg
+
+  onPrinterChange: (changes) =>
+    # console.log "printer change:"
+    # console.log changes
+    output = []
+    for k, v of changes
+      output.push type: 'change', target: k, data: v
+    @broadcast JSON.stringify output
 
   onPrinterDisconnect: =>
     @printer.removeAllListeners()

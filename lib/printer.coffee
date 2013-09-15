@@ -151,7 +151,7 @@ module.exports = class Printer extends EventEmitter
     @_appendChanges changes, k, v for k, v of new_data
     # apply the changes and emit a change event
     Object.merge @data, changes, true
-    @emit "change", changes
+    @emit "change", changes if Object.keys(changes).length > 0
 
   _appendChanges: (changes, k, v) ->
     # Objects
