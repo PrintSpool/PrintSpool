@@ -21,6 +21,8 @@ module.exports = class PrinterServer
     @ad.start()
     @printer.driver.on "disconnect", @onPrinterDisconnect
     @printer.on "change", @onPrinterChange
+    @printer.on "add", @onPrinterAdd
+    @printer.on "rm", @onPrinterRm
     @app.post "#{opts.path}/jobs", @createJob
 
   createJob: (req, res) =>
@@ -76,6 +78,12 @@ module.exports = class PrinterServer
     for k, v of changes
       output.push type: 'change', target: k, data: v
     @broadcast JSON.stringify output
+
+  onPrinterAdd: (target, value) =>
+    @broadcast JSON.stringify [type: 'add', target: target, data: value]
+
+  onPrinterRm: (target) =>
+    @broadcast JSON.stringify [type: 'rm', target: target]
 
   onPrinterDisconnect: =>
     @printer.removeAllListeners()

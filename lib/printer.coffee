@@ -48,6 +48,14 @@ module.exports = class Printer extends EventEmitter
   _getStatus: =>
     @data.status
 
+  _whitelistJob: (job) =>
+    whitelist = ['id', 'position', 'qty', 'status']
+    output = Object.select job, whitelist
+    output.file_name = job.name
+    output.total_lines = job.totalLines
+    output.current_line = job.currentLine
+    output
+
   addJob: (jobAttrs) ->
     jobAttrs =
       id: @_nextJobId++
@@ -57,7 +65,7 @@ module.exports = class Printer extends EventEmitter
       position: @_jobs.length
     job = new @_PrintJob(jobAttrs)
     @_jobs.push job
-    @emit "add", "jobs[#{job.id}]", job
+    @emit "add", "jobs[#{job.id}]", @_whitelistJob job
 
   rmJob: (jobAttrs) ->
     job = @_jobs.find (job) -> job.id == jobAttrs.id
@@ -103,7 +111,7 @@ module.exports = class Printer extends EventEmitter
     val >= 0 and val < @_jobs.length
 
   getJobs: =>
-    jobs = @_jobs.map (job) -> Object.select job, ['id', 'position', 'qty']
+    jobs = @_jobs.map (job) => @_whitelistJob job
     jobs.sortBy 'position'
 
   estop: ->
@@ -184,8 +192,13 @@ module.exports = class Printer extends EventEmitter
     throw m if @_jobs.length == 0
     # Implementation
     job = @_jobs[0]
-    job.loadGCode (err, gcode) => @driver.print gcode
+    job.loadGCode @_onReadyToPrint.fill(job)
+
+  _onReadyToPrint: (job, err, gcode) =>
+    @driver.print gcode
     changes = @changeJob id: job.id, status: 'printing', false, false
+    for k in ['total_lines', 'current_line']
+      changes["jobs[#{job.id}]"][k] = job[k.camelize(false)]
     changes['status'] = 'printing'
     @data.status = 'printing'
     @emit 'change', changes
