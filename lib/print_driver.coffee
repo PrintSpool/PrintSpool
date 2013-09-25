@@ -152,10 +152,11 @@ module.exports = class PrintDriver extends EventEmitter
   # current_temp, target_temp_countown and blocking changes
   _emitReceiveEvents: (l, originalLine) ->
     data = {}
+    console.log l
     # Parsing temperatures
     if l.has "t:"
       # Filtering out non-temperature values
-      temps = l.remove(/(\/|@:)[0-9\.]*|ok/g)
+      temps = l.remove(/(\/|@:|e:)[0-9\.]*|ok/g)
       # Normalizing the input
       temps = temps.replace("t:", "e0:").replace(/:[\s\t]*/g, ':')
       # Adds a temperature to a object of { KEY: {current_temp: VALUE}, ... }
@@ -209,10 +210,12 @@ module.exports = class PrintDriver extends EventEmitter
     else if @isPrinting() and !@_isComplete()
       line = @_printJob[@_printJobLine]
       @_printJobLine++
+      printJobLine = true
     else
       return
     @_send(line, @_nextLineNumber)
     @_emitSendEvents(line)
+    @emit "print_job_line_sent" if printJobLine?
 
   _send: (line, lineNumber) ->
     @_previousLine = line
