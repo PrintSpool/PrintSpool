@@ -3,13 +3,14 @@ http = require("http")
 express = require("express")
 print_driver = require("./print_driver")
 mdns = require('mdns2')
+formidable = require('formidable')
 
 module.exports = class PrinterServer
   constructor: (opts) ->
     @[k] = opts[k] for k,v of opts
     @wss = new WebSocketServer
       server: opts.server
-      path: opts.path
+      path: "#{opts.path}/socket"
       protocolVersion: 8
 
     @wss.on "connection", @onClientConnect
@@ -20,6 +21,28 @@ module.exports = class PrinterServer
     @ad.start()
     @printer.driver.on "disconnect", @onPrinterDisconnect
     @printer.on "change", @onPrinterChange
+    @app.post "#{opts.path}/jobs", @createJob
+
+  createJob: (req, res) =>
+    form = new formidable.IncomingForm()
+    form.on 'error', (e) -> console.log (e)
+    form.on 'progress', @_onJobProgress
+    form.parse req, @_onJobParsed.fill(res)
+
+  _onJobProgress: (bytesReceived, bytesExpected) =>
+    msg =
+      type: 'change'
+      target: 'job_upload_progress'
+      data: { uploaded: bytesReceived, total: bytesExpected }
+    @broadcast JSON.stringify [msg]
+
+  _onJobParsed: (res, err, fields, files) =>
+    return console.log err if err?
+    @printer.addJob
+      gcode: files.job.path
+      qty: (fields.qty || 1)
+      name: files.job.name
+    res.end()
 
   broadcast: (data) =>
     client.send(data) for client in @wss.clients

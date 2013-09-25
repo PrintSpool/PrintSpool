@@ -53,6 +53,7 @@ module.exports = class Printer extends EventEmitter
       id: @_nextJobId++
       qty: jobAttrs['qty'] || 1
       gcode: jobAttrs['gcode']
+      name: jobAttrs['name']
       position: @_jobs.length
     job = new @_PrintJob(jobAttrs)
     @_jobs.push job
@@ -76,17 +77,19 @@ module.exports = class Printer extends EventEmitter
     throw "Invalid id: #{jobAttrs.id}" unless job?
     event  = {}
     # Reordering the other jobs if position has changed
-    pos = old: job.position, new: (jobAttrs?.position||job.position)
+    pos = old: job.position, new: (jobAttrs?.position)
+    pos.new ?= job.position
     @_jobs.filter((j) -> j.id != job.id).each (j) ->
       originalPosition = j.position
       j.position += 1 if pos.old > j.position >= pos.new
-      j.position -= 1 if pos.old < j.position <= pos.new
+      j.position -= 1 if pos.old < j.position < pos.new
       return if j.position == originalPosition
       event["jobs[#{j.id}]"] = position: j.position
     # Saving the data
     delete jobAttrs['id']
     Object.merge job, jobAttrs
     event["jobs[#{job.id}]"] = jobAttrs
+    # console.log @_jobs
     @emit "change", event if emit
     return event
 
@@ -100,7 +103,8 @@ module.exports = class Printer extends EventEmitter
     val >= 0 and val < @_jobs.length
 
   getJobs: =>
-    @_jobs.map (job) -> Object.select job, ['id', 'position', 'qty']
+    jobs = @_jobs.map (job) -> Object.select job, ['id', 'position', 'qty']
+    jobs.sortBy 'position'
 
   estop: ->
     @driver.reset()
@@ -180,7 +184,7 @@ module.exports = class Printer extends EventEmitter
     throw m if @_jobs.length == 0
     # Implementation
     job = @_jobs[0]
-    @driver.print job.gcode
+    job.loadGCode (err, gcode) => @driver.print gcode
     changes = @changeJob id: job.id, status: 'printing', false, false
     changes['status'] = 'printing'
     @data.status = 'printing'
@@ -199,7 +203,7 @@ module.exports = class Printer extends EventEmitter
     # Fail fast
     @_assert_idle 'move'
     err = "move must be called with a object of axes/distance key/values."
-    console.log axesVals
+    # console.log axesVals
     throw err unless typeof(axesVals) == 'object' and axesVals?
     axesVals = Object.extended(axesVals)
     axes = Object.keys(axesVals).exclude((k) => @_axes.some(k))

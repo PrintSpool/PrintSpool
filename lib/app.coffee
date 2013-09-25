@@ -48,12 +48,13 @@ module.exports = class App
     # setting up the server
     slug = config.name?.underscore?() || port.serialNumber
     opts =
+      app: @app
       printer: printer
       server: @server
       serialNumber: port.serialNumber
       name: config.name || "Printer ##{port.serialNumber}"
       slug: slug
-      path: "/printers/#{slug}/socket"
+      path: "/printers/#{slug}"
       port: port
     @printer_servers.push new PrinterServer opts
     console.log "#{opts.name}: Connected"

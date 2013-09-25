@@ -6,6 +6,7 @@
   , "dependencies": {
       "coffee-script": "1.6.3"
     , "express": "3.x"
+    , "formidable": "*"
     , "sugar": "*"
     , "fs-extra": "*"
     , "js-yaml": "*"
