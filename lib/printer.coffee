@@ -1,6 +1,6 @@
 EventEmitter = require('events').EventEmitter
-PrintDriver = require("../lib/print_driver")
-PrintJob = null
+PrintDriver = require("./print_driver")
+PrintJob = require("./print_job")
 require 'sugar'
 chai = require("chai")
 chai.should()
@@ -30,6 +30,7 @@ module.exports = class Printer extends EventEmitter
       xy_feedrate: 3000
       z_feedrate: 300
       pause_between_prints: true
+    @data.__defineGetter__ "jobs", @getJobs
     Object.merge @data, settings
     @data[k] = Object.clone(@_defaultAttrs[v]) for k, v of components
     # Adding the extruders to the axes
@@ -98,8 +99,8 @@ module.exports = class Printer extends EventEmitter
   _validateJobPosition: (val) ->
     val >= 0 and val < @_jobs.length
 
-  getJobs: ->
-    @_jobs
+  getJobs: =>
+    @_jobs.map (job) -> Object.select job, ['id', 'position', 'qty']
 
   estop: ->
     @driver.reset()
@@ -153,19 +154,20 @@ module.exports = class Printer extends EventEmitter
     @emit "change", changes
 
   _appendChanges: (changes, k, v) ->
+    # Objects
     if typeof(v) == "object"
       # Fail fast
-      for k2, v2 in v
+      for k2, v2 of v
         continue unless typeof(v2) != typeof(@data[k][k2])
         throw "#{k}.#{k2} must be a #{typeof(@data[k][k2])}." if @data[k][k2]?
         throw "#{k}.#{k2} does not exist."
       # Push any modified attributes to the changes
-      (changes[k]?={})[k2] = v2 for k2, v2 in v if @data[k][k2] != v2
-
-    # Numbers and Strings
+      (changes[k]?={})[k2] = v2 for k2, v2 of v if @data[k][k2] != v2
+    # Erroneous Data
     else if typeof(v2) != typeof(@data[k][k2])
       throw "#{k} must be a #{typeof(@data[k])}." if @data[k]?
       throw "#{k} does not exist."
+    # Numbers and Strings
     else
       changes[k] = v
     return changes

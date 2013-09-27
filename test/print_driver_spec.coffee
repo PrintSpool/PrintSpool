@@ -181,6 +181,12 @@ describe 'PrintDriver', ->
         done()
       printer.sendNow "M105"
 
+    it 'should filter out non-temperature values from current_temps', (done) ->
+      printer.on "change", (data) ->
+        Object.keys(data).should.deep.equal ['e0', 'b']
+        done()
+      receive 'ok T:95.7 /0.0 B:0.0 /0.0 @:0'
+
     it 'should emit target_temp_countdown and blocking changes on ok', (done) ->
       printer.sendNow "M109 S220"
       expected = current_temp: 10, target_temp_countdown: 3000, blocking: false
