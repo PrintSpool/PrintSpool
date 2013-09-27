@@ -152,7 +152,7 @@ module.exports = class PrintDriver extends EventEmitter
   # current_temp, target_temp_countown and blocking changes
   _emitReceiveEvents: (l, originalLine) ->
     data = {}
-    console.log l
+    # console.log l
     # Parsing temperatures
     if l.has "t:"
       # Filtering out non-temperature values

@@ -172,6 +172,7 @@ describe 'Printer', ->
       printer.print()
       printer.set pause_between_prints: false
       printer.on 'change', (data) ->
+        return unless data['jobs[0]'].status == 'done'
         printer.status.should.equal 'printing'
         done()
       driver.emit "print_complete", @job
