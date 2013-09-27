@@ -48,6 +48,7 @@ module.exports = class App
     # setting up the server
     slug = config.name?.underscore?() || port.serialNumber
     opts =
+      app: @app
       printer: printer
       server: @server
       serialNumber: port.serialNumber

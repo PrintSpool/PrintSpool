@@ -13,10 +13,12 @@ class DriverStub extends EventEmitter
     ['reset', 'sendNow', 'print'].each (key) =>
       @[key] = chai.spy (a,b) -> @emit("test_#{key}", a, b)
 
-
 class PrintJobStub extends EventEmitter
   constructor: (attrs) ->
     @[k] = v for k, v of attrs
+
+  loadGCode: (cb) =>
+    cb null, @gcode
 
 describe 'Printer', ->
   driver = null
@@ -99,6 +101,14 @@ describe 'Printer', ->
         done()
       printer.addJob {} for i in [0..3]
       printer.changeJob id: 2, position: 1
+
+    it 'should move a job to position 0 and move all jobs down',(done) ->
+      printer.on 'change', (data) ->
+        data['jobs[1]'].position.should.equal 0
+        data['jobs[0]'].position.should.equal 1
+        done()
+      printer.addJob {} for i in [0..1]
+      printer.changeJob id: 1, position: 0
 
     it 'should error if a invalid job id is given', ->
       fn = printer.changeJob.bind(printer, id: 12, qty: 5, position: 0)

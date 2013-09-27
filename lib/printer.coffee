@@ -40,6 +40,7 @@ module.exports = class Printer extends EventEmitter
     @__defineGetter__ "status", @_getStatus
     # Updating data on driver change
     @driver.on "change", @_updateData
+    @driver.on "print_job_line_sent", @_onPrintJobLineSent
     @driver.on "print_complete", @_onPrintComplete
 
   _setStatus: (status) ->
@@ -48,20 +49,33 @@ module.exports = class Printer extends EventEmitter
   _getStatus: =>
     @data.status
 
+  _whitelistJob: (job) =>
+    whitelist = ['id', 'position', 'qty', 'status']
+    output = Object.select job, whitelist
+    output.file_name = job.name
+    output.total_lines = job.totalLines
+    output.current_line = job.currentLine
+    output.qty_printed = job.qtyPrinted
+    output
+
   addJob: (jobAttrs) ->
     jobAttrs =
       id: @_nextJobId++
       qty: jobAttrs['qty'] || 1
+      qtyPrinted: 0
       gcode: jobAttrs['gcode']
+      name: jobAttrs['name']
       position: @_jobs.length
     job = new @_PrintJob(jobAttrs)
     @_jobs.push job
-    @emit "add", "jobs[#{job.id}]", job
+    @data.__defineGetter__ "jobs[#{job.id}]", @_whitelistJob.fill(job)
+    @emit "add", "jobs[#{job.id}]", @_whitelistJob job
 
   rmJob: (jobAttrs) ->
     job = @_jobs.find (job) -> job.id == jobAttrs.id
     throw "job does not exist" unless job?
     @_jobs.remove(job)
+    delete @data["jobs[#{job.id}]"]
     @emit "remove", "jobs[#{jobAttrs.id}]"
 
   changeJob: (jobAttrs, validate = true, emit = true) ->
@@ -76,17 +90,19 @@ module.exports = class Printer extends EventEmitter
     throw "Invalid id: #{jobAttrs.id}" unless job?
     event  = {}
     # Reordering the other jobs if position has changed
-    pos = old: job.position, new: (jobAttrs?.position||job.position)
+    pos = old: job.position, new: (jobAttrs?.position)
+    pos.new ?= job.position
     @_jobs.filter((j) -> j.id != job.id).each (j) ->
       originalPosition = j.position
       j.position += 1 if pos.old > j.position >= pos.new
-      j.position -= 1 if pos.old < j.position <= pos.new
+      j.position -= 1 if pos.old < j.position < pos.new
       return if j.position == originalPosition
       event["jobs[#{j.id}]"] = position: j.position
     # Saving the data
     delete jobAttrs['id']
     Object.merge job, jobAttrs
     event["jobs[#{job.id}]"] = jobAttrs
+    # console.log @_jobs
     @emit "change", event if emit
     return event
 
@@ -100,7 +116,8 @@ module.exports = class Printer extends EventEmitter
     val >= 0 and val < @_jobs.length
 
   getJobs: =>
-    @_jobs.map (job) -> Object.select job, ['id', 'position', 'qty']
+    jobs = @_jobs.map (job) => @_whitelistJob job
+    jobs.sortBy 'position'
 
   estop: ->
     @driver.reset()
@@ -128,7 +145,7 @@ module.exports = class Printer extends EventEmitter
       throw 'cannot set conveyor while printing.' if conveyors?.length > 0
     @_updateData(diff)
     # Send gcodes to the print driver to update the printer
-    @driver.sendNow("#{_tempGCode(t[0])} S#{t[1]}") for t in temps
+    @driver.sendNow("#{@_tempGCode(t[0])} S#{t[1]}") for t in temps
     @_updateConveyor k, @data[k], v for k, v of conveyors
     @_updateFan      k, @data[k], v for k, v of fans
 
@@ -151,15 +168,15 @@ module.exports = class Printer extends EventEmitter
     @_appendChanges changes, k, v for k, v of new_data
     # apply the changes and emit a change event
     Object.merge @data, changes, true
-    @emit "change", changes
+    @emit "change", changes if Object.keys(changes).length > 0
 
   _appendChanges: (changes, k, v) ->
     # Objects
     if typeof(v) == "object"
       # Fail fast
       for k2, v2 of v
-        continue unless typeof(v2) != typeof(@data[k][k2])
-        throw "#{k}.#{k2} must be a #{typeof(@data[k][k2])}." if @data[k][k2]?
+        continue unless typeof(v2) != typeof(@data[k]?[k2])
+        throw "#{k}.#{k2} must be a #{typeof(@data[k][k2])}." if @data[k]?[k2]?
         throw "#{k}.#{k2} does not exist."
       # Push any modified attributes to the changes
       (changes[k]?={})[k2] = v2 for k2, v2 of v if @data[k][k2] != v2
@@ -176,28 +193,52 @@ module.exports = class Printer extends EventEmitter
     # Fail fast
     throw "Already printing." if @status == 'printing'
     @_assert_idle 'print'
+    m = "There are no print jobs in the queue. Please add a job before printing"
+    throw m if @_jobs.length == 0
     # Implementation
-    job = @_jobs[0]
-    @driver.print job.gcode
+    @_print()
+
+  _print: =>
+    @currentJob = @_jobs[0]
+    @currentJob.loadGCode @_onReadyToPrint.fill(@currentJob)
+
+  _onReadyToPrint: (job, err, gcode) =>
+    @driver.print gcode
     changes = @changeJob id: job.id, status: 'printing', false, false
+    for k in ['total_lines', 'current_line']
+      changes["jobs[#{job.id}]"][k] = job[k.camelize(false)]
     changes['status'] = 'printing'
     @data.status = 'printing'
     @emit 'change', changes
 
+  _onPrintJobLineSent: =>
+    @currentJob.currentLine++
+    changes = {}
+    changes["jobs[#{@currentJob.id}]"] = current_line: @currentJob.currentLine
+    @emit 'change', changes
+
   _onPrintComplete: =>
-    job = @_jobs[0]
-    changes = @changeJob id: job.id, status: 'done', false, false
-    if @data.pause_between_prints
+    qty = @currentJob.qtyPrinted + 1
+    attrs = id: @currentJob.id, qtyPrinted: qty
+    isDone = qty >= @currentJob.qty
+    attrs['status'] = 'done' if isDone
+    changes = @changeJob attrs, false, false
+
+    @currentJob = null
+    if @data.pause_between_prints or @_jobs.length == 0
       changes['status'] = 'idle'
       @data.status = 'idle'
-    @_jobs.shift()
+    else
+      @_print()
+    @_jobs.shift() if isDone
     @emit 'change', changes
 
   move: (axesVals) ->
     # Fail fast
     @_assert_idle 'move'
     err = "move must be called with a object of axes/distance key/values."
-    axesVals.should.be.a 'object', err
+    # console.log axesVals
+    throw err unless typeof(axesVals) == 'object' and axesVals?
     axesVals = Object.extended(axesVals)
     axes = Object.keys(axesVals).exclude((k) => @_axes.some(k))
     @_asert_no_bad_axes 'move', axes
