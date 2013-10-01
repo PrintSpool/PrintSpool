@@ -2,6 +2,7 @@ serialport = require("serialport")
 SerialPort = serialport.SerialPort
 EventEmitter = require('events').EventEmitter
 util = require("util")
+spawn = require('child_process').spawn
 require("sugar")
 
 module.exports = class PrintDriver extends EventEmitter
@@ -58,6 +59,7 @@ module.exports = class PrintDriver extends EventEmitter
     @serialPort = new SP opts.port.comName,
       baudrate: opts.baudrate
       parser: serialport.parsers.readline("\n")
+      flowControl: false #true
     .on("data", @_onData)
     .on("open", @_onOpen)
     @startPolling() if @polling = opts.polling
@@ -87,12 +89,22 @@ module.exports = class PrintDriver extends EventEmitter
   _onOpen: =>
     @_opened = true
     console.log "opened" if @verbose
-    @reset()
+    @_cliReset()
+    @_headersReceived = false
 
   reset: =>
-    # @serialPort.setDTR(1)
-    # setTimeout (-> @serialPort.setDTR(0)), 0.2
+    @_cliReset(true)
     @_headersReceived = false
+
+  _cliReset: (clear, cb) =>
+    args = [@_comName]
+    args.push "--clear"# if clear
+    proc = spawn("#{__dirname}/../bin/arduino_reset", args)
+    proc.stdout.on 'data', (data) -> console.log('stdout: ' + data)
+    proc.stderr.on 'data', (data) -> console.log('stderr: ' + data)
+    proc.on 'close', (code) =>
+      console.log('reset exited with code ' + code) if @verbose?
+      cb?()
 
   isPrinting: -> @_printJob? and @_headersReceived
 
@@ -145,6 +157,7 @@ module.exports = class PrintDriver extends EventEmitter
 
   _onGreeting: =>
     @_headersReceived = true
+    @_nextLineNumber = 1
     @_sendNextLine()
     @emit("ready")
 

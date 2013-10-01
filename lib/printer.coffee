@@ -26,7 +26,7 @@ module.exports = class Printer extends EventEmitter
     @_jobs = []
     # Building the printer data
     @data =
-      status: 'idle'
+      status: 'initializing'
       xy_feedrate: 3000
       z_feedrate: 300
       pause_between_prints: true
@@ -39,9 +39,13 @@ module.exports = class Printer extends EventEmitter
     # Adding a status getter
     @__defineGetter__ "status", @_getStatus
     # Updating data on driver change
+    @driver.on "ready", @_onReady
     @driver.on "change", @_updateData
     @driver.on "print_job_line_sent", @_onPrintJobLineSent
     @driver.on "print_complete", @_onPrintComplete
+
+  _onReady: =>
+    @_setStatus("idle")
 
   _setStatus: (status) ->
     @_updateData status: status
