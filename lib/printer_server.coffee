@@ -76,8 +76,15 @@ module.exports = class PrinterServer
     # console.log changes
     output = []
     for k, v of changes
-      output.push type: 'change', target: k, data: v
+      v = @_underscoreData(v)
+      output.push type: 'change', target: k.underscore(), data: v
     @broadcast JSON.stringify output
+
+  _underscoreData: (originalData) ->
+    return originalData unless Object.isObject(originalData)
+    data = {}
+    data[k2.underscore()] = v2 for k2, v2 in originalData
+    return data
 
   onPrinterAdd: (target, value) =>
     @broadcast JSON.stringify [type: 'add', target: target, data: value]

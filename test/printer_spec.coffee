@@ -6,6 +6,7 @@ require("sugar")
 
 chai.use(spies)
 chai.should()
+expect = chai.expect
 
 class DriverStub extends EventEmitter
   constructor: ->
@@ -32,11 +33,14 @@ describe 'Printer', ->
     comps = e0: 'heater', e1: 'heater', b: 'heater', c: 'conveyor', f: 'fan'
     printer = new Printer driver, opts, comps, PrintJobStub
 
-  addJob = (done) ->
+  addJob = (done, opts = {}) ->
     driver.emit "change", status: "idle"
-    printer.on 'add', (key, @job) -> done()
-    printer.addJob gcode: 'G1 F300\nG1 X10 Y20 Z5 F300'
+    printer.on 'add', (key, @job) -> done?()
+    opts.gcode = 'G1 F300\nG1 X10 Y20 Z5 F300'
+    printer.addJob opts
 
+  receiveWelcome = ->
+    driver.emit "ready"
 
   describe 'addJob', ->
 
@@ -177,7 +181,27 @@ describe 'Printer', ->
         done()
       driver.emit "print_complete", @job
 
+  describe 'print qty', ->
+    it 'should print 2 copies if qty is 2', (done) ->
+      addJob undefined, qty: 3
+      printer.print()
+      qtyPrinted = 0
+      printer.on 'change', (data) ->
+        return unless data['jobs[0]'].qtyPrinted > qtyPrinted
+        qtyPrinted++
+        if qtyPrinted == 3
+          data['jobs[0]'].status.should.equal 'done'
+          printer.status.should.equal 'idle'
+          done()
+        else
+          expect(data['jobs[0]'].status).to.equal undefined
+          printer.print()
+          driver.emit "print_complete", @job
+      driver.emit "print_complete", @job
+
   describe 'move', ->
+    beforeEach receiveWelcome
+
     it 'should move the printer at z_feedrate on z', (done) ->
       driver.on 'test_sendNow', (gcode) ->
         gcode.should.equal 'G1 F300\nG1 X10 Y20 Z5 F300'
