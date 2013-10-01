@@ -56,6 +56,7 @@ module.exports = class PrintDriver extends EventEmitter
     opts = Object.merge @_defaultOpts, opts
     @verbose ||= opts.verbose
     @_comName = opts.port.comName
+    @_baudrate = opts.baudrate
     @serialPort = new SP opts.port.comName,
       baudrate: opts.baudrate
       parser: serialport.parsers.readline("\n")
@@ -93,18 +94,16 @@ module.exports = class PrintDriver extends EventEmitter
     @_headersReceived = false
 
   reset: =>
-    @_cliReset(true)
+    @_cliReset()
     @_headersReceived = false
 
-  _cliReset: (clear, cb) =>
-    args = [@_comName]
-    args.push "--clear"# if clear
+  _cliReset: () =>
+    args = [@_comName, @_baudrate]
     proc = spawn("#{__dirname}/../bin/arduino_reset", args)
     proc.stdout.on 'data', (data) -> console.log('stdout: ' + data)
     proc.stderr.on 'data', (data) -> console.log('stderr: ' + data)
     proc.on 'close', (code) =>
       console.log('reset exited with code ' + code) if @verbose?
-      cb?()
 
   isPrinting: -> @_printJob? and @_headersReceived
 

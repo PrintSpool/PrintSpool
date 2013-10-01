@@ -14,6 +14,17 @@ int setdtrrts (int fd, int on)
     return(ioctl(fd, TIOCMBIS, &controlbits));
 } 
 
+int baud(char *baud_string)
+{
+  if(strcmp(baud_string, "9600") == 0) return B9600;
+  if(strcmp(baud_string, "19200") == 0) return B19200;
+  if(strcmp(baud_string, "38400") == 0) return B38400;
+  if(strcmp(baud_string, "57600") == 0) return B57600;
+  if(strcmp(baud_string, "115200") == 0) return B115200;
+  if(strcmp(baud_string, "230400") == 0) return B230400;
+}
+
+
 int main(int argc, char *argv[])
 {
   const char *dev=argv[1];
@@ -37,22 +48,19 @@ int main(int argc, char *argv[])
     fprintf(stderr,"Couldn't open %s\n",dev);
     return(1);
   }
-  cfsetospeed(&tio,B115200);            // 115200 baud
-  cfsetispeed(&tio,B115200);            // 115200 baud
+  cfsetospeed(&tio,baud(argv[2]));
+  cfsetispeed(&tio,baud(argv[2]));
   tcsetattr(fd,TCSANOW,&tio);
 
-  if(argc > 2 && (strcmp(argv[2], "--clear") == 0))
-  {
-    printf("Clearing DTR.................");
-    fflush(stdout);
-    setdtrrts(fd,0);
+  printf("Clearing DTR.................");
+  fflush(stdout);
+  setdtrrts(fd,0);
 
-    // Pause for 200ms
-    tim.tv_sec = 0;
-    tim.tv_nsec = 200;
-    nanosleep(&tim, &tim2);
-    printf(" [ DONE ]\n");
-  }
+  // Pause for 200ms
+  tim.tv_sec = 0;
+  tim.tv_nsec = 200000000;
+  nanosleep(&tim, &tim2);
+  printf(" [ DONE ]\n");
 
   printf("Setting DTR..................");
   fflush(stdout);
