@@ -5,5 +5,5 @@ module.exports =
     Slicer = require("./slicers/#{opts.engine.toLowerCase()}")
     slicer = new Slicer(opts)
     slicer.slice()
-    console.log "Slicing #{opts.file_path}"
+    console.log "Slicing #{opts.filePath}"
     return slicer

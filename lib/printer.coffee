@@ -67,7 +67,7 @@ module.exports = class Printer extends EventEmitter
       id: @_nextJobId++
       qty: jobAttrs['qty'] || 1
       qtyPrinted: 0
-      gcode: jobAttrs['gcode']
+      filePath: jobAttrs['gcode']
       name: jobAttrs['name']
       position: @_jobs.length
     job = new @_PrintJob(jobAttrs)
@@ -204,6 +204,7 @@ module.exports = class Printer extends EventEmitter
 
   _print: =>
     @currentJob = @_jobs[0]
+    @_setStatus "slicing" if @currentJob.needsSlicing?
     @currentJob.loadGCode @_onReadyToPrint.fill(@currentJob)
 
   _onReadyToPrint: (job, err, gcode) =>

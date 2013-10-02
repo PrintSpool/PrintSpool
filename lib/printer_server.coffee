@@ -26,7 +26,7 @@ module.exports = class PrinterServer
     @app.post "#{opts.path}/jobs", @createJob
 
   createJob: (req, res) =>
-    form = new formidable.IncomingForm()
+    form = new formidable.IncomingForm(keepExtensions: true)
     form.on 'error', (e) -> console.log (e)
     form.on 'progress', @_onJobProgress
     form.parse req, @_onJobParsed.fill(res)
@@ -83,7 +83,7 @@ module.exports = class PrinterServer
   _underscoreData: (originalData) ->
     return originalData unless Object.isObject(originalData)
     data = {}
-    data[k2.underscore()] = v2 for k2, v2 in originalData
+    data[k2.underscore()] = v2 for k2, v2 of originalData
     return data
 
   onPrinterAdd: (target, value) =>

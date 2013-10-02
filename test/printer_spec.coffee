@@ -182,7 +182,7 @@ describe 'Printer', ->
       driver.emit "print_complete", @job
 
   describe 'print qty', ->
-    it 'should print 2 copies if qty is 2', (done) ->
+    it 'should print 3 copies if qty is 3', (done) ->
       addJob undefined, qty: 3
       printer.print()
       qtyPrinted = 0

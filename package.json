@@ -8,6 +8,7 @@
     , "express": "3.x"
     , "formidable": "*"
     , "sugar": "*"
+    , "join": "*"
     , "fs-extra": "*"
     , "js-yaml": "*"
     , "glob": "*"
