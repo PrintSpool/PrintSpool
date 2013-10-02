@@ -256,7 +256,7 @@ module.exports = class Printer extends EventEmitter
     extruders = axesVals.keys().filter (k) -> k.startsWith 'e'
     eFeedrates = extruders.map (k) => @data[k].flowrate
     feedrate = eFeedrates.reduce ( (f1, f2) -> Math.min f1, f2 ), feedrate
-    gcode = "G1 F#{feedrate}\n#{gcode} F#{feedrate}"
+    gcode = "G91\nG1 F#{feedrate}\n#{gcode} F#{feedrate}"
     if extruders.length > 0
       gcode = "T#{extruders[0].replace 'e', ''}\n#{gcode}"
     # Sending the gcode
