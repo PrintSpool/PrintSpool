@@ -39,7 +39,7 @@ module.exports = class PrintDriver extends EventEmitter
   _opened: false
   _headersReceived: false
   verbose: false
-  greetingTimeout: 2000
+  greetingTimeout: 2500
   pollingInterval: 700
   # The previous line is set to null after an acknowledgment ("ok") is received
   _previousLine: null
@@ -152,7 +152,7 @@ module.exports = class PrintDriver extends EventEmitter
     else if line.toLowerCase().startsWith("resend") or line.startsWith("rs")
       lineNumber = parseInt(line.split(/N:|N|:/)[1])
       @_send(@_previousLine, lineNumber)
-    @_emitReceiveEvents(line, originalLine)
+    @_emitReceiveEvents(line, originalLine) unless line.startsWith("echo:")
 
   _onGreeting: =>
     @_headersReceived = true
