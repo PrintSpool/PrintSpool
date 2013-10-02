@@ -168,7 +168,7 @@ module.exports = class PrintDriver extends EventEmitter
     # Parsing temperatures
     if l.has "t:"
       # Filtering out non-temperature values
-      temps = l.remove(/(\/|@:|e:)[0-9\.]*|ok/g)
+      temps = l.remove(/(\/|@[a-z]*:|e:)[0-9\.]*|ok/g)
       # Normalizing the input
       temps = temps.replace("t:", "e0:").replace(/:[\s\t]*/g, ':')
       # Adds a temperature to a object of { KEY: {current_temp: VALUE}, ... }
