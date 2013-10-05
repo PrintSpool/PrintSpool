@@ -3,7 +3,7 @@ http = require("http")
 express = require("express")
 print_driver = require("./print_driver")
 mdns = require('mdns2')
-avahi = require('node_avahi_pub')
+avahi = require('avahi_pub')
 formidable = require('formidable')
 
 module.exports = class PrinterServer
@@ -17,12 +17,17 @@ module.exports = class PrinterServer
     @wss.on "connection", @onClientConnect
 
     if avahi.isSupported()
+      @avahiAd = avahi.publish
+        name: opts.slug
+        type: "_construct._tcp"
+        data: {txtvers:'1'}
+        port: 2540
+    else
       @mdnsAd = mdns.createAdvertisement "_construct._tcp", 2540,
         name: opts.slug
         txtRecord: {txtvers:'1'}
       @mdnsAd.start()
-    else
-      @avahiAd = 
+
     @printer.driver.on "disconnect", @onPrinterDisconnect
     @printer.on "change", @onPrinterChange
     @printer.on "add", @onPrinterAdd
@@ -100,5 +105,5 @@ module.exports = class PrinterServer
     @printer.removeAllListeners()
     @wss.close()
     @wss.removeAllListeners()
-    @mdnsAd?.stop?()
+    if @mdnsAd? then @mdnsAd.stop() else @mdnsAd.remove()
     console.log "#{@name}: Disconnected"
