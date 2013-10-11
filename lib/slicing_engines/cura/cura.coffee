@@ -22,10 +22,10 @@ module.exports = class Cura
     proc.on 'close', @_onExit
 
   _onExit: (code) =>
-    @opts.onError?(@) if code != 0
+    @opts.onSlicingError?(@) if code != 0
     # console.log "complete!"
     @gcodePath = "#{@opts.filePath}.gcode"
-    @opts.onComplete?(@)
+    @opts.onSlicingComplete?(@)
 
 Cura.install = ->
   

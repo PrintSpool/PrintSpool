@@ -1,6 +1,6 @@
 fs = require("fs-extra")
 path = require ("flavored-path")
-SlicerFactory = require("../lib/slicer_factory")
+SlicingEngineFactory = require("../lib/slicing_engine_factory")
 EventEmitter = require('events').EventEmitter
 exec = require('child_process').exec
 Join = require('join')
@@ -13,21 +13,14 @@ module.exports = class PrintJob extends EventEmitter
     @once "load", cb if cb?
     @filePath = path.resolve(@filePath)
     if @needsSlicing()
-      SlicerFactory.slice @_slicerOpts()
+      SlicingEngineFactory.slice @
     else
       @_onSlice(gcodePath: @filePath)
 
   needsSlicing: =>
     path.extname(@filePath).match(/.gcode|.ngc/)? == false
 
-  _slicerOpts: ->
-    slicingEngine: @slicingEngine
-    filePath: @filePath
-    printerId: @printerId
-    onComplete: @_onSlice
-    onError: @_onSlicerError
-
-  _onSlice: (slicer) =>
+  onSlicingComplete: (slicer) =>
     join = Join.create()
     @currentLine = 0
 
@@ -37,7 +30,7 @@ module.exports = class PrintJob extends EventEmitter
     fs.readFile slicer.gcodePath, 'utf8', join.add()
     join.when(@_onLoadAndLineCount)
 
-  _onSlicerError: =>
+  onSlicingError: =>
     console.log "slicer error"
     @emit "job_error", "slicer error"
 

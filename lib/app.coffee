@@ -6,6 +6,7 @@ PrinterServer = require("./printer_server")
 require("js-yaml")
 fs = require 'fs-extra'
 path = require ("flavored-path")
+InstallBuilder = require './install_builder'
 
 APP_NAME = 'construct'
 
@@ -26,14 +27,20 @@ module.exports = class App
   getPrintersJson: (req, res) =>
     res.send printers: @printer_servers.map (p) -> p.slug
 
+  _installConfig: (configFile) ->
+    @install 'config_defaults.yml'
+    @mv 'config_defaults.yml', configFile
+
   _onPrinterConnect: (port) =>
     # loading the config file (or creating a new one)
-    configFile = path.get "~/.#{APP_NAME}/#{port.serialNumber}/#{APP_NAME}.yml"
+    configDir = path.get "~/.#{APP_NAME}/3d_printers/by_serial_number/"
+    configFile = "#{port.serialNumber}.yml"
     try
-      config = require configFile
+      config = require "#{configDir}/#{configFile}"
     catch
       console.log "New printer detected. Creating a config file."
-      fs.outputFile configFile, '', -> console.log "done"
+      installer = new InstallBuilder __dirname, configDir
+      installer.run @_installConfig.fill(configFile), -> console.log "Done"
     config ?= {}
 
     # setting up the serial driver
@@ -41,8 +48,8 @@ module.exports = class App
       port: port
       polling: true
       verbose: config.verbose
-    # setting up the printer
-    settings = {}
+    # setting up the printer (defaults)
+    settings = {slicingEngine: 'cura_engine', slicingProfile: 'default'}
 
     for k, v of Object.reject config, ['components', 'verbose', 'name']
       settings[k.camelize(false)] = v

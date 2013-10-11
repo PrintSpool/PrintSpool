@@ -70,6 +70,7 @@ module.exports = class Printer extends EventEmitter
       filePath: jobAttrs['gcode']
       name: jobAttrs['name']
       slicingEngine: @data.slicingEngine
+      slicingProfile: @data.slicingProfile
       position: @_jobs.length
       printerId: @id
     job = new @_PrintJob(jobAttrs)

@@ -12,7 +12,7 @@ SCHEMA = yaml.Schema.create([]);#[ calcYamlType ]);
 module.exports = class CuraEngine
 
   constructor: (@opts) ->
-    @_configPath = "#{@opts.configDir}/cura_engine.yml"
+    @_configPath = "#{@opts.configDir}/#{opts.slicingProfile}_profile.yml"
 
   slice: =>
     # console.log @opts
@@ -24,7 +24,7 @@ module.exports = class CuraEngine
 
   _onConfigFileLoad: (err, configString) =>
     console.log err
-    @emit "error", err if err
+    @opts.onSlicingError?(@, err) if err
     config = yaml.load configString, filename: @_configPath, schema: SCHEMA
 
     args = []
@@ -43,11 +43,15 @@ module.exports = class CuraEngine
     proc.on 'close', @_onExit
 
   _onExit: (code) =>
-    @opts.onError?(@) if code != 0
+    @opts.onSlicingError?(@, code) if code != 0
     # console.log "complete!"
     @gcodePath = @_gcodePath()
-    @opts.onComplete?(@)
 
-CuraEngine.install = ->
+    @opts.onSlicingComplete?(@)
+
+CuraEngine.sandboxDir = false
+CuraEngine.isInstalled = (opts, cb) ->
+  fs.exists "#{opts.configDir}/#{opts.slicingProfile}_profile.yml", cb
+CuraEngine.install = (opts) ->
   @install "cura_engine_defaults.yml"
-  @mv "cura_engine_defaults.yml", "cura_engine.yml"
+  @mv "cura_engine_defaults.yml", "#{opts.slicingProfile}_profile.yml"

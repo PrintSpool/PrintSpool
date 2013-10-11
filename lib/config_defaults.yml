@@ -1,0 +1,14 @@
+# Uncomment this line to use a human readable printer name instead of the 
+# printer's serial number when connecting to it (Default: undefined)
+# name: 'Ultimaker 1'
+
+# Uncomment this line to use a non-default slicing engine
+# (Default: 'cura_engine')
+# slicingEngine: 'cura_engine'
+
+# Uncomment this line to use a non-default slicing profile (Default: 'default')
+# slicingProfile: 'my_slicing_profile'
+
+# Uncomment this line to enable verbose command line output for debugging. 
+# This is for developers. Generally you won't need to set this. (Default: false)
+# verbose: true

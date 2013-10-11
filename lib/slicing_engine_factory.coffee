@@ -10,30 +10,37 @@ enginePath = (opts) ->
   name = engineName(opts)
   "#{module.exports.engineDir}/#{name}"
 
-requireSlicer = (opts) ->
+requireSlicingEngine = (opts) ->
   Slicer = require "#{enginePath(opts)}/#{engineName(opts)}"
 
 # Install
 install = (opts, callback) ->
-  dir = "#{module.exports.configDir}/#{opts.printerId}/#{engineName(opts)}"
-  opts.configDir = path.resolve dir
+  Slicer = requireSlicingEngine opts
+  dir = [module.exports.configDir, engineName(opts)]
+  dir << opts.slicingProfile if !(Slicer.sandboxDir?) or (Slicer.sandboxDir)
+  opts.configDir = path.resolve dir.join '/'
   console.log opts.configDir
-  fs.exists opts.configDir, installOnExists.fill(opts, callback, opts.configDir)
+  cb = installifNotInstalled.fill(opts, callback, opts.configDir)
+  if Slicer.isInstalled?
+    console.log opts
+    Slicer.isInstalled opts, cb
+  else
+    fs.exists opts.configDir, cb
 
-installOnExists = (opts, callback, dest, exists) ->
-  return callback?() if exists
+installifNotInstalled = (opts, callback, dest, isInstalled) ->
+  return callback?() if isInstalled
   console.log "Installing #{engineName(opts)}"
-  Slicer = requireSlicer opts
+  Slicer = requireSlicingEngine opts
   src = path.resolve enginePath opts
   installer = new InstallBuilder src, dest
-  installer.run Slicer.install, callback
+  installer.run Slicer.install.fill(opts), callback
 
 # Slice
 slice = (opts) ->
   install opts, sliceOnInstall.fill(opts)
 
 sliceOnInstall = (opts) ->
-  Slicer = requireSlicer opts
+  Slicer = requireSlicingEngine opts
   slicer = new Slicer opts
   slicer.slice()
   console.log "Slicing #{opts.filePath}"
@@ -42,5 +49,5 @@ sliceOnInstall = (opts) ->
 module.exports = {
   slice: slice,
   configDir: "~/.construct",
-  engineDir: path.resolve "#{__dirname}/slicers"
+  engineDir: path.resolve "#{__dirname}/slicing_engines"
 }
