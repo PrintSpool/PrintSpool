@@ -21,7 +21,7 @@ module.exports = class Printer extends EventEmitter
     conveyor: { type: 'conveyor', enabled: false }
     fan: { type: 'fan', enabled: false, speed: 255 }
 
-  constructor: (@driver, settings = {}, components, @_PrintJob=PrintJob) ->
+  constructor: (@id, @driver, settings = {}, components, @_PrintJob=PrintJob) ->
     components ?= @_defaultComponents
     @_jobs = []
     # Building the printer data
@@ -69,7 +69,9 @@ module.exports = class Printer extends EventEmitter
       qtyPrinted: 0
       filePath: jobAttrs['gcode']
       name: jobAttrs['name']
+      slicingEngine: @data.slicingEngine
       position: @_jobs.length
+      printerId: @id
     job = new @_PrintJob(jobAttrs)
     @_jobs.push job
     @data.__defineGetter__ "jobs[#{job.id}]", @_whitelistJob.fill(job)

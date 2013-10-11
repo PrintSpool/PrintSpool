@@ -21,8 +21,9 @@ module.exports = class PrintJob extends EventEmitter
     path.extname(@filePath).match(/.gcode|.ngc/)? == false
 
   _slicerOpts: ->
-    engine: "cura"
+    slicingEngine: @slicingEngine
     filePath: @filePath
+    printerId: @printerId
     onComplete: @_onSlice
     onError: @_onSlicerError
 

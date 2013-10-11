@@ -42,9 +42,13 @@ module.exports = class App
       polling: true
       verbose: config.verbose
     # setting up the printer
-    settings = config.settings
+    settings = {}
+
+    for k, v of Object.reject config, ['components', 'verbose', 'name']
+      settings[k.camelize(false)] = v
+    console.log settings
     components = config.components
-    printer = new Printer driver, settings, components
+    printer = new Printer port.serialNumber, driver, settings, components
     # setting up the server
     slug = config.name?.underscore?() || port.serialNumber
     opts =

@@ -1,7 +1,7 @@
 EventEmitter = require('events').EventEmitter
 fs = require("fs-extra")
-command = require('command')
 os = require('os')
+spawn = require('child_process').spawn
 path = require ("flavored-path")
 require 'sugar'
 
@@ -15,14 +15,17 @@ module.exports = class Cura
     # console.log @opts
     # console.log @opts.filePath
     cura = @appPaths[os.platform()] || 'cura'
-    cmd = command.open(path.resolve("~"))
-    .exec(cura, ["-s", @opts.filePath])
-    .on('stdout', command.writeTo(process.stdout))
-    .on('stderr', command.writeTo(process.stderr))
-    .on('exit', @_onExit)
+    args = ["-s", @opts.filePath]
+    proc = spawn(cura, args)
+    proc.stdout.on 'data', (data) -> console.log('stdout: ' + data)
+    proc.stderr.on 'data', (data) -> console.log('stderr: ' + data)
+    proc.on 'close', @_onExit
 
   _onExit: (code) =>
     @opts.onError?(@) if code != 0
     # console.log "complete!"
     @gcodePath = "#{@opts.filePath}.gcode"
     @opts.onComplete?(@)
+
+Cura.install = ->
+  

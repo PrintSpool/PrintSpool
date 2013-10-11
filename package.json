@@ -12,6 +12,7 @@
     , "join": "*"
     , "fs-extra": "*"
     , "js-yaml": "*"
+    , "esprima": "*"
     , "glob": "*"
     , "request": "*"
     , "form-data": "git+https://github.com/D1plo1d/node-form-data.git"

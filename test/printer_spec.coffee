@@ -31,7 +31,7 @@ describe 'Printer', ->
 
   initPrinter = (opts={}) ->
     comps = e0: 'heater', e1: 'heater', b: 'heater', c: 'conveyor', f: 'fan'
-    printer = new Printer driver, opts, comps, PrintJobStub
+    printer = new Printer "AABB1337", driver, opts, comps, PrintJobStub
 
   addJob = (done, opts = {}) ->
     driver.emit "change", status: "idle"
