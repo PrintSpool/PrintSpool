@@ -46,7 +46,6 @@ module.exports = class App
 
     for k, v of Object.reject config, ['components', 'verbose', 'name']
       settings[k.camelize(false)] = v
-    console.log settings
     components = config.components
     printer = new Printer port.serialNumber, driver, settings, components
     # setting up the server
