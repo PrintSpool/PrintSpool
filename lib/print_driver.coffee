@@ -63,6 +63,7 @@ module.exports = class PrintDriver extends EventEmitter
       flowControl: false #true
     .on("data", @_onData)
     .on("open", @_onOpen)
+    .on("error", @_onError)
     @startPolling() if @polling = opts.polling
     PrintDriver.on 'disconnect', @_onSerialDisconnect
 
@@ -92,6 +93,10 @@ module.exports = class PrintDriver extends EventEmitter
     console.log "opened" if @verbose
     @_cliReset()
     @_headersReceived = false
+
+  _onError: (err) =>
+    # console.log err
+    # @_onSerialDisconnect()
 
   reset: =>
     @_cliReset()
