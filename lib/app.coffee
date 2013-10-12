@@ -33,7 +33,7 @@ module.exports = class App
 
   _onPrinterConnect: (port) =>
     # loading the config file (or creating a new one)
-    configDir = path.get "~/.#{APP_NAME}/3d_printers/by_serial_number/"
+    configDir = path.get "~/.#{APP_NAME}/3d_printers/by_serial/"
     configFile = "#{port.serialNumber}.yml"
     try
       config = require "#{configDir}/#{configFile}"
