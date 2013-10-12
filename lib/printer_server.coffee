@@ -50,8 +50,8 @@ module.exports = class PrinterServer
   _onJobParsed: (res, err, fields, files) =>
     return console.log err if err?
     @printer.addJob
-      gcode: files.job.path
-      qty: (fields.qty || 1)
+      filePath: files.job.path
+      qty: fields.qty
       name: files.job.name
     res.end()
 

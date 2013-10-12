@@ -19,7 +19,7 @@ class PrintJobStub extends EventEmitter
     @[k] = v for k, v of attrs
 
   loadGCode: (cb) =>
-    cb null, @gcode
+    cb null, 'G91\nG1 F300\nG1 X10 Y20 Z5 F300'
 
 describe 'Printer', ->
   driver = null
@@ -36,7 +36,7 @@ describe 'Printer', ->
   addJob = (done, opts = {}) ->
     driver.emit "change", status: "idle"
     printer.on 'add', (key, @job) -> done?()
-    opts.gcode = 'G1 F300\nG1 X10 Y20 Z5 F300'
+    opts.filePath = "#{__dirname}/assets/test.gcode"
     printer.addJob opts
 
   receiveWelcome = ->
@@ -148,7 +148,7 @@ describe 'Printer', ->
 
     it 'should print if the printer is idle', (done) ->
       driver.on 'test_print', (gcode) ->
-        gcode.should.equal 'G1 F300\nG1 X10 Y20 Z5 F300'
+        expect(gcode).to.equal 'G91\nG1 F300\nG1 X10 Y20 Z5 F300'
         done()
       printer.print()
 
@@ -204,13 +204,13 @@ describe 'Printer', ->
 
     it 'should move the printer at z_feedrate on z', (done) ->
       driver.on 'test_sendNow', (gcode) ->
-        gcode.should.equal 'G1 F300\nG1 X10 Y20 Z5 F300'
+        gcode.should.equal 'G91\nG1 F300\nG1 X10 Y20 Z5 F300'
         done()
       printer.move(x: 10, y:20, z: 5)
 
     it 'should move the printer at x_feedrate on xy', (done) ->
       driver.on 'test_sendNow', (gcode) ->
-        gcode.should.equal 'G1 F3000\nG1 X10 Y20 F3000'
+        gcode.should.equal 'G91\nG1 F3000\nG1 X10 Y20 F3000'
         done()
       printer.move(x: 10, y:20)
 
@@ -219,13 +219,13 @@ describe 'Printer', ->
 
     it 'should move the printer at the correct flowrate on e0', (done) ->
       driver.on 'test_sendNow', (gcode) ->
-        gcode.should.equal 'T0\nG1 F40\nG1 E10 F40'
+        gcode.should.equal 'T0\nG91\nG1 F40\nG1 E10 F40'
         done()
       printer.move e0: 10
 
     it 'should move the printer at the correct flowrate on e1', (done) ->
       driver.on 'test_sendNow', (gcode) ->
-        gcode.should.equal 'T1\nG1 F40\nG1 E10 F40'
+        gcode.should.equal 'T1\nG91\nG1 F40\nG1 E10 F40'
         done()
       printer.move e1: 10
 

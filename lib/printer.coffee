@@ -1,7 +1,6 @@
 EventEmitter = require('events').EventEmitter
 PrintDriver = require("./print_driver")
 PrintJob = require("./print_job")
-SlicingEngineFactory = require("../lib/slicing_engine_factory")
 require 'sugar'
 chai = require("chai")
 chai.should()
@@ -44,10 +43,6 @@ module.exports = class Printer extends EventEmitter
     @driver.on "change", @_updateData
     @driver.on "print_job_line_sent", @_onPrintJobLineSent
     @driver.on "print_complete", @_onPrintComplete
-    SlicingEngineFactory.install
-      slicingEngine: @data.slicingEngine
-      slicingProfile: @data.slicingProfile
-
 
   _onReady: =>
     @_setStatus("idle")
@@ -68,16 +63,14 @@ module.exports = class Printer extends EventEmitter
     output
 
   addJob: (jobAttrs) ->
-    jobAttrs =
+    jobAttrs = Object.merge jobAttrs,
       id: @_nextJobId++
-      qty: jobAttrs['qty'] || 1
       qtyPrinted: 0
-      filePath: jobAttrs['gcode']
-      name: jobAttrs['name']
       slicingEngine: @data.slicingEngine
       slicingProfile: @data.slicingProfile
       position: @_jobs.length
       printerId: @id
+    jobAttrs.qty ||= 1
     job = new @_PrintJob(jobAttrs)
     @_jobs.push job
     @data.__defineGetter__ "jobs[#{job.id}]", @_whitelistJob.fill(job)

@@ -7,6 +7,7 @@ require("js-yaml")
 fs = require 'fs-extra'
 path = require ("flavored-path")
 InstallBuilder = require './install_builder'
+SlicingEngineFactory = require("../lib/slicing_engine_factory")
 
 APP_NAME = 'construct'
 
@@ -54,6 +55,11 @@ module.exports = class App
     for k, v of Object.reject config, ['components', 'verbose', 'name']
       settings[k.camelize(false)] = v
     components = config.components
+
+    SlicingEngineFactory.install
+      slicingEngine: settings.slicingEngine
+      slicingProfile: settings.slicingProfile
+
     printer = new Printer port.serialNumber, driver, settings, components
     # setting up the server
     slug = config.name?.underscore?() || port.serialNumber
