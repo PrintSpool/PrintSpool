@@ -14,15 +14,13 @@ requireSlicingEngine = (opts) ->
   Slicer = require "#{enginePath(opts)}/#{engineName(opts)}"
 
 # Install
-install = (opts, callback) ->
+install = (opts, callback = ->) ->
   Slicer = requireSlicingEngine opts
   dir = [module.exports.configDir, engineName(opts)]
   dir << opts.slicingProfile if !(Slicer.sandboxDir?) or (Slicer.sandboxDir)
   opts.configDir = path.resolve dir.join '/'
-  console.log opts.configDir
   cb = installifNotInstalled.fill(opts, callback, opts.configDir)
   if Slicer.isInstalled?
-    console.log opts
     Slicer.isInstalled opts, cb
   else
     fs.exists opts.configDir, cb
