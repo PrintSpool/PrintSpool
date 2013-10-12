@@ -48,6 +48,7 @@ sliceOnInstall = (opts) ->
 
 module.exports = {
   slice: slice,
+  install: install,
   configDir: "~/.construct",
   engineDir: path.resolve "#{__dirname}/slicing_engines"
 }

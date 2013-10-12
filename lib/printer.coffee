@@ -1,6 +1,7 @@
 EventEmitter = require('events').EventEmitter
 PrintDriver = require("./print_driver")
 PrintJob = require("./print_job")
+SlicingEngineFactory = require("../lib/slicing_engine_factory")
 require 'sugar'
 chai = require("chai")
 chai.should()
@@ -43,6 +44,10 @@ module.exports = class Printer extends EventEmitter
     @driver.on "change", @_updateData
     @driver.on "print_job_line_sent", @_onPrintJobLineSent
     @driver.on "print_complete", @_onPrintComplete
+    SlicingEngineFactory.install
+      slicingEngine: @data.slicingEngine
+      slicingProfile: @data.slicingProfile
+
 
   _onReady: =>
     @_setStatus("idle")
