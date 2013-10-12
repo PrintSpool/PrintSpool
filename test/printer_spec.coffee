@@ -143,6 +143,14 @@ describe 'Printer', ->
       printer.estop()
       printer.move.bind(x: 10).should.throw()
 
+    it 'should estop the current print', (done) ->
+      addJob()
+      printer.print()
+      printer.on 'change', (data) ->
+        expect(data?["jobs[0]"]?.status).to.equal 'estopped'
+        done()
+      printer.estop()
+
   describe 'print', ->
     beforeEach addJob
 

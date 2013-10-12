@@ -95,6 +95,8 @@ module.exports = class PrintDriver extends EventEmitter
 
   reset: =>
     @_cliReset()
+    @_printJob = null
+    @_printJobLine = 0
     @_headersReceived = false
 
   _cliReset: () =>

@@ -124,9 +124,15 @@ module.exports = class Printer extends EventEmitter
     jobs = @_jobs.map (job) => @_whitelistJob job
     jobs.sortBy 'position'
 
-  estop: ->
+  estop: =>
     @driver.reset()
-    @_setStatus 'estopped'
+    if @currentJob?
+      changes = @changeJob id: @currentJob.id, status: 'estopped', false, false
+    else
+      changes = {}
+    changes['status'] = 'estopped'
+    @data.status = 'estopped'
+    @emit 'change', changes
 
   # set any number of the following printer attributes:
   # - extruder/bed target_temp
