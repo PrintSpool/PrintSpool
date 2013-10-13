@@ -34,8 +34,5 @@ package() {
   cp -R "${srcdir}/${_gitname}/node_modules" "$pkgdir/usr/share/construct-daemon/"
   install -Dm644 "${srcdir}/${_gitname}/package.json" "$pkgdir/usr/share/construct-daemon/package.json"
 
-  ln -s /usr/share/construct-daemon/bin/construct-daemon "$pkgdir/usr/bin/construct-daemon"
-
-  echo -e "/usr/share/construct-daemon/bin/construct-daemon\n" > "${pkgdir}/usr/bin/construct-daemon"
-  chmod 755 "${pkgdir}/usr/bin/construct-daemon"
+  ln -s /usr/share/construct-daemon/bin/construct-daemon $pkgdir/usr/bin/construct-daemon
 }
