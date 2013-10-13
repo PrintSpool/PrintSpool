@@ -33,6 +33,8 @@ package() {
   cp -R "${srcdir}/${_gitname}/lib" "${pkgdir}/usr/share/construct-daemon/"
   cp -R "${srcdir}/${_gitname}/node_modules" "$pkgdir/usr/share/construct-daemon/"
   install -Dm644 "${srcdir}/${_gitname}/package.json" "$pkgdir/usr/share/construct-daemon/package.json"
+  install "${srcdir}/${_gitname}/construct-daemon.service" "${pkgdir}/etc/systemd/system/construct-daemon.service"
+  chown root:root "${pkgdir}/etc/systemd/system/construct-daemon.service"
 
   ln -s /usr/share/construct-daemon/bin/construct-daemon $pkgdir/usr/bin/construct-daemon
 }
