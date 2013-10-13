@@ -16,7 +16,7 @@
     , "glob": "*"
     , "request": "*"
     , "form-data": "git+https://github.com/D1plo1d/node-form-data.git"
-    , "ws": "*"
+    , "ws": "git+https://github.com/D1plo1d/ws.git#event_listener_cleanup"
     , "colors": "*"
     , "touch": "*"
     , "flavored-path": "*"
