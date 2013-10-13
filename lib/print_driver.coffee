@@ -107,10 +107,10 @@ module.exports = class PrintDriver extends EventEmitter
   _cliReset: () =>
     args = [@_comName, @_baudrate]
     proc = spawn("#{__dirname}/../bin/arduino_reset", args)
-    proc.stdout.on 'data', (data) -> console.log('stdout: ' + data)
-    proc.stderr.on 'data', (data) -> console.log('stderr: ' + data)
+    proc.stdout.on 'data', (data) => console.log('stdout: ' + data) if @verbose
+    proc.stderr.on 'data', (data) => console.log('stderr: ' + data) if @verbose
     proc.on 'close', (code) =>
-      console.log('reset exited with code ' + code) if @verbose?
+      console.log('reset exited with code ' + code) if @verbose
 
   isPrinting: -> @_printJob? and @_headersReceived
 
