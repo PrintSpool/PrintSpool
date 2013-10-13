@@ -29,6 +29,7 @@ build() {
 
 package() {
   install -dm755 ${pkgdir}/usr/{bin,share/construct-daemon/{bin,lib,node_modules,public}}
+  cp -R "${srcdir}/${_gitname}/bin" "${pkgdir}/usr/share/construct-daemon/bin"
   cp -R "${srcdir}/${_gitname}/lib" "${pkgdir}/usr/share/construct-daemon/"
   cp -R "${srcdir}/${_gitname}/node_modules" "$pkgdir/usr/share/construct-daemon/"
   install -Dm644 "${srcdir}/${_gitname}/package.json" "$pkgdir/usr/share/construct-daemon/package.json"
