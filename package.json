@@ -8,6 +8,8 @@
     , "express": "3.x"
     , "formidable": "*"
     , "sugar": "*"
+    , "stdio": "*"
+    , "exec-sync": "*"
     , "avahi_pub": "git+https://github.com/D1plo1d/node_avahi_pub.git"
     , "join": "*"
     , "fs-extra": "*"

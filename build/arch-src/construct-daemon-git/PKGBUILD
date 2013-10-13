@@ -1,0 +1,38 @@
+# Maintainer: Rob Gilson <d1plo1d@d1plo1d.com>
+pkgname='construct-daemon-git'
+_gitname='construct-daemon'
+pkgver=7b50c7e
+pkgrel=1
+pkgdesc="A command line client to remotely monitor and control 3D printers running Prontserve."
+url="https://github.com/D1plo1d/construct-daemon"
+arch=('any')
+license=('MIT')
+depends=('nodejs' 'python2' 'avahi')
+optdepends=()
+makedepends=()
+conflicts=()
+replaces=()
+backup=()
+source=("git+https://github.com/D1plo1d/construct-daemon.git")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd $_gitname
+  git describe --always | sed 's|-|.|g'
+}
+
+build() {
+  cd "${srcdir}/${_gitname}"
+  npm install --no-bin-links
+  ./script/compile_arduino_reset.sh
+}
+
+package() {
+  install -dm755 ${pkgdir}/usr/{bin,share/construct-daemon/{bin,lib,node_modules,public}}
+  cp -R "${srcdir}/${_gitname}/lib" "${pkgdir}/usr/share/construct-daemon/"
+  cp -R "${srcdir}/${_gitname}/node_modules" "$pkgdir/usr/share/construct-daemon/"
+  install -Dm644 "${srcdir}/${_gitname}/package.json" "$pkgdir/usr/share/construct-daemon/package.json"
+
+  echo -e "/usr/share/construct-daemon/bin/construct-daemon\n" > "${pkgdir}/usr/bin/construct-daemon"
+  chmod 755 "${pkgdir}/usr/bin/construct-daemon"
+}

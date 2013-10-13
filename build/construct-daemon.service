@@ -1,0 +1,12 @@
+[Service]
+ExecStart=construct-daemon --exec
+StandardOutput=syslog
+SysLogIdentified=construct-daemon
+User=nobody
+Group=dialout
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_ENV=production
+Nice=-10
+OOMScoreAdjust=-500
+IOSchedulingClass=realtime
+PrivateTmp=true

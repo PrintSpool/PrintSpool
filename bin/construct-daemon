@@ -1,0 +1,29 @@
+#!/usr/bin/env node
+var path = require('path');
+var fs   = require('fs');
+var lib  = path.join(path.dirname(fs.realpathSync(__filename)), '../lib');
+
+var stdio = require('stdio');
+
+var options = stdio.getopt({
+  'exec': {
+    description:
+      "Runs the construct server without daemonizing it. "+
+      "Generally this is not called directly except in development. "+
+      "Try `systemctl start construct-daemon`.",
+    mandatory: true
+  }
+});
+
+if (options.exec == true)
+{
+  // Coffeescript 1.0 and 2.0 respectively. Comment out the one you aren't using.
+  require('coffee-script');
+  // require('coffee-script-redux/register');
+
+  require(path.join(lib, "app"));
+}
+else
+{
+  console.log("construct-daemon can only be run directly with --exec.")
+}
