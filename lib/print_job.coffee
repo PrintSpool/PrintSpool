@@ -15,7 +15,7 @@ module.exports = class PrintJob extends EventEmitter
     if @needsSlicing()
       SlicingEngineFactory.slice @
     else
-      @_onSlice(gcodePath: @filePath)
+      @onSlicingComplete(gcodePath: @filePath)
 
   needsSlicing: =>
     path.extname(@filePath).match(/.gcode|.ngc/)? == false
