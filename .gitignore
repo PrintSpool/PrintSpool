@@ -12,6 +12,7 @@ pids
 logs
 results
 bin/arduino_reset
+bin/packages
 tmp
 
 npm-debug.log
