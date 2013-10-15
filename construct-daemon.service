@@ -1,3 +1,6 @@
+[Unit]
+Description=Construct 3D Printer Server
+
 [Service]
 ExecStart=/usr/share/construct-daemon/bin/construct-daemon --exec
 StandardOutput=syslog
@@ -10,3 +13,6 @@ Nice=-10
 OOMScoreAdjust=-500
 IOSchedulingClass=realtime
 PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

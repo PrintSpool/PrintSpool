@@ -10,9 +10,10 @@ license=('MIT')
 depends=('nodejs' 'python2' 'avahi')
 optdepends=()
 makedepends=()
-conflicts=()
+conflicts=('construct-daemon')
 replaces=()
 backup=()
+install=$pkgname.install
 source=("git+https://github.com/D1plo1d/construct-daemon.git")
 sha256sums=('SKIP')
 
