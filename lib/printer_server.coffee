@@ -31,7 +31,8 @@ module.exports = class PrinterServer
     @printer.driver.on "disconnect", @onPrinterDisconnect
     @printer.on "change", @onPrinterChange
     @printer.on "add", @onPrinterAdd
-    @printer.on "rm", @onPrinterRm
+    @printer.on "remove", @onPrinterRm
+
     @app.post "#{opts.path}/jobs", @createJob
 
   createJob: (req, res) =>
@@ -102,8 +103,13 @@ module.exports = class PrinterServer
     @broadcast JSON.stringify [type: 'rm', target: target]
 
   onPrinterDisconnect: =>
+    # Removing all the event listeners from the server so it will be GC'd
     @printer.removeAllListeners()
+    # Removing the websocket
     @wss.close()
     @wss.removeAllListeners()
+    # Removing the Job upload route
+    @app.routes.post.remove (route) => route.path = "#{@path}/jobs"
+    # Removing the DNS-SD advertisement
     if @mdnsAd? then @mdnsAd.stop() else @mdnsAd.remove()
     console.log "#{@name}: Disconnected"
