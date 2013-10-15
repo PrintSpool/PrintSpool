@@ -2,8 +2,8 @@
 pkgname='construct-daemon-git'
 _gitname='construct-daemon'
 pkgver=7b50c7e
-pkgrel=1
-pkgdesc="A command line client to remotely monitor and control 3D printers running Prontserve."
+pkgrel=2
+pkgdesc="A 3D printer daemon to remotely control and monitor 3D printers via the construct protocol."
 url="https://github.com/D1plo1d/construct-daemon"
 arch=('any')
 license=('MIT')
