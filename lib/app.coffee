@@ -33,7 +33,6 @@ module.exports = class App
     @mv 'config_defaults.yml', configFile
 
   _onPrinterConnect: (port) =>
-    console.log port
     # loading the config file (or creating a new one)
     configDir = path.get "~/.#{APP_NAME}/3d_printers/by_serial/"
     configFile = "#{port.serialNumber}.yml"
