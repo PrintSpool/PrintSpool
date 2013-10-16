@@ -9,6 +9,7 @@ module.exports = class PrintDriver extends EventEmitter
   @_whiteList = /^\/dev\/(ttyUSB|ttyACM|tty\.|cu\.|rfcomm)*/
   @_blackList = /Bluetooth|FireFly/
   @_ports = []
+  @_pnpRegex = /([0-9a-zA-Z]+)\-[a-zA-Z0-9]+$/
 
   # Starts polling to watch for new serial ports
   @listen: ->
@@ -24,6 +25,9 @@ module.exports = class PrintDriver extends EventEmitter
     serialport.list (err, ports) => @_update ports.findAll(@_filter)
 
   @_filter: (p) =>
+    return false if p.serialNumber.length == 0 and p.pnpId.length == 0
+    if p.pnpId.length > 0 and p.serialNumber.length == 0
+      p.serialNumber = @_pnpRegex.exec(pnp)[1]
     p.comName.has(@_whiteList) and !(p.comName.has @_blackList)
 
   @_update: (newPorts) =>
