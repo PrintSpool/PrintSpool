@@ -111,5 +111,5 @@ module.exports = class PrinterServer
     # Removing the Job upload route
     @app.routes.post.remove (route) => route.path = "#{@path}/jobs"
     # Removing the DNS-SD advertisement
-    if @mdnsAd? then @mdnsAd.stop() else @mdnsAd.remove()
+    if @mdnsAd? then @mdnsAd.stop() else @avahiAd.remove()
     console.log "#{@name}: Disconnected"
