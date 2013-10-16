@@ -25,9 +25,8 @@ module.exports = class PrintDriver extends EventEmitter
     serialport.list (err, ports) => @_update ports.findAll(@_filter)
 
   @_filter: (p) =>
-    return false if p.serialNumber.length == 0 and p.pnpId.length == 0
-    if p.pnpId.length > 0 and p.serialNumber.length == 0
-      p.serialNumber = @_pnpRegex.exec(pnp)[1]
+    p.serialNumber ?= @_pnpRegex.exec(pnp)?[1]
+    return false if !p.serialNumber? or p.serialNumber.length == 0 and p.pnpId.length == 0 
     p.comName.has(@_whiteList) and !(p.comName.has @_blackList)
 
   @_update: (newPorts) =>
