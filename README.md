@@ -13,7 +13,7 @@ How to try it out
 1. Install construct-daemon on your printer's computer/raspberry pi/old laptop (see Install)
 2. Install [tegh][1] on your laptop (this will allow you to remotely control your printer)
 3. Open the command line and type `tegh [ENTER]`.
-4. Select your printer and start controlling your printer for fun an profit.
+4. Select your printer and start 3D printing without the tether for fun and profit.
 
 
 [1]: https://github.com/D1plo1d/tegh
