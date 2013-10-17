@@ -34,5 +34,5 @@ Install
 3. `git clone https://github.com/D1plo1d/construct-daemon.git&& cd construct-daemon; npm install`
 4. **Linux Only:** If you have systemd then you can set construct-daemon to load on startup by running  `sudo cp construct-daemon.service /etc/systemd/system/construct-daemon.service && sudo systemctl enable construct-daemon.service`
 
-Upstart and initd are not yet supported so if you do not have systemd (for example on Ubuntu or OSX) then you won't be able to daemonize construct-daemon. Instead your going to need to run construct-dameon in a terminal session or screen or something. Just run `./bin/construct-daemon --exec` from the git repository to start the service (it will not fork).
+**Note:** Upstart and initd are not yet supported so if you do not have systemd (for example on Ubuntu or OSX) then you won't be able to daemonize construct-daemon. Instead your going to need to run construct-dameon in a terminal session or screen or something. Just run `./bin/construct-daemon --exec` from the git repository to start the service (it will not fork).
 
