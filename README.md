@@ -2,6 +2,16 @@
 
 A daemon that detects RepRap-like 3D printer (ex. Ultimakers or anything with Marlin firmware) and serves access to them on the local network via the construct protocol.
 
+Features
+=========
+
+* **WiFi 3D Printer Control** - No need to tether your laptop to the 3D printer for hours anymore. Print from anywhere in the house.
+* **Network Discoverablity** - All 3D printers with construct-daemon on the network can be found automatically.
+* **Queue your print jobs** - Add as many print jobs as you want. It's easy to manage your prints whether printing is fully or semi-autonomously. Try it out with the Makerbot ABP for extra-awesome automation!
+* **Automatic Slicing** - Slicing is done by cura-engine automatically. Just configure your printers' profiles in the `.construct/cura_engine` directory and it will automatically slice any 3D models added to the queue.
+
+**Note:** These features are based on construct-daemon used in combination with the [tegh 3D printer client][1].
+
 Why
 ====
 
