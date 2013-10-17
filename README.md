@@ -10,8 +10,8 @@ Because I was tired of not being able to use my laptop while my 3D printer was p
 How to try it out
 ==================
 
-1. Install construct-daemon on your printer's computer (see next section)
-2. Install [tegh][1] on your computer (this will allow you to remotely control your printer)
+1. Install construct-daemon on your printer's computer/raspberry pi/old laptop (see Install)
+2. Install [tegh][1] on your laptop (this will allow you to remotely control your printer)
 3. Open the command line and type `type [ENTER]`. Select your printer and start controlling your printer for fun an profit.
 
 
