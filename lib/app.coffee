@@ -77,8 +77,6 @@ module.exports = class App
     console.log "#{opts.name} Connected"
 
   _onPrinterDisconnect: (port) =>
-    @printer_servers.remove (p) ->
-      console.log "#{p.name} Disconnecting.."
-      p.port == port
+    @printer_servers.remove (p) -> p.port == port
 
 app = new App()

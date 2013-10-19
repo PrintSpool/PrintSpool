@@ -103,6 +103,7 @@ module.exports = class PrinterServer
     @broadcast JSON.stringify [type: 'rm', target: target]
 
   onPrinterDisconnect: =>
+    console.log "#{@name} Disconnecting.."
     # Removing all the event listeners from the server so it will be GC'd
     @printer.removeAllListeners()
     # Removing the websocket
@@ -112,4 +113,4 @@ module.exports = class PrinterServer
     @app.routes.post.remove (route) => route.path = "#{@path}/jobs"
     # Removing the DNS-SD advertisement
     if @mdnsAd? then @mdnsAd.stop() else @avahiAd.remove()
-    console.log "#{@name}: Disconnected"
+    console.log "#{@name} Disconnected"
