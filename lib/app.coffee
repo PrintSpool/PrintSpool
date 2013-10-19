@@ -72,10 +72,13 @@ module.exports = class App
       slug: slug
       path: "/printers/#{slug}"
       port: port
+    console.log "#{opts.name} Connecting.."
     @printer_servers.push new PrinterServer opts
     console.log "#{opts.name} Connected"
 
   _onPrinterDisconnect: (port) =>
-    @printer_servers.remove (p) -> p.port == port
+    @printer_servers.remove (p) ->
+      console.log "#{p.name} Disconnecting.."
+      p.port == port
 
 app = new App()

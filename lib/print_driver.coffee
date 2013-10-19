@@ -98,7 +98,7 @@ module.exports = class PrintDriver extends EventEmitter
     @_headersReceived = false
 
   _onError: (err) =>
-    # console.log err
+    console.log err
     # @_onSerialDisconnect()
 
   reset: =>
