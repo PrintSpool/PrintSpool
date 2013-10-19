@@ -75,8 +75,9 @@ module.exports = class PrintDriver extends EventEmitter
     PrintDriver.on 'disconnect', @_onSerialDisconnect
 
   _onSerialDisconnect: (p) =>
-    return if @_killed
-    @emit 'disconnect' if p.comName == @_comName
+    console.log p
+    return if @_killed or p.comName != @_comName
+    @emit 'disconnect'
     @kill()
 
   startPolling: ->
