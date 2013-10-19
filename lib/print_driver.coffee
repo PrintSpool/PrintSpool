@@ -135,8 +135,7 @@ module.exports = class PrintDriver extends EventEmitter
     clearTimeout @_pollingTimeout if @_pollingTimeout?
     PrintDriver.removeListener 'disconnect', @_onSerialDisconnect
     @removeAllListeners()
-    @serialPort.close()
-    @serialPort.removeAllListeners()
+    @serialPort.close => @serialPort.removeAllListeners()
 
   _prepGCodes: (gcode) ->
     if typeof(gcode) == "array"
