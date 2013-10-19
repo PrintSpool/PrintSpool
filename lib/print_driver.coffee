@@ -133,6 +133,9 @@ module.exports = class PrintDriver extends EventEmitter
     @_sendNextLine() if @isClearToSend()
 
   kill: ->
+    return if @_killed
+    @_killed = true
+    console.log "Killing the print driver" if @verbose
     clearTimeout @_pollingTimeout if @_pollingTimeout?
     PrintDriver.removeListener 'disconnect', @_onSerialDisconnect
     @removeAllListeners()
