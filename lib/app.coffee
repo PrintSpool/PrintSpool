@@ -1,3 +1,4 @@
+SegfaultHandler = require('segfault-handler')
 http = require("http")
 express = require("express")
 PrintDriver = require("./print_driver")
@@ -10,6 +11,8 @@ InstallBuilder = require './install_builder'
 SlicingEngineFactory = require("../lib/slicing_engine_factory")
 
 APP_NAME = 'construct'
+
+SegfaultHandler.registerHandler()
 
 module.exports = class App
   constructor: ->

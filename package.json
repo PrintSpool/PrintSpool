@@ -14,6 +14,7 @@
     , "join": "*"
     , "fs-extra": "*"
     , "js-yaml": "*"
+    , "segfault-handler": "*"
     , "esprima": "*"
     , "glob": "*"
     , "request": "*"
