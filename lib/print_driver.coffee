@@ -32,6 +32,12 @@ module.exports = class PrintDriver extends EventEmitter
   @_update: (newPorts) =>
     previousPorts = @_ports
     @_ports = newPorts
+    console.log "\n---------------------------------"
+    console.log "new ports"
+    console.log newPorts
+    console.log "old ports"
+    console.log "---------------------------------\n"
+    console.log previousPorts
     for p in newPorts.union(previousPorts)
       matcher = (p2) -> p.comName == p2.comName
       @emit("connect", p) if previousPorts.none( matcher )
