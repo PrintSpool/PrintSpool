@@ -211,7 +211,10 @@ module.exports = class Printer extends EventEmitter
 
   _print: =>
     @currentJob = @_jobs[0]
-    @_setStatus "slicing" if @currentJob.needsSlicing?
+    if @currentJob.needsSlicing?
+      changes = @changeJob if @currentJob.id, status: slicing, false, false
+      changes['status'] = 'slicing'
+      @emit 'change', changes
     @currentJob.loadGCode @_onReadyToPrint.fill(@currentJob)
 
   _onReadyToPrint: (job, err, gcode) =>

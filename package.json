@@ -10,7 +10,7 @@
     , "sugar": "*"
     , "stdio": "*"
     , "exec-sync": "*"
-    , "avahi_pub": "git+https://github.com/D1plo1d/node_avahi_pub.git"
+    , "avahi_pub": "git+https://github.com/D1plo1d/node_avahi_pub.git#d149ae89b99cc0fb2d4126ec61545ca5477897ad"
     , "join": "*"
     , "fs-extra": "*"
     , "js-yaml": "*"
