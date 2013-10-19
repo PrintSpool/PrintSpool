@@ -67,7 +67,7 @@ module.exports = class PrintDriver extends EventEmitter
       flowControl: false #true
     .on("data", @_onData)
     .on("open", @_onOpen)
-    @serialPort.errorCallback = @_onError
+    @serialPort.options.errorCallback = @_onError
     @startPolling() if @polling = opts.polling
     PrintDriver.on 'disconnect', @_onSerialDisconnect
 
