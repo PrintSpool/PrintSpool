@@ -24,7 +24,6 @@ module.exports = class App
 
     PrintDriver.listen()
     PrintDriver.on "connect", @_onPrinterConnect
-    PrintDriver.on "disconnect", @_onPrinterDisconnect
 
     @app.get '/printers.json', @getPrintersJson
 
@@ -52,6 +51,7 @@ module.exports = class App
       port: port
       polling: true
       verbose: config.verbose
+
     # setting up the printer (defaults)
     settings = {slicingEngine: 'cura_engine', slicingProfile: 'default'}
 
@@ -76,10 +76,12 @@ module.exports = class App
       path: "/printers/#{slug}"
       port: port
     console.log "#{opts.name} Connecting.."
-    @printer_servers.push new PrinterServer opts
+    ps = new PrinterServer opts
+    @printer_servers.push ps
+    driver.on "disconnect", @_onPrinterDisconnect.fill(ps)
     console.log "#{opts.name} Connected"
 
-  _onPrinterDisconnect: (port) =>
-    @printer_servers.remove (p) -> p.port == port
+  _onPrinterDisconnect: (ps) =>
+    @printer_servers.remove ps
 
 app = new App()

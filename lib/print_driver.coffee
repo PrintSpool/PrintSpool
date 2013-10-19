@@ -72,6 +72,7 @@ module.exports = class PrintDriver extends EventEmitter
     PrintDriver.on 'disconnect', @_onSerialDisconnect
 
   _onSerialDisconnect: (p) =>
+    return if @_killed
     @emit 'disconnect' if p.comName == @_comName
     @kill()
 
@@ -100,7 +101,7 @@ module.exports = class PrintDriver extends EventEmitter
 
   _onError: (err) =>
     console.log err
-    # @_onSerialDisconnect()
+    @emit 'disconnect'
 
   reset: =>
     @_cliReset()
