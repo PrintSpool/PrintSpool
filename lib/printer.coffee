@@ -148,8 +148,11 @@ module.exports = class Printer extends EventEmitter
     temps = for k, v of diff
       [k, v.target_temp] if v.target_temp
     temps = temps.compact()
-    conveyors = Object.findAll diff, (k, v) -> v.type == 'conveyor'
-    fans = Object.findAll diff, (k, v) -> v.type == 'fan'
+    conveyors = Object.findAll diff, (k, v) => @data[k].type == 'conveyor'
+    fans = Object.findAll diff, (k, v) => @data[k].type == 'fan'
+    console.log @data
+    console.log diff
+    console.log fans
     # Fail fast (part 2)
     if @status == 'printing'
       throw 'cannot set temperature while printing.' if temps?.length > 0
@@ -171,7 +174,7 @@ module.exports = class Printer extends EventEmitter
 
   _updateFan: (key, fan, diff) ->
     return unless fan.enabled or diff.enabled? # (enabled or en. changed)
-    @driver.sendNow( if fan.enabled then "M106 S#{data.speed}" else "M107" )
+    @driver.sendNow( if fan.enabled then "M106 S#{fan.speed}" else "M107" )
 
   _updateData: (new_data) =>
     # changes = Object.map new_data, @_appendChanges, {}
