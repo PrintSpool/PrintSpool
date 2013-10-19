@@ -32,10 +32,13 @@ module.exports = class PrintDriver extends EventEmitter
   @_update: (newPorts) =>
     previousPorts = @_ports
     @_ports = newPorts
-    for p in newPorts.union(previousPorts)
-      matcher = (p2) -> p.comName == p2.comName
-      @emit("disconnect", p) if newPorts.none( matcher )
-      @emit("connect", p) if previousPorts.none( matcher )
+    for p in previousPorts
+      @emit("disconnect", p) if newPorts.none( @_matcher.fill(p) )
+    for p in newPorts
+      @emit("connect", p) if previousPorts.none( @_matcher.fill(p) )
+
+  @_matcher = (p1, p2) ->
+    p1.comName == p2.comName
 
   _defaultOpts: {port: null, baudrate: 115200, polling: true}
   _greetings: /^(start|grbl |ok|.*t:)/
