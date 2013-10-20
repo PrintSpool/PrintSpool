@@ -13,9 +13,9 @@ module.exports = class Printer extends EventEmitter
   _defaultAttrs:
     heater:
       type: 'heater'
-      target_temp: 0
-      current_temp: 0
-      target_temp_countdown: 0
+      targetTemp: 0
+      currentTemp: 0
+      targetTempCountdown: 0
       flowrate: 40
       blocking: false
     conveyor: { type: 'conveyor', enabled: false }
@@ -27,9 +27,9 @@ module.exports = class Printer extends EventEmitter
     # Building the printer data
     @data =
       status: 'initializing'
-      xy_feedrate: 3000
-      z_feedrate: 300
-      pause_between_prints: true
+      xyFeedrate: 3000
+      zFeedrate: 300
+      pauseBetweenPrints: true
     @data.__defineGetter__ "jobs", @getJobs
     Object.merge @data, settings
     @data[k] = Object.clone(@_defaultAttrs[v]) for k, v of components
@@ -60,16 +60,17 @@ module.exports = class Printer extends EventEmitter
     output.total_lines = job.totalLines
     output.current_line = job.currentLine
     output.qty_printed = job.qtyPrinted
+    output.slicing_engine = job._slicingEngine
+    output.slicing_profile = job._slicingProfile
     output
 
   addJob: (jobAttrs) ->
     jobAttrs = Object.merge jobAttrs,
       id: @_nextJobId++
       qtyPrinted: 0
-      slicingEngine: @data.slicingEngine
-      slicingProfile: @data.slicingProfile
       position: @_jobs.length
       printerId: @id
+      printer: @
     jobAttrs.qty ||= 1
     job = new @_PrintJob(jobAttrs)
     @_jobs.push job
@@ -89,7 +90,7 @@ module.exports = class Printer extends EventEmitter
       jobAttrs = Object.reject jobAttrs, (k,v) -> whitelist.has(k)
       # Validations
       for k, v of jobAttrs
-        continue if @["_validateJob#{k.capitalize()}"](v)
+        continue if @["_validateJob#{k.camelize(true)}"](v)
         throw "Invalid #{k}: #{v}"
     job = @_jobs.find( (someJob) -> someJob.id == jobAttrs.id )
     throw "Invalid id: #{jobAttrs.id}" unless job?
@@ -105,7 +106,7 @@ module.exports = class Printer extends EventEmitter
       event["jobs[#{j.id}]"] = position: j.position
     # Saving the data
     delete jobAttrs['id']
-    Object.merge job, jobAttrs
+    job[k.camelize(false)] = v for k, v of jobAttrs
     event["jobs[#{job.id}]"] = jobAttrs
     # console.log @_jobs
     @emit "change", event if emit
@@ -119,6 +120,12 @@ module.exports = class Printer extends EventEmitter
 
   _validateJobPosition: (val) ->
     val >= 0 and val < @_jobs.length
+
+  _validateJobSlicingEngine: (val) ->
+    typeof(val) == "string" and val.has(/\/|\\|\./) == false
+
+  _validateJobSlicingProfile: (val) ->
+    typeof(val) == "string" and val.has(/\/|\\|\./) == false
 
   getJobs: =>
     jobs = @_jobs.map (job) => @_whitelistJob job
@@ -150,9 +157,6 @@ module.exports = class Printer extends EventEmitter
     temps = temps.compact()
     conveyors = Object.findAll diff, (k, v) => @data[k].type == 'conveyor'
     fans = Object.findAll diff, (k, v) => @data[k].type == 'fan'
-    console.log @data
-    console.log diff
-    console.log fans
     # Fail fast (part 2)
     if @status == 'printing'
       throw 'cannot set temperature while printing.' if temps?.length > 0
@@ -185,22 +189,28 @@ module.exports = class Printer extends EventEmitter
     @emit "change", changes if Object.keys(changes).length > 0
 
   _appendChanges: (changes, k, v) ->
+    dataK = k.camelize(false)
+    dataVal = @data[dataK]
     # Objects
     if typeof(v) == "object"
       # Fail fast
       for k2, v2 of v
-        continue unless typeof(v2) != typeof(@data[k]?[k2])
-        throw "#{k}.#{k2} must be a #{typeof(@data[k][k2])}." if @data[k]?[k2]?
+        dataK2 = k2.camelize(false)
+        type = typeof(dataVal?[dataK2])
+        continue unless typeof(v2) != type
+        throw "#{k}.#{k2} must be a #{type}." if dataVal?[dataK2]?
         throw "#{k}.#{k2} does not exist."
       # Push any modified attributes to the changes
-      (changes[k]?={})[k2] = v2 for k2, v2 of v if @data[k][k2] != v2
+      for k2, v2 of v
+        dataK2 = k2.camelize(false)
+        (changes[dataK]?={})[dataK2] = v2 if @data[k][dataK2] != v2
     # Erroneous Data
-    else if typeof(v2) != typeof(@data[k][k2])
-      throw "#{k} must be a #{typeof(@data[k])}." if @data[k]?
+    else if typeof(v) != typeof(dataVal)
+      throw "#{k} must be a #{typeof(dataVal)}." if dataVal?
       throw "#{k} does not exist."
     # Numbers and Strings
     else
-      changes[k] = v
+      changes[dataK] = v
     return changes
 
   print: =>
@@ -243,7 +253,7 @@ module.exports = class Printer extends EventEmitter
     changes = @changeJob attrs, false, false
 
     @currentJob = null
-    if @data.pause_between_prints or @_jobs.length == 0
+    if @data.pauseBetweenPrints or @_jobs.length == 0
       changes['status'] = 'idle'
       @data.status = 'idle'
     else
@@ -265,7 +275,7 @@ module.exports = class Printer extends EventEmitter
     gcode = 'G1'
     gcode += " #{k.replace(/e\d/, 'e').toUpperCase()}#{v}" for k, v of axesVals
     # Calculating and adding the feedrate
-    feedrate = @data["#{if axesVals.z? then 'z' else 'xy'}_feedrate"]
+    feedrate = @data["#{if axesVals.z? then 'z' else 'xy'}Feedrate"]
     extruders = axesVals.keys().filter (k) -> k.startsWith 'e'
     eFeedrates = extruders.map (k) => @data[k].flowrate
     feedrate = eFeedrates.reduce ( (f1, f2) -> Math.min f1, f2 ), feedrate

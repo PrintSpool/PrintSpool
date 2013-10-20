@@ -12,6 +12,7 @@ SCHEMA = yaml.Schema.create([]);#[ calcYamlType ]);
 module.exports = class CuraEngine
 
   constructor: (@opts) ->
+    console.log opts.slicingProfile
     @_configPath = "#{@opts.configDir}/#{opts.slicingProfile}_profile.yml"
 
   slice: =>

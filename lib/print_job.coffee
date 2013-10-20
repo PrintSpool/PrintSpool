@@ -8,6 +8,17 @@ Join = require('join')
 module.exports = class PrintJob extends EventEmitter
   constructor: (opts) ->
     @[k] = v for k, v of opts
+    for k in ["slicingEngine", "slicingProfile"]
+      @["_#{k}"] = @[k]
+      @__defineGetter__ k, @_get.fill(k)
+      @__defineSetter__ k, @_set.fill(k)
+      # Object.defineProperty @, k, get: @_get.fill(k), get: @_set.fill(k)
+
+  _get: (key) =>
+    @["_#{key}"] || @printer.data[key]
+
+  _set: (key, value) =>
+    @["_#{key}"] = value?.underscore?()
 
   loadGCode: (cb) =>
     @once "load", cb if cb?

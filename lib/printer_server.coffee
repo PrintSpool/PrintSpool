@@ -62,7 +62,8 @@ module.exports = class PrinterServer
   onClientConnect: (ws) =>
     ws.on 'message', @onClientMessage.fill(ws)
     ws.on "close", @onClientDisconnect
-    ws.send JSON.stringify [{type: 'initialized', data: @printer.data}]
+    data = @_underscoreData @printer.data
+    ws.send JSON.stringify [{type: 'initialized', data: data}]
     console.log "#{@name}: Client Attached"
 
   onClientDisconnect: (ws) =>
@@ -90,10 +91,10 @@ module.exports = class PrinterServer
       output.push type: 'change', target: k.underscore(), data: v
     @broadcast JSON.stringify output
 
-  _underscoreData: (originalData) ->
+  _underscoreData: (originalData) =>
     return originalData unless Object.isObject(originalData)
     data = {}
-    data[k2.underscore()] = v2 for k2, v2 of originalData
+    data[k2.underscore()] = @_underscoreData(v2) for k2, v2 of originalData
     return data
 
   onPrinterAdd: (target, value) =>

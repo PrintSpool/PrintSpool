@@ -17,7 +17,8 @@ requireSlicingEngine = (opts) ->
 install = (opts, callback = ->) ->
   Slicer = requireSlicingEngine opts
   dir = [module.exports.configDir, engineName(opts)]
-  dir << opts.slicingProfile if !(Slicer.sandboxDir?) or (Slicer.sandboxDir)
+  if !(Slicer.sandboxDir?) or (Slicer.sandboxDir)
+    dir << opts.slicingProfile.toString()
   opts.configDir = path.resolve dir.join '/'
   cb = installifNotInstalled.fill(opts, callback, opts.configDir)
   if Slicer.isInstalled?
