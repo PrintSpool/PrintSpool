@@ -1,7 +1,8 @@
 SegfaultHandler = require('segfault-handler')
 http = require("http")
 express = require("express")
-PrintDriver = require("./print_driver")
+ArudinoDiscoverer = require("./arduino_discoverer")
+PrintDriver = require("./print_driver_factory")
 Printer = require("./printer")
 PrinterServer = require("./printer_server")
 require("js-yaml")
@@ -22,8 +23,8 @@ module.exports = class App
     # @app.use express.static(__dirname + "../public")
     @server = http.createServer(@app).listen(2540)
 
-    PrintDriver.listen()
-    PrintDriver.on "connect", @_onPrinterConnect
+    ArudinoDiscoverer.listen()
+    ArudinoDiscoverer.on "connect", @_onPrinterConnect
 
     @app.get '/printers.json', @getPrintersJson
 
