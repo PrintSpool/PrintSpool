@@ -10,8 +10,6 @@ module.exports = class PrintDriver extends AbstractSerialDriver
   _serialParser: serialport.parsers.readline("\n")
   _greetings: /^(start|grbl |ok|.*t:)/
   _comments: /;[^\n]*|\([^\n]*\)/g
-  # An array of extruders and beds that the printer is waiting for to reach temp
-  _blockers: []
 
   greetingTimeout: 2500
 

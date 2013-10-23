@@ -16,6 +16,8 @@ module.exports = class AbstractSerialDriver extends EventEmitter
   _printJobLine: 0
   # Gcodes added via the sendNow function (like temperature polling)
   _sendNowQueue: []
+  # An array of extruders and beds that the printer is waiting for to reach temp
+  _blockers: []
 
   verbose: false
   waitForHeaders: true
