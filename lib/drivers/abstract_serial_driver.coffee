@@ -18,6 +18,7 @@ module.exports = class AbstractSerialDriver extends EventEmitter
   _sendNowQueue: []
 
   verbose: false
+  waitForHeaders: true
   pollingInterval: 700
 
   constructor: (opts = {}, SP = SerialPort) ->
@@ -54,7 +55,7 @@ module.exports = class AbstractSerialDriver extends EventEmitter
     @_opened = true
     console.log "opened" if @verbose
     @_cliReset()
-    @_headersReceived = false
+    @_headersReceived = (@waitForHeaders == false)
 
   _onError: (err) =>
     console.log err if @verbose
@@ -86,8 +87,9 @@ module.exports = class AbstractSerialDriver extends EventEmitter
     @removeAllListeners()
     @serialPort.close => @serialPort.removeAllListeners()
 
-  sendNow: (gcodes) =>
-    @_sendNowQueue = @_sendNowQueue.concat(@_prepGCodes(gcodes))
+  sendNow: (gcodes, prep = true) =>
+    gcodes = @_prepGCodes(gcodes) if prep == true
+    @_sendNowQueue = @_sendNowQueue.concat(gcodes)
     @_sendNextLine() if @isClearToSend()
 
   print: (printJob) =>
