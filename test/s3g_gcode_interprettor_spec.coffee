@@ -262,3 +262,38 @@ describe 'S3GGCodeInerprettor', ->
   it 'should parse T (tool select)', ->
     payloads = parse "T5"
     expect(state.tool).to.equal 5
+
+
+  it 'should parse M84 (disable extruder stepper)', ->
+      payloads = parse "M84"
+      b = new Buffer(5)
+      b.writeUInt8    136, 0
+      b.writeUInt8      0, 1 # Tool ID
+      b.writeUInt8     10, 2 # Tool Command
+      b.writeUInt8      1, 3 # Tool Command Payload Length
+      b.writeUInt8      0, 4
+      expect(payloads[0]).to.deep.equal b
+
+
+  validateM140Buffer = (payloads, toolID) ->
+    b = new Buffer(4 + 2)
+    b.writeUInt8    136, 0
+    b.writeUInt8      0, 1 # Tool ID
+    b.writeUInt8     31, 2 # Tool Command
+    b.writeUInt8      2, 3 # Tool Command Payload Length
+    b.writeUInt16LE 100, 4
+    expect(payloads[0]).to.deep.equal b
+
+  it 'should parse m140 (set bed temperature)', ->
+    payloads = parse "M140 S100"
+    validateM140Buffer(payloads)
+
+  it 'should parse m190 (set bed temperature)', ->
+    payloads = parse "M190 S100"
+    validateM140Buffer(payloads)
+    b2 = new Buffer(2 + 2*2)
+    b2.writeUInt8    141, 0
+    b2.writeUInt8      0, 1 # Tool ID
+    b2.writeUInt16LE 100, 2
+    b2.writeUInt16LE Math.pow(2,16)-1, 4
+    expect(payloads[1]).to.deep.equal b2

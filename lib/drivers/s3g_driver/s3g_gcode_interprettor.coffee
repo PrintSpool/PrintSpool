@@ -84,6 +84,10 @@ module.exports = parse: (gcode, state) ->
     when 'g21' # Set to mm
       state.units_multiplier = 1
 
+    when 'm84' # Disable extruder stepper
+      b = toolPayloadBuilder true, toolId, 10
+      b.addUInt8 0
+
     when 'g90', 'g91' # Set to absolute / relative positioning
       state.absolutePosition = (cmd == 'g90')
 
@@ -115,6 +119,20 @@ module.exports = parse: (gcode, state) ->
       b.addInt16 attrs.s
       # Wait for tool ready
       b2 = payloadBuilder 135
+      b2.addInt8 toolId
+      b2.addUInt16 100 # delay between packets
+      # delay until timing out and continuing even though the tool isn't ready
+      # in minutes. Set to max because this sounded sketchy at best.
+      b2.addUInt16 Math.pow(2,16)-1
+
+    when 'm140' # Set bed temperature
+      b = toolPayloadBuilder true, toolId, 31
+      b.addInt16 attrs.s
+
+    when 'm190' # Set bed temperature and wait
+      b = toolPayloadBuilder true, toolId, 31
+      b.addInt16 attrs.s
+      b2 = payloadBuilder 141
       b2.addInt8 toolId
       b2.addUInt16 100 # delay between packets
       # delay until timing out and continuing even though the tool isn't ready
