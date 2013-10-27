@@ -13,7 +13,7 @@ module.exports = class S3GDriver extends AbstractSerialDriver
   waitForHeaders: false
 
   _sendS3G: (payload) ->
-    console.log payload
+    # console.log payload
     payload = new Buffer(payload) unless Buffer.isBuffer(payload)
     @_previousLine = payload
     packet = PacketBuilder.build payload
@@ -48,6 +48,8 @@ module.exports = class S3GDriver extends AbstractSerialDriver
     console.log "opened!"
     @_state = @opts.driver
     @_state.feedrate = 300
+    @_state.unitsMultiplier = 1
+    @_state.tool = 0
     # AbstractSerialDriver.prototype._onOpen.call(this)
 
     # Request the machine version number

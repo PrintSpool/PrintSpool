@@ -49,7 +49,7 @@ module.exports = class AbstractSerialDriver extends EventEmitter
 
   _cliReset: () =>
     args = [@_comName, @_baudrate]
-    proc = spawn("#{__dirname}/../bin/arduino_reset", args)
+    proc = spawn("#{__dirname}/../../bin/arduino_reset", args)
     proc.stdout.on 'data', (data) => console.log('stdout: ' + data) if @verbose
     proc.stderr.on 'data', (data) => console.log('stderr: ' + data) if @verbose
     proc.on 'close', (code) =>

@@ -52,16 +52,23 @@ module.exports = parse: (gcode, state) ->
     when 'g0', 'g1' # Move
       b = payloadBuilder 142
       distance = 0
-      for k in "xyzab"
-        steps = Math.round (attrs[k]||0) * state.axes[k].stepsPerMM
-        steps *= state.units_multiplier
+      console.log attrs
+      if attrs.e?
+        eValue = attrs['e']
+        delete attrs['e']
+        attrs['ab'[state.tool]] = eValue
+      for i, k of "xyzab"
+        steps =  (attrs[k]||0) * state.axes[k].stepsPerMM
+        steps = Math.round(steps * state.unitsMultiplier)
         distance += Math.pow steps, 2
+        console.log steps
         b.addInt32 steps
       distance = Math.sqrt distance
       # Durration in microseconds
       # console.log distance
       # console.log state.feedrate
       state.feedrate = attrs.f / 60 if attrs.f?
+      console.log "feedrate?"
       b.addUInt32 Math.round(100000 * distance / state.feedrate)
       # Relative axes bit mask
       b.addUInt8 if state.absolutePosition then 0x0 else 0xF
@@ -79,10 +86,10 @@ module.exports = parse: (gcode, state) ->
       b.addUInt32 attrs['p']
 
     when 'g20' # Set to inches
-      state.units_multiplier = 25.4
+      state.unitsMultiplier = 25.4
 
     when 'g21' # Set to mm
-      state.units_multiplier = 1
+      state.unitsMultiplier = 1
 
     when 'm84' # Disable extruder stepper
       b = toolPayloadBuilder true, toolId, 10
