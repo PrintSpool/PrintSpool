@@ -182,9 +182,9 @@ describe 'Printer', ->
 
     it 'should print continuously if pause_between_prints is false', (done) ->
       printer.print()
-      printer.set pause_between_prints: false
+      printer.set pauseBetweenPrints: false
       printer.on 'change', (data) ->
-        return unless data['jobs[0]'].status == 'done'
+        return unless data['jobs[0]']?.status == 'done'
         printer.status.should.equal 'printing'
         done()
       driver.emit "print_complete", @job

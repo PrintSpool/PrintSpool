@@ -9,7 +9,6 @@ module.exports = class PrintDriver extends AbstractSerialDriver
   _defaultOpts: {port: null, baudrate: 115200, polling: true}
   _serialParser: serialport.parsers.readline("\n")
   _greetings: /^(start|grbl |ok|.*t:)/
-  _comments: /;[^\n]*|\([^\n]*\)/g
 
   greetingTimeout: 2500
 

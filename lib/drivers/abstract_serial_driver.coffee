@@ -5,6 +5,8 @@ spawn = require('child_process').spawn
 ArudinoDiscoverer = require("../arduino_discoverer")
 
 module.exports = class AbstractSerialDriver extends EventEmitter
+  _comments: /;[^\n]*|\([^\n]*\)/g
+
   _opened: false
   # TODO: This should be more abstractly whether the printer is ready to print or not
   _headersReceived: false
@@ -24,11 +26,11 @@ module.exports = class AbstractSerialDriver extends EventEmitter
   pollingInterval: 700
 
   constructor: (opts = {}, SP = SerialPort) ->
-    opts = Object.merge (@_defaultOpts||{}), opts
-    @verbose ||= opts.verbose
-    @_comName = opts.port.comName
-    @_baudrate = opts.baudrate
-    console.log @_baudrate
+    @opts = Object.merge (@_defaultOpts||{}), opts
+    @verbose ||= @opts.verbose
+    @_comName = @opts.port.comName
+    @_baudrate = @opts.baudrate
+    # console.log @_baudrate
     @serialPort = new SP @_comName,
       baudrate: @_baudrate
       parser: @_serialParser
@@ -36,7 +38,7 @@ module.exports = class AbstractSerialDriver extends EventEmitter
     .on("data", @_onData)
     .on("open", @_onOpen)
     @serialPort.options.errorCallback = @_onError
-    @startPolling() if @polling = opts.polling
+    @startPolling() if @polling = @opts.polling
     ArudinoDiscoverer.on 'disconnect', @_onSerialDisconnect
 
   reset: =>

@@ -12,3 +12,90 @@
 # Uncomment this line to enable verbose command line output for debugging. 
 # This is for developers. Generally you won't need to set this. (Default: false)
 # verbose: true
+
+# MakerBot Extruders
+# =============================================================================
+
+# Usually you don't need to change these
+makerbotExtruders:
+  - &mk567 { maxfeedrate: 26.6666667, steps_per_mm: 50.235478806907409 }
+
+
+# Drivers
+# =============================================================================
+
+# Uncomment your machine's settings to configure it
+
+
+# Serial GCode Driver (Default, most 3D printers use this)
+# -----------------------------------------------------------------------------
+# driver: serial_gcode
+
+
+# Makerbot Replicator 2
+# -----------------------------------------------------------------------------
+# driver:
+#   type: s3g
+#   baudrate: 115200
+#   eeprom: mightyboard
+#   axes:
+#     x: { maxfeedrate: 300, steps_per_mm: 94.139704 }
+#     y: { maxfeedrate: 300, steps_per_mm: 94.139704 }
+#     z: { maxfeedrate: 19.5, steps_per_mm: 400 }
+#     a: { maxfeedrate: 26.6666667, steps_per_mm: 96.275201870333662468889989185642 }
+#     b: { maxfeedrate: 26.6666667, steps_per_mm: 96.275201870333662468889989185642 }
+
+
+# Makerbot Replicator
+# -----------------------------------------------------------------------------
+# driver:
+#   type: s3g
+#   baudrate: 115200
+#   eeprom: mightyboard
+#   axes:
+#     x: { maxfeedrate: 300, steps_per_mm: 94.139704 }
+#     y: { maxfeedrate: 300, steps_per_mm: 94.139704 }
+#     z: { maxfeedrate: 19.5, steps_per_mm: 400 }
+#     a: { maxfeedrate: 26.6666667, steps_per_mm: 96.275201870333662468889989185642 }
+#     b: { maxfeedrate: 26.6666667, steps_per_mm: 96.275201870333662468889989185642 }
+
+
+# Makerbot Thingomatic w/ Extruder MK6 or Stepstruder MK7 (Sailfish)
+# -----------------------------------------------------------------------------
+# driver:
+#   type: s3g
+#   baudrate: 115200
+#   eeprom: sailfish
+#   axes:
+#     x: { maxfeedrate: 160, steps_per_mm: 47.069852 }
+#     y: { maxfeedrate: 160, steps_per_mm: 47.069852 }
+#     z: { maxfeedrate: 16.6666667, steps_per_mm: 200 }
+#     a: *mk567
+#     b: *mk567
+
+
+# Makerbot Thingomatic w/ Extruder MK6 or Stepstruder MK7
+# -----------------------------------------------------------------------------
+# driver:
+#   type: s3g
+#   baudrate: 115200
+#   axes:
+#     x: { maxfeedrate: 160, steps_per_mm: 47.069852 }
+#     y: { maxfeedrate: 160, steps_per_mm: 47.069852 }
+#     z: { maxfeedrate: 16.6666667, steps_per_mm: 200 }
+#     a: *mk567
+#     b: *mk567
+
+
+# Makerbot 3G 5D Cupcake (Gen3 XYZ, Mk5/6+Gen4 Extruder, Sailfish)
+# -----------------------------------------------------------------------------
+# driver:
+#   type: s3g
+#   baudrate: 38400
+#   eeprom: sailfish
+#   axes:
+#     x: { maxfeedrate: 160, steps_per_mm: 11.767463 }
+#     y: { maxfeedrate: 160, steps_per_mm: 11.767463 }
+#     z: { maxfeedrate: 7.5, steps_per_mm: 320 }
+#     a: *mk567
+#     b: *mk567

@@ -13,6 +13,7 @@ module.exports = class S3GDriver extends AbstractSerialDriver
   waitForHeaders: false
 
   _sendS3G: (payload) ->
+    console.log payload
     payload = new Buffer(payload) unless Buffer.isBuffer(payload)
     @_previousLine = payload
     packet = PacketBuilder.build payload
@@ -27,8 +28,12 @@ module.exports = class S3GDriver extends AbstractSerialDriver
     @serialPort.write packet
 
   _sendGCode: (gcode) ->
-    payloads = @_interprettor.parse(gcode)
-    @_sendS3G(payload) for payload in payloads
+    payloads = GCodeInterprettor.parse(gcode, @_state)
+    if payloads.length > 0
+      @_sendS3G(payloads.shift())
+      @_sendNowQueue.unshift(payload) for payload in payloads
+    else
+      @_sendNextLine()
 
   _send: (data) ->
     if typeof(data) == "string"
@@ -41,6 +46,8 @@ module.exports = class S3GDriver extends AbstractSerialDriver
 
   _onOpen: =>
     console.log "opened!"
+    @_state = @opts.driver
+    @_state.feedrate = 300
     # AbstractSerialDriver.prototype._onOpen.call(this)
 
     # Request the machine version number
@@ -71,6 +78,8 @@ module.exports = class S3GDriver extends AbstractSerialDriver
     # @sendS3G(payload)
     # setTimeout ( => console.log('wut'); @sendS3G([21]) ), 500
 
+    # @sendNow('g1 x100')
+
   _onData: (data) =>
     if @_response?
       @_response = Buffer.concat [@_response, data]
@@ -89,20 +98,23 @@ module.exports = class S3GDriver extends AbstractSerialDriver
 
     size = responseSizes[cmd] || 0
     size = size(@_previousLine) if typeof(size) == "function"
-    console.log "expected: #{size + 4}"
-    console.log "actual: #{@_response.length}"
-    console.log @_response
 
     # Wait for the full packet to be sent if it is not an error
     return if size + 4 > @_response.length
 
     if cmd == 10
-      console.log "temp!!!"
       toolheadId = @_previousLine.readUInt8(1) 
       toolheadCmd = @_previousLine.readUInt8(2)
+    else
+      console.log "expected: #{size + 4}"
+      console.log "actual: #{@_response.length}"
+      console.log @_response
 
     # Mark the printer as ready once the first ack has been received
-    @_headersReceived ||= true
+    if !@_headersReceived
+      @_headersReceived = true
+      @emit("ready")
+
 
     payload = @_response.slice(3, -1)
     @_emitReceiveEvents(cmd, toolheadCmd, toolheadId, payload)
@@ -123,8 +135,8 @@ module.exports = class S3GDriver extends AbstractSerialDriver
     data = {}
     if code == 10 and toolheadCode = 2
       currentTemp = res.readUInt16LE(0)
-      data['e#{toolheadId}'] = current_temp: currentTemp
-      console.log "Temperature: #{currentTemp}"
+      data["e#{toolheadId}"] = current_temp: currentTemp
+      # console.log "Temperature: #{currentTemp}"
     @emit 'change', data
 
   _emitSendEvents: (l) ->

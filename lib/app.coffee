@@ -2,7 +2,7 @@ SegfaultHandler = require('segfault-handler')
 http = require("http")
 express = require("express")
 ArudinoDiscoverer = require("./arduino_discoverer")
-PrintDriver = require("./print_driver_factory")
+PrintDriverFactory = require("./print_driver_factory")
 Printer = require("./printer")
 PrinterServer = require("./printer_server")
 require("js-yaml")
@@ -47,18 +47,19 @@ module.exports = class App
       installer.run @_installConfig.fill(configFile), -> console.log "Done"
     config ?= {}
 
-    # setting up the serial driver
-    driver = new PrintDriver
-      port: port
-      polling: true
-      verbose: config.verbose
-
     # setting up the printer (defaults)
     settings = {slicingEngine: 'cura_engine', slicingProfile: 'default'}
 
     for k, v of Object.reject config, ['components', 'verbose', 'name']
       settings[k.camelize(false)] = v
     components = config.components
+
+    # setting up the serial driver
+    driver = PrintDriverFactory.build
+      driver: settings.driver
+      port: port
+      polling: true
+      verbose: config.verbose
 
     SlicingEngineFactory.install
       slicingEngine: settings.slicingEngine
