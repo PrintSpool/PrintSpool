@@ -13,13 +13,6 @@
 # This is for developers. Generally you won't need to set this. (Default: false)
 # verbose: true
 
-# MakerBot Extruders
-# =============================================================================
-
-# Usually you don't need to change these
-makerbotExtruders:
-  - &mk567 { maxfeedrate: 26.6666667, steps_per_mm: 50.235478806907409 }
-
 
 # Drivers
 # =============================================================================
@@ -39,11 +32,11 @@ makerbotExtruders:
 #   baudrate: 115200
 #   eeprom: mightyboard
 #   axes:
-#     x: { maxfeedrate: 300, steps_per_mm: 94.139704 }
-#     y: { maxfeedrate: 300, steps_per_mm: 94.139704 }
-#     z: { maxfeedrate: 19.5, steps_per_mm: 400 }
-#     a: { maxfeedrate: 26.6666667, steps_per_mm: 96.275201870333662468889989185642 }
-#     b: { maxfeedrate: 26.6666667, steps_per_mm: 96.275201870333662468889989185642 }
+#     x: { maxfeedrate: 300, steps_per_mm: 5.8837315, microstepping: 16 }
+#     y: { maxfeedrate: 300, steps_per_mm: 5.8837315, microstepping: 16 }
+#     z: { maxfeedrate: 19.5, steps_per_mm: 25, microstepping: 16 }
+#     a: { maxfeedrate: 26.6666667, steps_per_mm: 6.0172001169, microstepping: 16 }
+#     b: { maxfeedrate: 26.6666667, steps_per_mm: 6.0172001169, microstepping: 16 }
 
 
 # Makerbot Replicator
@@ -53,11 +46,11 @@ makerbotExtruders:
 #   baudrate: 115200
 #   eeprom: mightyboard
 #   axes:
-#     x: { maxfeedrate: 300, steps_per_mm: 94.139704 }
-#     y: { maxfeedrate: 300, steps_per_mm: 94.139704 }
-#     z: { maxfeedrate: 19.5, steps_per_mm: 400 }
-#     a: { maxfeedrate: 26.6666667, steps_per_mm: 96.275201870333662468889989185642 }
-#     b: { maxfeedrate: 26.6666667, steps_per_mm: 96.275201870333662468889989185642 }
+#     x: { maxfeedrate: 300, steps_per_mm: 5.8837315, microstepping: 16 }
+#     y: { maxfeedrate: 300, steps_per_mm: 5.8837315, microstepping: 16 }
+#     z: { maxfeedrate: 19.5, steps_per_mm: 25, microstepping: 16 }
+#     a: { maxfeedrate: 26.6666667, steps_per_mm: 6.0172001169, microstepping: 16 }
+#     b: { maxfeedrate: 26.6666667, steps_per_mm: 6.0172001169, microstepping: 16 }
 
 
 # Makerbot Thingomatic w/ Extruder MK6 or Stepstruder MK7 (Sailfish)
@@ -67,11 +60,11 @@ makerbotExtruders:
 #   baudrate: 115200
 #   eeprom: sailfish
 #   axes:
-#     x: { maxfeedrate: 160, steps_per_mm: 47.069852 }
-#     y: { maxfeedrate: 160, steps_per_mm: 47.069852 }
-#     z: { maxfeedrate: 16.6666667, steps_per_mm: 200 }
-#     a: *mk567
-#     b: *mk567
+#     x: { maxfeedrate: 160, steps_per_mm: 5.8837315, microstepping: 8 }
+#     y: { maxfeedrate: 160, steps_per_mm: 5.8837315, microstepping: 8 }
+#     z: { maxfeedrate: 16.6666667, steps_per_mm: 25, microstepping: 8 }
+#     a: { maxfeedrate: 26.6666667, steps_per_mm: 50.235478806907409, microstepping: 4 }
+#     b: { maxfeedrate: 26.6666667, steps_per_mm: 50.235478806907409, microstepping: 4 }
 
 
 # Makerbot Thingomatic w/ Extruder MK6 or Stepstruder MK7
@@ -80,11 +73,11 @@ makerbotExtruders:
 #   type: s3g
 #   baudrate: 115200
 #   axes:
-#     x: { maxfeedrate: 160, steps_per_mm: 47.069852 }
-#     y: { maxfeedrate: 160, steps_per_mm: 47.069852 }
-#     z: { maxfeedrate: 16.6666667, steps_per_mm: 200 }
-#     a: *mk567
-#     b: *mk567
+#     x: { maxfeedrate: 160, steps_per_mm: 5.8837315, microstepping: 8 }
+#     y: { maxfeedrate: 160, steps_per_mm: 5.8837315, microstepping: 8 }
+#     z: { maxfeedrate: 16.6666667, steps_per_mm: 25, microstepping: 8 }
+#     a: { maxfeedrate: 26.6666667, steps_per_mm: 50.235478806907409, microstepping: 4 }
+#     b: { maxfeedrate: 26.6666667, steps_per_mm: 50.235478806907409, microstepping: 4 }
 
 
 # Makerbot 3G 5D Cupcake (Gen3 XYZ, Mk5/6+Gen4 Extruder, Sailfish)
@@ -94,8 +87,8 @@ makerbotExtruders:
 #   baudrate: 38400
 #   eeprom: sailfish
 #   axes:
-#     x: { maxfeedrate: 160, steps_per_mm: 11.767463 }
-#     y: { maxfeedrate: 160, steps_per_mm: 11.767463 }
-#     z: { maxfeedrate: 7.5, steps_per_mm: 320 }
-#     a: *mk567
-#     b: *mk567
+#     x: { maxfeedrate: 160, steps_per_mm: 1.47093287, microstepping: 8 }
+#     y: { maxfeedrate: 160, steps_per_mm: 1.47093287, microstepping: 8 }
+#     z: { maxfeedrate: 7.5, steps_per_mm: 320, microstepping: 1 }
+#     a: { maxfeedrate: 26.6666667, steps_per_mm: 50.235478806907409, microstepping: 1 }
+#     b: { maxfeedrate: 26.6666667, steps_per_mm: 50.235478806907409, microstepping: 1 }

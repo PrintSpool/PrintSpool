@@ -26,7 +26,7 @@ toolPayloadBuilder = (isAction, toolId, toolCmdByte, nBytes = 0) ->
 
 slowestAxisStepsPerMM = (state) ->
   slowest = Math.Infinity
-  slowest = v.stepsPerMM if v.stepsPerMM < slowest for k, v of state.axes
+  slowest = v.stepsPerMM * v.microstepping if v.stepsPerMM < slowest for k, v of state.axes
   return slowest
 
 axesBitmask = (gcode) ->
@@ -52,23 +52,23 @@ module.exports = parse: (gcode, state) ->
     when 'g0', 'g1' # Move
       b = payloadBuilder 142
       distance = 0
-      console.log attrs
+      # console.log attrs
       if attrs.e?
         eValue = attrs['e']
         delete attrs['e']
         attrs['ab'[state.tool]] = eValue
       for i, k of "xyzab"
-        steps =  (attrs[k]||0) * state.axes[k].stepsPerMM
-        steps = Math.round(steps * state.unitsMultiplier)
+        axis = state.axes[k]
+        steps =  (attrs[k]||0) * axis.stepsPerMM
+        steps = Math.round(steps * state.unitsMultiplier * axis.microstepping)
         distance += Math.pow steps, 2
-        console.log steps
+        # console.log steps
         b.addInt32 steps
       distance = Math.sqrt distance
       # Durration in microseconds
       # console.log distance
       # console.log state.feedrate
       state.feedrate = attrs.f / 60 if attrs.f?
-      console.log "feedrate?"
       b.addUInt32 Math.round(100000 * distance / state.feedrate)
       # Relative axes bit mask
       b.addUInt8 if state.absolutePosition then 0x0 else 0xF

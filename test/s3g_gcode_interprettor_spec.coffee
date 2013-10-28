@@ -10,14 +10,14 @@ expect = chai.expect
 state = null
 defaultState = () ->
   axes:
-    x: { stepsPerMM: 5 }
-    y: { stepsPerMM: 5 }
-    z: { stepsPerMM: 5 }
-    a: { stepsPerMM: 5 }
-    b: { stepsPerMM: 5 }
+    x: { stepsPerMM: 5, microstepping: 1 }
+    y: { stepsPerMM: 5, microstepping: 1 }
+    z: { stepsPerMM: 5, microstepping: 1 }
+    a: { stepsPerMM: 5, microstepping: 1 }
+    b: { stepsPerMM: 5, microstepping: 1 }
   feedrate: 300
   absolutePosition: false
-  units_multiplier: 1
+  unitsMultiplier: 1
   tool: 1
 
 parse = (gcode, _state) ->
@@ -47,12 +47,12 @@ describe 'S3GGCodeInerprettor', ->
     state.units_multiplier = 0
     payloads = parse "G20", state
     expect(payloads).have.length 0
-    expect(state.units_multiplier).to.equal 25.4
+    expect(state.unitsMultiplier).to.equal 25.4
 
   it 'should parse G21 (Metric)', ->
     payloads = parse "G21"
     expect(payloads).have.length 0
-    expect(state.units_multiplier).to.equal 1
+    expect(state.unitsMultiplier).to.equal 1
 
 
   # Move
