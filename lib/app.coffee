@@ -15,6 +15,14 @@ APP_NAME = 'construct'
 
 SegfaultHandler.registerHandler()
 
+camelizeData = (originalData) =>
+  return originalData unless Object.isObject(originalData)
+  data = {}
+  for k2, v2 of originalData
+    k2 = k2.camelize(false).replace 'Mm', 'MM'
+    data[k2] = camelizeData(v2)
+  return data
+
 module.exports = class App
   constructor: ->
     @printer_servers = []
@@ -46,12 +54,13 @@ module.exports = class App
       installer = new InstallBuilder __dirname, configDir
       installer.run @_installConfig.fill(configFile), -> console.log "Done"
     config ?= {}
+    config = camelizeData config
+    # console.log config
 
     # setting up the printer (defaults)
     settings = {slicingEngine: 'cura_engine', slicingProfile: 'default'}
 
-    for k, v of Object.reject config, ['components', 'verbose', 'name']
-      settings[k.camelize(false)] = v
+    Object.merge settings, Object.reject config, ['components', 'verbose', 'name']
     components = config.components
 
     # setting up the serial driver

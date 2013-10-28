@@ -59,6 +59,7 @@ module.exports = parse: (gcode, state) ->
         attrs['ab'[state.tool]] = eValue
       for i, k of "xyzab"
         axis = state.axes[k]
+        # console.log axis
         steps =  (attrs[k]||0) * axis.stepsPerMM
         steps = Math.round(steps * state.unitsMultiplier * axis.microstepping)
         distance += Math.pow steps, 2
@@ -69,6 +70,7 @@ module.exports = parse: (gcode, state) ->
       # console.log distance
       # console.log state.feedrate
       state.feedrate = attrs.f / 60 if attrs.f?
+      # console.log "Feedrate: #{state.feedrate}"
       b.addUInt32 Math.round(100000 * distance / state.feedrate)
       # Relative axes bit mask
       b.addUInt8 if state.absolutePosition then 0x0 else 0xF

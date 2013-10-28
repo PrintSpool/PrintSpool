@@ -15,7 +15,7 @@ module.exports = class Printer extends EventEmitter
       targetTemp: 0
       currentTemp: 0
       targetTempCountdown: 0
-      flowrate: 40
+      flowrate: 40 / 60
       blocking: false
     conveyor: { type: 'conveyor', enabled: false }
     fan: { type: 'fan', enabled: false, speed: 255 }
@@ -26,12 +26,14 @@ module.exports = class Printer extends EventEmitter
     # Building the printer data
     @data =
       status: 'initializing'
-      xyFeedrate: 3000
-      zFeedrate: 300
+      xyFeedrate: 3000 / 60
+      zFeedrate: 300 / 60
       pauseBetweenPrints: true
     @data.__defineGetter__ "jobs", @getJobs
     Object.merge @data, settings
-    @data[k] = Object.clone(@_defaultAttrs[v]) for k, v of components
+    for k, v of components
+      @data[k] = Object.clone(@_defaultAttrs[v.type||v])
+      Object.merge @data[k], v if typeof(v) != 'string'
     # Adding the extruders to the axes
     @_axes = ['x','y','z']
     (@_axes.push k if k.startsWith 'e') for k, v of components
@@ -278,6 +280,7 @@ module.exports = class Printer extends EventEmitter
     extruders = axesVals.keys().filter (k) -> k.startsWith 'e'
     eFeedrates = extruders.map (k) => @data[k].flowrate
     feedrate = eFeedrates.reduce ( (f1, f2) -> Math.min f1, f2 ), feedrate
+    feedrate *= 60
     gcode = "G91\nG1 F#{feedrate}\n#{gcode} F#{feedrate}"
     if extruders.length > 0
       gcode = "T#{extruders[0].replace 'e', ''}\n#{gcode}"

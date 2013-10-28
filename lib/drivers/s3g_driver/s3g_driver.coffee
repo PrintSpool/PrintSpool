@@ -46,41 +46,30 @@ module.exports = class S3GDriver extends AbstractSerialDriver
 
   _onOpen: =>
     console.log "opened!"
+    @reset()
+
+  reset: =>
+    @_printJob = null
+    @_printJobLine = 0
+    @_headersReceived = false
+
     @_state = @opts.driver
     @_state.feedrate = 300
     @_state.unitsMultiplier = 1
     @_state.tool = 0
-    # AbstractSerialDriver.prototype._onOpen.call(this)
 
-    # Request the machine version number
+    # Step 2: Request the machine version number
     payload = new Buffer(3)
     payload.writeUInt8(0, 0)
     payload.writeUInt16LE(40, 1)
-    @_sendS3G(payload)
-    # @_sendS3G([2])
+    @_sendNowQueue.unshift(payload)
 
-    # payload = new Buffer(2+6*4)
-    # i = 0
-    # payload.writeUInt8(142, i)
-    # i++
-    # payload.writeInt32LE(-2000, i) # X (in steps)
-    # i+= 4
-    # payload.writeInt32LE(0, i) # Y
-    # i+= 4
-    # payload.writeInt32LE(0, i)   # Z
-    # i+= 4
-    # payload.writeInt32LE(0, i)   # A
-    # i+= 4
-    # payload.writeInt32LE(0, i)   # B
-    # i+= 4
-    # payload.writeUInt32LE(1000*1000, i) # Durration in ms
-    # i+= 4
-    # payload.writeUInt8(0xFF, i)
+    # Step 1: Abort any previous actions / Reset
+    payload = new Buffer(1)
+    payload.writeUInt8(7, 0)
+    @_sendNowQueue.unshift(payload)
 
-    # @sendS3G(payload)
-    # setTimeout ( => console.log('wut'); @sendS3G([21]) ), 500
-
-    # @sendNow('g1 x100')
+    @_sendNextLine()
 
   _onData: (data) =>
     if @_response?
