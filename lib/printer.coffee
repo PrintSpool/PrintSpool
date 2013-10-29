@@ -63,6 +63,8 @@ module.exports = class Printer extends EventEmitter
     output.qty_printed = job.qtyPrinted
     output.slicing_engine = job._slicingEngine
     output.slicing_profile = job._slicingProfile
+    output.startTime = job.startTime
+    output.elapsedTime = job.elapsedTime
     output
 
   addJob: (jobAttrs) ->
@@ -233,7 +235,7 @@ module.exports = class Printer extends EventEmitter
 
   _onReadyToPrint: (job, err, gcode) =>
     @driver.print gcode
-    changes = @changeJob id: job.id, status: 'printing', false, false
+    changes = @changeJob id: job.id, status: 'printing', startTime: new Date().getTime(), false, false
     for k in ['total_lines', 'current_line']
       changes["jobs[#{job.id}]"][k] = job[k.camelize(false)]
     changes['status'] = 'printing'
@@ -248,7 +250,7 @@ module.exports = class Printer extends EventEmitter
 
   _onPrintComplete: =>
     qty = @currentJob.qtyPrinted + 1
-    attrs = id: @currentJob.id, qtyPrinted: qty
+    attrs = id: @currentJob.id, qtyPrinted: qty, elapsedTime: new Date().getTime() - @currentJob.startTime
     isDone = qty >= @currentJob.qty
     attrs['status'] = 'done' if isDone
     changes = @changeJob attrs, false, false
