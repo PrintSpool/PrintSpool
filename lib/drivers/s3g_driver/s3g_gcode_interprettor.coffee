@@ -40,6 +40,7 @@ gcodeRegex = /([a-z])([\-0-9\.]+)/g
 
 
 module.exports = parse: (gcode, state) ->
+  console.log gcode
   gcode = gcode.toLowerCase().replace(/\s/g, '')
   matches = gcode.match gcodeRegex
 
@@ -77,10 +78,12 @@ module.exports = parse: (gcode, state) ->
 
     when 'g28' # Home
       b = payloadBuilder 131
+      console.log axesBitmask(gcode).value
       # Timeout in seconds
       b.addUInt8 axesBitmask(gcode).value || 0xF
       # Max step rate in microseconds per step
-      b.addUInt32 state.feedrate * slowestAxisStepsPerMM(state) * 1000000
+      micros = 100 * slowestAxisStepsPerMM(state) / 40
+      b.addUInt32 Math.round micros
       b.addUInt16 60 # 60 second timeout. This is totally arbitrary.
 
     when 'g4' # Dwell
@@ -110,6 +113,9 @@ module.exports = parse: (gcode, state) ->
       bits |= 1 << i for i in [0..4]
       bits |= 1 << 7 if cmd == 'm17'
       b.addUInt8 bits
+
+    when 'm92' # Set axis_steps_per_unit (Marlin firmware)
+      return []
 
     when 'm104' # Set extruder temperature
       b = toolPayloadBuilder true, toolId, 3

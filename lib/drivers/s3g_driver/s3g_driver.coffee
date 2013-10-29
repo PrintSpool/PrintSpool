@@ -96,10 +96,9 @@ module.exports = class S3GDriver extends AbstractSerialDriver
     if cmd == 10
       toolheadId = @_previousLine.readUInt8(1) 
       toolheadCmd = @_previousLine.readUInt8(2)
-    else
-      console.log "expected: #{size + 4}"
-      console.log "actual: #{@_response.length}"
-      console.log @_response
+    # console.log "expected: #{size + 4}"
+    # console.log "actual: #{@_response.length}"
+    # console.log @_response
 
     # Mark the printer as ready once the first ack has been received
     if !@_headersReceived
