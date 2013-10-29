@@ -1,4 +1,5 @@
-PrintDriver = require("../lib/print_driver.coffee")
+PrintDriver = require "../lib/drivers/serial_gcode_driver/serial_gcode_driver.coffee"
+
 chai = require("chai")
 spies = require('chai-spies')
 require("sugar")
@@ -10,9 +11,10 @@ EventEmitter = require('events').EventEmitter
 class SerialStub extends EventEmitter
   constructor: ->
     @write = chai.spy (line) -> @emit "test_write", line
-    @close = ->
+    @close = (fn) -> fn()
+    @options = {}
 
-describe 'PrintDriver', ->
+describe 'SerialGCodeDriver', ->
   printer = null
   onWrite = null
 
@@ -21,7 +23,7 @@ describe 'PrintDriver', ->
 
   receiveStart = (done) ->
     receive "start"
-    printer.on "ready", done
+    printer.once "ready", done
 
   ackGCodes = (response = "ok") ->
     printer.serialPort.on "test_write", (line) -> receive response
@@ -32,10 +34,12 @@ describe 'PrintDriver', ->
     printer.pollingInterval = 0
     onWrite = printer.serialPort.write
 
+  afterEach ->
+    printer.kill()
+
   it 'should not fire a ready event on receipt of a bad greeting', ->
     spy = chai.spy()
     printer.on "ready", spy
-    receive "moo"
     spy.should.not.have.been.called()
 
   it 'should fire a ready event on receipt of a greeting', (done) ->

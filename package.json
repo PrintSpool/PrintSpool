@@ -24,6 +24,7 @@
     , "touch": "*"
     , "flavored-path": "*"
     , "serialport": "*"
+    , "bit-mask": "*"
     , "mdns2": "*"
     , "mocha": "*"
     , "chai": "*"
