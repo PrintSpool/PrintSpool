@@ -1,7 +1,6 @@
 WebSocketServer = require('ws').Server
 http = require("http")
 express = require("express")
-print_driver = require("./print_driver")
 mdns = require('mdns2')
 avahi = require('avahi_pub')
 formidable = require('formidable')

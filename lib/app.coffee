@@ -1,7 +1,8 @@
 SegfaultHandler = require('segfault-handler')
 http = require("http")
 express = require("express")
-PrintDriver = require("./print_driver")
+ArudinoDiscoverer = require("./arduino_discoverer")
+PrintDriverFactory = require("./print_driver_factory")
 Printer = require("./printer")
 PrinterServer = require("./printer_server")
 require("js-yaml")
@@ -14,6 +15,14 @@ APP_NAME = 'construct'
 
 SegfaultHandler.registerHandler()
 
+camelizeData = (originalData) =>
+  return originalData unless Object.isObject(originalData)
+  data = {}
+  for k2, v2 of originalData
+    k2 = k2.camelize(false).replace 'Mm', 'MM'
+    data[k2] = camelizeData(v2)
+  return data
+
 module.exports = class App
   constructor: ->
     @printer_servers = []
@@ -22,8 +31,8 @@ module.exports = class App
     # @app.use express.static(__dirname + "../public")
     @server = http.createServer(@app).listen(2540)
 
-    PrintDriver.listen()
-    PrintDriver.on "connect", @_onPrinterConnect
+    ArudinoDiscoverer.listen()
+    ArudinoDiscoverer.on "connect", @_onPrinterConnect
 
     @app.get '/printers.json', @getPrintersJson
 
@@ -45,19 +54,21 @@ module.exports = class App
       installer = new InstallBuilder __dirname, configDir
       installer.run @_installConfig.fill(configFile), -> console.log "Done"
     config ?= {}
-
-    # setting up the serial driver
-    driver = new PrintDriver
-      port: port
-      polling: true
-      verbose: config.verbose
+    config = camelizeData config
+    # console.log config
 
     # setting up the printer (defaults)
     settings = {slicingEngine: 'cura_engine', slicingProfile: 'default'}
 
-    for k, v of Object.reject config, ['components', 'verbose', 'name']
-      settings[k.camelize(false)] = v
+    Object.merge settings, Object.reject config, ['components', 'verbose', 'name']
     components = config.components
+
+    # setting up the serial driver
+    driver = PrintDriverFactory.build
+      driver: settings.driver
+      port: port
+      polling: true
+      verbose: config.verbose
 
     SlicingEngineFactory.install
       slicingEngine: settings.slicingEngine

@@ -2,7 +2,7 @@
 pkgname='construct-daemon-git'
 _gitname='construct-daemon'
 pkgver=7b50c7e
-pkgrel=2
+pkgrel=3
 pkgdesc="A 3D printer daemon to remotely control and monitor 3D printers via the construct protocol."
 url="https://github.com/D1plo1d/construct-daemon"
 arch=('any')
@@ -14,12 +14,12 @@ conflicts=('construct-daemon')
 replaces=()
 backup=()
 install=$pkgname.install
-source=("git+https://github.com/D1plo1d/construct-daemon.git")
+source=("git+https://github.com/D1plo1d/construct-daemon.git#branch=develop")
 sha256sums=('SKIP')
 
 pkgver() {
   cd $_gitname
-  git describe --always | sed 's|-|.|g'
+  echo $(git rev-list --count HEAD).$(git rev-parse --short HEAD)
 }
 
 build() {
