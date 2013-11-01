@@ -13,6 +13,12 @@ SlicingEngineFactory = require("../lib/slicing_engine_factory")
 
 APP_NAME = 'construct'
 
+stdio = require('stdio')
+
+options = stdio.getopt
+  'dry-run':
+    description: "Adds a null driver printer for testing and development."
+
 SegfaultHandler.registerHandler()
 
 camelizeData = (originalData) =>
@@ -35,9 +41,28 @@ module.exports = class App
     ArudinoDiscoverer.on "connect", @_onPrinterConnect
 
     @app.get '/printers.json', @getPrintersJson
+    @initDryRunPrinter() if options['dry-run'] == true
 
   getPrintersJson: (req, res) =>
     res.send printers: @printer_servers.map (p) -> p.slug
+
+  initDryRunPrinter: () ->
+    driver = PrintDriverFactory.build driver: "null"
+
+    printer = new Printer "null", driver
+    # setting up the server
+    opts =
+      app: @app
+      printer: printer
+      server: @server
+      serialNumber: "null"
+      name: "Null Printer"
+      slug: "null"
+      path: "/printers/null"
+    console.log "#{opts.name} Connecting.."
+    ps = new PrinterServer opts
+    @printer_servers.push ps
+    console.log "[Dry Run] Null Printer Connected"
 
   _installConfig: (configFile) ->
     @install 'config_defaults.yml'
