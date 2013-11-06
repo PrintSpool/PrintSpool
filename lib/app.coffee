@@ -57,7 +57,7 @@ module.exports = class App
       server: @server
       serialNumber: "null"
       name: "Null Printer"
-      slug: "null"
+      slug: "Dev/Null Printer"
       path: "/printers/null"
     console.log "#{opts.name} Connecting.."
     ps = new PrinterServer opts
