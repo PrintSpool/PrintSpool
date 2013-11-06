@@ -49,20 +49,20 @@ module.exports = class App
   initDryRunPrinter: () ->
     driver = PrintDriverFactory.build driver: "null"
 
-    printer = new Printer "null", driver
+    printer = new Printer "dev null", driver
     # setting up the server
     opts =
       app: @app
       printer: printer
       server: @server
-      serialNumber: "null"
-      name: "Null Printer"
-      slug: "Dev/Null Printer"
-      path: "/printers/null"
+      serialNumber: "dev null"
+      name: "Dev Null Printer"
+      slug: "dev_null_printer"
+      # path: "/printers/dev_null_printer"
     console.log "#{opts.name} Connecting.."
     ps = new PrinterServer opts
     @printer_servers.push ps
-    console.log "[Dry Run] Null Printer Connected"
+    console.log "[Dry Run] Dev Null Printer Connected"
 
   _installConfig: (configFile) ->
     @install 'config_defaults.yml'
@@ -109,7 +109,7 @@ module.exports = class App
       serialNumber: port.serialNumber
       name: config.name || "Printer ##{port.serialNumber}"
       slug: slug
-      path: "/printers/#{slug}"
+      # path: "/printers/#{slug}"
       port: port
     console.log "#{opts.name} Connecting.."
     ps = new PrinterServer opts

@@ -8,9 +8,10 @@ formidable = require('formidable')
 module.exports = class PrinterServer
   constructor: (opts) ->
     @[k] = opts[k] for k,v of opts
+    @path = "/printers/#{@slug}"
     @wss = new WebSocketServer
       server: opts.server
-      path: "#{opts.path}/socket"
+      path: "#{@path}/socket"
       protocolVersion: 8
 
     @wss.on "connection", @onClientConnect
