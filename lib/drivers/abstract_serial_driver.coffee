@@ -29,8 +29,8 @@ module.exports = class AbstractSerialDriver extends EventEmitter
     @opts = Object.merge (@_defaultOpts||{}), opts
     @verbose ||= @opts.verbose
     @_comName = @opts.port.comName
-    @_baudrate = @opts.baudrate
-    # console.log @_baudrate
+    @_baudrate = @opts.driver.baudrate || @opts.baudrate
+    console.log @_baudrate if @verbose
     @serialPort = new SP @_comName,
       baudrate: @_baudrate
       parser: @_serialParser
