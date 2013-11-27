@@ -33,7 +33,7 @@ module.exports = class PrinterServer
     @printer.on "add", @onPrinterAdd
     @printer.on "remove", @onPrinterRm
 
-    @app.post "#{opts.path}/jobs", @createJob
+    @app.post "#{@path}/jobs", @createJob
 
   createJob: (req, res) =>
     form = new formidable.IncomingForm(keepExtensions: true)
