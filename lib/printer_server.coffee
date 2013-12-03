@@ -46,7 +46,7 @@ module.exports = class PrinterServer
       type: 'change'
       target: 'job_upload_progress'
       data: { uploaded: bytesReceived, total: bytesExpected }
-    @broadcast JSON.stringify [msg]
+    @broadcast [msg]
 
   _onJobParsed: (res, err, fields, files) =>
     return console.log err if err?
@@ -57,13 +57,22 @@ module.exports = class PrinterServer
     res.end()
 
   broadcast: (data) =>
-    client.send(data) for client in @wss.clients
+    @send ws, data for ws in @wss.clients
+
+  send: (ws, data) =>
+    ws.send JSON.stringify(data), @_onSend.fill(ws)
+
+  _onSend: (ws, error) ->
+    return unless error?
+    console.log "error sending data to client"
+    console.log error
+    ws.terminate()
 
   onClientConnect: (ws) =>
     ws.on 'message', @onClientMessage.fill(ws)
     ws.on "close", @onClientDisconnect
     data = @_underscoreData @printer.data
-    ws.send JSON.stringify [{type: 'initialized', data: data}]
+    @send ws, [{type: 'initialized', data: data}]
     console.log "#{@name}: Client Attached"
 
   onClientDisconnect: (ws) =>
@@ -74,11 +83,11 @@ module.exports = class PrinterServer
       msg = JSON.parse msgText
       response = @printer[msg.action.camelize(false)](msg.data)
       response = jobs: response if msg.action == 'get_jobs'
-      ws.send JSON.stringify [type: 'ack', data: response||{}]
+      @send ws, [type: 'ack', data: response||{}]
     catch e
       console.log e.stack
       data = type: 'runtime.sync', message: e.toString()
-      ws.send JSON.stringify [type: 'error', data: data]
+      @send ws, [type: 'error', data: data]
     # console.log "client message:"
     # console.log msg
 
@@ -89,7 +98,7 @@ module.exports = class PrinterServer
     for k, v of changes
       v = @_underscoreData(v)
       output.push type: 'change', target: k.underscore(), data: v
-    @broadcast JSON.stringify output
+    @broadcast output
 
   _underscoreData: (originalData) =>
     return originalData unless Object.isObject(originalData)
@@ -98,10 +107,10 @@ module.exports = class PrinterServer
     return data
 
   onPrinterAdd: (target, value) =>
-    @broadcast JSON.stringify [type: 'add', target: target, data: value]
+    @broadcast [type: 'add', target: target, data: value]
 
   onPrinterRm: (target) =>
-    @broadcast JSON.stringify [type: 'rm', target: target]
+    @broadcast [type: 'rm', target: target]
 
   onPrinterDisconnect: =>
     console.log "#{@name} Disconnecting.."
