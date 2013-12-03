@@ -126,13 +126,18 @@ module.exports = class AbstractSerialDriver extends EventEmitter
       return
     @_send(line, @_nextLineNumber)
     @_emitSendEvents(line)
-    @emit "print_job_line_sent" if printJobLine?
+
+    # Rate limited print job line events (1 per 100ms)
+    now = Date.now()
+    return unless printJobLine? and (@_lastPrintLineEvent || 0) < now - 100
+    @_lastPrintLineEvent = now
+    @_lastPrintLineEvent
+    @emit "print_job_line_sent"
 
   _jobCompletionCheck: ->
     return unless @isPrinting() and @_isComplete()
     @emit "print_complete", @_printJob
     @_printJob = null
-
 
   isClearToSend: ->
     !@_previousLine? and @_headersReceived
