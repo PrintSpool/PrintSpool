@@ -53,7 +53,10 @@ module.exports = class PrintDriver extends AbstractSerialDriver
       # Adds a temperature to a object of { KEY: {current_temp: VALUE}, ... }
       addToHash = (h, t) -> h[t[0]] = {current_temp: parseFloat(t[1])}; h
       # Construct that obj containing key-mapped current temps
-      data = temps.words().map((s)->s.split(":")).reduce addToHash, {}
+      data = temps.words()
+      .map((s)->s.split(":"))
+      .filter((t)->t[0].length > 0)
+      .reduce addToHash, {}
     # Parsing "w" temperature countdown values
     # see: http://git.io/FEACGw or google "TEMP_RESIDENCY_TIME"
     w = data.w?.current_temp
