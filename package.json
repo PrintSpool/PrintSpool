@@ -23,7 +23,7 @@
     , "colors": "*"
     , "touch": "*"
     , "flavored-path": "*"
-    , "serialport": "*"
+    , "serialport": "1.2.5"
     , "bit-mask": "*"
     , "mdns2": "*"
     , "mocha": "*"
