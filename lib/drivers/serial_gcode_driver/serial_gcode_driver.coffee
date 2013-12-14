@@ -13,12 +13,12 @@ module.exports = class PrintDriver extends AbstractSerialDriver
   greetingTimeout: 2500
 
   _poll: () =>
-    console.log "polling" if @verbose
+    console.log "#{@_comName} polling" if @verbose
     @_lastPoll = Date.now()
     @sendNow "M105"
 
   _onData: (line) =>
-    console.log "received: #{line}" if @verbose
+    console.log "#{@_comName} received: #{line}" if @verbose
     return if line.startsWith("DEBUG_")
     originalLine = line
     line = line.toLowerCase()
@@ -98,4 +98,4 @@ module.exports = class PrintDriver extends AbstractSerialDriver
     checksum ^= line.charCodeAt(i) for i in [0..line.length]
     checksum &= 0xff
     @serialPort.write "#{line}*#{checksum}\n"
-    console.log "sent: " + "#{line}*#{checksum}" if @verbose
+    console.log "#{@_comName} sent: " + "#{line}*#{checksum}" if @verbose
