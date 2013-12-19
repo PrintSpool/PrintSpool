@@ -22,8 +22,9 @@
 
 # Serial GCode Driver (Default, most 3D printers use this)
 # -----------------------------------------------------------------------------
-# driver: serial_gcode
-
+# driver:
+#   type: serial_gcode
+#   baudrate: 115200
 
 # Makerbot Replicator 2
 # -----------------------------------------------------------------------------
