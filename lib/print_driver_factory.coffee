@@ -51,8 +51,9 @@ class ChildProcessDriver extends EventEmitter
     @emit "disconnect"
 
   _addFnHandler: (fn) ->
-    @[fn] = -> @_fnHandler(fn)
+    @[fn] = -> @_fnHandler(fn, arguments)
 
   _fnHandler: (fn, args) =>
-    args = Array.slice(args)
+    args = [].slice.call(args, 0)
+    console.log args
     @_child.send(fn: fn, args: args)

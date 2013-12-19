@@ -16,7 +16,7 @@ addEventListener = (k) ->
 
 onMessage = (msg) ->
   # console.log msg
-  driver[msg.fn](msg.args)
+  driver[msg.fn].apply(driver, msg.args)
 
 onEvent = (event, data) ->
   process.send event: event, data: data
