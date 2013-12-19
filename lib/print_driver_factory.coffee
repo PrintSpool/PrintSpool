@@ -55,5 +55,4 @@ class ChildProcessDriver extends EventEmitter
 
   _fnHandler: (fn, args) =>
     args = [].slice.call(args, 0)
-    console.log args
     @_child.send(fn: fn, args: args)
