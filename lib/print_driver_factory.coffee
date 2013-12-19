@@ -29,17 +29,30 @@ class ChildProcessDriver extends EventEmitter
     'startPolling'
   ]
 
-  constructor: (opts) ->
-    @_child = cp.fork('./drivers/child_print_driver')
+  constructor: (@_opts) ->
+    @_child = cp.fork('./lib/drivers/child_print_driver.coffee')
 
-    @_child.on 'message', (m) ->
-      console.log('received: ' + m)
-      @emit m.event, m.data
+    @_child
+    .once("message", @_onInit)
+    .on("error", @_onError)
 
-    @[fn] = => @_fnHandler(fn, arguments) for fn in @_fns
+    @_addFnHandler(fn) for fn in @_fns
 
-    @_child.send(opts)
+  _onInit: =>
+    @_child.on('message', @_onMessage)
+    @_child.send(@_opts)
 
-  _fnHandler: (fn, args) ->
+  _onMessage: (m) =>
+    # console.log('received: ')
+    # console.log(m)
+    @emit m.event, m.data
+
+  _onError: =>
+    @emit "disconnect"
+
+  _addFnHandler: (fn) ->
+    @[fn] = -> @_fnHandler(fn)
+
+  _fnHandler: (fn, args) =>
     args = Array.slice(args)
     @_child.send(fn: fn, args: args)
