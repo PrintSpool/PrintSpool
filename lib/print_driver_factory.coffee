@@ -30,7 +30,7 @@ class ChildProcessDriver extends EventEmitter
   ]
 
   constructor: (@_opts) ->
-    @_child = cp.fork('./lib/drivers/child_print_driver.coffee')
+    @_child = cp.fork('./lib/drivers/child_print_driver.js')
 
     @_child
     .once("message", @_onInit)
