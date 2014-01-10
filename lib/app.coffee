@@ -11,7 +11,7 @@ path = require ("flavored-path")
 InstallBuilder = require './install_builder'
 SlicingEngineFactory = require("../lib/slicing_engine_factory")
 
-APP_NAME = 'construct'
+APP_NAME = 'tegh'
 
 stdio = require('stdio')
 

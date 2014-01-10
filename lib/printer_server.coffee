@@ -19,11 +19,11 @@ module.exports = class PrinterServer
     if avahi.isSupported()
       @avahiAd = avahi.publish
         name: opts.slug
-        type: "_construct._tcp"
+        type: "_tegh._tcp"
         data: {txtvers:'1'}
         port: 2540
     else
-      @mdnsAd = mdns.createAdvertisement "_construct._tcp", 2540,
+      @mdnsAd = mdns.createAdvertisement "_tegh._tcp", 2540,
         name: opts.slug
         txtRecord: {txtvers:'1'}
       @mdnsAd.start()

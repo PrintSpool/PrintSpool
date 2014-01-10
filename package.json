@@ -1,8 +1,8 @@
 {
-    "name": "construct-js-server"
+    "name": "tegh-daemon"
   , "version": "0.3.0"
   , "private": true
-  , "main": "./src/tegh"
+  , "main": "./bin/tegh-daemon"
   , "dependencies": {
       "coffee-script": "1.6.3"
     , "express": "3.x"

@@ -48,6 +48,6 @@ sliceOnInstall = (opts) ->
 module.exports = {
   slice: slice,
   install: install,
-  configDir: "~/.construct",
+  configDir: "~/.tegh",
   engineDir: path.resolve "#{__dirname}/slicing_engines"
 }
