@@ -78,12 +78,27 @@ module.exports = class PrinterServer
   onClientDisconnect: (ws) =>
     console.log "#{@name}: Client Detached"
 
+  _websocketActions: [
+    'home',
+    'move',
+    'set',
+    'estop',
+    'print',
+    'rm_job',
+    'change_job',
+    'retry_print'
+  ]
+
   onClientMessage: (ws, msgText, flags) =>
     try
+      # Parsing / Fail fast
       msg = JSON.parse msgText
-      response = @printer[msg.action.camelize(false)](msg.data)
-      response = jobs: response if msg.action == 'get_jobs'
-      @send ws, [type: 'ack', data: response||{}]
+      action = msg.action.camelize(false)
+      if @_websocketActions.indexOf(action) == -1
+        throw new Error("#{action} is not a valid action")
+      # Executing the action and responding
+      response = @printer[action](msg.data)
+      @send ws, [type: 'ack']
     catch e
       console.log e.stack
       data = type: 'runtime.sync', message: e.toString()

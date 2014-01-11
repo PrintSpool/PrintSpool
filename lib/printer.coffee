@@ -217,6 +217,12 @@ module.exports = class Printer extends EventEmitter
       changes[dataK] = v
     return changes
 
+  retryPrint: =>
+    job = @_jobs.find (job) -> job.status == "estopped"
+    job.status = "idle"
+    @changeJob id: job.id, position: 0 if job != @jobs[0]
+    @_print()
+
   print: =>
     # Fail fast
     throw "Already printing." if @status == 'printing'
@@ -227,7 +233,7 @@ module.exports = class Printer extends EventEmitter
     @_print()
 
   _print: =>
-    @currentJob = @_jobs[0]
+    @currentJob = @_jobs.find (job) -> job.status == "idle"
     if @currentJob.needsSlicing?
       changes = @changeJob id: @currentJob.id, status: "slicing", false, false
       changes['status'] = 'slicing'
