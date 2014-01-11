@@ -13,6 +13,8 @@ module.exports = class NullDriver extends EventEmitter
     @_startPolling()
 
   reset: =>
+    clearTimeout @_printTimeout if @_printTimeout?
+    @_printTimeout = null
     setTimeout ( => @emit("ready") ), 1000
 
   kill: ->
@@ -27,7 +29,7 @@ module.exports = class NullDriver extends EventEmitter
     console.log "Null Driver Debug: Printing"
     console.log gcodes[0..10]
     console.log "..."
-    setTimeout @_finishPrint, 4000
+    # @_printTimeout = setTimeout @_finishPrint, 4000
 
   _finishPrint: =>
     console.log "Null Driver Debug: Done Printing"

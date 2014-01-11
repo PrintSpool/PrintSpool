@@ -93,9 +93,9 @@ module.exports = class PrinterServer
     try
       # Parsing / Fail fast
       msg = JSON.parse msgText
+      if @_websocketActions.indexOf(msg.action) == -1
+        throw new Error("#{msg.action} is not a valid action")
       action = msg.action.camelize(false)
-      if @_websocketActions.indexOf(action) == -1
-        throw new Error("#{action} is not a valid action")
       # Executing the action and responding
       response = @printer[action](msg.data)
       @send ws, [type: 'ack']

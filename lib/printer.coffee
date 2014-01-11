@@ -219,21 +219,22 @@ module.exports = class Printer extends EventEmitter
 
   retryPrint: =>
     job = @_jobs.find (job) -> job.status == "estopped"
-    job.status = "idle"
-    @changeJob id: job.id, position: 0 if job != @jobs[0]
-    @_print()
+    throw "No estopped print jobs" unless job?
+    @changeJob id: job.id, position: 0 if job != @_jobs[0]
+    @_print job
 
   print: =>
     # Fail fast
     throw "Already printing." if @status == 'printing'
     @_assert_idle 'print'
-    m = "There are no print jobs in the queue. Please add a job before printing"
-    throw m if @_jobs.length == 0
+    job = @_jobs.filter((job) -> job.status == "idle").sortBy('position')[0]
+    m = "No idle print jobs. To reprint an estopped job use retry_print."
+    throw m unless job?
     # Implementation
-    @_print()
+    (@rmJob j if job.status == "estopped") for j in @_jobs
+    @_print job
 
-  _print: =>
-    @currentJob = @_jobs.find (job) -> job.status == "idle"
+  _print: (@currentJob) =>
     if @currentJob.needsSlicing?
       changes = @changeJob id: @currentJob.id, status: "slicing", false, false
       changes['status'] = 'slicing'
