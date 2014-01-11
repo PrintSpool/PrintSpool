@@ -29,7 +29,7 @@ module.exports = class PrintJob extends EventEmitter
       @onSlicingComplete(gcodePath: @filePath)
 
   needsSlicing: =>
-    path.extname(@filePath).match(/.gcode|.ngc/)? == false
+    path.extname(@filePath).match(/.gcode|.ngc/i)? == false
 
   onSlicingComplete: (slicer) =>
     join = Join.create()

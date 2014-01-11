@@ -49,7 +49,9 @@ module.exports = class App
   initDryRunPrinter: () ->
     driver = PrintDriverFactory.build driver: "null"
 
-    printer = new Printer "dev null", driver
+    settings = {slicingEngine: 'cura_engine', slicingProfile: 'default'}
+
+    printer = new Printer "dev null", driver, settings
     # setting up the server
     opts =
       app: @app

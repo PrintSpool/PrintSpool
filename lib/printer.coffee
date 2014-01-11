@@ -74,6 +74,7 @@ module.exports = class Printer extends EventEmitter
       position: @_jobs.length
       printerId: @id
       printer: @
+      status: "idle"
     jobAttrs.qty ||= 1
     job = new @_PrintJob(jobAttrs)
     @_jobs.push job
@@ -250,19 +251,22 @@ module.exports = class Printer extends EventEmitter
 
   _onPrintComplete: =>
     qty = @currentJob.qtyPrinted + 1
-    attrs = id: @currentJob.id, qtyPrinted: qty, elapsedTime: new Date().getTime() - @currentJob.startTime
-    isDone = qty >= @currentJob.qty
-    attrs['status'] = 'done' if isDone
+    done = qty >= @currentJob.qty
+    pause = @data.pauseBetweenPrints or @_jobs.length == 0
+    attrs =
+      id: (id = @currentJob.id)
+      qtyPrinted: qty
+      elapsedTime: new Date().getTime() - @currentJob.startTime
+      status: if done then 'done' else if pause then 'idle' else 'printing'
     changes = @changeJob attrs, false, false
 
     @currentJob = null
-    if @data.pauseBetweenPrints or @_jobs.length == 0
-      changes['status'] = 'idle'
-      @data.status = 'idle'
+    if pause
+      changes.status = @data.status = 'idle'
     else
       @_print()
-    @_jobs.shift() if isDone
     @emit 'change', changes
+    @rmJob id: id if done
 
   move: (axesVals) ->
     # Fail fast

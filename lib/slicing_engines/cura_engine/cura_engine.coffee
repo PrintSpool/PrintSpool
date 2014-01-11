@@ -24,8 +24,9 @@ module.exports = class CuraEngine
     "#{@opts.filePath}.gcode"
 
   _onConfigFileLoad: (err, configString) =>
-    console.log err
-    @opts.onSlicingError?(@, err) if err
+    if err?
+      console.log err
+      @opts.onSlicingError?(@, err)
     config = yaml.load configString, filename: @_configPath, schema: SCHEMA
 
     args = []
