@@ -20,13 +20,20 @@ module.exports = class PrintJob extends EventEmitter
   _set: (key, value) =>
     @["_#{key}"] = value?.underscore?()
 
-  loadGCode: (cb) =>
-    @once "load", cb if cb?
+  loadGCode: (@_cb = null) =>
+    @once "load", @_cb if @_cb?
     @filePath = path.resolve(@filePath)
     if @needsSlicing()
-      SlicingEngineFactory.slice @
+      @_slicingInstance = SlicingEngineFactory.slice @
     else
       @onSlicingComplete(gcodePath: @filePath)
+
+  cancel: =>
+    @_cancelled = new Date()
+    @_slicingInstance.cancel() if @_slicingInstance?
+    @removeListener "load", @_cb if @_cb?
+    @_slicingInstance = null
+    @_cb = null
 
   needsSlicing: =>
     path.extname(@filePath).match(/.gcode|.ngc/i)? == false
@@ -34,18 +41,23 @@ module.exports = class PrintJob extends EventEmitter
   onSlicingComplete: (slicer) =>
     join = Join.create()
     @currentLine = 0
+    @_slicingInstance = null
 
     # Getting the number of lines in the file
     exec "wc -l #{slicer.gcodePath}", join.add()
     # Loading the gcode to memory
     fs.readFile slicer.gcodePath, 'utf8', join.add()
-    join.when(@_onLoadAndLineCount)
+    join.when @_onLoadAndLineCount.fill new Date()
 
   onSlicingError: =>
     console.log "slicer error"
     @emit "job_error", "slicer error"
 
-  _onLoadAndLineCount: (lineCountArgs, loadArgs) =>
+  _cancelledAfter: (timestamp) =>
+    @_cancelled and timestamp.isBefore @_cancelled
+
+  _onLoadAndLineCount: (timestamp, lineCountArgs, loadArgs) =>
+    return if @_cancelledAfter timestamp
     [err, gcode] = loadArgs
 
     @totalLines = parseInt(lineCountArgs[1].match(/\d+/)[0])

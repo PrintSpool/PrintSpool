@@ -138,6 +138,7 @@ module.exports = class Printer extends EventEmitter
   estop: =>
     @driver.reset()
     if @currentJob?
+      @currentJob.cancel()
       changes = @changeJob id: @currentJob.id, status: 'estopped', false, false
     else
       changes = {}
@@ -218,30 +219,41 @@ module.exports = class Printer extends EventEmitter
     return changes
 
   retryPrint: =>
-    job = @_jobs.find (job) -> job.status == "estopped"
+    throw "Already printing." if @status == 'printing' or @status == 'slicing'
+    job = @_jobs.sortBy('position').find (job) -> job.status == "estopped"
     throw "No estopped print jobs" unless job?
     @changeJob id: job.id, position: 0 if job != @_jobs[0]
     @_print job
 
   print: =>
     # Fail fast
-    throw "Already printing." if @status == 'printing'
+    console.log @status
+    console.log @status
+    console.log @status
+    throw "Already printing." if @status == 'printing' or @status == 'slicing'
+    console.log "0"
     @_assert_idle 'print'
-    job = @_jobs.filter((job) -> job.status == "idle").sortBy('position')[0]
+    console.log "0.1"
+    job = @_jobs.sortBy('position').find (job) -> job.status == "idle"
     m = "No idle print jobs. To reprint an estopped job use retry_print."
     throw m unless job?
     # Implementation
-    (@rmJob j if job.status == "estopped") for j in @_jobs
     @_print job
 
   _print: (@currentJob) =>
+    console.log j? for j in @_jobs
+    (@rmJob j if j?.status == "estopped" and j != @currentJob) for j in @_jobs
     if @currentJob.needsSlicing?
+      console.log "1"
       changes = @changeJob id: @currentJob.id, status: "slicing", false, false
       changes['status'] = 'slicing'
+      @data.status = 'slicing'
       @emit 'change', changes
+    console.log "2"
     @currentJob.loadGCode @_onReadyToPrint.fill(@currentJob)
 
   _onReadyToPrint: (job, err, gcode) =>
+    console.log "3"
     @driver.print gcode
     changes = @changeJob id: job.id, status: 'printing', startTime: new Date().getTime(), false, false
     for k in ['total_lines', 'current_line']
@@ -309,7 +321,7 @@ module.exports = class Printer extends EventEmitter
     gcode = "G28 #{axes.join(' ').toUpperCase()}"
     @driver.sendNow gcode
 
-  _assert_idle: (method_name) -> 
+  _assert_idle: (method_name) => 
     @status.should.equal 'idle', "Cannot #{method_name} when #{@status}."
 
   _asert_no_bad_axes: (methodName, badAxes) ->

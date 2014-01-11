@@ -24,6 +24,7 @@ module.exports = class CuraEngine
     "#{@opts.filePath}.gcode"
 
   _onConfigFileLoad: (err, configString) =>
+    return if @_cancelled
     if err?
       console.log err
       @opts.onSlicingError?(@, err)
@@ -39,13 +40,17 @@ module.exports = class CuraEngine
     args.push @opts.filePath
     # console.log args
 
-    proc = spawn("curaengine", args)
-    proc.stdout.on 'data', (data) -> console.log('stdout: ' + data)
-    proc.stderr.on 'data', (data) -> console.log('stderr: ' + data)
-    proc.on 'close', @_onExit
+    @proc = spawn("curaengine", args)
+    @proc.stdout.on 'data', (data) -> console.log('stdout: ' + data)
+    @proc.stderr.on 'data', (data) -> console.log('stderr: ' + data)
+    @proc.on 'close', @_onExit
+
+  cancel: =>
+    @_cancelled = true
+    @proc.kill() if @proc?
 
   _onExit: (code) =>
-    @opts.onSlicingError?(@, code) if code != 0
+    @opts.onSlicingError?(@, code) if code != 0 and !@_cancelled
     # console.log "complete!"
     @gcodePath = @_gcodePath()
 
