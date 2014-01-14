@@ -4,11 +4,13 @@ express = require("express")
 mdns = require('mdns2')
 avahi = require('avahi_pub')
 formidable = require('formidable')
+nodeUUID = require('node-uuid')
 
 module.exports = class PrinterServer
   constructor: (opts) ->
     @[k] = opts[k] for k,v of opts
     @path = "/printers/#{@slug}"
+    @_clients = {}
     @wss = new WebSocketServer
       server: opts.server
       path: "#{@path}/socket"
@@ -36,17 +38,21 @@ module.exports = class PrinterServer
     @app.post "#{@path}/jobs", @createJob
 
   createJob: (req, res) =>
+    # Fail Fast
+    ws = @_clients[req.query.session_uuid]
+    return res.send 500, "Must include a valid uuid" unless ws?
+    # Implementation
     form = new formidable.IncomingForm(keepExtensions: true)
     form.on 'error', (e) -> console.log (e)
-    form.on 'progress', @_onJobProgress
+    form.on 'progress', @_onJobProgress.fill(ws)
     form.parse req, @_onJobParsed.fill(res)
 
-  _onJobProgress: (bytesReceived, bytesExpected) =>
+  _onJobProgress: (ws, bytesReceived, bytesExpected) =>
     msg =
       type: 'change'
       target: 'job_upload_progress'
       data: { uploaded: bytesReceived, total: bytesExpected }
-    @broadcast [msg]
+    @send ws, [msg]
 
   _onJobParsed: (res, err, fields, files) =>
     return console.log err if err?
@@ -60,7 +66,10 @@ module.exports = class PrinterServer
     @send ws, data for ws in @wss.clients
 
   send: (ws, data) =>
-    ws.send JSON.stringify(data), @_onSend.fill(ws)
+    try
+      ws.send JSON.stringify(data), @_onSend.fill(ws)
+    catch
+      try ws.close()
 
   _onSend: (ws, error) ->
     return unless error?
@@ -72,10 +81,14 @@ module.exports = class PrinterServer
     ws.on 'message', @onClientMessage.fill(ws)
     ws.on "close", @onClientDisconnect
     data = @_underscoreData @printer.data
+    uuid = nodeUUID.v4()
+    Object.merge data, session: { uuid: uuid }
     @send ws, [{type: 'initialized', data: data}]
+    @_clients[uuid] = ws
     console.log "#{@name}: Client Attached"
 
-  onClientDisconnect: (ws) =>
+  onClientDisconnect: (wsA) =>
+    (delete @_clients[uuid] if wsA == wsB) for uuid, wsB of @_clients
     console.log "#{@name}: Client Detached"
 
   _websocketActions: [
