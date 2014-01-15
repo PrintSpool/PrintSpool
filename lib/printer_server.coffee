@@ -143,9 +143,13 @@ module.exports = class PrinterServer
   onPrinterDisconnect: =>
     console.log "#{@name} Disconnecting.."
     # Removing all the event listeners from the server so it will be GC'd
+    @printer.driver.removeAllListeners()
     @printer.removeAllListeners()
     # Removing the websocket
-    @wss.close()
+    try
+      @wss.close()
+    catch e
+      console.log e.stack
     @wss.removeAllListeners()
     # Removing the Job upload route
     @app.routes.post.remove (route) => route.path = "#{@path}/jobs"

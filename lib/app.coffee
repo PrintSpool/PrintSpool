@@ -31,20 +31,20 @@ camelizeData = (originalData) =>
 
 module.exports = class App
   constructor: ->
-    @printer_servers = []
+    @printerServers = {}
 
     @app = express()
     # @app.use express.static(__dirname + "../public")
     @server = http.createServer(@app).listen(2540)
 
     ArudinoDiscoverer.listen()
-    ArudinoDiscoverer.on "connect", @_onPrinterConnect
+    ArudinoDiscoverer.on "update", @_onSerialPortsUpdate
 
     @app.get '/printers.json', @getPrintersJson
     @initDryRunPrinter() if options['dry-run'] == true
 
   getPrintersJson: (req, res) =>
-    res.send printers: @printer_servers.map (p) -> p.slug
+    res.send printers: Object.map @printerServers, (p) -> p.slug
 
   initDryRunPrinter: () ->
     driver = PrintDriverFactory.build driver: "null"
@@ -63,14 +63,18 @@ module.exports = class App
       # path: "/printers/dev_null_printer"
     console.log "#{opts.name} Connecting.."
     ps = new PrinterServer opts
-    @printer_servers.push ps
+    @printerServers["dev/null"] = ps
     console.log "[Dry Run] Dev Null Printer Connected"
 
   _installConfig: (configFile) ->
     @install 'config_defaults.yml'
     @mv 'config_defaults.yml', configFile
 
-  _onPrinterConnect: (port) =>
+  _onSerialPortsUpdate: (ports) =>
+    newPorts = ports.filter (p) => !(@printerServers[p.comName]?)
+    @_onNewSerialPort port for port in newPorts
+
+  _onNewSerialPort: (port) =>
     # loading the config file (or creating a new one)
     configDir = path.get "~/.#{APP_NAME}/3d_printers/by_serial/"
     configFile = "#{port.serialNumber}.yml"
@@ -115,11 +119,11 @@ module.exports = class App
       port: port
     console.log "#{opts.name} Connecting.."
     ps = new PrinterServer opts
-    @printer_servers.push ps
+    @printer_servers[port.comName] = ps
     driver.on "disconnect", @_onPrinterDisconnect.fill(ps)
     console.log "#{opts.name} Connected"
 
-  _onPrinterDisconnect: (ps) =>
-    @printer_servers.remove ps
+  _onPrinterDisconnect: (psA) =>
+    ( delete @printServers[k] if psA == psB ) for k, psB of @printerServers
 
 app = new App()
