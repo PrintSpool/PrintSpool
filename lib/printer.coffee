@@ -308,6 +308,8 @@ module.exports = class Printer extends EventEmitter
     # console.log axesVals
     throw err unless typeof(axesVals) == 'object' and axesVals?
     axesVals = Object.extended(axesVals)
+    multiplier = axesVals.at || 1
+    delete axesVals.at
     axes = Object.keys(axesVals).exclude((k) => @_axes.some(k))
     @_asert_no_bad_axes 'move', axes
     # Adding the axes values
@@ -319,7 +321,7 @@ module.exports = class Printer extends EventEmitter
     extruders = axesVals.keys().filter (k) -> k.startsWith 'e'
     eFeedrates = extruders.map (k) => @data[k].flowrate
     feedrate = eFeedrates.reduce ( (f1, f2) -> Math.min f1, f2 ), feedrate
-    feedrate *= 60
+    feedrate *= 60 * multiplier
     gcode = "G91\nG1 F#{feedrate}\n#{gcode} F#{feedrate}"
     if extruders.length > 0
       gcode = "T#{extruders[0].replace 'e', ''}\n#{gcode}"
