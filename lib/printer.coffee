@@ -144,7 +144,18 @@ module.exports = class Printer extends EventEmitter
       changes = {}
     changes['status'] = 'estopped'
     @data.status = 'estopped'
+    for k, comp of @data
+      compChanges = @_resetComponent comp
+      continue unless compChanges?
+      Object.merge comp, changes[k] = compChanges
     @emit 'change', changes
+
+  _resetComponent: (comp) -> switch comp.type
+    when "heater"
+      (targetTemp: 0) if comp.targetTemp != 0
+    when "conveyor", "fan"
+      (enabled: false) if comp.enabled == true
+
 
   # set any number of the following printer attributes:
   # - extruder/bed target_temp
