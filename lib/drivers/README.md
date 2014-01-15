@@ -24,8 +24,11 @@ All driver must implement the following functions:
 
 ### Events
 
-TODO
-
+* **ready** - Emitted when the printer initializes (either because of an initial connection or a completed reset)
+* **change** - Emitted when any attribute of the printer changes
+* **printer\_error** - Emitted when the printer encounters an error
+* **print\_complete** - Emitted when the printer is done a print job
+* **print\_job\_line\_sent** - Emitted on each line sent that is part of the current print job.
 
 ## Implementation Example
 
