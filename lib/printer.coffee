@@ -29,6 +29,7 @@ module.exports = class Printer extends EventEmitter
       xyFeedrate: 3000 / 60
       zFeedrate: 300 / 60
       pauseBetweenPrints: true
+      motors: {enabled: true}
     @data.__defineGetter__ "jobs", @getJobs
     Object.merge @data, settings
     for k, v of components
@@ -182,6 +183,8 @@ module.exports = class Printer extends EventEmitter
     @driver.sendNow("#{@_tempGCode(t[0])} S#{t[1]}") for t in temps
     @_updateConveyor k, @data[k], v for k, v of conveyors
     @_updateFan      k, @data[k], v for k, v of fans
+    motors = diff.motors.enabled
+    @driver.sendNow("M1#{if motors then 7 else 8}") if motors?
 
   _tempGCode: (k) ->
     return "M140" if k == 'b'
