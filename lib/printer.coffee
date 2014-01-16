@@ -1,5 +1,6 @@
 EventEmitter = require('events').EventEmitter
 PrintJob = require("./print_job")
+SmartObject = require "../vendor/smart_object"
 require 'sugar'
 chai = require("chai")
 chai.should()
@@ -17,146 +18,79 @@ module.exports = class Printer extends EventEmitter
       targetTempCountdown: 0
       flowrate: 40 / 60
       blocking: false
-    conveyor: { type: 'conveyor', enabled: false }
+    conveyor: { type: 'conveyor', enabled: false, speed: 255 }
     fan: { type: 'fan', enabled: false, speed: 255 }
+  # TODO: Finish updating all the code to the new default opts!
+  # _defaultOpts:
+  #   state: { status: 'initializing' }
+  #   xyFeedrate: 3000 / 60
+  #   zFeedrate: 300 / 60
+  #   pauseBetweenPrints: true
+  #   motors: {enabled: true}
+  _defaultOpts:
+    state: { status: 'initializing', motorsEnabled: true }
+    axes: { xyFeedrate: 3000 / 60, zFeedrate: 300 / 60 }
+    config: { pauseBetweenPrints: true }
 
-  constructor: (@id, @driver, settings = {}, components, @_PrintJob=PrintJob) ->
+  constructor: (@id, @driver, opts = {}, components, @_PrintJob=PrintJob) ->
     components ?= @_defaultComponents
-    @_jobs = []
     # Building the printer data
-    @data =
-      status: 'initializing'
-      xyFeedrate: 3000 / 60
-      zFeedrate: 300 / 60
-      pauseBetweenPrints: true
-      motors: {enabled: true}
-    @data.__defineGetter__ "jobs", @getJobs
-    Object.merge @data, settings
+    data = Object.merge Object.clone(@_defaultOpts), opts
     for k, v of components
-      @data[k] = Object.clone(@_defaultAttrs[v.type||v])
-      Object.merge @data[k], v if typeof(v) != 'string'
+      data[k] = Object.clone(@_defaultAttrs[v.type||v])
+      Object.merge data[k], v if typeof(v) != 'string'
+    @$ = new SmartObject data
+    @$.on k, @emit.fill(k) for k in ['add', 'rm', 'change']
+    @$.on "beforechange", @_beforeChange
+    @data = @_smartObject.data
     # Adding the extruders to the axes
     @_axes = ['x','y','z']
-    (@_axes.push k if k.startsWith 'e') for k, v of components
-    # Adding a status getter
-    @__defineGetter__ "status", @_getStatus
+    for k, v of components
+      (@_axes.push k if k.startsWith('e') and v.type == 'heater')
+    # Adding getters
+    @__defineGetter__ "status", => @data.state.status
+    @__defineGetter__ "jobs", @_getJobs
     # Updating data on driver change
     @driver.on "ready", @_onReady
-    @driver.on "change", @_updateData
+    @driver.on "change", @$.merge
     @driver.on "print_job_line_sent", @_onPrintJobLineSent
     @driver.on "print_complete", @_onPrintComplete
 
+  _beforeChange: (diff) =>
+    for k1, diffComp of diff
+      @["_before#{comp.type||k1}#{k2}Change"]?(k1, k2, v) for k2, v of diffComp
+
+  # Reordering the other jobs after a job's position was changed
+  _beforeJobPositionChange: (k1, k2, _new) ->
+    _old = @$.buffer[k1].position
+    @jobs.filter((j) -> j.id != comp.id).each (j) ->
+      j.position += 1 if _old > j.position >= _new
+      j.position -= 1 if _old < j.position < _new
+
   _onReady: =>
-    @_setStatus("idle")
+    @$.$merge state: {status: 'idle'}
 
-  _setStatus: (status) ->
-    @_updateData status: status
+  addJob: (jobAttrs) -> @$.$apply (data) ->
+    data[job.key()] = new @_PrintJob(jobAttrs)
 
-  _getStatus: =>
-    @data.status
+  rm: (job) -> @$.$apply (data) ->
+    key = @_PrintJob.prototype.key.apply(job)
+    throw "job does not exist" unless data[key]?.type? == "job"
+    delete data[key]
 
-  _whitelistJob: (job) =>
-    whitelist = ['id', 'position', 'qty', 'status']
-    output = Object.select job, whitelist
-    output.file_name = job.name
-    output.total_lines = job.totalLines
-    output.current_line = job.currentLine
-    output.qty_printed = job.qtyPrinted
-    output.slicing_engine = job._slicingEngine
-    output.slicing_profile = job._slicingProfile
-    output.startTime = job.startTime
-    output.elapsedTime = job.elapsedTime
-    output
+  _getJobs: =>
+    @$.buffer.findAll(type: "job").sortBy('position')
 
-  addJob: (jobAttrs) ->
-    jobAttrs = Object.merge jobAttrs,
-      id: @_nextJobId++
-      qtyPrinted: 0
-      position: @_jobs.length
-      printerId: @id
-      printer: @
-      status: "idle"
-    jobAttrs.qty ||= 1
-    job = new @_PrintJob(jobAttrs)
-    @_jobs.push job
-    @data.__defineGetter__ "jobs[#{job.id}]", @_whitelistJob.fill(job)
-    @emit "add", "jobs[#{job.id}]", @_whitelistJob job
-
-  rmJob: (jobAttrs) ->
-    job = @_jobs.find (job) -> job.id == jobAttrs.id
-    throw "job does not exist" unless job?
-    @_jobs.remove(job)
-    delete @data["jobs[#{job.id}]"]
-    @emit "remove", "jobs[#{jobAttrs.id}]"
-
-  changeJob: (jobAttrs, validate = true, emit = true) ->
-    if validate
-      whitelist = ['id', 'position', 'qty']
-      jobAttrs = Object.reject jobAttrs, (k,v) -> whitelist.has(k)
-      # Validations
-      for k, v of jobAttrs
-        continue if @["_validateJob#{k.camelize(true)}"](v)
-        throw "Invalid #{k}: #{v}"
-    job = @_jobs.find( (someJob) -> someJob.id == jobAttrs.id )
-    throw "Invalid id: #{jobAttrs.id}" unless job?
-    event  = {}
-    # Reordering the other jobs if position has changed
-    pos = old: job.position, new: (jobAttrs?.position)
-    pos.new ?= job.position
-    @_jobs.filter((j) -> j.id != job.id).each (j) ->
-      originalPosition = j.position
-      j.position += 1 if pos.old > j.position >= pos.new
-      j.position -= 1 if pos.old < j.position < pos.new
-      return if j.position == originalPosition
-      event["jobs[#{j.id}]"] = position: j.position
-    # Saving the data
-    delete jobAttrs['id']
-    job[k.camelize(false)] = v for k, v of jobAttrs
-    event["jobs[#{job.id}]"] = jobAttrs
-    # console.log @_jobs
-    @emit "change", event if emit
-    return event
-
-  _validateJobId: (val) ->
-    val >= 0
-
-  _validateJobQty: (val) ->
-    val > 0
-
-  _validateJobPosition: (val) ->
-    val >= 0 and val < @_jobs.length
-
-  _validateJobSlicingEngine: (val) ->
-    typeof(val) == "string" and val.has(/\/|\\|\./) == false
-
-  _validateJobSlicingProfile: (val) ->
-    typeof(val) == "string" and val.has(/\/|\\|\./) == false
-
-  getJobs: =>
-    jobs = @_jobs.map (job) => @_whitelistJob job
-    jobs.sortBy 'position'
-
-  estop: =>
+  estop: => @$.$apply (data) => 
     @driver.reset()
-    if @currentJob?
-      @currentJob.cancel()
-      changes = @changeJob id: @currentJob.id, status: 'estopped', false, false
-    else
-      changes = {}
-    changes['status'] = 'estopped'
-    @data.status = 'estopped'
-    for k, comp of @data
-      compChanges = @_resetComponent comp
-      continue unless compChanges?
-      Object.merge comp, changes[k] = compChanges
-    @emit 'change', changes
+    job = @currentJob || {}
+    job.cancel?()
+    job.status = data.state.status =  'estopped'
+    @_resetComponent comp for k, comp of @data
 
   _resetComponent: (comp) -> switch comp.type
-    when "heater"
-      (targetTemp: 0) if comp.targetTemp != 0
-    when "conveyor", "fan"
-      (enabled: false) if comp.enabled == true
-
+    when "heater" then comp.targetTemp = 0
+    when "conveyor", "fan" then comp.enabled = false
 
   # set any number of the following printer attributes:
   # - extruder/bed target_temp
@@ -164,142 +98,111 @@ module.exports = class Printer extends EventEmitter
   # - fan speed
   # - conveyor enabled
   set: (diff) ->
-    # Fail fast (part 1)
-    Object.isObject(diff).should.equal true, 'set must be called with an object of changes.'
-    (diff.status?).should.equal false, 'cannot set status directly.'
-    # Setup
-    diff = Object.extended(diff)
-    temps = for k, v of diff
-      [k, v.target_temp] if v.target_temp
-    temps = temps.compact()
-    conveyors = Object.findAll diff, (k, v) => @data[k].type == 'conveyor'
-    fans = Object.findAll diff, (k, v) => @data[k].type == 'fan'
-    # Fail fast (part 2)
-    if @status == 'printing'
-      throw 'cannot set temperature while printing.' if temps?.length > 0
-      throw 'cannot set conveyor while printing.' if conveyors?.length > 0
-    @_updateData(diff)
-    # Send gcodes to the print driver to update the printer
-    @driver.sendNow("#{@_tempGCode(t[0])} S#{t[1]}") for t in temps
-    @_updateConveyor k, @data[k], v for k, v of conveyors
-    @_updateFan      k, @data[k], v for k, v of fans
-    motors = diff.motors.enabled
-    @driver.sendNow("M1#{if motors then 7 else 8}") if motors?
-
-  _tempGCode: (k) ->
-    return "M140" if k == 'b'
-    return "M104" if k == 'e0'
-    return "M104 P#{k[1..]}"
-
-  _updateConveyor: (key, conveyor, diff) ->
-    return unless conveyor.enabled or diff.enabled? # (enabled or en. changed)
-    @driver.sendNow( if conveyor.enabled then "M240" else "M241" )
-
-  _updateFan: (key, fan, diff) ->
-    return unless fan.enabled or diff.enabled? # (enabled or en. changed)
-    @driver.sendNow( if fan.enabled then "M106 S#{fan.speed}" else "M107" )
-
-  _updateData: (new_data) =>
-    # changes = Object.map new_data, @_appendChanges, {}
-    changes = {}
-    @_appendChanges changes, k, v for k, v of new_data
-    # apply the changes and emit a change event
-    Object.merge @data, changes, true
-    @emit "change", changes if Object.keys(changes).length > 0
-
-  _appendChanges: (changes, k, v) ->
-    dataK = k.camelize(false)
-    dataVal = @data[dataK]
-    # Objects
-    if typeof(v) == "object"
-      # Fail fast
-      for k2, v2 of v
-        dataK2 = k2.camelize(false)
-        type = typeof(dataVal?[dataK2])
-        continue unless typeof(v2) != type
-        throw "#{k}.#{k2} must be a #{type}." if dataVal?[dataK2]?
-        throw "#{k}.#{k2} does not exist."
-      # Push any modified attributes to the changes
-      for k2, v2 of v
-        dataK2 = k2.camelize(false)
-        (changes[dataK]?={})[dataK2] = v2 if @data[k][dataK2] != v2
-    # Erroneous Data
-    else if typeof(v) != typeof(dataVal)
-      throw "#{k} must be a #{typeof(dataVal)}." if dataVal?
-      throw "#{k} does not exist."
-    # Numbers and Strings
-    else
-      changes[dataK] = v
-    return changes
-
-  retryPrint: =>
-    throw "Already printing." if @status == 'printing' or @status == 'slicing'
-    job = @_jobs.sortBy('position').find (job) -> job.status == "estopped"
-    throw "No estopped print jobs" unless job?
-    @changeJob id: job.id, position: 0 if job != @_jobs[0]
-    @_print job
-
-  print: =>
     # Fail fast
-    console.log @status
-    console.log @status
-    console.log @status
-    throw "Already printing." if @status == 'printing' or @status == 'slicing'
-    console.log "0"
-    @_assert_idle 'print'
-    console.log "0.1"
-    job = @_jobs.sortBy('position').find (job) -> job.status == "idle"
-    m = "No idle print jobs. To reprint an estopped job use retry_print."
-    throw m unless job?
-    # Implementation
-    @_print job
+    throw 'set data must be an object' unless Object.isObject(diff)
 
-  _print: (@currentJob) =>
-    console.log j? for j in @_jobs
-    (@rmJob j if j?.status == "estopped" and j != @currentJob) for j in @_jobs
+    for k1, diffComp of diff
+      @_beforeAttrSet @data[k1], k1, k2, v for k2, v of diffComp
+
+    if @status == 'printing'
+      comp = Object.find diff, type: /heater|conveyor|fan/
+      throw "cannot set #{comp.type} while printing." if comp?
+
+    # Applying the diff
+    @$.$merge diff
+
+    # Send gcodes to the print driver to update the printer
+    gcodes = diff.map (k, v) -> @["_#{@data[k].type}GCode"]?(k, @data[k], v)
+    @_send gcode for gcode in gcodes.compact()
+    motors = diff.motors.enabled
+    @_send "M1#{if motors then 7 else 8}" if motors?
+
+  _greaterThenZero:
+    job: ['qty', 'position']
+    axes: ['xyFeedrate', 'zFeedrate']
+
+  # Whitelisting and validation of set parameters
+  _beforeAttrSet: (comp, k1, k2, v) ->
+    allowed = switch (comp.type || k1)
+      when "state" then ['motorsEnabled']
+      when "heater" then ['enabled', 'targetTemp']
+      when "conveyor", "fan" then ['enabled', 'speed']
+      when "job" then ['qty', 'position', 'slicingEngine', 'slicingProfile']
+      when "axes" then ['xyFeedrate', 'zFeedrate']
+      else []
+    attrType = typeof(comp[k2])
+
+    throw "#{k}.#{k2} is not a settable attribute." unless (`k2 in allowed`)
+    throw "#{k}.#{k2} must be a #{attrType}." if typeof(v) != attrType
+    throw "#{k}.#{k2} must be greater then zero." if @_greaterThenZero[k1]?[k2]?
+
+  _heaterGCode: (key, comp, diff) ->
+    gcode = switch key
+      when 'b' then "M140"
+      when 'e0' then "M104"
+      else "M104 P#{k[1..]}"
+    "#{gcode} S#{comp.targetTemp}"
+
+  _conveyorGCode: (key, conveyor, diff) ->
+    if conveyor.enabled then "M240" else "M241"
+
+  _fanGCode: (key, fan, diff) ->
+    if fan.enabled then "M106 S#{fan.speed}" else "M107"
+
+  _send: (gcode) ->
+    @driver.sendNow gcode
+
+  retryPrint: => @$.$apply (data) =>
+    @_print "estopped", "No estopped print jobs"
+
+  print: => @$.$apply (data) =>
+    @_printNextIdleJob()
+
+  _printNextIdleJob: ->
+    msg = "No idle print jobs. To reprint an estopped job use retry_print."
+    @_print "idle", msg
+
+  _print: (@currentJob, notFoundMessage) =>
+    # Fail fast
+    throw "Already printing." if @status == 'printing' or @status == 'slicing'
+    @currentJob = @jobs.find status: status
+    throw notFoundMessage unless @currentJob?
+
+    # Moving the job to the top of the queue if it isn't already there
+    @currentJob.position = 0
+    # Deleting any estopped jobs
+    (@rmJob j if j?.status == "estopped" and j != @currentJob) for j in @jobs
+    # Setting status to slicing (if necessary)
     if @currentJob.needsSlicing?
-      console.log "1"
-      changes = @changeJob id: @currentJob.id, status: "slicing", false, false
-      changes['status'] = 'slicing'
-      @data.status = 'slicing'
-      @emit 'change', changes
-    console.log "2"
+      @currentJob.status = data.state.status = "slicing"
+    # Loading the gcode
     @currentJob.loadGCode @_onReadyToPrint.fill(@currentJob)
 
-  _onReadyToPrint: (job, err, gcode) =>
-    console.log "3"
+  _onReadyToPrint: (job, err, gcode) => @$.$apply (data) =>
     @driver.print gcode
-    changes = @changeJob id: job.id, status: 'printing', startTime: new Date().getTime(), false, false
-    for k in ['total_lines', 'current_line']
-      changes["jobs[#{job.id}]"][k] = job[k.camelize(false)]
-    changes['status'] = 'printing'
-    @data.status = 'printing'
-    @emit 'change', changes
+    job.status = data.state.status = 'printing'
+    job.startTime = new Date().getTime()
 
-  _onPrintJobLineSent: =>
+  _onPrintJobLineSent: => @$.$apply (data) =>
     @currentJob.currentLine++
-    changes = {}
-    changes["jobs[#{@currentJob.id}]"] = current_line: @currentJob.currentLine
-    @emit 'change', changes
 
   _onPrintComplete: =>
-    qty = @currentJob.qtyPrinted + 1
-    done = qty >= @currentJob.qty
-    pause = @data.pauseBetweenPrints or @_jobs.length == 0
-    attrs =
-      id: (id = @currentJob.id)
-      qtyPrinted: qty
-      elapsedTime: new Date().getTime() - @currentJob.startTime
-      status: if done then 'done' else if pause then 'idle' else 'printing'
-    changes = @changeJob attrs, false, false
-
+    job = @currentJob
+    done = qty >= job.qty
+    pause = @data.pauseBetweenPrints or @jobs.length == 0
     @currentJob = null
-    if pause
-      changes.status = @data.status = 'idle'
-    else
-      @_print()
-    @emit 'change', changes
-    @rmJob id: id if done
+    # Updating the job and printer and starting the next print or pausing
+    jobAttrs =
+      qtyPrinted: job.qtyPrinted + 1
+      elapsedTime: new Date().getTime() - job.startTime
+      status: if done then 'done' else if pause then 'idle' else 'printing'
+    @$.$apply (data) =>
+      Object.merge job, jobAttrs
+      data.state.status = 'idle' if pause
+      @_printNextIdleJob() if !pause
+    # Removing the job if it's complete (it's status having already been set 
+    # to "done")
+    @rmJob job if done
 
   move: (axesVals) ->
     # Fail fast
@@ -326,7 +229,7 @@ module.exports = class Printer extends EventEmitter
     if extruders.length > 0
       gcode = "T#{extruders[0].replace 'e', ''}\n#{gcode}"
     # Sending the gcode
-    @driver.sendNow gcode
+    @_send gcode
 
   home: (axes = ['x', 'y', 'z']) ->
     # Fail fast
@@ -334,13 +237,13 @@ module.exports = class Printer extends EventEmitter
     axes.should.be.a 'array', "home must be called with an array of axes."
     @_asert_no_bad_axes 'home', axes.exclude((k,v) => @_axes.indexOf(k) > -1)
     # Implementation
-    gcode = "G28 #{axes.join(' ').toUpperCase()}"
-    @driver.sendNow gcode
+    @_send "G28 #{axes.join(' ').toUpperCase()}"
 
-  _assert_idle: (method_name) => 
-    @status.should.equal 'idle', "Cannot #{method_name} when #{@status}."
+  _assert_idle: (method_name) =>
+    return if @status == 'idle'
+    throw "Cannot #{method_name} when #{@status}."
 
   _asert_no_bad_axes: (methodName, badAxes) ->
+    return if badAxes.length == 0
     s = badAxes.join ','
-    err = "#{methodName} must be called with valid axes. #{s} are invalid."
-    badAxes.should.have.length 0, err
+    throw "#{methodName} must be called with valid axes. #{s} are invalid."

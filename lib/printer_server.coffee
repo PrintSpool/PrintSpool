@@ -59,10 +59,11 @@ module.exports = class PrinterServer
     @printer.addJob
       filePath: files.job.path
       qty: fields.qty
-      name: files.job.name
+      fileName: files.job.name
     res.end()
 
   broadcast: (data) =>
+    data = @_underscoreKeys data
     @send ws, data for ws in @wss.clients
 
   send: (ws, data) =>
@@ -80,7 +81,7 @@ module.exports = class PrinterServer
   onClientConnect: (ws) =>
     ws.on 'message', @onClientMessage.fill(ws)
     ws.on "close", @onClientDisconnect
-    data = @_underscoreData @printer.data
+    data = @_underscoreKeys @printer.data
     uuid = nodeUUID.v4()
     Object.merge data, session: { uuid: uuid }
     @send ws, [{type: 'initialized', data: data}]
@@ -97,42 +98,45 @@ module.exports = class PrinterServer
     'set',
     'estop',
     'print',
-    'rm_job',
-    'change_job',
-    'retry_print'
+    'rmJob',
+    'changeJob',
+    'retryPrint'
   ]
 
   onClientMessage: (ws, msgText, flags) =>
     try
       # Parsing / Fail fast
-      msg = JSON.parse msgText
+      msg = @_camelizeKeys JSON.parse msgText
       if @_websocketActions.indexOf(msg.action) == -1
         throw new Error("#{msg.action} is not a valid action")
-      action = msg.action.camelize(false)
       # Executing the action and responding
-      response = @printer[action](msg.data)
+      response = @printer[msg.action](msg.data)
       @send ws, [type: 'ack']
     catch e
       console.log e.stack
       data = type: 'runtime.sync', message: e.toString()
-      @send ws, [type: 'error', data: data]
+      @send ws, [type: 'error', data: @_underscoreKeys data]
     # console.log "client message:"
     # console.log msg
 
   onPrinterChange: (changes) =>
     # console.log "printer change:"
     # console.log changes
-    output = []
-    for k, v of changes
-      v = @_underscoreData(v)
-      output.push type: 'change', target: k.underscore(), data: v
-    @broadcast output
+    @broadcast ( type: 'change', target: k, data: v for k, v of changes )
 
-  _underscoreData: (originalData) =>
-    return originalData unless Object.isObject(originalData)
-    data = {}
-    data[k2.underscore()] = @_underscoreData(v2) for k2, v2 of originalData
-    return data
+  _underscoreKeys: (source) =>
+    @_modKeys source, (k) -> k.underscore()
+
+  _camelizeKeys: (source) ->
+    @_modKeys source, (k) -> k.camelize(false)
+
+  _modKeys: (source, transform) ->
+    if Array.isArray source
+      return ( @_underscoreKeys obj for obj in source )
+    return source unless typeof source == "object"
+    target = {}
+    target[transform(k2)] = @_underscoreKeys(v2) for k2, v2 of source
+    return target
 
   onPrinterAdd: (target, value) =>
     @broadcast [type: 'add', target: target, data: value]

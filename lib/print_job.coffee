@@ -6,58 +6,76 @@ exec = require('child_process').exec
 Join = require('join')
 
 module.exports = class PrintJob extends EventEmitter
+  _defaults: (opts) =>
+    qty: 1
+    qtyPrinted: 0
+    id: opts.printer.nextJobId()
+    position: opts.printer.nextJobPosition()
+    status: "idle"
+    type: "job"
+
   constructor: (opts) ->
-    @[k] = v for k, v of opts
-    for k in ["slicingEngine", "slicingProfile"]
-      @["_#{k}"] = @[k]
-      @__defineGetter__ k, @_get.fill(k)
-      @__defineSetter__ k, @_set.fill(k)
-      # Object.defineProperty @, k, get: @_get.fill(k), get: @_set.fill(k)
+    # Setting the basic enumerable properties
+    @[k] = v for k, v of Object.merge @_defaults(opts), opts
+    # Setting up non-enumerable properties (so-called "private" properties)
+    nonEnumerable =
+      private: {filePath: path.resolve(@filePath)}
+    Object.defineProperty k, value: v for k, v of nonEnumerable
+    delete @filePath
+    # Setting getters and setters for the calculated enumerable properties
+    @define(k, opts[k]) for k in ["slicingEngine", "slicingProfile"]
+
+  _define: (k, v) ->
+    @private[k] = v
+    descr = enumerable: true, get: @_get.fill(k), set: @_set.fill(k)
+    Object.defineProperty @, k, desc
 
   _get: (key) =>
-    @["_#{key}"] || @printer.data[key]
+    @private[key] || @printer.data[key]
 
   _set: (key, value) =>
-    @["_#{key}"] = value?.underscore?()
+    @private[key] = value?.underscore?()
 
-  loadGCode: (@_cb = null) =>
-    @once "load", @_cb if @_cb?
-    @filePath = path.resolve(@filePath)
+  key: ->
+    "jobs[#{@id}]"
+
+  loadGCode: (@private.cb = null) =>
+    @once "load", @private.cb if @private.cb?
     if @needsSlicing()
-      @_slicingInstance = SlicingEngineFactory.slice @
+      @private.slicingInstance = SlicingEngineFactory.slice @
     else
-      @onSlicingComplete(gcodePath: @filePath)
+      @onSlicingComplete(gcodePath: @private.filePath)
 
   cancel: =>
-    @_cancelled = new Date()
-    @_slicingInstance.cancel() if @_slicingInstance?
-    @removeListener "load", @_cb if @_cb?
-    @_slicingInstance = null
-    @_cb = null
+    @private.cancelled = new Date()
+    @private.slicingInstance.cancel() if @private.slicingInstance?
+    @removeListener "load", @private.cb if @private.cb?
+    @private.slicingInstance = null
+    @private.cb = null
 
   needsSlicing: =>
-    path.extname(@filePath).match(/.gcode|.ngc/i)? == false
+    path.extname(@private.filePath).match(/.gcode|.ngc/i)? == false
 
   onSlicingComplete: (slicer) =>
     join = Join.create()
     @currentLine = 0
-    @_slicingInstance = null
+    @private.slicingInstance = null
 
     # Getting the number of lines in the file
     exec "wc -l #{slicer.gcodePath}", join.add()
     # Loading the gcode to memory
     fs.readFile slicer.gcodePath, 'utf8', join.add()
-    join.when @_onLoadAndLineCount.fill new Date()
+    join.when @private.onLoadAndLineCount.fill new Date()
 
   onSlicingError: =>
     console.log "slicer error"
     @emit "job_error", "slicer error"
 
   _cancelledAfter: (timestamp) =>
-    @_cancelled and timestamp.isBefore @_cancelled
+    @private.cancelled and timestamp.isBefore @private.cancelled
 
   _onLoadAndLineCount: (timestamp, lineCountArgs, loadArgs) =>
-    return if @_cancelledAfter timestamp
+    return if @private.cancelledAfter timestamp
     [err, gcode] = loadArgs
 
     @totalLines = parseInt(lineCountArgs[1].match(/\d+/)[0])
