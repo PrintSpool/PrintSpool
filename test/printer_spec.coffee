@@ -10,16 +10,23 @@ expect = chai.expect
 
 class DriverStub extends EventEmitter
   constructor: ->
-    # TODO: Stub all the things!
+    # Stub all the things!
     ['reset', 'sendNow', 'print'].each (key) =>
       @[key] = chai.spy (a,b) -> @emit("test_#{key}", a, b)
 
 class PrintJobStub extends EventEmitter
-  constructor: (attrs) ->
+  type: "job"
+  status: "idle"
+  constructor: (printer, attrs) ->
     @[k] = v for k, v of attrs
+    Object.defineProperty @, 'printer', value: printer
 
-  loadGCode: (cb) =>
+  loadGCode: (cb) -> setTimeout.fill(undefined, 0) ->
     cb null, 'G91\nG1 F300\nG1 X10 Y20 Z5 F300'
+
+  key: =>
+    "jobs[#{@id}]"
+
 
 describe 'Printer', ->
   driver = null
@@ -46,19 +53,19 @@ describe 'Printer', ->
 
     it 'should store the job in the queue', ->
       printer.addJob {}
-      printer.getJobs().length.should.equal 1
+      printer.jobs.length.should.equal 1
 
     it 'should start job ids at 0', ->
       printer.addJob {}
-      printer.getJobs()[0].id.should.equal 0
+      printer.jobs[0].id.should.equal 0
 
     it 'should ignore pased id attributes', ->
       printer.addJob id: 5
-      printer.getJobs()[0].id.should.equal 0
+      printer.jobs[0].id.should.equal 0
 
     it 'should set the qty', ->
       printer.addJob qty: 5
-      printer.getJobs()[0].qty.should.equal 5
+      printer.jobs[0].qty.should.equal 5
 
     it 'should emit add', (done) ->
       printer.on 'add', (key, job) ->
@@ -69,64 +76,19 @@ describe 'Printer', ->
 
     it 'should place the job at the end of the queue by default', ->
       printer.addJob {}
-      printer.getJobs()[0].position.should.equal 0
+      printer.jobs[0].position.should.equal 0
 
-    it 'should set a default qty', ->
-      printer.addJob {}
-      printer.getJobs()[0].qty.should.equal 1
-
-  describe 'rmJob', ->
-    it 'should remove and existing job without error and emit remove', (done) ->
-      printer.on 'remove', (key) ->
+  describe 'rm', ->
+    it 'should remove an existing job without error and emit rm', (done) ->
+      printer.on 'rm', (key) ->
         key.should.equal "jobs[0]"
         done()
       printer.addJob {}
-      printer.rmJob id: 0
+      printer.rm "jobs[0]"
 
     it 'should error if the job does not exist', ->
-      printer.addJob
-      printer.rmJob.bind(printer, id: 5).should.throw()
-
-  describe 'changeJob', ->
-    it 'should modify an existing job and emit change',(done) ->
-      printer.on 'change', (data) ->
-        data['jobs[0]'].should.not.have.property 'id'
-        data['jobs[0]'].qty.should.equal 5
-        done()
-      printer.addJob {}
-      printer.changeJob id: 0, qty: 5
-
-    it 'should move a job and reorder other jobs around it',(done) ->
-      printer.on 'change', (data) ->
-        data.should.not.have.property "jobs[#{i}]" for i in [0, 3]
-        data.should.have.property "jobs[#{i}]"     for i in [1, 2]
-        data['jobs[2]'].position.should.equal 1
-        data['jobs[1]'].position.should.equal 2
-        done()
-      printer.addJob {} for i in [0..3]
-      printer.changeJob id: 2, position: 1
-
-    it 'should move a job to position 0 and move all jobs down',(done) ->
-      printer.on 'change', (data) ->
-        data['jobs[1]'].position.should.equal 0
-        data['jobs[0]'].position.should.equal 1
-        done()
-      printer.addJob {} for i in [0..1]
-      printer.changeJob id: 1, position: 0
-
-    it 'should error if a invalid job id is given', ->
-      fn = printer.changeJob.bind(printer, id: 12, qty: 5, position: 0)
-      fn.should.throw()
-
-    it 'should error if a invalid position is given', ->
-      printer.addJob
-      fn = printer.changeJob.bind(printer, id: 0, position: 1)
-      fn.should.throw()
-
-    it 'should error if a negative qty is given', ->
-      printer.addJob
-      fn = printer.changeJob.bind(printer, id: 0, qty: -5)
-      fn.should.throw()
+      printer.addJob()
+      printer.rm.bind(printer, "jobs[4]").should.throw()
 
   describe 'estop', ->
     it 'should reset the printer', ->
@@ -135,7 +97,7 @@ describe 'Printer', ->
 
     it 'should set the status to estopped', (done) ->
       printer.on 'change', (data) ->
-        data.status.should.equal 'estopped'
+        data.state.status.should.equal 'estopped'
         done()
       printer.estop()
 
@@ -145,11 +107,16 @@ describe 'Printer', ->
 
     it 'should estop the current print', (done) ->
       addJob()
-      printer.print()
-      printer.on 'change', (data) ->
+      i = 0
+      printer.on 'change', (data) -> switch i++
+        when 0 then printer.estop()
+        when 1 then onEstopped data
+      onEstopped = (data) ->
+        console.log "w00t!"
+        console.log data
         expect(data?["jobs[0]"]?.status).to.equal 'estopped'
         done()
-      printer.estop()
+      printer.print()
 
   describe 'print', ->
     beforeEach addJob
@@ -268,3 +235,42 @@ describe 'Printer', ->
 
     it 'should not change the type of a property'
 
+    it 'should modify an existing job and emit change',(done) ->
+      printer.on 'change', (data) ->
+        data['jobs[0]'].should.not.have.property 'id'
+        data['jobs[0]'].qty.should.equal 5
+        done()
+      printer.addJob {}
+      printer.set "job[0]": {qty: 5}
+
+    it 'should move a job and reorder other jobs around it',(done) ->
+      printer.on 'change', (data) ->
+        data.should.not.have.property "jobs[#{i}]" for i in [0, 3]
+        data.should.have.property "jobs[#{i}]"     for i in [1, 2]
+        data['jobs[2]'].position.should.equal 1
+        data['jobs[1]'].position.should.equal 2
+        done()
+      printer.addJob {} for i in [0..3]
+      printer.set "job[2]": {position: 1}
+
+    it 'should move a job to position 0 and move all jobs down',(done) ->
+      printer.on 'change', (data) ->
+        data['jobs[1]'].position.should.equal 0
+        data['jobs[0]'].position.should.equal 1
+        done()
+      printer.addJob {} for i in [0..1]
+      printer.set "job[1]":  {position: 0}
+
+    it 'should error if a invalid job id is given', ->
+      fn = printer.set.bind(printer, "job[12]": {qty: 5, position: 0})
+      fn.should.throw()
+
+    it 'should error if a invalid position is given', ->
+      printer.addJob()
+      fn = printer.set.bind(printer, "job[0]": {position: 1})
+      fn.should.throw()
+
+    it 'should error if a negative qty is given', ->
+      printer.addJob()
+      fn = printer.set.bind(printer, "job[0]": {qty: -5})
+      fn.should.throw()

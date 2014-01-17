@@ -6,28 +6,25 @@ exec = require('child_process').exec
 Join = require('join')
 
 module.exports = class PrintJob extends EventEmitter
-  _defaults: (opts) =>
-    qty: 1
-    qtyPrinted: 0
-    id: opts.printer.nextJobId()
-    position: opts.printer.nextJobPosition()
-    status: "idle"
-    type: "job"
-
-  constructor: (opts) ->
+  constructor: (printer, opts) ->
     # Setting the basic enumerable properties
     @[k] = v for k, v of Object.merge @_defaults(opts), opts
     # Setting up non-enumerable properties (so-called "private" properties)
-    nonEnumerable =
-      private: {filePath: path.resolve(@filePath)}
-    Object.defineProperty k, value: v for k, v of nonEnumerable
+    Object.defineProperty @, 'private', value: filePath: path.resolve(@filePath)
+    Object.defineProperty @, 'printer', value: printer
     delete @filePath
     # Setting getters and setters for the calculated enumerable properties
-    @define(k, opts[k]) for k in ["slicingEngine", "slicingProfile"]
+    @_define(k, opts[k]) for k in ["slicingEngine", "slicingProfile"]
+
+  _defaults: (opts) =>
+    qty: 1
+    qtyPrinted: 0
+    status: "idle"
+    type: "job"
 
   _define: (k, v) ->
     @private[k] = v
-    descr = enumerable: true, get: @_get.fill(k), set: @_set.fill(k)
+    desc = enumerable: true, get: @_get.fill(k), set: @_set.fill(k)
     Object.defineProperty @, k, desc
 
   _get: (key) =>
@@ -39,8 +36,9 @@ module.exports = class PrintJob extends EventEmitter
   key: ->
     "jobs[#{@id}]"
 
-  loadGCode: (@private.cb = null) =>
-    @once "load", @private.cb if @private.cb?
+  loadGCode: (cb = null) =>
+    @private.cb = cb
+    @once "load", cb if cb?
     if @needsSlicing()
       @private.slicingInstance = SlicingEngineFactory.slice @
     else
