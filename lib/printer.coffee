@@ -106,9 +106,7 @@ module.exports = class Printer extends EventEmitter
   # - fan enabled
   # - fan speed
   # - conveyor enabled
-  set: (data, target) ->
-    diff = {}
-    diff[target] = data
+  set: (diff) ->
     # Fail fast: verify the diff is a key/value store
     throw 'set data must be an object' unless Object.isObject(diff)
     # Fail fast: attribute whitelisting and validation
@@ -131,7 +129,7 @@ module.exports = class Printer extends EventEmitter
 
   # Whitelisting and validation of set parameters
   _beforeAttrSet: (comp, k1, k2, v) ->
-    throw "#{k1}.#{k2} is not an attribute" unless comp?
+    throw "#{k1}.#{k2} is not an attribute" unless comp[k2]?
     type = (comp.type || k1)
     allowed = switch type
       when "heater"   then ['enabled', 'targetTemp']

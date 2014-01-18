@@ -109,7 +109,7 @@ module.exports = class PrinterServer
       if @_websocketActions.indexOf(msg.action) == -1
         throw new Error("#{msg.action} is not a valid action")
       # Executing the action and responding
-      response = @printer[msg.action.camelize false](msg.data, msg.target)
+      response = @printer[msg.action.camelize false](msg.data)
       @send ws, [type: 'ack']
     catch e
       console.log e.stack if e.stack?
@@ -134,7 +134,7 @@ module.exports = class PrinterServer
       return ( @_underscoreKeys obj for obj in source )
     return source unless typeof source == "object"
     target = {}
-    target[transform(k2)] = @_underscoreKeys(v2) for k2, v2 of source
+    target[transform(k2)] = @_modKeys(v2, transform) for k2, v2 of source
     return target
 
   onPrinterAdd: (target, value) =>
