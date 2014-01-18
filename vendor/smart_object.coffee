@@ -1,26 +1,25 @@
 EventEmitter = require('events').EventEmitter
 
 module.exports = class SmartObject extends EventEmitter
-  constructor: (data) ->
+  constructor: (buffer) ->
     # New changes are put into the buffer
-    @buffer = data
+    @buffer = buffer
     # And then copied to the data
     @data = {}
-    @_diffAndCopy @data, @buffer
     @rmMarker = {}
+    # Initialization: Copy the buffer into the data
+    @_diff @data, @buffer, diff = {}
+    @_mergeRecursion @data, diff
 
   $apply: (cb) =>
     throw "Cannot recursively $apply" if @_insideApply
     @_insideApply = true
     cb @buffer
     @_insideApply = false
-    @_diffAndCopy @data, @buffer
-
-  _diffAndCopy: (target, source) ->
-    diff = {}
-    @_diff target, source, diff
-    @_merge [target], diff
-
+    # Create a diff by comparing the data and the buffer
+    @_diff @data, @buffer, diff = {}
+    # Merge the diff into the data
+    @_merge @data, diff, true
 
   _diff: (target, source, diff) ->
     for k, v of target
@@ -32,7 +31,8 @@ module.exports = class SmartObject extends EventEmitter
       continue if v instanceof Function
       # Nested Object
       if typeof v == "object"
-        @_diff (target[k] || {}), v, diff[k] = {}
+        @_diff (target[k] || {}), v, subDiff = {}
+        diff[k] = subDiff if Object.keys(subDiff).length > 0
       # Added Attribute or Changed Attribute
       else if (v != target[k])
         diff[k] = v
@@ -40,14 +40,19 @@ module.exports = class SmartObject extends EventEmitter
     return diff
 
   # merges a change set (diff) into both the data and the buffer
-  $merge: (diff) =>
-    @_merge [@buffer, @data], diff
+  $merge: (diff, runCallbacks) =>
+    @_mergeRecursion @buffer, diff
+    @_merge @data, diff, runCallbacks
 
-  _merge: (targets, diff) ->
-    @emit "beforeMerge", diff
-    for target in targets
-      [changes, add, rm] = @_mergeRecursion target, diff
-    @emit "change", changes
+  _merge: (target, diff, runCallbacks = true) ->
+    if runCallbacks
+      # Emit a before merge event in which the buffer can be further transformed
+      @emit "beforeMerge", diff
+      # Create an updated diff by once again comparing the data and the buffer
+      @_diff @data, @buffer, diff = {}
+
+    [changes, add, rm] = @_mergeRecursion target, diff
+    @emit "change", changes if Object.keys(changes).length > 0
     @emit.fill("add").apply @, args for args in add
     @emit.fill("rm").apply  @, args for args in rm
 

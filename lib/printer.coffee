@@ -45,13 +45,14 @@ module.exports = class Printer extends EventEmitter
     # Adding the extruders to the axes
     @_axes = ['x','y','z']
     for k, v of components
-      (@_axes.push k if k.startsWith('e') and v.type == 'heater')
+      (@_axes.push k if k.startsWith('e') and (v.type||v) == 'heater')
     # Adding getters
     @__defineGetter__ "status", => @data.state.status
     @__defineGetter__ "jobs", @_getJobs
+    @__defineGetter__ "idleJobs", @_getIdleJobs
     # Updating data on driver change
     @driver.on "ready", @_onReady
-    @driver.on "change", @$.$merge
+    @driver.on "change", @$.$merge.fill(undefined, false)
     @driver.on "print_job_line_sent", @_onPrintJobLineSent
     @driver.on "print_complete", @_onPrintComplete
 
@@ -59,17 +60,19 @@ module.exports = class Printer extends EventEmitter
     for k1, diffComp of diff
       continue unless @data[k1]?
       type = @data[k1].type || k1
-      @["_before#{type}#{k2}Change"]?(k1, k2, v) for k2, v of diffComp
+      for k2, v of diffComp
+        @["_before#{type}#{k2.capitalize()}Change"]?(k1, k2, v)
 
   # Reordering the other jobs after a job's position was changed
-  _beforeJobPositionChange: (k1, k2, _new) ->
-    _old = @$.buffer[k1].position
-    @jobs.filter((j) -> j.id != comp.id).each (j) ->
+  _beforejobPositionChange: (k1, k2, _new) ->
+    oldComp = @$.data[k1]
+    _old = oldComp.position
+    @jobs.filter((j) -> j.id != oldComp.id).each (j) ->
       j.position += 1 if _old > j.position >= _new
       j.position -= 1 if _old < j.position < _new
 
   _onReady: =>
-    @$.$merge state: {status: 'idle'}
+    @$.$merge state: {status: 'idle'}, false
 
   addJob: (jobAttrs = {}) => @$.$apply (data) =>
     job = new @_PrintJob @, Object.merge jobAttrs,
@@ -83,6 +86,9 @@ module.exports = class Printer extends EventEmitter
 
   _getJobs: =>
     Object.values(@$.buffer).findAll(type: "job").sortBy('position')
+
+  _getIdleJobs: =>
+    @jobs.findAll(status: "idle")
 
   estop: => @$.$apply (data) => 
     @driver.reset()
@@ -108,13 +114,13 @@ module.exports = class Printer extends EventEmitter
       @_beforeAttrSet @data[k1], k1, k2, v for k2, v of diffComp
     # Fail fast: Settings that can not be set while the printer is busy
     if ['printing', 'estopped'].any @status
-      comp = Object.find diff, type: /heater|conveyor|fan/
+      comp = Object.find diff, (k) => @data[k].type = /heater|conveyor|fan/
       throw "cannot set #{comp.type} while printing." if comp?
     # Applying the diff
     @$.$merge diff
     # Send gcodes to the print driver to update the printer
-    gcodes = diff.map (k, v) -> @_compGCode k, @data[k], v
-    @driver.sendNow gcode for gcode in gcodes.compact()
+    gcodes = Object.map diff, (k, v) => @_compGCode k, @data[k], v
+    @driver.sendNow gcode for gcode in Object.values(gcodes).compact()
 
   _greaterThenZero:
     job: ['qty', 'position']
@@ -122,7 +128,9 @@ module.exports = class Printer extends EventEmitter
 
   # Whitelisting and validation of set parameters
   _beforeAttrSet: (comp, k1, k2, v) ->
-    allowed = switch (comp.type || k1)
+    throw "#{k1} is not a component" unless comp?
+    type = (comp.type || k1)
+    allowed = switch type
       when "heater"   then ['enabled', 'targetTemp']
       when "fan"      then ['enabled', 'speed']
       when "axes"     then ['xyFeedrate', 'zFeedrate']
@@ -133,7 +141,10 @@ module.exports = class Printer extends EventEmitter
 
     throw "#{k}.#{k2} is not a settable attribute." unless (`k2 in allowed`)
     throw "#{k}.#{k2} must be a #{attrType}." if typeof(v) != attrType
-    throw "#{k}.#{k2} must be greater then zero." if @_greaterThenZero[k1]?[k2]?
+    if @_greaterThenZero[type]?.any?(k2) and v < 0
+      throw "#{k}.#{k2} must be greater then zero."
+    if comp.type == 'job' and k2 == 'position' and v >= @jobs.length
+      throw "Invalid position."
 
   _heaterGCode: (key) -> switch key
     when 'b' then "M140"
@@ -157,14 +168,16 @@ module.exports = class Printer extends EventEmitter
   print: => @$.$apply (data) =>
     @_printNextIdleJob()
 
-  _printNextIdleJob: ->
+  _printNextIdleJob: (continuation) ->
     msg = "No idle print jobs. To reprint an estopped job use retry_print."
-    @_print "idle", msg
+    @_print "idle", msg, continuation
 
-  _print: (status, notFoundMessage) =>
+  _print: (status, notFoundMessage, continuation = false) =>
     # Fail fast
-    throw "Already printing." if ['printing', 'slicing'].any @status
-    throw "Can not print when estopped." if @status == 'estopped'
+    if !continuation and ['printing', 'slicing'].any @status
+      throw "Already printing."
+    if ['estopped', 'initializing'].any @status
+      throw "Can not print when #{@status}."
     @currentJob = @jobs.find status: status
     throw notFoundMessage unless @currentJob?
 
@@ -188,8 +201,9 @@ module.exports = class Printer extends EventEmitter
 
   _onPrintComplete: =>
     job = @currentJob
-    done = qty >= job.qty
-    pause = @data.pauseBetweenPrints or @jobs.length == 0
+    done = job.qtyPrinted + 1 >= job.qty
+    pause = @data.config.pauseBetweenPrints
+    pause ||= @idleJobs.exclude(job).length == 0
     @currentJob = null
     # Updating the job and printer and starting the next print or pausing
     jobAttrs =
@@ -199,7 +213,7 @@ module.exports = class Printer extends EventEmitter
     @$.$apply (data) =>
       Object.merge job, jobAttrs
       data.state.status = 'idle' if pause
-      @_printNextIdleJob() if !pause
+      @_printNextIdleJob(true) if !pause
     # Removing the job if it's complete (it's status having already been set 
     # to "done")
     @rm job.key() if done
@@ -220,7 +234,7 @@ module.exports = class Printer extends EventEmitter
     gcode = 'G1'
     gcode += " #{k.replace(/e\d/, 'e').toUpperCase()}#{v}" for k, v of axesVals
     # Calculating and adding the feedrate
-    feedrate = @data["#{if axesVals.z? then 'z' else 'xy'}Feedrate"]
+    feedrate = @data.axes["#{if axesVals.z? then 'z' else 'xy'}Feedrate"]
     extruders = axesVals.keys().filter (k) -> k.startsWith 'e'
     eFeedrates = extruders.map (k) => @data[k].flowrate
     feedrate = eFeedrates.reduce ( (f1, f2) -> Math.min f1, f2 ), feedrate
