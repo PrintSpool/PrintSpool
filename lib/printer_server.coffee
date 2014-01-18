@@ -109,10 +109,10 @@ module.exports = class PrinterServer
       if @_websocketActions.indexOf(msg.action) == -1
         throw new Error("#{msg.action} is not a valid action")
       # Executing the action and responding
-      response = @printer[msg.action.camelize false](msg.data)
+      response = @printer[msg.action.camelize false](msg.data, msg.target)
       @send ws, [type: 'ack']
     catch e
-      console.log e.stack
+      console.log e.stack if e.stack?
       data = type: 'runtime.sync', message: e.toString()
       @send ws, [type: 'error', data: @_underscoreKeys data]
     # console.log "client message:"

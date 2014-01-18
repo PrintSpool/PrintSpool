@@ -69,7 +69,7 @@ module.exports = class Printer extends EventEmitter
     _old = oldComp.position
     @jobs.filter((j) -> j.id != oldComp.id).each (j) ->
       j.position += 1 if _old > j.position >= _new
-      j.position -= 1 if _old < j.position < _new
+      j.position -= 1 if _old < j.position <= _new
 
   _onReady: =>
     @$.$merge state: {status: 'idle'}, false
@@ -106,11 +106,14 @@ module.exports = class Printer extends EventEmitter
   # - fan enabled
   # - fan speed
   # - conveyor enabled
-  set: (diff) ->
+  set: (data, target) ->
+    diff = {}
+    diff[target] = data
     # Fail fast: verify the diff is a key/value store
     throw 'set data must be an object' unless Object.isObject(diff)
     # Fail fast: attribute whitelisting and validation
     for k1, diffComp of diff
+      throw "#{k1} is not a component" unless @data[k1]?
       @_beforeAttrSet @data[k1], k1, k2, v for k2, v of diffComp
     # Fail fast: Settings that can not be set while the printer is busy
     if ['printing', 'estopped'].any @status
@@ -128,7 +131,7 @@ module.exports = class Printer extends EventEmitter
 
   # Whitelisting and validation of set parameters
   _beforeAttrSet: (comp, k1, k2, v) ->
-    throw "#{k1} is not a component" unless comp?
+    throw "#{k1}.#{k2} is not an attribute" unless comp?
     type = (comp.type || k1)
     allowed = switch type
       when "heater"   then ['enabled', 'targetTemp']
@@ -139,10 +142,10 @@ module.exports = class Printer extends EventEmitter
       else []
     attrType = typeof(comp[k2])
 
-    throw "#{k}.#{k2} is not a settable attribute." unless (`k2 in allowed`)
-    throw "#{k}.#{k2} must be a #{attrType}." if typeof(v) != attrType
+    throw "#{k1}.#{k2} is not a settable attribute." unless (`k2 in allowed`)
+    throw "#{k1}.#{k2} must be a #{attrType}." if typeof(v) != attrType
     if @_greaterThenZero[type]?.any?(k2) and v < 0
-      throw "#{k}.#{k2} must be greater then zero."
+      throw "#{k1}.#{k2} must be greater then zero."
     if comp.type == 'job' and k2 == 'position' and v >= @jobs.length
       throw "Invalid position."
 
@@ -151,12 +154,12 @@ module.exports = class Printer extends EventEmitter
     when 'e0' then "M104"
     else "M104 P#{k[1..]}"
 
-  _compGCode: (key, comp, diff) -> switch comp.type
+  _compGCode: (key, comp, diff) -> switch comp.type || key
     when "conveyor"
       if comp.enabled then "M240" else "M241"
     when "fan"
       if comp.enabled then "M106 S#{comp.speed}" else "M107"
-    when "motor"
+    when "motors"
       "M1#{if comp.enabled then 7 else 8}"
     when "heater"
       "#{@_heaterGCode key} S#{comp.targetTemp}"
