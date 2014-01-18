@@ -58,7 +58,7 @@ module.exports = class PrinterServer
     return console.log err if err?
     @printer.addJob
       filePath: files.job.path
-      qty: fields.qty
+      qty: fields.qty || 1
       fileName: files.job.name
     res.end()
 
