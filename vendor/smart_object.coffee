@@ -14,12 +14,14 @@ module.exports = class SmartObject extends EventEmitter
   $apply: (cb) =>
     throw "Cannot recursively $apply" if @_insideApply
     @_insideApply = true
-    cb @buffer
-    @_insideApply = false
+    try
+      cb @buffer
+    finally
+      @_insideApply = false
     # Create a diff by comparing the data and the buffer
     @_diff @data, @buffer, diff = {}
     # Merge the diff into the data
-    @_merge @data, diff, true
+    @_merge diff, true
 
   _diff: (target, source, diff) ->
     for k, v of target
@@ -42,16 +44,17 @@ module.exports = class SmartObject extends EventEmitter
   # merges a change set (diff) into both the data and the buffer
   $merge: (diff, runCallbacks) =>
     @_mergeRecursion @buffer, diff
-    @_merge @data, diff, runCallbacks
+    @_merge diff, runCallbacks
 
-  _merge: (target, diff, runCallbacks = true) ->
+  _merge: (diff, runCallbacks = true) ->
     if runCallbacks
       # Emit a before merge event in which the buffer can be further transformed
       @emit "beforeMerge", diff
       # Create an updated diff by once again comparing the data and the buffer
       @_diff @data, @buffer, diff = {}
 
-    [changes, add, rm] = @_mergeRecursion target, diff
+    [changes, add, rm] = @_mergeRecursion @data, diff
+
     @emit "change", changes if Object.keys(changes).length > 0
     @emit.fill("add").apply @, args for args in add
     @emit.fill("rm").apply  @, args for args in rm
@@ -60,7 +63,7 @@ module.exports = class SmartObject extends EventEmitter
     for k, v of diff
       continue if v instanceof Function
       # Add
-      if !(target[k]?)
+      if !(target[k]?) and typeof(v) == "object"
         v = @_withoutFns v
         add.push [k, v, target]
         target[k] = v

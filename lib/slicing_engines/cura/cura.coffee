@@ -9,7 +9,7 @@ module.exports = class Cura
   appPaths:
     darwin: "/Applications/Cura/Cura.app/Contents/MacOS/Cura"
 
-  constructor: (@opts) ->
+  constructor: (@configDir, @opts) ->
 
   slice: =>
     # console.log @opts

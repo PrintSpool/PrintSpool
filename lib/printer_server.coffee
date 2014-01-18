@@ -33,7 +33,7 @@ module.exports = class PrinterServer
     @printer.driver.on "disconnect", @onPrinterDisconnect
     @printer.on "change", @onPrinterChange
     @printer.on "add", @onPrinterAdd
-    @printer.on "remove", @onPrinterRm
+    @printer.on "rm", @onPrinterRm
 
     @app.post "#{@path}/jobs", @createJob
 
@@ -98,9 +98,8 @@ module.exports = class PrinterServer
     'set',
     'estop',
     'print',
-    'rmJob',
-    'changeJob',
-    'retryPrint'
+    'rm',
+    'retry_print'
   ]
 
   onClientMessage: (ws, msgText, flags) =>
@@ -110,7 +109,7 @@ module.exports = class PrinterServer
       if @_websocketActions.indexOf(msg.action) == -1
         throw new Error("#{msg.action} is not a valid action")
       # Executing the action and responding
-      response = @printer[msg.action](msg.data)
+      response = @printer[msg.action.camelize false](msg.data)
       @send ws, [type: 'ack']
     catch e
       console.log e.stack

@@ -187,7 +187,7 @@ module.exports = class Printer extends EventEmitter
     (@rm j.key() if j?.status == "estopped" and j != @currentJob) for j in @jobs
     # Setting status to slicing (if necessary)
     if @currentJob.needsSlicing?
-      @currentJob.status = data.state.status = "slicing"
+      @currentJob.status = @$.buffer.state.status = "slicing"
     # Loading the gcode
     @currentJob.loadGCode @_onReadyToPrint.fill(@currentJob)
 
@@ -213,7 +213,7 @@ module.exports = class Printer extends EventEmitter
     @$.$apply (data) =>
       Object.merge job, jobAttrs
       data.state.status = 'idle' if pause
-      @_printNextIdleJob(true) if !pause
+      @_printNextIdleJob true if !pause
     # Removing the job if it's complete (it's status having already been set 
     # to "done")
     @rm job.key() if done

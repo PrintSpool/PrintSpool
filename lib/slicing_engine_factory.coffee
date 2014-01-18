@@ -19,28 +19,29 @@ install = (opts, callback = ->) ->
   dir = [module.exports.configDir, engineName(opts)]
   if !(Slicer.sandboxDir?) or (Slicer.sandboxDir)
     dir << opts.slicingProfile.toString()
-  opts.configDir = path.resolve dir.join '/'
-  cb = installifNotInstalled.fill(opts, callback, opts.configDir)
+  configDir = path.resolve dir.join '/'
+  cb = installifNotInstalled.fill(opts, callback, configDir)
   if Slicer.isInstalled?
-    Slicer.isInstalled opts, cb
+    installOpts = configDir: configDir, slicingProfile: opts.slicingProfile
+    Slicer.isInstalled installOpts, cb
   else
-    fs.exists opts.configDir, cb
+    fs.exists configDir, cb
 
 installifNotInstalled = (opts, callback, dest, isInstalled) ->
-  return callback?() if isInstalled
+  return callback?(dest) if isInstalled
   console.log "Installing #{engineName(opts)}"
   Slicer = requireSlicingEngine opts
   src = path.resolve enginePath opts
   installer = new InstallBuilder src, dest
-  installer.run Slicer.install.fill(opts), callback
+  installer.run Slicer.install.fill(opts), callback.fill(dest)
 
 # Slice
 slice = (opts) ->
-  install opts, sliceOnInstall.fill(opts)
+  install opts, sliceOnInstall.fill(undefined, opts)
 
-sliceOnInstall = (opts) ->
+sliceOnInstall = (configDir, opts) ->
   Slicer = requireSlicingEngine opts
-  slicer = new Slicer opts
+  slicer = new Slicer configDir, opts
   slicer.slice()
   console.log "Slicing #{opts.filePath}"
   return slicer

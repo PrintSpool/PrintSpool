@@ -42,7 +42,7 @@ module.exports = class PrintJob extends EventEmitter
     if @needsSlicing()
       @private.slicingInstance = SlicingEngineFactory.slice @
     else
-      @onSlicingComplete(gcodePath: @private.filePath)
+      setTimeout (=> @onSlicingComplete gcodePath: @private.filePath), 0
 
   cancel: =>
     @private.cancelled = new Date()
@@ -63,7 +63,7 @@ module.exports = class PrintJob extends EventEmitter
     exec "wc -l #{slicer.gcodePath}", join.add()
     # Loading the gcode to memory
     fs.readFile slicer.gcodePath, 'utf8', join.add()
-    join.when @private.onLoadAndLineCount.fill new Date()
+    join.when @_onLoadAndLineCount.fill new Date()
 
   onSlicingError: =>
     console.log "slicer error"
@@ -73,7 +73,7 @@ module.exports = class PrintJob extends EventEmitter
     @private.cancelled and timestamp.isBefore @private.cancelled
 
   _onLoadAndLineCount: (timestamp, lineCountArgs, loadArgs) =>
-    return if @private.cancelledAfter timestamp
+    return if @_cancelledAfter timestamp
     [err, gcode] = loadArgs
 
     @totalLines = parseInt(lineCountArgs[1].match(/\d+/)[0])
