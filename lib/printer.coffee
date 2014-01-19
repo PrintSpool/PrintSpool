@@ -90,7 +90,7 @@ module.exports = class Printer extends EventEmitter
   _getIdleJobs: =>
     @jobs.findAll(status: "idle")
 
-  estop: => @$.$apply (data) => 
+  estop: => @$.$apply (data) =>
     @driver.reset()
     job = @currentJob || {}
     job.cancel?()
@@ -115,7 +115,8 @@ module.exports = class Printer extends EventEmitter
       @_beforeAttrSet @data[k1], k1, k2, v for k2, v of diffComp
     # Fail fast: Settings that can not be set while the printer is busy
     if ['printing', 'estopped'].any @status
-      comp = Object.find diff, (k) => @data[k].type = /heater|conveyor|fan/
+      comps = Object.keys(diff).map (k) => @data[k]
+      comp = comps.find type: /heater|conveyor|fan/
       throw "cannot set #{comp.type} while printing." if comp?
     # Applying the diff
     @$.$merge diff
@@ -215,7 +216,7 @@ module.exports = class Printer extends EventEmitter
       Object.merge job, jobAttrs
       data.state.status = 'idle' if pause
       @_printNextIdleJob true if !pause
-    # Removing the job if it's complete (it's status having already been set 
+    # Removing the job if it's complete (it's status having already been set
     # to "done")
     @rm job.key() if done
 
