@@ -1,48 +1,44 @@
 fs = require("fs-extra")
 path = require ("flavored-path")
-SlicingEngineFactory = require("../lib/slicing_engine_factory")
+SlicingEngineFactory = require path.join __dirname, "../slicing_engine_factory"
 EventEmitter = require('events').EventEmitter
 exec = require('child_process').exec
 Join = require('join')
+nodeUUID = require('node-uuid')
 
 module.exports = class PrintJob extends EventEmitter
-  constructor: (printer, opts) ->
+  constructor: (opts, cb) ->
     # Setting the basic enumerable properties
     @[k] = v for k, v of Object.merge @_defaults(opts), opts
     # Setting up non-enumerable properties (so-called "private" properties)
     Object.defineProperty @, 'private', value: filePath: path.resolve(@filePath)
-    Object.defineProperty @, 'printer', value: printer
+    Object.defineProperty @, 'key', value: nodeUUID.v4().replace(/-/g, "")
     delete @filePath
-    # Setting getters and setters for the calculated enumerable properties
-    @_define(k, opts[k]) for k in ["slicingEngine", "slicingProfile"]
+    setTimeout cb, 0
 
   _defaults: (opts) =>
     qty: 1
     qtyPrinted: 0
     status: "idle"
     type: "job"
+    assemblyId: null
+    quality: "normal" # draft | normal | high
 
-  _define: (k, v) ->
-    @private[k] = v
-    desc = enumerable: true, get: @_get.fill(k), set: @_set.fill(k)
-    Object.defineProperty @, k, desc
+  components: ->
+    [@]
 
-  _get: (key) =>
-    @private[key] || @printer.data[key]
+  beforeDelete: ->
+    @cancel()
+    @removeAllListeners()
+    fs.remove @filePath, @_deletionError
+    @_deleteGCodeFile()
 
-  _set: (key, value) =>
-    @private[key] = value?.underscore?()
+  _deleteGCodeFile: ->
+    fs.remove @private.gcodePath, @_deletionError if @private.gcodePath?
+    delete @private.gcodePath
 
-  key: ->
-    "jobs[#{@id}]"
-
-  loadGCode: (cb = null) =>
-    @private.cb = cb
-    @once "load", cb if cb?
-    if @needsSlicing()
-      @private.slicingInstance = SlicingEngineFactory.slice @
-    else
-      setTimeout (=> @onSlicingComplete gcodePath: @private.filePath), 0
+  _deletionErr: (err) ->
+    console.log err.trace?() || err if err?
 
   cancel: =>
     @private.cancelled = new Date()
@@ -51,13 +47,30 @@ module.exports = class PrintJob extends EventEmitter
     @private.slicingInstance = null
     @private.cb = null
 
+  _cancelledAfter: (timestamp) =>
+    @private.cancelled and timestamp.isBefore @private.cancelled
+
   needsSlicing: =>
     path.extname(@private.filePath).match(/.gcode|.ngc/i)? == false
+
+  loadGCode: (slicerConfig, cb = null) =>
+    @private.cb = cb
+    @once "load", cb if cb?
+    if @needsSlicing()
+      @private.slicingInstance = SlicingEngineFactory.slice @, slicerConfig
+    else
+      setTimeout (=> @onSlicingComplete gcodePath: @private.filePath), 0
+
+  onSlicingError: =>
+    console.log "slicer error"
+    @emit "job_error", "slicer error"
 
   onSlicingComplete: (slicer) =>
     join = Join.create()
     @currentLine = 0
     @private.slicingInstance = null
+    if slicer.gcodePath != @private.filePath
+      @private.gcodePath = slicer.gcodePath
 
     # Getting the number of lines in the file
     exec "wc -l #{slicer.gcodePath}", join.add()
@@ -65,20 +78,14 @@ module.exports = class PrintJob extends EventEmitter
     fs.readFile slicer.gcodePath, 'utf8', join.add()
     join.when @_onLoadAndLineCount.fill new Date()
 
-  onSlicingError: =>
-    console.log "slicer error"
-    @emit "job_error", "slicer error"
-
-  _cancelledAfter: (timestamp) =>
-    @private.cancelled and timestamp.isBefore @private.cancelled
-
   _onLoadAndLineCount: (timestamp, lineCountArgs, loadArgs) =>
+    # Deleting the gcode file now that it's loaded into memory
+    @_deleteGCodeFile()
+    # Stopping if the job was cancelled
     return if @_cancelledAfter timestamp
+    # Parsing the loaded information and emitting the load event
     [err, gcode] = loadArgs
-
     @totalLines = parseInt(lineCountArgs[1].match(/\d+/)[0])
-
     if @totalLines == NaN or err?
       return @emit "job_error", "error loading gcode"
-
     @emit "load", err, gcode

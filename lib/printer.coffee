@@ -1,6 +1,9 @@
 EventEmitter = require('events').EventEmitter
-PrintJob = require("./print_job")
+PrintJob = require("./components/job")
+Assembly = require("./components/assembly")
 SmartObject = require "../vendor/smart_object"
+AdmZip = require 'adm-zip'
+path = require 'path'
 require 'sugar'
 
 module.exports = class Printer extends EventEmitter
@@ -18,13 +21,6 @@ module.exports = class Printer extends EventEmitter
       blocking: false
     conveyor: { type: 'conveyor', enabled: false, speed: 255 }
     fan: { type: 'fan', enabled: false, speed: 255 }
-  # TODO: Finish updating all the code to the new default opts!
-  # _defaultOpts:
-  #   state: { status: 'initializing' }
-  #   xyFeedrate: 3000 / 60
-  #   zFeedrate: 300 / 60
-  #   pauseBetweenPrints: true
-  #   motors: {enabled: true}
   _defaultOpts:
     state: { status: 'initializing' }
     motors: { enabled: true }
@@ -74,15 +70,26 @@ module.exports = class Printer extends EventEmitter
   _onReady: =>
     @$.$merge state: {status: 'idle'}, false
 
-  addJob: (jobAttrs = {}) => @$.$apply (data) =>
-    job = new @_PrintJob @, Object.merge jobAttrs,
+  addJob: (attrs = {}) =>
+    # Determining if the job is a multipart assembly or a single part
+    isZip = path.extname(attrs.filePath) == ".zip"
+    JobType = if isZip then Assembly else @PrintJob
+    # Configuring and initializing the component
+    Object.merge attrs,
       id: @_nextJobId++
       position: @jobs.length
-    data[job.key()] = job
+    job = new JobType attrs, @_onJobInit
+
+  _onJobInit: (job) => @$.$apply (data) =>
+    # Adding the component and its subcomponents
+    data[comp.key] = comp for comp in job.components
 
   rm: (key) => @$.$apply (data) =>
-    throw "job does not exist" unless data[key]?.type == "job"
-    delete data[key]
+    comp = data[key]
+    throw "job/assembly does not exist" if ['job', 'assembly'].none comp?.type
+    for subcomponent in comp.components()
+      subcomponent.beforeDelete()
+      delete data[subcomponent.key] if data[subcomponent.key]?
 
   _getJobs: =>
     Object.values(@$.buffer).findAll(type: "job").sortBy('position')
@@ -185,7 +192,7 @@ module.exports = class Printer extends EventEmitter
     # Moving the job to the top of the queue if it isn't already there
     @currentJob.position = 0
     # Deleting any estopped jobs
-    (@rm j.key() if j?.status == "estopped" and j != @currentJob) for j in @jobs
+    (@rm j.key if j?.status == "estopped" and j != @currentJob) for j in @jobs
     # Setting status to slicing (if necessary)
     if @currentJob.needsSlicing?
       @currentJob.status = @$.buffer.state.status = "slicing"
@@ -202,7 +209,8 @@ module.exports = class Printer extends EventEmitter
 
   _onPrintComplete: =>
     job = @currentJob
-    done = job.qtyPrinted + 1 >= job.qty
+    totalQty = job.qty * (@$.buffer[job.assemblyId]?.qty || 1)
+    done = job.qtyPrinted + 1 >= totalQty
     pause = @data.config.pauseBetweenPrints
     pause ||= @idleJobs.exclude(job).length == 0
     @currentJob = null
@@ -217,7 +225,7 @@ module.exports = class Printer extends EventEmitter
       @_printNextIdleJob true if !pause
     # Removing the job if it's complete (it's status having already been set 
     # to "done")
-    @rm job.key() if done
+    @rm job.key if done
 
   move: (axesVals) ->
     # Fail fast

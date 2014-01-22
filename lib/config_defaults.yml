@@ -2,16 +2,36 @@
 # printer's serial number when connecting to it (Default: undefined)
 # name: 'Ultimaker 1'
 
-# Uncomment this line to use a non-default slicing engine
-# (Default: 'cura_engine')
-# slicingEngine: 'cura_engine'
-
-# Uncomment this line to use a non-default slicing profile (Default: 'default')
-# slicingProfile: 'my_slicing_profile'
-
 # Uncomment this line to enable verbose command line output for debugging. 
 # This is for developers. Generally you won't need to set this. (Default: false)
 # verbose: true
+
+
+# Slicers
+# =============================================================================
+
+# The slicer profile is a base set of params for the 3D printer's slicers.
+# Slicer profiles can be found in ~/.tegh/slicers/
+slicer_profiles:
+  cura_engine: default
+
+# These are the print quality options that will be available to users.
+# Each print quality will override some of the params in the slicer profile to 
+# give a different quality print.
+#
+# Note: you are not limited to the draft/normal/high default options. Any 
+# options you add here will show up in the list of print qualities for this
+# printer.
+print_qualities:
+  draft:
+    slicer: cura_engine
+    params: {layer_height: 10, infill: 5}
+  normal:
+    slicer: cura_engine
+    params: {layer_height: 5, infill: 20}
+  high:
+    slicer: cura_engine
+    params: {layer_height: 2, infill: 50}
 
 
 # Drivers

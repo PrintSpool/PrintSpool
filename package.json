@@ -22,6 +22,8 @@
     , "ws": "git+https://github.com/D1plo1d/ws.git#event_listener_cleanup"
     , "colors": "*"
     , "touch": "*"
+    , "tmp": "*"
+    , "adm-zip": "*"
     , "node-uuid": "*"
     , "flavored-path": "*"
     , "serialport": "1.2.5"
