@@ -1,15 +1,22 @@
-SegfaultHandler = require('segfault-handler')
-http = require("http")
-express = require("express")
-ArudinoDiscoverer = require("./arduino_discoverer")
-PrintDriverFactory = require("./print_driver_factory")
-Printer = require("./printer")
-PrinterServer = require("./printer_server")
-require("js-yaml")
-fs = require 'fs-extra'
-path = require ("flavored-path")
-InstallBuilder = require './install_builder'
-SlicingEngineFactory = require("../lib/slicing_engine_factory")
+requireRelative = (args...) ->
+  args.shift __dirname
+  require path.join.apply path, args
+# 3rd Party Libraries
+SegfaultHandler = require "segfault-handler"
+http = require "http"
+express = require "express"
+fs = require "fs-extra"
+path = require "flavored-path"
+_ = require 'lodash'
+require "js-yaml"
+# Source Libraries
+InstallBuilder        = requireRelative "install_builder"
+SlicingFactory        = requireRelative "slicing_engines", "factory"
+ArudinoDiscoverer     = requireRelative "arduino_discoverer"
+DriverFactory         = requireRelative "drivers", "factory"
+Printer               = requireRelative "printer"
+PrinterServer         = requireRelative "printer_server"
+Config                = requireRelative "config"
 
 APP_NAME = 'tegh'
 
@@ -21,107 +28,66 @@ options = stdio.getopt
 
 SegfaultHandler.registerHandler()
 
-camelizeData = (originalData) =>
-  return originalData unless Object.isObject(originalData)
-  data = {}
-  for k2, v2 of originalData
-    k2 = k2.camelize(false).replace 'Mm', 'MM'
-    data[k2] = camelizeData(v2)
-  return data
-
 module.exports = class App
   constructor: ->
+    # intializing the server
     @printerServers = {}
-
     @app = express()
-    # @app.use express.static(__dirname + "../public")
     @server = http.createServer(@app).listen(2540)
-
-    ArudinoDiscoverer.listen()
-    ArudinoDiscoverer.on "update", @_onSerialPortsUpdate
-
     @app.get '/printers.json', @getPrintersJson
-    @initDryRunPrinter() if options['dry-run'] == true
+    # Adding printers
+    @addDryRunPrinter() if options['dry-run'] == true
+    ArudinoDiscoverer.listen().on "update", @_onSerialPortsUpdate
 
   getPrintersJson: (req, res) =>
     res.send printers: Object.map @printerServers, (p) -> p.slug
 
-  initDryRunPrinter: () ->
-    driver = PrintDriverFactory.build driver: "null"
-
-    settings = {slicingEngine: 'cura_engine', slicingProfile: 'default'}
-
-    printer = new Printer "dev null", driver, settings
-    # setting up the server
-    opts =
-      app: @app
-      printer: printer
-      server: @server
-      serialNumber: "dev null"
-      name: "Dev Null Printer"
-      slug: "dev_null_printer"
-      # path: "/printers/dev_null_printer"
-    console.log "#{opts.name} Connecting.."
-    ps = new PrinterServer opts
-    @printerServers["dev/null"] = ps
-    console.log "[Dry Run] Dev Null Printer Connected"
-
-  _installConfig: (configFile) ->
-    @install 'config_defaults.yml'
-    @mv 'config_defaults.yml', configFile
-
   _onSerialPortsUpdate: (ports) =>
     newPorts = ports.filter (p) => !(@printerServers[p.comName]?)
-    @_onNewSerialPort port for port in newPorts
+    @addPrinter port for port in newPorts
 
-  _onNewSerialPort: (port) =>
+  _initConfig: (port) ->
     # loading the config file (or creating a new one)
-    configDir = path.get "~/.#{APP_NAME}/3d_printers/by_serial/"
-    configFile = "#{port.serialNumber}.yml"
-    try
-      config = require "#{configDir}/#{configFile}"
-    catch
-      console.log "New printer detected. Creating a config file."
-      installer = new InstallBuilder __dirname, configDir
-      installer.run @_installConfig.fill(configFile), -> console.log "Done"
-    config ?= {}
-    config = camelizeData config
-    # console.log config
+    dir = path.get "~/.#{APP_NAME}/3d_printers/by_serial/"
+    configPath = path.join dir, "#{port.serialNumber}.yml"
+    # initializing the config object
+    return new Config port, configPath
 
-    # setting up the printer (defaults)
-    settings = {slicingEngine: 'cura_engine', slicingProfile: 'default'}
+  addPrinter: (port, config) =>
+    config ?= @_initConfig port
+    # installing the slicing engines
+    SlicingFactory.install v for k, v in config.printQualities.options
+    # initializing the serial driver
+    driver = DriverFactory.build config
+    # intializing the printer and server
+    @_initPrinter driver, config
 
-    Object.merge settings, Object.reject config, ['components', 'verbose', 'name']
-    components = config.components
+  addDryRunPrinter: ->
+    driver = DriverFactory.build driver: "null"
+    port = serialNumber: "dev_null", comName: "dev/null"
+    config = new Config port, name: "Dev Null Printer"
+    @_initPrinter config, driver
 
-    # setting up the serial driver
-    driver = PrintDriverFactory.build
-      driver: settings.driver
-      port: port
-      polling: true
-      verbose: config.verbose
-
-    SlicingEngineFactory.install
-      slicingEngine: settings.slicingEngine
-      slicingProfile: settings.slicingProfile
-
-    printer = new Printer port.serialNumber, driver, settings, components
-    # setting up the server
-    slug = config.name?.underscore?() || port.serialNumber
-    opts =
-      app: @app
-      printer: printer
-      server: @server
-      serialNumber: port.serialNumber
-      name: config.name || "Printer ##{port.serialNumber}"
-      slug: slug
-      # path: "/printers/#{slug}"
-      port: port
-    console.log "#{opts.name} Connecting.."
-    ps = new PrinterServer opts
-    @printer_servers[port.comName] = ps
+  _initPrinter: (driver, config) ->
+    console.log "#{config.name} Connecting.."
+    # initializing the printer and appending config data
+    config.@$.set 'printer', new Printer(driver, config)
+    config.@$.set k, @[k] for k in ['app', 'server']
+    config.on 'change', _.partial(@_onConfigChange, driver, config)
+    # initializing the server routes
+    @printerServers[config.port.comName] = ps = new PrinterServer config
+    # removing the printer when it is disconnected
     driver.on "disconnect", @_onPrinterDisconnect.fill(ps)
-    console.log "#{opts.name} Connected"
+    console.log "#{config.name} Connected"
+
+  _onConfigChange: (driver, config, changes) ->
+    # Checking if this change requires restarting the driver/printer/server
+    props = config.serverReloadingProps
+    return unless _.some changes, (v, k) -> _.contains props, k
+    # Reloading the driver/printer/server
+    driver.kill()
+    config.removeAllListeners()
+    @addPrinter config.port, config
 
   _onPrinterDisconnect: (psA) =>
     ( delete @printServers[k] if psA == psB ) for k, psB of @printerServers

@@ -1,16 +1,14 @@
 EventEmitter = require('events').EventEmitter
-PrintJob = require("./components/job")
-Assembly = require("./components/assembly")
-SmartObject = require "../vendor/smart_object"
-AdmZip = require 'adm-zip'
 path = require 'path'
 require 'sugar'
+_ = require 'lodash'
+PrintJob = require "./components/job"
+Assembly = require "./components/assembly"
+SmartObject = require "../vendor/smart_object"
 
 module.exports = class Printer extends EventEmitter
 
   _nextJobId: 0
-  _defaultComponents:
-    e0: 'heater', b: 'heater', c: 'conveyor', f: 'fan'
   _defaultAttrs:
     heater:
       type: 'heater'
@@ -21,41 +19,46 @@ module.exports = class Printer extends EventEmitter
       blocking: false
     conveyor: { type: 'conveyor', enabled: false, speed: 255 }
     fan: { type: 'fan', enabled: false, speed: 255 }
-  _defaultOpts:
+  _baseComponents: ->
     state: { status: 'initializing' }
     motors: { enabled: true }
     axes: { xyFeedrate: 3000 / 60, zFeedrate: 300 / 60 }
-    config: { pauseBetweenPrints: true }
 
-  constructor: (@id, @driver, opts = {}, components, @_PrintJob=PrintJob) ->
-    components ?= @_defaultComponents
-    # Building the printer data
-    data = [{}, @_defaultOpts, opts].reduce (a,b) -> Object.merge a, b, true
-    for k, v of components
-      data[k] = Object.clone(@_defaultAttrs[v.type||v])
-      Object.merge data[k], v if typeof(v) != 'string'
-    @$ = new SmartObject data
+  constructor: (@driver, @config, @_PrintJob=PrintJob) ->
+    # Building the printer's data
+    @$ = new SmartObject @_baseComponents()
+    @_onConfigChange()
+    # Binding to changes in the data
     @$.on k, @emit.bind @, k for k in ['add', 'rm', 'change']
     @$.on "beforeMerge", @_beforeMerge
-    @data = @$.data
-    # Adding the extruders to the axes
-    @_axes = ['x','y','z']
-    for k, v of components
-      (@_axes.push k if k.startsWith('e') and (v.type||v) == 'heater')
     # Adding getters
-    @__defineGetter__ "status", => @data.state.status
-    @__defineGetter__ "jobs", @_getJobs
-    @__defineGetter__ "idleJobs", @_getIdleJobs
-    # Updating data on driver change
-    @driver.on "ready", @_onReady
+    getters = ['status', 'jobs', 'idleJobs']
+    Object.defineProperty @, k, get: @["_get#{k.camelize()}"] for k in getters
+    # Adding the extruders to the axes
+    @_axes = ['x','y','z'].concat @extruders
+    # Binding driver events
+    events = ['ready', 'print_job_line_sent', 'print_complete', 'disconnect']
+    @driver.on k, @["_on#{k.camelize()}"] for k in events
     @driver.on "change", @$.$merge.fill(undefined, false)
-    @driver.on "print_job_line_sent", @_onPrintJobLineSent
-    @driver.on "print_complete", @_onPrintComplete
+    # Binding config events
+    @config.on?(k, @_onConfigChange) for k in ['change', 'add', 'rm']
+
+  _getStatus: =>
+    @$.data.state.status
+
+  _getJobs: =>
+    _(@$.buffer).where(type: "job").sortBy('position').value()
+
+  _getExtruders: =>
+    _.pick @$.buffer, (v, k) -> k.startsWith('e') and v.type == 'heater'
+
+  _getIdleJobs: =>
+    _.where @jobs, status: "idle"
 
   _beforeMerge: (diff) =>
     for k1, diffComp of diff
-      continue unless @data[k1]?
-      type = @data[k1].type || k1
+      continue unless @$.data[k1]?
+      type = @$.data[k1].type || k1
       for k2, v of diffComp
         @["_before#{type}#{k2.capitalize()}Change"]?(k1, k2, v)
 
@@ -69,6 +72,19 @@ module.exports = class Printer extends EventEmitter
 
   _onReady: =>
     @$.$merge state: {status: 'idle'}, false
+
+  _onDisconnect: =>
+    @$.removeAllListeners()
+    @removeAllListeners()
+
+  _onConfigChange: => @$.$apply (data) =>
+    whitelist = _(@_baseComponents()).keys.concat(_.keys config.components)
+    # Removing deleted components
+    delete data[k] for k of data when whitelist.has(k) == false
+    # Adding new components
+    data[k] ?= _.clone @_defaultAttrs[v] for k, v of @config.components
+    # Updating print qualities
+    data.printQualities = _.cloneDeep config.printQualities
 
   addJob: (attrs = {}) =>
     # Determining if the job is a multipart assembly or a single part
@@ -91,18 +107,12 @@ module.exports = class Printer extends EventEmitter
       subcomponent.beforeDelete()
       delete data[subcomponent.key] if data[subcomponent.key]?
 
-  _getJobs: =>
-    Object.values(@$.buffer).findAll(type: "job").sortBy('position')
-
-  _getIdleJobs: =>
-    @jobs.findAll(status: "idle")
-
   estop: => @$.$apply (data) =>
     @driver.reset()
     job = @currentJob || {}
     job.cancel?()
     job.status = data.state.status =  'estopped'
-    @_resetComponent comp for k, comp of @data
+    @_resetComponent comp for k, comp of @$.data
 
   _resetComponent: (comp) -> switch comp.type
     when "heater" then comp.targetTemp = 0
@@ -118,17 +128,17 @@ module.exports = class Printer extends EventEmitter
     throw 'set data must be an object' unless Object.isObject(diff)
     # Fail fast: attribute whitelisting and validation
     for k1, diffComp of diff
-      throw "#{k1} is not a component" unless @data[k1]?
-      @_beforeAttrSet @data[k1], k1, k2, v for k2, v of diffComp
+      throw "#{k1} is not a component" unless @$.buffer.hasOwnProperty k1
+      @_beforeAttrSet @$.buffer[k1], k1, k2, v for k2, v of diffComp
     # Fail fast: Settings that can not be set while the printer is busy
     if ['printing', 'estopped'].any @status
-      comps = Object.keys(diff).map (k) => @data[k]
+      comps = Object.keys(diff).map (k) => @$.buffer[k]
       comp = comps.find type: /heater|conveyor|fan/
       throw "cannot set #{comp.type} while printing." if comp?
     # Applying the diff
     @$.$merge diff
     # Send gcodes to the print driver to update the printer
-    gcodes = Object.map diff, (k, v) => @_compGCode k, @data[k], v
+    gcodes = Object.map diff, (k, v) => @_compGCode k, @$.buffer[k], v
     @driver.sendNow gcode for gcode in Object.values(gcodes).compact()
 
   _greaterThenZero:
@@ -137,14 +147,14 @@ module.exports = class Printer extends EventEmitter
 
   # Whitelisting and validation of set parameters
   _beforeAttrSet: (comp, k1, k2, v) ->
-    throw "#{k1}.#{k2} is not an attribute" unless comp[k2]?
+    throw "#{k1}.#{k2} is not an attribute" unless comp.hasOwnProperty k2
     type = (comp.type || k1)
     allowed = switch type
       when "heater"   then ['enabled', 'targetTemp']
       when "fan"      then ['enabled', 'speed']
       when "axes"     then ['xyFeedrate', 'zFeedrate']
       when "conveyor", "motors" then ['enabled']
-      when "job" then ['qty', 'position', 'slicingEngine', 'slicingProfile']
+      when "job" then ['qty', 'position', 'quality']
       else []
     attrType = typeof(comp[k2])
 
@@ -152,8 +162,15 @@ module.exports = class Printer extends EventEmitter
     throw "#{k1}.#{k2} must be a #{attrType}." if typeof(v) != attrType
     if @_greaterThenZero[type]?.any?(k2) and v < 0
       throw "#{k1}.#{k2} must be greater then zero."
-    if comp.type == 'job' and k2 == 'position' and v >= @jobs.length
+    @_beforeJobAttrSet comp, k1, k2, v if comp.type == 'job'
+
+  _beforeJobAttrSet: (comp, k1, k2, v) ->
+    if k2 == 'position' and v >= @jobs.length
       throw "Invalid position."
+    if k2 == 'quality' and !(@config.printQualities.options.hasOwnProperty k2)
+      throw "Invalid print quality"
+    if k2 == 'quality' and comp.needsSlicing() == false
+      throw "Cannot set slicing quality for gcode files"
 
   _heaterGCode: (key) -> switch key
     when 'b' then "M140"
@@ -198,7 +215,8 @@ module.exports = class Printer extends EventEmitter
     if @currentJob.needsSlicing?
       @currentJob.status = @$.buffer.state.status = "slicing"
     # Loading the gcode
-    @currentJob.loadGCode @_onReadyToPrint.fill(@currentJob)
+    slicerOpts = @config.printQualities.options[@currentJob.quality]
+    @currentJob.loadGCode slicerOpts, @_onReadyToPrint.fill(@currentJob)
 
   _onReadyToPrint: (job, err, gcode) => @$.$apply (data) =>
     @driver.print gcode
@@ -212,7 +230,7 @@ module.exports = class Printer extends EventEmitter
     job = @currentJob
     totalQty = job.qty * (@$.buffer[job.assemblyId]?.qty || 1)
     done = job.qtyPrinted + 1 >= totalQty
-    pause = @data.config.pauseBetweenPrints
+    pause = @config.pauseBetweenPrints
     pause ||= @idleJobs.exclude(job).length == 0
     @currentJob = null
     # Updating the job and printer and starting the next print or pausing
@@ -244,9 +262,9 @@ module.exports = class Printer extends EventEmitter
     gcode = 'G1'
     gcode += " #{k.replace(/e\d/, 'e').toUpperCase()}#{v}" for k, v of axesVals
     # Calculating and adding the feedrate
-    feedrate = @data.axes["#{if axesVals.z? then 'z' else 'xy'}Feedrate"]
+    feedrate = @$.data.axes["#{if axesVals.z? then 'z' else 'xy'}Feedrate"]
     extruders = axesVals.keys().filter (k) -> k.startsWith 'e'
-    eFeedrates = extruders.map (k) => @data[k].flowrate
+    eFeedrates = extruders.map (k) => @$.data[k].flowrate
     feedrate = eFeedrates.reduce ( (f1, f2) -> Math.min f1, f2 ), feedrate
     feedrate *= 60 * multiplier
     gcode = "G91\nG1 F#{feedrate}\n#{gcode} F#{feedrate}"

@@ -5,10 +5,12 @@ mdns = require('mdns2')
 avahi = require('avahi_pub')
 formidable = require('formidable')
 nodeUUID = require('node-uuid')
+modKeys = require('../vendor/mod_keys')
 
 module.exports = class PrinterServer
   constructor: (opts) ->
-    @[k] = opts[k] for k,v of opts
+    @[k] = opts[k] for k in ['name', 'printer', 'app']
+    @slug = @name.underscore().replace("#", "_")
     @path = "/printers/#{@slug}"
     @_clients = {}
     @wss = new WebSocketServer
@@ -63,7 +65,7 @@ module.exports = class PrinterServer
     res.end()
 
   broadcast: (data) =>
-    data = @_underscoreKeys data
+    data = modKeys.underscore data
     @send ws, data for ws in @wss.clients
 
   send: (ws, data) =>
@@ -81,7 +83,7 @@ module.exports = class PrinterServer
   onClientConnect: (ws) =>
     ws.on 'message', @onClientMessage.fill(ws)
     ws.on "close", @onClientDisconnect
-    data = @_underscoreKeys @printer.data
+    data = modKeys.underscore @printer.data
     uuid = nodeUUID.v4()
     Object.merge data, session: { uuid: uuid }
     @send ws, [{type: 'initialized', data: data}]
@@ -105,7 +107,7 @@ module.exports = class PrinterServer
   onClientMessage: (ws, msgText, flags) =>
     try
       # Parsing / Fail fast
-      msg = @_camelizeKeys JSON.parse msgText
+      msg = modKeys.camelize JSON.parse msgText
       if @_websocketActions.indexOf(msg.action) == -1
         throw new Error("#{msg.action} is not a valid action")
       # Executing the action and responding
@@ -114,7 +116,7 @@ module.exports = class PrinterServer
     catch e
       console.log e.stack if e.stack?
       data = type: 'runtime.sync', message: e.toString()
-      @send ws, [type: 'error', data: @_underscoreKeys data]
+      @send ws, [type: 'error', data: modKeys.underscore data]
     # console.log "client message:"
     # console.log msg
 
@@ -122,20 +124,6 @@ module.exports = class PrinterServer
     # console.log "printer change:"
     # console.log changes
     @broadcast ( type: 'change', target: k, data: v for k, v of changes )
-
-  _underscoreKeys: (source) =>
-    @_modKeys source, (k) -> k.underscore()
-
-  _camelizeKeys: (source) ->
-    @_modKeys source, (k) -> k.camelize(false)
-
-  _modKeys: (source, transform) ->
-    if Array.isArray source
-      return ( @_underscoreKeys obj for obj in source )
-    return source unless typeof source == "object"
-    target = {}
-    target[transform(k2)] = @_modKeys(v2, transform) for k2, v2 of source
-    return target
 
   onPrinterAdd: (target, value) =>
     @broadcast [type: 'add', target: target, data: value]

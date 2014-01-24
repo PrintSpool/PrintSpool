@@ -1,37 +1,66 @@
-# Uncomment this line to use a human readable printer name instead of the 
+# Uncomment name to use a human readable printer name instead of the 
 # printer's serial number when connecting to it (Default: undefined)
+
 # name: 'Ultimaker 1'
 
-# Uncomment this line to enable verbose command line output for debugging. 
+
+# Uncomment verbose to enable verbose command line output for debugging. 
 # This is for developers. Generally you won't need to set this. (Default: false)
+
 # verbose: true
 
 
-# Slicers
-# =============================================================================
+# Uncomment pauseBetweenPrints if you have a automated build platform or 
+# some other way of automatically removing each print before starting the next.
+# (default: true)
 
-# The slicer profile is a base set of params for the 3D printer's slicers.
-# Slicer profiles can be found in ~/.tegh/slicers/
-slicer_profiles:
-  cura_engine: default
+# pauseBetweenPrints: false
+
+
+# Print Qualities
+# =============================================================================
 
 # These are the print quality options that will be available to users.
 # Each print quality will override some of the params in the slicer profile to 
 # give a different quality print.
 #
+# Each slicing profile serving as a base set of params for some of the 3D 
+# printer's print qualities. Slicer profiles can be found in ~/.tegh/slicers/
+#
 # Note: you are not limited to the draft/normal/high default options. Any 
 # options you add here will show up in the list of print qualities for this
 # printer.
-print_qualities:
-  draft:
-    slicer: cura_engine
-    params: {layer_height: 10, infill: 5}
-  normal:
-    slicer: cura_engine
-    params: {layer_height: 5, infill: 20}
-  high:
-    slicer: cura_engine
-    params: {layer_height: 2, infill: 50}
+
+# print_qualities:
+#   default: normal
+#   options:
+#     draft:
+#       engine: cura_engine
+#       profile: default
+#       params: {layer_height: 10, infill: 5}
+#     normal:
+#       engine: cura_engine
+#       profile: default
+#       params: {layer_height: 5, infill: 20}
+#     high:
+#       engine: cura_engine
+#       profile: default
+#       params: {layer_height: 2, infill: 50}
+
+
+# Components
+# =============================================================================
+
+# Uncomment this section to customize your printer's components to match your 
+# physical machine. By default printers have a single extruder (e0), a conveyor,
+# a bed, and a fan.
+
+# components:
+#   e0: 'heater'
+#   e1: 'heater'
+#   b:  'heater'
+#   c:  'conveyor'
+#   f:  'fan'
 
 
 # Drivers

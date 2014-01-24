@@ -15,6 +15,7 @@ self.listen = ->
   # console.log "listen"
   setTimeout(poll, 0)
   pollInterval = setInterval(poll, 1000)
+  return @
 
 self.kill = ->
   self.removeAllListeners()

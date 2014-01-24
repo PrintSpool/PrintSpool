@@ -11,6 +11,12 @@ module.exports = class SmartObject extends EventEmitter
     @_diff @data, @buffer, diff = {}
     @_mergeRecursion @data, diff
 
+  # Sets a key/value of the smart object directly without triggering any events.
+  set: (key, value) =>
+    @buffer[key] = value
+    @_diff @data, @buffer, diff = {}
+    @_mergeRecursion @data, diff
+
   $apply: (cb) =>
     throw "Cannot recursively $apply" if @_insideApply
     @_insideApply = true
