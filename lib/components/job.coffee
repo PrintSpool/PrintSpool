@@ -58,6 +58,7 @@ module.exports = class PrintJob extends EventEmitter
     @removeListener "load", @_cb if @_cb?
     @_slicingInstance = null
     @_cb = null
+    return @
 
   _cancelledAfter: (timestamp) =>
     @_cancelled and timestamp.isBefore @_cancelled

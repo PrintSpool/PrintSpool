@@ -76,6 +76,7 @@ module.exports = class Printer extends EventEmitter
   _onDisconnect: =>
     @$.removeAllListeners()
     @removeAllListeners()
+    job.cancel().removeAllListeners() for job in @jobs
 
   _onConfigChange: => @$.$apply (data) =>
     whitelist = _(@_baseComponents()).keys.concat(_.keys config.components)

@@ -24,7 +24,7 @@ module.exports = class Config extends EventEmitter
     # These properties we can send updates through the websocket for
     components: { e0: 'heater', b: 'heater', c: 'conveyor', f: 'fan' }
     printQualities: {default: "normal", options: @_defaultQualityOptions()}
-
+\`4h
   _defaultQualityOptions: ->
     draft:
       engine: "cura_engine"
