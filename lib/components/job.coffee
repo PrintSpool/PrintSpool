@@ -8,7 +8,7 @@ nodeUUID = require('node-uuid')
 
 module.exports = class PrintJob extends EventEmitter
   nonEnumerables:
-    ['_gcodePath', '_modelPath' '_cancelled', '_slicingEngine', '_cb', 'key']
+    ['_gcodePath', '_modelPath', '_cancelled', '_slicingEngine', '_cb', 'key']
 
   constructor: (opts, cb, @_slice = SlicingEngineFactory.slice) ->
     # Setting the enumerable properties

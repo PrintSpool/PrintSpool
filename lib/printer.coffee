@@ -79,13 +79,13 @@ module.exports = class Printer extends EventEmitter
     job.cancel().removeAllListeners() for job in @jobs
 
   _onConfigChange: => @$.$apply (data) =>
-    whitelist = _(@_baseComponents()).keys.concat(_.keys config.components)
+    whitelist = _(@_baseComponents()).keys().concat(_.keys @config.components)
     # Removing deleted components
     delete data[k] for k of data when whitelist.has(k) == false
     # Adding new components
     data[k] ?= _.clone @_defaultAttrs[v] for k, v of @config.components
     # Updating print qualities
-    data.printQualities = _.cloneDeep config.printQualities
+    data.printQualities = _.cloneDeep @config.printQualities
 
   addJob: (attrs = {}) =>
     # Determining if the job is a multipart assembly or a single part

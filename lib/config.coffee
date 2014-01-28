@@ -8,12 +8,10 @@ fs = require 'fs'
 module.exports = class Config extends EventEmitter
   # These properties we will have to reload the server for.
   serverReloadingProps: ['name', 'driver', 'polling']
+  # These properties are static.
+  staticAttrs: ['app', 'server', 'port']
 
   _defaults: ->
-    # These properties are static.
-    app: @$?.buffer?.app || null
-    server: @$?.buffer?.server || null
-    port: @port
     # These properties we will have to reload the server for.
     name: "Printer ##{@port.serialNumber}"
     driver: "serial_gcode"
@@ -24,7 +22,7 @@ module.exports = class Config extends EventEmitter
     # These properties we can send updates through the websocket for
     components: { e0: 'heater', b: 'heater', c: 'conveyor', f: 'fan' }
     printQualities: {default: "normal", options: @_defaultQualityOptions()}
-\`4h
+
   _defaultQualityOptions: ->
     draft:
       engine: "cura_engine"
@@ -63,7 +61,11 @@ module.exports = class Config extends EventEmitter
     _.merge @_defaults(), modKeys.camelize obj
 
   _initFromObj: (obj = {}) ->
-    @$ = new SmartObject @_initProperties obj
+    obj = @_initProperties obj
+    for k in @staticAttrs
+      @[k] ?= obj[k]
+      delete obj[k]
+    @$ = new SmartObject obj
     @$.on k, _.bind(@emit, @, k) for k in ['add', 'rm', 'change']
     Object.defineProperty @, k, get: _.partial @_get, k for k, v of @$.buffer
 

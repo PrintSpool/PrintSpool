@@ -1,6 +1,6 @@
 path = require ("flavored-path")
 fs = require("fs-extra")
-InstallBuilder = require path.join __dirname, "install_builder"
+InstallBuilder = require path.join __dirname, "..", "install_builder"
 _ = require 'lodash'
 
 class Factory

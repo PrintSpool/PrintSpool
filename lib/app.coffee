@@ -1,6 +1,6 @@
 requireRelative = (args...) ->
-  args.shift __dirname
-  require path.join.apply path, args
+  args.unshift __dirname
+  require path.join.apply null, args
 # 3rd Party Libraries
 SegfaultHandler = require "segfault-handler"
 http = require "http"
@@ -66,13 +66,13 @@ module.exports = class App
     driver = DriverFactory.build driver: "null"
     port = serialNumber: "dev_null", comName: "dev/null"
     config = new Config port, name: "Dev Null Printer"
-    @_initPrinter config, driver
+    @_initPrinter driver, config
 
   _initPrinter: (driver, config) ->
     console.log "#{config.name} Connecting.."
     # initializing the printer and appending config data
-    config.@$.set 'printer', new Printer(driver, config)
-    config.@$.set k, @[k] for k in ['app', 'server']
+    config.printer = new Printer(driver, config)
+    config[k] = @[k] for k in ['app', 'server']
     config.on 'change', _.partial(@_onConfigChange, driver, config)
     # initializing the server routes
     @printerServers[config.port.comName] = ps = new PrinterServer config

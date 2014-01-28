@@ -8,5 +8,5 @@ module.exports = build: (opts = {}) ->
     new ChildProcessDriverParent opts
   else
     type = opts.driver.type
-    Driver = require "./drivers/#{type}_driver/#{type}_driver"
+    Driver = require "./#{type}_driver/#{type}_driver"
     new Driver opts

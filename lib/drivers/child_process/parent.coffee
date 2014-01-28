@@ -19,6 +19,7 @@ module.exports = class ChildProcessDriverParent extends EventEmitter
     @_child
     .once("message", @_onInit)
     .on("error", @_onError)
+    .on("exit", @_onError)
 
     @_addFnHandler(fn) for fn in @_fns
 
