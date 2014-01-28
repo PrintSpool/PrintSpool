@@ -43,4 +43,7 @@ module.exports = class ChildProcessDriverParent extends EventEmitter
 
   _fnHandler: (fn, args) =>
     args = [].slice.call(args, 0)
-    @_child.send(fn: fn, args: args)
+    try
+      @_child.send(fn: fn, args: args)
+    catch e
+      @_onError(e)

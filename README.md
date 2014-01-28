@@ -41,8 +41,10 @@ Install
 
 1. Install an up to date copy of nodejs and npm
 2. **Linux Only:** Install avahi and it's bonjour compatibility layer
+3. Install openssl
 3. `git clone https://github.com/D1plo1d/tegh-daemon.git&& cd tegh-daemon; npm install`
-4. **Linux Only:** If you have systemd then you can set tegh-daemon to load on startup by running  `sudo cp tegh-daemon.service /etc/systemd/system/tegh-daemon.service && sudo systemctl enable tegh-daemon.service`
+4. Install the self-signed ssl cert: `./script/install.sh`
+5. **Linux Only:** If you have systemd then you can set tegh-daemon to load on startup by running  `sudo cp tegh-daemon.service /etc/systemd/system/tegh-daemon.service && sudo systemctl enable tegh-daemon.service`
 
 **Note:** Upstart and initd are not yet supported so if you do not have systemd (for example on Ubuntu or OSX) then you won't be able to daemonize tegh-daemon. Instead your going to need to run tegh-dameon in a terminal session or screen or something. Just run `./bin/tegh-daemon --exec` from the git repository to start the service (it will not fork).
 

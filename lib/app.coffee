@@ -3,7 +3,7 @@ requireRelative = (args...) ->
   require path.join.apply null, args
 # 3rd Party Libraries
 SegfaultHandler = require "segfault-handler"
-http = require "http"
+https = require "https"
 express = require "express"
 fs = require "fs-extra"
 path = require "flavored-path"
@@ -33,14 +33,16 @@ module.exports = class App
     # intializing the server
     @printerServers = {}
     @app = express()
-    @server = http.createServer(@app).listen(2540)
+    opts = pfx: fs.readFileSync('/etc/tegh/cert.pfx')
+    @server = https.createServer(opts, @app).listen(2540)
     @app.get '/printers.json', @getPrintersJson
+    console.log "Tegh Daemon started on https://localhost:2540"
     # Adding printers
     @addDryRunPrinter() if options['dry-run'] == true
     ArudinoDiscoverer.listen().on "update", @_onSerialPortsUpdate
 
   getPrintersJson: (req, res) =>
-    res.send printers: Object.map @printerServers, (p) -> p.slug
+    res.send printers: Object.map @printerServers, (k, p) -> p.slug
 
   _onSerialPortsUpdate: (ports) =>
     newPorts = ports.filter (p) => !(@printerServers[p.comName]?)
@@ -90,6 +92,6 @@ module.exports = class App
     @addPrinter config.port, config
 
   _onPrinterDisconnect: (psA) =>
-    ( delete @printServers[k] if psA == psB ) for k, psB of @printerServers
+    ( delete @printerServers[k] if psA == psB ) for k, psB of @printerServers
 
 app = new App()
