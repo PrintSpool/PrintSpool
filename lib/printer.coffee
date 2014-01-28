@@ -28,6 +28,7 @@ module.exports = class Printer extends EventEmitter
     # Building the printer's data
     @$ = new SmartObject @_baseComponents()
     @_onConfigChange()
+    @data = @$.data
     # Binding to changes in the data
     @$.on k, @emit.bind @, k for k in ['add', 'rm', 'change']
     @$.on "beforeMerge", @_beforeMerge
