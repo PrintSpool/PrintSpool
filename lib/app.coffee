@@ -7,10 +7,10 @@ https = require "https"
 express = require "express"
 fs = require "fs-extra"
 path = require "flavored-path"
+pamAuth = require "express-pam"
 _ = require 'lodash'
 require "js-yaml"
 # Source Libraries
-InstallBuilder        = requireRelative "install_builder"
 SlicingFactory        = requireRelative "slicing_engines", "factory"
 ArudinoDiscoverer     = requireRelative "arduino_discoverer"
 DriverFactory         = requireRelative "drivers", "factory"
@@ -30,12 +30,19 @@ SegfaultHandler.registerHandler()
 
 module.exports = class App
   constructor: ->
-    # intializing the server
     @printerServers = {}
-    @app = express()
+    # Loading Config
+    globalConfig = require("../defaults/_tegh.yml")
+    globalConfig = _.merge globalConfig, require("/etc/tegh/tegh.yml")
+    # HTTPS Server
     opts = pfx: fs.readFileSync('/etc/tegh/cert.pfx')
+    @app = express()
     @server = https.createServer(opts, @app).listen(2540)
+    # Authentication
+    @app.use pamAuth(undefined, 'tegh') if globalConfig.enable_auth
+    # Base Routes (ie. routes not specific to individual printers)
     @app.get '/printers.json', @getPrintersJson
+    # Displaying Init Message
     console.log "Tegh Daemon started on https://localhost:2540"
     # Adding printers
     @addDryRunPrinter() if options['dry-run'] == true
@@ -50,7 +57,7 @@ module.exports = class App
 
   _initConfig: (port) ->
     # loading the config file (or creating a new one)
-    dir = path.get "~/.#{APP_NAME}/3d_printers/by_serial/"
+    dir = path.get "/etc/tegh/3d_printers/by_serial/"
     configPath = path.join dir, "#{port.serialNumber}.yml"
     # initializing the config object
     return new Config port, configPath
@@ -67,7 +74,7 @@ module.exports = class App
   addDryRunPrinter: ->
     driver = DriverFactory.build driver: "null"
     port = serialNumber: "dev_null", comName: "dev/null"
-    config = new Config port, name: "Dev Null Printer"
+    config = @_initConfig(port) # new Config port, name: "Dev Null Printer"
     @_initPrinter driver, config
 
   _initPrinter: (driver, config) ->

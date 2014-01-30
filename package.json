@@ -30,6 +30,8 @@
     , "serialport": "1.2.5"
     , "bit-mask": "*"
     , "mdns2": "*"
+    , "express-pam": "git+https://github.com/D1plo1d/node-express-pam.git"
+    , "authenticate-pam": "*"
     , "mocha": "*"
     , "chai": "*"
     , "chai-spies": "*"

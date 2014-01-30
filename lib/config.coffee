@@ -1,9 +1,10 @@
 EventEmitter = require('events').EventEmitter
-modKeys = require('../vendor/mod_keys')
-SmartObject = require('../vendor/smart_object')
 _ = require 'lodash'
 path = require 'path'
 fs = require 'fs'
+modKeys         = require '../vendor/mod_keys'
+SmartObject     = require '../vendor/smart_object'
+InstallBuilder  = require "./install_builder"
 
 module.exports = class Config extends EventEmitter
   # These properties we will have to reload the server for.
@@ -50,7 +51,8 @@ module.exports = class Config extends EventEmitter
       @_onFileReady()
     catch
       console.log "New printer detected. Creating a config file."
-      installer = new InstallBuilder __dirname, path.dirname @filePath
+      defaultsDir = path.join __dirname, "..", "defaults"
+      installer = new InstallBuilder defaultsDir, path.dirname @filePath
       installer.run _.partial(@_install, @filePath), @_onFileReady
     if @$?
       @_reload obj
@@ -73,8 +75,8 @@ module.exports = class Config extends EventEmitter
     @$.merge @_initProperties obj
 
   _install: (filePath) ->
-    @install 'config_defaults.yml'
-    @mv 'config_defaults.yml', path.basename filePath
+    @install 'printer.yml'
+    @mv 'printer.yml', path.basename filePath
 
   _onFileReady: =>
     return if @_watcher?
