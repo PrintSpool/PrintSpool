@@ -34,12 +34,13 @@ module.exports = class App
     # Loading Config
     globalConfig = require("../defaults/_tegh.yml")
     globalConfig = _.merge globalConfig, require("/etc/tegh/tegh.yml")
+    @enableAuth = globalConfig.enable_auth
     # HTTPS Server
     opts = pfx: fs.readFileSync('/etc/tegh/cert.pfx')
     @app = express()
     @server = https.createServer(opts, @app).listen(2540)
     # Authentication
-    @app.use pamAuth(undefined, 'tegh') if globalConfig.enable_auth
+    @app.use pamAuth(undefined, 'tegh') if @enableAuth
     # Base Routes (ie. routes not specific to individual printers)
     @app.get '/printers.json', @getPrintersJson
     # Displaying Init Message
@@ -81,7 +82,7 @@ module.exports = class App
     console.log "#{config.name} Connecting.."
     # initializing the printer and appending config data
     config.printer = new Printer(driver, config)
-    config[k] = @[k] for k in ['app', 'server']
+    config[k] = @[k] for k in ['app', 'server', 'enableAuth']
     config.on 'change', _.partial(@_onConfigChange, driver, config)
     # initializing the server routes
     @printerServers[config.port.comName] = ps = new PrinterServer config

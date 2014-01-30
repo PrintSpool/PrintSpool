@@ -5,7 +5,9 @@ mdns = require('mdns2')
 avahi = require('avahi_pub')
 formidable = require('formidable')
 nodeUUID = require('node-uuid')
+pamAuth = require "express-pam"
 modKeys = require('../vendor/mod_keys')
+wsPamAuth = require('../vendor/ws_pam_auth')
 
 module.exports = class PrinterServer
   constructor: (opts) ->
@@ -13,10 +15,12 @@ module.exports = class PrinterServer
     @slug = @name.underscore().replace("#", "_")
     @path = "/printers/#{@slug}"
     @_clients = {}
-    @wss = new WebSocketServer
+    wssOpts = 
       server: opts.server
       path: "#{@path}/socket"
       protocolVersion: 8
+    wssOpts.verifyClient = wsPamAuth serviceName: "tegh" if opts.enableAuth
+    @wss = new WebSocketServer wssOpts
 
     @wss.on "connection", @onClientConnect
 
@@ -38,6 +42,7 @@ module.exports = class PrinterServer
     @printer.on "rm", @onPrinterRm
 
     @app.post "#{@path}/jobs", @createJob
+
 
   createJob: (req, res) =>
     # Fail Fast
