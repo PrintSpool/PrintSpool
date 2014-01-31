@@ -4,7 +4,7 @@
   , "private": true
   , "main": "./bin/tegh-daemon"
   , "dependencies": {
-      "coffee-script": "1.6.3"
+      "coffee-script": "1.7.x"
     , "express": "3.x"
     , "formidable": "*"
     , "sugar": "*"

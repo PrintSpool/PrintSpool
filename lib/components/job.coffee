@@ -11,6 +11,13 @@ module.exports = class PrintJob extends EventEmitter
     ['_gcodePath', '_modelPath', '_cancelled', '_slicingEngine', '_cb', 'key']
 
   constructor: (opts, cb, @_slice = SlicingEngineFactory.slice) ->
+    #check path fail fast
+    ext = path.extname(opts.filePath)
+    whitelist = /\.(gcode|ngc|stl|obj)/i
+    throw new Exception "Bad file extension." if !ext.match(whitelist)?
+
+    #check if file exists fail fast
+
     # Setting the enumerable properties
     @[k] = v for k, v of Object.merge @_defaults(opts), opts
     # Setting up the non-enumerable properties
@@ -19,12 +26,12 @@ module.exports = class PrintJob extends EventEmitter
     # Generating a unique key
     @key = nodeUUID.v4().replace(/-/g, "")
     # Initializing the file path
-    isGCode = path.extname(filePath).match(/.gcode|.ngc/i)?
+    isGCode = ext.match(/\.gcode|\.ngc/i)?
     pathAttr = if isGCode then "_gcodePath" else "_modelPath"
     @[pathAttr] = path.resolve(@filePath)
     delete @filePath
     # Calling the callback. For Assembly async compatibility.
-    setTimeout cb, 0
+    setImmediate cb if cb?
 
   _defaults: (opts) =>
     qty: 1
@@ -77,8 +84,8 @@ module.exports = class PrintJob extends EventEmitter
 
   _toggleSlicingEngineEvents: (onOrOff) ->
     @_slicingEngine
-    [onOrOff]('error', onSlicingError)
-    [onOrOff]('complete', onSlicingComplete)
+    @[onOrOff]('error', onSlicingError)
+    @[onOrOff]('complete', onSlicingComplete)
 
   onSlicingError: (e) =>
     console.log "slicer error"
