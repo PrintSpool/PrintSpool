@@ -12,19 +12,28 @@ module.exports = class NullDriver extends EventEmitter
     @emit("ready")
     @_startPolling()
 
-  reset: ->
+  reset: =>
+    clearTimeout @_printTimeout if @_printTimeout?
+    @_printTimeout = null
+    setTimeout ( => @emit("ready") ), 1000
 
   kill: ->
     @removeAllListeners()
     clearInterval @_interval if @_pollingInterval?
 
   sendNow: (gcode) ->
+    console.log "Null Driver Debug: #{line}" for line in gcode.split("\n")
 
-  print: (@_printJob) ->
-    setTimeout @_finishPrint, 4000
+  print: (gcodes) ->
+    gcodes = gcodes.split("\n") if typeof gcodes != "array"
+    console.log "Null Driver Debug: Printing"
+    console.log gcodes[0..10]
+    console.log "..."
+    # @_printTimeout = setTimeout @_finishPrint, 4000
 
   _finishPrint: =>
-    @emit "print_complete", @_printJob
+    console.log "Null Driver Debug: Done Printing"
+    @emit "print_complete"
 
   isPrinting: -> false
 

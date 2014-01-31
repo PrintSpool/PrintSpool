@@ -4,17 +4,18 @@ require('sugar')
 
 whiteList = /^\/dev\/(ttyUSB|ttyACM|tty\.|cu\.|rfcomm)/
 blackList = /Bluetooth|FireFly/
-ports = []
 pnpRegex = /([0-9a-zA-Z]+)\-[a-zA-Z0-9]+$/
 pollInterval = undefined
 
 module.exports = self = new EventEmitter()
+self.ports = []
 
 # Starts polling to watch for new serial ports
 self.listen = ->
   # console.log "listen"
   setTimeout(poll, 0)
   pollInterval = setInterval(poll, 1000)
+  return @
 
 self.kill = ->
   self.removeAllListeners()
@@ -33,12 +34,13 @@ filter = (p) ->
   p.comName.has(whiteList) and !(p.comName.has blackList)
 
 update = (newPorts) ->
-  previousPorts = ports
-  ports = newPorts
+  previousPorts = self.ports
+  self.ports = newPorts
   for p in previousPorts
     self.emit("disconnect", p) if newPorts.none( matcher.fill(p) )
   for p in newPorts
     self.emit("connect", p) if previousPorts.none( matcher.fill(p) )
+  self.emit("update", self.ports)
 
 matcher = (p1, p2) ->
   p1.comName == p2.comName

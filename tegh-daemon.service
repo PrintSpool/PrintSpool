@@ -1,10 +1,10 @@
 [Unit]
-Description=Construct 3D Printer Server
+Description=Tegh 3D Printer Server
 
 [Service]
-ExecStart=/usr/share/construct-daemon/bin/construct-daemon --exec
+ExecStart=/usr/share/tegh-daemon/bin/tegh-daemon --exec
 StandardOutput=syslog
-SysLogIdentified=construct-daemon
+SysLogIdentified=tegh-daemon
 User=nobody
 Group=users
 Environment=PATH=/usr/bin:/usr/local/bin

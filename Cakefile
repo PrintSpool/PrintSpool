@@ -28,7 +28,7 @@ spawn = (cmd, options = {}, cb) ->
 execSync = (cmd) -> console.log _execSync(cmd)
 
 
-packageHelp = "Package construct-daemon for ubuntu, fedora, brew (osx) and arch"
+packageHelp = "Package tegh-daemon for ubuntu, fedora, brew (osx) and arch"
 distroHelp = 'Package only the specific distro [arch|fedora|ubuntu]'
 option '-d', '--distro [DISTRIBUTION]', distroHelp
 
@@ -79,5 +79,5 @@ task "package", packageHelp, (opts) ->
   # Arch
   if distros.indexOf('arch') != -1
     spawn "tar",
-      args: ['-cvzf', path.resolve(packageDir, 'construct-daemon-git.tar.gz'), 'construct-daemon-git']
+      args: ['-cvzf', path.resolve(packageDir, 'tegh-daemon-git.tar.gz'), 'tegh-daemon-git']
       cwd: path.resolve(buildDir, 'arch-src')

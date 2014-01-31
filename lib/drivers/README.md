@@ -1,6 +1,6 @@
-# Construct Daemon Drivers
+# Tegh Daemon Drivers
 
-A driver in Construct Daemon is a coffee script class who's instances each provide a low level gcode interface with a 3D printer. Each driver has it's own subfolder with the same name as the driver contained in it.
+A driver in Tegh Daemon is a coffee script class who's instances each provide a low level gcode interface with a 3D printer. Each driver has it's own subfolder with the same name as the driver contained in it.
 
 ## The Driver API
 
@@ -24,8 +24,11 @@ All driver must implement the following functions:
 
 ### Events
 
-TODO
-
+* **ready** - Emitted when the printer initializes (either because of an initial connection or a completed reset)
+* **change** - Emitted when any attribute of the printer changes
+* **printer\_error** - Emitted when the printer encounters an error
+* **print\_complete** - Emitted when the printer is done a print job
+* **print\_job\_line\_sent** - Emitted on each line sent that is part of the current print job.
 
 ## Implementation Example
 

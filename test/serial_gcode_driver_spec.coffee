@@ -29,7 +29,7 @@ describe 'SerialGCodeDriver', ->
     printer.serialPort.on "test_write", (line) -> receive response
 
   beforeEach ->
-    printer = new PrintDriver port: {}, polling: false, SerialStub
+    printer = new PrintDriver port: {}, driver: {}, polling: false, SerialStub
     printer.greetingTimeout = 0
     printer.pollingInterval = 0
     onWrite = printer.serialPort.write

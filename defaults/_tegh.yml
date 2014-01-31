@@ -1,0 +1,3 @@
+# This is where the actual default values get loaded by tegh from
+
+enable_auth: true

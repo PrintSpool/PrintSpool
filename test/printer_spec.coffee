@@ -1,141 +1,102 @@
-Printer = require("../lib/printer.coffee")
 chai = require("chai")
 spies = require('chai-spies')
-EventEmitter = require('events').EventEmitter
 require("sugar")
+_ = require 'lodash'
+
+Printer       = require("../lib/printer.coffee")
+Config        = require("../lib/config.coffee")
+PrintJobStub  = require("./stubs/job_stub.coffee")
+DriverStub    = require("./stubs/driver_stub.coffee")
 
 chai.use(spies)
 chai.should()
 expect = chai.expect
 
-class DriverStub extends EventEmitter
-  constructor: ->
-    # TODO: Stub all the things!
-    ['reset', 'sendNow', 'print'].each (key) =>
-      @[key] = chai.spy (a,b) -> @emit("test_#{key}", a, b)
-
-class PrintJobStub extends EventEmitter
-  constructor: (attrs) ->
-    @[k] = v for k, v of attrs
-
-  loadGCode: (cb) =>
-    cb null, 'G91\nG1 F300\nG1 X10 Y20 Z5 F300'
-
 describe 'Printer', ->
   driver = null
   printer = null
+  config = null
 
   beforeEach ->
     driver  = new DriverStub()
     initPrinter()
 
   initPrinter = (opts={}) ->
-    comps = e0: 'heater', e1: 'heater', b: 'heater', c: 'conveyor', f: 'fan'
-    printer = new Printer "AABB1337", driver, opts, comps, PrintJobStub
+    config = new Config opts
+    printer = new Printer driver, config, PrintJobStub
 
   addJob = (done, opts = {}) ->
-    driver.emit "change", status: "idle"
-    printer.on 'add', (key, @job) -> done?()
+    printer.once 'add', -> done?()
     opts.filePath = "#{__dirname}/assets/test.gcode"
     printer.addJob opts
+
+  jobKey = (i=0) ->
+    _.pluck(printer.jobs, "key").sort()[i]
+
+  set = (key, attrs) ->
+    namespaced = {}
+    namespaced[key] = attrs
+    printer.set namespaced
+
 
   receiveWelcome = ->
     driver.emit "ready"
 
+  completePrint = (cb) ->
+    setImmediate ->
+      printer.once 'change', cb if cb?
+      driver.emit "print_complete", printer.jobs[0]
+
   describe 'addJob', ->
 
-    it 'should store the job in the queue', ->
-      printer.addJob {}
-      printer.getJobs().length.should.equal 1
+    it 'should store the job in the queue', (done) ->
+      addJob ->
+        printer.jobs.length.should.equal 1
+        done()
 
-    it 'should start job ids at 0', ->
-      printer.addJob {}
-      printer.getJobs()[0].id.should.equal 0
-
-    it 'should ignore pased id attributes', ->
-      printer.addJob id: 5
-      printer.getJobs()[0].id.should.equal 0
-
-    it 'should set the qty', ->
-      printer.addJob qty: 5
-      printer.getJobs()[0].qty.should.equal 5
+    it 'should set the qty', (done) ->
+      cb = ->
+        printer.jobs[0].qty.should.equal 5
+        done()
+      addJob cb, qty: 5
 
     it 'should emit add', (done) ->
-      printer.on 'add', (key, job) ->
-        key.should.equal "jobs[0]"
-        job.id.should.equal 0
+      printer.addJob {}
+      printer.on 'add', -> done()
+
+    it 'should place the first job at the start of the queue', (done) ->
+      addJob ->
+        printer.jobs[0].position.should.equal 0
         done()
-      printer.addJob {}
 
-    it 'should place the job at the end of the queue by default', ->
-      printer.addJob {}
-      printer.getJobs()[0].position.should.equal 0
-
-    it 'should set a default qty', ->
-      printer.addJob {}
-      printer.getJobs()[0].qty.should.equal 1
-
-  describe 'rmJob', ->
-    it 'should remove and existing job without error and emit remove', (done) ->
-      printer.on 'remove', (key) ->
-        key.should.equal "jobs[0]"
+    it 'should place the job at the end of the queue by default', (done) ->
+      addJob() for i in [0..1]
+      printer.on 'add', ->
+        return unless printer.jobs.length == 2
+        printer.jobs[1].position.should.equal 1
         done()
-      printer.addJob {}
-      printer.rmJob id: 0
+
+  describe 'rm', ->
+    beforeEach addJob
+
+    it 'should remove an existing job without error and emit rm', (done) ->
+      printer.on 'rm', -> done()
+      printer.rm jobKey()
 
     it 'should error if the job does not exist', ->
-      printer.addJob
-      printer.rmJob.bind(printer, id: 5).should.throw()
-
-  describe 'changeJob', ->
-    it 'should modify an existing job and emit change',(done) ->
-      printer.on 'change', (data) ->
-        data['jobs[0]'].should.not.have.property 'id'
-        data['jobs[0]'].qty.should.equal 5
-        done()
-      printer.addJob {}
-      printer.changeJob id: 0, qty: 5
-
-    it 'should move a job and reorder other jobs around it',(done) ->
-      printer.on 'change', (data) ->
-        data.should.not.have.property "jobs[#{i}]" for i in [0, 3]
-        data.should.have.property "jobs[#{i}]"     for i in [1, 2]
-        data['jobs[2]'].position.should.equal 1
-        data['jobs[1]'].position.should.equal 2
-        done()
-      printer.addJob {} for i in [0..3]
-      printer.changeJob id: 2, position: 1
-
-    it 'should move a job to position 0 and move all jobs down',(done) ->
-      printer.on 'change', (data) ->
-        data['jobs[1]'].position.should.equal 0
-        data['jobs[0]'].position.should.equal 1
-        done()
-      printer.addJob {} for i in [0..1]
-      printer.changeJob id: 1, position: 0
-
-    it 'should error if a invalid job id is given', ->
-      fn = printer.changeJob.bind(printer, id: 12, qty: 5, position: 0)
-      fn.should.throw()
-
-    it 'should error if a invalid position is given', ->
-      printer.addJob
-      fn = printer.changeJob.bind(printer, id: 0, position: 1)
-      fn.should.throw()
-
-    it 'should error if a negative qty is given', ->
-      printer.addJob
-      fn = printer.changeJob.bind(printer, id: 0, qty: -5)
-      fn.should.throw()
+      printer.rm.bind(printer, "moocow").should.throw()
 
   describe 'estop', ->
+    beforeEach ->
+      receiveWelcome()
+
     it 'should reset the printer', ->
       printer.estop()
       driver.reset.should.be.called.once()
 
     it 'should set the status to estopped', (done) ->
       printer.on 'change', (data) ->
-        data.status.should.equal 'estopped'
+        data.state.status.should.equal 'estopped'
         done()
       printer.estop()
 
@@ -144,15 +105,20 @@ describe 'Printer', ->
       printer.move.bind(x: 10).should.throw()
 
     it 'should estop the current print', (done) ->
-      addJob()
-      printer.print()
+      i = 0
+      addJob -> printer.print()
       printer.on 'change', (data) ->
-        expect(data?["jobs[0]"]?.status).to.equal 'estopped'
+        switch i++
+          when 0 then printer.estop()
+          when 1 then onEstopped data
+      onEstopped = (data) ->
+        expect(data?[jobKey()]?.status).to.equal 'estopped'
         done()
-      printer.estop()
 
   describe 'print', ->
-    beforeEach addJob
+    beforeEach (done) ->
+      receiveWelcome()
+      addJob(done)
 
     it 'should print if the printer is idle', (done) ->
       driver.on 'test_print', (gcode) ->
@@ -162,50 +128,59 @@ describe 'Printer', ->
 
     it 'should change the printer\'s status to printing', (done) ->
       printer.on 'change', (data) ->
-        data.status.should.equal 'printing'
+        expect(data.state?.status).to.equal 'printing'
         done()
       printer.print()
 
     it 'should change the job\'s status to printing', (done) ->
       printer.on 'change', (data) ->
-        data['jobs[0]'].status.should.equal 'printing'
+        expect(data[jobKey()]?.status).to.equal 'printing'
         done()
       printer.print()
 
     it 'should change the printer\'s status to idle after the print', (done) ->
       printer.print()
-      printer.on 'change', (data) ->
-        data.status.should.equal 'idle'
-        printer.status.should.equal 'idle'
+      i = 0
+      completePrint (data) ->
+        expect(data.state?.status).to.equal 'idle'
         done()
-      driver.emit "print_complete", @job
 
     it 'should print continuously if pause_between_prints is false', (done) ->
-      printer.print()
-      printer.set pauseBetweenPrints: false
-      printer.on 'change', (data) ->
-        return unless data['jobs[0]']?.status == 'done'
-        printer.status.should.equal 'printing'
+      config.$.set "pauseBetweenPrints", false
+      # Adding a second job (see before each)
+      addJob ->
+        printer.print()
+        completePrint onComplete
+      onComplete = (data) ->
+        expect(data[jobKey()]?.status).to.equal 'done'
+        expect(data.state?.status).to.equal undefined
+        expect(printer.status).to.equal "printing"
         done()
-      driver.emit "print_complete", @job
 
-  describe 'print qty', ->
-    it 'should print 3 copies if qty is 3', (done) ->
-      addJob undefined, qty: 3
+  describe 'print (w/ qty)', ->
+    beforeEach (done) ->
+      receiveWelcome()
+      addJob done, qty: 3
+
+    it 'should print 3 copies continuously if qty is 3', (done) ->
+      config.$.set "pauseBetweenPrints", false
       printer.print()
-      qtyPrinted = 0
-      printer.on 'change', (data) ->
-        return unless data['jobs[0]'].qtyPrinted > qtyPrinted
-        qtyPrinted++
-        if qtyPrinted == 3
-          data['jobs[0]'].status.should.equal 'done'
-          printer.status.should.equal 'idle'
-          done()
-        else
-          expect(data['jobs[0]'].status).to.equal undefined
+      onComplete = (data) ->
+        return completePrint(onComplete) if printer.jobs[0].qtyPrinted != 3
+        data[jobKey()].status.should.equal 'done'
+        printer.status.should.equal 'idle'
+        done()
+      completePrint(onComplete)
+
+    it 'should print 3 copies with pauses if qty is 3', (done) ->
+      iterate = (data) ->
+        if printer.jobs[0].qtyPrinted != 3
           printer.print()
-          driver.emit "print_complete", @job
-      driver.emit "print_complete", @job
+          return completePrint(iterate)
+        data[jobKey()].status.should.equal 'done'
+        printer.status.should.equal 'idle'
+        done()
+      iterate()
 
   describe 'move', ->
     beforeEach receiveWelcome
@@ -231,14 +206,20 @@ describe 'Printer', ->
         done()
       printer.move e0: 10
 
+  describe 'move (w/ multiple extruders)', ->
+    beforeEach receiveWelcome
+
     it 'should move the printer at the correct flowrate on e1', (done) ->
       driver.on 'test_sendNow', (gcode) ->
         gcode.should.equal 'T1\nG91\nG1 F40\nG1 E10 F40'
         done()
-      printer.move e1: 10
+      config.$.$merge components: {e1: 'heater'}
+      setImmediate -> printer.move e1: 10
 
   describe 'home', ->
-    beforeEach addJob
+    beforeEach (done) ->
+      receiveWelcome()
+      addJob(done)
 
     it 'should home the printer if it\'s idle', (done) ->
       driver.on 'test_sendNow', (gcode) ->
@@ -268,3 +249,39 @@ describe 'Printer', ->
 
     it 'should not change the type of a property'
 
+    it 'should modify an existing job and emit change', (done) ->
+      printer.on 'change', (data) ->
+        data[jobKey()].qty.should.equal 5
+        done()
+      addJob ->
+        set jobKey(0), qty: 5
+
+    it 'should move a job and reorder other jobs around it', (done) ->
+      printer.on 'change', (data) ->
+        data.should.not.have.property jobKey(i) for i in [0, 3]
+        data.should.have.property jobKey(i)    for i in [1, 2]
+        data[jobKey(2)].position.should.equal 1
+        data[jobKey(1)].position.should.equal 2
+        done()
+      printer.addJob {} for i in [0..3]
+      setImmediate -> set jobKey(1), {position: 2}
+
+    it 'should move a job to position 0 and move all jobs down', (done) ->
+      printer.on 'change', (data) ->
+        expect(data[jobKey(1)]?.position).to.equal 0
+        expect(data[jobKey(0)]?.position).to.equal 1
+        done()
+      addJob() for i in [0..1]
+      setImmediate -> set jobKey(1), position: 0
+
+    it 'should error if a invalid job id is given', ->
+      fn = set.bind undefined, "foobar", qty: 5, position: 0
+      fn.should.throw()
+
+    it 'should error if a invalid position is given', ->
+      fn = set.bind undefined, jobKey(0), position: 1
+      addJob -> fn.should.throw()
+
+    it 'should error if a negative qty is given', ->
+      fn = set.bind undefined, jobKey(0), qty: -5
+      addJob -> fn.should.throw()

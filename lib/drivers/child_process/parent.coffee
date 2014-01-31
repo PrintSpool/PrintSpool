@@ -1,23 +1,7 @@
-cp = require('child_process')
 EventEmitter = require('events').EventEmitter
+cp = require('child_process')
 
-module.exports =
-  build: (opts = {}) ->
-    if typeof(opts.driver) == 'string'
-      opts.driver = {type: opts.driver}
-    opts.driver ?= {}
-    opts.driver.type ?= "serial_gcode"
-    opts.driver.fork_child_process ?= true
-
-    if opts.driver.fork_child_process
-      new ChildProcessDriver opts
-    else
-      type = opts.driver.type
-      Driver = require "./drivers/#{type}_driver/#{type}_driver"
-      new Driver opts
-
-
-class ChildProcessDriver extends EventEmitter
+module.exports = class ChildProcessDriverParent extends EventEmitter
 
   _fns: [
     'reset',
@@ -30,11 +14,12 @@ class ChildProcessDriver extends EventEmitter
   ]
 
   constructor: (@_opts) ->
-    @_child = cp.fork('./lib/drivers/child_print_driver.js')
+    @_child = cp.fork('./lib/drivers/child_process/child.js')
 
     @_child
     .once("message", @_onInit)
     .on("error", @_onError)
+    .on("exit", @_onError)
 
     @_addFnHandler(fn) for fn in @_fns
 
@@ -47,7 +32,10 @@ class ChildProcessDriver extends EventEmitter
     # console.log(m)
     @emit m.event, m.data
 
-  _onError: =>
+  _onError: (e) =>
+    console.log "Child Process Error: #{e}"
+    try @_child.kill("KILL")
+    try @_child.removeAllListeners()
     @emit "disconnect"
 
   _addFnHandler: (fn) ->
@@ -55,4 +43,7 @@ class ChildProcessDriver extends EventEmitter
 
   _fnHandler: (fn, args) =>
     args = [].slice.call(args, 0)
-    @_child.send(fn: fn, args: args)
+    try
+      @_child.send(fn: fn, args: args)
+    catch e
+      @_onError(e)
