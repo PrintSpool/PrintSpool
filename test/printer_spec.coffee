@@ -1,6 +1,7 @@
 chai = require("chai")
 spies = require('chai-spies')
 require("sugar")
+_ = require 'lodash'
 
 Printer       = require("../lib/printer.coffee")
 Config        = require("../lib/config.coffee")
@@ -28,6 +29,15 @@ describe 'Printer', ->
     printer.once 'add', -> done?()
     opts.filePath = "#{__dirname}/assets/test.gcode"
     printer.addJob opts
+
+  jobKey = (i=0) ->
+    _.pluck(printer.jobs, "key").sort()[i]
+
+  set = (key, attrs) ->
+    namespaced = {}
+    namespaced[key] = attrs
+    printer.set namespaced
+
 
   receiveWelcome = ->
     driver.emit "ready"
@@ -71,7 +81,7 @@ describe 'Printer', ->
 
     it 'should remove an existing job without error and emit rm', (done) ->
       printer.on 'rm', -> done()
-      printer.rm printer.jobs[0].key
+      printer.rm jobKey()
 
     it 'should error if the job does not exist', ->
       printer.rm.bind(printer, "moocow").should.throw()
@@ -102,7 +112,7 @@ describe 'Printer', ->
           when 0 then printer.estop()
           when 1 then onEstopped data
       onEstopped = (data) ->
-        expect(data?[printer.jobs[0].key]?.status).to.equal 'estopped'
+        expect(data?[jobKey()]?.status).to.equal 'estopped'
         done()
 
   describe 'print', ->
@@ -124,7 +134,7 @@ describe 'Printer', ->
 
     it 'should change the job\'s status to printing', (done) ->
       printer.on 'change', (data) ->
-        expect(data[printer.jobs[0].key]?.status).to.equal 'printing'
+        expect(data[jobKey()]?.status).to.equal 'printing'
         done()
       printer.print()
 
@@ -142,7 +152,7 @@ describe 'Printer', ->
         printer.print()
         completePrint onComplete
       onComplete = (data) ->
-        expect(data[printer.jobs[0].key]?.status).to.equal 'done'
+        expect(data[jobKey()]?.status).to.equal 'done'
         expect(data.state?.status).to.equal undefined
         expect(printer.status).to.equal "printing"
         done()
@@ -155,10 +165,9 @@ describe 'Printer', ->
     it 'should print 3 copies continuously if qty is 3', (done) ->
       config.$.set "pauseBetweenPrints", false
       printer.print()
-      console.log "wut"
       onComplete = (data) ->
         return completePrint(onComplete) if printer.jobs[0].qtyPrinted != 3
-        data[printer.jobs[0].key].status.should.equal 'done'
+        data[jobKey()].status.should.equal 'done'
         printer.status.should.equal 'idle'
         done()
       completePrint(onComplete)
@@ -168,7 +177,7 @@ describe 'Printer', ->
         if printer.jobs[0].qtyPrinted != 3
           printer.print()
           return completePrint(iterate)
-        data[printer.jobs[0].key].status.should.equal 'done'
+        data[jobKey()].status.should.equal 'done'
         printer.status.should.equal 'idle'
         done()
       iterate()
@@ -208,9 +217,9 @@ describe 'Printer', ->
       setImmediate -> printer.move e1: 10
 
   describe 'home', ->
-    beforeEach ->
+    beforeEach (done) ->
       receiveWelcome()
-      addJob()
+      addJob(done)
 
     it 'should home the printer if it\'s idle', (done) ->
       driver.on 'test_sendNow', (gcode) ->
@@ -242,19 +251,20 @@ describe 'Printer', ->
 
     it 'should modify an existing job and emit change', (done) ->
       printer.on 'change', (data) ->
-        data['jobs[0]'].qty.should.equal 5
+        data[jobKey()].qty.should.equal 5
         done()
-      addJob -> printer.set "jobs[0]": {qty: 5}
+      addJob ->
+        set printer.jobs[0].key, qty: 5
 
     it 'should move a job and reorder other jobs around it', (done) ->
       printer.on 'change', (data) ->
-        data.should.not.have.property "jobs[#{i}]" for i in [0, 3]
-        data.should.have.property "jobs[#{i}]"     for i in [1, 2]
-        data['jobs[2]'].position.should.equal 1
-        data['jobs[1]'].position.should.equal 2
+        data.should.not.have.property jobKey(i) for i in [0, 3]
+        data.should.have.property jobKey(i)    for i in [1, 2]
+        data[jobKey(2)].position.should.equal 1
+        data[jobKey(1)].position.should.equal 2
         done()
       printer.addJob {} for i in [0..3]
-      printer.set "jobs[2]": {position: 1}
+      setImmediate -> set jobKey(1), {position: 2}
 
     it 'should move a job to position 0 and move all jobs down', (done) ->
       printer.on 'change', (data) ->

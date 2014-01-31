@@ -65,7 +65,7 @@ module.exports = class Printer extends EventEmitter
   _beforejobPositionChange: (k1, k2, _new) ->
     oldComp = @$.data[k1]
     _old = oldComp.position
-    @jobs.filter((j) -> j.id != oldComp.id).each (j) ->
+    @jobs.filter((j) -> j.key != oldComp.key).each (j) ->
       j.position += 1 if _old > j.position >= _new
       j.position -= 1 if _old < j.position <= _new
 

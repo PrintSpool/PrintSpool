@@ -2,13 +2,15 @@ EventEmitter = require('events').EventEmitter
 
 nextID = 0
 module.exports = class JobStub extends EventEmitter
-  type: "job"
-  status: "idle"
-  qtyPrinted: 0
-  qty: 1
-  startTime: new Date()
+  defaults:
+    type: "job"
+    status: "idle"
+    qtyPrinted: 0
+    qty: 1
+    startTime: new Date()
 
   constructor: (attrs, cb) ->
+    @[k] = v for k, v of @defaults
     @[k] = v for k, v of attrs
     @key = "job_stub_#{nextID++}"
     Object.defineProperty @, 'components', value: [@]
