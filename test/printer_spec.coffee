@@ -254,7 +254,7 @@ describe 'Printer', ->
         data[jobKey()].qty.should.equal 5
         done()
       addJob ->
-        set printer.jobs[0].key, qty: 5
+        set jobKey(0), qty: 5
 
     it 'should move a job and reorder other jobs around it', (done) ->
       printer.on 'change', (data) ->
@@ -268,22 +268,20 @@ describe 'Printer', ->
 
     it 'should move a job to position 0 and move all jobs down', (done) ->
       printer.on 'change', (data) ->
-        expect(data['jobs[1]']?.position).to.equal 0
-        expect(data['jobs[0]']?.position).to.equal 1
+        expect(data[jobKey(1)]?.position).to.equal 0
+        expect(data[jobKey(0)]?.position).to.equal 1
         done()
       addJob() for i in [0..1]
-      printer.set "jobs[1]":  {position: 0}
+      setImmediate -> set jobKey(1), position: 0
 
     it 'should error if a invalid job id is given', ->
-      fn = printer.set.bind(printer, "jobs[12]": {qty: 5, position: 0})
+      fn = set.bind undefined, "foobar", qty: 5, position: 0
       fn.should.throw()
 
     it 'should error if a invalid position is given', ->
-      printer.addJob()
-      fn = printer.set.bind(printer, "jobs[0]": {position: 1})
-      fn.should.throw()
+      fn = set.bind undefined, jobKey(0), position: 1
+      addJob -> fn.should.throw()
 
     it 'should error if a negative qty is given', ->
-      printer.addJob()
-      fn = printer.set.bind(printer, "jobs[0]": {qty: -5})
-      fn.should.throw()
+      fn = set.bind undefined, jobKey(0), qty: -5
+      addJob -> fn.should.throw()
