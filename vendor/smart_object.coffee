@@ -3,7 +3,7 @@ EventEmitter = require('events').EventEmitter
 module.exports = class SmartObject extends EventEmitter
   constructor: (buffer) ->
     # New changes are put into the buffer
-    @buffer = buffer
+    @buffer = buffer || {}
     # And then copied to the data
     @data = {}
     @rmMarker = {}

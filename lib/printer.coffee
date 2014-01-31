@@ -25,6 +25,9 @@ module.exports = class Printer extends EventEmitter
     axes: { xyFeedrate: 3000 / 60, zFeedrate: 300 / 60 }
 
   constructor: (@driver, @config, @_PrintJob=PrintJob) ->
+    # Adding getters
+    getters = ['status', 'jobs', 'idleJobs', 'extruders']
+    Object.defineProperty @, k, get: @["_get#{k.camelize()}"] for k in getters
     # Building the printer's data
     @$ = new SmartObject @_baseComponents()
     @_onConfigChange()
@@ -32,11 +35,6 @@ module.exports = class Printer extends EventEmitter
     # Binding to changes in the data
     @$.on k, @emit.bind @, k for k in ['add', 'rm', 'change']
     @$.on "beforeMerge", @_beforeMerge
-    # Adding getters
-    getters = ['status', 'jobs', 'idleJobs']
-    Object.defineProperty @, k, get: @["_get#{k.camelize()}"] for k in getters
-    # Adding the extruders to the axes
-    @_axes = ['x','y','z'].concat @extruders
     # Binding driver events
     events = ['ready', 'print_job_line_sent', 'print_complete', 'disconnect']
     @driver.on k, @["_on#{k.camelize()}"] for k in events
@@ -80,32 +78,37 @@ module.exports = class Printer extends EventEmitter
     job.cancel().removeAllListeners() for job in @jobs
 
   _onConfigChange: => @$.$apply (data) =>
-    whitelist = _(@_baseComponents()).keys().concat(_.keys @config.components)
+    whitelist = _(@_baseComponents()).merge(@config.components)
     # Removing deleted components
-    delete data[k] for k of data when whitelist.has(k) == false
+    console.log "deleting #{k}" for k, v of data when !(whitelist.has k)
+    delete data[k] for k of data when !(whitelist.has k)
     # Adding new components
     data[k] ?= _.clone @_defaultAttrs[v] for k, v of @config.components
     # Updating print qualities
     data.printQualities = _.cloneDeep @config.printQualities
+    # Adding the extruders to the axes
+    @_axes = ['x','y','z'].concat _.keys @extruders
 
   addJob: (attrs = {}) =>
     # Determining if the job is a multipart assembly or a single part
     isZip = path.extname(attrs.filePath) == ".zip"
-    JobType = if isZip then Assembly else @PrintJob
+    JobPrototype = if isZip then Assembly else @_PrintJob
     # Configuring and initializing the component
-    Object.merge attrs,
-      id: @_nextJobId++
-      position: @jobs.length
-    job = new JobType attrs, @_onJobInit
+    job = new JobPrototype attrs, @_onJobInit
 
   _onJobInit: (job) => @$.$apply (data) =>
-    # Adding the component and its subcomponents
-    data[comp.key] = comp for comp in job.components
+    i = @jobs.length
+    # Adding the job or job_part component and its subcomponents
+    for jobComp in job.components
+      # Adding a job subcomponent (either a job or a job_part)
+      data[jobComp.key] = jobComp
+      # Setting the position of each job_part subcomponent
+      jobComp.position = i++ if jobComp.type == 'job'
 
   rm: (key) => @$.$apply (data) =>
     comp = data[key]
     throw "job/assembly does not exist" if ['job', 'assembly'].none comp?.type
-    for subcomponent in comp.components()
+    for subcomponent in comp.components
       subcomponent.beforeDelete()
       delete data[subcomponent.key] if data[subcomponent.key]?
 
@@ -234,7 +237,7 @@ module.exports = class Printer extends EventEmitter
     done = job.qtyPrinted + 1 >= totalQty
     pause = @config.pauseBetweenPrints
     pause ||= @idleJobs.exclude(job).length == 0
-    @currentJob = null
+    @currentJob = null if done
     # Updating the job and printer and starting the next print or pausing
     jobAttrs =
       qtyPrinted: job.qtyPrinted + 1
@@ -244,9 +247,9 @@ module.exports = class Printer extends EventEmitter
       Object.merge job, jobAttrs
       data.state.status = 'idle' if pause
       @_printNextIdleJob true if !pause
-    # Removing the job if it's complete (it's status having already been set
-    # to "done")
-    @rm job.key if done
+      # Removing the job if it's complete (it's status having already been set
+      # to "done")
+      setImmediate => @rm job.key if done
 
   move: (axesVals) ->
     # Fail fast
@@ -258,6 +261,7 @@ module.exports = class Printer extends EventEmitter
     multiplier = axesVals.at || 1
     delete axesVals.at
     axes = Object.keys(axesVals).exclude((k) => @_axes.some(k))
+    console.log @_axes
     @_asert_no_bad_axes 'move', axes
     # Adding the axes values
     # gcode = axesVals.reduce ((s, k, v) -> "#{s} #{k.toUpperCase()}#{v}"), 'G1'
