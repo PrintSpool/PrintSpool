@@ -12,6 +12,7 @@ module.exports = class Printer extends EventEmitter
   _defaultAttrs:
     heater:
       type: 'heater'
+      enabled: false
       targetTemp: 0
       currentTemp: 0
       targetTempCountdown: 0
@@ -120,8 +121,11 @@ module.exports = class Printer extends EventEmitter
     @_resetComponent comp for k, comp of @$.data
 
   _resetComponent: (comp) -> switch comp.type
-    when "heater" then comp.targetTemp = 0
-    when "conveyor", "fan" then comp.enabled = false
+    when "heater"
+      comp.targetTemp = 0
+      comp.enabled = false
+    when "conveyor", "fan"
+      comp.enabled = false
 
   # set any number of the following printer attributes:
   # - extruder/bed target_temp
@@ -190,7 +194,8 @@ module.exports = class Printer extends EventEmitter
     when "motors"
       "M1#{if comp.enabled then 7 else 8}"
     when "heater"
-      "#{@_heaterGCode key} S#{comp.targetTemp}"
+      targetTemp = if comp.enabled then comp.targetTemp else 0
+      "#{@_heaterGCode key} S#{targetTemp}"
     else undefined
 
   retryPrint: => @$.$apply (data) =>
