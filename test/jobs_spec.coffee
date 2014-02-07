@@ -1,14 +1,8 @@
-chai = require("chai")
-spies = require('chai-spies')
-require("sugar")
+expect = require("chai").expect
 _ = require 'lodash'
 tmp = require('tmp')
 
 Job       = require("../lib/components/job.coffee")
-
-chai.use(spies)
-chai.should()
-expect = chai.expect
 
 initFile = (extension, cb) ->
   tmp.file postfix: extension, (err, path, fd) ->

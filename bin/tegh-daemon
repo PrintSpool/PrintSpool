@@ -2,10 +2,21 @@
 var path = require('path');
 var fs   = require('fs');
 var lib  = path.join(path.dirname(fs.realpathSync(__filename)), '../lib');
+var SegfaultHandler = require("segfault-handler");
+var stdio = require('stdio');
 
 
 // Coffeescript 1.0 and 2.0 respectively. Comment out the one you aren't using.
-require('coffee-script');
+require('coffee-script/register');
 // require('coffee-script-redux/register');
 
-require(path.join(lib, "app"));
+var App = require(path.join(lib, "app"));
+
+var options = stdio.getopt({
+  'dry-run':
+    {description: "Adds a null driver printer for testing and development."}
+});
+
+SegfaultHandler.registerHandler();
+
+app = new App(options);

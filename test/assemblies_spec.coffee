@@ -1,11 +1,5 @@
-chai = require("chai")
-spies = require('chai-spies')
-require("sugar")
+expect = require("chai").expect
 _ = require 'lodash'
 
 Assembly       = require("../lib/components/assembly.coffee")
-
-chai.use(spies)
-chai.should()
-expect = chai.expect
 

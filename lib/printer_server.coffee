@@ -8,14 +8,15 @@ nodeUUID = require('node-uuid')
 pamAuth = require "express-pam"
 modKeys = require('../vendor/mod_keys')
 wsPamAuth = require('../vendor/ws_pam_auth')
+CameraRoute = require("./camera_route")
 
 module.exports = class PrinterServer
   constructor: (opts) ->
     @[k] = opts[k] for k in ['name', 'printer', 'app']
-    @slug = @name.underscore().replace("#", "_")
+    @slug = @name.underscore().replace("#", "")
     @path = "/printers/#{@slug}"
     @_clients = {}
-    wssOpts = 
+    wssOpts =
       server: opts.server
       path: "#{@path}/socket"
       protocolVersion: 8
@@ -42,9 +43,13 @@ module.exports = class PrinterServer
     @printer.on "rm", @onPrinterRm
 
     @app.post "#{@path}/jobs", @createJob
+    initCamera()
 
+  initCamera: =>
+    @_camera = new CameraRoute @app, "#{@path}/cameras/1.mjpeg"
 
   createJob: (req, res) =>
+    console.log "jeorb!"
     # Fail Fast
     ws = @_clients[req.query.session_uuid]
     return res.send 500, "Must include a valid uuid" unless ws?

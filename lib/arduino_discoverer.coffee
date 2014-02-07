@@ -13,8 +13,8 @@ self.ports = []
 # Starts polling to watch for new serial ports
 self.listen = ->
   # console.log "listen"
-  setTimeout(poll, 0)
-  pollInterval = setInterval(poll, 1000)
+  self.ports = []
+  pollInterval ?= setInterval(poll, 1000)
   return @
 
 self.kill = ->

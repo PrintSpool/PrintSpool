@@ -2,7 +2,6 @@ requireRelative = (args...) ->
   args.unshift __dirname
   require path.join.apply null, args
 # 3rd Party Libraries
-SegfaultHandler = require "segfault-handler"
 https = require "https"
 express = require "express"
 fs = require "fs-extra"
@@ -20,16 +19,8 @@ Config                = requireRelative "config"
 
 APP_NAME = 'tegh'
 
-stdio = require('stdio')
-
-options = stdio.getopt
-  'dry-run':
-    description: "Adds a null driver printer for testing and development."
-
-SegfaultHandler.registerHandler()
-
 module.exports = class App
-  constructor: ->
+  constructor: (options, cb) ->
     @printerServers = {}
     # Loading Config
     globalConfig = require("../defaults/_tegh.yml")
@@ -39,6 +30,7 @@ module.exports = class App
     opts = pfx: fs.readFileSync('/etc/tegh/cert.pfx')
     @app = express()
     @server = https.createServer(opts, @app).listen(2540)
+    @server.on "listening", cb if cb
     # Authentication
     @app.use pamAuth(undefined, 'tegh') if @enableAuth
     # Base Routes (ie. routes not specific to individual printers)
@@ -46,8 +38,10 @@ module.exports = class App
     # Displaying Init Message
     console.log "Tegh Daemon started on https://localhost:2540"
     # Adding printers
-    @addDryRunPrinter() if options['dry-run'] == true
-    ArudinoDiscoverer.listen().on "update", @_onSerialPortsUpdate
+    if options['dry-run'] == true
+        @addDryRunPrinter()
+    else
+        ArudinoDiscoverer.listen().on "update", @_onSerialPortsUpdate
 
   getPrintersJson: (req, res) =>
     res.send printers: Object.map @printerServers, (k, p) -> p.slug
@@ -73,7 +67,7 @@ module.exports = class App
     @_initPrinter driver, config
 
   addDryRunPrinter: ->
-    driver = DriverFactory.build driver: "null"
+    driver = DriverFactory.build driver: {fork: false, type: "null"}
     port = serialNumber: "dev_null", comName: "dev/null"
     config = @_initConfig(port) # new Config port, name: "Dev Null Printer"
     @_initPrinter driver, config
@@ -102,4 +96,7 @@ module.exports = class App
   _onPrinterDisconnect: (psA) =>
     ( delete @printerServers[k] if psA == psB ) for k, psB of @printerServers
 
-app = new App()
+  kill: =>
+    ps.printer.driver.kill() for k, ps of @printerServers
+    @server.close()
+
