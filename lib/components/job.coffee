@@ -5,6 +5,7 @@ EventEmitter = require('events').EventEmitter
 exec = require('child_process').exec
 Join = require('join')
 nodeUUID = require('node-uuid')
+_ = require 'lodash'
 
 module.exports = class PrintJob extends EventEmitter
   nonEnumerables:
@@ -15,11 +16,8 @@ module.exports = class PrintJob extends EventEmitter
     ext = path.extname(opts.filePath)
     whitelist = /\.(gcode|ngc|stl|obj)/i
     throw new Exception "Bad file extension." if !ext.match(whitelist)?
-
-    #check if file exists fail fast
-
     # Setting the enumerable properties
-    @[k] = v for k, v of Object.merge @_defaults(opts), opts
+    @[k] = v for k, v of _.merge @_defaults(opts), opts
     # Setting up the non-enumerable properties
     for k in @nonEnumerables
       Object.defineProperty @, k, writable: true, value: undefined
@@ -59,11 +57,11 @@ module.exports = class PrintJob extends EventEmitter
 
   cancel: =>
     @_cancelled = new Date()
-    if @_slicingInstance?
+    if @_slicingEngine?
       @_toggleSlicingEngineEvents 'off'
-      @_slicingInstance.cancel()
+      @_slicingEngine.cancel()
     @removeListener "load", @_cb if @_cb?
-    @_slicingInstance = null
+    @_slicingEngine = null
     @_cb = null
     return @
 
@@ -80,23 +78,21 @@ module.exports = class PrintJob extends EventEmitter
       @_slicingEngine = @_slice slicerOpts, @_modelPath
       @_toggleSlicingEngineEvents 'on'
     else
-      setTimeout @onSlicingComplete, 0
+      @_onSlicingComplete()
 
   _toggleSlicingEngineEvents: (onOrOff) ->
-    @_slicingEngine
-    @[onOrOff]('error', onSlicingError)
-    @[onOrOff]('complete', onSlicingComplete)
+    @_slicingEngine[onOrOff] 'error',    @_onSlicingError
+    @_slicingEngine[onOrOff] 'complete', @_onSlicingComplete
 
-  onSlicingError: (e) =>
+  _onSlicingError: (e) =>
     console.log "slicer error"
     console.log e
     @emit "job_error", "slicer error"
 
-  onSlicingComplete: =>
+  _onSlicingComplete: =>
     join = Join.create()
     @currentLine = 0
     @_gcodePath = @_slicingEngine.gcodePath if @_slicingEngine?
-    @_slicingEngine = undefined
 
     # Getting the number of lines in the file
     exec "wc -l #{@_gcodePath}", join.add()

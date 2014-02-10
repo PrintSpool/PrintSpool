@@ -1,4 +1,4 @@
-EventEmitter = require('events').EventEmitter
+†EventEmitter = require('events').EventEmitter
 path = require 'path'
 require 'sugar'
 _ = require 'lodash'
