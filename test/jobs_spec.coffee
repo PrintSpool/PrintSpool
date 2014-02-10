@@ -25,16 +25,26 @@ describe 'Job', ->
         expect(job.needsSlicing()).to.equal true
         done()
 
-    it 'should throw an error if given an bad extension', (done)->
+    it 'should throw an error if given a bad extension', (done)->
       initFile ".foo", (filePath) ->
         fn = -> new Job(filePath: filePath)
         expect(fn).to.throw()
         done()
 
-  # describe 'components', ->
-
-  #   it 'should return a single component; the job object', ->
-  #     job = new Job("test.gcode", done)
 
 
-#need a second case for model path
+  describe 'components', ->
+
+    it 'should return a single component; the job object'
+
+  describe 'loadGCode', ->
+    it 'should emit a load event given a .gcode file'
+
+    it 'should attempt to slice the model given a .stl file'
+
+    it 'should emit a load event given a .stl file'
+
+    it 'should emit a job_error if given a file that doesn\'t exist'
+
+  describe 'cancel', ->
+
