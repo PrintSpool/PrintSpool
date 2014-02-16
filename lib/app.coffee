@@ -2,6 +2,7 @@ requireRelative = (args...) ->
   args.unshift __dirname
   require path.join.apply null, args
 # 3rd Party Libraries
+require('webkit-devtools-agent')
 https = require "https"
 express = require "express"
 fs = require "fs-extra"
