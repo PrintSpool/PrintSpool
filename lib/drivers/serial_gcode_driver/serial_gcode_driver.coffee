@@ -61,7 +61,7 @@ module.exports = class PrintDriver extends AbstractSerialDriver
     # see: http://git.io/FEACGw or google "TEMP_RESIDENCY_TIME"
     w = parseFloat(data.w?.current_temp)*1000
     delete data['w']
-    if w? and w != NaN
+    if w? and !isNaN(w)
       (data[k] ?= {}).target_temp_countdown = w for k in @_blockers
     # Parsing ok's and removing blockers
     if l.has "ok"
