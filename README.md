@@ -49,3 +49,23 @@ Install
 
 **Note:** Upstart and initd are not yet supported so if you do not have systemd (for example on Ubuntu or OSX) then you won't be able to daemonize tegh-daemon. Instead your going to need to run tegh-dameon in a terminal session or screen or something. Just run `./bin/tegh-daemon --exec` from the git repository to start the service (it will not fork).
 
+## WebCam Setup
+
+### Options 1: OSX / VLC
+
+To create a mjpeg stream for your printer, first add the following lines to your printer's config file located in `/etc/tegh/3d_printers/by_serial/{PRINTER_SERIAL_NUMBER}`:
+```
+  camera:
+    url: "$IP:1234/webcam.mjpg"
+```
+
+```
+vlc qtcapture:// --sout '#transcode{vcodec=MJPG:width=1280:height=1024}:std{access=http{mime=multipart/x-mixed-replace;boundary=--7b3cc56e5f51db803f790dad720ed50a},mux=mpjpeg,dst=:1234/webcam.mjpg}' --mjpeg-fps=1
+```
+
+### Options 2: Linux / MJPG-Streamer
+
+TODO: Docs
+```
+
+```

@@ -5,6 +5,7 @@ _ = require 'lodash'
 PrintJob = require "./components/job"
 Assembly = require "./components/assembly"
 SmartObject = require "../vendor/smart_object"
+Camera = require "./components/camera"
 
 module.exports = class Printer extends EventEmitter
 
@@ -84,11 +85,23 @@ module.exports = class Printer extends EventEmitter
     console.log "deleting #{k}" for k, v of data when !(whitelist.has k)
     delete data[k] for k of data when !(whitelist.has k)
     # Adding new components
-    data[k] ?= _.clone @_defaultAttrs[v] for k, v of @config.components
+    data[k] ?= @_initComponent k, v for k, v of @config.components
     # Updating print qualities
     data.printQualities = _.cloneDeep @config.printQualities
     # Adding the extruders to the axes
     @_axes = ['x','y','z'].concat _.keys @extruders
+
+  _initComponent: (k, v) =>
+    comp = _.clone(@_defaultAttrs[v] || {})
+    _.merge comp, v if typeof v != "string"
+    return @_initCamera(comp) if comp.type == 'camera'
+    return comp
+
+  _initCamera: (opts) =>
+    comp = new Camera(opts)
+    console.log "init camera"
+    comp.on "change", => @$.$apply (data) ->
+    return comp
 
   addJob: (attrs = {}) =>
     # Determining if the job is a multipart assembly or a single part

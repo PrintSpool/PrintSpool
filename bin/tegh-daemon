@@ -12,11 +12,11 @@ require('coffee-script/register');
 
 var App = require(path.join(lib, "app"));
 
-var options = stdio.getopt({
+var opts = stdio.getopt({
   'dry-run':
     {description: "Adds a null driver printer for testing and development."}
 });
 
 SegfaultHandler.registerHandler();
 
-app = new App(options);
+app = new App(opts);

@@ -1,16 +1,32 @@
-# Uncomment name to use a human readable printer name instead of the 
+# Uncomment name to use a human readable printer name instead of the
 # printer's serial number when connecting to it (Default: undefined)
 
 # name: 'Ultimaker 1'
 
 
-# Uncomment verbose to enable verbose command line output for debugging. 
+# Uncomment verbose to enable verbose command line output for debugging.
 # This is for developers. Generally you won't need to set this. (Default: false)
 
 # verbose: true
 
 
-# Uncomment pauseBetweenPrints if you have a automated build platform or 
+# Uncomment the components section to customize your printer's components.
+# Remove any components that your printer does not have or add any not listed.
+
+# components:
+#   e0: 'heater'      # First Extruder
+#   e1: 'heater'      # Second Extruder
+#   b: 'heater'       # Heated Build Platform
+#   c: 'conveyor'     # Conveyor
+#   f: 'fan'          # Fan
+#   camera:           # WebCam
+#     type: "camera"
+#     id: 0
+#     width: 1280
+#     height: 1024
+
+
+# Uncomment pauseBetweenPrints if you have a automated build platform or
 # some other way of automatically removing each print before starting the next.
 # (default: true)
 
@@ -21,13 +37,13 @@
 # =============================================================================
 
 # These are the print quality options that will be available to users.
-# Each print quality will override some of the params in the slicer profile to 
+# Each print quality will override some of the params in the slicer profile to
 # give a different quality print.
 #
-# Each slicing profile serving as a base set of params for some of the 3D 
+# Each slicing profile serving as a base set of params for some of the 3D
 # printer's print qualities. Slicer profiles can be found in ~/.tegh/slicers/
 #
-# Note: you are not limited to the draft/normal/high default options. Any 
+# Note: you are not limited to the draft/normal/high default options. Any
 # options you add here will show up in the list of print qualities for this
 # printer.
 
@@ -51,7 +67,7 @@
 # Components
 # =============================================================================
 
-# Uncomment this section to customize your printer's components to match your 
+# Uncomment this section to customize your printer's components to match your
 # physical machine. By default printers have a single extruder (e0), a conveyor,
 # a bed, and a fan.
 
