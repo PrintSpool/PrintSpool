@@ -8,7 +8,7 @@ nodeUUID = require('node-uuid')
 pamAuth = require "express-pam"
 modKeys = require('../vendor/mod_keys')
 wsPamAuth = require('../vendor/ws_pam_auth')
-CameraRoute = require("./camera_route")
+# CameraRoute = require("./camera_route")
 
 module.exports = class PrinterServer
   constructor: (opts) ->
@@ -43,7 +43,7 @@ module.exports = class PrinterServer
     @printer.on "rm", @onPrinterRm
 
     @app.post "#{@path}/jobs", @createJob
-    initCamera()
+    # initCamera()
 
   initCamera: =>
     @_camera = new CameraRoute @app, "#{@path}/cameras/1.mjpeg"

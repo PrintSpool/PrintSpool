@@ -98,7 +98,7 @@ module.exports = class PrintJob extends EventEmitter
     exec "wc -l #{@_gcodePath}", join.add()
     # Loading the gcode to memory
     fs.readFile @_gcodePath, 'utf8', join.add()
-    join.when @_onLoadAndLineCount.fill new Date()
+    join.when _.partial @_onLoadAndLineCount, new Date()
 
   _onLoadAndLineCount: (timestamp, lineCountArgs, loadArgs) =>
     # Deleting the gcode file now that it's loaded into memory
@@ -107,7 +107,13 @@ module.exports = class PrintJob extends EventEmitter
     return if @_cancelledAfter timestamp
     # Parsing the loaded information and emitting the load event
     [err, gcode] = loadArgs
+    err = undefined if err == null
+
+    if lineCountArgs == null or err?
+      return @emit "job_error", "error loading gcode"
+
     @totalLines = parseInt(lineCountArgs[1].match(/\d+/)[0])
-    if @totalLines == NaN or err?
+
+    if @totalLines == NaN
       return @emit "job_error", "error loading gcode"
     @emit "load", err, gcode
