@@ -3,7 +3,7 @@ path = require ("flavored-path")
 SlicingEngineFactory = require path.join __dirname, "../slicing_engines/factory"
 EventEmitter = require('events').EventEmitter
 exec = require('child_process').exec
-Join = require('join')
+Join = require('join').Join
 nodeUUID = require('node-uuid')
 _ = require 'lodash'
 
@@ -98,7 +98,7 @@ module.exports = class PrintJob extends EventEmitter
     exec "wc -l #{@_gcodePath}", join.add()
     # Loading the gcode to memory
     fs.readFile @_gcodePath, 'utf8', join.add()
-    join.when _.partial @_onLoadAndLineCount, new Date()
+    join.then _.partial @_onLoadAndLineCount, new Date()
 
   _onLoadAndLineCount: (timestamp, lineCountArgs, loadArgs) =>
     # Deleting the gcode file now that it's loaded into memory

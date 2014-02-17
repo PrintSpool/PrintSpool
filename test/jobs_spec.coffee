@@ -2,7 +2,7 @@ expect = require("chai").expect
 _ = require 'lodash'
 tmp = require('tmp')
 fs = require('fs')
-Join = require('join')
+Join = require('join').Join
 path = require("flavored-path")
 
 Job       = require("../lib/components/job.coffee")
@@ -80,7 +80,7 @@ describe 'Job', ->
           cancel: ->
         return sliceEnginePlaceholder
 
-      join.when =>
+      join.then =>
         gcodePath = arguments[0][0]
         stlPath = arguments[1][0]
         @job = new Job filePath: stlPath, undefined, _.partial slice, gcodePath
@@ -106,7 +106,7 @@ describe 'Job', ->
           cancel: ->
         return sliceEnginePlaceholder
 
-      join.when =>
+      join.then =>
         gcodePath = arguments[0][0]
         stlPath = arguments[1][0]
         @job = new Job filePath: stlPath, undefined, _.partial slice, gcodePath
