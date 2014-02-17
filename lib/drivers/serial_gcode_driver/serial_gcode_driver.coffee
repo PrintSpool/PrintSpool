@@ -60,9 +60,9 @@ module.exports = class PrintDriver extends AbstractSerialDriver
     # Parsing "w" temperature countdown values
     # see: http://git.io/FEACGw or google "TEMP_RESIDENCY_TIME"
     w = parseFloat(data.w?.current_temp)*1000
+    delete data['w']
     if w? and w != NaN
       (data[k] ?= {}).target_temp_countdown = w for k in @_blockers
-      delete data['w']
     # Parsing ok's and removing blockers
     if l.has "ok"
       (data[k] ?= {}).blocking = false for k in @_blockers
