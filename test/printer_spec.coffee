@@ -5,7 +5,7 @@ _ = require 'lodash'
 
 Printer       = require("../lib/printer.coffee")
 Config        = require("../lib/config.coffee")
-PrintJobStub  = require("./stubs/job_stub.coffee")
+PartStub  = require("./stubs/part_stub.coffee")
 DriverStub    = require("./stubs/driver_stub.coffee")
 
 chai.use(spies)
@@ -23,15 +23,15 @@ describe 'Printer', ->
 
   initPrinter = (opts={}) ->
     config = new Config opts
-    printer = new Printer driver, config, PrintJobStub
+    printer = new Printer driver, config, PartStub
 
-  addJob = (done, opts = {}) ->
+  addPart = (done, opts = {}) ->
     printer.once 'add', -> done?()
     opts.filePath = "#{__dirname}/assets/test.gcode"
-    printer.addJob opts
+    printer.add opts
 
-  jobKey = (i=0) ->
-    _.pluck(printer.jobs, "key").sort()[i]
+  partKey = (i=0) ->
+    _.pluck(printer.parts, "key").sort()[i]
 
   set = (key, attrs) ->
     namespaced = {}
@@ -44,45 +44,45 @@ describe 'Printer', ->
   completePrint = (cb) ->
     setImmediate ->
       printer.once 'change', cb if cb?
-      driver.emit "print_complete", printer.jobs[0]
+      driver.emit "print_complete", printer.parts[0]
 
-  describe 'addJob', ->
+  describe 'add', ->
 
-    it 'should store the job in the queue', (done) ->
-      addJob ->
-        printer.jobs.length.should.equal 1
+    it 'should store the part in the queue', (done) ->
+      addPart ->
+        printer.parts.length.should.equal 1
         done()
 
     it 'should set the qty', (done) ->
       cb = ->
-        printer.jobs[0].qty.should.equal 5
+        printer.parts[0].qty.should.equal 5
         done()
-      addJob cb, qty: 5
+      addPart cb, qty: 5
 
     it 'should emit add', (done) ->
-      printer.addJob {}
+      printer.add {}
       printer.on 'add', -> done()
 
-    it 'should place the first job at the start of the queue', (done) ->
-      addJob ->
-        printer.jobs[0].position.should.equal 0
+    it 'should place the first part at the start of the queue', (done) ->
+      addPart ->
+        printer.parts[0].position.should.equal 0
         done()
 
-    it 'should place the job at the end of the queue by default', (done) ->
-      addJob() for i in [0..1]
+    it 'should place the part at the end of the queue by default', (done) ->
+      addPart() for i in [0..1]
       printer.on 'add', ->
-        return unless printer.jobs.length == 2
-        printer.jobs[1].position.should.equal 1
+        return unless printer.parts.length == 2
+        printer.parts[1].position.should.equal 1
         done()
 
   describe 'rm', ->
-    beforeEach addJob
+    beforeEach addPart
 
-    it 'should remove an existing job without error and emit rm', (done) ->
+    it 'should remove an existing part without error and emit rm', (done) ->
       printer.on 'rm', -> done()
-      printer.rm jobKey()
+      printer.rm partKey()
 
-    it 'should error if the job does not exist', ->
+    it 'should error if the part does not exist', ->
       printer.rm.bind(printer, "moocow").should.throw()
 
   describe 'estop', ->
@@ -105,19 +105,19 @@ describe 'Printer', ->
 
     it 'should estop the current print', (done) ->
       i = 0
-      addJob -> printer.print()
+      addPart -> printer.print()
       printer.on 'change', (data) ->
         switch i++
           when 0 then printer.estop()
           when 1 then onEstopped data
       onEstopped = (data) ->
-        expect(data?[jobKey()]?.status).to.equal 'estopped'
+        expect(data?[partKey()]?.status).to.equal 'estopped'
         done()
 
   describe 'print', ->
     beforeEach (done) ->
       receiveWelcome()
-      addJob(done)
+      addPart(done)
 
     it 'should print if the printer is idle', (done) ->
       driver.on 'test_print', (gcode) ->
@@ -131,9 +131,9 @@ describe 'Printer', ->
         done()
       printer.print()
 
-    it 'should change the job\'s status to printing', (done) ->
+    it 'should change the part\'s status to printing', (done) ->
       printer.on 'change', (data) ->
-        expect(data[jobKey()]?.status).to.equal 'printing'
+        expect(data[partKey()]?.status).to.equal 'printing'
         done()
       printer.print()
 
@@ -146,12 +146,12 @@ describe 'Printer', ->
 
     it 'should print continuously if pause_between_prints is false', (done) ->
       config.$.set "pauseBetweenPrints", false
-      # Adding a second job (see before each)
-      addJob ->
+      # Adding a second part (see before each)
+      addPart ->
         printer.print()
         completePrint onComplete
       onComplete = (data) ->
-        expect(data[jobKey()]?.status).to.equal 'done'
+        expect(data[partKey()]?.status).to.equal 'done'
         expect(data.state?.status).to.equal undefined
         expect(printer.status).to.equal "printing"
         done()
@@ -159,24 +159,24 @@ describe 'Printer', ->
   describe 'print (w/ qty)', ->
     beforeEach (done) ->
       receiveWelcome()
-      addJob done, qty: 3
+      addPart done, qty: 3
 
     it 'should print 3 copies continuously if qty is 3', (done) ->
       config.$.set "pauseBetweenPrints", false
       printer.print()
       onComplete = (data) ->
-        return completePrint(onComplete) if printer.jobs[0].qtyPrinted != 3
-        data[jobKey()].status.should.equal 'done'
+        return completePrint(onComplete) if printer.parts[0].qtyPrinted != 3
+        data[partKey()].status.should.equal 'done'
         printer.status.should.equal 'idle'
         done()
       completePrint(onComplete)
 
     it 'should print 3 copies with pauses if qty is 3', (done) ->
       iterate = (data) ->
-        if printer.jobs[0].qtyPrinted != 3
+        if printer.parts[0].qtyPrinted != 3
           printer.print()
           return completePrint(iterate)
-        data[jobKey()].status.should.equal 'done'
+        data[partKey()].status.should.equal 'done'
         printer.status.should.equal 'idle'
         done()
       iterate()
@@ -206,7 +206,7 @@ describe 'Printer', ->
       printer.move e0: 10
 
     it "should not move the printer when it's estopped or printing", (done) ->
-      addJob -> printer.print()
+      addPart -> printer.print()
       fn = printer.move.bind(e0: 10)
       driver.on 'test_print', _.partial setImmediate, ->
         expect(printer.status).to.equal "printing"
@@ -229,7 +229,7 @@ describe 'Printer', ->
   describe 'home', ->
     beforeEach (done) ->
       receiveWelcome()
-      addJob(done)
+      addPart(done)
 
     it 'should home the printer if it\'s idle', (done) ->
       driver.on 'test_sendNow', (gcode) ->
@@ -257,61 +257,61 @@ describe 'Printer', ->
 
     it 'should not change the type of a attribute'
 
-    it 'should modify an existing job and emit change', (done) ->
+    it 'should modify an existing part and emit change', (done) ->
       printer.on 'change', (data) ->
-        data[jobKey()].qty.should.equal 5
+        data[partKey()].qty.should.equal 5
         done()
-      addJob ->
-        set jobKey(0), qty: 5
+      addPart ->
+        set partKey(0), qty: 5
 
-    it 'should move a job and reorder other jobs around it', (done) ->
+    it 'should move a part and reorder other parts around it', (done) ->
       printer.on 'change', (data) ->
-        data.should.not.have.property jobKey(i) for i in [0, 3]
-        data.should.have.property jobKey(i)    for i in [1, 2]
-        data[jobKey(2)].position.should.equal 1
-        data[jobKey(1)].position.should.equal 2
+        data.should.not.have.property partKey(i) for i in [0, 3]
+        data.should.have.property partKey(i)    for i in [1, 2]
+        data[partKey(2)].position.should.equal 1
+        data[partKey(1)].position.should.equal 2
         done()
-      printer.addJob {} for i in [0..3]
-      setImmediate -> set jobKey(1), {position: 2}
+      printer.add {} for i in [0..3]
+      setImmediate -> set partKey(1), {position: 2}
 
-    it 'should move a job to position 0 and move all jobs down', (done) ->
+    it 'should move a part to position 0 and move all parts down', (done) ->
       printer.on 'change', (data) ->
-        expect(data[jobKey(1)]?.position).to.equal 0
-        expect(data[jobKey(0)]?.position).to.equal 1
+        expect(data[partKey(1)]?.position).to.equal 0
+        expect(data[partKey(0)]?.position).to.equal 1
         done()
-      addJob() for i in [0..1]
-      setImmediate -> set jobKey(1), position: 0
+      addPart() for i in [0..1]
+      setImmediate -> set partKey(1), position: 0
 
-    it 'should error if a invalid job id is given', ->
+    it 'should error if a invalid part id is given', ->
       fn = set.bind undefined, "foobar", qty: 5, position: 0
       fn.should.throw()
 
     it 'should error if a invalid position is given', ->
-      fn = set.bind undefined, jobKey(0), position: 1
-      addJob -> fn.should.throw()
+      fn = set.bind undefined, partKey(0), position: 1
+      addPart -> fn.should.throw()
 
     it 'should error if a negative qty is given', ->
-      fn = set.bind undefined, jobKey(0), qty: -5
-      addJob -> fn.should.throw()
+      fn = set.bind undefined, partKey(0), qty: -5
+      addPart -> fn.should.throw()
 
   describe "set", ->
-    job = undefined
+    part = undefined
     beforeEach (done) ->
       receiveWelcome()
-      addJob -> addJob ->
-        job = printer.jobs[0]
+      addPart -> addPart ->
+        part = printer.parts[0]
         printer.print()
       driver.on 'test_print', _.partial setImmediate, -> done()
 
-    # A clousure to add a reposition / bad status test for job components
-    addTest = (status) -> it "should error repositioning a #{status} job", ->
-        fn = set.bind undefined, job?.key, position: 1
+    # A clousure to add a reposition / bad status test for part components
+    addTest = (status) -> it "should error repositioning a #{status} part", ->
+        fn = set.bind undefined, part?.key, position: 1
         printer.estop() if status == "estopped"
-        expect(job?.status).to.equal status
+        expect(part?.status).to.equal status
         expect(fn).to.throw()
     addTest(status) for status in ['estopped', 'printing']
 
-    it "should not move a idle job above a printing one", ->
-      fn = set.bind undefined, printer.jobs[1]?.key, position: 0
+    it "should not move a idle part above a printing one", ->
+      fn = set.bind undefined, printer.parts[1]?.key, position: 0
       expect(fn).to.throw()
 

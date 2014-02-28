@@ -5,7 +5,7 @@ fs = require('fs')
 Join = require('join').Join
 path = require("flavored-path")
 
-Job       = require("../lib/components/job.coffee")
+Part       = require("../lib/components/part.coffee")
 
 tmpFiles = []
 
@@ -16,43 +16,43 @@ initFile = (extension, cb, content = "") ->
     fs.writeFileSync path, content
     cb(path)
 
-describe 'Job', ->
+describe 'Part', ->
 
   afterEach ->
     # Close all the temp files
     fs.close(fd) for fd in tmpFiles
     _.remove tmpFiles, -> true
-    # trigger gc of the job
-    @job?.beforeDelete?()
-    @job = null
+    # trigger gc of the part
+    @part?.beforeDelete?()
+    @part = null
 
-  describe 'constructor', ->
+  describe '#new', ->
     it 'should recognize a gcode file', (done) ->
       initFile ".gcode", (filePath) ->
-        @job = new Job(filePath: filePath)
-        expect(@job.needsSlicing()).to.equal false
+        @part = new Part(filePath: filePath)
+        expect(@part.needsSlicing()).to.equal false
         done()
 
     it 'should recognize a stl file', (done)->
       initFile ".stl", (filePath) ->
-        @job = new Job(filePath: filePath)
-        expect(@job.needsSlicing()).to.equal true
+        @part = new Part(filePath: filePath)
+        expect(@part.needsSlicing()).to.equal true
         done()
 
     it 'should throw an error if given a bad extension', (done)->
       initFile ".foo", (filePath) ->
-        fn = -> new Job(filePath: filePath)
+        fn = -> new Part(filePath: filePath)
         expect(fn).to.throw()
         done()
 
-  describe 'components', ->
-    it 'should return a single component; the job object', (done)->
+  describe '#components', ->
+    it 'should return a single component; the part object', (done)->
       initFile ".gcode", (filePath) ->
-        @job = new Job(filePath: filePath)
-        expect(@job.components().length).to.equal 1
+        @part = new Part(filePath: filePath)
+        expect(@part.components().length).to.equal 1
         done()
 
-  describe 'loadGCode', ->
+  describe '#loadGCode', ->
 
     it 'should emit a load event given a .gcode file', (done)->
 
@@ -62,9 +62,9 @@ describe 'Job', ->
         return sliceEnginePlaceholder
 
       initFile ".gcode", (filePath) =>
-        @job = new Job filePath: filePath, undefined, slice
-        @job.loadGCode()
-        @job.on "load", -> done()
+        @part = new Part filePath: filePath, undefined, slice
+        @part.loadGCode()
+        @part.on "load", -> done()
 
     it 'should emit a load event given a .stl file', (done)->
       join = Join.create()
@@ -83,9 +83,9 @@ describe 'Job', ->
       join.then =>
         gcodePath = arguments[0][0]
         stlPath = arguments[1][0]
-        @job = new Job filePath: stlPath, undefined, _.partial slice, gcodePath
-        @job.loadGCode()
-        @job.on "load", -> done()
+        @part = new Part filePath: stlPath, undefined, _.partial slice, gcodePath
+        @part.loadGCode()
+        @part.on "load", -> done()
 
     it 'should attempt to slice the model given a .stl file', (done)->
       bindsEvents = false
@@ -109,18 +109,18 @@ describe 'Job', ->
       join.then =>
         gcodePath = arguments[0][0]
         stlPath = arguments[1][0]
-        @job = new Job filePath: stlPath, undefined, _.partial slice, gcodePath
-        @job.on "load", onLoad
-        @job.loadGCode()
+        @part = new Part filePath: stlPath, undefined, _.partial slice, gcodePath
+        @part.on "load", onLoad
+        @part.loadGCode()
 
       onLoad = (err, gcode) =>
         expect(err).to.equal undefined, "expected on load to not error out"
         expect(gcode).to.equal "G1 X100"
-        expect(@job.needsSlicing()).to.equal true, "expected needsSlicing to be true"
+        expect(@part.needsSlicing()).to.equal true, "expected needsSlicing to be true"
         expect(bindsEvents).to.equal true, "expected complete event to be bound"
         done()
 
-    it 'should emit a job_error if the slicer returns a nonexistant gcode file', (done)->
+    it 'should emit an error if the slicer returns a nonexistant gcode file', (done)->
       slice = (gcodePath, slicerOpts, modelPath) ->
         sliceEnginePlaceholder =
           gcodePath: "foo.gcode"
@@ -131,13 +131,13 @@ describe 'Job', ->
         return sliceEnginePlaceholder
 
       filePath = "foo.stl"
-      @job = new Job filePath: filePath, undefined, slice
-      @job.loadGCode()
-      @job.on "job_error", -> done()
+      @part = new Part filePath: filePath, undefined, slice
+      @part.loadGCode()
+      @part.on "error", -> done()
 
-    it 'should emit a job_error if the gcode file doesn\'t exist (no slicing)', (done)->
+    it 'should emit an error if the gcode file doesn\'t exist (no slicing)', (done)->
       filePath = "foo.gcode"
-      @job = new Job filePath: filePath
-      @job.loadGCode()
-      @job.on "job_error", -> done()
+      @part = new Part filePath: filePath
+      @part.loadGCode()
+      @part.on "error", -> done()
 

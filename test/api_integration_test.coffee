@@ -18,10 +18,10 @@ describe "API", ->
   describe "GET /printers.json", ->
     it "should get a list of printers", (done) ->
 
-  describe "POST /printers/:uuid/jobs/", ->
+  describe "POST /printers/:uuid", ->
     it "should add a job", (done) ->
       file = path.join __dirname, "/assets/Nesting_Igloos.zip"
-      url = "https:/127.0.0.1:2540/printers/printer_dev_null/jobs"
+      url = "https:/127.0.0.1:2540/printers/printer_dev_null"
       form = new FormData()
       form.append 'job', fs.createReadStream file
       form.submit url, (err, res) =>

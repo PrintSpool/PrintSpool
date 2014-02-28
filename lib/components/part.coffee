@@ -7,7 +7,7 @@ Join = require('join').Join
 nodeUUID = require('node-uuid')
 _ = require 'lodash'
 
-module.exports = class PrintJob extends EventEmitter
+module.exports = class Part extends EventEmitter
   nonEnumerables:
     ['_gcodePath', '_modelPath', '_cancelled', '_slicingEngine', '_cb', 'key']
 
@@ -35,7 +35,7 @@ module.exports = class PrintJob extends EventEmitter
     qty: 1
     qtyPrinted: 0
     status: "idle"
-    type: "job"
+    type: "part"
     assemblyId: null
     quality: if @needsSlicing() then "normal" else null # draft | normal | high
 
@@ -87,7 +87,7 @@ module.exports = class PrintJob extends EventEmitter
   _onSlicingError: (e) =>
     console.log "slicer error"
     console.log e
-    @emit "job_error", "slicer error"
+    @emit "error", new Error "slicer error"
 
   _onSlicingComplete: =>
     join = Join.create()
@@ -103,17 +103,17 @@ module.exports = class PrintJob extends EventEmitter
   _onLoadAndLineCount: (timestamp, lineCountArgs, loadArgs) =>
     # Deleting the gcode file now that it's loaded into memory
     @_deleteGCodeFile()
-    # Stopping if the job was cancelled
+    # Stopping if the part's slicing or printing was cancelled
     return if @_cancelledAfter timestamp
     # Parsing the loaded information and emitting the load event
     [err, gcode] = loadArgs
     err = undefined if err == null
 
     if lineCountArgs == null or err?
-      return @emit "job_error", "error loading gcode"
+      return @emit "error", new Error "error loading gcode"
 
     @totalLines = parseInt(lineCountArgs[1].match(/\d+/)[0])
 
     if @totalLines == NaN
-      return @emit "job_error", "error loading gcode"
+      return @emit "error", new Error "error loading gcode"
     @emit "load", err, gcode
