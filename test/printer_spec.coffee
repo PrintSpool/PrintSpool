@@ -38,7 +38,6 @@ describe 'Printer', ->
     namespaced[key] = attrs
     printer.set namespaced
 
-
   receiveWelcome = ->
     driver.emit "ready"
 
@@ -241,13 +240,11 @@ describe 'Printer', ->
       printer.home.bind(printer, ['k']).should.throw()
 
   describe 'set', ->
-    it 'should set a non-nested property on the printer'
+    it 'should set a attribute on the printer'
 
-    it 'should set a nested property on the printer'
+    it 'shound not set a attribute if it doesn\'t exist'
 
-    it 'shound not set a property if it doesn\'t exist'
-
-    it 'should not change the type of a property'
+    it 'should not change the type of a attribute'
 
     it 'should modify an existing job and emit change', (done) ->
       printer.on 'change', (data) ->
@@ -285,3 +282,25 @@ describe 'Printer', ->
     it 'should error if a negative qty is given', ->
       fn = set.bind undefined, jobKey(0), qty: -5
       addJob -> fn.should.throw()
+
+  describe "set", ->
+    job = undefined
+    beforeEach (done) ->
+      receiveWelcome()
+      addJob -> addJob ->
+        job = printer.jobs[0]
+        printer.print()
+      driver.on 'test_print', _.partial setImmediate, -> done()
+
+    # A clousure to add a reposition / bad status test for job components
+    addTest = (status) -> it "should error repositioning a #{status} job", ->
+        fn = set.bind undefined, job?.key, position: 1
+        printer.estop() if status == "estopped"
+        expect(job?.status).to.equal status
+        expect(fn).to.throw()
+    addTest(status) for status in ['estopped', 'printing']
+
+    it "should not move a idle job above a printing one", ->
+      fn = set.bind undefined, printer.jobs[1]?.key, position: 0
+      expect(fn).to.throw()
+

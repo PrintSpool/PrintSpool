@@ -186,13 +186,22 @@ module.exports = class Printer extends EventEmitter
       throw "#{k1}.#{k2} must be greater then zero."
     @_beforeJobAttrSet comp, k1, k2, v if comp.type == 'job'
 
-  _beforeJobAttrSet: (comp, k1, k2, v) ->
-    if k2 == 'position' and v >= @jobs.length
+  _beforeJobAttrSet: (comp, k1, k2, v) =>
+    if k2 == 'position' and @_isBadJobPosition comp, k1, k2, v
       throw "Invalid position."
     if k2 == 'quality' and !(@config.printQualities.options.hasOwnProperty k2)
       throw "Invalid print quality"
     if k2 == 'quality' and comp.needsSlicing() == false
       throw "Cannot set slicing quality for gcode files"
+
+  _isBadJobPosition: (comp, k1, k2, v) ->
+    bad = false
+    bad ||= v >= @jobs.length
+    bad ||= v < 0
+    bad ||= comp.status != "idle"
+    # Moving a idle job above a printing job
+    bad ||= v < @jobs.length - @_getIdleJobs().length
+    return bad
 
   _heaterGCode: (key) -> switch key
     when 'b' then "M140"

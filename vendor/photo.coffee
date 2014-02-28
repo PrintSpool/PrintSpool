@@ -6,7 +6,6 @@ fs = require("fs")
 path = require("path")
 chokidar = require('chokidar')
 _ = require('lodash')
-Camelot = require('camelot')
 
 module.exports = class Photo extends EventEmitter
 
@@ -91,7 +90,7 @@ class ImageSnapMultiProc
 
 class CamelotMultiProc
   constructor: (@cameraNumber, @period, @_onCaptureData) ->
-    @_camelot = new Camelot()
+    @_camelot = new require('camelot')()
     @_camelot.on 'frame', (image) -> @_onCaptureData undefined, image
     @_camelot.on 'error', (err) -> @_onCaptureData err, undefined
     @_grab()
