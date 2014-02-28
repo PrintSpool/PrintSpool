@@ -205,6 +205,17 @@ describe 'Printer', ->
         done()
       printer.move e0: 10
 
+    it "should not move the printer when it's estopped or printing", (done) ->
+      addJob -> printer.print()
+      fn = printer.move.bind(e0: 10)
+      driver.on 'test_print', _.partial setImmediate, ->
+        expect(printer.status).to.equal "printing"
+        expect(fn).to.throw()
+        printer.estop()
+        expect(printer.status).to.equal "estopped"
+        expect(fn).to.throw()
+        done()
+
   describe 'move (w/ multiple extruders)', ->
     beforeEach receiveWelcome
 

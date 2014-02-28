@@ -82,7 +82,7 @@ module.exports = class Printer extends EventEmitter
   _onConfigChange: => @$.$apply (data) =>
     whitelist = _(@_baseComponents()).merge(@config.components)
     # Removing deleted components
-    console.log "deleting #{k}" for k, v of data when !(whitelist.has k)
+    # console.log "deleting #{k}" for k, v of data when !(whitelist.has k)
     delete data[k] for k of data when !(whitelist.has k)
     # Adding new components
     data[k] ?= @_initComponent k, v for k, v of @config.components
@@ -288,7 +288,7 @@ module.exports = class Printer extends EventEmitter
     multiplier = axesVals.at || 1
     delete axesVals.at
     axes = Object.keys(axesVals).exclude((k) => @_axes.some(k))
-    console.log @_axes
+    # console.log @_axes
     @_asert_no_bad_axes 'move', axes
     # Adding the axes values
     # gcode = axesVals.reduce ((s, k, v) -> "#{s} #{k.toUpperCase()}#{v}"), 'G1'
