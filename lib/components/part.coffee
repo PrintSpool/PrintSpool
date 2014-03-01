@@ -7,9 +7,10 @@ Join = require('join').Join
 nodeUUID = require('node-uuid')
 _ = require 'lodash'
 
+nonEnumerables =
+  ['_gcodePath', '_modelPath', '_cancelled', '_slicingEngine', '_cb', 'key']
+
 module.exports = class Part extends EventEmitter
-  nonEnumerables:
-    ['_gcodePath', '_modelPath', '_cancelled', '_slicingEngine', '_cb', 'key']
 
   constructor: (opts, cb, @_slice = SlicingEngineFactory.slice) ->
     #check path fail fast
@@ -19,7 +20,7 @@ module.exports = class Part extends EventEmitter
     # Setting the enumerable properties
     @[k] = v for k, v of _.merge @_defaults(opts), opts
     # Setting up the non-enumerable properties
-    for k in @nonEnumerables
+    for k in nonEnumerables
       Object.defineProperty @, k, writable: true, value: undefined
     # Generating a unique key
     @key = nodeUUID.v4().replace(/-/g, "")
