@@ -18,6 +18,7 @@ module.exports = class NullDriver extends EventEmitter
     setTimeout ( => @emit("ready") ), 1000
 
   kill: ->
+    @emit 'disconnect'
     @removeAllListeners()
     clearInterval @_interval if @_pollingInterval?
 

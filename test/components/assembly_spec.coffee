@@ -32,6 +32,11 @@ describe 'Assembly', ->
       file = path.join assy.tmpDir, "Nesting_Igloos/1.stl"
       expect(fs.existsSync file).to.be.true
 
+  describe '#components', ->
+    it 'should order the parts by file name', ->
+      comps = assy.components()
+      expect(comps[1].fileName).to.equal "Nesting_Igloos/1.stl"
+
   describe '#beforeDelete', ->
     it 'should remove the tmp directory', (done) ->
       assy.beforeDelete (err) ->

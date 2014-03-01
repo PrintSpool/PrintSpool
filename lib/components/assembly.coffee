@@ -5,6 +5,7 @@ EventEmitter = require('events').EventEmitter
 Part = require(path.join __dirname, "part")
 tmp = require('tmp')
 nodeUUID = require('node-uuid')
+_ = require 'lodash'
 
 module.exports = class Assembly extends EventEmitter
   type: "assembly"
@@ -29,6 +30,7 @@ module.exports = class Assembly extends EventEmitter
     zip = new AdmZip @filePath
     zip.extractAllTo @tmpDir, true
     @_addPart entry, Object.clone(opts) for entry in zip.getEntries()
+    @_parts = _.sortBy @_parts, 'fileName'
     @_cb?(@)
 
   _addPart: (zipEntry, opts) ->

@@ -76,7 +76,7 @@ module.exports = class Printer extends EventEmitter
   _onDisconnect: =>
     @$.removeAllListeners()
     @removeAllListeners()
-    part.cancel().removeAllListeners() for part in @parts
+    comp.beforeDelete?() for key, comp of @$.buffer
 
   _onConfigChange: => @$.$apply (data) =>
     whitelist = _(@_baseComponents()).merge(@config.components)
@@ -103,16 +103,16 @@ module.exports = class Printer extends EventEmitter
     return comp
 
   add: (attrs = {}) =>
-    # Determining if the part is a multipart assembly or a single part
+    # Determining if the part is a multi-part assembly or a single part
     isZip = path.extname(attrs.filePath) == ".zip"
     Prototype = if isZip then Assembly else @_Part
     # Configuring and initializing the component
     new Prototype attrs, @_onComponentInit
 
-  _onComponentInit: (part) => @$.$apply (data) =>
+  _onComponentInit: (comp) => @$.$apply (data) =>
     i = @parts.length
-    # Adding the part or part_part component and its subcomponents
-    for subComponent in part.components
+    # Adding the component and its subcomponents
+    for subComponent in comp.components()
       # Setting the position of each subcomponent
       subComponent.position = i++ if subComponent.type == 'part'
       # Adding a subcomponent (either a part or an assembly)

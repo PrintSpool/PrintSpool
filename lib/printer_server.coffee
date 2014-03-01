@@ -44,13 +44,11 @@ module.exports = class PrinterServer
     @app.post @path, @createComponent
 
   createComponent: (req, res) =>
-    # Fail Fast
-    ws = @_clients[req.query.session_uuid]
-    return res.send 500, "Must include a valid uuid" unless ws?
-    # Implementation
+    console.log "creating a component!!"
+    uuid = req.query.session_uuid
     form = new formidable.IncomingForm(keepExtensions: true)
     form.on 'error', (e) -> console.log (e)
-    form.on 'progress', @_onUploadProgress.fill(ws)
+    form.on 'progress', @_onUploadProgress.fill(@_clients[uuid]) if uuid?
     form.parse req, @_onUploadParsed.fill(res)
 
   _onUploadProgress: (ws, bytesReceived, bytesExpected) =>
