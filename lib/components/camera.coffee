@@ -13,7 +13,7 @@ module.exports = class Camera extends EventEmitter
     .on("data", @_onData)
     .on("error", @_onError)
     # Calling the callback. For async component compatibility.
-    setImmediate cb if cb?
+    setImmediate _.partial cb, @ if cb?
 
   _defaults: ->
     id: 0

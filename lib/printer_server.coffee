@@ -10,7 +10,7 @@ modKeys = require('../vendor/mod_keys')
 wsPamAuth = require('../vendor/ws_pam_auth')
 
 module.exports = class PrinterServer
-  constructor: (opts) ->
+  constructor: (opts, @silent) ->
     @[k] = opts[k] for k in ['name', 'printer', 'app']
     @slug = @name.underscore().replace("#", "")
     @path = "/printers/#{@slug}"
@@ -44,7 +44,6 @@ module.exports = class PrinterServer
     @app.post @path, @createComponent
 
   createComponent: (req, res) =>
-    console.log "creating a component!!"
     uuid = req.query.session_uuid
     form = new formidable.IncomingForm(keepExtensions: true)
     form.on 'error', (e) -> console.log (e)
@@ -78,8 +77,8 @@ module.exports = class PrinterServer
 
   _onSend: (ws, error) ->
     return unless error?
-    console.log "error sending data to client"
-    console.log error
+    console.log "error sending data to client"  unless @silent
+    console.log error  unless @silent
     ws.terminate()
 
   onClientConnect: (ws) =>
@@ -90,11 +89,11 @@ module.exports = class PrinterServer
     Object.merge data, session: { uuid: uuid }
     @send ws, [{type: 'initialized', data: data}]
     @_clients[uuid] = ws
-    console.log "#{@name}: Client Attached"
+    console.log "#{@name}: Client Attached" unless @silent
 
   onClientDisconnect: (wsA) =>
     (delete @_clients[uuid] if wsA == wsB) for uuid, wsB of @_clients
-    console.log "#{@name}: Client Detached"
+    console.log "#{@name}: Client Detached" unless @silent
 
   _websocketActions: [
     'home',
@@ -134,7 +133,7 @@ module.exports = class PrinterServer
     @broadcast [type: 'rm', target: target]
 
   onPrinterDisconnect: =>
-    console.log "#{@name} Disconnecting.."
+    console.log "#{@name} Disconnecting.."  unless @silent
     # Removing all the event listeners from the server so it will be GC'd
     @printer.driver.removeAllListeners()
     @printer.removeAllListeners()
@@ -148,4 +147,4 @@ module.exports = class PrinterServer
     @app.routes.post.remove (route) => route.path = @path
     # Removing the DNS-SD advertisement
     if @mdnsAd? then @mdnsAd.stop() else @avahiAd.remove()
-    console.log "#{@name} Disconnected"
+    console.log "#{@name} Disconnected"  unless @silent

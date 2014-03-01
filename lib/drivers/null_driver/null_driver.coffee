@@ -41,7 +41,7 @@ module.exports = class NullDriver extends EventEmitter
   isClearToSend: -> true
 
   _startPolling: ->
-    console.log "polling"
+    # console.log "polling"
     @_interval = setInterval @_poll, @_pollingInterval
 
   _poll: =>

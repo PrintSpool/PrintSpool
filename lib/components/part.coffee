@@ -29,7 +29,7 @@ module.exports = class Part extends EventEmitter
     @[pathAttr] = path.resolve(@filePath)
     delete @filePath
     # Calling the callback. For Assembly async compatibility.
-    setImmediate cb if cb?
+    setImmediate _.partial cb, @ if cb?
 
   _defaults: (opts) =>
     qty: 1
