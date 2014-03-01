@@ -17,18 +17,18 @@ module.exports = class Part extends EventEmitter
     ext = path.extname(opts.filePath)
     whitelist = /\.(gcode|ngc|stl|obj)/i
     throw new Exception "Bad file extension." if !ext.match(whitelist)?
-    # Setting the enumerable properties
-    @[k] = v for k, v of _.merge @_defaults(opts), opts
     # Setting up the non-enumerable properties
     for k in nonEnumerables
       Object.defineProperty @, k, writable: true, value: undefined
-    # Generating a unique key
-    @key = nodeUUID.v4().replace(/-/g, "")
     # Initializing the file path
     isGCode = ext.match(/\.gcode|\.ngc/i)?
     pathAttr = if isGCode then "_gcodePath" else "_modelPath"
-    @[pathAttr] = path.resolve(@filePath)
-    delete @filePath
+    @[pathAttr] = path.resolve(opts.filePath)
+    delete opts.filePath
+    # Setting the enumerable properties
+    @[k] = v for k, v of _.merge @_defaults(opts), opts
+    # Generating a unique key
+    @key = nodeUUID.v4().replace(/-/g, "")
     # Calling the callback. For Assembly async compatibility.
     setImmediate _.partial cb, @ if cb?
 
