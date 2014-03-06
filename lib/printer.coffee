@@ -2,14 +2,13 @@ EventEmitter = require('events').EventEmitter
 path = require 'path'
 require 'sugar'
 _ = require 'lodash'
-PrintJob = require "./components/job"
+Part = require "./components/part"
 Assembly = require "./components/assembly"
 SmartObject = require "../vendor/smart_object"
 Camera = require "./components/camera"
 
 module.exports = class Printer extends EventEmitter
 
-  _nextJobId: 0
   _defaultAttrs:
     heater:
       type: 'heater'
@@ -26,9 +25,9 @@ module.exports = class Printer extends EventEmitter
     motors: { enabled: true }
     axes: { xyFeedrate: 3000 / 60, zFeedrate: 300 / 60 }
 
-  constructor: (@driver, @config, @_PrintJob=PrintJob) ->
+  constructor: (@driver, @config, @_Part=Part) ->
     # Adding getters
-    getters = ['status', 'jobs', 'idleJobs', 'extruders']
+    getters = ['status', 'parts', 'idleParts', 'extruders']
     Object.defineProperty @, k, get: @["_get#{k.camelize()}"] for k in getters
     # Building the printer's data
     @$ = new SmartObject @_baseComponents()
@@ -47,27 +46,27 @@ module.exports = class Printer extends EventEmitter
   _getStatus: =>
     @$.data.state.status
 
-  _getJobs: =>
-    _(@$.buffer).where(type: "job").sortBy('position').value()
+  _getParts: =>
+    _(@$.buffer).where(type: "part").sortBy('position').value()
 
   _getExtruders: =>
     _.pick @$.buffer, (v, k) -> k.startsWith('e') and v.type == 'heater'
 
-  _getIdleJobs: =>
-    _.where @jobs, status: "idle"
+  _getIdleParts: =>
+    _.where @parts, status: "idle"
 
   _beforeMerge: (diff) =>
     for k1, diffComp of diff
       continue unless @$.data[k1]?
       type = @$.data[k1].type || k1
       for k2, v of diffComp
-        @["_before#{type}#{k2.capitalize()}Change"]?(k1, k2, v)
+        @["_before#{type.capitalize()}#{k2.capitalize()}Change"]?(k1, k2, v)
 
-  # Reordering the other jobs after a job's position was changed
-  _beforejobPositionChange: (k1, k2, _new) ->
+  # Reordering the other parts after a part's position was changed
+  _beforePartPositionChange: (k1, k2, _new) ->
     oldComp = @$.data[k1]
     _old = oldComp.position
-    @jobs.filter((j) -> j.key != oldComp.key).each (j) ->
+    @parts.filter((j) -> j.key != oldComp.key).each (j) ->
       j.position += 1 if _old > j.position >= _new
       j.position -= 1 if _old < j.position <= _new
 
@@ -77,12 +76,12 @@ module.exports = class Printer extends EventEmitter
   _onDisconnect: =>
     @$.removeAllListeners()
     @removeAllListeners()
-    job.cancel().removeAllListeners() for job in @jobs
+    comp.beforeDelete?() for key, comp of @$.buffer
 
   _onConfigChange: => @$.$apply (data) =>
     whitelist = _(@_baseComponents()).merge(@config.components)
     # Removing deleted components
-    console.log "deleting #{k}" for k, v of data when !(whitelist.has k)
+    # console.log "deleting #{k}" for k, v of data when !(whitelist.has k)
     delete data[k] for k of data when !(whitelist.has k)
     # Adding new components
     data[k] ?= @_initComponent k, v for k, v of @config.components
@@ -103,34 +102,34 @@ module.exports = class Printer extends EventEmitter
     comp.on "change", => @$.$apply (data) ->
     return comp
 
-  addJob: (attrs = {}) =>
-    # Determining if the job is a multipart assembly or a single part
+  add: (attrs = {}) =>
+    # Determining if the part is a multi-part assembly or a single part
     isZip = path.extname(attrs.filePath) == ".zip"
-    JobPrototype = if isZip then Assembly else @_PrintJob
+    Prototype = if isZip then Assembly else @_Part
     # Configuring and initializing the component
-    job = new JobPrototype attrs, @_onJobInit
+    new Prototype attrs, @_onComponentInit
 
-  _onJobInit: (job) => @$.$apply (data) =>
-    i = @jobs.length
-    # Adding the job or job_part component and its subcomponents
-    for jobComp in job.components
-      # Adding a job subcomponent (either a job or a job_part)
-      data[jobComp.key] = jobComp
-      # Setting the position of each job_part subcomponent
-      jobComp.position = i++ if jobComp.type == 'job'
+  _onComponentInit: (comp) => @$.$apply (data) =>
+    i = @parts.length
+    # Adding the component and its subcomponents
+    for subComponent in comp.components()
+      # Setting the position of each subcomponent
+      subComponent.position = i++ if subComponent.type == 'part'
+      # Adding a subcomponent (either a part or an assembly)
+      data[subComponent.key] = subComponent
 
   rm: (key) => @$.$apply (data) =>
     comp = data[key]
-    throw "job/assembly does not exist" if ['job', 'assembly'].none comp?.type
+    throw "part/assembly does not exist" if ['part', 'assembly'].none comp?.type
     for subcomponent in comp.components
       subcomponent.beforeDelete()
       delete data[subcomponent.key] if data[subcomponent.key]?
 
   estop: => @$.$apply (data) =>
     @driver.reset()
-    job = @currentJob || {}
-    job.cancel?()
-    job.status = data.state.status =  'estopped'
+    part = @currentPart || {}
+    part.cancel?()
+    part.status = data.state.status =  'estopped'
     @_resetComponent comp for k, comp of @$.data
 
   _resetComponent: (comp) -> switch comp.type
@@ -164,7 +163,7 @@ module.exports = class Printer extends EventEmitter
     @driver.sendNow gcode for gcode in Object.values(gcodes).compact()
 
   _greaterThenZero:
-    job: ['qty', 'position']
+    part: ['qty', 'position']
     axes: ['xyFeedrate', 'zFeedrate']
 
   # Whitelisting and validation of set parameters
@@ -176,7 +175,7 @@ module.exports = class Printer extends EventEmitter
       when "fan"      then ['enabled', 'speed']
       when "axes"     then ['xyFeedrate', 'zFeedrate']
       when "conveyor", "motors" then ['enabled']
-      when "job" then ['qty', 'position', 'quality']
+      when "part" then ['qty', 'position', 'quality']
       else []
     attrType = typeof(comp[k2])
 
@@ -184,15 +183,24 @@ module.exports = class Printer extends EventEmitter
     throw "#{k1}.#{k2} must be a #{attrType}." if typeof(v) != attrType
     if @_greaterThenZero[type]?.any?(k2) and v < 0
       throw "#{k1}.#{k2} must be greater then zero."
-    @_beforeJobAttrSet comp, k1, k2, v if comp.type == 'job'
+    @_beforePartAttrSet comp, k1, k2, v if comp.type == 'part'
 
-  _beforeJobAttrSet: (comp, k1, k2, v) ->
-    if k2 == 'position' and v >= @jobs.length
+  _beforePartAttrSet: (comp, k1, k2, v) =>
+    if k2 == 'position' and @_isBadPartPosition comp, k1, k2, v
       throw "Invalid position."
     if k2 == 'quality' and !(@config.printQualities.options.hasOwnProperty k2)
       throw "Invalid print quality"
     if k2 == 'quality' and comp.needsSlicing() == false
       throw "Cannot set slicing quality for gcode files"
+
+  _isBadPartPosition: (comp, k1, k2, v) ->
+    bad = false
+    bad ||= v >= @parts.length
+    bad ||= v < 0
+    bad ||= comp.status != "idle"
+    # Moving a idle part above a printing part
+    bad ||= v < @parts.length - @idleParts.length
+    return bad
 
   _heaterGCode: (key) -> switch key
     when 'b' then "M140"
@@ -212,13 +220,13 @@ module.exports = class Printer extends EventEmitter
     else undefined
 
   retryPrint: => @$.$apply (data) =>
-    @_print "estopped", "No estopped print jobs"
+    @_print "estopped", "No estopped print parts"
 
   print: => @$.$apply (data) =>
-    @_printNextIdleJob()
+    @_printNextIdlePart()
 
-  _printNextIdleJob: (continuation) ->
-    msg = "No idle print jobs. To reprint an estopped job use retry_print."
+  _printNextIdlePart: (continuation) ->
+    msg = "No idle print parts. To reprint an estopped part use retry_print."
     @_print "idle", msg, continuation
 
   _print: (status, notFoundMessage, continuation = false) =>
@@ -227,47 +235,47 @@ module.exports = class Printer extends EventEmitter
       throw "Already printing."
     if ['estopped', 'initializing'].any @status
       throw "Can not print when #{@status}."
-    @currentJob = @jobs.find status: status
-    throw notFoundMessage unless @currentJob?
+    @currentPart = @parts.find status: status
+    throw notFoundMessage unless @currentPart?
 
-    # Moving the job to the top of the queue if it isn't already there
-    @currentJob.position = 0
-    # Deleting any estopped jobs
-    (@rm j.key if j?.status == "estopped" and j != @currentJob) for j in @jobs
+    # Moving the part to the top of the queue if it isn't already there
+    @currentPart.position = 0
+    # Deleting any estopped parts
+    (@rm j.key if j?.status == "estopped" and j != @currentPart) for j in @parts
     # Setting status to slicing (if necessary)
-    if @currentJob.needsSlicing?
-      @currentJob.status = @$.buffer.state.status = "slicing"
+    if @currentPart.needsSlicing?
+      @currentPart.status = @$.buffer.state.status = "slicing"
     # Loading the gcode
-    slicerOpts = @config.printQualities.options[@currentJob.quality]
-    @currentJob.loadGCode slicerOpts, @_onReadyToPrint.fill(@currentJob)
+    slicerOpts = @config.printQualities.options[@currentPart.quality]
+    @currentPart.loadGCode slicerOpts, @_onReadyToPrint.fill(@currentPart)
 
-  _onReadyToPrint: (job, err, gcode) => @$.$apply (data) =>
+  _onReadyToPrint: (part, err, gcode) => @$.$apply (data) =>
     @driver.print gcode
-    job.status = data.state.status = 'printing'
-    job.startTime = new Date().getTime()
+    part.status = data.state.status = 'printing'
+    part.startTime = new Date().getTime()
 
   _onPrintJobLineSent: => @$.$apply (data) =>
-    @currentJob.currentLine++
+    @currentPart.currentLine++
 
   _onPrintComplete: =>
-    job = @currentJob
-    totalQty = job.qty * (@$.buffer[job.assemblyId]?.qty || 1)
-    done = job.qtyPrinted + 1 >= totalQty
+    part = @currentPart
+    totalQty = part.qty * (@$.buffer[part.assemblyId]?.qty || 1)
+    done = part.qtyPrinted + 1 >= totalQty
     pause = @config.pauseBetweenPrints
-    pause ||= @idleJobs.exclude(job).length == 0
-    @currentJob = null if done
-    # Updating the job and printer and starting the next print or pausing
-    jobAttrs =
-      qtyPrinted: job.qtyPrinted + 1
-      elapsedTime: new Date().getTime() - job.startTime
+    pause ||= @idleParts.exclude(part).length == 0
+    @currentPart = null if done
+    # Updating the part and printer and starting the next print or pausing
+    partAttrs =
+      qtyPrinted: part.qtyPrinted + 1
+      elapsedTime: new Date().getTime() - part.startTime
       status: if done then 'done' else if pause then 'idle' else 'printing'
     @$.$apply (data) =>
-      Object.merge job, jobAttrs
+      Object.merge part, partAttrs
       data.state.status = 'idle' if pause
-      @_printNextIdleJob true if !pause
-      # Removing the job if it's complete (it's status having already been set
+      @_printNextIdlePart true if !pause
+      # Removing the part if it's complete (it's status having already been set
       # to "done")
-      setImmediate => @rm job.key if done
+      setImmediate => @rm part.key if done
 
   move: (axesVals) ->
     # Fail fast
@@ -279,7 +287,7 @@ module.exports = class Printer extends EventEmitter
     multiplier = axesVals.at || 1
     delete axesVals.at
     axes = Object.keys(axesVals).exclude((k) => @_axes.some(k))
-    console.log @_axes
+    # console.log @_axes
     @_asert_no_bad_axes 'move', axes
     # Adding the axes values
     # gcode = axesVals.reduce ((s, k, v) -> "#{s} #{k.toUpperCase()}#{v}"), 'G1'

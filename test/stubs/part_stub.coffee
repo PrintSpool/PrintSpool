@@ -1,9 +1,9 @@
 EventEmitter = require('events').EventEmitter
 
 nextID = 0
-module.exports = class JobStub extends EventEmitter
+module.exports = class PartStub extends EventEmitter
   defaults:
-    type: "job"
+    type: "part"
     status: "idle"
     qtyPrinted: 0
     qty: 1
@@ -12,7 +12,7 @@ module.exports = class JobStub extends EventEmitter
   constructor: (attrs, cb) ->
     @[k] = v for k, v of @defaults
     @[k] = v for k, v of attrs
-    @key = "job_stub_#{nextID++}"
+    @key = "part_stub_#{nextID++}"
     Object.defineProperty @, 'components', value: [@]
     setImmediate => cb(@)
 

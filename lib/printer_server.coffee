@@ -10,7 +10,7 @@ modKeys = require('../vendor/mod_keys')
 wsPamAuth = require('../vendor/ws_pam_auth')
 
 module.exports = class PrinterServer
-  constructor: (opts) ->
+  constructor: (opts, @silent) ->
     @[k] = opts[k] for k in ['name', 'printer', 'app']
     @slug = @name.underscore().replace("#", "")
     @path = "/printers/#{@slug}"
@@ -41,32 +41,28 @@ module.exports = class PrinterServer
     @printer.on "add", @onPrinterAdd
     @printer.on "rm", @onPrinterRm
 
-    @app.post "#{@path}/jobs", @createJob
+    @app.post @path, @createComponent
 
-  createJob: (req, res) =>
-    console.log "jeorb!"
-    # Fail Fast
-    ws = @_clients[req.query.session_uuid]
-    return res.send 500, "Must include a valid uuid" unless ws?
-    # Implementation
+  createComponent: (req, res) =>
+    uuid = req.query.session_uuid
     form = new formidable.IncomingForm(keepExtensions: true)
     form.on 'error', (e) -> console.log (e)
-    form.on 'progress', @_onJobProgress.fill(ws)
-    form.parse req, @_onJobParsed.fill(res)
+    form.on 'progress', @_onUploadProgress.fill(@_clients[uuid]) if uuid?
+    form.parse req, @_onUploadParsed.fill(res)
 
-  _onJobProgress: (ws, bytesReceived, bytesExpected) =>
+  _onUploadProgress: (ws, bytesReceived, bytesExpected) =>
     msg =
       type: 'change'
-      target: 'job_upload_progress'
+      target: 'upload_progress'
       data: { uploaded: bytesReceived, total: bytesExpected }
     @send ws, [msg]
 
-  _onJobParsed: (res, err, fields, files) =>
+  _onUploadParsed: (res, err, fields, files) =>
     return console.log err if err?
-    @printer.addJob
-      filePath: files.job.path
+    @printer.add
+      filePath: files.file.path
       qty: fields.qty || 1
-      fileName: files.job.name
+      fileName: files.file.name
     res.end()
 
   broadcast: (data) =>
@@ -81,8 +77,8 @@ module.exports = class PrinterServer
 
   _onSend: (ws, error) ->
     return unless error?
-    console.log "error sending data to client"
-    console.log error
+    console.log "error sending data to client"  unless @silent
+    console.log error  unless @silent
     ws.terminate()
 
   onClientConnect: (ws) =>
@@ -93,11 +89,11 @@ module.exports = class PrinterServer
     Object.merge data, session: { uuid: uuid }
     @send ws, [{type: 'initialized', data: data}]
     @_clients[uuid] = ws
-    console.log "#{@name}: Client Attached"
+    console.log "#{@name}: Client Attached" unless @silent
 
   onClientDisconnect: (wsA) =>
     (delete @_clients[uuid] if wsA == wsB) for uuid, wsB of @_clients
-    console.log "#{@name}: Client Detached"
+    console.log "#{@name}: Client Detached" unless @silent
 
   _websocketActions: [
     'home',
@@ -137,7 +133,7 @@ module.exports = class PrinterServer
     @broadcast [type: 'rm', target: target]
 
   onPrinterDisconnect: =>
-    console.log "#{@name} Disconnecting.."
+    console.log "#{@name} Disconnecting.."  unless @silent
     # Removing all the event listeners from the server so it will be GC'd
     @printer.driver.removeAllListeners()
     @printer.removeAllListeners()
@@ -147,8 +143,8 @@ module.exports = class PrinterServer
     catch e
       console.log e.stack
     @wss.removeAllListeners()
-    # Removing the Job upload route
-    @app.routes.post.remove (route) => route.path = "#{@path}/jobs"
+    # Removing the create component upload route
+    @app.routes.post.remove (route) => route.path = @path
     # Removing the DNS-SD advertisement
     if @mdnsAd? then @mdnsAd.stop() else @avahiAd.remove()
-    console.log "#{@name} Disconnected"
+    console.log "#{@name} Disconnected"  unless @silent

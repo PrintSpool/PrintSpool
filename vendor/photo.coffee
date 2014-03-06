@@ -88,3 +88,16 @@ class ImageSnapMultiProc
     @_proc.kill() if @_proc?
     clearTimeout @_timeout if @_timeout?
 
+class CamelotMultiProc
+  constructor: (@cameraNumber, @period, @_onCaptureData) ->
+    @_camelot = new require('camelot')()
+    @_camelot.on 'frame', (image) -> @_onCaptureData undefined, image
+    @_camelot.on 'error', (err) -> @_onCaptureData err, undefined
+    @_grab()
+    @_interval = setInterval @_grab, @period
+
+  _grab: =>
+    @_camelot.grab {}
+
+  close: =>
+    clearInterval @_interval if @_interval?

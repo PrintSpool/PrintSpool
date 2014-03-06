@@ -39,7 +39,7 @@ module.exports = class PrintDriver extends AbstractSerialDriver
     @_sendNextLine()
     @emit("ready")
 
-  # Parse a line of gcode response from the printer and emit printer errors and 
+  # Parse a line of gcode response from the printer and emit printer errors and
   # current_temp, target_temp_countown and blocking changes
   _emitReceiveEvents: (l, originalLine) ->
     data = {}
@@ -54,16 +54,15 @@ module.exports = class PrintDriver extends AbstractSerialDriver
       addToHash = (h, t) -> h[t[0]] = {current_temp: parseFloat(t[1])}; h
       # Construct that obj containing key-mapped current temps
       data = temps.words()
-      .map((s)->s.split(":"))
-      .filter((t)->t[0].length > 0)
+      .map( (s)->s.split(":") )
+      .filter( (t)->t[0].length > 0 and !isNaN(parseFloat t[1]) )
       .reduce addToHash, {}
     # Parsing "w" temperature countdown values
     # see: http://git.io/FEACGw or google "TEMP_RESIDENCY_TIME"
-    w = data.w?.current_temp
-    if w? and w != "?"
-      w = parseFloat(w)*1000
+    w = parseFloat(data.w?.current_temp)*1000
+    delete data['w']
+    if w? and !isNaN(w)
       (data[k] ?= {}).target_temp_countdown = w for k in @_blockers
-      delete data['w']
     # Parsing ok's and removing blockers
     if l.has "ok"
       (data[k] ?= {}).blocking = false for k in @_blockers

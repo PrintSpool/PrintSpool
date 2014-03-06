@@ -3,39 +3,40 @@ path = require ("flavored-path")
 SlicingEngineFactory = require path.join __dirname, "../slicing_engines/factory"
 EventEmitter = require('events').EventEmitter
 exec = require('child_process').exec
-Join = require('join')
+Join = require('join').Join
 nodeUUID = require('node-uuid')
 _ = require 'lodash'
 
-module.exports = class PrintJob extends EventEmitter
-  nonEnumerables:
-    ['_gcodePath', '_modelPath', '_cancelled', '_slicingEngine', '_cb', 'key']
+nonEnumerables =
+  ['_gcodePath', '_modelPath', '_cancelled', '_slicingEngine', '_cb', 'key']
+
+module.exports = class Part extends EventEmitter
 
   constructor: (opts, cb, @_slice = SlicingEngineFactory.slice) ->
     #check path fail fast
     ext = path.extname(opts.filePath)
     whitelist = /\.(gcode|ngc|stl|obj)/i
     throw new Exception "Bad file extension." if !ext.match(whitelist)?
-    # Setting the enumerable properties
-    @[k] = v for k, v of _.merge @_defaults(opts), opts
     # Setting up the non-enumerable properties
-    for k in @nonEnumerables
+    for k in nonEnumerables
       Object.defineProperty @, k, writable: true, value: undefined
-    # Generating a unique key
-    @key = nodeUUID.v4().replace(/-/g, "")
     # Initializing the file path
     isGCode = ext.match(/\.gcode|\.ngc/i)?
     pathAttr = if isGCode then "_gcodePath" else "_modelPath"
-    @[pathAttr] = path.resolve(@filePath)
-    delete @filePath
+    @[pathAttr] = path.resolve(opts.filePath)
+    delete opts.filePath
+    # Setting the enumerable properties
+    @[k] = v for k, v of _.merge @_defaults(opts), opts
+    # Generating a unique key
+    @key = nodeUUID.v4().replace(/-/g, "")
     # Calling the callback. For Assembly async compatibility.
-    setImmediate cb if cb?
+    setImmediate _.partial cb, @ if cb?
 
   _defaults: (opts) =>
     qty: 1
     qtyPrinted: 0
     status: "idle"
-    type: "job"
+    type: "part"
     assemblyId: null
     quality: if @needsSlicing() then "normal" else null # draft | normal | high
 
@@ -87,7 +88,7 @@ module.exports = class PrintJob extends EventEmitter
   _onSlicingError: (e) =>
     console.log "slicer error"
     console.log e
-    @emit "job_error", "slicer error"
+    @emit "error", new Error "slicer error"
 
   _onSlicingComplete: =>
     join = Join.create()
@@ -98,22 +99,22 @@ module.exports = class PrintJob extends EventEmitter
     exec "wc -l #{@_gcodePath}", join.add()
     # Loading the gcode to memory
     fs.readFile @_gcodePath, 'utf8', join.add()
-    join.when _.partial @_onLoadAndLineCount, new Date()
+    join.then _.partial @_onLoadAndLineCount, new Date()
 
   _onLoadAndLineCount: (timestamp, lineCountArgs, loadArgs) =>
     # Deleting the gcode file now that it's loaded into memory
     @_deleteGCodeFile()
-    # Stopping if the job was cancelled
+    # Stopping if the part's slicing or printing was cancelled
     return if @_cancelledAfter timestamp
     # Parsing the loaded information and emitting the load event
     [err, gcode] = loadArgs
     err = undefined if err == null
 
     if lineCountArgs == null or err?
-      return @emit "job_error", "error loading gcode"
+      return @emit "error", new Error "error loading gcode"
 
     @totalLines = parseInt(lineCountArgs[1].match(/\d+/)[0])
 
     if @totalLines == NaN
-      return @emit "job_error", "error loading gcode"
+      return @emit "error", new Error "error loading gcode"
     @emit "load", err, gcode

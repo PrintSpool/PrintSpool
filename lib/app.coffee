@@ -21,6 +21,7 @@ APP_NAME = 'tegh'
 
 module.exports = class App
   constructor: (options, cb) ->
+    @silent = options.silent
     @printerServers = {}
     # Loading Config
     globalConfig = require("../defaults/_tegh.yml")
@@ -36,12 +37,15 @@ module.exports = class App
     # Base Routes (ie. routes not specific to individual printers)
     @app.get '/printers.json', @getPrintersJson
     # Displaying Init Message
-    console.log "Tegh Daemon started on https://localhost:2540"
+    @log "Tegh Daemon started on https://localhost:2540"
     # Adding printers
     if options['dry-run'] == true
         @addDryRunPrinter()
     else
         ArudinoDiscoverer.listen().on "update", @_onSerialPortsUpdate
+
+  log: (msg) =>
+    console.log msg unless @silent
 
   getPrintersJson: (req, res) =>
     res.send printers: Object.map @printerServers, (k, p) -> p.slug
@@ -73,16 +77,17 @@ module.exports = class App
     @_initPrinter driver, config
 
   _initPrinter: (driver, config) ->
-    console.log "#{config.name} Connecting.."
+    @log "#{config.name} Connecting.."
     # initializing the printer and appending config data
     config.printer = new Printer(driver, config)
     config[k] = @[k] for k in ['app', 'server', 'enableAuth']
     config.on 'change', _.partial(@_onConfigChange, driver, config)
     # initializing the server routes
-    @printerServers[config.port.comName] = ps = new PrinterServer config
+    ps = new PrinterServer config, @silent
+    @printerServers[config.port.comName] = ps
     # removing the printer when it is disconnected
     driver.on "disconnect", @_onPrinterDisconnect.fill(ps)
-    console.log "#{config.name} Connected"
+    @log "#{config.name} Connected"
 
   _onConfigChange: (driver, config, changes) ->
     # Checking if this change requires restarting the driver/printer/server

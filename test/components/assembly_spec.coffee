@@ -41,6 +41,17 @@ describe 'Assembly', ->
       @assy = new Assembly filePath: emptyZipFile
       @assy.on "error", -> done()
 
+    it 'should emit an error if given an invalid zip file'
+
+    it 'should not add jobs for directories'
+
+    it 'should not add (ignore) a job for any unrecognized file extension'
+
+  describe '#components', ->
+    it 'should order the parts by file name', ->
+      comps = assy.components()
+      expect(comps[1].fileName).to.equal "Nesting_Igloos/1.stl"
+
   describe '#beforeDelete', ->
     it 'should remove the tmp directory', (done) ->
       assy.beforeDelete (err) ->
