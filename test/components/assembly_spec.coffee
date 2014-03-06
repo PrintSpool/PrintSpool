@@ -8,6 +8,7 @@ require("sugar")
 chai.use(spies)
 expect = chai.expect
 zipFile = path.join __dirname, "../assets/Nesting_Igloos.zip"
+emptyZipFile = path.join __dirname, "../assets/Nesting_Iglues.zip"
 
 describe 'Assembly', ->
   assy = null
@@ -31,6 +32,14 @@ describe 'Assembly', ->
     it 'should put the print job files in the temp folder', ->
       file = path.join assy.tmpDir, "Nesting_Igloos/1.stl"
       expect(fs.existsSync file).to.be.true
+
+    it 'should error if extracting a nonexistant zip file', (done) ->
+      @assy = new Assembly filePath: "lies.zip"
+      @assy.on "error", -> done()
+
+    it 'should error if extracting an empty zip file', (done) ->
+      @assy = new Assembly filePath: emptyZipFile
+      @assy.on "error", -> done()
 
   describe '#beforeDelete', ->
     it 'should remove the tmp directory', (done) ->
