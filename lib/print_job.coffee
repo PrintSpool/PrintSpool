@@ -3,7 +3,7 @@ path = require ("flavored-path")
 SlicingEngineFactory = require("../lib/slicing_engine_factory")
 EventEmitter = require('events').EventEmitter
 exec = require('child_process').exec
-Join = require('join')
+Join = require('join').Join
 
 module.exports = class PrintJob extends EventEmitter
   constructor: (opts) ->
@@ -39,7 +39,7 @@ module.exports = class PrintJob extends EventEmitter
     exec "wc -l #{slicer.gcodePath}", join.add()
     # Loading the gcode to memory
     fs.readFile slicer.gcodePath, 'utf8', join.add()
-    join.when(@_onLoadAndLineCount)
+    join.then(@_onLoadAndLineCount)
 
   onSlicingError: =>
     console.log "slicer error"

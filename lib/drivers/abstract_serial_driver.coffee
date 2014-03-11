@@ -126,7 +126,6 @@ module.exports = class AbstractSerialDriver extends EventEmitter
       return
     @_send(line, @_nextLineNumber)
     @_emitSendEvents(line)
-
     # Rate limited print job line events (1 per 100ms)
     now = Date.now()
     return unless printJobLine? and (@_lastPrintLineEvent || 0) < now - 100
