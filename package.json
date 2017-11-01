@@ -1,37 +1,40 @@
 {
-    "name": "construct-js-server"
-  , "version": "0.3.0"
-  , "private": true
-  , "main": "./src/tegh"
-  , "dependencies": {
-      "coffee-script": "1.6.3"
-    , "express": "3.x"
-    , "formidable": "*"
-    , "sugar": "*"
-    , "stdio": "*"
-    , "exec-sync": "*"
-    , "avahi_pub": "git+https://github.com/D1plo1d/node_avahi_pub.git#d149ae89b99cc0fb2d4126ec61545ca5477897ad"
-    , "join": "*"
-    , "fs-extra": "*"
-    , "js-yaml": "*"
-    , "segfault-handler": "git+https://github.com/ddopson/node-segfault-handler.git"
-    , "esprima": "*"
-    , "glob": "*"
-    , "request": "*"
-    , "form-data": "git+https://github.com/D1plo1d/node-form-data.git"
-    , "ws": "git+https://github.com/D1plo1d/ws.git#event_listener_cleanup"
-    , "colors": "*"
-    , "touch": "*"
-    , "flavored-path": "*"
-    , "serialport": "1.2.5"
-    , "bit-mask": "*"
-    , "mdns2": "*"
-    , "mocha": "*"
-    , "chai": "*"
-    , "chai-spies": "*"
+  "name": "tegh-daemon",
+  "version": "0.4.0",
+  "description": "graphql server for 3D printers",
+  "scripts": {
+    "start": "npx babel-node src/index.js",
+    "test": "jest",
+    "lint": "eslint src/",
+    "flow": "flow"
   },
-    "engines": {
-    "node": "~0.10.x",
-    "npm": "1.1.x"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tegh/tegh-daemon.git"
+  },
+  "keywords": [
+    "graphql"
+  ],
+  "babel": {
+    "presets": [
+      "env"
+    ]
+  },
+  "author": "Rob Gilson",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "babel-cli": "^6.14.0",
+    "babel-eslint": "^7.1.1",
+    "babel-register": "^6.14.0",
+    "eslint": "^3.5.0",
+    "eslint-config-airbnb-base": "^11.0.1",
+    "eslint-plugin-babel": "^4.0.0",
+    "eslint-plugin-flowtype": "^2.29.2",
+    "eslint-plugin-import": "^2.2.0",
+    "flow-bin": "^0.57.3",
+    "graphql": "^0.8.2"
+  },
+  "dependencies": {
+    "babel-preset-env": "^1.6.1"
   }
 }
