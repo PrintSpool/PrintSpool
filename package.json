@@ -3,7 +3,7 @@
   "version": "0.4.0",
   "description": "graphql server for 3D printers",
   "scripts": {
-    "start": "npx babel-node src/index.js",
+    "start": "npx node-dev src/index.js",
     "test": "jest",
     "lint": "eslint src/",
     "flow": "flow"
@@ -25,16 +25,24 @@
   "devDependencies": {
     "babel-cli": "^6.14.0",
     "babel-eslint": "^7.1.1",
-    "babel-register": "^6.14.0",
+    "babel-register": "^6.26.0",
     "eslint": "^3.5.0",
     "eslint-config-airbnb-base": "^11.0.1",
     "eslint-plugin-babel": "^4.0.0",
     "eslint-plugin-flowtype": "^2.29.2",
     "eslint-plugin-import": "^2.2.0",
     "flow-bin": "^0.57.3",
-    "graphql": "^0.8.2"
+    "node-dev": "^3.1.3"
   },
   "dependencies": {
-    "babel-preset-env": "^1.6.1"
+    "apollo-server-koa": "^1.2.0",
+    "babel-preset-env": "^1.6.1",
+    "dedent": "^0.7.0",
+    "graphql": "^0.11.7",
+    "koa": "^2.3.0",
+    "koa-bodyparser": "^4.2.0",
+    "koa-router": "^7.2.1",
+    "strip-newlines": "^1.0.1",
+    "typiql": "^0.3.0"
   }
 }
