@@ -20,9 +20,9 @@ const Printer = new GraphQLObjectType({
     name: {
       type: tql`String!`,
     },
-    mode: {
-      type: tql`${PrinterModeEnum}!`,
-    },
+    // mode: {
+    //   type: tql`${PrinterModeEnum}!`,
+    // },
     extruders: {
       type: tql`[${HeaterType}!]!`,
     },
@@ -32,9 +32,9 @@ const Printer = new GraphQLObjectType({
     fans: {
       type: tql`[${FanType}!]!`,
     },
-    jobQueue: {
-      type: tql`[${JobType}!]!`,
-    },
+    // jobQueue: {
+    //   type: tql`[${JobType}!]!`,
+    // },
   })
 })
 
