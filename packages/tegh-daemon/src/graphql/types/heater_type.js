@@ -32,14 +32,14 @@ const HeaterType = new GraphQLObjectType({
       type: tql`Float`,
       description: snl`
         The estimated number of seconds until the heater reaches it’s
-        target_temp or undefined.
+        targetTemp or undefined.
       `,
     },
     blocking: {
       type: tql`Boolean!`,
       description: snl`
         True if the printer is waiting on this heater to reach it’s
-        target_temp and preventing any more gcodes from executing until it does.
+        targetTemp and preventing any more gcodes from executing until it does.
       `,
     },
   })

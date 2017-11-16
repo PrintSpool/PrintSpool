@@ -1,3 +1,6 @@
+// NOTE: still copying code out of this into tegh-driver-serial-gcode
+// Delete after copying.
+
 /*
  * decaffeinate suggestions:
  * DS001: Remove Babel/TypeScript constructor workaround
