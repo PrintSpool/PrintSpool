@@ -14,6 +14,7 @@ results
 bin/arduino_reset
 bin/packages
 tmp
+.vagrant
 
 npm-debug.log
 node_modules
