@@ -5,8 +5,6 @@ const initialState = {
   },
   id: undefined,
   ready: false,
-  _readyTimeoutID: null,
-  _temperatureLastUpdated: null,
 }
 
 

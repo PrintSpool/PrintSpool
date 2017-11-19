@@ -1,63 +1,71 @@
-const parser = (originalLine) => {
-  const { verbose, serialPort, greetingReceived } = state
-  if (verbose) console.log(`${serialPort.path} received: ${action.data}`)
-  const line = action.data.toLowerCase()
-  if (line.startsWith("debug_")) return state
-  if (!greetingReceived && line.has(GREETINGS)) {
-    // TODO: ASYNC
-    nextState._readyTimeoutID = setTimeout(() => {
-      store.dispatch({
-        type: 'PRINTER_READY',
-      })
-    }, DELAY_FROM_GREETING_TO_READY)
-  } else if (line.startsWith('echo:')) {
-    return state
-  } else if (line.startsWith('ok')) {
-    nextState.previousLine = null
-    // TODO: IO
-    sendNextLine()
-    jobCompletionCheck()
-  } else if (line.startsWith('resend') || line.startsWith('rs')) {
-    const lineNumber = parseInt(line.split(/N:|N|:/)[1])
-    // TODO: IO
-    this._send(state.previousLine, lineNumber)
-  }
-  // if (!line.startsWith("echo:")) this._emitReceiveEvents(line, originalLine)
-  // Parse a line of gcode response from the printer and emit printer errors and
-  // current_temp, target_temp_countown and blocking changes
-  let k;
-  let data = {};
-  // console.log l
-  // Parsing temperatures
-  if (l.has("t:")) {
-    // Filtering out non-temperature values
-    let temps = l.remove(/(\/|[a-z]*@:|e:)[0-9\.]*|ok/g);
-    // Normalizing the input
-    temps = temps.replace("t:", "e0:").replace(/:[\s\t]*/g, ':');
-    // Adds a temperature to a object of { KEY: {current_temp: VALUE}, ... }
-    const addToHash = function(h, t) { h[t[0]] = {current_temp: parseFloat(t[1])}; return h; };
-    // Construct that obj containing key-mapped current temps
-    data = temps.words()
-    .map( s=> s.split(":"))
-    .filter( t=> (t[0].length > 0) && !isNaN(parseFloat(t[1])))
-    .reduce(addToHash, {});
-  }
+const GREETINGS = /^(start|grbl |ok|.*t:)/
+
+// type RxParserParsedData = {
+//   isDebug?: Boolean,
+//   isGreeting?: Boolean,
+//   isEcho?: Boolean,
+//   isAck?: Boolean,
+//   isResend?: Boolean,
+//   isError?: Boolean,
+//   /* the line number to resend if isResend is true */
+//   lineNumber?: Int,
+//   /* any temperature values received with the ack */
+//   temperatures?: {}
+// }
+
+const parsePrinterFeedback = (line) => {
+  if (!line.has("t:")) return {}
+  // Filtering out non-temperature values
+  const filteredLine = line.remove(/(\/|[a-z]*@:|e:)[0-9\.]*|ok/g)
+  // Normalizing the temperature values and splitting them into words
+  const keyValueWords  = filteredLine
+    .replace("t:", "e0:")
+    .replace(/:[\s\t]*/g, ':')
+    .words()
+  // Construct an object containing current temperature values
+  const feedback = {}
+  keyValueWords.forEach((word) => {
+    const [key, rawValue] = word.split(':')
+    const value = parseFloat(rawValue)
+    if !isNaN(value) feedback[key] = value
+  })
   // Parsing "w" temperature countdown values
   // see: http://git.io/FEACGw or google "TEMP_RESIDENCY_TIME"
-  const w = parseFloat(data.w != null ? data.w.current_temp : undefined)*1000;
-  delete data['w'];
-  if ((w != null) && !isNaN(w)) {
-    for (k of Array.from(this._blockers)) { (data[k] != null ? data[k] : (data[k] = {})).target_temp_countdown = w; }
+  const {w} = feedback
+  delete feedback.w
+  const targetTemperaturesCountdown = (w ? w * 1000 : null)
+  return {
+    temperatures: feedback,
+    targetTemperaturesCountdown,
   }
-  // Parsing ok's and removing blockers
-  if (l.has("ok")) {
-    for (k of Array.from(this._blockers)) { (data[k] != null ? data[k] : (data[k] = {})).blocking = false; }
-    this._blockers = [];
-  }
-  // Fire the current temperature and target temp countdown changes
-  // console.log data
-  if (data != null) { this.emit("change", data); }
-  // TODO: DISPATCH ACTION?
-  if (l.startsWith('error')) { return this.emit("printer_error", originalLine); }
-
 }
+
+const rxParser = (originalLine, {ready}) => {
+  const line = originalLine.toLowerCase()
+  if (!ready && line.has(GREETINGS)) return {
+    isGreeting: true,
+  }
+  if (line.startsWith("debug_")) return {
+    isDebug: true,
+  }
+  if (line.startsWith('echo:')) return {
+    isEcho: true,
+  }
+  if (line.startsWith('error')) return {
+    isError: true,
+  }
+  if (line.startsWith('resend') || line.startsWith('rs')) {
+    const lineNumber = parseInt(line.split(/N:|N|:/)[1])
+    return {
+      isResend: true,
+      lineNumber,
+    }
+  }
+
+  return {
+    isAck: line.startsWith('ok')
+    ...parsePrinterFeedback(line)
+  }
+}
+
+export default rxParser
