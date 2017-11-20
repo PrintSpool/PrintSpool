@@ -1,3 +1,5 @@
+const DELAY_FROM_GREETING_TO_READY = 2500
+
 const spoolTemperatureQueryAction = () => ({
   type: 'SPOOL',
   spoolID: 'internalSpool',
@@ -8,10 +10,11 @@ const spoolTemperatureQueryAction = () => ({
  * Intercepts SERIAL_RECEIVE actions, parses their data (appending it
  * as `action.parsedData`) and dispatches actions.
  *
+ * - dispatches PRINTER_READY and SPOOL once the printer is booted
  * - dispatches SPOOL for temperature polling.
  * - dispatches DESPOOL on acknowledgment of previous line.
- * - dispatches SERIAL_SEND to resend the previous line if the printer requests
- *   a resend.
+ * - dispatches SERIAL_SEND to resend the previous line if the printer
+ *   requests a resend.
  *
  * SERIAL_RECEIVE actions are appended to:
  *  {
@@ -25,18 +28,23 @@ const rxMiddleware  = (globals) => store => {
 
   /*
    * After a greeting is received from the printer the middleware waits
-   * DELAY_FROM_GREETING_TO_READY to declare the printer ready to receive gcodes
+   * DELAY_FROM_GREETING_TO_READY to declare the printer ready to receive
+   * gcodes
    *
    * Temperature polling also begins at that time.
    */
+  const onReady = () => {
+    store.dispatch({
+     type: 'PRINTER_READY',
+    })
+    store.dispatch(spoolTemperatureQueryAction())
+  }
+
   const onGreeting = () => {
-    onReady = () => {
-      store.dispatch({
-        type: 'PRINTER_READY',
-      })
-      store.dispatch(spoolTemperatureQueryAction())
-    }
-    action.readyTimeoutID = setTimeout(onReady, DELAY_FROM_GREETING_TO_READY)
+    action.readyTimeoutID = setTimeout(
+      onReady,
+      DELAY_FROM_GREETING_TO_READY
+    )
   }
 
   const pollForTemperature = () => {
@@ -49,32 +57,29 @@ const rxMiddleware  = (globals) => store => {
   }
 
   return next => action => {
-    if (action.type === 'SERIAL_RECEIVE') {
-      const state = store.getState()
-      const parsedData = parser(action.data, {ready: state.ready})
-      next({
-        ...action,
-        parsedData,
-      })
+    if (action.type !== 'SERIAL_RECEIVE') return next(action)
+    const state = store.getState()
+    const parsedData = parser(action.data, {ready: state.ready})
+    next({
+      ...action,
+      parsedData,
+    })
 
-      if (parsedValue.isGreeting) {
-        onGreeting()
-      }
-      if (parsedData.includesTemperatureValues) {
+    if (parsedValue.isGreeting) {
+      onGreeting()
+    }
+    if (parsedValue.isAck) {
+      if (action.parsedData.temperatures != null) {
         pollForTemperature()
       }
-      if (parsedValue.isAck) {
-        store.dispatch({
-          type: 'DESPOOL',
-        })
-      } else if (parsedValue.isResend) {
-        store.dispatch({
-          type: 'SERIAL_SEND',
-          data: store.getState().spool.currentLine
-        })
-      }
-    } else {
-      next(action)
+      store.dispatch({
+        type: 'DESPOOL',
+      })
+    } if (parsedValue.isResend) {
+      store.dispatch({
+        type: 'SERIAL_SEND',
+        data: store.getState().spool.currentLine
+      })
     }
   }
 }

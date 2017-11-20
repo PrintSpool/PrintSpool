@@ -11,6 +11,9 @@ const GREETINGS = /^(start|grbl |ok|.*t:)/
 //   lineNumber?: Int,
 //   /* any temperature values received with the ack */
 //   temperatures?: {}
+//   /* Estimated time in millis until the heaters reach their target
+//    * temperatures */
+//   targetTemperaturesCountdown?: Float
 // }
 
 const parsePrinterFeedback = (line) => {
