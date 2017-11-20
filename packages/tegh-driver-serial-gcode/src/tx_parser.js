@@ -19,11 +19,11 @@ const parseHeaterID = (code, line) => {
   } else if (BED_MCODES.includes(code)){
     return 'b'
   } else {
-    throw new Error(`Invalid Temperature GCode ${gcode}`)
+    throw new Error(`Invalid Temperature MCode ${code}`)
   }
 }
 
-const parseHeaterData = (code, line) => {
+const parseHeaterMCodes = (code, line) => {
   const parsedData = {
     id: parseHeaterID(code, line)
     blocking: BLOCKING_MCODES.includes(code)
@@ -39,14 +39,41 @@ const parseHeaterData = (code, line) => {
   }
 }
 
+const FAN_MCODES = ['M106', 'M107']
+
+const parseFanMCodes = (code, args) => {
+  if (code === 'M106') {
+    return {
+      fanID: args.p,
+      enabled: true,
+      speed: args.s * 100 / 255,
+    }
+  }
+  if (code === 'M107') {
+    return {
+      fanID: args.p,
+      enabled: false,
+      speed: 0,
+    }
+  }
+  throw new Error(`Invalid Fan MCode ${code}`)
+}
+
 const txParser = (originalLine, {ready}) => {
   const line = originalLine.upcase()
-  const [code, ...args] = line.split(' ')
+  const [code, ...argWords] = line.split(' ')
+  const args = {}
+  argWords.forEach(word =>
+    args[argWord[0].downcase()] = parseFloat(argWord[1..])
+  )
 
   if (HEATER_MCODES.includes(code)) {
     return {
-      parseHeaterData(code, line)
+      parseHeaterMCodes(code, line)
     }
+  }
+  if (FAN_MCODES.includes(code)) {
+    return parseFanMCodes(code, line)
   }
 
 }

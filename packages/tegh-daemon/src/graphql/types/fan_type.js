@@ -21,9 +21,8 @@ const FanType = new GraphQLObjectType({
     },
     speed: {
       type: tql`Int!`,
-      // TODO: should this be a Float Percentage?
       description: snl`
-        The speed of the fan (0 - 255).
+        The speed of the fan as a percentage of full speed (range: 0 to 100).
       `,
     },
   })
