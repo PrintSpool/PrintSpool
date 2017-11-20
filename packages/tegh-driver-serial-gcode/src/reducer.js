@@ -39,6 +39,8 @@ const serialGCodeReducer = (state = initialState, action) => {
         }
       }
       return state
+    case 'SERIAL_SEND':
+      return state // TODO: update state
     case 'PRINTER_READY':
       return {
         ...state,

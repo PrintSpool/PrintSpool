@@ -22,8 +22,8 @@ const spoolTemperatureQueryAction = () => ({
  *    parsedData: RxParserParsedData // see rx_parser
  *  }
  */
-const rxMiddleware  = (globals) => store => {
-  const {setTimeout, cancelTimeout} = globals
+const rxMiddleware  = ({rxParser, timeoutFns = global}) => store => {
+  const {setTimeout, cancelTimeout} = timeoutFns
   const timeouts = {}
 
   /*
@@ -59,7 +59,7 @@ const rxMiddleware  = (globals) => store => {
   return next => action => {
     if (action.type !== 'SERIAL_RECEIVE') return next(action)
     const state = store.getState()
-    const parsedData = parser(action.data, {ready: state.ready})
+    const parsedData = rxParser(action.data, {ready: state.ready})
     next({
       ...action,
       parsedData,

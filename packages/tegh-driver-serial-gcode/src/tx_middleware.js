@@ -5,7 +5,7 @@
  * The first SPOOL action to an idle printer triggers this to begin printing
  * the spooled line.
  */
- const txMiddleware = store => next => action => {
+ const txMiddleware = ({txParser}) => store => next => action => {
 
   if (
     action.type === 'DESPOOL' ||
