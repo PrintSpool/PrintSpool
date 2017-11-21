@@ -7,8 +7,7 @@ const config = () => ({
     path: undefined,
     baudRate: undefined,
   },
-  extruders: ['e0', 'e1'],
-  heatedBed: true,
+  heaters: ['e0', 'e1', 'b'],
   axes: ['x', 'y', 'z', 'e0', 'e1']
 })
 

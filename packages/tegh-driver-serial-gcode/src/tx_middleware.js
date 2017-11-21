@@ -12,10 +12,14 @@
     action.type === 'SPOOL' && store.getState().spool.currentLine == null
   ) {
     next(action)
+    const data = store.getState().spool.currentLine
     store.dispatch({
       type: 'SERIAL_SEND',
-      data: store.getState().spool.currentLine
+      data,
+      parsedData: txParser(data),
     })
+  } else {
+    next(action)
   }
 }
 

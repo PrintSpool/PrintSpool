@@ -1,53 +1,64 @@
-// // TODO: load initial state from config
-// const initialState = {
-//   targetTemperaturesCountdown: null
-//   heaters: {
-//
-//   },
-//   axes: {
-//
-//   }
-//   id: undefined,
-//   ready: false,
-//   error: null,
-// }
+const serialGCodeReducer = (config) => {
+  const initialState = {
+    targetTemperaturesCountdown: null
+    heaters: config.heaters.reduce(), // TODO
+    fans: {
+    }
+    ready: false,
+    error: null,
+  }
 
-
-const GREETINGS = /^(start|grbl |ok|.*t:)/
-const DELAY_FROM_GREETING_TO_READY = 2500
-
-const serialGCodeReducer = (state = initialState, action) => {
-  switch(action.type) {
-    case 'SERIAL_RECEIVE':
-      if (action.parsedData.temperatures != null) {
-        const heaters = {...heaters}
-        action.parsedData.temperatures.forEach((k, v) => {
-          heaters[k] = {...heaters[k], currentTemperature: v}
-        })
-        const {targetTemperaturesCountdown} = action.parsedData
+  return (state = initialState, action) => {
+    switch(action.type) {
+      case 'SERIAL_RECEIVE':
+        if (action.parsedData.temperatures != null) {
+          const heaters = {...heaters}
+          action.parsedData.temperatures.forEach((k, v) => {
+            heaters[k] = {...heaters[k], currentTemperature: v}
+          })
+          const {targetTemperaturesCountdown} = action.parsedData
+          return {
+            ...state,
+            targetTemperaturesCountdown,
+            heaters,
+          }
+        }
+        if (action.parsedData.isError) {
+          return {
+            ...state
+            ready: false,
+            error: action.data
+          }
+        }
+        return state
+      case 'SERIAL_SEND':
+        const {parsedData} = action
+        const {type} = parsedData
+        if (type == null) return state
+        const collectionID = {
+          'HEATER_CONTROL': 'heaters',
+          'FAN_CONTROL': 'fans',
+        }[type]
+        if (collectionID == null) throw new Error(`Invalid type: ${type}`)
+        // update the heater or fan's state.
         return {
           ...state,
-          targetTemperaturesCountdown,
-          heaters,
+          [collectionID]: {
+            ...state[collectionID],
+            [parsedData.id]: {
+              ...state[collectionID][parsedData.id],
+              ..._.without(parsedData, ['id', 'type']),
+            }
+          }
         }
-      }
-      if (action.parsedData.isError) {
+      case 'PRINTER_READY':
         return {
-          ...state
-          ready: false,
-          error: action.data
+          ...state,
+          ready: true,
         }
-      }
-      return state
-    case 'SERIAL_SEND':
-      return state // TODO: update state
-    case 'PRINTER_READY':
-      return {
-        ...state,
-        ready: true,
-      }
-    default:
-      return state
+      default:
+        return state
+    }
   }
 }
 
