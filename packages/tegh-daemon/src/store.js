@@ -6,7 +6,7 @@ const store = ({config, driver}) => {
     rootReducer({config, driver}),
     initialStateFromConfig,
     applyMiddleware(
-      driver.middleware,
+      ...driver.middleware(config),
     )
   )
 }
