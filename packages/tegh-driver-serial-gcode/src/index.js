@@ -11,8 +11,8 @@ import txMiddleware from './tx_middleware.js'
 export reducer
 export const middleware = (config) => {
   const serialPort = new SerialPort(
-    config.serialPort.path,
-    _.without(config.serialPort, ['path'])
+    config.driver.serialPort.path,
+    _.without(config.driver.serialPort, ['path'])
   )
   return [
     serialMiddleware(serialPort),
