@@ -13,14 +13,11 @@ const schema = new GraphQLSchema({
     fields: {
       printers: {
         type: tql`[${PrinterType}!]!`,
-        resolve() {
-          return [{
-            id: 'lolwat',
-            name: "things!",
-          }]
-        }
-      }
-    }
+        resolve(_source, _args, context) {
+          return context.store
+        },
+      },
+    },
   }),
   mutation: new GraphQLObjectType({
     name: 'MutationRoot',

@@ -21,7 +21,7 @@ const config = (() => {
   }
 })()
 
-const driver = require(`tegh-driver-${config.driver}`)
+const driver = require(`tegh-driver-${config.driver.package}`)
 
 const app = new koa()
 const router = new koaRouter()
@@ -29,7 +29,9 @@ const PORT = 3000
 
 const teghGraphqlKoa = () => graphqlKoa({
     schema: teghSchema,
-    context: store({config, driver}),
+    context: {
+      store: store({config, driver}),
+    },
 })
 
 // koaBody is needed just for POST.

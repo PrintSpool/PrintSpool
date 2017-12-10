@@ -16,7 +16,8 @@ const interactiveCreateConfig = async () => {
   })
 
   const config = default()
-  const configFile = path.resolve(configDir, config.id)
+  const configFile = path.resolve(configDir, `${config.id}.yml`)
+  // TODO create package.json in config directory
 
   const askFor = async (key, instructions) => {
     const defaultValue = config[key]
@@ -61,7 +62,7 @@ const interactiveCreateConfig = async () => {
 
   const driver = require(driverName)
   config.driver = {
-    driver: driverNameWithoutSuffix,
+    package: driverNameWithoutSuffix,
     ...driver.interactiveCreateConfig()
   }
 

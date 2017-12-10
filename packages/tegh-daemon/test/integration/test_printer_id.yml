@@ -1,0 +1,13 @@
+id: test_printer_id
+heaters:
+  - e0
+  - e1
+  - b
+axes:
+  - x
+  - y
+  - z
+  - e0
+  - e1
+driver:
+  package: serial-gcode

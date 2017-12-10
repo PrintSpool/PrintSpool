@@ -16,21 +16,30 @@ const Printer = new GraphQLObjectType({
   fields: () => ({
     id: {
       type: tql`ID!`,
+      resolve(source) {
+        return source.config.id
+      },
     },
     name: {
       type: tql`String!`,
+      resolve(source) {
+        return source.config.name
+      },
     },
     // mode: {
     //   type: tql`${PrinterModeEnum}!`,
     // },
-    extruders: {
+    heaters: {
       type: tql`[${HeaterType}!]!`,
-    },
-    beds: {
-      type: tql`[${HeaterType}!]!`,
+      resolve(source) {
+        return source.driver.heaters
+      },
     },
     fans: {
       type: tql`[${FanType}!]!`,
+      resolve(source) {
+        return source.driver.fans
+      },
     },
     // jobQueue: {
     //   type: tql`[${JobType}!]!`,
