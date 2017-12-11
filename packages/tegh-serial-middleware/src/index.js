@@ -3,10 +3,7 @@ import type {Dispatch} from 'redux'
 
 type SerialPort = {
   open: () => void,
-  on:
-    | ('open', (_: ?string) => void) => SerialPort
-    | ('data', (string) => void) => SerialPort
-    | ('error', (string) => void) => SerialPort,
+  on: ('open' | 'data' | 'error', (_: mixed) => void) => SerialPort,
   write: (string, (string) => void) => void,
 }
 
@@ -40,20 +37,22 @@ type Store = {
 }
 
 const serialMiddleware = (serialPort: SerialPort) => (store: Store) => {
-  const onOpen = (err) => {
+  const onOpen = () => {
       store.dispatch({
         type: 'SERIAL_OPEN'
       })
   }
 
   const onData = (data) => {
+    if (typeof data !== 'string') throw 'data must be a string'
     store.dispatch({
       type: 'SERIAL_RECEIVE',
-      data
+      data,
     })
   }
 
   const onError = (error) => {
+    if (typeof error !== 'string') throw 'error must be a string'
     store.dispatch({
       type: 'SERIAL_ERROR',
       error,
