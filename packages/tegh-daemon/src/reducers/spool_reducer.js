@@ -1,15 +1,15 @@
 // @flow
 
 export type SpoolState = {
-  +manualSpool: Array<String>,
-  +internalSpool: Array<String>,
-  +currentLine: ?String,
+  +manualSpool: Array<string>,
+  +internalSpool: Array<string>,
+  +currentLine: ?string,
 }
 
 export type SpoolAction = {
   +type: 'SPOOL',
   +spoolID: 'manualSpool' | 'internalSpool',
-  +data: Array<String>,
+  +data: Array<string>,
 }
 
 export type DespoolAction = {
@@ -21,28 +21,6 @@ const initialState: SpoolState = {
   manualSpool: [],
   internalSpool: [],
   currentLine: null,
-}
-
-const despool = (state: SpoolState) => {
-  const { internalSpool, manualSpool } = state
-  let spoolID
-  if (internalSpool.length > 0) {
-    spoolID = 'internalSpool'
-  } else if (manualSpool.length > 0) {
-    spoolID = 'manualSpool'
-  } else {
-    return {
-      ...state,
-      currentLine: null,
-    }
-  }
-  const spool = state[spoolID]
-  const currentLine = spool[0]
-  return {
-    ...state,
-    currentLine,
-    [spoolID]: spool.slice(1),
-  }
 }
 
 const spoolReducer = (
@@ -65,12 +43,32 @@ const spoolReducer = (
         [spoolID]: [...state[spoolID], ...action.data],
       }
       if (state.currentLine == null) {
-        return despool(nextState)
+        // recurse into the reducer to despool the first line
+        return spoolReducer(nextState, { type: 'DESPOOL' })
       }
       return nextState
     }
-    case 'DESPOOL':
-      return despool(state)
+    case 'DESPOOL': {
+      const { internalSpool, manualSpool } = state
+      let spoolID
+      if (internalSpool.length > 0) {
+        spoolID = 'internalSpool'
+      } else if (manualSpool.length > 0) {
+        spoolID = 'manualSpool'
+      } else {
+        return {
+          ...state,
+          currentLine: null,
+        }
+      }
+      const spool = state[spoolID]
+      const currentLine = spool[0]
+      return {
+        ...state,
+        currentLine,
+        [spoolID]: spool.slice(1),
+      }
+    }
     default:
       return state
   }

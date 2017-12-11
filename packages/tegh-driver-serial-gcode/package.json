@@ -25,7 +25,7 @@
     "flow-bin": "^0.61.0"
   },
   "dependencies": {
-    "tegh-serial-middleware": "0.4.0",
+    
     "serialport": "^6.0.4"
   },
   "peerDependencies": {
