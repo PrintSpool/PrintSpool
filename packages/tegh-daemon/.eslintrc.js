@@ -1,15 +1,18 @@
 module.exports = {
     "env": {
         "browser": false,
-        "es6": true
+        "es6": true,
+        "jest/globals": true
     },
     "plugins": [
       "babel",
-      "flowtype"
+      "flowtype",
+      "jest",
     ],
     "extends": [
       "airbnb-base",
-      "plugin:flowtype/recommended"
+      "plugin:flowtype/recommended",
+      "plugin:jest/recommended"
     ],
     "parser": "babel-eslint",
     "rules": {

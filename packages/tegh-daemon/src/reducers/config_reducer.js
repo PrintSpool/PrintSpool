@@ -1,5 +1,3 @@
-const configReducer = (config) => (state = config) => {
-  return state
-}
+const configReducer = config => (state = config) => state
 
 export default configReducer
