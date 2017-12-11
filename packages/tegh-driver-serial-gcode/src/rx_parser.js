@@ -30,7 +30,7 @@ const parsePrinterFeedback = (line) => {
   keyValueWords.forEach((word) => {
     const [key, rawValue] = word.split(':')
     const value = parseFloat(rawValue)
-    if !isNaN(value) feedback[key] = value
+    if (!isNaN(value)) feedback[key] = value
   })
   // Parsing "w" temperature countdown values
   // see: http://git.io/FEACGw or google "TEMP_RESIDENCY_TIME"
@@ -66,8 +66,8 @@ const rxParser = (originalLine, {ready}) => {
   }
 
   return {
-    isAck: line.startsWith('ok')
-    ...parsePrinterFeedback(line)
+    isAck: line.startsWith('ok'),
+    ...parsePrinterFeedback(line),
   }
 }
 
