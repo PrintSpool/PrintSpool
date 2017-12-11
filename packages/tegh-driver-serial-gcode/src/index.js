@@ -1,4 +1,4 @@
-import serialMiddleware from 'tegh-daemon/driver/serial_middleware'
+import serialMiddleware from 'tegh-serial-middleware'
 import SerialPort from 'serialport'
 import _ from 'lodash'
 
@@ -7,8 +7,8 @@ import reducer from './reducer.js'
 import rxMiddleware from './rx_middleware.js'
 import txMiddleware from './tx_middleware.js'
 
-// export config
-export reducer
+// export { config }
+export { reducer }
 export const middleware = (config) => {
   const serialPort = new SerialPort(
     config.driver.serialPort.path,

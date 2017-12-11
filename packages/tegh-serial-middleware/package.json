@@ -1,7 +1,7 @@
 {
-  "name": "tegh-config",
+  "name": "tegh-serial-middleware",
   "version": "0.4.0",
-  "description": "tegh configuration scripts",
+  "description": "Tegh serial middleware",
   "main": "src/index.js",
   "author": "Rob Gilson",
   "license": "GPL-3.0",
@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "babel-cli": "^6.14.0",
-    "babel-preset-env": "^1.6.1",
-    "uuid-random": "^1.0.6"
+    "babel-preset-env": "^1.6.1"
   }
 }

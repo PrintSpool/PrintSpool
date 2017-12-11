@@ -3,6 +3,8 @@ heaters:
   - e0
   - e1
   - b
+fans:
+  - f
 axes:
   - x
   - y
@@ -11,3 +13,6 @@ axes:
   - e1
 driver:
   package: serial-gcode
+  serialPort:
+    path: /dev/null
+    baudRate: 9200

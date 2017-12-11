@@ -6,16 +6,16 @@ const initializeCollection = (arrayOfIDs, initialValueFn) => {
 }
 
 const initialState = (config) => ({
-  targetTemperaturesCountdown: null
+  targetTemperaturesCountdown: null,
   heaters: initializeCollection(config.heaters, () => ({
     currentTemperature: 0,
     targetTemperature: 0,
     blocking: false,
-  }),
+  })),
   fans: initializeCollection(config.fans, () => ({
     enabled: false,
     speed: 0,
-  }),
+  })),
   ready: false,
   error: null,
 })
@@ -40,9 +40,9 @@ const serialGCodeReducer = (config) => (
       }
       if (action.parsedData.isError) {
         return {
-          ...state
+          ...state,
           ready: false,
-          error: action.data
+          error: action.data,
         }
       }
       return state
@@ -63,8 +63,8 @@ const serialGCodeReducer = (config) => (
           [parsedData.id]: {
             ...state[collectionID][parsedData.id],
             ..._.without(parsedData, ['id', 'type']),
-          }
-        }
+          },
+        },
       }
     case 'PRINTER_READY':
       return {

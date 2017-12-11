@@ -1,0 +1,22 @@
+{
+  "name": "tegh-installation",
+  "version": "0.4.0",
+  "description": "an example tegh installation",
+  "author": "Rob Gilson",
+  "license": "GPL-3.0",
+  "private": true,
+  "scripts": {
+    "start": "npx node-dev index.js --all-deps"
+  },
+  "babel": {
+    "presets": [
+      "env"
+    ]
+  },
+  "dependencies": {
+    "tegh-daemon": "file:../tegh-daemon",
+    "tegh-driver-serial-gcode": "file:../tegh-driver-serial-gcode",
+    "babel-preset-env": "^1.6.1",
+    "node-dev": "^3.1.3"
+  }
+}
