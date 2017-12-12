@@ -1,3 +1,5 @@
+import txParser from './tx_parser.js'
+
 const initializeCollection = (arrayOfIDs, initialValueFn) => {
   return arrayOfIDs.reduce(
     ((collection, id) => collection[id] = initialValueFn()),
@@ -18,7 +20,7 @@ const initialState = (config) => ({
   })),
   ready: false,
   error: null,
-  previousLineNumber: -1,
+  currentLineNumber: 0,
 })
 
 const serialGCodeReducer = (config) => (
@@ -48,7 +50,7 @@ const serialGCodeReducer = (config) => (
       }
       return state
     case 'SERIAL_SEND':
-      const {parsedData} = action
+      const {parsedData} = txParser(action)
       const {type} = parsedData
       if (type == null) return state
       const collectionID = {
@@ -71,6 +73,7 @@ const serialGCodeReducer = (config) => (
       return {
         ...state,
         ready: true,
+        currentLineNumber: 0,
       }
     default:
       return state

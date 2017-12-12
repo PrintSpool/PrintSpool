@@ -6,7 +6,7 @@ import _ from 'lodash'
 // import config from './config.js'
 import reducer from './reducer.js'
 import rxSaga from './rx_saga.js'
-import txMiddleware from './tx_middleware.js'
+import txSaga from './tx_saga.js'
 import rxParser from './rx_parser.js'
 
 // export { config }
@@ -15,7 +15,7 @@ export { reducer }
 export const saga = (config) => function*() {
   yield all([
     rxSaga,
-    // TODO: txSaga,
+    txSaga,
   ])
 }
 
