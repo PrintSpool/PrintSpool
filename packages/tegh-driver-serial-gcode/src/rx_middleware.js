@@ -56,6 +56,22 @@ const rxMiddleware  = ({rxParser, timeoutFns = global}) => store => {
     )
   }
 
+  const onGreeting = () => {
+    store.dispatch({
+      type: 'SET_TIMEOUT',
+      fn: onReady,
+      timeout: DELAY_FROM_GREETING_TO_READY
+    })
+  }
+
+  const pollForTemperature = () => {
+    store.dispatch({
+      type: 'SET_TIMEOUT',
+      fn: spoolTemperatureQueryAction,
+      timeout: store.getState().config.temperaturePollingInterval
+    })
+  }
+
   return next => action => {
     if (action.type !== 'SERIAL_RECEIVE') return next(action)
     const state = store.getState()

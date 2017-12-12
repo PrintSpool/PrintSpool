@@ -26,14 +26,13 @@ export type SerialErrorAction = {
   error: string,
 }
 
-type Action =
+type DispatchedAction =
   | SerialOpenAction
-  | SerialSendAction
   | SerialReceiveAction
   | SerialErrorAction
 
 type Store = {
-  dispatch: Dispatch<Action>
+  dispatch: Dispatch<DispatchedAction>
 }
 
 const serialMiddleware = (serialPort: SerialPort) => (store: Store) => {
@@ -66,8 +65,9 @@ const serialMiddleware = (serialPort: SerialPort) => (store: Store) => {
 
   serialPort.open()
 
-  return (next: (SerialSendAction) => void) => (action: SerialSendAction) => {
+  return (next: {type: string} => mixed) => (action: {type: string}) => {
     if (action.type === 'SERIAL_SEND') {
+      if (typeof action.data !== 'string') throw 'data must be a string'
       serialPort.write(action.data, (err) => {
         if (err) onError(err)
       })
