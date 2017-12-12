@@ -43,9 +43,9 @@ const parsePrinterFeedback = (line) => {
   }
 }
 
-const rxParser = (originalLine, {ready}) => {
+const parseLine = (originalLine) => {
   const line = originalLine.toLowerCase()
-  if (!ready && line.has(GREETINGS)) return {
+  if (line.has(GREETINGS)) return {
     isGreeting: true,
   }
   if (line.startsWith("debug_")) return {
@@ -71,4 +71,26 @@ const rxParser = (originalLine, {ready}) => {
   }
 }
 
-export default rxParser
+class RXParser extends Transform {
+  constructor(options) {
+    super(options)
+  }
+
+  /*
+   * RXParser MUST be after the Readline in the pipe
+   */
+  _transform(line, encoding, cb) {
+    this.push({
+      raw: line,
+      ...parseLine(line)
+    })
+    cb()
+  }
+
+  _flush(cb) {
+    cb()
+  }
+}
+
+export parseLine
+export default RXParser

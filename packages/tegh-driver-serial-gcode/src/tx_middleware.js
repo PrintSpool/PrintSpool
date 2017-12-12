@@ -12,7 +12,10 @@
     action.type === 'SPOOL' && store.getState().spool.currentLine == null
   ) {
     next(action)
-    const data = store.getState().spool.currentLine
+    // TODO: increment line numbers (maybe in the reducer)
+    // TODO: checksums
+    // TODO: also do these transforms for resends
+    const data = `N${lineNumber} ${store.getState().spool.currentLine}`
     store.dispatch({
       type: 'SERIAL_SEND',
       data,

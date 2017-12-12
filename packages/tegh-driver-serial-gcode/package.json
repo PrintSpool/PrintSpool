@@ -36,6 +36,7 @@
     "serialport": "^6.0.4"
   },
   "peerDependencies": {
-    "tegh-daemon": "*"
+    "tegh-daemon": "*",
+    "redux-saga": "^0.16.0"
   }
 }

@@ -21,14 +21,16 @@
       "flow",
       "env"
     ],
-    "plugins": ["transform-object-rest-spread"]
+    "plugins": [
+      "transform-object-rest-spread"
+    ]
   },
   "author": "Rob Gilson",
   "license": "GPL-3.0",
   "devDependencies": {
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-cli": "^6.14.0",
     "babel-eslint": "^8.0.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-flow": "^6.23.0",
     "eslint": "^4.13.0",
@@ -52,5 +54,8 @@
     "redux": "^4.0.0-beta.1",
     "strip-newlines": "^1.0.1",
     "typiql": "^0.3.0"
+  },
+  "peerDependencies": {
+    "redux-saga": "^0.16.0"
   }
 }

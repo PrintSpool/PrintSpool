@@ -18,6 +18,7 @@ const initialState = (config) => ({
   })),
   ready: false,
   error: null,
+  previousLineNumber: -1,
 })
 
 const serialGCodeReducer = (config) => (
