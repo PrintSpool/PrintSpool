@@ -1,11 +1,10 @@
 import {
-  graphql,
   GraphQLSchema,
   GraphQLObjectType,
-  GraphQLString
 } from 'graphql'
 import tql from 'typiql'
-import PrinterType from './types/printer_type.js'
+import PrinterType from './types/printer_type'
+import sendGCodeMutation from './mutations/send_gcode_mutation'
 
 const schema = new GraphQLSchema({
   query: new GraphQLObjectType({
@@ -13,34 +12,17 @@ const schema = new GraphQLSchema({
     fields: {
       printers: {
         type: tql`[${PrinterType}!]!`,
-        resolve(_source, _args, context) {
-          return context.store
-        },
+        resolve: (_source, _args, context) => context.store.getState(),
       },
     },
   }),
   mutation: new GraphQLObjectType({
     name: 'MutationRoot',
-    fields: {
-      sendGCode: {
-        type: tql`${PrinterType}!`,
-        args: {
-          printerID: {
-            type: tql`ID!`,
-          },
-          gcode: {
-            type: tql`[String!]!`,
-          },
-        },
-        resolve(source, args) {
-          return {
-            id: 'lolwat',
-            name: `MUTANT things! ${args.gcodes.join(',')}`,
-          }
-        }
-      }
-    }
-  })
+    resolve: (_source, _args, context) => context.store.getState(),
+    fields: () => ({
+      sendGCode: sendGCodeMutation(),
+    }),
+  }),
 })
 
 export default schema

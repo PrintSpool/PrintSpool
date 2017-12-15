@@ -78,19 +78,19 @@ const serialRecieve = function*(action) {
     yield put({ type: 'DESPOOL' })
   } else if (data.isResend) {
     const currentLine = yield select(getCurrentLine)
-    const currentLineNumber = yield select(getCurrentLineNumber)
+    const previousLineNumber = yield select(getCurrentLineNumber) - 1
     /*
      * Tegh only sends one line at a time. If a resend is requested for a
      * different line number then this is likely an issue of the printer's
      * firmware.
      */
-    if (data.lineNumber !== currentLineNumber - 1) {
+    if (data.lineNumber !== previousLineNumber) {
       throw new Error(
         `resend line number ${data.lineNumber} `+
-        `does not match current line number ${currentLineNumber}`
+        `does not match current line number ${previousLineNumber}`
       )
     }
-    yield call(sendLine, currentLineNumber, currentLine)
+    yield call(sendLine, previousLineNumber, currentLine)
   }
 }
 
