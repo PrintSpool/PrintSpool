@@ -1,11 +1,21 @@
 import { delay } from 'redux-saga'
-import { put, takeEvery, takeLatest, select, all } from 'redux-saga/effects'
+import {
+  put,
+  takeEvery,
+  takeLatest,
+  select,
+  all,
+  call,
+} from 'redux-saga/effects'
+
+import sendLine from './send_line'
 
 /*
  * Selectors for grabbing getState
  */
 
 const getCurrentLine = (state) => state.spool.currentLine
+const getCurrentLineNumber = (state) => state.spool.currentLineNumber
 const getReady = (state) => state.driver.ready
 const getPollingInterval = (state) => (
   state.config.driver.temperaturePollingInterval
@@ -67,12 +77,20 @@ const serialRecieve = function*(action) {
   } else if (data.isAck) {
     yield put({ type: 'DESPOOL' })
   } else if (data.isResend) {
-    // TODO: error on the requested line not being the current line
     const currentLine = yield select(getCurrentLine)
-    yield put({
-      type: 'SERIAL_SEND',
-      data: currentLine,
-    })
+    const currentLineNumber = yield select(getCurrentLineNumber)
+    /*
+     * Tegh only sends one line at a time. If a resend is requested for a
+     * different line number then this is likely an issue of the printer's
+     * firmware.
+     */
+    if (data.lineNumber !== currentLineNumber - 1) {
+      throw new Error(
+        `resend line number ${data.lineNumber} `+
+        `does not match current line number ${currentLineNumber}`
+      )
+    }
+    yield call(sendLine, currentLineNumber, currentLine)
   }
 }
 

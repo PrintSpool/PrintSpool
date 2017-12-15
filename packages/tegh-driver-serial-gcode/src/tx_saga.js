@@ -1,4 +1,6 @@
-import { put, takeEvery, takeLatest, select, all } from 'redux-saga/effects'
+import { put, takeEvery, takeLatest, select, call } from 'redux-saga/effects'
+
+import sendLine from './send_line'
 
 const getCurrentLine = (state) => state.spool.currentLine
 const getCurrentLineNumber = (state) => state.spool.currentLineNumber
@@ -19,16 +21,13 @@ const shouldDespool = ({ type }, currentLine) {
  */
  const txSaga = function*(action) {
   const currentLine = yield select(getCurrentLine)
-  if (!shouldDespool(action, currentLine)) return
-
-   // TODO: increment line numbers (maybe in the reducer)
-  // TODO: checksums
-  // TODO: also do these transforms for resends
-  const currentLineNumber = yield select(getCurrentLineNumber)
-  yield puts({
-    type: 'SERIAL_SEND',
-    data: `N${currentLineNumber} ${currentLine}`,
-  })
+  if (shouldDespool(action, currentLine)) {
+    // TODO: increment line numbers (maybe in the reducer)
+    // TODO: checksums
+    // TODO: also do these transforms for resends
+    const currentLineNumber = yield select(getCurrentLineNumber)
+    yield call(sendLine, currentLineNumber, currentLine)
+  }
 }
 
 export default const txSaga = function*() {

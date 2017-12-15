@@ -50,22 +50,26 @@ const serialGCodeReducer = (config) => (
       }
       return state
     case 'SERIAL_SEND':
-      const {parsedData} = txParser(action)
-      const {type} = parsedData
-      if (type == null) return state
-      const collectionID = {
+      const parsedData = txParser(action)
+      const {lineNumber, type, id, changes} = parsedData
+      const nextState = {
+        ...state,
+        currentLineNumber: lineNumber + 1,
+      }
+      if (type == null) return nextState
+      const collectionKey = {
         'HEATER_CONTROL': 'heaters',
         'FAN_CONTROL': 'fans',
       }[type]
-      if (collectionID == null) throw new Error(`Invalid type: ${type}`)
+      if (collectionKey == null) throw new Error(`Invalid type: ${type}`)
       // update the heater or fan's state.
       return {
-        ...state,
-        [collectionID]: {
-          ...state[collectionID],
-          [parsedData.id]: {
-            ...state[collectionID][parsedData.id],
-            ..._.without(parsedData, ['id', 'type']),
+        ...nextState,
+        [collectionKey]: {
+          ...state[collectionKey],
+          [id]: {
+            ...state[collectionKey][id],
+            ...changes,
           },
         },
       }

@@ -32,20 +32,19 @@ const parseHeaterID = (code, line) => {
 }
 
 const parseHeaterMCodes = (code, line) => {
-  const parsedData = {
+  const data = {
     type: 'HEATER_CONTROL',
     id: parseHeaterID(code, line),
-    blocking: BLOCKING_MCODES.includes(code),
-  }
-  if (code === 'M116') { // M116 AKA Wait does not set a target temperature
-    return parsedData
-  } else {
-    const targetTemperature = parseFloat((/S([0-9]+)/.exec(line)||[])[1] || '0')
-    return {
-      ...parsedData,
-      targetTemperature,
+    changes: {
+      blocking: BLOCKING_MCODES.includes(code),
     }
   }
+  if (code !== 'M116') { // M116 AKA Wait does not set a target temperature
+    data.changes.targetTemperature = parseFloat(
+      (/S([0-9]+)/.exec(line)||[])[1] || '0'
+    )
+  }
+  return data
 }
 
 const FAN_MCODES = ['M106', 'M107']
@@ -57,39 +56,43 @@ const parseFanMCodes = (code, args) => {
   }
 
   if (code === 'M106') {
-    return {
-      ...parsedData,
+    data.changes = {
       enabled: true,
       speed: args.s * 100 / 255,
     }
-  }
-  if (code === 'M107') {
-    return {
-      ...parsedData,
+  } else if (code === 'M107') {
+    data.changes = {
       enabled: false,
       speed: 0,
     }
+  } else {
+    throw new Error(`Invalid Fan MCode ${code}`)
   }
-  throw new Error(`Invalid Fan MCode ${code}`)
+  return data
 }
 
-const txParser = (originalLine, {ready}) => {
-  const line = originalLine.upcase()
-  const [code, ...argWords] = line.split(' ')
+const txParser = (rawSerialOutput, {ready}) => {
+  const [line, _checksum] = rawSerialOutput.upcase().split('*')
+  const [lineNumberWithN, code, ...argWords] = line.split(' ')
+  const lineNumber = parseInt(lineNumberWithN.slice(1), 10)
   const args = {}
   argWords.forEach(word =>
     args[argWord[0].downcase()] = parseFloat(argWord[1..])
   )
 
-  if (HEATER_MCODES.includes(code)) {
-    return {
-      parseHeaterMCodes(code, line)
+  const data = () => {
+    if (HEATER_MCODES.includes(code)) {
+      return parseHeaterMCodes(code, line)
     }
-  }
-  if (FAN_MCODES.includes(code)) {
-    return parseFanMCodes(code, line)
-  }
+    if (FAN_MCODES.includes(code)) {
+      return parseFanMCodes(code, line)
+    }
+  }()
 
+  return {
+    lineNumber,
+    ...(data || {}),
+  }
 }
 
 export default txParser
