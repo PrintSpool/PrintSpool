@@ -1,6 +1,8 @@
 // @flow
 import spoolReducer from '../../src/reducers/spool_reducer'
 
+// TODO: test gcode normalization
+
 describe('SPOOL action', () => {
   test(
     'adds to manualSpool',
