@@ -1,6 +1,9 @@
 import createSagaMiddleware from 'redux-saga'
 import { createStore, applyMiddleware } from 'redux'
+
 import rootReducer from './reducers/'
+import loggerMiddleware from './middleware/logger_middleware'
+import onUncaughtException from './helpers/on_uncaught_exception'
 
 const driverMiddleware = ({ config, driver }) => {
   if (driver.middleware == null) return []
@@ -8,7 +11,9 @@ const driverMiddleware = ({ config, driver }) => {
 }
 
 const sagaMiddleware = ({ driver }) => {
-  const middleware = createSagaMiddleware()
+  const middleware = createSagaMiddleware({
+    onError: onUncaughtException,
+  })
   if (driver.saga != null) {
     middleware.run(driver.saga())
   }
@@ -16,12 +21,14 @@ const sagaMiddleware = ({ driver }) => {
 }
 
 const store = ({ config, driver }) => {
+  const middleware = [
+    ...driverMiddleware({ config, driver }),
+    sagaMiddleware({ config, driver }),
+    loggerMiddleware({ config }),
+  ]
   return createStore(
     rootReducer({ config, driver }),
-    applyMiddleware(
-      ...driverMiddleware({ config, driver }),
-      sagaMiddleware({ config, driver }),
-    ),
+    applyMiddleware(...middleware),
   )
 }
 

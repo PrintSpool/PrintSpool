@@ -1,5 +1,5 @@
 // @flow
-import normalizeGCodeLines from '../normalize_gcode_lines'
+import normalizeGCodeLines from '../helpers/normalize_gcode_lines'
 
 export type SpoolState = {
   +manualSpool: Array<string>,

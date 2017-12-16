@@ -54,6 +54,7 @@ const serialMiddleware = (serialPort: SerialPort) => (store: Store) => {
     if (typeof error !== 'string') throw 'error must be a string'
     store.dispatch({
       type: 'SERIAL_ERROR',
+      log: 'error',
       error,
     })
   }

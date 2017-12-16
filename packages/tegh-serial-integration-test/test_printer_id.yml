@@ -1,4 +1,5 @@
 id: test_printer_id
+logLevel: info
 heaters:
   - e0
   - e1
