@@ -23,7 +23,7 @@ export type SerialReceiveAction = {
 
 export type SerialErrorAction = {
   type: 'SERIAL_ERROR',
-  error: string,
+  error: mixed,
 }
 
 type DispatchedAction =
@@ -51,7 +51,6 @@ const serialMiddleware = (serialPort: SerialPort) => (store: Store) => {
   }
 
   const onError = (error) => {
-    if (typeof error !== 'string') throw 'error must be a string'
     store.dispatch({
       type: 'SERIAL_ERROR',
       log: 'error',
