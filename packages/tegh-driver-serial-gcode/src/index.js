@@ -1,5 +1,5 @@
 import { all } from 'redux-saga/effects'
-import serialMiddleware from 'tegh-serial-middleware'
+import serialMiddleware from 'serial-middleware'
 import SerialPort from 'serialport'
 import _ from 'lodash'
 
@@ -25,7 +25,7 @@ export const middleware = (config) => {
   const { path } = config.driver.serialPort
   const serialOpts = _.without(config.driver.serialPort, ['path'])
   const serialPort = new SerialPort(path, serialOpts)
-    .pipe(SerialPort.parsers.ReadLine())
+    .pipe(new SerialPort.parsers.Readline())
     .pipe(rxParser())
 
   return [

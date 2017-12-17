@@ -3,7 +3,7 @@ const defaults = () => ({
   delayFromGreetingToReady: 2500,
   serialPort: {
     path: undefined,
-    baudRate: undefined,
+    baudRate: 115200,
   },
 })
 

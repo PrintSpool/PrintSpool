@@ -32,7 +32,7 @@
     "redux": "^3.7.2"
   },
   "dependencies": {
-    "tegh-serial-middleware": "0.4.0",
+    "serial-middleware": "file:../serial-middleware",
     "serialport": "^6.0.4"
   },
   "peerDependencies": {
