@@ -1,7 +1,6 @@
 // @flow
 import { parseLine } from '../src/rx_parser'
 
-console.log('wat')
 test('parses greetings', () => {
   const result = parseLine('start')
 

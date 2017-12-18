@@ -1,29 +1,40 @@
+// @flow
+type HeaterControl = {
+  lineNumber: number,
+  type: 'HEATER_CONTROL',
+  id: string,
+  changes: {
+    blocking: boolean,
+    targetTemperature?: number,
+  },
+}
 
-// type heaterControl = {
-//   type: 'HEATER_CONTROL',
-//   id: STRING,
-//   blocking: BOOLEAN,
-//   targetTemperature?: FLOAT,
-// }
+type FanControl = {
+  lineNumber: number,
+  type: 'FAN_CONTROL',
+  id: number,
+  changes: {
+    enabled: boolean,
+    speed?: number,
+  },
+}
 
-// type fanControl = {
-//   type: 'FAN_CONTROL',
-//   id: STRING,
-//   enabled: BOOLEAN,
-//   speed?: FLOAT,
-// }
-
-// type TxParserParsedData = heaterControl | fanControl | {}
+type Tx = HeaterControl | FanControl | { lineNumber: number }
 
 const HEATER_MCODES = ['M109', 'M104', 'M140', 'M190', 'M116']
 const EXTRUDER_MCODES = ['M109', 'M104', 'M116']
 const BED_MCODES = ['M140', 'M190']
 const BLOCKING_MCODES = ['M109', 'M190', 'M116']
 
-const parseHeaterID = (code, line) => {
+const parseHeaterID = (code, args) => {
+  // extruders
   if (EXTRUDER_MCODES.includes(code)) {
-    const extruderNumber = (/\ P([0-9]+)/.exec(line)||[])[1] || '0'
+    const extruderNumber = args.p || 0
+    if (typeof extruderNumber != 'number') {
+      throw new Error('\'p\' argument is not a number')
+    }
     return `e${extruderNumber}`
+  // bed
   } else if (BED_MCODES.includes(code)){
     return 'b'
   } else {
@@ -31,68 +42,96 @@ const parseHeaterID = (code, line) => {
   }
 }
 
-const parseHeaterMCodes = (code, line) => {
-  const data = {
+const parseHeaterMCodes = (
+  lineNumber: number,
+  code: string,
+  args: {}
+): HeaterControl => {
+  const heaterControl: HeaterControl = {
+    lineNumber,
     type: 'HEATER_CONTROL',
-    id: parseHeaterID(code, line),
+    id: parseHeaterID(code, args),
     changes: {
       blocking: BLOCKING_MCODES.includes(code),
     }
   }
-  if (code !== 'M116') { // M116 AKA Wait does not set a target temperature
-    data.changes.targetTemperature = parseFloat(
-      (/S([0-9]+)/.exec(line)||[])[1] || '0'
-    )
+  if (code === 'M190' && typeof(args.r) === 'number') {
+    heaterControl.changes.targetTemperature = args.r
+  } else if (code !== 'M116') {
+    // Only M116 (the Wait MCode) does not set a target temperature
+    if (typeof args.s != 'number') {
+      throw new Error('Heater MCode target temperature is not a number')
+    }
+    heaterControl.changes.targetTemperature = args.s
   }
-  return data
+  return heaterControl
 }
 
 const FAN_MCODES = ['M106', 'M107']
 
-const parseFanMCodes = (code, args) => {
-  const parsedData = {
-    type: 'FAN_CONTROL'
-    id: args.p,
+const parseFanMCodes = (
+  lineNumber: number,
+  code: string,
+  args: {}
+): FanControl => {
+  /*
+   * Returns the fan speed as a 8 bit number (range: 0 to 255)
+   */
+  const get8BitFanSpeed = (() => {
+    if (typeof args.s === 'number') {
+      return args.s
+    }
+    if (typeof args.s === 'undefined') {
+      return 255
+    }
+    throw new Error(`Invalid M106 's' argument`)
+  })
+
+  const changes = (() => {
+    if (code === 'M106') {
+      console.log(args.s, typeof args.s)
+      return {
+        enabled: true,
+        speed: Math.round(get8BitFanSpeed() * 1000 / 255)/10,
+      }
+    } else if (code === 'M107') {
+      return {
+        enabled: false,
+        speed: 0,
+      }
+    } else {
+      throw new Error(`Invalid Fan MCode ${code}`)
+    }
+  })()
+
+  if (typeof args.p !== 'number') {
+    throw new Error(`Invalid ${code} 'p' argument`)
   }
 
-  if (code === 'M106') {
-    data.changes = {
-      enabled: true,
-      speed: args.s * 100 / 255,
-    }
-  } else if (code === 'M107') {
-    data.changes = {
-      enabled: false,
-      speed: 0,
-    }
-  } else {
-    throw new Error(`Invalid Fan MCode ${code}`)
+  return {
+    lineNumber,
+    type: 'FAN_CONTROL',
+    id: args.p,
+    changes,
   }
-  return data
 }
 
-const txParser = (rawSerialOutput, {ready}) => {
-  const [line, _checksum] = rawSerialOutput.upcase().split('*')
+const txParser = (rawSerialOutput: string): Tx => {
+  const [line, _checksum] = rawSerialOutput.toUpperCase().split('*')
   const [lineNumberWithN, code, ...argWords] = line.split(' ')
   const lineNumber = parseInt(lineNumberWithN.slice(1), 10)
   const args = {}
   argWords.forEach(word =>
-    args[argWord[0].downcase()] = parseFloat(argWord[1..])
+    args[word[0].toLowerCase()] = parseFloat(word.slice(1))
   )
 
-  const data = () => {
-    if (HEATER_MCODES.includes(code)) {
-      return parseHeaterMCodes(code, line)
-    }
-    if (FAN_MCODES.includes(code)) {
-      return parseFanMCodes(code, line)
-    }
-  }()
-
-  return {
-    lineNumber,
-    ...(data || {}),
+  if (HEATER_MCODES.includes(code)) {
+    return parseHeaterMCodes(lineNumber, code, args)
   }
+  if (FAN_MCODES.includes(code)) {
+    return parseFanMCodes(lineNumber, code, args)
+  }
+  return { lineNumber }
 }
 
 export default txParser
