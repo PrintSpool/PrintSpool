@@ -1,96 +1,114 @@
-const GREETINGS = /^(start|grbl |ok|.*t:)/
+// @flow
+import stream from 'stream'
 
-// type RxParserParsedData = {
-//   isDebug?: Boolean,
-//   isGreeting?: Boolean,
-//   isEcho?: Boolean,
-//   isAck?: Boolean,
-//   isResend?: Boolean,
-//   isError?: Boolean,
-//   /* the line number to resend if isResend is true */
-//   lineNumber?: Int,
-//   /* any temperature values received with the ack */
-//   temperatures?: {}
-//   /* Estimated time in millis until the heaters reach their target
-//    * temperatures */
-//   targetTemperaturesCountdown?: Float
-// }
+const GREETINGS = /^(start|grbl )/
 
-const parsePrinterFeedback = (line) => {
-  if (!line.has("t:")) return {}
+type Feedback = {
+  /* any temperature values received with the ack */
+  temperatures?: mixed,
+  /* Estimated time in millis until the heaters reach their target
+   * temperatures */
+  targetTemperaturesCountdown?: ?number,
+}
+
+type RxDataWithoutRaw =
+  | {
+    type: 'greeting' | 'debug' | 'echo' | 'error' | 'parser_error',
+  }
+  | {
+    type: 'resend',
+    lineNumber: number,
+  }
+  | Feedback & {
+    type: 'ok',
+  }
+
+type RxData = RxDataWithoutRaw & { raw: string }
+
+const parsePrinterFeedback = (line: string): Feedback => {
+  if (line.match("t:") == null) return {}
   // Filtering out non-temperature values
-  const filteredLine = line.remove(/(\/|[a-z]*@:|e:)[0-9\.]*|ok/g)
+  const filteredLine = line.replace(/(\/|[a-z]*@:|e:)[0-9\.]*|ok/g, '')
   // Normalizing the temperature values and splitting them into words
   const keyValueWords  = filteredLine
     .replace("t:", "e0:")
     .replace(/:[\s\t]*/g, ':')
-    .words()
+    .split(' ')
   // Construct an object containing current temperature values
-  const feedback = {}
+  const temperatures = {}
   keyValueWords.forEach((word) => {
     const [key, rawValue] = word.split(':')
     const value = parseFloat(rawValue)
-    if (!isNaN(value)) feedback[key] = value
+    if (!isNaN(value)) temperatures[key] = value
   })
   // Parsing "w" temperature countdown values
   // see: http://git.io/FEACGw or google "TEMP_RESIDENCY_TIME"
-  const {w} = feedback
-  delete feedback.w
+  const { w } = temperatures
+  delete temperatures.w
   const targetTemperaturesCountdown = (w ? w * 1000 : null)
   return {
-    temperatures: feedback,
+    temperatures,
     targetTemperaturesCountdown,
   }
 }
 
-const parseLine = (originalLine) => {
-  const line = originalLine.toLowerCase()
-  if (line.has(GREETINGS)) return {
-    isGreeting: true,
+export const parseLine = (raw: string): RxData => {
+  const line = raw.toLowerCase()
+  if (line.match(GREETINGS) != null) return {
+    type: 'greeting',
+    raw,
   }
   if (line.startsWith("debug_")) return {
-    isDebug: true,
+    type: 'debug',
+    raw,
   }
   if (line.startsWith('echo:')) return {
-    isEcho: true,
+    type: 'echo',
+    raw,
   }
   if (line.startsWith('error')) return {
-    isError: true,
+    type: 'error',
+    raw,
   }
   if (line.startsWith('resend') || line.startsWith('rs')) {
     const lineNumber = parseInt(line.split(/N:|N|:/)[1])
     return {
-      isResend: true,
+      type: 'resend',
       lineNumber,
+      raw,
+    }
+  }
+
+  if (line.startsWith('ok')) {
+    return {
+      type: 'ok',
+      ...parsePrinterFeedback(line),
+      raw,
     }
   }
 
   return {
-    isAck: line.startsWith('ok'),
-    ...parsePrinterFeedback(line),
+    type: 'parser_error',
+    raw,
   }
 }
 
-class RXParser extends Transform {
-  constructor(options) {
+class RXParser extends stream.Transform {
+  constructor(options: *) {
     super(options)
   }
 
   /*
    * RXParser MUST be after the Readline in the pipe
    */
-  _transform(line, encoding, cb) {
-    this.push({
-      raw: line,
-      ...parseLine(line)
-    })
+  _transform(line: string, encoding: *, cb: *) {
+    this.push(parseLine(line))
     cb()
   }
 
-  _flush(cb) {
+  _flush(cb: *) {
     cb()
   }
 }
 
-export parseLine
 export default RXParser

@@ -11,7 +11,7 @@ const forEachNewLine = (input, cb) => {
 const normalizeGCodeLines = (input: [string]) => {
   const lines = []
   forEachNewLine(input, (line) => {
-    if (line.matches(commentRegex) !== null) return
+    if (line.match(commentRegex) !== null) return
     lines.push(line)
   })
   return lines
