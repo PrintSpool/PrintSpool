@@ -3,11 +3,6 @@ import SagaTester from 'redux-saga-tester'
 
 import despoolToSerialSaga from '../../src/sagas/despool_to_serial_saga'
 
-const expectSelect = (next) => {
-  expect(next.value).not.toBe(null)
-  expect(next.value.SELECT).not.toBe(null)
-}
-
 test('sends next line on DESPOOL', async () => {
   const initialState = {
     spool: {

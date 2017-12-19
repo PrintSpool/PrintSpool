@@ -12,6 +12,8 @@ import {
 const getCurrentLine = (state) => state.spool.currentLine
 const getCurrentLineNumber = (state) => state.spool.currentLineNumber
 const getReady = (state) => state.driver.ready
+const getGreetingToReadyDelay = (state) =>
+  state.config.driver.delayFromGreetingToReady
 
 /*
  * Intercepts SERIAL_RECEIVE actions, parses their data (appending it

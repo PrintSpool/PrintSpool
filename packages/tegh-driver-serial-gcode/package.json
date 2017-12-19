@@ -30,10 +30,10 @@
     "flow-bin": "^0.61.0",
     "jest": "^21.2.1",
     "redux": "^3.7.2",
+    "redux-saga": "^0.16.0",
     "redux-saga-tester": "^1.0.376"
   },
   "dependencies": {
-    "redux-saga": "^0.16.0",
     "serial-middleware": "file:../serial-middleware",
     "serialport": "^6.0.4"
   },
