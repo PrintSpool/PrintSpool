@@ -5,21 +5,14 @@ import _ from 'lodash'
 
 // import config from './config.js'
 import reducer from './reducer.js'
-import rxSaga from './rx_saga.js'
-import txSaga from './tx_saga.js'
+import saga from './sagas/'
 import serialErrorHandlerSaga from './serial_error_handler_saga'
 import rxParser from './rx_parser.js'
 
 // export { config }
 export { reducer }
 
-export const saga = (config) => function*() {
-  yield all([
-    rxSaga,
-    txSaga,
-    serialErrorSaga,
-  ])
-}
+export saga
 
 export const middleware = (config) => {
   const { path } = config.driver.serialPort

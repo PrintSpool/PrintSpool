@@ -5,6 +5,7 @@ export type SpoolState = {
   +manualSpool: Array<string>,
   +internalSpool: Array<string>,
   +currentLine: ?string,
+  +sendSpooledLineToPrinter: boolean,
 }
 
 export type SpoolAction = {
@@ -22,6 +23,7 @@ const initialState: SpoolState = {
   manualSpool: [],
   internalSpool: [],
   currentLine: null,
+  sendSpooledLineToPrinter: false,
 }
 
 const spoolReducer = (
@@ -41,11 +43,15 @@ const spoolReducer = (
       }
       const nextState = {
         ...state,
+        sendSpooledLineToPrinter: false,
         [spoolID]: [...state[spoolID], ...normalizeGCodeLines(action.data)],
       }
       if (state.currentLine == null) {
         // recurse into the reducer to despool the first line
-        return spoolReducer(nextState, { type: 'DESPOOL' })
+        return {
+          ...spoolReducer(nextState, { type: 'DESPOOL' }),
+          sendSpooledLineToPrinter: true,
+        }
       }
       return nextState
     }

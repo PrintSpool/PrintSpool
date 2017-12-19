@@ -1,3 +1,4 @@
+// @flow
 import { delay } from 'redux-saga'
 import {
   put,
@@ -8,37 +9,9 @@ import {
   call,
 } from 'redux-saga/effects'
 
-import sendLine from './send_line'
-
-/*
- * Selectors for grabbing getState
- */
-
 const getCurrentLine = (state) => state.spool.currentLine
 const getCurrentLineNumber = (state) => state.spool.currentLineNumber
 const getReady = (state) => state.driver.ready
-const getPollingInterval = (state) => (
-  state.config.driver.temperaturePollingInterval
-)
-const getGreetingToReadyDelay = (state) => (
-  state.config.driver.delayFromGreetingToReady
-)
-
-const createSpoolTemperatureQueryAction = () => ({
-  type: 'SPOOL',
-  spoolID: 'internalSpool',
-  data: 'M105',
-})
-
-const hasTemperatureData = ({ type, data = null }) => (
-  type === 'SERIAL_RECEIVE' && data.temperatures != null
-)
-
-const pollTemperature = () => {
-  const interval = yield select(getPollingInterval)
-  yield delay(interval)
-  yield put(createSpoolTemperatureQueryAction())
-}
 
 /*
  * Intercepts SERIAL_RECEIVE actions, parses their data (appending it
@@ -56,9 +29,9 @@ const pollTemperature = () => {
  *    parsedData: RxParserParsedData // see rx_parser
  *  }
  */
-const serialRecieve = function*(action) {
+export const onSerialRecieve = function*(action) {
   const ready = yield select(getReady)
-  const {data} = action
+  const { data } = action
 
   /*
    * After a greeting is received from the printer the middleware waits
@@ -94,9 +67,8 @@ const serialRecieve = function*(action) {
   }
 }
 
-export default const rxSaga = function*() {
-  yield all([
-    takeEvery('SERIAL_RECEIVE', serialRecieve),
-    takeLatest(hasTemperatureData, pollTemperature),
-  ]
+const serialReceiveSaga = function*() {
+  yield takeEvery('SERIAL_RECEIVE', onSerialRecieve)
 }
+
+export default serialReceiveSaga
