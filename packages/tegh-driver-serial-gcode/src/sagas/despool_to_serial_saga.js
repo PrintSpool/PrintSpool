@@ -1,7 +1,9 @@
 // @flow
-import { put, takeEvery, takeLatest, select, call } from 'redux-saga/effects'
+import { effects } from 'redux-saga'
 
 import serialSend from '../actions/serial_send'
+
+const { put, takeEvery, takeLatest, select, call } = effects
 
 const getCurrentLine = (state) =>
   state.spool.currentLine

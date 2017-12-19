@@ -1,13 +1,8 @@
 // @flow
-import { delay } from 'redux-saga'
-import {
-  put,
-  takeEvery,
-  takeLatest,
-  select,
-  all,
-  call,
-} from 'redux-saga/effects'
+import { effects } from 'redux-saga'
+
+const { put, takeEvery, takeLatest, select, call } = effects
+
 
 const getCurrentLine = (state) => state.spool.currentLine
 const getCurrentLineNumber = (state) => state.spool.currentLineNumber

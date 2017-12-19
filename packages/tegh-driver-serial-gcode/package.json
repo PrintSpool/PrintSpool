@@ -30,8 +30,9 @@
     "flow-bin": "^0.61.0",
     "jest": "^21.2.1",
     "redux": "^3.7.2",
-    "redux-saga": "^0.16.0",
-    "redux-saga-tester": "^1.0.376"
+    "redux-saga": "d1plo1d/redux-saga",
+    "redux-saga-delay-mock": "^0.0.1",
+    "redux-saga-tester": "github:d1plo1d/redux-saga-tester"
   },
   "dependencies": {
     "serial-middleware": "file:../serial-middleware",

@@ -1,24 +1,30 @@
 // @flow
-import util from 'util'
+import { utils as sagaUtils } from 'redux-saga'
 import SagaTester from 'redux-saga-tester'
+import sagaDelayMock from 'redux-saga-delay-mock'
 
 import spoolTemperatureQuery from '../../src/actions/spool_temperature_query'
 import pollTemperatureSaga from '../../src/sagas/poll_temperature_saga'
 
-const setImmediatePromise = util.promisify(setImmediate)
+const { SAGA_ACTION } = sagaUtils
 
 const initialState = {
   config: {
     driver: {
-      temperaturePollingInterval: 0, // 200, // TODO: delay mocks
+      temperaturePollingInterval: 200,
     },
   },
 }
 
 const initTester = () => {
   // TODO: see https://github.com/redux-saga/redux-saga/issues/1295
-  const delayMock = null
-  const sagaTester = new SagaTester({ initialState })
+  const delayMock = sagaDelayMock()
+  const sagaTester = new SagaTester({
+    initialState,
+    options: {
+      effectMiddlewares: [delayMock],
+    },
+  })
   sagaTester.start(pollTemperatureSaga)
   return { sagaTester, delayMock }
 }
@@ -30,16 +36,17 @@ test('on receiving temperature data waits to send next poll', async () => {
     data: { temperatures: { e0: 10 } },
   })
 
-  // TODO: delay mocks
-  // const delay = await delayMock.waitForDelay()
-  // expect(delayMock.timeout).toEqual(200)
-  // delayMock.next()
+  expect(delayMock.unacknowledgedDelay).not.toBe(null)
+  const pause = await delayMock.waitForDelay()
+  expect(pause.length).toEqual(200)
+  pause.next()
 
-  await setImmediatePromise(() => {
-    const result = sagaTester.getCalledActions().slice(1)
+  const result = sagaTester.getCalledActions().slice(1)
 
-    expect(result).toEqual(spoolTemperatureQuery())
-  })
+  expect(result).toEqual([{
+    ...spoolTemperatureQuery(),
+    [SAGA_ACTION]: true,
+  }])
 })
 
 test('does not poll if it does not receive temperature data', async () => {
@@ -49,9 +56,9 @@ test('does not poll if it does not receive temperature data', async () => {
     data: {},
   })
 
-  await setImmediatePromise(() => {
-    const result = sagaTester.getCalledActions().slice(1)
+  expect(delayMock.unacknowledgedDelay).toBe(null)
 
-    expect(result.length).toBe(0)
-  })
+  const result = sagaTester.getCalledActions().slice(1)
+
+  expect(result.length).toBe(0)
 })

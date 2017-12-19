@@ -1,7 +1,10 @@
 // @flow
+import { utils as sagaUtils } from 'redux-saga'
 import SagaTester from 'redux-saga-tester'
 
 import despoolToSerialSaga from '../../src/sagas/despool_to_serial_saga'
+
+const { SAGA_ACTION } = sagaUtils
 
 test('sends next line on DESPOOL', async () => {
   const initialState = {
@@ -20,6 +23,7 @@ test('sends next line on DESPOOL', async () => {
   expect(result).toEqual([{
     type: 'SERIAL_SEND',
     data: 'N1995 (╯°□°）╯︵ ┻━┻ *222',
+    [SAGA_ACTION]: true,
   }])
 })
 
@@ -40,6 +44,7 @@ test('sends next line on SPOOL when the printer is idle', () => {
   expect(result).toEqual([{
     type: 'SERIAL_SEND',
     data: 'N1995 (╯°□°）╯︵ ┻━┻ *222',
+    [SAGA_ACTION]: true,
   }])
 })
 

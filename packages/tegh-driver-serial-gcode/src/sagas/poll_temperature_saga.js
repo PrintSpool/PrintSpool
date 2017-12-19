@@ -1,16 +1,10 @@
 // @flow
-import { delay } from 'redux-saga'
-import {
-  put,
-  takeEvery,
-  takeLatest,
-  select,
-  all,
-  call,
-} from 'redux-saga/effects'
+import { effects } from 'redux-saga'
 
 import spoolTemperatureQuery from '../actions/spool_temperature_query'
 import serialSend from '../actions/serial_send'
+
+const { put, takeEvery, takeLatest, select, call, delay } = effects
 
 /*
  * Selectors for grabbing getState

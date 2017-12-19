@@ -1,5 +1,3 @@
-import { put, takeEvery, takeLatest, select, all } from 'redux-saga/effects'
-
 const checksum = (line) => {
   let sum = 0
   for (const char of line) {

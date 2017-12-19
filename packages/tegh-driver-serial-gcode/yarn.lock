@@ -2944,15 +2944,21 @@ readdirp@^2.0.0:
     readable-stream "^2.0.2"
     set-immediate-shim "^1.0.1"
 
-redux-saga-tester@^1.0.376:
-  version "1.0.376"
-  resolved "https://registry.yarnpkg.com/redux-saga-tester/-/redux-saga-tester-1.0.376.tgz#035446053bab94eaf65e7607e2bf8982999af7c5"
+redux-saga-delay-mock@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/redux-saga-delay-mock/-/redux-saga-delay-mock-0.0.1.tgz#cf01d5fe4d2319e945f4577f7449f8327d67db46"
 
-redux-saga@^0.16.0:
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/redux-saga/-/redux-saga-0.16.0.tgz#0a231db0a1489301dd980f6f2f88d8ced418f724"
+"redux-saga-tester@github:d1plo1d/redux-saga-tester":
+  version "1.0.377"
+  resolved "https://codeload.github.com/d1plo1d/redux-saga-tester/tar.gz/f6b5cebdece44ad5bb7871fe5a7d1e71878f564d"
 
-redux@^3.7.2:
+redux-saga@d1plo1d/redux-saga:
+  version "1.0.0-beta.0"
+  resolved "https://codeload.github.com/d1plo1d/redux-saga/tar.gz/57042fb0443db395d8017ee69c1b005beb752588"
+  dependencies:
+    redux "^3.5.1"
+
+redux@^3.5.1, redux@^3.7.2:
   version "3.7.2"
   resolved "https://registry.yarnpkg.com/redux/-/redux-3.7.2.tgz#06b73123215901d25d065be342eb026bc1c8537b"
   dependencies:
