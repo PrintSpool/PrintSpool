@@ -2,6 +2,7 @@
 import { effects } from 'redux-saga'
 
 import spoolTemperatureQuery from '../actions/spool_temperature_query'
+import serialSend from '../actions/serial_send'
 
 const { put, takeEvery, takeLatest, select, call, delay } = effects
 
@@ -49,7 +50,7 @@ export const onSerialRecieve = function*(action) {
     yield put({ type: 'DESPOOL' })
   } else if (data.type === 'resend') {
     const currentLine = yield select(getCurrentLine)
-    const previousLineNumber = yield select(getCurrentLineNumber) - 1
+    const previousLineNumber = (yield select(getCurrentLineNumber)) - 1
     /*
      * Tegh only sends one line at a time. If a resend is requested for a
      * different line number then this is likely an issue of the printer's
@@ -61,7 +62,7 @@ export const onSerialRecieve = function*(action) {
         `does not match current line number ${previousLineNumber}`
       )
     }
-    yield call(sendLine, previousLineNumber, currentLine)
+    yield put(serialSend(previousLineNumber, currentLine))
   }
 }
 

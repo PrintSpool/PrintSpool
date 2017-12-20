@@ -5,6 +5,7 @@ import delayMockedSagaTester from '../__helpers/delay_mocked_saga_tester'
 
 import spoolTemperatureQuery from '../../src/actions/spool_temperature_query'
 import serialReceiveSaga from '../../src/sagas/serial_receive_saga'
+import serialSend from '../../src/actions/serial_send'
 
 const { SAGA_ACTION } = sagaUtils
 
@@ -116,4 +117,64 @@ describe('SERIAL_RECEIVE ok', () => {
   )
 })
 
-// TODO: resends
+describe('SERIAL_RECEIVE resend', () => {
+  itDoesNothingWhen({ ready: false, type: 'resend'})
+  // test(
+  //   'when the resend is not for the previous line number it errors',
+  //   () => {
+  //     const initialState = {
+  //       ...createState({ ready: true }),
+  //       spool: {
+  //         currentLine: '(╯°□°）╯︵ ┻━┻',
+  //         currentLineNumber: 42,
+  //       }
+  //     }
+  //
+  //     const { sagaTester, delayMock } = delayMockedSagaTester({
+  //       initialState,
+  //       saga: serialReceiveSaga,
+  //     })
+  //     sagaTester.dispatch({
+  //       type: 'SERIAL_RECEIVE',
+  //       data: {
+  //         type: 'resend',
+  //         lineNumber: 26,
+  //       },
+  //     })
+  //     // TODO: expect error
+  //   }
+  // )
+  test(
+    'when the resend is for the previous line number it resends it',
+    () => {
+      const initialState = {
+        ...createState({ ready: true }),
+        spool: {
+          currentLine: '(╯°□°）╯︵ ┻━┻',
+          currentLineNumber: 42,
+        }
+      }
+
+      const { sagaTester, delayMock } = delayMockedSagaTester({
+        initialState,
+        saga: serialReceiveSaga,
+      })
+      sagaTester.dispatch({
+        type: 'SERIAL_RECEIVE',
+        data: {
+          type: 'resend',
+          lineNumber: 41,
+        },
+      })
+
+      const result = sagaTester.getCalledActions().slice(1)
+
+      expect(result).toEqual([
+        {
+          ...serialSend(41, '(╯°□°）╯︵ ┻━┻'),
+          [SAGA_ACTION]: true,
+        },
+      ])
+    }
+  )
+})

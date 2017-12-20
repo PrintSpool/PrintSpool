@@ -89,7 +89,6 @@ const parseFanMCodes = (
 
   const changes = (() => {
     if (code === 'M106') {
-      console.log(args.s, typeof args.s)
       return {
         enabled: true,
         speed: Math.round(get8BitFanSpeed() * 1000 / 255)/10,
