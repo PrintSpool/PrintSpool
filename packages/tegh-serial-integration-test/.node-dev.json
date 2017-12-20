@@ -1,7 +1,4 @@
 {
   "extensions": {
-    "js": {
-      "name": "babel-register"
-    }
   }
 }

@@ -15,5 +15,5 @@ axes:
 driver:
   package: serial-gcode
   serialPort:
-    path: /dev/null
-    baudRate: 9200
+    path: /dev/ttyACM0
+    baudRate: 115200

@@ -1,8 +1,8 @@
 // @flow
-import { parseLine } from '../src/rx_parser'
+import rxParser from '../src/rx_parser'
 
 test('parses greetings', () => {
-  const result = parseLine('start')
+  const result = rxParser('start')
 
   expect(result).toEqual({
     type: 'greeting',
@@ -11,7 +11,7 @@ test('parses greetings', () => {
 })
 
 test('parses resends', () => {
-  const result = parseLine('rs N:95')
+  const result = rxParser('rs N:95')
 
   expect(result).toEqual({
     type: 'resend',
@@ -21,7 +21,7 @@ test('parses resends', () => {
 })
 
 test('parses echo lines', () => {
-  const result = parseLine('echo:stuff')
+  const result = rxParser('echo:stuff')
 
   expect(result).toEqual({
     type: 'echo',
@@ -30,7 +30,7 @@ test('parses echo lines', () => {
 })
 
 test('parses debug lines', () => {
-  const result = parseLine('debug_ stuff')
+  const result = rxParser('debug_ stuff')
 
   expect(result).toEqual({
     type: 'debug',
@@ -39,7 +39,7 @@ test('parses debug lines', () => {
 })
 
 test('parses errors', () => {
-  const result = parseLine('error stuff')
+  const result = rxParser('error stuff')
 
   expect(result).toEqual({
     type: 'error',
@@ -49,7 +49,7 @@ test('parses errors', () => {
 
 describe('parses oks', () => {
   test('without heater values', () => {
-    const result = parseLine('ok')
+    const result = rxParser('ok')
 
     expect(result).toEqual({
       type: 'ok',
@@ -58,7 +58,7 @@ describe('parses oks', () => {
   })
 
   test('with heater values', () => {
-    const result = parseLine('ok t: 42 e3: 200')
+    const result = rxParser('ok t: 42 e3: 200')
 
     expect(result).toEqual({
       type: 'ok',
@@ -72,7 +72,7 @@ describe('parses oks', () => {
   })
 
   test('with a w value', () => {
-    const result = parseLine('ok t: 42 e3: 200 w: 29')
+    const result = rxParser('ok t: 42 e3: 200 w: 29')
 
     expect(result).toEqual({
       type: 'ok',

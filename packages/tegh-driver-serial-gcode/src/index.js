@@ -1,27 +1,24 @@
-import { all } from 'redux-saga/effects'
 import serialMiddleware from 'serial-middleware'
 import SerialPort from 'serialport'
 import _ from 'lodash'
 
 // import config from './config.js'
-import reducer from './reducer.js'
-import saga from './sagas/'
-import serialErrorHandlerSaga from './serial_error_handler_saga'
+import createSerialPort from './serial/create_serial_port'
 import rxParser from './rx_parser.js'
 
+export { default as reducer } from './reducer'
+export {default as saga } from './sagas/'
+export {default as serialConsole } from './serial/serial_console'
+
 // export { config }
-export { reducer }
 
-export saga
-
-export const middleware = (config) => {
-  const { path } = config.driver.serialPort
-  const serialOpts = _.without(config.driver.serialPort, ['path'])
-  const serialPort = new SerialPort(path, serialOpts)
-    .pipe(new SerialPort.parsers.Readline())
-    .pipe(rxParser())
+export const middleware = ({ config }) => {
+  const {
+    serialPort,
+    parser,
+  } = createSerialPort(config)
 
   return [
-    serialMiddleware(serialPort),
+    serialMiddleware({ serialPort, parser, receiveParser: rxParser }),
   ]
 }

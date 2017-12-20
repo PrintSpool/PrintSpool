@@ -4,29 +4,34 @@ import koaBody from 'koa-bodyparser'
 import { graphqlKoa, graphiqlKoa } from 'apollo-server-koa'
 import yaml from 'js-yaml'
 import fs from 'fs'
+import { resolve } from 'path'
 
 import onUncaughtException from './helpers/on_uncaught_exception'
 import teghSchema from './graphql/schema'
-import store from './store'
+import createTeghStore from './store'
+
+// Get document, or throw exception on error
+export const loadConfig = (configPath) => {
+  try {
+    return yaml.safeLoad(fs.readFileSync(resolve(configPath), 'utf8'))
+  } catch (e) {
+    throw new Error(`Unable to load config file ${configPath}`, e)
+  }
+}
 
 const teghDaemon = (argv, loadPlugin) => {
   process.on('uncaughtException', onUncaughtException)
 
-  // Get document, or throw exception on error
-  const config = (() => {
-    const expectedUseage = 'Expected useage: tegh [/path/to/config.yml]'
-    const configPath = argv[2]
-    if (configPath == null) {
-      throw new Error(`No config file provided. ${expectedUseage}`)
-    }
-    try {
-      return yaml.safeLoad(fs.readFileSync(configPath, 'utf8'))
-    } catch (e) {
-      throw new Error(`Unable to load config file. ${expectedUseage}`, e)
-    }
-  })()
+  process.on('unhandledRejection', (e, p) => onUncaughtException(e))
 
+  const configPath = argv[2]
+  const expectedUseage = 'Expected useage: tegh [/path/to/config.yml]'
+  if (configPath == null) {
+    throw new Error(`No config file provided. ${expectedUseage}`)
+  }
+  const config = loadConfig(configPath)
   const driver = loadPlugin(`tegh-driver-${config.driver.package}`)
+  const store = createTeghStore({ config, driver })
 
   // eslint-disable-next-line new-cap
   const app = new koa()
@@ -37,7 +42,7 @@ const teghDaemon = (argv, loadPlugin) => {
   const teghGraphqlKoa = () => graphqlKoa({
     schema: teghSchema,
     context: {
-      store: store({ config, driver }),
+      store: store,
     },
   })
 

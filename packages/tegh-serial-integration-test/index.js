@@ -1,7 +1,12 @@
-// import 'tegh-driver-serial-gcode'
-import teghDaemon from 'tegh-daemon'
+require('babel-register')({
+  ignore: /node_modules\/(?!tegh|serial-middleware)/
+})
+require("babel-polyfill")
 
-const argv = [null, null, './test_printer_id.yml']
+// import 'tegh-driver-serial-gcode'
+var teghDaemon = require('tegh-daemon').default
+
+const argv = [null, null, './tegh.yml']
 
 const loadPlugin = (plugin) => require(plugin)
 

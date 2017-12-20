@@ -52,7 +52,7 @@ const parsePrinterFeedback = (line: string): Feedback => {
   }
 }
 
-export const parseLine = (raw: string): RxData => {
+const rxParser = (raw: string): RxData => {
   const line = raw.toLowerCase()
   if (line.match(GREETINGS) != null) return {
     type: 'greeting',
@@ -93,22 +93,4 @@ export const parseLine = (raw: string): RxData => {
   }
 }
 
-class RXParser extends stream.Transform {
-  constructor(options: *) {
-    super(options)
-  }
-
-  /*
-   * RXParser MUST be after the Readline in the pipe
-   */
-  _transform(line: string, encoding: *, cb: *) {
-    this.push(parseLine(line))
-    cb()
-  }
-
-  _flush(cb: *) {
-    cb()
-  }
-}
-
-export default RXParser
+export default rxParser

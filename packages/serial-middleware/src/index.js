@@ -18,7 +18,7 @@ export type SerialSendAction = {
 
 export type SerialReceiveAction = {
   type: 'SERIAL_RECEIVE',
-  data: string,
+  data: mixed,
 }
 
 export type SerialErrorAction = {
@@ -35,7 +35,15 @@ type Store = {
   dispatch: Dispatch<DispatchedAction>
 }
 
-const serialMiddleware = (serialPort: SerialPort) => (store: Store) => {
+const serialMiddleware = ({
+  serialPort,
+  parser,
+  receiveParser = ((line) => line),
+}:{
+  serialPort: SerialPort,
+  parser?: SerialPort,
+  receiveParser?: (string) => mixed,
+}) => (store: Store) => {
   const onOpen = () => {
       store.dispatch({
         type: 'SERIAL_OPEN'
@@ -46,7 +54,7 @@ const serialMiddleware = (serialPort: SerialPort) => (store: Store) => {
     if (typeof data !== 'string') throw 'data must be a string'
     store.dispatch({
       type: 'SERIAL_RECEIVE',
-      data,
+      data: receiveParser(data),
     })
   }
 
@@ -58,15 +66,16 @@ const serialMiddleware = (serialPort: SerialPort) => (store: Store) => {
     })
   }
 
-  serialPort
-    .on('open', onOpen)
-    .on('data', onData)
+  serialPort.on('open', onOpen)
+  const dataHandler = (parser || serialPort)
     .on('error', onError)
+    .on('data', onData)
 
   serialPort.open()
 
   return (next: {type: string} => mixed) => (action: {type: string}) => {
     if (action.type === 'SERIAL_SEND') {
+      console.log('SERIAL FUCKING SEND')
       if (typeof action.data !== 'string') throw 'data must be a string'
       serialPort.write(action.data, (err) => {
         if (err) onError(err)

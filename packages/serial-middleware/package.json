@@ -1,7 +1,7 @@
 {
-  "name": "tegh-serial-middleware",
-  "version": "0.4.0",
-  "description": "Tegh serial middleware",
+  "name": "serial-middleware",
+  "version": "0.0.1",
+  "description": "Redux serial middleware",
   "main": "src/index.js",
   "author": "Rob Gilson",
   "license": "GPL-3.0",

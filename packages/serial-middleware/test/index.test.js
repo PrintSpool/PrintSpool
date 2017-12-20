@@ -25,7 +25,7 @@ test(
   () => {
     const { eventListeners, serialPort, store } = serialMocks()
 
-    serialMiddleware(serialPort)(store)
+    serialMiddleware({ serialPort })(store)
 
     expect(serialPort.open.mock.calls.length).toBe(1)
   }
@@ -36,7 +36,7 @@ test(
   () => {
     const { eventListeners, serialPort, store } = serialMocks()
 
-    serialMiddleware(serialPort)(store)
+    serialMiddleware({ serialPort })(store)
     eventListeners.open()
 
     expect(store.dispatch.mock.calls.length).toBe(1)
@@ -49,7 +49,7 @@ test(
   () => {
     const { eventListeners, serialPort, store } = serialMocks()
 
-    serialMiddleware(serialPort)(store)
+    serialMiddleware({ serialPort })(store)
     eventListeners.data('social constructs')
 
     expect(store.dispatch.mock.calls.length).toBe(1)
@@ -65,7 +65,7 @@ test(
   () => {
     const { eventListeners, serialPort, store } = serialMocks()
 
-    serialMiddleware(serialPort)(store)
+    serialMiddleware({ serialPort })(store)
     eventListeners.error('giraffe')
 
     expect(store.dispatch.mock.calls.length).toBe(1)
@@ -87,7 +87,7 @@ test(
       data: 'kitties',
     }
 
-    const result = serialMiddleware(serialPort)(store)(next)(action)
+    const result = serialMiddleware({ serialPort })(store)(next)(action)
 
     expect(serialPort.write.mock.calls.length).toBe(1)
     expect(serialPort.write.mock.calls[0][0]).toEqual('kitties')
@@ -105,7 +105,7 @@ test(
       type: 'RAISE_LEVEL_OVER_9000',
     }
 
-    const result = serialMiddleware(serialPort)(store)(next)(action)
+    const result = serialMiddleware({ serialPort })(store)(next)(action)
 
     expect(serialPort.write.mock.calls.length).toBe(0)
     expect(result).toBe("reasons")

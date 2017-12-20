@@ -22,6 +22,7 @@ describe('SPOOL action', () => {
       const result = spoolReducer(state, action)
 
       expect(result.manualSpool[0]).toEqual(state.manualSpool[0])
+      expect(result.sendSpooledLineToPrinter).toEqual(false)
       expect(result.manualSpool.slice(1)).toEqual(action.data)
     }
   )
@@ -44,6 +45,7 @@ describe('SPOOL action', () => {
       const result = spoolReducer(state, action)
 
       expect(result.internalSpool[0]).toEqual(state.internalSpool[0])
+      expect(result.sendSpooledLineToPrinter).toEqual(false)
       expect(result.internalSpool.slice(1)).toEqual(action.data)
     }
   )
@@ -69,6 +71,7 @@ describe('SPOOL action', () => {
         manualSpool: [],
         internalSpool: ['Bar', 'Baz'],
         currentLine: 'Foo',
+        sendSpooledLineToPrinter: true,
       })
     }
   )
