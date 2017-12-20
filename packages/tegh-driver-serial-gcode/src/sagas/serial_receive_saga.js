@@ -1,8 +1,9 @@
 // @flow
 import { effects } from 'redux-saga'
 
-const { put, takeEvery, takeLatest, select, call } = effects
+import spoolTemperatureQuery from '../actions/spool_temperature_query'
 
+const { put, takeEvery, takeLatest, select, call, delay } = effects
 
 const getCurrentLine = (state) => state.spool.currentLine
 const getCurrentLineNumber = (state) => state.spool.currentLineNumber
@@ -38,15 +39,15 @@ export const onSerialRecieve = function*(action) {
    * Temperature polling also begins at that time.
    */
   if (!ready) {
-    if (!data.isGreeting) return
+    if (data.type !== 'greeting') return
     const delayFromGreetingToReady = yield select(getGreetingToReadyDelay)
     yield delay(delayFromGreetingToReady)
     yield put({ type: 'PRINTER_READY' })
     // Send the initial temperature poll
-    yield put(createSpoolTemperatureQueryAction())
-  } else if (data.isAck) {
+    yield put(spoolTemperatureQuery())
+  } else if (data.type === 'ok') {
     yield put({ type: 'DESPOOL' })
-  } else if (data.isResend) {
+  } else if (data.type === 'resend') {
     const currentLine = yield select(getCurrentLine)
     const previousLineNumber = yield select(getCurrentLineNumber) - 1
     /*
