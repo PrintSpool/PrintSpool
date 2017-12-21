@@ -10,6 +10,8 @@ import onUncaughtException from './helpers/on_uncaught_exception'
 import teghSchema from './graphql/schema'
 import createTeghStore from './store'
 
+export { effects } from 'redux-saga'
+
 // Get document, or throw exception on error
 export const loadConfig = (configPath) => {
   try {

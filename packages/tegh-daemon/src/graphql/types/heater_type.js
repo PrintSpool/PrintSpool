@@ -12,7 +12,7 @@ const HeaterType = new GraphQLObjectType({
       type: tql`ID!`,
     },
     targetTemperature: {
-      type: tql`Float!`,
+      type: tql`Float`,
       description: snl`
         The target temperature in °C for this heater. The heater will
         attempt to make the current_temp equal to this temperature.

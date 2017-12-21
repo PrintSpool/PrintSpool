@@ -3174,7 +3174,7 @@ sax@^1.2.1:
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.4.1.tgz#e059c09d8571f0540823733433505d3a2f00b18e"
 
 "serial-middleware@file:../serial-middleware":
-  version "0.4.0"
+  version "0.0.1"
 
 serialport@^6.0.4:
   version "6.0.4"

@@ -1,5 +1,5 @@
 // @flow
-import { effects } from 'redux-saga'
+import { effects } from 'tegh-daemon'
 
 import serialSend from '../actions/serial_send'
 
@@ -8,7 +8,7 @@ const { put, takeEvery, takeLatest, select, call } = effects
 const getCurrentLine = (state) =>
   state.spool.currentLine
 const getCurrentLineNumber = (state) =>
-  state.spool.currentLineNumber
+  state.driver.currentLineNumber
 const shouldSendSpooledLineToPrinter = (state) =>
   state.spool.sendSpooledLineToPrinter
 
@@ -23,11 +23,11 @@ const shouldSendSpooledLineToPrinter = (state) =>
 const onSpoolerChange = function*(action: {type: string}) {
   const { type } = action
   const shouldSendSpool = yield select(shouldSendSpooledLineToPrinter)
+  const currentLine = yield select(getCurrentLine)
   if (
-    type === 'DESPOOL' ||
+    type === 'DESPOOL' && currentLine != null ||
     type === 'SPOOL' && shouldSendSpool
   ) {
-    const currentLine = yield select(getCurrentLine)
     const currentLineNumber = yield select(getCurrentLineNumber)
     yield put(serialSend(currentLineNumber, currentLine))
   }

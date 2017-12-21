@@ -75,7 +75,6 @@ const serialMiddleware = ({
 
   return (next: {type: string} => mixed) => (action: {type: string}) => {
     if (action.type === 'SERIAL_SEND') {
-      console.log('SERIAL FUCKING SEND')
       if (typeof action.data !== 'string') throw 'data must be a string'
       serialPort.write(action.data, (err) => {
         if (err) onError(err)

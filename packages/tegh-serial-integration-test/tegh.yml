@@ -15,6 +15,8 @@ axes:
   - e1
 driver:
   package: serial-gcode
+  temperaturePollingInterval: 600
+  delayFromGreetingToReady: 2500
   serialPort:
     path: /dev/ttyACM0
     baudRate: 115200

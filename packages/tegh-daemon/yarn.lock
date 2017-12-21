@@ -3436,9 +3436,9 @@ redux-logger@^3.0.6:
   dependencies:
     deep-diff "^0.3.5"
 
-redux-saga@^1.0.0-beta.0:
+redux-saga@d1plo1d/redux-saga:
   version "1.0.0-beta.0"
-  resolved "https://registry.yarnpkg.com/redux-saga/-/redux-saga-1.0.0-beta.0.tgz#a8d35a5530a727a26c5392ee9f9ec5ad6417609d"
+  resolved "https://codeload.github.com/d1plo1d/redux-saga/tar.gz/57042fb0443db395d8017ee69c1b005beb752588"
   dependencies:
     redux "^3.5.1"
 

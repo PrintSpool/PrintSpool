@@ -1,13 +1,13 @@
 // @flow
-import { effects } from 'redux-saga'
+import { effects } from 'tegh-daemon'
 
 import spoolTemperatureQuery from '../actions/spool_temperature_query'
 import serialSend from '../actions/serial_send'
 
-const { put, takeEvery, takeLatest, select, call, delay } = effects
+const { put, takeEvery, takeLatest, select, call, delay, take } = effects
 
 const getCurrentLine = (state) => state.spool.currentLine
-const getCurrentLineNumber = (state) => state.spool.currentLineNumber
+const getCurrentLineNumber = (state) => state.driver.currentLineNumber
 const getReady = (state) => state.driver.ready
 const getGreetingToReadyDelay = (state) =>
   state.config.driver.delayFromGreetingToReady
@@ -39,11 +39,8 @@ export const onSerialRecieve = function*(action) {
    *
    * Temperature polling also begins at that time.
    */
-   console.log('SERIAL SAGA')
   if (!ready) {
-    console.log('NOT READY')
     if (data.type !== 'greeting') return
-    console.log('GREETINGS!!')
     const delayFromGreetingToReady = yield select(getGreetingToReadyDelay)
     yield delay(delayFromGreetingToReady)
     yield put({ type: 'PRINTER_READY' })

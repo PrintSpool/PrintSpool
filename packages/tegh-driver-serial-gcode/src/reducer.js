@@ -15,7 +15,7 @@ const initialState = (config) => ({
   heaters: initializeCollection(config.heaters, (id) => ({
     id,
     currentTemperature: 0,
-    targetTemperature: 0,
+    targetTemperature: null,
     blocking: false,
   })),
   fans: initializeCollection(config.fans, (id) => ({
@@ -25,7 +25,7 @@ const initialState = (config) => ({
   })),
   ready: false,
   error: null,
-  currentLineNumber: 0,
+  currentLineNumber: 1,
 })
 
 const serialGCodeReducer = (config) => (
@@ -34,10 +34,10 @@ const serialGCodeReducer = (config) => (
 ) => {
   switch(action.type) {
     case 'SERIAL_RECEIVE':
-      console.log(`rx: ${action.data.raw}`, action.data.type)
+      // console.log(`rx: ${action.data.raw}`, action.data.type)
       if (action.data.temperatures != null) {
         const heaters = {...heaters}
-        action.data.temperatures.forEach((k, v) => {
+        Object.entries(action.data.temperatures).forEach(([k, v]) => {
           heaters[k] = {...heaters[k], currentTemperature: v}
         })
         const {targetTemperaturesCountdown} = action.data
@@ -56,7 +56,8 @@ const serialGCodeReducer = (config) => (
       }
       return state
     case 'SERIAL_SEND':
-      const parsedData = txParser(action)
+      // console.log(`TX: ${action.data}`)
+      const parsedData = txParser(action.data)
       const {lineNumber, type, id, changes} = parsedData
       const nextState = {
         ...state,
@@ -83,7 +84,7 @@ const serialGCodeReducer = (config) => (
       return {
         ...state,
         ready: true,
-        currentLineNumber: 0,
+        currentLineNumber: 1,
       }
     default:
       return state

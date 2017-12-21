@@ -117,7 +117,7 @@ const parseFanMCodes = (
 
 const txParser = (rawSerialOutput: string): Tx => {
   const [line, _checksum] = rawSerialOutput.toUpperCase().split('*')
-  const [lineNumberWithN, code, ...argWords] = line.split(' ')
+  const [lineNumberWithN, code, ...argWords] = line.trim().split(/ +/)
   const lineNumber = parseInt(lineNumberWithN.slice(1), 10)
   const args = {}
   argWords.forEach(word =>

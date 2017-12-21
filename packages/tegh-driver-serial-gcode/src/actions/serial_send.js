@@ -8,10 +8,13 @@ const checksum = (line) => {
 }
 
 const serialSend = (lineNumber, line) => {
-  const lineWithLineNumber = `N${lineNumber} ${line} `
+  if (typeof line !== 'string') {
+    throw new Error(`Invalid gcode line ${line}`)
+  }
+  const lineWithLineNumber = `N${lineNumber} ${line}`
   return {
     type: 'SERIAL_SEND',
-    data: `${lineWithLineNumber}*${checksum(lineWithLineNumber)}`,
+    data: `${lineWithLineNumber}*${checksum(lineWithLineNumber)}\n`,
   }
 }
 
