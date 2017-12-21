@@ -2111,10 +2111,6 @@ redux-logger@^3.0.6:
   dependencies:
     deep-diff "^0.3.5"
 
-redux-saga@^0.16.0:
-  version "0.16.0"
-  resolved "https://registry.yarnpkg.com/redux-saga/-/redux-saga-0.16.0.tgz#0a231db0a1489301dd980f6f2f88d8ced418f724"
-
 redux-saga@^1.0.0-beta.0:
   version "1.0.0-beta.0"
   resolved "https://registry.yarnpkg.com/redux-saga/-/redux-saga-1.0.0-beta.0.tgz#a8d35a5530a727a26c5392ee9f9ec5ad6417609d"
@@ -2127,13 +2123,6 @@ redux@^3.5.1:
   dependencies:
     lodash "^4.2.1"
     lodash-es "^4.2.1"
-    loose-envify "^1.1.0"
-    symbol-observable "^1.0.3"
-
-redux@^4.0.0-beta.1:
-  version "4.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/redux/-/redux-4.0.0-beta.1.tgz#fc1cf2fc33d23a1a201d00235b3e27a331261ec7"
-  dependencies:
     loose-envify "^1.1.0"
     symbol-observable "^1.0.3"
 
@@ -2457,7 +2446,7 @@ tar@^2.2.1:
     koa "^2.3.0"
     koa-bodyparser "^4.2.0"
     koa-router "^7.2.1"
-    redux "^4.0.0-beta.1"
+    redux "^3.5.1"
     redux-logger "^3.0.6"
     redux-saga "^1.0.0-beta.0"
     strip-newlines "^1.0.1"

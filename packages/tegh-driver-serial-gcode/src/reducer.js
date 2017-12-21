@@ -3,7 +3,7 @@ import txParser from './tx_parser.js'
 const initializeCollection = (arrayOfIDs, initialValueFn) => {
   return arrayOfIDs.reduce(
     (collection, id) => {
-      collection[id] = initialValueFn()
+      collection[id] = initialValueFn(id)
       return collection
     },
     {}
@@ -12,12 +12,14 @@ const initializeCollection = (arrayOfIDs, initialValueFn) => {
 
 const initialState = (config) => ({
   targetTemperaturesCountdown: null,
-  heaters: initializeCollection(config.heaters, () => ({
+  heaters: initializeCollection(config.heaters, (id) => ({
+    id,
     currentTemperature: 0,
     targetTemperature: 0,
     blocking: false,
   })),
-  fans: initializeCollection(config.fans, () => ({
+  fans: initializeCollection(config.fans, (id) => ({
+    id,
     enabled: false,
     speed: 0,
   })),
@@ -32,6 +34,7 @@ const serialGCodeReducer = (config) => (
 ) => {
   switch(action.type) {
     case 'SERIAL_RECEIVE':
+      console.log(`rx: ${action.data.raw}`, action.data.type)
       if (action.data.temperatures != null) {
         const heaters = {...heaters}
         action.data.temperatures.forEach((k, v) => {

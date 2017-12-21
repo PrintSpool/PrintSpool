@@ -1,4 +1,7 @@
 // @flow
+import { effects } from 'redux-saga'
+
+const { put, takeEvery, takeLatest, select, call, delay } = effects
 
 // Re-throw serial port errors as uncaught exceptions so that they crash
 // the process. Continuing after a serial error leads to an unknown state.

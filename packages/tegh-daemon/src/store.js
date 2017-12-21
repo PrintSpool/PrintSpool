@@ -10,26 +10,25 @@ const driverMiddleware = ({ config, driver }) => {
   return driver.middleware({ config })
 }
 
-const sagaMiddleware = ({ driver }) => {
-  const middleware = createSagaMiddleware({
+const store = ({ config, driver }) => {
+  const sagaMiddleware = createSagaMiddleware({
     onError: onUncaughtException,
   })
-  if (driver.saga != null) {
-    middleware.run(driver.saga())
-  }
-  return middleware
-}
-
-const store = ({ config, driver }) => {
   const middleware = [
     ...driverMiddleware({ config, driver }),
-    sagaMiddleware({ config, driver }),
+    sagaMiddleware,
     loggerMiddleware({ config }),
   ]
-  return createStore(
+  const store = createStore(
     rootReducer({ config, driver }),
     applyMiddleware(...middleware),
   )
+  if (driver.sagas != null) {
+    for (const saga of driver.sagas({ config })) {
+      sagaMiddleware.run(saga)
+    }
+  }
+  return store
 }
 
 export default store

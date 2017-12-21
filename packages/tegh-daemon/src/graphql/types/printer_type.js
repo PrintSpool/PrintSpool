@@ -5,6 +5,7 @@ import {
   GraphQLString
 } from 'graphql'
 import tql from 'typiql'
+import snl from 'strip-newlines'
 
 import PrinterModeEnum from './printer_mode_enum.js'
 import HeaterType from './heater_type.js'
@@ -32,18 +33,34 @@ const Printer = new GraphQLObjectType({
     heaters: {
       type: tql`[${HeaterType}!]!`,
       resolve(source) {
-        return source.driver.heaters
+        return Object.values(source.driver.heaters)
+      },
+    },
+    targetTemperaturesCountdown: {
+      type: tql`Float`,
+      description: snl`
+        The estimated number of seconds until the heater(s) reach their
+        targetTemperature.
+      `,
+      resolve(source) {
+        return source.driver.targetTemperaturesCountdown
       },
     },
     fans: {
       type: tql`[${FanType}!]!`,
       resolve(source) {
-        return source.driver.fans
+        return Object.values(source.driver.fans)
       },
     },
     // jobQueue: {
     //   type: tql`[${JobType}!]!`,
     // },
+    ready: {
+      type: tql`Boolean!`,
+      resolve(source) {
+        return source.driver.ready
+      },
+    },
   })
 })
 

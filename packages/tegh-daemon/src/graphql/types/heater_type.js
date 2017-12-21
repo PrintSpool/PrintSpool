@@ -11,28 +11,18 @@ const HeaterType = new GraphQLObjectType({
     id: {
       type: tql`ID!`,
     },
-    name: {
-      type: tql`String!`,
-    },
-    targetTemp: {
+    targetTemperature: {
       type: tql`Float!`,
       description: snl`
         The target temperature in °C for this heater. The heater will
         attempt to make the current_temp equal to this temperature.
       `,
     },
-    currentTemp: {
+    currentTemperature: {
       type: tql`Float!`,
       description: snl`
         The current temperature in °C recorded by the heater’s thermocouple
         or thermister.
-      `,
-    },
-    targetTempCountdown: {
-      type: tql`Float`,
-      description: snl`
-        The estimated number of seconds until the heater reaches it’s
-        targetTemp or undefined.
       `,
     },
     blocking: {

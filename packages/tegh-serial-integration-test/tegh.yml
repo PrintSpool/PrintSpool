@@ -1,5 +1,6 @@
 id: test_printer_id
-logLevel: info
+name: 'lulzbot-test-printer'
+logLevel: warn
 heaters:
   - e0
   - e1

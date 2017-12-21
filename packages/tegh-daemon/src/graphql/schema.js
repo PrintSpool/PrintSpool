@@ -12,7 +12,7 @@ const schema = new GraphQLSchema({
     fields: {
       printers: {
         type: tql`[${PrinterType}!]!`,
-        resolve: (_source, _args, context) => context.store.getState(),
+        resolve: (_source, _args, context) => [context.store.getState()],
       },
     },
   }),

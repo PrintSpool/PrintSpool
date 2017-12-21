@@ -7,8 +7,8 @@ import createSerialPort from './serial/create_serial_port'
 import rxParser from './rx_parser.js'
 
 export { default as reducer } from './reducer'
-export {default as saga } from './sagas/'
-export {default as serialConsole } from './serial/serial_console'
+export { default as sagas } from './sagas/'
+export { default as serialConsole } from './serial/serial_console'
 
 // export { config }
 

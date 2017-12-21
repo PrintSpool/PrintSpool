@@ -39,8 +39,11 @@ export const onSerialRecieve = function*(action) {
    *
    * Temperature polling also begins at that time.
    */
+   console.log('SERIAL SAGA')
   if (!ready) {
+    console.log('NOT READY')
     if (data.type !== 'greeting') return
+    console.log('GREETINGS!!')
     const delayFromGreetingToReady = yield select(getGreetingToReadyDelay)
     yield delay(delayFromGreetingToReady)
     yield put({ type: 'PRINTER_READY' })
