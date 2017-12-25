@@ -1,5 +1,7 @@
 import txParser from './tx_parser.js'
 
+const VERBOSE = true
+
 const initializeCollection = (arrayOfIDs, initialValueFn) => {
   return arrayOfIDs.reduce(
     (collection, id) => {
@@ -34,7 +36,7 @@ const serialGCodeReducer = (config) => (
 ) => {
   switch(action.type) {
     case 'SERIAL_RECEIVE':
-      // console.log(`rx: ${action.data.raw}`, action.data.type)
+      if (VERBOSE) console.log(`rx: ${action.data.raw}`, action.data.type)
       if (action.data.temperatures != null) {
         const heaters = {...heaters}
         Object.entries(action.data.temperatures).forEach(([k, v]) => {
@@ -56,7 +58,7 @@ const serialGCodeReducer = (config) => (
       }
       return state
     case 'SERIAL_SEND':
-      // console.log(`TX: ${action.data}`)
+      if (VERBOSE) console.log(`TX: ${action.data}`)
       const parsedData = txParser(action.data)
       const {lineNumber, type, id, changes} = parsedData
       const nextState = {

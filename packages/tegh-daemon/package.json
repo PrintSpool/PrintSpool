@@ -45,19 +45,21 @@
   },
   "dependencies": {
     "apollo-server-koa": "^1.2.0",
+    "apollo-upload-server": "^4.0.0-alpha.1",
     "babel-preset-flow": "^6.23.0",
     "dedent": "^0.7.0",
     "graphql": "^0.11.7",
+    "js-yaml": "^3.10.0",
     "koa": "^2.3.0",
     "koa-bodyparser": "^4.2.0",
+    "koa-cors": "^0.0.16",
     "koa-router": "^7.2.1",
     "redux": "^3.5.1",
-    "redux-saga": "d1plo1d/redux-saga",
     "redux-logger": "^3.0.6",
+    "redux-saga": "d1plo1d/redux-saga",
     "strip-newlines": "^1.0.1",
-    "typiql": "^0.3.0",
-    "js-yaml": "^3.10.0"
+    "subscriptions-transport-ws": "^0.9.4",
+    "typiql": "^0.3.0"
   },
-  "peerDependencies": {
-  }
+  "peerDependencies": {}
 }

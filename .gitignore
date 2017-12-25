@@ -15,6 +15,7 @@ bin/arduino_reset
 bin/packages
 tmp
 .vagrant
+.next
 
 coverage
 
