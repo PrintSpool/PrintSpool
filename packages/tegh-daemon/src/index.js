@@ -4,6 +4,7 @@ import { resolve } from 'path'
 
 import onUncaughtException from './helpers/on_uncaught_exception'
 import teghSchema from './graphql/schema'
+import reduxPubSub from './graphql/redux_pub_sub'
 import createTeghStore from './store'
 import websocketServer from './server/websocket_server'
 import httpPostServer from './server/http_post_server'
@@ -32,13 +33,13 @@ const teghDaemon = (argv, loadPlugin) => {
   const config = loadConfig(configPath)
   const driver = loadPlugin(`tegh-driver-${config.driver.package}`)
   const store = createTeghStore({ config, driver })
+  const pubsub = reduxPubSub(store)
 
   const teghServerConfig = {
     schema: teghSchema,
-    // execute: // TODO
-    // subscribe: // TODO
     context: {
       store: store,
+      // pubsub,
     },
   }
 

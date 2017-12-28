@@ -6,7 +6,7 @@
   "license": "GPL-3.0",
   "private": true,
   "scripts": {
-    "start": "npx node-dev index.js --all-deps"
+    "dev": "npx node-dev index.js --all-deps"
   },
   "babel": {
     "presets": [

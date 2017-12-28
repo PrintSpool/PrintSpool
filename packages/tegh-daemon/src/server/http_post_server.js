@@ -13,7 +13,15 @@ const httpPostServer = (teghServerConfig) => {
   const router = new koaRouter()
   const PORT = 3900
 
-  const teghGraphqlKoa = () => graphqlKoa(teghServerConfig)
+  const {
+    context,
+    schema,
+  } = teghServerConfig
+
+  const teghGraphqlKoa = () => graphqlKoa({
+    context,
+    schema,
+  })
 
   // koaBody is needed just for POST.
   router.post(
