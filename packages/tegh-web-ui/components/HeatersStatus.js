@@ -1,5 +1,7 @@
 import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
+import { compose, lifecycle } from 'recompose'
+// import withSubscription from '../higher_order_components/withSubscription'
 
 const heaterFragment = `
   id
@@ -7,31 +9,59 @@ const heaterFragment = `
   targetTemperature
 `
 
-// const heatersQuery = gql`
-//   query heaters {
-//     allPrinters {
-//       id
-//     }
-//   }
-// `
-
-const heatersQuery = gql`
-  query heaters {
-    printer(id: "test_printer_id") {
-      heaters {
-        ${heaterFragment}
+const subscribeToHeaters = props => params => {
+  return props.heaters.subscribeToMore({
+    document:  gql`
+      subscription heatersChanged {
+        heatersChanged(printerID: "test_printer_id") {
+          ${heaterFragment}
+        }
       }
+    `,
+    variables: {
+    },
+    updateQuery: (prev, {subscriptionData}) => {
+      if (!subscriptionData.data) {
+          return prev
+      }
+      console.log('UPDATE!', prev, subscriptionData)
+      return prev
+      // const newFeedItem = subscriptionData.data.commentAdded
+      //
+      // return Object.assign({}, prev, {
+      //   entry: {
+      //       comments: [newFeedItem, ...prev.entry.comments]
+      //   }
+      // })
     }
-  }
-`
+  })
+}
 
-const heatersChangedSubscription = gql`
-  subscription heatersChanged {
-    heatersChanged(printerID: "test_printer_id") {
-      ${heaterFragment}
+const enhance = compose(
+  graphql(
+    gql`query heaters {
+      printer(id: "test_printer_id") {
+        heaters {
+          ${heaterFragment}
+        }
+      }
+    }`,
+    {
+      name: 'heaters',
+      props: props => {
+        return {
+          ...props.heaters.printer,
+          subscribeToHeaters: subscribeToHeaters(props),
+        }
+      },
+    },
+  ),
+  lifecycle({
+    componentWillMount() {
+      this.props.subscribeToHeaters()
     }
-  }
-`
+  }),
+)
 
 const HeatersStatus = ({heaters}) => {
   if (heaters == null) return <div>Loading</div>
@@ -44,7 +74,7 @@ const HeatersStatus = ({heaters}) => {
           currentTemperature,
           targetTemperature
         }) => (
-          <div>
+          <div key={id}>
             {id}: {currentTemperature}&deg;C
             {' / '}
             {targetTemperature ? `${targetTemperature}&deg;C` : 'OFF'}
@@ -55,7 +85,14 @@ const HeatersStatus = ({heaters}) => {
   )
 }
 
-export default graphql(heatersQuery, {
-  props: (props) => props.data.printer
-})(HeatersStatus)
-// export default HeatersStatus
+export default enhance(HeatersStatus)
+
+// export default graphql(gql`query heaters {
+//     printer(id: "test_printer_id") {
+//       heaters {
+//         ${heaterFragment}
+//       }
+//     }
+//   }`, {
+//   props: (props) => props.data.printer
+// })(HeatersStatus)

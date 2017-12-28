@@ -10,6 +10,7 @@ const reduxPubSub = (store, selectors) => {
       pubsub.publish(eventName, newVal)
     }))
   }
+  return pubsub
 }
 
 export default (store) => {

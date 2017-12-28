@@ -19,6 +19,7 @@
     "react": "^16.2.0",
     "react-apollo": "^2.0.0",
     "react-dom": "^16.2.0",
+    "recompose": "^0.26.0",
     "subscriptions-transport-ws": "^0.9.4"
   },
   "author": "Rob Gilson",

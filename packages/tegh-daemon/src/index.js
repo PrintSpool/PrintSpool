@@ -39,7 +39,7 @@ const teghDaemon = (argv, loadPlugin) => {
     schema: teghSchema,
     context: {
       store: store,
-      // pubsub,
+      pubsub,
     },
   }
 

@@ -1,9 +1,9 @@
 
 const withSubscription = (subscription, {
   name,
-  options: {},
-  props: (props) => props,
-  variables: (props) => ({}),
+  options = {},
+  props = (props) => props,
+  variables = (props) => ({}),
   updateQuery,
 }) => (Component) => (
   graphql(subscription, {
@@ -15,13 +15,13 @@ const withSubscription = (subscription, {
       componentWillMount() {
         return props[name].subscribeToMore({
             document: subscription,
-            variables: variables(props)
+            variables: variables(props),
             updateQuery,
         })
       }
 
       render() {
-        return <Component ...props />
+        return <Component {...props} />
       }
     }
   )

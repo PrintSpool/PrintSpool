@@ -38,7 +38,7 @@ const serialGCodeReducer = (config) => (
     case 'SERIAL_RECEIVE':
       if (VERBOSE) console.log(`rx: ${action.data.raw}`, action.data.type)
       if (action.data.temperatures != null) {
-        const heaters = {...heaters}
+        const heaters = {...state.heaters}
         Object.entries(action.data.temperatures).forEach(([k, v]) => {
           heaters[k] = {...heaters[k], currentTemperature: v}
         })
