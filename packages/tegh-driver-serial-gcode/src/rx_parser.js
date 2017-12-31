@@ -22,13 +22,18 @@ type RxDataWithoutRaw =
   | Feedback & {
     type: 'ok',
   }
+  | Feedback & {
+    type: 'feedback',
+  }
 
 type RxData = RxDataWithoutRaw & { raw: string }
 
 const parsePrinterFeedback = (line: string): Feedback => {
   if (line.match("t:") == null) return {}
   // Filtering out non-temperature values
-  const filteredLine = line.replace(/(\/|[a-z]*@:|e:)[0-9\.]*|ok/g, '')
+  const filteredLine = line
+    .replace(/^(ok | )/, '')
+    .replace(/(\/|[a-z]*@:|e:)[0-9\.]*/g, '')
   // Normalizing the temperature values and splitting them into words
   const keyValueWords  = filteredLine
     .replace("t:", "e0:")
@@ -78,10 +83,16 @@ const rxParser = (raw: string): RxData => {
       raw,
     }
   }
-
   if (line.startsWith('ok')) {
     return {
       type: 'ok',
+      ...parsePrinterFeedback(line),
+      raw,
+    }
+  }
+  if (line.startsWith(' ')) {
+    return {
+      type: 'feedback',
       ...parsePrinterFeedback(line),
       raw,
     }

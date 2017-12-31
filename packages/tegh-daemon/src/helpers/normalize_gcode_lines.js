@@ -1,8 +1,9 @@
 // @flow
-const commentRegex = /;[^\n]*|\([^\n]*\)/g
+const NEWLINE = /\r\n|\r|\n/g
+const COMMENT = /;.*|\([^\\]*\)/g
 
 const forEachNewLine = (input, cb) => {
-  input.forEach(text => text.split('\n').forEach(cb))
+  input.forEach(text => text.split(NEWLINE).forEach(cb))
 }
 
 /*
@@ -11,8 +12,9 @@ const forEachNewLine = (input, cb) => {
 const normalizeGCodeLines = (input: [string]) => {
   const lines = []
   forEachNewLine(input, (line) => {
-    if (line.match(commentRegex) !== null) return
-    lines.push(line)
+    const lineWithoutComment = line.replace(COMMENT, '')
+    if (lineWithoutComment.length === 0) return
+    lines.push(lineWithoutComment)
   })
   return lines
 }

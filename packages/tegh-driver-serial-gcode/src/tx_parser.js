@@ -45,7 +45,8 @@ const parseHeaterID = (code, args) => {
 const parseHeaterMCodes = (
   lineNumber: number,
   code: string,
-  args: {}
+  args: {},
+  raw: string,
 ): HeaterControl => {
   const heaterControl: HeaterControl = {
     lineNumber,
@@ -55,12 +56,20 @@ const parseHeaterMCodes = (
       blocking: BLOCKING_MCODES.includes(code),
     }
   }
-  if (code === 'M190' && typeof(args.r) === 'number') {
-    heaterControl.changes.targetTemperature = args.r
+  if (code === 'M109' || code === 'M190') {
+    const targetTemperature:mixed = args.r || args.s
+    if (typeof(targetTemperature) !== 'number') {
+      throw new Error(
+        `Heater MCode target temperature is not a number on line: ${raw}`
+      )
+    }
+    heaterControl.changes.targetTemperature = targetTemperature
   } else if (code !== 'M116') {
     // Only M116 (the Wait MCode) does not set a target temperature
     if (typeof args.s != 'number') {
-      throw new Error('Heater MCode target temperature is not a number')
+      throw new Error(
+        `Heater MCode target temperature is not a number on line: ${raw}`
+      )
     }
     heaterControl.changes.targetTemperature = args.s
   }
@@ -72,8 +81,10 @@ const FAN_MCODES = ['M106', 'M107']
 const parseFanMCodes = (
   lineNumber: number,
   code: string,
-  args: {}
+  args: {},
+  raw: string,
 ): FanControl => {
+  const id = args.p || 1
   /*
    * Returns the fan speed as a 8 bit number (range: 0 to 255)
    */
@@ -84,7 +95,7 @@ const parseFanMCodes = (
     if (typeof args.s === 'undefined') {
       return 255
     }
-    throw new Error(`Invalid M106 's' argument`)
+    throw new Error(`Invalid M106 's' argument on line: ${raw}`)
   })
 
   const changes = (() => {
@@ -99,23 +110,32 @@ const parseFanMCodes = (
         speed: 0,
       }
     } else {
-      throw new Error(`Invalid Fan MCode ${code}`)
+      throw new Error(`Invalid Fan MCode ${code} on line: ${raw}`)
     }
   })()
 
-  if (typeof args.p !== 'number') {
-    throw new Error(`Invalid ${code} 'p' argument`)
+  if (typeof id !== 'number') {
+    throw new Error(`Invalid ${code} 'p' argument on line: ${raw}`)
   }
 
   return {
     lineNumber,
     type: 'FAN_CONTROL',
-    id: args.p,
+    id,
     changes,
   }
 }
 
 const txParser = (rawSerialOutput: string): Tx => {
+  const lineCount = (rawSerialOutput.match(/\n/g) || []).length
+
+  if (lineCount > 1) {
+    throw new Error(
+      `attempted to send ${lineCount} `+
+      `lines at once:`+
+      `\n ${lineCount < 10 ? rawSerialOutput : '[too many lines to print]'}`
+    )
+  }
   const [line, _checksum] = rawSerialOutput.toUpperCase().split('*')
   const [lineNumberWithN, code, ...argWords] = line.trim().split(/ +/)
   const lineNumber = parseInt(lineNumberWithN.slice(1), 10)
@@ -125,12 +145,16 @@ const txParser = (rawSerialOutput: string): Tx => {
   )
 
   if (HEATER_MCODES.includes(code)) {
-    return parseHeaterMCodes(lineNumber, code, args)
+    return parseHeaterMCodes(lineNumber, code, args, rawSerialOutput)
   }
   if (FAN_MCODES.includes(code)) {
-    return parseFanMCodes(lineNumber, code, args)
+    return parseFanMCodes(lineNumber, code, args, rawSerialOutput)
   }
   return { lineNumber }
+}
+
+export const throwErrorOnInvalidGCode = (gcodeLines: [string]) => {
+  gcodeLines.forEach((line) => txParser(`N1 ${line}*`))
 }
 
 export default txParser

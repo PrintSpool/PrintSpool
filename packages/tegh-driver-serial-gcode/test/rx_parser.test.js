@@ -85,3 +85,19 @@ describe('parses oks', () => {
     })
   })
 })
+
+describe('parses temperature feedback', () => {
+  test('with heater values', () => {
+    const result = rxParser(' t: 42 e3: 200 w: 5')
+
+    expect(result).toEqual({
+      type: 'feedback',
+      raw: ' t: 42 e3: 200 w: 5',
+      temperatures: {
+        e0: 42,
+        e3: 200,
+      },
+      targetTemperaturesCountdown: 5000,
+    })
+  })
+})

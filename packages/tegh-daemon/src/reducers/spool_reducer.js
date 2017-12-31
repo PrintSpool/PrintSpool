@@ -1,5 +1,4 @@
 // @flow
-import normalizeGCodeLines from '../helpers/normalize_gcode_lines'
 
 export type SpoolState = {
   +manualSpool: Array<string>,
@@ -44,7 +43,7 @@ const spoolReducer = (
       const nextState = {
         ...state,
         sendSpooledLineToPrinter: false,
-        [spoolID]: [...state[spoolID], ...normalizeGCodeLines(action.data)],
+        [spoolID]: [...state[spoolID], ...action.data],
       }
       if (state.currentLine == null) {
         // recurse into the reducer to despool the first line

@@ -15,7 +15,7 @@ const getPollingInterval = (state) => (
 )
 
 const hasTemperatureData = ({ type, data = null }) => (
-  type === 'SERIAL_RECEIVE' && data && data.temperatures != null
+  type === 'SERIAL_RECEIVE' && data && data.ok && data.temperatures != null
 )
 
 const onTemperatureData = function*() {

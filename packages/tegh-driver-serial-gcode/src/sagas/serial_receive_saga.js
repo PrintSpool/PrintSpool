@@ -59,7 +59,7 @@ export const onSerialRecieve = function*(action) {
     if (data.lineNumber !== previousLineNumber) {
       throw new Error(
         `resend line number ${data.lineNumber} `+
-        `does not match current line number ${previousLineNumber}`
+        `does not match previous line number ${previousLineNumber}`
       )
     }
     yield put(serialSend(previousLineNumber, currentLine))

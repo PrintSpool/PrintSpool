@@ -1,5 +1,6 @@
 import tql from 'typiql'
 import PrinterType from '../types/printer_type'
+import normalizeGCodeLines from '../../helpers/normalize_gcode_lines'
 
 const sendGCodeMutation = () => ({
   type: tql`${PrinterType}!`,
@@ -19,7 +20,7 @@ const sendGCodeMutation = () => ({
     store.dispatch({
       type: 'SPOOL',
       spoolID: 'manualSpool',
-      data: args.gcode,
+      data: normalizeGCodeLines(args.gcode),
     })
     return state
   },

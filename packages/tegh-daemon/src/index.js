@@ -21,8 +21,6 @@ export const loadConfig = (configPath) => {
 }
 
 const teghDaemon = (argv, loadPlugin) => {
-  process.on('uncaughtException', onUncaughtException)
-
   process.on('unhandledRejection', (e, p) => onUncaughtException(e))
 
   const configPath = argv[2]

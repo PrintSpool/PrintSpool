@@ -1,4 +1,4 @@
-import txParser from './tx_parser.js'
+import txParser, { throwErrorOnInvalidGCode } from './tx_parser.js'
 
 const VERBOSE = true
 
@@ -56,6 +56,9 @@ const serialGCodeReducer = (config) => (
           error: action.data,
         }
       }
+      return state
+    case 'SPOOL':
+      throwErrorOnInvalidGCode(action.data)
       return state
     case 'SERIAL_SEND':
       if (VERBOSE) console.log(`TX: ${action.data}`)

@@ -11,7 +11,7 @@ test('parses the line number', () => {
 
 const testMCode = (type) => (line, expectedOutput) => {
   test(`parses ${line}`, () => {
-    const result = txParser(`N123 ${line}*unparsedChecksumStuff`)
+    const result = txParser(`N123 ${line}*bs`)
     expect(result).toEqual({
       lineNumber: 123,
       type,
@@ -33,6 +33,13 @@ describe('heater MCodes', () => {
         changes: {
           blocking: false,
           targetTemperature: 218,
+        },
+      })
+      testHeaterMCode(`M109 R160${suffix}`, {
+        id,
+        changes: {
+          blocking: true,
+          targetTemperature: 160,
         },
       })
       testHeaterMCode(`M109 S218${suffix}`, {
@@ -78,6 +85,13 @@ describe('heater MCodes', () => {
 
 describe('fan MCodes', () => {
   const testFanMCode = testMCode('FAN_CONTROL')
+  testFanMCode('M106', {
+    id: 1,
+    changes: {
+      enabled: true,
+      speed: 100,
+    },
+  })
   testFanMCode('M106 p8', {
     id: 8,
     changes: {
@@ -94,6 +108,13 @@ describe('fan MCodes', () => {
   })
   testFanMCode('M107 p5', {
     id: 5,
+    changes: {
+      enabled: false,
+      speed: 0,
+    },
+  })
+  testFanMCode('M107', {
+    id: 1,
     changes: {
       enabled: false,
       speed: 0,

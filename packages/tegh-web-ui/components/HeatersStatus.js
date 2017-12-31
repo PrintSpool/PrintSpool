@@ -24,7 +24,6 @@ const subscribeToHeaters = props => params => {
       if (!subscriptionData.data) {
           return prev
       }
-      console.log('UPDATE!', prev, subscriptionData)
       return prev
       // const newFeedItem = subscriptionData.data.commentAdded
       //
@@ -77,7 +76,7 @@ const HeatersStatus = ({heaters}) => {
           <div key={id}>
             {id}: {currentTemperature}&deg;C
             {' / '}
-            {targetTemperature ? `${targetTemperature}&deg;C` : 'OFF'}
+            {targetTemperature ? <span>{targetTemperature}&deg;C</span> : 'OFF'}
           </div>
         ))
       }
