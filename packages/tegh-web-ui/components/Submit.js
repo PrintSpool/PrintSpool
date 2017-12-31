@@ -27,11 +27,26 @@ function Submit ({ sendGCode }) {
     })
   }
 
+  const onHeatHotEndClick = (e) => {
+    e.preventDefault()
+    sendGCode({
+      gcode: ['M104 S180'],
+    })
+  }
+
+  const onCoolHotEndClick = (e) => {
+    e.preventDefault()
+    sendGCode({
+      gcode: ['M104 S0'],
+    })
+  }
+
   return (
     <form>
       <h1>Start a print</h1>
       <input name='gcodeFile' type='file' onChange={onChange} />
-      <button onClick={onJogClick}>Jog</button>
+      <button onClick={onHeatHotEndClick}>Heat (180 degres)</button>
+      <button onClick={onCoolHotEndClick}>Cool</button>
     </form>
   )
 }
