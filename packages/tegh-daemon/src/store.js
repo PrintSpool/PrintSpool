@@ -1,11 +1,10 @@
 import createSagaMiddleware from 'redux-saga'
 import { createStore, applyMiddleware } from 'redux'
-import RavenMiddleware from 'redux-raven-middleware'
+import Raven from "raven"
+import createRavenMiddleware from "raven-for-redux";
 
 import rootReducer from './reducers/'
 import { onUncaughtException } from './helpers/crash_report'
-
-const RAVEN_DSN = 'https://a276b5318a6b4d93b2d7b28c9de1f678@sentry.io/266958'
 
 const driverMiddleware = (storeContext) => {
   const { driver } = storeContext
@@ -23,7 +22,7 @@ const store = (storeContext) => {
     sagaMiddleware,
   ]
   if (storeContext.config.uploadCrashReportsToDevs) {
-    middleware.push(RavenMiddleware(RAVEN_DSN, {}, {
+    middleware.push(createRavenMiddleware(Raven, {
       stateTransformer: (state) => ({
         ...state,
         // log uses immutable JS for performance so it needs to be converted

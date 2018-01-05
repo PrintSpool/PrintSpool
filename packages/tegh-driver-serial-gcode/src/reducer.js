@@ -36,7 +36,6 @@ const serialGCodeReducer = ({ config }) => (
 ) => {
   switch(action.type) {
     case 'SERIAL_RECEIVE':
-      if (VERBOSE) console.log(`rx: ${action.data.raw}`, action.data.type)
       if (action.data.temperatures != null) {
         const heaters = {...state.heaters}
         Object.entries(action.data.temperatures).forEach(([k, v]) => {
@@ -61,7 +60,6 @@ const serialGCodeReducer = ({ config }) => (
       throwErrorOnInvalidGCode(action.data)
       return state
     case 'SERIAL_SEND':
-      if (VERBOSE) console.log(`TX: ${action.data}`)
       const parsedData = txParser(action.data)
       const {lineNumber, type, id, changes} = parsedData
       const nextState = {
