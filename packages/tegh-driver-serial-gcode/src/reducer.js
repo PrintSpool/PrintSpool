@@ -30,7 +30,7 @@ const initialState = (config) => ({
   currentLineNumber: 1,
 })
 
-const serialGCodeReducer = (config) => (
+const serialGCodeReducer = ({ config }) => (
   state = initialState(config),
   action
 ) => {

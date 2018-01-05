@@ -16,6 +16,7 @@ const reduxPubSub = (store, selectors) => {
 export default (store) => {
   const selectors = {
     heatersChanged: (state) => state.driver.heaters,
+    logEntryCreated: (state) => state.log.get('entryCountSinceStartup'),
   }
 
   return reduxPubSub(store, selectors)

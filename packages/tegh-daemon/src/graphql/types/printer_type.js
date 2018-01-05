@@ -11,6 +11,7 @@ import PrinterModeEnum from './printer_mode_enum.js'
 import HeaterType from './heater_type.js'
 import FanType from './fan_type.js'
 import JobType from './job_type.js'
+import LogEntryType from './log_entry_type.js'
 
 const Printer = new GraphQLObjectType({
   name: 'Printer',
@@ -59,6 +60,27 @@ const Printer = new GraphQLObjectType({
       type: tql`Boolean!`,
       resolve(source) {
         return source.driver.ready
+      },
+    },
+    log: {
+      type: tql`[${LogEntryType}!]`,
+      args: {
+        level: {
+          type: tql`String`,
+        },
+        source: {
+          type: tql`String`,
+        },
+      },
+      resolve(source, args) {
+        let entries = source.log.get('entries')
+        if (args.level != null) {
+          entries = entries.filter(log => log.level == args.level)
+        }
+        if (args.source != null) {
+          entries = entries.filter(log => log.source == args.source)
+        }
+        return entries.toArray()
       },
     },
   })

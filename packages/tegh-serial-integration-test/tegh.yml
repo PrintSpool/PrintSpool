@@ -1,6 +1,8 @@
 id: test_printer_id
 name: 'lulzbot-test-printer'
-logLevel: warn
+log:
+  maxLength: 1000
+uploadCrashReportsToDevs: false
 heaters:
   - e0
   - e1

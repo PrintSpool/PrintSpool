@@ -1,9 +1,11 @@
 import { combineReducers } from 'redux'
 import spoolReducer from './spool_reducer'
 import configReducer from './config_reducer'
+import logReducer from './log_reducer'
 
-export default ({ config, driver }) => combineReducers({
+export default (storeContext) => combineReducers({
   spool: spoolReducer,
-  config: configReducer(config),
-  driver: driver.reducer(config),
+  config: configReducer(storeContext),
+  log: logReducer(storeContext),
+  driver: storeContext.driver.reducer(storeContext),
 })

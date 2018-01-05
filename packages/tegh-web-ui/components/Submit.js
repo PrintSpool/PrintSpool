@@ -41,12 +41,26 @@ function Submit ({ sendGCode }) {
     })
   }
 
+  const onSendGCodeClick = (e) => {
+    e.preventDefault()
+    const gcode = e.target.previousSibling.value.toUpperCase()
+    if (gcode.length === 0) return
+    sendGCode({
+      gcode: [gcode],
+    })
+  }
+
   return (
     <form>
       <h1>Start a print</h1>
       <input name='gcodeFile' type='file' onChange={onChange} />
       <button onClick={onHeatHotEndClick}>Heat (180 degres)</button>
       <button onClick={onCoolHotEndClick}>Cool</button>
+
+      <div>
+        <input />
+        <button onClick={onSendGCodeClick}>Send</button>
+      </div>
     </form>
   )
 }

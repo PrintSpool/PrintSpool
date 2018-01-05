@@ -6,6 +6,7 @@ import tql from 'typiql'
 import PrinterType from './types/printer_type'
 import sendGCodeMutation from './mutations/send_gcode_mutation'
 import heatersChanged from './subscriptions/heaters_changed_subscription'
+import logEntryCreated from './subscriptions/log_entry_created_subscription'
 
 const schema = new GraphQLSchema({
   query: new GraphQLObjectType({
@@ -42,6 +43,7 @@ const schema = new GraphQLSchema({
     name: 'SubscriptionRoot',
     fields: () => ({
       heatersChanged: heatersChanged(),
+      logEntryCreated: logEntryCreated(),
     }),
   }),
 })
