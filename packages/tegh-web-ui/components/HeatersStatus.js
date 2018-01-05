@@ -20,19 +20,6 @@ const subscribeToHeaters = props => params => {
     `,
     variables: {
     },
-    updateQuery: (prev, {subscriptionData}) => {
-      if (!subscriptionData.data) {
-          return prev
-      }
-      return prev
-      // const newFeedItem = subscriptionData.data.commentAdded
-      //
-      // return Object.assign({}, prev, {
-      //   entry: {
-      //       comments: [newFeedItem, ...prev.entry.comments]
-      //   }
-      // })
-    }
   })
 }
 
@@ -85,13 +72,3 @@ const HeatersStatus = ({heaters}) => {
 }
 
 export default enhance(HeatersStatus)
-
-// export default graphql(gql`query heaters {
-//     printer(id: "test_printer_id") {
-//       heaters {
-//         ${heaterFragment}
-//       }
-//     }
-//   }`, {
-//   props: (props) => props.data.printer
-// })(HeatersStatus)

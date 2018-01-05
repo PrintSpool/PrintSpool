@@ -62,7 +62,7 @@ const Printer = new GraphQLObjectType({
         return source.driver.ready
       },
     },
-    log: {
+    logEntries: {
       type: tql`[${LogEntryType}!]`,
       args: {
         level: {

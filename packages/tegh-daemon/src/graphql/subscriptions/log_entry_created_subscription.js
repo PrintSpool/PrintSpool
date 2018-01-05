@@ -16,8 +16,8 @@ const logEntryCreatedSubscription = () => ({
     }
     return pubsub.asyncIterator('logEntryCreated')
   },
-  resolve(_source, args, { store }) {
-    return store.getState().log.get('entries').last()
+  resolve(source) {
+    return source
   },
 })
 
