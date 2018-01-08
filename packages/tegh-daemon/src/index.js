@@ -1,6 +1,8 @@
-import yaml from 'js-yaml'
+import Promise from 'bluebird'
+
 import fs from 'fs'
 import path from 'path'
+import yaml from 'js-yaml'
 
 import { wrapInCrashReporting } from './helpers/crash_report'
 import teghSchema from './graphql/schema'
@@ -10,6 +12,8 @@ import websocketServer from './server/websocket_server'
 import httpPostServer from './server/http_post_server'
 
 export { effects } from 'redux-saga'
+
+global.Promise = Promise
 
 // Get document, or throw exception on error
 export const loadConfig = (configPath) => {
@@ -30,7 +34,12 @@ const teghDaemon = (argv, loadPlugin) => {
 
   wrapInCrashReporting({ configPath, config }, ({ crashReport }) => {
     const driver = loadPlugin(`tegh-driver-${config.driver.package}`)
-    const storeContext = { config, driver, crashReport }
+    const storeContext = {
+      configPath,
+      config,
+      driver,
+      crashReport,
+    }
     const store = createTeghStore(storeContext)
     const pubsub = reduxPubSub(store)
 

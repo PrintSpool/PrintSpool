@@ -61,8 +61,10 @@ export const wrapInCrashReporting = ({config, configPath}, cb) => {
    * Upload fatal errors to Sentry via raven after the service is restarted
    */
   if (config.uploadCrashReportsToDevs) {
-    Raven.disableConsoleAlerts()
-    Raven.config(RAVEN_DSN).install((e) => { console.error(e) })
+    // Raven.disableConsoleAlerts()
+    Raven
+      .config(RAVEN_DSN, { captureUnhandledRejections: false })
+      .install((e) => { console.error(e) })
     if (crashReport != null) {
       /*
        * Recreate the error and raven context from the crashReport so it
