@@ -9,7 +9,7 @@ import rxParser from './rx_parser.js'
 export { default as reducer } from './reducer'
 export { default as sagas } from './sagas/'
 export { default as logger } from './logger'
-export { default as validateConfig } from './config/validate_config'
+export { default as validate } from './config/validate'
 export { default as serialConsole } from './serial/serial_console'
 
 // export { config }
