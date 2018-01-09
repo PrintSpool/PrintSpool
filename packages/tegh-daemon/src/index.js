@@ -34,6 +34,12 @@ const teghDaemon = (argv, loadPlugin) => {
 
   wrapInCrashReporting({ configPath, config }, ({ crashReport }) => {
     const driver = loadPlugin(`tegh-driver-${config.driver.package}`)
+    const {errors, valid} = driver.validateConfig(config)
+    if (!valid) {
+      console.error(errors.join('\n'))
+      setImmediate(() => process.exit(1))
+      return
+    }
     const storeContext = {
       configPath,
       config,
