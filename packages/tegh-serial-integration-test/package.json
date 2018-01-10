@@ -20,6 +20,7 @@
     "babel-register": "^6.26.0",
     "node-dev": "^3.1.3",
     "tegh-daemon": "file:../tegh-daemon",
-    "tegh-driver-serial-gcode": "file:../tegh-driver-serial-gcode"
+    "tegh-driver-serial-gcode": "file:../tegh-driver-serial-gcode",
+    "tegh-macros-default": "file:../tegh-macros-default"  
   }
 }

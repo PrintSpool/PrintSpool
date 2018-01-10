@@ -14,7 +14,7 @@ const sendMacroMutation = () => ({
       type: tql`String!`,
     },
     args: {
-      type tql`${GraphQLJSON}!`,
+      type: tql`${GraphQLJSON}!`,
     },
   },
   resolve(_source, args, { store }) {
@@ -22,11 +22,14 @@ const sendMacroMutation = () => ({
     if (args.printerID !== state.config.id) {
       throw new Error(`Printer ID ${args.id} does not exist`)
     }
-    const macro = state.macros[args.macro](
-      _.cloneDeep(args),
+    const macro = state.macros[args.macro]
+    if (macro == null) {
+      throw new Error(`Macro ${args.macro} does not exist`)
+    }
+    const gcode = macro.run(
+      _.cloneDeep(args.args),
       _.cloneDeep(state.config),
     )
-    const gcode = macro(args)
     store.dispatch({
       type: 'SPOOL',
       spoolID: 'manualSpool',

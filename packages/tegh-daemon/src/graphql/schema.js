@@ -3,48 +3,29 @@ import {
   GraphQLObjectType,
 } from 'graphql'
 import tql from 'typiql'
-import PrinterType from './types/printer_type'
-import sendGCodeMutation from './mutations/send_gcode_mutation'
-import heatersChanged from './subscriptions/heaters_changed_subscription'
-import logEntryCreated from './subscriptions/log_entry_created_subscription'
+import _ from 'lodash'
+
+import QueryRootType from './types/query_root_type'
+import * as mutations from './mutations/'
+import * as subscriptions from './subscriptions/'
+
+/*
+ * Execute each field definition at the time the field function is called to
+ * prevent cyclic reference loading issues.
+ */
+const fieldsFor = (fieldDefinitions) => () => {
+  return _.mapValues(fieldDefinitions, definition => definition())
+}
 
 const schema = new GraphQLSchema({
-  query: new GraphQLObjectType({
-    name: 'QueryRoot',
-    fields: {
-      printer: {
-        type: tql`${PrinterType}!`,
-        args: {
-          id: {
-            type: tql`ID!`,
-          },
-        },
-        resolve(_source, args, { store }) {
-          const state = store.getState()
-          if (args.id !== state.config.id) {
-            throw new Error(`Printer ID ${args.id} does not exist`)
-          }
-          return state
-        }
-      },
-      allPrinters: {
-        type: tql`[${PrinterType}!]!`,
-        resolve: (_source, _args, context) => [context.store.getState()],
-      },
-    },
-  }),
+  query: QueryRootType,
   mutation: new GraphQLObjectType({
     name: 'MutationRoot',
-    fields: () => ({
-      sendGCode: sendGCodeMutation(),
-    }),
+    fields: fieldsFor(mutations),
   }),
   subscription: new GraphQLObjectType({
     name: 'SubscriptionRoot',
-    fields: () => ({
-      heatersChanged: heatersChanged(),
-      logEntryCreated: logEntryCreated(),
-    }),
+    fields: fieldsFor(subscriptions),
   }),
 })
 
