@@ -1,10 +1,7 @@
 import createSagaMiddleware from 'redux-saga'
 import { createStore, applyMiddleware } from 'redux'
-import Raven from "raven"
-import createRavenMiddleware from "raven-for-redux";
 
 import rootReducer from './reducers/'
-import { onUncaughtException } from './helpers/crash_report'
 
 const driverMiddleware = (storeContext) => {
   const { driver } = storeContext
@@ -13,24 +10,26 @@ const driverMiddleware = (storeContext) => {
 }
 
 const store = (storeContext) => {
-  const { driver } = storeContext
+  const { driver, errorHandler } = storeContext
   const sagaMiddleware = createSagaMiddleware({
-    onError: onUncaughtException,
+    onError: (e) => setImmediate(() => errorHandler(e)),
   })
   const middleware = [
     ...driverMiddleware(storeContext),
     sagaMiddleware,
   ]
-  if (storeContext.config.uploadCrashReportsToDevs) {
-    middleware.push(createRavenMiddleware(Raven, {
-      stateTransformer: (state) => ({
-        ...state,
-        // log uses immutable JS for performance so it needs to be converted
-        // in to js objects and arrays.
-        log: state.log.toJS(),
-      })
-    }))
-  }
+  // TODO: replace Raven crash logging
+  // if (storeContext.config.uploadCrashReportsToDevs) {
+  //   middleware.push(createRavenMiddleware(Raven, {
+  //     stateTransformer: (state) => ({
+  //       ...state,
+  //       // log uses immutable JS for performance so it needs to be converted
+  //       // in to js objects and arrays.
+  //       log: state.log.toJS(),
+  //       spool: state.spool.toJS(),
+  //     })
+  //   }))
+  // }
   const store = createStore(
     rootReducer(storeContext),
     applyMiddleware(...middleware),

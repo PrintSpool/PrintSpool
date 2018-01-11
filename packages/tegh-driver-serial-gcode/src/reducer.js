@@ -57,7 +57,7 @@ const serialGCodeReducer = ({ config }) => (
       }
       return state
     case 'SPOOL':
-      throwErrorOnInvalidGCode(action.data)
+      throwErrorOnInvalidGCode(action.task.data)
       return state
     case 'SERIAL_SEND':
       const parsedData = txParser(action.data)

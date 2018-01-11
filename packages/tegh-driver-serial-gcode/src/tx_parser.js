@@ -154,7 +154,9 @@ const txParser = (rawSerialOutput: string): Tx => {
 }
 
 export const throwErrorOnInvalidGCode = (gcodeLines: [string]) => {
-  gcodeLines.forEach((line) => txParser(`N1 ${line}*`))
+  gcodeLines.forEach((line) => {
+    txParser(line)
+  })
 }
 
 export default txParser

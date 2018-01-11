@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import domain from 'domain'
 import _ from 'lodash'
-import Raven from "raven"
+// import Raven from "raven"
 
 const RAVEN_DSN = (
   'https://57180e7f8e5f4141b0a69c76b8bf279a:040f6fef809142cb86e4b776647d862d@sentry.io/266958'
@@ -24,10 +24,10 @@ export const onUncaughtException = ({
   getRavenContext = () => Raven.getContext(),
   uninstallRaven = () => Raven.uninstall(),
 }) => {
-  let alreadyCrashing = false
+  // let alreadyCrashing = false
   return (err) => {
-    if (alreadyCrashing) throw err
-    alreadyCrashing = true
+    // if (alreadyCrashing) throw err
+    // alreadyCrashing = true
     const date = new Date()
     const crashReport = {
       date: date.toUTCString(),
@@ -35,10 +35,10 @@ export const onUncaughtException = ({
       level: 'fatal',
       message: err.message,
       stack: err.stack,
-      ravenContext: getRavenContext(),
+      // ravenContext: getRavenContext(),
       seen: false,
     }
-    uninstallRaven()
+    // uninstallRaven()
     fs.writeFileSync(
       path.join(errorDir, `tegh_crash_report_${date.getTime()}.json`),
       JSON.stringify(crashReport, null, 2),
@@ -60,23 +60,23 @@ export const wrapInCrashReporting = ({config, configPath}, cb) => {
   /*
    * Upload fatal errors to Sentry via raven after the service is restarted
    */
-  if (config.uploadCrashReportsToDevs) {
-    // Raven.disableConsoleAlerts()
-    Raven
-      .config(RAVEN_DSN, { captureUnhandledRejections: false })
-      .install((e) => { console.error(e) })
-    if (crashReport != null) {
-      /*
-       * Recreate the error and raven context from the crashReport so it
-       * can be uploaded. Raven is reset aftwards.
-       */
-      const syntheticError = new Error(crashReport.message)
-      syntheticError.stack = crashReport.stack
-      Raven._globalContext = crashReport.ravenContext
-      Raven.captureException(syntheticError)
-      Raven._globalContext = {}
-    }
-  }
+  // if (config.uploadCrashReportsToDevs) {
+  //   // Raven.disableConsoleAlerts()
+  //   Raven
+  //     .config(RAVEN_DSN, { captureUnhandledRejections: false })
+  //     .install((e) => { console.error(e) })
+  //   if (crashReport != null) {
+  //     /*
+  //      * Recreate the error and raven context from the crashReport so it
+  //      * can be uploaded. Raven is reset aftwards.
+  //      */
+  //     const syntheticError = new Error(crashReport.message)
+  //     syntheticError.stack = crashReport.stack
+  //     Raven._globalContext = crashReport.ravenContext
+  //     Raven.captureException(syntheticError)
+  //     Raven._globalContext = {}
+  //   }
+  // }
   /*
    * Treat unhandledRejections from promises the same as uncaught exceptions
    */
@@ -88,6 +88,10 @@ export const wrapInCrashReporting = ({config, configPath}, cb) => {
    * crash report logs.
    */
   const wrapperDomain = domain.create()
-  wrapperDomain.on('error', onUncaughtException({ errorDir }))
-  wrapperDomain.run(() => cb({ crashReport }))
+  const errorHandler = onUncaughtException({ errorDir })
+  wrapperDomain.on('error', errorHandler)
+  wrapperDomain.run(() => cb({
+    crashReport,
+    errorHandler,
+  }))
 }

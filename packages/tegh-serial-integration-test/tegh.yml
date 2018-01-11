@@ -4,6 +4,10 @@ macros:
   tegh-macros-default: 'all'
 log:
   maxLength: 1000
+printFromLocalPath:
+  enabled: true
+  whitelist:
+    - ~/.tegh-local-files/
 uploadCrashReportsToDevs: true
 heaters:
   - e0

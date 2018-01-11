@@ -7,7 +7,7 @@ import serialSend from '../actions/serial_send'
 const { put, takeEvery, takeLatest, select, call, delay, take } = effects
 
 const getCurrentLine = (state) => state.spool.currentLine
-const getCurrentLineNumber = (state) => state.driver.currentLineNumber
+const getCurrentSerialLineNumber = (state) => state.driver.currentLineNumber
 const getReady = (state) => state.driver.ready
 const getGreetingToReadyDelay = (state) =>
   state.config.driver.delayFromGreetingToReady
@@ -50,7 +50,7 @@ export const onSerialRecieve = function*(action) {
     yield put({ type: 'DESPOOL' })
   } else if (data.type === 'resend') {
     const currentLine = yield select(getCurrentLine)
-    const previousLineNumber = (yield select(getCurrentLineNumber)) - 1
+    const previousLineNumber = (yield select(getCurrentSerialLineNumber)) - 1
     /*
      * Tegh only sends one line at a time. If a resend is requested for a
      * different line number then this is likely an issue of the printer's

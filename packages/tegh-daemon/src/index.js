@@ -13,6 +13,7 @@ import websocketServer from './server/websocket_server'
 import httpPostServer from './server/http_post_server'
 
 export { effects } from 'redux-saga'
+export * from './actions/'
 
 global.Promise = Promise
 
@@ -33,7 +34,10 @@ const teghDaemon = (argv, loadPlugin) => {
   const configPath = path.resolve(argv[2])
   const config = loadConfig(configPath)
 
-  wrapInCrashReporting({ configPath, config }, ({ crashReport }) => {
+  wrapInCrashReporting({ configPath, config }, ({
+    crashReport,
+    errorHandler
+  }) => {
     const driver = loadPlugin(config.driver.package)
     const {errors, valid} = driver.validate(config)
     if (!valid) {
@@ -45,6 +49,7 @@ const teghDaemon = (argv, loadPlugin) => {
       config,
       driver,
       crashReport,
+      errorHandler,
       loadPlugin,
     }
     const store = createTeghStore(storeContext)

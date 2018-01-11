@@ -1,29 +1,25 @@
 // @flow
+import { Record, List, Map } from 'immutable'
 
-export type SpoolState = {
-  +manualSpool: Array<string>,
-  +internalSpool: Array<string>,
-  +currentLine: ?string,
-  +sendSpooledLineToPrinter: boolean,
-}
+import type {
+  SpoolAction,
+  DespoolAction,
+  Task,
+  SpoolState
+} from './spool_reducer_types'
 
-export type SpoolAction = {
-  +type: 'SPOOL',
-  +spoolID: 'manualSpool' | 'internalSpool',
-  +data: Array<string>,
-}
 
-export type DespoolAction = {
-  +type: 'DESPOOL',
-}
-
-const initialState: SpoolState = {
+const createSpoolState = Record({
   // file: null,
-  manualSpool: [],
-  internalSpool: [],
-  currentLine: null,
+  manualSpool: List(),
+  internalSpool: List(),
+  printQueue: List(),
+  allTasks: Map(),
+  currentTaskID: null,
   sendSpooledLineToPrinter: false,
-}
+})
+
+const initialState: SpoolState = new createSpoolState()
 
 const spoolReducer = (
   state: SpoolState = initialState,
@@ -36,44 +32,62 @@ const spoolReducer = (
     //     file: action.data
     //   }
     case 'SPOOL': {
-      const { spoolID } = action
-      if (['manualSpool', 'internalSpool'].includes(spoolID) === false) {
-        throw new Error('Invalid spoolID')
+      const { task } = action
+      const { spoolName } = task
+      if ([
+        'manualSpool',
+        'internalSpool',
+        'printQueue',
+      ].includes(spoolName) === false) {
+        throw new Error(`Invalid spoolName ${spoolName}`)
       }
-      const nextState = {
-        ...state,
-        sendSpooledLineToPrinter: false,
-        [spoolID]: [...state[spoolID], ...action.data],
-      }
-      if (state.currentLine == null) {
-        // recurse into the reducer to despool the first line
-        return {
-          ...spoolReducer(nextState, { type: 'DESPOOL' }),
-          sendSpooledLineToPrinter: true,
-        }
+      const nextState = state
+        .update('allTasks', tasks => tasks.set(task.id, task))
+        .update(spoolName, spool => spool.push(task.id))
+        .set('sendSpooledLineToPrinter', false)
+      /*
+       * recurse into the reducer to despool the first line if nothing is
+       * spooled
+       */
+      if (nextState.currentTaskID == null) {
+        const despooledState = spoolReducer(nextState, { type: 'DESPOOL' })
+        return despooledState.set('sendSpooledLineToPrinter', true)
       }
       return nextState
     }
     case 'DESPOOL': {
-      const { internalSpool, manualSpool } = state
-      let spoolID
-      if (internalSpool.length > 0) {
-        spoolID = 'internalSpool'
-      } else if (manualSpool.length > 0) {
-        spoolID = 'manualSpool'
-      } else {
-        return {
-          ...state,
-          currentLine: null,
+      const { internalSpool, manualSpool, printQueue, currentTaskID } = state
+      const task = state.allTasks[currentTaskID]
+      if (
+        currentTaskID != null &&
+        task.currentLineNumber < task.data.size - 1
+      ) {
+        return state.updateIn(
+          ['allTasks', currentTaskID, 'currentLineNumber'],
+          i => i + 1
+        )
+      }
+      const spoolName = (() => {
+        if (printQueue.size > 0) {
+          return 'printQueue'
+        } else if (internalSpool.size > 0) {
+          return 'internalSpool'
+        } else if (manualSpool.size > 0) {
+          return 'manualSpool'
         }
+      })()
+      if (spoolName == null) {
+        return state.set('currentTaskID', null)
       }
-      const spool = state[spoolID]
-      const currentLine = spool[0]
-      return {
-        ...state,
-        currentLine,
-        [spoolID]: spool.slice(1),
-      }
+      const nextTaskID = state[spoolName].first()
+      // TODO: prevent allTasks from growing indefinitely. Delete oldest tasks
+      return state
+        .set('currentTaskID', nextTaskID)
+        .setIn(
+          ['allTasks', nextTaskID, 'currentLineNumber'],
+          0
+        )
+        .update(spoolName, spool => spool.shift())
     }
     default:
       return state

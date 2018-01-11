@@ -2049,9 +2049,9 @@ ignore@^3.3.3:
   version "3.3.7"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-3.3.7.tgz#612289bfb3c220e186a58118618d5be8c1bab021"
 
-immutable@^3.8.2:
-  version "3.8.2"
-  resolved "https://registry.yarnpkg.com/immutable/-/immutable-3.8.2.tgz#c2439951455bb39913daf281376f1530e104adf3"
+immutable@^4.0.0-rc.9:
+  version "4.0.0-rc.9"
+  resolved "https://registry.yarnpkg.com/immutable/-/immutable-4.0.0-rc.9.tgz#1e6e0094e649013ec3742d2b5aeeca5eeda4f0bf"
 
 imurmurhash@^0.1.4:
   version "0.1.4"
@@ -4163,6 +4163,10 @@ ultron@~1.1.0:
 unpipe@1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/unpipe/-/unpipe-1.0.0.tgz#b2bf4ee8514aae6165b4817829d21b2ef49904ec"
+
+untildify@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/untildify/-/untildify-3.0.2.tgz#7f1f302055b3fea0f3e81dc78eb36766cb65e3f1"
 
 user-home@^1.1.1:
   version "1.1.1"

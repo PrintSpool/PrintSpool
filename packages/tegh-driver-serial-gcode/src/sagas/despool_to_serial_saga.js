@@ -5,10 +5,8 @@ import serialSend from '../actions/serial_send'
 
 const { put, takeEvery, takeLatest, select, call } = effects
 
-const getCurrentLine = (state) =>
-  state.spool.currentLine
-const getCurrentLineNumber = (state) =>
-  state.driver.currentLineNumber
+const getCurrentSerialLineNumber = (state) => state.driver.currentLineNumber
+const getCurrentTask = ({ spool }) => spool.allTasks.get(spool.currentTaskID)
 const shouldSendSpooledLineToPrinter = (state) =>
   state.spool.sendSpooledLineToPrinter
 
@@ -23,13 +21,15 @@ const shouldSendSpooledLineToPrinter = (state) =>
 const onSpoolerChange = function*(action: {type: string}) {
   const { type } = action
   const shouldSendSpool = yield select(shouldSendSpooledLineToPrinter)
-  const currentLine = yield select(getCurrentLine)
+  const currentTask = yield select(getCurrentTask)
   if (
-    type === 'DESPOOL' && currentLine != null ||
+    type === 'DESPOOL' && currentTask != null ||
     type === 'SPOOL' && shouldSendSpool
   ) {
-    const currentLineNumber = yield select(getCurrentLineNumber)
-    yield put(serialSend(currentLineNumber, currentLine))
+    const currentSerialLineNumber = yield select(getCurrentSerialLineNumber)
+    console.log('DESPOOL', currentTask, currentTask.currentLineNumber)
+    const currentLine = currentTask.data.get(currentTask.currentLineNumber)
+    yield put(serialSend(currentSerialLineNumber, currentLine))
   }
 }
 
