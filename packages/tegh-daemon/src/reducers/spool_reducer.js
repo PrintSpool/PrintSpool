@@ -57,9 +57,9 @@ const spoolReducer = (
     }
     case 'DESPOOL': {
       const { internalSpool, manualSpool, printQueue, currentTaskID } = state
-      const task = state.allTasks[currentTaskID]
+      const task = currentTaskID == null ? null : state.allTasks[currentTaskID]
       if (
-        currentTaskID != null &&
+        task != null &&
         task.currentLineNumber < task.data.size - 1
       ) {
         return state.updateIn(

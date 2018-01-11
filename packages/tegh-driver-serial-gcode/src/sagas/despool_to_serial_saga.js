@@ -27,7 +27,6 @@ const onSpoolerChange = function*(action: {type: string}) {
     type === 'SPOOL' && shouldSendSpool
   ) {
     const currentSerialLineNumber = yield select(getCurrentSerialLineNumber)
-    console.log('DESPOOL', currentTask, currentTask.currentLineNumber)
     const currentLine = currentTask.data.get(currentTask.currentLineNumber)
     yield put(serialSend(currentSerialLineNumber, currentLine))
   }
