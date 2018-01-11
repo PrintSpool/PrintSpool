@@ -8,7 +8,6 @@ import tql from 'typiql'
 import snl from 'strip-newlines'
 
 import PrinterType from './printer_type.js'
-import MacroDefinitionType from './macro_definition_type.js'
 
 const QueryRootType = new GraphQLObjectType({
   name: 'QueryRoot',
@@ -32,12 +31,6 @@ const QueryRootType = new GraphQLObjectType({
       type: tql`[${PrinterType}!]!`,
       resolve: (_source, _args, context) => [context.store.getState()],
     },
-    allMacros: {
-      type: tql`[${MacroDefinitionType}!]!`,
-      resolve: (_source, _args, context) => {
-        return Object.values(context.store.getState().macros)
-      },
-    }
   },
 })
 

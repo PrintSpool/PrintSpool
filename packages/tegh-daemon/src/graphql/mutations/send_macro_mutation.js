@@ -2,11 +2,11 @@ import tql from 'typiql'
 import GraphQLJSON from 'graphql-type-json'
 import _ from 'lodash'
 
-import PrinterType from '../types/printer_type'
+import TaskType from '../types/task_type'
 import spoolAction from '../../actions/spool_action.js'
 
 const sendMacroMutation = () => ({
-  type: tql`${PrinterType}!`,
+  type: tql`${TaskType}!`,
   args: {
     printerID: {
       type: tql`ID!`,
@@ -31,11 +31,13 @@ const sendMacroMutation = () => ({
       _.cloneDeep(args.args),
       _.cloneDeep(state.config),
     )
-    store.dispatch(spoolAction({
+    const action = spoolAction({
       spoolName: 'manualSpool',
+      fileName: args.macro,
       data: gcode,
-    }))
-    return state
+    })
+    store.dispatch(action)
+    return action.task
   },
 })
 

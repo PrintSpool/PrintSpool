@@ -60,12 +60,13 @@ const printMutation = () => ({
     }
 
     const gcode = await fs.readFileAsync(localPath)
-    store.dispatch(spoolAction({
+    const action = spoolAction({
       spoolName: 'printQueue',
       fileName: path.basename(localPath),
       data: [gcode],
-    }))
-    return state
+    })
+    store.dispatch(action)
+    return action.task
   },
 })
 

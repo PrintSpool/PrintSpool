@@ -12,6 +12,7 @@ import HeaterType from './heater_type.js'
 import FanType from './fan_type.js'
 import JobType from './job_type.js'
 import LogEntryType from './log_entry_type.js'
+import MacroDefinitionType from './macro_definition_type.js'
 
 const Printer = new GraphQLObjectType({
   name: 'Printer',
@@ -60,6 +61,12 @@ const Printer = new GraphQLObjectType({
       type: tql`Boolean!`,
       resolve(source) {
         return source.driver.ready
+      },
+    },
+    macroDefinitions: {
+      type: tql`[${MacroDefinitionType}!]!`,
+      resolve: (_source, _args, context) => {
+        return Object.values(context.store.getState().macros)
       },
     },
     logEntries: {

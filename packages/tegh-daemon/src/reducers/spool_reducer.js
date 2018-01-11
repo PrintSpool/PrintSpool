@@ -15,11 +15,13 @@ const createSpoolState = Record({
   internalSpool: List(),
   printQueue: List(),
   allTasks: Map(),
+  history: List(),
   currentTaskID: null,
   sendSpooledLineToPrinter: false,
 })
 
 const initialState: SpoolState = new createSpoolState()
+const maxTaskHistoryLength = 3
 
 const spoolReducer = (
   state: SpoolState = initialState,
@@ -57,15 +59,34 @@ const spoolReducer = (
     }
     case 'DESPOOL': {
       const { internalSpool, manualSpool, printQueue, currentTaskID } = state
-      const task = currentTaskID == null ? null : state.allTasks[currentTaskID]
-      if (
-        task != null &&
-        task.currentLineNumber < task.data.size - 1
-      ) {
-        return state.updateIn(
-          ['allTasks', currentTaskID, 'currentLineNumber'],
-          i => i + 1
-        )
+      let nextState = state
+      if (currentTaskID != null) {
+        const task = state.allTasks.get(currentTaskID)
+        if (task.currentLineNumber < task.data.size - 1) {
+          return state.updateIn(
+            ['allTasks', currentTaskID, 'currentLineNumber'],
+            i => i + 1
+          )
+        }
+        // Delete internal spool tasks after they are completed
+        if (task.spoolName === 'internalSpool') {
+          nextState = nextState
+            .update('allTasks', tasks => tasks.delete(currentTaskID))
+        // List all other task IDs in the history so that graphql users can
+        // verify that their task completed. Tasks are deleted from the history
+        // in FIFO fashion to prevent the list growing indefinitely. Also the
+        // data of each completed task is deleted to save space.
+        } else {
+          nextState = nextState
+            .update('history', history => history.push(currentTaskID))
+            .setIn(['allTasks', currentTaskID, 'data'], null)
+          if(state.history.size > maxTaskHistoryLength - 1) {
+            const oldestTaskID = state.history.first()
+            nextState = nextState
+              .update('history', history => history.shift())
+              .update('allTasks', tasks => tasks.delete(oldestTaskID))
+          }
+        }
       }
       const spoolName = (() => {
         if (printQueue.size > 0) {
@@ -77,11 +98,10 @@ const spoolReducer = (
         }
       })()
       if (spoolName == null) {
-        return state.set('currentTaskID', null)
+        return nextState.set('currentTaskID', null)
       }
       const nextTaskID = state[spoolName].first()
-      // TODO: prevent allTasks from growing indefinitely. Delete oldest tasks
-      return state
+      return nextState
         .set('currentTaskID', nextTaskID)
         .setIn(
           ['allTasks', nextTaskID, 'currentLineNumber'],

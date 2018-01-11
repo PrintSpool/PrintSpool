@@ -1,10 +1,10 @@
 import tql from 'typiql'
 
-import PrinterType from '../types/printer_type'
+import TaskType from '../types/task_type'
 import spoolAction from '../../actions/spool_action.js'
 
 const sendGCodeMutation = () => ({
-  type: tql`${PrinterType}!`,
+  type: tql`${TaskType}!`,
   args: {
     printerID: {
       type: tql`ID!`,
@@ -18,11 +18,12 @@ const sendGCodeMutation = () => ({
     if (args.printerID !== state.config.id) {
       throw new Error(`Printer ID ${args.id} does not exist`)
     }
-    store.dispatch(spoolAction({
+    const action = spoolAction({
       spoolName: 'manualSpool',
       data: args.gcode,
-    }))
-    return state
+    })
+    store.dispatch(action)
+    return action.task
   },
 })
 
