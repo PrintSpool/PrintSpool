@@ -1,16 +1,21 @@
 import tql from 'typiql'
+import GraphQLJSON from 'graphql-type-json'
+import _ from 'lodash'
 
 import TaskType from '../types/task_type'
 import spoolAction from '../../actions/spool_action.js'
 
-const sendGCodeMutation = () => ({
+const spoolMacroMutation = () => ({
   type: tql`${TaskType}!`,
   args: {
     printerID: {
       type: tql`ID!`,
     },
-    gcode: {
-      type: tql`[String!]!`,
+    macro: {
+      type: tql`String!`,
+    },
+    args: {
+      type: tql`${GraphQLJSON}!`,
     },
   },
   resolve(_source, args, { store }) {
@@ -18,13 +23,22 @@ const sendGCodeMutation = () => ({
     if (args.printerID !== state.config.id) {
       throw new Error(`Printer ID ${args.id} does not exist`)
     }
+    const macro = state.macros[args.macro]
+    if (macro == null) {
+      throw new Error(`Macro ${args.macro} does not exist`)
+    }
+    const gcode = macro.run(
+      _.cloneDeep(args.args),
+      _.cloneDeep(state.config),
+    )
     const action = spoolAction({
       spoolName: 'manualSpool',
-      data: args.gcode,
+      fileName: args.macro,
+      data: gcode,
     })
     store.dispatch(action)
     return action.task
   },
 })
 
-export default sendGCodeMutation
+export default spoolMacroMutation
