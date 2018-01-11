@@ -8,6 +8,7 @@ import tql from 'typiql'
 import snl from 'strip-newlines'
 
 import PrinterType from './printer_type.js'
+import TaskType from './task_type.js'
 
 const QueryRootType = new GraphQLObjectType({
   name: 'QueryRoot',
@@ -25,6 +26,22 @@ const QueryRootType = new GraphQLObjectType({
           throw new Error(`Printer ID ${args.id} does not exist`)
         }
         return state
+      }
+    },
+    task: {
+      type: tql`${TaskType}!`,
+      args: {
+        id: {
+          type: tql`ID!`,
+        },
+      },
+      resolve(_source, args, { store }) {
+        const state = store.getState()
+        const task = state.spool.allTasks.get(args.id)
+        if (task == null) {
+          throw new Error(`Task ID ${args.id} does not exist`)
+        }
+        return task
       }
     },
     allPrinters: {

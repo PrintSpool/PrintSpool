@@ -25,10 +25,10 @@ const TaskType = new GraphQLObjectType({
       type: tql`String!`,
     },
     startedAt: {
-      type: tql`String!`,
+      type: tql`String`,
     },
     stoppedAt: {
-      type: tql`String!`,
+      type: tql`String`,
     },
     status: {
       type: tql`String!`,

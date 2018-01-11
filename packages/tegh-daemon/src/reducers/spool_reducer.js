@@ -79,7 +79,14 @@ const spoolReducer = (
         } else {
           nextState = nextState
             .update('history', history => history.push(currentTaskID))
-            .setIn(['allTasks', currentTaskID, 'data'], null)
+            .mergeIn(['allTasks', currentTaskID], {
+              // TODO: stoppedAt should eventually be changed to be sent after
+              // the printer sends 'ok' or 'error' and should be based off
+              // estimated print time
+              stoppedAt: new Date().toISOString(),
+              status: 'done',
+              data: null,
+            })
           if(state.history.size > maxTaskHistoryLength - 1) {
             const oldestTaskID = state.history.first()
             nextState = nextState
@@ -103,10 +110,10 @@ const spoolReducer = (
       const nextTaskID = state[spoolName].first()
       return nextState
         .set('currentTaskID', nextTaskID)
-        .setIn(
-          ['allTasks', nextTaskID, 'currentLineNumber'],
-          0
-        )
+        .mergeIn(['allTasks', nextTaskID], {
+          startedAt: new Date().toISOString(),
+          currentLineNumber: 0,
+        })
         .update(spoolName, spool => spool.shift())
     }
     default:
