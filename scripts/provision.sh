@@ -1,4 +1,3 @@
-echo "cd /vagrant/packages/tegh-daemon" >> /home/ubuntu/.bashrc
 echo "**************************************************"
 echo "INSTALLING NVM"
 echo "**************************************************"
@@ -12,5 +11,4 @@ echo "**************************************************"
 nvm install v9.2.0
 nvm alias default v9.2.0
 npm i -g yarn
-cd /vagrant/packages/tegh-daemon
 yarn

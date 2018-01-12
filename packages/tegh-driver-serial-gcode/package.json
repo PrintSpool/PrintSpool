@@ -6,6 +6,11 @@
   "author": "Rob Gilson",
   "license": "GPL-3.0",
   "private": false,
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint src/",
+    "flow": "flow"
+  },
   "babel": {
     "presets": [
       "flow",

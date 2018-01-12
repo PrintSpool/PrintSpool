@@ -3,7 +3,6 @@
   "version": "0.4.0",
   "description": "graphql server for 3D printers",
   "scripts": {
-    "start": "npx node-dev src/index.js",
     "test": "jest",
     "lint": "eslint src/",
     "flow": "flow"
