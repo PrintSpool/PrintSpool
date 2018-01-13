@@ -1,26 +1,30 @@
 import fs from 'fs'
 import path from 'path'
 import lerna from 'lerna'
+import childProcess from 'child_process'
+import Promise from 'bluebird'
 
 const LINE = Array(80).join('-')
 const dir = path.join(__dirname, '..')
 
+const rm = (file) => Promise.promisify(childProcess.exec)(`rm -r ${file}`)
+
 const symlinks = [
   {
-    from: 'serial-middleware',
-    inTo: 'tegh-driver-serial-gcode',
+    target: 'serial-middleware',
+    addTo: 'tegh-driver-serial-gcode',
   },
   {
-    from: 'tegh-daemon',
-    inTo: 'tegh-serial-integration-test',
+    target: 'tegh-daemon',
+    addTo: 'tegh-serial-integration-test',
   },
   {
-    from: 'tegh-driver-serial-gcode',
-    inTo: 'tegh-serial-integration-test',
+    target: 'tegh-driver-serial-gcode',
+    addTo: 'tegh-serial-integration-test',
   },
   {
-    from: 'tegh-macros-default',
-    inTo: 'tegh-serial-integration-test',
+    target: 'tegh-macros-default',
+    addTo: 'tegh-serial-integration-test',
   },
 ]
 
@@ -28,16 +32,16 @@ const postInstall = async () => {
   console.log(`${LINE}\nPOST INSTALL\n${LINE}`)
   await new lerna.BootstrapCommand([], [], dir).run()
   console.log(`Symlinking local dependencies`)
-  symlinks.forEach(({ from, inTo }) => {
-    const nodeModules = path.join(dir, 'packages', inTo, 'node_modules')
-    const symlinkPath = path.join(nodeModules, from)
+  for (const { target, addTo } of symlinks) {
+    const nodeModules = path.join(dir, 'packages', addTo, 'node_modules')
+    const symlinkPath = path.join(nodeModules, target)
     if (!fs.existsSync(nodeModules)) fs.mkdirSync(nodeModules)
-    if (fs.existsSync(symlinkPath)) fs.unlinkSync(symlinkPath)
+    if (fs.existsSync(symlinkPath)) await rm(symlinkPath)
     fs.symlinkSync(
-      path.join(dir, 'packages', from),
+      path.join(dir, 'packages', target),
       symlinkPath,
     )
-  })
+  }
   console.log(`Symlinking local dependencies [DONE]`)
   await new lerna.RunCommand(['build'], {parallel: true}, dir).run()
 }

@@ -1,13 +1,13 @@
 {
-	"private": true,
-	"scripts": {
+  "private": true,
+  "scripts": {
     "postinstall": "npx babel-node ./scripts/postinstall.js",
-		"dev": "npx lerna run dev --parallel",
-		"test": "cd ./packages/tegh-daemon/ && yarn test && cd ../tegh-driver-serial-gcode && yarn test",
-		"build": "npx lerna run build --parallel",
-		"start": "npx lerna run start --parallel"
+    "dev": "npx lerna run dev --parallel",
+    "test": "cd ./packages/tegh-daemon/ && yarn test && cd ../tegh-driver-serial-gcode && yarn test",
+    "build": "npx lerna run build --parallel",
+    "start": "npx lerna run start --parallel"
   },
-	"babel": {
+  "babel": {
     "presets": [
       "env"
     ],
@@ -15,11 +15,12 @@
       "transform-object-rest-spread"
     ]
   },
-	"devDependencies": {
-		"lerna": "^2.5.1",
-		"babel-cli": "^6.14.0",
+  "devDependencies": {
+    "babel-cli": "^6.14.0",
     "babel-eslint": "^8.0.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.6.1"
-	}
+    "babel-preset-env": "^1.6.1",
+    "lerna": "^2.5.1",
+    "bluebird": "^3.5.1"
+  }
 }
