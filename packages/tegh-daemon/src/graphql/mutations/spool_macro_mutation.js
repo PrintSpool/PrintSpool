@@ -4,6 +4,7 @@ import _ from 'lodash'
 
 import TaskType from '../types/task_type'
 import spoolAction from '../../actions/spool_action.js'
+import resetSpoolsAction from '../../actions/reset_spools_action.js'
 
 const spoolMacroMutation = () => ({
   type: tql`${TaskType}!`,
@@ -15,7 +16,7 @@ const spoolMacroMutation = () => ({
       type: tql`String!`,
     },
     args: {
-      type: tql`${GraphQLJSON}!`,
+      type: tql`${GraphQLJSON}`,
     },
   },
   resolve(_source, args, { store }) {
@@ -36,6 +37,7 @@ const spoolMacroMutation = () => ({
       fileName: args.macro,
       data: gcode,
     })
+    if (macro.run.resetSpools) store.dispatch(resetSpoolsAction())
     store.dispatch(action)
     return action.task
   },

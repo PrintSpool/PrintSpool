@@ -1,5 +1,5 @@
 // @flow
-import { Record, List, Map } from 'immutable'
+import { merge, Record, List, Map } from 'immutable'
 
 import type {
   SpoolAction,
@@ -7,7 +7,6 @@ import type {
   Task,
   SpoolState
 } from './spool_reducer_types'
-
 
 const createSpoolState = Record({
   // file: null,
@@ -23,6 +22,20 @@ const createSpoolState = Record({
 const initialState: SpoolState = new createSpoolState()
 const maxTaskHistoryLength = 3
 
+const addToHistory = (state, collection) => {
+  let nextHistory = state.history.merge(collection)
+  const overflowSize = nextHistory.size - maxTaskHistoryLength
+  let nextState = state
+  if (overflowSize > 0) {
+    const overflow = nextHistory.slice(0, overflowSize)
+    nextHistory = nextHistory.slice(overflowSize + 1)
+    nextState = nextState.update('allTasks', tasks =>
+      tasks.filterNot(task => overflow.includes(task))
+    )
+  }
+  return nextState.set('history', nextHistory)
+}
+
 const spoolReducer = (
   state: SpoolState = initialState,
   action: SpoolAction | DespoolAction,
@@ -33,6 +46,13 @@ const spoolReducer = (
     //     ...state,
     //     file: action.data
     //   }
+    case 'SPOOL_RESET': {
+      const removedTasks = state.manualSpool.concat(state.printQueue)
+      return addToHistory(state, removedTasks)
+        .set('manualSpool', List())
+        .set('internalSpool', List())
+        .set('printQueue', List())
+    }
     case 'SPOOL': {
       const { task } = action
       const { spoolName } = task
@@ -77,8 +97,7 @@ const spoolReducer = (
         // in FIFO fashion to prevent the list growing indefinitely. Also the
         // data of each completed task is deleted to save space.
         } else {
-          nextState = nextState
-            .update('history', history => history.push(currentTaskID))
+          nextState = addToHistory(nextState, [currentTaskID])
             .mergeIn(['allTasks', currentTaskID], {
               // TODO: stoppedAt should eventually be changed to be sent after
               // the printer sends 'ok' or 'error' and should be based off
@@ -87,12 +106,6 @@ const spoolReducer = (
               status: 'done',
               data: null,
             })
-          if(state.history.size > maxTaskHistoryLength - 1) {
-            const oldestTaskID = state.history.first()
-            nextState = nextState
-              .update('history', history => history.shift())
-              .update('allTasks', tasks => tasks.delete(oldestTaskID))
-          }
         }
       }
       const spoolName = (() => {
