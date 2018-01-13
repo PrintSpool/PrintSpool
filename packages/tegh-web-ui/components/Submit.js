@@ -1,7 +1,7 @@
 import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
 
-function Submit ({ sendGCode }) {
+function Submit ({ spoolGCode }) {
   function onChange (e) {
     const file = e.target.files[0]
     const { name } = file
@@ -9,7 +9,7 @@ function Submit ({ sendGCode }) {
     fileReader.readAsText(file)
 
     fileReader.onload = () => {
-      sendGCode({
+      spoolGCode({
         gcode: [fileReader.result],
         // gcode: {
         // TODO: upload objects with names
@@ -22,21 +22,21 @@ function Submit ({ sendGCode }) {
 
   const onJogClick = (e) => {
     e.preventDefault()
-    sendGCode({
+    spoolGCode({
       gcode: ['G91', 'G1 Y20', 'G1 Y-20'],
     })
   }
 
   const onHeatHotEndClick = (e) => {
     e.preventDefault()
-    sendGCode({
+    spoolGCode({
       gcode: ['M104 S180'],
     })
   }
 
   const onCoolHotEndClick = (e) => {
     e.preventDefault()
-    sendGCode({
+    spoolGCode({
       gcode: ['M104 S0'],
     })
   }
@@ -45,7 +45,7 @@ function Submit ({ sendGCode }) {
     e.preventDefault()
     const gcode = e.target.previousSibling.value.toUpperCase()
     if (gcode.length === 0) return
-    sendGCode({
+    spoolGCode({
       gcode: [gcode],
     })
   }
@@ -65,21 +65,21 @@ function Submit ({ sendGCode }) {
   )
 }
 
-const sendGCode = gql`
-  mutation sendGCode($gcode: [String!]!) {
-    sendGCode(printerID: "test_printer_id", gcode: $gcode) {
+const spoolGCode = gql`
+  mutation spoolGCode($gcode: [String!]!) {
+    spoolGCode(printerID: "test_printer_id", gcode: $gcode) {
       id
     }
   }
 `
 
-export default graphql(sendGCode, {
+export default graphql(spoolGCode, {
   props: ({ mutate }) => ({
-    sendGCode: ({ gcode }) => mutate({
+    spoolGCode: ({ gcode }) => mutate({
       variables: { gcode },
       // updateQueries: {
       //   allPosts: (previousResult, { mutationResult }) => {
-      //     const newPost = mutationResult.data.sendGCode
+      //     const newPost = mutationResult.data.spoolGCode
       //     return Object.assign({}, previousResult, {
       //       // Append the new post
       //       allPosts: [newPost, ...previousResult.allPosts]
