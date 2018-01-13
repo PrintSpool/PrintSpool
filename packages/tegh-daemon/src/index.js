@@ -63,7 +63,12 @@ const teghDaemon = (argv, loadPlugin) => {
       },
     }
 
-    httpServer(teghServerConfig)
+    if (config.server.tcpPort) {
+      httpServer(teghServerConfig, config.server.tcpPort)
+    }
+    if (config.server.unixSocket) {
+      httpServer(teghServerConfig, config.server.unixSocket)
+    }
   })
 }
 

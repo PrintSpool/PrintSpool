@@ -1,3 +1,5 @@
+import os from 'os'
+import fs from 'fs'
 import http from 'http'
 import koa from 'koa'
 import koaRouter from 'koa-router'
@@ -7,12 +9,14 @@ import { graphqlKoa, graphiqlKoa } from 'apollo-server-koa'
 import { apolloUploadKoa } from 'apollo-upload-server'
 import { SubscriptionServer } from 'subscriptions-transport-ws'
 import { execute, subscribe } from 'graphql'
+import _ from 'lodash'
 
-const httpPostServer = ({
+const httpServer = ({
   config,
   schema,
   context,
-}) => {
+}, port) => {
+  const isTCP = typeof port === 'number'
   // eslint-disable-next-line new-cap
   const app = new koa()
   const server = http.createServer(app.callback())
@@ -58,12 +62,22 @@ const httpPostServer = ({
     },
   )
 
-  const port = config.server.port
   app.use(cors())
   app.use(router.routes())
   app.use(router.allowedMethods())
   // eslint-disable-next-line no-console
-  server.listen(port, () => { console.log(`Tegh is listening on ${port}`) })
+  if (!isTCP) fs.unlinkSync(port)
+  server.listen(port, () => {
+    let portFullName = port
+    if (isTCP) {
+      const allIPs = _.flatten(Object.values(os.networkInterfaces()))
+      const ipAddress = allIPs.filter(ip =>
+        !ip.internal && ip.family === 'IPv4'
+      )[0].address
+      portFullName = `http://${ipAddress}:${port}`
+    }
+    console.error(`Tegh is listening on ${portFullName}`)
+  })
 }
 
-export default httpPostServer
+export default httpServer

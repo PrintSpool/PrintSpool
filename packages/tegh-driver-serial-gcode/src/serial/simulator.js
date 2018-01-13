@@ -7,7 +7,6 @@ const simulator = () => {
   const parser = new events.EventEmitter()
   const sendLines = lines => lines.forEach(line => {
     setImmediate(() => {
-      console.log(line)
       parser.emit('data', line)
     })
   })

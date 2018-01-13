@@ -10,7 +10,9 @@ printFromLocalPath:
     - ~/.tegh-local-files/
 uploadCrashReportsToDevs: true
 server:
-  port: 3900
+  tcpPort: 3900
+  unixSocket: /tmp/tegh_socket
+  # unixSocket: /var/run/tegh_socket
 heaters:
   - e0
   - e1
