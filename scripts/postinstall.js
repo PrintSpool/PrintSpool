@@ -39,6 +39,7 @@ const postInstall = async () => {
     )
   })
   console.log(`Symlinking local dependencies [DONE]`)
+  await new lerna.RunCommand(['build'], {parallel: true}, dir).run()
 }
 
 postInstall().then(() => {

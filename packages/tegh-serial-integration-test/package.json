@@ -6,7 +6,8 @@
   "license": "GPL-3.0",
   "private": true,
   "scripts": {
-    "dev": "npx node-dev index.js --trace-warnings"
+    "dev": "npx node-dev index.js --trace-warnings",
+    "start": "NODE_ENV=production npx node-dev index.js --trace-warnings"
   },
   "babel": {
     "presets": [

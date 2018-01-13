@@ -216,7 +216,7 @@
     "@babel/helper-remap-async-to-generator" "7.0.0-beta.37"
     "@babel/plugin-syntax-async-generators" "7.0.0-beta.37"
 
-"@babel/plugin-proposal-object-rest-spread@7.0.0-beta.37", "@babel/plugin-proposal-object-rest-spread@^7.0.0-beta.37":
+"@babel/plugin-proposal-object-rest-spread@7.0.0-beta.37":
   version "7.0.0-beta.37"
   resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-object-rest-spread/-/plugin-proposal-object-rest-spread-7.0.0-beta.37.tgz#627d5c17f08c8c1878ff9dd5b46cbe1868ca2305"
   dependencies:
@@ -1588,10 +1588,6 @@ is-primitive@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/is-primitive/-/is-primitive-2.0.0.tgz#207bab91638499c07b2adf240a41a87210034575"
 
-is-promise@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/is-promise/-/is-promise-2.1.0.tgz#79a2a9ece7f096e80f36d2b2f3bc16c1ff4bf3fa"
-
 is-typedarray@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/is-typedarray/-/is-typedarray-1.0.0.tgz#e479c80858df0c1b11ddda6940f96011fcda4a9a"
@@ -2722,13 +2718,12 @@ strip-newlines@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/strip-newlines/-/strip-newlines-1.0.1.tgz#43dd876e18982a47bc9e7b8fd2a7a953435a0901"
 
-subscriptions-transport-ws@^0.9.4:
-  version "0.9.4"
-  resolved "https://registry.yarnpkg.com/subscriptions-transport-ws/-/subscriptions-transport-ws-0.9.4.tgz#2671c7339c17389c0ff47c73cd749949576d3dd5"
+subscriptions-transport-ws@d1plo1d/subscriptions-transport-ws:
+  version "0.9.5"
+  resolved "https://codeload.github.com/d1plo1d/subscriptions-transport-ws/tar.gz/e4c105ead64adcd7875877cc98cff1277cbe0dc6"
   dependencies:
     backo2 "^1.0.2"
     eventemitter3 "^2.0.3"
-    is-promise "^2.1.0"
     iterall "^1.1.1"
     lodash.assign "^4.2.0"
     lodash.isobject "^3.0.2"
@@ -2814,7 +2809,7 @@ tar@^2.2.1:
     redux-saga d1plo1d/redux-saga
     redux-watch "^1.1.1"
     strip-newlines "^1.0.1"
-    subscriptions-transport-ws "^0.9.4"
+    subscriptions-transport-ws d1plo1d/subscriptions-transport-ws
     typiql "^0.3.0"
     untildify "^3.0.2"
     uuid "^3.1.0"

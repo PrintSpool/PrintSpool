@@ -6,7 +6,7 @@ import { SubscriptionClient } from 'subscriptions-transport-ws'
 // import fetch from 'isomorphic-fetch'
 
 const ip = process.browser ? window.location.hostname : '127.0.0.1'
-const port = 3900
+const port = process.env.NODE_ENV === 'production' ? 3900 : 3901
 const postURL = `http://${ip}:${port}/graphql`
 const wsURL = `ws://${ip}:${port}/graphql`
 

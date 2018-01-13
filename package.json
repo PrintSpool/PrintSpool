@@ -4,6 +4,7 @@
     "postinstall": "npx babel-node ./scripts/postinstall.js",
 		"dev": "npx lerna run dev --parallel",
 		"test": "cd ./packages/tegh-daemon/ && yarn test && cd ../tegh-driver-serial-gcode && yarn test",
+		"build": "npx lerna run build --parallel",
 		"start": "npx lerna run start --parallel"
   },
 	"babel": {

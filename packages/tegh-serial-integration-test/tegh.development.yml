@@ -1,0 +1,32 @@
+id: test_printer_id
+name: 'lulzbot-test-printer'
+macros:
+  tegh-macros-default: 'all'
+log:
+  maxLength: 1000
+printFromLocalPath:
+  enabled: true
+  whitelist:
+    - ~/.tegh-local-files/
+uploadCrashReportsToDevs: true
+server:
+  port: 3901
+heaters:
+  - e0
+  - e1
+  - b
+fans:
+  - f
+axes:
+  - x
+  - y
+  - z
+  - e0
+  - e1
+driver:
+  package: tegh-driver-serial-gcode
+  temperaturePollingInterval: 600
+  delayFromGreetingToReady: 2500
+  serialPort:
+    path: /dev/ttyACM0
+    baudRate: 115200
