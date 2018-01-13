@@ -6,6 +6,12 @@
     "build": "next build",
     "start": "next start"
   },
+  "babel": {
+    "presets": ["next/babel", "env"],
+    "plugins": [
+      "transform-object-rest-spread"
+    ]
+  },
   "dependencies": {
     "apollo-client-preset": "^1.0.1",
     "apollo-link-ws": "^1.0.4",

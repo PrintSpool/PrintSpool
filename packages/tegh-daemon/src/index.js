@@ -9,8 +9,7 @@ import { wrapInCrashReporting } from './helpers/crash_report'
 import teghSchema from './graphql/schema'
 import reduxPubSub from './graphql/redux_pub_sub'
 import createTeghStore from './store'
-import websocketServer from './server/websocket_server'
-import httpPostServer from './server/http_post_server'
+import httpServer from './server/http_server'
 
 export { effects } from 'redux-saga'
 export * from './actions/'
@@ -56,6 +55,7 @@ const teghDaemon = (argv, loadPlugin) => {
     const pubsub = reduxPubSub(store)
 
     const teghServerConfig = {
+      config,
       schema: teghSchema,
       context: {
         store: store,
@@ -63,8 +63,7 @@ const teghDaemon = (argv, loadPlugin) => {
       },
     }
 
-    websocketServer(teghServerConfig)
-    httpPostServer(teghServerConfig)
+    httpServer(teghServerConfig)
   })
 }
 

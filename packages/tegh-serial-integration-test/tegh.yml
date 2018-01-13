@@ -9,6 +9,8 @@ printFromLocalPath:
   whitelist:
     - ~/.tegh-local-files/
 uploadCrashReportsToDevs: true
+server:
+  port: 3900
 heaters:
   - e0
   - e1

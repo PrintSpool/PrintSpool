@@ -4,7 +4,7 @@ import Submit from '../components/Submit'
 import Log from '../components/Log'
 import withData from '../lib/apollo'
 
-export default withData((props) => (
+export default withData(props => (
   <App>
     <HeatersStatus/>
     <Submit />

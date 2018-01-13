@@ -6,8 +6,9 @@ import { SubscriptionClient } from 'subscriptions-transport-ws'
 // import fetch from 'isomorphic-fetch'
 
 const ip = process.browser ? window.location.hostname : '127.0.0.1'
-const uri = `http://${ip}:3900/graphql`
-const websocketURI = `ws://${ip}:5000/graphql`
+const port = 3900
+const postURL = `http://${ip}:${port}/graphql`
+const wsURL = `ws://${ip}:${port}/graphql`
 
 // // Polyfill fetch() on the server (used by apollo-client)
 // if (!process.browser) {
@@ -16,13 +17,13 @@ const websocketURI = `ws://${ip}:5000/graphql`
 
 const link = (() => {
   if (process.browser) {
-    const client = new SubscriptionClient(websocketURI, {
+    const client = new SubscriptionClient(wsURL, {
       reconnect: true,
     })
     return new WebSocketLink(client)
   } else {
     return new HttpLink({
-      uri,
+      postURL,
       opts: {
         credentials: 'same-origin'
       }
