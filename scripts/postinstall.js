@@ -16,6 +16,10 @@ const symlinks = [
   },
   {
     target: 'tegh-daemon',
+    addTo: 'tegh-driver-serial-gcode',
+  },
+  {
+    target: 'tegh-daemon',
     addTo: 'tegh-serial-integration-test',
   },
   {
