@@ -28,5 +28,6 @@ driver:
   temperaturePollingInterval: 600
   delayFromGreetingToReady: 2500
   serialPort:
-    path: /dev/ttyACM0
+    path: /dev/null
     baudRate: 115200
+    simulation: true

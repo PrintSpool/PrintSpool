@@ -21,6 +21,13 @@ type FanControl = {
 
 type Tx = HeaterControl | FanControl | { lineNumber: number }
 
+type SimpleParserData = {
+  checksum: string,
+  lineNumber: number,
+  code: string,
+  args: {},
+}
+
 const HEATER_MCODES = ['M109', 'M104', 'M140', 'M190', 'M116']
 const EXTRUDER_MCODES = ['M109', 'M104', 'M116']
 const BED_MCODES = ['M140', 'M190']
@@ -126,6 +133,22 @@ const parseFanMCodes = (
   }
 }
 
+export const simpleParser = (rawSerialOutput: string): SimpleParserData => {
+  const [line, checksum] = rawSerialOutput.toUpperCase().split('*')
+  const [lineNumberWithN, code, ...argWords] = line.trim().split(/ +/)
+  const lineNumber = parseInt(lineNumberWithN.slice(1), 10)
+  const args = {}
+  argWords.forEach(word =>
+    args[word[0].toLowerCase()] = parseFloat(word.slice(1))
+  )
+  return {
+    checksum,
+    lineNumber,
+    code,
+    args,
+  }
+}
+
 const txParser = (rawSerialOutput: string): Tx => {
   const lineCount = (rawSerialOutput.match(/\n/g) || []).length
 
@@ -136,13 +159,12 @@ const txParser = (rawSerialOutput: string): Tx => {
       `\n ${lineCount < 10 ? rawSerialOutput : '[too many lines to print]'}`
     )
   }
-  const [line, _checksum] = rawSerialOutput.toUpperCase().split('*')
-  const [lineNumberWithN, code, ...argWords] = line.trim().split(/ +/)
-  const lineNumber = parseInt(lineNumberWithN.slice(1), 10)
-  const args = {}
-  argWords.forEach(word =>
-    args[word[0].toLowerCase()] = parseFloat(word.slice(1))
-  )
+
+  const {
+    lineNumber,
+    code,
+    args,
+  } = simpleParser(rawSerialOutput)
 
   if (HEATER_MCODES.includes(code)) {
     return parseHeaterMCodes(lineNumber, code, args, rawSerialOutput)
