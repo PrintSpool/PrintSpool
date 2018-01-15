@@ -19,15 +19,15 @@ export const loadCrashReport = (errorDir) => {
   return json
 }
 
-export const onUncaughtException = ({
-  errorDir,
-  getRavenContext = () => Raven.getContext(),
-  uninstallRaven = () => Raven.uninstall(),
-}) => {
+export const onUncaughtException = (handlerConfig) => {
   // let alreadyCrashing = false
   return (err) => {
     // if (alreadyCrashing) throw err
     // alreadyCrashing = true
+    const {
+      store,
+      errorDir,
+    } = handlerConfig
     const date = new Date()
     const crashReport = {
       date: date.toUTCString(),
@@ -35,6 +35,11 @@ export const onUncaughtException = ({
       level: 'fatal',
       message: err.message,
       stack: err.stack,
+      state: store == null ? null : {
+        ...store.getState(),
+        log: '[REDACTED]',
+        spool: '[REDACTED]',
+      },
       // ravenContext: getRavenContext(),
       seen: false,
     }
@@ -88,10 +93,13 @@ export const wrapInCrashReporting = ({config, configPath}, cb) => {
    * crash report logs.
    */
   const wrapperDomain = domain.create()
-  const errorHandler = onUncaughtException({ errorDir })
+  const handlerConfig= { errorDir }
+  const setErrorHandlerStore = (store) => handlerConfig.store = store
+  const errorHandler = onUncaughtException(handlerConfig)
   wrapperDomain.on('error', errorHandler)
   wrapperDomain.run(() => cb({
     crashReport,
     errorHandler,
+    setErrorHandlerStore,
   }))
 }

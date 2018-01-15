@@ -35,7 +35,8 @@ const teghDaemon = (argv, loadPlugin) => {
 
   wrapInCrashReporting({ configPath, config }, ({
     crashReport,
-    errorHandler
+    errorHandler,
+    setErrorHandlerStore,
   }) => {
     const driver = loadPlugin(config.driver.package)
     const {errors, valid} = driver.validate(config)
@@ -52,6 +53,7 @@ const teghDaemon = (argv, loadPlugin) => {
       loadPlugin,
     }
     const store = createTeghStore(storeContext)
+    setErrorHandlerStore(store)
     const pubsub = reduxPubSub(store)
 
     const teghServerConfig = {
