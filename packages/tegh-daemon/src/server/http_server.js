@@ -66,7 +66,7 @@ const httpServer = ({
   app.use(router.routes())
   app.use(router.allowedMethods())
   // eslint-disable-next-line no-console
-  if (!isTCP) fs.unlinkSync(port)
+  if (!isTCP && fs.existsSync(port)) fs.unlinkSync(port)
   server.listen(port, () => {
     let portFullName = port
     if (isTCP) {

@@ -20,6 +20,20 @@ const createSerialPort = (config) => {
     return { serialPort, parser }
   })()
 
+  serialPort.on('open', () => {
+    console.error('Serial port connected')
+  })
+
+  serialPort.on('close', (err) => {
+    console.error('Serial port disconnected. Shutting down.')
+    process.exit(0)
+  })
+
+  serialPort.on('error', (err) => {
+    console.error('Serial port error')
+    throw err
+  })
+
   return {
     serialPort,
     serialOptions,

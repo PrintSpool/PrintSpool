@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "dev": "npx node-dev index.js --trace-warnings",
-    "start": "NODE_ENV=production npx node-dev index.js --trace-warnings"
+    "start": "NODE_ENV=production node index.js --trace-warnings"
   },
   "babel": {
     "presets": [
