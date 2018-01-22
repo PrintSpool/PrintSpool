@@ -18,14 +18,21 @@ USB serial connections drop and modify (corrupt) bytes sent to and received from
 ## Scenarios where the printer **would not** send a response to a GCode:
 
 1. The firmware's gcode buffer is full so the printer is not responding as flow control.
-3. The USB serial connection dropped the newline character sent from the host (and may have dropped more of the message).
-5. The USB serial connection dropped the newline character in the response from the printer (and may have dropped more of the message).
+2. The USB serial connection dropped the newline character sent from the host (and may have dropped more of the message).
+3. The USB serial connection dropped the newline character in the response from the printer (and may have dropped more of the message).
 
 All of the situations in which a response is not sent appear identical to the host software.
 
-In these scenarios the host will wait for a response and if one is not received within it's timeout (configured by the user) it will resend the line. It will repeat this process N times as configured by the user before logging an error and setting the printer status to `"error"`.
+### Solution
 
-### If the host receives a response after resending the line
+In these scenarios the host will wait for a response and if one is not received within it's timeout (configured by the user) it will send M105 (report temperature) to "tickle" the firmware. The firmware may respond in one of four ways to this "tickling" which will indicate to the host software how to proceed:
 
-1. If the response is an error denoting that the line was already received the host will send `M999 S` to clear the error and continue the print.
-2. If an "ok" is received in response to the resent line or `M999 S` the host will resume normal despooling.
+* **Silence** - The firmware buffer may either be full or the M105 was also lost to a communication failure. The host software will repeat the process of waiting and sending M105 a number of times before setting the printer's status to 'error'.
+* **Resend** - The firmware sends a 'resend' for the original lost line. This indicates that the firmware did not receive the newline character (See scenario \#2 above). Specifically the M105 command was interpreted by the firmware as being appended to the previous line and this caused a checksum mismatch in turn causing the resend request. The host software will resend the line and then resume normal de-spooling. Eg:
+  * Host sends
+    `N1 G1 X10 *123`
+    `N2 M105 *234`
+  * Firmware receives
+    `N1 G1 X10 *123N2 M105 *234`
+* **Ok** - The firmware send an 'ok'. This indicates that the printer had received the previous gcode line successfully and that it was the response from the firmware that was dropped (See scenario \#3 above).
+* **Error** - This is unrelated to the corrupted serial communication and should be treated as any other error from the firmware.
