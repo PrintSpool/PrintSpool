@@ -46,6 +46,10 @@ const logReducer = ({
   if (driver.logger == null) return state
   const log = validLogEntry(driver.logger(action))
   if (log == null) return state
+  // TODO: console.error is a side effect and would ideally be moved to a saga
+  if (config.log.stderr.includes(log.level)) {
+    console.error(`${log.source}: ${log.message}`)
+  }
   return state
     .update('entries', list => (
       (() => {

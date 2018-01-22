@@ -39,3 +39,13 @@ export const responses = {
     'ok',
   ],
 }
+
+export const errors = {
+  sentSameLineTwice: [
+    'Error:Line Number is not Last Line Number+1, Last Line: 1',
+  ],
+  checksumMismatch: [
+    'Error:checksum mismatch, Last Line: 0',
+    'Resend: 1',
+  ],
+}
