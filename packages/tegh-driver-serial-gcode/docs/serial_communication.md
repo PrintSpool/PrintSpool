@@ -38,7 +38,7 @@ In these scenarios the host will wait for a response and if one is not received 
     `Error:checksum mismatch, Last Line: 0\n`
     `Resend: 1\n`
   * Host software resend line 1. Receives ok. Then continues de-spooling.
-* **Okok** - The host receives 'okok', 'kok' or 'ok'. This indicates that the printer had received the previous gcode line successfully and that it was the response from the firmware that was dropped (See scenario \#3 above). Eg:
+* **Okok** - The host receives 'okok', 'kok', 'ook' or 'ok'. This indicates that the printer had received the previous gcode line successfully and that it was the response from the firmware that was dropped (See scenario \#3 above). Eg:
   * Host sends
     `N1 G1 X10 *123\n`
     `M105\n`

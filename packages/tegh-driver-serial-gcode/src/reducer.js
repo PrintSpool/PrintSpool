@@ -1,5 +1,3 @@
-import txParser, { throwErrorOnInvalidGCode } from './tx_parser.js'
-
 const VERBOSE = true
 
 const initializeCollection = (arrayOfIDs, initialValueFn) => {
@@ -35,6 +33,15 @@ const serialGCodeReducer = ({ config }) => (
   action
 ) => {
   switch(action.type) {
+    case 'SERIAL_TIMEOUT':
+      return {
+        ...state,
+        ready: false,
+        error: {
+          code: 'SERIAL_TIMEOUT',
+          message: 'Serial timeout',
+        }
+      }
     case 'SERIAL_RECEIVE':
       if (action.data.temperatures != null) {
         const heaters = {...state.heaters}
@@ -52,7 +59,10 @@ const serialGCodeReducer = ({ config }) => (
         return {
           ...state,
           ready: false,
-          error: action.data,
+          error: {
+            code: 'FIRMWARE_ERROR',
+            message: action.data,
+          },
         }
       }
       return state
@@ -60,11 +70,12 @@ const serialGCodeReducer = ({ config }) => (
       throwErrorOnInvalidGCode(action.task.data)
       return state
     case 'SERIAL_SEND':
-      const parsedData = txParser(action.data)
-      const {lineNumber, type, id, changes} = parsedData
+      const {lineNumber, type, id, changes} = action
       const nextState = {
         ...state,
-        currentLineNumber: lineNumber + 1,
+      }
+      if (typeof lineNumber === 'number') {
+        nextState.currentLineNumber = lineNumber + 1
       }
       if (type == null) return nextState
       const collectionKey = {

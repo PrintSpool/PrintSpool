@@ -7,7 +7,6 @@ const simulator = () => {
   const parser = new events.EventEmitter()
   const sendLines = lines => lines.forEach(line => {
     setImmediate(() => {
-      // console.log(`sim RX: ${line}`)
       parser.emit('data', line)
     })
   })
@@ -17,8 +16,7 @@ const simulator = () => {
     sendLines(greeting)
   }
   serialPort.write = (line) => {
-    // console.log(`sim TX: ${line.replace('\n', '')}`)
-    const code = simpleParser(line).code.toLowerCase()
+    const code = line.split(/ +/)[1].toLowerCase()
     if (responses[code] == null) {
       sendLines(responses['g1'])
     } else {

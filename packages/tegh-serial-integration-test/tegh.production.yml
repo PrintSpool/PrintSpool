@@ -34,6 +34,19 @@ driver:
   package: tegh-driver-serial-gcode
   temperaturePollingInterval: 600
   delayFromGreetingToReady: 2500
+  serialTimeout:
+    tickleAttempts: 3
+    fastCodeTimeout: 3000
+    longRunningCodeTimeout: 60000
+  longRunningCodes:
+    - G4
+    - G28
+    - G29
+    - G30
+    - G32
+    - M226
+    - M400
+    - M600
   serialPort:
     path: /dev/ttyACM0
     baudRate: 115200

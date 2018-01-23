@@ -1,3 +1,5 @@
+import txParser from '../tx_parser.js'
+
 const NEWLINE = /\r\n|\r|\n/g
 
 const checksum = (line) => {
@@ -9,7 +11,7 @@ const checksum = (line) => {
   return sum
 }
 
-const serialSend = (lineNumber, line) => {
+const serialSend = (line, { lineNumber }) => {
   if (
     typeof line !== 'string' ||
     line.length === 0 ||
@@ -17,13 +19,19 @@ const serialSend = (lineNumber, line) => {
   ) {
     throw new Error(`Invalid gcode line ${JSON.stringify(line)}`)
   }
-  const lineWithLineNumber = `N${lineNumber} ${line}`
-  const lineWithChecksum = (
-    `${lineWithLineNumber}*${checksum(lineWithLineNumber)}\n`
-  )
+  const data = (() => {
+    if (lineNumber === false) return line
+    if (typeof lineNumber != 'number') {
+      throw new Error('lineNumber must either be false or a number')
+    }
+    const lineWithLineNumber = `N${lineNumber} ${line}`
+    return `${lineWithLineNumber}*${checksum(lineWithLineNumber)}\n`
+  })()
   return {
     type: 'SERIAL_SEND',
-    data: lineWithChecksum,
+    data,
+    lineNumber,
+    ...txParser(line),
   }
 }
 

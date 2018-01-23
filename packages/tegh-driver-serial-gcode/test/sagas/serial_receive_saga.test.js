@@ -171,7 +171,7 @@ describe('SERIAL_RECEIVE resend', () => {
 
       expect(result).toEqual([
         {
-          ...serialSend(41, '(╯°□°）╯︵ ┻━┻'),
+          ...serialSend('(╯°□°）╯︵ ┻━┻', { lineNumber: 41 }),
           [SAGA_ACTION]: true,
         },
       ])

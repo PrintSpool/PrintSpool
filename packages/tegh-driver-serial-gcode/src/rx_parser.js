@@ -2,6 +2,11 @@
 import stream from 'stream'
 
 const GREETINGS = /^(start|grbl )/
+/*
+ * Serial data corruption might result in ok, okok, kok or ook being sent. All
+ * of these should be treated as 'ok'.
+ */
+const OK = /^o?k?ok/
 
 type Feedback = {
   /* any temperature values received with the ack */
@@ -32,8 +37,9 @@ const parsePrinterFeedback = (line: string): Feedback => {
   if (line.match("t:") == null) return {}
   // Filtering out non-temperature values
   const filteredLine = line
-    .replace(/^(ok | )/, '')
+    .replace(OK, '')
     .replace(/(\/|[a-z]*@:|e:)[0-9\.]*/g, '')
+    .trim()
   // Normalizing the temperature values and splitting them into words
   const keyValueWords  = filteredLine
     .replace("t:", "e0:")
@@ -83,7 +89,7 @@ const rxParser = (raw: string): RxData => {
       raw,
     }
   }
-  if (line.startsWith('ok')) {
+  if (line.match(OK) != null) {
     return {
       type: 'ok',
       ...parsePrinterFeedback(line),

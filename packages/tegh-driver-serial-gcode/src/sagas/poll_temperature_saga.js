@@ -2,7 +2,6 @@
 import { effects } from 'tegh-daemon'
 
 import spoolTemperatureQuery from '../actions/spool_temperature_query'
-import serialSend from '../actions/serial_send'
 
 const { put, takeEvery, takeLatest, select, call, delay } = effects
 

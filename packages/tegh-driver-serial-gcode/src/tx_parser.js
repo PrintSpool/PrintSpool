@@ -1,6 +1,6 @@
 // @flow
 type HeaterControl = {
-  lineNumber: number,
+  code: string,
   type: 'HEATER_CONTROL',
   id: string,
   changes: {
@@ -10,7 +10,7 @@ type HeaterControl = {
 }
 
 type FanControl = {
-  lineNumber: number,
+  code: string,
   type: 'FAN_CONTROL',
   id: number,
   changes: {
@@ -19,11 +19,9 @@ type FanControl = {
   },
 }
 
-type Tx = HeaterControl | FanControl | { lineNumber: number }
+type Tx = HeaterControl | FanControl | { code: string }
 
 type SimpleParserData = {
-  checksum: string,
-  lineNumber: number,
   code: string,
   args: {},
 }
@@ -50,13 +48,12 @@ const parseHeaterID = (code, args) => {
 }
 
 const parseHeaterMCodes = (
-  lineNumber: number,
   code: string,
   args: {},
   raw: string,
 ): HeaterControl => {
   const heaterControl: HeaterControl = {
-    lineNumber,
+    code,
     type: 'HEATER_CONTROL',
     id: parseHeaterID(code, args),
     changes: {
@@ -86,7 +83,6 @@ const parseHeaterMCodes = (
 const FAN_MCODES = ['M106', 'M107']
 
 const parseFanMCodes = (
-  lineNumber: number,
   code: string,
   args: {},
   raw: string,
@@ -126,24 +122,20 @@ const parseFanMCodes = (
   }
 
   return {
-    lineNumber,
+    code,
     type: 'FAN_CONTROL',
     id,
     changes,
   }
 }
 
-export const simpleParser = (rawSerialOutput: string): SimpleParserData => {
-  const [line, checksum] = rawSerialOutput.toUpperCase().split('*')
-  const [lineNumberWithN, code, ...argWords] = line.trim().split(/ +/)
-  const lineNumber = parseInt(lineNumberWithN.slice(1), 10)
+export const simpleParser = (line: string): SimpleParserData => {
+  const [code, ...argWords] = line.trim().split(/ +/)
   const args = {}
   argWords.forEach(word =>
     args[word[0].toLowerCase()] = parseFloat(word.slice(1))
   )
   return {
-    checksum,
-    lineNumber,
     code,
     args,
   }
@@ -161,22 +153,21 @@ const txParser = (rawSerialOutput: string): Tx => {
   }
 
   const {
-    lineNumber,
     code,
     args,
   } = simpleParser(rawSerialOutput)
 
   if (HEATER_MCODES.includes(code)) {
-    return parseHeaterMCodes(lineNumber, code, args, rawSerialOutput)
+    return parseHeaterMCodes(code, args, rawSerialOutput)
   }
   if (FAN_MCODES.includes(code)) {
-    return parseFanMCodes(lineNumber, code, args, rawSerialOutput)
+    return parseFanMCodes(code, args, rawSerialOutput)
   }
-  return { lineNumber }
+  return { code }
 }
 
 export const throwErrorOnInvalidGCode = (gcodeLines: [string]) => {
-  gcodeLines.forEach((line) => {
+  gcodeLines.forEach(line => {
     txParser(line)
   })
 }

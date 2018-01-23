@@ -7,7 +7,7 @@ test('adds checksum and line number', () => {
   // See http://reprap.org/wiki/G-code#.2A:_Checksum
   const expectedOutputLine = 'N1995 (╯°□°）╯︵ ┻━┻*254\n'
 
-  const result = serialSend(lineNumber, line)
+  const result = serialSend(line, { lineNumber })
 
   expect(result).toEqual({
     type: "SERIAL_SEND",
