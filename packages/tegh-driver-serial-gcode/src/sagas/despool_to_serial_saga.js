@@ -28,7 +28,7 @@ const onSpoolerChange = function*(action: {type: string}) {
   ) {
     const currentSerialLineNumber = yield select(getCurrentSerialLineNumber)
     const currentLine = currentTask.data.get(currentTask.currentLineNumber)
-    yield put(serialSend(currentSerialLineNumber, currentLine))
+    yield put(serialSend(currentLine, { lineNumber: currentSerialLineNumber}))
   }
 }
 

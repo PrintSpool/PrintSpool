@@ -1,3 +1,5 @@
+import { throwErrorOnInvalidGCode } from './tx_parser.js'
+
 const VERBOSE = true
 
 const initializeCollection = (arrayOfIDs, initialValueFn) => {
@@ -70,19 +72,14 @@ const serialGCodeReducer = ({ config }) => (
       throwErrorOnInvalidGCode(action.task.data)
       return state
     case 'SERIAL_SEND':
-      const {lineNumber, type, id, changes} = action
+      const {lineNumber, collectionKey, id, changes} = action
       const nextState = {
         ...state,
       }
       if (typeof lineNumber === 'number') {
         nextState.currentLineNumber = lineNumber + 1
       }
-      if (type == null) return nextState
-      const collectionKey = {
-        'HEATER_CONTROL': 'heaters',
-        'FAN_CONTROL': 'fans',
-      }[type]
-      if (collectionKey == null) throw new Error(`Invalid type: ${type}`)
+      if (collectionKey == null) return nextState
       // update the heater or fan's state.
       return {
         ...nextState,

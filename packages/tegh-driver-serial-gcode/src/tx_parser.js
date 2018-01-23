@@ -1,7 +1,7 @@
 // @flow
 type HeaterControl = {
   code: string,
-  type: 'HEATER_CONTROL',
+  collectionKey: 'heaters',
   id: string,
   changes: {
     blocking: boolean,
@@ -11,7 +11,7 @@ type HeaterControl = {
 
 type FanControl = {
   code: string,
-  type: 'FAN_CONTROL',
+  collectionKey: 'fans',
   id: number,
   changes: {
     enabled: boolean,
@@ -54,7 +54,7 @@ const parseHeaterMCodes = (
 ): HeaterControl => {
   const heaterControl: HeaterControl = {
     code,
-    type: 'HEATER_CONTROL',
+    collectionKey: 'heaters',
     id: parseHeaterID(code, args),
     changes: {
       blocking: BLOCKING_MCODES.includes(code),
@@ -123,7 +123,7 @@ const parseFanMCodes = (
 
   return {
     code,
-    type: 'FAN_CONTROL',
+    collectionKey: 'fans',
     id,
     changes,
   }

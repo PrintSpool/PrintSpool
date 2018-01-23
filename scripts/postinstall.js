@@ -20,6 +20,15 @@ const symlinks = [
   },
   {
     target: 'tegh-daemon',
+    addTo: 'tegh-driver-serial-gcode',
+  },
+  {
+    alias: 'redux-saga',
+    target: 'tegh-daemon/node_modules/redux-saga',
+    addTo: 'tegh-driver-serial-gcode',
+  },
+  {
+    target: 'tegh-daemon',
     addTo: 'tegh-serial-integration-test',
   },
   {
@@ -36,9 +45,9 @@ const postInstall = async () => {
   console.log(`${LINE}\nPOST INSTALL\n${LINE}`)
   await new lerna.BootstrapCommand([], [], dir).run()
   console.log(`Symlinking local dependencies`)
-  for (const { target, addTo } of symlinks) {
+  for (const { target, alias, addTo } of symlinks) {
     const nodeModules = path.join(dir, 'packages', addTo, 'node_modules')
-    const symlinkPath = path.join(nodeModules, target)
+    const symlinkPath = path.join(nodeModules, alias || target)
     if (!fs.existsSync(nodeModules)) fs.mkdirSync(nodeModules)
     if (fs.existsSync(symlinkPath)) await rm(symlinkPath)
     fs.symlinkSync(
