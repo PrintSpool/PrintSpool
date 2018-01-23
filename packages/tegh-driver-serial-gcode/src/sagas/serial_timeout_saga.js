@@ -11,13 +11,14 @@ const getLongRunningCodes = state => state.config.driver.longRunningCodes
 
 const onLineSend = function*(action) {
   const longRunningCodes = yield select(getLongRunningCodes)
-  const {
-    tickleAttempts,
-    fastGCodeTimeout,
-    longRunningCodeTimeout,
-  } = yield select(getSerialTimeout)
+  const serialTimeoutConfig = yield select(getSerialTimeout)
+  const { tickleAttempts } = serialTimeoutConfig
   const long = longRunningCodes.includes(action.code)
-  const timeoutPeriod = long ? longRunningCodeTimeout : fastGCodeTimeout
+  const timeoutName = `${long ? 'longRunning' : 'fast'}CodeTimeout`
+  const timeoutPeriod = serialTimeoutConfig[timeoutName]
+  if (typeof timeoutPeriod != 'number') {
+    throw new Error(`${timeoutName} must be a number`)
+  }
   for (const i of Array(tickleAttempts)) {
     const { response } = yield race({
       response: take(({ type, data }) =>

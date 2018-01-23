@@ -23,11 +23,21 @@ const initialState = {
   },
 }
 
+const tickleMCodeAction = {
+  ...serialSend('M105', { lineNumber: false }),
+  [SAGA_ACTION]: true,
+}
+
 const okReceivedAction = {
   type: 'SERIAL_RECEIVE',
   data: {
     type: 'ok',
   },
+}
+
+const serialTimeoutAction = {
+  type: 'SERIAL_TIMEOUT',
+  [SAGA_ACTION]: true,
 }
 
 const startingConditions = ({ long }) => {
@@ -36,10 +46,10 @@ const startingConditions = ({ long }) => {
     saga: serialTimeoutSaga,
   })
   const code = long ? 'G28' : 'G1'
-  const sentAction = serialSend(code, { lineNumber: 42 })
-  sagaTester.dispatch(sentAction)
+  const sentGCodeAction = serialSend(code, { lineNumber: 42 })
+  sagaTester.dispatch(sentGCodeAction)
 
-  return { sagaTester, delayMock, sentAction }
+  return { sagaTester, delayMock, sentGCodeAction }
 }
 
 describe('SERIAL_SEND', () => {
@@ -57,25 +67,35 @@ describe('SERIAL_SEND', () => {
 
           const result = sagaTester.getCalledActions()[1+tickleCount]
 
-          expect(result).toEqual({
-            ...serialSend('M105', { lineNumber: false }),
-            [SAGA_ACTION]: true,
-          })
+          expect(result).toEqual(tickleMCodeAction)
         }
 
         test(
           `if the firmware sends back 'ok' it stops tickling`,
           () => {
-            const { sagaTester, delayMock } = startingConditions({ long })
+            const {
+              sagaTester,
+              delayMock,
+              sentGCodeAction,
+            } = startingConditions({ long })
             expectTickle({ sagaTester, delayMock, tickleCount: 0 })
             expectTickle({ sagaTester, delayMock, tickleCount: 1 })
             sagaTester.dispatch(okReceivedAction)
-
+            /*
+             * Even if the pause expires after the ok is received the saga
+             * should not put another tickle.
+             */
             const pause = delayMock.unacknowledgedDelay
+            pause.next()
 
-            // TODO: cancelled
-            expect(pause.cancelled).toEqual(true)
-            expect(sagaTester.getCalledActions().length()).toEqual(2)
+            const result = sagaTester.getCalledActions()
+
+            expect(result).toEqual([
+              sentGCodeAction,
+              tickleMCodeAction,
+              tickleMCodeAction,
+              okReceivedAction,
+            ])
           }
         )
 
@@ -83,14 +103,24 @@ describe('SERIAL_SEND', () => {
           `if the firmware does not respond to multiple tickles it puts `+
           `SERIAL_TIMEOUT`,
           () => {
-            const { sagaTester, delayMock } = startingConditions({ long })
+            const {
+              sagaTester,
+              delayMock,
+              sentGCodeAction,
+            } = startingConditions({ long })
             expectTickle({ sagaTester, delayMock, tickleCount: 0 })
             expectTickle({ sagaTester, delayMock, tickleCount: 1 })
             expectTickle({ sagaTester, delayMock, tickleCount: 2 })
 
-            const result = sagaTester.getCalledActions().pop()
+            const result = sagaTester.getCalledActions()
 
-            expect(result.type).toEqual('SERIAL_TIMEOUT')
+            expect(result).toEqual([
+              sentGCodeAction,
+              tickleMCodeAction,
+              tickleMCodeAction,
+              tickleMCodeAction,
+              serialTimeoutAction,
+            ])
           }
         )
       }
@@ -102,14 +132,14 @@ describe('SERIAL_SEND', () => {
       const {
         sagaTester,
         delayMock,
-        sentAction,
+        sentGCodeAction,
       } = startingConditions({ long: false })
       sagaTester.dispatch(okReceivedAction)
 
       const result = sagaTester.getCalledActions()
 
       expect(result).toEqual([
-        sentAction,
+        sentGCodeAction,
         okReceivedAction,
       ])
     }
