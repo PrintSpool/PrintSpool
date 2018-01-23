@@ -1,5 +1,5 @@
 // @flow
-import serialSend from '../../src/actions/serial_send'
+import serialSend from './serial_send'
 
 test('adds checksum and line number', () => {
   const line = '(╯°□°）╯︵ ┻━┻'

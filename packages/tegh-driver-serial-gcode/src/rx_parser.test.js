@@ -1,5 +1,5 @@
 // @flow
-import rxParser from '../src/rx_parser'
+import rxParser from './rx_parser'
 
 test('parses greetings', () => {
   const result = rxParser('start')

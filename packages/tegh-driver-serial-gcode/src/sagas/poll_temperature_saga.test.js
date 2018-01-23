@@ -3,8 +3,8 @@ import { utils as sagaUtils } from 'redux-saga'
 import SagaTester from 'redux-saga-tester'
 import sagaDelayMock from 'redux-saga-delay-mock'
 
-import spoolTemperatureQuery from '../../src/actions/spool_temperature_query'
-import pollTemperatureSaga from '../../src/sagas/poll_temperature_saga'
+import spoolTemperatureQuery from '../actions/spool_temperature_query'
+import pollTemperatureSaga from './poll_temperature_saga'
 
 const { SAGA_ACTION } = sagaUtils
 

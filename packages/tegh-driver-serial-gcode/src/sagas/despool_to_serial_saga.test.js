@@ -2,7 +2,7 @@
 import { utils as sagaUtils } from 'redux-saga'
 import SagaTester from 'redux-saga-tester'
 
-import despoolToSerialSaga from '../../src/sagas/despool_to_serial_saga'
+import despoolToSerialSaga from './despool_to_serial_saga'
 
 const { SAGA_ACTION } = sagaUtils
 

@@ -1,5 +1,5 @@
 // @flow
-import txParser from '../src/tx_parser'
+import txParser from './tx_parser'
 
 test('parses the line number', () => {
   const result = txParser('N1337 g1 x10')

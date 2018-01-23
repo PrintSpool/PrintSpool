@@ -1,11 +1,11 @@
 // @flow
 import { utils as sagaUtils } from 'redux-saga'
 
-import delayMockedSagaTester from '../__helpers/delay_mocked_saga_tester'
+import delayMockedSagaTester from '../test_helpers/delay_mocked_saga_tester'
 
-import spoolTemperatureQuery from '../../src/actions/spool_temperature_query'
-import serialReceiveSaga from '../../src/sagas/serial_receive_saga'
-import serialSend from '../../src/actions/serial_send'
+import spoolTemperatureQuery from '../actions/spool_temperature_query'
+import serialReceiveSaga from './serial_receive_saga'
+import serialSend from '../actions/serial_send'
 
 const { SAGA_ACTION } = sagaUtils
 
