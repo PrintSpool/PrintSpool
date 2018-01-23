@@ -6,12 +6,13 @@ import _ from 'lodash'
 import createSerialPort from './serial/create_serial_port'
 import rxParser from './rx_parser.js'
 
+import * as sagasByName from './sagas/'
 export { default as reducer } from './reducer'
-export { default as sagas } from './sagas/'
 export { default as logger } from './logger'
 export { default as validate } from './config/validate'
 export { default as serialConsole } from './serial/serial_console'
 
+export const sagas = ({ config }) => Object.values(sagasByName)
 // export { config }
 
 export const middleware = ({ config }) => {

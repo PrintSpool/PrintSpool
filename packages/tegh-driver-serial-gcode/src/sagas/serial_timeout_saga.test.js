@@ -25,6 +25,7 @@ const initialState = {
 
 const tickleMCodeAction = {
   ...serialSend('M105', { lineNumber: false }),
+  tickle: true,
   [SAGA_ACTION]: true,
 }
 
@@ -135,10 +136,14 @@ describe('SERIAL_SEND', () => {
         sentGCodeAction,
       } = startingConditions({ long: false })
       sagaTester.dispatch(okReceivedAction)
+      sagaTester.dispatch(sentGCodeAction)
+      sagaTester.dispatch(okReceivedAction)
 
       const result = sagaTester.getCalledActions()
 
       expect(result).toEqual([
+        sentGCodeAction,
+        okReceivedAction,
         sentGCodeAction,
         okReceivedAction,
       ])

@@ -1,5 +1,5 @@
 // @flow
-import { effects } from 'tegh-daemon'
+import { effects } from 'redux-saga'
 
 import spoolTemperatureQuery from '../actions/spool_temperature_query'
 import serialSend from '../actions/serial_send'

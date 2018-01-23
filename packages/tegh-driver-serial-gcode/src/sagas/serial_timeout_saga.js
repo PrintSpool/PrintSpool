@@ -28,7 +28,10 @@ const onLineSend = function*(action) {
       timeout: delay(timeoutPeriod),
     })
     if (response != null) return
-    yield put(serialSend('M105', { lineNumber: false }))
+    yield put({
+      ...serialSend('M105', { lineNumber: false }),
+      tickle: true,
+    })
   }
   yield put({
     type: 'SERIAL_TIMEOUT'

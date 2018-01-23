@@ -1,5 +1,5 @@
 // @flow
-import { effects } from 'tegh-daemon'
+import { effects } from 'redux-saga'
 
 import serialSend from '../actions/serial_send'
 

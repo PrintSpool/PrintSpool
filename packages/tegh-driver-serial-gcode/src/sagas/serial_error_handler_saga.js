@@ -1,5 +1,5 @@
 // @flow
-import { effects } from 'tegh-daemon'
+import { effects } from 'redux-saga'
 
 const { put, takeEvery, takeLatest, select, call, delay } = effects
 
