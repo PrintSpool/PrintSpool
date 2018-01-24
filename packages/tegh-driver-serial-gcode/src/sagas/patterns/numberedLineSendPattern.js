@@ -3,4 +3,4 @@ const numberedLineSendPattern = action => (
   typeof action.lineNumber === 'number'
 )
 
-export numberedLineSendPattern
+export default numberedLineSendPattern

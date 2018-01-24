@@ -1,4 +1,4 @@
-export const getReady = state =>
+export const isReady = state =>
   state.driver.ready
 
 export const getCurrentLine = state =>
@@ -17,7 +17,13 @@ export const getPollingInterval = state =>
   state.config.driver.temperaturePollingInterval
 
 export const getCurrentTask = state =>
-  state.spool.allTasks.get(spool.currentTaskID)
+  state.spool.allTasks.get(state.spool.currentTaskID)
+
+export const getCurrentLine = state => {
+  const task = getCurrentTask(state)
+  if (task == null) return null
+  task.data.get(task.currentLineNumber)
+}
 
 export const shouldSendSpooledLineToPrinter = state =>
   state.spool.sendSpooledLineToPrinter

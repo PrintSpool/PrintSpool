@@ -1,27 +1,15 @@
 // @flow
 import { utils as sagaUtils } from 'redux-saga'
 
-import delayMockedSagaTester from '../test_helpers/delay_mocked_saga_tester'
+import delayMockedSagaTester from '../test_helpers/delayMockedSagaTester'
 
-import serialTimeoutSaga from './serial_timeout_saga'
-import serialSend from '../actions/serial_send'
+import serialTimeoutSaga from './serialTimeoutSaga'
+import serialSend from '../actions/serialSend'
 
 const { SAGA_ACTION } = sagaUtils
 
 const fastCodeTimeout = 3000
 const longRunningCodeTimeout = 10000
-const initialState = {
-  config: {
-    driver: {
-      serialTimeout: {
-        tickleAttempts: 3,
-        fastCodeTimeout,
-        longRunningCodeTimeout,
-      },
-      longRunningCodes: ['G28'],
-    },
-  },
-}
 
 const tickleMCodeAction = {
   ...serialSend('M105', { lineNumber: false }),
@@ -42,9 +30,16 @@ const serialTimeoutAction = {
 }
 
 const startingConditions = ({ long }) => {
+  const selectors = {
+    getLongRunningCodes: () => ['G28'],
+    getSerialTimeout: () => ({
+      tickleAttempts: 3,
+      fastCodeTimeout,
+      longRunningCodeTimeout,
+    })
+  }
   const { sagaTester, delayMock } = delayMockedSagaTester({
-    initialState,
-    saga: serialTimeoutSaga,
+    saga: serialTimeoutSaga(selectors),
   })
   const code = long ? 'G28' : 'G1'
   const sentGCodeAction = serialSend(code, { lineNumber: 42 })
