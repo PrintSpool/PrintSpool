@@ -1,9 +1,10 @@
 // @flow
 import serialSend from './serialSend'
 
+const line = 'G12345 (╯°□°）╯︵ ┻━┻'
+
 describe('with a line number', () => {
   test('adds the checksum and line number', () => {
-    const line = 'G12345 (╯°□°）╯︵ ┻━┻'
     const lineNumber = 1995
     // See http://reprap.org/wiki/G-code#.2A:_Checksum
     const expectedOutputLine = `N1995 ${line}*168\n`
@@ -21,7 +22,6 @@ describe('with a line number', () => {
 
 describe('with lineNumber: false', () => {
   test('sends the line without a checksum or line number', () => {
-    const line = 'G12345 (╯°□°）╯︵ ┻━┻'
     const result = serialSend(line, { lineNumber: false })
 
     expect(result).toEqual({
@@ -30,5 +30,13 @@ describe('with lineNumber: false', () => {
       lineNumber: false,
       data: line,
     })
+  })
+})
+
+describe('with lineNumber: undefined', () => {
+  test('throws an error', () => {
+    expect(() => {
+      serialSend(line, { lineNumber: undefined })
+    }).toThrow()
   })
 })
