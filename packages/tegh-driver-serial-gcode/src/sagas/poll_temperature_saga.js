@@ -1,24 +1,13 @@
 // @flow
 import { effects } from 'redux-saga'
-
-import spoolTemperatureQuery from '../actions/spool_temperature_query'
-
 const { put, takeEvery, takeLatest, select, call, delay } = effects
 
-/*
- * Selectors for grabbing getState
- */
-
-const getPollingInterval = (state) => (
-  state.config.driver.temperaturePollingInterval
-)
-
-const hasTemperatureData = ({ type, data = null }) => (
-  type === 'SERIAL_RECEIVE'
-  && data
-  && data.type === 'ok'
-  && data.temperatures != null
-)
+import firmwareErrorPattern from './patterns/firmware_error_pattern'
+import hasTemperatureDataPattern from './patterns/has_temperature_data_pattern'
+import spoolTemperatureQuery from '../actions/spool_temperature_query'
+import {
+  getPollingInterval
+} from '../selectors'
 
 const onTemperatureData = function*() {
   const interval = yield select(getPollingInterval)
@@ -27,7 +16,17 @@ const onTemperatureData = function*() {
 }
 
 const pollTemperatureSaga = function*() {
-  yield takeLatest(hasTemperatureData, onTemperatureData)
+  while (true) {
+    // await printer startup
+    yield take('PRINTER_READY')
+    // send intial temperature polling request
+    yield put(spoolTemperatureQuery())
+    // listen for temperature data from the printer forever unless it errors
+    yield race([
+      takeLatest(hasTemperatureDataPattern, onTemperatureData),
+      take(firmwareErrorPattern),
+    ])
+  }
 }
 
 export default pollTemperatureSaga

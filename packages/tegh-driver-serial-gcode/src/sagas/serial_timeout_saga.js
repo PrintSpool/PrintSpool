@@ -1,13 +1,13 @@
 // @flow
 import { effects } from 'redux-saga'
-
-import serialSend from '../actions/serial_send'
-
 const { put, takeEvery, takeLatest, select, call, delay, take, race } = effects
 
-const getSerialTimeout = state => state.config.driver.serialTimeout
-const getLongRunningCodes = state => state.config.driver.longRunningCodes
-
+import numberedLineSendPattern from './patterns/numbered_line_send_pattern'
+import serialSend from '../actions/serial_send'
+import {
+  getLongRunningCodes,
+  getSerialTimeout,
+} from '../selectors'
 
 const onLineSend = function*(action) {
   const longRunningCodes = yield select(getLongRunningCodes)
@@ -40,11 +40,7 @@ const onLineSend = function*(action) {
 
 
 const serialTimeoutSaga = function*() {
-  const pattern = action => (
-    action.type === 'SERIAL_SEND' &&
-    action.lineNumber !== false
-  )
-  yield takeLatest(pattern, onLineSend)
+  yield takeLatest(numberedLineSendPattern, onLineSend)
 }
 
 export default serialTimeoutSaga

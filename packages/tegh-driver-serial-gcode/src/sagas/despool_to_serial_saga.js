@@ -1,14 +1,13 @@
 // @flow
 import { effects } from 'redux-saga'
-
-import serialSend from '../actions/serial_send'
-
 const { put, takeEvery, takeLatest, select, call } = effects
 
-const getCurrentSerialLineNumber = (state) => state.driver.currentLineNumber
-const getCurrentTask = ({ spool }) => spool.allTasks.get(spool.currentTaskID)
-const shouldSendSpooledLineToPrinter = (state) =>
-  state.spool.sendSpooledLineToPrinter
+import serialSend from '../actions/serial_send'
+import {
+  shouldSendSpooledLineToPrinter,
+  getCurrentLine,
+  getCurrentSerialLineNumber,
+} from '../selectors'
 
 
 /*

@@ -57,7 +57,7 @@ const serialGCodeReducer = ({ config }) => (
           heaters,
         }
       }
-      if (action.data.isError) {
+      if (action.data.type === 'error') {
         return {
           ...state,
           ready: false,
