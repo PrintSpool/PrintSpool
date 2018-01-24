@@ -1,4 +1,4 @@
-import txParser from '../tx_parser.js'
+import txParser from '../txParser.js'
 
 const NEWLINE = /\r\n|\r|\n/g
 

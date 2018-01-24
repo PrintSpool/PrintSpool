@@ -1,6 +1,4 @@
 // @flow
-import stream from 'stream'
-
 const GREETINGS = /^(start|grbl )/
 /*
  * Serial data corruption might result in ok, okok, kok or ook being sent. All

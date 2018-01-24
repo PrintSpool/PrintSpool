@@ -1,4 +1,4 @@
-import { throwErrorOnInvalidGCode } from './tx_parser.js'
+import { throwErrorOnInvalidGCode } from './txParser.js'
 
 const VERBOSE = true
 

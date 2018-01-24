@@ -1,6 +1,5 @@
 import events from 'events'
-import { greeting, responses } from '../../data/marlin_fixture'
-import { simpleParser } from '../tx_parser'
+import { greeting, responses } from '../../data/marlinFixture'
 
 const simulator = () => {
   const serialPort = new events.EventEmitter()

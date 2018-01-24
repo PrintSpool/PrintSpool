@@ -1,27 +1,18 @@
 // @flow
-import txParser from './tx_parser'
+import txParser from './txParser'
 
-test('parses the line number', () => {
-  const result = txParser('N1337 g1 x10')
-
-  expect(result).toEqual({
-    lineNumber: 1337,
-  })
-})
-
-const testMCode = (type) => (line, expectedOutput) => {
+const testMCode = (collectionKey) => (line, expectedOutput) => {
   test(`parses ${line}`, () => {
-    const result = txParser(`N123 ${line}*bs`)
+    const result = txParser(line)
     expect(result).toEqual({
-      lineNumber: 123,
-      type,
+      collectionKey,
       ...expectedOutput
     })
   })
 }
 
 describe('heater MCodes', () => {
-  const testHeaterMCode = testMCode('HEATER_CONTROL')
+  const testHeaterMCode = testMCode('heaters')
 
   const extruderScenarios = [
     {description: 'single extruder', suffix: '', id: 'e0'},
@@ -30,6 +21,7 @@ describe('heater MCodes', () => {
     describe(description, () => {
       testHeaterMCode(`M104 S218${suffix}`, {
         id,
+        code: 'M104',
         changes: {
           blocking: false,
           targetTemperature: 218,
@@ -37,6 +29,7 @@ describe('heater MCodes', () => {
       })
       testHeaterMCode(`M109 R160${suffix}`, {
         id,
+        code: 'M109',
         changes: {
           blocking: true,
           targetTemperature: 160,
@@ -44,6 +37,7 @@ describe('heater MCodes', () => {
       })
       testHeaterMCode(`M109 S218${suffix}`, {
         id,
+        code: 'M109',
         changes: {
           blocking: true,
           targetTemperature: 218,
@@ -51,6 +45,7 @@ describe('heater MCodes', () => {
       })
       testHeaterMCode(`M116${suffix}`, {
         id,
+        code: 'M116',
         changes: {
           blocking: true,
         }
@@ -61,6 +56,7 @@ describe('heater MCodes', () => {
   describe('bed', () => {
     testHeaterMCode('M140 S130', {
       id: 'b',
+      code: 'M140',
       changes: {
         blocking: false,
         targetTemperature: 130,
@@ -68,6 +64,7 @@ describe('heater MCodes', () => {
     })
     testHeaterMCode('M190 S130', {
       id: 'b',
+      code: 'M190',
       changes: {
         blocking: true,
         targetTemperature: 130,
@@ -75,6 +72,7 @@ describe('heater MCodes', () => {
     })
     testHeaterMCode('M190 R42', {
       id: 'b',
+      code: 'M190',
       changes: {
         blocking: true,
         targetTemperature: 42,
@@ -84,9 +82,10 @@ describe('heater MCodes', () => {
 })
 
 describe('fan MCodes', () => {
-  const testFanMCode = testMCode('FAN_CONTROL')
+  const testFanMCode = testMCode('fans')
   testFanMCode('M106', {
     id: 1,
+    code: 'M106',
     changes: {
       enabled: true,
       speed: 100,
@@ -94,6 +93,7 @@ describe('fan MCodes', () => {
   })
   testFanMCode('M106 p8', {
     id: 8,
+    code: 'M106',
     changes: {
       enabled: true,
       speed: 100,
@@ -101,6 +101,7 @@ describe('fan MCodes', () => {
   })
   testFanMCode('M106 p8 s128', {
     id: 8,
+    code: 'M106',
     changes: {
       enabled: true,
       speed: 50.2, // percent
@@ -108,6 +109,7 @@ describe('fan MCodes', () => {
   })
   testFanMCode('M107 p5', {
     id: 5,
+    code: 'M107',
     changes: {
       enabled: false,
       speed: 0,
@@ -115,6 +117,7 @@ describe('fan MCodes', () => {
   })
   testFanMCode('M107', {
     id: 1,
+    code: 'M107',
     changes: {
       enabled: false,
       speed: 0,

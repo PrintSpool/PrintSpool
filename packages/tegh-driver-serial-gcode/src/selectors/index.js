@@ -1,9 +1,6 @@
 export const isReady = state =>
   state.driver.ready
 
-export const getCurrentLine = state =>
-  state.spool.currentLine
-
 export const getCurrentSerialLineNumber = state =>
   state.driver.currentLineNumber
 

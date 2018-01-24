@@ -1,6 +1,6 @@
 import { loadConfig } from 'tegh-daemon'
 
-import createSerialPort from './create_serial_port'
+import createSerialPort from './createSerialPort'
 
 const serialConsole = () => {
   const configPath = './tegh.yml'
