@@ -22,5 +22,8 @@ export const getCurrentLine = state => {
   return task.data.get(task.currentLineNumber)
 }
 
+export const isEmergency = state =>
+  getCurrentTask(state).priority === 'emergency'
+
 export const shouldSendSpooledLineToPrinter = state =>
   state.spool.sendSpooledLineToPrinter

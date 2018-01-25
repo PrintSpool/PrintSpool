@@ -32,9 +32,13 @@ const spoolMacroMutation = () => ({
       _.cloneDeep(args.args),
       _.cloneDeep(state.config),
     )
+    const priority = macro.run.priority || 'normal'
+    if (state.driver.status !== 'ready' && priority !== 'emergency') {
+      throw new Error('Machine is not ready')
+    }
     const action = createSpoolAction({
       internal: false,
-      priority: macro.run.priority || 'normal',
+      priority,
       fileName: args.macro,
       data: gcode,
     })

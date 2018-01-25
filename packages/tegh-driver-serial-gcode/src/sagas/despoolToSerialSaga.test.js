@@ -2,11 +2,11 @@
 import { utils as sagaUtils } from 'redux-saga'
 import SagaTester from 'redux-saga-tester'
 import { List } from 'immutable'
+import { createEStopAction } from 'tegh-daemon'
+const { SAGA_ACTION } = sagaUtils
 
 import despoolToSerialSaga from './despoolToSerialSaga'
 import serialSend from '../actions/serialSend'
-
-const { SAGA_ACTION } = sagaUtils
 
 const despoolAction = { type: 'DESPOOL' }
 const spoolAction = { type: 'SPOOL' }
@@ -16,10 +16,16 @@ const sentLine = {
   [SAGA_ACTION]: true,
 }
 
+const sentEmergencyLine = {
+  ...serialSend('(╯°□°）╯︵ ┻━┻', { lineNumber: false }),
+  [SAGA_ACTION]: true,
+}
+
 const selectors = {
   shouldSendSpooledLineToPrinter: () => false,
   getCurrentLine: () => '(╯°□°）╯︵ ┻━┻',
   getCurrentSerialLineNumber: () => 1995,
+  isEmergency: () => false,
 }
 
 const createTester = (selectorOverrides = {}) => {
@@ -46,7 +52,7 @@ describe('DESPOOL', () => {
 })
 
 describe('SPOOL', () => {
-  test('sends next line when the printer is idle', () => {
+  test('sends next line when shouldSendSpooledLineToPrinter is true', () => {
     const sagaTester = createTester({
       shouldSendSpooledLineToPrinter: () => true,
     })
@@ -57,6 +63,21 @@ describe('SPOOL', () => {
     expect(result).toEqual([
       spoolAction,
       sentLine,
+    ])
+  })
+
+  test('does not send line numbers in emergencies', () => {
+    const sagaTester = createTester({
+      shouldSendSpooledLineToPrinter: () => true,
+      isEmergency: () => true,
+    })
+    sagaTester.dispatch(spoolAction)
+
+    const result = sagaTester.getCalledActions()
+
+    expect(result).toEqual([
+      spoolAction,
+      sentEmergencyLine,
     ])
   })
 
