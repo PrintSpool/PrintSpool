@@ -57,6 +57,19 @@ describe('parses oks', () => {
     })
   })
 
+  const malformedOKs = ['okok', 'kok', 'ook']
+
+  malformedOKs.forEach(raw => {
+    test(`from '${raw}'`, () => {
+      const result = rxParser(raw)
+
+      expect(result).toEqual({
+        type: 'ok',
+        raw,
+      })
+    })
+  })
+
   test('with heater values', () => {
     const result = rxParser('ok t: 42 e3: 200')
 
