@@ -9,6 +9,7 @@ const despoolToSerialSaga = ({
   getCurrentLine,
   getCurrentSerialLineNumber,
   isEmergency,
+  isReady,
 }) => {
   /*
    * Intercepts DESPOOL and SPOOL actions and sends the current gcode line to the
@@ -28,6 +29,8 @@ const despoolToSerialSaga = ({
 
       const lineNumber = yield select(getCurrentSerialLineNumber)
       const emergency = yield select(isEmergency)
+      const ready = yield select(isReady)
+      if (!ready && !emergency) return
       /*
        * Send emergency GCodes without line numbers since the printer may be in
        * an unknown state which may include a line number mismatch.

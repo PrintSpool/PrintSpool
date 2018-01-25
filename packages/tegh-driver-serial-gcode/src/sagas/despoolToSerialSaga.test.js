@@ -26,6 +26,7 @@ const selectors = {
   getCurrentLine: () => '(╯°□°）╯︵ ┻━┻',
   getCurrentSerialLineNumber: () => 1995,
   isEmergency: () => false,
+  isReady: () => true,
 }
 
 const createTester = (selectorOverrides = {}) => {
@@ -49,6 +50,19 @@ describe('DESPOOL', () => {
       sentLine,
     ])
   })
+
+  test('does nothing if the printer is not ready', async () => {
+    const sagaTester = createTester({
+      isReady: () => false,
+    })
+    sagaTester.dispatch(despoolAction)
+
+    const result = sagaTester.getCalledActions()
+
+    expect(result).toEqual([
+      despoolAction,
+    ])
+  })
 })
 
 describe('SPOOL', () => {
@@ -63,6 +77,36 @@ describe('SPOOL', () => {
     expect(result).toEqual([
       spoolAction,
       sentLine,
+    ])
+  })
+
+  test('does nothing if the printer is not ready', async () => {
+    const sagaTester = createTester({
+      isReady: () => false,
+      shouldSendSpooledLineToPrinter: () => true,
+    })
+    sagaTester.dispatch(spoolAction)
+
+    const result = sagaTester.getCalledActions()
+
+    expect(result).toEqual([
+      spoolAction,
+    ])
+  })
+
+  test('if the printer is not ready it sends the line in emergencies', () => {
+    const sagaTester = createTester({
+      shouldSendSpooledLineToPrinter: () => true,
+      isEmergency: () => true,
+      isReady: () => false,
+    })
+    sagaTester.dispatch(spoolAction)
+
+    const result = sagaTester.getCalledActions()
+
+    expect(result).toEqual([
+      spoolAction,
+      sentEmergencyLine,
     ])
   })
 
