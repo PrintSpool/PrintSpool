@@ -4,21 +4,29 @@ import { PubSub } from 'graphql-subscriptions'
 
 import * as subscriptionModules from './subscriptions'
 
-const reduxPubSub = (store, selectors) => {
+const reduxPubSub = (store, subscriptionModules) => {
   const pubsub = new PubSub()
   // assuming mySelector is a reselect selector defined somewhere
-  Object.entries(selectors).forEach(([eventName, selector]) => {
+  Object.entries(subscriptionModules).forEach(entry => {
+    const [eventName, subscriptionModule] = entry
+    const {
+      selector,
+      onSelectorChange,
+    } = subscriptionModule
     const w = watch(() =>
       selector(store.getState())
     )
-    store.subscribe(w((newVal) => {
-      pubsub.publish(eventName, newVal)
+    store.subscribe(w((newVal, oldVal) => {
+      if (onSelectorChange == null) {
+        pubsub.publish(eventName, newVal)
+      } else {
+        onSelectorChange({ newVal, oldVal, pubsub })
+      }
     }))
   })
   return pubsub
 }
 
 export default (store) => {
-  const selectors = _.mapValues(subscriptionModules, m => m.selector)
-  return reduxPubSub(store, selectors)
+  return reduxPubSub(store, subscriptionModules)
 }
