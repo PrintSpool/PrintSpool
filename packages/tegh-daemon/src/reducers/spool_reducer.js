@@ -56,6 +56,8 @@ const spoolReducer = (
     //     ...state,
     //     file: action.data
     //   }
+    /* Spool reset actions */
+    case 'PRINTER_READY':
     case 'ESTOP':
     case 'DRIVER_ERROR': {
       const { currentTaskID } = state
@@ -68,7 +70,7 @@ const spoolReducer = (
       const nextState = addToHistory(state, removedTasks)
         .set('queuedTaskIDs', createQueuedTaskIDs())
       if (currentTaskID == null) return nextState
-      const status = action.type === 'ESTOP' ? 'cancelled' : 'errored'
+      const status = action.type === 'DRIVER_ERROR' ? 'errored' : 'cancelled'
       return nextState
         .setIn(['allTasks', currentTaskID, 'status'], status)
         .set('currentTaskID', null)
@@ -86,7 +88,7 @@ const spoolReducer = (
       /*
        * Emergency tasks cancel and pre-empt the current task
        */
-      if (priority === 'emergency') {
+      if (priority === 'emergency' && state.currentTaskID != null) {
          nextState = nextState
           .setIn(['allTasks', state.currentTaskID, 'status'], 'cancelled')
           .set('currentTaskID', null)

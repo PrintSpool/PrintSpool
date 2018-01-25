@@ -26,7 +26,6 @@ const despoolToSerialSaga = ({
       type === 'DESPOOL' && currentLine != null ||
       type === 'SPOOL' && shouldSendSpool
     ) {
-
       const lineNumber = yield select(getCurrentSerialLineNumber)
       const emergency = yield select(isEmergency)
       const ready = yield select(isReady)
