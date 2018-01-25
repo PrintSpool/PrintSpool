@@ -1,26 +1,19 @@
 // @flow
 import { utils as sagaUtils } from 'redux-saga'
-import SagaTester from 'redux-saga-tester'
-import sagaDelayMock from 'redux-saga-delay-mock'
 const { SAGA_ACTION } = sagaUtils
 
+import delayMockedSagaTester from '../test_helpers/delayMockedSagaTester'
 import expectSimilarActions from '../test_helpers/expectSimilarActions'
 import spoolTemperatureQuery from '../actions/spoolTemperatureQuery'
 import pollTemperatureSaga from './pollTemperatureSaga'
 
-const initTester = () => {
-  // TODO: see https://github.com/redux-saga/redux-saga/issues/1295
-  const delayMock = sagaDelayMock()
-  const sagaTester = new SagaTester({
-    initialState: {},
-    options: {
-      effectMiddlewares: [delayMock],
-    },
-  })
+const createTester = () => {
   const selectors = {
     getPollingInterval: () => 200,
   }
-  sagaTester.start(pollTemperatureSaga(selectors))
+  const { sagaTester, delayMock } = delayMockedSagaTester({
+    saga: pollTemperatureSaga(selectors)
+  })
   return { sagaTester, delayMock }
 }
 
@@ -49,7 +42,7 @@ const spoolTempQueryFromSaga = {
 }
 
 test('on receiving PRINTER_READY queries temperature immediately', async () => {
-  const { sagaTester, delayMock } = initTester()
+  const { sagaTester, delayMock } = createTester()
   sagaTester.dispatch(printerReadyAction)
 
   const result = sagaTester.getCalledActions()
@@ -61,7 +54,7 @@ test('on receiving PRINTER_READY queries temperature immediately', async () => {
 })
 
 test('on receiving temperature data waits to send next poll', async () => {
-  const { sagaTester, delayMock } = initTester()
+  const { sagaTester, delayMock } = createTester()
   sagaTester.dispatch(receiveOkWithTemp)
 
   expect(sagaTester.getCalledActions()).toEqual([
@@ -82,7 +75,7 @@ test('on receiving temperature data waits to send next poll', async () => {
 })
 
 test('does not poll if it does not receive temperature data', async () => {
-  const { sagaTester, delayMock } = initTester()
+  const { sagaTester, delayMock } = createTester()
   sagaTester.dispatch(receiveOkWithoutTemp)
 
   expect(delayMock.unacknowledgedDelay).toBe(null)
