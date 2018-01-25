@@ -19,7 +19,7 @@ export const getCurrentTask = state =>
 export const getCurrentLine = state => {
   const task = getCurrentTask(state)
   if (task == null) return null
-  task.data.get(task.currentLineNumber)
+  return task.data.get(task.currentLineNumber)
 }
 
 export const shouldSendSpooledLineToPrinter = state =>

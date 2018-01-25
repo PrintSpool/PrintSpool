@@ -28,6 +28,11 @@ const symlinks = [
     addTo: 'tegh-driver-serial-gcode',
   },
   {
+    alias: 'redux-saga',
+    target: 'tegh-daemon/node_modules/redux-saga',
+    addTo: 'tegh-serial-integration-test',
+  },
+  {
     target: 'tegh-daemon',
     addTo: 'tegh-serial-integration-test',
   },

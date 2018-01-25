@@ -15,7 +15,7 @@ const simulator = () => {
     sendLines(greeting)
   }
   serialPort.write = (line) => {
-    const code = line.split(/ +/)[1].toLowerCase()
+    const code = line.split(/ +/)[1].toLowerCase().replace(/\*.*|\n/g, '')
     if (responses[code] == null) {
       sendLines(responses['g1'])
     } else {
