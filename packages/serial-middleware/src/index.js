@@ -26,10 +26,15 @@ export type SerialErrorAction = {
   error: mixed,
 }
 
+export type SerialResetAction = {
+  type: 'SERIAL_RESET',
+}
+
 type DispatchedAction =
   | SerialOpenAction
   | SerialReceiveAction
   | SerialErrorAction
+  | SerialResetAction
 
 type Store = {
   dispatch: Dispatch<DispatchedAction>
@@ -76,8 +81,16 @@ const serialMiddleware = ({
   return (next: {type: string} => mixed) => (action: {type: string}) => {
     if (action.type === 'SERIAL_SEND') {
       if (typeof action.data !== 'string') throw 'data must be a string'
-      serialPort.write(action.data, (err) => {
+      serialPort.write(action.data, err => {
         if (err) onError(err)
+      })
+    } else if (action.type === 'SERIAL_RESET') {
+      const closeListeners = serialPort.listeners('close')
+      serialPort.resetByMiddleware = true
+      serialPort.close(err => {
+        if (err) return onError(err)
+        delete serialPort.resetByMiddleware
+        serialPort.open()
       })
     }
     return next(action)

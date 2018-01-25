@@ -1,4 +1,5 @@
 export { default as despoolToSerialSaga } from './despoolToSerialSaga'
+export { default as eStopSaga } from './eStopSaga'
 export { default as pollTemperatureSaga } from './pollTemperatureSaga'
 export { default as serialErrorHandlerSaga } from './serialErrorHandlerSaga'
 export { default as serialReceiveSaga } from './serialReceiveSaga'

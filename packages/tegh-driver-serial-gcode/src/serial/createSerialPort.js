@@ -25,6 +25,7 @@ const createSerialPort = (config) => {
   })
 
   serialPort.on('close', (err) => {
+    if (serialPort.resetByMiddleware) return
     console.error('Serial port disconnected. Shutting down.')
     process.exit(0)
   })

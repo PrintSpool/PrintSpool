@@ -1,6 +1,9 @@
 export const isReady = state =>
   state.driver.status === 'ready'
 
+export const isEStopped = state =>
+  state.driver.status === 'estopped'
+
 export const getCurrentSerialLineNumber = state =>
   state.driver.currentLineNumber
 

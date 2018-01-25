@@ -8,18 +8,27 @@ import serialSend from '../actions/serialSend'
 /*
  * Trigger an eStop action on M112 to emergency stop all of Tegh
  */
-const eStopSaga = () => {
-  const pattern = ({type, code}) => (
-    type === 'SERIAL_SEND' &&
-    code === 'M112'
-  )
-
-  const onM112 = function*() {
-    yield put(createEStopAction())
+const eStopSaga = ({
+  isEStopped,
+}) => {
+  const onSerialSend = function*({ code }) {
+    if (code === 'M112') {
+      yield put(createEStopAction())
+    }
+    /* M999 Stop Restart: eStops require a reset of the serial connection
+     * to restart the printer so we automatically do this on M999
+     */
+    if (code === 'M999') {
+      const eStopped = yield select(isEStopped)
+      if (!eStopped) return
+      yield put({
+        type: 'SERIAL_RESET'
+      })
+    }
   }
 
   return function*() {
-    yield takeEvery(pattern, onM112)
+    yield takeEvery('SERIAL_SEND', onSerialSend)
   }
 }
 

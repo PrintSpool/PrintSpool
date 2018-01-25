@@ -26,6 +26,12 @@ const logger = (action) => {
         level: 'info',
         message: action.data,
       }
+    case 'SERIAL_RESET':
+      return {
+        source: 'SERIAL',
+        level: 'info',
+        message: 'Serial Reset',
+      }
     default:
       return null
   }

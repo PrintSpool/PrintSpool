@@ -53,7 +53,7 @@ describe('on receiving a greeting', () => {
     })
     sagaTester.dispatch(serialReceive('greeting'))
 
-    expectSmilarActions(sagaTester.getCalledActions(), [
+    expectSimilarActions(sagaTester.getCalledActions(), [
       serialReceive('greeting'),
     ])
 
