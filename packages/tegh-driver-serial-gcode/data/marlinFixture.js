@@ -38,6 +38,9 @@ export const responses = {
     'X:0.00 Y:191.00 Z:159.00 E:0.00 Count X: 0 Y:19196 Z:254400',
     'ok',
   ],
+  m112: [
+    'Error:Printer halted. kill() called!'
+  ],
 }
 
 export const errors = {

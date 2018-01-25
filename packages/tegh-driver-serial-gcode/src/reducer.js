@@ -40,6 +40,11 @@ const serialGCodeReducer = ({ config }) => (
         status: 'errored',
         error: action.error,
       }
+    case 'ESTOP':
+      return {
+        ...initialState(config),
+        status: 'estopped',
+      }
     case 'SERIAL_RECEIVE':
       if (action.data.temperatures != null) {
         const heaters = {...state.heaters}

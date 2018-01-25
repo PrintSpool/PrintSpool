@@ -22,13 +22,15 @@ describe('with a line number', () => {
 
 describe('with lineNumber: false', () => {
   test('sends the line without a checksum or line number', () => {
+    const expectedOutputLine = `${line}\n`
+
     const result = serialSend(line, { lineNumber: false })
 
     expect(result).toEqual({
       type: 'SERIAL_SEND',
       code: 'G12345',
       lineNumber: false,
-      data: line,
+      data: expectedOutputLine,
     })
   })
 })

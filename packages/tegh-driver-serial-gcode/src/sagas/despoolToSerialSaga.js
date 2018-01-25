@@ -1,5 +1,6 @@
 // @flow
 import { effects } from 'redux-saga'
+import { createEStopAction } from 'tegh-daemon'
 const { put, takeEvery, takeLatest, select, call } = effects
 
 import serialSend from '../actions/serialSend'
@@ -24,8 +25,21 @@ const despoolToSerialSaga = ({
       type === 'DESPOOL' && currentLine != null ||
       type === 'SPOOL' && shouldSendSpool
     ) {
+
       const lineNumber = yield select(getCurrentSerialLineNumber)
-      yield put(serialSend(currentLine, { lineNumber }))
+      const serialSendAction = serialSend(currentLine, { lineNumber })
+      /*
+       * Send M112 Emergency Stops without a line number so that they will
+       * be executed by the printer immediately without the opportunity for a
+       * line number mismatch to cause an error and potentially prevent the
+       * estop.
+       */
+      if (serialSendAction.code === 'M112') {
+        yield put(serialSend(currentLine, { lineNumber: false }))
+        yield put(createEStopAction())
+      } else {
+        yield put(serialSendAction)
+      }
     }
   }
 

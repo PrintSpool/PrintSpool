@@ -1,5 +1,3 @@
-import { spoolAction } from 'tegh-daemon'
-
 const createDriverErrorAction = ({code, message}) => {
   if (typeof code !== 'string') {
     throw new Error('error code must be a string')

@@ -1,8 +1,9 @@
-import { spoolAction } from 'tegh-daemon'
+import { createSpoolAction } from 'tegh-daemon'
 
 const spoolTemperatureQuery = () => {
-  return spoolAction({
-    spoolName: 'internalSpool',
+  return createSpoolAction({
+    internal: true,
+    priority: 'preemptive',
     data: ['M105'],
   })
 }

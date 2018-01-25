@@ -8,7 +8,7 @@ import {
 } from 'graphql'
 
 import TaskType from '../types/task_type'
-import spoolAction from '../../actions/spool_action.js'
+import createSpoolAction from '../../actions/createSpoolAction.js'
 
 const fs = Promise.promisifyAll(_fs)
 
@@ -79,7 +79,8 @@ const spoolPrintMutation = () => ({
 
     const gcode = (await fs.readFileAsync(localPath)).toString()
     const action = spoolAction({
-      spoolName: 'printQueue',
+      internal: false,
+      priority: 'normal',
       fileName: path.basename(localPath),
       data: [gcode],
     })

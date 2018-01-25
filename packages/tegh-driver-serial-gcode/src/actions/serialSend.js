@@ -20,7 +20,7 @@ const serialSend = (line, { lineNumber }) => {
     throw new Error(`Invalid gcode line ${JSON.stringify(line)}`)
   }
   const data = (() => {
-    if (lineNumber === false) return line
+    if (lineNumber === false) return `${line}\n`
     if (typeof lineNumber != 'number') {
       throw new Error('lineNumber must either be false or a number')
     }

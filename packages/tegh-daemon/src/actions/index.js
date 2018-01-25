@@ -1,2 +1,2 @@
-export { default as spoolAction } from './spool_action'
+export { default as createSpoolAction } from './createSpoolAction'
 export { default as createDriverErrorAction } from './createDriverErrorAction'

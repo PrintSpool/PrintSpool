@@ -8,11 +8,20 @@ import type {
   SpoolState
 } from './spool_reducer_types'
 
+const priorityOrder = List([
+  'emergency',
+  'preemptive',
+  'normal',
+])
+
+const createQueuedTaskIDs = Record({
+  emergency: List(),
+  preemptive: List(),
+  normal: List(),
+})
+
 const createSpoolState = Record({
-  // file: null,
-  manualSpool: List(),
-  internalSpool: List(),
-  printQueue: List(),
+  queuedTaskIDs: createQueuedTaskIDs(),
   allTasks: Map(),
   history: List(),
   currentTaskID: null,
@@ -33,6 +42,7 @@ const addToHistory = (state, collection) => {
       tasks.filterNot(task => overflow.includes(task))
     )
   }
+  // TODO: delete contents of the tasks in the history
   return nextState.set('history', nextHistory)
 }
 
@@ -46,39 +56,53 @@ const spoolReducer = (
     //     ...state,
     //     file: action.data
     //   }
-    case 'SPOOL_RESET': {
-      const removedTasks = state.manualSpool.concat(state.printQueue)
-      return addToHistory(state, removedTasks)
-        .set('manualSpool', List())
-        .set('internalSpool', List())
-        .set('printQueue', List())
+    case 'ESTOP':
+    case 'DRIVER_ERROR': {
+      const { currentTaskID } = state
+      let removedTasks = List().concat(
+        Object.values(state.queuedTaskIDs.toObject())
+      )
+      if (currentTaskID != null) {
+        removedTasks = removedTasks.concat([currentTaskID])
+      }
+      const nextState = addToHistory(state, removedTasks)
+        .set('queuedTaskIDs', createQueuedTaskIDs())
+      if (currentTaskID == null) return nextState
+      const status = action.type === 'ESTOP' ? 'cancelled' : 'errored'
+      return nextState
+        .setIn(['allTasks', currentTaskID, 'status'], status)
+        .set('currentTaskID', null)
     }
     case 'SPOOL': {
       const { task } = action
-      const { spoolName } = task
-      if ([
-        'manualSpool',
-        'internalSpool',
-        'printQueue',
-      ].includes(spoolName) === false) {
-        throw new Error(`Invalid spoolName ${spoolName}`)
+      const { priority } = task
+      if (!priorityOrder.includes(priority)) {
+        throw new Error(`Invalid priority ${priority}`)
       }
-      const nextState = state
+      let nextState = state
         .update('allTasks', tasks => tasks.set(task.id, task))
-        .update(spoolName, spool => spool.push(task.id))
+        .updateIn(['queuedTaskIDs', priority], list => list.push(task.id))
         .set('sendSpooledLineToPrinter', false)
+      /*
+       * Emergency tasks cancel and pre-empt the current task
+       */
+      if (priority === 'emergency') {
+         nextState = nextState
+          .setIn(['allTasks', state.currentTaskID, 'status'], 'cancelled')
+          .set('currentTaskID', null)
+      }
       /*
        * recurse into the reducer to despool the first line if nothing is
        * spooled
        */
       if (nextState.currentTaskID == null) {
-        const despooledState = spoolReducer(nextState, { type: 'DESPOOL' })
-        return despooledState.set('sendSpooledLineToPrinter', true)
+        return spoolReducer(nextState, { type: 'DESPOOL' })
+          .set('sendSpooledLineToPrinter', true)
       }
       return nextState
     }
     case 'DESPOOL': {
-      const { internalSpool, manualSpool, printQueue, currentTaskID } = state
+      const { queuedTaskIDs, currentTaskID } = state
       let nextState = state
       if (currentTaskID != null) {
         const task = state.allTasks.get(currentTaskID)
@@ -88,8 +112,8 @@ const spoolReducer = (
             i => i + 1
           )
         }
-        // Delete internal spool tasks after they are completed
-        if (task.spoolName === 'internalSpool') {
+        // Delete internal tasks after they are completed
+        if (task.internal) {
           nextState = nextState
             .update('allTasks', tasks => tasks.delete(currentTaskID))
         // List all other task IDs in the history so that graphql users can
@@ -97,37 +121,32 @@ const spoolReducer = (
         // in FIFO fashion to prevent the list growing indefinitely. Also the
         // data of each completed task is deleted to save space.
         } else {
+          const taskUpdates = {
+            // TODO: stoppedAt should eventually be changed to be sent after
+            // the printer sends 'ok' or 'error' and should be based off
+            // estimated print time
+            stoppedAt: new Date().toISOString(),
+            status: 'done',
+            data: null,
+          }
           nextState = addToHistory(nextState, [currentTaskID])
-            .mergeIn(['allTasks', currentTaskID], {
-              // TODO: stoppedAt should eventually be changed to be sent after
-              // the printer sends 'ok' or 'error' and should be based off
-              // estimated print time
-              stoppedAt: new Date().toISOString(),
-              status: 'done',
-              data: null,
-            })
+            .mergeIn(['allTasks', currentTaskID], taskUpdates)
         }
       }
-      const spoolName = (() => {
-        if (printQueue.size > 0) {
-          return 'printQueue'
-        } else if (internalSpool.size > 0) {
-          return 'internalSpool'
-        } else if (manualSpool.size > 0) {
-          return 'manualSpool'
-        }
-      })()
-      if (spoolName == null) {
+      const priority = priorityOrder.find(priority =>
+        queuedTaskIDs[priority].size > 0
+      )
+      if (priority == null) {
         return nextState.set('currentTaskID', null)
       }
-      const nextTaskID = state[spoolName].first()
+      const nextTaskID = state.queuedTaskIDs[priority].first()
       return nextState
         .set('currentTaskID', nextTaskID)
         .mergeIn(['allTasks', nextTaskID], {
           startedAt: new Date().toISOString(),
           currentLineNumber: 0,
         })
-        .update(spoolName, spool => spool.shift())
+        .updateIn(['queuedTaskIDs', priority], list => list.shift())
     }
     default:
       return state

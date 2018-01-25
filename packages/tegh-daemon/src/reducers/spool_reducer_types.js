@@ -1,10 +1,11 @@
 import type { RecordOf, List, Set } from 'immutable'
 
-export type SpoolName = 'manualSpool' | 'internalSpool' | 'printQueue'
+export type Priority = 'emergency' | 'preemptive' | 'normal'
 
 export type SpoolAction = {
   +type: 'SPOOL',
-  +spoolName: SpoolName,
+  +priority: Priority,
+  +internal: boolean,
   +data: Array<string>,
   fileName: ?string,
 }
@@ -15,20 +16,19 @@ export type DespoolAction = {
 
 export type Task = RecordOf<{
   id: string,
-  spoolName: SpoolName,
+  priority: Priority,
+  internal: boolean,
   data: List<string>,
   fileName: ?string,
   currentLineNumber: ?number,
   createdAt: ?number,
   startedAt: ?number,
   stoppedAt: ?number,
-  status: 'queued' | 'printing' | 'errored' | 'done',
+  status: 'queued' | 'printing' | 'errored' | 'cancelled' | 'done',
 }>
 
 export type SpoolState = RecordOf<{
-  manualSpool: List<String>,
-  internalSpool: List<String>,
-  printQueue: List<String>,
+  queuedTaskIDs: List<String>,
   allTasks: Set<Task>,
   currentTaskID: ?String,
   sendSpooledLineToPrinter: boolean,

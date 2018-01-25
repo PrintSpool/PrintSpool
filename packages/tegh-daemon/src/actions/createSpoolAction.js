@@ -5,7 +5,8 @@ import normalizeGCodeLines from '../helpers/normalize_gcode_lines'
 
 const Task = Record({
   id: null,
-  spoolName: null,
+  priority: null,
+  internal: null,
   fileName: null,
   data: null,
   status: null,
@@ -15,10 +16,16 @@ const Task = Record({
   stoppedAt: null,
 })
 
-const spool = ({ spoolName, fileName, data }) => {
+const createSpoolAction = ({
+  priority,
+  internal,
+  fileName,
+  data,
+}) => {
   const task = new Task({
     id: uuid(),
-    spoolName,
+    priority,
+    internal,
     fileName,
     data: List(normalizeGCodeLines(data)),
     status: 'queued',
@@ -27,9 +34,8 @@ const spool = ({ spoolName, fileName, data }) => {
 
   return {
     type: 'SPOOL',
-    spoolID: 'printQueue',
     task,
   }
 }
 
-export default spool
+export default createSpoolAction

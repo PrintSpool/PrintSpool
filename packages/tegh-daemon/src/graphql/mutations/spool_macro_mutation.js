@@ -3,7 +3,7 @@ import GraphQLJSON from 'graphql-type-json'
 import _ from 'lodash'
 
 import TaskType from '../types/task_type'
-import spoolAction from '../../actions/spool_action.js'
+import createSpoolAction from '../../actions/createSpoolAction.js'
 import resetSpoolsAction from '../../actions/reset_spools_action.js'
 
 const spoolMacroMutation = () => ({
@@ -32,12 +32,12 @@ const spoolMacroMutation = () => ({
       _.cloneDeep(args.args),
       _.cloneDeep(state.config),
     )
-    const action = spoolAction({
-      spoolName: 'manualSpool',
+    const action = createSpoolAction({
+      internal: false,
+      priority: macro.run.priority || 'normal',
       fileName: args.macro,
       data: gcode,
     })
-    if (macro.run.resetSpools) store.dispatch(resetSpoolsAction())
     store.dispatch(action)
     return action.task
   },
