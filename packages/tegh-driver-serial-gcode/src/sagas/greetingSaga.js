@@ -14,6 +14,7 @@ const greetingSaga = ({
 
     if (ready) return
     if (responseType === 'greeting') {
+      yield delay(50)
       yield put(serialSend('M110 N0', { lineNumber: false }))
     } else if (responseType === 'ok') {
       yield put({ type: 'PRINTER_READY' })

@@ -53,6 +53,15 @@ describe('on receiving a greeting', () => {
     })
     sagaTester.dispatch(serialReceive('greeting'))
 
+    expectSmilarActions(sagaTester.getCalledActions(), [
+      serialReceive('greeting'),
+    ])
+
+    expect(delayMock.unacknowledgedDelay).not.toBe(null)
+    const pause = await delayMock.waitForDelay()
+    expect(pause.length).toEqual(50)
+    pause.next()
+
     const result = sagaTester.getCalledActions()
 
     expectSimilarActions(result, [
