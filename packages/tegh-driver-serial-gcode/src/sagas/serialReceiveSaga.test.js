@@ -1,4 +1,5 @@
 // @flow
+import { createDriverErrorAction } from 'tegh-daemon'
 import { utils as sagaUtils } from 'redux-saga'
 const { SAGA_ACTION } = sagaUtils
 
@@ -60,6 +61,40 @@ describe('SERIAL_RECEIVE ok', () => {
       expect(result).toEqual([
         serialReceive('ok'),
         despoolAction,
+      ])
+    }
+  )
+})
+
+describe('SERIAL_RECEIVE error', () => {
+  itDoesNothingWhen({ ready: false, type: 'error'})
+  test(
+    'when driver is ready it dispatching DRIVER_ERROR',
+    () => {
+      const selectors = {
+        isReady: () => true,
+      }
+      const raw = 'Error:PROBE FAIL CLEAN NOZZLE'
+      const serialReceiveError = serialReceive('error', { raw })
+      const firmwareError = {
+        ...createDriverErrorAction({
+          code: 'FIRMWARE_ERROR',
+          message: raw,
+        }),
+        [SAGA_ACTION]: true,
+      }
+
+      const { sagaTester, delayMock } = delayMockedSagaTester({
+        initialState: {},
+        saga: serialReceiveSaga(selectors),
+      })
+      sagaTester.dispatch(serialReceiveError)
+
+      const result = sagaTester.getCalledActions()
+
+      expect(result).toEqual([
+        serialReceiveError,
+        firmwareError,
       ])
     }
   )

@@ -11,7 +11,6 @@ import reduxPubSub from './graphql/redux_pub_sub'
 import createTeghStore from './store'
 import httpServer from './server/http_server'
 
-export { effects } from 'redux-saga'
 export * from './actions/'
 
 global.Promise = Promise

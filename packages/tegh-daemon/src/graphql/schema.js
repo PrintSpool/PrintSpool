@@ -7,7 +7,9 @@ import _ from 'lodash'
 
 import QueryRootType from './types/query_root_type'
 import * as mutations from './mutations/'
-import * as subscriptions from './subscriptions/'
+import * as subscriptionModules from './subscriptions'
+
+const subscriptions = _.mapValues(subscriptionModules, m => m.subscription)
 
 /*
  * Execute each field definition at the time the field function is called to

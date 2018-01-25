@@ -1,9 +1,6 @@
 import tql from 'typiql'
-import HeaterType from '../types/heater_type.js'
 
-const heatersChangedSubscription = () => ({
-  // type: tql`[${HeaterType}!]!`,
-  type: tql`[${HeaterType}]`,
+const subscriptionDefaults = (eventName) => ({
   args: {
     printerID: {
       type: tql`ID!`,
@@ -14,11 +11,11 @@ const heatersChangedSubscription = () => ({
     if (args.printerID !== state.config.id) {
       throw new Error(`Printer ID ${args.id} does not exist`)
     }
-    return pubsub.asyncIterator('heatersChanged')
+    return pubsub.asyncIterator(eventName)
   },
   resolve(source) {
-    return Object.values(source)
+    return source
   },
 })
 
-export default heatersChangedSubscription
+export default subscriptionDefaults

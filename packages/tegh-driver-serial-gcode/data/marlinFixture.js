@@ -48,4 +48,12 @@ export const errors = {
     'Error:checksum mismatch, Last Line: 0',
     'Resend: 1',
   ],
+  // in response to G29 (auto bed level)
+  failToCleanNozzle: [
+    'G29 Auto Bed Leveling',
+    'Rewiping',
+    'X:0.00 Y:191.00 Z:10.00 E:-30.00 Count X: 0 Y:19196 Z:16000',
+    'Rewiping',
+    'Error:PROBE FAIL CLEAN NOZZLE',
+  ],
 }

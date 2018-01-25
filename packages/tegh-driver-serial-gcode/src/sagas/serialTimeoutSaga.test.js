@@ -5,6 +5,7 @@ import delayMockedSagaTester from '../test_helpers/delayMockedSagaTester'
 
 import serialTimeoutSaga from './serialTimeoutSaga'
 import serialSend from '../actions/serialSend'
+import createSerialTimeoutAction from '../actions/createSerialTimeoutAction'
 
 const { SAGA_ACTION } = sagaUtils
 
@@ -25,7 +26,7 @@ const okReceivedAction = {
 }
 
 const serialTimeoutAction = {
-  type: 'SERIAL_TIMEOUT',
+  ...createSerialTimeoutAction(),
   [SAGA_ACTION]: true,
 }
 
@@ -97,7 +98,7 @@ describe('SERIAL_SEND', () => {
 
         test(
           `if the firmware does not respond to multiple tickles it puts `+
-          `SERIAL_TIMEOUT`,
+          `DRIVER_ERROR`,
           () => {
             const {
               sagaTester,

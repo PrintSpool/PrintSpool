@@ -1,5 +1,5 @@
 export const isReady = state =>
-  state.driver.ready
+  state.driver.status === 'ready'
 
 export const getCurrentSerialLineNumber = state =>
   state.driver.currentLineNumber

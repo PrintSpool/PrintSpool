@@ -1,5 +1,6 @@
 // @flow
 import { effects } from 'redux-saga'
+import { createDriverErrorAction } from 'tegh-daemon'
 const { put, takeEvery, takeLatest, select, call, delay, take } = effects
 
 import spoolTemperatureQuery from '../actions/spoolTemperatureQuery'
@@ -23,23 +24,39 @@ const serialReceiveSaga = ({
     const ready = yield select(isReady)
     if (!ready) return
     const { data } = action
-    if (data.type === 'ok') {
-      yield put({ type: 'DESPOOL' })
-    } else if (data.type === 'resend') {
-      const currentLine = yield select(getCurrentLine)
-      const previousLineNumber = (yield select(getCurrentSerialLineNumber)) - 1
-      /*
-       * Tegh only sends one line at a time. If a resend is requested for a
-       * different line number then this is likely an issue of the printer's
-       * firmware.
-       */
-      if (data.lineNumber !== previousLineNumber) {
-        throw new Error(
-          `resend line number ${data.lineNumber} `+
-          `does not match previous line number ${previousLineNumber}`
-        )
+    switch(data.type) {
+      case 'ok': {
+        yield put({ type: 'DESPOOL' })
+        return
       }
-      yield put(serialSend(currentLine, {lineNumber: previousLineNumber}))
+      case 'resend': {
+        const currentLine = yield select(getCurrentLine)
+        const previousLineNumber = (yield select(getCurrentSerialLineNumber)) - 1
+        /*
+         * Tegh only sends one line at a time. If a resend is requested for a
+         * different line number then this is likely an issue of the printer's
+         * firmware.
+         */
+        if (data.lineNumber !== previousLineNumber) {
+          throw new Error(
+            `resend line number ${data.lineNumber} `+
+            `does not match previous line number ${previousLineNumber}`
+          )
+        }
+        yield put(serialSend(currentLine, {lineNumber: previousLineNumber}))
+        return
+      }
+      case 'error': {
+        const error = createDriverErrorAction({
+          code: 'FIRMWARE_ERROR',
+          message: action.data.raw,
+        })
+        yield put(error)
+        return
+      }
+      default: {
+        return
+      }
     }
   }
 

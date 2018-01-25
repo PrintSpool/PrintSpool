@@ -1,7 +1,5 @@
 import { throwErrorOnInvalidGCode } from './txParser.js'
 
-const VERBOSE = true
-
 const initializeCollection = (arrayOfIDs, initialValueFn) => {
   return arrayOfIDs.reduce(
     (collection, id) => {
@@ -25,7 +23,8 @@ const initialState = (config) => ({
     enabled: false,
     speed: 0,
   })),
-  ready: false,
+  // 'errored', 'initializing', 'ready', 'estopped'
+  status: 'initializing',
   error: null,
   currentLineNumber: 1,
 })
@@ -35,14 +34,11 @@ const serialGCodeReducer = ({ config }) => (
   action
 ) => {
   switch(action.type) {
-    case 'SERIAL_TIMEOUT':
+    case 'DRIVER_ERROR':
       return {
-        ...state,
-        ready: false,
-        error: {
-          code: 'SERIAL_TIMEOUT',
-          message: 'Serial timeout',
-        }
+        ...initialState(config),
+        status: 'errored',
+        error: action.error,
       }
     case 'SERIAL_RECEIVE':
       if (action.data.temperatures != null) {
@@ -55,16 +51,6 @@ const serialGCodeReducer = ({ config }) => (
           ...state,
           targetTemperaturesCountdown,
           heaters,
-        }
-      }
-      if (action.data.type === 'error') {
-        return {
-          ...state,
-          ready: false,
-          error: {
-            code: 'FIRMWARE_ERROR',
-            message: action.data,
-          },
         }
       }
       return state
@@ -94,7 +80,7 @@ const serialGCodeReducer = ({ config }) => (
     case 'PRINTER_READY':
       return {
         ...state,
-        ready: true,
+        status: 'ready',
         currentLineNumber: 1,
       }
     default:

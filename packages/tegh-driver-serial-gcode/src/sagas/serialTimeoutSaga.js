@@ -4,6 +4,7 @@ const { put, takeEvery, takeLatest, select, call, delay, take, race } = effects
 
 import numberedLineSendPattern from './patterns/numberedLineSendPattern'
 import serialSend from '../actions/serialSend'
+import createSerialTimeoutAction from '../actions/createSerialTimeoutAction'
 
 const serialTimeoutSaga = ({
   getLongRunningCodes,
@@ -33,9 +34,7 @@ const serialTimeoutSaga = ({
         tickle: true,
       })
     }
-    yield put({
-      type: 'SERIAL_TIMEOUT'
-    })
+    yield put(createSerialTimeoutAction())
   }
 
 

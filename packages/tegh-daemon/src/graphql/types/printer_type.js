@@ -13,6 +13,7 @@ import FanType from './fan_type.js'
 import JobType from './job_type.js'
 import LogEntryType from './log_entry_type.js'
 import MacroDefinitionType from './macro_definition_type.js'
+import PrinterErrorType from './PrinterErrorType'
 
 const Printer = new GraphQLObjectType({
   name: 'Printer',
@@ -57,10 +58,16 @@ const Printer = new GraphQLObjectType({
     // jobQueue: {
     //   type: tql`[${JobType}!]!`,
     // },
-    ready: {
-      type: tql`Boolean!`,
+    status: {
+      type: tql`String!`,
       resolve(source) {
-        return source.driver.ready
+        return source.driver.status
+      },
+    },
+    error: {
+      type: tql`${PrinterErrorType}`,
+      resolve(source) {
+        return source.driver.error
       },
     },
     macroDefinitions: {

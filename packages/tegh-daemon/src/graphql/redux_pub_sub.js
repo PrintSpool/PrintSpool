@@ -1,5 +1,8 @@
+import _ from 'lodash'
 import watch from 'redux-watch'
 import { PubSub } from 'graphql-subscriptions'
+
+import * as subscriptionModules from './subscriptions'
 
 const reduxPubSub = (store, selectors) => {
   const pubsub = new PubSub()
@@ -16,10 +19,6 @@ const reduxPubSub = (store, selectors) => {
 }
 
 export default (store) => {
-  const selectors = {
-    heatersChanged: (state) => state.driver.heaters,
-    logEntryCreated: (state) => state.log.get('entries').last(),
-  }
-
+  const selectors = _.mapValues(subscriptionModules, m => m.selector)
   return reduxPubSub(store, selectors)
 }
