@@ -6,7 +6,10 @@ import FanType from '../types/fan_type.js'
 const fansChangedSubscription = () => ({
   name: 'fansChangedSubscription',
   type: tql`[${FanType}!]!`,
-  ...subscriptionDefaults('fansChanged')
+  ...subscriptionDefaults('fansChanged'),
+  resolve(source) {
+    return Object.values(source)
+  },
 })
 
 export default {

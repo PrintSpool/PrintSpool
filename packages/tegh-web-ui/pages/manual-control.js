@@ -3,9 +3,10 @@ import {
 } from 'material-ui'
 
 import App from '../components/App'
-import HeatersStatus from '../components/HeatersStatus'
-import Submit from '../components/Submit'
+// import HeatersStatus from '../components/HeatersStatus'
+// import Submit from '../components/Submit'
 import Log from '../components/Log'
+import Home from '../components/home/Home'
 import XYJogButtons from '../components/jog/XYJogButtons'
 import ZJogButtons from '../components/jog/ZJogButtons'
 import HeaterControl from '../components/heaters/HeaterControl'
@@ -23,6 +24,7 @@ export default props => (
       spacing={24}
     >
       <Grid item xs={12}>
+        <Home />
       </Grid>
       <Grid item xs={12} sm={8}>
         <XYJogButtons form='xyJog' />

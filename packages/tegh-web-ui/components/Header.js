@@ -7,6 +7,7 @@ import {
 } from 'material-ui'
 
 import { drawerWidth } from './Drawer'
+import EStopResetToggle from './EStopResetToggle'
 
 const styles = (theme) => ({
   root: {
@@ -26,7 +27,10 @@ const styles = (theme) => ({
     marginLeft: -12,
     marginRight: 20,
   },
-  verticalReset: theme.mixins.toolbar
+  verticalReset: {
+    marginTop: 88,
+    width: '100%',
+  }
 })
 
 const Header = ({
@@ -44,7 +48,7 @@ const Header = ({
         <Typography type="title" color="inherit" className={classes.flex}>
           {name} <span style={{color: '#999'}}>Powered by Tegh</span>
         </Typography>
-        <Button color="secondary" raised>ESTOP</Button>
+        <EStopResetToggle/>
       </Toolbar>
     </AppBar>
     <div className={classes.verticalReset} />

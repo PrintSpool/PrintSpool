@@ -20,8 +20,6 @@ import ExtruderButtons from './ExtruderButtons'
 const HeaterControl = ({
   id,
   name,
-  distance = 1,
-  form,
   isExtruder,
 }) => (
   <Card>

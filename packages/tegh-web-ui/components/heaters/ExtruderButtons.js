@@ -13,10 +13,11 @@ import {
 } from 'material-ui'
 import { Field, reduxForm, formValues } from 'redux-form'
 
+import withJog from '../../higher_order_components/withJog'
 import JogDistanceButtons from '../jog/JogDistanceButtons'
 
 const enhance = compose(
-  // withJog,
+  withJog,
   reduxForm({
     initialValues: {
       distance: 10,
@@ -27,8 +28,8 @@ const enhance = compose(
 
 const ExtruderButtons = ({
   id,
-  name = 'Extruder 1',
-  distance = 1,
+  distance,
+  jog,
 }) => (
   <Grid
     container
@@ -37,14 +38,25 @@ const ExtruderButtons = ({
     <Grid item lg={6} md={12}>
       <Field
         name='distance'
-        component={ JogDistanceButtons([0.1, 1, 10, 50]) }
+        component={ JogDistanceButtons([0.1, 1, 10, 50, 100]) }
       />
     </Grid>
     <Grid item lg={6} md={12}>
       <div style={{ textAlign: 'right'}}>
-        <Button raised>Retract</Button>
+        <Button
+          raised
+          onClick={jog(id, '-', distance)}
+        >
+          Retract
+        </Button>
         <div style={{ display: 'inline-block', width: '16px'}} />
-        <Button raised color='primary'>Extrude</Button>
+        <Button
+          raised
+          color='primary'
+          onClick={jog(id, '+', distance)}
+        >
+          Extrude
+        </Button>
       </div>
     </Grid>
   </Grid>

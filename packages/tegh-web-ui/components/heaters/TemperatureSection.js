@@ -40,6 +40,7 @@ const enhance = compose(
   graphql(
     gql`query heaterQuery {
       printer(id: "test_printer_id") {
+        id
         heaters {
           ${heaterFragment}
         }
@@ -50,9 +51,13 @@ const enhance = compose(
       props: props => {
         const nextProps = {
           loading: props.heaterQuery.loading,
+          error: props.heaterQuery.error,
           subscribeToHeaters: subscribeToHeaters(props),
         }
-        if (nextProps.loading) return nextProps
+        if (nextProps.error) setImmediate(() => {
+          throw nextProps.error
+        })
+        if (nextProps.loading || nextProps.error) return nextProps
         const heater = props.heaterQuery.printer.heaters
           .find(({id}) => id === props.ownProps.id)
         return {
@@ -81,9 +86,11 @@ const TemperatureSection = ({
   targetTemperature,
   isHeating,
   loading,
+  error,
   createTask,
 }) => {
   if (loading) return <div>Loading</div>
+  if (error) return <div>Error</div>
   const toggleEnabled = (event, val) => {
     createTask({
       macro: 'toggleHeater',

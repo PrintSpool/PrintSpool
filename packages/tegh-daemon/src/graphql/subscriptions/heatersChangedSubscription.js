@@ -6,7 +6,10 @@ import HeaterType from '../types/heater_type.js'
 const heatersChangedSubscription = () => ({
   name: 'heatersChangedSubscription',
   type: tql`[${HeaterType}!]!`,
-  ...subscriptionDefaults('heatersChanged')
+  ...subscriptionDefaults('heatersChanged'),
+  resolve(source) {
+    return Object.values(source)
+  },
 })
 
 export default {
