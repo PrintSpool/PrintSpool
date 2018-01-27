@@ -69,7 +69,6 @@ const EStopResetToggle = ({
   createTask,
 }) => {
   if (loading) return <div>Loading</div>
-  console.log(status)
   const showEstop = status !== 'errored' && status !== 'estopped'
   const onClick = () => {
     createTask({ macro: showEstop ? 'eStop' : 'reset' })

@@ -12,7 +12,7 @@ export default props => (
       spacing={24}
     >
       <Grid item xs={12}>
-        <PrintButton/>
+        <PrintButton form='printButton'/>
       </Grid>
     </Grid>
   </App>

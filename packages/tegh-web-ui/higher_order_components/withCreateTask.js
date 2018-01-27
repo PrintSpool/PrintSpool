@@ -2,8 +2,19 @@ import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
 
 const createTask = gql`
-  mutation createTask($macro: String!, $args: JSON) {
-    spoolMacro(printerID: "test_printer_id", macro: $macro, args: $args) {
+  mutation createTask(
+    $macro: String
+    $args: JSON
+    $fileName: String
+    $gcode: [String]
+  ) {
+    createTask(
+      printerID: "test_printer_id"
+      macro: $macro
+      args: $args
+      fileName: $fileName
+      gcode: $gcode
+    ) {
       id
     }
   }
@@ -11,9 +22,7 @@ const createTask = gql`
 
 const withCreateTask = graphql(createTask, {
   props: ({ mutate }) => ({
-    createTask: ({ macro, args }) => mutate({
-      variables: { macro, args },
-    })
+    createTask: variables => mutate({ variables })
   })
 })
 
