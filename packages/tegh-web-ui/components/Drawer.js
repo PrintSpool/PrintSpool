@@ -89,7 +89,7 @@ const DrawerContents = ({ classes }) => (
 )
 
 const Drawer = ({
-  mobileOpen = true,
+  mobileOpen = false,
   handleDrawerToggle = () => null,
   classes,
   theme,

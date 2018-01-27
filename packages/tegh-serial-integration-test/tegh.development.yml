@@ -18,6 +18,13 @@ server:
   tcpPort: 3901
   unixSocket: /tmp/tegh_development_socket
   # unixSocket: /var/run/tegh_development_socket
+materials:
+  e0:
+    targetTemperature: 220
+  e1:
+    targetTemperature: 220
+  b:
+    targetTemperature: 90
 heaters:
   - e0
   - e1

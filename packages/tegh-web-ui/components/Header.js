@@ -29,7 +29,10 @@ const styles = (theme) => ({
   verticalReset: theme.mixins.toolbar
 })
 
-const Header = ({ classes }) => (
+const Header = ({
+  classes,
+  name = 'Lulzbot 5',
+}) => (
   <div>
     <AppBar color="inherit" className={ classes.appBar }>
       <Toolbar>
@@ -39,7 +42,7 @@ const Header = ({ classes }) => (
           </IconButton>
         */}
         <Typography type="title" color="inherit" className={classes.flex}>
-          Tegh
+          {name} <span style={{color: '#999'}}>Powered by Tegh</span>
         </Typography>
         <Button color="secondary" raised>ESTOP</Button>
       </Toolbar>
