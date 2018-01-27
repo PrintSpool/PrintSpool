@@ -6,9 +6,18 @@ import {
   withStyles,
 } from 'material-ui'
 
-const styles = {
+import { drawerWidth } from './Drawer'
+
+const styles = (theme) => ({
   root: {
     width: '100%',
+  },
+  appBar: {
+    position: 'absolute',
+    marginLeft: drawerWidth,
+    [theme.breakpoints.up('md')]: {
+      width: `calc(100% - ${drawerWidth}px)`,
+    },
   },
   flex: {
     flex: 1,
@@ -17,14 +26,12 @@ const styles = {
     marginLeft: -12,
     marginRight: 20,
   },
-  verticalReset: {
-    marginTop: 64,
-  }
-}
+  verticalReset: theme.mixins.toolbar
+})
 
 const Header = ({ classes }) => (
   <div>
-    <AppBar color="inherit">
+    <AppBar color="inherit" className={ classes.appBar }>
       <Toolbar>
         {/*
           <IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
@@ -41,4 +48,4 @@ const Header = ({ classes }) => (
   </div>
 )
 
-export default withStyles(styles)(Header)
+export default withStyles(styles, { withTheme: true })(Header)

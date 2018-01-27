@@ -1,10 +1,11 @@
 import { Reboot } from 'material-ui'
 import { Provider as ReduxProvider } from 'react-redux'
+import { ApolloProvider } from 'react-apollo'
+import { withStyles } from 'material-ui'
 
 import createTeghStore from '../lib/redux'
 import createApolloClient from '../lib/apollo'
 
-import { ApolloProvider } from 'react-apollo'
 import Header from '../components/Header'
 import Drawer from '../components/Drawer'
 
@@ -21,22 +22,32 @@ export default (() => {
       display: 'flex',
       width: '100%',
       height: '100%',
+      minHeight: '100vh',
+    },
+    flex: {
+      flex: 1,
     },
   })
 
-  const App = ({ children }) => (
+  const App = ({ children, classes }) => (
     <Reboot>
-      <ApolloProvider client={client}>
-        <ReduxProvider store={store}>
+      <ApolloProvider client={ client }>
+        <ReduxProvider store={ store }>
           <div>
-            <Drawer />
-            <Header/>
-            {children}
+            <div className={ classes.appFrame }>
+              <Drawer />
+              <div className={ classes.flex }>
+                <Header/>
+                <main>
+                  { children }
+                </main>
+              </div>
+            </div>
           </div>
         </ReduxProvider>
       </ApolloProvider>
     </Reboot>
   )
 
-  return App
+  return withStyles(styles, { withTheme: true })(App)
 })()

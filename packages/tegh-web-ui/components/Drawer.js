@@ -7,8 +7,10 @@ import {
   ListItem,
   ListItemText,
 } from 'material-ui'
+import Link from 'next/link'
+import { withRouter } from 'next/router'
 
-const drawerWidth = 240;
+export const drawerWidth = 240
 
 const styles = theme => ({
   root: {
@@ -18,23 +20,13 @@ const styles = theme => ({
     zIndex: 1,
     overflow: 'hidden',
   },
-  appFrame: {
-    position: 'relative',
-    display: 'flex',
-    width: '100%',
-    height: '100%',
-  },
-  appBar: {
-    position: 'absolute',
-    marginLeft: drawerWidth,
-    [theme.breakpoints.up('md')]: {
-      width: `calc(100% - ${drawerWidth}px)`,
-    },
-  },
   navIconHide: {
     [theme.breakpoints.up('md')]: {
       display: 'none',
     },
+  },
+  fullHeight: {
+    height: '100vh',
   },
   drawerHeader: theme.mixins.toolbar,
   drawerPaper: {
@@ -42,7 +34,7 @@ const styles = theme => ({
     [theme.breakpoints.up('md')]: {
       width: drawerWidth,
       position: 'relative',
-      height: '100%',
+      height: '100vh',
     },
   },
   content: {
@@ -56,31 +48,43 @@ const styles = theme => ({
       marginTop: 64,
     },
   },
+  activeLink: {
+    backgroundColor: '#ccc',
+  },
 })
+
+const DrawerLink = withRouter(({classes, text, href, router}) => (
+  <Link href={href}>
+    <ListItem
+      button
+      className={router.pathname === href ? classes.activeLink : null}
+    >
+      {/*
+        <ListItemIcon>
+          <InboxIcon />
+        </ListItemIcon>
+      */}
+        <ListItemText primary={text} />
+    </ListItem>
+  </Link>
+))
 
 const DrawerContents = ({ classes }) => (
   <div>
     <div className={classes.drawerHeader} />
     <Divider />
     <List>
-      <ListItem button>
-        {/*
-          <ListItemIcon>
-            <InboxIcon />
-          </ListItemIcon>
-        */}
-        <ListItemText primary="Inbox" />
-      </ListItem>
+      <DrawerLink
+        text='Print'
+        href='/'
+        classes={classes}
+      />
+      <DrawerLink
+        text='Manual Control'
+        href='/manual-control'
+        classes={classes}
+      />
     </List>
-    <Divider />
-    <ListItem button>
-      {/*
-        <ListItemIcon>
-          <InboxIcon />
-        </ListItemIcon>
-      */}
-      <ListItemText primary="Inbox2" />
-    </ListItem>
   </div>
 )
 
@@ -90,7 +94,7 @@ const Drawer = ({
   classes,
   theme,
 }) => (
-  <div>
+  <div className={classes.fullHeight}>
     <Hidden mdUp>
       <MaterialUIDrawer
         type="temporary"
