@@ -7,6 +7,7 @@ import {
   withStyles,
   Card,
   CardContent,
+  Typography,
 } from 'material-ui'
 import {
   Print
@@ -35,20 +36,22 @@ const PrintButton = ({
   classes,
   files,
   createTask,
-  fields
 }) => {
-  const print = () => {
-    if (files == null) return
+  const print = input => () => {
+    console.log('print??111')
     const file = files[0]
     const { name } = file
     const fileReader = new FileReader()
     fileReader.readAsText(file)
+    console.log('print??')
 
     fileReader.onload = () => {
+      console.log('PRINT!!!!', fileReader.result)
       createTask({
         fileName: name,
         gcode: [fileReader.result],
       })
+      input.onChange(null)
     }
   }
 
@@ -64,18 +67,29 @@ const PrintButton = ({
         <Field
           name='files'
           component={({ input }) => (
-            <input
-              name='gcodeFile'
-              type='file'
-              accept='.ngc,.gcode'
-              onChange={onChange(input)}
-            />
+            <div>
+              <div style={{ height: 40}}>
+                {
+                  files == null &&
+                  <input
+                    name='gcodeFile'
+                    type='file'
+                    accept='.ngc,.gcode'
+                    onChange={onChange(input)}
+                  />
+                }
+                {
+                  files != null &&
+                  <Typography type='button'>{files[0].name}</Typography>
+                }
+              </div>
+              <Button raised onClick={print(input)} disabled={files == null}>
+                Print
+                <Print className={classes.rightIcon}/>
+              </Button>
+            </div>
           )}
         />
-        <Button raised onClick={print} disabled={files == null}>
-          Print
-          <Print className={classes.rightIcon}/>
-        </Button>
       </CardContent>
     </Card>
   )

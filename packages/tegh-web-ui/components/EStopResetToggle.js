@@ -63,6 +63,18 @@ const enhance = compose(
   }),
 )
 
+const statusColor = status => {
+  switch(status) {
+    case 'ready':
+      return '#1B5E20'
+    case 'errored':
+    case 'estopped':
+      return '#D50000'
+    default:
+      return '#FF5722'
+  }
+}
+
 const EStopResetToggle = ({
   loading,
   status,
@@ -74,13 +86,24 @@ const EStopResetToggle = ({
     createTask({ macro: showEstop ? 'eStop' : 'reset' })
   }
   return (
-    <Button
-      color="secondary"
-      raised
-      onClick={onClick}
-    >
-      {showEstop ? 'eStop' : 'Reset'}
-    </Button>
+    <div>
+      <div style={{display: 'inline-block', paddingTop: 8}}>
+        <Typography type='button'>
+          <span style={{ color: statusColor(status), marginRight: 10 }}>
+            {status}
+          </span>
+        </Typography>
+      </div>
+      <div style={{display: 'inline-block'}}>
+        <Button
+          color="secondary"
+          raised
+          onClick={onClick}
+        >
+          {showEstop ? 'eStop' : 'Reset'}
+        </Button>
+      </div>
+    </div>
   )
 }
 
