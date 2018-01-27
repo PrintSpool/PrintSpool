@@ -4,6 +4,7 @@ import subscriptionDefaults from './helpers/subscriptionDefaults'
 import PrinterType from '../types/printer_type.js'
 
 const statusChangedSubscription = () => ({
+  name: 'statusChangedSubscription',
   type: tql`${PrinterType}!`,
   ...subscriptionDefaults('statusChanged'),
   resolve(_source, _args, { store }) {

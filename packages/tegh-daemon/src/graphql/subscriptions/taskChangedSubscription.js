@@ -6,6 +6,7 @@ import TaskType from '../types/task_type.js'
 const defaults = subscriptionDefaults(args => `taskChanged[${args.taskID}]`)
 
 const taskChangedSubscription = () => ({
+  name: 'taskChangedSubscription',
   type: tql`[${TaskType}!]!`,
   ...defaults,
   args: {

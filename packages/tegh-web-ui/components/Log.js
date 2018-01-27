@@ -9,6 +9,8 @@ const logFragment = `
   message
 `
 
+const maxLogLength = 100
+
 const subscribeToLogEntries = props => params => {
   return props.logEntries.subscribeToMore({
     document:  gql`
@@ -24,11 +26,15 @@ const subscribeToLogEntries = props => params => {
       if (!subscriptionData.data) {
           return prev
       }
-      const { logEntries } = prev.printer
+      let { logEntries } = prev.printer
+      logEntries = logEntries.concat(subscriptionData.data.logEntryCreated)
+      if (logEntries.length > maxLogLength) {
+        logEntries = logEntries.slice(-maxLogLength)
+      }
       return {
         ...prev,
         printer: {
-          logEntries: logEntries.concat(subscriptionData.data.logEntryCreated),
+          logEntries,
         },
       }
     }

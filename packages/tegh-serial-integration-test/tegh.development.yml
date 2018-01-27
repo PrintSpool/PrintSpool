@@ -48,6 +48,6 @@ driver:
     - M400
     - M600
   serialPort:
-    path: /dev/null
+    path: /dev/ttyACM0
     baudRate: 115200
-    simulation: true
+    # simulation: true

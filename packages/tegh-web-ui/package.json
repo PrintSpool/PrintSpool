@@ -7,7 +7,10 @@
     "start": "next start"
   },
   "babel": {
-    "presets": ["next/babel", "env"],
+    "presets": [
+      "next/babel",
+      "env"
+    ],
     "plugins": [
       "transform-object-rest-spread"
     ]
@@ -19,13 +22,20 @@
     "graphql-anywhere": "^3.1.0",
     "graphql-tag": "^2.5.0",
     "isomorphic-fetch": "^2.2.1",
+    "material-ui": "^v1.0.0-beta.30",
+    "material-ui-icons": "^1.0.0-beta.17",
     "next": "^4.2.1",
     "next-apollo": "^1.0.4",
     "prop-types": "^15.5.8",
     "react": "^16.2.0",
     "react-apollo": "^2.0.0",
+    "react-css-grid": "^2.0.0-0",
     "react-dom": "^16.2.0",
+    "react-redux": "^5.0.6",
     "recompose": "^0.26.0",
+    "redux": "^3.7.2",
+    "redux-form": "^7.2.1",
+    "styled-components": "^3.0.2",
     "subscriptions-transport-ws": "^0.9.4"
   },
   "author": "Rob Gilson",

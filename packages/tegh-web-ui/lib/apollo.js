@@ -1,5 +1,5 @@
+import { ApolloClient } from 'apollo-client'
 import { InMemoryCache } from 'apollo-cache-inmemory'
-import { withData } from 'next-apollo'
 import { HttpLink } from 'apollo-link-http'
 import { WebSocketLink } from 'apollo-link-ws'
 import { SubscriptionClient } from 'subscriptions-transport-ws'
@@ -15,7 +15,7 @@ const wsURL = `ws://${ip}:${port}/graphql`
 //   global.fetch = fetch
 // }
 
-const link = (() => {
+const createLink = (() => {
   if (process.browser) {
     const client = new SubscriptionClient(wsURL, {
       reconnect: true,
@@ -29,8 +29,14 @@ const link = (() => {
       }
     })
   }
-})()
-
-export default withData({
- link,
 })
+
+
+const createClient = () => {
+  return new ApolloClient({
+    link: createLink(),
+    cache: new InMemoryCache(),
+  })
+}
+
+export default createClient
