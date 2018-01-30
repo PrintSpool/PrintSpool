@@ -24,7 +24,7 @@ const serialTimeoutSaga = ({
       const { response } = yield race({
         response: take(({ type, data }) =>
           type === 'SERIAL_RECEIVE' &&
-          data.type === 'ok'
+          (data.type === 'ok' || data.type === 'feedback')
         ),
         timeout: delay(timeoutPeriod),
       })
