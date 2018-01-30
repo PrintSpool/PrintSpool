@@ -31,19 +31,22 @@ const serialReceiveSaga = ({
       }
       case 'resend': {
         const currentLine = yield select(getCurrentLine)
-        const previousLineNumber = (yield select(getCurrentSerialLineNumber)) - 1
+        const currentSerialLineNumber = yield select(getCurrentSerialLineNumber)
+        const previousSerialLineNumber = currentSerialLineNumber - 1
         /*
          * Tegh only sends one line at a time. If a resend is requested for a
          * different line number then this is likely an issue of the printer's
          * firmware.
          */
-        if (data.lineNumber !== previousLineNumber) {
+        if (data.lineNumber !== previousSerialLineNumber) {
           throw new Error(
             `resend line number ${data.lineNumber} `+
-            `does not match previous line number ${previousLineNumber}`
+            `does not match previous line number ${previousSerialLineNumber}`
           )
         }
-        yield put(serialSend(currentLine, {lineNumber: previousLineNumber}))
+        yield put(serialSend(currentLine, {
+          lineNumber: previousSerialLineNumber,
+        }))
         return
       }
       case 'error': {
