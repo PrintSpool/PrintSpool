@@ -55,6 +55,13 @@ const serialMiddleware = ({
       })
   }
 
+  const onClose = () => {
+    store.dispatch({
+      type: 'SERIAL_CLOSE',
+      resetByMiddleware: serialPort.resetByMiddleware,
+    })
+  }
+
   const onData = (data) => {
     if (typeof data !== 'string') throw 'data must be a string'
     store.dispatch({
@@ -72,11 +79,10 @@ const serialMiddleware = ({
   }
 
   serialPort.on('open', onOpen)
+  serialPort.on('close', onClose)
   const dataHandler = (parser || serialPort)
     .on('error', onError)
     .on('data', onData)
-
-  serialPort.open()
 
   return (next: {type: string} => mixed) => (action: {type: string}) => {
     if (action.type === 'SERIAL_SEND') {
@@ -84,8 +90,10 @@ const serialMiddleware = ({
       serialPort.write(action.data, err => {
         if (err) onError(err)
       })
+    } else if (action.type === 'SERIAL_OPEN') {
+      serialPort.open()
+    }
     } else if (action.type === 'SERIAL_RESET') {
-      const closeListeners = serialPort.listeners('close')
       serialPort.resetByMiddleware = true
       serialPort.close(err => {
         if (err) return onError(err)

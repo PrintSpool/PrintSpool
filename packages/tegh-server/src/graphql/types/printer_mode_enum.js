@@ -5,7 +5,7 @@ import {
 const PrinterModeEnum = new GraphQLEnumType({
   name: 'PrinterMode',
   values: {
-    INITIALIZING: {
+    CONNECTING: {
       value: 0,
       description: `
         The printer is being initialized. No GCodes will be executed until the

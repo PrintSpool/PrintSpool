@@ -23,8 +23,8 @@ const initialState = (config) => ({
     enabled: false,
     speed: 0,
   })),
-  // 'errored', 'initializing', 'ready', 'estopped'
-  status: 'initializing',
+  // 'errored', 'estopped', 'disconnected', 'connecting', 'ready'
+  status: 'disconnected',
   error: null,
   currentLineNumber: 1,
 })
@@ -44,6 +44,16 @@ const serialGCodeReducer = ({ config }) => (
       return {
         ...initialState(config),
         status: 'estopped',
+      }
+    case 'SERIAL_CLOSE':
+      return {
+        ...initialState(config),
+        status: 'disconnected',
+      }
+    case 'SERIAL_OPEN':
+      return {
+        ...initialState(config),
+        status: 'connecting',
       }
     case 'SERIAL_RECEIVE':
       if (action.data.temperatures != null) {

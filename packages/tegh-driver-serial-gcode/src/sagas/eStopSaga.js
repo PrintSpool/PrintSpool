@@ -15,12 +15,12 @@ const eStopSaga = ({
     if (code === 'M112') {
       yield put(createEStopAction())
     }
-    /* M999 Stop Restart: eStops require a reset of the serial connection
-     * to restart the printer so we automatically do this on M999
+    /*
+     * eStops require a reset of the serial connection
+     * to restart the printer so we automatically do this for all M999s just to
+     * be safe.
      */
     if (code === 'M999') {
-      const eStopped = yield select(isEStopped)
-      if (!eStopped) return
       yield put({
         type: 'SERIAL_RESET'
       })
