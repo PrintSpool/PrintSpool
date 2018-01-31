@@ -12,10 +12,23 @@ import {
   Switch,
   FormControlLabel,
   Button,
+  withStyles,
 } from 'material-ui'
+import {
+  Report
+} from 'material-ui-icons'
 import { Field, reduxForm, formValues } from 'redux-form'
 
 import withCreateTask from '../higher_order_components/withCreateTask'
+
+const styles = theme => ({
+  leftIcon: {
+    marginRight: theme.spacing.unit,
+  },
+  rightIcon: {
+    marginLeft: theme.spacing.unit,
+  },
+})
 
 const subscribeToStatus = props => params => {
   return props.statusQuery.subscribeToMore({
@@ -56,6 +69,7 @@ const enhance = compose(
       },
     },
   ),
+  withStyles(styles),
   lifecycle({
     componentWillMount() {
       this.props.subscribeToStatus()
@@ -79,6 +93,7 @@ const EStopResetToggle = ({
   loading,
   status,
   createTask,
+  classes,
 }) => {
   if (loading) return <div>Loading</div>
   const showEstop = status !== 'errored' && status !== 'estopped'
@@ -96,11 +111,15 @@ const EStopResetToggle = ({
       </div>
       <div style={{display: 'inline-block'}}>
         <Button
-          color="secondary"
+          color={showEstop ? 'secondary' : 'primary'}
           raised
           onClick={onClick}
         >
-          {showEstop ? 'eStop' : 'Reset'}
+          {
+            showEstop &&
+            <Report className={classes.leftIcon}/>
+          }
+          {showEstop ? 'EStop' : 'Reset'}
         </Button>
       </div>
     </div>
