@@ -22,9 +22,6 @@
     "@babel/polyfill": "^7.0.0-beta.37",
     "@babel/register": "^7.0.0-beta.37",
     "babel-eslint": "^8.1.0",
-    "node-dev": "d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350",
-    "tegh-daemon": "file:../tegh-daemon",
-    "tegh-driver-serial-gcode": "file:../tegh-driver-serial-gcode",
-    "tegh-macros-default": "file:../tegh-macros-default"
+    "node-dev": "d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350"
   }
 }

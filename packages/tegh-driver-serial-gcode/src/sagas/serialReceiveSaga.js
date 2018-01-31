@@ -1,6 +1,6 @@
 // @flow
 import { effects } from 'redux-saga'
-import { createDriverErrorAction } from 'tegh-daemon'
+import { createDriverErrorAction } from 'tegh-server'
 const { put, takeEvery, takeLatest, select, call, delay, take } = effects
 
 import spoolTemperatureQuery from '../actions/spoolTemperatureQuery'

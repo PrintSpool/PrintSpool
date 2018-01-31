@@ -1,5 +1,5 @@
 {
-  "name": "tegh-daemon",
+  "name": "tegh-server",
   "version": "0.4.0",
   "description": "graphql server for 3D printers",
   "scripts": {
@@ -10,7 +10,7 @@
   "main": "src/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tegh/tegh-daemon.git"
+    "url": "https://github.com/tegh/tegh-server.git"
   },
   "keywords": [
     "graphql"

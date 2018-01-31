@@ -1,4 +1,4 @@
-import { createDriverErrorAction } from 'tegh-daemon'
+import { createDriverErrorAction } from 'tegh-server'
 
 const createSerialTimeoutAction = () => (
   createDriverErrorAction({

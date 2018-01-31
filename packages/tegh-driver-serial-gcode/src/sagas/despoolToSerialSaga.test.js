@@ -2,7 +2,7 @@
 import { utils as sagaUtils } from 'redux-saga'
 import SagaTester from 'redux-saga-tester'
 import { List } from 'immutable'
-import { createEStopAction } from 'tegh-daemon'
+import { createEStopAction } from 'tegh-server'
 const { SAGA_ACTION } = sagaUtils
 
 import despoolToSerialSaga from './despoolToSerialSaga'

@@ -1,5 +1,5 @@
 // @flow
-import { createDriverErrorAction } from 'tegh-daemon'
+import { createDriverErrorAction } from 'tegh-server'
 import { utils as sagaUtils } from 'redux-saga'
 const { SAGA_ACTION } = sagaUtils
 

@@ -1,6 +1,6 @@
 // @flow
 import { effects } from 'redux-saga'
-import { createEStopAction } from 'tegh-daemon'
+import { createEStopAction } from 'tegh-server'
 const { put, takeEvery, takeLatest, select, call } = effects
 
 import serialSend from '../actions/serialSend'

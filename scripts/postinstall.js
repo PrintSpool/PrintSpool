@@ -15,25 +15,25 @@ const symlinks = [
     addTo: 'tegh-driver-serial-gcode',
   },
   {
-    target: 'tegh-daemon',
+    target: 'tegh-server',
     addTo: 'tegh-driver-serial-gcode',
   },
   {
-    target: 'tegh-daemon',
-    addTo: 'tegh-driver-serial-gcode',
-  },
-  {
-    alias: 'redux-saga',
-    target: 'tegh-daemon/node_modules/redux-saga',
+    target: 'tegh-server',
     addTo: 'tegh-driver-serial-gcode',
   },
   {
     alias: 'redux-saga',
-    target: 'tegh-daemon/node_modules/redux-saga',
+    target: 'tegh-server/node_modules/redux-saga',
+    addTo: 'tegh-driver-serial-gcode',
+  },
+  {
+    alias: 'redux-saga',
+    target: 'tegh-server/node_modules/redux-saga',
     addTo: 'tegh-serial-integration-test',
   },
   {
-    target: 'tegh-daemon',
+    target: 'tegh-server',
     addTo: 'tegh-serial-integration-test',
   },
   {

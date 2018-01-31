@@ -1,1 +1,1 @@
-module.exports = require('../tegh-daemon/.eslintrc.js')
+module.exports = require('../tegh-server/.eslintrc.js')

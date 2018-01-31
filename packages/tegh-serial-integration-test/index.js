@@ -4,7 +4,7 @@ require('babel-register')({
 require("babel-polyfill")
 
 // import 'tegh-driver-serial-gcode'
-var teghDaemon = require('tegh-daemon').default
+var teghDaemon = require('tegh-server').default
 
 const NODE_ENV = process.env.NODE_ENV || 'development'
 const argv = [null, null, `./tegh.${NODE_ENV}.yml`]

@@ -54,6 +54,6 @@
   },
   "peerDependencies": {
     "redux-saga": "^0.16.0",
-    "tegh-daemon": "*"
+    "tegh-server": "*"
   }
 }

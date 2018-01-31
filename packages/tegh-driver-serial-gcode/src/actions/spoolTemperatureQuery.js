@@ -1,4 +1,4 @@
-import { createSpoolAction } from 'tegh-daemon'
+import { createSpoolAction } from 'tegh-server'
 
 const spoolTemperatureQuery = () => {
   return createSpoolAction({

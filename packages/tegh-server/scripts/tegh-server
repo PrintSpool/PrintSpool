@@ -1,0 +1,12 @@
+#!/bin/bash
+# This file should be symlinked from /usr/sbin/tegh
+# sudo ln -s /YOUR_PATH_TO_TEGH../tegh/packages/tegh-server/scripts/tegh-server /usr/sbin/tegh-server
+set -e
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+DIR="$(dirname "$(readlink -f "$0")")"
+cd $DIR/../../tegh-serial-integration-test
+npm run start
