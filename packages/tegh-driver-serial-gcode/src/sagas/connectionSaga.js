@@ -3,7 +3,7 @@ const { all, race, take, call } = effects
 
 import * as connectedSagasByName from './connected_sagas/'
 
-const lifecycleSaga = (selectors, { connectedSagasByName }) => {
+const connectionSaga = (selectors, { connectedSagasByName }) => {
   const connectedSagas = Object.values(connectedSagasByName)
     .map(saga => saga(selectors))
 
@@ -20,4 +20,4 @@ const lifecycleSaga = (selectors, { connectedSagasByName }) => {
   }
 }
 
-export default lifecycleSaga
+export default connectionSaga
