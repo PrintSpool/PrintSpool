@@ -50,7 +50,7 @@
   },
   "dependencies": {
     "serial-middleware": "file:../serial-middleware",
-    "serialport": "^6.0.4"
+    "serialport": "Fumon/node-serialport#custom_baud_rates"
   },
   "peerDependencies": {
     "redux-saga": "^0.16.0",
