@@ -1,11 +1,11 @@
 // @flow
 import { utils as sagaUtils } from 'redux-saga'
 
-import delayMockedSagaTester from '../test_helpers/delayMockedSagaTester'
+import delayMockedSagaTester from '../../test_helpers/delayMockedSagaTester'
 
 import serialTimeoutSaga from './serialTimeoutSaga'
-import serialSend from '../actions/serialSend'
-import createSerialTimeoutAction from '../actions/createSerialTimeoutAction'
+import serialSend from '../../actions/serialSend'
+import createSerialTimeoutAction from '../../actions/createSerialTimeoutAction'
 
 const { SAGA_ACTION } = sagaUtils
 

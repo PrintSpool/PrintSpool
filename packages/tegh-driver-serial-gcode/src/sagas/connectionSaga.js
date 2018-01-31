@@ -1,15 +1,19 @@
+import { effects } from 'redux-saga'
+const { all, race, take, call } = effects
+
 import * as connectedSagasByName from './connected_sagas/'
 
-const connectedSagas = (selectors) => (
-  Object.values(connectedSagasByName).map(saga => saga(selectors))
-)
+const lifecycleSaga = (selectors, { connectedSagasByName }) => {
+  const connectedSagas = Object.values(connectedSagasByName)
+    .map(saga => saga(selectors))
 
-const lifecycleSaga = (selectors) => {
   return function*() {
     while(true) {
       yield take('SERIAL_OPEN')
       yield race({
-        connected: all(connectedSagas(selectors)),
+        connected: all(
+          connectedSagas.map(saga => call(saga))
+        ),
         shutdown: take(['ESTOP', 'DRIVER_ERROR', 'SERIAL_CLOSE']),
       })
     }

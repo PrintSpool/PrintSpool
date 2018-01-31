@@ -2,8 +2,8 @@
 import { effects } from 'redux-saga'
 const { put, takeEvery, takeLatest, select, call, delay, take } = effects
 
-import spoolTemperatureQuery from '../actions/spoolTemperatureQuery'
-import serialSend from '../actions/serialSend'
+import spoolTemperatureQuery from '../../actions/spoolTemperatureQuery'
+import serialSend from '../../actions/serialSend'
 
 const greetingSaga = ({
   isReady,

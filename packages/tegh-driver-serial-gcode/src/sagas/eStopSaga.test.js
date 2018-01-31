@@ -7,13 +7,9 @@ const { SAGA_ACTION } = sagaUtils
 import eStopSaga from './eStopSaga'
 import serialSend from '../actions/serialSend'
 
-const selectors = {
-  isEStopped: () => false,
-}
-
-const createTester = (selectorOverrides = {}) => {
+const createTester = () => {
   const sagaTester = new SagaTester({ initialState: {} })
-  sagaTester.start(eStopSaga({...selectors, ...selectorOverrides}))
+  sagaTester.start(eStopSaga())
   return sagaTester
 }
 
@@ -42,21 +38,7 @@ test('puts ESTOP if an M112 is sent', () => {
   ])
 })
 
-test('resets serial if an M999 is sent when the machine is estopped', () => {
-  const sagaTester = createTester({
-    isEStopped: () => true,
-  })
-  sagaTester.dispatch(serialSendM999)
-
-  const result = sagaTester.getCalledActions()
-
-  expect(result).toEqual([
-    serialSendM999,
-    serialReset,
-  ])
-})
-
-test('does nothing if an M999 is sent when the machine is not estopped', () => {
+test('resets serial if an M999 is sent', () => {
   const sagaTester = createTester()
   sagaTester.dispatch(serialSendM999)
 
@@ -64,6 +46,7 @@ test('does nothing if an M999 is sent when the machine is not estopped', () => {
 
   expect(result).toEqual([
     serialSendM999,
+    serialReset,
   ])
 })
 

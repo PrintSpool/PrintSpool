@@ -2,9 +2,9 @@
 import { effects } from 'redux-saga'
 const { put, takeEvery, takeLatest, select, call, delay } = effects
 
-import firmwareErrorPattern from './patterns/firmwareErrorPattern'
-import hasTemperatureDataPattern from './patterns/hasTemperatureDataPattern'
-import spoolTemperatureQuery from '../actions/spoolTemperatureQuery'
+import firmwareErrorPattern from '../patterns/firmwareErrorPattern'
+import hasTemperatureDataPattern from '../patterns/hasTemperatureDataPattern'
+import spoolTemperatureQuery from '../../actions/spoolTemperatureQuery'
 
 const pollTemperatureSaga = ({
   getPollingInterval,

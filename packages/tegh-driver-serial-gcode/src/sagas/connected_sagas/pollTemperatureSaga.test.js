@@ -2,9 +2,9 @@
 import { utils as sagaUtils } from 'redux-saga'
 const { SAGA_ACTION } = sagaUtils
 
-import delayMockedSagaTester from '../test_helpers/delayMockedSagaTester'
-import expectSimilarActions from '../test_helpers/expectSimilarActions'
-import spoolTemperatureQuery from '../actions/spoolTemperatureQuery'
+import delayMockedSagaTester from '../../test_helpers/delayMockedSagaTester'
+import expectSimilarActions from '../../test_helpers/expectSimilarActions'
+import spoolTemperatureQuery from '../../actions/spoolTemperatureQuery'
 import pollTemperatureSaga from './pollTemperatureSaga'
 
 const createTester = () => {

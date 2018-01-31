@@ -2,9 +2,9 @@
 import { utils as sagaUtils } from 'redux-saga'
 const { SAGA_ACTION } = sagaUtils
 
-import delayMockedSagaTester from '../test_helpers/delayMockedSagaTester'
-import expectSimilarActions from '../test_helpers/expectSimilarActions'
-import serialSend from '../actions/serialSend'
+import delayMockedSagaTester from '../../test_helpers/delayMockedSagaTester'
+import expectSimilarActions from '../../test_helpers/expectSimilarActions'
+import serialSend from '../../actions/serialSend'
 import greetingSaga from './greetingSaga'
 
 const createTester = (selectors) => {

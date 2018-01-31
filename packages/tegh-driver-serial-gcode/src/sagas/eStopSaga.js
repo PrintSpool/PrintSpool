@@ -8,9 +8,7 @@ import serialSend from '../actions/serialSend'
 /*
  * Trigger an eStop action on M112 to emergency stop all of Tegh
  */
-const eStopSaga = ({
-  isEStopped,
-}) => {
+const eStopSaga = () => {
   const onSerialSend = function*({ code }) {
     if (code === 'M112') {
       yield put(createEStopAction())

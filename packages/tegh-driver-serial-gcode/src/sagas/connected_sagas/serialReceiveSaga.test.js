@@ -3,9 +3,9 @@ import { createDriverErrorAction } from 'tegh-server'
 import { utils as sagaUtils } from 'redux-saga'
 const { SAGA_ACTION } = sagaUtils
 
-import delayMockedSagaTester from '../test_helpers/delayMockedSagaTester'
+import delayMockedSagaTester from '../../test_helpers/delayMockedSagaTester'
+import serialSend from '../../actions/serialSend'
 import serialReceiveSaga from './serialReceiveSaga'
-import serialSend from '../actions/serialSend'
 
 const serialReceive = (type, data) => ({
   type: 'SERIAL_RECEIVE',

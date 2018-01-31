@@ -3,8 +3,8 @@ import { effects } from 'redux-saga'
 import { createDriverErrorAction } from 'tegh-server'
 const { put, takeEvery, takeLatest, select, call, delay, take } = effects
 
-import spoolTemperatureQuery from '../actions/spoolTemperatureQuery'
-import serialSend from '../actions/serialSend'
+import spoolTemperatureQuery from '../../actions/spoolTemperatureQuery'
+import serialSend from '../../actions/serialSend'
 
 const serialReceiveSaga = ({
   isReady,
