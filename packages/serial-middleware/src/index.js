@@ -90,9 +90,8 @@ const serialMiddleware = ({
       serialPort.write(action.data, err => {
         if (err) onError(err)
       })
-    } else if (action.type === 'SERIAL_OPEN') {
+    } else if (action.type === 'SERIAL_OPEN_REQUEST') {
       serialPort.open()
-    }
     } else if (action.type === 'SERIAL_RESET') {
       serialPort.resetByMiddleware = true
       serialPort.close(err => {
