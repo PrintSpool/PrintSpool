@@ -1,5 +1,6 @@
 // @flow
-import { utils as sagaUtils } from 'redux-saga'
+import { effects, utils as sagaUtils } from 'redux-saga'
+const { put, take, takeEvery, takeLatest, select, fork } = effects
 
 import delayMockedSagaTester from '../../test_helpers/delayMockedSagaTester'
 
@@ -38,6 +39,10 @@ const serialTimeoutAction = {
   [SAGA_ACTION]: true,
 }
 
+const cancelAction = {
+  type: 'TEST_CANCEL',
+}
+
 const startingConditions = ({ long }) => {
   const selectors = {
     getLongRunningCodes: () => ['G28'],
@@ -48,7 +53,14 @@ const startingConditions = ({ long }) => {
     })
   }
   const { sagaTester, delayMock } = delayMockedSagaTester({
-    saga: serialTimeoutSaga(selectors),
+    // saga: function*() {
+    //   const worker = yield fork(serialTimeoutSaga(selectors))
+    //   console.log('waiting for cancel')
+    //   yield take(cancelAction.type)
+    //   console.log('cancelled.. wtf?')
+    //   yield worker.cancel()
+    // },
+    saga: serialTimeoutSaga(selectors)
   })
   const code = long ? 'G28' : 'G1'
   const sentGCodeAction = serialSend(code, { lineNumber: 42 })
@@ -63,12 +75,15 @@ describe('SERIAL_SEND', () => {
       `when no response is received for ${long ? 'long running' : 'fast'} ` +
       `codes it sends M105`,
       () => {
-        const expectTickle = ({ sagaTester, delayMock, tickleCount}) => {
+        const causeTimeout = ({ delayMock }) => {
           const pause = delayMock.unacknowledgedDelay
           expect(pause.length).toEqual(
             long ? longRunningCodeTimeout : fastCodeTimeout
           )
-          pause.next()
+          pause.next(true)
+        }
+        const expectTickle = ({ sagaTester, delayMock, tickleCount}) => {
+          causeTimeout({ delayMock })
 
           const result = sagaTester.getCalledActions()[1+tickleCount]
 
@@ -89,7 +104,7 @@ describe('SERIAL_SEND', () => {
            * should not put another tickle.
            */
           const pause = delayMock.unacknowledgedDelay
-          pause.next()
+          pause.next(true)
 
           const result = sagaTester.getCalledActions()
 
@@ -143,6 +158,26 @@ describe('SERIAL_SEND', () => {
             ])
           }
         )
+
+        test(
+          `if the saga is cancelled it stops tickling`,
+          () => {
+            const {
+              sagaTester,
+              delayMock,
+              sentGCodeAction,
+            } = startingConditions({ long })
+            sagaTester.dispatch(cancelAction)
+            causeTimeout({ delayMock })
+
+            const result = sagaTester.getCalledActions()
+
+            expect(result).toEqual([
+              sentGCodeAction,
+              cancelAction,
+            ])
+          }
+        )
       }
     )
   })
@@ -183,7 +218,7 @@ describe('SERIAL_SEND', () => {
        * should not put another tickle.
        */
       const pause = delayMock.unacknowledgedDelay
-      pause.next()
+      pause.next(true)
 
       const result = sagaTester.getCalledActions()
 

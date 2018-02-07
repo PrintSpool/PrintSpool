@@ -13,12 +13,16 @@ const logger = (action) => {
   switch(action.type) {
     case 'SERIAL_RECEIVE':
       const { raw, type } = action.data
+      const message = (() => {
+        if (type === 'parser_error') {
+          return `parser error on line: ${JSON.stringify(raw)}`
+        }
+        return raw
+      })()
       return {
         source: 'RX',
         level: rxLevel(type),
-        message: (
-          (type === 'parser_error') ? `parser error on line: ${raw}` : raw
-        ),
+        message,
       }
     case 'SERIAL_SEND':
       return {
@@ -43,6 +47,12 @@ const logger = (action) => {
         source: 'SERIAL',
         level: 'info',
         message: 'Serial Connected',
+      }
+    case 'DRIVER_ERROR':
+      return {
+        source: action.error.code === 'FIRMWARE_ERROR' ? 'FIRMWARE' : 'DRIVER',
+        level: 'error',
+        message: action.error.message,
       }
     default:
       return {

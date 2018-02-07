@@ -15,7 +15,6 @@ const greetingSaga = ({
 
     if (ready) return
     if (responseType === 'greeting') {
-      console.log('RECEIVED A GREETING', action.data.raw)
       yield delay(50)
       yield put(serialSend('M110 N0', { lineNumber: false }))
     } else if (responseType === 'ok') {
