@@ -25,6 +25,7 @@ const simulator = () => {
   return {
     serialPort,
     parser,
+    isConnected: true,
   }
 }
 

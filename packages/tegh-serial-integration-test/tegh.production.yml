@@ -5,6 +5,7 @@ macros:
 log:
   maxLength: 1000
   stderr:
+    # - trivial
     - info
     - warning
     - error

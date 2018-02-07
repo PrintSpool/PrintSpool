@@ -1029,10 +1029,6 @@ commander@^2.11.0:
   version "2.12.2"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.12.2.tgz#0f5946c427ed9ec0d91a46bb9def53e54650e555"
 
-commander@^2.13.0:
-  version "2.13.0"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-2.13.0.tgz#6964bca67685df7c1f1430c584f07d7597885b9c"
-
 concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
@@ -2808,7 +2804,7 @@ pluralize@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/pluralize/-/pluralize-7.0.0.tgz#298b89df8b93b0221dbf421ad2b1b1ea23fc6777"
 
-prebuild-install@^2.4.1:
+prebuild-install@^2.2.1:
   version "2.5.0"
   resolved "https://registry.yarnpkg.com/prebuild-install/-/prebuild-install-2.5.0.tgz#6fdd8436069971c76688071f4847d4c891a119f4"
   dependencies:
@@ -3198,15 +3194,15 @@ semver@^5.4.1:
 "serial-middleware@file:../serial-middleware":
   version "0.0.1"
 
-serialport@Fumon/node-serialport#custom_baud_rates:
+serialport@Fumon/node-serialport#support_250k:
   version "6.0.4"
-  resolved "https://codeload.github.com/Fumon/node-serialport/tar.gz/73963c4f1773e618d1cb38af3d6fd7b84dd6bcf1"
+  resolved "https://codeload.github.com/Fumon/node-serialport/tar.gz/51db443f98e95ffbbf5d48ed88466b77d233643b"
   dependencies:
     bindings "1.3.0"
-    commander "^2.13.0"
+    commander "^2.11.0"
     debug "^3.1.0"
     nan "^2.6.2"
-    prebuild-install "^2.4.1"
+    prebuild-install "^2.2.1"
     promirepl "^1.0.1"
     safe-buffer "^5.0.1"
 

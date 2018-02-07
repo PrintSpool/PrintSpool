@@ -55,6 +55,11 @@ const serialGCodeReducer = ({ config }) => (
         ...initialState(config),
         status: 'connecting',
       }
+    case 'PRINTER_READY':
+      return {
+        ...initialState(config),
+        status: 'ready',
+      }
     case 'SERIAL_RECEIVE':
       if (action.data.temperatures != null) {
         const heaters = {...state.heaters}
@@ -91,12 +96,6 @@ const serialGCodeReducer = ({ config }) => (
             ...changes,
           },
         },
-      }
-    case 'PRINTER_READY':
-      return {
-        ...state,
-        status: 'ready',
-        currentLineNumber: 1,
       }
     default:
       return state

@@ -32,8 +32,24 @@ const logger = (action) => {
         level: 'info',
         message: 'Serial Reset',
       }
+    case 'SERIAL_CLOSE':
+      return {
+        source: 'SERIAL',
+        level: 'info',
+        message: 'Serial Disconnected',
+      }
+    case 'SERIAL_OPEN':
+      return {
+        source: 'SERIAL',
+        level: 'info',
+        message: 'Serial Connected',
+      }
     default:
-      return null
+      return {
+        source: 'ACTION',
+        level: 'trivial',
+        message: JSON.stringify(action),
+      }
   }
 }
 

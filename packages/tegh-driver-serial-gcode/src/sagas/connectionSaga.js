@@ -1,5 +1,5 @@
 import { effects } from 'redux-saga'
-const { all, race, take, call } = effects
+const { all, race, take, call, cancel, fork, join } = effects
 
 import * as connectedSagaIndex from './connected_sagas/'
 
@@ -11,13 +11,10 @@ const connectionSaga = (selectors, sagasConfig = {
     .map(saga => saga(selectors))
 
   return function*() {
-    while(true) {
-      yield take('SERIAL_OPEN'),
+    while ( yield take('SERIAL_OPEN') ) {
       yield race({
-        connected: all(
-          connectedSagas.map(saga => call(saga)),
-        ),
-        shutdown: take(['ESTOP', 'DRIVER_ERROR', 'SERIAL_CLOSE']),
+        task: all(connectedSagas.map(saga => call(saga))),
+        cancel: take(['ESTOP', 'DRIVER_ERROR', 'SERIAL_CLOSE']),
       })
     }
   }

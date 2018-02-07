@@ -2,6 +2,7 @@
 import { effects } from 'redux-saga'
 const { put, takeEvery, takeLatest, select, call, delay } = effects
 
+import { forkLatest } from '../helpers/'
 import firmwareErrorPattern from '../patterns/firmwareErrorPattern'
 import hasTemperatureDataPattern from '../patterns/hasTemperatureDataPattern'
 import spoolTemperatureQuery from '../../actions/spoolTemperatureQuery'
@@ -18,7 +19,7 @@ const pollTemperatureSaga = ({
   }
 
   return function*() {
-    yield takeLatest(
+    yield forkLatest(
       [hasTemperatureDataPattern, 'PRINTER_READY'],
       onTemperatureData
     )

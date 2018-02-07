@@ -44,22 +44,38 @@ const serialMiddleware = ({
   serialPort,
   parser,
   receiveParser = ((line) => line),
+  isConnected,
 }:{
   serialPort: SerialPort,
   parser?: SerialPort,
   receiveParser?: (string) => mixed,
+  isConnected: () => boolean,
 }) => (store: Store) => {
+  const waitForConnection = () => {
+    if (isConnected()) {
+      serialPort.open()
+    } else {
+      setTimeout(waitForConnection, 200)
+    }
+  }
+  setImmediate(waitForConnection)
+
   const onOpen = () => {
+      parser.buffer = Buffer.alloc(0)
       store.dispatch({
         type: 'SERIAL_OPEN'
       })
   }
 
   const onClose = () => {
+    const { resetByMiddleware } = serialPort
     store.dispatch({
       type: 'SERIAL_CLOSE',
-      resetByMiddleware: serialPort.resetByMiddleware,
+      resetByMiddleware,
     })
+    if (!resetByMiddleware) {
+      waitForConnection()
+    }
   }
 
   const onData = (data) => {
@@ -89,6 +105,10 @@ const serialMiddleware = ({
       if (typeof action.data !== 'string') throw 'data must be a string'
       serialPort.write(action.data, err => {
         if (err) onError(err)
+        store.dispatch({
+          ...action,
+          type: 'SERIAL_SENT',
+        })
       })
     } else if (action.type === 'SERIAL_OPEN_REQUEST') {
       serialPort.open()

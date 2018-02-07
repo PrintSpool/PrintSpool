@@ -12,6 +12,7 @@ const initialState = (crashReport = null) => {
 }
 
 const LOG_LEVELS = [
+  'trivial',
   'info',
   'warning',
   'error',

@@ -1,11 +1,12 @@
 import { effects } from 'redux-saga'
-const { put, take, takeEvery, takeLatest, select, call } = effects
+const { put, take, takeEvery, takeLatest, select } = effects
 import { utils as sagaUtils } from 'redux-saga'
 import SagaTester from 'redux-saga-tester'
 import { List } from 'immutable'
 import { createEStopAction } from 'tegh-server'
 const { SAGA_ACTION } = sagaUtils
 
+import { forkEvery } from './helpers/'
 import connectionSaga from './connectionSaga'
 import serialSend from '../actions/serialSend'
 
@@ -22,14 +23,13 @@ const serialClose = {
   type: 'SERIAL_CLOSE',
 }
 
-const testPut = i => ({ type: `TEST_PUT_${i}`, [SAGA_ACTION]: true })
-const testTake = i => ({ type: `TEST_TAKE_${i}` })
+const testPut = { type: 'TEST_PUT', [SAGA_ACTION]: true }
+const testTake = { type: 'TEST_TAKE' }
 
 const testSaga = () => function*() {
-  yield put(testPut(1))
-  yield take(testTake(1).type)
-  yield put(testPut(2))
-  yield take(testTake(2).type)
+  yield forkEvery(testTake.type, function*() {
+    yield put(testPut)
+  })
 }
 
 const createTester = () => {
@@ -41,15 +41,14 @@ const createTester = () => {
 test('on SERIAL_OPEN it starts the connected sagas', () => {
   const sagaTester = createTester()
   sagaTester.dispatch(open)
-  sagaTester.dispatch(testTake(1))
+  sagaTester.dispatch(testTake)
 
   const result = sagaTester.getCalledActions()
 
   expect(result).toEqual([
     open,
-    testPut(1),
-    testTake(1),
-    testPut(2),
+    testTake,
+    testPut,
   ])
 })
 
@@ -60,20 +59,22 @@ shutdownActionTypes.forEach(type => {
     const shutdownAction = { type }
     const sagaTester = createTester()
     sagaTester.dispatch(open)
+    sagaTester.dispatch(testTake)
     sagaTester.dispatch(shutdownAction)
     /*
      * firing the action the connected saga is listening for does nothing
      * because the shutdown action cancelled the saga
      */
-    sagaTester.dispatch(testTake(1))
+    sagaTester.dispatch(testTake)
 
     const result = sagaTester.getCalledActions()
 
     expect(result).toEqual([
       open,
-      testPut(1),
+      testTake,
+      testPut,
       shutdownAction,
-      testTake(1),
+      testTake,
     ])
   })
 })

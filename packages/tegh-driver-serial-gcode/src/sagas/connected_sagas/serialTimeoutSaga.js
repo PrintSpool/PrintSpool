@@ -2,6 +2,7 @@
 import { effects } from 'redux-saga'
 const { put, takeEvery, takeLatest, select, call, delay, take, race } = effects
 
+import { forkLatest } from '../helpers/'
 import numberedLineSendPattern from '../patterns/numberedLineSendPattern'
 import serialSend from '../../actions/serialSend'
 import createSerialTimeoutAction from '../../actions/createSerialTimeoutAction'
@@ -39,7 +40,7 @@ const serialTimeoutSaga = ({
 
 
   return function*() {
-    yield takeLatest(numberedLineSendPattern, onLineSend)
+    yield forkLatest(numberedLineSendPattern, onLineSend)
   }
 }
 

@@ -3,6 +3,7 @@ import { effects } from 'redux-saga'
 import { createDriverErrorAction } from 'tegh-server'
 const { put, takeEvery, takeLatest, select, call, delay, take } = effects
 
+import { forkEvery } from '../helpers/'
 import spoolTemperatureQuery from '../../actions/spoolTemperatureQuery'
 import serialSend from '../../actions/serialSend'
 
@@ -64,7 +65,7 @@ const serialReceiveSaga = ({
   }
 
   return function*() {
-    yield takeEvery('SERIAL_RECEIVE', onSerialRecieve)
+    yield forkEvery('SERIAL_RECEIVE', onSerialRecieve)
   }
 }
 

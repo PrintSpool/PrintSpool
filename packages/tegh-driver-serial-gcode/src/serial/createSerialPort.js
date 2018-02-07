@@ -1,3 +1,4 @@
+import fs from 'fs'
 import SerialPort from 'serialport'
 import simulator from './simulator'
 
@@ -11,23 +12,18 @@ const createSerialPort = (config) => {
     autoOpen: false,
     baudRate,
   }
-  const { serialPort, parser } = (() => {
+  const { serialPort, parser, isConnected } = (() => {
     if (simulation) {
       return simulator(path, serialOptions)
     }
     const serialPort = new SerialPort(path, serialOptions)
     const parser = serialPort.pipe(new SerialPort.parsers.Readline())
-    return { serialPort, parser }
+    const isConnected = () => fs.existsSync(path)
+    return { serialPort, parser, isConnected }
   })()
 
   serialPort.on('open', () => {
     console.error('Serial port connected')
-  })
-
-  serialPort.on('close', (err) => {
-    if (serialPort.resetByMiddleware) return
-    console.error('Serial port disconnected. Shutting down.')
-    process.exit(0)
   })
 
   serialPort.on('error', (err) => {
@@ -39,6 +35,7 @@ const createSerialPort = (config) => {
     serialPort,
     serialOptions,
     parser,
+    isConnected,
     path,
     baudRate
   }
