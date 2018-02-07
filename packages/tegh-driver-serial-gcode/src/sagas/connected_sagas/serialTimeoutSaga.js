@@ -1,6 +1,6 @@
 // @flow
 import { effects } from 'redux-saga'
-const { put, takeEvery, takeLatest, select, call, delay, take, race, cancelled } = effects
+const { put, takeEvery, takeLatest, select, call, delay, take, race } = effects
 
 import { forkLatest } from '../helpers/'
 import numberedLineSendPattern from '../patterns/numberedLineSendPattern'
@@ -22,15 +22,15 @@ const serialTimeoutSaga = ({
       throw new Error(`${timeoutName} must be a number`)
     }
     for (const i of Array(tickleAttempts)) {
-      const { response, timeout } = yield race({
+      const { timeout } = yield race({
         response: take(({ type, data }) =>
           type === 'SERIAL_RECEIVE' &&
-          (data.type === 'ok' || data.type === 'feedback')
+          ['ok', 'feedback', 'greeting'].includes(data.type)
         ),
+        shutdown: take(['ESTOP', 'DRIVER_ERROR', 'SERIAL_CLOSE']),
         timeout: delay(timeoutPeriod),
       })
       if (timeout == null) return
-      console.log('still running serial timeout saga', response, timeout, 'cancelled:', yield cancelled())
       yield put({
         ...serialSend('M105', { lineNumber: false }),
         tickle: true,

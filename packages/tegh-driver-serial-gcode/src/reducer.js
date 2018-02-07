@@ -61,6 +61,12 @@ const serialGCodeReducer = ({ config }) => (
         status: 'ready',
       }
     case 'SERIAL_RECEIVE':
+      if (action.data.type === 'greeting') {
+        return {
+          ...initialState(config),
+          status: 'connecting',
+        }
+      }
       if (action.data.temperatures != null) {
         const heaters = {...state.heaters}
         Object.entries(action.data.temperatures).forEach(([k, v]) => {

@@ -1,6 +1,6 @@
 // @flow
 import { effects, utils as sagaUtils } from 'redux-saga'
-const { put, take, takeEvery, takeLatest, select, fork } = effects
+const { put, take, takeEvery, takeLatest, select, call, cancel, race } = effects
 
 import delayMockedSagaTester from '../../test_helpers/delayMockedSagaTester'
 
@@ -53,14 +53,13 @@ const startingConditions = ({ long }) => {
     })
   }
   const { sagaTester, delayMock } = delayMockedSagaTester({
-    // saga: function*() {
-    //   const worker = yield fork(serialTimeoutSaga(selectors))
-    //   console.log('waiting for cancel')
-    //   yield take(cancelAction.type)
-    //   console.log('cancelled.. wtf?')
-    //   yield worker.cancel()
-    // },
-    saga: serialTimeoutSaga(selectors)
+    saga: function*() {
+      yield race({
+        saga: call(serialTimeoutSaga(selectors)),
+        cancelTake: take(cancelAction.type),
+      })
+    },
+    // saga: serialTimeoutSaga(selectors)
   })
   const code = long ? 'G28' : 'G1'
   const sentGCodeAction = serialSend(code, { lineNumber: 42 })
@@ -167,14 +166,16 @@ describe('SERIAL_SEND', () => {
               delayMock,
               sentGCodeAction,
             } = startingConditions({ long })
-            sagaTester.dispatch(cancelAction)
+            // sagaTester.dispatch(cancelAction)
+            sagaTester.dispatch({ type: 'SERIAL_CLOSE'})
             causeTimeout({ delayMock })
 
             const result = sagaTester.getCalledActions()
 
             expect(result).toEqual([
               sentGCodeAction,
-              cancelAction,
+              { type: 'SERIAL_CLOSE'},
+              // cancelAction,
             ])
           }
         )
