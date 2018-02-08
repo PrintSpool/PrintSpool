@@ -27,7 +27,6 @@ const serialTimeoutSaga = ({
           type === 'SERIAL_RECEIVE' &&
           ['ok', 'feedback', 'greeting'].includes(data.type)
         ),
-        shutdown: take(['ESTOP', 'DRIVER_ERROR', 'SERIAL_CLOSE']),
         timeout: delay(timeoutPeriod),
       })
       if (timeout == null) return

@@ -1,27 +1,58 @@
-import { effects, utils } from 'redux-saga'
-const { call, put, take, takeEvery, takeLatest, select } = effects
+import { effects, utils as sagaUtils } from 'redux-saga'
+const { call, put, take, takeEvery, takeLatest, select, fork, cancel, spawn, all, race } = effects
+const { SAGA_ACTION } = sagaUtils
+
+import SagaTester from 'redux-saga-tester'
 
 import forkLatest from './forkLatest'
 
-const testPut = { type: 'TEST_PUT' }
+const testPut = { type: 'TEST_PUT', [SAGA_ACTION]: true }
+const testPut2 = { type: 'TEST_222_PUT_2', [SAGA_ACTION]: true }
 const testTake = { type: 'TEST_TAKE' }
+const testTake2 = { type: 'TEST_222_TAKE_2' }
+const testCancel = { type: 'TEST_CANCEL' }
 
-test('creates a fork for each action', () => {
-  const pattern = 'TEST_PATTERN'
-  const saga = function*() {}
-  const gen = forkLatest(pattern, saga).CALL.fn()
-  let task
+const testSaga = function*() {
+  const result = yield race({
+    worker: forkLatest(testTake.type, function*() {
+      yield put(testPut)
+      yield take(testTake2.type)
+      yield put(testPut2)
+    }),
+    canceller: take(testCancel.type),
+  })
+}
 
-  // 1st loop
-  task = gen.next()
-  expect(task.value.TAKE.pattern).toBe(pattern)
-  task = gen.next({type: pattern})
-  expect(task.value.FORK.fn).toBe(saga)
-  // 2nd loop
-  task = gen.next(utils.createMockTask())
-  expect(task.value.TAKE.pattern).toBe(pattern)
-  task = gen.next({type: pattern})
-  expect(task.value.CANCEL).not.toBe(null)
-  task = gen.next()
-  expect(task.value.FORK.fn).toBe(saga)
+const createTester = () => {
+  const sagaTester = new SagaTester({ initialState: {} })
+  sagaTester.start(testSaga)
+  return sagaTester
+}
+
+test('is cancellable', () => {
+  const actionsBeforeCancel = [
+    testTake,
+    testPut,
+    testTake,
+    testPut,
+    testTake2,
+    testPut2,
+  ]
+  const sagaTester = createTester()
+  sagaTester.dispatch(testTake)
+  sagaTester.dispatch(testTake)
+  sagaTester.dispatch(testTake2)
+  expect(sagaTester.getCalledActions()).toEqual(actionsBeforeCancel)
+  sagaTester.dispatch(testCancel)
+  sagaTester.dispatch(testTake)
+  sagaTester.dispatch(testTake)
+  sagaTester.dispatch(testTake2)
+  expect(sagaTester.getCalledActions()).toEqual([
+    ...actionsBeforeCancel,
+    testCancel,
+    testTake,
+    testTake,
+    testTake2,
+  ])
+
 })

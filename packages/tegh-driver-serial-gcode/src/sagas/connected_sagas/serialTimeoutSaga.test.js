@@ -59,7 +59,6 @@ const startingConditions = ({ long }) => {
         cancelTake: take(cancelAction.type),
       })
     },
-    // saga: serialTimeoutSaga(selectors)
   })
   const code = long ? 'G28' : 'G1'
   const sentGCodeAction = serialSend(code, { lineNumber: 42 })
@@ -166,16 +165,14 @@ describe('SERIAL_SEND', () => {
               delayMock,
               sentGCodeAction,
             } = startingConditions({ long })
-            // sagaTester.dispatch(cancelAction)
-            sagaTester.dispatch({ type: 'SERIAL_CLOSE'})
+            sagaTester.dispatch(cancelAction)
             causeTimeout({ delayMock })
 
             const result = sagaTester.getCalledActions()
 
             expect(result).toEqual([
               sentGCodeAction,
-              { type: 'SERIAL_CLOSE'},
-              // cancelAction,
+              cancelAction,
             ])
           }
         )
