@@ -56,10 +56,9 @@ const teghDaemon = (argv, loadPlugin) => {
     const pubsub = reduxPubSub(store)
 
     const teghServerConfig = {
-      config,
       schema: teghSchema,
       context: {
-        store: store,
+        store,
         pubsub,
       },
     }

@@ -12,7 +12,6 @@ import { execute, subscribe } from 'graphql'
 import _ from 'lodash'
 
 const httpServer = ({
-  config,
   schema,
   context,
 }, port) => {
