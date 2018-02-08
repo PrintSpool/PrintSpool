@@ -9,7 +9,7 @@ const driverMiddleware = (storeContext) => {
   return driver.middleware(storeContext)
 }
 
-const store = (storeContext) => {
+const createTeghStore = (storeContext) => {
   const { driver, errorHandler } = storeContext
   const sagaMiddleware = createSagaMiddleware({
     onError: (e) => setImmediate(() => errorHandler(e)),
@@ -42,4 +42,4 @@ const store = (storeContext) => {
   return store
 }
 
-export default store
+export default createTeghStore
