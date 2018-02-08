@@ -8,7 +8,7 @@ import _ from 'lodash'
 import { wrapInCrashReporting } from './helpers/crash_report'
 import teghSchema from './graphql/schema'
 import reduxPubSub from './graphql/redux_pub_sub'
-import createTeghStore from './store'
+import createTeghStore from './createTeghStore'
 import httpServer from './server/http_server'
 
 export * from './actions/'
