@@ -9,7 +9,7 @@ import serialSend from '../../actions/serialSend'
 
 const serialReceiveSaga = ({
   isReady,
-  shouldIgnoreNextOK,
+  shouldIgnoreOK,
   getCurrentLine,
   getCurrentSerialLineNumber,
 }) => {
@@ -28,7 +28,7 @@ const serialReceiveSaga = ({
     const { data } = action
     switch(data.type) {
       case 'ok': {
-        const ignoreNextOK = yield select(shouldIgnoreNextOK)
+        const ignoreNextOK = yield select(shouldIgnoreOK)
         if (ignoreNextOK) return
         yield put({ type: 'DESPOOL' })
         return
@@ -37,6 +37,10 @@ const serialReceiveSaga = ({
         const currentLine = yield select(getCurrentLine)
         const currentSerialLineNumber = yield select(getCurrentSerialLineNumber)
         const previousSerialLineNumber = currentSerialLineNumber - 1
+        // wait for the ok sent after the resend (see marlinFixture.js)
+        yield take(action =>
+          action.type === 'SERIAL_RECEIVE' && action.data.type === 'ok'
+        )
         /*
          * Tegh only sends one line at a time. If a resend is requested for a
          * different line number then this is likely an issue of the printer's

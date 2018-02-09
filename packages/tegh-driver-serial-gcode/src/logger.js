@@ -32,7 +32,7 @@ const logger = (action) => {
       return {
         source: 'TX',
         level: 'info',
-        message: action.data,
+        message: action.data.replace('\n', ''),
       }
     case 'SERIAL_RESET':
       return {

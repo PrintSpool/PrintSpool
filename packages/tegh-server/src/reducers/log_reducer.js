@@ -49,7 +49,7 @@ const logReducer = ({
   if (log == null) return state
   // TODO: console.error is a side effect and would ideally be moved to a saga
   if (config.log.stderr.includes(log.level)) {
-    console.error(`${log.source}: ${log.message}`)
+    console.error(`${log.source}[${log.level}]: ${log.message}`)
   }
   return state
     .update('entries', list => (

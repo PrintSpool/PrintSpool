@@ -27,7 +27,7 @@ const initialState = (config) => ({
   status: 'disconnected',
   error: null,
   currentLineNumber: 1,
-  ignoreNextOK: false,
+  ignoreOK: false,
 })
 
 const serialGCodeReducer = ({ config }) => (
@@ -61,7 +61,7 @@ const serialGCodeReducer = ({ config }) => (
         ...initialState(config),
         status: 'ready',
       }
-    case 'SERIAL_RECEIVE':
+    case 'SERIAL_RECEIVE': {
       if (action.data.type === 'greeting') {
         return {
           ...initialState(config),
@@ -71,14 +71,18 @@ const serialGCodeReducer = ({ config }) => (
       if (action.data.type === 'resend') {
         return {
           ...state,
-          ignoreNextOK: true,
+          ignoreOK: 'next',
         }
       }
-      if (action.data.type === 'ok' && state.ignoreNextOK) {
+      if (action.data.type === 'ok' && state.ignoreOK === 'next') {
         return {
           ...state,
-          ignoreNextOK: false,
+          ignoreOK: 'current',
         }
+      }
+      const nextState = {
+        ...state,
+        ignoreOK: false,
       }
       if (action.data.temperatures != null) {
         const heaters = {...state.heaters}
@@ -87,12 +91,13 @@ const serialGCodeReducer = ({ config }) => (
         })
         const {targetTemperaturesCountdown} = action.data
         return {
-          ...state,
+          ...nextState,
           targetTemperaturesCountdown,
           heaters,
         }
       }
-      return state
+      return nextState
+    }
     case 'SPOOL':
       throwErrorOnInvalidGCode(action.task.data)
       return state
