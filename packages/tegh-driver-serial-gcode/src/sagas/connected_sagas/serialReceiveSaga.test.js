@@ -106,49 +106,55 @@ describe('SERIAL_RECEIVE error', () => {
 })
 
 describe('SERIAL_RECEIVE resend', () => {
+  const requestResend = ({ requestLineNumber, currentLineNumber, onError }) => {
+    let ignoreOK = false
+    const selectors = {
+      isReady: () => true,
+      shouldIgnoreOK: () => ignoreOK,
+      getCurrentLine: () => '(╯°□°）╯︵ ┻━┻',
+      getCurrentSerialLineNumber: () => currentLineNumber,
+    }
+    const { sagaTester, delayMock } = delayMockedSagaTester({
+      initialState: {},
+      saga: serialReceiveSaga(selectors),
+      options: {
+        onError,
+      }
+    })
+    const receiveResend = serialReceive('resend', {
+      lineNumber: requestLineNumber,
+    })
+    sagaTester.dispatch(receiveResend)
+    ignoreOK = true
+
+    return { sagaTester, receiveResend }
+  }
+
   itDoesNothingWhen({ ready: false, type: 'resend'})
-  // test(
-  //   'when the resend is not for the previous line number it errors',
-  //   () => {
-  //     const initialState = {
-  //       ...createState({ ready: true }),
-  //       spool: {
-  //         currentLine: '(╯°□°）╯︵ ┻━┻',
-  //         currentLineNumber: 42,
-  //       }
-  //     }
-  //
-  //     const { sagaTester, delayMock } = delayMockedSagaTester({
-  //       initialState,
-  //       saga: serialReceiveSaga,
-  //     })
-  //     sagaTester.dispatch({
-  //       type: 'SERIAL_RECEIVE',
-  //       data: {
-  //         type: 'resend',
-  //         lineNumber: 26,
-  //       },
-  //     })
-  //     // TODO: expect error
-  //   }
-  // )
+
+  test(
+    'when the resend is not for the previous line number it errors',
+    () => {
+      let errored = false
+      const { sagaTester } = requestResend({
+        requestLineNumber: 32,
+        currentLineNumber: 41,
+        onError: () => {errored = true}
+      })
+
+      expect(errored).toBe(false)
+      sagaTester.dispatch(serialReceive('ok'))
+      expect(errored).toBe(true)
+    }
+  )
   test(
     'when the resend is for the previous line number it resends it',
     () => {
-      let ignoreOK = false
-      const selectors = {
-        isReady: () => true,
-        shouldIgnoreOK: () => ignoreOK,
-        getCurrentLine: () => '(╯°□°）╯︵ ┻━┻',
-        getCurrentSerialLineNumber: () => 42,
-      }
-      const { sagaTester, delayMock } = delayMockedSagaTester({
-        initialState: {},
-        saga: serialReceiveSaga(selectors),
+      const { sagaTester, receiveResend } = requestResend({
+        requestLineNumber: 41,
+        currentLineNumber: 42,
       })
-      const receiveResend = serialReceive('resend', { lineNumber: 41 })
-      sagaTester.dispatch(receiveResend)
-      ignoreOK = true
+
       sagaTester.dispatch(serialReceive('ok'))
 
       const result = sagaTester.getCalledActions()
