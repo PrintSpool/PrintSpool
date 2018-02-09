@@ -50,6 +50,7 @@ export const errors = {
   checksumMismatch: [
     'Error:checksum mismatch, Last Line: 0',
     'Resend: 1',
+    'ok P15 B4',
   ],
   // in response to G29 (auto bed level)
   failToCleanNozzle: [

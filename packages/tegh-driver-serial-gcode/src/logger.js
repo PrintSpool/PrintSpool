@@ -3,6 +3,7 @@ const rxLevel = (type) => {
     case 'error':
       return 'error'
     case 'parser_error':
+    case 'warning':
       return 'warning'
     default:
       return 'info'
@@ -16,6 +17,9 @@ const logger = (action) => {
       const message = (() => {
         if (type === 'parser_error') {
           return `parser error on line: ${JSON.stringify(raw)}`
+        }
+        if (type === 'warning' || type === 'error') {
+          return action.data.message
         }
         return raw
       })()

@@ -1,5 +1,6 @@
 // @flow
 import rxParser from './rxParser'
+import * as marlin from '../data/marlinFixture'
 
 test('parses greetings', () => {
   const result = rxParser('start')
@@ -20,6 +21,18 @@ test('parses resends', () => {
   })
 })
 
+test('parses checksum errors as warnings', () => {
+  const raw = marlin.errors.checksumMismatch[0]
+  const result = rxParser(raw)
+
+  expect(result).toEqual({
+    type: 'warning',
+    message: 'checksum mismatch, Last Line: 0',
+    raw,
+  })
+})
+
+
 test('parses echo lines', () => {
   const result = rxParser('echo:stuff')
 
@@ -39,11 +52,12 @@ test('parses debug lines', () => {
 })
 
 test('parses errors', () => {
-  const result = rxParser('error stuff')
+  const result = rxParser('error:stuff')
 
   expect(result).toEqual({
     type: 'error',
-    raw: 'error stuff',
+    message: 'stuff',
+    raw: 'error:stuff',
   })
 })
 

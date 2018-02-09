@@ -16,7 +16,11 @@ type Feedback = {
 
 type RxDataWithoutRaw =
   | {
-    type: 'greeting' | 'debug' | 'echo' | 'error' | 'parser_error',
+    type: 'greeting' | 'debug' | 'echo' | 'parser_error',
+  }
+  | {
+    type: 'error' | 'warning',
+    message: string,
   }
   | {
     type: 'resend',
@@ -75,9 +79,14 @@ const rxParser = (raw: string): RxData => {
     type: 'echo',
     raw,
   }
-  if (line.startsWith('error')) return {
-    type: 'error',
-    raw,
+  if (line.startsWith('error')) {
+    const isWarning = line.startsWith('error:checksum mismatch')
+    const message = raw.replace(/^error\:?/i, '')
+    return {
+      type: isWarning ? 'warning' : 'error',
+      raw,
+      message
+    }
   }
   if (line.startsWith('resend') || line.startsWith('rs')) {
     const lineNumber = parseInt(line.split(/N:|N|:/)[1])
