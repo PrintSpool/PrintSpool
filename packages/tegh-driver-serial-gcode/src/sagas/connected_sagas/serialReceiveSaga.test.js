@@ -135,9 +135,10 @@ describe('SERIAL_RECEIVE resend', () => {
   test(
     'when the resend is for the previous line number it resends it',
     () => {
+      let ignoreOK = false
       const selectors = {
         isReady: () => true,
-        shouldIgnoreOK: () => false,
+        shouldIgnoreOK: () => ignoreOK,
         getCurrentLine: () => '(╯°□°）╯︵ ┻━┻',
         getCurrentSerialLineNumber: () => 42,
       }
@@ -147,11 +148,14 @@ describe('SERIAL_RECEIVE resend', () => {
       })
       const receiveResend = serialReceive('resend', { lineNumber: 41 })
       sagaTester.dispatch(receiveResend)
+      ignoreOK = true
+      sagaTester.dispatch(serialReceive('ok'))
 
       const result = sagaTester.getCalledActions()
 
       expect(result).toEqual([
         receiveResend,
+        serialReceive('ok'),
         {
           ...serialSend('(╯°□°）╯︵ ┻━┻', { lineNumber: 41 }),
           [SAGA_ACTION]: true,
