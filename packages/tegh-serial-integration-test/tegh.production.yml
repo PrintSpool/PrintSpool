@@ -12,6 +12,7 @@ log:
     - fatal
 printFromLocalPath:
   enabled: true
+  allowSymlinks: false
   whitelist:
     - ~/.tegh-local-files/
 uploadCrashReportsToDevs: true

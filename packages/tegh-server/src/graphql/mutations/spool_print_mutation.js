@@ -11,6 +11,7 @@ import TaskType from '../types/task_type'
 import createSpoolAction from '../../actions/createSpoolAction.js'
 
 const fs = Promise.promisifyAll(_fs)
+const normalize = filePath => path.normalize(untildify(filePath))
 
 const PrintFileInputType = new GraphQLInputObjectType({
   name: 'PrintFile',
@@ -53,23 +54,25 @@ const spoolPrintMutation = () => ({
     if (args.file.localPath == null) {
       throw new Error(`localPath cannot be null`)
     }
-    const localPath = path.normalize(untildify(args.file.localPath))
+    const localPath = normalize(args.file.localPath)
     if (!(localPath.endsWith('.gcode') || localPath.endsWith('.ngc'))) {
       throw new Error(
         `file extension not supported. Must be either .gcode or .ngc`
       )
     }
-    const whitelisted = (() => {
-      for (const validPath of config.printFromLocalPath.whitelist) {
-        const normalizedValidPath = path.normalize(untildify(validPath))
-        if (localPath.startsWith(normalizedValidPath)) return true
+    const whitelistError = await (async function*() {
+      const stats = await fs.lstatSyncAsync(localPath)
+      if (stats.isSymbolicLink() && !config.printFromLocalPath.allowSymlinks) {
+        return `localPath is a symlink`
       }
-      return false
-    })
-    if (!whitelisted) {
-      throw new Error(
-        `localPath is not in a whitelisted directory`
-      )
+      for (const validPath of config.printFromLocalPath.whitelist) {
+        const normalizedValidPath = normalize(validPath)
+        if (localPath.startsWith(normalizedValidPath)) return null
+      }
+      return `localPath is not in a whitelisted directory`
+    })()
+    if (whitelistError != null) {
+      throw new Error(whitelistError)
     }
     if (!args.startImmediately) {
       throw new Error(
