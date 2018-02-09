@@ -20,12 +20,14 @@ const despoolAction = {
   [SAGA_ACTION]: true,
 }
 
-const itDoesNothingWhen = ({ready, type}) => {
+const itDoesNothingWhen = ({ready, type, ignoreNextOK = false}) => {
   test(
-    `when ready = ${ready} it does nothing`,
+    `when ready = ${ready} and shouldIgnoreNextOK = ${ignoreNextOK}` +
+    ` it does nothing`,
     () => {
       const selectors = {
         isReady: () => ready,
+        shouldIgnoreNextOK: () => ignoreNextOK,
       }
       const { sagaTester, delayMock } = delayMockedSagaTester({
         initialState: {},
@@ -43,11 +45,13 @@ const itDoesNothingWhen = ({ready, type}) => {
 
 describe('SERIAL_RECEIVE ok', () => {
   itDoesNothingWhen({ ready: false, type: 'ok'})
+  itDoesNothingWhen({ ready: true, ignoreNextOK: true, type: 'ok'})
   test(
     'when driver is ready it dispatching DESPOOL',
     () => {
       const selectors = {
         isReady: () => true,
+        shouldIgnoreNextOK: () => false,
       }
 
       const { sagaTester, delayMock } = delayMockedSagaTester({
@@ -73,6 +77,7 @@ describe('SERIAL_RECEIVE error', () => {
     () => {
       const selectors = {
         isReady: () => true,
+        shouldIgnoreNextOK: () => false,
       }
       const raw = 'Error:PROBE FAIL CLEAN NOZZLE'
       const serialReceiveError = serialReceive('error', { raw })
@@ -132,6 +137,7 @@ describe('SERIAL_RECEIVE resend', () => {
     () => {
       const selectors = {
         isReady: () => true,
+        shouldIgnoreNextOK: () => false,
         getCurrentLine: () => '(╯°□°）╯︵ ┻━┻',
         getCurrentSerialLineNumber: () => 42,
       }

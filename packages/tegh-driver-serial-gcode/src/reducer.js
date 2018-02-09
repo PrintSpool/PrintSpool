@@ -27,6 +27,7 @@ const initialState = (config) => ({
   status: 'disconnected',
   error: null,
   currentLineNumber: 1,
+  ignoreNextOK: false,
 })
 
 const serialGCodeReducer = ({ config }) => (
@@ -65,6 +66,18 @@ const serialGCodeReducer = ({ config }) => (
         return {
           ...initialState(config),
           status: 'connecting',
+        }
+      }
+      if (action.data.type === 'resend') {
+        return {
+          ...state,
+          ignoreNextOK: true,
+        }
+      }
+      if (action.data.type === 'ok' && state.ignoreNextOK) {
+        return {
+          ...state,
+          ignoreNextOK: false,
         }
       }
       if (action.data.temperatures != null) {

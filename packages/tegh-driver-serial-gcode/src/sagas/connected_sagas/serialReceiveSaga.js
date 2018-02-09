@@ -9,6 +9,7 @@ import serialSend from '../../actions/serialSend'
 
 const serialReceiveSaga = ({
   isReady,
+  shouldIgnoreNextOK,
   getCurrentLine,
   getCurrentSerialLineNumber,
 }) => {
@@ -27,6 +28,8 @@ const serialReceiveSaga = ({
     const { data } = action
     switch(data.type) {
       case 'ok': {
+        const ignoreNextOK = yield select(shouldIgnoreNextOK)
+        if (ignoreNextOK) return
         yield put({ type: 'DESPOOL' })
         return
       }
