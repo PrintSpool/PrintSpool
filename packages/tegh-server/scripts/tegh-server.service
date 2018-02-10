@@ -1,7 +1,7 @@
 [Unit]
 Description=Tegh 3D Printer Network Server
-After=dev-ttyACM0.device
-Requires=dev-ttyACM0.device network.target
+After=network.target
+Requires=network.target
 
 [Service]
 ExecStart=/usr/sbin/tegh-server
@@ -9,7 +9,6 @@ Type=simple
 Restart=on-failure
 
 User=
-Group=
 
 [Install]
 WantedBy=default.target

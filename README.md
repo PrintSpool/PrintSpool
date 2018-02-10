@@ -33,13 +33,18 @@ As a temporary provision until a build script is ready for Tegh the server can b
 
 1. Run:
   ```
-    sudo ln -s `pwd`/tegh/packages/tegh-server/scripts/tegh-server /usr/sbin/tegh-server
-    sudo cp `pwd`/scripts/tegh-server.service /etc/systemd/system/
+    sudo ln -s `pwd`/packages/tegh-server/scripts/tegh-server /usr/sbin/tegh-server
+    sudo cp `pwd`/packages/tegh-server/scripts/tegh-server.service /etc/systemd/system/
   ```
-2. Fill in your username and group: `sudo vim /etc/systemd/system/tegh-server.service`
+2. Fill in your username: `sudo vim /etc/systemd/system/tegh-server.service`
 3. Run:
   ```
     systemctl daemon-reload
     systemctl enable tegh-server
+    systemctl start tegh-server
   ```
 4. Unplug and replug the 3D printer
+
+Tegh's stderr log is accessible via journalctl:
+
+`journalctl -u tegh-server.service --follow`
