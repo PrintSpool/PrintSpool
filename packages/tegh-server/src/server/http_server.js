@@ -14,6 +14,7 @@ import _ from 'lodash'
 const httpServer = ({
   schema,
   context,
+  plugins,
 }, port) => {
   const isTCP = typeof port === 'number'
   // eslint-disable-next-line new-cap
