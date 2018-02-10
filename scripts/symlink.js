@@ -41,6 +41,10 @@ const symlinks = [
     addTo: 'tegh-serial-integration-test',
   },
   {
+    target: 'tegh-web-ui',
+    addTo: 'tegh-serial-integration-test',
+  },
+  {
     target: 'tegh-macros-default',
     addTo: 'tegh-serial-integration-test',
   },

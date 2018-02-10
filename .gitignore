@@ -16,6 +16,7 @@ bin/packages
 tmp
 .vagrant
 .next
+packages/tegh-web-ui/out
 
 coverage
 

@@ -17,8 +17,8 @@ const httpServer = ({
 }, port) => {
   const isTCP = typeof port === 'number'
   // eslint-disable-next-line new-cap
-  const app = new koa()
-  const server = http.createServer(app.callback())
+  const koaApp = new koa()
+  const server = http.createServer(koaApp.callback())
   // eslint-disable-next-line new-cap
   const router = new koaRouter()
 
@@ -61,9 +61,20 @@ const httpServer = ({
     },
   )
 
-  app.use(cors())
-  app.use(router.routes())
-  app.use(router.allowedMethods())
+  koaApp.use(cors())
+  koaApp.use(router.routes())
+  koaApp.use(router.allowedMethods())
+
+  plugins.forEach(plugin => {
+    const { serverHook } = plugin.fns
+    if (serverHook == null) return
+    serverHook({
+      plugin,
+      server,
+      koaApp,
+      koaRouter: router,
+    })
+  })
   // eslint-disable-next-line no-console
   if (!isTCP && fs.existsSync(port)) fs.unlinkSync(port)
   server.listen(port, () => {

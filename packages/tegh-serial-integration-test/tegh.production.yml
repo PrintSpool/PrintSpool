@@ -66,3 +66,5 @@ driver:
     path: /dev/ttyACM0
     baudRate: 250000
     # simulation: true
+plugins:
+  - package: tegh-web-ui

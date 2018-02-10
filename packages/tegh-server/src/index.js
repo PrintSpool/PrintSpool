@@ -38,6 +38,11 @@ const teghDaemon = (argv, loadPlugin) => {
     setErrorHandlerStore,
   }) => {
     const driver = loadPlugin(config.driver.package)
+    const plugins = config.plugins.map((pluginConfig, index) => ({
+      fns: loadPlugin(pluginConfig.package),
+      config: pluginConfig,
+      index,
+    }))
     const {errors, valid} = driver.validate(config)
     if (!valid) {
       console.error(errors.join('\n'))
@@ -61,6 +66,7 @@ const teghDaemon = (argv, loadPlugin) => {
         store,
         pubsub,
       },
+      plugins,
     }
 
     if (config.server.tcpPort) {

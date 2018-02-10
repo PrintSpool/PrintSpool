@@ -5,10 +5,18 @@ import { WebSocketLink } from 'apollo-link-ws'
 import { SubscriptionClient } from 'subscriptions-transport-ws'
 // import fetch from 'isomorphic-fetch'
 
+const isProduction = process.env.NODE_ENV === 'production'
 const ip = process.browser ? window.location.hostname : '127.0.0.1'
-const port = process.env.NODE_ENV === 'production' ? 3900 : 3901
+const port = 3901
 const postURL = `http://${ip}:${port}/graphql`
-const wsURL = `ws://${ip}:${port}/graphql`
+const wsURL = (() => {
+  const wsPath = '/graphql'
+  if (!process.browser) return null
+  if (!isProduction) return `ws://${ip}:${port}${wsPath}`
+  const { location } = window
+  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:'
+  return `${protocol}//${location.host}${wsPath}`
+})()
 
 // // Polyfill fetch() on the server (used by apollo-client)
 // if (!process.browser) {
