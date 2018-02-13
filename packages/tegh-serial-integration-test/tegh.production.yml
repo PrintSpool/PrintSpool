@@ -26,7 +26,7 @@ materials:
   e1:
     targetTemperature: 220
   b:
-    targetTemperature: 90
+    targetTemperature: 60
 feedrates: # in mm/s
   e0: 3
   e1: 3
@@ -51,7 +51,7 @@ driver:
   delayFromGreetingToReady: 2500
   serialTimeout:
     tickleAttempts: 3
-    fastCodeTimeout: 3000
+    fastCodeTimeout: 30000
     longRunningCodeTimeout: 60000
   longRunningCodes:
     - G4
