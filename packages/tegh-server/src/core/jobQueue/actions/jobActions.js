@@ -1,6 +1,5 @@
 import Job from '../types/Job'
 
-export const CREATE_JOB = 'tegh/jobQueue/CREATE_JOB'
 export const DELETE_JOB = 'tegh/jobQueue/DELETE_JOB'
 export const CANCEL_JOB = 'tegh/jobQueue/CANCEL_JOB'
 

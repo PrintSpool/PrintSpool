@@ -1,0 +1,78 @@
+import path from 'path'
+import {default as _fs} from 'fs'
+import tmp from 'tmp-promise'
+import Promise from 'bluebird'
+import untildify from 'untildify'
+
+import TaskType from '../types/task_type'
+
+const fs = Promise.promisifyAll(_fs)
+const normalize = filePath => path.normalize(untildify(filePath))
+
+export const CREATE_JOB = 'tegh/jobQueue/CREATE_JOB'
+
+const createJob = (args) => {
+  return async function(dispatch, getState) => {
+    const variaticArgs = ['file', 'localPath']
+    const nullArgCount = variaticArgs.filter(k => args[k] == null).length
+    if (nullArgCount === variaticArgs.length) {
+      throw new Error('file and localPath cannot both be null')
+    }
+    if (variaticArgs.length - nullArgCount > 1 ) {
+      throw new Error('only one of file or localPath should be set')
+    }
+
+    let filePath, name
+
+    if (args.localPath != null) {
+      filePath = normalize(args.localPath)
+      name = path.basename(filePath)
+      const allowedExtensions = ['.gcode', '.ngc']
+      const stats = await fs.lstatSyncAsync(filePath)
+
+      const localPathConfig = getState().config.printFromLocalPath
+
+      const isAllowedPath = localPathConfig.whitelist.some(validPath => {
+        const normalizedValidPath = normalize(validPath)
+        return filePath.startsWith(normalizedValidPath)
+      })
+
+      /* validation errors */
+      if (localPathConfig.enabled === false) {
+        throw new Error(`printing from localPaths is disabled`)
+      }
+      if (!allowedExtensions.some(ext => filePath.endsWith(ext))) {
+        throw new Error(
+          `file extension not supported. Must be one of ` +
+          allowedExtensions.join(', ')
+        )
+      }
+      if (stats.isSymbolicLink() && !localPathConfig.allowSymlinks) {
+        throw new Error(`localPath cannot be a symlink`)
+      }
+      if (!isAllowedPath) {
+        return new Error(`localPath is not in a whitelisted directory`)
+      }
+    }
+    if (args.file != null) {
+      const tmpFile = await tmp.file()
+      name = args.file.name
+      filePath = tmpFile.path
+      await fs.writeFileAsync(filePath, args.file.content)
+    }
+
+    const action = {
+      type: CREATE_JOB
+      payload: File(
+        name,
+        files: [{
+          name,
+          filePath,
+          isTempFile: args.file != null,
+          quantity: 1,
+        }],
+      ),
+    }
+    store.dispatch(action)
+  }
+}

@@ -6,7 +6,7 @@ import TaskType from '../types/task_type.js'
 const defaults = subscriptionDefaults(args => `taskChanged[${args.taskID}]`)
 
 const taskChangedSubscription = () => ({
-  name: 'taskChangedSubscription',
+  name: 'taskChanged',
   type: tql`[${TaskType}!]!`,
   ...defaults,
   args: {
@@ -20,7 +20,7 @@ const taskChangedSubscription = () => ({
 export default {
   subscription: taskChangedSubscription,
   // TODO: dynamic selectors
-  selector: (state) => state.spool.tasksByID,
+  selector: (state) => state.spool.allTasks,
   onSelectorChange: ({ newVal, oldVal, pubsub }) => {
     changedTasks = newVal.filter((k, v) => v !== oldVal[k])
     changedTasks.forEach((k, v) => {

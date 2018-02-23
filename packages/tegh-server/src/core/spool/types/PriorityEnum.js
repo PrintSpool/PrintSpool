@@ -1,4 +1,7 @@
-export type Priority = 'emergency' | 'preemptive' | 'normal'
+export type PriorityEnumT =
+  | 'emergency'
+  | 'preemptive'
+  | 'normal'
 
 export const priorityOrder = List([
   'emergency',

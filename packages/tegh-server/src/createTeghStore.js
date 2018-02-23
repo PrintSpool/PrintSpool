@@ -1,5 +1,6 @@
 import createSagaMiddleware from 'redux-saga'
 import { createStore, applyMiddleware } from 'redux'
+import ReduxThunk from 'redux-thunk'
 
 import rootReducer from './reducers/'
 
@@ -16,6 +17,7 @@ const createTeghStore = (storeContext) => {
   })
   const middleware = [
     ...driverMiddleware(storeContext),
+    ReduxThunk,
     sagaMiddleware,
   ]
   // TODO: replace Raven crash logging

@@ -22,8 +22,9 @@ export type JobT = RecordOf<{
 const JobRecord = Record({
   id: null,
   name: null,
-  files: List(),
   createdAt: null,
+  // files is plural to allow for zipped multi-file jobs in future
+  files: List(),
 })
 
 const Job = attrs => JobRecord({
@@ -31,33 +32,6 @@ const Job = attrs => JobRecord({
   id: uuid(),
   createdAt: new Date().toISOString(),
   files: List(attrs.files.map(JobFile)),
-})
-
-export const JobGraphQLType = new GraphQLObjectType({
-  name: 'Job',
-  fields: () => ({
-    id: {
-      type: tql`ID!`,
-    },
-    name: {
-      type: tql`String!`,
-    },
-    files: {
-      type: tql`[${JobFileGraphQLType}!]!`,
-    },
-    createdAt: {
-      type: tql`String!`,
-    },
-    startedAt: {
-      type: tql`String!`,
-    },
-    stoppedAt: {
-      type: tql`String!`,
-    },
-    // status: {
-    //   type: tql`${JobStatusGraphQLEnum}!`,
-    // },
-  })
 })
 
 export default Job

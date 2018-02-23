@@ -1,10 +1,12 @@
-import { createSpoolAction } from 'tegh-server'
+import { spoolTask } from 'tegh-server'
 
 const spoolTemperatureQuery = () => {
-  return createSpoolAction({
+  return spoolTask({
     internal: true,
     priority: 'preemptive',
-    data: ['M105'],
+    file: {
+      content: 'M105',
+    }
   })
 }
 

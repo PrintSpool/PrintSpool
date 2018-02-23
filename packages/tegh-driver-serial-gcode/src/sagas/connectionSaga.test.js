@@ -3,7 +3,6 @@ const { call, put, take, takeEvery, takeLatest, select } = effects
 const { SAGA_ACTION } = sagaUtils
 import SagaTester from 'redux-saga-tester'
 import { List } from 'immutable'
-import { createEStopAction } from 'tegh-server'
 
 import { forkEvery } from './helpers/'
 import connectionSaga from './connectionSaga'
@@ -11,9 +10,6 @@ import serialSend from '../actions/serialSend'
 
 const open = {
   type: 'SERIAL_OPEN'
-}
-const estop = {
-  ...createEStopAction(),
 }
 const driverError = {
   type: 'DRIVER_ERROR',

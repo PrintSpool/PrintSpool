@@ -15,7 +15,7 @@ const TaskType = new GraphQLObjectType({
       type: tql`String!`,
       resolve: source => source.spoolID,
     },
-    fileName: {
+    name: {
       type: tql`String!`,
     },
     currentLineNumber: {

@@ -1,5 +1,5 @@
-import Job from './Job'
-import Task from './Task'
+import Job from '../types/Job'
+import Task from '../../spool/types/Task'
 
 const initialState = Record({
   jobs: Map(),
