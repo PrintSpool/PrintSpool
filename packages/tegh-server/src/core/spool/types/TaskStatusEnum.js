@@ -1,13 +1,12 @@
 export type TaskStatusEnumT =
-  | 'initialized'
-  | 'queued'
+  | 'spooled'
   | 'printing'
   | 'errored'
   | 'cancelled'
   | 'done'
 
 const spooledStatuses = [
-  'queued',
+  'spooled',
   'printing',
 ]
 

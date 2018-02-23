@@ -1,7 +1,7 @@
 import { utils as sagaUtils } from 'redux-saga'
 import SagaTester from 'redux-saga-tester'
 import { List } from 'immutable'
-import { createEStopAction } from 'tegh-server'
+import { estop } from 'tegh-server'
 const { SAGA_ACTION } = sagaUtils
 
 import eStopSaga from './eStopSaga'
@@ -17,8 +17,8 @@ const serialSendG1 = serialSend('G1 X10', { lineNumber: false })
 const serialSendM112 = serialSend('M112', { lineNumber: false })
 const serialSendM999 = serialSend('M999', { lineNumber: false })
 
-const estop = {
-  ...createEStopAction(),
+const estopSagaAction = {
+  ...estop(),
   [SAGA_ACTION]: true,
 }
 const serialReset = {
@@ -34,7 +34,7 @@ test('puts ESTOP if an M112 is sent', () => {
 
   expect(result).toEqual([
     serialSendM112,
-    estop,
+    estopSagaAction,
   ])
 })
 

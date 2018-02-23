@@ -5,9 +5,9 @@ import {
 import tql from 'typiql'
 import _ from 'lodash'
 
-import QueryRootType from './types/query_root_type'
-import * as mutations from './mutations/'
-import * as subscriptionModules from './subscriptions'
+import QueryRootType from './types/queryRoot.graphql.js'
+import * as mutations from './core/mutations'
+import * as subscriptionModules from './core/subscriptions'
 
 const subscriptions = _.mapValues(subscriptionModules, m => m.subscription)
 

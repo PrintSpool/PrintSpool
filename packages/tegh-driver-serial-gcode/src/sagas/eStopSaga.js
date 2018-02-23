@@ -1,6 +1,6 @@
 // @flow
 import { effects } from 'redux-saga'
-import { createEStopAction } from 'tegh-server'
+import { estop } from 'tegh-server'
 const { put, takeEvery, takeLatest, select, call, delay } = effects
 
 import serialSend from '../actions/serialSend'
@@ -11,7 +11,7 @@ import serialSend from '../actions/serialSend'
 const eStopSaga = () => {
   const onSerialSend = function*({ type, code }) {
     if (type === 'SERIAL_SEND' && code === 'M112') {
-      yield put(createEStopAction())
+      yield put(estop())
     }
     /*
      * eStops require a reset of the serial connection

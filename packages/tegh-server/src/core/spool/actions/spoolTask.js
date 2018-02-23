@@ -10,11 +10,10 @@
  *
  * internal?: Boolean [default: false]
  * priority?: TaskPriority [default: macro.priority || 'normal'],
- * id?: TaskID
  * file?: { name: String, content: String }
  * macro?: { name: String, args: JSON }
  */
-const spoolTask = ({ internal, priority, id, file, macro }) => {
+const spoolTask = ({ internal, priority, file, macro }) => {
   return (dispatch, getState) => {
     const variaticArgs = [id, file, macro]
     const nullArgCount = variaticArgs.filter(arg => arg == null).length
@@ -50,19 +49,15 @@ const spoolTask = ({ internal, priority, id, file, macro }) => {
 
       createTaskMicroAction = createTask({
         internal,
-        priority: 'normal',
+        priority,
         name,
         data: [content],
       })
     }
 
-    if (id == null) {
-      payload = {
-        id: createTaskMicroAction.payload.task.id,
-        createTaskMicroAction,
-      }
-    } else {
-      payload = { id }
+    payload = {
+      id: createTaskMicroAction.payload.task.id,
+      createTaskMicroAction,
     }
 
     return dispatch({

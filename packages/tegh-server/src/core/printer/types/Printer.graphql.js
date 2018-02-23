@@ -9,13 +9,12 @@ import snl from 'strip-newlines'
 
 import { isIdle } from '../../core/spool/reducers/spoolReducer.js'
 
-import PrinterModeEnum from './printer_mode_enum.js'
-import HeaterType from './heater_type.js'
-import FanType from './fan_type.js'
-import JobType from './job_type.js'
-import LogEntryType from './log_entry_type.js'
-import MacroDefinitionType from './macro_definition_type.js'
-import PrinterErrorType from './PrinterErrorType'
+import PrinterStatusEnum from './PrinterStatusEnum.graphql.js'
+import HeaterType from './Heater.graphql.js'
+import FanType from './Fan.graphql.js'
+import LogEntryType from '../../log/types/LogEntry.graphql.js'
+import MacroDefinitionType from '../../macros/types/MacroDefinition.graphql.js'
+import PrinterErrorType from './PrinterError.graphql.js'
 
 const Printer = new GraphQLObjectType({
   name: 'Printer',
@@ -32,9 +31,6 @@ const Printer = new GraphQLObjectType({
         return source.config.name
       },
     },
-    // mode: {
-    //   type: tql`${PrinterModeEnum}!`,
-    // },
     heaters: {
       type: tql`[${HeaterType}!]!`,
       resolve(source) {
@@ -58,9 +54,9 @@ const Printer = new GraphQLObjectType({
       },
     },
     status: {
-      type: tql`String!`,
+      type: tql`${PrinterStatusEnum}!`,
       resolve(source) {
-        return source.driver.status
+        return source.driver.status.toUpperCase()
       },
     },
     isIdle: {

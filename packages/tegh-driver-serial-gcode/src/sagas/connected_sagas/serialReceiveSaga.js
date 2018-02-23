@@ -1,6 +1,6 @@
 // @flow
 import { effects } from 'redux-saga'
-import { createDriverErrorAction } from 'tegh-server'
+import { driverError } from 'tegh-server'
 const { put, takeEvery, takeLatest, select, call, delay, take } = effects
 
 import { forkEvery } from '../helpers/'
@@ -58,7 +58,7 @@ const serialReceiveSaga = ({
         return
       }
       case 'error': {
-        const error = createDriverErrorAction({
+        const error = driverError({
           code: 'FIRMWARE_ERROR',
           message: action.data.raw,
         })

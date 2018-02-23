@@ -3,6 +3,7 @@ import snl from 'strip-newlines'
 import {
   GraphQLObjectType
 } from 'graphql'
+import { GraphQLDate } from 'graphql-scalars'
 
 const TaskType = new GraphQLObjectType({
   name: 'Task',
@@ -11,24 +12,26 @@ const TaskType = new GraphQLObjectType({
     id: {
       type: tql`ID!`,
     },
-    spoolName: {
-      type: tql`String!`,
-      resolve: source => source.spoolID,
-    },
     name: {
       type: tql`String!`,
     },
     currentLineNumber: {
-      type: tql`Int`,
+      type: tql`Int!`,
     },
+    totalLineNumbers: {
+      type: tql`Int!`,
+    },
+    precentComplete: {
+      type: tql`${PercentageScalarType}!`,
+    }
     createdAt: {
-      type: tql`String!`,
+      type: tql`${GraphQLDate}!`,
     },
     startedAt: {
-      type: tql`String`,
+      type: tql`${GraphQLDate}`,
     },
     stoppedAt: {
-      type: tql`String`,
+      type: tql`${GraphQLDate}`,
     },
     status: {
       type: tql`String!`,

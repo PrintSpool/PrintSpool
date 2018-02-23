@@ -1,7 +1,7 @@
 import tql from 'typiql'
 
-import subscriptionDefaults from './helpers/subscriptionDefaults'
-import HeaterType from '../types/heater_type.js'
+import subscriptionDefaults from '../../utils/subscriptionDefaults'
+import HeaterType from '../types/Heater.graphql.js'
 
 const heatersChangedSubscription = () => ({
   name: 'heatersChangedSubscription',

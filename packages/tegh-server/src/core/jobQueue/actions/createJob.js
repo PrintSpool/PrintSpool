@@ -4,7 +4,8 @@ import tmp from 'tmp-promise'
 import Promise from 'bluebird'
 import untildify from 'untildify'
 
-import TaskType from '../types/task_type'
+import Job from '../types/Job'
+import JobFile from '../types/JobFile'
 
 const fs = Promise.promisifyAll(_fs)
 const normalize = filePath => path.normalize(untildify(filePath))
@@ -61,17 +62,22 @@ const createJob = (args) => {
       await fs.writeFileAsync(filePath, args.file.content)
     }
 
+    const job = Job({ name })
+    const jobFile = JobFile({
+      name,
+      filePath,
+      isTempFile: args.file != null,
+      quantity: 1,
+    })
+
     const action = {
       type: CREATE_JOB
-      payload: File(
-        name,
-        files: [{
-          name,
-          filePath,
-          isTempFile: args.file != null,
-          quantity: 1,
-        }],
-      ),
+      payload: {
+        job,
+        jobFiles: {
+          [jobFile.id]: jobFile
+        }
+      }
     }
     store.dispatch(action)
   }

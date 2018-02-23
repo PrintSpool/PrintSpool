@@ -14,7 +14,9 @@ const spoolTaskMutation = () => ({
 
   resolve: actionResolver({
     actionCreator: spoolTask,
-    selector: (state, action) => state.spool.allTasks[action.payload.id],
+    selector: (state, action) => (
+      state.spool.allTasks[action.payload.id]
+    ),
   }),
 
   args: {

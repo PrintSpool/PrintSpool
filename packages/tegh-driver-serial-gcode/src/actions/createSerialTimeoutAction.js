@@ -1,7 +1,7 @@
-import { createDriverErrorAction } from 'tegh-server'
+import { driverError } from 'tegh-server'
 
 const createSerialTimeoutAction = () => (
-  createDriverErrorAction({
+  driverError({
     code: 'SERIAL_TIMEOUT',
     message: 'Timed out attempting to communicate over USB with the Printer',
   })

@@ -7,12 +7,16 @@ import {
 import tql from 'typiql'
 import snl from 'strip-newlines'
 
-import PrinterType from './printer_type.js'
-import TaskType from './task_type.js'
+import PrinterType from './core/printer/types/Printer.graphql.js'
+import TaskType from './core/spool/types/Task.graphql.js'
 
 const QueryRootType = new GraphQLObjectType({
   name: 'QueryRoot',
   fields: {
+    allPrinters: {
+      type: tql`[${PrinterType}!]!`,
+      resolve: (_source, _args, context) => [context.store.getState()],
+    },
     printer: {
       type: tql`${PrinterType}!`,
       args: {
@@ -28,8 +32,34 @@ const QueryRootType = new GraphQLObjectType({
         return state
       }
     },
-    task: {
-      type: tql`${TaskType}!`,
+
+    // task: {
+    //   type: tql`${TaskType}!`,
+    //   args: {
+    //     id: {
+    //       type: tql`ID!`,
+    //     },
+    //   },
+    //   resolve(_source, args, { store }) {
+    //     const state = store.getState()
+    //     const task = state.spool.allTasks.get(args.id)
+    //     if (task == null) {
+    //       throw new Error(`Task ID ${args.id} does not exist`)
+    //     }
+    //     return task
+    //   }
+    // },
+
+    jobQueue: {
+      type: tql`[${JobType}]!`,
+      resolve(_source, args, { store }) {
+        const { jobQueue } = store.getState()
+        const jobs = jobQueue.jobs.toJSON()
+        return jobs
+      }
+    },
+    job: {
+      type: tql`${JobType}!`,
       args: {
         id: {
           type: tql`ID!`,
@@ -37,17 +67,14 @@ const QueryRootType = new GraphQLObjectType({
       },
       resolve(_source, args, { store }) {
         const state = store.getState()
-        const task = state.spool.allTasks.get(args.id)
-        if (task == null) {
-          throw new Error(`Task ID ${args.id} does not exist`)
+        const job = state.jobQueue.jobs.get(args.id)
+        if (job == null) {
+          throw new Error(`Job ID ${args.id} does not exist`)
         }
-        return task
+        return job
       }
     },
-    allPrinters: {
-      type: tql`[${PrinterType}!]!`,
-      resolve: (_source, _args, context) => [context.store.getState()],
-    },
+
   },
 })
 

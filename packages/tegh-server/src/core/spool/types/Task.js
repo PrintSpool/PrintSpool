@@ -56,7 +56,7 @@ const Task = ({
     id: uuid(),
     createdAt: new Date().toISOString(),
     data: List(normalizeGCodeLines(data)),
-    status: 'queued',
+    status: 'spooled',
     priority,
     internal,
     name,

@@ -22,7 +22,6 @@ const JobFileRecord = Record({
 const JobFile = attrs => JobFileRecord({
   ...attrs,
   id: uuid(),
-  status: 'queued',
 })
 
 export default JobFile

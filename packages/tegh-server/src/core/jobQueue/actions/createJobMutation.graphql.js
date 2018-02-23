@@ -16,7 +16,9 @@ const createJobMutation = () => ({
 
   resolve: actionResolver({
     actionCreator: createJob,
-    selector: (state, action) => state.jobQueue.jobs[action.payload.id],
+    selector: (state, action) => (
+      state.jobQueue.jobs[action.payload.id]
+    ),
   }),
 
   args: {

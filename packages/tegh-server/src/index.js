@@ -5,11 +5,11 @@ import path from 'path'
 import yaml from 'js-yaml'
 import _ from 'lodash'
 
-import { wrapInCrashReporting } from './helpers/crash_report'
+import { wrapInCrashReporting } from './crashReport'
 import teghSchema from './graphql/schema'
-import reduxPubSub from './graphql/redux_pub_sub'
+import reduxPubSub from './graphql/reduxPubSub'
 import createTeghStore from './createTeghStore'
-import httpServer from './server/http_server'
+import httpServer from './server/httpServer'
 
 export * from './actions/'
 

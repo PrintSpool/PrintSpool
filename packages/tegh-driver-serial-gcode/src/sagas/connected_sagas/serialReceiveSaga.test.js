@@ -1,5 +1,5 @@
 // @flow
-import { createDriverErrorAction } from 'tegh-server'
+import { driverError } from 'tegh-server'
 import { utils as sagaUtils } from 'redux-saga'
 const { SAGA_ACTION } = sagaUtils
 
@@ -82,7 +82,7 @@ describe('SERIAL_RECEIVE error', () => {
       const raw = 'Error:PROBE FAIL CLEAN NOZZLE'
       const serialReceiveError = serialReceive('error', { raw })
       const firmwareError = {
-        ...createDriverErrorAction({
+        ...driverError({
           code: 'FIRMWARE_ERROR',
           message: raw,
         }),

@@ -4,6 +4,8 @@ import {
   GraphQLObjectType
 } from 'graphql'
 
+import { getJobFilesFor, getJobQuantityCompleted } from '../reducers/jobQueueReducer'
+
 const JobGraphQLType = new GraphQLObjectType({
   name: 'Job',
   fields: () => ({
@@ -13,9 +15,57 @@ const JobGraphQLType = new GraphQLObjectType({
     name: {
       type: tql`String!`,
     },
-    files: {
-      type: tql`[${JobFileGraphQLType}!]!`,
+    quantity: {
+      type: tql`Int!`,
     },
+
+    files: {
+      type: tql`[${JobFileGraphQLType}]!`,
+      resolve(source, args, { store }) {
+        const state = store.getState()
+        const jobID = source.id
+        return getJobFilesFor(state)({ jobID }).toJSON()
+      }
+    },
+
+    tasks: {
+      type tql`[${TaskType}]!`
+      args: {
+        excludeCompletedTasks: {
+          type: tql`Boolean`,
+          default: false,
+        }
+      }
+      resolve(source, args, { store }) {
+        const state = store.getState()
+        return getTasksFor(state)({
+          taskableID: source.id,
+          excludeCompletedTasks,
+        })
+      }
+    }
+    tasksCompleted: {
+      type: tql`Int!`,
+      resolve(source, args, { store }) {
+        const state = store.getState()
+        return getTasksCompleted(state)({ taskableID: source.id })
+      }
+    },
+    totalTasks: {
+      type: tql`Int!`,
+      resolve(source, args, { store }) {
+        const state = store.getState()
+        return getJobTotalTasks(state)({ jobID: source.id })
+      }
+    },
+    status: {
+      type: tql`${JobStatusGraphQLEnum}!`,
+      resolve(source, args, { store }) {
+        const state = store.getState()
+        return getJobStatus(state)({ jobID: source.id })
+      }
+    },
+
     createdAt: {
       type: tql`String!`,
     },
@@ -25,9 +75,6 @@ const JobGraphQLType = new GraphQLObjectType({
     stoppedAt: {
       type: tql`String!`,
     },
-    // status: {
-    //   type: tql`${JobStatusGraphQLEnum}!`,
-    // },
   })
 })
 
