@@ -16,22 +16,6 @@ import {
   startTask,
 } from '../actions/taskActions'
 
-/* selectors */
-export const isIdle = state => (
-  state.allTasks.every(task => task.jobID == null || task.status !== 'printing')
-)
-
-export const getTasksFor = state => ({ taskableID }) => {
-  return state.allTasks.filter(task => (
-    task.jobID === taskableID || task.jobFileID === taskableID
-  ))
-}
-
-export const getTasksCompleted = state => ({ taskableID }) => {
-  const tasks = getTasksFor(state)({ taskableID })
-  return tasks.filter(task => task.status === 'done').size
-}
-
 const taskMap = ReduxNestedMap({
   singularReducer: taskReducer,
   keyPath: ['allTasks']
@@ -59,25 +43,11 @@ const spoolReducer = (state = initialState, action) => {
       return nextState
         .set('priorityQueues', initialState.priorityQueues)
     }
-    case CREATE_JOB: {
-      let nextState = state
-      const newTasks = action.tasks.forEach(task => {
-        /*
-         * use the task reducer to initialize the state of each task in the job
-         */
-        const itemAction = createTask({ task })
-        nextState = taskMap.createOne(state, itemAction)
-      })
-      return nextState
-    }
     case CANCEL_JOB:
     case DELETE_JOB: {
       return taskMap.updateEach(state, action)
     }
     case CREATE_TASK: {
-      /*
-       * use the task reducer to initialize the task state
-       */
        return taskMap.createOne(state, action)
     }
     case DELETE_TASK: {

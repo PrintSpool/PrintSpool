@@ -14,6 +14,7 @@ export const spoolJobFile = ({ JobFileID }) => {
     const action = spoolTask({
       internal: false,
       priority: 'normal',
+      jobID: jobFile.jobID,
       jobFileID: jobFile.id,
       file: {
         name: jobFile.name,

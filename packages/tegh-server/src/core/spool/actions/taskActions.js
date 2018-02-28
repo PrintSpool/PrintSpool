@@ -1,6 +1,5 @@
 import Task from '../types/Task'
 
-export const SPOOL_TASK = 'tegh-server/spool/SPOOL_TASK'
 export const DESPOOL_TASK = 'tegh-server/spool/DESPOOL_TASK'
 export const CREATE_TASK = 'tegh-server/spool/CREATE_TASK'
 export const DELETE_TASK = 'tegh-server/spool/DELETE_TASK'

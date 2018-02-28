@@ -13,7 +13,7 @@ import {
 } from '../actions/taskActions'
 import { isSpooled } from '../types/PriorityEnum'
 
-const spoolReducer = (state, action) => {
+const taskReducer = (state, action) => {
   switch (action.type) {
     /* Spool reset actions */
     case 'PRINTER_READY':
@@ -75,8 +75,8 @@ const spoolReducer = (state, action) => {
          */
         return state.update('currentLineNumber', i => i + 1)
       }
-      if (state.internal) {
-        /* Delete internal tasks after they are completed */
+      if (state.jobID == null) {
+        /* Delete tasks that do not belong to a job after they are completed */
         return DELETE_ITEM
       } else {
         /* mark public tasks as done after they are completed */
@@ -97,4 +97,4 @@ const spoolReducer = (state, action) => {
   }
 }
 
-export default spoolReducer
+export default taskReducer

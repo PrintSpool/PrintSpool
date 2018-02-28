@@ -6,7 +6,7 @@ import {
 import actionResolver from '../../util/actionResolver'
 import spoolJobFile from './spoolJobFile'
 
-const spoolJobFileMutation = () => ({
+const spoolJobFileGraphQL = () => ({
   type: tql`${JobFileType}!`,
   description: snl`
     Starts a print by spooling a task to print the job file.
@@ -29,4 +29,4 @@ const spoolJobFileMutation = () => ({
   },
 })
 
-export default spoolJobFileMutation
+export default spoolJobFileGraphQL

@@ -6,7 +6,7 @@ import {
 
 import { getTasksCompleted } from '../../spool/reducers/spoolReducer'
 
-const JobFileGraphQLType = new GraphQLObjectType({
+const JobFileGraphQL = new GraphQLObjectType({
   name: 'JobFile',
   fields: () => ({
     id: {
@@ -58,4 +58,4 @@ const JobFileGraphQLType = new GraphQLObjectType({
   })
 })
 
-export default JobFileGraphQLType
+export default JobFileGraphQL

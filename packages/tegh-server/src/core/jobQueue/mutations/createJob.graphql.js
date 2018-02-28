@@ -7,7 +7,7 @@ import actionResolver from '../../util/actionResolver'
 import FileInputType from '../../util/FileInput.graphql.js'
 import createJob from './createJob'
 
-const createJobMutation = () => ({
+const createJobGraphQL = () => ({
   type: tql`${TaskType}!`,
   description: snl`
    a job can be created from either a local file path on the server or the
@@ -34,4 +34,4 @@ const createJobMutation = () => ({
   },
 })
 
-export default createJobMutation
+export default createJobGraphQL

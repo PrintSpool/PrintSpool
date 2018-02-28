@@ -9,7 +9,7 @@ import spoolTask from './spoolTask'
 // spoolTask(printerID: $printerID, file: { name: 'test.ngc', content: 'g1 x10\n'} } )
 // spoolTask(printerID: $printerID, id: 'a123b-ccc-1234bb' } )
 
-const spoolTaskMutation = () => ({
+const spoolTaskGraphQL = () => ({
   type: tql`${TaskType}!`,
 
   resolve: actionResolver({
@@ -45,4 +45,4 @@ const spoolTaskMutation = () => ({
   },
 })
 
-export default spoolTaskMutation
+export default spoolTaskGraphQL

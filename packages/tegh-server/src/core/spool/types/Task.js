@@ -10,12 +10,20 @@ import { PriorityOrder } from './PriorityEnum'
 
 export type TaskT = RecordOf<{
   id: string,
+  jobID: ?string,
+  jobFileID: ?string,
+
   priority: PriorityEnumT,
   internal: boolean,
   data: List<string>,
-  jobFileID: ?string,
   name: ?string,
+
+  /*
+   * The line number that will be executed by the printer by a saga after the
+   * reducers run.
+   */
   currentLineNumber: ?number,
+
   createdAt: ?number,
   startedAt: ?number,
   stoppedAt: ?number,
@@ -40,6 +48,7 @@ const Task = ({
   priority,
   internal,
   name,
+  jobID,
   jobFileID,
   data,
 }) => {
@@ -60,6 +69,7 @@ const Task = ({
     priority,
     internal,
     name,
+    jobID,
     jobFileID,
   })
 }

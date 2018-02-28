@@ -1,7 +1,7 @@
+export const SPOOL_TASK = 'tegh-server/spool/SPOOL_TASK'
+
 /*
- * One of `id`, `file` or `macro` MUST be not null:
- *
- * If `id` is not null then `spoolTask` spools the task with the given id.
+ * One of file` or `macro` MUST be not null:
  *
  * If `file` is not null then `spoolTask` creates a new Task from the file and
  * spools it.
@@ -12,8 +12,10 @@
  * priority?: TaskPriority [default: macro.priority || 'normal'],
  * file?: { name: String, content: String }
  * macro?: { name: String, args: JSON }
+ * jobID?: ID
+ * jobFileID?: ID
  */
-const spoolTask = ({ internal, priority, file, macro }) => {
+const spoolTask = ({ internal, priority, jobID, jobFileID, file, macro }) => {
   return (dispatch, getState) => {
     const variaticArgs = [id, file, macro]
     const nullArgCount = variaticArgs.filter(arg => arg == null).length
@@ -41,6 +43,8 @@ const spoolTask = ({ internal, priority, file, macro }) => {
         name: macroDefinition.name,
         internal,
         priority: priority || macroDefinition.priority,
+        jobID,
+        jobFileID,
         data: gcode,
       })
     }
@@ -48,9 +52,11 @@ const spoolTask = ({ internal, priority, file, macro }) => {
       const { name, content } = file
 
       createTaskMicroAction = createTask({
+        name,
         internal,
         priority,
-        name,
+        jobID,
+        jobFileID,
         data: [content],
       })
     }

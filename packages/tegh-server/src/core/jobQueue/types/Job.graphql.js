@@ -6,7 +6,7 @@ import {
 
 import { getJobFilesFor, getJobQuantityCompleted } from '../reducers/jobQueueReducer'
 
-const JobGraphQLType = new GraphQLObjectType({
+const JobGraphQL = new GraphQLObjectType({
   name: 'Job',
   fields: () => ({
     id: {
@@ -78,4 +78,4 @@ const JobGraphQLType = new GraphQLObjectType({
   })
 })
 
-export default JobGraphQLType
+export default JobGraphQL
