@@ -73,4 +73,4 @@ const spoolTask = ({ internal, priority, jobID, jobFileID, file, macro }) => {
   }
 }
 
-export spoolTask
+export default spoolTask

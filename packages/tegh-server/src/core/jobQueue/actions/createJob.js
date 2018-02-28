@@ -13,7 +13,7 @@ const normalize = filePath => path.normalize(untildify(filePath))
 export const CREATE_JOB = 'tegh/jobQueue/CREATE_JOB'
 
 const createJob = (args) => {
-  return async function(dispatch, getState) => {
+  return async (dispatch, getState) => {
     const variaticArgs = ['file', 'localPath']
     const nullArgCount = variaticArgs.filter(k => args[k] == null).length
     if (nullArgCount === variaticArgs.length) {
@@ -71,14 +71,16 @@ const createJob = (args) => {
     })
 
     const action = {
-      type: CREATE_JOB
+      type: CREATE_JOB,
       payload: {
         job,
         jobFiles: {
-          [jobFile.id]: jobFile
-        }
-      }
+          [jobFile.id]: jobFile,
+        },
+      },
     }
     store.dispatch(action)
   }
 }
+
+export default createJob

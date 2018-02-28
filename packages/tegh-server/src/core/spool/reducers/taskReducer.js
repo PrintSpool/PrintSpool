@@ -1,24 +1,27 @@
 import { merge, Record, List, Map } from 'immutable'
-import { DELETE_ITEM } from '../util/ReduxNestedMap'
-import {
-  CANCEL_JOB,
-  DELETE_JOB,
-} from '../../jobQueue/actions/jobActions'
-import {
-  CREATE_TASK,
-  SPOOL_TASK,
-  DESPOOL_TASK,
-  START_TASK,
-  DELETE_TASK,
-} from '../actions/taskActions'
+
+import { DELETE_ITEM } from '../../util/ReduxNestedMap'
 import { isSpooled } from '../types/PriorityEnum'
+
+/* printer actions */
+import { PRINTER_READY } from '../../printer/actions/printerReady'
+import { ESTOP } from '../../printer/actions/estop'
+import { DRIVER_ERROR } from '../../printer/actions/driverError'
+/* job actions */
+import { CANCEL_JOB } from '../../jobQueue/actions/cancelJob'
+import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
+/* task actions */
+import { SPOOL_TASK } from '../actions/spoolTask'
+import { DESPOOL_TASK } from '../actions/despoolTask'
+import { CREATE_TASK } from '../actions/createTask'
+import { START_TASK } from '../actions/startTask'
 
 const taskReducer = (state, action) => {
   switch (action.type) {
     /* Spool reset actions */
-    case 'PRINTER_READY':
-    case 'ESTOP':
-    case 'DRIVER_ERROR': {
+    case PRINTER_READY:
+    case ESTOP:
+    case DRIVER_ERROR: {
       if (state.internal) return DELETE_ITEM
 
       if (isSpooled(state.status)) {
@@ -43,9 +46,9 @@ const taskReducer = (state, action) => {
     case CREATE_TASK: {
       return action.task
     }
-    case DELETE_TASK: {
-      return DELETE_ITEM
-    }
+    // case DELETE_TASK: {
+    //   return DELETE_ITEM
+    // }
     case SPOOL_TASK: {
       const { task } = action.payload
       if (!priorityOrder.includes(task.priority)) {

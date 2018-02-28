@@ -1,33 +1,35 @@
 import { merge, Record, List, Map } from 'immutable'
-import ReduxNestedMap from '../util/ReduxNestedMap'
+
+import ReduxNestedMap from '../../util/ReduxNestedMap'
 import taskReducer from './taskReducer'
-import { priorityOrder } from '../types/Priority'
-import {
-  CREATE_JOB,
-  CANCEL_JOB,
-  DELETE_JOB,
-} from '../../jobQueue/actions/JobActions'
-import {
-  CREATE_TASK,
-  SPOOL_TASK,
-  DESPOOL_TASK,
-  DELETE_TASK
-  createTask,
-  startTask,
-} from '../actions/taskActions'
+import { priorityOrder } from '../types/PriorityEnum'
+
+/* printer actions */
+import { PRINTER_READY } from '../../printer/actions/printerReady'
+import { ESTOP } from '../../printer/actions/estop'
+import { DRIVER_ERROR } from '../../printer/actions/driverError'
+/* job actions */
+import { CREATE_JOB } from '../../jobQueue/actions/createJob'
+import { CANCEL_JOB } from '../../jobQueue/actions/cancelJob'
+import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
+/* task actions */
+import { SPOOL_TASK } from '../actions/spoolTask'
+import { DESPOOL_TASK } from '../actions/despoolTask'
+import createTask from '../actions/createTask'
+import startTask from '../actions/startTask'
 
 const taskMap = ReduxNestedMap({
   singularReducer: taskReducer,
-  keyPath: ['allTasks']
+  keyPath: ['tasks']
 })
 
-const initialState = Record({
+export const initialState = Record({
   priorityQueues: Record({
     emergency: List(),
     preemptive: List(),
     normal: List(),
   })(),
-  allTasks: Map(),
+  tasks: Map(),
   currentTaskID: null,
   sendSpooledLineToPrinter: false,
 })()
@@ -35,9 +37,9 @@ const initialState = Record({
 const spoolReducer = (state = initialState, action) => {
   switch (action.type) {
     /* Spool reset actions */
-    case 'PRINTER_READY':
-    case 'ESTOP':
-    case 'DRIVER_ERROR': {
+    case PRINTER_READY:
+    case ESTOP:
+    case DRIVER_ERROR: {
       const nextState = taskMap.updateEach(state, action)
 
       return nextState
@@ -47,12 +49,9 @@ const spoolReducer = (state = initialState, action) => {
     case DELETE_JOB: {
       return taskMap.updateEach(state, action)
     }
-    case CREATE_TASK: {
-       return taskMap.createOne(state, action)
-    }
-    case DELETE_TASK: {
-      return taskMap.updateOne(state, action, action.payload.id)
-    }
+    // case DELETE_TASK: {
+    //   return taskMap.updateOne(state, action, action.payload.id)
+    // }
     case SPOOL_TASK: {
       const { id, createTaskMicroAction } = action.payload
       let nextState = state
@@ -62,7 +61,7 @@ const spoolReducer = (state = initialState, action) => {
         nextState = taskMap.createOne(nextState, createTaskMicroAction)
       }
 
-      const task = nextState.allTasks.get(id)
+      const task = nextState.tasks.get(id)
       const taskQueue = ['priorityQueues', task.priority]
       const shouldDespool = state.currentTaskID == null
 

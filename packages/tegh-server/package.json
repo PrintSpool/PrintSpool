@@ -27,8 +27,8 @@
   "author": "Rob Gilson",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@babel/core": "7.0.0-beta.37",
     "@babel/cli": "^7.0.0-beta.37",
+    "@babel/core": "7.0.0-beta.37",
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.37",
     "@babel/preset-env": "^7.0.0-beta.37",
     "@babel/preset-flow": "^7.0.0-beta.37",
@@ -67,6 +67,7 @@
     "redux-watch": "^1.1.1",
     "strip-newlines": "^1.0.1",
     "subscriptions-transport-ws": "d1plo1d/subscriptions-transport-ws",
+    "tmp-promise": "^1.0.4",
     "typiql": "^0.3.0",
     "untildify": "^3.0.2",
     "uuid": "^3.1.0",

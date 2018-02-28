@@ -1,4 +1,4 @@
-export const ESTOP = 'tegh/driver/ESTOP'
+export const ESTOP = 'tegh/printer/ESTOP'
 
 const estop = () => {
   return {

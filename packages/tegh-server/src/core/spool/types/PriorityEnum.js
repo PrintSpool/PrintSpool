@@ -1,3 +1,5 @@
+import { List } from 'immutable'
+
 export type PriorityEnumT =
   | 'emergency'
   | 'preemptive'

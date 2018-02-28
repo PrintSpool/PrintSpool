@@ -1,11 +1,11 @@
-import type { RecordOf, List, Set } from 'immutable'
+import type { RecordOf, List as ListT } from 'immutable'
 import type { PriorityEnumT } from './PriorityEnum'
 import type { TaskStatusEnumT } from './TaskStatusEnum'
 
 import uuid from 'uuid/v4'
 import { Record, List } from 'immutable'
 
-import normalizeGCodeLines from '../../util/normalizegCodeLines'
+import normalizeGCodeLines from '../../util/normalizeGCodeLines'
 import { PriorityOrder } from './PriorityEnum'
 
 export type TaskT = RecordOf<{
@@ -15,7 +15,7 @@ export type TaskT = RecordOf<{
 
   priority: PriorityEnumT,
   internal: boolean,
-  data: List<string>,
+  data: ListT<string>,
   name: ?string,
 
   /*
