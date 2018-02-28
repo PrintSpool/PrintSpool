@@ -1,5 +1,4 @@
-import spoolReducer, { initialState } from './spoolReducer'
-import taskReducer from './taskReducer'
+// import spoolReducer, { initialState } from './spoolReducer'
 
 /* printer actions */
 import { PRINTER_READY } from '../../printer/actions/printerReady'
@@ -13,9 +12,23 @@ import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 import { SPOOL_TASK } from '../actions/spoolTask'
 import { DESPOOL_TASK } from '../actions/despoolTask'
 
-jest.mock('./taskReducer')
+let taskReducer, spoolReducer, initialState
 
 describe('spoolReducer', () => {
+  beforeEach(() => {
+    jest.resetModules()
+    jest.doMock('./taskReducer', () => {
+      return jest.fn((state, action) => [state, action])
+    })
+    const m = require('./spoolReducer')
+    spoolReducer = m.default
+    initialState = m.initialState
+  })
+
+  afterEach(() => {
+    jest.unmock('./taskReducer')
+  })
+
   const spoolResetActions = [
     PRINTER_READY,
     ESTOP,
@@ -38,7 +51,6 @@ describe('spoolReducer', () => {
   const passThroughActions = [
     ...spoolResetActions,
     CANCEL_JOB,
-    CREATE_JOB,
   ]
 
   passThroughActions.forEach(type => {
@@ -51,17 +63,20 @@ describe('spoolReducer', () => {
         })
         const action = { type }
 
-        spoolReducer(state, action)
+        const result = spoolReducer(state, action)
 
-        expect(dependency).toHaveBeenCalledTimes(3)
-        expect(dependency).toHaveBeenCalledWith(state.tasks[1], action)
+        expect(result.tasks.toJS()).toEqual({
+          a: ['A', action],
+          b: ['B', action],
+          c: ['C', action],
+        })
       })
     })
   })
 
-  // describe(SPOOL_TASK, () => {
-  //
-  // })
+  describe(SPOOL_TASK, () => {
+
+  })
   //
   // describe(DESPOOL_TASK, () => {
   //

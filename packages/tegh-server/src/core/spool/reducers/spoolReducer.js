@@ -56,10 +56,8 @@ const spoolReducer = (state = initialState, action) => {
       const { id, createTaskMicroAction } = action.payload
       let nextState = state
 
-      if (createTaskMicroAction) {
-        /* run the createTask micro action first if it is present */
-        nextState = taskMap.createOne(nextState, createTaskMicroAction)
-      }
+      /* create the task first */
+      nextState = taskMap.createOne(nextState, createTaskMicroAction)
 
       const task = nextState.tasks.get(id)
       const taskQueue = ['priorityQueues', task.priority]
