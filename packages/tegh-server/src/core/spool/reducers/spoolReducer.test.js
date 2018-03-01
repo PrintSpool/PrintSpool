@@ -1,5 +1,9 @@
 import { List, Map } from 'immutable'
 import Task from '../types/Task'
+import {
+  PRINTING,
+  DONE,
+} from '../types/TaskStatusEnum'
 
 /* printer actions */
 import { PRINTER_READY } from '../../printer/actions/printerReady'
@@ -68,7 +72,6 @@ describe('spoolReducer', () => {
         const state = initialState.mergeIn(['tasks'], {
           a: 'A',
           b: 'B',
-          c: 'C',
         })
         const action = { type }
 
@@ -77,7 +80,6 @@ describe('spoolReducer', () => {
         expect(result.tasks.toJS()).toEqual({
           a: { state: 'A', action },
           b: { state: 'B', action },
-          c: { state: 'C', action },
         })
       })
     })
@@ -182,7 +184,7 @@ describe('spoolReducer', () => {
               priority: 'emergency',
               internal: false,
               data: ['g1 x10'],
-              status: 'printing',
+              status: PRINTING,
             }))
 
           const result = spoolReducer(state, action)
@@ -202,7 +204,7 @@ describe('spoolReducer', () => {
               priority: 'emergency',
               internal: false,
               data: ['g1 x10'],
-              status: 'done',
+              status: DONE,
             }))
 
           const result = spoolReducer(state, action)

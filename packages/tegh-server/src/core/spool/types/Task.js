@@ -7,6 +7,7 @@ import { Record, List } from 'immutable'
 
 import normalizeGCodeLines from '../../util/normalizeGCodeLines'
 import { priorityOrder } from './PriorityEnum'
+import { SPOOLED } from './TaskStatusEnum'
 
 export type TaskT = RecordOf<{
   id: string,
@@ -35,6 +36,7 @@ const TaskRecord = Record({
   priority: null,
   internal: null,
   name: null,
+  jobID: null,
   jobFileID: null,
   data: null,
   status: null,
@@ -66,7 +68,7 @@ const Task = ({
     id: uuid(),
     createdAt: new Date().toISOString(),
     data: List(normalizeGCodeLines(data)),
-    status: status || 'spooled',
+    status: status || SPOOLED,
     priority,
     internal,
     name,

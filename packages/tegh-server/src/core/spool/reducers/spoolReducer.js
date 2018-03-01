@@ -3,6 +3,7 @@ import { merge, Record, List, Map } from 'immutable'
 import ReduxNestedMap from '../../util/ReduxNestedMap'
 import taskReducer from './taskReducer'
 import { priorityOrder } from '../types/PriorityEnum'
+import { PRINTING } from '../types/TaskStatusEnum'
 
 /* printer actions */
 import { PRINTER_READY } from '../../printer/actions/printerReady'
@@ -93,7 +94,7 @@ const spoolReducer = (state = initialState, action) => {
         nextState = taskMap.updateOne(state, action, currentTaskID)
       }
       const currentTask = nextState.tasks.get(currentTaskID)
-      if (currentTask == null || currentTask.status != 'printing') {
+      if (currentTask == null || currentTask.status != PRINTING) {
         /*
          * if the current task is done then despool the next task if there is
          * anything to despool.
