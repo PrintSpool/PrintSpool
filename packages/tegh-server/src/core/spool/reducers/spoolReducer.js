@@ -14,7 +14,7 @@ import { CANCEL_JOB } from '../../jobQueue/actions/cancelJob'
 import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 /* task actions */
 import { SPOOL_TASK } from '../actions/spoolTask'
-import { DESPOOL_TASK } from '../actions/despoolTask'
+import despoolTask, { DESPOOL_TASK } from '../actions/despoolTask'
 import createTask from '../actions/createTask'
 import startTask from '../actions/startTask'
 
@@ -53,11 +53,13 @@ const spoolReducer = (state = initialState, action) => {
     //   return taskMap.updateOne(state, action, action.payload.id)
     // }
     case SPOOL_TASK: {
-      const { id, createTaskMicroAction } = action.payload
+      const { payload } = action
+      const { id } = payload.task
       let nextState = state
 
       /* create the task first */
-      nextState = taskMap.createOne(nextState, createTaskMicroAction)
+      const createAction = createTask({ task: payload.task })
+      nextState = taskMap.createOne(nextState, createAction)
 
       const task = nextState.tasks.get(id)
       const taskQueue = ['priorityQueues', task.priority]
@@ -90,22 +92,30 @@ const spoolReducer = (state = initialState, action) => {
          */
         nextState = taskMap.updateOne(state, action, currentTaskID)
       }
-      const priority = priorityOrder.find(priority =>
-        priorityQueues[priority].size > 0
-      )
-      if (priority == null) {
-        nextState = nextState.set('currentTaskID', null)
-        return nextState
-      }
-      const nextTaskID = state.priorityQueues[priority].first()
-      /*
-       * start the task via the taskReducer
-       */
-      nextState = taskMap.updateOne(nextState, startTask(), nextTaskID)
+      const currentTask = nextState.tasks.get(currentTaskID)
+      if (currentTask == null || currentTask.status != 'printing') {
+        /*
+         * if the current task is done then despool the next task if there is
+         * anything to despool.
+         */
+        const priority = priorityOrder.find(priority =>
+          priorityQueues[priority].size > 0
+        )
+        if (priority == null) {
+          nextState = nextState.set('currentTaskID', null)
+        } else {
+          const nextTaskID = state.priorityQueues[priority].first()
+          /*
+           * start the task via the taskReducer
+           */
+          nextState = taskMap.updateOne(nextState, startTask(), nextTaskID)
 
+          nextState = nextState
+            .set('currentTaskID', nextTaskID)
+            .updateIn(['priorityQueues', priority], list => list.shift())
+        }
+      }
       return nextState
-        .set('currentTaskID', nextTaskID)
-        .updateIn(['priorityQueues', priority], list => list.shift())
     }
     default:
       return state

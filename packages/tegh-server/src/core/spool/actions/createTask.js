@@ -1,5 +1,3 @@
-import Task from '../types/Task'
-
 export const CREATE_TASK = 'tegh-server/spool/CREATE_TASK'
 
 /*
@@ -10,11 +8,11 @@ export const CREATE_TASK = 'tegh-server/spool/CREATE_TASK'
  *
  * task: TaskAttributes
  */
-const createTask = (taskAttributes) => {
+const createTask = ({ task }) => {
   return {
     type: CREATE_TASK,
     payload: {
-      task: Task(taskAttributes),
+      task,
     },
   }
 }

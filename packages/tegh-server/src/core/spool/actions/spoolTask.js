@@ -1,3 +1,5 @@
+import Task from '../types/Task'
+
 export const SPOOL_TASK = 'tegh-server/spool/SPOOL_TASK'
 
 /*
@@ -15,9 +17,9 @@ export const SPOOL_TASK = 'tegh-server/spool/SPOOL_TASK'
  * jobID?: ID
  * jobFileID?: ID
  */
-const spoolTask = ({ internal, priority, jobID, jobFileID, file, macro }) => {
+const spoolTask = ({ internal = false, priority, jobID, jobFileID, file, macro }) => {
   return (dispatch, getState) => {
-    const variaticArgs = [id, file, macro]
+    const variaticArgs = [file, macro]
     const nullArgCount = variaticArgs.filter(arg => arg == null).length
     if (nullArgCount === variaticArgs.length) {
       throw new Error('id, file and macro cannot all be null')
@@ -26,7 +28,7 @@ const spoolTask = ({ internal, priority, jobID, jobFileID, file, macro }) => {
       throw new Error('only one of id, file or macro should be set')
     }
 
-    let createTaskMicroAction, payload
+    let taskAttributes
 
     if (macro != null) {
       const state = getState()
@@ -39,36 +41,33 @@ const spoolTask = ({ internal, priority, jobID, jobFileID, file, macro }) => {
       // if (state.driver.status !== 'ready' && priority !== 'emergency') {
       //   throw new Error('Machine is not ready')
       // }
-      createTaskMicroAction = createTask({
+      taskAttributes = {
         name: macroDefinition.name,
         internal,
-        priority: priority || macroDefinition.priority,
+        priority: priority || macroDefinition.priority || 'normal',
         jobID,
         jobFileID,
         data: gcode,
-      })
+      }
     }
     if(file != null) {
       const { name, content } = file
 
-      createTaskMicroAction = createTask({
+      taskAttributes = {
         name,
         internal,
-        priority,
+        priority: priority || 'normal',
         jobID,
         jobFileID,
         data: [content],
-      })
-    }
-
-    payload = {
-      id: createTaskMicroAction.payload.task.id,
-      createTaskMicroAction,
+      }
     }
 
     return dispatch({
       type: SPOOL_TASK,
-      payload,
+      payload: {
+        task: Task(taskAttributes),
+      },
     })
   }
 }

@@ -6,7 +6,7 @@ import uuid from 'uuid/v4'
 import { Record, List } from 'immutable'
 
 import normalizeGCodeLines from '../../util/normalizeGCodeLines'
-import { PriorityOrder } from './PriorityEnum'
+import { priorityOrder } from './PriorityEnum'
 
 export type TaskT = RecordOf<{
   id: string,
@@ -58,10 +58,10 @@ const Task = ({
   if (typeof internal !== 'boolean') {
     throw new Error(`data must be a boolean`)
   }
-  if (!PriorityOrder.includes(priority)) {
+  if (!priorityOrder.includes(priority)) {
     throw new Error(`invalid priority`)
   }
-  TaskRecord({
+  return TaskRecord({
     id: uuid(),
     createdAt: new Date().toISOString(),
     data: List(normalizeGCodeLines(data)),
