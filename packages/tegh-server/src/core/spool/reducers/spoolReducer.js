@@ -17,6 +17,7 @@ import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 import { SPOOL_TASK } from '../actions/spoolTask'
 import despoolTask, { DESPOOL_TASK } from '../actions/despoolTask'
 import createTask from '../actions/createTask'
+import { DELETE_TASK } from '../actions/deleteTask'
 import startTask from '../actions/startTask'
 
 const taskMap = ReduxNestedMap({
@@ -50,9 +51,9 @@ const spoolReducer = (state = initialState, action) => {
     case DELETE_JOB: {
       return taskMap.updateEach(state, action)
     }
-    // case DELETE_TASK: {
-    //   return taskMap.updateOne(state, action, action.payload.id)
-    // }
+    case DELETE_TASK: {
+      return taskMap.updateOne(state, action, action.payload.id)
+    }
     case SPOOL_TASK: {
       const { payload } = action
       const { id } = payload.task
