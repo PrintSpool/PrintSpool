@@ -1,3 +1,4 @@
+import { List, Map } from 'immutable'
 import Task from '../types/Task'
 
 /* printer actions */
@@ -12,6 +13,7 @@ import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 import { SPOOL_TASK } from '../actions/spoolTask'
 import { CREATE_TASK } from '../actions/createTask'
 import { DESPOOL_TASK } from '../actions/despoolTask'
+import { START_TASK } from '../actions/startTask'
 
 let taskReducer, spoolReducer, initialState
 
@@ -60,7 +62,7 @@ describe('spoolReducer', () => {
 
   passThroughActions.forEach(type => {
     describe(type, () => {
-      mockTaskReducerWith((state, action) => [state, action])
+      mockTaskReducerWith((state, action) => ({ state, action }))
 
       it('passes through the action', () => {
         const state = initialState.mergeIn(['tasks'], {
@@ -73,9 +75,9 @@ describe('spoolReducer', () => {
         const result = spoolReducer(state, action)
 
         expect(result.tasks.toJS()).toEqual({
-          a: ['A', action],
-          b: ['B', action],
-          c: ['C', action],
+          a: { state: 'A', action },
+          b: { state: 'B', action },
+          c: { state: 'C', action },
         })
       })
     })
@@ -125,32 +127,90 @@ describe('spoolReducer', () => {
       })
     })
   })
-//
-//   describe(DESPOOL_TASK, () => {
-//     describe('if there is not a currentTask', () => {
-//       it('despools the top priority task', () => {
-//
-//       })
-//
-//       describe('and there is nothing in the queue', () => {
-//         it('sets the currentTask to null', () => {
-//
-//         })
-//       })
-//     })
-//
-//     describe('if there is a currentTask', () => {
-//       describe('with lines left', () => {
-//         it('despools the task via the taskReducer', () => {
-//
-//         })
-//       })
-//
-//       describe('with no lines left', () => {
-//         it('finishes the task and then despools the next task', () => {
-//
-//         })
-//       })
-//     })
-//   })
+
+  describe(DESPOOL_TASK, () => {
+    const action = {
+      type: DESPOOL_TASK,
+    }
+
+    mockTaskReducerWith((state, action) => {
+      return {
+        ...(state ? state.toJS() : {}),
+        action,
+      }
+    })
+
+    describe('if there is not a currentTask', () => {
+      it('starts the top priority task', () => {
+        const state = initialState
+          .setIn(['priorityQueues', 'normal'], List([
+            'normal_1',
+          ]))
+          .setIn(['priorityQueues', 'emergency'], List([
+            'emergency_1',
+            'emergency_2',
+          ]))
+
+        const result = spoolReducer(state, action)
+
+        expect(result.currentTaskID).toEqual('emergency_1')
+        expect(result.tasks.get('emergency_1').action.type).toEqual(START_TASK)
+        expect(result.priorityQueues.emergency.toJS()).toEqual([
+          'emergency_2'
+        ])
+      })
+
+      describe('and there is nothing in the queue', () => {
+        it('does nothing', () => {
+          const state = initialState
+
+          const result = spoolReducer(state, action)
+
+          expect(result.currentTaskID).toEqual(null)
+        })
+      })
+    })
+
+    describe('if there is a currentTask', () => {
+      describe('with lines left', () => {
+        it('despools the task via the taskReducer', () => {
+          const taskID = 'A'
+          const state = initialState
+            .set('currentTaskID', taskID)
+            .setIn(['tasks', taskID], Task({
+              name: 'test.ngc',
+              priority: 'emergency',
+              internal: false,
+              data: ['g1 x10'],
+              status: 'printing',
+            }))
+
+          const result = spoolReducer(state, action)
+
+          expect(result.currentTaskID).toEqual(taskID)
+          expect(result.tasks.get(taskID).action.type).toEqual(DESPOOL_TASK)
+        })
+      })
+
+      describe('with no lines left', () => {
+        it('finishes the task and then despools the next task', () => {
+          const taskID = 'A'
+          const state = initialState
+            .set('currentTaskID', taskID)
+            .setIn(['tasks', taskID], Task({
+              name: 'test.ngc',
+              priority: 'emergency',
+              internal: false,
+              data: ['g1 x10'],
+              status: 'done',
+            }))
+
+          const result = spoolReducer(state, action)
+
+          expect(result.currentTaskID).toEqual(null)
+          expect(result.tasks.get(taskID).action.type).toEqual(DESPOOL_TASK)
+        })
+      })
+    })
+  })
 })

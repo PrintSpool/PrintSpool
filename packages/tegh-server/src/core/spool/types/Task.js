@@ -51,12 +51,13 @@ const Task = ({
   jobID,
   jobFileID,
   data,
+  status,
 }) => {
   if (typeof name !== 'string') {
     throw new Error(`name must be a string`)
   }
   if (typeof internal !== 'boolean') {
-    throw new Error(`data must be a boolean`)
+    throw new Error(`internal must be a boolean`)
   }
   if (!priorityOrder.includes(priority)) {
     throw new Error(`invalid priority`)
@@ -65,7 +66,7 @@ const Task = ({
     id: uuid(),
     createdAt: new Date().toISOString(),
     data: List(normalizeGCodeLines(data)),
-    status: 'spooled',
+    status: status || 'spooled',
     priority,
     internal,
     name,
