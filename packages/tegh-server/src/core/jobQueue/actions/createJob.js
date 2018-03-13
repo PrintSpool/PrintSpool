@@ -1,14 +1,12 @@
 import path from 'path'
-import {default as _fs} from 'fs'
 import tmp from 'tmp-promise'
-import Promise from 'bluebird'
 import untildify from 'untildify'
 
+import fs from '../../util/promisifiedFS'
 import validateCommandsFileExtension from '../../util/validateCommandsFileExtension'
 import Job from '../types/Job'
 import JobFile from '../types/JobFile'
 
-const fs = Promise.promisifyAll(_fs)
 const normalize = filePath => path.normalize(untildify(filePath))
 
 export const CREATE_JOB = 'tegh/jobQueue/CREATE_JOB'

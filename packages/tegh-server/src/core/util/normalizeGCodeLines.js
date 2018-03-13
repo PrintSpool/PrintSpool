@@ -3,7 +3,15 @@ const NEWLINE = /\r\n|\r|\n/g
 const COMMENT = /;.*|\([^\\]*\)/g
 
 const forEachNewLine = (input, cb) => {
-  input.forEach(text => text.split(NEWLINE).forEach(cb))
+  if (input.forEach == null) {
+    throw new Error('input MUST be an array of strings')
+  }
+  input.forEach(text => {
+    if (text.split == null) {
+      throw new Error(`${text} (type: ${typeof text}) is not a string`)
+    }
+    return text.split(NEWLINE).forEach(cb)
+  })
 }
 
 /*
