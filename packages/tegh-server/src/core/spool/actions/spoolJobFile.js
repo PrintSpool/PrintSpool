@@ -2,7 +2,7 @@ import {default as _fs} from 'fs'
 
 const fs = Promise.promisifyAll(_fs)
 
-export const SPOOL_JOB_FILE = 'tegh/jobQueue/SPOOL_JOB_FILE'
+import spoolTask from './spoolTask'
 
 export const spoolJobFile = ({ JobFileID }) => {
   return (dispatch, getState) => {
@@ -21,6 +21,7 @@ export const spoolJobFile = ({ JobFileID }) => {
         content: fileContent,
       }
     })
+
     return dispatch(action)
   }
 }

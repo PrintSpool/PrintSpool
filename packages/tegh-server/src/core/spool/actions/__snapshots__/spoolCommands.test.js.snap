@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`spoolCommands creates a SPOOL_TASK action 1`] = `
+Object {
+  "payload": Object {
+    "task": Object {
+      "createdAt": "[REDACTED]",
+      "currentLineNumber": null,
+      "data": Array [
+        "line 1",
+        "line 2",
+      ],
+      "id": "[REDACTED]",
+      "internal": false,
+      "jobFileID": null,
+      "jobID": null,
+      "name": "testFile.gcode",
+      "priority": "normal",
+      "startedAt": null,
+      "status": "SPOOLED",
+      "stoppedAt": null,
+    },
+  },
+  "type": "tegh-server/spool/SPOOL_TASK",
+}
+`;

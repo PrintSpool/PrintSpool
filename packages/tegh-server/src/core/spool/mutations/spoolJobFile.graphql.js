@@ -14,9 +14,6 @@ const spoolJobFileGraphQL = () => ({
 
   resolve: actionResolver({
     actionCreator: spoolJobFile,
-    selector: (state, action) => (
-      state.spool.allTasks[action.payload.id]
-    ),
   }),
 
   args: {

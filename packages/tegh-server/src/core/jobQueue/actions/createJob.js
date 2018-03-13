@@ -4,6 +4,7 @@ import tmp from 'tmp-promise'
 import Promise from 'bluebird'
 import untildify from 'untildify'
 
+import validateCommandsFileExtension from '../../util/validateCommandsFileExtension'
 import Job from '../types/Job'
 import JobFile from '../types/JobFile'
 
@@ -28,7 +29,6 @@ const createJob = (args) => {
     if (args.localPath != null) {
       filePath = normalize(args.localPath)
       name = path.basename(filePath)
-      const allowedExtensions = ['.gcode', '.ngc']
       const stats = await fs.lstatSyncAsync(filePath)
 
       const localPathConfig = getState().config.printFromLocalPath
@@ -42,12 +42,9 @@ const createJob = (args) => {
       if (localPathConfig.enabled === false) {
         throw new Error(`printing from localPaths is disabled`)
       }
-      if (!allowedExtensions.some(ext => filePath.endsWith(ext))) {
-        throw new Error(
-          `file extension not supported. Must be one of ` +
-          allowedExtensions.join(', ')
-        )
-      }
+
+      validateCommandsFileExtension(filePath)
+
       if (stats.isSymbolicLink() && !localPathConfig.allowSymlinks) {
         throw new Error(`localPath cannot be a symlink`)
       }
