@@ -14,6 +14,7 @@ import { CREATE_JOB } from '../../jobQueue/actions/createJob'
 import { CANCEL_JOB } from '../../jobQueue/actions/cancelJob'
 import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 /* task actions */
+import { DELETE_TASK } from '../actions/deleteTask'
 import { SPOOL_TASK } from '../actions/spoolTask'
 import { CREATE_TASK } from '../actions/createTask'
 import { DESPOOL_TASK } from '../actions/despoolTask'
@@ -82,6 +83,30 @@ describe('spoolReducer', () => {
           b: { state: 'B', action },
         })
       })
+    })
+  })
+
+  describe(DELETE_TASK, () => {
+    mockTaskReducerWith((state, action) => action)
+
+    it('passes the action through', () => {
+      const taskID = 'A'
+      const action = {
+        type: DELETE_TASK,
+        payload: { id: taskID }
+      }
+      const state = initialState
+        .setIn(['tasks', taskID], Task({
+          id: taskID,
+          name: 'test.ngc',
+          priority: 'emergency',
+          internal: false,
+          data: ['g1 x10'],
+        }))
+
+      const result = spoolReducer(state, action)
+
+      expect(result.tasks.get(taskID)).toEqual(action)
     })
   })
 
