@@ -21,7 +21,7 @@ const spoolMacro = ({ internal = false, priority, macro, args }) => {
       throw new Error(`Macro ${macro} does not exist`)
     }
 
-    const gcode = macroDefinition.run(args, state.config)
+    const gcodeLines = macroDefinition.run(args, state.config)
 
     // TODO: move to a reducer
     // if (state.driver.status !== 'ready' && priority !== 'emergency') {
@@ -32,7 +32,7 @@ const spoolMacro = ({ internal = false, priority, macro, args }) => {
       name: macroDefinition.name,
       internal,
       priority: priority || macroDefinition.priority || 'normal',
-      data: gcode,
+      data: gcodeLines,
     })
 
     return dispatch(action)

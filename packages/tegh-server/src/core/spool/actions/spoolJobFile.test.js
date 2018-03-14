@@ -5,7 +5,6 @@ import expectToMatchImmutableSnapshot from '../../util/testing/expectToMatchImmu
 import spoolJobFile from './spoolJobFile'
 
 describe('spoolJobFile', () => {
-
   it('creates a SPOOL_TASK action', async function() {
     const jobFileID = 'test_test_test'
     const tmpFile = await tmp.file()
