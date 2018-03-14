@@ -42,7 +42,7 @@ const createJob = ({ files, name }) => {
       const jobFile = JobFile({
         name: file.name,
         filePath,
-        isTempFile: true,
+        isTmpFile: true,
         quantity: 1,
       })
 

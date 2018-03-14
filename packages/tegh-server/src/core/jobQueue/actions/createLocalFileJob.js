@@ -50,7 +50,7 @@ const createLocalFileJob = (args) => {
     const jobFile = JobFile({
       name,
       filePath,
-      isTempFile: false,
+      isTmpFile: false,
       quantity: 1,
     })
 

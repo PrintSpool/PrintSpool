@@ -18,7 +18,7 @@ exports[`createLocalFileJob creates a CREATE_JOB action 2`] = `
 Object {
   "filePath": "[REDACTED]",
   "id": "[REDACTED]",
-  "isTempFile": false,
+  "isTmpFile": false,
   "name": "[REDACTED]",
   "quantity": 1,
 }

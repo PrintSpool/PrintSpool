@@ -18,7 +18,7 @@ exports[`createJob creates a CREATE_JOB action 2`] = `
 Object {
   "filePath": "[REDACTED]",
   "id": "[REDACTED]",
-  "isTempFile": true,
+  "isTmpFile": true,
   "name": "file_A",
   "quantity": 1,
 }
@@ -30,7 +30,7 @@ exports[`createJob creates a CREATE_JOB action 4`] = `
 Object {
   "filePath": "[REDACTED]",
   "id": "[REDACTED]",
-  "isTempFile": true,
+  "isTmpFile": true,
   "name": "file_B",
   "quantity": 1,
 }

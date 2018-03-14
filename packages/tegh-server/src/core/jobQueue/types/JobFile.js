@@ -7,7 +7,7 @@ import type { RecordOf, List as ListType } from 'immutable'
 export type JobFileT = RecordOf<{
   name: string,
   filePath: string,
-  isTempFile: boolean,
+  isTmpFile: boolean,
   quantity: number,
 }>
 
@@ -15,7 +15,7 @@ const JobFileRecord = Record({
   id: null,
   name: null,
   filePath: null,
-  isTempFile: null,
+  isTmpFile: null,
   quantity: null,
 })
 
