@@ -1,33 +1,39 @@
+import path from 'path'
 import tmp from 'tmp-promise'
 
 import fs from '../../util/promisifiedFS'
 import expectToMatchImmutableSnapshot from '../../util/testing/expectToMatchImmutableSnapshot'
-import createJob from './createJob'
+import createLocalFileJob from './createLocalFileJob'
 
-describe('createJob', () => {
+describe('createLocalFileJob', () => {
   it('creates a CREATE_JOB action', async function() {
-    const name = 'test_test_test'
-    const files = [
-      {
-        name: 'file_A',
-        content: `G28`,
-      },
-      {
-        name: 'file_B',
-        content: `G1 X10\nG1 Y10\nG1 Z10`
-      }
-    ]
 
+    const tmpFile = await tmp.file({ postfix: '.gcode' })
+    const localPath = tmpFile.path
+
+    const getState = () => ({
+      config: {
+        printFromLocalPath: {
+          enabled: true,
+          whitelist: [
+            '/otherDirectory',
+            path.dirname(localPath),
+          ]
+        }
+      }
+    })
     const dispatch = action => action
 
-    let result = await createJob({
-      files,
-      name
-    })(dispatch)
+    console.log('creating')
+    let result = await createLocalFileJob({
+      localPath
+    })(dispatch, getState)
+    console.log('creating DONE')
 
     expectToMatchImmutableSnapshot({
       result,
       redactions: [
+        ['payload', 'job', 'name'],
         ['payload', 'job', 'id'],
         ['payload', 'job', 'createdAt'],
         ['payload', 'jobFiles'],
@@ -39,6 +45,7 @@ describe('createJob', () => {
       expectToMatchImmutableSnapshot({
         result: jobFile,
         redactions: [
+          ['name'],
           ['id'],
           ['filePath'],
         ],

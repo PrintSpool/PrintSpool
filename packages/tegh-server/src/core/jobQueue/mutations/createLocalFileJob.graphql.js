@@ -5,30 +5,26 @@ import {
 
 import actionResolver from '../../util/actionResolver'
 import FileInputType from '../../util/FileInput.graphql.js'
-import createJob from './createJob'
+import createLocalFileJob from './createLocalFileJob'
 
-const createJobGraphQL = () => ({
+const createLocalFileJobGraphQL = () => ({
   type: tql`${TaskType}!`,
   description: snl`
-     a job can be created from either a local file path on the server or the
-     content and fileName of a file upload.
+    creates a job to print a file already on the Tegh server.
   `,
 
   resolve: actionResolver({
-    actionCreator: createJob,
+    actionCreator: createLocalFileJob,
   }),
 
   args: {
     printerID: {
       type: tql`ID!`,
     },
-    files: {
-      type: tql`[${FileInputType}!]!`,
-    },
-    name: {
-      type: tql`String!`,
+    localPath: {
+      type: tql`String`,
     },
   },
 })
 
-export default createJobGraphQL
+export default createLocalFileJobGraphQL

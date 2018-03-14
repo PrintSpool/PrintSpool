@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`createJob creates a CREATE_JOB action 1`] = `
+Object {
+  "payload": Object {
+    "job": Object {
+      "createdAt": "[REDACTED]",
+      "id": "[REDACTED]",
+      "name": "test_test_test",
+    },
+    "jobFiles": "[REDACTED]",
+  },
+  "type": "tegh/jobQueue/CREATE_JOB",
+}
+`;
+
+exports[`createJob creates a CREATE_JOB action 2`] = `
+Object {
+  "filePath": "[REDACTED]",
+  "id": "[REDACTED]",
+  "isTempFile": true,
+  "name": "file_A",
+  "quantity": 1,
+}
+`;
+
+exports[`createJob creates a CREATE_JOB action 3`] = `"G28"`;
+
+exports[`createJob creates a CREATE_JOB action 4`] = `
+Object {
+  "filePath": "[REDACTED]",
+  "id": "[REDACTED]",
+  "isTempFile": true,
+  "name": "file_B",
+  "quantity": 1,
+}
+`;
+
+exports[`createJob creates a CREATE_JOB action 5`] = `
+"G1 X10
+G1 Y10
+G1 Z10"
+`;

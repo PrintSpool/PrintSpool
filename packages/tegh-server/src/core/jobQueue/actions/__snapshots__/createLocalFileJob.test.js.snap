@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`createLocalFileJob creates a CREATE_JOB action 1`] = `
+Object {
+  "payload": Object {
+    "job": Object {
+      "createdAt": "[REDACTED]",
+      "id": "[REDACTED]",
+      "name": "[REDACTED]",
+    },
+    "jobFiles": "[REDACTED]",
+  },
+  "type": "tegh/jobQueue/CREATE_JOB",
+}
+`;
+
+exports[`createLocalFileJob creates a CREATE_JOB action 2`] = `
+Object {
+  "filePath": "[REDACTED]",
+  "id": "[REDACTED]",
+  "isTempFile": false,
+  "name": "[REDACTED]",
+  "quantity": 1,
+}
+`;
+
+exports[`createLocalFileJob creates a CREATE_JOB action 3`] = `""`;
