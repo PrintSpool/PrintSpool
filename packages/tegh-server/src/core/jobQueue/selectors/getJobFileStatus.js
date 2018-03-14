@@ -1,13 +1,9 @@
-/* these task statuses bubble up through the jobFile to the job */
-const BUBBLING_STATUES = ['spooled', 'printing', 'errored', 'cancelled']
+import { BUBBLING_STATUES } from '../types/JobStatusEnum'
+import getTasksFor from '../../spool/selectors/getTasksFor'
+import getTasksCompleted from '../../spool/selectors/getTasksCompleted'
+import getJobFileTotalTasks from './getJobFileTotalTasks'
 
-export const getJobFileTotalTasks = state => ({ jobFileID }) => {
-  const jobFile = state.jobQueue.jobFiles.get(jobFileID)
-  const job = state.jobQueue.jobs.get(jobFile.jobID)
-  return jobFile.quantity * job.quantity
-}
-
-export const getJobFileStatus = state => ({ jobFileID }) => {
+const getJobFileStatus = state => ({ jobFileID }) => {
   const jobFile = state.jobQueue.jobFiles.get(jobFileID)
   const job = state.jobQueue.jobs.get(jobFile.jobID)
 
@@ -22,3 +18,5 @@ export const getJobFileStatus = state => ({ jobFileID }) => {
   const isDone = tasksCompleted >= totalTasks
   return isDone ? 'done' : 'queued'
 }
+
+export default getJobFileStatus
