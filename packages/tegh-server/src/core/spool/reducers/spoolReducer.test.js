@@ -1,5 +1,11 @@
 import { List, Map } from 'immutable'
 import Task from '../types/Task'
+
+import {
+  EMERGENCY,
+  NORMAL,
+} from '../types/PriorityEnum'
+
 import {
   PRINTING,
   DONE,
@@ -99,7 +105,7 @@ describe('spoolReducer', () => {
         .setIn(['tasks', taskID], Task({
           id: taskID,
           name: 'test.ngc',
-          priority: 'emergency',
+          priority: EMERGENCY,
           internal: false,
           data: ['g1 x10'],
         }))
@@ -116,7 +122,7 @@ describe('spoolReducer', () => {
       payload: {
         task: Task({
           name: 'test.ngc',
-          priority: 'emergency',
+          priority: NORMAL,
           internal: false,
           data: ['g1 x10'],
         }),
@@ -136,7 +142,7 @@ describe('spoolReducer', () => {
 
         expect(result.tasks.get(spooledTaskID)).not.toBe(null)
         expect(result.currentTaskID).toEqual(spooledTaskID)
-        expect(result.priorityQueues.emergency.toJS()).toEqual([])
+        expect(result.priorityQueues.get(EMERGENCY).toJS()).toEqual([])
       })
     })
 
@@ -148,9 +154,26 @@ describe('spoolReducer', () => {
 
         expect(result.tasks.get(spooledTaskID)).not.toBe(null)
         expect(result.currentTaskID).toEqual(state.currentTaskID)
-        expect(result.priorityQueues.emergency.toJS()).toEqual([
+        expect(result.priorityQueues.get(NORMAL).toJS()).toEqual([
           spooledTaskID,
         ])
+      })
+
+      describe('and a job is already spooled', () => {
+        it('throws an error if the task is not an emergency', () => {
+          const state = initialState.setIn(['tasks', 'abc'], Task({
+            name: 'test_job.ngc',
+            priority: NORMAL,
+            status: PRINTING,
+            internal: false,
+            jobID: 'abc',
+            data: ['g1 x10', 'g1 y20'],
+          }))
+
+          expect(() => {
+            spoolReducer(state, action)
+          }).toThrow()
+        })
       })
     })
   })
@@ -170,10 +193,10 @@ describe('spoolReducer', () => {
     describe('if there is not a currentTask', () => {
       it('starts the top priority task', () => {
         const state = initialState
-          .setIn(['priorityQueues', 'normal'], List([
+          .setIn(['priorityQueues', NORMAL], List([
             'normal_1',
           ]))
-          .setIn(['priorityQueues', 'emergency'], List([
+          .setIn(['priorityQueues', EMERGENCY], List([
             'emergency_1',
             'emergency_2',
           ]))
@@ -182,7 +205,7 @@ describe('spoolReducer', () => {
 
         expect(result.currentTaskID).toEqual('emergency_1')
         expect(result.tasks.get('emergency_1').action.type).toEqual(START_TASK)
-        expect(result.priorityQueues.emergency.toJS()).toEqual([
+        expect(result.priorityQueues.get(EMERGENCY).toJS()).toEqual([
           'emergency_2'
         ])
       })
@@ -206,7 +229,7 @@ describe('spoolReducer', () => {
             .set('currentTaskID', taskID)
             .setIn(['tasks', taskID], Task({
               name: 'test.ngc',
-              priority: 'emergency',
+              priority: EMERGENCY,
               internal: false,
               data: ['g1 x10'],
               status: PRINTING,
@@ -226,7 +249,7 @@ describe('spoolReducer', () => {
             .set('currentTaskID', taskID)
             .setIn(['tasks', taskID], Task({
               name: 'test.ngc',
-              priority: 'emergency',
+              priority: EMERGENCY,
               internal: false,
               data: ['g1 x10'],
               status: DONE,

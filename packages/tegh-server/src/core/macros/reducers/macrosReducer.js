@@ -10,7 +10,7 @@ const macrosReducer = ({ loadPlugin, config }) => {
         initialState[name] = {
           name,
           run,
-          priority: run.priority || 'normal',
+          priority: run.priority || NORMAL,
         }
       })
   })

@@ -2,7 +2,15 @@ import { merge, Record, List, Map } from 'immutable'
 
 import ReduxNestedMap from '../../util/ReduxNestedMap'
 import taskReducer from './taskReducer'
-import { priorityOrder } from '../types/PriorityEnum'
+import isIdle from '../selectors/isIdle'
+
+import {
+  EMERGENCY,
+  NORMAL,
+  PREEMPTIVE,
+  priorityOrder,
+} from '../types/PriorityEnum'
+
 import { PRINTING } from '../types/TaskStatusEnum'
 
 /* printer actions */
@@ -27,9 +35,9 @@ const taskMap = ReduxNestedMap({
 
 export const initialState = Record({
   priorityQueues: Record({
-    emergency: List(),
-    preemptive: List(),
-    normal: List(),
+    [EMERGENCY]: List(),
+    [PREEMPTIVE]: List(),
+    [NORMAL]: List(),
   })(),
   tasks: Map(),
   currentTaskID: null,
@@ -56,8 +64,12 @@ const spoolReducer = (state = initialState, action) => {
     }
     case SPOOL_TASK: {
       const { payload } = action
-      const { id } = payload.task
+      const { id, priority } = payload.task
       let nextState = state
+
+      if (!isIdle(state) && priority !== EMERGENCY) {
+        throw new Error('Cannot spool non-emergency tasks when printing a job')
+      }
 
       /* create the task first */
       const createAction = createTask({ task: payload.task })

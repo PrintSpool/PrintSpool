@@ -1,12 +1,16 @@
 import { List } from 'immutable'
 
+export const EMERGENCY = 'EMERGENCY'
+export const PREEMPTIVE = 'PREEMPTIVE'
+export const NORMAL = 'NORMAL'
+
 export type PriorityEnumT =
-  | 'emergency'
-  | 'preemptive'
-  | 'normal'
+  | 'EMERGENCY'
+  | 'PREEMPTIVE'
+  | 'NORMAL'
 
 export const priorityOrder = List([
-  'emergency',
-  'preemptive',
-  'normal',
+  EMERGENCY,
+  PREEMPTIVE,
+  NORMAL,
 ])

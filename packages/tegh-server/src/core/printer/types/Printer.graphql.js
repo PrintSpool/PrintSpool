@@ -63,8 +63,8 @@ const Printer = new GraphQLObjectType({
       type: tql`Boolean!`
       description: snl`
         Returns true if the machine is able to accept new tasks (eg. manual
-        movements + control). Running a job sets idle to false. If the printer's
-        status is not \`"ready"\` then idle is false.
+        movements + control). Spooling a job sets idle to false. If the
+        printer's status is not \`"ready"\` then idle is false.
       `,
       resolve(source, _args, { store }) {
         const state = store.getState()

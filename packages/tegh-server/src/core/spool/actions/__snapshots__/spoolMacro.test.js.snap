@@ -14,7 +14,7 @@ Object {
       "jobFileID": null,
       "jobID": null,
       "name": "my_test_macro",
-      "priority": "emergency",
+      "priority": "EMERGENCY",
       "startedAt": null,
       "status": "SPOOLED",
       "stoppedAt": null,

@@ -15,7 +15,7 @@ Object {
       "jobFileID": null,
       "jobID": null,
       "name": "testFile.gcode",
-      "priority": "normal",
+      "priority": "NORMAL",
       "startedAt": null,
       "status": "SPOOLED",
       "stoppedAt": null,

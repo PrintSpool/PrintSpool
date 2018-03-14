@@ -2,7 +2,12 @@ import { merge, Record, List, Map } from 'immutable'
 
 import Task from '../types/Task'
 import { DELETE_ITEM } from '../../util/ReduxNestedMap'
-import { isSpooled } from '../types/PriorityEnum'
+import {
+  EMERGENCY,
+  NORMAL,
+  PREEMPTIVE,
+  priorityOrder,
+} from '../types/PriorityEnum'
 import {
   SPOOLED,
   PRINTING,
@@ -41,7 +46,7 @@ describe('taskReducer', () => {
         it('does nothing', () => {
           const state = Task({
             name: 'test.ngc',
-            priority: 'emergency',
+            priority: EMERGENCY,
             internal: false,
             data: ['g1 x10', 'g1 y20'],
             status: 'DONE',
@@ -56,7 +61,7 @@ describe('taskReducer', () => {
         it(`marks the task as ${expectedStatus}`, () => {
           const state = Task({
             name: 'test.ngc',
-            priority: 'emergency',
+            priority: EMERGENCY,
             internal: false,
             data: ['g1 x10', 'g1 y20'],
             jobID: 'test_123'
@@ -80,7 +85,7 @@ describe('taskReducer', () => {
       it('marks the task as cancelled', () => {
         const state = Task({
           name: 'test.ngc',
-          priority: 'emergency',
+          priority: EMERGENCY,
           internal: false,
           data: ['g1 x10', 'g1 y20'],
           jobID,
@@ -95,7 +100,7 @@ describe('taskReducer', () => {
       it('does nothing', () => {
         const state = Task({
           name: 'test.ngc',
-          priority: 'emergency',
+          priority: EMERGENCY,
           internal: false,
           data: ['g1 x10', 'g1 y20'],
           jobID: 'another_job',
@@ -118,7 +123,7 @@ describe('taskReducer', () => {
       it('deletes the task', () => {
         const state = Task({
           name: 'test.ngc',
-          priority: 'emergency',
+          priority: EMERGENCY,
           internal: false,
           data: ['g1 x10', 'g1 y20'],
           jobID,
@@ -133,7 +138,7 @@ describe('taskReducer', () => {
       it('does nothing', () => {
         const state = Task({
           name: 'test.ngc',
-          priority: 'emergency',
+          priority: EMERGENCY,
           internal: false,
           data: ['g1 x10', 'g1 y20'],
           jobID: 'another_job',
@@ -160,11 +165,10 @@ describe('taskReducer', () => {
   })
 
   describe(SPOOL_TASK, () => {
-
     describe('when a task is spooled with emergency priority', () => {
       const task = Task({
         name: 'test.ngc',
-        priority: 'emergency',
+        priority: EMERGENCY,
         internal: false,
         data: ['g1 x10', 'g1 y20'],
       })
@@ -176,7 +180,7 @@ describe('taskReducer', () => {
       it('cancels other tasks', () => {
         const state = Task({
           name: 'test.ngc',
-          priority: 'emergency',
+          priority: EMERGENCY,
           internal: false,
           data: ['g1 x10', 'g1 y20'],
         })
@@ -195,7 +199,7 @@ describe('taskReducer', () => {
     describe('when another task is spooled with non-emergency priority', () => {
       const task = Task({
         name: 'test.ngc',
-        priority: 'normal',
+        priority: NORMAL,
         internal: false,
         data: ['g1 x10', 'g1 y20'],
       })
@@ -207,7 +211,7 @@ describe('taskReducer', () => {
       it('does nothing', () => {
         const state = Task({
           name: 'test.ngc',
-          priority: 'emergency',
+          priority: EMERGENCY,
           internal: false,
           data: ['g1 x10', 'g1 y20'],
         })
@@ -224,7 +228,7 @@ describe('taskReducer', () => {
     it('updates the task\'s properties', () => {
       const state = Task({
         name: 'test.ngc',
-        priority: 'emergency',
+        priority: EMERGENCY,
         internal: false,
         data: ['g1 x10', 'g1 y20'],
       })
@@ -244,7 +248,7 @@ describe('taskReducer', () => {
       it('increments the currentLineNumber', () => {
         const state = Task({
           name: 'test.ngc',
-          priority: 'emergency',
+          priority: EMERGENCY,
           internal: false,
           data: ['g1 x10', 'g1 y20'],
           status: PRINTING,
@@ -260,7 +264,7 @@ describe('taskReducer', () => {
       it('marks the job as done and deletes it\'s data', () => {
         const state = Task({
           name: 'test.ngc',
-          priority: 'emergency',
+          priority: EMERGENCY,
           internal: false,
           data: ['g1 x10', 'g1 y20'],
         }).set('currentLineNumber', 1)

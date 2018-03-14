@@ -29,7 +29,7 @@ export const getCurrentLine = state => {
 }
 
 export const isEmergency = state =>
-  getCurrentTask(state).priority === 'emergency'
+  getCurrentTask(state).priority === EMERGENCY
 
 export const shouldSendSpooledLineToPrinter = state =>
   state.spool.sendSpooledLineToPrinter

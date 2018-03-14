@@ -1,7 +1,12 @@
 import { merge, Record, List, Map } from 'immutable'
 
 import { DELETE_ITEM } from '../../util/ReduxNestedMap'
-import { priorityOrder } from '../types/PriorityEnum'
+
+import {
+  EMERGENCY,
+  priorityOrder,
+} from '../types/PriorityEnum'
+
 import {
   isSpooled,
   SPOOLED,
@@ -68,7 +73,7 @@ const taskReducer = (state, action) => {
 
       if (
         task.id !== state.id
-        && task.priority === 'emergency'
+        && task.priority === EMERGENCY
         && isSpooled(state.status)
       ) {
         /*

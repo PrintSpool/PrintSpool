@@ -1,4 +1,5 @@
 import expectToMatchImmutableSnapshot from '../../util/testing/expectToMatchImmutableSnapshot'
+import { EMERGENCY } from '../types/PriorityEnum'
 import spoolMacro from './spoolMacro'
 
 describe('spoolMacro', () => {
@@ -11,7 +12,7 @@ describe('spoolMacro', () => {
       macros: {
         [macro]: {
           name: macro,
-          priority: 'emergency',
+          priority: EMERGENCY,
           run: ({x}) => [`g1 x${x}`]
         }
       }

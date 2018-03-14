@@ -1,5 +1,6 @@
 import fs from '../../util/promisifiedFS'
 
+import { NORMAL } from '../types/PriorityEnum'
 import spoolTask from './spoolTask'
 
 export const spoolJobFile = ({ jobFileID }) => {
@@ -15,7 +16,7 @@ export const spoolJobFile = ({ jobFileID }) => {
 
     const action = spoolTask({
       internal: false,
-      priority: 'normal',
+      priority: NORMAL,
       jobID: jobFile.jobID,
       jobFileID: jobFile.id,
       name: jobFile.name,

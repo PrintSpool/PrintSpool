@@ -1,4 +1,4 @@
 const eStop = () => ['M112']
-eStop.priority = 'emergency'
+eStop.priority = EMERGENCY
 
 export default eStop

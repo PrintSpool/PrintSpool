@@ -4,7 +4,7 @@ import spoolTask from './spoolTask'
  * spools the macro with the given args
  *
  * internal?: Boolean [default: false]
- * priority?: TaskPriority [default: macro.priority || 'normal'],
+ * priority?: TaskPriority [default: macro.priority || NORMAL],
  * macro: String
  * args?: JSON [default: null]
  */
@@ -24,14 +24,14 @@ const spoolMacro = ({ internal = false, priority, macro, args }) => {
     const gcodeLines = macroDefinition.run(args, state.config)
 
     // TODO: move to a reducer
-    // if (state.driver.status !== 'ready' && priority !== 'emergency') {
+    // if (state.driver.status !== 'ready' && priority !== EMERGENCY) {
     //   throw new Error('Machine is not ready')
     // }
 
     const action = spoolTask({
       name: macroDefinition.name,
       internal,
-      priority: priority || macroDefinition.priority || 'normal',
+      priority: priority || macroDefinition.priority || NORMAL,
       data: gcodeLines,
     })
 

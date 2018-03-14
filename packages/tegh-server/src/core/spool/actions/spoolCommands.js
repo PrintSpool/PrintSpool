@@ -1,11 +1,12 @@
 import spoolTask from './spoolTask'
+import { NORMAL } from '../types/PriorityEnum'
 import validateCommandsFileExtension from '../../util/validateCommandsFileExtension'
 
 /*
  * creates a new Task from the file and spools it.
 
  * internal?: Boolean [default: false]
- * priority?: TaskPriority [default: macro.priority || 'normal'],
+ * priority?: TaskPriority [default: macro.priority || NORMAL],
  * file?: { name: String, content: String }
  */
 const spoolCommands = ({ internal = false, priority, file }) => {
@@ -27,7 +28,7 @@ const spoolCommands = ({ internal = false, priority, file }) => {
   return spoolTask({
     name,
     internal,
-    priority: priority || 'normal',
+    priority: priority || NORMAL,
     data: [content],
   })
 }

@@ -15,7 +15,7 @@ Object {
       "jobFileID": "test_test_test",
       "jobID": "123",
       "name": "abc",
-      "priority": "normal",
+      "priority": "NORMAL",
       "startedAt": null,
       "status": "SPOOLED",
       "stoppedAt": null,

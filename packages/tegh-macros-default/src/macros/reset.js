@@ -1,4 +1,4 @@
 const reset = () => ['M999']
-reset.priority = 'emergency'
+reset.priority = EMERGENCY
 
 export default reset
