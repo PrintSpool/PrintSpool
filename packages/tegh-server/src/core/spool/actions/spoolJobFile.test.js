@@ -36,5 +36,8 @@ describe('spoolJobFile', () => {
         ['payload', 'task', 'createdAt']
       ],
     })
+
+    /* clean up tmp file */
+    await fs.unlinkAsync(filePath)
   })
 })

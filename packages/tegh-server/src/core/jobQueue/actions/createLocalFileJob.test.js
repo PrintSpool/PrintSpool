@@ -24,11 +24,9 @@ describe('createLocalFileJob', () => {
     })
     const dispatch = action => action
 
-    console.log('creating')
     let result = await createLocalFileJob({
       localPath
     })(dispatch, getState)
-    console.log('creating DONE')
 
     expectToMatchImmutableSnapshot({
       result,

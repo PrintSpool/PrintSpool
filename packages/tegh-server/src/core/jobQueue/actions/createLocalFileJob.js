@@ -25,7 +25,6 @@ const createLocalFileJob = (args) => {
     const localPathConfig = getState().config.printFromLocalPath
 
     const isAllowedPath = localPathConfig.whitelist.some(validPath => {
-      console.log(validPath, filePath)
       const normalizedValidPath = normalize(validPath)
       return filePath.startsWith(normalizedValidPath)
     })
