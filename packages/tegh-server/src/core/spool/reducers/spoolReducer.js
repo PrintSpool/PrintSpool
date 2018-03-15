@@ -67,7 +67,7 @@ const spoolReducer = (state = initialState, action) => {
       const { id, priority } = payload.task
       let nextState = state
 
-      if (!isIdle(state) && priority !== EMERGENCY) {
+      if (!isIdle.resultFunc(state.tasks) && priority !== EMERGENCY) {
         throw new Error('Cannot spool non-emergency tasks when printing a job')
       }
 

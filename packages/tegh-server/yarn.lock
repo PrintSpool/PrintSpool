@@ -3648,6 +3648,10 @@ redux-logger@^3.0.6:
   dependencies:
     deep-diff "^0.3.5"
 
+"redux-saga-tester@github:d1plo1d/redux-saga-tester":
+  version "1.0.377"
+  resolved "https://codeload.github.com/d1plo1d/redux-saga-tester/tar.gz/f6b5cebdece44ad5bb7871fe5a7d1e71878f564d"
+
 redux-saga@d1plo1d/redux-saga:
   version "1.0.0-beta.0"
   resolved "https://codeload.github.com/d1plo1d/redux-saga/tar.gz/57042fb0443db395d8017ee69c1b005beb752588"
@@ -3802,6 +3806,10 @@ require-uncached@^1.0.3:
   dependencies:
     caller-path "^0.1.0"
     resolve-from "^1.0.0"
+
+reselect@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/reselect/-/reselect-3.0.1.tgz#efdaa98ea7451324d092b2b2163a6a1d7a9a2147"
 
 resolve-from@^1.0.0:
   version "1.0.1"
