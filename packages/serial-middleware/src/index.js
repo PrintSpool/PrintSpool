@@ -61,14 +61,14 @@ const serialMiddleware = ({
   setImmediate(waitForConnection)
 
   const onOpen = () => {
-      parser.buffer = Buffer.alloc(0)
-      store.dispatch({
-        type: 'SERIAL_OPEN'
-      })
+    store.dispatch({
+      type: 'SERIAL_OPEN'
+    })
   }
 
   const onClose = () => {
     const { resetByMiddleware } = serialPort
+    parser.buffer = Buffer.alloc(0)
     store.dispatch({
       type: 'SERIAL_CLOSE',
       resetByMiddleware,

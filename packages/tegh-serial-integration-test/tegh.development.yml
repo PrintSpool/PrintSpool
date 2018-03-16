@@ -64,6 +64,7 @@ driver:
     - M600
   serialPort:
     path: /dev/ttyACM0
+    # baudRate: 115200
     baudRate: 250000
     # simulation: true
 plugins:
