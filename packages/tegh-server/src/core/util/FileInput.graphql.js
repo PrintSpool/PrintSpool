@@ -1,3 +1,8 @@
+import {
+  GraphQLInputObjectType,
+} from 'graphql'
+import tql from 'typiql'
+
 const FileInputType = new GraphQLInputObjectType({
   name: 'FileInput',
   fields: {

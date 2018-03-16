@@ -1,6 +1,6 @@
 import tql from 'typiql'
 
-import subscriptionDefaults from '../../utils/subscriptionDefaults'
+import subscriptionDefaults from '../../util/subscriptionDefaults'
 import FanType from '../types/Fan.graphql.js'
 
 const fansChangedSubscription = () => ({

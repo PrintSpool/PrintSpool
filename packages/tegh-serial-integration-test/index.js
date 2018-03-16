@@ -3,12 +3,11 @@ require('babel-register')({
 })
 require("babel-polyfill")
 
-// import 'tegh-driver-serial-gcode'
-var teghDaemon = require('tegh-server').default
+var teghServer = require('tegh-server').default
 
 const NODE_ENV = process.env.NODE_ENV || 'development'
 const argv = [null, null, `./tegh.${NODE_ENV}.yml`]
 
 const loadPlugin = (plugin) => require(plugin)
 
-teghDaemon(argv, loadPlugin)
+teghServer(argv, loadPlugin)

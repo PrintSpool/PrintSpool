@@ -6,8 +6,8 @@ import yaml from 'js-yaml'
 import _ from 'lodash'
 
 import { wrapInCrashReporting } from './crashReport'
-import teghSchema from './graphql/schema'
-import reduxPubSub from './graphql/reduxPubSub'
+import teghSchema from './schema'
+import reduxPubSub from './reduxPubSub'
 import createTeghStore from './createTeghStore'
 import httpServer from './server/httpServer'
 

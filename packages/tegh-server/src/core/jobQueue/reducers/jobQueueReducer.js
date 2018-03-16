@@ -1,20 +1,25 @@
+import { Record } from 'immutable'
+
 import Job from '../types/Job'
 import Task from '../../spool/types/Task'
 import { getTasksCompleted } from '../../spool/reducers/spoolReducer'
 
+import { CREATE_JOB } from '../actions/createJob'
+import { DELETE_JOB } from '../actions/deleteJob'
+
 /* reducer */
 
 const initialState = Record({
-  jobs: Map(),
-  jobFiles: Map(),
+  jobs: new Map(),
+  jobFiles: new Map(),
 })()
 
-const jobQueue = (state = initialState, action) => {
+const jobQueue = () => (state = initialState, action) => {
   switch(action.type) {
     case CREATE_JOB: {
       const { job, jobFiles } = action.payload
       return state
-        .setIn(['jobs', job.id], job))
+        .setIn(['jobs', job.id], job)
         .mergeIn(['jobFiles'], jobFiles)
     }
     case DELETE_JOB: {

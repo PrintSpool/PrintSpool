@@ -1,17 +1,22 @@
 import tql from 'typiql'
+import snl from 'strip-newlines'
 import GraphQLJSON from 'graphql-type-json'
 
 import FileInputType from '../../util/FileInput.graphql.js'
 import actionResolver from '../../util/actionResolver'
-import spoolMacro from './spoolMacro'
+import spoolMacro from '../actions/spoolMacro'
+import getTask from '../selectors/getTask'
+
+import TaskGraphQL from '../types/Task.graphql.js'
 
 const spoolMacroGraphQL = () => ({
-  type: tql`${TaskType}!`,
+  type: tql`${TaskGraphQL}!`,
   description: snl`
     Spools a task to execute a macro.
-  `
+  `,
   resolve: actionResolver({
     actionCreator: spoolMacro,
+    selector: (state, action) => getTask(state)(action.payload.task.id),
   }),
 
   args: {

@@ -1,6 +1,6 @@
 import tql from 'typiql'
 
-import subscriptionDefaults from '../../utils/subscriptionDefaults'
+import subscriptionDefaults from '../../util/subscriptionDefaults'
 import HeaterType from '../types/Heater.graphql.js'
 
 const heatersChangedSubscription = () => ({

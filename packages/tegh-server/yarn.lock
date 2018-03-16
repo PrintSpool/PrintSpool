@@ -1982,6 +1982,10 @@ graphql-extensions@^0.0.x:
     core-js "^2.5.1"
     source-map-support "^0.5.0"
 
+graphql-scalars@^0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/graphql-scalars/-/graphql-scalars-0.1.5.tgz#fa31cb6acf178c1ed335f2ad865385be0371e4d6"
+
 graphql-subscriptions@^0.5.6:
   version "0.5.6"
   resolved "https://registry.yarnpkg.com/graphql-subscriptions/-/graphql-subscriptions-0.5.6.tgz#0d8e960fbaaf9ecbe7900366e86da2fc143fc5b2"
@@ -3642,6 +3646,10 @@ redeyed@~1.0.0:
   dependencies:
     esprima "~3.0.0"
 
+redux-immutable@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/redux-immutable/-/redux-immutable-4.0.0.tgz#3a1a32df66366462b63691f0e1dc35e472bbc9f3"
+
 redux-logger@^3.0.6:
   version "3.0.6"
   resolved "https://registry.yarnpkg.com/redux-logger/-/redux-logger-3.0.6.tgz#f7555966f3098f3c88604c449cf0baf5778274bf"
@@ -3657,6 +3665,10 @@ redux-saga@d1plo1d/redux-saga:
   resolved "https://codeload.github.com/d1plo1d/redux-saga/tar.gz/57042fb0443db395d8017ee69c1b005beb752588"
   dependencies:
     redux "^3.5.1"
+
+redux-thunk@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/redux-thunk/-/redux-thunk-2.2.0.tgz#e615a16e16b47a19a515766133d1e3e99b7852e5"
 
 redux-watch@^1.1.1:
   version "1.1.1"

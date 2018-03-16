@@ -36,7 +36,7 @@ describe('spoolReducer', () => {
         return jest.fn(implementation)
       })
       const m = require('./spoolReducer')
-      spoolReducer = m.default
+      spoolReducer = m.default()
       initialState = m.initialState
     })
 

@@ -4,7 +4,11 @@ import {
   GraphQLObjectType
 } from 'graphql'
 
-import { getJobFilesFor, getJobQuantityCompleted } from '../reducers/jobQueueReducer'
+import getJobFilesFor from '../selectors/getJobFilesFor'
+
+import JobFileGraphQL from './JobFile.graphql.js'
+import TaskGraphQL from '../../spool/types/Task.graphql.js'
+import JobStatusEnumGraphQL from './JobStatusEnum.graphql.js'
 
 const JobGraphQL = new GraphQLObjectType({
   name: 'Job',
@@ -20,7 +24,7 @@ const JobGraphQL = new GraphQLObjectType({
     },
 
     files: {
-      type: tql`[${JobFileGraphQLType}]!`,
+      type: tql`[${JobFileGraphQL}]!`,
       resolve(source, args, { store }) {
         const state = store.getState()
         const jobID = source.id
@@ -29,13 +33,13 @@ const JobGraphQL = new GraphQLObjectType({
     },
 
     tasks: {
-      type tql`[${TaskType}]!`
+      type: tql`[${TaskGraphQL}]!`,
       args: {
         excludeCompletedTasks: {
           type: tql`Boolean`,
           default: false,
-        }
-      }
+        },
+      },
       resolve(source, args, { store }) {
         const state = store.getState()
         return getTasksFor(state)({
@@ -43,7 +47,7 @@ const JobGraphQL = new GraphQLObjectType({
           excludeCompletedTasks,
         })
       }
-    }
+    },
     tasksCompleted: {
       type: tql`Int!`,
       resolve(source, args, { store }) {
@@ -56,14 +60,14 @@ const JobGraphQL = new GraphQLObjectType({
       resolve(source, args, { store }) {
         const state = store.getState()
         return getJobTotalTasks(state)({ jobID: source.id })
-      }
+      },
     },
     status: {
-      type: tql`${JobStatusGraphQLEnum}!`,
+      type: tql`${JobStatusEnumGraphQL}!`,
       resolve(source, args, { store }) {
         const state = store.getState()
         return getJobStatus(state)({ jobID: source.id })
-      }
+      },
     },
 
     createdAt: {

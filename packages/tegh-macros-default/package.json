@@ -33,5 +33,7 @@
   "dependencies": {
     "lodash": "^4.17.4"
   },
-  "peerDependencies": {}
+  "peerDependencies": {
+    "tegh-server": "*"
+  }
 }

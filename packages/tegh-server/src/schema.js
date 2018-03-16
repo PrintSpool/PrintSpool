@@ -5,7 +5,7 @@ import {
 import tql from 'typiql'
 import _ from 'lodash'
 
-import QueryRootType from './types/queryRoot.graphql.js'
+import QueryRootType from './queryRoot.graphql.js'
 import * as mutations from './core/mutations'
 import * as subscriptionModules from './core/subscriptions'
 

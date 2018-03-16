@@ -1,3 +1,5 @@
+import { SPOOL_TASK } from 'tegh-server'
+
 import { throwErrorOnInvalidGCode } from './txParser.js'
 
 const initializeCollection = (arrayOfIDs, initialValueFn) => {

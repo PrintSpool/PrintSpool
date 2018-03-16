@@ -44,7 +44,7 @@ export const initialState = Record({
   sendSpooledLineToPrinter: false,
 })()
 
-const spoolReducer = (state = initialState, action) => {
+const spoolReducer = () => (state = initialState, action) => {
   switch (action.type) {
     /* Spool reset actions */
     case PRINTER_READY:

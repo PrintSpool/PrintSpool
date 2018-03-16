@@ -29,7 +29,8 @@ import { DESPOOL_TASK } from '../actions/despoolTask'
 import { CREATE_TASK } from '../actions/createTask'
 import { START_TASK } from '../actions/startTask'
 
-import taskReducer from './taskReducer'
+import taskReducerFactory from './taskReducer'
+const taskReducer = taskReducerFactory()
 
 describe('taskReducer', () => {
   const spoolResetActions = [

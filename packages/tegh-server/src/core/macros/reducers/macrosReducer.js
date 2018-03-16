@@ -1,5 +1,7 @@
 import _ from 'lodash'
 
+import { NORMAL } from '../../spool/types/PriorityEnum'
+
 const macrosReducer = ({ loadPlugin, config }) => {
   const initialState = {}
   Object.entries(config.macros).forEach(([pluginName, opts]) => {

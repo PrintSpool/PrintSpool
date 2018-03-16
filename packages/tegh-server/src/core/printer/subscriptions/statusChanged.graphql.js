@@ -1,6 +1,6 @@
 import tql from 'typiql'
 
-import subscriptionDefaults from '../../utils/subscriptionDefaults'
+import subscriptionDefaults from '../../util/subscriptionDefaults'
 import PrinterType from '../types/Printer.graphql.js'
 
 const statusChangedSubscription = () => ({

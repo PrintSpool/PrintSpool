@@ -1,6 +1,6 @@
 import tql from 'typiql'
 
-import subscriptionDefaults from '../../utils/subscriptionDefaults'
+import subscriptionDefaults from '../../util/subscriptionDefaults'
 import LogEntry from '../types/LogEntry.graphql.js'
 
 const logEntryCreatedSubscription = () => ({
@@ -11,5 +11,5 @@ const logEntryCreatedSubscription = () => ({
 
 export default {
   subscription: logEntryCreatedSubscription,
-  selector: (state) => state.log.get('entries').last(),
+  selector: (state) => state.log.logEntries.last(),
 }

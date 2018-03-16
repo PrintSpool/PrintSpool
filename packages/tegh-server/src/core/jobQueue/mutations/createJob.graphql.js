@@ -1,21 +1,25 @@
 import tql from 'typiql'
+import snl from 'strip-newlines'
 import {
   GraphQLInputObjectType
 } from 'graphql'
 
 import actionResolver from '../../util/actionResolver'
 import FileInputType from '../../util/FileInput.graphql.js'
-import createJob from './createJob'
+import createJob from '../actions/createJob'
+import getJob from '../selectors/getJob'
+
+import JobGraphQL from '../types/Job.graphql.js'
 
 const createJobGraphQL = () => ({
-  type: tql`${TaskType}!`,
+  type: tql`${JobGraphQL}!`,
   description: snl`
-     a job can be created from either a local file path on the server or the
-     content and fileName of a file upload.
+     create a Job from the content and fileName of a file upload.
   `,
 
   resolve: actionResolver({
     actionCreator: createJob,
+    selector: (state, action) => getJob(state)(action.payload.job.id),
   }),
 
   args: {

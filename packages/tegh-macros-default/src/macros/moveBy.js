@@ -1,4 +1,4 @@
-import move from '../utils/move'
+import move from '../util/move'
 
 const moveBy = (args, config) => {
   const moveArgs = {

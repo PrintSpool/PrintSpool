@@ -1,7 +1,7 @@
 import tql from 'typiql'
 
-import subscriptionDefaults from './helpers/subscriptionDefaults'
-import TaskType from '../types/task_type.js'
+import subscriptionDefaults from '../../util/subscriptionDefaults'
+import TaskType from '../types/Task.graphql.js'
 
 const defaults = subscriptionDefaults(args => `taskChanged[${args.taskID}]`)
 

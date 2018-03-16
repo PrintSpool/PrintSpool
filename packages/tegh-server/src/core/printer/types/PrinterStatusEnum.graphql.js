@@ -5,7 +5,6 @@ import {
 const PrinterStatusEnum = new GraphQLEnumType({
   name: 'PrinterStatus',
   values: {
-    'errored', 'estopped', 'disconnected', 'connecting', 'ready'
     CONNECTING: {
       value: 0,
       description: `

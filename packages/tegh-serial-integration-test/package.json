@@ -15,11 +15,11 @@
     ]
   },
   "dependencies": {
-    "@babel/core": "7.0.0-beta.37",
     "@babel/cli": "^7.0.0-beta.37",
+    "@babel/core": "7.0.0-beta.37",
+    "@babel/polyfill": "^7.0.0-beta.37",
     "@babel/preset-env": "^7.0.0-beta.37",
     "@babel/preset-flow": "^7.0.0-beta.37",
-    "@babel/polyfill": "^7.0.0-beta.37",
     "@babel/register": "^7.0.0-beta.37",
     "babel-eslint": "^8.1.0",
     "node-dev": "d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350"

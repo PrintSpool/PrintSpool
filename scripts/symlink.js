@@ -28,6 +28,10 @@ const symlinks = [
     addTo: 'tegh-driver-serial-gcode',
   },
   {
+    target: 'tegh-server',
+    addTo: 'tegh-macros-default',
+  },
+  {
     alias: 'redux-saga',
     target: 'tegh-server/node_modules/redux-saga',
     addTo: 'tegh-serial-integration-test',

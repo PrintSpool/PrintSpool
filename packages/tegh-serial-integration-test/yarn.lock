@@ -1134,6 +1134,10 @@ graceful-fs@^4.1.11, graceful-fs@^4.1.2:
   version "4.1.11"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.1.11.tgz#0e8bdfe4d1ddb8854d64e04ea7c00e2a026e5658"
 
+graphql-scalars@^0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/graphql-scalars/-/graphql-scalars-0.1.5.tgz#fa31cb6acf178c1ed335f2ad865385be0371e4d6"
+
 growly@^1.2.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/growly/-/growly-1.3.0.tgz#f10748cbe76af964b7c96c93c6bcc28af120c081"

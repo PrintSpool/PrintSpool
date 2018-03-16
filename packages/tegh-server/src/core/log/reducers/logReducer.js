@@ -1,14 +1,14 @@
-import { Map, List } from 'immutable'
+import { Record, List } from 'immutable'
 
 const initialState = (crashReport = null) => {
-  let entries = List()
+  let logEntries = List()
   if (crashReport != null) {
-    entries = entries.push(validLogEntry(crashReport))
+    logEntries = logEntries.push(validLogEntry(crashReport))
   }
-  return Map({
-    entries,
-    entryCountSinceStartup: entries.size,
-  })
+  return Record({
+    logEntries,
+    entryCountSinceStartup: logEntries.size,
+  })()
 }
 
 const LOG_LEVELS = [
@@ -52,7 +52,7 @@ const logReducer = ({
     console.error(`${log.source}[${log.level}]: ${log.message}`)
   }
   return state
-    .update('entries', list => (
+    .update('logEntries', list => (
       (() => {
         if (list.size >= config.log.maxLength) {
           return list.shift()
