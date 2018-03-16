@@ -11,7 +11,7 @@ import { SubscriptionServer } from 'subscriptions-transport-ws'
 import { execute, subscribe } from 'graphql'
 import _ from 'lodash'
 
-const httpServer = ({
+const httpServer = async ({
   schema,
   context,
   plugins,
@@ -62,20 +62,25 @@ const httpServer = ({
     },
   )
 
+  for (const plugin of plugins) {
+    const { serverHook } = plugin.fns
+    if (serverHook != null) {
+      const pluginPromise = serverHook({
+        plugin,
+        server,
+        koaApp,
+        koaRouter: router,
+      })
+      if (pluginPromise != null && pluginPromise.then != null) {
+        await pluginPromise
+      }
+    }
+  }
+
   koaApp.use(cors())
   koaApp.use(router.routes())
   koaApp.use(router.allowedMethods())
 
-  plugins.forEach(plugin => {
-    const { serverHook } = plugin.fns
-    if (serverHook == null) return
-    serverHook({
-      plugin,
-      server,
-      koaApp,
-      koaRouter: router,
-    })
-  })
   // eslint-disable-next-line no-console
   if (!isTCP && fs.existsSync(port)) fs.unlinkSync(port)
   server.listen(port, () => {

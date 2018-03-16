@@ -19,7 +19,7 @@ import {
 } from 'material-ui-icons'
 import { Field, reduxForm, formValues } from 'redux-form'
 
-import withCreateTask from '../higher_order_components/withCreateTask'
+import withSpoolMacro from '../higher_order_components/withSpoolMacro'
 
 const styles = theme => ({
   leftIcon: {
@@ -46,7 +46,7 @@ const subscribeToStatus = props => params => {
 }
 
 const enhance = compose(
-  withCreateTask,
+  withSpoolMacro,
   graphql(
     gql`query statusQuery {
       printer(id: "test_printer_id") {
@@ -92,13 +92,13 @@ const statusColor = status => {
 const EStopResetToggle = ({
   loading,
   status,
-  createTask,
+  spoolMacro,
   classes,
 }) => {
   if (loading) return <div>Loading</div>
   const showEstop = status !== 'errored' && status !== 'estopped'
   const onClick = () => {
-    createTask({ macro: showEstop ? 'eStop' : 'reset' })
+    spoolMacro({ macro: showEstop ? 'eStop' : 'reset' })
   }
   return (
     <div>

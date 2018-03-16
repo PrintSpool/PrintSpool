@@ -1,9 +1,9 @@
-var path = require('path')
-var serve = require('koa-static')
+import path from 'path'
+import serve from 'koa-static'
 
-module.exports = {
-  serverHook: function(params) {
-    var root = path.join(__dirname, 'out')
-    params.koaApp.use(serve(root))
-  }
+export const serverHook = (params) => {
+  const dev = process.env.NODE_ENV !== 'production'
+  if (dev) return
+  const root = path.join(__dirname, 'out')
+  params.koaApp.use(serve(root))
 }

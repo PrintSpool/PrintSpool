@@ -1,6 +1,6 @@
-import withCreateTask from './withCreateTask'
+import withSpoolMacro from './withSpoolMacro'
 
-const jog = ({ createTask }) => (axis, direction, distance) => () => {
+const jog = ({ spoolMacro }) => (axis, direction, distance) => () => {
   const multiplier = (() => {
     switch (direction) {
       case '+': return 1
@@ -8,14 +8,14 @@ const jog = ({ createTask }) => (axis, direction, distance) => () => {
       default: throw new Error(`invalid direction ${direction}`)
     }
   })()
-  createTask({macro: 'moveBy', args: {[axis]: distance * multiplier} })
+  spoolMacro({macro: 'moveBy', args: {[axis]: distance * multiplier} })
 }
 
 const withJog = Component => {
   const HOC = props => (
     <Component {...props} jog={jog(props)}/>
   )
-  return withCreateTask(HOC)
+  return withSpoolMacro(HOC)
 }
 
 export default withJog

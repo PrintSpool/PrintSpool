@@ -23,11 +23,6 @@ const spoolMacro = ({ internal = false, priority, macro, args }) => {
 
     const gcodeLines = macroDefinition.run(args, state.config)
 
-    // TODO: move to a reducer
-    // if (state.driver.status !== 'ready' && priority !== EMERGENCY) {
-    //   throw new Error('Machine is not ready')
-    // }
-
     const action = spoolTask({
       name: macroDefinition.name,
       internal,

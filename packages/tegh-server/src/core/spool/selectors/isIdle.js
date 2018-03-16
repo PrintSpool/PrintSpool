@@ -8,7 +8,7 @@ const isIdle = createSelector(
   [ getTasks ],
   tasks => {
     return tasks.every(task =>
-      task.jobID == null &&
+      task.jobID == null ||
       ['SPOOLED', 'PRINTING'].includes(task.status) === false
     )
   },

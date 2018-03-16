@@ -13,21 +13,21 @@ import {
 } from 'material-ui'
 import { Field, reduxForm, formValues } from 'redux-form'
 
-import withCreateTask from '../../higher_order_components/withCreateTask'
+import withSpoolMacro from '../../higher_order_components/withSpoolMacro'
 
 const enhance = compose(
-  withCreateTask,
+  withSpoolMacro,
 )
 
 const Home = ({
-  createTask
+  spoolMacro
 }) => (
   <Card>
     <CardContent>
       <div style={{ textAlign: 'right' }}>
         <Button
           raised
-          onClick={() => createTask({ macro: 'home', args: { all: true } })}
+          onClick={() => spoolMacro({ macro: 'home', args: { all: true } })}
         >
           Home
         </Button>

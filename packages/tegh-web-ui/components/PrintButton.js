@@ -13,7 +13,7 @@ import {
   Print
 } from 'material-ui-icons'
 
-import withCreateTask from '../higher_order_components/withCreateTask'
+import withSpoolMacro from '../higher_order_components/withSpoolMacro'
 
 const styles = theme => ({
   rightIcon: {
@@ -22,7 +22,7 @@ const styles = theme => ({
 })
 
 const enhance = compose(
-  withCreateTask,
+  withSpoolMacro,
   reduxForm({
     initialValues: {
       files: null,
@@ -35,7 +35,7 @@ const enhance = compose(
 const PrintButton = ({
   classes,
   files,
-  createTask,
+  spoolMacro,
 }) => {
   const print = input => () => {
     console.log('print??111')
@@ -47,7 +47,7 @@ const PrintButton = ({
 
     fileReader.onload = () => {
       console.log('PRINT!!!!', fileReader.result)
-      createTask({
+      spoolMacro({
         fileName: name,
         gcode: [fileReader.result],
       })

@@ -4,8 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "next -p 3001",
-    "build": "next build && next export",
-    "start": "next start"
+    "build": "next build && next export"
   },
   "babel": {
     "presets": [

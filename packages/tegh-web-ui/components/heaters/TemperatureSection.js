@@ -13,7 +13,7 @@ import {
   Button,
 } from 'material-ui'
 
-import withCreateTask from '../../higher_order_components/withCreateTask'
+import withSpoolMacro from '../../higher_order_components/withSpoolMacro'
 
 const heaterFragment = `
   id
@@ -36,7 +36,7 @@ const subscribeToHeaters = props => params => {
 }
 
 const enhance = compose(
-  withCreateTask,
+  withSpoolMacro,
   graphql(
     gql`query heaterQuery {
       printer(id: "test_printer_id") {
@@ -87,12 +87,12 @@ const TemperatureSection = ({
   isHeating,
   loading,
   error,
-  createTask,
+  spoolMacro,
 }) => {
   if (loading) return <div>Loading</div>
   if (error) return <div>Error</div>
   const toggleEnabled = (event, val) => {
-    createTask({
+    spoolMacro({
       macro: 'toggleHeater',
       args: { [id]: val },
     })
