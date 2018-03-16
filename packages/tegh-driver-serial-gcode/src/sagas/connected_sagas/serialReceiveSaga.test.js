@@ -3,6 +3,8 @@ import { driverError } from 'tegh-server'
 import { utils as sagaUtils } from 'redux-saga'
 const { SAGA_ACTION } = sagaUtils
 
+import { despoolTask } from 'tegh-server'
+
 import delayMockedSagaTester from '../../test_helpers/delayMockedSagaTester'
 import serialSend from '../../actions/serialSend'
 import serialReceiveSaga from './serialReceiveSaga'
@@ -16,7 +18,7 @@ const serialReceive = (type, data) => ({
 })
 
 const despoolAction = {
-  type: 'DESPOOL',
+  ...despoolTask(),
   [SAGA_ACTION]: true,
 }
 

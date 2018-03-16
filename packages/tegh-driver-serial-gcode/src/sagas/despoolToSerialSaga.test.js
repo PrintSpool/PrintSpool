@@ -4,11 +4,14 @@ import SagaTester from 'redux-saga-tester'
 import { List } from 'immutable'
 const { SAGA_ACTION } = sagaUtils
 
+import { SPOOL_TASK } from 'tegh-server'
+import { DESPOOL_TASK } from 'tegh-server'
+
 import despoolToSerialSaga from './despoolToSerialSaga'
 import serialSend from '../actions/serialSend'
 
-const despoolAction = { type: 'DESPOOL' }
-const spoolAction = { type: 'SPOOL' }
+const despoolAction = { type: DESPOOL_TASK }
+const spoolAction = { type: SPOOL_TASK }
 
 const sentLine = {
   ...serialSend('(╯°□°）╯︵ ┻━┻', { lineNumber: 1995 }),
@@ -37,7 +40,7 @@ const createTester = (selectorOverrides = {}) => {
   return sagaTester
 }
 
-describe('DESPOOL', () => {
+describe(DESPOOL_TASK, () => {
   test('sends next line', async () => {
     const sagaTester = createTester()
     sagaTester.dispatch(despoolAction)
@@ -64,7 +67,7 @@ describe('DESPOOL', () => {
   })
 })
 
-describe('SPOOL', () => {
+describe(SPOOL_TASK, () => {
   test('sends next line when shouldSendSpooledLineToPrinter is true', () => {
     const sagaTester = createTester({
       shouldSendSpooledLineToPrinter: () => true,

@@ -9,9 +9,7 @@ const spoolTemperatureQuery = () => {
     name,
     internal: true,
     priority: PREEMPTIVE,
-    file: {
-      content: 'M105',
-    }
+    data: ['M105'],
   })
 }
 

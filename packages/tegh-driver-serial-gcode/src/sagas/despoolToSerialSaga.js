@@ -2,6 +2,9 @@
 import { effects } from 'redux-saga'
 const { put, takeEvery, takeLatest, select, call } = effects
 
+import { SPOOL_TASK } from 'tegh-server'
+import { DESPOOL_TASK } from 'tegh-server'
+
 import serialSend from '../actions/serialSend'
 
 const despoolToSerialSaga = ({
@@ -23,8 +26,8 @@ const despoolToSerialSaga = ({
     const shouldSendSpool = yield select(shouldSendSpooledLineToPrinter)
     const currentLine = yield select(getCurrentLine)
     if (
-      type === 'DESPOOL' && currentLine != null ||
-      type === 'SPOOL' && shouldSendSpool
+      type === DESPOOL_TASK && currentLine != null ||
+      type === SPOOL_TASK && shouldSendSpool
     ) {
       const lineNumber = yield select(getCurrentSerialLineNumber)
       const emergency = yield select(isEmergency)
@@ -47,7 +50,7 @@ const despoolToSerialSaga = ({
   }
 
   return function*() {
-    yield takeEvery(['DESPOOL', 'SPOOL'], onSpoolerChange)
+    yield takeEvery([DESPOOL_TASK, SPOOL_TASK], onSpoolerChange)
   }
 }
 

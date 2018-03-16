@@ -64,6 +64,9 @@ const Task = ({
   if (!priorityOrder.includes(priority)) {
     throw new Error(`invalid priority`)
   }
+  if (!Array.isArray(data)) {
+    throw new Error('data must be an array of strings')
+  }
   return TaskRecord({
     id: uuid(),
     createdAt: new Date().toISOString(),

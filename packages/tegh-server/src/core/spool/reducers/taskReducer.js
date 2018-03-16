@@ -30,7 +30,7 @@ import { CREATE_TASK } from '../actions/createTask'
 import { DELETE_TASK } from '../actions/deleteTask'
 import { START_TASK } from '../actions/startTask'
 
-const taskReducer = () => (state, action) => {
+const taskReducer = (state, action) => {
   switch (action.type) {
     /* Spool reset actions */
     case PRINTER_READY:

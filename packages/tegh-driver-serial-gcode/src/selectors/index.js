@@ -1,3 +1,6 @@
+import { PriorityEnum } from 'tegh-server'
+const { EMERGENCY } = PriorityEnum
+
 export const isReady = state =>
   state.driver.status === 'ready'
 
@@ -20,7 +23,7 @@ export const getPollingInterval = state =>
   state.config.driver.temperaturePollingInterval
 
 export const getCurrentTask = state =>
-  state.spool.allTasks.get(state.spool.currentTaskID)
+  state.spool.tasks.get(state.spool.currentTaskID)
 
 export const getCurrentLine = state => {
   const task = getCurrentTask(state)

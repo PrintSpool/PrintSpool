@@ -67,7 +67,7 @@ const spoolReducer = () => (state = initialState, action) => {
       const { id, priority } = payload.task
       let nextState = state
 
-      if (!isIdle.resultFunc(state.tasks) && priority !== EMERGENCY) {
+      if (isIdle.resultFunc(state.tasks) === false && priority !== EMERGENCY) {
         throw new Error('Cannot spool non-emergency tasks when printing a job')
       }
 
@@ -82,7 +82,7 @@ const spoolReducer = () => (state = initialState, action) => {
       /*
        * update each existing task via the taskReducer
        */
-      nextState = taskMap.updateEach(state, action)
+      nextState = taskMap.updateEach(nextState, action)
 
       nextState = nextState
         .updateIn(taskQueue, list => list.push(task.id))
@@ -93,7 +93,7 @@ const spoolReducer = () => (state = initialState, action) => {
          * recurse into the reducer to despool the first line if nothing is
          * spooled
          */
-        nextState = spoolReducer(nextState, despoolTask())
+        nextState = spoolReducer()(nextState, despoolTask())
       }
       return nextState
     }
@@ -104,7 +104,7 @@ const spoolReducer = () => (state = initialState, action) => {
         /*
          * despool the next line or finish the task via the taskReducer
          */
-        nextState = taskMap.updateOne(state, action, currentTaskID)
+        nextState = taskMap.updateOne(nextState, action, currentTaskID)
       }
       const currentTask = nextState.tasks.get(currentTaskID)
       if (currentTask == null || currentTask.status != PRINTING) {

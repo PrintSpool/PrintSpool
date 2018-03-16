@@ -3,6 +3,8 @@ import { effects } from 'redux-saga'
 import { driverError } from 'tegh-server'
 const { put, takeEvery, takeLatest, select, call, delay, take } = effects
 
+import { despoolTask } from 'tegh-server'
+
 import { forkEvery } from '../helpers/'
 import spoolTemperatureQuery from '../../actions/spoolTemperatureQuery'
 import serialSend from '../../actions/serialSend'
@@ -30,7 +32,7 @@ const serialReceiveSaga = ({
       case 'ok': {
         const ignoreNextOK = yield select(shouldIgnoreOK)
         if (ignoreNextOK) return
-        yield put({ type: 'DESPOOL' })
+        yield put(despoolTask())
         return
       }
       case 'resend': {

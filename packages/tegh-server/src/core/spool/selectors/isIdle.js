@@ -7,7 +7,7 @@ import getTasks from './getTasks'
 const isIdle = createSelector(
   [ getTasks ],
   tasks => {
-    tasks.every(task =>
+    return tasks.every(task =>
       task.jobID == null &&
       ['SPOOLED', 'PRINTING'].includes(task.status) === false
     )

@@ -101,12 +101,15 @@ const serialGCodeReducer = ({ config }) => (
       return nextState
     }
     case SPOOL_TASK:
-      if (status !== 'ready' && action.payload.task.priority !== EMERGENCY) {
+      if (
+        state.status !== 'ready' &&
+        action.payload.task.priority !== EMERGENCY
+      ) {
         throw new Error(
           'Only emergency tasks can be spooled when the machine is not ready.'
         )
       }
-      throwErrorOnInvalidGCode(action.task.data)
+      throwErrorOnInvalidGCode(action.payload.task.data)
       return state
     case 'SERIAL_SEND':
       const {lineNumber, collectionKey, id, changes} = action
