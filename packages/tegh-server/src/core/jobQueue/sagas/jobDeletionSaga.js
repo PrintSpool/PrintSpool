@@ -1,18 +1,21 @@
 import { effects } from 'redux-saga'
-const { takeEach, select, put } = effects
+const { takeEvery, select, put, cps } = effects
 
 import fs from '../../util/promisifiedFS'
-import { SPOOL } from '../../actions/spoolTask'
-import { getJobsByStatus } from '../selectors/jobSelectors'
+import { SPOOL_TASK } from '../../spool/actions/spoolTask'
+import getJobsByStatus from '../selectors/getJobsByStatus'
 import getJobTmpFiles from '../selectors/getJobTmpFiles'
 import deleteJob from '../actions/deleteJob'
 
+/*
+ * Deletes the previous job when the next job starts
+ */
 const jobDeletionSaga = function*() {
   const spoolJobFilter = action => {
-    return action.type === SPOOL && action.jobID != null
+    return action.type === SPOOL_TASK && action.payload.task.jobID != null
   }
 
-  yield takeEach(spoolJobFilter, function*() {
+  yield takeEvery(spoolJobFilter, function*() {
     /* get all completed, errored or cancelled jobs */
     const jobsForDeletion = ( yield select( getJobsByStatus ) )({
       statuses: ['errored', 'cancelled', 'done']
@@ -21,10 +24,13 @@ const jobDeletionSaga = function*() {
     for (const job of jobsForDeletion) {
       /* delete the job */
       yield put(deleteJob({ jobID: job.id }))
+    }
+
+    for (const job of jobsForDeletion) {
       /* unlink any tmp files associated with the job */
-      const tmpPaths = ( yield select(getJobTmpFilePaths) )({ jobID: job.id})
+      const tmpPaths = ( yield select(getJobTmpFiles) )({ jobID: job.id})
       for (const tmpFilePath of tmpPaths) {
-        await fs.unlinkAsync(tmpFilePath)
+        yield cps(fs.unlink, tmpFilePath)
       }
     }
   })

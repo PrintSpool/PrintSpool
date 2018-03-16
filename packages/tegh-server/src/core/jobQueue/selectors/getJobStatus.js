@@ -1,11 +1,9 @@
-import { BUBBLING_STATUES } from '../types/JobStatusEnum'
+import { BUBBLING_STATUES, DONE, QUEUED } from '../types/JobStatusEnum'
 
-import getJobQuantityCompleted from './getJobQuantityCompleted'
 import getJobFileStatus from './getJobFileStatus'
 
 export const getJobStatus = state => ({ jobID }) => {
   const job = state.jobQueue.jobs.get(jobID)
-  const quantityCompleted = getJobQuantityCompleted(state)({ jobID })
 
   const jobFilesStatues = jobFiles.map((_v, jobFileID) => (
     getJobFileStatus(state)({ jobFileID })
@@ -17,7 +15,7 @@ export const getJobStatus = state => ({ jobID }) => {
 
   if (status != null) return status
 
-  const isDone = jobFilesStatues.every(status => status === 'done')
+  const isDone = jobFilesStatues.every(status => status === DONE)
 
-  return isDone ? 'done' : 'queued'
+  return isDone ? DONE : QUEUED
 }

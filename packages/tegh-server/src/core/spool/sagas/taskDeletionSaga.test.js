@@ -1,4 +1,3 @@
-// @flow
 import { utils as sagaUtils } from 'redux-saga'
 import SagaTester from 'redux-saga-tester'
 const { SAGA_ACTION } = sagaUtils

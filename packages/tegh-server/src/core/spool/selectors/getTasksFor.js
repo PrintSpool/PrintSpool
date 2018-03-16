@@ -1,4 +1,4 @@
-import createSelector from 'createSelector'
+import { createSelector } from 'reselect'
 import _ from 'lodash'
 
 import getTasks from './getTasks'
