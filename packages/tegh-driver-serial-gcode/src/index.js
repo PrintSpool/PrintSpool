@@ -24,8 +24,6 @@ export const middleware = ({ config }) => {
     parser,
     isConnected,
   } = createSerialPort(config)
-  // TODO: monitor file and open serial port when it exists
-  // setImmediate(() => serialPort.open())
 
   return [
     serialMiddleware({
