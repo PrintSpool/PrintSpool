@@ -1,6 +1,7 @@
 import createSagaMiddleware from 'redux-saga'
 import { createStore, applyMiddleware } from 'redux'
 import ReduxThunk from 'redux-thunk'
+import * as coreSagas from './core/sagas'
 
 import rootReducer from './rootReducer'
 
@@ -20,7 +21,12 @@ const createTeghStore = (storeContext) => {
     ),
   )
 
-  for (const saga of driver.sagas(storeContext)) {
+  const sagas = [
+    ...coreSagas,
+    ...driver.sagas(storeContext),
+  ]
+
+  for (const saga of sagas) {
     sagaMiddleware.run(saga)
   }
 

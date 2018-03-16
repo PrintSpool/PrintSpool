@@ -13,10 +13,12 @@ import TaskType from './core/spool/types/Task.graphql.js'
 const QueryRootType = new GraphQLObjectType({
   name: 'QueryRoot',
   fields: {
+
     allPrinters: {
       type: tql`[${PrinterType}!]!`,
       resolve: (_source, _args, context) => [context.store.getState()],
     },
+
     printer: {
       type: tql`${PrinterType}!`,
       args: {
@@ -58,6 +60,7 @@ const QueryRootType = new GraphQLObjectType({
         return jobs
       }
     },
+
     job: {
       type: tql`${JobType}!`,
       args: {

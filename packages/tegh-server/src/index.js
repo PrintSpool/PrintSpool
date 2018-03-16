@@ -11,7 +11,7 @@ import reduxPubSub from './graphql/reduxPubSub'
 import createTeghStore from './createTeghStore'
 import httpServer from './server/httpServer'
 
-export * from './actions/'
+export * from './core/actions/'
 
 global.Promise = Promise
 
