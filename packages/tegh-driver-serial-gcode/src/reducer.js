@@ -57,6 +57,7 @@ const serialGCodeReducer = ({ config }) => (
         status: 'estopped',
       }
     case 'SERIAL_CLOSE':
+      if (action.resetByMiddleware) return state
       return {
         ...initialState(config),
         status: 'disconnected',

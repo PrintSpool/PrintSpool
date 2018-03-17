@@ -9,7 +9,7 @@ export { default as createLocalFileJob } from './jobQueue/actions/createLocalFil
 export { default as deleteJob, DELETE_JOB } from './jobQueue/actions/deleteJob'
 /* spool */
 export { default as createTask, CREATE_TASK } from './spool/actions/createTask'
-export { default as deleteTask, DELETE_TASK } from './spool/actions/deleteTask'
+export { default as deleteTask, DELETE_TASKS } from './spool/actions/deleteTasks'
 export { default as despoolTask, DESPOOL_TASK } from './spool/actions/despoolTask'
 export { default as spoolCommands } from './spool/actions/spoolCommands'
 export { default as spoolJobFile } from './spool/actions/spoolJobFile'

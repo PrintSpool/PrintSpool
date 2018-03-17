@@ -21,7 +21,7 @@ const getTasksPendingDeletion = createSelector(
           task.jobID == null
           && [DONE, ERRORED, CANCELLED].includes(task.status)
         )
-      }).values()
+      }).toList()
   },
 )
 

@@ -27,7 +27,7 @@ import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 import { SPOOL_TASK } from '../actions/spoolTask'
 import { DESPOOL_TASK } from '../actions/despoolTask'
 import { CREATE_TASK } from '../actions/createTask'
-import { DELETE_TASK } from '../actions/deleteTask'
+import { DELETE_TASKS } from '../actions/deleteTasks'
 import { START_TASK } from '../actions/startTask'
 import { CANCEL_ALL_TASKS } from '../actions/cancelAllTasks'
 
@@ -60,10 +60,10 @@ const taskReducer = (state, action) => {
     case CREATE_TASK: {
       return action.payload.task
     }
-    case DELETE_TASK: {
-      const { id } = action.payload
+    case DELETE_TASKS: {
+      const { ids } = action.payload
 
-      return state.id === id ? DELETE_ITEM : state
+      return ids.includes(state.id) ? DELETE_ITEM : state
     }
     case START_TASK: {
       return state.merge({

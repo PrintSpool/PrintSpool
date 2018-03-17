@@ -4,7 +4,7 @@ const { SAGA_ACTION } = sagaUtils
 
 import Task from '../types/Task'
 import { NORMAL } from '../types/PriorityEnum'
-import deleteTask from '../actions/deleteTask'
+import deleteTasks from '../actions/deleteTask'
 
 let taskDeletionSaga
 
