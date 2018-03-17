@@ -56,6 +56,15 @@ const logger = (action) => {
         level: 'info',
         message: 'Serial Connected',
       }
+    case 'SERIAL_OPEN_ERROR':
+      return {
+        source: 'SERIAL',
+        level: 'warning',
+        message: (
+          `Unable to open serial port\n`+
+          `${action.payload.message}\n${action.payload.stack}`
+        ),
+      }
     case DRIVER_ERROR:
       return {
         source: action.error.code === 'FIRMWARE_ERROR' ? 'FIRMWARE' : 'DRIVER',

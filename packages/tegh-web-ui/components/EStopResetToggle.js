@@ -97,9 +97,11 @@ const EStopResetToggle = ({
 }) => {
   if (loading) return <div>Loading</div>
   const showEstop = status !== 'ERRORED' && status !== 'ESTOPPED'
+  const disabled = status === 'DISCONNECTED'
   const onClick = () => {
     spoolMacro({ macro: showEstop ? 'eStop' : 'reset' })
   }
+
   return (
     <div>
       <div style={{display: 'inline-block', paddingTop: 8}}>
@@ -113,6 +115,7 @@ const EStopResetToggle = ({
         <Button
           color={showEstop ? 'secondary' : 'primary'}
           raised
+          disabled={disabled}
           onClick={onClick}
         >
           {

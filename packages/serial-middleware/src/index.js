@@ -53,10 +53,20 @@ const serialMiddleware = ({
 }) => (store: Store) => {
   const waitForConnection = () => {
     if (isConnected()) {
-      serialPort.open()
-    } else {
-      setTimeout(waitForConnection, 200)
+      try {
+        serialPort.open()
+        return
+      } catch(e) {
+        store.dispatch({
+          type: 'SERIAL_OPEN_ERROR',
+          payload: {
+            message: e.message,
+            stack: e.stack,
+          }
+        })
+      }
     }
+    setTimeout(waitForConnection, 200)
   }
   setImmediate(waitForConnection)
 
