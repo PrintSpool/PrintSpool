@@ -1,4 +1,12 @@
-import { SPOOL_TASK } from 'tegh-server'
+import {
+  SPOOL_TASK,
+  ESTOP,
+  DRIVER_ERROR,
+  PRINTER_READY,
+  PriorityEnum,
+} from 'tegh-server'
+const { EMERGENCY } = PriorityEnum
+
 
 import { throwErrorOnInvalidGCode } from './txParser.js'
 
@@ -37,13 +45,13 @@ const serialGCodeReducer = ({ config }) => (
   action
 ) => {
   switch(action.type) {
-    case 'DRIVER_ERROR':
+    case DRIVER_ERROR:
       return {
         ...initialState(config),
         status: 'errored',
         error: action.error,
       }
-    case 'ESTOP':
+    case ESTOP:
       return {
         ...initialState(config),
         status: 'estopped',
@@ -58,7 +66,7 @@ const serialGCodeReducer = ({ config }) => (
         ...initialState(config),
         status: 'connecting',
       }
-    case 'PRINTER_READY':
+    case PRINTER_READY:
       return {
         ...initialState(config),
         status: 'ready',

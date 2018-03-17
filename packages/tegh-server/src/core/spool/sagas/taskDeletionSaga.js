@@ -6,7 +6,6 @@ import getTasksPendingDeletion from '../selectors/getTasksPendingDeletion'
 const taskDeletionSaga = function*() {
   const { takeEvery, select, put } = effects
   const allActionsExceptDeletions = action => action.type != DELETE_TASK
-  // const allActionsExceptDeletions = action => console.log(action)
 
   yield takeEvery(allActionsExceptDeletions, function*() {
     /* delete all the tasks pending deletion */

@@ -68,7 +68,9 @@ const serialMiddleware = ({
 
   const onClose = () => {
     const { resetByMiddleware } = serialPort
-    parser.buffer = Buffer.alloc(0)
+    // if (!resetByMiddleware) {
+    //   parser.buffer = Buffer.alloc(0)
+    // }
     store.dispatch({
       type: 'SERIAL_CLOSE',
       resetByMiddleware,
@@ -116,6 +118,7 @@ const serialMiddleware = ({
       serialPort.resetByMiddleware = true
       serialPort.close(err => {
         if (err) return onError(err)
+        // parser.buffer = Buffer.alloc(0)
         delete serialPort.resetByMiddleware
         serialPort.open()
       })

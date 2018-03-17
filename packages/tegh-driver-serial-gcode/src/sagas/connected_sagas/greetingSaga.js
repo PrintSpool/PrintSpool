@@ -2,6 +2,10 @@
 import { effects } from 'redux-saga'
 const { put, takeEvery, takeLatest, select, call, delay, take } = effects
 
+import {
+  printerReady,
+} from 'tegh-server'
+
 import { forkEvery } from '../helpers/'
 import spoolTemperatureQuery from '../../actions/spoolTemperatureQuery'
 import serialSend from '../../actions/serialSend'
@@ -18,7 +22,7 @@ const greetingSaga = ({
       yield delay(50)
       yield put(serialSend('M110 N0', { lineNumber: false }))
     } else if (responseType === 'ok') {
-      yield put({ type: 'PRINTER_READY' })
+      yield put(printerReady())
     }
   }
 

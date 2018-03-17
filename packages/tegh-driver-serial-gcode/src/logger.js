@@ -1,3 +1,7 @@
+import {
+  DRIVER_ERROR
+} from 'tegh-server'
+
 const rxLevel = (type) => {
   switch(type) {
     case 'error':
@@ -52,7 +56,7 @@ const logger = (action) => {
         level: 'info',
         message: 'Serial Connected',
       }
-    case 'DRIVER_ERROR':
+    case DRIVER_ERROR:
       return {
         source: action.error.code === 'FIRMWARE_ERROR' ? 'FIRMWARE' : 'DRIVER',
         level: 'error',

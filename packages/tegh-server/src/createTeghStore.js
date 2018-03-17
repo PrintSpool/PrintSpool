@@ -22,7 +22,7 @@ const createTeghStore = (storeContext) => {
   )
 
   const sagas = [
-    ...coreSagas,
+    ...Object.values(coreSagas),
     ...driver.sagas(storeContext),
   ]
 

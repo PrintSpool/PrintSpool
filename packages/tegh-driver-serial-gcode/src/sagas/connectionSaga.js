@@ -1,6 +1,11 @@
 import { effects } from 'redux-saga'
 const { all, race, take, call, cancel, fork, join } = effects
 
+import {
+  ESTOP,
+  DRIVER_ERROR
+} from 'tegh-server'
+
 import * as connectedSagaIndex from './connected_sagas/'
 
 const connectionSaga = (selectors, sagasConfig = {
@@ -14,7 +19,7 @@ const connectionSaga = (selectors, sagasConfig = {
     while ( yield take('SERIAL_OPEN') ) {
       yield race({
         task: all(connectedSagas.map(saga => call(saga))),
-        cancel: take(['ESTOP', 'DRIVER_ERROR', 'SERIAL_CLOSE']),
+        cancel: take([ESTOP, DRIVER_ERROR, 'SERIAL_CLOSE']),
       })
     }
   }

@@ -2,6 +2,10 @@
 import { utils as sagaUtils } from 'redux-saga'
 const { SAGA_ACTION } = sagaUtils
 
+import {
+  printerReady
+} from 'tegh-server'
+
 import delayMockedSagaTester from '../../test_helpers/delayMockedSagaTester'
 import expectSimilarActions from '../../test_helpers/expectSimilarActions'
 import spoolTemperatureQuery from '../../actions/spoolTemperatureQuery'
@@ -15,10 +19,6 @@ const createTester = () => {
     saga: pollTemperatureSaga(selectors)
   })
   return { sagaTester, delayMock }
-}
-
-const printerReadyAction = {
-  type: 'PRINTER_READY',
 }
 
 const receiveOkWithTemp = {
@@ -43,12 +43,12 @@ const spoolTempQueryFromSaga = {
 
 test('on receiving PRINTER_READY queries temperature immediately', async () => {
   const { sagaTester, delayMock } = createTester()
-  sagaTester.dispatch(printerReadyAction)
+  sagaTester.dispatch(printerReady())
 
   const result = sagaTester.getCalledActions()
 
   expectSimilarActions(result, [
-    printerReadyAction,
+    printerReady(),
     spoolTempQueryFromSaga,
   ])
 })

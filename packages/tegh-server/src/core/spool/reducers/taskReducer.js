@@ -29,13 +29,15 @@ import { DESPOOL_TASK } from '../actions/despoolTask'
 import { CREATE_TASK } from '../actions/createTask'
 import { DELETE_TASK } from '../actions/deleteTask'
 import { START_TASK } from '../actions/startTask'
+import { CANCEL_ALL_TASKS } from '../actions/cancelAllTasks'
 
 const taskReducer = (state, action) => {
   switch (action.type) {
     /* Spool reset actions */
     case PRINTER_READY:
     case ESTOP:
-    case DRIVER_ERROR: {
+    case DRIVER_ERROR:
+    case CANCEL_ALL_TASKS: {
       if (isSpooled(state.status)) {
         const isError = action.type === DRIVER_ERROR
         const status = isError ? ERRORED : CANCELLED
@@ -62,26 +64,6 @@ const taskReducer = (state, action) => {
       const { id } = action.payload
 
       return state.id === id ? DELETE_ITEM : state
-    }
-    case SPOOL_TASK: {
-      const { task } = action.payload
-      let nextState = state
-
-      if (!priorityOrder.includes(task.priority)) {
-        throw new Error(`Invalid priority ${task.priority}`)
-      }
-
-      if (
-        task.id !== state.id
-        && task.priority === EMERGENCY
-        && isSpooled(state.status)
-      ) {
-        /*
-         * Emergency tasks cancel and pre-empt queued and printing tasks
-         */
-         nextState = nextState.set('status', CANCELLED)
-      }
-      return nextState
     }
     case START_TASK: {
       return state.merge({

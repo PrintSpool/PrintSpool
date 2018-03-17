@@ -2,6 +2,10 @@
 import { effects } from 'redux-saga'
 const { put, takeEvery, takeLatest, select, call, delay } = effects
 
+import {
+  PRINTER_READY,
+} from 'tegh-server'
+
 import { forkLatest } from '../helpers/'
 import firmwareErrorPattern from '../patterns/firmwareErrorPattern'
 import hasTemperatureDataPattern from '../patterns/hasTemperatureDataPattern'
@@ -11,7 +15,7 @@ const pollTemperatureSaga = ({
   getPollingInterval,
 }) => {
   const onTemperatureData = function*(action) {
-    if (action.type !== 'PRINTER_READY') {
+    if (action.type !== PRINTER_READY) {
       const interval = yield select(getPollingInterval)
       yield delay(interval)
     }
@@ -20,7 +24,7 @@ const pollTemperatureSaga = ({
 
   return function*() {
     yield forkLatest(
-      [hasTemperatureDataPattern, 'PRINTER_READY'],
+      [hasTemperatureDataPattern, PRINTER_READY],
       onTemperatureData
     )
   }

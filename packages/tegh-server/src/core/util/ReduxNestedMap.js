@@ -29,7 +29,7 @@ const ReduxNestedMap = ({
       }
       const nextItemState = singularReducer(previousItemState, action)
       if (nextItemState == DELETE_ITEM) {
-        return items.delete(item.id)
+        return items.delete(previousItemState.id)
       }
       return items.set(id, nextItemState)
     })

@@ -2,6 +2,12 @@ import { createSelector } from 'reselect'
 
 import getTasks from './getTasks'
 
+import {
+  DONE,
+  ERRORED,
+  CANCELLED,
+} from '../types/TaskStatusEnum'
+
 /*
  * returns tasks pending deletion - ie. those that are DONE, ERRORED and
  * CANCELLED and do not belong to a job.
@@ -9,12 +15,13 @@ import getTasks from './getTasks'
 const getTasksPendingDeletion = createSelector(
   [ getTasks ],
   tasks => {
-    return tasks.filter(task => {
-      return (
-        task.jobID == null
-        && [DONE, ERRORED, CANCELLED].include(task.status)
-      )
-    })
+    return tasks
+      .filter(task => {
+        return (
+          task.jobID == null
+          && [DONE, ERRORED, CANCELLED].includes(task.status)
+        )
+      }).values()
   },
 )
 

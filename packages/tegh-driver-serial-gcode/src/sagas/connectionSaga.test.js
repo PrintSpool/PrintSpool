@@ -4,6 +4,11 @@ const { SAGA_ACTION } = sagaUtils
 import SagaTester from 'redux-saga-tester'
 import { List } from 'immutable'
 
+import {
+  ESTOP,
+  DRIVER_ERROR,
+} from 'tegh-server'
+
 import { forkEvery } from './helpers/'
 import connectionSaga from './connectionSaga'
 import serialSend from '../actions/serialSend'
@@ -12,7 +17,7 @@ const open = {
   type: 'SERIAL_OPEN'
 }
 const driverError = {
-  type: 'DRIVER_ERROR',
+  type: DRIVER_ERROR,
 }
 const serialClose = {
   type: 'SERIAL_CLOSE',
@@ -47,7 +52,7 @@ test('on SERIAL_OPEN it starts the connected sagas', () => {
   ])
 })
 
-const shutdownActionTypes = ['ESTOP', 'DRIVER_ERROR', 'SERIAL_CLOSE']
+const shutdownActionTypes = [ESTOP, DRIVER_ERROR, 'SERIAL_CLOSE']
 
 shutdownActionTypes.forEach(type => {
   test(`on ${type} it stops the sagas`, () => {

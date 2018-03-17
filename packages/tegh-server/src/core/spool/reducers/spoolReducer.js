@@ -27,6 +27,7 @@ import despoolTask, { DESPOOL_TASK } from '../actions/despoolTask'
 import createTask from '../actions/createTask'
 import { DELETE_TASK } from '../actions/deleteTask'
 import startTask from '../actions/startTask'
+import cancelAllTasks, { CANCEL_ALL_TASKS } from '../actions/cancelAllTasks'
 
 const taskMap = ReduxNestedMap({
   singularReducer: taskReducer,
@@ -49,11 +50,14 @@ const spoolReducer = () => (state = initialState, action) => {
     /* Spool reset actions */
     case PRINTER_READY:
     case ESTOP:
-    case DRIVER_ERROR: {
+    case DRIVER_ERROR:
+    case CANCEL_ALL_TASKS: {
       const nextState = taskMap.updateEach(state, action)
 
       return nextState
         .set('priorityQueues', initialState.priorityQueues)
+        .set('currentTaskID', null)
+        .set('sendSpooledLineToPrinter', null)
     }
     case CANCEL_JOB:
     case DELETE_JOB: {
@@ -71,21 +75,22 @@ const spoolReducer = () => (state = initialState, action) => {
         throw new Error('Cannot spool non-emergency tasks when printing a job')
       }
 
-      /* create the task first */
+      /*
+       * if the task is an emergency then cancel all other tasks in the queue
+       */
+      if (priority === EMERGENCY) {
+        nextState = spoolReducer()(nextState, cancelAllTasks())
+      }
+
+      /* create the task */
       const createAction = createTask({ task: payload.task })
       nextState = taskMap.createOne(nextState, createAction)
 
-      const task = nextState.tasks.get(id)
-      const taskQueue = ['priorityQueues', task.priority]
-      const shouldDespool = state.currentTaskID == null
-
-      /*
-       * update each existing task via the taskReducer
-       */
-      nextState = taskMap.updateEach(nextState, action)
+      const taskQueue = ['priorityQueues', priority]
+      const shouldDespool = nextState.currentTaskID == null
 
       nextState = nextState
-        .updateIn(taskQueue, list => list.push(task.id))
+        .updateIn(taskQueue, list => list.push(id))
         .set('sendSpooledLineToPrinter', shouldDespool)
 
       if (shouldDespool) {
@@ -95,6 +100,7 @@ const spoolReducer = () => (state = initialState, action) => {
          */
         nextState = spoolReducer()(nextState, despoolTask())
       }
+      console.log(nextState)
       return nextState
     }
     case DESPOOL_TASK: {

@@ -79,10 +79,10 @@ const enhance = compose(
 
 const statusColor = status => {
   switch(status) {
-    case 'ready':
+    case 'READY':
       return '#1B5E20'
-    case 'errored':
-    case 'estopped':
+    case 'ERRORED':
+    case 'ESTOPPED':
       return '#D50000'
     default:
       return '#FF5722'
@@ -96,7 +96,7 @@ const EStopResetToggle = ({
   classes,
 }) => {
   if (loading) return <div>Loading</div>
-  const showEstop = status !== 'errored' && status !== 'estopped'
+  const showEstop = status !== 'ERRORED' && status !== 'ESTOPPED'
   const onClick = () => {
     spoolMacro({ macro: showEstop ? 'eStop' : 'reset' })
   }

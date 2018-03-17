@@ -2,6 +2,10 @@
 import { utils as sagaUtils } from 'redux-saga'
 const { SAGA_ACTION } = sagaUtils
 
+import {
+  PRINTER_READY,
+} from 'tegh-server'
+
 import delayMockedSagaTester from '../../test_helpers/delayMockedSagaTester'
 import expectSimilarActions from '../../test_helpers/expectSimilarActions'
 import serialSend from '../../actions/serialSend'
@@ -15,7 +19,7 @@ const createTester = (selectors) => {
 }
 
 const printerReadyAction = {
-  type: 'PRINTER_READY',
+  type: PRINTER_READY,
   [SAGA_ACTION]: true,
 }
 
