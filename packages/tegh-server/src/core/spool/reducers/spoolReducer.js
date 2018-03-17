@@ -100,7 +100,7 @@ const spoolReducer = () => (state = initialState, action) => {
          */
         nextState = spoolReducer()(nextState, despoolTask())
       }
-      console.log(nextState)
+
       return nextState
     }
     case DESPOOL_TASK: {

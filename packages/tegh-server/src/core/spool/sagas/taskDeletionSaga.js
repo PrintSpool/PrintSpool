@@ -5,11 +5,12 @@ import getTasksPendingDeletion from '../selectors/getTasksPendingDeletion'
 
 const taskDeletionSaga = function*() {
   const { takeLatest, select, put } = effects
-  const allActionsExceptDeletions = action => action.type != DELETE_TASKS
 
-  yield takeLatest(allActionsExceptDeletions, function*() {
+  yield takeLatest('*', function*() {
     /* delete all the tasks pending deletion */
     const tasks = yield select(getTasksPendingDeletion)
+
+    if (tasks.size === 0) return
 
     yield put(deleteTasks({ ids: tasks.map(task => task.id) }))
   })
