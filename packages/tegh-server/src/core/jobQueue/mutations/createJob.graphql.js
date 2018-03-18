@@ -23,14 +23,21 @@ const createJobGraphQL = () => ({
   }),
 
   args: {
-    printerID: {
-      type: tql`ID!`,
-    },
-    files: {
-      type: tql`[${FileInputType}!]!`,
-    },
-    name: {
-      type: tql`String!`,
+    input: {
+      type: new GraphQLInputObjectType({
+        name: 'CreateJobInput',
+        fields: {
+          printerID: {
+            type: tql`ID!`,
+          },
+          name: {
+            type: tql`String!`,
+          },
+          files: {
+            type: tql`[${FileInputType}!]!`,
+          },
+        },
+      }),
     },
   },
 })

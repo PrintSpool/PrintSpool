@@ -3,7 +3,7 @@ import {
 } from 'material-ui'
 
 import App from '../components/App'
-import PrintButton from '../components/PrintButton'
+import AddJobButton from '../components/AddJobButton'
 
 export default props => (
   <App>
@@ -12,7 +12,7 @@ export default props => (
       spacing={24}
     >
       <Grid item xs={12}>
-        <PrintButton form='printButton'/>
+        <AddJobButton form='addJobButton'/>
       </Grid>
     </Grid>
   </App>
