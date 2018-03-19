@@ -32,7 +32,7 @@ const spoolCommandsGraphQL = () => ({
 
   resolve: actionResolver({
     actionCreator: spoolTask,
-    selector: (state, action) => getTask(state)(action.payload.task.id),
+    selector: (state, action) => action.payload.task,
   }),
 
   args: {

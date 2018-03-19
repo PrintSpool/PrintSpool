@@ -3,9 +3,9 @@ import gql from 'graphql-tag'
 
 const spoolMacro = gql`
   mutation spoolMacro(
-    $input: spoolMacroInput!
+    $input: SpoolMacroInput!
   ) {
-    spoolMacro(input $input) {
+    spoolMacro(input: $input) {
       id
     }
   }

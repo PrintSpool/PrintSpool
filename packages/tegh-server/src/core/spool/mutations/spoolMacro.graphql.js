@@ -17,7 +17,7 @@ const SpoolMacroInputGraphQL = new GraphQLInputObjectType({
       type: tql`ID!`,
     },
     macro: {
-      type: tql`String`,
+      type: tql`String!`,
       description: snl`The name of the macro`,
     },
     args: {
@@ -34,7 +34,7 @@ const spoolMacroGraphQL = () => ({
   `,
   resolve: actionResolver({
     actionCreator: spoolMacro,
-    selector: (state, action) => getTask(state)(action.payload.task.id),
+    selector: (state, action) => action.payload.task,
   }),
 
   args: {
