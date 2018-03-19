@@ -20,6 +20,14 @@ import gql from 'graphql-tag'
 
 import FileInput from './FileInput'
 
+const wrapInErrorReporting = mutation => props => {
+  try {
+    mutation(props)
+  } catch(e) {
+    alert(e)
+  }
+}
+
 const createJobGraphQL = gql`
   mutation createJob($input: CreateJobInput!) {
     createJob(input: $input) {
@@ -50,11 +58,9 @@ const enhance = compose(
           const { name } = file
 
           /* read the file */
-          console.log('print??')
           const fileReader = new FileReader()
           fileReader.readAsText(file)
           await new Promise(resolve => fileReader.onload = resolve)
-          console.log('PRINT!!!!', fileReader.result)
 
           mutationInput.files.push({
             name,
@@ -62,12 +68,16 @@ const enhance = compose(
           })
         }
         /* execute the mutation */
-        mutate({ input: mutationInput })
+        console.log(mutationInput)
+        mutate({
+          variables: {
+            input: mutationInput
+          }
+        })
         /* reset the file input */
         onChange([])
-      }
-
-    })
+      },
+    }),
   }),
   reduxForm({
     initialValues: {

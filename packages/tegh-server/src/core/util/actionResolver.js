@@ -3,11 +3,12 @@ const actionResolver = ({
   selector,
 }) => async (_source, args, { store }) => {
   const state = store.getState()
-  if (args.printerID !== state.config.id) {
-    throw new Error(`Printer ID ${args.printerID} does not exist`)
+  const { printerID } = args.input
+  if (printerID !== state.config.id) {
+    throw new Error(`Printer ID ${printerID} does not exist`)
   }
 
-  const thunk = actionCreator(args)
+  const thunk = actionCreator(args.input)
   const action = await store.dispatch(thunk)
 
   return selector(store.getState(), action)

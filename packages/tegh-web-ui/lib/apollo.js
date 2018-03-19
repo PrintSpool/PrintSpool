@@ -1,9 +1,11 @@
 import { ApolloClient } from 'apollo-client'
 import { InMemoryCache } from 'apollo-cache-inmemory'
+import { concat } from 'apollo-link'
 import { HttpLink } from 'apollo-link-http'
 import { WebSocketLink } from 'apollo-link-ws'
 import { SubscriptionClient } from 'subscriptions-transport-ws'
 // import fetch from 'isomorphic-fetch'
+import { onError } from 'apollo-link-error'
 
 const isProduction = process.env.NODE_ENV === 'production'
 const ip = process.browser ? window.location.hostname : '127.0.0.1'
@@ -39,10 +41,31 @@ const createLink = (() => {
   }
 })
 
+const errorLink = onError(({ graphQLErrors, networkError }) => {
+  if (graphQLErrors) {
+    const errorMessages = graphQLErrors.map(({ message, locations, path }) => {
+      console.log(
+        `[GraphQL error]: ` +
+        `Message: ${message}, Location: ${locations}, Path: ${path}`
+      )
+      return (
+        `Unexpected GraphQL Error\n\n` +
+        `Message: ${message}\n`+
+        `Location: ${JSON.stringify(locations)}\n`+
+        `Path: ${path}`
+      )
+    })
+    if (errorMessages.length > 0 ) alert(errorMessages.join('\n\n'))
+  }
+  if (networkError) console.log(`[Network error]: ${networkError}`)
+})
 
 const createClient = () => {
   return new ApolloClient({
-    link: createLink(),
+    link: concat(
+      errorLink,
+      createLink(),
+    ),
     cache: new InMemoryCache(),
   })
 }

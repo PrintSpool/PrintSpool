@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "apollo-client-preset": "^1.0.1",
+    "apollo-link-error": "^1.0.7",
     "apollo-link-ws": "^1.0.4",
     "bluebird": "^3.5.1",
     "graphql": "^0.11.7",
