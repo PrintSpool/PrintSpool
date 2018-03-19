@@ -1,8 +1,6 @@
 import tql from 'typiql'
 import snl from 'strip-newlines'
-import {
-  GraphQLInputObjectType
-} from 'graphql'
+import { GraphQLInputObjectType } from 'graphql'
 
 import actionResolver from '../../util/actionResolver'
 import FileInputType from '../../util/FileInput.graphql.js'

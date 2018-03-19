@@ -1,6 +1,6 @@
 import tql from 'typiql'
 import snl from 'strip-newlines'
-import GraphQLJSON from 'graphql-type-json'
+import { GraphQLInputObjectType } from 'graphql'
 
 import FileInputType from '../../util/FileInput.graphql.js'
 import actionResolver from '../../util/actionResolver'
@@ -8,6 +8,19 @@ import spoolTask from '../actions/spoolTask'
 import getTask from '../selectors/getTask'
 
 import TaskGraphQL from '../types/Task.graphql.js'
+
+const SpoolCommandsInputGraphQL = new GraphQLInputObjectType({
+  name: 'SpoolCommandsInput',
+  fields: {
+    printerID: {
+      type: tql`ID!`,
+    },
+    file: {
+      type: tql`${FileInputType}!`
+    },
+  },
+})
+
 
 const spoolCommandsGraphQL = () => ({
   type: tql`${TaskGraphQL}!`,
@@ -23,11 +36,8 @@ const spoolCommandsGraphQL = () => ({
   }),
 
   args: {
-    printerID: {
-      type: tql`ID!`,
-    },
-    file: {
-      type: tql`${FileInputType}!`
+    input: {
+      type: tql`${SpoolCommandsInputGraphQL}!`
     },
   },
 })

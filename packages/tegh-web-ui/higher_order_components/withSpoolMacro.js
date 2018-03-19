@@ -3,14 +3,9 @@ import gql from 'graphql-tag'
 
 const spoolMacro = gql`
   mutation spoolMacro(
-    $macro: String
-    $args: JSON
+    $input: spoolMacroInput!
   ) {
-    spoolMacro(
-      printerID: "test_printer_id"
-      macro: $macro
-      args: $args
-    ) {
+    spoolMacro(input $input) {
       id
     }
   }
@@ -18,7 +13,16 @@ const spoolMacro = gql`
 
 const withSpoolMacro = graphql(spoolMacro, {
   props: ({ mutate }) => ({
-    spoolMacro: variables => mutate({ variables })
+    spoolMacro: input => {
+      return mutate({
+        variables: {
+          input: {
+            printerID: 'test_printer_id',
+            ...input,
+          }
+        }
+      })
+    }
   })
 })
 
