@@ -1,7 +1,7 @@
 import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
 import { compose, lifecycle } from 'recompose'
-// import withSubscription from '../higher_order_components/withSubscription'
+// import withSubscription from '../higherOrderComponents/withSubscription'
 
 const heaterFragment = `
   id

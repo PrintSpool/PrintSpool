@@ -29,7 +29,7 @@
     "material-ui-icons": "^1.0.0-beta.17",
     "next": "^4.2.1",
     "next-apollo": "^1.0.4",
-    "prop-types": "^15.5.8",
+    "prop-types": "^15.6.1",
     "react": "^16.2.0",
     "react-apollo": "^2.0.0",
     "react-css-grid": "^2.0.0-0",

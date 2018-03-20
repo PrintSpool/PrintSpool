@@ -12,7 +12,7 @@ import {
   CardContent,
 } from 'material-ui'
 import {
-  Print
+  Add
 } from 'material-ui-icons'
 
 import { graphql } from 'react-apollo'
@@ -37,8 +37,8 @@ const createJobGraphQL = gql`
 `
 
 const styles = theme => ({
-  rightIcon: {
-    marginLeft: theme.spacing.unit,
+  leftIcon: {
+    marginRight: theme.spacing.unit,
   },
 })
 
@@ -88,7 +88,7 @@ const enhance = compose(
   withStyles(styles),
 )
 
-const PrintButton = ({
+const AddJobButton = ({
   classes,
   files,
   print,
@@ -100,15 +100,14 @@ const PrintButton = ({
           name='files'
           component={ ({ input }) => (
             <div>
-              { console.log(input) }
               <FileInput { ...input } />
               <Button
                 raised
                 onClick={() => print(input)}
                 disabled={input.value.length === 0}
               >
-                Print
-                <Print className={classes.rightIcon}/>
+                <Add className={classes.leftIcon}/>
+                Add Job
               </Button>
             </div>
           )}
@@ -118,4 +117,4 @@ const PrintButton = ({
   )
 }
 
-export default enhance(PrintButton)
+export default enhance(AddJobButton)

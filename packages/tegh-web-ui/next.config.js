@@ -1,8 +1,10 @@
+console.log('next config!')
+
 module.exports = {
   exportPathMap: function() {
     return {
-      '/': { page: '/' },
+      '/': { page: '/index' },
       '/manual-control': { page: '/manual-control' },
     }
-  }
+  },
 }

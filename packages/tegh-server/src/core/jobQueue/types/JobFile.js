@@ -9,6 +9,7 @@ export type JobFileT = RecordOf<{
   filePath: string,
   isTmpFile: boolean,
   quantity: number,
+  jobID: string,
 }>
 
 const JobFileRecord = Record({
@@ -17,6 +18,7 @@ const JobFileRecord = Record({
   filePath: null,
   isTmpFile: null,
   quantity: null,
+  jobID: null,
 })
 
 const JobFile = attrs => JobFileRecord({

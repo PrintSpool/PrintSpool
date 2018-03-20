@@ -13,7 +13,7 @@ import {
 } from 'material-ui'
 import { Field, reduxForm, formValues } from 'redux-form'
 
-import withJog from '../../higher_order_components/withJog'
+import withJog from '../../higherOrderComponents/withJog'
 import JogDistanceButtons from '../jog/JogDistanceButtons'
 
 const enhance = compose(

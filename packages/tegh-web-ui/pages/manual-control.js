@@ -1,6 +1,8 @@
+import { compose, withContext } from 'recompose'
 import {
   Grid,
 } from 'material-ui'
+import PropTypes from 'prop-types'
 
 import App from '../components/App'
 // import HeatersStatus from '../components/HeatersStatus'
@@ -11,13 +13,16 @@ import XYJogButtons from '../components/jog/XYJogButtons'
 import ZJogButtons from '../components/jog/ZJogButtons'
 import HeaterControl from '../components/heaters/HeaterControl'
 
-export default props => (
-  // <App>
-  //   <HeatersStatus/>
-  //   <Submit />
-  //   <div style={{marginTop: 100}}/>
-  //   <Log />
-  // </App>
+const enhance = compose(
+  withContext(
+    {
+      printerID: PropTypes.string,
+    },
+    () => ({ printerID: 'test_printer_id'}),
+  ),
+)
+
+const ManualControl = props => (
   <App>
     <Grid
       container
@@ -41,3 +46,5 @@ export default props => (
     </Grid>
   </App>
 )
+
+export default enhance(ManualControl)

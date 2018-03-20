@@ -13,7 +13,7 @@ import {
   ArrowDownward,
 } from 'material-ui-icons'
 
-import withJog from '../../higher_order_components/withJog'
+import withJog from '../../higherOrderComponents/withJog'
 import JogButton from './JogButton'
 import JogDistanceButtons from './JogDistanceButtons'
 

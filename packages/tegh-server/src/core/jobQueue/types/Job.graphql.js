@@ -5,6 +5,10 @@ import {
 } from 'graphql'
 
 import getJobFilesFor from '../selectors/getJobFilesFor'
+import getTasksFor from '../../spool/selectors/getTasksFor'
+import getTasksCompleted from '../../spool/selectors/getTasksCompleted'
+import getJobTotalTasks from '../selectors/getJobTotalTasks'
+import getJobStatus from '../selectors/getJobStatus'
 
 import JobFileGraphQL from './JobFile.graphql.js'
 import TaskGraphQL from '../../spool/types/Task.graphql.js'
@@ -22,7 +26,6 @@ const JobGraphQL = new GraphQLObjectType({
     quantity: {
       type: tql`Int!`,
     },
-
     files: {
       type: tql`[${JobFileGraphQL}]!`,
       resolve(source, args, { store }) {
@@ -36,8 +39,7 @@ const JobGraphQL = new GraphQLObjectType({
       type: tql`[${TaskGraphQL}]!`,
       args: {
         excludeCompletedTasks: {
-          type: tql`Boolean`,
-          default: false,
+          type: tql`Boolean!`,
         },
       },
       resolve(source, args, { store }) {
@@ -48,6 +50,7 @@ const JobGraphQL = new GraphQLObjectType({
         })
       }
     },
+
     tasksCompleted: {
       type: tql`Int!`,
       resolve(source, args, { store }) {

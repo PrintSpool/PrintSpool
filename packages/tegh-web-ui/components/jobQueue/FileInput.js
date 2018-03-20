@@ -9,7 +9,6 @@ import {
 } from 'material-ui'
 
 const FileInput = ({ value, onChange }) => {
-  console.log(value, onChange, arguments)
   const onHTMLInputChange = e => {
     e.preventDefault()
     // convert files to an array
@@ -33,7 +32,6 @@ const FileInput = ({ value, onChange }) => {
           } else {
             return (
               <Typography type='button'>
-                { console.log(value)}
                 { value.map(f => f.name).join(', ') }
               </Typography>
             )

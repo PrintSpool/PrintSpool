@@ -26,6 +26,7 @@ const httpServer = async ({
   const teghGraphqlKoa = () => graphqlKoa({
     context,
     schema,
+    debug: true,
   })
 
   // koaBody is needed just for POST.

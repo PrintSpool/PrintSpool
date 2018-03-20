@@ -1,9 +1,11 @@
 import { BUBBLING_STATUES, DONE, QUEUED } from '../types/JobStatusEnum'
 
 import getJobFileStatus from './getJobFileStatus'
+import getJobFilesFor from './getJobFilesFor'
 
-export const getJobStatus = state => ({ jobID }) => {
+const getJobStatus = state => ({ jobID }) => {
   const job = state.jobQueue.jobs.get(jobID)
+  const jobFiles = getJobFilesFor(state)({ jobID })
 
   const jobFilesStatues = jobFiles.map((_v, jobFileID) => (
     getJobFileStatus(state)({ jobFileID })
@@ -19,3 +21,5 @@ export const getJobStatus = state => ({ jobID }) => {
 
   return isDone ? DONE : QUEUED
 }
+
+export default getJobStatus

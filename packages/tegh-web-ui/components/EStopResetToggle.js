@@ -19,7 +19,7 @@ import {
 } from 'material-ui-icons'
 import { Field, reduxForm, formValues } from 'redux-form'
 
-import withSpoolMacro from '../higher_order_components/withSpoolMacro'
+import withSpoolMacro from '../higherOrderComponents/withSpoolMacro'
 
 const styles = theme => ({
   leftIcon: {

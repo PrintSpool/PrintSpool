@@ -1,4 +1,4 @@
-import { Record } from 'immutable'
+import { Record, Map } from 'immutable'
 
 import Job from '../types/Job'
 import Task from '../../spool/types/Task'
@@ -10,8 +10,8 @@ import { DELETE_JOB } from '../actions/deleteJob'
 /* reducer */
 
 const initialState = Record({
-  jobs: new Map(),
-  jobFiles: new Map(),
+  jobs: Map(),
+  jobFiles: Map(),
 })()
 
 const jobQueue = () => (state = initialState, action) => {

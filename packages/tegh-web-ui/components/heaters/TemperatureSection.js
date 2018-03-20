@@ -13,7 +13,7 @@ import {
   Button,
 } from 'material-ui'
 
-import withSpoolMacro from '../../higher_order_components/withSpoolMacro'
+import withSpoolMacro from '../../higherOrderComponents/withSpoolMacro'
 
 const heaterFragment = `
   id

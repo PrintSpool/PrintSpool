@@ -8,12 +8,14 @@ export type JobT = RecordOf<{
   id: string,
   name: string,
   createdAt: ?number,
+  quantity: number,
 }>
 
 const JobRecord = Record({
   id: null,
   name: null,
   createdAt: null,
+  quantity: 1,
 })
 
 const Job = attrs => JobRecord({
