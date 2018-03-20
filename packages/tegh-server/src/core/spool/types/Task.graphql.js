@@ -22,7 +22,7 @@ const TaskType = new GraphQLObjectType({
       type: tql`Int!`,
       reducer: source => source.data.length
     },
-    precentComplete: {
+    percentComplete: {
       // TODO: PercentageScalarType
       // type: tql`${PercentageScalarType}!`,
       type: tql`Float!`,
