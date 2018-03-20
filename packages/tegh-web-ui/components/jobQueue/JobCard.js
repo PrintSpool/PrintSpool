@@ -44,14 +44,16 @@ const JobCard = ({
   return (
     <Card>
       <CardHeader
-        title={name}
-        subheader={`Printing, ${tasksCompleted} / ${totalTasks} parts printed`}
-        action={
-          <IconButton>
-            <MoreVert />
-          </IconButton>
-        }
+        title={V.truncate(name, 32)}
+        subheader={`${tasksCompleted} / ${totalTasks} prints completed`}
       />
+      {/*
+      action={
+        <IconButton>
+          <MoreVert />
+        </IconButton>
+      }
+      */}
       <CardContent
         style={{
           paddingTop: 0,
@@ -108,7 +110,7 @@ const JobCard = ({
 
       {/* Bottom Button Segment */}
       {
-        ///*
+        /*
       }
       <CardActions>
         <Button
@@ -118,7 +120,7 @@ const JobCard = ({
         </Button>
       </CardActions>
       {
-        //*/
+        */
       }
     </Card>
   )

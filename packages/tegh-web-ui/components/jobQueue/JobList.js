@@ -1,8 +1,26 @@
+import React from 'react'
 import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
 import { compose, lifecycle } from 'recompose'
 
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardActions,
+  Grid,
+  IconButton,
+  Typography,
+  Switch,
+  FormControlLabel,
+  Button,
+  LinearProgress,
+  Divider,
+} from 'material-ui'
+
 import withPrinterID from '../../higherOrderComponents/withPrinterID'
+import FloatingAddJobButton from './FloatingAddJobButton'
+import FloatingPrintNextButton from './FloatingPrintNextButton'
 import JobCard from './JobCard'
 
 const heaterFragment = `
@@ -29,7 +47,7 @@ const subscribeToJobList = props => params => {
 const enhance = compose(
   graphql(
     gql`query jobListQuery {
-      jobQueue {
+      jobs {
         id
         name
         quantity
@@ -52,12 +70,12 @@ const enhance = compose(
         const {
           loading,
           error,
-          jobQueue
+          jobs
         } = props.jobListQuery
         return {
           loading,
           error,
-          jobQueue,
+          jobs,
           // subscribeToJobList: subscribeToJobList(props),
         }
       },
@@ -70,22 +88,52 @@ const enhance = compose(
   }),
 )
 
-const JobList = ({
+export const JobList = ({
   loading,
   error,
-  jobQueue,
+  jobs,
 }) => {
-  console.log(jobQueue)
+  console.log(jobs)
   if (loading) return <div>Loading</div>
   if (error) return <div>Error</div>
 
   return (
     <div>
+    { /*
+      <Typography variant="subheading" gutterBottom>
+        Done
+      </Typography>
+      { /*
+        jobs
+          .filter(job => ['DONE', 'CANCELLED', 'ERRORED'].includes(job.status))
+          .map(job => (
+            <div style={{marginBottom: 24}}>
+              <JobCard key={job.id} {...job}/>
+            </div>
+          ))
+      */ }
+      <Typography variant="subheading" gutterBottom>
+        Printing
+      </Typography>
       {
-        jobQueue.map(job => (
-          <JobCard key={job.id} {...job}/>
+        jobs.filter(job => job.status === 'PRINTING').map(job => (
+          <div style={{marginBottom: 24}}>
+            <JobCard key={job.id} {...job}/>
+          </div>
         ))
       }
+      <Typography variant="subheading" gutterBottom>
+        Queued
+      </Typography>
+      {
+        jobs.filter(job => job.status === 'QUEUED').map(job => (
+          <div style={{marginBottom: 24}}>
+            <JobCard key={job.id} {...job}/>
+          </div>
+        ))
+      }
+      <FloatingAddJobButton />
+      <FloatingPrintNextButton />
     </div>
   )
 }
