@@ -10,6 +10,7 @@ export {
   PRINTING,
   ERRORED,
   CANCELLED,
+  DONE,
 } from '../../spool/types/TaskStatusEnum.js'
 
 export const QUEUED = 'QUEUED'

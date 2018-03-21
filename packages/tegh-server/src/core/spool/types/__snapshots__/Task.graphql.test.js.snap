@@ -1,0 +1,161 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TaskGraphQL presents a consistent API 1`] = `
+Object {
+  "description": "A spooled set of gcodes to be executed by the printer",
+  "enumValues": null,
+  "fields": Array [
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "id",
+      "type": Object {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": Object {
+          "kind": "SCALAR",
+          "name": "ID",
+          "ofType": null,
+        },
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "name",
+      "type": Object {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": Object {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "currentLineNumber",
+      "type": Object {
+        "kind": "SCALAR",
+        "name": "Int",
+        "ofType": null,
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "totalLineNumbers",
+      "type": Object {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": Object {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "percentComplete",
+      "type": Object {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": Object {
+          "kind": "SCALAR",
+          "name": "Float",
+          "ofType": null,
+        },
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "createdAt",
+      "type": Object {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": Object {
+          "kind": "SCALAR",
+          "name": "Date",
+          "ofType": null,
+        },
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "startedAt",
+      "type": Object {
+        "kind": "SCALAR",
+        "name": "Date",
+        "ofType": null,
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "stoppedAt",
+      "type": Object {
+        "kind": "SCALAR",
+        "name": "Date",
+        "ofType": null,
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "status",
+      "type": Object {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": Object {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+    },
+  ],
+  "inputFields": null,
+  "interfaces": Array [],
+  "kind": "OBJECT",
+  "name": "Task",
+  "possibleTypes": null,
+}
+`;
+
+exports[`TaskGraphQL resolves every field without error 1`] = `
+Object {
+  "createdAt": "[DYNAMIC FIELD OMITTED]",
+  "currentLineNumber": null,
+  "id": "[DYNAMIC FIELD OMITTED]",
+  "name": "test task",
+  "percentComplete": 0,
+  "startedAt": null,
+  "status": "SPOOLED",
+  "stoppedAt": null,
+  "totalLineNumbers": 2,
+}
+`;

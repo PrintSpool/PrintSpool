@@ -16,20 +16,17 @@ const TaskType = new GraphQLObjectType({
       type: tql`String!`,
     },
     currentLineNumber: {
-      type: tql`Int!`,
+      type: tql`Int`,
     },
     totalLineNumbers: {
       type: tql`Int!`,
-      reducer: source => source.data.length
+      resolve: source => source.data.size
     },
     percentComplete: {
       // TODO: PercentageScalarType
       // type: tql`${PercentageScalarType}!`,
       type: tql`Float!`,
-      resolve(source, args, { store }) {
-        const state = store.getState()
-        return getTaskPercentComplete(state)({ taskID: source.id })
-      }
+      resolve: source => source.currentLineNumber / source.data.size * 100
     },
     createdAt: {
       type: tql`${GraphQLDate}!`,

@@ -7,8 +7,8 @@ const getJobStatus = state => ({ jobID }) => {
   const job = state.jobQueue.jobs.get(jobID)
   const jobFiles = getJobFilesFor(state)({ jobID })
 
-  const jobFilesStatues = jobFiles.map((_v, jobFileID) => (
-    getJobFileStatus(state)({ jobFileID })
+  const jobFilesStatues = jobFiles.map((jobFile) => (
+    getJobFileStatus(state)({ jobFileID: jobFile.id })
   ))
 
   const status = jobFilesStatues.find(status =>
