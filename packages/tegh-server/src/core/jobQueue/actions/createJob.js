@@ -40,6 +40,7 @@ const createJob = ({ files, name }) => {
       await fs.writeFileAsync(filePath, file.content)
 
       const jobFile = JobFile({
+        jobID: job.id,
         name: file.name,
         filePath,
         isTmpFile: true,

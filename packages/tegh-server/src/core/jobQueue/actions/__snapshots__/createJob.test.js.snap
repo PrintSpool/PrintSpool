@@ -7,6 +7,7 @@ Object {
       "createdAt": "[REDACTED]",
       "id": "[REDACTED]",
       "name": "test_test_test",
+      "quantity": 1,
     },
     "jobFiles": "[REDACTED]",
   },
@@ -19,6 +20,7 @@ Object {
   "filePath": "[REDACTED]",
   "id": "[REDACTED]",
   "isTmpFile": true,
+  "jobID": "[REDACTED]",
   "name": "file_A",
   "quantity": 1,
 }
@@ -31,6 +33,7 @@ Object {
   "filePath": "[REDACTED]",
   "id": "[REDACTED]",
   "isTmpFile": true,
+  "jobID": "[REDACTED]",
   "name": "file_B",
   "quantity": 1,
 }

@@ -1,4 +1,4 @@
-import { Reboot } from 'material-ui'
+import { CssBaseline } from 'material-ui'
 import { Provider as ReduxProvider } from 'react-redux'
 import { ApolloProvider } from 'react-apollo'
 import { withStyles } from 'material-ui'
@@ -29,8 +29,11 @@ export default (() => {
     },
   })
 
+
+
+
   const App = ({ children, classes }) => (
-    <Reboot>
+    <CssBaseline>
       <ApolloProvider client={ client }>
         <ReduxProvider store={ store }>
           <div>
@@ -46,7 +49,7 @@ export default (() => {
           </div>
         </ReduxProvider>
       </ApolloProvider>
-    </Reboot>
+    </CssBaseline>
   )
 
   return withStyles(styles, { withTheme: true })(App)

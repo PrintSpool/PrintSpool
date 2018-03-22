@@ -18,12 +18,19 @@ const styles = theme => ({
 
 const enhance = withStyles(styles, { withTheme: true })
 
-const FloatingPrintNextButton = ({ classes }) => {
+const FloatingPrintNextButton = ({ classes, disabled }) => {
   return (
     <Tooltip title="Start the next print" placement="left">
-      <Button variant="fab" className={ classes.fab } color="primary">
-        <PlayArrow />
-      </Button>
+      <div>
+        <Button
+          variant="fab"
+          className={ classes.fab }
+          color="primary"
+          disabled={ disabled }
+        >
+          <PlayArrow />
+        </Button>
+      </div>
     </Tooltip>
   )
 }

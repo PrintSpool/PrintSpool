@@ -19,6 +19,8 @@ import {
 } from 'material-ui'
 
 import withPrinterID from '../../higherOrderComponents/withPrinterID'
+import addJobHandler from './mutations/addJobHandler'
+
 import FloatingAddJobButton from './FloatingAddJobButton'
 import FloatingPrintNextButton from './FloatingPrintNextButton'
 import JobCard from './JobCard'
@@ -58,7 +60,7 @@ const enhance = compose(
 
         tasks(excludeCompletedTasks: true) {
           name
-          precentComplete
+          percentComplete
           startedAt
           status
         }
@@ -81,6 +83,7 @@ const enhance = compose(
       },
     },
   ),
+  addJobHandler,
   lifecycle({
     componentWillMount() {
       // this.props.subscribeToJobList()
@@ -92,6 +95,7 @@ export const JobList = ({
   loading,
   error,
   jobs,
+  addJob,
 }) => {
   console.log(jobs)
   if (loading) return <div>Loading</div>
@@ -132,8 +136,13 @@ export const JobList = ({
           </div>
         ))
       }
-      <FloatingAddJobButton />
-      <FloatingPrintNextButton />
+      <FloatingAddJobButton onChange={addJob} />
+      <FloatingPrintNextButton
+        disabled={
+          jobs.filter(job => job.status === 'PRINTING').length > 0 ||
+          jobs.filter(job => job.status === 'QUEUED').length === 0
+        }
+      />
     </div>
   )
 }

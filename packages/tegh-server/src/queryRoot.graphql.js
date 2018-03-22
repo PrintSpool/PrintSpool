@@ -53,7 +53,7 @@ const QueryRootType = new GraphQLObjectType({
     //   }
     // },
 
-    jobQueue: {
+    jobs: {
       type: tql`[${JobType}]!`,
       resolve(_source, args, { store }) {
         console.log(store.getState())

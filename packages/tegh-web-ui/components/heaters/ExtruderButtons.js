@@ -44,14 +44,14 @@ const ExtruderButtons = ({
     <Grid item lg={6} md={12}>
       <div style={{ textAlign: 'right'}}>
         <Button
-          raised
+          variant="raised"
           onClick={jog(id, '-', distance)}
         >
           Retract
         </Button>
         <div style={{ display: 'inline-block', width: '16px'}} />
         <Button
-          raised
+          variant="raised"
           color='primary'
           onClick={jog(id, '+', distance)}
         >

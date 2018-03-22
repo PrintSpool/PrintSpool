@@ -41,6 +41,7 @@ describe('createJob', () => {
         redactions: [
           ['id'],
           ['filePath'],
+          ['jobID'],
         ],
       })
       const content = await fs.readFileAsync(jobFile.filePath, 'utf8')

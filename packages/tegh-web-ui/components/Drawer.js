@@ -113,7 +113,7 @@ const Drawer = ({
     </Hidden>
     <Hidden smDown implementation="css">
       <MaterialUIDrawer
-        type="permanent"
+        variant="persistent"
         open
         classes={{
           paper: classes.drawerPaper,

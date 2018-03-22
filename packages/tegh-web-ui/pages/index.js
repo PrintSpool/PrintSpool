@@ -6,7 +6,6 @@ import {
 
 import App from '../components/App'
 import JobList from '../components/jobQueue/JobList'
-import AddJobButton from '../components/jobQueue/AddJobButton'
 
 const enhance = compose(
   withContext(
@@ -19,15 +18,7 @@ const enhance = compose(
 
 const Index = props => (
   <App>
-    <Grid
-      container
-      spacing={24}
-    >
-      <Grid item xs={12}>
-        <JobList />
-        <AddJobButton form='addJobButton' />
-      </Grid>
-    </Grid>
+    <JobList />
   </App>
 )
 

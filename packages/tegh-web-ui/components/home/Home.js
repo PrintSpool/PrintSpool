@@ -26,7 +26,7 @@ const Home = ({
     <CardContent>
       <div style={{ textAlign: 'right' }}>
         <Button
-          raised
+          variant="raised"
           onClick={() => spoolMacro({ macro: 'home', args: { all: true } })}
         >
           Home

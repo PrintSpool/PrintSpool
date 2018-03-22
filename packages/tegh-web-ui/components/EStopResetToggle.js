@@ -114,7 +114,7 @@ const EStopResetToggle = ({
       <div style={{display: 'inline-block'}}>
         <Button
           color={showEstop ? 'secondary' : 'primary'}
-          raised
+          variant="raised"
           disabled={disabled}
           onClick={onClick}
         >
