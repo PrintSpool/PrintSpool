@@ -72,12 +72,14 @@ const enhance = compose(
         const {
           loading,
           error,
-          jobs
+          jobs,
         } = props.jobListQuery
+        if (loading || error) return { loading, error }
         return {
           loading,
           error,
-          jobs,
+          queuedJobs: jobs.filter(job => job.status === 'QUEUED'),
+          printingJobs: jobs.filter(job => job.status === 'PRINTING'),
           // subscribeToJobList: subscribeToJobList(props),
         }
       },
@@ -94,10 +96,10 @@ const enhance = compose(
 export const JobList = ({
   loading,
   error,
-  jobs,
+  queuedJobs,
+  printingJobs,
   addJob,
 }) => {
-  console.log(jobs)
   if (loading) return <div>Loading</div>
   if (error) return <div>Error</div>
 
@@ -116,32 +118,35 @@ export const JobList = ({
             </div>
           ))
       */ }
-      <Typography variant="subheading" gutterBottom>
-        Printing
-      </Typography>
       {
-        jobs.filter(job => job.status === 'PRINTING').map(job => (
-          <div style={{marginBottom: 24}}>
-            <JobCard key={job.id} {...job}/>
+        printingJobs.length > 0 &&
+        <Typography variant="subheading" gutterBottom>
+          Printing
+        </Typography>
+      }
+      {
+        printingJobs.map(job => (
+          <div key={job.id} style={{marginBottom: 24}}>
+            <JobCard {...job}/>
           </div>
         ))
       }
-      <Typography variant="subheading" gutterBottom>
-        Queued
-      </Typography>
       {
-        jobs.filter(job => job.status === 'QUEUED').map(job => (
-          <div style={{marginBottom: 24}}>
-            <JobCard key={job.id} {...job}/>
+        queuedJobs.length > 0 &&
+        <Typography variant="subheading" gutterBottom>
+          Queued
+        </Typography>
+      }
+      {
+        queuedJobs.map(job => (
+          <div key={job.id} style={{marginBottom: 24}}>
+            <JobCard {...job}/>
           </div>
         ))
       }
       <FloatingAddJobButton onChange={addJob} />
       <FloatingPrintNextButton
-        disabled={
-          jobs.filter(job => job.status === 'PRINTING').length > 0 ||
-          jobs.filter(job => job.status === 'QUEUED').length === 0
-        }
+        disabled={ printingJobs.length > 0 || queuedJobs.length === 0 }
       />
     </div>
   )
