@@ -27,7 +27,7 @@ const Wrapper = ({ children, disabled }) => {
   )
 }
 
-const FloatingPrintNextButton = ({ classes, disabled }) => {
+const FloatingPrintNextButton = ({ classes, disabled, onClick }) => {
   return (
     <Wrapper disabled={ disabled }>
       <Button
@@ -35,6 +35,7 @@ const FloatingPrintNextButton = ({ classes, disabled }) => {
         className={ classes.fab }
         color="primary"
         disabled={ disabled }
+        onClick={ onClick }
       >
         <PlayArrow />
       </Button>

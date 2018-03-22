@@ -22,8 +22,8 @@ const JobFileRecord = Record({
 })
 
 const JobFile = attrs => JobFileRecord({
-  ...attrs,
   id: uuid(),
+  ...attrs,
 })
 
 export default JobFile

@@ -4,7 +4,11 @@ import {
   GraphQLObjectType
 } from 'graphql'
 
-import { getTasksCompleted } from '../../spool/reducers/spoolReducer'
+import getTasksCompleted from '../../spool/selectors/getTasksCompleted'
+import getTasksFor from '../../spool/selectors/getTasksFor'
+import getJobFileTotalTasks from '../selectors/getJobFileTotalTasks'
+import getJobFileStatus from '../selectors/getJobFileStatus'
+
 import TaskGraphQL from '../../spool/types/Task.graphql.js'
 import JobStatusEnumGraphQL from './JobStatusEnum.graphql.js'
 
@@ -29,7 +33,9 @@ const JobFileGraphQL = new GraphQLObjectType({
         },
       },
       resolve(source, args, { store }) {
+        const { excludeCompletedTasks } = args
         const state = store.getState()
+
         return getTasksFor(state)({
           taskableID: source.id,
           excludeCompletedTasks,

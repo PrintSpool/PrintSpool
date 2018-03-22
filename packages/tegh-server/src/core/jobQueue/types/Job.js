@@ -19,9 +19,9 @@ const JobRecord = Record({
 })
 
 const Job = attrs => JobRecord({
-  ...attrs,
   id: uuid(),
   createdAt: new Date().toISOString(),
+  ...attrs,
 })
 
 export default Job

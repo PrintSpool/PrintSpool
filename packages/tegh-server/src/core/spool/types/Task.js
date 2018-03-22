@@ -47,6 +47,7 @@ const TaskRecord = Record({
 })
 
 const Task = ({
+  id,
   priority,
   internal,
   name,
@@ -68,7 +69,7 @@ const Task = ({
     throw new Error('data must be an array of strings')
   }
   return TaskRecord({
-    id: uuid(),
+    id: id || uuid(),
     createdAt: new Date().toISOString(),
     data: List(normalizeGCodeLines(data)),
     status: status || SPOOLED,

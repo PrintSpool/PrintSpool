@@ -20,6 +20,7 @@ import {
 
 import withPrinterID from '../../higherOrderComponents/withPrinterID'
 import addJobHandler from './mutations/addJobHandler'
+import spoolNextPrintHandler from './mutations/spoolNextPrintHandler'
 
 import FloatingAddJobButton from './FloatingAddJobButton'
 import FloatingPrintNextButton from './FloatingPrintNextButton'
@@ -58,6 +59,11 @@ const enhance = compose(
         status
         stoppedAt
 
+        files {
+          id
+          status
+        }
+
         tasks(excludeCompletedTasks: true) {
           name
           percentComplete
@@ -78,6 +84,7 @@ const enhance = compose(
         return {
           loading,
           error,
+          jobs,
           queuedJobs: jobs.filter(job => job.status === 'QUEUED'),
           printingJobs: jobs.filter(job => job.status === 'PRINTING'),
           // subscribeToJobList: subscribeToJobList(props),
@@ -86,6 +93,7 @@ const enhance = compose(
     },
   ),
   addJobHandler,
+  spoolNextPrintHandler,
   lifecycle({
     componentWillMount() {
       // this.props.subscribeToJobList()
@@ -99,6 +107,8 @@ export const JobList = ({
   queuedJobs,
   printingJobs,
   addJob,
+  nextJobFile,
+  spoolNextPrint,
 }) => {
   if (loading) return <div>Loading</div>
   if (error) return <div>Error</div>
@@ -147,6 +157,7 @@ export const JobList = ({
       <FloatingAddJobButton onChange={addJob} />
       <FloatingPrintNextButton
         disabled={ printingJobs.length > 0 || queuedJobs.length === 0 }
+        onClick={ spoolNextPrint }
       />
     </div>
   )

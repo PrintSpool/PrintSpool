@@ -1,4 +1,9 @@
-import { BUBBLING_STATUES } from '../types/JobStatusEnum'
+import {
+  BUBBLING_STATUES,
+  DONE,
+  QUEUED
+} from '../types/JobStatusEnum'
+
 import getTasksFor from '../../spool/selectors/getTasksFor'
 import getTasksCompleted from '../../spool/selectors/getTasksCompleted'
 import getJobFileTotalTasks from './getJobFileTotalTasks'
@@ -17,7 +22,7 @@ const getJobFileStatus = state => ({ jobFileID }) => {
   if (bubblingTask != null) return bubblingTask.status
 
   const isDone = tasksCompleted >= totalTasks
-  return isDone ? 'done' : 'queued'
+  return isDone ? DONE : QUEUED
 }
 
 export default getJobFileStatus
