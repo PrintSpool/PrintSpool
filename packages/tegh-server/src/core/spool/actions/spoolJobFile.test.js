@@ -1,4 +1,5 @@
 import tmp from 'tmp-promise'
+import { Map } from 'immutable'
 
 import fs from '../../util/promisifiedFS'
 import expectToMatchImmutableSnapshot from '../../util/testing/expectToMatchImmutableSnapshot'
@@ -15,14 +16,14 @@ describe('spoolJobFile', () => {
     const dispatch = action => action
     const getState = () => ({
       jobQueue: {
-        jobFiles: {
+        jobFiles: Map({
           [jobFileID]: {
             id: jobFileID,
             jobID: '123',
             name: 'abc',
             filePath,
           }
-        }
+        })
       }
     })
 

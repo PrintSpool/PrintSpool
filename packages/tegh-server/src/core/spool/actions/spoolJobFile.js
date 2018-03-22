@@ -6,7 +6,7 @@ import spoolTask from './spoolTask'
 export const spoolJobFile = ({ jobFileID }) => {
   return async function(dispatch, getState) {
     const state = getState()
-    const jobFile = state.jobQueue.jobFiles[jobFileID]
+    const jobFile = state.jobQueue.jobFiles.get(jobFileID)
 
     if (jobFile == null) {
       throw new Error(`jobFile (id: ${ jobFileID }) does not exist`)
