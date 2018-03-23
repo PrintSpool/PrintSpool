@@ -5,6 +5,8 @@ import {
 } from 'graphql'
 import { GraphQLDate } from 'graphql-scalars'
 
+import PrinterGraphQL from '../../printer/types/Printer.graphql.js'
+
 const TaskType = new GraphQLObjectType({
   name: 'Task',
   description: 'A spooled set of gcodes to be executed by the printer',
@@ -39,6 +41,13 @@ const TaskType = new GraphQLObjectType({
     },
     status: {
       type: tql`String!`,
+    },
+    printer: {
+      type: tql`${PrinterGraphQL}!`,
+      resolve(_source, args, { store }) {
+        const state = store.getState()
+        return state
+      },
     },
   }),
 })

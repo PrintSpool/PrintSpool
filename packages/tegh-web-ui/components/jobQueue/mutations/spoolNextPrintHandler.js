@@ -16,7 +16,7 @@ const spoolNextPrintHandler = graphql(spoolJobFileGraphQL, {
     if (ownProps.loading || ownProps.error) return {}
 
     const jobFiles = _.flatten(ownProps.jobs.map(job => job.files))
-    console.log(ownProps, jobFiles)
+
     const nextJobFile = jobFiles.find(jobFile => jobFile.status === 'QUEUED')
 
     return {

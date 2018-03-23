@@ -69,6 +69,9 @@ const enhance = compose(
           percentComplete
           startedAt
           status
+          printer {
+            name
+          }
         }
       }
     }`,

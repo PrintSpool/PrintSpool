@@ -12,6 +12,12 @@ const task = Task({
   data: ['g1 x10', 'g1 y20'],
 })
 
+const state = {
+  config: {
+    id: 'test_printer_id',
+  },
+}
+
 snapshotTestGraphQLType('TaskGraphQL', {
   type: TaskGraphQL,
   dynamicFields: [
@@ -19,4 +25,9 @@ snapshotTestGraphQLType('TaskGraphQL', {
     'createdAt'
   ],
   rootValue: task,
+  contextValue: {
+    store: {
+      getState: () => state,
+    },
+  },
 })

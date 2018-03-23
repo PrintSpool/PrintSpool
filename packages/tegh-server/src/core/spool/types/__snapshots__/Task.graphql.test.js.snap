@@ -137,6 +137,22 @@ Object {
         },
       },
     },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "printer",
+      "type": Object {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": Object {
+          "kind": "OBJECT",
+          "name": "Printer",
+          "ofType": null,
+        },
+      },
+    },
   ],
   "inputFields": null,
   "interfaces": Array [],
@@ -148,11 +164,14 @@ Object {
 
 exports[`TaskGraphQL resolves every field without error 1`] = `
 Object {
-  "createdAt": "[DYNAMIC FIELD OMITTED]",
+  "createdAt": "2018-03-23T00:04:03.342Z",
   "currentLineNumber": null,
-  "id": "[DYNAMIC FIELD OMITTED]",
+  "id": "b00ccde5-7fa9-4437-8b0c-9097db5305bc",
   "name": "test task",
   "percentComplete": 0,
+  "printer": Object {
+    "id": "[DYNAMIC FIELD OMITTED]",
+  },
   "startedAt": null,
   "status": "SPOOLED",
   "stoppedAt": null,

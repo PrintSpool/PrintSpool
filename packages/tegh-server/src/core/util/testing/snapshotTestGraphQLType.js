@@ -76,15 +76,13 @@ const queryAllFields = async (type, fieldConfigs = {}, executeConfig = {}) => {
   return result.data
 }
 
-const snapshotTestGraphQLType = (description, config) => {
-  const {
-    type,
-    fieldConfigs,
-    rootValue,
-    contextValue,
-    variableValues,
-  } = config
-
+const snapshotTestGraphQLType = (description, {
+  type,
+  fieldConfigs = {},
+  rootValue,
+  contextValue,
+  variableValues,
+}) => {
   const executeConfig = { rootValue, contextValue, variableValues }
 
   describe(description, () => {
