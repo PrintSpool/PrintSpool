@@ -42,8 +42,8 @@ const withLiveData = Component => {
   }
 }
 
-const JOBS_SUBSCRIPTION = gql`subscription($printerID: ID!) {
-  jobs(printerID: $printerID) {
+const JOBS_SUBSCRIPTION = gql`subscription {
+  jobs {
     patches {
       ... on RFC4627Add { op, path, value }
       ... on RFC4627Remove { op, path }
@@ -83,7 +83,6 @@ const Index = props => (
   <App>
     <Subscription
       subscription={JOBS_SUBSCRIPTION}
-      variables={{printerID: 'test_printer_id'}}
     >
       {
         withLiveData(({data, loading, error}) => {

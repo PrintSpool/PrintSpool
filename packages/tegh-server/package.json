@@ -57,6 +57,7 @@
     "graphql-type-json": "^0.1.4",
     "immutable": "^4.0.0-rc.9",
     "immutablediff": "^0.4.4",
+    "jiff": "^0.7.3",
     "js-yaml": "^3.10.0",
     "koa": "^2.3.0",
     "koa-bodyparser": "^4.2.0",
