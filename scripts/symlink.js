@@ -11,6 +11,16 @@ const rm = (file) => Promise.promisify(childProcess.exec)(`rm -r ${file}`)
 
 const symlinks = [
   {
+    alias: 'graphql',
+    target: 'tegh-server/node_modules/graphql',
+    addTo: 'graphql-live-subscription',
+  },
+  {
+    alias: 'graphql-type-json',
+    target: 'tegh-server/node_modules/graphql-type-json',
+    addTo: 'graphql-live-subscription',
+  },
+  {
     target: 'serial-middleware',
     addTo: 'tegh-driver-serial-gcode',
   },

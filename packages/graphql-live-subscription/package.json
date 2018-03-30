@@ -1,0 +1,16 @@
+{
+  "name": "graphql-live-subscription",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "Rob Gilson",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "fast-memoize": "^2.3.2",
+    "typiql": "^0.3.0"
+  },
+  "peerDependencies": {
+    "graphql": "^0.13.2",
+    "graphql-type-json": "^0.2.0"
+  }
+}

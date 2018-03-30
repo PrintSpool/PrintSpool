@@ -1,6 +1,7 @@
+import { PubSub } from 'graphql-subscriptions'
 import tql from 'typiql'
 
-const subscriptionDefaults = (eventNameLookup) => ({
+const subscriptionDefaults = (eventNameLookup, options = {}) => ({
   args: {
     printerID: {
       type: tql`ID!`,
@@ -26,7 +27,26 @@ const subscriptionDefaults = (eventNameLookup) => ({
     if (args.printerID !== state.config.id) {
       throw new Error(`Printer ID ${args.id} does not exist`)
     }
-    return pubsub.asyncIterator(eventName)
+    /*
+     * Proxy the global pubsub through a connection-specific pubsub
+     */
+    const connectionPubSub = new PubSub()
+    pubsub.subscribe(eventName, payload => {
+      connectionPubSub.publish(eventName, payload)
+    })
+    /*
+     * allow a connection-specific message to be sent immediately upon
+     * subscribing
+     */
+    if (options.onConnect != null) {
+      setImmediate(() => options.onConnect({
+        args,
+        store,
+        pubsub: connectionPubSub,
+      }))
+    }
+
+    return connectionPubSub.asyncIterator(eventName)
   },
   resolve(source) {
     return source

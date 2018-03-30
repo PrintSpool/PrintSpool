@@ -4,7 +4,7 @@ import subscriptionDefaults from '../../util/subscriptionDefaults'
 import HeaterType from '../types/Heater.graphql.js'
 
 const heatersChangedSubscription = () => ({
-  name: 'heatersChangedSubscription',
+  name: 'heatersChanged',
   type: tql`[${HeaterType}!]!`,
   ...subscriptionDefaults('heatersChanged'),
   resolve(source) {
@@ -14,5 +14,5 @@ const heatersChangedSubscription = () => ({
 
 export default {
   subscription: heatersChangedSubscription,
-  selector: (state) => state.driver.heaters,
+  selector: state => state.driver.heaters,
 }

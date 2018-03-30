@@ -4,7 +4,7 @@ import subscriptionDefaults from '../../util/subscriptionDefaults'
 import FanType from '../types/Fan.graphql.js'
 
 const fansChangedSubscription = () => ({
-  name: 'fansChangedSubscription',
+  name: 'fansChanged',
   type: tql`[${FanType}!]!`,
   ...subscriptionDefaults('fansChanged'),
   resolve(source) {
@@ -14,5 +14,5 @@ const fansChangedSubscription = () => ({
 
 export default {
   subscription: fansChangedSubscription,
-  selector: (state) => state.driver.fans,
+  selector: state => state.driver.fans,
 }

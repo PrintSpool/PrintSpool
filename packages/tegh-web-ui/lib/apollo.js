@@ -10,8 +10,8 @@ import { onError } from 'apollo-link-error'
 const isProduction = process.env.NODE_ENV === 'production'
 const ip = process.browser ? window.location.hostname : '127.0.0.1'
 const port = 3901
-const postURL = `http://${ip}:${port}/graphql`
-const wsURL = (() => {
+export const postURL = `http://${ip}:${port}/graphql`
+export const wsURL = (() => {
   const wsPath = '/graphql'
   if (!process.browser) return null
   if (!isProduction) return `ws://${ip}:${port}${wsPath}`

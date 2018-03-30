@@ -48,53 +48,53 @@ const subscribeToJobList = props => params => {
 }
 
 const enhance = compose(
-  graphql(
-    gql`query jobListQuery {
-      jobs {
-        id
-        name
-        quantity
-        tasksCompleted
-        totalTasks
-        status
-        stoppedAt
-
-        files {
-          id
-          status
-        }
-
-        tasks(excludeCompletedTasks: true) {
-          name
-          percentComplete
-          startedAt
-          status
-          printer {
-            name
-          }
-        }
-      }
-    }`,
-    {
-      name: 'jobListQuery',
-      props: props => {
-        const {
-          loading,
-          error,
-          jobs,
-        } = props.jobListQuery
-        if (loading || error) return { loading, error }
-        return {
-          loading,
-          error,
-          jobs,
-          queuedJobs: jobs.filter(job => job.status === 'QUEUED'),
-          printingJobs: jobs.filter(job => job.status === 'PRINTING'),
-          // subscribeToJobList: subscribeToJobList(props),
-        }
-      },
-    },
-  ),
+  // graphql(
+  //   gql`query jobListQuery {
+  //     jobs {
+  //       id
+  //       name
+  //       quantity
+  //       tasksCompleted
+  //       totalTasks
+  //       status
+  //       stoppedAt
+  //
+  //       files {
+  //         id
+  //         status
+  //       }
+  //
+  //       tasks(excludeCompletedTasks: true) {
+  //         name
+  //         percentComplete
+  //         startedAt
+  //         status
+  //         printer {
+  //           name
+  //         }
+  //       }
+  //     }
+  //   }`,
+  //   {
+  //     name: 'jobListQuery',
+  //     props: props => {
+  //       const {
+  //         loading,
+  //         error,
+  //         jobs,
+  //       } = props.jobListQuery
+  //       if (loading || error) return { loading, error }
+  //       return {
+  //         loading,
+  //         error,
+  //         jobs,
+  //         queuedJobs: jobs.filter(job => job.status === 'QUEUED'),
+  //         printingJobs: jobs.filter(job => job.status === 'PRINTING'),
+  //         // subscribeToJobList: subscribeToJobList(props),
+  //       }
+  //     },
+  //   },
+  // ),
   addJobHandler,
   spoolNextPrintHandler,
   lifecycle({

@@ -4,7 +4,7 @@ import subscriptionDefaults from '../../util/subscriptionDefaults'
 import PrinterType from '../types/Printer.graphql.js'
 
 const statusChangedSubscription = () => ({
-  name: 'statusChangedSubscription',
+  name: 'statusChanged',
   type: tql`${PrinterType}!`,
   ...subscriptionDefaults('statusChanged'),
   resolve(_source, _args, { store }) {
@@ -14,5 +14,5 @@ const statusChangedSubscription = () => ({
 
 export default {
   subscription: statusChangedSubscription,
-  selector: (state) => state.driver.status,
+  selector: state => state.driver.status,
 }

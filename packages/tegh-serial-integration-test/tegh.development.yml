@@ -6,7 +6,7 @@ log:
   maxLength: 1000
   stderr:
     # - trivial
-    - info
+    # - info
     - warning
     - error
     - fatal
