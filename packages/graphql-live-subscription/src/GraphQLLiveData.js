@@ -6,19 +6,32 @@ import tql from 'typiql'
 
 import RFC4627Patch from './rfc4627/RFC4627Patch'
 
-const GraphQLLiveSubscription = (options = {}) => {
-  const { type, name, resumption } = options
+const GraphQLLiveData = (options = {}) => {
+  const { name, resumption } = options
 
-  if (type == null) {
-    throw new Error('Canot create a GraphQLLiveSubscription of type null')
+  if (name == null) {
+    throw new Error('name cannot be null')
   }
-  return new GraphQLObjectType({
-    name: name || `LiveSubscriptionOf${type.toString()}`,
 
+  const getQueryType = () => {
+    let { type } = options
+
+    if (typeof type === 'function') {
+      type = type()
+    }
+    if (type == null) {
+      throw new Error('Canot create GraphQLLiveData for type null')
+    }
+
+    return type
+  }
+
+  return new GraphQLObjectType({
+    name,
     fields: () => {
       const fields = {
         query: {
-          type,
+          type: getQueryType(),
         },
         patches: {
           type: tql`[${RFC4627Patch}!]`,
@@ -39,4 +52,4 @@ const GraphQLLiveSubscription = (options = {}) => {
   })
 }
 
-export default memoize(GraphQLLiveSubscription)
+export default memoize(GraphQLLiveData)
