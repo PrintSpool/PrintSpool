@@ -1989,9 +1989,9 @@ graphql-extensions@^0.0.x:
     core-js "^2.5.1"
     source-map-support "^0.5.0"
 
-graphql-live-subscriptions@^0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/graphql-live-subscriptions/-/graphql-live-subscriptions-0.0.3.tgz#30f24f787634137e5d68e56b25447d8a80ff5b03"
+graphql-live-subscriptions@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/graphql-live-subscriptions/-/graphql-live-subscriptions-0.0.4.tgz#28957382e972b8acca8b21c531171064b3948e39"
   dependencies:
     babel-core "7.0.0-bridge.0"
     babel-jest "^22.4.3"

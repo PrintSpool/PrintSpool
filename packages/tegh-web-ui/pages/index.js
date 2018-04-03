@@ -25,7 +25,6 @@ const withLiveData = Component => {
 
   return ({ data, loading, error }) => {
     if (data != null) {
-      console.log(data.jobs)
       const { query, patches } = data.jobs
       if (query != null) state = query
       if (patches != null) {
@@ -44,14 +43,7 @@ const withLiveData = Component => {
 
 const JOBS_SUBSCRIPTION = gql`subscription {
   jobs {
-    patches {
-      ... on RFC4627Add { op, path, value }
-      ... on RFC4627Remove { op, path }
-      ... on RFC4627Replace { op, path, value }
-      ... on RFC4627Move { op, from, path }
-      ... on RFC4627Copy { op, from, path }
-      ... on RFC4627Test { op, path, value }
-    }
+    patches { op, path, from, value }
     query {
       id
       name
