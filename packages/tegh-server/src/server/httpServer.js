@@ -6,7 +6,6 @@ import koaRouter from 'koa-router'
 import koaBody from 'koa-bodyparser'
 import cors from 'koa-cors'
 import { graphqlKoa, graphiqlKoa } from 'apollo-server-koa'
-import { apolloUploadKoa } from 'apollo-upload-server'
 import { SubscriptionServer } from 'subscriptions-transport-ws'
 import { execute, subscribe } from 'graphql'
 import _ from 'lodash'
@@ -33,7 +32,6 @@ const httpServer = async ({
   router.post(
     '/graphql',
     koaBody(),
-    apolloUploadKoa(),
     teghGraphqlKoa()
   )
 
