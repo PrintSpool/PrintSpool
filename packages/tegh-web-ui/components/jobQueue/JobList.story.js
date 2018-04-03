@@ -4,6 +4,7 @@ import { storiesOf } from '@storybook/react'
 import { JobList } from './JobList'
 
 import {
+  drinkingGlass,
   gear,
   reprap,
   robot,
@@ -12,13 +13,13 @@ import {
 storiesOf('JobList', module)
   .add('with jobs', () => {
     const props = {
-      printingJobs: [
+      jobs: [
+        drinkingGlass,
         reprap,
-      ],
-      queuedJobs: [
         gear,
         robot,
       ],
+      status: 'READY',
     }
     return <JobList {...props} />
   })

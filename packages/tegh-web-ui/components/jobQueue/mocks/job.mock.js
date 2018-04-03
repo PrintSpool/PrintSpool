@@ -15,6 +15,7 @@ const JobMock = attrs => ({
 export const gear = JobMock()
 
 export const reprap = JobMock({
+  id: 'reprap',
   name: 'reprap.zip',
   quantity: 2,
   tasksCompleted: 3,
@@ -27,6 +28,7 @@ export const reprap = JobMock({
 })
 
 export const drinkingGlass = JobMock({
+  id: 'glass',
   name: 'drinking-glass_3.gcode',
   quantity: 2,
   tasksCompleted: 2,
@@ -35,6 +37,7 @@ export const drinkingGlass = JobMock({
 })
 
 export const robot = JobMock({
+  id: 'robot',
   name: (
     'robot_head.gcode, robot_lower_arm.gcode, robot_upper_arm.gcode'+
     'robot_torso.gcode, robot_wrist.gcode, gear_4.gcode, gear1.gcode, '+

@@ -63,7 +63,7 @@ const JobCard = ({
         {
           /* Task list segment */
           tasks.map(task => (
-            <div>
+            <div key={ task.id }>
               <Typography
                 variant="body2"
                 gutterBottom
@@ -80,6 +80,14 @@ const JobCard = ({
                   alignItems: 'center'
                 }}
               >
+                <Typography
+                  variant="body2"
+                  style={{
+                    marginRight: 12,
+                  }}
+                >
+                  {task.percentComplete}%
+                </Typography>
                 <div
                   style={{
                     flexGrow: 1,

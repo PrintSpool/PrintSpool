@@ -82,8 +82,6 @@ const Index = props => (
           return (
             <JobList
               { ...{ loading, error, jobs} }
-              queuedJobs={ jobs.filter(job => job.status === 'QUEUED') }
-              printingJobs={ jobs.filter(job => job.status === 'PRINTING') }
             />
           )
         })
