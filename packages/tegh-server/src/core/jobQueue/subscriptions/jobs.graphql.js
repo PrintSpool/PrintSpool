@@ -1,30 +1,35 @@
+import _ from 'lodash'
 import tql from 'typiql'
 
 import {
   GraphQLLiveData,
   subscribeToLiveData,
-} from '../../../../../graphql-live-subscription/src/index'
+} from 'graphql-live-subscriptions'
 
 import JobGraphQL from '../types/Job.graphql.js'
 
+const RESPONSE_THROTTLE_MS = 500
+
 const selector = state => state.jobQueue.jobs.toList()
 
-const liveJob = GraphQLLiveData({
-  name: 'LiveJob',
-  type: () => tql`[${JobGraphQL}!]`,
-})
-
-const type = tql`${liveJob}!`
+const type = () => tql`[${JobGraphQL}!]`
 
 const jobs = () => ({
-  type,
+  type: GraphQLLiveData({
+    name: 'LiveJob',
+    type,
+  }),
 
   subscribe: subscribeToLiveData({
     type,
-    getSubscriptionProvider: async (args, context, resolveInfo) => {
-      return context.store
+    getSubscriptionProvider: async (source, args, context, resolveInfo) => {
+      return {
+        subscribe: cb => {
+          return context.store.subscribe(_.throttle(cb, RESPONSE_THROTTLE_MS))
+        }
+      }
     },
-    updateSource: async (args, context, resolveInfo) => {
+    getSource: async (originalSource, args, context, resolveInfo) => {
       const state = context.store.getState()
       return selector(state).toJS()
     },
