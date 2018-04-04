@@ -3,6 +3,7 @@ const { takeEvery, select, put, cps } = effects
 
 import fs from '../../util/promisifiedFS'
 import { SPOOL_TASK } from '../../spool/actions/spoolTask'
+import { ERRORED, CANCELLED, DONE } from '../types/JobStatusEnum'
 import getJobsByStatus from '../selectors/getJobsByStatus'
 import getJobTmpFiles from '../selectors/getJobTmpFiles'
 import deleteJob from '../actions/deleteJob'
@@ -18,8 +19,9 @@ const jobDeletionSaga = function*() {
   yield takeEvery(spoolJobFilter, function*() {
     /* get all completed, errored or cancelled jobs */
     const jobsForDeletion = ( yield select( getJobsByStatus ) )({
-      statuses: ['errored', 'cancelled', 'done']
+      statuses: [ERRORED, CANCELLED, DONE]
     })
+    console.log('A JOB HAS BEEN SPOOLED', jobsForDeletion)
 
     for (const job of jobsForDeletion) {
       /* delete the job */
