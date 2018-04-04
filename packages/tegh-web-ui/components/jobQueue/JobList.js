@@ -62,8 +62,9 @@ export const JobList = ({
   if (error) return <div>Error</div>
 
   const disablePrintNextButton = (
-    status === 'READY' &&
-    jobs.find(job => jobs.status === 'queued') == null
+    status !== 'READY' ||
+    jobs.find(job => job.status === 'QUEUED') == null ||
+    jobs.find(job => job.status === 'PRINTING') != null
   )
 
   return (

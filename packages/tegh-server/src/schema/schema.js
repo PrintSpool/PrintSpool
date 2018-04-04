@@ -5,11 +5,15 @@ import {
 import tql from 'typiql'
 import _ from 'lodash'
 
-import QueryRootType from './queryRoot.graphql.js'
-import * as mutations from './core/mutations'
-import * as subscriptionModules from './core/subscriptions'
+import QueryRootGraphQL from './QueryRoot.graphql.js'
+import * as mutations from '../core/mutations'
+import * as subscriptionModules from '../core/subscriptions'
+import liveGraphQL from './live.graphql.js'
 
-const subscriptions = _.mapValues(subscriptionModules, m => m.subscription)
+const subscriptions = {
+  ..._.mapValues(subscriptionModules, m => m.subscription),
+  live: liveGraphQL,
+}
 
 /*
  * Execute each field definition at the time the field function is called to
@@ -20,7 +24,7 @@ const fieldsFor = (fieldDefinitions) => () => {
 }
 
 const schema = new GraphQLSchema({
-  query: QueryRootType,
+  query: QueryRootGraphQL,
   mutation: new GraphQLObjectType({
     name: 'MutationRoot',
     fields: fieldsFor(mutations),

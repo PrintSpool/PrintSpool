@@ -6,17 +6,15 @@ import {
   subscribeToLiveData,
 } from 'graphql-live-subscriptions'
 
-import JobGraphQL from '../types/Job.graphql.js'
+import QueryRootGraphQL from './QueryRoot.graphql.js'
 
 const RESPONSE_THROTTLE_MS = 500
 
-const selector = state => state.jobQueue.jobs.toList()
+const type = () => QueryRootGraphQL
 
-const type = () => tql`[${JobGraphQL}!]`
-
-const jobs = () => ({
+const liveGraphQL = () => ({
   type: GraphQLLiveData({
-    name: 'LiveJob',
+    name: 'LiveSubscriptionRoot',
     type,
   }),
 
@@ -29,19 +27,12 @@ const jobs = () => ({
         }
       }
     },
-    getSource: async (originalSource, args, context, resolveInfo) => {
-      const state = context.store.getState()
-      return selector(state).toJS()
-    },
+
+    /* getSource must not return null */
+    getSource: async () => 'rootValue',
   }),
 
-  resolve(source) {
-    // console.log(JSON.stringify(source))
-    return source
-  },
+  resolve: source => source,
 })
 
-export default {
-  subscription: jobs,
-  selector,
-}
+export default liveGraphQL

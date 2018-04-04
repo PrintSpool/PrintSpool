@@ -7,11 +7,11 @@ import {
 import tql from 'typiql'
 import snl from 'strip-newlines'
 
-import PrinterType from './core/printer/types/Printer.graphql.js'
-import TaskType from './core/spool/types/Task.graphql.js'
-import JobType from './core/jobQueue/types/Job.graphql.js'
+import PrinterType from '../core/printer/types/Printer.graphql.js'
+import TaskType from '../core/spool/types/Task.graphql.js'
+import JobType from '../core/jobQueue/types/Job.graphql.js'
 
-const QueryRootType = new GraphQLObjectType({
+const QueryRootGraphQL = new GraphQLObjectType({
   name: 'QueryRoot',
   fields: {
 
@@ -83,4 +83,4 @@ const QueryRootType = new GraphQLObjectType({
   },
 })
 
-export default QueryRootType
+export default QueryRootGraphQL

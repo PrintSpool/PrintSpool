@@ -21,14 +21,17 @@ const enhance = compose(
 )
 
 const withLiveData = Component => {
+  const key = 'live'
   let state = null
 
   return ({ data, loading, error }) => {
     if (data != null) {
-      const { query, patches } = data.jobs
+      const { query, patches } = data[key]
       if (query != null) state = query
       if (patches != null) {
-        patches.forEach(patch => state = jsonpatch.apply(state, patch))
+        patches.forEach(patch => {
+          state = jsonpatch.apply(state, patch)
+        })
       }
     }
     return (
@@ -41,47 +44,60 @@ const withLiveData = Component => {
   }
 }
 
-const JOBS_SUBSCRIPTION = gql`subscription {
-  jobs {
-    patches { op, path, from, value }
-    query {
-      id
-      name
-      quantity
-      tasksCompleted
-      totalTasks
-      status
-      stoppedAt
-
-      files {
-        id
-        status
-      }
-
-      tasks(excludeCompletedTasks: true) {
-        name
-        percentComplete
-        startedAt
-        status
-        printer {
+const JOBS_SUBSCRIPTION = gql`
+  subscription($printerID: ID!) {
+    live {
+      patches { op, path, from, value }
+      query {
+        printer(id: $printerID) {
+          status
+        }
+        jobs {
+          id
           name
+          quantity
+          tasksCompleted
+          totalTasks
+          status
+          stoppedAt
+
+          files {
+            id
+            status
+          }
+
+          tasks(excludeCompletedTasks: true) {
+            name
+            percentComplete
+            startedAt
+            status
+            printer {
+              name
+            }
+          }
         }
       }
     }
   }
-}`
+`
 
 const Index = props => (
   <App>
     <Subscription
+      variables={{
+        printerID: 'test_printer_id'
+      }}
       subscription={JOBS_SUBSCRIPTION}
     >
       {
         withLiveData(({data, loading, error}) => {
-          const jobs = data || []
+          if (loading) return <div/>
+          if (error) return <div>{ JSON.stringify(error) }</div>
+          const jobs = data.jobs
+          const status = data.printer.status
           return (
             <JobList
-              { ...{ loading, error, jobs} }
+              { ...{ loading, error, jobs, status} }
             />
           )
         })

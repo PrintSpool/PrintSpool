@@ -31,6 +31,72 @@ const taskColor = (status) => {
   }
 }
 
+const TaskStatus = ({ task }) => (
+  <div key={task.id}>
+    <Typography
+      variant="body2"
+      gutterBottom
+      style={{
+        marginBottom: 0,
+      }}
+    >
+      {
+        (() => {
+          const taskOnMachine = `${task.name} on ${task.printer.name}`
+          if (['CANCELLED', 'ERRORED'].includes(task.status)) {
+            return `${task.status} ${taskOnMachine}`
+          }
+          if (task.status === 'DONE') {
+            return `Printed ${taskOnMachine}`
+          }
+          return `Printing ${taskOnMachine}`
+        })()
+      }
+    </Typography>
+
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center'
+      }}
+    >
+      <Typography
+        variant="body2"
+        style={{
+          marginRight: 12,
+        }}
+      >
+        {Math.round(task.percentComplete)}%
+      </Typography>
+      <div
+        style={{
+          flexGrow: 1,
+        }}
+      >
+        <LinearProgress
+          variant="determinate"
+          value={task.percentComplete}
+        />
+      </div>
+
+      <IconButton
+        aria-label="cancel"
+        disabled={
+          ['CANCELLED', 'ERRORED', 'DONE'].includes(task.status)
+        }
+        style={{
+          marginTop: -12,
+          marginBottom: -12,
+          marginRight: -14,
+          textAlign: 'right',
+        }}
+      >
+        <Cancel />
+      </IconButton>
+    </div>
+  </div>
+)
+
 const JobCard = ({
   id,
   name,
@@ -63,55 +129,7 @@ const JobCard = ({
         {
           /* Task list segment */
           tasks.map(task => (
-            <div key={ task.id }>
-              <Typography
-                variant="body2"
-                gutterBottom
-                style={{
-                  marginBottom: 0,
-                }}
-              >
-                Printing {task.name} on {task.printer.name}
-              </Typography>
-
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center'
-                }}
-              >
-                <Typography
-                  variant="body2"
-                  style={{
-                    marginRight: 12,
-                  }}
-                >
-                  {task.percentComplete}%
-                </Typography>
-                <div
-                  style={{
-                    flexGrow: 1,
-                  }}
-                >
-                  <LinearProgress
-                    variant="determinate"
-                    value={task.percentComplete}
-                  />
-                </div>
-
-                <IconButton
-                  aria-label="cancel"
-                  style={{
-                    marginTop: -12,
-                    marginBottom: -12,
-                    marginRight: -14,
-                    textAlign: 'right',
-                  }}
-                >
-                  <Cancel />
-                </IconButton>
-              </div>
-            </div>
+            <TaskStatus task={task} key={ task.id } />
           ))
         }
       </CardContent>
