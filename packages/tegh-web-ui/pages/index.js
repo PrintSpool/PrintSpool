@@ -67,6 +67,7 @@ const JOBS_SUBSCRIPTION = gql`
           }
 
           tasks(excludeCompletedTasks: true) {
+            id
             name
             percentComplete
             startedAt

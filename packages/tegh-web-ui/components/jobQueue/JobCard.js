@@ -32,7 +32,7 @@ const taskColor = (status) => {
 }
 
 const TaskStatus = ({ task }) => (
-  <div key={task.id}>
+  <div>
     <Typography
       variant="body2"
       gutterBottom
