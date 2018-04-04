@@ -36,6 +36,7 @@
     "react-apollo": "^2.1.1",
     "react-css-grid": "^2.0.0-0",
     "react-dom": "^16.2.0",
+    "react-loader-advanced": "^1.7.1",
     "react-redux": "^5.0.6",
     "recompose": "^0.26.0",
     "redux": "^3.7.2",
