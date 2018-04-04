@@ -99,7 +99,7 @@ const TemperatureSection = ({
   }
   return (
     <div>
-      <Typography type='display1'>
+      <Typography variant='display1'>
         {currentTemperature}°C /
         <sup style={{ fontSize: '50%' }}> {targetText(targetTemperature)}</sup>
       </Typography>

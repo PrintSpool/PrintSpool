@@ -66,7 +66,7 @@ const TaskStatus = ({ task }) => (
           marginRight: 12,
         }}
       >
-        {Math.round(task.percentComplete)}%
+        {task.percentComplete.toFixed(1)}%
       </Typography>
       <div
         style={{

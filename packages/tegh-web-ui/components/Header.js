@@ -45,7 +45,7 @@ const Header = ({
             <MenuIcon />
           </IconButton>
         */}
-        <Typography type="title" color="inherit" className={classes.flex}>
+        <Typography variant="title" color="inherit" className={classes.flex}>
           {name} <span style={{color: '#999'}}>Powered by Tegh</span>
         </Typography>
         <EStopResetToggle/>

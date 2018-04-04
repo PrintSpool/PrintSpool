@@ -105,7 +105,7 @@ const EStopResetToggle = ({
   return (
     <div>
       <div style={{display: 'inline-block', paddingTop: 8}}>
-        <Typography type='button'>
+        <Typography variant='button'>
           <span style={{ color: statusColor(status), marginRight: 10 }}>
             {status}
           </span>

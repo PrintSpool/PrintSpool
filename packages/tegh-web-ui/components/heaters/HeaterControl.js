@@ -29,7 +29,7 @@ const HeaterControl = ({
         spacing={24}
       >
         <Grid item xs={6}>
-          <Typography type='subheading'>
+          <Typography variant='subheading'>
             {name}
           </Typography>
           <TemperatureSection id={id} name={name}/>
