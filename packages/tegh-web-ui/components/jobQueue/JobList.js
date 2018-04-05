@@ -20,6 +20,7 @@ import {
 import addJobHandler from './mutations/addJobHandler'
 import spoolNextPrintHandler from './mutations/spoolNextPrintHandler'
 import cancelTaskHandler from './mutations/cancelTaskHandler'
+import deleteJobHandler from './mutations/deleteJobHandler'
 
 import FloatingAddJobButton from './FloatingAddJobButton'
 import FloatingPrintNextButton from './FloatingPrintNextButton'
@@ -29,9 +30,10 @@ const enhance = compose(
   addJobHandler,
   spoolNextPrintHandler,
   cancelTaskHandler,
+  deleteJobHandler,
 )
 
-const JobSubList = ({ jobs, status, cancelTask }) => {
+const JobSubList = ({ jobs, status, cancelTask, deleteJob }) => {
   const filteredJobs = jobs.filter(job => job.status == status)
   if (filteredJobs.length === 0) return <div/>
   return (
@@ -43,8 +45,9 @@ const JobSubList = ({ jobs, status, cancelTask }) => {
         filteredJobs.map(job => (
           <div key={job.id} style={{marginBottom: 24}}>
             <JobCard
-              {...job}
-              cancelTask={ cancelTask}
+              { ...job }
+              cancelTask={ cancelTask }
+              deleteJob={ deleteJob }
             />
           </div>
         ))
@@ -62,6 +65,7 @@ export const JobList = ({
   nextJobFile,
   spoolNextPrint,
   cancelTask,
+  deleteJob,
 }) => {
   if (loading) return <div>Loading</div>
   if (error) return <div>Error</div>
@@ -89,6 +93,7 @@ export const JobList = ({
             status={ status }
             jobs={ jobs }
             cancelTask={ cancelTask }
+            deleteJob={ deleteJob }
           />
         ))
       }

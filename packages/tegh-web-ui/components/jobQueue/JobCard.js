@@ -1,4 +1,5 @@
 import React from 'react'
+import { compose, withStateHandlers } from 'recompose'
 import {
   Card,
   CardHeader,
@@ -12,13 +13,26 @@ import {
   Button,
   LinearProgress,
   Divider,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
 } from 'material-ui'
 import {
   Cancel,
   MoreVert,
+  Delete,
 } from 'material-ui-icons'
 import V from 'voca'
 import TaskStatusRow from './TaskStatusRow'
+
+const enhance = withStateHandlers(
+  { menuAnchorEl: null },
+  {
+    openMenu: () => event => ({ menuAnchorEl: event.target }),
+    closeMenu: () => () => ({ menuAnchorEl: null }),
+  },
+)
 
 const JobCard = ({
   id,
@@ -30,20 +44,41 @@ const JobCard = ({
   stoppedAt,
   tasks,
   cancelTask,
+  deleteJob,
+  menuAnchorEl,
+  openMenu,
+  closeMenu,
 }) => {
   return (
     <Card>
       <CardHeader
         title={V.truncate(name, 32)}
         subheader={`${tasksCompleted} / ${totalTasks} prints completed`}
+        action={
+          <IconButton
+            onClick={ openMenu }
+          >
+            <MoreVert />
+          </IconButton>
+        }
       />
-      {/*
-      action={
-        <IconButton>
-          <MoreVert />
-        </IconButton>
-      }
-      */}
+
+      <Menu
+        id="long-menu"
+        anchorEl={ menuAnchorEl }
+        open={ menuAnchorEl != null }
+        onClose={ closeMenu }
+      >
+        <MenuItem
+          onClick={ () => deleteJob({ id }) && closeMenu() }
+        >
+          <ListItemIcon>
+            <Delete />
+          </ListItemIcon>
+          <ListItemText inset primary="Delete Job" />
+        </MenuItem>
+      </Menu>
+
       <CardContent
         style={{
           paddingTop: 0,
@@ -80,4 +115,4 @@ const JobCard = ({
   )
 }
 
-export default JobCard
+export default enhance(JobCard)
