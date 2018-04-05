@@ -55,6 +55,8 @@ const JobCard = ({
         title={V.truncate(name, 32)}
         subheader={`${tasksCompleted} / ${totalTasks} prints completed`}
         action={
+          // hide the delete button when the job is printing
+          status != 'PRINTING' &&
           <IconButton
             onClick={ openMenu }
           >
