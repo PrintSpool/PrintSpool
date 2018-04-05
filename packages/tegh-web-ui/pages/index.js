@@ -44,7 +44,7 @@ const JOBS_SUBSCRIPTION = gql`
           tasks(excludeCompletedTasks: true) {
             id
             name
-            percentComplete
+            percentComplete(digits: 1)
             startedAt
             status
             printer {

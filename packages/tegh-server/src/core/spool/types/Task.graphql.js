@@ -7,6 +7,8 @@ import { GraphQLDate } from 'graphql-scalars'
 
 import PrinterGraphQL from '../../printer/types/Printer.graphql.js'
 
+import getTaskPercentComplete from '../selectors/getTaskPercentComplete'
+
 const TaskType = new GraphQLObjectType({
   name: 'Task',
   description: 'A spooled set of gcodes to be executed by the printer',
@@ -28,7 +30,21 @@ const TaskType = new GraphQLObjectType({
       // TODO: PercentageScalarType
       // type: tql`${PercentageScalarType}!`,
       type: tql`Float!`,
-      resolve: source => source.currentLineNumber / source.data.size * 100
+      args: {
+        digits: {
+          type: tql`Int!`,
+          description: snl`
+            The number of digits to the right of the decimal place to round to.
+            eg.
+            \`digits: 0\` => 83
+            \`digits: 1\` => 82.6
+            \`digits: 2\` => 82.62
+          `
+        },
+      },
+      resolve: (source, { digits }) => {
+        return getTaskPercentComplete({ task: source, digits })
+      },
     },
     createdAt: {
       type: tql`${GraphQLDate}!`,
