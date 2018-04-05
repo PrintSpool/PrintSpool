@@ -88,6 +88,7 @@ const TemperatureSection = ({
   loading,
   error,
   spoolMacro,
+  disabled,
 }) => {
   if (loading) return <div>Loading</div>
   if (error) return <div>Error</div>
@@ -109,6 +110,7 @@ const TemperatureSection = ({
             <Switch
               checked={isHeating}
               onChange={toggleEnabled}
+              disabled={ disabled }
               aria-label="heating"
             />
           }

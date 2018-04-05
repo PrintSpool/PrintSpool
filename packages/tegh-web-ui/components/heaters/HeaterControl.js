@@ -21,6 +21,7 @@ const HeaterControl = ({
   id,
   name,
   isExtruder,
+  disabled,
 }) => (
   <Card>
     <CardContent>
@@ -32,12 +33,20 @@ const HeaterControl = ({
           <Typography variant='subheading'>
             {name}
           </Typography>
-          <TemperatureSection id={id} name={name}/>
+          <TemperatureSection
+            id={id}
+            name={name}
+            disabled={disabled}
+          />
         </Grid>
         <Grid item xs={6}>
           {
             isExtruder &&
-            <ExtruderButtons id={id} form={`extruder[${id}]`} />
+            <ExtruderButtons
+              id={id}
+              form={`extruder[${id}]`}
+              disabled={disabled}
+            />
           }
         </Grid>
       </Grid>

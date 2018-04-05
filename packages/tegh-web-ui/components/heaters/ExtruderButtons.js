@@ -30,6 +30,7 @@ const ExtruderButtons = ({
   id,
   distance,
   jog,
+  disabled,
 }) => (
   <Grid
     container
@@ -45,6 +46,7 @@ const ExtruderButtons = ({
       <div style={{ textAlign: 'right'}}>
         <Button
           variant="raised"
+          disabled={ disabled }
           onClick={jog(id, '-', distance)}
         >
           Retract
@@ -53,6 +55,7 @@ const ExtruderButtons = ({
         <Button
           variant="raised"
           color='primary'
+          disabled={ disabled }
           onClick={jog(id, '+', distance)}
         >
           Extrude

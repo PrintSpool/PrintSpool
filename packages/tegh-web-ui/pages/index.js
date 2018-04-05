@@ -7,9 +7,8 @@ import {
 import App from '../components/App'
 import JobList from '../components/jobQueue/JobList'
 
-import jsonpatch from 'json-patch'
 import gql from 'graphql-tag'
-import { Subscription } from 'react-apollo'
+import LiveSubscription from '../components/LiveSubscription'
 
 const enhance = compose(
   withContext(
@@ -19,30 +18,6 @@ const enhance = compose(
     () => ({ printerID: 'test_printer_id'}),
   ),
 )
-
-const withLiveData = Component => {
-  const key = 'live'
-  let state = null
-
-  return ({ data, loading, error }) => {
-    if (data != null) {
-      const { query, patches } = data[key]
-      if (query != null) state = query
-      if (patches != null) {
-        patches.forEach(patch => {
-          state = jsonpatch.apply(state, patch)
-        })
-      }
-    }
-    return (
-      <Component
-        data={state}
-        loading={loading}
-        error={error}
-      />
-    )
-  }
-}
 
 const JOBS_SUBSCRIPTION = gql`
   subscription($printerID: ID!) {
@@ -84,14 +59,14 @@ const JOBS_SUBSCRIPTION = gql`
 
 const Index = props => (
   <App>
-    <Subscription
+    <LiveSubscription
       variables={{
         printerID: 'test_printer_id'
       }}
       subscription={JOBS_SUBSCRIPTION}
     >
       {
-        withLiveData(({data, loading, error}) => {
+        ({data, loading, error}) => {
           if (loading) return <div/>
           if (error) return <div>{ JSON.stringify(error) }</div>
           const jobs = data.jobs
@@ -101,9 +76,9 @@ const Index = props => (
               { ...{ loading, error, jobs, status} }
             />
           )
-        })
+        }
       }
-    </Subscription>
+    </LiveSubscription>
   </App>
 )
 
