@@ -30,6 +30,7 @@ import { CREATE_TASK } from '../actions/createTask'
 import { DELETE_TASKS } from '../actions/deleteTasks'
 import { START_TASK } from '../actions/startTask'
 import { CANCEL_ALL_TASKS } from '../actions/cancelAllTasks'
+import { CANCEL_TASK } from '../actions/cancelTask'
 
 const taskReducer = (state, action) => {
   switch (action.type) {
@@ -59,6 +60,12 @@ const taskReducer = (state, action) => {
     }
     case CREATE_TASK: {
       return action.payload.task
+    }
+    case CANCEL_TASK: {
+      const { id } = action.payload
+      if (state.id !== id) return state
+
+      return state.set('status', CANCELLED)
     }
     case DELETE_TASKS: {
       const { ids } = action.payload

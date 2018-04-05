@@ -12,10 +12,10 @@ const createJobGraphQL = gql`
 `
 
 const addJobHandler = graphql(createJobGraphQL, {
-  props: ({ mutate }) => ({
+  props: ({ mutate, ownProps }) => ({
     addJob: async (value) => {
       const mutationInput = {
-        printerID: "test_printer_id",
+        printerID: ownProps.printerID,
         name: value.map(f => f.name).join(', '),
         files: [],
       }

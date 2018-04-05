@@ -27,6 +27,7 @@ import despoolTask, { DESPOOL_TASK } from '../actions/despoolTask'
 import createTask from '../actions/createTask'
 import { DELETE_TASKS } from '../actions/deleteTasks'
 import startTask from '../actions/startTask'
+import { CANCEL_TASK } from '../actions/cancelTask'
 import cancelAllTasks, { CANCEL_ALL_TASKS } from '../actions/cancelAllTasks'
 
 const taskMap = ReduxNestedMap({
@@ -60,11 +61,15 @@ const spoolReducer = () => (state = initialState, action) => {
         .set('sendSpooledLineToPrinter', null)
     }
     case CANCEL_JOB:
-    case DELETE_JOB: {
-      return taskMap.updateEach(state, action)
-    }
+    case CANCEL_TASK:
+    case DELETE_JOB:
     case DELETE_TASKS: {
-      return taskMap.updateEach(state, action)
+      let nextState = taskMap.updateEach(state, action)
+      const currentTask = nextState.tasks.get(nextState.currentTaskID)
+      if (currentTask && currentTask.status != PRINTING) {
+        nextState = nextState.set('currentTaskID', null)
+      }
+      return nextState
     }
     case SPOOL_TASK: {
       const { payload } = action

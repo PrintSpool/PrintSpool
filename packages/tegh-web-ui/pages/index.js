@@ -49,6 +49,7 @@ const JOBS_SUBSCRIPTION = gql`
             startedAt
             status
             printer {
+              id
               name
             }
           }
@@ -58,11 +59,11 @@ const JOBS_SUBSCRIPTION = gql`
   }
 `
 
-const Index = props => (
+const Index = ({ printerID = 'test_printer_id' }) => (
   <App>
     <LiveSubscription
       variables={{
-        printerID: 'test_printer_id'
+        printerID,
       }}
       subscription={JOBS_SUBSCRIPTION}
     >
@@ -77,7 +78,7 @@ const Index = props => (
               <Header status={status}/>
               <main>
                 <JobList
-                  { ...{ loading, error, jobs, status} }
+                  { ...{ loading, error, jobs, status, printerID } }
                 />
               </main>
             </div>

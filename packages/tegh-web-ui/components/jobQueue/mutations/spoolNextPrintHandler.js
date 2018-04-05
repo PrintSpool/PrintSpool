@@ -28,7 +28,7 @@ const spoolNextPrintHandler = graphql(spoolJobFileGraphQL, {
         mutate({
           variables: {
             input: {
-              printerID: "test_printer_id",
+              printerID: ownProps.printerID,
               jobFileID: nextJobFile.id,
             },
           },
