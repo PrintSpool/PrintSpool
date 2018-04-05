@@ -7,10 +7,10 @@ import Loader from 'react-loader-advanced'
 import PropTypes from 'prop-types'
 import gql from 'graphql-tag'
 
-import App from '../components/App'
 import LiveSubscription from '../components/LiveSubscription'
-// import HeatersStatus from '../components/HeatersStatus'
-// import Submit from '../components/Submit'
+
+import App from '../components/App'
+import Header from '../components/Header'
 import Log from '../components/Log'
 import Home from '../components/home/Home'
 import XYJogButtons from '../components/jog/XYJogButtons'
@@ -54,56 +54,61 @@ const ManualControl = props => (
           const { status } = data.printer
           const isReady = status === 'READY'
           return (
-            <Grid
-              container
-              spacing={24}
-            >
-              <Loader
-                show={!isReady}
-                message={
-                  <Typography variant="display1" style={{color: '#fff'}}>
-                    manual controls disabled while {status.toLowerCase()}
-                  </Typography>
-                }
-                style={{
-                  flex: 1,
-                  margin: 12,
-                }}
-                backgroundStyle={{
-                  backgroundColor: 'rgba(0, 0, 0, 0.6)'
-                }}
-                contentStyle={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                }}
-              >
-                <Grid item xs={12}>
-                  <Home />
+            <div>
+              <Header status={status}/>
+              <main>
+                <Grid
+                  container
+                  spacing={24}
+                >
+                  <Loader
+                    show={!isReady}
+                    message={
+                      <Typography variant="display1" style={{color: '#fff'}}>
+                        manual controls disabled while {status.toLowerCase()}
+                      </Typography>
+                    }
+                    style={{
+                      flex: 1,
+                      margin: 12,
+                    }}
+                    backgroundStyle={{
+                      backgroundColor: 'rgba(0, 0, 0, 0.6)'
+                    }}
+                    contentStyle={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    <Grid item xs={12}>
+                      <Home />
+                    </Grid>
+                    <Grid item xs={12} sm={8}>
+                      <XYJogButtons form='xyJog' />
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <ZJogButtons form='zJog' />
+                    </Grid>
+                  </Loader>
+                  <Grid item xs={12}>
+                    <HeaterControl
+                      id='e0'
+                      isExtruder={true}
+                      name='Extruder 1'
+                      disabled={!isReady}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <HeaterControl
+                      id='b'
+                      isExtruder={false}
+                      name='Bed'
+                      disabled={!isReady}
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} sm={8}>
-                  <XYJogButtons form='xyJog' />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <ZJogButtons form='zJog' />
-                </Grid>
-              </Loader>
-              <Grid item xs={12}>
-                <HeaterControl
-                  id='e0'
-                  isExtruder={true}
-                  name='Extruder 1'
-                  disabled={!isReady}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <HeaterControl
-                  id='b'
-                  isExtruder={false}
-                  name='Bed'
-                  disabled={!isReady}
-                />
-              </Grid>
-            </Grid>
+              </main>
+            </div>
           )
         }
       }

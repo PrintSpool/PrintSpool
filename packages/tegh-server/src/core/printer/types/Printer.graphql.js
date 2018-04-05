@@ -7,7 +7,7 @@ import {
 import tql from 'typiql'
 import snl from 'strip-newlines'
 
-import { isIdle } from '../../spool/selectors/isIdle'
+import isIdle from '../../spool/selectors/isIdle'
 
 import PrinterStatusEnum from './PrinterStatusEnum.graphql.js'
 import HeaterType from './Heater.graphql.js'
@@ -55,20 +55,9 @@ const Printer = new GraphQLObjectType({
     },
     status: {
       type: tql`${PrinterStatusEnum}!`,
-      resolve(source) {
+      resolve: source => {
+        if(!isIdle(source)) return 'PRINTING'
         return source.driver.status.toUpperCase()
-      },
-    },
-    isIdle: {
-      type: tql`Boolean!`,
-      description: snl`
-        Returns true if the machine is able to accept new tasks (eg. manual
-        movements + control). Spooling a job sets idle to false. If the
-        printer's status is not \`"ready"\` then idle is false.
-      `,
-      resolve(source, _args, { store }) {
-        const state = store.getState()
-        return isIdle(state.spool) && source.driver.status === 'ready'
       },
     },
     error: {

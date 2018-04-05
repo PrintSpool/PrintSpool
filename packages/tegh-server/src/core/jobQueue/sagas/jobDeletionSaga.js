@@ -21,7 +21,6 @@ const jobDeletionSaga = function*() {
     const jobsForDeletion = ( yield select( getJobsByStatus ) )({
       statuses: [ERRORED, CANCELLED, DONE]
     })
-    console.log('A JOB HAS BEEN SPOOLED', jobsForDeletion)
 
     for (const job of jobsForDeletion) {
       /* delete the job */

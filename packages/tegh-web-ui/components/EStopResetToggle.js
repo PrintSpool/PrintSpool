@@ -30,56 +30,16 @@ const styles = theme => ({
   },
 })
 
-const subscribeToStatus = props => params => {
-  return props.statusQuery.subscribeToMore({
-    document:  gql`
-      subscription statusChanged {
-        statusChanged(printerID: "test_printer_id") {
-          id
-          status
-        }
-      }
-    `,
-    variables: {
-    },
-  })
-}
 
 const enhance = compose(
   withSpoolMacro,
-  graphql(
-    gql`query statusQuery {
-      printer(id: "test_printer_id") {
-        id
-        status
-      }
-    }`,
-    {
-      name: 'statusQuery',
-      props: props => {
-        const nextProps = {
-          loading: props.statusQuery.loading,
-          subscribeToStatus: subscribeToStatus(props),
-        }
-        if (nextProps.loading) return nextProps
-        return {
-          ...nextProps,
-          status: props.statusQuery.printer.status,
-        }
-      },
-    },
-  ),
   withStyles(styles),
-  lifecycle({
-    componentWillMount() {
-      this.props.subscribeToStatus()
-    }
-  }),
 )
 
 const statusColor = status => {
   switch(status) {
     case 'READY':
+    case 'PRINTING':
       return '#1B5E20'
     case 'ERRORED':
     case 'ESTOPPED':
@@ -90,12 +50,10 @@ const statusColor = status => {
 }
 
 const EStopResetToggle = ({
-  loading,
   status,
   spoolMacro,
   classes,
 }) => {
-  if (loading) return <div>Loading</div>
   const showEstop = status !== 'ERRORED' && status !== 'ESTOPPED'
   const disabled = status === 'DISCONNECTED'
   const onClick = () => {

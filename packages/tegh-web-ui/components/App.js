@@ -6,7 +6,6 @@ import { withStyles } from 'material-ui'
 import createTeghStore from '../lib/redux'
 import createApolloClient from '../lib/apollo'
 
-import Header from '../components/Header'
 import Drawer from '../components/Drawer'
 
 export default (() => {
@@ -40,10 +39,7 @@ export default (() => {
             <div className={ classes.appFrame }>
               <Drawer />
               <div className={ classes.flex }>
-                <Header/>
-                <main>
-                  { children }
-                </main>
+                { children }
               </div>
             </div>
           </div>

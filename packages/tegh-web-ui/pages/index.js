@@ -5,6 +5,7 @@ import {
 } from 'material-ui'
 
 import App from '../components/App'
+import Header from '../components/Header'
 import JobList from '../components/jobQueue/JobList'
 
 import gql from 'graphql-tag'
@@ -70,11 +71,16 @@ const Index = props => (
           if (loading) return <div/>
           if (error) return <div>{ JSON.stringify(error) }</div>
           const jobs = data.jobs
-          const status = data.printer.status
+          const { status } = data.printer
           return (
-            <JobList
-              { ...{ loading, error, jobs, status} }
-            />
+            <div>
+              <Header status={status}/>
+              <main>
+                <JobList
+                  { ...{ loading, error, jobs, status} }
+                />
+              </main>
+            </div>
           )
         }
       }
