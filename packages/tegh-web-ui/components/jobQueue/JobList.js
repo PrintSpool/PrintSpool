@@ -87,6 +87,23 @@ export const JobList = ({
   return (
     <div>
       {
+        jobs.length === 0 &&
+        <div
+          style={{
+            position: 'relative',
+            top: '12vh',
+            height: '50vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Typography variant="display2">
+            the print queue is empty
+          </Typography>
+        </div>
+      }
+      {
         statuses.map(status => (
           <JobSubList
             key={ status }
