@@ -1,31 +1,15 @@
-import _ from 'lodash'
+import { compose, withProps } from 'recompose'
 
-import { graphql } from 'react-apollo'
-import gql from 'graphql-tag'
+import withSpoolMacro from '../../../higherOrderComponents/withSpoolMacro'
 
-const cancelTaskGraphQL = gql`
-  mutation cancelTask($input: CancelTaskInput!) {
-    cancelTask(input: $input) {
-      id
-    }
-  }
-`
-
-const cancelTaskHandler = graphql(cancelTaskGraphQL, {
-  props: ({ mutate, ownProps }) => {
-    return {
-      cancelTask: task => {
-        mutate({
-          variables: {
-            input: {
-              printerID: task.printer.id,
-              taskID: task.id,
-            },
-          },
-        })
-      },
-    }
-  },
-})
+const cancelTaskHandler = compose(
+  withSpoolMacro,
+  withProps(({ spoolMacro }) => ({
+    cancelTask: task => spoolMacro({
+      printerID: task.printer.id,
+      macro: 'eStop',
+    }),
+  })),
+)
 
 export default cancelTaskHandler
