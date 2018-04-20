@@ -35,8 +35,7 @@ const styles = (theme) => ({
 
 const Header = ({
   classes,
-  name = 'Lulzbot 5',
-  status,
+  printer,
 }) => (
   <div>
     <AppBar color="inherit" className={ classes.appBar }>
@@ -47,9 +46,9 @@ const Header = ({
           </IconButton>
         */}
         <Typography variant="title" color="inherit" className={classes.flex}>
-          {name} <span style={{color: '#999'}}>Powered by Tegh</span>
+          {printer.name} <span style={{color: '#999'}}>Powered by Tegh</span>
         </Typography>
-        <EStopResetToggle status={ status } />
+        <EStopResetToggle printer={ printer } />
       </Toolbar>
     </AppBar>
     <div className={classes.verticalReset} />

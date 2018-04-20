@@ -8,6 +8,7 @@ import PropTypes from 'prop-types'
 import gql from 'graphql-tag'
 
 import LiveSubscription from '../components/LiveSubscription'
+import PrinterStatusGraphQL from '../components/PrinterStatus.graphql.js'
 
 import App from '../components/App'
 import Header from '../components/Header'
@@ -32,11 +33,14 @@ const MANUAL_CONTROL_SUBSCRIPTION = gql`
       patches { op, path, from, value }
       query {
         printer(id: $printerID) {
-          status
+          ...PrinterStatus
         }
       }
     }
   }
+
+  # fragments
+  ${PrinterStatusGraphQL}
 `
 
 const ManualControl = props => (
@@ -51,11 +55,12 @@ const ManualControl = props => (
         ({data, loading, error}) => {
           if (loading) return <div/>
           if (error) return <div>{ JSON.stringify(error) }</div>
-          const { status } = data.printer
+          const { jobs, printer } = data
+          const { status } = printer
           const isReady = status === 'READY'
           return (
             <div>
-              <Header status={status}/>
+              <Header printer={printer}/>
               <main>
                 <Grid
                   container

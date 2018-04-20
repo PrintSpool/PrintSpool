@@ -8,7 +8,9 @@ import cors from 'koa-cors'
 import { graphqlKoa, graphiqlKoa } from 'apollo-server-koa'
 import { SubscriptionServer } from 'subscriptions-transport-ws'
 import { execute, subscribe } from 'graphql'
+import { ApolloEngine } from 'apollo-engine'
 import _ from 'lodash'
+import Promise from 'bluebird'
 
 const httpServer = async ({
   schema,
@@ -26,6 +28,7 @@ const httpServer = async ({
     context,
     schema,
     debug: true,
+    tracing: true,
   })
 
   // koaBody is needed just for POST.
@@ -82,17 +85,43 @@ const httpServer = async ({
 
   // eslint-disable-next-line no-console
   if (!isTCP && fs.existsSync(port)) fs.unlinkSync(port)
-  server.listen(port, () => {
-    let portFullName = port
-    if (isTCP) {
-      const allIPs = _.flatten(Object.values(os.networkInterfaces()))
-      const ipAddress = allIPs.filter(ip =>
-        !ip.internal && ip.family === 'IPv4'
-      )[0].address
-      portFullName = `http://${ipAddress}:${port}`
+
+  // start the server and adding Apollo Engine
+  const enginePort = 3500
+  const isEngineEnabled = process.env.ENGINE_API_KEY != null && isTCP
+  const serverStartupPromise = new Promise((resolve, reject) => {
+    const cb = error => error ? reject(error) : resolve()
+    if (isEngineEnabled) {
+      // Initialize engine with your API key.
+      // Set the ENGINE_API_KEY environment variable when you
+      // run your program.
+      const engine = new ApolloEngine()
+
+      // Call engine.listen instead of app.listen(port)
+      engine.listen({
+        port,
+        httpServer: server,
+      }, cb)
+    } else {
+      server.listen(port, cb)
     }
-    console.error(`Tegh is listening on ${portFullName}`)
   })
+  await serverStartupPromise
+
+  let portFullName = port
+  const apolloEngineMsg = (
+    `Apollo Engine is ${isEngineEnabled ? 'en': 'dis'}abled`
+  )
+  if (isTCP) {
+    const allIPs = _.flatten(Object.values(os.networkInterfaces()))
+    const ipAddress = allIPs.filter(ip =>
+      !ip.internal && ip.family === 'IPv4'
+    )[0].address
+    portFullName = `http://${ipAddress}:${port}`
+  }
+  console.error(
+    `Tegh is listening on ${portFullName} (${apolloEngineMsg})`
+  )
 }
 
 export default httpServer

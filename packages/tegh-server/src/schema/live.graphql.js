@@ -12,14 +12,18 @@ const RESPONSE_THROTTLE_MS = 500
 
 const type = () => QueryRootGraphQL
 
-const liveGraphQL = () => ({
-  type: GraphQLLiveData({
+const LiveSubscriptionRoot = () => {
+  return GraphQLLiveData({
     name: 'LiveSubscriptionRoot',
     type,
-  }),
+  })
+}
 
+const liveGraphQL = () => ({
+  type: LiveSubscriptionRoot(),
   subscribe: subscribeToLiveData({
-    type,
+    fieldName: 'live',
+    type: LiveSubscriptionRoot(),
     getSubscriptionProvider: async (source, args, context, resolveInfo) => {
       return {
         subscribe: cb => {

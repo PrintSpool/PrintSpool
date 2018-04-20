@@ -50,10 +50,11 @@ const statusColor = status => {
 }
 
 const EStopResetToggle = ({
-  status,
+  printer,
   spoolMacro,
   classes,
 }) => {
+  const { status, error } = printer
   const showEstop = status !== 'ERRORED' && status !== 'ESTOPPED'
   const disabled = status === 'DISCONNECTED'
   const onClick = () => {
@@ -65,7 +66,7 @@ const EStopResetToggle = ({
       <div style={{display: 'inline-block', paddingTop: 8}}>
         <Typography variant='button'>
           <span style={{ color: statusColor(status), marginRight: 10 }}>
-            {status}
+            { status }
           </span>
         </Typography>
       </div>

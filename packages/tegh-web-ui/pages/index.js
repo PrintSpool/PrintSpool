@@ -10,6 +10,7 @@ import JobList from '../components/jobQueue/JobList'
 
 import gql from 'graphql-tag'
 import LiveSubscription from '../components/LiveSubscription'
+import PrinterStatusGraphQL from '../components/PrinterStatus.graphql.js'
 
 const enhance = compose(
   withContext(
@@ -26,7 +27,8 @@ const JOBS_SUBSCRIPTION = gql`
       patches { op, path, from, value }
       query {
         printer(id: $printerID) {
-          status
+          name
+          ...PrinterStatus
         }
         jobs {
           id
@@ -57,6 +59,9 @@ const JOBS_SUBSCRIPTION = gql`
       }
     }
   }
+
+  # fragments
+  ${PrinterStatusGraphQL}
 `
 
 const Index = ({ printerID = 'test_printer_id' }) => (
@@ -68,14 +73,16 @@ const Index = ({ printerID = 'test_printer_id' }) => (
       subscription={JOBS_SUBSCRIPTION}
     >
       {
-        ({data, loading, error}) => {
+        ({ data, loading, error }) => {
           if (loading) return <div/>
           if (error) return <div>{ JSON.stringify(error) }</div>
-          const jobs = data.jobs
-          const { status } = data.printer
+          console.log(JOBS_SUBSCRIPTION, PrinterStatusGraphQL)
+          console.log(data, loading, error, new Array(...arguments))
+          const { jobs, printer } = data
+          const { status } = printer
           return (
             <div>
-              <Header status={status}/>
+              <Header printer={printer}/>
               <main>
                 <JobList
                   { ...{ loading, error, jobs, status, printerID } }
