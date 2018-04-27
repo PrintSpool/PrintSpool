@@ -7228,6 +7228,10 @@ strip-json-comments@~2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-2.0.1.tgz#3c531942e908c2697c0ec344858c286c7ca0a60a"
 
+strip-newlines@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/strip-newlines/-/strip-newlines-1.0.1.tgz#43dd876e18982a47bc9e7b8fd2a7a953435a0901"
+
 style-loader@^0.19.1:
   version "0.19.1"
   resolved "https://registry.yarnpkg.com/style-loader/-/style-loader-0.19.1.tgz#591ffc80bcefe268b77c5d9ebc0505d772619f85"

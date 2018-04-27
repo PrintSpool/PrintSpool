@@ -1,6 +1,6 @@
 import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
-import { compose, lifecycle } from 'recompose'
+import { compose, lifecycle, withState } from 'recompose'
 import styled from 'styled-components'
 import {
   Card,
@@ -20,6 +20,7 @@ import {
 import { Field, reduxForm, formValues } from 'redux-form'
 
 import withSpoolMacro from '../higherOrderComponents/withSpoolMacro'
+import StatusDialog from './StatusDialog'
 
 const styles = theme => ({
   leftIcon: {
@@ -32,6 +33,7 @@ const styles = theme => ({
 
 
 const enhance = compose(
+  withState('dialogOpen', 'setDialogOpen', false),
   withSpoolMacro,
   withStyles(styles),
 )
@@ -53,6 +55,8 @@ const EStopResetToggle = ({
   printer,
   spoolMacro,
   classes,
+  dialogOpen,
+  setDialogOpen,
 }) => {
   const { status, error } = printer
   const showEstop = status !== 'ERRORED' && status !== 'ESTOPPED'
@@ -63,12 +67,18 @@ const EStopResetToggle = ({
 
   return (
     <div>
-      <div style={{display: 'inline-block', paddingTop: 8}}>
-        <Typography variant='button'>
-          <span style={{ color: statusColor(status), marginRight: 10 }}>
-            { status }
-          </span>
-        </Typography>
+      <StatusDialog
+        open={ dialogOpen }
+        printer={ printer }
+        handleClose={ () => { setDialogOpen(false) } }
+        handleReset={ () => spoolMacro({ macro: 'reset' }) }
+      />
+      <div style={{display: 'inline-block', marginRight: 10}}>
+        <Button
+          onClick={ () => { setDialogOpen(true) } }
+        >
+          { status }
+        </Button>
       </div>
       <div style={{display: 'inline-block'}}>
         <Button
