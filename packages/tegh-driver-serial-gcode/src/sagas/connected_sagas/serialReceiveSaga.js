@@ -14,6 +14,8 @@ const serialReceiveSaga = ({
   shouldIgnoreOK,
   getCurrentLine,
   getCurrentSerialLineNumber,
+  getCurrentFileName,
+  getCurrentFileLineNumber,
 }) => {
   /*
    * Intercepts SERIAL_RECEIVE actions, parses their data (appending it
@@ -60,9 +62,14 @@ const serialReceiveSaga = ({
         return
       }
       case 'error': {
+        const fileName = yield select(getCurrentFileName)
+        const fileLineNumber = yield select(getCurrentFileLineNumber)
         const error = driverError({
           code: 'FIRMWARE_ERROR',
-          message: action.data.raw,
+          message: (
+            `${fileName}:${fileLineNumber}: `+
+            action.data.raw
+          ),
         })
         yield put(error)
         return

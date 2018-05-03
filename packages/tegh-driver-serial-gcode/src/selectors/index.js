@@ -31,6 +31,12 @@ export const getCurrentLine = state => {
   return task.data.get(task.currentLineNumber)
 }
 
+export const getCurrentFileLineNumber = state =>
+  getCurrentTask(state).currentLineNumber
+
+export const getCurrentFileName = state =>
+  getCurrentTask(state).name
+
 export const isEmergency = state =>
   getCurrentTask(state).priority === EMERGENCY
 

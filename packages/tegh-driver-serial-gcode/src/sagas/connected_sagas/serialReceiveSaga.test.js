@@ -30,6 +30,8 @@ const itDoesNothingWhen = ({ready, type, ignoreOK = false}) => {
       const selectors = {
         isReady: () => ready,
         shouldIgnoreOK: () => ignoreOK,
+        getCurrentFileName: () => 'test.gcode',
+        getCurrentFileLineNumber: () => 1337,
       }
       const { sagaTester, delayMock } = delayMockedSagaTester({
         initialState: {},
@@ -54,6 +56,8 @@ describe('SERIAL_RECEIVE ok', () => {
       const selectors = {
         isReady: () => true,
         shouldIgnoreOK: () => false,
+        getCurrentFileName: () => 'test.gcode',
+        getCurrentFileLineNumber: () => 1337,
       }
 
       const { sagaTester, delayMock } = delayMockedSagaTester({
@@ -80,13 +84,15 @@ describe('SERIAL_RECEIVE error', () => {
       const selectors = {
         isReady: () => true,
         shouldIgnoreOK: () => false,
+        getCurrentFileName: () => 'test.gcode',
+        getCurrentFileLineNumber: () => 1337,
       }
       const raw = 'Error:PROBE FAIL CLEAN NOZZLE'
       const serialReceiveError = serialReceive('error', { raw })
       const firmwareError = {
         ...driverError({
           code: 'FIRMWARE_ERROR',
-          message: raw,
+          message: `test.gcode:1337: ${raw}`,
         }),
         [SAGA_ACTION]: true,
       }
@@ -115,6 +121,8 @@ describe('SERIAL_RECEIVE resend', () => {
       shouldIgnoreOK: () => ignoreOK,
       getCurrentLine: () => '(╯°□°）╯︵ ┻━┻',
       getCurrentSerialLineNumber: () => currentLineNumber,
+      getCurrentFileName: () => 'test.gcode',
+      getCurrentFileLineNumber: () => 1337,
     }
     const { sagaTester, delayMock } = delayMockedSagaTester({
       initialState: {},
