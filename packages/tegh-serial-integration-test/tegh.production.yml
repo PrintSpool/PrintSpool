@@ -10,12 +10,14 @@ log:
     - warning
     - error
     - fatal
+crashReports:
+  directory: /var/log/tegh
+  uploadCrashReportsToDevs: true
 printFromLocalPath:
   enabled: true
   allowSymlinks: false
   whitelist:
     - ~/.tegh-local-files/
-uploadCrashReportsToDevs: true
 server:
   tcpPort: 3900
   unixSocket: /tmp/tegh_socket

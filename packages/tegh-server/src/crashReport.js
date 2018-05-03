@@ -59,13 +59,15 @@ export const wrapInCrashReporting = ({config, configPath}, cb) => {
   /*
    * Load the previous crash crash report
    */
-  const errorDir = path.join(path.dirname(configPath), 'log')
-  if (!fs.existsSync(errorDir)) fs.mkdirSync(errorDir)
+  const errorDir = config.crashReports.directory
+  if (!fs.existsSync(errorDir)) {
+    throw new Error(`crash reports directory (${errorDir}) does not exist`)
+  }
   const crashReport = loadCrashReport(errorDir)
   /*
    * Upload fatal errors to Sentry via raven after the service is restarted
    */
-  // if (config.uploadCrashReportsToDevs) {
+  // if (config.crashReports.uploadCrashReportsToDevs) {
   //   // Raven.disableConsoleAlerts()
   //   Raven
   //     .config(RAVEN_DSN, { captureUnhandledRejections: false })

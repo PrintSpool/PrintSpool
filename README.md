@@ -2,11 +2,11 @@
 
 ## Installation
 
-Run `yarn`
+Run `sudo mkdir /var/log/tegh && sudo chmod 777 /var/log/tegh && yarn`
 
 **Prerequisites:** node and yarn (`npm i -g yarn`)
 
-## Running the Production Server
+## Running the stop-gap "Production" Server
 
 Run `yarn start`
 
