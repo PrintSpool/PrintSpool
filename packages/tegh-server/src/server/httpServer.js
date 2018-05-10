@@ -114,9 +114,10 @@ const httpServer = async ({
   )
   if (isTCP) {
     const allIPs = _.flatten(Object.values(os.networkInterfaces()))
-    const ipAddress = allIPs.filter(ip =>
+    const ipv4IPs = allIPs.filter(ip =>
       !ip.internal && ip.family === 'IPv4'
-    )[0].address
+    )
+    const ipAddress = ipv4IPs.length > 0 ? ipv4IPs[0].address : 'localhost'
     portFullName = `http://${ipAddress}:${port}`
   }
   console.error(
