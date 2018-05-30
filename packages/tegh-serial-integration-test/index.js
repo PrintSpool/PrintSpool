@@ -1,7 +1,22 @@
-require('babel-register')({
-  ignore: /node_modules\/(?!tegh|serial-middleware)/
+const whitelist = /(tegh-.+|serial-middleware|graphql-live-subscriptions)\/(src|data|index)/
+
+require('@babel/register')({
+  presets: [
+    '@babel/preset-env',
+    '@babel/preset-flow',
+  ],
+  plugins: [
+    '@babel/plugin-proposal-object-rest-spread'
+  ],
+  ignore: [
+    (filepath) => {
+      const isMatch = filepath.match(whitelist) != null
+      // console.log(isMatch, filepath)
+      return !isMatch
+    }
+  ],
 })
-require("babel-polyfill")
+require("@babel/polyfill")
 
 var teghServer = require('tegh-server').default
 

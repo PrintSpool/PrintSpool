@@ -1,7 +1,7 @@
 import tql from 'typiql'
 import snl from 'strip-newlines'
 import {
-  GraphQLObjectType
+  GraphQLObjectType,
 } from 'graphql'
 import { GraphQLDate } from 'graphql-scalars'
 
@@ -24,7 +24,7 @@ const TaskType = new GraphQLObjectType({
     },
     totalLineNumbers: {
       type: tql`Int!`,
-      resolve: source => source.data.size
+      resolve: source => source.data.size,
     },
     percentComplete: {
       // TODO: PercentageScalarType
@@ -39,12 +39,12 @@ const TaskType = new GraphQLObjectType({
             \`digits: 0\` => 83
             \`digits: 1\` => 82.6
             \`digits: 2\` => 82.62
-          `
+          `,
         },
       },
-      resolve: (source, { digits }) => {
-        return getTaskPercentComplete({ task: source, digits })
-      },
+      resolve: (source, { digits }) => (
+        getTaskPercentComplete({ task: source, digits })
+      ),
     },
     createdAt: {
       type: tql`${GraphQLDate}!`,

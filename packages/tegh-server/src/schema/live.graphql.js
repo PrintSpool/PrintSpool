@@ -1,42 +1,37 @@
-import _ from 'lodash'
-import tql from 'typiql'
-
+import EventEmitter from 'events'
 import {
   GraphQLLiveData,
   subscribeToLiveData,
-} from 'graphql-live-subscriptions'
+} from 'graphql-live-subscriptions/src/index'
 
-import QueryRootGraphQL from './QueryRoot.graphql.js'
-
-const RESPONSE_THROTTLE_MS = 500
+import QueryRootGraphQL from './QueryRoot.graphql'
 
 const type = () => QueryRootGraphQL
 
-const LiveSubscriptionRoot = () => {
-  return GraphQLLiveData({
-    name: 'LiveSubscriptionRoot',
-    type,
-  })
-}
+const LiveSubscriptionRoot = () => GraphQLLiveData({
+  name: 'LiveSubscriptionRoot',
+  type,
+})
 
 const liveGraphQL = () => ({
   type: LiveSubscriptionRoot(),
-  subscribe: subscribeToLiveData({
-    fieldName: 'live',
-    type: LiveSubscriptionRoot(),
-    getSubscriptionProvider: async (source, args, context, resolveInfo) => {
-      return {
-        subscribe: cb => {
-          return context.store.subscribe(_.throttle(cb, RESPONSE_THROTTLE_MS))
-        }
-      }
-    },
-
-    /* getSource must not return null */
-    getSource: async () => 'rootValue',
-  }),
-
   resolve: source => source,
+  subscribe: subscribeToLiveData({
+    initialState: (source, args, context) => (
+      context.store.getState()
+    ),
+    eventEmitter: (source, args, context) => {
+      const eventEmitter = new EventEmitter()
+      const { store } = context
+
+      store.subscribe(() => {
+        const nextState = store.getState()
+        eventEmitter.emit('update', { nextState })
+      })
+
+      return eventEmitter
+    },
+  }),
 })
 
 export default liveGraphQL
