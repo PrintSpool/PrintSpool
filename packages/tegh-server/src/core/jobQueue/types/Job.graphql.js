@@ -31,7 +31,7 @@ const JobGraphQL = new GraphQLObjectType({
       resolve(source, args, { store }) {
         const state = store.getState()
         const jobID = source.id
-        return getJobFilesFor(state)({ jobID }).toJSON()
+        return getJobFilesFor(state)({ jobID })
       }
     },
 
@@ -48,7 +48,7 @@ const JobGraphQL = new GraphQLObjectType({
         return getTasksFor(state)({
           taskableID: source.id,
           excludeCompletedTasks,
-        })
+        }).values().toArray()
       }
     },
 

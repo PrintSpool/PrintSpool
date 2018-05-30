@@ -18,7 +18,7 @@ require('@babel/register')({
 })
 require("@babel/polyfill")
 
-var teghServer = require('tegh-server').default
+const teghServer = require('tegh-server').default
 
 const NODE_ENV = process.env.NODE_ENV || 'development'
 const argv = [null, null, `./tegh.${NODE_ENV}.yml`]

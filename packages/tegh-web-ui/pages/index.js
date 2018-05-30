@@ -24,7 +24,7 @@ const enhance = compose(
 const JOBS_SUBSCRIPTION = gql`
   subscription($printerID: ID!) {
     live {
-      patches { op, path, from, value }
+      patch { op, path, from, value }
       query {
         printer(id: $printerID) {
           name

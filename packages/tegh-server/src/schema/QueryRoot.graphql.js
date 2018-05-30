@@ -58,7 +58,7 @@ const QueryRootGraphQL = new GraphQLObjectType({
       resolve(_source, args, { store }) {
         // console.log(store.getState())
         const { jobQueue } = store.getState()
-        const jobs = jobQueue.jobs.toList().toJSON()
+        const jobs = jobQueue.jobs.toList()
         return jobs
       }
     },
