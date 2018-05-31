@@ -18,10 +18,10 @@ const LiveSubscription = ({ variables, subscription, children }) => {
       {
         ({ data, loading, error }) => {
           if (data != null) {
-            const { query, patches } = data[key]
+            const { query, patch } = data[key]
             if (query != null) state = query
-            if (patches != null) {
-              patches.forEach(patch => {
+            if (patch != null) {
+              patch.forEach(patch => {
                 state = jsonpatch.apply(state, patch)
               })
             }

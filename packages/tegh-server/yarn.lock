@@ -1681,8 +1681,8 @@ error-inject@~1.0.0:
   resolved "https://registry.yarnpkg.com/error-inject/-/error-inject-1.0.0.tgz#e2b3d91b54aed672f309d950d154850fa11d4f37"
 
 es-abstract@^1.5.1:
-  version "1.11.0"
-  resolved "https://registry.yarnpkg.com/es-abstract/-/es-abstract-1.11.0.tgz#cce87d518f0496893b1a30cd8461835535480681"
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/es-abstract/-/es-abstract-1.12.0.tgz#9dbbdd27c6856f0001421ca18782d786bf8a6165"
   dependencies:
     es-to-primitive "^1.1.1"
     function-bind "^1.1.1"
@@ -2078,7 +2078,7 @@ graphql-extensions@^0.0.x, graphql-extensions@~0.0.9:
 
 "graphql-live-subscriptions@github:d1plo1d/graphql-live-subscriptions#feature/tree_diff":
   version "0.1.0"
-  resolved "https://codeload.github.com/d1plo1d/graphql-live-subscriptions/tar.gz/b5d8519b994d575f94742b014c9f13c08d34bfc4"
+  resolved "https://codeload.github.com/d1plo1d/graphql-live-subscriptions/tar.gz/5df86b435d93d288f8919f55d6ab514bbea7d5d7"
   dependencies:
     fast-json-patch "^2.0.6"
     fast-memoize "^2.3.2"

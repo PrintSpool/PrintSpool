@@ -1,10 +1,13 @@
 import EventEmitter from 'events'
+import _ from 'lodash'
 import {
   GraphQLLiveData,
   subscribeToLiveData,
 } from 'graphql-live-subscriptions/src/index'
 
 import QueryRootGraphQL from './QueryRoot.graphql'
+
+const  MAX_UPDATE_RATE_MS = 500
 
 const type = () => QueryRootGraphQL
 
@@ -24,10 +27,12 @@ const liveGraphQL = () => ({
       const eventEmitter = new EventEmitter()
       const { store } = context
 
-      store.subscribe(() => {
+      const emitUpdate = () => {
         const nextState = store.getState()
         eventEmitter.emit('update', { nextState })
-      })
+      }
+
+      store.subscribe(_.throttle(emitUpdate, MAX_UPDATE_RATE_MS))
 
       return eventEmitter
     },
