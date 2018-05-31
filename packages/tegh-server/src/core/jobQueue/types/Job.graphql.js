@@ -48,7 +48,7 @@ const JobGraphQL = new GraphQLObjectType({
         return getTasksFor(state)({
           taskableID: source.id,
           excludeCompletedTasks,
-        }).values().toArray()
+        }).values()
       }
     },
 
