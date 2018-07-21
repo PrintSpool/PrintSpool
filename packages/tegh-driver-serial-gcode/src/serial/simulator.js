@@ -14,13 +14,22 @@ const simulator = () => {
     setImmediate(() => serialPort.emit('open'))
     sendLines(greeting)
   }
-  serialPort.write = (line) => {
-    const code = line.split(/ +/)[1].toLowerCase().replace(/\*.*|\n/g, '')
+  serialPort.close = (cb) => {
+    serialPort.emit('close')
+    cb()
+  }
+  serialPort.write = (line, cb = () => {}) => {
+    const words = line.split(/ +/)
+    const code = (() => {
+      if (words[1] == null) return null
+      return words[1].toLowerCase().replace(/\*.*|\n/g, '')
+    })()
     if (responses[code] == null) {
       sendLines(responses['g1'])
     } else {
       sendLines(responses[code])
     }
+    cb()
   }
   return {
     serialPort,

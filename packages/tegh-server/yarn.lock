@@ -1874,8 +1874,8 @@ fast-levenshtein@~2.0.4:
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
 
 fast-memoize@^2.3.2:
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/fast-memoize/-/fast-memoize-2.3.2.tgz#f6b9eb8e06a754029cca25b4cd3945f2f6242c90"
+  version "2.5.1"
+  resolved "https://registry.yarnpkg.com/fast-memoize/-/fast-memoize-2.5.1.tgz#c3519241e80552ce395e1a32dcdde8d1fd680f5d"
 
 fb-watchman@^2.0.0:
   version "2.0.0"
@@ -2594,13 +2594,13 @@ istanbul-reports@^1.3.0:
   dependencies:
     handlebars "^4.0.3"
 
-iterall@^1.1.1, iterall@^1.2.1:
-  version "1.2.2"
-  resolved "https://registry.yarnpkg.com/iterall/-/iterall-1.2.2.tgz#92d70deb8028e0c39ff3164fdbf4d8b088130cd7"
-
-iterall@d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b:
+iterall@^1.1.1, iterall@d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b:
   version "1.1.3"
   resolved "https://codeload.github.com/d1plo1d/iterall/tar.gz/a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b"
+
+iterall@^1.2.1:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/iterall/-/iterall-1.2.2.tgz#92d70deb8028e0c39ff3164fdbf4d8b088130cd7"
 
 jest-changed-files@^23.0.1:
   version "23.0.1"
