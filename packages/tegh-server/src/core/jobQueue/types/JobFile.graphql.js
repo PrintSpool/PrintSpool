@@ -39,7 +39,7 @@ const JobFileGraphQL = new GraphQLObjectType({
         return getTasksFor(state)({
           taskableID: source.id,
           excludeCompletedTasks,
-        })
+        }).valueSeq().toArray()
       },
     },
     tasksCompleted: {

@@ -36,6 +36,12 @@ const liveGraphQL = () => ({
 
       return eventEmitter
     },
+    sourceRoots: {
+      Job: ['files', 'tasks', 'tasksCompleted', 'totalTasks', 'status'],
+      JobFile: ['tasks', 'tasksCompleted', 'totalTasks', 'status'],
+      Printer:  ['macroDefinitions'],
+      Task: ['printer'],
+    },
   }),
 })
 

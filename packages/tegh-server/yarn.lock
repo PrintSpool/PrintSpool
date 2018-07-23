@@ -2078,7 +2078,7 @@ graphql-extensions@^0.0.x, graphql-extensions@~0.0.9:
 
 "graphql-live-subscriptions@github:d1plo1d/graphql-live-subscriptions#feature/tree_diff":
   version "0.1.0"
-  resolved "https://codeload.github.com/d1plo1d/graphql-live-subscriptions/tar.gz/5df86b435d93d288f8919f55d6ab514bbea7d5d7"
+  resolved "https://codeload.github.com/d1plo1d/graphql-live-subscriptions/tar.gz/07bb11117f829dd01f3fb48e1ce3cd015ecaf146"
   dependencies:
     fast-json-patch "^2.0.6"
     fast-memoize "^2.3.2"
