@@ -6,7 +6,7 @@ import expectToMatchImmutableSnapshot from '../../util/testing/expectToMatchImmu
 import createLocalFileJob from './createLocalFileJob'
 
 describe('createLocalFileJob', () => {
-  it('creates a CREATE_JOB action', async function() {
+  fit('creates a CREATE_JOB action', async function() {
 
     const tmpFile = await tmp.file({ postfix: '.gcode' })
     const localPath = tmpFile.path
@@ -29,7 +29,7 @@ describe('createLocalFileJob', () => {
     })(dispatch, getState)
 
     expectToMatchImmutableSnapshot({
-      result,
+    result,
       redactions: [
         ['payload', 'job', 'name'],
         ['payload', 'job', 'id'],

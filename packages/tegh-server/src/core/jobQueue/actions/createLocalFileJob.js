@@ -48,6 +48,7 @@ const createLocalFileJob = (args) => {
     /* create the types and actions */
     const job = Job({ name })
     const jobFile = JobFile({
+      jobID: job.id,
       name,
       filePath,
       isTmpFile: false,

@@ -24,6 +24,11 @@ snapshotTestGraphQLType('TaskGraphQL', {
     'id',
     'createdAt'
   ],
+  fieldConfigs: {
+    percentComplete: {
+      args: { digits: 5 },
+    },
+  },
   rootValue: task,
   contextValue: {
     store: {
