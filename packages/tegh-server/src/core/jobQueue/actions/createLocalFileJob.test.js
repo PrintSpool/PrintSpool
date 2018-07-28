@@ -45,6 +45,7 @@ describe('createLocalFileJob', () => {
         redactions: [
           ['name'],
           ['id'],
+          ['jobID'],
           ['filePath'],
         ],
       })
