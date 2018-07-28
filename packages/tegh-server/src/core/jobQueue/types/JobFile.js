@@ -17,7 +17,7 @@ const JobFileRecord = Record({
   name: null,
   filePath: null,
   isTmpFile: null,
-  quantity: null,
+  quantity: 1,
   jobID: null,
 })
 

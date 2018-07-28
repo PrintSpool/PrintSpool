@@ -7,17 +7,17 @@ const getJobStatus = state => ({ jobID }) => {
   const job = state.jobQueue.jobs.get(jobID)
   const jobFiles = getJobFilesFor(state)({ jobID })
 
-  const jobFilesStatues = jobFiles.map((jobFile) => (
+  const jobFilesStatuses = jobFiles.map((jobFile) => (
     getJobFileStatus(state)({ jobFileID: jobFile.id })
   ))
 
-  const status = jobFilesStatues.find(status =>
+  const status = jobFilesStatuses.find(status =>
     BUBBLING_STATUES.includes(status)
   )
 
   if (status != null) return status
 
-  const isDone = jobFilesStatues.every(status => status === DONE)
+  const isDone = jobFilesStatuses.every(status => status === DONE)
 
   return isDone ? DONE : QUEUED
 }

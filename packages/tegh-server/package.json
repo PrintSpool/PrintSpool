@@ -81,6 +81,6 @@
     "babel-eslint": "^8.1.0",
     "babel-jest": "^23.0.1",
     "jest": "^23.1.0",
-    "redux-saga-tester": "^1.0.379"
+    "redux-saga-tester": "D1plo1d/redux-saga-tester"
   }
 }

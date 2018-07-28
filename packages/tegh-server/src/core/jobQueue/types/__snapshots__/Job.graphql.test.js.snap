@@ -225,6 +225,6 @@ Object {
     },
   ],
   "tasksCompleted": 0,
-  "totalTasks": 0,
+  "totalTasks": 1,
 }
 `;

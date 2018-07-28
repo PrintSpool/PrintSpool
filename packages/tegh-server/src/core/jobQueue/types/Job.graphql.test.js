@@ -17,6 +17,7 @@ const job = Job({
 
 const jobFile = JobFile({
   jobID: job.id,
+  quantity: 1,
 })
 
 const task = {
