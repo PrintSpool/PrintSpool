@@ -20,11 +20,13 @@ const state = {
 
 snapshotTestGraphQLType('TaskGraphQL', {
   type: TaskGraphQL,
-  dynamicFields: [
-    'id',
-    'createdAt'
-  ],
   fieldConfigs: {
+    id: {
+      dynamic: true,
+    },
+    createdAt: {
+      dynamic: true,
+    },
     percentComplete: {
       args: { digits: 5 },
     },

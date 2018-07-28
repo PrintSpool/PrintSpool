@@ -66,7 +66,22 @@ Object {
       },
     },
     Object {
-      "args": Array [],
+      "args": Array [
+        Object {
+          "defaultValue": null,
+          "description": "The number of digits to the right of the decimal place to round to. eg. \`digits: 0\` => 83 \`digits: 1\` => 82.6 \`digits: 2\` => 82.62",
+          "name": "digits",
+          "type": Object {
+            "kind": "NON_NULL",
+            "name": null,
+            "ofType": Object {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null,
+            },
+          },
+        },
+      ],
       "deprecationReason": null,
       "description": null,
       "isDeprecated": false,
@@ -164,9 +179,9 @@ Object {
 
 exports[`TaskGraphQL resolves every field without error 1`] = `
 Object {
-  "createdAt": "2018-03-23T00:04:03.342Z",
+  "createdAt": "[DYNAMIC FIELD OMITTED]",
   "currentLineNumber": null,
-  "id": "b00ccde5-7fa9-4437-8b0c-9097db5305bc",
+  "id": "[DYNAMIC FIELD OMITTED]",
   "name": "test task",
   "percentComplete": 0,
   "printer": Object {

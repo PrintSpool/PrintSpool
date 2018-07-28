@@ -29,7 +29,7 @@ describe('createLocalFileJob', () => {
     })(dispatch, getState)
 
     expectToMatchImmutableSnapshot({
-    result,
+      result,
       redactions: [
         ['payload', 'job', 'name'],
         ['payload', 'job', 'id'],
