@@ -20,7 +20,7 @@ import { CREATE_JOB } from '../../jobQueue/actions/createJob'
 import { CANCEL_JOB } from '../../jobQueue/actions/cancelJob'
 import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 /* task actions */
-import { DELETE_TASK } from '../actions/deleteTask'
+import { DELETE_TASKS, default as deleteTasks } from '../actions/deleteTasks'
 import { SPOOL_TASK } from '../actions/spoolTask'
 import { CREATE_TASK } from '../actions/createTask'
 import { DESPOOL_TASK } from '../actions/despoolTask'
@@ -92,15 +92,12 @@ describe('spoolReducer', () => {
     })
   })
 
-  describe(DELETE_TASK, () => {
+  describe(DELETE_TASKS, () => {
     mockTaskReducerWith((state, action) => action)
 
     it('passes the action through', () => {
       const taskID = 'A'
-      const action = {
-        type: DELETE_TASK,
-        payload: { id: taskID }
-      }
+      const action = deleteTasks({ ids: [taskID] })
       const state = initialState
         .setIn(['tasks', taskID], Task({
           id: taskID,
@@ -200,6 +197,12 @@ describe('spoolReducer', () => {
             'emergency_1',
             'emergency_2',
           ]))
+          .setIn(['tasks', 'emergency_1'], Task({
+            priority: 'EMERGENCY',
+            internal: true,
+            name: 'emergency_1',
+            data: ['g1 x10', 'g1 y10'],
+          }))
 
         const result = spoolReducer(state, action)
 
