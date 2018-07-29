@@ -1,10 +1,11 @@
 import { utils as sagaUtils } from 'redux-saga'
+import { List } from 'immutable'
 import SagaTester from 'redux-saga-tester'
 const { SAGA_ACTION } = sagaUtils
 
 import Task from '../types/Task'
 import { NORMAL } from '../types/PriorityEnum'
-import deleteTasks from '../actions/deleteTask'
+import deleteTasks from '../actions/deleteTasks'
 
 let taskDeletionSaga
 
@@ -22,10 +23,10 @@ const mockTask = () => Task({
 })
 
 describe('When an action is taken', () => {
-  const tasksPendingDeletion = [
+  const tasksPendingDeletion = List([
     mockTask(),
     mockTask(),
-  ]
+  ])
 
   beforeEach(async function() {
     // delete require.cache[require.resolve('./taskDeletionSaga')]
@@ -51,11 +52,9 @@ describe('When an action is taken', () => {
     expect(result).toEqual([
       action,
       {
-        ...deleteTask({ id: tasksPendingDeletion[0].id }),
-        [SAGA_ACTION]: true,
-      },
-      {
-        ...deleteTask({ id: tasksPendingDeletion[1].id }),
+        ...deleteTasks({
+          ids: tasksPendingDeletion.map(({id}) => id).toList(),
+        }),
         [SAGA_ACTION]: true,
       },
     ])
