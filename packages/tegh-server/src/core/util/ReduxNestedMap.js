@@ -1,4 +1,4 @@
-export const DELETE_ITEM = Symbol('DELETE_ITEM')
+export const DELETE_ITEM = 'ReduxNestedMap/DELETE_ITEM'
 
 const ReduxNestedMap = ({
   singularReducer,

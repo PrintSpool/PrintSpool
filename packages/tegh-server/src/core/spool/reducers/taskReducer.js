@@ -24,7 +24,6 @@ import { DRIVER_ERROR } from '../../printer/actions/driverError'
 import { CANCEL_JOB } from '../../jobQueue/actions/cancelJob'
 import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 /* task actions */
-import { SPOOL_TASK } from '../actions/spoolTask'
 import { DESPOOL_TASK } from '../actions/despoolTask'
 import { CREATE_TASK } from '../actions/createTask'
 import { DELETE_TASKS } from '../actions/deleteTasks'

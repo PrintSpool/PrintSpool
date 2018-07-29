@@ -28,9 +28,12 @@ import { SPOOL_TASK } from '../actions/spoolTask'
 import { DESPOOL_TASK } from '../actions/despoolTask'
 import { CREATE_TASK } from '../actions/createTask'
 import { START_TASK } from '../actions/startTask'
+import {
+  CANCEL_ALL_TASKS,
+  default as cancelAllTasks
+} from '../actions/cancelAllTasks'
 
-import taskReducerFactory from './taskReducer'
-const taskReducer = taskReducerFactory()
+import taskReducer from './taskReducer'
 
 describe('taskReducer', () => {
   const spoolResetActions = [
@@ -165,61 +168,19 @@ describe('taskReducer', () => {
     })
   })
 
-  describe(SPOOL_TASK, () => {
-    describe('when a task is spooled with emergency priority', () => {
-      const task = Task({
+  describe(CANCEL_ALL_TASKS, () => {
+    const action = cancelAllTasks()
+
+    it('cancels the task', () => {
+      const state = Task({
         name: 'test.ngc',
         priority: EMERGENCY,
         internal: false,
         data: ['g1 x10', 'g1 y20'],
       })
-      const action = {
-        type: SPOOL_TASK,
-        payload: { task }
-      }
+      const result = taskReducer(state, action)
 
-      it('cancels other tasks', () => {
-        const state = Task({
-          name: 'test.ngc',
-          priority: EMERGENCY,
-          internal: false,
-          data: ['g1 x10', 'g1 y20'],
-        })
-        const result = taskReducer(state, action)
-
-        expect(result.status).toEqual(CANCELLED)
-      })
-
-      it('does not cancel itself', () => {
-        const result = taskReducer(task, action)
-
-        expect(result).toEqual(task)
-      })
-    })
-
-    describe('when another task is spooled with non-emergency priority', () => {
-      const task = Task({
-        name: 'test.ngc',
-        priority: NORMAL,
-        internal: false,
-        data: ['g1 x10', 'g1 y20'],
-      })
-      const action = {
-        type: SPOOL_TASK,
-        payload: { task }
-      }
-
-      it('does nothing', () => {
-        const state = Task({
-          name: 'test.ngc',
-          priority: EMERGENCY,
-          internal: false,
-          data: ['g1 x10', 'g1 y20'],
-        })
-        const result = taskReducer(state, action)
-
-        expect(result).toEqual(state)
-      })
+      expect(result.status).toEqual(CANCELLED)
     })
   })
 

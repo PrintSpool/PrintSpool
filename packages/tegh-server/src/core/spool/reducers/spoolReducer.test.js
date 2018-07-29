@@ -1,5 +1,6 @@
 import { List, Map } from 'immutable'
 import Task from '../types/Task'
+import { DELETE_ITEM } from '../../util/ReduxNestedMap'
 
 import {
   EMERGENCY,
@@ -25,6 +26,7 @@ import { SPOOL_TASK } from '../actions/spoolTask'
 import { CREATE_TASK } from '../actions/createTask'
 import { DESPOOL_TASK } from '../actions/despoolTask'
 import { START_TASK } from '../actions/startTask'
+import { CANCEL_ALL_TASKS } from '../actions/cancelAllTasks'
 
 let taskReducer, spoolReducer, initialState
 
@@ -128,7 +130,9 @@ describe('spoolReducer', () => {
     const spooledTaskID = action.payload.task.id
 
     mockTaskReducerWith((state, taskAction) => {
-      return taskAction.type === CREATE_TASK ? taskAction.payload.task : state
+      if (taskAction.type === CREATE_TASK) return taskAction.payload.task
+      if (taskAction.type === CANCEL_ALL_TASKS) return DELETE_ITEM
+      return state
     })
 
     describe('when no other tasks are spooled', () => {
@@ -154,6 +158,32 @@ describe('spoolReducer', () => {
         expect(result.priorityQueues.get(NORMAL).toJS()).toEqual([
           spooledTaskID,
         ])
+      })
+
+      describe('and it is an emergency', () => {
+        const task = Task({
+          name: 'test.ngc',
+          priority: EMERGENCY,
+          internal: false,
+          data: ['g1 x10', 'g1 y20'],
+        })
+        const emergencyAction = {
+          type: SPOOL_TASK,
+          payload: { task }
+        }
+
+        it('cancels other tasks', () => {
+          const state = initialState.setIn(['tasks', 'cancelled_task'], Task({
+            name: 'cancelled_task.ngc',
+            priority: NORMAL,
+            internal: false,
+            data: ['g1 x10', 'g1 y20'],
+          }))
+          const result = spoolReducer(state, emergencyAction)
+
+          expect(result.tasks.size).toEqual(1)
+          expect(result.tasks.get(task.id)).toEqual(task)
+        })
       })
 
       describe('and a job is already spooled', () => {
