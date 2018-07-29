@@ -5,21 +5,17 @@ import tmp from 'tmp-promise'
 
 import fs from '../../util/promisifiedFS'
 import Job from '../types/Job'
+import { initialState } from '../reducers/jobQueueReducer'
 import { NORMAL } from '../../spool/types/PriorityEnum'
 import { DONE } from '../types/JobStatusEnum'
-import deleteJob from '../actions/deleteJob'
+import deleteJob, { DELETE_JOB } from '../actions/deleteJob'
 import spoolTask from '../../spool/actions/spoolTask'
 import Task from '../../spool/types/Task'
 
 let jobDeletionSaga
 
-const createTester = () => {
-  const sagaTester = new SagaTester({ initialState: {} })
-  sagaTester.start(jobDeletionSaga)
-  return sagaTester
-}
-
 const mockJob = () => Job({
+  id: 'mock_job',
   name: 'test.ngc',
 })
 
@@ -30,6 +26,17 @@ const mockTask = (attrs) => Task({
   data: ['g1 x10', 'g1 y20'],
   ...attrs,
 })
+
+const createTester = () => {
+  const sagaTester = new SagaTester({
+    initialState: {
+      jobQueue: initialState
+        .setIn(['jobs', mockJob().id], mockJob())
+    },
+  })
+  sagaTester.start(jobDeletionSaga)
+  return sagaTester
+}
 
 describe('SPOOL a job file', () => {
   const previousJob = mockJob({ status: DONE })
@@ -82,7 +89,8 @@ describe('SPOOL a job file', () => {
     expect(result).toEqual([
       action,
       {
-        ...deleteJob({ jobID: previousJob.id }),
+        type: DELETE_JOB,
+        payload: { jobID: 'mock_job' },
         [SAGA_ACTION]: true,
       },
     ])

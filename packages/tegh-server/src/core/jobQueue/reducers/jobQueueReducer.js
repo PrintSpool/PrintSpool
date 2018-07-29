@@ -9,7 +9,7 @@ import { DELETE_JOB } from '../actions/deleteJob'
 
 /* reducer */
 
-const initialState = Record({
+export const initialState = Record({
   jobs: Map(),
   jobFiles: Map(),
 })()

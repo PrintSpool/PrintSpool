@@ -4,7 +4,7 @@ import { PRINTING } from '../types/JobStatusEnum'
 export const DELETE_JOB = 'tegh/jobQueue/DELETE_JOB'
 
 const deleteJob = ({ jobID }) => {
-  return async (dispatch, getState) => {
+  return (dispatch, getState) => {
     const jobStatus = getJobStatus(getState())({ jobID })
 
     if (jobStatus === PRINTING) {

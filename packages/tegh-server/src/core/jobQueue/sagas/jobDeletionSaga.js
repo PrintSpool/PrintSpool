@@ -1,5 +1,4 @@
 import { effects } from 'redux-saga'
-const { takeEvery, select, put, cps } = effects
 
 import fs from '../../util/promisifiedFS'
 import { SPOOL_TASK } from '../../spool/actions/spoolTask'
@@ -12,19 +11,22 @@ import deleteJob from '../actions/deleteJob'
  * Deletes the previous job when the next job starts
  */
 const jobDeletionSaga = function*() {
+  const { takeLatest, select, put, cps } = effects
+
   const spoolJobFilter = action => {
     return action.type === SPOOL_TASK && action.payload.task.jobID != null
   }
 
-  yield takeEvery(spoolJobFilter, function*() {
+  yield takeLatest(spoolJobFilter, function*() {
     /* get all completed, errored or cancelled jobs */
     const jobsForDeletion = ( yield select( getJobsByStatus ) )({
       statuses: [ERRORED, CANCELLED, DONE]
     })
 
+    const state = yield select()
     for (const job of jobsForDeletion) {
       /* delete the job */
-      yield put(deleteJob({ jobID: job.id }))
+      yield deleteJob({ jobID: job.id })(put, () => state)
     }
 
     for (const job of jobsForDeletion) {
