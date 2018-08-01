@@ -13,11 +13,11 @@
   },
   "babel": {
     "presets": [
-      "flow",
-      "env"
+      "@babel/preset-env",
+      "@babel/preset-flow"
     ],
     "plugins": [
-      "transform-object-rest-spread"
+      "@babel/plugin-proposal-object-rest-spread"
     ]
   },
   "jest": {
@@ -29,20 +29,24 @@
     ]
   },
   "devDependencies": {
-    "babel-cli": "^6.14.0",
-    "babel-eslint": "^8.0.1",
-    "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
-    "babel-preset-flow": "^6.23.0",
+    "@babel/cli": "^7.0.0-beta.49",
+    "@babel/core": "^7.0.0-beta.49",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.49",
+    "@babel/polyfill": "^7.0.0-beta.49",
+    "@babel/preset-env": "^7.0.0-beta.49",
+    "@babel/preset-flow": "^7.0.0-beta.49",
+    "@babel/register": "^7.0.0-beta.49",
+    "babel-core": "^7.0.0-beta.49",
+    "babel-eslint": "^8.1.0",
+    "babel-jest": "^23.0.1",
+    "jest": "^23.1.0",
     "eslint": "^4.13.0",
     "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-babel": "^4.1.2",
     "eslint-plugin-flowtype": "^2.39.1",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jest": "^21.4.2",
     "flow-bin": "^0.61.0",
     "immutable": "^3.8.2",
-    "jest": "^21.2.1",
     "redux": "^3.7.2",
     "redux-saga": "d1plo1d/redux-saga",
     "redux-saga-delay-mock": "^0.0.1",
