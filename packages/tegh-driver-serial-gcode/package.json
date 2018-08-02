@@ -9,6 +9,7 @@
   "scripts": {
     "test": "jest",
     "lint": "eslint src/",
+    "symlink": "cd ../../scripts && yarn symlink",
     "flow": "flow"
   },
   "babel": {
@@ -21,25 +22,29 @@
     ]
   },
   "jest": {
+    "moduleNameMapper": {
+      "^(tegh-.*|serial-middleware)$": "<rootDir>/../$1/",
+      "^redux-saga$": "<rootDir>/../tegh-server/node_modules/redux-saga"
+    },
     "transformIgnorePatterns": [
-      "/node_modules/(?!tegh-).+$"
     ],
     "setupFiles": [
       "./src/test_helpers/setup.js"
-    ]
+    ],
+    "testEnvironment": "node"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.49",
-    "@babel/core": "^7.0.0-beta.49",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.49",
-    "@babel/polyfill": "^7.0.0-beta.49",
-    "@babel/preset-env": "^7.0.0-beta.49",
-    "@babel/preset-flow": "^7.0.0-beta.49",
-    "@babel/register": "^7.0.0-beta.49",
-    "babel-core": "^7.0.0-beta.49",
+    "@babel/cli": "^7.0.0-beta.55",
+    "@babel/core": "^7.0.0-beta.55",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.55",
+    "@babel/polyfill": "^7.0.0-beta.55",
+    "@babel/preset-env": "^7.0.0-beta.55",
+    "@babel/preset-flow": "^7.0.0-beta.55",
+    "@babel/register": "^7.0.0-beta.55",
+    "babel-core": "^7.0.0-beta.55",
     "babel-eslint": "^8.1.0",
-    "babel-jest": "^23.0.1",
-    "jest": "^23.1.0",
+    "babel-jest": "^23.3.0",
+    "jest": "^23.3.0",
     "eslint": "^4.13.0",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-flowtype": "^2.39.1",
