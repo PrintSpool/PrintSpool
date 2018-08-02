@@ -6,6 +6,11 @@
   "author": "Rob Gilson",
   "license": "GPL-3.0",
   "private": false,
+  "scripts": {
+    "clean": "rm -rf build && mkdir build",
+    "build": "yarn run clean && babel -d ./build ./src -s",
+    "watch": "yarn run clean && babel -d ./build ./src -s --watch"
+  },
   "babel": {
     "presets": [
       "flow",
