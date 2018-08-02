@@ -5,7 +5,10 @@
   "scripts": {
     "test": "jest",
     "lint": "eslint src/",
-    "flow": "flow"
+    "flow": "flow",
+    "clean": "rm -rf build && mkdir build",
+    "build": "yarn run clean && babel -d ./build ./src -s",
+    "watch": "yarn run clean && babel -d ./build ./src -s --watch"
   },
   "main": "src/index.js",
   "repository": {

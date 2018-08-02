@@ -23,7 +23,7 @@
   },
   "jest": {
     "moduleNameMapper": {
-      "^(tegh-.*|serial-middleware)$": "<rootDir>/../$1/",
+      "^(tegh-.*|serial-middleware)$": "<rootDir>/../$1/build/",
       "^redux-saga$": "<rootDir>/../tegh-server/node_modules/redux-saga"
     },
     "transformIgnorePatterns": [
