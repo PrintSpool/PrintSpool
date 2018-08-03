@@ -3,7 +3,7 @@ import _ from 'lodash'
 import {
   GraphQLLiveData,
   subscribeToLiveData,
-} from 'graphql-live-subscriptions/src/index'
+} from 'graphql-live-subscriptions'
 
 import QueryRootGraphQL from './QueryRoot.graphql'
 
