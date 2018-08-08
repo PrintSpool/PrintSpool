@@ -28,6 +28,13 @@
       "@babel/plugin-proposal-object-rest-spread"
     ]
   },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/build/"
+    ],
+    "testEnvironment": "node"
+  },
   "author": "Rob Gilson",
   "license": "GPL-3.0",
   "dependencies": {

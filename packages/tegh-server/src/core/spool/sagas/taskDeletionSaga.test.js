@@ -49,14 +49,11 @@ describe('When an action is taken', () => {
 
     const result = sagaTester.getCalledActions()
 
-    expect(result).toEqual([
+    expect(result).toMatchObject([
       action,
-      {
-        ...deleteTasks({
-          ids: tasksPendingDeletion.map(({id}) => id).toList(),
-        }),
-        [SAGA_ACTION]: true,
-      },
+      deleteTasks({
+        ids: tasksPendingDeletion.map(({ id }) => id).toList(),
+      }),
     ])
   })
 

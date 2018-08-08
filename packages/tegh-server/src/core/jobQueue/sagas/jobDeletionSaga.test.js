@@ -86,12 +86,11 @@ describe('SPOOL a job file', () => {
 
     expect(fs.existsSync(tmpFile)).toEqual(false)
 
-    expect(result).toEqual([
+    expect(result).toMatchObject([
       action,
       {
         type: DELETE_JOB,
         payload: { jobID: 'mock_job' },
-        [SAGA_ACTION]: true,
       },
     ])
   })
