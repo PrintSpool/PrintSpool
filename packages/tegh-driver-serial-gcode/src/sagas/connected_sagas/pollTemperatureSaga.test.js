@@ -1,4 +1,3 @@
-// @flow
 import { utils as sagaUtils } from 'redux-saga'
 const { SAGA_ACTION } = sagaUtils
 
@@ -36,12 +35,9 @@ const receiveOkWithoutTemp = {
   },
 }
 
-const spoolTempQueryFromSaga = {
-  ...spoolTemperatureQuery(),
-  [SAGA_ACTION]: true,
-}
+const spoolTempQueryFromSaga = spoolTemperatureQuery()
 
-test('on receiving PRINTER_READY queries temperature immediately', async () => {
+fit('on receiving PRINTER_READY queries temperature immediately', async () => {
   const { sagaTester, delayMock } = createTester()
   sagaTester.dispatch(printerReady())
 
@@ -53,7 +49,7 @@ test('on receiving PRINTER_READY queries temperature immediately', async () => {
   ])
 })
 
-test('on receiving temperature data waits to send next poll', async () => {
+it('on receiving temperature data waits to send next poll', async () => {
   const { sagaTester, delayMock } = createTester()
   sagaTester.dispatch(receiveOkWithTemp)
 
@@ -74,7 +70,7 @@ test('on receiving temperature data waits to send next poll', async () => {
   ])
 })
 
-test('does not poll if it does not receive temperature data', async () => {
+it('does not poll if it does not receive temperature data', async () => {
   const { sagaTester, delayMock } = createTester()
   sagaTester.dispatch(receiveOkWithoutTemp)
 

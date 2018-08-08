@@ -1,4 +1,3 @@
-// @flow
 import { utils as sagaUtils } from 'redux-saga'
 import SagaTester from 'redux-saga-tester'
 import { List } from 'immutable'
@@ -41,19 +40,19 @@ const createTester = (selectorOverrides = {}) => {
 }
 
 describe(DESPOOL_TASK, () => {
-  test('sends next line', async () => {
+  it('sends next line', async () => {
     const sagaTester = createTester()
     sagaTester.dispatch(despoolAction)
 
     const result = sagaTester.getCalledActions()
 
-    expect(result).toEqual([
+    expect(result).toMatchObject([
       despoolAction,
       sentLine,
     ])
   })
 
-  test('does nothing if the printer is not ready', async () => {
+  it('does nothing if the printer is not ready', async () => {
     const sagaTester = createTester({
       isReady: () => false,
     })
@@ -61,14 +60,14 @@ describe(DESPOOL_TASK, () => {
 
     const result = sagaTester.getCalledActions()
 
-    expect(result).toEqual([
+    expect(result).toMatchObject([
       despoolAction,
     ])
   })
 })
 
 describe(SPOOL_TASK, () => {
-  test('sends next line when shouldSendSpooledLineToPrinter is true', () => {
+  it('sends next line when shouldSendSpooledLineToPrinter is true', () => {
     const sagaTester = createTester({
       shouldSendSpooledLineToPrinter: () => true,
     })
@@ -76,13 +75,13 @@ describe(SPOOL_TASK, () => {
 
     const result = sagaTester.getCalledActions()
 
-    expect(result).toEqual([
+    expect(result).toMatchObject([
       spoolAction,
       sentLine,
     ])
   })
 
-  test('does nothing if the printer is not ready', async () => {
+  it('does nothing if the printer is not ready', async () => {
     const sagaTester = createTester({
       isReady: () => false,
       shouldSendSpooledLineToPrinter: () => true,
@@ -91,12 +90,12 @@ describe(SPOOL_TASK, () => {
 
     const result = sagaTester.getCalledActions()
 
-    expect(result).toEqual([
+    expect(result).toMatchObject([
       spoolAction,
     ])
   })
 
-  test('if the printer is not ready it sends the line in emergencies', () => {
+  it('if the printer is not ready it sends the line in emergencies', () => {
     const sagaTester = createTester({
       shouldSendSpooledLineToPrinter: () => true,
       isEmergency: () => true,
@@ -106,13 +105,13 @@ describe(SPOOL_TASK, () => {
 
     const result = sagaTester.getCalledActions()
 
-    expect(result).toEqual([
+    expect(result).toMatchObject([
       spoolAction,
       sentEmergencyLine,
     ])
   })
 
-  test('does not send line numbers in emergencies', () => {
+  it('does not send line numbers in emergencies', () => {
     const sagaTester = createTester({
       shouldSendSpooledLineToPrinter: () => true,
       isEmergency: () => true,
@@ -121,19 +120,19 @@ describe(SPOOL_TASK, () => {
 
     const result = sagaTester.getCalledActions()
 
-    expect(result).toEqual([
+    expect(result).toMatchObject([
       spoolAction,
       sentEmergencyLine,
     ])
   })
 
-  test('does nothing when the printer is not idle', async () => {
+  it('does nothing when the printer is not idle', async () => {
     const sagaTester = createTester()
     sagaTester.dispatch(spoolAction)
 
     const result = sagaTester.getCalledActions()
 
-    expect(result).toEqual([
+    expect(result).toMatchObject([
       spoolAction
     ])
   })

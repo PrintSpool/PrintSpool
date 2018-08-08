@@ -34,10 +34,7 @@ const feedbackReceivedAction = {
 }
 
 
-const serialTimeoutAction = {
-  ...createSerialTimeoutAction(),
-  [SAGA_ACTION]: true,
-}
+const serialTimeoutAction = createSerialTimeoutAction()
 
 const cancelAction = {
   type: 'TEST_CANCEL',
@@ -85,7 +82,7 @@ describe('SERIAL_SEND', () => {
 
           const result = sagaTester.getCalledActions()[1+tickleCount]
 
-          expect(result).toEqual(tickleMCodeAction)
+          expect(result).toMatchObject(tickleMCodeAction)
         }
 
         const expectToStopsTicklingAfter = ({action}) => {
@@ -106,7 +103,7 @@ describe('SERIAL_SEND', () => {
 
           const result = sagaTester.getCalledActions()
 
-          expect(result).toEqual([
+          expect(result).toMatchObject([
             sentGCodeAction,
             tickleMCodeAction,
             tickleMCodeAction,
@@ -147,7 +144,7 @@ describe('SERIAL_SEND', () => {
 
             const result = sagaTester.getCalledActions()
 
-            expect(result).toEqual([
+            expect(result).toMatchObject([
               sentGCodeAction,
               tickleMCodeAction,
               tickleMCodeAction,
@@ -170,7 +167,7 @@ describe('SERIAL_SEND', () => {
 
             const result = sagaTester.getCalledActions()
 
-            expect(result).toEqual([
+            expect(result).toMatchObject([
               sentGCodeAction,
               cancelAction,
             ])
@@ -193,7 +190,7 @@ describe('SERIAL_SEND', () => {
 
       const result = sagaTester.getCalledActions()
 
-      expect(result).toEqual([
+      expect(result).toMatchObject([
         sentGCodeAction,
         okReceivedAction,
         sentGCodeAction,
@@ -220,7 +217,7 @@ describe('SERIAL_SEND', () => {
 
       const result = sagaTester.getCalledActions()
 
-      expect(result).toEqual([
+      expect(result).toMatchObject([
         sentGCodeAction,
         feedbackReceivedAction,
       ])

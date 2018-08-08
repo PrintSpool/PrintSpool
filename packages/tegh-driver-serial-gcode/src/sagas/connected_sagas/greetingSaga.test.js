@@ -1,4 +1,3 @@
-// @flow
 import { utils as sagaUtils } from 'redux-saga'
 const { SAGA_ACTION } = sagaUtils
 
@@ -7,7 +6,6 @@ import {
 } from 'tegh-server'
 
 import delayMockedSagaTester from '../../test_helpers/delayMockedSagaTester'
-import expectSimilarActions from '../../test_helpers/expectSimilarActions'
 import serialSend from '../../actions/serialSend'
 import greetingSaga from './greetingSaga'
 
@@ -44,7 +42,7 @@ describe('when the printer is ready', () => {
 
     const result = sagaTester.getCalledActions()
 
-    expectSimilarActions(result, [
+    expect(result).toMatchObject([
       serialReceive('greeting'),
     ])
   })
@@ -57,7 +55,7 @@ describe('on receiving a greeting', () => {
     })
     sagaTester.dispatch(serialReceive('greeting'))
 
-    expectSimilarActions(sagaTester.getCalledActions(), [
+    expect(sagaTester.getCalledActions()).toMatchObject([
       serialReceive('greeting'),
     ])
 
@@ -68,7 +66,7 @@ describe('on receiving a greeting', () => {
 
     const result = sagaTester.getCalledActions()
 
-    expectSimilarActions(result, [
+    expect(result).toMatchObject([
       serialReceive('greeting'),
       sendHello,
     ])
@@ -84,7 +82,7 @@ describe('on receiving a \'ok\' to the hello message', () => {
 
     const result = sagaTester.getCalledActions()
 
-    expectSimilarActions(result, [
+    expect(result).toMatchObject([
       serialReceive('ok'),
       printerReadyAction,
     ])

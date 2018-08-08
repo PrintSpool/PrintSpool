@@ -17,13 +17,8 @@ const serialSendG1 = serialSend('G1 X10', { lineNumber: false })
 const serialSendM112 = serialSend('M112', { lineNumber: false })
 const serialSendM999 = serialSend('M999', { lineNumber: false })
 
-const estopSagaAction = {
-  ...estop(),
-  [SAGA_ACTION]: true,
-}
 const serialReset = {
   type: 'SERIAL_RESET',
-  [SAGA_ACTION]: true,
 }
 
 test('puts ESTOP if an M112 is sent', () => {
@@ -32,9 +27,9 @@ test('puts ESTOP if an M112 is sent', () => {
 
   const result = sagaTester.getCalledActions()
 
-  expect(result).toEqual([
+  expect(result).toMatchObject([
     serialSendM112,
-    estopSagaAction,
+    estop(),
   ])
 })
 

@@ -23,7 +23,7 @@ const despoolAction = {
 }
 
 const itDoesNothingWhen = ({ready, type, ignoreOK = false}) => {
-  test(
+  it(
     `when ready = ${ready} and shouldIgnoreOK = ${ignoreOK}` +
     ` it does nothing`,
     () => {
@@ -50,7 +50,7 @@ const itDoesNothingWhen = ({ready, type, ignoreOK = false}) => {
 describe('SERIAL_RECEIVE ok', () => {
   itDoesNothingWhen({ ready: false, type: 'ok'})
   itDoesNothingWhen({ ready: true, ignoreOK: true, type: 'ok'})
-  test(
+  it(
     'when driver is ready it dispatching DESPOOL',
     () => {
       const selectors = {
@@ -68,7 +68,7 @@ describe('SERIAL_RECEIVE ok', () => {
 
       const result = sagaTester.getCalledActions()
 
-      expect(result).toEqual([
+      expect(result).toMatchObject([
         serialReceive('ok'),
         despoolAction,
       ])
@@ -78,7 +78,7 @@ describe('SERIAL_RECEIVE ok', () => {
 
 describe('SERIAL_RECEIVE error', () => {
   itDoesNothingWhen({ ready: false, type: 'error'})
-  test(
+  it(
     'when driver is ready it dispatching DRIVER_ERROR',
     () => {
       const selectors = {
@@ -105,7 +105,7 @@ describe('SERIAL_RECEIVE error', () => {
 
       const result = sagaTester.getCalledActions()
 
-      expect(result).toEqual([
+      expect(result).toMatchObject([
         serialReceiveError,
         firmwareError,
       ])
@@ -142,7 +142,7 @@ describe('SERIAL_RECEIVE resend', () => {
 
   itDoesNothingWhen({ ready: false, type: 'resend'})
 
-  test(
+  it(
     'when the resend is not for the previous line number it errors',
     () => {
       let errored = false
@@ -157,7 +157,7 @@ describe('SERIAL_RECEIVE resend', () => {
       expect(errored).toBe(true)
     }
   )
-  test(
+  it(
     'when the resend is for the previous line number it resends it',
     () => {
       const { sagaTester, receiveResend } = requestResend({
@@ -169,13 +169,10 @@ describe('SERIAL_RECEIVE resend', () => {
 
       const result = sagaTester.getCalledActions()
 
-      expect(result).toEqual([
+      expect(result).toMatchObject([
         receiveResend,
         serialReceive('ok'),
-        {
-          ...serialSend('(╯°□°）╯︵ ┻━┻', { lineNumber: 41 }),
-          [SAGA_ACTION]: true,
-        },
+        serialSend('(╯°□°）╯︵ ┻━┻', { lineNumber: 41 }),
       ])
     }
   )
