@@ -11,7 +11,7 @@
     "build": "yarn run clean && yarn run build-deps && babel -d ./build ./src -s",
     "watch": "yarn run clean && yarn run build-deps && babel -d ./build ./src -s --watch"
   },
-  "main": "src/index.js",
+  "main": "build/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/tegh/tegh-server.git"
