@@ -10,7 +10,7 @@
     "dev": "npx node-dev index.js --trace-warnings",
     "start": "NODE_ENV=production node index.js --trace-warnings"
   },
-  "dependencies": {
+  "devDependencies": {
     "@babel/cli": "^7.0.0-beta.49",
     "@babel/core": "7.0.0-beta.49",
     "@babel/polyfill": "^7.0.0-beta.49",
@@ -25,5 +25,11 @@
     "tegh-driver-serial-gcode": "link:./../tegh-driver-serial-gcode/",
     "tegh-web-ui": "link:./../tegh-web-ui/",
     "tegh-macros-default": "link:./../tegh-macros-default/"
+  },
+  "dependencies": {
+    "tegh-server": "^0.4.0",
+    "tegh-driver-serial-gcode": "^0.4.0",
+    "tegh-web-ui": "^0.4.0",
+    "tegh-macros-default": "^0.4.0"
   }
 }

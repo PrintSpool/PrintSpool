@@ -37,9 +37,7 @@
     "tegh-server": "link:./../tegh-server"
   },
   "dependencies": {
-    "lodash": "^4.17.4"
-  },
-  "peerDependencies": {
-    "tegh-server": "*"
+    "lodash": "^4.17.4",
+    "tegh-server": "^0.4.0"
   }
 }
