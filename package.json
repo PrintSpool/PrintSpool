@@ -1,7 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "bootstrap": "yarn && npx lerna clean --yes && cd ./packages/tegh-server && yarn && yarn build && cd ../../ && npx lerna bootstrap --concurrency 1",
+    "clean": "npx lerna clean --yes",
+    "bootstrap": "yarn && cd ./packages/tegh-server && yarn build",
     "dev": "npx lerna run dev --parallel",
     "test": "cd ./packages/tegh-server/ && yarn test && cd ../tegh-driver-serial-gcode && yarn test",
     "build": "npx lerna run build --parallel",
@@ -10,10 +11,15 @@
   },
   "command": {
     "bootstrap": {
-      "npmClient": "yarn"
+      "npmClient": "yarn",
+      "useWorkspaces": true
     }
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "devDependencies": {
-    "lerna": "^2.5.1"
+    "lerna": "^2.5.1",
+    "redux-saga": "d1plo1d/redux-saga"
   }
 }

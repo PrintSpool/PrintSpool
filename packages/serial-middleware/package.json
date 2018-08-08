@@ -1,6 +1,6 @@
 {
   "name": "serial-middleware",
-  "version": "0.0.1",
+  "version": "0.4.0",
   "description": "Redux serial middleware",
   "main": "src/index.js",
   "author": "Rob Gilson",
@@ -33,9 +33,9 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jest": "^21.4.2",
     "flow-bin": "^0.61.0",
-    "jest": "^21.2.1",
-    "redux": "^3.7.2"
+    "jest": "^21.2.1"
   },
   "dependencies": {
+    "redux": "^3.7.2"
   }
 }

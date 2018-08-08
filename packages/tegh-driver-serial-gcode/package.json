@@ -22,10 +22,6 @@
     ]
   },
   "jest": {
-    "moduleNameMapper": {
-      "^(tegh-.*|serial-middleware)$": "<rootDir>/../$1/build/",
-      "^redux-saga$": "<rootDir>/../tegh-server/node_modules/redux-saga"
-    },
     "transformIgnorePatterns": [
     ],
     "setupFiles": [
@@ -51,17 +47,15 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jest": "^21.4.2",
     "flow-bin": "^0.61.0",
-    "immutable": "^3.8.2",
-    "redux": "^3.7.2",
     "redux-saga-delay-mock": "^0.0.1",
-    "redux-saga-tester": "github:d1plo1d/redux-saga-tester",
-    "redux-saga": "link:./../tegh-server/node_modules/redux-saga",
-    "serial-middleware": "link:./../serial-middleware",
-    "tegh-server": "link:./../tegh-server"
+    "redux-saga-tester": "github:d1plo1d/redux-saga-tester"
   },
   "dependencies": {
+    "immutable": "^3.8.2",
+    "redux": "^3.7.2",
     "serialport": "^6.2.0",
     "redux-saga": "d1plo1d/redux-saga",
+    "serial-middleware": "^0.4.0",
     "tegh-server": "^0.4.0"
   }
 }
