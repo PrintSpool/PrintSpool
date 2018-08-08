@@ -19,6 +19,11 @@
     "@babel/register": "^7.0.0-beta.49",
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.49",
     "babel-eslint": "^8.1.0",
-    "node-dev": "d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350"
+    "node-dev": "d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350",
+    "redux-saga": "link:./tegh-server/node_modules/redux-saga",
+    "tegh-server": "link:./../tegh-server/",
+    "tegh-driver-serial-gcode": "link:./../tegh-driver-serial-gcode/",
+    "tegh-web-ui": "link:./../tegh-web-ui/",
+    "tegh-macros-default": "link:./../tegh-macros-default/"
   }
 }

@@ -53,16 +53,17 @@
     "flow-bin": "^0.61.0",
     "immutable": "^3.8.2",
     "redux": "^3.7.2",
-    "redux-saga": "d1plo1d/redux-saga",
     "redux-saga-delay-mock": "^0.0.1",
-    "redux-saga-tester": "github:d1plo1d/redux-saga-tester"
+    "redux-saga-tester": "github:d1plo1d/redux-saga-tester",
+    "redux-saga": "link:./../tegh-server/node_modules/redux-saga",
+    "serial-middleware": "link:./../serial-middleware",
+    "tegh-server": "link:./../tegh-server"
   },
   "dependencies": {
-    "serial-middleware": "file:../serial-middleware",
     "serialport": "^6.2.0"
   },
   "peerDependencies": {
-    "redux-saga": "^0.16.0",
+    "redux-saga": "d1plo1d/redux-saga",
     "tegh-server": "*"
   }
 }
