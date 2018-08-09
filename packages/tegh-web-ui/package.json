@@ -7,15 +7,6 @@
     "build": "next build && next export",
     "storybook": "start-storybook -p 9001 -c .storybook"
   },
-  "babel": {
-    "presets": [
-      "next/babel",
-      "env"
-    ],
-    "plugins": [
-      "transform-object-rest-spread"
-    ]
-  },
   "dependencies": {
     "apollo-client-preset": "^1.0.1",
     "apollo-link-error": "^1.0.7",
@@ -29,8 +20,8 @@
     "koa-static": "^4.0.2",
     "material-ui": "^v1.0.0-beta.38",
     "material-ui-icons": "^1.0.0-beta.17",
-    "next": "^4.2.1",
-    "next-apollo": "^1.0.4",
+    "next": "^6.1.1",
+    "next-apollo": "^2.0.0",
     "prop-types": "^15.6.1",
     "react": "^16.2.0",
     "react-apollo": "^2.1.1",
