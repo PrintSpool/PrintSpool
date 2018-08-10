@@ -96,6 +96,7 @@
     "eslint-config-airbnb-base": "^13.0.0",
     "eslint-plugin-babel": "^5.1.0",
     "eslint-plugin-jest": "^21.20.2",
+    "eslint-plugin-monorepo": "^0.2.0",
     "jest": "^23.1.0",
     "redux-saga-tester": "d1plo1d/redux-saga-tester"
   }

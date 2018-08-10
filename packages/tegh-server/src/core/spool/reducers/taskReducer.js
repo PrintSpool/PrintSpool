@@ -1,17 +1,7 @@
-import {
-  merge, Record, List, Map,
-} from 'immutable'
-
 import { DELETE_ITEM } from '../../util/ReduxNestedMap'
 
 import {
-  EMERGENCY,
-  priorityOrder,
-} from '../types/PriorityEnum'
-
-import {
   isSpooled,
-  SPOOLED,
   PRINTING,
   ERRORED,
   CANCELLED,

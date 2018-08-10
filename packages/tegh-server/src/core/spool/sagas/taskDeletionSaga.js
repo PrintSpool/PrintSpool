@@ -14,7 +14,8 @@ const taskDeletionSaga = function* () {
 
     if (tasks.size === 0) return
 
-    // throw new Error('TASKS EXIST' + JSON.stringify(deleteTasks({ ids: tasks.map(task => task.id) })))
+    // throw new Error('TASKS EXIST' +
+    // JSON.stringify(deleteTasks({ ids: tasks.map(task => task.id) })))
     yield put(deleteTasks({ ids: tasks.map(task => task.id) }))
   })
 }

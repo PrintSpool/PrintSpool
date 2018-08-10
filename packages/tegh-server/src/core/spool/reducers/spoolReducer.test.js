@@ -21,15 +21,15 @@ import { CREATE_JOB } from '../../jobQueue/actions/createJob'
 import { CANCEL_JOB } from '../../jobQueue/actions/cancelJob'
 import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 /* task actions */
-import { DELETE_TASKS, default as deleteTasks } from '../actions/deleteTasks'
+import deleteTasks, { DELETE_TASKS } from '../actions/deleteTasks'
 import { SPOOL_TASK } from '../actions/spoolTask'
 import { CREATE_TASK } from '../actions/createTask'
 import { DESPOOL_TASK } from '../actions/despoolTask'
 import { START_TASK } from '../actions/startTask'
 import { CANCEL_ALL_TASKS } from '../actions/cancelAllTasks'
 
-let taskReducer; let spoolReducer; let
-  initialState
+let spoolReducer
+let initialState
 
 describe('spoolReducer', () => {
   const mockTaskReducerWith = (implementation) => {

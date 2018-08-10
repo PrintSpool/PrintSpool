@@ -10,8 +10,8 @@ module.exports = {
     ],
     "extends": [
       "airbnb-base",
-      "plugin:flowtype/recommended",
-      "plugin:jest/recommended"
+      "plugin:jest/recommended",
+      "plugin:monorepo/recommended"
     ],
     "parser": "babel-eslint",
     "rules": {
