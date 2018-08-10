@@ -6,10 +6,10 @@ import {
 } from 'graphql'
 
 const schemaFor = type => new GraphQLSchema({
-  query: type
+  query: type,
 })
 
-const throwGraphQLErrors = queryResult => {
+const throwGraphQLErrors = (queryResult) => {
   if (queryResult.errors != null) {
     const error = new Error(queryResult.errors[0].message)
     error.stack = queryResult.errors[0].stack
@@ -17,7 +17,7 @@ const throwGraphQLErrors = queryResult => {
   }
 }
 
-const introspectType = async type => {
+const introspectType = async (type) => {
   const result = await execute(
     schemaFor(type),
     parse(introspectionQuery),
@@ -28,9 +28,7 @@ const introspectType = async type => {
   return types.find(type => type.name === queryType.name)
 }
 
-const getKind = field => {
-  return field.ofType && getKind(field.ofType) || field.kind
-}
+const getKind = field => field.ofType && getKind(field.ofType) || field.kind
 
 
 const queryAllFields = async (type, fieldConfigs = {}, executeConfig = {}) => {
@@ -38,7 +36,7 @@ const queryAllFields = async (type, fieldConfigs = {}, executeConfig = {}) => {
 
   const schema = schemaFor(type)
 
-  const fieldQueryStrings = fields.map(field => {
+  const fieldQueryStrings = fields.map((field) => {
     const config = fieldConfigs[field.name]
     let argsString = ''
     let nestedFieldsQuery = ''
@@ -58,9 +56,9 @@ const queryAllFields = async (type, fieldConfigs = {}, executeConfig = {}) => {
   })
 
   const allFieldsQuery = (
-    '{\n' +
-      fieldQueryStrings.join('') +
-    '}'
+    `{\n${
+      fieldQueryStrings.join('')
+    }}`
   )
 
   const result = await execute(
@@ -106,7 +104,7 @@ const snapshotTestGraphQLType = (description, {
         result[dynamicField] = '[DYNAMIC FIELD OMITTED]'
       }
 
-      const omitID = field => {
+      const omitID = (field) => {
         if (field && field.id != null) field.id = '[DYNAMIC FIELD OMITTED]'
         if (Array.isArray(field)) field.forEach(omitID)
       }

@@ -1,4 +1,6 @@
-import { merge, Record, List, Map } from 'immutable'
+import {
+  merge, Record, List, Map,
+} from 'immutable'
 
 import { DELETE_ITEM } from '../../util/ReduxNestedMap'
 

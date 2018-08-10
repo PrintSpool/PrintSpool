@@ -16,7 +16,7 @@ const SpoolCommandsInputGraphQL = new GraphQLInputObjectType({
       type: tql`ID!`,
     },
     file: {
-      type: tql`${FileInputType}!`
+      type: tql`${FileInputType}!`,
     },
   },
 })
@@ -37,7 +37,7 @@ const spoolCommandsGraphQL = () => ({
 
   args: {
     input: {
-      type: tql`${SpoolCommandsInputGraphQL}!`
+      type: tql`${SpoolCommandsInputGraphQL}!`,
     },
   },
 })

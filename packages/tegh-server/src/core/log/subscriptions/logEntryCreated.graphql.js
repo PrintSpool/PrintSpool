@@ -11,5 +11,5 @@ const logEntryCreatedSubscription = () => ({
 
 export default {
   subscription: logEntryCreatedSubscription,
-  selector: (state) => state.log.logEntries.last(),
+  selector: state => state.log.logEntries.last(),
 }

@@ -13,7 +13,7 @@ const actionResolver = ({
     const action = await store.dispatch(thunk)
 
     return selector(store.getState(), action)
-  } catch(e) {
+  } catch (e) {
     console.error(`Mutation Error: ${e.message}`)
     console.error(e.stack)
     throw e

@@ -7,7 +7,7 @@ import { EMERGENCY } from '../types/PriorityEnum'
 import spoolJobFile from './spoolJobFile'
 
 describe('spoolJobFile', () => {
-  it('creates a SPOOL_TASK action', async function() {
+  it('creates a SPOOL_TASK action', async () => {
     const jobFileID = 'test_test_test'
     const tmpFile = await tmp.file()
     const filePath = tmpFile.path
@@ -22,9 +22,9 @@ describe('spoolJobFile', () => {
             jobID: '123',
             name: 'abc',
             filePath,
-          }
-        })
-      }
+          },
+        }),
+      },
     })
 
     const result = await spoolJobFile({
@@ -35,7 +35,7 @@ describe('spoolJobFile', () => {
       result,
       redactions: [
         ['payload', 'task', 'id'],
-        ['payload', 'task', 'createdAt']
+        ['payload', 'task', 'createdAt'],
       ],
     })
 

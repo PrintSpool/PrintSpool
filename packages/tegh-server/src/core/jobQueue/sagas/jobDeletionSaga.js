@@ -18,15 +18,13 @@ const jobDeletionSaga = function* () {
     cps,
   } = effects
 
-  const spoolJobFilter = (action) => {
-    return action.type === SPOOL_TASK && action.payload.task.jobID != null
-  }
+  const spoolJobFilter = action => action.type === SPOOL_TASK && action.payload.task.jobID != null
 
-  yield takeLatest(spoolJobFilter, function*() {
+  yield takeLatest(spoolJobFilter, function* () {
     /* get all completed, errored or cancelled jobs */
     const jobsByStatus = yield select(getJobsByStatus)
     const jobsForDeletion = jobsByStatus({
-      statuses: [ERRORED, CANCELLED, DONE]
+      statuses: [ERRORED, CANCELLED, DONE],
     })
 
     const state = yield select()

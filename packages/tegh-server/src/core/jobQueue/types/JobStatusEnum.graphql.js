@@ -1,7 +1,7 @@
 import tql from 'typiql'
 import snl from 'strip-newlines'
 import {
-  GraphQLEnumType
+  GraphQLEnumType,
 } from 'graphql'
 
 const JobStatusEnumGraphQL = new GraphQLEnumType({
@@ -39,7 +39,7 @@ const JobStatusEnumGraphQL = new GraphQLEnumType({
         The subject was completed successfully.
       `,
     },
-  }
+  },
 })
 
 export default JobStatusEnumGraphQL

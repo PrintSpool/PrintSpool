@@ -19,43 +19,41 @@ export const loadCrashReport = (errorDir) => {
   return json
 }
 
-export const onUncaughtException = (handlerConfig) => {
-  // let alreadyCrashing = false
-  return (err) => {
-    // if (alreadyCrashing) throw err
-    // alreadyCrashing = true
-    const {
-      store,
-      errorDir,
-    } = handlerConfig
-    const date = new Date()
-    const crashReport = {
-      date: date.toUTCString(),
-      source: 'server',
-      level: 'fatal',
-      message: err.message,
-      stack: err.stack,
-      state: store == null ? null : {
-        ...store.getState(),
-        log: '[REDACTED]',
-        spool: '[REDACTED]',
-      },
-      // ravenContext: getRavenContext(),
-      seen: false,
-    }
-    // uninstallRaven()
-    fs.writeFileSync(
-      path.join(errorDir, `tegh_crash_report_${date.getTime()}.json`),
-      JSON.stringify(crashReport, null, 2),
-      {
-        mode: 0o660,
-      }
-    )
-    throw err
+export const onUncaughtException = handlerConfig => (err) => {
+  // if (alreadyCrashing) throw err
+  // alreadyCrashing = true
+  const {
+    store,
+    errorDir,
+  } = handlerConfig
+  const date = new Date()
+  const crashReport = {
+    date: date.toUTCString(),
+    source: 'server',
+    level: 'fatal',
+    message: err.message,
+    stack: err.stack,
+    state: store == null ? null : {
+      ...store.getState(),
+      log: '[REDACTED]',
+      spool: '[REDACTED]',
+    },
+    // ravenContext: getRavenContext(),
+    seen: false,
   }
+  // uninstallRaven()
+  fs.writeFileSync(
+    path.join(errorDir, `tegh_crash_report_${date.getTime()}.json`),
+    JSON.stringify(crashReport, null, 2),
+    {
+      mode: 0o660,
+    },
+  )
+  throw err
 }
 
-export const wrapInCrashReporting = ({config, configPath}, cb) => {
+
+export const wrapInCrashReporting = ({ config, configPath }, cb) => {
   /*
    * Load the previous crash crash report
    */
@@ -95,8 +93,8 @@ export const wrapInCrashReporting = ({config, configPath}, cb) => {
    * crash report logs.
    */
   const wrapperDomain = domain.create()
-  const handlerConfig= { errorDir }
-  const setErrorHandlerStore = (store) => handlerConfig.store = store
+  const handlerConfig = { errorDir }
+  const setErrorHandlerStore = store => handlerConfig.store = store
   const errorHandler = onUncaughtException(handlerConfig)
   wrapperDomain.on('error', errorHandler)
   wrapperDomain.run(() => cb({

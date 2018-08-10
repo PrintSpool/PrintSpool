@@ -17,7 +17,7 @@ const SpoolJobFileInputGraphQL = new GraphQLInputObjectType({
     jobFileID: {
       type: tql`ID!`,
     },
-  }
+  },
 })
 
 const spoolJobFileGraphQL = () => ({
@@ -33,7 +33,7 @@ const spoolJobFileGraphQL = () => ({
 
   args: {
     input: {
-      type: tql`${SpoolJobFileInputGraphQL}!`
+      type: tql`${SpoolJobFileInputGraphQL}!`,
     },
   },
 })

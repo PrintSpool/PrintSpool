@@ -3,9 +3,9 @@ import { EMERGENCY } from '../types/PriorityEnum'
 import spoolMacro from './spoolMacro'
 
 describe('spoolMacro', () => {
-  it('creates a SPOOL_TASK action', async function() {
+  it('creates a SPOOL_TASK action', async () => {
     const macro = 'my_test_macro'
-    const args = {x: 360}
+    const args = { x: 360 }
 
     const dispatch = action => action
     const getState = () => ({
@@ -13,9 +13,9 @@ describe('spoolMacro', () => {
         [macro]: {
           name: macro,
           priority: EMERGENCY,
-          run: ({x}) => [`g1 x${x}`]
-        }
-      }
+          run: ({ x }) => [`g1 x${x}`],
+        },
+      },
     })
 
     const result = await spoolMacro({
@@ -27,7 +27,7 @@ describe('spoolMacro', () => {
       result,
       redactions: [
         ['payload', 'task', 'id'],
-        ['payload', 'task', 'createdAt']
+        ['payload', 'task', 'createdAt'],
       ],
     })
   })

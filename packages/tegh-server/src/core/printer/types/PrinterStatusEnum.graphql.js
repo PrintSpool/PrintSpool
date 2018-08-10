@@ -1,6 +1,6 @@
 import snl from 'strip-newlines'
 import {
-  GraphQLEnumType
+  GraphQLEnumType,
 } from 'graphql'
 
 const PrinterStatusEnum = new GraphQLEnumType({
@@ -44,7 +44,7 @@ const PrinterStatusEnum = new GraphQLEnumType({
         macro to reset the estop and change the status to \`CONNECTING\`.
       `,
     },
-  }
+  },
 })
 
 export default PrinterStatusEnum

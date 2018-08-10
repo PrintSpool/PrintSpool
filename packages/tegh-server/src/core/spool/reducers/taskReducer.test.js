@@ -1,4 +1,6 @@
-import { merge, Record, List, Map } from 'immutable'
+import {
+  merge, Record, List, Map,
+} from 'immutable'
 
 import Task from '../types/Task'
 import { DELETE_ITEM } from '../../util/ReduxNestedMap'
@@ -30,7 +32,7 @@ import { CREATE_TASK } from '../actions/createTask'
 import { START_TASK } from '../actions/startTask'
 import {
   CANCEL_ALL_TASKS,
-  default as cancelAllTasks
+  default as cancelAllTasks,
 } from '../actions/cancelAllTasks'
 
 import taskReducer from './taskReducer'
@@ -68,7 +70,7 @@ describe('taskReducer', () => {
             priority: EMERGENCY,
             internal: false,
             data: ['g1 x10', 'g1 y20'],
-            jobID: 'test_123'
+            jobID: 'test_123',
           })
           const result = taskReducer(state, action)
 
@@ -82,7 +84,7 @@ describe('taskReducer', () => {
     const jobID = 'ABC'
     const action = {
       type: CANCEL_JOB,
-      payload: { id: jobID }
+      payload: { id: jobID },
     }
 
     describe('if the task belongs to the job', () => {
@@ -120,7 +122,7 @@ describe('taskReducer', () => {
     const jobID = 'ABC'
     const action = {
       type: DELETE_JOB,
-      payload: { id: jobID }
+      payload: { id: jobID },
     }
 
     describe('if the task belongs to the job', () => {
@@ -158,7 +160,7 @@ describe('taskReducer', () => {
     const task = 'TEST'
     const action = {
       type: CREATE_TASK,
-      payload: { task }
+      payload: { task },
     }
 
     it('returns the task', () => {
@@ -239,5 +241,4 @@ describe('taskReducer', () => {
       })
     })
   })
-
 })

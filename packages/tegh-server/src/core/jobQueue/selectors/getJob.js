@@ -1,7 +1,5 @@
 import getJobs from './getJobs'
 
-const getJob = state => jobID => {
-  return getJobs(state).get(jobID)
-}
+const getJob = state => jobID => getJobs(state).get(jobID)
 
 export default getJob

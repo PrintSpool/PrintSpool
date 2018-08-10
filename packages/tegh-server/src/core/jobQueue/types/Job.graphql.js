@@ -1,7 +1,7 @@
 import tql from 'typiql'
 import snl from 'strip-newlines'
 import {
-  GraphQLObjectType
+  GraphQLObjectType,
 } from 'graphql'
 
 import getJobFilesFor from '../selectors/getJobFilesFor'
@@ -32,7 +32,7 @@ const JobGraphQL = new GraphQLObjectType({
         const state = store.getState()
         const jobID = source.id
         return getJobFilesFor(state)({ jobID })
-      }
+      },
     },
 
     tasks: {
@@ -53,7 +53,7 @@ const JobGraphQL = new GraphQLObjectType({
           taskableID: source.id,
           excludeCompletedTasks,
         }).valueSeq().toArray()
-      }
+      },
     },
 
     tasksCompleted: {
@@ -61,7 +61,7 @@ const JobGraphQL = new GraphQLObjectType({
       resolve(source, args, { store }) {
         const state = store.getState()
         return getTasksCompleted(state)({ taskableID: source.id })
-      }
+      },
     },
     totalTasks: {
       type: tql`Int!`,
@@ -87,7 +87,7 @@ const JobGraphQL = new GraphQLObjectType({
     stoppedAt: {
       type: tql`String`,
     },
-  })
+  }),
 })
 
 export default JobGraphQL

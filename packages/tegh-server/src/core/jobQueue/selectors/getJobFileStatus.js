@@ -1,7 +1,7 @@
 import {
   BUBBLING_STATUES,
   DONE,
-  QUEUED
+  QUEUED,
 } from '../types/JobStatusEnum'
 
 import getTasksFor from '../../spool/selectors/getTasksFor'
@@ -15,9 +15,7 @@ const getJobFileStatus = state => ({ jobFileID }) => {
   const tasksCompleted = getTasksCompleted(state)({ taskableID: jobFileID })
   const totalTasks = getJobFileTotalTasks(state)({ jobFileID })
 
-  const bubblingTask = tasks.find(task =>
-    BUBBLING_STATUES.includes(task.status)
-  )
+  const bubblingTask = tasks.find(task => BUBBLING_STATUES.includes(task.status))
 
   if (bubblingTask != null) return bubblingTask.status
 

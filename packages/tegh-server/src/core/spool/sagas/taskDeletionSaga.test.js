@@ -1,11 +1,12 @@
 import { utils as sagaUtils } from 'redux-saga'
 import { List } from 'immutable'
 import SagaTester from 'redux-saga-tester'
-const { SAGA_ACTION } = sagaUtils
 
 import Task from '../types/Task'
 import { NORMAL } from '../types/PriorityEnum'
 import deleteTasks from '../actions/deleteTasks'
+
+const { SAGA_ACTION } = sagaUtils
 
 let taskDeletionSaga
 
@@ -28,7 +29,7 @@ describe('When an action is taken', () => {
     mockTask(),
   ])
 
-  beforeEach(async function() {
+  beforeEach(async () => {
     // delete require.cache[require.resolve('./taskDeletionSaga')]
     // delete require.cache[require.resolve('../selectors/getTasksPendingDeletion')]
     // jest.resetModules()
@@ -60,5 +61,4 @@ describe('When an action is taken', () => {
   afterEach(() => {
     jest.unmock('../selectors/getTasksPendingDeletion')
   })
-
 })

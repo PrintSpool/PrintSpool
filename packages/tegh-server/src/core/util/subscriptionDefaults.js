@@ -9,7 +9,7 @@ const subscriptionDefaults = (eventNameLookup, options = {}) => ({
   },
   subscribe(_source, args, { store, pubsub }) {
     const eventName = (() => {
-      switch(typeof eventNameLookup) {
+      switch (typeof eventNameLookup) {
         case 'string': {
           return eventNameLookup
         }
@@ -18,7 +18,7 @@ const subscriptionDefaults = (eventNameLookup, options = {}) => ({
         }
         default: {
           throw new Error(
-            'subscriptionDefaults must be passed either string or a function'
+            'subscriptionDefaults must be passed either string or a function',
           )
         }
       }
@@ -31,7 +31,7 @@ const subscriptionDefaults = (eventNameLookup, options = {}) => ({
      * Proxy the global pubsub through a connection-specific pubsub
      */
     const connectionPubSub = new PubSub()
-    pubsub.subscribe(eventName, payload => {
+    pubsub.subscribe(eventName, (payload) => {
       connectionPubSub.publish(eventName, payload)
     })
     /*

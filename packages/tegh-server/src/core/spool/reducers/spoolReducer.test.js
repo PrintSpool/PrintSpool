@@ -28,15 +28,14 @@ import { DESPOOL_TASK } from '../actions/despoolTask'
 import { START_TASK } from '../actions/startTask'
 import { CANCEL_ALL_TASKS } from '../actions/cancelAllTasks'
 
-let taskReducer, spoolReducer, initialState
+let taskReducer; let spoolReducer; let
+  initialState
 
 describe('spoolReducer', () => {
-  const mockTaskReducerWith = implementation => {
+  const mockTaskReducerWith = (implementation) => {
     beforeEach(() => {
       jest.resetModules()
-      jest.doMock('./taskReducer', () => {
-        return jest.fn(implementation)
-      })
+      jest.doMock('./taskReducer', () => jest.fn(implementation))
       const m = require('./spoolReducer')
       spoolReducer = m.default()
       initialState = m.initialState
@@ -53,7 +52,7 @@ describe('spoolReducer', () => {
     DRIVER_ERROR,
   ]
 
-  spoolResetActions.forEach(type => {
+  spoolResetActions.forEach((type) => {
     describe(type, () => {
       mockTaskReducerWith(() => null)
 
@@ -73,7 +72,7 @@ describe('spoolReducer', () => {
     CANCEL_JOB,
   ]
 
-  passThroughActions.forEach(type => {
+  passThroughActions.forEach((type) => {
     describe(type, () => {
       mockTaskReducerWith((state, action) => ({ state, action }))
 
@@ -169,7 +168,7 @@ describe('spoolReducer', () => {
         })
         const emergencyAction = {
           type: SPOOL_TASK,
-          payload: { task }
+          payload: { task },
         }
 
         it('cancels other tasks', () => {
@@ -210,12 +209,10 @@ describe('spoolReducer', () => {
       type: DESPOOL_TASK,
     }
 
-    mockTaskReducerWith((state, action) => {
-      return {
-        ...(state ? state.toJS() : {}),
-        action,
-      }
-    })
+    mockTaskReducerWith((state, action) => ({
+      ...(state ? state.toJS() : {}),
+      action,
+    }))
 
     describe('if there is not a currentTask', () => {
       it('starts the top priority task', () => {
@@ -239,7 +236,7 @@ describe('spoolReducer', () => {
         expect(result.currentTaskID).toEqual('emergency_1')
         expect(result.tasks.get('emergency_1').action.type).toEqual(START_TASK)
         expect(result.priorityQueues.get(EMERGENCY).toJS()).toEqual([
-          'emergency_2'
+          'emergency_2',
         ])
       })
 

@@ -6,7 +6,7 @@ const forEachNewLine = (input, cb) => {
   if (input.forEach == null) {
     throw new Error('input MUST be an array of strings')
   }
-  input.forEach(text => {
+  input.forEach((text) => {
     if (text.split == null) {
       throw new Error(`${text} (type: ${typeof text}) is not a string`)
     }

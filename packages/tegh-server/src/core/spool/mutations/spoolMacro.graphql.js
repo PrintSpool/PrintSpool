@@ -39,7 +39,7 @@ const spoolMacroGraphQL = () => ({
 
   args: {
     input: {
-      type: tql`${SpoolMacroInputGraphQL}!`
+      type: tql`${SpoolMacroInputGraphQL}!`,
     },
   },
 })

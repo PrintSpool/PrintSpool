@@ -1,7 +1,7 @@
 import tql from 'typiql'
 import snl from 'strip-newlines'
 import {
-  GraphQLObjectType
+  GraphQLObjectType,
 } from 'graphql'
 
 const FanType = new GraphQLObjectType({
@@ -25,7 +25,7 @@ const FanType = new GraphQLObjectType({
         The speed of the fan as a percentage of full speed (range: 0 to 100).
       `,
     },
-  })
+  }),
 })
 
 export default FanType

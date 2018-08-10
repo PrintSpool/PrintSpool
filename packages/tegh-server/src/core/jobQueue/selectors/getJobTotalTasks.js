@@ -6,7 +6,7 @@ const getJobTotalTasks = state => ({ jobID }) => {
 
   let quantity = 0
 
-  jobFiles.forEach(jobFile => quantity = quantity + jobFile.quantity)
+  jobFiles.forEach(jobFile => quantity += jobFile.quantity)
   return job.quantity * quantity
 }
 

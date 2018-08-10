@@ -8,13 +8,11 @@ export const CREATE_TASK = 'tegh-server/spool/CREATE_TASK'
  *
  * task: TaskAttributes
  */
-const createTask = ({ task }) => {
-  return {
-    type: CREATE_TASK,
-    payload: {
-      task,
-    },
-  }
-}
+const createTask = ({ task }) => ({
+  type: CREATE_TASK,
+  payload: {
+    task,
+  },
+})
 
 export default createTask

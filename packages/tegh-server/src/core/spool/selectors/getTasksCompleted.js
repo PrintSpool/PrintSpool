@@ -8,12 +8,10 @@ import {
 import getTasksFor from './getTasksFor'
 
 const getTasksCompleted = createSelector(
-  [ getTasksFor ],
-  tasksFor => _.memoize(({ taskableID }) => {
-    return tasksFor({ taskableID })
-      .filter(task => task.status === DONE)
-      .size
-  }),
+  [getTasksFor],
+  tasksFor => _.memoize(({ taskableID }) => tasksFor({ taskableID })
+    .filter(task => task.status === DONE)
+    .size),
 )
 
 export default getTasksCompleted

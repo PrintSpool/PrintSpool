@@ -35,7 +35,7 @@ const httpServer = async ({
   router.post(
     '/graphql',
     koaBody(),
-    teghGraphqlKoa()
+    teghGraphqlKoa(),
   )
 
   router.get('/graphql', teghGraphqlKoa())
@@ -50,13 +50,11 @@ const httpServer = async ({
       subscribe,
       // the onOperation function is called for every new operation
       // and we use it to set the GraphQL context for this operation
-      onOperation: async (msg, params, socket) => {
-        // console.log('operation', msg)
-        return {
-          ...params,
-          context,
-        }
-      },
+      onOperation: async (msg, params, socket) => ({
+        ...params,
+        context,
+      })
+      ,
     },
     {
       server,
@@ -90,7 +88,7 @@ const httpServer = async ({
   const enginePort = 3500
   const isEngineEnabled = process.env.ENGINE_API_KEY != null && isTCP
   const serverStartupPromise = new Promise((resolve, reject) => {
-    const cb = error => error ? reject(error) : resolve()
+    const cb = error => (error ? reject(error) : resolve())
     if (isEngineEnabled) {
       // Initialize engine with your API key.
       // Set the ENGINE_API_KEY environment variable when you
@@ -110,18 +108,16 @@ const httpServer = async ({
 
   let portFullName = port
   const apolloEngineMsg = (
-    `Apollo Engine is ${isEngineEnabled ? 'en': 'dis'}abled`
+    `Apollo Engine is ${isEngineEnabled ? 'en' : 'dis'}abled`
   )
   if (isTCP) {
     const allIPs = _.flatten(Object.values(os.networkInterfaces()))
-    const ipv4IPs = allIPs.filter(ip =>
-      !ip.internal && ip.family === 'IPv4'
-    )
+    const ipv4IPs = allIPs.filter(ip => !ip.internal && ip.family === 'IPv4')
     const ipAddress = ipv4IPs.length > 0 ? ipv4IPs[0].address : 'localhost'
     portFullName = `http://${ipAddress}:${port}`
   }
   console.error(
-    `Tegh is listening on ${portFullName} (${apolloEngineMsg})`
+    `Tegh is listening on ${portFullName} (${apolloEngineMsg})`,
   )
 }
 

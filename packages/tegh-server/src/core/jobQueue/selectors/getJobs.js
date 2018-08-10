@@ -1,5 +1,3 @@
-const getJobs = state => {
-  return state.jobQueue.jobs
-}
+const getJobs = state => state.jobQueue.jobs
 
 export default getJobs

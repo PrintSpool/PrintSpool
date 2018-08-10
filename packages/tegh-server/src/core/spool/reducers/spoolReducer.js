@@ -1,4 +1,6 @@
-import { merge, Record, List, Map } from 'immutable'
+import {
+  merge, Record, List, Map,
+} from 'immutable'
 
 import ReduxNestedMap from '../../util/ReduxNestedMap'
 import taskReducer from './taskReducer'
@@ -32,7 +34,7 @@ import cancelAllTasks, { CANCEL_ALL_TASKS } from '../actions/cancelAllTasks'
 
 const taskMap = ReduxNestedMap({
   singularReducer: taskReducer,
-  keyPath: ['tasks']
+  keyPath: ['tasks'],
 })
 
 export const initialState = Record({
@@ -77,9 +79,9 @@ const spoolReducer = () => (state = initialState, action) => {
       let nextState = state
 
       if (
-        isIdle.resultFunc(state.tasks) === false &&
-        priority !== EMERGENCY &&
-        payload.task.internal !== true
+        isIdle.resultFunc(state.tasks) === false
+        && priority !== EMERGENCY
+        && payload.task.internal !== true
       ) {
         throw new Error('Cannot spool non-emergency tasks when printing a job')
       }
@@ -127,9 +129,7 @@ const spoolReducer = () => (state = initialState, action) => {
          * if the current task is done then despool the next task if there is
          * anything to despool.
          */
-        const priority = priorityOrder.find(priority =>
-          priorityQueues[priority].size > 0
-        )
+        const priority = priorityOrder.find(priority => priorityQueues[priority].size > 0)
         if (priority == null) {
           nextState = nextState.set('currentTaskID', null)
         } else {

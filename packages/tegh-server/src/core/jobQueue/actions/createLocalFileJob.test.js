@@ -6,8 +6,7 @@ import expectToMatchImmutableSnapshot from '../../util/testing/expectToMatchImmu
 import createLocalFileJob from './createLocalFileJob'
 
 describe('createLocalFileJob', () => {
-  fit('creates a CREATE_JOB action', async function() {
-
+  fit('creates a CREATE_JOB action', async () => {
     const tmpFile = await tmp.file({ postfix: '.gcode' })
     const localPath = tmpFile.path
 
@@ -18,14 +17,14 @@ describe('createLocalFileJob', () => {
           whitelist: [
             '/otherDirectory',
             path.dirname(localPath),
-          ]
-        }
-      }
+          ],
+        },
+      },
     })
     const dispatch = action => action
 
-    let result = await createLocalFileJob({
-      localPath
+    const result = await createLocalFileJob({
+      localPath,
     })(dispatch, getState)
 
     expectToMatchImmutableSnapshot({
@@ -55,6 +54,5 @@ describe('createLocalFileJob', () => {
       /* clean up tmp file */
       await fs.unlinkAsync(jobFile.filePath)
     }
-
   })
 })

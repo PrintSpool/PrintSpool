@@ -1,7 +1,7 @@
 import tql from 'typiql'
 import snl from 'strip-newlines'
 import {
-  GraphQLObjectType
+  GraphQLObjectType,
 } from 'graphql'
 
 const HeaterType = new GraphQLObjectType({
@@ -32,7 +32,7 @@ const HeaterType = new GraphQLObjectType({
         targetTemp and preventing any more gcodes from executing until it does.
       `,
     },
-  })
+  }),
 })
 
 export default HeaterType

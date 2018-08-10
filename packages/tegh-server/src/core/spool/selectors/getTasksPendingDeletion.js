@@ -13,16 +13,12 @@ import {
  * CANCELLED and do not belong to a job.
  */
 const getTasksPendingDeletion = createSelector(
-  [ getTasks ],
-  tasks => {
-    return tasks
-      .filter(task => {
-        return (
-          task.jobID == null
+  [getTasks],
+  tasks => tasks
+    .filter(task => (
+      task.jobID == null
           && [DONE, ERRORED, CANCELLED].includes(task.status)
-        )
-      }).toList()
-  },
+    )).toList(),
 )
 
 export default getTasksPendingDeletion

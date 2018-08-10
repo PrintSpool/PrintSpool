@@ -1,5 +1,4 @@
 import { utils as sagaUtils } from 'redux-saga'
-const { SAGA_ACTION } = sagaUtils
 import SagaTester from 'redux-saga-tester'
 import tmp from 'tmp-promise'
 
@@ -12,6 +11,8 @@ import deleteJob, { DELETE_JOB } from '../actions/deleteJob'
 import spoolTask from '../../spool/actions/spoolTask'
 import Task from '../../spool/types/Task'
 
+const { SAGA_ACTION } = sagaUtils
+
 let jobDeletionSaga
 
 const mockJob = () => Job({
@@ -19,7 +20,7 @@ const mockJob = () => Job({
   name: 'test.ngc',
 })
 
-const mockTask = (attrs) => Task({
+const mockTask = attrs => Task({
   name: 'test.ngc',
   priority: NORMAL,
   internal: false,
@@ -31,7 +32,7 @@ const createTester = () => {
   const sagaTester = new SagaTester({
     initialState: {
       jobQueue: initialState
-        .setIn(['jobs', mockJob().id], mockJob())
+        .setIn(['jobs', mockJob().id], mockJob()),
     },
   })
   sagaTester.start(jobDeletionSaga)
@@ -67,7 +68,7 @@ describe('SPOOL a job file', () => {
 
     /* a promise that waits for a change to the tmp file */
     let tmpFileDidChange = false
-    const tmpFileChangePromise = new Promise(resolve => {
+    const tmpFileChangePromise = new Promise((resolve) => {
       const watcher = fs.watch(tmpFile, { persistent: false }, () => {
         watcher.close()
         resolve()
@@ -102,5 +103,4 @@ describe('SPOOL a job file', () => {
       fs.unlinkSync(tmpFile)
     }
   })
-
 })

@@ -9,7 +9,7 @@ const createTeghStore = (storeContext) => {
   const { driver, errorHandler } = storeContext
 
   const sagaMiddleware = createSagaMiddleware({
-    onError: (e) => setImmediate(() => errorHandler(e)),
+    onError: e => setImmediate(() => errorHandler(e)),
   })
 
   const store = createStore(

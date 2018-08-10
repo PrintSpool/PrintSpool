@@ -1,7 +1,7 @@
 import tql from 'typiql'
 import snl from 'strip-newlines'
 import {
-  GraphQLObjectType
+  GraphQLObjectType,
 } from 'graphql'
 
 import getTasksCompleted from '../../spool/selectors/getTasksCompleted'
@@ -63,7 +63,7 @@ const JobFileGraphQL = new GraphQLObjectType({
         return getJobFileStatus(state)({ jobFileID: source.id })
       },
     },
-  })
+  }),
 })
 
 export default JobFileGraphQL

@@ -7,10 +7,10 @@ const FileInputType = new GraphQLInputObjectType({
   name: 'FileInput',
   fields: {
     name: {
-      type: tql`String!`
+      type: tql`String!`,
     },
     content: {
-      type: tql`String!`
+      type: tql`String!`,
     },
   },
 })

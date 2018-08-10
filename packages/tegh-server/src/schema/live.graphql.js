@@ -7,7 +7,7 @@ import {
 
 import QueryRootGraphQL from './QueryRoot.graphql'
 
-const  MAX_UPDATE_RATE_MS = 500
+const MAX_UPDATE_RATE_MS = 500
 
 const type = () => QueryRootGraphQL
 
@@ -39,7 +39,7 @@ const liveGraphQL = () => ({
     sourceRoots: {
       Job: ['files', 'tasks', 'tasksCompleted', 'totalTasks', 'status'],
       JobFile: ['tasks', 'tasksCompleted', 'totalTasks', 'status'],
-      Printer:  ['macroDefinitions'],
+      Printer: ['macroDefinitions'],
       Task: ['printer'],
     },
   }),

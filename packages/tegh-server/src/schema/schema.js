@@ -19,9 +19,7 @@ const subscriptions = {
  * Execute each field definition at the time the field function is called to
  * prevent cyclic reference loading issues.
  */
-const fieldsFor = (fieldDefinitions) => () => {
-  return _.mapValues(fieldDefinitions, definition => definition())
-}
+const fieldsFor = fieldDefinitions => () => _.mapValues(fieldDefinitions, definition => definition())
 
 const schema = new GraphQLSchema({
   query: QueryRootGraphQL,

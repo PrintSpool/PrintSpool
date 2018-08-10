@@ -1,9 +1,9 @@
 import type { RecordOf, List as ListT } from 'immutable'
+import uuid from 'uuid/v4'
+import { Record, List } from 'immutable'
 import type { PriorityEnumT } from './PriorityEnum'
 import type { TaskStatusEnumT } from './TaskStatusEnum'
 
-import uuid from 'uuid/v4'
-import { Record, List } from 'immutable'
 
 import normalizeGCodeLines from '../../util/normalizeGCodeLines'
 import { priorityOrder } from './PriorityEnum'
@@ -57,13 +57,13 @@ const Task = ({
   status,
 }) => {
   if (typeof name !== 'string') {
-    throw new Error(`name must be a string`)
+    throw new Error('name must be a string')
   }
   if (typeof internal !== 'boolean') {
-    throw new Error(`internal must be a boolean`)
+    throw new Error('internal must be a boolean')
   }
   if (!priorityOrder.includes(priority)) {
-    throw new Error(`invalid priority`)
+    throw new Error('invalid priority')
   }
   if (!Array.isArray(data)) {
     throw new Error('data must be an array of strings')

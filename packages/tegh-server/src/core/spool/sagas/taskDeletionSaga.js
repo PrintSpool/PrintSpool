@@ -3,10 +3,10 @@ import { effects } from 'redux-saga'
 import deleteTasks, { DELETE_TASKS } from '../actions/deleteTasks'
 import getTasksPendingDeletion from '../selectors/getTasksPendingDeletion'
 
-const taskDeletionSaga = function*() {
+const taskDeletionSaga = function* () {
   const { takeLatest, select, put } = effects
 
-  yield takeLatest('*', function*(action) {
+  yield takeLatest('*', function* (action) {
     if (action.type === DELETE_TASKS) return
 
     /* delete all the tasks pending deletion */

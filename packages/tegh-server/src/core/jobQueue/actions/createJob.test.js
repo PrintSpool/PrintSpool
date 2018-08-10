@@ -5,24 +5,24 @@ import expectToMatchImmutableSnapshot from '../../util/testing/expectToMatchImmu
 import createJob from './createJob'
 
 describe('createJob', () => {
-  it('creates a CREATE_JOB action', async function() {
+  it('creates a CREATE_JOB action', async () => {
     const name = 'test_test_test'
     const files = [
       {
         name: 'file_A',
-        content: `G28`,
+        content: 'G28',
       },
       {
         name: 'file_B',
-        content: `G1 X10\nG1 Y10\nG1 Z10`
-      }
+        content: 'G1 X10\nG1 Y10\nG1 Z10',
+      },
     ]
 
     const dispatch = action => action
 
-    let result = await createJob({
+    const result = await createJob({
       files,
-      name
+      name,
     })(dispatch)
 
     expectToMatchImmutableSnapshot({
@@ -50,6 +50,5 @@ describe('createJob', () => {
       /* clean up tmp file */
       await fs.unlinkAsync(jobFile.filePath)
     }
-
   })
 })

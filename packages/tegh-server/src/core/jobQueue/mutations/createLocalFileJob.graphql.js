@@ -1,7 +1,7 @@
 import tql from 'typiql'
 import snl from 'strip-newlines'
 import {
-  GraphQLInputObjectType
+  GraphQLInputObjectType,
 } from 'graphql'
 
 import actionResolver from '../../util/actionResolver'

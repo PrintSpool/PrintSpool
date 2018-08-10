@@ -44,7 +44,7 @@ const teghDaemon = (argv, loadPlugin) => {
       config: pluginConfig,
       index,
     }))
-    const {errors, valid} = driver.validate(config)
+    const { errors, valid } = driver.validate(config)
     if (!valid) {
       console.error(errors.join('\n'))
       setImmediate(() => process.exit(1))

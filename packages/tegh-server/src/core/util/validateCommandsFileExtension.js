@@ -5,7 +5,7 @@ const validateCommandsFileExtension = (name) => {
 
   if (!isValid) {
     throw new Error(
-      'file name must end in one of' + allowedExtensions.join(', ')
+      `file name must end in one of${allowedExtensions.join(', ')}`,
     )
   }
 }

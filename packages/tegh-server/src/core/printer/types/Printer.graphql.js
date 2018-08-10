@@ -2,7 +2,7 @@ import {
   graphql,
   GraphQLSchema,
   GraphQLObjectType,
-  GraphQLString
+  GraphQLString,
 } from 'graphql'
 import tql from 'typiql'
 import snl from 'strip-newlines'
@@ -55,8 +55,8 @@ const Printer = new GraphQLObjectType({
     },
     status: {
       type: tql`${PrinterStatusEnum}!`,
-      resolve: source => {
-        if(!isIdle(source)) return 'PRINTING'
+      resolve: (source) => {
+        if (!isIdle(source)) return 'PRINTING'
         return source.driver.status.toUpperCase()
       },
     },
@@ -68,9 +68,7 @@ const Printer = new GraphQLObjectType({
     },
     macroDefinitions: {
       type: tql`[${MacroDefinitionType}!]!`,
-      resolve: (_source, _args, context) => {
-        return Object.values(context.store.getState().macros)
-      },
+      resolve: (_source, _args, context) => Object.values(context.store.getState().macros),
     },
     logEntries: {
       type: tql`[${LogEntryType}!]`,
@@ -93,7 +91,7 @@ const Printer = new GraphQLObjectType({
         return entries.toArray()
       },
     },
-  })
+  }),
 })
 
 export default Printer

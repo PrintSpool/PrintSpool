@@ -2,7 +2,7 @@ import {
   graphql,
   GraphQLSchema,
   GraphQLObjectType,
-  GraphQLString
+  GraphQLString,
 } from 'graphql'
 import tql from 'typiql'
 import snl from 'strip-newlines'
@@ -33,7 +33,7 @@ const QueryRootGraphQL = new GraphQLObjectType({
           throw new Error(`Printer ID ${args.id} does not exist`)
         }
         return state
-      }
+      },
     },
 
     // task: {
@@ -60,7 +60,7 @@ const QueryRootGraphQL = new GraphQLObjectType({
         const { jobQueue } = store.getState()
         const jobs = jobQueue.jobs.toList()
         return jobs
-      }
+      },
     },
 
     job: {
@@ -77,7 +77,7 @@ const QueryRootGraphQL = new GraphQLObjectType({
           throw new Error(`Job ID ${args.id} does not exist`)
         }
         return job
-      }
+      },
     },
 
   },

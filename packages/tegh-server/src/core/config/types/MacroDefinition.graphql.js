@@ -2,7 +2,7 @@ import {
   graphql,
   GraphQLSchema,
   GraphQLObjectType,
-  GraphQLString
+  GraphQLString,
 } from 'graphql'
 import tql from 'typiql'
 import snl from 'strip-newlines'
