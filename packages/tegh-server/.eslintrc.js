@@ -6,7 +6,6 @@ module.exports = {
     },
     "plugins": [
       "babel",
-      "flowtype",
       "jest",
     ],
     "extends": [
