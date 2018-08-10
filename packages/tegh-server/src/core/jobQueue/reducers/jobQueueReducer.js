@@ -1,9 +1,5 @@
 import { Record, Map } from 'immutable'
 
-import Job from '../types/Job'
-import Task from '../../spool/types/Task'
-import { getTasksCompleted } from '../../spool/reducers/spoolReducer'
-
 import { CREATE_JOB } from '../actions/createJob'
 import { DELETE_JOB } from '../actions/deleteJob'
 
@@ -14,8 +10,8 @@ export const initialState = Record({
   jobFiles: Map(),
 })()
 
-const jobQueue = () => (state = initialState, action) => {
-  switch(action.type) {
+const jobQueue = (state = initialState, action) => {
+  switch (action.type) {
     case CREATE_JOB: {
       const { job, jobFiles } = action.payload
       return state

@@ -3,7 +3,7 @@ import fs from '../../util/promisifiedFS'
 import { NORMAL } from '../types/PriorityEnum'
 import spoolTask from './spoolTask'
 
-export const spoolJobFile = ({ jobFileID }) => {
+const spoolJobFile = ({ jobFileID }) => {
   return async function(dispatch, getState) {
     const state = getState()
     const jobFile = state.jobQueue.jobFiles.get(jobFileID)

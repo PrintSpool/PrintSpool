@@ -6664,6 +6664,12 @@ immutablediff@^0.4.4:
   dependencies:
     immutable "^3.2.1"
 
+immutablepatch@^0.4.2:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/immutablepatch/-/immutablepatch-0.4.2.tgz#7769996eb81043a62f89309c573d83294cb355c7"
+  dependencies:
+    immutable "^3.2.1"
+
 import-cwd@^2.0.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/import-cwd/-/import-cwd-2.1.0.tgz#aa6cf36e722761285cb371ec6519f53e2435b0a9"

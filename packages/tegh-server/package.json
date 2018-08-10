@@ -51,6 +51,7 @@
     "graphql-type-json": "^0.2.0",
     "immutable": "^4.0.0-rc.9",
     "immutablediff": "^0.4.4",
+    "immutablepatch": "^0.4.2",
     "iterall": "d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b",
     "jiff": "^0.7.3",
     "js-yaml": "^3.10.0",

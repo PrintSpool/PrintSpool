@@ -1,4 +1,5 @@
 import spoolTask from './spoolTask'
+import { NORMAL } from '../types/PriorityEnum'
 
 /*
  * spools the macro with the given args
@@ -8,30 +9,40 @@ import spoolTask from './spoolTask'
  * macro: String
  * args?: JSON [default: null]
  */
-const spoolMacro = ({ internal = false, priority, macro, args }) => {
-  return (dispatch, getState) => {
-    if (macro == null) {
-      throw new Error('macro must not be null')
-    }
-
-    const state = getState()
-    const macroDefinition = state.macros[macro]
-
-    if (macroDefinition == null) {
-      throw new Error(`Macro ${macro} does not exist`)
-    }
-
-    const gcodeLines = macroDefinition.run(args, state.config)
-
-    const action = spoolTask({
-      name: macroDefinition.name,
-      internal,
-      priority: priority || macroDefinition.priority || NORMAL,
-      data: gcodeLines,
-    })
-
-    return dispatch(action)
+const spoolMacro = ({
+  internal = false,
+  priority,
+  macro,
+  args,
+}) => (
+  dispatch,
+  getState,
+) => {
+  if (macro == null) {
+    throw new Error('macro must not be null')
   }
+
+  const state = getState()
+  const { config } = state
+
+  const macroPlugin = config.macroPluginsByMacroName[macro]
+
+  if (macroPlugin == null) {
+    throw new Error(`Macro ${macro} does not exist`)
+  }
+
+  const runMacro = import(config.pluginLoaderPath)(macroPlugin)[macro]
+
+  const gcodeLines = runMacro(args, state.config)
+
+  const action = spoolTask({
+    name: macro,
+    internal,
+    priority: priority || runMacro.priority || NORMAL,
+    data: gcodeLines,
+  })
+
+  return dispatch(action)
 }
 
 export default spoolMacro

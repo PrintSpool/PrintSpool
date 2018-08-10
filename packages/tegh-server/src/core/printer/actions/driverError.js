@@ -1,6 +1,6 @@
 export const DRIVER_ERROR = 'tegh/printer/DRIVER_ERROR'
 
-const driverError = ({code, message}) => {
+const driverError = ({ code, message }) => {
   if (typeof code !== 'string') {
     throw new Error('error code must be a string')
   }
