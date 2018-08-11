@@ -1,12 +1,14 @@
 import immutablePatch from 'immutablepatch'
 
+import getPluginManager from '../selectors/getPluginManager'
+
 export const UPDATE_CONFIG = 'tegh/config/UPDATE_CONFIG'
 
 const updateConfig = ({
   patch,
   initialLoad = false,
 }) => (
-  (dispatch, getState) => {
+  async (dispatch, getState) => {
     const previousConfig = getState().config
     const config = immutablePatch(previousConfig, patch)
 
@@ -31,7 +33,17 @@ const updateConfig = ({
       },
     }
 
-    return dispatch(action)
+    /* load new plugins before the action */
+    const pluginManager = getPluginManager(config)
+    await pluginManager.preloadAllPlugins()
+
+    await dispatch(action)
+
+    /* unload old plugins after the action */
+    // eslint-disable-next-line no-underscore-dangle
+    getPluginManager._cache.delete(previousConfig)
+
+    return action
   }
 )
 

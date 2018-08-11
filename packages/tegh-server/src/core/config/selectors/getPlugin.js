@@ -1,8 +1,13 @@
+import getPluginManager from './getPluginManager'
+
 const getPlugin = config => (plugin) => {
-  if (config == null) return null
-  const { pluginLoaderPath } = config
-  if (pluginLoaderPath == null) return null
-  return import(pluginLoaderPath)(plugin)
+  const manager = getPluginManager(config)
+  if (!manager.isReady()) {
+    const err = 'Attempted to load plugins before plugin manager was ready'
+    throw new Error(err)
+  }
+
+  return manager.pluginCache[plugin]
 }
 
 export default getPlugin
