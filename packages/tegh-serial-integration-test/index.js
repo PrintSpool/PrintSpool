@@ -23,6 +23,6 @@ const teghServer = require('tegh-server').default
 const NODE_ENV = process.env.NODE_ENV || 'development'
 const argv = [null, null, `./tegh.${NODE_ENV}.yml`]
 
-const loadPlugin = (plugin) => require(plugin)
+const loadPluginPath = __dirname + '/src/loadPlugin'
 
-teghServer(argv, loadPlugin)
+teghServer(argv, loadPluginPath)
