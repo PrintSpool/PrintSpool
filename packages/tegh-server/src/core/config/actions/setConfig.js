@@ -1,5 +1,7 @@
 import getPluginManager from '../selectors/getPluginManager'
 
+export const BEFORE_SET_CONFIG = 'tegh/config/BEFORE_SET_CONFIG'
+
 export const SET_CONFIG = 'tegh/config/SET_CONFIG'
 
 const setConfig = ({
@@ -14,15 +16,20 @@ const setConfig = ({
     const pluginManager = getPluginManager(configForm)
     await pluginManager.preloadAllPlugins()
 
-    const action = {
-      type: SET_CONFIG,
-      payload: {
-        configForm,
-        patch,
-      },
+    const payload = {
+      configForm,
+      patch,
     }
 
-    await dispatch(action)
+    await dispatch({
+      type: BEFORE_SET_CONFIG,
+      payload,
+    })
+
+    await dispatch({
+      type: SET_CONFIG,
+      payload,
+    })
 
     /* unload old plugins after the action */
     // eslint-disable-next-line no-underscore-dangle

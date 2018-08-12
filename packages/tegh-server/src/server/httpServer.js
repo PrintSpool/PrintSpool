@@ -15,7 +15,6 @@ import Promise from 'bluebird'
 const httpServer = async ({
   schema,
   context,
-  plugins,
 }, port) => {
   const isTCP = typeof port === 'number'
   // eslint-disable-next-line new-cap

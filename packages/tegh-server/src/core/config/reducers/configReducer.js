@@ -1,10 +1,11 @@
 import { Record } from 'immutable'
 
 import getPlugin from '../selectors/getPlugin'
-import { SET_CONFIG } from '../actions/setConfig'
+import { BEFORE_SET_CONFIG } from '../actions/setConfig'
 import { SET_PLUGIN_LOADER_PATH } from '../actions/setPluginLoaderPath'
 
 const initialState = Record({
+  isInitialized: false,
   pluginLoaderPath: null,
   macroPluginsByMacroName: Map(),
   /*
@@ -19,7 +20,7 @@ const configReducer = (state = initialState, action) => {
     case SET_PLUGIN_LOADER_PATH: {
       return state.set('pluginLoaderPath', action.payload.pluginLoaderPath)
     }
-    case SET_CONFIG: {
+    case BEFORE_SET_CONFIG: {
       const { configForm } = action.payload
 
       // set config.macroPluginsByMacroName
@@ -34,6 +35,7 @@ const configReducer = (state = initialState, action) => {
       })
 
       return state.merge({
+        isInitialized: true,
         configForm,
         macroPluginsByMacroName: Map(macroPluginsByMacroName),
       })

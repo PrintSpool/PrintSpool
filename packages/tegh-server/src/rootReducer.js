@@ -1,17 +1,32 @@
+import { Record } from 'immutable'
 import _ from 'lodash'
 
-// TODO: use a combineReducers function that builds a Record instead of a Map
-// import { combineReducers } from 'redux-immutable'
+import { SET_CONFIG } from './core/config/actions/setConfig'
+import getAllReducers from './core/config/selectors/getAllReducers'
 
-import { combineReducers } from 'redux'
+const initialState = Record({
+  config: null,
+})()
 
-import * as wrappedReducers from './core/reducers'
+const rootReducer = (state = initialState, action) => {
+  let nextState = state
+  const reducers = getAllReducers(action.config)
 
-export default (storeContext) => {
-  const unwrap = wrapper => wrapper(storeContext)
-  const reducers = _.mapValues({
-    ...wrappedReducers,
-    driver: storeContext.driver.reducer,
-  }, unwrap)
-  return combineReducers(reducers)
+  /*
+   * Reload the list of reducers on SET_CONFIG
+   */
+  if (action === SET_CONFIG) {
+    const defaultValues = _.mapValues(reducers, () => null)
+    nextState = Record(defaultValues)(state)
+  }
+
+  /* Combine reducers */
+  nextState = nextState.map((childState, key) => {
+    const reducer = reducers[key]
+    return reducer(childState, action)
+  })
+
+  return nextState
 }
+
+export default rootReducer
