@@ -25,7 +25,8 @@
       "@babel/preset-flow"
     ],
     "plugins": [
-      "@babel/plugin-proposal-object-rest-spread"
+      "@babel/plugin-proposal-object-rest-spread",
+      "@babel/plugin-syntax-dynamic-import"
     ]
   },
   "jest": {
@@ -86,6 +87,7 @@
     "@babel/cli": "^7.0.0-beta.49",
     "@babel/core": "^7.0.0-beta.49",
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.49",
+    "@babel/plugin-syntax-dynamic-import": "^7.0.0-rc.1",
     "@babel/polyfill": "^7.0.0-beta.49",
     "@babel/preset-env": "^7.0.0-beta.49",
     "@babel/preset-flow": "^7.0.0-beta.49",
