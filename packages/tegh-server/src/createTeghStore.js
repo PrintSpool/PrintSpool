@@ -1,31 +1,30 @@
 import createSagaMiddleware from 'redux-saga'
 import { createStore, applyMiddleware } from 'redux'
 import ReduxThunk from 'redux-thunk'
-import * as coreSagas from './core/sagas'
 
+import configMiddleware from './core/config/middleware/configMiddleware'
+import * as coreSagas from './core/sagas'
 import rootReducer from './rootReducer'
 
-const createTeghStore = (storeContext) => {
-  const { driver, errorHandler } = storeContext
+const createTeghStore = () => {
+  // const sagaMiddleware = createSagaMiddleware({
+  //   onError: e => setImmediate(() => errorHandler(e)),
+  // })
 
-  const sagaMiddleware = createSagaMiddleware({
-    onError: e => setImmediate(() => errorHandler(e)),
-  })
+  const sagaMiddleware = createSagaMiddleware()
 
   const store = createStore(
-    rootReducer(storeContext),
+    rootReducer,
     applyMiddleware(
-      ...driver.middleware(storeContext),
+      configMiddleware,
       ReduxThunk,
       sagaMiddleware,
     ),
   )
 
-  const sagas = [
-    ...Object.values(coreSagas),
-    ...driver.sagas(storeContext),
-  ]
+  const sagas = Object.values(coreSagas)
 
+  // eslint-disable-next-line no-restricted-syntax
   for (const saga of sagas) {
     sagaMiddleware.run(saga)
   }

@@ -13,6 +13,8 @@ const initialState = Record({
    * automatically configured properties should be put elsewhere.
    */
   configForm: null,
+  /* HTTP Port / Unix Socket configuration */
+  server: null,
 })()
 
 const configReducer = (state = initialState, action) => {
@@ -21,7 +23,10 @@ const configReducer = (state = initialState, action) => {
       return state.set('pluginLoaderPath', action.payload.pluginLoaderPath)
     }
     case BEFORE_SET_CONFIG: {
-      const { configForm } = action.payload
+      const {
+        configForm,
+        server,
+      } = action.payload
 
       // set config.macroPluginsByMacroName
       const macroPluginsByMacroName = {}
@@ -34,11 +39,17 @@ const configReducer = (state = initialState, action) => {
           })
       })
 
-      return state.merge({
+      let nextState = state.merge({
         isInitialized: true,
         configForm,
         macroPluginsByMacroName: Map(macroPluginsByMacroName),
       })
+
+      if (server != null) {
+        nextState = nextState.set('server', server)
+      }
+
+      return nextState
     }
     default: {
       return state

@@ -13,11 +13,13 @@ export { default as logger } from './logger'
 export { default as validate } from './config/validate'
 export { default as serialConsole } from './serial/serialConsole'
 
+// TODO: refactor to dynamic config
 export const sagas = ({ config }) => {
   return Object.values(sagasByName).map(saga => saga(selectors))
 }
 // export { config }
 
+// TODO: refactor to dynamic config
 export const middleware = ({ config }) => {
   const {
     serialPort,

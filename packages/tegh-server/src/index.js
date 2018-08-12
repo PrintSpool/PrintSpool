@@ -10,6 +10,7 @@ import reduxPubSub from './reduxPubSub'
 import createTeghStore from './createTeghStore'
 import httpServer from './server/httpServer'
 import initializeConfig from './core/config/actions/initializeConfig'
+import getAllPlugins from './core/config/selectors/getAllPlugins'
 
 export * from './core/actions'
 export * from './core/types'
@@ -47,6 +48,9 @@ const teghDaemon = async (argv, pluginLoaderPath) => {
 
   // setErrorHandlerStore(store)
   const pubsub = reduxPubSub(store)
+
+  const { config } = store.getState()
+  const plugins = getAllPlugins(config)
 
   const teghServerConfig = {
     schema: teghSchema,
