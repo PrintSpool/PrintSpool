@@ -31,7 +31,6 @@ const initialState = (config) => ({
   // TODO: moved to status reducer
   status: 'disconnected',
   error: null,
-  currentLineNumber: 1,
 })
 
 const serialGCodeReducer = ({ config }) => (
@@ -64,13 +63,10 @@ const serialGCodeReducer = ({ config }) => (
       }
       return nextState
     }
-    case 'SERIAL_SEND':
+    case SERIAL_SEND:
       const {lineNumber, collectionKey, id, changes} = action
       const nextState = {
         ...state,
-      }
-      if (typeof lineNumber === 'number') {
-        nextState.currentLineNumber = lineNumber + 1
       }
       if (collectionKey == null) return nextState
       // update the heater or fan's state.

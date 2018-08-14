@@ -14,36 +14,42 @@ import { throwErrorOnInvalidGCode } from '../../txParser'
 
 const { EMERGENCY } = PriorityEnum
 
-const initialState = 'disconnected'
+export const ERRORED = 'tegh/printer/status/ERRORED'
+export const ESTOPPED = 'tegh/printer/status/ESTOPPED'
+export const DISCONNECTED = 'tegh/printer/status/DISCONNECTED'
+export const CONNECTING = 'tegh/printer/status/CONNECTING'
+export const READY = 'tegh/printer/status/READY'
+
+const initialState = DISCONNECTED
 
 const DELAY_AFTER_GREETING = 50
 
 const statusReducer = (state = initialState, action) => {
   switch (action.type) {
     case DRIVER_ERROR: {
-      return 'errored'
+      return ERRORED
     }
     case ESTOP: {
-      return 'estopped'
+      return ESTOPPED
     }
     case SERIAL_CLOSE: {
       if (action.resetByMiddleware) return state
-      return 'disconnected'
+      return DISCONNECTED
     }
     case SERIAL_OPEN: {
-      return 'connecting'
+      return CONNECTING
     }
     case PRINTER_READY: {
-      return 'ready'
+      return READY
     }
     case SERIAL_RECEIVE: {
-      if (state === 'ready') return
+      if (state === READY) return
 
       const responseType = action.data.type
 
       if (responseType === 'greeting') {
         return loop(
-          'connecting',
+          CONNECTING,
           Cmd.run(Promise.delay, {
             args: [DELAY_AFTER_GREETING],
             successActionCreator: greetingDelayDone,
@@ -59,7 +65,7 @@ const statusReducer = (state = initialState, action) => {
       return state
     }
     case GREETING_DELAY_DONE: {
-      if (state !== 'connecting') return state
+      if (state !== CONNECTING) return state
       return loop(
         state,
         Cmd.action(serialSend('M110 N0', { lineNumber: false })),
@@ -67,7 +73,7 @@ const statusReducer = (state = initialState, action) => {
     }
     case SPOOL_TASK: {
       if (
-        state.status !== 'ready' &&
+        state.status !== READY &&
         action.payload.task.priority !== EMERGENCY
       ) {
         const err = (

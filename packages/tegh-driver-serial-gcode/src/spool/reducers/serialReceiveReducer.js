@@ -6,15 +6,12 @@ import {
   despoolTask,
 } from 'tegh-server'
 
-import serialSend from '../../actions/serialSend'
+import serialSend from '../../serial/actions/serialSend'
 
 export const initialState = Record({
   ignoreOK: false,
   resendLineNumberOnOK: null,
 })()
-
-export const IGNORE_CURRENT = 'IGNORE_CURRENT'
-export const IGNORE_NEXT = 'IGNORE_NEXT'
 
 /*
  * Intercepts SERIAL_RECEIVE actions
@@ -31,17 +28,17 @@ const serialReceiveSaga = (state = initialState, action) => {
 
   switch (data.type) {
     case 'ok': {
-      if (state.ignoreOK === IGNORE_NEXT) {
+      if (state.resendLineNumberOnOK != null) {
         const currentLine = getCurrentLine(state)
 
-        const nextState = initialState.set('ignoreOK', IGNORE_CURRENT)
+        const nextState = initialState.set('ignoreOK', true)
 
         return loop(nextState, Cmd.action(serialSend(currentLine, {
           lineNumber: state.resendLineNumberOnOK,
         })))
       }
 
-      if (state.ignoreOK === IGNORE_CURRENT) {
+      if (state.ignoreOK === true) {
         return state.set('ignoreOK', false)
       }
 
@@ -58,15 +55,14 @@ const serialReceiveSaga = (state = initialState, action) => {
        */
       if (data.lineNumber !== previousSerialLineNumber) {
         throw new Error(
-          `resend line number ${data.lineNumber} `+
+          `resend line number ${data.lineNumber} ` +
           `does not match previous line number ${previousSerialLineNumber}`
         )
       }
 
       // wait for the ok sent after the resend (see marlinFixture.js)
-      return state.merge({
-        ignoreOK: IGNORE_NEXT,
-        resendLineNumberOnOK: previousSerialLineNumber
+      return initialState.merge({
+        resendLineNumberOnOK: previousSerialLineNumber,
       })
     }
     case 'error': {

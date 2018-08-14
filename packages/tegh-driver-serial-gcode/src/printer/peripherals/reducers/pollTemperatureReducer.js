@@ -5,7 +5,7 @@ import {
   PRINTER_READY,
 } from 'tegh-server'
 
-import spoolTemperatureQuery from '../../actions/spoolTemperatureQuery'
+import spoolTemperatureQuery from '../actions/spoolTemperatureQuery'
 
 
 const pollTemperatureReducer = (state, action) => {
