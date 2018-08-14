@@ -37,7 +37,7 @@ const createSerialPort = (config) => {
     parser,
     isConnected,
     path,
-    baudRate
+    baudRate,
   }
 }
 

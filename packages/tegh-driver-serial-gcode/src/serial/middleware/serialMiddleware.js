@@ -1,4 +1,5 @@
-import { SERIAL_OPEN_REQUEST } from '../actions/serialOpenRequest'
+import { SET_CONFIG } from 'tegh-server'
+
 import serialOpen from '../actions/serialOpen'
 import serialOpenError from '../actions/serialOpenError'
 import serialClose from '../actions/serialClose'
@@ -6,87 +7,112 @@ import { SERIAL_SEND } from '../actions/serialSend'
 import serialReceive from '../actions/serialReceive'
 import serialError from '../actions/serialError'
 import { SERIAL_RESET } from '../actions/serialReset'
+import createSerialPort from '../createSerialPort'
 
-const serialMiddleware = ({
-  serialPort,
-  parser,
-  receiveParser,
-  isConnected,
-}) => (store) => {
+const serialMiddleware = (store) => {
+  let serial = null
+  let waitForConnectionTimeout = null
+
   const waitForConnection = () => {
-    if (isConnected()) {
+    if (serial.isConnected()) {
       try {
-        serialPort.open()
+        serial.serialPort.open()
         return
-      } catch(error) {
+      } catch (error) {
         store.dispatch(serialOpenError({ error }))
       }
     }
-    setTimeout(waitForConnection, 200)
+    waitForConnectionTimeout = setTimeout(waitForConnection, 200)
   }
-  setImmediate(waitForConnection)
 
   const onOpen = () => {
     store.dispatch(serialOpen())
   }
 
   const onClose = () => {
-    const { resetByMiddleware } = serialPort
+    const { resetByMiddleware } = serial.serialPort
 
-    if (!resetByMiddleware) {
-      parser.buffer = Buffer.alloc(0)
-    }
+    serial.parser.buffer = Buffer.alloc(0)
 
     store.dispatch(serialClose({ resetByMiddleware }))
 
-    if (!resetByMiddleware) {
+    if (resetByMiddleware) {
+      delete serial.serialPort.resetByMiddleware
+      serial.serialPort.open()
+    } else {
       waitForConnection()
     }
   }
 
   const onData = (data) => {
-    if (typeof data !== 'string') throw 'data must be a string'
-    store.dispatch(serialReceive({ data: receiveParser(data) }))
+    if (typeof data !== 'string') throw new Error('data must be a string')
+    store.dispatch(serialReceive(serial.receiveParser(data)))
   }
 
   const onError = (error) => {
     store.dispatch(serialError({ error }))
   }
 
-  serialPort.on('open', onOpen)
-  serialPort.on('close', onClose)
+  const onSetConfig = async (config) => {
+    if (serial != null) {
+      if (waitForConnectionTimeout != null) {
+        clearTimeout(waitForConnectionTimeout)
+        waitForConnectionTimeout = null
+      }
 
-  const dataHandler = (parser || serialPort)
-    .on('error', onError)
-    .on('data', onData)
+      serial.serialPort.removeEventListener('open', onOpen)
+      serial.serialPort.removeEventListener('close', onClose)
+      serial.parser.removeEventListener('error', onError)
+      serial.parser.removeEventListener('data', onData)
 
-  return next => (action) =>  {
-    if (action.type === SERIAL_SEND) {
-      const { line } = action.payload
+      store.dispatch(serialClose())
 
-      if (typeof line !== 'string') throw new Error('line must be a string')
-
-      serialPort.write(line, (err) => {
-        if (err) onError(err)
-      })
-
-    } else if (action.type === SERIAL_OPEN_REQUEST) {
-      serialPort.open()
-
-    } else if (action.type === SERIAL_RESET) {
-      serialPort.resetByMiddleware = true
-
-      serialPort.close(err => {
-        if (err) return onError(err)
-
-        parser.buffer = Buffer.alloc(0)
-        delete serialPort.resetByMiddleware
-
-        serialPort.open()
-      })
+      if (serial.serialPort.isOpen) {
+        await serial.serialPort.close()
+      }
     }
 
-    return next(action)
+    serial = createSerialPort(config)
+    setImmediate(waitForConnection)
+
+    serial.serialPort.on('open', onOpen)
+    serial.serialPort.on('close', onClose)
+
+    serial.parser
+      .on('error', onError)
+      .on('data', onData)
+  }
+
+  return next => (action) => {
+    if (serial == null) return next(action)
+
+    switch (action.type) {
+      case SET_CONFIG: {
+        onSetConfig(action.config)
+
+        return next(action)
+      }
+      case SERIAL_SEND: {
+        const { line } = action.payload
+
+        if (typeof line !== 'string') throw new Error('line must be a string')
+
+        serial.serialPort.write(line, (err) => {
+          if (err) onError(err)
+        })
+
+        return next(action)
+      }
+      case SERIAL_RESET: {
+        serial.serialPort.resetByMiddleware = true
+        serial.serialPort.close()
+
+        return next(action)
+      }
+      default: {
+        return next(action)
+      }
+    }
   }
 }
 

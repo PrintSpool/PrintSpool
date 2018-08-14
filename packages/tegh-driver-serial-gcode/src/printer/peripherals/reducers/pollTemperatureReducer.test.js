@@ -1,8 +1,7 @@
 import { utils as sagaUtils } from 'redux-saga'
-const { SAGA_ACTION } = sagaUtils
 
 import {
-  printerReady
+  printerReady,
 } from 'tegh-server'
 
 import delayMockedSagaTester from '../../test_helpers/delayMockedSagaTester'
@@ -10,12 +9,14 @@ import expectSimilarActions from '../../test_helpers/expectSimilarActions'
 import spoolTemperatureQuery from '../../actions/spoolTemperatureQuery'
 import pollTemperatureSaga from './pollTemperatureSaga'
 
+const { SAGA_ACTION } = sagaUtils
+
 const createTester = () => {
   const selectors = {
     getPollingInterval: () => 200,
   }
   const { sagaTester, delayMock } = delayMockedSagaTester({
-    saga: pollTemperatureSaga(selectors)
+    saga: pollTemperatureSaga(selectors),
   })
   return { sagaTester, delayMock }
 }
@@ -24,7 +25,7 @@ const receiveOkWithTemp = {
   type: SERIAL_RECEIVE,
   data: {
     type: 'ok',
-    temperatures: { e0: 10 }
+    temperatures: { e0: 10 },
   },
 }
 

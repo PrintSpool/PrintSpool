@@ -40,21 +40,22 @@
     "babel-eslint": "^8.1.0",
     "babel-jest": "^23.3.0",
     "eslint": "^5.3.0",
-    "eslint-config-airbnb-base": "^13.0.0",
+    "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-babel": "^5.1.0",
     "eslint-plugin-jest": "^21.20.2",
     "eslint-plugin-monorepo": "^0.2.0",
+    "eslint-plugin-import": "^2.14.0",
     "flow-bin": "^0.61.0",
     "jest": "^23.3.0",
     "redux-saga-delay-mock": "^0.0.1",
     "redux-saga-tester": "github:d1plo1d/redux-saga-tester"
   },
   "dependencies": {
+    "bluebird": "^3.5.1",
     "immutable": "^3.8.2",
     "redux": "^3.7.2",
     "redux-loop": "^4.3.3",
     "redux-saga": "d1plo1d/redux-saga",
-    "serial-middleware": "^0.4.0",
     "serialport": "^6.2.0",
     "tegh-server": "^0.4.0"
   }

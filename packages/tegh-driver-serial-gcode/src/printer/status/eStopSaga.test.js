@@ -2,10 +2,11 @@ import { utils as sagaUtils } from 'redux-saga'
 import SagaTester from 'redux-saga-tester'
 import { List } from 'immutable'
 import { estop } from 'tegh-server'
-const { SAGA_ACTION } = sagaUtils
 
 import eStopSaga from './eStopSaga'
 import serialSend from '../actions/serialSend'
+
+const { SAGA_ACTION } = sagaUtils
 
 const createTester = () => {
   const sagaTester = new SagaTester({ initialState: {} })

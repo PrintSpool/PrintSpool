@@ -4,7 +4,7 @@ import { greeting, responses } from '../../data/marlinFixture'
 const simulator = () => {
   const serialPort = new events.EventEmitter()
   const parser = new events.EventEmitter()
-  const sendLines = lines => lines.forEach(line => {
+  const sendLines = lines => lines.forEach((line) => {
     setImmediate(() => {
       parser.emit('data', line)
     })
@@ -25,7 +25,7 @@ const simulator = () => {
       return words[1].toLowerCase().replace(/\*.*|\n/g, '')
     })()
     if (responses[code] == null) {
-      sendLines(responses['g1'])
+      sendLines(responses.g1)
     } else {
       sendLines(responses[code])
     }

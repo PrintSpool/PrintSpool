@@ -25,8 +25,8 @@ const despoolToSerialReducer = (state = initialState, action) => {
       const currentLine = getCurrentLine(state)
 
       if (
-        (action.type === DESPOOL_TASK && currentLine != null) ||
-        (action.type === SPOOL_TASK && shouldSendSpooledLineToPrinter(state))
+        (action.type === DESPOOL_TASK && currentLine != null)
+        || (action.type === SPOOL_TASK && shouldSendSpooledLineToPrinter(state))
       ) {
         const lineNumber = state.currentSerialLineNumber
         const emergency = isEmergency(state)
@@ -43,7 +43,7 @@ const despoolToSerialReducer = (state = initialState, action) => {
         return loop(
           state,
           Cmd.run(serialSend, currentLine, {
-            lineNumber: emergency ? false : lineNumber
+            lineNumber: emergency ? false : lineNumber,
           }),
         )
       }

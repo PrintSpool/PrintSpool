@@ -130,7 +130,7 @@ describe(SPOOL_TASK, () => {
     const result = sagaTester.getCalledActions()
 
     expect(result).toMatchObject([
-      spoolAction
+      spoolAction,
     ])
   })
 })

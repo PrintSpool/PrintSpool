@@ -1,12 +1,12 @@
 // @flow
 import txParser from './txParser'
 
-const testMCode = (collectionKey) => (line, expectedOutput) => {
+const testMCode = collectionKey => (line, expectedOutput) => {
   test(`parses ${line}`, () => {
     const result = txParser(line)
     expect(result).toEqual({
       collectionKey,
-      ...expectedOutput
+      ...expectedOutput,
     })
   })
 }
@@ -15,9 +15,9 @@ describe('heater MCodes', () => {
   const testHeaterMCode = testMCode('heaters')
 
   const extruderScenarios = [
-    {description: 'single extruder', suffix: '', id: 'e0'},
-    {description: 'multi extruder', suffix: ' p7', id: 'e7'},
-  ].forEach(({description, suffix, id}) => {
+    { description: 'single extruder', suffix: '', id: 'e0' },
+    { description: 'multi extruder', suffix: ' p7', id: 'e7' },
+  ].forEach(({ description, suffix, id }) => {
     describe(description, () => {
       testHeaterMCode(`M104 S218${suffix}`, {
         id,
@@ -48,7 +48,7 @@ describe('heater MCodes', () => {
         code: 'M116',
         changes: {
           blocking: true,
-        }
+        },
       })
     })
   })

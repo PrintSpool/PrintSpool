@@ -1,13 +1,14 @@
 // @flow
 import { driverError } from 'tegh-server'
 import { utils as sagaUtils } from 'redux-saga'
-const { SAGA_ACTION } = sagaUtils
 
 import { despoolTask } from 'tegh-server'
 
 import delayMockedSagaTester from '../../test_helpers/delayMockedSagaTester'
 import serialSend from '../../serial/actions/serialSend'
 import serialReceiveSaga from './serialReceiveSaga'
+
+const { SAGA_ACTION } = sagaUtils
 
 const serialReceive = (type, data) => ({
   type: SERIAL_RECEIVE,
@@ -22,10 +23,10 @@ const despoolAction = {
   [SAGA_ACTION]: true,
 }
 
-const itDoesNothingWhen = ({ready, type, ignoreOK = false}) => {
+const itDoesNothingWhen = ({ ready, type, ignoreOK = false }) => {
   it(
-    `when ready = ${ready} and shouldIgnoreOK = ${ignoreOK}` +
-    ` it does nothing`,
+    `when ready = ${ready} and shouldIgnoreOK = ${ignoreOK}`
+    + ' it does nothing',
     () => {
       const selectors = {
         isReady: () => ready,
@@ -43,13 +44,13 @@ const itDoesNothingWhen = ({ready, type, ignoreOK = false}) => {
       expect(pause).toBe(null)
       const result = sagaTester.getCalledActions().slice(1)
       expect(result).toEqual([])
-    }
+    },
   )
 }
 
 describe('SERIAL_RECEIVE ok', () => {
-  itDoesNothingWhen({ ready: false, type: 'ok'})
-  itDoesNothingWhen({ ready: true, ignoreOK: true, type: 'ok'})
+  itDoesNothingWhen({ ready: false, type: 'ok' })
+  itDoesNothingWhen({ ready: true, ignoreOK: true, type: 'ok' })
   it(
     'when driver is ready it dispatching DESPOOL',
     () => {
@@ -72,12 +73,12 @@ describe('SERIAL_RECEIVE ok', () => {
         serialReceive('ok'),
         despoolAction,
       ])
-    }
+    },
   )
 })
 
 describe('SERIAL_RECEIVE error', () => {
-  itDoesNothingWhen({ ready: false, type: 'error'})
+  itDoesNothingWhen({ ready: false, type: 'error' })
   it(
     'when driver is ready it dispatching DRIVER_ERROR',
     () => {
@@ -109,7 +110,7 @@ describe('SERIAL_RECEIVE error', () => {
         serialReceiveError,
         firmwareError,
       ])
-    }
+    },
   )
 })
 
@@ -129,7 +130,7 @@ describe('SERIAL_RECEIVE resend', () => {
       saga: serialReceiveSaga(selectors),
       options: {
         onError,
-      }
+      },
     })
     const receiveResend = serialReceive('resend', {
       lineNumber: requestLineNumber,
@@ -140,7 +141,7 @@ describe('SERIAL_RECEIVE resend', () => {
     return { sagaTester, receiveResend }
   }
 
-  itDoesNothingWhen({ ready: false, type: 'resend'})
+  itDoesNothingWhen({ ready: false, type: 'resend' })
 
   it(
     'when the resend is not for the previous line number it errors',
@@ -149,13 +150,13 @@ describe('SERIAL_RECEIVE resend', () => {
       const { sagaTester } = requestResend({
         requestLineNumber: 32,
         currentLineNumber: 41,
-        onError: () => {errored = true}
+        onError: () => { errored = true },
       })
 
       expect(errored).toBe(false)
       sagaTester.dispatch(serialReceive('ok'))
       expect(errored).toBe(true)
-    }
+    },
   )
   it(
     'when the resend is for the previous line number it resends it',
@@ -174,6 +175,6 @@ describe('SERIAL_RECEIVE resend', () => {
         serialReceive('ok'),
         serialSend('(╯°□°）╯︵ ┻━┻', { lineNumber: 41 }),
       ])
-    }
+    },
   )
 })

@@ -56,8 +56,8 @@ const serialReceiveSaga = (state = initialState, action) => {
        */
       if (data.lineNumber !== previousSerialLineNumber) {
         throw new Error(
-          `resend line number ${data.lineNumber} ` +
-          `does not match previous line number ${previousSerialLineNumber}`
+          `resend line number ${data.lineNumber} `
+          + `does not match previous line number ${previousSerialLineNumber}`,
         )
       }
 

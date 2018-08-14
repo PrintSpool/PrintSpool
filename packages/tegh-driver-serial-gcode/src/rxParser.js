@@ -36,15 +36,15 @@ type RxDataWithoutRaw =
 type RxData = RxDataWithoutRaw & { raw: string }
 
 const parsePrinterFeedback = (line: string): Feedback => {
-  if (line.match("t:") == null) return {}
+  if (line.match('t:') == null) return {}
   // Filtering out non-temperature values
   const filteredLine = line
     .replace(OK, '')
     .replace(/(\/|[a-z]*@:|e:)[0-9\.]*/g, '')
     .trim()
   // Normalizing the temperature values and splitting them into words
-  const keyValueWords  = filteredLine
-    .replace("t:", "e0:")
+  const keyValueWords = filteredLine
+    .replace('t:', 'e0:')
     .replace(/:[\s\t]*/g, ':')
     .split(' ')
   // Construct an object containing current temperature values
@@ -67,17 +67,23 @@ const parsePrinterFeedback = (line: string): Feedback => {
 
 const rxParser = (raw: string): RxData => {
   const line = raw.toLowerCase()
-  if (line.match(GREETINGS) != null) return {
-    type: 'greeting',
-    raw,
+  if (line.match(GREETINGS) != null) {
+    return {
+      type: 'greeting',
+      raw,
+    }
   }
-  if (line.startsWith("debug_")) return {
-    type: 'debug',
-    raw,
+  if (line.startsWith('debug_')) {
+    return {
+      type: 'debug',
+      raw,
+    }
   }
-  if (line.startsWith('echo:')) return {
-    type: 'echo',
-    raw,
+  if (line.startsWith('echo:')) {
+    return {
+      type: 'echo',
+      raw,
+    }
   }
   if (line.startsWith('error')) {
     const isWarning = line.startsWith('error:checksum mismatch')
@@ -85,7 +91,7 @@ const rxParser = (raw: string): RxData => {
     return {
       type: isWarning ? 'warning' : 'error',
       raw,
-      message
+      message,
     }
   }
   if (line.startsWith('resend') || line.startsWith('rs')) {

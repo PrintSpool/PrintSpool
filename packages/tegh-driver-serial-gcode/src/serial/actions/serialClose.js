@@ -4,7 +4,7 @@ const serialClose = ({ resetByMiddleware }) => ({
   type: SERIAL_CLOSE,
   payload: {
     resetByMiddleware,
-  }
+  },
 })
 
 export default serialClose

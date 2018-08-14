@@ -1,5 +1,5 @@
 // @flow
-import serialMiddleware from '../src/'
+import serialMiddleware from '../src'
 
 const serialMocks = () => {
   const eventListeners = {}
@@ -28,7 +28,7 @@ test(
     serialMiddleware({ serialPort })(store)
 
     expect(serialPort.open.mock.calls.length).toBe(1)
-  }
+  },
 )
 
 test(
@@ -41,7 +41,7 @@ test(
 
     expect(store.dispatch.mock.calls.length).toBe(1)
     expect(store.dispatch.mock.calls[0][0].type).toBe('SERIAL_OPEN')
-  }
+  },
 )
 
 test(
@@ -57,7 +57,7 @@ test(
       type: 'SERIAL_RECEIVE',
       data: 'social constructs',
     })
-  }
+  },
 )
 
 test(
@@ -73,7 +73,7 @@ test(
       type: 'SERIAL_ERROR',
       error: 'giraffe',
     })
-  }
+  },
 )
 
 test(
@@ -81,7 +81,7 @@ test(
   () => {
     const { eventListeners, serialPort, store } = serialMocks()
 
-    const next = ({type}) => type === 'SERIAL_SEND' ? 'ottawa' : 'not_ottawa'
+    const next = ({ type }) => (type === 'SERIAL_SEND' ? 'ottawa' : 'not_ottawa')
     const action = {
       type: 'SERIAL_SEND',
       data: 'kitties',
@@ -91,8 +91,8 @@ test(
 
     expect(serialPort.write.mock.calls.length).toBe(1)
     expect(serialPort.write.mock.calls[0][0]).toEqual('kitties')
-    expect(result).toBe("ottawa")
-  }
+    expect(result).toBe('ottawa')
+  },
 )
 
 test(
@@ -100,7 +100,7 @@ test(
   () => {
     const { eventListeners, serialPort, store } = serialMocks()
 
-    const next = () => "reasons"
+    const next = () => 'reasons'
     const action = {
       type: 'RAISE_LEVEL_OVER_9000',
     }
@@ -108,6 +108,6 @@ test(
     const result = serialMiddleware({ serialPort })(store)(next)(action)
 
     expect(serialPort.write.mock.calls.length).toBe(0)
-    expect(result).toBe("reasons")
-  }
+    expect(result).toBe('reasons')
+  },
 )

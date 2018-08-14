@@ -5,12 +5,12 @@ import {
   SPOOL_TASK,
   ESTOP,
   DRIVER_ERROR,
-  PRINTER_READY,
+  printerReady,
   PriorityEnum,
 } from 'tegh-server'
 
 import serialSend from '../../../serial/actions/serialSend'
-import { throwErrorOnInvalidGCode } from '../../txParser'
+import { throwErrorOnInvalidGCode } from '../../../txParser'
 
 const { EMERGENCY } = PriorityEnum
 
@@ -73,8 +73,8 @@ const statusReducer = (state = initialState, action) => {
     }
     case SPOOL_TASK: {
       if (
-        state.status !== READY &&
-        action.payload.task.priority !== EMERGENCY
+        state.status !== READY
+        && action.payload.task.priority !== EMERGENCY
       ) {
         const err = (
           'Only emergency tasks can be spooled when the machine is not ready.'

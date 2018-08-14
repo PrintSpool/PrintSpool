@@ -12,19 +12,6 @@ export logger from './log/reducers/logReducer'
 export serialConsole from './serial/serialConsole'
 
 // TODO: refactor to dynamic config
-export const middleware = ({ config }) => {
-  const {
-    serialPort,
-    parser,
-    isConnected,
-  } = createSerialPort(config)
-
-  return [
-    serialMiddleware({
-      serialPort,
-      parser,
-      isConnected,
-      receiveParser: rxParser,
-    }),
-  ]
-}
+export const middleware = [
+  serialMiddleware,
+]

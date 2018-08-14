@@ -4,7 +4,7 @@ import { SPOOL_TASK } from 'tegh-server'
 
 const toJS = val => fromJS(val).toJS()
 
-const filterDynamicAttrs = action => {
+const filterDynamicAttrs = (action) => {
   if (action.type !== SPOOL_TASK) return action
   const filtered = toJS(action)
   if (filtered.payload != null && filtered.payload.task != null) {

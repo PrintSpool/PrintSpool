@@ -1,5 +1,4 @@
 import { utils as sagaUtils } from 'redux-saga'
-const { SAGA_ACTION } = sagaUtils
 
 import {
   PRINTER_READY,
@@ -9,9 +8,11 @@ import delayMockedSagaTester from '../../test_helpers/delayMockedSagaTester'
 import serialSend from '../../serial/actions/serialSend'
 import greetingSaga from './greetingSaga'
 
+const { SAGA_ACTION } = sagaUtils
+
 const createTester = (selectors) => {
   const { sagaTester, delayMock } = delayMockedSagaTester({
-    saga: greetingSaga(selectors)
+    saga: greetingSaga(selectors),
   })
   return { sagaTester, delayMock }
 }
@@ -26,7 +27,7 @@ const sendHello = {
   [SAGA_ACTION]: true,
 }
 
-const serialReceive = (type) => ({
+const serialReceive = type => ({
   type: SERIAL_RECEIVE,
   data: {
     type,

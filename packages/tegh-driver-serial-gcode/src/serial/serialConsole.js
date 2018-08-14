@@ -11,7 +11,7 @@ const serialConsole = () => {
     serialOptions,
     parser,
     path,
-    baudRate
+    baudRate,
   } = createSerialPort(config)
 
   console.log(`opening ${path} with options:`, serialOptions)

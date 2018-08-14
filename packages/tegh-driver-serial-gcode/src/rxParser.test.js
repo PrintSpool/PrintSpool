@@ -73,7 +73,7 @@ describe('parses oks', () => {
 
   const malformedOKs = ['okok', 'kok', 'ook']
 
-  malformedOKs.forEach(raw => {
+  malformedOKs.forEach((raw) => {
     test(`from '${raw}'`, () => {
       const result = rxParser(raw)
 

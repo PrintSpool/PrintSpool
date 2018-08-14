@@ -5,13 +5,10 @@ module.exports = {
         "jest/globals": true
     },
     "plugins": [
-      "babel",
       "jest",
     ],
     "extends": [
       "airbnb-base",
-      "plugin:jest/recommended",
-      "plugin:monorepo/recommended"
     ],
     "parser": "babel-eslint",
     "rules": {
