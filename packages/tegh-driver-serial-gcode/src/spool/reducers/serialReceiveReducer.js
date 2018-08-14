@@ -4,14 +4,19 @@ import { Record } from 'immutable'
 import {
   driverError,
   despoolTask,
+  getCurrentLine,
+  getCurrentFileName,
+  getCurrentFileLineNumber,
 } from 'tegh-server'
 
 import serialSend from '../../serial/actions/serialSend'
+import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 
 export const initialState = Record({
   ignoreOK: false,
   resendLineNumberOnOK: null,
   error: null,
+  currentSerialLineNumber: 1,
 })()
 
 /*
@@ -46,8 +51,7 @@ const serialReceiveSaga = (state = initialState, action) => {
       return loop(state, Cmd.action(despoolTask()))
     }
     case 'resend': {
-      const currentSerialLineNumber = getCurrentSerialLineNumber(state)
-      const previousSerialLineNumber = currentSerialLineNumber - 1
+      const previousSerialLineNumber = state.currentSerialLineNumber - 1
 
       /*
        * Tegh only sends one line at a time. If a resend is requested for a

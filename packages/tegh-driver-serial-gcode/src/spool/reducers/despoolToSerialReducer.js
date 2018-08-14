@@ -1,14 +1,16 @@
 import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
 
-import { SPOOL_TASK, DESPOOL_TASK } from 'tegh-server'
+import {
+  SPOOL_TASK,
+  DESPOOL_TASK,
+  // TODO: create these:
+  getCurrentLine,
+  shouldSendSpooledLineToPrinter,
+  isEmergency,
+} from 'tegh-server'
 
 import serialSend, { SERIAL_SEND } from '../../serial/actions/serialSend'
-
-const initialState = Record({
-  currentSerialLineNumber: 1,
-})()
-
 
 // const despoolToSerialSaga = () => {
 /*
@@ -18,7 +20,7 @@ const initialState = Record({
  * The first SPOOL action to an idle printer triggers this to begin printing
  * the spooled line.
  */
-const despoolToSerialReducer = (state = initialState, action) => {
+const despoolToSerialReducer = (state, action) => {
   switch (action.type) {
     case DESPOOL_TASK:
     case SPOOL_TASK: {

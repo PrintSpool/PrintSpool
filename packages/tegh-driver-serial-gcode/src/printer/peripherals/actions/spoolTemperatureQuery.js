@@ -1,12 +1,9 @@
-import { spoolTask } from 'tegh-server'
-import { PriorityEnum } from 'tegh-server'
+import { spoolTask, PriorityEnum } from 'tegh-server'
 
 const { PREEMPTIVE } = PriorityEnum
 
-const name = 'spoolTemperatureQuery'
-
 const spoolTemperatureQuery = () => spoolTask({
-  name,
+  name: 'spoolTemperatureQuery',
   internal: true,
   priority: PREEMPTIVE,
   data: ['M105'],

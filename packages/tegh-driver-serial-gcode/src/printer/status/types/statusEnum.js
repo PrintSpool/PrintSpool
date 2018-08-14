@@ -1,0 +1,5 @@
+export const ERRORED = 'tegh/printer/status/ERRORED'
+export const ESTOPPED = 'tegh/printer/status/ESTOPPED'
+export const DISCONNECTED = 'tegh/printer/status/DISCONNECTED'
+export const CONNECTING = 'tegh/printer/status/CONNECTING'
+export const READY = 'tegh/printer/status/READY'

@@ -1,3 +1,5 @@
+import { SERIAL_ERROR } from '../../../serial/actions/serialError'
+
 const serialErrorHandlerSaga = (state, action) => {
   switch (action) {
     case SERIAL_ERROR: {

@@ -10,15 +10,22 @@ import {
 } from 'tegh-server'
 
 import serialSend from '../../../serial/actions/serialSend'
+import { SERIAL_OPEN } from '../../../serial/actions/serialOpen'
+import { SERIAL_CLOSE } from '../../../serial/actions/serialClose'
+import { SERIAL_RECEIVE } from '../../../serial/actions/serialReceive'
+import greetingDelayDone, { GREETING_DELAY_DONE } from '../actions/greetingDelayDone'
+
 import { throwErrorOnInvalidGCode } from '../../../txParser'
 
-const { EMERGENCY } = PriorityEnum
+import {
+  ERRORED,
+  ESTOPPED,
+  DISCONNECTED,
+  CONNECTING,
+  READY,
+} from '../types/statusEnum'
 
-export const ERRORED = 'tegh/printer/status/ERRORED'
-export const ESTOPPED = 'tegh/printer/status/ESTOPPED'
-export const DISCONNECTED = 'tegh/printer/status/DISCONNECTED'
-export const CONNECTING = 'tegh/printer/status/CONNECTING'
-export const READY = 'tegh/printer/status/READY'
+const { EMERGENCY } = PriorityEnum
 
 const initialState = DISCONNECTED
 
@@ -39,9 +46,6 @@ const statusReducer = (state = initialState, action) => {
     case SERIAL_OPEN: {
       return CONNECTING
     }
-    case PRINTER_READY: {
-      return READY
-    }
     case SERIAL_RECEIVE: {
       if (state === READY) return
 
@@ -58,7 +62,7 @@ const statusReducer = (state = initialState, action) => {
       }
       if (responseType === 'ok') {
         return loop(
-          state,
+          READY,
           Cmd.action(printerReady()),
         )
       }

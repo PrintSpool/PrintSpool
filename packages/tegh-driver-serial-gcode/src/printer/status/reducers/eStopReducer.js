@@ -1,6 +1,9 @@
 import { loop, Cmd } from 'redux-loop'
 import { estop } from 'tegh-server'
 
+import { SERIAL_SEND } from '../../../serial/actions/serialSend'
+import serialReset from '../../../serial/actions/serialReset'
+
 const eStopSaga = (state, action) => {
   switch (action) {
     case SERIAL_SEND: {
@@ -17,9 +20,7 @@ const eStopSaga = (state, action) => {
        * be safe.
        */
       if (code === 'M999') {
-        return loop(state, Cmd.action({
-          type: SERIAL_RESET,
-        }))
+        return loop(state, Cmd.action(serialReset()))
       }
       return state
     }
