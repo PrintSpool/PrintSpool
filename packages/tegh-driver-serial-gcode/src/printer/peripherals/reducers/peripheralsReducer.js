@@ -1,88 +1,72 @@
+import { Record } from 'immutable'
+
 import {
   ESTOP,
   DRIVER_ERROR,
   PRINTER_READY,
 } from 'tegh-server'
 
-const initializeCollection = (arrayOfIDs, initialValueFn) => {
-  return arrayOfIDs.reduce(
-    (collection, id) => {
-      collection[id] = initialValueFn(id)
-      return collection
-    },
-    {}
+const initializeCollection = (arrayOfIDs, initialValueFn) => (
+  arrayOfIDs.reduce(
+    (map, id) => map.set(id, initialValueFn(id)),
+    Map(),
   )
-}
+)
 
-const initialState = (config) => ({
-  targetTemperaturesCountdown: null,
-  heaters: initializeCollection(config.heaters, (id) => ({
-    id,
-    currentTemperature: 0,
-    targetTemperature: null,
-    blocking: false,
-  })),
-  fans: initializeCollection(config.fans, (id) => ({
-    id,
-    enabled: false,
-    speed: 0,
-  })),
-  // 'errored', 'estopped', 'disconnected', 'connecting', 'ready'
-  // TODO: moved to status reducer
-  status: 'disconnected',
-  error: null,
-})
+const createState = config => (
+  Record({
+    targetTemperaturesCountdown: null,
+    heaters: initializeCollection(config.heaters, id => Record({
+      id,
+      currentTemperature: 0,
+      targetTemperature: null,
+      blocking: false,
+    })()),
+    fans: initializeCollection(config.fans, id => Record({
+      id,
+      enabled: false,
+      speed: 0,
+    })()),
+  })()
+)
 
-const serialGCodeReducer = ({ config }) => (
-  state = initialState(config),
-  action
-) => {
+const peripheralsReducer = (state, action) => {
   switch(action.type) {
+    case SET_CONFIG:
     case DRIVER_ERROR:
     case ESTOP:
     case SERIAL_OPEN:
     case PRINTER_READY:
     case ESTOP:
-    case SERIAL_CLOSE:
-      return {
-        ...initialState(config),
-        error: action.error,
-      }
+    case SERIAL_CLOSE: {
+      return createState(action.config)
+    }
     case SERIAL_RECEIVE: {
+      let nextState = state
+
       if (action.data.temperatures != null) {
-        const heaters = {...state.heaters}
         Object.entries(action.data.temperatures).forEach(([k, v]) => {
-          heaters[k] = {...heaters[k], currentTemperature: v}
+          nextState = nextState.setIn(['heaters', k, 'currentTemperature'], v)
         })
-        const {targetTemperaturesCountdown} = action.data
-        return {
-          ...nextState,
-          targetTemperaturesCountdown,
-          heaters,
-        }
+
+        nextState = nextState.set(
+          'targetTemperaturesCountdown',
+          action.data.targetTemperaturesCountdown
+        )
       }
+
       return nextState
     }
-    case SERIAL_SEND:
-      const {lineNumber, collectionKey, id, changes} = action
-      const nextState = {
-        ...state,
-      }
-      if (collectionKey == null) return nextState
+    case SERIAL_SEND: {
+      const { collectionKey, id, changes } = action
+      if (collectionKey == null) return state
       // update the heater or fan's state.
-      return {
-        ...nextState,
-        [collectionKey]: {
-          ...state[collectionKey],
-          [id]: {
-            ...state[collectionKey][id],
-            ...changes,
-          },
-        },
-      }
-    default:
+      return state.mergeIn([collectionKey, id], changes)
+    }
+    default: {
       return state
+    }
   }
 }
 
-export default serialGCodeReducer
+export default peripheralsReducer

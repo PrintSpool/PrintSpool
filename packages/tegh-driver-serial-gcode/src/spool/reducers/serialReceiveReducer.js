@@ -11,6 +11,7 @@ import serialSend from '../../serial/actions/serialSend'
 export const initialState = Record({
   ignoreOK: false,
   resendLineNumberOnOK: null,
+  error: null,
 })()
 
 /*
@@ -69,11 +70,13 @@ const serialReceiveSaga = (state = initialState, action) => {
       const fileName = getCurrentFileName(state)
       const fileLineNumber = getCurrentFileLineNumber(state)
 
-      const error = driverError({
+      const errorAction = driverError({
         code: 'FIRMWARE_ERROR',
         message: `${fileName}:${fileLineNumber}: ${action.data.raw}`,
       })
-      return loop(state, Cmd.action(error))
+
+      const nextState = state.set('error', errorAction.error)
+      return loop(nextState, Cmd.action(errorAction))
     }
     default: {
       return state
