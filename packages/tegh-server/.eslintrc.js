@@ -9,6 +9,7 @@ module.exports = {
     ],
     "extends": [
       "airbnb-base",
+      "plugin:jest/recommended",
     ],
     "parser": "babel-eslint",
     "rules": {

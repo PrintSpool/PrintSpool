@@ -42,7 +42,7 @@
     "eslint": "^5.3.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-babel": "^5.1.0",
-    "eslint-plugin-jest": "^21.20.2",
+    "eslint-plugin-jest": "^21.21.0'",
     "eslint-plugin-monorepo": "^0.2.0",
     "eslint-plugin-import": "^2.14.0",
     "flow-bin": "^0.61.0",
