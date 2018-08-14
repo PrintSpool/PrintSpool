@@ -28,10 +28,10 @@ const initialState = (config) => ({
     speed: 0,
   })),
   // 'errored', 'estopped', 'disconnected', 'connecting', 'ready'
+  // TODO: moved to status reducer
   status: 'disconnected',
   error: null,
   currentLineNumber: 1,
-  ignoreOK: false,
 })
 
 const serialGCodeReducer = ({ config }) => (

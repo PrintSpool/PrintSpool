@@ -7,9 +7,6 @@ export const isReady = state =>
 export const isEStopped = state =>
   state.driver.status === 'estopped'
 
-export const shouldIgnoreOK = state =>
-  state.driver.ignoreOK !== false
-
 export const getCurrentSerialLineNumber = state =>
   state.driver.currentLineNumber
 
