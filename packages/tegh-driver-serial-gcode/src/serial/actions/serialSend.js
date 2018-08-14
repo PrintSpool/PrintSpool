@@ -1,5 +1,7 @@
 import txParser from '../txParser.js'
 
+export const SERIAL_SEND  = 'tegh-serial-driver/serial/SERIAL_SEND'
+
 const NEWLINE = /\r\n|\r|\n/g
 
 const checksum = (line) => {
@@ -28,7 +30,7 @@ const serialSend = (line, { lineNumber }) => {
     return `${lineWithLineNumber}*${checksum(lineWithLineNumber)}\n`
   })()
   return {
-    type: 'SERIAL_SEND',
+    type: SERIAL_SEND,
     data,
     lineNumber,
     ...txParser(line),

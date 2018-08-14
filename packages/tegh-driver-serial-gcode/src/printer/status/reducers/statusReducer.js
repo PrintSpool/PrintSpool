@@ -9,7 +9,7 @@ import {
   PriorityEnum,
 } from 'tegh-server'
 
-import serialSend from '../../actions/serialSend'
+import serialSend from '../../../serial/actions/serialSend'
 import { throwErrorOnInvalidGCode } from '../../txParser'
 
 const { EMERGENCY } = PriorityEnum

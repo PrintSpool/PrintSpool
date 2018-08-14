@@ -2,8 +2,12 @@
 import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
 
-import serialSend from '../../actions/serialSend'
-import createSerialTimeoutAction from '../../actions/createSerialTimeoutAction'
+import getLongRunningCodes from '../../config/selectors/getLongRunningCodes'
+import getSerialTimeout from '../../config/selectors/getSerialTimeout'
+
+import serialSend, { SERIAL_SEND } from '../../serial/actions/serialSend'
+import createSerialTimeoutAction from '../../serial/actions/createSerialTimeoutAction'
+import requestSerialPortTickle, { REQUEST_SERIAL_PORT_TICKLE } from '../actions/requestSerialPortTickle'
 
 export const initialState = Record({
   awaitingLineNumber: null,
@@ -22,7 +26,7 @@ const waitToTickleCmd = (state, action) => {
   } = getSerialTimeout(action.config)
 
   const isLong = getLongRunningCodes(action.config).includes(action.code)
-  const timeoutPeriod = isLong ?  longRunningCodeTimeout : fastCodeTimeout
+  const timeoutPeriod = isLong ? longRunningCodeTimeout : fastCodeTimeout
 
   return Cmd.run(waitToTickle, {
     args: [state, timeoutPeriod],
@@ -42,12 +46,16 @@ const serialTimeoutSaga = (state, action) => {
       return loop(nextState, waitToTickleCmd(nextState, action))
     }
     case SERIAL_RECEIVE: {
-      if (['ok', 'feedback', 'greeting'].includes(data.type)) {
+      if (['ok', 'feedback', 'greeting'].includes(action.data.type)) {
         return initialState.set('awaitingLineNumber', null)
       }
       return state
     }
     case REQUEST_SERIAL_PORT_TICKLE: {
+      if (action.payload.awaitingLineNumber !== state.awaitingLineNumber) {
+        return state
+      }
+
       const { tickleAttempts } = getSerialTimeout(action.config)
 
       if (state.ticklesAttempted < tickleAttempts) {

@@ -1,7 +1,4 @@
-import { utils as sagaUtils } from 'redux-saga'
-import SagaTester from 'redux-saga-tester'
 import { List } from 'immutable'
-const { SAGA_ACTION } = sagaUtils
 
 import { SPOOL_TASK } from 'tegh-server'
 import { DESPOOL_TASK } from 'tegh-server'

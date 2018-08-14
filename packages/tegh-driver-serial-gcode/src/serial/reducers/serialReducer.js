@@ -1,56 +1,10 @@
-// @flow
-import type {Dispatch} from 'redux'
+export const SERIAL_OPEN = 'tegh-driver-gcode/serial/SERIAL_OPEN'
+export const SERIAL_SEND = 'tegh-driver-gcode/serial/SERIAL_SEND'
+export const SERIAL_RECEIVE = 'tegh-driver-gcode/serial/SERIAL_RECEIVE'
+export const SERIAL_ERROR = 'tegh-driver-gcode/serial/SERIAL_ERROR'
+export const SERIAL_RESET = 'tegh-driver-gcode/serial/SERIAL_RESET'
 
-type SerialPort = {
-  open: () => void,
-  on: ('open' | 'data' | 'error', (_: mixed) => void) => SerialPort,
-  write: (string, (string) => void) => void,
-}
-
-export type SerialOpenAction = {
-  type: 'SERIAL_OPEN',
-}
-
-export type SerialSendAction = {
-  type: 'SERIAL_SEND',
-  data: string,
-}
-
-export type SerialReceiveAction = {
-  type: 'SERIAL_RECEIVE',
-  data: mixed,
-}
-
-export type SerialErrorAction = {
-  type: 'SERIAL_ERROR',
-  error: mixed,
-}
-
-export type SerialResetAction = {
-  type: 'SERIAL_RESET',
-}
-
-type DispatchedAction =
-  | SerialOpenAction
-  | SerialReceiveAction
-  | SerialErrorAction
-  | SerialResetAction
-
-type Store = {
-  dispatch: Dispatch<DispatchedAction>
-}
-
-const serialMiddleware = ({
-  serialPort,
-  parser,
-  receiveParser = ((line) => line),
-  isConnected,
-}:{
-  serialPort: SerialPort,
-  parser?: SerialPort,
-  receiveParser?: (string) => mixed,
-  isConnected: () => boolean,
-}) => (store: Store) => {
+const serialReducer = (state, action) => {
   const waitForConnection = () => {
     if (isConnected()) {
       try {
@@ -140,4 +94,4 @@ const serialMiddleware = ({
   }
 }
 
-export default serialMiddleware
+export default serialReducer

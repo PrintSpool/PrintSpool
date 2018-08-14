@@ -2,7 +2,7 @@ import { loop, Cmd } from 'redux-loop'
 
 import { SPOOL_TASK, DESPOOL_TASK } from 'tegh-server'
 
-import serialSend from '../../actions/serialSend'
+import serialSend from '../../serial/actions/serialSend'
 
 const initialState = Record({
   currentSerialLineNumber: 1,

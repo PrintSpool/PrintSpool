@@ -5,7 +5,7 @@ const { put, take, takeEvery, takeLatest, select, call, cancel, race } = effects
 import delayMockedSagaTester from '../../test_helpers/delayMockedSagaTester'
 
 import serialTimeoutSaga from './serialTimeoutSaga'
-import serialSend from '../../actions/serialSend'
+import serialSend from '../../serial/actions/serialSend'
 import createSerialTimeoutAction from '../../actions/createSerialTimeoutAction'
 
 const { SAGA_ACTION } = sagaUtils

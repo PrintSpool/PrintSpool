@@ -10,17 +10,6 @@ export const isEStopped = state =>
 export const getCurrentSerialLineNumber = state =>
   state.driver.currentLineNumber
 
-// CONFIG
-
-export const getSerialTimeout = state =>
-  state.config.driver.serialTimeout
-
-export const getLongRunningCodes = state =>
-  state.config.driver.longRunningCodes
-
-export const getPollingInterval = state =>
-  state.config.driver.temperaturePollingInterval
-
 // SPOOL
 
 export const getCurrentTask = state =>

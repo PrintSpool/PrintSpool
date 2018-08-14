@@ -6,7 +6,7 @@ const { SAGA_ACTION } = sagaUtils
 import { despoolTask } from 'tegh-server'
 
 import delayMockedSagaTester from '../../test_helpers/delayMockedSagaTester'
-import serialSend from '../../actions/serialSend'
+import serialSend from '../../serial/actions/serialSend'
 import serialReceiveSaga from './serialReceiveSaga'
 
 const serialReceive = (type, data) => ({
