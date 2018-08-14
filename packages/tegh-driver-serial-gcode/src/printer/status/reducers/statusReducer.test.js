@@ -27,7 +27,7 @@ const sendHello = {
 }
 
 const serialReceive = (type) => ({
-  type: 'SERIAL_RECEIVE',
+  type: SERIAL_RECEIVE,
   data: {
     type,
   },

@@ -21,7 +21,7 @@ const createTester = () => {
 }
 
 const receiveOkWithTemp = {
-  type: 'SERIAL_RECEIVE',
+  type: SERIAL_RECEIVE,
   data: {
     type: 'ok',
     temperatures: { e0: 10 }
@@ -29,7 +29,7 @@ const receiveOkWithTemp = {
 }
 
 const receiveOkWithoutTemp = {
-  type: 'SERIAL_RECEIVE',
+  type: SERIAL_RECEIVE,
   data: {
     type: 'ok',
   },

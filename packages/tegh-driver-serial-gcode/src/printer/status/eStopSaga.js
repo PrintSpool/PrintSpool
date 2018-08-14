@@ -4,6 +4,7 @@ import { estop } from 'tegh-server'
 const eStopSaga = (state, action) => {
   switch (action) {
     case SERIAL_SEND: {
+      const { code } = action.payload
       /*
        * Trigger an eStop action on M112 to emergency stop all of Tegh
        */

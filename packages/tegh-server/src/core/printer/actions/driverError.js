@@ -9,7 +9,7 @@ const driverError = ({ code, message }) => {
   }
   return {
     type: DRIVER_ERROR,
-    error: {
+    payload: {
       code,
       message,
     },

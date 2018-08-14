@@ -5,13 +5,18 @@ import {
   PRINTER_READY,
 } from 'tegh-server'
 
+import { SERIAL_RECEIVE } from '../../../serial/actions/serialReceive'
 import spoolTemperatureQuery from '../actions/spoolTemperatureQuery'
+import requestTemperaturPoll, { REQUEST_TEMPERATURE_POLL } from '../actions/requestTemperaturePoll'
 
+import getPollingInterval from '../../../config/selectors/getPollingInterval'
 
 const pollTemperatureReducer = (state, action) => {
-  const { data, config } = action
   switch (action.type) {
     case SERIAL_RECEIVE: {
+      const { config } = action
+      const data = action.payload
+
       // if it has temperature data
       if (
         data
@@ -20,7 +25,7 @@ const pollTemperatureReducer = (state, action) => {
       ) {
         const interval = getPollingInterval(config)
         return loop(state, Cmd.run(Promise.delay(interval)), {
-          successActionCreator: requestTemperaturPoll
+          successActionCreator: requestTemperaturPoll,
         })
       }
       return state

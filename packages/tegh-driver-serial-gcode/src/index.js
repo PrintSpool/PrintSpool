@@ -4,20 +4,12 @@ import _ from 'lodash'
 
 // import config from './config.js'
 import createSerialPort from './serial/createSerialPort'
-import rxParser from './rxParser.js'
-import * as selectors from './selectors/'
-import * as sagasByName from './sagas/'
+import rxParser from './rxParser'
 
-export { default as reducer } from './reducer'
-export { default as logger } from './logger'
-export { default as validate } from './config/validate'
-export { default as serialConsole } from './serial/serialConsole'
+export logger from './log/reducers/logReducer'
 
-// TODO: refactor to dynamic config
-export const sagas = ({ config }) => {
-  return Object.values(sagasByName).map(saga => saga(selectors))
-}
-// export { config }
+// export validate from './config/validate'
+export serialConsole from './serial/serialConsole'
 
 // TODO: refactor to dynamic config
 export const middleware = ({ config }) => {

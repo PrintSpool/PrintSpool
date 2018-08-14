@@ -25,7 +25,7 @@ export const initialState = Record({
 const serialReceiveSaga = (state = initialState, action) => {
   if (action.type !== SERIAL_RECEIVE) return state
 
-  const { data } = action
+  const data = action.payload
 
   switch (data.type) {
     case 'ok': {

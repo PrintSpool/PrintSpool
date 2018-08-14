@@ -20,14 +20,14 @@ const tickleMCodeAction = {
 }
 
 const okReceivedAction = {
-  type: 'SERIAL_RECEIVE',
+  type: SERIAL_RECEIVE,
   data: {
     type: 'ok',
   },
 }
 
 const feedbackReceivedAction = {
-  type: 'SERIAL_RECEIVE',
+  type: SERIAL_RECEIVE,
   data: {
     type: 'feedback',
   },
@@ -64,7 +64,7 @@ const startingConditions = ({ long }) => {
   return { sagaTester, delayMock, sentGCodeAction }
 }
 
-describe('SERIAL_SEND', () => {
+describe(SERIAL_SEND, () => {
   [true, false].forEach(long => {
     describe(
       `when no response is received for ${long ? 'long running' : 'fast'} ` +

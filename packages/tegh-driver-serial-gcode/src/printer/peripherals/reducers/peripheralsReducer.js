@@ -4,7 +4,13 @@ import {
   ESTOP,
   DRIVER_ERROR,
   PRINTER_READY,
+  SET_CONFIG,
 } from 'tegh-server'
+
+import { SERIAL_OPEN } from '../../../serial/actions/serialOpen'
+import { SERIAL_CLOSE } from '../../../serial/actions/serialClose'
+import { SERIAL_RECEIVE } from '../../../serial/actions/serialReceive'
+import { SERIAL_SEND } from '../../../serial/actions/serialSend'
 
 const initializeCollection = (arrayOfIDs, initialValueFn) => (
   arrayOfIDs.reduce(
@@ -13,7 +19,7 @@ const initializeCollection = (arrayOfIDs, initialValueFn) => (
   )
 )
 
-const createState = config => (
+const createStateFromConfig = config => (
   Record({
     targetTemperaturesCountdown: null,
     heaters: initializeCollection(config.heaters, id => Record({
@@ -30,16 +36,15 @@ const createState = config => (
   })()
 )
 
-const peripheralsReducer = (state, action) => {
-  switch(action.type) {
+const peripheralsReducer = (state = null, action) => {
+  switch (action.type) {
     case SET_CONFIG:
     case DRIVER_ERROR:
     case ESTOP:
     case SERIAL_OPEN:
     case PRINTER_READY:
-    case ESTOP:
     case SERIAL_CLOSE: {
-      return createState(action.config)
+      return createStateFromConfig(action.config)
     }
     case SERIAL_RECEIVE: {
       let nextState = state
@@ -51,14 +56,14 @@ const peripheralsReducer = (state, action) => {
 
         nextState = nextState.set(
           'targetTemperaturesCountdown',
-          action.data.targetTemperaturesCountdown
+          action.data.targetTemperaturesCountdown,
         )
       }
 
       return nextState
     }
     case SERIAL_SEND: {
-      const { collectionKey, id, changes } = action
+      const { collectionKey, id, changes } = action.payload
       if (collectionKey == null) return state
       // update the heater or fan's state.
       return state.mergeIn([collectionKey, id], changes)

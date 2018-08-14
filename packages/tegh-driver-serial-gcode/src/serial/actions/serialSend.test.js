@@ -12,7 +12,7 @@ describe('with a line number', () => {
     const result = serialSend(line, { lineNumber })
 
     expect(result).toEqual({
-      type: 'SERIAL_SEND',
+      type: SERIAL_SEND,
       code: 'G12345',
       lineNumber,
       data: expectedOutputLine,
@@ -27,7 +27,7 @@ describe('with lineNumber: false', () => {
     const result = serialSend(line, { lineNumber: false })
 
     expect(result).toEqual({
-      type: 'SERIAL_SEND',
+      type: SERIAL_SEND,
       code: 'G12345',
       lineNumber: false,
       data: expectedOutputLine,

@@ -18,7 +18,7 @@ const serialSendM112 = serialSend('M112', { lineNumber: false })
 const serialSendM999 = serialSend('M999', { lineNumber: false })
 
 const serialReset = {
-  type: 'SERIAL_RESET',
+  type: SERIAL_RESET,
 }
 
 test('puts ESTOP if an M112 is sent', () => {

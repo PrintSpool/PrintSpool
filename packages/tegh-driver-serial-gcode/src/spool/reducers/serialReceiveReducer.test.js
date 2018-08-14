@@ -10,7 +10,7 @@ import serialSend from '../../serial/actions/serialSend'
 import serialReceiveSaga from './serialReceiveSaga'
 
 const serialReceive = (type, data) => ({
-  type: 'SERIAL_RECEIVE',
+  type: SERIAL_RECEIVE,
   data: {
     type,
     ...data,

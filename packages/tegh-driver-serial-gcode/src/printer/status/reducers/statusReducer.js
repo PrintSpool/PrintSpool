@@ -33,7 +33,7 @@ const statusReducer = (state = initialState, action) => {
       return ESTOPPED
     }
     case SERIAL_CLOSE: {
-      if (action.resetByMiddleware) return state
+      if (action.payload.resetByMiddleware) return state
       return DISCONNECTED
     }
     case SERIAL_OPEN: {
@@ -45,7 +45,7 @@ const statusReducer = (state = initialState, action) => {
     case SERIAL_RECEIVE: {
       if (state === READY) return
 
-      const responseType = action.data.type
+      const responseType = action.payload.type
 
       if (responseType === 'greeting') {
         return loop(
