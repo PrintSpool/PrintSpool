@@ -16,6 +16,7 @@ module.exports = {
     "parser": "babel-eslint",
     "rules": {
       "semi": [2, "never"],
-      "func-names": ["error", "never"]
+      "func-names": ["error", "never"],
+      "consistent-return": "off"
     }
 };

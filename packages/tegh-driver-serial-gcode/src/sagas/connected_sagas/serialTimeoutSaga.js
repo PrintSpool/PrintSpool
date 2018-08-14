@@ -1,46 +1,73 @@
 // @flow
-import { effects } from 'redux-saga'
-const { put, takeEvery, takeLatest, select, call, delay, take, race } = effects
+import { loop, Cmd } from 'redux-loop'
+import { Record } from 'immutable'
 
-import { forkLatest } from '../helpers/'
-import numberedLineSendPattern from '../patterns/numberedLineSendPattern'
 import serialSend from '../../actions/serialSend'
 import createSerialTimeoutAction from '../../actions/createSerialTimeoutAction'
 
-const serialTimeoutSaga = ({
-  getLongRunningCodes,
-  getSerialTimeout,
-}) => {
-  const onLineSend = function*(action) {
-    const longRunningCodes = yield select(getLongRunningCodes)
-    const serialTimeoutConfig = yield select(getSerialTimeout)
-    const { tickleAttempts } = serialTimeoutConfig
-    const long = longRunningCodes.includes(action.code)
-    const timeoutName = `${long ? 'longRunning' : 'fast'}CodeTimeout`
-    const timeoutPeriod = serialTimeoutConfig[timeoutName]
-    if (typeof timeoutPeriod != 'number') {
-      throw new Error(`${timeoutName} must be a number`)
-    }
-    for (const i of Array(tickleAttempts)) {
-      const { timeout } = yield race({
-        response: take(({ type, data }) =>
-          type === 'SERIAL_RECEIVE' &&
-          ['ok', 'feedback', 'greeting'].includes(data.type)
-        ),
-        timeout: delay(timeoutPeriod),
-      })
-      if (timeout == null) return
-      yield put({
-        ...serialSend('M105', { lineNumber: false }),
-        tickle: true,
-      })
-    }
-    yield put(createSerialTimeoutAction())
-  }
+export const initialState = Record({
+  awaitingLineNumber: null,
+  ticklesAttempted: 0,
+})()
 
+export const waitToTickle = async ({ awaitingLineNumber }, timeoutPeriod) => {
+  await Promise.delay(timeoutPeriod)
+  return { awaitingLineNumber }
+}
 
-  return function*() {
-    yield forkLatest(numberedLineSendPattern, onLineSend)
+const waitToTickleCmd = (state, action) => {
+  const {
+    longRunningCodeTimeout,
+    fastCodeTimeout,
+  } = getSerialTimeout(action.config)
+
+  const isLong = getLongRunningCodes(action.config).includes(action.code)
+  const timeoutPeriod = isLong ?  longRunningCodeTimeout : fastCodeTimeout
+
+  return Cmd.run(waitToTickle, {
+    args: [state, timeoutPeriod],
+    successActionCreator: requestSerialPortTickle,
+  })
+}
+
+const serialTimeoutSaga = (state, action) => {
+  switch (action.type) {
+    case SERIAL_SEND: {
+      const { lineNumber } = action
+
+      if (typeof lineNumber !== 'number') return state
+
+      const nextState = initialState.set('awaitingLineNumber', lineNumber)
+
+      return loop(nextState, waitToTickleCmd(nextState, action))
+    }
+    case SERIAL_RECEIVE: {
+      if (['ok', 'feedback', 'greeting'].includes(data.type)) {
+        return initialState.set('awaitingLineNumber', null)
+      }
+      return state
+    }
+    case REQUEST_SERIAL_PORT_TICKLE: {
+      const { tickleAttempts } = getSerialTimeout(action.config)
+
+      if (state.ticklesAttempted < tickleAttempts) {
+        const nextState = state.update('ticklesAttempted', i => i + 1)
+
+        return loop(nextState, Cmd.list([
+          // send a tickle M105 to try to get an 'ok' from the serial port
+          Cmd.action({
+            ...serialSend('M105', { lineNumber: false }),
+            tickle: true,
+          }),
+          waitToTickleCmd(nextState, action),
+        ]))
+      }
+
+      return loop(state, Cmd.action(createSerialTimeoutAction()))
+    }
+    default: {
+      return state
+    }
   }
 }
 

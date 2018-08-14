@@ -1,14 +1,8 @@
 import {
-  SPOOL_TASK,
   ESTOP,
   DRIVER_ERROR,
   PRINTER_READY,
-  PriorityEnum,
 } from 'tegh-server'
-const { EMERGENCY } = PriorityEnum
-
-
-import { throwErrorOnInvalidGCode } from './txParser.js'
 
 const initializeCollection = (arrayOfIDs, initialValueFn) => {
   return arrayOfIDs.reduce(
@@ -46,55 +40,16 @@ const serialGCodeReducer = ({ config }) => (
 ) => {
   switch(action.type) {
     case DRIVER_ERROR:
+    case ESTOP:
+    case SERIAL_OPEN:
+    case PRINTER_READY:
+    case ESTOP:
+    case SERIAL_CLOSE:
       return {
         ...initialState(config),
-        status: 'errored',
         error: action.error,
       }
-    case ESTOP:
-      return {
-        ...initialState(config),
-        status: 'estopped',
-      }
-    case 'SERIAL_CLOSE':
-      if (action.resetByMiddleware) return state
-      return {
-        ...initialState(config),
-        status: 'disconnected',
-      }
-    case 'SERIAL_OPEN':
-      return {
-        ...initialState(config),
-        status: 'connecting',
-      }
-    case PRINTER_READY:
-      return {
-        ...initialState(config),
-        status: 'ready',
-      }
-    case 'SERIAL_RECEIVE': {
-      if (action.data.type === 'greeting') {
-        return {
-          ...initialState(config),
-          status: 'connecting',
-        }
-      }
-      if (action.data.type === 'resend') {
-        return {
-          ...state,
-          ignoreOK: 'next',
-        }
-      }
-      if (action.data.type === 'ok' && state.ignoreOK === 'next') {
-        return {
-          ...state,
-          ignoreOK: 'current',
-        }
-      }
-      const nextState = {
-        ...state,
-        ignoreOK: false,
-      }
+    case SERIAL_RECEIVE: {
       if (action.data.temperatures != null) {
         const heaters = {...state.heaters}
         Object.entries(action.data.temperatures).forEach(([k, v]) => {
@@ -109,17 +64,6 @@ const serialGCodeReducer = ({ config }) => (
       }
       return nextState
     }
-    case SPOOL_TASK:
-      if (
-        state.status !== 'ready' &&
-        action.payload.task.priority !== EMERGENCY
-      ) {
-        throw new Error(
-          'Only emergency tasks can be spooled when the machine is not ready.'
-        )
-      }
-      throwErrorOnInvalidGCode(action.payload.task.data)
-      return state
     case 'SERIAL_SEND':
       const {lineNumber, collectionKey, id, changes} = action
       const nextState = {

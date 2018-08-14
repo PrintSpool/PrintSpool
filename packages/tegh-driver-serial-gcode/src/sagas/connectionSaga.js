@@ -1,9 +1,6 @@
-import { effects } from 'redux-saga'
-const { all, race, take, call, cancel, fork, join } = effects
-
 import {
   ESTOP,
-  DRIVER_ERROR
+  DRIVER_ERROR,
 } from 'tegh-server'
 
 import * as connectedSagaIndex from './connected_sagas/'

@@ -11061,6 +11061,10 @@ redux-logger@^3.0.6:
   dependencies:
     deep-diff "^0.3.5"
 
+redux-loop@^4.3.3:
+  version "4.3.3"
+  resolved "https://registry.yarnpkg.com/redux-loop/-/redux-loop-4.3.3.tgz#3a77d97362f379dab83a07c41f54bc27d4e9baad"
+
 redux-saga-delay-mock@^0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/redux-saga-delay-mock/-/redux-saga-delay-mock-0.0.1.tgz#cf01d5fe4d2319e945f4577f7449f8327d67db46"
