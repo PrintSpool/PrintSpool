@@ -1,5 +1,5 @@
-import { Record } from 'immutable'
-import _ from 'lodash'
+import { Map, Record } from 'immutable'
+import { mergeChildReducers } from 'redux-loop-immutable'
 
 import { SET_CONFIG } from './core/config/actions/setConfig'
 import getAllReducers from './core/config/selectors/getAllReducers'
@@ -9,6 +9,11 @@ const initialState = Record({
 })()
 
 const rootReducer = (state = initialState, action) => {
+  /*
+   * Do nothing until SET_CONFIG is called
+   */
+  if (state.config == null && action !== SET_CONFIG) return state
+
   let nextState = state
   const reducers = getAllReducers(action.config)
 
@@ -16,17 +21,11 @@ const rootReducer = (state = initialState, action) => {
    * Reload the list of reducers on SET_CONFIG
    */
   if (action === SET_CONFIG) {
-    const defaultValues = _.mapValues(reducers, () => null)
+    const defaultValues = Map(reducers).mapValues(() => null)
     nextState = Record(defaultValues)(state)
   }
 
-  /* Combine reducers */
-  nextState = nextState.map((childState, key) => {
-    const reducer = reducers[key]
-    return reducer(childState, action)
-  })
-
-  return nextState
+  return mergeChildReducers(nextState, action, reducers)
 }
 
 export default rootReducer

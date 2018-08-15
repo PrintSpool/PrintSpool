@@ -11,12 +11,12 @@ const getAllReducers = createSelector((config) => {
   const plugins = getAllPlugins(config)
   const pluginReducers = _(plugins)
     .mapValues(plugin => plugin.reducer)
-    .filter(reducer => reducer == null)
+    .filter(reducers => reducers == null)
     .value()
 
   const reducers = {
-    ...coreReducers,
     ...pluginReducers,
+    ...coreReducers,
   }
 
   return reducers

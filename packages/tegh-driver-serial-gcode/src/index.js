@@ -1,17 +1,8 @@
-import serialMiddleware from 'serial-middleware'
-import SerialPort from 'serialport'
-import _ from 'lodash'
+import serialMiddleware from './serial/middleware/serialMiddleware'
 
-// import config from './config.js'
-import createSerialPort from './serial/createSerialPort'
-import rxParser from './rxParser'
+// exports
+export reducer from './reducer'
 
-export logger from './log/reducers/logReducer'
+export logReducer from './log/reducers/logReducer'
 
-// export validate from './config/validate'
-export serialConsole from './serial/serialConsole'
-
-// TODO: refactor to dynamic config
-export const middleware = [
-  serialMiddleware,
-]
+export const middleware = [serialMiddleware]

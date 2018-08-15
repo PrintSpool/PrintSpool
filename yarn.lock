@@ -11088,6 +11088,10 @@ redux-logger@^3.0.6:
   dependencies:
     deep-diff "^0.3.5"
 
+redux-loop-immutable@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/redux-loop-immutable/-/redux-loop-immutable-1.0.0.tgz#8c2f0e4ad39289d7240c3cc25c9fda534011a63c"
+
 redux-loop@^4.3.3:
   version "4.3.3"
   resolved "https://registry.yarnpkg.com/redux-loop/-/redux-loop-4.3.3.tgz#3a77d97362f379dab83a07c41f54bc27d4e9baad"
