@@ -1,9 +1,4 @@
-import {
-  graphql,
-  GraphQLSchema,
-  GraphQLObjectType,
-  GraphQLString,
-} from 'graphql'
+import { GraphQLObjectType } from 'graphql'
 import tql from 'typiql'
 import snl from 'strip-newlines'
 
@@ -34,7 +29,7 @@ const Printer = new GraphQLObjectType({
     heaters: {
       type: tql`[${HeaterType}!]!`,
       resolve(source) {
-        return Object.values(source.driver.heaters)
+        return Object.values(source.driver.peripherals.heaters)
       },
     },
     targetTemperaturesCountdown: {
@@ -44,31 +39,33 @@ const Printer = new GraphQLObjectType({
         targetTemperature.
       `,
       resolve(source) {
-        return source.driver.targetTemperaturesCountdown
+        return source.driver.peripherals.targetTemperaturesCountdown
       },
     },
     fans: {
       type: tql`[${FanType}!]!`,
       resolve(source) {
-        return Object.values(source.driver.fans)
+        return Object.values(source.driver.peripherals.fans)
       },
     },
     status: {
       type: tql`${PrinterStatusEnum}!`,
       resolve: (source) => {
         if (!isIdle(source)) return 'PRINTING'
-        return source.driver.status.toUpperCase()
+        return source.driver.status.status
       },
     },
     error: {
       type: tql`${PrinterErrorType}`,
-      resolve(source) {
-        return source.driver.error
-      },
+      resolve: source => (
+        source.driver.status.error
+      ),
     },
     macroDefinitions: {
       type: tql`[${MacroDefinitionType}!]!`,
-      resolve: (_source, _args, context) => Object.values(context.store.getState().macros),
+      resolve: source => (
+        source.config.macroPluginsByMacroName.values()
+      ),
     },
     logEntries: {
       type: tql`[${LogEntryType}!]`,
@@ -83,10 +80,10 @@ const Printer = new GraphQLObjectType({
       resolve(source, args) {
         let entries = source.log.get('entries')
         if (args.level != null) {
-          entries = entries.filter(log => log.level == args.level)
+          entries = entries.filter(log => log.level === args.level)
         }
         if (args.source != null) {
-          entries = entries.filter(log => log.source == args.source)
+          entries = entries.filter(log => log.source === args.source)
         }
         return entries.toArray()
       },

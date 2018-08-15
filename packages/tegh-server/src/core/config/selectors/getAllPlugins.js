@@ -1,5 +1,6 @@
 import getPluginManager from './getPluginManager'
 
+// returns a plain js object
 const getAllPlugins = (config) => {
   const manager = getPluginManager(config)
   if (!manager.isReady()) {

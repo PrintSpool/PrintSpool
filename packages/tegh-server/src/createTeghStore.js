@@ -3,6 +3,7 @@ import { createStore, applyMiddleware } from 'redux'
 import ReduxThunk from 'redux-thunk'
 
 import configMiddleware from './core/config/middleware/configMiddleware'
+import middlewareManagerMiddleware from './core/config/middleware/middlewareManagerMiddleware'
 import * as coreSagas from './core/sagas'
 import rootReducer from './rootReducer'
 
@@ -17,6 +18,7 @@ const createTeghStore = () => {
     rootReducer,
     applyMiddleware(
       configMiddleware,
+      middlewareManagerMiddleware,
       ReduxThunk,
       sagaMiddleware,
     ),

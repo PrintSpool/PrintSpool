@@ -1,7 +1,6 @@
 import { Record, List } from 'immutable'
 
 import { CLEAR_LOG } from '../actions/clearLog'
-import { SET_LOGGER_PATH } from '../actions/setLoggerPath'
 
 import getDriver from '../../config/selectors/getDriver'
 
@@ -41,11 +40,11 @@ const logReducer = (
 
   if (action.type === CLEAR_LOG) return initialState
 
-  const { logger } = getDriver(config)
+  const driverLogReducer = getDriver(config).logReducer
 
-  if (logger == null) return state
+  if (driverLogReducer == null) return state
 
-  const log = validLogEntry(logger(action))
+  const log = validLogEntry(driverLogReducer(null, action))
 
   if (log == null) return state
 
