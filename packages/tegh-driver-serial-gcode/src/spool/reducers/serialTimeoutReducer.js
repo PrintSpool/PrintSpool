@@ -5,6 +5,7 @@ import { Record } from 'immutable'
 import getLongRunningCodes from '../../config/selectors/getLongRunningCodes'
 import getSerialTimeout from '../../config/selectors/getSerialTimeout'
 
+import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import serialSend, { SERIAL_SEND } from '../../serial/actions/serialSend'
 import serialTimeout from '../../serial/actions/serialTimeout'
 import requestSerialPortTickle, { REQUEST_SERIAL_PORT_TICKLE } from '../actions/requestSerialPortTickle'

@@ -1,5 +1,6 @@
+import  { loop, Cmd } from 'redux-loop'
 import {
-  merge, Record, List, Map,
+  Record, List, Map,
 } from 'immutable'
 
 import ReduxNestedMap from '../../util/ReduxNestedMap'
@@ -20,12 +21,12 @@ import { PRINTER_READY } from '../../printer/actions/printerReady'
 import { ESTOP } from '../../printer/actions/estop'
 import { DRIVER_ERROR } from '../../printer/actions/driverError'
 /* job actions */
-import { CREATE_JOB } from '../../jobQueue/actions/createJob'
 import { CANCEL_JOB } from '../../jobQueue/actions/cancelJob'
 import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 /* task actions */
 import { SPOOL_TASK } from '../actions/spoolTask'
-import despoolTask, { DESPOOL_TASK } from '../actions/despoolTask'
+import { REQUEST_DESPOOL } from '../actions/requestDespool'
+import despoolTask from '../actions/despoolTask'
 import createTask from '../actions/createTask'
 import { DELETE_TASKS } from '../actions/deleteTasks'
 import startTask from '../actions/startTask'
@@ -45,7 +46,6 @@ export const initialState = Record({
   })(),
   tasks: Map(),
   currentTaskID: null,
-  sendSpooledLineToPrinter: false,
 })()
 
 const spoolReducer = () => (state = initialState, action) => {
@@ -68,7 +68,7 @@ const spoolReducer = () => (state = initialState, action) => {
     case DELETE_TASKS: {
       let nextState = taskMap.updateEach(state, action)
       const currentTask = nextState.tasks.get(nextState.currentTaskID)
-      if (currentTask && currentTask.status != PRINTING) {
+      if (currentTask && currentTask.status !== PRINTING) {
         nextState = nextState.set('currentTaskID', null)
       }
       return nextState
@@ -102,19 +102,17 @@ const spoolReducer = () => (state = initialState, action) => {
 
       nextState = nextState
         .updateIn(taskQueue, list => list.push(id))
-        .set('sendSpooledLineToPrinter', shouldDespool)
 
+      /*
+       * despool the first line if nothing is spooled
+       */
       if (shouldDespool) {
-        /*
-         * recurse into the reducer to despool the first line if nothing is
-         * spooled
-         */
-        nextState = spoolReducer()(nextState, despoolTask())
+        return loop(nextState, Cmd.action(despoolTask()))
       }
 
       return nextState
     }
-    case DESPOOL_TASK: {
+    case REQUEST_DESPOOL: {
       const { priorityQueues, currentTaskID } = state
       let nextState = state
       if (currentTaskID != null) {
@@ -124,12 +122,15 @@ const spoolReducer = () => (state = initialState, action) => {
         nextState = taskMap.updateOne(nextState, action, currentTaskID)
       }
       const currentTask = nextState.tasks.get(currentTaskID)
-      if (currentTask == null || currentTask.status != PRINTING) {
+      if (currentTask == null || currentTask.status !== PRINTING) {
         /*
          * if the current task is done then despool the next task if there is
          * anything to despool.
          */
-        const priority = priorityOrder.find(priority => priorityQueues[priority].size > 0)
+        const priority = priorityOrder.find(priorityOption => (
+          priorityQueues[priorityOption].size > 0
+        ))
+
         if (priority == null) {
           nextState = nextState.set('currentTaskID', null)
         } else {
@@ -144,7 +145,13 @@ const spoolReducer = () => (state = initialState, action) => {
             .updateIn(['priorityQueues', priority], list => list.shift())
         }
       }
-      return nextState
+
+      if (nextState.currentTaskID == null) {
+        return nextState
+      }
+
+      const nextTask = nextState.tasks.get(nextState.currentTaskID)
+      return loop(nextState, Cmd.action(despoolTask(nextTask)))
     }
     default:
       return state

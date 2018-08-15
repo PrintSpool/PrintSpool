@@ -16,7 +16,7 @@ import { DRIVER_ERROR } from '../../printer/actions/driverError'
 import { CANCEL_JOB } from '../../jobQueue/actions/cancelJob'
 import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 /* task actions */
-import { DESPOOL_TASK } from '../actions/despoolTask'
+import { REQUEST_DESPOOL } from '../actions/requestDespool'
 import { CREATE_TASK } from '../actions/createTask'
 import { DELETE_TASKS } from '../actions/deleteTasks'
 import { START_TASK } from '../actions/startTask'
@@ -70,7 +70,7 @@ const taskReducer = (state, action) => {
         currentLineNumber: 0,
       })
     }
-    case DESPOOL_TASK: {
+    case REQUEST_DESPOOL: {
       if (state.currentLineNumber < state.data.size - 1) {
         /*
          * if the task has more lines to execute then increment the line number

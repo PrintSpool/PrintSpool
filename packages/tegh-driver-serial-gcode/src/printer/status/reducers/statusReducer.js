@@ -1,5 +1,6 @@
 import Promise from 'bluebird'
 import { loop, Cmd } from 'redux-loop'
+import { Record } from 'immutable'
 
 import {
   SPOOL_TASK,
@@ -27,33 +28,38 @@ import {
 
 const { EMERGENCY } = PriorityEnum
 
-const initialState = DISCONNECTED
+const initialState = Record({
+  status: DISCONNECTED,
+  error: null,
+})()
 
 const DELAY_AFTER_GREETING = 50
 
 const statusReducer = (state = initialState, action) => {
   switch (action.type) {
     case DRIVER_ERROR: {
-      return ERRORED
+      return initialState
+        .set('status', ERRORED)
+        .set('error', action.payload)
     }
     case ESTOP: {
-      return ESTOPPED
+      return initialState.set('status', ESTOPPED)
     }
     case SERIAL_CLOSE: {
       if (action.payload.resetByMiddleware) return state
-      return DISCONNECTED
+      return initialState.set('status', DISCONNECTED)
     }
     case SERIAL_OPEN: {
-      return CONNECTING
+      return initialState.set('status', CONNECTING)
     }
     case SERIAL_RECEIVE: {
-      if (state === READY) return
+      if (state.status === READY) return
 
       const responseType = action.payload.type
 
       if (responseType === 'greeting') {
         return loop(
-          CONNECTING,
+          initialState.set('status', CONNECTING),
           Cmd.run(Promise.delay, {
             args: [DELAY_AFTER_GREETING],
             successActionCreator: greetingDelayDone,
@@ -62,14 +68,14 @@ const statusReducer = (state = initialState, action) => {
       }
       if (responseType === 'ok') {
         return loop(
-          READY,
+          initialState.set('status', READY),
           Cmd.action(printerReady()),
         )
       }
       return state
     }
     case GREETING_DELAY_DONE: {
-      if (state !== CONNECTING) return state
+      if (state.status !== CONNECTING) return state
       return loop(
         state,
         Cmd.action(serialSend('M110 N0', { lineNumber: false })),
