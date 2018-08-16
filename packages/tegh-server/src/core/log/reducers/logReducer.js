@@ -4,13 +4,7 @@ import { CLEAR_LOG } from '../actions/clearLog'
 
 import getDriver from '../../config/selectors/getDriver'
 
-const LOG_LEVELS = [
-  'trivial',
-  'info',
-  'warning',
-  'error',
-  'fatal',
-]
+import LOG_LEVELS from '../types/logLevelEnum'
 
 const validLogEntry = (log) => {
   if (log == null) return log

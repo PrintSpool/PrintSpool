@@ -3,6 +3,7 @@ import tql from 'typiql'
 import snl from 'strip-newlines'
 
 import isIdle from '../../spool/selectors/isIdle'
+import getDriverState from '../selectors/getDriverState'
 
 import PrinterStatusEnum from './PrinterStatusEnum.graphql.js'
 import HeaterType from './Heater.graphql.js'
@@ -29,7 +30,7 @@ const Printer = new GraphQLObjectType({
     heaters: {
       type: tql`[${HeaterType}!]!`,
       resolve(source) {
-        return Object.values(source.driver.peripherals.heaters)
+        return Object.values(getDriverState(source).peripherals.heaters)
       },
     },
     targetTemperaturesCountdown: {
@@ -39,26 +40,26 @@ const Printer = new GraphQLObjectType({
         targetTemperature.
       `,
       resolve(source) {
-        return source.driver.peripherals.targetTemperaturesCountdown
+        return getDriverState(source).peripherals.targetTemperaturesCountdown
       },
     },
     fans: {
       type: tql`[${FanType}!]!`,
       resolve(source) {
-        return Object.values(source.driver.peripherals.fans)
+        return Object.values(getDriverState(source).peripherals.fans)
       },
     },
     status: {
       type: tql`${PrinterStatusEnum}!`,
       resolve: (source) => {
         if (!isIdle(source)) return 'PRINTING'
-        return source.driver.status.status
+        return getDriverState(source).status.status
       },
     },
     error: {
       type: tql`${PrinterErrorType}`,
       resolve: source => (
-        source.driver.status.error
+        getDriverState(source).status.error
       ),
     },
     macroDefinitions: {

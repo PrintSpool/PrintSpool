@@ -33,7 +33,7 @@ const configReducer = (state = initialState, action) => {
       Object.entries(configForm.get('macros')).forEach(([pluginName, opts]) => {
         const plugin = getPlugin(configForm)(pluginName)
         Object.entries(plugin)
-          .filter(([name]) => opts === 'all' || opts.includes(name))
+          .filter(([name]) => opts.includes('*') || opts.includes(name))
           .forEach(([name]) => {
             macroPluginsByMacroName[name] = pluginName
           })
