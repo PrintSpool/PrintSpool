@@ -1,5 +1,7 @@
+import { getDriverConfig } from 'tegh-server'
+
 const getSerialTimeout = config => (
-  config.driver.serialTimeout
+  getDriverConfig(config).serialTimeout
 )
 
 export default getSerialTimeout

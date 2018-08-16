@@ -2,7 +2,7 @@ import { Record, List } from 'immutable'
 
 import { CLEAR_LOG } from '../actions/clearLog'
 
-import getDriver from '../../config/selectors/getDriver'
+import getDriverPlugin from '../../config/selectors/getDriverPlugin'
 
 import LOG_LEVELS from '../types/logLevelEnum'
 
@@ -34,7 +34,7 @@ const logReducer = (
 
   if (action.type === CLEAR_LOG) return initialState
 
-  const driverLogReducer = getDriver(config).logReducer
+  const driverLogReducer = getDriverPlugin(config).logReducer
 
   if (driverLogReducer == null) return state
 

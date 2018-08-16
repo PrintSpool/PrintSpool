@@ -1,5 +1,7 @@
 import fs from 'fs'
 import SerialPort from 'serialport'
+import { getDriverConfig } from 'tegh-server'
+
 import simulator from './simulator'
 
 const createSerialPort = (config) => {
@@ -7,7 +9,7 @@ const createSerialPort = (config) => {
     path,
     baudRate,
     simulation,
-  } = config.driver.serialPort
+  } = getDriverConfig(config).serialPort
   const serialOptions = {
     autoOpen: false,
     baudRate,
