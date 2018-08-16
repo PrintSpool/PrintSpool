@@ -2,6 +2,7 @@ import { Record, Map } from 'immutable'
 import t from 'tcomb-validation'
 
 import logLevelEnum from '../../log/types/logLevelEnum'
+import PeripheralTypeEnum from './PeripheralTypeEnum'
 
 export const configFormStruct = t.struct({
   id: t.String,
@@ -31,7 +32,7 @@ export const configFormStruct = t.struct({
       feedrate: t.Number,
     })),
     peripherals: t.dict(t.String, t.struct({
-      type: t.emums(['extruder', 'heatedBed', 'heater', 'fan']),
+      type: t.emums(PeripheralTypeEnum.toArray()),
       feedrate: t.Number,
       materialID: t.String,
     })),

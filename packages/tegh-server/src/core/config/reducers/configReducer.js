@@ -7,7 +7,6 @@ import { SET_PLUGIN_LOADER_PATH } from '../actions/setPluginLoaderPath'
 const initialState = Record({
   isInitialized: false,
   pluginLoaderPath: null,
-  macroPluginsByMacroName: Map(),
   /*
    * The configForm is a map of all the configurations that are user-visible.
    * automatically configured properties should be put elsewhere.

@@ -5,6 +5,8 @@ import {
   DRIVER_ERROR,
   PRINTER_READY,
   SET_CONFIG,
+  getHeaterConfigs,
+  getFanConfigs,
 } from 'tegh-server'
 
 import { SERIAL_OPEN } from '../../../serial/actions/serialOpen'
@@ -22,13 +24,13 @@ const initializeCollection = (arrayOfIDs, initialValueFn) => (
 const createStateFromConfig = config => (
   Record({
     targetTemperaturesCountdown: null,
-    heaters: initializeCollection(config.heaters, id => Record({
+    heaters: initializeCollection(getHeaterConfigs(config), id => Record({
       id,
       currentTemperature: 0,
       targetTemperature: null,
       blocking: false,
     })()),
-    fans: initializeCollection(config.fans, id => Record({
+    fans: initializeCollection(getFanConfigs(config), id => Record({
       id,
       enabled: false,
       speed: 0,
