@@ -1,7 +1,7 @@
-import t from 'tcomb'
+import t from 'tcomb-validation'
 import { Record, List } from 'immutable'
 
-export const validation = t.struct({
+export const SettingsStruct = t.struct({
   temperaturePollingInterval: t.Integer,
   delayFromGreetingToReady: t.Integer,
   serialTimeout: t.struct({
@@ -17,7 +17,7 @@ export const validation = t.struct({
   }),
 })
 
-const Settings = Record({
+const SettingsRecord = Record({
   temperaturePollingInterval: 1000,
   delayFromGreetingToReady: 2500,
   serialTimeout: Record({
@@ -41,5 +41,17 @@ const Settings = Record({
     simulation: false,
   },
 })
+
+const Settings = (props) => {
+  const settings = SettingsRecord(props)
+
+  const validation = t.validate(SettingsStruct, settings)
+
+  if (!validation.isValid()) {
+    throw new Error(validation.firstError().message)
+  }
+
+  return settings
+}
 
 export default Settings

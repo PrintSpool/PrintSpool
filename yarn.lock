@@ -12327,6 +12327,16 @@ tar@^4:
     safe-buffer "^5.1.2"
     yallist "^3.0.2"
 
+tcomb-validation@^3.4.1:
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/tcomb-validation/-/tcomb-validation-3.4.1.tgz#a7696ec176ce56a081d9e019f8b732a5a8894b65"
+  dependencies:
+    tcomb "^3.0.0"
+
+tcomb@^3.0.0, tcomb@^3.2.27:
+  version "3.2.27"
+  resolved "https://registry.yarnpkg.com/tcomb/-/tcomb-3.2.27.tgz#f4928bfc536b959d21a47e5f5f1ca2b2e4b7188a"
+
 temp-dir@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/temp-dir/-/temp-dir-1.0.0.tgz#0a7c0ea26d3a39afa7e0ebea9c1fc0bc4daa011d"

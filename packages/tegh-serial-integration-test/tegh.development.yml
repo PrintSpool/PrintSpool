@@ -34,6 +34,7 @@ materials:
 
 machine:
   id: 'example/reprap'
+  driver: tegh-driver-serial-gcode
   # feedrates are in mm/s
   axes:
     x:
@@ -55,8 +56,6 @@ machine:
       type: heatedBed,
     f:
       type: fan
-
-driver: tegh-driver-serial-gcode
 
 plugins:
   - package: tegh-web-ui

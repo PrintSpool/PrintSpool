@@ -26,6 +26,7 @@ export const configFormStruct = t.struct({
   })),
   machine: t.struct({
     id: t.String,
+    driver: t.String,
     axes: t.dict(t.String, t.struct({
       feedrate: t.Number,
     })),
@@ -35,7 +36,6 @@ export const configFormStruct = t.struct({
       materialID: t.String,
     })),
   }),
-  driver: t.String,
   plugins: t.dict(t.String, t.struct({
     package: t.String,
     settings: t.maybe(t.dict(t.String, t.Any)),
