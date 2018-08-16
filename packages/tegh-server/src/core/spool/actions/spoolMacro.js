@@ -1,6 +1,6 @@
 import spoolTask from './spoolTask'
 import { NORMAL } from '../types/PriorityEnum'
-import getPlugin from '../../config/selectors/getPlugin'
+import runMacro from '../../config/selectors/runMacro'
 
 /*
  * spools the macro with the given args
@@ -26,15 +26,7 @@ const spoolMacro = ({
   const state = getState()
   const { config } = state
 
-  const macroPlugin = config.macroPluginsByMacroName[macro]
-
-  if (macroPlugin == null) {
-    throw new Error(`Macro ${macro} does not exist`)
-  }
-
-  const runMacro = getPlugin(macroPlugin)[macro]
-
-  const gcodeLines = runMacro(args, state.config)
+  const gcodeLines = runMacro(config)(macro, args, config)
 
   const action = spoolTask({
     name: macro,

@@ -4,6 +4,7 @@ import snl from 'strip-newlines'
 
 import isIdle from '../../spool/selectors/isIdle'
 import getDriverState from '../selectors/getDriverState'
+import getMacroDefinitions from '../../config/selectors/getMacroDefinitions'
 
 import PrinterStatusEnum from './PrinterStatusEnum.graphql.js'
 import HeaterType from './Heater.graphql.js'
@@ -58,15 +59,11 @@ const Printer = new GraphQLObjectType({
     },
     error: {
       type: tql`${PrinterErrorType}`,
-      resolve: source => (
-        getDriverState(source).status.error
-      ),
+      resolve: source => getDriverState(source).status.error,
     },
     macroDefinitions: {
       type: tql`[${MacroDefinitionType}!]!`,
-      resolve: source => (
-        source.config.macroPluginsByMacroName.values()
-      ),
+      resolve: source => getMacroDefinitions(source.config),
     },
     logEntries: {
       type: tql`[${LogEntryType}!]`,
