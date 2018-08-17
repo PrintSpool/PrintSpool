@@ -1,60 +1,41 @@
 import { Record, Map } from 'immutable'
 import t from 'tcomb-validation'
 
-import logLevelEnum from '../../log/types/logLevelEnum'
-import PeripheralTypeEnum from './PeripheralTypeEnum'
+import LogConfig, { LogConfigStruct } from './LogConfig'
+import CrashReportsConfig, { CrashReportsConfigStruct } from './CrashReportsConfig'
+import PrintFromLocalPathConfig, { PrintFromLocalPathConfigStruct } from './PrintFromLocalPathConfig'
+import PluginConfig, { PluginConfigStruct } from './PluginConfig'
+import MachineConfig, { MachineConfigStruct } from './MachineConfig'
+import MaterialConfig, { MaterialConfigStruct } from './MaterialConfig'
 
-export const configFormStruct = t.struct({
+export const ConfigFormStruct = t.struct({
   id: t.String,
   name: t.String,
   macros: t.dict(t.String, t.list(t.String)),
-  log: t.sruct({
-    maxLength: t.Integer,
-    stderr: t.list(t.enums(logLevelEnum)),
-  }),
-  crashReports: t.struct({
-    directory: t.String,
-    uploadCrashReportsToDevs: t.Boolean,
-  }),
-  printFromLocalPath: t.struct({
-    enabled: t.Boolean,
-    allowSymlinks: t.Boolean,
-    whitelist: t.list(t.String),
-  }),
-  materials: t.dict(t.String, t.struct({
-    targetTemperature: t.Number,
-    targetBedTemperature: t.Number,
-  })),
-  machine: t.struct({
-    id: t.String,
-    driver: t.String,
-    axes: t.dict(t.String, t.struct({
-      feedrate: t.Number,
-    })),
-    peripherals: t.dict(t.String, t.struct({
-      type: t.emums(PeripheralTypeEnum.toArray()),
-      feedrate: t.Number,
-      materialID: t.String,
-    })),
-  }),
-  plugins: t.dict(t.String, t.struct({
-    package: t.String,
-    settings: t.maybe(t.dict(t.String, t.Any)),
-  })),
+  log: LogConfigStruct,
+  crashReports: CrashReportsConfigStruct,
+  printFromLocalPath: PrintFromLocalPathConfigStruct,
+  materials: t.dict(t.String, MaterialConfigStruct),
+  machine: MachineConfigStruct,
+  plugins: t.dict(t.String, PluginConfigStruct),
 })
 
-const ConfigForm = (props) => {
-  const configForm = Record(
-    Map(configFormStruct.meta.props).mapValues(() => null),
-  )(props)
+export const ConfigFormRecordFactory = Record(
+  Map(ConfigFormStruct.meta.props).mapValues(() => null),
+)
 
-  const validation = t.validate(configFormStruct, configForm)
+const mapOfRecords = (entries, recordFactory) => (
+  Map(entries).mapValues(props => recordFactory(props))
+)
 
-  if (!validation.isValid()) {
-    throw new Error(validation.firstError().message)
-  }
-
-  return configForm
-}
+const ConfigForm = props => ConfigFormRecordFactory({
+  ...props,
+  log: LogConfig(props.log),
+  crashReports: CrashReportsConfig(props.crashReports),
+  printFromLocalPath: PrintFromLocalPathConfig(props.printFromLocalPath),
+  plugins: mapOfRecords(props.plugins, PluginConfig),
+  machine: MachineConfig(props.machine),
+  materials: mapOfRecords(props.materials, MaterialConfig),
+})
 
 export default ConfigForm

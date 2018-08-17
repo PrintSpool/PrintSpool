@@ -14,7 +14,8 @@ const validLogEntry = (log) => {
     throw new Error(err)
   }
   if (!LOG_LEVELS.includes(level)) {
-    const err = `log level (${level}) must be one of ${LOG_LEVELS.join(', ')}`
+    const levelsString = LOG_LEVELS.toArray().join(', ')
+    const err = `log level (${level}) must be one of ${levelsString}`
     throw new Error(err)
   }
   return log

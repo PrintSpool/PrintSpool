@@ -1,3 +1,6 @@
+import { isImmutable } from 'immutable'
+
+import ConfigForm from '../types/ConfigForm'
 import getPluginManager from '../selectors/getPluginManager'
 
 export const BEFORE_SET_CONFIG = 'tegh/config/BEFORE_SET_CONFIG'
@@ -17,7 +20,7 @@ const setConfig = ({
     await pluginManager.preloadAllPlugins()
 
     const payload = {
-      configForm,
+      configForm: isImmutable(configForm) ? configForm : ConfigForm(configForm),
       patch,
     }
 
@@ -34,8 +37,6 @@ const setConfig = ({
     /* unload old plugins after the action */
     // eslint-disable-next-line no-underscore-dangle
     getPluginManager._cache.delete(previousConfig)
-
-    return action
   }
 )
 

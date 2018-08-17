@@ -1,20 +1,10 @@
-import { Record } from 'immutable'
+import Config, { validateConfig } from '../types/Config'
 
 import getPluginsByMacroName from '../selectors/getPluginsByMacroName'
 import { BEFORE_SET_CONFIG } from '../actions/setConfig'
 import { SET_PLUGIN_LOADER_PATH } from '../actions/setPluginLoaderPath'
 
-const initialState = Record({
-  isInitialized: false,
-  pluginLoaderPath: null,
-  /*
-   * The configForm is a map of all the configurations that are user-visible.
-   * automatically configured properties should be put elsewhere.
-   */
-  configForm: null,
-  /* HTTP Port / Unix Socket configuration */
-  server: null,
-})()
+const initialState = Config()
 
 const configReducer = (state = initialState, action) => {
   switch (action) {
@@ -27,10 +17,14 @@ const configReducer = (state = initialState, action) => {
         server,
       } = action.payload
 
-      let nextState = state.merge({
-        isInitialized: true,
-        configForm,
-      })
+      let nextState = state
+        .merge(configForm)
+        .merge({
+          isInitialized: true,
+          configForm,
+        })
+
+      validateConfig(nextState)
 
       /*
        * run the getPluginsByMacroName selector to validate that all the macros
