@@ -5,7 +5,6 @@ import { ConfigFormStruct } from './ConfigForm'
 
 export const ConfigStruct = t.struct({
   isInitialized: t.Boolean,
-  pluginLoaderPath: t.String,
   /*
    * The configForm is a map of all the user-visible configuration
    * exactly as it was entered by the user.
