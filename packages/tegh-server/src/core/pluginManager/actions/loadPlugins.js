@@ -1,10 +1,9 @@
 export const LOAD_PLUGINS = 'tegh/pluginManager/LOAD_PLUGINS'
 
-const loadPlugins = cache => ({
+const loadPlugins = plugins => ({
   type: LOAD_PLUGINS,
   payload: {
-    cache,
-    plugins: cache.keys(),
+    plugins,
   },
 })
 
