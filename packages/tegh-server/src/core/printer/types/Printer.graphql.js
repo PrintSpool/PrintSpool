@@ -44,6 +44,15 @@ const Printer = new GraphQLObjectType({
         return getDriverState(source).peripherals.targetTemperaturesCountdown
       },
     },
+    activeExtruderID: {
+      type: tql`String`,
+      description: snl`
+        The active extruder ID
+      `,
+      resolve(source) {
+        return getDriverState(source).peripherals.activeExtruderID
+      },
+    }
     fans: {
       type: tql`[${FanType}!]!`,
       resolve(source) {

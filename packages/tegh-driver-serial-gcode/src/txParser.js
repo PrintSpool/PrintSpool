@@ -153,6 +153,12 @@ const txParser = (rawSerialOutput: string): Tx => {
     args,
   } = simpleParser(rawSerialOutput)
 
+  if (code.startsWith('T')) {
+    return {
+      code,
+      activeExtruderID: code.slice(1),
+    }
+  }
   if (HEATER_MCODES.includes(code)) {
     return parseHeaterMCodes(code, args, rawSerialOutput)
   }

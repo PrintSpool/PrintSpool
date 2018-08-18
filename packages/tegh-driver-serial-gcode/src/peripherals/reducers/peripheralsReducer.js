@@ -24,6 +24,7 @@ const initializeCollection = (arrayOfIDs, initialValueFn) => (
 const createStateFromConfig = config => (
   Record({
     targetTemperaturesCountdown: null,
+    activeExtruderID: 'e0',
     heaters: initializeCollection(getHeaterConfigs(config), id => Record({
       id,
       currentTemperature: 0,
@@ -49,26 +50,47 @@ const peripheralsReducer = (state = null, action) => {
       return createStateFromConfig(action.config)
     }
     case SERIAL_RECEIVE: {
+      const {
+        temperatures,
+        targetTemperaturesCountdown,
+      } = action.payload
+
       let nextState = state
 
-      if (action.data.temperatures != null) {
-        Object.entries(action.data.temperatures).forEach(([k, v]) => {
+      if (temperatures != null) {
+        Object.entries(temperatures).forEach(([k, v]) => {
           nextState = nextState.setIn(['heaters', k, 'currentTemperature'], v)
         })
+      }
 
+      if (targetTemperaturesCountdown != null) {
         nextState = nextState.set(
-          'targetTemperaturesCountdown',
-          action.data.targetTemperaturesCountdown,
+          'targetTemperaturesCountdown', targetTemperaturesCountdown,
         )
       }
 
       return nextState
     }
     case SERIAL_SEND: {
-      const { collectionKey, id, changes } = action.payload
-      if (collectionKey == null) return state
+      const {
+        collectionKey,
+        id,
+        changes,
+        activeExtruderID,
+      } = action.payload
+
+      let nextState = state
+
       // update the heater or fan's state.
-      return state.mergeIn([collectionKey, id], changes)
+      if (collectionKey != null) {
+        nextState = nextState.mergeIn([collectionKey, id], changes)
+      }
+
+      if (activeExtruderID != null) {
+        nextState = nextState.set('activeExtruderID', activeExtruderID)
+      }
+
+      return nextState
     }
     default: {
       return state

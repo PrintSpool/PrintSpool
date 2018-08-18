@@ -40,7 +40,7 @@ const parsePrinterFeedback = (line: string): Feedback => {
   // Filtering out non-temperature values
   const filteredLine = line
     .replace(OK, '')
-    .replace(/(\/|[a-z]*@:|e:)[0-9\.]*/g, '')
+    .replace(/(\/|[a-z]*@:|e:)[0-9.]*/g, '')
     .trim()
   // Normalizing the temperature values and splitting them into words
   const keyValueWords = filteredLine
@@ -52,7 +52,7 @@ const parsePrinterFeedback = (line: string): Feedback => {
   keyValueWords.forEach((word) => {
     const [key, rawValue] = word.split(':')
     const value = parseFloat(rawValue)
-    if (!isNaN(value)) temperatures[key] = value
+    if (!Number.isNaN(value)) temperatures[key] = value
   })
   // Parsing "w" temperature countdown values
   // see: http://git.io/FEACGw or google "TEMP_RESIDENCY_TIME"
@@ -87,7 +87,7 @@ const rxParser = (raw: string): RxData => {
   }
   if (line.startsWith('error')) {
     const isWarning = line.startsWith('error:checksum mismatch')
-    const message = raw.replace(/^error\:?/i, '')
+    const message = raw.replace(/^error:?/i, '')
     return {
       type: isWarning ? 'warning' : 'error',
       raw,
@@ -95,7 +95,7 @@ const rxParser = (raw: string): RxData => {
     }
   }
   if (line.startsWith('resend') || line.startsWith('rs')) {
-    const lineNumber = parseInt(line.split(/N:|N|:/)[1])
+    const lineNumber = parseInt(line.split(/N:|N|:/)[1], 10)
     return {
       type: 'resend',
       lineNumber,
