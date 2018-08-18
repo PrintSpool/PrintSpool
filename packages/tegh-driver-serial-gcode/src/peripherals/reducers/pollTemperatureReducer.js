@@ -7,7 +7,7 @@ import {
 
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import spoolTemperatureQuery from '../actions/spoolTemperatureQuery'
-import requestTemperaturPoll, { REQUEST_TEMPERATURE_POLL } from '../actions/requestTemperaturePoll'
+import requestTemperaturePoll, { REQUEST_TEMPERATURE_POLL } from '../actions/requestTemperaturePoll'
 
 import getPollingInterval from '../../config/selectors/getPollingInterval'
 
@@ -25,7 +25,7 @@ const pollTemperatureReducer = (state, action) => {
       ) {
         const interval = getPollingInterval(config)
         return loop(state, Cmd.run(Promise.delay(interval)), {
-          successActionCreator: requestTemperaturPoll,
+          successActionCreator: requestTemperaturePoll,
         })
       }
       return state

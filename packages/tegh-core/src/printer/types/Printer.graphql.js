@@ -10,7 +10,7 @@ import PrinterStatusEnum from './PrinterStatusEnum.graphql.js'
 import HeaterType from './Heater.graphql.js'
 import FanType from './Fan.graphql.js'
 import LogEntryType from '../../log/types/LogEntry.graphql.js'
-import MacroDefinitionType from '../../macros/types/MacroDefinition.graphql.js'
+import MacroDefinitionType from '../../config/types/MacroDefinition.graphql.js'
 import PrinterErrorType from './PrinterError.graphql.js'
 
 const Printer = new GraphQLObjectType({

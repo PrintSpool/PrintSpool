@@ -35,6 +35,7 @@ export const validateCoreConfig = (config) => {
 const defaultValues = Map(ConfigStruct.meta.props)
   .mapValues(() => null)
   .set('isInitialized', false)
+  .set('plugins', Map())
 
 const Config = Record(defaultValues)
 

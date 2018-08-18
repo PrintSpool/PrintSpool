@@ -1,5 +1,7 @@
 import t from 'tcomb-validation'
-import { Record, List } from 'immutable'
+import { Record, List, Map } from 'immutable'
+import packageJSON from '../../../package.json'
+import { Config } from 'tegh-core'
 
 export const SettingsStruct = t.struct({
   temperaturePollingInterval: t.Integer,
@@ -40,6 +42,12 @@ const SettingsRecord = Record({
     baudRate: 115200,
     simulation: false,
   },
+})
+
+export const createTestConfig = props => Config({
+  plugins: Map({
+    [packageJSON.name]: SettingsRecord(props),
+  }),
 })
 
 const Settings = (props) => {

@@ -1,3 +1,5 @@
+/* config */
+export Config from './config/types/Config'
 /* jobQueue */
 import * as JobStatusEnum from './jobQueue/types/JobStatusEnum'
 

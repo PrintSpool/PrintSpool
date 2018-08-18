@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 
-import getPluginsByMacroName from './getPluginsByMacroName'
+import getPluginsByMacroName from '../../pluginManager/selectors/getPluginsByMacroName'
 
 const runMacro = createSelector(
   [

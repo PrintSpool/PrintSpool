@@ -1,7 +1,7 @@
 import { Record } from 'immutable'
 import { createSelector } from 'reselect'
 
-import getPluginsByMacroName from './getPluginsByMacroName'
+import getPluginsByMacroName from '../../pluginManager/selectors/getPluginsByMacroName'
 
 const getMacroDefintions = createSelector(
   [

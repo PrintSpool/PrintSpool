@@ -1,15 +1,15 @@
-import { Record } from 'immutable'
+import { Record, Map } from 'immutable'
 import t from 'tcomb-validation'
 
 import logLevelEnum from '../../log/types/logLevelEnum'
 
-export const LogConfigStruct = t.sruct({
+export const LogConfigStruct = t.struct({
   maxLength: t.Integer,
-  stderr: t.list(t.enums(logLevelEnum.toJS())),
+  stderr: t.list(t.enums.of(logLevelEnum.toArray())),
 })
 
 const LogConfig = Record(
-  Map(LogConfigStruct.meta.props).mapValues(() => null),
+  Map(LogConfigStruct.meta.props).map(() => null),
 )
 
 export default LogConfig
