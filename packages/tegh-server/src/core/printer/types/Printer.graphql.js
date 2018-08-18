@@ -52,7 +52,7 @@ const Printer = new GraphQLObjectType({
       resolve(source) {
         return getDriverState(source).peripherals.activeExtruderID
       },
-    }
+    },
     fans: {
       type: tql`[${FanType}!]!`,
       resolve(source) {
