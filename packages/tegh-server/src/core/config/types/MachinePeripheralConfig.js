@@ -5,8 +5,10 @@ import PeripheralTypeEnum from './PeripheralTypeEnum'
 
 export const MachinePeripheralConfigStruct = t.struct({
   type: t.emums(PeripheralTypeEnum.toArray()),
-  feedrate: t.Number,
-  materialID: t.String,
+  name: t.String,
+  // TODO: validate that feedrate and materialID are set for extruders
+  feedrate: t.optional(t.Number),
+  materialID: t.optional(t.String),
 })
 
 const MachinePeripheralConfig = Record(

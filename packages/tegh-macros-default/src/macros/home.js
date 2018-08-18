@@ -1,3 +1,7 @@
+import {
+  axisExists,
+} from 'tegh-server'
+
 const home = (args, config) => {
   const validAxes = config.axes.filter((axis) => !axis.startsWith('e'))
 
@@ -10,7 +14,9 @@ const home = (args, config) => {
 
   const gcodeWords = ['G28']
   args.forEach(([k]) => {
-    if (!validAxes.includes(k)) throw new Error(`Axis ${k} does not exist`)
+    if (!axisExists(config)(k, {allowTypes: [MOVEMENT_AXIS]})) {
+      throw new Error(`Axis ${k} does not exist`)
+    }
     gcodeWords.push(k.toUpperCase())
   })
   return [

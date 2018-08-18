@@ -46,16 +46,20 @@ machine:
   peripherals:
     e0:
       type: extruder
+      name: 'Extruder 1'
       feedrate: 3,
       materialID: example/pla,
     e1:
       type: extruder
+      name: 'Extruder 2'
       feedrate: 3
       materialID: example/abs,
     b:
       type: heatedBed,
+      name: 'Bed'
     f:
-      type: fan
+      type: 'fan'
+      name: 'Extruder Fan'
 
 plugins:
   - package: tegh-web-ui
