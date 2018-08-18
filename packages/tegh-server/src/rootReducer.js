@@ -2,7 +2,7 @@ import { Map, Record } from 'immutable'
 import { mergeChildReducers } from 'redux-loop-immutable'
 
 import { SET_CONFIG } from './core/config/actions/setConfig'
-import getAllReducers from './core/config/selectors/getAllReducers'
+import getAllReducers from './core/pluginManager/selectors/getAllReducers'
 
 const initialState = Record({
   config: null,

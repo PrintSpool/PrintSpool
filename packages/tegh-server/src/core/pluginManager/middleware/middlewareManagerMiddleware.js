@@ -1,24 +1,15 @@
-import _ from 'lodash'
+import { PLUGINS_LOADED } from '../actions/pluginsLoaded'
+import getMiddleware from '../selectors/getMiddleware'
 
-import { SET_CONFIG } from '../actions/setConfig'
-import getPluginMiddleware from '../selectors/getPluginMiddleware'
-
-const middlewareManagerMiddleware = (store) => {
-  let chainedMiddleware = null
+const middlewareManagerMiddleware = (middlewareAPI) => {
+  let middleware = next => action => next(action)
 
   return next => (action) => {
-    if (action.type === SET_CONFIG) {
-      const nextMiddleware = getPluginMiddleware(action.config)
-      chainedMiddleware = _(nextMiddleware)
-        .values()
-        .reduce(
-          (nextFn, middleware) => middleware(store)(nextFn),
-          next,
-        )
+    if (action.type === PLUGINS_LOADED) {
+      middleware = getMiddleware(action.payload.cache)(middlewareAPI)
     }
 
-    if (chainedMiddleware == null) return next(action)
-    return chainedMiddleware(action)
+    return middleware(next)(action)
   }
 }
 

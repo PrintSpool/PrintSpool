@@ -5,6 +5,7 @@ import { ConfigFormStruct } from './ConfigForm'
 
 export const ConfigStruct = t.struct({
   isInitialized: t.Boolean,
+  pluginManager: t.Any,
   /*
    * The configForm is a map of all the user-visible configuration
    * exactly as it was entered by the user.
@@ -23,7 +24,7 @@ export const ConfigStruct = t.struct({
   ...ConfigFormStruct,
 })
 
-export const validateConfig = (config) => {
+export const validateCoreConfig = (config) => {
   const validation = t.validate(ConfigStruct, config)
 
   if (!validation.isValid()) {

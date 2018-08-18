@@ -1,34 +1,61 @@
-import Config, { validateConfig } from '../types/Config'
+import { loop, Cmd } from 'redux-loop'
+import { mergeChildReducers } from 'redux-loop-immutable'
+import { isImmutable } from 'immutable'
+import immutablePatch from 'immutablepatch'
 
-import { BEFORE_SET_CONFIG } from '../actions/setConfig'
+import pluginManagerReducer from '../../pluginManager/reducers/pluginManagerReducer'
+
+import Config, { validateCoreConfig } from '../types/Config'
+import ConfigForm from '../types/ConfigForm'
+
+import { REQUEST_SET_CONFIG } from '../actions/requestSetConfig'
+import { REQUEST_PATCH_CONFIG } from '../actions/requestPatchConfig'
+import setConfig from '../actions/setConfig'
+
+import requestLoadPlugins from '../../pluginManager/actions/requestLoadPlugins'
+import { PLUGINS_LOADED } from '../../pluginManager/actions/pluginsLoaded'
 
 const initialState = Config()
 
 const configReducer = (state = initialState, action) => {
-  switch (action) {
-    case BEFORE_SET_CONFIG: {
-      const {
-        configForm,
-        server,
-      } = action.payload
+  let nextState = mergeChildReducers(state, action, {
+    pluginManager: pluginManagerReducer,
+  })
 
-      let nextState = state
+  switch (action.type) {
+    case REQUEST_SET_CONFIG:
+    case REQUEST_PATCH_CONFIG: {
+      const { server } = action.payload
+
+      let { configForm } = action.payload
+
+      if (action.type === REQUEST_PATCH_CONFIG) {
+        configForm = immutablePatch(nextState.configForm, action.payload.patch)
+      }
+
+      if (!isImmutable(configForm)) configForm = ConfigForm(configForm)
+
+      nextState = nextState
+        // merge configForm into top-level `config`
         .merge(configForm)
-        .merge({
-          isInitialized: true,
-          configForm,
-        })
-
-      validateConfig(nextState)
+        // merge configForm into `config.configForm`
+        .merge({ configForm })
 
       if (server != null) {
         nextState = nextState.set('server', server)
       }
 
-      return nextState
+      validateCoreConfig(nextState)
+
+      return loop(nextState, Cmd.action(requestLoadPlugins()))
+    }
+    case PLUGINS_LOADED: {
+      nextState = nextState.set('isInitialized', true)
+
+      return loop(nextState, Cmd.action(setConfig()))
     }
     default: {
-      return state
+      return nextState
     }
   }
 }
