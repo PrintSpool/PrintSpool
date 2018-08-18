@@ -130,7 +130,9 @@ const parseFanMCodes = (
 export const simpleParser = (line: string): SimpleParserData => {
   const [code, ...argWords] = line.trim().split(/ +/)
   const args = {}
-  argWords.forEach(word => args[word[0].toLowerCase()] = parseFloat(word.slice(1)))
+  argWords.forEach((word) => {
+    args[word[0].toLowerCase()] = parseFloat(word.slice(1))
+  })
   return {
     code,
     args,
