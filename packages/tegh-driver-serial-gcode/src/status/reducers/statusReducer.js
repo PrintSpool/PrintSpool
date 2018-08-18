@@ -10,13 +10,13 @@ import {
   PriorityEnum,
 } from 'tegh-server'
 
-import serialSend from '../../../serial/actions/serialSend'
-import { SERIAL_OPEN } from '../../../serial/actions/serialOpen'
-import { SERIAL_CLOSE } from '../../../serial/actions/serialClose'
-import { SERIAL_RECEIVE } from '../../../serial/actions/serialReceive'
+import serialSend from '../../serial/actions/serialSend'
+import { SERIAL_OPEN } from '../../serial/actions/serialOpen'
+import { SERIAL_CLOSE } from '../../serial/actions/serialClose'
+import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import greetingDelayDone, { GREETING_DELAY_DONE } from '../actions/greetingDelayDone'
 
-import { throwErrorOnInvalidGCode } from '../../../txParser'
+import { throwErrorOnInvalidGCode } from '../../txParser'
 
 import {
   ERRORED,

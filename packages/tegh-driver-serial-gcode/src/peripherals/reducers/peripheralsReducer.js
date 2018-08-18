@@ -9,10 +9,10 @@ import {
   getFanConfigs,
 } from 'tegh-server'
 
-import { SERIAL_OPEN } from '../../../serial/actions/serialOpen'
-import { SERIAL_CLOSE } from '../../../serial/actions/serialClose'
-import { SERIAL_RECEIVE } from '../../../serial/actions/serialReceive'
-import { SERIAL_SEND } from '../../../serial/actions/serialSend'
+import { SERIAL_OPEN } from '../../serial/actions/serialOpen'
+import { SERIAL_CLOSE } from '../../serial/actions/serialClose'
+import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
+import { SERIAL_SEND } from '../../serial/actions/serialSend'
 
 const initializeCollection = (arrayOfIDs, initialValueFn) => (
   arrayOfIDs.reduce(

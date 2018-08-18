@@ -5,11 +5,11 @@ import {
   PRINTER_READY,
 } from 'tegh-server'
 
-import { SERIAL_RECEIVE } from '../../../serial/actions/serialReceive'
+import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import spoolTemperatureQuery from '../actions/spoolTemperatureQuery'
 import requestTemperaturPoll, { REQUEST_TEMPERATURE_POLL } from '../actions/requestTemperaturePoll'
 
-import getPollingInterval from '../../../config/selectors/getPollingInterval'
+import getPollingInterval from '../../config/selectors/getPollingInterval'
 
 const pollTemperatureReducer = (state, action) => {
   switch (action.type) {

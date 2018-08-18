@@ -1,8 +1,8 @@
 import { loop, Cmd } from 'redux-loop'
 import { estop } from 'tegh-server'
 
-import { SERIAL_SEND } from '../../../serial/actions/serialSend'
-import serialReset from '../../../serial/actions/serialReset'
+import { SERIAL_SEND } from '../../serial/actions/serialSend'
+import serialReset from '../../serial/actions/serialReset'
 
 const eStopSaga = (state, action) => {
   switch (action) {
