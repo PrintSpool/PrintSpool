@@ -11343,11 +11343,7 @@ redux-loop@^4.3.3:
   version "4.3.3"
   resolved "https://registry.yarnpkg.com/redux-loop/-/redux-loop-4.3.3.tgz#3a77d97362f379dab83a07c41f54bc27d4e9baad"
 
-redux-saga-delay-mock@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/redux-saga-delay-mock/-/redux-saga-delay-mock-0.0.1.tgz#cf01d5fe4d2319e945f4577f7449f8327d67db46"
-
-redux-saga-tester@d1plo1d/redux-saga-tester, "redux-saga-tester@github:d1plo1d/redux-saga-tester":
+redux-saga-tester@d1plo1d/redux-saga-tester:
   version "1.0.377"
   resolved "https://codeload.github.com/d1plo1d/redux-saga-tester/tar.gz/f6b5cebdece44ad5bb7871fe5a7d1e71878f564d"
 

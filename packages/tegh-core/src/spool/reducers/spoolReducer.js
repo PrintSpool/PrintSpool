@@ -1,4 +1,4 @@
-import  { loop, Cmd } from 'redux-loop'
+import { loop, Cmd } from 'redux-loop'
 import {
   Record, List, Map,
 } from 'immutable'
