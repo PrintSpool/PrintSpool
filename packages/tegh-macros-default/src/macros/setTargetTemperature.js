@@ -3,10 +3,9 @@ import {
   isHeatedBed,
 } from 'tegh-server'
 
-const setTemperature = (args, config) => {
+const setTargetTemperature = (args, { config }) => {
   const heaters = getHeaterConfigs(config)
   const gcodeLines = []
-  let extruderWasEnabled = false
 
   Object.entries(args).forEach(([k, v]) => {
     const heater = heaters.get(k)
@@ -17,19 +16,11 @@ const setTemperature = (args, config) => {
     if (isHeatedBed(config)(k)) {
       gcodeLines.push(`M140 S${v}`)
     } else {
-      if (v > 0)
-        if (extruderWasEnabled) {
-          throw new Error('Only one extruder can be enabled at a time')
-        }
-        extruderWasEnabled = true
-      }
-
       const extruderNumber = parseFloat(k.slice(1))
-      const pSuffix = extruderNumber > 0 ? ` P${extruderNumber}` : ''
-      gcodeLines.push(`M104 S${v}${pSuffix}`)
+      gcodeLines.push(`M104 S${v} T${extruderNumber}`)
     }
   })
   return gcodeLines
 }
 
-export default setTemperature
+export default setTargetTemperature

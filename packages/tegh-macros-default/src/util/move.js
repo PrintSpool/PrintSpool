@@ -7,7 +7,7 @@ import {
 
 const { MOVEMENT_AXIS, EXTRUDER_AXIS } = axisTypeEnum
 
-const move = ({ axes, relativeMovement, allowExtruderAxes }, config) => {
+const move = ({ axes, relativeMovement, allowExtruderAxes }, { config }) => {
   // let validAxes = config.axes
   // if (!allowExtruderAxes) {
   //   validAxes = validAxes.filter((axis) => !axis.startsWith('e'))

@@ -2,7 +2,7 @@ import {
   axisExists,
 } from 'tegh-server'
 
-const home = (args, config) => {
+const home = (args, { config }) => {
   const validAxes = config.axes.filter((axis) => !axis.startsWith('e'))
 
   if (args.all === true) return ['G28']

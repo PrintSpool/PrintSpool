@@ -4,15 +4,15 @@ import getPluginsByMacroName from './getPluginsByMacroName'
 
 const runMacro = createSelector(
   [
-    config => config,
-    getPluginsByMacroName,
+    state => state,
+    state => getPluginsByMacroName(state.config),
   ],
-  (config, pluginsByMacroName) => (macro, args) => {
+  (state, pluginsByMacroName) => (macro, args) => {
     const macroRunFn = pluginsByMacroName.get(macro)[macro]
     if (macroRunFn == null) {
       throw new Error(`Macro ${macro} does not exist`)
     }
-    macroRunFn(args, config)
+    macroRunFn(args, state)
   },
 )
 

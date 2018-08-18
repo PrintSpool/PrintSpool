@@ -26,7 +26,7 @@ const spoolMacro = ({
   const state = getState()
   const { config } = state
 
-  const gcodeLines = runMacro(config)(macro, args, config)
+  const gcodeLines = runMacro(state)(macro, args)
 
   const action = spoolTask({
     name: macro,
