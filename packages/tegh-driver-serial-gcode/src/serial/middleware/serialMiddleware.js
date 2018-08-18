@@ -1,4 +1,8 @@
-import { SET_CONFIG } from 'tegh-server'
+import {
+  LOAD_PLUGINS,
+  UNLOAD_PLUGINS,
+} from 'tegh-server'
+import packageJSON from '../../../package.json'
 
 import serialOpen from '../actions/serialOpen'
 import serialOpenError from '../actions/serialOpenError'
@@ -53,7 +57,19 @@ const serialMiddleware = (store) => {
     store.dispatch(serialError({ error }))
   }
 
-  const onSetConfig = async (config) => {
+  const load = (config) => {
+    serial = createSerialPort(config)
+    setImmediate(waitForConnection)
+
+    serial.serialPort.on('open', onOpen)
+    serial.serialPort.on('close', onClose)
+
+    serial.parser
+      .on('error', onError)
+      .on('data', onData)
+  }
+
+  const unload = async () => {
     if (serial != null) {
       if (waitForConnectionTimeout != null) {
         clearTimeout(waitForConnectionTimeout)
@@ -71,24 +87,23 @@ const serialMiddleware = (store) => {
         await serial.serialPort.close()
       }
     }
-
-    serial = createSerialPort(config)
-    setImmediate(waitForConnection)
-
-    serial.serialPort.on('open', onOpen)
-    serial.serialPort.on('close', onClose)
-
-    serial.parser
-      .on('error', onError)
-      .on('data', onData)
   }
 
   return next => (action) => {
     if (serial == null) return next(action)
 
     switch (action.type) {
-      case SET_CONFIG: {
-        onSetConfig(action.config)
+      case LOAD_PLUGINS: {
+        if (action.payload.plugins.includes(packageJSON.name)) {
+          load()
+        }
+
+        return next(action)
+      }
+      case UNLOAD_PLUGINS: {
+        if (action.payload.plugins.includes(packageJSON.name)) {
+          unload()
+        }
 
         return next(action)
       }

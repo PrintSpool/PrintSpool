@@ -5,6 +5,8 @@ import immutablePatch from 'immutablepatch'
 
 import pluginManagerReducer from '../../pluginManager/reducers/pluginManagerReducer'
 
+import getAllPlugins from '../../pluginManager/selectors/getAllPlugins'
+
 import Config, { validateCoreConfig } from '../types/Config'
 import ConfigForm from '../types/ConfigForm'
 
@@ -13,7 +15,8 @@ import { REQUEST_PATCH_CONFIG } from '../actions/requestPatchConfig'
 import setConfig from '../actions/setConfig'
 
 import requestLoadPlugins from '../../pluginManager/actions/requestLoadPlugins'
-import { PLUGINS_LOADED } from '../../pluginManager/actions/pluginsLoaded'
+import { LOAD_PLUGINS } from '../../pluginManager/actions/loadPlugins'
+import unloadPlugins, { UNLOAD_PLUGINS } from '../../pluginManager/actions/unloadPlugins'
 
 const initialState = Config()
 
@@ -35,21 +38,30 @@ const configReducer = (state = initialState, action) => {
 
       if (!isImmutable(configForm)) configForm = ConfigForm(configForm)
 
-      nextState = nextState
-        // merge configForm into top-level `config`
-        .merge(configForm)
-        // merge configForm into `config.configForm`
-        .merge({ configForm })
+      // merge configForm into `config.configForm`
+      nextState = nextState.merge({ configForm })
 
       if (server != null) {
         nextState = nextState.set('server', server)
       }
 
+      const plugins = getAllPlugins(state).keys()
+
+      return loop(nextState, Cmd.action(unloadPlugins(plugins)))
+    }
+    case UNLOAD_PLUGINS: {
+      /*
+       * merge configForm into top-level `config` only *AFTER* the previous
+       * plugins have been unloaded. Merging the configs before the plugins are
+       * unloaded could cause a race condition with an unrelated action.
+       */
+      nextState = nextState.merge(nextState.configForm)
+
       validateCoreConfig(nextState)
 
       return loop(nextState, Cmd.action(requestLoadPlugins()))
     }
-    case PLUGINS_LOADED: {
+    case LOAD_PLUGINS: {
       nextState = nextState.set('isInitialized', true)
 
       return loop(nextState, Cmd.action(setConfig()))

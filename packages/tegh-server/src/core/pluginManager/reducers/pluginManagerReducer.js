@@ -8,7 +8,7 @@ import getPluginsByMacroName from '../selectors/getPluginsByMacroName'
 import { SET_CONFIG } from '../../config/actions/setConfig'
 import { SET_PLUGIN_LOADER_PATH } from '../actions/setPluginLoaderPath'
 import { REQUEST_LOAD_PLUGINS } from '../actions/requestLoadPlugins'
-import pluginsLoaded, { PLUGINS_LOADED } from '../actions/pluginsLoaded'
+import loadPlugins, { LOAD_PLUGINS } from '../actions/loadPlugins'
 
 const initialState = Record({
   pluginLoaderPath: null,
@@ -31,10 +31,10 @@ const pluginManagerReducer = (state = initialState, action) => {
           state.pluginLoaderPath,
           config.plugins,
         ],
-        successActionCreator: pluginsLoaded,
+        successActionCreator: loadPlugins,
       }))
     }
-    case PLUGINS_LOADED: {
+    case LOAD_PLUGINS: {
       return state.set('cache', action.payload.cache)
     }
     case SET_CONFIG: {
