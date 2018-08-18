@@ -1,4 +1,4 @@
-import { getDriverConfig } from 'tegh-server'
+import { getDriverConfig } from 'tegh-core'
 
 const getPollingInterval = config => (
   getDriverConfig(config).temperaturePollingInterval

@@ -1,8 +1,8 @@
 // @flow
-import { driverError } from 'tegh-server'
+import { driverError } from 'tegh-core'
 import { utils as sagaUtils } from 'redux-saga'
 
-import { despoolTask } from 'tegh-server'
+import { despoolTask } from 'tegh-core'
 
 import delayMockedSagaTester from '../../test_helpers/delayMockedSagaTester'
 import serialSend from '../../serial/actions/serialSend'

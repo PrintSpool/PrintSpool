@@ -8,7 +8,7 @@ import {
   DRIVER_ERROR,
   printerReady,
   PriorityEnum,
-} from 'tegh-server'
+} from 'tegh-core'
 
 import serialSend from '../../serial/actions/serialSend'
 import { SERIAL_OPEN } from '../../serial/actions/serialOpen'

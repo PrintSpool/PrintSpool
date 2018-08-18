@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "redux-saga": "d1plo1d/redux-saga",
-    "tegh-server": "^0.4.0",
+    "tegh-core": "^0.4.0",
     "tegh-driver-serial-gcode": "^0.4.0",
     "tegh-web-ui": "^0.4.0",
     "tegh-macros-default": "^0.4.0"

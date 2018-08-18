@@ -1,4 +1,4 @@
-export const REQUEST_DESPOOL = 'tegh-server/spool/REQUEST_DESPOOL'
+export const REQUEST_DESPOOL = 'tegh-core/spool/REQUEST_DESPOOL'
 
 const requestDespool = () => ({
   type: REQUEST_DESPOOL,

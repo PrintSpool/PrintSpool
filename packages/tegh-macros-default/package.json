@@ -37,6 +37,6 @@
   },
   "dependencies": {
     "lodash": "^4.17.4",
-    "tegh-server": "^0.4.0"
+    "tegh-core": "^0.4.0"
   }
 }

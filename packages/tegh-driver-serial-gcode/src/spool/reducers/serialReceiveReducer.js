@@ -4,7 +4,7 @@ import {
   requestDespool,
   getCurrentLine,
   driverError,
-} from 'tegh-server'
+} from 'tegh-core'
 
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import serialSend from '../../serial/actions/serialSend'

@@ -1,4 +1,4 @@
-import { loadConfig } from 'tegh-server'
+import { loadConfig } from 'tegh-core'
 
 import createSerialPort from './createSerialPort'
 

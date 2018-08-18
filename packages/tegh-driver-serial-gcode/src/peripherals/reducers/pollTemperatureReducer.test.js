@@ -2,7 +2,7 @@ import { utils as sagaUtils } from 'redux-saga'
 
 import {
   printerReady,
-} from 'tegh-server'
+} from 'tegh-core'
 
 import delayMockedSagaTester from '../../test_helpers/delayMockedSagaTester'
 import expectSimilarActions from '../../test_helpers/expectSimilarActions'

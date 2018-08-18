@@ -7,7 +7,7 @@ import {
   getCurrentLine,
   isEmergency,
   driverError,
-} from 'tegh-server'
+} from 'tegh-core'
 
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import serialSend, { SERIAL_SEND } from '../../serial/actions/serialSend'

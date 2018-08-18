@@ -1,7 +1,7 @@
 import {
   getHeaterConfigs,
   isHeatedBed,
-} from 'tegh-server'
+} from 'tegh-core'
 
 const setTargetTemperature = (args, { config }) => {
   const heaters = getHeaterConfigs(config)

@@ -3,7 +3,7 @@ import { loop, Cmd } from 'redux-loop'
 
 import {
   PRINTER_READY,
-} from 'tegh-server'
+} from 'tegh-core'
 
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import spoolTemperatureQuery from '../actions/spoolTemperatureQuery'

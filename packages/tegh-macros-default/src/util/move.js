@@ -3,7 +3,7 @@ import {
   axisExists,
   getFeedrate,
   axisTypeEnum,
-} from 'tegh-server'
+} from 'tegh-core'
 
 const { MOVEMENT_AXIS, EXTRUDER_AXIS } = axisTypeEnum
 

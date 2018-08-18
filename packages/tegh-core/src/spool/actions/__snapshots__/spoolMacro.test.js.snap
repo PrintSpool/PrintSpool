@@ -1,26 +1,25 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`spoolJobFile creates a SPOOL_TASK action 1`] = `
+exports[`spoolMacro creates a SPOOL_TASK action 1`] = `
 Object {
   "payload": Object {
     "task": Object {
       "createdAt": "[REDACTED]",
       "currentLineNumber": null,
       "data": Array [
-        "g1 x10",
-        "g1 y10",
+        "g1 x360",
       ],
       "id": "[REDACTED]",
       "internal": false,
-      "jobFileID": "test_test_test",
-      "jobID": "123",
-      "name": "abc",
-      "priority": "NORMAL",
+      "jobFileID": null,
+      "jobID": null,
+      "name": "my_test_macro",
+      "priority": "EMERGENCY",
       "startedAt": null,
       "status": "SPOOLED",
       "stoppedAt": null,
     },
   },
-  "type": "tegh-server/spool/SPOOL_TASK",
+  "type": "tegh-core/spool/SPOOL_TASK",
 }
 `;

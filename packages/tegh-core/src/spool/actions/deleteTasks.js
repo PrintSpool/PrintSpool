@@ -1,6 +1,6 @@
 import Task from '../types/Task'
 
-export const DELETE_TASKS = 'tegh-server/spool/DELETE_TASKS'
+export const DELETE_TASKS = 'tegh-core/spool/DELETE_TASKS'
 
 const deleteTasks = ({ ids }) => ({
   type: DELETE_TASKS,

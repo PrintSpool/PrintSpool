@@ -1,6 +1,6 @@
 import {
   axisExists,
-} from 'tegh-server'
+} from 'tegh-core'
 
 const home = (args, { config }) => {
   const validAxes = config.axes.filter((axis) => !axis.startsWith('e'))

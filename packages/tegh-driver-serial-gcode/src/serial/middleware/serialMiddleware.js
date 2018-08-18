@@ -1,7 +1,7 @@
 import {
   LOAD_PLUGINS,
   UNLOAD_PLUGINS,
-} from 'tegh-server'
+} from 'tegh-core'
 import packageJSON from '../../../package.json'
 
 import serialOpen from '../actions/serialOpen'

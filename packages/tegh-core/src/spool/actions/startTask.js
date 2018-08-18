@@ -1,4 +1,4 @@
-export const START_TASK = 'tegh-server/spool/START_TASK'
+export const START_TASK = 'tegh-core/spool/START_TASK'
 
 /*
  * Accepted by the taskReducer but not exposed by the spoolReducer. Calling

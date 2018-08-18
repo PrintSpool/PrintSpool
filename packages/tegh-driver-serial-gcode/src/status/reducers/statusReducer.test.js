@@ -2,7 +2,7 @@ import { utils as sagaUtils } from 'redux-saga'
 
 import {
   PRINTER_READY,
-} from 'tegh-server'
+} from 'tegh-core'
 
 import delayMockedSagaTester from '../../test_helpers/delayMockedSagaTester'
 import serialSend from '../../serial/actions/serialSend'

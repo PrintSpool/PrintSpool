@@ -15,5 +15,3 @@ export spoolCommands from './spool/actions/spoolCommands'
 export spoolJobFile from './spool/actions/spoolJobFile'
 export spoolMacro from './spool/actions/spoolMacro'
 export spoolTask, { SPOOL_TASK } from './spool/actions/spoolTask'
-/* log */
-export setLoggerPath, { SET_LOGGER_PATH } from './log/actions/setLoggerPath'

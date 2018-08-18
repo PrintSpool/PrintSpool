@@ -2,7 +2,7 @@ import {
   getHeaterConfigs,
   isHeatedBed,
   getMaterial,
-} from 'tegh-server'
+} from 'tegh-core'
 
 import setTargetTemperature from './setTemperature'
 

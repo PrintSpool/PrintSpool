@@ -7,7 +7,7 @@ import {
   SET_CONFIG,
   getHeaterConfigs,
   getFanConfigs,
-} from 'tegh-server'
+} from 'tegh-core'
 
 import { SERIAL_OPEN } from '../../serial/actions/serialOpen'
 import { SERIAL_CLOSE } from '../../serial/actions/serialClose'

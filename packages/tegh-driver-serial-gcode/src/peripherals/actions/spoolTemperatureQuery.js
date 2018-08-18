@@ -1,4 +1,4 @@
-import { spoolTask, PriorityEnum } from 'tegh-server'
+import { spoolTask, PriorityEnum } from 'tegh-core'
 
 const { PREEMPTIVE } = PriorityEnum
 

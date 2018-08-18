@@ -1,4 +1,4 @@
-export const CANCEL_TASK = 'tegh-server/spool/CANCEL_TASK'
+export const CANCEL_TASK = 'tegh-core/spool/CANCEL_TASK'
 
 const cancelTask = ({ taskID }) => {
   if (taskID == null) {

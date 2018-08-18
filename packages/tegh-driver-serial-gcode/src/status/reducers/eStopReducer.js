@@ -1,5 +1,5 @@
 import { loop, Cmd } from 'redux-loop'
-import { estop } from 'tegh-server'
+import { estop } from 'tegh-core'
 
 import { SERIAL_SEND } from '../../serial/actions/serialSend'
 import serialReset from '../../serial/actions/serialReset'

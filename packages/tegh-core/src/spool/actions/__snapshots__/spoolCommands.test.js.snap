@@ -21,6 +21,6 @@ Object {
       "stoppedAt": null,
     },
   },
-  "type": "tegh-server/spool/SPOOL_TASK",
+  "type": "tegh-core/spool/SPOOL_TASK",
 }
 `;

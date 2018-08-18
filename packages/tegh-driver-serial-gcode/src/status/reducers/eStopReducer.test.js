@@ -1,7 +1,7 @@
 import { utils as sagaUtils } from 'redux-saga'
 import SagaTester from 'redux-saga-tester'
 import { List } from 'immutable'
-import { estop } from 'tegh-server'
+import { estop } from 'tegh-core'
 
 import eStopSaga from './eStopSaga'
 import serialSend from '../actions/serialSend'

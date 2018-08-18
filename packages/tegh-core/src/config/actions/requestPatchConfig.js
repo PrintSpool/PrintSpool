@@ -1,4 +1,4 @@
-export const REQUEST_PATCH_CONFIG = 'tegh-server/config/REQUEST_PATCH_CONFIG'
+export const REQUEST_PATCH_CONFIG = 'tegh-core/config/REQUEST_PATCH_CONFIG'
 
 const requestPatchConfig = ({ patch }) => ({
   type: REQUEST_PATCH_CONFIG,

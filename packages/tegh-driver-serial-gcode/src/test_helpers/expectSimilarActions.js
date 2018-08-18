@@ -1,6 +1,6 @@
 import { fromJS } from 'immutable'
 
-import { SPOOL_TASK } from 'tegh-server'
+import { SPOOL_TASK } from 'tegh-core'
 
 const toJS = val => fromJS(val).toJS()
 

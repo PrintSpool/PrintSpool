@@ -1,4 +1,4 @@
-export const DESPOOL_TASK = 'tegh-server/spool/DESPOOL_TASK'
+export const DESPOOL_TASK = 'tegh-core/spool/DESPOOL_TASK'
 
 const despoolTask = task => ({
   type: DESPOOL_TASK,

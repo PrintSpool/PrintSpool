@@ -1,7 +1,7 @@
 import { List } from 'immutable'
 
-import { SPOOL_TASK } from 'tegh-server'
-import { DESPOOL_TASK } from 'tegh-server'
+import { SPOOL_TASK } from 'tegh-core'
+import { DESPOOL_TASK } from 'tegh-core'
 
 import despoolToSerialSaga from './despoolToSerialSaga'
 import serialSend from '../actions/serialSend'

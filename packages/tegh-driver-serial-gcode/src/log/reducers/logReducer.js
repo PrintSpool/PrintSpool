@@ -1,6 +1,6 @@
 import {
   DRIVER_ERROR,
-} from 'tegh-server'
+} from 'tegh-core'
 
 import { SERIAL_OPEN } from '../../serial/actions/serialOpen'
 import { SERIAL_OPEN_ERROR } from '../../serial/actions/serialOpenError'
