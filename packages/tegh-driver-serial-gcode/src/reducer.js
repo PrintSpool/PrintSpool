@@ -1,13 +1,13 @@
 import { Record } from 'immutable'
 import { mergeChildReducers } from 'redux-loop-immutable'
 
-// printer/peripherals
-import peripherals from './printer/peripherals/reducers/peripheralsReducer'
-import _pollTemperature from './printer/peripherals/reducers/pollTemperatureReducer'
-// printer/status
-import _estop from './printer/status/reducers/eStopReducer'
-import _serialErrorHandler from './printer/status/reducers/serialErrorHandlerReducer'
-import status from './printer/status/reducers/statusReducer'
+// peripherals
+import peripherals from './peripherals/reducers/peripheralsReducer'
+import _pollTemperature from './peripherals/reducers/pollTemperatureReducer'
+// status
+import _estop from './status/reducers/eStopReducer'
+import _serialErrorHandler from './status/reducers/serialErrorHandlerReducer'
+import status from './status/reducers/statusReducer'
 // spool
 import _despoolToSerial from './spool/reducers/despoolToSerialReducer'
 import _serialTimeout from './spool/reducers/serialTimeoutReducer'
