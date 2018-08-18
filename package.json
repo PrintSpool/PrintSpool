@@ -7,7 +7,7 @@
     "test": "cd ./packages/tegh-server/ && yarn test && cd ../tegh-driver-serial-gcode && yarn test",
     "build": "npx lerna run build --parallel",
     "start": "npx lerna run start --parallel",
-    "cloc": "cloc . --exclude-dir=node_modules,dist,.next,log"
+    "cloc": "cloc . --exclude-dir=node_modules,dist,build,.next"
   },
   "command": {
     "bootstrap": {
