@@ -22,7 +22,7 @@
     "expo": "^27.0.1",
     "react": "16.3.1",
     "react-native": "~0.55.2",
-    "react-native-usbserial": "^1.0.1",
+    "react-native-usbserial": "edvijaka/react-native-usbserial#master",
     "tegh-core": "^0.4.0"
   }
 }

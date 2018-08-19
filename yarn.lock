@@ -13386,9 +13386,9 @@ react-native-svg@6.2.2:
     lodash "^4.16.6"
     pegjs "^0.10.0"
 
-react-native-usbserial@^1.0.1:
+react-native-usbserial@edvijaka/react-native-usbserial#master:
   version "1.0.1"
-  resolved "https://registry.yarnpkg.com/react-native-usbserial/-/react-native-usbserial-1.0.1.tgz#f1a9b5e40a0dbee216b6e6f676f673b39743f2be"
+  resolved "https://codeload.github.com/edvijaka/react-native-usbserial/tar.gz/e5f70d9c5b9d11941ec083d3c26afc72a184175d"
 
 react-native-vector-icons@4.5.0:
   version "4.5.0"
