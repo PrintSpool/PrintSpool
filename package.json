@@ -15,9 +15,27 @@
       "useWorkspaces": true
     }
   },
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/react",
+      "**/react/**",
+      "**/react-dom",
+      "**/react-dom/**",
+      "**/react-native",
+      "**/react-native/**",
+      "**/react-native-scripts",
+      "**/react-native-scripts/**",
+      "**/react-native-usbserial",
+      "**/react-native-usbserial/**",
+      "**/expo",
+      "**/expo/**",
+      "**/jest-expo",
+      "**/jest-expo/**"
+    ]
+  },
   "devDependencies": {
     "lerna": "^2.5.1",
     "redux-saga": "d1plo1d/redux-saga"
