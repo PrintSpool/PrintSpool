@@ -1,17 +1,14 @@
 /* config */
 export Config from './config/types/Config'
+
 /* jobQueue */
-import * as JobStatusEnum from './jobQueue/types/JobStatusEnum'
+export * as JobStatusEnum from './jobQueue/types/JobStatusEnum'
 
-import * as PriorityEnum from './spool/types/PriorityEnum'
-
-import * as TaskStatusEnum from './spool/types/TaskStatusEnum'
-
-export { default as Job } from './jobQueue/types/Job'
-export { default as JobFile } from './jobQueue/types/JobFile'
-export { JobStatusEnum }
+export Job from './jobQueue/types/Job'
+export JobFile from './jobQueue/types/JobFile'
 
 /* spool */
-export { default as Task } from './spool/types/Task'
-export { PriorityEnum }
-export { TaskStatusEnum }
+export * as PriorityEnum from './spool/types/PriorityEnum'
+export * as TaskStatusEnum from './spool/types/TaskStatusEnum'
+
+export Task from './spool/types/Task'

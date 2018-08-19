@@ -1,7 +1,8 @@
 import t from 'tcomb-validation'
 import { Record, List, Map } from 'immutable'
-import packageJSON from '../../../package.json'
 import { Config } from 'tegh-core'
+
+import packageJSON from '../../../package.json'
 
 export const SettingsStruct = t.struct({
   temperaturePollingInterval: t.Integer,
