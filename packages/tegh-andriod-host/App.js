@@ -5,35 +5,35 @@ import { UsbSerial} from 'react-native-usbserial'
 
 const usbs = new UsbSerial();
 
-async function getDeviceAsync() {
+async function getDeviceAsync(component) {
 
     try {
         const deviceList = await usbs.getDeviceListAsync();
-        const firstDevice = deviceList[0];
+        // const firstDevice = deviceList[0];
 
-        console.log(firstDevice);
-
-        if (firstDevice) {
-            const usbSerialDevice = await usbs.openDeviceAsync(firstDevice);
-
-            console.log(usbSerialDevice);
-        }
+        component.setState({json: JSON.stringify(deviceList)})
+        // console.log(firstDevice);
+        //
+        // if (firstDevice) {
+        //     const usbSerialDevice = await usbs.openDeviceAsync(firstDevice);
+        //
+        //     console.log(usbSerialDevice);
+        // }
     } catch (err) {
-        console.warn(err);
+        component.setState({json: {msg: err.message, stack: err.stack}})
     }
 }
 
 export default class App extends React.Component {
   componentDidMount() {
-    getDeviceAsync()
+    getDeviceAsync(this)
   }
 
   render() {
     return (
       <View style={styles.container}>
-        <Text>Open up App.js to start working on your app! Test123</Text>
-        <Text>Changes you make will automatically reload.</Text>
-        <Text>Shake your phone to open the developer menuwaaat.</Text>
+        <Text>TEST2</Text>
+        <Text>{ this.state && JSON.stringify(this.state.json) || "Loading..." }</Text>
       </View>
     );
   }
