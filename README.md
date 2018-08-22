@@ -1,5 +1,12 @@
 [![NSP Status](https://nodesecurity.io/orgs/tegh/projects/24e090c8-8a9b-4827-a224-6e638b70df50/badge)](https://nodesecurity.io/orgs/tegh/projects/24e090c8-8a9b-4827-a224-6e638b70df50)
 
+## The Tegh Project
+
+Tegh is a work in progress Next Gen 3D Printer Host Server. Tegh aims to:
+1. connect your 3D printer to the internet with any commodity USB Type C Android phone
+2. control your 3D printer from anywhere with end-to-end encryption, WebRTC and live video streaming
+3. streamline your 3D printing process with easy-to-use print queuing
+
 ## Installation
 
 Run `sudo mkdir /var/log/tegh && sudo chmod 777 /var/log/tegh && yarn bootstrap`
