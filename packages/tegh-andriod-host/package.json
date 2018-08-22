@@ -29,6 +29,9 @@
       "*/**"
     ]
   },
+  "devDependencies": {
+    "tegh-core": "link:../tegh-core"
+  },
   "dependencies": {
     "react": "16.3.1",
     "react-native": "~0.56.0",
