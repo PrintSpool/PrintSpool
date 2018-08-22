@@ -1,9 +1,45 @@
 import NodeSerialPort from 'serialport'
 import { UsbSerial } from 'react-native-usbserial'
+import EventEmitter from 'events'
 
-const isReactNative = navigator.product === 'ReactNative'
+const isReactNative = this.navigator && this.navigator.product === 'ReactNative'
 
-export const getDeviceList = async () => {
+class ReactNativeSerialPort extends EventEmitter {
+  constructor(deviceID, serialOptions) {
+    super()
+    this.deviceID = deviceID
+    this.serialOptions = serialOptions
+  }
+
+  async open() {
+    const serialModule = this.device.UsbSerialModule
+
+    this.device = await UsbSerial.openDeviceAsync(this.deviceID)
+    serialModule.on('newData', this.onNewData)
+    this.emit('open')
+  }
+
+  write(value, cb) {
+    this.device.writeAsync(value).then(cb)
+  }
+
+  async onNewData() {
+    const serialModule = this.device.UsbSerialModule
+
+    const data = await serialModule.readDeviceAsync(this.deviceID)
+    if (data != null) this.emit('data', data)
+  }
+}
+
+const SerialPort = (deviceID, serialOptions) => {
+  if (isReactNative) {
+    return ReactNativeSerialPort(deviceID, serialOptions)
+  }
+
+  return NodeSerialPort(deviceID, serialOptions)
+}
+
+SerialPort.getDeviceList = async () => {
   if (isReactNative) {
     const usbs = new UsbSerial()
 
@@ -14,14 +50,8 @@ export const getDeviceList = async () => {
 
     return deviceList
   }
-  throw new Error('getDeviceList is not yet implemented for PC')
+
+  return NodeSerialPort.list()
 }
 
-const PlatformIndependentSerialPort = (serialID, serialOptions) => {
-  if (isReactNative) {
-    throw new Error('TODO')
-  }
-  return SerialPort(serialID, serialOptions)
-}
-
-export default PlatformIndependentSerialPort
+export default SerialPort

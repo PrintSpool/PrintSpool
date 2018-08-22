@@ -2,25 +2,36 @@
   "name": "tegh-andriod-host",
   "version": "0.4.0",
   "private": true,
-  "devDependencies": {
-    "babel-preset-react-native-stage-0": "^1.0.1",
-    "jest": "^23.5.0",
-    "jest-react-native": "^18.0.0",
-    "react-test-renderer": "16.3.1"
-  },
   "scripts": {
-    "start": "react-native start",
+    "start": "yarn androidMenu && react-native start",
     "android": "react-native run-android",
     "androidMenu": "adb shell input keyevent 82",
     "test": "jest"
   },
+  "babel": {
+    "presets": [
+      "react-native"
+    ],
+    "env": {
+      "development": {
+        "plugins": [
+          "@babel/plugin-transform-react-jsx-source"
+        ]
+      }
+    }
+  },
   "jest": {
     "preset": "react-native"
   },
+  "workspaces": {
+    "nohoist": [
+      "*",
+      "*/**"
+    ]
+  },
   "dependencies": {
     "react": "16.3.1",
-    "react-native": "~0.55.2",
-    "react-native-usbserial": "edvijaka/react-native-usbserial#master",
-    "tegh-core": "^0.4.0"
+    "react-native": "~0.56.0",
+    "react-native-usbserial": "edvijaka/react-native-usbserial#master"
   }
 }
