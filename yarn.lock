@@ -12095,6 +12095,14 @@ react-native-usbserial@edvijaka/react-native-usbserial#master:
   version "1.0.1"
   resolved "https://codeload.github.com/edvijaka/react-native-usbserial/tar.gz/e5f70d9c5b9d11941ec083d3c26afc72a184175d"
 
+react-native-webrtc@^1.67.1:
+  version "1.67.1"
+  resolved "https://registry.yarnpkg.com/react-native-webrtc/-/react-native-webrtc-1.67.1.tgz#19c20f7f5fa3fe6c6e893922c0338233835f45b4"
+  dependencies:
+    base64-js "^1.1.2"
+    event-target-shim "^1.0.5"
+    prop-types "^15.5.10"
+
 react-native@~0.56.0:
   version "0.56.0"
   resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.56.0.tgz#66686f781ec39a44376aadd4bbc55c8573ab61e5"

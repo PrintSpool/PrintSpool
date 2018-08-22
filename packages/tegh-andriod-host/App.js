@@ -21,7 +21,7 @@ export default class App extends React.Component {
       <View style={styles.container}>
         <Text>11</Text>
       </View>
-    );
+    )
   }
 }
 // <Text>{ this.state && JSON.stringify(this.state.json) || "Loading..." }</Text>
