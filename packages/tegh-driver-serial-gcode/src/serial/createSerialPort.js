@@ -1,6 +1,5 @@
 import fs from 'fs'
-import SerialPort from 'serialport'
-import { getDriverConfig } from 'tegh-core'
+import { getDriverConfig, SerialPort } from 'tegh-core'
 
 import simulator from './simulator'
 

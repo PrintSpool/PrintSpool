@@ -3,15 +3,20 @@ import { StyleSheet, Text, View } from 'react-native'
 
 import { UsbSerial} from 'react-native-usbserial'
 
-const usbs = new UsbSerial();
+const usbs = new UsbSerial()
+
+console.log('wat')
+const usbList = usbs.getDeviceListAsync()
+
+usbList.then(result => console.log(result))
 
 async function getDeviceAsync(component) {
 
-    try {
-        const deviceList = await usbs.getDeviceListAsync();
+    // try {
+        // const deviceList = await usbs.getDeviceListAsync();
         // const firstDevice = deviceList[0];
 
-        component.setState({json: JSON.stringify(deviceList)})
+        // component.setState({json: JSON.stringify(deviceList)})
         // console.log(firstDevice);
         //
         // if (firstDevice) {
@@ -19,9 +24,9 @@ async function getDeviceAsync(component) {
         //
         //     console.log(usbSerialDevice);
         // }
-    } catch (err) {
-        component.setState({json: {msg: err.message, stack: err.stack}})
-    }
+    // } catch (err) {
+    //     component.setState({json: {msg: err.message, stack: err.stack}})
+    // }
 }
 
 export default class App extends React.Component {
@@ -32,12 +37,12 @@ export default class App extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text>TEST2</Text>
-        <Text>{ this.state && JSON.stringify(this.state.json) || "Loading..." }</Text>
+        <Text>1231</Text>
       </View>
     );
   }
 }
+// <Text>{ this.state && JSON.stringify(this.state.json) || "Loading..." }</Text>
 
 const styles = StyleSheet.create({
   container: {

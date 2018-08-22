@@ -71,7 +71,9 @@
     "tmp-promise": "^1.0.4",
     "typiql": "^0.3.0",
     "untildify": "^3.0.2",
-    "uuid": "^3.1.0"
+    "uuid": "^3.1.0",
+    "serialport": "^6.2.0",
+    "react-native-usbserial": "edvijaka/react-native-usbserial#master"
   },
   "peerDependencies": {},
   "devDependencies": {

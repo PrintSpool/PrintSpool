@@ -53,7 +53,6 @@
     "redux": "^3.7.2",
     "redux-loop": "^4.3.3",
     "redux-loop-immutable": "^1.0.0",
-    "serialport": "^6.2.0",
     "tcomb-validation": "^3.4.1",
     "tegh-core": "^0.4.0"
   }

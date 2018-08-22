@@ -1,3 +1,5 @@
+export SerialPort from './util/SerialPort'
+
 export * from './actions'
 export * from './types'
 

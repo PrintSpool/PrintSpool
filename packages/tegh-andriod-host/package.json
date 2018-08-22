@@ -11,7 +11,7 @@
   "scripts": {
     "start": "react-native start",
     "android": "react-native run-android",
-    "ios": "react-native run-ios",
+    "androidMenu": "adb shell input keyevent 82",
     "test": "jest"
   },
   "jest": {
