@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-     "clean": "npx lerna clean --yes && rm -rf ./node_modules",
+    "clean": "npx lerna clean --yes && rm -rf ./node_modules",
     "bootstrap": "yarn && cd ./packages/tegh-server && yarn build",
     "dev": "npx lerna run dev --parallel",
     "test": "cd ./packages/tegh-server/ && yarn test && cd ../tegh-driver-serial-gcode && yarn test",
@@ -20,6 +20,8 @@
       "packages/*"
     ],
     "nohoist": [
+      "packages/tegh-web-ui/*",
+      "packages/tegh-web-ui/**",
       "**/react",
       "**/react/**",
       "**/react-dom",
@@ -39,5 +41,8 @@
   "devDependencies": {
     "lerna": "^2.5.1",
     "redux-saga": "d1plo1d/redux-saga"
+  },
+  "resolutions": {
+    "friendly-errors-webpack-plugin": "1.7.0"
   }
 }

@@ -7,7 +7,12 @@ import { StyleSheet, Text, View } from 'react-native'
 //
 // const usbs = new UsbSerial()
 
-console.log('wat')
+import simplePeerTest from './src/simplePeerTest'
+
+console.log('wat2')
+
+simplePeerTest({ initiator: true })
+
 // const usbList = SerialPort.getDeviceList()
 // usbList.then(result => console.log(result))
 
