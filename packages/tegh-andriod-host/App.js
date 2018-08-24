@@ -7,24 +7,42 @@ import { StyleSheet, Text, View } from 'react-native'
 //
 // const usbs = new UsbSerial()
 
-import simplePeerTest from './src/simplePeerTest'
+import QRCode from 'react-native-qrcode'
+
+// import simplePeerHost, { qrCodeJSON } from './src/simplePeerHost'
 
 console.log('wat2')
 
-simplePeerTest({ initiator: true })
+const qrCodeJSON = () => 'test'
+
+// const peerPromise = simplePeerHost({ initiator: true })
 
 // const usbList = SerialPort.getDeviceList()
 // usbList.then(result => console.log(result))
 
 export default class App extends React.Component {
-  // componentDidMount() {
-  //   getDeviceAsync(this)
-  // }
+  constructor(props) {
+    console.log('when')
+    super(props)
+    this.state = {}
+  }
+
+  async componentDidMount() {
+    console.log('wat')
+    // await peerPromise
+    console.log('loaded')
+    this.setState({loaded: 'loaded'})
+  }
 
   render() {
     return (
       <View style={styles.container}>
-        <Text>11</Text>
+        <Text>{this.state.loaded || 'loading'}</Text>
+        <QRCode
+          value={qrCodeJSON()}
+          size={200}
+          bgColor='purple'
+          fgColor='white'/>
       </View>
     )
   }
