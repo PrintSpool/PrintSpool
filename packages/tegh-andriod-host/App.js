@@ -35,16 +35,17 @@ export default class App extends React.Component {
   }
 
   render() {
-    return (
-      <View style={styles.container}>
-        <Text>{this.state.loaded || 'loading'}</Text>
-        <QRCode
-          value={qrCodeJSON()}
-          size={200}
-          bgColor='purple'
-          fgColor='white'/>
-      </View>
-    )
+    return <div>Hello</div>
+    // return (
+    //   <View style={styles.container}>
+    //     <Text>{this.state.loaded || 'loading'}</Text>
+    //     <QRCode
+    //       value={qrCodeJSON()}
+    //       size={200}
+    //       bgColor='purple'
+    //       fgColor='white'/>
+    //   </View>
+    // )
   }
 }
 // <Text>{ this.state && JSON.stringify(this.state.json) || "Loading..." }</Text>

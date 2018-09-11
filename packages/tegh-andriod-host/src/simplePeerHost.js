@@ -25,7 +25,7 @@ import NodeRSA from 'node-rsa'
 // import ipfs from 'ipfs'
 const  ipfs = null
 
-const hostPrivateKey = new NodeRSA({b: 4096})
+const hostPrivateKey = new NodeRSA({b: 2048})
 const hostPublicKey = hostPrivateKey.generateKeyPair()
 
 let sharedSecret = null
