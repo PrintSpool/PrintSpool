@@ -1,8 +1,8 @@
 import io from 'socket.io-client'
 
-const signallingServer = 'ws://localhost:3000'
+import sshFingerprint from './sshFingerprint'
 
-const connectToSignallingServer = ({ keys }) => {
+const connectToSignallingServer = ({ keys, signallingServer }) => {
   const fingerprint = sshFingerprint(keys.public, 'sha256')
 
   const socket = io(signallingServer, {

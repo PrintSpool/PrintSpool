@@ -2,15 +2,17 @@ import './patchJose'
 
 import sshFingerprint from './sshFingerprint'
 import { Jose, JoseJWE, JoseJWS } from 'jose-jwe-jws'
+import { pem2jwk } from 'pem-jwk'
 
 export const packJWS = async ({ payload, privateKey }) => {
+  const jwk = pem2jwk(privateKey)
+
   const cryptographer = new Jose.WebCryptographer()
   cryptographer.setContentSignAlgorithm("RS256")
 
-  const jwk = pem2jwk(privateKey)
-
   const signer = new JoseJWS.Signer(cryptographer)
   await signer.addSigner(jwk)
+
   const message = await signer.sign(JSON.stringify(payload), null, {})
 
   return message.CompactSerialize()

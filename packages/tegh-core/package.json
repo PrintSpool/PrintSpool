@@ -5,7 +5,6 @@
   "scripts": {
     "test": "jest",
     "lint": "eslint src/",
-    "flow": "flow",
     "clean": "rm -rf build && mkdir build",
     "build": "yarn run clean && babel -d ./build ./src -s",
     "watch": "yarn run clean && babel -d ./build ./src -s --watch"
@@ -43,8 +42,6 @@
   "author": "Rob Gilson",
   "license": "GPL-3.0",
   "dependencies": {
-    "@babel/plugin-proposal-export-default-from": "^7.0.0-rc.1",
-    "@babel/plugin-proposal-export-namespace-from": "^7.0.0-rc.1",
     "babel-preset-flow": "^6.23.0",
     "bluebird": "^3.5.1",
     "dedent": "^0.7.0",
@@ -82,6 +79,8 @@
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.49",
     "@babel/core": "^7.0.0-beta.49",
+    "@babel/plugin-proposal-export-default-from": "^7.0.0-rc.1",
+    "@babel/plugin-proposal-export-namespace-from": "^7.0.0-rc.1",
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.49",
     "@babel/plugin-syntax-dynamic-import": "^7.0.0-rc.1",
     "@babel/polyfill": "^7.0.0-beta.49",

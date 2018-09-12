@@ -17,11 +17,9 @@
   },
   "workspaces": {
     "packages": [
-      "packages/*"
+      "packages/(?!tegh-web-ui)"
     ],
     "nohoist": [
-      "packages/tegh-web-ui/*",
-      "packages/tegh-web-ui/**",
       "**/react",
       "**/react/**",
       "**/react-dom",

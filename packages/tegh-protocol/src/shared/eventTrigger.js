@@ -1,15 +1,17 @@
+import Promise from 'bluebird'
+
 const eventTrigger = (eventEmitter, eventName, {
   map = result => result,
   filter = () => true,
 }) => (
-  new Promise(function(resolve, reject) {
+  new Promise((resolve, reject) => {
     const eventListener = async (result) => {
       let mappedResult = map(result)
       if (mappedResult.then != null) {
         mappedResult = await mappedResult
       }
       if (filter(mappedResult)) {
-        eventEmitter.removeEventListener(eventListener)
+        eventEmitter.removeListener(eventName, eventListener)
         resolve(mappedResult)
       }
     }
@@ -18,10 +20,10 @@ const eventTrigger = (eventEmitter, eventName, {
   })
 )
 
-export const signalTrigger = (rtcPeer, signalName) => {
+export const signalTrigger = (rtcPeer, signalName) => (
   eventTrigger(rtcPeer, 'signal', {
     filter: signal => signal.type === signalName,
   })
-}
+)
 
 export default eventTrigger

@@ -6654,7 +6654,7 @@ elliptic@^6.0.0:
     minimalistic-assert "^1.0.0"
     minimalistic-crypto-utils "^1.0.0"
 
-elliptic@^6.2.3:
+elliptic@^6.2.3, elliptic@^6.4.0:
   version "6.4.1"
   resolved "https://registry.yarnpkg.com/elliptic/-/elliptic-6.4.1.tgz#c2d0b7776911b86722c632c3c06c60f2f819939a"
   dependencies:
@@ -13574,7 +13574,7 @@ param-case@2.1.x:
   dependencies:
     no-case "^2.2.0"
 
-parse-asn1@^5.0.0:
+parse-asn1@^5.0.0, parse-asn1@^5.1.0:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/parse-asn1/-/parse-asn1-5.1.1.tgz#f6bf293818332bd0dab54efb16087724745e6ca8"
   dependencies:
@@ -13774,6 +13774,13 @@ pem-jwk@^1.5.1:
   resolved "https://registry.yarnpkg.com/pem-jwk/-/pem-jwk-1.5.1.tgz#7a8637fd2f67a827e57c0c42e1c23c3fd52cfb01"
   dependencies:
     asn1.js "1.0.3"
+
+pem2jwk@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/pem2jwk/-/pem2jwk-1.0.1.tgz#97f478f3f40fe930732e50da5717546ac928a325"
+  dependencies:
+    elliptic "^6.4.0"
+    parse-asn1 "^5.1.0"
 
 performance-now@^2.1.0:
   version "2.1.0"

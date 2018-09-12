@@ -1,15 +1,19 @@
 import { pem2jwk } from 'pem-jwk'
-
 import { Jose, JoseJWE, JoseJWS } from 'jose-jwe-jws'
+import sshFingerprint from './sshFingerprint'
 
 import { packJWS, unpackJWS } from './jws'
 
-export const encrypt = async ({ signal, keys, peerPublicKey }) => {
+export const encrypt = async ({ signal, protocol, keys, peerPublicKey }) => {
   const peerFingerprint = sshFingerprint(peerPublicKey, 'sha256')
 
   const payload = {
     signal,
     publicKey: keys.public,
+  }
+
+  if (signal.type === 'offer') {
+    payload.protocol = protocol
   }
 
   const signedPayload = await packJWS({ payload, privateKey: keys.private })
@@ -28,8 +32,14 @@ export const encrypt = async ({ signal, keys, peerPublicKey }) => {
   return message
 }
 
-export const publish = async ({ socket, signal, keys, peerPublicKey }) => {
-  const message = await encrypt({ signal, keys, peerPublicKey })
+export const publish = async ({
+  socket,
+  signal,
+  protocol,
+  keys,
+  peerPublicKey,
+}) => {
+  const message = await encrypt({ signal, protocol, keys, peerPublicKey })
   socket.emit('announcement', message)
 }
 
