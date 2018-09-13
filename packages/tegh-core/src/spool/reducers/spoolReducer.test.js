@@ -35,8 +35,10 @@ describe('spoolReducer', () => {
     beforeEach(() => {
       jest.resetModules()
       jest.doMock('./taskReducer', () => jest.fn(implementation))
+      // eslint-disable-next-line global-require
       const m = require('./spoolReducer')
       spoolReducer = m.default()
+      // eslint-disable-next-line prefer-destructuring
       initialState = m.initialState
     })
 
@@ -248,7 +250,7 @@ describe('spoolReducer', () => {
         ])
         expect(result[1].actionToDispatch.type).toEqual(DESPOOL_TASK)
         expect(result[1].actionToDispatch.payload.task).toEqual(
-          result[0].tasks.get('emergency_1')
+          result[0].tasks.get('emergency_1'),
         )
       })
 

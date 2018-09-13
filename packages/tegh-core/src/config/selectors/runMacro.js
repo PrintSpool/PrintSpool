@@ -1,18 +1,15 @@
 import { createSelector } from 'reselect'
 
-import getPluginsByMacroName from '../../pluginManager/selectors/getPluginsByMacroName'
+import getMacroRunFn from '../../pluginManager/selectors/getMacroRunFn'
 
 const runMacro = createSelector(
-  [
-    state => state,
-    state => getPluginsByMacroName(state.config),
-  ],
-  (state, pluginsByMacroName) => (macro, args) => {
-    const macroRunFn = pluginsByMacroName.get(macro)[macro]
+  state => state,
+  state => (macro, args) => {
+    const macroRunFn = getMacroRunFn(state)(macro)
     if (macroRunFn == null) {
       throw new Error(`Macro ${macro} does not exist`)
     }
-    macroRunFn(args, state)
+    return macroRunFn(args, state)
   },
 )
 

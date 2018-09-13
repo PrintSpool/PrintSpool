@@ -1,6 +1,7 @@
 import spoolTask from './spoolTask'
 import { NORMAL } from '../types/PriorityEnum'
 import runMacro from '../../config/selectors/runMacro'
+import getMacroRunFn from '../../pluginManager/selectors/getMacroRunFn'
 
 /*
  * spools the macro with the given args
@@ -24,14 +25,13 @@ const spoolMacro = ({
   }
 
   const state = getState()
-  const { config } = state
 
   const gcodeLines = runMacro(state)(macro, args)
 
   const action = spoolTask({
     name: macro,
     internal,
-    priority: priority || runMacro.priority || NORMAL,
+    priority: priority || getMacroRunFn(state)(macro).priority || NORMAL,
     data: gcodeLines,
   })
 
