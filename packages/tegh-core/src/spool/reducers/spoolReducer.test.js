@@ -1,4 +1,4 @@
-import { List, Map } from 'immutable'
+import { List } from 'immutable'
 import Task from '../types/Task'
 import { DELETE_ITEM } from '../../util/ReduxNestedMap'
 
@@ -17,13 +17,12 @@ import { PRINTER_READY } from '../../printer/actions/printerReady'
 import { ESTOP } from '../../printer/actions/estop'
 import { DRIVER_ERROR } from '../../printer/actions/driverError'
 /* job actions */
-import { CREATE_JOB } from '../../jobQueue/actions/createJob'
 import { CANCEL_JOB } from '../../jobQueue/actions/cancelJob'
-import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 /* task actions */
 import deleteTasks, { DELETE_TASKS } from '../actions/deleteTasks'
 import { SPOOL_TASK } from '../actions/spoolTask'
 import { CREATE_TASK } from '../actions/createTask'
+import { REQUEST_DESPOOL } from '../actions/requestDespool'
 import { DESPOOL_TASK } from '../actions/despoolTask'
 import { START_TASK } from '../actions/startTask'
 import { CANCEL_ALL_TASKS } from '../actions/cancelAllTasks'
@@ -140,9 +139,10 @@ describe('spoolReducer', () => {
 
         const result = spoolReducer(state, action)
 
-        expect(result.tasks.get(spooledTaskID)).not.toBe(null)
-        expect(result.currentTaskID).toEqual(spooledTaskID)
-        expect(result.priorityQueues.get(EMERGENCY).toJS()).toEqual([])
+        const nextAction = result[1].actionToDispatch
+
+        expect(result[0].tasks.get(spooledTaskID)).not.toBe(null)
+        expect(nextAction.type).toEqual(REQUEST_DESPOOL)
       })
     })
 
@@ -172,16 +172,22 @@ describe('spoolReducer', () => {
         }
 
         it('cancels other tasks', () => {
-          const state = initialState.setIn(['tasks', 'cancelled_task'], Task({
-            name: 'cancelled_task.ngc',
-            priority: NORMAL,
-            internal: false,
-            data: ['g1 x10', 'g1 y20'],
-          }))
+          const state = initialState.setIn(
+            ['tasks', 'cancelled_task_id'],
+            Task({
+              name: 'cancelled_task.ngc',
+              priority: NORMAL,
+              internal: false,
+              data: ['g1 x10', 'g1 y20'],
+            }),
+          )
           const result = spoolReducer(state, emergencyAction)
 
-          expect(result.tasks.size).toEqual(1)
-          expect(result.tasks.get(task.id)).toEqual(task)
+          const nextAction = result[1].actionToDispatch
+
+          expect(result[0].tasks.size).toEqual(1)
+          expect(result[0].tasks.get(task.id)).toEqual(task)
+          expect(nextAction.type).toEqual(REQUEST_DESPOOL)
         })
       })
 
@@ -204,14 +210,14 @@ describe('spoolReducer', () => {
     })
   })
 
-  describe(DESPOOL_TASK, () => {
+  describe(REQUEST_DESPOOL, () => {
     const action = {
-      type: DESPOOL_TASK,
+      type: REQUEST_DESPOOL,
     }
 
-    mockTaskReducerWith((state, action) => ({
+    mockTaskReducerWith((state, taskAction) => ({
       ...(state ? state.toJS() : {}),
-      action,
+      action: taskAction,
     }))
 
     describe('if there is not a currentTask', () => {
@@ -233,11 +239,17 @@ describe('spoolReducer', () => {
 
         const result = spoolReducer(state, action)
 
-        expect(result.currentTaskID).toEqual('emergency_1')
-        expect(result.tasks.get('emergency_1').action.type).toEqual(START_TASK)
-        expect(result.priorityQueues.get(EMERGENCY).toJS()).toEqual([
+        expect(result[0].currentTaskID).toEqual('emergency_1')
+        expect(
+          result[0].tasks.get('emergency_1').action.type,
+        ).toEqual(START_TASK)
+        expect(result[0].priorityQueues.get(EMERGENCY).toJS()).toEqual([
           'emergency_2',
         ])
+        expect(result[1].actionToDispatch.type).toEqual(DESPOOL_TASK)
+        expect(result[1].actionToDispatch.payload.task).toEqual(
+          result[0].tasks.get('emergency_1')
+        )
       })
 
       describe('and there is nothing in the queue', () => {
@@ -255,20 +267,23 @@ describe('spoolReducer', () => {
       describe('with lines left', () => {
         it('despools the task via the taskReducer', () => {
           const taskID = 'A'
+          const task = Task({
+            id: taskID,
+            name: 'test.ngc',
+            priority: EMERGENCY,
+            internal: false,
+            data: ['g1 x10'],
+            status: PRINTING,
+          })
           const state = initialState
             .set('currentTaskID', taskID)
-            .setIn(['tasks', taskID], Task({
-              name: 'test.ngc',
-              priority: EMERGENCY,
-              internal: false,
-              data: ['g1 x10'],
-              status: PRINTING,
-            }))
+            .setIn(['tasks', taskID], task)
 
           const result = spoolReducer(state, action)
 
-          expect(result.currentTaskID).toEqual(taskID)
-          expect(result.tasks.get(taskID).action.type).toEqual(DESPOOL_TASK)
+          expect(result[0].currentTaskID).toEqual(taskID)
+          expect(result[0].tasks.get(taskID).action.type).toEqual(REQUEST_DESPOOL)
+          expect(result[1].actionToDispatch.payload.task.id).toEqual(taskID)
         })
       })
 
@@ -288,7 +303,7 @@ describe('spoolReducer', () => {
           const result = spoolReducer(state, action)
 
           expect(result.currentTaskID).toEqual(null)
-          expect(result.tasks.get(taskID).action.type).toEqual(DESPOOL_TASK)
+          expect(result.tasks.get(taskID).action.type).toEqual(REQUEST_DESPOOL)
         })
       })
     })

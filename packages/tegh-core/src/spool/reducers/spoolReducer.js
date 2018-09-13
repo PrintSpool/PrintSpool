@@ -25,7 +25,7 @@ import { CANCEL_JOB } from '../../jobQueue/actions/cancelJob'
 import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 /* task actions */
 import { SPOOL_TASK } from '../actions/spoolTask'
-import { REQUEST_DESPOOL } from '../actions/requestDespool'
+import requestDespool, { REQUEST_DESPOOL } from '../actions/requestDespool'
 import despoolTask from '../actions/despoolTask'
 import createTask from '../actions/createTask'
 import { DELETE_TASKS } from '../actions/deleteTasks'
@@ -107,7 +107,7 @@ const spoolReducer = () => (state = initialState, action) => {
        * despool the first line if nothing is spooled
        */
       if (shouldDespool) {
-        return loop(nextState, Cmd.action(despoolTask()))
+        return loop(nextState, Cmd.action(requestDespool()))
       }
 
       return nextState
