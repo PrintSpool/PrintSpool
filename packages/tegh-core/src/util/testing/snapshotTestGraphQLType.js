@@ -24,11 +24,12 @@ const introspectType = async (type) => {
   )
   throwGraphQLErrors(result)
 
+  // eslint-disable-next-line no-underscore-dangle
   const { types, queryType } = result.data.__schema
-  return types.find(type => type.name === queryType.name)
+  return types.find(t => t.name === queryType.name)
 }
 
-const getKind = field => field.ofType && getKind(field.ofType) || field.kind
+const getKind = field => (field.ofType && getKind(field.ofType)) || field.kind
 
 
 const queryAllFields = async (type, fieldConfigs = {}, executeConfig = {}) => {
@@ -95,8 +96,9 @@ const snapshotTestGraphQLType = (description, {
 
       /* omit dynamic fields such as timestamps from the snapshot */
       const dynamicFields = Object.entries(fieldConfigs)
-        .filter(([_key, config]) => config.dynamic === true)
+        .filter(([, config]) => config.dynamic === true)
 
+      // eslint-disable-next-line no-restricted-syntax
       for (const [dynamicField] of dynamicFields) {
         if (result[dynamicField] == null) {
           throw new Error(`dynamic field ${dynamicField} is null`)
@@ -105,11 +107,12 @@ const snapshotTestGraphQLType = (description, {
       }
 
       const omitID = (field) => {
+        // eslint-disable-next-line no-param-reassign
         if (field && field.id != null) field.id = '[DYNAMIC FIELD OMITTED]'
         if (Array.isArray(field)) field.forEach(omitID)
       }
 
-
+      // eslint-disable-next-line no-restricted-syntax
       for (const field of Object.values(result)) {
         omitID(field)
       }

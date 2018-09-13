@@ -15,6 +15,7 @@ module.exports = {
     "rules": {
       "semi": [2, "never"],
       "func-names": ["error", "never"],
-      "consistent-return": "off"
+      "consistent-return": "off",
+      "no-restricted-syntax": 0,
     }
 };

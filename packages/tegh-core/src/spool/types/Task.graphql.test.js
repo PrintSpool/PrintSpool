@@ -3,7 +3,7 @@ import snapshotTestGraphQLType from '../../util/testing/snapshotTestGraphQLType'
 import Task from './Task'
 import { NORMAL } from './PriorityEnum'
 
-import TaskGraphQL from './Task.graphql.js'
+import TaskGraphQL from './Task.graphql'
 
 const task = Task({
   name: 'test task',

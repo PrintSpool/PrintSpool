@@ -11,7 +11,7 @@ const ReduxNestedMap = ({
 
   const updateEach = (state, action) => state.updateIn(keyPath, items => items
     .map(item => singularReducer(item, action))
-    .filter(item => item != DELETE_ITEM))
+    .filter(item => item !== DELETE_ITEM))
 
   const updateOne = (state, action, id) => state.updateIn(keyPath, (items) => {
     // console.log(items, id)
@@ -21,7 +21,7 @@ const ReduxNestedMap = ({
       throw new Error(`id: ${id} does not exist`)
     }
     const nextItemState = singularReducer(previousItemState, action)
-    if (nextItemState == DELETE_ITEM) {
+    if (nextItemState === DELETE_ITEM) {
       return items.delete(previousItemState.id)
     }
     return items.set(id, nextItemState)

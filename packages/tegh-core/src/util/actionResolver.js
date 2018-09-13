@@ -14,7 +14,9 @@ const actionResolver = ({
 
     return selector(store.getState(), action)
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.error(`Mutation Error: ${e.message}`)
+    // eslint-disable-next-line no-console
     console.error(e.stack)
     throw e
   }
