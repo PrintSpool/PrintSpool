@@ -1,17 +1,9 @@
-import {
-  merge, Record, List, Map,
-} from 'immutable'
-
 import Task from '../types/Task'
 import { DELETE_ITEM } from '../../util/ReduxNestedMap'
 import {
   EMERGENCY,
-  NORMAL,
-  PREEMPTIVE,
-  priorityOrder,
 } from '../types/PriorityEnum'
 import {
-  SPOOLED,
   PRINTING,
   ERRORED,
   CANCELLED,
@@ -26,14 +18,10 @@ import { DRIVER_ERROR } from '../../printer/actions/driverError'
 import { CANCEL_JOB } from '../../jobQueue/actions/cancelJob'
 import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 /* task actions */
-import { SPOOL_TASK } from '../actions/spoolTask'
 import { REQUEST_DESPOOL } from '../actions/requestDespool'
 import { CREATE_TASK } from '../actions/createTask'
 import { START_TASK } from '../actions/startTask'
-import {
-  CANCEL_ALL_TASKS,
-  default as cancelAllTasks,
-} from '../actions/cancelAllTasks'
+import cancelAllTasks, { CANCEL_ALL_TASKS } from '../actions/cancelAllTasks'
 
 import taskReducer from './taskReducer'
 
