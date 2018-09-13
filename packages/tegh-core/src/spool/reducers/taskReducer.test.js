@@ -27,7 +27,7 @@ import { CANCEL_JOB } from '../../jobQueue/actions/cancelJob'
 import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 /* task actions */
 import { SPOOL_TASK } from '../actions/spoolTask'
-import { DESPOOL_TASK } from '../actions/despoolTask'
+import { REQUEST_DESPOOL } from '../actions/requestDespool'
 import { CREATE_TASK } from '../actions/createTask'
 import { START_TASK } from '../actions/startTask'
 import {
@@ -205,8 +205,8 @@ describe('taskReducer', () => {
     })
   })
 
-  describe(DESPOOL_TASK, () => {
-    const action = { type: DESPOOL_TASK }
+  describe(REQUEST_DESPOOL, () => {
+    const action = { type: REQUEST_DESPOOL }
 
     describe('if the task is not finished', () => {
       it('increments the currentLineNumber', () => {
