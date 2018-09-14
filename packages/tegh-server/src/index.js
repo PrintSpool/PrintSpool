@@ -23,7 +23,7 @@ export const loadConfigForm = (configPath) => {
   try {
     return yaml.safeLoad(fs.readFileSync(configPath, 'utf8'))
   } catch (e) {
-    throw new Error(`Unable to load config file ${configPath}`, e)
+    throw new Error(`Unable to load config file ${configPath}\n${e.message}`, e)
   }
 }
 

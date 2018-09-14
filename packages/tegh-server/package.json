@@ -7,7 +7,7 @@
     "lint": "eslint src/",
     "flow": "flow",
     "clean": "rm -rf build && mkdir build",
-    "build-deps": "cd ./node_modules/graphql-live-subscriptions/ && yarn build",
+    "build-deps": "cd ../../node_modules/graphql-live-subscriptions/ && yarn build",
     "build": "yarn run clean && yarn run build-deps && babel -d ./build ./src -s",
     "watch": "yarn run clean && yarn run build-deps && babel -d ./build ./src -s --watch"
   },
