@@ -1,12 +1,9 @@
-import { utils as sagaUtils } from 'redux-saga'
 import { List } from 'immutable'
 import SagaTester from 'redux-saga-tester'
 
 import Task from '../types/Task'
 import { NORMAL } from '../types/PriorityEnum'
 import deleteTasks from '../actions/deleteTasks'
-
-const { SAGA_ACTION } = sagaUtils
 
 let taskDeletionSaga
 
@@ -38,6 +35,7 @@ describe('When an action is taken', () => {
       return jest.fn(implementation)
     })
     // require('../selectors/getTasksPendingDeletion')
+    // eslint-disable-next-line global-require
     taskDeletionSaga = require('./taskDeletionSaga').default
     await new Promise(resolve => setImmediate(resolve))
   })

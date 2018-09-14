@@ -3,7 +3,6 @@ import { Map } from 'immutable'
 
 import fs from '../../util/promisifiedFS'
 import expectToMatchImmutableSnapshot from '../../util/testing/expectToMatchImmutableSnapshot'
-import { EMERGENCY } from '../types/PriorityEnum'
 import spoolJobFile from './spoolJobFile'
 
 describe('spoolJobFile', () => {

@@ -1,15 +1,11 @@
 import tql from 'typiql'
 import snl from 'strip-newlines'
-import {
-  GraphQLInputObjectType,
-} from 'graphql'
 
 import actionResolver from '../../util/actionResolver'
-import FileInputType from '../../util/FileInput.graphql.js'
 import createLocalFileJob from '../actions/createLocalFileJob'
 import getJob from '../selectors/getJob'
 
-import JobGraphQL from '../types/Job.graphql.js'
+import JobGraphQL from '../types/Job.graphql'
 
 const createLocalFileJobGraphQL = () => ({
   type: tql`${JobGraphQL}!`,

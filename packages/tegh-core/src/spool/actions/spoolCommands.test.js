@@ -1,5 +1,4 @@
 import expectToMatchImmutableSnapshot from '../../util/testing/expectToMatchImmutableSnapshot'
-import { EMERGENCY } from '../types/PriorityEnum'
 
 import spoolCommands from './spoolCommands'
 

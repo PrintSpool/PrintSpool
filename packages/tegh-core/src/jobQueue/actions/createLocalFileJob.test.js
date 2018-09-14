@@ -6,7 +6,7 @@ import expectToMatchImmutableSnapshot from '../../util/testing/expectToMatchImmu
 import createLocalFileJob from './createLocalFileJob'
 
 describe('createLocalFileJob', () => {
-  fit('creates a CREATE_JOB action', async () => {
+  it('creates a CREATE_JOB action', async () => {
     const tmpFile = await tmp.file({ postfix: '.gcode' })
     const localPath = tmpFile.path
 
@@ -38,6 +38,7 @@ describe('createLocalFileJob', () => {
     })
 
     const jobFiles = Object.values(result.payload.jobFiles)
+    // eslint-disable-next-line no-restricted-syntax
     for (const jobFile of jobFiles) {
       expectToMatchImmutableSnapshot({
         result: jobFile,
@@ -48,10 +49,12 @@ describe('createLocalFileJob', () => {
           ['filePath'],
         ],
       })
+      // eslint-disable-next-line no-await-in-loop
       const content = await fs.readFileAsync(jobFile.filePath, 'utf8')
       expect(content).toMatchSnapshot()
 
       /* clean up tmp file */
+      // eslint-disable-next-line no-await-in-loop
       await fs.unlinkAsync(jobFile.filePath)
     }
   })

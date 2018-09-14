@@ -28,8 +28,10 @@ const createJob = ({ files, name }) => async (dispatch) => {
       throw new Error('file content must be a string')
     }
 
+    // eslint-disable-next-line no-await-in-loop
     const tmpFile = await tmp.file()
     const filePath = tmpFile.path
+    // eslint-disable-next-line no-await-in-loop
     await fs.writeFileAsync(filePath, file.content)
 
     const jobFile = JobFile({

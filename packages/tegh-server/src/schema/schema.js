@@ -5,10 +5,10 @@ import {
 import tql from 'typiql'
 import _ from 'lodash'
 
-import QueryRootGraphQL from './QueryRoot.graphql.js'
+import QueryRootGraphQL from './QueryRoot.graphql'
 import * as mutations from '../core/mutations'
 import * as subscriptionModules from '../core/subscriptions'
-import liveGraphQL from './live.graphql.js'
+import liveGraphQL from './live.graphql'
 
 const subscriptions = {
   ..._.mapValues(subscriptionModules, m => m.subscription),

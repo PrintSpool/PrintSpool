@@ -5,11 +5,9 @@ import {
 } from 'graphql'
 
 import actionResolver from '../../util/actionResolver'
-import FileInputType from '../../util/FileInput.graphql.js'
 import deleteJob from '../actions/deleteJob'
-import getJob from '../selectors/getJob'
 
-import JobGraphQL from '../types/Job.graphql.js'
+import JobGraphQL from '../types/Job.graphql'
 
 const deleteJobGraphQL = () => ({
   type: tql`${JobGraphQL}`,
@@ -19,7 +17,7 @@ const deleteJobGraphQL = () => ({
 
   resolve: actionResolver({
     actionCreator: deleteJob,
-    selector: (state, action) => null,
+    selector: () => null,
   }),
 
   args: {

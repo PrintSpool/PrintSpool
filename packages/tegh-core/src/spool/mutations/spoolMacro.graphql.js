@@ -3,12 +3,10 @@ import snl from 'strip-newlines'
 import { GraphQLInputObjectType } from 'graphql'
 import GraphQLJSON from 'graphql-type-json'
 
-import FileInputType from '../../util/FileInput.graphql.js'
 import actionResolver from '../../util/actionResolver'
 import spoolMacro from '../actions/spoolMacro'
-import getTask from '../selectors/getTask'
 
-import TaskGraphQL from '../types/Task.graphql.js'
+import TaskGraphQL from '../types/Task.graphql'
 
 const SpoolMacroInputGraphQL = new GraphQLInputObjectType({
   name: 'SpoolMacroInput',

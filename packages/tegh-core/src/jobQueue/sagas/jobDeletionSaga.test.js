@@ -1,4 +1,3 @@
-import { utils as sagaUtils } from 'redux-saga'
 import SagaTester from 'redux-saga-tester'
 import tmp from 'tmp-promise'
 
@@ -7,11 +6,9 @@ import Job from '../types/Job'
 import { initialState } from '../reducers/jobQueueReducer'
 import { NORMAL } from '../../spool/types/PriorityEnum'
 import { DONE } from '../types/JobStatusEnum'
-import deleteJob, { DELETE_JOB } from '../actions/deleteJob'
+import { DELETE_JOB } from '../actions/deleteJob'
 import spoolTask from '../../spool/actions/spoolTask'
 import Task from '../../spool/types/Task'
-
-const { SAGA_ACTION } = sagaUtils
 
 let jobDeletionSaga
 
@@ -55,6 +52,7 @@ describe('SPOOL a job file', () => {
       return jest.fn(implementation)
     })
 
+    // eslint-disable-next-line global-require
     jobDeletionSaga = require('./jobDeletionSaga').default
     await new Promise(resolve => setImmediate(resolve))
   })

@@ -1,5 +1,4 @@
 import tql from 'typiql'
-import snl from 'strip-newlines'
 import {
   GraphQLObjectType,
 } from 'graphql'
@@ -10,9 +9,9 @@ import getTasksCompleted from '../../spool/selectors/getTasksCompleted'
 import getJobTotalTasks from '../selectors/getJobTotalTasks'
 import getJobStatus from '../selectors/getJobStatus'
 
-import JobFileGraphQL from './JobFile.graphql.js'
-import TaskGraphQL from '../../spool/types/Task.graphql.js'
-import JobStatusEnumGraphQL from './JobStatusEnum.graphql.js'
+import JobFileGraphQL from './JobFile.graphql'
+import TaskGraphQL from '../../spool/types/Task.graphql'
+import JobStatusEnumGraphQL from './JobStatusEnum.graphql'
 
 const JobGraphQL = new GraphQLObjectType({
   name: 'Job',
@@ -45,10 +44,6 @@ const JobGraphQL = new GraphQLObjectType({
       resolve(source, args, { store }) {
         const { excludeCompletedTasks } = args
         const state = store.getState()
-        const tasks = getTasksFor(state)({
-          taskableID: source.id,
-          excludeCompletedTasks,
-        }).values()
         return getTasksFor(state)({
           taskableID: source.id,
           excludeCompletedTasks,

@@ -5,7 +5,7 @@ import {
 } from 'graphql'
 import { GraphQLDate } from 'graphql-scalars'
 
-import PrinterGraphQL from '../../printer/types/Printer.graphql.js'
+import PrinterGraphQL from '../../printer/types/Printer.graphql'
 
 import getTaskPercentComplete from '../selectors/getTaskPercentComplete'
 

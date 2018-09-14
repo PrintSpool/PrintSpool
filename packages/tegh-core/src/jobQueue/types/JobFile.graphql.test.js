@@ -6,7 +6,7 @@ import Job from './Job'
 import JobFile from './JobFile'
 // import { NORMAL } from './PriorityEnum'
 
-import JobFileGraphQL from './JobFile.graphql.js'
+import JobFileGraphQL from './JobFile.graphql'
 
 const jobID = 'test_job_id'
 

@@ -10,7 +10,7 @@
 //
 // import gql from 'graphql-tag'
 // import LiveSubscription from '../components/LiveSubscription'
-// import PrinterStatusGraphQL from '../components/PrinterStatus.graphql.js'
+// import PrinterStatusGraphQL from '../components/PrinterStatus.graphql'
 //
 // const enhance = compose(
 //   withContext(

@@ -1,5 +1,4 @@
 import tql from 'typiql'
-import snl from 'strip-newlines'
 import {
   GraphQLObjectType,
 } from 'graphql'
@@ -9,8 +8,8 @@ import getTasksFor from '../../spool/selectors/getTasksFor'
 import getJobFileTotalTasks from '../selectors/getJobFileTotalTasks'
 import getJobFileStatus from '../selectors/getJobFileStatus'
 
-import TaskGraphQL from '../../spool/types/Task.graphql.js'
-import JobStatusEnumGraphQL from './JobStatusEnum.graphql.js'
+import TaskGraphQL from '../../spool/types/Task.graphql'
+import JobStatusEnumGraphQL from './JobStatusEnum.graphql'
 
 const JobFileGraphQL = new GraphQLObjectType({
   name: 'JobFile',

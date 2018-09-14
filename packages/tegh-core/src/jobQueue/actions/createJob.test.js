@@ -1,5 +1,3 @@
-import tmp from 'tmp-promise'
-
 import fs from '../../util/promisifiedFS'
 import expectToMatchImmutableSnapshot from '../../util/testing/expectToMatchImmutableSnapshot'
 import createJob from './createJob'
@@ -35,6 +33,7 @@ describe('createJob', () => {
     })
 
     const jobFiles = Object.values(result.payload.jobFiles)
+    // eslint-disable-next-line no-restricted-syntax
     for (const jobFile of jobFiles) {
       expectToMatchImmutableSnapshot({
         result: jobFile,
@@ -44,10 +43,12 @@ describe('createJob', () => {
           ['jobID'],
         ],
       })
+      // eslint-disable-next-line no-await-in-loop
       const content = await fs.readFileAsync(jobFile.filePath, 'utf8')
       expect(content).toMatchSnapshot()
 
       /* clean up tmp file */
+      // eslint-disable-next-line no-await-in-loop
       await fs.unlinkAsync(jobFile.filePath)
     }
   })

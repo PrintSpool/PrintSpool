@@ -2,7 +2,7 @@ import { Record, List } from 'immutable'
 
 import { CLEAR_LOG } from '../actions/clearLog'
 
-import getDriverPlugin from '../../config/selectors/getDriverPlugin'
+import getDriverPlugin from '../../pluginManager/selectors/getDriverPlugin'
 
 import LOG_LEVELS from '../types/logLevelEnum'
 

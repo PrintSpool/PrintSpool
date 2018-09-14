@@ -8,7 +8,7 @@
 // import gql from 'graphql-tag'
 //
 // import LiveSubscription from '../components/LiveSubscription'
-// import PrinterStatusGraphQL from '../components/PrinterStatus.graphql.js'
+// import PrinterStatusGraphQL from '../components/PrinterStatus.graphql'
 //
 // import App from '../components/App'
 // import Header from '../components/Header'

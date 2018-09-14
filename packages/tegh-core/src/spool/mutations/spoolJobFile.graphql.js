@@ -4,9 +4,8 @@ import { GraphQLInputObjectType } from 'graphql'
 
 import actionResolver from '../../util/actionResolver'
 import spoolJobFile from '../actions/spoolJobFile'
-import getTask from '../selectors/getTask'
 
-import TaskGraphQL from '../types/Task.graphql.js'
+import TaskGraphQL from '../types/Task.graphql'
 
 const SpoolJobFileInputGraphQL = new GraphQLInputObjectType({
   name: 'SpoolJobFileInput',

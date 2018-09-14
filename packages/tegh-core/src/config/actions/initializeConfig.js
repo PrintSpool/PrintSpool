@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
 import setConfig from './setConfig'
-import setPluginLoaderPath from './setPluginLoaderPath'
+import setPluginLoaderPath from '../../pluginManager/actions/setPluginLoaderPath'
 
 const initializeConfig = ({
   configForm,

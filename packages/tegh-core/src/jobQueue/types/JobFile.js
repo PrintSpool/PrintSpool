@@ -1,8 +1,8 @@
 // @flow
 import uuid from 'uuid/v4'
-import { Record, List } from 'immutable'
+import { Record } from 'immutable'
 
-import type { RecordOf, List as ListType } from 'immutable'
+import type { RecordOf } from 'immutable'
 
 export type JobFileT = RecordOf<{
   name: string,

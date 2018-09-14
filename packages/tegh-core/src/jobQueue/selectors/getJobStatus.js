@@ -4,18 +4,19 @@ import getJobFileStatus from './getJobFileStatus'
 import getJobFilesFor from './getJobFilesFor'
 
 const getJobStatus = state => ({ jobID }) => {
-  const job = state.jobQueue.jobs.get(jobID)
   const jobFiles = getJobFilesFor(state)({ jobID })
 
   const jobFilesStatuses = jobFiles.map(jobFile => (
     getJobFileStatus(state)({ jobFileID: jobFile.id })
   ))
 
-  const status = jobFilesStatuses.find(status => BUBBLING_STATUES.includes(status))
+  const status = jobFilesStatuses.find(jobFileStatus => (
+    BUBBLING_STATUES.includes(jobFileStatus)
+  ))
 
   if (status != null) return status
 
-  const isDone = jobFilesStatuses.every(status => status === DONE)
+  const isDone = jobFilesStatuses.every(jobFileStatus => jobFileStatus === DONE)
 
   return isDone ? DONE : QUEUED
 }

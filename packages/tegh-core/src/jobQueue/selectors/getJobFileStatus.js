@@ -9,8 +9,6 @@ import getTasksCompleted from '../../spool/selectors/getTasksCompleted'
 import getJobFileTotalTasks from './getJobFileTotalTasks'
 
 const getJobFileStatus = state => ({ jobFileID }) => {
-  const jobFile = state.jobQueue.jobFiles.get(jobFileID)
-
   const tasks = getTasksFor(state)({ taskableID: jobFileID })
   const tasksCompleted = getTasksCompleted(state)({ taskableID: jobFileID })
   const totalTasks = getJobFileTotalTasks(state)({ jobFileID })

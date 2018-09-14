@@ -2,12 +2,11 @@ import tql from 'typiql'
 import snl from 'strip-newlines'
 import { GraphQLInputObjectType } from 'graphql'
 
-import FileInputType from '../../util/FileInput.graphql.js'
+import FileInputType from '../../util/FileInput.graphql'
 import actionResolver from '../../util/actionResolver'
 import spoolTask from '../actions/spoolTask'
-import getTask from '../selectors/getTask'
 
-import TaskGraphQL from '../types/Task.graphql.js'
+import TaskGraphQL from '../types/Task.graphql'
 
 const SpoolCommandsInputGraphQL = new GraphQLInputObjectType({
   name: 'SpoolCommandsInput',

@@ -1,7 +1,7 @@
 import tql from 'typiql'
 
 import subscriptionDefaults from '../../util/subscriptionDefaults'
-import LogEntry from '../types/LogEntry.graphql.js'
+import LogEntry from '../types/LogEntry.graphql'
 
 const logEntryCreatedSubscription = () => ({
   name: 'logEntryCreatedSubscription',

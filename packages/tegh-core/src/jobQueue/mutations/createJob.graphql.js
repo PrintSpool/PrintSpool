@@ -3,11 +3,11 @@ import snl from 'strip-newlines'
 import { GraphQLInputObjectType } from 'graphql'
 
 import actionResolver from '../../util/actionResolver'
-import FileInputType from '../../util/FileInput.graphql.js'
+import FileInputType from '../../util/FileInput.graphql'
 import createJob from '../actions/createJob'
 import getJob from '../selectors/getJob'
 
-import JobGraphQL from '../types/Job.graphql.js'
+import JobGraphQL from '../types/Job.graphql'
 
 const createJobGraphQL = () => ({
   type: tql`${JobGraphQL}!`,

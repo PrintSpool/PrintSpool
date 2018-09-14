@@ -3,7 +3,7 @@ import {
   PRINTING,
   ERRORED,
   CANCELLED,
-} from '../../spool/types/TaskStatusEnum.js'
+} from '../../spool/types/TaskStatusEnum'
 
 export {
   SPOOLED,
@@ -11,7 +11,7 @@ export {
   ERRORED,
   CANCELLED,
   DONE,
-} from '../../spool/types/TaskStatusEnum.js'
+} from '../../spool/types/TaskStatusEnum'
 
 export const QUEUED = 'QUEUED'
 

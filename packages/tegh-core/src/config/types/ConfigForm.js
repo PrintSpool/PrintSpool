@@ -2,7 +2,7 @@ import { Record, Map } from 'immutable'
 import t from 'tcomb-validation'
 
 import LogConfig, { LogConfigStruct } from './LogConfig'
-import CrashReportsConfig, { CrashReportsConfigStruct } from './CrashReportsConfig'
+import CrashReportConfig, { CrashReportConfigStruct } from './CrashReportConfig'
 import PrintFromLocalPathConfig, { PrintFromLocalPathConfigStruct } from './PrintFromLocalPathConfig'
 import PluginConfig, { PluginConfigStruct } from './PluginConfig'
 import MachineConfig, { MachineConfigStruct } from './MachineConfig'
@@ -13,7 +13,7 @@ export const ConfigFormStruct = t.struct({
   name: t.String,
   macros: t.dict(t.String, t.list(t.String)),
   log: LogConfigStruct,
-  crashReports: CrashReportsConfigStruct,
+  crashReports: CrashReportConfigStruct,
   printFromLocalPath: PrintFromLocalPathConfigStruct,
   materials: t.dict(t.String, MaterialConfigStruct),
   machine: MachineConfigStruct,
@@ -31,7 +31,7 @@ const mapOfRecords = (entries, recordFactory) => (
 const ConfigForm = props => ConfigFormRecordFactory({
   ...props,
   log: LogConfig(props.log),
-  crashReports: CrashReportsConfig(props.crashReports),
+  crashReports: CrashReportConfig(props.crashReports),
   printFromLocalPath: PrintFromLocalPathConfig(props.printFromLocalPath),
   plugins: mapOfRecords(props.plugins, PluginConfig),
   machine: MachineConfig(props.machine),

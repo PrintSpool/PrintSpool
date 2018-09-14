@@ -1,5 +1,4 @@
 import tql from 'typiql'
-import snl from 'strip-newlines'
 import {
   GraphQLObjectType,
 } from 'graphql'
