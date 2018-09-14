@@ -42,14 +42,14 @@ const httpServer = async ({
   router.get('/graphiql', graphiqlKoa({ endpointURL: '/graphql' }))
 
   // Websocket
-  const subscriptionServer = SubscriptionServer.create(
+  SubscriptionServer.create(
     {
       schema,
       execute,
       subscribe,
       // the onOperation function is called for every new operation
       // and we use it to set the GraphQL context for this operation
-      onOperation: async (msg, params, socket) => ({
+      onOperation: async (msg, params) => ({
         ...params,
         context,
       })
@@ -61,20 +61,20 @@ const httpServer = async ({
     },
   )
 
-  for (const plugin of plugins) {
-    const { serverHook } = plugin.fns
-    if (serverHook != null) {
-      const pluginPromise = serverHook({
-        plugin,
-        server,
-        koaApp,
-        koaRouter: router,
-      })
-      if (pluginPromise != null && pluginPromise.then != null) {
-        await pluginPromise
-      }
-    }
-  }
+  // for (const plugin of plugins) {
+  //   const { serverHook } = plugin.fns
+  //   if (serverHook != null) {
+  //     const pluginPromise = serverHook({
+  //       plugin,
+  //       server,
+  //       koaApp,
+  //       koaRouter: router,
+  //     })
+  //     if (pluginPromise != null && pluginPromise.then != null) {
+  //       await pluginPromise
+  //     }
+  //   }
+  // }
 
   koaApp.use(cors())
   koaApp.use(router.routes())
@@ -84,7 +84,7 @@ const httpServer = async ({
   if (!isTCP && fs.existsSync(port)) fs.unlinkSync(port)
 
   // start the server and adding Apollo Engine
-  const enginePort = 3500
+  // const enginePort = 3500
   const isEngineEnabled = process.env.ENGINE_API_KEY != null && isTCP
   const serverStartupPromise = new Promise((resolve, reject) => {
     const cb = error => (error ? reject(error) : resolve())
@@ -115,6 +115,7 @@ const httpServer = async ({
     const ipAddress = ipv4IPs.length > 0 ? ipv4IPs[0].address : 'localhost'
     portFullName = `http://${ipAddress}:${port}`
   }
+  // eslint-disable-next-line no-console
   console.error(
     `Tegh is listening on ${portFullName} (${apolloEngineMsg})`,
   )

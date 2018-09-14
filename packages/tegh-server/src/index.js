@@ -4,16 +4,17 @@ import fs from 'fs'
 import path from 'path'
 import yaml from 'js-yaml'
 
+import {
+  initializeConfig,
+  getAllPlugins,
+  subscriptions as subscriptionModules,
+} from 'tegh-core'
+
 // import { wrapInCrashReporting } from './crashReport'
 import teghSchema from './schema/schema'
 import reduxPubSub from './reduxPubSub'
 import createTeghStore from './createTeghStore'
 import httpServer from './server/httpServer'
-import initializeConfig from './core/config/actions/initializeConfig'
-import getAllPlugins from './core/config/selectors/getAllPlugins'
-
-export * from './core/actions'
-export * from './core/types'
 
 global.Promise = Promise
 
@@ -47,7 +48,7 @@ const teghDaemon = async (argv, pluginLoaderPath) => {
   await store.dispatch(action)
 
   // setErrorHandlerStore(store)
-  const pubsub = reduxPubSub(store)
+  const pubsub = reduxPubSub(store, subscriptionModules)
 
   const { config } = store.getState()
   const plugins = getAllPlugins(config)

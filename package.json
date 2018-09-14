@@ -17,7 +17,13 @@
   },
   "workspaces": {
     "packages": [
-      "packages/(?!tegh-web-ui)"
+      "packages/tegh-android-host",
+      "packages/tegh-core",
+      "packages/tegh-driver-serial-gcode",
+      "packages/tegh-macros-default",
+      "packages/tegh-protocol",
+      "packages/tegh-serial-integration-test",
+      "packages/tegh-server"
     ],
     "nohoist": [
       "**/react",

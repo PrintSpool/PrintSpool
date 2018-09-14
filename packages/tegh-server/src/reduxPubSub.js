@@ -1,8 +1,5 @@
-import _ from 'lodash'
 import watch from 'redux-watch'
 import { PubSub } from 'graphql-subscriptions'
-
-import * as subscriptionModules from './core/subscriptions'
 
 const reduxPubSub = (store, subscriptionModules) => {
   const pubsub = new PubSub()
@@ -25,4 +22,4 @@ const reduxPubSub = (store, subscriptionModules) => {
   return pubsub
 }
 
-export default store => reduxPubSub(store, subscriptionModules)
+export default reduxPubSub

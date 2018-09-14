@@ -1,8 +1,13 @@
 import { Map, Record } from 'immutable'
 import { mergeChildReducers } from 'redux-loop-immutable'
 
-import { SET_CONFIG } from './core/config/actions/setConfig'
-import getAllReducers from './core/pluginManager/selectors/getAllReducers'
+import {
+  SET_CONFIG,
+  getAllReducers,
+} from 'tegh-core'
+
+// import { SET_CONFIG } from './core/config/actions/setConfig'
+// import getAllReducers from './core/pluginManager/selectors/getAllReducers'
 
 const initialState = Record({
   config: null,

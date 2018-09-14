@@ -2,12 +2,14 @@ import {
   GraphQLSchema,
   GraphQLObjectType,
 } from 'graphql'
-import tql from 'typiql'
 import _ from 'lodash'
 
+import {
+  mutations,
+  subscriptions as subscriptionModules,
+} from 'tegh-core'
+
 import QueryRootGraphQL from './QueryRoot.graphql'
-import * as mutations from '../core/mutations'
-import * as subscriptionModules from '../core/subscriptions'
 import liveGraphQL from './live.graphql'
 
 const subscriptions = {
@@ -19,7 +21,9 @@ const subscriptions = {
  * Execute each field definition at the time the field function is called to
  * prevent cyclic reference loading issues.
  */
-const fieldsFor = fieldDefinitions => () => _.mapValues(fieldDefinitions, definition => definition())
+const fieldsFor = fieldDefinitions => () => (
+  _.mapValues(fieldDefinitions, definition => definition())
+)
 
 const schema = new GraphQLSchema({
   query: QueryRootGraphQL,

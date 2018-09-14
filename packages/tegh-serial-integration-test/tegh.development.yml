@@ -62,7 +62,6 @@ machine:
       name: 'Extruder Fan'
 
 plugins:
-  - package: tegh-web-ui
   - package: tegh-driver-serial-gcode
     settings:
       serialPort:
