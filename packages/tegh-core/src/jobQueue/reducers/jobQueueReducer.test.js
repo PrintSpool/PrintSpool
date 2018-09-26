@@ -1,65 +1,32 @@
-import SagaTester from 'redux-saga-tester'
-import tmp from 'tmp-promise'
-
-import fs from '../../util/promisifiedFS'
-import Job from '../types/Job'
-import { initialState } from '../reducers/jobQueueReducer'
+import { MockJob } from '../types/Job'
+import reducer, { initialState } from './jobQueueReducer'
 import { NORMAL } from '../../spool/types/PriorityEnum'
 import { DONE } from '../types/JobStatusEnum'
 import { DELETE_JOB } from '../actions/deleteJob'
 import spoolTask from '../../spool/actions/spoolTask'
-import Task from '../../spool/types/Task'
+import { MockTask } from '../../spool/types/Task'
 
-let jobDeletionSaga
-
-const mockJob = () => Job({
-  id: 'mock_job',
-  name: 'test.ngc',
-})
-
-const mockTask = attrs => Task({
-  name: 'test.ngc',
-  priority: NORMAL,
-  internal: false,
-  data: ['g1 x10', 'g1 y20'],
-  ...attrs,
-})
-
-const createTester = () => {
-  const sagaTester = new SagaTester({
-    initialState: {
-      jobQueue: initialState
-        .setIn(['jobs', mockJob().id], mockJob()),
-    },
-  })
-  sagaTester.start(jobDeletionSaga)
-  return sagaTester
-}
 
 describe('SPOOL a job file', () => {
-  const previousJob = mockJob({ status: DONE })
-  let tmpFile = null
-
-  beforeEach(async () => {
-    tmpFile = (await tmp.file()).path
-    await fs.writeFileAsync(tmpFile, 'test')
-    jest.doMock('../selectors/getJobsByStatus', () => {
-      const implementation = () => () => [previousJob]
-      return jest.fn(implementation)
-    })
-    jest.doMock('../selectors/getJobTmpFiles', () => {
-      const implementation = () => () => [tmpFile]
-      return jest.fn(implementation)
-    })
-
-    // eslint-disable-next-line global-require
-    jobDeletionSaga = require('./jobDeletionSaga').default
-    await new Promise(resolve => setImmediate(resolve))
-  })
-
   it('deletes the previous job and it\'s tmp files', async () => {
+    const previousJob = MockJob({ status: DONE })
+    const previousJobFile = MockJobFile({ jobID: previousJob.id })
+    const nextJob = MockJob()
+    const nextJobFile = MockJobFile({ jobID: nextJob.id })
+
+    const state = initialState.merge({
+      jobs: {
+        [previousJob.id]: previousJob,
+        [nextJob.id]: nextJob,
+      },
+      jobFiles: {
+        [previousJobFile.id]: previousJobFile,
+        [nextJobFile.id]: nextJobFile,
+      },
+    })
+
     const task = mockTask({
-      jobID: 'next_job_id',
+      jobID: nextJob.id,
       jobFileID: 'next_job_file_id',
     })
     const action = spoolTask(task)

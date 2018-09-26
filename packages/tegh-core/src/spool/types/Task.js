@@ -6,7 +6,7 @@ import type { TaskStatusEnumT } from './TaskStatusEnum'
 
 
 import normalizeGCodeLines from '../../util/normalizeGCodeLines'
-import { priorityOrder } from './PriorityEnum'
+import { priorityOrder, NORMAL } from './PriorityEnum'
 import { SPOOLED } from './TaskStatusEnum'
 
 export type TaskT = RecordOf<{
@@ -80,5 +80,14 @@ const Task = ({
     jobFileID,
   })
 }
+
+
+export const MockTask = attrs => Task({
+  name: 'test.ngc',
+  internal: true,
+  priority: NORMAL,
+  data: ['g1 x10', 'g1 y20'],
+  ...attrs,
+})
 
 export default Task

@@ -24,4 +24,10 @@ const Job = attrs => JobRecord({
   ...attrs,
 })
 
+export const MockJob = attrs => Job({
+  name: 'test.ngc',
+  ...attrs,
+})
+
+
 export default Job
