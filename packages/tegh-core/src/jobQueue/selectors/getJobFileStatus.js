@@ -1,3 +1,5 @@
+import { createSelector } from 'reselect'
+
 import {
   BUBBLING_STATUES,
   DONE,
@@ -8,17 +10,20 @@ import getTasksFor from '../../spool/selectors/getTasksFor'
 import getTasksCompleted from '../../spool/selectors/getTasksCompleted'
 import getJobFileTotalTasks from './getJobFileTotalTasks'
 
-const getJobFileStatus = state => ({ jobFileID }) => {
-  const tasks = getTasksFor(state)({ taskableID: jobFileID })
-  const tasksCompleted = getTasksCompleted(state)({ taskableID: jobFileID })
-  const totalTasks = getJobFileTotalTasks(state)({ jobFileID })
 
-  const bubblingTask = tasks.find(task => BUBBLING_STATUES.includes(task.status))
+const getJobFileStatus = createSelector(
+  state => ({ jobFileID }) => {
+    const tasks = getTasksFor(state)({ taskableID: jobFileID })
+    const tasksCompleted = getTasksCompleted(state)({ taskableID: jobFileID })
+    const totalTasks = getJobFileTotalTasks(state)({ jobFileID })
 
-  if (bubblingTask != null) return bubblingTask.status
+    const bubblingTask = tasks.find(task => BUBBLING_STATUES.includes(task.status))
 
-  const isDone = tasksCompleted >= totalTasks
-  return isDone ? DONE : QUEUED
-}
+    if (bubblingTask != null) return bubblingTask.status
+
+    const isDone = tasksCompleted >= totalTasks
+    return isDone ? DONE : QUEUED
+  },
+)
 
 export default getJobFileStatus

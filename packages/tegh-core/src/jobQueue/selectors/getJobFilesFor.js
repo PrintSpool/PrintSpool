@@ -1,8 +1,11 @@
-const getJobFilesFor = state => ({ jobID }) => {
-  const { jobFiles } = state.jobQueue
-  return jobFiles
-    .filter(jobFile => jobFile.jobID === jobID)
-    .toList()
-}
+import { createSelector } from 'reselect'
+
+const getJobFilesFor = createSelector(
+  state => ({ jobID }) => (
+    state.jobFiles
+      .filter(jobFile => jobFile.jobID === jobID)
+      .toList()
+  ),
+)
 
 export default getJobFilesFor

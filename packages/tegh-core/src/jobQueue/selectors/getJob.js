@@ -1,5 +1,9 @@
-import getJobs from './getJobs'
+import { createSelector } from 'reselect'
 
-const getJob = state => jobID => getJobs(state).get(jobID)
+const getJob = createSelector(
+  state => jobID => (
+    state.jobs.get(jobID)
+  ),
+)
 
 export default getJob

@@ -1,5 +1,14 @@
 import { Record, Map } from 'immutable'
+import { loop, Cmd } from 'redux-loop'
 
+import unlinkTmpFiles from '../sideEffects/unlinkTmpFiles'
+
+import { ERRORED, CANCELLED, DONE } from '../types/JobStatusEnum'
+
+import getJobsByStatus from '../selectors/getJobsByStatus'
+import getJobTmpFiles from '../selectors/getJobTmpFiles'
+
+import { SPOOL_TASK } from '../../spool/actions/spoolTask'
 import { CREATE_JOB } from '../actions/createJob'
 import { DELETE_JOB } from '../actions/deleteJob'
 
@@ -25,6 +34,30 @@ const jobQueue = (state = initialState, action) => {
         .updateIn(['jobFiles'], jobFiles => (
           jobFiles.filter(file => file.jobID !== jobID)
         ))
+    }
+    case SPOOL_TASK: {
+      /* delete the previous job upon spooling the next */
+      if (action.payload.task.jobID == null) return
+
+      /* get all completed, errored or cancelled jobs */
+      const jobsForDeletion = getJobsByStatus(state)({
+        statuses: [ERRORED, CANCELLED, DONE],
+      })
+      const jobIDsForDeletion = jobsForDeletion.map(job => job.id)
+
+      const nextState = state
+        .filterIn(['jobs'], job => jobIDsForDeletion.include(job.id) === false)
+
+      const tmpFilePaths = jobsForDeletion
+        .map(job => (
+          getJobTmpFiles(state)({ jobID: job.id })
+        ))
+        .flatten()
+
+      return loop(
+        nextState,
+        Cmd.run(unlinkTmpFiles, tmpFilePaths),
+      )
     }
     default: {
       return state

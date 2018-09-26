@@ -1,16 +1,20 @@
+import { createSelector } from 'reselect'
+
 import getJobFilesFor from './getJobFilesFor'
 
-const getJobTotalTasks = state => ({ jobID }) => {
-  const job = state.jobQueue.jobs.get(jobID)
-  const jobFiles = getJobFilesFor(state)({ jobID })
+const getJobTotalTasks = createSelector(
+  state => ({ jobID }) => {
+    const job = state.jobQueue.jobs.get(jobID)
+    const jobFiles = getJobFilesFor(state)({ jobID })
 
-  let quantity = 0
+    let quantity = 0
 
-  jobFiles.forEach((jobFile) => {
-    quantity += jobFile.quantity
-  })
+    jobFiles.forEach((jobFile) => {
+      quantity += jobFile.quantity
+    })
 
-  return job.quantity * quantity
-}
+    return job.quantity * quantity
+  },
+)
 
 export default getJobTotalTasks
