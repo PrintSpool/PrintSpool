@@ -38,6 +38,8 @@
       "**/react-native-usbserial/**",
       "**/expo",
       "**/expo/**",
+      "**/jest",
+      "**/jest/**",
       "**/jest-expo",
       "**/jest-expo/**"
     ]

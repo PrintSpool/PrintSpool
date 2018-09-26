@@ -56,7 +56,6 @@
     "immutablediff": "^0.4.4",
     "immutablepatch": "^0.4.2",
     "iterall": "d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b",
-    "jest-cli": "^23.5.0",
     "lodash": "^4.17.10",
     "react-native-usbserial": "edvijaka/react-native-usbserial#master",
     "redux": "^3.5.1",
@@ -96,7 +95,7 @@
     "eslint-plugin-babel": "^5.1.0",
     "eslint-plugin-jest": "^21.20.2",
     "eslint-plugin-monorepo": "^0.2.0",
-    "jest": "^23.1.0",
+    "jest": "^23.6.0",
     "redux-saga-tester": "d1plo1d/redux-saga-tester"
   }
 }
