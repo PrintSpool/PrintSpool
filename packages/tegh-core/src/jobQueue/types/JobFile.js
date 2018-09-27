@@ -21,7 +21,6 @@ const JobFileRecord = Record({
   isTmpFile: null,
   quantity: 1,
   status: SPOOLED,
-  tasksCompleted: 0,
   jobID: null,
 })
 
