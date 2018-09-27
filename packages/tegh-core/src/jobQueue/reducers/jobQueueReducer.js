@@ -14,8 +14,6 @@ import {
 } from '../types/JobHistoryTypeEnum'
 
 
-import getJobStatuses from '../selectors/getJobStatuses'
-import getJobFileStatuses from '../selectors/getJobFileStatuses'
 import getJobTmpFiles from '../selectors/getJobTmpFiles'
 import getSpooledJobFiles from '../selectors/getSpooledJobFiles'
 import getCompletedJobs from '../selectors/getCompletedJobs'
@@ -150,17 +148,26 @@ const jobQueue = (state = initialState, action) => {
         jobID,
         jobFileID,
         currentLineNumber,
+        data,
       } = action.payload.task
 
-      if (currentLineNumber !== 0) return state
+      if (jobID == null) return state
+
+      const eventType = (() => {
+        if (currentLineNumber === 0) return START_PRINT
+        if (currentLineNumber === data.size - 1) return FINISH_PRINT
+        return null
+      })()
+
+      if (eventType == null) return state
 
       /*
-       * record the start of the print in the job history
+       * record the start or finish of the print in the job history
        */
       const historyEvent = JobHistoryEvent({
         jobID,
         jobFileID,
-        type: START_PRINT,
+        type: eventType,
       })
 
       return state.update('history', history => history.push(historyEvent))
