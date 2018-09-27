@@ -13,7 +13,6 @@ import {
   FINISH_PRINT,
 } from '../types/JobHistoryTypeEnum'
 
-
 import getJobTmpFiles from '../selectors/getJobTmpFiles'
 import getSpooledJobFiles from '../selectors/getSpooledJobFiles'
 import getCompletedJobs from '../selectors/getCompletedJobs'

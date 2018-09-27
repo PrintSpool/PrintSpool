@@ -3,8 +3,6 @@ import {
   Record, List, Map,
 } from 'immutable'
 
-import ReduxNestedMap from '../../util/ReduxNestedMap'
-import taskReducer from './taskReducer'
 import isIdle from '../selectors/isIdle'
 
 import {
@@ -27,16 +25,8 @@ import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 import { SPOOL_TASK } from '../actions/spoolTask'
 import requestDespool, { REQUEST_DESPOOL } from '../actions/requestDespool'
 import despoolTask from '../actions/despoolTask'
-import createTask from '../actions/createTask'
-import { DELETE_TASKS } from '../actions/deleteTasks'
-import startTask from '../actions/startTask'
 import { CANCEL_TASK } from '../actions/cancelTask'
 import cancelAllTasks, { CANCEL_ALL_TASKS } from '../actions/cancelAllTasks'
-
-const taskMap = ReduxNestedMap({
-  singularReducer: taskReducer,
-  keyPath: ['tasks'],
-})
 
 export const initialState = Record({
   priorityQueues: Record({
@@ -48,6 +38,34 @@ export const initialState = Record({
   currentTaskID: null,
 })()
 
+const cancelAllTasksReducer = (state, nextTaskStatus) => (
+  state
+    .set('priorityQueues', initialState.priorityQueues)
+    .set('currentTaskID', null)
+    .set('sendSpooledLineToPrinter', null)
+    .update('tasks', tasks => tasks.map((task) => {
+      if (isSpooled(task.status)) {
+        return task.set('status', nextTaskStatus)
+      }
+      return task
+    }))
+)
+
+const removeTaskReferences = (state) => {
+  const nextTaskIDs = state.tasks.map(task => task.id)
+
+  let nextState = state
+    .update('priorityQueues', queues => queues.map(queue => (
+      queue.filter(taskID => nextTaskIDs.includes(taskID))
+    )))
+
+  if (nextTaskIDs.includes(state.currentTaskID) === false) {
+    nextState = nextState.set('currentTaskID', null)
+  }
+
+  return nextState
+}
+
 const spoolReducer = () => (state = initialState, action) => {
   switch (action.type) {
     /* Spool reset actions */
@@ -55,28 +73,31 @@ const spoolReducer = () => (state = initialState, action) => {
     case ESTOP:
     case DRIVER_ERROR:
     case CANCEL_ALL_TASKS: {
-      const nextState = taskMap.updateEach(state, action)
-
-      return nextState
-        .set('priorityQueues', initialState.priorityQueues)
-        .set('currentTaskID', null)
-        .set('sendSpooledLineToPrinter', null)
+      const isError = action.type === DRIVER_ERROR
+      const status = isError ? ERRORED : CANCELLED
+      return cancelAllTasksReducer(state, status)
     }
     case CANCEL_JOB:
-    case CANCEL_TASK:
-    case DELETE_JOB:
-    case DELETE_TASKS: {
-      let nextState = taskMap.updateEach(state, action)
-      const currentTask = nextState.tasks.get(nextState.currentTaskID)
-      if (currentTask && currentTask.status !== PRINTING) {
-        nextState = nextState.set('currentTaskID', null)
-      }
-      return nextState
+    case DELETE_JOB: {
+      const { jobID } = action.payload
+
+      const nextState = state.update('tasks', tasks => (
+        tasks.filter(task => task.jobID !== jobID)
+      ))
+
+      return removeTaskReferences(nextState)
+    }
+    case CANCEL_TASK: {
+      const { taskID } = action.payload
+
+      const nextState = state.update('tasks', tasks => tasks.remove(taskID))
+
+      return removeTaskReferences(nextState)
     }
     case SPOOL_TASK: {
       const { payload } = action
       const { id, priority } = payload.task
-      let nextState = state
+      let nextState = state.setIn(['tasks', id], payload.task)
 
       if (
         isIdle.resultFunc(state.tasks) === false
@@ -138,9 +159,12 @@ const spoolReducer = () => (state = initialState, action) => {
           /*
            * start the task via the taskReducer
            */
-          nextState = taskMap.updateOne(nextState, startTask(), nextTaskID)
-
           nextState = nextState
+            .mergeIn(['tasks', nextTaskID], {
+              startedAt: new Date().toISOString(),
+              status: PRINTING,
+              currentLineNumber: 0,
+            })
             .set('currentTaskID', nextTaskID)
             .updateIn(['priorityQueues', priority], list => list.shift())
         }
@@ -153,8 +177,27 @@ const spoolReducer = () => (state = initialState, action) => {
       const nextTask = nextState.tasks.get(nextState.currentTaskID)
       return loop(nextState, Cmd.action(despoolTask(nextTask)))
     }
-    default:
+    case REQUEST_DESPOOL: {
+      if (state.currentLineNumber < state.data.size - 1) {
+        /*
+         * if the task has more lines to execute then increment the line number
+         */
+        return state.update('currentLineNumber', i => i + 1)
+      }
+      /* mark tasks as done after they are completed */
+      return state.merge({
+        // TODO: stoppedAt should eventually be changed to be sent after
+        // the printer sends 'ok' or 'error' and should be based off
+        // estimated print time
+        stoppedAt: new Date().toISOString(),
+        status: DONE,
+        /* the data of each completed task is deleted to save space */
+        data: null,
+      })
+    }
+    default: {
       return state
+    }
   }
 }
 
