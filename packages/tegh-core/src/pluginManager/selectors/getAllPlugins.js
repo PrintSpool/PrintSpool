@@ -2,7 +2,7 @@
 const getAllPlugins = (config) => {
   if (!config.initialized) Map()
 
-  return config.pluginManager.initialized.cache
+  return config.pluginManager.cache
 }
 
 export default getAllPlugins
