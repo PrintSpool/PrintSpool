@@ -16,13 +16,14 @@ import {
 import getJobTmpFiles from '../selectors/getJobTmpFiles'
 import getSpooledJobFiles from '../selectors/getSpooledJobFiles'
 import getCompletedJobs from '../selectors/getCompletedJobs'
+import getTaskIDByJobFileID from '../selectors/getTaskIDByJobFileID'
 
 import { CREATE_JOB } from '../actions/createJob'
-import { CANCEL_JOB } from '../actions/cancelJob'
 import deleteJob, { DELETE_JOB } from '../actions/deleteJob'
 
 import { SPOOL_TASK } from '../../spool/actions/spoolTask'
 import { DESPOOL_TASK } from '../../spool/actions/despoolTask'
+import { CANCEL_TASK } from '../../spool/actions/cancelTask'
 
 import { PRINTER_READY } from '../../printer/actions/printerReady'
 import { ESTOP } from '../../printer/actions/estop'
@@ -74,39 +75,40 @@ const jobQueue = (state = initialState, action) => {
       const isCancelledByUser = action.type === ESTOP
       const eventType = isCancelledByUser ? CANCEL_PRINT : PRINT_ERROR
 
+      const taskIDs = getTaskIDByJobFileID(state)
+
       /* error or cancel any printing job file */
       const events = getSpooledJobFiles(state).values().map(jobFile => (
         JobHistoryEvent({
           jobID: jobFile.jobID,
           jobFileID: jobFile.id,
+          taskID: taskIDs.get(jobFileID),
           type: eventType,
         })
       ))
 
       return state.update('history', history => history.push(events))
     }
-    case CANCEL_JOB: {
-      const { jobID } = action.payload
+    case CANCEL_TASK: {
+      const { taskID } = action.payload
+      const jobFileID = getTaskIDByJobFileID(state).findKey(v => v === taskID)
+      const { jobID } = state.jobFiles.get(jobFileID)
 
-      const spooledJobFiles = getSpooledJobFiles(state)
-        .filter(jobFile => jobFile.jobID === jobID)
-
-      /* error or cancel any printing job file */
-      const events = spooledJobFiles.map(jobFile => (
-        JobHistoryEvent({
-          jobID: jobFile.jobID,
-          jobFileID: jobFile.id,
-          type: CANCEL_PRINT,
-        })
-      ))
+      const historyEvent = JobHistoryEvent({
+        jobID,
+        jobFileID,
+        taskID,
+        type: CANCEL_PRINT,
+      })
 
       /* mark each spooled job file as cancelled */
-      return state.update('history', history => history.push(events))
+      return state.update('history', history => history.push(historyEvent))
     }
     case SPOOL_TASK: {
       const {
         jobID,
         jobFileID,
+        id: taskID,
       } = action.payload.task
 
       if (jobID == null) return state
@@ -117,6 +119,7 @@ const jobQueue = (state = initialState, action) => {
       const historyEvent = JobHistoryEvent({
         jobID,
         jobFileID,
+        taskID,
         type: SPOOL_PRINT,
       })
 
@@ -158,12 +161,15 @@ const jobQueue = (state = initialState, action) => {
 
       if (eventType == null) return state
 
+      const taskID = getTaskIDByJobFileID(state).get(jobFileID)
+
       /*
        * record the start or finish of the print in the job history
        */
       const historyEvent = JobHistoryEvent({
         jobID,
         jobFileID,
+        taskID,
         type: eventType,
       })
 

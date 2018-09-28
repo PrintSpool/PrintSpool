@@ -21,7 +21,6 @@ import { PRINTER_READY } from '../../printer/actions/printerReady'
 import { ESTOP } from '../../printer/actions/estop'
 import { DRIVER_ERROR } from '../../printer/actions/driverError'
 /* job actions */
-import { CANCEL_JOB } from '../../jobQueue/actions/cancelJob'
 import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 /* task actions */
 import { SPOOL_TASK } from '../actions/spoolTask'
@@ -62,7 +61,6 @@ const spoolReducer = () => (state = initialState, action) => {
     case DRIVER_ERROR: {
       return initialState
     }
-    case CANCEL_JOB:
     case DELETE_JOB: {
       const { jobID } = action.payload
 
