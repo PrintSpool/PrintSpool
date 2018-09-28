@@ -12,7 +12,10 @@ import {
   priorityOrder,
 } from '../types/PriorityEnum'
 
-import { PRINTING } from '../types/TaskStatusEnum'
+import {
+  PRINTING,
+  isSpooled,
+} from '../types/TaskStatusEnum'
 
 /* printer actions */
 import { PRINTER_READY } from '../../printer/actions/printerReady'
@@ -38,19 +41,6 @@ export const initialState = Record({
   currentTaskID: null,
 })()
 
-const cancelAllTasksReducer = (state, nextTaskStatus) => (
-  state
-    .set('priorityQueues', initialState.priorityQueues)
-    .set('currentTaskID', null)
-    .set('sendSpooledLineToPrinter', null)
-    .update('tasks', tasks => tasks.map((task) => {
-      if (isSpooled(task.status)) {
-        return task.set('status', nextTaskStatus)
-      }
-      return task
-    }))
-)
-
 const removeTaskReferences = (state) => {
   const nextTaskIDs = state.tasks.map(task => task.id)
 
@@ -73,9 +63,7 @@ const spoolReducer = () => (state = initialState, action) => {
     case ESTOP:
     case DRIVER_ERROR:
     case CANCEL_ALL_TASKS: {
-      const isError = action.type === DRIVER_ERROR
-      const status = isError ? ERRORED : CANCELLED
-      return cancelAllTasksReducer(state, status)
+      return initialState
     }
     case CANCEL_JOB:
     case DELETE_JOB: {
@@ -97,7 +85,17 @@ const spoolReducer = () => (state = initialState, action) => {
     case SPOOL_TASK: {
       const { payload } = action
       const { id, priority } = payload.task
-      let nextState = state.setIn(['tasks', id], payload.task)
+
+      let nextState = state
+
+      /*
+      * if the task is an emergency then cancel all other tasks in the queue
+      */
+      if (priority === EMERGENCY) {
+        nextState = initialState
+      }
+
+      nextState = state.setIn(['tasks', id], payload.task)
 
       if (
         isIdle.resultFunc(state.tasks) === false
@@ -107,12 +105,6 @@ const spoolReducer = () => (state = initialState, action) => {
         throw new Error('Cannot spool non-emergency tasks when printing a job')
       }
 
-      /*
-       * if the task is an emergency then cancel all other tasks in the queue
-       */
-      if (priority === EMERGENCY) {
-        nextState = spoolReducer()(nextState, cancelAllTasks())
-      }
 
       /* create the task */
       const createAction = createTask({ task: payload.task })
