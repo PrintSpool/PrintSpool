@@ -3,15 +3,16 @@ import {
   GraphQLObjectType,
 } from 'graphql'
 
-import getJobFilesFor from '../selectors/getJobFilesFor'
-import getTasksFor from '../../spool/selectors/getTasksFor'
-import getTasksCompleted from '../../spool/selectors/getTasksCompleted'
-import getJobTotalTasks from '../selectors/getJobTotalTasks'
-import getJobStatus from '../selectors/getJobStatus'
+import getJobFilesByJobID from '../selectors/getJobFilesByJobID'
+import getTasksByTaskableID from '../../spool/selectors/getTasksByTaskableID'
+import getPrintsCompletedByID from '../../spool/selectors/getPrintsCompletedByID'
+import getTotalPrintsByID from '../selectors/getTotalPrintsByID'
+import getIsDoneByJobID from '../selectors/getIsDoneByJobID'
+import getJobHistoryByID from '../selectors/getJobHistoryByID'
 
 import JobFileGraphQL from './JobFile.graphql'
 import TaskGraphQL from '../../spool/types/Task.graphql'
-import JobStatusEnumGraphQL from './JobStatusEnum.graphql'
+import JobHistoryEventGraphQL from '../../spool/types/JobHistoryEvent.graphql'
 
 const JobGraphQL = new GraphQLObjectType({
   name: 'Job',
@@ -30,46 +31,45 @@ const JobGraphQL = new GraphQLObjectType({
       resolve(source, args, { store }) {
         const state = store.getState()
         const jobID = source.id
-        return getJobFilesFor(state)({ jobID })
+        return getJobFilesByJobID(state).get(jobID)
       },
     },
 
     tasks: {
       type: tql`[${TaskGraphQL}]!`,
-      args: {
-        excludeCompletedTasks: {
-          type: tql`Boolean!`,
-        },
-      },
       resolve(source, args, { store }) {
-        const { excludeCompletedTasks } = args
         const state = store.getState()
-        return getTasksFor(state)({
-          taskableID: source.id,
-          excludeCompletedTasks,
-        }).valueSeq().toArray()
+        return getTasksByTaskableID(state).get(source.id)
       },
     },
 
-    tasksCompleted: {
+    history: {
+      type: tql`${JobHistoryEventGraphQL}!`,
+      resolve(source, args, { store }) {
+        const state = store.getState()
+        return getJobHistoryByID(state).get(source.id)
+      },
+    },
+
+    printsCompleted: {
       type: tql`Int!`,
       resolve(source, args, { store }) {
         const state = store.getState()
-        return getTasksCompleted(state)({ taskableID: source.id })
+        return getPrintsCompletedByID(state).get(source.id)
       },
     },
-    totalTasks: {
+    totalPrints: {
       type: tql`Int!`,
       resolve(source, args, { store }) {
         const state = store.getState()
-        return getJobTotalTasks(state)({ jobID: source.id })
+        return getTotalPrintsByID(state).get(source.id)
       },
     },
-    status: {
-      type: tql`${JobStatusEnumGraphQL}!`,
+    isDone: {
+      type: tql`Boolean!`,
       resolve(source, args, { store }) {
         const state = store.getState()
-        return getJobStatus(state)({ jobID: source.id })
+        return getIsDoneByJobID(state).get(source.id)
       },
     },
 

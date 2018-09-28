@@ -6,7 +6,7 @@ import {
 import getTasksCompleted from '../../spool/selectors/getTasksCompleted'
 import getTasksFor from '../../spool/selectors/getTasksFor'
 import getJobFileTotalTasks from '../selectors/getJobFileTotalTasks'
-import getJobFileStatus from '../selectors/getJobFileStatus'
+import getIsDoneByJobFileID from '../selectors/getIsDoneByJobFileID'
 
 import TaskGraphQL from '../../spool/types/Task.graphql'
 import JobStatusEnumGraphQL from './JobStatusEnum.graphql'
@@ -25,41 +25,31 @@ const JobFileGraphQL = new GraphQLObjectType({
     },
     tasks: {
       type: tql`[${TaskGraphQL}]!`,
-      args: {
-        excludeCompletedTasks: {
-          type: tql`Boolean`,
-          default: false,
-        },
-      },
       resolve(source, args, { store }) {
-        const { excludeCompletedTasks } = args
         const state = store.getState()
 
-        return getTasksFor(state)({
-          taskableID: source.id,
-          excludeCompletedTasks,
-        }).valueSeq().toArray()
+        return getTasksByTaskableID(state).get(source.id)
       },
     },
     tasksCompleted: {
       type: tql`Int!`,
       resolve(source, args, { store }) {
         const state = store.getState()
-        return getTasksCompleted(state)({ taskableID: source.id })
+        return getPrintsCompletedByID(state).get(source.id)
       },
     },
     totalTasks: {
       type: tql`Int!`,
       resolve(source, args, { store }) {
         const state = store.getState()
-        return getJobFileTotalTasks(state)({ jobFileID: source.id })
+        return getTotalPrintsByID(state).get(source.id)
       },
     },
     status: {
       type: tql`${JobStatusEnumGraphQL}!`,
       resolve(source, args, { store }) {
         const state = store.getState()
-        return getJobFileStatus(state)({ jobFileID: source.id })
+        return getIsDoneByJobFileID(state)({ jobFileID: source.id })
       },
     },
   }),

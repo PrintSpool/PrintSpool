@@ -21,7 +21,6 @@ import { CREATE_JOB } from '../actions/createJob'
 import { CANCEL_JOB } from '../actions/cancelJob'
 import deleteJob, { DELETE_JOB } from '../actions/deleteJob'
 
-import { CANCEL_ALL_TASKS } from '../../spool/actions/cancelAllTasks'
 import { SPOOL_TASK } from '../../spool/actions/spoolTask'
 import { DESPOOL_TASK } from '../../spool/actions/despoolTask'
 
@@ -71,10 +70,9 @@ const jobQueue = (state = initialState, action) => {
     }
     case PRINTER_READY:
     case ESTOP:
-    case DRIVER_ERROR:
-    case CANCEL_ALL_TASKS: {
-      const isCancel = action.type === CANCEL_ALL_TASKS
-      const eventType = isCancel ? CANCEL_PRINT : PRINT_ERROR
+    case DRIVER_ERROR: {
+      const isCancelledByUser = action.type === ESTOP
+      const eventType = isCancelledByUser ? CANCEL_PRINT : PRINT_ERROR
 
       /* error or cancel any printing job file */
       const events = getSpooledJobFiles(state).values().map(jobFile => (

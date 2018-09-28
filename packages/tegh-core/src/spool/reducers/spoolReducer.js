@@ -14,7 +14,6 @@ import {
 
 import {
   PRINTING,
-  isSpooled,
 } from '../types/TaskStatusEnum'
 
 /* printer actions */
@@ -29,7 +28,6 @@ import { SPOOL_TASK } from '../actions/spoolTask'
 import requestDespool, { REQUEST_DESPOOL } from '../actions/requestDespool'
 import despoolTask from '../actions/despoolTask'
 import { CANCEL_TASK } from '../actions/cancelTask'
-import cancelAllTasks, { CANCEL_ALL_TASKS } from '../actions/cancelAllTasks'
 
 export const initialState = Record({
   priorityQueues: Record({
@@ -61,8 +59,7 @@ const spoolReducer = () => (state = initialState, action) => {
     /* Spool reset actions */
     case PRINTER_READY:
     case ESTOP:
-    case DRIVER_ERROR:
-    case CANCEL_ALL_TASKS: {
+    case DRIVER_ERROR: {
       return initialState
     }
     case CANCEL_JOB:
@@ -83,8 +80,8 @@ const spoolReducer = () => (state = initialState, action) => {
       return removeTaskReferences(nextState)
     }
     case SPOOL_TASK: {
-      const { payload } = action
-      const { id, priority } = payload.task
+      const { task } = action.payload
+      const { id, priority } = task
 
       let nextState = state
 
@@ -95,25 +92,23 @@ const spoolReducer = () => (state = initialState, action) => {
         nextState = initialState
       }
 
-      nextState = state.setIn(['tasks', id], payload.task)
+      nextState = nextState.setIn(['tasks', id], task)
 
       if (
         isIdle.resultFunc(state.tasks) === false
         && priority !== EMERGENCY
-        && payload.task.internal !== true
+        && task.internal !== true
       ) {
         throw new Error('Cannot spool non-emergency tasks when printing a job')
       }
 
 
       /* create the task */
-      const createAction = createTask({ task: payload.task })
-      nextState = taskMap.createOne(nextState, createAction)
-
       const taskQueue = ['priorityQueues', priority]
       const shouldDespool = nextState.currentTaskID == null
 
       nextState = nextState
+        .setIn(['tasks', id], task)
         .updateIn(taskQueue, list => list.push(id))
 
       /*
@@ -128,14 +123,26 @@ const spoolReducer = () => (state = initialState, action) => {
     case REQUEST_DESPOOL: {
       const { priorityQueues, currentTaskID } = state
       let nextState = state
-      if (currentTaskID != null) {
-        /*
-         * despool the next line or finish the task via the taskReducer
-         */
-        nextState = taskMap.updateOne(nextState, action, currentTaskID)
-      }
       const currentTask = nextState.tasks.get(currentTaskID)
-      if (currentTask == null || currentTask.status !== PRINTING) {
+
+      if (currentTask != null) {
+        /*
+         * despool the next line or finish the task
+         */
+        if (currentTask.currentLineNumber < currentTask.data.size - 1) {
+          /*
+           * if the task has more lines to execute then increment the line number
+           */
+          return nextState
+            .updateIn(['tasks', currentTaskID, 'currentLineNumber'], i => i + 1)
+        }
+        /* delete the task upon completion */
+        nextState = nextState
+          .set('currentTaskID', null)
+          .update('tasks', tasks => tasks.remove(currentTaskID))
+      }
+
+      if (nextState.currentTaskID == null) {
         /*
          * if the current task is done then despool the next task if there is
          * anything to despool.
@@ -144,48 +151,31 @@ const spoolReducer = () => (state = initialState, action) => {
           priorityQueues[priorityOption].size > 0
         ))
 
-        if (priority == null) {
-          nextState = nextState.set('currentTaskID', null)
-        } else {
-          const nextTaskID = state.priorityQueues[priority].first()
-          /*
-           * start the task via the taskReducer
-           */
-          nextState = nextState
-            .mergeIn(['tasks', nextTaskID], {
-              startedAt: new Date().toISOString(),
-              status: PRINTING,
-              currentLineNumber: 0,
-            })
-            .set('currentTaskID', nextTaskID)
-            .updateIn(['priorityQueues', priority], list => list.shift())
+        const allQueuesAreEmpty = priority == null
+        if (allQueuesAreEmpty) {
+          return nextState.set('currentTaskID', null)
         }
-      }
 
-      if (nextState.currentTaskID == null) {
-        return nextState
+        const nextTaskID = state.priorityQueues[priority].first()
+
+        /*
+         * start the task
+         */
+        nextState = nextState
+          .mergeIn(['tasks', nextTaskID], {
+            startedAt: new Date().toISOString(),
+            status: PRINTING,
+            currentLineNumber: 0,
+          })
+          .set('currentTaskID', nextTaskID)
+          .updateIn(['priorityQueues', priority], list => list.shift())
       }
 
       const nextTask = nextState.tasks.get(nextState.currentTaskID)
-      return loop(nextState, Cmd.action(despoolTask(nextTask)))
-    }
-    case REQUEST_DESPOOL: {
-      if (state.currentLineNumber < state.data.size - 1) {
-        /*
-         * if the task has more lines to execute then increment the line number
-         */
-        return state.update('currentLineNumber', i => i + 1)
-      }
-      /* mark tasks as done after they are completed */
-      return state.merge({
-        // TODO: stoppedAt should eventually be changed to be sent after
-        // the printer sends 'ok' or 'error' and should be based off
-        // estimated print time
-        stoppedAt: new Date().toISOString(),
-        status: DONE,
-        /* the data of each completed task is deleted to save space */
-        data: null,
-      })
+      return loop(
+        nextState,
+        Cmd.action(despoolTask(nextTask)),
+      )
     }
     default: {
       return state
