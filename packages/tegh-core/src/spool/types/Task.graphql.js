@@ -42,8 +42,11 @@ const TaskType = new GraphQLObjectType({
           `,
         },
       },
-      resolve: (source, { digits }) => (
-        getTaskPercentComplete({ task: source, digits })
+      resolve: (source, { digits }, { store }) => (
+        getTaskPercentComplete(store.getState().spool)({
+          taskID: source.taskID,
+          digits,
+        })
       ),
     },
     createdAt: {

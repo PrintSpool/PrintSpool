@@ -1,3 +1,5 @@
+import { List } from 'immutable'
+
 import getTaskPercentComplete from './getTaskPercentComplete'
 import {
   PRINTING,
@@ -12,7 +14,8 @@ describe(getTaskPercentComplete, () => {
         size: 10 * 100000,
       },
     }
-    const result = getTaskPercentComplete({ task, digits: 2 })
+    const state = { tasks: List([task]) }
+    const result = getTaskPercentComplete(state)({ taskID: task.id, digits: 2 })
 
     expect(result).toEqual(12.35)
   })
