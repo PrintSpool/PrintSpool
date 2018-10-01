@@ -3,9 +3,8 @@ import {
   GraphQLObjectType,
 } from 'graphql'
 
-import getTask from '../../spool/selectors/getTask'
+import getTasksByTaskableID from '../../spool/selectors/getTasksByTaskableID'
 import getPrintsCompletedByJobFileID from '../selectors/getPrintsCompletedByJobFileID'
-import getTaskIDByJobFileID from '../selectors/getTaskIDByJobFileID'
 import getTotalPrintsByJobFileID from '../selectors/getTotalPrintsByJobFileID'
 import getIsDoneByJobFileID from '../selectors/getIsDoneByJobFileID'
 
@@ -27,10 +26,9 @@ const JobFileGraphQL = new GraphQLObjectType({
       type: tql`[${TaskGraphQL}]!`,
       resolve(source, args, { store }) {
         const state = store.getState()
-        const taskID = getTaskIDByJobFileID(state).get(source.id)
-        const task = getTask(state, taskID)
+        const tasks = getTasksByTaskableID(state).get(source.id)
 
-        return [task]
+        return tasks
       },
     },
     printsCompleted: {
