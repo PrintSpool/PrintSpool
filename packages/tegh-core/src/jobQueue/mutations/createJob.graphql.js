@@ -17,7 +17,7 @@ const createJobGraphQL = () => ({
 
   resolve: actionResolver({
     actionCreator: createJob,
-    selector: (state, action) => getJob(state)(action.payload.job.id),
+    selector: (state, action) => state.jobQueue.jobs.get(action.payload.job.id),
   }),
 
   args: {

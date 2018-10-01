@@ -3,13 +3,13 @@ import {
   GraphQLObjectType,
 } from 'graphql'
 
-import getTasksCompleted from '../../spool/selectors/getTasksCompleted'
-import getTasksFor from '../../spool/selectors/getTasksFor'
-import getJobFileTotalTasks from '../selectors/getJobFileTotalTasks'
+import getTask from '../../spool/selectors/getTask'
+import getPrintsCompletedByJobFileID from '../selectors/getPrintsCompletedByJobFileID'
+import getTaskIDByJobFileID from '../selectors/getTaskIDByJobFileID'
+import getTotalPrintsByJobFileID from '../selectors/getTotalPrintsByJobFileID'
 import getIsDoneByJobFileID from '../selectors/getIsDoneByJobFileID'
 
 import TaskGraphQL from '../../spool/types/Task.graphql'
-import JobStatusEnumGraphQL from './JobStatusEnum.graphql'
 
 const JobFileGraphQL = new GraphQLObjectType({
   name: 'JobFile',
@@ -27,29 +27,31 @@ const JobFileGraphQL = new GraphQLObjectType({
       type: tql`[${TaskGraphQL}]!`,
       resolve(source, args, { store }) {
         const state = store.getState()
+        const taskID = getTaskIDByJobFileID(state).get(source.id)
+        const task = getTask(state, taskID)
 
-        return getTasksByTaskableID(state).get(source.id)
+        return [task]
       },
     },
-    tasksCompleted: {
+    printsCompleted: {
       type: tql`Int!`,
       resolve(source, args, { store }) {
         const state = store.getState()
-        return getPrintsCompletedByID(state).get(source.id)
+        return getPrintsCompletedByJobFileID(state).get(source.id)
       },
     },
-    totalTasks: {
+    totalPrints: {
       type: tql`Int!`,
       resolve(source, args, { store }) {
         const state = store.getState()
-        return getTotalPrintsByID(state).get(source.id)
+        return getTotalPrintsByJobFileID(state).get(source.id)
       },
     },
-    status: {
-      type: tql`${JobStatusEnumGraphQL}!`,
+    isDone: {
+      type: tql`Boolean!`,
       resolve(source, args, { store }) {
         const state = store.getState()
-        return getIsDoneByJobFileID(state)({ jobFileID: source.id })
+        return getIsDoneByJobFileID(state).get(source.id)
       },
     },
   }),

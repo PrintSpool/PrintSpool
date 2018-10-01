@@ -10,6 +10,11 @@ export const CANCEL_PRINT = '/jobQueue/JobHistory/CANCEL_PRINT'
 export const PRINT_ERROR = '/jobQueue/JobHistory/PRINT_ERROR'
 export const FINISH_PRINT = '/jobQueue/JobHistory/FINISH_PRINT'
 
+export const SPOOLED_TYPES = List([
+  SPOOL_PRINT,
+  START_PRINT,
+])
+
 const JobHistoryTypeEnum = List([
   SPOOL_PRINT,
   START_PRINT,
@@ -17,5 +22,6 @@ const JobHistoryTypeEnum = List([
   PRINT_ERROR,
   FINISH_PRINT,
 ])
+
 
 export default JobHistoryTypeEnum

@@ -82,7 +82,7 @@ const jobQueue = (state = initialState, action) => {
         JobHistoryEvent({
           jobID: jobFile.jobID,
           jobFileID: jobFile.id,
-          taskID: taskIDs.get(jobFileID),
+          taskID: taskIDs.get(jobFile.id),
           type: eventType,
         })
       ))

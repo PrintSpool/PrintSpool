@@ -4,15 +4,15 @@ import {
 } from 'graphql'
 
 import getJobFilesByJobID from '../selectors/getJobFilesByJobID'
-import getTasksByTaskableID from '../../spool/selectors/getTasksByTaskableID'
-import getPrintsCompletedByID from '../../spool/selectors/getPrintsCompletedByID'
+import getTaskByTaskableID from '../../spool/selectors/getTasksByTaskableID'
+import getPrintsCompletedByJobID from '../selectors/getPrintsCompletedByJobID'
 import getTotalPrintsByID from '../selectors/getTotalPrintsByID'
 import getIsDoneByJobID from '../selectors/getIsDoneByJobID'
 import getJobHistoryByID from '../selectors/getJobHistoryByID'
 
 import JobFileGraphQL from './JobFile.graphql'
 import TaskGraphQL from '../../spool/types/Task.graphql'
-import JobHistoryEventGraphQL from '../../spool/types/JobHistoryEvent.graphql'
+import JobHistoryEventGraphQL from './JobHistoryEvent.graphql'
 
 const JobGraphQL = new GraphQLObjectType({
   name: 'Job',
@@ -55,7 +55,7 @@ const JobGraphQL = new GraphQLObjectType({
       type: tql`Int!`,
       resolve(source, args, { store }) {
         const state = store.getState()
-        return getPrintsCompletedByID(state).get(source.id)
+        return getPrintsCompletedByJobID(state).get(source.id)
       },
     },
     totalPrints: {

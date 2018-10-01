@@ -62,7 +62,6 @@ describe('SPOOL a job file', () => {
   })
 
   afterEach(async () => {
-    jest.unmock('../selectors/getJobsByStatus')
     jest.unmock('../selectors/getJobTmpFiles')
     if (fs.existsSync(tmpFile)) {
       fs.unlinkSync(tmpFile)

@@ -3,7 +3,6 @@ import snl from 'strip-newlines'
 
 import actionResolver from '../../util/actionResolver'
 import createLocalFileJob from '../actions/createLocalFileJob'
-import getJob from '../selectors/getJob'
 
 import JobGraphQL from '../types/Job.graphql'
 
@@ -15,7 +14,7 @@ const createLocalFileJobGraphQL = () => ({
 
   resolve: actionResolver({
     actionCreator: createLocalFileJob,
-    selector: (state, action) => getJob(state)(action.payload.job.id),
+    selector: (state, action) => state.jobQueue.jobs.get(action.payload.job.id),
   }),
 
   args: {
