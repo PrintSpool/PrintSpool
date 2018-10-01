@@ -1,3 +1,3 @@
-const getTasks = state => state.spool.tasks
+const getTasks = state => state.tasks
 
 export default getTasks

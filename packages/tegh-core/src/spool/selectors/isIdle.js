@@ -1,4 +1,5 @@
 import { createSelector } from 'reselect'
+
 import getTasks from './getTasks'
 
 /*
@@ -6,8 +7,7 @@ import getTasks from './getTasks'
 */
 const isIdle = createSelector(
   [getTasks],
-  tasks => tasks.every(task => task.jobID == null
-      || ['SPOOLED', 'PRINTING'].includes(task.status) === false),
+  tasks => tasks.every(task => task.jobID == null),
 )
 
 export default isIdle

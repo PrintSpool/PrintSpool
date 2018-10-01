@@ -1,19 +1,20 @@
-import {
-  DONE,
-} from '../types/TaskStatusEnum'
+import { createSelector } from 'reselect'
 
-const getTaskPercentComplete = ({ task, digits }) => {
-  if (digits < 0) {
-    throw new Error('digits cannot be negative')
-  }
-  const factor = 10 ** digits
-  let value
-  if (task.status === DONE) {
-    value = 100
-  } else {
-    value = (task.currentLineNumber / task.data.size) * 100
-  }
-  return Math.round(value * factor) / factor
-}
+import getTasks from './getTasks'
+
+const getTaskPercentComplete = createSelector(
+  getTasks,
+  tasks => ({ taskID, digits }) => {
+    if (digits < 0) {
+      throw new Error('digits cannot be negative')
+    }
+
+    const task = tasks.get(taskID)
+
+    const factor = 10 ** digits
+    const value = (task.currentLineNumber / task.data.size) * 100
+    return Math.round(value * factor) / factor
+  },
+)
 
 export default getTaskPercentComplete

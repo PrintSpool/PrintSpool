@@ -2,7 +2,7 @@ import { createSelector } from 'reselect'
 
 import getTasks from './getTasks'
 
-const getTasksFor = createSelector(
+const getTasksByTaskableID = createSelector(
   getTasks,
   tasks => (
     tasks
@@ -11,4 +11,4 @@ const getTasksFor = createSelector(
   ),
 )
 
-export default getTasksFor
+export default getTasksByTaskableID

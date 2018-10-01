@@ -5,10 +5,7 @@ import getCurrentTask from './getCurrentTask'
 
 const isEmergency = createSelector(
   getCurrentTask,
-  (task) => {
-    if (task == null) return false
-    return task.priority === EMERGENCY
-  },
+  task => task != null && task.priority === EMERGENCY,
 )
 
 export default isEmergency

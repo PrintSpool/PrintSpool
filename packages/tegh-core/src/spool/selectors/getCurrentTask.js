@@ -1,5 +1,7 @@
-import getTask from './getTask'
+import { createSelector } from 'reselect'
 
-const getCurrentTask = state => getTask(state)(state.spool.currentTaskID)
+const getCurrentTask = createSelector(
+  state => state.tasks.get(state.currentTaskID),
+)
 
 export default getCurrentTask
