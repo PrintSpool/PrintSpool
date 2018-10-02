@@ -131,14 +131,14 @@ const jobQueue = (state = initialState, action) => {
       /*
        * delete the previous job upon spooling a subsequent job
        */
-      const jobsForDeletion = getCompletedJobs(state)
+      const jobsForDeletion = getCompletedJobs(state).toList()
 
-      if (jobsForDeletion.length > 1) {
+      if (jobsForDeletion.size > 1) {
         throw new Error('only one completed Job should exist at a time')
       }
 
-      if (jobsForDeletion.length === 1) {
-        const nextAction = deleteJob({ jobID: jobsForDeletion[0].id })
+      if (jobsForDeletion.size === 1) {
+        const nextAction = deleteJob({ jobID: jobsForDeletion.get(0).id })
 
         return loop(nextState, Cmd.action(nextAction))
       }

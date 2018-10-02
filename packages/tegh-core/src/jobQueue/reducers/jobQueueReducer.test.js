@@ -159,7 +159,7 @@ describe('jobQueueReducer', () => {
       expect(nextState).toEqual(initialState)
     })
 
-    fit('deletes the previously completed job if the task belongs to a job', () => {
+    it('deletes the previously completed job if the task belongs to a job', () => {
       const finishedJob = MockJob({
         id: 'finished_job',
       })
@@ -179,31 +179,31 @@ describe('jobQueueReducer', () => {
       })
       const spooledTask = MockTask({
         jobID: spooledJob.id,
-        JobFileID: spooledJobFile.id,
+        jobFileID: spooledJobFile.id,
       })
 
       const action = spoolTask(spooledTask)
 
-      const onlySpooledState = initialState
+      const state = initialState
         .setIn(['jobs', spooledJob.id], spooledJob)
         .setIn(['jobFiles', spooledJobFile.id], spooledJobFile)
-
-      const state = onlySpooledState
         .setIn(['jobs', finishedJob.id], finishedJob)
         .setIn(['jobFiles', finishedJobFile.id], finishedJobFile)
         .setIn(['history', 0], finishEvent)
 
-      const nextState = jobQueueReducer(state, action)
+      const [
+        nextState,
+        { actionToDispatch: nextAction },
+      ] = jobQueueReducer(state, action)
+
       const spoolEvent = nextState.history.last()
 
-      console.log(nextState)
-      expect(nextState.history.size).toEqual(1)
+      expect(nextAction).toEqual(deleteJob({ jobID: finishedJob.id }))
+      expect(nextState.history.size).toEqual(2)
       expect(spoolEvent.jobID).toEqual(spooledJob.id)
       expect(spoolEvent.jobFileID).toEqual(spooledJobFile.id)
       expect(spoolEvent.taskID).toEqual(spooledTask.id)
       expect(spoolEvent.type).toEqual(SPOOL_PRINT)
-      expect(nextState.jobs.toJS()).toEqual(onlySpooledState.jobs.toJS())
-      expect(nextState.jobFiles.toJS()).toEqual(onlySpooledState.jobFiles.toJS())
     })
   })
 
@@ -224,59 +224,4 @@ describe('jobQueueReducer', () => {
       })
     })
   })
-
-  // describe(SPOOL_TASK, () => {
-  //   it('deletes the previous job and it\'s tmp files', async () => {
-  //     const previousJob = MockJob({ status: DONE })
-  //     const previousJobFile = MockJobFile({ jobID: previousJob.id })
-  //     const nextJob = MockJob()
-  //     const nextJobFile = MockJobFile({ jobID: nextJob.id })
-  //
-  //     const state = initialState.merge({
-  //       jobs: {
-  //         [previousJob.id]: previousJob,
-  //         [nextJob.id]: nextJob,
-  //       },
-  //       jobFiles: {
-  //         [previousJobFile.id]: previousJobFile,
-  //         [nextJobFile.id]: nextJobFile,
-  //       },
-  //     })
-  //
-  //     const task = mockTask({
-  //       jobID: nextJob.id,
-  //       jobFileID: 'next_job_file_id',
-  //     })
-  //     const action = spoolTask(task)
-  //
-  //     /* a promise that waits for a change to the tmp file */
-  //     let tmpFileDidChange = false
-  //     const tmpFileChangePromise = new Promise((resolve) => {
-  //       const watcher = fs.watch(tmpFile, { persistent: false }, () => {
-  //         watcher.close()
-  //         resolve()
-  //         tmpFileDidChange = true
-  //       })
-  //     })
-  //
-  //     const sagaTester = createTester()
-  //     sagaTester.dispatch(action)
-  //
-  //     if (tmpFileDidChange === false) {
-  //       await tmpFileChangePromise
-  //     }
-  //
-  //     const result = sagaTester.getCalledActions()
-  //
-  //     expect(fs.existsSync(tmpFile)).toEqual(false)
-  //
-  //     expect(result).toMatchObject([
-  //       action,
-  //       {
-  //         type: DELETE_JOB,
-  //         payload: { jobID: 'mock_job' },
-  //       },
-  //     ])
-  //   })
-  // })
 })
