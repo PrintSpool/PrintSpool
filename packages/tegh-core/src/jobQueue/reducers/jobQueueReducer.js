@@ -92,6 +92,7 @@ const jobQueue = (state = initialState, action) => {
     case CANCEL_TASK: {
       const { taskID } = action.payload
       const jobFileID = getTaskIDByJobFileID(state).findKey(v => v === taskID)
+      if (jobFileID == null) return state
       const { jobID } = state.jobFiles.get(jobFileID)
 
       const historyEvent = JobHistoryEvent({
