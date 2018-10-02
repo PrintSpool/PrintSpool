@@ -42,9 +42,11 @@ const removeTaskReferences = (state) => {
   const nextTaskIDs = state.tasks.map(task => task.id)
 
   let nextState = state
-    .update('priorityQueues', queues => queues.map(queue => (
+  priorityOrder.forEach((priority) => {
+    nextState = nextState.updateIn(['priorityQueues', priority], queue => (
       queue.filter(taskID => nextTaskIDs.includes(taskID))
-    )))
+    ))
+  })
 
   if (nextTaskIDs.includes(state.currentTaskID) === false) {
     nextState = nextState.set('currentTaskID', null)
