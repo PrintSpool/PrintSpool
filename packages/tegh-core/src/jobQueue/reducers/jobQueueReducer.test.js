@@ -1,7 +1,12 @@
 import { MockJob } from '../types/Job'
 import { MockJobFile } from '../types/JobFile'
 import JobHistoryEvent from '../types/JobHistoryEvent'
-import { START_PRINT } from '../types/JobHistoryTypeEnum'
+import {
+  START_PRINT,
+  SPOOL_PRINT,
+  CANCEL_PRINT,
+  PRINT_ERROR,
+} from '../types/JobHistoryTypeEnum'
 
 import unlinkTmpFiles from '../sideEffects/unlinkTmpFiles'
 
@@ -64,20 +69,43 @@ describe('jobQueueReducer', () => {
       expect(nextState.jobs.toJS()).toEqual({})
       expect(nextState.jobFiles.toJS()).toEqual({})
       expect(sideEffect.func).toEqual(unlinkTmpFiles)
-      // todo: args
       expect(sideEffect.args).toEqual(['/lol/wut'])
     })
   })
 
   const errorsAndCancellations = [
-    PRINTER_READY,
-    ESTOP,
-    DRIVER_ERROR,
+    { actionType: ESTOP, eventType: CANCEL_PRINT },
+    { actionType: PRINTER_READY, eventType: PRINT_ERROR },
+    { actionType: DRIVER_ERROR, eventType: PRINT_ERROR },
   ]
-  errorsAndCancellations.forEach(type => {
-    describe(type, () => {
+  errorsAndCancellations.forEach(({ actionType, eventType }) => {
+    describe(actionType, () => {
       it('adds the event to the history', () => {
+        const job = MockJob()
+        const jobFile = MockJobFile({
+          jobID: job.id,
+        })
+        const taskID = 'some_task_id'
+        const spoolEvent = JobHistoryEvent({
+          jobID: job.id,
+          jobFileID: jobFile.id,
+          taskID,
+          type: SPOOL_PRINT,
+        })
+        const state = initialState
+          .setIn(['jobs', job.id], job)
+          .setIn(['jobFiles', jobFile.id], jobFile)
+          .setIn(['history', 0], spoolEvent)
+        const action = { type: actionType }
 
+        const nextState = jobQueueReducer(state, action)
+        const secondEvent = nextState.history.get(1)
+
+        expect(nextState.history.size).toEqual(2)
+        expect(secondEvent.type).toEqual(eventType)
+        expect(secondEvent.jobID).toEqual(job.id)
+        expect(secondEvent.jobFileID).toEqual(jobFile.id)
+        expect(secondEvent.taskID).toEqual(taskID)
       })
     })
   })

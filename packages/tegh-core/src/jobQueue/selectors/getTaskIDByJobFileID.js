@@ -3,13 +3,14 @@ import { createSelector } from 'reselect'
 import { SPOOLED_TYPES } from '../types/JobHistoryTypeEnum'
 
 const getTaskIDByJobFileID = createSelector(
-  (state) => {
-    const historyByJobFileID = state.history.groupBy(e => e.jobFileID)
+  state => state.history,
+  (history) => {
+    const historyByJobFileID = history.groupBy(e => e.jobFileID)
 
     return historyByJobFileID
-      .map((history) => {
-        const e = history.first()
-        if (SPOOLED_TYPES.include(e.type)) return e.taskID
+      .map((jobFileHistory) => {
+        const e = jobFileHistory.first()
+        if (SPOOLED_TYPES.includes(e.type)) return e.taskID
         return null
       })
   },

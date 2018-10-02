@@ -78,7 +78,7 @@ const jobQueue = (state = initialState, action) => {
       const taskIDs = getTaskIDByJobFileID(state)
 
       /* error or cancel any printing job file */
-      const events = getSpooledJobFiles(state).values().map(jobFile => (
+      const events = getSpooledJobFiles(state).map(jobFile => (
         JobHistoryEvent({
           jobID: jobFile.jobID,
           jobFileID: jobFile.id,
@@ -86,8 +86,7 @@ const jobQueue = (state = initialState, action) => {
           type: eventType,
         })
       ))
-
-      return state.update('history', history => history.push(events))
+      return state.update('history', history => history.concat(events))
     }
     case CANCEL_TASK: {
       const { taskID } = action.payload

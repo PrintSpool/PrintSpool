@@ -5,6 +5,7 @@ import JobHistoryTypeEnum from './JobHistoryTypeEnum'
 
 const JobHistoryEventRecord = Record({
   id: null,
+  jobID: null,
   jobFileID: null,
   taskID: null,
   createdAt: null,
