@@ -147,6 +147,7 @@ const jobQueue = (state = initialState, action) => {
     }
     case DESPOOL_TASK: {
       const {
+        id: taskID,
         jobID,
         jobFileID,
         currentLineNumber,
@@ -162,8 +163,6 @@ const jobQueue = (state = initialState, action) => {
       })()
 
       if (eventType == null) return state
-
-      const taskID = getTaskIDByJobFileID(state).get(jobFileID)
 
       /*
        * record the start or finish of the print in the job history

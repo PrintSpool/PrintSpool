@@ -216,11 +216,47 @@ describe('jobQueueReducer', () => {
       expect(nextState).toEqual(initialState)
     })
     describe('if the task belongs to a job', () => {
-      it('records a START_PRINT event if the print is starting', () => {
+      const job = MockJob()
+      const jobFile = MockJobFile({
+        jobID: job.id,
+      })
+      const state = initialState
+        .setIn(['jobs', job.id], job)
+        .setIn(['jobFiles', jobFile.id], jobFile)
 
+      it('records a START_PRINT event if the print is starting', () => {
+        const task = MockTask({
+          jobID: job.id,
+          jobFileID: jobFile.id,
+          currentLineNumber: 0,
+        })
+        const action = despoolTask(task)
+
+        const nextState = jobQueueReducer(state, action)
+        const startEvent = nextState.history.last()
+
+        expect(nextState.history.size).toEqual(1)
+        expect(startEvent.jobID).toEqual(job.id)
+        expect(startEvent.jobFileID).toEqual(jobFile.id)
+        expect(startEvent.taskID).toEqual(task.id)
+        expect(startEvent.type).toEqual(START_PRINT)
       })
       it('records a FINISH_PRINT event if the print is finishing', () => {
+        const task = MockTask({
+          jobID: job.id,
+          jobFileID: jobFile.id,
+          currentLineNumber: 1,
+        })
+        const action = despoolTask(task)
 
+        const nextState = jobQueueReducer(state, action)
+        const finishEvent = nextState.history.last()
+
+        expect(nextState.history.size).toEqual(1)
+        expect(finishEvent.jobID).toEqual(job.id)
+        expect(finishEvent.jobFileID).toEqual(jobFile.id)
+        expect(finishEvent.taskID).toEqual(task.id)
+        expect(finishEvent.type).toEqual(FINISH_PRINT)
       })
     })
   })
