@@ -26,6 +26,11 @@ const JobFile = attrs => JobFileRecord({
   ...attrs,
 })
 
-export const MockJobFile = JobFile
+export const MockJobFile = attrs => (
+  JobFile({
+    isTmpFile: true,
+    ...attrs,
+  })
+)
 
 export default JobFile

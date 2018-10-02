@@ -53,7 +53,7 @@ const jobQueue = (state = initialState, action) => {
     case DELETE_JOB: {
       const { jobID } = action.payload
 
-      const tmpFilePaths = getJobTmpFiles(state)({ jobID })
+      const tmpFilePaths = getJobTmpFiles(state)({ jobID }).toArray()
 
       const nextState = state
         .deleteIn(['jobs', jobID])
@@ -66,7 +66,7 @@ const jobQueue = (state = initialState, action) => {
 
       return loop(
         nextState,
-        Cmd.run(unlinkTmpFiles, tmpFilePaths),
+        Cmd.run(unlinkTmpFiles, { args: tmpFilePaths }),
       )
     }
     case PRINTER_READY:

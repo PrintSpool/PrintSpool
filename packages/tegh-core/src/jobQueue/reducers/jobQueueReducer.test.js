@@ -1,9 +1,13 @@
 import { MockJob } from '../types/Job'
 import { MockJobFile } from '../types/JobFile'
+import JobHistoryEvent from '../types/JobHistoryEvent'
+import { START_PRINT } from '../types/JobHistoryTypeEnum'
+
+import unlinkTmpFiles from '../sideEffects/unlinkTmpFiles'
 
 import jobQueueReducer, { initialState } from './jobQueueReducer'
 
-import createJob, { CREATE_JOB } from '../actions/createJob'
+import { CREATE_JOB } from '../actions/createJob'
 import deleteJob, { DELETE_JOB } from '../actions/deleteJob'
 
 import { SPOOL_TASK } from '../../spool/actions/spoolTask'
@@ -33,9 +37,35 @@ describe('jobQueueReducer', () => {
       expect(nextState.jobFiles.get(jobFile.id)).toEqual(jobFile)
     })
   })
-  describe(DELETE_JOB, () => {
-    it('removes the job and job files and deletes the tmp files', () => {
 
+  describe(DELETE_JOB, () => {
+    it('removes the job, job files, history and deletes the tmp files', () => {
+      const job = MockJob()
+      const jobFile = MockJobFile({
+        jobID: job.id,
+        filePath: '/lol/wut',
+      })
+      const historyEvent = JobHistoryEvent({
+        jobID: job.id,
+        jobFileID: jobFile.id,
+        type: START_PRINT,
+      })
+      const state = initialState
+        .setIn(['jobs', job.id], job)
+        .setIn(['jobFiles', jobFile.id], jobFile)
+        .setIn(['history', 0], historyEvent)
+      const action = deleteJob({ jobID: job.id })
+
+      const [
+        nextState,
+        sideEffect,
+      ] = jobQueueReducer(state, action)
+
+      expect(nextState.jobs.toJS()).toEqual({})
+      expect(nextState.jobFiles.toJS()).toEqual({})
+      expect(sideEffect.func).toEqual(unlinkTmpFiles)
+      // todo: args
+      expect(sideEffect.args).toEqual(['/lol/wut'])
     })
   })
 
@@ -60,6 +90,7 @@ describe('jobQueueReducer', () => {
 
     })
   })
+
   describe(SPOOL_TASK, () => {
     it('does nothing if the task does not belong to a job', () => {
 
@@ -68,6 +99,7 @@ describe('jobQueueReducer', () => {
 
     })
   })
+
   describe(DESPOOL_TASK, () => {
     it('does nothing if the task does not belong to a job', () => {
 
