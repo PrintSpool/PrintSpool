@@ -21,6 +21,7 @@ import { DRIVER_ERROR } from '../../printer/actions/driverError'
 /* job actions */
 import deleteJob, { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 /* task actions */
+import cancelTask, { CANCEL_TASK } from '../actions/cancelTask'
 import spoolTask, { SPOOL_TASK } from '../actions/spoolTask'
 import requestDespool, { REQUEST_DESPOOL } from '../actions/requestDespool'
 import { DESPOOL_TASK } from '../actions/despoolTask'
@@ -46,6 +47,17 @@ describe('spoolReducer', () => {
   })
 
   describe(DELETE_JOB, () => {
+    const state = initialState
+      .setIn(['tasks', 'job_task'], MockTask({ jobID: 'the_job' }))
+      .setIn(['tasks', 'the_task'], MockTask({ taskID: 'the_task' }))
+    const action = cancelTask({ taskID: 'the_task' })
+
+    const nextState = spoolReducer(state, action)
+
+    expect(nextState).toEqual(state.removeIn(['tasks', 'the_task']))
+  })
+
+  describe(CANCEL_TASK, () => {
     const state = initialState
       .setIn(['tasks', 'job_task'], MockTask({ jobID: 'the_job' }))
       .setIn(['tasks', 'other_task'], MockTask({ jobID: 'other_job' }))

@@ -3,6 +3,7 @@ import { createSelector } from 'reselect'
 import getJobFilesByJobID from './getJobFilesByJobID'
 
 const getTotalPrintsByJobID = createSelector(
+  state => state,
   (state) => {
     const jobFilesByJobID = getJobFilesByJobID(state)
     return state.jobs.map((job) => {

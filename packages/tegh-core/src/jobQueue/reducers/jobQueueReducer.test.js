@@ -7,6 +7,7 @@ import {
   SPOOL_PRINT,
   CANCEL_PRINT,
   PRINT_ERROR,
+  FINISH_PRINT,
 } from '../types/JobHistoryTypeEnum'
 
 import unlinkTmpFiles from '../sideEffects/unlinkTmpFiles'
@@ -120,7 +121,32 @@ describe('jobQueueReducer', () => {
       expect(nextState).toEqual(initialState)
     })
     it('adds the event to the history if the task belongs to a job', () => {
+      const job = MockJob()
+      const jobFile = MockJobFile({
+        jobID: job.id,
+      })
+      const spoolEvent = JobHistoryEvent({
+        jobID: job.id,
+        jobFileID: jobFile.id,
+        taskID: 'job_task',
+        type: SPOOL_PRINT,
+      })
 
+      const action = cancelTask({ taskID: 'job_task' })
+
+      const state = initialState
+        .setIn(['jobs', job.id], job)
+        .setIn(['jobFiles', jobFile.id], jobFile)
+        .setIn(['history', 0], spoolEvent)
+
+      const nextState = jobQueueReducer(state, action)
+      const secondEvent = nextState.history.last()
+
+      expect(nextState.history.size).toEqual(2)
+      expect(secondEvent.jobID).toEqual(job.id)
+      expect(secondEvent.jobFileID).toEqual(jobFile.id)
+      expect(secondEvent.taskID).toEqual('job_task')
+      expect(secondEvent.type).toEqual(CANCEL_PRINT)
     })
   })
 
@@ -132,8 +158,52 @@ describe('jobQueueReducer', () => {
 
       expect(nextState).toEqual(initialState)
     })
-    it('deletes the previously completed job if the task belongs to a job', () => {
 
+    fit('deletes the previously completed job if the task belongs to a job', () => {
+      const finishedJob = MockJob({
+        id: 'finished_job',
+      })
+      const finishedJobFile = MockJobFile({
+        jobID: finishedJob.id,
+      })
+      const finishEvent = JobHistoryEvent({
+        jobID: finishedJob.id,
+        jobFileID: finishedJobFile.id,
+        taskID: 'job_task',
+        type: FINISH_PRINT,
+      })
+
+      const spooledJob = MockJob()
+      const spooledJobFile = MockJobFile({
+        jobID: spooledJob.id,
+      })
+      const spooledTask = MockTask({
+        jobID: spooledJob.id,
+        JobFileID: spooledJobFile.id,
+      })
+
+      const action = spoolTask(spooledTask)
+
+      const onlySpooledState = initialState
+        .setIn(['jobs', spooledJob.id], spooledJob)
+        .setIn(['jobFiles', spooledJobFile.id], spooledJobFile)
+
+      const state = onlySpooledState
+        .setIn(['jobs', finishedJob.id], finishedJob)
+        .setIn(['jobFiles', finishedJobFile.id], finishedJobFile)
+        .setIn(['history', 0], finishEvent)
+
+      const nextState = jobQueueReducer(state, action)
+      const spoolEvent = nextState.history.last()
+
+      console.log(nextState)
+      expect(nextState.history.size).toEqual(1)
+      expect(spoolEvent.jobID).toEqual(spooledJob.id)
+      expect(spoolEvent.jobFileID).toEqual(spooledJobFile.id)
+      expect(spoolEvent.taskID).toEqual(spooledTask.id)
+      expect(spoolEvent.type).toEqual(SPOOL_PRINT)
+      expect(nextState.jobs.toJS()).toEqual(onlySpooledState.jobs.toJS())
+      expect(nextState.jobFiles.toJS()).toEqual(onlySpooledState.jobFiles.toJS())
     })
   })
 

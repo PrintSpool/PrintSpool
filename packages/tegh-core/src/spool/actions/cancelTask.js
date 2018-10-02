@@ -6,7 +6,7 @@ const cancelTask = ({ taskID }) => {
   }
   return {
     type: CANCEL_TASK,
-    payload: { id: taskID },
+    payload: { taskID },
   }
 }
 

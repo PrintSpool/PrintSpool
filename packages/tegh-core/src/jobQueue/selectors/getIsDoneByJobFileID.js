@@ -4,6 +4,7 @@ import getPrintsCompletedByJobFileID from './getPrintsCompletedByJobFileID'
 import getTotalPrintsByJobFileID from './getTotalPrintsByJobFileID'
 
 const getIsDoneByJobFileID = createSelector(
+  state => state,
   (state) => {
     const printsCompletedByJobFileID = getPrintsCompletedByJobFileID(state)
     const totalPrintsByJobFileID = getTotalPrintsByJobFileID(state)

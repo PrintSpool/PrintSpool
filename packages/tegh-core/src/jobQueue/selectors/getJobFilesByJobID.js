@@ -1,8 +1,9 @@
 import { createSelector } from 'reselect'
 
 const getJobFilesByJobID = createSelector(
-  state => (
-    state.jobFiles
+  state => state.jobFiles,
+  jobFiles => (
+    jobFiles
       .toList()
       .groupBy(jobFile => jobFile.jobID)
   ),
