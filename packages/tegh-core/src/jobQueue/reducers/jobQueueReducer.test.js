@@ -1,5 +1,6 @@
 import { MockJob } from '../types/Job'
 import { MockJobFile } from '../types/JobFile'
+import { MockTask } from '../../spool/types/Task'
 import JobHistoryEvent from '../types/JobHistoryEvent'
 import {
   START_PRINT,
@@ -15,9 +16,9 @@ import jobQueueReducer, { initialState } from './jobQueueReducer'
 import { CREATE_JOB } from '../actions/createJob'
 import deleteJob, { DELETE_JOB } from '../actions/deleteJob'
 
-import { SPOOL_TASK } from '../../spool/actions/spoolTask'
-import { DESPOOL_TASK } from '../../spool/actions/despoolTask'
-import { CANCEL_TASK } from '../../spool/actions/cancelTask'
+import spoolTask, { SPOOL_TASK } from '../../spool/actions/spoolTask'
+import despoolTask, { DESPOOL_TASK } from '../../spool/actions/despoolTask'
+import cancelTask, { CANCEL_TASK } from '../../spool/actions/cancelTask'
 
 import { PRINTER_READY } from '../../printer/actions/printerReady'
 import { ESTOP } from '../../printer/actions/estop'
@@ -112,7 +113,11 @@ describe('jobQueueReducer', () => {
 
   describe(CANCEL_TASK, () => {
     it('does nothing if the task does not belong to a job', () => {
+      const action = cancelTask({ taskID: 'test_test_test' })
 
+      const nextState = jobQueueReducer(initialState, action)
+
+      expect(nextState).toEqual(initialState)
     })
     it('adds the event to the history if the task belongs to a job', () => {
 
@@ -121,7 +126,11 @@ describe('jobQueueReducer', () => {
 
   describe(SPOOL_TASK, () => {
     it('does nothing if the task does not belong to a job', () => {
+      const action = spoolTask(MockTask())
 
+      const nextState = jobQueueReducer(initialState, action)
+
+      expect(nextState).toEqual(initialState)
     })
     it('deletes the previously completed job if the task belongs to a job', () => {
 
@@ -130,7 +139,11 @@ describe('jobQueueReducer', () => {
 
   describe(DESPOOL_TASK, () => {
     it('does nothing if the task does not belong to a job', () => {
+      const action = despoolTask(MockTask())
 
+      const nextState = jobQueueReducer(initialState, action)
+
+      expect(nextState).toEqual(initialState)
     })
     describe('if the task belongs to a job', () => {
       it('records a START_PRINT event if the print is starting', () => {
