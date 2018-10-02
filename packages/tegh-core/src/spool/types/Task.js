@@ -46,16 +46,18 @@ const TaskRecord = Record({
   stoppedAt: null,
 })
 
-const Task = ({
-  id,
-  priority,
-  internal,
-  name,
-  jobID,
-  jobFileID,
-  data,
-  status,
-}) => {
+const Task = (attrs) => {
+  const {
+    id,
+    priority,
+    internal,
+    name,
+    jobID,
+    jobFileID,
+    data,
+    status,
+  } = attrs
+
   if (typeof name !== 'string') {
     throw new Error('name must be a string')
   }
@@ -69,18 +71,13 @@ const Task = ({
     throw new Error('data must be an array of strings')
   }
   return TaskRecord({
-    id: id || uuid(),
+    id: uuid(),
     createdAt: new Date().toISOString(),
+    status: SPOOLED,
+    ...attrs,
     data: List(normalizeGCodeLines(data)),
-    status: status || SPOOLED,
-    priority,
-    internal,
-    name,
-    jobID,
-    jobFileID,
   })
 }
-
 
 export const MockTask = attrs => Task({
   name: 'test.ngc',

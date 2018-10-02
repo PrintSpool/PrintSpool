@@ -1,15 +1,17 @@
 import { List } from 'immutable'
-import Task from '../types/Task'
-import { DELETE_ITEM } from '../../util/ReduxNestedMap'
+
+import spoolReducer, { initialState } from './spoolReducer'
+
+import { MockTask } from '../types/Task'
 
 import {
   EMERGENCY,
+  PREEMPTIVE,
   NORMAL,
 } from '../types/PriorityEnum'
 
 import {
   PRINTING,
-  DONE,
 } from '../types/TaskStatusEnum'
 
 /* printer actions */
@@ -17,36 +19,13 @@ import { PRINTER_READY } from '../../printer/actions/printerReady'
 import { ESTOP } from '../../printer/actions/estop'
 import { DRIVER_ERROR } from '../../printer/actions/driverError'
 /* job actions */
-import { CANCEL_JOB } from '../../jobQueue/actions/cancelJob'
+import deleteJob, { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 /* task actions */
-import deleteTasks, { DELETE_TASKS } from '../actions/deleteTasks'
-import { SPOOL_TASK } from '../actions/spoolTask'
-import { CREATE_TASK } from '../actions/createTask'
-import { REQUEST_DESPOOL } from '../actions/requestDespool'
+import spoolTask, { SPOOL_TASK } from '../actions/spoolTask'
+import requestDespool, { REQUEST_DESPOOL } from '../actions/requestDespool'
 import { DESPOOL_TASK } from '../actions/despoolTask'
-import { START_TASK } from '../actions/startTask'
-import { CANCEL_ALL_TASKS } from '../actions/cancelAllTasks'
-
-let spoolReducer
-let initialState
 
 describe('spoolReducer', () => {
-  const mockTaskReducerWith = (implementation) => {
-    beforeEach(() => {
-      jest.resetModules()
-      jest.doMock('./taskReducer', () => jest.fn(implementation))
-      // eslint-disable-next-line global-require
-      const m = require('./spoolReducer')
-      spoolReducer = m.default()
-      // eslint-disable-next-line prefer-destructuring
-      initialState = m.initialState
-    })
-
-    afterEach(() => {
-      jest.unmock('./taskReducer')
-    })
-  }
-
   const spoolResetActions = [
     PRINTER_READY,
     ESTOP,
@@ -55,154 +34,88 @@ describe('spoolReducer', () => {
 
   spoolResetActions.forEach((type) => {
     describe(type, () => {
-      mockTaskReducerWith(() => null)
-
-      it('resets the priority queues', () => {
-        const state = initialState.set('priorityQueues', 'VALUE BEFORE RESET')
+      it('resets the state', () => {
+        const state = 'any state'
         const action = { type }
 
         const result = spoolReducer(state, action)
 
-        expect(result.priorityQueues).toEqual(initialState.priorityQueues)
+        expect(result).toEqual(initialState)
       })
     })
   })
 
-  const passThroughActions = [
-    ...spoolResetActions,
-    CANCEL_JOB,
-  ]
+  describe(DELETE_JOB, () => {
 
-  passThroughActions.forEach((type) => {
-    describe(type, () => {
-      mockTaskReducerWith((state, action) => ({ state, action }))
-
-      it('passes through the action', () => {
-        const state = initialState.mergeIn(['tasks'], {
-          a: 'A',
-          b: 'B',
-        })
-        const action = { type }
-
-        const result = spoolReducer(state, action)
-
-        expect(result.tasks.toJS()).toEqual({
-          a: { state: 'A', action },
-          b: { state: 'B', action },
-        })
-      })
-    })
-  })
-
-  describe(DELETE_TASKS, () => {
-    mockTaskReducerWith((state, action) => action)
-
-    it('passes the action through', () => {
-      const taskID = 'A'
-      const action = deleteTasks({ ids: [taskID] })
-      const state = initialState
-        .setIn(['tasks', taskID], Task({
-          id: taskID,
-          name: 'test.ngc',
-          priority: EMERGENCY,
-          internal: false,
-          data: ['g1 x10'],
-        }))
-
-      const result = spoolReducer(state, action)
-
-      expect(result.tasks.get(taskID)).toEqual(action)
-    })
   })
 
   describe(SPOOL_TASK, () => {
-    const action = {
-      type: SPOOL_TASK,
-      payload: {
-        task: Task({
-          name: 'test.ngc',
-          priority: NORMAL,
-          internal: false,
-          data: ['g1 x10'],
-        }),
-      },
-    }
-    const spooledTaskID = action.payload.task.id
-
-    mockTaskReducerWith((state, taskAction) => {
-      if (taskAction.type === CREATE_TASK) return taskAction.payload.task
-      if (taskAction.type === CANCEL_ALL_TASKS) return DELETE_ITEM
-      return state
-    })
-
     describe('when no other tasks are spooled', () => {
       it('creates the task and despools the first line', () => {
-        const state = initialState
+        const task = MockTask()
+        const action = spoolTask(task)
 
-        const result = spoolReducer(state, action)
+        const [
+          nextState,
+          { actionToDispatch: nextAction },
+        ] = spoolReducer(initialState, action)
 
-        const nextAction = result[1].actionToDispatch
-
-        expect(result[0].tasks.get(spooledTaskID)).not.toBe(null)
+        expect(nextState.tasks.get(task.id)).toEqual(task)
+        expect(nextState.priorityQueues[NORMAL].toArray()).toEqual([task.id])
         expect(nextAction.type).toEqual(REQUEST_DESPOOL)
       })
     })
 
     describe('when other tasks are spooled', () => {
       it('creates the task and adds it to the priority queue', () => {
-        const state = initialState.set('currentTaskID', 'something')
+        const task = MockTask()
+        const action = spoolTask(task)
+        const otherTaskID = 'OTHER_TASK_ID'
 
-        const result = spoolReducer(state, action)
+        const nextState = spoolReducer(
+          initialState.set('currentTaskID', otherTaskID),
+          action,
+        )
 
-        expect(result.tasks.get(spooledTaskID)).not.toBe(null)
-        expect(result.currentTaskID).toEqual(state.currentTaskID)
-        expect(result.priorityQueues.get(NORMAL).toJS()).toEqual([
-          spooledTaskID,
-        ])
+        expect(nextState.currentTaskID).toEqual(otherTaskID)
+        expect(nextState.tasks.get(task.id)).toEqual(task)
+        expect(nextState.priorityQueues[NORMAL].toArray()).toEqual([task.id])
       })
 
       describe('and it is an emergency', () => {
-        const task = Task({
-          name: 'test.ngc',
-          priority: EMERGENCY,
-          internal: false,
-          data: ['g1 x10', 'g1 y20'],
-        })
-        const emergencyAction = {
-          type: SPOOL_TASK,
-          payload: { task },
-        }
+        it('cancels other tasks and despools the emergency task', () => {
+          const task = MockTask({ priority: EMERGENCY })
+          const action = spoolTask(task)
+          const otherTask = MockTask({ id: 'OTHER_TASK_ID' })
 
-        it('cancels other tasks', () => {
-          const state = initialState.setIn(
-            ['tasks', 'cancelled_task_id'],
-            Task({
-              name: 'cancelled_task.ngc',
-              priority: NORMAL,
-              internal: false,
-              data: ['g1 x10', 'g1 y20'],
-            }),
-          )
-          const result = spoolReducer(state, emergencyAction)
+          const state = initialState
+            .set('currentTaskID', otherTask.id)
+            .setIn(['tasks', otherTask.id], otherTask)
+            .setIn(['priorityQueues', NORMAL, 0], otherTask.id)
 
-          const nextAction = result[1].actionToDispatch
+          const [
+            nextState,
+            { actionToDispatch: nextAction },
+          ] = spoolReducer(state, action)
 
-          expect(result[0].tasks.size).toEqual(1)
-          expect(result[0].tasks.get(task.id)).toEqual(task)
+          expect(nextState.tasks.toJS()).toEqual({ [task.id]: task.toJS() })
+          expect(nextState.priorityQueues[EMERGENCY].toArray()).toEqual([task.id])
+          expect(nextState.priorityQueues[NORMAL].toArray()).toEqual([])
           expect(nextAction.type).toEqual(REQUEST_DESPOOL)
         })
       })
 
       describe('and a job is already spooled', () => {
-        it('throws an error if the task is not an emergency', () => {
-          const state = initialState.setIn(['tasks', 'abc'], Task({
-            name: 'test_job.ngc',
-            priority: NORMAL,
-            status: PRINTING,
+        it('throws an error if the task is not internal or an emergency', () => {
+          const task = MockTask({ internal: false })
+          const action = spoolTask(task)
+          const jobTask = MockTask({
             internal: false,
             jobID: 'abc',
-            data: ['g1 x10', 'g1 y20'],
-          }))
+            jobFileID: '123',
+          })
+
+          const state = initialState.setIn(['tasks', jobTask.id], jobTask)
 
           expect(() => {
             spoolReducer(state, action)
@@ -212,101 +125,91 @@ describe('spoolReducer', () => {
     })
   })
 
+  // TODO: next
   describe(REQUEST_DESPOOL, () => {
-    const action = {
-      type: REQUEST_DESPOOL,
-    }
+    const despoolNextTaskState = initialState
+      .setIn(['priorityQueues', NORMAL], List([
+        'normal_1',
+      ]))
+      .setIn(['priorityQueues', PREEMPTIVE], List([
+        'preemptive_1',
+        'preemptive_2',
+      ]))
+      .setIn(['tasks', 'preemptive_1'], MockTask({
+        id: 'preemptive_1',
+        priority: PREEMPTIVE,
+      }))
 
-    mockTaskReducerWith((state, taskAction) => ({
-      ...(state ? state.toJS() : {}),
-      action: taskAction,
-    }))
+    // TODO: loop through each despool next task scenario
+    const despoolNextTaskScenarios = [
+      {
+        scenario: 'when the current task is done',
+        state: (
+          despoolNextTaskState
+            .set('currentTaskID', 'finished_task')
+            .setIn(['tasks', 'finished_task'], MockTask({
+              id: 'finished_task',
+              currentLineNumber: 2,
+            }))
+        ),
+      },
+      {
+        scenario: 'if there is not a currentTask',
+        state: despoolNextTaskState,
+      },
+    ]
+    despoolNextTaskScenarios.forEach(({ scenario, state }) => {
+      describe(scenario, () => {
+        it('despools the next top priority task', () => {
+          const action = requestDespool()
 
-    describe('if there is not a currentTask', () => {
-      it('starts the top priority task', () => {
-        const state = initialState
-          .setIn(['priorityQueues', NORMAL], List([
-            'normal_1',
-          ]))
-          .setIn(['priorityQueues', EMERGENCY], List([
-            'emergency_1',
-            'emergency_2',
-          ]))
-          .setIn(['tasks', 'emergency_1'], Task({
-            priority: 'EMERGENCY',
-            internal: true,
-            name: 'emergency_1',
-            data: ['g1 x10', 'g1 y10'],
-          }))
+          const [
+            nextState,
+            { actionToDispatch: nextAction },
+          ] = spoolReducer(state, action)
 
-        const result = spoolReducer(state, action)
-
-        expect(result[0].currentTaskID).toEqual('emergency_1')
-        expect(
-          result[0].tasks.get('emergency_1').action.type,
-        ).toEqual(START_TASK)
-        expect(result[0].priorityQueues.get(EMERGENCY).toJS()).toEqual([
-          'emergency_2',
-        ])
-        expect(result[1].actionToDispatch.type).toEqual(DESPOOL_TASK)
-        expect(result[1].actionToDispatch.payload.task).toEqual(
-          result[0].tasks.get('emergency_1'),
-        )
-      })
-
-      describe('and there is nothing in the queue', () => {
-        it('does nothing', () => {
-          const state = initialState
-
-          const result = spoolReducer(state, action)
-
-          expect(result.currentTaskID).toEqual(null)
+          expect(nextState.currentTaskID).toEqual('preemptive_1')
+          expect(nextState.tasks.get('preemptive_1').status).toEqual(PRINTING)
+          expect(nextState.priorityQueues.get(PREEMPTIVE).toJS()).toEqual([
+            'preemptive_2',
+          ])
+          expect(nextAction.type).toEqual(DESPOOL_TASK)
+          expect(nextAction.payload.task.id).toEqual('preemptive_1')
         })
       })
     })
 
-    describe('if there is a currentTask', () => {
-      describe('with lines left', () => {
-        it('despools the task via the taskReducer', () => {
-          const taskID = 'A'
-          const task = Task({
-            id: taskID,
-            name: 'test.ngc',
-            priority: EMERGENCY,
-            internal: false,
-            data: ['g1 x10'],
-            status: PRINTING,
-          })
-          const state = initialState
-            .set('currentTaskID', taskID)
-            .setIn(['tasks', taskID], task)
+    describe('if there are no tasks', () => {
+      it('does nothing', () => {
+        const state = initialState
+        const action = requestDespool()
 
-          const result = spoolReducer(state, action)
+        const result = spoolReducer(state, action)
 
-          expect(result[0].currentTaskID).toEqual(taskID)
-          expect(result[0].tasks.get(taskID).action.type).toEqual(REQUEST_DESPOOL)
-          expect(result[1].actionToDispatch.payload.task.id).toEqual(taskID)
-        })
+        expect(result).toEqual(initialState)
       })
+    })
 
-      describe('with no lines left', () => {
-        it('finishes the task and then despools the next task', () => {
-          const taskID = 'A'
-          const state = initialState
-            .set('currentTaskID', taskID)
-            .setIn(['tasks', taskID], Task({
-              name: 'test.ngc',
-              priority: EMERGENCY,
-              internal: false,
-              data: ['g1 x10'],
-              status: DONE,
-            }))
-
-          const result = spoolReducer(state, action)
-
-          expect(result.currentTaskID).toEqual(null)
-          expect(result.tasks.get(taskID).action.type).toEqual(REQUEST_DESPOOL)
+    describe('if there is a currentTask with lines left', () => {
+      it('despools the next line of the task', () => {
+        const action = requestDespool()
+        const task = MockTask({
+          status: PRINTING,
+          currentLineNumber: 0,
         })
+        const state = initialState
+          .set('currentTaskID', task.id)
+          .setIn(['tasks', task.id], task)
+
+        const [
+          nextState,
+          { actionToDispatch: nextAction },
+        ] = spoolReducer(state, action)
+
+        expect(nextState.currentTaskID).toEqual(task.id)
+        expect(nextState.tasks.get(task.id).currentLineNumber).toEqual(1)
+        expect(nextAction.type).toEqual(DESPOOL_TASK)
+        expect(nextAction.payload.task.id).toEqual(task.id)
       })
     })
   })

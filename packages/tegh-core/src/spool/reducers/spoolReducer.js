@@ -53,7 +53,7 @@ const removeTaskReferences = (state) => {
   return nextState
 }
 
-const spoolReducer = () => (state = initialState, action) => {
+const spoolReducer = (state = initialState, action) => {
   switch (action.type) {
     /* Spool reset actions */
     case PRINTER_READY:
@@ -90,28 +90,19 @@ const spoolReducer = () => (state = initialState, action) => {
         nextState = initialState
       }
 
-      nextState = nextState.setIn(['tasks', id], task)
-
-      if (
-        isIdle.resultFunc(state.tasks) === false
-        && priority !== EMERGENCY
-        && task.internal !== true
-      ) {
+      if (isIdle(nextState) === false && task.internal !== true) {
         throw new Error('Cannot spool non-emergency tasks when printing a job')
       }
 
-
-      /* create the task */
-      const taskQueue = ['priorityQueues', priority]
-      const shouldDespool = nextState.currentTaskID == null
-
+      /* add the task to the spool */
       nextState = nextState
         .setIn(['tasks', id], task)
-        .updateIn(taskQueue, list => list.push(id))
+        .updateIn(['priorityQueues', priority], list => list.push(id))
 
       /*
        * despool the first line if nothing is spooled
        */
+      const shouldDespool = nextState.currentTaskID == null
       if (shouldDespool) {
         return loop(nextState, Cmd.action(requestDespool()))
       }
@@ -131,13 +122,14 @@ const spoolReducer = () => (state = initialState, action) => {
           /*
            * if the task has more lines to execute then increment the line number
            */
-          return nextState
+          nextState = nextState
             .updateIn(['tasks', currentTaskID, 'currentLineNumber'], i => i + 1)
+        } else {
+          /* delete the task upon completion */
+          nextState = nextState
+            .set('currentTaskID', null)
+            .update('tasks', tasks => tasks.remove(currentTaskID))
         }
-        /* delete the task upon completion */
-        nextState = nextState
-          .set('currentTaskID', null)
-          .update('tasks', tasks => tasks.remove(currentTaskID))
       }
 
       if (nextState.currentTaskID == null) {
@@ -150,9 +142,7 @@ const spoolReducer = () => (state = initialState, action) => {
         ))
 
         const allQueuesAreEmpty = priority == null
-        if (allQueuesAreEmpty) {
-          return nextState.set('currentTaskID', null)
-        }
+        if (allQueuesAreEmpty) return initialState
 
         const nextTaskID = state.priorityQueues[priority].first()
 
