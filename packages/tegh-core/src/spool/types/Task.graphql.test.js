@@ -1,5 +1,7 @@
 import snapshotTestGraphQLType from '../../util/testing/snapshotTestGraphQLType'
 
+import { initialState as spoolState } from '../reducers/spoolReducer'
+
 import Task from './Task'
 import { NORMAL } from './PriorityEnum'
 
@@ -13,6 +15,7 @@ const task = Task({
 })
 
 const state = {
+  spool: spoolState.setIn(['tasks', task.id], task),
   config: {
     id: 'test_printer_id',
   },

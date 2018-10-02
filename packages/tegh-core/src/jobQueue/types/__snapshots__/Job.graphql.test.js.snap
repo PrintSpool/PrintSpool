@@ -74,22 +74,7 @@ Object {
       },
     },
     Object {
-      "args": Array [
-        Object {
-          "defaultValue": null,
-          "description": null,
-          "name": "excludeCompletedTasks",
-          "type": Object {
-            "kind": "NON_NULL",
-            "name": null,
-            "ofType": Object {
-              "kind": "SCALAR",
-              "name": "Boolean",
-              "ofType": null,
-            },
-          },
-        },
-      ],
+      "args": Array [],
       "deprecationReason": null,
       "description": null,
       "isDeprecated": false,
@@ -113,7 +98,27 @@ Object {
       "deprecationReason": null,
       "description": null,
       "isDeprecated": false,
-      "name": "tasksCompleted",
+      "name": "history",
+      "type": Object {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": Object {
+          "kind": "LIST",
+          "name": null,
+          "ofType": Object {
+            "kind": "OBJECT",
+            "name": "JobHistoryEvent",
+            "ofType": null,
+          },
+        },
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "printsCompleted",
       "type": Object {
         "kind": "NON_NULL",
         "name": null,
@@ -129,7 +134,7 @@ Object {
       "deprecationReason": null,
       "description": null,
       "isDeprecated": false,
-      "name": "totalTasks",
+      "name": "totalPrints",
       "type": Object {
         "kind": "NON_NULL",
         "name": null,
@@ -145,13 +150,13 @@ Object {
       "deprecationReason": null,
       "description": null,
       "isDeprecated": false,
-      "name": "status",
+      "name": "isDone",
       "type": Object {
         "kind": "NON_NULL",
         "name": null,
         "ofType": Object {
-          "kind": "ENUM",
-          "name": "JobStatus",
+          "kind": "SCALAR",
+          "name": "Boolean",
           "ofType": null,
         },
       },
@@ -213,18 +218,19 @@ Object {
       "id": "[DYNAMIC FIELD OMITTED]",
     },
   ],
+  "history": Array [],
   "id": "[DYNAMIC FIELD OMITTED]",
+  "isDone": false,
   "name": "test job",
+  "printsCompleted": 0,
   "quantity": 1,
   "startedAt": null,
-  "status": "QUEUED",
   "stoppedAt": null,
   "tasks": Array [
     Object {
       "id": "[DYNAMIC FIELD OMITTED]",
     },
   ],
-  "tasksCompleted": 0,
-  "totalTasks": 1,
+  "totalPrints": 1,
 }
 `;

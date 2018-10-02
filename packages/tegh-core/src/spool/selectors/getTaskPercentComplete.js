@@ -11,6 +11,10 @@ const getTaskPercentComplete = createSelector(
 
     const task = tasks.get(taskID)
 
+    if (task == null) {
+      throw new Error(`task ${taskID} does not exist`)
+    }
+
     const factor = 10 ** digits
     const value = (task.currentLineNumber / task.data.size) * 100
     return Math.round(value * factor) / factor

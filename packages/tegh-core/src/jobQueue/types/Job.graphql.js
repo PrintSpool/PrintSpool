@@ -2,6 +2,7 @@ import tql from 'typiql'
 import {
   GraphQLObjectType,
 } from 'graphql'
+import { List } from 'immutable'
 
 import getJobFilesByJobID from '../selectors/getJobFilesByJobID'
 import getTasksByTaskableID from '../../spool/selectors/getTasksByTaskableID'
@@ -29,7 +30,7 @@ const JobGraphQL = new GraphQLObjectType({
     files: {
       type: tql`[${JobFileGraphQL}]!`,
       resolve(source, args, { store }) {
-        const state = store.getState()
+        const state = store.getState().jobQueue
         const jobID = source.id
         return getJobFilesByJobID(state).get(jobID)
       },
@@ -38,37 +39,37 @@ const JobGraphQL = new GraphQLObjectType({
     tasks: {
       type: tql`[${TaskGraphQL}]!`,
       resolve(source, args, { store }) {
-        const state = store.getState()
-        return getTasksByTaskableID(state).get(source.id)
+        const state = store.getState().spool
+        return getTasksByTaskableID(state).get(source.id, List())
       },
     },
 
     history: {
-      type: tql`${JobHistoryEventGraphQL}!`,
+      type: tql`[${JobHistoryEventGraphQL}]!`,
       resolve(source, args, { store }) {
-        const state = store.getState()
-        return getHistoryByJobID(state).get(source.id)
+        const state = store.getState().jobQueue
+        return getHistoryByJobID(state).get(source.id, List())
       },
     },
 
     printsCompleted: {
       type: tql`Int!`,
       resolve(source, args, { store }) {
-        const state = store.getState()
-        return getPrintsCompletedByJobID(state).get(source.id)
+        const state = store.getState().jobQueue
+        return getPrintsCompletedByJobID(state).get(source.id, 0)
       },
     },
     totalPrints: {
       type: tql`Int!`,
       resolve(source, args, { store }) {
-        const state = store.getState()
+        const state = store.getState().jobQueue
         return getTotalPrintsByJobID(state).get(source.id)
       },
     },
     isDone: {
       type: tql`Boolean!`,
       resolve(source, args, { store }) {
-        const state = store.getState()
+        const state = store.getState().jobQueue
         return getIsDoneByJobID(state).get(source.id)
       },
     },

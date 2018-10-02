@@ -54,18 +54,7 @@ Object {
       },
     },
     Object {
-      "args": Array [
-        Object {
-          "defaultValue": null,
-          "description": null,
-          "name": "excludeCompletedTasks",
-          "type": Object {
-            "kind": "SCALAR",
-            "name": "Boolean",
-            "ofType": null,
-          },
-        },
-      ],
+      "args": Array [],
       "deprecationReason": null,
       "description": null,
       "isDeprecated": false,
@@ -89,7 +78,7 @@ Object {
       "deprecationReason": null,
       "description": null,
       "isDeprecated": false,
-      "name": "tasksCompleted",
+      "name": "printsCompleted",
       "type": Object {
         "kind": "NON_NULL",
         "name": null,
@@ -105,7 +94,7 @@ Object {
       "deprecationReason": null,
       "description": null,
       "isDeprecated": false,
-      "name": "totalTasks",
+      "name": "totalPrints",
       "type": Object {
         "kind": "NON_NULL",
         "name": null,
@@ -121,13 +110,13 @@ Object {
       "deprecationReason": null,
       "description": null,
       "isDeprecated": false,
-      "name": "status",
+      "name": "isDone",
       "type": Object {
         "kind": "NON_NULL",
         "name": null,
         "ofType": Object {
-          "kind": "ENUM",
-          "name": "JobStatus",
+          "kind": "SCALAR",
+          "name": "Boolean",
           "ofType": null,
         },
       },
@@ -144,15 +133,15 @@ Object {
 exports[`JobFileGraphQL resolves every field without error 1`] = `
 Object {
   "id": "test_job_file_id",
+  "isDone": false,
   "name": "gear.gcode",
+  "printsCompleted": 0,
   "quantity": 1,
-  "status": "QUEUED",
   "tasks": Array [
     Object {
       "id": "[DYNAMIC FIELD OMITTED]",
     },
   ],
-  "tasksCompleted": 0,
-  "totalTasks": 1,
+  "totalPrints": 1,
 }
 `;

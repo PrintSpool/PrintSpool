@@ -2,6 +2,8 @@ import { Map } from 'immutable'
 
 import snapshotTestGraphQLType from '../../util/testing/snapshotTestGraphQLType'
 
+import { initialState as jobQueueState } from '../reducers/jobQueueReducer'
+import { initialState as spoolState } from '../../spool/reducers/spoolReducer'
 import Job from './Job'
 import JobFile from './JobFile'
 // import { NORMAL } from './PriorityEnum'
@@ -27,19 +29,19 @@ const task = {
 }
 
 const state = {
-  jobQueue: {
+  jobQueue: jobQueueState.merge({
     jobs: Map({
       [job.id]: job,
     }),
     jobFiles: Map({
       [jobFile.id]: jobFile,
     }),
-  },
-  spool: {
+  }),
+  spool: spoolState.merge({
     tasks: Map({
       [task.id]: task,
     }),
-  },
+  }),
 }
 
 snapshotTestGraphQLType('JobGraphQL', {

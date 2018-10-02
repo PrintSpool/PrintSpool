@@ -42,12 +42,13 @@ const TaskType = new GraphQLObjectType({
           `,
         },
       },
-      resolve: (source, { digits }, { store }) => (
-        getTaskPercentComplete(store.getState().spool)({
-          taskID: source.taskID,
+      resolve: (source, { digits }, { store }) => {
+        const state = store.getState().spool
+        return getTaskPercentComplete(state)({
+          taskID: source.id,
           digits,
         })
-      ),
+      },
     },
     createdAt: {
       type: tql`${GraphQLDate}!`,

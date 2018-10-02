@@ -2,6 +2,7 @@ import tql from 'typiql'
 import {
   GraphQLObjectType,
 } from 'graphql'
+import { List } from 'immutable'
 
 import getTasksByTaskableID from '../../spool/selectors/getTasksByTaskableID'
 import getPrintsCompletedByJobFileID from '../selectors/getPrintsCompletedByJobFileID'
@@ -25,8 +26,8 @@ const JobFileGraphQL = new GraphQLObjectType({
     tasks: {
       type: tql`[${TaskGraphQL}]!`,
       resolve(source, args, { store }) {
-        const state = store.getState()
-        const tasks = getTasksByTaskableID(state).get(source.id)
+        const state = store.getState().spool
+        const tasks = getTasksByTaskableID(state).get(source.id, List())
 
         return tasks
       },
@@ -34,21 +35,21 @@ const JobFileGraphQL = new GraphQLObjectType({
     printsCompleted: {
       type: tql`Int!`,
       resolve(source, args, { store }) {
-        const state = store.getState()
-        return getPrintsCompletedByJobFileID(state).get(source.id)
+        const state = store.getState().jobQueue
+        return getPrintsCompletedByJobFileID(state).get(source.id, 0)
       },
     },
     totalPrints: {
       type: tql`Int!`,
       resolve(source, args, { store }) {
-        const state = store.getState()
+        const state = store.getState().jobQueue
         return getTotalPrintsByJobFileID(state).get(source.id)
       },
     },
     isDone: {
       type: tql`Boolean!`,
       resolve(source, args, { store }) {
-        const state = store.getState()
+        const state = store.getState().jobQueue
         return getIsDoneByJobFileID(state).get(source.id)
       },
     },
