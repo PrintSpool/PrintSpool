@@ -54,7 +54,6 @@ describe('spoolReducer', () => {
     const nextState = spoolReducer(state, action)
 
     expect(nextState).toEqual(state.removeIn(['tasks', 'job_task']))
-
   })
 
   describe(SPOOL_TASK, () => {
