@@ -46,6 +46,14 @@ describe('spoolReducer', () => {
   })
 
   describe(DELETE_JOB, () => {
+    const state = initialState
+      .setIn(['tasks', 'job_task'], MockTask({ jobID: 'the_job' }))
+      .setIn(['tasks', 'other_task'], MockTask({ jobID: 'other_job' }))
+    const action = deleteJob({ jobID: 'the_job' })
+
+    const nextState = spoolReducer(state, action)
+
+    expect(nextState).toEqual(state.removeIn(['tasks', 'job_task']))
 
   })
 
