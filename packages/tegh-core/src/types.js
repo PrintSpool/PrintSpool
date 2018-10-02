@@ -2,8 +2,9 @@
 export Config from './config/types/Config'
 
 /* jobQueue */
-export * as JobStatusEnum from './jobQueue/types/JobStatusEnum'
+export * as JobHistoryTypeEnum from './jobQueue/types/JobHistoryTypeEnum'
 
+export JobHistoryEvent from './jobQueue/types/JobHistoryEvent'
 export Job from './jobQueue/types/Job'
 export JobFile from './jobQueue/types/JobFile'
 

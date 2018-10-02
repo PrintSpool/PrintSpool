@@ -5,7 +5,6 @@ export middlewareManagerMiddleware from './pluginManager/middleware/middlewareMa
 
 export * from './actions'
 export * from './types'
-export * from './sagas'
 
 export * as mutations from './mutations'
 export * as subscriptions from './subscriptions'

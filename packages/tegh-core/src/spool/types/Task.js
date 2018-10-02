@@ -48,14 +48,10 @@ const TaskRecord = Record({
 
 const Task = (attrs) => {
   const {
-    id,
     priority,
     internal,
     name,
-    jobID,
-    jobFileID,
     data,
-    status,
   } = attrs
 
   if (typeof name !== 'string') {

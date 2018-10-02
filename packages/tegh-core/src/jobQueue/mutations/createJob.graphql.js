@@ -5,7 +5,6 @@ import { GraphQLInputObjectType } from 'graphql'
 import actionResolver from '../../util/actionResolver'
 import FileInputType from '../../util/FileInput.graphql'
 import createJob from '../actions/createJob'
-import getJob from '../selectors/getJob'
 
 import JobGraphQL from '../types/Job.graphql'
 
