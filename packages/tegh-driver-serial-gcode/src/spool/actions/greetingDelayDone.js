@@ -1,4 +1,4 @@
-export const GREETING_DELAY_DONE = 'tegh-driver-serial-gcode/status/GREETING_DELAY_DONE'
+export const GREETING_DELAY_DONE = 'tegh-driver-serial-gcode/spool/GREETING_DELAY_DONE'
 
 const greetingDelayDone = () => ({
   type: GREETING_DELAY_DONE,

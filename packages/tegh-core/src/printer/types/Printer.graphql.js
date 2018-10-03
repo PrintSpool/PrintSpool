@@ -63,12 +63,12 @@ const Printer = new GraphQLObjectType({
       type: tql`${PrinterStatusEnum}!`,
       resolve: (source) => {
         if (!isIdle(source)) return 'PRINTING'
-        return getDriverState(source).status.status
+        return source.status.status
       },
     },
     error: {
       type: tql`${PrinterErrorType}`,
-      resolve: source => getDriverState(source).status.error,
+      resolve: source => source.status.error,
     },
     macroDefinitions: {
       type: tql`[${MacroDefinitionType}!]!`,

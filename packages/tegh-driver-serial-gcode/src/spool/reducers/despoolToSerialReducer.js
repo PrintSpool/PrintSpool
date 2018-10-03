@@ -1,6 +1,5 @@
 import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
-import snl from 'strip-newlines'
 
 import {
   DESPOOL_TASK,
@@ -22,6 +21,14 @@ export const initialState = Record({
   currentSerialLineNumber: 1,
   lastTaskSent: null,
 })()
+
+// case DRIVER_ERROR:
+// case ESTOP:
+// case PRINTER_DISCONNECTED: {
+// }
+// case PRINTER_READY: {
+//
+// }
 
 /*
  * Intercepts DESPOOL actions and sends the current gcode line to the

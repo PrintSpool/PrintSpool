@@ -6,7 +6,7 @@ import packageJSON from '../../../package.json'
 
 import serialOpen from '../actions/serialOpen'
 import serialOpenError from '../actions/serialOpenError'
-import serialClose from '../actions/serialClose'
+import printerDisconnected from '../actions/printerDisconnected'
 import { SERIAL_SEND } from '../actions/serialSend'
 import serialReceive from '../actions/serialReceive'
 import serialError from '../actions/serialError'
@@ -38,7 +38,7 @@ const serialMiddleware = (store) => {
 
     serial.parser.buffer = Buffer.alloc(0)
 
-    store.dispatch(serialClose({ resetByMiddleware }))
+    store.dispatch(printerDisconnected({ resetByMiddleware }))
 
     if (resetByMiddleware) {
       delete serial.serialPort.resetByMiddleware
@@ -81,7 +81,7 @@ const serialMiddleware = (store) => {
       serial.parser.removeEventListener('error', onError)
       serial.parser.removeEventListener('data', onData)
 
-      store.dispatch(serialClose())
+      store.dispatch(printerDisconnected())
 
       if (serial.serialPort.isOpen) {
         await serial.serialPort.close()

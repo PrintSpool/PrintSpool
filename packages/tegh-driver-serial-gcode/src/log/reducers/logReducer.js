@@ -4,7 +4,7 @@ import {
 
 import { SERIAL_OPEN } from '../../serial/actions/serialOpen'
 import { SERIAL_OPEN_ERROR } from '../../serial/actions/serialOpenError'
-import { SERIAL_CLOSE } from '../../serial/actions/serialClose'
+import { PRINTER_DISCONNECTED } from '../../serial/actions/printerDisconnected'
 import { SERIAL_SEND } from '../../serial/actions/serialSend'
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import { SERIAL_ERROR } from '../../serial/actions/serialError'
@@ -57,7 +57,7 @@ const logReducer = (_state, action) => {
         message: 'Serial Reset',
       }
     }
-    case SERIAL_CLOSE: {
+    case PRINTER_DISCONNECTED: {
       return {
         source: 'SERIAL',
         level: 'info',

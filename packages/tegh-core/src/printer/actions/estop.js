@@ -1,4 +1,4 @@
-export const ESTOP = 'tegh/printer/ESTOP'
+export const ESTOP = 'tegh/status/ESTOP'
 
 const estop = () => ({
   type: ESTOP,

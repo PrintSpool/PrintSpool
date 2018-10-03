@@ -10,7 +10,7 @@ import {
 } from 'tegh-core'
 
 import { SERIAL_OPEN } from '../../serial/actions/serialOpen'
-import { SERIAL_CLOSE } from '../../serial/actions/serialClose'
+import { PRINTER_DISCONNECTED } from '../../serial/actions/printerDisconnected'
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import { SERIAL_SEND } from '../../serial/actions/serialSend'
 
@@ -46,7 +46,7 @@ const peripheralsReducer = (state = null, action) => {
     case ESTOP:
     case SERIAL_OPEN:
     case PRINTER_READY:
-    case SERIAL_CLOSE: {
+    case PRINTER_DISCONNECTED: {
       return createStateFromConfig(action.config)
     }
     case SERIAL_RECEIVE: {
