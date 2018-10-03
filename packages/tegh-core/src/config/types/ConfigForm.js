@@ -8,7 +8,7 @@ import PluginConfig, { PluginConfigStruct } from './PluginConfig'
 import MachineConfig, { MachineConfigStruct } from './MachineConfig'
 import MaterialConfig, { MaterialConfigStruct } from './MaterialConfig'
 
-export const ConfigFormStruct = t.struct({
+export const configFormStructFields = {
   id: t.String,
   name: t.String,
   macros: t.dict(t.String, t.list(t.String)),
@@ -18,7 +18,9 @@ export const ConfigFormStruct = t.struct({
   materials: t.dict(t.String, MaterialConfigStruct),
   machine: MachineConfigStruct,
   plugins: t.dict(t.String, PluginConfigStruct),
-})
+}
+
+export const ConfigFormStruct = t.struct(configFormStructFields)
 
 export const ConfigFormRecordFactory = Record(
   Map(ConfigFormStruct.meta.props).map(() => null),

@@ -5,11 +5,11 @@ export Config from './config/types/Config'
 export * as JobHistoryTypeEnum from './jobQueue/types/JobHistoryTypeEnum'
 
 export JobHistoryEvent from './jobQueue/types/JobHistoryEvent'
-export Job from './jobQueue/types/Job'
-export JobFile from './jobQueue/types/JobFile'
+export Job, { MockJob } from './jobQueue/types/Job'
+export JobFile, { MockJobFile } from './jobQueue/types/JobFile'
 
 /* spool */
 export * as PriorityEnum from './spool/types/PriorityEnum'
 export * as TaskStatusEnum from './spool/types/TaskStatusEnum'
 
-export Task from './spool/types/Task'
+export Task, { MockTask } from './spool/types/Task'

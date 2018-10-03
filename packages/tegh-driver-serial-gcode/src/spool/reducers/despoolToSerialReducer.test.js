@@ -1,136 +1,130 @@
 import { List } from 'immutable'
 
-import { SPOOL_TASK } from 'tegh-core'
-import { DESPOOL_TASK } from 'tegh-core'
+import {
+  spoolTask,
+  SPOOL_TASK,
+  despoolTask,
+  DESPOOL_TASK,
+  MockTask,
+} from 'tegh-core'
 
-import despoolToSerialSaga from './despoolToSerialSaga'
-import serialSend from '../actions/serialSend'
+import reducer, { initialState } from './despoolToSerialReducer'
+import serialSend, { SERIAL_SEND } from '../../serial/actions/serialSend'
+import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 
-const despoolAction = { type: DESPOOL_TASK }
-const spoolAction = { type: SPOOL_TASK }
+describe('despoolToSerialReducer', () => {
+  describe(DESPOOL_TASK, () => {
+    it('sends next line', () => {
+      const task = MockTask({
+        data: ['line_0', '(╯°□°）╯︵ ┻━┻', 'line_2'],
+        currentLineNumber: 1,
+      })
+      const action = despoolTask(task)
 
-const sentLine = {
-  ...serialSend('(╯°□°）╯︵ ┻━┻', { lineNumber: 1995 }),
-  [SAGA_ACTION]: true,
-}
+      const {
+        actionToDispatch: nextAction,
+      } = reducer(initialState, action)[1]
 
-const sentEmergencyLine = {
-  ...serialSend('(╯°□°）╯︵ ┻━┻', { lineNumber: false }),
-  [SAGA_ACTION]: true,
-}
-
-const selectors = {
-  shouldSendSpooledLineToPrinter: () => false,
-  getCurrentLine: () => '(╯°□°）╯︵ ┻━┻',
-  getCurrentSerialLineNumber: () => 1995,
-  isEmergency: () => false,
-  isReady: () => true,
-}
-
-const createTester = (selectorOverrides = {}) => {
-  const sagaTester = new SagaTester({ initialState: {} })
-  sagaTester.start(despoolToSerialSaga({
-    ...selectors,
-    ...selectorOverrides,
-  }))
-  return sagaTester
-}
-
-describe(DESPOOL_TASK, () => {
-  it('sends next line', async () => {
-    const sagaTester = createTester()
-    sagaTester.dispatch(despoolAction)
-
-    const result = sagaTester.getCalledActions()
-
-    expect(result).toMatchObject([
-      despoolAction,
-      sentLine,
-    ])
-  })
-
-  it('does nothing if the printer is not ready', async () => {
-    const sagaTester = createTester({
-      isReady: () => false,
+      expect(nextAction).toEqual(
+        serialSend('(╯°□°）╯︵ ┻━┻', { lineNumber: 1 }),
+      )
     })
-    sagaTester.dispatch(despoolAction)
-
-    const result = sagaTester.getCalledActions()
-
-    expect(result).toMatchObject([
-      despoolAction,
-    ])
   })
-})
 
-describe(SPOOL_TASK, () => {
-  it('sends next line when shouldSendSpooledLineToPrinter is true', () => {
-    const sagaTester = createTester({
-      shouldSendSpooledLineToPrinter: () => true,
+  describe(SERIAL_SEND, () => {
+    describe('when a line number is present', () => {
+      it('increments the line number', () => {
+        const action = serialSend('G1337 :)', { lineNumber: 9000 })
+
+        const state = reducer(initialState, action)
+
+        expect(state.currentSerialLineNumber).toEqual(9001)
+      })
     })
-    sagaTester.dispatch(spoolAction)
+    describe('when a line number is not present', () => {
+      it('does nothing', () => {
+        const action = serialSend('G1337 :)', { lineNumber: false })
 
-    const result = sagaTester.getCalledActions()
+        const state = reducer(initialState, action)
 
-    expect(result).toMatchObject([
-      spoolAction,
-      sentLine,
-    ])
-  })
-
-  it('does nothing if the printer is not ready', async () => {
-    const sagaTester = createTester({
-      isReady: () => false,
-      shouldSendSpooledLineToPrinter: () => true,
+        expect(state.currentSerialLineNumber).toEqual(1)
+      })
     })
-    sagaTester.dispatch(spoolAction)
-
-    const result = sagaTester.getCalledActions()
-
-    expect(result).toMatchObject([
-      spoolAction,
-    ])
   })
 
-  it('if the printer is not ready it sends the line in emergencies', () => {
-    const sagaTester = createTester({
-      shouldSendSpooledLineToPrinter: () => true,
-      isEmergency: () => true,
-      isReady: () => false,
-    })
-    sagaTester.dispatch(spoolAction)
+  describe(SERIAL_RECEIVE, () => {
 
-    const result = sagaTester.getCalledActions()
-
-    expect(result).toMatchObject([
-      spoolAction,
-      sentEmergencyLine,
-    ])
   })
 
-  it('does not send line numbers in emergencies', () => {
-    const sagaTester = createTester({
-      shouldSendSpooledLineToPrinter: () => true,
-      isEmergency: () => true,
-    })
-    sagaTester.dispatch(spoolAction)
-
-    const result = sagaTester.getCalledActions()
-
-    expect(result).toMatchObject([
-      spoolAction,
-      sentEmergencyLine,
-    ])
-  })
-
-  it('does nothing when the printer is not idle', async () => {
-    const sagaTester = createTester()
-    sagaTester.dispatch(spoolAction)
-
-    const result = sagaTester.getCalledActions()
-
-    expect(result).toMatchObject([
-      spoolAction,
-    ])
-  })
+  // describe(SPOOL_TASK, () => {
+  //   it('sends next line when shouldSendSpooledLineToPrinter is true', () => {
+  //     const sagaTester = createTester({
+  //       shouldSendSpooledLineToPrinter: () => true,
+  //     })
+  //     sagaTester(spoolAction)
+  //
+  //     const result = sagaTester.getCalledActions()
+  //
+  //     expect(result).toMatchObject([
+  //       spoolAction,
+  //       sentLine,
+  //     ])
+  //   })
+  //
+  //   it('does nothing if the printer is not ready', async () => {
+  //     const sagaTester = createTester({
+  //       isReady: () => false,
+  //       shouldSendSpooledLineToPrinter: () => true,
+  //     })
+  //     sagaTester(spoolAction)
+  //
+  //     const result = sagaTester.getCalledActions()
+  //
+  //     expect(result).toMatchObject([
+  //       spoolAction,
+  //     ])
+  //   })
+  //
+  //   it('if the printer is not ready it sends the line in emergencies', () => {
+  //     const sagaTester = createTester({
+  //       shouldSendSpooledLineToPrinter: () => true,
+  //       isEmergency: () => true,
+  //       isReady: () => false,
+  //     })
+  //     sagaTester(spoolAction)
+  //
+  //     const result = sagaTester.getCalledActions()
+  //
+  //     expect(result).toMatchObject([
+  //       spoolAction,
+  //       sentEmergencyLine,
+  //     ])
+  //   })
+  //
+  //   it('does not send line numbers in emergencies', () => {
+  //     const sagaTester = createTester({
+  //       shouldSendSpooledLineToPrinter: () => true,
+  //       isEmergency: () => true,
+  //     })
+  //     sagaTester(spoolAction)
+  //
+  //     const result = sagaTester.getCalledActions()
+  //
+  //     expect(result).toMatchObject([
+  //       spoolAction,
+  //       sentEmergencyLine,
+  //     ])
+  //   })
+  //
+  //   it('does nothing when the printer is not idle', async () => {
+  //     const sagaTester = createTester()
+  //     sagaTester(spoolAction)
+  //
+  //     const result = sagaTester.getCalledActions()
+  //
+  //     expect(result).toMatchObject([
+  //       spoolAction,
+  //     ])
+  //   })
+  // })
 })

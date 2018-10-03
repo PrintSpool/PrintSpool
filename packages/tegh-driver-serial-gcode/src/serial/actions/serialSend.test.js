@@ -1,5 +1,5 @@
 // @flow
-import serialSend from './serialSend'
+import serialSend, { SERIAL_SEND } from './serialSend'
 
 const line = 'G12345 (╯°□°）╯︵ ┻━┻'
 
@@ -13,9 +13,11 @@ describe('with a line number', () => {
 
     expect(result).toEqual({
       type: SERIAL_SEND,
-      code: 'G12345',
-      lineNumber,
-      data: expectedOutputLine,
+      payload: {
+        code: 'G12345',
+        lineNumber,
+        line: expectedOutputLine,
+      },
     })
   })
 })
@@ -28,9 +30,11 @@ describe('with lineNumber: false', () => {
 
     expect(result).toEqual({
       type: SERIAL_SEND,
-      code: 'G12345',
-      lineNumber: false,
-      data: expectedOutputLine,
+      payload: {
+        code: 'G12345',
+        lineNumber: false,
+        line: expectedOutputLine,
+      },
     })
   })
 })

@@ -1,5 +1,5 @@
 // @flow
-import serialMiddleware from '../src'
+import serialMiddleware from './serialMiddleware'
 
 const serialMocks = () => {
   const eventListeners = {}

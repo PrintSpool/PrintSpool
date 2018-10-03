@@ -1,4 +1,4 @@
-import txParser from '../txParser'
+import txParser from '../../txParser'
 
 export const SERIAL_SEND = 'tegh-serial-driver/serial/SERIAL_SEND'
 

@@ -1,7 +1,7 @@
 import { Record, Map } from 'immutable'
 import t from 'tcomb-validation'
 
-import { ConfigFormStruct } from './ConfigForm'
+import { ConfigFormStruct, configFormStructFields } from './ConfigForm'
 
 export const ConfigStruct = t.struct({
   isInitialized: t.Boolean,
@@ -17,11 +17,12 @@ export const ConfigStruct = t.struct({
   configForm: t.dict(t.String, t.Any),
   /* HTTP Port / Unix Socket configuration */
   server: t.struct({
-    tcpPort: t.optional(t.Number),
-    unixSocket: t.optional(t.String),
+    tcpPort: t.maybe(t.Number),
+    unixSocket: t.maybe(t.String),
   }),
-  // TODO: somehow copy all rules from the configForm to the config
-  ...ConfigFormStruct,
+
+  // copy all rules from the configForm to the config
+  ...configFormStructFields,
 })
 
 export const validateCoreConfig = (config) => {
