@@ -1,14 +1,14 @@
 import { Record } from 'immutable'
 
-import { SPOOL_TASK } from '../../spool/actions/spoolTask'
-import { ESTOP } from '../actions/estop'
-import { DRIVER_ERROR } from '../actions/driverError'
+import { CONNECT_PRINTER } from '../actions/connectPrinter'
 import { PRINTER_READY } from '../actions/printerReady'
+import { DRIVER_ERROR } from '../actions/driverError'
+import { ESTOP } from '../actions/estop'
+import { PRINTER_DISCONNECTED } from '../actions/printerDisconnected'
+
+import { SPOOL_TASK } from '../../spool/actions/spoolTask'
 
 import { EMERGENCY } from '../../spool/types/PriorityEnum'
-
-import { PRINTER_CONNECTING } from '../actions/printerConnecting'
-import { PRINTER_DISCONNECTED } from '../actions/printerDisconnected'
 
 import {
   ERRORED,
@@ -36,7 +36,7 @@ const statusReducer = (state = initialState, action) => {
     case PRINTER_DISCONNECTED: {
       return initialState.set('status', DISCONNECTED)
     }
-    case PRINTER_CONNECTING: {
+    case CONNECT_PRINTER: {
       return initialState.set('status', CONNECTING)
     }
     case PRINTER_READY: {
