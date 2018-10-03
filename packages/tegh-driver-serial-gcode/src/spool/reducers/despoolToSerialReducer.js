@@ -1,5 +1,6 @@
 import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
+import snl from 'strip-newlines'
 
 import {
   DESPOOL_TASK,
@@ -12,9 +13,12 @@ import {
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import serialSend, { SERIAL_SEND } from '../../serial/actions/serialSend'
 
+export const REQUEST_DESPOOL_ON_OK = 'REQUEST_DESPOOL_ON_OK'
+export const RESEND_ON_OK = 'RESEND_ON_OK'
+export const IGNORE_OK = 'IGNORE_OK'
+
 export const initialState = Record({
-  ignoreOK: false,
-  resendLineNumberOnOK: null,
+  onNextOK: REQUEST_DESPOOL_ON_OK,
   currentSerialLineNumber: 1,
   lastTaskSent: null,
 })()
@@ -62,23 +66,37 @@ const despoolToSerialReducer = (state = initialState, action) => {
 
       switch (payload.type) {
         case 'ok': {
-          if (state.resendLineNumberOnOK != null) {
-            const currentLine = getCurrentLine.resultFunc(task)
+          switch (state.onNextOK) {
+            case REQUEST_DESPOOL_ON_OK: {
+              return loop(state, Cmd.action(requestDespool()))
+            }
 
-            const nextState = state
-              .set('resendLineNumberOnOK', null)
-              .set('ignoreOK', true)
+            case RESEND_ON_OK: {
+              const previousSerialLineNumber = state.currentSerialLineNumber - 1
 
-            return loop(nextState, Cmd.action(serialSend(currentLine, {
-              lineNumber: state.resendLineNumberOnOK,
-            })))
+              const currentLine = getCurrentLine.resultFunc(task)
+
+              const nextState = state
+                .set('onNextOK', IGNORE_OK)
+
+              const nextAction = serialSend(currentLine, {
+                lineNumber: previousSerialLineNumber,
+              })
+
+              return loop(
+                nextState,
+                Cmd.action(nextAction),
+              )
+            }
+
+            case IGNORE_OK: {
+              return state.set('onNextOK', REQUEST_DESPOOL_ON_OK)
+            }
+
+            default: {
+              throw new Error(`Invalid onNextOK state: ${state.onNextOK}`)
+            }
           }
-
-          if (state.ignoreOK === true) {
-            return state.set('ignoreOK', false)
-          }
-
-          return loop(state, Cmd.action(requestDespool()))
         }
         case 'resend': {
           const previousSerialLineNumber = state.currentSerialLineNumber - 1
@@ -94,9 +112,9 @@ const despoolToSerialReducer = (state = initialState, action) => {
               + `match previous line number ${previousSerialLineNumber}`,
             )
           }
-
           // wait for the ok sent after the resend (see marlinFixture.js)
-          return state.set('resendLineNumberOnOK', previousSerialLineNumber)
+          return state
+            .set('onNextOK', RESEND_ON_OK)
         }
         case 'error': {
           const errorAction = driverError({

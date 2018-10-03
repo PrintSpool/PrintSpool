@@ -7,6 +7,7 @@ export createJob, { CREATE_JOB } from './jobQueue/actions/createJob'
 export createLocalFileJob from './jobQueue/actions/createLocalFileJob'
 export deleteJob, { DELETE_JOB } from './jobQueue/actions/deleteJob'
 /* spool */
+export requestDespool, { REQUEST_DESPOOL } from './spool/actions/requestDespool'
 export despoolTask, { DESPOOL_TASK } from './spool/actions/despoolTask'
 export spoolCommands from './spool/actions/spoolCommands'
 export spoolJobFile from './spool/actions/spoolJobFile'
