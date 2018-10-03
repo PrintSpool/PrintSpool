@@ -1,4 +1,4 @@
-import { Record } from 'immutable'
+import { Record, Map } from 'immutable'
 import t from 'tcomb-validation'
 
 export const PluginConfigStruct = t.struct({
@@ -7,7 +7,7 @@ export const PluginConfigStruct = t.struct({
 })
 
 const PluginConfig = Record(
-  Map(PluginConfigStruct.meta.props).mapValues(() => null),
+  Map(PluginConfigStruct.meta.props).map(() => null),
 )
 
 export default PluginConfig

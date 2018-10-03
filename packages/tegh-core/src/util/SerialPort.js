@@ -2,7 +2,11 @@ import NodeSerialPort from 'serialport'
 import { UsbSerial } from 'react-native-usbserial'
 import EventEmitter from 'events'
 
-const isReactNative = this.navigator && this.navigator.product === 'ReactNative'
+const isReactNative = (
+  typeof navigator !== 'undefined'
+  // eslint-disable-next-line no-undef
+  && navigator.product === 'ReactNative'
+)
 
 class ReactNativeSerialPort extends EventEmitter {
   constructor(deviceID, serialOptions) {

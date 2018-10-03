@@ -1,4 +1,4 @@
-import { Record } from 'immutable'
+import { Record, Map } from 'immutable'
 import t from 'tcomb-validation'
 
 import PeripheralTypeEnum from './PeripheralTypeEnum'
@@ -12,7 +12,7 @@ export const MachinePeripheralConfigStruct = t.struct({
 })
 
 const MachinePeripheralConfig = Record(
-  Map(MachinePeripheralConfigStruct.meta.props).mapValues(() => null),
+  Map(MachinePeripheralConfigStruct.meta.props).map(() => null),
 )
 
 export default MachinePeripheralConfig

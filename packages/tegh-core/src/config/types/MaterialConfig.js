@@ -1,4 +1,4 @@
-import { Record } from 'immutable'
+import { Record, Map } from 'immutable'
 import t from 'tcomb-validation'
 
 export const MaterialConfigStruct = t.struct({
@@ -7,7 +7,7 @@ export const MaterialConfigStruct = t.struct({
 })
 
 const MaterialConfig = Record(
-  Map(MaterialConfigStruct.meta.props).mapValues(() => null),
+  Map(MaterialConfigStruct.meta.props).map(() => null),
 )
 
 export default MaterialConfig

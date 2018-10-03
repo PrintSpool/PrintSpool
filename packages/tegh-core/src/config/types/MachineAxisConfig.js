@@ -1,4 +1,4 @@
-import { Record } from 'immutable'
+import { Record, Map } from 'immutable'
 import t from 'tcomb-validation'
 
 export const MachineAxisConfigStruct = t.struct({
@@ -6,7 +6,7 @@ export const MachineAxisConfigStruct = t.struct({
 })
 
 const MachineAxisConfig = Record(
-  Map(MachineAxisConfigStruct.meta.props).mapValues(() => null),
+  Map(MachineAxisConfigStruct.meta.props).map(() => null),
 )
 
 export default MachineAxisConfig

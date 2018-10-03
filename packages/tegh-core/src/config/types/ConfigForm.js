@@ -21,11 +21,11 @@ export const ConfigFormStruct = t.struct({
 })
 
 export const ConfigFormRecordFactory = Record(
-  Map(ConfigFormStruct.meta.props).mapValues(() => null),
+  Map(ConfigFormStruct.meta.props).map(() => null),
 )
 
 const mapOfRecords = (entries, recordFactory) => (
-  Map(entries).mapValues(props => recordFactory(props))
+  Map(entries).map(props => recordFactory(props))
 )
 
 const ConfigForm = props => ConfigFormRecordFactory({

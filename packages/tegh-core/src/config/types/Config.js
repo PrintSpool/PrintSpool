@@ -1,4 +1,4 @@
-import { Record } from 'immutable'
+import { Record, Map } from 'immutable'
 import t from 'tcomb-validation'
 
 import { ConfigFormStruct } from './ConfigForm'
@@ -33,7 +33,7 @@ export const validateCoreConfig = (config) => {
 }
 
 const defaultValues = Map(ConfigStruct.meta.props)
-  .mapValues(() => null)
+  .map(() => null)
   .set('isInitialized', false)
   .set('plugins', Map())
 

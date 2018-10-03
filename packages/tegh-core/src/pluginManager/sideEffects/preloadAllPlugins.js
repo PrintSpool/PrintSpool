@@ -1,3 +1,5 @@
+import { Map } from 'immutable'
+
 const preloadAllPlugins = async (pluginLoaderPath, pluginConfigs) => {
   if (pluginLoaderPath == null) {
     throw new Error('pluginLoaderPath must be defined')

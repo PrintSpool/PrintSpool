@@ -2,10 +2,11 @@ module.exports = {
     "env": {
         "browser": false,
         "es6": true,
-        "jest/globals": true
+        "jest/globals": true,
     },
     "plugins": [
       "jest",
+      "immutablejs",
     ],
     "extends": [
       "airbnb-base",
@@ -17,5 +18,6 @@ module.exports = {
       "func-names": ["error", "never"],
       "consistent-return": "off",
       "no-restricted-syntax": 0,
+      "immutablejs/no-native-map-set": 2,
     }
 };

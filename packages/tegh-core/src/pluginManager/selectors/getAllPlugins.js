@@ -1,3 +1,5 @@
+import { Map } from 'immutable'
+
 // returns a plain js object
 const getAllPlugins = (config) => {
   if (!config.initialized) Map()

@@ -1,4 +1,4 @@
-import { Record } from 'immutable'
+import { Record, Map } from 'immutable'
 import t from 'tcomb-validation'
 
 export const PrintFromLocalPathConfigStruct = t.struct({
@@ -8,7 +8,7 @@ export const PrintFromLocalPathConfigStruct = t.struct({
 })
 
 const PrintFromLocalPathConfig = Record(
-  Map(PrintFromLocalPathConfigStruct.meta.props).mapValues(() => null),
+  Map(PrintFromLocalPathConfigStruct.meta.props).map(() => null),
 )
 
 export default PrintFromLocalPathConfig
