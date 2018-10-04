@@ -1,5 +1,9 @@
 import { loop, Cmd } from 'redux-loop'
-import { estop } from 'tegh-core'
+
+import {
+  connectPrinter,
+  estop,
+} from 'tegh-core'
 
 import { SERIAL_SEND } from '../../serial/actions/serialSend'
 import serialReset from '../../serial/actions/serialReset'
@@ -8,6 +12,12 @@ const eStopSaga = (state, action) => {
   switch (action) {
     case SERIAL_SEND: {
       const { code } = action.payload
+      /*
+       * Alert Tegh to an attempt to reconnect on M999 (reset)
+       */
+      if (code === 'M999') {
+        return loop(state, Cmd.action(connectPrinter()))
+      }
       /*
        * Trigger an eStop action on M112 to emergency stop all of Tegh
        */
