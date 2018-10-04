@@ -3,7 +3,7 @@ import {
   connectPrinter,
 } from 'tegh-core'
 
-import reducer, { initialState } from './eStopAndResetReducer'
+import reducer, { initialState } from './estopAndResetReducer'
 
 import serialSend from '../actions/serialSend'
 
