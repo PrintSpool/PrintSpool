@@ -1,6 +1,7 @@
 const getDriverConfig = (config) => {
   if (config == null) return null
-  return config.get(config.machine.driver)
+  const driverPlugin = config.getIn(['machine', 'driver'])
+  return config.getIn(['plugins', driverPlugin])
 }
 
 export default getDriverConfig

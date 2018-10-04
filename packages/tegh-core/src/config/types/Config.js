@@ -37,6 +37,7 @@ const defaultValues = Map(ConfigStruct.meta.props)
   .map(() => null)
   .set('isInitialized', false)
   .set('plugins', Map())
+  .toObject()
 
 const Config = Record(defaultValues)
 

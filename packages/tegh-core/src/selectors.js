@@ -1,6 +1,6 @@
 // // ./config/selectors:
 // export axisExists from './config/selectors/axisExists'
-// export getDriverConfig from './config/selectors/getDriverConfig'
+export getDriverConfig from './config/selectors/getDriverConfig'
 // export getFanConfigs from './config/selectors/getFanConfigs'
 // export getHeaterConfigs from './config/selectors/getHeaterConfigs'
 // export getMacroDefinitions from './config/selectors/getMacroDefinitions'
