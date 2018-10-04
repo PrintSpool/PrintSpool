@@ -5,11 +5,13 @@ import {
   estop,
 } from 'tegh-core'
 
-import { SERIAL_SEND } from '../../serial/actions/serialSend'
-import serialReset from '../../serial/actions/serialReset'
+import { SERIAL_SEND } from '../actions/serialSend'
+import serialReset from '../actions/serialReset'
 
-const eStopSaga = (state, action) => {
-  switch (action) {
+export const initialState = null
+
+const estopAndResetReducer = (state = initialState, action) => {
+  switch (action.type) {
     case SERIAL_SEND: {
       const { code } = action.payload
       /*
@@ -40,4 +42,4 @@ const eStopSaga = (state, action) => {
   }
 }
 
-export default eStopSaga
+export default estopAndResetReducer

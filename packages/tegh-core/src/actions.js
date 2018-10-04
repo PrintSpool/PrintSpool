@@ -2,6 +2,7 @@
 export driverError, { DRIVER_ERROR } from './printer/actions/driverError'
 export estop, { ESTOP } from './printer/actions/estop'
 export printerReady, { PRINTER_READY } from './printer/actions/printerReady'
+export connectPrinter, { CONNECT_PRINTER } from './printer/actions/connectPrinter'
 /* jobQueue */
 export createJob, { CREATE_JOB } from './jobQueue/actions/createJob'
 export createLocalFileJob from './jobQueue/actions/createLocalFileJob'

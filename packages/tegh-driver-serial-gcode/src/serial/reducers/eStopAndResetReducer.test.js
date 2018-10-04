@@ -1,59 +1,42 @@
-import { utils as sagaUtils } from 'redux-saga'
-import SagaTester from 'redux-saga-tester'
-import { List } from 'immutable'
-import { estop } from 'tegh-core'
+import {
+  estop,
+  connectPrinter,
+} from 'tegh-core'
 
-import eStopSaga from './eStopSaga'
+import reducer, { initialState } from './eStopAndResetReducer'
+
 import serialSend from '../actions/serialSend'
 
-const { SAGA_ACTION } = sagaUtils
+describe('estopAndResetReducer', () => {
+  it('dispatches an ESTOP if an M112 is sent', () => {
+    const action = serialSend('M112', { lineNumber: false })
 
-const createTester = () => {
-  const sagaTester = new SagaTester({ initialState: {} })
-  sagaTester.start(eStopSaga())
-  return sagaTester
-}
+    const [
+      nextState,
+      { actionToDispatch: nextAction },
+    ] = reducer(initialState, action)
 
-const serialSendG1 = serialSend('G1 X10', { lineNumber: false })
-const serialSendM112 = serialSend('M112', { lineNumber: false })
-const serialSendM999 = serialSend('M999', { lineNumber: false })
+    expect(nextState).toEqual(initialState)
+    expect(nextAction).toEqual(estop())
+  })
 
-const serialReset = {
-  type: SERIAL_RESET,
-}
+  it('dispatches a CONNECT_PRINTER action if M999 is sent', () => {
+    const action = serialSend('M999', { lineNumber: false })
 
-test('puts ESTOP if an M112 is sent', () => {
-  const sagaTester = createTester()
-  sagaTester.dispatch(serialSendM112)
+    const [
+      nextState,
+      { actionToDispatch: nextAction },
+    ] = reducer(initialState, action)
 
-  const result = sagaTester.getCalledActions()
+    expect(nextState).toEqual(initialState)
+    expect(nextAction).toEqual(connectPrinter())
+  })
 
-  expect(result).toMatchObject([
-    serialSendM112,
-    estop(),
-  ])
-})
+  it('does nothing on other GCodes', () => {
+    const action = serialSend('G1 X10', { lineNumber: false })
 
-test('resets serial if an M999 is sent', () => {
-  pending()
-  // const sagaTester = createTester()
-  // sagaTester.dispatch(serialSendM999)
-  //
-  // const result = sagaTester.getCalledActions()
-  //
-  // expect(result).toEqual([
-  //   serialSendM999,
-  //   serialReset,
-  // ])
-})
+    const nextState = reducer(initialState, action)
 
-test('does nothing on other GCodes', () => {
-  const sagaTester = createTester()
-  sagaTester.dispatch(serialSendG1)
-
-  const result = sagaTester.getCalledActions()
-
-  expect(result).toEqual([
-    serialSendG1,
-  ])
+    expect(nextState).toEqual(initialState)
+  })
 })
