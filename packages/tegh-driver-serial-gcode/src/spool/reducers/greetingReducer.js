@@ -5,7 +5,7 @@ import {
   DRIVER_ERROR,
   ESTOP,
   PRINTER_DISCONNECTED,
-  PRINTER_READY,
+  CONNECT_PRINTER,
   printerReady,
 } from 'tegh-core'
 
@@ -33,7 +33,7 @@ const greetingReducer = (state = initialState, action) => {
     case PRINTER_DISCONNECTED: {
       return state.set('isConnecting', false)
     }
-    case PRINTER_READY: {
+    case CONNECT_PRINTER: {
       return state.set('isConnecting', true)
     }
     case SERIAL_RECEIVE: {

@@ -2,6 +2,7 @@ import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
 
 import {
+  CONNECT_PRINTER,
   DRIVER_ERROR,
   ESTOP,
   PRINTER_DISCONNECTED,
@@ -18,6 +19,15 @@ export const initialState = Record({
   serialPort: null,
 })()
 
+// serialPort.on('open', () => {
+//   console.error('Serial port connected')
+// })
+//
+// serialPort.on('error', (err) => {
+//   console.error('Serial port error')
+//   throw err
+// })
+
 /*
  * Intercepts DESPOOL actions and sends the current gcode line to the
  * printer.
@@ -27,7 +37,14 @@ export const initialState = Record({
 const serialReducer = (state = initialState, action) => {
   switch (action.type) {
     case CONNECT_PRINTER: {
-      return state.set('isConnecting', false)
+      let nextState = state
+      if (serialPort == null) {
+        const serialPortOpts = {} // TODO
+        nextState.set('serialPort', new SerialPort(serialPortOpts))
+      } else {
+        nextState.serialPort.reset()
+      }
+      return nextState.set('isConnecting', true)
     }
     case PRINTER_READY: {
       return state.set('isConnecting', true)
