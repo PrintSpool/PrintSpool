@@ -1,4 +1,4 @@
-import { SERIAL_ERROR } from '../../serial/actions/serialError'
+import { SERIAL_ERROR } from '../actions/serialError'
 
 const serialErrorHandlerSaga = (state, action) => {
   switch (action) {
