@@ -1,3 +1,4 @@
+import Promise from 'bluebird'
 import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
 
@@ -14,9 +15,8 @@ import serialSend from '../../serial/actions/serialSend'
 
 import greetingDelayDone, { GREETING_DELAY_DONE } from '../actions/greetingDelayDone'
 
-const DELAY_AFTER_GREETING = 50
-
 export const initialState = Record({
+  delayAfterGreeting: 50,
   isConnecting: false,
 })()
 
@@ -42,8 +42,9 @@ const greetingReducer = (state = initialState, action) => {
       switch (action.payload.type) {
         case 'greeting': {
           return loop(
+            state,
             Cmd.run(Promise.delay, {
-              args: [DELAY_AFTER_GREETING],
+              args: [state.delayAfterGreeting],
               successActionCreator: greetingDelayDone,
             }),
           )
