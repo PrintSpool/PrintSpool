@@ -1,58 +1,86 @@
-import {
-  PRINTER_READY,
-} from 'tegh-core'
-
 import reducer, { initialState } from './statusReducer'
 
-describe('DRIVER_ERROR', () => {
-  it('', () => {
-  })
-})
-describe('ESTOP', () => {
-  it('', () => {
-  })
-})
-describe('PRINTER_DISCONNECTED', () => {
-  it('', () => {
-  })
-})
-describe('SERIAL_OPEN', () => {
-  it('', () => {
-  })
-})
-describe('SERIAL_RECEIVE', () => {
-  describe('on receiving a greeting', () => {
-    it('sends hello', async () => {
-      const state = initialState.set('status', PRINTER_READY)
+import connectPrinter from '../actions/connectPrinter'
+import printerReady from '../actions/printerReady'
+import driverError, { DRIVER_ERROR } from '../actions/driverError'
+import estop from '../actions/estop'
+import printerDisconnected from '../actions/printerDisconnected'
 
-      const nextState = reducer(state, serialReceive('ok'))
+import spoolTask, { SPOOL_TASK } from '../../spool/actions/spoolTask'
 
-      expect(pause.length).toEqual(50)
-      expect(result).toMatchObject([
-        serialReceive('greeting'),
-        sendHello,
-      ])
+import { MockTask } from '../../spool/types/Task'
+import { EMERGENCY } from '../../spool/types/PriorityEnum'
+
+import {
+  ERRORED,
+  ESTOPPED,
+  DISCONNECTED,
+  CONNECTING,
+  READY,
+} from '../types/statusEnum'
+
+const errorPayload = {
+  code: 'error_101',
+  message: 'Error 101 is an error code I just made up',
+}
+
+describe('statusReducer', () => {
+  describe(DRIVER_ERROR, () => {
+    it('sets the error', () => {
+      const action = driverError(errorPayload)
+      const nextState = reducer(initialState, action)
+
+      expect(nextState.error).toEqual(errorPayload)
     })
   })
 
-  describe('on receiving a \'ok\' to the hello message', () => {
-    it('puts PRINTER_READY', async () => {
-      const state = initialState.set('status', PRINTER_READY)
+  const statusChangingActions = [
+    { action: driverError(errorPayload), status: ERRORED },
+    { action: estop(), status: ESTOPPED },
+    { action: printerDisconnected(), status: DISCONNECTED },
+    { action: connectPrinter(), status: CONNECTING },
+    { action: printerReady(), status: READY },
+  ]
+  statusChangingActions.forEach(({ action, status }) => {
+    describe(action.type, () => {
+      it(`sets the status to ${status}`, () => {
+        const nextState = reducer(initialState, action)
 
-      reducer(state, serialReceive('ok'))
-
-      expect(result).toMatchObject([
-        serialReceive('ok'),
-        printerReadyAction,
-      ])
+        expect(nextState.status).toEqual(status)
+      })
     })
   })
-})
-describe('GREETING_DELAY_DONE', () => {
-  it('', () => {
-  })
-})
-describe('SPOOL_TASK', () => {
-  it('', () => {
+
+  describe(SPOOL_TASK, () => {
+    describe('when the printer is ready', () => {
+      it('allows the task to be spooled', () => {
+        const action = spoolTask(MockTask())
+        const state = initialState.set('status', READY)
+        const nextState = reducer(state, action)
+
+        expect(nextState).toEqual(state)
+      })
+    })
+    describe('when the printer is not ready', () => {
+      describe('and an emergency task is spooled', () => {
+        it('allows the task to be spooled', () => {
+          const action = spoolTask(MockTask({
+            priority: EMERGENCY,
+          }))
+          const state = initialState.set('status', DISCONNECTED)
+          const nextState = reducer(state, action)
+
+          expect(nextState).toEqual(initialState)
+        })
+      })
+      describe('and the task is not an emergency', () => {
+        it('throws an error to prevent the task from spooling', () => {
+          const action = spoolTask(MockTask())
+          const state = initialState.set('status', DISCONNECTED)
+
+          expect(() => reducer(state, action)).toThrow()
+        })
+      })
+    })
   })
 })

@@ -18,7 +18,7 @@ import {
   READY,
 } from '../types/statusEnum'
 
-const initialState = Record({
+export const initialState = Record({
   status: DISCONNECTED,
   error: null,
 })()
