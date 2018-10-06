@@ -1,4 +1,4 @@
-// @flow
+import Promise from 'bluebird'
 import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
 
@@ -13,38 +13,41 @@ import requestSerialPortTickle, { REQUEST_SERIAL_PORT_TICKLE } from '../actions/
 export const initialState = Record({
   awaitingLineNumber: null,
   ticklesAttempted: 0,
+  timeoutPeriod: null,
 })()
 
-export const waitToTickle = async ({ awaitingLineNumber }, timeoutPeriod) => {
-  await Promise.delay(timeoutPeriod)
-  return { awaitingLineNumber }
-}
+const waitToTickleCmd = ({ awaitingLineNumber, timeoutPeriod }) => {
+  const successAction = requestSerialPortTickle({ awaitingLineNumber })
 
-const waitToTickleCmd = (state, action) => {
-  const {
-    longRunningCodeTimeout,
-    fastCodeTimeout,
-  } = getSerialTimeout(action.config)
-
-  const isLong = getLongRunningCodes(action.config).includes(action.code)
-  const timeoutPeriod = isLong ? longRunningCodeTimeout : fastCodeTimeout
-
-  return Cmd.run(waitToTickle, {
-    args: [state, timeoutPeriod],
-    successActionCreator: requestSerialPortTickle,
+  return Cmd.run(Promise.delay, {
+    args: [timeoutPeriod],
+    successActionCreator: () => successAction,
   })
 }
 
-const serialTimeoutSaga = (state, action) => {
+const serialTimeoutReducer = (state = initialState, action) => {
   switch (action.type) {
     case SERIAL_SEND: {
-      const { lineNumber } = action
+      const { lineNumber, code } = action.payload
 
       if (typeof lineNumber !== 'number') return state
 
-      const nextState = initialState.set('awaitingLineNumber', lineNumber)
+      const {
+        longRunningCodeTimeout,
+        fastCodeTimeout,
+      } = getSerialTimeout(action.config)
 
-      return loop(nextState, waitToTickleCmd(nextState, action))
+      const isLong = getLongRunningCodes(action.config).includes(code)
+      const timeoutPeriod = isLong ? longRunningCodeTimeout : fastCodeTimeout
+
+      const nextState = initialState
+        .set('awaitingLineNumber', lineNumber)
+        .set('timeoutPeriod', timeoutPeriod)
+
+      return loop(
+        nextState,
+        waitToTickleCmd(nextState),
+      )
     }
     case SERIAL_RECEIVE: {
       if (['ok', 'feedback', 'greeting'].includes(action.payload.type)) {
@@ -62,14 +65,16 @@ const serialTimeoutSaga = (state, action) => {
       if (state.ticklesAttempted < tickleAttempts) {
         const nextState = state.update('ticklesAttempted', i => i + 1)
 
-        return loop(nextState, Cmd.list([
-          // send a tickle M105 to try to get an 'ok' from the serial port
-          Cmd.action({
-            ...serialSend('M105', { lineNumber: false }),
-            tickle: true,
-          }),
-          waitToTickleCmd(nextState, action),
-        ]))
+        return loop(
+          nextState,
+          Cmd.list([
+            // send a tickle M105 to try to get an 'ok' from the serial port
+            Cmd.action(
+              serialSend('M105', { lineNumber: false }),
+            ),
+            waitToTickleCmd(nextState),
+          ]),
+        )
       }
 
       return loop(state, Cmd.action(serialTimeout()))
@@ -80,4 +85,4 @@ const serialTimeoutSaga = (state, action) => {
   }
 }
 
-export default serialTimeoutSaga
+export default serialTimeoutReducer
