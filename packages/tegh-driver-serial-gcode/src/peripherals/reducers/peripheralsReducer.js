@@ -72,6 +72,8 @@ const peripheralsReducer = (state = initialState, action) => {
       }
 
       if (targetTemperaturesCountdown != null) {
+        // TODO: targetTemperaturesCountdown does not get reset anywhere
+        // after a target temperature is reached
         nextState = nextState.set(
           'targetTemperaturesCountdown', targetTemperaturesCountdown,
         )
