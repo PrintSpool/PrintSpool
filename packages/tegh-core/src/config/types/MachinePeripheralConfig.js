@@ -4,6 +4,7 @@ import t from 'tcomb-validation'
 import PeripheralTypeEnum from './PeripheralTypeEnum'
 
 export const MachinePeripheralConfigStruct = t.struct({
+  id: t.String,
   type: t.enums.of(PeripheralTypeEnum.toArray()),
   name: t.String,
   // TODO: validate that feedrate and materialID are set for extruders

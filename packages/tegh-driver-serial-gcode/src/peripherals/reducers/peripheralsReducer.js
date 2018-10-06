@@ -1,53 +1,61 @@
-import { Record } from 'immutable'
+import { Record, Map } from 'immutable'
 
 import {
   ESTOP,
   DRIVER_ERROR,
-  PRINTER_READY,
+  PRINTER_DISCONNECTED,
   SET_CONFIG,
   getHeaterConfigs,
   getFanConfigs,
 } from 'tegh-core'
 
-import { SERIAL_OPEN } from '../../serial/actions/serialOpen'
-import { PRINTER_DISCONNECTED } from '../../serial/actions/printerDisconnected'
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import { SERIAL_SEND } from '../../serial/actions/serialSend'
 
-const initializeCollection = (arrayOfIDs, initialValueFn) => (
-  arrayOfIDs.reduce(
-    (map, id) => map.set(id, initialValueFn(id)),
+export const initialState = Record({
+  targetTemperaturesCountdown: null,
+  activeExtruderID: 'e0',
+  heaters: Map(),
+  fans: Map(),
+})()
+
+export const Heater = Record({
+  id: null,
+  currentTemperature: 0,
+  targetTemperature: null,
+  blocking: false,
+})
+
+export const Fan = Record({
+  id: null,
+  enabled: false,
+  speed: 0,
+})
+
+const initializeCollection = (arrayOfConfigs, initialValueFn) => (
+  arrayOfConfigs.reduce(
+    (map, { id }) => map.set(id, initialValueFn(id)),
     Map(),
   )
 )
 
-const createStateFromConfig = config => (
-  Record({
-    targetTemperaturesCountdown: null,
-    activeExtruderID: 'e0',
-    heaters: initializeCollection(getHeaterConfigs(config), id => Record({
-      id,
-      currentTemperature: 0,
-      targetTemperature: null,
-      blocking: false,
-    })()),
-    fans: initializeCollection(getFanConfigs(config), id => Record({
-      id,
-      enabled: false,
-      speed: 0,
-    })()),
-  })()
-)
 
-const peripheralsReducer = (state = null, action) => {
+const peripheralsReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG:
     case DRIVER_ERROR:
     case ESTOP:
-    case SERIAL_OPEN:
-    case PRINTER_READY:
     case PRINTER_DISCONNECTED: {
-      return createStateFromConfig(action.config)
+      const { config } = action
+
+      return initialState.merge({
+        heaters: initializeCollection(getHeaterConfigs(config), id => (
+          Heater({ id })
+        )),
+        fans: initializeCollection(getFanConfigs(config), id => (
+          Fan({ id })
+        )),
+      })
     }
     case SERIAL_RECEIVE: {
       const {

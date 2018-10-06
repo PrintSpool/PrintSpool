@@ -1,7 +1,10 @@
 import { createSelector } from 'reselect'
 
-const getMaterial = createSelector(config => id => (
-  config.materials.get(id)
-))
+const getMaterial = createSelector(
+  config => config,
+  config => id => (
+    config.materials.get(id)
+  ),
+)
 
 export default getMaterial

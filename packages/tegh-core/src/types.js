@@ -11,5 +11,6 @@ export JobFile, { MockJobFile } from './jobQueue/types/JobFile'
 /* spool */
 export * as PriorityEnum from './spool/types/PriorityEnum'
 export * as TaskStatusEnum from './spool/types/TaskStatusEnum'
+export * as PeripheralTypeEnum from './config/types/PeripheralTypeEnum'
 
 export Task, { MockTask } from './spool/types/Task'
