@@ -2,7 +2,7 @@ id: test_printer_id
 name: 'lulzbot-test-printer'
 macros:
   tegh-macros-default:
-    - *
+    - '*'
 log:
   maxLength: 1000
   stderr:
@@ -20,6 +20,9 @@ printFromLocalPath:
   whitelist:
     - ~/.tegh-local-files/
 server:
+  signallingServer: ws://localhost:3000
+  keys: ~/.tegh/dev.development.keys.json
+  webRTC: true
   tcpPort: 3900
   unixSocket: /tmp/tegh_socket
   # unixSocket: /var/run/tegh_socket

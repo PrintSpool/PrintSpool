@@ -11,15 +11,14 @@ import rootReducer from './rootReducer'
 const createTeghStore = () => {
   const enhancer = compose(
     applyMiddleware(
-      configMiddleware,
       ReduxThunk,
+      configMiddleware,
     ),
-    installReduxLoop,
+    installReduxLoop(),
   )
 
   const store = createStore(
     rootReducer,
-    null,
     enhancer,
   )
 

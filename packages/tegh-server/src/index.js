@@ -6,15 +6,13 @@ import yaml from 'js-yaml'
 
 import {
   initializeConfig,
-  getAllPlugins,
-  subscriptions as subscriptionModules,
 } from 'tegh-core'
 
 // import { wrapInCrashReporting } from './crashReport'
 import teghSchema from './schema/schema'
-import reduxPubSub from './reduxPubSub'
 import createTeghStore from './createTeghStore'
 import httpServer from './server/httpServer'
+import webRTCServer from './server/webRTCServer'
 
 global.Promise = Promise
 
@@ -40,29 +38,31 @@ const teghDaemon = async (argv, pluginLoaderPath) => {
   // }) => {
 
   const action = initializeConfig({
-    pluginLoaderPath,
     configForm,
+    pluginLoaderPath,
   })
 
   const store = createTeghStore()
   await store.dispatch(action)
 
   // setErrorHandlerStore(store)
-  const pubsub = reduxPubSub(store, subscriptionModules)
 
+  console.log(store.getState())
   const { config } = store.getState()
-  const plugins = getAllPlugins(config)
 
   const teghServerConfig = {
     schema: teghSchema,
     context: {
       store,
-      pubsub,
     },
+    keys: config.server.keys,
+    signallingServer: config.server.signallingServer,
     // TODO:  make server plugin config dynamic and based on the store.
-    plugins,
   }
 
+  // if (config.server.webRTC) {
+  //   webRTCServer(teghServerConfig)
+  // }
   if (config.server.tcpPort) {
     httpServer(teghServerConfig, config.server.tcpPort)
   }

@@ -13,6 +13,7 @@ const initializeConfig = ({
     pluginLoaderPath,
   }))
 
+  console.log('123', _.omit(configForm, ['server']))
   await dispatch(setConfig({
     configForm: _.omit(configForm, ['server']),
     server,

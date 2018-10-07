@@ -17,6 +17,7 @@ export const ConfigStruct = t.struct({
   configForm: t.dict(t.String, t.Any),
   /* HTTP Port / Unix Socket configuration */
   server: t.struct({
+    webRTC: t.maybe(t.Boolean),
     tcpPort: t.maybe(t.Number),
     unixSocket: t.maybe(t.String),
   }),

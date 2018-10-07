@@ -76,6 +76,7 @@
     "subscriptions-transport-ws": "d1plo1d/subscriptions-transport-ws",
     "tcomb-validation": "^3.4.1",
     "tegh-core": "^0.4.0",
+    "tegh-protocol": "^0.4.0",
     "tmp-promise": "^1.0.4",
     "typiql": "^0.3.0",
     "untildify": "^3.0.2",

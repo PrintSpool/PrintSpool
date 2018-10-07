@@ -57,7 +57,6 @@
     "immutablepatch": "^0.4.2",
     "iterall": "d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b",
     "lodash": "^4.17.10",
-    "react-native-usbserial": "edvijaka/react-native-usbserial#master",
     "redux": "^3.5.1",
     "redux-immutable": "^4.0.0",
     "redux-logger": "^3.0.6",

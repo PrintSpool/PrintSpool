@@ -1,5 +1,6 @@
 /* config */
 export setConfig, { SET_CONFIG } from './config/actions/setConfig'
+export initializeConfig from './config/actions/initializeConfig'
 /* printer */
 export driverError, { DRIVER_ERROR } from './printer/actions/driverError'
 export estop, { ESTOP } from './printer/actions/estop'

@@ -7,4 +7,3 @@ export * from './types'
 export * from './selectors'
 
 export * as mutations from './mutations'
-export * as subscriptions from './subscriptions'
