@@ -1,8 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "execpostinstall": "npx babel-node ./postinstall.js",
-    "symlink": "npx babel-node ./symlink.js"
+    "execpostinstall": "npx babel-node ./postinstall.js"
   },
   "babel": {
     "presets": [

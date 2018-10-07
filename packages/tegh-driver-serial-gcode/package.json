@@ -9,7 +9,6 @@
   "scripts": {
     "test": "jest",
     "lint": "eslint src/",
-    "symlink": "cd ../../scripts && yarn symlink",
     "flow": "flow"
   },
   "babel": {

@@ -4,22 +4,26 @@ import { mergeChildReducers } from 'redux-loop-immutable'
 // peripherals
 import peripherals from './peripherals/reducers/peripheralsReducer'
 import _pollTemperature from './peripherals/reducers/pollTemperatureReducer'
-// status
-import _estop from './status/reducers/eStopReducer'
-import _serialErrorHandler from './status/reducers/serialErrorHandlerReducer'
-import status from './status/reducers/statusReducer'
+// serial
+import _estopAndReset from './serial/reducers/estopAndResetReducer'
+import _serialErrorHandler from './serial/reducers/serialErrorHandlerReducer'
+import _serial from './serial/reducers/serialReducer'
 // spool
 import _despoolToSerial from './spool/reducers/despoolToSerialReducer'
+import _greeting from './spool/reducers/greetingReducer'
 import _serialTimeout from './spool/reducers/serialTimeoutReducer'
+import _throwOnInvalidGCode from './spool/reducers/throwOnInvalidGCodeReducer'
 
 const reducers = {
   peripherals,
   _pollTemperature,
-  _estop,
+  _estopAndReset,
   _serialErrorHandler,
-  status,
+  _serial,
   _despoolToSerial,
+  _greeting,
   _serialTimeout,
+  _throwOnInvalidGCode,
 }
 
 const initialState = Record(Object.mapValues(reducers, () => null))()
