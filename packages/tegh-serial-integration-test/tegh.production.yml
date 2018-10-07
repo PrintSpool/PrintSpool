@@ -65,6 +65,6 @@ plugins:
   - package: tegh-driver-serial-gcode
     settings:
       serialPort:
-        path: /dev/ttyACM0
+        portID: /dev/ttyACM0
         baudRate: 250000
         simulation: true

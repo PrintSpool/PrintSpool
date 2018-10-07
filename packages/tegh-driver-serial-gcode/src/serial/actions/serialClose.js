@@ -1,9 +1,9 @@
 export const SERIAL_CLOSE = 'tegh-driver-gcode/serial/SERIAL_CLOSE'
 
-const serialClose = ({ serialPortID }) => ({
+const serialClose = ({ portID }) => ({
   type: SERIAL_CLOSE,
   payload: {
-    serialPortID,
+    portID,
   },
 })
 

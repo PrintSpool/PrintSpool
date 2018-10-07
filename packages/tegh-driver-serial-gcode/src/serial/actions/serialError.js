@@ -1,9 +1,9 @@
 export const SERIAL_ERROR = 'tegh-driver-gcode/serial/SERIAL_ERROR'
 
-const serialError = ({ serialPortID, error }) => ({
+const serialError = ({ portID, error }) => ({
   type: SERIAL_ERROR,
   payload: {
-    serialPortID,
+    portID,
     error,
   },
 })

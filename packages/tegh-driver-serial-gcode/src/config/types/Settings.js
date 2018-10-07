@@ -14,7 +14,7 @@ export const SettingsStruct = t.struct({
   }),
   longRunningCodes: t.list(t.String),
   serialPort: t.struct({
-    path: t.String,
+    portID: t.String,
     baudRate: t.Integer,
     simulation: t.Boolean,
   }),

@@ -5,79 +5,89 @@ import {
   CONNECT_PRINTER,
   DRIVER_ERROR,
   ESTOP,
-  PRINTER_DISCONNECTED,
-  PRINTER_READY,
-  printerReady,
+  printerDisconnected,
+  getDriverConfig,
 } from 'tegh-core'
 
-import serialReceive from '../../serial/actions/serialReceive'
-import { SERIAL_SEND } from '../../serial/actions/serialSend'
+import rxParser from '../../rxParser'
+import simulator from '../simulator'
 
-import greetingDelayDone, { GREETING_DELAY_DONE } from '../actions/greetingDelayDone'
+import serialPortCreated, { SERIAL_PORT_CREATED } from '../actions/serialPortCreated'
+import { SERIAL_SEND } from '../actions/serialSend'
+import { SERIAL_CLOSE } from '../actions/serialClose'
+
+import serialPortConnection from '../sideEffects/serialPortConnection'
+import closeSerialPort from '../sideEffects/closeSerialPort'
+import resetSerialPort from '../sideEffects/resetSerialPort'
+import writeToSerialPort from '../sideEffects/writeToSerialPort'
 
 export const initialState = Record({
   serialPort: null,
 })()
 
-// serialPort.on('open', () => {
-//   console.error('Serial port connected')
-// })
-//
-// serialPort.on('error', (err) => {
-//   console.error('Serial port error')
-//   throw err
-// })
-
 /*
- * Intercepts DESPOOL actions and sends the current gcode line to the
- * printer.
- *
- * Intercepts SERIAL_RECEIVE actions with the serialReceiveReducer
+ * controls a serial port through side effects
  */
 const serialReducer = (state = initialState, action) => {
   switch (action.type) {
     case CONNECT_PRINTER: {
-      let nextState = state
-      if (serialPort == null) {
-        const serialPortOpts = {} // TODO
-        nextState.set('serialPort', new SerialPort(serialPortOpts))
-      } else {
-        nextState.serialPort.reset()
-      }
-      return nextState.set('isConnecting', true)
-    }
-    case PRINTER_READY: {
-      return state.set('isConnecting', true)
-    }
-    case SERIAL_RECEIVE: {
-      if (state.isConnecting === false) return state
+      const {
+        portID,
+        baudRate,
+        simulation,
+      } = getDriverConfig(action.config).serial
 
-      switch (action.payload.type) {
-        case 'greeting': {
-          return loop(
-            Cmd.run(Promise.delay, {
-              args: [DELAY_AFTER_GREETING],
-              successActionCreator: greetingDelayDone,
-            }),
-          )
+      if (state.serialPort == null) {
+        const serialPortOpts = {
+          portID,
+          baudRate,
+          receiveParser: rxParser,
+          simulator: simulation ? simulator : null,
         }
-        case 'ok': {
-          return loop(
-            initialState.set('isConnecting', false),
-            Cmd.action(printerReady()),
-          )
-        }
-        default: {
-          return state
-        }
+
+        return loop(
+          state,
+          Cmd.run(serialPortConnection, {
+            args: [serialPortOpts],
+            successActionCreator: serialPortCreated,
+          }),
+        )
       }
-    }
-    case GREETING_DELAY_DONE: {
-      if (state.isConnecting === false) return state
 
       return loop(
         state,
-        Cmd.action(serialSend('M110 N0', { lineNumber: false })),
+        Cmd.run(resetSerialPort, {
+          args: [state],
+        }),
+      )
+    }
+    case SERIAL_PORT_CREATED: {
+      return state.set('serialPort', action.payload.serialPort)
+    }
+    case SERIAL_CLOSE: {
+      return loop(
+        initialState,
+        Cmd.action(printerDisconnected()),
+      )
+    }
+    case SERIAL_SEND: {
+      return loop(
+        state,
+        Cmd.run(writeToSerialPort, {
+          args: [{
+            serialPort: state.serialPort,
+            line: action.payload.line,
+          }],
+        }),
+      )
+    }
+    case DRIVER_ERROR:
+    case ESTOP: {
+      return loop(
+        initialState,
+        Cmd.run(closeSerialPort, {
+          args: [state],
+        }),
       )
     }
     default: {

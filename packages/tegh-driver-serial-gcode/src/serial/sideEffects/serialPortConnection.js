@@ -7,40 +7,40 @@ import serialReceive from '../actions/serialReceive'
 import serialError from '../actions/serialError'
 import { SERIAL_RESET } from '../actions/serialReset'
 
-const serialPortConnection = async ({
-  serialPortID,
+const serialPortConnection = ({
+  portID,
   baudRate,
   receiveParser,
   simulator,
 }, dispatch) => {
   const serialOptions = {
-    autoOpen: false,
+    // autoOpen: false,
     baudRate,
   }
 
   const { serialPort, parser } = (() => {
     if (simulator != null) {
-      return simulator(serialPortID, serialOptions)
+      return simulator(portID, serialOptions)
     }
     const result = {}
-    result.serialPort = new SerialPort(path, serialOptions)
+    result.serialPort = new SerialPort(portID, serialOptions)
     result.parser = result.serialPort.pipe(new SerialPort.parsers.Readline())
     return result
   })()
 
   let removeEventListeners = null
 
-  const onOpen = () => dispatch(serialOpen({ serialPortID }))
+  const onOpen = () => dispatch(serialOpen({ portID }))
   const onClose = () => {
     removeEventListeners()
-    dispatch(serialClose({ serialPortID }))
+    dispatch(serialClose({ portID }))
   }
   const onError = (error) => {
     removeEventListeners()
-    dispatch(serialError({ serialPortID, error }))
+    dispatch(serialError({ portID, error }))
   }
   const onData = (data) => {
-    dispatch(serialReceive({ serialPortID, receiveParser, data }))
+    dispatch(serialReceive({ portID, receiveParser, data }))
   }
 
   removeEventListeners = () => {
