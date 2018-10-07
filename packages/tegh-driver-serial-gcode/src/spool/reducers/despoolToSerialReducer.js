@@ -1,3 +1,4 @@
+import snl from 'strip-newlines'
 import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
 
@@ -118,9 +119,10 @@ const despoolToSerialReducer = (state = initialState, action) => {
         case 'error': {
           const errorAction = driverError({
             code: 'FIRMWARE_ERROR',
-            message: (
-              `${task.name}:${task.currentLineNumber}: ${action.payload.raw}`
-            ),
+            message: snl`
+              ${task.name}:${task.currentLineNumber}:
+              ${action.payload.message}
+            `,
           })
 
           return loop(state, Cmd.action(errorAction))

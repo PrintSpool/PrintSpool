@@ -95,7 +95,13 @@ const rxParser = (raw: string): RxData => {
     }
   }
   if (line.startsWith('resend') || line.startsWith('rs')) {
-    const lineNumber = parseInt(line.split(/N:|N|:/)[1], 10)
+    const lineNumber = parseInt(line.split(/ n:| n|:/)[1], 10)
+    if (typeof lineNumber !== 'number') {
+      return {
+        type: 'parser_error',
+        raw,
+      }
+    }
     return {
       type: 'resend',
       lineNumber,

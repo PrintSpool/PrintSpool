@@ -16,6 +16,8 @@ import reducer, {
 import serialSend, { SERIAL_SEND } from '../../serial/actions/serialSend'
 import serialReceive, { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 
+import rxParser from '../../rxParser'
+
 describe('despoolToSerialReducer', () => {
   describe(DESPOOL_TASK, () => {
     it('sends next line', () => {
@@ -58,7 +60,7 @@ describe('despoolToSerialReducer', () => {
 
   describe(SERIAL_RECEIVE, () => {
     describe('ok', () => {
-      const action = serialReceive({ type: 'ok' })
+      const action = serialReceive({ data: 'ok', receiveParser: rxParser })
 
       describe(REQUEST_DESPOOL_ON_OK, () => {
         it('requests a despool', () => {
@@ -113,8 +115,8 @@ describe('despoolToSerialReducer', () => {
     })
     describe('resend', () => {
       const action = serialReceive({
-        type: 'resend',
-        lineNumber: 9000,
+        data: 'resend N9000',
+        receiveParser: rxParser,
       })
 
       describe('when the resend line number matches the last line sent', () => {
@@ -147,8 +149,8 @@ describe('despoolToSerialReducer', () => {
         })
 
         const action = serialReceive({
-          type: 'error',
-          raw: '9001 (╯°□°）╯︵ ┻━┻',
+          data: 'error:9001 (╯°□°）╯︵ ┻━┻',
+          receiveParser: rxParser,
         })
 
         const state = initialState
