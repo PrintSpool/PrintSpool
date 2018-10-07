@@ -32,28 +32,6 @@ export const initialState = Record({
  */
 const serialReducer = (state = initialState, action) => {
   switch (action.type) {
-    case REQUEST_SERIAL_PORT_CONNECTION: {
-      const {
-        portID,
-        baudRate,
-        simulation,
-      } = getDriverConfig(action.config).serial
-
-      const serialPortOptions = {
-        portID,
-        baudRate,
-        receiveParser: rxParser,
-        simulator: simulation ? simulator : null,
-      }
-
-      return loop(
-        initialState,
-        Cmd.run(serialPortConnection, {
-          args: [serialPortOptions],
-          successActionCreator: serialPortCreated,
-        }),
-      )
-    }
     case SERIAL_RESET:
     case CONNECT_PRINTER: {
       if (state.serialPort == null) {
@@ -76,20 +54,31 @@ const serialReducer = (state = initialState, action) => {
         }),
       )
     }
-    case SERIAL_PORT_CREATED: {
-      return state
-        .set('serialPort', action.payload.serialPort)
-    }
-    case SERIAL_CLOSE: {
-      const nextAction = (() => {
-        if (state.isResetting) return requestSerialPortConnection()
-        return printerDisconnected()
-      })()
+    case REQUEST_SERIAL_PORT_CONNECTION: {
+      const {
+        portID,
+        baudRate,
+        simulation,
+      } = getDriverConfig(action.config).serial
+
+      const serialPortOptions = {
+        portID,
+        baudRate,
+        receiveParser: rxParser,
+        simulator: simulation ? simulator : null,
+      }
 
       return loop(
         initialState,
-        Cmd.action(nextAction),
+        Cmd.run(serialPortConnection, {
+          args: [serialPortOptions],
+          successActionCreator: serialPortCreated,
+        }),
       )
+    }
+    case SERIAL_PORT_CREATED: {
+      return state
+        .set('serialPort', action.payload.serialPort)
     }
     case SERIAL_SEND: {
       return loop(
@@ -100,6 +89,17 @@ const serialReducer = (state = initialState, action) => {
             line: action.payload.line,
           }],
         }),
+      )
+    }
+    case SERIAL_CLOSE: {
+      const nextAction = (() => {
+        if (state.isResetting) return requestSerialPortConnection()
+        return printerDisconnected()
+      })()
+
+      return loop(
+        initialState,
+        Cmd.action(nextAction),
       )
     }
     case DRIVER_ERROR:
