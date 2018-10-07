@@ -1,11 +1,11 @@
 import {
   estop,
-  connectPrinter,
 } from 'tegh-core'
 
 import reducer, { initialState } from './estopAndResetReducer'
 
 import serialSend from '../actions/serialSend'
+import serialReset from '../actions/serialReset'
 
 describe('estopAndResetReducer', () => {
   it('dispatches an ESTOP if an M112 is sent', () => {
@@ -20,7 +20,7 @@ describe('estopAndResetReducer', () => {
     expect(nextAction).toEqual(estop())
   })
 
-  it('dispatches a CONNECT_PRINTER action if M999 is sent', () => {
+  it('dispatches a RESET_SERIAL action if M999 is sent', () => {
     const action = serialSend('M999', { lineNumber: false })
 
     const [
@@ -29,7 +29,7 @@ describe('estopAndResetReducer', () => {
     ] = reducer(initialState, action)
 
     expect(nextState).toEqual(initialState)
-    expect(nextAction).toEqual(connectPrinter())
+    expect(nextAction).toEqual(serialReset())
   })
 
   it('does nothing on other GCodes', () => {

@@ -15,12 +15,6 @@ const estopAndResetReducer = (state = initialState, action) => {
     case SERIAL_SEND: {
       const { code } = action.payload
       /*
-       * Alert Tegh to an attempt to reconnect on M999 (reset)
-       */
-      if (code === 'M999') {
-        return loop(state, Cmd.action(connectPrinter()))
-      }
-      /*
        * Trigger an eStop action on M112 to emergency stop all of Tegh
        */
       if (code === 'M112') {

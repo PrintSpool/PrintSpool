@@ -22,14 +22,6 @@ export const initialState = Record({
   lastTaskSent: null,
 })()
 
-// case DRIVER_ERROR:
-// case ESTOP:
-// case PRINTER_DISCONNECTED: {
-// }
-// case PRINTER_READY: {
-//
-// }
-
 /*
  * Intercepts DESPOOL actions and sends the current gcode line to the
  * printer.
