@@ -1,4 +1,7 @@
 // import { compose, withContext } from 'recompose'
+import { ApolloProvider, Query } from 'react-apollo'
+import gql from 'graphql-tag'
+
 import QRReader from 'react-qr-reader'
 const global = typeof window === 'undefined' ? {} : window
 
@@ -50,8 +53,7 @@ global.createTegh = () => {
       console.log('web rtc connected', simplePeer)
     },
   })
-  console.log(teghClient)
-
+  // console.log(teghClient)
 
   // the tegh client exposes an API that is compatible with `window.WebSocket` so
   // we can use it with existing libaries which were designed for Web Sockets.
@@ -60,7 +62,7 @@ global.createTegh = () => {
     reconnect: true,
   }, teghClient)
 
-  console.log(subscriptionClient)
+  // console.log(subscriptionClient)
   clearTimeout(subscriptionClient.maxConnectTimeoutId)
 
   var wsLink = new WebSocketLink(subscriptionClient)
@@ -84,7 +86,7 @@ global.createTegh = () => {
     if (networkError) console.log(`[Network error]: ${networkError}`)
   })
 
-  var apolloClient = new ApolloClient({
+  const apolloClient = new ApolloClient({
     link: concat(
       errorLink,
       wsLink,
@@ -92,7 +94,7 @@ global.createTegh = () => {
     cache: new InMemoryCache(),
   })
 
-
+  return apolloClient
 }
 
 // const enhance = compose(
@@ -118,7 +120,24 @@ global.createTegh = () => {
 //   </div>
 // )
 
-const Index = () => <div>Web</div>
+const isNode = typeof navigator === 'undefined'
+const client = isNode ? null : global.createTegh()
+
+let Index = () => <div>Loading</div>
+
+if (!isNode) {
+  Index = () => (
+    <ApolloProvider client={ client }>
+      <Query query={gql`{ printers { id }}`}>
+        {({ loading, error, data }) => (
+          <div>
+            {JSON.stringify({ loading, error, data })}
+          </div>
+        )}
+      </Query>
+    </ApolloProvider>
+  )
+}
 
 // export default enhance(Index)
 
