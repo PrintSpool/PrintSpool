@@ -1,4 +1,4 @@
-const closeSerialPort = async (serialPort) => {
+const closeSerialPort = async ({ serialPort }) => {
   if (serialPort.isOpen) {
     await serialPort.close()
   }

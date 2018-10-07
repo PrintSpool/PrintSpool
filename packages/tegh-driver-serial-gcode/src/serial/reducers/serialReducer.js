@@ -12,17 +12,18 @@ import {
 import rxParser from '../../rxParser'
 import simulator from '../simulator'
 
+import requestSerialPortReconnection, { REQUEST_SERIAL_PORT_RECONNECTION } from '../actions/requestSerialPortReconnection'
 import serialPortCreated, { SERIAL_PORT_CREATED } from '../actions/serialPortCreated'
 import { SERIAL_SEND } from '../actions/serialSend'
 import { SERIAL_CLOSE } from '../actions/serialClose'
 
 import serialPortConnection from '../sideEffects/serialPortConnection'
 import closeSerialPort from '../sideEffects/closeSerialPort'
-import resetSerialPort from '../sideEffects/resetSerialPort'
 import writeToSerialPort from '../sideEffects/writeToSerialPort'
 
 export const initialState = Record({
   serialPort: null,
+  isResetting: false,
 })()
 
 /*
@@ -30,15 +31,16 @@ export const initialState = Record({
  */
 const serialReducer = (state = initialState, action) => {
   switch (action.type) {
+    case REQUEST_SERIAL_PORT_RECONNECTION:
     case CONNECT_PRINTER: {
-      const {
-        portID,
-        baudRate,
-        simulation,
-      } = getDriverConfig(action.config).serial
-
       if (state.serialPort == null) {
-        const serialPortOpts = {
+        const {
+          portID,
+          baudRate,
+          simulation,
+        } = getDriverConfig(action.config).serial
+
+        const serialPortOptions = {
           portID,
           baudRate,
           receiveParser: rxParser,
@@ -46,28 +48,38 @@ const serialReducer = (state = initialState, action) => {
         }
 
         return loop(
-          state,
+          initialState,
           Cmd.run(serialPortConnection, {
-            args: [serialPortOpts],
+            args: [serialPortOptions],
             successActionCreator: serialPortCreated,
           }),
         )
       }
 
+      const nextState = initialState.set('isResetting', true)
+
       return loop(
-        state,
-        Cmd.run(resetSerialPort, {
-          args: [state],
+        nextState,
+        Cmd.run(closeSerialPort, {
+          args: [{
+            serialPort: state.serialPort,
+          }],
         }),
       )
     }
     case SERIAL_PORT_CREATED: {
-      return state.set('serialPort', action.payload.serialPort)
+      return state
+        .set('serialPort', action.payload.serialPort)
     }
     case SERIAL_CLOSE: {
+      const nextAction = (() => {
+        if (state.isResetting) return requestSerialPortReconnection()
+        return printerDisconnected()
+      })()
+
       return loop(
         initialState,
-        Cmd.action(printerDisconnected()),
+        Cmd.action(nextAction),
       )
     }
     case SERIAL_SEND: {
@@ -86,7 +98,9 @@ const serialReducer = (state = initialState, action) => {
       return loop(
         initialState,
         Cmd.run(closeSerialPort, {
-          args: [state],
+          args: [{
+            serialPort: state.serialPort,
+          }],
         }),
       )
     }

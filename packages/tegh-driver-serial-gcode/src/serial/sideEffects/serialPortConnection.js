@@ -58,7 +58,7 @@ const serialPortConnection = ({
     .on('error', onError)
     .on('data', onData)
 
-  return serialPort
+  return { serialPort, parser }
 }
 
 export default serialPortConnection
