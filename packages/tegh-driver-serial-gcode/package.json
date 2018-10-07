@@ -32,9 +32,7 @@
     "moduleNameMapper": {
       "react-native-usbserial": "serialport"
     },
-    "setupFiles": [
-      "./src/test_helpers/setup.js"
-    ],
+    "setupFiles": [],
     "testEnvironment": "node"
   },
   "devDependencies": {
