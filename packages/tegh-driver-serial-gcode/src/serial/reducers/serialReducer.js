@@ -43,7 +43,7 @@ const serialReducer = (state = initialState, action) => {
 
       // if a serial port is open then close it and re-open the port once it
       // has closed.
-      const nextState = initialState.set('isResetting', true)
+      const nextState = state.set('isResetting', true)
 
       return loop(
         nextState,
@@ -59,7 +59,7 @@ const serialReducer = (state = initialState, action) => {
         portID,
         baudRate,
         simulation,
-      } = getDriverConfig(action.config).serial
+      } = getDriverConfig(action.config).serialPort
 
       const serialPortOptions = {
         portID,
@@ -105,7 +105,7 @@ const serialReducer = (state = initialState, action) => {
     case DRIVER_ERROR:
     case ESTOP: {
       return loop(
-        initialState,
+        state,
         Cmd.run(closeSerialPort, {
           args: [{
             serialPort: state.serialPort,
