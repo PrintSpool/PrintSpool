@@ -4,7 +4,7 @@
   "description": "Tegh default macros",
   "main": "src/index.js",
   "author": "Rob Gilson",
-  "license": "GPL-3.0",
+  "license": "AGPL-3.0-or-later",
   "private": false,
   "scripts": {
     "clean": "rm -rf build && mkdir build",

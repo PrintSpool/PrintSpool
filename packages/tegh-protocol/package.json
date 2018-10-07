@@ -2,6 +2,7 @@
   "name": "tegh-protocol",
   "version": "0.4.0",
   "main": "build/index.js",
+  "license": "MIT",
   "scripts": {
     "test": "jest",
     "lint": "eslint src/",
@@ -11,26 +12,22 @@
   },
   "babel": {
     "presets": [
-      "@babel/preset-env"
+      [
+        "@babel/preset-env",
+        {
+          "exclude": [
+            "transform-regenerator",
+            "transform-async-to-generator"
+          ]
+        }
+      ]
     ],
     "plugins": [
       "@babel/plugin-proposal-object-rest-spread",
       "@babel/plugin-syntax-dynamic-import",
       "@babel/plugin-proposal-export-default-from",
       "@babel/plugin-proposal-export-namespace-from",
-      [
-        "@babel/plugin-transform-runtime",
-        {
-          "regenerator": true
-        }
-      ],
-      [
-        "@babel/plugin-transform-async-to-generator",
-        {
-          "module": "bluebird",
-          "method": "coroutine"
-        }
-      ]
+      "module:fast-async"
     ],
     "ignore": [
       "build/**/*.js"
@@ -44,10 +41,10 @@
     "testEnvironment": "node"
   },
   "author": "Rob Gilson",
-  "license": "MIT",
   "dependencies": {
     "bluebird": "^3.5.2",
     "eventemitter3": "^3.1.0",
+    "fast-async": "^6.3.8",
     "jose-jwe-jws": "^0.1.6",
     "node-forge": "^0.7.6",
     "pem-jwk": "^1.5.1",
