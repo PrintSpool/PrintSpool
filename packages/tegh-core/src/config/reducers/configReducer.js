@@ -1,6 +1,6 @@
 import { SET_CONFIG } from '../actions/setConfig'
 
-const initialState = null
+export const initialState = null
 
 const configReducer = (state = initialState, action) => {
   switch (action.type) {
