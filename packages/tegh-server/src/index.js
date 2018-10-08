@@ -44,7 +44,6 @@ const teghDaemon = async (argv, pluginLoaderPath) => {
 
   const action = initializeConfig({
     config,
-    serverSettings,
     pluginLoaderPath,
   })
 
