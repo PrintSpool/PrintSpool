@@ -1,15 +1,13 @@
 import { Map } from 'immutable'
 import { createSelector } from 'reselect'
 
-import getPlugin from './getPlugin'
-
 const getPluginsByMacroName = createSelector(
-  state => state.config,
-  (config) => {
-    const { macros } = config.configForm
+  state => state,
+  ({ config, plugins }) => {
+    const { macros } = config
     const pluginsByMacroName = {}
     Object.entries(macros).forEach(([pluginName, opts]) => {
-      const plugin = getPlugin(config)(pluginName)
+      const plugin = plugins.get(pluginName)
 
       Object.entries(plugin)
         .filter(([name]) => opts.includes('*') || opts.includes(name))

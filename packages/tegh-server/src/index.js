@@ -31,45 +31,46 @@ const teghDaemon = async (argv, pluginLoaderPath) => {
     throw new Error(`No config file provided. ${expectedUseage}`)
   }
   const configPath = path.resolve(argv[2])
-  const configForm = loadConfigForm(configPath)
+  const config = loadConfigForm(configPath)
+
+  const serverSettings = config.server
+  delete config.server
 
   // wrapInCrashReporting({ configPath, config }, ({
   //   setErrorHandlerStore,
   // }) => {
 
+  const store = createTeghStore()
+
   const action = initializeConfig({
-    configForm,
+    config,
+    serverSettings,
     pluginLoaderPath,
   })
 
-  const store = createTeghStore()
-  await store.dispatch(action)
+  store.dispatch(action)
 
   // setErrorHandlerStore(store)
 
-  console.log(store.getState())
-  const { config } = store.getState()
-
+  // TODO: make server plugin config dynamic and based on the store.
   const teghServerConfig = {
     schema: teghSchema,
     context: {
       store,
     },
-    keys: config.server.keys,
-    signallingServer: config.server.signallingServer,
-    // TODO:  make server plugin config dynamic and based on the store.
+    keys: serverSettings.keys,
+    signallingServer: serverSettings.signallingServer,
   }
 
-  // if (config.server.webRTC) {
+  // if (serverSettings.webRTC) {
   //   webRTCServer(teghServerConfig)
   // }
-  if (config.server.tcpPort) {
-    httpServer(teghServerConfig, config.server.tcpPort)
+  if (serverSettings.tcpPort) {
+    httpServer(teghServerConfig, serverSettings.tcpPort)
   }
-  if (config.server.unixSocket) {
-    httpServer(teghServerConfig, config.server.unixSocket)
+  if (serverSettings.unixSocket) {
+    httpServer(teghServerConfig, serverSettings.unixSocket)
   }
-  // })
 }
 
 export default teghDaemon

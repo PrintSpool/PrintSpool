@@ -1,15 +1,17 @@
-import { Record, Map } from 'immutable'
+import { Record, Map, isImmutable } from 'immutable'
+import immutablePatch from 'immutablepatch'
 import { loop, Cmd } from 'redux-loop'
 
-import preloadAllPlugins from '../sideEffects/preloadAllPlugins'
+import loadPlugins from '../sideEffects/loadPlugins'
 
 import getPluginsByMacroName from '../selectors/getPluginsByMacroName'
 
-import { SET_CONFIG } from '../../config/actions/setConfig'
-import { SET_PLUGIN_LOADER_PATH } from '../actions/setPluginLoaderPath'
-import { REQUEST_LOAD_PLUGINS } from '../actions/requestLoadPlugins'
-import setPluginCache, { SET_PLUGIN_CACHE } from '../actions/setPluginCache'
-import loadPlugins from '../actions/loadPlugins'
+import Config, { validateCoreConfig } from '../../config/types/Config'
+
+import setConfig, { SET_CONFIG } from '../../config/actions/setConfig'
+import { INITIALIZE_CONFIG } from '../../config/actions/initializeConfig'
+import requestSetConfig, { REQUEST_SET_CONFIG } from '../../config/actions/requestSetConfig'
+import { REQUEST_PATCH_CONFIG } from '../../config/actions/requestPatchConfig'
 
 const initialState = Record({
   pluginLoaderPath: null,
@@ -21,38 +23,58 @@ const initialState = Record({
  */
 const pluginManagerReducer = (state = initialState, action) => {
   switch (action) {
-    case SET_PLUGIN_LOADER_PATH: {
-      return state.set('pluginLoaderPath', action.payload.pluginLoaderPath)
-    }
-    case REQUEST_LOAD_PLUGINS: {
-      const { config } = action
+    case INITIALIZE_CONFIG: {
+      const { config, pluginLoaderPath } = action.payload
 
-      return loop(state, Cmd.action(preloadAllPlugins(config), {
-        args: [
-          state.pluginLoaderPath,
-          config.plugins,
-        ],
-        successActionCreator: setPluginCache,
+      const nextState = state.set('pluginLoaderPath', pluginLoaderPath)
+
+      return loop(
+        nextState,
+        Cmd.action(
+          requestSetConfig({ config }),
+        ),
+      )
+    }
+    case REQUEST_SET_CONFIG:
+    case REQUEST_PATCH_CONFIG: {
+      let { config } = action.payload
+
+      if (action.type === REQUEST_PATCH_CONFIG) {
+        config = immutablePatch(state.config, action.payload.patch)
+      }
+
+      if (!isImmutable(config)) config = Config(config)
+
+      validateCoreConfig(config)
+
+      return loop(state, Cmd.run(loadPlugins, {
+        args: [{
+          pluginLoaderPath: state.pluginLoaderPath,
+          config,
+        }],
+        successActionCreator: setConfig,
       }))
     }
-    case SET_PLUGIN_CACHE: {
-      const nextState = state.set('cache', action.payload.cache)
-
-      return loop(nextState, Cmd.action(loadPlugins(nextState.cache.keys())))
-    }
     case SET_CONFIG: {
+      const {
+        plugins,
+        config,
+      } = action.payload
+
+      const nextState = state.set('cache', plugins)
+
       /*
        * validate plugin configurations on SET_CONFIG
        */
-      state.cache.forEach((plugin) => {
-        if (plugin.validateConfig) plugin.validateConfig(action.config)
+      nextState.cache.forEach((plugin) => {
+        if (plugin.validateConfig) plugin.validateConfig(config)
       })
 
       /*
        * run the getPluginsByMacroName selector to validate that all the macros
        * are valid
        */
-      getPluginsByMacroName(action.config)
+      getPluginsByMacroName(action.payload)
 
       return state
     }

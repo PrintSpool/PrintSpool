@@ -1,10 +1,10 @@
 export const REQUEST_SET_CONFIG = 'tegh/config/REQUEST_SET_CONFIG'
 
 const requestSetConfig = ({
-  configForm,
+  config,
 }) => ({
   type: REQUEST_SET_CONFIG,
-  payload: { configForm },
+  payload: { config },
 })
 
 export default requestSetConfig

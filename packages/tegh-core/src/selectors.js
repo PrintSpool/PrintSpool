@@ -8,7 +8,7 @@ export getHeaterConfigs from './config/selectors/getHeaterConfigs'
 // export isExtruder from './config/selectors/isExtruder'
 // export isHeatedBed from './config/selectors/isHeatedBed'
 // export runMacro from './config/selectors/runMacro'
-//
+
 // // ./jobQueue/selectors:
 // export getCompletedJobs from './jobQueue/selectors/getCompletedJobs'
 // export getHistoryByJobID from './jobQueue/selectors/getHistoryByJobID'
@@ -25,7 +25,7 @@ export getHeaterConfigs from './config/selectors/getHeaterConfigs'
 //
 // // ./pluginManager/selectors:
 // export getAllPlugins from './pluginManager/selectors/getAllPlugins'
-// export getAllReducers from './pluginManager/selectors/getAllReducers'
+export getAllReducers from './pluginManager/selectors/getAllReducers'
 // export getDriverPlugin from './pluginManager/selectors/getDriverPlugin'
 // export getMacroRunFn from './pluginManager/selectors/getMacroRunFn'
 // export getMiddleware from './pluginManager/selectors/getMiddleware'

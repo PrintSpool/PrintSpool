@@ -1,8 +1,10 @@
-import getPlugin from './getPlugin'
+import { createSelector } from 'reselect'
 
-const getDriverPlugin = (config) => {
-  if (config == null) return null
-  return getPlugin(config)(config.machine.driver)
-}
+const getDriverPlugin = createSelector(
+  state => state,
+  ({ plugins, config }) => (
+    plugins.get(config.machine.driver)
+  ),
+)
 
 export default getDriverPlugin

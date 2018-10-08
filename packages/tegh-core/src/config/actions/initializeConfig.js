@@ -1,23 +1,16 @@
-import _ from 'lodash'
-
-import setConfig from './setConfig'
-import setPluginLoaderPath from '../../pluginManager/actions/setPluginLoaderPath'
+export const INITIALIZE_CONFIG = '/tegh/config/INITIALIZE_CONFIG'
 
 const initializeConfig = ({
-  configForm,
+  serverSettings,
+  config,
   pluginLoaderPath,
-}) => async (dispatch) => {
-  const { server } = configForm
-
-  await dispatch(setPluginLoaderPath({
+}) => ({
+  type: INITIALIZE_CONFIG,
+  payload: {
+    serverSettings,
+    config,
     pluginLoaderPath,
-  }))
-
-  console.log('123', _.omit(configForm, ['server']))
-  await dispatch(setConfig({
-    configForm: _.omit(configForm, ['server']),
-    server,
-  }))
-}
+  },
+})
 
 export default initializeConfig
