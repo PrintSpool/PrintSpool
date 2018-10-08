@@ -1,29 +1,41 @@
 import { Record, Map } from 'immutable'
 import t from 'tcomb-validation'
 
-import { ConfigFormStruct, configFormStructFields } from './ConfigForm'
+import LogConfig, { LogConfigStruct } from './LogConfig'
+import CrashReportConfig, { CrashReportConfigStruct } from './CrashReportConfig'
+import PrintFromLocalPathConfig, { PrintFromLocalPathConfigStruct } from './PrintFromLocalPathConfig'
+import PluginConfig, { PluginConfigStruct } from './PluginConfig'
+import MachineConfig, { MachineConfigStruct } from './MachineConfig'
+import MaterialConfig, { MaterialConfigStruct } from './MaterialConfig'
 
 export const ConfigStruct = t.struct({
-  isInitialized: t.Boolean,
-  pluginManager: t.Any,
-  /*
-   * The configForm is a map of all the user-visible configuration
-   * exactly as it was entered by the user.
-   *
-   * The configForm is not validated directly because it can be incomplete - if
-   * the user wishes to use a default value that entry will be null in the
-   * configForm.
-   */
-  configForm: t.dict(t.String, t.Any),
-  /* HTTP Port / Unix Socket configuration */
-  server: t.struct({
-    webRTC: t.maybe(t.Boolean),
-    tcpPort: t.maybe(t.Number),
-    unixSocket: t.maybe(t.String),
-  }),
+  id: t.String,
+  name: t.String,
+  macros: t.dict(t.String, t.list(t.String)),
+  log: LogConfigStruct,
+  crashReports: CrashReportConfigStruct,
+  printFromLocalPath: PrintFromLocalPathConfigStruct,
+  materials: t.dict(t.String, MaterialConfigStruct),
+  machine: MachineConfigStruct,
+  plugins: t.dict(t.String, PluginConfigStruct),
+})
 
-  // copy all rules from the configForm to the config
-  ...configFormStructFields,
+export const ConfigRecordFactory = Record(
+  Map(ConfigStruct.meta.props).map(() => null),
+)
+
+const mapOfRecords = (entries, recordFactory) => (
+  Map(entries).map(props => recordFactory(props))
+)
+
+const Config = props => ConfigRecordFactory({
+  ...props,
+  log: LogConfig(props.log),
+  crashReports: CrashReportConfig(props.crashReports),
+  printFromLocalPath: PrintFromLocalPathConfig(props.printFromLocalPath),
+  plugins: mapOfRecords(props.plugins, PluginConfig),
+  machine: MachineConfig(props.machine),
+  materials: mapOfRecords(props.materials, MaterialConfig),
 })
 
 export const validateCoreConfig = (config) => {
@@ -33,12 +45,5 @@ export const validateCoreConfig = (config) => {
     throw new Error(validation.firstError().message)
   }
 }
-
-const defaultValues = Map(ConfigStruct.meta.props)
-  .map(() => null)
-  .set('isInitialized', false)
-  .toObject()
-
-const Config = Record(defaultValues)
 
 export default Config

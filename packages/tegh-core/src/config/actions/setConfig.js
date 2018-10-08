@@ -5,7 +5,7 @@ const setConfig = ({ config, plugins }) => ({
   payload: {
     config,
     plugins,
-  }
+  },
 })
 
 export default setConfig

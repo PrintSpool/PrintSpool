@@ -4,9 +4,7 @@ import { createSelector } from 'reselect'
 import getPluginsByMacroName from '../../pluginManager/selectors/getPluginsByMacroName'
 
 const getMacroDefintions = createSelector(
-  [
-    getPluginsByMacroName,
-  ],
+  getPluginsByMacroName,
   pluginsByMacroName => (
     pluginsByMacroName.values().map(macro => (
       Record({ name: macro })()

@@ -1,14 +1,14 @@
 export const INITIALIZE_CONFIG = '/tegh/config/INITIALIZE_CONFIG'
 
 const initializeConfig = ({
-  serverSettings,
   config,
+  serverSettings,
   pluginLoaderPath,
 }) => ({
   type: INITIALIZE_CONFIG,
   payload: {
-    serverSettings,
     config,
+    serverSettings,
     pluginLoaderPath,
   },
 })
