@@ -13,7 +13,7 @@ import { INITIALIZE_CONFIG } from '../../config/actions/initializeConfig'
 import requestSetConfig, { REQUEST_SET_CONFIG } from '../../config/actions/requestSetConfig'
 import { REQUEST_PATCH_CONFIG } from '../../config/actions/requestPatchConfig'
 
-const initialState = Record({
+export const initialState = Record({
   pluginLoaderPath: null,
   cache: Map(),
 })()
@@ -22,7 +22,7 @@ const initialState = Record({
  * manages the loading of Tegh plugins
  */
 const pluginManagerReducer = (state = initialState, action) => {
-  switch (action) {
+  switch (action.type) {
     case INITIALIZE_CONFIG: {
       const { config, pluginLoaderPath } = action.payload
 
@@ -60,13 +60,10 @@ const pluginManagerReducer = (state = initialState, action) => {
         plugins,
         config,
       } = action.payload
-
-      const nextState = state.set('cache', plugins)
-
       /*
        * validate plugin configurations on SET_CONFIG
        */
-      nextState.cache.forEach((plugin) => {
+      plugins.forEach((plugin) => {
         if (plugin.validateConfig) plugin.validateConfig(config)
       })
 
