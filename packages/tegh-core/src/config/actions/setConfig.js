@@ -1,5 +1,3 @@
-import getPluginsByMacroName from '../../pluginManager/selectors/getPluginsByMacroName'
-
 export const SET_CONFIG = 'tegh/config/SET_CONFIG'
 
 const setConfig = ({ config, plugins }) => {
@@ -10,12 +8,6 @@ const setConfig = ({ config, plugins }) => {
   plugins.forEach((plugin) => {
     if (plugin.validateConfig) plugin.validateConfig(config)
   })
-
-  /*
-   * run the getPluginsByMacroName selector to validate that all the macros
-   * are valid
-   */
-  getPluginsByMacroName(payload)
 
   return {
     type: SET_CONFIG,

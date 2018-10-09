@@ -1,7 +1,1 @@
-export eStop from './macros/eStop'
-export home from './macros/home'
-export moveBy from './macros/moveBy'
-export moveTo from './macros/moveTo'
-export reset from './macros/reset'
-export setTemperature from './macros/setTargetTemperature'
-export toggleHeater from './macros/toggleHeater'
+export * as macros from './macros'
