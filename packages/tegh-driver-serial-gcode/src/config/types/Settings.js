@@ -46,12 +46,15 @@ const SettingsRecord = Record({
 })
 
 export const createTestConfig = props => MockConfig({
-  machine: Map({
+  machine: {
     driver: packageJSON.name,
-  }),
-  plugins: Map({
-    [packageJSON.name]: SettingsRecord(props),
-  }),
+  },
+  plugins: {
+    [packageJSON.name]: {
+      package: packageJSON.name,
+      settings: SettingsRecord(props),
+    },
+  },
 })
 
 const Settings = (props) => {

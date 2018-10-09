@@ -1,8 +1,10 @@
+import { Record } from 'immutable'
 import Promise from 'bluebird'
 import { loop, Cmd } from 'redux-loop'
 
 import {
   PRINTER_READY,
+  SET_CONFIG,
 } from 'tegh-core'
 
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
@@ -10,12 +12,18 @@ import spoolTemperatureQuery from '../actions/spoolTemperatureQuery'
 
 import getPollingInterval from '../../config/selectors/getPollingInterval'
 
-export const initialState = null
+export const initialState = Record({
+  pollingInterval: null,
+})()
 
 const pollTemperatureReducer = (state = initialState, action) => {
   switch (action.type) {
+    case SET_CONFIG: {
+      const { config } = action.payload
+
+      return state.set('pollingInterval', getPollingInterval(config))
+    }
     case SERIAL_RECEIVE: {
-      const { config } = action
       const data = action.payload
 
       // if it has temperature data
@@ -24,11 +32,10 @@ const pollTemperatureReducer = (state = initialState, action) => {
         && data.type === 'ok'
         && data.temperatures != null
       ) {
-        const interval = getPollingInterval(config)
         return loop(
           state,
           Cmd.run(Promise.delay, {
-            args: [interval],
+            args: [state.pollingInterval],
             successActionCreator: spoolTemperatureQuery,
           }),
         )

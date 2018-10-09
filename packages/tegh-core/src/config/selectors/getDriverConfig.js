@@ -4,8 +4,9 @@ const getDriverConfig = createSelector(
   config => config,
   (config) => {
     if (config == null) return null
-    const driverPlugin = config.getIn(['machine', 'driver'])
-    return config.getIn(['plugins', driverPlugin])
+
+    const driverPackage = config.machine.driver
+    return config.getIn(['plugins', driverPackage, 'settings'], null)
   },
 )
 
