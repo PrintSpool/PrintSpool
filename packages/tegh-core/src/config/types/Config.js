@@ -1,5 +1,6 @@
 import { Record, Map } from 'immutable'
 import t from 'tcomb-validation'
+import uuid from 'uuid/v4'
 
 import LogConfig, { LogConfigStruct } from './LogConfig'
 import CrashReportConfig, { CrashReportConfigStruct } from './CrashReportConfig'
@@ -21,25 +22,41 @@ export const ConfigStruct = t.struct({
 })
 
 export const ConfigRecordFactory = Record(
-  Map(ConfigStruct.meta.props).map(() => null),
+  Map(ConfigStruct.meta.props).map(() => null).toJS(),
 )
 
-const mapOfRecords = (entries, recordFactory) => (
+const mapOfRecords = (entries = {}, recordFactory) => (
   Map(entries).map(props => recordFactory(props))
 )
 
-const Config = props => ConfigRecordFactory({
-  ...props,
-  log: LogConfig(props.log),
-  crashReports: CrashReportConfig(props.crashReports),
-  printFromLocalPath: PrintFromLocalPathConfig(props.printFromLocalPath),
-  plugins: mapOfRecords(props.plugins, PluginConfig),
-  machine: MachineConfig(props.machine),
-  materials: mapOfRecords(props.materials, MaterialConfig),
-})
+const Config = (props = {}) => (
+  ConfigRecordFactory({
+    ...props,
+    macros: props.macros || {},
+    log: LogConfig(props.log),
+    crashReports: CrashReportConfig(props.crashReports),
+    printFromLocalPath: PrintFromLocalPathConfig(props.printFromLocalPath),
+    plugins: mapOfRecords(props.plugins, PluginConfig),
+    machine: MachineConfig(props.machine),
+    materials: mapOfRecords(props.materials, MaterialConfig),
+  })
+)
+
+export const MockConfig = (props = {}) => (
+  Config({
+    id: uuid(),
+    name: 'test-printer',
+    ...props,
+    machine: {
+      id: uuid(),
+      driver: 'test-driver',
+      ...(props.machine || {}),
+    },
+  })
+)
 
 export const validateCoreConfig = (config) => {
-  const validation = t.validate(ConfigStruct, config)
+  const validation = t.validate(config.toJS(), ConfigStruct)
 
   if (!validation.isValid()) {
     throw new Error(validation.firstError().message)

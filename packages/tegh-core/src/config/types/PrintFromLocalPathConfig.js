@@ -7,8 +7,11 @@ export const PrintFromLocalPathConfigStruct = t.struct({
   whitelist: t.list(t.String),
 })
 
-const PrintFromLocalPathConfig = Record(
-  Map(PrintFromLocalPathConfigStruct.meta.props).map(() => null),
-)
-
+const PrintFromLocalPathConfig = Record({
+  enabled: false,
+  allowSymlinks: false,
+  whitelist: [
+    '~/.tegh-local-files/',
+  ],
+})
 export default PrintFromLocalPathConfig

@@ -7,7 +7,7 @@ export const PluginConfigStruct = t.struct({
 })
 
 const PluginConfig = Record(
-  Map(PluginConfigStruct.meta.props).map(() => null),
+  Map(PluginConfigStruct.meta.props).map(() => null).toJS(),
 )
 
 export default PluginConfig

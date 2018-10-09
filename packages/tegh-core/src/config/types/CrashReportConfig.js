@@ -6,8 +6,9 @@ export const CrashReportConfigStruct = t.struct({
   uploadCrashReportsToDevs: t.Boolean,
 })
 
-const CrashReportConfig = Record(
-  Map(CrashReportConfigStruct.meta.props).map(() => null),
-)
+const CrashReportConfig = Record({
+  directory: '/var/log/tegh',
+  uploadCrashReportsToDevs: true,
+})
 
 export default CrashReportConfig

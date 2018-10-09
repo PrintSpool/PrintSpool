@@ -12,14 +12,14 @@ export const MachineConfigStruct = t.struct({
 })
 
 const MachineConfigRecordFactory = Record(
-  Map(MachineConfigStruct.meta.props).map(() => null),
+  Map(MachineConfigStruct.meta.props).map(() => null).toJS(),
 )
 
-const mapOfRecords = (entries, recordFactory) => (
+const mapOfRecords = (entries = {}, recordFactory) => (
   Map(entries).map(props => recordFactory(props))
 )
 
-const MachineConfig = props => MachineConfigRecordFactory({
+const MachineConfig = (props = {}) => MachineConfigRecordFactory({
   ...props,
   axes: mapOfRecords(props.axes, MachineAxisConfig),
   peripherals: mapOfRecords(props.peripherals, MachinePeripheralConfig),

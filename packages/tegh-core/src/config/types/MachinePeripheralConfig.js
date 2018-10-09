@@ -13,7 +13,7 @@ export const MachinePeripheralConfigStruct = t.struct({
 })
 
 const MachinePeripheralConfig = Record(
-  Map(MachinePeripheralConfigStruct.meta.props).map(() => null),
+  Map(MachinePeripheralConfigStruct.meta.props).map(() => null).toJS(),
 )
 
 export default MachinePeripheralConfig

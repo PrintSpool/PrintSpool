@@ -7,7 +7,7 @@ export const MaterialConfigStruct = t.struct({
 })
 
 const MaterialConfig = Record(
-  Map(MaterialConfigStruct.meta.props).map(() => null),
+  Map(MaterialConfigStruct.meta.props).map(() => null).toJS(),
 )
 
 export default MaterialConfig

@@ -6,7 +6,7 @@ export const MachineAxisConfigStruct = t.struct({
 })
 
 const MachineAxisConfig = Record(
-  Map(MachineAxisConfigStruct.meta.props).map(() => null),
+  Map(MachineAxisConfigStruct.meta.props).map(() => null).toJS(),
 )
 
 export default MachineAxisConfig
