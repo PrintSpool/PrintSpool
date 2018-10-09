@@ -4,8 +4,7 @@ import snl from 'strip-newlines'
 
 import isIdle from '../../spool/selectors/isIdle'
 import getDriverState from '../selectors/getDriverState'
-import getMacroDefinitions from '../../config/selectors/getMacroDefinitions'
-
+1
 import PrinterStatusEnum from './PrinterStatusEnum.graphql'
 import HeaterType from './Heater.graphql'
 import FanType from './Fan.graphql'
@@ -72,7 +71,7 @@ const Printer = new GraphQLObjectType({
     },
     macroDefinitions: {
       type: tql`[${MacroDefinitionType}!]!`,
-      resolve: source => getMacroDefinitions(source.config),
+      resolve: source => source.macros.keys(),
     },
     logEntries: {
       type: tql`[${LogEntryType}!]`,

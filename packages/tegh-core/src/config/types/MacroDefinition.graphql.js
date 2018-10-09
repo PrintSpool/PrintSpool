@@ -8,6 +8,7 @@ const MacroDefinitionType = new GraphQLObjectType({
   fields: () => ({
     name: {
       type: tql`String!`,
+      resolve: source => source,
     },
   }),
 })
