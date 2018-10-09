@@ -7,12 +7,12 @@ const getMacroRunFnsByName = createSelector(
     const { macros } = config
     const macroRunFnsByName = {}
 
-    macros.entries().forEach(([pluginName, opts]) => {
-      const plugin = plugins.get(pluginName)
+    macros.forEach((opts, pluginName) => {
+      const plugin = plugins.get(pluginName) || {}
 
-      plugin.macros.entires()
-        .filter(([name]) => opts.includes('*') || opts.includes(name))
-        .forEach(([name, runFn]) => {
+      Map(plugin.macros || {})
+        .filter(name => opts.includes('*') || opts.includes(name))
+        .forEach((runFn, name) => {
           macroRunFnsByName[name] = runFn
         })
     })

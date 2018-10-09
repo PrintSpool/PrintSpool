@@ -6,7 +6,7 @@ import { MockConfig } from '../../config/types/Config'
 
 import setConfig, { SET_CONFIG } from '../../config/actions/setConfig'
 import spoolMacro, { SPOOL_MACRO } from '../../spool/actions/spoolMacro'
-import spoolTask from '../../spool/actions/spoolTask'
+import { SPOOL_TASK } from '../../spool/actions/spoolTask'
 
 describe('configReducer', () => {
   describe(SET_CONFIG, () => {
@@ -15,7 +15,7 @@ describe('configReducer', () => {
 
       const config = MockConfig({
         macros: {
-          myPlugin: '*',
+          myPlugin: ['*'],
         },
       })
       const plugins = Map({
@@ -35,23 +35,26 @@ describe('configReducer', () => {
       })
     })
   })
-  // describe(SPOOL_MACRO, () => {
-  //   it('creates a SPOOL_TASK with the macro output', () => {
-  //     const state = MockConfig()
-  //     const action = spoolMacro({
-  //     })
-  //
-  //     const [
-  //       nextState,
-  //       { actionToDispatch: nextAction },
-  //     ] = reducer(state, action)
-  //
-  //     expect(nextState).toEqual(state)
-  //     expect(nextAction).toEqual(
-  //       spoolTask({
-  //
-  //       }),
-  //     )
-  //   })
-  // })
+  describe(SPOOL_MACRO, () => {
+    it('creates a SPOOL_TASK with the macro output', () => {
+      const myMacroRunFn = val => [`G1 X${val}`]
+
+      const state = initialState.set('myMacro', myMacroRunFn)
+      const action = spoolMacro({
+        macro: 'myMacro',
+        args: [42],
+      })
+
+      const [
+        nextState,
+        { actionToDispatch: nextAction },
+      ] = reducer(state, action)
+
+      expect(nextState).toEqual(state)
+      expect(nextAction.type).toEqual(SPOOL_TASK)
+      expect(nextAction.payload.task.data.toJS()).toEqual([
+        'G1 X42',
+      ])
+    })
+  })
 })

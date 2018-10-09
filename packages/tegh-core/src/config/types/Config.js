@@ -1,4 +1,4 @@
-import { Record, Map } from 'immutable'
+import Immutable, { Record, Map } from 'immutable'
 import t from 'tcomb-validation'
 import uuid from 'uuid/v4'
 
@@ -32,7 +32,7 @@ const mapOfRecords = (entries = {}, recordFactory) => (
 const Config = (props = {}) => (
   ConfigRecordFactory({
     ...props,
-    macros: props.macros || {},
+    macros: Immutable.fromJS(props.macros || {}),
     log: LogConfig(props.log),
     crashReports: CrashReportConfig(props.crashReports),
     printFromLocalPath: PrintFromLocalPathConfig(props.printFromLocalPath),
