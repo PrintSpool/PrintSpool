@@ -1,6 +1,6 @@
 import t from 'tcomb-validation'
 import { Record, List, Map } from 'immutable'
-import { Config } from 'tegh-core'
+import { MockConfig } from 'tegh-core'
 
 import packageJSON from '../../../package.json'
 
@@ -45,7 +45,7 @@ const SettingsRecord = Record({
   },
 })
 
-export const createTestConfig = props => Config({
+export const createTestConfig = props => MockConfig({
   machine: Map({
     driver: packageJSON.name,
   }),

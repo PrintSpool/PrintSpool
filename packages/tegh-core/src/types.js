@@ -1,5 +1,5 @@
 /* config */
-export Config from './config/types/Config'
+export Config, { MockConfig } from './config/types/Config'
 
 /* jobQueue */
 export * as JobHistoryTypeEnum from './jobQueue/types/JobHistoryTypeEnum'

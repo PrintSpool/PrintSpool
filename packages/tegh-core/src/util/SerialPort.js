@@ -11,9 +11,6 @@ const isReactNative = (
 // import { serialConfig } from 'tegh-core'
 // import { UsbSerial } from 'react-native-usbserial'
 // serialConfig.UsbSerial = UsbSerial
-export const serialConfig = {
-  UsbSerial: null,
-}
 
 class ReactNativeSerialPort extends EventEmitter {
   constructor(deviceID, serialOptions) {
@@ -22,10 +19,10 @@ class ReactNativeSerialPort extends EventEmitter {
     this.serialOptions = serialOptions
   }
 
-  async open() {
+  async open({ UsbSerial }) {
     const serialModule = this.device.UsbSerialModule
 
-    this.device = await serialConfig.UsbSerial.openDeviceAsync(this.deviceID)
+    this.device = await UsbSerial.openDeviceAsync(this.deviceID)
     serialModule.on('newData', this.onNewData)
     this.emit('open')
   }
@@ -50,7 +47,7 @@ const SerialPort = (deviceID, serialOptions) => {
   return NodeSerialPort(deviceID, serialOptions)
 }
 
-SerialPort.getDeviceList = async () => {
+SerialPort.getDeviceList = async ({ UsbSerial }) => {
   if (isReactNative) {
     const usbs = new UsbSerial()
 

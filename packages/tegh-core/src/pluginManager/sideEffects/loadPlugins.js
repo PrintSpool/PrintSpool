@@ -1,21 +1,19 @@
 import { Map } from 'immutable'
 
 const loadPlugins = async ({
-  pluginLoaderPath,
+  pluginLoader,
   config,
 }) => {
-  if (pluginLoaderPath == null) {
+  if (pluginLoader == null) {
     throw new Error('pluginLoaderPath must be defined')
   }
-
-  const load = await import(pluginLoaderPath)
 
   let plugins = Map()
   // eslint-disable-next-line no-restricted-syntax
   await Promise.all(
     config.plugins.map(async (pluginConfig) => {
       // eslint-disable-next-line no-await-in-loop
-      const plugin = await load(pluginConfig.package)
+      const plugin = await pluginLoader(pluginConfig.package)
       // eslint-disable-next-line no-await-in-loop
       plugins = plugins.set(pluginConfig.package, plugin)
     }),

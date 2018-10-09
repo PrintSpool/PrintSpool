@@ -1,10 +1,11 @@
-import { Record, Map } from 'immutable'
+import { Record, Map, List } from 'immutable'
 
 import {
   ESTOP,
   DRIVER_ERROR,
   PRINTER_DISCONNECTED,
   SET_CONFIG,
+  setConfig,
   PeripheralTypeEnum,
 } from 'tegh-core'
 
@@ -49,17 +50,29 @@ const configuredState = initialState
   }))
 
 describe('peripheralsReducer', () => {
-  const initializingActions = [
-    SET_CONFIG,
+  describe(SET_CONFIG, () => {
+    it('initializes each peripheral\'s state', () => {
+      const state = initialState
+      const action = setConfig({ config, plugins: List([]) })
+
+      const nextState = reducer(state, action)
+
+      expect(nextState.toJSON()).toEqual(configuredState.toJSON())
+    })
+  })
+
+  const stateResettingActions = [
     ESTOP,
     DRIVER_ERROR,
     PRINTER_DISCONNECTED,
   ]
-  initializingActions.forEach((actionType) => {
+  stateResettingActions.forEach((actionType) => {
     describe(actionType, () => {
       it('initializes each peripheral\'s state', () => {
-        const state = initialState
-        const action = { type: actionType, config }
+        const state = configuredState
+          .setIn(['heaters', 'e0', 'currentTemperature'], 120)
+          .setIn(['fans', 'f0', 'enabled'], true)
+        const action = { type: actionType }
 
         const nextState = reducer(state, action)
 

@@ -39,14 +39,10 @@ const initializeCollection = (arrayOfConfigs, initialValueFn) => (
   )
 )
 
-
 const peripheralsReducer = (state = initialState, action) => {
   switch (action.type) {
-    case SET_CONFIG:
-    case DRIVER_ERROR:
-    case ESTOP:
-    case PRINTER_DISCONNECTED: {
-      const { config } = action
+    case SET_CONFIG: {
+      const { config } = action.payload
 
       return initialState.merge({
         heaters: initializeCollection(getHeaterConfigs(config), id => (
@@ -55,6 +51,14 @@ const peripheralsReducer = (state = initialState, action) => {
         fans: initializeCollection(getFanConfigs(config), id => (
           Fan({ id })
         )),
+      })
+    }
+    case DRIVER_ERROR:
+    case ESTOP:
+    case PRINTER_DISCONNECTED: {
+      return initialState.merge({
+        heaters: state.heaters.map(({ id }) => Heater({ id })),
+        fans: state.fans.map(({ id }) => Fan({ id })),
       })
     }
     case SERIAL_RECEIVE: {

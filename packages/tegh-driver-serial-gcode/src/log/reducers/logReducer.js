@@ -1,10 +1,9 @@
 import {
   DRIVER_ERROR,
+  PRINTER_DISCONNECTED,
 } from 'tegh-core'
 
 import { SERIAL_OPEN } from '../../serial/actions/serialOpen'
-import { SERIAL_OPEN_ERROR } from '../../serial/actions/serialOpenError'
-import { PRINTER_DISCONNECTED } from '../../serial/actions/printerDisconnected'
 import { SERIAL_SEND } from '../../serial/actions/serialSend'
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import { SERIAL_ERROR } from '../../serial/actions/serialError'
@@ -69,16 +68,6 @@ const logReducer = (_state, action) => {
         source: 'SERIAL',
         level: 'info',
         message: 'Serial Connected',
-      }
-    }
-    case SERIAL_OPEN_ERROR: {
-      return {
-        source: 'SERIAL',
-        level: 'warning',
-        message: (
-          'Unable to open serial port\n'
-          + `${action.payload.message}\n${action.payload.stack}`
-        ),
       }
     }
     case SERIAL_ERROR: {
