@@ -1,7 +1,6 @@
 import { loop, Cmd } from 'redux-loop'
 
 import {
-  connectPrinter,
   estop,
 } from 'tegh-core'
 

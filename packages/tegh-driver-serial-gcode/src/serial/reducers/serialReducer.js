@@ -2,6 +2,7 @@ import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
 
 import {
+  SET_CONFIG,
   CONNECT_PRINTER,
   DRIVER_ERROR,
   ESTOP,
@@ -25,6 +26,7 @@ import writeToSerialPort from '../sideEffects/writeToSerialPort'
 export const initialState = Record({
   serialPort: null,
   isResetting: false,
+  config: null,
 })()
 
 /*
@@ -32,11 +34,16 @@ export const initialState = Record({
  */
 const serialReducer = (state = initialState, action) => {
   switch (action.type) {
+    case SET_CONFIG: {
+      const { config } = action.payload
+
+      return state.set('config', getDriverConfig(config).serialPort)
+    }
     case SERIAL_RESET:
     case CONNECT_PRINTER: {
       if (state.serialPort == null) {
         return loop(
-          initialState,
+          initialState.set('config', state.config),
           Cmd.action(requestSerialPortConnection()),
         )
       }
@@ -59,7 +66,7 @@ const serialReducer = (state = initialState, action) => {
         portID,
         baudRate,
         simulation,
-      } = getDriverConfig(action.config).serialPort
+      } = state.config
 
       const serialPortOptions = {
         portID,
@@ -69,7 +76,7 @@ const serialReducer = (state = initialState, action) => {
       }
 
       return loop(
-        initialState,
+        initialState.set('config', state.config),
         Cmd.run(serialPortConnection, {
           args: [serialPortOptions],
           successActionCreator: serialPortCreated,
@@ -98,7 +105,7 @@ const serialReducer = (state = initialState, action) => {
       })()
 
       return loop(
-        initialState,
+        initialState.set('config', state.config),
         Cmd.action(nextAction),
       )
     }

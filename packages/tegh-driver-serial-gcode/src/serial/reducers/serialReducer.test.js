@@ -1,24 +1,23 @@
-import { loop, Cmd } from 'redux-loop'
-import { Record } from 'immutable'
+import { List } from 'immutable'
 
 import {
   CONNECT_PRINTER,
   DRIVER_ERROR,
   ESTOP,
+  SET_CONFIG,
+  setConfig,
   printerDisconnected,
-  getDriverConfig,
 } from 'tegh-core'
 
 import { createTestConfig } from '../../config/types/Settings'
 
 import rxParser from '../../rxParser'
-import simulator from '../simulator'
 
 import requestSerialPortConnection, { REQUEST_SERIAL_PORT_CONNECTION } from '../actions/requestSerialPortConnection'
 import serialPortCreated, { SERIAL_PORT_CREATED } from '../actions/serialPortCreated'
+import { SERIAL_RESET } from '../actions/serialReset'
 import serialSend, { SERIAL_SEND } from '../actions/serialSend'
 import serialClose, { SERIAL_CLOSE } from '../actions/serialClose'
-import serialReset, { SERIAL_RESET } from '../actions/serialReset'
 
 import serialPortConnection from '../sideEffects/serialPortConnection'
 import closeSerialPort from '../sideEffects/closeSerialPort'
@@ -26,7 +25,31 @@ import writeToSerialPort from '../sideEffects/writeToSerialPort'
 
 import reducer, { initialState } from './serialReducer'
 
+const portID = '/dev/whatever'
+const baudRate = 9000
+
+const config = createTestConfig({
+  serialPort: {
+    portID,
+    baudRate,
+    simulation: false,
+  },
+})
+
+const configuredState = initialState
+  .set('config', config.plugins.first().settings.serialPort)
+
 describe('serialReducer', () => {
+  describe(SET_CONFIG, () => {
+    it('stores the serial port configuration options', () => {
+      const action = setConfig({ config, plugins: List() })
+
+      const nextState = reducer(initialState, action)
+
+      expect(nextState).toEqual(configuredState)
+    })
+  })
+
   const resetActions = [
     SERIAL_RESET,
     CONNECT_PRINTER,
@@ -66,29 +89,14 @@ describe('serialReducer', () => {
 
   describe(REQUEST_SERIAL_PORT_CONNECTION, () => {
     it('creates a serial port connection', () => {
-      const portID = '/dev/whatever'
-      const baudRate = 9000
-
-      const config = createTestConfig({
-        serialPort: {
-          portID,
-          baudRate,
-          simulation: false,
-        },
-      })
-
-      const state = initialState
-      const action = {
-        type: REQUEST_SERIAL_PORT_CONNECTION,
-        config,
-      }
+      const action = requestSerialPortConnection()
 
       const [
         nextState,
         sideEffect,
-      ] = reducer(state, action)
+      ] = reducer(configuredState, action)
 
-      expect(nextState).toEqual(state)
+      expect(nextState).toEqual(configuredState)
       expect(sideEffect.func).toEqual(serialPortConnection)
       expect(sideEffect.args).toEqual([{
         portID,
