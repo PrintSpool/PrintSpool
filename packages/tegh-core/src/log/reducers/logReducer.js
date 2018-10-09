@@ -1,10 +1,11 @@
 import { Record, List } from 'immutable'
 
+import { SET_CONFIG } from '../../config/actions/setConfig'
 import { CLEAR_LOG } from '../actions/clearLog'
 
-import getDriverPlugin from '../../pluginManager/selectors/getDriverPlugin'
-
 import LOG_LEVELS from '../types/logLevelEnum'
+
+import getDriverPlugin from '../../pluginManager/selectors/getDriverPlugin'
 
 const validLogEntry = (log) => {
   if (log == null) return log
@@ -25,40 +26,54 @@ const initialState = Record({
   loggerPath: null,
   logEntries: List(),
   entryCountSinceStartup: 0,
+  config: Record({
+    driverLogReducer: null,
+    stderr: null,
+    maxLength: null,
+  })(),
 })()
 
 const logReducer = (
   state = initialState,
   action,
 ) => {
-  const { config } = action
+  switch (action.type) {
+    case CLEAR_LOG: {
+      return initialState
+    }
+    case SET_CONFIG: {
+      const { config } = action.payload
 
-  if (action.type === CLEAR_LOG) return initialState
+      return state.mergeIn(['config'], {
+        driverLogReducer: getDriverPlugin(config).logReducer,
+        ...config.log,
+      })
+    }
+    default: {
+      const { config } = state
 
-  const driverLogReducer = getDriverPlugin(config).logReducer
+      const log = validLogEntry(config.driverLogReducer(null, action))
 
-  if (driverLogReducer == null) return state
+      if (log == null) return state
 
-  const log = validLogEntry(driverLogReducer(null, action))
+      // TODO: console.error is a side effect and would ideally be moved to a saga
+      if (config.stderr.includes(log.level)) {
+        // eslint-disable-next-line no-console
+        console.error(`${log.source}[${log.level}]: ${log.message}`)
+      }
 
-  if (log == null) return state
-
-  // TODO: console.error is a side effect and would ideally be moved to a saga
-  if (config.log.stderr.includes(log.level)) {
-    // eslint-disable-next-line no-console
-    console.error(`${log.source}[${log.level}]: ${log.message}`)
+      return state
+        .update('logEntries', list => (
+          (() => {
+            if (list.size >= config.maxLength) {
+              return list.shift()
+            }
+            return list
+          })().push(log)
+        ))
+        .update('entryCountSinceStartup', count => count + 1)
+    }
   }
-
-  return state
-    .update('logEntries', list => (
-      (() => {
-        if (list.size >= config.log.maxLength) {
-          return list.shift()
-        }
-        return list
-      })().push(log)
-    ))
-    .update('entryCountSinceStartup', count => count + 1)
 }
 
 export default logReducer

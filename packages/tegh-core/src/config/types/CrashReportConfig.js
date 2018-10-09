@@ -1,4 +1,4 @@
-import { Record, Map } from 'immutable'
+import { Record } from 'immutable'
 import t from 'tcomb-validation'
 
 export const CrashReportConfigStruct = t.struct({
