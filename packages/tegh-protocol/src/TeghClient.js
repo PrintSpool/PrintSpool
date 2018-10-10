@@ -11,10 +11,10 @@ const CLOSED = 'CLOSED'
 
 const TeghClient = ({ keys, peerPublicKey, onWebRTCConnect = () => {} }) => {
   const TeghClientSocket = (signallingServer, protocol) => {
-    console.log('new tegh client')
     const rtcPeer = new Peer({ initiator: true })
     const teghSocket = {
       readyState: CONNECTING,
+      send: message => rtcPeer.send(message),
       close: () => rtcPeer.destroy(),
     }
 
@@ -41,7 +41,7 @@ const TeghClient = ({ keys, peerPublicKey, onWebRTCConnect = () => {} }) => {
         announcementSocket,
         'announcement',
         {
-          map: message => decryptPayload({ message, keys }),
+          map: message => announcement.decrypt({ message, keys }),
           filter: payload => payload.publicKey === peerPublicKey,
         },
       )

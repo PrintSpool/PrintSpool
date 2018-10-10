@@ -1,8 +1,15 @@
+// import WebCrypto from 'node-webcrypto-ossl'
+import crypto from '@trust/webcrypto'
+import wrtc from 'wrtc'
 import fs from 'fs'
 import { SubscriptionServer } from 'subscriptions-transport-ws'
 import { execute, subscribe } from 'graphql'
 import untildify from 'untildify'
-import { TeghHost, getFingerprint } from 'tegh-protocol'
+import { TeghHost, setCrypto } from 'tegh-protocol'
+
+// const webCrypto = new WebCrypto()
+// setCrypto(webCrypto)
+setCrypto(crypto)
 
 const httpServer = async ({
   schema,
@@ -19,6 +26,7 @@ const httpServer = async ({
     // TODO: authenticate users + implement access control
     authenticate: () => true,
     signallingServer,
+    wrtc,
   })
 
   SubscriptionServer.create(
@@ -38,8 +46,7 @@ const httpServer = async ({
 
   // eslint-disable-next-line no-console
   console.error(
-    'Tegh is listening for WebRTC connections. Public Key:\n'
-    + keysJSON.public,
+    `Tegh is listening for WebRTC connections. Public Key:\n${keysJSON.public}`,
   )
 }
 

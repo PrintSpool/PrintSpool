@@ -1,10 +1,15 @@
 import { pem2jwk } from 'pem-jwk'
-import { Jose, JoseJWE, JoseJWS } from 'jose-jwe-jws'
+import { Jose, JoseJWE } from 'jose-jwe-jws'
 import sshFingerprint from './sshFingerprint'
 
 import { packJWS, unpackJWS } from './jws'
 
-export const encrypt = async ({ signal, protocol, keys, peerPublicKey }) => {
+export const encrypt = async ({
+  signal,
+  protocol,
+  keys,
+  peerPublicKey,
+}) => {
   const peerFingerprint = sshFingerprint(peerPublicKey, 'sha256')
 
   const payload = {
@@ -20,7 +25,7 @@ export const encrypt = async ({ signal, protocol, keys, peerPublicKey }) => {
 
   const jwk = pem2jwk(peerPublicKey)
   const cryptographer = new Jose.WebCryptographer()
-  const rsaKey = Jose.Utils.importRsaPublicKey(jwk, "RSA-OAEP")
+  const rsaKey = Jose.Utils.importRsaPublicKey(jwk, 'RSA-OAEP')
   const encrypter = new JoseJWE.Encrypter(cryptographer, rsaKey)
   const encryptedPayload = await encrypter.encrypt(signedPayload)
 
@@ -39,7 +44,12 @@ export const publish = async ({
   keys,
   peerPublicKey,
 }) => {
-  const message = await encrypt({ signal, protocol, keys, peerPublicKey })
+  const message = await encrypt({
+    signal,
+    protocol,
+    keys,
+    peerPublicKey,
+  })
   socket.emit('announcement', message)
 }
 
@@ -48,8 +58,9 @@ export const decrypt = async ({ message, keys }) => {
 
   // Decrypt the payload
   const jwk = pem2jwk(keys.private)
+  const rsaKey = Jose.Utils.importRsaPrivateKey(jwk, 'RSA-OAEP')
+
   const cryptographer = new Jose.WebCryptographer()
-  const rsaKey = Jose.Utils.importRsaPrivateKey(jwk, "RSA-OAEP")
   const decrypter = new JoseJWE.Decrypter(cryptographer, rsaKey)
   const signedPayload = await decrypter.decrypt(encryptedPayload)
 

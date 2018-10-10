@@ -12,27 +12,41 @@ import * as announcement from './shared/announcement'
  * signallingServer = string - the url to the central signallingServer
  * public key and returns an account object or `false` if they are unauthorized.
  */
-const TeghHost = ({ keys, authenticate, signallingServer }) => {
+const TeghHost = ({
+  keys,
+  authenticate,
+  signallingServer,
+  wrtc,
+}) => {
   const teghHost = new EventEmitter()
+  teghHost.CONNECTING = 0
+  teghHost.OPEN = 1
+  teghHost.CLOSING = 2
+  teghHost.CLOSED = 3
 
   const connect = async () => {
     const announcementSocket = await connectToSignallingServer({
       keys,
       signallingServer,
     })
-    console.log('CONNECTED TO SIGNALLING SERVER')
 
-    announcementSocket.on('announcement', async (message) => {
-      console.log('received announcement!!!')
+    announcementSocket.on('announcement', async (announcementMessage) => {
       // validate and decrypt the client's announcement
-      const offerPayload = await decryptPayload({ message, keys })
+      const offerPayload = await announcement.decrypt({
+        message: announcementMessage,
+        keys,
+      })
 
       // authenticate the client via their public key
       const account = authenticate(offerPayload.publicKey)
-      if (account == false) return
+      if (account === false) return
 
       // accept the offer from the client
-      const rtcPeer = new Peer({ initiator: false })
+      const rtcPeer = new Peer({
+        initiator: false,
+        wrtc,
+      })
+
       rtcPeer.signal(offerPayload.signal)
 
       // create and send an answer
@@ -41,29 +55,38 @@ const TeghHost = ({ keys, authenticate, signallingServer }) => {
         socket: announcementSocket,
         signal: answerSignal,
         keys,
-        peerPublicKey: payload.publicKey,
+        peerPublicKey: offerPayload.publicKey,
       })
 
       // wait for the client to establish the webRTC connection and
       // create a public interface that can act as a drop-in replacement for a
       // websocket connection
       const teghSocket = new EventEmitter()
-      teghSocket.protocol = answerSignal.protocol
+      teghSocket.protocol = offerPayload.protocol
+      teghSocket.readyState = teghHost.OPEN
+
+      teghSocket.close = () => {
+        rtcPeer.destroy()
+      }
+
+      teghSocket.send = (data) => {
+        rtcPeer.send(data)
+      }
+
+      teghHost.emit('connection', teghSocket)
 
       // relay events through the teghSocket
-      rtcPeer.on('connect', () => {
-        teghHost.emit('connection', teghSocket)
-      })
-
       rtcPeer.on('data', (data) => {
-        teghHost.emit('message', data)
+        teghSocket.emit('message', data.toString())
       })
 
       rtcPeer.on('close', () => {
-        teghSocket.on('close')
+        teghSocket.readyState = teghHost.CLOSED
+        teghSocket.emit('close')
       })
 
       rtcPeer.on('error', () => {
+        teghSocket.readyState = teghHost.ERRORED
         teghSocket.on('error')
       })
     })
