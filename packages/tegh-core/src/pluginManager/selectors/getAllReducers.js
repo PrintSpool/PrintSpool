@@ -8,7 +8,7 @@ const getAllReducers = createSelector(
     plugins
       .map(plugin => plugin.reducer)
       .filter(reducers => reducers != null)
-      .concat(coreReducers)
+      .merge(coreReducers)
   ),
 )
 

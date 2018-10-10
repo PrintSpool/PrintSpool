@@ -41,7 +41,7 @@ export const initialState = Record({
   history: List(),
 })()
 
-const jobQueue = (state = initialState, action) => {
+const jobQueueReducer = (state = initialState, action) => {
   switch (action.type) {
     case CREATE_JOB: {
       const { job, jobFiles } = action.payload
@@ -182,4 +182,4 @@ const jobQueue = (state = initialState, action) => {
   }
 }
 
-export default jobQueue
+export default jobQueueReducer

@@ -23,7 +23,6 @@ const validLogEntry = (log) => {
 }
 
 const initialState = Record({
-  loggerPath: null,
   logEntries: List(),
   entryCountSinceStartup: 0,
   config: Record({
@@ -40,14 +39,14 @@ const logReducer = (
 ) => {
   switch (action.type) {
     case CLEAR_LOG: {
-      return initialState
+      return initialState.set('config', state.config)
     }
     case SET_CONFIG: {
       const { config } = action.payload
 
       return state.mergeIn(['config'], {
         isInitialized: true,
-        driverLogReducer: getDriverPlugin(config).logReducer,
+        driverLogReducer: getDriverPlugin(action.payload).logReducer,
         ...config.log,
       })
     }

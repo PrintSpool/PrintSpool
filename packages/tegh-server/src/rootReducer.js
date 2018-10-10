@@ -13,8 +13,8 @@ import {
 const createStateRecord = (reducers, previousState = Map()) => (
   Record({
     reducers,
-    ...reducers.map(() => undefined).toJS(),
-  })(previousState.toJS())
+    ...reducers.map(() => undefined).toObject(),
+  })(previousState.toObject())
 )
 
 const initialState = createStateRecord(Map(coreReducers))
@@ -30,7 +30,8 @@ const rootReducer = (state = initialState, action) => {
     nextState = createStateRecord(reducers, state)
   }
 
-  console.log(action.type, nextState.toJS())
+  console.log(action.type)
+  // console.log(action.type, nextState.toJS())
   return mergeChildReducers(nextState, action, reducers.toObject())
 }
 

@@ -36,7 +36,7 @@ const pluginManagerReducer = (state = initialState, action) => {
           pluginLoader: state.pluginLoader,
           config,
         }],
-        // successActionCreator: setConfig,
+        successActionCreator: setConfig,
       }))
     }
     default: {
