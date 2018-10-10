@@ -30,9 +30,7 @@
     ]
   },
   "jest": {
-    "transformIgnorePatterns": [
-
-    ],
+    "transformIgnorePatterns": [],
     "testEnvironment": "node"
   },
   "author": "Rob Gilson",
@@ -56,11 +54,13 @@
     "iterall": "d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b",
     "jiff": "^0.7.3",
     "js-yaml": "^3.10.0",
+    "keypair": "^1.0.1",
     "koa": "^2.3.0",
     "koa-bodyparser": "^4.2.0",
     "koa-cors": "^0.0.16",
     "koa-router": "^7.2.1",
     "lodash": "^4.17.10",
+    "mkdirp": "^0.5.1",
     "raven": "^2.3.0",
     "raven-for-redux": "^1.2.0",
     "redux": "^3.5.1",
@@ -73,7 +73,7 @@
     "redux-watch": "^1.1.1",
     "reselect": "^3.0.1",
     "strip-newlines": "^1.0.1",
-    "subscriptions-transport-ws": "d1plo1d/subscriptions-transport-ws",
+    "subscriptions-transport-ws": "^0.9.14",
     "tcomb-validation": "^3.4.1",
     "tegh-core": "^0.4.0",
     "tegh-protocol": "^0.4.0",

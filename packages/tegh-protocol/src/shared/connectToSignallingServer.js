@@ -1,9 +1,9 @@
 import io from 'socket.io-client'
 
-import sshFingerprint from './sshFingerprint'
+import getFingerprint from './getFingerprint'
 
 const connectToSignallingServer = ({ keys, signallingServer }) => {
-  const fingerprint = sshFingerprint(keys.public, 'sha256')
+  const fingerprint = getFingerprint(keys)
 
   const socket = io(signallingServer, {
     forceNew: true,

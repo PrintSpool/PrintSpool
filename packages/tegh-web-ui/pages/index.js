@@ -16,7 +16,16 @@ import { onError } from 'apollo-link-error'
 import { TeghClient } from 'tegh-protocol'
 import keypair from 'keypair'
 
-const peerPublicKey = keypair({ bits: 1024 }).public
+let peerPublicKey = null
+if (typeof localStorage !== 'undefined') {
+  peerPublicKey = localStorage.getItem('peerPublicKey')
+  if (peerPublicKey == null) {
+    peerPublicKey = keypair({ bits: 1024 }).public
+    localStorage.setItem('peerPublicKey', peerPublicKey)
+  } else  {
+    peerPublicKey = peerPublicKey
+  }
+}
 
 console.log('tegh', typeof TeghClient)
 

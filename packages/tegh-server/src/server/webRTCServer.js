@@ -2,8 +2,7 @@ import fs from 'fs'
 import { SubscriptionServer } from 'subscriptions-transport-ws'
 import { execute, subscribe } from 'graphql'
 import untildify from 'untildify'
-import { TeghHost } from 'tegh-protocol'
-
+import { TeghHost, getFingerprint } from 'tegh-protocol'
 
 const httpServer = async ({
   schema,
@@ -11,9 +10,12 @@ const httpServer = async ({
   keys,
   signallingServer,
 }) => {
+  const keysJSON = JSON.parse(
+    fs.readFileSync(untildify(keys), 'utf8'),
+  )
   // Websocket Server-compatible Tegh Protocol WebRTC host
   const teghHost = TeghHost({
-    keys: fs.readFileSync(untildify(keys), 'utf8'),
+    keys: keysJSON,
     // TODO: authenticate users + implement access control
     authenticate: () => true,
     signallingServer,
@@ -35,7 +37,10 @@ const httpServer = async ({
   )
 
   // eslint-disable-next-line no-console
-  console.error('Tegh is listening for WebRTC connections')
+  console.error(
+    'Tegh is listening for WebRTC connections. Public Key:\n'
+    + keysJSON.public,
+  )
 }
 
 export default httpServer

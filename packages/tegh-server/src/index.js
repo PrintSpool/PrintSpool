@@ -3,6 +3,9 @@ import Promise from 'bluebird'
 import fs from 'fs'
 import path from 'path'
 import yaml from 'js-yaml'
+import untildify from 'untildify'
+import mkdirp from 'mkdirp'
+import keypair from 'keypair'
 
 import {
   initializeConfig,
@@ -57,13 +60,21 @@ const teghDaemon = async (argv, pluginLoader) => {
     context: {
       store,
     },
-    keys: serverSettings.keys,
+    keys: untildify(serverSettings.keys),
     signallingServer: serverSettings.signallingServer,
   }
 
-  // if (serverSettings.webRTC) {
-  //   webRTCServer(teghServerConfig)
-  // }
+  const newKeys = JSON.stringify(keypair())
+  try {
+    mkdirp.sync(path.dirname(teghServerConfig.keys))
+    fs.writeFileSync(teghServerConfig.keys, newKeys, { flag: 'wx' })
+  } catch (e) {
+    // eslint-disable-next-line no-empty-block
+  }
+
+  if (serverSettings.webRTC) {
+    webRTCServer(teghServerConfig)
+  }
   if (serverSettings.tcpPort) {
     httpServer(teghServerConfig, serverSettings.tcpPort)
   }

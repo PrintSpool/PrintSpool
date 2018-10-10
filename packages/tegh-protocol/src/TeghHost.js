@@ -13,15 +13,17 @@ import * as announcement from './shared/announcement'
  * public key and returns an account object or `false` if they are unauthorized.
  */
 const TeghHost = ({ keys, authenticate, signallingServer }) => {
-  const teghHost = EventEmiiter()
+  const teghHost = new EventEmitter()
 
   const connect = async () => {
     const announcementSocket = await connectToSignallingServer({
       keys,
       signallingServer,
     })
+    console.log('CONNECTED TO SIGNALLING SERVER')
 
     announcementSocket.on('announcement', async (message) => {
+      console.log('received announcement!!!')
       // validate and decrypt the client's announcement
       const offerPayload = await decryptPayload({ message, keys })
 
@@ -45,7 +47,7 @@ const TeghHost = ({ keys, authenticate, signallingServer }) => {
       // wait for the client to establish the webRTC connection and
       // create a public interface that can act as a drop-in replacement for a
       // websocket connection
-      const teghSocket = EventEmitter()
+      const teghSocket = new EventEmitter()
       teghSocket.protocol = answerSignal.protocol
 
       // relay events through the teghSocket
