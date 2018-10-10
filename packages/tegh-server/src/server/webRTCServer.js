@@ -2,6 +2,7 @@
 import crypto from '@trust/webcrypto'
 import wrtc from 'wrtc'
 import fs from 'fs'
+import * as qrcode from 'qrcode-terminal'
 import { SubscriptionServer } from 'subscriptions-transport-ws'
 import { execute, subscribe } from 'graphql'
 import untildify from 'untildify'
@@ -45,9 +46,13 @@ const httpServer = async ({
   )
 
   // eslint-disable-next-line no-console
-  console.error(
-    `Tegh is listening for WebRTC connections. Public Key:\n${keysJSON.public}`,
-  )
+  console.error('\n\nTegh is listening for WebRTC connections. Connect to:\n')
+
+  qrcode.generate(JSON.stringify({
+    publicKey: keysJSON.public,
+  }))
+
+  console.error('\n\n')
 }
 
 export default httpServer

@@ -63,6 +63,7 @@
     "lodash": "^4.17.10",
     "mkdirp": "^0.5.1",
     "node-webcrypto-ossl": "^1.0.38",
+    "qrcode-terminal": "^0.12.0",
     "raven": "^2.3.0",
     "raven-for-redux": "^1.2.0",
     "redux": "^3.5.1",

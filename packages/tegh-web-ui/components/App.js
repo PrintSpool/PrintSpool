@@ -4,15 +4,17 @@ import { ApolloProvider } from 'react-apollo'
 import { withStyles } from 'material-ui'
 
 import createTeghStore from '../lib/redux'
-import createApolloClient from '../lib/apollo'
+import createTeghApolloClient from '../lib/createTeghApolloClient'
 
 import Drawer from '../components/Drawer'
 
 export default (() => {
-  /* force pages to be rendered in the browser for dev purposes */
-  if (!process.browser) return () => <span key='ssrPlaceholder'/>
+  const isNode = typeof navigator === 'undefined'
 
-  const client = createApolloClient()
+  /* force pages to be rendered in the browser for dev purposes */
+  if (isNode) return () => <span key='ssrPlaceholder'/>
+
+  const client = createTeghApolloClient()
   const store = createTeghStore()
 
   const styles = theme => ({
@@ -27,9 +29,6 @@ export default (() => {
       flex: 1,
     },
   })
-
-
-
 
   const App = ({ children, classes }) => (
     <CssBaseline>
