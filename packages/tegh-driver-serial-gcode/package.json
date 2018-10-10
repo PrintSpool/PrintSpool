@@ -2,14 +2,17 @@
   "name": "tegh-driver-serial-gcode",
   "version": "0.4.0",
   "description": "Tegh serial driver for RepRap/Marlin compatible printers",
-  "main": "src/index.js",
+  "main": "build/index.js",
   "author": "Rob Gilson",
   "license": "AGPL-3.0-or-later",
   "private": false,
   "scripts": {
     "test": "jest",
     "lint": "eslint src/",
-    "flow": "flow"
+    "flow": "flow",
+    "clean": "rm -rf build && mkdir build",
+    "build": "yarn run clean && babel -d ./build ./src -s",
+    "watch": "yarn run clean && babel -d ./build ./src -s --watch"
   },
   "babel": {
     "presets": [
@@ -28,9 +31,6 @@
   },
   "jest": {
     "transformIgnorePatterns": [],
-    "moduleNameMapper": {
-      "react-native-usbserial": "serialport"
-    },
     "setupFiles": [],
     "testEnvironment": "node"
   },

@@ -15,7 +15,6 @@ export const initialState = Record({
  * manages the loading of Tegh plugins
  */
 const pluginManagerReducer = (state = initialState, action) => {
-  console.log('plugin??')
   switch (action.type) {
     case INITIALIZE_CONFIG: {
       const { config, pluginLoader } = action.payload
@@ -37,7 +36,7 @@ const pluginManagerReducer = (state = initialState, action) => {
           pluginLoader: state.pluginLoader,
           config,
         }],
-        successActionCreator: setConfig,
+        // successActionCreator: setConfig,
       }))
     }
     default: {

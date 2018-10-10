@@ -48,24 +48,29 @@ machine:
       feedrate: 4
   peripherals:
     e0:
-      type: extruder
+      id: e0
+      type: EXTRUDER
       name: 'Extruder 1'
-      feedrate: 3,
-      materialID: example/pla,
+      feedrate: 3
+      materialID: example/pla
     e1:
-      type: extruder
+      id: e1
+      type: EXTRUDER
       name: 'Extruder 2'
       feedrate: 3
-      materialID: example/abs,
+      materialID: example/abs
     b:
-      type: heatedBed,
+      id: b
+      type: HEATED_BED
       name: 'Bed'
     f:
-      type: 'fan'
+      id: f
+      type: FAN
       name: 'Extruder Fan'
 
 plugins:
-  - package: tegh-driver-serial-gcode
+  tegh-driver-serial-gcode:
+    package: tegh-driver-serial-gcode
     settings:
       serialPort:
         portID: /dev/ttyACM0

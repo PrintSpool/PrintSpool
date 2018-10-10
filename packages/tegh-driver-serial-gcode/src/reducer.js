@@ -1,4 +1,4 @@
-import { Record } from 'immutable'
+import { Record, Map } from 'immutable'
 import { mergeChildReducers } from 'redux-loop-immutable'
 
 // peripherals
@@ -26,7 +26,9 @@ const reducers = {
   _throwOnInvalidGCode,
 }
 
-const initialState = Record(Object.mapValues(reducers, () => null))()
+const initialState = Record(
+  Map(reducers).map(() => null).toJS(),
+)()
 
 const driverSerialGCodeReducer = (state = initialState, action) => (
   mergeChildReducers(state, action, reducers)

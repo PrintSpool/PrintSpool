@@ -6,7 +6,7 @@ const getAllReducers = createSelector(
   ({ plugins }) => plugins,
   plugins => (
     plugins
-      .mapValues(plugin => plugin.reducer)
+      .map(plugin => plugin.reducer)
       .filter(reducers => reducers != null)
       .concat(coreReducers)
   ),

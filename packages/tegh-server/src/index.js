@@ -25,7 +25,7 @@ export const loadConfigForm = (configPath) => {
   }
 }
 
-const teghDaemon = async (argv, pluginLoaderPath) => {
+const teghDaemon = async (argv, pluginLoader) => {
   if (argv[2] == null) {
     const expectedUseage = 'Expected useage: tegh [/path/to/config.yml]'
     throw new Error(`No config file provided. ${expectedUseage}`)
@@ -44,7 +44,7 @@ const teghDaemon = async (argv, pluginLoaderPath) => {
 
   const action = initializeConfig({
     config,
-    pluginLoaderPath,
+    pluginLoader,
   })
 
   store.dispatch(action)
