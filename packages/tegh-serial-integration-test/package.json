@@ -25,6 +25,7 @@
     "redux-saga": "d1plo1d/redux-saga",
     "tegh-core": "^0.4.0",
     "tegh-driver-serial-gcode": "^0.4.0",
-    "tegh-macros-default": "^0.4.0"
+    "tegh-macros-default": "^0.4.0",
+    "graphql-live-subscriptions": "github:d1plo1d/graphql-live-subscriptions#feature/tree_diff"
   }
 }

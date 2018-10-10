@@ -44,6 +44,7 @@
   "dependencies": {
     "babel-preset-flow": "^6.23.0",
     "bluebird": "^3.5.1",
+    "chokidar": "^2.0.4",
     "dedent": "^0.7.0",
     "ejs": "^2.5.7",
     "fast-memoize": "^2.5.1",

@@ -47,7 +47,7 @@ const logReducer = (
       return state.mergeIn(['config'], {
         isInitialized: true,
         driverLogReducer: getDriverPlugin(action.payload).logReducer,
-        ...config.log,
+        ...config.log.toJS(),
       })
     }
     default: {

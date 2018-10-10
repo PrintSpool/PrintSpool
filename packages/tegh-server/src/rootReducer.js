@@ -24,14 +24,12 @@ const rootReducer = (state = initialState, action) => {
   let nextState = state
 
   if (action.type === SET_CONFIG) {
-    const { config } = action.payload
-
-    reducers = getAllReducers(config)
+    reducers = getAllReducers(action.payload)
     nextState = createStateRecord(reducers, state)
   }
 
   console.log(action.type)
-  // console.log(action.type, nextState.toJS())
+  // console.log(action.type, '\n', reducers.map((v, k) => k).toList().toJS())
   return mergeChildReducers(nextState, action, reducers.toObject())
 }
 

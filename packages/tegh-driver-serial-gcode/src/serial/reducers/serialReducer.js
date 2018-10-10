@@ -6,6 +6,8 @@ import {
   CONNECT_PRINTER,
   DRIVER_ERROR,
   ESTOP,
+  DEVICE_CONNECTED,
+  connectPrinter,
   printerDisconnected,
   getDriverConfig,
 } from 'tegh-core'
@@ -36,8 +38,31 @@ const serialReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
       const { config } = action.payload
+      const serialConfig = getDriverConfig(config).serialPort
 
-      return state.set('config', getDriverConfig(config).serialPort)
+      const nextState = state.set('config', serialConfig)
+
+      if (state.config == null && serialConfig.simulation) {
+        return loop(
+          nextState,
+          Cmd.action(connectPrinter()),
+        )
+      }
+
+      return nextState
+    }
+    case DEVICE_CONNECTED: {
+      const { device } = action.payload
+
+      if (
+        state.config.simulation === false
+        && device.id !== state.config.path
+      ) return state
+
+      return loop(
+        state,
+        Cmd.action(connectPrinter()),
+      )
     }
     case SERIAL_RESET:
     case CONNECT_PRINTER: {
@@ -78,7 +103,10 @@ const serialReducer = (state = initialState, action) => {
       return loop(
         initialState.set('config', state.config),
         Cmd.run(serialPortConnection, {
-          args: [serialPortOptions],
+          args: [
+            serialPortOptions,
+            Cmd.dispatch
+          ],
           successActionCreator: serialPortCreated,
         }),
       )

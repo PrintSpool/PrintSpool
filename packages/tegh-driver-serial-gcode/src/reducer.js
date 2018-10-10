@@ -27,7 +27,7 @@ const reducers = {
 }
 
 const initialState = Record(
-  Map(reducers).map(() => null).toJS(),
+  Map(reducers).map(() => undefined).toJS(),
 )()
 
 const driverSerialGCodeReducer = (state = initialState, action) => (
