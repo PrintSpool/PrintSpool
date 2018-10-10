@@ -2,6 +2,8 @@ import Promise from 'bluebird'
 import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
 
+import { SET_CONFIG } from 'tegh-core'
+
 import getLongRunningCodes from '../../config/selectors/getLongRunningCodes'
 import getSerialTimeout from '../../config/selectors/getSerialTimeout'
 
@@ -14,6 +16,12 @@ export const initialState = Record({
   awaitingLineNumber: null,
   ticklesAttempted: 0,
   timeoutPeriod: null,
+  config: Record({
+    tickleAttempts: null,
+    longRunningCodeTimeout: null,
+    fastCodeTimeout: null,
+    longRunningCodes: null,
+  })(),
 })()
 
 const waitToTickleCmd = ({ awaitingLineNumber, timeoutPeriod }) => {
@@ -27,6 +35,16 @@ const waitToTickleCmd = ({ awaitingLineNumber, timeoutPeriod }) => {
 
 const serialTimeoutReducer = (state = initialState, action) => {
   switch (action.type) {
+    case SET_CONFIG: {
+      const { config } = action.payload
+
+      const longRunningCodes = getLongRunningCodes(config)
+
+      return state.mergeIn(['config'], {
+        ...getSerialTimeout(config),
+        longRunningCodes,
+      })
+    }
     case SERIAL_SEND: {
       const { lineNumber, code } = action.payload
 
@@ -35,12 +53,14 @@ const serialTimeoutReducer = (state = initialState, action) => {
       const {
         longRunningCodeTimeout,
         fastCodeTimeout,
-      } = getSerialTimeout(action.config)
+        longRunningCodes,
+      } = state.config
 
-      const isLong = getLongRunningCodes(action.config).includes(code)
+      const isLong = longRunningCodes.includes(code)
       const timeoutPeriod = isLong ? longRunningCodeTimeout : fastCodeTimeout
 
-      const nextState = initialState
+      const nextState = state
+        .set('ticklesAttempted', 0)
         .set('awaitingLineNumber', lineNumber)
         .set('timeoutPeriod', timeoutPeriod)
 
@@ -51,7 +71,10 @@ const serialTimeoutReducer = (state = initialState, action) => {
     }
     case SERIAL_RECEIVE: {
       if (['ok', 'feedback', 'greeting'].includes(action.payload.type)) {
-        return initialState.set('awaitingLineNumber', null)
+        return state
+          .set('ticklesAttempted', 0)
+          .set('awaitingLineNumber', null)
+          .set('timeoutPeriod', null)
       }
       return state
     }
@@ -60,7 +83,7 @@ const serialTimeoutReducer = (state = initialState, action) => {
         return state
       }
 
-      const { tickleAttempts } = getSerialTimeout(action.config)
+      const { tickleAttempts } = state.config
 
       if (state.ticklesAttempted < tickleAttempts) {
         const nextState = state.update('ticklesAttempted', i => i + 1)

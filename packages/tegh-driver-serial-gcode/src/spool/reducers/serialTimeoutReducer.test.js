@@ -1,5 +1,8 @@
+import { List } from 'immutable'
 import Promise from 'bluebird'
 import { Cmd } from 'redux-loop'
+
+import {setConfig, SET_CONFIG } from 'tegh-core'
 
 import { createTestConfig } from '../../config/types/Settings'
 
@@ -15,37 +18,32 @@ const fastCodeTimeout = 42
 const longRunningCodeTimeout = 1111
 
 const config = createTestConfig({
+  longRunningCodes: ['G28'],
   serialTimeout: {
     fastCodeTimeout,
     longRunningCodeTimeout,
-    tickleAttempts: 3,
+    tickleAttempts: 5,
   },
 })
 
-// const fastCodeTimeout = 3000
-// const longRunningCodeTimeout = 10000
-//
-// const tickleMCodeAction = {
-//   ...serialSend('M105', { lineNumber: false }),
-//   tickle: true,
-//   [SAGA_ACTION]: true,
-// }
-//
-// const okReceivedAction = {
-//   type: SERIAL_RECEIVE,
-//   data: {
-//     type: 'ok',
-//   },
-// }
-//
-// const feedbackReceivedAction = {
-//   type: SERIAL_RECEIVE,
-//   data: {
-//     type: 'feedback',
-//   },
-// }
+const configuredState = initialState.mergeIn(['config'], {
+  tickleAttempts: 5,
+  longRunningCodes: ['G28'],
+  fastCodeTimeout,
+  longRunningCodeTimeout,
+})
 
 describe('serialTimeoutReducer', () => {
+  describe(SET_CONFIG, () => {
+    it('configures the timeout reducer', () => {
+      const action = setConfig({ config, plugins: List() })
+
+      const nextState = reducer(initialState, action)
+
+      expect(nextState).toEqual(configuredState)
+    })
+  })
+
   describe(SERIAL_SEND, () => {
     it('does nothing if a line number is not sent', () => {
       const action = {
@@ -53,7 +51,7 @@ describe('serialTimeoutReducer', () => {
         config,
       }
 
-      const nextState = reducer(initialState, action)
+      const nextState = reducer(configuredState, action)
 
       expect(nextState.awaitingLineNumber).toEqual(null)
     })
@@ -88,7 +86,7 @@ describe('serialTimeoutReducer', () => {
           const [
             nextState,
             sideEffect,
-          ] = reducer(initialState, action)
+          ] = reducer(configuredState, action)
 
           expect(nextState.awaitingLineNumber).toEqual(123)
 
@@ -111,19 +109,21 @@ describe('serialTimeoutReducer', () => {
 
   describe(SERIAL_RECEIVE, () => {
     it('cancels the tickle', () => {
-      const state = initialState.set('awaitingLineNumber', 2000)
+      const state = configuredState.set('awaitingLineNumber', 2000)
       const action = serialReceive({ data: 'ok', receiveParser: rxParser })
 
       const nextState = reducer(state, action)
 
+      expect(nextState.ticklesAttempted).toEqual(0)
       expect(nextState.awaitingLineNumber).toEqual(null)
+      expect(nextState.timeoutPeriod).toEqual(null)
     })
   })
 
   describe(REQUEST_SERIAL_PORT_TICKLE, () => {
     describe('if the line number does not match the one that is awaited', () => {
       it('does nothing', () => {
-        const state = initialState.set('awaitingLineNumber', 2000)
+        const state = configuredState.set('awaitingLineNumber', 2000)
         const action = requestSerialPortTickle({ awaitingLineNumber: 1999 })
 
         const nextState = reducer(state, action)
@@ -134,7 +134,7 @@ describe('serialTimeoutReducer', () => {
     describe('if there are still tickle attempts left to try', () => {
       it('tickles the serial port with an M105', () => {
         const timeoutPeriod = 24816
-        const state = initialState
+        const state = configuredState
           .set('ticklesAttempted', 2)
           .set('awaitingLineNumber', 2000)
           .set('timeoutPeriod', timeoutPeriod)
@@ -172,7 +172,7 @@ describe('serialTimeoutReducer', () => {
     })
     describe('if the max number of tickle attempts has already been attempted', () => {
       it('dispatches a serial timeout driver error', () => {
-
+        pending()
       })
     })
   })

@@ -2,10 +2,8 @@ import { SerialPort } from 'tegh-core'
 
 import serialOpen from '../actions/serialOpen'
 import serialClose from '../actions/serialClose'
-import { SERIAL_SEND } from '../actions/serialSend'
 import serialReceive from '../actions/serialReceive'
 import serialError from '../actions/serialError'
-import { SERIAL_RESET } from '../actions/serialReset'
 
 const serialPortConnection = ({
   portID,
