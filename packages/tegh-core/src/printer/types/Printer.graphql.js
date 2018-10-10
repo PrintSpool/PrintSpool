@@ -4,7 +4,7 @@ import snl from 'strip-newlines'
 
 import isIdle from '../../spool/selectors/isIdle'
 import getDriverState from '../selectors/getDriverState'
-1
+
 import PrinterStatusEnum from './PrinterStatusEnum.graphql'
 import HeaterType from './Heater.graphql'
 import FanType from './Fan.graphql'
@@ -12,7 +12,7 @@ import LogEntryType from '../../log/types/LogEntry.graphql'
 import MacroDefinitionType from '../../config/types/MacroDefinition.graphql'
 import PrinterErrorType from './PrinterError.graphql'
 
-const Printer = new GraphQLObjectType({
+const PrinterGraphQL = new GraphQLObjectType({
   name: 'Printer',
   fields: () => ({
     id: {
@@ -97,4 +97,4 @@ const Printer = new GraphQLObjectType({
   }),
 })
 
-export default Printer
+export default PrinterGraphQL

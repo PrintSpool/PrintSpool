@@ -137,7 +137,7 @@ let Index = () => <div>Loading</div>
 if (!isNode) {
   Index = () => (
     <ApolloProvider client={ client }>
-      <Query query={gql`{ printers { id }}`}>
+      <Query query={gql`{ allPrinters { id, name }}`}>
         {({ loading, error, data }) => (
           <div>
             {JSON.stringify({ loading, error, data })}
