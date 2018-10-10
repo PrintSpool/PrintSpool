@@ -2,7 +2,7 @@ import { List } from 'immutable'
 import Promise from 'bluebird'
 import { Cmd } from 'redux-loop'
 
-import {setConfig, SET_CONFIG } from 'tegh-core'
+import { setConfig, SET_CONFIG } from 'tegh-core'
 
 import { createTestConfig } from '../../config/types/Settings'
 
@@ -12,22 +12,24 @@ import rxParser from '../../rxParser'
 
 import serialReceive, { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import serialSend, { SERIAL_SEND } from '../../serial/actions/serialSend'
+import serialTimeout from '../../serial/actions/serialTimeout'
 import requestSerialPortTickle, { REQUEST_SERIAL_PORT_TICKLE } from '../actions/requestSerialPortTickle'
 
 const fastCodeTimeout = 42
 const longRunningCodeTimeout = 1111
+const maxTickleAttempts = 5
 
 const config = createTestConfig({
   longRunningCodes: ['G28'],
   serialTimeout: {
     fastCodeTimeout,
     longRunningCodeTimeout,
-    tickleAttempts: 5,
+    tickleAttempts: maxTickleAttempts,
   },
 })
 
 const configuredState = initialState.mergeIn(['config'], {
-  tickleAttempts: 5,
+  tickleAttempts: maxTickleAttempts,
   longRunningCodes: ['G28'],
   fastCodeTimeout,
   longRunningCodeTimeout,
@@ -135,7 +137,7 @@ describe('serialTimeoutReducer', () => {
       it('tickles the serial port with an M105', () => {
         const timeoutPeriod = 24816
         const state = configuredState
-          .set('ticklesAttempted', 2)
+          .set('ticklesAttempted', maxTickleAttempts - 1)
           .set('awaitingLineNumber', 2000)
           .set('timeoutPeriod', timeoutPeriod)
         const action = {
@@ -148,7 +150,9 @@ describe('serialTimeoutReducer', () => {
           { cmds: [{ actionToDispatch: nextAction }, sideEffect] },
         ] = reducer(state, action)
 
-        expect(nextState).toEqual(state.set('ticklesAttempted', 3))
+        expect(nextState).toEqual(
+          state.set('ticklesAttempted', maxTickleAttempts),
+        )
 
         expect(nextAction).toEqual(
           serialSend('M105', { lineNumber: false }),
@@ -164,156 +168,31 @@ describe('serialTimeoutReducer', () => {
               args: [timeoutPeriod],
             }),
             successActionCreator: sideEffect.successActionCreator,
-          }
+          },
         )
-
-        // expect(nextAction).toEqual(state)
       })
     })
+
     describe('if the max number of tickle attempts has already been attempted', () => {
       it('dispatches a serial timeout driver error', () => {
-        pending()
+        const state = configuredState
+          .set('ticklesAttempted', maxTickleAttempts)
+          .set('awaitingLineNumber', 2000)
+          .set('timeoutPeriod', 123)
+        const action = {
+          ...requestSerialPortTickle({ awaitingLineNumber: 2000 }),
+          config,
+        }
+
+        const [
+          nextState,
+          { actionToDispatch: nextAction },
+        ] = reducer(state, action)
+
+        expect(nextState).toEqual(state)
+
+        expect(nextAction).toEqual(serialTimeout())
       })
     })
   })
 })
-//   [true, false].forEach((long) => {
-//     describe()
-//     describe(
-//       `when no response is received for ${long ? 'long running' : 'fast'} `
-//       + 'codes it sends M105',
-//       () => {
-//         const expectToStopsTicklingAfter = ({ action }) => {
-//           expectTickle({ sagaTester, delayMock, tickleCount: 0 })
-//           expectTickle({ sagaTester, delayMock, tickleCount: 1 })
-//           sagaTester.dispatch(action)
-//           /*
-//            * Even if the pause expires after the ok is received the saga
-//            * should not put another tickle.
-//            */
-//           const pause = delayMock.unacknowledgedDelay
-//           pause.next(true)
-//
-//           const result = sagaTester.getCalledActions()
-//
-//           expect(result).toMatchObject([
-//             sentGCodeAction,
-//             tickleMCodeAction,
-//             tickleMCodeAction,
-//             action,
-//           ])
-//         }
-//
-//         test(
-//           'if the firmware sends back \'ok\' it stops tickling',
-//           () => {
-//             expectToStopsTicklingAfter({
-//               action: okReceivedAction,
-//             })
-//           },
-//         )
-//
-//         test(
-//           'if the firmware sends temperature feedback it stops tickling',
-//           () => {
-//             expectToStopsTicklingAfter({
-//               action: feedbackReceivedAction,
-//             })
-//           },
-//         )
-//
-//         test(
-//           'if the firmware does not respond to multiple tickles it puts '
-//           + 'DRIVER_ERROR',
-//           () => {
-//             const {
-//               sagaTester,
-//               delayMock,
-//               sentGCodeAction,
-//             } = startingConditions({ long })
-//             expectTickle({ sagaTester, delayMock, tickleCount: 0 })
-//             expectTickle({ sagaTester, delayMock, tickleCount: 1 })
-//             expectTickle({ sagaTester, delayMock, tickleCount: 2 })
-//
-//             const result = sagaTester.getCalledActions()
-//
-//             expect(result).toMatchObject([
-//               sentGCodeAction,
-//               tickleMCodeAction,
-//               tickleMCodeAction,
-//               tickleMCodeAction,
-//               serialTimeoutAction,
-//             ])
-//           },
-//         )
-//
-//         test(
-//           'if the saga is cancelled it stops tickling',
-//           () => {
-//             const {
-//               sagaTester,
-//               delayMock,
-//               sentGCodeAction,
-//             } = startingConditions({ long })
-//             sagaTester.dispatch(cancelAction)
-//             causeTimeout({ delayMock })
-//
-//             const result = sagaTester.getCalledActions()
-//
-//             expect(result).toMatchObject([
-//               sentGCodeAction,
-//               cancelAction,
-//             ])
-//           },
-//         )
-//       },
-//     )
-//   })
-//   test(
-//     'when a \'ok\' response is received before the timeout it does nothing',
-//     () => {
-//       const {
-//         sagaTester,
-//         delayMock,
-//         sentGCodeAction,
-//       } = startingConditions({ long: false })
-//       sagaTester.dispatch(okReceivedAction)
-//       sagaTester.dispatch(sentGCodeAction)
-//       sagaTester.dispatch(okReceivedAction)
-//
-//       const result = sagaTester.getCalledActions()
-//
-//       expect(result).toMatchObject([
-//         sentGCodeAction,
-//         okReceivedAction,
-//         sentGCodeAction,
-//         okReceivedAction,
-//       ])
-//     },
-//   )
-//   test(
-//     'when a feedback response is received before the timeout it does nothing',
-//     () => {
-//       const {
-//         sagaTester,
-//         delayMock,
-//         sentGCodeAction,
-//       } = startingConditions({ long: false })
-//       sagaTester.dispatch(feedbackReceivedAction)
-//
-//       /*
-//        * Even if the pause expires after the feedback is received the saga
-//        * should not put another tickle.
-//        */
-//       const pause = delayMock.unacknowledgedDelay
-//       pause.next(true)
-//
-//       const result = sagaTester.getCalledActions()
-//
-//       expect(result).toMatchObject([
-//         sentGCodeAction,
-//         feedbackReceivedAction,
-//       ])
-//     },
-//   )
-// })
