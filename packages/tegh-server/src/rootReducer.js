@@ -10,34 +10,27 @@ import {
 // import { SET_CONFIG } from './core/config/actions/setConfig'
 // import getAllReducers from './core/pluginManager/selectors/getAllReducers'
 
-const initialState = Record({
-  config: undefined,
-})()
+const createStateRecord = (reducers, previousState = Map()) => (
+  Record({
+    reducers,
+    ...reducers.map(() => undefined).toJS(),
+  })(previousState.toJS())
+)
+
+const initialState = createStateRecord(Map(coreReducers))
 
 const rootReducer = (state = initialState, action) => {
-  // console.log('root reducer', action)
-  let reducers = null
+  let { reducers } = state
   let nextState = state
 
-  /*
-   * Do nothing until SET_CONFIG is called
-   */
-  if (state.config == null) {
-    reducers = Map({ config: coreReducers.config })
-  } else {
-    reducers = Map(getAllReducers(action.config))
+  if (action.type === SET_CONFIG) {
+    const { config } = action.payload
 
-    /*
-     * Reload the list of reducers on SET_CONFIG
-     */
-    // TODO: do not reset the entire state tree on config change.
-    if (action === SET_CONFIG) {
-      const defaultValues = reducers.mapValues(() => undefined)
-      nextState = Record(defaultValues)(state)
-    }
+    reducers = getAllReducers(config)
+    nextState = createStateRecord(reducers, state)
   }
 
-  console.log(nextState)
+  console.log(action.type, nextState.toJS())
   return mergeChildReducers(nextState, action, reducers.toObject())
 }
 

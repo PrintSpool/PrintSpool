@@ -27,6 +27,7 @@ const initialState = Record({
   logEntries: List(),
   entryCountSinceStartup: 0,
   config: Record({
+    isInitialized: false,
     driverLogReducer: null,
     stderr: null,
     maxLength: null,
@@ -45,12 +46,14 @@ const logReducer = (
       const { config } = action.payload
 
       return state.mergeIn(['config'], {
+        isInitialized: true,
         driverLogReducer: getDriverPlugin(config).logReducer,
         ...config.log,
       })
     }
     default: {
       const { config } = state
+      if (!config.isInitialized) return state
 
       const log = validLogEntry(config.driverLogReducer(null, action))
 
