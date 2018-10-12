@@ -1,7 +1,11 @@
-import { CssBaseline } from 'material-ui'
+import React from 'react'
+import ReactDOM from 'react-dom'
 import { Provider as ReduxProvider } from 'react-redux'
-import { ApolloProvider } from 'react-apollo'
-import { withStyles } from 'material-ui'
+// import { ApolloProvider } from 'react-apollo'
+import {
+  CssBaseline,
+  // withStyles,
+} from '@material-ui/core'
 
 import Routes from './Routes'
 
@@ -37,13 +41,16 @@ import createTeghReduxStore from './createTeghReduxStore'
 
 const store = createTeghReduxStore()
 
-const Index = ({ children, classes }) => (
+const Index = () => (
   <CssBaseline>
-    <ReduxProvider store={ store }>
+    <ReduxProvider store={store}>
       <Routes />
     </ReduxProvider>
   </CssBaseline>
 )
 
-const wrapper = document.getElementById("tegh-app")
-ReactDOM.render(<Index/>, wrapper)
+// eslint-disable-next-line no-undef
+const wrapper = document.getElementById('tegh-app')
+ReactDOM.render(<Index />, wrapper)
+
+export default Index

@@ -21,7 +21,9 @@
       "@babel/plugin-proposal-export-namespace-from"
     ]
   },
-  "devDependencies": {
+  "dependencies": {
+    "@material-ui/core": "^3.2.0",
+    "@material-ui/icons": "^3.0.1",
     "@storybook/react": "^3.4.11",
     "apollo-client-preset": "^1.0.1",
     "apollo-link-error": "^1.0.7",
@@ -32,9 +34,8 @@
     "graphql-tag": "^2.5.0",
     "isomorphic-fetch": "^2.2.1",
     "json-patch": "^0.7.0",
+    "keypair": "^1.0.1",
     "koa-static": "^4.0.2",
-    "material-ui": "^v1.0.0-beta.38",
-    "material-ui-icons": "^1.0.0-beta.17",
     "prop-types": "^15.6.1",
     "react": "^16.2.0",
     "react-apollo": "^2.1.1",
@@ -44,8 +45,8 @@
     "react-qr-reader": "^2.1.1",
     "react-redux": "^5.0.6",
     "recompose": "^0.26.0",
-    "redux": "^3.7.2",
-    "redux-form": "^7.2.1",
+    "redux": "^4.0.0",
+    "redux-form": "^7.4.2",
     "simple-peer": "^9.1.2",
     "strip-newlines": "^1.0.1",
     "styled-components": "^3.0.2",
@@ -53,7 +54,7 @@
     "tegh-protocol": "link:../tegh-protocol",
     "voca": "^1.4.0"
   },
-  "dependencies": {
+  "devDependencies": {
     "@babel/core": "^7.1.2",
     "@babel/plugin-proposal-export-default-from": "^7.0.0",
     "@babel/plugin-proposal-export-namespace-from": "^7.0.0",
@@ -63,8 +64,15 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/runtime": "^7.1.2",
     "babel-loader": "^8.0.4",
+    "eslint": "^5.3.0",
+    "eslint-config-airbnb": "17.1.0",
+    "eslint-plugin-babel": "^5.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jest": "^21.20.2",
+    "eslint-plugin-jsx-a11y": "^6.1.1",
+    "eslint-plugin-monorepo": "^0.2.0",
+    "eslint-plugin-react": "^7.11.0",
     "html-webpack-plugin": "^3.2.0",
-    "keypair": "^1.0.1",
     "webpack": "^4.20.2",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.9"
