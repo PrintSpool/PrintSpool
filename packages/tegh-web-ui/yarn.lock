@@ -7253,6 +7253,10 @@ redux-form@^7.4.2:
     prop-types "^15.6.1"
     react-lifecycles-compat "^3.0.4"
 
+redux-loop@^4.4.1:
+  version "4.4.1"
+  resolved "https://registry.yarnpkg.com/redux-loop/-/redux-loop-4.4.1.tgz#5c8abec6fd08bc66ce486d0c63810a2db80504dc"
+
 redux-seamless-immutable@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/redux-seamless-immutable/-/redux-seamless-immutable-0.4.0.tgz#b50f8680ecc5ef04021551267f78fa1ffd3cf985"
