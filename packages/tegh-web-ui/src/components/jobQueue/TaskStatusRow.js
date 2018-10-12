@@ -12,7 +12,7 @@ import {
   Button,
   LinearProgress,
   Divider,
-} from 'material-ui'
+} from '@material-ui/core'
 import {
   Cancel,
   MoreVert,

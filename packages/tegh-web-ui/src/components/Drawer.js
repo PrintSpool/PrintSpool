@@ -6,7 +6,7 @@ import {
   List,
   ListItem,
   ListItemText,
-} from 'material-ui'
+} from '@material-ui/core'
 import Link from 'next/link'
 import { withRouter } from 'next/router'
 

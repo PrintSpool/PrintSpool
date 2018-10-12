@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import {
   Grid,
   IconButton,
-} from 'material-ui'
+} from '@material-ui/core'
 
 const AlignText = styled.div`
   text-align: ${props => props.textAlign || 'center'};

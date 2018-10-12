@@ -5,7 +5,7 @@ import {
   Card,
   CardContent,
   Grid,
-} from 'material-ui'
+} from '@material-ui/core'
 import {
   ArrowForward,
   ArrowBack,
@@ -21,41 +21,35 @@ const enhance = compose(
   withJog,
   reduxForm({
     initialValues: {
-      distance: 10,
+      distance: 1,
     },
   }),
   formValues('distance'),
 )
 
-const XYJogButtons = ({ jog, distance }) => (
+const ZJogButtons = ({ jog, distance }) => (
   <Card>
     <CardContent>
       <Grid
         container
         spacing={24}
       >
-        <JogButton xs={12} onClick={jog('y', '-', distance)}>
+        <JogButton xs={12} onClick={jog('z', '+', distance)}>
           <ArrowUpward/>
         </JogButton>
-        <JogButton xs={4} onClick={jog('x', '-', distance)} textAlign='right'>
-          <ArrowBack/>
+        <JogButton xs={12} disabled>
+          Z
         </JogButton>
-        <JogButton xs={4} disabled>
-          XY
-        </JogButton>
-        <JogButton xs={4} onClick={jog('x', '+', distance)} textAlign='left'>
-          <ArrowForward/>
-        </JogButton>
-        <JogButton xs={12} onClick={jog('y', '+', distance)}>
+        <JogButton xs={12} onClick={jog('z', '-', distance)}>
           <ArrowDownward/>
         </JogButton>
         <Field
           name='distance'
-          component={ JogDistanceButtons([1, 10, 50, 100]) }
+          component={ JogDistanceButtons([0.1, 1, 10]) }
         />
       </Grid>
     </CardContent>
   </Card>
 )
 
-export default enhance(XYJogButtons)
+export default enhance(ZJogButtons)

@@ -3,7 +3,7 @@ import {
   Grid,
   BottomNavigation,
   BottomNavigationAction,
-} from 'material-ui'
+} from '@material-ui/core'
 
 const JogDistanceButtons = (distanceOptions) => ({ input }) => (
   <Grid item xs={12}>

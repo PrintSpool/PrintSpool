@@ -1,7 +1,7 @@
-import { CssBaseline } from 'material-ui'
+import { CssBaseline } from '@material-ui/core'
 import { Provider as ReduxProvider } from 'react-redux'
 import { ApolloProvider } from 'react-apollo'
-import { withStyles } from 'material-ui'
+import { withStyles } from '@material-ui/core'
 
 import createTeghStore from '../lib/redux'
 import createTeghApolloClient from '../lib/createTeghApolloClient'

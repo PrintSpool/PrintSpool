@@ -2,7 +2,7 @@
 // import {
 //   Grid,
 //   Typography,
-// } from 'material-ui'
+// } from '@material-ui/core'
 // import Loader from 'react-loader-advanced'
 // import PropTypes from 'prop-types'
 // import gql from 'graphql-tag'

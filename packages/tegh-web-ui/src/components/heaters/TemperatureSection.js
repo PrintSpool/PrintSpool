@@ -11,7 +11,7 @@ import {
   Switch,
   FormControlLabel,
   Button,
-} from 'material-ui'
+} from '@material-ui/core'
 
 import withSpoolMacro from '../../higherOrderComponents/withSpoolMacro'
 

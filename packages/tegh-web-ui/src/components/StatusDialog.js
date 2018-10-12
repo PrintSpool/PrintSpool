@@ -15,7 +15,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-} from 'material-ui'
+} from '@material-ui/core'
 import snl from 'strip-newlines'
 
 const descriptions = {

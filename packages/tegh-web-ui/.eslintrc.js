@@ -19,6 +19,7 @@ module.exports = {
       "consistent-return": "off",
       "no-restricted-syntax": 0,
       "immutablejs/no-native-map-set": 2,
-      "react/jsx-filename-extension": 0
+      "react/jsx-filename-extension": 0,
+      "react/prop-types": 0
     }
 };

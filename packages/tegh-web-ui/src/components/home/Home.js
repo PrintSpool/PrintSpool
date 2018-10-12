@@ -10,7 +10,7 @@ import {
   Switch,
   FormControlLabel,
   Button,
-} from 'material-ui'
+} from '@material-ui/core'
 import { Field, reduxForm, formValues } from 'redux-form'
 
 import withSpoolMacro from '../../higherOrderComponents/withSpoolMacro'

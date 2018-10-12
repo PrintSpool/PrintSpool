@@ -17,7 +17,7 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
-} from 'material-ui'
+} from '@material-ui/core'
 import {
   Cancel,
   MoreVert,

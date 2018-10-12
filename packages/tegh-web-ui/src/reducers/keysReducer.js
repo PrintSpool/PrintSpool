@@ -1,5 +1,5 @@
 import { loop, Cmd } from 'redux-loop'
-import { Record } from 'immutable'
+import { Record, Map } from 'immutable'
 import keypair from 'keypair'
 
 import loadLocalStorageJSON from '../sideEffects/loadLocalStorageJSON'
@@ -8,16 +8,21 @@ import saveLocalStorageJSON from '../sideEffects/saveLocalStorageJSON'
 import { LOAD_KEYS } from '../actions/loadKeys'
 import keysLoaded, { KEYS_LOADED } from '../actions/keysLoaded'
 import saveKeys, { SAVE_KEYS } from '../actions/saveKeys'
+import { ADD_HOST_IDENTITY } from '../actions/addHostIdentity'
 
 export const initialState = Record({
   myIdentity: Record({
     public: null,
     private: null,
   })(),
-  hostIdentity: Record({
-    public: null,
-  })(),
+  hostIdentities: Map(),
 })()
+
+const HostIdentity = Record({
+  id: null,
+  alias: null,
+  public: null,
+})
 
 const keysReducer = (state = initialState, action) => {
   switch (action.type) {
@@ -31,11 +36,12 @@ const keysReducer = (state = initialState, action) => {
       )
     }
     case KEYS_LOADED: {
-      // merge the existing identity JSON if it exists or create a new identity
+      // Generate a public and private key using the `keypair` npm module. This will
+      // identify you to the 3D printer so you'll want to save this somewhere and
+      // re-use it on future connections.
       if (action.payload == null) {
-        const nextState = state.mergeDeep({
-          myIdentity: keypair(),
-        })
+        const nextState = state
+          .mergeIn(['myIdentity'], keypair())
 
         return loop(
           nextState,
@@ -43,14 +49,30 @@ const keysReducer = (state = initialState, action) => {
         )
       }
 
-      return state.mergeDeep(action.payload)
+      // merge the existing identity JSON if it exists
+      const hostIdentities = Map(action.payload.hostIdentities || {})
+        .map(json => HostIdentity(json))
+
+      return state
+        .mergeIn(['myIdentity'], action.payload.myIdentity)
+        .set('hostIdentities', hostIdentities)
     }
     case SAVE_KEYS: {
       return loop(
         state,
         Cmd.run(saveLocalStorageJSON, {
-          args: ['keys', state],
+          args: ['keys', state.toJS()],
         }),
+      )
+    }
+    case ADD_HOST_IDENTITY: {
+      const host = HostIdentity(action.payload.hostIdentity)
+
+      const nextState = state.setIn(['hostIdentities', host.id], host)
+
+      return loop(
+        nextState,
+        Cmd.action(saveKeys()),
       )
     }
     default: {

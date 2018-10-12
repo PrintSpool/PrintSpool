@@ -15,7 +15,7 @@ import {
   Button,
   LinearProgress,
   Divider,
-} from 'material-ui'
+} from '@material-ui/core'
 
 import addJobHandler from './mutations/addJobHandler'
 import spoolNextPrintHandler from './mutations/spoolNextPrintHandler'

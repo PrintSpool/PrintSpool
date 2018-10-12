@@ -4,7 +4,7 @@ import {
   Typography,
   Button,
   withStyles,
-} from 'material-ui'
+} from '@material-ui/core'
 
 import { drawerWidth } from './Drawer'
 import EStopResetToggle from './EStopResetToggle'

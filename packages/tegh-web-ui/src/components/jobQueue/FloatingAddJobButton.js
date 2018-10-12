@@ -3,7 +3,7 @@ import {
   withStyles,
   Button,
   Tooltip,
-} from 'material-ui'
+} from '@material-ui/core'
 import {
   Add,
 } from 'material-ui-icons'

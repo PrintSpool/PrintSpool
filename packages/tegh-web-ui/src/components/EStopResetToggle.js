@@ -13,7 +13,7 @@ import {
   FormControlLabel,
   Button,
   withStyles,
-} from 'material-ui'
+} from '@material-ui/core'
 import {
   Report
 } from 'material-ui-icons'
