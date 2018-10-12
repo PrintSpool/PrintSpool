@@ -28,6 +28,7 @@ yarn-error.log
 ubuntu-xenial-16.04-cloudimg-console.log
 packages/tegh-serial-integration-test/log
 packages/*/build
+packages/*/dist
 
 packages/*/android/app/build
 

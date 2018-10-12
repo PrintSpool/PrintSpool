@@ -5,12 +5,24 @@
   "author": "Rob Gilson",
   "license": "MIT",
   "scripts": {
-    "dev": "next -p 3001",
-    "build": "next build && next export",
+    "dev": "webpack-dev-server --mode development",
+    "build": "webpack --mode production",
     "storybook": "start-storybook -p 9001 -c .storybook"
   },
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ],
+    "plugins": [
+      "@babel/plugin-proposal-object-rest-spread",
+      "@babel/plugin-syntax-dynamic-import",
+      "@babel/plugin-proposal-export-default-from",
+      "@babel/plugin-proposal-export-namespace-from"
+    ]
+  },
   "devDependencies": {
-    "@storybook/react": "^3.3.15",
+    "@storybook/react": "^3.4.11",
     "apollo-client-preset": "^1.0.1",
     "apollo-link-error": "^1.0.7",
     "apollo-link-ws": "^1.0.4",
@@ -23,13 +35,11 @@
     "koa-static": "^4.0.2",
     "material-ui": "^v1.0.0-beta.38",
     "material-ui-icons": "^1.0.0-beta.17",
-    "next": "^6.1.1",
-    "next-apollo": "^2.0.0",
     "prop-types": "^15.6.1",
     "react": "^16.2.0",
     "react-apollo": "^2.1.1",
     "react-css-grid": "^2.0.0-0",
-    "react-/dom": "^16.2.0",
+    "react-dom": "^16.2.0",
     "react-loader-advanced": "^1.7.1",
     "react-qr-reader": "^2.1.1",
     "react-redux": "^5.0.6",
@@ -37,16 +47,26 @@
     "redux": "^3.7.2",
     "redux-form": "^7.2.1",
     "simple-peer": "^9.1.2",
-    "socket.io-client": "^2.1.1",
     "strip-newlines": "^1.0.1",
     "styled-components": "^3.0.2",
     "subscriptions-transport-ws": "^0.9.4",
     "tegh-protocol": "link:../tegh-protocol",
-    "voca": "^1.4.0",
-    "webpack": "^4.17.1",
-    "webpack-cli": "^3.1.0"
+    "voca": "^1.4.0"
   },
   "dependencies": {
-    "keypair": "^1.0.1"
+    "@babel/core": "^7.1.2",
+    "@babel/plugin-proposal-export-default-from": "^7.0.0",
+    "@babel/plugin-proposal-export-namespace-from": "^7.0.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/runtime": "^7.1.2",
+    "babel-loader": "^8.0.4",
+    "html-webpack-plugin": "^3.2.0",
+    "keypair": "^1.0.1",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.9"
   }
 }

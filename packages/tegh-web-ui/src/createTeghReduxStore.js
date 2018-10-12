@@ -1,7 +1,7 @@
 import { createStore, combineReducers } from 'redux'
 import { reducer as formReducer } from 'redux-form'
 
-export default () => {
+const createTeghReduxStore => {
   const rootReducer = combineReducers({
     // ...your other reducers here
     // you have to pass formReducer under 'form' key,
@@ -11,3 +11,5 @@ export default () => {
 
   return createStore(rootReducer)
 }
+
+export default createTeghReduxStore

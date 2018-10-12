@@ -4,15 +4,9 @@ import gql from 'graphql-tag'
 
 import QRReader from 'react-qr-reader'
 
-const isNode = typeof navigator === 'undefined'
-
 const peerPublicKeySet = !isNode && localStorage.getItem('peerPublicKey') != null
 
 const Index = () => {
-  if (isNode) return (
-    <div>Server</div>
-  )
-
   if (peerPublicKeySet) {
     return <a href="/host/index">Go to the Host Screen</a>
   }
