@@ -1,20 +1,22 @@
-// import { compose, withContext } from 'recompose'
-import { ApolloProvider, Query } from 'react-apollo'
-import gql from 'graphql-tag'
+import React from 'react'
+import { compose, withContext } from 'recompose'
+import { connect } from 'react-redux'
+// import { ApolloProvider, Query } from 'react-apollo'
+// import gql from 'graphql-tag'
 
 import QRReader from 'react-qr-reader'
 
-const peerPublicKeySet = !isNode && localStorage.getItem('peerPublicKey') != null
+const enhance = compose(
+  connect(state => ({
+    hostPublicKey: state.keys.hostPublicKey,
+  })),
+)
 
-const Index = () => {
-  if (peerPublicKeySet) {
-    return <a href="/host/index">Go to the Host Screen</a>
-  }
-
+const NewConnectionPage = () => {
   return (
     <div style={{ width: 300 }}>
       <QRReader
-        onScan={scan => {
+        onScan={(scan) => {
           if (scan == null) return
           json = JSON.parse(scan)
           if (json == null || json.publicKey == null) return
@@ -30,4 +32,4 @@ const Index = () => {
   )
 }
 
-export default Index
+export default enhance(NewConnectionPage)

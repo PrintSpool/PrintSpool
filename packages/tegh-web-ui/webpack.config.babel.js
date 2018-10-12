@@ -3,7 +3,7 @@ import webpack from 'webpack'
 
 module.exports = {
   entry: {
-    app: './src/index.js'
+    app: './src/index.js',
   },
   devServer: {
     contentBase: './dist',
@@ -22,7 +22,7 @@ module.exports = {
         test: /\.html$/,
         use: [
           {
-            loader: 'html-loader'
+            loader: 'html-loader',
           },
         ],
       },
@@ -31,7 +31,7 @@ module.exports = {
   plugins: [
     new HtmlWebPackPlugin({
       template: './src/index.html',
-      filename: './index.html'
+      filename: './index.html',
     }),
     new webpack.HotModuleReplacementPlugin(),
   ],
