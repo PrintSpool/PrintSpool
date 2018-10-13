@@ -9,6 +9,7 @@ import AddHostPage from './pages/hosts/AddHost.page'
 
 import ConnectedFrame from './pages/connected/frame/ConnectedFrame'
 import QueuePage from './pages/connected/queue/Queue.page'
+import ManualControlPage from './pages/connected/manualControl/ManualControl.page'
 
 const Routes = () => (
   <ConnectedRouter history={history}>
@@ -20,7 +21,8 @@ const Routes = () => (
         path="/:id/:page?"
         render={({ match }) => (
           <ConnectedFrame hostID={match.params.id}>
-            <Route exact path="/:id" component={QueuePage} />
+            <Route exact path="/:id/" component={QueuePage} />
+            <Route exact path="/:id/:printerID/manual-control" component={ManualControlPage} />
           </ConnectedFrame>
         )}
       />

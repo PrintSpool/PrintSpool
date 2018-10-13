@@ -1,19 +1,14 @@
+import React from 'react'
 import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
 import { compose, lifecycle } from 'recompose'
 import {
-  Card,
-  CardContent,
-  Grid,
-  IconButton,
   Typography,
-  CardHeader,
   Switch,
   FormControlLabel,
-  Button,
 } from '@material-ui/core'
 
-import withSpoolMacro from '../../higherOrderComponents/withSpoolMacro'
+import withSpoolMacro from '../../../shared/higherOrderComponents/withSpoolMacro'
 
 const heaterFragment = `
   id
@@ -21,14 +16,14 @@ const heaterFragment = `
   targetTemperature
 `
 
-const subscribeToHeaters = props => params => props.heaterQuery.subscribeToMore({
+const subscribeToHeaters = props => () => props.heaterQuery.subscribeToMore({
   document: gql`
-      subscription heatersChanged {
-        heatersChanged(printerID: "test_printer_id") {
-          ${heaterFragment}
-        }
+    subscription heatersChanged {
+      heatersChanged(printerID: "test_printer_id") {
+        ${heaterFragment}
       }
-    `,
+    }
+  `,
   variables: {
   },
 })
@@ -102,7 +97,7 @@ const TemperatureSection = ({
     <div>
       <Typography variant="display1">
         {currentTemperature.toFixed(1)}
-°C /
+        °C /
         <sup style={{ fontSize: '50%' }}>
           {' '}
           {targetText(targetTemperature)}
@@ -117,7 +112,7 @@ const TemperatureSection = ({
               disabled={disabled}
               aria-label="heating"
             />
-)}
+          )}
           label="Enable Heater"
         />
       </div>

@@ -1,19 +1,12 @@
+import React from 'react'
 import { compose } from 'recompose'
-import styled from 'styled-components'
 import {
   Card,
   CardContent,
-  Grid,
-  IconButton,
-  Typography,
-  CardHeader,
-  Switch,
-  FormControlLabel,
   Button,
 } from '@material-ui/core'
-import { Field, reduxForm, formValues } from 'redux-form'
 
-import withSpoolMacro from '../../higherOrderComponents/withSpoolMacro'
+import withSpoolMacro from '../../../shared/higherOrderComponents/withSpoolMacro'
 
 const enhance = compose(
   withSpoolMacro,

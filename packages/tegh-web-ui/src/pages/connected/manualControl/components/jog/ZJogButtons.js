@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import React from 'react'
 import { compose } from 'recompose'
 import { Field, reduxForm, formValues } from 'redux-form'
 import {
@@ -7,8 +7,6 @@ import {
   Grid,
 } from '@material-ui/core'
 import {
-  ArrowForward,
-  ArrowBack,
   ArrowUpward,
   ArrowDownward,
 } from '@material-ui/icons'

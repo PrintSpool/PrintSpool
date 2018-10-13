@@ -7,9 +7,20 @@ import {
   List,
   ListItem,
   ListItemText,
+  Typography,
 } from '@material-ui/core'
 import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
+import gql from 'graphql-tag'
+
+export const DrawerFragment = gql`
+  fragment DrawerFragment on QueryRoot {
+    printerListForDrawer: printers {
+      id
+      name
+    }
+  }
+`
 
 export const drawerWidth = 240
 
@@ -72,27 +83,35 @@ const DrawerLink = withRouter(({
   </Link>
 ))
 
-const DrawerContents = ({ hostIdentity, classes }) => (
+const DrawerContents = ({ hostIdentity, printers, classes }) => (
   <div>
     <div className={classes.drawerHeader} />
     <Divider />
     <List>
       <DrawerLink
-        text="Print"
+        text="Print Queue"
         href={`/${hostIdentity.id}/`}
         classes={classes}
       />
-      <DrawerLink
-        text="Manual Control"
-        href={`/${hostIdentity.id}/manual-control`}
-        classes={classes}
-      />
+      <Typography variant="h6" color="inherit">
+        Manual control
+      </Typography>
+      {
+        printers.map(printer => (
+          <DrawerLink
+            text={printer.name}
+            href={`/${hostIdentity.id}${printer.id}/manual-control`}
+            classes={classes}
+          />
+        ))
+      }
     </List>
   </div>
 )
 
 const Drawer = ({
   hostIdentity,
+  printersListForDrawer: printers,
   mobileOpen = false,
   handleDrawerToggle = () => null,
   classes,
@@ -111,7 +130,11 @@ const Drawer = ({
           keepMounted: true, // Better open performance on mobile.
         }}
       >
-        <DrawerContents classes={classes} />
+        <DrawerContents
+          hostIdentity={hostIdentity}
+          printers={printers}
+          classes={classes}
+        />
       </MaterialUIDrawer>
     </Hidden>
     <Hidden smDown implementation="css">
@@ -122,7 +145,11 @@ const Drawer = ({
           paper: classes.drawerPaper,
         }}
       >
-        <DrawerContents hostIdentity={hostIdentity} classes={classes} />
+        <DrawerContents
+          hostIdentity={hostIdentity}
+          printers={printers}
+          classes={classes}
+        />
       </MaterialUIDrawer>
     </Hidden>
   </div>

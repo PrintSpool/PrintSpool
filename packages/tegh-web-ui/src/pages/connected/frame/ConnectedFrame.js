@@ -3,9 +3,12 @@ import {
   compose,
   branch,
   renderComponent,
+  renderFromProp,
 } from 'recompose'
 import { withStyles } from '@material-ui/core'
 import { connect } from 'react-redux'
+
+import LiveSubscription from 'apollo-react-live-subscriptions'
 
 import TeghApolloProvider from './higherOrderComponents/TeghApolloProvider'
 
@@ -42,26 +45,52 @@ const enhance = compose(
       <div>404 Page Not Found</div>
     )),
   ),
+  renderFromProp('PageComponent'),
 )
 
 const ConnectedFrame = ({
-  children,
   classes,
   myIdentity,
   hostIdentity,
+  variables,
+  subscription,
+  PageComponent,
 }) => (
   <TeghApolloProvider
     myIdentity={myIdentity}
     hostIdentity={hostIdentity}
   >
-    <div>
-      <div className={classes.appFrame}>
-        <Drawer hostIdentity={hostIdentity} />
-        <div className={classes.flex}>
-          { children }
-        </div>
-      </div>
-    </div>
+    <LiveSubscription
+      variables={variables}
+      subscription={subscription}
+    >
+      {
+        ({ data, loading, error }) => {
+          if (loading) {
+            return (
+              <div>
+                Loading...
+              </div>
+            )
+          }
+          if (error) return <div>{ JSON.stringify(error) }</div>
+
+          return (
+            <div className={classes.appFrame}>
+              <Drawer
+                hostIdentity={hostIdentity}
+                printersListForDrawer={data.printersListForDrawer}
+                />
+              <div className={classes.flex}>
+                <PageComponent
+                  {...data}
+                />
+              </div>
+            </div>
+          )
+        }
+      }
+    </LiveSubscription>
   </TeghApolloProvider>
 )
 

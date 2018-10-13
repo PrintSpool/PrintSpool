@@ -1,19 +1,11 @@
-import { compose } from 'recompose'
-import styled from 'styled-components'
+import React from 'react'
 import {
   Card,
   CardContent,
   Grid,
-  IconButton,
   Typography,
-  CardHeader,
-  Switch,
-  FormControlLabel,
-  Button,
 } from '@material-ui/core'
-import { Field, reduxForm, formValues } from 'redux-form'
 
-import JogDistanceButtons from '../jog/JogDistanceButtons'
 import TemperatureSection from './TemperatureSection'
 import ExtruderButtons from './ExtruderButtons'
 
