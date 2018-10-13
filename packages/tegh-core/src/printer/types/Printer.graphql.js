@@ -61,8 +61,9 @@ const PrinterGraphQL = new GraphQLObjectType({
     status: {
       type: tql`${PrinterStatusEnum}!`,
       resolve: (source) => {
-        if (!isIdle(source)) return 'PRINTING'
-        return source.status.status
+        if (!isIdle(source.spool)) return 'PRINTING'
+        const { status } = source.status
+        return status.substring(status.lastIndexOf('/') + 1)
       },
     },
     error: {

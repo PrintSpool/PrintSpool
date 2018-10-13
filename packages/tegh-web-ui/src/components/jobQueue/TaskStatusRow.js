@@ -16,7 +16,7 @@ import {
 import {
   Cancel,
   MoreVert,
-} from 'material-ui-icons'
+} from '@material-ui/icons'
 import V from 'voca'
 
 const taskColor = (status) => {

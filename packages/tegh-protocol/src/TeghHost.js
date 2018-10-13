@@ -85,9 +85,9 @@ const TeghHost = ({
         teghSocket.emit('close')
       })
 
-      rtcPeer.on('error', () => {
+      rtcPeer.on('error', (e) => {
         teghSocket.readyState = teghHost.ERRORED
-        teghSocket.on('error')
+        teghSocket.emit('error', e)
       })
     })
   }

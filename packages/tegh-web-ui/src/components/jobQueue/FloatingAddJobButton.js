@@ -6,7 +6,7 @@ import {
 } from '@material-ui/core'
 import {
   Add,
-} from 'material-ui-icons'
+} from '@material-ui/icons'
 
 const styles = theme => ({
   fab: {

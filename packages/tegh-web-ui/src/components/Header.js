@@ -1,15 +1,15 @@
+import React from 'react'
 import {
   AppBar,
   Toolbar,
   Typography,
-  Button,
   withStyles,
 } from '@material-ui/core'
 
 import { drawerWidth } from './Drawer'
 import EStopResetToggle from './EStopResetToggle'
 
-const styles = (theme) => ({
+const styles = theme => ({
   root: {
     width: '100%',
   },
@@ -30,7 +30,7 @@ const styles = (theme) => ({
   verticalReset: {
     marginTop: 88,
     width: '100%',
-  }
+  },
 })
 
 const Header = ({
@@ -38,7 +38,7 @@ const Header = ({
   printer,
 }) => (
   <div>
-    <AppBar color="inherit" className={ classes.appBar }>
+    <AppBar color="inherit" className={classes.appBar}>
       <Toolbar>
         {/*
           <IconButton className={classes.menuButton} color="inherit" aria-label="Menu">
@@ -46,9 +46,12 @@ const Header = ({
           </IconButton>
         */}
         <Typography variant="title" color="inherit" className={classes.flex}>
-          {printer.name} <span style={{color: '#999'}}>Powered by Tegh</span>
+          {printer.name}
+          <span style={{ color: '#999' }}>
+            Powered by Tegh
+          </span>
         </Typography>
-        <EStopResetToggle printer={ printer } />
+        <EStopResetToggle printer={printer} />
       </Toolbar>
     </AppBar>
     <div className={classes.verticalReset} />

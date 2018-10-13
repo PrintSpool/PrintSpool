@@ -6,7 +6,7 @@ import PropTypes from 'prop-types'
 // } from '@material-ui/core'
 import gql from 'graphql-tag'
 
-// import Header from '../../components/Header'
+import Header from '../../components/Header'
 // import JobList from '../../components/jobQueue/JobList'
 
 import LiveSubscription from '../../components/LiveSubscription'
@@ -34,17 +34,11 @@ const JOBS_SUBSCRIPTION = gql`
           id
           name
           quantity
-          tasksCompleted
-          totalTasks
-          status
+          printsCompleted
+          totalPrints
           stoppedAt
 
-          files {
-            id
-            status
-          }
-
-          tasks(excludeCompletedTasks: true) {
+          tasks {
             id
             name
             percentComplete(digits: 1)
@@ -73,13 +67,24 @@ const Index = ({ printerID = 'test_printer_id' }) => (
   >
     {
       ({ data, loading, error }) => {
-        if (loading) return <div>Loading...</div>
+        if (loading) {
+          return (
+            <div>
+              Loading...
+            </div>
+          )
+        }
         if (error) return <div>{ JSON.stringify(error) }</div>
-        // console.log(JOBS_SUBSCRIPTION, PrinterStatusGraphQL)
-        console.log(data, loading, error, new Array(...arguments))
-        return <div>Loaded</div>
-        // const { jobs, printer } = data
-        // const { status } = printer
+        // console.log(data, loading, error, new Array(...arguments))
+
+        const { jobs, printer } = data
+        const { status } = printer
+
+        return (
+          <div>
+            <Header printer={printer}/>
+          </div>
+        )
         // return (
         //   <div>
         //     <Header printer={printer}/>

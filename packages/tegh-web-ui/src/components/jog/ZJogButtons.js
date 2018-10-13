@@ -11,7 +11,7 @@ import {
   ArrowBack,
   ArrowUpward,
   ArrowDownward,
-} from 'material-ui-icons'
+} from '@material-ui/icons'
 
 import withJog from '../../higherOrderComponents/withJog'
 import JogButton from './JogButton'

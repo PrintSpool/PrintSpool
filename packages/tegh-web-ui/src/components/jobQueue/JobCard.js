@@ -22,7 +22,7 @@ import {
   Cancel,
   MoreVert,
   Delete,
-} from 'material-ui-icons'
+} from '@material-ui/icons'
 import V from 'voca'
 import TaskStatusRow from './TaskStatusRow'
 

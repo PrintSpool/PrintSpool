@@ -1,23 +1,12 @@
-import { graphql } from 'react-apollo'
-import gql from 'graphql-tag'
-import { compose, lifecycle, withState } from 'recompose'
-import styled from 'styled-components'
+import React from 'react'
+import { compose, withState } from 'recompose'
 import {
-  Card,
-  CardContent,
-  Grid,
-  IconButton,
-  Typography,
-  CardHeader,
-  Switch,
-  FormControlLabel,
   Button,
   withStyles,
 } from '@material-ui/core'
 import {
-  Report
-} from 'material-ui-icons'
-import { Field, reduxForm, formValues } from 'redux-form'
+  Report,
+} from '@material-ui/icons'
 
 import withSpoolMacro from '../higherOrderComponents/withSpoolMacro'
 import StatusDialog from './StatusDialog'
@@ -38,18 +27,18 @@ const enhance = compose(
   withStyles(styles),
 )
 
-const statusColor = status => {
-  switch(status) {
-    case 'READY':
-    case 'PRINTING':
-      return '#1B5E20'
-    case 'ERRORED':
-    case 'ESTOPPED':
-      return '#D50000'
-    default:
-      return '#FF5722'
-  }
-}
+// const statusColor = (status) => {
+//   switch(status) {
+//     case 'READY':
+//     case 'PRINTING':
+//       return '#1B5E20'
+//     case 'ERRORED':
+//     case 'ESTOPPED':
+//       return '#D50000'
+//     default:
+//       return '#FF5722'
+//   }
+// }
 
 const EStopResetToggle = ({
   printer,
@@ -58,7 +47,7 @@ const EStopResetToggle = ({
   dialogOpen,
   setDialogOpen,
 }) => {
-  const { status, error } = printer
+  const { status } = printer
   const showEstop = status !== 'ERRORED' && status !== 'ESTOPPED'
   const disabled = status === 'DISCONNECTED'
   const onClick = () => {
@@ -68,8 +57,8 @@ const EStopResetToggle = ({
   return (
     <div>
       <StatusDialog
-        open={ dialogOpen }
-        printer={ printer }
+        open={dialogOpen}
+        printer={ printer}
         handleClose={ () => { setDialogOpen(false) } }
         handleReset={ () => spoolMacro({ macro: 'reset' }) }
       />
