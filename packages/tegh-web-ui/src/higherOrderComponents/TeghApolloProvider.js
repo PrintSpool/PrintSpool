@@ -1,3 +1,6 @@
+import React from 'react'
+import { ApolloProvider } from 'react-apollo'
+
 import snl from 'strip-newlines'
 import { ApolloClient } from 'apollo-client'
 import { InMemoryCache } from 'apollo-cache-inmemory'
@@ -20,7 +23,7 @@ const createTeghApolloClient = ({
     // and allows us to end-to-end encrypt everything you do with it. Usually
     // the public key is retreaved by scanning the QR Code displayed by Tegh on
     // the 3D printer's screen.
-    peerPublicKey: hostIdentity,
+    peerPublicKey: hostIdentity.public,
     // provides access to the underlying SimplePeer object. This can be used to
     // access media tracks. Note: onConnect may be called more then once
     // if the 3d printer is re-connected.
@@ -82,4 +85,36 @@ const createTeghApolloClient = ({
   return apolloClient
 }
 
-export default createTeghApolloClient
+class TeghApolloProvider extends React.Component {
+  static getDerivedStateFromProps(props, state) {
+    if (state.client != null) {
+      state.client.close()
+    }
+    return {
+      client: createTeghApolloClient(props),
+    }
+  }
+
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  componentWillUnmount() {
+    const { client } = this.state
+    client.close()
+  }
+
+  render() {
+    const { children } = this.props
+    const { client } = this.state
+
+    return (
+      <ApolloProvider client={client}>
+        { children }
+      </ApolloProvider>
+    )
+  }
+}
+
+export default TeghApolloProvider

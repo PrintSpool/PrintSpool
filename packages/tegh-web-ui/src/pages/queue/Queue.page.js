@@ -73,7 +73,7 @@ const Index = ({ printerID = 'test_printer_id' }) => (
   >
     {
       ({ data, loading, error }) => {
-        if (loading) return <div/>
+        if (loading) return <div>Loading...</div>
         if (error) return <div>{ JSON.stringify(error) }</div>
         // console.log(JOBS_SUBSCRIPTION, PrinterStatusGraphQL)
         console.log(data, loading, error, new Array(...arguments))
