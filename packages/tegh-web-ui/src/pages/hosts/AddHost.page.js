@@ -22,15 +22,15 @@ const AddHostPage = ({
   addHostIdentity,
 }) => (
   <div style={{ width: 300 }}>
-    <br/>
-    <br/>
+    <br />
+    <br />
     <Link to="/">
       <button type="button">
         Back
       </button>
     </Link>
-    <br/>
-    <br/>
+    <br />
+    <br />
     <QRReader
       onScan={(scan) => {
         if (scan == null) return

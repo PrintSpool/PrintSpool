@@ -27,20 +27,18 @@ const Wrapper = ({ children, disabled }) => {
   )
 }
 
-const FloatingPrintNextButton = ({ classes, disabled, onClick }) => {
-  return (
-    <Wrapper disabled={ disabled }>
-      <Button
-        variant="fab"
-        className={ classes.fab }
-        color="primary"
-        disabled={ disabled }
-        onClick={ onClick }
-      >
-        <PlayArrow />
-      </Button>
-    </Wrapper>
-  )
-}
+const FloatingPrintNextButton = ({ classes, disabled, onClick }) => (
+  <Wrapper disabled={disabled}>
+    <Button
+      variant="fab"
+      className={classes.fab}
+      color="primary"
+      disabled={disabled}
+      onClick={onClick}
+    >
+      <PlayArrow />
+    </Button>
+  </Wrapper>
+)
 
 export default enhance(FloatingPrintNextButton)

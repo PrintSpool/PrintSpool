@@ -8,7 +8,9 @@ const AlignText = styled.div`
   text-align: ${props => props.textAlign || 'center'};
 `
 
-const JogButton = ({ textAlign, xs, children, ...props }) => (
+const JogButton = ({
+  textAlign, xs, children, ...props
+}) => (
   <Grid item xs={xs}>
     <AlignText textAlign={textAlign}>
       <IconButton {...props}>

@@ -19,14 +19,14 @@ const error = {
 
 const stories = storiesOf('StatusDialog', module)
 
-printerStatuses.forEach(status => {
+printerStatuses.forEach((status) => {
   stories.add(status, () => {
     const props = {
       open: true,
       printer: {
         status,
         error: status === 'ERRORED' ? error : null,
-      }
+      },
     }
     return <StatusDialog {...props} />
   })

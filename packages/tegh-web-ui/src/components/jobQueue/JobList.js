@@ -33,9 +33,11 @@ const enhance = compose(
   deleteJobHandler,
 )
 
-const JobSubList = ({ jobs, status, cancelTask, deleteJob }) => {
+const JobSubList = ({
+  jobs, status, cancelTask, deleteJob,
+}) => {
   const filteredJobs = jobs.filter(job => job.status == status)
-  if (filteredJobs.length === 0) return <div/>
+  if (filteredJobs.length === 0) return <div />
   return (
     <div>
       <Typography variant="subheading" gutterBottom>
@@ -43,11 +45,11 @@ const JobSubList = ({ jobs, status, cancelTask, deleteJob }) => {
       </Typography>
       {
         filteredJobs.map(job => (
-          <div key={job.id} style={{marginBottom: 24}}>
+          <div key={job.id} style={{ marginBottom: 24 }}>
             <JobCard
-              { ...job }
-              cancelTask={ cancelTask }
-              deleteJob={ deleteJob }
+              {...job}
+              cancelTask={cancelTask}
+              deleteJob={deleteJob}
             />
           </div>
         ))
@@ -71,9 +73,9 @@ export const JobList = ({
   if (error) return <div>Error</div>
 
   const disablePrintNextButton = (
-    status !== 'READY' ||
-    jobs.find(job => job.status === 'QUEUED') == null ||
-    jobs.find(job => job.status === 'PRINTING') != null
+    status !== 'READY'
+    || jobs.find(job => job.status === 'QUEUED') == null
+    || jobs.find(job => job.status === 'PRINTING') != null
   )
 
   const statuses = [
@@ -87,7 +89,8 @@ export const JobList = ({
   return (
     <div>
       {
-        jobs.length === 0 &&
+        jobs.length === 0
+        && (
         <div
           style={{
             position: 'relative',
@@ -102,23 +105,24 @@ export const JobList = ({
             the print queue is empty
           </Typography>
         </div>
+        )
       }
       {
         statuses.map(status => (
           <JobSubList
-            key={ status }
-            status={ status }
-            jobs={ jobs }
-            cancelTask={ cancelTask }
-            deleteJob={ deleteJob }
+            key={status}
+            status={status}
+            jobs={jobs}
+            cancelTask={cancelTask}
+            deleteJob={deleteJob}
           />
         ))
       }
 
       <FloatingAddJobButton onChange={addJob} />
       <FloatingPrintNextButton
-        disabled={ disablePrintNextButton }
-        onClick={ spoolNextPrint }
+        disabled={disablePrintNextButton}
+        onClick={spoolNextPrint}
       />
     </div>
   )

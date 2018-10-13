@@ -21,19 +21,17 @@ const heaterFragment = `
   targetTemperature
 `
 
-const subscribeToHeaters = props => params => {
-  return props.heaterQuery.subscribeToMore({
-    document:  gql`
+const subscribeToHeaters = props => params => props.heaterQuery.subscribeToMore({
+  document: gql`
       subscription heatersChanged {
         heatersChanged(printerID: "test_printer_id") {
           ${heaterFragment}
         }
       }
     `,
-    variables: {
-    },
-  })
-}
+  variables: {
+  },
+})
 
 const enhance = compose(
   withSpoolMacro,
@@ -48,22 +46,24 @@ const enhance = compose(
     }`,
     {
       name: 'heaterQuery',
-      props: props => {
+      props: (props) => {
         const nextProps = {
           loading: props.heaterQuery.loading,
           error: props.heaterQuery.error,
           subscribeToHeaters: subscribeToHeaters(props),
         }
-        if (nextProps.error) setImmediate(() => {
-          throw nextProps.error
-        })
+        if (nextProps.error) {
+          setImmediate(() => {
+            throw nextProps.error
+          })
+        }
         if (nextProps.loading || nextProps.error) return nextProps
         const heater = props.heaterQuery.printer.heaters
-          .find(({id}) => id === props.ownProps.id)
+          .find(({ id }) => id === props.ownProps.id)
         return {
           ...nextProps,
           ...heater,
-          isHeating: (heater.targetTemperature ||0) > 0,
+          isHeating: (heater.targetTemperature || 0) > 0,
         }
       },
     },
@@ -71,11 +71,11 @@ const enhance = compose(
   lifecycle({
     componentWillMount() {
       this.props.subscribeToHeaters()
-    }
+    },
   }),
 )
 
-const targetText = targetTemperature => {
+const targetText = (targetTemperature) => {
   if (targetTemperature == null) return 'OFF'
   return `${targetTemperature}°C`
 }
@@ -100,21 +100,25 @@ const TemperatureSection = ({
   }
   return (
     <div>
-      <Typography variant='display1'>
-        {currentTemperature.toFixed(1)}°C /
-        <sup style={{ fontSize: '50%' }}> {targetText(targetTemperature)}</sup>
+      <Typography variant="display1">
+        {currentTemperature.toFixed(1)}
+°C /
+        <sup style={{ fontSize: '50%' }}>
+          {' '}
+          {targetText(targetTemperature)}
+        </sup>
       </Typography>
-      <div style={{marginTop: -3}}>
+      <div style={{ marginTop: -3 }}>
         <FormControlLabel
-          control={
+          control={(
             <Switch
               checked={isHeating}
               onChange={toggleEnabled}
-              disabled={ disabled }
+              disabled={disabled}
               aria-label="heating"
             />
-          }
-          label={`Enable Heater`}
+)}
+          label="Enable Heater"
         />
       </div>
     </div>

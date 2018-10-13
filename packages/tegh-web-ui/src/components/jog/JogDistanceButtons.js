@@ -5,7 +5,7 @@ import {
   BottomNavigationAction,
 } from '@material-ui/core'
 
-const JogDistanceButtons = (distanceOptions) => ({ input }) => (
+const JogDistanceButtons = distanceOptions => ({ input }) => (
   <Grid item xs={12}>
     <BottomNavigation
       value={input.value}

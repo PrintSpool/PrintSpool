@@ -39,9 +39,9 @@ export const drinkingGlass = JobMock({
 export const robot = JobMock({
   id: 'robot',
   name: (
-    'robot_head.gcode, robot_lower_arm.gcode, robot_upper_arm.gcode'+
-    'robot_torso.gcode, robot_wrist.gcode, gear_4.gcode, gear1.gcode, '+
-    'robot_hand.gcode'
+    'robot_head.gcode, robot_lower_arm.gcode, robot_upper_arm.gcode'
+    + 'robot_torso.gcode, robot_wrist.gcode, gear_4.gcode, gear1.gcode, '
+    + 'robot_hand.gcode'
   ),
   quantity: 1,
   tasksCompleted: 0,

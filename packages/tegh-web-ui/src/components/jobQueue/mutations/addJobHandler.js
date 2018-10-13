@@ -30,14 +30,14 @@ const addJobHandler = graphql(createJobGraphQL, {
 
         mutationInput.files.push({
           name,
-          content: fileReader.result
+          content: fileReader.result,
         })
       }
       /* execute the mutation */
       mutate({
         variables: {
-          input: mutationInput
-        }
+          input: mutationInput,
+        },
       })
     },
   }),

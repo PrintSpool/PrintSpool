@@ -11,35 +11,33 @@ const logFragment = `
 
 const maxLogLength = 100
 
-const subscribeToLogEntries = props => params => {
-  return props.logEntries.subscribeToMore({
-    document:  gql`
+const subscribeToLogEntries = props => params => props.logEntries.subscribeToMore({
+  document: gql`
       subscription logEntryCreated {
         logEntryCreated(printerID: "test_printer_id") {
           ${logFragment}
         }
       }
     `,
-    variables: {
-    },
-    updateQuery: (prev, { subscriptionData }) => {
-      if (!subscriptionData.data) {
-          return prev
-      }
-      let { logEntries } = prev.printer
-      logEntries = logEntries.concat(subscriptionData.data.logEntryCreated)
-      if (logEntries.length > maxLogLength) {
-        logEntries = logEntries.slice(-maxLogLength)
-      }
-      return {
-        ...prev,
-        printer: {
-          logEntries,
-        },
-      }
+  variables: {
+  },
+  updateQuery: (prev, { subscriptionData }) => {
+    if (!subscriptionData.data) {
+      return prev
     }
-  })
-}
+    let { logEntries } = prev.printer
+    logEntries = logEntries.concat(subscriptionData.data.logEntryCreated)
+    if (logEntries.length > maxLogLength) {
+      logEntries = logEntries.slice(-maxLogLength)
+    }
+    return {
+      ...prev,
+      printer: {
+        logEntries,
+      },
+    }
+  },
+})
 
 const enhance = compose(
   graphql(
@@ -52,7 +50,7 @@ const enhance = compose(
     }`,
     {
       name: 'logEntries',
-      props: props => {
+      props: (props) => {
         const { loading, printer } = props.logEntries
         return {
           loading,
@@ -69,10 +67,10 @@ const enhance = compose(
   }),
 )
 
-const Log = ({loading, logEntries}) => {
+const Log = ({ loading, logEntries }) => {
   if (loading) return <div>Loading</div>
   return (
-    <div style={ {height: 300, width: '100%', overflowY: 'scroll'} }>
+    <div style={{ height: 300, width: '100%', overflowY: 'scroll' }}>
       {
         new Array(...logEntries).reverse().map(({
           level,
@@ -80,8 +78,14 @@ const Log = ({loading, logEntries}) => {
           message,
         }, index) => (
           <div key={index}>
-            <span>{level} </span>
-            <span>{source.toLowerCase()} </span>
+            <span>
+              {level}
+              {' '}
+            </span>
+            <span>
+              {source.toLowerCase()}
+              {' '}
+            </span>
             <span>{message}</span>
           </div>
         ))

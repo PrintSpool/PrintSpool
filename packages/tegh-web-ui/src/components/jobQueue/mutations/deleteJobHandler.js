@@ -10,20 +10,18 @@ const deleteJobGraphQL = gql`
 `
 
 const deleteJobHandler = graphql(deleteJobGraphQL, {
-  props: ({ mutate, ownProps }) => {
-    return {
-      deleteJob: job => {
-        mutate({
-          variables: {
-            input: {
-              printerID: 'test_printer_id',
-              jobID: job.id,
-            },
+  props: ({ mutate, ownProps }) => ({
+    deleteJob: (job) => {
+      mutate({
+        variables: {
+          input: {
+            printerID: 'test_printer_id',
+            jobID: job.id,
           },
-        })
-      },
-    }
-  },
+        },
+      })
+    },
+  }),
 })
 
 export default deleteJobHandler

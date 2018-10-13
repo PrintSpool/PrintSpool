@@ -58,18 +58,18 @@ const EStopResetToggle = ({
     <div>
       <StatusDialog
         open={dialogOpen}
-        printer={ printer}
-        handleClose={ () => { setDialogOpen(false) } }
-        handleReset={ () => spoolMacro({ macro: 'reset' }) }
+        printer={printer}
+        handleClose={() => { setDialogOpen(false) }}
+        handleReset={() => spoolMacro({ macro: 'reset' })}
       />
-      <div style={{display: 'inline-block', marginRight: 10}}>
+      <div style={{ display: 'inline-block', marginRight: 10 }}>
         <Button
-          onClick={ () => { setDialogOpen(true) } }
+          onClick={() => { setDialogOpen(true) }}
         >
           { status }
         </Button>
       </div>
-      <div style={{display: 'inline-block'}}>
+      <div style={{ display: 'inline-block' }}>
         <Button
           color={showEstop ? 'secondary' : 'primary'}
           variant="raised"
@@ -77,8 +77,8 @@ const EStopResetToggle = ({
           onClick={onClick}
         >
           {
-            showEstop &&
-            <Report className={classes.leftIcon}/>
+            showEstop
+            && <Report className={classes.leftIcon} />
           }
           {showEstop ? 'EStop' : 'Reset'}
         </Button>

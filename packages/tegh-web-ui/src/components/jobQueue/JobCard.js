@@ -48,59 +48,60 @@ const JobCard = ({
   menuAnchorEl,
   openMenu,
   closeMenu,
-}) => {
-  return (
-    <Card>
-      <CardHeader
-        title={V.truncate(name, 32)}
-        subheader={`${tasksCompleted} / ${totalTasks} prints completed`}
-        action={
+}) => (
+  <Card>
+    <CardHeader
+      title={V.truncate(name, 32)}
+      subheader={`${tasksCompleted} / ${totalTasks} prints completed`}
+      action={
           // hide the delete button when the job is printing
-          status != 'PRINTING' &&
+          status != 'PRINTING'
+          && (
           <IconButton
-            onClick={ openMenu }
+            onClick={openMenu}
           >
             <MoreVert />
           </IconButton>
+          )
         }
-      />
+    />
 
-      <Menu
-        id="long-menu"
-        anchorEl={ menuAnchorEl }
-        open={ menuAnchorEl != null }
-        onClose={ closeMenu }
+    <Menu
+      id="long-menu"
+      anchorEl={menuAnchorEl}
+      open={menuAnchorEl != null}
+      onClose={closeMenu}
+    >
+      <MenuItem
+        onClick={() => deleteJob({ id }) && closeMenu()}
       >
-        <MenuItem
-          onClick={ () => deleteJob({ id }) && closeMenu() }
-        >
-          <ListItemIcon>
-            <Delete />
-          </ListItemIcon>
-          <ListItemText inset primary="Delete Job" />
-        </MenuItem>
-      </Menu>
+        <ListItemIcon>
+          <Delete />
+        </ListItemIcon>
+        <ListItemText inset primary="Delete Job" />
+      </MenuItem>
+    </Menu>
 
-      <CardContent
-        style={{
-          paddingTop: 0,
-        }}
-      >
+    <CardContent
+      style={{
+        paddingTop: 0,
+      }}
+    >
 
-        {
+      {
           /* Task list segment */
           tasks.map(task => (
             <TaskStatusRow
-              task={ task }
-              cancelTask={ cancelTask }
-              key={ task.id }
+              task={task}
+              cancelTask={cancelTask}
+              key={task.id}
             />
           ))
         }
-      </CardContent>
+    </CardContent>
 
-      {/* Bottom Button Segment */}
-      {
+    {/* Bottom Button Segment */}
+    {
         /*
       }
       <CardActions>
@@ -113,8 +114,7 @@ const JobCard = ({
       {
         */
       }
-    </Card>
-  )
-}
+  </Card>
+)
 
 export default enhance(JobCard)

@@ -20,7 +20,7 @@ import {
 import V from 'voca'
 
 const taskColor = (status) => {
-  switch(status) {
+  switch (status) {
     case 'ERRORED':
     case 'CANCELLED': {
       return 'error'
@@ -57,7 +57,7 @@ const TaskStatusRow = ({ task, cancelTask }) => (
     <div
       style={{
         display: 'flex',
-        alignItems: 'center'
+        alignItems: 'center',
       }}
     >
       <Typography
@@ -66,7 +66,8 @@ const TaskStatusRow = ({ task, cancelTask }) => (
           marginRight: 12,
         }}
       >
-        {task.percentComplete.toFixed(1)}%
+        {task.percentComplete.toFixed(1)}
+%
       </Typography>
       <div
         style={{

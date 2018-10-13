@@ -20,7 +20,7 @@ const enhance = compose(
 )
 
 const Home = ({
-  spoolMacro
+  spoolMacro,
 }) => (
   <Card>
     <CardContent>

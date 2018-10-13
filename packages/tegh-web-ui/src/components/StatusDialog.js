@@ -66,9 +66,10 @@ const StatusDialog = ({
       </DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
-          { ( descriptions[status] || (() => '') )(error) }
+          { (descriptions[status] || (() => ''))(error) }
           {
-            status === 'ERRORED' &&
+            status === 'ERRORED'
+            && (
             <div>
               <h3>Error Message</h3>
               <p>{ error.message }</p>
@@ -82,27 +83,33 @@ const StatusDialog = ({
               </p>
               <p>
                 If you belive this is an issue with Tegh you can file a bug
-                report at {' '}
+                report at
+                {' '}
+                {' '}
                 <a
                   href="https://github.com/tegh/tegh/issues"
                   target="_blank"
                 >
                   https://github.com/tegh/tegh/issues
-                </a>.
+                </a>
+.
               </p>
             </div>
+            )
           }
         </DialogContentText>
       </DialogContent>
       <DialogActions>
         {
-          (status === 'ERRORED' || status === 'ESTOPPED') &&
+          (status === 'ERRORED' || status === 'ESTOPPED')
+          && (
           <Button
-            onClick={ handleReset }
+            onClick={handleReset}
             color="primary"
           >
             Reset
           </Button>
+          )
         }
         <Button onClick={handleClose} color="primary" autoFocus>
           Close

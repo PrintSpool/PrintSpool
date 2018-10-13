@@ -35,17 +35,17 @@ const ZJogButtons = ({ jog, distance }) => (
         spacing={24}
       >
         <JogButton xs={12} onClick={jog('z', '+', distance)}>
-          <ArrowUpward/>
+          <ArrowUpward />
         </JogButton>
         <JogButton xs={12} disabled>
           Z
         </JogButton>
         <JogButton xs={12} onClick={jog('z', '-', distance)}>
-          <ArrowDownward/>
+          <ArrowDownward />
         </JogButton>
         <Field
-          name='distance'
-          component={ JogDistanceButtons([0.1, 1, 10]) }
+          name="distance"
+          component={JogDistanceButtons([0.1, 1, 10])}
         />
       </Grid>
     </CardContent>

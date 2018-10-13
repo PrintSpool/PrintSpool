@@ -30,7 +30,7 @@ const HeaterControl = ({
         spacing={24}
       >
         <Grid item xs={6}>
-          <Typography variant='subheading'>
+          <Typography variant="subheading">
             {name}
           </Typography>
           <TemperatureSection
@@ -41,12 +41,14 @@ const HeaterControl = ({
         </Grid>
         <Grid item xs={6}>
           {
-            isExtruder &&
+            isExtruder
+            && (
             <ExtruderButtons
               id={id}
               form={`extruder[${id}]`}
               disabled={disabled}
             />
+            )
           }
         </Grid>
       </Grid>

@@ -8,12 +8,12 @@ const jog = ({ spoolMacro }) => (axis, direction, distance) => () => {
       default: throw new Error(`invalid direction ${direction}`)
     }
   })()
-  spoolMacro({macro: 'moveBy', args: {[axis]: distance * multiplier} })
+  spoolMacro({ macro: 'moveBy', args: { [axis]: distance * multiplier } })
 }
 
-const withJog = Component => {
+const withJog = (Component) => {
   const HOC = props => (
-    <Component {...props} jog={jog(props)}/>
+    <Component {...props} jog={jog(props)} />
   )
   return withSpoolMacro(HOC)
 }

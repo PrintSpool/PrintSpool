@@ -82,7 +82,7 @@ const Index = ({ printerID = 'test_printer_id' }) => (
 
         return (
           <div>
-            <Header printer={printer}/>
+            <Header printer={printer} />
           </div>
         )
         // return (

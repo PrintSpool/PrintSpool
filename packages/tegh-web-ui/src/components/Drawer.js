@@ -53,7 +53,9 @@ const styles = theme => ({
   },
 })
 
-const DrawerLink = withRouter(({classes, text, href, router}) => (
+const DrawerLink = withRouter(({
+  classes, text, href, router,
+}) => (
   <Link href={href}>
     <ListItem
       button
@@ -64,7 +66,7 @@ const DrawerLink = withRouter(({classes, text, href, router}) => (
           <InboxIcon />
         </ListItemIcon>
       */}
-        <ListItemText primary={text} />
+      <ListItemText primary={text} />
     </ListItem>
   </Link>
 ))
@@ -75,13 +77,13 @@ const DrawerContents = ({ classes }) => (
     <Divider />
     <List>
       <DrawerLink
-        text='Print'
-        href='/'
+        text="Print"
+        href="/"
         classes={classes}
       />
       <DrawerLink
-        text='Manual Control'
-        href='/manual-control'
+        text="Manual Control"
+        href="/manual-control"
         classes={classes}
       />
     </List>
@@ -98,7 +100,7 @@ const Drawer = ({
     <Hidden mdUp>
       <MaterialUIDrawer
         type="temporary"
-        anchor={'left'}
+        anchor="left"
         open={mobileOpen}
         classes={{
           paper: classes.drawerPaper,

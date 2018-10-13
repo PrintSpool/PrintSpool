@@ -13,17 +13,15 @@ const spoolMacro = gql`
 
 const withSpoolMacro = graphql(spoolMacro, {
   props: ({ mutate }) => ({
-    spoolMacro: input => {
-      return mutate({
-        variables: {
-          input: {
-            printerID: 'test_printer_id',
-            ...input,
-          }
-        }
-      })
-    }
-  })
+    spoolMacro: input => mutate({
+      variables: {
+        input: {
+          printerID: 'test_printer_id',
+          ...input,
+        },
+      },
+    }),
+  }),
 })
 
 export default withSpoolMacro

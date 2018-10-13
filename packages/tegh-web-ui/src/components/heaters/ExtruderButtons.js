@@ -38,24 +38,24 @@ const ExtruderButtons = ({
   >
     <Grid item lg={6} md={12}>
       <Field
-        name='distance'
-        component={ JogDistanceButtons([0.1, 1, 10, 50, 100]) }
+        name="distance"
+        component={JogDistanceButtons([0.1, 1, 10, 50, 100])}
       />
     </Grid>
     <Grid item lg={6} md={12}>
-      <div style={{ textAlign: 'right'}}>
+      <div style={{ textAlign: 'right' }}>
         <Button
           variant="raised"
-          disabled={ disabled }
+          disabled={disabled}
           onClick={jog(id, '-', distance)}
         >
           Retract
         </Button>
-        <div style={{ display: 'inline-block', width: '16px'}} />
+        <div style={{ display: 'inline-block', width: '16px' }} />
         <Button
           variant="raised"
-          color='primary'
-          disabled={ disabled }
+          color="primary"
+          disabled={disabled}
           onClick={jog(id, '+', distance)}
         >
           Extrude
