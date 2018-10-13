@@ -1,3 +1,4 @@
+import path from 'path'
 import HtmlWebPackPlugin from 'html-webpack-plugin'
 import webpack from 'webpack'
 
@@ -8,6 +9,11 @@ module.exports = {
   devServer: {
     contentBase: './dist',
     hot: true,
+  },
+  resolve: {
+    alias: {
+      'apollo-react-live-subscriptions': path.resolve(__dirname, 'src/util/LiveSubscription'),
+    },
   },
   module: {
     rules: [

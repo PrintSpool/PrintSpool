@@ -26,7 +26,7 @@ const HostsIndex = ({ hosts }) => (
     }
     {
       hosts.toList().map(host => (
-        <Link to={`/${host.id}`} key={host.id}>
+        <Link to={`/${host.id}/`} key={host.id}>
           <div>
             <div>
               {host.alias}

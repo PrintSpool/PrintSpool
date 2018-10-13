@@ -1,27 +1,16 @@
 import React from 'react'
-import { compose } from 'recompose'
 import { ConnectedRouter } from '@d1plo1d/connected-react-router'
 import { Route, Switch } from 'react-router'
-import { connect } from 'react-redux'
-import TeghApolloProvider from './higherOrderComponents/TeghApolloProvider'
 
 import { history } from './createTeghReduxStore'
 
 import HostsIndexPage from './pages/hosts/HostsIndex.page'
 import AddHostPage from './pages/hosts/AddHost.page'
-import QueuePage from './pages/queue/Queue.page'
 
-const enhance = compose(
-  connect(state => ({
-    myIdentity: state.keys.myIdentity,
-    hostIdentities: state.keys.hostIdentities,
-  })),
-)
+import ConnectedFrame from './pages/connected/frame/ConnectedFrame'
+import QueuePage from './pages/connected/queue/Queue.page'
 
-const Routes = ({
-  myIdentity,
-  hostIdentities,
-}) => (
+const Routes = () => (
   <ConnectedRouter history={history}>
     <Switch>
       <Route exact path="/" component={HostsIndexPage} />
@@ -29,27 +18,14 @@ const Routes = ({
 
       <Route
         path="/:id/:page?"
-        render={({ match }) => {
-          const hostIdentity = hostIdentities.get(match.params.id)
-
-          if (hostIdentity == null) {
-            return (
-              <div>404 Page Not Found</div>
-            )
-          }
-
-          return (
-            <TeghApolloProvider
-              myIdentity={myIdentity.toJS()}
-              hostIdentity={hostIdentity.toJS()}
-            >
-              <Route exact path="/:id" component={QueuePage} />
-            </TeghApolloProvider>
-          )
-        }}
+        render={({ match }) => (
+          <ConnectedFrame hostID={match.params.id}>
+            <Route exact path="/:id" component={QueuePage} />
+          </ConnectedFrame>
+        )}
       />
     </Switch>
   </ConnectedRouter>
 )
 
-export default enhance(Routes)
+export default Routes

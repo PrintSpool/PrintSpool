@@ -13,6 +13,9 @@ module.exports = {
       "plugin:jest/recommended",
     ],
     "parser": "babel-eslint",
+    "settings": {
+      "import/core-modules": [ "apollo-react-live-subscriptions" ],
+    },
     "rules": {
       "semi": [2, "never"],
       "func-names": ["error", "never"],

@@ -49,7 +49,7 @@ const AddHostPage = ({
           },
         })
 
-        pushHistory(`/${id}`)
+        pushHistory(`/${id}/`)
       }}
       onError={(error) => {
         // eslint-disable-next-line no-console
