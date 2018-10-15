@@ -17,6 +17,7 @@ const createTeghApolloClient = ({
   myIdentity,
   hostIdentity,
   signallingServer = 'ws://localhost:3000',
+  onWebRTCConnect = () => {},
 }) => {
   // create a tegh client
   const teghClient = TeghClient({
@@ -29,10 +30,11 @@ const createTeghApolloClient = ({
     // provides access to the underlying SimplePeer object. This can be used to
     // access media tracks. Note: onConnect may be called more then once
     // if the 3d printer is re-connected.
-    onConnect: (simplePeer) => {
+    onWebRTCConnect: (simplePeer) => {
       // access media tracks here
       // eslint-disable-next-line no-console
       console.log('web rtc connected', simplePeer)
+      onWebRTCConnect(simplePeer)
     },
   })
 
@@ -93,7 +95,8 @@ class TeghApolloProvider extends React.Component {
   static getDerivedStateFromProps(props, state) {
     const {
       hostIdentity,
-      myIdentity
+      myIdentity,
+      onWebRTCConnect,
     } = props
 
     if (hostIdentity.id === state.hostID) {
@@ -107,7 +110,8 @@ class TeghApolloProvider extends React.Component {
 
     const client = memoizedCreateTeghApolloClient({
       hostIdentity,
-      myIdentity
+      myIdentity,
+      onWebRTCConnect,
     })
 
     return {

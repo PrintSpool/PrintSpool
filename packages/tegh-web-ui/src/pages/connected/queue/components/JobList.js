@@ -46,20 +46,16 @@ const JobSubList = ({
 }
 
 const JobList = ({
-  loading,
-  error,
   jobs,
-  status,
+  printers,
   addJob,
   spoolNextPrint,
   cancelTask,
   deleteJob,
 }) => {
-  if (loading) return <div>Loading</div>
-  if (error) return <div>Error</div>
-
+  const statuses = printers.map(printer => printer.status)
   const disablePrintNextButton = (
-    status !== 'READY'
+    statuses.includes('READY') === false
     || jobs.find(job => job.status === 'QUEUED') == null
     || jobs.find(job => job.status === 'PRINTING') != null
   )

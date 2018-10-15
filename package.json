@@ -7,7 +7,24 @@
     "test": "cd ./packages/tegh-server/ && yarn test && cd ../tegh-driver-serial-gcode && yarn test",
     "build": "npx lerna run build --parallel",
     "start": "npx lerna run start --parallel",
-    "cloc": "cloc . --exclude-dir=node_modules,dist,build,.next"
+    "cloc": "cloc . --exclude-dir=node_modules,dist,build,.next",
+    "build": "yarn run clean && babel -d ./build ./src -s",
+    "watch": "yarn run clean && babel -d ./build ./src -s --watch"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-flow"
+    ],
+    "plugins": [
+      "@babel/plugin-proposal-object-rest-spread",
+      "@babel/plugin-syntax-dynamic-import",
+      "@babel/plugin-proposal-export-default-from",
+      "@babel/plugin-proposal-export-namespace-from"
+    ],
+    "ignore": [
+      "build/**/*.js"
+    ]
   },
   "command": {
     "bootstrap": {

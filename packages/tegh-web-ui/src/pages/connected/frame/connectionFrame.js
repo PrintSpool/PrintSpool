@@ -3,14 +3,17 @@ import {
   compose,
   branch,
   renderComponent,
-  renderFromProp,
 } from 'recompose'
 import { withStyles } from '@material-ui/core'
 import { connect } from 'react-redux'
 
-import LiveSubscription from 'apollo-react-live-subscriptions'
+import { LiveSubscription } from 'apollo-react-live-subscriptions'
 
 import TeghApolloProvider from './higherOrderComponents/TeghApolloProvider'
+
+// TODO: webRTC Peer in redux
+// import setWebRTCPeer from '../../../actions/setWebRTCPeer'
+const setWebRTCPeer = () => {}
 
 import Drawer from './components/Drawer'
 
@@ -28,16 +31,20 @@ const styles = () => ({
 })
 
 const enhance = compose(
-  withStyles(styles, { withTheme: true }),
-  connect((state, ownProps) => ({
-    myIdentity: state.keys.myIdentity,
-    hostIdentity: state.keys.hostIdentities.get(ownProps.hostID),
-  })),
-  branch(
-    props => props.myIdentity == null,
-    renderComponent(() => (
-      <div>Connecting</div>
-    )),
+  // withStyles(styles, { withTheme: true }),
+  connect(
+    (state, ownProps) => {
+      const { hostID } = ownProps.match.params
+      const { myIdentity, hostIdentities } = state.keys
+
+      return {
+        myIdentity,
+        hostIdentity: hostIdentities.get(hostID),
+      }
+    },
+    {
+      setWebRTCPeer,
+    },
   ),
   branch(
     props => props.hostIdentity == null,
@@ -45,20 +52,26 @@ const enhance = compose(
       <div>404 Page Not Found</div>
     )),
   ),
-  renderFromProp('PageComponent'),
+  branch(
+    props => props.myIdentity == null,
+    renderComponent(() => (
+      <div>Connecting</div>
+    )),
+  ),
 )
 
-const ConnectedFrame = ({
+const connectionFrame = PageComponent => ({
   classes,
   myIdentity,
   hostIdentity,
   variables,
   subscription,
-  PageComponent,
+  setWebRTCPeer,
 }) => (
   <TeghApolloProvider
     myIdentity={myIdentity}
     hostIdentity={hostIdentity}
+    onWebRTCConnect={setWebRTCPeer}
   >
     <LiveSubscription
       variables={variables}
@@ -66,6 +79,16 @@ const ConnectedFrame = ({
     >
       {
         ({ data, loading, error }) => {
+          console.log(data, loading, error)
+
+          if (error) {
+            return (
+              <div>
+                {JSON.stringify(error)}
+              </div>
+            )
+          }
+
           if (loading) {
             return (
               <div>
@@ -73,14 +96,13 @@ const ConnectedFrame = ({
               </div>
             )
           }
-          if (error) return <div>{ JSON.stringify(error) }</div>
 
           return (
             <div className={classes.appFrame}>
               <Drawer
                 hostIdentity={hostIdentity}
                 printersListForDrawer={data.printersListForDrawer}
-                />
+              />
               <div className={classes.flex}>
                 <PageComponent
                   {...data}
@@ -94,4 +116,4 @@ const ConnectedFrame = ({
   </TeghApolloProvider>
 )
 
-export default enhance(ConnectedFrame)
+export default compose(enhance, connectionFrame)

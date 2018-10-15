@@ -7,7 +7,7 @@ import {
 import Loader from 'react-loader-advanced'
 import gql from 'graphql-tag'
 
-import connectedFrame from '../frame/ConnectedFrame'
+import connectionFrame from '../frame/connectionFrame'
 import { DrawerFragment } from '../frame/components/Drawer'
 
 import PrinterStatusGraphQL from '../shared/PrinterStatus.graphql'
@@ -38,12 +38,13 @@ const MANUAL_CONTROL_SUBSCRIPTION = gql`
 `
 
 const enhance = compose(
-  connectedFrame(() => ({
+  withProps(() => ({
+    subscription: MANUAL_CONTROL_SUBSCRIPTION,
     variables: {
       printerID: 'test_printer_id',
     },
-    subscription: MANUAL_CONTROL_SUBSCRIPTION,
   })),
+  connectionFrame,
   withProps(({ printer }) => ({
     isReady: printer.status === 'READY',
   })),

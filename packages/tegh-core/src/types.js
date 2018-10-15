@@ -5,6 +5,7 @@ export Config, { MockConfig } from './config/types/Config'
 export * as JobHistoryTypeEnum from './jobQueue/types/JobHistoryTypeEnum'
 
 export JobHistoryEvent from './jobQueue/types/JobHistoryEvent'
+export JobQueueGraphQL from './jobQueue/types/JobQueue.graphql'
 export Job, { MockJob } from './jobQueue/types/Job'
 export JobGraphQL from './jobQueue/types/Job.graphql'
 export JobFile, { MockJobFile } from './jobQueue/types/JobFile'

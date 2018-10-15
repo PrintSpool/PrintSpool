@@ -7,7 +7,6 @@ import { history } from './createTeghReduxStore'
 import HostsIndexPage from './pages/hosts/HostsIndex.page'
 import AddHostPage from './pages/hosts/AddHost.page'
 
-import ConnectedFrame from './pages/connected/frame/ConnectedFrame'
 import QueuePage from './pages/connected/queue/Queue.page'
 import ManualControlPage from './pages/connected/manualControl/ManualControl.page'
 
@@ -18,12 +17,12 @@ const Routes = () => (
       <Route exact path="/connect" component={AddHostPage} />
 
       <Route
-        path="/:id/:page?"
-        render={({ match }) => (
-          <ConnectedFrame hostID={match.params.id}>
-            <Route exact path="/:id/" component={QueuePage} />
-            <Route exact path="/:id/:printerID/manual-control" component={ManualControlPage} />
-          </ConnectedFrame>
+        path="/:hostID/:page?"
+        render={() => (
+          <div>
+            <Route exact path="/:hostID/" component={QueuePage} />
+            <Route exact path="/:hostID/:printerID/manual-control" component={ManualControlPage} />
+          </div>
         )}
       />
     </Switch>
