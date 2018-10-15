@@ -5,9 +5,8 @@
   "scripts": {
     "test": "jest",
     "lint": "eslint src/",
-    "clean": "rm -rf build && mkdir build",
-    "build": "yarn run clean && babel -d ./build ./src -s",
-    "watch": "yarn run clean && babel -d ./build ./src -s --watch"
+    "build": "babel -d ./build ./src -s",
+    "watch": "yarn run clean && yarn run build-deps && babel -d ./build ./src -s --watch"
   },
   "main": "build/index.js",
   "repository": {
@@ -17,21 +16,6 @@
   "keywords": [
     "graphql"
   ],
-  "babel": {
-    "presets": [
-      "@babel/preset-env",
-      "@babel/preset-flow"
-    ],
-    "plugins": [
-      "@babel/plugin-proposal-object-rest-spread",
-      "@babel/plugin-syntax-dynamic-import",
-      "@babel/plugin-proposal-export-default-from",
-      "@babel/plugin-proposal-export-namespace-from"
-    ],
-    "ignore": [
-      "build/**/*.js"
-    ]
-  },
   "jest": {
     "testPathIgnorePatterns": [
       "/node_modules/",
@@ -73,28 +57,5 @@
     "typiql": "^0.3.0",
     "untildify": "^3.0.2",
     "uuid": "^3.1.0"
-  },
-  "peerDependencies": {},
-  "devDependencies": {
-    "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.1.2",
-    "@babel/plugin-proposal-export-default-from": "^7.0.0",
-    "@babel/plugin-proposal-export-namespace-from": "^7.0.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
-    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
-    "@babel/preset-env": "^7.1.0",
-    "@babel/preset-flow": "^7.0.0",
-    "@babel/runtime": "^7.1.2",
-    "@babel/register": "^7.1.2",
-    "babel-eslint": "^9.0.0-beta.3",
-    "babel-jest": "^23.0.1",
-    "eslint": "^5.3.0",
-    "eslint-config-airbnb-base": "^13.0.0",
-    "eslint-plugin-babel": "^5.1.0",
-    "eslint-plugin-immutablejs": "^0.1.3",
-    "eslint-plugin-jest": "^21.20.2",
-    "eslint-plugin-monorepo": "^0.2.0",
-    "jest": "^23.6.0",
-    "redux-saga-tester": "d1plo1d/redux-saga-tester"
   }
 }
