@@ -1,6 +1,14 @@
 module.exports = {
   presets: [
-    '@babel/preset-env',
+    [
+      '@babel/preset-env',
+      {
+        "exclude": [
+          "transform-regenerator",
+          "transform-async-to-generator"
+        ]
+      },
+    ],
     '@babel/preset-flow',
   ],
   plugins: [
@@ -8,6 +16,7 @@ module.exports = {
     '@babel/plugin-syntax-dynamic-import',
     '@babel/plugin-proposal-export-default-from',
     '@babel/plugin-proposal-export-namespace-from',
+    'module:fast-async',
   ],
   ignore: [
     'packages/*/dist/**/*.js',

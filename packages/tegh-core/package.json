@@ -2,12 +2,6 @@
   "name": "tegh-core",
   "version": "0.4.0",
   "description": "core reusable types, selectors, actions, reducers, etc. for Tegh",
-  "scripts": {
-    "test": "jest",
-    "lint": "eslint src/",
-    "build": "babel -d ./build ./src -s",
-    "watch": "yarn run clean && yarn run build-deps && babel -d ./build ./src -s --watch"
-  },
   "main": "build/index.js",
   "repository": {
     "type": "git",

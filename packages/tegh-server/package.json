@@ -2,15 +2,6 @@
   "name": "tegh-server",
   "version": "0.4.0",
   "description": "graphql server for 3D printers",
-  "scripts": {
-    "test": "jest",
-    "lint": "eslint src/",
-    "flow": "flow",
-    "clean": "rm -rf build && mkdir build",
-    "build-deps": "cd ../../node_modules/graphql-live-subscriptions/ && yarn build",
-    "build": "yarn run clean && yarn run build-deps && babel -d ./build ./src -s",
-    "watch": "yarn run clean && yarn run build-deps && babel -d ./build ./src -s --watch"
-  },
   "main": "build/index.js",
   "repository": {
     "type": "git",
@@ -19,20 +10,6 @@
   "keywords": [
     "graphql"
   ],
-  "babel": {
-    "presets": [
-      "@babel/preset-env",
-      "@babel/preset-flow"
-    ],
-    "plugins": [
-      "@babel/plugin-proposal-object-rest-spread",
-      "@babel/plugin-syntax-dynamic-import"
-    ]
-  },
-  "jest": {
-    "transformIgnorePatterns": [],
-    "testEnvironment": "node"
-  },
   "author": "Rob Gilson",
   "license": "AGPL-3.0-or-later",
   "dependencies": {
@@ -89,21 +66,5 @@
   },
   "resolutions": {
     "subscriptions-transport-ws/iterall": "d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b"
-  },
-  "peerDependencies": {},
-  "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.49",
-    "@babel/core": "^7.0.0-beta.49",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.49",
-    "@babel/plugin-syntax-dynamic-import": "^7.0.0-rc.1",
-    "@babel/polyfill": "^7.0.0-beta.49",
-    "@babel/preset-env": "^7.0.0-beta.49",
-    "@babel/preset-flow": "^7.0.0-beta.49",
-    "@babel/register": "^7.0.0-beta.49",
-    "babel-core": "^7.0.0-beta.49",
-    "babel-eslint": "^9.0.0-beta.3",
-    "babel-jest": "^23.0.1",
-    "jest": "^23.1.0",
-    "redux-saga-tester": "d1plo1d/redux-saga-tester"
   }
 }

@@ -6,55 +6,6 @@
   "author": "Rob Gilson",
   "license": "AGPL-3.0-or-later",
   "private": false,
-  "scripts": {
-    "test": "jest",
-    "lint": "eslint src/",
-    "flow": "flow",
-    "clean": "rm -rf build && mkdir build",
-    "build": "yarn run clean && babel -d ./build ./src -s",
-    "watch": "yarn run clean && babel -d ./build ./src -s --watch"
-  },
-  "babel": {
-    "presets": [
-      "@babel/preset-env",
-      "@babel/preset-flow"
-    ],
-    "plugins": [
-      "@babel/plugin-proposal-object-rest-spread",
-      "@babel/plugin-syntax-dynamic-import",
-      "@babel/plugin-proposal-export-default-from",
-      "@babel/plugin-proposal-export-namespace-from"
-    ],
-    "ignore": [
-      "build/**/*.js"
-    ]
-  },
-  "jest": {
-    "transformIgnorePatterns": [],
-    "setupFiles": [],
-    "testEnvironment": "node"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.55",
-    "@babel/core": "^7.0.0-beta.55",
-    "@babel/plugin-proposal-export-default-from": "^7.0.0-rc.1",
-    "@babel/plugin-proposal-export-namespace-from": "^7.0.0-rc.1",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.55",
-    "@babel/plugin-syntax-dynamic-import": "^7.0.0-rc.1",
-    "@babel/polyfill": "^7.0.0-beta.55",
-    "@babel/preset-env": "^7.0.0-beta.55",
-    "@babel/register": "^7.0.0-beta.55",
-    "babel-core": "^7.0.0-beta.55",
-    "babel-eslint": "^8.1.0",
-    "babel-jest": "^23.3.0",
-    "eslint": "^5.3.0",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-babel": "^5.1.0",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-jest": "^21.21.0",
-    "eslint-plugin-monorepo": "^0.2.0",
-    "jest": "^23.3.0"
-  },
   "dependencies": {
     "bluebird": "^3.5.1",
     "immutable": "^3.8.2",

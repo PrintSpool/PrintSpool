@@ -12,6 +12,16 @@
       "useWorkspaces": true
     }
   },
+  "jest": {
+    "transformIgnorePatterns": [],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/packages/*/node_modules/",
+      "/packages/*/dist/"
+    ],
+    "setupFiles": [],
+    "testEnvironment": "node"
+  },
   "workspaces": {
     "packages": [
       "packages/tegh-core",
@@ -59,12 +69,14 @@
     "eslint-plugin-immutablejs": "^0.1.3",
     "eslint-plugin-jest": "^21.20.2",
     "eslint-plugin-monorepo": "^0.2.0",
+    "fast-async": "^6.3.8",
     "gulp": "^4.0.0",
     "gulp-babel": "^8.0.0",
     "gulp-cli": "^2.0.1",
     "gulp-plumber": "^1.2.0",
     "gulp-util": "^3.0.8",
     "gulp-watch": "^5.0.1",
+    "jest": "^23.3.0",
     "lerna": "^2.5.1",
     "plumber": "^0.4.8",
     "rimraf": "^2.6.1",
