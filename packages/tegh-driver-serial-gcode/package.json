@@ -2,7 +2,7 @@
   "name": "tegh-driver-serial-gcode",
   "version": "0.4.0",
   "description": "Tegh serial driver for RepRap/Marlin compatible printers",
-  "main": "build/index.js",
+  "main": "dist/index.js",
   "author": "Rob Gilson",
   "license": "AGPL-3.0-or-later",
   "private": false,

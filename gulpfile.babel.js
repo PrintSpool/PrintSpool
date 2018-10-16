@@ -2,23 +2,25 @@ import chalk from 'chalk'
 import rimraf from 'rimraf'
 import path from 'path'
 import gulp from 'gulp'
-import gulpWatch from 'gulp-watch'
 import babel from 'gulp-babel'
-import through from 'through2'
+// import through from 'through2'
 import plumber from 'gulp-plumber'
 import gutil from 'gulp-util'
+import webpack from 'webpack'
+import WebpackDevServer from 'webpack-dev-server'
 
 import packageJSON from './package.json'
 import babelConfig from './.babelrc'
+import webpackConfig from './webpack.config.babel'
 
 const { packages } = packageJSON.workspaces
 
-const compilationLogger = () => (
-  through.obj((file, enc, callback) => {
-    gutil.log(`Compiling '${chalk.cyan(file.relative)}'...`)
-    callback(null, file)
-  })
-)
+// const compilationLogger = () => (
+//   through.obj((file, enc, callback) => {
+//     gutil.log(`Compiling '${chalk.cyan(file.relative)}'...`)
+//     callback(null, file)
+//   })
+// )
 
 const errorsLogger = () => (
   plumber({
@@ -33,14 +35,6 @@ const clean = (done) => {
 }
 
 const srcFiles = `packages/@(${packages.join('|').replace(/packages\//g, '')})/src/**/*.js`
-
-const rename = fn => (
-  through.obj((file, enc, callback) => {
-    // eslint-disable-next-line no-param-reassign
-    file.path = fn(file)
-    callback(null, file)
-  })
-)
 
 const buildProcess = gulpInput => (
   gulpInput
@@ -72,22 +66,44 @@ const watch = () => {
   })
 }
 
-const everyPackage = task => (
-  packages.map(pkgLocation => done => task(pkgLocation, done))
-)
+const webpackDevServerTask = () => {
+  // Start a webpack-dev-server
+  const compiler = webpack({
+    // configuration
+    mode: 'development',
+    ...webpackConfig,
+  })
+
+  new WebpackDevServer(compiler, {
+    // server and middleware options
+  }).listen(8080, 'localhost', (err) => {
+    if (err) throw new gutil.PluginError('webpack-dev-server', err)
+    // Server listening
+    gutil.log(
+      '[webpack-dev-server]',
+      'http://localhost:8080/webpack-dev-server/index.html',
+    )
+    // keep the server alive or continue?
+    // callback();
+  })
+}
+
+gulp.task('clean', clean)
+
+gulp.task('build', gulp.series('clean', build))
+
+gulp.task('watch', gulp.series('build', watch))
+
+gulp.task('webpack-dev-server', webpackDevServerTask)
 
 gulp.task(
-  'clean',
-  clean,
-)
-gulp.task(
-  'build',
-  gulp.series('clean', build),
-)
-gulp.task(
-  'watch',
+  'start',
   gulp.series(
+    'clean',
     'build',
-    watch,
+    gulp.parallel(
+      watch,
+      webpackDevServerTask,
+    ),
   ),
 )

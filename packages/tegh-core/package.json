@@ -2,7 +2,7 @@
   "name": "tegh-core",
   "version": "0.4.0",
   "description": "core reusable types, selectors, actions, reducers, etc. for Tegh",
-  "main": "build/index.js",
+  "main": "dist/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/tegh/tegh-server.git"
