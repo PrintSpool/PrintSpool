@@ -1,5 +1,4 @@
 module.exports = {
-  // babelrcRoots: __dirname,
   presets: [
     [
       '@babel/preset-env',
