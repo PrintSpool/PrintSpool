@@ -2,12 +2,12 @@ module.exports = {
   presets: [
     [
       '@babel/preset-env',
-      {
-        exclude: [
-          'transform-regenerator',
-          'transform-async-to-generator',
-        ],
-      },
+      // {
+      //   exclude: [
+      //     'transform-regenerator',
+      //     'transform-async-to-generator',
+      //   ],
+      // },
     ],
     '@babel/preset-react',
     '@babel/preset-flow',
