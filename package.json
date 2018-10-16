@@ -6,6 +6,7 @@
     "build": "gulp build",
     "watch": "gulp watch",
     "webpack-dev-server": "gulp webpack-dev-server",
+    "test": "jest",
     "start": "gulp start"
   },
   "command": {
@@ -13,16 +14,6 @@
       "npmClient": "yarn",
       "useWorkspaces": true
     }
-  },
-  "jest": {
-    "transformIgnorePatterns": [],
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/packages/*/node_modules/",
-      "/packages/*/dist/"
-    ],
-    "setupFiles": [],
-    "testEnvironment": "node"
   },
   "workspaces": {
     "packages": [
@@ -65,6 +56,7 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/register": "^7.0.0",
     "@babel/runtime": "^7.1.2",
+    "babel-core": "^7.0.0-bridge",
     "babel-eslint": "^9.0.0-beta.3",
     "babel-loader": "^8.0.4",
     "chalk": "^2.4.1",
@@ -82,7 +74,7 @@
     "gulp-util": "^3.0.8",
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
-    "jest": "^23.3.0",
+    "jest": "^23.6.0",
     "lerna": "^2.5.1",
     "plumber": "^0.4.8",
     "rimraf": "^2.6.1",
