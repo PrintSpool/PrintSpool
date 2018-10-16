@@ -2,12 +2,12 @@ module.exports = {
   presets: [
     [
       '@babel/preset-env',
-      // {
-      //   "exclude": [
-      //     "transform-regenerator",
-      //     "transform-async-to-generator"
-      //   ]
-      // },
+      {
+        exclude: [
+          'transform-regenerator',
+          'transform-async-to-generator',
+        ],
+      },
     ],
     '@babel/preset-react',
     '@babel/preset-flow',
@@ -21,7 +21,6 @@ module.exports = {
     // TODO: this might only be good to have in the web ui
     '@babel/plugin-transform-runtime',
   ],
-  ignore: [
-    'packages/*/dist/**/*.js',
-  ],
 }
+
+// console.log(JSON.stringify(module.exports, null, 2))

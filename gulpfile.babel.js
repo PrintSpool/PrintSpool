@@ -34,7 +34,11 @@ const clean = (done) => {
   rimraf(path.join(__dirname, 'packages/*/dist'), done)
 }
 
-const srcFiles = `packages/@(${packages.join('|').replace(/packages\//g, '')})/src/**/*.js`
+const srcJSDir = `packages/@(${packages.join('|').replace(/packages\//g, '')})/src/**/`
+const srcFiles = [
+  `${srcJSDir}*.js`,
+  `!${srcJSDir}*.test.js`,
+]
 
 const buildProcess = gulpInput => (
   gulpInput

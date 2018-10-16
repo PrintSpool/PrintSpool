@@ -1,3 +1,4 @@
+console.log('config??')
 module.exports = {
   // projects: [
   //   '<rootDir>/packages/*',
