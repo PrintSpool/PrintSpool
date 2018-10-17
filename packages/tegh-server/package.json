@@ -22,7 +22,7 @@
     "ejs": "^2.5.7",
     "fast-memoize": "^2.5.1",
     "graphql": "0.13.2",
-    "graphql-live-subscriptions": "github:d1plo1d/graphql-live-subscriptions#feature/tree_diff",
+    "graphql-live-subscriptions": "^1.0.0",
     "graphql-scalars": "^0.1.5",
     "graphql-subscriptions": "^0.5.8",
     "graphql-type-json": "^0.2.0",

@@ -5301,6 +5301,14 @@ graphql-extensions@^0.0.x, graphql-extensions@~0.0.9:
     core-js "^2.5.3"
     source-map-support "^0.5.1"
 
+graphql-live-subscriptions@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/graphql-live-subscriptions/-/graphql-live-subscriptions-1.0.0.tgz#5fd3448913d6c5c9d08a88fb36bb5bf78f63d923"
+  integrity sha512-JT0AD7f2CKQdoW5FZ9oGApncup9BS8a2BGCzZJGI2ofUWb8tEoIzMD5eNDa/SlGI0TJ17fe1m5nVe1ilCWsihw==
+  dependencies:
+    fast-json-patch "^2.0.6"
+    fast-memoize "^2.3.2"
+
 "graphql-live-subscriptions@github:d1plo1d/graphql-live-subscriptions#feature/tree_diff":
   version "0.1.0"
   resolved "https://codeload.github.com/d1plo1d/graphql-live-subscriptions/tar.gz/53c31e867a30345681c226d8b9e8761d39438079"

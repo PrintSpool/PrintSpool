@@ -6,14 +6,12 @@ import _ from 'lodash'
 
 import {
   mutations,
-  subscriptions as subscriptionModules,
 } from 'tegh-core'
 
 import QueryRootGraphQL from './QueryRoot.graphql'
 import liveGraphQL from './live.graphql'
 
 const subscriptions = {
-  ..._.mapValues(subscriptionModules, m => m.subscription),
   live: liveGraphQL,
 }
 

@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "delete-node-modules": "rm -rf node_modules && rm -rf packages/*/node_modules",
-    "bootstrap": "yarn && lerna exec --concurrency 1 -- yarn",
+    "bootstrap": "yarn && lerna exec --concurrency 1 -- yarn && cd ./package/tegh-web-ui/ && yarn",
     "clean": "gulp clean",
     "build": "gulp build",
     "watch": "gulp watch",
