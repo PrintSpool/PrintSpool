@@ -91,7 +91,7 @@ const JobList = ({
             justifyContent: 'center',
           }}
         >
-          <Typography variant="h3" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
+          <Typography variant="h4" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
             the print queue is empty
           </Typography>
         </div>

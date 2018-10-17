@@ -39,7 +39,7 @@ const TemperatureSection = ({
   }
   return (
     <div>
-      <Typography variant="display1">
+      <Typography variant="h4" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
         {currentTemperature.toFixed(1)}
         °C /
         <sup style={{ fontSize: '50%' }}>

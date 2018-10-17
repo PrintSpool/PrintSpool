@@ -66,7 +66,7 @@ const ManualControl = ({ printer, isReady }) => (
         <Loader
           show={!isReady}
           message={(
-            <Typography variant="display1" style={{ color: '#fff' }}>
+            <Typography variant="h4" style={{ color: '#fff' }}>
               manual controls disabled while
               {' '}
               {printer.status.toLowerCase()}

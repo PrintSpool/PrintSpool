@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@d1plo1d/connected-react-router": "^4.5.0-routerReducerPatch",
-    "@material-ui/core": "^3.2.0",
+    "@material-ui/core": "^3.2.2",
     "@material-ui/icons": "^3.0.1",
     "@storybook/react": "^3.4.11",
     "apollo-cache-inmemory": "^1.3.5",
