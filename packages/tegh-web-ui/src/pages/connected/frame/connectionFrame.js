@@ -11,11 +11,9 @@ import { LiveSubscription } from 'apollo-react-live-subscriptions'
 
 import TeghApolloProvider from './higherOrderComponents/TeghApolloProvider'
 
-// TODO: webRTC Peer in redux
-// import setWebRTCPeer from '../../../actions/setWebRTCPeer'
-const setWebRTCPeer = () => {}
-
 import Drawer from './components/Drawer'
+
+import setWebRTCPeerActionCreator from '../../../actions/setWebRTCPeer'
 
 const styles = () => ({
   appFrame: {
@@ -31,7 +29,7 @@ const styles = () => ({
 })
 
 const enhance = compose(
-  // withStyles(styles, { withTheme: true }),
+  withStyles(styles, { withTheme: true }),
   connect(
     (state, ownProps) => {
       const { hostID } = ownProps.match.params
@@ -43,7 +41,7 @@ const enhance = compose(
       }
     },
     {
-      setWebRTCPeer,
+      setWebRTCPeer: setWebRTCPeerActionCreator,
     },
   ),
   branch(
@@ -79,8 +77,6 @@ const connectionFrame = PageComponent => ({
     >
       {
         ({ data, loading, error }) => {
-          console.log(data, loading, error)
-
           if (error) {
             return (
               <div>
@@ -101,7 +97,7 @@ const connectionFrame = PageComponent => ({
             <div className={classes.appFrame}>
               <Drawer
                 hostIdentity={hostIdentity}
-                printersListForDrawer={data.printersListForDrawer}
+                printers={data.printers}
               />
               <div className={classes.flex}>
                 <PageComponent

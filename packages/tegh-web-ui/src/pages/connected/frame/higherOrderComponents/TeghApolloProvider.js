@@ -8,7 +8,7 @@ import { ApolloClient } from 'apollo-client'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { concat } from 'apollo-link'
 import { WebSocketLink } from 'apollo-link-ws'
-import { SubscriptionClient } from 'subscriptions-transport-ws'
+// import { SubscriptionClient } from 'subscriptions-transport-ws'
 import { onError } from 'apollo-link-error'
 
 import { TeghClient } from 'tegh-protocol'
@@ -41,18 +41,15 @@ const createTeghApolloClient = ({
   // the tegh client exposes an API that is compatible with `window.WebSocket` so
   // we can use it with existing libaries which were designed for Web Sockets.
   // Here we're using it with `subscriptions-transport-ws` for Apollo JS.
-  const subscriptionClient = new SubscriptionClient(
-    signallingServer,
-    {
+  const wsLink = new WebSocketLink({
+    uri: signallingServer,
+    options: {
       reconnect: true,
     },
-    teghClient,
-  )
+    webSocketImpl: teghClient,
+  })
 
-  // console.log(subscriptionClient)
-  clearTimeout(subscriptionClient.maxConnectTimeoutId)
-
-  const wsLink = new WebSocketLink(subscriptionClient)
+  clearTimeout(wsLink.subscriptionClient.maxConnectTimeoutId)
 
   const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (graphQLErrors) {
@@ -89,7 +86,11 @@ const createTeghApolloClient = ({
   return apolloClient
 }
 
-const memoizedCreateTeghApolloClient = memoize(createTeghApolloClient)
+// TODO: does not work for some reason
+// const memoizedCreateTeghApolloClient = memoize(createTeghApolloClient, {
+//   serializer: ({ hostIdentity }) => hostIdentity.id,
+// })
+
 
 class TeghApolloProvider extends React.Component {
   static getDerivedStateFromProps(props, state) {
@@ -100,20 +101,18 @@ class TeghApolloProvider extends React.Component {
     } = props
 
     if (hostIdentity.id === state.hostID) {
-      return {}
+      return state
     }
-
     // if (state.client != null) {
     //   // TODO: memory leak: no way to close old apollo clients AFAIK
     //   // state.client.close()
     // }
 
-    const client = memoizedCreateTeghApolloClient({
+    const client = createTeghApolloClient({
       hostIdentity,
       myIdentity,
       onWebRTCConnect,
     })
-
     return {
       hostID: hostIdentity.id,
       client,

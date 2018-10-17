@@ -12,7 +12,7 @@ import JobList from './components/JobList'
 import PrinterStatusGraphQL from '../shared/PrinterStatus.graphql'
 
 const JOBS_SUBSCRIPTION = gql`
-  subscription($printerID: ID!) {
+  subscription {
     live {
       patch { op, path, from, value }
       query {
@@ -66,11 +66,12 @@ const Index = ({
 }) => (
   <div>
     { /* TODO: multi-printer header or remove ESTOP/Printer Status for JobQueue page */ }
-    <Header name={name} printers={printers[0]} />
+    <Header name={name} printer={printers[0]} />
     <main>
       <JobList
         name={name}
         jobs={jobs}
+        printers={printers}
       />
     </main>
   </div>

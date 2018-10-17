@@ -15,7 +15,7 @@ import gql from 'graphql-tag'
 
 export const DrawerFragment = gql`
   fragment DrawerFragment on QueryRoot {
-    printerListForDrawer: printers {
+    printers {
       id
       name
     }
@@ -99,6 +99,7 @@ const DrawerContents = ({ hostIdentity, printers, classes }) => (
       {
         printers.map(printer => (
           <DrawerLink
+            key={printer.id}
             text={printer.name}
             href={`/${hostIdentity.id}${printer.id}/manual-control`}
             classes={classes}
@@ -111,7 +112,7 @@ const DrawerContents = ({ hostIdentity, printers, classes }) => (
 
 const Drawer = ({
   hostIdentity,
-  printersListForDrawer: printers,
+  printers,
   mobileOpen = false,
   handleDrawerToggle = () => null,
   classes,
