@@ -87,9 +87,9 @@ const createTeghApolloClient = ({
 }
 
 // TODO: does not work for some reason
-// const memoizedCreateTeghApolloClient = memoize(createTeghApolloClient, {
-//   serializer: ({ hostIdentity }) => hostIdentity.id,
-// })
+const memoizedCreateTeghApolloClient = memoize(createTeghApolloClient, {
+  serializer: ({ hostIdentity }) => hostIdentity.id,
+})
 
 
 class TeghApolloProvider extends React.Component {
@@ -108,7 +108,7 @@ class TeghApolloProvider extends React.Component {
     //   // state.client.close()
     // }
 
-    const client = createTeghApolloClient({
+    const client = memoizedCreateTeghApolloClient({
       hostIdentity,
       myIdentity,
       onWebRTCConnect,

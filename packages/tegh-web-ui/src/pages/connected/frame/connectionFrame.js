@@ -112,11 +112,6 @@ const connectionFrame = PageComponent => ({
               />
               <Loader
                 show={loading}
-                message={(
-                  <Typography variant="h4" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
-                    Loading...
-                  </Typography>
-                )}
                 style={{
                   flex: 1,
                 }}
