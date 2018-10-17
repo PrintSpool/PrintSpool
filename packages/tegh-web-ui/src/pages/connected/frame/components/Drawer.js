@@ -6,10 +6,15 @@ import {
   Divider,
   List,
   ListItem,
+  ListItemIcon,
   ListItemText,
   ListSubheader,
-  Typography,
 } from '@material-ui/core'
+import {
+  Inbox,
+  OpenWith,
+  Settings,
+} from '@material-ui/icons'
 import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
 import gql from 'graphql-tag'
@@ -67,18 +72,23 @@ const styles = theme => ({
 })
 
 const DrawerLink = withRouter(({
-  classes, text, href, location,
+  classes,
+  text,
+  href,
+  location,
+  icon,
 }) => (
   <ListItem
     button
     component={props => <Link to={href} {...props} />}
     className={location.pathname === href ? classes.activeLink : null}
   >
-    {/*
+    {
+      icon &&
       <ListItemIcon>
-        <InboxIcon />
+        {icon}
       </ListItemIcon>
-    */}
+    }
     <ListItemText primary={text} />
   </ListItem>
 ))
@@ -90,18 +100,29 @@ const DrawerContents = ({ hostIdentity, printers, classes }) => (
     <List>
       <DrawerLink
         text="Print Queue"
+        icon={<Inbox />}
         href={`/${hostIdentity.id}/`}
         classes={classes}
       />
-      <ListSubheader>3D Printers</ListSubheader>
       {
         printers.map(printer => (
-          <DrawerLink
+          <div
             key={printer.id}
-            text={printer.name}
-            href={`/${hostIdentity.id}/${printer.id}/manual-control`}
-            classes={classes}
-          />
+          >
+            <ListSubheader>{printer.name}</ListSubheader>
+            <DrawerLink
+              text="Manual Control"
+              icon={<OpenWith />}
+              href={`/${hostIdentity.id}/${printer.id}/manual-control`}
+              classes={classes}
+            />
+            <DrawerLink
+              text="Config"
+              icon={<Settings />}
+              href={`/${hostIdentity.id}/${printer.id}/config`}
+              classes={classes}
+            />
+          </div>
         ))
       }
     </List>
