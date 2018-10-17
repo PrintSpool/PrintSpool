@@ -101,7 +101,7 @@ const DrawerContents = ({ hostIdentity, printers, classes }) => (
           <DrawerLink
             key={printer.id}
             text={printer.name}
-            href={`/${hostIdentity.id}${printer.id}/manual-control`}
+            href={`/${hostIdentity.id}/${printer.id}/manual-control`}
             classes={classes}
           />
         ))

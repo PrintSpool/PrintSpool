@@ -8,6 +8,7 @@ import gql from 'graphql-tag'
 import connectionFrame from '../frame/connectionFrame'
 import Header from '../frame/components/Header'
 import JobList from './components/JobList'
+import { DrawerFragment } from '../frame/components/Drawer'
 
 import PrinterStatusGraphQL from '../shared/PrinterStatus.graphql'
 
@@ -16,6 +17,8 @@ const JOBS_SUBSCRIPTION = gql`
     live {
       patch { op, path, from, value }
       query {
+        ...DrawerFragment
+
         printers {
           ...PrinterStatus
         }
@@ -48,6 +51,7 @@ const JOBS_SUBSCRIPTION = gql`
 
   # fragments
   ${PrinterStatusGraphQL}
+  ${DrawerFragment}
 `
 
 const enhance = compose(

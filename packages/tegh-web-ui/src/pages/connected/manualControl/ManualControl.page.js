@@ -18,6 +18,7 @@ import Home from './components/home/Home'
 import XYJogButtons from './components/jog/XYJogButtons'
 import ZJogButtons from './components/jog/ZJogButtons'
 import HeaterControl from './components/heaters/HeaterControl'
+import { TemperatureFragment } from './components/heaters/TemperatureSection'
 
 const MANUAL_CONTROL_SUBSCRIPTION = gql`
   subscription($printerID: ID!) {
@@ -25,8 +26,11 @@ const MANUAL_CONTROL_SUBSCRIPTION = gql`
       patch { op, path, from, value }
       query {
         ...DrawerFragment
-        printer(id: $printerID) {
+        singularPrinter: printers(id: $printerID) {
           ...PrinterStatus
+          heaters {
+            ...TemperatureFragment
+          }
         }
       }
     }
@@ -34,6 +38,7 @@ const MANUAL_CONTROL_SUBSCRIPTION = gql`
 
   # fragments
   ${PrinterStatusGraphQL}
+  ${TemperatureFragment}
   ${DrawerFragment}
 `
 
@@ -45,12 +50,13 @@ const enhance = compose(
     },
   })),
   connectionFrame,
-  withProps(({ printer }) => ({
-    isReady: printer.status === 'READY',
+  withProps(({ singularPrinter }) => ({
+    printer: singularPrinter[0],
+    isReady: singularPrinter[0].status === 'READY',
   })),
 )
 
-const ManualControl = ({ printer: { status }, printer, isReady }) => (
+const ManualControl = ({ printer, isReady }) => (
   <div>
     <Header printer={printer} />
     <main>
@@ -64,7 +70,7 @@ const ManualControl = ({ printer: { status }, printer, isReady }) => (
             <Typography variant="display1" style={{ color: '#fff' }}>
               manual controls disabled while
               {' '}
-              {status.toLowerCase()}
+              {printer.status.toLowerCase()}
             </Typography>
           )}
           style={{
