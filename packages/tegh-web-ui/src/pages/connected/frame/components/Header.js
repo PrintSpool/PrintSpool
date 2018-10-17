@@ -15,9 +15,9 @@ const styles = theme => ({
   },
   appBar: {
     position: 'absolute',
-    marginLeft: drawerWidth,
+    marginLeft: 0,
     [theme.breakpoints.up('md')]: {
-      width: `calc(100% - ${drawerWidth}px)`,
+      width: `calc(100vw - ${drawerWidth}px - 14px)`,
     },
   },
   flex: {

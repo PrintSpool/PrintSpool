@@ -8,6 +8,8 @@ import { createHashHistory } from 'history'
 import { routerReducer, routerMiddleware } from '@d1plo1d/connected-react-router'
 
 import keysReducer from './reducers/keysReducer'
+import webRTCReducer from './reducers/webRTCReducer'
+
 import loadKeys from './actions/loadKeys'
 
 export const history = createHashHistory()
@@ -20,6 +22,7 @@ const createTeghReduxStore = () => {
     form: formReducer,
     router: routerReducer(history),
     keys: keysReducer,
+    webRTC: webRTCReducer,
   })
 
   const enhancer = composeEnhancers(

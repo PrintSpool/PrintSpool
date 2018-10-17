@@ -4,14 +4,19 @@ import {
   branch,
   renderComponent,
 } from 'recompose'
-import { withStyles } from '@material-ui/core'
+import {
+  Typography,
+  withStyles,
+} from '@material-ui/core'
 import { connect } from 'react-redux'
+import Loader from 'react-loader-advanced'
 
 import { LiveSubscription } from 'apollo-react-live-subscriptions'
 
 import TeghApolloProvider from './higherOrderComponents/TeghApolloProvider'
 
 import Drawer from './components/Drawer'
+import ConnectingPage from './Connecting.page'
 
 import setWebRTCPeerActionCreator from '../../../actions/setWebRTCPeer'
 
@@ -38,6 +43,7 @@ const enhance = compose(
       return {
         myIdentity,
         hostIdentity: hostIdentities.get(hostID),
+        connected: state.webRTC.peer != null,
       }
     },
     {
@@ -65,11 +71,19 @@ const connectionFrame = PageComponent => ({
   variables,
   subscription,
   setWebRTCPeer,
+  connected,
 }) => (
   <TeghApolloProvider
     myIdentity={myIdentity}
     hostIdentity={hostIdentity}
-    onWebRTCConnect={setWebRTCPeer}
+    onWebRTCConnect={(webRTCPeer) => {
+      // set the web RTC after the data is done loading so that the
+      // ConnectingPage doesn't flicker to the loading message at the last
+      // second.
+      // TODO: migrate to Apollo's redux cache and set isConnecting based
+      // on when Apollo actually loads the data
+      setTimeout((() => setWebRTCPeer(webRTCPeer)), 50)
+    }}
   >
     <LiveSubscription
       variables={variables}
@@ -85,25 +99,45 @@ const connectionFrame = PageComponent => ({
             )
           }
 
-          if (loading) {
-            return (
-              <div>
-                Loading...
-              </div>
-            )
-          }
+          if (!connected) return <ConnectingPage />
+
+          // TODO: load printers from Apollo redux cache during page loads
+          const printers = (data||{}).printers || []
 
           return (
             <div className={classes.appFrame}>
               <Drawer
                 hostIdentity={hostIdentity}
-                printers={data.printers}
+                printers={printers}
               />
-              <div className={classes.flex}>
-                <PageComponent
-                  {...data}
-                />
-              </div>
+              <Loader
+                show={loading}
+                message={(
+                  <Typography variant="h4" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
+                    Loading...
+                  </Typography>
+                )}
+                style={{
+                  flex: 1,
+                }}
+                backgroundStyle={{
+                  backgroundColor: 'inherit',
+                }}
+                contentStyle={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <div className={classes.flex}>
+                  {
+                    !loading && (
+                      <PageComponent
+                        {...data}
+                      />
+                    )
+                  }
+                </div>
+              </Loader>
             </div>
           )
         }
