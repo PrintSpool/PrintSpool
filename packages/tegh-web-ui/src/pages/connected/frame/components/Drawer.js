@@ -7,6 +7,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  ListSubheader,
   Typography,
 } from '@material-ui/core'
 import { Link } from 'react-router-dom'
@@ -68,19 +69,18 @@ const styles = theme => ({
 const DrawerLink = withRouter(({
   classes, text, href, location,
 }) => (
-  <Link to={href}>
-    <ListItem
-      button
-      className={location.pathname === href ? classes.activeLink : null}
-    >
-      {/*
-        <ListItemIcon>
-          <InboxIcon />
-        </ListItemIcon>
-      */}
-      <ListItemText primary={text} />
-    </ListItem>
-  </Link>
+  <ListItem
+    button
+    component={props => <Link to={href} {...props} />}
+    className={location.pathname === href ? classes.activeLink : null}
+  >
+    {/*
+      <ListItemIcon>
+        <InboxIcon />
+      </ListItemIcon>
+    */}
+    <ListItemText primary={text} />
+  </ListItem>
 ))
 
 const DrawerContents = ({ hostIdentity, printers, classes }) => (
@@ -93,9 +93,7 @@ const DrawerContents = ({ hostIdentity, printers, classes }) => (
         href={`/${hostIdentity.id}/`}
         classes={classes}
       />
-      <Typography variant="h6" color="inherit">
-        Manual control
-      </Typography>
+      <ListSubheader>3D Printers</ListSubheader>
       {
         printers.map(printer => (
           <DrawerLink
