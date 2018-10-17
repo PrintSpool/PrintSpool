@@ -1,3 +1,4 @@
+import { spawn } from 'child_process'
 import chalk from 'chalk'
 import rimraf from 'rimraf'
 import path from 'path'
@@ -92,6 +93,27 @@ const webpackDevServerTask = () => {
   })
 }
 
+const start = pkg => () => {
+  const proc = spawn(
+    'yarn',
+    ['start'],
+    { cwd: path.resolve(__dirname, `packages/${pkg}`) },
+  )
+  proc.stdout.on('data', (data) => {
+    // eslint-disable-next-line no-console
+    console.log(`${pkg}: ${data}`)
+  })
+
+  proc.stderr.on('data', (data) => {
+    // eslint-disable-next-line no-console
+    console.error(`${pkg}: ${data}`)
+  })
+
+  proc.on('close', (code) => {
+    process.exit(code)
+  })
+}
+
 gulp.task('clean', clean)
 
 gulp.task('build', gulp.series('clean', build))
@@ -100,13 +122,32 @@ gulp.task('watch', gulp.series('build', watch))
 
 gulp.task('webpack-dev-server', webpackDevServerTask)
 
+gulp.task('start-signalling-server', start('tegh-signalling-server'))
+
+gulp.task('start-host', start('tegh-serial-integration-test'))
+
+gulp.task(
+  'start-servers',
+  gulp.series(
+    'clean',
+    'build',
+    gulp.parallel(
+      // watch,
+      'start-signalling-server',
+      'start-host',
+    ),
+  ),
+)
+
 gulp.task(
   'start',
   gulp.series(
     'clean',
     'build',
     gulp.parallel(
-      watch,
+      // watch,
+      'start-signalling-server',
+      'start-host',
       webpackDevServerTask,
     ),
   ),

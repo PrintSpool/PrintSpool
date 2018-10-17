@@ -7,8 +7,7 @@
   "private": true,
   "scripts": {
     "trace-gc": "npx node-dev index.js --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
-    "dev": "npx node-dev index.js --trace-warnings",
-    "start": "NODE_ENV=production node index.js --trace-warnings"
+    "start": "npx node-dev index.js --trace-warnings"
   },
   "devDependencies": {
     "node-dev": "d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350"

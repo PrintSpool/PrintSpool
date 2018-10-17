@@ -4,7 +4,7 @@
   "main": "src/index.js",
   "license": "AGPL-3.0-or-later",
   "scripts": {
-    "dev": "node ./src/index.js"
+    "start": "node ./src/index.js"
   },
   "dependencies": {
     "express": "^4.16.3",
