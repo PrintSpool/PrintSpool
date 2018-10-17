@@ -1,5 +1,4 @@
 import React from 'react'
-import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
 import { compose, withProps } from 'recompose'
 import {
@@ -9,14 +8,6 @@ import {
 } from '@material-ui/core'
 
 import withSpoolMacro from '../../../shared/higherOrderComponents/withSpoolMacro'
-
-export const TemperatureFragment = `
-  fragment TemperatureFragment on Heater {
-    id
-    currentTemperature
-    targetTemperature
-  }
-`
 
 const enhance = compose(
   withSpoolMacro,
@@ -31,17 +22,15 @@ const targetText = (targetTemperature) => {
 }
 
 const TemperatureSection = ({
-  id,
-  currentTemperature,
-  targetTemperature,
+  heater: {
+    id,
+    currentTemperature,
+    targetTemperature,
+  },
   isHeating,
-  loading,
-  error,
   spoolMacro,
   disabled,
 }) => {
-  if (loading) return <div>Loading</div>
-  if (error) return <div>Error</div>
   const toggleEnabled = (event, val) => {
     spoolMacro({
       macro: 'toggleHeater',

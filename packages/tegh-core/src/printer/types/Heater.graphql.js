@@ -4,12 +4,28 @@ import {
   GraphQLObjectType,
 } from 'graphql'
 
+import getHeaterConfigs from '../../config/selectors/getHeaterConfigs'
+
 const HeaterType = new GraphQLObjectType({
   name: 'Heater',
   description: 'A heated bed or extruder',
   fields: () => ({
     id: {
       type: tql`ID!`,
+    },
+    name: {
+      type: tql`String!`,
+      resolve: (source, args, { store }) => {
+        const state = store.getState()
+        return getHeaterConfigs(state.config).get(source.id).name
+      },
+    },
+    type: {
+      type: tql`String!`,
+      resolve: (source, args, { store }) => {
+        const state = store.getState()
+        return getHeaterConfigs(state.config).get(source.id).type
+      },
     },
     targetTemperature: {
       type: tql`Float`,

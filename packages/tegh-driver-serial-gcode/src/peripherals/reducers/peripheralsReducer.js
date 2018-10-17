@@ -32,18 +32,14 @@ export const Fan = Record({
   speed: 0,
 })
 
-const initializeCollection = (arrayOfConfigs, initialValueFn) => (
-  arrayOfConfigs.reduce(
-    (map, { id }) => map.set(id, initialValueFn(id)),
-    Map(),
-  )
+const initializeCollection = (peripheralConfigs, initialValueFn) => (
+  peripheralConfigs.map(({ id }) => initialValueFn(id))
 )
 
 const peripheralsReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
       const { config } = action.payload
-
       return initialState.merge({
         heaters: initializeCollection(getHeaterConfigs(config), id => (
           Heater({ id })

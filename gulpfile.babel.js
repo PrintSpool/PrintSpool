@@ -145,7 +145,7 @@ gulp.task(
     'clean',
     'build',
     gulp.parallel(
-      // watch,
+      watch,
       'start-signalling-server',
       'start-host',
       webpackDevServerTask,

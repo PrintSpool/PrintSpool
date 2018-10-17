@@ -1,4 +1,5 @@
 import React from 'react'
+import gql from 'graphql-tag'
 import {
   Card,
   CardContent,
@@ -9,10 +10,17 @@ import {
 import TemperatureSection from './TemperatureSection'
 import ExtruderButtons from './ExtruderButtons'
 
+export const HeaterControlFragment = gql`
+  fragment HeaterControlFragment on Heater {
+    id
+    name
+    type
+    currentTemperature
+    targetTemperature
+  }
+`
 const HeaterControl = ({
-  id,
-  name,
-  isExtruder,
+  heater,
   disabled,
 }) => (
   <Card>
@@ -23,21 +31,20 @@ const HeaterControl = ({
       >
         <Grid item xs={6}>
           <Typography variant="subtitle1">
-            {name}
+            {heater.name}
           </Typography>
           <TemperatureSection
-            id={id}
-            name={name}
+            heater={heater}
             disabled={disabled}
           />
         </Grid>
         <Grid item xs={6}>
           {
-            isExtruder
+            heater.type === 'EXTRUDER'
             && (
             <ExtruderButtons
-              id={id}
-              form={`extruder[${id}]`}
+              id={heater.id}
+              form={`extruder[${heater.id}]`}
               disabled={disabled}
             />
             )

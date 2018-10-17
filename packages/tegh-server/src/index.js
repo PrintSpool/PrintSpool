@@ -51,7 +51,6 @@ const teghDaemon = async (argv, pluginLoader) => {
   })
 
   store.dispatch(action)
-
   // setErrorHandlerStore(store)
 
   // TODO: make server plugin config dynamic and based on the store.

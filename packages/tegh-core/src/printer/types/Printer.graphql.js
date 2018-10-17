@@ -30,7 +30,7 @@ const PrinterGraphQL = new GraphQLObjectType({
     heaters: {
       type: tql`[${HeaterType}!]!`,
       resolve(source) {
-        return Object.values(getDriverState(source).peripherals.heaters)
+        return getDriverState(source).peripherals.heaters.values()
       },
     },
     targetTemperaturesCountdown: {
@@ -55,7 +55,7 @@ const PrinterGraphQL = new GraphQLObjectType({
     fans: {
       type: tql`[${FanType}!]!`,
       resolve(source) {
-        return Object.values(getDriverState(source).peripherals.fans)
+        return getDriverState(source).peripherals.fans.values()
       },
     },
     status: {

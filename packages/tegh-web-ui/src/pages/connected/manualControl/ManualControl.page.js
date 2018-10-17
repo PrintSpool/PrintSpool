@@ -17,8 +17,7 @@ import Header from '../frame/components/Header'
 import Home from './components/home/Home'
 import XYJogButtons from './components/jog/XYJogButtons'
 import ZJogButtons from './components/jog/ZJogButtons'
-import HeaterControl from './components/heaters/HeaterControl'
-import { TemperatureFragment } from './components/heaters/TemperatureSection'
+import HeaterControl, { HeaterControlFragment } from './components/heaters/HeaterControl'
 
 const MANUAL_CONTROL_SUBSCRIPTION = gql`
   subscription($printerID: ID!) {
@@ -29,7 +28,7 @@ const MANUAL_CONTROL_SUBSCRIPTION = gql`
         singularPrinter: printers(id: $printerID) {
           ...PrinterStatus
           heaters {
-            ...TemperatureFragment
+            ...HeaterControlFragment
           }
         }
       }
@@ -38,7 +37,7 @@ const MANUAL_CONTROL_SUBSCRIPTION = gql`
 
   # fragments
   ${PrinterStatusGraphQL}
-  ${TemperatureFragment}
+  ${HeaterControlFragment}
   ${DrawerFragment}
 `
 
@@ -95,22 +94,16 @@ const ManualControl = ({ printer, isReady }) => (
             <ZJogButtons form="zJog" />
           </Grid>
         </Loader>
-        <Grid item xs={12}>
-          <HeaterControl
-            id="e0"
-            isExtruder
-            name="Extruder 1"
-            disabled={!isReady}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <HeaterControl
-            id="b"
-            isExtruder={false}
-            name="Bed"
-            disabled={!isReady}
-          />
-        </Grid>
+        {
+          printer.heaters.map(heater => (
+            <Grid item xs={12} key={heater.id}>
+              <HeaterControl
+                heater={heater}
+                disabled={!isReady}
+              />
+            </Grid>
+          ))
+        }
       </Grid>
     </main>
   </div>

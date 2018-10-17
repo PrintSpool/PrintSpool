@@ -33,7 +33,7 @@ const peripheralTypes = {
 
 const config = createTestConfig().setIn(
   ['machine', 'peripherals'],
-  Object.entries(peripheralTypes).map(([id, type]) => (
+  Map(peripheralTypes).map((type, id) => (
     Record({ id, type })()
   )),
 )
