@@ -105,7 +105,7 @@ const serialReducer = (state = initialState, action) => {
         Cmd.run(serialPortConnection, {
           args: [
             serialPortOptions,
-            Cmd.dispatch
+            Cmd.dispatch,
           ],
           successActionCreator: serialPortCreated,
         }),

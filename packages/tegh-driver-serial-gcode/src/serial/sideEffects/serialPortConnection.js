@@ -12,7 +12,7 @@ const serialPortConnection = ({
   simulator,
 }, dispatch) => {
   const serialOptions = {
-    // autoOpen: false,
+    autoOpen: false,
     baudRate,
   }
 
@@ -55,6 +55,8 @@ const serialPortConnection = ({
   parser
     .on('error', onError)
     .on('data', onData)
+
+  serialPort.open()
 
   return { serialPort, parser }
 }

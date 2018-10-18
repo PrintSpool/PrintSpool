@@ -1,9 +1,9 @@
 import { Map } from 'immutable'
 
-const loadPlugins = async ({
-  pluginLoader,
-  config,
-}) => {
+const loadPlugins = async (params) => {
+  const { pluginLoader } = params
+  let { config } = params
+
   if (pluginLoader == null) {
     throw new Error('pluginLoaderPath must be defined')
   }
@@ -14,6 +14,13 @@ const loadPlugins = async ({
     config.plugins.map(async (pluginConfig) => {
       // eslint-disable-next-line no-await-in-loop
       const plugin = await pluginLoader(pluginConfig.package)
+      // Load the plugin's configuration into it's Settings type
+      const settings = plugin.Settings(pluginConfig.settings)
+      config = config.setIn(
+        ['plugins', pluginConfig.package, 'settings'],
+        settings,
+      )
+
       // eslint-disable-next-line no-await-in-loop
       plugins = plugins.set(pluginConfig.package, plugin)
     }),

@@ -84,10 +84,11 @@ const DrawerLink = withRouter(({
     className={location.pathname === href ? classes.activeLink : null}
   >
     {
-      icon &&
-      <ListItemIcon>
-        {icon}
-      </ListItemIcon>
+      icon && (
+        <ListItemIcon>
+          {icon}
+        </ListItemIcon>
+      )
     }
     <ListItemText primary={text} />
   </ListItem>

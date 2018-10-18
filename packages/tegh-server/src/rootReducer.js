@@ -10,11 +10,13 @@ import {
 // import { SET_CONFIG } from './core/config/actions/setConfig'
 // import getAllReducers from './core/pluginManager/selectors/getAllReducers'
 
-const createStateRecord = (reducers, previousState = Map()) => (
+const createStateRecord = (reducers, previousState = Record({})()) => (
   Record({
     reducers,
     ...reducers.map(() => undefined).toObject(),
-  })(previousState.toObject())
+  })(
+    Map(previousState).remove('reducers').toObject(),
+  )
 )
 
 const initialState = createStateRecord(Map(coreReducers))

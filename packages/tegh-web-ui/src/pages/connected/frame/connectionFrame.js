@@ -5,7 +5,6 @@ import {
   renderComponent,
 } from 'recompose'
 import {
-  Typography,
   withStyles,
 } from '@material-ui/core'
 import { connect } from 'react-redux'
@@ -102,7 +101,7 @@ const connectionFrame = PageComponent => ({
           if (!connected) return <ConnectingPage />
 
           // TODO: load printers from Apollo redux cache during page loads
-          const printers = (data||{}).printers || []
+          const printers = (data || {}).printers || []
 
           return (
             <div className={classes.appFrame}>

@@ -1,5 +1,5 @@
 import t from 'tcomb-validation'
-import { Record, List, Map } from 'immutable'
+import { Record, List } from 'immutable'
 import { MockConfig } from 'tegh-core'
 
 import packageJSON from '../../../package.json'
@@ -60,7 +60,7 @@ export const createTestConfig = props => MockConfig({
 const Settings = (props) => {
   const settings = SettingsRecord(props)
 
-  const validation = t.validate(SettingsStruct, settings)
+  const validation = t.validate(settings.toJS(), SettingsStruct)
 
   if (!validation.isValid()) {
     throw new Error(validation.firstError().message)
