@@ -1,4 +1,4 @@
-import { List } from 'immutable'
+import { List, Record } from 'immutable'
 import Promise from 'bluebird'
 import { Cmd } from 'redux-loop'
 
@@ -21,11 +21,11 @@ const maxTickleAttempts = 5
 
 const config = createTestConfig({
   longRunningCodes: ['G28'],
-  serialTimeout: {
+  serialTimeout: Record({
     fastCodeTimeout,
     longRunningCodeTimeout,
     tickleAttempts: maxTickleAttempts,
-  },
+  })(),
 })
 
 const configuredState = initialState.mergeIn(['config'], {

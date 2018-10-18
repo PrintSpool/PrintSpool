@@ -51,7 +51,14 @@ const liveGraphQL = () => ({
         'totalPrints',
         'isDone',
       ],
-      Printer: ['macroDefinitions'],
+      Printer: [
+        'macroDefinitions',
+        'fans',
+        'heaters',
+      ],
+      Heater: [
+        'currentTemperature',
+      ]
       Task: ['printer'],
     },
   }),

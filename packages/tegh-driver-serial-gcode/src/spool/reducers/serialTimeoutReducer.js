@@ -41,7 +41,7 @@ const serialTimeoutReducer = (state = initialState, action) => {
       const longRunningCodes = getLongRunningCodes(config)
 
       return state.mergeIn(['config'], {
-        ...getSerialTimeout(config),
+        ...getSerialTimeout(config).toJS(),
         longRunningCodes,
       })
     }

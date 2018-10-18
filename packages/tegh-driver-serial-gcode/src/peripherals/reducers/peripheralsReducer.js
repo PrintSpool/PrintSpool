@@ -40,6 +40,7 @@ const peripheralsReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
       const { config } = action.payload
+
       return initialState.merge({
         heaters: initializeCollection(getHeaterConfigs(config), id => (
           Heater({ id })

@@ -57,6 +57,7 @@ const TeghClient = ({ keys, peerPublicKey, onWebRTCConnect = () => {} }) => {
       })
 
       rtcPeer.on('data', (data) => {
+        console.log(data.toString())
         teghSocket.onmessage({ data })
       })
 

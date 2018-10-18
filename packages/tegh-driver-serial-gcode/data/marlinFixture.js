@@ -28,18 +28,18 @@ export const greeting = [
 ]
 
 export const responses = {
-  g1: [
+  g1: () => [
     'ok',
   ],
-  m105: [
-    'ok T:25.3 /0.0 B:25.8 /0.0 B@:0 @:0',
+  m105: () => [
+    `ok T:${25.3 + Math.random()} /0.0 B:${25.8 + Math.random()} /0.0 B@:0 @:0`,
   ],
-  g28: [
+  g28: () => [
     'X:0.00 Y:191.00 Z:159.00 E:0.00 Count X: 0 Y:19196 Z:254400',
     'ok',
   ],
-  m112: [
-    'Error:Printer halted. kill() called!'
+  m112: () => [
+    'Error:Printer halted. kill() called!',
   ],
 }
 

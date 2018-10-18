@@ -25,9 +25,9 @@ const simulator = () => {
       return words[1].toLowerCase().replace(/\*.*|\n/g, '')
     })()
     if (responses[code] == null) {
-      sendLines(responses.g1)
+      sendLines(responses.g1())
     } else {
-      sendLines(responses[code])
+      sendLines(responses[code]())
     }
     cb()
   }
