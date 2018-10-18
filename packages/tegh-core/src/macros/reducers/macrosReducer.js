@@ -15,6 +15,7 @@ const macrosReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
       const nextState = getMacroRunFnsByName(action.payload)
+        .set('config', action.payload.config)
 
       return nextState
     }
@@ -37,7 +38,7 @@ const macrosReducer = (state = initialState, action) => {
           name: macro,
           internal,
           priority: priority || macroRunFn.priority || NORMAL,
-          data: macroRunFn(args),
+          data: macroRunFn(args, { config: state.get('config') }),
         }),
       ))
     }

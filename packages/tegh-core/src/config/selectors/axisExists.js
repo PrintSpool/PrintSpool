@@ -11,8 +11,8 @@ const axisExists = createSelector(
     }
 
     if (allowTypes.includes(EXTRUDER_AXIS)) {
-      const peripheral = config.machine.peripherals.get(k)
-      return peripheral != null && peripheral.get(k).type === EXTRUDER
+      const peripheralType = config.getIn(['machine', 'peripherals', k, 'type'])
+      return peripheralType === EXTRUDER
     }
   },
 )

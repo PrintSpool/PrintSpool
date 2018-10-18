@@ -1,12 +1,12 @@
 import move from '../util/move'
 
-const moveBy = (args, state) => {
+const moveBy = (args, { config }) => {
   const moveArgs = {
     axes: args,
     allowExtruderAxes: true,
     relativeMovement: true,
   }
-  return move(moveArgs, state)
+  return move(moveArgs, { config })
 }
 
 export default moveBy

@@ -4,7 +4,7 @@ import { EXTRUDER } from '../types/PeripheralTypeEnum'
 const isExtruder = createSelector(
   config => config,
   config => k => (
-    config.machine.peripherals.get(k).type === EXTRUDER
+    config.machine.peripherals.get(k, {}).type === EXTRUDER
   ),
 )
 

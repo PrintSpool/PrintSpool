@@ -25,20 +25,20 @@ const enhance = compose(
   formValues('distance'),
 )
 
-const ZJogButtons = ({ jog, distance }) => (
+const ZJogButtons = ({ printer, jog, distance }) => (
   <Card>
     <CardContent>
       <Grid
         container
         spacing={24}
       >
-        <JogButton xs={12} onClick={jog('z', '+', distance)}>
+        <JogButton xs={12} onClick={jog(printer.id, 'z', '+', distance)}>
           <ArrowUpward />
         </JogButton>
         <JogButton xs={12} disabled>
           Z
         </JogButton>
-        <JogButton xs={12} onClick={jog('z', '-', distance)}>
+        <JogButton xs={12} onClick={jog(printer.id, 'z', '-', distance)}>
           <ArrowDownward />
         </JogButton>
         <Field

@@ -85,19 +85,20 @@ const ManualControl = ({ printer, isReady }) => (
           }}
         >
           <Grid item xs={12}>
-            <Home />
+            <Home printer={printer} />
           </Grid>
           <Grid item xs={12} sm={8}>
-            <XYJogButtons form="xyJog" />
+            <XYJogButtons printer={printer} form="xyJog" />
           </Grid>
           <Grid item xs={12} sm={4}>
-            <ZJogButtons form="zJog" />
+            <ZJogButtons printer={printer} form="zJog" />
           </Grid>
         </Loader>
         {
           printer.heaters.map(heater => (
             <Grid item xs={12} key={heater.id}>
               <HeaterControl
+                printer={printer}
                 heater={heater}
                 disabled={!isReady}
               />

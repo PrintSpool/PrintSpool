@@ -20,6 +20,7 @@ const enhance = compose(
 )
 
 const ExtruderButtons = ({
+  printer,
   id,
   distance,
   jog,
@@ -40,7 +41,7 @@ const ExtruderButtons = ({
         <Button
           variant="contained"
           disabled={disabled}
-          onClick={jog(id, '-', distance)}
+          onClick={jog(printer.id, id, '-', distance)}
         >
           Retract
         </Button>
@@ -49,7 +50,7 @@ const ExtruderButtons = ({
           variant="contained"
           color="primary"
           disabled={disabled}
-          onClick={jog(id, '+', distance)}
+          onClick={jog(printer.id, id, '+', distance)}
         >
           Extrude
         </Button>

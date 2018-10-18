@@ -20,6 +20,7 @@ export const HeaterControlFragment = gql`
   }
 `
 const HeaterControl = ({
+  printer,
   heater,
   disabled,
 }) => (
@@ -43,6 +44,7 @@ const HeaterControl = ({
             heater.type === 'EXTRUDER'
             && (
             <ExtruderButtons
+              printer={printer}
               id={heater.id}
               form={`extruder[${heater.id}]`}
               disabled={disabled}

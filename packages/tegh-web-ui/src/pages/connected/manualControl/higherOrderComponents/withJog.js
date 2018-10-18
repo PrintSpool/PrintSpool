@@ -1,7 +1,12 @@
 import React from 'react'
 import withSpoolMacro from '../../shared/higherOrderComponents/withSpoolMacro'
 
-const jog = ({ spoolMacro }) => (axis, direction, distance) => () => {
+const jog = ({ spoolMacro }) => (
+  printerID,
+  axis,
+  direction,
+  distance,
+) => () => {
   const multiplier = (() => {
     switch (direction) {
       case '+': return 1
@@ -9,7 +14,11 @@ const jog = ({ spoolMacro }) => (axis, direction, distance) => () => {
       default: throw new Error(`invalid direction ${direction}`)
     }
   })()
-  spoolMacro({ macro: 'moveBy', args: { [axis]: distance * multiplier } })
+  spoolMacro({
+    printerID,
+    macro: 'moveBy',
+    args: { [axis]: distance * multiplier },
+  })
 }
 
 const withJog = (Component) => {

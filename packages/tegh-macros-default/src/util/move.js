@@ -3,6 +3,7 @@ import {
   axisExists,
   getFeedrate,
   AxisTypeEnum,
+  isExtruder,
 } from 'tegh-core'
 
 const { MOVEMENT_AXIS, EXTRUDER_AXIS } = AxisTypeEnum
@@ -24,7 +25,7 @@ const move = ({ axes, relativeMovement, allowExtruderAxes }, { config }) => {
     }
 
     // if (!validAxes.includes(id)) throw new Error(`Axis ${id} does not exist`)
-    if(typeof(v) !== 'number') throw new Error(`${id}: ${v} is not a number`)
+    if (typeof v !== 'number') throw new Error(`${id}: ${v} is not a number`)
 
     // const feedrate = config.feedrates[id]
     // if (feedrate == null) {
@@ -36,6 +37,7 @@ const move = ({ axes, relativeMovement, allowExtruderAxes }, { config }) => {
 
     feedrates.push(getFeedrate(config)(id))
   })
+  console.log(gcodeWords)
   return [
     relativeMovement ? 'G91' : 'G90',
     `G1 F${_.min(feedrates) * 60}`,

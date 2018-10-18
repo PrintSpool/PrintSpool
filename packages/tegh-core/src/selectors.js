@@ -3,10 +3,11 @@ export axisExists from './config/selectors/axisExists'
 export getDriverConfig from './config/selectors/getDriverConfig'
 export getFanConfigs from './config/selectors/getFanConfigs'
 export getHeaterConfigs from './config/selectors/getHeaterConfigs'
+export getFeedrate from './config/selectors/getFeedrate'
 // export getMacroDefinitions from './config/selectors/getMacroDefinitions'
 // export getMaterial from './config/selectors/getMaterial'
-// export isExtruder from './config/selectors/isExtruder'
-// export isHeatedBed from './config/selectors/isHeatedBed'
+export isExtruder from './config/selectors/isExtruder'
+export isHeatedBed from './config/selectors/isHeatedBed'
 // export runMacro from './config/selectors/runMacro'
 
 // // ./jobQueue/selectors:
