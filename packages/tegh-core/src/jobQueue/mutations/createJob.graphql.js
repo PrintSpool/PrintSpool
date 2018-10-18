@@ -9,14 +9,18 @@ import createJob from '../actions/createJob'
 import JobGraphQL from '../types/Job.graphql'
 
 const createJobGraphQL = () => ({
-  type: tql`${JobGraphQL}!`,
+  // type: tql`${JobGraphQL}!`,
+  type: tql`Boolean`,
   description: snl`
      create a Job from the content and fileName of a file upload.
   `,
 
   resolve: actionResolver({
+    requirePrinterID: false,
     actionCreator: createJob,
-    selector: (state, action) => state.jobQueue.jobs.get(action.payload.job.id),
+    // TODO: returning the job will not work until thunks are removed from Tegh
+    // selector: (state, action) => state.jobQueue.jobs.get(action.payload.job.id),
+    selector: () => null,
   }),
 
   args: {
@@ -24,9 +28,6 @@ const createJobGraphQL = () => ({
       type: new GraphQLInputObjectType({
         name: 'CreateJobInput',
         fields: {
-          printerID: {
-            type: tql`ID!`,
-          },
           name: {
             type: tql`String!`,
           },

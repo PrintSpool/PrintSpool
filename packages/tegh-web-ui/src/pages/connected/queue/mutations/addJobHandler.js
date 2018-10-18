@@ -5,17 +5,14 @@ import gql from 'graphql-tag'
 
 const createJobGraphQL = gql`
   mutation createJob($input: CreateJobInput!) {
-    createJob(input: $input) {
-      id
-    }
+    createJob(input: $input)
   }
 `
 
 const addJobHandler = graphql(createJobGraphQL, {
-  props: ({ mutate, ownProps }) => ({
+  props: ({ mutate }) => ({
     addJob: async (value) => {
       const mutationInput = {
-        printerID: ownProps.printerID,
         name: value.map(f => f.name).join(', '),
         files: [],
       }

@@ -32,6 +32,11 @@ const JOBS_SUBSCRIPTION = gql`
             totalPrints
             stoppedAt
 
+            files {
+              id
+              printsQueued
+            }
+
             tasks {
               id
               name

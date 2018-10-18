@@ -12,13 +12,14 @@ const spoolJobFileGraphQL = gql`
 
 const spoolNextPrintHandler = graphql(spoolJobFileGraphQL, {
   props: ({ mutate, ownProps }) => {
+    console.log(ownProps.jobs[0])
     if (ownProps.loading || ownProps.error) return {}
 
     const jobFiles = List(ownProps.jobs)
       .map(job => job.files)
       .flatten()
 
-    const nextJobFile = jobFiles.find(jobFile => jobFile.status === 'QUEUED')
+    const nextJobFile = jobFiles.find(jobFile => jobFile.hasPrintsQueued)
 
     return {
       nextJobFile,

@@ -46,6 +46,18 @@ const JobFileGraphQL = new GraphQLObjectType({
         return getTotalPrintsByJobFileID(state).get(source.id)
       },
     },
+    printsQueued: {
+      type: tql`Int!`,
+      resolve(source, args, { store }) {
+        const state = store.getState()
+
+        const total = getTotalPrintsByJobFileID(state.jobQueue).get(source.id)
+        const done = getIsDoneByJobFileID(state.jobQueue).get(source.id)
+        const tasks = getTasksByTaskableID(state).get(source.id, List())
+
+        return total - (done + tasks.length)
+      },
+    },
     isDone: {
       type: tql`Boolean!`,
       resolve(source, args, { store }) {
