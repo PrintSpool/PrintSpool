@@ -7,8 +7,7 @@ import {
 import Loader from 'react-loader-advanced'
 import gql from 'graphql-tag'
 
-import connectionFrame from '../frame/connectionFrame'
-import { DrawerFragment } from '../frame/components/Drawer'
+import withLiveData from '../shared/higherOrderComponents/withLiveData'
 
 import PrinterStatusGraphQL from '../shared/PrinterStatus.graphql'
 
@@ -24,7 +23,6 @@ const MANUAL_CONTROL_SUBSCRIPTION = gql`
     live {
       patch { op, path, from, value }
       query {
-        ...DrawerFragment
         singularPrinter: printers(id: $printerID) {
           ...PrinterStatus
           heaters {
@@ -38,7 +36,6 @@ const MANUAL_CONTROL_SUBSCRIPTION = gql`
   # fragments
   ${PrinterStatusGraphQL}
   ${HeaterControlFragment}
-  ${DrawerFragment}
 `
 
 const enhance = compose(
@@ -48,7 +45,7 @@ const enhance = compose(
       printerID: 'test_printer_id',
     },
   })),
-  connectionFrame,
+  withLiveData,
   withProps(({ singularPrinter }) => ({
     printer: singularPrinter[0],
     isReady: singularPrinter[0].status === 'READY',

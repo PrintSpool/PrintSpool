@@ -5,11 +5,10 @@ import { compose, withProps } from 'recompose'
 // } from '@material-ui/core'
 import gql from 'graphql-tag'
 
-import connectionFrame from '../frame/connectionFrame'
 import Header from '../frame/components/Header'
 import JobList from './components/JobList'
-import { DrawerFragment } from '../frame/components/Drawer'
 
+import withLiveData from '../shared/higherOrderComponents/withLiveData'
 import PrinterStatusGraphQL from '../shared/PrinterStatus.graphql'
 
 const JOBS_SUBSCRIPTION = gql`
@@ -17,8 +16,6 @@ const JOBS_SUBSCRIPTION = gql`
     live {
       patch { op, path, from, value }
       query {
-        ...DrawerFragment
-
         printers {
           ...PrinterStatus
         }
@@ -56,14 +53,13 @@ const JOBS_SUBSCRIPTION = gql`
 
   # fragments
   ${PrinterStatusGraphQL}
-  ${DrawerFragment}
 `
 
 const enhance = compose(
   withProps(() => ({
     subscription: JOBS_SUBSCRIPTION,
   })),
-  connectionFrame,
+  withLiveData,
 )
 
 const Index = ({

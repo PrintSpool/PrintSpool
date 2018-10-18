@@ -1,4 +1,5 @@
 import React from 'react'
+import gql from 'graphql-tag'
 import {
   compose,
   branch,
@@ -8,16 +9,28 @@ import {
   withStyles,
 } from '@material-ui/core'
 import { connect } from 'react-redux'
-import Loader from 'react-loader-advanced'
 
 import { LiveSubscription } from 'apollo-react-live-subscriptions'
 
 import TeghApolloProvider from './higherOrderComponents/TeghApolloProvider'
 
-import Drawer from './components/Drawer'
-import ConnectingPage from './Connecting.page'
+import Drawer, { DrawerFragment } from './components/Drawer'
 
 import setWebRTCPeerActionCreator from '../../../actions/setWebRTCPeer'
+
+const FRAME_SUBSCRIPTION = gql`
+  subscription {
+    live {
+      patch { op, path, from, value }
+      query {
+        ...DrawerFragment
+      }
+    }
+  }
+
+  # fragments
+  ${DrawerFragment}
+`
 
 const styles = () => ({
   appFrame: {
@@ -26,9 +39,6 @@ const styles = () => ({
     width: '100%',
     height: '100%',
     minHeight: '100vh',
-  },
-  flex: {
-    flex: 1,
   },
 })
 
@@ -63,14 +73,13 @@ const enhance = compose(
   ),
 )
 
-const connectionFrame = PageComponent => ({
+const ConnectionFrame = ({
   classes,
   myIdentity,
   hostIdentity,
-  variables,
-  subscription,
   setWebRTCPeer,
   connected,
+  children,
 }) => (
   <TeghApolloProvider
     myIdentity={myIdentity}
@@ -85,59 +94,34 @@ const connectionFrame = PageComponent => ({
     }}
   >
     <LiveSubscription
-      variables={variables}
-      subscription={subscription}
+      subscription={FRAME_SUBSCRIPTION}
     >
       {
-        ({ data, loading, error }) => {
-          if (error) {
-            return (
-              <div>
-                {JSON.stringify(error)}
-              </div>
-            )
-          }
-
-          if (!connected) return <ConnectingPage />
-
-          // TODO: load printers from Apollo redux cache during page loads
-          const printers = (data || {}).printers || []
-
-          return (
-            <div className={classes.appFrame}>
-              <Drawer
-                hostIdentity={hostIdentity}
-                printers={printers}
-              />
-              <Loader
-                show={loading}
-                style={{
-                  flex: 1,
-                }}
-                backgroundStyle={{
-                  backgroundColor: 'inherit',
-                }}
-                contentStyle={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                }}
-              >
-                <div className={classes.flex}>
-                  {
-                    !loading && (
-                      <PageComponent
-                        {...data}
-                      />
-                    )
-                  }
+        ({ data, loading, error }) => (
+          <div className={classes.appFrame}>
+            {
+              connected && !loading && (
+                <Drawer
+                  hostIdentity={hostIdentity}
+                  printers={data.printers}
+                />
+              )
+            }
+            {
+              error && (
+                <div>
+                  {JSON.stringify(error)}
                 </div>
-              </Loader>
-            </div>
-          )
-        }
+              )
+            }
+            {
+              !error && children
+            }
+          </div>
+        )
       }
     </LiveSubscription>
   </TeghApolloProvider>
 )
 
-export default compose(enhance, connectionFrame)
+export default enhance(ConnectionFrame)
