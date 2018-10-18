@@ -9,6 +9,7 @@ import { LOAD_KEYS } from '../actions/loadKeys'
 import keysLoaded, { KEYS_LOADED } from '../actions/keysLoaded'
 import saveKeys, { SAVE_KEYS } from '../actions/saveKeys'
 import { ADD_HOST_IDENTITY } from '../actions/addHostIdentity'
+import { SET_HOST_NAME } from '../actions/setHostName'
 
 export const initialState = Record({
   myIdentity: Record({
@@ -16,11 +17,12 @@ export const initialState = Record({
     private: null,
   })(),
   hostIdentities: Map(),
+  currentHostID: null,
 })()
 
 const HostIdentity = Record({
   id: null,
-  alias: null,
+  name: null,
   public: null,
 })
 
@@ -69,6 +71,18 @@ const keysReducer = (state = initialState, action) => {
       const host = HostIdentity(action.payload.hostIdentity)
 
       const nextState = state.setIn(['hostIdentities', host.id], host)
+
+      return loop(
+        nextState,
+        Cmd.action(saveKeys()),
+      )
+    }
+    case SET_HOST_NAME: {
+      const { id, name } = action.payload.host
+
+      if (name === state.hostIdentities.get(id).name) return state
+
+      const nextState = state.setIn(['hostIdentities', id, 'name'], name)
 
       return loop(
         nextState,

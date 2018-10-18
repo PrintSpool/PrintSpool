@@ -17,7 +17,7 @@ module.exports = {
       'node_modules',
     ],
     alias: {
-      'apollo-react-live-subscriptions': path.resolve(
+      'tegh-apollo-react-live-subscriptions': path.resolve(
         __dirname,
         'packages/tegh-web-ui/src/util/LiveSubscription',
       ),

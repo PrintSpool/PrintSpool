@@ -3,7 +3,12 @@ import { Subscription } from 'react-apollo'
 import jsonpatch from 'json-patch'
 
 // eslint-disable-next-line import/prefer-default-export
-export const LiveSubscription = ({ variables, subscription, children }) => {
+export const LiveSubscription = ({
+  variables,
+  subscription,
+  onSubscriptionData,
+  children,
+}) => {
   if (children.length !== 1) {
     throw new Error('LiveSubscription must have 1 child component')
   }
@@ -15,6 +20,7 @@ export const LiveSubscription = ({ variables, subscription, children }) => {
     <Subscription
       subscription={subscription}
       variables={variables}
+      onSubscriptionData={onSubscriptionData}
     >
       {
         ({ data, loading, error }) => {

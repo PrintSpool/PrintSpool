@@ -19,7 +19,7 @@ const theme = createMuiTheme({
   },
 })
 
-const store = createTeghReduxStore()
+export const store = createTeghReduxStore()
 
 const Index = () => (
   <MuiThemeProvider theme={theme}>
@@ -27,6 +27,7 @@ const Index = () => (
       <ReduxProvider store={store}>
         <Routes />
       </ReduxProvider>
+
     </CssBaseline>
   </MuiThemeProvider>
 )

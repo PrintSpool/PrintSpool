@@ -17,12 +17,16 @@ import TeghApolloProvider from './higherOrderComponents/TeghApolloProvider'
 import Drawer, { DrawerFragment } from './components/Drawer'
 
 import setWebRTCPeerActionCreator from '../../../actions/setWebRTCPeer'
+import setHostNameActionCreator from '../../../actions/setHostName'
 
 const FRAME_SUBSCRIPTION = gql`
-  subscription {
+  subscription ConnectionFrameSubscription {
     live {
       patch { op, path, from, value }
       query {
+        jobQueue {
+          name
+        }
         ...DrawerFragment
       }
     }
@@ -57,6 +61,7 @@ const enhance = compose(
     },
     {
       setWebRTCPeer: setWebRTCPeerActionCreator,
+      setHostName: setHostNameActionCreator,
     },
   ),
   branch(
@@ -78,6 +83,7 @@ const ConnectionFrame = ({
   myIdentity,
   hostIdentity,
   setWebRTCPeer,
+  setHostName,
   connected,
   children,
 }) => (
@@ -95,6 +101,12 @@ const ConnectionFrame = ({
   >
     <LiveSubscription
       subscription={FRAME_SUBSCRIPTION}
+      onSubscriptionData={({ subscriptionData }) => {
+        setHostName({
+          id: hostIdentity.id,
+          name: subscriptionData.data.live.query.jobQueue.name,
+        })
+      }}
     >
       {
         ({ data, loading, error }) => (

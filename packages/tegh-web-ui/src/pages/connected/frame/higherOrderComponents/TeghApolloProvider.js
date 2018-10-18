@@ -6,12 +6,15 @@ import memoize from 'fast-memoize'
 import snl from 'strip-newlines'
 import { ApolloClient } from 'apollo-client'
 import { InMemoryCache } from 'apollo-cache-inmemory'
-import { concat } from 'apollo-link'
+import { ApolloLink } from 'apollo-link'
 import { WebSocketLink } from 'apollo-link-ws'
 // import { SubscriptionClient } from 'subscriptions-transport-ws'
 import { onError } from 'apollo-link-error'
+import ReduxLink from 'apollo-link-redux'
 
 import { TeghClient } from 'tegh-protocol'
+
+import { store } from '../../../../index'
 
 const createTeghApolloClient = ({
   myIdentity,
@@ -76,10 +79,11 @@ const createTeghApolloClient = ({
   })
 
   const apolloClient = new ApolloClient({
-    link: concat(
+    link: ApolloLink.from([
+      new ReduxLink(store),
       errorLink,
       wsLink,
-    ),
+    ]),
     cache: new InMemoryCache(),
   })
 
