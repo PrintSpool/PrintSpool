@@ -46,6 +46,12 @@ const TeghClient = ({ keys, peerPublicKey, onWebRTCConnect = () => {} }) => {
         },
       )
 
+      /*
+       * close the announcement websocket once we receive an answer from the
+       * host.
+       */
+      announcementSocket.close()
+
       // establish the webRTC connection
       rtcPeer.signal(answerPayload.signal)
 
