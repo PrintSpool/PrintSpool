@@ -5,11 +5,9 @@ import { compose, withProps } from 'recompose'
 // } from '@material-ui/core'
 import gql from 'graphql-tag'
 
-import Header from '../frame/components/Header'
 import JobList from './components/JobList'
 
 import withLiveData from '../shared/higherOrderComponents/withLiveData'
-import PrinterStatusGraphQL from '../shared/PrinterStatus.graphql'
 
 const JOBS_SUBSCRIPTION = gql`
   subscription {
@@ -17,7 +15,7 @@ const JOBS_SUBSCRIPTION = gql`
       patch { op, path, from, value }
       query {
         printers {
-          ...PrinterStatus
+          status
         }
         jobQueue {
           name
@@ -50,9 +48,6 @@ const JOBS_SUBSCRIPTION = gql`
       }
     }
   }
-
-  # fragments
-  ${PrinterStatusGraphQL}
 `
 
 const enhance = compose(
@@ -70,8 +65,6 @@ const Index = ({
   },
 }) => (
   <div>
-    { /* TODO: multi-printer header or remove ESTOP/Printer Status for JobQueue page */ }
-    <Header name={name} printer={printers[0]} />
     <main>
       <JobList
         name={name}
