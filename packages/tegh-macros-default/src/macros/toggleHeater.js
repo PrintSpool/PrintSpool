@@ -1,13 +1,14 @@
 import {
   getHeaterConfigs,
-  isHeatedBed,
   getMaterial,
+  PeripheralTypeEnum
 } from 'tegh-core'
 
 import setTargetTemperature from './setTargetTemperature'
 
-const toggleHeater = (args, state) => {
-  const { config } = state
+const { EXTRUDER, HEATED_BED } = PeripheralTypeEnum
+
+const toggleHeater = (args, { config }) => {
   const heaters = getHeaterConfigs(config)
   const targetTemperatures = {}
 
@@ -30,12 +31,15 @@ const toggleHeater = (args, state) => {
         return null
       }
       case HEATED_BED: {
-        // The bed temp will not update if the active extruder is changed which
-        // may lead to unexpected behaviour for the user.
-        const activeExtruder = getActiveExtruder(state)
-        const material = getMaterial(config)(activeExtruder.materialID)
+        // set the target bed temperature to the lowest bed temperature of
+        // the materials loaded in the extruders
+        const targetBedTemperature = heaters.toList()
+          .filter(h => h.type === EXTRUDER)
+          .minBy(({ materialID }) => (
+            getMaterial(config)(materialID).targetBedTemperature
+          ))
 
-        targetTemperatures[enabledBedID] = material.targetBedTemperature
+        targetTemperatures[id] = targetBedTemperature
         return null
       }
       default: {
@@ -44,7 +48,7 @@ const toggleHeater = (args, state) => {
     }
   })
 
-  return setTargetTemperature(targetTemperatures, state)
+  return setTargetTemperature(targetTemperatures, { config })
 }
 
 export default toggleHeater

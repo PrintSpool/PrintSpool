@@ -1,5 +1,5 @@
 import React from 'react'
-import { compose } from 'recompose'
+import { compose, withProps } from 'recompose'
 import {
   Card,
   CardContent,
@@ -10,17 +10,26 @@ import withSpoolMacro from '../../../shared/higherOrderComponents/withSpoolMacro
 
 const enhance = compose(
   withSpoolMacro,
+  withProps(({ spoolMacro, printer }) => ({
+    doHome: (args) => {
+      spoolMacro({
+        printerID: printer.id,
+        macro: 'home',
+        args,
+      })
+    },
+  })),
 )
 
 const Home = ({
-  spoolMacro,
+  doHome,
 }) => (
   <Card>
     <CardContent>
       <div style={{ textAlign: 'right' }}>
         <Button
           variant="contained"
-          onClick={() => spoolMacro({ macro: 'home', args: { all: true } })}
+          onClick={() => doHome({ all: true })}
         >
           Home
         </Button>

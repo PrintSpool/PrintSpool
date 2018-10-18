@@ -11,8 +11,15 @@ import withSpoolMacro from '../../../shared/higherOrderComponents/withSpoolMacro
 
 const enhance = compose(
   withSpoolMacro,
-  withProps(({ heater }) => ({
+  withProps(({ printer, heater, spoolMacro }) => ({
     isHeating: (heater.targetTemperature || 0) > 0,
+    toggleHeater: (e, val) => {
+      spoolMacro({
+        printerID: printer.id,
+        macro: 'toggleHeater',
+        args: { [heater.id]: val },
+      })
+    },
   })),
 )
 
@@ -23,20 +30,13 @@ const targetText = (targetTemperature) => {
 
 const TemperatureSection = ({
   heater: {
-    id,
     currentTemperature,
     targetTemperature,
   },
   isHeating,
-  spoolMacro,
+  toggleHeater,
   disabled,
 }) => {
-  const toggleEnabled = (event, val) => {
-    spoolMacro({
-      macro: 'toggleHeater',
-      args: { [id]: val },
-    })
-  }
   return (
     <div>
       <Typography variant="h4" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
@@ -52,7 +52,7 @@ const TemperatureSection = ({
           control={(
             <Switch
               checked={isHeating}
-              onChange={toggleEnabled}
+              onChange={toggleHeater}
               disabled={disabled}
               aria-label="heating"
             />

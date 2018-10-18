@@ -35,6 +35,7 @@ const HeaterControl = ({
             {heater.name}
           </Typography>
           <TemperatureSection
+            printer={printer}
             heater={heater}
             disabled={disabled}
           />

@@ -11,7 +11,7 @@ const setTargetTemperature = (args, { config }) => {
     const heater = heaters.get(k)
 
     if (heater == null) throw new Error(`Heater ${k} does not exist`)
-    if(typeof(v) !== 'number') throw new Error(`${k}: ${v} is not a number`)
+    if (typeof v !== 'number') throw new Error(`${k}: ${v} is not a number`)
 
     if (isHeatedBed(config)(k)) {
       gcodeLines.push(`M140 S${v}`)
