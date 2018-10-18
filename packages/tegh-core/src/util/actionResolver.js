@@ -9,8 +9,13 @@ const actionResolver = ({
       throw new Error(`Printer ID ${printerID} does not exist`)
     }
 
-    const thunk = actionCreator(args.input)
-    const action = await store.dispatch(thunk)
+    const action = actionCreator(args.input)
+    store.dispatch(action)
+    // TODO: await the chain of side effects' completion for the action
+    // let action = store.dispatch(thunk)
+    // if (action.then != null) {
+    //   action = await action
+    // }
 
     return selector(store.getState(), action)
   } catch (e) {

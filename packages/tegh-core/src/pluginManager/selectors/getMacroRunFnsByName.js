@@ -10,6 +10,7 @@ const getMacroRunFnsByName = createSelector(
     macros.forEach((opts, pluginName) => {
       const plugin = plugins.get(pluginName) || {}
 
+      console.log(plugin.macros)
       Map(plugin.macros || {})
         .filter(name => opts.includes('*') || opts.includes(name))
         .forEach((runFn, name) => {

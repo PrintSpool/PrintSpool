@@ -69,6 +69,8 @@ machine:
       name: 'Extruder Fan'
 
 plugins:
+  tegh-macros-default:
+    package: tegh-macros-default
   tegh-driver-serial-gcode:
     package: tegh-driver-serial-gcode
     settings:

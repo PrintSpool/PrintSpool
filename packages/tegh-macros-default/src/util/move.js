@@ -2,10 +2,10 @@ import _ from 'lodash'
 import {
   axisExists,
   getFeedrate,
-  axisTypeEnum,
+  AxisTypeEnum,
 } from 'tegh-core'
 
-const { MOVEMENT_AXIS, EXTRUDER_AXIS } = axisTypeEnum
+const { MOVEMENT_AXIS, EXTRUDER_AXIS } = AxisTypeEnum
 
 const move = ({ axes, relativeMovement, allowExtruderAxes }, { config }) => {
   // let validAxes = config.axes

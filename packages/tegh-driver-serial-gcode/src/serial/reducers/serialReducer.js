@@ -64,9 +64,14 @@ const serialReducer = (state = initialState, action) => {
         Cmd.action(connectPrinter()),
       )
     }
-    case SERIAL_RESET:
+    case SERIAL_RESET: {
+      return loop(
+        state,
+        Cmd.action(connectPrinter()),
+      )
+    }
     case CONNECT_PRINTER: {
-      if (state.serialPort == null) {
+      if (state.serialPort == null || state.serialPort.isOpen === false) {
         return loop(
           initialState.set('config', state.config),
           Cmd.action(requestSerialPortConnection()),

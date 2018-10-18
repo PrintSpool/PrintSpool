@@ -26,13 +26,13 @@ const SpoolMacroInputGraphQL = new GraphQLInputObjectType({
 })
 
 const spoolMacroGraphQL = () => ({
-  type: tql`${TaskGraphQL}!`,
+  type: tql`Boolean`,
   description: snl`
     Spools a task to execute a macro.
   `,
   resolve: actionResolver({
     actionCreator: spoolMacro,
-    selector: (state, action) => action.payload.task,
+    selector: () => null,
   }),
 
   args: {

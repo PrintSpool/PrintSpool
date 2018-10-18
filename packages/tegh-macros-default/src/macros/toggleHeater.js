@@ -4,7 +4,7 @@ import {
   getMaterial,
 } from 'tegh-core'
 
-import setTargetTemperature from './setTemperature'
+import setTargetTemperature from './setTargetTemperature'
 
 const toggleHeater = (args, state) => {
   const { config } = state
@@ -23,7 +23,7 @@ const toggleHeater = (args, state) => {
       return null
     }
 
-    switch(heater.type) {
+    switch (heater.type) {
       case EXTRUDER: {
         const material = getMaterial(config)(heater.materialID)
         targetTemperatures[id] = material.targetTemperature
@@ -44,7 +44,7 @@ const toggleHeater = (args, state) => {
     }
   })
 
-  return setTemperature(targetTemperatures, state)
+  return setTargetTemperature(targetTemperatures, state)
 }
 
 export default toggleHeater

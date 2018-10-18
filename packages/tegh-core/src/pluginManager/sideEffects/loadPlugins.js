@@ -15,12 +15,13 @@ const loadPlugins = async (params) => {
       // eslint-disable-next-line no-await-in-loop
       const plugin = await pluginLoader(pluginConfig.package)
       // Load the plugin's configuration into it's Settings type
-      const settings = plugin.Settings(pluginConfig.settings)
-      config = config.setIn(
-        ['plugins', pluginConfig.package, 'settings'],
-        settings,
-      )
-
+      if (plugin.Settings != null) {
+        const settings = plugin.Settings(pluginConfig.settings)
+        config = config.setIn(
+          ['plugins', pluginConfig.package, 'settings'],
+          settings,
+        )
+      }
       // eslint-disable-next-line no-await-in-loop
       plugins = plugins.set(pluginConfig.package, plugin)
     }),

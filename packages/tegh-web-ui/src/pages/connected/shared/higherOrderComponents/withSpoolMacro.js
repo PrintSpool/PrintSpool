@@ -5,19 +5,18 @@ const spoolMacro = gql`
   mutation spoolMacro(
     $input: SpoolMacroInput!
   ) {
-    spoolMacro(input: $input) {
-      id
-    }
+    spoolMacro(input: $input)
   }
 `
 
 const withSpoolMacro = graphql(spoolMacro, {
   props: ({ mutate }) => ({
-    spoolMacro: input => mutate({
+    spoolMacro: ({ printerID, macro, args }) => mutate({
       variables: {
         input: {
-          printerID: 'test_printer_id',
-          ...input,
+          printerID,
+          macro,
+          args,
         },
       },
     }),

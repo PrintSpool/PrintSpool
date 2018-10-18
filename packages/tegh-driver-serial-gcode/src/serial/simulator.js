@@ -10,11 +10,14 @@ const simulator = () => {
     })
   })
 
+  serialPort.isOpen = false
   serialPort.open = () => {
+    serialPort.isOpen = true
     setImmediate(() => serialPort.emit('open'))
-    sendLines(greeting)
+    setImmediate(() => sendLines(greeting))
   }
   serialPort.close = (cb) => {
+    serialPort.isOpen = false
     serialPort.emit('close')
     cb()
   }

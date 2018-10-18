@@ -1,5 +1,6 @@
 /* config */
 export Config, { MockConfig } from './config/types/Config'
+export AxisTypeEnum from './config/types/AxisTypeEnum'
 
 /* jobQueue */
 export * as JobHistoryTypeEnum from './jobQueue/types/JobHistoryTypeEnum'

@@ -50,8 +50,12 @@ const EStopResetToggle = ({
   const { status } = printer
   const showEstop = status !== 'ERRORED' && status !== 'ESTOPPED'
   const disabled = status === 'DISCONNECTED'
+
   const onClick = () => {
-    spoolMacro({ macro: showEstop ? 'eStop' : 'reset' })
+    spoolMacro({
+      printerID: printer.id,
+      macro: showEstop ? 'eStop' : 'reset',
+    })
   }
 
   return (
@@ -60,7 +64,10 @@ const EStopResetToggle = ({
         open={dialogOpen}
         printer={printer}
         handleClose={() => { setDialogOpen(false) }}
-        handleReset={() => spoolMacro({ macro: 'reset' })}
+        handleReset={() => spoolMacro({
+          printerID: printer.id,
+          macro: 'reset',
+        })}
       />
       <div style={{ display: 'inline-block', marginRight: 10 }}>
         <Button
