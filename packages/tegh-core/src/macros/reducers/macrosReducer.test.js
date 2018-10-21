@@ -31,6 +31,7 @@ describe('configReducer', () => {
       const nextState = reducer(initialState, action)
 
       expect(nextState.toJS()).toEqual({
+        config: config.toJS(),
         myMacro: myMacroRunFn,
       })
     })

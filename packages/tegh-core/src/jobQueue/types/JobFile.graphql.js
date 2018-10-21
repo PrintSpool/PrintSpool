@@ -52,10 +52,10 @@ const JobFileGraphQL = new GraphQLObjectType({
         const state = store.getState()
 
         const total = getTotalPrintsByJobFileID(state.jobQueue).get(source.id)
-        const done = getIsDoneByJobFileID(state.jobQueue).get(source.id)
-        const tasks = getTasksByTaskableID(state).get(source.id, List())
+        const printed = getIsDoneByJobFileID(state.jobQueue).get(source.id)
+        const tasks = getTasksByTaskableID(state.spool).get(source.id, List())
 
-        return total - (done + tasks.length)
+        return total - (printed + tasks.size)
       },
     },
     isDone: {

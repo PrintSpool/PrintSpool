@@ -6,8 +6,9 @@ const getTasksByTaskableID = createSelector(
   getTasks,
   tasks => (
     tasks
+      .toList()
       .groupBy(task => task.jobID)
-      .merge(tasks.groupBy(task => task.jobFileID))
+      .merge(tasks.toList().groupBy(task => task.jobFileID))
   ),
 )
 
