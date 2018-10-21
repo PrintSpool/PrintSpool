@@ -118,4 +118,5 @@ const JobList = ({
   )
 }
 
+export const Component = JobList
 export default enhance(JobList)

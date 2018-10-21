@@ -1,14 +1,14 @@
 
 import React from 'react'
 import { storiesOf } from '@storybook/react'
-import { JobList } from './JobList'
+import { Component as JobList } from './JobList'
 
 import {
   drinkingGlass,
   gear,
   reprap,
   robot,
-} from './mocks/job.mock.js'
+} from '../mocks/job.mock'
 
 storiesOf('JobList', module)
   .add('with jobs', () => {
