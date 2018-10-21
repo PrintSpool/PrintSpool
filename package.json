@@ -74,6 +74,7 @@
     "eslint-config-airbnb-base": "^13.0.0",
     "eslint-plugin-babel": "^5.1.0",
     "eslint-plugin-immutablejs": "^0.1.3",
+    "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jest": "^21.20.2",
     "eslint-plugin-monorepo": "^0.2.0",
     "fast-async": "^6.3.8",
