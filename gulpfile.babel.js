@@ -3,6 +3,7 @@ import chalk from 'chalk'
 import rimraf from 'rimraf'
 import path from 'path'
 import gulp from 'gulp'
+import sourcemaps from 'gulp-sourcemaps'
 import babel from 'gulp-babel'
 // import through from 'through2'
 import plumber from 'gulp-plumber'
@@ -38,14 +39,15 @@ const clean = (done) => {
 const srcJSDir = `packages/@(${packages.join('|').replace(/packages\//g, '')})/src/**/`
 const srcFiles = [
   `${srcJSDir}*.js`,
-  `!${srcJSDir}*.test.js`,
 ]
 
 const buildProcess = gulpInput => (
   gulpInput
     .pipe(errorsLogger())
+    .pipe(sourcemaps.init())
     // .pipe(compilationLogger())
     .pipe(babel(babelConfig))
+    .pipe(sourcemaps.write())
     .pipe(gulp.dest((file) => {
       const dir = path.join('packages', file.relative.replace(/\/src\/.*/, '/dist/'))
       // eslint-disable-next-line no-param-reassign

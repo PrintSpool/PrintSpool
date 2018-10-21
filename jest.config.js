@@ -7,14 +7,14 @@ module.exports = {
   // ],
   // testEnvironment: 'node',
   testPathIgnorePatterns: [
-    '<rootDir>/packages/.*(node_modules|dist).*$',
+    '<rootDir>/packages/.*(node_modules|src).*$',
   ],
   transform: {
-    '^.+\\.jsx?$': 'babel-jest',
+    // '^.+\\.jsx?$': 'babel-jest',
   },
-  transformIgnorePatterns: [
-    '<rootDir>.*(node_modules).*$',
-  ],
+  // transformIgnorePatterns: [
+  //   '<rootDir>.*(node_modules).*$',
+  // ],
   // collectCoverage: true,
   // collectCoverageFrom: [
   //   'packages/**/*.{js}',
