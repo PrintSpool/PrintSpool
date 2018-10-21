@@ -37,6 +37,9 @@ storiesOf('JobList', module)
   .add('printing', () => (
     <JobList
       {...baselineProps}
+      printers={[{
+        status: 'PRINTING',
+      }]}
     />
   ))
   .add('ready to print', () => (

@@ -54,11 +54,7 @@ const JobList = ({
   deleteJob,
 }) => {
   const statuses = printers.map(printer => printer.status)
-  const disablePrintNextButton = (
-    statuses.includes('READY') === false
-    || jobs.find(job => job.status === 'QUEUED') == null
-    || jobs.find(job => job.status === 'PRINTING') != null
-  )
+  const disablePrintNextButton = statuses.includes('READY') === false
 
   // TODO: recreate job status with a more limited scope
   const categories = [

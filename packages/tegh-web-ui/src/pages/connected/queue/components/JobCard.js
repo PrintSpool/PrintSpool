@@ -31,8 +31,8 @@ const JobCard = ({
   id,
   name,
   // quantity,
-  tasksCompleted,
-  totalTasks,
+  printsCompleted,
+  totalPrints,
   status,
   // stoppedAt,
   tasks,
@@ -45,7 +45,7 @@ const JobCard = ({
   <Card>
     <CardHeader
       title={V.truncate(name, 32)}
-      subheader={`${tasksCompleted} / ${totalTasks} prints completed`}
+      subheader={`${printsCompleted} / ${totalPrints} prints completed`}
       action={
           // hide the delete button when the job is printing
           status !== 'PRINTING'
