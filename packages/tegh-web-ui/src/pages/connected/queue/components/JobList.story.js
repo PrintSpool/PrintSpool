@@ -19,7 +19,13 @@ storiesOf('JobList', module)
         gear,
         robot,
       ],
-      status: 'READY',
+      printers: [{
+        status: 'READY',
+      }],
+      addJob: () => {},
+      spoolNextPrint: () => {},
+      cancelTask: () => {},
+      deleteJob: () => {},
     }
     return <JobList {...props} />
   })
