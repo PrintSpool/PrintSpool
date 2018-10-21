@@ -1,6 +1,6 @@
 // @flow
 import rxParser from './rxParser'
-import * as marlin from '../data/marlinFixture'
+import * as marlin from './marlinFixture'
 
 test('parses greetings', () => {
   const result = rxParser('start')
