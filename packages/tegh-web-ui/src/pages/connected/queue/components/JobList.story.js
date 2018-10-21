@@ -10,22 +10,38 @@ import {
   robot,
 } from '../mocks/job.mock'
 
+const baselineProps = {
+  jobs: [
+    drinkingGlass,
+    reprap,
+    gear,
+    robot,
+  ],
+  printers: [{
+    status: 'READY',
+  }],
+  addJob: () => {},
+  spoolNextPrint: () => {},
+  cancelTask: () => {},
+  deleteJob: () => {},
+}
+
+
 storiesOf('JobList', module)
-  .add('with jobs', () => {
-    const props = {
-      jobs: [
-        drinkingGlass,
-        reprap,
-        gear,
-        robot,
-      ],
-      printers: [{
-        status: 'READY',
-      }],
-      addJob: () => {},
-      spoolNextPrint: () => {},
-      cancelTask: () => {},
-      deleteJob: () => {},
-    }
-    return <JobList {...props} />
-  })
+  .add('empty', () => (
+    <JobList
+      {...baselineProps}
+      jobs={[]}
+    />
+  ))
+  .add('printing', () => (
+    <JobList
+      {...baselineProps}
+    />
+  ))
+  .add('ready to print', () => (
+    <JobList
+      {...baselineProps}
+      jobs={[robot]}
+    />
+  ))

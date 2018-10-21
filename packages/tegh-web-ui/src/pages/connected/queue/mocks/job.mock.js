@@ -4,9 +4,9 @@ const JobMock = attrs => ({
   id: '123',
   name: 'gear.gcode',
   quantity: 1,
-  tasksCompleted: 0,
-  totalTasks: 1,
-  status: 'QUEUED',
+  printsCompleted: 0,
+  totalPrints: 1,
+  isDone: false,
   stoppedAt: null,
   tasks: [],
   ...attrs,
@@ -18,9 +18,8 @@ export const reprap = JobMock({
   id: 'reprap',
   name: 'reprap.zip',
   quantity: 2,
-  tasksCompleted: 3,
-  totalTasks: 10,
-  status: 'PRINTING',
+  printsCompleted: 3,
+  totalPrints: 10,
   tasks: [
     xCarriage,
     yCarriage,
@@ -31,9 +30,9 @@ export const drinkingGlass = JobMock({
   id: 'glass',
   name: 'drinking-glass_3.gcode',
   quantity: 2,
-  tasksCompleted: 2,
-  totalTasks: 2,
-  status: 'DONE',
+  printsCompleted: 2,
+  totalPrints: 2,
+  isDone: true,
 })
 
 export const robot = JobMock({
@@ -44,7 +43,6 @@ export const robot = JobMock({
     + 'robot_hand.gcode'
   ),
   quantity: 1,
-  tasksCompleted: 0,
-  totalTasks: 3,
-  status: 'QUEUED',
+  printsCompleted: 0,
+  totalPrints: 3,
 })
