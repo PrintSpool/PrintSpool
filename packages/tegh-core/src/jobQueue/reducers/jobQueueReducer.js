@@ -1,6 +1,7 @@
 import { Record, Map, List } from 'immutable'
 import { loop, Cmd } from 'redux-loop'
 
+import createTmpFiles from '../sideEffects/createTmpFiles'
 import unlinkTmpFiles from '../sideEffects/unlinkTmpFiles'
 
 import JobHistoryEvent from '../types/JobHistoryEvent'
@@ -18,7 +19,8 @@ import getSpooledJobFiles from '../selectors/getSpooledJobFiles'
 import getCompletedJobs from '../selectors/getCompletedJobs'
 import getTaskIDByJobFileID from '../selectors/getTaskIDByJobFileID'
 
-import { CREATE_JOB } from '../actions/createJob'
+import { REQUEST_CREATE_JOB } from '../actions/requestCreateJob'
+import createJob, { CREATE_JOB } from '../actions/createJob'
 import deleteJob, { DELETE_JOB } from '../actions/deleteJob'
 
 import { SPOOL_TASK } from '../../spool/actions/spoolTask'
@@ -43,6 +45,15 @@ export const initialState = Record({
 
 const jobQueueReducer = (state = initialState, action) => {
   switch (action.type) {
+    case REQUEST_CREATE_JOB: {
+      return loop(
+        state,
+        Cmd.run(createTmpFiles, {
+          args: [action.payload],
+          successActionCreator: createJob,
+        }),
+      )
+    }
     case CREATE_JOB: {
       const { job, jobFiles } = action.payload
 

@@ -1,6 +1,5 @@
 /* jobQueue */
 export { default as createJob } from './jobQueue/mutations/createJob.graphql'
-export { default as createLocalFileJob } from './jobQueue/mutations/createLocalFileJob.graphql'
 export { default as deleteJob } from './jobQueue/mutations/deleteJob.graphql'
 /* spool */
 export { default as spoolCommands } from './spool/mutations/spoolCommands.graphql'
