@@ -1,4 +1,5 @@
 import { List } from 'immutable'
+import { Cmd } from 'redux-loop'
 
 import {
   CONNECT_PRINTER,
@@ -7,6 +8,7 @@ import {
   SET_CONFIG,
   setConfig,
   printerDisconnected,
+  connectPrinter,
 } from 'tegh-core'
 
 import { createTestConfig } from '../../config/types/Settings'
@@ -50,39 +52,47 @@ describe('serialReducer', () => {
     })
   })
 
-  const resetActions = [
-    SERIAL_RESET,
-    CONNECT_PRINTER,
-  ]
-  resetActions.forEach((type) => {
-    describe(type, () => {
-      describe('when a serial connection does not exist', () => {
-        it('requests a serial port connection', () => {
-          const action = { type }
+  describe(SERIAL_RESET, () => {
+    it('requests a serial port connection', () => {
+      const action = { type: SERIAL_RESET }
 
-          const [
-            nextState,
-            { actionToDispatch: nextAction },
-          ] = reducer(initialState, action)
+      const [
+        nextState,
+        { actionToDispatch: nextAction },
+      ] = reducer(initialState, action)
 
-          expect(nextState).toEqual(initialState)
-          expect(nextAction).toEqual(requestSerialPortConnection())
-        })
+      expect(nextState).toEqual(initialState)
+      expect(nextAction).toEqual(connectPrinter())
+    })
+  })
+
+  describe(CONNECT_PRINTER, () => {
+    describe('when a serial connection does not exist', () => {
+      it('requests a serial port connection', () => {
+        const action = { type: CONNECT_PRINTER }
+
+        const [
+          nextState,
+          { actionToDispatch: nextAction },
+        ] = reducer(initialState, action)
+
+        expect(nextState).toEqual(initialState)
+        expect(nextAction).toEqual(requestSerialPortConnection())
       })
-      describe('when a serial connection exists', () => {
-        it('resets the serial connection', () => {
-          const state = initialState.set('serialPort', 'my_serial_port')
-          const action = { type }
+    })
+    describe('when a serial connection exists', () => {
+      it('resets the serial connection', () => {
+        const state = initialState.set('serialPort', 'my_serial_port')
+        const action = { type: CONNECT_PRINTER }
 
-          const [
-            nextState,
-            sideEffect,
-          ] = reducer(state, action)
+        const [
+          nextState,
+          sideEffect,
+        ] = reducer(state, action)
 
-          expect(nextState).toEqual(state.set('isResetting', true))
-          expect(sideEffect.func).toEqual(closeSerialPort)
-          expect(sideEffect.args).toEqual([{ serialPort: 'my_serial_port' }])
-        })
+        expect(nextState).toEqual(state.set('isResetting', true))
+        expect(sideEffect.func).toEqual(closeSerialPort)
+        expect(sideEffect.args).toEqual([{ serialPort: 'my_serial_port' }])
       })
     })
   })
@@ -98,12 +108,15 @@ describe('serialReducer', () => {
 
       expect(nextState).toEqual(configuredState)
       expect(sideEffect.func).toEqual(serialPortConnection)
-      expect(sideEffect.args).toEqual([{
-        portID,
-        baudRate,
-        receiveParser: rxParser,
-        simulator: null,
-      }])
+      expect(sideEffect.args).toEqual([
+        {
+          portID,
+          baudRate,
+          receiveParser: rxParser,
+          simulator: null,
+        },
+        Cmd.dispatch,
+      ])
     })
   })
 
