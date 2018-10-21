@@ -30,7 +30,7 @@ const rootReducer = (state = initialState, action) => {
     nextState = createStateRecord(reducers, state)
   }
 
-  console.log(action.type)
+  // console.log(action.type)
   // console.log(action.type, '\n', reducers.map((v, k) => k).toList().toJS())
   return mergeChildReducers(nextState, action, reducers.toObject())
 }

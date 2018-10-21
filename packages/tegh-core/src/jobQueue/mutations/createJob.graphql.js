@@ -4,9 +4,9 @@ import { GraphQLInputObjectType } from 'graphql'
 
 import actionResolver from '../../util/actionResolver'
 import FileInputType from '../../util/FileInput.graphql'
-import createJob from '../actions/createJob'
+import requestCreateJob from '../actions/requestCreateJob'
 
-import JobGraphQL from '../types/Job.graphql'
+// import JobGraphQL from '../types/Job.graphql'
 
 const createJobGraphQL = () => ({
   // type: tql`${JobGraphQL}!`,
@@ -17,7 +17,7 @@ const createJobGraphQL = () => ({
 
   resolve: actionResolver({
     requirePrinterID: false,
-    actionCreator: createJob,
+    actionCreator: requestCreateJob,
     // TODO: returning the job will not work until thunks are removed from Tegh
     // selector: (state, action) => state.jobQueue.jobs.get(action.payload.job.id),
     selector: () => null,
