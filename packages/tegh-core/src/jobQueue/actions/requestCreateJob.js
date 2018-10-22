@@ -7,8 +7,8 @@ const requestCreateJob = ({ files, name }) => {
     throw new Error('name cannot be null')
   }
 
-  if (files == null) {
-    throw new Error('files cannot be null')
+  if (files == null || files.length === 0) {
+    throw new Error('requires at least one file')
   }
 
   const job = Job({ name })

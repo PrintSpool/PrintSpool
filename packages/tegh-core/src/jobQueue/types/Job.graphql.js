@@ -27,12 +27,13 @@ const JobGraphQL = new GraphQLObjectType({
     quantity: {
       type: tql`Int!`,
     },
+
     files: {
       type: tql`[${JobFileGraphQL}]!`,
       resolve(source, args, { store }) {
         const state = store.getState().jobQueue
         const jobID = source.id
-        return getJobFilesByJobID(state).get(jobID)
+        return getJobFilesByJobID(state).get(jobID, List())
       },
     },
 

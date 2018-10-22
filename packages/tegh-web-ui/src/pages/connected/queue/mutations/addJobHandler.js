@@ -18,7 +18,7 @@ const addJobHandler = graphql(createJobGraphQL, {
       }
 
       // read each file into memory
-      Promise.all(
+      await Promise.all(
         value.map(async (file) => {
           const { name } = file
 
