@@ -8,7 +8,6 @@ import JobFile from '../types/JobFile'
 const writeFileAsync = Promise.promisify(fs.writeFile)
 
 const createTmpFiles = async ({ job, files }) => {
-  console.log('create tempo', {job, files})
   const jobFiles = await Promise.all(
     files.map(async (file) => {
       if (typeof file.name !== 'string') {
