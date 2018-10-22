@@ -98,7 +98,7 @@ const ConnectionFrame = ({
       // on when Apollo actually loads the data
       setTimeout((() => setWebRTCPeer(webRTCPeer)), 50)
     }}
-    onWebRTCDisconnect={() => console.log('DISCONNECT!!!111') || setWebRTCPeer(null)}
+    onWebRTCDisconnect={() => setWebRTCPeer(null)}
   >
     <LiveSubscription
       subscription={FRAME_SUBSCRIPTION}

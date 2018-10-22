@@ -5,6 +5,7 @@ import EventEmitter from 'eventemitter3'
 import eventTrigger, { signalTrigger } from './shared/eventTrigger'
 import connectToSignallingServer from './shared/connectToSignallingServer'
 import * as announcement from './shared/announcement'
+import { chunkifier, dechunkifier } from './shared/webRTCDataChunk'
 
 /*
  * keys = { private, public } - PEM format private and public keys
@@ -69,15 +70,18 @@ const TeghHost = ({
         rtcPeer.destroy()
       }
 
-      teghSocket.send = (data) => {
-        rtcPeer.send(data)
-      }
+      rtcPeer.on('connect', () => {
+        // relay events through the teghSocket
+        rtcPeer.on('data', dechunkifier((data) => {
+          teghSocket.emit('message', data)
+        }))
 
-      teghHost.emit('connection', teghSocket)
+        teghSocket.send = chunkifier(rtcPeer._channel, (data) => {
+          // eslint-disable-next-line no-underscore-dangle
+          rtcPeer.send(data)
+        })
 
-      // relay events through the teghSocket
-      rtcPeer.on('data', (data) => {
-        teghSocket.emit('message', data.toString())
+        teghHost.emit('connection', teghSocket)
       })
 
       rtcPeer.on('close', () => {

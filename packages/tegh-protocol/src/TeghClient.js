@@ -3,6 +3,7 @@ import Peer from 'simple-peer'
 import eventTrigger, { signalTrigger } from './shared/eventTrigger'
 import connectToSignallingServer from './shared/connectToSignallingServer'
 import * as announcement from './shared/announcement'
+import { chunkifier, dechunkifier } from './shared/webRTCDataChunk'
 
 const CONNECTING = 'CONNECTING'
 const OPEN = 'OPEN'
@@ -16,11 +17,19 @@ const TeghClient = ({
 }) => {
   const TeghClientSocket = (signallingServer, protocol) => {
     const rtcPeer = new Peer({ initiator: true })
+
     const teghSocket = {
       readyState: CONNECTING,
-      send: message => rtcPeer.send(message),
+      send: () => {
+        throw new Error('Cannot call send before connected')
+      },
       close: () => rtcPeer.destroy(),
     }
+
+    const receiveData = dechunkifier((data) => {
+      console.log('RX', data.length, data.toString())
+      teghSocket.onmessage({ data })
+    })
 
     const connect = async () => {
       const announcementSocket = await connectToSignallingServer({
@@ -61,15 +70,17 @@ const TeghClient = ({
 
       // relay events through the teghSocket
       rtcPeer.on('connect', () => {
+        teghSocket.send = chunkifier(rtcPeer._channel, (data) => {
+          // eslint-disable-next-line no-underscore-dangle
+          rtcPeer.send(data)
+        })
+
         teghSocket.readyState = OPEN
         onWebRTCConnect(rtcPeer)
         teghSocket.onopen()
       })
 
-      rtcPeer.on('data', (data) => {
-        console.log('RX', data.length, data.toString())
-        teghSocket.onmessage({ data })
-      })
+      rtcPeer.on('data', receiveData)
 
       rtcPeer.on('iceStateChange', (state) => {
         if (state === 'disconnected') teghSocket.close()
