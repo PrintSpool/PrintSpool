@@ -21,6 +21,7 @@ const createTeghApolloClient = ({
   hostIdentity,
   signallingServer = 'ws://localhost:3000',
   onWebRTCConnect = () => {},
+  onWebRTCDisconnect = () => {},
 }) => {
   // create a tegh client
   const teghClient = TeghClient({
@@ -39,6 +40,7 @@ const createTeghApolloClient = ({
       console.log('web rtc connected', simplePeer)
       onWebRTCConnect(simplePeer)
     },
+    onWebRTCDisconnect,
   })
 
   // the tegh client exposes an API that is compatible with `window.WebSocket` so
@@ -102,6 +104,7 @@ class TeghApolloProvider extends React.Component {
       hostIdentity,
       myIdentity,
       onWebRTCConnect,
+      onWebRTCDisconnect,
     } = props
 
     if (hostIdentity.id === state.hostID) {
@@ -116,6 +119,7 @@ class TeghApolloProvider extends React.Component {
       hostIdentity,
       myIdentity,
       onWebRTCConnect,
+      onWebRTCDisconnect,
     })
     return {
       hostID: hostIdentity.id,

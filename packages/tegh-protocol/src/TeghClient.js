@@ -1,4 +1,3 @@
-import Promise from 'bluebird'
 import Peer from 'simple-peer'
 
 import eventTrigger, { signalTrigger } from './shared/eventTrigger'
@@ -9,7 +8,12 @@ const CONNECTING = 'CONNECTING'
 const OPEN = 'OPEN'
 const CLOSED = 'CLOSED'
 
-const TeghClient = ({ keys, peerPublicKey, onWebRTCConnect = () => {} }) => {
+const TeghClient = ({
+  keys,
+  peerPublicKey,
+  onWebRTCConnect = () => {},
+  onWebRTCDisconnect = () => {},
+}) => {
   const TeghClientSocket = (signallingServer, protocol) => {
     const rtcPeer = new Peer({ initiator: true })
     const teghSocket = {
@@ -67,8 +71,13 @@ const TeghClient = ({ keys, peerPublicKey, onWebRTCConnect = () => {} }) => {
         teghSocket.onmessage({ data })
       })
 
+      rtcPeer.on('iceStateChange', (state) => {
+        if (state === 'disconnected') teghSocket.close()
+      })
+
       rtcPeer.on('close', () => {
         teghSocket.readyState = CLOSED
+        onWebRTCDisconnect(rtcPeer)
         teghSocket.onclose()
       })
 
