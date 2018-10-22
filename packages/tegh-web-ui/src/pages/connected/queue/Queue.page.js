@@ -15,6 +15,7 @@ const JOBS_SUBSCRIPTION = gql`
       patch { op, path, from, value }
       query {
         printers {
+          id
           status
         }
         jobQueue {

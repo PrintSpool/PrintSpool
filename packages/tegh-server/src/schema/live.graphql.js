@@ -57,7 +57,8 @@ const liveGraphQL = () => ({
         'heaters',
       ],
       Heater: [
-        'currentTemperature',
+        'name',
+        'type',
       ],
       Task: [
         'printer',

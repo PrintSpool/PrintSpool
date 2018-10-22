@@ -15,10 +15,14 @@ const spoolNextPrintHandler = graphql(spoolJobFileGraphQL, {
     if (ownProps.loading || ownProps.error) return {}
 
     const jobFiles = List(ownProps.jobs)
-      .map(job => job.files)
+      .map(job => List(job.files))
       .flatten()
 
     const nextJobFile = jobFiles.find(jobFile => jobFile.printsQueued > 0)
+
+    const readyPrinter = ownProps.printers.find(printer => (
+      printer.status === 'READY'
+    ))
 
     return {
       nextJobFile,
@@ -26,10 +30,14 @@ const spoolNextPrintHandler = graphql(spoolJobFileGraphQL, {
         if (nextJobFile == null) {
           throw new Error('nothing in the queue to print')
         }
+        if (readyPrinter == null) {
+          throw new Error('No printer is ready to start a print')
+        }
+
         mutate({
           variables: {
             input: {
-              printerID: ownProps.printerID,
+              printerID: readyPrinter.id,
               jobFileID: nextJobFile.id,
             },
           },
