@@ -27,7 +27,6 @@ const TeghClient = ({
     }
 
     const receiveData = dechunkifier((data) => {
-      console.log('RX', data.length, data.toString())
       teghSocket.onmessage({ data })
     })
 
@@ -70,8 +69,8 @@ const TeghClient = ({
 
       // relay events through the teghSocket
       rtcPeer.on('connect', () => {
+        // eslint-disable-next-line no-underscore-dangle
         teghSocket.send = chunkifier(rtcPeer._channel, (data) => {
-          // eslint-disable-next-line no-underscore-dangle
           rtcPeer.send(data)
         })
 

@@ -48,8 +48,10 @@ const splitMessageIntoChunks = ({ id, message }) => {
   return chunks
 }
 
+const setImmediate = fn => setTimeout(fn, 0)
+
 /*
- * for encoding messages into an array of chunks
+ * for asynchronusly encoding messages into an array of chunks
  */
 export const chunkifier = (channel, callback) => {
   let nextID = 0
@@ -69,7 +71,7 @@ export const chunkifier = (channel, callback) => {
   // eslint-disable-next-line no-param-reassign
   channel.onbufferedamountlow = sendNextChunks
 
-  return (message) => {
+  return message => setImmediate(() => {
     const previouslyEmptyChunks = chunks.length === 0
     chunks = chunks.concat(splitMessageIntoChunks({
       id: nextID,
@@ -83,7 +85,7 @@ export const chunkifier = (channel, callback) => {
     ) {
       sendNextChunks()
     }
-  }
+  })
 }
 
 /*
