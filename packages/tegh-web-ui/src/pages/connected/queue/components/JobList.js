@@ -3,7 +3,11 @@ import { compose } from 'recompose'
 
 import {
   Typography,
+  CircularProgress,
+  Modal,
 } from '@material-ui/core'
+
+import FullscreenProgress from '../../shared/components/FullscreenProgress'
 
 import addJobHandler from '../mutations/addJobHandler'
 import spoolNextPrintHandler from '../mutations/spoolNextPrintHandler'
@@ -48,6 +52,7 @@ const JobSubList = ({
 const JobList = ({
   jobs,
   printers,
+  isUploadingJob,
   addJob,
   spoolNextPrint,
   cancelTask,
@@ -74,6 +79,14 @@ const JobList = ({
 
   return (
     <div>
+      <Modal
+        aria-labelledby="uploading-print-job-modal"
+        open={isUploadingJob}
+      >
+        <FullscreenProgress>
+          <span id="uploading-print-job-modal">Uploading Job...</span>
+        </FullscreenProgress>
+      </Modal>
       {
         jobs.length === 0
         && (

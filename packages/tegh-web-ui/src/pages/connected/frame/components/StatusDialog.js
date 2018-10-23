@@ -84,7 +84,7 @@ const StatusDialog = ({
                 >
                   https://github.com/tegh/tegh/issues
                 </a>
-.
+                .
               </p>
             </div>
             )

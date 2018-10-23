@@ -1,8 +1,6 @@
 import React from 'react'
 import { compose, withProps } from 'recompose'
-// import {
-//   Grid,
-// } from '@material-ui/core'
+import { connect } from 'react-redux'
 import gql from 'graphql-tag'
 
 import JobList from './components/JobList'
@@ -55,11 +53,15 @@ const enhance = compose(
   withProps(() => ({
     subscription: JOBS_SUBSCRIPTION,
   })),
+  connect(state => ({
+    isUploadingJob: state.mutations.getIn(['createJob', 'isUploading'], false),
+  })),
   withLiveData,
 )
 
 const Index = ({
   printers,
+  isUploadingJob,
   jobQueue: {
     jobs,
     name,
@@ -71,6 +73,7 @@ const Index = ({
         name={name}
         jobs={jobs}
         printers={printers}
+        isUploadingJob={isUploadingJob}
       />
     </main>
   </div>

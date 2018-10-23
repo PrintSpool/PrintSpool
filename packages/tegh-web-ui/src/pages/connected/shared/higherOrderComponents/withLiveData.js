@@ -30,6 +30,7 @@ const withLiveData = PageComponent => ({
   subscription,
   connected,
   classes,
+  ...props,
 }) => (
   <LiveSubscription
     variables={variables}
@@ -65,6 +66,7 @@ const withLiveData = PageComponent => ({
               {
                 !loading && (
                   <PageComponent
+                    {...props}
                     {...data}
                   />
                 )

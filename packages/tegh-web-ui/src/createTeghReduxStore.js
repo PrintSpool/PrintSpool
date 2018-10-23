@@ -9,6 +9,7 @@ import { routerReducer, routerMiddleware } from '@d1plo1d/connected-react-router
 
 import keysReducer from './reducers/keysReducer'
 import webRTCReducer from './reducers/webRTCReducer'
+import mutationsReducer from './reducers/mutationsReducer'
 
 import loadKeys from './actions/loadKeys'
 
@@ -23,6 +24,7 @@ const createTeghReduxStore = () => {
     router: routerReducer(history),
     keys: keysReducer,
     webRTC: webRTCReducer,
+    mutations: mutationsReducer,
   })
 
   const enhancer = composeEnhancers(
