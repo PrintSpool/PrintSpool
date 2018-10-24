@@ -63,7 +63,11 @@ const TeghHost = ({
       // create a public interface that can act as a drop-in replacement for a
       // websocket connection
       const teghSocket = new EventEmitter()
-      teghSocket.protocol = offerPayload.protocol
+
+      if (!offerPayload.protocol.startsWith('chunked-')) {
+        throw new Error(`Unsupported protocol: ${offerPayload.protocol}`)
+      }
+      teghSocket.protocol = offerPayload.protocol.replace(/chunked-/, '')
       teghSocket.readyState = teghHost.OPEN
 
       teghSocket.close = () => {

@@ -43,7 +43,7 @@ const TeghClient = ({
       await announcement.publish({
         socket: announcementSocket,
         signal: offer,
-        protocol,
+        protocol: `chunked-${protocol}`,
         keys,
         peerPublicKey,
       })
