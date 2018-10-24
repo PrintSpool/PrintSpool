@@ -39,10 +39,10 @@ const MANUAL_CONTROL_SUBSCRIPTION = gql`
 `
 
 const enhance = compose(
-  withProps(() => ({
+  withProps(ownProps => ({
     subscription: MANUAL_CONTROL_SUBSCRIPTION,
     variables: {
-      printerID: 'test_printer_id',
+      printerID: ownProps.match.params.printerID,
     },
   })),
   withLiveData,

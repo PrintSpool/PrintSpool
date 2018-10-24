@@ -6,7 +6,7 @@ import tql from 'typiql'
 import {
   PrinterGraphQL,
   JobQueueGraphQL,
-  TaskGraphQL,
+  // TaskGraphQL,
 } from 'tegh-core'
 // import PrinterGraphQL from '../core/printer/types/Printer.graphql'
 // import JobGraphQL from '../core/jobQueue/types/Job.graphql'

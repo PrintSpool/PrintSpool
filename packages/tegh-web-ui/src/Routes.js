@@ -9,6 +9,7 @@ import AddHostPage from './pages/hosts/AddHost.page'
 
 import ConnectionFrame from './pages/connected/frame/ConnectionFrame'
 import QueuePage from './pages/connected/queue/Queue.page'
+import JobPage from './pages/connected/job/Job.page'
 import ManualControlPage from './pages/connected/manualControl/ManualControl.page'
 
 const Routes = () => (
@@ -22,6 +23,7 @@ const Routes = () => (
         render={({ match }) => (
           <ConnectionFrame match={match}>
             <Route exact path="/:hostID/" component={QueuePage} />
+            <Route exact path="/:hostID/jobs/:jobID" component={JobPage} />
             <Route exact path="/:hostID/:printerID/manual-control" component={ManualControlPage} />
           </ConnectionFrame>
         )}

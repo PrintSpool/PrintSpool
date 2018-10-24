@@ -77,7 +77,7 @@ const jobQueueReducer = (state = initialState, action) => {
 
       return loop(
         nextState,
-        Cmd.run(unlinkTmpFiles, { args: tmpFilePaths }),
+        Cmd.run(unlinkTmpFiles, { args: [tmpFilePaths] }),
       )
     }
     case PRINTER_READY:

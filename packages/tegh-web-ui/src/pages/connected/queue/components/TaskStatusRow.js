@@ -1,35 +1,24 @@
 import React from 'react'
 import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardActions,
-  Grid,
   IconButton,
   Typography,
-  Switch,
-  FormControlLabel,
-  Button,
   LinearProgress,
-  Divider,
 } from '@material-ui/core'
 import {
   Cancel,
-  MoreVert,
 } from '@material-ui/icons'
-import V from 'voca'
 
-const taskColor = (status) => {
-  switch (status) {
-    case 'ERRORED':
-    case 'CANCELLED': {
-      return 'error'
-    }
-    default: {
-      return 'default'
-    }
-  }
-}
+// const taskColor = (status) => {
+//   switch (status) {
+//     case 'ERRORED':
+//     case 'CANCELLED': {
+//       return 'error'
+//     }
+//     default: {
+//       return 'default'
+//     }
+//   }
+// }
 
 const TaskStatusRow = ({ task, cancelTask }) => (
   <div>

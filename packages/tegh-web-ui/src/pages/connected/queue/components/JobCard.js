@@ -15,6 +15,9 @@ import {
   Delete,
 } from '@material-ui/icons'
 import V from 'voca'
+import { connect } from 'react-redux'
+import { push as pushActionCreator } from '@d1plo1d/connected-react-router'
+
 import TaskStatusRow from './TaskStatusRow'
 
 const enhance = compose(
@@ -25,6 +28,9 @@ const enhance = compose(
       closeMenu: () => () => ({ menuAnchorEl: null }),
     },
   ),
+  connect(null, {
+    pushLocation: pushActionCreator
+  })
 )
 
 const JobCard = ({
@@ -41,9 +47,11 @@ const JobCard = ({
   menuAnchorEl,
   openMenu,
   closeMenu,
+  pushLocation,
 }) => (
   <Card>
     <CardHeader
+      onClick={() => pushLocation(`jobs/${id}/`)}
       title={V.truncate(name, 32)}
       subheader={`${printsCompleted} / ${totalPrints} prints completed`}
       action={

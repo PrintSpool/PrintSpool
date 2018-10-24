@@ -21,9 +21,18 @@ const JobQueueGraphQL = new GraphQLObjectType({
       },
     },
     jobs: {
-      type: tql`[${JobGraphQL}]!`,
-      resolve(source) {
+      type: tql`[${JobGraphQL}!]!`,
+      args: {
+        id: {
+          type: tql`ID`,
+        },
+      },
+      resolve(source, { id }) {
         const { jobQueue } = source
+        if (id != null) {
+          const job = jobQueue.jobs.get(id)
+          return [job]
+        }
         const jobs = jobQueue.jobs.toList()
         return jobs
       },

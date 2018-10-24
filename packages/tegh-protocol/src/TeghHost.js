@@ -80,8 +80,8 @@ const TeghHost = ({
           teghSocket.emit('message', data)
         }))
 
+        // eslint-disable-next-line no-underscore-dangle
         teghSocket.send = chunkifier(rtcPeer._channel, (data) => {
-          // eslint-disable-next-line no-underscore-dangle
           rtcPeer.send(data)
         })
 

@@ -71,6 +71,7 @@ const TeghClient = ({
       rtcPeer.on('connect', () => {
         // eslint-disable-next-line no-underscore-dangle
         teghSocket.send = chunkifier(rtcPeer._channel, (data) => {
+          // console.log('tx', data)
           rtcPeer.send(data)
         })
 

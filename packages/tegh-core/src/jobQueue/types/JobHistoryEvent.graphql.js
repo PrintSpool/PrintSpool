@@ -16,6 +16,7 @@ const JobHistoryEventGraphQL = new GraphQLObjectType({
     },
     type: {
       type: tql`${JobHistoryTypeEnum}!`,
+      resolve: source => source.type.replace('/jobQueue/JobHistory/', ''),
     },
   }),
 })
