@@ -71,7 +71,7 @@ describe('jobQueueReducer', () => {
       expect(nextState.jobs.toJS()).toEqual({})
       expect(nextState.jobFiles.toJS()).toEqual({})
       expect(sideEffect.func).toEqual(unlinkTmpFiles)
-      expect(sideEffect.args).toEqual(['/lol/wut'])
+      expect(sideEffect.args).toEqual([['/lol/wut']])
     })
   })
 
@@ -256,6 +256,23 @@ describe('jobQueueReducer', () => {
         expect(finishEvent.jobID).toEqual(job.id)
         expect(finishEvent.jobFileID).toEqual(jobFile.id)
         expect(finishEvent.taskID).toEqual(task.id)
+        expect(finishEvent.type).toEqual(FINISH_PRINT)
+      })
+      it('records START_PRINT and FINISH_PRINT if the print is 1 line long', () => {
+        const task = MockTask({
+          jobID: job.id,
+          jobFileID: jobFile.id,
+          currentLineNumber: 0,
+          data: ['g1 x10 f3000'],
+        })
+        const action = despoolTask(task)
+
+        const nextState = jobQueueReducer(state, action)
+        const startEvent = nextState.history.first()
+        const finishEvent = nextState.history.last()
+
+        expect(nextState.history.size).toEqual(2)
+        expect(startEvent.type).toEqual(START_PRINT)
         expect(finishEvent.type).toEqual(FINISH_PRINT)
       })
     })

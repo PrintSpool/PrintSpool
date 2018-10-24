@@ -167,25 +167,26 @@ const jobQueueReducer = (state = initialState, action) => {
 
       if (jobID == null) return state
 
-      const eventType = (() => {
-        if (currentLineNumber === 0) return START_PRINT
-        if (currentLineNumber === data.size - 1) return FINISH_PRINT
-        return null
-      })()
+      const eventTypes = []
 
-      if (eventType == null) return state
+      if (currentLineNumber === 0) eventTypes.push(START_PRINT)
+      if (currentLineNumber === data.size - 1) eventTypes.push(FINISH_PRINT)
+
+      if (eventTypes.length === 0) return state
 
       /*
        * record the start or finish of the print in the job history
        */
-      const historyEvent = JobHistoryEvent({
-        jobID,
-        jobFileID,
-        taskID,
-        type: eventType,
-      })
+      const historyEvents = eventTypes.map(eventType => (
+        JobHistoryEvent({
+          jobID,
+          jobFileID,
+          taskID,
+          type: eventType,
+        })
+      ))
 
-      return state.update('history', history => history.push(historyEvent))
+      return state.update('history', history => history.concat(historyEvents))
     }
     default: {
       return state

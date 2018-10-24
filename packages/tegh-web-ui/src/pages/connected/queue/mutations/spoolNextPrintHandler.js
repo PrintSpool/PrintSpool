@@ -4,9 +4,7 @@ import gql from 'graphql-tag'
 
 const spoolJobFileGraphQL = gql`
   mutation spoolJobFile($input: SpoolJobFileInput!) {
-    spoolJobFile(input: $input) {
-      id
-    }
+    spoolJobFile(input: $input)
   }
 `
 

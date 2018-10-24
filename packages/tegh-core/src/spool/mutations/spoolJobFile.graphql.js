@@ -20,14 +20,15 @@ const SpoolJobFileInputGraphQL = new GraphQLInputObjectType({
 })
 
 const spoolJobFileGraphQL = () => ({
-  type: tql`${TaskGraphQL}!`,
+  type: tql`Boolean`,
   description: snl`
     Starts a print by spooling a task to print the job file.
   `,
 
   resolve: actionResolver({
     actionCreator: spoolJobFile,
-    selector: (state, action) => action.payload.task,
+    // selector: (state, action) => action.payload.task,
+    selector: () => null,
   }),
 
   args: {
