@@ -101,6 +101,7 @@ const ConnectionFrame = ({
     onWebRTCDisconnect={() => setWebRTCPeer(null)}
   >
     <LiveSubscription
+      reduxKey="ConnectionFrame"
       subscription={FRAME_SUBSCRIPTION}
       onSubscriptionData={({ subscriptionData }) => {
         setHostName({

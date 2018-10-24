@@ -33,6 +33,7 @@ const withLiveData = PageComponent => ({
   ...props,
 }) => (
   <LiveSubscription
+    reduxKey="PageWithLiveData"
     variables={variables}
     subscription={subscription}
   >
