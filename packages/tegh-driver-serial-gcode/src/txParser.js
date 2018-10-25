@@ -34,7 +34,7 @@ const BLOCKING_MCODES = ['M109', 'M190', 'M116']
 const parseHeaterID = (code, args) => {
   // extruders
   if (EXTRUDER_MCODES.includes(code)) {
-    const extruderNumber = args.p || 0
+    const extruderNumber = args.p || args.t || 0
     if (typeof extruderNumber !== 'number') {
       throw new Error('\'p\' argument is not a number')
     }
