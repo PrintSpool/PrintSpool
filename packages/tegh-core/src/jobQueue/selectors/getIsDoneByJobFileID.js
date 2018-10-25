@@ -12,7 +12,6 @@ const getIsDoneByJobFileID = createSelector(
   ) => (
     totalPrintsByJobFileID.map((total, jobFileID) => {
       const completed = printsCompletedByJobFileID.get(jobFileID, 0)
-
       return completed >= total
     })
   ),

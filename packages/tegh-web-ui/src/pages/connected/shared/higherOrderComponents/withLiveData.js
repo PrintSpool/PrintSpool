@@ -20,7 +20,11 @@ const enhance = compose(
   withStyles(styles, { withTheme: true }),
   connect(
     state => ({
-      connected: state.webRTC.peer != null,
+      connected: (
+        state.liveSubscriptions.get('ConnectionFrame') != null
+        && state.liveSubscriptions.get('PageWithLiveData') != null
+        && state.webRTC.peer != null
+      ),
     }),
   ),
 )

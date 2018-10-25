@@ -27,10 +27,10 @@ const liveGraphQL = () => ({
       const eventEmitter = new EventEmitter()
       const { store } = context
 
-      const emitUpdate = () => {
+      const emitUpdate = () => setImmediate(() => {
         const nextState = store.getState()
         eventEmitter.emit('update', { nextState })
-      }
+      })
 
       store.subscribe(_.throttle(emitUpdate, MAX_UPDATE_RATE_MS))
 
@@ -43,12 +43,14 @@ const liveGraphQL = () => ({
         'history',
         'printsCompleted',
         'totalPrints',
+        'printsQueued',
         'isDone',
       ],
       JobFile: [
         'tasks',
         'printsCompleted',
         'totalPrints',
+        'printsQueued',
         'isDone',
       ],
       Printer: [

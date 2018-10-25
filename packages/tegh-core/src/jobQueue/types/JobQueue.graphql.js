@@ -33,7 +33,7 @@ const JobQueueGraphQL = new GraphQLObjectType({
           const job = jobQueue.jobs.get(id)
           return [job]
         }
-        const jobs = jobQueue.jobs.toList()
+        const jobs = jobQueue.jobs.toList().sortBy(job => job.createdAt)
         return jobs
       },
     },

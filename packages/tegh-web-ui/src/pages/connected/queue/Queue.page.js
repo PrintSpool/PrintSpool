@@ -8,7 +8,7 @@ import JobList from './components/JobList'
 import withLiveData from '../shared/higherOrderComponents/withLiveData'
 
 const JOBS_SUBSCRIPTION = gql`
-  subscription {
+  subscription JobQueueSubscription {
     live {
       patch { op, path, from, value }
       query {
@@ -24,6 +24,7 @@ const JOBS_SUBSCRIPTION = gql`
             quantity
             printsCompleted
             totalPrints
+            isDone
             stoppedAt
 
             files {

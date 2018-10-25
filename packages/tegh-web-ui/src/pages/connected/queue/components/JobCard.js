@@ -29,9 +29,11 @@ const enhance = compose(
     },
   ),
   connect(null, {
-    pushLocation: pushActionCreator
-  })
+    pushLocation: pushActionCreator,
+  }),
 )
+
+// onClick={() => pushLocation(`jobs/${id}/`)}
 
 const JobCard = ({
   id,
@@ -40,18 +42,16 @@ const JobCard = ({
   printsCompleted,
   totalPrints,
   status,
-  // stoppedAt,
   tasks,
   cancelTask,
   deleteJob,
   menuAnchorEl,
   openMenu,
   closeMenu,
-  pushLocation,
+  // pushLocation,
 }) => (
   <Card>
     <CardHeader
-      onClick={() => pushLocation(`jobs/${id}/`)}
       title={V.truncate(name, 32)}
       subheader={`${printsCompleted} / ${totalPrints} prints completed`}
       action={

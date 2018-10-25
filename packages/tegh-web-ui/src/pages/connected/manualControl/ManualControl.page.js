@@ -19,7 +19,7 @@ import ZJogButtons from './components/jog/ZJogButtons'
 import HeaterControl, { HeaterControlFragment } from './components/heaters/HeaterControl'
 
 const MANUAL_CONTROL_SUBSCRIPTION = gql`
-  subscription($printerID: ID!) {
+  subscription ManualControlSubscription($printerID: ID!) {
     live {
       patch { op, path, from, value }
       query {

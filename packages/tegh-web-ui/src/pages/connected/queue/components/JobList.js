@@ -3,7 +3,6 @@ import { compose } from 'recompose'
 
 import {
   Typography,
-  CircularProgress,
   Modal,
 } from '@material-ui/core'
 
@@ -59,7 +58,10 @@ const JobList = ({
   deleteJob,
 }) => {
   const statuses = printers.map(printer => printer.status)
-  const disablePrintNextButton = statuses.includes('READY') === false
+  const disablePrintNextButton = (
+    statuses.includes('READY') === false
+    || jobs.every(job => job.files.every(jobFile => jobFile.printsQueued === 0))
+  )
 
   // TODO: recreate job status with a more limited scope
   const categories = [

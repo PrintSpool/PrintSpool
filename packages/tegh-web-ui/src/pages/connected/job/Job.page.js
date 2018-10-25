@@ -12,7 +12,7 @@ import cancelTaskHandler from '../queue/mutations/cancelTaskHandler'
 import withLiveData from '../shared/higherOrderComponents/withLiveData'
 
 const JOB_SUBSCRIPTION = gql`
-  subscription($jobID: ID!) {
+  subscription JobSubscription($jobID: ID!) {
     live {
       patch { op, path, from, value }
       query {

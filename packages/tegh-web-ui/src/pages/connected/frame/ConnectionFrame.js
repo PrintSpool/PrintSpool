@@ -56,7 +56,12 @@ const enhance = compose(
       return {
         myIdentity,
         hostIdentity: hostIdentities.get(hostID),
-        connected: state.webRTC.peer != null,
+        // TODO: this will not work for pages that do not subscribe to live data
+        connected: (
+          state.liveSubscriptions.get('ConnectionFrame') != null
+          && state.liveSubscriptions.get('PageWithLiveData') != null
+          && state.webRTC.peer != null
+        ),
       }
     },
     {
@@ -90,14 +95,7 @@ const ConnectionFrame = ({
   <TeghApolloProvider
     myIdentity={myIdentity}
     hostIdentity={hostIdentity}
-    onWebRTCConnect={(webRTCPeer) => {
-      // set the web RTC after the data is done loading so that the
-      // ConnectingPage doesn't flicker to the loading message at the last
-      // second.
-      // TODO: migrate to Apollo's redux cache and set isConnecting based
-      // on when Apollo actually loads the data
-      setTimeout((() => setWebRTCPeer(webRTCPeer)), 50)
-    }}
+    onWebRTCConnect={setWebRTCPeer}
     onWebRTCDisconnect={() => setWebRTCPeer(null)}
   >
     <LiveSubscription

@@ -27,6 +27,7 @@ const TeghClient = ({
     }
 
     const receiveData = dechunkifier((data) => {
+      // console.log('rx', data)
       teghSocket.onmessage({ data })
     })
 

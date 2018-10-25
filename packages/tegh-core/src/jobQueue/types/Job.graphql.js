@@ -63,7 +63,6 @@ const JobGraphQL = new GraphQLObjectType({
     totalPrints: {
       type: tql`Int!`,
       resolve(source, args, { store }) {
-        return 1
         const state = store.getState().jobQueue
         return getTotalPrintsByJobID(state).get(source.id)
       },
@@ -72,7 +71,7 @@ const JobGraphQL = new GraphQLObjectType({
       type: tql`Boolean!`,
       resolve(source, args, { store }) {
         const state = store.getState().jobQueue
-        return getIsDoneByJobID(state).get(source.id)
+        return getIsDoneByJobID(state).get(source.id, false)
       },
     },
 

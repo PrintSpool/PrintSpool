@@ -5384,13 +5384,14 @@ graphql-extensions@^0.0.x, graphql-extensions@~0.0.9:
     core-js "^2.5.3"
     source-map-support "^0.5.1"
 
-graphql-live-subscriptions@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/graphql-live-subscriptions/-/graphql-live-subscriptions-1.0.0.tgz#5fd3448913d6c5c9d08a88fb36bb5bf78f63d923"
-  integrity sha512-JT0AD7f2CKQdoW5FZ9oGApncup9BS8a2BGCzZJGI2ofUWb8tEoIzMD5eNDa/SlGI0TJ17fe1m5nVe1ilCWsihw==
+graphql-live-subscriptions@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/graphql-live-subscriptions/-/graphql-live-subscriptions-1.1.0.tgz#af0ae9c0a622b002d3f02155afb84275bc5f106e"
+  integrity sha512-kJGjribnJm6T8zn3fVT0MHjbTp+Avu0STHQMYg/QBNftMqJyxdOz0fDPnvYGFx3rHvMLpgtLK8ONfZfPM3rBmw==
   dependencies:
     fast-json-patch "^2.0.6"
     fast-memoize "^2.3.2"
+    list-diff2 livoras/list-diff#master
 
 "graphql-live-subscriptions@github:d1plo1d/graphql-live-subscriptions#feature/tree_diff":
   version "0.1.0"
@@ -7324,6 +7325,10 @@ liftoff@^2.5.0:
     object.map "^1.0.0"
     rechoir "^0.6.2"
     resolve "^1.1.7"
+
+list-diff2@livoras/list-diff#master:
+  version "0.1.4"
+  resolved "https://codeload.github.com/livoras/list-diff/tar.gz/7a35a1607e9f7baf3ab8c43bb68d424c6c0a7ca8"
 
 load-json-file@^1.0.0:
   version "1.1.0"
