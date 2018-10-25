@@ -35,9 +35,10 @@ const toggleHeater = (args, { config }) => {
         // the materials loaded in the extruders
         const targetBedTemperature = heaters.toList()
           .filter(h => h.type === EXTRUDER)
-          .minBy(({ materialID }) => (
+          .map(({ materialID }) => (
             getMaterial(config)(materialID).targetBedTemperature
           ))
+          .min()
 
         targetTemperatures[id] = targetBedTemperature
         return null
