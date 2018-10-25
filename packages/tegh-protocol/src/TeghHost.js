@@ -1,8 +1,8 @@
-import Promise from 'bluebird'
+
 import Peer from 'simple-peer'
 import EventEmitter from 'eventemitter3'
 
-import eventTrigger, { signalTrigger } from './shared/eventTrigger'
+import { signalTrigger } from './shared/eventTrigger'
 import connectToSignallingServer from './shared/connectToSignallingServer'
 import * as announcement from './shared/announcement'
 import { chunkifier, dechunkifier } from './shared/webRTCDataChunk'
@@ -26,10 +26,15 @@ const TeghHost = ({
   teghHost.CLOSED = 3
 
   const connect = async () => {
-    const announcementSocket = await connectToSignallingServer({
+    const {
+      socket: announcementSocket,
+      promise: announcementSocketPromise,
+    } = connectToSignallingServer({
       keys,
       signallingServer,
     })
+
+    await announcementSocketPromise
 
     announcementSocket.on('announcement', async (announcementMessage) => {
       // validate and decrypt the client's announcement

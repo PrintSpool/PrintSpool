@@ -18,12 +18,24 @@ const TeghClient = ({
   const TeghClientSocket = (signallingServer, protocol) => {
     const rtcPeer = new Peer({ initiator: true })
 
+    const {
+      socket: announcementSocket,
+      promise: announcementSocketPromise,
+    } = connectToSignallingServer({
+      keys,
+      signallingServer,
+    })
+
     const teghSocket = {
       readyState: CONNECTING,
       send: () => {
         throw new Error('Cannot call send before connected')
       },
-      close: () => rtcPeer.destroy(),
+      close: () => {
+        console.log('close webrtc')
+        rtcPeer.destroy()
+        announcementSocket.close()
+      },
     }
 
     const receiveData = dechunkifier((data) => {
@@ -32,12 +44,11 @@ const TeghClient = ({
     })
 
     const connect = async () => {
-      const announcementSocket = await connectToSignallingServer({
-        keys,
-        signallingServer,
-      })
+      console.log('connecting...')
+      await announcementSocketPromise
 
       // create an offer signal
+      console.log('sending offer...')
       const offer = await signalTrigger(rtcPeer, 'offer')
 
       // announce the offer

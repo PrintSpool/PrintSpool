@@ -54,7 +54,7 @@ const createTeghApolloClient = ({
     webSocketImpl: teghClient,
   })
 
-  clearTimeout(wsLink.subscriptionClient.maxConnectTimeoutId)
+  // clearTimeout(wsLink.subscriptionClient.maxConnectTimeoutId)
 
   const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (graphQLErrors) {

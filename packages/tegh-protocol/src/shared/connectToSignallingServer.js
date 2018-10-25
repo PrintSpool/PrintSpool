@@ -12,11 +12,16 @@ const connectToSignallingServer = ({ keys, signallingServer }) => {
     },
   })
 
-  return new Promise((resolve) => {
+  const promise = new Promise((resolve) => {
     socket.once('connect', () => {
       resolve(socket)
     })
   })
+
+  return {
+    socket,
+    promise,
+  }
 }
 
 export default connectToSignallingServer
