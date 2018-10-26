@@ -12,7 +12,7 @@ const checksum = (line) => {
   })
   // eslint-disable-next-line no-bitwise
   sum &= 0xff
-  return sum
+  return `${line}*${sum}\n`
 }
 
 const serialSend = (line, { lineNumber }) => {
@@ -25,12 +25,12 @@ const serialSend = (line, { lineNumber }) => {
   }
 
   const processedLine = (() => {
-    if (lineNumber === false) return `${line}\n`
+    if (lineNumber === false) return checksum(line)
     if (typeof lineNumber !== 'number') {
       throw new Error('lineNumber must either be false or a number')
     }
     const lineWithLineNumber = `N${lineNumber} ${line}`
-    return `${lineWithLineNumber}*${checksum(lineWithLineNumber)}\n`
+    return checksum(lineWithLineNumber)
   })()
 
   return {

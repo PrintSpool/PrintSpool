@@ -1,5 +1,5 @@
 // @flow
-const GREETINGS = /^\u0000?(start|grbl )/
+const GREETINGS = /^\u0000?(start|grbl |marlin)/
 /*
  * Serial data corruption might result in ok, okok, kok or ook being sent. All
  * of these should be treated as 'ok'.
@@ -73,7 +73,10 @@ const rxParser = (raw: string): RxData => {
       raw,
     }
   }
-  if (line.startsWith('debug_')) {
+  if (
+    line.startsWith('debug_')
+    || line.startsWith('compiled:')
+  ) {
     return {
       type: 'debug',
       raw,

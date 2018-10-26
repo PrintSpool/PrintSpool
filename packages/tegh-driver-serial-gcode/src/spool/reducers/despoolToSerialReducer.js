@@ -10,6 +10,7 @@ import {
   driverError,
 } from 'tegh-core'
 
+import { SERIAL_CLOSE } from '../../serial/actions/serialClose'
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import serialSend, { SERIAL_SEND } from '../../serial/actions/serialSend'
 
@@ -48,10 +49,15 @@ const despoolToSerialReducer = (state = initialState, action) => {
        */
       const lineNumber = emergency ? false : state.currentSerialLineNumber
 
+      const nextState = state.set('lastTaskSent', task)
+
       return loop(
-        state,
+        nextState,
         Cmd.action(serialSend(currentLine, { lineNumber })),
       )
+    }
+    case SERIAL_CLOSE: {
+      return state.set('currentSerialLineNumber', 1)
     }
     case SERIAL_SEND: {
       const { lineNumber } = action.payload
@@ -117,12 +123,13 @@ const despoolToSerialReducer = (state = initialState, action) => {
             .set('onNextOK', RESEND_ON_OK)
         }
         case 'error': {
+          let { message } = action.payload
+          if (task != null) {
+            message = `${task.name}:${task.currentLineNumber}: ${message}`
+          }
           const errorAction = driverError({
             code: 'FIRMWARE_ERROR',
-            message: snl`
-              ${task.name}:${task.currentLineNumber}:
-              ${action.payload.message}
-            `,
+            message,
           })
 
           return loop(state, Cmd.action(errorAction))

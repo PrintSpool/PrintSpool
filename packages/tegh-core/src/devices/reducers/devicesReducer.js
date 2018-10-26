@@ -28,7 +28,6 @@ const devicesReducer = (state = initialState, action) => {
     }
     case DEVICE_CONNECTED: {
       const { device } = action.payload
-      // console.log('CONNECT', device.id)
 
       return state.setIn(['byID', device.id], device)
     }

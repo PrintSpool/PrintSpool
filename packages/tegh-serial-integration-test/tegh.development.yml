@@ -7,7 +7,7 @@ log:
   maxLength: 1000
   stderr:
     # - trivial
-    # - info
+    - info
     - warning
     - error
     - fatal
@@ -75,6 +75,7 @@ plugins:
     package: tegh-driver-serial-gcode
     settings:
       serialPort:
-        portID: /dev/ttyACM0
+        portID: /dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00
         baudRate: 250000
-        simulation: true
+        simulation: false
+        # simulation: true

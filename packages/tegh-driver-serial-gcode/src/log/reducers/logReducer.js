@@ -49,25 +49,13 @@ const logReducer = (_state, action) => {
         message: action.payload.line.replace('\n', ''),
       }
     }
-    case SERIAL_RESET: {
-      return {
-        source: 'SERIAL',
-        level: 'info',
-        message: 'Serial Reset',
-      }
-    }
+    case SERIAL_OPEN:
+    case SERIAL_RESET:
     case PRINTER_DISCONNECTED: {
       return {
         source: 'SERIAL',
         level: 'info',
-        message: 'Serial Disconnected',
-      }
-    }
-    case SERIAL_OPEN: {
-      return {
-        source: 'SERIAL',
-        level: 'info',
-        message: 'Serial Connected',
+        message: action.type,
       }
     }
     case SERIAL_ERROR: {
@@ -93,7 +81,7 @@ const logReducer = (_state, action) => {
       return {
         source: 'ACTION',
         level: 'trivial',
-        message: JSON.stringify(action),
+        message: action.type,
       }
     }
   }

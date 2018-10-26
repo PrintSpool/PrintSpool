@@ -68,6 +68,7 @@ const peripheralsReducer = (state = initialState, action) => {
 
       if (temperatures != null) {
         Object.entries(temperatures).forEach(([k, v]) => {
+          if (state.heaters.get(k) == null) return
           nextState = nextState.setIn(['heaters', k, 'currentTemperature'], v)
         })
       }

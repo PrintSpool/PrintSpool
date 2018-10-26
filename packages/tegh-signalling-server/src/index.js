@@ -4,12 +4,12 @@ var io = require('socket.io')(http)
 
 io.on('connection', function(socket){
   const { fingerprint } = socket.handshake.query
-  console.log('NEW: ', fingerprint)
+  // console.log('NEW: ', fingerprint)
   socket.join([fingerprint])
   // console.log('a user connected', socket.handshake.query)
   socket.on('announcement', function(msg){
     // console.log('message: ', msg)
-    console.log('TO:  ', msg.to)
+    // console.log('TO:  ', msg.to)
 
     io.to(msg.to).emit('announcement', msg)
   })

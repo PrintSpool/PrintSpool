@@ -9,6 +9,7 @@ import getSerialTimeout from '../../config/selectors/getSerialTimeout'
 
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import serialSend, { SERIAL_SEND } from '../../serial/actions/serialSend'
+import { SERIAL_CLOSE } from '../../serial/actions/serialClose'
 import serialTimeout from '../../serial/actions/serialTimeout'
 import requestSerialPortTickle, { REQUEST_SERIAL_PORT_TICKLE } from '../actions/requestSerialPortTickle'
 
@@ -77,6 +78,12 @@ const serialTimeoutReducer = (state = initialState, action) => {
           .set('timeoutPeriod', null)
       }
       return state
+    }
+    case SERIAL_CLOSE: {
+      return state
+        .set('ticklesAttempted', 0)
+        .set('awaitingLineNumber', null)
+        .set('timeoutPeriod', null)
     }
     case REQUEST_SERIAL_PORT_TICKLE: {
       if (action.payload.awaitingLineNumber !== state.awaitingLineNumber) {

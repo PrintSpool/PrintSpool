@@ -34,12 +34,21 @@ const statusReducer = (state = initialState, action) => {
       return initialState.set('status', ESTOPPED)
     }
     case PRINTER_DISCONNECTED: {
+      if (state.status === DISCONNECTED) {
+        throw new Error('Cannot disconnect a printer if it is not connected')
+      }
       return initialState.set('status', DISCONNECTED)
     }
     case CONNECT_PRINTER: {
+      if (state.status === CONNECTING || state.status === READY) {
+        throw new Error(`Cannot connect printer when status = ${state.status}`)
+      }
       return initialState.set('status', CONNECTING)
     }
     case PRINTER_READY: {
+      if (state.status !== CONNECTING) {
+        throw new Error('Cannot set status to READY without connecting first')
+      }
       return initialState.set('status', READY)
     }
     case SPOOL_TASK: {

@@ -1,6 +1,9 @@
 /* config */
 export setConfig, { SET_CONFIG } from './config/actions/setConfig'
 export initializeConfig from './config/actions/initializeConfig'
+/* devices */
+export deviceConnected, { DEVICE_CONNECTED } from './devices/actions/deviceConnected'
+export deviceDisconnected, { DEVICE_DISCONNECTED } from './devices/actions/deviceDisconnected'
 /* printer */
 export driverError, { DRIVER_ERROR } from './printer/actions/driverError'
 export estop, { ESTOP } from './printer/actions/estop'

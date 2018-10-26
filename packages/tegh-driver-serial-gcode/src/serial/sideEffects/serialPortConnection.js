@@ -42,10 +42,10 @@ const serialPortConnection = ({
   }
 
   removeEventListeners = () => {
-    serialPort.removeEventListener('open', onOpen)
-    serialPort.removeEventListener('close', onClose)
-    parser.removeEventListener('error', onError)
-    parser.removeEventListener('data', onData)
+    serialPort.removeListener('open', onOpen)
+    serialPort.removeListener('close', onClose)
+    parser.removeListener('error', onError)
+    parser.removeListener('data', onData)
   }
 
   serialPort

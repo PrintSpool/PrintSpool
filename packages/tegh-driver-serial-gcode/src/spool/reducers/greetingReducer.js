@@ -18,6 +18,7 @@ import greetingDelayDone, { GREETING_DELAY_DONE } from '../actions/greetingDelay
 export const initialState = Record({
   delayAfterGreeting: 50,
   isConnecting: false,
+  awaitingGreeting: false,
 })()
 
 /*
@@ -34,15 +35,19 @@ const greetingReducer = (state = initialState, action) => {
       return state.set('isConnecting', false)
     }
     case CONNECT_PRINTER: {
-      return state.set('isConnecting', true)
+      return state
+        .set('isConnecting', true)
+        .set('awaitingGreeting', true)
     }
     case SERIAL_RECEIVE: {
       if (state.isConnecting === false) return state
 
       switch (action.payload.type) {
         case 'greeting': {
+          if (state.awaitingGreeting === false) return state
+
           return loop(
-            state,
+            state.set('awaitingGreeting', false),
             Cmd.run(Promise.delay, {
               args: [state.delayAfterGreeting],
               successActionCreator: greetingDelayDone,

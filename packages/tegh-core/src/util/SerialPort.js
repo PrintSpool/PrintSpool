@@ -39,13 +39,12 @@ class ReactNativeSerialPort extends EventEmitter {
   }
 }
 
-const SerialPort = (deviceID, serialOptions) => {
+const SerialPort = (() => {
   if (isReactNative) {
-    return ReactNativeSerialPort(deviceID, serialOptions)
+    return ReactNativeSerialPort
   }
-
-  return NodeSerialPort(deviceID, serialOptions)
-}
+  return NodeSerialPort
+})()
 
 SerialPort.getDeviceList = async ({ UsbSerial }) => {
   if (isReactNative) {
