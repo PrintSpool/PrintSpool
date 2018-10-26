@@ -6,7 +6,7 @@ import {
   withStyles,
 } from '@material-ui/core'
 
-import { LiveSubscription } from 'apollo-react-live-subscriptions'
+import { LiveSubscription } from '../../../../util/LiveSubscription'
 
 import ConnectingPage from '../Connecting.page'
 

@@ -1,43 +1,19 @@
-id: test_printer_id
-name: 'lulzbot-test-printer'
-macros:
-  tegh-macros-default:
-    - '*'
-log:
-  maxLength: 1000
-  stderr:
-    # - trivial
-    - info
-    - warning
-    - error
-    - fatal
-crashReports:
-  directory: /var/log/tegh
-  uploadCrashReportsToDevs: true
-printFromLocalPath:
-  enabled: true
-  allowSymlinks: false
-  whitelist:
-    - ~/.tegh-local-files/
-server:
-  signallingServer: ws://localhost:3000
-  keys: ~/.tegh/dev.development.keys.json
-  webRTC: true
-  tcpPort: 3901
-  # unixSocket: /tmp/tegh_development_socket
-  # unixSocket: /var/run/tegh_development_socket
+id: aaxcvxcvcxv-bvb-csdf234231
 
-materials:
-  example/pla:
-    targetTemperature: 220
-    targetBedTemperature: 60
-  example/abs:
-    targetTemperature: 200
-    targetBedTemperature: 60
+name: 'Left Home Lulzbot'
+makeAndModel: 'lulzbot/lulzbot-mini-2'
+
+controllers:
+  - type: 'SERIAL'
+    portID: /dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00
+    baudRate: 250000
+    simulation: false
+    # simulation: true
 
 machine:
-  id: 'example/reprap'
-  driver: tegh-driver-serial-gcode
+  # TODO: driver should be made obsolete by replacing all driver-based lookups
+  # with actions that set core reducer values.
+  # driver: tegh-driver-serial-gcode
   # feedrates are in mm/s
   axes:
     x:
@@ -48,34 +24,62 @@ machine:
       feedrate: 4
   peripherals:
     e0:
-      id: e0
       type: EXTRUDER
       name: 'Extruder 1'
       feedrate: 3
       materialID: example/pla
     e1:
-      id: e1
       type: EXTRUDER
       name: 'Extruder 2'
       feedrate: 3
       materialID: example/abs
     b:
-      id: b
       type: HEATED_BED
       name: 'Bed'
     f:
-      id: f
       type: FAN
       name: 'Extruder Fan'
 
+materials:
+  example/pla:
+    targetTemperature: 220
+    targetBedTemperature: 60
+  example/abs:
+    targetTemperature: 200
+    targetBedTemperature: 60
+
+# ---- Future Plugin System Configuration (no GUI) ---
+
+# Note to self: in GraphQL make plugin settings 1 level of key/values (no nested plugin settings)
 plugins:
   tegh-macros-default:
-    package: tegh-macros-default
-  tegh-driver-serial-gcode:
-    package: tegh-driver-serial-gcode
-    settings:
-      serialPort:
-        portID: /dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00
-        baudRate: 250000
-        simulation: false
-        # simulation: true
+    macros: ['*']
+  tegh-driver-serial-gcode: {}
+  # tegh-print-from-local-path:
+  #   enabled: true
+  #   allowSymlinks: false
+  #   whitelist:
+  #     - ~/.tegh-local-files/
+
+# ---- Advanced Configuration (no GUI) ---
+
+log:
+  maxLength: 1000
+  stderr:
+    # - trivial
+    - info
+    - warning
+    - error
+    - fatal
+
+crashReports:
+  directory: /var/log/tegh
+  uploadCrashReportsToDevs: true
+
+server:
+  signallingServer: ws://localhost:3000
+  keys: ~/.tegh/dev.development.keys.json
+  webRTC: true
+  tcpPort: 3901
+  # unixSocket: /tmp/tegh_development_socket
+  # unixSocket: /var/run/tegh_development_socket
