@@ -31,6 +31,9 @@ const statusReducer = (state = initialState, action) => {
         .set('error', action.payload)
     }
     case ESTOP: {
+      if (state.status !== READY) {
+        throw new Error('Cannot estop if the printer is not ready')
+      }
       return initialState.set('status', ESTOPPED)
     }
     case PRINTER_DISCONNECTED: {

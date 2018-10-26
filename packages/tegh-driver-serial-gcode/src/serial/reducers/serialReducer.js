@@ -136,6 +136,12 @@ const serialReducer = (state = initialState, action) => {
       // Resets are handled by reconnecting the serial port
       if (action.payload.code === 'M999') return state
 
+      // Sometimes estops are attempted after the serial port is closed
+      // ignore them - an error will be thrown by the status reducer.
+      if (state.serialPort === null && action.payload.code === 'M999') {
+        return state
+      }
+
       return loop(
         state,
         Cmd.run(writeToSerialPort, {
