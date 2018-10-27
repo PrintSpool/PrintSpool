@@ -7,12 +7,10 @@ import {
   Typography,
   List,
   ListItem,
+  FormControlLabel,
   TextField,
   MenuItem,
-  ListItemText,
-  ListSubheader,
-  Dialog,
-  Paper,
+  Switch,
 } from '@material-ui/core'
 import Loader from 'react-loader-advanced'
 import gql from 'graphql-tag'
@@ -60,7 +58,7 @@ const enhance = compose(
   })),
 )
 
-const PrinterConfigPage = ({ classes, config }) => (
+const ControllerConfigPage = ({ classes, config }) => (
   <main>
     <Grid container className={classes.fieldsGrid}>
       <Grid item xs={12}>
@@ -73,34 +71,47 @@ const PrinterConfigPage = ({ classes, config }) => (
         <TextField
           required
           select
-          label="Make and model"
+          label="Serial Port"
           margin="normal"
           fullWidth
         >
-          {['Lulzbot Mini 1', 'Lulzbot Mini 2'].map(option => (
+          {['Arduino_1', 'Arduino_2'].map(option => (
             <MenuItem key={option} value={option}>
               {option}
             </MenuItem>
           ))}
         </TextField>
-        {
-          Object.entries(config.machine.axes).map(([k, attrs]) => (
-            <TextField
-              key={k}
-              required
-              label={`${k.toUpperCase()} Feedrate`}
-              margin="normal"
-              fullWidth
-            />
-          ))
-        }
+        <TextField
+          required
+          select
+          label="Baud Rate"
+          margin="normal"
+          fullWidth
+        >
+          {['Arduino_1', 'Arduino_2'].map(option => (
+            <MenuItem key={option} value={option}>
+              {option}
+            </MenuItem>
+          ))}
+        </TextField>
       </Grid>
     </Grid>
+
+    <List>
+      <ListItem>
+        <FormControlLabel
+          label="Simulate Attached Controller"
+          control={
+            <Switch />
+          }
+        />
+      </ListItem>
+    </List>
 
   </main>
 )
 
 export const Component = withStyles(styles, { withTheme: true })(
-  PrinterConfigPage,
+  ControllerConfigPage,
 )
-export default enhance(PrinterConfigPage)
+export default enhance(ControllerConfigPage)

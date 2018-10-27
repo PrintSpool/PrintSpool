@@ -21,19 +21,19 @@ const enhance = compose(
 const ConfigPage = () => (
   <main>
     <List component="nav">
-      <ListItem button>
+      <ListItem button divider>
         <ListItemIcon>
           <Print />
         </ListItemIcon>
         <ListItemText primary="3D Printer" />
       </ListItem>
-      <ListItem button>
+      <ListItem button divider>
         <ListItemIcon>
           <DeviceHub />
         </ListItemIcon>
         <ListItemText primary="Components" />
       </ListItem>
-      <ListItem button>
+      <ListItem button divider>
         <ListItemIcon>
           <Style />
         </ListItemIcon>

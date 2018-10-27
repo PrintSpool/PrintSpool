@@ -3,14 +3,6 @@ const config = {
   "id": "aaxcvxcvcxv-bvb-csdf234231",
   "name": "Left Home Lulzbot",
   "makeAndModel": "lulzbot/lulzbot-mini-2",
-  "controllers": [
-    {
-      "type": "SERIAL",
-      "portID": "/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00",
-      "baudRate": 250000,
-      "simulation": false
-    }
-  ],
   "machine": {
     "axes": {
       "x": {
@@ -23,7 +15,14 @@ const config = {
         "feedrate": 4
       }
     },
-    "peripherals": {
+    "components": {
+      "serialController": {
+        "type": "SERIAL_CONTROLLER",
+        "name": "Serial Controller Board",
+        "portID": "/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00",
+        "baudRate": 250000,
+        "simulation": false
+      },
       "e0": {
         "type": "EXTRUDER",
         "name": "Extruder 1",

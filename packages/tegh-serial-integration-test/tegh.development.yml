@@ -4,8 +4,9 @@ name: 'Left Home Lulzbot'
 makeAndModel: 'lulzbot/lulzbot-mini-2'
 
 controllers:
-  - type: 'SERIAL'
-    portID: /dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00
+  - name: 'Serial Controller Board'
+    type: 'SERIAL'
+    serialPortID: /dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00
     baudRate: 250000
     simulation: false
     # simulation: true
