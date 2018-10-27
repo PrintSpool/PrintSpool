@@ -74,34 +74,30 @@ const enhance = compose(
   })),
 )
 
-const peripheralsOfType = (config, ofType) => (
-  Object.entries(config.machine.components)
-    .filter(([k, peripheral]) => peripheral.type === ofType)
+const componentsOfType = (config, ofType) => (
+  config.machine.components
+    .filter(component => component.type === ofType)
 )
 
 const CATEGORIES = [
   {
     type: 'SERIAL_CONTROLLER',
     heading: 'Controllers',
-    singularName: 'Controller',
     Icon: Usb,
   },
   {
-    type: 'EXTRUDER',
-    heading: 'Extruders',
-    singularName: 'Extruder',
+    type: 'TOOLHEAD',
+    heading: 'Toolheads',
     Icon: Waves,
   },
   {
-    type: 'HEATED_BED',
-    heading: 'Heated Beds',
-    singularName: 'Heated Bed',
+    type: 'BUILD_PLATFORM',
+    heading: 'Build Platform',
     Icon: VideoLabel,
   },
   {
     type: 'FAN',
     heading: 'Fans',
-    singularName: 'Fan',
     Icon: Toys,
   },
 ]
@@ -119,14 +115,19 @@ const ComponentsConfigPage = ({ classes, config }) => (
     </Tooltip>
     <List>
       {
-        CATEGORIES.map(({ type, heading, singularName, Icon }) => (
+        CATEGORIES.map(({
+          type,
+          heading,
+          // singularName,
+          Icon,
+        }) => (
           <div>
             <ListSubheader>
               {heading}
             </ListSubheader>
             {
-              peripheralsOfType(config, type).map(([k, peripheral]) => (
-                <ListItem button key={k}>
+              componentsOfType(config, type).map(peripheral => (
+                <ListItem button key={peripheral.id}>
                   <ListItemIcon>
                     {
                       (

@@ -7,12 +7,10 @@ import {
   Typography,
   List,
   ListItem,
+  FormControlLabel,
   TextField,
   MenuItem,
-  ListItemText,
-  ListSubheader,
-  Dialog,
-  Paper,
+  Switch,
 } from '@material-ui/core'
 import Loader from 'react-loader-advanced'
 import gql from 'graphql-tag'
@@ -60,7 +58,7 @@ const enhance = compose(
   })),
 )
 
-const PrinterConfigPage = ({ classes, config }) => (
+const ExtruderConfigPage = ({ classes, heater }) => (
   <main>
     <Grid container className={classes.fieldsGrid}>
       <Grid item xs={12}>
@@ -72,35 +70,39 @@ const PrinterConfigPage = ({ classes, config }) => (
         />
         <TextField
           required
+          label="Feedrate"
+          margin="normal"
+          fullWidth
+        />
+        <TextField
+          required
           select
-          label="Make and model"
+          label="Material"
           margin="normal"
           fullWidth
         >
-          {['Lulzbot Mini 1', 'Lulzbot Mini 2'].map(option => (
+          {['PLA', 'ABS'].map(option => (
             <MenuItem key={option} value={option}>
               {option}
             </MenuItem>
           ))}
         </TextField>
-        {
-          config.machine.axes.map(axis => (
-            <TextField
-              key={axis.id}
-              required
-              label={`${axis.id.toUpperCase()} Feedrate`}
-              margin="normal"
-              fullWidth
-            />
-          ))
-        }
       </Grid>
     </Grid>
-
+    <List>
+      <ListItem>
+        <FormControlLabel
+          label="Heated Extruder"
+          control={
+            <Switch />
+          }
+        />
+      </ListItem>
+    </List>
   </main>
 )
 
 export const Component = withStyles(styles, { withTheme: true })(
-  PrinterConfigPage,
+  ExtruderConfigPage,
 )
-export default enhance(PrinterConfigPage)
+export default enhance(ExtruderConfigPage)

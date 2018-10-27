@@ -4,57 +4,70 @@ const config = {
   "name": "Left Home Lulzbot",
   "makeAndModel": "lulzbot/lulzbot-mini-2",
   "machine": {
-    "axes": {
-      "x": {
+    "axes": [
+      {
+        "id": "x",
         "feedrate": 150
       },
-      "y": {
+      {
+        "id": "y",
         "feedrate": 150
       },
-      "z": {
+      {
+        "id": "z",
         "feedrate": 4
       }
-    },
-    "components": {
-      "serialController": {
+    ],
+    "components": [
+      {
+        "id": "serialController",
         "type": "SERIAL_CONTROLLER",
         "name": "Serial Controller Board",
         "portID": "/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00",
         "baudRate": 250000,
         "simulation": false
       },
-      "e0": {
-        "type": "EXTRUDER",
+      {
+        "id": "e0",
+        "type": "TOOLHEAD",
         "name": "Extruder 1",
+        "heater": true,
         "feedrate": 3,
         "materialID": "example/pla"
       },
-      "e1": {
-        "type": "EXTRUDER",
+      {
+        "id": "e1",
+        "type": "TOOLHEAD",
         "name": "Extruder 2",
+        "heater": true,
         "feedrate": 3,
         "materialID": "example/abs"
       },
-      "b": {
-        "type": "HEATED_BED",
-        "name": "Bed"
+      {
+        "id": "b",
+        "type": "BUILD_PLATFORM",
+        "name": "Bed",
+        "heater": true
       },
-      "f": {
+      {
+        "id": "f",
         "type": "FAN",
         "name": "Extruder Fan"
-      }
-    }
+      },
+    ]
   },
-  "materials": {
-    "example/pla": {
+  "materials": [
+    {
+      "id": "example/pla",
       "targetTemperature": 220,
       "targetBedTemperature": 60
     },
-    "example/abs": {
+    {
+      "id": "example/abs",
       "targetTemperature": 200,
       "targetBedTemperature": 60
     }
-  },
+  ],
   "plugins": {
     "tegh-macros-default": {
       "macros": [
