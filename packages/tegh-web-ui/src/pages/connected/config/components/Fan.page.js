@@ -12,12 +12,9 @@ import {
   MenuItem,
   Switch,
 } from '@material-ui/core'
-import Loader from 'react-loader-advanced'
 import gql from 'graphql-tag'
 
-import withLiveData from '../shared/higherOrderComponents/withLiveData'
-
-import PrinterStatusGraphQL from '../shared/PrinterStatus.graphql'
+import withLiveData from '../../shared/higherOrderComponents/withLiveData'
 
 const CONFIG_SUBSCRIPTION = gql`
   subscription ConfigSubscription($printerID: ID!) {
@@ -25,14 +22,11 @@ const CONFIG_SUBSCRIPTION = gql`
       patch { op, path, from, value }
       query {
         printers {
-          ...PrinterStatus
+          id
         }
       }
     }
   }
-
-  # fragments
-  ${PrinterStatusGraphQL}
 `
 
 const styles = theme => ({
@@ -58,7 +52,7 @@ const enhance = compose(
   })),
 )
 
-const BuildPlatformConfigPage = ({ classes, config }) => (
+const FanConfigPage = ({ classes, config }) => (
   <main>
     <Grid container className={classes.fieldsGrid}>
       <Grid item xs={12}>
@@ -70,20 +64,10 @@ const BuildPlatformConfigPage = ({ classes, config }) => (
         />
       </Grid>
     </Grid>
-    <List>
-      <ListItem>
-        <FormControlLabel
-          label="Heated Build Platform"
-          control={
-            <Switch />
-          }
-        />
-      </ListItem>
-    </List>
   </main>
 )
 
 export const Component = withStyles(styles, { withTheme: true })(
-  BuildPlatformConfigPage,
+  FanConfigPage,
 )
-export default enhance(BuildPlatformConfigPage)
+export default enhance(FanConfigPage)

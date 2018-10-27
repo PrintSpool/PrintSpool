@@ -1,5 +1,6 @@
 import React from 'react'
 import { compose, withProps } from 'recompose'
+import { Link } from 'react-router-dom'
 import {
   withStyles,
   Grid,
@@ -82,7 +83,12 @@ const MaterialsConfigIndex = ({ classes, config }) => (
     <List>
       {
         config.materials.map(material => (
-          <ListItem button key={material.id}>
+          <ListItem
+            button
+            divider
+            key={material.id}
+            component={props => <Link to={`${material.id}/`} {...props} />}
+          >
             <ListItemIcon>
               <Style />
             </ListItemIcon>

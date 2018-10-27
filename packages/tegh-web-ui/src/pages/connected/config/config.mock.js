@@ -21,7 +21,8 @@ const config = {
     "components": [
       {
         "id": "serialController",
-        "type": "SERIAL_CONTROLLER",
+        "type": "CONTROLLER",
+        "interface": "SERIAL",
         "name": "Serial Controller Board",
         "portID": "/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00",
         "baudRate": 250000,
@@ -58,12 +59,12 @@ const config = {
   },
   "materials": [
     {
-      "id": "example/pla",
+      "id": "generic/pla",
       "targetTemperature": 220,
       "targetBedTemperature": 60
     },
     {
-      "id": "example/abs",
+      "id": "generic/abs",
       "targetTemperature": 200,
       "targetBedTemperature": 60
     }

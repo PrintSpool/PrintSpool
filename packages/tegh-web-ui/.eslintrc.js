@@ -1,8 +1,8 @@
 module.exports = {
     "env": {
-        "browser": false,
-        "es6": true,
-        "jest/globals": true,
+      "browser": false,
+      "es6": true,
+      "jest/globals": true,
     },
     "plugins": [
       "jest",
@@ -23,6 +23,12 @@ module.exports = {
       "no-restricted-syntax": 0,
       "immutablejs/no-native-map-set": 2,
       "react/jsx-filename-extension": 0,
-      "react/prop-types": 0
-    }
+      "react/prop-types": 0,
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          "devDependencies": ["**/*.test.js", "**/*.story.js"]
+        }
+      ],
+    },
 };

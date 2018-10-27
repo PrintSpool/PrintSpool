@@ -1,5 +1,6 @@
 import React from 'react'
 import { compose, withProps } from 'recompose'
+import { Link } from 'react-router-dom'
 import {
   withStyles,
   Grid,
@@ -18,9 +19,7 @@ import {
 import {
   Usb,
   Toys,
-  DeveloperBoard,
   VideoLabel,
-  KeyboardArrowDown,
   Widgets,
   Waves,
   Add,
@@ -29,9 +28,7 @@ import {
 import Loader from 'react-loader-advanced'
 import gql from 'graphql-tag'
 
-import withLiveData from '../shared/higherOrderComponents/withLiveData'
-
-import PrinterStatusGraphQL from '../shared/PrinterStatus.graphql'
+import withLiveData from '../../shared/higherOrderComponents/withLiveData'
 
 const CONFIG_SUBSCRIPTION = gql`
   subscription ConfigSubscription($printerID: ID!) {
@@ -39,14 +36,11 @@ const CONFIG_SUBSCRIPTION = gql`
       patch { op, path, from, value }
       query {
         printers {
-          ...PrinterStatus
+          id
         }
       }
     }
   }
-
-  # fragments
-  ${PrinterStatusGraphQL}
 `
 
 const styles = theme => ({
@@ -81,28 +75,32 @@ const componentsOfType = (config, ofType) => (
 
 const CATEGORIES = [
   {
-    type: 'SERIAL_CONTROLLER',
+    type: 'CONTROLLER',
     heading: 'Controllers',
+    slug: 'controllers',
     Icon: Usb,
   },
   {
     type: 'TOOLHEAD',
     heading: 'Toolheads',
+    slug: 'toolheads',
     Icon: Waves,
   },
   {
     type: 'BUILD_PLATFORM',
     heading: 'Build Platform',
+    slug: 'build-platforms',
     Icon: VideoLabel,
   },
   {
     type: 'FAN',
     heading: 'Fans',
+    slug: 'fans',
     Icon: Toys,
   },
 ]
 
-const ComponentsConfigPage = ({ classes, config }) => (
+const ComponentsConfigIndex = ({ classes, config }) => (
   <main>
     <Tooltip title="Add Component" placement="left">
       <Button
@@ -118,16 +116,24 @@ const ComponentsConfigPage = ({ classes, config }) => (
         CATEGORIES.map(({
           type,
           heading,
-          // singularName,
+          slug,
           Icon,
         }) => (
-          <div>
+          <div key={type}>
             <ListSubheader>
               {heading}
             </ListSubheader>
             {
               componentsOfType(config, type).map(peripheral => (
-                <ListItem button key={peripheral.id}>
+                <ListItem
+                  button
+                  divider
+                  key={peripheral.id}
+                  component={props => (
+                    <Link to={`${slug}/${peripheral.id}/`} {...props} />
+                  )}
+                >
+
                   <ListItemIcon>
                     {
                       (
@@ -151,6 +157,6 @@ const ComponentsConfigPage = ({ classes, config }) => (
 )
 
 export const Component = withStyles(styles, { withTheme: true })(
-  ComponentsConfigPage,
+  ComponentsConfigIndex,
 )
-export default enhance(ComponentsConfigPage)
+export default enhance(ComponentsConfigIndex)

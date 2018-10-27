@@ -1,5 +1,6 @@
 import React from 'react'
 import { compose, withProps } from 'recompose'
+import { Link } from 'react-router-dom'
 import {
   Grid,
   Typography,
@@ -21,19 +22,31 @@ const enhance = compose(
 const ConfigPage = () => (
   <main>
     <List component="nav">
-      <ListItem button divider>
+      <ListItem
+        button
+        divider
+        component={props => <Link to={'printer/'} {...props} />}
+      >
         <ListItemIcon>
           <Print />
         </ListItemIcon>
         <ListItemText primary="3D Printer" />
       </ListItem>
-      <ListItem button divider>
+      <ListItem
+        button
+        divider
+        component={props => <Link to={'components/'} {...props} />}
+      >
         <ListItemIcon>
           <DeviceHub />
         </ListItemIcon>
         <ListItemText primary="Components" />
       </ListItem>
-      <ListItem button divider>
+      <ListItem
+        button
+        divider
+        component={props => <Link to={'materials/'} {...props} />}
+      >
         <ListItemIcon>
           <Style />
         </ListItemIcon>

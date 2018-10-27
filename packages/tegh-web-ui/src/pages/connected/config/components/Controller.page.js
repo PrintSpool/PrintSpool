@@ -12,12 +12,9 @@ import {
   MenuItem,
   Switch,
 } from '@material-ui/core'
-import Loader from 'react-loader-advanced'
 import gql from 'graphql-tag'
 
-import withLiveData from '../shared/higherOrderComponents/withLiveData'
-
-import PrinterStatusGraphQL from '../shared/PrinterStatus.graphql'
+import withLiveData from '../../shared/higherOrderComponents/withLiveData'
 
 const CONFIG_SUBSCRIPTION = gql`
   subscription ConfigSubscription($printerID: ID!) {
@@ -25,14 +22,11 @@ const CONFIG_SUBSCRIPTION = gql`
       patch { op, path, from, value }
       query {
         printers {
-          ...PrinterStatus
+          id
         }
       }
     }
   }
-
-  # fragments
-  ${PrinterStatusGraphQL}
 `
 
 const styles = theme => ({

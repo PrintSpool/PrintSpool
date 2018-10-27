@@ -1,15 +1,15 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
-import { Component as MaterialConfigForm } from './Form.page'
+import { Component as ControllerConfigPage } from './Controller.page'
 import config from '../config.mock'
 
 const baselineProps = {
-  material: config.materials[0],
+  config,
 }
 
-storiesOf('Config/Materials/Form', module)
+storiesOf('Config/Components/Controller', module)
   .add('default', () => (
-    <MaterialConfigForm
+    <ControllerConfigPage
       {...baselineProps}
     />
   ))
