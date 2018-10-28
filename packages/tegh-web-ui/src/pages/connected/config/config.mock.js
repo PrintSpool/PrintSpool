@@ -25,7 +25,7 @@ const config = {
       "id": "serialController",
       "type": "CONTROLLER",
       "interface": "SERIAL",
-      "name": "Serial Controller Board",
+      "name": "RAMPS Controller Board",
       "portID": "/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00",
       "baudRate": 250000,
       "simulation": false

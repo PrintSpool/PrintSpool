@@ -1,5 +1,6 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
+import { action } from '@storybook/addon-actions'
 import StoryRouter from 'storybook-react-router'
 import { linkTo } from '@storybook/addon-links'
 import { withRouter } from 'react-router'
@@ -19,16 +20,13 @@ storiesOf('Config', module)
   .add('index', () => (
     <ConfigPage
       config={config}
-      printerDialog={{
-        open: false,
-      }}
+      updateSubConfig={action('updateSubConfig')}
     />
   ))
   .add('printer dialog', () => (
     <ConfigPage
       config={config}
-      printerDialog={{
-        open: true,
-      }}
+      updateSubConfig={action('updateSubConfig')}
+      printerDialogOpen
     />
   ))

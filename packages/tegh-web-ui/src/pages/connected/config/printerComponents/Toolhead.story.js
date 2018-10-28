@@ -6,6 +6,6 @@ import config from '../config.mock'
 storiesOf('Config/Components/Toolhead', module)
   .add('index', () => (
     <ToolheadConfigPage
-      heater={config.machine.components.find(c => c.type === 'EXTRUDER')}
+      heater={config.components.find(c => c.type === 'EXTRUDER')}
     />
   ))

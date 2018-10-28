@@ -48,11 +48,6 @@ const styles = theme => ({
 })
 
 const enhance = compose(
-  withProps(ownProps => ({
-    form: `config/Printer/${ownProps.printerID}`,
-    initialValues: ownProps.config,
-  })),
-  reduxForm(),
   withStyles(styles, { withTheme: true }),
   // withProps(ownProps => ({
   //   subscription: CONFIG_SUBSCRIPTION,

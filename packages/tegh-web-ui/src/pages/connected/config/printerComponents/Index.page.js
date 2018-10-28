@@ -69,7 +69,7 @@ const enhance = compose(
 )
 
 const componentsOfType = (config, ofType) => (
-  config.machine.components
+  config.components
     .filter(component => component.type === ofType)
 )
 
