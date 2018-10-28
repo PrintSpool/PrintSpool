@@ -7,13 +7,17 @@ import {
   Typography,
   List,
   ListItem,
-  TextField,
   MenuItem,
   ListItemText,
   ListSubheader,
   Dialog,
   Paper,
+  InputAdornment,
 } from '@material-ui/core'
+import {
+  TextField,
+} from 'redux-form-material-ui'
+import { Field, reduxForm } from 'redux-form'
 import Loader from 'react-loader-advanced'
 import gql from 'graphql-tag'
 
@@ -46,7 +50,7 @@ const styles = theme => ({
 const enhance = compose(
   withProps(ownProps => ({
     form: `config/Printer/${ownProps.printerID}`,
-    
+    initialValues: ownProps.config,
   })),
   reduxForm(),
   withStyles(styles, { withTheme: true }),
@@ -64,33 +68,55 @@ const enhance = compose(
 
 const PrinterConfigPage = ({ classes, config }) => (
   <main>
-    <TextField
-      required
+    { console.log(config)}
+    <Field
+      component={TextField}
       label="Name"
-      margin="normal"
-      fullWidth
+      name="name"
+      props={{
+        required: true,
+        margin: 'normal',
+        fullWidth: true,
+      }}
     />
-    <TextField
-      required
-      select
+    <Field
+      component={TextField}
       label="Make and model"
-      margin="normal"
-      fullWidth
-    >
-      {['Lulzbot Mini 1', 'Lulzbot Mini 2'].map(option => (
-        <MenuItem key={option} value={option}>
-          {option}
-        </MenuItem>
-      ))}
-    </TextField>
+      name="modelID"
+      props={{
+        select: true,
+        required: true,
+        margin: 'normal',
+        fullWidth: true,
+        children: [
+          { id: 'lulzbot/lulzbot-mini-1', name: 'Lulzbot Mini 1' },
+          { id: 'lulzbot/lulzbot-mini-2', name: 'Lulzbot Mini 2' },
+        ].map(option => (
+          <MenuItem key={option.id} value={option.id}>
+            {option.name}
+          </MenuItem>
+        )),
+      }}
+    />
     {
-      config.machine.axes.map((axis, index) => (
-        <TextField
+      config.axes.map((axis, index) => (
+        <Field
           key={axis.id}
-          required
-          label={`${axis.id.toUpperCase()} Feedrate`}
-          margin="normal"
-          fullWidth
+          component={TextField}
+          label={`${axis.name.toUpperCase()} Feedrate`}
+          name={`axes[${index}].feedrate`}
+          props={{
+            required: true,
+            margin: 'normal',
+            fullWidth: true,
+            InputProps: {
+              endAdornment: (
+                <InputAdornment variant="filled" position="end">
+                  mm/s
+                </InputAdornment>
+              ),
+            },
+          }}
         />
       ))
     }

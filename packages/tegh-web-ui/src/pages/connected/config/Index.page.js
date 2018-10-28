@@ -25,7 +25,6 @@ import {
 
 import PrinterConfigPage from './Printer.page'
 
-import { List } from 'immutable'
 import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
 
@@ -95,7 +94,6 @@ const ConfigPage = ({
       <DialogContent>
         <PrinterConfigPage
           config={config}
-          initialValues={config}
         />
       </DialogContent>
       <DialogActions>

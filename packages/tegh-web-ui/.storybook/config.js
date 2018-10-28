@@ -1,7 +1,9 @@
 import { configure, addDecorator } from '@storybook/react'
 import withReduxForm from 'redux-form-storybook'
+import {muiTheme} from 'storybook-addon-material-ui'
 
 addDecorator(withReduxForm)
+addDecorator(muiTheme())
 
 const loadStories = () => {
   require('../src/pages/connected/queue/components/JobList.story.js')
