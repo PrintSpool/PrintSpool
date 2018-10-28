@@ -3,7 +3,7 @@ import {
   GraphQLObjectType,
 } from 'graphql'
 
-import JobHistoryTypeEnum from './JobHistoryTypeEnum.graphql'
+import JobHistoryTypeEnum from './JobHistoryTypeEnum.graphql.js'
 
 const JobHistoryEventGraphQL = new GraphQLObjectType({
   name: 'JobHistoryEvent',

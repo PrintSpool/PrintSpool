@@ -9,7 +9,7 @@ import getPrintsCompletedByJobFileID from '../selectors/getPrintsCompletedByJobF
 import getTotalPrintsByJobFileID from '../selectors/getTotalPrintsByJobFileID'
 import getIsDoneByJobFileID from '../selectors/getIsDoneByJobFileID'
 
-import TaskGraphQL from '../../spool/types/Task.graphql'
+import TaskGraphQL from '../../spool/types/Task.graphql.js'
 
 const JobFileGraphQL = new GraphQLObjectType({
   name: 'JobFile',

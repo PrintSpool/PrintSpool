@@ -5,12 +5,12 @@ import snl from 'strip-newlines'
 import isIdle from '../../spool/selectors/isIdle'
 import getDriverState from '../selectors/getDriverState'
 
-import PrinterStatusEnum from './PrinterStatusEnum.graphql'
-import HeaterType from './Heater.graphql'
-import FanType from './Fan.graphql'
-import LogEntryType from '../../log/types/LogEntry.graphql'
-import MacroDefinitionType from '../../config/types/MacroDefinition.graphql'
-import PrinterErrorType from './PrinterError.graphql'
+import PrinterStatusEnum from './PrinterStatusEnum.graphql.js'
+import HeaterType from './Heater.graphql.js'
+import FanType from './Fan.graphql.js'
+import LogEntryType from '../../log/types/LogEntry.graphql.js'
+import MacroDefinitionType from '../../config/types/MacroDefinition.graphql.js'
+import PrinterErrorType from './PrinterError.graphql.js'
 
 const PrinterGraphQL = new GraphQLObjectType({
   name: 'Printer',

@@ -5,7 +5,7 @@ import {
   subscribeToLiveData,
 } from 'graphql-live-subscriptions'
 
-import QueryRootGraphQL from './QueryRoot.graphql'
+import QueryRootGraphQL from './QueryRoot.graphql.js'
 
 const MAX_UPDATE_RATE_MS = 500
 

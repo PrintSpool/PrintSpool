@@ -8,7 +8,7 @@ const baselineProps = {
 }
 
 storiesOf('Config/Components/BuildPlatform', module)
-  .add('default', () => (
+  .add('index', () => (
     <BuildPlatformConfigPage
       {...baselineProps}
     />

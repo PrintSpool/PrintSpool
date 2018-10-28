@@ -6,7 +6,7 @@ import GraphQLJSON from 'graphql-type-json'
 import actionResolver from '../../util/actionResolver'
 import spoolMacro from '../actions/spoolMacro'
 
-import TaskGraphQL from '../types/Task.graphql'
+import TaskGraphQL from '../types/Task.graphql.js'
 
 const SpoolMacroInputGraphQL = new GraphQLInputObjectType({
   name: 'SpoolMacroInput',

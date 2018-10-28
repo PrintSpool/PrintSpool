@@ -2,19 +2,22 @@
 const config = {
   "id": "aaxcvxcvcxv-bvb-csdf234231",
   "name": "Left Home Lulzbot",
-  "makeAndModel": "lulzbot/lulzbot-mini-2",
+  "modelID": "lulzbot/lulzbot-mini-2",
   "machine": {
     "axes": [
       {
-        "id": "x",
+        "id": "x111",
+        "name": "X",
         "feedrate": 150
       },
       {
-        "id": "y",
+        "id": "y111",
+        "name": "Y",
         "feedrate": 150
       },
       {
-        "id": "z",
+        "id": "z111",
+        "name": "Z",
         "feedrate": 4
       }
     ],
@@ -57,26 +60,17 @@ const config = {
       },
     ]
   },
-  "materials": [
+  "plugins": [
     {
-      "id": "generic/pla",
-      "targetTemperature": 220,
-      "targetBedTemperature": 60
-    },
-    {
-      "id": "generic/abs",
-      "targetTemperature": 200,
-      "targetBedTemperature": 60
-    }
-  ],
-  "plugins": {
-    "tegh-macros-default": {
+      "id": "tegh-macros-default",
       "macros": [
         "*"
       ]
     },
-    "tegh-driver-serial-gcode": {}
-  },
+    {
+      "id": "tegh-driver-serial-gcode",
+    },
+  ],
   "log": {
     "maxLength": 1000,
     "stderr": [

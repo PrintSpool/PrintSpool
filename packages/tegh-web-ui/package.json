@@ -33,6 +33,7 @@
     "json-patch": "^0.7.0",
     "keypair": "^1.0.1",
     "koa-static": "^4.0.2",
+    "material-ui-redux-snackbar": "^1.0.0",
     "prop-types": "^15.6.1",
     "react": "^16.2.0",
     "react-apollo": "^2.2.4",
@@ -66,6 +67,7 @@
     "eslint-plugin-monorepo": "^0.2.0",
     "eslint-plugin-react": "^7.11.0",
     "jest": "^23.6.0",
+    "redux-form-storybook": "^1.0.2",
     "storybook-react-router": "^1.0.1"
   }
 }

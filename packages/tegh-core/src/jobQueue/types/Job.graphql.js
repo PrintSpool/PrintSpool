@@ -11,9 +11,9 @@ import getTotalPrintsByJobID from '../selectors/getTotalPrintsByJobID'
 import getIsDoneByJobID from '../selectors/getIsDoneByJobID'
 import getHistoryByJobID from '../selectors/getHistoryByJobID'
 
-import JobFileGraphQL from './JobFile.graphql'
-import TaskGraphQL from '../../spool/types/Task.graphql'
-import JobHistoryEventGraphQL from './JobHistoryEvent.graphql'
+import JobFileGraphQL from './JobFile.graphql.js'
+import TaskGraphQL from '../../spool/types/Task.graphql.js'
+import JobHistoryEventGraphQL from './JobHistoryEvent.graphql.js'
 
 const JobGraphQL = new GraphQLObjectType({
   name: 'Job',

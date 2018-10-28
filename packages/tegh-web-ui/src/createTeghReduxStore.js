@@ -7,6 +7,8 @@ import { reducer as formReducer } from 'redux-form'
 import { createHashHistory } from 'history'
 import { routerReducer, routerMiddleware } from '@d1plo1d/connected-react-router'
 
+import { reduxSnackbarReducer } from 'material-ui-redux-snackbar/src/'
+
 import keysReducer from './reducers/keysReducer'
 import webRTCReducer from './reducers/webRTCReducer'
 import mutationsReducer from './reducers/mutationsReducer'
@@ -27,6 +29,7 @@ const createTeghReduxStore = () => {
     webRTC: webRTCReducer,
     mutations: mutationsReducer,
     liveSubscriptions: liveSubscriptionsReducer,
+    reduxSnackbar: reduxSnackbarReducer,
   })
 
   const enhancer = composeEnhancers(

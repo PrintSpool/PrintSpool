@@ -12,12 +12,12 @@ const baselineProps = {
 
 storiesOf('Config/Components', module)
   .addDecorator(StoryRouter({
-    '/controllers/:id': linkTo('Config/Components/Controller', 'default'),
-    '/toolheads/:id': linkTo('Config/Components/Toolhead', 'default'),
-    '/build-platforms/:id': linkTo('Config/Components/BuildPlatform', 'default'),
-    '/fans/:id': linkTo('Config/Components/Fan', 'default'),
+    '/controllers/:id': linkTo('Config/Components/Controller', 'index'),
+    '/toolheads/:id': linkTo('Config/Components/Toolhead', 'index'),
+    '/build-platforms/:id': linkTo('Config/Components/BuildPlatform', 'index'),
+    '/fans/:id': linkTo('Config/Components/Fan', 'index'),
   }))
-  .add('default', () => (
+  .add('index', () => (
     <ComponentsConfigPage
       {...baselineProps}
     />

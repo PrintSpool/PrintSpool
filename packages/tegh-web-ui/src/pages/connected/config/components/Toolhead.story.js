@@ -4,7 +4,7 @@ import { Component as ToolheadConfigPage } from './Toolhead.page'
 import config from '../config.mock'
 
 storiesOf('Config/Components/Toolhead', module)
-  .add('default', () => (
+  .add('index', () => (
     <ToolheadConfigPage
       heater={config.machine.components.find(c => c.type === 'EXTRUDER')}
     />

@@ -1,4 +1,7 @@
-import { configure } from '@storybook/react'
+import { configure, addDecorator } from '@storybook/react'
+import withReduxForm from 'redux-form-storybook'
+
+addDecorator(withReduxForm)
 
 const loadStories = () => {
   require('../src/pages/connected/queue/components/JobList.story.js')

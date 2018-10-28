@@ -8,7 +8,7 @@ const baselineProps = {
 }
 
 storiesOf('Config/Printer', module)
-  .add('default', () => (
+  .add('index', () => (
     <PrinterConfigPage
       {...baselineProps}
     />

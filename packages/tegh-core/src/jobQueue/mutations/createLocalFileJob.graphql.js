@@ -6,7 +6,7 @@
 // import actionResolver from '../../util/actionResolver'
 // import createLocalFileJob from '../actions/createLocalFileJob'
 //
-// import JobGraphQL from '../types/Job.graphql'
+// import JobGraphQL from '../types/Job.graphql.js'
 //
 // const createLocalFileJobGraphQL = () => ({
 //   type: tql`${JobGraphQL}!`,

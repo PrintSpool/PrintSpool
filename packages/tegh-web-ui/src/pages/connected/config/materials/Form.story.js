@@ -1,14 +1,14 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
 import { Component as MaterialConfigForm } from './Form.page'
-import config from '../config.mock'
+import materials from '../materials.mock'
 
 const baselineProps = {
-  material: config.materials[0],
+  material: materials[0],
 }
 
 storiesOf('Config/Materials/Form', module)
-  .add('default', () => (
+  .add('index', () => (
     <MaterialConfigForm
       {...baselineProps}
     />

@@ -5,7 +5,7 @@ import { initialState as spoolState } from '../reducers/spoolReducer'
 import Task from './Task'
 import { NORMAL } from './PriorityEnum'
 
-import TaskGraphQL from './Task.graphql'
+import TaskGraphQL from './Task.graphql.js'
 
 const task = Task({
   name: 'test task',

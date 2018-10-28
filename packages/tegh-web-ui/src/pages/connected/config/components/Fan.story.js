@@ -8,7 +8,7 @@ const baselineProps = {
 }
 
 storiesOf('Config/Components/Fan', module)
-  .add('default', () => (
+  .add('index', () => (
     <FanConfigPage
       {...baselineProps}
     />

@@ -15,7 +15,7 @@ import {
 //       return 'error'
 //     }
 //     default: {
-//       return 'default'
+//       return 'index'
 //     }
 //   }
 // }

@@ -9,7 +9,7 @@ import gql from 'graphql-tag'
 
 import withLiveData from '../shared/higherOrderComponents/withLiveData'
 
-import PrinterStatusGraphQL from '../shared/PrinterStatus.graphql'
+import PrinterStatusGraphQL from '../shared/PrinterStatus.graphql.js'
 
 import Header from '../frame/components/Header'
 // import Log from './components/Log'

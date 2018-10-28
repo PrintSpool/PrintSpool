@@ -26,7 +26,7 @@ import gql from 'graphql-tag'
 
 import withLiveData from '../../shared/higherOrderComponents/withLiveData'
 
-import PrinterStatusGraphQL from '../../shared/PrinterStatus.graphql'
+import PrinterStatusGraphQL from '../../shared/PrinterStatus.graphql.js'
 
 const CONFIG_SUBSCRIPTION = gql`
   subscription ConfigSubscription($printerID: ID!) {
@@ -69,7 +69,7 @@ const enhance = compose(
   })),
 )
 
-const MaterialsConfigIndex = ({ classes, config }) => (
+const MaterialsConfigIndex = ({ classes, materials }) => (
   <main>
     <Tooltip title="Add Component" placement="left">
       <Button
@@ -82,7 +82,7 @@ const MaterialsConfigIndex = ({ classes, config }) => (
     </Tooltip>
     <List>
       {
-        config.materials.map(material => (
+        materials.map(material => (
           <ListItem
             button
             divider

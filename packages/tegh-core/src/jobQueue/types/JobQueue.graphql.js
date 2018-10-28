@@ -3,7 +3,7 @@ import {
   GraphQLObjectType,
 } from 'graphql'
 
-import JobGraphQL from './Job.graphql'
+import JobGraphQL from './Job.graphql.js'
 
 const JobQueueGraphQL = new GraphQLObjectType({
   name: 'JobQueue',

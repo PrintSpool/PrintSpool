@@ -4,17 +4,17 @@ import StoryRouter from 'storybook-react-router'
 import { linkTo } from '@storybook/addon-links'
 
 import { Component as MaterialsConfigIndex } from './Index.page'
-import config from '../config.mock'
+import materials from '../materials.mock'
 
 const baselineProps = {
-  config,
+  materials,
 }
 
 storiesOf('Config/Materials/Index', module)
   .addDecorator(StoryRouter({
-    '/:org/:sku': linkTo('Config/Materials/Form', 'default'),
+    '/:org/:sku': linkTo('Config/Materials/Form', 'index'),
   }))
-  .add('default', () => (
+  .add('index', () => (
     <MaterialsConfigIndex
       {...baselineProps}
     />

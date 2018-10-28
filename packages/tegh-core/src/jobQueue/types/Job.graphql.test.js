@@ -8,7 +8,7 @@ import Job from './Job'
 import JobFile from './JobFile'
 // import { NORMAL } from './PriorityEnum'
 
-import JobGraphQL from './Job.graphql'
+import JobGraphQL from './Job.graphql.js'
 
 const job = Job({
   name: 'test job',

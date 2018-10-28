@@ -8,8 +8,8 @@ import {
   JobQueueGraphQL,
   // TaskGraphQL,
 } from 'tegh-core'
-// import PrinterGraphQL from '../core/printer/types/Printer.graphql'
-// import JobGraphQL from '../core/jobQueue/types/Job.graphql'
+// import PrinterGraphQL from '../core/printer/types/Printer.graphql.js'
+// import JobGraphQL from '../core/jobQueue/types/Job.graphql.js'
 
 const QueryRootGraphQL = new GraphQLObjectType({
   name: 'QueryRoot',

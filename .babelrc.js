@@ -20,6 +20,7 @@ module.exports = {
     'module:fast-async',
     // TODO: this might only be good to have in the web ui
     '@babel/plugin-transform-runtime',
+    'import-graphql',
   ],
 }
 

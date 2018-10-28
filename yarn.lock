@@ -2007,12 +2007,12 @@ babel-messages@^6.23.0:
   dependencies:
     babel-runtime "^6.22.0"
 
-babel-plugin-inline-import@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/babel-plugin-inline-import/-/babel-plugin-inline-import-3.0.0.tgz#220eb2a52f8e779d8fb89447f950275e1e3f5981"
-  integrity sha512-thnykl4FMb8QjMjVCuZoUmAM7r2mnTn5qJwrryCvDv6rugbJlTHZMctdjDtEgD0WBAXJOLJSGXN3loooEwx7UQ==
+babel-plugin-import-graphql@^2.6.2:
+  version "2.6.2"
+  resolved "https://registry.yarnpkg.com/babel-plugin-import-graphql/-/babel-plugin-import-graphql-2.6.2.tgz#0f88a3b32133765854253b8ba7f9383367cd360e"
+  integrity sha1-D4ijsyEzdlhUJTuLp/k4M2fNNg4=
   dependencies:
-    require-resolve "0.0.2"
+    graphql-tag "^2.9.2"
 
 babel-plugin-istanbul@^4.1.6:
   version "4.1.6"
@@ -5419,6 +5419,11 @@ graphql-subscriptions@^0.5.8:
   dependencies:
     iterall "^1.2.1"
 
+graphql-tag@^2.10.0, graphql-tag@^2.9.2:
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/graphql-tag/-/graphql-tag-2.10.0.tgz#87da024be863e357551b2b8700e496ee2d4353ae"
+  integrity sha512-9FD6cw976TLLf9WYIUPCaaTpniawIjHWZSwIRZSjrfufJamcXbVVYfN2TWvJYbw0Xf2JjYbl1/f2+wDnBVw3/w==
+
 graphql-type-json@^0.2.0:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/graphql-type-json/-/graphql-type-json-0.2.1.tgz#d2c177e2f1b17d87f81072cd05311c0754baa420"
@@ -5430,6 +5435,13 @@ graphql@0.13.2:
   integrity sha512-QZ5BL8ZO/B20VA8APauGBg3GyEgZ19eduvpLWoq5x7gMmWnHoy8rlQWPLmWgFvo1yNgjSEFMesmS4R6pPr7xog==
   dependencies:
     iterall "^1.2.1"
+
+graphql@^14.0.2:
+  version "14.0.2"
+  resolved "https://registry.yarnpkg.com/graphql/-/graphql-14.0.2.tgz#7dded337a4c3fd2d075692323384034b357f5650"
+  integrity sha512-gUC4YYsaiSJT1h40krG3J+USGlwhzNTXSb4IOZljn9ag5Tj+RkoXrWp+Kh7WyE3t1NCfab5kzCuxBIvOMERMXw==
+  dependencies:
+    iterall "^1.2.2"
 
 growly@^1.2.0, growly@^1.3.0:
   version "1.3.0"
@@ -6589,7 +6601,7 @@ isurl@^1.0.0-alpha5:
     has-to-string-tag-x "^1.2.0"
     is-object "^1.0.1"
 
-iterall@^1.2.1:
+iterall@^1.2.1, iterall@^1.2.2:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/iterall/-/iterall-1.2.2.tgz#92d70deb8028e0c39ff3164fdbf4d8b088130cd7"
   integrity sha512-yynBb1g+RFUPY64fTrFv7nsjRrENBQJaX2UL+2Szc9REFrSNm1rpSXHGzhmAy7a9uv3vlvgBlXnf9RqmPH1/DA==
@@ -8933,11 +8945,6 @@ path-exists@^3.0.0:
   resolved "https://registry.yarnpkg.com/path-exists/-/path-exists-3.0.0.tgz#ce0ebeaa5f78cb18925ea7d810d7b59b010fd515"
   integrity sha1-zg6+ql94yxiSXqfYENe1mwEP1RU=
 
-path-extra@^1.0.2:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/path-extra/-/path-extra-1.0.3.tgz#7c112189a6e50d595790e7ad2037e44e410c1166"
-  integrity sha1-fBEhiablDVlXkOetIDfkTkEMEWY=
-
 path-is-absolute@^1.0.0, path-is-absolute@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/path-is-absolute/-/path-is-absolute-1.0.1.tgz#174b9268735534ffbc7ace6bf53a5a9e1b5c5f5f"
@@ -9960,13 +9967,6 @@ require-main-filename@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/require-main-filename/-/require-main-filename-1.0.1.tgz#97f717b69d48784f5f526a6c5aa8ffdda055a4d1"
   integrity sha1-l/cXtp1IeE9fUmpsWqj/3aBVpNE=
-
-require-resolve@0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/require-resolve/-/require-resolve-0.0.2.tgz#bab410ab1aee2f3f55b79317451dd3428764e6f3"
-  integrity sha1-urQQqxruLz9Vt5MXRR3TQodk5vM=
-  dependencies:
-    x-path "^0.0.2"
 
 require-uncached@^1.0.3:
   version "1.0.3"
@@ -12000,13 +12000,6 @@ ws@~3.3.1:
     async-limiter "~1.0.0"
     safe-buffer "~5.1.0"
     ultron "~1.1.0"
-
-x-path@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/x-path/-/x-path-0.0.2.tgz#294d076bb97a7706cc070bbb2a6fd8c54df67b12"
-  integrity sha1-KU0Ha7l6dwbMBwu7Km/YxU32exI=
-  dependencies:
-    path-extra "^1.0.2"
 
 xml-name-validator@^3.0.0:
   version "3.0.0"

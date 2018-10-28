@@ -1,0 +1,99 @@
+# type HostConfig {
+#   id: ID!
+#   name: String!
+#   publicKey: String!
+#   crashReports: CrashReportConfig!
+# }
+
+type PrinterConfig {
+  id: ID!
+  modelID: ID!
+
+  name: String
+  axes: [AxisConfig!]!
+  components: [ComponentConfig!]!
+  # plugins: [PluginConfig!]!
+  # log: LogConfig!
+}
+
+# type LogConfig {
+#   id: ID!
+#   maxLength: Int!
+# })
+#
+# type CrashReportConfig {
+#   id: ID!
+#   uploadCrashReportsToDevs: Boolean!
+# }
+
+type AxisConfig {
+  id: ID!
+  name: String!
+  feedrate: Float!
+}
+
+union ComponentConfig =
+  | SerialControllerConfig
+  | ToolheadConfig
+  | BuildPlatformConfig
+  | FanConfig
+
+type SerialControllerConfig {
+  id: ID!
+  type: String!
+  interface: String!
+  name: String!
+  portID: String!
+  baudRate: Int!
+  simulation: Boolean!
+}
+
+type ToolheadConfig {
+  id: ID!
+  materialID: ID!
+  type: String!
+  name: String!
+  heater: Boolean!
+  feedrate: Float!
+}
+
+type BuildPlatformConfig {
+  id: ID!
+  type: String!
+  name: String!
+  heater: Boolean!
+}
+
+type FanConfig {
+  id: ID!
+  type: String!
+  name: String!
+}
+
+# type PluginConfig {
+#   id: ID!
+#   macros: [String!]!
+#   settings: [KeyValuePair!]!
+# }
+
+input RFC6902OperationInput {
+  op: String!
+  path: String!
+  from: String
+  value: JSON
+}
+
+type Query {
+  # hostConfigs(hostID: ID): HostConfig!
+  printerConfigs(printerID: ID): [PrinterConfig!]!
+  components(componentID: ID): [ComponentConfig!]!
+  materials(id: ID): [Material!]!
+}
+
+type Mutation {
+  patchConfig(
+    printerID: ID!,
+    version: Int!,
+    patch: [RFC6902OperationInput!]!
+  ) Boolean
+}

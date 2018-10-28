@@ -7,7 +7,7 @@ import {
 import actionResolver from '../../util/actionResolver'
 import deleteJob from '../actions/deleteJob'
 
-import JobGraphQL from '../types/Job.graphql'
+import JobGraphQL from '../types/Job.graphql.js'
 
 const deleteJobGraphQL = () => ({
   type: tql`${JobGraphQL}`,

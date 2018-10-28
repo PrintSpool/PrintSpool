@@ -8,7 +8,7 @@ const baselineProps = {
 }
 
 storiesOf('Config/Components/Controller', module)
-  .add('default', () => (
+  .add('index', () => (
     <ControllerConfigPage
       {...baselineProps}
     />

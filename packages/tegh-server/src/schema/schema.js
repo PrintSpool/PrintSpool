@@ -8,8 +8,8 @@ import {
   mutations,
 } from 'tegh-core'
 
-import QueryRootGraphQL from './QueryRoot.graphql'
-import liveGraphQL from './live.graphql'
+import QueryRootGraphQL from './QueryRoot.graphql.js'
+import liveGraphQL from './live.graphql.js'
 
 const subscriptions = {
   live: liveGraphQL,
