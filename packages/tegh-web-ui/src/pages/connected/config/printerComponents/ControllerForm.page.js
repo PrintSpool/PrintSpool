@@ -6,10 +6,10 @@ import {
   ListItem,
   FormControlLabel,
   MenuItem,
-  Switch,
 } from '@material-ui/core'
 import {
   TextField,
+  Switch,
 } from 'redux-form-material-ui'
 
 import gql from 'graphql-tag'
@@ -76,9 +76,12 @@ const ControllerForm = ({ classes, initialValues }) => (
       <ListItem>
         <FormControlLabel
           label="Simulate Attached Controller"
-          control={
-            <Switch />
-          }
+          control={(
+            <Field
+              component={Switch}
+              name="simulate"
+            />
+          )}
         />
       </ListItem>
     </List>

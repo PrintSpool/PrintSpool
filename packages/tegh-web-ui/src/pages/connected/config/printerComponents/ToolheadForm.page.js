@@ -2,15 +2,14 @@ import React from 'react'
 import { compose } from 'recompose'
 import { Field } from 'redux-form'
 import {
-  withStyles,
   List,
   ListItem,
   FormControlLabel,
   MenuItem,
-  Switch,
 } from '@material-ui/core'
 import {
   TextField,
+  Switch,
 } from 'redux-form-material-ui'
 import gql from 'graphql-tag'
 
@@ -30,7 +29,7 @@ export const CONFIG_SUBSCRIPTION = gql`
 const enhance = compose(
 )
 
-const ExtruderConfigPage = ({ classes, heater }) => (
+const ToolheadForm = () => (
   <main>
     <Field
       component={TextField}
@@ -64,14 +63,17 @@ const ExtruderConfigPage = ({ classes, heater }) => (
       <ListItem>
         <FormControlLabel
           label="Heated Extruder"
-          control={
-            <Switch />
-          }
+          control={(
+            <Field
+              component={Switch}
+              name="heater"
+            />
+          )}
         />
       </ListItem>
     </List>
   </main>
 )
 
-export const Component = ExtruderConfigPage
-export default enhance(ExtruderConfigPage)
+export const Component = ToolheadForm
+export default enhance(ToolheadForm)

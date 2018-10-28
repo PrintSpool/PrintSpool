@@ -19,7 +19,7 @@ const enhance = compose(
     props => props.open,
     compose(
       reduxForm(),
-      formValues('name'),
+      formValues({ name: 'name', id: 'id' }),
     ),
   ),
 )
@@ -28,6 +28,7 @@ const FormDialog = ({
   Page,
   title,
   name,
+  id,
   open,
   history,
   handleSubmit,
@@ -38,7 +39,7 @@ const FormDialog = ({
     onClose={() => history.goBack()}
     aria-labelledby="form-dialog-title"
   >
-    <DialogTitle id="form-dialog-title">{title || name}</DialogTitle>
+    <DialogTitle id="form-dialog-title">{title || name || id}</DialogTitle>
     <DialogContent>
       <Page {...props} />
     </DialogContent>

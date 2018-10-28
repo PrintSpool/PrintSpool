@@ -5,9 +5,9 @@ import {
   List,
   ListItem,
   FormControlLabel,
-  Switch,
 } from '@material-ui/core'
 import {
+  Switch,
   TextField,
 } from 'redux-form-material-ui'
 import gql from 'graphql-tag'
@@ -42,9 +42,12 @@ const BuildPlatformForm = () => (
       <ListItem>
         <FormControlLabel
           label="Heated Build Platform"
-          control={
-            <Switch />
-          }
+          control={(
+            <Field
+              component={Switch}
+              name="heater"
+            />
+          )}
         />
       </ListItem>
     </List>

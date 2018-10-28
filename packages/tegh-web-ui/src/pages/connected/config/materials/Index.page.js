@@ -3,16 +3,10 @@ import { compose, withProps } from 'recompose'
 import { Link } from 'react-router-dom'
 import {
   withStyles,
-  Grid,
-  Divider,
-  Typography,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  ListSubheader,
-  TextField,
-  MenuItem,
   Tooltip,
   Button,
 } from '@material-ui/core'
@@ -21,12 +15,12 @@ import {
   Add,
 } from '@material-ui/icons'
 
-import Loader from 'react-loader-advanced'
 import gql from 'graphql-tag'
 
 import withLiveData from '../../shared/higherOrderComponents/withLiveData'
 
-import PrinterStatusGraphQL from '../../shared/PrinterStatus.graphql.js'
+import FormDialog from '../components/FormDialog'
+import MaterialConfigForm from './Form.page'
 
 const CONFIG_SUBSCRIPTION = gql`
   subscription ConfigSubscription($printerID: ID!) {
@@ -34,14 +28,11 @@ const CONFIG_SUBSCRIPTION = gql`
       patch { op, path, from, value }
       query {
         printers {
-          ...PrinterStatus
+          id
         }
       }
     }
   }
-
-  # fragments
-  ${PrinterStatusGraphQL}
 `
 
 const styles = theme => ({
@@ -69,8 +60,26 @@ const enhance = compose(
   })),
 )
 
-const MaterialsConfigIndex = ({ classes, materials }) => (
+const MaterialsConfigIndex = ({
+  classes,
+  materials,
+  match: {
+    params,
+  },
+  updateSubConfig,
+}) => (
   <main>
+    <FormDialog
+      form={`materials/${params.org}/${params.sku}`}
+      Page={MaterialConfigForm}
+      open={params.sku != null}
+      onSubmit={updateSubConfig}
+      data={
+        materials.find(material => (
+          material.id === `${params.org}/${params.sku}`
+        ))
+      }
+    />
     <Tooltip title="Add Component" placement="left">
       <Button
         component="label"
@@ -94,7 +103,7 @@ const MaterialsConfigIndex = ({ classes, materials }) => (
             </ListItemIcon>
             <ListItemText
               primary={material.id}
-              secondary={`${material.targetTemperature}°`}
+              secondary={`${material.targetExtruderTemperature}°`}
             />
           </ListItem>
         ))

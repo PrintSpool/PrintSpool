@@ -1,5 +1,6 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
+import { action } from '@storybook/addon-actions'
 import StoryRouter from 'storybook-react-router'
 import { linkTo } from '@storybook/addon-links'
 
@@ -10,12 +11,29 @@ const baselineProps = {
   materials,
 }
 
-storiesOf('Config/Materials/Index', module)
+storiesOf('Config/Materials', module)
   .addDecorator(StoryRouter({
-    '/:org/:sku': linkTo('Config/Materials/Form', 'index'),
+    '/': linkTo('Config/Materials', 'index'),
+    '/:org/:sku': linkTo('Config/Materials', 'material dialog'),
   }))
   .add('index', () => (
     <MaterialsConfigIndex
-      {...baselineProps}
+      materials={materials}
+      updateSubConfig={action('updateSubConfig')}
+      match={{
+        params: {},
+      }}
+    />
+  ))
+  .add('material dialog', () => (
+    <MaterialsConfigIndex
+      materials={materials}
+      updateSubConfig={action('updateSubConfig')}
+      match={{
+        params: {
+          org: 'generic',
+          sku: 'pla',
+        },
+      }}
     />
   ))

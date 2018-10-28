@@ -1,5 +1,6 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
+import { action } from '@storybook/addon-actions'
 import StoryRouter from 'storybook-react-router'
 import { linkTo } from '@storybook/addon-links'
 
@@ -17,6 +18,7 @@ storiesOf('Config/Components', module)
   .add('index', () => (
     <ComponentsConfigPage
       config={config}
+      updateSubConfig={action('updateSubConfig')}
       match={{
         params: {},
       }}
@@ -25,6 +27,7 @@ storiesOf('Config/Components', module)
   .add('controller dialog', () => (
     <ComponentsConfigPage
       config={config}
+      updateSubConfig={action('updateSubConfig')}
       match={{
         params: {
           componentTypeSlug: 'controllers',
@@ -36,6 +39,7 @@ storiesOf('Config/Components', module)
   .add('toolhead dialog', () => (
     <ComponentsConfigPage
       config={config}
+      updateSubConfig={action('updateSubConfig')}
       match={{
         params: {
           componentTypeSlug: 'toolheads',
@@ -47,6 +51,7 @@ storiesOf('Config/Components', module)
   .add('build platform dialog', () => (
     <ComponentsConfigPage
       config={config}
+      updateSubConfig={action('updateSubConfig')}
       match={{
         params: {
           componentTypeSlug: 'build-platforms',
@@ -58,6 +63,7 @@ storiesOf('Config/Components', module)
   .add('fan dialog', () => (
     <ComponentsConfigPage
       config={config}
+      updateSubConfig={action('updateSubConfig')}
       match={{
         params: {
           componentTypeSlug: 'fans',

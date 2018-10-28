@@ -1,24 +1,13 @@
 import React from 'react'
-import { compose, withProps } from 'recompose'
+import { compose } from 'recompose'
+import { Field } from 'redux-form'
 import {
-  withStyles,
-  Grid,
-  Divider,
-  Typography,
-  List,
-  ListItem,
-  FormControlLabel,
   TextField,
-  MenuItem,
-  Switch,
-} from '@material-ui/core'
-import Loader from 'react-loader-advanced'
+} from 'redux-form-material-ui'
 import gql from 'graphql-tag'
 
-import withLiveData from '../../shared/higherOrderComponents/withLiveData'
 
-
-const CONFIG_SUBSCRIPTION = gql`
+export const CONFIG_SUBSCRIPTION = gql`
   subscription ConfigSubscription($printerID: ID!) {
     live {
       patch { op, path, from, value }
@@ -32,57 +21,34 @@ const CONFIG_SUBSCRIPTION = gql`
 
 `
 
-const styles = theme => ({
-  title: {
-    paddingTop: theme.spacing.unit * 3,
-  },
-  fieldsGrid: {
-    padding: theme.spacing.unit * 2,
-  },
-})
-
 const enhance = compose(
-  withStyles(styles, { withTheme: true }),
-  withProps(ownProps => ({
-    subscription: CONFIG_SUBSCRIPTION,
-    variables: {
-      printerID: ownProps.match.params.printerID,
-    },
-  })),
-  withLiveData,
-  withProps(({ singularPrinter }) => ({
-    printer: singularPrinter[0],
-  })),
 )
 
-const MaterialConfigForm = ({ classes, material }) => (
+const MaterialConfigForm = () => (
   <main>
-    <Grid container className={classes.fieldsGrid}>
-      <Grid item xs={12}>
-        <TextField
-          required
-          label="ID"
-          margin="normal"
-          fullWidth
-        />
-        <TextField
-          required
-          label="Target Extruder Temperature"
-          margin="normal"
-          fullWidth
-        />
-        <TextField
-          required
-          label="Target Bed Temperature"
-          margin="normal"
-          fullWidth
-        />
-      </Grid>
-    </Grid>
+    <Field
+      component={TextField}
+      name="id"
+      label="ID"
+      margin="normal"
+      fullWidth
+    />
+    <Field
+      component={TextField}
+      name="targetExtruderTemperature"
+      label="Target Extruder Temperature"
+      margin="normal"
+      fullWidth
+    />
+    <Field
+      component={TextField}
+      name="targetBedTemperature"
+      label="Target Bed Temperature"
+      margin="normal"
+      fullWidth
+    />
   </main>
 )
 
-export const Component = withStyles(styles, { withTheme: true })(
-  MaterialConfigForm,
-)
+export const Component = MaterialConfigForm
 export default enhance(MaterialConfigForm)

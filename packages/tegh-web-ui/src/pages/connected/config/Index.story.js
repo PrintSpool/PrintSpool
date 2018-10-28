@@ -15,7 +15,7 @@ storiesOf('Config', module)
     '/': linkTo('Config', 'index'),
     '/printer/': linkTo('Config', 'printer dialog'),
     '/components/': linkTo('Config/Components', 'index'),
-    '/materials/': linkTo('Config/Materials/Index', 'index'),
+    '/materials/': linkTo('Config/Materials', 'index'),
   }))
   .add('index', () => (
     <ConfigPage

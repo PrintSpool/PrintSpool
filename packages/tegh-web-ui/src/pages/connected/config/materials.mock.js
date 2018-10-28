@@ -2,12 +2,12 @@
 const materials = [
   {
     "id": "generic/pla",
-    "targetTemperature": 220,
+    "targetExtruderTemperature": 220,
     "targetBedTemperature": 60
   },
   {
     "id": "generic/abs",
-    "targetTemperature": 200,
+    "targetExtruderTemperature": 200,
     "targetBedTemperature": 60
   }
 ]

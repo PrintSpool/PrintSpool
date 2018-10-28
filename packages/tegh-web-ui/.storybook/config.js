@@ -12,7 +12,6 @@ const loadStories = () => {
   require('../src/pages/connected/config/Printer.story.js')
   require('../src/pages/connected/config/printerComponents/Index.story.js')
   require('../src/pages/connected/config/materials/Index.story.js')
-  require('../src/pages/connected/config/materials/Form.story.js')
 }
 
 configure(loadStories, module)
