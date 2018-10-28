@@ -30,13 +30,13 @@ const ConfigPage = ({
 }) => (
   <main>
     <FormDialog
-      form="printer"
+      title="3D Printer"
+      form={`printer/${config.printerID}`}
       Page={PrinterConfigPage}
       open={printerDialogOpen}
       onSubmit={updateSubConfig}
-      config={config}
+      data={config}
     />
-
     <List component="nav">
       <ListItem
         button

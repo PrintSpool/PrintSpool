@@ -1,7 +1,7 @@
 import React from 'react'
-import { compose, withProps } from 'recompose'
+import { compose, withProps, branch } from 'recompose'
 import { withRouter } from 'react-router'
-import { reduxForm } from 'redux-form'
+import { reduxForm, formValues } from 'redux-form'
 import {
   Dialog,
   DialogTitle,
@@ -13,14 +13,21 @@ import {
 const enhance = compose(
   withRouter,
   withProps(ownProps => ({
-    form: `formDialog/${ownProps.match.printerID}/${ownProps.form}`,
-    initialValues: ownProps.config,
+    initialValues: ownProps.data,
   })),
-  reduxForm(),
+  branch(
+    props => props.open,
+    compose(
+      reduxForm(),
+      formValues('name'),
+    ),
+  ),
 )
 
 const FormDialog = ({
   Page,
+  title,
+  name,
   open,
   history,
   handleSubmit,
@@ -31,7 +38,7 @@ const FormDialog = ({
     onClose={() => history.goBack()}
     aria-labelledby="form-dialog-title"
   >
-    <DialogTitle id="form-dialog-title">3D Printer</DialogTitle>
+    <DialogTitle id="form-dialog-title">{title || name}</DialogTitle>
     <DialogContent>
       <Page {...props} />
     </DialogContent>

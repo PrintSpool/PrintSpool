@@ -3,16 +3,12 @@ import { compose, withProps } from 'recompose'
 import { Link } from 'react-router-dom'
 import {
   withStyles,
-  Grid,
   Divider,
-  Typography,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
   ListSubheader,
-  TextField,
-  MenuItem,
   Tooltip,
   Button,
 } from '@material-ui/core'
@@ -25,10 +21,15 @@ import {
   Add,
 } from '@material-ui/icons'
 
-import Loader from 'react-loader-advanced'
 import gql from 'graphql-tag'
 
 import withLiveData from '../../shared/higherOrderComponents/withLiveData'
+
+import FormDialog from '../components/FormDialog'
+import BuildPlatformForm from './BuildPlatformForm.page'
+import ControllerForm from './ControllerForm.page'
+import FanForm from './FanForm.page'
+import ToolheadForm from './ToolheadForm.page'
 
 const CONFIG_SUBSCRIPTION = gql`
   subscription ConfigSubscription($printerID: ID!) {
@@ -54,6 +55,47 @@ const styles = theme => ({
   },
 })
 
+
+const componentsOfType = (config, ofType) => (
+  config.components
+    .filter(component => component.type === ofType)
+)
+
+const CATEGORIES = [
+  {
+    type: 'CONTROLLER',
+    heading: 'Controllers',
+    slug: 'controllers',
+    dataPropName: 'controller',
+    Icon: Usb,
+    Page: ControllerForm,
+  },
+  {
+    type: 'TOOLHEAD',
+    heading: 'Toolheads',
+    slug: 'toolheads',
+    dataPropName: 'toolhead',
+    Icon: Waves,
+    Page: ToolheadForm,
+  },
+  {
+    type: 'BUILD_PLATFORM',
+    heading: 'Build Platform',
+    slug: 'build-platforms',
+    dataPropName: 'buildPlatform',
+    Icon: VideoLabel,
+    Page: BuildPlatformForm,
+  },
+  {
+    type: 'FAN',
+    heading: 'Fans',
+    slug: 'fans',
+    dataPropName: 'fan',
+    Icon: Toys,
+    Page: FanForm,
+  },
+]
+
 const enhance = compose(
   withStyles(styles, { withTheme: true }),
   withProps(ownProps => ({
@@ -68,40 +110,27 @@ const enhance = compose(
   })),
 )
 
-const componentsOfType = (config, ofType) => (
-  config.components
-    .filter(component => component.type === ofType)
-)
-
-const CATEGORIES = [
-  {
-    type: 'CONTROLLER',
-    heading: 'Controllers',
-    slug: 'controllers',
-    Icon: Usb,
+const ComponentsConfigIndex = ({
+  classes,
+  config,
+  updateSubConfig,
+  match: {
+    params,
   },
-  {
-    type: 'TOOLHEAD',
-    heading: 'Toolheads',
-    slug: 'toolheads',
-    Icon: Waves,
-  },
-  {
-    type: 'BUILD_PLATFORM',
-    heading: 'Build Platform',
-    slug: 'build-platforms',
-    Icon: VideoLabel,
-  },
-  {
-    type: 'FAN',
-    heading: 'Fans',
-    slug: 'fans',
-    Icon: Toys,
-  },
-]
-
-const ComponentsConfigIndex = ({ classes, config }) => (
+}) => (
   <main>
+    {
+      CATEGORIES.map(category => (
+        <FormDialog
+          key={category.slug}
+          form={`${category.slug}/${params.componentID}`}
+          open={params.componentTypeSlug === category.slug}
+          onSubmit={updateSubConfig}
+          Page={category.Page}
+          data={config.components.find(c => c.id === params.componentID)}
+        />
+      ))
+    }
     <Tooltip title="Add Component" placement="left">
       <Button
         component="label"
@@ -124,13 +153,13 @@ const ComponentsConfigIndex = ({ classes, config }) => (
               {heading}
             </ListSubheader>
             {
-              componentsOfType(config, type).map(peripheral => (
+              componentsOfType(config, type).map(component => (
                 <ListItem
                   button
                   divider
-                  key={peripheral.id}
+                  key={component.id}
                   component={props => (
-                    <Link to={`${slug}/${peripheral.id}/`} {...props} />
+                    <Link to={`${slug}/${component.id}/`} {...props} />
                   )}
                 >
 
@@ -143,7 +172,7 @@ const ComponentsConfigIndex = ({ classes, config }) => (
                     }
                   </ListItemIcon>
                   <ListItemText>
-                    {peripheral.name}
+                    {component.name}
                   </ListItemText>
                 </ListItem>
               ))

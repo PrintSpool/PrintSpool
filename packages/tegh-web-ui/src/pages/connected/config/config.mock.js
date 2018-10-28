@@ -26,7 +26,7 @@ const config = {
       "type": "CONTROLLER",
       "interface": "SERIAL",
       "name": "RAMPS Controller Board",
-      "portID": "/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00",
+      "serialPortID": "/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00",
       "baudRate": 250000,
       "simulation": false
     },
@@ -36,7 +36,7 @@ const config = {
       "name": "Extruder 1",
       "heater": true,
       "feedrate": 3,
-      "materialID": "example/pla"
+      "materialID": "generic/pla"
     },
     {
       "id": "e1",
@@ -44,7 +44,7 @@ const config = {
       "name": "Extruder 2",
       "heater": true,
       "feedrate": 3,
-      "materialID": "example/abs"
+      "materialID": "generic/abs"
     },
     {
       "id": "b",

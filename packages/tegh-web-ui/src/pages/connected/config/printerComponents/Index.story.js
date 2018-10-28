@@ -6,19 +6,63 @@ import { linkTo } from '@storybook/addon-links'
 import { Component as ComponentsConfigPage } from './Index.page'
 import config from '../config.mock'
 
-const baselineProps = {
-  config,
-}
-
 storiesOf('Config/Components', module)
   .addDecorator(StoryRouter({
-    '/controllers/:id': linkTo('Config/Components/Controller', 'index'),
-    '/toolheads/:id': linkTo('Config/Components/Toolhead', 'index'),
-    '/build-platforms/:id': linkTo('Config/Components/BuildPlatform', 'index'),
-    '/fans/:id': linkTo('Config/Components/Fan', 'index'),
+    '/': linkTo('Config/Components', 'index'),
+    '/controllers/:id': linkTo('Config/Components', 'controller dialog'),
+    '/toolheads/:id': linkTo('Config/Components', 'toolhead dialog'),
+    '/build-platforms/:id': linkTo('Config/Components', 'build platform dialog'),
+    '/fans/:id': linkTo('Config/Components', 'fan dialog'),
   }))
   .add('index', () => (
     <ComponentsConfigPage
-      {...baselineProps}
+      config={config}
+      match={{
+        params: {},
+      }}
+    />
+  ))
+  .add('controller dialog', () => (
+    <ComponentsConfigPage
+      config={config}
+      match={{
+        params: {
+          componentTypeSlug: 'controllers',
+          componentID: config.components.find(c => c.type === 'CONTROLLER').id,
+        },
+      }}
+    />
+  ))
+  .add('toolhead dialog', () => (
+    <ComponentsConfigPage
+      config={config}
+      match={{
+        params: {
+          componentTypeSlug: 'toolheads',
+          componentID: config.components.find(c => c.type === 'TOOLHEAD').id,
+        },
+      }}
+    />
+  ))
+  .add('build platform dialog', () => (
+    <ComponentsConfigPage
+      config={config}
+      match={{
+        params: {
+          componentTypeSlug: 'build-platforms',
+          componentID: config.components.find(c => c.type === 'BUILD_PLATFORM').id,
+        },
+      }}
+    />
+  ))
+  .add('fan dialog', () => (
+    <ComponentsConfigPage
+      config={config}
+      match={{
+        params: {
+          componentTypeSlug: 'fans',
+          componentID: config.components.find(c => c.type === 'FAN').id,
+        },
+      }}
     />
   ))
