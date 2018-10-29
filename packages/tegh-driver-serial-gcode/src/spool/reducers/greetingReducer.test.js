@@ -2,10 +2,9 @@ import Promise from 'bluebird'
 import { Cmd } from 'redux-loop'
 
 import {
-  // DRIVER_ERROR,
-  // ESTOP,
-  // PRINTER_DISCONNECTED,
-  // CONNECT_PRINTER,
+  DRIVER_ERROR,
+  ESTOP,
+  PRINTER_DISCONNECTED,
   printerReady,
 } from 'tegh-core'
 
@@ -13,12 +12,43 @@ import reducer, { initialState } from './greetingReducer'
 
 import serialReceive, { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import serialSend from '../../serial/actions/serialSend'
+import serialOpen, { SERIAL_OPEN } from '../../serial/actions/serialOpen'
 import rxParser from '../../rxParser'
 
 import greetingDelayDone, { GREETING_DELAY_DONE } from '../actions/greetingDelayDone'
 
 
 describe('greetingReducer', () => {
+  const disconnectingActions = [
+    DRIVER_ERROR,
+    ESTOP,
+    PRINTER_DISCONNECTED,
+  ]
+
+  disconnectingActions.forEach((type) => {
+    describe(type, () => {
+      it('disconnects', () => {
+        const action = { type }
+        const state = initialState.set('isConnecting', true)
+
+        const nextState = reducer(state, action)
+
+        expect(nextState.isConnecting).toEqual(false)
+      })
+    })
+  })
+
+  describe(SERIAL_OPEN, () => {
+    it('connects', () => {
+      const action = serialOpen({ portID: '/dev/null'})
+      const state = initialState
+
+      const nextState = reducer(state, action)
+
+      expect(nextState.isConnecting).toEqual(true)
+    })
+  })
+
   describe(SERIAL_RECEIVE, () => {
     describe('on receiving a greeting', () => {
       it('sends hello after a delay', async () => {

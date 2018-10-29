@@ -35,16 +35,18 @@ describe('statusReducer', () => {
   })
 
   const statusChangingActions = [
-    { action: driverError(errorPayload), status: ERRORED },
-    { action: estop(), status: ESTOPPED },
-    { action: printerDisconnected(), status: DISCONNECTED },
-    { action: connectPrinter(), status: CONNECTING },
-    { action: printerReady(), status: READY },
+    { action: driverError(errorPayload), previous: READY, status: ERRORED },
+    { action: estop(), previous: READY, status: ESTOPPED },
+    { action: printerDisconnected(), previous: READY, status: DISCONNECTED },
+    { action: connectPrinter(), previous: DISCONNECTED, status: CONNECTING },
+    { action: printerReady(), previous: CONNECTING, status: READY },
   ]
-  statusChangingActions.forEach(({ action, status }) => {
+  statusChangingActions.forEach(({ action, previous, status }) => {
     describe(action.type, () => {
       it(`sets the status to ${status}`, () => {
-        const nextState = reducer(initialState, action)
+        const state = initialState.set('status', previous)
+
+        const nextState = reducer(state, action)
 
         expect(nextState.status).toEqual(status)
       })

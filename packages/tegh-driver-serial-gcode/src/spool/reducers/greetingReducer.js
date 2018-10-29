@@ -6,10 +6,10 @@ import {
   DRIVER_ERROR,
   ESTOP,
   PRINTER_DISCONNECTED,
-  CONNECT_PRINTER,
   printerReady,
 } from 'tegh-core'
 
+import { SERIAL_OPEN } from '../../serial/actions/serialOpen'
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import serialSend from '../../serial/actions/serialSend'
 
@@ -34,7 +34,7 @@ const greetingReducer = (state = initialState, action) => {
     case PRINTER_DISCONNECTED: {
       return state.set('isConnecting', false)
     }
-    case CONNECT_PRINTER: {
+    case SERIAL_OPEN: {
       return state
         .set('isConnecting', true)
         .set('awaitingGreeting', true)
