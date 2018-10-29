@@ -1,13 +1,24 @@
-import { Record, Map } from 'immutable'
-import t from 'tcomb-validation'
+import { Record, Map, List } from 'immutable'
+import uuid from 'uuid/v4'
 
-export const PluginConfigStruct = t.struct({
-  package: t.String,
-  settings: t.maybe(t.dict(t.String, t.Any)),
+export const PluginConfigFactory = Record({
+  id: null,
+  package: null,
+  macros: List(),
+  settings: Map(),
 })
 
-const PluginConfig = Record(
-  Map(PluginConfigStruct.meta.props).map(() => null).toJS(),
+const PluginConfig = ({
+  macros = [],
+  settings = {},
+  ...props
+}) => (
+  PluginConfigFactory({
+    id: props.id || uuid(),
+    macros: List(macros),
+    settings: Map(settings),
+    ...props,
+  })
 )
 
 export default PluginConfig

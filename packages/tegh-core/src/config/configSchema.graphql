@@ -7,6 +7,7 @@
 
 type PrinterConfig {
   id: ID!
+  printerID: ID!
   modelID: ID!
 
   name: String
@@ -91,7 +92,12 @@ type Query {
 }
 
 type Mutation {
-  patchConfig(
+  # patchHostConfig(
+  #   printerID: ID!,
+  #   version: Int!,
+  #   patch: [RFC6902OperationInput!]!
+  # ) Boolean
+  patchPrinterConfig(
     printerID: ID!,
     version: Int!,
     patch: [RFC6902OperationInput!]!

@@ -1,13 +1,16 @@
-import { Record, Map } from 'immutable'
-import t from 'tcomb-validation'
+import { Record } from 'immutable'
+import uuid from 'uuid/v4'
 
-export const MaterialConfigStruct = t.struct({
-  targetTemperature: t.Number,
-  targetBedTemperature: t.Number,
+const MaterialConfigFactory = Record({
+  targetTemperature: 0,
+  targetBedTemperature: 0,
 })
 
-const MaterialConfig = Record(
-  Map(MaterialConfigStruct.meta.props).map(() => null).toJS(),
+const MaterialConfig = props => (
+  MaterialConfigFactory({
+    id: props.id || uuid(),
+    ...props,
+  })
 )
 
 export default MaterialConfig

@@ -1,8 +1,10 @@
 /* eslint-disable quote-props, quotes, comma-dangle */
 const config = {
   "id": "aaxcvxcvcxv-bvb-csdf234231",
-  "name": "Left Home Lulzbot",
+  "printerID": 'abb321x',
   "modelID": "lulzbot/lulzbot-mini-2",
+
+  "name": "Left Home Lulzbot",
   "axes": [
     {
       "id": "x111",
@@ -22,7 +24,7 @@ const config = {
   ],
   "components": [
     {
-      "id": "serialController",
+      "id": "bbbserialController",
       "type": "CONTROLLER",
       "interface": "SERIAL",
       "name": "RAMPS Controller Board",
@@ -31,7 +33,7 @@ const config = {
       "simulate": true
     },
     {
-      "id": "e0",
+      "id": "aaa2qe0",
       "type": "TOOLHEAD",
       "name": "Extruder 1",
       "heater": true,
@@ -39,7 +41,7 @@ const config = {
       "materialID": "generic/pla"
     },
     {
-      "id": "e1",
+      "id": "abvwee1",
       "type": "TOOLHEAD",
       "name": "Extruder 2",
       "heater": true,
@@ -47,29 +49,32 @@ const config = {
       "materialID": "generic/abs"
     },
     {
-      "id": "b",
+      "id": "bdfbxb",
       "type": "BUILD_PLATFORM",
       "name": "Bed",
       "heater": true
     },
     {
-      "id": "f",
+      "id": "ndrgrwef",
       "type": "FAN",
       "name": "Extruder Fan"
     },
   ],
   "plugins": [
     {
-      "id": "tegh-macros-default",
+      "id": 'aaabbbccc123',
+      "package": "tegh-macros-default",
       "macros": [
         "*"
       ]
     },
     {
-      "id": "tegh-driver-serial-gcode",
+      "id": 'aaabbbccc333',
+      "package": "tegh-driver-serial-gcode",
     },
   ],
   "log": {
+    "id": "bdfgkljwe",
     "maxLength": 1000,
     "stderr": [
       "info",
@@ -81,11 +86,14 @@ const config = {
 }
 
 export const hostConfig = {
+  "id": "pzxcvkkwn",
   "crashReports": {
+    "id": "bfdbdffeews",
     "directory": "/var/log/tegh",
     "uploadCrashReportsToDevs": true
   },
   "server": {
+    "id": "vcxbksdkewj",
     "signallingServer": "ws://localhost:3000",
     "keys": "~/.tegh/dev.development.keys.json",
     "webRTC": true,
