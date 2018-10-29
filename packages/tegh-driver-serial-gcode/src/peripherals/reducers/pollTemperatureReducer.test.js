@@ -6,7 +6,9 @@ import {
   PRINTER_READY,
   printerReady,
   SET_CONFIG,
+  SPOOL_TASK,
   setConfig,
+  PriorityEnum,
 } from 'tegh-core'
 
 import reducer, { initialState } from './pollTemperatureReducer'
@@ -15,7 +17,9 @@ import rxParser from '../../rxParser'
 import serialReceive, { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import { createTestConfig } from '../../config/types/Settings'
 
-import spoolTemperatureQuery from '../actions/spoolTemperatureQuery'
+import requestTemperatureQuery, { REQUEST_TEMPERATURE_QUERY } from '../actions/requestTemperatureQuery'
+
+const { PREEMPTIVE } = PriorityEnum
 
 const temperaturePollingInterval = 1337
 
@@ -45,10 +49,7 @@ describe('pollTemperatureReducer', () => {
         actionToDispatch: nextAction,
       } = reducer(stateAfterConfig, action)[1]
 
-      expect(nextAction.type).toEqual(spoolTemperatureQuery().type)
-      expect(nextAction.payload.task.data).toEqual(
-        spoolTemperatureQuery().payload.task.data,
-      )
+      expect(nextAction).toEqual(requestTemperatureQuery())
     })
   })
 
@@ -61,7 +62,7 @@ describe('pollTemperatureReducer', () => {
       expect(sideEffect).toEqual(
         Cmd.run(Promise.delay, {
           args: [temperaturePollingInterval],
-          successActionCreator: spoolTemperatureQuery,
+          successActionCreator: requestTemperatureQuery,
         }),
       )
     })
@@ -72,6 +73,36 @@ describe('pollTemperatureReducer', () => {
       const nextState = reducer(stateAfterConfig, action)
 
       expect(nextState).toEqual(stateAfterConfig)
+    })
+  })
+
+  describe(REQUEST_TEMPERATURE_QUERY, () => {
+    describe('when the printer is not ready', () => {
+      it('does nothing', () => {
+        const action = requestTemperatureQuery()
+        const state = stateAfterConfig.set('isReady', false)
+
+        const nextState = reducer(state, action)
+
+        expect(nextState).toEqual(state)
+      })
+    })
+
+    describe('when the printer is ready', () => {
+      it('spools an M105 in order to query the temperature', () => {
+        const action = requestTemperatureQuery()
+        const state = stateAfterConfig.set('isReady', true)
+
+        const [
+          nextState,
+          { actionToDispatch: nextAction },
+        ] = reducer(state, action)
+
+        expect(nextState).toEqual(state)
+        expect(nextAction.type).toEqual(SPOOL_TASK)
+        expect(nextAction.payload.task.priority).toEqual(PREEMPTIVE)
+        expect(nextAction.payload.task.data.toJS()).toEqual(['M105'])
+      })
     })
   })
 })

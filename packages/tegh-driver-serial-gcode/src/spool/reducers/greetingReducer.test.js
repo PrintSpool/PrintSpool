@@ -25,6 +25,7 @@ describe('greetingReducer', () => {
         const state = initialState
           .set('isConnecting', true)
           .set('delayAfterGreeting', 1337)
+          .set('awaitingGreeting', true)
         const action = serialReceive({ data: 'start', receiveParser: rxParser })
 
         const [
@@ -32,7 +33,7 @@ describe('greetingReducer', () => {
           sideEffect,
         ] = reducer(state, action)
 
-        expect(nextState).toEqual(state)
+        expect(nextState).toEqual(state.set('awaitingGreeting', false))
         expect(sideEffect).toEqual(
           Cmd.run(Promise.delay, {
             args: [1337],

@@ -23,8 +23,8 @@ describe('with a line number', () => {
 })
 
 describe('with lineNumber: false', () => {
-  test('sends the line without a checksum or line number', () => {
-    const expectedOutputLine = `${line}\n`
+  test('sends the line without a line number', () => {
+    const expectedOutputLine = `${line}*194\n`
 
     const result = serialSend(line, { lineNumber: false })
 

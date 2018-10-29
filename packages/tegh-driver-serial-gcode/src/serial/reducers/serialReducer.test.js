@@ -17,7 +17,6 @@ import rxParser from '../../rxParser'
 
 import requestSerialPortConnection, { REQUEST_SERIAL_PORT_CONNECTION } from '../actions/requestSerialPortConnection'
 import serialPortCreated, { SERIAL_PORT_CREATED } from '../actions/serialPortCreated'
-import { SERIAL_RESET } from '../actions/serialReset'
 import serialSend, { SERIAL_SEND } from '../actions/serialSend'
 import serialClose, { SERIAL_CLOSE } from '../actions/serialClose'
 
@@ -52,24 +51,10 @@ describe('serialReducer', () => {
     })
   })
 
-  describe(SERIAL_RESET, () => {
-    it('requests a serial port connection', () => {
-      const action = { type: SERIAL_RESET }
-
-      const [
-        nextState,
-        { actionToDispatch: nextAction },
-      ] = reducer(initialState, action)
-
-      expect(nextState).toEqual(initialState)
-      expect(nextAction).toEqual(connectPrinter())
-    })
-  })
-
   describe(CONNECT_PRINTER, () => {
     describe('when a serial connection does not exist', () => {
       it('requests a serial port connection', () => {
-        const action = { type: CONNECT_PRINTER }
+        const action = connectPrinter()
 
         const [
           nextState,
@@ -83,7 +68,7 @@ describe('serialReducer', () => {
     describe('when a serial connection exists', () => {
       it('resets the serial connection', () => {
         const state = initialState.set('serialPort', 'my_serial_port')
-        const action = { type: CONNECT_PRINTER }
+        const action = connectPrinter()
 
         const [
           nextState,
@@ -201,7 +186,7 @@ describe('serialReducer', () => {
           sideEffect,
         ] = reducer(state, action)
 
-        expect(nextState).toEqual(state)
+        expect(nextState).toEqual(state.set('closedByErrorOrEStop', true))
         expect(sideEffect.func).toEqual(closeSerialPort)
         expect(sideEffect.args).toEqual([{
           serialPort: 'my_serial_port',

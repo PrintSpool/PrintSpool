@@ -2,10 +2,10 @@ import { loop, Cmd } from 'redux-loop'
 
 import {
   estop,
+  connectPrinter,
 } from 'tegh-core'
 
 import { SERIAL_SEND } from '../actions/serialSend'
-import serialReset from '../actions/serialReset'
 
 export const initialState = null
 
@@ -25,7 +25,7 @@ const estopAndResetReducer = (state = initialState, action) => {
        * be safe.
        */
       if (code === 'M999') {
-        return loop(state, Cmd.action(serialReset()))
+        return loop(state, Cmd.action(connectPrinter()))
       }
       return state
     }

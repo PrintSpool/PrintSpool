@@ -7,7 +7,6 @@ import { SERIAL_OPEN } from '../../serial/actions/serialOpen'
 import { SERIAL_SEND } from '../../serial/actions/serialSend'
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import { SERIAL_ERROR } from '../../serial/actions/serialError'
-import { SERIAL_RESET } from '../../serial/actions/serialReset'
 
 const rxLevel = (type) => {
   switch (type) {
@@ -50,7 +49,6 @@ const logReducer = (_state, action) => {
       }
     }
     case SERIAL_OPEN:
-    case SERIAL_RESET:
     case PRINTER_DISCONNECTED: {
       return {
         source: 'SERIAL',

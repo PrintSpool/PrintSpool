@@ -19,7 +19,6 @@ import requestSerialPortConnection, { REQUEST_SERIAL_PORT_CONNECTION } from '../
 import serialPortCreated, { SERIAL_PORT_CREATED } from '../actions/serialPortCreated'
 import { SERIAL_SEND } from '../actions/serialSend'
 import { SERIAL_CLOSE } from '../actions/serialClose'
-import serialReset, { SERIAL_RESET } from '../actions/serialReset'
 
 import serialPortConnection from '../sideEffects/serialPortConnection'
 import closeSerialPort from '../sideEffects/closeSerialPort'
@@ -31,11 +30,6 @@ export const initialState = Record({
   closedByErrorOrEStop: false,
   config: null,
 })()
-
-const isOpen = state => (
-  state.serialPort != null
-  && state.serialPort.isOpen === true
-)
 
 /*
  * controls a serial port through side effects
@@ -51,7 +45,7 @@ const serialReducer = (state = initialState, action) => {
       if (state.config == null && serialConfig.simulation) {
         return loop(
           nextState,
-          Cmd.action(serialReset()),
+          Cmd.action(connectPrinter()),
         )
       }
 
@@ -67,11 +61,11 @@ const serialReducer = (state = initialState, action) => {
 
       return loop(
         state,
-        Cmd.action(serialReset()),
+        Cmd.action(connectPrinter()),
       )
     }
-    case SERIAL_RESET: {
-      if (isOpen(state)) {
+    case CONNECT_PRINTER: {
+      if (state.serialPort != null) {
         // if a serial port is open then close it and re-open the port once it
         // has closed.
         const nextState = state.set('isResetting', true)
@@ -89,17 +83,6 @@ const serialReducer = (state = initialState, action) => {
       // if the serial port is closed then open it immediately
       return loop(
         state,
-        Cmd.action(connectPrinter()),
-      )
-    }
-    case CONNECT_PRINTER: {
-      if (isOpen(state)) {
-        const err = 'Cannot connect printer while previous serial port is open'
-        throw new Error(err)
-      }
-
-      return loop(
-        initialState.set('config', state.config),
         Cmd.action(requestSerialPortConnection()),
       )
     }
@@ -118,7 +101,7 @@ const serialReducer = (state = initialState, action) => {
       }
 
       return loop(
-        initialState.set('config', state.config),
+        state,
         Cmd.run(serialPortConnection, {
           args: [
             serialPortOptions,
