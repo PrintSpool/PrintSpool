@@ -3,29 +3,19 @@
   "version": "0.4.0",
   "description": "an example tegh installation",
   "author": "Rob Gilson",
-  "license": "GPL-3.0",
+  "license": "AGPL-3.0-or-later",
   "private": true,
   "scripts": {
     "trace-gc": "npx node-dev index.js --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
-    "dev": "npx node-dev index.js --trace-warnings",
-    "start": "NODE_ENV=production node index.js --trace-warnings"
+    "start": "npx node-dev index.js --trace-warnings"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.49",
-    "@babel/core": "7.0.0-beta.49",
-    "@babel/polyfill": "^7.0.0-beta.49",
-    "@babel/preset-env": "^7.0.0-beta.49",
-    "@babel/preset-flow": "^7.0.0-beta.49",
-    "@babel/register": "^7.0.0-beta.49",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.49",
-    "babel-eslint": "^8.1.0",
     "node-dev": "d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350"
   },
   "dependencies": {
-    "redux-saga": "d1plo1d/redux-saga",
-    "tegh-server": "^0.4.0",
+    "tegh-core": "^0.4.0",
     "tegh-driver-serial-gcode": "^0.4.0",
-    "tegh-web-ui": "^0.4.0",
-    "tegh-macros-default": "^0.4.0"
+    "tegh-macros-default": "^0.4.0",
+    "graphql-live-subscriptions": "github:d1plo1d/graphql-live-subscriptions#feature/tree_diff"
   }
 }

@@ -1,6 +1,6 @@
 // @flow
 import rxParser from './rxParser'
-import * as marlin from '../data/marlinFixture'
+import * as marlin from './marlinFixture'
 
 test('parses greetings', () => {
   const result = rxParser('start')
@@ -73,7 +73,7 @@ describe('parses oks', () => {
 
   const malformedOKs = ['okok', 'kok', 'ook']
 
-  malformedOKs.forEach(raw => {
+  malformedOKs.forEach((raw) => {
     test(`from '${raw}'`, () => {
       const result = rxParser(raw)
 

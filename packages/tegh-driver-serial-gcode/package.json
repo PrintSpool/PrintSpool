@@ -2,60 +2,18 @@
   "name": "tegh-driver-serial-gcode",
   "version": "0.4.0",
   "description": "Tegh serial driver for RepRap/Marlin compatible printers",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "author": "Rob Gilson",
-  "license": "GPL-3.0",
+  "license": "AGPL-3.0-or-later",
   "private": false,
-  "scripts": {
-    "test": "jest",
-    "lint": "eslint src/",
-    "symlink": "cd ../../scripts && yarn symlink",
-    "flow": "flow"
-  },
-  "babel": {
-    "presets": [
-      "@babel/preset-env",
-      "@babel/preset-flow"
-    ],
-    "plugins": [
-      "@babel/plugin-proposal-object-rest-spread"
-    ]
-  },
-  "jest": {
-    "transformIgnorePatterns": [
-    ],
-    "setupFiles": [
-      "./src/test_helpers/setup.js"
-    ],
-    "testEnvironment": "node"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.0.0-beta.55",
-    "@babel/core": "^7.0.0-beta.55",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.55",
-    "@babel/polyfill": "^7.0.0-beta.55",
-    "@babel/preset-env": "^7.0.0-beta.55",
-    "@babel/preset-flow": "^7.0.0-beta.55",
-    "@babel/register": "^7.0.0-beta.55",
-    "babel-core": "^7.0.0-beta.55",
-    "babel-eslint": "^8.1.0",
-    "babel-jest": "^23.3.0",
-    "jest": "^23.3.0",
-    "eslint": "^4.13.0",
-    "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-flowtype": "^2.39.1",
-    "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-jest": "^21.4.2",
-    "flow-bin": "^0.61.0",
-    "redux-saga-delay-mock": "^0.0.1",
-    "redux-saga-tester": "github:d1plo1d/redux-saga-tester"
-  },
   "dependencies": {
+    "bluebird": "^3.5.1",
     "immutable": "^3.8.2",
     "redux": "^3.7.2",
-    "serialport": "^6.2.0",
-    "redux-saga": "d1plo1d/redux-saga",
-    "serial-middleware": "^0.4.0",
-    "tegh-server": "^0.4.0"
+    "redux-loop": "^4.3.3",
+    "redux-loop-immutable": "^1.0.0",
+    "strip-newlines": "^1.0.1",
+    "tcomb-validation": "^3.4.1",
+    "tegh-core": "^0.4.0"
   }
 }

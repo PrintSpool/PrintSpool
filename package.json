@@ -1,13 +1,15 @@
 {
   "private": true,
   "scripts": {
-     "clean": "npx lerna clean --yes && rm -rf ./node_modules",
-    "bootstrap": "yarn && cd ./packages/tegh-server && yarn build",
-    "dev": "npx lerna run dev --parallel",
-    "test": "cd ./packages/tegh-server/ && yarn test && cd ../tegh-driver-serial-gcode && yarn test",
-    "build": "npx lerna run build --parallel",
-    "start": "npx lerna run start --parallel",
-    "cloc": "cloc . --exclude-dir=node_modules,dist,.next,log"
+    "delete-node-modules": "rm -rf node_modules && rm -rf packages/*/node_modules",
+    "bootstrap": "yarn && lerna exec --concurrency 1 -- yarn && cd ./package/tegh-web-ui/ && yarn",
+    "clean": "gulp clean",
+    "build": "gulp build",
+    "watch": "gulp watch",
+    "webpack-dev-server": "gulp webpack-dev-server",
+    "test": "jest",
+    "start-servers": "gulp start-servers",
+    "start": "gulp start"
   },
   "command": {
     "bootstrap": {
@@ -15,11 +17,85 @@
       "useWorkspaces": true
     }
   },
-  "workspaces": [
-    "packages/*"
+  "engines": {
+    "node": ">=10.12.0"
+  },
+  "os": [
+    "linux"
   ],
+  "workspaces": {
+    "packages": [
+      "packages/tegh-core",
+      "packages/tegh-driver-serial-gcode",
+      "packages/tegh-macros-default",
+      "packages/tegh-protocol",
+      "packages/tegh-serial-integration-test",
+      "packages/tegh-server"
+    ],
+    "nohoist": [
+      "**/react",
+      "**/react/**",
+      "**/react-dom",
+      "**/react-dom/**",
+      "**/react-native",
+      "**/react-native/**",
+      "**/react-native-scripts",
+      "**/react-native-scripts/**",
+      "**/react-native-usbserial",
+      "**/react-native-usbserial/**",
+      "**/expo",
+      "**/expo/**",
+      "**/jest",
+      "**/jest/**",
+      "**/jest-expo",
+      "**/jest-expo/**"
+    ]
+  },
   "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/plugin-proposal-export-default-from": "^7.0.0",
+    "@babel/plugin-proposal-export-namespace-from": "^7.0.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
+    "@babel/plugin-transform-runtime": "^7.1.0",
+    "@babel/polyfill": "^7.0.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-flow": "^7.0.0",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/register": "^7.0.0",
+    "@babel/runtime": "^7.1.2",
+    "babel-core": "^7.0.0-bridge",
+    "babel-eslint": "^9.0.0-beta.3",
+    "babel-jest": "^23.6.0",
+    "babel-loader": "^8.0.4",
+    "chalk": "^2.4.1",
+    "eslint": "^5.3.0",
+    "eslint-config-airbnb-base": "^13.0.0",
+    "eslint-plugin-babel": "^5.1.0",
+    "eslint-plugin-immutablejs": "^0.1.3",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jest": "^21.20.2",
+    "eslint-plugin-monorepo": "^0.2.0",
+    "fast-async": "^6.3.8",
+    "gulp": "^4.0.0",
+    "gulp-babel": "^8.0.0",
+    "gulp-cli": "^2.0.1",
+    "gulp-plumber": "^1.2.0",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-util": "^3.0.8",
+    "html-loader": "^0.5.5",
+    "html-webpack-plugin": "^3.2.0",
+    "jest": "^23.6.0",
     "lerna": "^2.5.1",
-    "redux-saga": "d1plo1d/redux-saga"
+    "plumber": "^0.4.8",
+    "rimraf": "^2.6.1",
+    "through2": "^2.0.3",
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.9"
+  },
+  "resolutions": {
+    "friendly-errors-webpack-plugin": "1.7.0"
   }
 }

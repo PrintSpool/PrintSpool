@@ -7,7 +7,7 @@ import {
 
 import QueryRootGraphQL from './QueryRoot.graphql'
 
-const  MAX_UPDATE_RATE_MS = 500
+const MAX_UPDATE_RATE_MS = 500
 
 const type = () => QueryRootGraphQL
 
@@ -27,20 +27,44 @@ const liveGraphQL = () => ({
       const eventEmitter = new EventEmitter()
       const { store } = context
 
-      const emitUpdate = () => {
+      const emitUpdate = () => setImmediate(() => {
         const nextState = store.getState()
         eventEmitter.emit('update', { nextState })
-      }
+      })
 
       store.subscribe(_.throttle(emitUpdate, MAX_UPDATE_RATE_MS))
 
       return eventEmitter
     },
     sourceRoots: {
-      Job: ['files', 'tasks', 'tasksCompleted', 'totalTasks', 'status'],
-      JobFile: ['tasks', 'tasksCompleted', 'totalTasks', 'status'],
-      Printer:  ['macroDefinitions'],
-      Task: ['printer'],
+      Job: [
+        'files',
+        'tasks',
+        'history',
+        'printsCompleted',
+        'totalPrints',
+        'printsQueued',
+        'isDone',
+      ],
+      JobFile: [
+        'tasks',
+        'printsCompleted',
+        'totalPrints',
+        'printsQueued',
+        'isDone',
+      ],
+      Printer: [
+        'macroDefinitions',
+        'fans',
+        'heaters',
+      ],
+      Heater: [
+        'name',
+        'type',
+      ],
+      Task: [
+        'printer',
+      ],
     },
   }),
 })

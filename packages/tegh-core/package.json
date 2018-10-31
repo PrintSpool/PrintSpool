@@ -1,0 +1,55 @@
+{
+  "name": "tegh-core",
+  "version": "0.4.0",
+  "description": "core reusable types, selectors, actions, reducers, etc. for Tegh",
+  "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tegh/tegh-server.git"
+  },
+  "keywords": [
+    "graphql"
+  ],
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/build/"
+    ],
+    "testEnvironment": "node"
+  },
+  "author": "Rob Gilson",
+  "license": "AGPL-3.0-or-later",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "chokidar": "^2.0.4",
+    "dedent": "^0.7.0",
+    "ejs": "^2.5.7",
+    "fast-memoize": "^2.5.1",
+    "graphql": "0.13.2",
+    "graphql-live-subscriptions": "github:d1plo1d/graphql-live-subscriptions#feature/tree_diff",
+    "graphql-scalars": "^0.1.5",
+    "graphql-subscriptions": "^0.5.8",
+    "graphql-type-json": "^0.2.0",
+    "immutable": "^4.0.0-rc.9",
+    "immutablediff": "^0.4.4",
+    "immutablepatch": "d1plo1d/immutable-js-patch",
+    "iterall": "d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b",
+    "lodash": "^4.17.10",
+    "redux": "^3.5.1",
+    "redux-immutable": "^4.0.0",
+    "redux-logger": "^3.0.6",
+    "redux-loop": "^4.3.3",
+    "redux-loop-immutable": "^1.0.0",
+    "redux-saga": "^0.16.0",
+    "redux-thunk": "^2.2.0",
+    "redux-watch": "^1.1.1",
+    "reselect": "^3.0.1",
+    "serialport": "^6.2.0",
+    "strip-newlines": "^1.0.1",
+    "tcomb-validation": "^3.4.1",
+    "tmp-promise": "^1.0.4",
+    "typiql": "^0.3.0",
+    "untildify": "^3.0.2",
+    "uuid": "^3.1.0"
+  }
+}

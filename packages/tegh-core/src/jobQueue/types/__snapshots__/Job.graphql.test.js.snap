@@ -1,0 +1,236 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`JobGraphQL presents a consistent API 1`] = `
+Object {
+  "description": null,
+  "enumValues": null,
+  "fields": Array [
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "id",
+      "type": Object {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": Object {
+          "kind": "SCALAR",
+          "name": "ID",
+          "ofType": null,
+        },
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "name",
+      "type": Object {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": Object {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "quantity",
+      "type": Object {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": Object {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "files",
+      "type": Object {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": Object {
+          "kind": "LIST",
+          "name": null,
+          "ofType": Object {
+            "kind": "OBJECT",
+            "name": "JobFile",
+            "ofType": null,
+          },
+        },
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "tasks",
+      "type": Object {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": Object {
+          "kind": "LIST",
+          "name": null,
+          "ofType": Object {
+            "kind": "OBJECT",
+            "name": "Task",
+            "ofType": null,
+          },
+        },
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "history",
+      "type": Object {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": Object {
+          "kind": "LIST",
+          "name": null,
+          "ofType": Object {
+            "kind": "OBJECT",
+            "name": "JobHistoryEvent",
+            "ofType": null,
+          },
+        },
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "printsCompleted",
+      "type": Object {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": Object {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "totalPrints",
+      "type": Object {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": Object {
+          "kind": "SCALAR",
+          "name": "Int",
+          "ofType": null,
+        },
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "isDone",
+      "type": Object {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": Object {
+          "kind": "SCALAR",
+          "name": "Boolean",
+          "ofType": null,
+        },
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "createdAt",
+      "type": Object {
+        "kind": "NON_NULL",
+        "name": null,
+        "ofType": Object {
+          "kind": "SCALAR",
+          "name": "String",
+          "ofType": null,
+        },
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "startedAt",
+      "type": Object {
+        "kind": "SCALAR",
+        "name": "String",
+        "ofType": null,
+      },
+    },
+    Object {
+      "args": Array [],
+      "deprecationReason": null,
+      "description": null,
+      "isDeprecated": false,
+      "name": "stoppedAt",
+      "type": Object {
+        "kind": "SCALAR",
+        "name": "String",
+        "ofType": null,
+      },
+    },
+  ],
+  "inputFields": null,
+  "interfaces": Array [],
+  "kind": "OBJECT",
+  "name": "Job",
+  "possibleTypes": null,
+}
+`;
+
+exports[`JobGraphQL resolves every field without error 1`] = `
+Object {
+  "createdAt": "[DYNAMIC FIELD OMITTED]",
+  "files": Array [
+    Object {
+      "id": "[DYNAMIC FIELD OMITTED]",
+    },
+  ],
+  "history": Array [],
+  "id": "[DYNAMIC FIELD OMITTED]",
+  "isDone": false,
+  "name": "test job",
+  "printsCompleted": 0,
+  "quantity": 1,
+  "startedAt": null,
+  "stoppedAt": null,
+  "tasks": Array [
+    Object {
+      "id": "[DYNAMIC FIELD OMITTED]",
+    },
+  ],
+  "totalPrints": 1,
+}
+`;

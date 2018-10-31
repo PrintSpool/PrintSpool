@@ -1,27 +1,55 @@
-import setTemperature from './setTemperature'
+import {
+  getHeaterConfigs,
+  getMaterial,
+  PeripheralTypeEnum
+} from 'tegh-core'
 
-const toggleHeater = (args, config) => {
-  let lines = []
+import setTargetTemperature from './setTargetTemperature'
+
+const { EXTRUDER, HEATED_BED } = PeripheralTypeEnum
+
+const toggleHeater = (args, { config }) => {
+  const heaters = getHeaterConfigs(config)
+  const targetTemperatures = {}
+
   Object.entries(args).forEach(([id, enable]) => {
-    if (!config.heaters.includes(id)) {
+    const heater = heaters.get(id)
+
+    if (heater == null) {
       throw new Error(`heater (${id}) does not exist`)
     }
-    let targetTemperature = 0
-    if (enable) {
-      const material = config.materials[id]
-      if (material == null) {
-        throw new Error(`no material configured for ${id}`)
+
+    if (!enable) {
+      targetTemperatures[id] = 0
+      return null
+    }
+
+    switch (heater.type) {
+      case EXTRUDER: {
+        const material = getMaterial(config)(heater.materialID)
+        targetTemperatures[id] = material.targetTemperature
+        return null
       }
-      targetTemperature = material.targetTemperature
-      if (targetTemperature == null) {
-        throw new Error(`no targetTemperature configured for ${id} material`)
+      case HEATED_BED: {
+        // set the target bed temperature to the lowest bed temperature of
+        // the materials loaded in the extruders
+        const targetBedTemperature = heaters.toList()
+          .filter(h => h.type === EXTRUDER)
+          .map(({ materialID }) => (
+            getMaterial(config)(materialID).targetBedTemperature
+          ))
+          .min()
+
+        targetTemperatures[id] = targetBedTemperature
+        return null
+      }
+      default: {
+        throw new Error(`Unsupported heater type: ${heater.type}`)
       }
     }
-    lines = lines.concat(
-      setTemperature({ [id]: targetTemperature }, config)
-    )
   })
-  return lines
+
+  return setTargetTemperature(targetTemperatures, { config })
 }
 
 export default toggleHeater

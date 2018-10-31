@@ -1,7 +1,8 @@
 id: test_printer_id
 name: 'lulzbot-test-printer'
 macros:
-  tegh-macros-default: 'all'
+  tegh-macros-default:
+    - '*'
 log:
   maxLength: 1000
   stderr:
@@ -19,54 +20,54 @@ printFromLocalPath:
   whitelist:
     - ~/.tegh-local-files/
 server:
+  signallingServer: ws://localhost:3000
+  keys: ~/.tegh/dev.development.keys.json
+  webRTC: true
   tcpPort: 3900
   unixSocket: /tmp/tegh_socket
   # unixSocket: /var/run/tegh_socket
+
 materials:
-  e0:
+  example/pla:
     targetTemperature: 220
-  e1:
-    targetTemperature: 220
-  b:
-    targetTemperature: 60
-feedrates: # in mm/s
-  e0: 3
-  e1: 3
-  x: 150
-  y: 150
-  z: 4
-heaters:
-  - e0
-  - e1
-  - b
-fans:
-  - f
-axes:
-  - x
-  - y
-  - z
-  - e0
-  - e1
-driver:
-  package: tegh-driver-serial-gcode
-  temperaturePollingInterval: 600
-  delayFromGreetingToReady: 2500
-  serialTimeout:
-    tickleAttempts: 3
-    fastCodeTimeout: 30000
-    longRunningCodeTimeout: 60000
-  longRunningCodes:
-    - G4
-    - G28
-    - G29
-    - G30
-    - G32
-    - M226
-    - M400
-    - M600
-  serialPort:
-    path: /dev/ttyACM0
-    baudRate: 250000
-    # simulation: true
+    targetBedTemperature: 60
+  example/abs:
+    targetTemperature: 200
+    targetBedTemperature: 60
+
+machine:
+  id: 'example/reprap'
+  driver: tegh-driver-serial-gcode
+  # feedrates are in mm/s
+  axes:
+    x:
+      feedrate: 150
+    y:
+      feedrate: 150
+    z:
+      feedrate: 4
+  peripherals:
+    e0:
+      type: extruder
+      name: 'Extruder 1'
+      feedrate: 3,
+      materialID: example/pla,
+    e1:
+      type: extruder
+      name: 'Extruder 2'
+      feedrate: 3
+      materialID: example/abs,
+    b:
+      type: heatedBed,
+      name: 'Bed'
+    f:
+      type: 'fan'
+      name: 'Extruder Fan'
+
 plugins:
-  - package: tegh-web-ui
+  - package: tegh-driver-serial-gcode
+    settings:
+      serialPort:
+        portID: /dev/ttyACM0
+        baudRate: 250000
+        simulation: true

@@ -1,36 +1,6 @@
-import serialMiddleware from 'serial-middleware'
-import SerialPort from 'serialport'
-import _ from 'lodash'
+// exports
+export Settings from './config/types/Settings'
 
-// import config from './config.js'
-import createSerialPort from './serial/createSerialPort'
-import rxParser from './rxParser.js'
-import * as selectors from './selectors/'
-import * as sagasByName from './sagas/'
+export logReducer from './log/reducers/logReducer'
 
-export { default as reducer } from './reducer'
-export { default as logger } from './logger'
-export { default as validate } from './config/validate'
-export { default as serialConsole } from './serial/serialConsole'
-
-export const sagas = ({ config }) => {
-  return Object.values(sagasByName).map(saga => saga(selectors))
-}
-// export { config }
-
-export const middleware = ({ config }) => {
-  const {
-    serialPort,
-    parser,
-    isConnected,
-  } = createSerialPort(config)
-
-  return [
-    serialMiddleware({
-      serialPort,
-      parser,
-      isConnected,
-      receiveParser: rxParser,
-    }),
-  ]
-}
+export reducer from './reducer'
