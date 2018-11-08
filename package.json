@@ -2,7 +2,8 @@
   "private": true,
   "scripts": {
     "delete-node-modules": "rm -rf node_modules && rm -rf packages/*/node_modules",
-    "bootstrap": "yarn && lerna exec --concurrency 1 -- yarn && cd ./packages/tegh-web-ui/ && yarn",
+    "bootstrap": "sudo mkdir /var/log/tegh; sudo chmod 777 /var/log/tegh; yarn install-all",
+    "install-all": "yarn && lerna exec --concurrency 1 -- yarn && cd ./packages/tegh-web-ui/ && yarn",
     "clean": "gulp clean",
     "build": "gulp build",
     "watch": "gulp watch",

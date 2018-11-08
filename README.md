@@ -9,7 +9,7 @@ Tegh is a work in progress Next Gen 3D Printer Host Server. Tegh aims to:
 
 ## Installation
 
-Run `sudo mkdir /var/log/tegh && sudo chmod 777 /var/log/tegh && yarn bootstrap`
+Run `yarn bootstrap`
 
 **Prerequisites:** node and yarn (`npm i -g yarn`)
 
