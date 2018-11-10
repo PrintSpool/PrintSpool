@@ -1,23 +1,27 @@
 [![NSP Status](https://nodesecurity.io/orgs/tegh/projects/24e090c8-8a9b-4827-a224-6e638b70df50/badge)](https://nodesecurity.io/orgs/tegh/projects/24e090c8-8a9b-4827-a224-6e638b70df50)
 
+## The Tegh Project
+
+Tegh is a work in progress Next Gen 3D Printer Host Server. Tegh aims to:
+1. connect your 3D printer to the internet with any commodity USB Type C Android phone
+2. control your 3D printer from anywhere with end-to-end encryption, WebRTC and live video streaming
+3. streamline your 3D printing process with easy-to-use print queuing
+
 ## Installation
 
-Run `sudo mkdir /var/log/tegh && sudo chmod 777 /var/log/tegh && yarn bootstrap`
+Run `yarn bootstrap`
 
 **Prerequisites:** node and yarn (`npm i -g yarn`)
 
-## Running the stop-gap "Production" Server
+## Hacking
+
+The yarn scripts bellow should be run from the root directory of this repo.
+
+### Running the Dev Host + Web UI
 
 Run `yarn start`
 
-**Note:** This is a temporary stop-gap solution. Eventually the plan is to start
-Tegh via SystemD.
-
-## Hacking
-
-### Running the Dev Server
-
-Run `yarn dev`
+**Note:** This is the only way to run tegh atm. It is a temporary stop-gap solution. Eventually the plan is to start Tegh via SystemD or inside of an Android App but neither of those are done yet.
 
 * starts a development server connected to a simulated serial port
 * starts the tegh-web-ui dev server
@@ -27,6 +31,7 @@ Run `yarn dev`
 
 Run `yarn test`
 
+<!-- TODO: rewrite outdated SystemD scripts and update docs.
 ## Installing the development server SystemD Unit File
 
 As a temporary provision until a build script is ready for Tegh the server can be installed with systemd via the following steps:
@@ -47,4 +52,4 @@ As a temporary provision until a build script is ready for Tegh the server can b
 
 Tegh's stderr log is accessible via journalctl:
 
-`journalctl -u tegh-server.service --follow`
+`journalctl -u tegh-server.service --follow` -->
