@@ -2,11 +2,20 @@ import React from 'react'
 import { compose } from 'recompose'
 import { Field } from 'redux-form'
 import {
+  withStyles,
   List,
   ListItem,
   FormControlLabel,
   MenuItem,
+  ExpansionPanel,
+  ExpansionPanelSummary,
+  ExpansionPanelDetails,
+  Typography,
+  Grid,
 } from '@material-ui/core'
+import {
+  ExpandMore as ExpandMoreIcon,
+} from '@material-ui/icons'
 import {
   TextField,
   Switch,
@@ -28,7 +37,24 @@ export const CONFIG_SUBSCRIPTION = gql`
 `
 
 const enhance = compose(
+  withStyles(theme => ({
+    advancedPanel: {
+      marginTop: theme.typography.pxToRem(15),
+    },
+    heading: {
+      fontSize: theme.typography.pxToRem(15),
+      fontWeight: theme.typography.fontWeightRegular,
+    },
+  })),
 )
+
+const validateJSON = (value) => {
+  try {
+    JSON.parse(value)
+  } catch (e) {
+    return `Invalid JSON Syntax: ${e.message}`
+  }
+}
 
 const ControllerForm = ({ classes, initialValues }) => (
   <main>
@@ -72,20 +98,43 @@ const ControllerForm = ({ classes, initialValues }) => (
       }
     </Field>
 
-    <List>
-      <ListItem>
-        <FormControlLabel
-          label="Simulate Attached Controller"
-          control={(
-            <Field
-              component={Switch}
-              name="simulate"
+    <ExpansionPanel className={classes.advancedPanel} elevation={1}>
+      <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+        <Typography className={classes.heading}>Advanced</Typography>
+      </ExpansionPanelSummary>
+      <ExpansionPanelDetails>
+        <Grid container>
+          <Grid item xs={12}>
+            <FormControlLabel
+              label="Simulate Attached Controller"
+              control={(
+                <Field
+                  component={Switch}
+                  name="simulate"
+                />
+              )}
             />
-          )}
-        />
-      </ListItem>
-    </List>
-
+          </Grid>
+          <Grid item xs={12}>
+            <Field
+              component={TextField}
+              label="Extended Configuration"
+              name="extendedConfig"
+              format={(value) => {
+                if (typeof value === 'string') {
+                  return value
+                }
+                return JSON.stringify(value, null, 2)
+              }}
+              validate={validateJSON}
+              margin="normal"
+              fullWidth
+              multiline
+            />
+          </Grid>
+        </Grid>
+      </ExpansionPanelDetails>
+    </ExpansionPanel>
   </main>
 )
 

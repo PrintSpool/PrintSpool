@@ -38,16 +38,15 @@ const FormDialog = ({
     open={open}
     onClose={() => history.goBack()}
     aria-labelledby="form-dialog-title"
+    maxWidth="md"
+    fullWidth
   >
     <DialogTitle id="form-dialog-title">{title || name || id}</DialogTitle>
     <DialogContent>
       <Page {...props} />
     </DialogContent>
     <DialogActions>
-      <Button
-        onClick={() => history.goBack()}
-        color="primary"
-      >
+      <Button onClick={() => history.goBack()}>
         Cancel
       </Button>
       <Button onClick={handleSubmit} color="primary">
