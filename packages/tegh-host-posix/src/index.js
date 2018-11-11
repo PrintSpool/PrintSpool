@@ -20,15 +20,16 @@ import webRTCServer from './server/webRTCServer'
 global.Promise = Promise
 
 // Get document, or throw exception on error
-export const loadConfigForm = (configPath) => {
+const loadConfigForm = (configPath) => {
   try {
-    return yaml.safeLoad(fs.readFileSync(configPath, 'utf8'))
+    // eslint-disable-next-line global-require, import/no-dynamic-require
+    return require(configPath)
   } catch (e) {
     throw new Error(`Unable to load config file ${configPath}\n${e.message}`, e)
   }
 }
 
-const teghDaemon = async (argv, pluginLoader) => {
+const teghServer = async (argv, pluginLoader) => {
   if (argv[2] == null) {
     const expectedUseage = 'Expected useage: tegh [/path/to/config.yml]'
     throw new Error(`No config file provided. ${expectedUseage}`)
@@ -82,4 +83,9 @@ const teghDaemon = async (argv, pluginLoader) => {
   }
 }
 
-export default teghDaemon
+const nodeModulesPluginLoader = plugin => new Promise((resolve) => {
+  // eslint-disable-next-line global-require, import/no-dynamic-require
+  resolve(require(plugin))
+})
+
+teghServer(process.argv, nodeModulesPluginLoader)

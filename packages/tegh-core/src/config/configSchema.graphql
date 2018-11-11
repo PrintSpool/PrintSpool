@@ -74,12 +74,7 @@ type FanConfig {
 type PluginConfig {
   id: ID!
   macros: [String!]!
-  settings: [KeyValuePair!]!
-}
-
-type KeyValuePair {
-  key: String!
-  value: JSON
+  settings: JSON!
 }
 
 input RFC6902OperationInput {

@@ -5,7 +5,7 @@ import StoryRouter from 'storybook-react-router'
 import { linkTo } from '@storybook/addon-links'
 
 import { Component as ComponentsConfigPage } from './Index.page'
-import config from '../config.mock'
+import config from '../../../../../../../development.config'
 
 storiesOf('Config/Components', module)
   .addDecorator(StoryRouter({

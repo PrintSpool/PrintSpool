@@ -8,10 +8,19 @@
     "url": "https://github.com/tegh/tegh-server.git"
   },
   "keywords": [
+    "tegh",
     "graphql"
   ],
   "author": "Rob Gilson",
   "license": "AGPL-3.0-or-later",
+  "private": true,
+  "scripts": {
+    "trace-gc": "npx node-dev ./src/development.js ../../development.config.js --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
+    "start": "npx node-dev ./src/development.js ../../development.config.js --trace-warnings"
+  },
+  "devDependencies": {
+    "node-dev": "d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350"
+  },
   "dependencies": {
     "@trust/webcrypto": "^0.9.2",
     "apollo-engine": "^1.1.0",
@@ -56,6 +65,8 @@
     "subscriptions-transport-ws": "^0.9.14",
     "tcomb-validation": "^3.4.1",
     "tegh-core": "^0.4.0",
+    "tegh-driver-serial-gcode": "^0.4.0",
+    "tegh-macros-default": "^0.4.0",
     "tegh-protocol": "^0.4.0",
     "tmp-promise": "^1.0.4",
     "typiql": "^0.3.0",

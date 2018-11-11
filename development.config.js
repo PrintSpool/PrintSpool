@@ -71,6 +71,23 @@ const config = {
     {
       "id": 'aaabbbccc333',
       "package": "tegh-driver-serial-gcode",
+      "settings": {
+        "responseTimeoutTickleAttempts": 3,
+        "fastCodeTimeout": 30000,
+        "longRunningCodeTimeout": 60000,
+        "temperaturePollingInterval": 1000,
+        "delayFromGreetingToReady": 2500,
+        "longRunningCodes": [
+          'G4',
+          'G28',
+          'G29',
+          'G30',
+          'G32',
+          'M226',
+          'M400',
+          'M600',
+        ],
+      }
     },
   ],
   "log": {
