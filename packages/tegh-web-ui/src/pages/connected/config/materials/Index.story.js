@@ -5,11 +5,7 @@ import StoryRouter from 'storybook-react-router'
 import { linkTo } from '@storybook/addon-links'
 
 import { Component as MaterialsConfigIndex } from './Index.page'
-import materials from '../materials.mock'
-
-const baselineProps = {
-  materials,
-}
+import { materials } from '../../../../../../../development.config'
 
 storiesOf('Config/Materials', module)
   .addDecorator(StoryRouter({

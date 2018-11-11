@@ -1,4 +1,4 @@
-import { Record, List } from 'immutable'
+import { Record, List, Map } from 'immutable'
 import uuid from 'uuid/v4'
 
 import CrashReportConfig from './CrashReportConfig'
@@ -8,6 +8,7 @@ export const HostConfigRecordFactory = Record({
   id: null,
   crashReports: CrashReportConfig(),
   materials: List(),
+  extendedConfig: Map(),
 })
 
 const HostConfig = ({
@@ -17,10 +18,11 @@ const HostConfig = ({
   ...props
 }) => (
   HostConfigRecordFactory({
+    ...props,
     id: id || uuid(),
     crashReports: CrashReportConfig(crashReports),
     materials: materials.map(MaterialConfig),
-    ...props,
+    extendedConfig: Map(props.extendedConfig),
   })
 )
 

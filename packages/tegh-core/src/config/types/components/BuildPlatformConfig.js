@@ -1,4 +1,4 @@
-import { Record } from 'immutable'
+import { Record, Map } from 'immutable'
 import uuid from 'uuid/v4'
 
 import { BUILD_PLATFORM } from './ComponentTypeEnum'
@@ -8,12 +8,14 @@ export const BuildPlatformConfigFactory = Record({
   type: BUILD_PLATFORM,
   name: null,
   heater: false,
+  extendedConfig: Map(),
 })
 
 const BuildPlatformConfig = props => (
   BuildPlatformConfigFactory({
-    id: props.id || uuid(),
     ...props,
+    id: props.id || uuid(),
+    extendedConfig: Map(props.extendedConfig),
   })
 )
 

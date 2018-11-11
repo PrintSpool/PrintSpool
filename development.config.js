@@ -30,7 +30,24 @@ const config = {
       "name": "RAMPS Controller Board",
       "serialPortID": "/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00",
       "baudRate": 250000,
-      "simulate": true
+      "simulate": true,
+      "extendedConfig": {
+        "responseTimeoutTickleAttempts": 3,
+        "fastCodeTimeout": 30000,
+        "longRunningCodeTimeout": 60000,
+        "temperaturePollingInterval": 1000,
+        "delayFromGreetingToReady": 2500,
+        "longRunningCodes": [
+          'G4',
+          'G28',
+          'G29',
+          'G30',
+          'G32',
+          'M226',
+          'M400',
+          'M600',
+        ],
+      },
     },
     {
       "id": "aaa2qe0",
@@ -71,23 +88,6 @@ const config = {
     {
       "id": 'aaabbbccc333',
       "package": "tegh-driver-serial-gcode",
-      "settings": {
-        "responseTimeoutTickleAttempts": 3,
-        "fastCodeTimeout": 30000,
-        "longRunningCodeTimeout": 60000,
-        "temperaturePollingInterval": 1000,
-        "delayFromGreetingToReady": 2500,
-        "longRunningCodes": [
-          'G4',
-          'G28',
-          'G29',
-          'G30',
-          'G32',
-          'M226',
-          'M400',
-          'M600',
-        ],
-      }
     },
   ],
   "log": {
@@ -117,6 +117,19 @@ export const hostConfig = {
     "tcpPort": 3901
   }
 }
+
+export const materials = [
+  {
+    "id": "generic/pla",
+    "targetExtruderTemperature": 220,
+    "targetBedTemperature": 60
+  },
+  {
+    "id": "generic/abs",
+    "targetExtruderTemperature": 200,
+    "targetBedTemperature": 60
+  },
+]
 /* eslint-enable */
 
 export default config

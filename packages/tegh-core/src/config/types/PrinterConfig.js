@@ -1,4 +1,4 @@
-import { Record, List } from 'immutable'
+import { Record, List, Map } from 'immutable'
 import uuid from 'uuid/v4'
 
 import AxisConfig from './AxisConfig'
@@ -28,6 +28,7 @@ export const PrinterConfigRecordFactory = Record({
 
   plugins: List(),
   log: LogConfig(),
+  extendedConfig: Map(),
 })
 
 const PrinterConfig = ({
@@ -42,6 +43,7 @@ const PrinterConfig = ({
   ...props
 }) => (
   PrinterConfigRecordFactory({
+    ...props,
     id: id || uuid(),
 
     axes: axes.map(AxisConfig),
@@ -59,8 +61,7 @@ const PrinterConfig = ({
 
     plugins: plugins.map(PluginConfig),
     log: LogConfig(log),
-
-    ...props,
+    extendedConfig: Map(props.extendedConfig),
   })
 )
 

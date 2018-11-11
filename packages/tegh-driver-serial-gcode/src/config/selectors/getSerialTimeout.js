@@ -3,7 +3,7 @@ import { getController } from 'tegh-core'
 
 const getSerialTimeout = createSelector(
   getController,
-  controller => controller.serialTimeout,
+  controller => controller.extendedConfig.serialTimeout,
 )
 
 export default getSerialTimeout

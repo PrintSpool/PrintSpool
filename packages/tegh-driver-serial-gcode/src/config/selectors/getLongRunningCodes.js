@@ -3,7 +3,7 @@ import { getController } from 'tegh-core'
 
 const getLongRunningCodes = createSelector(
   getController,
-  controller => controller.longRunningCodes,
+  controller => controller.extendedConfig.longRunningCodes,
 )
 
 export default getLongRunningCodes

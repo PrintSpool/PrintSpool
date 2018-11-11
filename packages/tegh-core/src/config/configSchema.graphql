@@ -3,11 +3,13 @@ type HostConfig {
   name: String!
   publicKey: String!
   crashReports: CrashReportConfig!
+  extendedConfig: JSON!
 }
 
 type CrashReportConfig {
   id: ID!
   uploadCrashReportsToDevs: Boolean!
+  extendedConfig: JSON!
 }
 
 type PrinterConfig {
@@ -20,17 +22,20 @@ type PrinterConfig {
   components: [ComponentConfig!]!
   plugins: [PluginConfig!]!
   log: LogConfig!
+  extendedConfig: JSON!
 }
 
 type LogConfig {
   id: ID!
   maxLength: Int!
+  extendedConfig: JSON!
 })
 
 type AxisConfig {
   id: ID!
   name: String!
   feedrate: Float!
+  extendedConfig: JSON!
 }
 
 union ComponentConfig =
@@ -47,6 +52,7 @@ type SerialControllerConfig {
   serialPortID: String!
   baudRate: Int!
   simulate: Boolean!
+  extendedConfig: JSON!
 }
 
 type ToolheadConfig {
@@ -56,6 +62,7 @@ type ToolheadConfig {
   name: String!
   heater: Boolean!
   feedrate: Float!
+  extendedConfig: JSON!
 }
 
 type BuildPlatformConfig {
@@ -63,18 +70,20 @@ type BuildPlatformConfig {
   type: String!
   name: String!
   heater: Boolean!
+  extendedConfig: JSON!
 }
 
 type FanConfig {
   id: ID!
   type: String!
   name: String!
+  extendedConfig: JSON!
 }
 
 type PluginConfig {
   id: ID!
   macros: [String!]!
-  settings: JSON!
+  extendedConfig: JSON!
 }
 
 input RFC6902OperationInput {

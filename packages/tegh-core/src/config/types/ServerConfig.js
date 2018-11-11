@@ -1,4 +1,4 @@
-import { Record } from 'immutable'
+import { Record, Map } from 'immutable'
 import uuid from 'uuid/v4'
 
 export const ServerConfigFactory = Record({
@@ -7,12 +7,14 @@ export const ServerConfigFactory = Record({
   webRTC: true,
   tcpPort: null,
   unixSocket: null,
+  extendedConfig: Map(),
 })
 
 const ServerConfig = props => (
   ServerConfigFactory({
-    id: props.id || uuid(),
     ...props,
+    id: props.id || uuid(),
+    extendedConfig: Map(props.extendedConfig),
   })
 )
 

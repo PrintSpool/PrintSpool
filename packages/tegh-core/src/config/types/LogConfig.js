@@ -1,4 +1,4 @@
-import { Record, List } from 'immutable'
+import { Record, List, Map } from 'immutable'
 import uuid from 'uuid/v4'
 
 import { WARNING, ERROR, FATAL } from '../../log/types/logLevelEnum'
@@ -6,12 +6,14 @@ import { WARNING, ERROR, FATAL } from '../../log/types/logLevelEnum'
 export const LogConfigFactory = Record({
   maxLength: 1000,
   stderr: List([WARNING, ERROR, FATAL]),
+  extendedConfig: Map(),
 })
 
 const LogConfig = props => (
   LogConfigFactory({
+    ...props,
     id: props.id || uuid(),
-    ...props(),
+    extendedConfig: Map(props.extendedConfig),
   })
 )
 

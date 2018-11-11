@@ -12,7 +12,7 @@ import { Field } from 'redux-form'
 import gql from 'graphql-tag'
 
 export const CONFIG_SUBSCRIPTION = gql`
-  subscription ConfigSubscription($printerID: ID!) {
+  subscription ConfigSubscriptio1n($printerID: ID!) {
     live {
       patch { op, path, from, value }
       query {
@@ -36,7 +36,7 @@ const enhance = compose(
   withStyles(styles, { withTheme: true }),
 )
 
-const PrinterConfigPage = ({ classes, initialValues }) => (
+const PrinterConfigPage = ({ initialValues }) => (
   <main>
     <Field
       component={TextField}

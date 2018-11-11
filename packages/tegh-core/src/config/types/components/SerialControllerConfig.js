@@ -1,4 +1,4 @@
-import { Record } from 'immutable'
+import { Record, Map } from 'immutable'
 import uuid from 'uuid/v4'
 
 import { CONTROLLER } from './ComponentTypeEnum'
@@ -11,6 +11,7 @@ export const SerialControllerConfigFactory = Record({
   serialPortID: null,
   baudRate: null,
   simulate: false,
+  extendedConfig: Map(),
 })
 
 const SerialControllerConfig = ({
@@ -20,8 +21,9 @@ const SerialControllerConfig = ({
     throw new Error(`Unsupported controller interface: ${props.interface}`)
   }
   SerialControllerConfigFactory({
-    id: props.id || uuid(),
     ...props,
+    id: props.id || uuid(),
+    extendedConfig: Map(props.extendedConfig),
   })
 }
 

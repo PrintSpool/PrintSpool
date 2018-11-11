@@ -1,4 +1,4 @@
-import { Record } from 'immutable'
+import { Record, Map } from 'immutable'
 import uuid from 'uuid/v4'
 
 import { TOOLHEAD } from './ComponentTypeEnum'
@@ -10,12 +10,14 @@ export const ToolheadConfigFactory = Record({
   heater: false,
   feedrate: null,
   materialID: null,
+  extendedConfig: Map(),
 })
 
 const ToolheadConfig = props => (
   ToolheadConfigFactory({
-    id: props.id || uuid(),
     ...props,
+    id: props.id || uuid(),
+    extendedConfig: Map(props.extendedConfig),
   })
 )
 

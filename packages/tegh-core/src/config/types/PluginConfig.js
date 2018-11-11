@@ -5,7 +5,7 @@ export const PluginConfigFactory = Record({
   id: null,
   package: null,
   macros: List(),
-  settings: Map(),
+  extendedConfig: Map(),
 })
 
 const PluginConfig = ({
@@ -14,10 +14,11 @@ const PluginConfig = ({
   ...props
 }) => (
   PluginConfigFactory({
+    ...props,
     id: props.id || uuid(),
     macros: List(macros),
     settings: Map(settings),
-    ...props,
+    extendedConfig: Map(props.extendedConfig),
   })
 )
 

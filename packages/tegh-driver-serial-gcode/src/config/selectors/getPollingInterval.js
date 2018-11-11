@@ -3,7 +3,7 @@ import { getController } from 'tegh-core'
 
 const getPollingInterval = createSelector(
   getController,
-  controller => controller.temperaturePollingInterval,
+  controller => controller.extendedConfig.temperaturePollingInterval,
 )
 
 export default getPollingInterval
