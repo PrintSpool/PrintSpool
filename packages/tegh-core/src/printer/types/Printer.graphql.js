@@ -30,7 +30,7 @@ const PrinterGraphQL = new GraphQLObjectType({
     heaters: {
       type: tql`[${HeaterType}!]!`,
       resolve(source) {
-        return getDriverState(source).peripherals.heaters.toList()
+        return getDriverState(source).components.heaters.toList()
       },
     },
     targetTemperaturesCountdown: {
@@ -40,7 +40,7 @@ const PrinterGraphQL = new GraphQLObjectType({
         targetTemperature.
       `,
       resolve(source) {
-        return getDriverState(source).peripherals.targetTemperaturesCountdown
+        return getDriverState(source).components.targetTemperaturesCountdown
       },
     },
     activeExtruderID: {
@@ -49,13 +49,13 @@ const PrinterGraphQL = new GraphQLObjectType({
         The active extruder ID
       `,
       resolve(source) {
-        return getDriverState(source).peripherals.activeExtruderID
+        return getDriverState(source).components.activeExtruderID
       },
     },
     fans: {
       type: tql`[${FanType}!]!`,
       resolve(source) {
-        return getDriverState(source).peripherals.fans.toList()
+        return getDriverState(source).components.fans.toList()
       },
     },
     status: {

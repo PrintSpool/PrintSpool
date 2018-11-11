@@ -26,14 +26,14 @@ import writeToSerialPort from '../sideEffects/writeToSerialPort'
 
 import reducer, { initialState } from './serialReducer'
 
-const portID = '/dev/whatever'
+const serialPortID = '/dev/whatever'
 const baudRate = 9000
 
 const config = createTestConfig({
   serialPort: {
-    portID,
+    serialPortID,
     baudRate,
-    simulation: false,
+    simulate: false,
   },
 })
 
@@ -95,7 +95,7 @@ describe('serialReducer', () => {
       expect(sideEffect.func).toEqual(serialPortConnection)
       expect(sideEffect.args).toEqual([
         {
-          portID,
+          serialPortID,
           baudRate,
           receiveParser: rxParser,
           simulator: null,
@@ -142,7 +142,7 @@ describe('serialReducer', () => {
           .set('serialPort', 'my_serial_port')
           .set('isResetting', true)
 
-        const action = serialClose({ portID: '/dev/whatever' })
+        const action = serialClose({ serialPortID: '/dev/whatever' })
 
         const [
           nextState,
@@ -158,7 +158,7 @@ describe('serialReducer', () => {
         const state = initialState
           .set('serialPort', 'my_serial_port')
 
-        const action = serialClose({ portID: '/dev/whatever' })
+        const action = serialClose({ serialPortID: '/dev/whatever' })
 
         const [
           nextState,

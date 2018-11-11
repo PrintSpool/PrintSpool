@@ -1,9 +1,9 @@
 import { Record, Map } from 'immutable'
 import { mergeChildReducers } from 'redux-loop-immutable'
 
-// peripherals
-import peripherals from './peripherals/reducers/peripheralsReducer'
-import _pollTemperature from './peripherals/reducers/pollTemperatureReducer'
+// components
+import components from './components/reducers/componentsReducer'
+import _pollTemperature from './components/reducers/pollTemperatureReducer'
 // serial
 import _estopAndReset from './serial/reducers/estopAndResetReducer'
 import _serialErrorHandler from './serial/reducers/serialErrorHandlerReducer'
@@ -15,7 +15,7 @@ import _serialTimeout from './spool/reducers/serialTimeoutReducer'
 import _throwOnInvalidGCode from './spool/reducers/throwOnInvalidGCodeReducer'
 
 const reducers = {
-  peripherals,
+  components,
   _pollTemperature,
   _estopAndReset,
   _serialErrorHandler,

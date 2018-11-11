@@ -1,12 +1,12 @@
 import {
   getHeaterConfigs,
   getMaterial,
-  PeripheralTypeEnum
+  ComponentTypeEnum
 } from 'tegh-core'
 
 import setTargetTemperature from './setTargetTemperature'
 
-const { EXTRUDER, HEATED_BED } = PeripheralTypeEnum
+const { EXTRUDER, HEATED_BED } = ComponentTypeEnum
 
 const toggleHeater = (args, { config }) => {
   const heaters = getHeaterConfigs(config)

@@ -6,7 +6,7 @@ import serialReceive from '../actions/serialReceive'
 import serialError from '../actions/serialError'
 
 const serialPortConnection = ({
-  portID,
+  serialPortID,
   baudRate,
   receiveParser,
   simulator,
@@ -18,27 +18,27 @@ const serialPortConnection = ({
 
   const { serialPort, parser } = (() => {
     if (simulator != null) {
-      return simulator(portID, serialOptions)
+      return simulator(serialPortID, serialOptions)
     }
     const result = {}
-    result.serialPort = new SerialPort(portID, serialOptions)
+    result.serialPort = new SerialPort(serialPortID, serialOptions)
     result.parser = result.serialPort.pipe(new SerialPort.parsers.Readline())
     return result
   })()
 
   let removeEventListeners = null
 
-  const onOpen = () => dispatch(serialOpen({ portID }))
+  const onOpen = () => dispatch(serialOpen({ serialPortID }))
   const onClose = () => {
     removeEventListeners()
-    dispatch(serialClose({ portID }))
+    dispatch(serialClose({ serialPortID }))
   }
   const onError = (error) => {
     removeEventListeners()
-    dispatch(serialError({ portID, error }))
+    dispatch(serialError({ serialPortID, error }))
   }
   const onData = (data) => {
-    dispatch(serialReceive({ portID, receiveParser, data }))
+    dispatch(serialReceive({ serialPortID, receiveParser, data }))
   }
 
   removeEventListeners = () => {

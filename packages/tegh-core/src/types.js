@@ -17,7 +17,7 @@ export PrinterGraphQL from './printer/types/Printer.graphql.js'
 /* spool */
 export * as PriorityEnum from './spool/types/PriorityEnum'
 export * as TaskStatusEnum from './spool/types/TaskStatusEnum'
-export * as PeripheralTypeEnum from './config/types/PeripheralTypeEnum'
+export * as ComponentTypeEnum from './config/types/ComponentTypeEnum'
 
 export Task, { MockTask } from './spool/types/Task'
 export TaskGraphQL from './spool/types/Task.graphql.js'

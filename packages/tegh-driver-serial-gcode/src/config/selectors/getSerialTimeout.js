@@ -1,7 +1,9 @@
-import { getDriverConfig } from 'tegh-core'
+import { createSelector } from 'reselect'
+import { getController } from 'tegh-core'
 
-const getSerialTimeout = config => (
-  getDriverConfig(config).serialTimeout
+const getSerialTimeout = createSelector(
+  getController,
+  controller => controller.serialTimeout,
 )
 
 export default getSerialTimeout

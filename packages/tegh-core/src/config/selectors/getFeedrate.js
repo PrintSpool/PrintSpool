@@ -4,8 +4,8 @@ const getFeedrate = createSelector(
   config => config,
   config => (k) => {
     const { feedrate } = (
-      config.machine.axes.get(k)
-      || config.machine.peripherals.get(k)
+      config.axes.get(k)
+      || config.machine.components.get(k)
     )
 
     return feedrate

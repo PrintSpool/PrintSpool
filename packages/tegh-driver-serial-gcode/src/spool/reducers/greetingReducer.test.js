@@ -40,7 +40,7 @@ describe('greetingReducer', () => {
 
   describe(SERIAL_OPEN, () => {
     it('connects', () => {
-      const action = serialOpen({ portID: '/dev/null' })
+      const action = serialOpen({ serialPortID: '/dev/null' })
       const state = initialState
 
       const nextState = reducer(state, action)

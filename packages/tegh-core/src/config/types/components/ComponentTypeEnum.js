@@ -5,11 +5,11 @@ export const TOOLHEAD = 'TOOLHEAD'
 export const BUILD_PLATFORM = 'BUILD_PLATFORM'
 export const FAN = 'FAN'
 
-const PeripheralTypeEnum = List([
+const ComponentTypeEnum = List([
   CONTROLLER,
   TOOLHEAD,
   BUILD_PLATFORM,
   FAN,
 ])
 
-export default PeripheralTypeEnum
+export default ComponentTypeEnum

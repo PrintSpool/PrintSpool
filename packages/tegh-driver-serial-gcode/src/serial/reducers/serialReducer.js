@@ -9,7 +9,7 @@ import {
   DEVICE_CONNECTED,
   connectPrinter,
   printerDisconnected,
-  getDriverConfig,
+  getController,
 } from 'tegh-core'
 
 import rxParser from '../../rxParser'
@@ -38,11 +38,11 @@ const serialReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
       const { config } = action.payload
-      const serialConfig = getDriverConfig(config).serialPort
+      const serialConfig = getController(config)
 
       const nextState = state.set('config', serialConfig)
 
-      if (state.config == null && serialConfig.simulation) {
+      if (state.config == null && serialConfig.simulate) {
         return loop(
           nextState,
           Cmd.action(connectPrinter()),
@@ -55,8 +55,8 @@ const serialReducer = (state = initialState, action) => {
       const { device } = action.payload
 
       if (
-        state.config.simulation === false
-        && device.id !== state.config.portID
+        state.config.simulate === false
+        && device.id !== state.config.serialPortID
       ) return state
 
       return loop(
@@ -88,16 +88,16 @@ const serialReducer = (state = initialState, action) => {
     }
     case REQUEST_SERIAL_PORT_CONNECTION: {
       const {
-        portID,
+        serialPortID,
         baudRate,
-        simulation,
+        simulate,
       } = state.config
 
       const serialPortOptions = {
-        portID,
+        serialPortID,
         baudRate,
         receiveParser: rxParser,
-        simulator: simulation ? simulator : null,
+        simulator: simulate ? simulator : null,
       }
 
       return loop(

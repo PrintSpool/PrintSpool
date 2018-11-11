@@ -6,7 +6,7 @@ import {
   PRINTER_DISCONNECTED,
   SET_CONFIG,
   setConfig,
-  PeripheralTypeEnum,
+  ComponentTypeEnum,
 } from 'tegh-core'
 
 import serialReceive, { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
@@ -15,15 +15,15 @@ import serialSend, { SERIAL_SEND } from '../../serial/actions/serialSend'
 import rxParser from '../../rxParser'
 import { createTestConfig } from '../../config/types/Settings'
 
-import reducer, { initialState, Heater, Fan } from './peripheralsReducer'
+import reducer, { initialState, Heater, Fan } from './componentsReducer'
 
 const {
   EXTRUDER,
   HEATED_BED,
   FAN,
-} = PeripheralTypeEnum
+} = ComponentTypeEnum
 
-const peripheralTypes = {
+const componentTypes = {
   e0: EXTRUDER,
   e1: EXTRUDER,
   b: HEATED_BED,
@@ -32,8 +32,8 @@ const peripheralTypes = {
 }
 
 const config = createTestConfig().setIn(
-  ['machine', 'peripherals'],
-  Map(peripheralTypes).map((type, id) => (
+  ['machine', 'components'],
+  Map(componentTypes).map((type, id) => (
     Record({ id, type })()
   )),
 )
@@ -49,9 +49,9 @@ const configuredState = initialState
     f1: Fan({ id: 'f1' }),
   }))
 
-describe('peripheralsReducer', () => {
+describe('componentsReducer', () => {
   describe(SET_CONFIG, () => {
-    it('initializes each peripheral\'s state', () => {
+    it('initializes each component\'s state', () => {
       const state = initialState
       const action = setConfig({ config, plugins: List([]) })
 
@@ -68,7 +68,7 @@ describe('peripheralsReducer', () => {
   ]
   stateResettingActions.forEach((actionType) => {
     describe(actionType, () => {
-      it('initializes each peripheral\'s state', () => {
+      it('initializes each component\'s state', () => {
         const state = configuredState
           .setIn(['heaters', 'e0', 'currentTemperature'], 120)
           .setIn(['fans', 'f0', 'enabled'], true)

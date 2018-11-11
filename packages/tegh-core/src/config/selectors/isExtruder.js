@@ -1,10 +1,10 @@
 import { createSelector } from 'reselect'
-import { EXTRUDER } from '../types/PeripheralTypeEnum'
+import { EXTRUDER } from '../types/ComponentTypeEnum'
 
 const isExtruder = createSelector(
   config => config,
   config => k => (
-    config.machine.peripherals.get(k, {}).type === EXTRUDER
+    config.machine.components.get(k, {}).type === EXTRUDER
   ),
 )
 

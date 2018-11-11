@@ -46,7 +46,7 @@ machine:
       feedrate: 150
     z:
       feedrate: 4
-  peripherals:
+  components:
     e0:
       type: extruder
       name: 'Extruder 1'
@@ -68,6 +68,6 @@ plugins:
   - package: tegh-driver-serial-gcode
     settings:
       serialPort:
-        portID: /dev/ttyACM0
+        serialPortID: /dev/ttyACM0
         baudRate: 250000
-        simulation: true
+        simulate: true

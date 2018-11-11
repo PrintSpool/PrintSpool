@@ -1,7 +1,9 @@
-import { getDriverConfig } from 'tegh-core'
+import { createSelector } from 'reselect'
+import { getController } from 'tegh-core'
 
-const getPollingInterval = config => (
-  getDriverConfig(config).temperaturePollingInterval
+const getPollingInterval = createSelector(
+  getController,
+  controller => controller.temperaturePollingInterval,
 )
 
 export default getPollingInterval

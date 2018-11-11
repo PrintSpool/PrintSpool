@@ -1,9 +1,14 @@
-# type HostConfig {
-#   id: ID!
-#   name: String!
-#   publicKey: String!
-#   crashReports: CrashReportConfig!
-# }
+type HostConfig {
+  id: ID!
+  name: String!
+  publicKey: String!
+  crashReports: CrashReportConfig!
+}
+
+type CrashReportConfig {
+  id: ID!
+  uploadCrashReportsToDevs: Boolean!
+}
 
 type PrinterConfig {
   id: ID!
@@ -13,19 +18,14 @@ type PrinterConfig {
   name: String
   axes: [AxisConfig!]!
   components: [ComponentConfig!]!
-  # plugins: [PluginConfig!]!
-  # log: LogConfig!
+  plugins: [PluginConfig!]!
+  log: LogConfig!
 }
 
-# type LogConfig {
-#   id: ID!
-#   maxLength: Int!
-# })
-#
-# type CrashReportConfig {
-#   id: ID!
-#   uploadCrashReportsToDevs: Boolean!
-# }
+type LogConfig {
+  id: ID!
+  maxLength: Int!
+})
 
 type AxisConfig {
   id: ID!
@@ -44,9 +44,9 @@ type SerialControllerConfig {
   type: String!
   interface: String!
   name: String!
-  portID: String!
+  serialPortID: String!
   baudRate: Int!
-  simulation: Boolean!
+  simulate: Boolean!
 }
 
 type ToolheadConfig {
@@ -71,11 +71,16 @@ type FanConfig {
   name: String!
 }
 
-# type PluginConfig {
-#   id: ID!
-#   macros: [String!]!
-#   settings: [KeyValuePair!]!
-# }
+type PluginConfig {
+  id: ID!
+  macros: [String!]!
+  settings: [KeyValuePair!]!
+}
+
+type KeyValuePair {
+  key: String!
+  value: JSON
+}
 
 input RFC6902OperationInput {
   op: String!
@@ -85,7 +90,7 @@ input RFC6902OperationInput {
 }
 
 type Query {
-  # hostConfigs(hostID: ID): HostConfig!
+  hostConfigs(hostID: ID): [HostConfig!]!
   printerConfigs(printerID: ID): [PrinterConfig!]!
   components(componentID: ID): [ComponentConfig!]!
   materials(id: ID): [Material!]!

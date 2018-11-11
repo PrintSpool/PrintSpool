@@ -12,6 +12,7 @@
     "redux": "^3.7.2",
     "redux-loop": "^4.3.3",
     "redux-loop-immutable": "^1.0.0",
+    "reselect": "^4.0.0",
     "strip-newlines": "^1.0.1",
     "tcomb-validation": "^3.4.1",
     "tegh-core": "^0.4.0"

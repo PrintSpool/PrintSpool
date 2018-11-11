@@ -32,11 +32,11 @@ export const Fan = Record({
   speed: 0,
 })
 
-const initializeCollection = (peripheralConfigs, initialValueFn) => (
-  peripheralConfigs.map(({ id }) => initialValueFn(id))
+const initializeCollection = (componentConfigs, initialValueFn) => (
+  componentConfigs.map(({ id }) => initialValueFn(id))
 )
 
-const peripheralsReducer = (state = initialState, action) => {
+const componentsReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
       const { config } = action.payload
@@ -110,4 +110,4 @@ const peripheralsReducer = (state = initialState, action) => {
   }
 }
 
-export default peripheralsReducer
+export default componentsReducer
