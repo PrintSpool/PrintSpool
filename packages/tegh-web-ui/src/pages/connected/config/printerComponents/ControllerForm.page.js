@@ -3,8 +3,6 @@ import { compose } from 'recompose'
 import { Field } from 'redux-form'
 import {
   withStyles,
-  List,
-  ListItem,
   FormControlLabel,
   MenuItem,
   ExpansionPanel,
