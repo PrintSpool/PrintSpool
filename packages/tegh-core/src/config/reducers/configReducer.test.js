@@ -6,7 +6,7 @@ import { MockConfig } from '../types/Config'
 
 import setConfig, { SET_CONFIG } from '../actions/setConfig'
 import requestSetConfig from '../actions/requestSetConfig'
-import requestPatchConfig, { REQUEST_PATCH_CONFIG } from '../actions/requestPatchConfig'
+import requestPatchPrinterConfig, { REQUEST_PATCH_PRINTER_CONFIG } from '../actions/requestPatchPrinterConfig'
 
 describe('configReducer', () => {
   describe(SET_CONFIG, () => {
@@ -19,10 +19,10 @@ describe('configReducer', () => {
       expect(nextState).toEqual(config)
     })
   })
-  describe(REQUEST_PATCH_CONFIG, () => {
+  describe(REQUEST_PATCH_PRINTER_CONFIG, () => {
     it('creates a REQUEST_SET_CONFIG with the patched config', () => {
       const state = MockConfig()
-      const action = requestPatchConfig({
+      const action = requestPatchPrinterConfig({
         patch: [
           { op: 'replace', path: '/name', value: 'my_new_printer_name_102' },
         ],
@@ -36,7 +36,7 @@ describe('configReducer', () => {
       expect(nextState).toEqual(state)
       expect(nextAction).toEqual(
         requestSetConfig({
-          config: state.set('name', 'my_new_printer_name_102'),
+          config: state.set('printer', 'name', 'my_new_printer_name_102'),
         }),
       )
     })

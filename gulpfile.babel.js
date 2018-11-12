@@ -126,7 +126,7 @@ gulp.task('webpack-dev-server', webpackDevServerTask)
 
 gulp.task('start-signalling-server', start('tegh-signalling-server'))
 
-gulp.task('start-host', start('tegh-serial-integration-test'))
+gulp.task('start-host', start('tegh-host-posix'))
 
 gulp.task(
   'start-servers',

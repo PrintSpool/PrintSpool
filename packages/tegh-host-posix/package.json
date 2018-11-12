@@ -1,11 +1,11 @@
 {
-  "name": "tegh-server",
+  "name": "tegh-host-posix",
   "version": "0.4.0",
   "description": "graphql server for 3D printers",
   "main": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tegh/tegh-server.git"
+    "url": "https://github.com/tegh/tegh-host-posix.git"
   },
   "keywords": [
     "tegh",
@@ -15,8 +15,8 @@
   "license": "AGPL-3.0-or-later",
   "private": true,
   "scripts": {
-    "trace-gc": "npx node-dev ./src/development.js ../../development.config.js --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
-    "start": "npx node-dev ./src/development.js ../../development.config.js --trace-warnings"
+    "trace-gc": "npx node-dev ./src/index.js ../../development.config.js --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
+    "start": "npx node-dev ./src/index.js ../../development.config.js --trace-warnings"
   },
   "devDependencies": {
     "node-dev": "d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350"
@@ -40,7 +40,6 @@
     "immutablepatch": "^0.4.2",
     "iterall": "d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b",
     "jiff": "^0.7.3",
-    "js-yaml": "^3.10.0",
     "keypair": "^1.0.1",
     "koa": "^2.3.0",
     "koa-bodyparser": "^4.2.0",

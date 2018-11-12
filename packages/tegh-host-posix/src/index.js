@@ -2,7 +2,6 @@ import Promise from 'bluebird'
 
 import fs from 'fs'
 import path from 'path'
-import yaml from 'js-yaml'
 import untildify from 'untildify'
 import mkdirp from 'mkdirp'
 import keypair from 'keypair'

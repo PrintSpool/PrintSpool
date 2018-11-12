@@ -19,7 +19,6 @@ const resolveFromList = ({
       }
       return [entry]
     }
-
   })
 
   return list
@@ -40,7 +39,7 @@ const configResolvers = {
       name: 'Material',
       selector: state => state.config.materials,
     }),
-
+  },
   Mutation: {
     patchPrinterConfig: (source, args, { store }) => {
       const state = store.getState().config.printerConfig
@@ -53,8 +52,8 @@ const configResolvers = {
       if (errors != null) {
         throw new Error(errors.map(error => error.message).join(', '))
       }
-    }
-  }
+    },
+  },
 }
 
-export const configResolvers
+export default configResolvers

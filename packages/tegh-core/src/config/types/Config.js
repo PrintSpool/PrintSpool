@@ -25,12 +25,14 @@ const Config = ({
 )
 
 export const MockConfig = ({
+  host = {},
   printer = {},
   ...props
 }) => (
   Config({
     host: {
       name: 'test-host',
+      ...host,
     },
     printer: {
       name: 'test-printer',

@@ -4,7 +4,7 @@ After=network.target
 Requires=network.target
 
 [Service]
-ExecStart=/usr/sbin/tegh-server
+ExecStart=/usr/sbin/tegh-host-posix
 Type=simple
 Restart=on-failure
 
