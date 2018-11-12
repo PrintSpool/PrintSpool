@@ -10,10 +10,13 @@ export const FanConfigFactory = Record({
   extendedConfig: Map(),
 })
 
-const FanConfig = props => (
+const FanConfig = ({
+  id = uuid(),
+  ...props
+} = {}) => (
   FanConfigFactory({
     ...props,
-    id: props.id || uuid(),
+    id,
     extendedConfig: Map(props.extendedConfig),
   })
 )

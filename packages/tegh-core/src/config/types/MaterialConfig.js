@@ -6,10 +6,13 @@ const MaterialConfigFactory = Record({
   targetBedTemperature: 0,
 })
 
-const MaterialConfig = props => (
+const MaterialConfig = ({
+  id = uuid(),
+  ...props
+} = {}) => (
   MaterialConfigFactory({
-    id: props.id || uuid(),
     ...props,
+    id,
   })
 )
 

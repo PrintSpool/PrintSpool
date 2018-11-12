@@ -9,10 +9,13 @@ export const AxisConfigFactory = Record({
   extendedConfig: Map(),
 })
 
-const AxisConfig = props => (
+const AxisConfig = ({
+  id = uuid(),
+  ...props
+} = {}) => (
   AxisConfigFactory({
-    ...props(),
-    id: props.id || uuid(),
+    ...props,
+    id,
     extendedConfig: Map(props.extendedConfig),
   })
 )

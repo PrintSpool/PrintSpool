@@ -8,10 +8,13 @@ export const CrashReportConfigFactory = Record({
   extendedConfig: Map(),
 })
 
-const CrashReportConfig = props => (
+const CrashReportConfig = ({
+  id = uuid(),
+  ...props
+} = {}) => (
   CrashReportConfigFactory({
-    ...props(),
-    id: props.id || uuid(),
+    ...props,
+    id,
     extendedConfig: Map(props.extendedConfig),
   })
 )

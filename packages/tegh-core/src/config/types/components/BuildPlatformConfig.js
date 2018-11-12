@@ -12,10 +12,13 @@ export const BuildPlatformConfigFactory = Record({
   extendedConfig: Map(),
 })
 
-const BuildPlatformConfig = props => (
+const BuildPlatformConfig = ({
+  id = uuid(),
+  ...props
+} = {}) => (
   BuildPlatformConfigFactory({
     ...props,
-    id: props.id || uuid(),
+    id,
     extendedConfig: Map(props.extendedConfig),
   })
 )

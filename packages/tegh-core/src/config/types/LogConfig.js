@@ -9,10 +9,13 @@ export const LogConfigFactory = Record({
   extendedConfig: Map(),
 })
 
-const LogConfig = props => (
+const LogConfig = ({
+  id = uuid(),
+  ...props
+} = {}) => (
   LogConfigFactory({
     ...props,
-    id: props.id || uuid(),
+    id,
     extendedConfig: Map(props.extendedConfig),
   })
 )

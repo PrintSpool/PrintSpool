@@ -14,10 +14,13 @@ export const ToolheadConfigFactory = Record({
   extendedConfig: Map(),
 })
 
-const ToolheadConfig = props => (
+const ToolheadConfig = ({
+  id = uuid(),
+  ...props
+} = {}) => (
   ToolheadConfigFactory({
     ...props,
-    id: props.id || uuid(),
+    id,
     extendedConfig: Map(props.extendedConfig),
   })
 )

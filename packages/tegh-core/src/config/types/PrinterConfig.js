@@ -33,7 +33,7 @@ export const PrinterConfigRecordFactory = Record({
 })
 
 const PrinterConfig = ({
-  id,
+  id = uuid(),
 
   axes = [],
   components = [],
@@ -42,10 +42,10 @@ const PrinterConfig = ({
   log = {},
 
   ...props
-}) => (
+} = {}) => (
   PrinterConfigRecordFactory({
     ...props,
-    id: id || uuid(),
+    id,
 
     axes: axes.map(AxisConfig),
     components: components.map((component) => {

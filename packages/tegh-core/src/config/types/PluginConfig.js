@@ -9,13 +9,14 @@ export const PluginConfigFactory = Record({
 })
 
 const PluginConfig = ({
+  id = uuid(),
   macros = [],
   settings = {},
   ...props
-}) => (
+} = {}) => (
   PluginConfigFactory({
     ...props,
-    id: props.id || uuid(),
+    id,
     macros: List(macros),
     settings: Map(settings),
     extendedConfig: Map(props.extendedConfig),

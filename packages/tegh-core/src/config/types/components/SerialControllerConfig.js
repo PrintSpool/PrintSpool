@@ -15,14 +15,15 @@ export const SerialControllerConfigFactory = Record({
 })
 
 const SerialControllerConfig = ({
+  id = uuid(),
   ...props
-}) => {
+} = {}) => {
   if (props.interface != null && props.interface !== 'SERIAL') {
     throw new Error(`Unsupported controller interface: ${props.interface}`)
   }
   SerialControllerConfigFactory({
     ...props,
-    id: props.id || uuid(),
+    id,
     extendedConfig: Map(props.extendedConfig),
   })
 }

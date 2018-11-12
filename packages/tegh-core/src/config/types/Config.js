@@ -11,13 +11,13 @@ export const ConfigRecordFactory = Record({
 })
 
 const Config = ({
-  id,
+  id = uuid(),
   host = {},
   printer = {},
   ...props
-}) => (
+} = {}) => (
   ConfigRecordFactory({
-    id: id || uuid(),
+    id,
     host: HostConfig(host),
     printer: PrinterConfig(printer),
     ...props,
@@ -28,7 +28,7 @@ export const MockConfig = ({
   host = {},
   printer = {},
   ...props
-}) => (
+} = {}) => (
   Config({
     host: {
       name: 'test-host',

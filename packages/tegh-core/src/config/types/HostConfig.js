@@ -12,14 +12,14 @@ export const HostConfigRecordFactory = Record({
 })
 
 const HostConfig = ({
-  id,
+  id = uuid(),
   crashReports = {},
   materials = [],
   ...props
-}) => (
+} = {}) => (
   HostConfigRecordFactory({
     ...props,
-    id: id || uuid(),
+    id,
     crashReports: CrashReportConfig(crashReports),
     materials: materials.map(MaterialConfig),
     extendedConfig: Map(props.extendedConfig),
