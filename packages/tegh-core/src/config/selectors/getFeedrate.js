@@ -1,12 +1,10 @@
 import { createSelector } from 'reselect'
+import getComponents from './getComponents'
 
 const getFeedrate = createSelector(
-  config => config,
-  config => (k) => {
-    const { feedrate } = (
-      config.axes.get(k)
-      || config.machine.components.get(k)
-    )
+  getComponents,
+  components => (k) => {
+    const { feedrate } = components.get(k)
 
     return feedrate
   },

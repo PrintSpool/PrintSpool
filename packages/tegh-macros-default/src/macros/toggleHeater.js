@@ -1,6 +1,6 @@
 import {
   getHeaterConfigs,
-  getMaterial,
+  getMaterials,
   ComponentTypeEnum
 } from 'tegh-core'
 
@@ -26,7 +26,7 @@ const toggleHeater = (args, { config }) => {
 
     switch (heater.type) {
       case EXTRUDER: {
-        const material = getMaterial(config)(heater.materialID)
+        const material = getMaterials(config)(heater.materialID)
         targetTemperatures[id] = material.targetTemperature
         return null
       }
@@ -36,7 +36,7 @@ const toggleHeater = (args, { config }) => {
         const targetBedTemperature = heaters.toList()
           .filter(h => h.type === EXTRUDER)
           .map(({ materialID }) => (
-            getMaterial(config)(materialID).targetBedTemperature
+            getMaterials(config)(materialID).targetBedTemperature
           ))
           .min()
 

@@ -5,6 +5,7 @@ import { BUILD_PLATFORM } from './ComponentTypeEnum'
 
 export const BuildPlatformConfigFactory = Record({
   id: null,
+  address: null,
   type: BUILD_PLATFORM,
   name: null,
   heater: false,

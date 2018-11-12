@@ -1,10 +1,8 @@
-import { List } from 'immutable'
 import { createSelector } from 'reselect'
+import getComponents from './getComponents'
 
 const getComponentsByType = createSelector(
-  config => (
-    config == null ? List() : config.components
-  ),
+  getComponents,
   components => components.groupBy(c => c.type),
 )
 

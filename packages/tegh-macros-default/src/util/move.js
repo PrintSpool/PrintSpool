@@ -1,12 +1,13 @@
 import _ from 'lodash'
 import {
   axisExists,
-  getFeedrate,
+  getComponents,
   AxisTypeEnum,
-  isExtruder,
+  ComponentTypeEnum,
 } from 'tegh-core'
 
 const { MOVEMENT_AXIS, EXTRUDER_AXIS } = AxisTypeEnum
+const { TOOLHEAD } = ComponentTypeEnum
 
 const move = ({ axes, relativeMovement, allowExtruderAxes }, { config }) => {
   // let validAxes = config.axes
@@ -19,25 +20,27 @@ const move = ({ axes, relativeMovement, allowExtruderAxes }, { config }) => {
   const allowTypes = [MOVEMENT_AXIS]
   if (allowExtruderAxes) allowTypes.push(EXTRUDER_AXIS)
 
-  Object.entries(axes).forEach(([id, v]) => {
-    if (!axisExists(config)(id, { allowTypes })) {
-      throw new Error(`Axis ${id} does not exist`)
+  Object.entries(axes).forEach(([address, v]) => {
+    if (!axisExists(config)(address, { allowTypes })) {
+      throw new Error(`Axis ${address} does not exist`)
     }
 
-    // if (!validAxes.includes(id)) throw new Error(`Axis ${id} does not exist`)
-    if (typeof v !== 'number') throw new Error(`${id}: ${v} is not a number`)
+    // if (!validAxes.includes(address)) throw new Error(`Axis ${address} does not exist`)
+    if (typeof v !== 'number') throw new Error(`${address}: ${v} is not a number`)
 
-    // const feedrate = config.feedrates[id]
+    // const feedrate = config.feedrates[address]
     // if (feedrate == null) {
-    //   throw new Error(`no feedrate configured for ${id}`)
+    //   throw new Error(`no feedrate configured for ${address}`)
     // }
 
     // TODO: multi-extruder support
-    gcodeWords.push(`${(isExtruder(config)(id) ? 'e' : id).toUpperCase()}${v}`)
+    const component = getComponents(config).find(c => c.address === address)
+    const isToolhead = component.type === TOOLHEAD
 
-    feedrates.push(getFeedrate(config)(id))
+    gcodeWords.push(`${(isToolhead ? 'e' : address).toUpperCase()}${v}`)
+
+    feedrates.push(component.feedrate)
   })
-  console.log(gcodeWords)
   return [
     relativeMovement ? 'G91' : 'G90',
     `G1 F${_.min(feedrates) * 60}`,

@@ -1,14 +1,12 @@
 // // ./config/selectors:
 export axisExists from './config/selectors/axisExists'
 export getComponentsByType from './config/selectors/getComponentsByType'
-export getFanConfigs from './config/selectors/getFanConfigs'
-export getHeaterConfigs from './config/selectors/getHeaterConfigs'
-export getFeedrate from './config/selectors/getFeedrate'
 export getController from './config/selectors/getController'
+export getFeedrate from './config/selectors/getFeedrate'
+export getHeaterConfigs from './config/selectors/getHeaterConfigs'
+export getMaterials from './config/selectors/getMaterials'
+export getPrinterConfig from './config/selectors/getPrinterConfig'
 // export getMacroDefinitions from './config/selectors/getMacroDefinitions'
-export getMaterial from './config/selectors/getMaterial'
-export isExtruder from './config/selectors/isExtruder'
-export isHeatedBed from './config/selectors/isHeatedBed'
 // export runMacro from './config/selectors/runMacro'
 
 // // ./jobQueue/selectors:

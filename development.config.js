@@ -5,23 +5,6 @@ const config = {
   "modelID": "lulzbot/lulzbot-mini-2",
 
   "name": "Left Home Lulzbot",
-  "axes": [
-    {
-      "id": "x111",
-      "name": "X",
-      "feedrate": 150
-    },
-    {
-      "id": "y111",
-      "name": "Y",
-      "feedrate": 150
-    },
-    {
-      "id": "z111",
-      "name": "Z",
-      "feedrate": 4
-    }
-  ],
   "components": [
     {
       "id": "bbbserialController",
@@ -50,7 +33,29 @@ const config = {
       },
     },
     {
+      "id": "x111",
+      "type": "AXIS",
+      "address": "x",
+      "name": "X",
+      "feedrate": 150
+    },
+    {
+      "id": "y111",
+      "type": "AXIS",
+      "address": "y",
+      "name": "Y",
+      "feedrate": 150
+    },
+    {
+      "id": "z111",
+      "type": "AXIS",
+      "address": "z",
+      "name": "Z",
+      "feedrate": 4
+    },
+    {
       "id": "aaa2qe0",
+      "address": "e0",
       "type": "TOOLHEAD",
       "name": "Extruder 1",
       "heater": true,
@@ -59,6 +64,7 @@ const config = {
     },
     {
       "id": "abvwee1",
+      "address": "e1",
       "type": "TOOLHEAD",
       "name": "Extruder 2",
       "heater": true,
@@ -67,12 +73,14 @@ const config = {
     },
     {
       "id": "bdfbxb",
+      "address": "b",
       "type": "BUILD_PLATFORM",
       "name": "Bed",
       "heater": true
     },
     {
       "id": "ndrgrwef",
+      "address": "f0",
       "type": "FAN",
       "name": "Extruder Fan"
     },

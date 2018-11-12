@@ -1,10 +1,10 @@
 import { createSelector } from 'reselect'
-import { heaterTypes } from '../types/ComponentTypeEnum'
+import getComponents from './getComponents'
 
 const getHeaterConfigs = createSelector(
-  config => config.getIn(['machine', 'components']),
+  getComponents,
   components => (
-    components.filter(component => heaterTypes.includes(component.type))
+    components.filter(component => component.heater === true)
   ),
 )
 

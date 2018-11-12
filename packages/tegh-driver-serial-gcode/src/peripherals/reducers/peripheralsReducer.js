@@ -5,8 +5,9 @@ import {
   DRIVER_ERROR,
   PRINTER_DISCONNECTED,
   SET_CONFIG,
+  FAN,
   getHeaterConfigs,
-  getFanConfigs,
+  getComponentsByType,
 } from 'tegh-core'
 
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
@@ -45,7 +46,7 @@ const componentsReducer = (state = initialState, action) => {
         heaters: initializeCollection(getHeaterConfigs(config), id => (
           Heater({ id })
         )),
-        fans: initializeCollection(getFanConfigs(config), id => (
+        fans: initializeCollection(getComponentsByType(config)(FAN), id => (
           Fan({ id })
         )),
       })

@@ -5,6 +5,7 @@ import { TOOLHEAD } from './ComponentTypeEnum'
 
 export const ToolheadConfigFactory = Record({
   id: null,
+  address: null,
   type: TOOLHEAD,
   name: null,
   heater: false,

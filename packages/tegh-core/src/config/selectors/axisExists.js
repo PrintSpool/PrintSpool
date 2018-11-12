@@ -1,18 +1,19 @@
 import { createSelector } from 'reselect'
+import getPrinterConfig from './getPrinterConfig'
 import { MOVEMENT_AXIS, EXTRUDER_AXIS } from '../types/AxisTypeEnum'
-import { EXTRUDER } from '../types/ComponentTypeEnum'
+import { TOOLHEAD, AXIS } from '../types/components/ComponentTypeEnum'
 
 const axisExists = createSelector(
-  config => config,
+  getPrinterConfig,
   config => (k, { allowTypes }) => {
-    if (allowTypes.includes(MOVEMENT_AXIS)) {
-      const axis = config.axes.get(k)
-      if (axis != null) return true
+    const componentType = config.components.find(c => c.address === k).type
+
+    if (allowTypes.includes(MOVEMENT_AXIS) && componentType === AXIS) {
+      return true
     }
 
-    if (allowTypes.includes(EXTRUDER_AXIS)) {
-      const componentType = config.getIn(['components', k, 'type'])
-      return componentType === EXTRUDER
+    if (allowTypes.includes(EXTRUDER_AXIS) && componentType === TOOLHEAD) {
+      return true
     }
   },
 )
