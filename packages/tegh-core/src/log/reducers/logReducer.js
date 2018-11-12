@@ -5,7 +5,7 @@ import { CLEAR_LOG } from '../actions/clearLog'
 
 import LOG_LEVELS from '../types/logLevelEnum'
 
-import getDriverPlugin from '../../pluginManager/selectors/getDriverPlugin'
+import getPlugins from '../../pluginManager/selectors/getPlugins'
 
 const validLogEntry = (log) => {
   if (log == null) return log
@@ -27,7 +27,7 @@ const initialState = Record({
   entryCountSinceStartup: 0,
   config: Record({
     isInitialized: false,
-    driverLogReducer: null,
+    pluginsLogReducer: null,
     stderr: null,
     maxLength: null,
   })(),
@@ -44,9 +44,26 @@ const logReducer = (
     case SET_CONFIG: {
       const { config } = action.payload
 
+      const chainPluginLogReducers = (plugin, nextLogReducer) => {
+        if (plugin.logReducer == null) return nextLogReducer
+        return () => {
+          const log = plugin.logReducer()
+          if (log != null) return log
+          // fallback to the next plugin's log reducer if this one returns null
+          return nextLogReducer()
+        }
+      }
+
+      const pluginsLogReducer = getPlugins(action.payload)
+        .reduce(chainPluginLogReducers, () => ({
+          source: 'ACTION',
+          level: 'trivial',
+          message: action.type,
+        }))
+
       return state.mergeIn(['config'], {
         isInitialized: true,
-        driverLogReducer: getDriverPlugin(action.payload).logReducer,
+        pluginsLogReducer,
         ...config.log.toJS(),
       })
     }
@@ -54,7 +71,7 @@ const logReducer = (
       const { config } = state
       if (!config.isInitialized) return state
 
-      const log = validLogEntry(config.driverLogReducer(null, action))
+      const log = validLogEntry(config.pluginsLogReducer(null, action))
 
       if (log == null) return state
 

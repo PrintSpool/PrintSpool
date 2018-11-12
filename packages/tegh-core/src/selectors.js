@@ -26,7 +26,7 @@ export getPrinterConfig from './config/selectors/getPrinterConfig'
 // // ./pluginManager/selectors:
 // export getAllPlugins from './pluginManager/selectors/getAllPlugins'
 export getAllReducers from './pluginManager/selectors/getAllReducers'
-// export getDriverPlugin from './pluginManager/selectors/getDriverPlugin'
+// export getPlugins from './pluginManager/selectors/getPlugins'
 // export getMacroRunFn from './pluginManager/selectors/getMacroRunFn'
 // export getMiddleware from './pluginManager/selectors/getMiddleware'
 // export getPlugin from './pluginManager/selectors/getPlugin'

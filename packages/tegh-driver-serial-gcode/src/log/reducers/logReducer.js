@@ -76,11 +76,7 @@ const logReducer = (_state, action) => {
       }
     }
     default: {
-      return {
-        source: 'ACTION',
-        level: 'trivial',
-        message: action.type,
-      }
+      return null
     }
   }
 }
