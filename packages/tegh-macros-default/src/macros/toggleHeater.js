@@ -1,7 +1,7 @@
 import {
   getHeaterConfigs,
   getMaterials,
-  ComponentTypeEnum
+  ComponentTypeEnum,
 } from 'tegh-core'
 
 import setTargetTemperature from './setTargetTemperature'

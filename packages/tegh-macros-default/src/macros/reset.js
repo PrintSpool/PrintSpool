@@ -1,4 +1,5 @@
 import { PriorityEnum } from 'tegh-core'
+
 const { EMERGENCY } = PriorityEnum
 
 const reset = () => ['M999']
