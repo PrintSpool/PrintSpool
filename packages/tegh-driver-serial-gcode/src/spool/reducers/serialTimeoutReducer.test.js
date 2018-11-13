@@ -1,10 +1,8 @@
-import { List, Record } from 'immutable'
+import { List } from 'immutable'
 import Promise from 'bluebird'
 import { Cmd } from 'redux-loop'
 
-import { setConfig, SET_CONFIG } from 'tegh-core'
-
-import { createTestConfig } from '../../config/types/Settings'
+import { setConfig, SET_CONFIG, MockConfig } from 'tegh-core'
 
 import reducer, { initialState } from './serialTimeoutReducer'
 
@@ -19,14 +17,13 @@ const fastCodeTimeout = 42
 const longRunningCodeTimeout = 1111
 const maxTickleAttempts = 5
 
-const config = createTestConfig({
-  longRunningCodes: ['G28'],
-  serialTimeout: Record({
+const config = MockConfig()
+  .updateIn(['printer', 'components', 0, 'extendedConfig'], c => c.merge({
+    longRunningCodes: ['G28'],
     fastCodeTimeout,
     longRunningCodeTimeout,
     tickleAttempts: maxTickleAttempts,
-  })(),
-})
+  }))
 
 const configuredState = initialState.mergeIn(['config'], {
   tickleAttempts: maxTickleAttempts,

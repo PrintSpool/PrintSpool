@@ -48,7 +48,7 @@ const PrinterConfig = ({
     id,
 
     axes: axes.map(AxisConfig),
-    components: components.map((component) => {
+    components: List(components).map((component) => {
       switch (component.type) {
         case CONTROLLER: return SerialControllerConfig(component)
         case AXIS: return AxisConfig(component)
@@ -56,7 +56,10 @@ const PrinterConfig = ({
         case BUILD_PLATFORM: return BuildPlatformConfig(component)
         case FAN: return FanConfig(component)
         default: {
-          throw new Error(`Invalid component type: ${component.type}`)
+          const err = (
+            `Invalid component type: ${component.type} for id: ${component.id}`
+          )
+          throw new Error(err)
         }
       }
     }),

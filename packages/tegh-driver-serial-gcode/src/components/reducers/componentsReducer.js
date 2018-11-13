@@ -5,7 +5,7 @@ import {
   DRIVER_ERROR,
   PRINTER_DISCONNECTED,
   SET_CONFIG,
-  FAN,
+  ComponentTypeEnum,
   getHeaterConfigs,
   getComponentsByType,
 } from 'tegh-core'
@@ -13,15 +13,18 @@ import {
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import { SERIAL_SEND } from '../../serial/actions/serialSend'
 
+const { FAN } = ComponentTypeEnum
+
 export const initialState = Record({
   targetTemperaturesCountdown: null,
-  activeExtruderID: 'e0',
+  activeExtruderAddress: 'e0',
   heaters: Map(),
   fans: Map(),
 })()
 
 export const Heater = Record({
   id: null,
+  address: null,
   currentTemperature: 0,
   targetTemperature: null,
   blocking: false,
@@ -29,34 +32,36 @@ export const Heater = Record({
 
 export const Fan = Record({
   id: null,
+  address: null,
   enabled: false,
   speed: 0,
 })
-
-const initializeCollection = (componentConfigs, initialValueFn) => (
-  componentConfigs.map(({ id }) => initialValueFn(id))
-)
 
 const componentsReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
       const { config } = action.payload
 
+      const heaterConfigs = getHeaterConfigs(config)
+      const fanConfigs = getComponentsByType(config).get(FAN, Map())
+
       return initialState.merge({
-        heaters: initializeCollection(getHeaterConfigs(config), id => (
-          Heater({ id })
-        )),
-        fans: initializeCollection(getComponentsByType(config)(FAN), id => (
-          Fan({ id })
-        )),
+        heaters: heaterConfigs
+          .mapKeys((id, { address }) => address)
+          .map(({ id, address }) => Heater({ id: `${id}Dynamic`, address })),
+        fans: fanConfigs
+          .mapKeys((id, { address }) => address)
+          .map(({ id, address }) => Fan({ id: `${id}Dynamic`, address })),
       })
     }
     case DRIVER_ERROR:
     case ESTOP:
     case PRINTER_DISCONNECTED: {
       return initialState.merge({
-        heaters: state.heaters.map(({ id }) => Heater({ id })),
-        fans: state.fans.map(({ id }) => Fan({ id })),
+        heaters: state.heaters
+          .map(({ id, address }) => Heater({ id, address })),
+        fans: state.fans
+          .map(({ id, address }) => Fan({ id, address })),
       })
     }
     case SERIAL_RECEIVE: {
@@ -87,9 +92,10 @@ const componentsReducer = (state = initialState, action) => {
     case SERIAL_SEND: {
       const {
         collectionKey,
+        // Legacy: This is actually the address of the component not it's id
         id,
         changes,
-        activeExtruderID,
+        activeExtruderAddress,
       } = action.payload
 
       let nextState = state
@@ -99,8 +105,9 @@ const componentsReducer = (state = initialState, action) => {
         nextState = nextState.mergeIn([collectionKey, id], changes)
       }
 
-      if (activeExtruderID != null) {
-        nextState = nextState.set('activeExtruderID', activeExtruderID)
+      if (activeExtruderAddress != null) {
+        nextState = nextState
+          .set('activeExtruderAddress', activeExtruderAddress)
       }
 
       return nextState

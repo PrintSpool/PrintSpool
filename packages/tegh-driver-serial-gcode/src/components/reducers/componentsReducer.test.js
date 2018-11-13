@@ -1,4 +1,4 @@
-import { Record, Map, List } from 'immutable'
+import { Map, List } from 'immutable'
 
 import {
   ESTOP,
@@ -7,46 +7,43 @@ import {
   SET_CONFIG,
   setConfig,
   ComponentTypeEnum,
+  MockConfig,
 } from 'tegh-core'
 
 import serialReceive, { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import serialSend, { SERIAL_SEND } from '../../serial/actions/serialSend'
 
 import rxParser from '../../rxParser'
-import { createTestConfig } from '../../config/types/Settings'
 
 import reducer, { initialState, Heater, Fan } from './componentsReducer'
 
 const {
-  EXTRUDER,
-  HEATED_BED,
+  TOOLHEAD,
+  BUILD_PLATFORM,
   FAN,
 } = ComponentTypeEnum
 
-const componentTypes = {
-  e0: EXTRUDER,
-  e1: EXTRUDER,
-  b: HEATED_BED,
-  f0: FAN,
-  f1: FAN,
-}
-
-const config = createTestConfig().setIn(
-  ['machine', 'components'],
-  Map(componentTypes).map((type, id) => (
-    Record({ id, type })()
-  )),
-)
+const config = MockConfig({
+  printer: {
+    components: [
+      { address: 'e0', type: TOOLHEAD, heater: true },
+      { address: 'e1', type: TOOLHEAD, heater: true },
+      { address: 'b', type: BUILD_PLATFORM, heater: true },
+      { address: 'f0', type: FAN },
+      { address: 'f1', type: FAN },
+    ].map(c => ({ ...c, id: `${c.address}-ID` })),
+  },
+})
 
 const configuredState = initialState
   .set('heaters', Map({
-    e0: Heater({ id: 'e0' }),
-    e1: Heater({ id: 'e1' }),
-    b: Heater({ id: 'b' }),
+    e0: Heater({ id: 'e0-IDDynamic', address: 'e0' }),
+    e1: Heater({ id: 'e1-IDDynamic', address: 'e1' }),
+    b: Heater({ id: 'b-IDDynamic', address: 'b' }),
   }))
   .set('fans', Map({
-    f0: Fan({ id: 'f0' }),
-    f1: Fan({ id: 'f1' }),
+    f0: Fan({ id: 'f0-IDDynamic', address: 'f0' }),
+    f1: Fan({ id: 'f1-IDDynamic', address: 'f1' }),
   }))
 
 describe('componentsReducer', () => {
@@ -57,7 +54,7 @@ describe('componentsReducer', () => {
 
       const nextState = reducer(state, action)
 
-      expect(nextState.toJSON()).toEqual(configuredState.toJSON())
+      expect(nextState.toJS()).toEqual(configuredState.toJS())
     })
   })
 

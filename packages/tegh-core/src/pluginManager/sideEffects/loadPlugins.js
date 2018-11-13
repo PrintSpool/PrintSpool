@@ -11,15 +11,15 @@ const loadPlugins = async (params) => {
   let plugins = Map()
   // eslint-disable-next-line no-restricted-syntax
   await Promise.all(
-    config.plugins.map(async (pluginConfig) => {
+    config.plugins.map(async (pluginConfig, index) => {
       // eslint-disable-next-line no-await-in-loop
       const plugin = await pluginLoader(pluginConfig.package)
-      // Load the plugin's configuration into it's Settings type
-      if (plugin.Settings != null) {
-        const settings = plugin.Settings(pluginConfig.settings)
+      // Load the plugin's extendedConfig type
+      if (plugin.extendedConfig != null && plugin.ExtendedConfig != null) {
+        const extendedConfig = plugin.ExtendedConfig(pluginConfig.settings)
         config = config.setIn(
-          ['plugins', pluginConfig.package, 'settings'],
-          settings,
+          ['plugins', index, 'extendedConfig'],
+          extendedConfig,
         )
       }
       // eslint-disable-next-line no-await-in-loop

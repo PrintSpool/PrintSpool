@@ -7,6 +7,7 @@ const printerConfig = {
   "name": "Left Home Lulzbot",
   "components": [
     {
+      // Controller must be the first component for driver test mocks
       "id": "bbbserialController",
       "type": "CONTROLLER",
       "interface": "SERIAL",
@@ -72,30 +73,36 @@ const printerConfig = {
       "materialID": "generic/abs"
     },
     {
+      "id": "ndrgrwef",
+      "address": "f0",
+      "type": "FAN",
+      "name": "Hot End Fan"
+    },
+    {
+      "id": "ndrgrwef",
+      "address": "f1",
+      "type": "FAN",
+      "name": "Print Fan"
+    },
+    {
       "id": "bdfbxb",
       "address": "b",
       "type": "BUILD_PLATFORM",
       "name": "Bed",
       "heater": true
     },
-    {
-      "id": "ndrgrwef",
-      "address": "f0",
-      "type": "FAN",
-      "name": "Extruder Fan"
-    },
   ],
   "plugins": [
+    {
+      "id": 'aaabbbccc333',
+      "package": "tegh-driver-serial-gcode",
+    },
     {
       "id": 'aaabbbccc123',
       "package": "tegh-macros-default",
       "macros": [
         "*"
       ]
-    },
-    {
-      "id": 'aaabbbccc333',
-      "package": "tegh-driver-serial-gcode",
     },
   ],
   "log": {

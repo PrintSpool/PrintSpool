@@ -9,9 +9,8 @@ import {
   setConfig,
   printerDisconnected,
   connectPrinter,
+  MockConfig,
 } from 'tegh-core'
-
-import { createTestConfig } from '../../config/types/Settings'
 
 import rxParser from '../../rxParser'
 
@@ -29,13 +28,12 @@ import reducer, { initialState } from './serialReducer'
 const serialPortID = '/dev/whatever'
 const baudRate = 9000
 
-const config = createTestConfig({
-  serialPort: {
+const config = MockConfig()
+  .updateIn(['printer', 'components', 0], c => c.merge({
     serialPortID,
     baudRate,
     simulate: false,
-  },
-})
+  }))
 
 const configuredState = initialState
   .set('config', config.plugins.first().settings.serialPort)

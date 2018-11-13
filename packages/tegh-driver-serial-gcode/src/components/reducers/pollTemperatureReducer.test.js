@@ -9,13 +9,13 @@ import {
   SPOOL_TASK,
   setConfig,
   PriorityEnum,
+  MockConfig,
 } from 'tegh-core'
 
 import reducer, { initialState } from './pollTemperatureReducer'
 
 import rxParser from '../../rxParser'
 import serialReceive, { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
-import { createTestConfig } from '../../config/types/Settings'
 
 import requestTemperatureQuery, { REQUEST_TEMPERATURE_QUERY } from '../actions/requestTemperatureQuery'
 
@@ -23,9 +23,10 @@ const { PREEMPTIVE } = PriorityEnum
 
 const temperaturePollingInterval = 1337
 
-const config = createTestConfig({
+const config = MockConfig().setIn(
+  ['printer', 'components', 0, 'extendedConfig', 'temperaturePollingInterval'],
   temperaturePollingInterval,
-})
+)
 
 const stateAfterConfig = initialState
   .set('pollingInterval', temperaturePollingInterval)
