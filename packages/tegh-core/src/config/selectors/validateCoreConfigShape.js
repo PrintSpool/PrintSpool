@@ -1,4 +1,10 @@
-import { execute, parse, introspectionQuery } from 'graphql'
+import {
+  execute,
+  parse,
+  introspectionQuery,
+  GraphQLScalarType,
+  Kind,
+} from 'graphql'
 import { createSelector } from 'reselect'
 import { makeExecutableSchema } from 'graphql-tools'
 import GraphQLJSON from 'graphql-type-json'
@@ -12,6 +18,22 @@ import {
   BUILD_PLATFORM,
   FAN,
 } from '../types/components/ComponentTypeEnum'
+
+const resolveStrictString = (value) => {
+  // console.log('resolve ', value)
+  if (typeof value !== 'string') throw new Error(`${value} is not a String`)
+  return value
+}
+
+const GraphQLStrictString = new GraphQLScalarType({
+  name: 'String',
+  description: 'Strict Strings with no conversion for numbers, etc.',
+  serialize: resolveStrictString,
+  parseValue: resolveStrictString,
+  parseLiteral: ast => (
+    ast.kind === Kind.STRING ? resolveStrictString(ast.value) : undefined
+  ),
+})
 
 const validationResolvers = {
   Query: {
@@ -37,10 +59,11 @@ const validationResolvers = {
       }
     },
   },
+  JSON: GraphQLJSON,
+  String: GraphQLStrictString,
 }
 
 const validationSchema = makeExecutableSchema({
-  JSON: GraphQLJSON,
   typeDefs: configTypeDefs,
   resolvers: validationResolvers,
 })
@@ -151,7 +174,6 @@ const parsedValidationQuery = parse(
 const validateCoreConfigShape = createSelector(
   config => config,
   (config) => {
-    console.log(config)
     const { errors } = execute(
       validationSchema,
       parsedValidationQuery,

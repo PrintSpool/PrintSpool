@@ -20,7 +20,7 @@ describe('configReducer', () => {
     })
   })
   describe(REQUEST_PATCH_PRINTER_CONFIG, () => {
-    fit('creates a REQUEST_SET_CONFIG with the patched config', () => {
+    it('creates a REQUEST_SET_CONFIG with the patched config', () => {
       const state = MockConfig()
       const action = requestPatchPrinterConfig({
         patch: [
@@ -36,9 +36,22 @@ describe('configReducer', () => {
       expect(nextState).toEqual(state)
       expect(nextAction).toEqual(
         requestSetConfig({
-          config: state.set('printer', 'name', 'my_new_printer_name_102'),
+          config: state.setIn(['printer', 'name'], 'my_new_printer_name_102'),
         }),
       )
+    })
+
+    it('errors if a value is changed to the wrong type', () => {
+      const state = MockConfig()
+      const action = requestPatchPrinterConfig({
+        patch: [
+          { op: 'replace', path: '/name', value: 3 },
+        ],
+      })
+
+      expect(() => {
+        reducer(state, action)
+      }).toThrow()
     })
   })
 })
