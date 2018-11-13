@@ -16,6 +16,7 @@ import serialSend from '../../serial/actions/serialSend'
 import greetingDelayDone, { GREETING_DELAY_DONE } from '../actions/greetingDelayDone'
 
 export const initialState = Record({
+  // TODO: delay after greeting should be user configurable
   delayAfterGreeting: 50,
   isConnecting: false,
   awaitingGreeting: false,

@@ -1,4 +1,3 @@
-import snl from 'strip-newlines'
 import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
 

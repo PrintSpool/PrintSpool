@@ -16,11 +16,11 @@ const printerConfig = {
       "baudRate": 250000,
       "simulate": true,
       "extendedConfig": {
+        "delayFromGreetingToReady": 2500,
+        "temperaturePollingInterval": 1000,
         "responseTimeoutTickleAttempts": 3,
         "fastCodeTimeout": 30000,
         "longRunningCodeTimeout": 60000,
-        "temperaturePollingInterval": 1000,
-        "delayFromGreetingToReady": 2500,
         "longRunningCodes": [
           'G4',
           'G28',

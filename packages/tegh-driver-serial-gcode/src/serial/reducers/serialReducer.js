@@ -38,11 +38,11 @@ const serialReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
       const { config } = action.payload
-      const serialConfig = getController(config)
+      const controllerConfig = getController(config)
 
-      const nextState = state.set('config', serialConfig)
+      const nextState = state.set('config', controllerConfig)
 
-      if (state.config == null && serialConfig.simulate) {
+      if (state.config == null && controllerConfig.simulate) {
         return loop(
           nextState,
           Cmd.action(connectPrinter()),

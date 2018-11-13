@@ -36,7 +36,7 @@ const config = MockConfig()
   }))
 
 const configuredState = initialState
-  .set('config', config.plugins.first().settings.serialPort)
+  .set('config', config.printer.components.get(0))
 
 describe('serialReducer', () => {
   describe(SET_CONFIG, () => {

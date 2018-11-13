@@ -2,10 +2,7 @@ import Promise from 'bluebird'
 import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
 
-import { SET_CONFIG } from 'tegh-core'
-
-import getLongRunningCodes from '../../config/selectors/getLongRunningCodes'
-import getSerialTimeout from '../../config/selectors/getSerialTimeout'
+import { SET_CONFIG, getController } from 'tegh-core'
 
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import serialSend, { SERIAL_SEND } from '../../serial/actions/serialSend'
@@ -18,9 +15,9 @@ export const initialState = Record({
   ticklesAttempted: 0,
   timeoutPeriod: null,
   config: Record({
-    tickleAttempts: null,
-    longRunningCodeTimeout: null,
+    responseTimeoutTickleAttempts: null,
     fastCodeTimeout: null,
+    longRunningCodeTimeout: null,
     longRunningCodes: null,
   })(),
 })()
@@ -39,12 +36,13 @@ const serialTimeoutReducer = (state = initialState, action) => {
     case SET_CONFIG: {
       const { config } = action.payload
 
-      const longRunningCodes = getLongRunningCodes(config)
-
-      return state.mergeIn(['config'], {
-        ...getSerialTimeout(config).toJS(),
-        longRunningCodes,
-      })
+      return state.mergeIn(
+        ['config'],
+        getController(config).extendedConfig
+          .toMap()
+          .filter((v, k) => initialState.config.has(k))
+          .toJS(),
+      )
     }
     case SERIAL_SEND: {
       const { lineNumber, code } = action.payload
@@ -90,9 +88,9 @@ const serialTimeoutReducer = (state = initialState, action) => {
         return state
       }
 
-      const { tickleAttempts } = state.config
+      const { responseTimeoutTickleAttempts } = state.config
 
-      if (state.ticklesAttempted < tickleAttempts) {
+      if (state.ticklesAttempted < responseTimeoutTickleAttempts) {
         const nextState = state.update('ticklesAttempted', i => i + 1)
 
         return loop(

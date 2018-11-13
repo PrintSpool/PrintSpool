@@ -19,17 +19,17 @@ const maxTickleAttempts = 5
 
 const config = MockConfig()
   .updateIn(['printer', 'components', 0, 'extendedConfig'], c => c.merge({
-    longRunningCodes: ['G28'],
+    responseTimeoutTickleAttempts: maxTickleAttempts,
     fastCodeTimeout,
     longRunningCodeTimeout,
-    tickleAttempts: maxTickleAttempts,
+    longRunningCodes: ['G28'],
   }))
 
 const configuredState = initialState.mergeIn(['config'], {
-  tickleAttempts: maxTickleAttempts,
-  longRunningCodes: ['G28'],
+  responseTimeoutTickleAttempts: maxTickleAttempts,
   fastCodeTimeout,
   longRunningCodeTimeout,
+  longRunningCodes: ['G28'],
 })
 
 describe('serialTimeoutReducer', () => {
