@@ -1,5 +1,5 @@
 /* eslint-disable quote-props, quotes, comma-dangle */
-const config = {
+const printerConfig = {
   "id": "aaxcvxcvcxv-bvb-csdf234231",
   "printerID": 'abb321x',
   "modelID": "lulzbot/lulzbot-mini-2",
@@ -110,8 +110,9 @@ const config = {
   },
 }
 
-export const hostConfig = {
+const hostConfig = {
   "id": "pzxcvkkwn",
+  "name": "ExampleLabs FabLab",
   "crashReports": {
     "id": "bfdbdffeews",
     "directory": "/var/log/tegh",
@@ -126,7 +127,7 @@ export const hostConfig = {
   }
 }
 
-export const materials = [
+const materials = [
   {
     "id": "generic/pla",
     "targetExtruderTemperature": 220,
@@ -140,4 +141,10 @@ export const materials = [
 ]
 /* eslint-enable */
 
-export default config
+const config = {
+  printer: printerConfig,
+  host: hostConfig,
+  materials,
+}
+
+module.exports = config

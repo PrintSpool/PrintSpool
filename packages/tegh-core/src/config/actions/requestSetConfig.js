@@ -1,5 +1,6 @@
 import { isImmutable } from 'immutable'
-import Config, { validateCoreConfig } from '../types/Config'
+import Config from '../types/Config'
+import validateCoreConfigShape from '../selectors/validateCoreConfigShape'
 
 export const REQUEST_SET_CONFIG = 'tegh/config/REQUEST_SET_CONFIG'
 
@@ -8,7 +9,7 @@ const requestSetConfig = (params) => {
 
   if (!isImmutable(config)) config = Config(config)
 
-  validateCoreConfig(config)
+  validateCoreConfigShape(config)
 
   return {
     type: REQUEST_SET_CONFIG,

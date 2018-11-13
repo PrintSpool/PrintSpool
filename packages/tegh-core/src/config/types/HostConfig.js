@@ -6,6 +6,7 @@ import MaterialConfig from './MaterialConfig'
 
 export const HostConfigRecordFactory = Record({
   id: null,
+  name: null,
   crashReports: CrashReportConfig(),
   materials: List(),
   extendedConfig: Map(),

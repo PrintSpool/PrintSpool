@@ -21,7 +21,7 @@ const SerialControllerConfig = ({
   if (props.interface != null && props.interface !== 'SERIAL') {
     throw new Error(`Unsupported controller interface: ${props.interface}`)
   }
-  SerialControllerConfigFactory({
+  return SerialControllerConfigFactory({
     ...props,
     id,
     extendedConfig: Map(props.extendedConfig),

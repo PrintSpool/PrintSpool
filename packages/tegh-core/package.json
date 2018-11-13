@@ -29,6 +29,7 @@
     "graphql-live-subscriptions": "github:d1plo1d/graphql-live-subscriptions#feature/tree_diff",
     "graphql-scalars": "^0.1.5",
     "graphql-subscriptions": "^0.5.8",
+    "graphql-tools": "^4.0.3",
     "graphql-type-json": "^0.2.0",
     "immutable": "^4.0.0-rc.9",
     "immutablediff": "^0.4.4",

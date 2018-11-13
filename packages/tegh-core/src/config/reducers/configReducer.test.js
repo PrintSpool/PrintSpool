@@ -20,7 +20,7 @@ describe('configReducer', () => {
     })
   })
   describe(REQUEST_PATCH_PRINTER_CONFIG, () => {
-    it('creates a REQUEST_SET_CONFIG with the patched config', () => {
+    fit('creates a REQUEST_SET_CONFIG with the patched config', () => {
       const state = MockConfig()
       const action = requestPatchPrinterConfig({
         patch: [

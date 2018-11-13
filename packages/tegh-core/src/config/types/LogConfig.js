@@ -4,6 +4,7 @@ import uuid from 'uuid/v4'
 import { WARNING, ERROR, FATAL } from '../../log/types/logLevelEnum'
 
 export const LogConfigFactory = Record({
+  id: null,
   maxLength: 1000,
   stderr: List([WARNING, ERROR, FATAL]),
   extendedConfig: Map(),
@@ -11,12 +12,13 @@ export const LogConfigFactory = Record({
 
 const LogConfig = ({
   id = uuid(),
+  extendedConfig = {},
   ...props
 } = {}) => (
   LogConfigFactory({
     ...props,
     id,
-    extendedConfig: Map(props.extendedConfig),
+    extendedConfig: Map(extendedConfig),
   })
 )
 

@@ -2,6 +2,7 @@ import { Record, Map } from 'immutable'
 import uuid from 'uuid/v4'
 
 export const ServerConfigFactory = Record({
+  id: null,
   signallingServer: 'ws://localhost:3000',
   keys: '~/.tegh/keys.json',
   webRTC: true,

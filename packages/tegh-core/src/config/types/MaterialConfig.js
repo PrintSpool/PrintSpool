@@ -2,7 +2,8 @@ import { Record } from 'immutable'
 import uuid from 'uuid/v4'
 
 const MaterialConfigFactory = Record({
-  targetTemperature: 0,
+  id: null,
+  targetExtruderTemperature: 0,
   targetBedTemperature: 0,
 })
 

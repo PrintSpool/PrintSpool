@@ -6,6 +6,7 @@ import { FAN } from './ComponentTypeEnum'
 export const FanConfigFactory = Record({
   id: null,
   address: null,
+  name: null,
   type: FAN,
   extendedConfig: Map(),
 })

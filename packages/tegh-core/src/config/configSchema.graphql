@@ -1,7 +1,8 @@
+scalar JSON
+
 type HostConfig {
   id: ID!
   name: String!
-  publicKey: String!
   crashReports: CrashReportConfig!
   extendedConfig: JSON!
 }
@@ -18,7 +19,6 @@ type PrinterConfig {
   modelID: ID!
 
   name: String
-  axes: [AxisConfig!]!
   components: [ComponentConfig!]!
   plugins: [PluginConfig!]!
   log: LogConfig!
@@ -29,20 +29,22 @@ type LogConfig {
   id: ID!
   maxLength: Int!
   extendedConfig: JSON!
-})
-
-type AxisConfig {
-  id: ID!
-  name: String!
-  feedrate: Float!
-  extendedConfig: JSON!
 }
 
 union ComponentConfig =
+  | AxisConfig
   | SerialControllerConfig
   | ToolheadConfig
   | BuildPlatformConfig
   | FanConfig
+
+type AxisConfig {
+  id: ID!
+  type: String!
+  name: String!
+  feedrate: Float!
+  extendedConfig: JSON!
+}
 
 type SerialControllerConfig {
   id: ID!
@@ -86,6 +88,13 @@ type PluginConfig {
   extendedConfig: JSON!
 }
 
+# TODO: support non-FDM materials here via a Union of FDMMaterial, MicroFluidicMaterial, etc.
+type Material {
+  id: ID!
+  targetExtruderTemperature: Float!
+  targetBedTemperature: Float!
+}
+
 input RFC6902OperationInput {
   op: String!
   path: String!
@@ -110,5 +119,5 @@ type Mutation {
     printerID: ID!,
     version: Int!,
     patch: [RFC6902OperationInput!]!
-  ) Boolean
+  ): Boolean
 }
