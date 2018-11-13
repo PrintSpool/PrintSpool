@@ -1,4 +1,4 @@
-import { Map } from 'immutable'
+import { List, Map } from 'immutable'
 
 import reducer, { initialState } from './macrosReducer'
 
@@ -13,11 +13,9 @@ describe('configReducer', () => {
     it('sets the state', () => {
       const myMacroRunFn = 'test_run_fn'
 
-      const config = MockConfig({
-        macros: {
-          myPlugin: ['*'],
-        },
-      })
+      const config = MockConfig()
+        .setIn(['printer', 'plugins', 0, 'package'], 'myPlugin')
+        .setIn(['printer', 'plugins', 0, 'macros'], List(['*']))
       const plugins = Map({
         myPlugin: {
           macros: {
@@ -30,8 +28,8 @@ describe('configReducer', () => {
 
       const nextState = reducer(initialState, action)
 
-      expect(nextState.toJS()).toEqual({
-        config: config.toJS(),
+      expect(nextState.config).toEqual(config)
+      expect(nextState.macros.toJS()).toEqual({
         myMacro: myMacroRunFn,
       })
     })
@@ -40,7 +38,7 @@ describe('configReducer', () => {
     it('creates a SPOOL_TASK with the macro output', () => {
       const myMacroRunFn = val => [`G1 X${val}`]
 
-      const state = initialState.set('myMacro', myMacroRunFn)
+      const state = initialState.setIn(['macros', 'myMacro'], myMacroRunFn)
       const action = spoolMacro({
         macro: 'myMacro',
         args: [42],

@@ -1,5 +1,5 @@
 import { loop, Cmd } from 'redux-loop'
-import { Map } from 'immutable'
+import { Record, Map } from 'immutable'
 
 import { SET_CONFIG } from '../../config/actions/setConfig'
 import { SPOOL_MACRO } from '../../spool/actions/spoolMacro'
@@ -9,12 +9,16 @@ import { NORMAL } from '../../spool/types/PriorityEnum'
 
 import getMacroRunFnsByName from '../../pluginManager/selectors/getMacroRunFnsByName'
 
-export const initialState = Map()
+export const initialState = Record({
+  config: null,
+  macros: Map(),
+})()
 
 const macrosReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
-      const nextState = getMacroRunFnsByName(action.payload)
+      const nextState = initialState
+        .set('macros', getMacroRunFnsByName(action.payload))
         .set('config', action.payload.config)
 
       return nextState
@@ -27,7 +31,7 @@ const macrosReducer = (state = initialState, action) => {
         args,
       } = action.payload
 
-      const macroRunFn = state.get(macro)
+      const macroRunFn = state.macros.get(macro)
 
       if (macroRunFn == null) {
         throw new Error(`Macro ${macro} does not exist`)
@@ -38,7 +42,7 @@ const macrosReducer = (state = initialState, action) => {
           name: macro,
           internal,
           priority: priority || macroRunFn.priority || NORMAL,
-          data: macroRunFn(args, { config: state.get('config') }),
+          data: macroRunFn(args, { config: state.config }),
         }),
       ))
     }

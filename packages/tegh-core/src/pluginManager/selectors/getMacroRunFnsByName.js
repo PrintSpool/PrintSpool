@@ -4,14 +4,16 @@ import { createSelector } from 'reselect'
 const getMacroRunFnsByName = createSelector(
   state => state,
   ({ config, plugins }) => {
-    const { macros } = config
     const macroRunFnsByName = {}
 
-    macros.forEach((opts, pluginName) => {
-      const plugin = plugins.get(pluginName) || {}
+    config.printer.plugins.forEach((pluginConfig) => {
+      const plugin = plugins.get(pluginConfig.package) || {}
 
       Map(plugin.macros || {})
-        .filter(name => opts.includes('*') || opts.includes(name))
+        .filter(name => (
+          pluginConfig.macros.includes('*')
+          || pluginConfig.macros.includes(name)
+        ))
         .forEach((runFn, name) => {
           macroRunFnsByName[name] = runFn
         })
