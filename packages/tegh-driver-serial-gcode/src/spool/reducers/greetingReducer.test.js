@@ -54,7 +54,7 @@ describe('greetingReducer', () => {
       it('sends hello after a delay', async () => {
         const state = initialState
           .set('isConnecting', true)
-          .set('delayAfterGreeting', 1337)
+          .set('delayFromGreetingToReady', 1337)
           .set('awaitingGreeting', true)
         const action = serialReceive({ data: 'start', receiveParser: rxParser })
 

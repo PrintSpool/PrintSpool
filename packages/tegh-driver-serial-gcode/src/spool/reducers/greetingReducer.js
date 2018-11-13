@@ -6,7 +6,9 @@ import {
   DRIVER_ERROR,
   ESTOP,
   PRINTER_DISCONNECTED,
+  SET_CONFIG,
   printerReady,
+  getController,
 } from 'tegh-core'
 
 import { SERIAL_OPEN } from '../../serial/actions/serialOpen'
@@ -16,8 +18,7 @@ import serialSend from '../../serial/actions/serialSend'
 import greetingDelayDone, { GREETING_DELAY_DONE } from '../actions/greetingDelayDone'
 
 export const initialState = Record({
-  // TODO: delay after greeting should be user configurable
-  delayAfterGreeting: 50,
+  delayFromGreetingToReady: null,
   isConnecting: false,
   awaitingGreeting: false,
 })()
@@ -30,6 +31,14 @@ export const initialState = Record({
  */
 const greetingReducer = (state = initialState, action) => {
   switch (action.type) {
+    case SET_CONFIG: {
+      const { config } = action.payload
+      const { extendedConfig } = getController(config).extendedConfig
+      return state.set(
+        'delayFromGreetingToReady',
+        extendedConfig.get('delayFromGreetingToReady'),
+      )
+    }
     case DRIVER_ERROR:
     case ESTOP:
     case PRINTER_DISCONNECTED: {
@@ -50,7 +59,7 @@ const greetingReducer = (state = initialState, action) => {
           return loop(
             state.set('awaitingGreeting', false),
             Cmd.run(Promise.delay, {
-              args: [state.delayAfterGreeting],
+              args: [state.delayFromGreetingToReady],
               successActionCreator: greetingDelayDone,
             }),
           )
