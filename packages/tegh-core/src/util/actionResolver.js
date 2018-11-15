@@ -6,7 +6,7 @@ const actionResolver = ({
   try {
     const state = store.getState()
     const { printerID } = args.input
-    if (requirePrinterID && printerID !== state.config.id) {
+    if (requirePrinterID && printerID !== state.config.printer.id) {
       throw new Error(`Printer ID ${printerID} does not exist`)
     }
 

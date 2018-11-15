@@ -3,7 +3,7 @@ import tql from 'typiql'
 import snl from 'strip-newlines'
 
 import isIdle from '../../spool/selectors/isIdle'
-import getDriverState from '../selectors/getDriverState'
+import getComponentsState from '../selectors/getComponentsState'
 
 import PrinterStatusEnum from './PrinterStatusEnum.graphql.js'
 import HeaterType from './Heater.graphql.js'
@@ -18,19 +18,19 @@ const PrinterGraphQL = new GraphQLObjectType({
     id: {
       type: tql`ID!`,
       resolve(source) {
-        return source.config.id
+        return source.config.printer.id
       },
     },
     name: {
       type: tql`String!`,
       resolve(source) {
-        return source.config.name
+        return source.config.printer.name
       },
     },
     heaters: {
       type: tql`[${HeaterType}!]!`,
       resolve(source) {
-        return getDriverState(source).components.heaters.toList()
+        return getComponentsState(source).heaters.toList()
       },
     },
     targetTemperaturesCountdown: {
@@ -40,7 +40,7 @@ const PrinterGraphQL = new GraphQLObjectType({
         targetTemperature.
       `,
       resolve(source) {
-        return getDriverState(source).components.targetTemperaturesCountdown
+        return getComponentsState(source).targetTemperaturesCountdown
       },
     },
     activeExtruderID: {
@@ -49,13 +49,13 @@ const PrinterGraphQL = new GraphQLObjectType({
         The active extruder ID
       `,
       resolve(source) {
-        return getDriverState(source).components.activeExtruderID
+        return getComponentsState(source).activeExtruderID
       },
     },
     fans: {
       type: tql`[${FanType}!]!`,
       resolve(source) {
-        return getDriverState(source).components.fans.toList()
+        return getComponentsState(source).fans.toList()
       },
     },
     status: {

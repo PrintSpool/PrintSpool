@@ -11,13 +11,13 @@ const JobQueueGraphQL = new GraphQLObjectType({
     id: {
       type: tql`ID!`,
       resolve(source) {
-        return source.config.id
+        return source.config.host.id
       },
     },
     name: {
       type: tql`String!`,
       resolve(source) {
-        return source.config.name
+        return source.config.host.name
       },
     },
     jobs: {

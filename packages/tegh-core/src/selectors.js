@@ -33,7 +33,7 @@ export getAllReducers from './pluginManager/selectors/getAllReducers'
 // export getPluginsByMacroName from './pluginManager/selectors/getPluginsByMacroName'
 //
 // // ./printer/selectors:
-// export getDriverState from './printer/selectors/getDriverState'
+// export getComponentsState from './printer/selectors/getComponentsState'
 
 // ./spool/selectors:
 export getCurrentLine from './spool/selectors/getCurrentLine'

@@ -23,7 +23,7 @@ const QueryRootGraphQL = new GraphQLObjectType({
       },
       resolve(_source, args, { store }) {
         const state = store.getState()
-        if (args.id != null && args.id !== state.config.id) {
+        if (args.id != null && args.id !== state.config.printer.id) {
           throw new Error(`Printer ID ${args.id} does not exist`)
         }
         return [state]
