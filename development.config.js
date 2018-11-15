@@ -1,4 +1,21 @@
-const simulate = true
+const simulate = false
+const useKlipper = true
+
+let serialPortID
+let baudRate
+
+if (simulate === true) {
+  serialPortID = '/dev/nonExistantSerialPort'
+  baudRate = 250000
+} else if (useKlipper) {
+  // Klipper (requires the klipper host software to be running)
+  serialPortID = '/tmp/printer'
+  baudRate = 250000
+} else {
+  // Marlin
+  serialPortID = '/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00'
+  baudRate = 250000
+}
 
 /* eslint-disable quote-props, quotes, comma-dangle */
 const printerConfig = {
@@ -14,8 +31,8 @@ const printerConfig = {
       "type": "CONTROLLER",
       "interface": "SERIAL",
       "name": "RAMPS Controller Board",
-      "serialPortID": "/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00",
-      "baudRate": 250000,
+      "serialPortID": serialPortID,
+      "baudRate": baudRate,
       "simulate": simulate,
       "extendedConfig": {
         "delayFromGreetingToReady": 2500,
@@ -23,6 +40,7 @@ const printerConfig = {
         "responseTimeoutTickleAttempts": 3,
         "fastCodeTimeout": 30000,
         "longRunningCodeTimeout": 60000,
+        awaitGreetingFromFirmware: useKlipper === false,
         "longRunningCodes": [
           'G4',
           'G28',

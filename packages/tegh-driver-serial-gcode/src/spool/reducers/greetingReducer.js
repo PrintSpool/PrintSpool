@@ -18,6 +18,7 @@ import serialSend from '../../serial/actions/serialSend'
 import greetingDelayDone, { GREETING_DELAY_DONE } from '../actions/greetingDelayDone'
 
 export const initialState = Record({
+  awaitGreetingFromFirmware: null,
   delayFromGreetingToReady: null,
   isConnecting: false,
   awaitingGreeting: false,
@@ -34,10 +35,15 @@ const greetingReducer = (state = initialState, action) => {
     case SET_CONFIG: {
       const { config } = action.payload
       const { extendedConfig } = getController(config)
-      return state.set(
-        'delayFromGreetingToReady',
-        extendedConfig.get('delayFromGreetingToReady'),
-      )
+      return state
+        .set(
+          'delayFromGreetingToReady',
+          extendedConfig.get('delayFromGreetingToReady'),
+        )
+        .set(
+          'awaitGreetingFromFirmware',
+          extendedConfig.get('awaitGreetingFromFirmware'),
+        )
     }
     case DRIVER_ERROR:
     case ESTOP:
@@ -45,9 +51,16 @@ const greetingReducer = (state = initialState, action) => {
       return state.set('isConnecting', false)
     }
     case SERIAL_OPEN: {
-      return state
+      const nextState = state
         .set('isConnecting', true)
-        .set('awaitingGreeting', true)
+        .set('awaitingGreeting', state.awaitGreetingFromFirmware)
+
+      if (state.awaitGreetingFromFirmware) return nextState
+
+      return loop(
+        nextState,
+        Cmd.action(serialSend('M110 N0', { lineNumber: false })),
+      )
     }
     case SERIAL_RECEIVE: {
       if (state.isConnecting === false) return state

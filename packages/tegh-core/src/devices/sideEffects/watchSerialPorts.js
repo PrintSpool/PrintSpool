@@ -8,11 +8,9 @@ import deviceConnected from '../actions/deviceConnected'
 import deviceDisconnected from '../actions/deviceDisconnected'
 
 const watchSerialPorts = (getState, dispatch) => {
-  let watcher
+  let byIDWatcher
 
-  const createWatcher = () => {
-    watcher = chokidar.watch('/dev/serial/by-id/')
-
+  const addWatcherListeners = (watcher) => {
     watcher
       .on('add', (path) => {
         if (getState().devices.byID.has(path)) return
@@ -28,11 +26,17 @@ const watchSerialPorts = (getState, dispatch) => {
       })
   }
 
+  const createWatcher = () => {
+    byIDWatcher = chokidar.watch('/dev/serial/by-id/')
+
+    addWatcherListeners(byIDWatcher)
+  }
+
   createWatcher()
 
   fs.watch('/dev/', (eventType, filename) => {
     if (filename === 'serial') {
-      watcher.close()
+      byIDWatcher.close()
       getState().devices.byID
         .filter(device => device.type === SERIAL_PORT)
         .forEach(device => dispatch(deviceDisconnected({ device })))
@@ -44,6 +48,13 @@ const watchSerialPorts = (getState, dispatch) => {
       createWatcher()
     }
   })
+
+  // klipper serial port is created in /tmp/printer so it needs a seperate
+  // watcher.
+  // If you are configuring multiple klipper printer (is that even possible?)
+  // you MUST prefix each printer's path with /tmp/printer eg. /tmp/printer3
+  const klipperWatcher = chokidar.watch('/tmp/printer*')
+  addWatcherListeners(klipperWatcher)
 }
 
 export default watchSerialPorts
