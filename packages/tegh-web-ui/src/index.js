@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Provider as ReduxProvider } from 'react-redux'
-import { ReduxSnackbar } from 'material-ui-redux-snackbar/src/'
+// import { ReduxSnackbar } from '@d1plo1d/material-ui-redux-snackbar'
 // import { ApolloProvider } from 'react-apollo'
 import {
   CssBaseline,
@@ -27,7 +27,9 @@ const Index = () => (
     <CssBaseline>
       <ReduxProvider store={store}>
         <Routes />
-        <ReduxSnackbar />
+        {
+          // <ReduxSnackbar />
+        }
       </ReduxProvider>
     </CssBaseline>
   </MuiThemeProvider>
