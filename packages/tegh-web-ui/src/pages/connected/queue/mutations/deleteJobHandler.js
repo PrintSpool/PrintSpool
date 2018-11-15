@@ -13,7 +13,6 @@ const deleteJobHandler = graphql(deleteJobGraphQL, {
       mutate({
         variables: {
           input: {
-            printerID: 'test_printer_id',
             jobID: job.id,
           },
         },

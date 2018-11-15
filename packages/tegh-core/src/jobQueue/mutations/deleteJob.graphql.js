@@ -18,6 +18,7 @@ const deleteJobGraphQL = () => ({
   resolve: actionResolver({
     actionCreator: deleteJob,
     selector: () => null,
+    requirePrinterID: false,
   }),
 
   args: {
@@ -25,9 +26,6 @@ const deleteJobGraphQL = () => ({
       type: new GraphQLInputObjectType({
         name: 'DeleteJobInput',
         fields: {
-          printerID: {
-            type: tql`ID!`,
-          },
           jobID: {
             type: tql`ID!`,
           },

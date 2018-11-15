@@ -1,3 +1,5 @@
+const simulate = true
+
 /* eslint-disable quote-props, quotes, comma-dangle */
 const printerConfig = {
   "id": "aaxcvxcvcxv-bvb-csdf234231",
@@ -14,7 +16,7 @@ const printerConfig = {
       "name": "RAMPS Controller Board",
       "serialPortID": "/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00",
       "baudRate": 250000,
-      "simulate": true,
+      "simulate": simulate,
       "extendedConfig": {
         "delayFromGreetingToReady": 2500,
         "temperaturePollingInterval": 1000,
