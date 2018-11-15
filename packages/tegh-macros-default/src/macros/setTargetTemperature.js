@@ -9,18 +9,18 @@ const setTargetTemperature = (args, { config }) => {
   const heaters = getHeaterConfigs(config)
   const gcodeLines = []
 
-  Object.entries(args).forEach(([address, v]) => {
-    const heater = heaters.get(address)
+  Object.entries(args).forEach(([id, v]) => {
+    const heater = heaters.get(id)
 
-    if (heater == null) throw new Error(`Heater ${address} does not exist`)
-    if (typeof v !== 'number') throw new Error(`${address}: ${v} is not a number`)
+    if (heater == null) throw new Error(`Heater ${id} does not exist`)
+    if (typeof v !== 'number') throw new Error(`${id}: ${v} is not a number`)
 
-    const component = config.printer.components.find(c => c.address === address)
+    const component = config.printer.components.find(c => c.id === id)
 
     if (component.type === BUILD_PLATFORM) {
       gcodeLines.push(`M140 S${v}`)
     } else {
-      const extruderNumber = parseFloat(address.slice(1))
+      const extruderNumber = parseFloat(component.address.slice(1))
       gcodeLines.push(`M104 S${v} T${extruderNumber}`)
     }
   })

@@ -1,5 +1,6 @@
 // // ./config/selectors:
 export axisExists from './config/selectors/axisExists'
+export getComponents from './config/selectors/getComponents'
 export getComponentsByType from './config/selectors/getComponentsByType'
 export getController from './config/selectors/getController'
 export getFeedrate from './config/selectors/getFeedrate'

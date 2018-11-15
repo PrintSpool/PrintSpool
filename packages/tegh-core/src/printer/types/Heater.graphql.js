@@ -12,7 +12,6 @@ const HeaterType = new GraphQLObjectType({
   fields: () => ({
     id: {
       type: tql`ID!`,
-      resolve: source => `${source.id}DynamicData`,
     },
     name: {
       type: tql`String!`,

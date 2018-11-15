@@ -6,7 +6,7 @@ import {
 
 import setTargetTemperature from './setTargetTemperature'
 
-const { EXTRUDER, HEATED_BED } = ComponentTypeEnum
+const { TOOLHEAD, BUILD_PLATFORM } = ComponentTypeEnum
 
 const toggleHeater = (args, { config }) => {
   const heaters = getHeaterConfigs(config)
@@ -25,18 +25,18 @@ const toggleHeater = (args, { config }) => {
     }
 
     switch (heater.type) {
-      case EXTRUDER: {
-        const material = getMaterials(config)(heater.materialID)
-        targetTemperatures[id] = material.targetTemperature
+      case TOOLHEAD: {
+        const material = getMaterials(config).get(heater.materialID)
+        targetTemperatures[id] = material.targetExtruderTemperature
         return null
       }
-      case HEATED_BED: {
+      case BUILD_PLATFORM: {
         // set the target bed temperature to the lowest bed temperature of
         // the materials loaded in the extruders
         const targetBedTemperature = heaters.toList()
-          .filter(h => h.type === EXTRUDER)
+          .filter(h => h.type === TOOLHEAD)
           .map(({ materialID }) => (
-            getMaterials(config)(materialID).targetBedTemperature
+            getMaterials(config).get(materialID).targetBedTemperature
           ))
           .min()
 
