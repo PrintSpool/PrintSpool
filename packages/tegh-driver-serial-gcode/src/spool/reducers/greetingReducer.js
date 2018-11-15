@@ -33,7 +33,7 @@ const greetingReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
       const { config } = action.payload
-      const { extendedConfig } = getController(config).extendedConfig
+      const { extendedConfig } = getController(config)
       return state.set(
         'delayFromGreetingToReady',
         extendedConfig.get('delayFromGreetingToReady'),

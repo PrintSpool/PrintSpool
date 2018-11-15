@@ -44,13 +44,13 @@ const logReducer = (
     case SET_CONFIG: {
       const { config } = action.payload
 
-      const chainPluginLogReducers = (plugin, nextLogReducer) => {
+      const chainPluginLogReducers = (nextLogReducer, plugin) => {
         if (plugin.logReducer == null) return nextLogReducer
-        return () => {
-          const log = plugin.logReducer()
+        return (laterState, laterAction) => {
+          const log = plugin.logReducer(laterState, laterAction)
           if (log != null) return log
           // fallback to the next plugin's log reducer if this one returns null
-          return nextLogReducer()
+          return nextLogReducer(laterState, laterAction)
         }
       }
 
@@ -64,7 +64,7 @@ const logReducer = (
       return state.mergeIn(['config'], {
         isInitialized: true,
         pluginsLogReducer,
-        ...config.log.toJS(),
+        ...config.printer.log.toJS(),
       })
     }
     default: {

@@ -11,7 +11,7 @@ const loadPlugins = async (params) => {
   let plugins = Map()
   // eslint-disable-next-line no-restricted-syntax
   await Promise.all(
-    config.plugins.map(async (pluginConfig, index) => {
+    config.printer.plugins.map(async (pluginConfig, index) => {
       // eslint-disable-next-line no-await-in-loop
       const plugin = await pluginLoader(pluginConfig.package)
       // Load the plugin's extendedConfig type
