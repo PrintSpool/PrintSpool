@@ -38,7 +38,7 @@ This ADR covers three related areas: the Queries, Mutations and the GUI for conf
 
 Chosen options: [Queries: JSON Flat Objects] and [Mutations: JSON Flat Objects] because they are the only Query and Mutation option that meets the criteria of maintaining security via internal type safety, preventing schema collisions in a combinator and presents both plugin-specific and core settings as first class citizens.
 
-Chosen GUI option: [GUI: Dynamic Forms] be
+Chosen GUI option: [GUI: Dynamic Forms] because it is the only GUI option that allows plugin-specific settings to be placed in the ideal arbitrary position within the GUI for an optimal UX.
 
 ## Pros and Cons of the Options <!-- optional -->
 
