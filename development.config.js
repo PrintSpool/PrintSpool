@@ -21,9 +21,7 @@ if (simulate === true) {
 const printerConfig = {
   "id": "aaxcvxcvcxv-bvb-csdf234231",
   "printerID": 'abb321x',
-  "modelID": "lulzbot/lulzbot-mini-2",
 
-  "name": "Left Home Lulzbot",
   "components": [
     {
       // Controller must be the first component for driver test mocks
@@ -113,6 +111,26 @@ const printerConfig = {
     },
   ],
   "plugins": [
+    // TODO: move general settings to tegh-core plugin settings
+    {
+      "id": "asgbvas23",
+      "package": "tegh-core",
+
+      "modelID": "lulzbot/lulzbot-mini-2",
+      "name": "Left Home Lulzbot"
+    },
+    // TODO: move logging settings to a tegh-log plugin (part of tegh-core)
+    {
+      "id": "bdfgkljwe",
+      "package": "tegh-log",
+      "maxLength": 1000,
+      "stderr": [
+        "info",
+        "warning",
+        "error",
+        "fatal"
+      ]
+    },
     {
       "id": 'aaabbbccc333',
       "package": "tegh-driver-serial-gcode",
@@ -125,16 +143,6 @@ const printerConfig = {
       ]
     },
   ],
-  "log": {
-    "id": "bdfgkljwe",
-    "maxLength": 1000,
-    "stderr": [
-      "info",
-      "warning",
-      "error",
-      "fatal"
-    ]
-  },
 }
 
 const hostConfig = {
