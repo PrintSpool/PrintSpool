@@ -5,12 +5,11 @@
 
 * Status: draft
 * Deciders: d1plo1d
-* Date: 2018-11-18
+* Date: 2018-11-24
 
 ## Context and Problem Statement
 
 A hypothetical future maker space has many networked CNC devices; Mills, Lathes, 3D Printers, Laser Cutters, and so on. The hypothetical maker space uses various future versions of Tegh with different plugins to control each of these machines. The maker space has an additional combinator Tegh host that combines the other Tegh instances and allows makers to securely control and configure all of the machines through a single WebRTC connection to a single GraphQL schema.
-
 
 What would the configuration API of Tegh look like to accomidate all the different machines/tegh version/tegh plugin variations in that hypothetical future makerspace with one GraphQL Schema accessed by users from a statically hosted tegh.io GUI?
 
@@ -23,39 +22,37 @@ What would the configuration API of Tegh look like to accomidate all the differe
 
 This ADR covers three related areas: the Queries, Mutations and the GUI for configuring 3D printers and their plugins. The considered options for each of these is broken out below:
 
-### Queries
-* extendedConfig JSON field
-* Dynamic Query Schema
-* JSON Flat Objects
-
-### Mutations
-* Patch
-* JSON Flat Objects
-* Dynamic Mutation Schema
-
-### GUI
+* Queries
+  * extendedConfig JSON field
+  * Dynamic Query Schema
+  * JSON Flat Objects
+* Mutations
+  * Patch
+  * JSON Flat Objects
+  * Dynamic Mutation Schema
+* GUI
+  * extendedConfig TextField (See [GUI/Queries: extendedConfig JSON field])
+  * Dynamic Forms
 
 ## Decision Outcome
 
-Chosen query option: [Queries: JSON Flat Objects] because it is the only option that meets the criteria of maintaining type safety, preventing plugin/host-specific setting schema collisions and presents both plugin-specific and core settings as first class citizens.
+Chosen options: [Queries: JSON Flat Objects] and [Mutations: JSON Flat Objects] because they are the only Query and Mutation option that meets the criteria of maintaining security via internal type safety, preventing schema collisions in a combinator and presents both plugin-specific and core settings as first class citizens.
 
-Chosen mutation option: [Mutations: JSON Flat Objects] because it is the only option that meets the criteria of maintaining type safety, preventing plugin/host-specific setting schema collisions and presents both plugin-specific and core settings as first class citizens.
-
-Chosen GUI option: TODO...
-
-Positive Consequences: <!-- optional -->
-* [e.g., improvement of quality attribute satisfaction, follow-up decisions required, …]
-* …
-
-Negative consequences: <!-- optional -->
-* [e.g., compromising quality attribute, follow-up decisions required, …]
-* …
+Chosen GUI option: [GUI: Dynamic Forms] be
 
 ## Pros and Cons of the Options <!-- optional -->
 
-## Queries: extendedConfig JSON field
+### GUI/Queries: extendedConfig JSON field
 
-TODO:
+A `extendedConfig: JSON!` field is added to each configuration object where plugin-specific settings are stored seperate from the core settings which have explicitly typed fields in GraphQL.
+
+The GUI uses a text field to edit the extendedConfigs JSON under an Advanced Settings tab that is closed by default.
+
+* God, because it is simple
+* Bad, because the plugin-specific types are not self-documented or typed
+* Bad, because extendedConfigs are queried differently then core configs making them second class citizens of the configuration query.
+* Bad, because users have to know how to edit JSON documents.
+* Bad, because plugin settings are hidden in an advanced settings tab regardless of where in the GUI they should have been placed for the best UX.
 
 ### Queries: Dynamic Query Schema
 
@@ -65,9 +62,13 @@ Add Plugin-specific settings by dynamically adding extensions to the configurati
 * Bad, because it would require the GraphQL schema to dynamically change based on which plugins are loaded which complicates the host and is not common practice in GraphQL.
 * Bad, because a dynamic schema could have conflicting types defined in incompatible plugins or hosts that would be unresolvable by a Tegh Combinator.
 
-## Queries: JSON Flat Objects
+### Queries: JSON Flat Objects
 
-TODO:
+The configuration query API is such that each configuration object allows queries to a `JSON!` field that returns all it's configuration data from both core configs and plugin-specific configs.
+
+* God, because it is even simpler then extendedConfig
+* Good, because the configuration query API is consistent between core configs and plugin-specific configs
+* Bad, because the entire configuration is not self-documented or typed by GraphQL
 
 ### Mutations: Patch
 
@@ -90,6 +91,8 @@ Each updated configuration object would be looked up by it's id on the host and 
 * Good, because the internal GraphQL mutations would allow type safety to be achieved using GraphQL itself as opposed to a more custom solution.
 * Good, because read-only fields can be implemented via the internal GraphQL mutations
 * Good, because plugin-specific settings can be set as first class properties of the Configuration Objects.
+* Good, because the internal GraphQL mutation schema on the printer host will catch incompatible plugin fields at the time it is loaded and fail-fast,
+* Goood, because combinators which will defer the internal mutations to their delegate printer hosts will be able to mutate configurations across printers without conflict between incompatible plugins on different hosts.
 * Bad, because the JSON! data field does not self-document what can be input into it.
 
 ### Mutations: Dynamic Mutation Schema
@@ -101,7 +104,15 @@ A modification on the Flat Objects proposal in which an Input Union would be sub
 * A dynamic schema could have conflicting input types defined in incompatible plugins or hosts that would be unresolvable by a Tegh Combinator.
 * Bad, because GraphQL does not yet support input unions so our static typing options are limited for now. See: https://github.com/facebook/graphql/issues/488
 
-## Links <!-- optional -->
+### GUI: Dynamic Forms
 
-* [Link type] [Link to ADR] <!-- example: Refined by [ADR-0005](0005-example.md) -->
-* … <!-- numbers of links can vary -->
+A `schemaForm: JSONSchemaForm!` field would be added to each configuration object that would describe the layout of the configuration objects' form and it's client-side validations.
+
+* Good, because it uses an existing standard with implementations for material UI
+* Good, because it allows Plugin-specific settings to be intermixed with Core settings as appropriate for the best UX.
+* Good, because it enforces config form consistency across platforms.
+* Bad, because it is more complicated then a static form.
+
+## Links
+
+* [json-schema-form](https://github.com/json-schema-form/json-schema-form/wiki/Documentation)
