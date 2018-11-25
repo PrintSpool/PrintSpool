@@ -35,7 +35,7 @@ const ConfigPage = ({
       Page={PrinterConfigPage}
       open={printerDialogOpen}
       onSubmit={updateSubConfig}
-      data={config}
+      data={config.plugins.find(p => p.package === 'tegh-core')}
     />
     <List component="nav">
       <ListItem

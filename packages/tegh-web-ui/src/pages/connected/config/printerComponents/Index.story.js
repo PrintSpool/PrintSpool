@@ -5,7 +5,9 @@ import StoryRouter from 'storybook-react-router'
 import { linkTo } from '@storybook/addon-links'
 
 import { Component as ComponentsConfigPage } from './Index.page'
-import config from '../../../../../../../development.config'
+import configRoot from '../../../../../../../development.config'
+
+const config = configRoot.printer
 
 storiesOf('Config/Components', module)
   .addDecorator(StoryRouter({

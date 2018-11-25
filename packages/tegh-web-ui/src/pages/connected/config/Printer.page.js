@@ -64,25 +64,6 @@ const PrinterConfigPage = ({ initialValues }) => (
         ))
       }
     </Field>
-    {
-      initialValues.axes.map((axis, index) => (
-        <Field
-          key={axis.id}
-          component={TextField}
-          label={`${axis.name.toUpperCase()} Feedrate`}
-          name={`axes[${index}].feedrate`}
-          fullWidth
-          margin="normal"
-          InputProps={{
-            endAdornment: (
-              <InputAdornment variant="filled" position="end">
-                mm/s
-              </InputAdornment>
-            ),
-          }}
-        />
-      ))
-    }
   </main>
 )
 

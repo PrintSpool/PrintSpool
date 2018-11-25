@@ -6,7 +6,9 @@ import { linkTo } from '@storybook/addon-links'
 import { withRouter } from 'react-router'
 
 import { Component as ConfigPageUnwrapped } from './Index.page'
-import config from '../../../../../../development.config'
+import configRoot from '../../../../../../development.config'
+
+const config = configRoot.printer
 
 const ConfigPage = withRouter(ConfigPageUnwrapped)
 
