@@ -1,7 +1,8 @@
 import React from 'react'
 import { compose, withProps, branch } from 'recompose'
 import { withRouter } from 'react-router'
-import { reduxForm, formValues } from 'redux-form'
+import { SchemaForm } from 'react-schema-form'
+import gql from 'graphql-tag'
 import {
   Dialog,
   DialogTitle,
@@ -9,6 +10,17 @@ import {
   DialogActions,
   Button,
 } from '@material-ui/core'
+
+export const FORM_DIALOG_FRAGMENT = gql`
+  fragment FormDialogFragment on ConfigurationForm {
+    id
+    model
+    schemaForm {
+      schema
+      form
+    }
+  }
+`
 
 const enhance = compose(
   withRouter,
@@ -24,17 +36,15 @@ const enhance = compose(
   // ),
 )
 
-console.log("moo21aaasdf2")
-
 const FormDialog = ({
-  Page,
   title,
   name,
   id,
   open,
   history,
   onSubmit,
-  ...props
+  data,
+  client,
 }) => (
   <Dialog
     open={open}
@@ -45,7 +55,18 @@ const FormDialog = ({
   >
     <DialogTitle id="form-dialog-title">{title || name || id}</DialogTitle>
     <DialogContent>
-      <Page {...props} />
+      <SchemaForm
+        schema={data.schemaForm.schema}
+        form={data.schemaForm.form}
+        model={data.model}
+        onModelChange={
+          (keypath, value) => {
+            // Note: we do not yet support nested fields here
+            const changeset = { [keypath[0]]: value }
+            client.writeData({ data: { model: changeset } })
+          }
+        }
+      />
     </DialogContent>
     <DialogActions>
       <Button onClick={() => history.goBack()}>

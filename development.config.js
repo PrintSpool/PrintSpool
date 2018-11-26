@@ -51,6 +51,12 @@ const printerConfig = {
         ],
       },
     },
+    // {
+    //   "id": "aaabxzz",
+    //   "type": "KINEMATICS",
+    //   "subType": "CARTESIAN",
+    //   "axeIDs" ['x111', 'y111', 'z111']
+    // },
     {
       "id": "x111",
       "type": "AXIS",
