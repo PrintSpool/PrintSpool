@@ -1,0 +1,123 @@
+scalar JSON
+
+type HostConfig {
+  id: ID!
+  name: String!
+  crashReports: CrashReportConfig!
+  extendedConfig: JSON!
+}
+
+type CrashReportConfig {
+  id: ID!
+  uploadCrashReportsToDevs: Boolean!
+  extendedConfig: JSON!
+}
+
+type PrinterConfig {
+  id: ID!
+  printerID: ID!
+  modelID: ID!
+
+  name: String
+  components: [ComponentConfig!]!
+  plugins: [PluginConfig!]!
+  log: LogConfig!
+  extendedConfig: JSON!
+}
+
+type LogConfig {
+  id: ID!
+  maxLength: Int!
+  extendedConfig: JSON!
+}
+
+union ComponentConfig =
+  | AxisConfig
+  | SerialControllerConfig
+  | ToolheadConfig
+  | BuildPlatformConfig
+  | FanConfig
+
+type AxisConfig {
+  id: ID!
+  type: String!
+  name: String!
+  feedrate: Float!
+  extendedConfig: JSON!
+}
+
+type SerialControllerConfig {
+  id: ID!
+  type: String!
+  interface: String!
+  name: String!
+  serialPortID: String!
+  baudRate: Int!
+  simulate: Boolean!
+  extendedConfig: JSON!
+}
+
+type ToolheadConfig {
+  id: ID!
+  materialID: ID!
+  type: String!
+  name: String!
+  heater: Boolean!
+  feedrate: Float!
+  extendedConfig: JSON!
+}
+
+type BuildPlatformConfig {
+  id: ID!
+  type: String!
+  name: String!
+  heater: Boolean!
+  extendedConfig: JSON!
+}
+
+type FanConfig {
+  id: ID!
+  type: String!
+  name: String!
+  extendedConfig: JSON!
+}
+
+type PluginConfig {
+  id: ID!
+  macros: [String!]!
+  extendedConfig: JSON!
+}
+
+# TODO: support non-FDM materials here via a Union of FDMMaterial, MicroFluidicMaterial, etc.
+type Material {
+  id: ID!
+  targetExtruderTemperature: Float!
+  targetBedTemperature: Float!
+}
+
+input RFC6902OperationInput {
+  op: String!
+  path: String!
+  from: String
+  value: JSON
+}
+
+type Query {
+  hostConfigs(hostID: ID): [HostConfig!]!
+  printerConfigs(printerID: ID): [PrinterConfig!]!
+  components(componentID: ID): [ComponentConfig!]!
+  materials(id: ID): [Material!]!
+}
+
+type Mutation {
+  # patchHostConfig(
+  #   printerID: ID!,
+  #   version: Int!,
+  #   patch: [RFC6902OperationInput!]!
+  # ) Boolean
+  patchPrinterConfig(
+    printerID: ID!,
+    version: Int!,
+    patch: [RFC6902OperationInput!]!
+  ): Boolean
+}

@@ -13,7 +13,7 @@ import {
 } from '@material-ui/core'
 
 export const FORM_DIALOG_FRAGMENT = gql`
-  fragment FormDialogFragment on ConfigurationForm {
+  fragment FormDialogFragment on ConfigForm {
     id
     model
     schemaForm {

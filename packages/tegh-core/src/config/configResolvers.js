@@ -1,15 +1,20 @@
-import { execute, buildSchema } from 'graphql'
-import configSchema from './configSchema'
+// import { execute, buildSchema } from 'graphql'
+// import configSchema from './configSchema'
 
-const executableConfigSchema = buildSchema(configSchema)
+// const executableConfigSchema = buildSchema(configSchema)
 
 const resolveFromList = ({
   type,
   selector,
   singularLookupKeys = ['id'],
+  requirePrinterIDMatch = false,
 }) => (source, args, { store }) => {
   const state = store.getState()
-  const list = selector(state)
+  let list = selector(state)
+
+  if (requirePrinterIDMatch && args.printerID !== state.config.printerID) {
+    throw new Error(`Printer ID: ${args.printerID} not found`)
+  }
 
   singularLookupKeys.forEach((key) => {
     if (args[key] != null) {
@@ -17,43 +22,67 @@ const resolveFromList = ({
       if (entry === null) {
         throw new Error(`no ${type} with ${key} ${args[key]}`)
       }
-      return [entry]
+      list = [entry]
     }
   })
 
-  return list
+  return list.map(model =>  ({
+    schemaForm: {
+      // TODO: use selectors to load each model's form and schema
+      form: ['name'],
+      schema: {
+        "type": "object",
+        "required": [
+        ],
+        "title": "3D Printer",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+        },
+      },
+    },
+    model,
+  }))
 }
 
 const configResolvers = {
   Query: {
+    hostConfigs: resolveFromList({
+      type: 'HostConfig',
+      selector: state => [state.config.hostConfig],
+      singularLookupKeys: ['hostID'],
+    }),
     printerConfigs: resolveFromList({
-      name: 'PrinterConfig',
+      type: 'PrinterConfig',
       selector: state => [state.config.printerConfig],
-      singularLookupKeys: ['id', 'printerID'],
+      singularLookupKeys: ['printerID'],
     }),
     components: resolveFromList({
-      name: 'ComponentConfig',
+      type: 'ComponentConfig',
       selector: state => state.config.printerConfig.components,
+      requirePrinterIDMatch: true,
     }),
     materials: resolveFromList({
       name: 'Material',
       selector: state => state.config.materials,
     }),
   },
-  Mutation: {
-    patchPrinterConfig: (source, args, { store }) => {
-      const state = store.getState().config.printerConfig
-      // TODO: validate the next state matches the schema
-      const { errors } = execute(
-        executableConfigSchema,
-        fullConfigQuery,
-        nextState,
-      )
-      if (errors != null) {
-        throw new Error(errors.map(error => error.message).join(', '))
-      }
-    },
-  },
+  // Mutation: {
+  //   // patchPrinterConfig: (source, args, { store }) => {
+  //   //   const state = store.getState().config.printerConfig
+  //   //   // TODO: validate the next state matches the schema
+  //   //   const { errors } = execute(
+  //   //     executableConfigSchema,
+  //   //     fullConfigQuery,
+  //   //     nextState,
+  //   //   )
+  //   //   if (errors != null) {
+  //   //     throw new Error(errors.map(error => error.message).join(', '))
+  //   //   }
+  //   // },
+  // },
 }
 
 export default configResolvers

@@ -16,7 +16,6 @@ const teghCoreSchemaForm = {
   schema: {
     "type": "object",
     "required": [
-      "firstName",
     ],
     "title": "Address",
     "properties": {
