@@ -31,10 +31,10 @@ const teghCoreSchemaForm = {
           "lulzbot/lulzbot-mini-1",
           "lulzbot/lulzbot-mini-2",
         ],
-        // "enumNames": [
-        //   "Lulzbot Mini 1",
-        //   "Lulzbot Mini 2",
-        // ]
+        "enumNames": [
+          "Lulzbot Mini 1",
+          "Lulzbot Mini 2",
+        ]
       },
     }
   },

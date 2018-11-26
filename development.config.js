@@ -103,7 +103,7 @@ const printerConfig = {
       "name": "Hot End Fan"
     },
     {
-      "id": "ndrgrwef",
+      "id": "ndrgrwef2",
       "address": "f1",
       "type": "FAN",
       "name": "Print Fan"

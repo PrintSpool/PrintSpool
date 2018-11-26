@@ -1,8 +1,9 @@
 import React from 'react'
-import { compose, withProps, branch } from 'recompose'
+import { compose, withProps } from 'recompose'
 import { withRouter } from 'react-router'
 import { SchemaForm } from 'react-schema-form'
 import gql from 'graphql-tag'
+import { Query } from 'react-apollo'
 import {
   Dialog,
   DialogTitle,
@@ -27,13 +28,43 @@ const enhance = compose(
   withProps(ownProps => ({
     initialValues: ownProps.data,
   })),
-  // branch(
-  //   props => props.open,
-  //   compose(
-  //     reduxForm(),
-  //     formValues({ name: 'name', id: 'id' }),
-  //   ),
-  // ),
+  Component => (({
+    query,
+    variables,
+    open,
+    ...props
+  }) => {
+    if (!open) return <div />
+    return (
+      <Query query={query} variables={variables}>
+        {({
+          loading,
+          error,
+          data,
+          client,
+        }) => {
+          if (loading) return <div />
+          if (error != null) {
+            return (
+              <div>
+                <h1>Error</h1>
+                {JSON.stringify(error)}
+              </div>
+            )
+          }
+
+          return (
+            <Component
+              open={open}
+              data={data}
+              client={client}
+              {...props}
+            />
+          )
+        }}
+      </Query>
+    )
+  }),
 )
 
 const FormDialog = ({
