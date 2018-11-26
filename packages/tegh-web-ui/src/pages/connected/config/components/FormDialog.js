@@ -15,14 +15,16 @@ const enhance = compose(
   withProps(ownProps => ({
     initialValues: ownProps.data,
   })),
-  branch(
-    props => props.open,
-    compose(
-      reduxForm(),
-      formValues({ name: 'name', id: 'id' }),
-    ),
-  ),
+  // branch(
+  //   props => props.open,
+  //   compose(
+  //     reduxForm(),
+  //     formValues({ name: 'name', id: 'id' }),
+  //   ),
+  // ),
 )
+
+console.log("moo21aaasdf2")
 
 const FormDialog = ({
   Page,
@@ -31,7 +33,7 @@ const FormDialog = ({
   id,
   open,
   history,
-  handleSubmit,
+  onSubmit,
   ...props
 }) => (
   <Dialog
@@ -49,7 +51,7 @@ const FormDialog = ({
       <Button onClick={() => history.goBack()}>
         Cancel
       </Button>
-      <Button onClick={handleSubmit} color="primary">
+      <Button onClick={onSubmit} color="primary">
         Save
       </Button>
     </DialogActions>

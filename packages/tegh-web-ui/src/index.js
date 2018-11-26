@@ -5,7 +5,6 @@ import { Provider as ReduxProvider } from 'react-redux'
 // import { ApolloProvider } from 'react-apollo'
 import {
   CssBaseline,
-  createMuiTheme,
   MuiThemeProvider,
   // withStyles,
 } from '@material-ui/core'
@@ -13,12 +12,7 @@ import {
 import Routes from './Routes'
 
 import createTeghReduxStore from './createTeghReduxStore'
-
-const theme = createMuiTheme({
-  typography: {
-    useNextVariants: true,
-  },
-})
+import theme from './theme'
 
 export const store = createTeghReduxStore()
 

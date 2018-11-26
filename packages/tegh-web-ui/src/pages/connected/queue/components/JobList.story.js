@@ -25,7 +25,6 @@ const baselineProps = {
   deleteJob: () => {},
 }
 
-
 storiesOf('JobList', module)
   .add('empty', () => (
     <JobList
