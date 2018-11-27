@@ -20,7 +20,7 @@ import { withRouter } from 'react-router'
 import gql from 'graphql-tag'
 
 export const DrawerFragment = gql`
-  fragment DrawerFragment on QueryRoot {
+  fragment DrawerFragment on Query {
     printers {
       id
       name
