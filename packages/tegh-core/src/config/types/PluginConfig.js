@@ -3,6 +3,7 @@ import uuid from 'uuid/v4'
 
 export const PluginConfigFactory = Record({
   id: null,
+  modelVersion: 0,
   package: null,
   macros: List(),
   extendedConfig: Map(),
@@ -10,6 +11,7 @@ export const PluginConfigFactory = Record({
 
 const PluginConfig = ({
   id = uuid(),
+  modelVersion = 0,
   macros = [],
   settings = {},
   ...props
@@ -17,6 +19,7 @@ const PluginConfig = ({
   PluginConfigFactory({
     ...props,
     id,
+    modelVersion,
     macros: List(macros),
     settings: Map(settings),
     extendedConfig: Map(props.extendedConfig),

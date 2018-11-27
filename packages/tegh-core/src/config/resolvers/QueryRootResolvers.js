@@ -12,7 +12,7 @@ const resolveFromList = ({
   const state = store.getState()
   let list = selector(state)
 
-  if (requirePrinterIDMatch && args.printerID !== state.config.printerID) {
+  if (requirePrinterIDMatch && args.printerID !== state.config.printer.id) {
     throw new Error(`Printer ID: ${args.printerID} not found`)
   }
 
@@ -54,11 +54,15 @@ const QueryRootResolvers = {
       selector: state => [state.config.hostConfig],
       singularLookupKeys: ['hostID'],
     }),
-    printerConfigs: resolveFromList({
-      type: 'PrinterConfig',
-      selector: state => [state.config.printerConfig],
-      singularLookupKeys: ['printerID'],
-    }),
+    printerConfigs: (source, args, { store }) => {
+      const state = store.getState()
+
+      if (args.printerID !== state.config.printer.id) {
+        throw new Error(`Printer ID: ${args.printerID} not found`)
+      }
+
+      return [state.config.printer]
+    },
     components: resolveFromList({
       type: 'ComponentConfig',
       selector: state => state.config.printerConfig.components,

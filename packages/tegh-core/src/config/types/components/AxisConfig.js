@@ -3,6 +3,7 @@ import uuid from 'uuid/v4'
 
 export const AxisConfigFactory = Record({
   id: null,
+  modelVersion: 0,
   address: null,
   type: null,
   name: null,
@@ -12,11 +13,13 @@ export const AxisConfigFactory = Record({
 
 const AxisConfig = ({
   id = uuid(),
+  modelVersion = 0,
   ...props
 } = {}) => (
   AxisConfigFactory({
     ...props,
     id,
+    modelVersion,
     extendedConfig: Map(props.extendedConfig),
   })
 )

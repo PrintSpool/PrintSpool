@@ -5,6 +5,7 @@ import { FAN } from './ComponentTypeEnum'
 
 export const FanConfigFactory = Record({
   id: null,
+  modelVersion: 0,
   address: null,
   name: null,
   type: FAN,
@@ -13,11 +14,13 @@ export const FanConfigFactory = Record({
 
 const FanConfig = ({
   id = uuid(),
+  modelVersion = 0,
   ...props
 } = {}) => (
   FanConfigFactory({
     ...props,
     id,
+    modelVersion,
     extendedConfig: Map(props.extendedConfig),
   })
 )

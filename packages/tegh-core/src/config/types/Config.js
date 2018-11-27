@@ -8,6 +8,7 @@ import developmentConfig from '../../../../../development.config'
 
 export const ConfigRecordFactory = Record({
   id: null,
+  modelVersion: 0,
   host: null,
   printer: null,
   materials: List(),
@@ -15,6 +16,7 @@ export const ConfigRecordFactory = Record({
 
 const Config = ({
   id = uuid(),
+  modelVersion = 0,
   host = {},
   printer = {},
   materials = [],
@@ -22,6 +24,7 @@ const Config = ({
 } = {}) => (
   ConfigRecordFactory({
     id,
+    modelVersion,
     host: HostConfig(host),
     printer: PrinterConfig(printer),
     materials: List(materials).map(material => MaterialConfig(material)),

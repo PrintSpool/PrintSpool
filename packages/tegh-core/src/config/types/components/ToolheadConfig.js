@@ -5,6 +5,7 @@ import { TOOLHEAD } from './ComponentTypeEnum'
 
 export const ToolheadConfigFactory = Record({
   id: null,
+  modelVersion: 0,
   address: null,
   type: TOOLHEAD,
   name: null,
@@ -16,11 +17,13 @@ export const ToolheadConfigFactory = Record({
 
 const ToolheadConfig = ({
   id = uuid(),
+  modelVersion = 0,
   ...props
 } = {}) => (
   ToolheadConfigFactory({
     ...props,
     id,
+    modelVersion,
     extendedConfig: Map(props.extendedConfig),
   })
 )

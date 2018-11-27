@@ -11,6 +11,7 @@ import SubscriptionRootResolvers from './SubscriptionRootResolvers'
 
 import ConfigMutationRootResolvers from '../config/resolvers/MutationRootResolvers'
 import ConfigQueryRootResolvers from '../config/resolvers/QueryRootResolvers'
+import ConfigFormResolvers from '../config/resolvers/ConfigFormResolvers'
 
 const mergeResolvers = (resolvers, accumulator) => ({
   ...accumulator,
@@ -23,6 +24,7 @@ const mergeResolvers = (resolvers, accumulator) => ({
 const coreResolvers = [
   ConfigMutationRootResolvers,
   ConfigQueryRootResolvers,
+  ConfigFormResolvers,
   SubscriptionRootResolvers,
 ].reduce(mergeResolvers, {})
 

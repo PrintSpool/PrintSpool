@@ -5,6 +5,7 @@ import { CONTROLLER } from './ComponentTypeEnum'
 
 export const SerialControllerConfigFactory = Record({
   id: null,
+  modelVersion: 0,
   type: CONTROLLER,
   interface: 'SERIAL',
   name: null,
@@ -16,6 +17,7 @@ export const SerialControllerConfigFactory = Record({
 
 const SerialControllerConfig = ({
   id = uuid(),
+  modelVersion = 0,
   ...props
 } = {}) => {
   if (props.interface != null && props.interface !== 'SERIAL') {
@@ -24,6 +26,7 @@ const SerialControllerConfig = ({
   return SerialControllerConfigFactory({
     ...props,
     id,
+    modelVersion,
     extendedConfig: Map(props.extendedConfig),
   })
 }

@@ -20,12 +20,12 @@ if (simulate === true) {
 /* eslint-disable quote-props, quotes, comma-dangle */
 const printerConfig = {
   "id": "aaxcvxcvcxv-bvb-csdf234231",
-  "printerID": 'abb321x',
 
   "components": [
     {
       // Controller must be the first component for driver test mocks
       "id": "bbbserialController",
+      "modelVersion": 1,
       "type": "CONTROLLER",
       "interface": "SERIAL",
       "name": "RAMPS Controller Board",
@@ -53,12 +53,14 @@ const printerConfig = {
     },
     // {
     //   "id": "aaabxzz",
+    //   "modelVersion": 1,
     //   "type": "KINEMATICS",
     //   "subType": "CARTESIAN",
     //   "axeIDs" ['x111', 'y111', 'z111']
     // },
     {
       "id": "x111",
+      "modelVersion": 1,
       "type": "AXIS",
       "address": "x",
       "name": "X",
@@ -66,6 +68,7 @@ const printerConfig = {
     },
     {
       "id": "y111",
+      "modelVersion": 1,
       "type": "AXIS",
       "address": "y",
       "name": "Y",
@@ -73,6 +76,7 @@ const printerConfig = {
     },
     {
       "id": "z111",
+      "modelVersion": 1,
       "type": "AXIS",
       "address": "z",
       "name": "Z",
@@ -80,6 +84,7 @@ const printerConfig = {
     },
     {
       "id": "aaa2qe0",
+      "modelVersion": 1,
       "address": "e0",
       "type": "TOOLHEAD",
       "name": "Extruder 1",
@@ -89,6 +94,7 @@ const printerConfig = {
     },
     {
       "id": "abvwee1",
+      "modelVersion": 1,
       "address": "e1",
       "type": "TOOLHEAD",
       "name": "Extruder 2",
@@ -98,18 +104,21 @@ const printerConfig = {
     },
     {
       "id": "ndrgrwef",
+      "modelVersion": 1,
       "address": "f0",
       "type": "FAN",
       "name": "Hot End Fan"
     },
     {
       "id": "ndrgrwef2",
+      "modelVersion": 1,
       "address": "f1",
       "type": "FAN",
       "name": "Print Fan"
     },
     {
       "id": "bdfbxb",
+      "modelVersion": 1,
       "address": "b",
       "type": "BUILD_PLATFORM",
       "name": "Bed",
@@ -120,6 +129,7 @@ const printerConfig = {
     // TODO: move general settings to tegh-core plugin settings
     {
       "id": "asgbvas23",
+      "modelVersion": 1,
       "package": "tegh-core",
 
       "modelID": "lulzbot/lulzbot-mini-2",
@@ -127,10 +137,12 @@ const printerConfig = {
     },
     {
       "id": 'aaabbbccc333',
+      "modelVersion": 1,
       "package": "tegh-driver-serial-gcode",
     },
     {
       "id": 'aaabbbccc123',
+      "modelVersion": 1,
       "package": "tegh-macros-default",
       "macros": [
         "*"
@@ -143,6 +155,8 @@ const hostConfig = {
   "id": "pzxcvkkwn",
   "name": "ExampleLabs FabLab",
   "log": {
+    "id": "lolcatz95",
+    "modelVersion": 1,
     "maxLength": 1000,
     "stderr": [
       "info",
@@ -153,11 +167,13 @@ const hostConfig = {
   },
   "crashReports": {
     "id": "bfdbdffeews",
+    "modelVersion": 1,
     "directory": "/var/log/tegh",
     "uploadCrashReportsToDevs": true
   },
   "server": {
     "id": "vcxbksdkewj",
+    "modelVersion": 1,
     "signallingServer": "ws://localhost:3000",
     "keys": "~/.tegh/dev.development.keys.json",
     "webRTC": true,

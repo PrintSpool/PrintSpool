@@ -5,6 +5,7 @@ import { BUILD_PLATFORM } from './ComponentTypeEnum'
 
 export const BuildPlatformConfigFactory = Record({
   id: null,
+  modelVersion: 0,
   address: null,
   type: BUILD_PLATFORM,
   name: null,
@@ -14,11 +15,13 @@ export const BuildPlatformConfigFactory = Record({
 
 const BuildPlatformConfig = ({
   id = uuid(),
+  modelVersion = 0,
   ...props
 } = {}) => (
   BuildPlatformConfigFactory({
     ...props,
     id,
+    modelVersion,
     extendedConfig: Map(props.extendedConfig),
   })
 )

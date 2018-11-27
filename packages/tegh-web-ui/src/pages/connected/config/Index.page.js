@@ -33,9 +33,9 @@ const ConfigPage = ({
       printerDialogOpen && (
         <FormDialog
           title="3D Printer"
-          form={`config/${config.printerID}/packages/tegh-core`}
+          form={`config/${config.id}/packages/tegh-core`}
           open={printerDialogOpen}
-          variables={{ printerID: config.printerID }}
+          variables={{ printerID: config.id }}
           query={gql`
             query($printerID: ID) {
               config(printerID: printerID) {

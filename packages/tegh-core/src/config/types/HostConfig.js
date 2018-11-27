@@ -7,6 +7,7 @@ import LogConfig from './LogConfig'
 
 export const HostConfigRecordFactory = Record({
   id: null,
+  modelVersion: 0,
   name: null,
   crashReports: CrashReportConfig(),
   materials: List(),
@@ -16,6 +17,7 @@ export const HostConfigRecordFactory = Record({
 
 const HostConfig = ({
   id = uuid(),
+  modelVersion = 0,
   crashReports = {},
   materials = [],
   log = {},
@@ -24,6 +26,7 @@ const HostConfig = ({
   HostConfigRecordFactory({
     ...props,
     id,
+    modelVersion,
     crashReports: CrashReportConfig(crashReports),
     materials: materials.map(MaterialConfig),
     log: LogConfig(log),

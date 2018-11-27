@@ -19,6 +19,7 @@ import ToolheadConfig from './components/ToolheadConfig'
 
 export const PrinterConfigRecordFactory = Record({
   id: null,
+  modelVersion: 0,
   printerID: null,
   modelID: null,
 
@@ -32,6 +33,7 @@ export const PrinterConfigRecordFactory = Record({
 
 const PrinterConfig = ({
   id = uuid(),
+  modelVersion = 0,
 
   axes = [],
   components = [],
@@ -43,6 +45,7 @@ const PrinterConfig = ({
   PrinterConfigRecordFactory({
     ...props,
     id,
+    modelVersion,
 
     axes: axes.map(AxisConfig),
     components: List(components).map((component) => {
