@@ -1,17 +1,6 @@
-import tql from 'typiql'
-import {
-  GraphQLObjectType,
-} from 'graphql'
-
-import JobGraphQL from './Job.graphql.js'
-
 const JobQueueResolvers = {
-  id: (source) => {
-    return source.config.host.id
-  },
-  name: (source) => {
-    return source.config.host.name
-  },
+  id: source => source.config.host.id,
+  name: source => source.config.host.name,
   jobs: (source, { id }) => {
     const { jobQueue } = source
     if (id != null) {

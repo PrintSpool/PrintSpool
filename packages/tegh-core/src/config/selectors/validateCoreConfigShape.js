@@ -9,7 +9,7 @@ import { createSelector } from 'reselect'
 import { makeExecutableSchema } from 'graphql-tools'
 import GraphQLJSON from 'graphql-type-json'
 
-import configTypeDefs from '../configSchema.graphql'
+import configTypeDefs from '../internalValidationSchema.graphql'
 
 import {
   CONTROLLER,

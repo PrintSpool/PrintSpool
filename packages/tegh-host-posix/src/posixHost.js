@@ -7,7 +7,7 @@ import keypair from 'keypair'
 
 import {
   initializeConfig,
-  schema as teghSchema,
+  executableSchema,
 } from 'tegh-core'
 
 // import { wrapInCrashReporting } from './crashReport'
@@ -54,7 +54,7 @@ const teghServer = async (argv, pluginLoader) => {
 
   // TODO: make server plugin config dynamic and based on the store.
   const teghServerConfig = {
-    schema: teghSchema,
+    schema: executableSchema(),
     context: {
       store,
     },

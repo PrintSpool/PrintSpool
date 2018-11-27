@@ -26,19 +26,19 @@ const resolveFromList = ({
     }
   })
 
-  return list.map(model =>  ({
+  return list.map(model => ({
     schemaForm: {
       // TODO: use selectors to load each model's form and schema
       form: ['name'],
       schema: {
-        "type": "object",
-        "required": [
+        type: 'object',
+        required: [
         ],
-        "title": "3D Printer",
-        "properties": {
-          "name": {
-            "title": "Name",
-            "type": "string"
+        title: '3D Printer',
+        properties: {
+          name: {
+            title: 'Name',
+            type: 'string',
           },
         },
       },

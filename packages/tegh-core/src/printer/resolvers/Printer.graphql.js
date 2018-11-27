@@ -2,24 +2,12 @@ import isIdle from '../../spool/selectors/isIdle'
 import getComponentsState from '../selectors/getComponentsState'
 
 const PrinterGraphQL = {
-  id: (source) => {
-    return source.config.printer.printerID
-  },
-  name: (source) => {
-    return source.config.printer.name
-  },
-  heaters: (source) => {
-    return getComponentsState(source).heaters.toList()
-  },
-  targetTemperaturesCountdown: (source) => {
-    return getComponentsState(source).targetTemperaturesCountdown
-  },
-  activeExtruderID: (source) => {
-    return getComponentsState(source).activeExtruderID
-  },
-  fans: (source) => {
-    return getComponentsState(source).fans.toList()
-  },
+  id: source => source.config.printer.printerID,
+  name: source => source.config.printer.name,
+  heaters: source => getComponentsState(source).heaters.toList(),
+  targetTemperaturesCountdown: source => getComponentsState(source).targetTemperaturesCountdown,
+  activeExtruderID: source => getComponentsState(source).activeExtruderID,
+  fans: source => getComponentsState(source).fans.toList(),
   status: (source) => {
     if (!isIdle(source.spool)) return 'PRINTING'
     const { status } = source.status

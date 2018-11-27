@@ -1,15 +1,10 @@
 import EventEmitter from 'events'
 import _ from 'lodash'
 import {
-  GraphQLLiveData,
   subscribeToLiveData,
 } from 'graphql-live-subscriptions'
 
-import queryRootResolvers from './QueryRoot.graphql.js'
-
 const MAX_UPDATE_RATE_MS = 500
-
-const type = () => queryRootResolvers
 
 const SubscriptionRootResolvers = {
   Subscription: {
@@ -64,7 +59,7 @@ const SubscriptionRootResolvers = {
         },
       }),
     },
-  }
+  },
 }
 
 export default SubscriptionRootResolvers

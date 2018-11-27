@@ -9,29 +9,29 @@ import getHistoryByJobID from '../selectors/getHistoryByJobID'
 
 const JobGraphQL = {
   files: (source, args, { store }) => {
-      const state = store.getState().jobQueue
-      const jobID = source.id
-      return getJobFilesByJobID(state).get(jobID, List())
+    const state = store.getState().jobQueue
+    const jobID = source.id
+    return getJobFilesByJobID(state).get(jobID, List())
   },
   tasks: (source, args, { store }) => {
-      const state = store.getState().spool
-      return getTasksByTaskableID(state).get(source.id, List())
-    },
+    const state = store.getState().spool
+    return getTasksByTaskableID(state).get(source.id, List())
+  },
   history: (source, args, { store }) => {
-      const state = store.getState().jobQueue
-      return getHistoryByJobID(state).get(source.id, List())
-    },
+    const state = store.getState().jobQueue
+    return getHistoryByJobID(state).get(source.id, List())
+  },
   printsCompleted: (source, args, { store }) => {
-      const state = store.getState().jobQueue
-      return getPrintsCompletedByJobID(state).get(source.id, 0)
-    },
+    const state = store.getState().jobQueue
+    return getPrintsCompletedByJobID(state).get(source.id, 0)
+  },
   totalPrints: (source, args, { store }) => {
-      const state = store.getState().jobQueue
-      return getTotalPrintsByJobID(state).get(source.id)
-    },
+    const state = store.getState().jobQueue
+    return getTotalPrintsByJobID(state).get(source.id)
+  },
   isDone: (source, args, { store }) => {
-      const state = store.getState().jobQueue
-      return getIsDoneByJobID(state).get(source.id, false)
-    },
+    const state = store.getState().jobQueue
+    return getIsDoneByJobID(state).get(source.id, false)
+  },
 }
 export default JobGraphQL

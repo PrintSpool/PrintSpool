@@ -1,6 +1,7 @@
 import { makeExecutableSchema } from 'graphql-tools'
 import { GraphQLDate } from 'graphql-scalars'
 import GraphQLJSON from 'graphql-type-json'
+import { Map } from 'immutable'
 
 import typeDefs from 'tegh-schema'
 
@@ -13,10 +14,10 @@ import ConfigQueryRootResolvers from '../config/resolvers/QueryRootResolvers'
 
 const mergeResolvers = (resolvers, accumulator) => ({
   ...accumulator,
-  ...resolvers.map((fieldResolvers, typeName) => ({
+  ...Map(resolvers).map((fieldResolvers, typeName) => ({
     ...accumulator[typeName] || {},
     ...fieldResolvers,
-  })),
+  })).toJS(),
 })
 
 const coreResolvers = [
@@ -41,7 +42,7 @@ const resolvers = {
 //   MutationRoot: mutationResolvers,
 // }
 
-const executableSchema = makeExecutableSchema(
+const executableSchema = () => makeExecutableSchema(
   typeDefs,
   resolvers,
 )
