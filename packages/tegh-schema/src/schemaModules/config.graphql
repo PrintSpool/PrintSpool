@@ -1,6 +1,6 @@
 # Queries
 
-extends type Query {
+extend type Query {
   hostConfigs(hostID: ID!): [ConfigForm!]!
 
   printerConfigs(printerID: ID!): [PrinterConfig!]!
@@ -30,12 +30,7 @@ type JSONSchemaForm {
 
 # Mutations
 
-extends type Mutation {
-  updatePrinterConfigForm(printerID: ID!, configFormID: ID!, modelVersion: Int!, model: JSON!)
-  updateHostConfigForm(hostID: ID!, modelVersion: Int!, model: JSON!)
-  patchPrinterConfig(
-    printerID: ID!,
-    version: Int!,
-    patch: [RFC6902OperationInput!]!
-  ): Boolean
+extend type Mutation {
+  updatePrinterConfigForm(printerID: ID!, configFormID: ID!, modelVersion: Int!, model: JSON!): Boolean
+  updateHostConfigForm(hostID: ID!, modelVersion: Int!, model: JSON!): Boolean
 }

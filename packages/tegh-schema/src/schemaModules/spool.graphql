@@ -1,6 +1,6 @@
 # Mutations
 
-extends type MutationRoot {
+extend type Mutation {
   """
   Spools a task to execute a GCode file. The file name MUST end in either
   `.gcode` or `.ngc`. Non-GCode file formats may be supported in the future and
@@ -43,24 +43,24 @@ input SpoolMacroInput {
   args: JSON
 }
 
-# """
-# A spooled set of gcodes to be executed by the printer
-# """
-# type Task {
-#   id: ID!
-#   name: String!
-#   currentLineNumber: Int
-#   totalLineNumbers: Int!
-#   percentComplete(
-#     """
-#     The number of digits to the right of the decimal place to round to. eg.
-#     `digits: 0` => 83 `digits: 1` => 82.6 `digits: 2` => 82.62
-#     """
-#     digits: Int!
-#   ): Float!
-#   createdAt: Date!
-#   startedAt: Date
-#   stoppedAt: Date
-#   status: String!
-#   printer: Printer!
-# }
+"""
+A spooled set of gcodes to be executed by the printer
+"""
+type Task {
+  id: ID!
+  name: String!
+  currentLineNumber: Int
+  totalLineNumbers: Int!
+  percentComplete(
+    """
+    The number of digits to the right of the decimal place to round to. eg.
+    `digits: 0` => 83 `digits: 1` => 82.6 `digits: 2` => 82.62
+    """
+    digits: Int!
+  ): Float!
+  createdAt: Date!
+  startedAt: Date
+  stoppedAt: Date
+  status: String!
+  printer: Printer!
+}

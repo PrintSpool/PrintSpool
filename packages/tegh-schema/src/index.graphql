@@ -6,23 +6,23 @@ scalar JSON
 scalar Date
 
 schema {
-  query: QueryRoot
-  mutation: MutationRoot
-  subscription: SubscriptionRoot
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
 }
 
 # Queries
 
-type QueryRoot {}
+type Query
 
 # Subscriptions
 
-type SubscriptionRoot {
+type Subscription {
   live: LiveSubscriptionRoot
 }
 
 type LiveSubscriptionRoot {
-  query: QueryRoot
+  query: Query
   patch: [RFC6902Operation!]
 }
 
@@ -35,4 +35,4 @@ type RFC6902Operation {
 
 # Mutations
 
-type MutationRoot {}
+type Mutation

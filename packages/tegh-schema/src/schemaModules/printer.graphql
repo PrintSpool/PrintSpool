@@ -1,6 +1,6 @@
 # Queries
 
-extends type QueryRoot {
+extend type Query {
   printers(id: ID): [Printer!]!
 }
 

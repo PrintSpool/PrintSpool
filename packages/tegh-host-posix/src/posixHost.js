@@ -86,4 +86,6 @@ const nodeModulesPluginLoader = plugin => new Promise((resolve) => {
   resolve(require(plugin))
 })
 
+process.on('unhandledRejection', (e) => { throw e })
+
 teghServer(process.argv, nodeModulesPluginLoader)

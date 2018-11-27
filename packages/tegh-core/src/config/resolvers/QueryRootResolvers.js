@@ -48,25 +48,27 @@ const resolveFromList = ({
 }
 
 const QueryRootResolvers = {
-  hostConfigs: resolveFromList({
-    type: 'HostConfig',
-    selector: state => [state.config.hostConfig],
-    singularLookupKeys: ['hostID'],
-  }),
-  printerConfigs: resolveFromList({
-    type: 'PrinterConfig',
-    selector: state => [state.config.printerConfig],
-    singularLookupKeys: ['printerID'],
-  }),
-  components: resolveFromList({
-    type: 'ComponentConfig',
-    selector: state => state.config.printerConfig.components,
-    requirePrinterIDMatch: true,
-  }),
-  materials: resolveFromList({
-    name: 'Material',
-    selector: state => state.config.materials,
-  }),
+  Query: {
+    hostConfigs: resolveFromList({
+      type: 'HostConfig',
+      selector: state => [state.config.hostConfig],
+      singularLookupKeys: ['hostID'],
+    }),
+    printerConfigs: resolveFromList({
+      type: 'PrinterConfig',
+      selector: state => [state.config.printerConfig],
+      singularLookupKeys: ['printerID'],
+    }),
+    components: resolveFromList({
+      type: 'ComponentConfig',
+      selector: state => state.config.printerConfig.components,
+      requirePrinterIDMatch: true,
+    }),
+    materials: resolveFromList({
+      name: 'Material',
+      selector: state => state.config.materials,
+    }),
+  },
 }
 
 export default QueryRootResolvers

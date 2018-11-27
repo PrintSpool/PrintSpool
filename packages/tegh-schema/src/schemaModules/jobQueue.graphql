@@ -1,6 +1,6 @@
 # Queries
 
-extends type QueryRoot {
+extend type Query {
   jobQueue: JobQueue!
 }
 
@@ -71,7 +71,7 @@ enum JobStatus {
 
 # Mutations
 
-extends type MutationRoot {
+extend type Mutation {
   """
   create a Job from the content and fileName of a file upload.
   """

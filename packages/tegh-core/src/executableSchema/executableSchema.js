@@ -42,9 +42,9 @@ const resolvers = {
 //   MutationRoot: mutationResolvers,
 // }
 
-const executableSchema = () => makeExecutableSchema(
+const executableSchema = () => makeExecutableSchema({
   typeDefs,
   resolvers,
-)
+})
 
 export default executableSchema
