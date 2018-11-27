@@ -7,10 +7,10 @@ import keypair from 'keypair'
 
 import {
   initializeConfig,
+  schema as teghSchema,
 } from 'tegh-core'
 
 // import { wrapInCrashReporting } from './crashReport'
-import teghSchema from './schema/schema'
 import createTeghStore from './createTeghStore'
 import httpServer from './server/httpServer'
 import webRTCServer from './server/webRTCServer'

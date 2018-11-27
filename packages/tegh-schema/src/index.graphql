@@ -1,0 +1,38 @@
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+scalar Date
+
+schema {
+  query: QueryRoot
+  mutation: MutationRoot
+  subscription: SubscriptionRoot
+}
+
+# Queries
+
+type QueryRoot {}
+
+# Subscriptions
+
+type SubscriptionRoot {
+  live: LiveSubscriptionRoot
+}
+
+type LiveSubscriptionRoot {
+  query: QueryRoot
+  patch: [RFC6902Operation!]
+}
+
+type RFC6902Operation {
+  op: String!
+  path: String!
+  from: String
+  value: JSON
+}
+
+# Mutations
+
+type MutationRoot {}

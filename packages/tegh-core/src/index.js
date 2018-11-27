@@ -5,6 +5,4 @@ export * from './types'
 export * from './selectors'
 export * as reducers from './reducers'
 
-export * as mutations from './mutations'
-
-export configSchema from './config/configSchema.graphql'
+export executableSchema from './executableSchema/executableSchema'
