@@ -125,18 +125,6 @@ const printerConfig = {
       "modelID": "lulzbot/lulzbot-mini-2",
       "name": "Left Home Lulzbot"
     },
-    // TODO: move logging settings to a tegh-log plugin (part of tegh-core)
-    {
-      "id": "bdfgkljwe",
-      "package": "tegh-log",
-      "maxLength": 1000,
-      "stderr": [
-        "info",
-        "warning",
-        "error",
-        "fatal"
-      ]
-    },
     {
       "id": 'aaabbbccc333',
       "package": "tegh-driver-serial-gcode",
@@ -154,6 +142,15 @@ const printerConfig = {
 const hostConfig = {
   "id": "pzxcvkkwn",
   "name": "ExampleLabs FabLab",
+  "log": {
+    "maxLength": 1000,
+    "stderr": [
+      "info",
+      "warning",
+      "error",
+      "fatal"
+    ]
+  },
   "crashReports": {
     "id": "bfdbdffeews",
     "directory": "/var/log/tegh",

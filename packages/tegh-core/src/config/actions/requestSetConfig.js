@@ -9,7 +9,8 @@ const requestSetConfig = (params) => {
 
   if (!isImmutable(config)) config = Config(config)
 
-  validateCoreConfigShape(config)
+  // TODO: validations
+  // validateCoreConfigShape(config)
 
   return {
     type: REQUEST_SET_CONFIG,

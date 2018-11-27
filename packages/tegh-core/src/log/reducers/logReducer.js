@@ -64,7 +64,7 @@ const logReducer = (
       return state.mergeIn(['config'], {
         isInitialized: true,
         pluginsLogReducer,
-        ...config.printer.log.toJS(),
+        ...config.host.log.toJS(),
       })
     }
     default: {

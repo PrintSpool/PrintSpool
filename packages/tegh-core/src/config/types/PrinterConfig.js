@@ -2,7 +2,6 @@ import { Record, List, Map } from 'immutable'
 import uuid from 'uuid/v4'
 
 import PluginConfig from './PluginConfig'
-import LogConfig from './LogConfig'
 
 import {
   CONTROLLER,
@@ -28,7 +27,6 @@ export const PrinterConfigRecordFactory = Record({
   components: List(),
 
   plugins: List(),
-  log: LogConfig(),
   extendedConfig: Map(),
 })
 
@@ -39,7 +37,6 @@ const PrinterConfig = ({
   components = [],
 
   plugins = [],
-  log = {},
 
   ...props
 } = {}) => (
@@ -65,7 +62,6 @@ const PrinterConfig = ({
     }),
 
     plugins: plugins.map(PluginConfig),
-    log: LogConfig(log),
     extendedConfig: Map(props.extendedConfig),
   })
 )
