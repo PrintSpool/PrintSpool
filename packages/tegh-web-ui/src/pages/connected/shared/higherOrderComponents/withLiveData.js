@@ -5,10 +5,24 @@ import { compose } from 'recompose'
 import {
   withStyles,
 } from '@material-ui/core'
+import gql from 'graphql-tag'
 
 import { LiveSubscription } from '../../../../util/LiveSubscription'
 
 import ConnectingPage from '../Connecting.page'
+
+export const NULL_SUBSCRIPTION = gql`
+  subscription JobQueueSubscription {
+    live {
+      patch { op, path, from, value }
+      query {
+        printers {
+          id
+        }
+      }
+    }
+  }
+`
 
 const styles = () => ({
   flex: {

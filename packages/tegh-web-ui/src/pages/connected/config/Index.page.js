@@ -19,13 +19,17 @@ import {
 import patchConfigMutation from './mutations/patchConfig'
 import FormDialog, { FORM_DIALOG_FRAGMENT } from './components/FormDialog'
 
+import withLiveData, { NULL_SUBSCRIPTION } from '../shared/higherOrderComponents/withLiveData'
+
 const enhance = compose(
   withRouter,
   patchConfigMutation,
   withProps(({ match }) => ({
     printerID: match.params.printerID,
     printerDialogOpen: match.path === '/:hostID/:printerID/config/printer/',
+    subscription: NULL_SUBSCRIPTION,
   })),
+  withLiveData,
 )
 
 const ConfigPage = ({
