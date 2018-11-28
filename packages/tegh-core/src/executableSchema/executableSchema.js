@@ -11,7 +11,7 @@ import SubscriptionRootResolvers from './SubscriptionRootResolvers'
 
 import ConfigMutationRootResolvers from '../config/resolvers/MutationRootResolvers'
 import ConfigQueryRootResolvers from '../config/resolvers/QueryRootResolvers'
-import ConfigFormResolvers from '../config/resolvers/ConfigFormResolvers'
+import ConfigFormResolvers from '../pluginManager/resolvers/ConfigFormResolvers'
 import PrinterConfigResolvers from '../config/resolvers/PrinterConfigResolvers'
 
 import JobQueueResolvers from '../jobQueue/resolvers/JobQueueResolvers'

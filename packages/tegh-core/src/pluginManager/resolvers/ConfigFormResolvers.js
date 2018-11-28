@@ -1,4 +1,4 @@
-import { NullSchemaForm } from '../../pluginManager/types/SchemaForm'
+import { NullSchemaForm } from '../types/SchemaForm'
 
 const ConfigFormResolvers = {
   ConfigForm: {
