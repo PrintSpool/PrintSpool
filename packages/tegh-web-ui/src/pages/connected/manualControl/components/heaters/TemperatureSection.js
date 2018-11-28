@@ -36,32 +36,30 @@ const TemperatureSection = ({
   isHeating,
   toggleHeater,
   disabled,
-}) => {
-  return (
-    <div>
-      <Typography variant="h4" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
-        {currentTemperature.toFixed(1)}
+}) => (
+  <div>
+    <Typography variant="h4" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
+      {currentTemperature.toFixed(1)}
         °C /
-        <sup style={{ fontSize: '50%' }}>
-          {' '}
-          {targetText(targetTemperature)}
-        </sup>
-      </Typography>
-      <div style={{ marginTop: -3 }}>
-        <FormControlLabel
-          control={(
-            <Switch
-              checked={isHeating}
-              onChange={toggleHeater}
-              disabled={disabled}
-              aria-label="heating"
-            />
+      <sup style={{ fontSize: '50%' }}>
+        {' '}
+        {targetText(targetTemperature)}
+      </sup>
+    </Typography>
+    <div style={{ marginTop: -3 }}>
+      <FormControlLabel
+        control={(
+          <Switch
+            checked={isHeating}
+            onChange={toggleHeater}
+            disabled={disabled}
+            aria-label="heating"
+          />
           )}
-          label="Enable Heater"
-        />
-      </div>
+        label="Enable Heater"
+      />
     </div>
-  )
-}
+  </div>
+)
 
 export default enhance(TemperatureSection)

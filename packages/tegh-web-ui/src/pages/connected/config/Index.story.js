@@ -14,28 +14,28 @@ const config = configRoot.printer
 
 const teghCoreSchemaForm = {
   schema: {
-    "type": "object",
-    "required": [
+    type: 'object',
+    required: [
     ],
-    "title": "Address",
-    "properties": {
-      "name": {
-        "title": "Name",
-        "type": "string"
+    title: 'Address',
+    properties: {
+      name: {
+        title: 'Name',
+        type: 'string',
       },
-      "modelID": {
-        "title": "Make and model",
-        "type": "string",
-        "enum": [
-          "lulzbot/lulzbot-mini-1",
-          "lulzbot/lulzbot-mini-2",
+      modelID: {
+        title: 'Make and model',
+        type: 'string',
+        enum: [
+          'lulzbot/lulzbot-mini-1',
+          'lulzbot/lulzbot-mini-2',
         ],
-        "enumNames": [
-          "Lulzbot Mini 1",
-          "Lulzbot Mini 2",
-        ]
+        enumNames: [
+          'Lulzbot Mini 1',
+          'Lulzbot Mini 2',
+        ],
       },
-    }
+    },
   },
   form: [
     'name',
@@ -81,16 +81,14 @@ storiesOf('Config', module)
       updateSubConfig={action('updateSubConfig')}
     />
   ))
-  .add('printer dialog', () => {
-    return (
-      <FormDialog
-        title="3D Printer"
-        open
-        onSubmit={linkTo('Config', 'index')}
-        data={{
-          model: config.plugins.find(p => p.package === 'tegh-core'),
-          schemaForm: teghCoreSchemaForm,
-        }}
-      />
-    )
-  })
+  .add('printer dialog', () => (
+    <FormDialog
+      title="3D Printer"
+      open
+      onSubmit={linkTo('Config', 'index')}
+      data={{
+        model: config.plugins.find(p => p.package === 'tegh-core'),
+        schemaForm: teghCoreSchemaForm,
+      }}
+    />
+  ))
