@@ -5,13 +5,18 @@ import { Map } from 'immutable'
 
 import typeDefs from 'tegh-schema'
 
-// import queryResolvers from './queryResolvers'
+import QueryRootResolvers from './QueryRootResolvers'
 import SubscriptionRootResolvers from './SubscriptionRootResolvers'
 // import mutationResolvers from './mutationResolvers'
 
 import ConfigMutationRootResolvers from '../config/resolvers/MutationRootResolvers'
 import ConfigQueryRootResolvers from '../config/resolvers/QueryRootResolvers'
 import ConfigFormResolvers from '../config/resolvers/ConfigFormResolvers'
+import PrinterConfigResolvers from '../config/resolvers/PrinterConfigResolvers'
+
+import JobQueueResolvers from '../jobQueue/resolvers/JobQueueResolvers'
+
+import PrinterResolvers from '../printer/resolvers/PrinterResolvers'
 
 const mergeResolvers = (resolvers, accumulator) => ({
   ...accumulator,
@@ -22,10 +27,17 @@ const mergeResolvers = (resolvers, accumulator) => ({
 })
 
 const coreResolvers = [
+  QueryRootResolvers,
+  SubscriptionRootResolvers,
+
   ConfigMutationRootResolvers,
   ConfigQueryRootResolvers,
   ConfigFormResolvers,
-  SubscriptionRootResolvers,
+  PrinterConfigResolvers,
+
+  JobQueueResolvers,
+
+  PrinterResolvers,
 ].reduce(mergeResolvers, {})
 
 const thirdPartyResolvers = {

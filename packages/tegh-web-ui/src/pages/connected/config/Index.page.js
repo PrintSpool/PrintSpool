@@ -1,5 +1,5 @@
 import React from 'react'
-import { compose } from 'recompose'
+import { compose, withProps } from 'recompose'
 import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
 import gql from 'graphql-tag'
@@ -22,10 +22,14 @@ import FormDialog, { FORM_DIALOG_FRAGMENT } from './components/FormDialog'
 const enhance = compose(
   withRouter,
   patchConfigMutation,
+  withProps(({ match }) => ({
+    printerID: match.params.printerID,
+    printerDialogOpen: match.path === '/:hostID/:printerID/config/printer/',
+  })),
 )
 
 const ConfigPage = ({
-  config,
+  printerID,
   printerDialogOpen = false,
 }) => (
   <main>
@@ -33,12 +37,12 @@ const ConfigPage = ({
       printerDialogOpen && (
         <FormDialog
           title="3D Printer"
-          form={`config/${config.id}/packages/tegh-core`}
+          form={`config/printer/${printerID}/packages/tegh-core`}
           open={printerDialogOpen}
-          variables={{ printerID: config.id }}
+          variables={{ printerID }}
           query={gql`
-            query($printerID: ID) {
-              config(printerID: printerID) {
+            query($printerID: ID!) {
+              printerConfigs(printerID: $printerID) {
                 plugins(package: "tegh-core") {
                   ...FormDialogFragment
                 }

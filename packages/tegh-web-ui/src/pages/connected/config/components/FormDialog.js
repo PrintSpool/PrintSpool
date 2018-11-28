@@ -52,11 +52,12 @@ const enhance = compose(
               </div>
             )
           }
+          const config = data.printerConfigs[0]
 
           return (
             <Component
               open={open}
-              data={data}
+              data={(config.plugins || config.components)[0]}
               client={client}
               {...props}
             />

@@ -7,6 +7,7 @@ export const PluginConfigFactory = Record({
   package: null,
   macros: List(),
   extendedConfig: Map(),
+  name: null,
 })
 
 const PluginConfig = ({

@@ -12,7 +12,7 @@ extend type Query {
 type PrinterConfig {
   id: ID!
   components: [ConfigForm!]!
-  plugins: [ConfigForm!]!
+  plugins(package: String): [ConfigForm!]!
 }
 
 type ConfigForm {

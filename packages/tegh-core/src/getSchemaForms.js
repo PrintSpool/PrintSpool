@@ -12,13 +12,13 @@ const getSchemaForms = () => ({
       ...schema,
       type: 'object',
       required: [
-        ...schema.required,
-        name,
-        modelID,
+        ...(schema.required || []),
+        'name',
+        'modelID',
       ],
-      title: 'Address',
+      title: '3D Printer',
       properties: {
-        ...schema.properties,
+        ...(schema.properties || {}),
         name: {
           title: 'Name',
           type: 'string',
@@ -44,7 +44,7 @@ const getSchemaForms = () => ({
       type: 'object',
       title: 'Comment',
       properties: {
-        ...schema.properties,
+        ...(schema.properties || {}),
         name: {
           title: 'Name',
           type: 'string',

@@ -114,13 +114,13 @@ const DrawerContents = ({ hostIdentity, printers, classes }) => (
             <DrawerLink
               text="Manual Control"
               icon={<OpenWith />}
-              href={`/${hostIdentity.id}/${printer.id}/manual-control`}
+              href={`/${hostIdentity.id}/${printer.id}/manual-control/`}
               classes={classes}
             />
             <DrawerLink
               text="Config"
               icon={<Settings />}
-              href={`/${hostIdentity.id}/${printer.id}/config`}
+              href={`/${hostIdentity.id}/${printer.id}/config/`}
               classes={classes}
             />
           </div>
