@@ -13,14 +13,14 @@ const getSchemaForms = createSelector(
     * getSchemaForms returns an object in the form:
     * {
     *   [component.type || plugin.package]: {
-    *     schema: {...}
+    *     schema: (previousSchema) => nextSchema
     *     form: [...]
     *   },
     *   ...
     * }
     */
     const pluginsSchemaForms = plugins.map(plugin => (
-      (plugin.getSchemaForm && plugin.getSchemaForms()) || {}
+      (plugin.getSchemaForms && plugin.getSchemaForms()) || {}
     ))
 
     /*
@@ -46,20 +46,15 @@ const getSchemaForms = createSelector(
      * the plugins to get to their schema forms.
      *
      */
-    const schemas = pluginsSchemaForms.reduce(
-      (pluginSchemaForms, schemasAcc) => ({
-        ...schemasAcc,
-
-        ...Object.entries(pluginSchemaForms).reduce(
-          ([pluginSchemaFormForType, type]) => ({
-            ...(schemasAcc[type] || {}),
-            ...pluginSchemaFormForType.schema,
-          }),
-          {},
-        ),
-      }),
-      {},
-    )
+    const schemas = {}
+    pluginsSchemaForms.forEach((pluginSchemaForms) => {
+      console.log(Object.entries(pluginSchemaForms))
+      Object.entries(pluginSchemaForms).forEach(
+        ([type, pluginSchemaFormForType]) => {
+          schemas[type] = pluginSchemaFormForType.schema(schemas[type] || {})
+        },
+      )
+    })
 
     return Map(schemas).map(schema => SchemaForm({
       schema,

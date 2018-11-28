@@ -7,6 +7,4 @@ export * from './selectors'
 export executableSchema from './executableSchema/executableSchema'
 export createTeghHostStore from './executableSchema/createTeghHostStore'
 
-// export const getSchemaForms = {
-//   ''
-// }
+export getSchemaForms from './getSchemaForms'
