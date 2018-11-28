@@ -8,10 +8,10 @@ import keypair from 'keypair'
 import {
   initializeConfig,
   executableSchema,
+  createTeghHostStore,
 } from 'tegh-core'
 
 // import { wrapInCrashReporting } from './crashReport'
-import createTeghStore from './createTeghStore'
 import httpServer from './server/httpServer'
 import webRTCServer from './server/webRTCServer'
 
@@ -42,7 +42,7 @@ const teghServer = async (argv, pluginLoader) => {
   //   setErrorHandlerStore,
   // }) => {
 
-  const store = createTeghStore()
+  const store = createTeghHostStore()
 
   const action = initializeConfig({
     config,

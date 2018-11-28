@@ -1,11 +1,9 @@
 import { Map, Record } from 'immutable'
 import { mergeChildReducers } from 'redux-loop-immutable'
 
-import {
-  SET_CONFIG,
-  getAllReducers,
-  reducers as coreReducers,
-} from 'tegh-core'
+import { SET_CONFIG } from '../config/actions/setConfig'
+import getAllReducers from '../pluginManager/selectors/getAllReducers'
+import * as coreReducers from '../reducers'
 
 // import { SET_CONFIG } from './core/config/actions/setConfig'
 // import getAllReducers from './core/pluginManager/selectors/getAllReducers'
@@ -22,8 +20,8 @@ const createStateRecord = (reducers, previousState = Record({})()) => (
 const initialState = createStateRecord(Map(coreReducers))
 
 const rootReducer = (state = initialState, action) => {
-  let { reducers } = state
   let nextState = state
+  let { reducers } = state
 
   if (action.type === SET_CONFIG) {
     reducers = getAllReducers(action.payload)

@@ -4,7 +4,7 @@ import ReduxThunk from 'redux-thunk'
 
 import rootReducer from './rootReducer'
 
-const createTeghStore = () => {
+const createTeghHostStore = () => {
   const enhancer = compose(
     applyMiddleware(
       ReduxThunk,
@@ -20,4 +20,4 @@ const createTeghStore = () => {
   return store
 }
 
-export default createTeghStore
+export default createTeghHostStore
