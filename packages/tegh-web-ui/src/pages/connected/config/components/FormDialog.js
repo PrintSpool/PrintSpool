@@ -3,7 +3,7 @@ import { compose, withProps } from 'recompose'
 import { withRouter } from 'react-router'
 import { SchemaForm } from 'react-schema-form'
 import gql from 'graphql-tag'
-import { Query } from 'react-apollo'
+import { Query, Mutation } from 'react-apollo'
 import {
   Dialog,
   DialogTitle,
@@ -16,10 +16,17 @@ export const FORM_DIALOG_FRAGMENT = gql`
   fragment FormDialogFragment on ConfigForm {
     id
     model
+    modelVersion
     schemaForm {
       schema
       form
     }
+  }
+`
+
+const SUBMIT_FORM_DIALOG = gql`
+  mutation submitFormDialog($input: SetConfigInput!) {
+    setConfig(input: $input)
   }
 `
 
@@ -52,6 +59,11 @@ const enhance = compose(
               </div>
             )
           }
+          const isPrinterConfig = data.materials == null
+
+          let routingMode = 'PRINTER'
+          if (isPrinterConfig) routingMode = 'MATERIAL'
+
           const configFormModel = (() => {
             if (data.materials != null) return data.materials[0]
 
@@ -59,10 +71,10 @@ const enhance = compose(
             return (config.plugins || config.components)[0]
           })()
 
-          console.log({ configFormModel})
-
           return (
             <Component
+              routingMode={routingMode}
+              isPrinterConfig={isPrinterConfig}
               open={open}
               data={configFormModel}
               client={client}
@@ -73,6 +85,52 @@ const enhance = compose(
       </Query>
     )
   }),
+  Component => (props) => {
+    const {
+      routingMode,
+      printerID,
+      data,
+      isPrinterConfig,
+      history,
+    } = props
+
+    const input = {
+      configFormID: data.id,
+      modelVersion: data.modelVersion,
+      model: data.model,
+      routingMode,
+    }
+
+    if (isPrinterConfig) {
+      input.printerID = printerID
+    }
+
+    return (
+      <Mutation
+        mutation={SUBMIT_FORM_DIALOG}
+        variables={{ input }}
+        update={(mutationResult) => {
+          if (mutationResult.data != null) {
+            const nextURL = history.location.pathname.replace(/[^/]+\/$/, '')
+            history.push(nextURL)
+          }
+        }}
+      >
+        {
+          (submitFormDialog, { called, error }) => {
+            if (error != null) return <div>{JSON.stringify(error)}</div>
+            if (called) return <div />
+            return (
+              <Component
+                onSubmit={submitFormDialog}
+                {...props}
+              />
+            )
+          }
+        }
+      </Mutation>
+    )
+  },
 )
 
 const FormDialog = ({

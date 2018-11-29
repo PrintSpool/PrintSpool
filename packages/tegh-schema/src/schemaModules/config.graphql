@@ -63,6 +63,25 @@ type JSONSchemaForm {
 # Mutations
 
 extend type Mutation {
-  updatePrinterConfigForm(printerID: ID!, configFormID: ID!, modelVersion: Int!, model: JSON!): Boolean
-  updateHostConfigForm(hostID: ID!, modelVersion: Int!, model: JSON!): Boolean
+  setConfig(input: SetConfigInput!): Boolean
+}
+
+input SetConfigInput {
+  """
+    Each config form is either a part of a PRINTER, MATERIAL or HOST.
+    The routingMode enables tegh combinators to route configuration changes to
+    the correct delegate tegh host.
+  """
+  routingMode: ConfigRoutingMode!
+  printerID: ID
+  hostID: ID
+  configFormID: ID!
+  modelVersion: Int!
+  model: JSON!
+}
+
+enum ConfigRoutingMode {
+  PRINTER,
+  MATERIAL,
+  HOST,
 }
