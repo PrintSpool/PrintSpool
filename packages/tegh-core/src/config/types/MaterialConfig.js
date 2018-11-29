@@ -4,6 +4,7 @@ import uuid from 'uuid/v4'
 const MaterialConfigFactory = Record({
   id: null,
   modelVersion: 0,
+  type: null,
   targetExtruderTemperature: 0,
   targetBedTemperature: 0,
 })

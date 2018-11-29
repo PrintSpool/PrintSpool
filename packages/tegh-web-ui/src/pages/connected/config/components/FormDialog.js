@@ -52,12 +52,19 @@ const enhance = compose(
               </div>
             )
           }
-          const config = data.printerConfigs[0]
+          const configFormModel = (() => {
+            if (data.materials != null) return data.materials[0]
+
+            const config = data.printerConfigs[0]
+            return (config.plugins || config.components)[0]
+          })()
+
+          console.log({ configFormModel})
 
           return (
             <Component
               open={open}
-              data={(config.plugins || config.components)[0]}
+              data={configFormModel}
               client={client}
               {...props}
             />

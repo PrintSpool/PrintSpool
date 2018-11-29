@@ -19,7 +19,7 @@ import gql from 'graphql-tag'
 
 import withLiveData from '../../shared/higherOrderComponents/withLiveData'
 
-import FormDialog from '../components/FormDialog'
+import FormDialog, { FORM_DIALOG_FRAGMENT } from '../components/FormDialog'
 import MaterialConfigForm from './Form.page'
 
 const CONFIG_SUBSCRIPTION = gql`
@@ -29,7 +29,7 @@ const CONFIG_SUBSCRIPTION = gql`
       query {
         materials {
           id
-          targetExtruderTemperature
+          shortSummary
         }
       }
     }
@@ -50,33 +50,40 @@ const styles = theme => ({
 const enhance = compose(
   withProps(ownProps => ({
     subscription: CONFIG_SUBSCRIPTION,
-    variables: {
-      printerID: ownProps.match.params.printerID,
-    },
+    variables: {},
   })),
   withLiveData,
   withStyles(styles, { withTheme: true }),
+  withProps(({ materials, match: { params } }) => ({
+    materialID: params.sku && `${params.org}/${params.sku}`,
+  }))
 )
 
 const MaterialsConfigIndex = ({
   classes,
+  printerID,
   materials,
-  match: {
-    params,
-  },
+  materialID,
   updateSubConfig,
 }) => (
   <main>
-    <FormDialog
-      Page={MaterialConfigForm}
-      open={params.sku != null}
-      onSubmit={updateSubConfig}
-      data={
-        materials.find(material => (
-          material.id === `${params.org}/${params.sku}`
-        ))
-      }
-    />
+    {
+      materialID != null && (
+        <FormDialog
+          title={materialID}
+          open
+          variables={{ materialID }}
+          query={gql`
+            query($materialID: ID) {
+              materials(materialID: $materialID) {
+                ...FormDialogFragment
+              }
+            }
+            ${FORM_DIALOG_FRAGMENT}
+          `}
+        />
+      )
+    }
     <Tooltip title="Add Component" placement="left">
       <Button
         component="label"
@@ -100,7 +107,7 @@ const MaterialsConfigIndex = ({
             </ListItemIcon>
             <ListItemText
               primary={material.id}
-              secondary={`${material.targetExtruderTemperature}°`}
+              secondary={material.shortSummary}
             />
           </ListItem>
         ))

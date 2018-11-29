@@ -54,21 +54,21 @@ const getSchemaForms = () => ({
     schema: schema => ({
       ...schema,
       type: 'object',
-      title: 'tegh-core',
+      title: 'FDM Filament',
       required: [
         ...(schema.required || []),
-        'name',
-        'modelID',
+        'targetExtruderTemperature',
+        'targetBedTemperature',
       ],
       properties: {
         ...(schema.properties || {}),
         targetExtruderTemperature: {
           title: 'Target Extruder Temperature',
-          type: 'float',
+          type: 'number',
         },
         targetBedTemperature: {
           title: 'Target Bed Temperature',
-          type: 'float',
+          type: 'number',
         },
       },
     }),
@@ -154,7 +154,7 @@ const getSchemaForms = () => ({
         ...componentBaseProperties(schema),
         feedrate: {
           title: 'Feedrate',
-          type: 'float',
+          type: 'number',
         },
         materialID: {
           title: 'Material',
