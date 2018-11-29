@@ -29,7 +29,7 @@ const loadConfigForm = (configPath) => {
 
 const teghServer = async (argv, pluginLoader) => {
   if (argv[2] == null) {
-    const expectedUseage = 'Expected useage: tegh [/path/to/config.yml]'
+    const expectedUseage = 'Expected useage: tegh [/path/to/config.js]'
     throw new Error(`No config file provided. ${expectedUseage}`)
   }
   const configPath = path.resolve(argv[2])

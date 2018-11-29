@@ -50,6 +50,33 @@ const getSchemaForms = () => ({
       // 'modelID',
     ],
   },
+  FDM_FILAMENT: {
+    schema: schema => ({
+      ...schema,
+      type: 'object',
+      title: 'tegh-core',
+      required: [
+        ...(schema.required || []),
+        'name',
+        'modelID',
+      ],
+      properties: {
+        ...(schema.properties || {}),
+        targetExtruderTemperature: {
+          title: 'Target Extruder Temperature',
+          type: 'float',
+        },
+        targetBedTemperature: {
+          title: 'Target Bed Temperature',
+          type: 'float',
+        },
+      },
+    }),
+    form: [
+      'targetExtruderTemperature',
+      'targetBedTemperature',
+    ],
+  },
   [BUILD_PLATFORM]: {
     schema: schema => ({
       ...schema,

@@ -5,7 +5,6 @@ const PrinterResolvers = {
   Printer: {
     id: source => source.config.printer.id,
     name: source => (
-      console.log(source.config.printer.plugins)||
       source.config.printer.plugins.find(p => p.package === 'tegh-core').name
     ),
     heaters: source => getComponentsState(source).heaters.toList(),

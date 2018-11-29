@@ -6,14 +6,10 @@ extend type Query {
   printerConfigs(printerID: ID!): [PrinterConfig!]!
   # components(printerID: ID!, componentID: ID): [ComponentConfigForm!]!
 
-  materials(id: ID): [Material!]!
+  materials(materialID: ID): [Material!]!
 }
 
 type HostConfigForm {
-  id: ID!
-}
-
-type Material {
   id: ID!
 }
 
@@ -30,14 +26,23 @@ interface ConfigForm {
   schemaForm: JSONSchemaForm!
 }
 
-type ComponentConfigForm implements ConfigForm {
+type Material implements ConfigForm {
   id: ID!
-  # TODO: type should be an emum?
-  type: String!
-  name: String!
   model: JSON!
   modelVersion: Int!
   schemaForm: JSONSchemaForm!
+
+  type: String!
+}
+
+type ComponentConfigForm implements ConfigForm {
+  id: ID!
+  model: JSON!
+  modelVersion: Int!
+  schemaForm: JSONSchemaForm!
+
+  type: String!
+  name: String!
 }
 
 type PluginConfigForm implements ConfigForm {

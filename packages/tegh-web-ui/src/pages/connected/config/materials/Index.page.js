@@ -23,12 +23,13 @@ import FormDialog from '../components/FormDialog'
 import MaterialConfigForm from './Form.page'
 
 const CONFIG_SUBSCRIPTION = gql`
-  subscription ConfigSubscription($printerID: ID!) {
+  subscription ConfigSubscription {
     live {
       patch { op, path, from, value }
       query {
-        printers {
+        materials {
           id
+          targetExtruderTemperature
         }
       }
     }
@@ -47,7 +48,6 @@ const styles = theme => ({
 })
 
 const enhance = compose(
-  withStyles(styles, { withTheme: true }),
   withProps(ownProps => ({
     subscription: CONFIG_SUBSCRIPTION,
     variables: {
@@ -55,9 +55,7 @@ const enhance = compose(
     },
   })),
   withLiveData,
-  withProps(({ singularPrinter }) => ({
-    printer: singularPrinter[0],
-  })),
+  withStyles(styles, { withTheme: true }),
 )
 
 const MaterialsConfigIndex = ({
@@ -70,7 +68,6 @@ const MaterialsConfigIndex = ({
 }) => (
   <main>
     <FormDialog
-      form={`materials/${params.org}/${params.sku}`}
       Page={MaterialConfigForm}
       open={params.sku != null}
       onSubmit={updateSubConfig}

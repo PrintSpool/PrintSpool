@@ -48,7 +48,6 @@ const getSchemaForms = createSelector(
      */
     const schemas = {}
     pluginsSchemaForms.forEach((pluginSchemaForms) => {
-      console.log(Object.entries(pluginSchemaForms))
       Object.entries(pluginSchemaForms).forEach(
         ([type, pluginSchemaFormForType]) => {
           schemas[type] = pluginSchemaFormForType.schema(schemas[type] || {})

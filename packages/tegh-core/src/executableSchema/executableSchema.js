@@ -61,6 +61,9 @@ const resolvers = {
 const executableSchema = () => makeExecutableSchema({
   typeDefs,
   resolvers,
+  resolverValidationOptions: {
+    requireResolversForResolveType: false,
+  },
 })
 
 export default executableSchema
