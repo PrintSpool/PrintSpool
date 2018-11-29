@@ -25,19 +25,20 @@ import gql from 'graphql-tag'
 
 import withLiveData from '../../shared/higherOrderComponents/withLiveData'
 
-import FormDialog from '../components/FormDialog'
-import BuildPlatformForm from './BuildPlatformForm.page'
-import ControllerForm from './ControllerForm.page'
-import FanForm from './FanForm.page'
-import ToolheadForm from './ToolheadForm.page'
+import FormDialog, { FORM_DIALOG_FRAGMENT } from '../components/FormDialog'
 
-const CONFIG_SUBSCRIPTION = gql`
+const COMPONENTS_SUBSCRIPTION = gql`
   subscription ConfigSubscription($printerID: ID!) {
     live {
       patch { op, path, from, value }
       query {
-        printers {
+        printerConfigs(printerID: $printerID) {
           id
+          components {
+            id
+            type
+            name
+          }
         }
       }
     }
@@ -55,82 +56,78 @@ const styles = theme => ({
   },
 })
 
-
-const componentsOfType = (config, ofType) => (
-  config.components
-    .filter(component => component.type === ofType)
+const componentsOfType = (components, ofType) => (
+  components.filter(component => component.type === ofType)
 )
 
 const CATEGORIES = [
   {
     type: 'CONTROLLER',
     heading: 'Controllers',
-    slug: 'controllers',
-    dataPropName: 'controller',
     Icon: Usb,
-    Page: ControllerForm,
   },
   {
     type: 'TOOLHEAD',
     heading: 'Toolheads',
-    slug: 'toolheads',
-    dataPropName: 'toolhead',
     Icon: Waves,
-    Page: ToolheadForm,
   },
   {
     type: 'BUILD_PLATFORM',
     heading: 'Build Platform',
-    slug: 'build-platforms',
-    dataPropName: 'buildPlatform',
     Icon: VideoLabel,
-    Page: BuildPlatformForm,
   },
   {
     type: 'FAN',
     heading: 'Fans',
-    slug: 'fans',
-    dataPropName: 'fan',
     Icon: Toys,
-    Page: FanForm,
   },
 ]
 
 const enhance = compose(
-  withStyles(styles, { withTheme: true }),
   withProps(ownProps => ({
-    subscription: CONFIG_SUBSCRIPTION,
+    subscription: COMPONENTS_SUBSCRIPTION,
     variables: {
       printerID: ownProps.match.params.printerID,
     },
   })),
   withLiveData,
-  withProps(({ singularPrinter }) => ({
-    printer: singularPrinter[0],
-  })),
+  withProps(({ printerConfigs, match }) => {
+    const { componentID, printerID } = match.params
+    const { components } = printerConfigs[0]
+
+    return {
+      selectedComponent: components.find(c => c.id === componentID),
+      components,
+      printerID,
+    }
+  }),
+  withStyles(styles, { withTheme: true }),
 )
 
 const ComponentsConfigIndex = ({
   classes,
-  config,
-  updateSubConfig,
-  match: {
-    params,
-  },
+  printerID,
+  components,
+  selectedComponent,
 }) => (
   <main>
-    {
-      CATEGORIES.map(category => (
-        <FormDialog
-          key={category.slug}
-          form={`${category.slug}/${params.componentID}`}
-          open={params.componentTypeSlug === category.slug}
-          onSubmit={updateSubConfig}
-          Page={category.Page}
-          data={config.components.find(c => c.id === params.componentID)}
-        />
-      ))
-    }
+    { selectedComponent != null && (
+      <FormDialog
+        title={selectedComponent.name}
+        open={selectedComponent != null}
+        variables={{ printerID, componentID: selectedComponent.id }}
+        query={gql`
+          query($printerID: ID!, $componentID: ID) {
+            printerConfigs(printerID: $printerID) {
+              components(componentID: $componentID) {
+                ...FormDialogFragment
+              }
+            }
+          }
+          ${FORM_DIALOG_FRAGMENT}
+        `}
+      />
+    )}
     <Tooltip title="Add Component" placement="left">
       <Button
         component="label"
@@ -145,7 +142,6 @@ const ComponentsConfigIndex = ({
         CATEGORIES.map(({
           type,
           heading,
-          slug,
           Icon,
         }) => (
           <div key={type}>
@@ -153,13 +149,13 @@ const ComponentsConfigIndex = ({
               {heading}
             </ListSubheader>
             {
-              componentsOfType(config, type).map(component => (
+              componentsOfType(components, type).map(component => (
                 <ListItem
                   button
                   divider
                   key={component.id}
                   component={props => (
-                    <Link to={`${slug}/${component.id}/`} {...props} />
+                    <Link to={`${component.id}/`} {...props} />
                   )}
                 >
 

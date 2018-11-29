@@ -1,22 +1,49 @@
 # Queries
 
 extend type Query {
-  hostConfigs(hostID: ID!): [ConfigForm!]!
+  hostConfigs(hostID: ID!): [HostConfigForm!]!
 
   printerConfigs(printerID: ID!): [PrinterConfig!]!
-  components(printerID: ID!, componentID: ID): [ConfigForm!]!
+  # components(printerID: ID!, componentID: ID): [ComponentConfigForm!]!
 
-  materials(id: ID): [ConfigForm!]!
+  materials(id: ID): [Material!]!
+}
+
+type HostConfigForm {
+  id: ID!
+}
+
+type Material {
+  id: ID!
 }
 
 type PrinterConfig {
   id: ID!
-  components: [ConfigForm!]!
-  plugins(package: String): [ConfigForm!]!
+  components(componentID: ID): [ComponentConfigForm!]!
+  plugins(package: String): [PluginConfigForm!]!
 }
 
-type ConfigForm {
+interface ConfigForm {
   id: ID!
+  model: JSON!
+  modelVersion: Int!
+  schemaForm: JSONSchemaForm!
+}
+
+type ComponentConfigForm implements ConfigForm {
+  id: ID!
+  # TODO: type should be an emum?
+  type: String!
+  name: String!
+  model: JSON!
+  modelVersion: Int!
+  schemaForm: JSONSchemaForm!
+}
+
+type PluginConfigForm implements ConfigForm {
+  id: ID!
+  # TODO: type should be an emum?
+  package: String!
   model: JSON!
   modelVersion: Int!
   schemaForm: JSONSchemaForm!

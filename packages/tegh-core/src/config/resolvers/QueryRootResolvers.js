@@ -63,11 +63,11 @@ const QueryRootResolvers = {
 
       return [state.config.printer]
     },
-    components: resolveFromList({
-      type: 'ComponentConfig',
-      selector: state => state.config.printerConfig.components,
-      requirePrinterIDMatch: true,
-    }),
+    // components: resolveFromList({
+    //   type: 'ComponentConfig',
+    //   selector: state => state.config.printerConfig.components,
+    //   requirePrinterIDMatch: true,
+    // }),
     materials: resolveFromList({
       name: 'Material',
       selector: state => state.config.materials,

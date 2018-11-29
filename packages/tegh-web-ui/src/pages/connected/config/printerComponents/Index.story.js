@@ -7,7 +7,7 @@ import { linkTo } from '@storybook/addon-links'
 import { Component as ComponentsConfigPage } from './Index.page'
 import configRoot from '../../../../../../../development.config'
 
-const config = configRoot.printer
+const { components } = configRoot.printer
 
 storiesOf('Config/Components', module)
   .addDecorator(StoryRouter({
@@ -19,58 +19,30 @@ storiesOf('Config/Components', module)
   }))
   .add('index', () => (
     <ComponentsConfigPage
-      config={config}
-      updateSubConfig={action('updateSubConfig')}
-      match={{
-        params: {},
-      }}
+      components={components}
     />
   ))
   .add('controller dialog', () => (
     <ComponentsConfigPage
-      config={config}
-      updateSubConfig={action('updateSubConfig')}
-      match={{
-        params: {
-          componentTypeSlug: 'controllers',
-          componentID: config.components.find(c => c.type === 'CONTROLLER').id,
-        },
-      }}
+      components={components}
+      selectedComponent={components.find(c => c.type === 'CONTROLLER')}
     />
   ))
   .add('toolhead dialog', () => (
     <ComponentsConfigPage
-      config={config}
-      updateSubConfig={action('updateSubConfig')}
-      match={{
-        params: {
-          componentTypeSlug: 'toolheads',
-          componentID: config.components.find(c => c.type === 'TOOLHEAD').id,
-        },
-      }}
+      components={components}
+      selectedComponent={components.find(c => c.type === 'TOOLHEAD')}
     />
   ))
   .add('build platform dialog', () => (
     <ComponentsConfigPage
-      config={config}
-      updateSubConfig={action('updateSubConfig')}
-      match={{
-        params: {
-          componentTypeSlug: 'build-platforms',
-          componentID: config.components.find(c => c.type === 'BUILD_PLATFORM').id,
-        },
-      }}
+      components={components}
+      selectedComponent={components.find(c => c.type === 'BUILD_PLATFORM')}
     />
   ))
   .add('fan dialog', () => (
     <ComponentsConfigPage
-      config={config}
-      updateSubConfig={action('updateSubConfig')}
-      match={{
-        params: {
-          componentTypeSlug: 'fans',
-          componentID: config.components.find(c => c.type === 'FAN').id,
-        },
-      }}
+      components={components}
+      selectedComponent={components.find(c => c.type === 'FAN')}
     />
   ))

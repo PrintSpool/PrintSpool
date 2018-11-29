@@ -12,6 +12,7 @@ import QueuePage from './pages/connected/queue/Queue.page'
 import JobPage from './pages/connected/job/Job.page'
 import ManualControlPage from './pages/connected/manualControl/ManualControl.page'
 import ConfigIndexPage from './pages/connected/config/Index.page'
+import ComponentsConfigPage from './pages/connected/config/printerComponents/Index.page'
 
 const Routes = () => (
   <ConnectedRouter history={history}>
@@ -28,6 +29,8 @@ const Routes = () => (
             <Route exact path="/:hostID/:printerID/manual-control/" component={ManualControlPage} />
             <Route exact path="/:hostID/:printerID/config/" component={ConfigIndexPage} />
             <Route exact path="/:hostID/:printerID/config/printer/" component={ConfigIndexPage} />
+            <Route exact path="/:hostID/:printerID/config/components/" component={ComponentsConfigPage} />
+            <Route exact path="/:hostID/:printerID/config/components/:componentID" component={ComponentsConfigPage} />
           </ConnectionFrame>
         )}
       />
