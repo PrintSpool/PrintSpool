@@ -20,7 +20,6 @@ import gql from 'graphql-tag'
 import withLiveData from '../../shared/higherOrderComponents/withLiveData'
 
 import FormDialog, { FORM_DIALOG_FRAGMENT } from '../components/FormDialog'
-import MaterialConfigForm from './Form.page'
 
 const CONFIG_SUBSCRIPTION = gql`
   subscription ConfigSubscription {
