@@ -20,6 +20,7 @@
   "author": "Rob Gilson",
   "license": "AGPL-3.0-or-later",
   "dependencies": {
+    "ajv": "^6.6.1",
     "bluebird": "^3.5.1",
     "chokidar": "^2.0.4",
     "dedent": "^0.7.0",
@@ -48,8 +49,8 @@
     "serialport": "^6.2.0",
     "strip-newlines": "^1.0.1",
     "tcomb-validation": "^3.4.1",
-    "tmp-promise": "^1.0.4",
     "tegh-schema": "^0.4.0",
+    "tmp-promise": "^1.0.4",
     "untildify": "^3.0.2",
     "uuid": "^3.1.0"
   }

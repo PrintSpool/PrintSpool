@@ -14,6 +14,7 @@ import {
 
 export const FORM_DIALOG_FRAGMENT = gql`
   fragment FormDialogFragment on ConfigForm {
+    __typename
     id
     model
     modelVersion
@@ -26,7 +27,12 @@ export const FORM_DIALOG_FRAGMENT = gql`
 
 const SUBMIT_FORM_DIALOG = gql`
   mutation submitFormDialog($input: SetConfigInput!) {
-    setConfig(input: $input)
+    setConfig(input: $input) {
+      errors {
+        dataPath
+        message
+      }
+    }
   }
 `
 
@@ -43,7 +49,11 @@ const enhance = compose(
   }) => {
     if (!open) return <div />
     return (
-      <Query query={query} variables={variables}>
+      <Query
+        query={query}
+        variables={variables}
+        fetchPolicy="network-only"
+      >
         {({
           loading,
           error,
@@ -62,7 +72,9 @@ const enhance = compose(
           const isPrinterConfig = data.materials == null
 
           let routingMode = 'PRINTER'
-          if (isPrinterConfig) routingMode = 'MATERIAL'
+          if (!isPrinterConfig) {
+            routingMode = 'MATERIAL'
+          }
 
           const configFormModel = (() => {
             if (data.materials != null) return data.materials[0]
@@ -142,6 +154,7 @@ const FormDialog = ({
   onSubmit,
   data,
   client,
+  isPrinterConfig,
 }) => (
   <Dialog
     open={open}
@@ -159,8 +172,18 @@ const FormDialog = ({
         onModelChange={
           (keypath, value) => {
             // Note: we do not yet support nested fields here
-            const changeset = { [keypath[0]]: value }
-            client.writeData({ data: { model: changeset } })
+            const nextModel = {
+              ...data.model,
+              [keypath[0]]: value,
+            }
+            client.writeFragment({
+              id: `${data.__typename}:${data.id}`,
+              fragment: FORM_DIALOG_FRAGMENT,
+              data: {
+                ...data,
+                model: nextModel,
+              },
+            })
           }
         }
       />

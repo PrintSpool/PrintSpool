@@ -63,7 +63,7 @@ type JSONSchemaForm {
 # Mutations
 
 extend type Mutation {
-  setConfig(input: SetConfigInput!): Boolean
+  setConfig(input: SetConfigInput!): SetConfigResponse
 }
 
 input SetConfigInput {
@@ -71,13 +71,54 @@ input SetConfigInput {
     Each config form is either a part of a PRINTER, MATERIAL or HOST.
     The routingMode enables tegh combinators to route configuration changes to
     the correct delegate tegh host.
+
+    Components and plugins must use PRINTER routingMode.
+    Materials must use MATERIAL routingMode.
+    Host routingMode is reserved for future use.
   """
   routingMode: ConfigRoutingMode!
+  """
+    printerID is required for PRINTER ConfigRoutingMode config forms
+  """
   printerID: ID
+  """
+    hostID is required for HOST ConfigRoutingMode config forms
+  """
   hostID: ID
   configFormID: ID!
   modelVersion: Int!
   model: JSON!
+}
+
+type SetConfigResponse {
+  errors: [JSONSchemaError!]
+}
+
+type JSONSchemaError {
+  """
+    validation keyword.
+  """
+  keyword: String!
+  """
+    the path to the part of the data that was validated using
+    the RFC6901 JSON pointer standard (e.g., "/prop/1/subProp").
+  """
+  dataPath: String!
+  """
+    the path (JSON-pointer as a URI fragment) to the schema of the keyword that
+    failed validation.
+  """
+  schemaPath: String!
+  """
+    the object with the additional information about error that can be used to
+    create custom error messages (e.g., using ajv-i18n package). See below for
+    parameters set by all keywords.
+  """
+  params: JSON!
+  """
+    the standard error message
+  """
+  message: String!
 }
 
 enum ConfigRoutingMode {

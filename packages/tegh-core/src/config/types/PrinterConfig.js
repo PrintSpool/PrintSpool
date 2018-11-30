@@ -64,7 +64,7 @@ const PrinterConfig = ({
       }
     }),
 
-    plugins: plugins.map(PluginConfig),
+    plugins: List(plugins).map(PluginConfig),
     extendedConfig: Map(props.extendedConfig),
   })
 )
