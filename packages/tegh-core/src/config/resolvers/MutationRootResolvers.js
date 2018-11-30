@@ -26,7 +26,7 @@ const MutationResolver = {
           const components = getComponents(state.config)
           const { plugins } = state.config.printer
 
-          if (printerID !== state.config.printerID) {
+          if (printerID !== state.config.printer.id) {
             throw new Error(`Printer ID: ${printerID} does not exist`)
           }
 
@@ -49,10 +49,10 @@ const MutationResolver = {
             )
           }
 
-          const { type } = componentOrPlugin
+          const type = componentOrPlugin.type || componentOrPlugin.package
 
           const schema = state.schemaForms.get(type)
-          if (schema === null) {
+          if (schema == null) {
             throw new Error(`schema not defined for type ${type}`)
           }
 
@@ -72,6 +72,7 @@ const MutationResolver = {
           const collectionPath = isComponent ? 'components' : 'plugins'
           const index = state.config.printer.get(collectionPath)
             .findIndex(c => c.id === configFormID)
+
           const action = requestSetConfig({
             config: state.config.updateIn(
               ['printer', collectionPath, index],

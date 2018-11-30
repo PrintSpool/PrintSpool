@@ -154,6 +154,7 @@ const printerConfig = {
 const hostConfig = {
   "id": "pzxcvkkwn",
   "name": "ExampleLabs FabLab",
+  configDirectory: "~/.tegh/",
   "log": {
     "id": "lolcatz95",
     "modelVersion": 1,

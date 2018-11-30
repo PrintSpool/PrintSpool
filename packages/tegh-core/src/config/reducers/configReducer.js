@@ -3,6 +3,7 @@ import immutablePatch from 'immutablepatch'
 
 import { SET_CONFIG } from '../actions/setConfig'
 import requestSetConfig from '../actions/requestSetConfig'
+import saveConfig from '../sideEffects/saveConfig'
 import { REQUEST_PATCH_PRINTER_CONFIG } from '../actions/requestPatchPrinterConfig'
 
 export const initialState = null
@@ -21,6 +22,16 @@ const configReducer = (state = initialState, action) => {
     }
     case SET_CONFIG: {
       const { config } = action.payload
+
+      // If the config is being changed by a user then save it to disk.
+      if (state != null) {
+        return loop(
+          config,
+          Cmd.run(saveConfig, {
+            args: [{ config }],
+          }),
+        )
+      }
 
       return config
     }

@@ -8,6 +8,7 @@ import LogConfig from './LogConfig'
 export const HostConfigRecordFactory = Record({
   id: null,
   modelVersion: 0,
+  configDirectory: '~/.tegh/',
   name: null,
   crashReports: CrashReportConfig(),
   materials: List(),

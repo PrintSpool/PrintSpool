@@ -19,35 +19,17 @@ import ToolheadConfig from './components/ToolheadConfig'
 
 export const PrinterConfigRecordFactory = Record({
   id: null,
-  modelVersion: 0,
-  printerID: null,
-  modelID: null,
-
-  name: null,
-  axes: List(),
   components: List(),
-
   plugins: List(),
-  extendedConfig: Map(),
 })
 
 const PrinterConfig = ({
   id = uuid(),
-  modelVersion = 0,
-
-  axes = [],
   components = [],
-
   plugins = [],
-
-  ...props
 } = {}) => (
   PrinterConfigRecordFactory({
-    ...props,
     id,
-    modelVersion,
-
-    axes: axes.map(AxisConfig),
     components: List(components).map((component) => {
       switch (component.type) {
         case CONTROLLER: return SerialControllerConfig(component)
@@ -65,7 +47,6 @@ const PrinterConfig = ({
     }),
 
     plugins: List(plugins).map(PluginConfig),
-    extendedConfig: Map(props.extendedConfig),
   })
 )
 
