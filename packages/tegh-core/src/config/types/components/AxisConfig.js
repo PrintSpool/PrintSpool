@@ -1,5 +1,5 @@
 import { Record, Map } from 'immutable'
-import uuid from 'uuid/v4'
+import uuid from 'uuid'
 
 export const AxisConfigFactory = Record({
   id: null,
@@ -12,7 +12,7 @@ export const AxisConfigFactory = Record({
 })
 
 const AxisConfig = ({
-  id = uuid(),
+  id = uuid.v4(),
   modelVersion = 0,
   ...props
 } = {}) => (

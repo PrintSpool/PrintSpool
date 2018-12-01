@@ -1,5 +1,5 @@
 import { Record, Map } from 'immutable'
-import uuid from 'uuid/v4'
+import uuid from 'uuid'
 
 import { FAN } from './ComponentTypeEnum'
 
@@ -13,7 +13,7 @@ export const FanConfigFactory = Record({
 })
 
 const FanConfig = ({
-  id = uuid(),
+  id = uuid.v4(),
   modelVersion = 0,
   ...props
 } = {}) => (

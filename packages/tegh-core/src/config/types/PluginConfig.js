@@ -1,5 +1,5 @@
 import { Record, Map, List } from 'immutable'
-import uuid from 'uuid/v4'
+import uuid from 'uuid'
 
 export const PluginConfigFactory = Record({
   id: null,
@@ -11,7 +11,7 @@ export const PluginConfigFactory = Record({
 })
 
 const PluginConfig = ({
-  id = uuid(),
+  id = uuid.v4(),
   modelVersion = 0,
   macros = [],
   settings = {},

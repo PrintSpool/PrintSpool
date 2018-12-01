@@ -1,5 +1,5 @@
 import { Record } from 'immutable'
-import uuid from 'uuid/v4'
+import uuid from 'uuid'
 
 const MaterialConfigFactory = Record({
   id: null,
@@ -10,7 +10,7 @@ const MaterialConfigFactory = Record({
 })
 
 const MaterialConfig = ({
-  id = uuid(),
+  id = uuid.v4(),
   modelVersion = 0,
   ...props
 } = {}) => (

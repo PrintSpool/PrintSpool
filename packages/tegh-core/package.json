@@ -33,8 +33,6 @@
     "graphql-tools": "^4.0.3",
     "graphql-type-json": "^0.2.0",
     "immutable": "^4.0.0-rc.9",
-    "immutablediff": "^0.4.4",
-    "immutablepatch": "d1plo1d/immutable-js-patch",
     "iterall": "d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b",
     "lodash": "^4.17.10",
     "mkdirp": "^0.5.1",
@@ -54,5 +52,8 @@
     "tmp-promise": "^1.0.4",
     "untildify": "^3.0.2",
     "uuid": "^3.1.0"
+  },
+  "devDependencies": {
+    "jest-date-mock": "^1.0.6"
   }
 }

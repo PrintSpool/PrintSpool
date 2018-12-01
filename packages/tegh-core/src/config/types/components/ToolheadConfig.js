@@ -1,5 +1,5 @@
 import { Record, Map } from 'immutable'
-import uuid from 'uuid/v4'
+import uuid from 'uuid'
 
 import { TOOLHEAD } from './ComponentTypeEnum'
 
@@ -16,7 +16,7 @@ export const ToolheadConfigFactory = Record({
 })
 
 const ToolheadConfig = ({
-  id = uuid(),
+  id = uuid.v4(),
   modelVersion = 0,
   ...props
 } = {}) => (

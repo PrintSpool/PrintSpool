@@ -1,5 +1,5 @@
 import { Record, List, Map } from 'immutable'
-import uuid from 'uuid/v4'
+import uuid from 'uuid'
 
 import { WARNING, ERROR, FATAL } from '../../log/types/logLevelEnum'
 
@@ -12,7 +12,7 @@ export const LogConfigFactory = Record({
 })
 
 const LogConfig = ({
-  id = uuid(),
+  id = uuid.v4(),
   modelVersion = 0,
   extendedConfig = {},
   ...props

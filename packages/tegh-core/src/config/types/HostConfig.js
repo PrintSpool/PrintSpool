@@ -1,5 +1,5 @@
 import { Record, List, Map } from 'immutable'
-import uuid from 'uuid/v4'
+import uuid from 'uuid'
 
 import CrashReportConfig from './CrashReportConfig'
 import MaterialConfig from './MaterialConfig'
@@ -17,7 +17,7 @@ export const HostConfigRecordFactory = Record({
 })
 
 const HostConfig = ({
-  id = uuid(),
+  id = uuid.v4(),
   modelVersion = 0,
   crashReports = {},
   materials = [],

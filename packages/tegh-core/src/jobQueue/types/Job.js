@@ -1,5 +1,5 @@
 // @flow
-import uuid from 'uuid/v4'
+import uuid from 'uuid'
 import { Record } from 'immutable'
 
 import type { RecordOf } from 'immutable'
@@ -19,7 +19,7 @@ const JobRecord = Record({
 })
 
 const Job = attrs => JobRecord({
-  id: uuid(),
+  id: uuid.v4(),
   createdAt: new Date().toISOString(),
   ...attrs,
 })

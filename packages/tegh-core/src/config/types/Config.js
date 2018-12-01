@@ -1,5 +1,5 @@
 import { Record, List } from 'immutable'
-import uuid from 'uuid/v4'
+import uuid from 'uuid'
 
 import HostConfig from './HostConfig'
 import PrinterConfig from './PrinterConfig'
@@ -15,7 +15,7 @@ export const ConfigRecordFactory = Record({
 })
 
 const Config = ({
-  id = uuid(),
+  id = uuid.v4(),
   modelVersion = 0,
   host = {},
   printer = {},

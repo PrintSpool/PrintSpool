@@ -1,4 +1,4 @@
-import uuid from 'uuid/v4'
+import uuid from 'uuid'
 import { Record } from 'immutable'
 
 import JobHistoryTypeEnum from './JobHistoryTypeEnum'
@@ -20,7 +20,7 @@ const JobHistoryEvent = (attrs) => {
   }
 
   return JobHistoryEventRecord({
-    id: uuid(),
+    id: uuid.v4(),
     createdAt: new Date().toISOString(),
     ...attrs,
   })

@@ -1,5 +1,5 @@
 // @flow
-import uuid from 'uuid/v4'
+import uuid from 'uuid'
 import { Record } from 'immutable'
 
 import type { RecordOf } from 'immutable'
@@ -22,7 +22,7 @@ const JobFileRecord = Record({
 })
 
 const JobFile = attrs => JobFileRecord({
-  id: uuid(),
+  id: uuid.v4(),
   ...attrs,
 })
 

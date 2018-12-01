@@ -1,5 +1,5 @@
 import { Record, List, Map } from 'immutable'
-import uuid from 'uuid/v4'
+import uuid from 'uuid'
 
 import PluginConfig from './PluginConfig'
 
@@ -24,7 +24,7 @@ export const PrinterConfigRecordFactory = Record({
 })
 
 const PrinterConfig = ({
-  id = uuid(),
+  id = uuid.v4(),
   components = [],
   plugins = [],
 } = {}) => (

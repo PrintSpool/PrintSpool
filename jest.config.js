@@ -1,4 +1,5 @@
 module.exports = {
+  setupFiles: ['jest-date-mock'],
   // projects: [
   //   '<rootDir>/packages/*',
   // ],
@@ -21,4 +22,5 @@ module.exports = {
   //   '!**/node_modules/**',
   //   '!**/dist/**',
   // ],
+  snapshotResolver: './packages/tegh-core/dist/util/testing/snapshotResolver.js',
 }

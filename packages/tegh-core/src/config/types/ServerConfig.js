@@ -1,5 +1,5 @@
 import { Record, Map } from 'immutable'
-import uuid from 'uuid/v4'
+import uuid from 'uuid'
 
 export const ServerConfigFactory = Record({
   id: null,
@@ -13,7 +13,7 @@ export const ServerConfigFactory = Record({
 })
 
 const ServerConfig = ({
-  id = uuid(),
+  id = uuid.v4(),
   modelVersion = 0,
   ...props
 } = {}) => (

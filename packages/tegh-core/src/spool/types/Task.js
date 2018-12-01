@@ -1,5 +1,5 @@
 import type { RecordOf, List as ListT } from 'immutable'
-import uuid from 'uuid/v4'
+import uuid from 'uuid'
 import { Record, List } from 'immutable'
 import type { PriorityEnumT } from './PriorityEnum'
 import type { TaskStatusEnumT } from './TaskStatusEnum'
@@ -67,7 +67,7 @@ const Task = (attrs) => {
     throw new Error('data must be an array of strings')
   }
   return TaskRecord({
-    id: uuid(),
+    id: uuid.v4(),
     createdAt: new Date().toISOString(),
     status: SPOOLED,
     ...attrs,
