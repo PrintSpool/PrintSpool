@@ -11,7 +11,7 @@
 
 A hypothetical future maker space has many networked CNC devices; Mills, Lathes, 3D Printers, Laser Cutters, and so on. The hypothetical maker space uses various future versions of Tegh with different plugins to control each of these machines. The maker space has an additional combinator Tegh host that combines the other Tegh instances and allows makers to securely control and configure all of the machines through a single WebRTC connection to a single GraphQL schema.
 
-What would the configuration API of Tegh look like to accomidate all the different machines/tegh version/tegh plugin variations in that hypothetical future makerspace with one GraphQL Schema accessed by users from a statically hosted tegh.io GUI?
+What would the configuration API of Tegh look like to accomodate all the different machines/tegh version/tegh plugin variations in that hypothetical future makerspace with one GraphQL Schema accessed by users from a statically hosted tegh.io GUI?
 
 ## Decision Drivers
 
@@ -48,7 +48,7 @@ A `extendedConfig: JSON!` field is added to each configuration object where plug
 
 The GUI uses a text field to edit the extendedConfigs JSON under an Advanced Settings tab that is closed by default.
 
-* God, because it is simple
+* Good, because it is simple
 * Bad, because the plugin-specific types are not self-documented or typed
 * Bad, because extendedConfigs are queried differently then core configs making them second class citizens of the configuration query.
 * Bad, because users have to know how to edit JSON documents.
@@ -66,7 +66,7 @@ Add Plugin-specific settings by dynamically adding extensions to the configurati
 
 The configuration query API is such that each configuration object allows queries to a `JSON!` field that returns all it's configuration data from both core configs and plugin-specific configs.
 
-* God, because it is even simpler then extendedConfig
+* Good, because it is even simpler then extendedConfig
 * Good, because the configuration query API is consistent between core configs and plugin-specific configs
 * Bad, because the entire configuration is not self-documented or typed by GraphQL
 
