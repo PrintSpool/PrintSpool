@@ -1,9 +1,11 @@
 import React from 'react'
-import { compose } from 'recompose'
+import { compose, withProps } from 'recompose'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 
 import QRReader from 'react-qr-reader'
+
+import { TextField } from '@material-ui/core'
 
 import { getFingerprint } from 'tegh-protocol'
 
@@ -15,11 +17,36 @@ const enhance = compose(
     pushHistory: pushHistoryAction,
     addHostIdentity: addHostIdentityAction,
   }),
+  withProps(({ addHostIdentity, pushHistory }) => ({
+    onSubmit: (keyString) => {
+      const json = (() => {
+        try {
+          return JSON.parse(keyString)
+        } catch {
+          return null
+        }
+      })()
+      if (json == null || json.publicKey == null) return
+
+      // eslint-disable-next-line no-console
+      console.log(`QR Code Scanned. Connecting...\n${json.publicKey}\n${keyString}`)
+
+      const id = getFingerprint({ public: json.publicKey })
+
+      addHostIdentity({
+        hostIdentity: {
+          id,
+          public: json.publicKey,
+        },
+      })
+
+      pushHistory(`/${id}/`)
+    },
+  })),
 )
 
 const AddHostPage = ({
-  pushHistory,
-  addHostIdentity,
+  onSubmit,
 }) => (
   <div style={{ width: 300 }}>
     <br />
@@ -33,23 +60,7 @@ const AddHostPage = ({
     <br />
     <QRReader
       onScan={(scan) => {
-        if (scan == null) return
-        const json = JSON.parse(scan)
-        if (json == null || json.publicKey == null) return
-
-        // eslint-disable-next-line no-console
-        console.log(`QR Code Scanned. Connecting...\n${json.publicKey}\n${scan}`)
-
-        const id = getFingerprint({ public: json.publicKey })
-
-        addHostIdentity({
-          hostIdentity: {
-            id,
-            public: json.publicKey,
-          },
-        })
-
-        pushHistory(`/${id}/`)
+        if (scan != null) onSubmit(scan)
       }}
       onError={(error) => {
         // eslint-disable-next-line no-console
@@ -57,6 +68,22 @@ const AddHostPage = ({
       }}
       style={{ width: '100%' }}
     />
+    <TextField
+      label="Host Key"
+      margin="normal"
+      onChange={(event) => {
+        const keyString = (() => {
+          try {
+            return atob(event.target.value)
+          } catch {
+            return null
+          }
+        })()
+        if (keyString == null) return
+        onSubmit(keyString)
+      }}
+    />
+
   </div>
 )
 

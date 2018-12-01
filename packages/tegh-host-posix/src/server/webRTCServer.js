@@ -3,6 +3,7 @@ import crypto from '@trust/webcrypto'
 import wrtc from 'wrtc'
 import fs from 'fs'
 import * as qrcode from 'qrcode-terminal'
+import { btoa } from 'abab'
 import { SubscriptionServer } from 'subscriptions-transport-ws'
 import { execute, subscribe } from 'graphql'
 import untildify from 'untildify'
@@ -48,13 +49,14 @@ const httpServer = async ({
   // eslint-disable-next-line no-console
   console.error('\n\nTegh is listening for WebRTC connections. Connect to:\n')
 
-  qrcode.generate(JSON.stringify({
-    publicKey: keysJSON.public,
-  }), {small: true}, function(qrcode) {
-    console.log('\n' + qrcode)
-  })
+  const keyString = JSON.stringify({ publicKey: keysJSON.public })
 
-  console.error('\n\n')
+  qrcode.generate(keyString, { small: true }, () => {
+    // eslint-disable-next-line no-console
+    console.error(`\n${qrcode}`)
+  })
+  // eslint-disable-next-line no-console
+  console.error(`Host key:\n${btoa(keyString)}`)
 }
 
 export default httpServer
