@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { advanceTo } from 'jest-date-mock'
 import uuid from 'uuid'
 
