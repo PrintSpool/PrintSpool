@@ -77,7 +77,28 @@ const getSchemaForms = () => ({
       'targetBedTemperature',
     ],
   },
-  [BUILD_PLATFORM]: {
+  [AXIS]: {
+    schema: schema => ({
+      ...schema,
+      type: 'object',
+      title: 'Axis',
+      properties: {
+        ...componentBaseProperties(schema),
+        name: {
+          title: 'Name',
+          type: 'string',
+        },
+        feedrate: {
+          title: 'Feedrate',
+          type: 'number',
+        },
+      },
+    }),
+    form: [
+      'name',
+      'heater',
+    ],
+  },  [BUILD_PLATFORM]: {
     schema: schema => ({
       ...schema,
       type: 'object',

@@ -18,6 +18,7 @@ import {
   VideoLabel,
   Widgets,
   Waves,
+  CompareArrows,
   Add,
 } from '@material-ui/icons'
 
@@ -65,6 +66,11 @@ const CATEGORIES = [
     type: 'CONTROLLER',
     heading: 'Controllers',
     Icon: Usb,
+  },
+  {
+    type: 'AXIS',
+    heading: 'Axes',
+    Icon: CompareArrows,
   },
   {
     type: 'TOOLHEAD',
