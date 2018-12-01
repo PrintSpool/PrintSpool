@@ -84,8 +84,8 @@ const getSchemaForms = () => ({
       title: 'Axis',
       properties: {
         ...componentBaseProperties(schema),
-        name: {
-          title: 'Name',
+        address: {
+          title: 'GCode Address',
           type: 'string',
         },
         feedrate: {
@@ -96,7 +96,8 @@ const getSchemaForms = () => ({
     }),
     form: [
       'name',
-      'heater',
+      'address',
+      'feedrate',
     ],
   },  [BUILD_PLATFORM]: {
     schema: schema => ({
@@ -105,6 +106,10 @@ const getSchemaForms = () => ({
       title: 'Build Platform',
       properties: {
         ...componentBaseProperties(schema),
+        address: {
+          title: 'GCode Address',
+          type: 'string',
+        },
         heater: {
           title: 'Heated Build Platform',
           type: 'boolean',
@@ -113,6 +118,7 @@ const getSchemaForms = () => ({
     }),
     form: [
       'name',
+      'address',
       'heater',
     ],
   },
@@ -160,10 +166,15 @@ const getSchemaForms = () => ({
       title: 'Fan',
       properties: {
         ...componentBaseProperties(schema),
+        address: {
+          title: 'GCode Address',
+          type: 'string',
+        },
       },
     }),
     form: [
       'name',
+      'address',
     ],
   },
   [TOOLHEAD]: {
@@ -173,6 +184,10 @@ const getSchemaForms = () => ({
       title: 'Fan',
       properties: {
         ...componentBaseProperties(schema),
+        address: {
+          title: 'GCode Address',
+          type: 'string',
+        },
         feedrate: {
           title: 'Feedrate',
           type: 'number',
@@ -193,12 +208,12 @@ const getSchemaForms = () => ({
     }),
     form: [
       'name',
+      'address',
       'feedrate',
       'materialID',
       'heater',
     ],
   },
-
 })
 
 export default getSchemaForms
