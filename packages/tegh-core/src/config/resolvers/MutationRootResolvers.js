@@ -9,103 +9,119 @@ import requestSetConfig from '../actions/requestSetConfig'
 const PRINTER = 'PRINTER'
 const MATERIAL = 'MATERIAL'
 
+const getConfigFormInfo = ({ state, args }) => {
+  const {
+    routingMode,
+    printerID,
+    hostID,
+    configFormID,
+  } = args.input
+
+  switch (routingMode) {
+    case PRINTER: {
+      const components = getComponents(state.config)
+      const { plugins } = state.config.printer
+
+      if (printerID !== state.config.printer.id) {
+        throw new Error(`Printer ID: ${printerID} does not exist`)
+      }
+
+      const isComponent = components.get(configFormID) != null
+
+      const subject = (
+        components.get(configFormID)
+        || plugins.find(p => p.id === configFormID)
+      )
+
+      const collectionKey = isComponent ? 'components' : 'plugins'
+      const collectionPath = ['printer', collectionKey]
+
+      return {
+        subject,
+        collectionPath,
+        schemaKey: subject.type || subject.package,
+      }
+    }
+    case MATERIAL: {
+      const subject = state.config.materials.find(m => m.id === configFormID)
+      return {
+        subject,
+        collectionPath: ['materials'],
+        schemaKey: subject.type,
+      }
+    }
+    // case HOST: {
+    //
+    // }
+    default: {
+      throw new Error(`Unsupported routingMode: ${routingMode}`)
+    }
+  }
+}
+
 const MutationResolver = {
   Mutation: {
     setConfig: (source, args, { store }) => {
       const {
-        routingMode,
-        printerID,
-        hostID,
         configFormID,
         modelVersion,
         model,
       } = args.input
-      switch (routingMode) {
-        case PRINTER: {
-          const state = store.getState()
-          const components = getComponents(state.config)
-          const { plugins } = state.config.printer
+      const state = store.getState()
+      const {
+        subject,
+        schemaKey,
+        collectionPath,
+      } = getConfigFormInfo({ state, args })
 
-          if (printerID !== state.config.printer.id) {
-            throw new Error(`Printer ID: ${printerID} does not exist`)
-          }
+      if (subject === null) {
+        throw new Error(
+          `id not found: ${configFormID}`,
+        )
+      }
 
-          const isComponent = components.get(configFormID) != null
+      if (modelVersion !== subject.modelVersion) {
+        throw new Error(
+          'The object was modified by an other user. Please reload the '
+          + 'form and try again.',
+        )
+      }
 
-          const componentOrPlugin = (
-            components.get(configFormID)
-            || plugins.find(p => p.id === configFormID)
-          )
-          if (componentOrPlugin === null) {
-            throw new Error(
-              `id not found: ${configFormID}`,
-            )
-          }
+      const schema = state.schemaForms.get(schemaKey)
+      if (schema == null) {
+        throw new Error(`schema not defined for ${schemaKey}`)
+      }
 
-          if (modelVersion !== componentOrPlugin.modelVersion) {
-            throw new Error(
-              'The object was modified by an other user. Please reload the '
-              + 'form and try again.',
-            )
-          }
+      // Validate the input against the JSON Schema
+      const ajv = new Ajv({
+        allErrors: true,
+        jsonPointers: true,
+      })
+      const validate = ajv.compile(schema)
+      const valid = validate(model)
 
-          const type = componentOrPlugin.type || componentOrPlugin.package
-
-          const schema = state.schemaForms.get(type)
-          if (schema == null) {
-            throw new Error(`schema not defined for type ${type}`)
-          }
-
-          const ajv = new Ajv({
-            allErrors: true,
-            jsonPointers: true,
-          })
-          const validate = ajv.compile(schema)
-          const valid = validate(model)
-
-          if (!valid) {
-            return {
-              errors: validate.errors,
-            }
-          }
-
-          const collectionPath = isComponent ? 'components' : 'plugins'
-          const index = state.config.printer.get(collectionPath)
-            .findIndex(c => c.id === configFormID)
-
-          const action = requestSetConfig({
-            config: state.config.updateIn(
-              ['printer', collectionPath, index],
-              previousVal => previousVal.merge(model),
-            ),
-          })
-          store.dispatch(action)
-
-          return {}
-        }
-        // case MATERIAL: {
-        //   return null
-        // }
-        // case HOST: {
-        //
-        // }
-        default: {
-          throw new Error(`Unsupported routingMode: ${routingMode}`)
+      if (!valid) {
+        return {
+          errors: validate.errors,
         }
       }
+
+      const index = state.config.getIn(collectionPath).findIndex(c => (
+        c.id === configFormID
+      ))
+
+      console.log([...collectionPath, index])
+
+      const action = requestSetConfig({
+        config: state.config.updateIn(
+          [...collectionPath, index],
+          previousVal => previousVal.merge(model),
+        ),
+      })
+      store.dispatch(action)
+
+      return {}
     },
-    // patchPrinterConfig: (source, args, { store }) => {
-    //   const state = store.getState().config.printerConfig
-    //   // TODO: validate the next state matches the schema
-    //   const { errors } = execute(
-    //     executableConfigSchema,
-    //     fullConfigQuery,
-    //     nextState,
-    //   )
-    //   if (errors != null) {
-    //     throw new Error(errors.map(error => error.message).join(', '))
-    //   }
-    // },
   },
 }
 

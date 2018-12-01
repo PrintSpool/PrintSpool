@@ -125,7 +125,9 @@ const enhance = compose(
         variables={{ input }}
         update={(mutationResult) => {
           if (mutationResult.data != null) {
-            const nextURL = history.location.pathname.replace(/[^/]+\/$/, '')
+            const nextURL = history.location.pathname
+              .replace(/[^/]+\/$/, '')
+              .replace(/materials\/[^/]+\/$/, 'materials/')
             history.push(nextURL)
           }
         }}
