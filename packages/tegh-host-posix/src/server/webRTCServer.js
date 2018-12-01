@@ -50,7 +50,9 @@ const httpServer = async ({
 
   qrcode.generate(JSON.stringify({
     publicKey: keysJSON.public,
-  }))
+  }), {small: true}, function(qrcode) {
+    console.log('\n' + qrcode)
+  })
 
   console.error('\n\n')
 }
