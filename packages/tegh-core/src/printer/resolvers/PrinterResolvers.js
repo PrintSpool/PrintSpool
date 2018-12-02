@@ -1,12 +1,11 @@
 import isIdle from '../../spool/selectors/isIdle'
 import getComponentsState from '../selectors/getComponentsState'
+import getPluginModels from '../../config/selectors/getPluginModels'
 
 const PrinterResolvers = {
   Printer: {
     id: source => source.config.printer.id,
-    name: source => (
-      source.config.printer.plugins.find(p => p.package === 'tegh-core').name
-    ),
+    name: source => getPluginModels(source.config).getIn(['tegh-core', 'name']),
     heaters: source => getComponentsState(source).heaters.toList(),
     targetTemperaturesCountdown: source => getComponentsState(source).targetTemperaturesCountdown,
     activeExtruderID: source => getComponentsState(source).activeExtruderID,
@@ -17,9 +16,9 @@ const PrinterResolvers = {
       return status.substring(status.lastIndexOf('/') + 1)
     },
     error: source => source.status.error,
-    macroDefinitions: source => source.macros.keys(),
+    macroDefinitions: source => source.macros.macros.keys(),
     logEntries: (source, args) => {
-      let entries = source.log.get('entries')
+      let entries = source.log.get('logEntries')
       if (args.level != null) {
         entries = entries.filter(log => log.level === args.level)
       }

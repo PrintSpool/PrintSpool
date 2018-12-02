@@ -22,7 +22,7 @@ const validLogEntry = (log) => {
   return log
 }
 
-const initialState = Record({
+export const initialState = Record({
   logEntries: List(),
   entryCountSinceStartup: 0,
   config: Record({

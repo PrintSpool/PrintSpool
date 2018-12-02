@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`JobResolvers presents a consistent API 1`] = `
+Object {
+  "_testPrinter": Object {
+    "activeExtruderID": "heater1ID",
+    "error": null,
+    "fans": Array [
+      Object {
+        "id": "fan1ID",
+      },
+    ],
+    "heaters": Array [
+      Object {
+        "id": "heater1ID",
+      },
+    ],
+    "id": "aaxcvxcvcxv-bvb-csdf234231",
+    "logEntries": Array [
+      Object {},
+    ],
+    "macroDefinitions": Array [
+      Object {},
+    ],
+    "name": "Left Home Lulzbot",
+    "status": "CONNECTING",
+    "targetTemperaturesCountdown": 3,
+  },
+}
+`;
