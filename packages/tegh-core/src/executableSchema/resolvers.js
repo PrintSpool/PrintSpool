@@ -20,6 +20,7 @@ import JobQueueResolvers from '../jobQueue/resolvers/JobQueueResolvers'
 import JobResolvers from '../jobQueue/resolvers/JobResolvers'
 import JobQueueMutationResolvers from '../jobQueue/resolvers/MutationResolvers'
 
+import HeaterResolvers from '../printer/resolvers/HeaterResolvers'
 import PrinterResolvers from '../printer/resolvers/PrinterResolvers'
 
 import TaskResolvers from '../spool/resolvers/TaskResolvers'
@@ -50,6 +51,7 @@ const coreResolvers = [
   JobResolvers,
   JobQueueMutationResolvers,
 
+  HeaterResolvers,
   PrinterResolvers,
 
   TaskResolvers,

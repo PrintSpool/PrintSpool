@@ -51,9 +51,9 @@ const httpServer = async ({
 
   const keyString = JSON.stringify({ publicKey: keysJSON.public })
 
-  qrcode.generate(keyString, { small: true }, () => {
+  qrcode.generate(keyString, { small: true }, (qr) => {
     // eslint-disable-next-line no-console
-    console.error(`\n${qrcode}`)
+    console.error(`\n${qr}`)
   })
   // eslint-disable-next-line no-console
   console.error(`Host key:\n${btoa(keyString)}`)
