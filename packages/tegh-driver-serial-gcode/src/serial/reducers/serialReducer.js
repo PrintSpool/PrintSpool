@@ -42,22 +42,12 @@ const serialReducer = (state = initialState, action) => {
 
       const nextState = state.set('config', controllerConfig)
 
-      if (state.config == null && controllerConfig.simulate) {
-        return loop(
-          nextState,
-          Cmd.action(connectPrinter()),
-        )
-      }
-
       return nextState
     }
     case DEVICE_CONNECTED: {
       const { device } = action.payload
 
-      if (
-        state.config.simulate === false
-        && device.id !== state.config.serialPortID
-      ) return state
+      if (device.id !== state.config.serialPortID) return state
 
       return loop(
         state,

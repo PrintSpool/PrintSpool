@@ -5,7 +5,7 @@ let serialPortID
 let baudRate
 
 if (simulate === true) {
-  serialPortID = '/dev/nonExistantSerialPort'
+  serialPortID = '/tmp/printer-tegh-simulation'
   baudRate = 250000
 } else if (useKlipper) {
   // Klipper (requires the klipper host software to be running)

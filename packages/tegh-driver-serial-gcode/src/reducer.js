@@ -8,6 +8,7 @@ import _pollTemperature from './components/reducers/pollTemperatureReducer'
 import _estopAndReset from './serial/reducers/estopAndResetReducer'
 import _serialErrorHandler from './serial/reducers/serialErrorHandlerReducer'
 import _serial from './serial/reducers/serialReducer'
+import _simulatedDevice from './serial/reducers/simulatedDeviceReducer'
 // spool
 import _despoolToSerial from './spool/reducers/despoolToSerialReducer'
 import _greeting from './spool/reducers/greetingReducer'
@@ -20,6 +21,7 @@ const reducers = {
   _estopAndReset,
   _serialErrorHandler,
   _serial,
+  _simulatedDevice,
   _despoolToSerial,
   _greeting,
   _serialTimeout,
