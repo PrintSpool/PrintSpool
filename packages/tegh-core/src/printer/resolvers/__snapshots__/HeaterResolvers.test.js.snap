@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`JobResolvers presents a consistent API 1`] = `
+Object {
+  "_testHeater": Object {
+    "blocking": true,
+    "currentTemperature": 32,
+    "id": "heater_1",
+    "name": "Extruder 1",
+    "targetTemperature": 40,
+    "type": "TOOLHEAD",
+  },
+}
+`;

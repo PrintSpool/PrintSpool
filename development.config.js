@@ -87,7 +87,7 @@ const printerConfig = {
       },
     },
     {
-      id: 'aaa2qe0',
+      id: 'heater_1',
       modelVersion: 1,
       type: 'TOOLHEAD',
       model: {
