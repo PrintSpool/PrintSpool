@@ -114,7 +114,7 @@ const MutationResolver = {
 
       const action = requestSetConfig({
         config: state.config.updateIn(
-          [...collectionPath, index],
+          [...collectionPath, index, 'model'],
           previousVal => previousVal.merge(model),
         ),
       })
