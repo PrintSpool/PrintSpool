@@ -4,7 +4,7 @@ import getComponents from './getComponents'
 const getHeaterConfigs = createSelector(
   getComponents,
   components => (
-    components.filter(component => component.heater === true)
+    components.filter(component => component.model.get('heater') === true)
   ),
 )
 

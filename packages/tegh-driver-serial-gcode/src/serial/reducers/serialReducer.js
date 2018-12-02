@@ -38,7 +38,7 @@ const serialReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
       const { config } = action.payload
-      const controllerConfig = getController(config).model
+      const controllerConfig = getController(config).model.toJS()
 
       const nextState = state.set('config', controllerConfig)
 

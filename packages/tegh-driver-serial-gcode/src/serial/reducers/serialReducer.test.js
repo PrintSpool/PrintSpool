@@ -29,14 +29,14 @@ const serialPortID = '/dev/whatever'
 const baudRate = 9000
 
 const config = MockConfig()
-  .updateIn(['printer', 'components', 0], c => c.merge({
+  .updateIn(['printer', 'components', 0, 'model'], m => m.merge({
     serialPortID,
     baudRate,
     simulate: false,
   }))
 
 const configuredState = initialState
-  .set('config', config.printer.components.get(0))
+  .set('config', config.printer.components.get(0).model.toJS())
 
 describe('serialReducer', () => {
   describe(SET_CONFIG, () => {
