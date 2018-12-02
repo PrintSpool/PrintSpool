@@ -1,5 +1,5 @@
-const simulate = false
-const useKlipper = true
+const simulate = true
+const useKlipper = false
 
 let serialPortID
 let baudRate
