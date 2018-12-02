@@ -14,12 +14,12 @@ const loadPlugins = async (params) => {
     config.printer.plugins.map(async (pluginConfig, index) => {
       // eslint-disable-next-line no-await-in-loop
       const plugin = await pluginLoader(pluginConfig.package)
-      // Load the plugin's extendedConfig type
-      if (plugin.extendedConfig != null && plugin.ExtendedConfig != null) {
-        const extendedConfig = plugin.ExtendedConfig(pluginConfig.settings)
+      // Load the plugin's model type
+      if (plugin.model != null && plugin.ExtendedConfig != null) {
+        const model = plugin.ExtendedConfig(pluginConfig.settings)
         config = config.setIn(
-          ['plugins', index, 'extendedConfig'],
-          extendedConfig,
+          ['plugins', index, 'model'],
+          model,
         )
       }
       // eslint-disable-next-line no-await-in-loop

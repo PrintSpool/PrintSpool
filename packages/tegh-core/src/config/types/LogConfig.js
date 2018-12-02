@@ -8,20 +8,20 @@ export const LogConfigFactory = Record({
   modelVersion: 0,
   maxLength: 1000,
   stderr: List([WARNING, ERROR, FATAL]),
-  extendedConfig: Map(),
+  model: Map(),
 })
 
 const LogConfig = ({
   id = uuid.v4(),
   modelVersion = 0,
-  extendedConfig = {},
+  model = {},
   ...props
 } = {}) => (
   LogConfigFactory({
     ...props,
     id,
     modelVersion,
-    extendedConfig: Map(extendedConfig),
+    model: Map(model),
   })
 )
 

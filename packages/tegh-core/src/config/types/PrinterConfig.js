@@ -1,21 +1,8 @@
-import { Record, List, Map } from 'immutable'
+import { Record, List } from 'immutable'
 import uuid from 'uuid'
 
 import PluginConfig from './PluginConfig'
-
-import {
-  CONTROLLER,
-  AXIS,
-  TOOLHEAD,
-  BUILD_PLATFORM,
-  FAN,
-} from './components/ComponentTypeEnum'
-
-import BuildPlatformConfig from './components/BuildPlatformConfig'
-import AxisConfig from './components/AxisConfig'
-import FanConfig from './components/FanConfig'
-import SerialControllerConfig from './components/SerialControllerConfig'
-import ToolheadConfig from './components/ToolheadConfig'
+import ComponentConfig from './components/ComponentConfig'
 
 export const PrinterConfigRecordFactory = Record({
   id: null,
@@ -30,22 +17,7 @@ const PrinterConfig = ({
 } = {}) => (
   PrinterConfigRecordFactory({
     id,
-    components: List(components).map((component) => {
-      switch (component.type) {
-        case CONTROLLER: return SerialControllerConfig(component)
-        case AXIS: return AxisConfig(component)
-        case TOOLHEAD: return ToolheadConfig(component)
-        case BUILD_PLATFORM: return BuildPlatformConfig(component)
-        case FAN: return FanConfig(component)
-        default: {
-          const err = (
-            `Invalid component type: ${component.type} for id: ${component.id}`
-          )
-          throw new Error(err)
-        }
-      }
-    }),
-
+    components: List(components).map(ComponentConfig),
     plugins: List(plugins).map(PluginConfig),
   })
 )

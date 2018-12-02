@@ -24,7 +24,7 @@ const { PREEMPTIVE } = PriorityEnum
 const temperaturePollingInterval = 1337
 
 const config = MockConfig().setIn(
-  ['printer', 'components', 0, 'extendedConfig', 'temperaturePollingInterval'],
+  ['printer', 'components', 0, 'model', 'temperaturePollingInterval'],
   temperaturePollingInterval,
 )
 

@@ -4,13 +4,13 @@
 #   id: ID!
 #   name: String!
 #   crashReports: CrashReportConfig!
-#   extendedConfig: JSON!
+#   model: JSON!
 # }
 #
 # type CrashReportConfig {
 #   id: ID!
 #   uploadCrashReportsToDevs: Boolean!
-#   extendedConfig: JSON!
+#   model: JSON!
 # }
 #
 # type PrinterConfig {
@@ -22,11 +22,11 @@
 #   components: [ComponentConfig!]!
 #   plugins: [PluginConfig!]!
 #   log: LogConfig!
-#   extendedConfig: JSON!
+#   model: JSON!
 # }
 #
 # type LogConfig {
 #   id: ID!
 #   maxLength: Int!
-#   extendedConfig: JSON!
+#   model: JSON!
 # }

@@ -34,15 +34,15 @@ const greetingReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
       const { config } = action.payload
-      const { extendedConfig } = getController(config)
+      const { model } = getController(config)
       return state
         .set(
           'delayFromGreetingToReady',
-          extendedConfig.get('delayFromGreetingToReady'),
+          model.get('delayFromGreetingToReady'),
         )
         .set(
           'awaitGreetingFromFirmware',
-          extendedConfig.get('awaitGreetingFromFirmware'),
+          model.get('awaitGreetingFromFirmware'),
         )
     }
     case DRIVER_ERROR:

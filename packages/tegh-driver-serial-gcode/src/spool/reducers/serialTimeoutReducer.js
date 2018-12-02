@@ -38,7 +38,7 @@ const serialTimeoutReducer = (state = initialState, action) => {
 
       return state.mergeIn(
         ['config'],
-        getController(config).extendedConfig
+        getController(config).model
           .toMap()
           .filter((v, k) => initialState.config.has(k))
           .toJS(),

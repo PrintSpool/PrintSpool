@@ -17,29 +17,27 @@ if (simulate === true) {
   baudRate = 250000
 }
 
-/* eslint-disable quote-props, quotes, comma-dangle */
 const printerConfig = {
-  "id": "aaxcvxcvcxv-bvb-csdf234231",
-
-  "components": [
+  id: 'aaxcvxcvcxv-bvb-csdf234231',
+  components: [
     {
       // Controller must be the first component for driver test mocks
-      "id": "bbbserialController",
-      "modelVersion": 1,
-      "type": "CONTROLLER",
-      "interface": "SERIAL",
-      "name": "RAMPS Controller Board",
-      "serialPortID": serialPortID,
-      "baudRate": baudRate,
-      "simulate": simulate,
-      "extendedConfig": {
-        "delayFromGreetingToReady": 2500,
-        "temperaturePollingInterval": 1000,
-        "responseTimeoutTickleAttempts": 3,
-        "fastCodeTimeout": 30000,
-        "longRunningCodeTimeout": 60000,
+      id: 'bbbserialController',
+      modelVersion: 1,
+      type: 'CONTROLLER',
+      model: {
+        interface: 'SERIAL',
+        name: 'RAMPS Controller Board',
+        serialPortID,
+        baudRate,
+        simulate,
+        delayFromGreetingToReady: 2500,
+        temperaturePollingInterval: 1000,
+        responseTimeoutTickleAttempts: 3,
+        fastCodeTimeout: 30000,
+        longRunningCodeTimeout: 60000,
         awaitGreetingFromFirmware: useKlipper === false,
-        "longRunningCodes": [
+        longRunningCodes: [
           'G4',
           'G28',
           'G29',
@@ -59,144 +57,162 @@ const printerConfig = {
     //   "axeIDs" ['x111', 'y111', 'z111']
     // },
     {
-      "id": "x111",
-      "modelVersion": 1,
-      "type": "AXIS",
-      "address": "x",
-      "name": "X",
-      "feedrate": 150
+      id: 'x111',
+      modelVersion: 1,
+      type: 'AXIS',
+      model: {
+        address: 'x',
+        name: 'X',
+        feedrate: 150,
+      },
     },
     {
-      "id": "y111",
-      "modelVersion": 1,
-      "type": "AXIS",
-      "address": "y",
-      "name": "Y",
-      "feedrate": 150
+      id: 'y111',
+      modelVersion: 1,
+      type: 'AXIS',
+      model: {
+        address: 'y',
+        name: 'Y',
+        feedrate: 150,
+      },
     },
     {
-      "id": "z111",
-      "modelVersion": 1,
-      "type": "AXIS",
-      "address": "z",
-      "name": "Z",
-      "feedrate": 4
+      id: 'z111',
+      modelVersion: 1,
+      type: 'AXIS',
+      model: {
+        address: 'z',
+        name: 'Z',
+        feedrate: 4,
+      },
     },
     {
-      "id": "aaa2qe0",
-      "modelVersion": 1,
-      "address": "e0",
-      "type": "TOOLHEAD",
-      "name": "Extruder 1",
-      "heater": true,
-      "feedrate": 3,
-      "materialID": "generic/pla"
+      id: 'aaa2qe0',
+      modelVersion: 1,
+      type: 'TOOLHEAD',
+      model: {
+        address: 'e0',
+        name: 'Extruder 1',
+        heater: true,
+        feedrate: 3,
+        materialID: 'generic/pla',
+      },
     },
     {
-      "id": "abvwee1",
-      "modelVersion": 1,
-      "address": "e1",
-      "type": "TOOLHEAD",
-      "name": "Extruder 2",
-      "heater": true,
-      "feedrate": 3,
-      "materialID": "generic/abs"
+      id: 'abvwee1',
+      modelVersion: 1,
+      type: 'TOOLHEAD',
+      model: {
+        address: 'e1',
+        name: 'Extruder 2',
+        heater: true,
+        feedrate: 3,
+        materialID: 'generic/abs',
+      },
     },
     {
-      "id": "ndrgrwef",
-      "modelVersion": 1,
-      "address": "f0",
-      "type": "FAN",
-      "name": "Hot End Fan"
+      id: 'ndrgrwef',
+      modelVersion: 1,
+      type: 'FAN',
+      model: {
+        address: 'f0',
+        name: 'Hot End Fan',
+      },
     },
     {
-      "id": "ndrgrwef2",
-      "modelVersion": 1,
-      "address": "f1",
-      "type": "FAN",
-      "name": "Print Fan"
+      id: 'ndrgrwef2',
+      modelVersion: 1,
+      type: 'FAN',
+      model: {
+        address: 'f1',
+        name: 'Print Fan',
+      },
     },
     {
-      "id": "bdfbxb",
-      "modelVersion": 1,
-      "address": "b",
-      "type": "BUILD_PLATFORM",
-      "name": "Bed",
-      "heater": true
+      id: 'bdfbxb',
+      modelVersion: 1,
+      type: 'BUILD_PLATFORM',
+      model: {
+        address: 'b',
+        name: 'Bed',
+        heater: true,
+      },
     },
   ],
-  "plugins": [
+  plugins: [
     // TODO: move general settings to tegh-core plugin settings
     {
-      "id": "asgbvas23",
-      "modelVersion": 1,
-      "package": "tegh-core",
-
-      "modelID": "lulzbot/lulzbot-mini-2",
-      "name": "Left Home Lulzbot"
+      id: 'asgbvas23',
+      modelVersion: 1,
+      package: 'tegh-core',
+      model: {
+        modelID: 'lulzbot/lulzbot-mini-2',
+        name: 'Left Home Lulzbot',
+      },
     },
     {
-      "id": 'aaabbbccc333',
-      "modelVersion": 1,
-      "package": "tegh-driver-serial-gcode",
+      id: 'aaabbbccc333',
+      modelVersion: 1,
+      package: 'tegh-driver-serial-gcode',
     },
     {
-      "id": 'aaabbbccc123',
-      "modelVersion": 1,
-      "package": "tegh-macros-default",
-      "macros": [
-        "*"
-      ]
+      id: 'aaabbbccc123',
+      modelVersion: 1,
+      package: 'tegh-macros-default',
+      model: {
+        macros: [
+          '*',
+        ],
+      },
     },
   ],
 }
 
 const hostConfig = {
-  "id": "pzxcvkkwn",
-  "name": "ExampleLabs FabLab",
-  configDirectory: "~/.tegh/",
-  "log": {
-    "id": "lolcatz95",
-    "modelVersion": 1,
-    "maxLength": 1000,
-    "stderr": [
-      "info",
-      "warning",
-      "error",
-      "fatal"
-    ]
+  id: 'pzxcvkkwn',
+  name: 'ExampleLabs FabLab',
+  configDirectory: '~/.tegh/',
+  log: {
+    id: 'lolcatz95',
+    modelVersion: 1,
+    maxLength: 1000,
+    stderr: [
+      'info',
+      'warning',
+      'error',
+      'fatal',
+    ],
   },
-  "crashReports": {
-    "id": "bfdbdffeews",
-    "modelVersion": 1,
-    "directory": "/var/log/tegh",
-    "uploadCrashReportsToDevs": true
+  crashReports: {
+    id: 'bfdbdffeews',
+    modelVersion: 1,
+    directory: '/var/log/tegh',
+    uploadCrashReportsToDevs: true,
   },
-  "server": {
-    "id": "vcxbksdkewj",
-    "modelVersion": 1,
-    "signallingServer": "ws://localhost:3000",
-    "keys": "~/.tegh/dev.development.keys.json",
-    "webRTC": true,
-    "tcpPort": 3901
-  }
+  server: {
+    id: 'vcxbksdkewj',
+    modelVersion: 1,
+    signallingServer: 'ws://localhost:3000',
+    keys: '~/.tegh/dev.development.keys.json',
+    webRTC: true,
+    tcpPort: 3901,
+  },
 }
 
 const materials = [
   {
-    "id": "generic/pla",
-    "type": 'FDM_FILAMENT',
-    "targetExtruderTemperature": 220,
-    "targetBedTemperature": 60
+    id: 'generic/pla',
+    type: 'FDM_FILAMENT',
+    targetExtruderTemperature: 220,
+    targetBedTemperature: 60,
   },
   {
-    "id": "generic/abs",
-    "type": 'FDM_FILAMENT',
-    "targetExtruderTemperature": 200,
-    "targetBedTemperature": 60
+    id: 'generic/abs',
+    type: 'FDM_FILAMENT',
+    targetExtruderTemperature: 200,
+    targetBedTemperature: 60,
   },
 ]
-/* eslint-enable */
 
 const config = {
   printer: printerConfig,

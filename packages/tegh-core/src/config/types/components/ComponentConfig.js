@@ -1,20 +1,19 @@
 import { Record, Map } from 'immutable'
 import uuid from 'uuid'
 
-export const CrashReportConfigFactory = Record({
+export const ComponentConfigFactory = Record({
   id: null,
   modelVersion: 0,
-  directory: '/var/log/tegh',
-  uploadCrashReportsToDevs: true,
+  type: null,
   model: Map(),
 })
 
-const CrashReportConfig = ({
+const ComponentConfig = ({
   id = uuid.v4(),
   modelVersion = 0,
   ...props
 } = {}) => (
-  CrashReportConfigFactory({
+  ComponentConfigFactory({
     ...props,
     id,
     modelVersion,
@@ -22,4 +21,4 @@ const CrashReportConfig = ({
   })
 )
 
-export default CrashReportConfig
+export default ComponentConfig

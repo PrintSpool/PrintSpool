@@ -1,29 +1,23 @@
-import { Record, Map, List } from 'immutable'
+import { Record, Map } from 'immutable'
 import uuid from 'uuid'
 
 export const PluginConfigFactory = Record({
   id: null,
   modelVersion: 0,
   package: null,
-  macros: List(),
-  extendedConfig: Map(),
-  name: null,
+  model: Map(),
 })
 
 const PluginConfig = ({
   id = uuid.v4(),
   modelVersion = 0,
-  macros = [],
-  settings = {},
   ...props
 } = {}) => (
   PluginConfigFactory({
     ...props,
     id,
     modelVersion,
-    macros: List(macros),
-    settings: Map(settings),
-    extendedConfig: Map(props.extendedConfig),
+    model: Map(props.model),
   })
 )
 

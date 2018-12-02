@@ -18,7 +18,7 @@ const longRunningCodeTimeout = 1111
 const maxTickleAttempts = 5
 
 const config = MockConfig()
-  .updateIn(['printer', 'components', 0, 'extendedConfig'], c => c.merge({
+  .updateIn(['printer', 'components', 0, 'model'], c => c.merge({
     responseTimeoutTickleAttempts: maxTickleAttempts,
     fastCodeTimeout,
     longRunningCodeTimeout,

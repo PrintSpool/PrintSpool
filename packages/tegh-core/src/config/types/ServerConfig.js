@@ -9,7 +9,7 @@ export const ServerConfigFactory = Record({
   webRTC: true,
   tcpPort: null,
   unixSocket: null,
-  extendedConfig: Map(),
+  model: Map(),
 })
 
 const ServerConfig = ({
@@ -21,7 +21,7 @@ const ServerConfig = ({
     ...props,
     id,
     modelVersion,
-    extendedConfig: Map(props.extendedConfig),
+    model: Map(props.model),
   })
 )
 

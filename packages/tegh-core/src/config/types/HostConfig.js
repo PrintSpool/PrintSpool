@@ -12,7 +12,7 @@ export const HostConfigRecordFactory = Record({
   name: null,
   crashReports: CrashReportConfig(),
   materials: List(),
-  extendedConfig: Map(),
+  model: Map(),
   log: LogConfig(),
 })
 
@@ -31,7 +31,7 @@ const HostConfig = ({
     crashReports: CrashReportConfig(crashReports),
     materials: materials.map(MaterialConfig),
     log: LogConfig(log),
-    extendedConfig: Map(props.extendedConfig),
+    model: Map(props.model),
   })
 )
 
