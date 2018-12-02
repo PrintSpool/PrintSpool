@@ -15,7 +15,7 @@ import { MockConfig } from '../../config/types/Config'
 
 import PrinterResolvers from './PrinterResolvers'
 
-describe('JobResolvers', () => {
+describe('PrinterResolvers', () => {
   it('presents a consistent API', () => {
     deterministicTestSetup()
 

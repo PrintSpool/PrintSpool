@@ -6,7 +6,7 @@ import {
 
 const MAX_UPDATE_RATE_MS = 500
 
-const SubscriptionRootResolvers = {
+const SubscriptionResolvers = {
   Subscription: {
     live: {
       resolve: source => source,
@@ -62,4 +62,4 @@ const SubscriptionRootResolvers = {
   },
 }
 
-export default SubscriptionRootResolvers
+export default SubscriptionResolvers

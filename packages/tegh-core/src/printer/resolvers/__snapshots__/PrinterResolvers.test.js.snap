@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`JobResolvers presents a consistent API 1`] = `
+exports[`PrinterResolvers presents a consistent API 1`] = `
 Object {
   "_testPrinter": Object {
     "activeExtruderID": "heater1ID",

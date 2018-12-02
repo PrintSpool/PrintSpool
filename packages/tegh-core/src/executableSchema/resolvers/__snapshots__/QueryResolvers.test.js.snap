@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`QueryResolvers presents a consistent API 1`] = `
+Object {
+  "_testQuery": Object {
+    "_testQuery": Object {},
+    "hostConfigs": Array [
+      Object {
+        "id": "pzxcvkkwn",
+      },
+    ],
+    "jobQueue": Object {
+      "id": "pzxcvkkwn",
+    },
+    "materials": Array [
+      Object {
+        "id": "generic/pla",
+      },
+      Object {
+        "id": "generic/abs",
+      },
+    ],
+    "printerConfigs": Array [
+      Object {
+        "id": "aaxcvxcvcxv-bvb-csdf234231",
+      },
+    ],
+    "printers": Array [
+      Object {
+        "id": "aaxcvxcvcxv-bvb-csdf234231",
+      },
+    ],
+  },
+}
+`;

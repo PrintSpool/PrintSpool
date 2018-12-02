@@ -6,9 +6,9 @@ import snapshotTestResolvers from '../../util/testing/snapshotTestResolvers'
 
 import { MockConfig } from '../../config/types/Config'
 
-import HeaterResolvers from './HeaterResolvers'
+import QueryResolvers from './QueryResolvers'
 
-describe('HeaterResolvers', () => {
+describe('QueryResolvers', () => {
   it('presents a consistent API', () => {
     deterministicTestSetup()
 
@@ -18,15 +18,9 @@ describe('HeaterResolvers', () => {
 
     snapshotTestResolvers({
       typeDefs,
-      typeName: 'Heater',
-      resolvers: HeaterResolvers,
-      rootValue: Record({
-        id: 'heater_1',
-        address: 'e1',
-        currentTemperature: 32,
-        targetTemperature: 40,
-        blocking: true,
-      })(),
+      typeName: 'Query',
+      resolvers: QueryResolvers,
+      rootValue: {},
       contextValue: {
         store: {
           getState: () => state,

@@ -4,7 +4,6 @@ import {
   introspectionQuery,
 } from 'graphql'
 import { makeExecutableSchema } from 'graphql-tools'
-import GraphQLJSON from 'graphql-type-json'
 
 import resolvers from '../../executableSchema/resolvers'
 import { buildFullQueryFromIntrospection } from './graphQLFullQueryTools'
@@ -32,6 +31,7 @@ const snapshotTestResolvers = ({
     resolvers: {
       ...resolvers,
       Query: {
+        ...resolvers.Query,
         [testFieldName]: source => source,
       },
     },

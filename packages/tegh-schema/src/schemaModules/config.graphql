@@ -1,9 +1,9 @@
 # Queries
 
 extend type Query {
-  hostConfigs(hostID: ID!): [HostConfigForm!]!
+  hostConfigs(hostID: ID): [HostConfigForm!]!
 
-  printerConfigs(printerID: ID!): [PrinterConfig!]!
+  printerConfigs(printerID: ID): [PrinterConfig!]!
   # components(printerID: ID!, componentID: ID): [ComponentConfigForm!]!
 
   materials(materialID: ID): [Material!]!
