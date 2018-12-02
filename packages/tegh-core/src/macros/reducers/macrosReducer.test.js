@@ -15,7 +15,7 @@ describe('configReducer', () => {
 
       const config = MockConfig()
         .setIn(['printer', 'plugins', 0, 'package'], 'myPlugin')
-        .setIn(['printer', 'plugins', 0, 'macros'], List(['*']))
+        .setIn(['printer', 'plugins', 0, 'model', 'macros'], List(['*']))
       const plugins = Map({
         myPlugin: {
           macros: {

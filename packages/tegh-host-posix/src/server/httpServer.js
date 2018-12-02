@@ -112,7 +112,7 @@ const httpServer = async ({
   if (isTCP) {
     const allIPs = _.flatten(Object.values(os.networkInterfaces()))
     const ipv4IPs = allIPs.filter(ip => !ip.internal && ip.family === 'IPv4')
-    const ipAddress = ipv4IPs.length > 0 ? ipv4IPs[0].address : 'localhost'
+    const ipAddress = ipv4IPs.length > 0 ? ipv4IPs[0].model.address : 'localhost'
     portFullName = `http://${ipAddress}:${port}`
   }
   // eslint-disable-next-line no-console

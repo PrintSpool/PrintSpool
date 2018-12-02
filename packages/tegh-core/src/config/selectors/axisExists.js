@@ -6,13 +6,13 @@ import { TOOLHEAD, AXIS } from '../types/components/ComponentTypeEnum'
 const axisExists = createSelector(
   getPrinterConfig,
   config => (k, { allowTypes }) => {
-    const componentType = config.components.find(c => c.address === k).type
+    const component = config.components.find(c => c.model.address === k)
 
-    if (allowTypes.includes(MOVEMENT_AXIS) && componentType === AXIS) {
+    if (allowTypes.includes(MOVEMENT_AXIS) && component.type === AXIS) {
       return true
     }
 
-    if (allowTypes.includes(EXTRUDER_AXIS) && componentType === TOOLHEAD) {
+    if (allowTypes.includes(EXTRUDER_AXIS) && component.type === TOOLHEAD) {
       return true
     }
   },

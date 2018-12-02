@@ -47,11 +47,11 @@ const componentsReducer = (state = initialState, action) => {
 
       return initialState.merge({
         heaters: heaterConfigs
-          .mapKeys((id, { address }) => address)
-          .map(({ id, address }) => Heater({ id, address })),
+          .mapKeys((id, { model: { address } }) => address)
+          .map(({ id, model: { address } }) => Heater({ id, address })),
         fans: fanConfigs
-          .mapKeys((id, { address }) => address)
-          .map(({ id, address }) => Fan({ id, address })),
+          .mapKeys((id, { model: { address } }) => address)
+          .map(({ id, model: { address } }) => Fan({ id, address })),
       })
     }
     case DRIVER_ERROR:

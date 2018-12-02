@@ -31,7 +31,7 @@ const config = MockConfig({
       { address: 'b', type: BUILD_PLATFORM, heater: true },
       { address: 'f0', type: FAN },
       { address: 'f1', type: FAN },
-    ].map(c => ({ ...c, id: `${c.address}-ID` })),
+    ].map(c => ({ ...c, id: `${c.model.address}-ID` })),
   },
 })
 

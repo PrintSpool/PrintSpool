@@ -20,7 +20,7 @@ const setTargetTemperature = (args, { config }) => {
     if (component.type === BUILD_PLATFORM) {
       gcodeLines.push(`M140 S${v}`)
     } else {
-      const extruderNumber = parseFloat(component.address.slice(1))
+      const extruderNumber = parseFloat(component.model.address.slice(1))
       gcodeLines.push(`M104 S${v} T${extruderNumber}`)
     }
   })

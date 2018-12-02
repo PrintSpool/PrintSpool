@@ -34,7 +34,7 @@ const move = ({ axes, relativeMovement, allowExtruderAxes }, { config }) => {
     // }
 
     // TODO: multi-extruder support
-    const component = getComponents(config).find(c => c.address === address)
+    const component = getComponents(config).find(c => c.model.address === address)
     const isToolhead = component.type === TOOLHEAD
 
     gcodeWords.push(`${(isToolhead ? 'e' : address).toUpperCase()}${v}`)

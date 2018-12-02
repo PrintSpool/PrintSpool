@@ -7,12 +7,13 @@ const getMacroRunFnsByName = createSelector(
     const macroRunFnsByName = {}
 
     config.printer.plugins.forEach((pluginConfig) => {
-      const plugin = plugins.get(pluginConfig.package) || {}
+      const plugin = plugins.get(pluginConfig.package, {})
+      const macros = pluginConfig.getIn(['model', 'macros'], [])
 
       Map(plugin.macros || {})
         .filter(name => (
-          pluginConfig.macros.includes('*')
-          || pluginConfig.macros.includes(name)
+          macros.includes('*')
+          || macros.includes(name)
         ))
         .forEach((runFn, name) => {
           macroRunFnsByName[name] = runFn
