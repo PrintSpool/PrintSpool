@@ -42,6 +42,7 @@ describe('greetingReducer', () => {
     it('connects', () => {
       const action = serialOpen({ serialPortID: '/dev/null' })
       const state = initialState
+        .set('awaitGreetingFromFirmware', true)
 
       const nextState = reducer(state, action)
 
