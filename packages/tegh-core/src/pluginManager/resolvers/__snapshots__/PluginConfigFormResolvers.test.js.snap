@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PluginConfigFormResolvers presents a consistent API 1`] = `
+Object {
+  "_testPluginConfigForm": Object {
+    "id": "asgbvas23",
+    "model": Immutable.Map {
+      "modelID": "lulzbot/lulzbot-mini-2",
+      "name": "Left Home Lulzbot",
+    },
+    "modelVersion": 1,
+    "package": "tegh-core",
+    "schemaForm": Object {
+      "id": "tegh-core",
+    },
+  },
+}
+`;

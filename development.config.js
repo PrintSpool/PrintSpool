@@ -211,15 +211,21 @@ const hostConfig = {
 const materials = [
   {
     id: 'generic/pla',
+    modelVersion: 1,
     type: 'FDM_FILAMENT',
-    targetExtruderTemperature: 220,
-    targetBedTemperature: 60,
+    model: {
+      targetExtruderTemperature: 220,
+      targetBedTemperature: 60,
+    },
   },
   {
     id: 'generic/abs',
+    modelVersion: 1,
     type: 'FDM_FILAMENT',
-    targetExtruderTemperature: 200,
-    targetBedTemperature: 60,
+    model: {
+      targetExtruderTemperature: 200,
+      targetBedTemperature: 60,
+    },
   },
 ]
 

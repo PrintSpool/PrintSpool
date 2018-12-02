@@ -1,23 +1,24 @@
-import { Record } from 'immutable'
+import { Record, Map } from 'immutable'
 import uuid from 'uuid'
 
 const MaterialConfigFactory = Record({
   id: null,
   modelVersion: 0,
   type: null,
-  targetExtruderTemperature: 0,
-  targetBedTemperature: 0,
+  model: null,
 })
 
 const MaterialConfig = ({
   id = uuid.v4(),
   modelVersion = 0,
-  ...props
+  type,
+  model,
 } = {}) => (
   MaterialConfigFactory({
-    ...props,
     id,
     modelVersion,
+    type,
+    model: Map(model),
   })
 )
 

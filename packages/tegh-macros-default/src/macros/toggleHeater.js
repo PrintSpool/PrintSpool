@@ -27,7 +27,7 @@ const toggleHeater = (args, { config }) => {
     switch (heater.type) {
       case TOOLHEAD: {
         const material = getMaterials(config).get(heater.materialID)
-        targetTemperatures[id] = material.targetExtruderTemperature
+        targetTemperatures[id] = material.model.targetExtruderTemperature
         return null
       }
       case BUILD_PLATFORM: {
@@ -36,7 +36,7 @@ const toggleHeater = (args, { config }) => {
         const targetBedTemperature = heaters.toList()
           .filter(h => h.type === TOOLHEAD)
           .map(({ materialID }) => (
-            getMaterials(config).get(materialID).targetBedTemperature
+            getMaterials(config).get(materialID).model.targetBedTemperature
           ))
           .min()
 
