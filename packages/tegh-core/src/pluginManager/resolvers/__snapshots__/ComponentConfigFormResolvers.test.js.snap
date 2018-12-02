@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ComponentConfigFormResolvers presents a consistent API 1`] = `
+Object {
+  "_testComponentConfigForm": Object {
+    "id": "heater_1",
+    "model": Immutable.Map {
+      "address": "e0",
+      "name": "Extruder 1",
+      "heater": true,
+      "feedrate": 3,
+      "materialID": "generic/pla",
+    },
+    "modelVersion": 1,
+    "name": "Extruder 1",
+    "schemaForm": Object {
+      "id": "TOOLHEAD",
+    },
+    "type": "TOOLHEAD",
+  },
+}
+`;

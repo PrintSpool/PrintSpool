@@ -55,7 +55,8 @@ const getSchemaForms = createSelector(
       )
     })
 
-    return Map(schemas).map(schema => SchemaForm({
+    return Map(schemas).map((schema, type) => SchemaForm({
+      id: type,
       schema,
       // TODO: form order customization
       form: ['*'],
