@@ -55,7 +55,7 @@ const enhance = compose(
   withStyles(styles, { withTheme: true }),
   withProps(({ materials, match: { params } }) => ({
     materialID: params.sku && `${params.org}/${params.sku}`,
-  }))
+  })),
 )
 
 const MaterialsConfigIndex = ({

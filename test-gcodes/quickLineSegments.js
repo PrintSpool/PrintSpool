@@ -7,7 +7,7 @@ const numberOfCircles = 1000
 const distance = 1
 
 
-const mmPerSecond = feedrate*60
+const mmPerSecond = feedrate * 60
 
 const diagonal = distance * Math.sin(Math.PI / 2)
 
@@ -38,8 +38,8 @@ const moveInACircle = `
 
 let gcode = `${header}\n\n`
 
-for (let i=0; i < numberOfCircles; i++) {
-  gcode = gcode + `${moveInACircle}\n\n`
+for (let i = 0; i < numberOfCircles; i++) {
+  gcode += `${moveInACircle}\n\n`
 }
 
 fs.writeFileSync(filePath, gcode)

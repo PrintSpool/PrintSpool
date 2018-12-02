@@ -11,7 +11,7 @@ const JobQueueResolvers = {
       const jobs = jobQueue.jobs.toList().sortBy(job => job.createdAt)
       return jobs
     },
-  }
+  },
 }
 
 export default JobQueueResolvers

@@ -99,7 +99,8 @@ const getSchemaForms = () => ({
       'address',
       'feedrate',
     ],
-  },  [BUILD_PLATFORM]: {
+  },
+  [BUILD_PLATFORM]: {
     schema: schema => ({
       ...schema,
       type: 'object',
