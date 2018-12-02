@@ -37,13 +37,13 @@ const config = MockConfig({
 
 const configuredState = initialState
   .set('heaters', Map({
-    e0: Heater({ id: 'e0-IDDynamic', address: 'e0' }),
-    e1: Heater({ id: 'e1-IDDynamic', address: 'e1' }),
-    b: Heater({ id: 'b-IDDynamic', address: 'b' }),
+    e0: Heater({ id: 'e0-ID', address: 'e0' }),
+    e1: Heater({ id: 'e1-ID', address: 'e1' }),
+    b: Heater({ id: 'b-ID', address: 'b' }),
   }))
   .set('fans', Map({
-    f0: Fan({ id: 'f0-IDDynamic', address: 'f0' }),
-    f1: Fan({ id: 'f1-IDDynamic', address: 'f1' }),
+    f0: Fan({ id: 'f0-ID', address: 'f0' }),
+    f1: Fan({ id: 'f1-ID', address: 'f1' }),
   }))
 
 describe('componentsReducer', () => {
