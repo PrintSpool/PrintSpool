@@ -56,7 +56,7 @@ type Task {
     The number of digits to the right of the decimal place to round to. eg.
     `digits: 0` => 83 `digits: 1` => 82.6 `digits: 2` => 82.62
     """
-    digits: Int!
+    digits: Int
   ): Float!
   createdAt: Date!
   startedAt: Date

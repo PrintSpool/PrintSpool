@@ -5,12 +5,13 @@ import {
 } from 'graphql'
 import { makeExecutableSchema } from 'graphql-tools'
 import GraphQLJSON from 'graphql-type-json'
+
+import resolvers from '../../executableSchema/resolvers'
 import { buildFullQueryFromIntrospection } from './graphQLFullQueryTools'
 
 const snapshotTestResolvers = ({
   typeName,
 
-  resolvers,
   typeDefs,
 
   rootValue,
@@ -29,12 +30,10 @@ const snapshotTestResolvers = ({
       `,
     ],
     resolvers: {
+      ...resolvers,
       Query: {
         [testFieldName]: source => source,
       },
-      [typeName]: resolvers[typeName],
-      JSON: GraphQLJSON,
-      // String: GraphQLStrictString,
     },
     resolverValidationOptions: {
       requireResolversForResolveType: false,
