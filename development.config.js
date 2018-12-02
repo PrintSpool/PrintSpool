@@ -1,3 +1,12 @@
+/*
+ * This file is used for running the development server and as data for the
+ * Jest test cases.
+ *
+ * WARNING: MAKING CHANGES TO THIS FILE MAY BREAK TEST CASES.
+ *
+ * Always confirm that you haven't broken anything by running `yarn test` after
+ * making any change here.
+ */
 const simulate = true
 const useKlipper = false
 

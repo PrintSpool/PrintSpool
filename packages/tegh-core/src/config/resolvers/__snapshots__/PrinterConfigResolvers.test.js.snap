@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PrinterConfigResolvers presents a consistent API 1`] = `
+Object {
+  "_testPrinterConfig": Object {
+    "components": Array [
+      Object {
+        "id": "bbbserialController",
+      },
+      Object {
+        "id": "x111",
+      },
+      Object {
+        "id": "y111",
+      },
+      Object {
+        "id": "z111",
+      },
+      Object {
+        "id": "heater_1",
+      },
+      Object {
+        "id": "abvwee1",
+      },
+      Object {
+        "id": "ndrgrwef",
+      },
+      Object {
+        "id": "ndrgrwef2",
+      },
+      Object {
+        "id": "bdfbxb",
+      },
+    ],
+    "id": "aaxcvxcvcxv-bvb-csdf234231",
+    "plugins": Array [
+      Object {
+        "id": "asgbvas23",
+      },
+      Object {
+        "id": "aaabbbccc333",
+      },
+      Object {
+        "id": "aaabbbccc123",
+      },
+    ],
+  },
+}
+`;
