@@ -65,18 +65,10 @@ type JSONSchemaForm {
 
 extend type Mutation {
   setConfig(input: SetConfigInput!): SetConfigResponse
+  deleteConfig(input: DeleteConfigInput!): Boolean
 }
 
 input SetConfigInput {
-  """
-    Each config form is either a part of a PRINTER, MATERIAL or HOST.
-    The routingMode enables tegh combinators to route configuration changes to
-    the correct delegate tegh host.
-
-    Components and plugins must use PRINTER routingMode.
-    Materials must use MATERIAL routingMode.
-    Host routingMode is reserved for future use.
-  """
   routingMode: ConfigRoutingMode!
   """
     printerID is required for PRINTER ConfigRoutingMode config forms
@@ -89,6 +81,19 @@ input SetConfigInput {
   configFormID: ID!
   modelVersion: Int!
   model: JSON!
+}
+
+input DeleteConfigInput {
+  routingMode: ConfigRoutingMode!
+  """
+    printerID is required for PRINTER ConfigRoutingMode config forms
+  """
+  printerID: ID
+  """
+    hostID is required for HOST ConfigRoutingMode config forms
+  """
+  hostID: ID
+  configFormID: ID!
 }
 
 type SetConfigResponse {
@@ -122,6 +127,15 @@ type JSONSchemaError {
   message: String!
 }
 
+"""
+  Each config form is either a part of a PRINTER, MATERIAL or HOST.
+  The routingMode enables tegh combinators to route configuration changes to
+  the correct delegate tegh host.
+
+  Components and plugins must use PRINTER routingMode.
+  Materials must use MATERIAL routingMode.
+  Host routingMode is reserved for future use.
+"""
 enum ConfigRoutingMode {
   PRINTER,
   MATERIAL,

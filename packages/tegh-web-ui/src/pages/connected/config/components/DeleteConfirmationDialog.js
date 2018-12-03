@@ -14,27 +14,9 @@ import {
   Button,
 } from '@material-ui/core'
 
-export const FORM_DIALOG_FRAGMENT = gql`
-  fragment FormDialogFragment on ConfigForm {
-    __typename
-    id
-    model
-    modelVersion
-    schemaForm {
-      schema
-      form
-    }
-  }
-`
-
 const DELETE_CONFIG = gql`
   mutation deleteConfig($input: DeleteConfigInput!) {
-    deleteConfig(input: $input) {
-      errors {
-        dataPath
-        message
-      }
-    }
+    deleteConfig(input: $input)
   }
 `
 
@@ -64,7 +46,7 @@ const enhance = compose(
         update={(mutationResult) => {
           if (mutationResult.data != null) {
             const nextURL = history.location.pathname
-              .replace(/[^/]+\/[^/]+\/$/, '')
+              .replace(/[^/]+\/delete$/, '')
               .replace(/materials\/[^/]+\/$/, 'materials/')
             history.push(nextURL)
           }

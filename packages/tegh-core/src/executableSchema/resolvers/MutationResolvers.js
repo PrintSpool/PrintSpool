@@ -2,6 +2,7 @@ import actionResolver from '../../util/actionResolver'
 
 /* config */
 import requestSetConfigFromMutation from '../../config/actions/requestSetConfigFromMutation'
+import requestDeleteConfigFromMutation from '../../config/actions/requestDeleteConfigFromMutation'
 /* jobQueue */
 import requestCreateJob from '../../jobQueue/actions/requestCreateJob'
 import deleteJob from '../../jobQueue/actions/deleteJob'
@@ -14,10 +15,26 @@ const MutationResolvers = {
   Mutation: {
     /* config */
     setConfig: (source, args, { store }) => {
-      const action = requestSetConfigFromMutation(source, args, { store })
-      store.dispatch(action)
+      const {
+        action,
+        errors,
+      } = requestSetConfigFromMutation(source, args, { store })
 
+      if (errors) {
+        return { errors }
+      }
+
+      store.dispatch(action)
       return {}
+    },
+    deleteConfig: (source, args, { store }) => {
+      const action = requestDeleteConfigFromMutation(source, args, { store })
+      if (action == null) {
+        return null
+      }
+
+      store.dispatch(action)
+      return null
     },
     /* jobQueue */
     createJob: actionResolver({
