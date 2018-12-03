@@ -28,6 +28,7 @@ import withLiveData from '../../shared/higherOrderComponents/withLiveData'
 
 import FormDialog, { FORM_DIALOG_FRAGMENT } from '../components/FormDialog'
 import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog'
+import CreateComponentDialog from '../components/CreateComponentDialog'
 
 const COMPONENTS_SUBSCRIPTION = gql`
   subscription ConfigSubscription($printerID: ID!) {
@@ -106,6 +107,7 @@ const enhance = compose(
       selectedComponent: components.find(c => c.id === componentID),
       components,
       printerID,
+      componentID,
       verb,
     }
   }),
@@ -116,11 +118,12 @@ const ComponentsConfigIndex = ({
   classes,
   printerID,
   components,
+  componentID,
   selectedComponent,
   verb,
 }) => (
   <main>
-    { selectedComponent != null && verb == null && (
+    { componentID !== 'new' && selectedComponent != null && verb == null && (
       <FormDialog
         title={selectedComponent.name}
         open={selectedComponent != null}
@@ -157,14 +160,21 @@ const ComponentsConfigIndex = ({
         `}
       />
     )}
+    <CreateComponentDialog
+      routingMode="PRINTER"
+      printerID={printerID}
+      open={componentID === 'new'}
+    />
     <Tooltip title="Add Component" placement="left">
-      <Button
-        component="label"
-        variant="fab"
-        className={classes.addFab}
-      >
-        <Add />
-      </Button>
+      <Link to="new/" style={{ textDecoration: 'none' }}>
+        <Button
+          component="label"
+          variant="fab"
+          className={classes.addFab}
+        >
+          <Add />
+        </Button>
+      </Link>
     </Tooltip>
     <List>
       {
