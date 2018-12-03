@@ -3,6 +3,7 @@
 exports[`ComponentResolvers presents a consistent API 1`] = `
 Object {
   "_testComponent": Object {
+    "address": "e0",
     "fan": null,
     "heater": null,
     "id": "heater_1",
