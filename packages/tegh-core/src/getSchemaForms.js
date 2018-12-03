@@ -134,10 +134,10 @@ const getSchemaForms = () => ({
           title: 'Serial Port',
           type: 'string',
           // TODO: serial port dynamic enum
-          enum: [
-            'Arduino_1',
-            'Arduino_2',
-          ],
+          // enum: [
+          //   'Arduino_1',
+          //   'Arduino_2',
+          // ],
         },
         baudRate: {
           title: 'Baud Rate',
