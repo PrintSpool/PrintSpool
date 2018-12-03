@@ -24,10 +24,21 @@ const toggleHeater = (args, { config }) => {
       return null
     }
 
+    const getMaterialForToolhead = (toolhead) => {
+      const materialID = toolhead.model.get('materialID')
+      const material = getMaterials(config).get(materialID)
+
+      if (material == null) {
+        throw new Error(`material ${materialID} does not exists`)
+      }
+
+      return material
+    }
+
     switch (heater.type) {
       case TOOLHEAD: {
-        const material = getMaterials(config).get(heater.materialID)
-        targetTemperatures[id] = material.model.targetExtruderTemperature
+        const material = getMaterialForToolhead(heater)
+        targetTemperatures[id] = material.model.get('targetExtruderTemperature')
         return null
       }
       case BUILD_PLATFORM: {
@@ -35,9 +46,7 @@ const toggleHeater = (args, { config }) => {
         // the materials loaded in the extruders
         const targetBedTemperature = heaters.toList()
           .filter(h => h.type === TOOLHEAD)
-          .map(({ materialID }) => (
-            getMaterials(config).get(materialID).model.targetBedTemperature
-          ))
+          .map(t => getMaterialForToolhead(t).model.get('targetBedTemperature'))
           .min()
 
         targetTemperatures[id] = targetBedTemperature

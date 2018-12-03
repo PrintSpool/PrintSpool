@@ -30,6 +30,7 @@ type Component {
   id: ID!
   name: String!
   type: String!
+  address: String
 
   """
   set if this component contains a heater. Null for non-heater components.

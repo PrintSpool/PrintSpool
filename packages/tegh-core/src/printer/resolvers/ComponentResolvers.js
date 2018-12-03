@@ -6,6 +6,9 @@ const ComponentResolvers = {
     name: source => (
       source.model.get('name')
     ),
+    address: source => (
+      source.model.get('address')
+    ),
     heater: (source, args, { store }) => {
       const heater = source.getIn(['model', 'heater'])
 
