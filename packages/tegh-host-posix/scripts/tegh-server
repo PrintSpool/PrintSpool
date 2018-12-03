@@ -1,11 +1,13 @@
 #!/bin/bash
-# This file should be symlinked from /usr/sbin/tegh
-# sudo ln -s /YOUR_PATH_TO_TEGH../tegh/packages/tegh-host-posix/scripts/tegh-host-posix /usr/sbin/tegh-host-posix
+
+# This file should be symlinked from /usr/local/bin:
+# sudo ln --symbolic --target-directory=/usr/local/bin `pwd`/packages/tegh-host-posix/scripts/tegh-server
 set -e
 
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# Load Node Version Manager and its bash completion script.
+[ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
 
 DIR="$(dirname "$(readlink -f "$0")")"
 npm run start

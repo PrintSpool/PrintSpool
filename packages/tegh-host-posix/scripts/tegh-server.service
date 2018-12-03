@@ -8,7 +8,5 @@ ExecStart=/usr/sbin/tegh-host-posix
 Type=simple
 Restart=on-failure
 
-User=
-
 [Install]
 WantedBy=default.target
