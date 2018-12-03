@@ -106,11 +106,15 @@ const requestSetConfigFromMutation = (source, args, { store }) => {
     c.id === configFormID
   ))
 
-  const action = requestSetConfig({
-    config: state.config.updateIn(
+  const nextConfig = state.config
+    .setIn([...collectionPath, index, 'modelVersion'], subject.modelVersion + 1)
+    .updateIn(
       [...collectionPath, index, 'model'],
       previousVal => previousVal.merge(model),
-    ),
+    )
+
+  const action = requestSetConfig({
+    config: nextConfig,
   })
 
   return action
