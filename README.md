@@ -31,25 +31,21 @@ Run `yarn start`
 
 Run `yarn test`
 
-<!-- TODO: rewrite outdated SystemD scripts and update docs.
 ## Installing the development server SystemD Unit File
 
-As a temporary provision until a build script is ready for Tegh the server can be installed with systemd via the following steps:
+As a temporary provision until a build script is available for Tegh, the server can be installed with systemd via the following steps:
 
-1. Run:
+1. Symlink the Tegh server:
   ```
-    sudo ln -s `pwd`/packages/tegh-host-posix/scripts/tegh-host-posix /usr/sbin/tegh-host-posix
-    sudo cp `pwd`/packages/tegh-host-posix/scripts/tegh-host-posix.service /etc/systemd/system/
+    sudo ln --symbolic --target-directory=/usr/local/bin `pwd`/packages/tegh-host-posix/scripts/tegh-server
   ```
-2. Fill in your username: `sudo vim /etc/systemd/system/tegh-host-posix.service`
-3. Run:
+2. Link, enable, and start the Tegh server:
   ```
-    systemctl daemon-reload
-    systemctl enable tegh-host-posix
-    systemctl start tegh-host-posix
+    systemctl --user link `pwd`/packages/tegh-host-posix/scripts/tegh-server.service
+    systemctl --user enable --now tegh-server.service
   ```
 4. Unplug and replug the 3D printer
 
 Tegh's stderr log is accessible via journalctl:
 
-`journalctl -u tegh-host-posix.service --follow` -->
+`journalctl --user --unit=tegh-server.service`
