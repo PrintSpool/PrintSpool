@@ -4,17 +4,36 @@ exports[`PrinterResolvers presents a consistent API 1`] = `
 Object {
   "_testPrinter": Object {
     "activeExtruderID": "heater1ID",
+    "components": Array [
+      Object {
+        "id": "bbbserialController",
+      },
+      Object {
+        "id": "x111",
+      },
+      Object {
+        "id": "y111",
+      },
+      Object {
+        "id": "z111",
+      },
+      Object {
+        "id": "heater_1",
+      },
+      Object {
+        "id": "abvwee1",
+      },
+      Object {
+        "id": "bdfbxb",
+      },
+      Object {
+        "id": "ndrgrwef",
+      },
+      Object {
+        "id": "ndrgrwef2",
+      },
+    ],
     "error": null,
-    "fans": Array [
-      Object {
-        "id": "fan1ID",
-      },
-    ],
-    "heaters": Array [
-      Object {
-        "id": "heater1ID",
-      },
-    ],
     "id": "aaxcvxcvcxv-bvb-csdf234231",
     "logEntries": Array [
       Object {},

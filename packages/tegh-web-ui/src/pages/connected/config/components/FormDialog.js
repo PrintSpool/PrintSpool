@@ -117,7 +117,6 @@ const enhance = compose(
     if (isPrinterConfig) {
       input.printerID = printerID
     }
-    console.log(input)
 
     return (
       <Mutation

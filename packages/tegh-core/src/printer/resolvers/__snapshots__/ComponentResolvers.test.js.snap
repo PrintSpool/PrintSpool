@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ComponentResolvers presents a consistent API 1`] = `
+Object {
+  "_testComponent": Object {
+    "fan": null,
+    "heater": null,
+    "id": "heater_1",
+    "name": "Extruder 1",
+    "type": "TOOLHEAD",
+  },
+}
+`;

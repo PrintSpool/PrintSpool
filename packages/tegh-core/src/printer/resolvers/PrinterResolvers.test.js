@@ -6,6 +6,7 @@ import snapshotTestResolvers from '../../util/testing/snapshotTestResolvers'
 
 import { CONNECTING } from '../types/statusEnum'
 import { INFO } from '../../log/types/logLevelEnum'
+import { TOOLHEAD, FAN } from '../../config/types/components/ComponentTypeEnum'
 
 import { initialState as spoolInitialState } from '../../spool/reducers/spoolReducer'
 import { initialState as macrosInitialState } from '../../macros/reducers/macrosReducer'
@@ -33,14 +34,14 @@ describe('PrinterResolvers', () => {
         components: Record({
           targetTemperaturesCountdown: 3,
           activeExtruderID: 'heater1ID',
-          heaters: Map({
+          byID: Map({
             heater1Address: Record({
               id: 'heater1ID',
+              type: TOOLHEAD,
             })(),
-          }),
-          fans: Map({
             fan1Address: Record({
               id: 'fan1ID',
+              type: FAN,
             })(),
           }),
         })(),

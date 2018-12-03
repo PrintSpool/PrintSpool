@@ -18,12 +18,17 @@ const { FAN } = ComponentTypeEnum
 export const initialState = Record({
   targetTemperaturesCountdown: null,
   activeExtruderAddress: 'e0',
-  heaters: Map(),
-  fans: Map(),
+  /*
+   * the components' non-configuration/dynamic/ephemeral data (eg.
+   * currentTemperature) indexed by their ID
+   */
+  byAddress: Map(),
 })()
 
 export const Heater = Record({
+  heater: true,
   id: null,
+  type: null,
   address: null,
   currentTemperature: 0,
   targetTemperature: null,
@@ -32,6 +37,7 @@ export const Heater = Record({
 
 export const Fan = Record({
   id: null,
+  type: null,
   address: null,
   enabled: false,
   speed: 0,
@@ -45,33 +51,56 @@ const componentsReducer = (state = initialState, action) => {
       const heaterConfigs = getHeaterConfigs(config)
       const fanConfigs = getComponentsByType(config).get(FAN, Map())
 
-      return initialState.merge({
-        heaters: heaterConfigs
-          .mapEntries(([id, component]) => {
-            const address = component.model.get('address')
-            return [
-              address,
-              Heater({ id, address }),
-            ]
-          }),
-        fans: fanConfigs.mapEntries(([id, component]) => {
-          const address = component.model.get('address')
-          return [
+      const heaters = heaterConfigs.mapEntries(([id, component]) => {
+        const address = component.model.get('address')
+        return [
+          address,
+          Heater({
+            id,
             address,
-            Fan({ id, address }),
-          ]
-        }),
+            type: component.type,
+          }),
+        ]
       })
+
+      const fans = fanConfigs.mapEntries(([id, component]) => {
+        const address = component.model.get('address')
+        return [
+          address,
+          Fan({
+            id,
+            address,
+            type: component.type,
+          }),
+        ]
+      })
+
+      const dynamicComponents = heaters.merge(fans)
+
+      return initialState.set('byAddress', dynamicComponents)
     }
     case DRIVER_ERROR:
     case ESTOP:
     case PRINTER_DISCONNECTED: {
-      return initialState.merge({
-        heaters: state.heaters
-          .map(({ id, address }) => Heater({ id, address })),
-        fans: state.fans
-          .map(({ id, address }) => Fan({ id, address })),
-      })
+      /*
+       * reset all the dynamic attributes of each component
+       */
+      return initialState.set('byAddress', state.byAddress.map((ephemeralComponent) => {
+        const {
+          id,
+          type,
+          address,
+        } = ephemeralComponent
+        const perminentAttrs = { id, type, address }
+
+        if (ephemeralComponent.type === FAN) {
+          return Fan(perminentAttrs)
+        }
+        if (ephemeralComponent.heater === true) {
+          return Heater(perminentAttrs)
+        }
+        return ephemeralComponent
+      }))
     }
     case SERIAL_RECEIVE: {
       const {
@@ -83,8 +112,8 @@ const componentsReducer = (state = initialState, action) => {
 
       if (temperatures != null) {
         Object.entries(temperatures).forEach(([k, v]) => {
-          if (state.heaters.get(k) == null) return
-          nextState = nextState.setIn(['heaters', k, 'currentTemperature'], v)
+          if (state.byAddress.get(k) == null) return
+          nextState = nextState.setIn(['byAddress', k, 'currentTemperature'], v)
         })
       }
 
@@ -111,7 +140,7 @@ const componentsReducer = (state = initialState, action) => {
 
       // update the heater or fan's state.
       if (collectionKey != null) {
-        nextState = nextState.mergeIn([collectionKey, id], changes)
+        nextState = nextState.mergeIn(['byAddress', id], changes)
       }
 
       if (activeExtruderAddress != null) {

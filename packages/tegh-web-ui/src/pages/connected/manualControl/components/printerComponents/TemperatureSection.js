@@ -11,13 +11,13 @@ import withSpoolMacro from '../../../shared/higherOrderComponents/withSpoolMacro
 
 const enhance = compose(
   withSpoolMacro,
-  withProps(({ printer, heater, spoolMacro }) => ({
-    isHeating: (heater.targetTemperature || 0) > 0,
+  withProps(({ printer, component, spoolMacro }) => ({
+    isHeating: (component.heater.targetTemperature || 0) > 0,
     toggleHeater: (e, val) => {
       spoolMacro({
         printerID: printer.id,
         macro: 'toggleHeater',
-        args: { [heater.id]: val },
+        args: { [component.id]: val },
       })
     },
   })),
@@ -29,9 +29,11 @@ const targetText = (targetTemperature) => {
 }
 
 const TemperatureSection = ({
-  heater: {
-    currentTemperature,
-    targetTemperature,
+  component: {
+    heater: {
+      currentTemperature,
+      targetTemperature,
+    },
   },
   isHeating,
   toggleHeater,

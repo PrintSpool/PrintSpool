@@ -16,7 +16,7 @@ import Header from '../frame/components/Header'
 import Home from './components/home/Home'
 import XYJogButtons from './components/jog/XYJogButtons'
 import ZJogButtons from './components/jog/ZJogButtons'
-import HeaterControl, { HeaterControlFragment } from './components/heaters/HeaterControl'
+import ComponentControl, { ComponentControlFragment } from './components/printerComponents/ComponentControl'
 
 const MANUAL_CONTROL_SUBSCRIPTION = gql`
   subscription ManualControlSubscription($printerID: ID!) {
@@ -25,8 +25,8 @@ const MANUAL_CONTROL_SUBSCRIPTION = gql`
       query {
         singularPrinter: printers(id: $printerID) {
           ...PrinterStatus
-          heaters {
-            ...HeaterControlFragment
+          components {
+            ...ComponentControlFragment
           }
         }
       }
@@ -35,7 +35,7 @@ const MANUAL_CONTROL_SUBSCRIPTION = gql`
 
   # fragments
   ${PrinterStatusGraphQL}
-  ${HeaterControlFragment}
+  ${ComponentControlFragment}
 `
 
 const enhance = compose(
@@ -92,15 +92,17 @@ const ManualControl = ({ printer, isReady }) => (
           </Grid>
         </Loader>
         {
-          printer.heaters.map(heater => (
-            <Grid item xs={12} key={heater.id}>
-              <HeaterControl
-                printer={printer}
-                heater={heater}
-                disabled={!isReady}
-              />
-            </Grid>
-          ))
+          printer.components
+            .filter(c => ['BUILD_PLATFORM', 'TOOLHEAD'].includes(c.type))
+            .map(component => (
+              <Grid item xs={12} key={component.id}>
+                <ComponentControl
+                  printer={printer}
+                  component={component}
+                  disabled={!isReady}
+                />
+              </Grid>
+            ))
         }
       </Grid>
     </main>

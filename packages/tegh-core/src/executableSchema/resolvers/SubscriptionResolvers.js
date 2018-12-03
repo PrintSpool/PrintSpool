@@ -49,9 +49,9 @@ const SubscriptionResolvers = {
             'fans',
             'heaters',
           ],
-          Heater: [
-            'name',
-            'type',
+          Component: [
+            'fan',
+            'heater',
           ],
           Task: [
             'printer',

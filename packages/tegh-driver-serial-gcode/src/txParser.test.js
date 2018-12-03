@@ -112,7 +112,6 @@ describe('fan MCodes', () => {
     code: 'M107',
     changes: {
       enabled: false,
-      speed: 0,
     },
   })
   testFanMCode('M107', {
@@ -120,7 +119,6 @@ describe('fan MCodes', () => {
     code: 'M107',
     changes: {
       enabled: false,
-      speed: 0,
     },
   })
 })

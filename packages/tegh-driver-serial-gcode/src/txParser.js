@@ -109,7 +109,6 @@ const parseFanMCodes = (
     } if (code === 'M107') {
       return {
         enabled: false,
-        speed: 0,
       }
     }
     throw new Error(`Invalid Fan MCode ${code} on line: ${raw}`)

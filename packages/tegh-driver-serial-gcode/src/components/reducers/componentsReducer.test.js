@@ -40,14 +40,12 @@ const config = MockConfig({
 })
 
 const configuredState = initialState
-  .set('heaters', Map({
-    e0: Heater({ id: 'e0-ID', address: 'e0' }),
-    e1: Heater({ id: 'e1-ID', address: 'e1' }),
-    b: Heater({ id: 'b-ID', address: 'b' }),
-  }))
-  .set('fans', Map({
-    f0: Fan({ id: 'f0-ID', address: 'f0' }),
-    f1: Fan({ id: 'f1-ID', address: 'f1' }),
+  .set('byAddress', Map({
+    e0: Heater({ id: 'e0-ID', type: TOOLHEAD, address: 'e0' }),
+    e1: Heater({ id: 'e1-ID', type: TOOLHEAD, address: 'e1' }),
+    b: Heater({ id: 'b-ID', type: BUILD_PLATFORM, address: 'b' }),
+    f0: Fan({ id: 'f0-ID', type: FAN, address: 'f0' }),
+    f1: Fan({ id: 'f1-ID', type: FAN, address: 'f1' }),
   }))
 
 describe('componentsReducer', () => {
@@ -71,8 +69,8 @@ describe('componentsReducer', () => {
     describe(actionType, () => {
       it('initializes each component\'s state', () => {
         const state = configuredState
-          .setIn(['heaters', 'e0', 'currentTemperature'], 120)
-          .setIn(['fans', 'f0', 'enabled'], true)
+          .setIn(['byAddress', 'e0', 'currentTemperature'], 120)
+          .setIn(['byAddress', 'f0', 'enabled'], true)
         const action = { type: actionType }
 
         const nextState = reducer(state, action)
@@ -98,7 +96,7 @@ describe('componentsReducer', () => {
 
       expect(nextState.toJSON()).toEqual(
         configuredState
-          .setIn(['heaters', 'e0', 'currentTemperature'], temperature)
+          .setIn(['byAddress', 'e0', 'currentTemperature'], temperature)
           .set('targetTemperaturesCountdown', countdown * 1000)
           .toJSON(),
       )
@@ -117,8 +115,8 @@ describe('componentsReducer', () => {
 
       expect(nextState.toJSON()).toEqual(
         configuredState
-          .setIn(['heaters', 'e0', 'targetTemperature'], temperature)
-          .setIn(['heaters', 'e0', 'blocking'], true)
+          .setIn(['byAddress', 'e0', 'targetTemperature'], temperature)
+          .setIn(['byAddress', 'e0', 'blocking'], true)
           .toJSON(),
       )
     })
