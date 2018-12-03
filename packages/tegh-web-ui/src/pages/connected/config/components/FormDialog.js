@@ -4,6 +4,7 @@ import { withRouter } from 'react-router'
 import { SchemaForm } from 'react-schema-form'
 import gql from 'graphql-tag'
 import { Query, Mutation } from 'react-apollo'
+import { Link } from 'react-router-dom'
 import {
   Dialog,
   DialogTitle,
@@ -155,6 +156,7 @@ const FormDialog = ({
   open,
   history,
   onSubmit,
+  onDelete,
   data,
   client,
   isPrinterConfig,
@@ -192,6 +194,13 @@ const FormDialog = ({
       />
     </DialogContent>
     <DialogActions>
+      <div style={{ flex: 1 }}>
+        <Link to={'delete'} style={{ textDecoration: 'none' }}>
+          <Button color="secondary">
+            Delete
+          </Button>
+        </Link>
+      </div>
       <Button onClick={() => history.goBack()}>
         Cancel
       </Button>

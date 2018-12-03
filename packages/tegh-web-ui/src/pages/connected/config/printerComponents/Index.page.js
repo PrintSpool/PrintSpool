@@ -27,6 +27,7 @@ import gql from 'graphql-tag'
 import withLiveData from '../../shared/higherOrderComponents/withLiveData'
 
 import FormDialog, { FORM_DIALOG_FRAGMENT } from '../components/FormDialog'
+import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog'
 
 const COMPONENTS_SUBSCRIPTION = gql`
   subscription ConfigSubscription($printerID: ID!) {
@@ -98,13 +99,14 @@ const enhance = compose(
   })),
   withLiveData,
   withProps(({ printerConfigs, match }) => {
-    const { componentID, printerID } = match.params
+    const { componentID, printerID, verb } = match.params
     const { components } = printerConfigs[0]
 
     return {
       selectedComponent: components.find(c => c.id === componentID),
       components,
       printerID,
+      verb,
     }
   }),
   withStyles(styles, { withTheme: true }),
@@ -115,11 +117,32 @@ const ComponentsConfigIndex = ({
   printerID,
   components,
   selectedComponent,
+  verb,
 }) => (
   <main>
-    { selectedComponent != null && (
+    { selectedComponent != null && verb == null && (
       <FormDialog
         title={selectedComponent.name}
+        open={selectedComponent != null}
+        variables={{ printerID, componentID: selectedComponent.id }}
+        query={gql`
+          query($printerID: ID!, $componentID: ID) {
+            printerConfigs(printerID: $printerID) {
+              components(componentID: $componentID) {
+                ...FormDialogFragment
+              }
+            }
+          }
+          ${FORM_DIALOG_FRAGMENT}
+        `}
+      />
+    )}
+    { selectedComponent != null && verb === 'delete' && (
+      <DeleteConfirmationDialog
+        type={selectedComponent.type.toLowerCase()}
+        title={selectedComponent.name}
+        id={selectedComponent.id}
+        routingMode={'PRINTER'}
         open={selectedComponent != null}
         variables={{ printerID, componentID: selectedComponent.id }}
         query={gql`
