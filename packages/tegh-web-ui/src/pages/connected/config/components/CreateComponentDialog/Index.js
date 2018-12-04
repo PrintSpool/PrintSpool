@@ -18,6 +18,7 @@ import {
   Step,
   StepLabel,
   MenuItem,
+  Hidden,
 } from '@material-ui/core'
 
 import Page1 from './Page1'
@@ -108,17 +109,19 @@ const createComponentDialog = ({
         return errors
       }}
       onSubmit={(values, bag) => {
-        console.log('submit')
         const isLastPage = values.activeStep === STEPS.length - 1
         if (isLastPage) {
           return onSubmit(values, bag)
         }
         bag.setTouched({})
-        bag.setValues({ activeStep: values.activeStep + 1 })
+        bag.setValues({
+          ...values,
+          activeStep: values.activeStep + 1,
+        })
         bag.setSubmitting(false)
       }}
     >
-      {({ isSubmitting, values, setFieldValue }) => (
+      {({ isSubmitting, values, setTouched, setFieldValue }) => (
         <Form>
           <DialogTitle id="create-dialog-title">
             Add a Component
@@ -133,10 +136,10 @@ const createComponentDialog = ({
                 ))
               }
             </Stepper>
-            { values.activeStep === 0 && (
+            {values.activeStep === 0 && (
               <Page1 />
             )}
-            { values.activeStep === 1 && (
+            {values.activeStep === 1 && (
               <Page2 componentType={values.componentType} />
             )}
           </DialogContent>
@@ -149,15 +152,13 @@ const createComponentDialog = ({
             {values.activeStep > 0 && (
               <Button
                 onClick={() => {
+                  setTouched({})
                   setFieldValue('activeStep', values.activeStep - 1)
                 }}
               >
                 Back
               </Button>
             )}
-            <Button onClick={() => history.goBack()}>
-              {values.activeStep === STEPS.length - 1 ? 'Back' : 'Cancel'}
-            </Button>
             <Button type="submit" color="primary">
               {values.activeStep === STEPS.length - 1 ? 'Finish' : 'Next'}
             </Button>
