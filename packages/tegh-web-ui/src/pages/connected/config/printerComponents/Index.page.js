@@ -28,7 +28,7 @@ import withLiveData from '../../shared/higherOrderComponents/withLiveData'
 
 import FormDialog, { FORM_DIALOG_FRAGMENT } from '../components/FormDialog'
 import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog'
-import CreateComponentDialog from '../components/CreateComponentDialog'
+import CreateComponentDialog from '../components/CreateComponentDialog/Index'
 
 const COMPONENTS_SUBSCRIPTION = gql`
   subscription ConfigSubscription($printerID: ID!) {
@@ -54,6 +54,7 @@ const styles = theme => ({
   },
   addFab: {
     position: 'fixed',
+    zIndex: 10,
     bottom: theme.spacing.unit * 4,
     right: theme.spacing.unit * 2,
   },
