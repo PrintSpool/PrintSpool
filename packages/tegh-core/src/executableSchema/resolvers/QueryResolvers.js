@@ -33,6 +33,10 @@ const QueryResolvers = {
       }
       return state.config.materials
     },
+    schemaForm: (source, args, { store }) => {
+      const { routingMode, printerID, schemaFormKey } = args
+      // TODO
+    },
     /*
      * jobQueue
      */

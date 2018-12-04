@@ -7,6 +7,8 @@ extend type Query {
   # components(printerID: ID!, componentID: ID): [ComponentConfigForm!]!
 
   materials(materialID: ID): [Material!]!
+
+  schemaForm(input: schemaFormQueryInput!): JSONSchemaForm!
 }
 
 type HostConfigForm {
@@ -48,7 +50,6 @@ type ComponentConfigForm implements ConfigForm {
 
 type PluginConfigForm implements ConfigForm {
   id: ID!
-  # TODO: type should be an emum?
   package: String!
   model: JSON!
   modelVersion: Int!
@@ -60,6 +61,27 @@ type JSONSchemaForm {
   schema: JSON!
   form: JSON!
 }
+
+input schemaFormQueryInput {
+  routingMode: ConfigRoutingMode!
+  """
+    printerID is required for PRINTER ConfigRoutingMode config forms
+  """
+  printerID: ID
+  # TODO: host conig support
+  # """
+  #   hostID is required for HOST ConfigRoutingMode config forms
+  # """
+  # hostID: ID
+
+  # TODO: plugin schema form support
+  # for plugins the schemaFormKey is the plugin's package
+  """
+    for components and materials the schemaFormKey is the component/material's type
+  """
+  schemaFormKey: ID!
+}
+
 
 # Mutations
 
@@ -74,10 +96,11 @@ input SetConfigInput {
     printerID is required for PRINTER ConfigRoutingMode config forms
   """
   printerID: ID
-  """
-    hostID is required for HOST ConfigRoutingMode config forms
-  """
-  hostID: ID
+  # TODO: host conig support
+  # """
+  #   hostID is required for HOST ConfigRoutingMode config forms
+  # """
+  # hostID: ID
   configFormID: ID!
   modelVersion: Int!
   model: JSON!
@@ -89,10 +112,11 @@ input DeleteConfigInput {
     printerID is required for PRINTER ConfigRoutingMode config forms
   """
   printerID: ID
-  """
-    hostID is required for HOST ConfigRoutingMode config forms
-  """
-  hostID: ID
+  # TODO: host conig support
+  # """
+  #   hostID is required for HOST ConfigRoutingMode config forms
+  # """
+  # hostID: ID
   configFormID: ID!
 }
 
