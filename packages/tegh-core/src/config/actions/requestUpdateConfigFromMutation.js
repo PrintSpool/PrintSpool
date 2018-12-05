@@ -3,7 +3,7 @@ import Ajv from 'ajv'
 import getMutationConfigFormInfo from '../selectors/getMutationConfigFormInfo'
 import requestSetConfig from './requestSetConfig'
 
-const requestSetConfigFromMutation = (source, args, { store }) => {
+const requestUpdateConfigFromMutation = (source, args, { store }) => {
   const {
     configFormID,
     modelVersion,
@@ -12,7 +12,7 @@ const requestSetConfigFromMutation = (source, args, { store }) => {
   const state = store.getState()
   const {
     subject,
-    schemaKey,
+    schemaFormKey,
     collectionPath,
   } = getMutationConfigFormInfo({ state, args })
 
@@ -29,9 +29,9 @@ const requestSetConfigFromMutation = (source, args, { store }) => {
     )
   }
 
-  const schema = state.schemaForms.get(schemaKey)
+  const schema = state.schemaForms.get(schemaFormKey)
   if (schema == null) {
-    throw new Error(`schema not defined for ${schemaKey}`)
+    throw new Error(`schemaForm not defined for ${schemaFormKey}`)
   }
 
   // Validate the input against the JSON Schema
@@ -66,4 +66,4 @@ const requestSetConfigFromMutation = (source, args, { store }) => {
   return { action }
 }
 
-export default requestSetConfigFromMutation
+export default requestUpdateConfigFromMutation

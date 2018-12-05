@@ -63,14 +63,14 @@ type JSONSchemaForm {
 }
 
 input SchemaFormQueryInput {
-  routingMode: ConfigRoutingMode!
+  collection: ConfigCollection!
   """
-    printerID is required for PRINTER ConfigRoutingMode config forms
+    printerID is required for PRINTER ConfigCollection config forms
   """
   printerID: ID
   # TODO: host conig support
   # """
-  #   hostID is required for HOST ConfigRoutingMode config forms
+  #   hostID is required for HOST ConfigCollection config forms
   # """
   # hostID: ID
 
@@ -86,19 +86,38 @@ input SchemaFormQueryInput {
 # Mutations
 
 extend type Mutation {
-  setConfig(input: SetConfigInput!): SetConfigResponse
+  createConfig(input: CreateConfigInput!): SetConfigResponse
+  updateConfig(input: UpdateConfigInput!): SetConfigResponse
   deleteConfig(input: DeleteConfigInput!): Boolean
 }
 
-input SetConfigInput {
-  routingMode: ConfigRoutingMode!
+input CreateConfigInput {
+  collection: ConfigCollection!
   """
-    printerID is required for PRINTER ConfigRoutingMode config forms
+    The type of the component/material or the package of the plugin
+  """
+  schemaFormKey: String!
+  """
+    printerID is required for PLUGIN and COMPONENT ConfigCollection config forms
   """
   printerID: ID
   # TODO: host conig support
   # """
-  #   hostID is required for HOST ConfigRoutingMode config forms
+  #   hostID is required for HOST ConfigCollection config forms
+  # """
+  # hostID: ID
+  model: JSON!
+}
+
+input UpdateConfigInput {
+  collection: ConfigCollection!
+  """
+    printerID is required for PLUGIN and COMPONENT ConfigCollection config forms
+  """
+  printerID: ID
+  # TODO: host conig support
+  # """
+  #   hostID is required for HOST ConfigCollection config forms
   # """
   # hostID: ID
   configFormID: ID!
@@ -107,14 +126,14 @@ input SetConfigInput {
 }
 
 input DeleteConfigInput {
-  routingMode: ConfigRoutingMode!
+  collection: ConfigCollection!
   """
-    printerID is required for PRINTER ConfigRoutingMode config forms
+    printerID is required for PRINTER ConfigCollection config forms
   """
   printerID: ID
   # TODO: host conig support
   # """
-  #   hostID is required for HOST ConfigRoutingMode config forms
+  #   hostID is required for HOST ConfigCollection config forms
   # """
   # hostID: ID
   configFormID: ID!
@@ -152,16 +171,16 @@ type JSONSchemaError {
 }
 
 """
-  Each config form is either a part of a PRINTER, MATERIAL or HOST.
-  The routingMode enables tegh combinators to route configuration changes to
+  Each config model encapsulates a PLUGIN, COMPONENT, MATERIAL or HOST.
+
+  The collection enables tegh combinators to route configuration changes to
   the correct delegate tegh host.
 
-  Components and plugins must use PRINTER routingMode.
-  Materials must use MATERIAL routingMode.
-  Host routingMode is reserved for future use.
+  Host collection is reserved for future use.
 """
-enum ConfigRoutingMode {
-  PRINTER,
+enum ConfigCollection {
+  PLUGIN,
+  COMPONENT,
   MATERIAL,
   HOST,
 }

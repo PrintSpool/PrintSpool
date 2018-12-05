@@ -34,9 +34,9 @@ const QueryResolvers = {
       return state.config.materials
     },
     schemaForm: (source, args, { store }) => {
-      const { routingMode, printerID, schemaFormKey } = args.input
-      switch (routingMode) {
-        case 'PRINTER': {
+      const { collection, printerID, schemaFormKey } = args.input
+      switch (collection) {
+        case 'COMPONENT': {
           const state = store.getState()
           if (printerID !== state.config.printer.id) {
             throw new Error(`Printer ID: ${printerID} does not exist`)
@@ -45,7 +45,7 @@ const QueryResolvers = {
           return schemaForm
         }
         default: {
-          throw new Error(`Unsupported routingMode: ${routingMode}`)
+          throw new Error(`Unsupported collection: ${collection}`)
         }
       }
     },

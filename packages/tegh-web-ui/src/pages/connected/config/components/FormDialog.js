@@ -27,8 +27,8 @@ export const FORM_DIALOG_FRAGMENT = gql`
 `
 
 const SUBMIT_FORM_DIALOG = gql`
-  mutation submitFormDialog($input: SetConfigInput!) {
-    setConfig(input: $input) {
+  mutation submitFormDialog($input: UpdateConfigInput!) {
+    updateConfig(input: $input) {
       errors {
         dataPath
         message
@@ -70,12 +70,22 @@ const enhance = compose(
               </div>
             )
           }
-          const isPrinterConfig = data.materials == null
 
-          let routingMode = 'PRINTER'
-          if (!isPrinterConfig) {
-            routingMode = 'MATERIAL'
-          }
+          const isPrinterConfig = data.printerConfigs != null
+
+          const collection = (() => {
+            if (data.material != null) {
+              return 'MATERIAL'
+            }
+            const config = data.printerConfigs[0]
+            if (config.plugins != null) {
+              return 'PLUGIN'
+            }
+            if (config.components != null) {
+              return 'COMPONENT'
+            }
+            throw new Error('Invalid FormDialog data')
+          })()
 
           const configFormModel = (() => {
             if (data.materials != null) return data.materials[0]
@@ -86,7 +96,7 @@ const enhance = compose(
 
           return (
             <Component
-              routingMode={routingMode}
+              collection={collection}
               isPrinterConfig={isPrinterConfig}
               open={open}
               data={configFormModel}
@@ -101,7 +111,7 @@ const enhance = compose(
   }),
   Component => (props) => {
     const {
-      routingMode,
+      collection,
       printerID,
       data,
       isPrinterConfig,
@@ -112,7 +122,7 @@ const enhance = compose(
       configFormID: data.id,
       modelVersion: data.modelVersion,
       model: data.model,
-      routingMode,
+      collection,
     }
 
     if (isPrinterConfig) {

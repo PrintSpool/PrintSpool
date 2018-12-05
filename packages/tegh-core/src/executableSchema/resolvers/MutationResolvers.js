@@ -1,7 +1,8 @@
 import actionResolver from '../../util/actionResolver'
 
 /* config */
-import requestSetConfigFromMutation from '../../config/actions/requestSetConfigFromMutation'
+import requestCreateConfigFromMutation from '../../config/actions/requestCreateConfigFromMutation'
+import requestUpdateConfigFromMutation from '../../config/actions/requestUpdateConfigFromMutation'
 import requestDeleteConfigFromMutation from '../../config/actions/requestDeleteConfigFromMutation'
 /* jobQueue */
 import requestCreateJob from '../../jobQueue/actions/requestCreateJob'
@@ -14,11 +15,24 @@ import spoolMacro from '../../spool/actions/spoolMacro'
 const MutationResolvers = {
   Mutation: {
     /* config */
-    setConfig: (source, args, { store }) => {
+    createConfig: (source, args, { store }) => {
       const {
         action,
         errors,
-      } = requestSetConfigFromMutation(source, args, { store })
+      } = requestCreateConfigFromMutation(source, args, { store })
+
+      if (errors) {
+        return { errors }
+      }
+
+      store.dispatch(action)
+      return {}
+    },
+    updateConfig: (source, args, { store }) => {
+      const {
+        action,
+        errors,
+      } = requestUpdateConfigFromMutation(source, args, { store })
 
       if (errors) {
         return { errors }

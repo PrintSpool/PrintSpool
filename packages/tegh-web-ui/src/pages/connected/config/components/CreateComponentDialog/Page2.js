@@ -29,7 +29,7 @@ const Page2 = ({
     query={GET_SCHEMA_FORM}
     variables={{
       input: {
-        routingMode: 'PRINTER',
+        collection: 'COMPONENT',
         printerID,
         schemaFormKey: values.componentType,
       },
@@ -38,6 +38,7 @@ const Page2 = ({
     {({ loading, error, data }) => {
       if (loading) return null
       if (error) return `Error!: ${error}`
+      { JSON.stringify(values.model)}
       return (
         <SchemaForm
           schema={data.schemaForm.schema}
@@ -47,18 +48,10 @@ const Page2 = ({
             (keypath, value) => {
               // Note: we do not yet support nested fields here
               const nextModel = {
-                ...data.model,
+                ...values.model,
                 [keypath[0]]: value,
               }
               setFieldValue('model', nextModel)
-              // client.writeFragment({
-              //   id: `${data.__typename}:${data.id}`,
-              //   fragment: FORM_DIALOG_FRAGMENT,
-              //   data: {
-              //     ...data,
-              //     model: nextModel,
-              //   },
-              // })
             }
           }
         />

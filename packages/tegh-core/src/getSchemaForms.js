@@ -82,6 +82,12 @@ const getSchemaForms = () => ({
       ...schema,
       type: 'object',
       title: 'Axis',
+      required: [
+        ...(schema.required || []),
+        'name',
+        'address',
+        'feedrate',
+      ],
       properties: {
         ...componentBaseProperties(schema),
         address: {
@@ -105,6 +111,12 @@ const getSchemaForms = () => ({
       ...schema,
       type: 'object',
       title: 'Build Platform',
+      required: [
+        ...(schema.required || []),
+        'name',
+        'address',
+        'heater',
+      ],
       properties: {
         ...componentBaseProperties(schema),
         address: {
@@ -128,6 +140,13 @@ const getSchemaForms = () => ({
       ...schema,
       type: 'object',
       title: 'Controller',
+      required: [
+        ...(schema.required || []),
+        'name',
+        'serialPortID',
+        'baudRate',
+        'simulate',
+      ],
       properties: {
         ...componentBaseProperties(schema),
         serialPortID: {
@@ -165,6 +184,11 @@ const getSchemaForms = () => ({
       ...schema,
       type: 'object',
       title: 'Fan',
+      required: [
+        ...(schema.required || []),
+        'name',
+        'address',
+      ],
       properties: {
         ...componentBaseProperties(schema),
         address: {
@@ -183,6 +207,14 @@ const getSchemaForms = () => ({
       ...schema,
       type: 'object',
       title: 'Fan',
+      required: [
+        ...(schema.required || []),
+        'name',
+        'address',
+        'feedrate',
+        'materialID',
+        'heater',
+      ],
       properties: {
         ...componentBaseProperties(schema),
         address: {

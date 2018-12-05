@@ -1,6 +1,7 @@
 import getComponents from './getComponents'
 
-const PRINTER = 'PRINTER'
+const PLUGIN = 'PLUGIN'
+const COMPONENT = 'COMPONENT'
 const MATERIAL = 'MATERIAL'
 
 /*
@@ -10,36 +11,37 @@ const MATERIAL = 'MATERIAL'
  */
 const getMutationConfigFormInfo = ({ state, args }) => {
   const {
-    routingMode,
+    collection,
     printerID,
     // TODO: host config forms
     // hostID,
     configFormID,
   } = args.input
 
-  switch (routingMode) {
-    case PRINTER: {
-      const components = getComponents(state.config)
-      const { plugins } = state.config.printer
-
+  switch (collection) {
+    case PLUGIN:
+    case COMPONENT: {
       if (printerID !== state.config.printer.id) {
         throw new Error(`Printer ID: ${printerID} does not exist`)
       }
 
-      const isComponent = components.get(configFormID) != null
+      if (collection === PLUGIN) {
+        const { plugins } = state.config.printer
+        const subject = plugins.find(p => p.id === configFormID)
 
-      const subject = (
-        components.get(configFormID)
-        || plugins.find(p => p.id === configFormID)
-      )
+        return {
+          subject,
+          collectionPath: ['printer', 'plugins'],
+          schemaFormKey: subject.package,
+        }
+      }
 
-      const collectionKey = isComponent ? 'components' : 'plugins'
-      const collectionPath = ['printer', collectionKey]
+      const subject = getComponents(state.config).get(configFormID)
 
       return {
         subject,
-        collectionPath,
-        schemaKey: subject.type || subject.package,
+        collectionPath: ['printer', 'components'],
+        schemaFormKey: subject.type,
       }
     }
     case MATERIAL: {
@@ -47,14 +49,14 @@ const getMutationConfigFormInfo = ({ state, args }) => {
       return {
         subject,
         collectionPath: ['materials'],
-        schemaKey: subject.type,
+        schemaFormKey: subject.type,
       }
     }
     // case HOST: {
     //
     // }
     default: {
-      throw new Error(`Unsupported routingMode: ${routingMode}`)
+      throw new Error(`Unsupported collection: ${collection}`)
     }
   }
 }

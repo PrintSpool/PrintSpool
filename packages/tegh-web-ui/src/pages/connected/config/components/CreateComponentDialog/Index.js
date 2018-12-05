@@ -1,32 +1,32 @@
 import React from 'react'
-import { compose, withProps } from 'recompose'
+import { compose } from 'recompose'
 import { withRouter } from 'react-router'
-import { SchemaForm } from 'react-schema-form'
 import gql from 'graphql-tag'
-import { Query, Mutation } from 'react-apollo'
-import { Link } from 'react-router-dom'
-import { Formik, Form, Field } from 'formik'
-import { TextField } from 'formik-material-ui'
+import { Mutation } from 'react-apollo'
+import { Formik, Form } from 'formik'
 import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogContentText,
   DialogActions,
   Button,
   Stepper,
   Step,
   StepLabel,
-  MenuItem,
-  Hidden,
 } from '@material-ui/core'
 
+import componentTypeNames from './componentTypeNames'
 import Page1 from './Page1'
 import Page2 from './Page2'
 
-const DELETE_CONFIG = gql`
-  mutation deleteConfig($input: DeleteConfigInput!) {
-    deleteConfig(input: $input)
+const CREATE_COMPONENT = gql`
+  mutation createComponent($input: CreateConfigInput!) {
+    createConfig(input: $input) {
+      errors {
+        dataPath
+        message
+      }
+    }
   }
 `
 
@@ -34,41 +34,28 @@ const enhance = compose(
   withRouter,
   Component => (props) => {
     const {
-      id,
-      routingMode,
-      printerID,
       history,
     } = props
 
-    const input = {
-      configFormID: id,
-      routingMode,
-    }
-
-    if (routingMode === 'PRINTER') {
-      input.printerID = printerID
-    }
-
     return (
       <Mutation
-        mutation={DELETE_CONFIG}
-        variables={{ input }}
+        mutation={CREATE_COMPONENT}
         update={(mutationResult) => {
           if (mutationResult.data != null) {
             const nextURL = history.location.pathname
-              .replace(/[^/]+\/delete$/, '')
+              .replace(/[^/]+\/new/, '')
               .replace(/materials\/[^/]+\/$/, 'materials/')
             history.push(nextURL)
           }
         }}
       >
         {
-          (deleteConfig, { called, error }) => {
+          (create, { called, error }) => {
             if (error != null) return <div>{JSON.stringify(error)}</div>
             if (called) return <div />
             return (
               <Component
-                onDelete={deleteConfig}
+                create={create}
                 {...props}
               />
             )
@@ -81,14 +68,14 @@ const enhance = compose(
 
 const STEPS = [
   'Select a Type',
-  'Configure the  Component',
+  'Configure the Component',
 ]
 
 const createComponentDialog = ({
   printerID,
   open,
   history,
-  onSubmit,
+  create,
 }) => (
   <Dialog
     open={open}
@@ -113,17 +100,35 @@ const createComponentDialog = ({
       onSubmit={(values, bag) => {
         const isLastPage = values.activeStep === STEPS.length - 1
         if (isLastPage) {
-          return onSubmit(values, bag)
+          return create({
+            variables: {
+              input: {
+                printerID,
+                collection: 'COMPONENT',
+                schemaFormKey: values.componentType,
+                model: values.model,
+              },
+            },
+          })
         }
         bag.setTouched({})
         bag.setFieldValue('activeStep', values.activeStep + 1)
         bag.setSubmitting(false)
       }}
     >
-      {({ isSubmitting, values, setTouched, setFieldValue }) => (
+      {({ values, setTouched, setFieldValue }) => (
         <Form>
           <DialogTitle id="create-dialog-title">
-            Add a Component
+            Add a
+            {' '}
+            {
+              values.componentType !== '' && (
+                componentTypeNames
+                  .find(c => c.value === values.componentType)
+                  .label
+              )
+            }
+            { values.componentType === '' && 'Component' }
           </DialogTitle>
           <DialogContent style={{ minHeight: '12em' }}>
             <Stepper activeStep={values.activeStep}>
