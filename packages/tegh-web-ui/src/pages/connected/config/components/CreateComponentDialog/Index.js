@@ -85,6 +85,7 @@ const STEPS = [
 ]
 
 const createComponentDialog = ({
+  printerID,
   open,
   history,
   onSubmit,
@@ -100,6 +101,7 @@ const createComponentDialog = ({
       initialValues={{
         activeStep: 0,
         componentType: '',
+        model: {},
       }}
       validate={(values) => {
         const errors = {}
@@ -114,10 +116,7 @@ const createComponentDialog = ({
           return onSubmit(values, bag)
         }
         bag.setTouched({})
-        bag.setValues({
-          ...values,
-          activeStep: values.activeStep + 1,
-        })
+        bag.setFieldValue('activeStep', values.activeStep + 1)
         bag.setSubmitting(false)
       }}
     >
@@ -126,7 +125,7 @@ const createComponentDialog = ({
           <DialogTitle id="create-dialog-title">
             Add a Component
           </DialogTitle>
-          <DialogContent>
+          <DialogContent style={{ minHeight: '12em' }}>
             <Stepper activeStep={values.activeStep}>
               {
                 STEPS.map((label, index) => (
@@ -140,7 +139,11 @@ const createComponentDialog = ({
               <Page1 />
             )}
             {values.activeStep === 1 && (
-              <Page2 componentType={values.componentType} />
+              <Page2
+                printerID={printerID}
+                values={values}
+                setFieldValue={setFieldValue}
+              />
             )}
           </DialogContent>
           <DialogActions>

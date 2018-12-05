@@ -34,8 +34,20 @@ const QueryResolvers = {
       return state.config.materials
     },
     schemaForm: (source, args, { store }) => {
-      const { routingMode, printerID, schemaFormKey } = args
-      // TODO
+      const { routingMode, printerID, schemaFormKey } = args.input
+      switch (routingMode) {
+        case 'PRINTER': {
+          const state = store.getState()
+          if (printerID !== state.config.printer.id) {
+            throw new Error(`Printer ID: ${printerID} does not exist`)
+          }
+          const schemaForm = state.schemaForms.get(schemaFormKey)
+          return schemaForm
+        }
+        default: {
+          throw new Error(`Unsupported routingMode: ${routingMode}`)
+        }
+      }
     },
     /*
      * jobQueue

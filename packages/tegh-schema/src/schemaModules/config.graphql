@@ -8,7 +8,7 @@ extend type Query {
 
   materials(materialID: ID): [Material!]!
 
-  schemaForm(input: schemaFormQueryInput!): JSONSchemaForm!
+  schemaForm(input: SchemaFormQueryInput!): JSONSchemaForm!
 }
 
 type HostConfigForm {
@@ -62,7 +62,7 @@ type JSONSchemaForm {
   form: JSON!
 }
 
-input schemaFormQueryInput {
+input SchemaFormQueryInput {
   routingMode: ConfigRoutingMode!
   """
     printerID is required for PRINTER ConfigRoutingMode config forms
