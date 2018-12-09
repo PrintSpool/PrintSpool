@@ -35,12 +35,17 @@ const QueryResolvers = {
     },
     schemaForm: (source, args, { store }) => {
       const { collection, printerID, schemaFormKey } = args.input
+      const state = store.getState()
+
       switch (collection) {
         case 'COMPONENT': {
-          const state = store.getState()
           if (printerID !== state.config.printer.id) {
             throw new Error(`Printer ID: ${printerID} does not exist`)
           }
+          const schemaForm = state.schemaForms.get(schemaFormKey)
+          return schemaForm
+        }
+        case 'MATERIAL': {
           const schemaForm = state.schemaForms.get(schemaFormKey)
           return schemaForm
         }

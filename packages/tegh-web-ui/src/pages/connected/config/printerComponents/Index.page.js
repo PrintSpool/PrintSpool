@@ -153,7 +153,6 @@ const ComponentsConfigIndex = ({
       />
     )}
     <CreateComponentDialog
-      routingMode="PRINTER"
       printerID={printerID}
       open={componentID === 'new'}
     />

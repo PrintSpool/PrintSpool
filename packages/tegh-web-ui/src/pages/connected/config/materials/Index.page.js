@@ -21,6 +21,7 @@ import withLiveData from '../../shared/higherOrderComponents/withLiveData'
 
 import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog/Index'
 import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog'
+import CreateMaterialDialog from '../components/CreateMaterialDialog/Index'
 
 const CONFIG_SUBSCRIPTION = gql`
   subscription ConfigSubscription {
@@ -29,6 +30,7 @@ const CONFIG_SUBSCRIPTION = gql`
       query {
         materials {
           id
+          name
           shortSummary
         }
       }
@@ -48,31 +50,29 @@ const styles = theme => ({
 })
 
 const enhance = compose(
-  withProps(ownProps => ({
+  withProps(() => ({
     subscription: CONFIG_SUBSCRIPTION,
     variables: {},
   })),
   withLiveData,
   withStyles(styles, { withTheme: true }),
-  withProps(({ materials, match: { params } }) => ({
-    materialID: params.sku && `${params.org}/${params.sku}`,
-    verb: params.verb,
+  withProps(({ match: { params } }) => ({
+    materialID: params.materialID,
+    verb: params.materialID === 'new' ? 'new' : params.verb,
   })),
 )
 
 const MaterialsConfigIndex = ({
   classes,
-  printerID,
   materials,
   materialID,
-  updateSubConfig,
   verb,
 }) => (
   <main>
     {
       materialID != null && verb == null && (
         <UpdateDialog
-          title={materialID}
+          title={(materials.find(m => m.id === materialID) || {}).name}
           open
           collection="MATERIAL"
           variables={{ materialID }}
@@ -89,21 +89,26 @@ const MaterialsConfigIndex = ({
     }
     { materialID != null && verb === 'delete' && (
       <DeleteConfirmationDialog
-        type={'material'}
+        type="material"
         title={materialID}
         id={materialID}
         collection="MATERIAL"
         open={materialID != null}
       />
     )}
+    <CreateMaterialDialog
+      open={verb === 'new'}
+    />
     <Tooltip title="Add Component" placement="left">
-      <Button
-        component="label"
-        variant="fab"
-        className={classes.addFab}
-      >
-        <Add />
-      </Button>
+      <Link to="new/" style={{ textDecoration: 'none' }}>
+        <Button
+          component="label"
+          variant="fab"
+          className={classes.addFab}
+        >
+          <Add />
+        </Button>
+      </Link>
     </Tooltip>
     <List>
       {
@@ -118,7 +123,7 @@ const MaterialsConfigIndex = ({
               <Style />
             </ListItemIcon>
             <ListItemText
-              primary={material.id}
+              primary={material.name}
               secondary={material.shortSummary}
             />
           </ListItem>

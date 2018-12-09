@@ -34,8 +34,8 @@ const Routes = () => (
             <Route exact path="/:hostID/:printerID/config/components/:componentID" component={ComponentsConfigPage} />
             <Route exact path="/:hostID/:printerID/config/components/:componentID/:verb" component={ComponentsConfigPage} />
             <Route exact path="/:hostID/:printerID/config/materials/" component={MaterialsConfigPage} />
-            <Route exact path="/:hostID/:printerID/config/materials/:org/:sku" component={MaterialsConfigPage} />
-            <Route exact path="/:hostID/:printerID/config/materials/:org/:sku/:verb" component={MaterialsConfigPage} />
+            <Route exact path="/:hostID/:printerID/config/materials/:materialID" component={MaterialsConfigPage} />
+            <Route exact path="/:hostID/:printerID/config/materials/:materialID/:verb" component={MaterialsConfigPage} />
           </ConnectionFrame>
         )}
       />

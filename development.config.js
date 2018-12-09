@@ -104,7 +104,7 @@ const printerConfig = {
         name: 'Extruder 1',
         heater: true,
         feedrate: 3,
-        materialID: 'generic/pla',
+        materialID: 'dkdow2',
       },
     },
     {
@@ -116,7 +116,7 @@ const printerConfig = {
         name: 'Extruder 2',
         heater: true,
         feedrate: 3,
-        materialID: 'generic/abs',
+        materialID: 'bw021',
       },
     },
     {
@@ -210,19 +210,21 @@ const hostConfig = {
 
 const materials = [
   {
-    id: 'generic/pla',
+    id: 'dkdow2',
     modelVersion: 1,
     type: 'FDM_FILAMENT',
     model: {
+      name: 'generic/pla',
       targetExtruderTemperature: 220,
       targetBedTemperature: 60,
     },
   },
   {
-    id: 'generic/abs',
+    id: 'bw021',
     modelVersion: 1,
     type: 'FDM_FILAMENT',
     model: {
+      name: 'generic/abs',
       targetExtruderTemperature: 200,
       targetBedTemperature: 60,
     },

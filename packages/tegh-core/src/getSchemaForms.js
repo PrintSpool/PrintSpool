@@ -64,6 +64,11 @@ const getSchemaForms = () => ({
       ],
       properties: {
         ...(schema.properties || {}),
+        name: {
+          title: 'Name',
+          type: 'string',
+          minLength: 1,
+        },
         targetExtruderTemperature: {
           title: 'Target Extruder Temperature',
           type: 'number',

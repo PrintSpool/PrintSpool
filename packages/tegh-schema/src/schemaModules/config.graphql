@@ -35,6 +35,7 @@ type Material implements ConfigForm {
   schemaForm: JSONSchemaForm!
 
   type: String!
+  name: String!
   shortSummary: String!
 }
 
