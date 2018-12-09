@@ -227,7 +227,7 @@ const getSchemaForms = () => ({
         },
         materialID: {
           title: 'Material',
-          type: 'enum',
+          type: 'string',
           enum: [
             'generic/abs',
             'generic/pla',

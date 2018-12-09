@@ -26,6 +26,7 @@
     "@d1plo1d/connected-react-router": "^4.5.0-routerReducerPatch",
     "@material-ui/core": "^3.5.1",
     "@material-ui/icons": "^3.0.1",
+    "ajv": "^6.6.1",
     "apollo-cache-inmemory": "^1.3.5",
     "apollo-client": "^2.4.2",
     "apollo-client-preset": "^1.0.1",
@@ -78,6 +79,8 @@
     "styled-components": "^3.0.2",
     "subscriptions-transport-ws": "^0.9.4",
     "tegh-protocol": "link:../tegh-protocol",
+    "uniforms": "^1.29.0",
+    "uniforms-material": "^1.29.0",
     "voca": "^1.4.0"
   },
   "devDependencies": {

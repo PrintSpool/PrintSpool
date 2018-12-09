@@ -2,10 +2,11 @@ import React from 'react'
 import gql from 'graphql-tag'
 import { Query } from 'react-apollo'
 import { compose } from 'recompose'
-import { SchemaForm } from 'react-schema-form'
+import Ajv from 'ajv'
 import {
   MenuItem,
 } from '@material-ui/core'
+import { createSelector } from 'reselect'
 
 const GET_SCHEMA_FORM = gql`
   query GetSchemaForm($input: SchemaFormQueryInput!) {
@@ -18,6 +19,30 @@ const GET_SCHEMA_FORM = gql`
 `
 
 const enhance = compose(
+)
+
+const getSchemaBridge = createSelector(
+  schema => schema,
+  (schema) => {
+    const ajv = new Ajv({
+      allErrors: true,
+      useDefaults: true,
+    })
+
+    const validator = ajv.compile(schema)
+
+    const schemaValidator = (model) => {
+      validator(model)
+
+      if (validator.errors && validator.errors.length) {
+        // eslint-disable-next-line no-throw-literal
+        throw { details: validator.errors }
+      }
+    }
+
+    const schemaBridge = new JSONSchemaBridge(schema, schemaValidator)
+    return schemaBridge
+  },
 )
 
 const Page2 = ({
@@ -38,18 +63,21 @@ const Page2 = ({
     {({ loading, error, data }) => {
       if (loading) return null
       if (error) return `Error!: ${error}`
-      { JSON.stringify(values.model)}
+
+      const schemaBridge = getSchemaBridge(data.schemaForm.schema)
+
+      // { JSON.stringify(values.model)}
       return (
-        <SchemaForm
-          schema={data.schemaForm.schema}
-          form={data.schemaForm.form}
+        <ValidatedQuickForm
+          showInlineError
+          schema={schemaBridge}
           model={values.model}
-          onModelChange={
-            (keypath, value) => {
+          onChange={
+            (key, value) => {
               // Note: we do not yet support nested fields here
               const nextModel = {
                 ...values.model,
-                [keypath[0]]: value,
+                [key]: value,
               }
               setFieldValue('model', nextModel)
             }

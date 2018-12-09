@@ -1,5 +1,5 @@
 import React from 'react'
-import { compose } from 'recompose'
+import { compose, withState, withProps } from 'recompose'
 import { withRouter } from 'react-router'
 import gql from 'graphql-tag'
 import { Mutation } from 'react-apollo'
@@ -17,7 +17,10 @@ import {
 
 import componentTypeNames from './componentTypeNames'
 import Page1 from './Page1'
-import Page2 from './Page2'
+
+import FormikSchemaForm from '../FormikSchemaForm/index'
+import withValidate from '../FormikSchemaForm/withValidate'
+import getDefaultValues from '../FormikSchemaForm/getDefaultValues'
 
 const CREATE_COMPONENT = gql`
   mutation createComponent($input: CreateConfigInput!) {
@@ -30,8 +33,24 @@ const CREATE_COMPONENT = gql`
   }
 `
 
+const GET_SCHEMA_FORM = gql`
+  query GetSchemaForm($input: SchemaFormQueryInput!) {
+    schemaForm(input: $input) {
+      id
+      schema
+      form
+    }
+  }
+`
+
 const enhance = compose(
+  withState('wizard', 'updateWizard', {
+    activeStep: 0,
+    schemaForm: { schema: null },
+  }),
   withRouter,
+  withProps(ownProps => ({ schema: ownProps.wizard.schemaForm.schema })),
+  withValidate,
   Component => (props) => {
     const {
       history,
@@ -50,12 +69,13 @@ const enhance = compose(
         }}
       >
         {
-          (create, { called, error }) => {
+          (create, { called, error, client }) => {
             if (error != null) return <div>{JSON.stringify(error)}</div>
             if (called) return <div />
             return (
               <Component
                 create={create}
+                client={client}
                 {...props}
               />
             )
@@ -76,6 +96,10 @@ const createComponentDialog = ({
   open,
   history,
   create,
+  client,
+  validate: validateSchemaForm,
+  wizard,
+  updateWizard,
 }) => (
   <Dialog
     open={open}
@@ -86,19 +110,37 @@ const createComponentDialog = ({
   >
     <Formik
       initialValues={{
-        activeStep: 0,
         componentType: '',
         model: {},
       }}
       validate={(values) => {
         const errors = {}
+
         if (!values.componentType) {
           errors.componentType = 'Required'
         }
+
+        const valid = validateSchemaForm(values.model)
+
+        if (!valid) {
+          const modelErrors = {}
+          validateSchemaForm.errors.forEach((error) => {
+            const fieldName = (
+              error.params.missingProperty
+              || error.dataPath
+            )
+            modelErrors[fieldName] = error.message
+          })
+          return {
+            ...errors,
+            model: modelErrors,
+          }
+        }
+
         return errors
       }}
-      onSubmit={(values, bag) => {
-        const isLastPage = values.activeStep === STEPS.length - 1
+      onSubmit={async (values, bag) => {
+        const isLastPage = wizard.activeStep === STEPS.length - 1
         if (isLastPage) {
           return create({
             variables: {
@@ -106,17 +148,36 @@ const createComponentDialog = ({
                 printerID,
                 collection: 'COMPONENT',
                 schemaFormKey: values.componentType,
-                model: values.model,
               },
             },
           })
         }
-        bag.setTouched({})
-        bag.setFieldValue('activeStep', values.activeStep + 1)
-        bag.setSubmitting(false)
+
+        const { data } = await client.query({
+          query: GET_SCHEMA_FORM,
+          // TODO: move variables to where query is called
+          variables: {
+            input: {
+              collection: 'COMPONENT',
+              printerID,
+              schemaFormKey: values.componentType,
+            },
+          },
+        })
+
+        // bag.setTouched({})
+        bag.resetForm({
+          ...values,
+          model: getDefaultValues(data.schemaForm),
+        })
+        updateWizard({
+          activeStep: wizard.activeStep + 1,
+          schemaForm: data.schemaForm,
+        })
+        // bag.setSubmitting(false)
       }}
     >
-      {({ values, setTouched, setFieldValue }) => (
+      {({ values, setTouched, setFieldValue, isSubmitting, isValid }) => (
         <Form>
           <DialogTitle id="create-dialog-title">
             Add a
@@ -131,44 +192,51 @@ const createComponentDialog = ({
             { values.componentType === '' && 'Component' }
           </DialogTitle>
           <DialogContent style={{ minHeight: '12em' }}>
-            <Stepper activeStep={values.activeStep}>
+            <Stepper activeStep={wizard.activeStep}>
               {
                 STEPS.map((label, index) => (
-                  <Step key={label} completed={index < values.activeStep}>
+                  <Step key={label} completed={index < wizard.activeStep}>
                     <StepLabel>{label}</StepLabel>
                   </Step>
                 ))
               }
             </Stepper>
-            {values.activeStep === 0 && (
+            {wizard.activeStep === 0 && (
               <Page1 />
             )}
-            {values.activeStep === 1 && (
-              <Page2
-                printerID={printerID}
-                values={values}
-                setFieldValue={setFieldValue}
-              />
-            )}
+            {wizard.activeStep === 1 && (() => {
+              const { schema, form } = wizard.schemaForm
+
+              return (
+                <FormikSchemaForm
+                  schema={schema}
+                  form={form}
+                  path="model."
+                />
+              )
+            })()}
           </DialogContent>
           <DialogActions>
-            {values.activeStep === 0 && (
+            {wizard.activeStep === 0 && (
               <Button onClick={() => history.goBack()}>
                 Cancel
               </Button>
             )}
-            {values.activeStep > 0 && (
+            {wizard.activeStep > 0 && (
               <Button
                 onClick={() => {
                   setTouched({})
-                  setFieldValue('activeStep', values.activeStep - 1)
+                  updateWizard({
+                    activeStep: wizard.activeStep - 1,
+                    schemaForm: { schema: null },
+                  })
                 }}
               >
                 Back
               </Button>
             )}
             <Button type="submit" color="primary">
-              {values.activeStep === STEPS.length - 1 ? 'Finish' : 'Next'}
+              {wizard.activeStep === STEPS.length - 1 ? 'Finish' : 'Next'}
             </Button>
           </DialogActions>
         </Form>
