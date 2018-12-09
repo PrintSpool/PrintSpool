@@ -128,6 +128,7 @@ const ComponentsConfigIndex = ({
       <UpdateDialog
         title={selectedComponent.name}
         open={selectedComponent != null}
+        deleteButton
         collection="COMPONENT"
         variables={{ printerID, componentID: selectedComponent.id }}
         query={gql`

@@ -74,6 +74,7 @@ const MaterialsConfigIndex = ({
         <UpdateDialog
           title={(materials.find(m => m.id === materialID) || {}).name}
           open
+          deleteButton
           collection="MATERIAL"
           variables={{ materialID }}
           query={gql`

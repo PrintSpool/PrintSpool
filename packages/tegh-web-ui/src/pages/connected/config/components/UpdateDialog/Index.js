@@ -157,6 +157,7 @@ const UpdateDialog = ({
   onSubmit,
   data,
   validate,
+  deleteButton = false,
 }) => (
   <Dialog
     open={open}
@@ -180,13 +181,15 @@ const UpdateDialog = ({
             />
           </DialogContent>
           <DialogActions>
-            <div style={{ flex: 1 }}>
-              <Link to="delete" style={{ textDecoration: 'none' }}>
-                <Button color="secondary">
-                  Delete
-                </Button>
-              </Link>
-            </div>
+            { deleteButton && (
+              <div style={{ flex: 1 }}>
+                <Link to="delete" style={{ textDecoration: 'none' }}>
+                  <Button color="secondary">
+                    Delete
+                  </Button>
+                </Link>
+              </div>
+            )}
             <Button onClick={() => history.goBack()}>
               Cancel
             </Button>
