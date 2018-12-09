@@ -146,7 +146,7 @@ const ComponentsConfigIndex = ({
         type={selectedComponent.type.toLowerCase()}
         title={selectedComponent.name}
         id={selectedComponent.id}
-        routingMode="PRINTER"
+        collection="COMPONENT"
         printerID={printerID}
         open={selectedComponent != null}
         query={gql`

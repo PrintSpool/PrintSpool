@@ -25,18 +25,15 @@ const enhance = compose(
   Component => (props) => {
     const {
       id,
-      routingMode,
+      collection,
       printerID,
       history,
     } = props
 
     const input = {
       configFormID: id,
-      routingMode,
-    }
-
-    if (routingMode === 'PRINTER') {
-      input.printerID = printerID
+      collection,
+      printerID,
     }
 
     return (
@@ -45,10 +42,7 @@ const enhance = compose(
         variables={{ input }}
         update={(mutationResult) => {
           if (mutationResult.data != null) {
-            const nextURL = history.location.pathname
-              .replace(/[^/]+\/delete$/, '')
-              .replace(/materials\/[^/]+\/$/, 'materials/')
-            history.push(nextURL)
+            history.go(-2)
           }
         }}
       >

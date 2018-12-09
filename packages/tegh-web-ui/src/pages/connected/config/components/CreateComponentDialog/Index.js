@@ -61,10 +61,7 @@ const enhance = compose(
         mutation={CREATE_COMPONENT}
         update={(mutationResult) => {
           if (mutationResult.data != null) {
-            const nextURL = history.location.pathname
-              .replace(/[^/]+\/new/, '')
-              .replace(/materials\/[^/]+\/$/, 'materials/')
-            history.push(nextURL)
+            history.goBack()
           }
         }}
       >
@@ -148,6 +145,7 @@ const createComponentDialog = ({
                 printerID,
                 collection: 'COMPONENT',
                 schemaFormKey: values.componentType,
+                model: values.model,
               },
             },
           })
@@ -177,7 +175,7 @@ const createComponentDialog = ({
         // bag.setSubmitting(false)
       }}
     >
-      {({ values, setTouched, setFieldValue, isSubmitting, isValid }) => (
+      {({ values, setTouched }) => (
         <Form>
           <DialogTitle id="create-dialog-title">
             Add a
