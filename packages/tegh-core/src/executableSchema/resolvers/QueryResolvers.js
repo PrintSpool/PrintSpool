@@ -42,11 +42,15 @@ const QueryResolvers = {
           if (printerID !== state.config.printer.id) {
             throw new Error(`Printer ID: ${printerID} does not exist`)
           }
-          const schemaForm = state.schemaForms.get(schemaFormKey)
+          const schemaForm = state.schemaForms.getIn(
+            ['components', schemaFormKey],
+          )
           return schemaForm
         }
         case 'MATERIAL': {
-          const schemaForm = state.schemaForms.get(schemaFormKey)
+          const schemaForm = state.schemaForms.getIn(
+            ['materials', schemaFormKey],
+          )
           return schemaForm
         }
         default: {

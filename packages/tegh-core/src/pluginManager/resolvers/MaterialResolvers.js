@@ -5,7 +5,10 @@ const MaterialFormResolvers = {
     model: source => source.model,
     schemaForm: (source, args, { store }) => {
       const state = store.getState()
-      return state.schemaForms.get(source.type, NullSchemaForm)
+      return state.schemaForms.getIn(
+        ['materials', source.type],
+        NullSchemaForm,
+      )
     },
     name: source => source.model.get('name'),
     shortSummary: source => `${source.model.get('targetExtruderTemperature')}°`,

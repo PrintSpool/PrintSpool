@@ -31,6 +31,7 @@ const getMutationConfigFormInfo = ({ state, args }) => {
 
         return {
           subject,
+          collectionKey: 'plugins',
           collectionPath: ['printer', 'plugins'],
           schemaFormKey: subject.package,
         }
@@ -40,6 +41,7 @@ const getMutationConfigFormInfo = ({ state, args }) => {
 
       return {
         subject,
+        collectionKey: 'components',
         collectionPath: ['printer', 'components'],
         schemaFormKey: subject.type,
       }
@@ -48,6 +50,7 @@ const getMutationConfigFormInfo = ({ state, args }) => {
       const subject = state.config.materials.find(m => m.id === configFormID)
       return {
         subject,
+        collectionKey: 'materials',
         collectionPath: ['materials'],
         schemaFormKey: subject.type,
       }

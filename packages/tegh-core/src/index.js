@@ -8,3 +8,5 @@ export executableSchema from './executableSchema/executableSchema'
 export createTeghHostStore from './executableSchema/createTeghHostStore'
 
 export getSchemaForms from './getSchemaForms'
+
+export configValidation from './configValidation'

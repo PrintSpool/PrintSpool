@@ -31,24 +31,13 @@ const requestCreateConfigFromMutation = (source, args, { store }) => {
   } = args.input
   const state = store.getState()
 
-  const isComponentTypes = ComponentTypeEnum.includes(schemaFormKey)
-
   // TODO: host configs
   if (collection !== PLUGIN && collection !== COMPONENT && collection !== MATERIAL) {
     throw new Error(`Unsupported collection ${collection}`)
   }
 
-  if (collection === PLUGIN && isComponentTypes) {
-    throw new Error(`schemaFormKey ${schemaFormKey} is reserved for components`)
-  }
-  if (collection === PLUGIN && collection.startsWith('host-')) {
-    throw new Error(`schemaFormKey ${schemaFormKey} is reserved for host`)
-  }
-  if (collection === COMPONENT && !isComponentTypes) {
-    throw new Error(`schemaFormKey ${schemaFormKey} is not a component type`)
-  }
-
-  const schemaForm = state.schemaForms.get(schemaFormKey)
+  const collectionKey = collectionKeys[collection]
+  const schemaForm = state.schemaForms.getIn([collectionKey, schemaFormKey])
   if (schemaForm == null) {
     throw new Error(`schemaForm not defined for ${schemaFormKey}`)
   }
@@ -81,9 +70,6 @@ const requestCreateConfigFromMutation = (source, args, { store }) => {
 
   const configRecord = ConfigFactories[collection](recordParams)
 
-  console.log([...nesting, collectionKeys[collection]])
-  console.log([...nesting, collectionKeys[collection]])
-  console.log([...nesting, collectionKeys[collection]])
   const nextConfig = state.config
     .updateIn([...nesting, collectionKeys[collection]], c => (
       c.push(configRecord)

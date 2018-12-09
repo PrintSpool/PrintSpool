@@ -15,6 +15,7 @@
     "reselect": "^4.0.0",
     "strip-newlines": "^1.0.1",
     "tcomb-validation": "^3.4.1",
-    "tegh-core": "^0.4.0"
+    "tegh-core": "^0.4.0",
+    "yup": "^0.26.6"
   }
 }

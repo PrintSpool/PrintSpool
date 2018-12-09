@@ -1,7 +1,12 @@
+import { Record, Map } from 'immutable'
 import { SET_CONFIG } from '../../config/actions/setConfig'
 import getSchemaForms from '../selectors/getSchemaForms'
 
-export const initialState = null
+export const initialState = Record({
+  plugins: Map(),
+  materials: Map(),
+  components: Map(),
+})()
 
 const schemaFormsReducer = (state = initialState, action) => {
   switch (action.type) {

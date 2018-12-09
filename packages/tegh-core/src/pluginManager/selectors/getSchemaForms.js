@@ -1,7 +1,8 @@
-import { Map } from 'immutable'
+import { Record, Map } from 'immutable'
 import { createSelector } from 'reselect'
 import getPlugins from './getPlugins'
 import SchemaForm from '../types/SchemaForm'
+import { initialState } from '../reducers/schemaFormsReducer'
 
 const getSchemaForms = createSelector(
   getPlugins,
@@ -19,10 +20,6 @@ const getSchemaForms = createSelector(
     *   ...
     * }
     */
-    const pluginsSchemaForms = plugins.map(plugin => (
-      (plugin.getSchemaForms && plugin.getSchemaForms()) || {}
-    ))
-
     /*
      * merge all the schema forms.
      *
@@ -46,21 +43,44 @@ const getSchemaForms = createSelector(
      * the plugins to get to their schema forms.
      *
      */
-    const schemas = {}
-    pluginsSchemaForms.forEach((pluginSchemaForms) => {
-      Object.entries(pluginSchemaForms).forEach(
-        ([type, pluginSchemaFormForType]) => {
-          schemas[type] = pluginSchemaFormForType.schema(schemas[type] || {})
-        },
-      )
+    let schemas = initialState
+    plugins
+      .map(plugin => (
+        Object.entries(
+          (plugin.getSchemaForms && plugin.getSchemaForms()) || {},
+        )
+      ))
+      .forEach((pluginSchemaFormCategories) => {
+        // iterating over the plugins
+        pluginSchemaFormCategories.forEach(([category, schemaForms]) => (
+          // iterating over the categories defined in the plugin
+          Object.entries(schemaForms).forEach(
+            ([type, pluginSchemaFormForType]) => {
+              // iterating over the individual schemaForms in the category
+              schemas = schemas.updateIn([category, type], previousSchema => (
+                // executing the schemaForm's schema function against the
+                // previous schema value and saving it's output as the
+                // new schema value
+                pluginSchemaFormForType.schema(previousSchema || {})
+              ))
+            },
+          )
+        ))
+      })
+
+    // wrap each schema in a SchemaForm Record
+    Map(schemas).keySeq().forEach((categoryKey) => {
+      schemas = schemas.update(categoryKey, category => (
+        category.map((schema, type) => SchemaForm({
+          id: type,
+          schema,
+          // TODO: form order customization
+          form: ['*'],
+        }))
+      ))
     })
 
-    return Map(schemas).map((schema, type) => SchemaForm({
-      id: type,
-      schema,
-      // TODO: form order customization
-      form: ['*'],
-    }))
+    return schemas
   },
 )
 

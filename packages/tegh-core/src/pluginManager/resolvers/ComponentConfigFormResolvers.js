@@ -5,7 +5,10 @@ const ComponentConfigFormResolvers = {
     name: source => source.model.get('name'),
     schemaForm: (source, args, { store }) => {
       const state = store.getState()
-      return state.schemaForms.get(source.type, NullSchemaForm)
+      return state.schemaForms.getIn(
+        ['components', source.type],
+        NullSchemaForm,
+      )
     },
   },
 }

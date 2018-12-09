@@ -14,6 +14,7 @@ const requestUpdateConfigFromMutation = (source, args, { store }) => {
     subject,
     schemaFormKey,
     collectionPath,
+    collectionKey,
   } = getMutationConfigFormInfo({ state, args })
 
   if (subject === null) {
@@ -29,7 +30,7 @@ const requestUpdateConfigFromMutation = (source, args, { store }) => {
     )
   }
 
-  const schema = state.schemaForms.get(schemaFormKey)
+  const schema = state.schemaForms.getIn([collectionKey, schemaFormKey])
   if (schema == null) {
     throw new Error(`schemaForm not defined for ${schemaFormKey}`)
   }
