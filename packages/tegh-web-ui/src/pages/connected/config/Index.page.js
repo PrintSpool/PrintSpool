@@ -16,7 +16,7 @@ import {
   Style,
 } from '@material-ui/icons'
 
-import FormDialog, { FORM_DIALOG_FRAGMENT } from './components/FormDialog'
+import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from './components/UpdateDialog/Index'
 
 import withLiveData, { NULL_SUBSCRIPTION } from '../shared/higherOrderComponents/withLiveData'
 
@@ -37,20 +37,20 @@ const ConfigPage = ({
   <main>
     {
       printerDialogOpen && (
-        <FormDialog
+        <UpdateDialog
           title="3D Printer"
-          form={`config/printer/${printerID}/packages/tegh-core`}
+          collection="PLUGIN"
           open={printerDialogOpen}
           variables={{ printerID }}
           query={gql`
             query($printerID: ID!) {
               printerConfigs(printerID: $printerID) {
                 plugins(package: "tegh-core") {
-                  ...FormDialogFragment
+                  ...UpdateDialogFragment
                 }
               }
             }
-            ${FORM_DIALOG_FRAGMENT}
+            ${UPDATE_DIALOG_FRAGMENT}
           `}
         />
       )

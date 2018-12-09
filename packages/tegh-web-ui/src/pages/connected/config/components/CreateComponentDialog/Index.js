@@ -117,24 +117,16 @@ const createComponentDialog = ({
           errors.componentType = 'Required'
         }
 
-        const valid = validateSchemaForm(values.model)
+        const modelErrors = validateSchemaForm(values.model)
 
-        if (!valid) {
-          const modelErrors = {}
-          validateSchemaForm.errors.forEach((error) => {
-            const fieldName = (
-              error.params.missingProperty
-              || error.dataPath
-            )
-            modelErrors[fieldName] = error.message
-          })
-          return {
-            ...errors,
-            model: modelErrors,
-          }
+        if (Object.keys(modelErrors).length === 0) {
+          return errors
         }
 
-        return errors
+        return {
+          ...errors,
+          model: modelErrors,
+        }
       }}
       onSubmit={async (values, bag) => {
         const isLastPage = wizard.activeStep === STEPS.length - 1

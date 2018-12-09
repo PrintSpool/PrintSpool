@@ -11,6 +11,7 @@ const componentBaseProperties = schema => ({
   name: {
     title: 'Name',
     type: 'string',
+    minLength: 1,
   },
 })
 
@@ -30,6 +31,7 @@ const getSchemaForms = () => ({
         name: {
           title: 'Name',
           type: 'string',
+          minLength: 1,
         },
         // modelID: {
         //   title: 'Make and model',
@@ -93,6 +95,7 @@ const getSchemaForms = () => ({
         address: {
           title: 'GCode Address',
           type: 'string',
+          minLength: 1,
         },
         feedrate: {
           title: 'Feedrate',
@@ -122,6 +125,7 @@ const getSchemaForms = () => ({
         address: {
           title: 'GCode Address',
           type: 'string',
+          minLength: 1,
         },
         heater: {
           title: 'Heated Build Platform',
@@ -152,6 +156,7 @@ const getSchemaForms = () => ({
         serialPortID: {
           title: 'Serial Port',
           type: 'string',
+          minLength: 1,
           // TODO: serial port dynamic enum
           // enum: [
           //   'Arduino_1',
@@ -194,6 +199,7 @@ const getSchemaForms = () => ({
         address: {
           title: 'GCode Address',
           type: 'string',
+          minLength: 1,
         },
       },
     }),
@@ -220,6 +226,7 @@ const getSchemaForms = () => ({
         address: {
           title: 'GCode Address',
           type: 'string',
+          minLength: 1,
         },
         feedrate: {
           title: 'Feedrate',
@@ -228,6 +235,7 @@ const getSchemaForms = () => ({
         materialID: {
           title: 'Material',
           type: 'string',
+          minLength: 1,
           enum: [
             'generic/abs',
             'generic/pla',

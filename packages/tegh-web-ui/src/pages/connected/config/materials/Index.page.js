@@ -19,7 +19,8 @@ import gql from 'graphql-tag'
 
 import withLiveData from '../../shared/higherOrderComponents/withLiveData'
 
-import FormDialog, { FORM_DIALOG_FRAGMENT } from '../components/FormDialog'
+import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog/Index'
+import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog'
 
 const CONFIG_SUBSCRIPTION = gql`
   subscription ConfigSubscription {
@@ -55,6 +56,7 @@ const enhance = compose(
   withStyles(styles, { withTheme: true }),
   withProps(({ materials, match: { params } }) => ({
     materialID: params.sku && `${params.org}/${params.sku}`,
+    verb: params.verb,
   })),
 )
 
@@ -64,25 +66,36 @@ const MaterialsConfigIndex = ({
   materials,
   materialID,
   updateSubConfig,
+  verb,
 }) => (
   <main>
     {
-      materialID != null && (
-        <FormDialog
+      materialID != null && verb == null && (
+        <UpdateDialog
           title={materialID}
           open
+          collection="MATERIAL"
           variables={{ materialID }}
           query={gql`
             query($materialID: ID) {
               materials(materialID: $materialID) {
-                ...FormDialogFragment
+                ...UpdateDialogFragment
               }
             }
-            ${FORM_DIALOG_FRAGMENT}
+            ${UPDATE_DIALOG_FRAGMENT}
           `}
         />
       )
     }
+    { materialID != null && verb === 'delete' && (
+      <DeleteConfirmationDialog
+        type={'material'}
+        title={materialID}
+        id={materialID}
+        collection="MATERIAL"
+        open={materialID != null}
+      />
+    )}
     <Tooltip title="Add Component" placement="left">
       <Button
         component="label"

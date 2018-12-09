@@ -66,8 +66,6 @@
     "react-redux": "^5.0.6",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
-    "react-schema-form": "^0.6.1",
-    "react-schema-form-rc-select": "^0.2.1",
     "react-test-renderer": "^16.5.2",
     "recompose": "^0.26.0",
     "redux": "^4.0.0",

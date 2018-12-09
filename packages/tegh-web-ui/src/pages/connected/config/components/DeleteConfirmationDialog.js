@@ -1,10 +1,8 @@
 import React from 'react'
-import { compose, withProps } from 'recompose'
+import { compose } from 'recompose'
 import { withRouter } from 'react-router'
-import { SchemaForm } from 'react-schema-form'
 import gql from 'graphql-tag'
-import { Query, Mutation } from 'react-apollo'
-import { Link } from 'react-router-dom'
+import { Mutation } from 'react-apollo'
 import {
   Dialog,
   DialogTitle,

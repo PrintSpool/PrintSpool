@@ -26,7 +26,7 @@ import gql from 'graphql-tag'
 
 import withLiveData from '../../shared/higherOrderComponents/withLiveData'
 
-import FormDialog, { FORM_DIALOG_FRAGMENT } from '../components/FormDialog'
+import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog/Index'
 import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog'
 import CreateComponentDialog from '../components/CreateComponentDialog/Index'
 
@@ -125,19 +125,20 @@ const ComponentsConfigIndex = ({
 }) => (
   <main>
     { componentID !== 'new' && selectedComponent != null && verb == null && (
-      <FormDialog
+      <UpdateDialog
         title={selectedComponent.name}
         open={selectedComponent != null}
+        collection="COMPONENT"
         variables={{ printerID, componentID: selectedComponent.id }}
         query={gql`
           query($printerID: ID!, $componentID: ID) {
             printerConfigs(printerID: $printerID) {
               components(componentID: $componentID) {
-                ...FormDialogFragment
+                ...UpdateDialogFragment
               }
             }
           }
-          ${FORM_DIALOG_FRAGMENT}
+          ${UPDATE_DIALOG_FRAGMENT}
         `}
       />
     )}
@@ -149,16 +150,6 @@ const ComponentsConfigIndex = ({
         collection="COMPONENT"
         printerID={printerID}
         open={selectedComponent != null}
-        query={gql`
-          query($printerID: ID!, $componentID: ID) {
-            printerConfigs(printerID: $printerID) {
-              components(componentID: $componentID) {
-                ...FormDialogFragment
-              }
-            }
-          }
-          ${FORM_DIALOG_FRAGMENT}
-        `}
       />
     )}
     <CreateComponentDialog

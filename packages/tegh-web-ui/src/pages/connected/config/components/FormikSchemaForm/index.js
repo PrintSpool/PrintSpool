@@ -6,15 +6,31 @@ import {
   FormControlLabel,
 } from '@material-ui/core'
 
+const replaceNullValueWith = (field, nullReplacement) => ({
+  ...field,
+  value: field.value == null ? nullReplacement :  field.value
+})
+
 const SwitchWithLabel = props => (
   <div>
+    {console.log(props)}
     <FormControlLabel
       label={props.label}
       control={
-        <Switch {...props} />
+        <Switch
+          {...props}
+          field={replaceNullValueWith(props.field, false)}
+        />
       }
     />
   </div>
+)
+
+const TextFieldWrapper = props => (
+  <TextField
+    {...props}
+    field={replaceNullValueWith(props.field, '')}
+  />
 )
 
 const expandForm = ({
@@ -67,7 +83,7 @@ const FormikSchemaForm = ({
               {...sharedFieldProps}
               type={type}
               select={property.enum != null}
-              component={TextField}
+              component={TextFieldWrapper}
               fullWidth
             >
               { property.enum && property.enum.map((option, optionIndex) => (
