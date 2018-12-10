@@ -108,7 +108,7 @@ const getSchemaForms = () => ({
             minLength: 1,
           },
           feedrate: {
-            title: 'Feedrate',
+            title: 'Feedrate (mm/s)',
             type: 'number',
           },
         },
@@ -234,7 +234,7 @@ const getSchemaForms = () => ({
             minLength: 1,
           },
           feedrate: {
-            title: 'Feedrate',
+            title: 'Feedrate (mm/s)',
             type: 'number',
           },
           materialID: {

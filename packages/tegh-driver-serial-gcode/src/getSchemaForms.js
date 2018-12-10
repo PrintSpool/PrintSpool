@@ -15,12 +15,12 @@ const getSchemaForms = () => ({
             default: true,
           },
           delayFromGreetingToReady: {
-            title: 'Delay from greeting to ready',
+            title: 'Delay from greeting to ready (ms)',
             type: 'integer',
             default: 2500,
           },
           temperaturePollingInterval: {
-            title: 'Temperature polling interval',
+            title: 'Temperature polling interval (ms)',
             type: 'integer',
             default: 1000,
           },
@@ -30,12 +30,12 @@ const getSchemaForms = () => ({
             default: 3,
           },
           fastCodeTimeout: {
-            title: 'Fast code timeout',
+            title: 'Fast code timeout (ms)',
             type: 'integer',
             default: 30000,
           },
           longRunningCodeTimeout: {
-            title: 'Long running code timeout',
+            title: 'Long running code timeout (ms)',
             type: 'integer',
             default: 60000,
           },
