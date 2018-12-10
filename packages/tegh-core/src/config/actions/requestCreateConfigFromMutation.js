@@ -1,7 +1,6 @@
 import { Record } from 'immutable'
 import Ajv from 'ajv'
 
-import ComponentTypeEnum from '../types/components/ComponentTypeEnum'
 import PluginConfig from '../types/PluginConfig'
 import ComponentConfig from '../types/components/ComponentConfig'
 import MaterialConfig from '../types/MaterialConfig'

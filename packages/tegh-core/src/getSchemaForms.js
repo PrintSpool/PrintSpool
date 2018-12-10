@@ -241,10 +241,6 @@ const getSchemaForms = () => ({
             title: 'Material',
             type: 'string',
             minLength: 1,
-            enum: [
-              'generic/abs',
-              'generic/pla',
-            ],
           },
           heater: {
             title: 'Heated Extruder',

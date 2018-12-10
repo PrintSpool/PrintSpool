@@ -39,6 +39,10 @@ const COMPONENTS_SUBSCRIPTION = gql`
           id
           type
         }
+        materials {
+          id
+          name
+        }
         printerConfigs(printerID: $printerID) {
           id
           components {
@@ -126,6 +130,7 @@ const ComponentsConfigIndex = ({
   componentID,
   selectedComponent,
   devices,
+  materials,
   verb,
 }) => (
   <main>
@@ -136,22 +141,42 @@ const ComponentsConfigIndex = ({
         deleteButton
         collection="COMPONENT"
         transformSchema={(schema) => {
-          if (schema.properties.serialPortID == null) return schema
-          // inject the devices list into the schema as an enum
-          const enumValues = devices
-            .filter(d => d.type === 'SERIAL_PORT')
-            .map(d => d.id)
+          let nextSchema = schema
+          if (schema.properties.serialPortID != null) {
+            // inject the devices list into the schema as an enum
+            const enumValues = devices
+              .filter(d => d.type === 'SERIAL_PORT')
+              .map(d => d.id)
 
-          return {
-            ...schema,
-            properties: {
-              ...schema.properties,
-              serialPortID: {
-                ...schema.properties.serialPortID,
-                enum: enumValues,
-              },
-            },
+            const properties = { ...nextSchema.properties }
+            properties.serialPortID = {
+              ...nextSchema.properties.serialPortID,
+              enum: enumValues,
+            }
+
+            nextSchema = {
+              ...nextSchema,
+              properties,
+            }
           }
+          if (schema.properties.materialID != null) {
+            // inject the materials list into the schema as an enum
+            const enumValues = materials.map(m => m.id)
+            const enumNames = materials.map(m => m.name)
+
+            const properties = { ...nextSchema.properties }
+            properties.materialID = {
+              ...nextSchema.properties.materialID,
+              enum: enumValues,
+              enumNames,
+            }
+
+            nextSchema = {
+              ...nextSchema,
+              properties,
+            }
+          }
+          return nextSchema
         }}
         variables={{ printerID, componentID: selectedComponent.id }}
         query={gql`
