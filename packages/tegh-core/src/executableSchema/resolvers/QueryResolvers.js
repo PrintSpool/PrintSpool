@@ -1,3 +1,5 @@
+import getConfiguredDevices from '../../config/selectors/getConfiguredDevices'
+
 const QueryResolvers = {
   Query: {
     /*
@@ -57,6 +59,27 @@ const QueryResolvers = {
           throw new Error(`Unsupported collection: ${collection}`)
         }
       }
+    },
+    /*
+     * devices
+     */
+    devices: (_source, args, { store }) => {
+      const state = store.getState()
+
+      const connectedDevices = state.devices.byID
+      // replace each configured device with it's connected equivalent if
+      // it is connected.
+      const configuredDevices = getConfiguredDevices(state.config)
+        .map(device => (
+          connectedDevices.find(d2 => d2.id === device.id) || device
+        ))
+
+      // remove duplicate devices
+      const allDevices = configuredDevices.concat(connectedDevices.toList())
+        .toOrderedSet()
+        .toList()
+
+      return allDevices
     },
     /*
      * jobQueue

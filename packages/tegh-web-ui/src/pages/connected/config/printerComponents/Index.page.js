@@ -35,6 +35,10 @@ const COMPONENTS_SUBSCRIPTION = gql`
     live {
       patch { op, path, from, value }
       query {
+        devices {
+          id
+          type
+        }
         printerConfigs(printerID: $printerID) {
           id
           components {
@@ -121,6 +125,7 @@ const ComponentsConfigIndex = ({
   components,
   componentID,
   selectedComponent,
+  devices,
   verb,
 }) => (
   <main>
@@ -130,6 +135,24 @@ const ComponentsConfigIndex = ({
         open={selectedComponent != null}
         deleteButton
         collection="COMPONENT"
+        transformSchema={(schema) => {
+          if (schema.properties.serialPortID == null) return schema
+          // inject the devices list into the schema as an enum
+          const enumValues = devices
+            .filter(d => d.type === 'SERIAL_PORT')
+            .map(d => d.id)
+
+          return {
+            ...schema,
+            properties: {
+              ...schema.properties,
+              serialPortID: {
+                ...schema.properties.serialPortID,
+                enum: enumValues,
+              },
+            },
+          }
+        }}
         variables={{ printerID, componentID: selectedComponent.id }}
         query={gql`
           query($printerID: ID!, $componentID: ID) {

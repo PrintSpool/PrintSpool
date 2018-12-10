@@ -13,7 +13,6 @@ const replaceNullValueWith = (field, nullReplacement) => ({
 
 const SwitchWithLabel = props => (
   <div>
-    {console.log(props)}
     <FormControlLabel
       label={props.label}
       control={

@@ -8,6 +8,8 @@ import MutationResolvers from './MutationResolvers'
 
 import PrinterConfigResolvers from '../../config/resolvers/PrinterConfigResolvers'
 
+import DeviceResolvers from '../../devices/resolvers/DeviceResolvers'
+
 import ComponentConfigFormResolvers from '../../pluginManager/resolvers/ComponentConfigFormResolvers'
 import PluginConfigFormResolvers from '../../pluginManager/resolvers/PluginConfigFormResolvers'
 import MaterialResolvers from '../../pluginManager/resolvers/MaterialResolvers'
@@ -36,6 +38,8 @@ const coreResolvers = [
   SubscriptionResolvers,
 
   PrinterConfigResolvers,
+
+  DeviceResolvers,
 
   ComponentConfigFormResolvers,
   PluginConfigFormResolvers,

@@ -158,6 +158,7 @@ const UpdateDialog = ({
   data,
   validate,
   deleteButton = false,
+  transformSchema = schema => schema,
 }) => (
   <Dialog
     open={open}
@@ -166,6 +167,7 @@ const UpdateDialog = ({
     maxWidth="md"
     fullWidth
   >
+    { console.log(data.model) }
     <Formik
       initialValues={data.model}
       validate={validate}
@@ -176,7 +178,7 @@ const UpdateDialog = ({
           <DialogTitle id="form-dialog-title">{title || name || id}</DialogTitle>
           <DialogContent>
             <FormikSchemaForm
-              schema={data.schemaForm.schema}
+              schema={transformSchema(data.schemaForm.schema)}
               form={data.schemaForm.form}
             />
           </DialogContent>

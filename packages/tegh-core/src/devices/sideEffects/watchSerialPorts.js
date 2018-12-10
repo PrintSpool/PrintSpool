@@ -15,13 +15,21 @@ const watchSerialPorts = (getState, dispatch) => {
       .on('add', (path) => {
         if (getState().devices.byID.has(path)) return
 
-        const device = Device({ id: path, type: SERIAL_PORT })
+        const device = Device({
+          id: path,
+          type: SERIAL_PORT,
+          connected: true,
+        })
         dispatch(deviceConnected({ device }))
       })
       .on('unlink', (path) => {
         if (getState().devices.has(path) === false) return
 
-        const device = Device({ id: path, type: SERIAL_PORT })
+        const device = Device({
+          id: path,
+          type: SERIAL_PORT,
+          connected: true,
+        })
         dispatch(deviceDisconnected({ device }))
       })
   }
