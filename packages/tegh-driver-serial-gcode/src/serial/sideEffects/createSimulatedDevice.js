@@ -2,7 +2,8 @@ import fs from 'fs'
 import Promise from 'bluebird'
 
 const createSimulatedDevice = async (controllerConfig) => {
-  await Promise.promisify(fs.writeFile)(controllerConfig.serialPortID, '')
+  const file = controllerConfig.get('serialPortID')
+  await Promise.promisify(fs.writeFile)(file, '')
 }
 
 export default createSimulatedDevice

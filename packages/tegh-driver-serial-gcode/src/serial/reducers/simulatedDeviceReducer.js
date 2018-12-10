@@ -15,7 +15,7 @@ const simulatedDeviceReducer = (state = initialState, action) => {
       const { config } = action.payload
       const controllerConfig = getController(config).model
 
-      if (controllerConfig.simulate) {
+      if (controllerConfig.get('simulate')) {
         return loop(
           state,
           Cmd.run(createSimulatedDevice, { args: [controllerConfig] }),
