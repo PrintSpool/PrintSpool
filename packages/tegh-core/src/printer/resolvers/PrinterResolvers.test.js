@@ -30,6 +30,7 @@ describe('PrinterResolvers', () => {
         level: INFO,
         message: 'This is an example log',
       }),
+      driver: 'tegh-driver-serial-gcode',
       'tegh-driver-serial-gcode': {
         components: Record({
           targetTemperaturesCountdown: 3,

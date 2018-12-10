@@ -13,6 +13,7 @@ describe('ComponentResolvers', () => {
     deterministicTestSetup()
 
     const state = Record({
+      driver: 'tegh-driver-serial-gcode',
       config: MockConfig(),
       'tegh-driver-serial-gcode': {
         components: Record({
