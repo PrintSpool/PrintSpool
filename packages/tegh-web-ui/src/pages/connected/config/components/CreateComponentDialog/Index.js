@@ -97,6 +97,7 @@ const createComponentDialog = ({
   validate: validateSchemaForm,
   wizard,
   updateWizard,
+  fixedListComponentTypes,
 }) => (
   <Dialog
     open={open}
@@ -192,7 +193,9 @@ const createComponentDialog = ({
               }
             </Stepper>
             {wizard.activeStep === 0 && (
-              <Page1 />
+              <Page1
+                fixedListComponentTypes={fixedListComponentTypes}
+              />
             )}
             {wizard.activeStep === 1 && (() => {
               const { schema, form } = wizard.schemaForm

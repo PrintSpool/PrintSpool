@@ -22,6 +22,9 @@ const PrinterConfigResolvers = {
       }
       return source.plugins
     },
+    fixedListComponentTypes: (source, args, { store }) => (
+      store.getState().fixedListComponentTypes
+    ),
   },
 }
 

@@ -7,7 +7,9 @@ import {
 
 import componentTypeNames from './componentTypeNames'
 
-const Page1 = () => (
+const Page1 = ({
+  fixedListComponentTypes,
+}) => (
   <Field
     type="text"
     name="componentType"
@@ -17,11 +19,16 @@ const Page1 = () => (
     margin="normal"
     fullWidth
   >
-    {componentTypeNames.map(option => (
-      <MenuItem key={option.value} value={option.value}>
-        {option.label}
-      </MenuItem>
-    ))}
+    {componentTypeNames
+      .filter(option => (
+        fixedListComponentTypes.includes(option.value) === false
+      ))
+      .map(option => (
+        <MenuItem key={option.value} value={option.value}>
+          {option.label}
+        </MenuItem>
+      ))
+    }
   </Field>
 )
 

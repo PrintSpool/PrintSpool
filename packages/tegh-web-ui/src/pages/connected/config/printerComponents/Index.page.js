@@ -45,6 +45,7 @@ const COMPONENTS_SUBSCRIPTION = gql`
         }
         printerConfigs(printerID: $printerID) {
           id
+          fixedListComponentTypes
           components {
             id
             type
@@ -110,11 +111,12 @@ const enhance = compose(
   withLiveData,
   withProps(({ printerConfigs, match }) => {
     const { componentID, printerID, verb } = match.params
-    const { components } = printerConfigs[0]
+    const { components, fixedListComponentTypes } = printerConfigs[0]
 
     return {
       selectedComponent: components.find(c => c.id === componentID),
       components,
+      fixedListComponentTypes,
       printerID,
       componentID,
       verb,
@@ -127,6 +129,7 @@ const ComponentsConfigIndex = ({
   classes,
   printerID,
   components,
+  fixedListComponentTypes,
   componentID,
   selectedComponent,
   devices,
@@ -204,6 +207,7 @@ const ComponentsConfigIndex = ({
     <CreateComponentDialog
       printerID={printerID}
       open={componentID === 'new'}
+      fixedListComponentTypes={fixedListComponentTypes}
     />
     <Tooltip title="Add Component" placement="left">
       <Link to="new/" style={{ textDecoration: 'none' }}>

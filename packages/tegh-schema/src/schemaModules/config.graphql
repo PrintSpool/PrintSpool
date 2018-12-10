@@ -19,6 +19,7 @@ type PrinterConfig {
   id: ID!
   components(componentID: ID): [ComponentConfigForm!]!
   plugins(package: String): [PluginConfigForm!]!
+  fixedListComponentTypes: [String!]!
 }
 
 interface ConfigForm {

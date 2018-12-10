@@ -49,6 +49,9 @@ const SubscriptionResolvers = {
             'fans',
             'heaters',
           ],
+          PrinterConfig: [
+            'fixedListComponentTypes',
+          ],
           Component: [
             'fan',
             'heater',
