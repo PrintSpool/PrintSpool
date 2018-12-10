@@ -8,7 +8,7 @@ const setConfig = ({ config, plugins }) => {
    */
   plugins.forEach((plugin) => {
     if (typeof plugin.configValidation === 'function') {
-      plugin.configValidation().validateSync(config)
+      plugin.configValidation().validateSync(payload)
     }
   })
 

@@ -8,3 +8,5 @@ export getSchemaForms from './getSchemaForms'
 export configValidation from './configValidation'
 
 export fixedListComponentTypes from './fixedListComponentTypes'
+
+export const driver = true

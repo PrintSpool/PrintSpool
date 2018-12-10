@@ -1,6 +1,6 @@
 const getComponentsState = (state) => {
   if (state.config == null) return null
-  return state.get('tegh-driver-serial-gcode').components
+  return state.getIn([state.driver, 'components'])
 }
 
 export default getComponentsState

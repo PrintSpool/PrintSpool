@@ -3,8 +3,8 @@ import { ComponentTypeEnum } from 'tegh-core'
 
 const { CONTROLLER, AXIS, BUILD_PLATFORM } = ComponentTypeEnum
 
-const configValidation = () => (
-  yup.object().shape({
+const configValidation = () => yup.object().shape({
+  config: yup.object().shape({
     printer: yup.object().shape({
       components: yup.mixed()
         .test(
@@ -35,7 +35,7 @@ const configValidation = () => (
           ),
         ),
     }),
-  })
-)
+  }),
+})
 
 export default configValidation
