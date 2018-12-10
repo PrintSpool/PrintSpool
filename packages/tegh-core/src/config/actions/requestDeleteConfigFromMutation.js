@@ -19,7 +19,11 @@ const requestDeleteConfigFromMutation = (source, args, { store }) => {
     c.id === configFormID
   ))
 
-  const nextConfig = state.config.deleteIn([...collectionPath, index])
+  let nextConfig = state.config
+
+  if (index != null) {
+    nextConfig = nextConfig.deleteIn([...collectionPath, index])
+  }
 
   const action = requestSetConfig({
     config: nextConfig,

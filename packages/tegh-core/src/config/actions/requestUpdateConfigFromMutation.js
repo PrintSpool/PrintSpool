@@ -30,8 +30,8 @@ const requestUpdateConfigFromMutation = (source, args, { store }) => {
     )
   }
 
-  const schema = state.schemaForms.getIn([collectionKey, schemaFormKey])
-  if (schema == null) {
+  const schemaForm = state.schemaForms.getIn([collectionKey, schemaFormKey])
+  if (schemaForm == null) {
     throw new Error(`schemaForm not defined for ${schemaFormKey}`)
   }
 
@@ -40,7 +40,7 @@ const requestUpdateConfigFromMutation = (source, args, { store }) => {
     allErrors: true,
     jsonPointers: true,
   })
-  const validate = ajv.compile(schema)
+  const validate = ajv.compile(schemaForm.schema)
   const valid = validate(model)
 
   if (!valid) {
