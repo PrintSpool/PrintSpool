@@ -167,7 +167,6 @@ const UpdateDialog = ({
     maxWidth="md"
     fullWidth
   >
-    { console.log(data.model) }
     <Formik
       initialValues={data.model}
       validate={validate}

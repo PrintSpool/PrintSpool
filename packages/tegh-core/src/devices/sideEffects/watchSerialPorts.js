@@ -23,7 +23,7 @@ const watchSerialPorts = (getState, dispatch) => {
         dispatch(deviceConnected({ device }))
       })
       .on('unlink', (path) => {
-        if (getState().devices.has(path) === false) return
+        if (getState().devices.byID.has(path) === false) return
 
         const device = Device({
           id: path,

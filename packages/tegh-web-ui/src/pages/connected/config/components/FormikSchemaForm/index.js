@@ -1,5 +1,5 @@
 import React from 'react'
-import { FastField } from 'formik'
+import { FastField, Field } from 'formik'
 import { TextField, Switch } from 'formik-material-ui'
 import {
   MenuItem,
@@ -77,8 +77,9 @@ const FormikSchemaForm = ({
         case 'integer':
         case 'string': {
           const type = property.type === 'string' ? 'text' : 'number'
+          const FieldComponent = property.enum ? Field : FastField
           return (
-            <FastField
+            <FieldComponent
               {...sharedFieldProps}
               type={type}
               select={property.enum != null}
@@ -90,7 +91,7 @@ const FormikSchemaForm = ({
                   {(property.enumNames || [])[optionIndex] || option}
                 </MenuItem>
               ))}
-            </FastField>
+            </FieldComponent>
           )
         }
         case 'boolean': {
