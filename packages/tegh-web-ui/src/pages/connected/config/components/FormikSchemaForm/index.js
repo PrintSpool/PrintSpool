@@ -96,9 +96,8 @@ const FormikSchemaForm = ({
         }
         case 'boolean': {
           return (
-            <FastField
+            <Field
               {...sharedFieldProps}
-              type="checkbox"
               component={SwitchWithLabel}
             />
           )
