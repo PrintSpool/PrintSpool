@@ -141,7 +141,9 @@ const ComponentsConfigIndex = ({
       <UpdateDialog
         title={selectedComponent.name}
         open={selectedComponent != null}
-        deleteButton
+        deleteButton={
+          fixedListComponentTypes.includes(selectedComponent.type) === false
+        }
         collection="COMPONENT"
         transformSchema={(schema) => {
           let nextSchema = schema
