@@ -195,7 +195,7 @@ const hostConfig = {
   crashReports: {
     id: 'bfdbdffeews',
     modelVersion: 1,
-    directory: '/var/log/tegh',
+    directory: '/run/log/tegh',
     uploadCrashReportsToDevs: true,
   },
   server: {
