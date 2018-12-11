@@ -5,7 +5,7 @@ export const initialState = null
 const driverReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
-      return action.payload.plugins.keyOf(plugin => plugin.driver)
+      return action.payload.plugins.findKey(plugin => plugin.driver)
     }
     default: {
       return state
