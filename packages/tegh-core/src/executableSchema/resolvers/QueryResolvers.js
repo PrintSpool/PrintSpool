@@ -84,7 +84,9 @@ const QueryResolvers = {
     /*
      * jobQueue
      */
-    jobQueue: (_source, args, { store }) => store.getState(),
+    jobQueue: (_source, args, { store }) => (
+      store.getState()
+    ),
     /*
      * printer
      */

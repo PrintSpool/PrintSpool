@@ -44,11 +44,6 @@ const SubscriptionResolvers = {
             'printsQueued',
             'isDone',
           ],
-          Printer: [
-            'macroDefinitions',
-            'fans',
-            'heaters',
-          ],
           PrinterConfig: [
             'fixedListComponentTypes',
           ],

@@ -40,19 +40,30 @@ export const LiveSubscription = enhance(({
       variables={variables}
       onSubscriptionData={(options) => {
         const { data } = options.subscriptionData
+        let nextState = state
+
         if (data != null) {
           const { query, patch } = data[key]
-          if (query != null) setState(query)
+
+          if (query != null) nextState = query
+
           if (patch != null) {
-            let nextState = state
             patch.forEach((patchOp) => {
               nextState = jsonpatch.apply(nextState, patchOp)
             })
-            setState(nextState)
           }
+
+          setState(nextState)
         }
 
-        if (onSubscriptionData != null) onSubscriptionData(options)
+        if (onSubscriptionData != null) {
+          onSubscriptionData({
+            ...options,
+            subscriptionData: {
+              data: nextState,
+            },
+          })
+        }
       }}
     >
       {

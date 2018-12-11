@@ -104,7 +104,7 @@ const ConnectionFrame = ({
       onSubscriptionData={({ subscriptionData }) => {
         setHostName({
           id: hostIdentity.id,
-          name: subscriptionData.data.live.query.jobQueue.name,
+          name: subscriptionData.data.jobQueue.name,
         })
       }}
     >
