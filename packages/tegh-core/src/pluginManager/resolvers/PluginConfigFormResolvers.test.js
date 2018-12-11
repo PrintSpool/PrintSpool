@@ -14,18 +14,22 @@ describe('PluginConfigFormResolvers', () => {
     deterministicTestSetup()
 
     const state = Record({
-      schemaForms: Map({
-        'tegh-core': SchemaForm({
-          id: 'tegh-core',
+      schemaForms: Record({
+        plugins: Map({
+          'tegh-core': SchemaForm({
+            id: 'tegh-core',
+          }),
         }),
-      }),
+      })(),
     })()
 
     snapshotTestResolvers({
       typeDefs,
       typeName: 'PluginConfigForm',
       resolvers: PluginConfigFormResolvers,
-      rootValue: MockConfig().printer.plugins.find(p => p.package === 'tegh-core'),
+      rootValue: MockConfig().printer.plugins.find(p => (
+        p.package === 'tegh-core'
+      )),
       contextValue: {
         store: {
           getState: () => state,

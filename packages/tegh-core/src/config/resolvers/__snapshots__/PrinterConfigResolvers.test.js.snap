@@ -32,6 +32,9 @@ Object {
         "id": "bdfbxb",
       },
     ],
+    "fixedListComponentTypes": Array [
+      "TOOLHEAD",
+    ],
     "id": "aaxcvxcvcxv-bvb-csdf234231",
     "plugins": Array [
       Object {

@@ -9,7 +9,7 @@ Object {
       "name": "Extruder 1",
       "heater": true,
       "feedrate": 3,
-      "materialID": "generic/pla",
+      "materialID": "dkdow2",
     },
     "modelVersion": 1,
     "name": "Extruder 1",

@@ -3,12 +3,14 @@
 exports[`MaterialResolvers presents a consistent API 1`] = `
 Object {
   "_testMaterial": Object {
-    "id": "generic/pla",
+    "id": "dkdow2",
     "model": Immutable.Map {
+      "name": "generic/pla",
       "targetExtruderTemperature": 220,
       "targetBedTemperature": 60,
     },
     "modelVersion": 1,
+    "name": "generic/pla",
     "schemaForm": Object {
       "id": "FDM_FILAMENT",
     },

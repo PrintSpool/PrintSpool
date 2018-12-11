@@ -1,4 +1,4 @@
-import { Map, Record } from 'immutable'
+import { List, Map, Record } from 'immutable'
 import typeDefs from 'tegh-schema'
 
 import deterministicTestSetup from '../../util/testing/deterministicTestSetup'
@@ -22,6 +22,7 @@ describe('PrinterResolvers', () => {
 
     const state = Record({
       config: MockConfig(),
+      fixedListComponentTypes: List(),
       spool: spoolInitialState,
       status: statusInitialState.set('status', CONNECTING),
       macros: macrosInitialState.set('macros', Map({ myMacro: () => null })),

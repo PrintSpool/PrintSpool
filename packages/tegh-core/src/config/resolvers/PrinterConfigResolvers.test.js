@@ -1,4 +1,4 @@
-import { Record } from 'immutable'
+import { List, Record } from 'immutable'
 import typeDefs from 'tegh-schema'
 
 import deterministicTestSetup from '../../util/testing/deterministicTestSetup'
@@ -13,6 +13,7 @@ describe('PrinterConfigResolvers', () => {
     deterministicTestSetup()
 
     const state = Record({
+      fixedListComponentTypes: List(['TOOLHEAD']),
       config: MockConfig(),
     })()
 

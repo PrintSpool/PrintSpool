@@ -14,18 +14,22 @@ describe('MaterialResolvers', () => {
     deterministicTestSetup()
 
     const state = Record({
-      schemaForms: Map({
-        FDM_FILAMENT: SchemaForm({
-          id: 'FDM_FILAMENT',
+      schemaForms: Record({
+        materials: Map({
+          FDM_FILAMENT: SchemaForm({
+            id: 'FDM_FILAMENT',
+          }),
         }),
-      }),
+      })(),
     })()
 
     snapshotTestResolvers({
       typeDefs,
       typeName: 'Material',
       resolvers: MaterialResolvers,
-      rootValue: MockConfig().materials.find(p => p.id === 'generic/pla'),
+      rootValue: MockConfig().materials.find(p => (
+        p.model.get('name') === 'generic/pla'
+      )),
       contextValue: {
         store: {
           getState: () => state,

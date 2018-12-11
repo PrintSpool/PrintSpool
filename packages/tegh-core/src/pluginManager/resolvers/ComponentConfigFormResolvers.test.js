@@ -15,11 +15,13 @@ describe('ComponentConfigFormResolvers', () => {
     deterministicTestSetup()
 
     const state = Record({
-      schemaForms: Map({
-        TOOLHEAD: SchemaForm({
-          id: 'TOOLHEAD',
+      schemaForms: Record({
+        components: Map({
+          TOOLHEAD: SchemaForm({
+            id: 'TOOLHEAD',
+          }),
         }),
-      }),
+      })(),
     })()
 
     snapshotTestResolvers({
