@@ -39,14 +39,31 @@ describe('greetingReducer', () => {
   })
 
   describe(SERIAL_OPEN, () => {
-    it('connects', () => {
-      const action = serialOpen({ serialPortID: '/dev/null' })
-      const state = initialState
-        .set('awaitGreetingFromFirmware', true)
+    describe('when awaitGreetingFromFirmware is true', () => {
+      it('connects', () => {
+        const action = serialOpen({ serialPortID: '/dev/null' })
+        const state = initialState
+          .set('awaitGreetingFromFirmware', true)
 
-      const nextState = reducer(state, action)
+        const nextState = reducer(state, action)
 
-      expect(nextState.isConnecting).toEqual(true)
+        expect(nextState.isConnecting).toEqual(true)
+      })
+    })
+    describe('when awaitGreetingFromFirmware is false', () => {
+      it('connects and sends the first M Code', () => {
+        const action = serialOpen({ serialPortID: '/dev/null' })
+        const state = initialState
+          .set('awaitGreetingFromFirmware', false)
+
+        const [
+          nextState,
+          { actionToDispatch: nextAction },
+        ] = reducer(state, action)
+
+        expect(nextState.isConnecting).toEqual(true)
+        expect(nextAction).toEqual(serialSend('M110 N0', { lineNumber: false }))
+      })
     })
   })
 
