@@ -15,6 +15,8 @@ import {
 import rxParser from '../../rxParser'
 import simulator from '../simulator'
 
+import getSerialPortID from '../selectors/getSerialPortID'
+
 import requestSerialPortConnection, { REQUEST_SERIAL_PORT_CONNECTION } from '../actions/requestSerialPortConnection'
 import serialPortCreated, { SERIAL_PORT_CREATED } from '../actions/serialPortCreated'
 import { SERIAL_SEND } from '../actions/serialSend'
@@ -26,6 +28,7 @@ import writeToSerialPort from '../sideEffects/writeToSerialPort'
 
 export const initialState = Record({
   serialPort: null,
+  serialPortID: null,
   isResetting: false,
   closedByErrorOrEStop: false,
   config: null,
@@ -40,14 +43,16 @@ const serialReducer = (state = initialState, action) => {
       const { config } = action.payload
       const controllerConfig = getController(config).model.toJS()
 
-      const nextState = state.set('config', controllerConfig)
+      const nextState = state
+        .set('config', controllerConfig)
+        .set('serialPortID', getSerialPortID(config))
 
       return nextState
     }
     case DEVICE_CONNECTED: {
       const { device } = action.payload
 
-      if (device.id !== state.config.serialPortID) return state
+      if (device.id !== state.serialPortID) return state
 
       return loop(
         state,
@@ -78,13 +83,12 @@ const serialReducer = (state = initialState, action) => {
     }
     case REQUEST_SERIAL_PORT_CONNECTION: {
       const {
-        serialPortID,
         baudRate,
         simulate,
       } = state.config
 
       const serialPortOptions = {
-        serialPortID,
+        serialPortID: state.serialPortID,
         baudRate,
         receiveParser: rxParser,
         simulator: simulate ? simulator : null,

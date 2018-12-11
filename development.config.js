@@ -10,20 +10,12 @@
 const simulate = true
 const useKlipper = false
 
-let serialPortID
-let baudRate
+let serialPortID = '/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00'
+const baudRate = 250000
 
-if (simulate === true) {
-  serialPortID = '/tmp/printer-tegh-simulation'
-  baudRate = 250000
-} else if (useKlipper) {
+if (useKlipper) {
   // Klipper (requires the klipper host software to be running)
   serialPortID = '/tmp/printer'
-  baudRate = 250000
-} else {
-  // Marlin
-  serialPortID = '/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00'
-  baudRate = 250000
 }
 
 const printerConfig = {

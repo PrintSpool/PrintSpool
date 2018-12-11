@@ -37,6 +37,7 @@ const config = MockConfig()
 
 const configuredState = initialState
   .set('config', config.printer.components.get(0).model.toJS())
+  .set('serialPortID', serialPortID)
 
 describe('serialReducer', () => {
   describe(SET_CONFIG, () => {
@@ -46,6 +47,21 @@ describe('serialReducer', () => {
       const nextState = reducer(initialState, action)
 
       expect(nextState).toEqual(configuredState)
+    })
+
+    it('modifies the serialPortID if simulate=true', () => {
+      const simulateConfig = config
+        .setIn(['printer', 'components', 0, 'model', 'simulate'], true)
+
+      const action = setConfig({ config: simulateConfig, plugins: List() })
+
+      const nextState = reducer(initialState, action)
+
+      expect(nextState).toEqual(
+        configuredState
+          .set('config', { ...configuredState.config, simulate: true })
+          .set('serialPortID', '/tmp/printer-tegh-simulation-bbbserialController'),
+      )
     })
   })
 
