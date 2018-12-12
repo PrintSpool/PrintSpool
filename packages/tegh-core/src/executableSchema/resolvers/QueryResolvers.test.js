@@ -1,4 +1,4 @@
-import { Record } from 'immutable'
+import { Record, Map } from 'immutable'
 import typeDefs from 'tegh-schema'
 
 import deterministicTestSetup from '../../util/testing/deterministicTestSetup'
@@ -14,12 +14,36 @@ describe('QueryResolvers', () => {
 
     const state = Record({
       config: MockConfig(),
+      schemaForms: Record({
+        components: Map({
+          TOOLHEAD: Record({
+            id: 'TOOLHEAD',
+          })(),
+        }),
+      })(),
+      devices: Record({
+        byID: Map({}),
+      })(),
     })()
 
     snapshotTestResolvers({
       typeDefs,
       typeName: 'Query',
       resolvers: QueryResolvers,
+      fieldArgs: {
+        args: {},
+        children: {
+          schemaForm: {
+            args: {
+              input: {
+                collection: ['__ENUM', 'COMPONENT'],
+                printerID: state.config.printer.id,
+                schemaFormKey: 'TOOLHEAD',
+              },
+            },
+          },
+        },
+      },
       rootValue: {},
       contextValue: {
         store: {

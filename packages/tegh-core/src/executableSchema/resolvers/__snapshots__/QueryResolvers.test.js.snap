@@ -4,6 +4,11 @@ exports[`QueryResolvers presents a consistent API 1`] = `
 Object {
   "_testQuery": Object {
     "_testQuery": Object {},
+    "devices": Array [
+      Object {
+        "id": "/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00",
+      },
+    ],
     "hostConfigs": Array [
       Object {
         "id": "pzxcvkkwn",
@@ -14,10 +19,10 @@ Object {
     },
     "materials": Array [
       Object {
-        "id": "generic/pla",
+        "id": "dkdow2",
       },
       Object {
-        "id": "generic/abs",
+        "id": "bw021",
       },
     ],
     "printerConfigs": Array [
@@ -30,6 +35,9 @@ Object {
         "id": "aaxcvxcvcxv-bvb-csdf234231",
       },
     ],
+    "schemaForm": Object {
+      "id": "TOOLHEAD",
+    },
   },
 }
 `;

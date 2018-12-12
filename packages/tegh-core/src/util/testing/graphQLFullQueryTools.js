@@ -6,21 +6,58 @@ const getType = ({ types, name }) => (
   types.find(type => type.name === name)
 )
 
+const createArgsString = entries => (
+  entries.map((entry) => {
+    const [key] = entry
+    let [, value] = entry
+    if (
+      typeof value === 'object'
+      && value.length === 2
+      && value[0] === '__ENUM'
+    ) {
+      // eslint-disable-next-line prefer-destructuring
+      value = value[1]
+    } else if (typeof value === 'object' && typeof value.length === 'number') {
+      const createArgForListItem = (v) => {
+        if (typeof v === 'object') createArgsString(Object.entries(v))
+        return JSON.stringify(v)
+      }
+      value = `[${value.map(createArgForListItem)}]`
+    } else if (typeof value === 'object') {
+      value = `{ ${createArgsString(Object.entries(value))} }`
+    } else {
+      value = JSON.stringify(value)
+    }
+    return `${key}: ${value}`
+  }).join(', ')
+)
+
 export const buildAllFieldsQueryString = (options = {}) => {
   const {
     type,
     types,
     indent = '',
     depth = 1,
+    fieldArgs = {},
     buildNestedFieldsQuery = () => '{ id }',
   } = options
+
   const { fields } = type
+
   const fieldQueryStrings = fields.map((field) => {
     const typeInField = getType({
       types,
       name: getConcreteType(field.type).name,
     })
-    const argsString = ''
+
+    const childFieldArgs = (fieldArgs.children || {})[field.name] || {}
+
+    let argsString = createArgsString(Object.entries(childFieldArgs.args || {}))
+
+    if (argsString.length > 0) {
+      argsString = `(${argsString})`
+    }
+
     let nestedFieldsQuery = ''
 
     // if (field.args != null) {
@@ -34,6 +71,7 @@ export const buildAllFieldsQueryString = (options = {}) => {
       // console.log({field})
       nestedFieldsQuery = buildNestedFieldsQuery({
         ...options,
+        fieldArgs: childFieldArgs,
         type: typeInField,
         indent: `${indent}  `,
         depth: depth + 1,
@@ -49,6 +87,7 @@ export const buildAllFieldsQueryString = (options = {}) => {
         const spreadIndent = `${indent}    `
         const unionedTypeFieldsQuery = buildNestedFieldsQuery({
           ...options,
+          fieldArgs: childFieldArgs,
           type: unionedType,
           indent: spreadIndent,
           depth: depth + 1,
@@ -74,6 +113,7 @@ export const buildAllFieldsQueryString = (options = {}) => {
 
 export const buildFullQueryFromIntrospection = ({
   introspection,
+  fieldArgs,
   queryRootFieldsFilter = () => true,
   depth = Number.MAX_SAFE_INTEGER,
 }) => {
@@ -100,6 +140,7 @@ export const buildFullQueryFromIntrospection = ({
   const query = buildAllFieldsQueryString({
     type: queryTypeWithFields,
     types,
+    fieldArgs,
     buildNestedFieldsQuery,
   })
   // console.log(query)

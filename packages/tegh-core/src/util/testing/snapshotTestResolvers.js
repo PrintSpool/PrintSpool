@@ -12,6 +12,7 @@ const snapshotTestResolvers = ({
   typeName,
 
   typeDefs,
+  fieldArgs = {},
 
   rootValue,
   contextValue,
@@ -47,6 +48,7 @@ const snapshotTestResolvers = ({
 
   const allFieldsQuery = buildFullQueryFromIntrospection({
     introspection,
+    fieldArgs: { args: {}, children: { [testFieldName]: fieldArgs } },
     queryRootFieldsFilter: field => field.name === testFieldName,
     depth: 2,
   })
