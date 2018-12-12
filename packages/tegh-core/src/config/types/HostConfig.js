@@ -1,4 +1,4 @@
-import { Record, List, Map } from 'immutable'
+import { Record, Map } from 'immutable'
 import uuid from 'uuid'
 
 import CrashReportConfig from './CrashReportConfig'
