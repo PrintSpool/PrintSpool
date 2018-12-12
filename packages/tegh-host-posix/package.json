@@ -15,8 +15,8 @@
   "license": "AGPL-3.0-or-later",
   "private": true,
   "scripts": {
-    "trace-gc": "npx node-dev ./dist/index.js ../../development.config.js --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
-    "start": "npx node-dev ./dist/index.js ../../development.config.js --trace-warnings"
+    "trace-gc": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
+    "start": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings"
   },
   "devDependencies": {
     "node-dev": "d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350"

@@ -95,10 +95,14 @@ const webpackDevServerTask = () => {
   })
 }
 
-const start = pkg => () => {
+const start = (pkg, options = {}) => () => {
+  const {
+    dev = false,
+  } = options
+
   const proc = spawn(
     'yarn',
-    ['start'],
+    [dev ? 'dev' : 'start'],
     { cwd: path.resolve(__dirname, `packages/${pkg}`) },
   )
   proc.stdout.on('data', (data) => {
@@ -127,6 +131,7 @@ gulp.task('webpack-dev-server', webpackDevServerTask)
 gulp.task('start-signalling-server', start('tegh-signalling-server'))
 
 gulp.task('start-host', start('tegh-host-posix'))
+gulp.task('dev-host', start('tegh-host-posix', { dev: true }))
 
 gulp.task(
   'start-servers',

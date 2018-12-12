@@ -19,9 +19,16 @@ global.Promise = Promise
 
 // Get document, or throw exception on error
 const loadConfigForm = (configPath) => {
+  if (!fs.existsSync(configPath)) {
+    const devPath = path.join(__dirname, '../../../development.config')
+    // eslint-disable-next-line global-require, import/no-dynamic-require
+    const devConfig = require(devPath)
+    mkdirp(path.dirname(configPath))
+    fs.writeFileSync(configPath, JSON.stringify(devConfig))
+  }
   try {
     // eslint-disable-next-line global-require, import/no-dynamic-require
-    return require(configPath)
+    return JSON.parse(fs.readFileSync(configPath))
   } catch (e) {
     throw new Error(`Unable to load config file ${configPath}\n${e.message}`, e)
   }
