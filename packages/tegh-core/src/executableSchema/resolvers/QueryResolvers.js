@@ -5,7 +5,7 @@ const QueryResolvers = {
     /*
      * config
      */
-    hostConfigs: (source, args, { store }) => {
+    hosts: (source, args, { store }) => {
       const state = store.getState()
 
       if (args.hostID && args.hostID !== state.config.host.id) {
@@ -13,15 +13,6 @@ const QueryResolvers = {
       }
 
       return [state.config.host]
-    },
-    printerConfigs: (source, args, { store }) => {
-      const state = store.getState()
-
-      if (args.hostID && args.printerID !== state.config.printer.id) {
-        return []
-      }
-
-      return [state.config.printer]
     },
     materials: (source, args, { store }) => {
       const state = store.getState()

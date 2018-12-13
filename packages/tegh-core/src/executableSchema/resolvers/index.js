@@ -6,13 +6,10 @@ import QueryResolvers from './QueryResolvers'
 import SubscriptionResolvers from './SubscriptionResolvers'
 import MutationResolvers from './MutationResolvers'
 
-import PrinterConfigResolvers from '../../config/resolvers/PrinterConfigResolvers'
-
 import DeviceResolvers from '../../devices/resolvers/DeviceResolvers'
 
-import ComponentConfigFormResolvers from '../../pluginManager/resolvers/ComponentConfigFormResolvers'
-import PluginConfigFormResolvers from '../../pluginManager/resolvers/PluginConfigFormResolvers'
 import MaterialResolvers from '../../pluginManager/resolvers/MaterialResolvers'
+import PluginResolvers from '../../pluginManager/resolvers/PluginResolvers'
 
 import JobFileResolvers from '../../jobQueue/resolvers/JobFileResolvers'
 import JobHistoryEventResolvers from '../../jobQueue/resolvers/JobHistoryEventResolvers'
@@ -37,13 +34,10 @@ const coreResolvers = [
   MutationResolvers,
   SubscriptionResolvers,
 
-  PrinterConfigResolvers,
-
   DeviceResolvers,
 
-  ComponentConfigFormResolvers,
-  PluginConfigFormResolvers,
   MaterialResolvers,
+  PluginResolvers,
 
   JobFileResolvers,
   JobHistoryEventResolvers,

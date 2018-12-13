@@ -44,10 +44,14 @@ const SubscriptionResolvers = {
             'printsQueued',
             'isDone',
           ],
-          PrinterConfig: [
-            'fixedListComponentTypes',
+          Material: [
+            'configForm',
+          ],
+          Plugin: [
+            'configForm',
           ],
           Component: [
+            'configForm',
             'fan',
             'heater',
           ],

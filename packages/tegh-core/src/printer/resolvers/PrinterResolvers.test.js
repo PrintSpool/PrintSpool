@@ -13,6 +13,7 @@ import { initialState as macrosInitialState } from '../../macros/reducers/macros
 import { initialState as logInitialState } from '../../log/reducers/logReducer'
 import { initialState as statusInitialState } from '../reducers/statusReducer'
 import { MockConfig } from '../../config/types/Config'
+import SchemaForm from '../../pluginManager/types/SchemaForm'
 
 import PrinterResolvers from './PrinterResolvers'
 
@@ -22,7 +23,16 @@ describe('PrinterResolvers', () => {
 
     const state = Record({
       config: MockConfig(),
-      fixedListComponentTypes: List(),
+      schemaForms: Record({
+        plugins: Map({
+          'tegh-core': SchemaForm({
+            id: 'tegh-core',
+          }),
+          'tegh-driver-serial-gcode': SchemaForm({}),
+          'tegh-macros-default': SchemaForm({}),
+        }),
+      })(),
+      fixedListComponentTypes: List(['TOOLHEAD']),
       spool: spoolInitialState,
       status: statusInitialState.set('status', CONNECTING),
       macros: macrosInitialState.set('macros', Map({ myMacro: () => null })),

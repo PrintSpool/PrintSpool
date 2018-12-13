@@ -7,6 +7,7 @@ import snapshotTestResolvers from '../../util/testing/snapshotTestResolvers'
 import { MockConfig } from '../../config/types/Config'
 
 import ComponentResolvers from './ComponentResolvers'
+import SchemaForm from '../../pluginManager/types/SchemaForm'
 
 describe('ComponentResolvers', () => {
   it('presents a consistent API', () => {
@@ -15,6 +16,11 @@ describe('ComponentResolvers', () => {
     const state = Record({
       driver: 'tegh-driver-serial-gcode',
       config: MockConfig(),
+      schemaForms: Record({
+        components: Map({
+          TOOLHEAD: SchemaForm({}),
+        }),
+      })(),
       'tegh-driver-serial-gcode': {
         components: Record({
           byAddress: Map({

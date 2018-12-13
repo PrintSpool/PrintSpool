@@ -1,58 +1,28 @@
 # Queries
 
 extend type Query {
-  hostConfigs(hostID: ID): [HostConfigForm!]!
-
-  printerConfigs(printerID: ID): [PrinterConfig!]!
-  # components(printerID: ID!, componentID: ID): [ComponentConfigForm!]!
+  hosts(hostID: ID): [Host!]!
 
   materials(materialID: ID): [Material!]!
 
   schemaForm(input: SchemaFormQueryInput!): JSONSchemaForm!
 }
 
-type HostConfigForm {
+type Host {
   id: ID!
+  configForm: ConfigForm!
 }
 
-type PrinterConfig {
+type Material {
   id: ID!
-  components(componentID: ID): [ComponentConfigForm!]!
-  plugins(package: String): [PluginConfigForm!]!
-  fixedListComponentTypes: [String!]!
-}
-
-interface ConfigForm {
-  id: ID!
-  model: JSON!
-  modelVersion: Int!
-  schemaForm: JSONSchemaForm!
-}
-
-type Material implements ConfigForm {
-  id: ID!
-  model: JSON!
-  modelVersion: Int!
-  schemaForm: JSONSchemaForm!
-
   type: String!
   name: String!
   shortSummary: String!
+  configForm: ConfigForm!
 }
 
-type ComponentConfigForm implements ConfigForm {
+type ConfigForm {
   id: ID!
-  model: JSON!
-  modelVersion: Int!
-  schemaForm: JSONSchemaForm!
-
-  type: String!
-  name: String!
-}
-
-type PluginConfigForm implements ConfigForm {
-  id: ID!
-  package: String!
   model: JSON!
   modelVersion: Int!
   schemaForm: JSONSchemaForm!

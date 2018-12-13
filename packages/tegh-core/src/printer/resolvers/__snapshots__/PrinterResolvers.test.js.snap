@@ -34,6 +34,9 @@ Object {
       },
     ],
     "error": null,
+    "fixedListComponentTypes": Array [
+      "TOOLHEAD",
+    ],
     "id": "aaxcvxcvcxv-bvb-csdf234231",
     "logEntries": Array [
       Object {},
@@ -42,6 +45,17 @@ Object {
       Object {},
     ],
     "name": "Left Home Lulzbot",
+    "plugins": Array [
+      Object {
+        "id": "asgbvas23",
+      },
+      Object {
+        "id": "aaabbbccc333",
+      },
+      Object {
+        "id": "aaabbbccc123",
+      },
+    ],
     "status": "CONNECTING",
     "targetTemperaturesCountdown": 3,
   },

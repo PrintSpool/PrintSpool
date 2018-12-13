@@ -5,20 +5,19 @@ import deterministicTestSetup from '../../util/testing/deterministicTestSetup'
 import snapshotTestResolvers from '../../util/testing/snapshotTestResolvers'
 
 import { MockConfig } from '../../config/types/Config'
-import { TOOLHEAD } from '../../config/types/components/ComponentTypeEnum'
 import SchemaForm from '../types/SchemaForm'
 
-import ComponentConfigFormResolvers from './ComponentConfigFormResolvers'
+import PluginResolvers from './PluginResolvers'
 
-describe('ComponentConfigFormResolvers', () => {
+describe('PluginResolvers', () => {
   it('presents a consistent API', () => {
     deterministicTestSetup()
 
     const state = Record({
       schemaForms: Record({
-        components: Map({
-          TOOLHEAD: SchemaForm({
-            id: 'TOOLHEAD',
+        plugins: Map({
+          'tegh-core': SchemaForm({
+            id: 'tegh-core',
           }),
         }),
       })(),
@@ -26,9 +25,11 @@ describe('ComponentConfigFormResolvers', () => {
 
     snapshotTestResolvers({
       typeDefs,
-      typeName: 'ComponentConfigForm',
-      resolvers: ComponentConfigFormResolvers,
-      rootValue: MockConfig().printer.components.find(c => c.type === TOOLHEAD),
+      typeName: 'Plugin',
+      resolvers: PluginResolvers,
+      rootValue: MockConfig().printer.plugins.find(p => (
+        p.package === 'tegh-core'
+      )),
       contextValue: {
         store: {
           getState: () => state,

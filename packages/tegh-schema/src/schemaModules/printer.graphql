@@ -7,7 +7,11 @@ extend type Query {
 type Printer {
   id: ID!
   name: String!
-  components: [Component!]!
+
+  components(componentID: ID): [Component!]!
+  plugins(package: String): [Plugin!]!
+
+  fixedListComponentTypes: [String!]!
 
   """
   The estimated number of seconds until the heater(s) reach their
@@ -25,12 +29,19 @@ type Printer {
   logEntries(level: String, source: String): [LogEntry!]
 }
 
+type Plugin {
+  id: ID!
+  package: String!
+  configForm: ConfigForm!
+}
 
 type Component {
   id: ID!
   name: String!
   type: String!
   address: String
+
+  configForm: ConfigForm!
 
   """
   set if this component contains a heater. Null for non-heater components.

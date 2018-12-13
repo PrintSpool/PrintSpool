@@ -8,22 +8,49 @@ const PrinterResolvers = {
   Printer: {
     id: source => source.config.printer.id,
     name: source => getPluginModels(source.config).getIn(['tegh-core', 'name']),
-    components: source => (
-      getComponents(source.config)
+    targetTemperaturesCountdown: source => getComponentsState(source).targetTemperaturesCountdown,
+    activeExtruderID: source => getComponentsState(source).activeExtruderID,
+    macroDefinitions: source => source.macros.macros.keys(),
+    error: source => source.status.error,
+
+    components: (source, args) => {
+      const id = args.componentID
+      const components = getComponents(source.config)
+
+      if (id != null) {
+        const component = components.get(id)
+        if (component == null) {
+          throw new Error(`Component ID: ${id} does not exist`)
+        }
+        return [component]
+      }
+      return components
         .toList()
         .sortBy(c => (
           `${ComponentTypeEnum.indexOf(c.type)}${c.model.get('name')}`
         ))
-    ),
-    targetTemperaturesCountdown: source => getComponentsState(source).targetTemperaturesCountdown,
-    activeExtruderID: source => getComponentsState(source).activeExtruderID,
+    },
+
+    plugins: (source, args) => {
+      const { plugins } = source.config.printer
+
+      if (args.package != null) {
+        const plugin = plugins.find(p => p.package === args.package)
+        if (plugin == null) {
+          throw new Error(`Plugin package: ${args.package} does not exist`)
+        }
+        return [plugin]
+      }
+
+      return plugins
+    },
+
     status: (source) => {
       if (!isIdle(source.spool)) return 'PRINTING'
       const { status } = source.status
       return status.substring(status.lastIndexOf('/') + 1)
     },
-    error: source => source.status.error,
-    macroDefinitions: source => source.macros.macros.keys(),
+
     logEntries: (source, args) => {
       let entries = source.log.get('logEntries')
       if (args.level != null) {

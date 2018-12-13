@@ -1,13 +1,13 @@
 import { NullSchemaForm } from '../types/SchemaForm'
 
-const MaterialFormResolvers = {
-  Material: {
+const PluginResolvers = {
+  Plugin: {
     configForm: (source, args, { store }) => {
       const { id, model, modelVersion } = source
 
       const state = store.getState()
       const schemaForm = state.schemaForms.getIn(
-        ['materials', source.type],
+        ['plugins', source.package],
         NullSchemaForm,
       )
 
@@ -18,9 +18,7 @@ const MaterialFormResolvers = {
         schemaForm,
       }
     },
-    name: source => source.model.get('name'),
-    shortSummary: source => `${source.model.get('targetExtruderTemperature')}°`,
   },
 }
 
-export default MaterialFormResolvers
+export default PluginResolvers
