@@ -44,9 +44,11 @@ const ConfigPage = ({
           variables={{ printerID }}
           query={gql`
             query($printerID: ID!) {
-              printerConfigs(printerID: $printerID) {
+              printers(printerID: $printerID) {
                 plugins(package: "tegh-core") {
-                  ...UpdateDialogFragment
+                  configForm {
+                    ...UpdateDialogFragment
+                  }
                 }
               }
             }

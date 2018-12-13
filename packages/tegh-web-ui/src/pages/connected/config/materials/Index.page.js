@@ -80,7 +80,9 @@ const MaterialsConfigIndex = ({
           query={gql`
             query($materialID: ID) {
               materials(materialID: $materialID) {
-                ...UpdateDialogFragment
+                configForm {
+                  ...UpdateDialogFragment
+                }
               }
             }
             ${UPDATE_DIALOG_FRAGMENT}

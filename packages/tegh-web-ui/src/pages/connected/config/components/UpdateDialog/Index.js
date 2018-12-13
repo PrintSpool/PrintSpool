@@ -18,7 +18,6 @@ import withValidate from '../FormikSchemaForm/withValidate'
 
 export const UPDATE_DIALOG_FRAGMENT = gql`
   fragment UpdateDialogFragment on ConfigForm {
-    __typename
     id
     model
     modelVersion
@@ -76,9 +75,9 @@ const enhance = compose(
           const configFormModel = (() => {
             if (data.materials != null) return data.materials[0]
 
-            const config = data.printerConfigs[0]
-            return (config.plugins || config.components)[0]
-          })()
+            const printer = data.printers[0]
+            return (printer.plugins || printer.components)[0]
+          })().configForm
 
           return (
             <Component

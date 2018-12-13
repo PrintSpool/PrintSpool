@@ -43,7 +43,7 @@ const COMPONENTS_SUBSCRIPTION = gql`
           id
           name
         }
-        printerConfigs(printerID: $printerID) {
+        printers(printerID: $printerID) {
           id
           fixedListComponentTypes
           components {
@@ -109,9 +109,9 @@ const enhance = compose(
     },
   })),
   withLiveData,
-  withProps(({ printerConfigs, match }) => {
+  withProps(({ printers, match }) => {
     const { componentID, printerID, verb } = match.params
-    const { components, fixedListComponentTypes } = printerConfigs[0]
+    const { components, fixedListComponentTypes } = printers[0]
 
     return {
       selectedComponent: components.find(c => c.id === componentID),
@@ -186,9 +186,11 @@ const ComponentsConfigIndex = ({
         variables={{ printerID, componentID: selectedComponent.id }}
         query={gql`
           query($printerID: ID!, $componentID: ID) {
-            printerConfigs(printerID: $printerID) {
+            printers(printerID: $printerID) {
               components(componentID: $componentID) {
-                ...UpdateDialogFragment
+                configForm {
+                  ...UpdateDialogFragment
+                }
               }
             }
           }

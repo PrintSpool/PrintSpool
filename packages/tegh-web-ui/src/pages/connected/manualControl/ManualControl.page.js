@@ -23,7 +23,7 @@ const MANUAL_CONTROL_SUBSCRIPTION = gql`
     live {
       patch { op, path, from, value }
       query {
-        singularPrinter: printers(id: $printerID) {
+        singularPrinter: printers(printerID: $printerID) {
           ...PrinterStatus
           components {
             ...ComponentControlFragment

@@ -82,8 +82,9 @@ const QueryResolvers = {
      * printer
      */
     printers: (_source, args, { store }) => {
+      const id = args.printerID
       const state = store.getState()
-      if (args.id != null && args.id !== state.config.printer.id) {
+      if (id != null && id !== state.config.printer.id) {
         return []
       }
       return [state]
