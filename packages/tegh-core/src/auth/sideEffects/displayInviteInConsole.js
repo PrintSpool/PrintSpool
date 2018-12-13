@@ -3,10 +3,10 @@ import bs58 from 'bs58'
 
 export const INVITE_PROTOCOL_VERSION = 'A'
 
-const displayInviteInConsole = ({ hostDatID, invite }) => {
+const displayInviteInConsole = ({ hostPublicKey, invite }) => {
   const invitePayload = [
     INVITE_PROTOCOL_VERSION,
-    hostDatID,
+    hostPublicKey,
     bs58.encode(Buffer.from(invite.privateKey, 'hex')),
   ]
 
