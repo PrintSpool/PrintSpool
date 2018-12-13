@@ -1,8 +1,7 @@
 // import WebCrypto from 'node-webcrypto-ossl'
+import fs from 'fs'
 import crypto from '@trust/webcrypto'
 import wrtc from 'wrtc'
-import fs from 'fs'
-import * as qrcode from 'qrcode-terminal'
 import { btoa } from 'abab'
 import { SubscriptionServer } from 'subscriptions-transport-ws'
 import { execute, subscribe } from 'graphql'
@@ -13,7 +12,7 @@ import { TeghHost, setCrypto } from 'tegh-protocol'
 // setCrypto(webCrypto)
 setCrypto(crypto)
 
-const httpServer = async ({
+const webRTCServer = async ({
   schema,
   context,
   keys,
@@ -45,18 +44,6 @@ const httpServer = async ({
     },
     teghHost,
   )
-
-  // eslint-disable-next-line no-console
-  console.error('\n\nTegh is listening for WebRTC connections. Connect to:\n')
-
-  const keyString = JSON.stringify({ publicKey: keysJSON.public })
-
-  qrcode.generate(keyString, { small: true }, (qr) => {
-    // eslint-disable-next-line no-console
-    console.error(`\n${qr}`)
-  })
-  // eslint-disable-next-line no-console
-  console.error(`Host key:\n${btoa(keyString)}`)
 }
 
-export default httpServer
+export default webRTCServer

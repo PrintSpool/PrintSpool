@@ -3,6 +3,7 @@ import uuid from 'uuid'
 
 import HostConfig from './HostConfig'
 import PrinterConfig from './PrinterConfig'
+import AuthConfig from './auth/AuthConfig'
 import MaterialConfig from './MaterialConfig'
 import developmentConfig from '../../../../../development.config'
 
@@ -11,6 +12,7 @@ export const ConfigRecordFactory = Record({
   modelVersion: 0,
   host: null,
   printer: null,
+  auth: null,
   materials: List(),
 })
 
@@ -19,6 +21,7 @@ const Config = ({
   modelVersion = 0,
   host = {},
   printer = {},
+  auth = {},
   materials = [],
   ...props
 } = {}) => (
@@ -27,6 +30,7 @@ const Config = ({
     modelVersion,
     host: HostConfig(host),
     printer: PrinterConfig(printer),
+    auth: AuthConfig(auth),
     materials: List(materials).map(material => MaterialConfig(material)),
     ...props,
   })

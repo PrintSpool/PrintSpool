@@ -1,3 +1,4 @@
+export auth from './auth/reducers/authReducer'
 export config from './config/reducers/configReducer'
 export devices from './devices/reducers/devicesReducer'
 export jobQueue from './jobQueue/reducers/jobQueueReducer'
