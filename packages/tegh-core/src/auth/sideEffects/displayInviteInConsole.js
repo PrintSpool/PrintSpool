@@ -7,7 +7,7 @@ const displayInviteInConsole = ({ hostDatID, invite }) => {
   const invitePayload = [
     INVITE_PROTOCOL_VERSION,
     hostDatID,
-    bs58.encode(invite.privateKey),
+    bs58.encode(Buffer.from(invite.privateKey, 'hex')),
   ]
 
   const inviteString = invitePayload.join('')
@@ -15,13 +15,16 @@ const displayInviteInConsole = ({ hostDatID, invite }) => {
   qrcode.generate(inviteString, { small: true }, (qr) => {
     /* eslint-disable no-console, prefer-template, comma-dangle */
     console.error(
-      '\n\n'
-      + 'Invitation Code\n'
+      '\n\n\n'
       + '==========================================================\n'
-      + 'Use the Beaker Browser to go to dat://tegh.io and use the invite code '
-      + 'below to connect:\n'
+      + 'Invite Code\n'
+      + '==========================================================\n\n'
       + `${qr}\n`
-      + `Invite Text:\n${inviteString}`
+      + `${inviteString}\n\n`
+      + 'Your almost ready to start 3D Printing! To connect to your printer:\n\n'
+      + '1. Install the Beaker Distributed Web Browser from https://beakerbrowser.com/\n'
+      + '2, Go to dat://tegh.io and use the Invite Code above.\n\n'
+      + '==========================================================\n\n'
     )
     /* eslint-enable */
   })

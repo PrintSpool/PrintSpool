@@ -10,6 +10,7 @@ const InviteFactory = Record({
 
 const createInvitePrivateKey = () => {
   // TODO
+  return "test"
 }
 
 const Invite = ({

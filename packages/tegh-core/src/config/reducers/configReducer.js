@@ -35,7 +35,7 @@ const configReducer = (state = initialState, action) => {
         config: nextConfig,
       })
 
-      return Cmd.loop(
+      return loop(
         state,
         Cmd.action(nextAction),
       )

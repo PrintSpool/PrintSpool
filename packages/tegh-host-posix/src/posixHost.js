@@ -13,7 +13,7 @@ import {
 
 // import { wrapInCrashReporting } from './crashReport'
 import httpServer from './server/httpServer'
-import webRTCServer from './server/webRTCServer'
+// import webRTCServer from './server/webRTCServer'
 
 global.Promise = Promise
 
@@ -77,9 +77,9 @@ const teghServer = async (argv, pluginLoader) => {
     // eslint-disable-next-line no-empty-block
   }
 
-  if (serverSettings.webRTC) {
-    webRTCServer(teghServerConfig)
-  }
+  // if (serverSettings.webRTC) {
+  //   webRTCServer(teghServerConfig)
+  // }
   if (serverSettings.tcpPort) {
     httpServer(teghServerConfig, serverSettings.tcpPort)
   }

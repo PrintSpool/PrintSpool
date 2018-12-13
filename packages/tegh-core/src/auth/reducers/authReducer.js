@@ -18,12 +18,13 @@ const authReducer = (state = initialState, action) => {
       let consoleInvites = invites.filter(invite => invite.displayInConsole)
 
       const sideEffects = []
+      console.log({ consoleInvites })
 
       /*
        * If no invites exist and no admins exist then create an invite so the
        * initial user can connect
        */
-      if (admins.length === 0 && adminInvites.length === 0) {
+      if (admins.size === 0 && adminInvites.size === 0) {
         const nextAction = createInvite({
           displayInConsole: true,
           admin: true,
@@ -31,12 +32,15 @@ const authReducer = (state = initialState, action) => {
         consoleInvites = consoleInvites.push(nextAction.payload.invite)
         sideEffects.push(Cmd.action(nextAction))
       }
+      console.log({ consoleInvites })
 
       /*
        * Display invites in the console
        */
       consoleInvites.forEach(invite => (
-        sideEffects.push(Cmd.run(displayInviteInConsole({ hostDatID, invite })))
+        sideEffects.push(Cmd.run(displayInviteInConsole, {
+          args: [{ hostDatID: "test", invite }],
+        }))
       ))
 
       return loop(state, Cmd.list(sideEffects))
