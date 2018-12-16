@@ -1,3 +1,4 @@
+import { Set } from 'immutable'
 import {
   despoolTask,
   DESPOOL_TASK,
@@ -25,7 +26,7 @@ describe('despoolToSerialReducer', () => {
         data: ['line_0', '(╯°□°）╯︵ ┻━┻', 'line_2'],
         currentLineNumber: 1,
       })
-      const action = despoolTask(task)
+      const action = despoolTask(task, Set())
 
       const {
         actionToDispatch: nextAction,
