@@ -1,4 +1,5 @@
 import {
+  createMacroExpansionReducer,
   getHeaterConfigs,
   getMaterials,
   ComponentTypeEnum,
@@ -8,7 +9,10 @@ import setTargetTemperature from './setTargetTemperature'
 
 const { TOOLHEAD, BUILD_PLATFORM } = ComponentTypeEnum
 
-const toggleHeater = (args, { config }) => {
+const toggleHeater = createMacroExpansionReducer('toggleHeater', (
+  args,
+  { config },
+) => {
   const heaters = getHeaterConfigs(config)
   const targetTemperatures = {}
 
@@ -59,6 +63,6 @@ const toggleHeater = (args, { config }) => {
   })
 
   return setTargetTemperature(targetTemperatures, { config })
-}
+})
 
 export default toggleHeater

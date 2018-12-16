@@ -9,4 +9,6 @@ export configValidation from './configValidation'
 
 export fixedListComponentTypes from './fixedListComponentTypes'
 
+export macros from './macros'
+
 export const driver = true

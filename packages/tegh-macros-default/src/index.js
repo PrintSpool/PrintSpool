@@ -1,1 +1,3 @@
-export * as macros from './macros'
+export macros from './macros'
+
+export reducer from './reducer'

@@ -7,7 +7,9 @@
   "license": "AGPL-3.0-or-later",
   "private": false,
   "dependencies": {
+    "immutable": "^4.0.0-rc.12",
     "lodash": "^4.17.4",
+    "redux-loop-immutable": "^1.0.0",
     "tegh-core": "^0.4.0"
   }
 }

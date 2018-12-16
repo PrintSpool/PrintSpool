@@ -32,7 +32,9 @@ export const initialState = Record({
 const despoolToSerialReducer = (state = initialState, action) => {
   switch (action.type) {
     case DESPOOL_TASK: {
-      const { task } = action.payload
+      const { task, isHostMacro } = action.payload
+
+      if (isHostMacro) return state
 
       const emergency = isEmergency.resultFunc(task)
       const currentLine = getCurrentLine.resultFunc(task)

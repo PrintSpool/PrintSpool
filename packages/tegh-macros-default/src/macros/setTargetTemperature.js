@@ -1,11 +1,15 @@
 import {
+  createMacroExpansionReducer,
   getHeaterConfigs,
   ComponentTypeEnum,
 } from 'tegh-core'
 
 const { BUILD_PLATFORM } = ComponentTypeEnum
 
-const setTargetTemperature = (args, { config }) => {
+const setTargetTemperature = createMacroExpansionReducer('setTargetTemperature', (
+  args,
+  { config },
+) => {
   const heaters = getHeaterConfigs(config)
   const gcodeLines = []
 
@@ -25,6 +29,6 @@ const setTargetTemperature = (args, { config }) => {
     }
   })
   return gcodeLines
-}
+})
 
 export default setTargetTemperature

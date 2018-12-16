@@ -1,11 +1,15 @@
 import {
+  createMacroExpansionReducer,
   axisExists,
   AxisTypeEnum,
 } from 'tegh-core'
 
 const { MOVEMENT_AXIS } = AxisTypeEnum
 
-const home = (args, { config }) => {
+const home = createMacroExpansionReducer('home', (
+  args,
+  { config },
+) => {
   if (args.all === true) return ['G28']
 
   if (!Array.isArray(args) || args.length === 0) {
@@ -24,6 +28,6 @@ const home = (args, { config }) => {
   return [
     gcodeWords.join(' '),
   ]
-}
+})
 
 export default home
