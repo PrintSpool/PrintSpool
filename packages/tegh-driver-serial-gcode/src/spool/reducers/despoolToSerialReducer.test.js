@@ -23,7 +23,7 @@ describe('despoolToSerialReducer', () => {
   describe(DESPOOL_TASK, () => {
     it('sends next line', () => {
       const task = MockTask({
-        data: ['line_0', '(╯°□°）╯︵ ┻━┻', 'line_2'],
+        data: ['line_0', 'G1 X10', 'line_2'],
         currentLineNumber: 1,
       })
       const action = despoolTask(task, Set())
@@ -33,7 +33,7 @@ describe('despoolToSerialReducer', () => {
       } = reducer(initialState, action)[1]
 
       expect(nextAction).toEqual(
-        serialSend('(╯°□°）╯︵ ┻━┻', { lineNumber: 1 }),
+        serialSend({ macro: 'G1', args: { x: 10 }, lineNumber: 1 }),
       )
     })
   })
@@ -41,7 +41,11 @@ describe('despoolToSerialReducer', () => {
   describe(SERIAL_SEND, () => {
     describe('when a line number is present', () => {
       it('increments the line number', () => {
-        const action = serialSend('G1337 :)', { lineNumber: 9000 })
+        const action = serialSend({
+          macro: 'G1337',
+          args: {},
+          lineNumber: 9000,
+        })
 
         const state = reducer(initialState, action)
 
@@ -50,7 +54,11 @@ describe('despoolToSerialReducer', () => {
     })
     describe('when a line number is not present', () => {
       it('does nothing', () => {
-        const action = serialSend('G1337 :)', { lineNumber: false })
+        const action = serialSend({
+          macro: 'G1337',
+          args: {},
+          lineNumber: false,
+        })
 
         const state = reducer(initialState, action)
 
@@ -91,7 +99,7 @@ describe('despoolToSerialReducer', () => {
         it('resends the current line', () => {
           const task = MockTask({
             currentLineNumber: 0,
-            data: ['(╯°□°）╯︵ ┻━┻'],
+            data: ['(╯°□°）╯︵┻━┻'],
           })
 
           const state = initialState
@@ -109,7 +117,11 @@ describe('despoolToSerialReducer', () => {
 
           expect(nextState.onNextOK).toEqual(IGNORE_OK)
           expect(nextAction).toEqual(
-            serialSend('(╯°□°）╯︵ ┻━┻', { lineNumber: 2001 }),
+            serialSend({
+              macro: '(╯°□°）╯︵┻━┻',
+              args: {},
+              lineNumber: 2001,
+            }),
           )
         })
       })

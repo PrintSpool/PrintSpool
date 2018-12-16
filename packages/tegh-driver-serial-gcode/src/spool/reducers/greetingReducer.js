@@ -59,7 +59,11 @@ const greetingReducer = (state = initialState, action) => {
 
       return loop(
         nextState,
-        Cmd.action(serialSend('M110 N0', { lineNumber: false })),
+        Cmd.action(serialSend({
+          macro: 'M110',
+          args: { N: '0' },
+          lineNumber: false,
+        })),
       )
     }
     case SERIAL_RECEIVE: {
@@ -93,7 +97,11 @@ const greetingReducer = (state = initialState, action) => {
 
       return loop(
         state,
-        Cmd.action(serialSend('M110 N0', { lineNumber: false })),
+        Cmd.action(serialSend({
+          macro: 'M110',
+          args: { n: 0 },
+          lineNumber: false,
+        })),
       )
     }
     default: {
