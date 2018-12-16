@@ -1,15 +1,20 @@
+import { Set } from 'immutable'
+
 import {
   estop,
   connectPrinter,
+  despoolTask,
+  MockTask,
 } from 'tegh-core'
 
 import reducer, { initialState } from './estopAndResetReducer'
 
-import serialSend from '../actions/serialSend'
-
 describe('estopAndResetReducer', () => {
-  it('dispatches an ESTOP if an M112 is sent', () => {
-    const action = serialSend('M112', { lineNumber: false })
+  it('dispatches an ESTOP if an eStop macro is sent', () => {
+    const action = despoolTask(MockTask({
+      data: ['eStop'],
+      currentLineNumber: 0,
+    }), Set())
 
     const [
       nextState,
@@ -20,8 +25,11 @@ describe('estopAndResetReducer', () => {
     expect(nextAction).toEqual(estop())
   })
 
-  it('dispatches a RESET_SERIAL action if M999 is sent', () => {
-    const action = serialSend('M999', { lineNumber: false })
+  it('dispatches a RESET_SERIAL action if a reset macro is sent', () => {
+    const action = despoolTask(MockTask({
+      data: ['reset'],
+      currentLineNumber: 0,
+    }), Set())
 
     const [
       nextState,
@@ -33,7 +41,10 @@ describe('estopAndResetReducer', () => {
   })
 
   it('does nothing on other GCodes', () => {
-    const action = serialSend('G1 X10', { lineNumber: false })
+    const action = despoolTask(MockTask({
+      data: ['G1 X10'],
+      currentLineNumber: 0,
+    }), Set())
 
     const nextState = reducer(initialState, action)
 
