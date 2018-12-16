@@ -9,7 +9,12 @@ import setTargetTemperature from './setTargetTemperature'
 
 const { TOOLHEAD, BUILD_PLATFORM } = ComponentTypeEnum
 
-const toggleHeater = createMacroExpansionReducer('toggleHeater', (
+const meta = {
+  package: 'tegh-driver-serial-gcode',
+  macro: 'toggleHeater',
+}
+
+const toggleHeater = createMacroExpansionReducer(meta, (
   args,
   { config },
 ) => {

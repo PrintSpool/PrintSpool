@@ -25,7 +25,7 @@ type Printer {
   activeExtruderID: String
   status: PrinterStatusEnum!
   error: PrinterError
-  macroDefinitions: [MacroDefinition!]!
+  enabledMacros: [String!]!
   logEntries(level: String, source: String): [LogEntry!]
 }
 
@@ -89,10 +89,6 @@ type LogEntry {
   source: String!
   level: String!
   message: String!
-}
-
-type MacroDefinition {
-  name: String!
 }
 
 type PrinterError {
