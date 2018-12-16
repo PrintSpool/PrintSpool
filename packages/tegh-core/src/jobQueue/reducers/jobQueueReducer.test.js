@@ -1,3 +1,5 @@
+import { Set } from 'immutable'
+
 import { MockJob } from '../types/Job'
 import { MockJobFile } from '../types/JobFile'
 import { MockTask } from '../../spool/types/Task'
@@ -209,7 +211,7 @@ describe('jobQueueReducer', () => {
 
   describe(DESPOOL_TASK, () => {
     it('does nothing if the task does not belong to a job', () => {
-      const action = despoolTask(MockTask())
+      const action = despoolTask(MockTask({ currentLineNumber: 0 }), Set())
 
       const nextState = jobQueueReducer(initialState, action)
 
@@ -230,7 +232,7 @@ describe('jobQueueReducer', () => {
           jobFileID: jobFile.id,
           currentLineNumber: 0,
         })
-        const action = despoolTask(task)
+        const action = despoolTask(task, Set())
 
         const nextState = jobQueueReducer(state, action)
         const startEvent = nextState.history.last()
@@ -247,7 +249,7 @@ describe('jobQueueReducer', () => {
           jobFileID: jobFile.id,
           currentLineNumber: 1,
         })
-        const action = despoolTask(task)
+        const action = despoolTask(task, Set())
 
         const nextState = jobQueueReducer(state, action)
         const finishEvent = nextState.history.last()
@@ -265,7 +267,7 @@ describe('jobQueueReducer', () => {
           currentLineNumber: 0,
           data: ['g1 x10 f3000'],
         })
-        const action = despoolTask(task)
+        const action = despoolTask(task, Set())
 
         const nextState = jobQueueReducer(state, action)
         const startEvent = nextState.history.first()

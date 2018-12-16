@@ -11,6 +11,7 @@ const moveBy = createMacroExpansionReducer('moveBy', (
     allowExtruderAxes: true,
     relativeMovement: true,
   }
+  console.log(moveArgs)
   return move(moveArgs, { config })
 })
 

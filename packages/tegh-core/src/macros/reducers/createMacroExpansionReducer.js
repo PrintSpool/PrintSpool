@@ -6,7 +6,7 @@ import { PREEMPTIVE } from '../../spool/types/PriorityEnum'
 import { SET_CONFIG } from '../../config/actions/setConfig'
 import { DESPOOL_TASK } from '../../spool/actions/despoolTask'
 
-import prependTask from '../../spool/actions/prependTask'
+import spoolTask from '../../spool/actions/spoolTask'
 import requestDespool from '../../spool/actions/requestDespool'
 
 const initialState = Record({
@@ -32,13 +32,14 @@ const createMacroExpansionReducer = (
          * effectively swapping the host macro for the expanded gcode lines
          * 2. despool the first line of that expanded gcode
          */
+        const taskAttrs = {
+          name: 'test.ngc',
+          internal: task.internal,
+          priority: PREEMPTIVE,
+          data,
+        }
         const actions = [
-          Cmd.action(prependTask({
-            name: 'test.ngc',
-            internal: task.internal,
-            priority: PREEMPTIVE,
-            data,
-          })),
+          Cmd.action(spoolTask(taskAttrs, { prepend: true })),
           Cmd.action(requestDespool()),
         ]
 

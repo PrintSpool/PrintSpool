@@ -43,6 +43,7 @@ const move = ({ axes, relativeMovement, allowExtruderAxes }, { config }) => {
 
     feedrates.push(component.feedrate)
   })
+  console.log({ feedrates })
   return [
     relativeMovement ? 'G91' : 'G90',
     `G1 F${_.min(feedrates) * 60}`,

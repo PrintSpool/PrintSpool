@@ -1,9 +1,10 @@
 import { loop, Cmd } from 'redux-loop'
 import {
-  Record, List, Map,
+  Record, List, Map, Set,
 } from 'immutable'
 
 import isIdle from '../selectors/isIdle'
+import getHostMacros from '../../pluginManager/selectors/getHostMacros'
 
 import {
   EMERGENCY,
@@ -16,6 +17,8 @@ import {
   PRINTING,
 } from '../types/TaskStatusEnum'
 
+/* config actions */
+import { SET_CONFIG } from '../../config/actions/setConfig'
 /* printer actions */
 import { PRINTER_READY } from '../../printer/actions/printerReady'
 import { ESTOP } from '../../printer/actions/estop'
@@ -36,6 +39,7 @@ export const initialState = Record({
   })(),
   tasks: Map(),
   currentTaskID: null,
+  hostMacros: Set(),
 })()
 
 const removeTaskReferences = (state) => {
@@ -57,11 +61,14 @@ const removeTaskReferences = (state) => {
 
 const spoolReducer = (state = initialState, action) => {
   switch (action.type) {
+    case SET_CONFIG: {
+      return initialState.set('hostMacros', getHostMacros(action.payload))
+    }
     /* Spool reset actions */
     case PRINTER_READY:
     case ESTOP:
     case DRIVER_ERROR: {
-      return initialState
+      return initialState.set('hostMacros', state.hostMacros)
     }
     case DELETE_JOB: {
       const { jobID } = action.payload
@@ -80,7 +87,7 @@ const spoolReducer = (state = initialState, action) => {
       return removeTaskReferences(nextState)
     }
     case SPOOL_TASK: {
-      const { task } = action.payload
+      const { task, prepend } = action.payload
       const { id, priority } = task
 
       let nextState = state
@@ -99,7 +106,12 @@ const spoolReducer = (state = initialState, action) => {
       /* add the task to the spool */
       nextState = nextState
         .setIn(['tasks', id], task)
-        .updateIn(['priorityQueues', priority], list => list.push(id))
+        .updateIn(['priorityQueues', priority], (list) => {
+          if (prepend) {
+            return list.unshift(id)
+          }
+          return list.push(id)
+        })
 
       /*
        * despool the first line if nothing is spooled
@@ -164,7 +176,7 @@ const spoolReducer = (state = initialState, action) => {
       const nextTask = nextState.tasks.get(nextState.currentTaskID)
       return loop(
         nextState,
-        Cmd.action(despoolTask(nextTask)),
+        Cmd.action(despoolTask(nextTask, state.hostMacros)),
       )
     }
     default: {

@@ -3,6 +3,7 @@
 exports[`spoolCommands creates a SPOOL_TASK action 1`] = `
 Object {
   "payload": Object {
+    "prepend": false,
     "task": Object {
       "createdAt": "[REDACTED]",
       "currentLineNumber": null,
