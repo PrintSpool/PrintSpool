@@ -6,9 +6,10 @@ export const SPOOL_TASK = 'tegh-core/spool/SPOOL_TASK'
 /*
  * creates a new Task and spools it
  */
-const spoolTask = task => ({
+const spoolTask = (task, { prepend = false } = {}) => ({
   type: SPOOL_TASK,
   payload: {
+    prepend,
     task: Record.isRecord(task) ? task : Task(task),
   },
 })
