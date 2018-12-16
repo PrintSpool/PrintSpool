@@ -126,6 +126,7 @@ const parseFanMCodes = (
   }
 }
 
+// TODO: replace simpleParser with loading the macro and args directly from the despool task.
 export const simpleParser = (line: string): SimpleParserData => {
   const [code, ...argWords] = line.trim().split(/ +/)
   const args = {}

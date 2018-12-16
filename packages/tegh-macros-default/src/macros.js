@@ -1,7 +1,9 @@
-export eStop from './macros/eStop'
-export home from './macros/home'
-export moveBy from './macros/moveBy'
-export moveTo from './macros/moveTo'
-export reset from './macros/reset'
-export setTemperature from './macros/setTargetTemperature'
-export toggleHeater from './macros/toggleHeater'
+import { initialState } from './reducer'
+
+// an array of the names of the macros
+const macros = initialState
+  .toMap()
+  .keySeq()
+  .toList()
+
+export default macros
