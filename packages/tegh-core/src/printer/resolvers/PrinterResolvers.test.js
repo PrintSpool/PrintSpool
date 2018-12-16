@@ -35,7 +35,7 @@ describe('PrinterResolvers', () => {
       fixedListComponentTypes: List(['TOOLHEAD']),
       spool: spoolInitialState,
       status: statusInitialState.set('status', CONNECTING),
-      macros: macrosInitialState.set('macros', Map({ myMacro: () => null })),
+      macros: macrosInitialState.set('enabledMacros', List(['myMacro'])),
       log: logInitialState.setIn(['logEntries', 0], {
         source: 'SERIAL',
         level: INFO,

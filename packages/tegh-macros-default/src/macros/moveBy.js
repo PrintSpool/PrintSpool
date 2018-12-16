@@ -2,7 +2,12 @@ import { createMacroExpansionReducer } from 'tegh-core'
 
 import move from '../util/move'
 
-const moveBy = createMacroExpansionReducer('moveBy', (
+const meta = {
+  package: 'tegh-driver-serial-gcode',
+  macro: 'moveBy',
+}
+
+const moveBy = createMacroExpansionReducer(meta, (
   args,
   { config },
 ) => {
@@ -11,7 +16,6 @@ const moveBy = createMacroExpansionReducer('moveBy', (
     allowExtruderAxes: true,
     relativeMovement: true,
   }
-  console.log(moveArgs)
   return move(moveArgs, { config })
 })
 

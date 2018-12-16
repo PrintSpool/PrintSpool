@@ -7,6 +7,7 @@ export getFeedrate from './config/selectors/getFeedrate'
 export getHeaterConfigs from './config/selectors/getHeaterConfigs'
 export getMaterials from './config/selectors/getMaterials'
 export getPrinterConfig from './config/selectors/getPrinterConfig'
+export isMacroEnabled from './config/selectors/isMacroEnabled'
 // export getMacroDefinitions from './config/selectors/getMacroDefinitions'
 // export runMacro from './config/selectors/runMacro'
 

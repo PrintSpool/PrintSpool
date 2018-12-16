@@ -6,7 +6,12 @@ import {
 
 const { BUILD_PLATFORM } = ComponentTypeEnum
 
-const setTargetTemperature = createMacroExpansionReducer('setTargetTemperature', (
+const meta = {
+  package: 'tegh-driver-serial-gcode',
+  macro: 'setTargetTemperature',
+}
+
+const setTargetTemperature = createMacroExpansionReducer(meta, (
   args,
   { config },
 ) => {

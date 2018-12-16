@@ -7,6 +7,7 @@ import {
   DESPOOL_TASK,
   requestDespool,
   getPluginModels,
+  isMacroEnabled,
 } from 'tegh-core'
 
 import setupPins from '../sideEffects/setupPins'
@@ -17,9 +18,15 @@ import gpioError from '../actions/gpioError'
 export const SET_GPIO = 'setGPIO'
 
 const initialState = Record({
+  enabled: false,
   isSetup: false,
   outputPins: Set(),
 })
+
+const meta = {
+  package: 'tegh-raspberry-pi',
+  macro: SET_GPIO,
+}
 
 /*
  * sets the value of a gpio output pin
@@ -33,11 +40,22 @@ const gpioReducer = (state, action) => {
   switch (action) {
     case SET_CONFIG: {
       const { config } = action.payload
-      const model = getPluginModels(config).get('tegh-raspberry-pi')
+      const model = getPluginModels(config).get(meta.package)
+
+      const enabled = isMacroEnabled({ config, meta })
+
+      if (!enabled) {
+        return initialState.merge({
+          enabled,
+        })
+      }
 
       const outputPins = Set(model.get('outputPins'))
 
-      const nextState = initialState.set('outputPins', outputPins)
+      const nextState = initialState.merge({
+        enabled,
+        outputPins,
+      })
 
       return loop(nextState, Cmd.run(setupPins, {
         args: [{ outputPins }],
@@ -53,6 +71,10 @@ const gpioReducer = (state, action) => {
 
       if (macro === SET_GPIO) {
         const { pin, value } = args
+
+        if (!state.enabled) {
+          return state
+        }
 
         if (!state.isSetup) {
           throw new Error('Cannot setGPIO before setup is completed')

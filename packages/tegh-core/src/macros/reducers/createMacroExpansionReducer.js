@@ -1,6 +1,7 @@
 import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
 
+import isMacroEnabled from '../../config/selectors/isMacroEnabled'
 import { PREEMPTIVE } from '../../spool/types/PriorityEnum'
 
 import { SET_CONFIG } from '../../config/actions/setConfig'
@@ -11,20 +12,27 @@ import requestDespool from '../../spool/actions/requestDespool'
 
 const initialState = Record({
   config: null,
+  enabled: false,
 })()
 
 const createMacroExpansionReducer = (
-  macroName,
+  meta,
   macroFn,
 ) => (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
-      return state.set('config', state.payload.config)
+      const { config } = state.payload
+      const enabled = isMacroEnabled({ config, meta })
+
+      return state.merge({
+        config,
+        enabled,
+      })
     }
     case DESPOOL_TASK: {
       const { macro, args, task } = action.payload
 
-      if (macro === macroName) {
+      if (macro === meta.macro && state.enabled) {
         // expand the macro into it's expanded gcode (an array of strings)
         const data = macroFn(args, state)
         /*

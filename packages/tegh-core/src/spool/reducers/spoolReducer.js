@@ -4,7 +4,7 @@ import {
 } from 'immutable'
 
 import isIdle from '../selectors/isIdle'
-import getHostMacros from '../../pluginManager/selectors/getHostMacros'
+import getEnabledHostMacros from '../../pluginManager/selectors/getEnabledHostMacros'
 
 import {
   EMERGENCY,
@@ -62,7 +62,7 @@ const removeTaskReferences = (state) => {
 const spoolReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
-      return initialState.set('hostMacros', getHostMacros(action.payload))
+      return initialState.set('hostMacros', getEnabledHostMacros(action.payload))
     }
     /* Spool reset actions */
     case PRINTER_READY:

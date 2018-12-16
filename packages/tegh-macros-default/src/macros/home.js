@@ -6,7 +6,12 @@ import {
 
 const { MOVEMENT_AXIS } = AxisTypeEnum
 
-const home = createMacroExpansionReducer('home', (
+const meta = {
+  package: 'tegh-driver-serial-gcode',
+  macro: 'home',
+}
+
+const home = createMacroExpansionReducer(meta, (
   args,
   { config },
 ) => {
