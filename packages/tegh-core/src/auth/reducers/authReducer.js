@@ -12,8 +12,14 @@ import { DAT_PEER_DATA_RECEIVED } from '../actions/datPeerDataReceived'
 
 const ec = new EC('curve25519')
 
+const DatSession = Record({
+  awaitingSDP: true,
+  peerIdentityPublicKey: null,
+  sessionKey: null,
+})
+
 export const initialState = Record({
-  hostKeys: null,
+  hostIdentityKeys: null,
   usersAndInvitesByPublicKey: Map(),
   datSessionsByPeerID: Map(),
 })
@@ -48,17 +54,77 @@ const authReducer = (state = initialState, action) => {
        */
       consoleInvites.forEach(invite => (
         sideEffects.push(Cmd.run(displayInviteInConsole, {
-          args: [{ hostPublicKey: hostKeys.getPublic(), invite }],
+          args: [{ hostPublicKey: hostIdentityKeys.getPublic(), invite }],
         }))
       ))
 
       return loop(state, Cmd.list(sideEffects))
     }
     case DAT_PEER_HANDSHAKE_RECEIVED: {
+      const { payload } = action
+
+      const peerIdentityKeys = ec.keyFromPublic(payload.identityPublicKey)
+      const peerEphemeralKeys = ec.keyFromPublic(payload.ephemeralPublicKey)
+
+      const { hostIdentityKeys } = state
       const hostEphemeralKeys = ec.genKeyPair()
-      hostEphemeralKeys.getPublic()
+
+      // triple diffie helman
+      const dh1 = hostIdentityKeys.derive(peerEphemeralKeys.getPublic())
+      const dh2 = hostEphemeralKeys.derive(peerIdentityKeys.getPublic())
+      const dh3 = hostEphemeralKeys.derive(peerEphemeralKeys.getPublic())
+
+      const sessionKey = 0//TODO
+
+      const nextState = state
+        .setIn(['datSessionKeysByPeerID', peerID], DatSession({
+          peerIdentityPublicKey: payload.identityPublicKey,
+          sessionKey,
+        }))
+      const nextAction = sendMessageToDatPeer({
+        peers,
+        peerID,
+        message: {
+          protocolVersion: 'A',
+          type: 'HANDSHAKE_RES',
+          payload: {
+            ephemeralPublicKey: hostEphemeralKeys.getPublic(),
+          }
+        }
+      })
+      return loop(nextState, Cmd.action(nextAction))
     }
     case DAT_PEER_DATA_RECEIVED: {
+      const { peerID, encryptedData } = action.payload
+      const datSession = state.datSessionKeysByPeerID.get(peerID)
+
+      if (datSession.awaitingSDP === false) {
+        // ignore duplicate messages
+        return
+      }
+
+      // TODO: decrypt the data somehow
+      const data = "TODO"
+
+      if (typeof data !== 'object' || data.sdp == null) {
+        // end the session if invalid data is received
+        return state.deleteIn(['datSessionKeysByPeerID', peerID])
+      }
+
+      const nextState = state
+        .setIn(['datSessionsByPeerID', peerID, 'awaitingSDP'], false)
+
+      const nextAction = Cmd.action(webRTCConnection, {
+        args: {
+          peerDatID: peerID,
+          peerSDP: data.sdp,
+        },
+      })
+
+      return loop(nextState, Cmd.action(nextAction))
+    }
+    case WebRTCSDPResponseCreated: {
+      const nextState = state.deleteIn(['datSessionKeysByPeerID', peerID])
     }
     default: {
       return state

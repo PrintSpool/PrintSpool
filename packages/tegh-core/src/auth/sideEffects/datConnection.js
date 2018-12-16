@@ -5,11 +5,13 @@ import datPeerDataReceived from '../actions/datPeerDataReceived'
 
 const PROTOCOL_VERSION = 'A'
 
-const HANDSHAKE = 'HANDSHAKE'
+const HANDSHAKE_REQ = 'HANDSHAKE_REQ'
+const HANDSHAKE_RES = 'HANDSHAKE_RES'
 const DATA = 'DATA'
 
 const MESSAGE_TYPES = [
-  HANDSHAKE,
+  HANDSHAKE_REQ,
+  HANDSHAKE_RES,
   DATA,
 ]
 
@@ -31,14 +33,14 @@ const datConnection = ({
     const {
       protocolVersion: clientProtocolVersion,
       // HANDSHAKE || DATA
-      messageType: clientMessageType,
+      type: clientMessageType,
       payload,
     } = message
 
     if (clientProtocolVersion !== PROTOCOL_VERSION) return
     if (MESSAGE_TYPES.includes(clientMessageType) === false) return
 
-    if (clientMessageType === HANDSHAKE) {
+    if (clientMessageType === HANDSHAKE_REQ) {
       const {
         identityPublicKey,
         ephemeralPublicKey,
