@@ -1,20 +1,23 @@
 // @flow
 import serialSend, { SERIAL_SEND } from './serialSend'
 
-const line = 'G12345 (╯°□°）╯︵ ┻━┻'
+const macro = 'G12345'
+const args = { writeAParserTheySaidItWillBeFunTheySaid: '(╯°□°）╯︵ ┻━┻' }
+const line = 'G12345 WRITEAPARSERTHEYSAIDITWILLBEFUNTHEYSAID(╯°□°）╯︵ ┻━┻'
 
 describe('with a line number', () => {
   test('adds the checksum and line number', () => {
     const lineNumber = 1995
     // See http://reprap.org/wiki/G-code#.2A:_Checksum
-    const expectedOutputLine = `N1995 ${line}*168\n`
+    const expectedOutputLine = `N1995 ${line}*234\n`
 
-    const result = serialSend(line, { lineNumber })
+    const result = serialSend({ macro, args, lineNumber })
 
     expect(result).toEqual({
       type: SERIAL_SEND,
       payload: {
-        code: 'G12345',
+        macro,
+        args,
         lineNumber,
         line: expectedOutputLine,
       },
@@ -24,14 +27,15 @@ describe('with a line number', () => {
 
 describe('with lineNumber: false', () => {
   test('sends the line without a line number', () => {
-    const expectedOutputLine = `${line}*194\n`
+    const expectedOutputLine = `${line}*128\n`
 
-    const result = serialSend(line, { lineNumber: false })
+    const result = serialSend({ macro, args, lineNumber: false })
 
     expect(result).toEqual({
       type: SERIAL_SEND,
       payload: {
-        code: 'G12345',
+        macro,
+        args,
         lineNumber: false,
         line: expectedOutputLine,
       },
@@ -42,7 +46,7 @@ describe('with lineNumber: false', () => {
 describe('with lineNumber: undefined', () => {
   test('throws an error', () => {
     expect(() => {
-      serialSend(line, { lineNumber: undefined })
+      serialSend({ macro, args, lineNumber: undefined })
     }).toThrow()
   })
 })

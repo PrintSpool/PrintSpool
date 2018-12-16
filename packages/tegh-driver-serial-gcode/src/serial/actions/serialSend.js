@@ -1,8 +1,7 @@
+import { toGCodeLine } from 'tegh-core'
 import txParser from '../../txParser'
 
 export const SERIAL_SEND = 'tegh-serial-driver/serial/SERIAL_SEND'
-
-const NEWLINE = /\r\n|\r|\n/g
 
 const checksum = (line) => {
   let sum = 0
@@ -15,14 +14,8 @@ const checksum = (line) => {
   return `${line}*${sum}\n`
 }
 
-const serialSend = (line, { lineNumber }) => {
-  if (
-    typeof line !== 'string'
-    || line.length === 0
-    || line.match(NEWLINE) !== null
-  ) {
-    throw new Error(`Invalid gcode line ${JSON.stringify(line)}`)
-  }
+const serialSend = ({ macro, args = {}, lineNumber } = {}) => {
+  const line = toGCodeLine({ macro, args })
 
   const processedLine = (() => {
     if (lineNumber === false) return checksum(line)
@@ -36,9 +29,11 @@ const serialSend = (line, { lineNumber }) => {
   return {
     type: SERIAL_SEND,
     payload: {
+      macro,
+      args,
       line: processedLine,
       lineNumber,
-      ...txParser(line),
+      ...txParser({ macro, args, line }),
     },
   }
 }

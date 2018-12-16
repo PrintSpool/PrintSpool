@@ -45,7 +45,7 @@ const serialTimeoutReducer = (state = initialState, action) => {
       )
     }
     case SERIAL_SEND: {
-      const { lineNumber, code } = action.payload
+      const { lineNumber, macro } = action.payload
 
       if (typeof lineNumber !== 'number') return state
 
@@ -55,7 +55,7 @@ const serialTimeoutReducer = (state = initialState, action) => {
         longRunningCodes,
       } = state.config
 
-      const isLong = longRunningCodes.includes(code)
+      const isLong = longRunningCodes.includes(macro)
       const timeoutPeriod = isLong ? longRunningCodeTimeout : fastCodeTimeout
 
       const nextState = state
@@ -98,7 +98,7 @@ const serialTimeoutReducer = (state = initialState, action) => {
           Cmd.list([
             // send a tickle M105 to try to get an 'ok' from the serial port
             Cmd.action(
-              serialSend('M105', { lineNumber: false }),
+              serialSend({ macro: 'M105', args: {}, lineNumber: false }),
             ),
             waitToTickleCmd(nextState),
           ]),
