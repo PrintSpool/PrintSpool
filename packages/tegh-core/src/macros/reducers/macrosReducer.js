@@ -12,7 +12,7 @@ const macrosReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
       const enabledMacros = getEnabledHostMacros(action.payload)
-      console.log(state)
+
       return state.merge({
         enabledMacros,
       })

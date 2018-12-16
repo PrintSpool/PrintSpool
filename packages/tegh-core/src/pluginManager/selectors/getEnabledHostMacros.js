@@ -9,7 +9,7 @@ const getEnabledHostMacros = createSelector(
     plugins
       .filter(plugin => plugin.macros != null)
       .map((plugin, packageName) => (
-        List(plugin.macros).filter(macro => isMacroEnabled({
+        List(plugin.macros()).filter(macro => isMacroEnabled({
           config,
           meta: {
             package: packageName,
