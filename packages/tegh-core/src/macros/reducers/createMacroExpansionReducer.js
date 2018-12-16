@@ -10,7 +10,7 @@ import { DESPOOL_TASK } from '../../spool/actions/despoolTask'
 import spoolTask from '../../spool/actions/spoolTask'
 import requestDespool from '../../spool/actions/requestDespool'
 
-const initialState = Record({
+export const initialState = Record({
   config: null,
   enabled: false,
 })()
@@ -21,7 +21,7 @@ const createMacroExpansionReducer = (
 ) => (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
-      const { config } = state.payload
+      const { config } = action.payload
       const enabled = isMacroEnabled({ config, meta })
 
       return state.merge({

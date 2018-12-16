@@ -1,4 +1,4 @@
-const macros = [
+const macros = () => [
   'eStop',
   'reset',
 ]

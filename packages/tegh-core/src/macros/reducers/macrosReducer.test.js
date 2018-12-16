@@ -14,7 +14,7 @@ describe('configReducer', () => {
         .setIn(['printer', 'plugins', 0, 'model', 'macros'], List(['*']))
       const plugins = Map({
         myPlugin: {
-          macros: [
+          macros: () => [
             'myMacro',
           ],
         },
