@@ -55,6 +55,9 @@ Object {
       Object {
         "id": "aaabbbccc123",
       },
+      Object {
+        "id": "asdfv31",
+      },
     ],
     "status": "CONNECTING",
     "targetTemperaturesCountdown": 3,

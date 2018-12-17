@@ -166,6 +166,16 @@ const printerConfig = {
         ],
       },
     },
+    {
+      id: 'asdfv31',
+      modelVersion: 1,
+      package: 'tegh-raspberry-pi',
+      model: {
+        macros: [
+          '*',
+        ],
+      },
+    },
   ],
 }
 
