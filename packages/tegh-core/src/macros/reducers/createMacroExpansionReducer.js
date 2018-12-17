@@ -31,7 +31,6 @@ const createMacroExpansionReducer = (
     }
     case DESPOOL_TASK: {
       const { macro, args, task } = action.payload
-
       if (macro === meta.macro && state.enabled) {
         // expand the macro into it's expanded gcode (an array of strings)
         const data = macroFn(args, state)
@@ -50,7 +49,6 @@ const createMacroExpansionReducer = (
           Cmd.action(spoolTask(taskAttrs, { prepend: true })),
           Cmd.action(requestDespool()),
         ]
-        console.log(actions)
 
         return loop(state, Cmd.list(actions))
       }

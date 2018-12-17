@@ -3,7 +3,7 @@ import { createMacroExpansionReducer } from 'tegh-core'
 import move from '../util/move'
 
 const meta = {
-  package: 'tegh-driver-serial-gcode',
+  package: 'tegh-macros-default',
   macro: 'moveBy',
 }
 

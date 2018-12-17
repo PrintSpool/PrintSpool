@@ -5,12 +5,12 @@ import {
   ComponentTypeEnum,
 } from 'tegh-core'
 
-import setTargetTemperature from './setTargetTemperature'
+import { macroFn as setTargetTemperature } from './setTargetTemperature'
 
 const { TOOLHEAD, BUILD_PLATFORM } = ComponentTypeEnum
 
 const meta = {
-  package: 'tegh-driver-serial-gcode',
+  package: 'tegh-macros-default',
   macro: 'toggleHeater',
 }
 
@@ -67,6 +67,7 @@ const toggleHeater = createMacroExpansionReducer(meta, (
     }
   })
 
+  console.log({targetTemperatures})
   return setTargetTemperature(targetTemperatures, { config })
 })
 
