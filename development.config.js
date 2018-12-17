@@ -155,6 +155,11 @@ const printerConfig = {
       id: 'aaabbbccc333',
       modelVersion: 1,
       package: 'tegh-driver-serial-gcode',
+      model: {
+        macros: [
+          '*',
+        ],
+      },
     },
     {
       id: 'aaabbbccc123',

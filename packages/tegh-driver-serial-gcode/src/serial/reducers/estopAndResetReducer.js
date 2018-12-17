@@ -4,6 +4,7 @@ import {
   estop,
   connectPrinter,
   DESPOOL_TASK,
+  requestDespool,
 } from 'tegh-core'
 
 export const initialState = null
@@ -14,11 +15,17 @@ const estopAndResetReducer = (state = initialState, action) => {
       const { macro } = action.payload
 
       if (macro === 'eStop') {
-        return loop(state, Cmd.action(estop()))
+        return loop(state, Cmd.list([
+          Cmd.action(estop()),
+          Cmd.action(requestDespool()),
+        ]))
       }
 
       if (macro === 'reset') {
-        return loop(state, Cmd.action(connectPrinter()))
+        return loop(state, Cmd.list([
+          Cmd.action(connectPrinter()),
+          Cmd.action(requestDespool()),
+        ]))
       }
 
       return state

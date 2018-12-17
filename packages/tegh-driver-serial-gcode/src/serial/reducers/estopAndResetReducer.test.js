@@ -5,6 +5,7 @@ import {
   connectPrinter,
   despoolTask,
   MockTask,
+  requestDespool,
 } from 'tegh-core'
 
 import reducer, { initialState } from './estopAndResetReducer'
@@ -18,11 +19,13 @@ describe('estopAndResetReducer', () => {
 
     const [
       nextState,
-      { actionToDispatch: nextAction },
+      sideEffects,
     ] = reducer(initialState, action)
 
+    expect(sideEffects.cmds).toHaveLength(2)
+    expect(sideEffects.cmds[0].actionToDispatch).toEqual(estop())
+    expect(sideEffects.cmds[1].actionToDispatch).toEqual(requestDespool())
     expect(nextState).toEqual(initialState)
-    expect(nextAction).toEqual(estop())
   })
 
   it('dispatches a RESET_SERIAL action if a reset macro is sent', () => {
@@ -33,11 +36,13 @@ describe('estopAndResetReducer', () => {
 
     const [
       nextState,
-      { actionToDispatch: nextAction },
+      sideEffects,
     ] = reducer(initialState, action)
 
+    expect(sideEffects.cmds).toHaveLength(2)
+    expect(sideEffects.cmds[0].actionToDispatch).toEqual(connectPrinter())
+    expect(sideEffects.cmds[1].actionToDispatch).toEqual(requestDespool())
     expect(nextState).toEqual(initialState)
-    expect(nextAction).toEqual(connectPrinter())
   })
 
   it('does nothing on other GCodes', () => {
