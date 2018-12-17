@@ -3,9 +3,10 @@ import parseGCode from '../selectors/parseGCode'
 
 export const DESPOOL_TASK = 'tegh-core/spool/DESPOOL_TASK'
 
-const despoolTask = (task, macros) => {
+const despoolTask = (task, enabledHostMacros) => {
   const currentLine = getCurrentLine.resultFunc(task)
   const { macro, args } = parseGCode(currentLine)
+  console.log(macro, enabledHostMacros)
 
   return ({
     type: DESPOOL_TASK,
@@ -15,7 +16,7 @@ const despoolTask = (task, macros) => {
        * word of the gcode line. Host macros should be implemented in a
        * macro reducer and are skipped by the driver.
        */
-      isHostMacro: macros.includes(macro),
+      isHostMacro: enabledHostMacros.includes(macro),
 
       macro,
       args,

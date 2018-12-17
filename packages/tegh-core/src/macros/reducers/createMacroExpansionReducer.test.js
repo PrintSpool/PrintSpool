@@ -3,14 +3,20 @@ import { List, Map } from 'immutable'
 import createMacroExpansionReducer, { initialState } from './createMacroExpansionReducer'
 
 import { MockConfig } from '../../config/types/Config'
+import { MockTask } from '../../spool/types/Task'
 
 import setConfig, { SET_CONFIG } from '../../config/actions/setConfig'
+import despoolTask, { DESPOOL_TASK } from '../../spool/actions/despoolTask'
+import requestDespool from '../../spool/actions/requestDespool'
 
 const meta = {
   package: 'tegh-example-package',
   macro: 'doExample',
 }
-const macroFn = (args) => args
+const macroFn = (args, { config }) => [
+  config.printer.id,
+  JSON.stringify(args),
+]
 
 const reducer = createMacroExpansionReducer(meta, macroFn)
 
@@ -50,6 +56,48 @@ describe('createMacroExpansionReducer', () => {
       const nextState = reducer(initialState, action)
 
       expect(nextState.enabled).toEqual(false)
+    })
+  })
+  describe(DESPOOL_TASK, () => {
+    it('ignores other macros', () => {
+      const action = despoolTask(MockTask({
+        currentLineNumber: 0,
+        data: ['otherMacro X10'],
+      }), List())
+
+      const config = MockConfig()
+
+      const state = initialState
+        .set('enabled', true)
+        .set('config', config)
+
+      const nextState = reducer(state, action)
+
+      expect(nextState).toEqual(state)
+    })
+    it('spools the gcode expansion and despools the next line', () => {
+      const action = despoolTask(MockTask({
+        currentLineNumber: 0,
+        data: ['doExample X10'],
+      }), List())
+
+      const config = MockConfig()
+
+      const state = initialState
+        .set('enabled', true)
+        .set('config', config)
+
+      const [, sideEffects] = reducer(state, action)
+
+      const nextActions = sideEffects.cmds.map(sideEffect => (
+        sideEffect.actionToDispatch
+      ))
+      expect(nextActions.length).toEqual(2)
+      expect(nextActions[0].payload.task.data).toEqual(List([
+        config.printer.id,
+        '{"x":10}',
+      ]))
+      expect(nextActions[1]).toEqual(requestDespool())
     })
   })
 })

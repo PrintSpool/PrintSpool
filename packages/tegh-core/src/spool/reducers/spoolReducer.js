@@ -1,6 +1,6 @@
 import { loop, Cmd } from 'redux-loop'
 import {
-  Record, List, Map, Set,
+  Record, List, Map,
 } from 'immutable'
 
 import isIdle from '../selectors/isIdle'
@@ -39,7 +39,7 @@ export const initialState = Record({
   })(),
   tasks: Map(),
   currentTaskID: null,
-  hostMacros: Set(),
+  enabledHostMacros: List(),
 })()
 
 const removeTaskReferences = (state) => {
@@ -62,13 +62,15 @@ const removeTaskReferences = (state) => {
 const spoolReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
-      return initialState.set('hostMacros', getEnabledHostMacros(action.payload))
+      return initialState
+        .set('enabledHostMacros', getEnabledHostMacros(action.payload))
     }
     /* Spool reset actions */
     case PRINTER_READY:
     case ESTOP:
     case DRIVER_ERROR: {
-      return initialState.set('hostMacros', state.hostMacros)
+      return initialState
+        .set('enabledHostMacros', state.enabledHostMacros)
     }
     case DELETE_JOB: {
       const { jobID } = action.payload
@@ -97,6 +99,7 @@ const spoolReducer = (state = initialState, action) => {
       */
       if (priority === EMERGENCY) {
         nextState = initialState
+          .set('enabledHostMacros', state.enabledHostMacros)
       }
 
       if (isIdle(nextState) === false && task.internal !== true) {
@@ -156,7 +159,10 @@ const spoolReducer = (state = initialState, action) => {
         ))
 
         const allQueuesAreEmpty = priority == null
-        if (allQueuesAreEmpty) return initialState
+        if (allQueuesAreEmpty) {
+          return initialState
+            .set('enabledHostMacros', state.enabledHostMacros)
+        }
 
         const nextTaskID = state.priorityQueues[priority].first()
 
@@ -176,7 +182,7 @@ const spoolReducer = (state = initialState, action) => {
       const nextTask = nextState.tasks.get(nextState.currentTaskID)
       return loop(
         nextState,
-        Cmd.action(despoolTask(nextTask, state.hostMacros)),
+        Cmd.action(despoolTask(nextTask, state.enabledHostMacros)),
       )
     }
     default: {
