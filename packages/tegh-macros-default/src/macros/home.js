@@ -7,7 +7,7 @@ import {
 const { MOVEMENT_AXIS } = AxisTypeEnum
 
 const meta = {
-  package: 'tegh-driver-serial-gcode',
+  package: 'tegh-macros-default',
   macro: 'home',
 }
 

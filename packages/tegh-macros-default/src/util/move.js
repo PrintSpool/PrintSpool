@@ -41,9 +41,9 @@ const move = ({ axes, relativeMovement, allowExtruderAxes }, { config }) => {
 
     gcodeWords.push(`${(isToolhead ? 'e' : address).toUpperCase()}${v}`)
 
-    feedrates.push(component.feedrate)
+    feedrates.push(component.model.get('feedrate'))
   })
-  console.log({ feedrates })
+
   return [
     relativeMovement ? 'G91' : 'G90',
     `G1 F${_.min(feedrates) * 60}`,
