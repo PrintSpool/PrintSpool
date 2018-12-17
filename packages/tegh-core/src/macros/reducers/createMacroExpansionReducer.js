@@ -41,7 +41,7 @@ const createMacroExpansionReducer = (
          * 2. despool the first line of that expanded gcode
          */
         const taskAttrs = {
-          name: 'test.ngc',
+          name: '[MACRO_EXPANSION]',
           internal: task.internal,
           priority: PREEMPTIVE,
           data,
@@ -50,8 +50,9 @@ const createMacroExpansionReducer = (
           Cmd.action(spoolTask(taskAttrs, { prepend: true })),
           Cmd.action(requestDespool()),
         ]
+        console.log(actions)
 
-        loop(state, Cmd.list(actions))
+        return loop(state, Cmd.list(actions))
       }
 
       return state
