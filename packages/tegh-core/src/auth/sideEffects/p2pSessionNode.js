@@ -48,8 +48,8 @@ export const createHandshakeRequest = async ({
     sessionID,
     handshakeAlgorithm: HANDSHAKE_ALGORITHM,
     encryptionAlgorithm: ENCRYPTION_ALGORITHM,
-    identityPublicKey: identityKeys.getPublic(),
-    ephemeralPublicKey: ephemeralKeys.getPublic(),
+    identityPublicKey: identityKeys.getPublic('hex'),
+    ephemeralPublicKey: ephemeralKeys.getPublic('hex'),
   }
 }
 
@@ -61,8 +61,8 @@ export const createHandshakeResponse = ({
   sessionID,
   handshakeAlgorithm: HANDSHAKE_ALGORITHM,
   encryptionAlgorithm: ENCRYPTION_ALGORITHM,
-  identityPublicKey: identityKeys.getPublic(),
-  ephemeralPublicKey: ephemeralKeys.getPublic(),
+  identityPublicKey: identityKeys.getPublic('hex'),
+  ephemeralPublicKey: ephemeralKeys.getPublic('hex'),
 })
 
 /*
@@ -124,7 +124,7 @@ export const createSessionKey = async ({
   return sessionKey
 }
 
-export const encrypt = async (sessionKey, data) => {
+export const encrypt = async (data, { sessionKey }) => {
   // AES GCM Stream Cypher
 
   /*
@@ -149,20 +149,30 @@ export const encrypt = async (sessionKey, data) => {
     + cipher.final('hex')
   )
 
-  // prepnd the initialization vector to the encrypted text
-  return iv + encryptedText
+  const authTag = cipher.getAuthTag()
+
+  // prepend the initialization vector and auth tag to the encrypted text
+  return `${iv.toString('hex')}:${authTag.toString('hex')}:${encryptedText}`
 }
 
-export const decrypt = (sessionKey, message) => {
+export const decrypt = (message, { sessionKey }) => {
   // AES GCM Stream Cypher
-  const iv = message.slice(0, IV_SIZE)
-  const encryptedText = message.slice(IV_SIZE)
+  if (typeof message !== 'string') {
+    throw new Error('message must be a string')
+  }
+
+  const [ivString, authTagString, encryptedText] = message.split(':')
+
+  const iv = Buffer.from(ivString, 'hex')
+  const authTag = Buffer.from(authTagString, 'hex')
 
   const decipher = crypto.createDecipheriv(
     ENCRYPTION_ALGORITHM,
     sessionKey,
     iv,
   )
+
+  decipher.setAuthTag(authTag)
 
   const text = (
     decipher.update(encryptedText, 'hex', 'utf8')
