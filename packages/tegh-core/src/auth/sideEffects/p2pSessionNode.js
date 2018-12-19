@@ -1,22 +1,27 @@
+// F 1189 ms
 import crypto from 'crypto'
 import Promise from 'bluebird'
 import hkdf from 'futoin-hkdf'
-import { ec as EC } from 'elliptic'
-
-const ec = new EC('curve25519')
+import eccrypto from 'eccrypto'
 
 export const ENCRYPTION_ALGORITHM = 'aes-256-gcm'
 /*
- * The 'triple-ecdh-hkdf' name is my own invention. It is intended to refer to
- * a Triple Diffie-Hellman handshake as described in:
+ * The 'triple-secp256k1-hkdf' name is my own invention. It is intended to refer
+ * to a Triple Diffie-Hellman handshake using the more widely avaliable
+ * secp256k1 instead of curve25519.
+ *
+ * Triple Diffie-Hellman is described in:
  *
  * http://www.isg.rhul.ac.uk/~kp/ModularProofs.pdf
  *
  * The Signal docs on Extended Triple Diffie Helman can also be useful for
  * understanding Triple Diffie Helman:
  * https://signal.org/docs/specifications/x3dh/
+ *
+ * secp256k1's security vs curve25519 is discussed on:
+ * https://bitcointalk.org/index.php?topic=380482.0
  */
-export const HANDSHAKE_ALGORITHM = 'triple-ecdh-hkdf'
+export const HANDSHAKE_ALGORITHM = 'triple-secp256k1-hkdf'
 
 /*
  * For IVs, it is recommended that implementation restrict support to the
@@ -31,11 +36,12 @@ const IV_SIZE = 12
 const randomBytes = Promise.promisify(crypto.randomBytes)
 
 export const createECDHKey = async () => {
-  const entropy = await randomBytes(ec.hash.hmacStrength)
-
-  return ec.genKeyPair({
-    entropy,
-  })
+  const privateKey = await randomBytes(32)
+  const publicKey = eccrypto.getPublic(privateKey).toString('hex')
+  return {
+    privateKey,
+    publicKey,
+  }
 }
 
 export const createHandshakeRequest = async ({
@@ -48,8 +54,8 @@ export const createHandshakeRequest = async ({
     sessionID,
     handshakeAlgorithm: HANDSHAKE_ALGORITHM,
     encryptionAlgorithm: ENCRYPTION_ALGORITHM,
-    identityPublicKey: identityKeys.getPublic('hex'),
-    ephemeralPublicKey: ephemeralKeys.getPublic('hex'),
+    identityPublicKey: identityKeys.public,
+    ephemeralPublicKey: ephemeralKeys.public,
   }
 }
 
@@ -61,8 +67,8 @@ export const createHandshakeResponse = ({
   sessionID,
   handshakeAlgorithm: HANDSHAKE_ALGORITHM,
   encryptionAlgorithm: ENCRYPTION_ALGORITHM,
-  identityPublicKey: identityKeys.getPublic('hex'),
-  ephemeralPublicKey: ephemeralKeys.getPublic('hex'),
+  identityPublicKey: identityKeys.public,
+  ephemeralPublicKey: ephemeralKeys.public,
 })
 
 /*
@@ -81,7 +87,7 @@ const kdf = (km) => {
   const hashOutputLength = 32
   const f = String.fromCharCode(0xFF).repeat(32)
 
-  const inputKeyMaterial = `${f}${km}`
+  const inputKeyMaterial = `${f}${km.toString()}`
 
   const salt = String.fromCharCode(0x00).repeat(hashOutputLength)
 
@@ -96,31 +102,35 @@ export const createSessionKey = async ({
   isHandshakeInitiator,
   identityKeys,
   ephemeralKeys,
-  peerIdentityRawPublicKey,
-  peerEphemeralRawPublicKey,
+  peerIdentityHexPublicKey,
+  peerEphemeralHexPublicKey,
 }) => {
-  if (typeof peerIdentityRawPublicKey !== 'string') {
-    throw new Error('peerIdentityRawPublicKey must be a string')
+  if (typeof peerIdentityHexPublicKey !== 'string') {
+    throw new Error('peerIdentityHexPublicKey must be a string')
   }
-  if (typeof peerEphemeralRawPublicKey !== 'string') {
-    throw new Error('peerEphemeralRawPublicKey must be a string')
+  if (typeof peerEphemeralHexPublicKey !== 'string') {
+    throw new Error('peerEphemeralHexPublicKey must be a string')
   }
 
   // Triple Diffie Helman
-  const peerIdentityKeys = ec.keyFromPublic(peerIdentityRawPublicKey, 'hex')
-  const peerEphemeralKeys = ec.keyFromPublic(peerEphemeralRawPublicKey, 'hex')
+  const peerIdentityPublicKey = Buffer.from(peerIdentityHexPublicKey, 'hex')
+  const peerEphemeralPublicKey = Buffer.from(peerEphemeralHexPublicKey, 'hex')
 
-  const dh1 = identityKeys.derive(peerEphemeralKeys.getPublic())
-  const dh2 = ephemeralKeys.derive(peerIdentityKeys.getPublic())
-  const dh3 = ephemeralKeys.derive(peerEphemeralKeys.getPublic())
+  const dhs = await Promise.all([
+    eccrypto.derive(identityKeys.privateKey, peerEphemeralPublicKey),
+    eccrypto.derive(ephemeralKeys.privateKey, peerIdentityPublicKey),
+    eccrypto.derive(ephemeralKeys.privateKey, peerEphemeralPublicKey),
+  ])
 
-  const orderedDHs = isHandshakeInitiator ? [dh1, dh2, dh3] : [dh2, dh1, dh3]
+  const consitentlyOrderedDHs = (() => {
+    if (isHandshakeInitiator) return dhs
+    return [dhs[1], dhs[0], dhs[2]]
+  })()
 
-  const concatenatedDHs = orderedDHs
-    .reduce((acc, dh) => acc.concat(dh.toArray()), [])
-    .join('')
+  const concatenatedDHs = Buffer.concat(consitentlyOrderedDHs)
 
   const sessionKey = kdf(concatenatedDHs)
+
   return sessionKey
 }
 

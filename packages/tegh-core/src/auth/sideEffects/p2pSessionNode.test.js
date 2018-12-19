@@ -23,16 +23,16 @@ describe('p2p2pSessionNode', () => {
         isHandshakeInitiator: true,
         identityKeys: alice.identityKeys,
         ephemeralKeys: alice.ephemeralKeys,
-        peerIdentityRawPublicKey: bob.identityKeys.getPublic('hex'),
-        peerEphemeralRawPublicKey: bob.ephemeralKeys.getPublic('hex'),
+        peerIdentityHexPublicKey: bob.identityKeys.publicKey,
+        peerEphemeralHexPublicKey: bob.ephemeralKeys.publicKey,
       })
 
       const bobSessionKey = await createSessionKey({
         isHandshakeInitiator: false,
         identityKeys: bob.identityKeys,
         ephemeralKeys: bob.ephemeralKeys,
-        peerIdentityRawPublicKey: alice.identityKeys.getPublic('hex'),
-        peerEphemeralRawPublicKey: alice.ephemeralKeys.getPublic('hex'),
+        peerIdentityHexPublicKey: alice.identityKeys.publicKey,
+        peerEphemeralHexPublicKey: alice.ephemeralKeys.publicKey,
       })
 
       expect(aliceSessionKey).toEqual(bobSessionKey)
@@ -51,16 +51,16 @@ describe('p2p2pSessionNode', () => {
         isHandshakeInitiator: true,
         identityKeys: alice.identityKeys,
         ephemeralKeys: alice.ephemeralKeys,
-        peerIdentityRawPublicKey: bob.identityKeys.getPublic('hex'),
-        peerEphemeralRawPublicKey: bob.ephemeralKeys.getPublic('hex'),
+        peerIdentityHexPublicKey: bob.identityKeys.publicKey,
+        peerEphemeralHexPublicKey: bob.ephemeralKeys.publicKey,
       })
 
       const carolSessionKey = await createSessionKey({
         isHandshakeInitiator: false,
         identityKeys: await createECDHKey(),
         ephemeralKeys: bob.ephemeralKeys,
-        peerIdentityRawPublicKey: alice.identityKeys.getPublic('hex'),
-        peerEphemeralRawPublicKey: alice.ephemeralKeys.getPublic('hex'),
+        peerIdentityHexPublicKey: alice.identityKeys.publicKey,
+        peerEphemeralHexPublicKey: alice.ephemeralKeys.publicKey,
       })
 
       expect(aliceSessionKey).not.toEqual(carolSessionKey)
@@ -83,8 +83,8 @@ describe('p2p2pSessionNode', () => {
         isHandshakeInitiator: true,
         identityKeys: alice.identityKeys,
         ephemeralKeys: alice.ephemeralKeys,
-        peerIdentityRawPublicKey: bob.identityKeys.getPublic('hex'),
-        peerEphemeralRawPublicKey: bob.ephemeralKeys.getPublic('hex'),
+        peerIdentityHexPublicKey: bob.identityKeys.publicKey,
+        peerEphemeralHexPublicKey: bob.ephemeralKeys.publicKey,
       })
 
       const encryptedMessage = await encrypt(message, { sessionKey })
@@ -108,16 +108,16 @@ describe('p2p2pSessionNode', () => {
         isHandshakeInitiator: true,
         identityKeys: alice.identityKeys,
         ephemeralKeys: alice.ephemeralKeys,
-        peerIdentityRawPublicKey: bob.identityKeys.getPublic('hex'),
-        peerEphemeralRawPublicKey: bob.ephemeralKeys.getPublic('hex'),
+        peerIdentityHexPublicKey: bob.identityKeys.publicKey,
+        peerEphemeralHexPublicKey: bob.ephemeralKeys.publicKey,
       })
 
       const incorrectSessionKey = await createSessionKey({
         isHandshakeInitiator: true,
         identityKeys: await createECDHKey(),
         ephemeralKeys: alice.ephemeralKeys,
-        peerIdentityRawPublicKey: bob.identityKeys.getPublic('hex'),
-        peerEphemeralRawPublicKey: bob.ephemeralKeys.getPublic('hex'),
+        peerIdentityHexPublicKey: bob.identityKeys.publicKey,
+        peerEphemeralHexPublicKey: bob.ephemeralKeys.publicKey,
       })
 
       const encryptedMessage = await encrypt(message, { sessionKey })
