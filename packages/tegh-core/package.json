@@ -28,6 +28,7 @@
     "ejs": "^2.5.7",
     "elliptic": "^6.4.1",
     "fast-memoize": "^2.5.1",
+    "futoin-hkdf": "^1.0.2",
     "graphql": "14.0.2",
     "graphql-live-subscriptions": "github:d1plo1d/graphql-live-subscriptions#feature/tree_diff",
     "graphql-scalars": "^0.1.5",
