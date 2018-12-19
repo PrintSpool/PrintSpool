@@ -1,6 +1,5 @@
 import { loop, Cmd } from 'redux-loop'
 import { Map, Record } from 'immutable'
-import { ec as EC } from 'elliptic'
 
 import displayInviteInConsole from '../sideEffects/displayInviteInConsole'
 
@@ -9,8 +8,6 @@ import { SET_CONFIG } from '../../config/actions/setConfig'
 import createInvite from '../actions/createInvite'
 import { DAT_PEER_HANDSHAKE_RECEIVED } from '../actions/datPeerHandshakeReceived'
 import { DAT_PEER_DATA_RECEIVED } from '../actions/datPeerDataReceived'
-
-const ec = new EC('curve25519')
 
 const DatSession = Record({
   awaitingSDP: true,
@@ -63,18 +60,6 @@ const authReducer = (state = initialState, action) => {
     case DAT_PEER_HANDSHAKE_RECEIVED: {
       const { payload } = action
 
-      const peerIdentityKeys = ec.keyFromPublic(payload.identityPublicKey)
-      const peerEphemeralKeys = ec.keyFromPublic(payload.ephemeralPublicKey)
-
-      const { hostIdentityKeys } = state
-      const hostEphemeralKeys = ec.genKeyPair()
-
-      // triple diffie helman
-      const dh1 = hostIdentityKeys.derive(peerEphemeralKeys.getPublic())
-      const dh2 = hostEphemeralKeys.derive(peerIdentityKeys.getPublic())
-      const dh3 = hostEphemeralKeys.derive(peerEphemeralKeys.getPublic())
-
-      const sessionKey = 0//TODO
 
       const nextState = state
         .setIn(['datSessionKeysByPeerID', peerID], DatSession({

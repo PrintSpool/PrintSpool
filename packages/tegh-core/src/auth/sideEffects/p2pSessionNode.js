@@ -46,30 +46,55 @@ export const createECDHKey = async () => {
 
 export const createHandshakeRequest = async ({
   identityKeys,
-  ephemeralKeys,
 }) => {
+  const ephemeralKeys = await createECDHKey()
   const sessionID = await randomBytes(32)
 
-  return {
+  const request = {
     sessionID,
     handshakeAlgorithm: HANDSHAKE_ALGORITHM,
     encryptionAlgorithm: ENCRYPTION_ALGORITHM,
     identityPublicKey: identityKeys.public,
     ephemeralPublicKey: ephemeralKeys.public,
   }
+
+  return {
+    ephemeralKeys,
+    request,
+  }
 }
 
-export const createHandshakeResponse = ({
-  sessionID,
+export const createHandshakeResponse = async ({
+  request,
   identityKeys,
-  ephemeralKeys,
-}) => ({
-  sessionID,
-  handshakeAlgorithm: HANDSHAKE_ALGORITHM,
-  encryptionAlgorithm: ENCRYPTION_ALGORITHM,
-  identityPublicKey: identityKeys.public,
-  ephemeralPublicKey: ephemeralKeys.public,
-})
+}) => {
+  const ephemeralKeys = await createECDHKey()
+  const {
+    sessionID,
+    handshakeAlgorithm,
+    encryptionAlgorithm,
+  } = request
+
+  if (handshakeAlgorithm !== HANDSHAKE_ALGORITHM) {
+    throw new Error(`Unsupported handshakeAlgorithm: ${handshakeAlgorithm}`)
+  }
+  if (encryptionAlgorithm !== ENCRYPTION_ALGORITHM) {
+    throw new Error(`Unsupported encryptionAlgorithm: ${encryptionAlgorithm}`)
+  }
+
+  const response = {
+    sessionID,
+    handshakeAlgorithm,
+    encryptionAlgorithm,
+    identityPublicKey: identityKeys.public,
+    ephemeralPublicKey: ephemeralKeys.public,
+  }
+
+  return {
+    ephemeralKeys,
+    response,
+  }
+}
 
 /*
  * KDF(KM) represents 32 bytes of output from the HKDF algorithm [3] with
@@ -112,10 +137,10 @@ export const createSessionKey = async ({
     throw new Error('peerEphemeralHexPublicKey must be a string')
   }
 
-  // Triple Diffie Helman
   const peerIdentityPublicKey = Buffer.from(peerIdentityHexPublicKey, 'hex')
   const peerEphemeralPublicKey = Buffer.from(peerEphemeralHexPublicKey, 'hex')
 
+  // Triple Diffie Helman
   const dhs = await Promise.all([
     eccrypto.derive(identityKeys.privateKey, peerEphemeralPublicKey),
     eccrypto.derive(ephemeralKeys.privateKey, peerIdentityPublicKey),
