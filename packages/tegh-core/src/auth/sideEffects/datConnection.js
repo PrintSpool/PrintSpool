@@ -41,29 +41,15 @@ const datConnection = ({
     if (MESSAGE_TYPES.includes(clientMessageType) === false) return
 
     if (clientMessageType === HANDSHAKE_REQ) {
-      const {
-        identityPublicKey,
-        ephemeralPublicKey,
-      } = payload
-
-      if (identityPublicKey == null || ephemeralPublicKey == null) {
-        return
-      }
-
       dispatch(datPeerHandshakeReceived({
-        peerID: peer.id,
-        identityPublicKey,
-        ephemeralPublicKey,
+        peerDatID: peer.id,
+        request: payload,
       }))
     }
 
     if (clientMessageType === DATA) {
-      if (typeof payload !== 'string') {
-        return
-      }
-
       dispatch(datPeerDataReceived({
-        peerID: peer.id,
+        peerDatID: peer.id,
         data: payload,
       }))
     }

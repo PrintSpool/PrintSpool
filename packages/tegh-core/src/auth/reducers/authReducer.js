@@ -9,16 +9,23 @@ import createInvite from '../actions/createInvite'
 import { DAT_PEER_HANDSHAKE_RECEIVED } from '../actions/datPeerHandshakeReceived'
 import { DAT_PEER_DATA_RECEIVED } from '../actions/datPeerDataReceived'
 
-const DatSession = Record({
-  awaitingSDP: true,
+// Handshake Session state machine
+const CREATING_HANDSHAKE_RESPONSE = 'CREATING_HANDSHAKE_RESPONSE'
+const AWAITING_SDP = 'AWAITING_SDP'
+// const AWAITING_WEB_RTC = 'AWAITING_WEB_RTC'
+
+const HandshakeSession = Record({
+  state: null,
+  peerDatID: null,
   peerIdentityPublicKey: null,
+  sessionID: null,
   sessionKey: null,
 })
 
 export const initialState = Record({
   hostIdentityKeys: null,
-  usersAndInvitesByPublicKey: Map(),
-  datSessionsByPeerID: Map(),
+  byPublicKey: Map(),
+  handshakeSessions: Map(),
 })
 
 const authReducer = (state = initialState, action) => {
@@ -58,58 +65,80 @@ const authReducer = (state = initialState, action) => {
       return loop(state, Cmd.list(sideEffects))
     }
     case DAT_PEER_HANDSHAKE_RECEIVED: {
-      const { payload } = action
+      const { peerDatID, request } = action.payload
+      const { sessionID } = request
 
+      if (state.getIn(['handshakeSessions', sessionID]) != null) {
+        // duplicate session IDs are invalid
+        return state
+      }
 
-      const nextState = state
-        .setIn(['datSessionKeysByPeerID', peerID], DatSession({
-          peerIdentityPublicKey: payload.identityPublicKey,
-          sessionKey,
-        }))
-      const nextAction = sendMessageToDatPeer({
-        peers,
-        peerID,
-        message: {
-          protocolVersion: 'A',
-          type: 'HANDSHAKE_RES',
-          payload: {
-            ephemeralPublicKey: hostEphemeralKeys.getPublic(),
-          }
-        }
+      if (state.byPublicKey.get(request.identityPublicKey) == null) {
+        // unauthorized access
+        return state
+      }
+
+      const session = HandshakeSession({
+        state: CREATING_HANDSHAKE_RESPONSE,
+        peerIdentityPublicKey: request.identityPublicKey,
+        peerDatID,
+        sessionID,
       })
-      return loop(nextState, Cmd.action(nextAction))
+
+      const nextState = state.setIn(['handshakeSessions', sessionID], session)
+
+      return loop(nextState, Cmd.run(sendHandshakeResponse, {
+        args: {
+          peers: state.peers,
+          peerDatID: state.getIn(['handshakeSessions', sessionID, 'peerDatID']),
+          identityKeys: state.hostIdentityKeys,
+          request,
+        },
+        successActionCreator: datPeerHandshakeResponseSent,
+        failureActionCreator: () => datPeerHandshakeFailure({ sessionID }),
+      }))
+    }
+    case DAT_PEER_HANDSHAKE_RESPONSE_SENT: {
+      const { sessionKey, response } = action.payload
+      const { sessionID } = response
+
+      return state.mergeIn(['handshakeSessions', sessionID], {
+        state: AWAITING_SDP,
+        sessionKey,
+      })
     }
     case DAT_PEER_DATA_RECEIVED: {
-      const { peerID, encryptedData } = action.payload
-      const datSession = state.datSessionKeysByPeerID.get(peerID)
+      // TODO: decrypt the data in the async code before this action
+      const { peerDatID, sessionID, data } = action.payload
+      const session = state.handshakeSessions.get(sessionID)
 
-      if (datSession.awaitingSDP === false) {
-        // ignore duplicate messages
+      if (
+        session == null
+        || session.peerDatID !== peerDatID
+        || session.state !== AWAITING_SDP
+        || data.sdp == null
+      ) {
+        // ignore invalid or duplicate messages
         return
       }
 
-      // TODO: decrypt the data somehow
-      const data = "TODO"
+      const nextState = state.deleteIn(['handshakeSessions', sessionID])
 
-      if (typeof data !== 'object' || data.sdp == null) {
-        // end the session if invalid data is received
-        return state.deleteIn(['datSessionKeysByPeerID', peerID])
-      }
-
-      const nextState = state
-        .setIn(['datSessionsByPeerID', peerID, 'awaitingSDP'], false)
-
-      const nextAction = Cmd.action(webRTCConnection, {
+      return loop(nextState, Cmd.run(webRTCConnection, {
         args: {
-          peerDatID: peerID,
-          peerSDP: data.sdp,
+          peers: state.peers,
+          peerDatID: session.peerDatID,
+          sessionID,
+          sessionKey: session.sessionKey,
+          sdp: data.sdp,
         },
-      })
-
-      return loop(nextState, Cmd.action(nextAction))
+        failureActionCreator: () => datPeerHandshakeFailure({ sessionID }),
+      }))
     }
-    case WebRTCSDPResponseCreated: {
-      const nextState = state.deleteIn(['datSessionKeysByPeerID', peerID])
+    case DAT_PEER_HANDSHAKE_FAILURE: {
+      const { sessionID } = action.payload
+
+      return state.deleteIn(['handshakeSessions', sessionID])
     }
     default: {
       return state

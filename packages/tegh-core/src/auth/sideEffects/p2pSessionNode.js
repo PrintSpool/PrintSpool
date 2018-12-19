@@ -23,6 +23,8 @@ export const ENCRYPTION_ALGORITHM = 'aes-256-gcm'
  */
 export const HANDSHAKE_ALGORITHM = 'triple-secp256k1-hkdf'
 
+const PUBLIC_KEY_LENGTH = 32
+
 /*
  * For IVs, it is recommended that implementation restrict support to the
  * length of 96 bits, to promote interoperability, efficiency, and simplicity
@@ -33,6 +35,19 @@ export const HANDSHAKE_ALGORITHM = 'triple-secp256k1-hkdf'
  */
 const IV_SIZE = 12
 
+const MESSAGE_PROTOCOL_VERSION = 'A'
+
+export const HANDSHAKE_REQ = 'HANDSHAKE_REQ'
+export const HANDSHAKE_RES = 'HANDSHAKE_RES'
+export const DATA = 'DATA'
+
+export const MESSAGE_TYPES = [
+  HANDSHAKE_REQ,
+  HANDSHAKE_RES,
+  DATA,
+]
+
+
 const randomBytes = Promise.promisify(crypto.randomBytes)
 
 export const createECDHKey = async () => {
@@ -41,58 +56,6 @@ export const createECDHKey = async () => {
   return {
     privateKey,
     publicKey,
-  }
-}
-
-export const createHandshakeRequest = async ({
-  identityKeys,
-}) => {
-  const ephemeralKeys = await createECDHKey()
-  const sessionID = await randomBytes(32)
-
-  const request = {
-    sessionID,
-    handshakeAlgorithm: HANDSHAKE_ALGORITHM,
-    encryptionAlgorithm: ENCRYPTION_ALGORITHM,
-    identityPublicKey: identityKeys.public,
-    ephemeralPublicKey: ephemeralKeys.public,
-  }
-
-  return {
-    ephemeralKeys,
-    request,
-  }
-}
-
-export const createHandshakeResponse = async ({
-  request,
-  identityKeys,
-}) => {
-  const ephemeralKeys = await createECDHKey()
-  const {
-    sessionID,
-    handshakeAlgorithm,
-    encryptionAlgorithm,
-  } = request
-
-  if (handshakeAlgorithm !== HANDSHAKE_ALGORITHM) {
-    throw new Error(`Unsupported handshakeAlgorithm: ${handshakeAlgorithm}`)
-  }
-  if (encryptionAlgorithm !== ENCRYPTION_ALGORITHM) {
-    throw new Error(`Unsupported encryptionAlgorithm: ${encryptionAlgorithm}`)
-  }
-
-  const response = {
-    sessionID,
-    handshakeAlgorithm,
-    encryptionAlgorithm,
-    identityPublicKey: identityKeys.public,
-    ephemeralPublicKey: ephemeralKeys.public,
-  }
-
-  return {
-    ephemeralKeys,
-    response,
   }
 }
 
@@ -127,24 +90,24 @@ export const createSessionKey = async ({
   isHandshakeInitiator,
   identityKeys,
   ephemeralKeys,
-  peerIdentityHexPublicKey,
-  peerEphemeralHexPublicKey,
+  peerIdentityPublicKey,
+  peerEphemeralPublicKey,
 }) => {
-  if (typeof peerIdentityHexPublicKey !== 'string') {
-    throw new Error('peerIdentityHexPublicKey must be a string')
+  if (typeof peerIdentityPublicKey !== 'string') {
+    throw new Error('peerIdentityPublicKey must be a string')
   }
-  if (typeof peerEphemeralHexPublicKey !== 'string') {
-    throw new Error('peerEphemeralHexPublicKey must be a string')
+  if (typeof peerEphemeralPublicKey !== 'string') {
+    throw new Error('peerEphemeralPublicKey must be a string')
   }
 
-  const peerIdentityPublicKey = Buffer.from(peerIdentityHexPublicKey, 'hex')
-  const peerEphemeralPublicKey = Buffer.from(peerEphemeralHexPublicKey, 'hex')
+  const binaryPeerIdentityPublicKey = Buffer.from(peerIdentityPublicKey, 'hex')
+  const binaryPeerEphemeralPublicKey = Buffer.from(peerEphemeralPublicKey, 'hex')
 
   // Triple Diffie Helman
   const dhs = await Promise.all([
-    eccrypto.derive(identityKeys.privateKey, peerEphemeralPublicKey),
-    eccrypto.derive(ephemeralKeys.privateKey, peerIdentityPublicKey),
-    eccrypto.derive(ephemeralKeys.privateKey, peerEphemeralPublicKey),
+    eccrypto.derive(identityKeys.privateKey, binaryPeerEphemeralPublicKey),
+    eccrypto.derive(ephemeralKeys.privateKey, binaryPeerIdentityPublicKey),
+    eccrypto.derive(ephemeralKeys.privateKey, binaryPeerEphemeralPublicKey),
   ])
 
   const consitentlyOrderedDHs = (() => {
@@ -157,6 +120,87 @@ export const createSessionKey = async ({
   const sessionKey = kdf(concatenatedDHs)
 
   return sessionKey
+}
+
+export const createHandshakeRequest = async ({
+  identityKeys,
+}) => {
+  const ephemeralKeys = await createECDHKey()
+  const sessionID = await randomBytes(32)
+
+  const request = {
+    type: HANDSHAKE_REQ,
+    protocolVersion: MESSAGE_PROTOCOL_VERSION,
+    sessionID,
+    handshakeAlgorithm: HANDSHAKE_ALGORITHM,
+    encryptionAlgorithm: ENCRYPTION_ALGORITHM,
+    identityPublicKey: identityKeys.public,
+    ephemeralPublicKey: ephemeralKeys.public,
+  }
+
+  return {
+    ephemeralKeys,
+    request,
+  }
+}
+
+export const createHandshakeResponse = async ({
+  request,
+  identityKeys,
+}) => {
+  const {
+    type,
+    protocolVersion,
+    sessionID,
+    handshakeAlgorithm,
+    encryptionAlgorithm,
+    identityPublicKey: peerIDPK,
+    ephemeralPublicKey: peerEpPK,
+  } = request
+
+  if (type !== HANDSHAKE_REQ) {
+    throw new Error('type must be HANDSHAKE_REQ')
+  }
+  if (protocolVersion !== MESSAGE_PROTOCOL_VERSION) {
+    throw new Error(`Unsupported protocolVersion: ${protocolVersion}`)
+  }
+  if (handshakeAlgorithm !== HANDSHAKE_ALGORITHM) {
+    throw new Error(`Unsupported handshakeAlgorithm: ${handshakeAlgorithm}`)
+  }
+  if (encryptionAlgorithm !== ENCRYPTION_ALGORITHM) {
+    throw new Error(`Unsupported encryptionAlgorithm: ${encryptionAlgorithm}`)
+  }
+  if (typeof peerIDPK !== 'string' || peerIDPK.length !== PUBLIC_KEY_LENGTH) {
+    throw new Error(`Invalid peer identity public key: ${peerIDPK}`)
+  }
+  if (typeof peerEpPK !== 'string' || peerEpPK.length !== PUBLIC_KEY_LENGTH) {
+    throw new Error(`Invalid peer ephemeral public key: ${peerIDPK}`)
+  }
+
+  const ephemeralKeys = await createECDHKey()
+
+  const sessionKey = await createSessionKey({
+    isHandshakeInitiator: false,
+    identityKeys,
+    ephemeralKeys,
+    peerIdentityPublicKey: peerIDPK,
+    peerEphemeralPublicKey: peerEpPK,
+  })
+
+  const response = {
+    type: HANDSHAKE_RES,
+    protocolVersion: MESSAGE_PROTOCOL_VERSION,
+    sessionID,
+    handshakeAlgorithm,
+    encryptionAlgorithm,
+    identityPublicKey: identityKeys.public,
+    ephemeralPublicKey: ephemeralKeys.public,
+  }
+
+  return {
+    response,
+    sessionKey,
+  }
 }
 
 export const encrypt = async (data, { sessionKey }) => {
