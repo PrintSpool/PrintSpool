@@ -1,29 +1,26 @@
 import { createNode } from '@beaker/dat-node'
 
-import datPeerHandshakeReceived from '../actions/datPeerHandshakeReceived'
-import datPeerDataReceived from '../actions/datPeerDataReceived'
-
-const PROTOCOL_VERSION = 'A'
-
-const HANDSHAKE_REQ = 'HANDSHAKE_REQ'
-const HANDSHAKE_RES = 'HANDSHAKE_RES'
-const DATA = 'DATA'
-
-const MESSAGE_TYPES = [
+import {
+  DAT_PEERS_URL,
   HANDSHAKE_REQ,
   HANDSHAKE_RES,
   DATA,
-]
+  MESSAGE_TYPES,
+  MESSAGE_PROTOCOL_VERSION,
+} from './constants'
 
 const datConnection = ({
   datDataPath,
-}, dispatch) => {
+  onHandshakeReq,
+  onHandshakeRes,
+  onData,
+}) => {
   // instantiate a new dat node
   const dat = createNode({
     path: datDataPath,
   })
 
-  const peers = dat.getPeers('dat://tegh.io')
+  const peers = dat.getPeers(DAT_PEERS_URL)
 
   peers.addEventListener('message', ({ peer, message }) => {
     console.log(peer.id, 'has sent the following message:', message)
@@ -37,21 +34,28 @@ const datConnection = ({
       payload,
     } = message
 
-    if (clientProtocolVersion !== PROTOCOL_VERSION) return
+    if (clientProtocolVersion !== MESSAGE_PROTOCOL_VERSION) return
     if (MESSAGE_TYPES.includes(clientMessageType) === false) return
 
     if (clientMessageType === HANDSHAKE_REQ) {
-      dispatch(datPeerHandshakeReceived({
-        peerDatID: peer.id,
+      onHandshakeReq({
+        datPeer: peer,
         request: payload,
-      }))
+      })
+    }
+
+    if (clientMessageType === HANDSHAKE_RES) {
+      onHandshakeRes({
+        datPeer: peer,
+        request: payload,
+      })
     }
 
     if (clientMessageType === DATA) {
-      dispatch(datPeerDataReceived({
-        peerDatID: peer.id,
+      onData({
+        datPeer: peer,
         data: payload,
-      }))
+      })
     }
   })
 

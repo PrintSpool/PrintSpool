@@ -24,7 +24,8 @@ const HandshakeSession = Record({
 
 export const initialState = Record({
   hostIdentityKeys: null,
-  byPublicKey: Map(),
+  // accounts are users and invites mapped by their public key
+  accounts: Map(),
   handshakeSessions: Map(),
 })
 
@@ -65,7 +66,7 @@ const authReducer = (state = initialState, action) => {
       return loop(state, Cmd.list(sideEffects))
     }
     case PEER_HANDSHAKE_RECEIVED: {
-      const { peerDatID, request } = action.payload
+      const { datPeer, request } = action.payload
       const { sessionID } = request
 
       if (state.getIn(['handshakeSessions', sessionID]) != null) {
@@ -73,7 +74,7 @@ const authReducer = (state = initialState, action) => {
         return state
       }
 
-      if (state.byPublicKey.get(request.identityPublicKey) == null) {
+      if (state.accounts.get(request.identityPublicKey) == null) {
         // unauthorized access
         return state
       }
@@ -89,8 +90,7 @@ const authReducer = (state = initialState, action) => {
 
       return loop(nextState, Cmd.run(sendHandshakeResponse, {
         args: {
-          peers: state.peers,
-          peerDatID: state.getIn(['handshakeSessions', sessionID, 'peerDatID']),
+          datPeer,
           identityKeys: state.hostIdentityKeys,
           request,
         },
@@ -109,12 +109,12 @@ const authReducer = (state = initialState, action) => {
     }
     case PEER_DATA_RECEIVED: {
       // TODO: decrypt the data in the async code before this action
-      const { peerDatID, sessionID, data } = action.payload
+      const { datPeer, sessionID, data } = action.payload
       const session = state.handshakeSessions.get(sessionID)
 
       if (
         session == null
-        || session.peerDatID !== peerDatID
+        || session.peerDatID !== datPeer.id
         || session.state !== AWAITING_SDP
       ) {
         // ignore invalid or duplicate messages
@@ -125,11 +125,10 @@ const authReducer = (state = initialState, action) => {
 
       return loop(nextState, Cmd.run(webRTCConnection, {
         args: {
-          peers: state.peers,
-          peerDatID: session.peerDatID,
+          datPeer,
           sessionID,
           sessionKey: session.sessionKey,
-          sdp: data.sdp,
+          peerSDP: data.sdp,
         },
         failureActionCreator: () => peerHandshakeFailure({ sessionID }),
       }))
