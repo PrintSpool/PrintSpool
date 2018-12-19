@@ -4,7 +4,7 @@ const eventTrigger = (eventEmitter, eventName, {
   map = result => result,
   filter = () => true,
 }) => (
-  new Promise((resolve, reject) => {
+  new Promise((resolve) => {
     const eventListener = async (result) => {
       let mappedResult = map(result)
       if (mappedResult.then != null) {
@@ -17,12 +17,6 @@ const eventTrigger = (eventEmitter, eventName, {
     }
 
     eventEmitter.on(eventName, eventListener)
-  })
-)
-
-export const signalTrigger = (rtcPeer, signalName) => (
-  eventTrigger(rtcPeer, 'signal', {
-    filter: signal => signal.type === signalName,
   })
 )
 
