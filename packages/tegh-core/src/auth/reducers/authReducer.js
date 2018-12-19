@@ -64,7 +64,7 @@ const authReducer = (state = initialState, action) => {
 
       return loop(state, Cmd.list(sideEffects))
     }
-    case DAT_PEER_HANDSHAKE_RECEIVED: {
+    case PEER_HANDSHAKE_RECEIVED: {
       const { peerDatID, request } = action.payload
       const { sessionID } = request
 
@@ -94,11 +94,11 @@ const authReducer = (state = initialState, action) => {
           identityKeys: state.hostIdentityKeys,
           request,
         },
-        successActionCreator: datPeerHandshakeResponseSent,
-        failureActionCreator: () => datPeerHandshakeFailure({ sessionID }),
+        successActionCreator: peerHandshakeResponseSent,
+        failureActionCreator: () => peerHandshakeFailure({ sessionID }),
       }))
     }
-    case DAT_PEER_HANDSHAKE_RESPONSE_SENT: {
+    case PEER_HANDSHAKE_RESPONSE_SENT: {
       const { sessionKey, response } = action.payload
       const { sessionID } = response
 
@@ -107,7 +107,7 @@ const authReducer = (state = initialState, action) => {
         sessionKey,
       })
     }
-    case DAT_PEER_DATA_RECEIVED: {
+    case PEER_DATA_RECEIVED: {
       // TODO: decrypt the data in the async code before this action
       const { peerDatID, sessionID, data } = action.payload
       const session = state.handshakeSessions.get(sessionID)
@@ -116,7 +116,6 @@ const authReducer = (state = initialState, action) => {
         session == null
         || session.peerDatID !== peerDatID
         || session.state !== AWAITING_SDP
-        || data.sdp == null
       ) {
         // ignore invalid or duplicate messages
         return
@@ -132,10 +131,10 @@ const authReducer = (state = initialState, action) => {
           sessionKey: session.sessionKey,
           sdp: data.sdp,
         },
-        failureActionCreator: () => datPeerHandshakeFailure({ sessionID }),
+        failureActionCreator: () => peerHandshakeFailure({ sessionID }),
       }))
     }
-    case DAT_PEER_HANDSHAKE_FAILURE: {
+    case PEER_HANDSHAKE_FAILURE: {
       const { sessionID } = action.payload
 
       return state.deleteIn(['handshakeSessions', sessionID])
