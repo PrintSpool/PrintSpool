@@ -1,11 +1,11 @@
-import createHandshakeRes from './createHandshakeRes'
+import parseHandshakeReq from './parseHandshakeReq'
 
 const sendHandshakeRes = async ({
   datPeer,
   identityKeys,
   request,
 }) => {
-  const { response, sessionKey } = await createHandshakeRes({
+  const { response, sessionKey } = await parseHandshakeReq({
     request,
     identityKeys,
   })

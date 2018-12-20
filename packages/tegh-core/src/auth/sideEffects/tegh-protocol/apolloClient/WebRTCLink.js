@@ -1,33 +1,23 @@
 import { WebSocketLink } from 'apollo-link-ws'
 
-import sendHandshakeRequest from '../handshake/sendHandshakeRequest'
 import createWebRTCSocket from '../webRTC/createWebRTCSocket'
 
 const WebRTCLink = async ({
-  datPeers,
-  identityKeys,
-  peerIdentityPublicKey,
+  handshake,
   wrtc,
 }) => {
-  const datPeer = await datPeers.get(peerIdentityPublicKey)
-
   const {
-    ephemeralKeys,
-    request,
-  } = await sendHandshakeRequest({ identityKeys, datPeer })
-
-  // TODO: waitForHandshakeResponse
-  const { sessionKey } = await waitForHandshakeResponse({
+    initiator,
     datPeer,
-    identityKeys,
-    ephemeralKeys,
-  })
+    sessionID,
+    sessionKey,
+  } = await handshake
 
   const { socketImpl } = await createWebRTCSocket({
     datPeer,
-    sessionID: request.sessionID,
+    sessionID,
     sessionKey,
-    initiator: true,
+    initiator,
     wrtc,
   })
 

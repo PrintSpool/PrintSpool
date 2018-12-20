@@ -5,18 +5,24 @@ const eventTrigger = (eventEmitter, eventName, {
   filter = () => true,
 }) => (
   new Promise((resolve) => {
+    const useBrowerAPI = eventEmitter.addEventListener != null
+    const ADD = useBrowerAPI ? 'addEventListener' : 'on'
+    const REMOVE = useBrowerAPI ? 'removeEventListener' : 'removeListener'
+
     const eventListener = async (result) => {
       let mappedResult = map(result)
+
       if (mappedResult.then != null) {
         mappedResult = await mappedResult
       }
+
       if (filter(mappedResult)) {
-        eventEmitter.removeListener(eventName, eventListener)
+        eventEmitter[REMOVE](eventName, eventListener)
         resolve(mappedResult)
       }
     }
 
-    eventEmitter.on(eventName, eventListener)
+    eventEmitter[ADD](eventName, eventListener)
   })
 )
 

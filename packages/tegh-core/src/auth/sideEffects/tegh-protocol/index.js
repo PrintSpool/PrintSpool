@@ -1,7 +1,11 @@
+/* Handshake over DAT */
+export InitiatorHandshake from './handshake/InitiatorHandshake'
+export ReceiverHandshake from './handshake/ReceiverHandshake'
+
 /*
  * Client
  */
-export WebRTCLink from './client/WebRTCLink'
+export WebRTCLink from './apolloClient/WebRTCLink'
 
 /*
  * Server
@@ -9,9 +13,6 @@ export WebRTCLink from './client/WebRTCLink'
 /* Initialization */
 export createSubscriptionServer from './server/createSubscriptionServer'
 export connectToDatPeers from './dat/connectToDatPeers'
-/* Handshake over DAT */
-export sendHandshakeReq from './handshake/sendHandshakeReq'
-export sendHandshakeRes from './handshake/sendHandshakeRes'
 /* webRTC Connection */
 export createWebRTCSocket from './webRTC/createWebRTCSocket'
 export sendSDP from './webRTC/sendSDP'

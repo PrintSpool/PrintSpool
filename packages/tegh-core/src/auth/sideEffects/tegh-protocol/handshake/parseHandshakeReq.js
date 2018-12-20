@@ -9,7 +9,7 @@ import {
   PUBLIC_KEY_LENGTH,
 } from './constants'
 
-const createHandshakeRes = async ({
+const parseHandshakeReq = async ({
   request,
   identityKeys,
 }) => {
@@ -68,4 +68,4 @@ const createHandshakeRes = async ({
   }
 }
 
-export default createHandshakeRes
+export default parseHandshakeReq

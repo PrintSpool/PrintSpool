@@ -1,7 +1,7 @@
 import Peer from 'simple-peer'
 import EventEmitter from 'eventemitter3'
 
-import eventTrigger from './eventTrigger'
+import eventTrigger from '../eventTrigger'
 import { chunkifier, dechunkifier } from './chunk'
 import sendSDP from './sendSDP'
 
