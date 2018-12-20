@@ -1,18 +1,15 @@
 import Peer from 'simple-peer'
+import EventEmitter from 'eventemitter3'
 
 import eventTrigger from './eventTrigger'
 import { chunkifier, dechunkifier } from './chunk'
 import sendSDP from './sendSDP'
 
-const CONNECTING = 'CONNECTING'
-const OPEN = 'OPEN'
-const CLOSED = 'CLOSED'
-
-const WebRTCSocket = function () {}
-
-WebRTCSocket.CONNECTING = CONNECTING
-WebRTCSocket.OPEN = OPEN
-WebRTCSocket.CLOSED = CLOSED
+export const SOCKET_STATES = {
+  CONNECTING: 'CONNECTING',
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED',
+}
 
 const setPeerSDP = ({ rtcPeer, peerSDP }) => {
   if (typeof peerSDP !== 'string') {
@@ -24,9 +21,11 @@ const setPeerSDP = ({ rtcPeer, peerSDP }) => {
 /*
  * creates a webRTC connection to a peer and returns:
  * {
- *   socket: an object that can act as a drop-in replacement for a websocket
- *           connection
- *   rtcPeer: the simple-peer Peer object for the connection
+ *   socketImpl:
+ *      a constructor that can act as a drop-in replacement for a websocket
+ *      implementation.
+ *   rtcPeer:
+ *      the simple-peer Peer object for the connection
  * }
  */
 const createWebRTCSocket = async ({
@@ -36,7 +35,6 @@ const createWebRTCSocket = async ({
   peerSDP,
   initiator,
   wrtc,
-  protocol,
 }) => {
   const rtcPeer = new Peer({
     initiator,
@@ -49,10 +47,11 @@ const createWebRTCSocket = async ({
     rtcPeer.send(data)
   })
 
-  const socket = Object.assign(new WebRTCSocket(), {
-    readyState: CONNECTING,
+  const socket = Object.assign(new EventEmitter(), {
+    sessionID,
+    readyState: SOCKET_STATES.CONNECTING,
     send: (data) => {
-      if (socket.readyState !== OPEN) {
+      if (socket.readyState !== SOCKET_STATES.OPEN) {
         throw new Error('Cannot call send on a closed connection')
       }
       sendInChunks(data)
@@ -68,10 +67,25 @@ const createWebRTCSocket = async ({
     socket.onmessage({ data })
   })
 
+  const onError = (error) => {
+    socket.readyState = SOCKET_STATES.CLOSED
+
+    if (socket.onerror == null && socket.listenerCount('error' === 0)) {
+      throw new Error(error)
+    }
+    if (socket.onerror != null) {
+      socket.onerror(error)
+    }
+    socket.emit('error', error)
+  }
+
   // relay events through the socket
   rtcPeer.on('connect', () => {
-    socket.readyState = OPEN
-    socket.onopen()
+    socket.readyState = SOCKET_STATES.OPEN
+    if (socket.onopen != null) {
+      socket.onopen()
+    }
+    socket.emit('open')
   })
 
   rtcPeer.on('data', receiveData)
@@ -81,13 +95,15 @@ const createWebRTCSocket = async ({
   })
 
   rtcPeer.on('close', () => {
-    socket.readyState = CLOSED
+    socket.readyState = SOCKET_STATES.CLOSED
     socket.onclose()
+    if (socket.onclose != null) {
+      socket.onclose()
+    }
+    socket.emit('close')
   })
 
-  rtcPeer.on('error', () => {
-    socket.onerror()
-  })
+  rtcPeer.on('error', onError)
 
 
   if (!initiator) {
@@ -99,16 +115,35 @@ const createWebRTCSocket = async ({
    * remote peer.
    */
   const sdp = await eventTrigger(rtcPeer, 'signal')
-  await sendSDP({
-    sdp,
-    sessionID,
-    sessionKey,
-    datPeer,
-    protocol,
-  })
+
+  const finalizeSocket = async (protocol) => {
+    await sendSDP({
+      sdp,
+      sessionID,
+      sessionKey,
+      datPeer,
+      protocol,
+    })
+
+    return socket
+  }
+
+  /*
+   * mimic the websocket API
+   */
+  const socketImpl = (url, protocol) => {
+    finalizeSocket(protocol).catch(onError)
+
+    return socket
+  }
+
+  Object.assign(socketImpl, SOCKET_STATES)
 
   return {
-    socket,
+    // socketImpl is a websocket-compatible API
+    socketImpl,
+    // finalizeSocket is a promise-based equivalent to socketImpl
+    finalizeSocket,
     rtcPeer,
   }
 }

@@ -1,3 +1,11 @@
+/*
+ * Client
+ */
+export WebRTCLink from './client/WebRTCLink'
+
+/*
+ * Server
+ */
 /* Initialization */
 export createSubscriptionServer from './server/createSubscriptionServer'
 export connectToDatPeers from './dat/connectToDatPeers'
@@ -5,5 +13,5 @@ export connectToDatPeers from './dat/connectToDatPeers'
 export sendHandshakeReq from './handshake/sendHandshakeReq'
 export sendHandshakeRes from './handshake/sendHandshakeRes'
 /* webRTC Connection */
-export createWebRTCConnection from './webRTC/createWebRTCConnection'
-export setSDP from './webRTC/setSDP'
+export createWebRTCSocket from './webRTC/createWebRTCSocket'
+export sendSDP from './webRTC/sendSDP'

@@ -7,7 +7,7 @@ import {
   DATA,
   MESSAGE_TYPES,
   MESSAGE_PROTOCOL_VERSION,
-} from './constants'
+} from '../handshake/constants'
 
 const datConnection = ({
   datDataPath,
@@ -58,8 +58,6 @@ const datConnection = ({
       })
     }
   })
-
-  return { peers }
 }
 
 export default datConnection

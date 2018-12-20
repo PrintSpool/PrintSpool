@@ -16,7 +16,7 @@ const AWAITING_SDP = 'AWAITING_SDP'
 
 const HandshakeSession = Record({
   state: null,
-  peerDatID: null,
+  peerDat: null,
   peerIdentityPublicKey: null,
   sessionID: null,
   sessionKey: null,
@@ -39,7 +39,7 @@ const authReducer = (state = initialState, action) => {
       const adminInvites = invites.filter(invite => invite.admin)
       let consoleInvites = invites.filter(invite => invite.displayInConsole)
 
-      const sideEffects = []
+      let sideEffects = []
 
       /*
        * If no invites exist and no admins exist then create an invite so the
@@ -57,11 +57,11 @@ const authReducer = (state = initialState, action) => {
       /*
        * Display invites in the console
        */
-      consoleInvites.forEach(invite => (
-        sideEffects.push(Cmd.run(displayInviteInConsole, {
+      sideEffects = sideEffects.concat(consoleInvites.map(invite => (
+        Cmd.run(displayInviteInConsole, {
           args: [{ hostPublicKey: hostIdentityKeys.getPublic(), invite }],
-        }))
-      ))
+        })
+      )))
 
       return loop(state, Cmd.list(sideEffects))
     }
@@ -82,7 +82,7 @@ const authReducer = (state = initialState, action) => {
       const session = HandshakeSession({
         state: CREATING_HANDSHAKE_RESPONSE,
         peerIdentityPublicKey: request.identityPublicKey,
-        peerDatID,
+        peerDat,
         sessionID,
       })
 
