@@ -9,9 +9,9 @@ Tegh is a work in progress Next Gen 3D Printer Host Server. Tegh aims to:
 
 ## Installation
 
-Run `yarn bootstrap`
+with Node v10.12.0 run `yarn bootstrap`
 
-**Prerequisites:** node and yarn (`npm i -g yarn`)
+**Prerequisites:** node v10.12.0 (we recommend using nvm) and yarn (`npm i -g yarn`)
 
 ## Hacking
 
