@@ -76,7 +76,7 @@
     "untildify": "^3.0.2",
     "uuid": "^3.1.0",
     "vm2": "^3.5.2",
-    "wrtc": "^0.2.1"
+    "wrtc": "^0.3.3"
   },
   "resolutions": {
     "subscriptions-transport-ws/iterall": "d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b"

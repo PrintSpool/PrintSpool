@@ -159,3 +159,15 @@ gulp.task(
     ),
   ),
 )
+
+gulp.task(
+  'startFromCache',
+  gulp.series(
+    gulp.parallel(
+      watch,
+      'start-signalling-server',
+      'start-host',
+      webpackDevServerTask,
+    ),
+  ),
+)
