@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import {
   axisExists,
   getComponents,
@@ -46,7 +45,7 @@ const move = ({ axes, relativeMovement, allowExtruderAxes }, { config }) => {
 
   return [
     relativeMovement ? 'G91' : 'G90',
-    `G1 F${_.min(feedrates) * 60}`,
+    `G1 F${Math.min.apply(null, feedrates) * 60}`,
     gcodeWords.join(' '),
   ]
 }

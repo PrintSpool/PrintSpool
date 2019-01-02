@@ -56,7 +56,7 @@ const buildProcess = gulpInput => (
     }))
 )
 
-const build = () => (
+const buildDev = () => (
   // gutil.log(`Building '${chalk.cyan(pkg.name())}'`)
   buildProcess(
     gulp.src(srcFiles, { base: 'packages' }),
@@ -122,9 +122,9 @@ const start = (pkg, options = {}) => () => {
 
 gulp.task('clean', clean)
 
-gulp.task('build', gulp.series('clean', build))
+gulp.task('build-dev', gulp.series('clean', buildDev))
 
-gulp.task('watch', gulp.series('build', watch))
+gulp.task('watch', gulp.series('build-dev', watch))
 
 gulp.task('webpack-dev-server', webpackDevServerTask)
 
@@ -137,7 +137,7 @@ gulp.task(
   'start-servers',
   gulp.series(
     'clean',
-    'build',
+    'build-dev',
     gulp.parallel(
       // watch,
       'start-signalling-server',
@@ -150,7 +150,7 @@ gulp.task(
   'start',
   gulp.series(
     'clean',
-    'build',
+    'build-dev',
     gulp.parallel(
       watch,
       'start-signalling-server',

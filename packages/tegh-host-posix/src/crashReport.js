@@ -1,7 +1,7 @@
 // import fs from 'fs'
 // import path from 'path'
 // import domain from 'domain'
-// import _ from 'lodash'
+// import _ from 'lodash-amd'
 // // import Raven from "raven"
 //
 // export const loadCrashReport = (errorDir) => {

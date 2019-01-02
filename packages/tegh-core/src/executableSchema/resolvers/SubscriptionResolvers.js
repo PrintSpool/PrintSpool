@@ -1,5 +1,5 @@
 import EventEmitter from 'events'
-import _ from 'lodash'
+import throttle from 'just-throttle'
 import {
   subscribeToLiveData,
 } from 'graphql-live-subscriptions'
@@ -23,7 +23,7 @@ const SubscriptionResolvers = {
             eventEmitter.emit('update', { nextState })
           })
 
-          store.subscribe(_.throttle(emitUpdate, MAX_UPDATE_RATE_MS))
+          store.subscribe(throttle(emitUpdate, MAX_UPDATE_RATE_MS))
 
           return eventEmitter
         },
