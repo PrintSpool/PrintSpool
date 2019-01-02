@@ -17,7 +17,8 @@
   "scripts": {
     "trace-gc": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
     "start": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings",
-    "build": ""
+    "build-x64": "pkg ./dist/index.js --output ./dist/tegh-host -t node10-linux-x64",
+    "build-armv7": "pkg ./dist/index.js --output ./dist/tegh-host -t node10-linux-armv7"
   },
   "devDependencies": {
     "node-dev": "d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350",

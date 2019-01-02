@@ -53,3 +53,26 @@ As a temporary provision until a build script is ready for Tegh the server can b
 Tegh's stderr log is accessible via journalctl:
 
 `journalctl -u tegh-host-posix.service --follow` -->
+
+## Building the executable
+
+Running `yarn build-x64` or `yarn build-armv7` will probably cause you a few errors. Here's how to fix them:
+
+### Native Modules Error
+Problem: `if(!found) throw new Error('Unable to find native module')`
+
+Solution: Because of https://github.com/node-webrtc/node-webrtc/issues/404 we need to manually replace the contents of `node_modules/wrtc/lib/binding.js` with:
+
+`module.exports = require('../build/Release/wrtc.node');`
+
+See also https://github.com/node-webrtc/node-webrtc/pull/470
+
+### No-bytcode breaks final executable
+
+Problem: `Error! --no-bytecode and no source breaks final executable`
+
+Solution:
+1. `vim node_modules/pkg/lib-es5/walker.js`
+2. modify `isPublic(config)` to always return true
+
+See also https://github.com/zeit/pkg/issues/145
