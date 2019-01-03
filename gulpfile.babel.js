@@ -78,7 +78,7 @@ const webpackDevServerTask = () => {
   const compiler = webpack({
     // configuration
     mode: 'development',
-    ...webpackConfig,
+    ...webpackConfig[0],
   })
 
   new WebpackDevServer(compiler, {

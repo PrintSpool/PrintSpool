@@ -1,9 +1,9 @@
-import { createMacroExpansionReducer } from 'tegh-core'
+import { createMacroExpansionReducer } from '@tegh/core'
 
 import move from '../util/move'
 
 const meta = {
-  package: 'tegh-macros-default',
+  package: '@tegh/macros-default',
   macro: 'moveBy',
 }
 

@@ -1,4 +1,4 @@
-import { SPOOL_TASK } from 'tegh-core'
+import { SPOOL_TASK } from '@tegh/core'
 
 import { throwErrorOnInvalidGCode } from '../../txParser'
 

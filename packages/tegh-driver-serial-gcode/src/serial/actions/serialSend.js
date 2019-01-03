@@ -1,4 +1,4 @@
-import { toGCodeLine } from 'tegh-core'
+import { toGCodeLine } from '@tegh/core'
 import txParser from '../../txParser'
 
 export const SERIAL_SEND = 'tegh-serial-driver/serial/SERIAL_SEND'

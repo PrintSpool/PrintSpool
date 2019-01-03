@@ -2,7 +2,7 @@ import { List } from 'immutable'
 import Promise from 'bluebird'
 import { Cmd } from 'redux-loop'
 
-import { setConfig, SET_CONFIG, MockConfig } from 'tegh-core'
+import { setConfig, SET_CONFIG, MockConfig } from '@tegh/core'
 
 import reducer, { initialState } from './serialTimeoutReducer'
 

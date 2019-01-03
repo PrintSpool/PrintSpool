@@ -8,7 +8,7 @@ import {
   setConfig,
   ComponentTypeEnum,
   MockConfig,
-} from 'tegh-core'
+} from '@tegh/core'
 
 import serialReceive, { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import serialSend, { SERIAL_SEND } from '../../serial/actions/serialSend'

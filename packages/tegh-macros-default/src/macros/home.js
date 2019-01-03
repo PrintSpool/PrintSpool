@@ -2,12 +2,12 @@ import {
   createMacroExpansionReducer,
   axisExists,
   AxisTypeEnum,
-} from 'tegh-core'
+} from '@tegh/core'
 
 const { MOVEMENT_AXIS } = AxisTypeEnum
 
 const meta = {
-  package: 'tegh-macros-default',
+  package: '@tegh/macros-default',
   macro: 'home',
 }
 

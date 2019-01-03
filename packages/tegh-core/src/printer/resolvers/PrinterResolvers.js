@@ -7,7 +7,7 @@ import ComponentTypeEnum from '../../config/types/components/ComponentTypeEnum'
 const PrinterResolvers = {
   Printer: {
     id: source => source.config.printer.id,
-    name: source => getPluginModels(source.config).getIn(['tegh-core', 'name']),
+    name: source => getPluginModels(source.config).getIn(['@tegh/core', 'name']),
     targetTemperaturesCountdown: source => getComponentsState(source).targetTemperaturesCountdown,
     activeExtruderID: source => getComponentsState(source).activeExtruderID,
     enabledMacros: source => source.macros.enabledMacros,

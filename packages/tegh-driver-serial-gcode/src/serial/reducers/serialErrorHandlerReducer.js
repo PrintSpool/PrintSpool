@@ -1,5 +1,5 @@
 import { loop, Cmd } from 'redux-loop'
-import { driverError } from 'tegh-core'
+import { driverError } from '@tegh/core'
 
 import { SERIAL_ERROR } from '../actions/serialError'
 

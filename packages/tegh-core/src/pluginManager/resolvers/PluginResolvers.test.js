@@ -1,5 +1,5 @@
 import { Record, Map } from 'immutable'
-import typeDefs from 'tegh-schema'
+import typeDefs from '@tegh/schema'
 
 import deterministicTestSetup from '../../util/testing/deterministicTestSetup'
 import snapshotTestResolvers from '../../util/testing/snapshotTestResolvers'
@@ -16,8 +16,8 @@ describe('PluginResolvers', () => {
     const state = Record({
       schemaForms: Record({
         plugins: Map({
-          'tegh-core': SchemaForm({
-            id: 'tegh-core',
+          '@tegh/core': SchemaForm({
+            id: '@tegh/core',
           }),
         }),
       })(),
@@ -28,7 +28,7 @@ describe('PluginResolvers', () => {
       typeName: 'Plugin',
       resolvers: PluginResolvers,
       rootValue: MockConfig().printer.plugins.find(p => (
-        p.package === 'tegh-core'
+        p.package === '@tegh/core'
       )),
       contextValue: {
         store: {

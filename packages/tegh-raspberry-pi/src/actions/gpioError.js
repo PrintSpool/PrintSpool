@@ -1,4 +1,4 @@
-import { driverError } from 'tegh-core'
+import { driverError } from '@tegh/core'
 
 const gpioError = reason => driverError({
   code: 'tegh-raspberry-pi/gpioError',

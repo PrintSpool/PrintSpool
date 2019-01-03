@@ -9,7 +9,7 @@ import {
   SET_CONFIG,
   printerReady,
   getController,
-} from 'tegh-core'
+} from '@tegh/core'
 
 import { SERIAL_OPEN } from '../../serial/actions/serialOpen'
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'

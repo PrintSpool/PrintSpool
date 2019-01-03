@@ -3,7 +3,7 @@ import {
   getComponents,
   AxisTypeEnum,
   ComponentTypeEnum,
-} from 'tegh-core'
+} from '@tegh/core'
 
 const { MOVEMENT_AXIS, EXTRUDER_AXIS } = AxisTypeEnum
 const { TOOLHEAD } = ComponentTypeEnum

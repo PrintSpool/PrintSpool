@@ -17,11 +17,11 @@ const componentBaseProperties = schema => ({
 
 const getSchemaForms = () => ({
   plugins: {
-    'tegh-core': {
+    '@tegh/core': {
       schema: schema => ({
         ...schema,
         type: 'object',
-        title: 'tegh-core',
+        title: '@tegh/core',
         required: [
           ...(schema.required || []),
           'name',

@@ -2,7 +2,7 @@ import Promise from 'bluebird'
 import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
 
-import { SET_CONFIG, getController } from 'tegh-core'
+import { SET_CONFIG, getController } from '@tegh/core'
 
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import serialSend, { SERIAL_SEND } from '../../serial/actions/serialSend'

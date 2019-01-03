@@ -3,14 +3,14 @@ import {
   getHeaterConfigs,
   getMaterials,
   ComponentTypeEnum,
-} from 'tegh-core'
+} from '@tegh/core'
 
 import { macroFn as setTargetTemperature } from './setTargetTemperature'
 
 const { TOOLHEAD, BUILD_PLATFORM } = ComponentTypeEnum
 
 const meta = {
-  package: 'tegh-macros-default',
+  package: '@tegh/macros-default',
   macro: 'toggleHeater',
 }
 

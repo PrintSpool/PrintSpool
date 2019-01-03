@@ -5,20 +5,20 @@ import untildify from 'untildify'
 import mkdirp from 'mkdirp'
 import keypair from 'keypair'
 
-import * as teghCore from 'tegh-core'
-import * as teghDriverSerialGCode from 'tegh-driver-serial-gcode'
-import * as teghMacrosDefault from 'tegh-macros-default'
-import * as teghRaspberryPi from 'tegh-raspberry-pi'
+import * as teghCore from '@tegh/core'
+import * as teghDriverSerialGCode from '@tegh/driver-serial-gcode'
+import * as teghMacrosDefault from '@tegh/macros-default'
+import * as teghRaspberryPi from '@tegh/raspberry-pi'
 
 // import { wrapInCrashReporting } from './crashReport'
 import httpServer from './server/httpServer'
 import webRTCServer from './server/webRTCServer'
 
 const plugins = {
-  'tegh-core': teghCore,
-  'tegh-driver-serial-gcode': teghDriverSerialGCode,
-  'tegh-macros-default': teghMacrosDefault,
-  'tegh-raspberry-pi': teghRaspberryPi,
+  '@tegh/core': teghCore,
+  '@tegh/driver-serial-gcode': teghDriverSerialGCode,
+  '@tegh/macros-default': teghMacrosDefault,
+  '@tegh/raspberry-pi': teghRaspberryPi,
 }
 
 const {
@@ -36,7 +36,7 @@ const loadConfigForm = (configPath) => {
     // eslint-disable-next-line global-require, import/no-dynamic-require
     const devConfig = require('../../../development.config')
     mkdirp(path.dirname(configPath))
-    fs.writeFileSync(configPath, JSON.stringify(devConfig))
+    fs.writeFileSync(configPath, JSON.stringify(devConfig, null, 2))
   }
   try {
     // eslint-disable-next-line global-require, import/no-dynamic-require

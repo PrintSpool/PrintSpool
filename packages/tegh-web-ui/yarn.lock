@@ -1500,6 +1500,10 @@
     "@svgr/plugin-svgo" "^4.0.3"
     loader-utils "^1.1.0"
 
+"@tegh/protocol@link:../tegh-protocol":
+  version "0.0.0"
+  uid ""
+
 "@types/async@2.0.49":
   version "2.0.49"
   resolved "https://registry.yarnpkg.com/@types/async/-/async-2.0.49.tgz#92e33d13f74c895cb9a7f38ba97db8431ed14bc0"
@@ -10638,10 +10642,6 @@ tar@^4:
     mkdirp "^0.5.0"
     safe-buffer "^5.1.2"
     yallist "^3.0.2"
-
-"tegh-protocol@link:../tegh-protocol":
-  version "0.0.0"
-  uid ""
 
 term-size@^1.2.0:
   version "1.2.0"

@@ -32,7 +32,7 @@
 import {
   parseGCode,
   toGCodeLine,
-} from 'tegh-core'
+} from '@tegh/core'
 
 const HEATER_MCODES = ['M109', 'M104', 'M140', 'M190', 'M116']
 const EXTRUDER_MCODES = ['M109', 'M104', 'M116']

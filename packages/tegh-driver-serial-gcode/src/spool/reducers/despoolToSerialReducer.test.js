@@ -5,7 +5,7 @@ import {
   requestDespool,
   driverError,
   MockTask,
-} from 'tegh-core'
+} from '@tegh/core'
 
 import reducer, {
   initialState,

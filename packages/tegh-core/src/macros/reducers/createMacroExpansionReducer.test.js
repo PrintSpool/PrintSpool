@@ -10,7 +10,7 @@ import despoolTask, { DESPOOL_TASK } from '../../spool/actions/despoolTask'
 import requestDespool from '../../spool/actions/requestDespool'
 
 const meta = {
-  package: 'tegh-example-package',
+  package: '@tegh/example-package',
   macro: 'doExample',
 }
 const macroFn = (args, { config }) => [
@@ -21,10 +21,10 @@ const macroFn = (args, { config }) => [
 const reducer = createMacroExpansionReducer(meta, macroFn)
 
 const enabledConfig = MockConfig()
-  .setIn(['printer', 'plugins', 0, 'package'], 'tegh-example-package')
+  .setIn(['printer', 'plugins', 0, 'package'], '@tegh/example-package')
   .setIn(['printer', 'plugins', 0, 'model', 'macros'], List(['*']))
 const plugins = Map({
-  'tegh-example-package': {
+  '@tegh/example-package': {
     macros: () => [
       'doExample',
     ],

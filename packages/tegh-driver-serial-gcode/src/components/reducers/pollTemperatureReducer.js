@@ -10,7 +10,7 @@ import {
   SET_CONFIG,
   spoolTask,
   PriorityEnum,
-} from 'tegh-core'
+} from '@tegh/core'
 
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import requestTemperatureQuery, { REQUEST_TEMPERATURE_QUERY } from '../actions/requestTemperatureQuery'

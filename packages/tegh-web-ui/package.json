@@ -1,5 +1,5 @@
 {
-  "name": "tegh-web-ui",
+  "name": "@tegh/web-ui",
   "version": "0.4.0",
   "main": "index.js",
   "author": "Rob Gilson",
@@ -76,7 +76,7 @@
     "strip-newlines": "^1.0.1",
     "styled-components": "^3.0.2",
     "subscriptions-transport-ws": "^0.9.4",
-    "tegh-protocol": "link:../tegh-protocol",
+    "@tegh/protocol": "link:../tegh-protocol",
     "voca": "^1.4.0"
   },
   "devDependencies": {

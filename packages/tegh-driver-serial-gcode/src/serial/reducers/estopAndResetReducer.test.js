@@ -6,7 +6,7 @@ import {
   despoolTask,
   MockTask,
   requestDespool,
-} from 'tegh-core'
+} from '@tegh/core'
 
 import reducer, { initialState } from './estopAndResetReducer'
 

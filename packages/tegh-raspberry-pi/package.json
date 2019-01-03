@@ -1,5 +1,5 @@
 {
-  "name": "tegh-raspberry-pi",
+  "name": "@tegh/raspberry-pi",
   "version": "0.4.0",
   "description": "Raspberry Pi GPIO bindings for Tegh",
   "main": "dist/index.js",
@@ -11,6 +11,6 @@
     "gpio": "^0.2.10",
     "immutable": "^4.0.0-rc.12",
     "redux-loop": "^4.5.2",
-    "tegh-core": "^0.4.0"
+    "@tegh/core": "^0.4.0"
   }
 }

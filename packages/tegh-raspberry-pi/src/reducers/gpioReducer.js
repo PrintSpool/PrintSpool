@@ -8,7 +8,7 @@ import {
   requestDespool,
   getPluginModels,
   isMacroEnabled,
-} from 'tegh-core'
+} from '@tegh/core'
 
 import setupPins from '../sideEffects/setupPins'
 
@@ -24,7 +24,7 @@ const initialState = Record({
 })
 
 const meta = {
-  package: 'tegh-raspberry-pi',
+  package: '@tegh/raspberry-pi',
   macro: SET_GPIO,
 }
 

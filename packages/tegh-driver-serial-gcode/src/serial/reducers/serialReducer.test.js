@@ -10,7 +10,7 @@ import {
   printerDisconnected,
   connectPrinter,
   MockConfig,
-} from 'tegh-core'
+} from '@tegh/core'
 
 import rxParser from '../../rxParser'
 

@@ -8,7 +8,7 @@ import {
   requestDespool,
   driverError,
   parseGCode,
-} from 'tegh-core'
+} from '@tegh/core'
 
 import { SERIAL_CLOSE } from '../../serial/actions/serialClose'
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'

@@ -95,7 +95,7 @@ const backend = {
       __dirname,
       'packages/tegh-host-posix/bin/',
     ),
-    filename: 'tegh-host',
+    filename: '@tegh/host',
   },
   module: {
     rules: [

@@ -4,7 +4,7 @@ import Promise from 'bluebird'
 import {
   requestDespool,
   DESPOOL_TASK,
-} from 'tegh-core'
+} from '@tegh/core'
 
 export const DELAY = 'delay'
 

@@ -45,7 +45,7 @@ const ConfigPage = ({
           query={gql`
             query($printerID: ID!) {
               printers(printerID: $printerID) {
-                plugins(package: "tegh-core") {
+                plugins(package: "@tegh/core") {
                   configForm {
                     ...UpdateDialogFragment
                   }

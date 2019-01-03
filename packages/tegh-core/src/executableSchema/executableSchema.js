@@ -1,6 +1,6 @@
 import { makeExecutableSchema } from 'graphql-tools'
 
-import typeDefs from 'tegh-schema'
+import typeDefs from '@tegh/schema'
 
 import resolvers from './resolvers'
 

@@ -8,7 +8,7 @@ import {
   ComponentTypeEnum,
   getHeaterConfigs,
   getComponentsByType,
-} from 'tegh-core'
+} from '@tegh/core'
 
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import { SERIAL_SEND } from '../../serial/actions/serialSend'

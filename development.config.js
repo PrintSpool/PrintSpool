@@ -145,7 +145,7 @@ const printerConfig = {
     {
       id: 'asgbvas23',
       modelVersion: 1,
-      package: 'tegh-core',
+      package: '@tegh/core',
       model: {
         modelID: 'lulzbot/lulzbot-mini-2',
         name: 'Left Home Lulzbot',
@@ -154,7 +154,7 @@ const printerConfig = {
     {
       id: 'aaabbbccc333',
       modelVersion: 1,
-      package: 'tegh-driver-serial-gcode',
+      package: '@tegh/driver-serial-gcode',
       model: {
         macros: [
           '*',
@@ -164,7 +164,7 @@ const printerConfig = {
     {
       id: 'aaabbbccc123',
       modelVersion: 1,
-      package: 'tegh-macros-default',
+      package: '@tegh/macros-default',
       model: {
         macros: [
           '*',
@@ -174,7 +174,7 @@ const printerConfig = {
     {
       id: 'asdfv31',
       modelVersion: 1,
-      package: 'tegh-raspberry-pi',
+      package: '@tegh/raspberry-pi',
       model: {
         macros: [
           '*',

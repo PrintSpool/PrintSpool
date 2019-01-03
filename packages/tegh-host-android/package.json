@@ -1,5 +1,5 @@
 {
-  "name": "tegh-andriod-host",
+  "name": "@tegh/andriod-host",
   "version": "0.4.0",
   "private": true,
   "scripts": {
@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "rn-nodeify": "mvayngrib/rn-nodeify",
-    "tegh-core": "link:../tegh-core"
+    "@tegh/core": "link:../tegh-core"
   },
   "dependencies": {
     "assert": "^1.1.1",

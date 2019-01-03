@@ -1,5 +1,5 @@
 import { List } from 'immutable'
-import { ComponentTypeEnum } from 'tegh-core'
+import { ComponentTypeEnum } from '@tegh/core'
 
 const {
   CONTROLLER,

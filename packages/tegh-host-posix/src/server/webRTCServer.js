@@ -7,7 +7,7 @@ import { btoa } from 'abab'
 import { SubscriptionServer } from 'subscriptions-transport-ws'
 import { execute, subscribe } from 'graphql'
 import untildify from 'untildify'
-import { TeghHost, setCrypto } from 'tegh-protocol'
+import { TeghHost, setCrypto } from '@tegh/protocol'
 
 // const webCrypto = new WebCrypto()
 // setCrypto(webCrypto)

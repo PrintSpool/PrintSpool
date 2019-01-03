@@ -5,7 +5,7 @@ A javascript library for making things that work with Tegh 3D printers in node, 
 ### TeghClient - Connecting to a Tegh 3D Printer
 
 ```javascript
-import { TeghClient } from 'tegh-protocol'
+import { TeghClient } from '@tegh/protocol'
 import keypair from 'keypair'
 
 // Generate a public and private key using the `keypair` npm module. This will
@@ -65,7 +65,7 @@ React.render(
 ### TeghHost - Acting as a Tegh 3D Printer
 
 ```javascript
-import { TeghClient } from 'tegh-protocol'
+import { TeghClient } from '@tegh/protocol'
 import keypair from 'keypair'
 
 // Generate a public and private key using the `keypair` npm module. This will

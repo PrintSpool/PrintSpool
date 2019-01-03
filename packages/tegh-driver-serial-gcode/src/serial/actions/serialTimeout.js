@@ -1,4 +1,4 @@
-import { driverError } from 'tegh-core'
+import { driverError } from '@tegh/core'
 
 export const SERIAL_TIMEOUT = 'tegh-driver-serial-gcode/serial/SERIAL_TIMEOUT'
 

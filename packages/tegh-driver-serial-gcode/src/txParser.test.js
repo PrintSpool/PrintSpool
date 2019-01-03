@@ -1,4 +1,4 @@
-import { parseGCode } from 'tegh-core'
+import { parseGCode } from '@tegh/core'
 import txParser from './txParser'
 
 const testMCode = collectionKey => (line, expectedOutput) => {

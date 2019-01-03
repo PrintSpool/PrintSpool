@@ -1,4 +1,4 @@
-import { SerialPort } from 'tegh-core'
+import { SerialPort } from '@tegh/core'
 
 import serialOpen from '../actions/serialOpen'
 import serialClose from '../actions/serialClose'

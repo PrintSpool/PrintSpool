@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect'
-import { getController } from 'tegh-core'
+import { getController } from '@tegh/core'
 
 const getSerialPortID = createSelector(
   getController,

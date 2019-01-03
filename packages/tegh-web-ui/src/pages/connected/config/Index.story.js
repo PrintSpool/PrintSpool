@@ -87,7 +87,7 @@ storiesOf('Config', module)
       open
       onSubmit={linkTo('Config', 'index')}
       data={{
-        model: config.plugins.find(p => p.package === 'tegh-core'),
+        model: config.plugins.find(p => p.package === '@tegh/core'),
         schemaForm: teghCoreSchemaForm,
       }}
     />

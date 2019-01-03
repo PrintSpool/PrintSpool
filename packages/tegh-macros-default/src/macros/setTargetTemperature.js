@@ -2,12 +2,12 @@ import {
   createMacroExpansionReducer,
   getHeaterConfigs,
   ComponentTypeEnum,
-} from 'tegh-core'
+} from '@tegh/core'
 
 const { BUILD_PLATFORM } = ComponentTypeEnum
 
 const meta = {
-  package: 'tegh-macros-default',
+  package: '@tegh/macros-default',
   macro: 'setTargetTemperature',
 }
 

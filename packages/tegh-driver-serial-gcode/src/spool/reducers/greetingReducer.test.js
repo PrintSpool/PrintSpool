@@ -6,7 +6,7 @@ import {
   ESTOP,
   PRINTER_DISCONNECTED,
   printerReady,
-} from 'tegh-core'
+} from '@tegh/core'
 
 import reducer, { initialState } from './greetingReducer'
 
