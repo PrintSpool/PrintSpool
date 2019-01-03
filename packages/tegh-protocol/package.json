@@ -1,6 +1,6 @@
 {
   "name": "@tegh/protocol",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "main": "dist/index.js",
   "license": "MIT",
   "private": false,

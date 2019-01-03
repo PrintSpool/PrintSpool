@@ -1,12 +1,13 @@
 {
   "name": "@tegh/driver-serial-gcode",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Tegh serial driver for RepRap/Marlin compatible printers",
   "main": "dist/index.js",
   "author": "Rob Gilson",
   "license": "AGPL-3.0-or-later",
   "private": false,
   "dependencies": {
+    "@tegh/core": "^0.5.0",
     "bluebird": "^3.5.3",
     "immutable": "^3.8.2",
     "redux": "^4.0.1",
@@ -15,7 +16,6 @@
     "reselect": "^4.0.0",
     "strip-newlines": "^1.0.1",
     "tcomb-validation": "^3.4.1",
-    "@tegh/core": "^0.4.0",
     "yup": "^0.26.6"
   }
 }

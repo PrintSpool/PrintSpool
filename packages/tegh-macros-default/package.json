@@ -1,16 +1,16 @@
 {
   "name": "@tegh/macros-default",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Tegh default macros",
   "main": "dist/index.js",
   "author": "Rob Gilson",
   "license": "AGPL-3.0-or-later",
   "private": false,
   "dependencies": {
+    "@tegh/core": "^0.5.0",
     "bluebird": "^3.5.3",
     "immutable": "^4.0.0-rc.12",
     "redux-loop": "^4.5.2",
-    "redux-loop-immutable": "^1.0.0",
-    "@tegh/core": "^0.4.0"
+    "redux-loop-immutable": "^1.0.0"
   }
 }
