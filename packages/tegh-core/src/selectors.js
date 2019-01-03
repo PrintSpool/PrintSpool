@@ -8,6 +8,7 @@ export getHeaterConfigs from './config/selectors/getHeaterConfigs'
 export getMaterials from './config/selectors/getMaterials'
 export getPrinterConfig from './config/selectors/getPrinterConfig'
 export isMacroEnabled from './config/selectors/isMacroEnabled'
+export getPluginModels from './config/selectors/getPluginModels'
 // export getMacroDefinitions from './config/selectors/getMacroDefinitions'
 // export runMacro from './config/selectors/runMacro'
 

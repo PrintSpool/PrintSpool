@@ -16,13 +16,10 @@
   "private": true,
   "scripts": {
     "trace-gc": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
-    "start": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings",
-    "build-x64": "pkg ./dist/index.js --output ./dist/tegh-host -t node10-linux-x64",
-    "build-armv7": "pkg ./dist/index.js --output ./dist/tegh-host -t node10-linux-armv7"
+    "start": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings"
   },
   "devDependencies": {
-    "node-dev": "d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350",
-    "pkg": "^4.3.5"
+    "node-dev": "d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350"
   },
   "dependencies": {
     "@babel/register": "^7.0.0",
@@ -30,7 +27,7 @@
     "abab": "^2.0.0",
     "apollo-server-koa": "^1.3.4",
     "babel-preset-flow": "^6.23.0",
-    "bluebird": "^3.5.1",
+    "bluebird": "^3.5.3",
     "dedent": "^0.7.0",
     "ejs": "^2.5.7",
     "fast-memoize": "^2.5.1",
@@ -51,7 +48,7 @@
     "koa-router": "^7.2.1",
     "mkdirp": "^0.5.1",
     "node-webcrypto-ossl": "^1.0.38",
-    "qrcode-terminal": "^0.12.0",
+    "qrcode-terminal": "stevvvn/qrcode-terminal",
     "raven": "^2.3.0",
     "raven-for-redux": "^1.2.0",
     "redux": "^4.0.1",

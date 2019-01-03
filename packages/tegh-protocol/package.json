@@ -5,7 +5,7 @@
   "license": "MIT",
   "author": "Rob Gilson",
   "dependencies": {
-    "bluebird": "^3.5.2",
+    "bluebird": "^3.5.3",
     "eventemitter3": "^3.1.0",
     "jose-jwe-jws": "^0.1.6",
     "node-forge": "^0.7.6",

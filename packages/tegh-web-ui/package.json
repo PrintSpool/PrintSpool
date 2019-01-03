@@ -39,7 +39,7 @@
     "babel-jest": "^23.6.0",
     "babel-loader": "^8.0.4",
     "babel-plugin-import-graphql": "^2.6.2",
-    "bluebird": "^3.5.1",
+    "bluebird": "^3.5.3",
     "fast-async": "^6.3.8",
     "fast-json-patch": "^2.0.7",
     "fast-memoize": "^2.5.1",
