@@ -3,6 +3,7 @@
   "version": "0.4.0",
   "main": "dist/index.js",
   "license": "MIT",
+  "private": false,
   "author": "Rob Gilson",
   "dependencies": {
     "bluebird": "^3.5.3",
