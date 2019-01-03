@@ -1,0 +1,27 @@
+{
+  "name": "@tegh/host-snap",
+  "version": "0.5.0",
+  "description": "graphql server for 3D printers",
+  "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tegh/tegh-host-posix.git"
+  },
+  "keywords": [
+    "tegh",
+    "graphql"
+  ],
+  "author": "Rob Gilson",
+  "license": "AGPL-3.0-or-later",
+  "private": true,
+  "dependencies": {
+    "@trust/webcrypto": "^0.9.2",
+    "serialport": "^6.2.0",
+    "wrtc": "^0.3.3",
+    "ws": "~3.3.1",
+    "domexception": "^1.0.1"
+  },
+  "resolutions": {
+    "subscriptions-transport-ws/iterall": "d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b"
+  }
+}

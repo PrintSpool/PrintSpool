@@ -19,13 +19,6 @@
     "start": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings"
   },
   "dependencies": {
-    "@trust/webcrypto": "^0.9.2",
-    "node-webcrypto-ossl": "^1.0.38",
-    "serialport": "^6.2.0",
-    "wrtc": "^0.3.3",
-    "ws": "~3.3.1"
-  },
-  "devDependencies": {
     "@babel/register": "^7.0.0",
     "@tegh/core": "^0.5.0",
     "@tegh/driver-serial-gcode": "^0.5.0",
@@ -55,7 +48,6 @@
     "koa-cors": "^0.0.16",
     "koa-router": "^7.2.1",
     "mkdirp": "^0.5.1",
-    "node-dev": "d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350",
     "node-webcrypto-ossl": "^1.0.38",
     "qrcode-terminal": "stevvvn/qrcode-terminal",
     "raven": "^2.3.0",
@@ -77,7 +69,12 @@
     "typiql": "^0.3.0",
     "untildify": "^3.0.2",
     "uuid": "^3.1.0",
-    "vm2": "^3.5.2"
+    "vm2": "^3.5.2",
+    "wrtc": "^0.3.3",
+    "ws": "~3.3.1"
+  },
+  "devDependencies": {
+    "node-dev": "d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350"
   },
   "resolutions": {
     "subscriptions-transport-ws/iterall": "d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b"
