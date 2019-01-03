@@ -7,7 +7,7 @@
     "install-all": "yarn --network-timeout 1000000 && lerna exec --concurrency 1 -- yarn --network-timeout 1000000 && cd ./packages/tegh-web-ui/ && yarn --network-timeout 1000000",
     "clean": "gulp clean",
     "build-dev": "gulp build-dev",
-    "build": "npx webpack --config webpack.config.babel.js --mode=production",
+    "build": "npx webpack --config webpack.config.babel.js --mode=production && cd ./packages/tegh-host-posix/bin/ && chmod 755 ./tegh-host && echo \"#!\/usr\/bin\/env node\n$(cat ./tegh-host)\" > ./tegh-host",
     "watch": "gulp watch",
     "webpack-dev-server": "gulp webpack-dev-server",
     "test": "jest",

@@ -75,17 +75,17 @@ const frontend = {
 const backend = {
   target: 'node',
   externals: {
-    'any-promise': 'require("bluebird")',
     /* node build-ins */
     ...nodeExternals(),
-    /* libraries installed by snapcraft */
-    serialport: 'require("serialport")',
-    wrtc: 'require("wrtc")',
-    ws: 'require("ws")',
-    '@trust/webcrypto': 'require("@trust/webcrypto")',
-    'node-webcrypto-ossl': 'require("node-webcrypto-ossl")',
-    /* unused optional dependencies */
-    fsevents: 'require("fsevents")',
+    // 'any-promise': 'require("bluebird")',
+    // /* libraries installed by snapcraft */
+    // serialport: 'require("serialport")',
+    // wrtc: 'require("wrtc")',
+    // ws: 'require("ws")',
+    // '@trust/webcrypto': 'require("@trust/webcrypto")',
+    // 'node-webcrypto-ossl': 'require("node-webcrypto-ossl")',
+    // /* unused optional dependencies */
+    // fsevents: 'require("fsevents")',
   },
   entry: {
     backend: './packages/tegh-host-posix/src/index.js',
@@ -93,9 +93,9 @@ const backend = {
   output: {
     path: path.resolve(
       __dirname,
-      'packages/tegh-host-posix/dist/',
+      'packages/tegh-host-posix/bin/',
     ),
-    filename: 'tegh-host-posix.js',
+    filename: 'tegh-host',
   },
   module: {
     rules: [
