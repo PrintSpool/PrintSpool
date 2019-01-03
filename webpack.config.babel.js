@@ -1,7 +1,7 @@
 import path from 'path'
 import HtmlWebPackPlugin from 'html-webpack-plugin'
 import webpack from 'webpack'
-import nodeExternals from 'webpack-node-externals'
+// import nodeExternals from 'webpack-node-externals'
 import babelConfig from './.babelrc'
 
 const babelLoaderRules = [
@@ -72,39 +72,41 @@ const frontend = {
   ],
 }
 
-const backend = {
-  target: 'node',
-  externals: {
-    /* node build-ins */
-    ...nodeExternals(),
-    // 'any-promise': 'require("bluebird")',
-    // /* libraries installed by snapcraft */
-    // serialport: 'require("serialport")',
-    // wrtc: 'require("wrtc")',
-    // ws: 'require("ws")',
-    // '@trust/webcrypto': 'require("@trust/webcrypto")',
-    // 'node-webcrypto-ossl': 'require("node-webcrypto-ossl")',
-    // /* unused optional dependencies */
-    // fsevents: 'require("fsevents")',
-  },
-  entry: {
-    backend: './packages/tegh-host-posix/src/index.js',
-  },
-  output: {
-    path: path.resolve(
-      __dirname,
-      'snap/bin/',
-    ),
-    filename: 'tegh',
-  },
-  module: {
-    rules: [
-      ...babelLoaderRules,
-    ],
-  },
-  // optimization: {
-  //   minimize: false,
-  // },
-}
+// // && cd ./snap/bin/ && chmod 755 ./tegh && echo \"#!/usr/bin/env node\n$(cat ./tegh)\" > ./tegh
+// const backend = {
+//   target: 'node',
+//   externals: {
+//     // 'any-promise': { commonjs: 'bluebird' },
+//     // // /* libraries installed by snapcraft */
+//     // serialport: { commonjs: 'serialport' },
+//     // wrtc: { commonjs: 'serialport' },
+//     // ws: { commonjs: 'serialport' },
+//     // '@trust/webcrypto': { commonjs: 'serialport' },
+//     // graphql: { commonjs: 'serialport' },
+//     // 'redux-loop': { commonjs: 'serialport' },
+//     // /* unused optional dependencies */
+//     // fsevents: { commonjs: 'serialport' },
+//     // 'node-webcrypto-ossl': { commonjs: 'serialport' },
+//   },
+//   entry: {
+//     backend: './packages/tegh-host-posix/src/index.js',
+//   },
+//   output: {
+//     path: path.resolve(
+//       __dirname,
+//       'snap/bin/',
+//     ),
+//     filename: 'tegh',
+//   },
+//   module: {
+//     rules: [
+//       ...babelLoaderRules,
+//     ],
+//   },
+//   optimization: {
+//     minimize: false,
+//   },
+// }
 
-module.exports = [frontend, backend]
+// module.exports = [frontend, backend]
+module.exports = frontend

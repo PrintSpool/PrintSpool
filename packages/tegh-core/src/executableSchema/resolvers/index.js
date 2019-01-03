@@ -1,4 +1,4 @@
-import { GraphQLDate } from 'graphql-scalars'
+import { GraphQLDate } from '@d1plo1d/graphql-scalars'
 import GraphQLJSON from 'graphql-type-json'
 import { Map } from 'immutable'
 

@@ -13,12 +13,13 @@
   ],
   "author": "Rob Gilson",
   "license": "AGPL-3.0-or-later",
-  "private": true,
+  "private": false,
   "scripts": {
     "trace-gc": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
     "start": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings"
   },
   "dependencies": {
+    "@babel/core": "^7.0.0-0",
     "@babel/register": "^7.0.0",
     "@tegh/core": "^0.5.0",
     "@tegh/driver-serial-gcode": "^0.5.0",
@@ -26,21 +27,19 @@
     "@tegh/protocol": "^0.5.0",
     "@trust/webcrypto": "^0.9.2",
     "abab": "^2.0.0",
-    "apollo-server-koa": "^1.3.4",
+    "apollo-server-koa": "^2.3.1",
     "babel-preset-flow": "^6.23.0",
     "bluebird": "^3.5.3",
     "dedent": "^0.7.0",
     "ejs": "^2.5.7",
     "fast-memoize": "^2.5.1",
     "graphql": "^14.0.2",
-    "graphql-live-subscriptions": "^1.1.0",
-    "graphql-scalars": "^0.1.5",
     "graphql-subscriptions": "^0.5.8",
     "graphql-type-json": "^0.2.0",
-    "immutable": "^4.0.0-rc.9",
+    "immutable": "^4.0.0-rc.12",
     "immutablediff": "^0.4.4",
     "immutablepatch": "^0.4.2",
-    "iterall": "d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b",
+    "iterall": "github:d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b",
     "jiff": "^0.7.3",
     "keypair": "^1.0.1",
     "koa": "^2.3.0",
@@ -49,13 +48,13 @@
     "koa-router": "^7.2.1",
     "mkdirp": "^0.5.1",
     "node-webcrypto-ossl": "^1.0.38",
-    "qrcode-terminal": "stevvvn/qrcode-terminal",
+    "qrcode-terminal": "github:stevvvn/qrcode-terminal",
     "raven": "^2.3.0",
     "raven-for-redux": "^1.2.0",
     "redux": "^4.0.1",
     "redux-immutable": "^4.0.0",
     "redux-logger": "^3.0.6",
-    "redux-loop": "^4.3.3",
+    "redux-loop": "^4.5.2",
     "redux-loop-immutable": "^1.0.0",
     "redux-saga": "^0.16.0",
     "redux-thunk": "^2.2.0",
@@ -74,7 +73,7 @@
     "ws": "~3.3.1"
   },
   "devDependencies": {
-    "node-dev": "d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350"
+    "node-dev": "github:d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350"
   },
   "resolutions": {
     "subscriptions-transport-ws/iterall": "d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b"

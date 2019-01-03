@@ -11,7 +11,7 @@
     "bluebird": "^3.5.3",
     "immutable": "^3.8.2",
     "redux": "^4.0.1",
-    "redux-loop": "^4.3.3",
+    "redux-loop": "^4.5.2",
     "redux-loop-immutable": "^1.0.0",
     "reselect": "^4.0.0",
     "strip-newlines": "^1.0.1",

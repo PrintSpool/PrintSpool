@@ -21,9 +21,19 @@ parts:
     source: .
   tegh-host:
     plugin: nodejs
-    source: './'
+    source: .
     nodejs-version: '11.6.0'
     nodejs-yarn-version: 'v1.12.3'
+    build-packages:
+      - build-essential
+      - git
+    # "@babel/core": "^7.0.0-0",
+    # "domexception": "^1.0.1",
+    # "graphql": "^14.0.2",
+    # "iterall": "1.1.3",
+    # "immutable": "^4.0.0-rc.12",
+    # "list-diff2": "^0.1.4"
+
     # "node-webcrypto-ossl": "^1.0.38",
 
     # node-packages:

@@ -16,8 +16,11 @@ bin/packages
 tmp
 .vagrant
 .next
+package-lock.json
 packages/tegh-web-ui/out
+
 *.snap
+snap/source
 
 coverage
 
@@ -30,7 +33,7 @@ ubuntu-xenial-16.04-cloudimg-console.log
 packages/tegh-host-posix/log
 packages/*/build
 packages/*/dist
-packages/*/snapcraft/bin
+
 
 packages/*/android/app/build
 
