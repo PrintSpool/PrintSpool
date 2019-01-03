@@ -95,7 +95,7 @@ const backend = {
       __dirname,
       'snap/bin/',
     ),
-    filename: '@tegh/host',
+    filename: 'tegh',
   },
   module: {
     rules: [

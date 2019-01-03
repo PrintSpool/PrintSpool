@@ -22,8 +22,8 @@ parts:
   tegh-host:
     plugin: nodejs
     source: './'
-    nodejs-version: '11.6.0'
-    nodejs-yarn-version: 'v1.12.3'
+    # nodejs-version: '11.6.0'
+    # nodejs-yarn-version: 'v1.12.3'
     # "node-webcrypto-ossl": "^1.0.38",
 
     # node-packages:
@@ -34,4 +34,5 @@ parts:
     #   - 'serialport'
 apps:
   tegh-host:
-    command: tegh-host
+    command: tegh
+    daemon: simple
