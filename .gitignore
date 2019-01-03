@@ -17,6 +17,7 @@ tmp
 .vagrant
 .next
 packages/tegh-web-ui/out
+*.snap
 
 coverage
 

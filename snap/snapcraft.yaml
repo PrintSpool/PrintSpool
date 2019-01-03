@@ -1,11 +1,18 @@
 name: tegh-host
-version: git
+version: 0.5.0
 summary: A graphql server for 3D printers
 description: >
   A graphql server for 3D printers
 
 confinement: devmode
+grade: devel
 base: core18
+
+architectures:
+  - build-on: amd64
+    run-on: amd64
+  - build-on: armhf
+    run-on: armhf
 
 parts:
   python-dependency:

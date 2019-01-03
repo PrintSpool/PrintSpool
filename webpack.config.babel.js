@@ -93,7 +93,7 @@ const backend = {
   output: {
     path: path.resolve(
       __dirname,
-      'packages/tegh-host-posix/bin/',
+      'snap/bin/',
     ),
     filename: '@tegh/host',
   },
