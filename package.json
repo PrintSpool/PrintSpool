@@ -7,7 +7,7 @@
     "install-all": "yarn --network-timeout 1000000 && lerna exec --concurrency 1 -- yarn --network-timeout 1000000 && cd ./packages/tegh-web-ui/ && yarn --network-timeout 1000000",
     "clean": "gulp clean",
     "build-dev": "gulp build-dev",
-    "build": "npx webpack --config webpack.config.babel.js --mode=production && cd ./snap/bin/ && chmod 755 ./tegh && echo \"#!\/usr\/bin\/env node\n$(cat ./tegh)\" > ./tegh-host",
+    "build": "npx webpack --config webpack.config.babel.js --mode=production && cd ./snap/bin/ && chmod 755 ./tegh && echo \"#!\/usr\/bin\/env node\n$(cat ./tegh)\" > ./tegh",
     "build-snap": "cd ./snap && snapcraft clean && snapcraft --debug",
     "install-snap": "sudo snap install --devmode $(find ./snap/ -name \"*.snap\")",
     "watch": "gulp watch",
