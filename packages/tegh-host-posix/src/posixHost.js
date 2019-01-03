@@ -8,7 +8,7 @@ import keypair from 'keypair'
 import * as teghCore from '@tegh/core'
 import * as teghDriverSerialGCode from '@tegh/driver-serial-gcode'
 import * as teghMacrosDefault from '@tegh/macros-default'
-import * as teghRaspberryPi from '@tegh/raspberry-pi'
+// import * as teghRaspberryPi from '@tegh/raspberry-pi'
 
 // import { wrapInCrashReporting } from './crashReport'
 import httpServer from './server/httpServer'
@@ -18,7 +18,7 @@ const plugins = {
   '@tegh/core': teghCore,
   '@tegh/driver-serial-gcode': teghDriverSerialGCode,
   '@tegh/macros-default': teghMacrosDefault,
-  '@tegh/raspberry-pi': teghRaspberryPi,
+  // '@tegh/raspberry-pi': teghRaspberryPi,
 }
 
 const {
