@@ -5,7 +5,7 @@ import koa from 'koa'
 import koaRouter from 'koa-router'
 import koaBody from 'koa-bodyparser'
 import cors from 'koa-cors'
-import { graphqlKoa, graphiqlKoa } from 'apollo-server-koa'
+import { ApolloServer } from 'apollo-server-koa'
 import { SubscriptionServer } from 'subscriptions-transport-ws'
 import { execute, subscribe } from 'graphql'
 import { List } from 'immutable'
@@ -22,23 +22,16 @@ const httpServer = async ({
   // eslint-disable-next-line new-cap
   const router = new koaRouter()
 
-  const teghGraphqlKoa = () => graphqlKoa({
+  const teghGraphqlKoa = new ApolloServer({
     context,
     schema,
     debug: true,
     tracing: true,
   })
 
-  // koaBody is needed just for POST.
-  router.post(
-    '/graphql',
-    koaBody(),
-    teghGraphqlKoa(),
-  )
+  teghGraphqlKoa.applyMiddleware({ app: koaApp })
 
-  router.get('/graphql', teghGraphqlKoa())
-
-  router.get('/graphiql', graphiqlKoa({ endpointURL: '/graphql' }))
+  // router.get('/graphiql', graphiqlKoa({ endpointURL: '/graphql' }))
 
   // Websocket
   SubscriptionServer.create(

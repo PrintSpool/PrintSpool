@@ -853,10 +853,10 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@d1plo1d/graphql-scalars@^0.4.2":
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/@d1plo1d/graphql-scalars/-/graphql-scalars-0.4.2.tgz#43a80139e8105a9095c8eebd9ba18387247534b7"
-  integrity sha512-DvK/iIPbhQurvYO5KdEoQiTGNDTRgUqdiZ7lIjwcx3D/Bh5OW2lJ4b9ILNnWhBIRkDBSewtWqxiUeN4pm01/aw==
+"@d1plo1d/graphql-scalars@^0.4.3-0":
+  version "0.4.3-0"
+  resolved "https://registry.yarnpkg.com/@d1plo1d/graphql-scalars/-/graphql-scalars-0.4.3-0.tgz#cbeec9423c1110fcb8edeffbcd61d4346f32e4ae"
+  integrity sha512-8OaeYEq9sXvqSplWhCDp/9eEUki788xaVhE9x04X5MVG7KkWdTWKsSrjovKuIQJJMA3d2Je1d5OcnADqR3A9FQ==
 
 "@gulp-sourcemaps/identity-map@1.X":
   version "1.0.2"
