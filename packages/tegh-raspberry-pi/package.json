@@ -3,6 +3,9 @@
   "version": "0.5.1",
   "description": "Raspberry Pi GPIO bindings for Tegh",
   "main": "dist/index.js",
+  "files": [
+    "dist/*"
+  ],
   "repository": "https://github.com/tegh/tegh",
   "author": "Rob Gilson",
   "license": "AGPL-3.0-or-later",

@@ -11,6 +11,9 @@
     "tegh",
     "graphql"
   ],
+  "files": [
+    "dist/*"
+  ],
   "author": "Rob Gilson",
   "license": "AGPL-3.0-or-later",
   "private": false,
