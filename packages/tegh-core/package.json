@@ -1,6 +1,6 @@
 {
   "name": "@tegh/core",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "core reusable types, selectors, actions, reducers, etc. for Tegh",
   "main": "dist/index.js",
   "repository": {
@@ -21,7 +21,9 @@
   "license": "AGPL-3.0-or-later",
   "private": false,
   "dependencies": {
-    "@tegh/schema": "^0.5.0",
+    "@d1plo1d/graphql-scalars": "^0.4.3-0",
+    "@d1plo1d/redux-loop-immutable": "1.0.1-0",
+    "@tegh/schema": "^0.5.1",
     "ajv": "^6.6.1",
     "bluebird": "^3.5.3",
     "chokidar": "^2.0.4",
@@ -30,7 +32,6 @@
     "fast-memoize": "^2.5.1",
     "graphql": "^14.0.2",
     "graphql-live-subscriptions": "^1.1.0",
-    "@d1plo1d/graphql-scalars": "^0.4.3-0",
     "graphql-subscriptions": "^1.0.0",
     "graphql-tools": "^4.0.3",
     "graphql-type-json": "^0.2.0",
@@ -42,7 +43,6 @@
     "redux-immutable": "^4.0.0",
     "redux-logger": "^3.0.6",
     "redux-loop": "^4.5.2",
-    "@d1plo1d/redux-loop-immutable": "1.0.1-0",
     "redux-thunk": "^2.2.0",
     "redux-watch": "^1.1.1",
     "reselect": "^3.0.1",

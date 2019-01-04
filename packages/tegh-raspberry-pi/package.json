@@ -1,6 +1,6 @@
 {
   "name": "@tegh/raspberry-pi",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Raspberry Pi GPIO bindings for Tegh",
   "main": "dist/index.js",
   "repository": "https://github.com/tegh/tegh",
@@ -8,7 +8,7 @@
   "license": "AGPL-3.0-or-later",
   "private": false,
   "dependencies": {
-    "@tegh/core": "^0.5.0",
+    "@tegh/core": "^0.5.1",
     "gpio": "^0.2.10",
     "immutable": "^4.0.0-rc.12",
     "redux-loop": "^4.5.2"
