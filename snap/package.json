@@ -16,7 +16,8 @@
   "private": true,
   "dependencies": {
     "@babel/core": "^7.0.0-0",
-    "@tegh/host-posix": "^0.5.0"
+    "@tegh/host-posix": "^0.5.0",
+    "immutable": "^4.0.0-rc.12"
   },
   "resolutions": {
     "subscriptions-transport-ws/iterall": "d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b",

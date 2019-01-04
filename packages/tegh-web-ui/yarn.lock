@@ -5936,10 +5936,15 @@ immutable-tuple@^0.4.4:
   resolved "https://registry.yarnpkg.com/immutable-tuple/-/immutable-tuple-0.4.8.tgz#f60b65b863d34be39d307d1bbf4a450e1ac3048a"
   integrity sha512-1m29EVSrF+LJJAyVo1v12NsIalVKjyi4HNQVQDBx+LNCIuRXnfeMCHuLao5CyN1m3Sn0T63U5JEkmPArPCipQA==
 
-immutable@^3.8.1, immutable@^3.8.2:
+immutable@^3.8.1:
   version "3.8.2"
   resolved "https://registry.yarnpkg.com/immutable/-/immutable-3.8.2.tgz#c2439951455bb39913daf281376f1530e104adf3"
   integrity sha1-wkOZUUVbs5kT2vKBN28VMOEErfM=
+
+immutable@^4.0.0-rc.12:
+  version "4.0.0-rc.12"
+  resolved "https://registry.yarnpkg.com/immutable/-/immutable-4.0.0-rc.12.tgz#ca59a7e4c19ae8d9bf74a97bdf0f6e2f2a5d0217"
+  integrity sha512-0M2XxkZLx/mi3t8NVwIm1g8nHoEmM9p9UBl/G9k4+hm0kBgOVdMV/B3CY5dQ8qG8qc80NN4gDV4HQv6FTJ5q7A==
 
 import-cwd@^2.0.0:
   version "2.1.0"
@@ -9388,10 +9393,10 @@ redux-form@^7.4.2:
     prop-types "^15.6.1"
     react-lifecycles-compat "^3.0.4"
 
-redux-loop@^4.4.1:
-  version "4.4.1"
-  resolved "https://registry.yarnpkg.com/redux-loop/-/redux-loop-4.4.1.tgz#5c8abec6fd08bc66ce486d0c63810a2db80504dc"
-  integrity sha512-Xvjmna50hBpQajUg5Ej7XBkCbEg7twgCKNeGWUIKQSqT3H2RjlHkDOjTnA3urQBc7Ff5JcAqxgsMr9sgJacDBQ==
+redux-loop@^4.5.2:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/redux-loop/-/redux-loop-4.5.2.tgz#831b54f20414b2a2cd4b567cdae522f9c8b85409"
+  integrity sha512-ZLyaB0yBFXV6s5/jCRUA7SD5TKOns6k2YEXQ0Lj95sNe59E3W8nj14cYbefJGSqMzfcMrI35QinLEf1f99ulMg==
 
 redux-seamless-immutable@^0.4.0:
   version "0.4.0"

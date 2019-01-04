@@ -11,6 +11,6 @@
     "bluebird": "^3.5.3",
     "immutable": "^4.0.0-rc.12",
     "redux-loop": "^4.5.2",
-    "redux-loop-immutable": "^1.0.0"
+    "@d1plo1d/redux-loop-immutable": "1.0.1-0"
   }
 }

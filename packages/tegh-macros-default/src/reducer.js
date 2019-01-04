@@ -1,5 +1,5 @@
 import { Record, Map } from 'immutable'
-import { mergeChildReducers } from 'redux-loop-immutable'
+import { mergeChildReducers } from '@d1plo1d/redux-loop-immutable'
 
 import delay from './macros/delay'
 import home from './macros/home'

@@ -9,10 +9,10 @@
   "dependencies": {
     "@tegh/core": "^0.5.0",
     "bluebird": "^3.5.3",
-    "immutable": "^3.8.2",
+    "immutable": "^4.0.0-rc.12",
     "redux": "^4.0.1",
     "redux-loop": "^4.5.2",
-    "redux-loop-immutable": "^1.0.0",
+    "@d1plo1d/redux-loop-immutable": "1.0.1-0",
     "reselect": "^4.0.0",
     "strip-newlines": "^1.0.1",
     "tcomb-validation": "^3.4.1",
