@@ -26,10 +26,10 @@ parts:
     nodejs-version: '11.6.0'
     # nodejs-yarn-version: 'v1.12.3'
     build-packages:
-      - python2
+      # - python2
       # - python2.7
       # - python-pip
-      # - build-essential
+      - build-essential
       - git
     # "@babel/core": "^7.0.0-0",
     # "domexception": "^1.0.1",

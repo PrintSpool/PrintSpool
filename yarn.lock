@@ -858,6 +858,11 @@
   resolved "https://registry.yarnpkg.com/@d1plo1d/graphql-scalars/-/graphql-scalars-0.4.3-0.tgz#cbeec9423c1110fcb8edeffbcd61d4346f32e4ae"
   integrity sha512-8OaeYEq9sXvqSplWhCDp/9eEUki788xaVhE9x04X5MVG7KkWdTWKsSrjovKuIQJJMA3d2Je1d5OcnADqR3A9FQ==
 
+"@d1plo1d/list-diff2@^0.1.5-0":
+  version "0.1.5-0"
+  resolved "https://registry.yarnpkg.com/@d1plo1d/list-diff2/-/list-diff2-0.1.5-0.tgz#b0f366d8ed03b3e302682c8d1db2c7533011d1c3"
+  integrity sha512-P6QX+sRI6Y9fwNJHRQfqMuOrIYDBBD7YYJflkJe3KZzzez/s5SL+hMTP3GCZcuP3Ai+pmobtWGJsDwCUVmOVRg==
+
 "@d1plo1d/qrcode-terminal@^0.12.0":
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/@d1plo1d/qrcode-terminal/-/qrcode-terminal-0.12.0.tgz#e2632a0e2240c434d4f84f507cae4c569f11d497"
@@ -5725,14 +5730,14 @@ graphql-extensions@0.4.1:
   dependencies:
     "@apollographql/apollo-tools" "^0.2.6"
 
-graphql-live-subscriptions@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/graphql-live-subscriptions/-/graphql-live-subscriptions-1.3.0.tgz#02cdc694e56eae8b211a2b5eef5949c75d7e0e30"
-  integrity sha512-ALPO4j5iXRYr8UiCZ8Du+TwYH1Ku5dJWPAXzJXLUQ1skzNetj6ikNYfDFrozkZDPdf8s9j5+AsDKLAG44vONGA==
+graphql-live-subscriptions@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/graphql-live-subscriptions/-/graphql-live-subscriptions-1.4.0.tgz#eb3fa18e13c9ca8537daefcd63d79cfbc8c2feee"
+  integrity sha512-KHm0blCJYiHVowxcPw1bFrzwOdpL22SmQ5f48S+mEkdIrDA1rSsLiSDfkv/tTfB+KMUXnaJSzhbgHR8K25zDIg==
   dependencies:
+    "@d1plo1d/list-diff2" "^0.1.5-0"
     fast-json-patch "^2.0.6"
     fast-memoize "^2.3.2"
-    list-diff2 livoras/list-diff#master
 
 graphql-subscriptions@^1.0.0:
   version "1.0.0"
@@ -7662,10 +7667,6 @@ liftoff@^2.5.0:
     object.map "^1.0.0"
     rechoir "^0.6.2"
     resolve "^1.1.7"
-
-list-diff2@livoras/list-diff#master:
-  version "0.1.4"
-  resolved "https://codeload.github.com/livoras/list-diff/tar.gz/7a35a1607e9f7baf3ab8c43bb68d424c6c0a7ca8"
 
 load-json-file@^1.0.0:
   version "1.1.0"

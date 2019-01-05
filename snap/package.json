@@ -16,7 +16,7 @@
   "private": true,
   "dependencies": {
     "wrtc": "^0.3.3",
-    "@tegh/host-posix": "^0.5.3"
+    "@tegh/host-posix": "^0.5.5"
   },
   "resolutions": {
     "wrtc": "^0.3.3"
