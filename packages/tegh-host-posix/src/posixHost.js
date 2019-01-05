@@ -34,7 +34,7 @@ const loadConfigForm = (configPath) => {
   if (!fs.existsSync(configPath)) {
     // const devPath = path.join(__dirname, '../../../development.config')
     // eslint-disable-next-line global-require, import/no-dynamic-require
-    const devConfig = require('../../../development.config')
+    const devConfig = require('../development.config')
     mkdirp(path.dirname(configPath))
     fs.writeFileSync(configPath, JSON.stringify(devConfig, null, 2))
   }

@@ -12,7 +12,8 @@
     "graphql"
   ],
   "files": [
-    "dist/*"
+    "dist/*",
+    "development.config.js"
   ],
   "author": "Rob Gilson",
   "license": "AGPL-3.0-or-later",
