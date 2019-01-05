@@ -1,6 +1,6 @@
 {
   "name": "@tegh/signalling-server",
-  "version": "0.5.0",
+  "version": "0.5.2",
   "main": "src/index.js",
   "files": [
     "dist/*"
