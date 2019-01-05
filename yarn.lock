@@ -858,10 +858,10 @@
   resolved "https://registry.yarnpkg.com/@d1plo1d/graphql-scalars/-/graphql-scalars-0.4.3-0.tgz#cbeec9423c1110fcb8edeffbcd61d4346f32e4ae"
   integrity sha512-8OaeYEq9sXvqSplWhCDp/9eEUki788xaVhE9x04X5MVG7KkWdTWKsSrjovKuIQJJMA3d2Je1d5OcnADqR3A9FQ==
 
-"@d1plo1d/redux-loop-immutable@1.0.1-0":
-  version "1.0.1-0"
-  resolved "https://registry.yarnpkg.com/@d1plo1d/redux-loop-immutable/-/redux-loop-immutable-1.0.1-0.tgz#2ab45e5d34a826a4358913f17541a2f91d755fca"
-  integrity sha512-RBtQwWUEDyK5zzpFiM2bp5JZv4mTcJSzDV+CycuAnPoRYRKaxvMF2kNO/hq4g4PL7V7o5AQVnrrtPPFD0zz39w==
+"@d1plo1d/redux-loop-immutable@1.0.1-1":
+  version "1.0.1-1"
+  resolved "https://registry.yarnpkg.com/@d1plo1d/redux-loop-immutable/-/redux-loop-immutable-1.0.1-1.tgz#4f8ca42da35b1007c4208b3add84400b1cd6bacc"
+  integrity sha512-/OQwq0W6gpi6SuTe71gQGIgdx6lfXYmxJJsOlefd1bmK2J2HRFlTD5Yj47mAspZvPg9ykzfWa5Emij2I/PZyWg==
 
 "@gulp-sourcemaps/identity-map@1.X":
   version "1.0.2"
@@ -5720,10 +5720,10 @@ graphql-extensions@0.4.1:
   dependencies:
     "@apollographql/apollo-tools" "^0.2.6"
 
-graphql-live-subscriptions@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/graphql-live-subscriptions/-/graphql-live-subscriptions-1.1.0.tgz#af0ae9c0a622b002d3f02155afb84275bc5f106e"
-  integrity sha512-kJGjribnJm6T8zn3fVT0MHjbTp+Avu0STHQMYg/QBNftMqJyxdOz0fDPnvYGFx3rHvMLpgtLK8ONfZfPM3rBmw==
+graphql-live-subscriptions@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/graphql-live-subscriptions/-/graphql-live-subscriptions-1.3.0.tgz#02cdc694e56eae8b211a2b5eef5949c75d7e0e30"
+  integrity sha512-ALPO4j5iXRYr8UiCZ8Du+TwYH1Ku5dJWPAXzJXLUQ1skzNetj6ikNYfDFrozkZDPdf8s9j5+AsDKLAG44vONGA==
   dependencies:
     fast-json-patch "^2.0.6"
     fast-memoize "^2.3.2"

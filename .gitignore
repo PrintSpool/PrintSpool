@@ -16,7 +16,8 @@ bin/packages
 tmp
 .vagrant
 .next
-package-lock.json
+/package-lock.json
+packages/*/package-lock.json
 packages/tegh-web-ui/out
 
 *.snap

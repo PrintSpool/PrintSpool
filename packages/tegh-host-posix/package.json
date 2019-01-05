@@ -24,7 +24,7 @@
   "dependencies": {
     "@babel/core": "^7.0.0-0",
     "@babel/register": "^7.0.0",
-    "@d1plo1d/redux-loop-immutable": "1.0.1-0",
+    "@d1plo1d/redux-loop-immutable": "1.0.1-1",
     "@tegh/core": "^0.5.1",
     "@tegh/driver-serial-gcode": "^0.5.1",
     "@tegh/macros-default": "^0.5.1",
@@ -36,6 +36,7 @@
     "babel-preset-flow": "^6.23.0",
     "bluebird": "^3.5.3",
     "dedent": "^0.7.0",
+    "domexception": "^1.0.1",
     "ejs": "^2.5.7",
     "fast-memoize": "^2.5.1",
     "graphql": "^14.0.2",
@@ -78,6 +79,6 @@
     "node-dev": "github:d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350"
   },
   "resolutions": {
-    "subscriptions-transport-ws/iterall": "d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b"
+    "subscriptions-transport-ws/iterall": "^1.2.2"
   }
 }
