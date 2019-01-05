@@ -8,7 +8,7 @@
     "clean": "gulp clean",
     "build-dev": "gulp build-dev",
     "build": "npx webpack --config webpack.config.babel.js --mode=development",
-    "build-snap": "cd ./snap && npm install && snapcraft clean && snapcraft --debug",
+    "build-snap": "cd ./snap && npm install && snapcraft cleanbuild",
     "install-snap": "sudo snap install --devmode $(find ./snap/ -name \"*.snap\")",
     "watch": "gulp watch",
     "webpack-dev-server": "gulp webpack-dev-server",

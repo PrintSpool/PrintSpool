@@ -21,7 +21,12 @@ packages/*/package-lock.json
 packages/tegh-web-ui/out
 
 *.snap
-snap/source
+snap/parts/
+snap/prime/
+snap/snap/
+snap/stage/
+snap/snap/
+snap/*.tar.bz2
 
 coverage
 

@@ -1,8 +1,8 @@
 {
-  "name": "@tegh/host-snap",
-  "version": "0.5.0",
+  "name": "tegh",
+  "version": "0.5.7",
   "description": "graphql server for 3D printers",
-  "main": "dist/index.js",
+  "bin": "bin/tegh",
   "repository": {
     "type": "git",
     "url": "https://github.com/tegh/tegh-host-posix.git"
@@ -15,10 +15,13 @@
   "license": "AGPL-3.0-or-later",
   "private": true,
   "dependencies": {
+    "@tegh/host-posix": "^0.5.7",
     "wrtc": "^0.3.3",
-    "@tegh/host-posix": "^0.5.5"
+    "domexception": "^1.0.1",
+    "serialport": "^6.2.0"
   },
   "resolutions": {
-    "wrtc": "^0.3.3"
+    "wrtc": "^0.3.3",
+    "serialport": "^6.2.0"
   }
 }

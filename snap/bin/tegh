@@ -1,2 +1,3 @@
 #!/usr/bin/env node
-require('@tegh/host-posix')
+// require('@tegh/host-posix')
+console.log('hello world')

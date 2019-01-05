@@ -6,7 +6,7 @@ description: >
 
 confinement: devmode
 grade: devel
-base: core18
+# base: core18
 
 architectures:
   - build-on: amd64
@@ -14,23 +14,25 @@ architectures:
   - build-on: armhf
     run-on: armhf
 
+# see https://docs.snapcraft.io/node-apps/6747
 parts:
   # python-dependency:
   #   plugin: python
   #   python-version: python2
   #   source: .
-  tegh-host:
+  tegh:
     plugin: nodejs
     source: .
-    nodejs-package-manager: npm
-    nodejs-version: '11.6.0'
+    node-engine: '11.6.0'
+    # nodejs-package-manager: npm
+    # nodejs-version: '11.6.0'
     # nodejs-yarn-version: 'v1.12.3'
     build-packages:
       # - python2
-      # - python2.7
-      # - python-pip
-      - build-essential
-      - git
+      - python2.7
+      - python-pip
+      # - build-essential
+    #   - git
     # "@babel/core": "^7.0.0-0",
     # "domexception": "^1.0.1",
     # "graphql": "^14.0.2",
@@ -38,16 +40,13 @@ parts:
     # "immutable": "^4.0.0-rc.12",
     # "list-diff2": "^0.1.4"
 
-    # "node-webcrypto-ossl": "^1.0.38",
-
     # node-packages:
     #   - '@trust/webcrypto'
-    #   - 'node-webcrypto-ossl'
     #   - 'wrtc'
     #   - 'ws'
     #   - 'serialport'
 apps:
-  tegh-host:
-    command: tegh
+  tegh:
+    command: bin/tegh
     # daemon: simple
     # restart-condition : always
