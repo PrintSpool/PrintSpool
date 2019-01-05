@@ -2,7 +2,7 @@
 import crypto from '@trust/webcrypto'
 import wrtc from 'wrtc'
 import fs from 'fs'
-import * as qrcode from 'qrcode-terminal'
+import * as qrcode from '@d1plo1d/qrcode-terminal'
 import { btoa } from 'abab'
 import { SubscriptionServer } from 'subscriptions-transport-ws'
 import { execute, subscribe } from 'graphql'

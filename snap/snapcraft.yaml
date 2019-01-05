@@ -15,10 +15,10 @@ architectures:
     run-on: armhf
 
 parts:
-  python-dependency:
-    plugin: python
-    python-version: python2
-    source: .
+  # python-dependency:
+  #   plugin: python
+  #   python-version: python2
+  #   source: .
   tegh-host:
     plugin: nodejs
     source: .
@@ -26,7 +26,10 @@ parts:
     nodejs-version: '11.6.0'
     # nodejs-yarn-version: 'v1.12.3'
     build-packages:
-      - build-essential
+      - python2
+      # - python2.7
+      # - python-pip
+      # - build-essential
       - git
     # "@babel/core": "^7.0.0-0",
     # "domexception": "^1.0.1",
