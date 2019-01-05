@@ -1,6 +1,6 @@
 {
   "name": "@tegh/host-posix",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "description": "graphql server for 3D printers",
   "main": "dist/index.js",
   "repository": {
@@ -53,7 +53,6 @@
     "koa-cors": "^0.0.16",
     "koa-router": "^7.2.1",
     "mkdirp": "^0.5.1",
-    "node-webcrypto-ossl": "^1.0.38",
     "raven": "^2.3.0",
     "raven-for-redux": "^1.2.0",
     "redux": "^4.0.1",
