@@ -22,8 +22,9 @@ parts:
   tegh-host:
     plugin: nodejs
     source: .
+    nodejs-package-manager: npm
     nodejs-version: '11.6.0'
-    nodejs-yarn-version: 'v1.12.3'
+    # nodejs-yarn-version: 'v1.12.3'
     build-packages:
       - build-essential
       - git
