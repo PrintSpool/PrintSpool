@@ -1,6 +1,6 @@
 {
   "name": "@tegh/host-posix",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "description": "graphql server for 3D printers",
   "main": "dist/index.js",
   "repository": {
@@ -25,6 +25,7 @@
   "dependencies": {
     "@babel/core": "^7.0.0-0",
     "@babel/register": "^7.0.0",
+    "@d1plo1d/qrcode-terminal": "^0.12.0",
     "@d1plo1d/redux-loop-immutable": "1.0.1-1",
     "@tegh/core": "^0.5.3",
     "@tegh/driver-serial-gcode": "^0.5.3",
@@ -53,7 +54,6 @@
     "koa-router": "^7.2.1",
     "mkdirp": "^0.5.1",
     "node-webcrypto-ossl": "^1.0.38",
-    "@d1plo1d/qrcode-terminal": "^0.12.0",
     "raven": "^2.3.0",
     "raven-for-redux": "^1.2.0",
     "redux": "^4.0.1",
