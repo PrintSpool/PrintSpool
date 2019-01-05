@@ -1,12 +1,12 @@
 {
   "name": "@tegh/signalling-server",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "main": "src/index.js",
   "files": [
     "dist/*"
   ],
   "license": "AGPL-3.0-or-later",
-  "private": true,
+  "private": false,
   "scripts": {
     "start": "node ./dist/index.js"
   },
