@@ -4,7 +4,6 @@ import EventEmitter from 'eventemitter3'
 import eventTrigger from '../eventTrigger'
 import { chunkifier, dechunkifier } from './chunk'
 import sendSDP from './sendSDP'
-import receiveSDP from './receiveSDP'
 
 const setPeerSDP = ({ rtcPeer, peerSDP }) => {
   if (typeof peerSDP !== 'string') {
@@ -88,6 +87,7 @@ const upgradeToWebRTCSocket = async ({
       sendInChunks(data)
     },
     close: () => rtcPeer.destroy(),
+    // events: data, error
     on: (eventName, callback) => {
       if (eventName === 'data') {
         dataReceiver.on(eventName, callback)
