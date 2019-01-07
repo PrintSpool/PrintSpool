@@ -9,6 +9,19 @@ import {
   MESSAGE_PROTOCOL_VERSION,
 } from '../handshake/constants'
 
+/*
+ * Connections are Promises that return event emitters
+ *
+ * Events: 'data', 'error', 'close'
+ */
+
+const InitiatorHandshake = async ({
+  datPeers,
+  identityKeys,
+  peerDatID,
+  peerIdentityPublicKey,
+}) => {
+
 const Network = ({
   onHandshakeReq,
 }) => {

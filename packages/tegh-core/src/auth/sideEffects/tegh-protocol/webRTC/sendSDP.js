@@ -1,23 +1,21 @@
 import { encrypt } from '../p2pCrypto/encryption'
 
 const sendSDP = async ({
+  currentConnection,
   sdp,
-  sessionID,
-  sessionKey,
-  datPeer,
   protocol,
 }) => {
   console.log('sending SDP...')
-  const data = {
+  // const encryptedMessage = await encrypt(data, { sessionKey })
+
+  // await currentConnection.send({
+  //   sessionID,
+  //   data: encryptedMessage,
+  // })
+  await currentConnection.send({
     connection: 'upgrade',
     upgrade: `webrtc-chunk-${protocol}`,
     sdp,
-  }
-  const encryptedMessage = await encrypt(data, { sessionKey })
-
-  await datPeer.send({
-    sessionID,
-    data: encryptedMessage,
   })
 }
 
