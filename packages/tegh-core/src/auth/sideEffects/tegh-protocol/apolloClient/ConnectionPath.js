@@ -41,11 +41,14 @@ const ConnectionPath = ({
   }
 
   const connectionPath = [
+    // connect to Dat Peer or tunnel through a WebSocket to the peer
     initialConnection,
+    // Establish a secure connection
     InitiatorHandshake({
       identityKeys,
       peerIdentityPublicKey,
     }),
+    // Exchange SDPs over the secure connection and switch to WebRTC
     UpgradeToWebRTC(),
   ]
   return connectionPath
