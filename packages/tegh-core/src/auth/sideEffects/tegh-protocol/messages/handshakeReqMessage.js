@@ -1,19 +1,16 @@
-import { createECDHKey } from '../p2pCrypto/keys'
-import randomBytes from '../p2pCrypto/randomBytes'
 import { ENCRYPTION_ALGORITHM } from '../p2pCrypto/encryption'
 
 import {
   HANDSHAKE_REQ,
   MESSAGE_PROTOCOL_VERSION,
   HANDSHAKE_ALGORITHM,
-} from './constants'
+} from '../constants'
 
-const createHandshakeRequest = async ({
+const handshakeReqMessage = ({
   identityKeys,
+  ephemeralKeys,
+  sessionID,
 }) => {
-  const ephemeralKeys = await createECDHKey()
-  const sessionID = await randomBytes(32)
-
   const request = {
     type: HANDSHAKE_REQ,
     protocolVersion: MESSAGE_PROTOCOL_VERSION,
@@ -30,4 +27,4 @@ const createHandshakeRequest = async ({
   }
 }
 
-export default createHandshakeRequest
+export default handshakeReqMessage

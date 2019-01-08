@@ -4,24 +4,19 @@
 import { ApolloClient } from 'apollo-client'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 
-import { TeghLink, InitiatorHandshake } from 'tegh-protocol'
+import { TeghLink, ConnectionPath } from 'tegh-protocol'
 
 const {
-  datPeers,
   identityKeys,
   peerDatID,
   peerIdentityPublicKey,
 } = YOUR_VALUES_HERE
 
-const handshake = InitiatorHandshake({
-  datPeers,
-  identityKeys,
-  peerDatID,
-  peerIdentityPublicKey,
-})
-
 const client = new ApolloClient({
-  link: TeghLink({ handshake }),
+  link: TeghLink(ConnectionPath({
+    identityKeys,
+    peerIdentityPublicKey,
+  })),
   cache: new InMemoryCache(),
 })
 ```

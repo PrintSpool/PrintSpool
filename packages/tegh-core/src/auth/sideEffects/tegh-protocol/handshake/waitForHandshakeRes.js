@@ -2,25 +2,20 @@ import eventTrigger from '../eventTrigger'
 import parseHandshakeRes from './parseHandshakeRes'
 
 const waitForHandshakeRes = async ({
-  datPeers,
-  datPeer,
+  currentConnection,
   peerIdentityPublicKey,
-  sessionID,
   identityKeys,
   ephemeralKeys,
 }) => {
   const {
     response,
     sessionKey,
-  } = await eventTrigger(datPeers, 'message', {
+  } = await eventTrigger(currentConnection, 'data', {
     map: (peer, message) => {
-      if (
-        peer.id !== datPeer.id
-        || message.identityPublicKey !== peerIdentityPublicKey
-        || message.sessionID !== sessionID
-      ) {
+      if (message.identityPublicKey !== peerIdentityPublicKey) {
         return null
       }
+
       try {
         return parseHandshakeRes({
           response,

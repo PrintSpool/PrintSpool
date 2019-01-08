@@ -1,9 +1,9 @@
 import Peer from 'simple-peer'
 import EventEmitter from 'eventemitter3'
 
-import eventTrigger from '../eventTrigger'
+import eventTrigger from '../../eventTrigger'
 import { chunkifier, dechunkifier } from './chunk'
-import sendSDP from './sendSDP'
+import webRTCUpgradeMessage from '../../messages/webRTCUpgradeMessage'
 
 const setPeerSDP = ({ rtcPeer, peerSDP }) => {
   if (typeof peerSDP !== 'string') {
@@ -13,19 +13,13 @@ const setPeerSDP = ({ rtcPeer, peerSDP }) => {
 }
 
 /*
- * creates a webRTC connection to a peer and returns:
- * {
- *   socketImpl:
- *      a constructor that can act as a drop-in replacement for a websocket
- *      implementation.
- *   rtcPeer:
- *      the simple-peer Peer object for the connection
- * }
+ * upgrades the current connection to a webRTC connection
  */
-const upgradeToWebRTCSocket = async ({
-  currentConnection,
+const UpgradeToWebRTC = ({
   peerSDP,
   wrtc,
+} = {}) => async ({
+  currentConnection,
   protocol,
 }) => {
   const { initiator } = currentConnection
@@ -62,11 +56,7 @@ const upgradeToWebRTCSocket = async ({
    */
   const sdp = await eventTrigger(rtcPeer, 'signal')
 
-  await sendSDP({
-    currentConnection,
-    protocol,
-    sdp,
-  })
+  await currentConnection.send(webRTCUpgradeMessage({ protocol, sdp }))
 
   if (initiator) {
     // wait until a SDP is sent back
@@ -83,6 +73,7 @@ const upgradeToWebRTCSocket = async ({
   await eventTrigger(rtcPeer, 'connect')
 
   const nextConnection = {
+    sessionID: currentConnection.sessionID,
     send: async (data) => {
       sendInChunks(data)
     },
@@ -100,4 +91,4 @@ const upgradeToWebRTCSocket = async ({
   return nextConnection
 }
 
-export default upgradeToWebRTCSocket
+export default UpgradeToWebRTC

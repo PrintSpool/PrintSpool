@@ -1,33 +1,33 @@
-import sendHandshakeReq from './sendHandshakeReq'
+import { createECDHKey } from '../p2pCrypto/keys'
+import handshakeReqMessage from '../messages/handshakeReqMessage'
+
 import waitForHandshakeRes from './waitForHandshakeRes'
 
-const InitiatorHandshake = async ({
-  datPeers,
+const InitiatorHandshake = ({
   identityKeys,
-  peerDatID,
   peerIdentityPublicKey,
+}) => async ({
+  currentConnection,
 }) => {
-  const datPeer = await datPeers.get(peerDatID)
+  const { sessionID } = currentConnection
+  const ephemeralKeys = await createECDHKey()
 
-  const {
+  await currentConnection.send(handshakeReqMessage({
+    identityKeys,
     ephemeralKeys,
-    request,
-  } = await sendHandshakeReq({ identityKeys, datPeer })
-
-  const { sessionID } = request
+    sessionID,
+  }))
 
   const { sessionKey } = await waitForHandshakeRes({
-    datPeers,
-    datPeer,
+    currentConnection,
     peerIdentityPublicKey,
-    sessionID,
     identityKeys,
     ephemeralKeys,
   })
 
   return {
     initiator: true,
-    datPeer,
+    currentConnection,
     sessionID,
     sessionKey,
   }

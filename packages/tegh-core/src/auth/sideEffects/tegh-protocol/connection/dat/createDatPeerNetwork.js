@@ -1,19 +1,14 @@
-import { createNode } from '@beaker/dat-node'
-
 import {
-  DAT_PEERS_URL,
   HANDSHAKE_REQ,
-  HANDSHAKE_RES,
-  DATA,
-  MESSAGE_TYPES,
   MESSAGE_PROTOCOL_VERSION,
-} from '../handshake/constants'
+} from '../../handshake/constants'
 
 const createDatPeerNetwork = ({
   peers,
   onHandshakeReq,
 }) => {
   // // instantiate a new dat node
+  // import { createNode } from '@beaker/dat-node'
   // const dat = createNode(datOptions)
   // const peers = dat.getPeers(DAT_PEERS_URL)
   const network = {
@@ -40,31 +35,21 @@ const createDatPeerNetwork = ({
       return
     }
 
-    switch (message.type) {
-      case HANDSHAKE_REQ: {
-        if (onHandshakeReq != null) {
-          onHandshakeReq({ peer, message })
-        }
-        break
+    if (message.type === HANDSHAKE_REQ) {
+      if (onHandshakeReq != null) {
+        onHandshakeReq({ peer, message })
       }
-      case HANDSHAKE_RES:
-      case DATA: {
-        const key = network.keyFor({
-          peerID: peer.id,
-          sessionID: message.sessionID,
-        })
-        const listener = network.responseListeners[key]
+      return
+    }
 
-        if (listener != null) {
-          listener({ peer, message })
-        }
+    const key = network.keyFor({
+      peerID: peer.id,
+      sessionID: message.sessionID,
+    })
+    const listener = network.responseListeners[key]
 
-        break
-      }
-      default: {
-        // invalid message type
-        break
-      }
+    if (listener != null) {
+      listener({ peer, message })
     }
   })
 

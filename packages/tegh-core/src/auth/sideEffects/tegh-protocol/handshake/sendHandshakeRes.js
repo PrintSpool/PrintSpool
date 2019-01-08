@@ -1,7 +1,7 @@
 import parseHandshakeReq from './parseHandshakeReq'
 
 const sendHandshakeRes = async ({
-  datPeer,
+  currentConnection,
   identityKeys,
   request,
 }) => {
@@ -10,7 +10,7 @@ const sendHandshakeRes = async ({
     identityKeys,
   })
 
-  await datPeer.send(response)
+  await currentConnection.send(response)
 
   return {
     response,

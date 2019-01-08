@@ -1,23 +1,12 @@
 import EventEmitter from 'eventemitter3'
 import createDatPeerNetwork from './createDatPeerNetwork'
 
-import {
-  DAT_PEERS_URL,
-  HANDSHAKE_REQ,
-  HANDSHAKE_RES,
-  DATA,
-  MESSAGE_TYPES,
-  MESSAGE_PROTOCOL_VERSION,
-} from '../handshake/constants'
-
-const createDatConnection = async ({
+const DatConnection = ({
   peer,
   peers,
-  sessionID,
-  initiator,
-  identityKeys,
-  peerIdentityPublicKey,
   ...params
+} = {}) => async ({
+  sessionID,
 }) => {
   let { network } = params
 
@@ -30,13 +19,19 @@ const createDatConnection = async ({
   // events: data, error
   const nextConnection = EventEmitter()
   Object.assign(nextConnection, {
+    sessionID,
     send: data => peer.send(data),
     close: () => {
       network.removeListener(key)
+      nextConnection.emit('close')
     },
   })
 
-  network.listenFor(key, data => nextConnection.emit('data', data))
+  network.listenFor(key, (data) => {
+    nextConnection.emit('data', data)
+  })
 
   return nextConnection
 }
+
+export default DatConnection
