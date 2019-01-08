@@ -52,6 +52,10 @@ const parseHandshakeReq = async ({
     peerEphemeralPublicKey: peerEpPK,
   })
 
+  /*
+   * TODO: send an encrypted value back to prove that we own the
+   * correct ephemeral key
+   */
   const response = {
     type: HANDSHAKE_RES,
     protocolVersion: MESSAGE_PROTOCOL_VERSION,

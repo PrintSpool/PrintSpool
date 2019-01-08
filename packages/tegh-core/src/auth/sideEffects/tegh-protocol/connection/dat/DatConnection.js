@@ -1,4 +1,4 @@
-import EventEmitter from 'eventemitter3'
+import Connection from '../Connection'
 import createDatPeerNetwork from './createDatPeerNetwork'
 
 const DatConnection = ({
@@ -17,8 +17,7 @@ const DatConnection = ({
   const key = { peerID: peer.id, sessionID }
 
   // events: data, error
-  const nextConnection = EventEmitter()
-  Object.assign(nextConnection, {
+  const nextConnection = Connection({
     sessionID,
     send: data => peer.send(data),
     close: () => {

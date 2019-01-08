@@ -1,9 +1,10 @@
 import EventEmitter from 'eventemitter3'
 
 export const SOCKET_STATES = {
-  CONNECTING: 'CONNECTING',
-  OPEN: 'OPEN',
-  CLOSED: 'CLOSED',
+  CONNECTING: 0,
+  OPEN: 1,
+  CLOSING: 2,
+  CLOSED: 3,
 }
 
 const wrapInSocketAPI = (createConnection) => {

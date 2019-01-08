@@ -1,22 +1,19 @@
 import EventEmitter from 'eventemitter3'
 
-// export const connect = async (connections, {
-//   it
-// }) => {
-//   // execute the connection upgrades in sequence
-//   await connections.reduce((conA, conB) => conA.then(conB))
-// }
-
 /*
  * Events: 'data', 'error', 'close'
  */
 const Connection = ({
-  initiator,
+  sessionID,
+  send,
+  close,
 }) => {
-  const connection = new EventEmitter()
+  const connection = EventEmitter()
 
   Object.assign(connection, {
-    initiator,
+    sessionID,
+    send,
+    close,
   })
 
   return connection

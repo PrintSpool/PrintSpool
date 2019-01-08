@@ -1,4 +1,6 @@
-import EventEmitter from 'eventemitter3'
+import Connection from '../Connection'
+
+const OPEN = 1
 
 /*
  * creates a connection to a peer through a websocket
@@ -10,8 +12,7 @@ const WebsocketConnection = ({
 } = {}) => async ({
   sessionID,
 }) => {
-  const nextConnection = EventEmitter()
-  Object.assign(nextConnection, {
+  const nextConnection = Connection({
     sessionID,
     send: async (data) => {
       websocket.send(data)
@@ -34,6 +35,18 @@ const WebsocketConnection = ({
   // eslint-disable-next-line no-param-reassign
   websocket.onclose = () => {
     nextConnection.emit('close')
+  }
+
+  if (websocket.readyState !== OPEN) {
+    // wait for the websocket to open
+    await new Promise((resolve, reject) => {
+      nextConnection.on('error', reject)
+      // eslint-disable-next-line no-param-reassign
+      websocket.onopen = () => {
+        nextConnection.removeListener('error', reject)
+        resolve()
+      }
+    })
   }
 
   return nextConnection
