@@ -41,7 +41,7 @@ const wrapInSocketAPI = (createConnection) => {
   }
 
   const onConnection = (nextConnection) => {
-    if (socket.readyState === SOCKET_STATES.CLOSED) {
+    if (socket.readyState !== SOCKET_STATES.CONNECTING) {
       nextConnection.close()
       return
     }
@@ -79,7 +79,11 @@ const wrapInSocketAPI = (createConnection) => {
   const socketImpl = (url, protocol) => {
     (async () => {
       try {
-        const nextConnection = await createConnection({ url, protocol })
+        const nextConnection = await createConnection({
+          url,
+          protocol,
+          socket,
+        })
         onConnection(nextConnection)
       } catch (e) {
         onError(e)
