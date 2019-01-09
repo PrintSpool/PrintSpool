@@ -7,12 +7,11 @@ import handshakeReqMessage from '../../../messages/handshakeReqMessage'
 import { validateHandshakeRes } from '../../../messages/handshakeResMessage'
 
 const initiatorHandshake = async ({
+  sessionID,
   currentConnection,
   identityKeys,
   peerIdentityPublicKey,
 }) => {
-  const { sessionID } = currentConnection
-
   const ephemeralKeys = await createECDHKey()
 
   /*

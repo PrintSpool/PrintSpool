@@ -96,11 +96,12 @@ const wrapInSocketAPI = (params) => {
   const socketImpl = (url, protocol) => {
     (async () => {
       try {
-        // TODO: attach the session ID to the connection
         const {
           sessionID = await randomBytes(32),
           connectionPath = ConnectionPath(params),
         } = params
+
+        socket.sessionID = sessionID
 
         const nextConnection = await connect({
           connectionPath,

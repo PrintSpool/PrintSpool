@@ -12,15 +12,15 @@ const EncryptedConnection = ({
   // the connection request message if initiator = false
   request,
 }) => async ({
+  sessionID,
   currentConnection,
 }) => {
-  const { sessionID } = currentConnection
-
   const handshake = initiator ? initiatorHandshake : receiverHandshake
 
   const {
     sessionKey,
   } = await handshake({
+    sessionID,
     currentConnection,
     identityKeys,
     peerIdentityPublicKey,

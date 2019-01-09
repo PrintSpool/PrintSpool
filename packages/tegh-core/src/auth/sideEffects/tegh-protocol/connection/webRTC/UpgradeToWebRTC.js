@@ -71,7 +71,6 @@ const UpgradeToWebRTC = ({
   })
 
   const nextConnection = Connection({
-    sessionID: currentConnection.sessionID,
     send: async (data) => {
       sendInChunks(data)
     },

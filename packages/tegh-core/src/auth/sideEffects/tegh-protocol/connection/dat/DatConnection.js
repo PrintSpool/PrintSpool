@@ -18,7 +18,6 @@ const DatConnection = ({
 
   // events: data, error
   const nextConnection = Connection({
-    sessionID,
     send: data => peer.send(data),
     close: () => {
       network.removeListener(key)

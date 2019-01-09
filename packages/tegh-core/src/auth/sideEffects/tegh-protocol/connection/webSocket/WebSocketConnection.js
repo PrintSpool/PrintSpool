@@ -13,7 +13,6 @@ const WebsocketConnection = ({
   sessionID,
 }) => {
   const nextConnection = Connection({
-    sessionID,
     send: async (data) => {
       websocket.send(data)
     },
