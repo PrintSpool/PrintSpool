@@ -1,10 +1,10 @@
-import { createECDHKey, createSessionKey } from '../p2pCrypto/keys'
+import { createECDHKey, createSessionKey } from '../../../p2pCrypto/keys'
 
-import eventTrigger from '../eventTrigger'
+import eventTrigger from '../../../eventTrigger'
 
 
-import handshakeReqMessage from '../messages/handshakeReqMessage'
-import { validateHandshakeRes } from '../messages/handshakeResMessage'
+import handshakeReqMessage from '../../../messages/handshakeReqMessage'
+import { validateHandshakeRes } from '../../../messages/handshakeResMessage'
 
 const initiatorHandshake = async ({
   currentConnection,
@@ -15,11 +15,16 @@ const initiatorHandshake = async ({
 
   const ephemeralKeys = await createECDHKey()
 
-  await currentConnection.send(handshakeReqMessage({
+  /*
+   * send a handshake request
+   */
+  const request = handshakeReqMessage({
     identityKeys,
     ephemeralKeys,
     sessionID,
-  }))
+  })
+
+  await currentConnection.send(request)
 
   /*
    * wait for a vaild handshake response

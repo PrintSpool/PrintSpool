@@ -29,19 +29,6 @@ const WebRTCLink = async (params) => {
         sessionID,
       })
     }, null)
-    // create the handshake connection
-    connection = await handshake({
-
-      sessionID,
-    })
-    // upgrade to a webrtc connection
-    if (upgradeToWebRTC) {
-      connection = await upgradeToWebRTCConnection({
-        currentConnection: connection,
-        wrtc,
-        protocol,
-      })
-    }
 
     return connection
   })
