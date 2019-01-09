@@ -3,7 +3,7 @@ import { SOCKET_STATES } from '../apolloClient/wrapInSocketAPI'
 const connect = ({
   connectionPath,
   sessionID,
-  socket,
+  shouldAbortConnection,
 }) => {
   const connectionReducer = (currentConnectionPromise, nextConnectionFn) => (
     currentConnectionPromise.then(async (currentConnection) => {
@@ -12,7 +12,7 @@ const connect = ({
         sessionID,
       })
 
-      if (socket.status !== SOCKET_STATES.CONNECTING) {
+      if (shouldAbortConnection()) {
         nextConnection.close()
         // if the socket has been closed then stop the connection process
         return null

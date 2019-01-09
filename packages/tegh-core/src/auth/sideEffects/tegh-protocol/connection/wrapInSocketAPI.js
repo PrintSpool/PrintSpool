@@ -1,5 +1,9 @@
 import EventEmitter from 'eventemitter3'
 
+import randomBytes from '../p2pCrypto/randomBytes'
+import ConnectionPath from './ConnectionPath'
+import connect from './connect'
+
 export const SOCKET_STATES = {
   CONNECTING: 0,
   OPEN: 1,
@@ -7,7 +11,16 @@ export const SOCKET_STATES = {
   CLOSED: 3,
 }
 
-const wrapInSocketAPI = (createConnection) => {
+/*
+ * params:
+ *  - sessionID
+ *  - connectionPath
+ *
+ * If connectionPath is ommitted then the parameters for a new
+ * ConnectionPath can be sent in the params
+ */
+
+const wrapInSocketAPI = (params) => {
   let connection = null
   const socket = Object.assign(new EventEmitter(), {
     readyState: SOCKET_STATES.CONNECTING,
@@ -40,8 +53,12 @@ const wrapInSocketAPI = (createConnection) => {
     socket.emit('error', error)
   }
 
+  const shouldAbortConnection = () => (
+    socket.readyState !== SOCKET_STATES.CONNECTING
+  )
+
   const onConnection = (nextConnection) => {
-    if (socket.readyState !== SOCKET_STATES.CONNECTING) {
+    if (shouldAbortConnection()) {
       nextConnection.close()
       return
     }
@@ -79,10 +96,17 @@ const wrapInSocketAPI = (createConnection) => {
   const socketImpl = (url, protocol) => {
     (async () => {
       try {
-        const nextConnection = await createConnection({
-          url,
+        // TODO: attach the session ID to the connection
+        const {
+          sessionID = await randomBytes(32),
+          connectionPath = ConnectionPath(params),
+        } = params
+
+        const nextConnection = await connect({
+          connectionPath,
+          sessionID,
           protocol,
-          socket,
+          shouldAbortConnection,
         })
         onConnection(nextConnection)
       } catch (e) {
