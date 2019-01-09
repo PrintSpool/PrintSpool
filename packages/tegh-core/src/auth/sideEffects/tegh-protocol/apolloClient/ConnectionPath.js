@@ -2,7 +2,7 @@ import DatConnection from '../connection/dat/DatConnection'
 import WebSocketConnection from '../connection/webSocket/WebSocketConnection'
 import UpgradeToWebRTC from '../connection/webRTC/UpgradeToWebRTC'
 
-import InitiatorHandshake from '../handshake/InitiatorHandshake'
+import EncryptedConnection from '../connection/encryptedConnection/EncryptedConnection'
 
 const SIGNALLING_WEBSOCKET_URL = 'ws://v0-60-signalling.tegh.io'
 
@@ -21,6 +21,7 @@ const ConnectionPath = ({
   peerIdentityPublicKey,
 }) => {
   let initialConnection
+  const initiator = true
 
   // TODO: getDatIDFromPublicKey
   const peerDatID = peerIdentityPublicKey
@@ -44,12 +45,15 @@ const ConnectionPath = ({
     // connect to Dat Peer or tunnel through a WebSocket to the peer
     initialConnection,
     // Establish a secure connection
-    InitiatorHandshake({
+    EncryptedConnection({
+      initiator,
       identityKeys,
       peerIdentityPublicKey,
     }),
     // Exchange SDPs over the secure connection and switch to WebRTC
-    UpgradeToWebRTC(),
+    UpgradeToWebRTC({
+      initiator,
+    }),
   ]
   return connectionPath
 }

@@ -1,13 +1,13 @@
 import { ENCRYPTION_ALGORITHM } from '../p2pCrypto/encryption'
 
 import {
-  HANDSHAKE_REQ,
+  HANDSHAKE_RES,
   MESSAGE_PROTOCOL_VERSION,
   HANDSHAKE_ALGORITHM,
   PUBLIC_KEY_LENGTH,
 } from '../constants'
 
-export const validateHandshakeReq = (handshakeReq) => {
+export const validateHandshakeRes = (handshakeReq) => {
   const {
     type,
     protocolVersion,
@@ -17,8 +17,8 @@ export const validateHandshakeReq = (handshakeReq) => {
     ephemeralPublicKey: epPK,
   } = handshakeReq
 
-  if (type !== HANDSHAKE_REQ) {
-    throw new Error('type must be HANDSHAKE_REQ')
+  if (type !== HANDSHAKE_RES) {
+    throw new Error('type must be HANDSHAKE_RES')
   }
   if (protocolVersion !== MESSAGE_PROTOCOL_VERSION) {
     throw new Error(`Unsupported protocolVersion: ${protocolVersion}`)
@@ -37,12 +37,16 @@ export const validateHandshakeReq = (handshakeReq) => {
   }
 }
 
-const handshakeReqMessage = ({
+/*
+ * TODO: send an encrypted value back to prove that we own the
+ * correct ephemeral key
+ */
+const handshakeResMessage = ({
   identityKeys,
   ephemeralKeys,
   sessionID,
 }) => ({
-  type: HANDSHAKE_REQ,
+  type: HANDSHAKE_RES,
   protocolVersion: MESSAGE_PROTOCOL_VERSION,
   sessionID,
   handshakeAlgorithm: HANDSHAKE_ALGORITHM,
@@ -51,4 +55,4 @@ const handshakeReqMessage = ({
   ephemeralPublicKey: ephemeralKeys.public,
 })
 
-export default handshakeReqMessage
+export default handshakeResMessage

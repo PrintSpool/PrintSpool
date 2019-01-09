@@ -4,7 +4,7 @@
 import { ApolloClient } from 'apollo-client'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 
-import { TeghLink, ConnectionPath } from 'tegh-protocol'
+import { TeghLink } from 'tegh-protocol'
 
 const {
   identityKeys,
@@ -13,10 +13,10 @@ const {
 } = YOUR_VALUES_HERE
 
 const client = new ApolloClient({
-  link: TeghLink(ConnectionPath({
+  link: TeghLink({
     identityKeys,
     peerIdentityPublicKey,
-  })),
+  }),
   cache: new InMemoryCache(),
 })
 ```

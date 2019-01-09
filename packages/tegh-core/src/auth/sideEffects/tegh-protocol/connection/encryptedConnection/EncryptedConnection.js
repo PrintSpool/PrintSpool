@@ -1,32 +1,30 @@
-import { createECDHKey } from '../p2pCrypto/keys'
-import { encrypt, decrypt } from '../p2pCrypto/encryption'
+import { encrypt, decrypt } from '../../p2pCrypto/encryption'
 
-import Connection from '../connection/Connection'
+import Connection from '../Connection'
 
-import handshakeReqMessage from '../messages/handshakeReqMessage'
+import initiatorHandshake from './handshake/initiatorHandshake'
+import receiverHandshake from './handshake/receiverHandshake'
 
-import waitForHandshakeRes from './waitForHandshakeRes'
-
-const InitiatorHandshake = ({
+const EncryptedConnection = ({
+  initiator,
   identityKeys,
   peerIdentityPublicKey,
+  // the connection request message if initiator = false
+  request,
 }) => async ({
   currentConnection,
 }) => {
   const { sessionID } = currentConnection
-  const ephemeralKeys = await createECDHKey()
 
-  await currentConnection.send(handshakeReqMessage({
-    identityKeys,
-    ephemeralKeys,
-    sessionID,
-  }))
+  const handshake = initiator ? initiatorHandshake : receiverHandshake
 
-  const { sessionKey } = await waitForHandshakeRes({
+  const {
+    sessionKey,
+  } = await handshake({
     currentConnection,
-    peerIdentityPublicKey,
     identityKeys,
-    ephemeralKeys,
+    peerIdentityPublicKey,
+    request,
   })
 
   const nextConnection = Connection({
@@ -58,4 +56,4 @@ const InitiatorHandshake = ({
   return nextConnection
 }
 
-export default InitiatorHandshake
+export default EncryptedConnection
