@@ -6,13 +6,19 @@ const authenticate = ({ store, peerIdentityPublicKey }) => {
   // eslint-disable-next-line no-console
   console.log(`\n\nNew connection from ${peerIdentityPublicKey}`)
 
-  const user = store.getState().config.auth.users.find(u => (
+  const { config } = store.getState()
+
+  const user = config.auth.users.find(u => (
     u.publicKey === peerIdentityPublicKey
   ))
 
-  if (user == null) return false
+  const invite = config.auth.invites.find(u => (
+    u.keys.publicKey === peerIdentityPublicKey
+  ))
 
-  return user
+  if (user == null && invite == null) return false
+
+  return { user, invite }
 }
 
 export default authenticate

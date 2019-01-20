@@ -40,6 +40,7 @@
     "iterall": "d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b",
     "lodash": "^4.17.10",
     "mkdirp": "^0.5.1",
+    "msgpack-lite": "^0.1.26",
     "qrcode-terminal": "^0.12.0",
     "redux": "^3.5.1",
     "redux-immutable": "^4.0.0",
