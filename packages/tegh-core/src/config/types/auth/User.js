@@ -5,7 +5,7 @@ const UserFactory = Record({
   id: null,
   type: 'USER',
   admin: false,
-  datURL: null,
+  publicKey: null,
 })
 
 const User = ({

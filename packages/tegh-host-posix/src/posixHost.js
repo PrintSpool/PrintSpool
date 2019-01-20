@@ -1,7 +1,6 @@
 import Promise from 'bluebird'
 import fs from 'fs'
 import path from 'path'
-import untildify from 'untildify'
 import mkdirp from 'mkdirp'
 import keypair from 'keypair'
 
@@ -9,11 +8,12 @@ import {
   initializeConfig,
   executableSchema,
   createTeghHostStore,
+  authenticate,
 } from 'tegh-core'
 
 // import { wrapInCrashReporting } from './crashReport'
 import httpServer from './server/httpServer'
-// import webRTCServer from './server/webRTCServer'
+import webRTCServer from './server/webRTCServer'
 
 global.Promise = Promise
 
@@ -65,8 +65,10 @@ const teghServer = async (argv, pluginLoader) => {
     context: {
       store,
     },
-    keys: untildify(serverSettings.keys),
-    signallingServer: serverSettings.signallingServer,
+    hostIdentityKeys: config.auth.hostIdentityKeys,
+    authenticate: ({ peerIdentityPublicKey }) => (
+      authenticate({ peerIdentityPublicKey, store })
+    ),
   }
 
   const newKeys = JSON.stringify(keypair())
@@ -77,9 +79,9 @@ const teghServer = async (argv, pluginLoader) => {
     // eslint-disable-next-line no-empty-block
   }
 
-  // if (serverSettings.webRTC) {
-  //   webRTCServer(teghServerConfig)
-  // }
+  if (serverSettings.webRTC) {
+    webRTCServer(teghServerConfig)
+  }
   if (serverSettings.tcpPort) {
     httpServer(teghServerConfig, serverSettings.tcpPort)
   }

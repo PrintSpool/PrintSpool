@@ -6,8 +6,7 @@ import User from './User'
 const AuthConfigFactory = Record({
   invites: List(),
   users: List(),
-  hostDatID: null,
-  hostDatPrivateKey: null,
+  hostIdentityKeys: null,
 })
 
 const AuthConfig = ({
