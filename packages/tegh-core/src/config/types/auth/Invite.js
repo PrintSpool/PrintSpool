@@ -20,7 +20,7 @@ const Invite = ({
   })
 )
 
-export const createInvite = async (attrs) => {
+export const initInviteWithKeys = async (attrs) => {
   // Generate keys
   const keys = await createECDHKey()
   return Invite({

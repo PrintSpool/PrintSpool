@@ -1,11 +1,9 @@
-import Invite from '../../config/types/auth/Invite'
-
 export const CREATE_INVITE = 'tegh/auth/CREATE_INVITE'
 
-const createInvite = inviteParams => ({
+const createInvite = invite => ({
   type: CREATE_INVITE,
   payload: {
-    invite: Invite(inviteParams),
+    invite,
   },
 })
 

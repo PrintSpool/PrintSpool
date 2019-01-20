@@ -2,6 +2,7 @@ import { loop, Cmd } from 'redux-loop'
 import { Map, Record } from 'immutable'
 
 import displayInviteInConsole from '../sideEffects/displayInviteInConsole'
+import { initInviteWithKeys } from '../../config/types/auth/Invite'
 
 import { SET_CONFIG } from '../../config/actions/setConfig'
 
@@ -20,38 +21,40 @@ const authReducer = (state = initialState, action) => {
       const {
         users,
         invites,
-        hostIdentityKeys,
       } = config.auth
 
       const admins = users.filter(user => user.admin)
       const adminInvites = invites.filter(invite => invite.admin)
-      let consoleInvites = invites.filter(invite => invite.displayInConsole)
-
-      let sideEffects = []
 
       /*
        * If no invites exist and no admins exist then create an invite so the
        * initial user can connect
        */
       if (admins.size === 0 && adminInvites.size === 0) {
-        const nextAction = createInvite({
-          displayInConsole: true,
-          admin: true,
-        })
-        consoleInvites = consoleInvites.push(nextAction.payload.invite)
-        sideEffects.push(Cmd.action(nextAction))
+        return loop(state, Cmd.run(initInviteWithKeys, {
+          args: [{
+            displayInConsole: true,
+            admin: true,
+          }],
+          successActionCreator: createInvite,
+        }))
       }
+
 
       /*
        * Display invites in the console
        */
-      sideEffects = sideEffects.concat(consoleInvites.map(invite => (
-        Cmd.run(displayInviteInConsole, {
-          args: [{ hostPublicKey: hostIdentityKeys.getPublic(), invite }],
-        })
-      )))
+      const consoleInvites = invites.filter(invite => invite.displayInConsole)
 
-      return loop(state, Cmd.list(sideEffects))
+      return loop(state, Cmd.list(
+        consoleInvites.map(invite => (
+          Cmd.run(displayInviteInConsole, {
+            args: [{
+              invite,
+            }],
+          })
+        )),
+      ))
     }
     default: {
       return state
