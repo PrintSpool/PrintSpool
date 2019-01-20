@@ -4,8 +4,6 @@ import uuid from 'uuid'
 export const ServerConfigFactory = Record({
   id: null,
   modelVersion: 0,
-  signallingServer: 'ws://localhost:3000',
-  keys: '~/.tegh/keys.json',
   webRTC: true,
   tcpPort: null,
   unixSocket: null,

@@ -32,8 +32,7 @@
       "packages/tegh-macros-default",
       "packages/tegh-protocol",
       "packages/tegh-host-posix",
-      "packages/tegh-schema",
-      "packages/tegh-signalling-server"
+      "packages/tegh-schema"
     ],
     "nohoist": [
       "**/react",

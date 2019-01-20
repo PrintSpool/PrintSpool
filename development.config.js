@@ -193,8 +193,6 @@ const hostConfig = {
   server: {
     id: 'vcxbksdkewj',
     modelVersion: 1,
-    signallingServer: 'ws://localhost:3000',
-    keys: '~/.tegh/dev.development.keys.json',
     webRTC: true,
     tcpPort: 3901,
   },
