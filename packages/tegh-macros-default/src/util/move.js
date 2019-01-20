@@ -1,10 +1,9 @@
-import _ from 'lodash'
 import {
   axisExists,
   getComponents,
   AxisTypeEnum,
   ComponentTypeEnum,
-} from 'tegh-core'
+} from '@tegh/core'
 
 const { MOVEMENT_AXIS, EXTRUDER_AXIS } = AxisTypeEnum
 const { TOOLHEAD } = ComponentTypeEnum
@@ -41,11 +40,12 @@ const move = ({ axes, relativeMovement, allowExtruderAxes }, { config }) => {
 
     gcodeWords.push(`${(isToolhead ? 'e' : address).toUpperCase()}${v}`)
 
-    feedrates.push(component.feedrate)
+    feedrates.push(component.model.get('feedrate'))
   })
+
   return [
     relativeMovement ? 'G91' : 'G90',
-    `G1 F${_.min(feedrates) * 60}`,
+    `G1 F${Math.min.apply(null, feedrates) * 60}`,
     gcodeWords.join(' '),
   ]
 }

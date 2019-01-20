@@ -16,7 +16,17 @@ bin/packages
 tmp
 .vagrant
 .next
+/package-lock.json
+packages/*/package-lock.json
 packages/tegh-web-ui/out
+
+*.snap
+snap/parts/
+snap/prime/
+snap/snap/
+snap/stage/
+snap/snap/
+snap/*.tar.bz2
 
 coverage
 
@@ -29,6 +39,7 @@ ubuntu-xenial-16.04-cloudimg-console.log
 packages/tegh-host-posix/log
 packages/*/build
 packages/*/dist
+
 
 packages/*/android/app/build
 

@@ -1,4 +1,4 @@
-import { GraphQLDate } from 'graphql-scalars'
+import { DateTime } from '@d1plo1d/graphql-scalars'
 import GraphQLJSON from 'graphql-type-json'
 import { Map } from 'immutable'
 
@@ -52,7 +52,7 @@ const coreResolvers = [
 
 const thirdPartyResolvers = {
   JSON: GraphQLJSON,
-  Date: GraphQLDate,
+  DateTime,
 }
 
 const resolvers = {

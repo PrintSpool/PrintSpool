@@ -12,7 +12,7 @@ export connectPrinter, { CONNECT_PRINTER } from './printer/actions/connectPrinte
 export printerDisconnected, { PRINTER_DISCONNECTED } from './printer/actions/printerDisconnected'
 /* jobQueue */
 export createJob, { CREATE_JOB } from './jobQueue/actions/createJob'
-export createLocalFileJob from './jobQueue/actions/createLocalFileJob'
+// export createLocalFileJob from './jobQueue/actions/createLocalFileJob'
 export deleteJob, { DELETE_JOB } from './jobQueue/actions/deleteJob'
 /* spool */
 export requestDespool, { REQUEST_DESPOOL } from './spool/actions/requestDespool'

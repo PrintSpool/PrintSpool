@@ -1,7 +1,7 @@
 // import React from 'react'
 // import { StyleSheet, Text, View } from 'react-native'
 //
-// // import { SerialPort } from 'tegh-core'
+// // import { SerialPort } from '@tegh/core'
 //
 // // import { UsbSerial} from 'react-native-usbserial'
 // //

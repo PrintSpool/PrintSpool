@@ -10,7 +10,7 @@ import {
   connectPrinter,
   printerDisconnected,
   getController,
-} from 'tegh-core'
+} from '@tegh/core'
 
 import rxParser from '../../rxParser'
 import simulator from '../simulator'

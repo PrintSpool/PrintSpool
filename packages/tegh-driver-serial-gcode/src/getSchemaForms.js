@@ -1,4 +1,4 @@
-import { ComponentTypeEnum } from 'tegh-core'
+import { ComponentTypeEnum } from '@tegh/core'
 
 const { CONTROLLER } = ComponentTypeEnum
 

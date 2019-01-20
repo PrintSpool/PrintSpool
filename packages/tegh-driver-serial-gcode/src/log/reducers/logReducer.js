@@ -1,7 +1,7 @@
 import {
   DRIVER_ERROR,
   PRINTER_DISCONNECTED,
-} from 'tegh-core'
+} from '@tegh/core'
 
 import { SERIAL_OPEN } from '../../serial/actions/serialOpen'
 import { SERIAL_SEND } from '../../serial/actions/serialSend'

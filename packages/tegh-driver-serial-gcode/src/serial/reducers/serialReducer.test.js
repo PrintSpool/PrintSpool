@@ -10,7 +10,7 @@ import {
   printerDisconnected,
   connectPrinter,
   MockConfig,
-} from 'tegh-core'
+} from '@tegh/core'
 
 import rxParser from '../../rxParser'
 
@@ -134,7 +134,11 @@ describe('serialReducer', () => {
   describe(SERIAL_SEND, () => {
     it('sends the gcode line to the printer the via the serial port', () => {
       const state = initialState.set('serialPort', 'my_serial_port')
-      const action = serialSend('G1 X10', { lineNumber: 10 })
+      const action = serialSend({
+        macro: 'G1',
+        args: { X: 10 },
+        lineNumber: 10,
+      })
 
       const [
         nextState,

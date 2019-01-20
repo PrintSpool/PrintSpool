@@ -1,0 +1,52 @@
+name: tegh
+version: 0.5.7
+summary: A graphql server for 3D printers
+description: >
+  A graphql server for 3D printers
+
+confinement: devmode
+grade: devel
+# base: core18
+
+architectures:
+  - build-on: amd64
+    run-on: amd64
+  - build-on: armhf
+    run-on: armhf
+
+# see https://docs.snapcraft.io/node-apps/6747
+parts:
+  # python-dependency:
+  #   plugin: python
+  #   python-version: python2
+  #   source: .
+  tegh:
+    plugin: nodejs
+    source: .
+    node-engine: '11.6.0'
+    # nodejs-package-manager: npm
+    # nodejs-version: '11.6.0'
+    # nodejs-yarn-version: 'v1.12.3'
+    build-packages:
+      # - python2
+      - python2.7
+      - python-pip
+      # - build-essential
+    #   - git
+    # "@babel/core": "^7.0.0-0",
+    # "domexception": "^1.0.1",
+    # "graphql": "^14.0.2",
+    # "iterall": "1.1.3",
+    # "immutable": "^4.0.0-rc.12",
+    # "list-diff2": "^0.1.4"
+
+    # node-packages:
+    #   - '@trust/webcrypto'
+    #   - 'wrtc'
+    #   - 'ws'
+    #   - 'serialport'
+apps:
+  tegh:
+    command: bin/tegh
+    # daemon: simple
+    # restart-condition : always

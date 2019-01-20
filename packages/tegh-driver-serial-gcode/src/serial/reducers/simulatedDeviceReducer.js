@@ -3,7 +3,7 @@ import { loop, Cmd } from 'redux-loop'
 import {
   SET_CONFIG,
   getController,
-} from 'tegh-core'
+} from '@tegh/core'
 
 import getSerialPortID from '../selectors/getSerialPortID'
 import createSimulatedDevice from '../sideEffects/createSimulatedDevice'

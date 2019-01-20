@@ -5,7 +5,6 @@ import HostConfig from './HostConfig'
 import PrinterConfig from './PrinterConfig'
 import AuthConfig from './auth/AuthConfig'
 import MaterialConfig from './MaterialConfig'
-import developmentConfig from '../../../../../development.config'
 
 export const ConfigRecordFactory = Record({
   id: null,
@@ -40,8 +39,10 @@ export const MockConfig = ({
   host = {},
   printer = {},
   ...props
-} = {}) => (
-  Config({
+} = {}) => {
+  // eslint-disable-next-line global-require
+  const developmentConfig = require('../../../../../development.config')
+  return Config({
     ...developmentConfig,
     host: {
       ...developmentConfig.host,
@@ -53,6 +54,6 @@ export const MockConfig = ({
     },
     ...props,
   })
-)
+}
 
 export default Config

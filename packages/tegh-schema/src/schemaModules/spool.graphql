@@ -58,9 +58,9 @@ type Task {
     """
     digits: Int
   ): Float!
-  createdAt: Date!
-  startedAt: Date
-  stoppedAt: Date
+  createdAt: DateTime!
+  startedAt: DateTime
+  stoppedAt: DateTime
   status: String!
   printer: Printer!
 }

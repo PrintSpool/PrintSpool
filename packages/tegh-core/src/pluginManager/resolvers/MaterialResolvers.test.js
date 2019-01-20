@@ -1,5 +1,5 @@
 import { Record, Map } from 'immutable'
-import typeDefs from 'tegh-schema'
+import typeDefs from '@tegh/schema'
 
 import deterministicTestSetup from '../../util/testing/deterministicTestSetup'
 import snapshotTestResolvers from '../../util/testing/snapshotTestResolvers'

@@ -7,7 +7,8 @@ import {
   isEmergency,
   requestDespool,
   driverError,
-} from 'tegh-core'
+  parseGCode,
+} from '@tegh/core'
 
 import { SERIAL_CLOSE } from '../../serial/actions/serialClose'
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
@@ -32,7 +33,9 @@ export const initialState = Record({
 const despoolToSerialReducer = (state = initialState, action) => {
   switch (action.type) {
     case DESPOOL_TASK: {
-      const { task } = action.payload
+      const { task, isHostMacro } = action.payload
+
+      if (isHostMacro) return state
 
       const emergency = isEmergency.resultFunc(task)
       const currentLine = getCurrentLine.resultFunc(task)
@@ -52,7 +55,10 @@ const despoolToSerialReducer = (state = initialState, action) => {
 
       return loop(
         nextState,
-        Cmd.action(serialSend(currentLine, { lineNumber })),
+        Cmd.action(serialSend({
+          ...parseGCode(currentLine),
+          lineNumber,
+        })),
       )
     }
     case SERIAL_CLOSE: {
@@ -84,7 +90,8 @@ const despoolToSerialReducer = (state = initialState, action) => {
               const nextState = state
                 .set('onNextOK', IGNORE_OK)
 
-              const nextAction = serialSend(currentLine, {
+              const nextAction = serialSend({
+                ...parseGCode(currentLine),
                 lineNumber: previousSerialLineNumber,
               })
 

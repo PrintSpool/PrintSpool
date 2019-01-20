@@ -8,7 +8,7 @@ import {
   setConfig,
   ComponentTypeEnum,
   MockConfig,
-} from 'tegh-core'
+} from '@tegh/core'
 
 import serialReceive, { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import serialSend, { SERIAL_SEND } from '../../serial/actions/serialSend'
@@ -107,7 +107,11 @@ describe('componentsReducer', () => {
     it('merges the state changes from the action into the state', () => {
       const temperature = 42
       const action = {
-        ...serialSend(`M109 s${temperature}`, { lineNumber: 3 }),
+        ...serialSend({
+          macro: 'M109',
+          args: { s: temperature },
+          lineNumber: 3,
+        }),
         config,
       }
 

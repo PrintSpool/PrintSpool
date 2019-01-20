@@ -7,7 +7,7 @@ import QRReader from 'react-qr-reader'
 
 import { TextField } from '@material-ui/core'
 
-import { getFingerprint } from 'tegh-protocol'
+import { getFingerprint } from '@tegh/protocol'
 
 import { push as pushHistoryAction } from '@d1plo1d/connected-react-router'
 import addHostIdentityAction from '../../actions/addHostIdentity'

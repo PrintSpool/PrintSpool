@@ -2,7 +2,7 @@ import { List } from 'immutable'
 import Promise from 'bluebird'
 import { Cmd } from 'redux-loop'
 
-import { setConfig, SET_CONFIG, MockConfig } from 'tegh-core'
+import { setConfig, SET_CONFIG, MockConfig } from '@tegh/core'
 
 import reducer, { initialState } from './serialTimeoutReducer'
 
@@ -46,7 +46,11 @@ describe('serialTimeoutReducer', () => {
   describe(SERIAL_SEND, () => {
     it('does nothing if a line number is not sent', () => {
       const action = {
-        ...serialSend('G1 X10', { lineNumber: false }),
+        ...serialSend({
+          macro: 'G1',
+          args: { X: '10' },
+          lineNumber: false,
+        }),
         config,
       }
 
@@ -59,16 +63,17 @@ describe('serialTimeoutReducer', () => {
       {
         description: 'for long running gcodes',
         timeoutName: 'long running gcode timeout',
-        gcode: 'G28',
+        gcode: { macro: 'G28', args: {} },
         codeTimeout: longRunningCodeTimeout,
       },
       {
         description: 'for fast gcodes',
         timeoutName: 'fast gcode timeout',
-        gcode: 'G1 X10',
+        gcode: { macro: 'G1', args: { X: '10' } },
         codeTimeout: fastCodeTimeout,
       },
     ]
+
     timeoutScenarios.forEach(({
       description,
       timeoutName,
@@ -78,7 +83,7 @@ describe('serialTimeoutReducer', () => {
       describe(description, () => {
         it(`waits the ${timeoutName} before sending a tickle`, () => {
           const action = {
-            ...serialSend(gcode, { lineNumber: 123 }),
+            ...serialSend({ ...gcode, lineNumber: 123 }),
             config,
           }
 
@@ -152,7 +157,7 @@ describe('serialTimeoutReducer', () => {
         )
 
         expect(nextAction).toEqual(
-          serialSend('M105', { lineNumber: false }),
+          serialSend({ macro: 'M105', args: {}, lineNumber: false }),
         )
 
         expect(sideEffect.successActionCreator()).toEqual(

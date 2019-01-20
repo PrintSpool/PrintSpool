@@ -4,27 +4,39 @@ import path from 'path'
 import mkdirp from 'mkdirp'
 import keypair from 'keypair'
 
-import {
-  initializeConfig,
-  executableSchema,
-  createTeghHostStore,
-  authenticate,
-} from 'tegh-core'
+import * as teghCore from '@tegh/core'
+import * as teghDriverSerialGCode from '@tegh/driver-serial-gcode'
+import * as teghMacrosDefault from '@tegh/macros-default'
+import * as teghRaspberryPi from '@tegh/raspberry-pi'
 
 // import { wrapInCrashReporting } from './crashReport'
 import httpServer from './server/httpServer'
 import webRTCServer from './server/webRTCServer'
+
+const plugins = {
+  '@tegh/core': teghCore,
+  '@tegh/driver-serial-gcode': teghDriverSerialGCode,
+  '@tegh/macros-default': teghMacrosDefault,
+  '@tegh/raspberry-pi': teghRaspberryPi,
+}
+
+const {
+  initializeConfig,
+  executableSchema,
+  createTeghHostStore,
+  authenticate,
+} = teghCore
 
 global.Promise = Promise
 
 // Get document, or throw exception on error
 const loadConfigForm = (configPath) => {
   if (!fs.existsSync(configPath)) {
-    const devPath = path.join(__dirname, '../../../development.config')
+    // const devPath = path.join(__dirname, '../../../development.config')
     // eslint-disable-next-line global-require, import/no-dynamic-require
-    const devConfig = require(devPath)
+    const devConfig = require('../development.config')
     mkdirp(path.dirname(configPath))
-    fs.writeFileSync(configPath, JSON.stringify(devConfig))
+    fs.writeFileSync(configPath, JSON.stringify(devConfig, null, 2))
   }
   try {
     // eslint-disable-next-line global-require, import/no-dynamic-require
@@ -90,10 +102,14 @@ const teghServer = async (argv, pluginLoader) => {
   }
 }
 
-const nodeModulesPluginLoader = plugin => new Promise((resolve) => {
+const nodeModulesPluginLoader = async (pluginName) => {
   // eslint-disable-next-line global-require, import/no-dynamic-require
-  resolve(require(plugin))
-})
+  const pluginModule = plugins[pluginName]
+  if (pluginModule == null) {
+    throw new Error(`Plugin not found: ${pluginName}`)
+  }
+  return pluginModule
+}
 
 process.on('unhandledRejection', (e) => { throw e })
 

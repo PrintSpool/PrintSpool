@@ -1,14 +1,23 @@
 import {
+  createMacroExpansionReducer,
   getHeaterConfigs,
   getMaterials,
   ComponentTypeEnum,
-} from 'tegh-core'
+} from '@tegh/core'
 
-import setTargetTemperature from './setTargetTemperature'
+import { macroFn as setTargetTemperature } from './setTargetTemperature'
 
 const { TOOLHEAD, BUILD_PLATFORM } = ComponentTypeEnum
 
-const toggleHeater = (args, { config }) => {
+const meta = {
+  package: '@tegh/macros-default',
+  macro: 'toggleHeater',
+}
+
+const toggleHeater = createMacroExpansionReducer(meta, (
+  args,
+  { config },
+) => {
   const heaters = getHeaterConfigs(config)
   const targetTemperatures = {}
 
@@ -58,7 +67,8 @@ const toggleHeater = (args, { config }) => {
     }
   })
 
+  console.log({targetTemperatures})
   return setTargetTemperature(targetTemperatures, { config })
-}
+})
 
 export default toggleHeater

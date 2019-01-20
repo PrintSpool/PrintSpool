@@ -1,50 +1,21 @@
-import { loop, Cmd } from 'redux-loop'
-import { Record, Map } from 'immutable'
+import { Record, List } from 'immutable'
 
 import { SET_CONFIG } from '../../config/actions/setConfig'
-import { SPOOL_MACRO } from '../../spool/actions/spoolMacro'
-import spoolTask from '../../spool/actions/spoolTask'
 
-import { NORMAL } from '../../spool/types/PriorityEnum'
-
-import getMacroRunFnsByName from '../../pluginManager/selectors/getMacroRunFnsByName'
+import getEnabledHostMacros from '../../pluginManager/selectors/getEnabledHostMacros'
 
 export const initialState = Record({
-  config: null,
-  macros: Map(),
+  enabledMacros: List(),
 })()
 
 const macrosReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
-      const nextState = initialState
-        .set('macros', getMacroRunFnsByName(action.payload))
-        .set('config', action.payload.config)
+      const enabledMacros = getEnabledHostMacros(action.payload)
 
-      return nextState
-    }
-    case SPOOL_MACRO: {
-      const {
-        internal,
-        priority,
-        macro,
-        args,
-      } = action.payload
-
-      const macroRunFn = state.macros.get(macro)
-
-      if (macroRunFn == null) {
-        throw new Error(`Macro ${macro} does not exist`)
-      }
-
-      return loop(state, Cmd.action(
-        spoolTask({
-          name: macro,
-          internal,
-          priority: priority || macroRunFn.priority || NORMAL,
-          data: macroRunFn(args, { config: state.config }),
-        }),
-      ))
+      return state.merge({
+        enabledMacros,
+      })
     }
     default: {
       return state

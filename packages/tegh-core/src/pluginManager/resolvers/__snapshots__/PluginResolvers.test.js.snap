@@ -7,7 +7,7 @@ Object {
       "id": "asgbvas23",
     },
     "id": "asgbvas23",
-    "package": "tegh-core",
+    "package": "@tegh/core",
   },
 }
 `;

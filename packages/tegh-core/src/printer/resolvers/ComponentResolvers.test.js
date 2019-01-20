@@ -1,5 +1,5 @@
 import { Map, Record } from 'immutable'
-import typeDefs from 'tegh-schema'
+import typeDefs from '@tegh/schema'
 
 import deterministicTestSetup from '../../util/testing/deterministicTestSetup'
 import snapshotTestResolvers from '../../util/testing/snapshotTestResolvers'
@@ -14,14 +14,14 @@ describe('ComponentResolvers', () => {
     deterministicTestSetup()
 
     const state = Record({
-      driver: 'tegh-driver-serial-gcode',
+      driver: '@tegh/driver-serial-gcode',
       config: MockConfig(),
       schemaForms: Record({
         components: Map({
           TOOLHEAD: SchemaForm({}),
         }),
       })(),
-      'tegh-driver-serial-gcode': {
+      '@tegh/driver-serial-gcode': {
         components: Record({
           byAddress: Map({
             e1: Record({

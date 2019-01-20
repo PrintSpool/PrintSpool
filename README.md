@@ -1,5 +1,7 @@
 [![NSP Status](https://nodesecurity.io/orgs/tegh/projects/24e090c8-8a9b-4827-a224-6e638b70df50/badge)](https://nodesecurity.io/orgs/tegh/projects/24e090c8-8a9b-4827-a224-6e638b70df50)
 
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/tegh)
+
 ## The Tegh Project
 
 Tegh is a work in progress Next Gen 3D Printer Host Server. Tegh aims to:
@@ -9,9 +11,9 @@ Tegh is a work in progress Next Gen 3D Printer Host Server. Tegh aims to:
 
 ## Installation
 
-Run `yarn bootstrap`
+with Node v10.12.0 run `yarn bootstrap`
 
-**Prerequisites:** node and yarn (`npm i -g yarn`)
+**Prerequisites:** node v10.12.0 (we recommend using nvm) and yarn (`npm i -g yarn`)
 
 ## Hacking
 

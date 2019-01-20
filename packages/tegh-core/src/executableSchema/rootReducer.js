@@ -1,5 +1,5 @@
 import { Map, Record } from 'immutable'
-import { mergeChildReducers } from 'redux-loop-immutable'
+import { mergeChildReducers } from '@d1plo1d/redux-loop-immutable'
 
 import { SET_CONFIG } from '../config/actions/setConfig'
 import getAllReducers from '../pluginManager/selectors/getAllReducers'

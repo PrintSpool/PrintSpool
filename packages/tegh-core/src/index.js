@@ -12,3 +12,5 @@ export createTeghHostStore from './executableSchema/createTeghHostStore'
 export getSchemaForms from './getSchemaForms'
 
 export configValidation from './configValidation'
+
+export createMacroExpansionReducer from './macros/reducers/createMacroExpansionReducer'

@@ -8,7 +8,7 @@ const isReactNative = (
 )
 
 // In ReactNative environments UsbSerial must be set. eg:
-// import { serialConfig } from 'tegh-core'
+// import { serialConfig } from '@tegh/core'
 // import { UsbSerial } from 'react-native-usbserial'
 // serialConfig.UsbSerial = UsbSerial
 

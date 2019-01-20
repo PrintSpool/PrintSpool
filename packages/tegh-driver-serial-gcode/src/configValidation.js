@@ -1,5 +1,5 @@
 import * as yup from 'yup'
-import { ComponentTypeEnum } from 'tegh-core'
+import { ComponentTypeEnum } from '@tegh/core'
 
 const { CONTROLLER, AXIS, BUILD_PLATFORM } = ComponentTypeEnum
 

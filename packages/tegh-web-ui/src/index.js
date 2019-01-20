@@ -30,7 +30,7 @@ const Index = () => (
 )
 
 // eslint-disable-next-line no-undef
-const wrapper = document.getElementById('tegh-app')
+const wrapper = document.getElementById('@tegh/app')
 ReactDOM.render(<Index />, wrapper)
 
 export default Index

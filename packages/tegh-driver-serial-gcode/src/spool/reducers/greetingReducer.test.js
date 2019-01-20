@@ -6,7 +6,7 @@ import {
   ESTOP,
   PRINTER_DISCONNECTED,
   printerReady,
-} from 'tegh-core'
+} from '@tegh/core'
 
 import reducer, { initialState } from './greetingReducer'
 
@@ -62,7 +62,11 @@ describe('greetingReducer', () => {
         ] = reducer(state, action)
 
         expect(nextState.isConnecting).toEqual(true)
-        expect(nextAction).toEqual(serialSend('M110 N0', { lineNumber: false }))
+        expect(nextAction).toEqual(serialSend({
+          macro: 'M110',
+          args: { N: '0' },
+          lineNumber: false,
+        }))
       })
     })
   })
@@ -117,7 +121,11 @@ describe('greetingReducer', () => {
       ] = reducer(state, action)
 
       expect(nextState).toEqual(state)
-      expect(nextAction).toEqual(serialSend('M110 N0', { lineNumber: false }))
+      expect(nextAction).toEqual(serialSend({
+        macro: 'M110',
+        args: { n: 0 },
+        lineNumber: false,
+      }))
     })
   })
 })

@@ -12,7 +12,7 @@ import { WebSocketLink } from 'apollo-link-ws'
 import { onError } from 'apollo-link-error'
 import ReduxLink from 'apollo-link-redux'
 
-import { TeghClient } from 'tegh-protocol'
+import { TeghClient } from '@tegh/protocol'
 
 import { store } from '../../../../index'
 

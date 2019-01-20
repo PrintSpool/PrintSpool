@@ -1,4 +1,5 @@
-export const SPOOL_MACRO = '/tegh-core/spool/SPOOL_MACRO'
+import spoolTask from './spoolTask'
+import { NORMAL, EMERGENCY } from '../types/PriorityEnum'
 
 /*
  * spools the macro with the given args
@@ -18,15 +19,12 @@ const spoolMacro = ({
     throw new Error('macro must not be null')
   }
 
-  return {
-    type: SPOOL_MACRO,
-    payload: {
-      internal,
-      priority,
-      macro,
-      args,
-    },
-  }
+  return spoolTask({
+    name: macro,
+    internal,
+    priority: priority || macro === 'reset' ? EMERGENCY : NORMAL,
+    data: [`${macro} ${JSON.stringify(args)}`],
+  })
 }
 
 export default spoolMacro

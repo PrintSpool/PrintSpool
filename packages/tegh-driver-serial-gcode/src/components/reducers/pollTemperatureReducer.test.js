@@ -10,7 +10,7 @@ import {
   setConfig,
   PriorityEnum,
   MockConfig,
-} from 'tegh-core'
+} from '@tegh/core'
 
 import reducer, { initialState } from './pollTemperatureReducer'
 

@@ -1,8 +1,11 @@
 {
-  "name": "tegh-host-posix",
-  "version": "0.4.0",
+  "name": "@tegh/host-posix",
+  "version": "0.5.10",
   "description": "graphql server for 3D printers",
   "main": "dist/index.js",
+  "bin": {
+    "tegh": "./bin/tegh"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/tegh/tegh-host-posix.git"
@@ -11,25 +14,28 @@
     "tegh",
     "graphql"
   ],
+  "files": [
+    "dist/*",
+    "bin/*",
+    "development.config.js"
+  ],
   "author": "Rob Gilson",
   "license": "AGPL-3.0-or-later",
-  "private": true,
+  "private": false,
   "scripts": {
     "trace-gc": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
     "start": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings"
   },
-  "devDependencies": {
-    "node-dev": "d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350"
-  },
   "dependencies": {
+    "@babel/core": "^7.0.0-0",
     "@babel/register": "^7.0.0",
     "@beaker/dat-node": "RangerMauve/dat-node#168b57c",
     "abab": "^2.0.0",
-    "apollo-engine": "^1.1.0",
-    "apollo-server-koa": "^1.3.4",
+    "apollo-server-koa": "^2.3.1",
     "babel-preset-flow": "^6.23.0",
-    "bluebird": "^3.5.1",
+    "bluebird": "^3.5.3",
     "dedent": "^0.7.0",
+    "domexception": "^1.0.1",
     "ejs": "^2.5.7",
     "fast-memoize": "^2.5.1",
     "graphql": "^14.0.2",
@@ -38,27 +44,23 @@
     "graphql-subscriptions": "^0.5.8",
     "graphql-things": "^0.1.0",
     "graphql-type-json": "^0.2.0",
-    "immutable": "^4.0.0-rc.9",
-    "immutablediff": "^0.4.4",
-    "immutablepatch": "^0.4.2",
-    "iterall": "d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b",
+    "immutable": "^4.0.0-rc.12",
+    "iterall": "^1.2.2",
     "jiff": "^0.7.3",
     "keypair": "^1.0.1",
     "koa": "^2.3.0",
     "koa-bodyparser": "^4.2.0",
     "koa-cors": "^0.0.16",
     "koa-router": "^7.2.1",
-    "lodash": "^4.17.10",
     "mkdirp": "^0.5.1",
     "msgpack-lite": "^0.1.26",
     "qrcode-terminal": "^0.12.0",
     "raven": "^2.3.0",
     "raven-for-redux": "^1.2.0",
-    "redux": "^3.5.1",
+    "redux": "^4.0.1",
     "redux-immutable": "^4.0.0",
     "redux-logger": "^3.0.6",
-    "redux-loop": "^4.3.3",
-    "redux-loop-immutable": "^1.0.0",
+    "redux-loop": "^4.5.2",
     "redux-saga": "^0.16.0",
     "redux-thunk": "^2.2.0",
     "redux-watch": "^1.1.1",
@@ -67,18 +69,18 @@
     "strip-newlines": "^1.0.1",
     "subscriptions-transport-ws": "^0.9.14",
     "tcomb-validation": "^3.4.1",
-    "tegh-core": "^0.4.0",
-    "tegh-driver-serial-gcode": "^0.4.0",
-    "tegh-macros-default": "^0.4.0",
-    "tegh-protocol": "^0.4.0",
     "tmp-promise": "^1.0.4",
     "typiql": "^0.3.0",
     "untildify": "^3.0.2",
     "uuid": "^3.1.0",
     "vm2": "^3.5.2",
-    "wrtc": "^0.3.4"
+    "wrtc": "^0.3.4",
+    "ws": "~3.3.1"
+  },
+  "devDependencies": {
+    "node-dev": "github:d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350"
   },
   "resolutions": {
-    "subscriptions-transport-ws/iterall": "d1plo1d/iterall#a5ce300b3a7588c9b93a010fefeafe6f8c9eb89b"
+    "subscriptions-transport-ws/iterall": "^1.2.2"
   }
 }

@@ -1,5 +1,5 @@
 import { List, Map, Record } from 'immutable'
-import typeDefs from 'tegh-schema'
+import typeDefs from '@tegh/schema'
 
 import deterministicTestSetup from '../../util/testing/deterministicTestSetup'
 import snapshotTestResolvers from '../../util/testing/snapshotTestResolvers'
@@ -25,24 +25,24 @@ describe('PrinterResolvers', () => {
       config: MockConfig(),
       schemaForms: Record({
         plugins: Map({
-          'tegh-core': SchemaForm({
-            id: 'tegh-core',
+          '@tegh/core': SchemaForm({
+            id: '@tegh/core',
           }),
-          'tegh-driver-serial-gcode': SchemaForm({}),
-          'tegh-macros-default': SchemaForm({}),
+          '@tegh/driver-serial-gcode': SchemaForm({}),
+          '@tegh/macros-default': SchemaForm({}),
         }),
       })(),
       fixedListComponentTypes: List(['TOOLHEAD']),
       spool: spoolInitialState,
       status: statusInitialState.set('status', CONNECTING),
-      macros: macrosInitialState.set('macros', Map({ myMacro: () => null })),
+      macros: macrosInitialState.set('enabledMacros', List(['myMacro'])),
       log: logInitialState.setIn(['logEntries', 0], {
         source: 'SERIAL',
         level: INFO,
         message: 'This is an example log',
       }),
-      driver: 'tegh-driver-serial-gcode',
-      'tegh-driver-serial-gcode': {
+      driver: '@tegh/driver-serial-gcode',
+      '@tegh/driver-serial-gcode': {
         components: Record({
           targetTemperaturesCountdown: 3,
           activeExtruderID: 'heater1ID',

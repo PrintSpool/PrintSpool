@@ -33,15 +33,15 @@ Object {
         "id": "ndrgrwef2",
       },
     ],
+    "enabledMacros": Array [
+      "myMacro",
+    ],
     "error": null,
     "fixedListComponentTypes": Array [
       "TOOLHEAD",
     ],
     "id": "aaxcvxcvcxv-bvb-csdf234231",
     "logEntries": Array [
-      Object {},
-    ],
-    "macroDefinitions": Array [
       Object {},
     ],
     "name": "Left Home Lulzbot",
@@ -54,6 +54,9 @@ Object {
       },
       Object {
         "id": "aaabbbccc123",
+      },
+      Object {
+        "id": "asdfv31",
       },
     ],
     "status": "CONNECTING",

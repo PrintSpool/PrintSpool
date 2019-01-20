@@ -16,10 +16,9 @@ const simulator = () => {
     setImmediate(() => serialPort.emit('open'))
     setImmediate(() => sendLines(greeting))
   }
-  serialPort.close = (cb) => {
+  serialPort.close = async () => {
     serialPort.isOpen = false
     serialPort.emit('close')
-    cb()
   }
   serialPort.write = (line, cb = () => {}) => {
     const words = line.split(/ +/)

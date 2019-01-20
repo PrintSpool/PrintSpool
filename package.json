@@ -4,14 +4,19 @@
     "delete-node-modules": "rm -rf node_modules && rm -rf packages/*/node_modules",
     "bootstrap": "yarn make-log-dir && yarn install-all",
     "make-log-dir": "sudo mkdir /run/log/tegh; sudo chmod 700 /run/log/tegh && sudo chown $USER: /run/log/tegh",
-    "install-all": "yarn && lerna exec --concurrency 1 -- yarn && cd ./packages/tegh-web-ui/ && yarn",
+    "install-all": "yarn --network-timeout 1000000 && lerna exec --concurrency 1 -- yarn --network-timeout 1000000 && cd ./packages/tegh-web-ui/ && yarn --network-timeout 1000000",
     "clean": "gulp clean",
-    "build": "gulp build",
+    "build-dev": "gulp build-dev",
+    "build": "npx webpack --config webpack.config.babel.js --mode=development",
+    "build-snap": "cd ./snap && npm install && rm ./tegh_source.tar.bz2 && rm ./*.snap && snapcraft cleanbuild",
+    "install-snap": "sudo snap install --devmode $(find ./snap/ -maxdepth 1 -name \"*.snap\")",
     "watch": "gulp watch",
     "webpack-dev-server": "gulp webpack-dev-server",
     "test": "jest",
     "start-servers": "gulp start-servers",
-    "start": "gulp start"
+    "start": "gulp start",
+    "start-from-cache": "gulp startFromCache",
+    "publish-all": "yarn build && lerna publish"
   },
   "command": {
     "bootstrap": {
@@ -20,7 +25,7 @@
     }
   },
   "engines": {
-    "node": ">=10.12.0"
+    "node": ">=11.6.0"
   },
   "os": [
     "linux"
@@ -31,6 +36,7 @@
       "packages/tegh-driver-serial-gcode",
       "packages/tegh-macros-default",
       "packages/tegh-protocol",
+      "packages/tegh-raspberry-pi",
       "packages/tegh-host-posix",
       "packages/tegh-schema"
     ],
@@ -100,9 +106,10 @@
     "plumber": "^0.4.8",
     "rimraf": "^2.6.1",
     "through2": "^2.0.3",
-    "webpack": "^4.20.2",
+    "webpack": "^4.28.3",
     "webpack-cli": "^3.1.2",
-    "webpack-dev-server": "^3.1.9"
+    "webpack-dev-server": "^3.1.9",
+    "webpack-node-externals": "^1.7.2"
   },
   "resolutions": {
     "friendly-errors-webpack-plugin": "1.7.0"
