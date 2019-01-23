@@ -8,7 +8,7 @@ const getSchemaForms = createSelector(
   getPlugins,
   (plugins) => {
     /*
-    * The tegh-core plugin is included in the plugins list so it's schema form
+    * The @tegh/core plugin is included in the plugins list so it's schema form
     * gets combined like every other plugin
     *
     * getSchemaForms returns an object in the form:

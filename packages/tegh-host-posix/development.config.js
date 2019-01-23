@@ -141,11 +141,11 @@ const printerConfig = {
     },
   ],
   plugins: [
-    // TODO: move general settings to tegh-core plugin settings
+    // TODO: move general settings to @tegh/core plugin settings
     {
       id: 'asgbvas23',
       modelVersion: 1,
-      package: 'tegh-core',
+      package: '@tegh/core',
       model: {
         modelID: 'lulzbot/lulzbot-mini-2',
         name: 'Left Home Lulzbot',
@@ -154,12 +154,12 @@ const printerConfig = {
     {
       id: 'aaabbbccc333',
       modelVersion: 1,
-      package: 'tegh-driver-serial-gcode',
+      package: '@tegh/driver-serial-gcode',
     },
     {
       id: 'aaabbbccc123',
       modelVersion: 1,
-      package: 'tegh-macros-default',
+      package: '@tegh/macros-default',
       model: {
         macros: [
           '*',

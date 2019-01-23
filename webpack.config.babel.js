@@ -109,4 +109,4 @@ const frontend = {
 // }
 
 // module.exports = [frontend, backend]
-module.exports = frontend
+module.exports = [frontend]
