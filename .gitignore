@@ -71,3 +71,5 @@ buck-out/
 
 */fastlane/report.xml
 */fastlane/Preview.html
+
+.dat-data

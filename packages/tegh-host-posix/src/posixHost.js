@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import mkdirp from 'mkdirp'
 import keypair from 'keypair'
+import { createECDHKey } from 'graphql-things'
 
 import * as teghCore from '@tegh/core'
 import * as teghDriverSerialGCode from '@tegh/driver-serial-gcode'
@@ -30,11 +31,14 @@ const {
 global.Promise = Promise
 
 // Get document, or throw exception on error
-const loadConfigForm = (configPath) => {
+const loadConfigForm = async (configPath) => {
   if (!fs.existsSync(configPath)) {
     // const devPath = path.join(__dirname, '../../../development.config')
     // eslint-disable-next-line global-require, import/no-dynamic-require
     const devConfig = require('../development.config')
+    if (devConfig.auth.hostIdentityKeys == null) {
+      devConfig.auth.hostIdentityKeys = await createECDHKey()
+    }
     mkdirp(path.dirname(configPath))
     fs.writeFileSync(configPath, JSON.stringify(devConfig, null, 2))
   }
@@ -52,7 +56,7 @@ const teghServer = async (argv, pluginLoader) => {
     throw new Error(`No config file provided. ${expectedUseage}`)
   }
   const configPath = path.resolve(argv[2])
-  const config = loadConfigForm(configPath)
+  const config = await loadConfigForm(configPath)
 
   const serverSettings = config.host.server
   delete config.server
