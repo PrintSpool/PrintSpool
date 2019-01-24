@@ -73,13 +73,32 @@ const watch = () => {
   })
 }
 
-const webpackDevServerTask = () => {
-  // Start a webpack-dev-server
+const webpackCompiler = () => {
   const compiler = webpack({
     // configuration
     mode: 'development',
     ...webpackConfig[0],
   })
+
+  return compiler
+}
+
+const watchWebpack = () => {
+  webpackCompiler().watch({
+    // aggregateTimeout: 300,
+    // poll: undefined
+  }, (err, stats) => {
+    // eslint-disable-next-line no-console
+    console.log(stats.toString({
+      chunks: false, // Makes the build much quieter
+      colors: true, // Shows colors in the console
+    }))
+  })
+}
+
+const webpackDevServerTask = () => {
+  // Start a webpack-dev-server
+  const compiler = webpackCompiler()
 
   new WebpackDevServer(compiler, {
     // server and middleware options
@@ -151,7 +170,8 @@ gulp.task(
     gulp.parallel(
       watch,
       'start-host',
-      webpackDevServerTask,
+      // webpackDevServerTask,
+      watchWebpack,
     ),
   ),
 )
