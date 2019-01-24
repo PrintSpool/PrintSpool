@@ -49,36 +49,34 @@ const enhance = compose(
 const AddHostPage = ({
   onSubmit,
 }) => (
-  <div style={{ width: 300 }}>
-    <br />
-    <br />
-    <Link to="/">
-      <button type="button">
-        Back
-      </button>
-    </Link>
-    <br />
-    <br />
-    <QRReader
-      onScan={(scan) => {
-        if (scan != null) onSubmit(scan)
-      }}
-      onError={(error) => {
-        // eslint-disable-next-line no-console
-        console.log('error', error)
-      }}
-      style={{ width: '100%' }}
-    />
-    <TextField
-      label="Host Key"
-      margin="normal"
-      onChange={(event) => {
-        const keyString = event.target.value
-        if (keyString == null || keyString.length === 0) return
-        onSubmit(keyString)
-      }}
-    />
-
+  <div>
+    <h2>
+      <Link to="/">Tegh</Link>
+      Add a 3D Printer
+    </h2>
+    <p>Hold your invite QR Code up to the camera or copy your invite code into the text field</p>
+    <p style={{ fontSize: 30 }}>This page intentionally left ugly pending UI/UX design.</p>
+    <div style={{ width: 400 }}>
+      <QRReader
+        onScan={(scan) => {
+          if (scan != null) onSubmit(scan)
+        }}
+        onError={(error) => {
+          // eslint-disable-next-line no-console
+          console.log('error', error)
+        }}
+        style={{ width: '100%' }}
+      />
+      <TextField
+        label="Invite Code"
+        margin="normal"
+        onChange={(event) => {
+          const keyString = event.target.value
+          if (keyString == null || keyString.length === 0) return
+          onSubmit(keyString)
+        }}
+      />
+    </div>
   </div>
 )
 

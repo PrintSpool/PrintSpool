@@ -12,15 +12,18 @@ const enhance = compose(
 // TODO: perhaps this should be a list of 3D Printers or of Print Queues
 const HostsIndex = ({ hosts }) => (
   <div>
+    <h1>Tegh Alpha</h1>
+    <p style={{ fontSize: 30 }}>This page intentionally left ugly pending UI/UX design.</p>
+    <Link to="/connect">
+      <button type="button">
+        Add a 3D Printer
+      </button>
+    </Link>
+    <h2>My 3D Printers</h2>
     {
       hosts.size === 0 && (
         <div>
           No 3D Printers Saved
-          <Link to="/connect">
-            <button type="button">
-              Connect to your first 3D Printer
-            </button>
-          </Link>
         </div>
       )
     }
