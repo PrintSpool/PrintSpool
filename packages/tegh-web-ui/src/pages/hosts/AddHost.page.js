@@ -1,4 +1,5 @@
 import React from 'react'
+import bs58 from 'bs58'
 import { compose, withProps } from 'recompose'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
@@ -7,7 +8,7 @@ import QRReader from 'react-qr-reader'
 
 import { TextField } from '@material-ui/core'
 
-import { getFingerprint } from '@tegh/protocol'
+import { parseInviteCode } from 'graphql-things'
 
 import { push as pushHistoryAction } from '@d1plo1d/connected-react-router'
 import addHostIdentityAction from '../../actions/addHostIdentity'
@@ -19,25 +20,25 @@ const enhance = compose(
   }),
   withProps(({ addHostIdentity, pushHistory }) => ({
     onSubmit: (keyString) => {
-      const json = (() => {
-        try {
-          return JSON.parse(keyString)
-        } catch {
-          return null
-        }
+      const invite = (() => {
+        // try {
+          return parseInviteCode(keyString.replace('\n', ''))
+        // } catch {
+        //   return null
+        // }
       })()
-      if (json == null || json.publicKey == null) return
+
+      if (invite == null) return
+
+      const pk = invite.peerIdentityPublicKey
+      const id = bs58.encode(Buffer.from(pk, 'hex'))
+      invite.id = id
 
       // eslint-disable-next-line no-console
-      console.log(`QR Code Scanned. Connecting...\n${json.publicKey}\n${keyString}`)
-
-      const id = getFingerprint({ public: json.publicKey })
+      console.log(`QR Code Scanned. Connecting to ${id}\n`)
 
       addHostIdentity({
-        hostIdentity: {
-          id,
-          public: json.publicKey,
-        },
+        hostIdentity: invite,
       })
 
       pushHistory(`/${id}/`)
@@ -72,14 +73,8 @@ const AddHostPage = ({
       label="Host Key"
       margin="normal"
       onChange={(event) => {
-        const keyString = (() => {
-          try {
-            return atob(event.target.value)
-          } catch {
-            return null
-          }
-        })()
-        if (keyString == null) return
+        const keyString = event.target.value
+        if (keyString == null || keyString.length === 0) return
         onSubmit(keyString)
       }}
     />

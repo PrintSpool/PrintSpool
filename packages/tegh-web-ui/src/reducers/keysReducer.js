@@ -20,12 +20,6 @@ export const initialState = Record({
   currentHostID: null,
 })()
 
-const HostIdentity = Record({
-  id: null,
-  name: null,
-  public: null,
-})
-
 const keysReducer = (state = initialState, action) => {
   switch (action.type) {
     case LOAD_KEYS: {
@@ -53,7 +47,6 @@ const keysReducer = (state = initialState, action) => {
 
       // merge the existing identity JSON if it exists
       const hostIdentities = Map(action.payload.hostIdentities || {})
-        .map(json => HostIdentity(json))
 
       return state
         .mergeIn(['myIdentity'], action.payload.myIdentity)
@@ -68,9 +61,10 @@ const keysReducer = (state = initialState, action) => {
       )
     }
     case ADD_HOST_IDENTITY: {
-      const host = HostIdentity(action.payload.hostIdentity)
+      const host = action.payload.hostIdentity
 
-      const nextState = state.setIn(['hostIdentities', host.id], host)
+      const nextState = state
+        .setIn(['hostIdentities', host.id], host)
 
       return loop(
         nextState,
@@ -82,7 +76,8 @@ const keysReducer = (state = initialState, action) => {
 
       if (name === state.hostIdentities.get(id).name) return state
 
-      const nextState = state.setIn(['hostIdentities', id, 'name'], name)
+      const nextState = state
+        .setIn(['hostIdentities', id, 'name'], name)
 
       return loop(
         nextState,

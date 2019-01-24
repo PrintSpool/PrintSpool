@@ -2,7 +2,6 @@ import * as qrcode from 'qrcode-terminal'
 
 const displayInviteInConsole = ({ invite }) => {
   const thickLine = `${'='.repeat(80)}\n`
-  const thinLine = `${'-'.repeat(80)}\n`
 
   const splitInto80CharLines = string => (
     string.match(/.{1,80}/g).join('\n')

@@ -7,54 +7,32 @@ import snl from 'strip-newlines'
 import { ApolloClient } from 'apollo-client'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloLink } from 'apollo-link'
-import { WebSocketLink } from 'apollo-link-ws'
 // import { SubscriptionClient } from 'subscriptions-transport-ws'
 import { onError } from 'apollo-link-error'
 import ReduxLink from 'apollo-link-redux'
 
-import { TeghClient } from '@tegh/protocol'
+import { ThingLink } from 'graphql-things'
 
 import { store } from '../../../../index'
 
 const createTeghApolloClient = ({
-  myIdentity,
+  // myIdentity,
   hostIdentity,
-  signallingServer = 'ws://localhost:3000',
-  onWebRTCConnect = () => {},
-  onWebRTCDisconnect = () => {},
+  // signallingServer = 'ws://localhost:3000',
+  // onWebRTCConnect = () => {},
+  // onWebRTCDisconnect = () => {},
 }) => {
-  // create a tegh client
-  const teghClient = TeghClient({
-    keys: myIdentity,
-    // The public key of the 3D printer. This uniquely identifies your 3D printer
-    // and allows us to end-to-end encrypt everything you do with it. Usually
-    // the public key is retreaved by scanning the QR Code displayed by Tegh on
-    // the 3D printer's screen.
-    peerPublicKey: hostIdentity.public,
-    // provides access to the underlying SimplePeer object. This can be used to
-    // access media tracks. Note: onConnect may be called more then once
-    // if the 3d printer is re-connected.
-    onWebRTCConnect: (simplePeer) => {
-      // access media tracks here
-      // eslint-disable-next-line no-console
-      console.log('web rtc connected', simplePeer)
-      onWebRTCConnect(simplePeer)
-    },
-    onWebRTCDisconnect,
-  })
+  // The public key of the 3D printer. This uniquely identifies your 3D printer
+  // and allows us to end-to-end encrypt everything you do with it. Usually
+  // the public key is retreaved by scanning the QR Code displayed by Tegh on
+  // the 3D printer's screen.
 
-  // the tegh client exposes an API that is compatible with `window.WebSocket` so
-  // we can use it with existing libaries which were designed for Web Sockets.
-  // Here we're using it with `subscriptions-transport-ws` for Apollo JS.
-  const wsLink = new WebSocketLink({
-    uri: signallingServer,
-    options: {
-      reconnect: true,
-    },
-    webSocketImpl: teghClient,
+  const thingLink = ThingLink({
+    // identityKeys: myIdentity,
+    identityKeys: hostIdentity.identityKeys,
+    peerIdentityPublicKey: hostIdentity.peerIdentityPublicKey,
+    options: { reconnect: false },
   })
-
-  // clearTimeout(wsLink.subscriptionClient.maxConnectTimeoutId)
 
   const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (graphQLErrors) {
@@ -84,7 +62,7 @@ const createTeghApolloClient = ({
     link: ApolloLink.from([
       new ReduxLink(store),
       errorLink,
-      wsLink,
+      thingLink,
     ]),
     cache: new InMemoryCache(),
   })

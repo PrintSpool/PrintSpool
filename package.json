@@ -35,7 +35,6 @@
       "packages/tegh-core",
       "packages/tegh-driver-serial-gcode",
       "packages/tegh-macros-default",
-      "packages/tegh-protocol",
       "packages/tegh-raspberry-pi",
       "packages/tegh-host-posix",
       "packages/tegh-schema"
