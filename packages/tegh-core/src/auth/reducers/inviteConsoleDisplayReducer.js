@@ -21,6 +21,7 @@ const authReducer = (state = initialState, action) => {
       const {
         users,
         invites,
+        hostIdentityKeys,
       } = config.auth
 
       const admins = users.filter(user => user.admin)
@@ -33,6 +34,7 @@ const authReducer = (state = initialState, action) => {
       if (admins.size === 0 && adminInvites.size === 0) {
         return loop(state, Cmd.run(initInviteWithKeys, {
           args: [{
+            hostIdentityKeys,
             displayInConsole: true,
             admin: true,
           }],
@@ -47,7 +49,7 @@ const authReducer = (state = initialState, action) => {
       const consoleInvites = invites.filter(invite => invite.displayInConsole)
 
       return loop(state, Cmd.list(
-        consoleInvites.map(invite => (
+        consoleInvites.toArray().map(invite => (
           Cmd.run(displayInviteInConsole, {
             args: [{
               invite,
