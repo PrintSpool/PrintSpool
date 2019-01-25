@@ -81,7 +81,7 @@ const teghServer = async (argv, pluginLoader) => {
     context: {
       store,
     },
-    hostIdentityKeys: config.auth.hostIdentityKeys,
+    identityKeys: config.auth.hostIdentityKeys,
     authenticate: ({ peerIdentityPublicKey }) => (
       authenticate({ peerIdentityPublicKey, store })
     ),

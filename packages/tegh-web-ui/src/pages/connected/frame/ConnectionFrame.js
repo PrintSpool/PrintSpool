@@ -87,16 +87,16 @@ const ConnectionFrame = ({
   classes,
   myIdentity,
   hostIdentity,
-  setWebRTCPeer,
+  // setWebRTCPeer,
   setHostName,
-  connected,
+  // connected,
   children,
 }) => (
   <TeghApolloProvider
     myIdentity={myIdentity}
     hostIdentity={hostIdentity}
-    onWebRTCConnect={setWebRTCPeer}
-    onWebRTCDisconnect={() => setWebRTCPeer(null)}
+    // onWebRTCConnect={setWebRTCPeer}
+    // onWebRTCDisconnect={() => setWebRTCPeer(null)}
   >
     <LiveSubscription
       reduxKey="ConnectionFrame"
@@ -112,7 +112,8 @@ const ConnectionFrame = ({
         ({ data, loading, error }) => (
           <div className={classes.appFrame}>
             {
-              connected && !loading && (
+              // connected && !loading && (
+              !loading && (
                 <Drawer
                   hostIdentity={hostIdentity}
                   printers={data.printers}

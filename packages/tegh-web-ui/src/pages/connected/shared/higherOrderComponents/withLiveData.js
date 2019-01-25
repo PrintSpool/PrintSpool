@@ -1,6 +1,6 @@
 import React from 'react'
 import Loader from 'react-loader-advanced'
-import { connect } from 'react-redux'
+// import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import {
   withStyles,
@@ -9,7 +9,7 @@ import gql from 'graphql-tag'
 
 import { LiveSubscription } from '../../../../util/LiveSubscription'
 
-import ConnectingPage from '../Connecting.page'
+// import ConnectingPage from '../Connecting.page'
 
 export const NULL_SUBSCRIPTION = gql`
   subscription JobQueueSubscription {
@@ -32,21 +32,21 @@ const styles = () => ({
 
 const enhance = compose(
   withStyles(styles, { withTheme: true }),
-  connect(
-    state => ({
-      connected: (
-        state.liveSubscriptions.get('ConnectionFrame') != null
-        && state.liveSubscriptions.get('PageWithLiveData') != null
-        && state.webRTC.peer != null
-      ),
-    }),
-  ),
+  // connect(
+  //   state => ({
+  //     connected: (
+  //       state.liveSubscriptions.get('ConnectionFrame') != null
+  //       && state.liveSubscriptions.get('PageWithLiveData') != null
+  //       && state.webRTC.peer != null
+  //     ),
+  //   }),
+  // ),
 )
 
 const withLiveData = PageComponent => ({
   variables,
   subscription,
-  connected,
+  // connected,
   classes,
   ...props
 }) => (
@@ -65,7 +65,7 @@ const withLiveData = PageComponent => ({
           )
         }
 
-        if (!connected) return <ConnectingPage />
+        // if (!connected) return <ConnectingPage />
 
         return (
           <Loader

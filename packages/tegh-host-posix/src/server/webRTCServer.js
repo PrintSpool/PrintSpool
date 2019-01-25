@@ -16,7 +16,7 @@ const webRTCServer = async ({
   //   fs.readFileSync(untildify(keys), 'utf8'),
   // )
   // instantiate the dat node
-  const DAT_URL = 'dat://c53b89f627481422ad71a646c547105de1509b4b4552bb18c71e4be200b7ef4c/'
+  const DAT_URL = 'dat://0588d04a52162b001c489a68182daac3de41a18487f88e8a93b6a69fbd38b1ed/'
   const dat = Dat.createNode({
     path: './.dat-data',
   })
