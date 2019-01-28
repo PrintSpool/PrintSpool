@@ -118,7 +118,7 @@ const rxParser = (raw: string): RxData => {
       raw,
     }
   }
-  if (line.startsWith(' ')) {
+  if (line.startsWith(' ') || line.startsWith('t:')) {
     return {
       type: 'feedback',
       ...parsePrinterFeedback(line),

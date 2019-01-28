@@ -1,4 +1,3 @@
-// @flow
 import rxParser from './rxParser'
 import * as marlin from './marlinFixture'
 
@@ -31,7 +30,6 @@ test('parses checksum errors as warnings', () => {
     raw,
   })
 })
-
 
 test('parses echo lines', () => {
   const result = rxParser('echo:stuff')
@@ -84,8 +82,22 @@ describe('parses oks', () => {
     })
   })
 
-  test('with heater values', () => {
+  test('with an ok and heater values', () => {
     const result = rxParser('ok t: 42 e3: 200')
+
+    expect(result).toEqual({
+      type: 'ok',
+      raw: 'ok t: 42 e3: 200',
+      temperatures: {
+        e0: 42,
+        e3: 200,
+      },
+      targetTemperaturesCountdown: null,
+    })
+  })
+
+  test('with heater values', () => {
+    const result = rxParser('t: 42 e3: 200')
 
     expect(result).toEqual({
       type: 'ok',
