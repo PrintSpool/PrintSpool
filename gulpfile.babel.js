@@ -147,7 +147,7 @@ gulp.task('watch', gulp.series('build-dev', watch))
 
 gulp.task('webpack-dev-server', webpackDevServerTask)
 
-gulp.task('start-host', start('tegh-host-posix'))
+// gulp.task('start-host', start('tegh-host-posix'))
 gulp.task('dev-host', start('tegh-host-posix', { dev: true }))
 
 gulp.task(
@@ -157,7 +157,7 @@ gulp.task(
     'build-dev',
     gulp.parallel(
       // watch,
-      'start-host',
+      'dev-host',
     ),
   ),
 )
@@ -169,7 +169,7 @@ gulp.task(
     'build-dev',
     gulp.parallel(
       watch,
-      'start-host',
+      'dev-host',
       // webpackDevServerTask,
       watchWebpack,
     ),
@@ -181,7 +181,7 @@ gulp.task(
   gulp.series(
     gulp.parallel(
       watch,
-      'start-host',
+      'dev-host',
       webpackDevServerTask,
     ),
   ),
