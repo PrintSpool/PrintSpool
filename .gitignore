@@ -39,6 +39,7 @@ ubuntu-xenial-16.04-cloudimg-console.log
 packages/tegh-host-posix/log
 packages/*/build
 packages/*/dist
+!.well-known/dat
 !dat.json
 
 packages/*/android/app/build
