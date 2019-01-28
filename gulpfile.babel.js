@@ -33,7 +33,7 @@ const errorsLogger = () => (
 )
 
 const clean = (done) => {
-  rimraf(path.join(__dirname, 'packages/*/dist'), done)
+  rimraf(path.join(__dirname, 'packages/!(tegh-web-ui)/dist'), done)
 }
 
 const srcJSDir = `packages/@(${packages.join('|').replace(/packages\//g, '')})/src/**/`
