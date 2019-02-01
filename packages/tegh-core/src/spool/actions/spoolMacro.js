@@ -1,6 +1,11 @@
 import spoolTask from './spoolTask'
 import { NORMAL, EMERGENCY } from '../types/PriorityEnum'
 
+const emergencyTasks = [
+  'eStop',
+  'reset',
+]
+
 /*
  * spools the macro with the given args
  *
@@ -22,7 +27,7 @@ const spoolMacro = ({
   return spoolTask({
     name: macro,
     internal,
-    priority: priority || macro === 'reset' ? EMERGENCY : NORMAL,
+    priority: priority || emergencyTasks.includes(macro) ? EMERGENCY : NORMAL,
     data: [`${macro} ${JSON.stringify(args)}`],
   })
 }
