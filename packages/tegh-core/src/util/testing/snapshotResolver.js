@@ -10,3 +10,6 @@ export const resolveTestPath = (snapshotFilePath, snapshotExtension) => (
     .replace(/__snapshots__\/([^/]+)$/, '$1')
     .slice(0, -snapshotExtension.length)
 )
+
+// Example test path, used for preflight consistency check of the implementation above
+export const testPathForConsistencyCheck = '/dist/some/example.test.js'
