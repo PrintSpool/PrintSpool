@@ -3,7 +3,9 @@ import txParser from '../../txParser'
 
 export const SERIAL_SEND = 'tegh-serial-driver/serial/SERIAL_SEND'
 
-const checksum = (line) => {
+const addChecksum = (line, shouldChecksum) => {
+  if (shouldChecksum === false) return `${line}\n`
+
   let sum = 0
   line.split('').forEach((char) => {
     // eslint-disable-next-line no-bitwise
@@ -14,16 +16,21 @@ const checksum = (line) => {
   return `${line}*${sum}\n`
 }
 
-const serialSend = ({ macro, args = {}, lineNumber } = {}) => {
+const serialSend = ({
+  macro,
+  args = {},
+  lineNumber,
+  checksum = true,
+} = {}) => {
   const line = toGCodeLine({ macro, args })
 
   const processedLine = (() => {
-    if (lineNumber === false) return checksum(line)
+    if (lineNumber === false) return addChecksum(line, checksum)
     if (typeof lineNumber !== 'number') {
       throw new Error('lineNumber must either be false or a number')
     }
     const lineWithLineNumber = `N${lineNumber} ${line}`
-    return checksum(lineWithLineNumber)
+    return addChecksum(lineWithLineNumber, checksum)
   })()
 
   return {

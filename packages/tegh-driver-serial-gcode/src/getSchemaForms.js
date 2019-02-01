@@ -39,6 +39,11 @@ const getSchemaForms = () => ({
             type: 'integer',
             default: 60000,
           },
+          checksumTickles: {
+            title: 'Send checksums with response timeout tickle attempts',
+            type: 'boolean',
+            default: true,
+          },
           // longRunningCodes: {
           //   title: 'Long running code timeout',
           //   type: 'array',

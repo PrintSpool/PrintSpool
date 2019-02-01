@@ -15,7 +15,7 @@ const toGCodeLine = createSelector(
       .join(' ')
     const line = `${macro} ${argsString}`
 
-    return line
+    return line.trim()
   },
 )
 

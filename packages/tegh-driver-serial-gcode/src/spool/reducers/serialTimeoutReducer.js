@@ -19,6 +19,7 @@ export const initialState = Record({
     fastCodeTimeout: null,
     longRunningCodeTimeout: null,
     longRunningCodes: null,
+    checksumTickles: null,
   })(),
 })()
 
@@ -98,7 +99,12 @@ const serialTimeoutReducer = (state = initialState, action) => {
           Cmd.list([
             // send a tickle M105 to try to get an 'ok' from the serial port
             Cmd.action(
-              serialSend({ macro: 'M105', args: {}, lineNumber: false }),
+              serialSend({
+                macro: 'M105',
+                args: {},
+                lineNumber: false,
+                checksum: state.config.checksumTickles,
+              }),
             ),
             waitToTickleCmd(nextState),
           ]),

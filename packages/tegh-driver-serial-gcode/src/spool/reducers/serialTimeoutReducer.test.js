@@ -136,42 +136,54 @@ describe('serialTimeoutReducer', () => {
       })
     })
     describe('if there are still tickle attempts left to try', () => {
-      it('tickles the serial port with an M105', () => {
-        const timeoutPeriod = 24816
-        const state = configuredState
-          .set('ticklesAttempted', maxTickleAttempts - 1)
-          .set('awaitingLineNumber', 2000)
-          .set('timeoutPeriod', timeoutPeriod)
-        const action = {
-          ...requestSerialPortTickle({ awaitingLineNumber: 2000 }),
-          config,
-        }
+      const checksumOptions = [true, false]
 
-        const [
-          nextState,
-          { cmds: [{ actionToDispatch: nextAction }, sideEffect] },
-        ] = reducer(state, action)
+      checksumOptions.forEach((checksumTickles) => {
+        describe(`when checksumTickles = ${checksumTickles}`, () => {
+          it('tickles the serial port with an M105', () => {
+            const timeoutPeriod = 24816
+            const state = configuredState
+              .set('ticklesAttempted', maxTickleAttempts - 1)
+              .set('awaitingLineNumber', 2000)
+              .set('timeoutPeriod', timeoutPeriod)
+              .setIn(['config', 'checksumTickles'], checksumTickles)
+            const action = {
+              ...requestSerialPortTickle({ awaitingLineNumber: 2000 }),
+              config,
+            }
 
-        expect(nextState).toEqual(
-          state.set('ticklesAttempted', maxTickleAttempts),
-        )
+            const [
+              nextState,
+              { cmds: [{ actionToDispatch: nextAction }, sideEffect] },
+            ] = reducer(state, action)
 
-        expect(nextAction).toEqual(
-          serialSend({ macro: 'M105', args: {}, lineNumber: false }),
-        )
+            expect(nextState).toEqual(
+              state.set('ticklesAttempted', maxTickleAttempts),
+            )
 
-        expect(sideEffect.successActionCreator()).toEqual(
-          requestSerialPortTickle({ awaitingLineNumber: 2000 }),
-        )
+            expect(nextAction).toEqual(
+              serialSend({
+                macro: 'M105',
+                args: {},
+                lineNumber: false,
+                checksum: checksumTickles,
+              }),
+            )
 
-        expect(sideEffect).toEqual(
-          {
-            ...Cmd.run(Promise.delay, {
-              args: [timeoutPeriod],
-            }),
-            successActionCreator: sideEffect.successActionCreator,
-          },
-        )
+            expect(sideEffect.successActionCreator()).toEqual(
+              requestSerialPortTickle({ awaitingLineNumber: 2000 }),
+            )
+
+            expect(sideEffect).toEqual(
+              {
+                ...Cmd.run(Promise.delay, {
+                  args: [timeoutPeriod],
+                }),
+                successActionCreator: sideEffect.successActionCreator,
+              },
+            )
+          })
+        })
       })
     })
 
