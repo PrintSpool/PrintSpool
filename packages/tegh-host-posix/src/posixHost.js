@@ -39,7 +39,7 @@ const loadConfigForm = async (configPath) => {
     if (devConfig.auth.hostIdentityKeys == null) {
       devConfig.auth.hostIdentityKeys = await createECDHKey()
     }
-    mkdirp(path.dirname(configPath))
+    mkdirp.sync(path.dirname(configPath))
     fs.writeFileSync(configPath, JSON.stringify(devConfig, null, 2))
   }
   try {
