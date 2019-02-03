@@ -30,6 +30,8 @@ import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog
 import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog'
 import CreateComponentDialog from '../components/CreateComponentDialog/Index'
 
+import transformComponentSchema from './transformComponentSchema'
+
 const COMPONENTS_SUBSCRIPTION = gql`
   subscription ConfigSubscription($printerID: ID!) {
     live {
@@ -145,44 +147,11 @@ const ComponentsConfigIndex = ({
           fixedListComponentTypes.includes(selectedComponent.type) === false
         }
         collection="COMPONENT"
-        transformSchema={(schema) => {
-          let nextSchema = schema
-          if (schema.properties.serialPortID != null) {
-            // inject the devices list into the schema as an enum
-            const enumValues = devices
-              .filter(d => d.type === 'SERIAL_PORT')
-              .map(d => d.id)
-
-            const properties = { ...nextSchema.properties }
-            properties.serialPortID = {
-              ...nextSchema.properties.serialPortID,
-              enum: enumValues,
-            }
-
-            nextSchema = {
-              ...nextSchema,
-              properties,
-            }
-          }
-          if (schema.properties.materialID != null) {
-            // inject the materials list into the schema as an enum
-            const enumValues = materials.map(m => m.id)
-            const enumNames = materials.map(m => m.name)
-
-            const properties = { ...nextSchema.properties }
-            properties.materialID = {
-              ...nextSchema.properties.materialID,
-              enum: enumValues,
-              enumNames,
-            }
-
-            nextSchema = {
-              ...nextSchema,
-              properties,
-            }
-          }
-          return nextSchema
-        }}
+        transformSchema={schema => transformComponentSchema({
+          schema,
+          materials,
+          devices,
+        })}
         variables={{ printerID, componentID: selectedComponent.id }}
         query={gql`
           query($printerID: ID!, $componentID: ID) {
@@ -212,6 +181,8 @@ const ComponentsConfigIndex = ({
       printerID={printerID}
       open={componentID === 'new'}
       fixedListComponentTypes={fixedListComponentTypes}
+      devices={devices}
+      materials={materials}
     />
     <Tooltip title="Add Component" placement="left">
       <Link to="new/" style={{ textDecoration: 'none' }}>

@@ -15,6 +15,8 @@ import {
   StepLabel,
 } from '@material-ui/core'
 
+import transformComponentSchema from '../../printerComponents/transformComponentSchema'
+
 import componentTypeNames from './componentTypeNames'
 import Page1 from './Page1'
 
@@ -98,6 +100,8 @@ const createComponentDialog = ({
   wizard,
   updateWizard,
   fixedListComponentTypes,
+  devices,
+  materials,
 }) => (
   <Dialog
     open={open}
@@ -202,7 +206,11 @@ const createComponentDialog = ({
 
               return (
                 <FormikSchemaForm
-                  schema={schema}
+                  schema={transformComponentSchema({
+                    schema,
+                    materials,
+                    devices,
+                  })}
                   form={form}
                   path="model."
                 />
