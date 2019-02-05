@@ -1,6 +1,6 @@
 import { loop, Cmd } from 'redux-loop'
 import { Record, Set } from 'immutable'
-import { promise as gpiop } from 'gpio'
+import { promise as gpiop } from 'rpi-gpio'
 
 import {
   SET_CONFIG,
