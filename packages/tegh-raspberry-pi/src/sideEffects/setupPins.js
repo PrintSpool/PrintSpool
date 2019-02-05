@@ -1,4 +1,4 @@
-import gpio, { promise as gpiop } from 'gpio'
+import gpio, { promise as gpiop } from 'rpi-gpio'
 
 const setupPins = ({ outputPins }) => (
   Promise.all(

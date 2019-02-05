@@ -166,6 +166,16 @@ const printerConfig = {
         ],
       },
     },
+    {
+      id: 'aa00bb33',
+      modelVersion: 1,
+      package: '@tegh/raspberry-pi',
+      model: {
+        outputPins: [
+          21,
+        ],
+      },
+    },
   ],
 }
 

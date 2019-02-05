@@ -12,7 +12,7 @@
   "private": false,
   "dependencies": {
     "@tegh/core": "^0.5.10",
-    "gpio": "^0.2.10",
+    "rpi-gpio": "^2.1.2",
     "immutable": "^4.0.0-rc.12",
     "redux-loop": "^4.5.2"
   }
