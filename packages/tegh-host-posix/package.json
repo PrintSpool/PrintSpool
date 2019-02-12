@@ -24,7 +24,8 @@
   "private": false,
   "scripts": {
     "trace-gc": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
-    "dev": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings"
+    "dev": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings",
+    "debug": "DEBUG=\"*,-babel:*,-babel,-gulp-*,-snapdragon:*\" yarn dev"
   },
   "dependencies": {
     "@babel/core": "^7.0.0-0",
@@ -46,7 +47,7 @@
     "graphql-live-subscriptions": "^1.1.0",
     "graphql-scalars": "^0.1.5",
     "graphql-subscriptions": "^0.5.8",
-    "graphql-things": "^0.1.0",
+    "graphql-things": "^0.2.2",
     "graphql-type-json": "^0.2.0",
     "immutable": "^4.0.0-rc.12",
     "iterall": "^1.2.2",

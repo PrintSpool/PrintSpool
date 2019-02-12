@@ -13,9 +13,8 @@
     "watch": "gulp watch",
     "webpack-dev-server": "gulp webpack-dev-server",
     "test": "jest",
-    "start-servers": "gulp start-servers",
     "start": "gulp start",
-    "start-from-cache": "gulp startFromCache",
+    "debug-host": "cd ./packages/tegh-host-posix && yarn debug",
     "publish-all": "yarn build && lerna publish"
   },
   "command": {

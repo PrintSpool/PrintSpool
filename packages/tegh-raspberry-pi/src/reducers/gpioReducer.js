@@ -39,6 +39,7 @@ const meta = {
 const gpioReducer = (state, action) => {
   switch (action) {
     case SET_CONFIG: {
+      console.log('SETTING raspberry CONFIG!!!!111')
       const { config } = action.payload
       const model = getPluginModels(config).get(meta.package)
 

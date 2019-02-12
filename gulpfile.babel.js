@@ -122,7 +122,10 @@ const start = (pkg, options = {}) => () => {
   const proc = spawn(
     'yarn',
     [dev ? 'dev' : 'start'],
-    { cwd: path.resolve(__dirname, `packages/${pkg}`) },
+    {
+      cwd: path.resolve(__dirname, `packages/${pkg}`),
+      env: Object.create(process.env),
+    },
   )
   proc.stdout.on('data', (data) => {
     // eslint-disable-next-line no-console
@@ -143,24 +146,18 @@ gulp.task('clean', clean)
 
 gulp.task('build-dev', gulp.series('clean', buildDev))
 
-gulp.task('watch', gulp.series('build-dev', watch))
+gulp.task(
+  'watch',
+  gulp.series(
+    'build-dev',
+    gulp.parallel(watch, watchWebpack),
+  ),
+)
 
 gulp.task('webpack-dev-server', webpackDevServerTask)
 
 // gulp.task('start-host', start('tegh-host-posix'))
 gulp.task('dev-host', start('tegh-host-posix', { dev: true }))
-
-gulp.task(
-  'start-servers',
-  gulp.series(
-    'clean',
-    'build-dev',
-    gulp.parallel(
-      // watch,
-      'dev-host',
-    ),
-  ),
-)
 
 gulp.task(
   'start',
@@ -171,18 +168,6 @@ gulp.task(
       watch,
       'dev-host',
       // webpackDevServerTask,
-      watchWebpack,
-    ),
-  ),
-)
-
-gulp.task(
-  'startFromCache',
-  gulp.series(
-    gulp.parallel(
-      watch,
-      'dev-host',
-      webpackDevServerTask,
     ),
   ),
 )
