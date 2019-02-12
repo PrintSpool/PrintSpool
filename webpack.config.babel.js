@@ -68,7 +68,7 @@ const frontend = {
       template: './packages/tegh-web-ui/src/index.html',
       filename: './index.html',
     }),
-    new webpack.HotModuleReplacementPlugin(),
+    // new webpack.HotModuleReplacementPlugin(),
   ],
 }
 

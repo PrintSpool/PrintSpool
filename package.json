@@ -15,6 +15,7 @@
     "test": "jest",
     "start": "gulp start",
     "debug-host": "cd ./packages/tegh-host-posix && yarn debug",
+    "dev-host": "cd ./packages/tegh-host-posix && yarn dev",
     "publish-all": "yarn build && lerna publish"
   },
   "command": {
