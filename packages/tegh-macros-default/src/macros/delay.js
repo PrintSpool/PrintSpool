@@ -13,10 +13,10 @@ export const DELAY = 'delay'
  * args:
  *  period: the number of milliseconds to wait
  *
- * example use: delay { period: 10 }
+ * example use: delay { "period": 5000 }
  */
 const delayReducer = (state, action) => {
-  switch (action) {
+  switch (action.type) {
     case DESPOOL_TASK: {
       const { macro, args } = action.payload
 

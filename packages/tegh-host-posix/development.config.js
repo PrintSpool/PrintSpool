@@ -174,6 +174,9 @@ const printerConfig = {
         outputPins: [
           21,
         ],
+        macros: [
+          '*',
+        ],
       },
     },
   ],

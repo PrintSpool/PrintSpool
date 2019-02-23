@@ -1,6 +1,6 @@
 import { loop, Cmd } from 'redux-loop'
 import { Record, Set } from 'immutable'
-import { promise as gpiop } from 'rpi-gpio'
+import gpio from 'rpi-gpio'
 
 import {
   SET_CONFIG,
@@ -21,7 +21,7 @@ const initialState = Record({
   enabled: false,
   isSetup: false,
   outputPins: Set(),
-})
+})()
 
 const meta = {
   package: '@tegh/raspberry-pi',
@@ -37,9 +37,8 @@ const meta = {
  * example use: setGPIO { pin: 12, 1 }
  */
 const gpioReducer = (state, action) => {
-  switch (action) {
+  switch (action.type) {
     case SET_CONFIG: {
-      console.log('SETTING raspberry CONFIG!!!!111')
       const { config } = action.payload
       const model = getPluginModels(config).get(meta.package)
 
@@ -85,11 +84,11 @@ const gpioReducer = (state, action) => {
           throw new Error(`GPIO pin not configured: ${pin}`)
         }
 
-        if (typeof value !== 'number') {
+        if (typeof value !== 'boolean') {
           throw new Error(`Invalid setGPIO value: ${value}`)
         }
 
-        return loop(state, Cmd.run(gpiop.write, {
+        return loop(state, Cmd.run(gpio.promise.write, {
           args: [pin, value],
           successActionCreator: requestDespool,
           failActionCreator: gpioError,

@@ -1,9 +1,11 @@
-import gpio, { promise as gpiop } from 'rpi-gpio'
+import gpio from 'rpi-gpio'
 
-const setupPins = ({ outputPins }) => (
-  Promise.all(
-    outputPins.map(pin => gpiop.setup(pin, gpio.DIR_OUT)),
+const setupPins = ({ outputPins }) => {
+  gpio.setMode(gpio.MODE_BCM)
+
+  return Promise.all(
+    outputPins.map(pin => gpio.promise.setup(pin, gpio.DIR_OUT)),
   )
-)
+}
 
 export default setupPins
