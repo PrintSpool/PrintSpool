@@ -27,6 +27,7 @@ type Printer {
   error: PrinterError
   enabledMacros: [String!]!
   logEntries(level: String, source: String): [LogEntry!]
+  movementHistory: [MovementHistoryEntry!]!
 }
 
 type Plugin {
@@ -51,6 +52,11 @@ type Component {
   set if this component is a fan. Null for all other components.
   """
   fan: Fan
+
+  """
+  set if this component is an axis. Null for all other components.
+  """
+  axis: Axis
 }
 
 type Fan {
@@ -83,6 +89,23 @@ type Heater {
   preventing any more gcodes from executing until it does.
   """
   blocking: Boolean!
+}
+
+type Axis {
+  """
+  The current position in mm.
+  """
+  position: Float!
+}
+
+type MovementHistoryPosition {
+  address: String!
+  value: Float!
+}
+
+type MovementHistoryEntry {
+  position: [MovementHistoryPosition!]!
+  inboundFeedrate: Float!
 }
 
 type LogEntry {

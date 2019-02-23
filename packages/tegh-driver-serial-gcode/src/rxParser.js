@@ -36,7 +36,7 @@ type RxDataWithoutRaw =
 type RxData = RxDataWithoutRaw & { raw: string }
 
 const parsePrinterFeedback = (line: string): Feedback => {
-  if (line.match('t:') == null) return {}
+  if (line.match('t:') == null && line.match('x:') == null) return {}
   // Filtering out non-temperature values
   const filteredLine = line
     .replace(OK, '')
@@ -48,21 +48,23 @@ const parsePrinterFeedback = (line: string): Feedback => {
     .replace(/:[\s\t]*/g, ':')
     .split(' ')
   // Construct an object containing current temperature values
-  const temperatures = {}
+  const feedbackVals = {}
   keyValueWords.forEach((word) => {
     const [key, rawValue] = word.split(':')
     const value = parseFloat(rawValue)
-    if (!Number.isNaN(value)) temperatures[key] = value
+    if (!Number.isNaN(value)) feedbackVals[key] = value
   })
-  // Parsing "w" temperature countdown values
-  // see: http://git.io/FEACGw or google "TEMP_RESIDENCY_TIME"
-  const { w } = temperatures
-  delete temperatures.w
-  const targetTemperaturesCountdown = (w ? w * 1000 : null)
-  return {
+  const { w, x, y, z, ...temperatures } = feedbackVals
+
+  const meta = {
     temperatures,
-    targetTemperaturesCountdown,
+    // Parsing "w" temperature countdown values
+    // see: http://git.io/FEACGw or google "TEMP_RESIDENCY_TIME"
+    targetTemperaturesCountdown: w == null ? null : w * 1000,
+    position: x == null ? null : { x, y, z },
   }
+
+  return meta
 }
 
 const rxParser = (raw: string): RxData => {
@@ -118,7 +120,11 @@ const rxParser = (raw: string): RxData => {
       raw,
     }
   }
-  if (line.startsWith(' ') || line.startsWith('t:')) {
+  if (
+    line.startsWith(' ')
+    || line.startsWith('t:')
+    || line.startsWith('x:')
+  ) {
     return {
       type: 'feedback',
       ...parsePrinterFeedback(line),

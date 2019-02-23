@@ -4,6 +4,7 @@ import { mergeChildReducers } from '@d1plo1d/redux-loop-immutable'
 // components
 import components from './components/reducers/componentsReducer'
 import _pollTemperature from './components/reducers/pollTemperatureReducer'
+import _pollPosition from './components/reducers/pollPositionReducer'
 // serial
 import _estopAndReset from './serial/reducers/estopAndResetReducer'
 import _serialErrorHandler from './serial/reducers/serialErrorHandlerReducer'
@@ -18,6 +19,7 @@ import _throwOnInvalidGCode from './spool/reducers/throwOnInvalidGCodeReducer'
 const reducers = {
   components,
   _pollTemperature,
+  _pollPosition,
   _estopAndReset,
   _serialErrorHandler,
   _serial,

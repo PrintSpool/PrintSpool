@@ -1,4 +1,4 @@
-import { Record, Map } from 'immutable'
+import { Record, Map, List } from 'immutable'
 
 import {
   ESTOP,
@@ -13,16 +13,25 @@ import {
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import { SERIAL_SEND } from '../../serial/actions/serialSend'
 
-const { FAN } = ComponentTypeEnum
+const { FAN, AXIS } = ComponentTypeEnum
+
+const MAX_MOVEMENT_HISTORY = 50
+
+const initialPosition = Record({
+  position: { x: 0, y: 0, z: 0 },
+  inboundFeedrate: 0,
+})()
 
 export const initialState = Record({
   targetTemperaturesCountdown: null,
   activeExtruderAddress: 'e0',
+  relativeMovement: false,
   /*
    * the components' non-configuration/dynamic/ephemeral data (eg.
    * currentTemperature) indexed by their ID
    */
   byAddress: Map(),
+  movementHistory: List([initialPosition]),
 })()
 
 export const Heater = Record({
@@ -43,6 +52,13 @@ export const Fan = Record({
   speed: 0,
 })
 
+export const Axis = Record({
+  id: null,
+  address: null,
+  type: null,
+  position: 0,
+})
+
 const componentsReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
@@ -50,6 +66,7 @@ const componentsReducer = (state = initialState, action) => {
 
       const heaterConfigs = getHeaterConfigs(config)
       const fanConfigs = getComponentsByType(config).get(FAN, Map())
+      const axesConfigs = getComponentsByType(config).get(AXIS, Map())
 
       const heaters = heaterConfigs.mapEntries(([id, component]) => {
         const address = component.model.get('address')
@@ -75,7 +92,21 @@ const componentsReducer = (state = initialState, action) => {
         ]
       })
 
-      const dynamicComponents = heaters.merge(fans)
+      const axes = axesConfigs.mapEntries(([id, component]) => {
+        const address = component.model.get('address')
+        return [
+          address,
+          Axis({
+            id,
+            address,
+            type: component.type,
+          }),
+        ]
+      })
+
+      const dynamicComponents = heaters
+        .merge(fans)
+        .merge(axes)
 
       return initialState.set('byAddress', dynamicComponents)
     }
@@ -99,6 +130,9 @@ const componentsReducer = (state = initialState, action) => {
         if (ephemeralComponent.heater === true) {
           return Heater(perminentAttrs)
         }
+        if (ephemeralComponent.type === AXIS) {
+          return Axis(perminentAttrs)
+        }
         return ephemeralComponent
       }))
     }
@@ -106,9 +140,17 @@ const componentsReducer = (state = initialState, action) => {
       const {
         temperatures,
         targetTemperaturesCountdown,
+        position,
       } = action.payload
 
       let nextState = state
+
+      if (position != null) {
+        Object.entries(position).forEach(([k, v]) => {
+          if (state.byAddress.get(k) == null) return
+          nextState = nextState.setIn(['byAddress', k, 'position'], v)
+        })
+      }
 
       if (temperatures != null) {
         Object.entries(temperatures).forEach(([k, v]) => {
@@ -129,14 +171,37 @@ const componentsReducer = (state = initialState, action) => {
     }
     case SERIAL_SEND: {
       const {
+        macro,
         collectionKey,
         // Legacy: This is actually the address of the component not it's id
         id,
         changes,
         activeExtruderAddress,
+        movement,
       } = action.payload
 
       let nextState = state
+
+      // update the movement history
+      if (movement != null) {
+        const { position } = state.movementHistory.first()
+        const nextPosition = state.byAddress
+          .filter(c => c.type === 'AXIS')
+          .map((c) => {
+            const offset = state.relativeMovement ? position[c.address] : 0
+            return offset + (movement.axes || 0)
+          })
+        nextState = nextState.update('movementHistory', (history) => {
+          let nextHistory = history.unshift({
+            position: nextPosition,
+            inboundFeedrate: movement.feedrate,
+          })
+          if (nextHistory.length > MAX_MOVEMENT_HISTORY) {
+            nextHistory = nextHistory.pop()
+          }
+          return nextHistory
+        })
+      }
 
       // update the heater or fan's state.
       if (collectionKey != null) {
@@ -146,6 +211,10 @@ const componentsReducer = (state = initialState, action) => {
       if (activeExtruderAddress != null) {
         nextState = nextState
           .set('activeExtruderAddress', activeExtruderAddress)
+      }
+
+      if (macro === 'G91' || macro === 'G90') {
+        nextState = nextState.set('relativeMovement', macro === 'G91')
       }
 
       return nextState

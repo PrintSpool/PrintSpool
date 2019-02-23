@@ -34,10 +34,22 @@ import {
   toGCodeLine,
 } from '@tegh/core'
 
+const MOVEMENT_GCODES = ['G0', 'G1']
 const HEATER_MCODES = ['M109', 'M104', 'M140', 'M190', 'M116']
 const EXTRUDER_MCODES = ['M109', 'M104', 'M116']
 const BED_MCODES = ['M140', 'M190']
 const BLOCKING_MCODES = ['M109', 'M190', 'M116']
+
+const parseMovementGCodes = (macro, args) => {
+  const { f: feedrate, ...axes } = args
+  const meta = {
+    movement: {
+      axes,
+      feedrate,
+    },
+  }
+  return meta
+}
 
 const parseHeaterID = (macro, args) => {
   // extruders
@@ -146,6 +158,9 @@ const txParser = ({ macro, args }) => {
   }
   if (FAN_MCODES.includes(macro)) {
     return parseFanMCodes(macro, args, line)
+  }
+  if (MOVEMENT_GCODES.includes(macro)) {
+    return parseMovementGCodes(macro, args, line)
   }
   return {}
 }

@@ -61,6 +61,12 @@ const PrinterResolvers = {
       }
       return entries.toArray()
     },
+
+    movementHistory: (source, args, { store }) => {
+      const state = store.getState()
+      return getComponentsState(state).movementHistory
+        .toArray()
+    },
   },
 }
 

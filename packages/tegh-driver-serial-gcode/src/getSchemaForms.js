@@ -24,6 +24,11 @@ const getSchemaForms = () => ({
             type: 'integer',
             default: 1000,
           },
+          positionPollingInterval: {
+            title: 'Position polling interval (ms)',
+            type: 'integer',
+            default: 500,
+          },
           responseTimeoutTickleAttempts: {
             title: 'Response timeout tickle attempts',
             type: 'integer',
