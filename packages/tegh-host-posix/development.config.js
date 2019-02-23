@@ -172,7 +172,7 @@ const printerConfig = {
       package: '@tegh/raspberry-pi',
       model: {
         outputPins: [
-          21,
+          4,
         ],
         macros: [
           '*',
