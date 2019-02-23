@@ -67,6 +67,12 @@ const PrinterResolvers = {
       return getComponentsState(state).movementHistory
         .toArray()
     },
+
+    temperatureHistory: (source, args, { store }) => {
+      const state = store.getState()
+      return getComponentsState(state).temperatureHistory
+        .toArray()
+    },
   },
 }
 

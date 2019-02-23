@@ -27,6 +27,8 @@ type Printer {
   error: PrinterError
   enabledMacros: [String!]!
   logEntries(level: String, source: String): [LogEntry!]
+
+  temperatureHistory: [TemperatureHistoryEntry!]!
   movementHistory: [MovementHistoryEntry!]!
 }
 
@@ -98,13 +100,25 @@ type Axis {
   position: Float!
 }
 
-type MovementHistoryPosition {
+type TemperatureDataPoint {
+  address: String!
+  targetTemperature: Float!
+  currentTemperature: Float!
+}
+
+type TemperatureHistoryEntry {
+  createdAt: DateTime!
+  temperatures: [TemperatureDataPoint!]!
+}
+
+type MovementDataPoint {
   address: String!
   value: Float!
 }
 
 type MovementHistoryEntry {
-  position: [MovementHistoryPosition!]!
+  createdAt: DateTime!
+  position: [MovementDataPoint!]!
   inboundFeedrate: Float!
 }
 

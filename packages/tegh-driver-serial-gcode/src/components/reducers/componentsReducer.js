@@ -16,8 +16,10 @@ import { SERIAL_SEND } from '../../serial/actions/serialSend'
 const { FAN, AXIS } = ComponentTypeEnum
 
 const MAX_MOVEMENT_HISTORY = 50
+const MAX_TEMPERATURE_HISTORY = 50
 
 const initialPosition = Record({
+  id: 1,
   position: { x: 0, y: 0, z: 0 },
   inboundFeedrate: 0,
 })()
@@ -32,6 +34,7 @@ export const initialState = Record({
    */
   byAddress: Map(),
   movementHistory: List([initialPosition]),
+  temperatureHistory: List(),
 })()
 
 export const Heater = Record({
@@ -108,7 +111,16 @@ const componentsReducer = (state = initialState, action) => {
         .merge(fans)
         .merge(axes)
 
-      return initialState.set('byAddress', dynamicComponents)
+      return initialState
+        .set('byAddress', dynamicComponents)
+        .set('temperatureHistory', List([{
+          createdAt: Date.now(),
+          temperatures: heaters.keySeq().toArray().map(address => ({
+            address,
+            targetTemperature: 0,
+            currentTemperature: 0,
+          })),
+        }]))
     }
     case DRIVER_ERROR:
     case ESTOP:
@@ -116,25 +128,27 @@ const componentsReducer = (state = initialState, action) => {
       /*
        * reset all the dynamic attributes of each component
        */
-      return initialState.set('byAddress', state.byAddress.map((ephemeralComponent) => {
-        const {
-          id,
-          type,
-          address,
-        } = ephemeralComponent
-        const perminentAttrs = { id, type, address }
+      return initialState
+        .set('temperatureHistory', state.temperatureHistory)
+        .set('byAddress', state.byAddress.map((ephemeralComponent) => {
+          const {
+            id,
+            type,
+            address,
+          } = ephemeralComponent
+          const perminentAttrs = { id, type, address }
 
-        if (ephemeralComponent.type === FAN) {
-          return Fan(perminentAttrs)
-        }
-        if (ephemeralComponent.heater === true) {
-          return Heater(perminentAttrs)
-        }
-        if (ephemeralComponent.type === AXIS) {
-          return Axis(perminentAttrs)
-        }
-        return ephemeralComponent
-      }))
+          if (ephemeralComponent.type === FAN) {
+            return Fan(perminentAttrs)
+          }
+          if (ephemeralComponent.heater === true) {
+            return Heater(perminentAttrs)
+          }
+          if (ephemeralComponent.type === AXIS) {
+            return Axis(perminentAttrs)
+          }
+          return ephemeralComponent
+        }))
     }
     case SERIAL_RECEIVE: {
       const {
@@ -153,6 +167,26 @@ const componentsReducer = (state = initialState, action) => {
       }
 
       if (temperatures != null) {
+        const previousEntry = state.temperatureHistory.first()
+
+        nextState = nextState.update('temperatureHistory', (history) => {
+          const nextEntry = {
+            createdAt: Date.now(),
+            temperatures: previousEntry.temperatures.map(t => ({
+              address: t.address,
+              targetTemperature: (
+                state.byAddress.getIn([t.address, 'targetTemperature'], 0)
+              ),
+              currentTemperature: temperatures[t.address] || 0,
+            })),
+          }
+
+          let nextHistory = history.unshift(nextEntry)
+          if (nextHistory.size > MAX_TEMPERATURE_HISTORY) {
+            nextHistory = nextHistory.pop()
+          }
+          return nextHistory
+        })
         Object.entries(temperatures).forEach(([k, v]) => {
           if (state.byAddress.get(k) == null) return
           nextState = nextState.setIn(['byAddress', k, 'currentTemperature'], v)
@@ -184,7 +218,7 @@ const componentsReducer = (state = initialState, action) => {
 
       // update the movement history
       if (movement != null) {
-        const { position } = state.movementHistory.first()
+        const { position, id: previousID } = state.movementHistory.first()
         const nextPosition = state.byAddress
           .filter(c => c.type === 'AXIS')
           .map((c) => {
@@ -193,10 +227,11 @@ const componentsReducer = (state = initialState, action) => {
           })
         nextState = nextState.update('movementHistory', (history) => {
           let nextHistory = history.unshift({
+            id: previousID + 1,
             position: nextPosition,
             inboundFeedrate: movement.feedrate,
           })
-          if (nextHistory.length > MAX_MOVEMENT_HISTORY) {
+          if (nextHistory.size > MAX_MOVEMENT_HISTORY) {
             nextHistory = nextHistory.pop()
           }
           return nextHistory
