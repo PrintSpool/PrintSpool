@@ -1,0 +1,35 @@
+# kind: pipeline
+# name: amd
+#
+# platform:
+#   os: linux
+#   arch: amd64
+#
+# steps:
+# - name: build
+#   image: golang
+#   commands:
+#   - go build
+#   - go test
+#
+# ---
+kind: pipeline
+name: arm64
+
+platform:
+  os: linux
+  arch: arm64
+
+steps:
+- name: build
+  image: node
+  environment:
+    SNAPCRAFT_LOGIN:
+      from_secret: snapcraft.login
+  commands:
+  - sudo snap install snapcraft --classic
+  - echo $SNAPCRAFT_LOGIN > snapcraft.login
+  - snapcraft login --with snapcraft.login
+  - npm install yarn
+  - npx yarn install-all
+  - npx yarn snap:push
