@@ -9,11 +9,11 @@ const deleteJobGraphQL = gql`
 
 const deleteJobHandler = graphql(deleteJobGraphQL, {
   props: ({ mutate }) => ({
-    deleteJob: (job) => {
+    deleteJob: ({ jobID }) => {
       mutate({
         variables: {
           input: {
-            jobID: job.id,
+            jobID,
           },
         },
       })

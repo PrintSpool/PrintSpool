@@ -25,7 +25,10 @@ const enhance = compose(
 )
 
 const JobSubList = ({
-  jobs, title, cancelTask, deleteJob,
+  jobs,
+  title,
+  cancelTask,
+  deleteJob,
 }) => {
   if (jobs.length === 0) return <div />
   return (

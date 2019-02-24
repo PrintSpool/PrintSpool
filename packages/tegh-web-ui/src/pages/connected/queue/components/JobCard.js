@@ -74,7 +74,7 @@ const JobCard = ({
       onClose={closeMenu}
     >
       <MenuItem
-        onClick={() => deleteJob({ id }) && closeMenu()}
+        onClick={() => deleteJob({ jobID: id }) && closeMenu()}
       >
         <ListItemIcon>
           <Delete />

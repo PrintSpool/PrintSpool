@@ -89,7 +89,6 @@ input CreateJobInput {
 }
 
 input DeleteJobInput {
-  printerID: ID!
   jobID: ID!
 }
 
