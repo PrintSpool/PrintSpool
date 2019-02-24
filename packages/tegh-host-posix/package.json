@@ -23,8 +23,8 @@
   "license": "AGPL-3.0-or-later",
   "private": false,
   "scripts": {
-    "trace-gc": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
-    "dev": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings",
+    "trace-gc": "npx node-dev ./dist/index.js --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
+    "dev": "npx node-dev ./dist/index.js --trace-warnings",
     "debug": "DEBUG=\"*,-babel:*,-babel,-gulp-*,-snapdragon:*\" yarn dev",
     "compile:armv7": "pkg -t node10-linux-armv7 ./dist/index.js -o ./dist/tegh-armv7",
     "compile:x64": "pkg -t node10-linux-x64 ./dist/index.js -o ./dist/tegh-x64"
@@ -37,7 +37,6 @@
     "@tegh/driver-serial-gcode": "^0.5.10",
     "@tegh/macros-default": "^0.5.10",
     "@tegh/raspberry-pi": "^0.5.10",
-    "abab": "^2.0.0",
     "apollo-server-koa": "^2.3.1",
     "babel-preset-flow": "^6.23.0",
     "bluebird": "^3.5.3",

@@ -1,3 +1,5 @@
+import os from 'os'
+
 /*
  * This file is used for running the development server and as data for the
  * Jest test cases.
@@ -166,20 +168,24 @@ const printerConfig = {
         ],
       },
     },
-    {
-      id: 'aa00bb33',
-      modelVersion: 1,
-      package: '@tegh/raspberry-pi',
-      model: {
-        outputPins: [
-          4,
-        ],
-        macros: [
-          '*',
-        ],
-      },
-    },
   ],
+}
+
+// Only add the raspberry pi plugin when running on an ARM CPU
+if (['arm', 'arm64'].includes(os.arch())) {
+  printerConfig.plugins.push({
+    id: 'aa00bb33',
+    modelVersion: 1,
+    package: '@tegh/raspberry-pi',
+    model: {
+      outputPins: [
+        4,
+      ],
+      macros: [
+        '*',
+      ],
+    },
+  })
 }
 
 const hostConfig = {
