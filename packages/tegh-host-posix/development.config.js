@@ -197,7 +197,7 @@ const hostConfig = {
     modelVersion: 1,
     maxLength: 1000,
     stderr: [
-      'info',
+      // 'info',
       'warning',
       'error',
       'fatal',
