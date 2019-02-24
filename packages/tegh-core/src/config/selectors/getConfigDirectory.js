@@ -7,7 +7,7 @@ const getConfigDirectory = createSelector(
   (host) => {
     const normalizedDirectory = path.normalize(untildify(host.configDirectory))
 
-    return path.join(normalizedDirectory, host.id)
+    return normalizedDirectory
   },
 )
 

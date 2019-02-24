@@ -1,4 +1,5 @@
 import Promise from 'bluebird'
+import os from 'os'
 import fs from 'fs'
 import path from 'path'
 import mkdirp from 'mkdirp'
@@ -57,7 +58,10 @@ const teghServer = async (argv, pluginLoader) => {
     console.error(expectedUseage)
     return
   }
-  const configPath = path.resolve(argv[2] || '~/.tegh/config.json')
+  const configPath = path.resolve(
+    argv[2]
+    || path.join(os.homedir(), '.tegh/config.json'),
+  )
   const config = await loadConfigForm(configPath)
 
   const serverSettings = config.host.server

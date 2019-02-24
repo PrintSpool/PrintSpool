@@ -1,4 +1,4 @@
-import os from 'os'
+const os = require('os')
 
 /*
  * This file is used for running the development server and as data for the
