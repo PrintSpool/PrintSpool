@@ -6,51 +6,31 @@
 
 Tegh is an experimental 3D printing software designed from the ground up to streamline your 3D printing experience. Tegh features a print queue that enables users to easily queue up prints without managing complicated file systems. To manage prints remotely Tegh is built on top of encrypted, distributed web technologies so you can use your 3D printer from anywhere in the world just as easily as from your home. With Tegh you can worry less and create more.
 
-## Installation
+## Getting Started
 
-with Node v10.12.0 run `yarn bootstrap`
-
-**Prerequisites:** node v10.12.0 (we recommend using nvm) and yarn (`npm i -g yarn`)
+1. Download [Beaker Browser](https://beakerbrowser.com)
+1. Install the [Tegh Snap for Raspbian and Ubuntu](https://snapcraft.io/tegh)
+2. Copy your Invite code from Tegh's logs:
+`journalctl -u snap.tegh.tegh.service`
+3. Open Beaker and follow the instructions at [dat://tegh.io](dat://tegh.io)
 
 ## Hacking
 
-The yarn scripts bellow should be run from the root directory of this repo.
+### Dev Installation
+
+1. Install [nvm](https://github.com/creationix/nvm)
+2. Bootstrap the dev environment with tegh, node 10 and yarn:
+`nvm use && npm i -g yarn && yarn bootstrap`
 
 ### Running the Dev Host + Web UI
 
-Run `yarn start`
+Disable any other copies of tegh and run `yarn start`
 
-**Note:** This is the only way to run tegh atm. It is a temporary stop-gap solution. Eventually the plan is to start Tegh via SystemD or inside of an Android App but neither of those are done yet.
-
-* starts a development server connected to a simulated serial port
-* starts the tegh-web-ui dev server
-* information on how to connect to the servers is echo'd to the command line
+This:
+* starts a hot reloading development server using your `~/.tegh/config.json`.
+* compiles the tegh-web-ui and watches for changes. To preview the UI open `packages/tegh-web-ui/dist` in Beaker's Library.
+* echos an invite code to the command line if you haven't connected already.
 
 ### Running the test suite
 
 Run `yarn test`
-
-## Debugging the snap
-
-When running tegh from the Snap store logs are available by running:
-
-`journalctl -u snap.tegh.tegh.service`
-
-## Installing the development server SystemD Unit File
-
-As a temporary provision until a build script is available for Tegh, the server can be installed with systemd via the following steps:
-
-1. Symlink the Tegh server:
-  ```
-    sudo ln --symbolic --target-directory=/usr/local/bin `pwd`/packages/tegh-host-posix/scripts/tegh-server
-  ```
-2. Link, enable, and start the Tegh server:
-  ```
-    systemctl --user link `pwd`/packages/tegh-host-posix/scripts/tegh-server.service
-    systemctl --user enable --now tegh-server.service
-  ```
-4. Unplug and replug the 3D printer
-
-Tegh's stderr log is accessible via journalctl:
-
-`journalctl --user --unit=tegh-server.service`
