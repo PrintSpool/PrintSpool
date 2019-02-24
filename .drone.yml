@@ -22,14 +22,13 @@ platform:
 
 steps:
 - name: build
-  image: node
+  image: d1plo1d/tegh
   environment:
     SNAPCRAFT_LOGIN:
       from_secret: snapcraft.login
   commands:
-  - sudo snap install snapcraft --classic
-  - echo $SNAPCRAFT_LOGIN > snapcraft.login
+  # - echo $SNAPCRAFT_LOGIN > snapcraft.login
   - snapcraft login --with snapcraft.login
-  - npm install yarn
-  - npx yarn install-all
-  - npx yarn snap:push
+  - npm install -g yarn
+  - yarn install-all
+  - yarn snap:push
