@@ -17,8 +17,8 @@
     "debug-host": "cd ./packages/tegh-host-posix && yarn debug",
     "dev-host": "cd ./packages/tegh-host-posix && yarn dev",
     "publish-all": "yarn build && lerna publish",
-    "compile:armv7": "yarn build-dev && cd ./packages/tegh-host-posix && yarn compile:armv7",
-    "compile:x64": "yarn build-dev && cd ./packages/tegh-host-posix && yarn compile:x64"
+    "snap:build": "./scripts/build-snap.sh",
+    "snap:push": "yarn snap:build && cd ./snap && snapcraft push *.snap"
   },
   "command": {
     "bootstrap": {

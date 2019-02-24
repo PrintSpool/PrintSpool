@@ -2,12 +2,9 @@
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/tegh)
 
-## The Tegh Project
+## Tegh
 
-Tegh is a work in progress Next Gen 3D Printer Host Server. Tegh aims to:
-1. connect your 3D printer to the internet with any commodity USB Type C Android phone
-2. control your 3D printer from anywhere with end-to-end encryption, WebRTC and live video streaming
-3. streamline your 3D printing process with easy-to-use print queuing
+Tegh is an experimental 3D printing software designed from the ground up to streamline your 3D printing experience. Tegh features a print queue that enables users to easily queue up prints without managing complicated file systems. To manage prints remotely Tegh is built on top of encrypted, distributed web technologies so you can use your 3D printer from anywhere in the world just as easily as from your home. With Tegh you can worry less and create more.
 
 ## Installation
 
@@ -32,6 +29,12 @@ Run `yarn start`
 ### Running the test suite
 
 Run `yarn test`
+
+## Debugging the snap
+
+When running tegh from the Snap store logs are available by running:
+
+`journalctl -u snap.tegh.tegh.service`
 
 ## Installing the development server SystemD Unit File
 

@@ -27,6 +27,7 @@ snap/snap/
 snap/stage/
 snap/snap/
 snap/*.tar.bz2
+snap/tegh
 
 coverage
 

@@ -1,8 +1,8 @@
 name: tegh
-version: 0.5.7
+version: 0.5.10
 summary: A graphql server for 3D printers
 description: >
-  A graphql server for 3D printers
+  Tegh is an experimental 3D printing software designed from the ground up to streamline your 3D printing experience. Tegh features a print queue that enables users to easily queue up prints without managing complicated file systems. To manage prints remotely Tegh is built on top of encrypted, distributed web technologies so you can use your 3D printer from anywhere in the world just as easily as from your home. With Tegh you can worry less and create more.
 
 confinement: devmode
 grade: devel
@@ -16,37 +16,12 @@ architectures:
 
 # see https://docs.snapcraft.io/node-apps/6747
 parts:
-  # python-dependency:
-  #   plugin: python
-  #   python-version: python2
-  #   source: .
   tegh:
-    plugin: nodejs
+    plugin: dump
     source: .
-    node-engine: '11.6.0'
-    # nodejs-package-manager: npm
-    # nodejs-version: '11.6.0'
-    # nodejs-yarn-version: 'v1.12.3'
-    build-packages:
-      # - python2
-      - python2.7
-      - python-pip
-      # - build-essential
-    #   - git
-    # "@babel/core": "^7.0.0-0",
-    # "domexception": "^1.0.1",
-    # "graphql": "^14.0.2",
-    # "iterall": "1.1.3",
-    # "immutable": "^4.0.0-rc.12",
-    # "list-diff2": "^0.1.4"
 
-    # node-packages:
-    #   - '@trust/webcrypto'
-    #   - 'wrtc'
-    #   - 'ws'
-    #   - 'serialport'
 apps:
   tegh:
-    command: bin/tegh
-    # daemon: simple
-    # restart-condition : always
+    command: tegh
+    daemon: simple
+    restart-condition : always
