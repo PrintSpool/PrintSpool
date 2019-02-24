@@ -2,9 +2,9 @@
   "private": true,
   "scripts": {
     "delete-node-modules": "rm -rf node_modules && rm -rf packages/*/node_modules",
-    "bootstrap": "yarn make-log-dir && yarn install-all && yarn --skip-optional upgrade @beaker/dat-node",
+    "bootstrap": "yarn make-log-dir && yarn install-all && yarn upgrade @beaker/dat-node",
     "make-log-dir": "sudo mkdir /run/log/tegh; sudo chmod 700 /run/log/tegh && sudo chown $USER: /run/log/tegh",
-    "install-all": "yarn --skip-optional --network-timeout 1000000 && lerna exec --concurrency 1 -- yarn --skip-optional --network-timeout 1000000 && cd ./packages/tegh-web-ui/ && yarn --skip-optional --network-timeout 1000000",
+    "install-all": "yarn --network-timeout 1000000 && lerna exec --concurrency 1 -- yarn --network-timeout 1000000 && cd ./packages/tegh-web-ui/ && yarn --network-timeout 1000000",
     "clean": "gulp clean",
     "build-dev": "gulp build-dev",
     "build": "npx webpack --config webpack.config.babel.js --mode=development",

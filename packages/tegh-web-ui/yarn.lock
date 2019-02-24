@@ -1765,11 +1765,6 @@ acorn-walk@^6.0.1:
   resolved "https://registry.yarnpkg.com/acorn-walk/-/acorn-walk-6.1.0.tgz#c957f4a1460da46af4a0388ce28b4c99355b0cbc"
   integrity sha512-ugTb7Lq7u4GfWSqqpwE0bGyoBZNMTok/zDBXxfEG0QM50jNlGhIWjRC1pPN7bvV1anhF+bs+/gNcRw+o55Evbg==
 
-acorn@6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-6.0.0.tgz#913d61a3a93dd1638ebe3033395083192ee0ae73"
-  integrity sha512-vvZ8PwswGTM15ZXyk3I+SvpTm8UbF8iRnGiU/f9TPU6By7K1XTvfvusFtoQt0WYycudFSYW2lrJDivhBlGovvQ==
-
 "acorn@>= 2.5.2 <= 5.7.3", acorn@^5.0.0, acorn@^5.0.3, acorn@^5.5.3, acorn@^5.6.0, acorn@^5.6.2:
   version "5.7.3"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.7.3.tgz#67aa231bf8812974b85235a96771eb6bd07ea279"
@@ -2854,14 +2849,7 @@ binary-extensions@^1.0.0:
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-1.11.0.tgz#46aa1751fb6a2f93ee5e689bb1087d4b14c6c205"
   integrity sha1-RqoXUftqL5PuXmibsQh9SxTGwgU=
 
-bindings@^1.2.1:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/bindings/-/bindings-1.4.0.tgz#909efa49f2ebe07ecd3cb136778f665052040127"
-  integrity sha512-7znEVX22Djn+nYjxCWKDne0RRloa9XfYa84yk3s+HkE3LpDYZmhArYr9O9huBoHY3/oXispx5LorIX7Sl2CgSQ==
-  dependencies:
-    file-uri-to-path "1.0.0"
-
-bluebird@^3.0.2, bluebird@^3.3.5, bluebird@^3.5.3:
+bluebird@^3.3.5, bluebird@^3.5.3:
   version "3.5.3"
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.3.tgz#7d01c6f9616c9a51ab0f8c549a79dfe6ec33efa7"
   integrity sha512-/qKPUQlaW1OyR51WeCPBvRnAlnZFUJkCSG5HzGnuIqhgyJtF+T94lFnn33eiazjRm2LAHVy2guNnaq48X9SJuw==
@@ -4269,18 +4257,6 @@ ecc-jsbn@~0.1.1:
     jsbn "~0.1.0"
     safer-buffer "^2.1.0"
 
-eccrypto@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/eccrypto/-/eccrypto-1.1.0.tgz#ff67d6c57cc2856ae187c97937ba5f09c0597d78"
-  integrity sha512-UG66qbhc5dkBAhfu2MkghmP3Ko0ZSzqeBckCjkKJKv5AJPmC1VtxVMU4569n8BsUCASFgCv4a7T75ubnTp8RXA==
-  dependencies:
-    acorn "6.0.0"
-    elliptic "6.0.2"
-    es6-promise "3.0.2"
-    nan "2.11.1"
-  optionalDependencies:
-    secp256k1 "2.0.4"
-
 editorconfig@^0.15.0:
   version "0.15.2"
   resolved "https://registry.yarnpkg.com/editorconfig/-/editorconfig-0.15.2.tgz#047be983abb9ab3c2eefe5199cb2b7c5689f0702"
@@ -4308,17 +4284,7 @@ electron-to-chromium@^1.3.62, electron-to-chromium@^1.3.82:
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.84.tgz#2e55df59e818f150a9f61b53471ebf4f0feecc65"
   integrity sha512-IYhbzJYOopiTaNWMBp7RjbecUBsbnbDneOP86f3qvS0G0xfzwNSvMJpTrvi5/Y1gU7tg2NAgeg8a8rCYvW9Whw==
 
-elliptic@6.0.2:
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/elliptic/-/elliptic-6.0.2.tgz#219b96cd92aa9885d91d31c1fd42eaa5eb4483a9"
-  integrity sha1-IZuWzZKqmIXZHTHB/ULqpetEg6k=
-  dependencies:
-    bn.js "^4.0.0"
-    brorand "^1.0.1"
-    hash.js "^1.0.0"
-    inherits "^2.0.1"
-
-elliptic@^6.0.0, elliptic@^6.0.1:
+elliptic@^6.0.0, elliptic@^6.4.1:
   version "6.4.1"
   resolved "https://registry.yarnpkg.com/elliptic/-/elliptic-6.4.1.tgz#c2d0b7776911b86722c632c3c06c60f2f819939a"
   integrity sha512-BsXLz5sqX8OHcsh7CqBMztyXARmGQ3LWPtGjJi6DiJHq5C/qvi9P3OqgswKSDftbu8+IoI/QDTAm2fFnQ9SZSQ==
@@ -4435,11 +4401,6 @@ es6-error@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/es6-error/-/es6-error-4.1.1.tgz#9e3af407459deed47e9a91f9b885a84eb05c561d"
   integrity sha512-Um/+FxMr9CISWh0bi5Zv0iOD+4cFh5qLeks1qhAopKVAJw3drgKbKySikp7wGhDL0HPeaja0P5ULZrxLkniUVg==
-
-es6-promise@3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-3.0.2.tgz#010d5858423a5f118979665f46486a95c6ee2bb6"
-  integrity sha1-AQ1YWEI6XxGJeWZfRkhqlcbuK7Y=
 
 es6-shim@^0.35.3:
   version "0.35.3"
@@ -5050,11 +5011,6 @@ file-system-cache@^1.0.5:
     fs-extra "^0.30.0"
     ramda "^0.21.0"
 
-file-uri-to-path@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/file-uri-to-path/-/file-uri-to-path-1.0.0.tgz#553a7b8446ff6f684359c445f1e37a05dacc33dd"
-  integrity sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==
-
 filename-regex@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/filename-regex/-/filename-regex-2.0.1.tgz#c1c4b9bee3e09725ddb106b75c1e301fe2f18b26"
@@ -5527,15 +5483,15 @@ graphql-tag@^2.9.2:
   resolved "https://registry.yarnpkg.com/graphql-tag/-/graphql-tag-2.10.0.tgz#87da024be863e357551b2b8700e496ee2d4353ae"
   integrity sha512-9FD6cw976TLLf9WYIUPCaaTpniawIjHWZSwIRZSjrfufJamcXbVVYfN2TWvJYbw0Xf2JjYbl1/f2+wDnBVw3/w==
 
-graphql-things@^0.2.6:
-  version "0.2.6"
-  resolved "https://registry.yarnpkg.com/graphql-things/-/graphql-things-0.2.6.tgz#2091c8aabe3ff326d61e25e9b370cdb9609c9b1c"
-  integrity sha512-kBbngT6ivTGiexNAamBLiYc37Z2FgfSpJidiNLUf0CEBlOc9xXgzpRv03F52+7yna2R8XA5naL/cuBAVF4olQA==
+graphql-things@^0.2.7:
+  version "0.2.7"
+  resolved "https://registry.yarnpkg.com/graphql-things/-/graphql-things-0.2.7.tgz#6efe702159636be54d6bf821f5a2aca4dc5b8f61"
+  integrity sha512-Iu1KJf8yYNLR9zqASS+sIyNrttcSQRc9ccOq3KZgqVkCJYBJhhtLXfrNLajF+pa7dakndGfZ635ZKxdkefb94g==
   dependencies:
     any-promise "^1.3.0"
     apollo-link-ws "^1.0.12"
     debug "^4.1.1"
-    eccrypto "^1.1.0"
+    elliptic "^6.4.1"
     eventemitter3 "^3.1.0"
     futoin-hkdf "^1.0.3"
     simple-peer "^9.2.0"
@@ -7681,16 +7637,6 @@ mz@^2.6.0:
     any-promise "^1.0.0"
     object-assign "^4.0.1"
     thenify-all "^1.0.0"
-
-nan@2.11.1:
-  version "2.11.1"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.11.1.tgz#90e22bccb8ca57ea4cd37cc83d3819b52eea6766"
-  integrity sha512-iji6k87OSXa0CcrLl9z+ZiYSuR2o+c0bGuNmXdrhTQTakxytAFsC56SArGYoiHlJlFoHSnvmhpceZJaXkVuOtA==
-
-nan@^2.0.9:
-  version "2.12.1"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.12.1.tgz#7b1aa193e9aa86057e3c7bbd0ac448e770925552"
-  integrity sha512-JY7V6lRkStKcKTvHO5NVSQRv+RV+FIL5pvDoLiAtSL9pKlC5x9PKQcZDsq7m4FO4d57mkhC6Z+QhAh3Jdk5JFw==
 
 nan@^2.9.2:
   version "2.11.0"
@@ -9838,18 +9784,6 @@ seamless-immutable@^7.1.2, seamless-immutable@^7.1.3:
   version "7.1.4"
   resolved "https://registry.yarnpkg.com/seamless-immutable/-/seamless-immutable-7.1.4.tgz#6e9536def083ddc4dea0207d722e0e80d0f372f8"
   integrity sha512-XiUO1QP4ki4E2PHegiGAlu6r82o5A+6tRh7IkGGTVg/h+UoeX4nFBeCGPOhb4CYjvkqsfm/TUtvOMYC1xmV30A==
-
-secp256k1@2.0.4:
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/secp256k1/-/secp256k1-2.0.4.tgz#0453e4ba1cc00485912174ef4a1c59b0f1b6fa49"
-  integrity sha1-BFPkuhzABIWRIXTvShxZsPG2+kk=
-  dependencies:
-    bindings "^1.2.1"
-    bluebird "^3.0.2"
-    bn.js "^4.1.1"
-    elliptic "^6.0.1"
-    nan "^2.0.9"
-    object-assign "^4.0.1"
 
 "semver@2 || 3 || 4 || 5", semver@^5.3.0, semver@^5.5.0:
   version "5.5.1"

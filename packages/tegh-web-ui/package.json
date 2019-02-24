@@ -53,7 +53,7 @@
     "graphql": "^14.0.2",
     "graphql-anywhere": "^3.1.0",
     "graphql-tag": "^2.5.0",
-    "graphql-things": "^0.2.6",
+    "graphql-things": "^0.2.7",
     "history": "^4.7.2",
     "immutable": "^4.0.0-rc.12",
     "isomorphic-fetch": "^2.2.1",
