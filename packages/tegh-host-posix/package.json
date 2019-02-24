@@ -25,7 +25,9 @@
   "scripts": {
     "trace-gc": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
     "dev": "npx node-dev ./dist/index.js ~/.tegh/pzxcvkkwn/config.json --trace-warnings",
-    "debug": "DEBUG=\"*,-babel:*,-babel,-gulp-*,-snapdragon:*\" yarn dev"
+    "debug": "DEBUG=\"*,-babel:*,-babel,-gulp-*,-snapdragon:*\" yarn dev",
+    "compile:armv7": "pkg -t node10-linux-armv7 ./dist/index.js -o ./dist/tegh-armv7",
+    "compile:x64": "pkg -t node10-linux-x64 ./dist/index.js -o ./dist/tegh-x64"
   },
   "dependencies": {
     "@babel/core": "^7.0.0-0",
@@ -83,7 +85,8 @@
     "ws": "~3.3.1"
   },
   "devDependencies": {
-    "node-dev": "github:d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350"
+    "node-dev": "github:d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350",
+    "pkg": "^4.3.7"
   },
   "resolutions": {
     "subscriptions-transport-ws/iterall": "^1.2.2"
