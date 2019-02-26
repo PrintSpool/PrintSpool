@@ -23,6 +23,6 @@ rsync --chown=$USER:$USER -a $RASPBERRY_PI:~/tegh/snap/tegh ./
 
 snapcraft
 
-mv ./*.snap ../dist/
+mv ./*.snap ../dist/armhf.snap
 
 echo "\n\nBUILD COMPLETE (don't worry about the warnings and yellow text they are probably fine)"

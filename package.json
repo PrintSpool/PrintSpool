@@ -19,7 +19,7 @@
     "publish-all": "yarn build && lerna publish",
     "pkg:build": "yarn build-dev && cd ./packages/tegh-host-posix && pkg -t node10-linux ./dist/index.js -o ../../snap/tegh",
     "snap:build": "./scripts/build-snap.sh",
-    "snap:push": "yarn snap:build && cd ./snap && snapcraft push *.snap",
+    "snap:push": "yarn snap:build && snapcraft push ./dist/amd64.snap && snapcraft push ./dist/armhf.snap",
     "docker:build": "sudo docker build --tag d1plo1d/tegh ./docker/",
     "docker:push": "yarn docker:build && sudo docker push d1plo1d/tegh:latest",
     "drone:exec": "sudo drone exec"

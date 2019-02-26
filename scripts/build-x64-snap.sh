@@ -19,6 +19,6 @@ rsync -a --include="*.node" --include="*/" --exclude="*" --prune-empty-dirs ../n
 
 snapcraft
 
-mv ./*.snap ../dist/
+mv ./*.snap ../dist/amd64.snap
 
 echo "\n\nBUILD COMPLETE (don't worry about the warnings and yellow text they are probably fine)"
