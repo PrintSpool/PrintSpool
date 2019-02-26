@@ -18,6 +18,7 @@
     "dev-host": "cd ./packages/tegh-host-posix && yarn dev",
     "publish-all": "yarn build && lerna publish",
     "pkg:build": "yarn build-dev && cd ./packages/tegh-host-posix && pkg -t node10-linux ./dist/index.js -o ../../snap/tegh",
+    "snap:build:x64": "./scripts/build-x64-snap.sh",
     "snap:build": "./scripts/build-snap.sh",
     "snap:push": "yarn snap:build && snapcraft push ./dist/amd64.snap && snapcraft push ./dist/armhf.snap",
     "docker:build": "sudo docker build --tag d1plo1d/tegh ./docker/",
