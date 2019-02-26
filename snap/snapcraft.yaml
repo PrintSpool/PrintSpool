@@ -6,15 +6,10 @@ description: >
 
 confinement: devmode
 grade: devel
-# base: core18
 
 architectures:
   - build-on: amd64
-    run-on: armhf
-  # - build-on: amd64
-  #   run-on: amd64
-  # - build-on: armhf
-  #   run-on: armhf
+    run-on: amd64
 
 # see https://docs.snapcraft.io/node-apps/6747
 parts:
