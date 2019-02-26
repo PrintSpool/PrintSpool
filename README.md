@@ -1,7 +1,14 @@
 
 ## Tegh
 
-Tegh is an experimental 3D printing software designed from the ground up to streamline your 3D printing experience. Tegh features a print queue that enables users to easily queue up prints without managing complicated file systems. To manage prints remotely Tegh is built on top of encrypted, distributed web technologies so you can use your 3D printer from anywhere in the world just as easily as from your home. With Tegh you can worry less and create more.
+Tegh is an experimental 3D printing software designed from the ground up to streamline your 3D printing experience.
+
+Tegh features a print queue that enables users to easily queue up prints without managing complicated file systems.
+
+With Tegh you can worry less and create more.
+
+<!-- Print from Anywhere Copy -->
+<!-- Tegh is an experimental 3D printing software designed from the ground up to streamline your 3D printing experience. Tegh features a print queue that enables users to easily queue up prints without managing complicated file systems. To manage prints remotely Tegh is built on top of encrypted, distributed web technologies so you can use your 3D printer from anywhere in the world just as easily as from your home. With Tegh you can worry less and create more. -->
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/tegh)
 
