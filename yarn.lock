@@ -775,10 +775,19 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
+"@beaker/dat-ephemeral-ext-msg@^1.0.1":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@beaker/dat-ephemeral-ext-msg/-/dat-ephemeral-ext-msg-1.0.2.tgz#4e8373e600a24bfb159661b32c48f847c69e178b"
+  integrity sha512-LfuokfkHB4HnHEYxdQS8ulNEVhhixviYGN8CXo1JCuNC9LdtzMVvsggD+aMiZ73MtoBYuDY6bwTpfAEHDlCxkQ==
+  dependencies:
+    protocol-buffers-encodings "^1.1.0"
+
 "@beaker/dat-node@RangerMauve/dat-node#168b57c":
   version "1.0.0"
   resolved "https://codeload.github.com/RangerMauve/dat-node/tar.gz/168b57c13560ff3f42652408bb43a0eba8fa4dd4"
   dependencies:
+    "@beaker/dat-ephemeral-ext-msg" "^1.0.1"
+    "@beaker/dat-session-data-ext-msg" "^1.1.1"
     beaker-error-constants "^1.4.0"
     concat-stream "^1.6.2"
     dat-dns "^3.0.1"
@@ -786,6 +795,7 @@
     dat-swarm-defaults "^1.0.1"
     discovery-swarm "^5.1.2"
     dom-event-target "^1.0.0"
+    emit-stream "^0.1.2"
     get-folder-size "^2.0.0"
     hypercore-protocol "^6.6.4"
     hyperdrive "^9.14.0"
@@ -795,6 +805,11 @@
     pauls-dat-api "^8.0.0"
     sodium-signatures "^2.1.1"
     toiletdb "^1.4.1"
+
+"@beaker/dat-session-data-ext-msg@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@beaker/dat-session-data-ext-msg/-/dat-session-data-ext-msg-1.1.1.tgz#7746dc64ccd6e28d09bbab9a82728ca896be9de9"
+  integrity sha512-8AofrhwBqfcyK998mCp7Um4d4DJ5udwRDIR9ASQfLPEDIetC5oOKIWAHc+vXC9HN6qzZko31IDSoQvuzgOmwsg==
 
 "@d1plo1d/graphql-scalars@^0.4.3-0":
   version "0.4.3-0"
