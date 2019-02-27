@@ -1,4 +1,4 @@
-<div style="text-align:center">
+<div align="center">
 <img src="./packages/tegh-web-ui/images/TEGH_Logo.svg" alt="Tegh" width="200"/>
 </div>
 
