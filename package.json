@@ -21,6 +21,7 @@
     "snap:build:x64": "./scripts/build-x64-snap.sh",
     "snap:build": "./scripts/build-snap.sh",
     "snap:push": "yarn snap:build && snapcraft push ./dist/amd64.snap && snapcraft push ./dist/armhf.snap",
+    "snap:push:beta": "yarn snap:build && snapcraft push --release=beta ./dist/amd64.snap && snapcraft push --release=beta ./dist/armhf.snap",
     "docker:build": "sudo docker build --tag d1plo1d/tegh ./docker/",
     "docker:push": "yarn docker:build && sudo docker push d1plo1d/tegh:latest",
     "drone:exec": "sudo drone exec"
