@@ -26,6 +26,7 @@ const getSchemaForms = () => ({
           ...(schema.required || []),
           'name',
           'modelID',
+          'automaticPrinting'
         ],
         properties: {
           ...(schema.properties || {}),
@@ -46,11 +47,21 @@ const getSchemaForms = () => ({
           //     'Lulzbot Mini 2',
           //   ],
           // },
+          automaticPrinting: {
+            title: 'Automatic Printing',
+            desciption: (
+              'Start prints automatically without human interaction.'
+              + ' Requires automation hardware such as an auto-scraper or'
+              + ' conveyor.'
+            ),
+            type: 'boolean',
+          },
         },
       }),
       form: [
         'name',
         // 'modelID',
+        'automaticPrinting',
       ],
     },
   },
