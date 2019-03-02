@@ -3,6 +3,7 @@ import { loop, Cmd } from 'redux-loop'
 
 import createTmpFiles from '../sideEffects/createTmpFiles'
 import unlinkTmpFiles from '../sideEffects/unlinkTmpFiles'
+import loadJobFileInToTask from '../sideEffects/loadJobFileInToTask'
 
 import JobHistoryEvent from '../types/JobHistoryEvent'
 
@@ -29,10 +30,10 @@ import { REQUEST_CREATE_JOB } from '../actions/requestCreateJob'
 import createJob, { CREATE_JOB } from '../actions/createJob'
 import deleteJob, { DELETE_JOB } from '../actions/deleteJob'
 
-import { SPOOL_TASK } from '../../spool/actions/spoolTask'
+import spoolTask, { SPOOL_TASK } from '../../spool/actions/spoolTask'
 import { DESPOOL_TASK } from '../../spool/actions/despoolTask'
 import { CANCEL_TASK } from '../../spool/actions/cancelTask'
-import spoolJobFile from '../../spool/actions/spoolJobFile'
+import requestSpoolJobFile, { REQUEST_SPOOL_JOB_FILE } from '../../spool/actions/requestSpoolJobFile'
 
 import { PRINTER_READY } from '../../printer/actions/printerReady'
 import { ESTOP } from '../../printer/actions/estop'
@@ -79,7 +80,7 @@ const jobQueueReducer = (state = initialState, action) => {
         && getSpooledJobFiles(state).size === 0
         && jobFiles.size > 0
       ) {
-        const nextAction = spoolJobFile({ jobFileID: jobFiles.first().id })
+        const nextAction = requestSpoolJobFile({ jobFileID: jobFiles.first().id })
         return loop(nextState, Cmd.action(nextAction))
       }
 
@@ -140,6 +141,19 @@ const jobQueueReducer = (state = initialState, action) => {
 
       /* mark each spooled job file as cancelled */
       return state.update('history', history => history.push(historyEvent))
+    }
+    case REQUEST_SPOOL_JOB_FILE: {
+      const { jobFileID } = action.payload
+      const jobFile = state.jobQueue.jobFiles.get(jobFileID)
+
+      if (jobFile == null) {
+        throw new Error(`jobFile (id: ${jobFileID}) does not exist`)
+      }
+
+      return loop(state, Cmd.run(loadJobFileInToTask, {
+        args: [{ jobFile }],
+        successActionCreator: spoolTask,
+      }))
     }
     case SPOOL_TASK: {
       const {
@@ -220,7 +234,7 @@ const jobQueueReducer = (state = initialState, action) => {
         const nextJobFile = getJobFilesByJobID(state).get((nextJob || {}).id)
 
         if (nextJobFile != null) {
-          const nextAction = spoolJobFile({ jobFileID: nextJobFile.id })
+          const nextAction = requestSpoolJobFile({ jobFileID: nextJobFile.id })
           return loop(nextState, Cmd.action(nextAction))
         }
       }
