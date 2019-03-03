@@ -144,7 +144,7 @@ const jobQueueReducer = (state = initialState, action) => {
     }
     case REQUEST_SPOOL_JOB_FILE: {
       const { jobFileID } = action.payload
-      const jobFile = state.jobQueue.jobFiles.get(jobFileID)
+      const jobFile = state.jobFiles.get(jobFileID)
 
       if (jobFile == null) {
         throw new Error(`jobFile (id: ${jobFileID}) does not exist`)
