@@ -17,14 +17,12 @@ const estopAndResetReducer = (state = initialState, action) => {
       if (macro === 'eStop') {
         return loop(state, Cmd.list([
           Cmd.action(estop()),
-          Cmd.action(requestDespool()),
         ]))
       }
 
       if (macro === 'reset') {
         return loop(state, Cmd.list([
           Cmd.action(connectPrinter()),
-          Cmd.action(requestDespool()),
         ]))
       }
 

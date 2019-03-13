@@ -28,6 +28,7 @@ import { DELETE_JOB } from '../../jobQueue/actions/deleteJob'
 /* task actions */
 import { SPOOL_TASK } from '../actions/spoolTask'
 import requestDespool, { REQUEST_DESPOOL } from '../actions/requestDespool'
+import { DESPOOL_COMPLETED } from '../actions/despoolCompleted'
 import despoolTask from '../actions/despoolTask'
 import { CANCEL_TASK } from '../actions/cancelTask'
 
@@ -40,6 +41,8 @@ export const initialState = Record({
   tasks: Map(),
   currentTaskID: null,
   enabledHostMacros: List(),
+  despoolRequested: false,
+  despooling: false,
 })()
 
 const removeTaskReferences = (state) => {
@@ -119,17 +122,28 @@ const spoolReducer = (state = initialState, action) => {
       /*
        * despool the first line if nothing is spooled
        */
-      const shouldDespool = nextState.currentTaskID == null
+      const shouldDespool = (
+        nextState.currentTaskID == null
+        && state.despooling === false
+        && state.despoolRequested === false
+      )
       if (shouldDespool) {
+        nextState = nextState.set('despoolRequested', true)
         return loop(nextState, Cmd.action(requestDespool()))
       }
 
       return nextState
     }
     case REQUEST_DESPOOL: {
-      const { priorityQueues, currentTaskID } = state
-      let nextState = state
+      const { priorityQueues, currentTaskID, despooling } = state
+
+      let nextState = state.set('despooling', true)
+
       const currentTask = nextState.tasks.get(currentTaskID)
+
+      if (despooling) {
+        throw new Error('Cannot request despool while already despooling')
+      }
 
       if (currentTask != null) {
         /*
@@ -184,6 +198,12 @@ const spoolReducer = (state = initialState, action) => {
         nextState,
         Cmd.action(despoolTask(nextTask, state.enabledHostMacros)),
       )
+    }
+    case DESPOOL_COMPLETED: {
+      const nextState = state
+        .set('despooling', false)
+        .set('despoolRequested', true)
+      return loop(nextState, Cmd.action(requestDespool()))
     }
     default: {
       return state

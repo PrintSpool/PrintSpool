@@ -9,6 +9,7 @@ import { DESPOOL_TASK } from '../../spool/actions/despoolTask'
 
 import spoolTask from '../../spool/actions/spoolTask'
 import requestDespool from '../../spool/actions/requestDespool'
+import despoolCompleted from '../../spool/actions/despoolCompleted'
 
 export const initialState = Record({
   config: null,
@@ -47,7 +48,7 @@ const createMacroExpansionReducer = (
         }
         const actions = [
           Cmd.action(spoolTask(taskAttrs, { prepend: true })),
-          Cmd.action(requestDespool()),
+          Cmd.action(despoolCompleted()),
         ]
 
         return loop(state, Cmd.list(actions))

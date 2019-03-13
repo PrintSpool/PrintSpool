@@ -8,6 +8,7 @@ import {
   requestDespool,
   driverError,
   parseGCode,
+  despoolCompleted,
 } from '@tegh/core'
 
 import { SERIAL_CLOSE } from '../../serial/actions/serialClose'
@@ -79,7 +80,9 @@ const despoolToSerialReducer = (state = initialState, action) => {
         case 'ok': {
           switch (state.onNextOK) {
             case REQUEST_DESPOOL_ON_OK: {
-              return loop(state, Cmd.action(requestDespool()))
+              return loop(state, Cmd.list([
+                Cmd.action(despoolCompleted()),
+              ]))
             }
 
             case RESEND_ON_OK: {

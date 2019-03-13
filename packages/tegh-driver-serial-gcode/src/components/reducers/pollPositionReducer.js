@@ -30,6 +30,7 @@ const pollPositionReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
       const { config } = action.payload
+      console.log('INTERVAL!!!', getPositionPollingInterval(config))
 
       return state.set('pollingInterval', getPositionPollingInterval(config))
     }

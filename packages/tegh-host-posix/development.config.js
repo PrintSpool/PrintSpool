@@ -36,6 +36,7 @@ const printerConfig = {
         simulate,
         delayFromGreetingToReady: 2500,
         temperaturePollingInterval: 1000,
+        positionPollingInterval: 500,
         responseTimeoutTickleAttempts: 3,
         fastCodeTimeout: 30000,
         longRunningCodeTimeout: 60000,
