@@ -180,7 +180,7 @@ if (['arm', 'arm64'].includes(os.arch())) {
     package: '@tegh/raspberry-pi',
     model: {
       outputPins: [
-        4,
+        7,
       ],
       macros: [
         '*',
