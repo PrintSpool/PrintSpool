@@ -67,13 +67,13 @@ const logReducer = (_state, action) => {
       }
     }
     case DRIVER_ERROR: {
-      const { message, stack, code } = action.payload
+      const { message, code } = action.payload
       return {
         source: (
           code === 'FIRMWARE_ERROR' ? 'FIRMWARE' : 'DRIVER'
         ),
         level: 'error',
-        message: (stack || []).unshift(message).join('\n'),
+        message,
       }
     }
     default: {

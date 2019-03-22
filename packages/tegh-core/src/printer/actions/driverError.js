@@ -1,6 +1,6 @@
 export const DRIVER_ERROR = 'tegh/status/DRIVER_ERROR'
 
-const driverError = ({ code, message, stack }) => {
+const driverError = ({ code, message }) => {
   if (typeof code !== 'string') {
     throw new Error('error code must be a string')
   }
@@ -12,7 +12,6 @@ const driverError = ({ code, message, stack }) => {
     payload: {
       code,
       message,
-      stack,
     },
   }
 }
