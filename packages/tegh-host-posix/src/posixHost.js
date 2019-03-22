@@ -52,14 +52,14 @@ const loadConfigForm = async (configPath) => {
 }
 
 const teghServer = async (argv, pluginLoader) => {
-  if (argv[2] === '--help') {
+  if (argv[3] === '--help') {
     const expectedUseage = 'Tegh server. Useage: tegh [CONFIG_FILE]'
     // eslint-disable-next-line no-console
     console.error(expectedUseage)
     return
   }
   const configPath = path.resolve(
-    argv[2]
+    argv[3]
     || path.join(os.homedir(), '.tegh/config.json'),
   )
   const config = await loadConfigForm(configPath)
