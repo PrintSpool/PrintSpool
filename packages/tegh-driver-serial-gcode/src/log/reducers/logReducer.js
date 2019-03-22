@@ -73,7 +73,7 @@ const logReducer = (_state, action) => {
           code === 'FIRMWARE_ERROR' ? 'FIRMWARE' : 'DRIVER'
         ),
         level: 'error',
-        message,
+        message: `${code}: ${message}`,
       }
     }
     default: {
