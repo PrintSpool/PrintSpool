@@ -8,19 +8,19 @@ import {
 
 const replaceNullValueWith = (field, nullReplacement) => ({
   ...field,
-  value: field.value == null ? nullReplacement :  field.value
+  value: field.value == null ? nullReplacement : field.value,
 })
 
 const SwitchWithLabel = props => (
   <div>
     <FormControlLabel
       label={props.label}
-      control={
+      control={(
         <Switch
           {...props}
           field={replaceNullValueWith(props.field, false)}
         />
-      }
+)}
     />
   </div>
 )

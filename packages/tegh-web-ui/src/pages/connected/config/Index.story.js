@@ -7,7 +7,7 @@ import { withRouter } from 'react-router'
 import { compose, withStateHandlers, withProps } from 'recompose'
 
 import { Component as ConfigPageUnwrapped } from './Index.page'
-import { Component as FormDialogUnwrapped } from './components/FormDialog.js'
+import { Component as FormDialogUnwrapped } from './components/FormDialog'
 import configRoot from '../../../../../../development.config'
 
 const config = configRoot.printer

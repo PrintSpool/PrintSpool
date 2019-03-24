@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "lint": "eslint ./packages/",
     "delete-node-modules": "rm -rf node_modules && rm -rf packages/*/node_modules",
     "bootstrap": "yarn make-log-dir && yarn install-all",
     "make-log-dir": "sudo mkdir /run/log/tegh; sudo chmod 700 /run/log/tegh && sudo chown $USER: /run/log/tegh",

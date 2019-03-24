@@ -54,7 +54,9 @@ const parsePrinterFeedback = (line: string): Feedback => {
     const value = parseFloat(rawValue)
     if (!Number.isNaN(value)) feedbackVals[key] = value
   })
-  const { w, x, y, z, ...temperatures } = feedbackVals
+  const {
+    w, x, y, z, ...temperatures
+  } = feedbackVals
 
   const meta = {
     temperatures,

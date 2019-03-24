@@ -1,4 +1,4 @@
-import { xCarriage, yCarriage } from './task.mock.js'
+import { xCarriage, yCarriage } from './task.mock'
 
 const JobMock = attrs => ({
   id: '123',

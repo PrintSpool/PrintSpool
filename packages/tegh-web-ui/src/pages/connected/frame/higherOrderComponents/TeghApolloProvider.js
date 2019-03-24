@@ -19,7 +19,7 @@ const createTeghApolloClient = ({
   // myIdentity,
   hostIdentity,
   // signallingServer = 'ws://localhost:3000',
-  onWebRTCConnect = () => {},
+  // onWebRTCConnect = () => {},
   // onWebRTCDisconnect = () => {},
 }) => {
   // The public key of the 3D printer. This uniquely identifies your 3D printer

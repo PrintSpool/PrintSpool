@@ -20,13 +20,14 @@ const enhance = compose(
   }),
   withProps(({ addHostIdentity, pushHistory }) => ({
     onSubmit: (keyString) => {
-      const invite = (() => {
-        // try {
-          return parseInviteCode(keyString.replace('\n', ''))
-        // } catch {
-        //   return null
-        // }
-      })()
+      const invite = parseInviteCode(keyString.replace('\n', ''))
+      // const invite = (() => {
+      //   try {
+      //     return parseInviteCode(keyString.replace('\n', ''))
+      //   } catch {
+      //     return null
+      //   }
+      // })()
 
       if (invite == null) return
 

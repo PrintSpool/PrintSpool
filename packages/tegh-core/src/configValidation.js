@@ -51,7 +51,7 @@ const configValidation = () => yup.object().shape({
             ),
           ),
       }),
-    })
+    }),
 })
 
 export default configValidation

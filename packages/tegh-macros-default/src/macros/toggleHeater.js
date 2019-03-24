@@ -67,7 +67,7 @@ const toggleHeater = createMacroExpansionReducer(meta, (
     }
   })
 
-  console.log({targetTemperatures})
+  console.log({ targetTemperatures })
   return setTargetTemperature(targetTemperatures, { config })
 })
 
