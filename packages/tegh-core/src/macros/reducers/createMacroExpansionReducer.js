@@ -8,7 +8,6 @@ import { SET_CONFIG } from '../../config/actions/setConfig'
 import { DESPOOL_TASK } from '../../spool/actions/despoolTask'
 
 import spoolTask from '../../spool/actions/spoolTask'
-import requestDespool from '../../spool/actions/requestDespool'
 import despoolCompleted from '../../spool/actions/despoolCompleted'
 
 export const initialState = Record({

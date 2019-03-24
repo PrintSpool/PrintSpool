@@ -7,7 +7,7 @@ import { MockTask } from '../../spool/types/Task'
 
 import setConfig, { SET_CONFIG } from '../../config/actions/setConfig'
 import despoolTask, { DESPOOL_TASK } from '../../spool/actions/despoolTask'
-import requestDespool from '../../spool/actions/requestDespool'
+import despoolCompleted from '../../spool/actions/despoolCompleted'
 
 const meta = {
   package: '@tegh/example-package',
@@ -92,12 +92,12 @@ describe('createMacroExpansionReducer', () => {
       const nextActions = sideEffects.cmds.map(sideEffect => (
         sideEffect.actionToDispatch
       ))
-      expect(nextActions.length).toEqual(2)
+      expect(nextActions).toHaveLength(2)
       expect(nextActions[0].payload.task.data).toEqual(List([
         config.printer.id,
         '{"x":10}',
       ]))
-      expect(nextActions[1]).toEqual(requestDespool())
+      expect(nextActions[1]).toEqual(despoolCompleted())
     })
   })
 })
