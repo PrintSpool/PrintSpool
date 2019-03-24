@@ -100,6 +100,7 @@ describe('componentsReducer', () => {
           .set('targetTemperaturesCountdown', countdown * 1000)
           .set('temperatureHistory', List([
             {
+              id: `${createdAt}-0`,
               createdAt,
               temperatures: [
                 {
