@@ -5,7 +5,6 @@ import {
   DESPOOL_TASK,
   getCurrentLine,
   isEmergency,
-  requestDespool,
   driverError,
   parseGCode,
   despoolCompleted,
@@ -80,9 +79,10 @@ const despoolToSerialReducer = (state = initialState, action) => {
         case 'ok': {
           switch (state.onNextOK) {
             case REQUEST_DESPOOL_ON_OK: {
-              return loop(state, Cmd.list([
+              return loop(
+                state,
                 Cmd.action(despoolCompleted()),
-              ]))
+              )
             }
 
             case RESEND_ON_OK: {

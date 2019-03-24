@@ -2,9 +2,9 @@ import { Set } from 'immutable'
 import {
   despoolTask,
   DESPOOL_TASK,
-  requestDespool,
   driverError,
   MockTask,
+  despoolCompleted,
 } from '@tegh/core'
 
 import reducer, {
@@ -72,7 +72,7 @@ describe('despoolToSerialReducer', () => {
       const action = serialReceive({ data: 'ok', receiveParser: rxParser })
 
       describe(REQUEST_DESPOOL_ON_OK, () => {
-        it('requests a despool', () => {
+        it('marks the despool as completed', () => {
           const state = initialState.set('onNextOK', REQUEST_DESPOOL_ON_OK)
 
           const [
@@ -83,7 +83,7 @@ describe('despoolToSerialReducer', () => {
           ] = reducer(state, action)
 
           expect(nextState).toEqual(state)
-          expect(nextAction).toEqual(requestDespool())
+          expect(nextAction).toEqual(despoolCompleted())
         })
       })
       describe(IGNORE_OK, () => {
