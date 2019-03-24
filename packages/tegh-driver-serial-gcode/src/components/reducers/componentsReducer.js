@@ -35,6 +35,7 @@ export const initialState = Record({
   byAddress: Map(),
   movementHistory: List([initialPosition]),
   temperatureHistory: List(),
+  temperatureKeys: [],
 })()
 
 export const Heater = Record({
@@ -113,14 +114,8 @@ const componentsReducer = (state = initialState, action) => {
 
       return initialState
         .set('byAddress', dynamicComponents)
-        .set('temperatureHistory', List([{
-          createdAt: Date.now(),
-          temperatures: heaters.keySeq().toArray().map(address => ({
-            address,
-            targetTemperature: 0,
-            currentTemperature: 0,
-          })),
-        }]))
+        .set('temperatureKeys', heaters.keySeq().toArray())
+        .set('temperatureHistory', List())
     }
     case DRIVER_ERROR:
     case ESTOP:
@@ -167,17 +162,15 @@ const componentsReducer = (state = initialState, action) => {
       }
 
       if (temperatures != null) {
-        const previousEntry = state.temperatureHistory.first()
-
         nextState = nextState.update('temperatureHistory', (history) => {
           const nextEntry = {
             createdAt: Date.now(),
-            temperatures: previousEntry.temperatures.map(t => ({
-              address: t.address,
+            temperatures: state.temperatureKeys.map(address => ({
+              address,
               targetTemperature: (
-                state.byAddress.getIn([t.address, 'targetTemperature'], 0)
+                state.byAddress.getIn([address, 'targetTemperature'], 0)
               ),
-              currentTemperature: temperatures[t.address] || 0,
+              currentTemperature: temperatures[address] || 0,
             })),
           }
 
