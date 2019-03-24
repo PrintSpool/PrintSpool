@@ -124,6 +124,7 @@ const componentsReducer = (state = initialState, action) => {
        * reset all the dynamic attributes of each component
        */
       return initialState
+        .set('temperatureKeys', state.temperatureKeys)
         .set('temperatureHistory', state.temperatureHistory)
         .set('byAddress', state.byAddress.map((ephemeralComponent) => {
           const {
@@ -150,6 +151,7 @@ const componentsReducer = (state = initialState, action) => {
         temperatures,
         targetTemperaturesCountdown,
         position,
+        createdAt,
       } = action.payload
 
       let nextState = state
@@ -164,7 +166,7 @@ const componentsReducer = (state = initialState, action) => {
       if (temperatures != null) {
         nextState = nextState.update('temperatureHistory', (history) => {
           const nextEntry = {
-            createdAt: Date.now(),
+            createdAt,
             temperatures: state.temperatureKeys.map(address => ({
               address,
               targetTemperature: (

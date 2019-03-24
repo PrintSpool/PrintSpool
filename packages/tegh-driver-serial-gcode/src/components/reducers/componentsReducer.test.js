@@ -47,6 +47,7 @@ const configuredState = initialState
     f0: Fan({ id: 'f0-ID', type: FAN, address: 'f0' }),
     f1: Fan({ id: 'f1-ID', type: FAN, address: 'f1' }),
   }))
+  .set('temperatureKeys', ['e0', 'e1', 'b'])
 
 describe('componentsReducer', () => {
   describe(SET_CONFIG, () => {
@@ -84,13 +85,12 @@ describe('componentsReducer', () => {
     it('sets the current temperatures and targetTemperaturesCountdown', () => {
       const temperature = 12
       const countdown = 32
-      const action = {
-        ...serialReceive({
-          data: `ok t:${temperature} w:${countdown}`,
-          receiveParser: rxParser,
-        }),
-        config,
-      }
+      const createdAt = 1553434314830 // fixed date for testing
+      const action = serialReceive({
+        data: `ok t:${temperature} w:${countdown}`,
+        receiveParser: rxParser,
+        createdAt,
+      })
 
       const nextState = reducer(configuredState, action)
 
@@ -98,6 +98,28 @@ describe('componentsReducer', () => {
         configuredState
           .setIn(['byAddress', 'e0', 'currentTemperature'], temperature)
           .set('targetTemperaturesCountdown', countdown * 1000)
+          .set('temperatureHistory', List([
+            {
+              createdAt,
+              temperatures: [
+                {
+                  address: 'e0',
+                  currentTemperature: temperature,
+                  targetTemperature: null,
+                },
+                {
+                  address: 'e1',
+                  currentTemperature: 0,
+                  targetTemperature: null,
+                },
+                {
+                  address: 'b',
+                  currentTemperature: 0,
+                  targetTemperature: null,
+                },
+              ],
+            },
+          ]))
           .toJSON(),
       )
     })
