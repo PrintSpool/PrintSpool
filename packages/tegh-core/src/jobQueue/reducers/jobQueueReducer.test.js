@@ -1,4 +1,4 @@
-import { Set } from 'immutable'
+import { Set, List, Map } from 'immutable'
 
 import { MockJob } from '../types/Job'
 import { MockJobFile } from '../types/JobFile'
@@ -22,6 +22,7 @@ import deleteJob, { DELETE_JOB } from '../actions/deleteJob'
 import spoolTask, { SPOOL_TASK } from '../../spool/actions/spoolTask'
 import despoolTask, { DESPOOL_TASK } from '../../spool/actions/despoolTask'
 import cancelTask, { CANCEL_TASK } from '../../spool/actions/cancelTask'
+import requestSpoolJobFile from '../../spool/actions/requestSpoolJobFile'
 
 import { PRINTER_READY } from '../../printer/actions/printerReady'
 import { ESTOP } from '../../printer/actions/estop'
@@ -30,8 +31,8 @@ import { DRIVER_ERROR } from '../../printer/actions/driverError'
 describe('jobQueueReducer', () => {
   describe(CREATE_JOB, () => {
     it('adds the job and job files', () => {
-      const jobFile = MockJobFile()
       const job = MockJob()
+      const jobFile = MockJobFile({ jobID: job.id })
       const action = {
         type: CREATE_JOB,
         payload: {
@@ -44,6 +45,35 @@ describe('jobQueueReducer', () => {
 
       expect(nextState.jobs.get(job.id)).toEqual(job)
       expect(nextState.jobFiles.get(jobFile.id)).toEqual(jobFile)
+    })
+    describe('automatic printing', () => {
+      it('starts the job if nothing else is queued', () => {
+        const job = MockJob()
+        const jobFile = MockJobFile({ jobID: job.id })
+        const action = {
+          type: CREATE_JOB,
+          payload: {
+            job,
+            jobFiles: Map({ [jobFile.id]: jobFile }),
+          },
+        }
+
+        const state = initialState
+          .set('automaticPrinting', true)
+
+        const [
+          nextState,
+          { actionToDispatch: nextAction },
+        ] = jobQueueReducer(state, action)
+
+        expect(nextState.jobs.get(job.id)).toEqual(job)
+        expect(nextState.jobFiles.get(jobFile.id)).toEqual(jobFile)
+        expect(nextAction).toEqual(
+          requestSpoolJobFile({
+            jobFileID: jobFile.id,
+          }),
+        )
+      })
     })
   })
 
@@ -259,6 +289,49 @@ describe('jobQueueReducer', () => {
         expect(finishEvent.jobFileID).toEqual(jobFile.id)
         expect(finishEvent.taskID).toEqual(task.id)
         expect(finishEvent.type).toEqual(FINISH_PRINT)
+      })
+      describe('automatic printing', () => {
+        it('starts the next print if the print is finishing', () => {
+          const task = MockTask({
+            jobID: job.id,
+            jobFileID: jobFile.id,
+            currentLineNumber: 1,
+          })
+          const action = despoolTask(task, Set())
+
+          const nextJob = MockJob()
+          const nextJobFile = MockJobFile({
+            jobID: job.id,
+          })
+
+          const stateWithAutomaticNextJob = state
+            .set('automaticPrinting', true)
+            .setIn(['jobs', nextJob.id], nextJob)
+            .setIn(['jobFiles', nextJobFile.id], nextJobFile)
+            .set('history', List([{
+              type: START_PRINT,
+              jobFileID: jobFile.id,
+            }]))
+
+          const [
+            nextState,
+            { actionToDispatch: nextAction },
+          ] = jobQueueReducer(stateWithAutomaticNextJob, action)
+
+          const finishEvent = nextState.history.last()
+
+          expect(nextState.history.size).toEqual(2)
+          expect(finishEvent.jobID).toEqual(job.id)
+          expect(finishEvent.jobFileID).toEqual(jobFile.id)
+          expect(finishEvent.taskID).toEqual(task.id)
+          expect(finishEvent.type).toEqual(FINISH_PRINT)
+
+          expect(nextAction).toEqual(
+            requestSpoolJobFile({
+              jobFileID: nextJobFile.id,
+            })
+          )
+        })
       })
       it('records START_PRINT and FINISH_PRINT if the print is 1 line long', () => {
         const task = MockTask({
