@@ -4,7 +4,6 @@ import {
   estop,
   connectPrinter,
   DESPOOL_TASK,
-  requestDespool,
 } from '@tegh/core'
 
 export const initialState = null

@@ -5,7 +5,6 @@ import {
   connectPrinter,
   despoolTask,
   MockTask,
-  requestDespool,
 } from '@tegh/core'
 
 import reducer, { initialState } from './estopAndResetReducer'
@@ -22,9 +21,8 @@ describe('estopAndResetReducer', () => {
       sideEffects,
     ] = reducer(initialState, action)
 
-    expect(sideEffects.cmds).toHaveLength(2)
+    expect(sideEffects.cmds).toHaveLength(1)
     expect(sideEffects.cmds[0].actionToDispatch).toEqual(estop())
-    expect(sideEffects.cmds[1].actionToDispatch).toEqual(requestDespool())
     expect(nextState).toEqual(initialState)
   })
 
@@ -39,9 +37,8 @@ describe('estopAndResetReducer', () => {
       sideEffects,
     ] = reducer(initialState, action)
 
-    expect(sideEffects.cmds).toHaveLength(2)
+    expect(sideEffects.cmds).toHaveLength(1)
     expect(sideEffects.cmds[0].actionToDispatch).toEqual(connectPrinter())
-    expect(sideEffects.cmds[1].actionToDispatch).toEqual(requestDespool())
     expect(nextState).toEqual(initialState)
   })
 
