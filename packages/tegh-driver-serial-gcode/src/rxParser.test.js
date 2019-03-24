@@ -59,6 +59,23 @@ test('parses errors', () => {
   })
 })
 
+test('parses position feedback', () => {
+  const raw = 'X:10 Y:20.2 Z:30.03 E:0.00 Count X: 0.00Y:0.00Z:0.00'
+  const result = rxParser(raw)
+
+  expect(result).toEqual({
+    type: 'feedback',
+    raw,
+    position: {
+      x: 10,
+      y: 20.2,
+      z: 30.03,
+    },
+    targetTemperaturesCountdown: null,
+    temperatures: {},
+  })
+})
+
 describe('parses oks', () => {
   test('without heater values', () => {
     const result = rxParser('ok')
@@ -88,6 +105,7 @@ describe('parses oks', () => {
     expect(result).toEqual({
       type: 'ok',
       raw: 'ok t: 42 e3: 200',
+      position: null,
       temperatures: {
         e0: 42,
         e3: 200,
@@ -102,6 +120,7 @@ describe('parses oks', () => {
     expect(result).toEqual({
       type: 'ok',
       raw: 'ok t: 42 e3: 200 w: 29',
+      position: null,
       temperatures: {
         e0: 42,
         e3: 200,
@@ -118,6 +137,7 @@ describe('parses temperature feedback', () => {
     expect(result).toEqual({
       type: 'feedback',
       raw: 't: 42 e3: 200',
+      position: null,
       temperatures: {
         e0: 42,
         e3: 200,
@@ -132,6 +152,7 @@ describe('parses temperature feedback', () => {
     expect(result).toEqual({
       type: 'feedback',
       raw: ' t: 42 e3: 200 w: 5',
+      position: null,
       temperatures: {
         e0: 42,
         e3: 200,

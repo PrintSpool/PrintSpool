@@ -40,7 +40,7 @@ const parsePrinterFeedback = (line: string): Feedback => {
   // Filtering out non-temperature values
   const filteredLine = line
     .replace(OK, '')
-    .replace(/(\/|[a-z]*@:|e:)[0-9.]*/g, '')
+    .replace(/(\/|[a-z]*@:|e:)[0-9.]*| count .+/g, '')
     .trim()
   // Normalizing the temperature values and splitting them into words
   const keyValueWords = filteredLine
