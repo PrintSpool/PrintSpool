@@ -44,6 +44,11 @@ Object {
     "logEntries": Array [
       Object {},
     ],
+    "movementHistory": Array [
+      Object {
+        "id": "9",
+      },
+    ],
     "name": "Left Home Lulzbot",
     "plugins": Array [
       Object {
@@ -58,6 +63,11 @@ Object {
     ],
     "status": "CONNECTING",
     "targetTemperaturesCountdown": 3,
+    "temperatureHistory": Array [
+      Object {
+        "id": "5",
+      },
+    ],
   },
 }
 `;

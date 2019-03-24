@@ -46,6 +46,9 @@ describe('PrinterResolvers', () => {
         components: Record({
           targetTemperaturesCountdown: 3,
           activeExtruderID: 'heater1ID',
+          movementHistory: List([{ id: 9 }]),
+          temperatureHistory: List([{ id: 5 }]),
+          temperatureKeys: [],
           byID: Map({
             heater1Address: Record({
               id: 'heater1ID',

@@ -107,6 +107,7 @@ type TemperatureDataPoint {
 }
 
 type TemperatureHistoryEntry {
+  id: ID!
   createdAt: DateTime!
   temperatures: [TemperatureDataPoint!]!
 }
@@ -117,6 +118,7 @@ type MovementDataPoint {
 }
 
 type MovementHistoryEntry {
+  id: ID!
   createdAt: DateTime!
   position: [MovementDataPoint!]!
   inboundFeedrate: Float!

@@ -165,7 +165,11 @@ const componentsReducer = (state = initialState, action) => {
 
       if (temperatures != null) {
         nextState = nextState.update('temperatureHistory', (history) => {
+          const index = state.temperatureHistory.count(h => (
+            h.createdAt === createdAt
+          ))
           const nextEntry = {
+            id: `${createdAt}-${index}`,
             createdAt,
             temperatures: state.temperatureKeys.map(address => ({
               address,
