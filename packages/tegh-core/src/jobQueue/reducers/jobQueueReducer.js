@@ -3,6 +3,7 @@ import { loop, Cmd } from 'redux-loop'
 
 import createTmpFiles from '../sideEffects/createTmpFiles'
 import unlinkTmpFiles from '../sideEffects/unlinkTmpFiles'
+import loadJobFileInToTask from '../sideEffects/loadJobFileInToTask'
 
 import JobHistoryEvent from '../types/JobHistoryEvent'
 
@@ -14,18 +15,25 @@ import {
   FINISH_PRINT,
 } from '../types/JobHistoryTypeEnum'
 
+import getPluginModels from '../../config/selectors/getPluginModels'
+
 import getJobTmpFiles from '../selectors/getJobTmpFiles'
 import getSpooledJobFiles from '../selectors/getSpooledJobFiles'
 import getCompletedJobs from '../selectors/getCompletedJobs'
 import getTaskIDByJobFileID from '../selectors/getTaskIDByJobFileID'
+import getJobFilesByJobID from '../selectors/getJobFilesByJobID'
+
+/* config actions */
+import { SET_CONFIG } from '../../config/actions/setConfig'
 
 import { REQUEST_CREATE_JOB } from '../actions/requestCreateJob'
 import createJob, { CREATE_JOB } from '../actions/createJob'
 import deleteJob, { DELETE_JOB } from '../actions/deleteJob'
 
-import { SPOOL_TASK } from '../../spool/actions/spoolTask'
+import spoolTask, { SPOOL_TASK } from '../../spool/actions/spoolTask'
 import { DESPOOL_TASK } from '../../spool/actions/despoolTask'
 import { CANCEL_TASK } from '../../spool/actions/cancelTask'
+import requestSpoolJobFile, { REQUEST_SPOOL_JOB_FILE } from '../../spool/actions/requestSpoolJobFile'
 
 import { PRINTER_READY } from '../../printer/actions/printerReady'
 import { ESTOP } from '../../printer/actions/estop'
@@ -34,6 +42,7 @@ import { DRIVER_ERROR } from '../../printer/actions/driverError'
 /* reducer */
 
 export const initialState = Record({
+  automaticPrinting: false,
   jobs: Map(),
   jobFiles: Map(),
   /*
@@ -45,6 +54,11 @@ export const initialState = Record({
 
 const jobQueueReducer = (state = initialState, action) => {
   switch (action.type) {
+    case SET_CONFIG: {
+      const { config } = action.payload
+      const { automaticPrinting } = getPluginModels(config).get('@tegh/core')
+      return state.set('automaticPrinting', automaticPrinting)
+    }
     case REQUEST_CREATE_JOB: {
       return loop(
         state,
@@ -57,9 +71,20 @@ const jobQueueReducer = (state = initialState, action) => {
     case CREATE_JOB: {
       const { job, jobFiles } = action.payload
 
-      return state
+      const nextState = state
         .setIn(['jobs', job.id], job)
         .mergeIn(['jobFiles'], jobFiles)
+
+      if (
+        state.automaticPrinting
+        && getSpooledJobFiles(state).size === 0
+        && jobFiles.size > 0
+      ) {
+        const nextAction = requestSpoolJobFile({ jobFileID: jobFiles.first().id })
+        return loop(nextState, Cmd.action(nextAction))
+      }
+
+      return nextState
     }
     case DELETE_JOB: {
       const { jobID } = action.payload
@@ -117,6 +142,19 @@ const jobQueueReducer = (state = initialState, action) => {
       /* mark each spooled job file as cancelled */
       return state.update('history', history => history.push(historyEvent))
     }
+    case REQUEST_SPOOL_JOB_FILE: {
+      const { jobFileID } = action.payload
+      const jobFile = state.jobFiles.get(jobFileID)
+
+      if (jobFile == null) {
+        throw new Error(`jobFile (id: ${jobFileID}) does not exist`)
+      }
+
+      return loop(state, Cmd.run(loadJobFileInToTask, {
+        args: [{ jobFile }],
+        successActionCreator: spoolTask,
+      }))
+    }
     case SPOOL_TASK: {
       const {
         jobID,
@@ -169,8 +207,10 @@ const jobQueueReducer = (state = initialState, action) => {
 
       const eventTypes = []
 
+      const jobIsDone = currentLineNumber === data.size - 1
+
       if (currentLineNumber === 0) eventTypes.push(START_PRINT)
-      if (currentLineNumber === data.size - 1) eventTypes.push(FINISH_PRINT)
+      if (jobIsDone) eventTypes.push(FINISH_PRINT)
 
       if (eventTypes.length === 0) return state
 
@@ -186,7 +226,20 @@ const jobQueueReducer = (state = initialState, action) => {
         })
       ))
 
-      return state.update('history', history => history.concat(historyEvents))
+      const nextState = state
+        .update('history', history => history.concat(historyEvents))
+
+      if (jobIsDone && state.automaticPrinting) {
+        const nextJob = state.jobs.first()
+        const nextJobFile = getJobFilesByJobID(state).get((nextJob || {}).id)
+
+        if (nextJobFile != null) {
+          const nextAction = requestSpoolJobFile({ jobFileID: nextJobFile.id })
+          return loop(nextState, Cmd.action(nextAction))
+        }
+      }
+
+      return nextState
     }
     default: {
       return state

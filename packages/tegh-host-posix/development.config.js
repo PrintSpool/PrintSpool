@@ -152,6 +152,7 @@ const printerConfig = {
       model: {
         modelID: 'lulzbot/lulzbot-mini-2',
         name: 'Left Home Lulzbot',
+        automaticPrinting: false,
       },
     },
     {

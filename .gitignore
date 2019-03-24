@@ -20,7 +20,7 @@ tmp
 packages/*/package-lock.json
 packages/tegh-web-ui/out
 
-*.snap
+dist/*.snap
 snap/parts/
 snap/prime/
 snap/snap/

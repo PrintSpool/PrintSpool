@@ -9,7 +9,7 @@ import requestCreateJob from '../../jobQueue/actions/requestCreateJob'
 import deleteJob from '../../jobQueue/actions/deleteJob'
 /* spool */
 import spoolTask from '../../spool/actions/spoolTask'
-import spoolJobFile from '../../spool/actions/spoolJobFile'
+import requestSpoolJobFile from '../../spool/actions/requestSpoolJobFile'
 import spoolMacro from '../../spool/actions/spoolMacro'
 
 const MutationResolvers = {
@@ -69,7 +69,7 @@ const MutationResolvers = {
       selector: (state, action) => action.payload.task,
     }),
     spoolJobFile: actionResolver({
-      actionCreator: spoolJobFile,
+      actionCreator: requestSpoolJobFile,
       // selector: (state, action) => action.payload.task,
       selector: () => null,
     }),
