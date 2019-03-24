@@ -8,7 +8,7 @@ const getSpooledJobFiles = createSelector(
     state.history
       .groupBy(e => e.jobFileID)
       .filter(jobFileHistory => (
-        SPOOLED_TYPES.includes(jobFileHistory.first().type)
+        SPOOLED_TYPES.includes(jobFileHistory.last().type)
       ))
       .map((jobFileHistory, jobFileID) => state.jobFiles.get(jobFileID))
       .toList()

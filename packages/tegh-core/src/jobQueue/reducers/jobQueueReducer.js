@@ -21,7 +21,7 @@ import getJobTmpFiles from '../selectors/getJobTmpFiles'
 import getSpooledJobFiles from '../selectors/getSpooledJobFiles'
 import getCompletedJobs from '../selectors/getCompletedJobs'
 import getTaskIDByJobFileID from '../selectors/getTaskIDByJobFileID'
-import getJobFilesByJobID from '../selectors/getJobFilesByJobID'
+import getNextJobFile from '../selectors/getNextJobFile'
 
 /* config actions */
 import { SET_CONFIG } from '../../config/actions/setConfig'
@@ -56,8 +56,8 @@ const jobQueueReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
       const { config } = action.payload
-      const { automaticPrinting } = getPluginModels(config).get('@tegh/core')
-      return state.set('automaticPrinting', automaticPrinting)
+      const model = getPluginModels(config).get('@tegh/core')
+      return state.set('automaticPrinting', model.get('automaticPrinting'))
     }
     case REQUEST_CREATE_JOB: {
       return loop(
@@ -80,7 +80,9 @@ const jobQueueReducer = (state = initialState, action) => {
         && getSpooledJobFiles(state).size === 0
         && jobFiles.size > 0
       ) {
-        const nextAction = requestSpoolJobFile({ jobFileID: jobFiles.first().id })
+        const nextAction = requestSpoolJobFile({
+          jobFileID: getNextJobFile(nextState).id,
+        })
         return loop(nextState, Cmd.action(nextAction))
       }
 
@@ -230,11 +232,12 @@ const jobQueueReducer = (state = initialState, action) => {
         .update('history', history => history.concat(historyEvents))
 
       if (jobIsDone && state.automaticPrinting) {
-        const nextJob = state.jobs.first()
-        const nextJobFile = getJobFilesByJobID(state).get((nextJob || {}).id)
+        const nextJobFile = getNextJobFile(nextState)
 
         if (nextJobFile != null) {
-          const nextAction = requestSpoolJobFile({ jobFileID: nextJobFile.id })
+          const nextAction = requestSpoolJobFile({
+            jobFileID: nextJobFile.id,
+          })
           return loop(nextState, Cmd.action(nextAction))
         }
       }
