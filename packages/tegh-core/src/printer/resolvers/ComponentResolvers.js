@@ -1,6 +1,7 @@
 import getComponentsState from '../selectors/getComponentsState'
 import { FAN } from '../../config/types/components/ComponentTypeEnum'
 import { NullSchemaForm } from '../../pluginManager/types/SchemaForm'
+import getAxePositions from '../selectors/getAxePositions'
 
 const ComponentResolvers = {
   Component: {
@@ -23,7 +24,16 @@ const ComponentResolvers = {
         schemaForm,
       }
     },
+    axis: (source, args, { store }) => {
+      const state = store.getState()
 
+      const address = source.model.get('address')
+
+      return {
+        id: address,
+        position: getAxePositions(state)[address],
+      }
+    },
     address: source => (
       source.model.get('address')
     ),

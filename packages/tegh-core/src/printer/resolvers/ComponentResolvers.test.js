@@ -1,4 +1,4 @@
-import { Map, Record } from 'immutable'
+import { Map, Record, List } from 'immutable'
 import typeDefs from '@tegh/schema'
 
 import deterministicTestSetup from '../../util/testing/deterministicTestSetup'
@@ -23,6 +23,16 @@ describe('ComponentResolvers', () => {
       })(),
       '@tegh/driver-serial-gcode': {
         components: Record({
+          movementHistory: List([{
+            id: 1,
+            position: {
+              x: 0,
+              y: 0,
+              z: 0,
+              e0: 10,
+            },
+            inboundFeedrate: 0,
+          }]),
           byAddress: Map({
             e1: Record({
               id: 'heater_1',

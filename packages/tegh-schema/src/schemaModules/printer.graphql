@@ -94,6 +94,7 @@ type Heater {
 }
 
 type Axis {
+  id: ID!
   """
   The current position in mm.
   """
