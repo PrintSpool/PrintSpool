@@ -1,0 +1,19 @@
+{
+  "name": "@tegh/autodrop3d",
+  "version": "0.5.10",
+  "description": "AutoDrop3D plugin for Tegh",
+  "main": "dist/index.js",
+  "author": "Rob Gilson",
+  "license": "AGPL-3.0-or-later",
+  "private": false,
+  "files": [
+    "dist/*"
+  ],
+  "repository": "https://github.com/tegh/tegh",
+  "dependencies": {
+    "@tegh/core": "^0.5.10",
+    "immutable": "^4.0.0-rc.12",
+    "node-fetch": "^2.3.0",
+    "redux-loop": "^4.5.2"
+  }
+}

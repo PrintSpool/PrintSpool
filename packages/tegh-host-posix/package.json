@@ -31,6 +31,7 @@
     "@babel/core": "^7.0.0-0",
     "@babel/register": "^7.0.0",
     "@beaker/dat-node": "RangerMauve/dat-node#168b57c",
+    "@tegh/autodrop3d": "^0.5.10",
     "@tegh/core": "^0.5.10",
     "@tegh/driver-serial-gcode": "^0.5.10",
     "@tegh/macros-default": "^0.5.10",

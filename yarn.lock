@@ -1099,9 +1099,9 @@
   integrity sha512-A2TAGbTFdBw9azHbpVd+/FkdW2T6msN1uct1O9bH3vTerEHKZhTXJUQXy+hNq1B0RagfU8U+KBdqiZpxjhOUQA==
 
 "@types/node@*":
-  version "11.9.5"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.9.5.tgz#011eece9d3f839a806b63973e228f85967b79ed3"
-  integrity sha512-vVjM0SVzgaOUpflq4GYBvCpozes8OgIIS5gVXVka+OfK3hvnkC1i93U8WiY2OtNE4XUWyyy/86Kf6e0IHTQw1Q==
+  version "11.11.6"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.11.6.tgz#df929d1bb2eee5afdda598a41930fe50b43eaa6a"
+  integrity sha512-Exw4yUWMBXM3X+8oqzJNRqZSwUAaS4+7NdvHqQuFi/d+synz++xmX3QIf+BFqneW8N31R8Ky+sikfZUXq07ggQ==
 
 "@types/node@^10.1.0":
   version "10.12.18"
@@ -3529,9 +3529,9 @@ dashdash@^1.12.0:
     assert-plus "^1.0.0"
 
 dat-dns@^3.0.1:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/dat-dns/-/dat-dns-3.1.0.tgz#d9efbd4db3fb7ad4aa2b81f99c55367a53dbc1d7"
-  integrity sha512-QDh1+cMFX6qw4sncReWamb7qM6jrztB9Wri5YcKNhtYXxayHfFG2MC6ny8KovKPvz+7whP1A9lYzeZY0L0fO8Q==
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/dat-dns/-/dat-dns-3.2.0.tgz#b8214f3b80e713a54904432f2f664c69851858d5"
+  integrity sha512-3U17SGiMgSflp0CnqMxoOkyNPZF93q/ieITIjogmWc/gVwZ/z0PgAALgPxrwmebxf8rYCPukVRWfue/8F9PRMg==
   dependencies:
     call-me-maybe "^1.0.1"
     concat-stream "^1.6.0"
@@ -6099,9 +6099,9 @@ hypercore-protocol@^6.4.1, hypercore-protocol@^6.6.4:
     varint "^5.0.0"
 
 hypercore@^6.22.1:
-  version "6.25.0"
-  resolved "https://registry.yarnpkg.com/hypercore/-/hypercore-6.25.0.tgz#411cea77e2f1562d825b1666af23d4e6225141cd"
-  integrity sha512-lUzqx3d0l+Ex7XryiUkNAM7wU7XVa9b4JcmulRqpdXLJGEV1VKTqn2IYnhAfKcoBjm5KjIgJZiiv5JBEdeEcQw==
+  version "6.25.2"
+  resolved "https://registry.yarnpkg.com/hypercore/-/hypercore-6.25.2.tgz#a7ddc8e0ce50688c73b881c488bfe8e64ee8249c"
+  integrity sha512-l6beYZTbWbbsklFv/YehVPofOM2O7T5e3Zz7V4O93xxXb4JhBQ4z3Kgexzl5B0OkbcsUg/bgqRGdqSAS20VAEg==
   dependencies:
     array-lru "^1.1.0"
     atomic-batcher "^1.0.2"
@@ -6134,9 +6134,9 @@ hypercore@^6.22.1:
     fd-lock "^1.0.2"
 
 hyperdrive@^9.14.0:
-  version "9.14.2"
-  resolved "https://registry.yarnpkg.com/hyperdrive/-/hyperdrive-9.14.2.tgz#dfb63159045ee493665fcc4172b25b7448e763fe"
-  integrity sha512-er9ZPrOypGpDVMNC3l08JT1rLx/Q6RJnFu6z0iGXvdDxudAtJ90hgoIQfl6qdyjC8pD2t1KXaKRwRSdznhX66A==
+  version "9.14.3"
+  resolved "https://registry.yarnpkg.com/hyperdrive/-/hyperdrive-9.14.3.tgz#1e001ac54aa195903b6d84e41d22e0c526805769"
+  integrity sha512-j722JRSwempuD8fn5VPVDHR/NFBFKxUlZ1ZLvTTipVkV70uWC9OyWYBlYqWp/b4ZgZpVhcpfzqzpsL1i/H+pTw==
   dependencies:
     append-tree "^2.3.5"
     duplexify "^3.5.0"
@@ -8546,10 +8546,15 @@ mutexify@^1.1.0:
   resolved "https://registry.yarnpkg.com/mutexify/-/mutexify-1.2.0.tgz#45597975a2b035f56dcf61ff15cc8d73c28e7639"
   integrity sha512-oprzxd2zhfrJqEuB98qc1dRMMonClBQ57UPDjnbcrah4orEMTq1jq3+AcdFe5ePzdbJXI7zmdhfftIdMnhYFoQ==
 
-nan@*, nan@^2.12.1, nan@^2.3.2, nan@^2.4.0, nan@^2.5.1, nan@^2.9.2:
+nan@*, nan@^2.12.1, nan@^2.3.2, nan@^2.9.2:
   version "2.12.1"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.12.1.tgz#7b1aa193e9aa86057e3c7bbd0ac448e770925552"
   integrity sha512-JY7V6lRkStKcKTvHO5NVSQRv+RV+FIL5pvDoLiAtSL9pKlC5x9PKQcZDsq7m4FO4d57mkhC6Z+QhAh3Jdk5JFw==
+
+nan@^2.4.0, nan@^2.5.1:
+  version "2.13.2"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.13.2.tgz#f51dc7ae66ba7d5d55e1e6d4d8092e802c9aefe7"
+  integrity sha512-TghvYc72wlMGMVMluVo9WRJc0mB8KxxF/gZ4YYFy7V2ZQX9l7rgbPg7vjS9mt6U5HXODVFVI2bOduCzwOMv/lw==
 
 nanoassert@^1.0.0:
   version "1.1.0"
@@ -8663,7 +8668,7 @@ node-emoji@^1.4.1:
   dependencies:
     lodash.toarray "^4.4.0"
 
-node-fetch@^2.1.2, node-fetch@^2.2.0:
+node-fetch@^2.1.2, node-fetch@^2.2.0, node-fetch@^2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.3.0.tgz#1a1d940bbfb916a1d3e0219f037e89e71f8c5fa5"
   integrity sha512-MOd8pV3fxENbryESLgVIeaGKrdl+uaYhCSSVkjeOb/31/njTpcis5aWfdqgNlHIrKOLRbMnfPINPOML2CIFeXA==
@@ -10800,9 +10805,9 @@ simple-peer@^9.2.0:
     readable-stream "^2.3.4"
 
 simple-sha1@^2.1.0:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/simple-sha1/-/simple-sha1-2.1.1.tgz#93f3b7f2e8dfdc056c32793e5d47b58d311b140d"
-  integrity sha512-pFMPd+I/lQkpf4wFUeS/sED5IqdIG1lUlrQviBMV4u4mz8BRAcB5fvUx5Ckfg3kBigEglAjHg7E9k/yy2KlCqA==
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/simple-sha1/-/simple-sha1-2.1.2.tgz#de40cbd5aae278fde8e3bb3250a35d74c67326b1"
+  integrity sha512-TQl9rm4rdKAVmhO++sXAb8TNN0D6JAD5iyI1mqEPNpxUzTRrtm4aOG1pDf/5W/qCFihiaoK6uuL9rvQz1x1VKw==
   dependencies:
     rusha "^0.8.1"
 

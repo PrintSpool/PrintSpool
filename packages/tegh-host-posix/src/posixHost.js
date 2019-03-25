@@ -6,6 +6,7 @@ import mkdirp from 'mkdirp'
 import keypair from 'keypair'
 import { createECDHKey } from 'graphql-things'
 
+import * as teghAutodrop3D from '@tegh/autodrop3d'
 import * as teghCore from '@tegh/core'
 import * as teghDriverSerialGCode from '@tegh/driver-serial-gcode'
 import * as teghMacrosDefault from '@tegh/macros-default'
@@ -16,6 +17,7 @@ import httpServer from './server/httpServer'
 import webRTCServer from './server/webRTCServer'
 
 const plugins = {
+  '@tegh/autodrop3d': teghAutodrop3D,
   '@tegh/core': teghCore,
   '@tegh/driver-serial-gcode': teghDriverSerialGCode,
   '@tegh/macros-default': teghMacrosDefault,

@@ -41,6 +41,7 @@
   ],
   "workspaces": {
     "packages": [
+      "packages/tegh-autodrop3d",
       "packages/tegh-core",
       "packages/tegh-driver-serial-gcode",
       "packages/tegh-macros-default",
