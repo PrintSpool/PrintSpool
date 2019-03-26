@@ -29,6 +29,7 @@ import { SET_CONFIG } from '../../config/actions/setConfig'
 import { REQUEST_CREATE_JOB } from '../actions/requestCreateJob'
 import createJob, { CREATE_JOB } from '../actions/createJob'
 import deleteJob, { DELETE_JOB } from '../actions/deleteJob'
+import jobQueueComplete from '../actions/jobQueueComplete'
 
 import spoolTask, { SPOOL_TASK } from '../../spool/actions/spoolTask'
 import { DESPOOL_TASK } from '../../spool/actions/despoolTask'
@@ -142,7 +143,25 @@ const jobQueueReducer = (state = initialState, action) => {
       })
 
       /* mark each spooled job file as cancelled */
-      return state.update('history', history => history.push(historyEvent))
+      const nextState = state
+        .update('history', history => history.push(historyEvent))
+
+      const nextJobFile = getNextJobFile(nextState)
+
+      if (state.automaticPrinting && nextJobFile != null) {
+        return loop(
+          nextState,
+          Cmd.action(requestSpoolJobFile({
+            jobFileID: nextJobFile.id,
+          })),
+        )
+      }
+
+      if (nextJobFile == null) {
+        return loop(nextState, Cmd.action(jobQueueComplete()))
+      }
+
+      return nextState
     }
     case REQUEST_SPOOL_JOB_FILE: {
       const { jobFileID } = action.payload
@@ -231,15 +250,20 @@ const jobQueueReducer = (state = initialState, action) => {
       const nextState = state
         .update('history', history => history.concat(historyEvents))
 
-      if (jobIsDone && state.automaticPrinting) {
-        const nextJobFile = getNextJobFile(nextState)
 
-        if (nextJobFile != null) {
-          const nextAction = requestSpoolJobFile({
+      const nextJobFile = getNextJobFile(nextState)
+
+      if (jobIsDone && state.automaticPrinting && nextJobFile != null) {
+        return loop(
+          nextState,
+          Cmd.action(requestSpoolJobFile({
             jobFileID: nextJobFile.id,
-          })
-          return loop(nextState, Cmd.action(nextAction))
-        }
+          })),
+        )
+      }
+
+      if (nextJobFile == null) {
+        return loop(nextState, Cmd.action(jobQueueComplete()))
       }
 
       return nextState
