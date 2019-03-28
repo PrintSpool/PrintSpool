@@ -23,7 +23,6 @@ const initialState = Record({
   autodropJobID: null,
   deviceID: null,
   apiURL: null,
-  outputPins: Set(),
 })()
 
 const PACKAGE = '@tegh/autodrop3d'
@@ -34,14 +33,6 @@ const DEFAULT_URL = (
   'https://autodrop.sparkhosted.site/api/jobsQueue/printerRequestJob'
 )
 
-/*
- * sets the value of a gpio output pin
- * args:
- *  pin: the pin number to set
- *  value: the on/off boolean value of the pin
- *
- * example use: setGPIO {"pin": 4, "value": true}
- */
 const autodropReducer = (state, action) => {
   switch (action.type) {
     case SET_CONFIG: {
