@@ -12,8 +12,12 @@
   "repository": "https://github.com/tegh/tegh",
   "dependencies": {
     "@tegh/core": "^0.5.10",
+    "bluebird": "^3.5.3",
     "immutable": "^4.0.0-rc.12",
     "node-fetch": "^2.3.0",
     "redux-loop": "^4.5.2"
+  },
+  "devDependencies": {
+    "mockdate": "^2.0.2"
   }
 }

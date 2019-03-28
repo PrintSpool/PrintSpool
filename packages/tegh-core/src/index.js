@@ -1,3 +1,5 @@
+export uuid from 'uuid'
+
 export SerialPort from './util/SerialPort'
 
 export * from './actions'

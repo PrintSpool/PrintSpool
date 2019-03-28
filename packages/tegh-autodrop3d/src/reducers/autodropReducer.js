@@ -1,6 +1,6 @@
 import Promise from 'bluebird'
 import { loop, Cmd } from 'redux-loop'
-import { Record, Set } from 'immutable'
+import { Record } from 'immutable'
 
 import {
   SET_CONFIG,
@@ -18,10 +18,11 @@ import fetchFail, { FETCH_FAIL } from '../actions/fetchFail'
 
 import fetchFromAutodrop from '../sideEffects/fetchFromAutodrop'
 
-const initialState = Record({
+export const initialState = Record({
   printing: false,
   autodropJobID: null,
   deviceID: null,
+  deviceKey: null,
   apiURL: null,
 })()
 
@@ -76,13 +77,20 @@ const autodropReducer = (state, action) => {
       )
     }
     case MARK_AUTODROP_JOB_AS_DONE: {
-      const { apiURL, autodropJobID } = state
+      const {
+        apiURL,
+        autodropJobID,
+        deviceID,
+        deviceKey,
+      } = state
 
       if (autodropJobID == null) {
         throw new Error('AutoDrop Job ID cannot be Null')
       }
 
-      const url = `${apiURL}?jobID=${autodropJobID}&stat=Done`
+      const url = (
+        `${apiURL}?name=${deviceID}&key=${deviceKey}&jobID=${autodropJobID}&stat=Done`
+      )
 
       Cmd.run(
         fetchFromAutodrop,
@@ -99,14 +107,19 @@ const autodropReducer = (state, action) => {
       )
     }
     case REQUEST_AUTODROP_JOB: {
-      const { deviceID, apiURL, printing } = state
+      const {
+        deviceID,
+        deviceKey,
+        apiURL,
+        printing,
+      } = state
 
       // do not download any jobs from AutoDrop until the printer is idle
       if (printing) {
         return state
       }
 
-      const url = `${apiURL}?name=${deviceID}`
+      const url = `${apiURL}?name=${deviceID}&key=${deviceKey}`
       console.log(url)
 
       const nextState = state.set('autodropJobID', null)
@@ -127,8 +140,8 @@ const autodropReducer = (state, action) => {
       const content = action.payload
       const lines = content.split('\n')
 
+      console.log(lines.slice(0, 50))
       const autodropIsEmpty = lines[0].indexOf(';START') === -1
-      const autodropJobID = lines[2].replace(';', '').strip()
 
       if (autodropIsEmpty) {
         // start polling
@@ -140,6 +153,9 @@ const autodropReducer = (state, action) => {
           }),
         )
       }
+
+      const autodropJobID = lines[2].replace(';', '').trim()
+
       console.log({ autodropJobID })
       console.log(lines.slice(0, 50))
 

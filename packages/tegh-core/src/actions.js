@@ -11,6 +11,7 @@ export printerReady, { PRINTER_READY } from './printer/actions/printerReady'
 export connectPrinter, { CONNECT_PRINTER } from './printer/actions/connectPrinter'
 export printerDisconnected, { PRINTER_DISCONNECTED } from './printer/actions/printerDisconnected'
 /* jobQueue */
+export requestCreateJob, { REQUEST_CREATE_JOB } from './jobQueue/actions/requestCreateJob'
 export createJob, { CREATE_JOB } from './jobQueue/actions/createJob'
 export jobQueueComplete, { JOB_QUEUE_COMPLETE } from './jobQueue/actions/jobQueueComplete'
 // export createLocalFileJob from './jobQueue/actions/createLocalFileJob'
