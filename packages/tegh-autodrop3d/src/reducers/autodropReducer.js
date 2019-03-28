@@ -15,6 +15,7 @@ import requestAutodropJob, { REQUEST_AUTODROP_JOB } from '../actions/requestAuto
 import markAutodropJobAsDone, { MARK_AUTODROP_JOB_AS_DONE } from '../actions/markAutodropJobAsDone'
 import fetchComplete, { FETCH_COMPLETE } from '../actions/fetchComplete'
 import fetchFail, { FETCH_FAIL } from '../actions/fetchFail'
+import autodropJobDone, { AUTODROP_JOB_DONE } from '../actions/autodropJobDone'
 
 import fetchFromAutodrop from '../sideEffects/fetchFromAutodrop'
 
@@ -76,36 +77,6 @@ const autodropReducer = (state, action) => {
         Cmd.action(nextAction),
       )
     }
-    case MARK_AUTODROP_JOB_AS_DONE: {
-      const {
-        apiURL,
-        autodropJobID,
-        deviceID,
-        deviceKey,
-      } = state
-
-      if (autodropJobID == null) {
-        throw new Error('AutoDrop Job ID cannot be Null')
-      }
-
-      const url = (
-        `${apiURL}?name=${deviceID}&key=${deviceKey}&jobID=${autodropJobID}&stat=Done`
-      )
-
-      Cmd.run(
-        fetchFromAutodrop,
-        {
-          args: [{ url }],
-          successActionCreator: requestAutodropJob,
-          failActionCreator: fetchFail,
-        },
-      )
-
-      return loop(
-        state,
-        Cmd.action(requestAutodropJob()),
-      )
-    }
     case REQUEST_AUTODROP_JOB: {
       const {
         deviceID,
@@ -120,7 +91,6 @@ const autodropReducer = (state, action) => {
       }
 
       const url = `${apiURL}?name=${deviceID}&key=${deviceKey}`
-      console.log(url)
 
       const nextState = state.set('autodropJobID', null)
 
@@ -157,7 +127,6 @@ const autodropReducer = (state, action) => {
       const autodropJobID = lines[2].replace(';', '').trim()
 
       console.log({ autodropJobID })
-      console.log(lines.slice(0, 50))
 
       const nextState = state.merge({ autodropJobID })
 
@@ -174,6 +143,44 @@ const autodropReducer = (state, action) => {
       return loop(
         nextState,
         Cmd.action(nextAction),
+      )
+    }
+    case MARK_AUTODROP_JOB_AS_DONE: {
+      const {
+        apiURL,
+        autodropJobID,
+        deviceID,
+        deviceKey,
+      } = state
+
+      if (autodropJobID == null) {
+        throw new Error('AutoDrop Job ID cannot be Null')
+      }
+
+      const url = (
+        `${apiURL}?name=${deviceID}&key=${deviceKey}&jobID=${autodropJobID}&stat=Done`
+      )
+
+      console.log('MARK AS DONE!!!', url)
+
+      return loop(
+        state,
+        Cmd.run(
+          fetchFromAutodrop,
+          {
+            args: [{ url }],
+            successActionCreator: autodropJobDone,
+            failActionCreator: fetchFail,
+          },
+        ),
+      )
+    }
+    case AUTODROP_JOB_DONE: {
+      const nextState = state.set('autodropJobID', null)
+
+      return loop(
+        nextState,
+        Cmd.action(requestAutodropJob()),
       )
     }
     case FETCH_FAIL: {

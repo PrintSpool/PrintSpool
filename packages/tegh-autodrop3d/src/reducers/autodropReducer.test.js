@@ -7,8 +7,13 @@ import {
   requestCreateJob,
 } from '@tegh/core'
 
+import fetchFromAutodrop from '../sideEffects/fetchFromAutodrop'
+
 import requestAutodropJob from '../actions/requestAutodropJob'
+import fetchFail from '../actions/fetchFail'
 import fetchComplete, { FETCH_COMPLETE } from '../actions/fetchComplete'
+import markAutodropJobAsDone, { MARK_AUTODROP_JOB_AS_DONE } from '../actions/markAutodropJobAsDone'
+import autodropJobDone from '../actions/autodropJobDone'
 
 import autodropReducer, { initialState } from './autodropReducer'
 
@@ -66,6 +71,25 @@ describe(autodropReducer, () => {
           }),
         )
       })
+    })
+  })
+  describe(MARK_AUTODROP_JOB_AS_DONE, () => {
+    it('marks the job as done', () => {
+      const action = markAutodropJobAsDone()
+      const state = initialState
+        .set('autodropJobID', '95')
+        .set('apiURL', 'test.com')
+
+      const results = autodropReducer(state, action)
+
+      expect(getModel(results)).toEqual(state)
+      expect(getCmd(results)).toEqual(
+        Cmd.run(fetchFromAutodrop, {
+          args: [{ url: 'test.com?name=null&key=null&jobID=95&stat=Done' }],
+          successActionCreator: autodropJobDone,
+          failActionCreator: fetchFail,
+        }),
+      )
     })
   })
 })

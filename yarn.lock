@@ -775,10 +775,19 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
+"@beaker/dat-ephemeral-ext-msg@^1.0.1":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@beaker/dat-ephemeral-ext-msg/-/dat-ephemeral-ext-msg-1.0.2.tgz#4e8373e600a24bfb159661b32c48f847c69e178b"
+  integrity sha512-LfuokfkHB4HnHEYxdQS8ulNEVhhixviYGN8CXo1JCuNC9LdtzMVvsggD+aMiZ73MtoBYuDY6bwTpfAEHDlCxkQ==
+  dependencies:
+    protocol-buffers-encodings "^1.1.0"
+
 "@beaker/dat-node@RangerMauve/dat-node#168b57c":
   version "1.0.0"
   resolved "https://codeload.github.com/RangerMauve/dat-node/tar.gz/168b57c13560ff3f42652408bb43a0eba8fa4dd4"
   dependencies:
+    "@beaker/dat-ephemeral-ext-msg" "^1.0.1"
+    "@beaker/dat-session-data-ext-msg" "^1.1.1"
     beaker-error-constants "^1.4.0"
     concat-stream "^1.6.2"
     dat-dns "^3.0.1"
@@ -786,6 +795,7 @@
     dat-swarm-defaults "^1.0.1"
     discovery-swarm "^5.1.2"
     dom-event-target "^1.0.0"
+    emit-stream "^0.1.2"
     get-folder-size "^2.0.0"
     hypercore-protocol "^6.6.4"
     hyperdrive "^9.14.0"
@@ -795,6 +805,11 @@
     pauls-dat-api "^8.0.0"
     sodium-signatures "^2.1.1"
     toiletdb "^1.4.1"
+
+"@beaker/dat-session-data-ext-msg@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@beaker/dat-session-data-ext-msg/-/dat-session-data-ext-msg-1.1.1.tgz#7746dc64ccd6e28d09bbab9a82728ca896be9de9"
+  integrity sha512-8AofrhwBqfcyK998mCp7Um4d4DJ5udwRDIR9ASQfLPEDIetC5oOKIWAHc+vXC9HN6qzZko31IDSoQvuzgOmwsg==
 
 "@d1plo1d/graphql-scalars@^0.4.3-0":
   version "0.4.3-0"
@@ -1084,9 +1099,9 @@
   integrity sha512-A2TAGbTFdBw9azHbpVd+/FkdW2T6msN1uct1O9bH3vTerEHKZhTXJUQXy+hNq1B0RagfU8U+KBdqiZpxjhOUQA==
 
 "@types/node@*":
-  version "11.11.6"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.11.6.tgz#df929d1bb2eee5afdda598a41930fe50b43eaa6a"
-  integrity sha512-Exw4yUWMBXM3X+8oqzJNRqZSwUAaS4+7NdvHqQuFi/d+synz++xmX3QIf+BFqneW8N31R8Ky+sikfZUXq07ggQ==
+  version "11.12.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.12.0.tgz#ec5594728811dc2797e42396cfcdf786f2052c12"
+  integrity sha512-Lg00egj78gM+4aE0Erw05cuDbvX9sLJbaaPwwRtdCdAMnIudqrQZ0oZX98Ek0yiSK/A2nubHgJfvII/rTT2Dwg==
 
 "@types/node@^10.1.0":
   version "10.12.18"
@@ -4182,6 +4197,13 @@ error-inject@^1.0.0:
   resolved "https://registry.yarnpkg.com/error-inject/-/error-inject-1.0.0.tgz#e2b3d91b54aed672f309d950d154850fa11d4f37"
   integrity sha1-4rPZG1Su1nLzCdlQ0VSFD6EdTzc=
 
+error-stack-parser@^2.0.0:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/error-stack-parser/-/error-stack-parser-2.0.2.tgz#4ae8dbaa2bf90a8b450707b9149dcabca135520d"
+  integrity sha512-E1fPutRDdIj/hohG0UpT5mayXNCxXP9d+snxFsPU9X0XgccOumKraa3juDMwTUyi7+Bu5+mCGagjg4IYeNbOdw==
+  dependencies:
+    stackframe "^1.0.4"
+
 es-abstract@^1.11.0, es-abstract@^1.12.0, es-abstract@^1.5.1, es-abstract@^1.7.0:
   version "1.13.0"
   resolved "https://registry.yarnpkg.com/es-abstract/-/es-abstract-1.13.0.tgz#ac86145fdd5099d8dd49558ccba2eaf9b88e24e9"
@@ -5127,6 +5149,15 @@ fresh@0.5.2, fresh@~0.5.2:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/fresh/-/fresh-0.5.2.tgz#3d8cadd90d976569fa835ab1f8e4b23a105605a7"
   integrity sha1-PYyt2Q2XZWn6g1qx+OSyOhBWBac=
+
+friendly-errors-webpack-plugin@1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/friendly-errors-webpack-plugin/-/friendly-errors-webpack-plugin-1.7.0.tgz#efc86cbb816224565861a1be7a9d84d0aafea136"
+  integrity sha512-K27M3VK30wVoOarP651zDmb93R9zF28usW4ocaK3mfQeIEI5BPht/EzZs5E8QLLwbLRJQMwscAjDxYPb1FuNiw==
+  dependencies:
+    chalk "^1.1.3"
+    error-stack-parser "^2.0.0"
+    string-width "^2.0.0"
 
 from2@^2.1.0, from2@^2.1.1, from2@^2.3.0:
   version "2.3.0"
@@ -11083,6 +11114,11 @@ stack-utils@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/stack-utils/-/stack-utils-1.0.2.tgz#33eba3897788558bebfc2db059dc158ec36cebb8"
   integrity sha512-MTX+MeG5U994cazkjd/9KNAapsHnibjMLnfXodlkXw76JEea0UiNzrqidzo1emMwk7w5Qhc9jd4Bn9TBb1MFwA==
+
+stackframe@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/stackframe/-/stackframe-1.0.4.tgz#357b24a992f9427cba6b545d96a14ed2cbca187b"
+  integrity sha512-to7oADIniaYwS3MhtCa/sQhrxidCCQiF/qp4/m5iN3ipf0Y7Xlri0f6eG29r08aL7JYl8n32AF3Q5GYBZ7K8vw==
 
 static-extend@^0.1.1:
   version "0.1.2"
