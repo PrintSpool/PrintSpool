@@ -251,19 +251,21 @@ const jobQueueReducer = (state = initialState, action) => {
         .update('history', history => history.concat(historyEvents))
 
 
-      const nextJobFile = getNextJobFile(nextState)
+      if (jobIsDone) {
+        const nextJobFile = getNextJobFile(nextState)
 
-      if (jobIsDone && state.automaticPrinting && nextJobFile != null) {
-        return loop(
-          nextState,
-          Cmd.action(requestSpoolJobFile({
-            jobFileID: nextJobFile.id,
-          })),
-        )
-      }
+        if (state.automaticPrinting && nextJobFile != null) {
+          return loop(
+            nextState,
+            Cmd.action(requestSpoolJobFile({
+              jobFileID: nextJobFile.id,
+            })),
+          )
+        }
 
-      if (nextJobFile == null) {
-        return loop(nextState, Cmd.action(jobQueueComplete()))
+        if (nextJobFile == null) {
+          return loop(nextState, Cmd.action(jobQueueComplete()))
+        }
       }
 
       return nextState

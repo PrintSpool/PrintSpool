@@ -41,7 +41,7 @@ export getAllReducers from './pluginManager/selectors/getAllReducers'
 // ./spool/selectors:
 export getCurrentLine from './spool/selectors/getCurrentLine'
 // export getCurrentTask from './spool/selectors/getCurrentTask'
-// export getTaskPercentComplete from './spool/selectors/getTaskPercentComplete'
+export getTaskPercentComplete from './spool/selectors/getTaskPercentComplete'
 // export getTasksByTaskableID from './spool/selectors/getTasksByTaskableID'
 // export getTasks from './spool/selectors/getTasks'
 export isEmergency from './spool/selectors/isEmergency'

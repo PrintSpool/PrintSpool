@@ -1,18 +1,17 @@
 import { createSelector } from 'reselect'
 
-import getTasks from './getTasks'
-
+/*
+ * get the percent complete (0 to 100) for the task
+ */
 const getTaskPercentComplete = createSelector(
-  getTasks,
-  tasks => ({ taskID, digits }) => {
+  args => args,
+  ({ task, digits = 2 }) => {
     if (digits < 0) {
       throw new Error('digits cannot be negative')
     }
 
-    const task = tasks.get(taskID)
-
     if (task == null) {
-      throw new Error(`task ${taskID} does not exist`)
+      throw new Error('task cannot not be null')
     }
 
     const factor = 10 ** digits

@@ -40,9 +40,11 @@ describe(autodropReducer, () => {
 
         const results = autodropReducer(initialState, action)
 
-        expect(getModel(results)).toEqual(
-          initialState.set('autodropJobID', '99'),
-        )
+        const expectedState = initialState
+          .set('autodropJobID', '99')
+          .set('teghJobID', 'MOCK_ID')
+
+        expect(getModel(results)).toEqual(expectedState)
         expect(getCmd(results).actionToDispatch).toEqual(
           requestCreateJob({
             name,
