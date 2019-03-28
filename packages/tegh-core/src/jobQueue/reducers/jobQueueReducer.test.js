@@ -1,3 +1,4 @@
+import { getModel } from 'redux-loop'
 import { Set, List, Map } from 'immutable'
 
 import { MockJob } from '../types/Job'
@@ -171,7 +172,10 @@ describe('jobQueueReducer', () => {
         .setIn(['jobFiles', jobFile.id], jobFile)
         .setIn(['history', 0], spoolEvent)
 
-      const nextState = jobQueueReducer(state, action)
+      const results = jobQueueReducer(state, action)
+
+      const nextState = getModel(results)
+
       const secondEvent = nextState.history.last()
 
       expect(nextState.history.size).toEqual(2)
@@ -264,7 +268,10 @@ describe('jobQueueReducer', () => {
         })
         const action = despoolTask(task, Set())
 
-        const nextState = jobQueueReducer(state, action)
+        const results = jobQueueReducer(state, action)
+
+        const nextState = getModel(results)
+
         const startEvent = nextState.history.last()
 
         expect(nextState.history.size).toEqual(1)
@@ -329,7 +336,7 @@ describe('jobQueueReducer', () => {
           expect(nextAction).toEqual(
             requestSpoolJobFile({
               jobFileID: nextJobFile.id,
-            })
+            }),
           )
         })
       })
@@ -342,7 +349,10 @@ describe('jobQueueReducer', () => {
         })
         const action = despoolTask(task, Set())
 
-        const nextState = jobQueueReducer(state, action)
+        const results = jobQueueReducer(state, action)
+
+        const nextState = getModel(results)
+
         const startEvent = nextState.history.first()
         const finishEvent = nextState.history.last()
 

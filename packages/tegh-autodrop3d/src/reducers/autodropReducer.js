@@ -68,6 +68,7 @@ const autodropReducer = (state, action) => {
 
       const nextState = state.set('printing', false)
 
+      console.log('JOB_QUEUE_COMPLETE')
       const nextAction = (
         autodropJobID == null ? requestAutodropJob() : markAutodropJobAsDone()
       )
