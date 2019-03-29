@@ -6,6 +6,7 @@ const fetchFromAutodrop = async ({ url }) => {
   const text = await res.text()
 
   if (!res.ok) {
+    console.log(res)
     const e = new Error(JSON.parse(text).message)
     e.name = res.statusText
     throw e

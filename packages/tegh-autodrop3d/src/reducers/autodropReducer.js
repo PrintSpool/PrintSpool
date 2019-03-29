@@ -79,12 +79,14 @@ const runFetchCmd = ({ state, params, successActionCreator }) => {
   )
 }
 
+const runPollingCmd = () => Cmd.run(Promise.delay, {
+  args: [POLLING_INTERVAL],
+  successActionCreator: pollAutodrop,
+})
+
 const pollingLoop = state => loop(
   state,
-  Cmd.run(Promise.delay, {
-    args: [POLLING_INTERVAL],
-    successActionCreator: pollAutodrop,
-  }),
+  runPollingCmd(),
 )
 
 const autodropReducer = (state = initialState, action) => {
@@ -119,6 +121,7 @@ const autodropReducer = (state = initialState, action) => {
         autodropJobState,
         printerIsIdle,
       } = state
+      console.log('polling', autodropJobState)
 
       switch (autodropJobState) {
         case IDLE: {
@@ -198,7 +201,7 @@ const autodropReducer = (state = initialState, action) => {
 
       const autodropJobID = lines[2].replace(';', '').trim()
 
-      console.log({ autodropJobID })
+      console.log({ autodropJobID }, lines.length)
 
       const name = `AUTODROP JOB #${autodropJobID}`
 
@@ -218,10 +221,14 @@ const autodropReducer = (state = initialState, action) => {
 
       return loop(
         nextState,
-        Cmd.action(nextAction),
+        Cmd.list([
+          Cmd.action(nextAction),
+          runPollingCmd(),
+        ])
       )
     }
     case AUTODROP_UPDATE_COMPLETE: {
+      console.log('UPDATE OCPPMLEETE!!')
       // send another update in POLLING_INTERVAL milliseconds
       return pollingLoop(state)
     }
@@ -252,6 +259,7 @@ const autodropReducer = (state = initialState, action) => {
     }
     case AUTODROP_JOB_DONE: {
       return resetState(state)
+        .set('printerIsIdle', state.printerIsIdle)
     }
     case FETCH_FAIL: {
       // the fetch either failed while downloading the next job or
