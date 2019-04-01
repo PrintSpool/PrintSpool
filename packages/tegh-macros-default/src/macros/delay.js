@@ -2,7 +2,7 @@ import { loop, Cmd } from 'redux-loop'
 import Promise from 'bluebird'
 
 import {
-  requestDespool,
+  despoolCompleted,
   DESPOOL_TASK,
 } from '@tegh/core'
 
@@ -23,7 +23,7 @@ const delayReducer = (state, action) => {
       if (macro === DELAY) {
         return loop(state, Cmd.run(Promise.delay, {
           args: [args.period],
-          successActionCreator: requestDespool,
+          successActionCreator: despoolCompleted,
         }))
       }
 

@@ -15,12 +15,14 @@ const JobRecord = Record({
   id: null,
   name: null,
   createdAt: null,
+  meta: null,
   quantity: 1,
 })
 
 const Job = attrs => JobRecord({
   id: uuid.v4(),
   createdAt: new Date().toISOString(),
+  meta: attrs.meta || {},
   ...attrs,
 })
 

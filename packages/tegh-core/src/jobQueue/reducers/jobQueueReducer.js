@@ -22,6 +22,7 @@ import getSpooledJobFiles from '../selectors/getSpooledJobFiles'
 import getCompletedJobs from '../selectors/getCompletedJobs'
 import getTaskIDByJobFileID from '../selectors/getTaskIDByJobFileID'
 import getNextJobFile from '../selectors/getNextJobFile'
+import getJobFilesByJobID from '../selectors/getJobFilesByJobID'
 
 /* config actions */
 import { SET_CONFIG } from '../../config/actions/setConfig'
@@ -35,6 +36,7 @@ import spoolTask, { SPOOL_TASK } from '../../spool/actions/spoolTask'
 import { DESPOOL_TASK } from '../../spool/actions/despoolTask'
 import { CANCEL_TASK } from '../../spool/actions/cancelTask'
 import requestSpoolJobFile, { REQUEST_SPOOL_JOB_FILE } from '../../spool/actions/requestSpoolJobFile'
+import { REQUEST_SPOOL_NEXT_JOB_FILE } from '../../spool/actions/requestSpoolNextJobFile'
 
 import { PRINTER_READY } from '../../printer/actions/printerReady'
 import { ESTOP } from '../../printer/actions/estop'
@@ -162,6 +164,23 @@ const jobQueueReducer = (state = initialState, action) => {
       }
 
       return nextState
+    }
+    case REQUEST_SPOOL_NEXT_JOB_FILE: {
+      const jobID = state.getIn(['jobs', 0, 'id'])
+      if (jobID == null) {
+        return state
+      }
+
+      const jobFileID = getJobFilesByJobID(state).getIn([jobID, 0, 'id'])
+
+      if (jobFileID == null) {
+        return state
+      }
+
+      return loop(
+        state,
+        Cmd.action(requestSpoolJobFile({ jobFileID })),
+      )
     }
     case REQUEST_SPOOL_JOB_FILE: {
       const { jobFileID } = action.payload

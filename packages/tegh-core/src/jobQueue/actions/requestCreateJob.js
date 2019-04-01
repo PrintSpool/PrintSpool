@@ -2,7 +2,7 @@ import Job from '../types/Job'
 
 export const REQUEST_CREATE_JOB = 'tegh/jobQueue/REQUEST_CREATE_JOB'
 
-const requestCreateJob = ({ files, name }) => {
+const requestCreateJob = ({ files, name, meta }) => {
   if (name == null) {
     throw new Error('name cannot be null')
   }
@@ -11,7 +11,7 @@ const requestCreateJob = ({ files, name }) => {
     throw new Error('requires at least one file')
   }
 
-  const job = Job({ name })
+  const job = Job({ name, meta })
 
   return {
     type: REQUEST_CREATE_JOB,

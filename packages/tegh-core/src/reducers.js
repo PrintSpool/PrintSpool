@@ -1,6 +1,7 @@
 export inviteConsoleDisplay from './auth/reducers/inviteConsoleDisplayReducer'
 export config from './config/reducers/configReducer'
 export devices from './devices/reducers/devicesReducer'
+export jobQueueMacros from './jobQueue/reducers/jobQueueMacrosReducer'
 export jobQueue from './jobQueue/reducers/jobQueueReducer'
 export log from './log/reducers/logReducer'
 export macros from './macros/reducers/macrosReducer'

@@ -1,3 +1,5 @@
+import { List } from 'immutable'
+
 export uuid from 'uuid'
 
 export SerialPort from './util/SerialPort'
@@ -16,3 +18,8 @@ export getSchemaForms from './getSchemaForms'
 export configValidation from './configValidation'
 
 export createMacroExpansionReducer from './macros/reducers/createMacroExpansionReducer'
+
+export const macros = List([
+  'spoolJobFile',
+  'spoolNextJobFile',
+])

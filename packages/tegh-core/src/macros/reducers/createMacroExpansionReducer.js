@@ -2,12 +2,11 @@ import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
 
 import isMacroEnabled from '../../config/selectors/isMacroEnabled'
-import { PREEMPTIVE } from '../../spool/types/PriorityEnum'
 
 import { SET_CONFIG } from '../../config/actions/setConfig'
 import { DESPOOL_TASK } from '../../spool/actions/despoolTask'
 
-import spoolTask from '../../spool/actions/spoolTask'
+import spoolMacroExpansion from '../../spool/actions/spoolMacroExpansion'
 import despoolCompleted from '../../spool/actions/despoolCompleted'
 
 export const initialState = Record({
@@ -30,7 +29,7 @@ const createMacroExpansionReducer = (
       })
     }
     case DESPOOL_TASK: {
-      const { macro, args, task } = action.payload
+      const { macro, args } = action.payload
       if (macro === meta.macro && state.enabled) {
         // expand the macro into it's expanded gcode (an array of strings)
         const data = macroFn(args, state)
@@ -39,14 +38,8 @@ const createMacroExpansionReducer = (
          * effectively swapping the host macro for the expanded gcode lines
          * 2. despool the first line of that expanded gcode
          */
-        const taskAttrs = {
-          name: '[MACRO_EXPANSION]',
-          internal: task.internal,
-          priority: PREEMPTIVE,
-          data,
-        }
         const actions = [
-          Cmd.action(spoolTask(taskAttrs, { prepend: true })),
+          Cmd.action(spoolMacroExpansion({ action, data })),
           Cmd.action(despoolCompleted()),
         ]
 

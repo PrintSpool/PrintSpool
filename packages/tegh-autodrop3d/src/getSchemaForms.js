@@ -15,6 +15,14 @@ const getSchemaForms = () => ({
             title: 'AutoDrop Device ID',
             type: 'string',
           },
+          deviceKey: {
+            title: 'AutoDrop Device Secret Key',
+            type: 'string',
+          },
+          automaticJobDownload: {
+            title: 'Automatically download jobs',
+            type: 'boolean',
+          },
           apiURL: {
             title: '[ADVANCED] API URL',
             type: 'string',
