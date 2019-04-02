@@ -16,6 +16,7 @@ const despoolTask = (task, enabledHostMacros) => {
        * macro reducer and are skipped by the driver.
        */
       isHostMacro: enabledHostMacros.includes(macro),
+      isLastLineInTask: task.currentLineNumber === task.data.size - 1,
 
       macro,
       args,

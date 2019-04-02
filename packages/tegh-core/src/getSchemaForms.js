@@ -56,6 +56,14 @@ const getSchemaForms = () => ({
             ),
             type: 'boolean',
           },
+          beforePrintHook: {
+            title: 'Before Print Hook (Extended GCode)',
+            type: 'string',
+          },
+          afterPrintHook: {
+            title: 'After Print Hook (Extended GCode)',
+            type: 'string',
+          },
         },
       }),
       form: [

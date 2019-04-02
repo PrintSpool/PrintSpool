@@ -88,13 +88,13 @@ const autodropReducer = (state = initialState, action) => {
         teghJobID,
       } = state
 
-      const { task } = action.payload
+      const { task, isLastLineInTask } = action.payload
 
       if (task.jobID == null || task.jobID !== teghJobID) {
         return state
       }
 
-      if (task.currentLineNumber === task.data.size - 1) {
+      if (isLastLineInTask) {
         return loop(state, Cmd.action(markAutodropJobAsDone()))
       }
 

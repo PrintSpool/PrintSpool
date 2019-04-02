@@ -19,7 +19,7 @@ export configValidation from './configValidation'
 
 export createMacroExpansionReducer from './macros/reducers/createMacroExpansionReducer'
 
-export const macros = List([
+export const macros = () => List([
   'spoolJobFile',
   'spoolNextJobFile',
 ])
