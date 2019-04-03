@@ -31,7 +31,7 @@ const {
   authenticate,
 } = teghCore
 
-global.Promise = Promise
+// global.Promise = Promise
 
 // Get document, or throw exception on error
 const loadConfigForm = async (configPath) => {
