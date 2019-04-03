@@ -67,7 +67,7 @@ const Task = (attrs) => {
     throw new Error('data must be an array of strings')
   }
   return TaskRecord({
-    id: uuid.v4(),
+    id: attrs.id || uuid.v4(),
     createdAt: new Date().toISOString(),
     status: SPOOLED,
     ...attrs,

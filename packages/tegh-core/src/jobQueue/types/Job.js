@@ -20,7 +20,7 @@ const JobRecord = Record({
 })
 
 const Job = attrs => JobRecord({
-  id: uuid.v4(),
+  id: attrs.id || uuid.v4(),
   createdAt: new Date().toISOString(),
   meta: attrs.meta || {},
   ...attrs,

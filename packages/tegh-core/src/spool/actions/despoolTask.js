@@ -3,7 +3,7 @@ import parseGCode from '../selectors/parseGCode'
 
 export const DESPOOL_TASK = 'tegh-core/spool/DESPOOL_TASK'
 
-const despoolTask = (task, enabledHostMacros) => {
+const despoolTask = (task, enabledHostMacros = []) => {
   const currentLine = getCurrentLine.resultFunc(task)
   const { macro, args } = parseGCode(currentLine)
 

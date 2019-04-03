@@ -1,6 +1,6 @@
 import { URL, URLSearchParams } from 'url'
 
-const DEFAULT_URL = (
+export const DEFAULT_URL = (
   'https://autodrop.sparkhosted.site/api/jobsQueue/printerRequestJob'
 )
 

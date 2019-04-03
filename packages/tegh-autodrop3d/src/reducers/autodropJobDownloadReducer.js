@@ -46,7 +46,7 @@ const FETCH_AUTODROP_MACRO = 'fetchAutodropJob'
 const PACKAGE = '@tegh/autodrop3d'
 const POLLING_INTERVAL = 500
 
-const runPollAfterInterval = () => (
+export const runPollAfterInterval = () => (
   Cmd.run(Promise.delay, {
     args: [POLLING_INTERVAL],
     successActionCreator: pollAutodrop,
@@ -57,10 +57,10 @@ const autodropReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
       const { config } = action.payload
-      const autodropConfig = getPluginModels(config).get(PACKAGE).toJS()
+      const model = getPluginModels(config).get(PACKAGE)
 
       const nextState = initialState.merge({
-        config: autodropConfig,
+        config: model.toJS(),
         pollingInitialized: true,
       })
 

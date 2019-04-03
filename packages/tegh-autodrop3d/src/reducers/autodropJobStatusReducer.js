@@ -49,7 +49,6 @@ const autodropReducer = (state = initialState, action) => {
       const content = action.payload
       const lines = content.split('\n')
 
-      console.log(lines.slice(0, 5))
       const autodropIsEmpty = lines[0].indexOf(';START') === -1
 
       if (autodropIsEmpty) {
@@ -57,8 +56,6 @@ const autodropReducer = (state = initialState, action) => {
       }
 
       const autodropJobID = lines[2].replace(';', '').trim()
-
-      console.log({ autodropJobID }, lines.length)
 
       const name = `AUTODROP JOB #${autodropJobID}`
 
@@ -73,6 +70,7 @@ const autodropReducer = (state = initialState, action) => {
 
       const nextState = state.merge({
         teghJobID: nextAction.payload.job.id,
+        autodropJobID,
       })
 
       return loop(
@@ -88,7 +86,10 @@ const autodropReducer = (state = initialState, action) => {
         teghJobID,
       } = state
 
-      const { task, isLastLineInTask } = action.payload
+      const {
+        task,
+        isLastLineInTask,
+      } = action.payload
 
       if (task.jobID == null || task.jobID !== teghJobID) {
         return state
@@ -99,8 +100,10 @@ const autodropReducer = (state = initialState, action) => {
       }
 
       if (Date.now() > lastUpdate + UPDATE_INTERVAL) {
-        const percentComplete = getTaskPercentComplete({ task })
-        console.log('PROGRESS!!!', percentComplete)
+        const percentComplete = getTaskPercentComplete({
+          task,
+          despooling: true,
+        })
 
         const url = getAutodropURL({
           config,
@@ -134,8 +137,6 @@ const autodropReducer = (state = initialState, action) => {
       if (autodropJobID == null) {
         throw new Error('AutoDrop Job ID cannot be Null')
       }
-
-      console.log('MARK AS DONE!!!')
 
       const url = getAutodropURL({
         config,
