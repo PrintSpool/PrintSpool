@@ -1,4 +1,3 @@
-import Promise from 'bluebird'
 import { Cmd, getModel, getCmd } from 'redux-loop'
 import MockDate from 'mockdate'
 
@@ -51,16 +50,18 @@ describe(autodropJobStatusReducer, () => {
             teghJobID: 'MOCK_ID',
           }),
         )
-        expect(getCmd(results)).toEqual(Cmd.action(
-          requestCreateJob({
-            name,
-            meta: { autodropJobID: '99' },
-            files: [{
+        expect(getCmd(results)).toEqual(Cmd.list([
+          Cmd.action(
+            requestCreateJob({
               name,
-              content,
-            }],
-          }),
-        ))
+              meta: { autodropJobID: '99' },
+              files: [{
+                name,
+                content,
+              }],
+            }),
+          ),
+        ]))
       })
     })
 
@@ -80,6 +81,8 @@ describe(autodropJobStatusReducer, () => {
   describe(DESPOOL_TASK, () => {
     describe('after the update interval', () => {
       it('sends an update to Autodrop', () => {
+        MockDate.set('1/1/2000')
+
         const action = despoolTask(
           MockTask({
             jobID: 'TEGH_99',
@@ -102,7 +105,11 @@ describe(autodropJobStatusReducer, () => {
           `${DEFAULT_URL}?name=A&key=B&jobID=99&stat=update&jobStatus=25`
         )
 
-        expect(getModel(results)).toEqual(state)
+        expect(getModel(results)).toEqual(
+          state.merge({
+            lastUpdate: Date.now(),
+          }),
+        )
         expect(getCmd(results)).toEqual(
           Cmd.run(fetchFromAutodrop, {
             args: [{

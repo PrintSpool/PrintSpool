@@ -1099,9 +1099,9 @@
   integrity sha512-A2TAGbTFdBw9azHbpVd+/FkdW2T6msN1uct1O9bH3vTerEHKZhTXJUQXy+hNq1B0RagfU8U+KBdqiZpxjhOUQA==
 
 "@types/node@*":
-  version "11.12.0"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.12.0.tgz#ec5594728811dc2797e42396cfcdf786f2052c12"
-  integrity sha512-Lg00egj78gM+4aE0Erw05cuDbvX9sLJbaaPwwRtdCdAMnIudqrQZ0oZX98Ek0yiSK/A2nubHgJfvII/rTT2Dwg==
+  version "11.13.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.13.0.tgz#b0df8d6ef9b5001b2be3a94d909ce3c29a80f9e1"
+  integrity sha512-rx29MMkRdVmzunmiA4lzBYJNnXsW/PhG4kMBy2ATsYaDjGGR75dCFEVVROKpNwlVdcUX3xxlghKQOeDPBJobng==
 
 "@types/node@^10.1.0":
   version "10.12.18"
@@ -3529,9 +3529,9 @@ dashdash@^1.12.0:
     assert-plus "^1.0.0"
 
 dat-dns@^3.0.1:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/dat-dns/-/dat-dns-3.2.0.tgz#b8214f3b80e713a54904432f2f664c69851858d5"
-  integrity sha512-3U17SGiMgSflp0CnqMxoOkyNPZF93q/ieITIjogmWc/gVwZ/z0PgAALgPxrwmebxf8rYCPukVRWfue/8F9PRMg==
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/dat-dns/-/dat-dns-3.2.1.tgz#0f6c312559485f080d496a3ab9d1f0bd5eef9b45"
+  integrity sha512-gCfU2FBg41Qg7RgqYBRD3bjYWAaJFO6UvKfCU9SA1LBy6vZ3EoTZH5doCYdTTQmVEsAxMef18W0lnvr1Z7rx0g==
   dependencies:
     call-me-maybe "^1.0.1"
     concat-stream "^1.6.0"
@@ -9438,9 +9438,9 @@ path-type@^3.0.0:
     pify "^3.0.0"
 
 pauls-dat-api@^8.0.0:
-  version "8.0.4"
-  resolved "https://registry.yarnpkg.com/pauls-dat-api/-/pauls-dat-api-8.0.4.tgz#2fbac31bb50346cc75b5347ef85346713f72e3c3"
-  integrity sha512-bQFDq388DMeizizk7ldIc9U9QZP0C61Y9vOlZwIUpSuOpjHVSClgQz/Y4wzAOUz7xecAMTEM+xThk3s/u7B3cA==
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/pauls-dat-api/-/pauls-dat-api-8.1.0.tgz#e0b71728ad7ed416a45f2a417d5156df037d08a1"
+  integrity sha512-DTxj5BIPjKJ5dDgQJxMsUfTVUVVi6RSgR3AWz4dl6pwAmQoh4YMYz+cfwfoQRIituMUdczRJkbs/JXD9yaa8dQ==
   dependencies:
     anymatch "^1.3.2"
     beaker-error-constants "^1.4.0"

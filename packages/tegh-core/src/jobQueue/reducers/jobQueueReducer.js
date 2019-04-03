@@ -1,5 +1,6 @@
 import { Record, Map, List } from 'immutable'
 import { loop, Cmd } from 'redux-loop'
+import Debug from 'debug'
 
 import createTmpFiles from '../sideEffects/createTmpFiles'
 import unlinkTmpFiles from '../sideEffects/unlinkTmpFiles'
@@ -42,6 +43,8 @@ import { PRINTER_READY } from '../../printer/actions/printerReady'
 import { ESTOP } from '../../printer/actions/estop'
 import { DRIVER_ERROR } from '../../printer/actions/driverError'
 
+const debug = Debug('tegh:jobQueue')
+
 /* reducer */
 
 export const initialState = Record({
@@ -63,6 +66,8 @@ const jobQueueReducer = (state = initialState, action) => {
       return state.set('automaticPrinting', model.get('automaticPrinting'))
     }
     case REQUEST_CREATE_JOB: {
+      debug('request create job')
+
       return loop(
         state,
         Cmd.run(createTmpFiles, {
@@ -83,11 +88,16 @@ const jobQueueReducer = (state = initialState, action) => {
         && getSpooledJobFiles(state).size === 0
         && jobFiles.size > 0
       ) {
+        debug(`creating and spooling Job #${job.id}: ${job.name}`)
+
         const nextAction = requestSpoolJobFile({
           jobFileID: getNextJobFile(nextState).id,
         })
+
         return loop(nextState, Cmd.action(nextAction))
       }
+
+      debug(`creating Job #${job.id}: ${job.name}`)
 
       return nextState
     }

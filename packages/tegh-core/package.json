@@ -30,6 +30,7 @@
     "ajv": "^6.6.1",
     "bluebird": "^3.5.3",
     "chokidar": "^2.0.4",
+    "debug": "^4.1.1",
     "dedent": "^0.7.0",
     "domexception": "^1.0.1",
     "ejs": "^2.5.7",

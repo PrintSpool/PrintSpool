@@ -1,6 +1,7 @@
 import Promise from 'bluebird'
 import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
+import Debug from 'debug'
 
 import {
   SET_CONFIG,
@@ -20,6 +21,8 @@ import { AUTODROP_JOB_DONE } from '../actions/autodropJobDone'
 import getAutodropURL from '../selectors/getAutodropURL'
 
 import fetchFromAutodrop from '../sideEffects/fetchFromAutodrop'
+
+const debug = Debug('autodrop:download')
 
 export const initialState = Record({
   // configs
@@ -53,7 +56,7 @@ export const runPollAfterInterval = () => (
   })
 )
 
-const autodropReducer = (state = initialState, action) => {
+const autodropJobDownloadReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
       const { config } = action.payload
@@ -111,11 +114,14 @@ const autodropReducer = (state = initialState, action) => {
         autodropJobInProgress,
       } = state
 
+      const { automaticJobDownload } = config
+
       /*
        * if we are downloading a job presently then do not poll again. Once the
        * download succeeds or fails it will resume polling for us.
        */
       if (downloadingJob) {
+        debug('skipped polling (a job is already downloading)')
         return state
       }
 
@@ -124,16 +130,22 @@ const autodropReducer = (state = initialState, action) => {
        * or when automaticJobDownloads are turned off.
        */
       if (
-        config.automaticJobDownload === false
+        automaticJobDownload === false
         || queueIsEmpty === false
         || autodropJobInProgress === true
       ) {
+        debug(
+          'skipped polling '
+          + `(${automaticJobDownload} ${queueIsEmpty} ${autodropJobInProgress})`,
+        )
+
         return loop(
           state,
           runPollAfterInterval(),
         )
       }
 
+      debug('polling')
       const nextState = state.set('downloadingJob', true)
 
       return loop(
@@ -208,4 +220,4 @@ const autodropReducer = (state = initialState, action) => {
   }
 }
 
-export default autodropReducer
+export default autodropJobDownloadReducer
