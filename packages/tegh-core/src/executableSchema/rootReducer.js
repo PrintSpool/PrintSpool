@@ -1,12 +1,12 @@
 import { Map, Record } from 'immutable'
 import { mergeChildReducers } from '@d1plo1d/redux-loop-immutable'
-import Debug from 'debug'
+// import Debug from 'debug'
 
 import { SET_CONFIG } from '../config/actions/setConfig'
 import getAllReducers from '../pluginManager/selectors/getAllReducers'
 import * as coreReducers from '../reducers'
 
-const debug = Debug('tegh:redux:action')
+// const debug = Debug('tegh:redux:action')
 
 const createStateRecord = (reducers, previousState = Record({})()) => (
   Record({
@@ -28,9 +28,6 @@ const rootReducer = (state = initialState, action) => {
     nextState = createStateRecord(reducers, state)
   }
 
-  if (action.type.startsWith('tegh/jobQueue/') || action.type == null) {
-    console.log('WE  GOT A REQUEST!!!!!!', action)
-  }
   // debug(action.type)
   // console.log(action.type, '\n', reducers.map((v, k) => k).toList().toJS())
   return mergeChildReducers(nextState, action, reducers.toObject())
