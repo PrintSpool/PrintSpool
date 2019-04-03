@@ -9,7 +9,11 @@ const createTeghHostStore = () => {
     applyMiddleware(
       ReduxThunk,
     ),
-    installReduxLoop(),
+    installReduxLoop({
+      config: {
+        DONT_LOG_ERRORS_ON_HANDLED_FAILURES: true,
+      },
+    }),
   )
 
   const store = createStore(
