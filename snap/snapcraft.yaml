@@ -36,3 +36,5 @@ apps:
       - process-control
       - hardware-observe
       - raw-usb
+      - gpio
+      - gpio-memory-control
