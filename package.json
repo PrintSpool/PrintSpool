@@ -23,6 +23,7 @@
     "snap:install": "sudo snap install --classic --dangerous $(find ./dist/ -maxdepth 1 -name \"*.snap\") && yarn journalctl",
     "snap:build-and-install": "yarn build-dev && yarn snap:build:x64 && yarn snap:install",
     "snap:publish": "./scripts/releaseConfirmation && lerna version --github-release --conventional-commits && yarn snap:build && snap:push",
+    "snap:debug": "sudo journalctl --output=short --follow --all | sudo snappy-debug",
     "journalctl": "journalctl -u snap.tegh.tegh.service -n 100 -f",
     "version": "yarn build-dev"
   },
