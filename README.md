@@ -31,6 +31,11 @@ With Tegh you can worry less and create more.
 2. Bootstrap the dev environment with tegh, node 10 and yarn:
 `nvm use && npm i -g yarn && yarn bootstrap`
 
+<!-- ### [Optional] Emulating a Raspberry Pi
+
+1. Install [qemu](https://www.qemu.org/download/): `sudo apt-get install qemu-system qemu-system-arm qemu-kvm libvirt-daemon bridge-utils virt-manager`
+2. Download the [ARMv7 Ubuntu 18.10 image](https://cloud-images.ubuntu.com/releases/18.10/release/ubuntu-18.10-server-cloudimg-armhf.img) -->
+
 ### Running the Dev Host + Web UI
 
 Disable any other copies of tegh and run `yarn start`

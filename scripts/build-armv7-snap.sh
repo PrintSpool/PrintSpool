@@ -6,7 +6,7 @@ echo "\e[32mSnapping Tegh $TEGH_VERSION for armv7:\e[0m Ignore the warnings and 
 USER=`whoami`
 
 echo "Remotely building Tegh"
-ssh $RASPBERRY_PI cd tegh && yarn pkg:build
+ssh $TEGH_ARMV7_HOST -p $TEGH_ARMV7_PORT 'cd tegh && nvm use && git checkout master && git pull origin master && yarn bootstrap && yarn build-dev && yarn pkg:build'
 echo "Remotely building Tegh [DONE]"
 
 cd ./snap
@@ -18,8 +18,8 @@ snapcraft clean tegh -s pull
 sed -i -E "s/version:[^\n]+/version: $TEGH_VERSION/g" ./snapcraft.yaml
 sed -i -E "s/run-on:[^\n]+/run-on: armhf/g" ./snapcraft.yaml
 
-rsync --chown=$USER:$USER -a --include="*.node" --include="*/" --exclude="*" --prune-empty-dirs $RASPBERRY_PI:~/tegh/node_modules ./
-rsync --chown=$USER:$USER -a $RASPBERRY_PI:~/tegh/snap/tegh ./
+rsync -e "ssh -p $TEGH_ARMV7_PORT" --chown=$USER:$USER -a --include="*.node" --include="*/" --exclude="*" --prune-empty-dirs $TEGH_ARMV7_HOST:~/tegh/node_modules ./
+rsync -e "ssh -p $TEGH_ARMV7_PORT" --chown=$USER:$USER -a $TEGH_ARMV7_HOST:~/tegh/snap/tegh ./
 
 snapcraft
 
