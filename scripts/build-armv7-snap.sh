@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 TEGH_VERSION=`node -e "console.log(require('./packages/tegh-core/package.json').version);"`;
