@@ -12,11 +12,10 @@ architectures:
   - build-on: amd64
     run-on: amd64
 
-# hooks:
-#   install:
-#     plugs:
-#       - network
-#       - network-bind
+hooks:
+  install:
+    plugs:
+      - account-control
 
 # see https://docs.snapcraft.io/node-apps/6747
 parts:
@@ -34,6 +33,7 @@ apps:
       - network-bind
       - process-control
       - hardware-observe
+      - hardware-random-control
       - raw-usb
       - gpio
       - gpio-memory-control

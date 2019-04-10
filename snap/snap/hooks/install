@@ -10,7 +10,7 @@ set -e
 
 # add the user that runs the Tegh daemon (the snap's root user) to dialout
 # so it can access the serial port.
-sudo usermod -a -G dialout root
+usermod -a -G dialout root
 
 # newgrp -
 
@@ -18,7 +18,7 @@ sudo usermod -a -G dialout root
 # echo "$(groups root)"
 # exit 1
 
-# add a log directory for Tegh
-sudo mkdir -p /run/log/tegh
-sudo chmod 700 /run/log/tegh
-sudo chown root: /run/log/tegh
+# # add a log directory for Tegh
+# sudo mkdir -p /run/log/tegh
+# sudo chmod 700 /run/log/tegh
+# sudo chown root: /run/log/tegh
