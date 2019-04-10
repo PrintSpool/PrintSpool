@@ -4,13 +4,13 @@ summary: A graphql server for 3D printers
 description: >
   Tegh is an experimental 3D printing software designed from the ground up to streamline your 3D printing experience. Tegh features a print queue that enables users to easily queue up prints without managing complicated file systems. To manage prints remotely Tegh is built on top of encrypted, distributed web technologies so you can use your 3D printer from anywhere in the world just as easily as from your home. With Tegh you can worry less and create more.
 
-confinement: devmode
-# confinement: strict
+# confinement: devmode
+confinement: strict
 grade: stable
 
 architectures:
   - build-on: amd64
-    run-on: armhf
+    run-on: amd64
 
 # hooks:
 #   install:

@@ -786,6 +786,8 @@
   version "1.0.0"
   resolved "https://codeload.github.com/RangerMauve/dat-node/tar.gz/168b57c13560ff3f42652408bb43a0eba8fa4dd4"
   dependencies:
+    "@beaker/dat-ephemeral-ext-msg" "^1.0.1"
+    "@beaker/dat-session-data-ext-msg" "^1.1.1"
     beaker-error-constants "^1.4.0"
     concat-stream "^1.6.2"
     dat-dns "^3.0.1"
@@ -793,6 +795,7 @@
     dat-swarm-defaults "^1.0.1"
     discovery-swarm "^5.1.2"
     dom-event-target "^1.0.0"
+    emit-stream "^0.1.2"
     get-folder-size "^2.0.0"
     hypercore-protocol "^6.6.4"
     hyperdrive "^9.14.0"
@@ -1762,9 +1765,9 @@
   integrity sha512-A2TAGbTFdBw9azHbpVd+/FkdW2T6msN1uct1O9bH3vTerEHKZhTXJUQXy+hNq1B0RagfU8U+KBdqiZpxjhOUQA==
 
 "@types/node@*":
-  version "11.13.0"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.13.0.tgz#b0df8d6ef9b5001b2be3a94d909ce3c29a80f9e1"
-  integrity sha512-rx29MMkRdVmzunmiA4lzBYJNnXsW/PhG4kMBy2ATsYaDjGGR75dCFEVVROKpNwlVdcUX3xxlghKQOeDPBJobng==
+  version "11.13.4"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.13.4.tgz#f83ec3c3e05b174b7241fadeb6688267fe5b22ca"
+  integrity sha512-+rabAZZ3Yn7tF/XPGHupKIL5EcAbrLxnTr/hgQICxbeuAfWtT0UZSfULE+ndusckBItcv4o6ZeOJplQikVcLvQ==
 
 "@types/node@^10.1.0":
   version "10.12.18"
@@ -6829,9 +6832,9 @@ hypercore@^6.22.1:
     fd-lock "^1.0.2"
 
 hyperdrive@^9.14.0:
-  version "9.14.3"
-  resolved "https://registry.yarnpkg.com/hyperdrive/-/hyperdrive-9.14.3.tgz#1e001ac54aa195903b6d84e41d22e0c526805769"
-  integrity sha512-j722JRSwempuD8fn5VPVDHR/NFBFKxUlZ1ZLvTTipVkV70uWC9OyWYBlYqWp/b4ZgZpVhcpfzqzpsL1i/H+pTw==
+  version "9.14.5"
+  resolved "https://registry.yarnpkg.com/hyperdrive/-/hyperdrive-9.14.5.tgz#912f621f33582935bfe5861a4200cedcea0ffd70"
+  integrity sha512-uSu6eYprXJhIYaZ7PSODNaozddTrVscZpfkHZwmOg0CKYyX03UovfLyfkhH8/QMew6n0iTg+iiyvp2zhnUapnQ==
   dependencies:
     append-tree "^2.3.5"
     duplexify "^3.5.0"
@@ -10851,9 +10854,9 @@ quick-lru@^1.0.0:
   integrity sha1-Q2CxfGETatOAeDl/8RQW4Ybc+7g=
 
 random-access-file@^2.0.1, random-access-file@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/random-access-file/-/random-access-file-2.1.0.tgz#7b3b6623d47e2f89282e77f0c9c9ae6da3cd9039"
-  integrity sha512-W2hY3DboLETMclybTVzyqCNVKx1MjqUwZPzkpkkMD2t9mbGEtkV2SKWPqAJ/FTrAtnWB7aGwl0NDUS82da0KdQ==
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/random-access-file/-/random-access-file-2.1.1.tgz#2b57060c776cdfb6d3c56134f2b09a9c67c77663"
+  integrity sha512-l8I6RlabShHmNPRqZ0f4mlHgkhgdrd5Prd4RXM9tOizUOMrTglKHB+s78pZZbIsJgny8E9gw0DRqCy3YVLxxZg==
   dependencies:
     mkdirp "^0.5.1"
     random-access-storage "^1.1.1"

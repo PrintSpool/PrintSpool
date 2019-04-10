@@ -23,9 +23,8 @@ packages/tegh-web-ui/out
 dist/*.snap
 snap/parts/
 snap/prime/
-snap/snap/
 snap/stage/
-snap/snap/
+snap/snap/.snapcraft
 snap/*.tar.bz2
 snap/tegh
 snapcraft.login
