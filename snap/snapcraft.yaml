@@ -10,7 +10,7 @@ grade: stable
 
 architectures:
   - build-on: amd64
-    run-on: amd64
+    run-on: armhf
 
 # hooks:
 #   install:
