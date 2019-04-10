@@ -16,7 +16,7 @@
     "debug-host": "cd ./packages/tegh-host-posix && yarn debug",
     "dev-host": "cd ./packages/tegh-host-posix && yarn dev",
     "pkg:build": "cd ./packages/tegh-host-posix && pkg -t node10-linux ./dist/index.js -o ../../snap/tegh",
-    "snap:build:armv7": "./scripts/build-amv7-snap.sh",
+    "snap:build:armv7": "./scripts/build-armv7-snap.sh",
     "snap:build:x64": "./scripts/build-x64-snap.sh",
     "snap:build": "./scripts/build-snap.sh",
     "snap:push": "snapcraft push --release=beta ./dist/amd64.snap && snapcraft push --release=beta ./dist/armhf.snap",
