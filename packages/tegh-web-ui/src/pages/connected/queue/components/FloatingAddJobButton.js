@@ -1,7 +1,7 @@
 import React from 'react'
 import {
   withStyles,
-  Button,
+  Fab,
   Tooltip,
 } from '@material-ui/core'
 import {
@@ -28,9 +28,8 @@ const FloatingAddJobButton = ({ classes, onChange }) => {
 
   return (
     <Tooltip title="Add Job" placement="left">
-      <Button
+      <Fab
         component="label"
-        variant="fab"
         className={classes.fab}
         color="default"
       >
@@ -43,7 +42,7 @@ const FloatingAddJobButton = ({ classes, onChange }) => {
           onChange={onHTMLInputChange}
         />
         <Add />
-      </Button>
+      </Fab>
     </Tooltip>
   )
 }

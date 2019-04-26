@@ -3,6 +3,7 @@ import {
   withStyles,
   Button,
   Tooltip,
+  Fab,
 } from '@material-ui/core'
 import {
   PlayArrow,
@@ -29,15 +30,14 @@ const Wrapper = ({ children, disabled }) => {
 
 const FloatingPrintNextButton = ({ classes, disabled, onClick }) => (
   <Wrapper disabled={disabled}>
-    <Button
-      variant="fab"
+    <Fab
       className={classes.fab}
       color="primary"
       disabled={disabled}
       onClick={onClick}
     >
       <PlayArrow />
-    </Button>
+    </Fab>
   </Wrapper>
 )
 

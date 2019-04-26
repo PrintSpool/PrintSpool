@@ -53,6 +53,18 @@ const frontend = {
   module: {
     rules: [
       ...babelLoaderRules,
+      // {
+      //   test: /\.svg$/,
+      //   loader: 'svg-inline-loader',
+      // },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+      },
+      {
+        test: /\.(svg|jpe?g|png|ttf|eot|woff(2)?)(\?[a-z0-9=&.]+)?$/,
+        use: 'base64-inline-loader?limit=1000&name=[name].[ext]',
+      },
       {
         test: /\.html$/,
         use: [
@@ -68,7 +80,7 @@ const frontend = {
       template: './packages/tegh-web-ui/src/index.html',
       filename: './index.html',
     }),
-    // new webpack.HotModuleReplacementPlugin(),
+    new webpack.HotModuleReplacementPlugin(),
   ],
 }
 
