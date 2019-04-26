@@ -1,6 +1,6 @@
 ##  Publishing the Tegh UI
 
-1. run `yarn start` and once the server is started run `yarn watch` in a second tab
+1. run `yarn watch` and once the dev server is started run `yarn start` in a second tab
 2. verify that the UI works as expected in Beaker and Firefox
 3. Publish the dat archive from Beaker
 4. verify that dat://tegh.io has been updated
