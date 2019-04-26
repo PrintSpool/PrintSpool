@@ -151,7 +151,7 @@ const printerConfig = {
       package: '@tegh/core',
       model: {
         modelID: 'lulzbot/lulzbot-mini-2',
-        name: 'Left Home Lulzbot',
+        name: 'New Printer',
         automaticPrinting: false,
       },
     },
@@ -192,7 +192,7 @@ if (['arm', 'arm64'].includes(os.arch())) {
 
 const hostConfig = {
   id: 'pzxcvkkwn',
-  name: 'ExampleLabs FabLab',
+  name: 'New Print Farm',
   configDirectory: '~/.tegh/',
   log: {
     id: 'lolcatz95',

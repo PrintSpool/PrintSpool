@@ -10,7 +10,7 @@ import {
   ListItemText,
   ListSubheader,
   Tooltip,
-  Button,
+  Fab,
 } from '@material-ui/core'
 import {
   Usb,
@@ -186,13 +186,12 @@ const ComponentsConfigIndex = ({
     />
     <Tooltip title="Add Component" placement="left">
       <Link to="new/" style={{ textDecoration: 'none' }}>
-        <Button
+        <Fab
           component="label"
-          variant="fab"
           className={classes.addFab}
         >
           <Add />
-        </Button>
+        </Fab>
       </Link>
     </Tooltip>
     <List>

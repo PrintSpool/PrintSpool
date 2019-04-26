@@ -18,6 +18,7 @@ module.exports = {
     '@babel/plugin-proposal-export-default-from',
     '@babel/plugin-proposal-export-namespace-from',
     'module:fast-async',
+    // 'inline-react-svg',
     // TODO: this might only be good to have in the web ui
     '@babel/plugin-transform-runtime',
     'import-graphql',

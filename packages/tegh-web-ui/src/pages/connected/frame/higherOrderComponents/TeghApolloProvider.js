@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { ApolloProvider } from 'react-apollo'
 
 import memoize from 'fast-memoize'
@@ -9,11 +9,11 @@ import { InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloLink } from 'apollo-link'
 // import { SubscriptionClient } from 'subscriptions-transport-ws'
 import { onError } from 'apollo-link-error'
-import ReduxLink from 'apollo-link-redux'
+// import ReduxLink from 'apollo-link-redux'
 
 import { ThingLink } from 'graphql-things'
 
-import { store } from '../../../../index'
+// import { store } from '../../../../index'
 
 const createTeghApolloClient = ({
   // myIdentity,
@@ -61,7 +61,7 @@ const createTeghApolloClient = ({
   const apolloClient = new ApolloClient({
     // link: thingLink,
     link: ApolloLink.from([
-      new ReduxLink(store),
+      // new ReduxLink(store),
       errorLink,
       thingLink,
     ]),
@@ -77,18 +77,14 @@ const memoizedCreateTeghApolloClient = memoize(createTeghApolloClient, {
 })
 
 
-class TeghApolloProvider extends React.Component {
-  static getDerivedStateFromProps(props, state) {
-    const {
-      hostIdentity,
-      myIdentity,
-      onWebRTCConnect,
-      onWebRTCDisconnect,
-    } = props
-
-    if (hostIdentity.id === state.hostID) {
-      return state
-    }
+const TeghApolloProvider = ({
+  hostIdentity,
+  children,
+}) => {
+  const state = useMemo(() => {
+    // if (hostIdentity.id === state.hostID) {
+    //   return state
+    // }
     // if (state.client != null) {
     //   // TODO: memory leak: no way to close old apollo clients AFAIK
     //   // state.client.close()
@@ -96,39 +92,23 @@ class TeghApolloProvider extends React.Component {
 
     const client = memoizedCreateTeghApolloClient({
       hostIdentity,
-      myIdentity,
-      onWebRTCConnect,
-      onWebRTCDisconnect,
     })
+
     return {
       hostID: hostIdentity.id,
       client,
     }
-  }
+  })
 
-  constructor(props) {
-    super(props)
-    this.state = {}
-  }
+  const { client } = state
 
-  // TODO: memory leak: no way to close old apollo clients AFAIK
-  // componentWillUnmount() {
-  //   const { client } = this.state
-  //   client.close()
-  // }
+  if (client == null) return <div />
 
-  render() {
-    const { children } = this.props
-    const { client } = this.state
-
-    if (client == null) return <div />
-
-    return (
-      <ApolloProvider client={client}>
-        { children }
-      </ApolloProvider>
-    )
-  }
+  return (
+    <ApolloProvider client={client}>
+      { children }
+    </ApolloProvider>
+  )
 }
 
 export default TeghApolloProvider

@@ -8,7 +8,7 @@ import {
   ListItemIcon,
   ListItemText,
   Tooltip,
-  Button,
+  Fab,
 } from '@material-ui/core'
 import {
   Style,
@@ -104,13 +104,12 @@ const MaterialsConfigIndex = ({
     />
     <Tooltip title="Add Component" placement="left">
       <Link to="new/" style={{ textDecoration: 'none' }}>
-        <Button
+        <Fab
           component="label"
-          variant="fab"
           className={classes.addFab}
         >
           <Add />
-        </Button>
+        </Fab>
       </Link>
     </Tooltip>
     <List>

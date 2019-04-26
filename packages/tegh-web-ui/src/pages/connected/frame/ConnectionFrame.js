@@ -1,23 +1,15 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import gql from 'graphql-tag'
-import {
-  compose,
-  branch,
-  renderComponent,
-} from 'recompose'
-import {
-  withStyles,
-} from '@material-ui/core'
-import { connect } from 'react-redux'
+import { makeStyles } from '@material-ui/styles'
 
 import { LiveSubscription } from 'apollo-react-live-subscriptions'
 
 import TeghApolloProvider from './higherOrderComponents/TeghApolloProvider'
 
 import Drawer, { DrawerFragment } from './components/Drawer'
+import StaticTopNavigation from '../../../topNavigation/StaticTopNavigation'
 
-import setWebRTCPeerActionCreator from '../../../actions/setWebRTCPeer'
-import setHostNameActionCreator from '../../../actions/setHostName'
+import { UserDataContext } from '../../../UserDataProvider'
 
 const FRAME_SUBSCRIPTION = gql`
   subscription ConnectionFrameSubscription {
@@ -36,105 +28,103 @@ const FRAME_SUBSCRIPTION = gql`
   ${DrawerFragment}
 `
 
-const styles = () => ({
-  appFrame: {
+const useStyles = makeStyles(() => ({
+  root: {
     position: 'relative',
-    display: 'flex',
+    display: 'grid',
+    gridTemplateColumns: 'auto 1fr',
+    gridTemplateRows: 'auto 1fr',
     width: '100%',
     height: '100%',
     minHeight: '100vh',
   },
-})
-
-const enhance = compose(
-  withStyles(styles, { withTheme: true }),
-  connect(
-    (state, ownProps) => {
-      const { hostID } = ownProps.match.params
-      const { myIdentity, hostIdentities } = state.keys
-
-      return {
-        myIdentity,
-        hostIdentity: hostIdentities.get(hostID),
-        // TODO: this will not work for pages that do not subscribe to live data
-        connected: (
-          state.liveSubscriptions.get('ConnectionFrame') != null
-          && state.liveSubscriptions.get('PageWithLiveData') != null
-          && state.webRTC.peer != null
-        ),
-      }
-    },
-    {
-      setWebRTCPeer: setWebRTCPeerActionCreator,
-      setHostName: setHostNameActionCreator,
-    },
-  ),
-  branch(
-    props => props.hostIdentity == null,
-    renderComponent(() => (
-      <div>404 Page Not Found</div>
-    )),
-  ),
-  branch(
-    props => props.myIdentity == null,
-    renderComponent(() => (
-      <div>Connecting</div>
-    )),
-  ),
-)
+  topNavigation: {
+    gridColumn: '1 / 3',
+    gridRow: '1',
+  },
+  content: {
+    gridColumn: '2',
+    gridRow: '2',
+    display: 'flex',
+    // width: '100%',
+  },
+  drawer: {
+    gridColumn: '1',
+    gridRow: '2',
+  },
+}))
 
 const ConnectionFrame = ({
-  classes,
-  myIdentity,
-  hostIdentity,
-  // setWebRTCPeer,
-  setHostName,
-  // connected,
+  match,
   children,
-}) => (
-  <TeghApolloProvider
-    myIdentity={myIdentity}
-    hostIdentity={hostIdentity}
-    // onWebRTCConnect={setWebRTCPeer}
-    // onWebRTCDisconnect={() => setWebRTCPeer(null)}
-  >
-    <LiveSubscription
-      reduxKey="ConnectionFrame"
-      subscription={FRAME_SUBSCRIPTION}
-      onSubscriptionData={({ subscriptionData }) => {
-        setHostName({
-          id: hostIdentity.id,
-          name: subscriptionData.data.jobQueue.name,
-        })
-      }}
-    >
-      {
-        ({ data, loading, error }) => (
-          <div className={classes.appFrame}>
-            {
-              // connected && !loading && (
-              !loading && (
-                <Drawer
-                  hostIdentity={hostIdentity}
-                  printers={data.printers}
-                />
-              )
-            }
-            {
-              error && (
-                <div>
-                  {JSON.stringify(error)}
-                </div>
-              )
-            }
-            {
-              !error && children
-            }
-          </div>
-        )
-      }
-    </LiveSubscription>
-  </TeghApolloProvider>
-)
+}) => {
+  const { hostID } = match.params
 
-export default enhance(ConnectionFrame)
+  const classes = useStyles()
+  const { hosts, setHostName } = useContext(UserDataContext)
+
+  const host = hosts[hostID]
+
+  if (host == null) {
+    return (
+      <div>404 Page Not Found</div>
+    )
+  }
+
+  return (
+    <TeghApolloProvider
+      hostIdentity={host.invite}
+    >
+      <LiveSubscription
+        reduxKey="ConnectionFrame"
+        subscription={FRAME_SUBSCRIPTION}
+        onSubscriptionData={({ subscriptionData }) => {
+          setHostName({
+            id: host.id,
+            name: subscriptionData.data.jobQueue.name,
+          })
+        }}
+      >
+        {
+          ({ data, loading, error }) => (
+            <div className={classes.root}>
+              {
+                !loading && (
+                  <StaticTopNavigation
+                    title={() => host.name}
+                    className={classes.topNavigation}
+                  />
+                )
+              }
+
+              {
+                // connected && !loading && (
+                !loading && (
+                  <Drawer
+                    hostIdentity={host}
+                    printers={data.printers}
+                    className={classes.drawer}
+                  />
+                )
+              }
+              <div className={classes.content}>
+                {
+                  error && (
+                    <div>
+                      {JSON.stringify(error)}
+                    </div>
+                  )
+                }
+                {
+                  !error && children
+                }
+              </div>
+            </div>
+          )
+        }
+      </LiveSubscription>
+    </TeghApolloProvider>
+  )
+}
+
+export default ConnectionFrame
