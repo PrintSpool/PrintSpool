@@ -73,7 +73,7 @@ const createTeghApolloClient = ({
 
 // TODO: does not work for some reason
 const memoizedCreateTeghApolloClient = memoize(createTeghApolloClient, {
-  serializer: ({ hostIdentity }) => hostIdentity.id,
+  serializer: ({ hostIdentity }) => hostIdentity && hostIdentity.id,
 })
 
 
@@ -95,7 +95,7 @@ const TeghApolloProvider = ({
     })
 
     return {
-      hostID: hostIdentity.id,
+      hostID: hostIdentity && hostIdentity.id,
       client,
     }
   })
