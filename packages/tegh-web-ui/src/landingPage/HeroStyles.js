@@ -89,6 +89,7 @@ const useStyles = makeStyles(theme => ({
   cubes: {
     width: '100%',
     marginTop: `calc(-10vw - ${CUBES_BOTTOM_WHITESPACE})`,
+    overflow: 'hidden',
     [theme.breakpoints.up('lg')]: {
       display: 'flex',
       alignItems: 'center',
@@ -101,6 +102,8 @@ const useStyles = makeStyles(theme => ({
   secondInnerCubes: {
     flex: 1,
     transform: 'scaleX(-1)',
+    marginLeft: -2,
+    marginRight: -2,
   },
 }), { withTheme: true })
 

@@ -27,11 +27,11 @@ const LandingPage = () => (
     <Grid
       container
       style={{
-        paddingLeft: 100,
-        paddingRight: 100,
+        paddingLeft: 50,
+        paddingRight: 50,
       }}
     >
-      <Grid item xs={6}>
+      <Grid item xs={12} md={6}>
         <Typography variant="h4" paragraph>
           Worry Less.
           {' '}
@@ -53,7 +53,7 @@ const LandingPage = () => (
         </Typography>
       </Grid>
 
-      <Grid item xs={6}>
+      <Grid item xs={0} md={6}>
         <img
           alt="Screenshot of Tegh"
           src={teghMockupSVG}
