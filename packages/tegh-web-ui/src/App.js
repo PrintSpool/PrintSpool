@@ -19,9 +19,9 @@ import theme from './theme'
 export const store = createTeghReduxStore()
 
 const App = () => (
-  <MuiThemeProvider theme={theme}>
-    <ThemeProvider theme={theme}>
-      <CssBaseline>
+  <CssBaseline>
+    <MuiThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
         <ReduxProvider store={store}>
           <UserDataProvider filePath="/tegh-user.json">
             <Routes />
@@ -30,9 +30,9 @@ const App = () => (
             }
           </UserDataProvider>
         </ReduxProvider>
-      </CssBaseline>
-    </ThemeProvider>
-  </MuiThemeProvider>
+      </ThemeProvider>
+    </MuiThemeProvider>
+  </CssBaseline>
 )
 
 export default App
