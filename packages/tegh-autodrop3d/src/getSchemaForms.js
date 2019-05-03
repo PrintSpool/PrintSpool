@@ -7,7 +7,7 @@ const getSchemaForms = () => ({
         title: '@tegh/autodrop3d',
         required: [
           ...(schema.required || []),
-          'outputPins',
+          'deviceID',
         ],
         properties: {
           ...(schema.properties || {}),
@@ -15,18 +15,21 @@ const getSchemaForms = () => ({
             title: 'AutoDrop Device ID',
             type: 'string',
           },
-          deviceKey: {
-            title: 'AutoDrop Device Secret Key',
-            type: 'string',
-          },
+          // TODO: AutoDrop expects to add a required deviceKey param in the
+          // future.
+          // deviceKey: {
+          //   title: 'AutoDrop Device Secret Key',
+          //   type: 'string',
+          // },
           automaticJobDownload: {
             title: 'Automatically download jobs',
             type: 'boolean',
           },
-          apiURL: {
-            title: '[ADVANCED] API URL',
-            type: 'string',
-          },
+          // TODO: hide advanced settings by default somehow
+          // apiURL: {
+          //   title: '[ADVANCED] API URL',
+          //   type: 'string',
+          // },
         },
       }),
       form: [

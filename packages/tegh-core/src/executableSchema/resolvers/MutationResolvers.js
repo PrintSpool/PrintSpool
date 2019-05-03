@@ -50,6 +50,30 @@ const MutationResolvers = {
       store.dispatch(action)
       return null
     },
+    createMachine: (source, args, { store }) => {
+      const state = store.getState()
+
+      const updateArgs = {
+        input: {
+          printerID: state.config.printer.id,
+          collection: 'MACHINE',
+          modelVersion: state.config.printer.modelVersion,
+          model: args.input.model,
+        },
+      }
+
+      const {
+        action,
+        errors,
+      } = requestUpdateConfigFromMutation(source, updateArgs, { store })
+
+      if (errors) {
+        return { errors }
+      }
+
+      store.dispatch(action)
+      return {}
+    },
     /* jobQueue */
     createJob: actionResolver({
       requirePrinterID: false,

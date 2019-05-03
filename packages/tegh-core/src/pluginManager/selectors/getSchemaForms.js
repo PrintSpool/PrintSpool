@@ -1,4 +1,4 @@
-import { Record, Map } from 'immutable'
+import { Map } from 'immutable'
 import { createSelector } from 'reselect'
 import getPlugins from './getPlugins'
 import SchemaForm from '../types/SchemaForm'
@@ -44,32 +44,59 @@ const getSchemaForms = createSelector(
      *
      */
     let schemas = initialState
-    plugins
-      .map(plugin => (
-        Object.entries(
-          (plugin.getSchemaForms && plugin.getSchemaForms()) || {},
+    let machineConfigPaths = {}
+
+    const addSchemaForm = (keypath, nextSchemaForm) => {
+      schemas = schemas.updateIn(keypath, previousSchema => (
+        // executing the schemaForm's schema function against the
+        // previous schema value and saving it's output as the
+        // new schema value
+        nextSchemaForm.schema(previousSchema || {})
+      ))
+    }
+
+    plugins.forEach((plugin) => {
+      // iterating over the plugins and getting all their schema forms
+      const {
+        machine,
+        ...schemaFormMaps
+      } = (plugin.getSchemaForms && plugin.getSchemaForms()) || {}
+
+      // add the machine schema form
+      if (machine != null) {
+        addSchemaForm(['machine'], machine)
+        if (machine.configPaths != null) {
+          machineConfigPaths = machine.configPaths(machineConfigPaths)
+        }
+      }
+
+      // add the plugins and components schemaForms
+      Object.entries(schemaFormMaps).forEach(([category, schemaForms]) => (
+        // iterating over the categories defined in the plugin
+        Object.entries(schemaForms).forEach(
+          ([type, pluginSchemaFormForType]) => {
+            // adding each individual schemaForms in the category
+            addSchemaForm([category, type], pluginSchemaFormForType)
+          },
         )
       ))
-      .forEach((pluginSchemaFormCategories) => {
-        // iterating over the plugins
-        pluginSchemaFormCategories.forEach(([category, schemaForms]) => (
-          // iterating over the categories defined in the plugin
-          Object.entries(schemaForms).forEach(
-            ([type, pluginSchemaFormForType]) => {
-              // iterating over the individual schemaForms in the category
-              schemas = schemas.updateIn([category, type], previousSchema => (
-                // executing the schemaForm's schema function against the
-                // previous schema value and saving it's output as the
-                // new schema value
-                pluginSchemaFormForType.schema(previousSchema || {})
-              ))
-            },
-          )
-        ))
-      })
+    })
 
     // wrap each schema in a SchemaForm Record
     Map(schemas).keySeq().forEach((categoryKey) => {
+      if (categoryKey === 'machine') {
+        schemas = schemas.update('machine', schema => (
+          SchemaForm({
+            id: 'machine',
+            schema,
+            configPaths: Map(machineConfigPaths),
+            // TODO: form order customization
+            form: ['*'],
+          })
+        ))
+        return
+      }
+
       schemas = schemas.update(categoryKey, category => (
         category.map((schema, type) => SchemaForm({
           id: type,

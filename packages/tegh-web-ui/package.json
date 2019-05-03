@@ -50,11 +50,13 @@
     "bluebird": "^3.5.3",
     "bs58": "^4.0.1",
     "classnames": "^2.2.6",
+    "downshift": "^3.2.10",
     "fast-async": "^6.3.8",
     "fast-json-patch": "^2.0.7",
     "fast-memoize": "^2.5.1",
-    "formik": "^1.3.2",
+    "formik": "^1.5.4",
     "formik-material-ui": "^0.0.16",
+    "fuse.js": "^3.4.4",
     "graphql": "^14.0.2",
     "graphql-anywhere": "^3.1.0",
     "graphql-tag": "^2.5.0",
@@ -73,6 +75,7 @@
     "react-dom": "^16.8.6",
     "react-error-boundary": "^1.2.3",
     "react-loader-advanced": "^1.7.1",
+    "react-measure": "^2.3.0",
     "react-qr-reader": "^2.1.1",
     "react-redux": "^5.0.6",
     "react-router": "^5.0.0",
@@ -92,7 +95,8 @@
     "three-gcode-loader": "^1.0.1",
     "typeface-roboto": "^0.0.54",
     "use-react-router": "^1.0.5",
-    "voca": "^1.4.0"
+    "voca": "^1.4.0",
+    "yup": "^0.27.0"
   },
   "devDependencies": {
     "@storybook/addon-actions": "^4.1.0-alpha.8",

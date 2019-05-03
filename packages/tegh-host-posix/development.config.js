@@ -22,6 +22,8 @@ if (useKlipper) {
 
 const printerConfig = {
   id: 'aaxcvxcvcxv-bvb-csdf234231',
+  isConfigured: false,
+  modelVersion: 1,
   components: [
     {
       // Controller must be the first component for driver test mocks
@@ -150,7 +152,7 @@ const printerConfig = {
       modelVersion: 1,
       package: '@tegh/core',
       model: {
-        modelID: 'lulzbot/lulzbot-mini-2',
+        machineDefinitionURL: 'dat://a295acba915cf57a98854f9f4ecf4be0aa03342a1b814bed591592b611f87e66+preview/definitions/alfawise_u20.def.json',
         name: 'New Printer',
         automaticPrinting: false,
       },

@@ -1,6 +1,7 @@
 # Queries
 
 extend type Query {
+  isConfigured: Boolean!
   printers(printerID: ID): [Printer!]!
 }
 
@@ -8,8 +9,15 @@ type Printer {
   id: ID!
   name: String!
 
+  """
+  The machine configuration for general settings.
+  """
+  configForm: ConfigForm!
+
   components(componentID: ID): [Component!]!
   plugins(package: String): [Plugin!]!
+
+  availablePackages: [String!]!
 
   fixedListComponentTypes: [String!]!
 
@@ -36,6 +44,7 @@ type Plugin {
   id: ID!
   package: String!
   configForm: ConfigForm!
+  isEssential:  Boolean!
 }
 
 type Component {

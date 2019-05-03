@@ -16,7 +16,7 @@ import * as teghRaspberryPi from '@tegh/raspberry-pi'
 import httpServer from './server/httpServer'
 import webRTCServer from './server/webRTCServer'
 
-const plugins = {
+const availablePlugins = {
   '@tegh/autodrop3d': teghAutodrop3D,
   '@tegh/core': teghCore,
   '@tegh/driver-serial-gcode': teghDriverSerialGCode,
@@ -78,6 +78,7 @@ const teghServer = async (argv, pluginLoader) => {
   const action = initializeConfig({
     config,
     pluginLoader,
+    availablePlugins,
   })
 
   store.dispatch(action)
@@ -116,7 +117,7 @@ const teghServer = async (argv, pluginLoader) => {
 
 const nodeModulesPluginLoader = async (pluginName) => {
   // eslint-disable-next-line global-require, import/no-dynamic-require
-  const pluginModule = plugins[pluginName]
+  const pluginModule = availablePlugins[pluginName]
   if (pluginModule == null) {
     throw new Error(`Plugin not found: ${pluginName}`)
   }

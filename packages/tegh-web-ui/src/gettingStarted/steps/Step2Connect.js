@@ -11,7 +11,10 @@ import { parseInviteCode } from 'graphql-things'
 
 import Step2ConnectStyles from './Step2ConnectStyles'
 
+import ButtonsFooter from '../ButtonsFooter'
+
 const Step2Connect = ({
+  className,
   history,
 }) => {
   const classes = Step2ConnectStyles()
@@ -41,29 +44,34 @@ const Step2Connect = ({
   }
 
   return (
-    <div className={classes.root}>
-      <Typography variant="h5" paragraph>
-        Connect to your 3D Printer
-      </Typography>
-      <Typography variant="body1" paragraph>
-        Scan or copy the Invite Code from your Raspberry Pi&apos;s terminal to establish a secure connection.
-      </Typography>
-      <Typography variant="h6">
-        Scan your Invite QR Code
-      </Typography>
-      <div className={classes.qrCodeContainer}>
-        <QRReader
-          onScan={onScan}
-          onError={onError}
-          className={classes.qrCode}
-        />
+    <React.Fragment>
+      <div className={className}>
+        <div className={classes.root}>
+          <Typography variant="h5" paragraph>
+            Connect to your 3D Printer
+          </Typography>
+          <Typography variant="body1" paragraph>
+            Scan or copy the Invite Code from your Raspberry Pi&apos;s terminal to establish a secure connection.
+          </Typography>
+          <Typography variant="h6">
+            Scan your Invite QR Code
+          </Typography>
+          <div className={classes.qrCodeContainer}>
+            <QRReader
+              onScan={onScan}
+              onError={onError}
+              className={classes.qrCode}
+            />
+          </div>
+          <TextField
+            label="Or paste the Invite text"
+            margin="normal"
+            onChange={onTextChange}
+          />
+        </div>
       </div>
-      <TextField
-        label="Or paste the Invite text"
-        margin="normal"
-        onChange={onTextChange}
-      />
-    </div>
+      <ButtonsFooter step={2} disable history={history} />
+    </React.Fragment>
   )
 }
 

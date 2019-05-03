@@ -10,11 +10,12 @@ const requestUpdateConfigFromMutation = (source, args, { store }) => {
     model,
   } = args.input
   const state = store.getState()
+
   const {
     subject,
-    schemaFormKey,
-    collectionPath,
-    collectionKey,
+    configPath,
+    schemaFormPath,
+    isMachine,
   } = getMutationConfigFormInfo({ state, args })
 
   if (subject === null) {
@@ -23,6 +24,7 @@ const requestUpdateConfigFromMutation = (source, args, { store }) => {
     )
   }
 
+  console.log(modelVersion, subject.modelVersion, subject)
   if (modelVersion !== subject.modelVersion) {
     throw new Error(
       'The object was modified by an other user. Please reload the '
@@ -30,9 +32,9 @@ const requestUpdateConfigFromMutation = (source, args, { store }) => {
     )
   }
 
-  const schemaForm = state.schemaForms.getIn([collectionKey, schemaFormKey])
+  const schemaForm = state.schemaForms.getIn(schemaFormPath)
   if (schemaForm == null) {
-    throw new Error(`schemaForm not defined for ${schemaFormKey}`)
+    throw new Error(`schemaForm not defined for ${schemaFormPath}`)
   }
 
   // Validate the input against the JSON Schema
@@ -49,16 +51,36 @@ const requestUpdateConfigFromMutation = (source, args, { store }) => {
     }
   }
 
-  const index = state.config.getIn(collectionPath).findIndex(c => (
-    c.id === configFormID
-  ))
+  let nextConfig = state.config
+    .setIn([...configPath, 'modelVersion'], subject.modelVersion + 1)
 
-  const nextConfig = state.config
-    .setIn([...collectionPath, index, 'modelVersion'], subject.modelVersion + 1)
-    .updateIn(
-      [...collectionPath, index, 'model'],
+  if (isMachine) {
+    nextConfig = nextConfig.setIn(['printer', 'isConfigured'], true)
+
+    /*
+     * The machine schema form provides shortcuts to the most common settings
+     * but those settings are not stored together. Instead they are logically
+     * grouped with their components and plugins in the printer config.
+     *
+     * copy the machine form values to their respective locations in the
+     * printer's configuration.
+     */
+    schemaForm.configPaths.mapEntries(([k, getFieldConfigPath]) => {
+      const fieldPath = getFieldConfigPath(state.config.printer)
+      const keyPath = ['printer', ...fieldPath, 'model', k]
+
+      if (state.config.hasIn(keyPath) === false) {
+        throw new Error(`Path does not exist: ${keyPath.join('.')}`)
+      }
+
+      nextConfig = nextConfig.setIn(keyPath, model[k])
+    })
+  } else {
+    nextConfig = nextConfig.updateIn(
+      [...configPath, 'model'],
       previousVal => previousVal.merge(model),
     )
+  }
 
   const action = requestSetConfig({
     config: nextConfig,

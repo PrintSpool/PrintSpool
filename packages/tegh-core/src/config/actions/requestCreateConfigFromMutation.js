@@ -5,6 +5,7 @@ import PluginConfig from '../types/PluginConfig'
 import ComponentConfig from '../types/components/ComponentConfig'
 import MaterialConfig from '../types/MaterialConfig'
 import requestSetConfig from './requestSetConfig'
+import getAvailablePackageSchemaForms from '../../pluginManager/selectors/getAvailablePackageSchemaForms'
 
 const PLUGIN = 'PLUGIN'
 const COMPONENT = 'COMPONENT'
@@ -31,12 +32,21 @@ const requestCreateConfigFromMutation = (source, args, { store }) => {
   const state = store.getState()
 
   // TODO: host configs
-  if (collection !== PLUGIN && collection !== COMPONENT && collection !== MATERIAL) {
+  if (
+    collection !== PLUGIN
+    && collection !== COMPONENT
+    && collection !== MATERIAL
+  ) {
     throw new Error(`Unsupported collection ${collection}`)
   }
 
   const collectionKey = collectionKeys[collection]
-  const schemaForm = state.schemaForms.getIn([collectionKey, schemaFormKey])
+
+  let { schemaForms } = state
+  if (collection === PLUGIN) {
+    schemaForms = getAvailablePackageSchemaForms(state)
+  }
+  const schemaForm = schemaForms.getIn([collectionKey, schemaFormKey])
 
   if (schemaForm == null) {
     throw new Error(`schemaForm not defined for ${schemaFormKey}`)

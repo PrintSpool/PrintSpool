@@ -8,6 +8,31 @@ extend type Query {
   schemaForm(input: SchemaFormQueryInput!): JSONSchemaForm!
 }
 
+input SchemaFormQueryInput {
+  collection: ConfigCollection!
+  """
+    printerID is required for PRINTER ConfigCollection config forms
+  """
+  printerID: ID
+  # TODO: host conig support
+  # """
+  #   hostID is required for HOST ConfigCollection config forms
+  # """
+  # hostID: ID
+
+  # TODO: plugin schema form support
+  # for plugins the schemaFormKey is the plugin's package
+  """
+    The schemaFormKey is dependent on the collection:
+    - For collection = **"COMPONENT"** schemaFormKey should be the **component type** (eg. `"CONTROLLER"`)
+    - For collection = **"MATERIAL"** schemaFormKey should be the **material type** (eg. `"FDM_FILAMENT"`)
+    - For collection = **"PLUGIN"** schemaFormKey should be the **plugin name** (eg. `"@tegh/core"`)
+    - For collection = **"MACHINE"** schemaFormKey should be the **machine descriptor DAT URL** (eg. `"dat://..."`)
+  """
+
+  schemaFormKey: ID!
+}
+
 type Host {
   id: ID!
   configForm: ConfigForm!
@@ -34,39 +59,27 @@ type JSONSchemaForm {
   form: JSON!
 }
 
-input SchemaFormQueryInput {
-  collection: ConfigCollection!
-  """
-    printerID is required for PRINTER ConfigCollection config forms
-  """
-  printerID: ID
-  # TODO: host conig support
-  # """
-  #   hostID is required for HOST ConfigCollection config forms
-  # """
-  # hostID: ID
-
-  # TODO: plugin schema form support
-  # for plugins the schemaFormKey is the plugin's package
-  """
-    for components and materials the schemaFormKey is the component/material's type
-  """
-  schemaFormKey: ID!
-}
-
-
 # Mutations
 
 extend type Mutation {
-  createConfig(input: CreateConfigInput!): SetConfigResponse
-  updateConfig(input: UpdateConfigInput!): SetConfigResponse
+  createConfig(input: CreateConfigInput!): SetConfigResponse!
+  updateConfig(input: UpdateConfigInput!): SetConfigResponse!
   deleteConfig(input: DeleteConfigInput!): Boolean
+
+  createMachine(input: CreateMachineInput!): SetConfigResponse!
+}
+
+input CreateMachineInput {
+  model: JSON!
 }
 
 input CreateConfigInput {
   collection: ConfigCollection!
   """
-    The type of the component/material or the package of the plugin
+    The schemaFormKey is dependent on the collection:
+    - For collection = **"COMPONENT"** schemaFormKey should be the **component type** (eg. `"CONTROLLER"`)
+    - For collection = **"MATERIAL"** schemaFormKey should be the **material type** (eg. `"FDM_FILAMENT"`)
+    - For collection = **"PLUGIN"** schemaFormKey should be the **plugin name** (eg. `"@tegh/core"`)
   """
   schemaFormKey: String!
   """
@@ -155,4 +168,5 @@ enum ConfigCollection {
   COMPONENT,
   MATERIAL,
   HOST,
+  MACHINE,
 }

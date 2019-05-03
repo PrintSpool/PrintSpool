@@ -3,6 +3,7 @@ import { SET_CONFIG } from '../../config/actions/setConfig'
 import getSchemaForms from '../selectors/getSchemaForms'
 
 export const initialState = Record({
+  machine: null,
   plugins: Map(),
   materials: Map(),
   components: Map(),

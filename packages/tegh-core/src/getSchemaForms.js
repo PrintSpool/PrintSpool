@@ -6,6 +6,11 @@ import {
   FAN,
 } from './config/types/components/ComponentTypeEnum'
 
+const getCorePluginConfigPath = (printerConfig) => {
+  const index = printerConfig.plugins.findIndex(c => c.package === '@tegh/core')
+  return ['plugins', index]
+}
+
 const componentBaseProperties = schema => ({
   ...(schema.properties || {}),
   name: {
@@ -16,6 +21,39 @@ const componentBaseProperties = schema => ({
 })
 
 const getSchemaForms = () => ({
+  machine: {
+    schema: schema => ({
+      ...schema,
+      type: 'object',
+      title: 'Basic Printer Settings',
+      required: [
+        ...(schema.required || []),
+        'machineDefinitionURL',
+        'name',
+      ],
+      properties: {
+        ...(schema.properties || {}),
+        machineDefinitionURL: {
+          title: 'Printer make and model DAT',
+          type: 'string',
+        },
+        name: {
+          title: 'Name',
+          type: 'string',
+          minLength: 1,
+        },
+      },
+    }),
+    form: [
+      'machineDefinitionURL',
+      'name',
+    ],
+    configPaths: configPaths => ({
+      ...configPaths,
+      machineDefinitionURL: getCorePluginConfigPath,
+      name: getCorePluginConfigPath,
+    }),
+  },
   plugins: {
     '@tegh/core': {
       schema: schema => ({
@@ -25,28 +63,10 @@ const getSchemaForms = () => ({
         required: [
           ...(schema.required || []),
           'name',
-          'modelID',
-          'automaticPrinting'
+          'automaticPrinting',
         ],
         properties: {
           ...(schema.properties || {}),
-          name: {
-            title: 'Name',
-            type: 'string',
-            minLength: 1,
-          },
-          // modelID: {
-          //   title: 'Make and model',
-          //   type: 'string',
-          //   enum: [
-          //     'lulzbot/lulzbot-mini-1',
-          //     'lulzbot/lulzbot-mini-2',
-          //   ],
-          //   enumNames: [
-          //     'Lulzbot Mini 1',
-          //     'Lulzbot Mini 2',
-          //   ],
-          // },
           automaticPrinting: {
             title: 'Automatic Printing',
             desciption: (
@@ -68,7 +88,6 @@ const getSchemaForms = () => ({
       }),
       form: [
         'name',
-        // 'modelID',
         'automaticPrinting',
       ],
     },
@@ -182,24 +201,6 @@ const getSchemaForms = () => ({
         ],
         properties: {
           ...componentBaseProperties(schema),
-          serialPortID: {
-            title: 'Serial Port',
-            type: 'string',
-            minLength: 1,
-          },
-          baudRate: {
-            title: 'Baud Rate',
-            type: 'integer',
-            enum: [
-              250000,
-              230400,
-              115200,
-              57600,
-              38400,
-              19200,
-              9600,
-            ],
-          },
           simulate: {
             title: 'Simulate Attached Controller',
             type: 'boolean',
@@ -208,8 +209,6 @@ const getSchemaForms = () => ({
       }),
       form: [
         'name',
-        'serialPortID',
-        'baudRate',
         'simulate',
       ],
     },

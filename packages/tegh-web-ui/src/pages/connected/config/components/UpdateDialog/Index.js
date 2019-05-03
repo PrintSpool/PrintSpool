@@ -73,9 +73,16 @@ const enhance = compose(
           }
 
           const configFormModel = (() => {
-            if (data.materials != null) return data.materials[0]
+            if (data.materials != null) {
+              return data.materials[0]
+            }
 
             const printer = data.printers[0]
+
+            if (printer.configForm != null) {
+              return printer
+            }
+
             return (printer.plugins || printer.components)[0]
           })().configForm
 
@@ -171,13 +178,14 @@ const UpdateDialog = ({
       validate={validate}
       onSubmit={onSubmit}
     >
-      {() => (
+      {props => (
         <Form>
           <DialogTitle id="form-dialog-title">{title || name || id}</DialogTitle>
           <DialogContent>
             <FormikSchemaForm
               schema={transformSchema(data.schemaForm.schema)}
               form={data.schemaForm.form}
+              values={props.values}
             />
           </DialogContent>
           <DialogActions>

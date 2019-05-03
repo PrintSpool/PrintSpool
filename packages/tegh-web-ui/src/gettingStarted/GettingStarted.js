@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react'
-import { Link } from 'react-router-dom'
 import { Query } from 'react-apollo'
 import gql from 'graphql-tag'
 
@@ -7,19 +6,36 @@ import {
   Stepper,
   Step,
   StepLabel,
-  Button,
 } from '@material-ui/core'
 
 import { parseInviteCode } from 'graphql-things'
 
+import { LiveSubscription } from '../util/LiveSubscription'
+
 import TeghApolloProvider from '../pages/connected/frame/higherOrderComponents/TeghApolloProvider'
 import StaticTopNavigation from '../topNavigation/StaticTopNavigation'
+
 
 import GettingStartedStyles from './GettingStartedStyles'
 
 import Step1InstallTegh from './steps/Step1InstallTegh'
 import Step2Connect from './steps/Step2Connect'
 import Step3Setup from './steps/Step3Setup'
+import Step4Backup from './steps/Step4Backup'
+
+const DEVICES_SUBSCRIPTION = gql`
+  subscription DevicesSubscription {
+    live {
+      patch { op, path, from, value }
+      query {
+        devices {
+          id
+          type
+        }
+      }
+    }
+  }
+`
 
 const GettingStarted = ({
   location,
@@ -31,7 +47,7 @@ const GettingStarted = ({
   const steps = [
     'Install',
     'Connect',
-    // 'Set up User / Printer',
+    'First Time Setup',
     'Done',
   ]
 
@@ -46,7 +62,6 @@ const GettingStarted = ({
     return parseInviteCode(inviteCodeParam)
   })
 
-
   return (
     <div className={classes.root}>
       <StaticTopNavigation title={() => 'Welcome to Tegh!'} />
@@ -57,15 +72,39 @@ const GettingStarted = ({
           </Step>
         ))}
       </Stepper>
-      <div className={classes.content}>
-        { step === 1 && (
-          <Step1InstallTegh history={history} />
-        )}
-        { step === 2 && (
-          <Step2Connect history={history} />
-        )}
-        { step === 3 && (
-          <TeghApolloProvider hostIdentity={invite}>
+      { step === 1 && (
+        <Step1InstallTegh history={history} className={classes.content} />
+      )}
+      { step === 2 && (
+        <Step2Connect history={history} className={classes.content} />
+      )}
+      { step >= 3 && (
+        <TeghApolloProvider hostIdentity={invite}>
+          {step === 3 && (
+            <LiveSubscription subscription={DEVICES_SUBSCRIPTION}>
+              {({ data, loading, error }) => {
+                if (error) {
+                  return (
+                    <div>
+                      {JSON.stringify(error)}
+                    </div>
+                  )
+                }
+
+                return (
+                  <Step3Setup
+                    connecting={loading}
+                    location={location}
+                    history={history}
+                    className={classes.content}
+                    invite={invite}
+                    data={data}
+                  />
+                )
+              }}
+            </LiveSubscription>
+          )}
+          {step === 4 && (
             <Query
               query={gql`
                 query {
@@ -91,40 +130,18 @@ const GettingStarted = ({
                   )
                 }
                 return (
-                  <Step3Setup history={history} invite={invite} data={data} />
+                  <Step4Backup
+                    history={history}
+                    invite={invite}
+                    className={classes.content}
+                    data={data}
+                  />
                 )
               }}
             </Query>
-          </TeghApolloProvider>
-        )}
-      </div>
-      <div className={classes.buttons}>
-        <Button
-          className={classes.button}
-          component={props => (
-            <Link
-              to={step === 1 ? '/' : `/get-started/${step - 1}`}
-              {...props}
-            />
           )}
-        >
-          Back
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          disabled={step === 2 || step === 3}
-          className={classes.button}
-          component={props => (
-            <Link
-              to={step === 3 ? '/' : `/get-started/${step + 1}`}
-              {...props}
-            />
-          )}
-        >
-          {step === 3 ? 'Finish' : 'Next'}
-        </Button>
-      </div>
+        </TeghApolloProvider>
+      )}
     </div>
   )
 }

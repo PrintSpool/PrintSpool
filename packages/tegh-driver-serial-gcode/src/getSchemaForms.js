@@ -2,7 +2,52 @@ import { ComponentTypeEnum } from '@tegh/core'
 
 const { CONTROLLER } = ComponentTypeEnum
 
+const getControllerConfigPath = (printerConfig) => {
+  const index = printerConfig.components.findIndex(c => c.type === CONTROLLER)
+  return ['components', index]
+}
+
 const getSchemaForms = () => ({
+  machine: {
+    schema: schema => ({
+      ...schema,
+      required: [
+        ...(schema.required || []),
+        'serialPortID',
+        'baudRate',
+      ],
+      properties: {
+        ...(schema.properties || {}),
+        serialPortID: {
+          title: 'Serial Port',
+          type: 'string',
+          minLength: 1,
+        },
+        baudRate: {
+          title: 'Baud Rate',
+          type: 'integer',
+          enum: [
+            250000,
+            230400,
+            115200,
+            57600,
+            38400,
+            19200,
+            9600,
+          ],
+        },
+      },
+    }),
+    form: [
+      'serialPortID',
+      'baudRate',
+    ],
+    configPaths: configPaths => ({
+      ...configPaths,
+      baudRate: getControllerConfigPath,
+      serialPortID: getControllerConfigPath,
+    }),
+  },
   components: {
     [CONTROLLER]: {
       schema: schema => ({

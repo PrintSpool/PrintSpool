@@ -1,9 +1,10 @@
-import { Record } from 'immutable'
+import { Record, Map } from 'immutable'
 
 const SchemaForm = Record({
   id: null,
   schema: null,
   form: null,
+  configPaths: Map({}),
 })
 
 export const NullSchemaForm = SchemaForm({

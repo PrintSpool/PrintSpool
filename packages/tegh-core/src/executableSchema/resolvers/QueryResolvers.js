@@ -1,10 +1,16 @@
 import getConfiguredDevices from '../../config/selectors/getConfiguredDevices'
+import getSchemaForms from '../../pluginManager/selectors/getSchemaForms'
 
 const QueryResolvers = {
   Query: {
     /*
      * config
      */
+    isConfigured: (source, args, { store }) => {
+      const state = store.getState()
+
+      return state.config.printer.isConfigured
+    },
     hosts: (source, args, { store }) => {
       const state = store.getState()
 
@@ -31,6 +37,13 @@ const QueryResolvers = {
       const state = store.getState()
 
       switch (collection) {
+        case 'MACHINE': {
+          /*
+           * TODO: make use of the DAT URL to generate
+           * the machine schema form.
+           */
+          return state.schemaForms.get('machine')
+        }
         case 'COMPONENT': {
           if (printerID !== state.config.printer.id) {
             throw new Error(`Printer ID: ${printerID} does not exist`)
@@ -44,6 +57,26 @@ const QueryResolvers = {
           const schemaForm = state.schemaForms.getIn(
             ['materials', schemaFormKey],
           )
+          return schemaForm
+        }
+        case 'PLUGIN': {
+          if (printerID !== state.config.printer.id) {
+            throw new Error(`Printer ID: ${printerID} does not exist`)
+          }
+
+          const { availablePlugins } = state.pluginManager
+          const schemaForms = getSchemaForms.resultFunc(
+            Object.values(availablePlugins),
+          )
+
+          const schemaForm = schemaForms.getIn(
+            ['plugins', schemaFormKey],
+          )
+
+          if (schemaForm == null) {
+            throw new Error(`Plugin not found: ${schemaFormKey}`)
+          }
+
           return schemaForm
         }
         default: {

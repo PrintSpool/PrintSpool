@@ -14,6 +14,7 @@ import {
   Print,
   DeviceHub,
   Style,
+  Widgets,
 } from '@material-ui/icons'
 
 import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from './components/UpdateDialog/Index'
@@ -39,16 +40,14 @@ const ConfigPage = ({
       printerDialogOpen && (
         <UpdateDialog
           title="3D Printer"
-          collection="PLUGIN"
+          collection="MACHINE"
           open={printerDialogOpen}
           variables={{ printerID }}
           query={gql`
             query($printerID: ID!) {
               printers(printerID: $printerID) {
-                plugins(package: "@tegh/core") {
-                  configForm {
-                    ...UpdateDialogFragment
-                  }
+                configForm {
+                  ...UpdateDialogFragment
                 }
               }
             }
@@ -77,6 +76,16 @@ const ConfigPage = ({
           <DeviceHub />
         </ListItemIcon>
         <ListItemText primary="Components" />
+      </ListItem>
+      <ListItem
+        button
+        divider
+        component={props => <Link to="plugins/" {...props} />}
+      >
+        <ListItemIcon>
+          <Widgets />
+        </ListItemIcon>
+        <ListItemText primary="Plugins" />
       </ListItem>
       <ListItem
         button

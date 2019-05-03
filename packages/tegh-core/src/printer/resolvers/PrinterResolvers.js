@@ -3,6 +3,7 @@ import getComponents from '../../config/selectors/getComponents'
 import getComponentsState from '../selectors/getComponentsState'
 import getPluginModels from '../../config/selectors/getPluginModels'
 import ComponentTypeEnum from '../../config/types/components/ComponentTypeEnum'
+import getMachineConfigForm from '../../config/selectors/getMachineConfigForm'
 
 const PrinterResolvers = {
   Printer: {
@@ -12,6 +13,34 @@ const PrinterResolvers = {
     activeExtruderID: source => getComponentsState(source).activeExtruderID,
     enabledMacros: source => source.macros.enabledMacros,
     error: source => source.status.error,
+
+    availablePackages: (source, args, { store }) => {
+      const state = store.getState()
+      const { availablePlugins } = state.pluginManager
+
+      const installedPackages = state.config.printer.plugins.map(p => p.package)
+
+      return Object.keys(availablePlugins).filter(packageName => (
+        installedPackages.includes(packageName) === false
+      ))
+    },
+
+    configForm: (source, args, { store }) => {
+      const state = store.getState()
+
+      const {
+        model,
+        modelVersion,
+        schemaForm,
+      } = getMachineConfigForm(state)
+
+      return {
+        id: source.config.printer.id,
+        model,
+        modelVersion,
+        schemaForm,
+      }
+    },
 
     components: (source, args) => {
       const id = args.componentID

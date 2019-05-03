@@ -1,56 +1,114 @@
-import React, { useContext, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
+import { Query, Mutation } from 'react-apollo'
+import gql from 'graphql-tag'
 
 import {
   Button,
   Typography,
+  Paper,
+  MenuItem,
 } from '@material-ui/core'
 
-import { UserDataContext } from '../../UserDataProvider'
+import Loading from '../../common/Loading'
+
+import Step3SetupForm from './Step3SetupForm'
 
 import Step3SetupStyles from './Step3SetupStyles'
 
-const Step3Setup = ({ history, invite, data }) => {
+import useSchemaValidation from '../../pages/connected/config/components/FormikSchemaForm/useSchemaValidation'
+
+const MACHINE_DEFS_DAT = 'dat://a295acba915cf57a98854f9f4ecf4be0aa03342a1b814bed591592b611f87e66+preview/'
+
+const MACHINE_FORM_QUERY = gql`
+  query($input: SchemaFormQueryInput!) {
+    schemaForm(input: $input) {
+      schema
+      form
+    }
+  }
+`
+
+const Step3Setup = ({
+  connecting,
+  data,
+  className,
+  history,
+  location,
+}) => {
   const classes = Step3SetupStyles()
 
-  const { addHost, userData } = useContext(UserDataContext)
+  const [machineDefs, setMachineDefs] = useState(null)
+  const [machineDefinitionURL, setMachineDefinitionURL] = useState(null)
+  const loadingMachineDefs = machineDefs == null
 
   useEffect(() => {
-    addHost({ invite, name: data.jobQueue.name })
+    (async () => {
+      // eslint-disable-next-line no-undef
+      const archive = new DatArchive(MACHINE_DEFS_DAT)
+      const indexFileContent = await archive.readFile('/index.json')
+      const index = JSON.parse(indexFileContent)
+
+      setMachineDefs(index)
+    })()
   }, [])
 
-  const userDataURL = useMemo(() => {
-    const json = JSON.stringify(userData)
-    const blob = new Blob([json], { type: 'octet/stream' })
-    const url = window.URL.createObjectURL(blob)
-    return url
-  })
+  const suggestions = useMemo(() => (
+    Object.entries(machineDefs || {})
+      .filter(([, def]) => (
+        def.visible && def.fileFormats.includes('text/x-gcode')
+      ))
+      .map(([filename, def]) => ({
+        label: def.name,
+        value: `${MACHINE_DEFS_DAT.slice(0, -1)}${filename}`,
+      }))
+  ), [machineDefs])
+
+  const loading = loadingMachineDefs || connecting
+  if (loadingMachineDefs || connecting) {
+    return (
+      <div className={classes.root}>
+        <Loading>
+          Connecting to Raspberry Pi
+        </Loading>
+      </div>
+    )
+  }
 
   return (
-    <div className={classes.root}>
-      <Typography variant="h6" paragraph>
-        Your 3D Printer is ready to configure
-      </Typography>
-      <Typography variant="body1" paragraph>
-        Your account has been created but you may need to import it again in
-        the future.
-      </Typography>
-      <Typography variant="body1" paragraph>
-        To prevent data loss please save a backup before you continue.
-      </Typography>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => history.push('/')}
-        component={props => (
-          <a href={userDataURL} {...props}>
-            {props.children}
-          </a>
-        )}
-      >
-        Download User Data Backup
-      </Button>
-      { /* TODO: User / Printer Setup */ }
-    </div>
+    <Query
+      query={MACHINE_FORM_QUERY}
+      variables={{
+        input: {
+          collection: 'MACHINE',
+          schemaFormKey: machineDefinitionURL,
+        }
+      }}
+      skip={machineDefinitionURL == null}
+      fetchPolicy="network-only"
+    >
+      {({
+        loading: loadingMachineSettings,
+        error:  machineSettingsError,
+        data: settingsData,
+      }) => (
+        <Step3SetupForm
+          classes={classes}
+          className={className}
+          history={history}
+          location={location}
+          suggestions={suggestions}
+          machineDefinitionURL={machineDefinitionURL}
+          setMachineDefinitionURL={setMachineDefinitionURL}
+          devices={
+            //data.devices.filter(device => device.connected)
+            data.devices
+          }
+          loadingMachineSettings={loadingMachineSettings}
+          machineSettingsError={machineSettingsError}
+          schemaForm={settingsData && settingsData.schemaForm}
+        />
+      )}
+    </Query>
   )
 }
 

@@ -18,6 +18,7 @@ import ManualControlPage from './pages/connected/manualControl/ManualControl.pag
 import ConfigIndexPage from './pages/connected/config/Index.page'
 import ComponentsConfigPage from './pages/connected/config/printerComponents/Index.page'
 import MaterialsConfigPage from './pages/connected/config/materials/Index.page'
+import PluginsConfigPage from './pages/connected/config/plugins/Plugins'
 
 const Routes = ({
   isBeaker = typeof DatArchive !== 'undefined',
@@ -66,14 +67,41 @@ const Routes = ({
                 {/* <Route exact path="/:hostID/print" component={Print} /> */}
                 <Route exact path="/:hostID/jobs/:jobID/" component={JobPage} />
                 <Route exact path="/:hostID/:printerID/manual-control/" component={ManualControlPage} />
-                <Route exact path="/:hostID/:printerID/config/" component={ConfigIndexPage} />
-                <Route exact path="/:hostID/:printerID/config/printer/" component={ConfigIndexPage} />
-                <Route exact path="/:hostID/:printerID/config/components/" component={ComponentsConfigPage} />
-                <Route exact path="/:hostID/:printerID/config/components/:componentID" component={ComponentsConfigPage} />
-                <Route exact path="/:hostID/:printerID/config/components/:componentID/:verb" component={ComponentsConfigPage} />
-                <Route exact path="/:hostID/:printerID/config/materials/" component={MaterialsConfigPage} />
-                <Route exact path="/:hostID/:printerID/config/materials/:materialID" component={MaterialsConfigPage} />
-                <Route exact path="/:hostID/:printerID/config/materials/:materialID/:verb" component={MaterialsConfigPage} />
+                <Route
+                  exact
+                  path={[
+                    '/:hostID/:printerID/config/',
+                    '/:hostID/:printerID/config/printer/',
+                  ]}
+                  component={ConfigIndexPage}
+                />
+                <Route
+                  exact
+                  path={[
+                    '/:hostID/:printerID/config/components/',
+                    '/:hostID/:printerID/config/components/:componentID/',
+                    '/:hostID/:printerID/config/components/:componentID/:verb',
+                  ]}
+                  component={ComponentsConfigPage}
+                />
+                <Route
+                  exact
+                  path={[
+                    '/:hostID/:printerID/config/materials/',
+                    '/:hostID/:printerID/config/materials/:materialID/',
+                    '/:hostID/:printerID/config/materials/:materialID/:verb',
+                  ]}
+                  component={MaterialsConfigPage}
+                />
+                <Route
+                  exact
+                  path={[
+                    '/:hostID/:printerID/config/plugins/',
+                    '/:hostID/:printerID/config/plugins/:pluginID/',
+                    '/:hostID/:printerID/config/plugins/:pluginID/:verb',
+                  ]}
+                  component={PluginsConfigPage}
+                />
               </ConnectionFrame>
             )}
           />

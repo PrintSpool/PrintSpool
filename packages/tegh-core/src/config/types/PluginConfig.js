@@ -1,10 +1,17 @@
 import { Record, Map } from 'immutable'
 import uuid from 'uuid'
 
+const ESSENTIAL_PLUGINS = [
+  '@tegh/core',
+  '@tegh/driver-serial-gcode',
+  '@tegh/macros-default',
+]
+
 export const PluginConfigFactory = Record({
   id: null,
   modelVersion: 0,
   package: null,
+  isEssential: null,
   model: Map(),
 })
 
@@ -17,6 +24,7 @@ const PluginConfig = ({
     ...props,
     id,
     modelVersion,
+    isEssential: ESSENTIAL_PLUGINS.includes(props.package),
     model: Map(props.model),
   })
 )

@@ -1,7 +1,10 @@
+import getPluginModels from '../../config/selectors/getPluginModels'
+
 const JobQueueResolvers = {
   JobQueue: {
     id: source => source.config.host.id,
-    name: source => source.config.host.name,
+    name: source => getPluginModels(source.config).getIn(['@tegh/core', 'name']),
+    // name: source => source.config.host.name,
     jobs: (source, { id }) => {
       const { jobQueue } = source
       if (id != null) {

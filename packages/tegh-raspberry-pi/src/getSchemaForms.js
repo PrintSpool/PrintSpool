@@ -12,7 +12,7 @@ const getSchemaForms = () => ({
         properties: {
           ...(schema.properties || {}),
           outputPins: {
-            title: 'Output Pins',
+            title: 'Output GPIO Pins',
             type: 'array',
             items: {
               type: 'integer',

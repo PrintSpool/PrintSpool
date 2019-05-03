@@ -1,12 +1,5 @@
+import { useMemo } from 'react'
 import Ajv from 'ajv'
-import { withPropsOnChange } from 'recompose'
-
-// !!!!!!!!!!!!!!!!!
-// DEPRECATED
-//
-// Please use useSchemaValidation instead.
-// !!!!!!!!!!!!!!!!!
-
 
 // const nullifyEmptyStrings = (data) => {
 //   const out = {}
@@ -18,11 +11,9 @@ import { withPropsOnChange } from 'recompose'
 //   return out
 // }
 
-const withValidate = withPropsOnChange(
-  // (props, nextProps) => props.schema !== nextProps.schema,
-  ['schema'],
-  ({ schema }) => {
-    if (schema == null) return { validate: () => ({}) }
+const useSchemaValidation = ({ schema } = {}) => (
+  useMemo(() => {
+    if (schema == null) return () => ({})
 
     const ajv = new Ajv({
       allErrors: true,
@@ -44,11 +35,12 @@ const withValidate = withPropsOnChange(
           errors[fieldName] = error.message
         })
       }
+
       return errors
     }
 
-    return { validate }
-  },
+    return validate
+  }, [schema])
 )
 
-export default withValidate
+export default useSchemaValidation

@@ -76,3 +76,8 @@ buck-out/
 */fastlane/Preview.html
 
 .dat-data
+
+defs/sources
+defs/staging/*
+!defs/staging/.datignore
+!defs/staging/dat.json

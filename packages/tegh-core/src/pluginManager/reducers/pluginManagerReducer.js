@@ -9,6 +9,7 @@ import requestSetConfig, { REQUEST_SET_CONFIG } from '../../config/actions/reque
 
 export const initialState = Record({
   pluginLoader: null,
+  availablePlugins: [],
 })()
 
 /*
@@ -17,9 +18,11 @@ export const initialState = Record({
 const pluginManagerReducer = (state = initialState, action) => {
   switch (action.type) {
     case INITIALIZE_CONFIG: {
-      const { config, pluginLoader } = action.payload
+      const { config, pluginLoader, availablePlugins } = action.payload
 
-      const nextState = state.set('pluginLoader', pluginLoader)
+      const nextState = state
+        .set('pluginLoader', pluginLoader)
+        .set('availablePlugins', availablePlugins)
 
       return loop(
         nextState,

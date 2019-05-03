@@ -2,21 +2,35 @@ import { makeStyles } from '@material-ui/styles'
 
 const useStyles = makeStyles(() => ({
   root: {
-    textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: '60vh',
   },
-  firstInstruction: {
-    marginTop: '0.5rem',
+  part1: {
+    display: 'flex',
+    flexDirection: 'column',
+    // textAlign: 'center',
+    marginTop: 'auto',
+    marginBottom: 'auto',
   },
-  code: {
-    display: 'block',
-    background: '#333',
-    color: 'white',
-    borderRadius: '0.4rem',
-    padding: '0.6rem',
-    paddingLeft: '0.8rem',
-    paddingRight: '0.8rem',
-    marginTop: '0.5rem',
-    marginBottom: '0.5rem',
+  introText: {
+    paddingBottom: 8,
+  },
+  config: {
+    marginTop: 8 * 4,
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  configForm: {
+    marginTop: -8 * 3,
+  },
+  stretchedContent: {
+    justifyContent: 'stretch',
+  },
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    flex: 1,
   },
 }), { withTheme: true })
 

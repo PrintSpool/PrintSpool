@@ -3,6 +3,7 @@ import getComponents from './getComponents'
 const PLUGIN = 'PLUGIN'
 const COMPONENT = 'COMPONENT'
 const MATERIAL = 'MATERIAL'
+const MACHINE = 'MACHINE'
 
 /*
  * This selector is different from other selectors in that it is used to
@@ -18,46 +19,66 @@ const getMutationConfigFormInfo = ({ state, args }) => {
     configFormID,
   } = args.input
 
+  const getCollectionInfo = (collectionPath, finder) => {
+    const collectionMap = state.config.getIn(collectionPath)
+
+    const index = collectionMap.findIndex(c => (
+      c.id === configFormID
+    ))
+
+    if (index === -1) {
+      throw new Error(`config form ID does not exist: ${configFormID}`)
+    }
+
+    return {
+      subject: collectionMap.get(index),
+      configPath: [...collectionPath, index],
+    }
+  }
+
+  if (
+    [PLUGIN, COMPONENT, MACHINE].includes(collection)
+    && printerID !== state.config.printer.id
+  ) {
+    throw new Error(`Printer ID: ${printerID} does not exist`)
+  }
+
   switch (collection) {
-    case PLUGIN:
-    case COMPONENT: {
-      if (printerID !== state.config.printer.id) {
-        throw new Error(`Printer ID: ${printerID} does not exist`)
-      }
-
-      if (collection === PLUGIN) {
-        const { plugins } = state.config.printer
-        const subject = plugins.find(p => p.id === configFormID)
-
-        return {
-          subject,
-          collectionKey: 'plugins',
-          collectionPath: ['printer', 'plugins'],
-          schemaFormKey: subject.package,
-        }
-      }
-
-      const subject = getComponents(state.config).get(configFormID)
+    case PLUGIN: {
+      const { subject, configPath } = getCollectionInfo(['printer', 'plugins'])
 
       return {
         subject,
-        collectionKey: 'components',
-        collectionPath: ['printer', 'components'],
-        schemaFormKey: subject.type,
+        configPath,
+        schemaFormPath: ['plugins', subject.package],
+      }
+    }
+    case COMPONENT: {
+      const { subject, configPath } = getCollectionInfo(['printer', 'components'])
+
+      return {
+        subject,
+        configPath,
+        schemaFormPath: ['components', subject.type],
       }
     }
     case MATERIAL: {
-      const subject = state.config.materials.find(m => m.id === configFormID)
+      const { subject, configPath } = getCollectionInfo(['materials'])
+
       return {
         subject,
-        collectionKey: 'materials',
-        collectionPath: ['materials'],
-        schemaFormKey: subject.type,
+        configPath,
+        schemaFormPath: ['materials', subject.type],
       }
     }
-    // case HOST: {
-    //
-    // }
+    case MACHINE: {
+      return {
+        subject: state.config.printer,
+        configPath: ['printer'],
+        schemaFormPath: ['machine'],
+        isMachine: true,
+      }
+    }
     default: {
       throw new Error(`Unsupported collection: ${collection}`)
     }
