@@ -6,6 +6,7 @@ import {
   FormControlLabel,
   Button,
   Typography,
+  Hidden,
 } from '@material-ui/core'
 
 const replaceNullValueWith = (field, nullReplacement) => ({
@@ -89,6 +90,15 @@ const FormikSchemaField = ({
               {(property.enumNames || [])[optionIndex] || option}
             </MenuItem>
           ))}
+          { property.enum && property.enum.length === 0 && name === 'serialPortID' && (
+            <MenuItem value="">
+              No serial devices detected.
+              <Hidden smDown>
+                {' '}
+                Please attach your 3D printer's USB cable.
+              </Hidden>
+            </MenuItem>
+          )}
         </FieldComponent>
       )
     }
