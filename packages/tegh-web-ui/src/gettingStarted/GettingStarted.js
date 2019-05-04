@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Query } from 'react-apollo'
 import gql from 'graphql-tag'
 
@@ -6,6 +6,7 @@ import {
   Stepper,
   Step,
   StepLabel,
+  Typography,
 } from '@material-ui/core'
 
 import { parseInviteCode } from 'graphql-things'
@@ -28,6 +29,7 @@ const DEVICES_SUBSCRIPTION = gql`
     live {
       patch { op, path, from, value }
       query {
+        isConfigured
         devices {
           id
           type
@@ -44,10 +46,12 @@ const GettingStarted = ({
 }) => {
   const classes = GettingStartedStyles()
 
+  const [skippedStep3, setSkippedStep3] = useState(false)
+
   const steps = [
     'Install',
     'Connect',
-    'First Time Setup',
+    'Printer Setup',
     'Done',
   ]
 
@@ -66,9 +70,16 @@ const GettingStarted = ({
     <div className={classes.root}>
       <StaticTopNavigation title={() => 'Welcome to Tegh!'} />
       <Stepper activeStep={step - 1} className={classes.stepper}>
-        {steps.map(label => (
+        {steps.map((label, i) => (
           <Step key={label}>
-            <StepLabel>{label}</StepLabel>
+            <StepLabel
+              optional={i === 2 && (
+                <Typography variant="caption">First Time Only</Typography>
+              )}
+              completed={i < step - 1 && (i !== 2 || !skippedStep3)}
+            >
+              {label}
+            </StepLabel>
           </Step>
         ))}
       </Stepper>
@@ -81,7 +92,18 @@ const GettingStarted = ({
       { step >= 3 && (
         <TeghApolloProvider hostIdentity={invite}>
           {step === 3 && (
-            <LiveSubscription subscription={DEVICES_SUBSCRIPTION}>
+            <LiveSubscription
+              subscription={DEVICES_SUBSCRIPTION}
+              onSubscriptionData={(options) => {
+                const { data: { isConfigured } } = options.subscriptionData
+
+                // skip step 3 for configured 3D printers
+                if (isConfigured) {
+                  setSkippedStep3(true)
+                  history.push(`/get-started/4${location.search}`)
+                }
+              }}
+            >
               {({ data, loading, error }) => {
                 if (error) {
                   return (
