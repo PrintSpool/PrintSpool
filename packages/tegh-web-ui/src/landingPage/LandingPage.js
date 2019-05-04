@@ -2,6 +2,7 @@ import React from 'react'
 
 import {
   Grid,
+  Hidden,
   Typography,
 } from '@material-ui/core'
 
@@ -53,18 +54,20 @@ const LandingPage = () => (
         </Typography>
       </Grid>
 
-      <Grid item xs={0} md={6}>
-        <img
-          alt="Screenshot of Tegh"
-          src={teghMockupSVG}
-          style={{
-            width: '60%',
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            display: 'block',
-          }}
-        />
-      </Grid>
+      <Hidden smDown>
+        <Grid item md={6}>
+          <img
+            alt="Screenshot of Tegh"
+            src={teghMockupSVG}
+            style={{
+              width: '60%',
+              marginLeft: 'auto',
+              marginRight: 'auto',
+              display: 'block',
+            }}
+          />
+        </Grid>
+      </Hidden>
 
       {/*
       <Grid item xs={12}>

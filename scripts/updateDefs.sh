@@ -5,8 +5,8 @@ cd "$BASEDIR"
 mkdir -p ../defs/sources
 cd ../defs/sources
 
-# git -C ultimaker-cura pull || git clone https://github.com/Ultimaker/Cura.git ultimaker-cura
-# git -C lulzbot-cura pull || git clone https://code.alephobjects.com/source/cura-lulzbot.git lulzbot-cura
+git -C ultimaker-cura pull || git clone https://github.com/Ultimaker/Cura.git ultimaker-cura
+git -C lulzbot-cura pull || git clone https://code.alephobjects.com/source/cura-lulzbot.git lulzbot-cura
 
 for fA in ./ultimaker-cura/*; do
     fB=./lulzbot-cura/${f##*/}

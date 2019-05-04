@@ -17,7 +17,7 @@ import Step3SetupStyles from './Step3SetupStyles'
 
 import useSchemaValidation from '../../pages/connected/config/components/FormikSchemaForm/useSchemaValidation'
 
-const MACHINE_DEFS_DAT = 'dat://a295acba915cf57a98854f9f4ecf4be0aa03342a1b814bed591592b611f87e66+preview/'
+const MACHINE_DEFS_DAT = 'dat://a295acba915cf57a98854f9f4ecf4be0aa03342a1b814bed591592b611f87e66/'
 
 const MACHINE_FORM_QUERY = gql`
   query($input: SchemaFormQueryInput!) {
