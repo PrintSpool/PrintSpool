@@ -19,14 +19,30 @@ import {
 
 import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from './components/UpdateDialog/Index'
 
-import withLiveData, { NULL_SUBSCRIPTION } from '../shared/higherOrderComponents/withLiveData'
+import withLiveData from '../shared/higherOrderComponents/withLiveData'
+
+import transformComponentSchema from './printerComponents/transformComponentSchema'
+
+const DEVICES_SUBSCRIPTION = gql`
+  subscription DevicesSubscription {
+    live {
+      patch { op, path, from, value }
+      query {
+        devices {
+          id
+          type
+        }
+      }
+    }
+  }
+`
 
 const enhance = compose(
   withRouter,
   withProps(({ match }) => ({
     printerID: match.params.printerID,
     printerDialogOpen: match.path === '/:hostID/:printerID/config/printer/',
-    subscription: NULL_SUBSCRIPTION,
+    subscription: DEVICES_SUBSCRIPTION,
   })),
   withLiveData,
 )
@@ -34,15 +50,22 @@ const enhance = compose(
 const ConfigPage = ({
   printerID,
   printerDialogOpen = false,
+  devices,
+  loading,
 }) => (
   <main>
     {
-      printerDialogOpen && (
+      printerDialogOpen && !loading && (
         <UpdateDialog
           title="3D Printer"
           collection="MACHINE"
           open={printerDialogOpen}
           variables={{ printerID }}
+          transformSchema={schema => transformComponentSchema({
+            schema,
+            materials: [],
+            devices,
+          })}
           query={gql`
             query($printerID: ID!) {
               printers(printerID: $printerID) {
