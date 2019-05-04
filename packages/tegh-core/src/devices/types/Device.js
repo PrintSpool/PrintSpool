@@ -6,6 +6,7 @@ const DeviceRecord = Record({
   id: null,
   type: null,
   connected: false,
+  simulated: false,
 })
 
 const Device = DeviceRecord

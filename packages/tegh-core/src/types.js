@@ -16,4 +16,9 @@ export * as PriorityEnum from './spool/types/PriorityEnum'
 export * as TaskStatusEnum from './spool/types/TaskStatusEnum'
 export * as ComponentTypeEnum from './config/types/components/ComponentTypeEnum'
 
+/* devices */
+export Device from './devices/types/Device'
+export * as DeviceTypeEnum from './devices/types/DeviceTypeEnum'
+
+
 export Task, { MockTask } from './spool/types/Task'

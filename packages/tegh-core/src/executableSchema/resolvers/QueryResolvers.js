@@ -102,6 +102,7 @@ const QueryResolvers = {
       const allDevices = configuredDevices.concat(connectedDevices.toList())
         .toOrderedSet()
         .toList()
+        .filter(device => device.simulated === false)
 
       return allDevices
     },
