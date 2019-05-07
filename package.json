@@ -22,7 +22,7 @@
     "snap:build": "./scripts/build-snap.sh",
     "snap:push": "snapcraft push --release=beta ./dist/amd64.snap && snapcraft push --release=beta ./dist/armhf.snap",
     "snap:remove": "sudo snap remove tegh",
-    "snap:install": "sudo snap install --classic --dangerous $(find ./dist/ -maxdepth 1 -name \"*.snap\") && yarn journalctl",
+    "snap:install": "sudo snap install --devmode --dangerous $(find ./dist/ -maxdepth 1 -name \"*.snap\") && yarn journalctl",
     "snap:build-and-install": "yarn build-dev && yarn snap:build:x64 && yarn snap:install",
     "snap:version": "./scripts/releaseConfirmation.sh && lerna version --conventional-commits",
     "snap:publish": "yarn snap:version && yarn snap:build && snap:push",
