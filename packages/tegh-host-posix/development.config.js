@@ -9,17 +9,6 @@ const os = require('os')
  * Always confirm that you haven't broken anything by running `yarn test` after
  * making any change here.
  */
-const simulate = true
-const useKlipper = false
-
-let serialPortID = '/dev/serial/by-id/usb-Arduino__www.arduino.cc__Arduino_Mega_2560_749373037363518101E2-if00'
-const baudRate = 250000
-
-if (useKlipper) {
-  // Klipper (requires the klipper host software to be running)
-  serialPortID = '/tmp/printer'
-}
-
 const printerConfig = {
   id: 'aaxcvxcvcxv-bvb-csdf234231',
   isConfigured: false,
@@ -33,16 +22,16 @@ const printerConfig = {
       model: {
         interface: 'SERIAL',
         name: 'RAMPS Controller Board',
-        serialPortID,
-        baudRate,
-        simulate,
+        serialPortID: null,
+        baudRate: 250000,
+        simulate: false,
         delayFromGreetingToReady: 2500,
         temperaturePollingInterval: 1000,
         positionPollingInterval: 500,
         responseTimeoutTickleAttempts: 3,
         fastCodeTimeout: 30000,
         longRunningCodeTimeout: 60000,
-        awaitGreetingFromFirmware: useKlipper === false,
+        awaitGreetingFromFirmware: true,
         longRunningCodes: [
           'G4',
           'G28',
