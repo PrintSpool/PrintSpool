@@ -1,6 +1,6 @@
 {
   "name": "@tegh/autodrop3d",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "AutoDrop3D plugin for Tegh",
   "main": "dist/index.js",
   "author": "Rob Gilson",
@@ -11,7 +11,7 @@
   ],
   "repository": "https://github.com/tegh/tegh",
   "dependencies": {
-    "@tegh/core": "^0.6.0",
+    "@tegh/core": "^0.7.0",
     "bluebird": "^3.5.3",
     "debug": "^4.1.1",
     "immutable": "^4.0.0-rc.12",

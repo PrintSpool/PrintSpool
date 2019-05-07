@@ -1,6 +1,6 @@
 {
   "name": "@tegh/driver-serial-gcode",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Tegh serial driver for RepRap/Marlin compatible printers",
   "main": "dist/index.js",
   "files": [
@@ -11,7 +11,7 @@
   "private": false,
   "dependencies": {
     "@d1plo1d/redux-loop-immutable": "1.0.1-1",
-    "@tegh/core": "^0.6.0",
+    "@tegh/core": "^0.7.0",
     "bluebird": "^3.5.3",
     "immutable": "^4.0.0-rc.12",
     "redux": "^4.0.1",
