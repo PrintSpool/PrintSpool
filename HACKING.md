@@ -6,3 +6,7 @@
 4. verify that dat://tegh.io has been updated
 5. `cp -R ./packages/tegh-web-ui/dist/* ../tegh.github.com && cd ../tegh.github.com && git add -A && git commit -a && git push`
 6. verify that https://tegh.io has been updated
+
+##  Publishing the Tegh Snap
+
+`yarn snap:publish`
