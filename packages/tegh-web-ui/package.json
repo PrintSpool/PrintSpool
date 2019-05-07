@@ -6,7 +6,7 @@
     "dist/*"
   ],
   "author": "Rob Gilson",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "private": false,
   "scripts": {
     "dev": "webpack-dev-server --mode development",
