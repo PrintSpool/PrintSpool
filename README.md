@@ -15,6 +15,8 @@ With Tegh you can worry less and create more.
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-white.svg)](https://snapcraft.io/tegh)
 
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Z8Z5UXF1)
+
 ## Getting Started
 
 1. Download [Beaker Browser](https://beakerbrowser.com)
