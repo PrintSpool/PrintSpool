@@ -67,7 +67,6 @@
     "json-patch": "^0.7.0",
     "keypair": "^1.0.1",
     "koa-static": "^4.0.2",
-    "material-ui-redux-snackbar": "^1.0.0",
     "prop-types": "^15.6.1",
     "react": "^16.8.6",
     "react-apollo": "^2.2.4",
