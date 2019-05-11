@@ -62,6 +62,7 @@
     "tmp-promise": "^1.0.4",
     "untildify": "^3.0.2",
     "uuid": "^3.1.0",
+    "write-file-atomic": "^2.4.2",
     "wrtc": "^0.3.4",
     "yup": "^0.26.6"
   },

@@ -24,7 +24,7 @@ const requestUpdateConfigFromMutation = (source, args, { store }) => {
     )
   }
 
-  console.log(modelVersion, subject.modelVersion, subject)
+  // console.log(modelVersion, subject.modelVersion, subject)
   if (modelVersion !== subject.modelVersion) {
     throw new Error(
       'The object was modified by an other user. Please reload the '

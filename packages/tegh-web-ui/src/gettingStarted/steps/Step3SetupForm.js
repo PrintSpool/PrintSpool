@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import { Formik, Field, Form } from 'formik'
 import { TextField } from 'formik-material-ui'
 import { animated, useSpring } from 'react-spring'
@@ -88,11 +89,13 @@ const Step3SetupForm = ({
 
   const validate = useSchemaValidation(schemaForm)
 
+  const nextURL = `/get-started/4${location.search}`
+
   return (
     <Mutation
       mutation={CREATE_MACHINE}
       onCompleted={() => {
-        history.push(`/get-started/4${location.search}`)
+        history.push(nextURL)
       }}
     >
       {(addPrinter, { loading, data }) => (
@@ -210,6 +213,13 @@ const Step3SetupForm = ({
                             path=""
                             className={classes.configForm}
                           />
+                          { (values.name||'').endsWith('uuddlrlr') && (
+                            <div>
+                              Dev Mode Enabled
+                              {' '}
+                              <Link to={nextURL}>Skip Setup</Link>
+                            </div>
+                          )}
                         </React.Fragment>
                       )
                     })()}

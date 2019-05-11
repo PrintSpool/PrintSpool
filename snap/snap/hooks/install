@@ -10,7 +10,7 @@ set -e
 
 # add the user that runs the Tegh daemon (the snap's root user) to dialout
 # so it can access the serial port.
-usermod -a -G dialout root
+# usermod -a -G dialout root
 
 # newgrp -
 

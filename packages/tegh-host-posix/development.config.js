@@ -206,7 +206,6 @@ const hostConfig = {
     id: 'vcxbksdkewj',
     modelVersion: 1,
     webRTC: true,
-    tcpPort: 3901,
   },
 }
 

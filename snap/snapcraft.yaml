@@ -36,14 +36,17 @@ parts:
 
 apps:
   tegh:
-    command: tegh
+    command: tegh serve
     daemon: simple
-    restart-condition : always
+    restart-condition: always
+    refresh-mode: endure
+    # stop-mode: sigusr2
     plugs:
       # - klipper-printers
       - network
       - network-bind
       - process-control
+      - system-observe
       - hardware-observe
       - hardware-random-control
       - raw-usb
