@@ -1,7 +1,7 @@
-import fs from 'fs'
 import path from 'path'
 import Promise from 'bluebird'
 import mkdirp from 'mkdirp'
+import writeFileAtomic from 'write-file-atomic'
 
 import getConfigDirectory from '../selectors/getConfigDirectory'
 
@@ -14,7 +14,7 @@ const saveConfig = async ({ config }) => {
   await Promise.promisify(mkdirp)(configDirectory, {
     mode: 0o700,
   })
-  await Promise.promisify(fs.writeFile)(configFile, fileContent)
+  await Promise.promisify(writeFileAtomic)(configFile, fileContent)
 }
 
 export default saveConfig
