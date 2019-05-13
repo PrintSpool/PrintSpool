@@ -1,6 +1,7 @@
 # Queries
 
 extend type Query {
+  teghVersion: String!
   isConfigured: Boolean!
   printers(printerID: ID): [Printer!]!
 }

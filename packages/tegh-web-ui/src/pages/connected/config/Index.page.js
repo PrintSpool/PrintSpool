@@ -8,14 +8,7 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemIcon,
 } from '@material-ui/core'
-import {
-  Print,
-  DeviceHub,
-  Style,
-  Widgets,
-} from '@material-ui/icons'
 
 import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from './components/UpdateDialog/Index'
 
@@ -28,6 +21,7 @@ const DEVICES_SUBSCRIPTION = gql`
     live {
       patch { op, path, from, value }
       query {
+        teghVersion
         devices {
           id
           type
@@ -50,6 +44,7 @@ const enhance = compose(
 const ConfigPage = ({
   printerID,
   printerDialogOpen = false,
+  teghVersion,
   devices,
   loading,
 }) => (
@@ -80,44 +75,31 @@ const ConfigPage = ({
       )
     }
     <List component="nav">
+      <ListItem divider>
+        <ListItemText primary="Tegh Version" secondary={teghVersion} />
+      </ListItem>
       <ListItem
         button
-        divider
         component={props => <Link to="printer/" {...props} />}
       >
-        <ListItemIcon>
-          <Print />
-        </ListItemIcon>
         <ListItemText primary="3D Printer" />
       </ListItem>
       <ListItem
         button
-        divider
         component={props => <Link to="components/" {...props} />}
       >
-        <ListItemIcon>
-          <DeviceHub />
-        </ListItemIcon>
         <ListItemText primary="Components" />
       </ListItem>
       <ListItem
         button
-        divider
         component={props => <Link to="plugins/" {...props} />}
       >
-        <ListItemIcon>
-          <Widgets />
-        </ListItemIcon>
         <ListItemText primary="Plugins" />
       </ListItem>
       <ListItem
         button
-        divider
         component={props => <Link to="materials/" {...props} />}
       >
-        <ListItemIcon>
-          <Style />
-        </ListItemIcon>
         <ListItemText primary="Materials" />
       </ListItem>
     </List>

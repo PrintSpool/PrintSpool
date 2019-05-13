@@ -1,6 +1,6 @@
 {
   "name": "@tegh/host-posix",
-  "version": "0.7.0-test-1",
+  "version": "0.7.0",
   "description": "graphql server for 3D printers",
   "main": "dist/index.js",
   "bin": {

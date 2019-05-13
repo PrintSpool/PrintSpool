@@ -5,13 +5,13 @@ import {
   withStyles,
   List,
   ListItem,
-  // ListItemIcon,
+  ListItemIcon,
   ListItemText,
   Tooltip,
   Fab,
 } from '@material-ui/core'
 import {
-  // Widgets,
+  Widgets,
   Add,
 } from '@material-ui/icons'
 
@@ -145,11 +145,9 @@ const ComponentsConfigIndex = ({
               <Link to={`${plugin.id}/`} {...props} />
             )}
           >
-            {/*
-              <ListItemIcon>
-                <Widgets />
-              </ListItemIcon>
-            */}
+            <ListItemIcon>
+              <Widgets />
+            </ListItemIcon>
             <ListItemText>
               {plugin.package}
             </ListItemText>

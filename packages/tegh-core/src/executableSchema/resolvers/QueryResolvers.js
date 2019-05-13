@@ -1,8 +1,11 @@
 import getConfiguredDevices from '../../config/selectors/getConfiguredDevices'
 import getSchemaForms from '../../pluginManager/selectors/getSchemaForms'
 
+import packageJSON from '../../../package.json'
+
 const QueryResolvers = {
   Query: {
+    teghVersion: () => packageJSON.version,
     /*
      * config
      */
