@@ -19,6 +19,7 @@ import {
 
 /* config actions */
 import { SET_CONFIG } from '../../config/actions/setConfig'
+import { REQUEST_SET_CONFIG } from '../../config/actions/requestSetConfig'
 /* printer actions */
 import { PRINTER_READY } from '../../printer/actions/printerReady'
 import { ESTOP } from '../../printer/actions/estop'
@@ -67,6 +68,13 @@ const spoolReducer = (state = initialState, action) => {
     case SET_CONFIG: {
       return initialState
         .set('enabledHostMacros', getEnabledHostMacros(action.payload))
+    }
+    case REQUEST_SET_CONFIG: {
+      if (!isIdle(state)) {
+        throw new Error('Cannot modify configurations while Printing')
+      }
+
+      return state
     }
     /* Spool reset actions */
     case PRINTER_READY:

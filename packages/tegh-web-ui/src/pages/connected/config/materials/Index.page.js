@@ -28,6 +28,10 @@ const CONFIG_SUBSCRIPTION = gql`
     live {
       patch { op, path, from, value }
       query {
+        printers {
+          id
+          status
+        }
         materials {
           id
           name
@@ -67,6 +71,7 @@ const MaterialsConfigIndex = ({
   materials,
   materialID,
   verb,
+  printers,
 }) => (
   <main>
     {
@@ -75,6 +80,7 @@ const MaterialsConfigIndex = ({
           title={(materials.find(m => m.id === materialID) || {}).name}
           open
           deleteButton
+          status={printers[0].status}
           collection="MATERIAL"
           variables={{ materialID }}
           query={gql`

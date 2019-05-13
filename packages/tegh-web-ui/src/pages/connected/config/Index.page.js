@@ -26,6 +26,10 @@ const DEVICES_SUBSCRIPTION = gql`
           id
           type
         }
+        printers {
+          id
+          status
+        }
       }
     }
   }
@@ -46,6 +50,7 @@ const ConfigPage = ({
   printerDialogOpen = false,
   teghVersion,
   devices,
+  printers,
   loading,
 }) => (
   <main>
@@ -56,6 +61,7 @@ const ConfigPage = ({
           collection="MACHINE"
           open={printerDialogOpen}
           variables={{ printerID }}
+          status={printers[0].status}
           transformSchema={schema => transformComponentSchema({
             schema,
             materials: [],

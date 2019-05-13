@@ -15,6 +15,7 @@ import {
 
 import FormikSchemaForm from '../FormikSchemaForm/index'
 import withValidate from '../FormikSchemaForm/withValidate'
+import StatusFilter from '../../../../../common/StatusFilter'
 
 export const UPDATE_DIALOG_FRAGMENT = gql`
   fragment UpdateDialogFragment on ConfigForm {
@@ -163,6 +164,7 @@ const UpdateDialog = ({
   onSubmit,
   data,
   validate,
+  status,
   deleteButton = false,
   transformSchema = schema => schema,
 }) => (
@@ -181,18 +183,23 @@ const UpdateDialog = ({
       {props => (
         <Form>
           <DialogTitle id="form-dialog-title">{title || name || id}</DialogTitle>
-          <DialogContent>
-            <FormikSchemaForm
-              schema={transformSchema(data.schemaForm.schema)}
-              form={data.schemaForm.form}
-              values={props.values}
-            />
-          </DialogContent>
+          <StatusFilter status={status} not={['PRINTING']} lighten>
+            <DialogContent>
+              <FormikSchemaForm
+                schema={transformSchema(data.schemaForm.schema)}
+                form={data.schemaForm.form}
+                values={props.values}
+              />
+            </DialogContent>
+          </StatusFilter>
           <DialogActions>
             { deleteButton && (
               <div style={{ flex: 1 }}>
                 <Link to="delete" style={{ textDecoration: 'none' }}>
-                  <Button color="secondary">
+                  <Button
+                    color="secondary"
+                    disabled={status === 'PRINTING'}
+                  >
                     Delete
                   </Button>
                 </Link>
@@ -201,7 +208,11 @@ const UpdateDialog = ({
             <Button onClick={() => history.goBack()}>
               Cancel
             </Button>
-            <Button type="submit" color="primary">
+            <Button
+              type="submit"
+              color="primary"
+              disabled={status === 'PRINTING'}
+            >
               Save
             </Button>
           </DialogActions>

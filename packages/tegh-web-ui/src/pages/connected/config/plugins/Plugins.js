@@ -30,6 +30,7 @@ const PLUGINS_SUBSCRIPTION = gql`
       query {
         printers(printerID: $printerID) {
           id
+          status
           plugins {
             id
             package
@@ -64,7 +65,7 @@ const enhance = compose(
   withLiveData,
   withProps(({ printers, match }) => {
     const { pluginID, printerID, verb } = match.params
-    const { plugins, availablePackages } = printers[0]
+    const { plugins, availablePackages, status } = printers[0]
 
     return {
       selectedPlugin: plugins.find(c => c.id === pluginID),
@@ -73,6 +74,7 @@ const enhance = compose(
       printerID,
       pluginID,
       verb,
+      status,
     }
   }),
   withStyles(styles, { withTheme: true }),
@@ -86,6 +88,7 @@ const ComponentsConfigIndex = ({
   selectedPlugin,
   verb,
   availablePackages,
+  status,
 }) => (
   <main>
     { pluginID !== 'new' && selectedPlugin != null && verb == null && (
@@ -95,6 +98,7 @@ const ComponentsConfigIndex = ({
         deleteButton={selectedPlugin.isEssential === false}
         collection="PLUGIN"
         variables={{ printerID, package: selectedPlugin.package }}
+        status={status}
         query={gql`
           query($printerID: ID!, $package: String) {
             printers(printerID: $printerID) {

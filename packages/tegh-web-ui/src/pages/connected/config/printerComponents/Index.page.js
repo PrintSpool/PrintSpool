@@ -47,6 +47,7 @@ const COMPONENTS_SUBSCRIPTION = gql`
         }
         printers(printerID: $printerID) {
           id
+          status
           fixedListComponentTypes
           components {
             id
@@ -113,12 +114,13 @@ const enhance = compose(
   withLiveData,
   withProps(({ printers, match }) => {
     const { componentID, printerID, verb } = match.params
-    const { components, fixedListComponentTypes } = printers[0]
+    const { components, fixedListComponentTypes, status } = printers[0]
 
     return {
       selectedComponent: components.find(c => c.id === componentID),
       components,
       fixedListComponentTypes,
+      status,
       printerID,
       componentID,
       verb,
@@ -132,6 +134,7 @@ const ComponentsConfigIndex = ({
   printerID,
   components,
   fixedListComponentTypes,
+  status,
   componentID,
   selectedComponent,
   devices,
@@ -143,6 +146,7 @@ const ComponentsConfigIndex = ({
       <UpdateDialog
         title={selectedComponent.name}
         open={selectedComponent != null}
+        status={status}
         deleteButton={
           fixedListComponentTypes.includes(selectedComponent.type) === false
         }
