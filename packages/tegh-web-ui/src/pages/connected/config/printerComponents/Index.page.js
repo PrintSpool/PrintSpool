@@ -37,6 +37,7 @@ const COMPONENTS_SUBSCRIPTION = gql`
     live {
       patch { op, path, from, value }
       query {
+        hasPendingUpdates
         devices {
           id
           type
@@ -135,6 +136,7 @@ const ComponentsConfigIndex = ({
   components,
   fixedListComponentTypes,
   status,
+  hasPendingUpdates,
   componentID,
   selectedComponent,
   devices,
@@ -147,6 +149,7 @@ const ComponentsConfigIndex = ({
         title={selectedComponent.name}
         open={selectedComponent != null}
         status={status}
+        hasPendingUpdates={hasPendingUpdates}
         deleteButton={
           fixedListComponentTypes.includes(selectedComponent.type) === false
         }
@@ -189,14 +192,19 @@ const ComponentsConfigIndex = ({
       materials={materials}
     />
     <Tooltip title="Add Component" placement="left">
-      <Link to="new/" style={{ textDecoration: 'none' }}>
-        <Fab
-          component="label"
-          className={classes.addFab}
-        >
-          <Add />
-        </Fab>
-      </Link>
+      <Fab
+        disabled={hasPendingUpdates || status === 'PRINTING'}
+        component={props => (
+          <Link
+            to="new/"
+            style={{ textDecoration: 'none' }}
+            {...props}
+          />
+        )}
+        className={classes.addFab}
+      >
+        <Add />
+      </Fab>
     </Tooltip>
     <List>
       {

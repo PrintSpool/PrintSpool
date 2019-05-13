@@ -9,6 +9,7 @@ const StatusFilter = ({
   not,
   status,
   children,
+  title,
   lighten = false,
 }) => (
   <Loader
@@ -21,9 +22,7 @@ const StatusFilter = ({
         variant={lighten ? 'h5' : 'h4'}
         style={{ color: lighten ? '#222' : '#fff' }}
       >
-        Configuration disabled while
-        {' '}
-        {status.toLowerCase()}
+        {title(status)}
       </Typography>
     )}
     style={{

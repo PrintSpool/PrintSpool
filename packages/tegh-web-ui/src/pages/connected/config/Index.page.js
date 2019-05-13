@@ -22,6 +22,7 @@ const DEVICES_SUBSCRIPTION = gql`
       patch { op, path, from, value }
       query {
         teghVersion
+        hasPendingUpdates
         devices {
           id
           type
@@ -49,6 +50,7 @@ const ConfigPage = ({
   printerID,
   printerDialogOpen = false,
   teghVersion,
+  hasPendingUpdates,
   devices,
   printers,
   loading,
@@ -62,6 +64,7 @@ const ConfigPage = ({
           open={printerDialogOpen}
           variables={{ printerID }}
           status={printers[0].status}
+          hasPendingUpdates={hasPendingUpdates}
           transformSchema={schema => transformComponentSchema({
             schema,
             materials: [],
@@ -82,7 +85,16 @@ const ConfigPage = ({
     }
     <List component="nav">
       <ListItem divider>
-        <ListItemText primary="Tegh Version" secondary={teghVersion} />
+        <ListItemText
+          primary={`Tegh v${teghVersion}`}
+          secondary={
+            (
+              hasPendingUpdates
+              && 'Updates Pending. Please empty job queue to auto-update.'
+            )
+            || 'Tegh is up to date and running the latest version available'
+          }
+        />
       </ListItem>
       <ListItem
         button

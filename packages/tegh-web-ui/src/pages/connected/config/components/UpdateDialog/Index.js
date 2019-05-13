@@ -165,6 +165,7 @@ const UpdateDialog = ({
   data,
   validate,
   status,
+  hasPendingUpdates,
   deleteButton = false,
   transformSchema = schema => schema,
 }) => (
@@ -183,7 +184,21 @@ const UpdateDialog = ({
       {props => (
         <Form>
           <DialogTitle id="form-dialog-title">{title || name || id}</DialogTitle>
-          <StatusFilter status={status} not={['PRINTING']} lighten>
+          <StatusFilter
+            status={hasPendingUpdates ? 'UPDATES_PENDING' : status}
+            not={['PRINTING', 'UPDATES_PENDING']}
+            title={() => {
+              if (hasPendingUpdates) {
+                return (
+                  'Pending Updates: Configuration diabled while updating Tegh'
+                )
+              }
+              return (
+                `Configuration disabled while ${status.toLowerCase()}`
+              )
+            }}
+            lighten
+          >
             <DialogContent>
               <FormikSchemaForm
                 schema={transformSchema(data.schemaForm.schema)}
@@ -198,7 +213,7 @@ const UpdateDialog = ({
                 <Link to="delete" style={{ textDecoration: 'none' }}>
                   <Button
                     color="secondary"
-                    disabled={status === 'PRINTING'}
+                    disabled={hasPendingUpdates || status === 'PRINTING'}
                   >
                     Delete
                   </Button>
@@ -211,7 +226,7 @@ const UpdateDialog = ({
             <Button
               type="submit"
               color="primary"
-              disabled={status === 'PRINTING'}
+              disabled={hasPendingUpdates || status === 'PRINTING'}
             >
               Save
             </Button>

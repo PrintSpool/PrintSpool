@@ -28,6 +28,7 @@ const PLUGINS_SUBSCRIPTION = gql`
     live {
       patch { op, path, from, value }
       query {
+        hasPendingUpdates
         printers(printerID: $printerID) {
           id
           status
@@ -89,6 +90,7 @@ const ComponentsConfigIndex = ({
   verb,
   availablePackages,
   status,
+  hasPendingUpdates,
 }) => (
   <main>
     { pluginID !== 'new' && selectedPlugin != null && verb == null && (
@@ -99,6 +101,7 @@ const ComponentsConfigIndex = ({
         collection="PLUGIN"
         variables={{ printerID, package: selectedPlugin.package }}
         status={status}
+        hasPendingUpdates={hasPendingUpdates}
         query={gql`
           query($printerID: ID!, $package: String) {
             printers(printerID: $printerID) {
@@ -129,14 +132,19 @@ const ComponentsConfigIndex = ({
       availablePackages={availablePackages}
     />
     <Tooltip title="Add Plugin" placement="left">
-      <Link to="new/" style={{ textDecoration: 'none' }}>
-        <Fab
-          component="label"
-          className={classes.addFab}
-        >
-          <Add />
-        </Fab>
-      </Link>
+      <Fab
+        disabled={hasPendingUpdates || status === 'PRINTING'}
+        component={props => (
+          <Link
+            to="new/"
+            style={{ textDecoration: 'none' }}
+            {...props}
+          />
+        )}
+        className={classes.addFab}
+      >
+        <Add />
+      </Fab>
     </Tooltip>
     <List>
       {

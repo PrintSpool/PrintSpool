@@ -6,6 +6,11 @@ import packageJSON from '../../../package.json'
 const QueryResolvers = {
   Query: {
     teghVersion: () => packageJSON.version,
+    hasPendingUpdates: (source, args, { store }) => {
+      const state = store.getState()
+
+      return state.updates.hasPendingUpdates
+    },
     /*
      * config
      */

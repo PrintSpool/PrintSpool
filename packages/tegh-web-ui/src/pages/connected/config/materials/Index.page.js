@@ -28,6 +28,7 @@ const CONFIG_SUBSCRIPTION = gql`
     live {
       patch { op, path, from, value }
       query {
+        hasPendingUpdates
         printers {
           id
           status
@@ -72,6 +73,7 @@ const MaterialsConfigIndex = ({
   materialID,
   verb,
   printers,
+  hasPendingUpdates,
 }) => (
   <main>
     {
@@ -81,6 +83,7 @@ const MaterialsConfigIndex = ({
           open
           deleteButton
           status={printers[0].status}
+          hasPendingUpdates={hasPendingUpdates}
           collection="MATERIAL"
           variables={{ materialID }}
           query={gql`
@@ -109,14 +112,19 @@ const MaterialsConfigIndex = ({
       open={verb === 'new'}
     />
     <Tooltip title="Add Component" placement="left">
-      <Link to="new/" style={{ textDecoration: 'none' }}>
-        <Fab
-          component="label"
-          className={classes.addFab}
-        >
-          <Add />
-        </Fab>
-      </Link>
+      <Fab
+        disabled={hasPendingUpdates || printers[0].status === 'PRINTING'}
+        component={props => (
+          <Link
+            to="new/"
+            style={{ textDecoration: 'none' }}
+            {...props}
+          />
+        )}
+        className={classes.addFab}
+      >
+        <Add />
+      </Fab>
     </Tooltip>
     <List>
       {
