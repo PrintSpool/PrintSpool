@@ -92,7 +92,7 @@ const ConfigPage = ({
               hasPendingUpdates
               && 'Updates Pending. Please empty job queue to auto-update.'
             )
-            || 'Tegh is up to date and running the latest version available'
+            || 'Tegh is up to date and running the latest version available.'
           }
         />
       </ListItem>
