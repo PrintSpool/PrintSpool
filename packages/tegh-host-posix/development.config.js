@@ -94,33 +94,12 @@ const printerConfig = {
       },
     },
     {
-      id: 'abvwee1',
-      modelVersion: 1,
-      type: 'TOOLHEAD',
-      model: {
-        address: 'e1',
-        name: 'Extruder 2',
-        heater: true,
-        feedrate: 3,
-        materialID: 'bw021',
-      },
-    },
-    {
       id: 'ndrgrwef',
       modelVersion: 1,
       type: 'FAN',
       model: {
         address: 'f0',
         name: 'Hot End Fan',
-      },
-    },
-    {
-      id: 'ndrgrwef2',
-      modelVersion: 1,
-      type: 'FAN',
-      model: {
-        address: 'f1',
-        name: 'Print Fan',
       },
     },
     {
