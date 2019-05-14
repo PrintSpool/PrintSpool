@@ -35,8 +35,8 @@ const JobCard = ({
     openMenu,
     closeMenu,
   } = useMemo(() => ({
-    openMenu: () => event => setMenuAnchorEl(event.target),
-    closeMenu: () => () => setMenuAnchorEl(null),
+    openMenu: event => setMenuAnchorEl(event.target),
+    closeMenu: () => setMenuAnchorEl(null),
   }))
 
   return (
