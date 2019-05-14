@@ -13,6 +13,7 @@ import PrinterStatusGraphQL from '../shared/PrinterStatus.graphql.js'
 
 // import Log from './components/Log'
 import Home from './components/home/Home'
+import MotorsEnabled from './MotorsEnabled'
 import XYJogButtons from './components/jog/XYJogButtons'
 import ZJogButtons from './components/jog/ZJogButtons'
 import ComponentControl, { ComponentControlFragment } from './components/printerComponents/ComponentControl'
@@ -24,6 +25,7 @@ const MANUAL_CONTROL_SUBSCRIPTION = gql`
       query {
         singularPrinter: printers(printerID: $printerID) {
           ...PrinterStatus
+          motorsEnabled
           components {
             ...ComponentControlFragment
           }
@@ -81,6 +83,9 @@ const ManualControl = ({ printer, isReady }) => (
         >
           <Grid item xs={12}>
             <Home printer={printer} />
+          </Grid>
+          <Grid item xs={12}>
+            <MotorsEnabled printer={printer} />
           </Grid>
           <Grid item xs={12} sm={8}>
             <XYJogButtons printer={printer} form="xyJog" />

@@ -6,9 +6,6 @@ import {
   Button,
   Typography,
 } from '@material-ui/core'
-import {
-  KeyboardArrowDown,
-} from '@material-ui/icons'
 
 import withSpoolMacro from '../../../shared/higherOrderComponents/withSpoolMacro'
 
@@ -50,7 +47,7 @@ const Home = ({
           <Button
             onClick={() => doHome(['x', 'y'])}
           >
-            X & Y
+            X&Y
           </Button>
           <Button
             onClick={() => doHome({ all: true })}

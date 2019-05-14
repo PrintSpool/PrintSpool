@@ -27,6 +27,7 @@ const initialPosition = Record({
 export const initialState = Record({
   targetTemperaturesCountdown: null,
   activeExtruderAddress: 'e0',
+  motorsEnabled: false,
   relativeMovement: false,
   /*
    * the components' non-configuration/dynamic/ephemeral data (eg.
@@ -249,6 +250,10 @@ const componentsReducer = (state = initialState, action) => {
 
       if (macro === 'G91' || macro === 'G90') {
         nextState = nextState.set('relativeMovement', macro === 'G91')
+      }
+
+      if (['M17', 'M18', 'M84'].includes(macro)) {
+        nextState = nextState.set('motorsEnabled', macro === 'M17')
       }
 
       return nextState

@@ -33,6 +33,7 @@ type Printer {
   The active extruder ID
   """
   activeExtruderID: String
+  motorsEnabled: Boolean!
   status: PrinterStatusEnum!
   error: PrinterError
   enabledMacros: [String!]!

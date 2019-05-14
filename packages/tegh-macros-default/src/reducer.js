@@ -7,6 +7,7 @@ import moveBy from './macros/moveBy'
 import moveTo from './macros/moveTo'
 import setTemperature from './macros/setTargetTemperature'
 import toggleHeater from './macros/toggleHeater'
+import toggleMotorsEnabled from './macros/toggleMotorsEnabled'
 
 const reducers = {
   delay,
@@ -15,6 +16,7 @@ const reducers = {
   moveTo,
   setTemperature,
   toggleHeater,
+  toggleMotorsEnabled,
 }
 
 export const initialState = Record(
