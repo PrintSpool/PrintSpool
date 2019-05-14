@@ -135,8 +135,8 @@ const DrawerContents = ({ hostIdentity, printers, classes }) => (
 const Drawer = ({
   hostIdentity,
   printers,
-  mobileOpen = false,
-  handleDrawerToggle = () => null,
+  mobileOpen,
+  onClose,
   classes,
   className,
 }) => (
@@ -144,13 +144,13 @@ const Drawer = ({
     <Hidden mdUp className={classes.fullHeight}>
       <MaterialUIDrawer
         type="temporary"
-        anchor="left"
+        anchor="right"
         open={mobileOpen}
+        onClose={onClose}
         classes={{
           root: classes.drawerRoot,
           paper: classes.drawerPaper,
         }}
-        onClose={handleDrawerToggle}
         ModalProps={{
           keepMounted: true, // Better open performance on mobile.
         }}

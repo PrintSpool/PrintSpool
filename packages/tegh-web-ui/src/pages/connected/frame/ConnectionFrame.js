@@ -1,8 +1,16 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import gql from 'graphql-tag'
 import { makeStyles } from '@material-ui/styles'
 
 import { LiveSubscription } from 'apollo-react-live-subscriptions'
+
+import {
+  Hidden,
+  IconButton,
+} from '@material-ui/core'
+import {
+  Menu as MenuIcon,
+} from '@material-ui/icons'
 
 import TeghApolloProvider from './higherOrderComponents/TeghApolloProvider'
 
@@ -63,6 +71,8 @@ const ConnectionFrame = ({
   const classes = useStyles()
   const { hosts, setHostName } = useContext(UserDataContext)
 
+  const [mobileOpen, setMobileOpen] = useState(false)
+
   const host = hosts[hostID]
 
   if (host == null) {
@@ -93,6 +103,17 @@ const ConnectionFrame = ({
                   <StaticTopNavigation
                     title={() => host.name}
                     className={classes.topNavigation}
+                    actions={({ buttonsClass }) => (
+                      <Hidden mdUp>
+                        <IconButton
+                          className={buttonsClass}
+                          aria-label="Menu"
+                          onClick={() => setMobileOpen(true)}
+                        >
+                          <MenuIcon />
+                        </IconButton>
+                      </Hidden>
+                    )}
                   />
                 )
               }
@@ -104,6 +125,8 @@ const ConnectionFrame = ({
                     hostIdentity={host}
                     printers={data.printers}
                     className={classes.drawer}
+                    mobileOpen={mobileOpen}
+                    onClose={() => setMobileOpen(false)}
                   />
                 )
               }
