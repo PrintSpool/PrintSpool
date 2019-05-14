@@ -4,26 +4,26 @@ import { makeStyles } from '@material-ui/styles'
 
 import { LiveSubscription } from 'apollo-react-live-subscriptions'
 
-import {
-  Hidden,
-  IconButton,
-} from '@material-ui/core'
-import {
-  Menu as MenuIcon,
-} from '@material-ui/icons'
-
 import TeghApolloProvider from './higherOrderComponents/TeghApolloProvider'
 
 import Drawer, { DrawerFragment } from './components/Drawer'
 import StaticTopNavigation from '../../../topNavigation/StaticTopNavigation'
 
 import { UserDataContext } from '../../../UserDataProvider'
+import EStopResetToggle from './components/EStopResetToggle'
 
 const FRAME_SUBSCRIPTION = gql`
   subscription ConnectionFrameSubscription {
     live {
       patch { op, path, from, value }
       query {
+        printers {
+          status
+          error {
+            code
+            message
+          }
+        }
         jobQueue {
           name
         }
@@ -103,16 +103,12 @@ const ConnectionFrame = ({
                   <StaticTopNavigation
                     title={() => host.name}
                     className={classes.topNavigation}
-                    actions={({ buttonsClass }) => (
-                      <Hidden mdUp>
-                        <IconButton
-                          className={buttonsClass}
-                          aria-label="Menu"
-                          onClick={() => setMobileOpen(true)}
-                        >
-                          <MenuIcon />
-                        </IconButton>
-                      </Hidden>
+                    onMenuButtonClick={() => setMobileOpen(true)}
+                    actions={({ buttonClass }) => (
+                      <EStopResetToggle
+                        buttonClass={buttonClass}
+                        printer={data.printers[0]}
+                      />
                     )}
                   />
                 )

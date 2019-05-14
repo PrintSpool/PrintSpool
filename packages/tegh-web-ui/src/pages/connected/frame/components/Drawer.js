@@ -13,6 +13,7 @@ import {
   Inbox,
   OpenWith,
   Settings,
+  Home,
 } from '@material-ui/icons'
 import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
@@ -100,7 +101,15 @@ const DrawerLink = withRouter(({
 const DrawerContents = ({ hostIdentity, printers, classes }) => (
   <div>
     <List>
-      <ListSubheader>Printing</ListSubheader>
+      <Hidden mdUp>
+        <DrawerLink
+          text="Home"
+          icon={<Home />}
+          href="/"
+          classes={classes}
+        />
+      </Hidden>
+      <ListSubheader>Print Queue</ListSubheader>
       <DrawerLink
         text="Print Queue"
         icon={<Inbox />}
@@ -144,7 +153,7 @@ const Drawer = ({
     <Hidden mdUp className={classes.fullHeight}>
       <MaterialUIDrawer
         type="temporary"
-        anchor="right"
+        anchor="left"
         open={mobileOpen}
         onClose={onClose}
         classes={{

@@ -28,7 +28,7 @@ const enhance = compose(
 const Home = ({
   doHome,
 }) => (
-  <Card style={{ marginBottom: 16 }}>
+  <Card style={{ marginTop: 16, marginBottom: 16 }}>
     <CardContent style={{ paddingBottom: 16 }}>
       <Typography variant="subtitle1">
         <div style={{ float: 'right', marginTop: -4 }}>

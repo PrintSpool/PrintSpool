@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/styles'
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   root: {
     display: 'grid',
     gridTemplateColumns: 'min-content max-content 1fr',
@@ -10,12 +10,17 @@ const useStyles = makeStyles(() => ({
     background: '#DD25C4',
     paddingTop: 10,
     paddingBottom: 10,
-    paddingLeft: 15,
-    paddingRight: 15,
+    paddingLeft: theme.spacing.unit * 2,
+    paddingRight: theme.spacing.unit * 2,
+  },
+  withMenu: {
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 0,
+    },
   },
   logo: {
     height: 50,
-    marginRight: 15,
+    marginRight: theme.spacing.unit * 2,
   },
   title: {
     color: 'white',

@@ -11,7 +11,6 @@ import withLiveData from '../shared/higherOrderComponents/withLiveData'
 
 import PrinterStatusGraphQL from '../shared/PrinterStatus.graphql.js'
 
-import Header from '../frame/components/Header'
 // import Log from './components/Log'
 import Home from './components/home/Home'
 import XYJogButtons from './components/jog/XYJogButtons'
@@ -54,7 +53,6 @@ const enhance = compose(
 
 const ManualControl = ({ printer, isReady }) => (
   <div>
-    <Header printer={printer} />
     <main>
       <Grid
         container

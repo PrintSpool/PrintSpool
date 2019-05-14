@@ -1,5 +1,6 @@
 import React from 'react'
 import { compose, withState } from 'recompose'
+import classNames from 'classnames'
 import {
   Button,
   withStyles,
@@ -17,6 +18,16 @@ const styles = theme => ({
   },
   rightIcon: {
     marginLeft: theme.spacing.unit,
+  },
+  status: {
+    marginRight: theme.spacing.unit,
+  },
+  toggleEStopReset: {
+    backgroundColor: theme.palette.background.default,
+    boxShadow: 'none',
+  },
+  eStop: {
+    color: theme.palette.error.main,
   },
 })
 
@@ -46,6 +57,7 @@ const EStopResetToggle = ({
   classes,
   dialogOpen,
   setDialogOpen,
+  buttonClass,
 }) => {
   const { status } = printer
   const showEStop = status !== 'ERRORED' && status !== 'ESTOPPED'
@@ -69,27 +81,26 @@ const EStopResetToggle = ({
           macro: 'reset',
         })}
       />
-      <div style={{ display: 'inline-block', marginRight: 10 }}>
-        <Button
-          onClick={() => { setDialogOpen(true) }}
-        >
-          { status }
-        </Button>
-      </div>
-      <div style={{ display: 'inline-block' }}>
-        <Button
-          color={showEStop ? 'secondary' : 'primary'}
-          variant="contained"
-          disabled={disabled}
-          onClick={onClick}
-        >
-          {
-            showEStop
-            && <Report className={classes.leftIcon} />
-          }
-          {showEStop ? 'EStop' : 'Reset'}
-        </Button>
-      </div>
+      <Button
+        className={classNames(buttonClass, classes.status)}
+        onClick={() => { setDialogOpen(true) }}
+      >
+        { status }
+      </Button>
+      <Button
+        className={
+          classNames(classes.toggleEStopReset, showEStop && classes.eStop)
+        }
+        variant="contained"
+        disabled={disabled}
+        onClick={onClick}
+      >
+        {
+          showEStop
+          && <Report className={classes.leftIcon} />
+        }
+        {showEStop ? 'EStop' : 'Reset'}
+      </Button>
     </div>
   )
 }
