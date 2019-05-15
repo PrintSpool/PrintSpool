@@ -131,12 +131,6 @@ const DrawerContents = ({ hostIdentity, printers, classes }) => (
               classes={classes}
             />
             <DrawerLink
-              text="GraphQL"
-              icon={<Code />}
-              href={`/${hostIdentity.id}/${printer.id}/terminal/`}
-              classes={classes}
-            />
-            <DrawerLink
               text="Terminal"
               icon={<Keyboard />}
               href={`/${hostIdentity.id}/${printer.id}/terminal/`}
@@ -151,6 +145,13 @@ const DrawerContents = ({ hostIdentity, printers, classes }) => (
           </div>
         ))
       }
+      <ListSubheader>Dev Tools</ListSubheader>
+      <DrawerLink
+        text="GraphQL"
+        icon={<Code />}
+        href={`/${hostIdentity.id}/graphql-playground/`}
+        classes={classes}
+      />
     </List>
   </div>
 )

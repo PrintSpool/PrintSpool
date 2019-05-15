@@ -16,7 +16,7 @@ import { ThingLink } from 'graphql-things'
 
 // import { store } from '../../../../index'
 
-const createTeghApolloClient = ({
+export const createTeghApolloLink = ({
   // myIdentity,
   hostIdentity,
   // signallingServer = 'ws://localhost:3000',
@@ -59,17 +59,23 @@ const createTeghApolloClient = ({
     if (networkError) alert(`[Network error]: ${networkError}`)
   })
 
-  const apolloClient = new ApolloClient({
-    // link: thingLink,
-    link: ApolloLink.from([
-      // new ReduxLink(store),
-      errorLink,
-      thingLink,
-    ]),
+  return ApolloLink.from([
+    // new ReduxLink(store),
+    errorLink,
+    thingLink,
+  ])
+}
+
+const createTeghApolloClient = ({
+  hostIdentity,
+}) => {
+  const link = createTeghApolloLink({ hostIdentity })
+  const client = new ApolloClient({
+    link,
     cache: new InMemoryCache(),
   })
 
-  return apolloClient
+  return client
 }
 
 // TODO: does not work for some reason
