@@ -77,6 +77,7 @@ const pollPositionReducer = (state = initialState, action) => {
       const nextAction = spoolTask({
         name: 'spoolPositionQuery',
         internal: true,
+        isPollingRequest: true,
         priority: PREEMPTIVE,
         data: ['M114'],
       })

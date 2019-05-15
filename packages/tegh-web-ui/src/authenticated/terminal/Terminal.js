@@ -21,11 +21,10 @@ const GCODE_HISTORY_SUBSCRIPTION = gql`
       query {
         printers(printerID: $printerID) {
           id
-          logEntries(sources: ["RX", "TX"], limit: 200) {
+          gcodeHistory(excludePolling: true, limit: 200) {
             id
             createdAt
-            source
-            level
+            direction
             message
           }
         }
@@ -110,13 +109,13 @@ const Terminal = ({
               )
             }
 
-            return [...data.printers[0].logEntries].reverse().map(entry => (
+            return [...data.printers[0].gcodeHistory].reverse().map(entry => (
               // eslint-disable-next-line react/no-array-index-key
               <div key={entry.id} className={classes.terminalEntry}>
                 <span className={classes.createdAt}>
                   {entry.createdAt}
                 </span>
-                {` ${entry.source}: `}
+                {` ${entry.direction}: `}
                 {entry.message}
               </div>
             ))

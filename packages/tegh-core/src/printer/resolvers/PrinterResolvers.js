@@ -97,7 +97,22 @@ const PrinterResolvers = {
       }
       return entries.toArray()
     },
+    gcodeHistory: (source, args, { store }) => {
+      const state = store.getState()
+      let entries = state.getIn(
+        ['@tegh/driver-serial-gcode', 'gcodeHistory', 'entries'],
+        [],
+      )
 
+      if (args.excludePolling === true) {
+        entries = entries.filter(log => !log.isPollingRequest)
+      }
+      if (args.limit != null) {
+        entries = entries.slice(0, args.limit)
+      }
+
+      return entries.toArray()
+    },
     movementHistory: (source, args, { store }) => {
       const state = store.getState()
       return getComponentsState(state).movementHistory

@@ -17,30 +17,35 @@ const addChecksum = (line, shouldChecksum) => {
 }
 
 const serialSend = ({
+  createdAt = Date.now(),
   macro,
   args = {},
   lineNumber,
   checksum = true,
+  isPollingRequest = false,
 } = {}) => {
-  const line = toGCodeLine({ macro, args })
+  const gcode = toGCodeLine({ macro, args })
 
-  const processedLine = (() => {
-    if (lineNumber === false) return addChecksum(line, checksum)
+  const line = (() => {
+    if (lineNumber === false) return addChecksum(gcode, checksum)
     if (typeof lineNumber !== 'number') {
       throw new Error('lineNumber must either be false or a number')
     }
-    const lineWithLineNumber = `N${lineNumber} ${line}`
+    const lineWithLineNumber = `N${lineNumber} ${gcode}`
     return addChecksum(lineWithLineNumber, checksum)
   })()
 
   return {
     type: SERIAL_SEND,
     payload: {
+      createdAt,
       macro,
       args,
-      line: processedLine,
+      line,
+      gcode,
       lineNumber,
-      ...txParser({ macro, args, line }),
+      isPollingRequest,
+      ...txParser({ macro, args, line: gcode }),
     },
   }
 }

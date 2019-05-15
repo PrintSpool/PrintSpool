@@ -66,6 +66,7 @@ const pollTemperatureReducer = (state = initialState, action) => {
       const nextAction = spoolTask({
         name: 'spoolTemperatureQuery',
         internal: true,
+        isPollingRequest: true,
         priority: PREEMPTIVE,
         data: ['M105'],
       })

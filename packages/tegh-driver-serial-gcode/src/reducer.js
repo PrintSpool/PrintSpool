@@ -6,6 +6,7 @@ import components from './components/reducers/componentsReducer'
 import _pollTemperature from './components/reducers/pollTemperatureReducer'
 import _pollPosition from './components/reducers/pollPositionReducer'
 // serial
+import gcodeHistory from './serial/reducers/gcodeHistoryReducer'
 import _estopAndReset from './serial/reducers/estopAndResetReducer'
 import _serialErrorHandler from './serial/reducers/serialErrorHandlerReducer'
 import _serial from './serial/reducers/serialReducer'
@@ -18,6 +19,7 @@ import _throwOnInvalidGCode from './spool/reducers/throwOnInvalidGCodeReducer'
 
 const reducers = {
   components,
+  gcodeHistory,
   _pollTemperature,
   _pollPosition,
   _estopAndReset,

@@ -38,6 +38,7 @@ type Printer {
   error: PrinterError
   enabledMacros: [String!]!
   logEntries(level: String, sources: [String!], limit: Int): [LogEntry!]
+  gcodeHistory(excludePolling: Boolean, limit: Int): [GCodeHistoryEntry!]
 
   temperatureHistory: [TemperatureHistoryEntry!]!
   movementHistory: [MovementHistoryEntry!]!
@@ -135,6 +136,21 @@ type MovementHistoryEntry {
   createdAt: DateTime!
   position: [MovementDataPoint!]!
   inboundFeedrate: Float!
+}
+
+type GCodeHistoryEntry {
+  id: ID!
+  createdAt: DateTime!
+  direction: GCodeDirection!
+  message: String!
+}
+
+enum GCodeDirection {
+  """GCode sent to the 3D Printer"""
+  TX
+
+  """GCode response received from the 3D Printer"""
+  RX
 }
 
 type LogEntry {

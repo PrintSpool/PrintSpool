@@ -35,6 +35,8 @@ const despoolToSerialReducer = (state = initialState, action) => {
     case DESPOOL_TASK: {
       const { task, isHostMacro } = action.payload
 
+      const { isPollingRequest } = task
+
       if (isHostMacro) return state
 
       const emergency = isEmergency.resultFunc(task)
@@ -58,6 +60,7 @@ const despoolToSerialReducer = (state = initialState, action) => {
         Cmd.action(serialSend({
           ...parseGCode(currentLine),
           lineNumber,
+          isPollingRequest,
         })),
       )
     }

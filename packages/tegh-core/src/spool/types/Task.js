@@ -16,6 +16,7 @@ export type TaskT = RecordOf<{
 
   priority: PriorityEnumT,
   internal: boolean,
+  isPollingRequest: boolean,
   data: ListT<string>,
   name: ?string,
 
@@ -35,6 +36,7 @@ const TaskRecord = Record({
   id: null,
   priority: null,
   internal: null,
+  isPollingRequest: false,
   name: null,
   jobID: null,
   jobFileID: null,
