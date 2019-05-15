@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import { ApolloProvider } from 'react-apollo'
+import { ApolloProvider as ApolloHooksProvider } from 'react-apollo-hooks'
 
 import memoize from 'fast-memoize'
 
@@ -106,7 +107,9 @@ const TeghApolloProvider = ({
 
   return (
     <ApolloProvider client={client}>
-      { children }
+      <ApolloHooksProvider client={client}>
+        { children }
+      </ApolloHooksProvider>
     </ApolloProvider>
   )
 }

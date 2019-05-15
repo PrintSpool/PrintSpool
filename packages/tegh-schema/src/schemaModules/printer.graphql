@@ -37,7 +37,7 @@ type Printer {
   status: PrinterStatusEnum!
   error: PrinterError
   enabledMacros: [String!]!
-  logEntries(level: String, source: String): [LogEntry!]
+  logEntries(level: String, sources: [String!], limit: Int): [LogEntry!]
 
   temperatureHistory: [TemperatureHistoryEntry!]!
   movementHistory: [MovementHistoryEntry!]!
@@ -138,6 +138,8 @@ type MovementHistoryEntry {
 }
 
 type LogEntry {
+  id: ID!
+  createdAt: DateTime!
   source: String!
   level: String!
   message: String!

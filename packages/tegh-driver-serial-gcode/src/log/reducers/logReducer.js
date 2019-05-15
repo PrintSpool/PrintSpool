@@ -36,12 +36,20 @@ const logReducer = (_state, action) => {
       })()
 
       return {
+        // source: action.payload.type === 'feedback' ? 'RX(FEEDBACK)' : 'RX',
         source: 'RX',
         level: rxLevel(type),
         message,
       }
     }
     case SERIAL_SEND: {
+      // let source = 'TX'
+      // if (action.payload.macro === 'M105') {
+      //   source = 'TX(TEMPERATURE)'
+      // }
+      // if (action.payload.macro === 'M114') {
+      //   source = 'TX(POSITION)'
+      // }
       return {
         source: 'TX',
         level: 'info',

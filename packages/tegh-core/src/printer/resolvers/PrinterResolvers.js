@@ -89,8 +89,11 @@ const PrinterResolvers = {
       if (args.level != null) {
         entries = entries.filter(log => log.level === args.level)
       }
-      if (args.source != null) {
-        entries = entries.filter(log => log.source === args.source)
+      if (args.sources != null) {
+        entries = entries.filter(log => args.sources.includes(log.source))
+      }
+      if (args.limit != null) {
+        entries = entries.slice(0, args.limit)
       }
       return entries.toArray()
     },

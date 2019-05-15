@@ -11,6 +11,7 @@ import deleteJob from '../../jobQueue/actions/deleteJob'
 import spoolTask from '../../spool/actions/spoolTask'
 import requestSpoolJobFile from '../../spool/actions/requestSpoolJobFile'
 import spoolMacro from '../../spool/actions/spoolMacro'
+import { NORMAL } from '../../spool/types/PriorityEnum'
 
 const MutationResolvers = {
   Mutation: {
@@ -89,8 +90,13 @@ const MutationResolvers = {
     }),
     /* spool */
     spoolCommands: actionResolver({
-      actionCreator: spoolTask,
-      selector: (state, action) => action.payload.task,
+      actionCreator: ({ file: { name, content } }) => spoolTask({
+        name,
+        data: [content],
+        priority: NORMAL,
+        internal: false,
+      }),
+      selector: () => null,
     }),
     spoolJobFile: actionResolver({
       actionCreator: requestSpoolJobFile,

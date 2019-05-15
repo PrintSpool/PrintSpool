@@ -55,10 +55,10 @@ const logReducer = (
       }
 
       const pluginsLogReducer = getPlugins(action.payload)
-        .reduce(chainPluginLogReducers, () => ({
+        .reduce(chainPluginLogReducers, (loggedState, loggedAction) => ({
           source: 'ACTION',
           level: 'trivial',
-          message: action.type,
+          message: loggedAction.type,
         }))
 
       return state.mergeIn(['config'], {
@@ -88,7 +88,11 @@ const logReducer = (
               return list.shift()
             }
             return list
-          })().push(log)
+          })().push({
+            ...log,
+            id: state.entryCountSinceStartup,
+            createdAt: new Date().toUTCString(),
+          })
         ))
         .update('entryCountSinceStartup', count => count + 1)
     }

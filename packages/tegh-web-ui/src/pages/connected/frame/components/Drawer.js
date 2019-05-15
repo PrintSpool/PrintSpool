@@ -12,6 +12,8 @@ import {
 import {
   Inbox,
   OpenWith,
+  Code,
+  Keyboard,
   Settings,
   Home,
 } from '@material-ui/icons'
@@ -123,9 +125,21 @@ const DrawerContents = ({ hostIdentity, printers, classes }) => (
           >
             <ListSubheader>{printer.name}</ListSubheader>
             <DrawerLink
-              text="Manual Control"
+              text="Control Panel"
               icon={<OpenWith />}
               href={`/${hostIdentity.id}/${printer.id}/manual-control/`}
+              classes={classes}
+            />
+            <DrawerLink
+              text="GraphQL"
+              icon={<Code />}
+              href={`/${hostIdentity.id}/${printer.id}/terminal/`}
+              classes={classes}
+            />
+            <DrawerLink
+              text="Terminal"
+              icon={<Keyboard />}
+              href={`/${hostIdentity.id}/${printer.id}/terminal/`}
               classes={classes}
             />
             <DrawerLink

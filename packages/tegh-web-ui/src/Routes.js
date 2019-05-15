@@ -10,6 +10,7 @@ import LandingPage from './landingPage/LandingPage'
 import BrowserUpgradeNotice from './landingPage/BrowserUpgradeNotice'
 import GettingStarted from './gettingStarted/GettingStarted'
 import Home from './authenticated/home/Home'
+import Terminal from './authenticated/terminal/Terminal'
 
 import ConnectionFrame from './pages/connected/frame/ConnectionFrame'
 import QueuePage from './pages/connected/queue/Queue.page'
@@ -67,6 +68,7 @@ const Routes = ({
                 {/* <Route exact path="/:hostID/print" component={Print} /> */}
                 <Route exact path="/:hostID/jobs/:jobID/" component={JobPage} />
                 <Route exact path="/:hostID/:printerID/manual-control/" component={ManualControlPage} />
+                <Route exact path="/:hostID/:printerID/terminal/" component={Terminal} />
                 <Route
                   exact
                   path={[
