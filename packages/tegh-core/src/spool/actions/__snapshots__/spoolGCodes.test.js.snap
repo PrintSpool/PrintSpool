@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`spoolCommands creates a SPOOL_TASK action 1`] = `
+exports[`spoolGCodes creates a SPOOL_TASK action 1`] = `
 Object {
   "payload": Object {
     "prepend": false,

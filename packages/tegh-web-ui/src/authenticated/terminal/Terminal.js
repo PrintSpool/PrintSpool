@@ -34,8 +34,8 @@ const GCODE_HISTORY_SUBSCRIPTION = gql`
 `
 
 const SPOOL_COMMANDS = gql`
-  mutation spoolCommands($input: SpoolCommandsInput!) {
-    spoolCommands(input: $input)
+  mutation spoolGCodes($input: SpoolGCodesInput!) {
+    spoolGCodes(input: $input)
   }
 `
 
@@ -58,10 +58,7 @@ const Terminal = ({
     variables: {
       input: {
         printerID,
-        file: {
-          name: 'terminal-input.ngc',
-          content: values.gcode,
-        },
+        gcodes: values.gcode,
       },
     },
   })

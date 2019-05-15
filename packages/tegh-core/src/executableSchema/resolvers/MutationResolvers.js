@@ -89,10 +89,10 @@ const MutationResolvers = {
       selector: () => null,
     }),
     /* spool */
-    spoolCommands: actionResolver({
-      actionCreator: ({ file: { name, content } }) => spoolTask({
-        name,
-        data: [content],
+    spoolGCodes: actionResolver({
+      actionCreator: ({ gcodes }) => spoolTask({
+        name: '[spoolGCodes]',
+        data: gcodes,
         priority: NORMAL,
         internal: false,
       }),

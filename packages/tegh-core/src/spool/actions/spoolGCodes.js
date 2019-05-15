@@ -9,7 +9,7 @@ import validateCommandsFileExtension from '../../util/validateCommandsFileExtens
  * priority?: TaskPriority [default: macro.priority || NORMAL],
  * file?: { name: String, content: String }
  */
-const spoolCommands = ({ internal = false, priority, file }) => {
+const spoolGCodes = ({ internal = false, priority, file }) => {
   if (file == null) {
     throw new Error('file cannot be null')
   }
@@ -33,4 +33,4 @@ const spoolCommands = ({ internal = false, priority, file }) => {
   })
 }
 
-export default spoolCommands
+export default spoolGCodes

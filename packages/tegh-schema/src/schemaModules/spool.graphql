@@ -6,7 +6,7 @@ extend type Mutation {
   `.gcode` or `.ngc`. Non-GCode file formats may be supported in the future and
   differentiated by different file extensions.
   """
-  spoolCommands(input: SpoolCommandsInput!): Boolean
+  spoolGCodes(input: SpoolGCodesInput!): Boolean
 
   """
   Starts a print by spooling a task to print the job file.
@@ -19,9 +19,9 @@ extend type Mutation {
   spoolMacro(input: SpoolMacroInput!): Boolean
 }
 
-input SpoolCommandsInput {
+input SpoolGCodesInput {
   printerID: ID!
-  file: FileInput!
+  gcodes: [String!]!
 }
 
 input SpoolJobFileInput {

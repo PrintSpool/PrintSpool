@@ -1,13 +1,13 @@
 import expectToMatchImmutableSnapshot from '../../util/testing/expectToMatchImmutableSnapshot'
 
-import spoolCommands from './spoolCommands'
+import spoolGCodes from './spoolGCodes'
 
-describe('spoolCommands', () => {
+describe('spoolGCodes', () => {
   it('creates a SPOOL_TASK action', () => {
     const name = 'testFile.gcode'
     const content = 'line 1\nline 2'
 
-    const result = spoolCommands({
+    const result = spoolGCodes({
       file: {
         name,
         content,
