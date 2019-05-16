@@ -99,14 +99,17 @@ const PrinterResolvers = {
     },
     gcodeHistory: (source, args, { store }) => {
       const state = store.getState()
-      let entries = state.getIn(
-        ['@tegh/driver-serial-gcode', 'gcodeHistory', 'entries'],
-        [],
-      )
+      const {
+        fullHistory,
+        historyExcludingPolling,
+      } = state.get('@tegh/driver-serial-gcode').gcodeHistory
+
+      let entries = fullHistory
 
       if (args.excludePolling === true) {
-        entries = entries.filter(log => !log.isPollingRequest)
+        entries = historyExcludingPolling
       }
+
       if (args.limit != null) {
         entries = entries.slice(0, args.limit)
       }
