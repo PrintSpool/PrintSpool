@@ -6,6 +6,7 @@ import home from './macros/home'
 import moveBy from './macros/moveBy'
 import moveTo from './macros/moveTo'
 import setTemperature from './macros/setTargetTemperature'
+import toggleFan from './macros/toggleFan'
 import toggleHeater from './macros/toggleHeater'
 import toggleMotorsEnabled from './macros/toggleMotorsEnabled'
 
@@ -15,6 +16,7 @@ const reducers = {
   moveBy,
   moveTo,
   setTemperature,
+  toggleFan,
   toggleHeater,
   toggleMotorsEnabled,
 }

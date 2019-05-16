@@ -105,7 +105,7 @@ const parseFanMCodes = (
   args,
   line,
 ) => {
-  const id = args.p || 1
+  const id = args.p == null ? 1 : args.p
   /*
    * Returns the fan speed as a 8 bit number (range: 0 to 255)
    */
@@ -128,6 +128,7 @@ const parseFanMCodes = (
     } if (macro === 'M107') {
       return {
         enabled: false,
+        speed: 0,
       }
     }
     throw new Error(`Invalid Fan MCode ${macro} on line: ${line}`)
@@ -139,7 +140,7 @@ const parseFanMCodes = (
 
   return {
     collectionKey: 'fans',
-    id,
+    id: `f${id}`,
     changes,
   }
 }

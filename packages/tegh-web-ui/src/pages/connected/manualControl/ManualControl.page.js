@@ -96,7 +96,7 @@ const ManualControl = ({ printer, isReady }) => (
         </Loader>
         {
           printer.components
-            .filter(c => ['BUILD_PLATFORM', 'TOOLHEAD'].includes(c.type))
+            .filter(c => ['BUILD_PLATFORM', 'TOOLHEAD', 'FAN'].includes(c.type))
             .map(component => (
               <Grid item xs={12} key={component.id}>
                 <ComponentControl

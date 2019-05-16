@@ -9,6 +9,7 @@ import {
 
 import TemperatureSection from './TemperatureSection'
 import ExtruderButtons from './ExtruderButtons'
+import FanSection from './FanSection'
 
 export const ComponentControlFragment = gql`
   fragment ComponentControlFragment on Component {
@@ -58,6 +59,16 @@ const ToolheadAndBedControl = ({
                 printer={printer}
                 address={component.address}
                 form={`toolhead[${component.id}]`}
+                disabled={disabled}
+              />
+            )
+          }
+          {
+            component.type === 'FAN' && (
+              <FanSection
+                printer={printer}
+                component={component}
+                address={component.address}
                 disabled={disabled}
               />
             )

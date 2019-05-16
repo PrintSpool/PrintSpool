@@ -1,7 +1,6 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import { withFormik, Form, Field } from 'formik'
 import { TextField } from 'formik-material-ui'
-import { useMutation } from 'react-apollo-hooks'
 
 import {
   Button,
@@ -10,6 +9,7 @@ import {
 
 import gql from 'graphql-tag'
 
+import useSpoolGCodes from '../../common/useSpoolGCodes'
 import { LiveSubscription } from '../../util/LiveSubscription'
 
 import TerminalStyles from './TerminalStyles'
@@ -33,12 +33,6 @@ const GCODE_HISTORY_SUBSCRIPTION = gql`
   }
 `
 
-const SPOOL_COMMANDS = gql`
-  mutation spoolGCodes($input: SpoolGCodesInput!) {
-    spoolGCodes(input: $input)
-  }
-`
-
 const enhance = withFormik({
   mapPropsToValues: () => ({
     gcode: '',
@@ -51,27 +45,25 @@ const Terminal = ({
   resetForm,
 }) => {
   const classes = TerminalStyles()
-  // const classes = {}
   const { printerID } = match.params
 
-  const spoolGCodeMutation = useMutation(SPOOL_COMMANDS, {
-    variables: {
-      input: {
-        printerID,
-        gcodes: values.gcode,
-      },
-    },
-  })
-
-  const spoolGCode = useCallback((e) => {
+  const onSubmit = useSpoolGCodes((e) => {
     e.preventDefault()
-    spoolGCodeMutation()
     resetForm()
+
+    return {
+      variables: {
+        input: {
+          printerID,
+          gcodes: values.gcode,
+        },
+      },
+    }
   })
 
   return (
     <div className={classes.root}>
-      <Form className={classes.inputRow} onSubmit={spoolGCode}>
+      <Form className={classes.inputRow} onSubmit={onSubmit}>
         <Field
           className={classes.input}
           label="GCode"
