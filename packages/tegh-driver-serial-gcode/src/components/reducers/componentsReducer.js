@@ -166,24 +166,28 @@ const componentsReducer = (state = initialState, action) => {
 
       if (temperatures != null) {
         nextState = nextState.update('temperatureHistory', (history) => {
-          const index = state.temperatureHistory.count(h => (
-            h.createdAt === createdAt
-          ))
-          const nextEntry = {
-            id: `${createdAt}-${index}`,
-            createdAt,
-            temperatures: state.temperatureKeys.map(address => ({
-              address,
-              targetTemperature: (
-                state.byAddress.getIn([address, 'targetTemperature'], 0)
-              ),
-              currentTemperature: temperatures[address] || 0,
-            })),
-          }
+          let nextHistory = history
 
-          let nextHistory = history.unshift(nextEntry)
+          Object.entries(temperatures).forEach(([
+            address,
+            currentTemperature,
+          ]) => {
+            const component = state.byAddress.get(address)
+            if (component == null) return null
+
+            const id = (nextHistory.last() || { id: -1 }).id + 1
+
+            nextHistory = nextHistory.unshift({
+              id,
+              createdAt,
+              componentID: component.id,
+              targetTemperature: component.targetTemperature || 0,
+              currentTemperature,
+            })
+          })
+
           if (nextHistory.size > MAX_TEMPERATURE_HISTORY) {
-            nextHistory = nextHistory.pop()
+            nextHistory = nextHistory.slice(0, MAX_TEMPERATURE_HISTORY)
           }
           return nextHistory
         })

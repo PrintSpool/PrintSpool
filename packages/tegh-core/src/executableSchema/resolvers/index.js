@@ -17,6 +17,7 @@ import JobQueueResolvers from '../../jobQueue/resolvers/JobQueueResolvers'
 import JobResolvers from '../../jobQueue/resolvers/JobResolvers'
 
 import ComponentResolvers from '../../printer/resolvers/ComponentResolvers'
+import HeaterResolvers from '../../printer/resolvers/HeaterResolvers'
 import MovementHistoryEntryResolvers from '../../printer/resolvers/MovementHistoryEntryResolvers'
 import PrinterResolvers from '../../printer/resolvers/PrinterResolvers'
 
@@ -46,6 +47,7 @@ const coreResolvers = [
   JobResolvers,
 
   ComponentResolvers,
+  HeaterResolvers,
   MovementHistoryEntryResolvers,
   PrinterResolvers,
 

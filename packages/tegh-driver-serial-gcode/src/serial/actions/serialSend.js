@@ -17,7 +17,7 @@ const addChecksum = (line, shouldChecksum) => {
 }
 
 const serialSend = ({
-  createdAt = Date.now(),
+  createdAt = new Date().toISOString(),
   macro,
   args = {},
   lineNumber,

@@ -40,7 +40,6 @@ type Printer {
   logEntries(level: String, sources: [String!], limit: Int): [LogEntry!]
   gcodeHistory(excludePolling: Boolean, limit: Int): [GCodeHistoryEntry!]
 
-  temperatureHistory: [TemperatureHistoryEntry!]!
   movementHistory: [MovementHistoryEntry!]!
 }
 
@@ -104,6 +103,8 @@ type Heater {
   preventing any more gcodes from executing until it does.
   """
   blocking: Boolean!
+
+  history: [TemperatureHistoryEntry!]!
 }
 
 type Axis {
@@ -114,16 +115,11 @@ type Axis {
   position: Float!
 }
 
-type TemperatureDataPoint {
-  address: String!
-  targetTemperature: Float!
-  currentTemperature: Float!
-}
-
 type TemperatureHistoryEntry {
   id: ID!
   createdAt: DateTime!
-  temperatures: [TemperatureDataPoint!]!
+  targetTemperature: Float!
+  currentTemperature: Float!
 }
 
 type MovementDataPoint {

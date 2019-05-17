@@ -1,7 +1,7 @@
 export const SERIAL_RECEIVE = 'tegh-driver-gcode/serial/SERIAL_RECEIVE'
 
 const serialReceive = ({
-  createdAt = Date.now(),
+  createdAt = new Date().toISOString(),
   serialPortID,
   data,
   receiveParser,
