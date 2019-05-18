@@ -63,6 +63,10 @@ type Component {
   """
   heater: Heater
   """
+  set if this component contains a toolhead. Null for non-toolhead components.
+  """
+  toolhead: Toolhead
+  """
   set if this component is a fan. Null for all other components.
   """
   fan: Fan
@@ -85,10 +89,22 @@ type Fan {
   speed: Int!
 }
 
+type Toolhead  {
+  currentMaterial: Material
+}
+
 type Heater {
   """
+  The current material\'s configured temperature in °C for this heater.
+
+  When the Heater is enabled the targetTemperature will be set to the
+  materialTargetTemperature.
+  """
+  materialTarget: Float
+
+  """
   The target temperature in °C for this heater. The heater will attempt to make
-  the current_temp equal to this temperature.
+  the currentTemperature equal to this temperature.
   """
   targetTemperature: Float
 

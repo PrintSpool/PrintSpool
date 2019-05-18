@@ -51,7 +51,8 @@ const XYJogButtons = ({ printer, jog, distance }) => (
         </JogButton>
         <Field
           name="distance"
-          component={JogDistanceButtons([1, 10, 50, 100])}
+          component={JogDistanceButtons}
+          distanceOptions={[1, 10, 50, 100]}
         />
       </Grid>
     </CardContent>

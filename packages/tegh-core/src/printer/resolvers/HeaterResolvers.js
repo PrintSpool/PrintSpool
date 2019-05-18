@@ -1,4 +1,5 @@
 import getComponentsState from '../selectors/getComponentsState'
+import getHeaterMaterialTargets from '../selectors/getHeaterMaterialTargets'
 
 const HeaterResolvers = {
   Heater: {
@@ -7,6 +8,11 @@ const HeaterResolvers = {
       return getComponentsState(state).temperatureHistory
         .filter(entry => entry.componentID === source.id)
         .toArray()
+    },
+    materialTarget: (source, args, { store }) => {
+      const { config } = store.getState()
+
+      return getHeaterMaterialTargets(config).get(source.id)
     },
   },
 }

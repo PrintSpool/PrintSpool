@@ -1,5 +1,5 @@
 import getComponentsState from '../selectors/getComponentsState'
-import { FAN } from '../../config/types/components/ComponentTypeEnum'
+import { FAN, TOOLHEAD } from '../../config/types/components/ComponentTypeEnum'
 import { NullSchemaForm } from '../../pluginManager/types/SchemaForm'
 import getAxePositions from '../selectors/getAxePositions'
 
@@ -45,6 +45,13 @@ const ComponentResolvers = {
         const address = source.model.get('address')
         const dynamicComponent = getComponentsState(state).byAddress.get(address)
         return dynamicComponent
+      }
+
+      return null
+    },
+    toolhead: (source) => {
+      if (source.type === TOOLHEAD) {
+        return source
       }
 
       return null

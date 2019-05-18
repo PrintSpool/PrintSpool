@@ -37,6 +37,8 @@ export getAllReducers from './pluginManager/selectors/getAllReducers'
 //
 // // ./printer/selectors:
 // export getComponentsState from './printer/selectors/getComponentsState'
+// export getMaterialForToolhead from './printer/selectors/getMaterialForToolhead'
+export getHeaterMaterialTargets from './printer/selectors/getHeaterMaterialTargets'
 
 // ./spool/selectors:
 export getCurrentLine from './spool/selectors/getCurrentLine'

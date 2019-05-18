@@ -1,13 +1,10 @@
 import {
   createMacroExpansionReducer,
   getHeaterConfigs,
-  getMaterials,
-  ComponentTypeEnum,
+  getHeaterMaterialTargets,
 } from '@tegh/core'
 
 import { macroFn as setTargetTemperature } from './setTargetTemperature'
-
-const { TOOLHEAD, BUILD_PLATFORM } = ComponentTypeEnum
 
 const meta = {
   package: '@tegh/macros-default',
@@ -33,41 +30,9 @@ const toggleHeater = createMacroExpansionReducer(meta, (
       return null
     }
 
-    const getMaterialForToolhead = (toolhead) => {
-      const materialID = toolhead.model.get('materialID')
-      const material = getMaterials(config).get(materialID)
-
-      if (material == null) {
-        throw new Error(`material ${materialID} does not exists`)
-      }
-
-      return material
-    }
-
-    switch (heater.type) {
-      case TOOLHEAD: {
-        const material = getMaterialForToolhead(heater)
-        targetTemperatures[id] = material.model.get('targetExtruderTemperature')
-        return null
-      }
-      case BUILD_PLATFORM: {
-        // set the target bed temperature to the lowest bed temperature of
-        // the materials loaded in the extruders
-        const targetBedTemperature = heaters.toList()
-          .filter(h => h.type === TOOLHEAD)
-          .map(t => getMaterialForToolhead(t).model.get('targetBedTemperature'))
-          .min()
-
-        targetTemperatures[id] = targetBedTemperature
-        return null
-      }
-      default: {
-        throw new Error(`Unsupported heater type: ${heater.type}`)
-      }
-    }
+    targetTemperatures[id] = getHeaterMaterialTargets(config).get(id)
   })
 
-  console.log({ targetTemperatures })
   return setTargetTemperature(targetTemperatures, { config })
 })
 

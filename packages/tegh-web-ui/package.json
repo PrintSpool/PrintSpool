@@ -83,6 +83,7 @@
     "react-router-dom": "^5.0.0",
     "react-spring": "^8.0.19",
     "react-test-renderer": "^16.5.2",
+    "react-vis": "^1.11.7",
     "recompose": "^0.26.0",
     "redux": "^4.0.1",
     "redux-form": "^7.4.2",

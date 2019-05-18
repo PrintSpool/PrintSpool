@@ -2,6 +2,8 @@ import React from 'react'
 import { Provider as ReduxProvider } from 'react-redux'
 import 'typeface-roboto'
 
+import '../node_modules/react-vis/dist/style.css'
+
 import {
   CssBaseline,
   MuiThemeProvider,

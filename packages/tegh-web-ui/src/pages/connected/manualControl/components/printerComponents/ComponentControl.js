@@ -10,6 +10,7 @@ import {
 import TemperatureSection from './TemperatureSection'
 import ExtruderButtons from './ExtruderButtons'
 import FanSection from './FanSection'
+import HistoryChart from './HistoryChart'
 
 export const ComponentControlFragment = gql`
   fragment ComponentControlFragment on Component {
@@ -18,8 +19,15 @@ export const ComponentControlFragment = gql`
     type
     address
     heater {
+      materialTarget
       currentTemperature
       targetTemperature
+      history {
+        id
+        createdAt
+        currentTemperature
+        targetTemperature
+      }
     }
     fan {
       enabled
@@ -38,7 +46,7 @@ const ToolheadAndBedControl = ({
         container
         spacing={24}
       >
-        <Grid item xs={component.fan ? 12 : 6}>
+        <Grid item xs={12} md={component.fan ? 12 : 4}>
           <Typography variant="subtitle1">
             {component.name}
           </Typography>
@@ -52,7 +60,16 @@ const ToolheadAndBedControl = ({
             )
           }
         </Grid>
-        <Grid item xs={6}>
+        <Grid
+          item
+          xs={12}
+          md={8}
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            flexDirection: 'column',
+          }}
+        >
           {
             component.type === 'TOOLHEAD' && (
               <ExtruderButtons
@@ -60,6 +77,15 @@ const ToolheadAndBedControl = ({
                 address={component.address}
                 form={`toolhead[${component.id}]`}
                 disabled={disabled}
+              />
+            )
+          }
+          {
+            component.heater && (
+              <HistoryChart
+                data={component.heater.history}
+                materialTarget={component.heater.materialTarget || 220}
+                isToolhead={component.type === 'TOOLHEAD'}
               />
             )
           }

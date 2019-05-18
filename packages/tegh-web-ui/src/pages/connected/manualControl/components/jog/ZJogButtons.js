@@ -43,7 +43,8 @@ const ZJogButtons = ({ printer, jog, distance }) => (
         </JogButton>
         <Field
           name="distance"
-          component={JogDistanceButtons([0.1, 1, 10])}
+          component={JogDistanceButtons}
+          distanceOptions={[0.1, 1, 10]}
         />
       </Grid>
     </CardContent>

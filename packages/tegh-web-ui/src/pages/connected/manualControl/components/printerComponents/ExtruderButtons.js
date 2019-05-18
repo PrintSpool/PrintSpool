@@ -28,15 +28,16 @@ const ExtruderButtons = ({
 }) => (
   <Grid
     container
-    spacing={24}
+    spacing={8}
   >
-    <Grid item lg={6} md={12}>
+    <Grid item sm={6}>
       <Field
         name="distance"
-        component={JogDistanceButtons([0.1, 1, 10, 50, 100])}
+        component={JogDistanceButtons}
+        distanceOptions={[0.1, 1, 10, 50, 100]}
       />
     </Grid>
-    <Grid item lg={6} md={12}>
+    <Grid item sm={6}>
       <div style={{ textAlign: 'right' }}>
         <Button
           variant="contained"
