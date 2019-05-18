@@ -26,7 +26,7 @@ const MotorsEnabled = ({
   toggleMotorsEnabled,
   printer,
 }) => (
-  <Card style={{ marginBottom: 16 }}>
+  <Card>
     <CardContent style={{ paddingBottom: 16 }}>
       <Typography variant="subtitle1">
         <div style={{ float: 'right', marginTop: -4 }}>

@@ -54,37 +54,38 @@ const enhance = compose(
 )
 
 const ManualControl = ({ printer, isReady }) => (
-  <div>
+  <div style={{ paddingLeft: 16, paddingRight: 16 }}>
     <main>
-      <Grid
-        container
-        spacing={24}
+      <Loader
+        show={!isReady}
+        message={(
+          <Typography variant="h4" style={{ color: '#fff' }}>
+            manual controls disabled while
+            {' '}
+            {printer.status.toLowerCase()}
+          </Typography>
+        )}
+        style={{
+          flex: 1,
+          margin: 0,
+        }}
+        backgroundStyle={{
+          backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        }}
+        contentStyle={{
+          display: 'flex',
+          flexWrap: 'wrap',
+        }}
       >
-        <Loader
-          show={!isReady}
-          message={(
-            <Typography variant="h4" style={{ color: '#fff' }}>
-              manual controls disabled while
-              {' '}
-              {printer.status.toLowerCase()}
-            </Typography>
-          )}
-          style={{
-            flex: 1,
-            margin: 12,
-          }}
-          backgroundStyle={{
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
-          }}
-          contentStyle={{
-            display: 'flex',
-            flexWrap: 'wrap',
-          }}
+        <Grid
+          container
+          spacing={16}
+          style={{ marginTop: 16, marginBottom: 16 }}
         >
-          <Grid item xs={12}>
+          <Grid item xs={12} lg={6}>
             <Home printer={printer} />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} lg={6}>
             <MotorsEnabled printer={printer} />
           </Grid>
           <Grid item xs={12} sm={8}>
@@ -93,7 +94,12 @@ const ManualControl = ({ printer, isReady }) => (
           <Grid item xs={12} sm={4}>
             <ZJogButtons printer={printer} form="zJog" />
           </Grid>
-        </Loader>
+        </Grid>
+      </Loader>
+      <Grid
+        container
+        spacing={16}
+      >
         {
           printer.components
             .filter(c => ['BUILD_PLATFORM', 'TOOLHEAD', 'FAN'].includes(c.type))
