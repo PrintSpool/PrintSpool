@@ -37,7 +37,7 @@ type Printer {
   status: PrinterStatusEnum!
   error: PrinterError
   enabledMacros: [String!]!
-  logEntries(level: String, sources: [String!], limit: Int): [LogEntry!]
+  # logEntries(level: String, sources: [String!], limit: Int): [LogEntry!]
   gcodeHistory(excludePolling: Boolean, limit: Int): [GCodeHistoryEntry!]
 
   movementHistory: [MovementHistoryEntry!]!
@@ -165,13 +165,13 @@ enum GCodeDirection {
   RX
 }
 
-type LogEntry {
-  id: ID!
-  createdAt: DateTime!
-  source: String!
-  level: String!
-  message: String!
-}
+# type LogEntry {
+#   id: ID!
+#   createdAt: DateTime!
+#   source: String!
+#   level: String!
+#   message: String!
+# }
 
 type PrinterError {
   """

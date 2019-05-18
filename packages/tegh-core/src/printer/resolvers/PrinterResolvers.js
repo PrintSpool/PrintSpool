@@ -84,19 +84,20 @@ const PrinterResolvers = {
       return status.substring(status.lastIndexOf('/') + 1)
     },
 
-    logEntries: (source, args) => {
-      let entries = source.log.get('logEntries')
-      if (args.level != null) {
-        entries = entries.filter(log => log.level === args.level)
-      }
-      if (args.sources != null) {
-        entries = entries.filter(log => args.sources.includes(log.source))
-      }
-      if (args.limit != null) {
-        entries = entries.slice(0, args.limit)
-      }
-      return entries.toArray()
-    },
+    // logEntries: (source, args) => {
+    //   let entries = source.log.get('logEntries')
+    //   if (args.level != null) {
+    //     entries = entries.filter(log => log.level === args.level)
+    //   }
+    //   if (args.sources != null) {
+    //     entries = entries.filter(log => args.sources.includes(log.source))
+    //   }
+    //   if (args.limit != null) {
+    //     entries = entries.slice(0, args.limit)
+    //   }
+    //   return entries.toArray()
+    // },
+
     gcodeHistory: (source, args, { store }) => {
       const state = store.getState()
       const {
