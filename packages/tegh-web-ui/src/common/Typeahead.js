@@ -41,17 +41,16 @@ const Typeahead = ({
     // const selectedSuggestion = useMemo(() => {
     //   suggestions.find(suggestion => suggestion.value === value)
     // }, [suggestions, textFieldProps.value])
-
     return (
       <TextField
         label={label}
         InputProps={{
+          ...InputProps,
           inputRef: ref,
           classes: {
             root: classes.inputRoot,
             input: classes.inputInput,
           },
-          ...InputProps,
         }}
         {...textFieldProps}
       />
@@ -87,15 +86,32 @@ const Typeahead = ({
 
   return (
     <Field name={name}>
-      { ({ form }) => (
+      { ({ field }) => (
         <Downshift
-          onChange={(selection) => {
-            form.setValues({ [name]: selection.value })
+          selectedItem={
+            suggestions.find(({ value }) => value === field.value)
+            || { value: field.value || '', label: field.value || '' }
+          }
+          onStateChange={(change) => {
+            if (
+              change.type !== Downshift.stateChangeTypes.changeInput
+              && change.selectedItem == null
+            ) {
+              return
+            }
+
+            const value = (
+              (change.selectedItem && change.selectedItem.value)
+              || change.inputValue
+            )
+
+            field.onChange(value)
+
             if (onChange != null) {
-              onChange(selection.value)
+              onChange(value)
             }
           }}
-          itemToString={item => item && item.label}
+          itemToString={item => item && item.value}
         >
           {({
             getInputProps,

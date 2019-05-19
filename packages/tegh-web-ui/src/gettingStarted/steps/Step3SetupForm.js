@@ -59,18 +59,20 @@ const Step3SetupForm = ({
   history,
   location,
 }) => {
-  const machineIsSet = machineDefinitionURL != null
-
-  const configSpring = useSpring({ x: machineIsSet ? 1 : 0 })
 
   const machineDefName = useMemo(() => {
-    if (!machineIsSet) return null
-
     const suggestion = suggestions.find((suggestion) => (
       suggestion.value === machineDefinitionURL
     ))
+
+    if (suggestion == null) return null
+
     return suggestion.label
   }, [machineDefinitionURL, suggestions])
+
+  const machineIsSet = machineDefName != null
+
+  const configSpring = useSpring({ x: machineIsSet ? 1 : 0 })
 
   const { schema = {}, form } = useMemo(() => {
     if (schemaForm == null) {

@@ -1,23 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react'
-import { Query, Mutation } from 'react-apollo'
+import React, { useState } from 'react'
+import { Query } from 'react-apollo'
 import gql from 'graphql-tag'
 
-import {
-  Button,
-  Typography,
-  Paper,
-  MenuItem,
-} from '@material-ui/core'
-
 import Loading from '../../common/Loading'
+import useMachineDefSuggestions from '../../common/hooks/useMachineDefSuggestions'
 
 import Step3SetupForm from './Step3SetupForm'
 
 import Step3SetupStyles from './Step3SetupStyles'
-
-import useSchemaValidation from '../../pages/connected/config/components/FormikSchemaForm/useSchemaValidation'
-
-const MACHINE_DEFS_DAT = 'dat://a295acba915cf57a98854f9f4ecf4be0aa03342a1b814bed591592b611f87e66/'
 
 const MACHINE_FORM_QUERY = gql`
   query($input: SchemaFormQueryInput!) {
@@ -36,35 +26,16 @@ const Step3Setup = ({
   location,
 }) => {
   const classes = Step3SetupStyles()
+  const [machineDefinitionURL, setMachineDefinitionURL] = useState()
 
-  const [machineDefs, setMachineDefs] = useState(null)
-  const [machineDefinitionURL, setMachineDefinitionURL] = useState(null)
-  const loadingMachineDefs = machineDefs == null
-
-  useEffect(() => {
-    (async () => {
-      // eslint-disable-next-line no-undef
-      const archive = new DatArchive(MACHINE_DEFS_DAT)
-      const indexFileContent = await archive.readFile('/index.json')
-      const index = JSON.parse(indexFileContent)
-
-      setMachineDefs(index)
-    })()
-  }, [])
-
-  const suggestions = useMemo(() => (
-    Object.entries(machineDefs || {})
-      .filter(([, def]) => (
-        def.visible && def.fileFormats.includes('text/x-gcode')
-      ))
-      .map(([filename, def]) => ({
-        label: def.name,
-        value: `${MACHINE_DEFS_DAT.slice(0, -1)}${filename}`,
-      }))
-  ), [machineDefs])
+  const {
+    suggestions,
+    loading: loadingMachineDefs,
+  } = useMachineDefSuggestions()
 
   const loading = loadingMachineDefs || connecting
-  if (loadingMachineDefs || connecting) {
+
+  if (loading) {
     return (
       <div className={classes.root}>
         <Loading>
@@ -81,14 +52,14 @@ const Step3Setup = ({
         input: {
           collection: 'MACHINE',
           schemaFormKey: machineDefinitionURL,
-        }
+        },
       }}
       skip={machineDefinitionURL == null}
       fetchPolicy="network-only"
     >
       {({
         loading: loadingMachineSettings,
-        error:  machineSettingsError,
+        error: machineSettingsError,
         data: settingsData,
       }) => (
         <Step3SetupForm
@@ -100,7 +71,7 @@ const Step3Setup = ({
           machineDefinitionURL={machineDefinitionURL}
           setMachineDefinitionURL={setMachineDefinitionURL}
           devices={
-            //data.devices.filter(device => device.connected)
+            // data.devices.filter(device => device.connected)
             data.devices
           }
           loadingMachineSettings={loadingMachineSettings}
