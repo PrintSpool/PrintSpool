@@ -15,12 +15,14 @@ export const PrinterConfigRecordFactory = Record({
 const PrinterConfig = ({
   id = uuid.v4(),
   modelVersion = 1,
+  isConfigured,
   components = [],
   plugins = [],
 } = {}) => (
   PrinterConfigRecordFactory({
     id,
     modelVersion,
+    isConfigured,
     components: List(components).map(ComponentConfig),
     plugins: List(plugins).map(PluginConfig),
   })
