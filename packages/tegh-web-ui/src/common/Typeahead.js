@@ -111,7 +111,7 @@ const Typeahead = ({
               onChange(value)
             }
           }}
-          itemToString={item => item && item.value}
+          itemToString={item => item && item.label}
         >
           {({
             getInputProps,
