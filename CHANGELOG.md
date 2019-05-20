@@ -3,6 +3,47 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0](https://github.com/tegh/tegh/compare/v0.7.0...v0.8.0) (2019-05-20)
+
+
+* feat[API]: Removing logEntries from the GraphQL API until a need for them arises. ([ad70acb](https://github.com/tegh/tegh/commit/ad70acb))
+* feat[API]: New Heater.history API co-locates temperature history within heater components ([45406bb](https://github.com/tegh/tegh/commit/45406bb))
+
+
+### Bug Fixes
+
+* Config form was not rendering a make and model drop down. ([fd5f3fd](https://github.com/tegh/tegh/commit/fd5f3fd))
+* Load isConfigured flag from configs on host startup. ([d9b5b6a](https://github.com/tegh/tegh/commit/d9b5b6a))
+* Regression: Job Card action wasn't opening on click ([cb678e7](https://github.com/tegh/tegh/commit/cb678e7))
+* Terminal history no longer gets filled up and cleared by polling GCodes not visible to the user ([2b0a52c](https://github.com/tegh/tegh/commit/2b0a52c))
+* Wait for the machine definition suggestions to load before displaying printer form ([4aac393](https://github.com/tegh/tegh/commit/4aac393))
+
+
+### Features
+
+* Add a GCode Terminal to the Manage UI ([f2ac418](https://github.com/tegh/tegh/commit/f2ac418))
+* Add a GraphQL Playground page to the Manage UI for developers ([cc4678f](https://github.com/tegh/tegh/commit/cc4678f))
+* Add hasPendingUpdates Boolean! to GraphQL to introspect the update process. ([bd0d78c](https://github.com/tegh/tegh/commit/bd0d78c))
+* Add host macros to the GCode Terminal UI and to GCodeHistoryEntry in the API ([4ba9d91](https://github.com/tegh/tegh/commit/4ba9d91))
+* Add Tegh version to config UI and GraphQL API ([f06edc8](https://github.com/tegh/tegh/commit/f06edc8))
+* Automic configs - configuration changes are now atomically saved to disk to prevent corruption ([66efe22](https://github.com/tegh/tegh/commit/66efe22))
+* Integrated Print Preview in the Job Queue UI ([142b036](https://github.com/tegh/tegh/commit/142b036))
+* New GCode History API ([857dd67](https://github.com/tegh/tegh/commit/857dd67))
+* New mobile navigation accessible for smaller screens ([bcdbb9e](https://github.com/tegh/tegh/commit/bcdbb9e))
+* Prevent modifications to configs while printing ([83ac819](https://github.com/tegh/tegh/commit/83ac819))
+* Replace spoolCommands to spoolGCodes ([a501808](https://github.com/tegh/tegh/commit/a501808))
+* Top navigation redesign. Streamlined all buttons into one consistent navigation bar. ([2a7fa98](https://github.com/tegh/tegh/commit/2a7fa98))
+
+
+### BREAKING CHANGES
+
+* Printer.logEntries has been removed.
+* Printer.temperatureHistory has been removed in favour of Heater.history
+
+
+
+
+
 # [0.7.0](https://github.com/tegh/tegh/compare/v0.6.0...v0.7.0) (2019-05-07)
 
 
