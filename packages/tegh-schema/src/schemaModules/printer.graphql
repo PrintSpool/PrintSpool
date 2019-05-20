@@ -154,6 +154,7 @@ type GCodeHistoryEntry {
   id: ID!
   createdAt: DateTime!
   direction: GCodeDirection!
+  isHostMacro: Boolean!
   message: String!
 }
 

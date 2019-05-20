@@ -33,7 +33,7 @@ export const initialState = Record({
 const despoolToSerialReducer = (state = initialState, action) => {
   switch (action.type) {
     case DESPOOL_TASK: {
-      const { task, isHostMacro } = action.payload
+      const { task, isHostMacro, createdAt } = action.payload
 
       const { isPollingRequest } = task
 
@@ -59,6 +59,7 @@ const despoolToSerialReducer = (state = initialState, action) => {
         nextState,
         Cmd.action(serialSend({
           ...parseGCode(currentLine),
+          createdAt,
           lineNumber,
           isPollingRequest,
         })),

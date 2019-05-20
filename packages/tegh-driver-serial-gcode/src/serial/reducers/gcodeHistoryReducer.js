@@ -1,6 +1,9 @@
 import { Record, List } from 'immutable'
 
-import { SERIAL_SEND } from '../actions/serialSend'
+import {
+  DESPOOL_TASK,
+} from '@tegh/core'
+
 import { SERIAL_RECEIVE } from '../actions/serialReceive'
 
 export const initialState = Record({
@@ -29,11 +32,15 @@ const addEntry = ({
 }) => {
   const { maxSize, nextID, isPollingRequest } = state
 
-  const { createdAt } = action.payload
+  const {
+    createdAt,
+    isHostMacro = false,
+  } = action.payload
 
   const entry = {
     id: nextID,
-    createdAt: new Date(createdAt).toUTCString(),
+    createdAt,
+    isHostMacro,
     direction,
     message,
     isPollingRequest,
@@ -53,8 +60,11 @@ const addEntry = ({
 
 const gcodeHistoryReducer = (state = initialState, action) => {
   switch (action.type) {
-    case SERIAL_SEND: {
-      const { isPollingRequest, gcode } = action.payload
+    case DESPOOL_TASK: {
+      const { macro, args, task } = action.payload
+      const { isPollingRequest } = task
+
+      const argsString = JSON.stringify(args, null, 1).replace(/\n +/g, ' ')
 
       const nextState = state.merge({
         isPollingRequest,
@@ -64,7 +74,7 @@ const gcodeHistoryReducer = (state = initialState, action) => {
         state: nextState,
         action,
         direction: 'TX',
-        message: gcode,
+        message: `${macro} ${argsString}`,
       })
     }
     case SERIAL_RECEIVE: {

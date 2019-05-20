@@ -24,6 +24,31 @@ const useStyles = makeStyles(theme => ({
   createdAt: {
     color: '#666',
   },
+  rx: {
+    color: theme.palette.primary.dark,
+    opacity: 0.6,
+  },
+  rxMessage: {
+    color: theme.palette.primary.dark,
+    filter: 'brightness(20%)',
+    opacity: 0.9,
+  },
+  tx: {
+    color: '#DD25C4',
+    opacity: 0.6,
+  },
+  txMessage: {
+    color: '#DD25C4',
+    filter: 'brightness(80%)',
+  },
+  macro: {
+    color: '#6704D8',
+    opacity: 0.6,
+  },
+  macroMessage: {
+    color: '#6704D8',
+    filter: 'brightness(60%)',
+  },
 }), { withTheme: true })
 
 export default useStyles

@@ -25,6 +25,7 @@ const GCODE_HISTORY_SUBSCRIPTION = gql`
             id
             createdAt
             direction
+            isHostMacro
             message
           }
         }
@@ -98,16 +99,31 @@ const Terminal = ({
               )
             }
 
-            return [...data.printers[0].gcodeHistory].reverse().map(entry => (
-              // eslint-disable-next-line react/no-array-index-key
-              <div key={entry.id} className={classes.terminalEntry}>
-                <span className={classes.createdAt}>
-                  {entry.createdAt}
-                </span>
-                {` ${entry.direction}: `}
-                {entry.message}
-              </div>
-            ))
+            return [...data.printers[0].gcodeHistory].reverse().map((entry) => {
+              const macroOrTX = entry.isHostMacro ? 'macro' : 'tx'
+              const txRXOrMacro = entry.direction === 'RX' ? 'rx' : macroOrTX
+
+              return (
+                // eslint-disable-next-line react/no-array-index-key
+                <div key={entry.id} className={classes.terminalEntry}>
+                  {
+                    /*
+                    <span className={classes.createdAt}>
+                      {entry.createdAt}
+                    </span>
+                    */
+                  }
+                  <span
+                    className={classes[txRXOrMacro]}
+                  >
+                    {` ${entry.isHostMacro ? 'MO' : entry.direction} `}
+                  </span>
+                  <span className={classes[`${txRXOrMacro}Message`]}>
+                    {entry.message}
+                  </span>
+                </div>
+              )
+            })
           }}
         </LiveSubscription>
       </Typography>
