@@ -2,6 +2,7 @@ const transformComponentSchema = ({
   schema,
   materials,
   devices,
+  machineDefSuggestions,
 }) => {
   let nextSchema = schema
   if (schema.properties.serialPortID != null) {
@@ -31,6 +32,18 @@ const transformComponentSchema = ({
       ...nextSchema.properties.materialID,
       enum: enumValues,
       enumNames,
+    }
+
+    nextSchema = {
+      ...nextSchema,
+      properties,
+    }
+  }
+  if (schema.properties.machineDefinitionURL != null) {
+    const properties = { ...nextSchema.properties }
+    properties.machineDefinitionURL = {
+      ...nextSchema.properties.machineDefinitionURL,
+      suggestions: machineDefSuggestions,
     }
 
     nextSchema = {

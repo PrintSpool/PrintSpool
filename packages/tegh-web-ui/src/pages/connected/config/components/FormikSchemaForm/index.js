@@ -10,8 +10,6 @@ import {
 } from '@material-ui/core'
 
 import Typeahead from '../../../../../common/Typeahead'
-import useMachineDefSuggestions from '../../../../../common/hooks/useMachineDefSuggestions'
-
 
 const replaceNullValueWith = (field, nullReplacement) => ({
   ...field,
@@ -75,11 +73,6 @@ const FormikSchemaField = ({
     margin: 'normal',
   }
 
-  const {
-    suggestions,
-    // loading: loadingMachineDefs,
-  } = name === 'machineDefinitionURL' ? useMachineDefSuggestions() : {}
-
   switch (property.type) {
     case 'number':
     case 'integer':
@@ -89,7 +82,7 @@ const FormikSchemaField = ({
       if (name === 'machineDefinitionURL') {
         return (
           <Typeahead
-            suggestions={suggestions}
+            suggestions={property.suggestions}
             name={name}
             label={property.title}
           />

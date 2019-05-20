@@ -15,6 +15,7 @@ import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from './components/UpdateDialog/
 import withLiveData from '../shared/higherOrderComponents/withLiveData'
 
 import transformComponentSchema from './printerComponents/transformComponentSchema'
+import useMachineDefSuggestions from '../../../common/hooks/useMachineDefSuggestions'
 
 const DEVICES_SUBSCRIPTION = gql`
   subscription DevicesSubscription {
@@ -44,6 +45,22 @@ const enhance = compose(
     subscription: DEVICES_SUBSCRIPTION,
   })),
   withLiveData,
+  Component => (props) => {
+    const {
+      suggestions: machineDefSuggestions,
+      loading: loadingMachineDefs,
+    } = useMachineDefSuggestions()
+
+    const nextProps = {
+      ...props,
+      machineDefSuggestions,
+      loadingMachineDefs,
+    }
+
+    return (
+      <Component {...nextProps} />
+    )
+  }
 )
 
 const ConfigPage = ({
@@ -54,10 +71,12 @@ const ConfigPage = ({
   devices,
   printers,
   loading,
+  machineDefSuggestions,
+  loadingMachineDefs,
 }) => (
   <main>
     {
-      printerDialogOpen && !loading && (
+      printerDialogOpen && !loading && !loadingMachineDefs && (
         <UpdateDialog
           title="3D Printer"
           collection="MACHINE"
@@ -69,6 +88,7 @@ const ConfigPage = ({
             schema,
             materials: [],
             devices,
+            machineDefSuggestions,
           })}
           query={gql`
             query($printerID: ID!) {
