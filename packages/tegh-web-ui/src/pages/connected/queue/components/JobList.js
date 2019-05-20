@@ -1,24 +1,22 @@
-import React from 'react'
+import React, { useState, useContext } from 'react'
 import { compose } from 'recompose'
 
 import {
   Typography,
-  Modal,
 } from '@material-ui/core'
 
-import FullscreenProgress from '../../shared/components/FullscreenProgress'
-
-import addJobHandler from '../mutations/addJobHandler'
 import spoolNextPrintHandler from '../mutations/spoolNextPrintHandler'
 import cancelTaskHandler from '../mutations/cancelTaskHandler'
 import deleteJobHandler from '../mutations/deleteJobHandler'
+
+import PrintDialog from '../../../../authenticated/printDialog/PrintDialog'
+import { UserDataContext } from '../../../../UserDataProvider'
 
 import FloatingAddJobButton from './FloatingAddJobButton'
 import FloatingPrintNextButton from './FloatingPrintNextButton'
 import JobCard from './JobCard'
 
 const enhance = compose(
-  addJobHandler,
   spoolNextPrintHandler,
   cancelTaskHandler,
   deleteJobHandler,
@@ -52,10 +50,10 @@ const JobSubList = ({
 }
 
 const JobList = ({
+  history,
   jobs,
+  hostID,
   printers,
-  isUploadingJob,
-  addJob,
   spoolNextPrint,
   cancelTask,
   deleteJob,
@@ -65,6 +63,11 @@ const JobList = ({
     statuses.includes('READY') === false
     || jobs.every(job => job.files.every(jobFile => jobFile.printsQueued === 0))
   )
+
+  const [printDialogState, setPrintDialogState] = useState()
+  const { hosts } = useContext(UserDataContext)
+
+  const host = hosts[hostID]
 
   // TODO: recreate job status with a more limited scope
   const categories = [
@@ -84,14 +87,12 @@ const JobList = ({
 
   return (
     <div>
-      <Modal
-        aria-labelledby="uploading-print-job-modal"
-        open={isUploadingJob}
-      >
-        <FullscreenProgress>
-          <span id="uploading-print-job-modal">Uploading Job...</span>
-        </FullscreenProgress>
-      </Modal>
+      <PrintDialog
+        state={printDialogState}
+        history={history}
+        open={printDialogState != null}
+        onCancel={() => setPrintDialogState(null)}
+      />
       {
         jobs.length === 0
         && (
@@ -123,7 +124,9 @@ const JobList = ({
         ))
       }
 
-      <FloatingAddJobButton onChange={addJob} />
+      <FloatingAddJobButton
+        onChange={files => setPrintDialogState({ files, host })}
+      />
       <FloatingPrintNextButton
         disabled={disablePrintNextButton}
         onClick={spoolNextPrint}

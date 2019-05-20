@@ -1,6 +1,5 @@
 import React from 'react'
 import { compose, withProps } from 'recompose'
-import { connect } from 'react-redux'
 import gql from 'graphql-tag'
 
 import JobList from './components/JobList'
@@ -50,34 +49,30 @@ const JOBS_SUBSCRIPTION = gql`
   }
 `
 
+
 const enhance = compose(
   withProps(() => ({
     subscription: JOBS_SUBSCRIPTION,
-  })),
-  connect(state => ({
-    isUploadingJob: state.mutations.getIn(['createJob', 'isUploading'], false),
   })),
   withLiveData,
 )
 
 const Index = ({
   printers,
-  isUploadingJob,
+  history,
+  match,
   jobQueue: {
     jobs,
     name,
   },
 }) => (
-  <div>
-    <main>
-      <JobList
-        name={name}
-        jobs={jobs}
-        printers={printers}
-        isUploadingJob={isUploadingJob}
-      />
-    </main>
-  </div>
+  <JobList
+    hostID={match.params.hostID}
+    history={history}
+    name={name}
+    jobs={jobs}
+    printers={printers}
+  />
 )
 
 export default enhance(Index)
