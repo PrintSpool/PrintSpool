@@ -1,8 +1,6 @@
 import React, { useContext } from 'react'
-import { ConnectedRouter } from '@d1plo1d/connected-react-router'
 import { Route, Switch } from 'react-router'
-
-import { history } from './createTeghReduxStore'
+import { BrowserRouter } from 'react-router-dom'
 
 import { UserDataContext } from './UserDataProvider'
 
@@ -28,13 +26,13 @@ const Routes = ({
   const { isAuthorized } = useContext(UserDataContext)
 
   return (
-    <ConnectedRouter history={history}>
+    <BrowserRouter>
       <Switch>
         { !isAuthorized && (
           <Route
             exact
             path={isBeaker ? '/' : ['/', '/get-started/:step?']}
-            render={({ match }) => (
+            render={({ match, history }) => (
               <React.Fragment>
                 <LandingPage />
                 <BrowserUpgradeNotice
@@ -111,7 +109,7 @@ const Routes = ({
           />
         )}
       </Switch>
-    </ConnectedRouter>
+    </BrowserRouter>
   )
 }
 
