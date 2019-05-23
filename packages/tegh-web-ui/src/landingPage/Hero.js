@@ -13,7 +13,7 @@ import teghLogoSVG from './images/teghLogo.svg'
 
 import HeroStyles from './HeroStyles'
 
-const Hero = () => {
+const Hero = ({ t }) => {
   const classes = HeroStyles()
 
   return (
@@ -34,14 +34,14 @@ const Hero = () => {
                   variant="h4"
                   className={classes.taglinePart1}
                 >
-                  3D Printing. Simplified.
+                  {t('hero.title')}
                 </Typography>
                 <Hidden smDown>
                   <Typography
                     variant="h4"
                     className={classes.taglinePart2}
                   >
-                    Tegh is an all new streamlined 3D printing experience
+                    {t('hero.subtitle')}
                   </Typography>
                 </Hidden>
                 <Button
@@ -51,7 +51,7 @@ const Hero = () => {
                   className={classes.callToActionButton}
                   component={props => <Link to="/get-started/" {...props} />}
                 >
-                  Get Started
+                  {t('hero.callToActionButton')}
                 </Button>
               </div>
             </Grid>

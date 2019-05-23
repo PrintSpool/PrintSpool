@@ -1,0 +1,64 @@
+import React from 'react'
+import { Link } from 'react-router-dom'
+import {
+  Button,
+  Grid,
+  Typography,
+  Hidden,
+  Link as MUILink,
+} from '@material-ui/core'
+
+import teghLogoSVG from './images/teghLogo.svg'
+
+import FooterStyles from './FooterStyles'
+
+const Footer = ({ t }) => {
+  const classes = FooterStyles()
+
+  return (
+    <Typography
+      component="div"
+      variant="body2"
+      className={classes.root}
+    >
+      <div className={classes.gradient}>
+        <img
+          alt="Tegh"
+          src={teghLogoSVG}
+          className={classes.logo}
+        />
+        <div className={classes.logoAdjacent}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            className={classes.callToActionButton}
+            component={props => <Link to="/get-started/" {...props} />}
+          >
+            {t('hero.callToActionButton')}
+          </Button>
+        </div>
+      </div>
+      <div className={classes.navigation}>
+        <div className={classes.navigationRight}>
+          <Typography
+            variant="body1"
+            paragraph
+            className={classes.connectTitle}
+          >
+            {t('footer.connectTitle')}
+            {' '}
+            <MUILink
+              className={classes.freenode}
+              href="https://webchat.freenode.net/?channels=%23tegh&uio=d4"
+            >
+              freenode #tegh
+            </MUILink>
+          </Typography>
+        </div>
+      </div>
+    </Typography>
+  )
+}
+
+export default Footer

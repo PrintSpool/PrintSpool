@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useCallback } from 'react'
+import ReactMarkdown from 'react-markdown'
 
 import {
   Grid,
@@ -6,85 +7,127 @@ import {
   Typography,
 } from '@material-ui/core'
 
+import { useTranslation, Trans } from 'react-i18next'
+
 import teghMockupSVG from './images/teghMockup.png'
 
 import ScrollSpyTopNavigation from '../topNavigation/ScrollSpyTopNavigation'
 import Hero from './Hero'
-// import InstallBeaker from './InstallBeaker'
-// import GreenHeader from './GreenHeader'
+import GreenHeader from './GreenHeader'
 // import OrangeHeader from './OrangeHeader'
+import Footer from './Footer'
 
-const LandingPage = () => (
-  <div>
-    <ScrollSpyTopNavigation />
-    <Hero />
+const LandingPage = () => {
+  const { t } = useTranslation('LandingPage')
 
-    <div
-      style={{
-        marginBottom: 50,
-      }}
-    />
+  const heading = useCallback(({ children }) => (
+    <Typography variant="h6" paragraph>
+      {children}
+    </Typography>
+  ))
 
-    <Grid
-      container
-      style={{
-        paddingLeft: 50,
-        paddingRight: 50,
-      }}
-    >
-      <Grid item xs={12} md={6}>
-        <Typography variant="h4" paragraph>
-          Worry Less.
-          {' '}
-          <span style={{ color: '#FF7900' }}>
-            Create
-          </span>
-          {' '}
-          More.
-        </Typography>
+  const largeParagraph = useCallback(({ children }) => (
+    <Typography variant="body1" paragraph>
+      {children}
+    </Typography>
+  ))
 
-        <Typography variant="body1" paragraph>
-          Tegh is a printing software designed from the ground up to streamline your 3D printing experience. Easily queue up prints without managing complicated file systems.
-        </Typography>
+  const paragraph = useCallback(({ children }) => (
+    <Typography variant="body2" paragraph>
+      {children}
+    </Typography>
+  ))
 
-        <Typography variant="body1" paragraph>
-          To manage prints remotely Tegh is built on top of encrypted, distributed web technologies so you can
-          use your 3D printer from anywhere in the world
-          just as easily as from your home!
-        </Typography>
-      </Grid>
+  const features = [
+    'printQueueing',
+    'secure',
+    'multiPrinter',
+    'automatic',
+    'easySetup',
+    'openSource',
+  ]
 
-      <Hidden smDown>
-        <Grid item md={6}>
-          <img
-            alt="Screenshot of Tegh"
-            src={teghMockupSVG}
-            style={{
-              width: '60%',
-              marginLeft: 'auto',
-              marginRight: 'auto',
-              display: 'block',
+  return (
+    <div>
+      <ScrollSpyTopNavigation />
+      <Hero t={t} />
+
+      <div
+        style={{
+          marginBottom: 50,
+        }}
+      />
+
+      <Grid
+        container
+        spacing={32}
+        style={{
+          marginLeft: -32,
+          paddingLeft: 32 + 32,
+          paddingRight: 32,
+        }}
+      >
+        <Grid item xs={12} md={6}>
+          <Typography variant="h4" paragraph>
+            <Trans i18nKey="introduction.title" t={t}>
+              1
+              <span style={{ color: '#FF7900' }}>
+                2
+              </span>
+              3
+            </Trans>
+          </Typography>
+
+          <ReactMarkdown
+            source={t('introduction.content')}
+            renderers={{
+              paragraph: largeParagraph,
             }}
           />
         </Grid>
-      </Hidden>
 
-      {/*
-      <Grid item xs={12}>
-        <GreenHeader title="Features" />
+        <Hidden smDown>
+          <Grid item md={6}>
+            <img
+              alt="Screenshot of Tegh"
+              src={teghMockupSVG}
+              style={{
+                width: '60%',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                display: 'block',
+              }}
+            />
+          </Grid>
+        </Hidden>
+
+        <Grid item xs={12}>
+          <GreenHeader title={t('features.title')} />
+        </Grid>
+
+        {features.map(featureKey => (
+          <Grid item key={featureKey} xs={6} lg={4}>
+            <ReactMarkdown
+              source={t(`features.${featureKey}`)}
+              renderers={{
+                heading,
+                paragraph,
+              }}
+            />
+          </Grid>
+        ))}
+
+        {/*
+        <Grid item xs={12}>
+          <OrangeHeader title="How it Works" />
+        </Grid>
+        */}
       </Grid>
 
-      <Grid item xs={12}>
-        <OrangeHeader title="How it Works" />
-      </Grid>
+      <Footer t={t} />
 
-      <Grid item xs={12}>
-        <InstallBeaker />
-      </Grid>
-      */}
-    </Grid>
-
-  </div>
-)
+    </div>
+  )
+}
 
 export default LandingPage

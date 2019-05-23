@@ -15,6 +15,7 @@ import UserDataProvider from './UserDataProvider'
 import Routes from './Routes'
 
 import theme from './theme'
+import './i18n'
 
 const App = () => (
   <CssBaseline>

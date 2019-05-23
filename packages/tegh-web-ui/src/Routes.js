@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { Route, Switch } from 'react-router'
-import { BrowserRouter } from 'react-router-dom'
+import { HashRouter } from 'react-router-dom'
 
 import { UserDataContext } from './UserDataProvider'
 
@@ -26,7 +26,7 @@ const Routes = ({
   const { isAuthorized } = useContext(UserDataContext)
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Switch>
         { !isAuthorized && (
           <Route
@@ -109,7 +109,7 @@ const Routes = ({
           />
         )}
       </Switch>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
 

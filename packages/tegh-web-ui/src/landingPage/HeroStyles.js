@@ -46,7 +46,7 @@ const useStyles = makeStyles(theme => ({
       marginTop: '5vh',
     },
     [theme.breakpoints.up('sm')]: {
-      marginRight: 100,
+      marginRight: 32,
       marginTop: 30,
     },
     [theme.breakpoints.only('sm')]: {
