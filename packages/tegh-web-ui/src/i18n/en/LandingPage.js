@@ -9,7 +9,7 @@ const LandingPageEN = {
   introduction: {
     title: 'Worry Less. <1>Create</1> More.',
     content: deline`
-      Tegh is a printing software designed from the ground up to streamline your 3D printing experience. Easily queue up prints without managing complicated file systems.
+      Tegh is free, open source software designed from the ground up to streamline your 3D printing experience.
     `,
   },
   features: {
@@ -32,7 +32,7 @@ const LandingPageEN = {
     automatic: deline`
       ## Automatic\n
 
-      Sit back and enjoy a coffee while Tegh uses your [Autodrop auto-scraper](https://www.autodrop3d.com/) to fully automatically print and eject piles of parts.
+      Sit back and relax while Tegh uses your [Autodrop auto-scraper](https://www.autodrop3d.com/) to fully automatically print and eject piles of parts.
     `,
     multiPrinter: deline`
       ## Multi-Printer\n
@@ -44,6 +44,25 @@ const LandingPageEN = {
 
       Tegh is and will always be free! Tegh is open source software under the Affero General Public License (AGPL).
     `,
+  },
+  contribute: {
+    title: 'Help Tegh Grow',
+    content: deline`
+    There are many ways to help Tegh!
+
+    #### Translations
+
+    #### Bug Reports
+
+    #### Pull Requests
+
+    #### Donations
+    `,
+    kofiButton: 'Support Me on Ko-fi',
+    cryptoDonationButton: 'Donate {{currency}}',
+    cryptoAddressCopied: 'We copied Tegh\'s {{currency}} address to your clipboard. Thanks for supporting Tegh!',
+    cryptoDonationDialogTitle: 'Thank you for supporting Tegh!',
+    cryptoDonationDialogContent: 'You can use the {{currency}} address below to donate to Tegh\'s development',
   },
   footer: {
     connectTitle: 'Connect with us at'

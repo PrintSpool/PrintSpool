@@ -10,6 +10,7 @@ import {
 import {
   ThemeProvider,
 } from '@material-ui/styles'
+import { SnackbarProvider } from 'notistack'
 
 import UserDataProvider from './UserDataProvider'
 import Routes from './Routes'
@@ -21,12 +22,14 @@ const App = () => (
   <CssBaseline>
     <MuiThemeProvider theme={theme}>
       <ThemeProvider theme={theme}>
-        <UserDataProvider filePath="/tegh-user.json">
-          <Routes />
-          {
-            // <ReduxSnackbar />
-          }
-        </UserDataProvider>
+        <SnackbarProvider maxSnack={3}>
+          <UserDataProvider filePath="/tegh-user.json">
+            <Routes />
+            {
+              // <ReduxSnackbar />
+            }
+          </UserDataProvider>
+        </SnackbarProvider>
       </ThemeProvider>
     </MuiThemeProvider>
   </CssBaseline>

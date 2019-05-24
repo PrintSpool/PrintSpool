@@ -2,9 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import {
   Button,
-  Grid,
   Typography,
-  Hidden,
   Link as MUILink,
 } from '@material-ui/core'
 
