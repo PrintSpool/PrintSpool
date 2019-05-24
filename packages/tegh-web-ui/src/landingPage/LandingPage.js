@@ -39,7 +39,7 @@ const currencies = {
   ethereum: {
     icon: ethereumPNG,
     shortName: 'Ethereum',
-    longName: 'Ethereum & ERC20 Token',
+    longName: 'Ethereum/ERC20',
     address: '0xcfa4ebcac84e806199864b70dcc6a3a463ab62aa',
   },
 }
