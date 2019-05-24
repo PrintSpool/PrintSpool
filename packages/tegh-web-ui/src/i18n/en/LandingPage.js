@@ -42,7 +42,7 @@ const LandingPageEN = {
     openSource: deline`
       ## 100% Open Source\n
 
-      Tegh is and will always be free! Tegh is open source software under the Affero General Public License (AGPL).
+      Tegh is and will always be free. Tegh is open source software under the Affero General Public License (AGPL).
     `,
   },
   contribute: {
