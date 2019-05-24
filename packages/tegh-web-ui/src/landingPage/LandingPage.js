@@ -29,39 +29,38 @@ import Footer from './Footer'
 
 import LandingPageStyles from './LandingPageStyles'
 
-const cryptoIcons = {
-  nano: nanoMarkSVG,
-  ethereum: ethereumPNG,
+const currencies = {
+  nano: {
+    icon: nanoMarkSVG,
+    shortName: 'Nano',
+    longName: 'Nano',
+    address: 'nano_1cpesa6ushct9zieue8uo981cbz8rbfbjb7h9dw1a3nmibwysyzpipjhfufa',
+  },
+  ethereum: {
+    icon: ethereumPNG,
+    shortName: 'Ethereum',
+    longName: 'Ethereum & ERC20 Token',
+    address: '0xcfa4ebcac84e806199864b70dcc6a3a463ab62aa',
+  },
 }
 
-const wallets = {
-  nano: 'nano_1cpesa6ushct9zieue8uo981cbz8rbfbjb7h9dw1a3nmibwysyzpipjhfufa',
-  ethereum: '0xcfa4ebcac84e806199864b70dcc6a3a463ab62aa',
-}
+const NO_CURRENCY = {}
 
 const LandingPage = () => {
   const classes = LandingPageStyles()
   const { t } = useTranslation('LandingPage')
   const { enqueueSnackbar } = useSnackbar()
 
-  const [currency, setCryptoCurrency] = useState()
-  const cryptoDialogOpen = currency != null
+  const [currency, setCryptoCurrency] = useState(NO_CURRENCY)
+  const cryptoDialogOpen = currency.address != null
 
-  const copyNanoDonationURL = useCallback(async () => {
-    setCryptoCurrency('Nano')
-    await navigator.clipboard.writeText(NANO_WALLET)
+  const onCryptoDonationClick = nextCurrency => async () => {
+    setCryptoCurrency(nextCurrency)
+    await navigator.clipboard.writeText(nextCurrency.address)
     enqueueSnackbar(
-      t('contribute.cryptoAddressCopied', { currency: 'Nano' }),
+      t('contribute.cryptoAddressCopied', nextCurrency),
     )
-  })
-
-  const copyEthDonationURL = useCallback(async () => {
-    setCryptoCurrency('Ethereum')
-    await navigator.clipboard.writeText(ETH_WALLET)
-    enqueueSnackbar(
-      t('contribute.cryptoAddressCopied', { currency: 'Ethereum' }),
-    )
-  })
+  }
 
   const heading = useCallback(({ children }) => (
     <Typography variant="h6" paragraph>
@@ -186,51 +185,44 @@ const LandingPage = () => {
             />
             {t('contribute.kofiButton')}
           </Button>
-          <Button
-            className={classes.donateButton}
-            onClick={copyNanoDonationURL}
-          >
-            <img
-              alt=""
-              src={cryptoIcons.nano}
-              className={classes.donationButtonLogo}
-            />
-            {t('contribute.cryptoDonationButton', { currency: 'Nano' })}
-          </Button>
-          <Button
-            className={classes.donateButton}
-            onClick={copyEthDonationURL}
-          >
-            <img
-              alt=""
-              src={cryptoIcons.ethereum}
-              className={classes.donationButtonLogo}
-            />
-            {t('contribute.cryptoDonationButton', { currency: 'Ethereum' })}
-          </Button>
+
+          {Object.entries(currencies).map(([key, buttonCurrency]) => (
+            <Button
+              key={key}
+              className={classes.donateButton}
+              onClick={onCryptoDonationClick(buttonCurrency)}
+            >
+              <img
+                alt=""
+                src={buttonCurrency.icon}
+                className={classes.donationButtonLogo}
+              />
+              {t('contribute.cryptoDonationButton', buttonCurrency)}
+            </Button>
+          ))}
 
           <Dialog
             open={cryptoDialogOpen}
-            onClose={() => setCryptoCurrency(null)}
-            aria-labelledby="nano-modal-title"
-            aria-describedby="nano-modal-description"
+            onClose={() => setCryptoCurrency(NO_CURRENCY)}
+            aria-labelledby="crypto-modal-title"
+            aria-describedby="crypto-modal-description"
             fullWidth
             maxWidth="lg"
           >
-            <DialogTitle id="nano-modal-title">
-              {t('contribute.cryptoDonationDialogTitle', { currency })}
+            <DialogTitle id="crypto-modal-title">
+              {t('contribute.cryptoDonationDialogTitle', currency)}
             </DialogTitle>
-            <DialogContent id="nano-modal-description">
+            <DialogContent id="crypto-modal-description">
               <Typography variant="body1" paragraph>
-                {t('contribute.cryptoDonationDialogContent', { currency })}
+                {t('contribute.cryptoDonationDialogContent', currency)}
               </Typography>
               <Typography variant="body1" paragraph>
                 <img
                   alt=""
-                  src={cryptoIcons[(currency || '').toLowerCase()]}
+                  src={currency.icon}
                   className={classes.donationButtonLogo}
                 />
-                {wallets[(currency || '').toLowerCase()]}
+                {currency.address}
               </Typography>
             </DialogContent>
           </Dialog>

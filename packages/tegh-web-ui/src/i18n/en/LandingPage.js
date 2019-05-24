@@ -59,10 +59,10 @@ const LandingPageEN = {
     #### Donations
     `,
     kofiButton: 'Support Me on Ko-fi',
-    cryptoDonationButton: 'Donate {{currency}}',
-    cryptoAddressCopied: 'We copied Tegh\'s {{currency}} address to your clipboard. Thanks for supporting Tegh!',
+    cryptoDonationButton: 'Donate {{shortName}}',
+    cryptoAddressCopied: 'We copied Tegh\'s {{shortName}} address to your clipboard. Thanks for supporting Tegh!',
     cryptoDonationDialogTitle: 'Thank you for supporting Tegh!',
-    cryptoDonationDialogContent: 'You can use the {{currency}} address below to donate to Tegh\'s development',
+    cryptoDonationDialogContent: 'You can use the {{longName}} address below to donate to Tegh\'s development',
   },
   footer: {
     connectTitle: 'Connect with us at'
