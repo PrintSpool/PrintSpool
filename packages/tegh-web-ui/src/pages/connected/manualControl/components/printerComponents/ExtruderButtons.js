@@ -17,8 +17,12 @@ const ExtruderButtons = ({
   address,
   jog,
   disabled,
+  extrudeColor = 'primary',
+  showRetract = true,
+  showExtrude = true,
 }) => {
-  const [distance, onChange] = useState()
+  const distanceOptions = [0.1, 1, 10, 50, 100]
+  const [distance, onChange] = useState(distanceOptions[2])
 
   return (
     <Grid
@@ -27,7 +31,7 @@ const ExtruderButtons = ({
     >
       <Grid item sm={6}>
         <JogDistanceButtons
-          distanceOptions={[0.1, 1, 10, 50, 100]}
+          distanceOptions={distanceOptions}
           input={{
             value: distance,
             onChange,
@@ -36,22 +40,28 @@ const ExtruderButtons = ({
       </Grid>
       <Grid item sm={6}>
         <div style={{ textAlign: 'right' }}>
-          <Button
-            variant="contained"
-            disabled={disabled}
-            onClick={jog(printer.id, address, '-', distance)}
-          >
-            Retract
-          </Button>
-          <div style={{ display: 'inline-block', width: '16px' }} />
-          <Button
-            variant="contained"
-            color="primary"
-            disabled={disabled}
-            onClick={jog(printer.id, address, '+', distance)}
-          >
-            Extrude
-          </Button>
+          { showRetract && (
+            <Button
+              variant="contained"
+              disabled={disabled}
+              onClick={jog(printer.id, address, '-', distance)}
+            >
+              Retract
+            </Button>
+          )}
+          { showExtrude && showRetract && (
+            <div style={{ display: 'inline-block', width: '16px' }} />
+          )}
+          { showExtrude && (
+            <Button
+              variant="contained"
+              color={extrudeColor}
+              disabled={disabled}
+              onClick={jog(printer.id, address, '+', distance)}
+            >
+              Extrude
+            </Button>
+          )}
         </div>
       </Grid>
     </Grid>

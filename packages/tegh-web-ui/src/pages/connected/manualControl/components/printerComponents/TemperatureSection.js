@@ -1,66 +1,92 @@
-import React from 'react'
-import { compose, withProps } from 'recompose'
+import React, { useState, useCallback } from 'react'
+
 import {
   Typography,
   Switch,
   FormControlLabel,
+  Button,
 } from '@material-ui/core'
 
-import withSpoolMacro from '../../../shared/higherOrderComponents/withSpoolMacro'
+import useSpoolGCodes from '../../../../../common/useSpoolGCodes'
 
-const enhance = compose(
-  withSpoolMacro,
-  withProps(({ printer, component, spoolMacro }) => ({
-    isHeating: (component.heater.targetTemperature || 0) > 0,
-    toggleHeater: (e, val) => {
-      spoolMacro({
-        printerID: printer.id,
-        macro: 'toggleHeater',
-        args: { [component.id]: val },
-      })
-    },
-  })),
-)
+import FilamentSwapDialog from './FilamentSwapDialog'
 
-const targetText = (targetTemperature) => {
-  if (targetTemperature == null) return 'OFF'
-  return `${targetTemperature}°C`
-}
+import TemperatureSectionStyles from './TemperatureSectionStyles'
 
 const TemperatureSection = ({
-  component: {
+  printer,
+  component,
+  disabled,
+}) => {
+  const {
+    id,
+    toolhead,
+    configForm,
     heater: {
       currentTemperature,
       targetTemperature,
     },
-  },
-  isHeating,
-  toggleHeater,
-  disabled,
-}) => (
-  <div>
-    <Typography variant="h4" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
-      {currentTemperature.toFixed(1)}
-        °C /
-      <sup style={{ fontSize: '50%' }}>
-        {' '}
-        {targetText(targetTemperature)}
-      </sup>
-    </Typography>
-    <div style={{ marginTop: -3 }}>
-      <FormControlLabel
-        control={(
-          <Switch
-            checked={isHeating}
-            onChange={toggleHeater}
-            disabled={disabled}
-            aria-label="heating"
-          />
-          )}
-        label="Enable Heater"
-      />
-    </div>
-  </div>
-)
+  } = component
 
-export default enhance(TemperatureSection)
+  const classes = TemperatureSectionStyles()
+  const [filamentSwapDialogOpen, setFilamentSwapDialogOpen] = useState(false)
+
+  const openFilamentSwapDialog = useCallback(() => setFilamentSwapDialogOpen(true))
+  const closeFilamentSwapDialog = useCallback(() => setFilamentSwapDialogOpen(false))
+
+  const toggleHeater = useSpoolGCodes((e, enable) => ({
+    variables: {
+      input: {
+        printerID: printer.id,
+        gcodes: [`toggleHeater ${JSON.stringify({ [id]: enable })}`],
+      },
+    },
+  }))
+
+  const isHeating = (targetTemperature || 0) > 0
+  const targetText = (
+    targetTemperature == null ? 'OFF' : `${targetTemperature}°C`
+  )
+
+  return (
+    <React.Fragment>
+      <Typography variant="h4" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
+        {currentTemperature.toFixed(1)}
+          °C /
+        <sup style={{ fontSize: '50%' }}>
+          {' '}
+          {targetText}
+        </sup>
+      </Typography>
+      <div style={{ marginTop: -3 }}>
+        <FormControlLabel
+          control={(
+            <Switch
+              checked={isHeating}
+              onChange={toggleHeater}
+              disabled={disabled}
+              aria-label="heating"
+            />
+            )}
+          label="Enable Heater"
+        />
+        {toolhead && (
+          <Button
+            className={classes.materialButton}
+            onClick={openFilamentSwapDialog}
+          >
+            {(toolhead.currentMaterial || { name: 'no material' }).name}
+            <FilamentSwapDialog
+              onClose={closeFilamentSwapDialog}
+              open={filamentSwapDialogOpen}
+              printer={printer}
+              component={component}
+            />
+          </Button>
+        )}
+      </div>
+    </React.Fragment>
+  )
+}
+
+export default TemperatureSection

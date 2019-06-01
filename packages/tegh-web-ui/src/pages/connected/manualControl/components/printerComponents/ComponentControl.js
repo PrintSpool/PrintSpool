@@ -18,6 +18,17 @@ export const ComponentControlFragment = gql`
     name
     type
     address
+    configForm {
+      id
+      model
+      modelVersion
+    }
+    toolhead {
+      currentMaterial {
+        id
+        name
+      }
+    }
     heater {
       materialTarget
       currentTemperature
@@ -75,7 +86,6 @@ const ToolheadAndBedControl = ({
               <ExtruderButtons
                 printer={printer}
                 address={component.address}
-                form={`toolhead[${component.id}]`}
                 disabled={disabled}
               />
             )

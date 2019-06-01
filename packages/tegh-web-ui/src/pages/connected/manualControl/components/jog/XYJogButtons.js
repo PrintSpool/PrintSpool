@@ -21,7 +21,8 @@ const enhance = compose(
 )
 
 const XYJogButtons = ({ printer, jog }) => {
-  const [distance, onChange] = useState()
+  const distanceOptions = [1, 10, 50, 100]
+  const [distance, onChange] = useState(distanceOptions[0])
 
   return (
     <Card>
@@ -46,7 +47,7 @@ const XYJogButtons = ({ printer, jog }) => {
             <ArrowDownward />
           </JogButton>
           <JogDistanceButtons
-            distanceOptions={[1, 10, 50, 100]}
+            distanceOptions={distanceOptions}
             input={{
               value: distance,
               onChange,
