@@ -9,33 +9,34 @@ import {
 const HistoryChart = ({
   data,
   materialTarget,
-  isToolhead,
+  horizontalGridLines = false,
+  className,
+  xyPlotProps: xyPlotPropsOverride,
+  flexibleHeight = true,
 }) => {
   const xyPlotProps = {
     yDomain: [-0.2 * materialTarget, 1.2 * materialTarget],
-    height: isToolhead ? 80 : 120,
     margin: {
       left: 0,
       right: 0,
       top: 0,
       bottom: 0,
     },
+    ...xyPlotPropsOverride,
   }
 
-  const XYPlot = isToolhead ? FlexibleWidthXYPlot : FlexibleXYPlot
+  const XYPlot = flexibleHeight ? FlexibleXYPlot : FlexibleWidthXYPlot
 
   return (
     <div
-      style={{
-        marginTop: isToolhead ? 8 : 0,
-        marginBottom: isToolhead ? -8 : 0,
-        width: '100%',
-      }}
+      className={className}
     >
       <XYPlot
         {...xyPlotProps}
       >
-        <HorizontalGridLines tickValues={[0, materialTarget]} />
+        { horizontalGridLines && (
+          <HorizontalGridLines tickValues={[0, materialTarget]} />
+        )}
         <LineSeries
           data={data.map(entry => ({
             x: new Date(entry.createdAt).getTime(),

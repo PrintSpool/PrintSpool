@@ -18,6 +18,7 @@ const ExtruderButtons = ({
   jog,
   disabled,
   extrudeColor = 'primary',
+  customButton,
   showRetract = true,
   showExtrude = true,
 }) => {
@@ -40,6 +41,10 @@ const ExtruderButtons = ({
       </Grid>
       <Grid item sm={6}>
         <div style={{ textAlign: 'right' }}>
+          { customButton }
+          { customButton && (showExtrude || showRetract) && (
+            <div style={{ display: 'inline-block', width: '16px' }} />
+          )}
           { showRetract && (
             <Button
               variant="contained"

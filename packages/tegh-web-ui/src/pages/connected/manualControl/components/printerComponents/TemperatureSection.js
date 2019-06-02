@@ -9,8 +9,6 @@ import {
 
 import useSpoolGCodes from '../../../../../common/useSpoolGCodes'
 
-import FilamentSwapDialog from './FilamentSwapDialog'
-
 import TemperatureSectionStyles from './TemperatureSectionStyles'
 
 const TemperatureSection = ({
@@ -29,10 +27,6 @@ const TemperatureSection = ({
   } = component
 
   const classes = TemperatureSectionStyles()
-  const [filamentSwapDialogOpen, setFilamentSwapDialogOpen] = useState(false)
-
-  const openFilamentSwapDialog = useCallback(() => setFilamentSwapDialogOpen(true))
-  const closeFilamentSwapDialog = useCallback(() => setFilamentSwapDialogOpen(false))
 
   const toggleHeater = useSpoolGCodes((e, enable) => ({
     variables: {
@@ -70,20 +64,6 @@ const TemperatureSection = ({
             )}
           label="Enable Heater"
         />
-        {toolhead && (
-          <Button
-            className={classes.materialButton}
-            onClick={openFilamentSwapDialog}
-          >
-            {(toolhead.currentMaterial || { name: 'no material' }).name}
-            <FilamentSwapDialog
-              onClose={closeFilamentSwapDialog}
-              open={filamentSwapDialogOpen}
-              printer={printer}
-              component={component}
-            />
-          </Button>
-        )}
       </div>
     </React.Fragment>
   )
