@@ -75,32 +75,52 @@ const MutationResolvers = {
       return {}
     },
     /* jobQueue */
-    createJob: actionResolver({
-      requirePrinterID: false,
-      actionCreator: requestCreateJob,
-      // TODO: returning the job will not work until thunks are removed from Tegh
-      // selector: (state, action) => state.jobQueue.jobs.get(action.payload.job.id),
-      selector: () => null,
-    }),
+    createJob: (source, args, { store }) => {
+      const action = requestCreateJob(args)
+
+      store.dispatch(action)
+
+      return action.payload.job
+    },
     deleteJob: actionResolver({
       requirePrinterID: false,
       actionCreator: deleteJob,
       selector: () => null,
     }),
     /* spool */
-    spoolGCodes: actionResolver({
-      actionCreator: ({ gcodes }) => spoolTask({
-        name: '[spoolGCodes]',
-        data: gcodes,
-        priority: NORMAL,
-        internal: false,
-      }),
-      selector: () => null,
-    }),
+    execGCodes: async (source, args, { store }) => {
+      const { gcodes } = args.input
+
+      const completedTask = await new Promise((resolve, reject) => {
+        const action = spoolTask({
+          name: '[spoolGCodes]',
+          data: [
+            ...gcodes,
+            /*
+            * Synchronize the end of the task with M400 by waiting until all
+            * scheduled movements in the task are finished.
+            */
+            'M400',
+          ],
+          priority: NORMAL,
+          internal: false,
+          onComplete: resolve,
+          onError: reject,
+        })
+
+        store.dispatch(action)
+      })
+
+      return completedTask
+    },
+    // TODO: the job file returned by spoolJobFile won't have been spooled yet.
+    // A promise should be used to await the job file actually being spooled
+    // before retuning from the mutation.
     spoolJobFile: actionResolver({
       actionCreator: requestSpoolJobFile,
-      // selector: (state, action) => action.payload.task,
-      selector: () => null,
+      selector: (state, action) => (
+        state.jobQueue.jobFiles.get(action.payload.jobFileID)
+      ),
     }),
   },
 }

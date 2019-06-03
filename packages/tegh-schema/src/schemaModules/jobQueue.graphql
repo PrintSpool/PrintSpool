@@ -75,12 +75,12 @@ extend type Mutation {
   """
   create a Job from the content and fileName of a file upload.
   """
-  createJob(input: CreateJobInput): Boolean
+  createJob(input: CreateJobInput): Job!
 
   """
   creates a job to print a file already on the Tegh server.
   """
-  deleteJob(input: DeleteJobInput): Job
+  deleteJob(input: DeleteJobInput): Boolean
 }
 
 input CreateJobInput {

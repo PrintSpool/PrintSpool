@@ -2,19 +2,32 @@
 
 extend type Mutation {
   """
-  Spools the GCode. See SpoolGCodesInput.gcodes for GCode formatting options.
+  Spools and executes GCode outside of the job queue.
+
+  execGCodes is synchronous and will return only once the GCode has executed
+  and any resulting machine movements are done.
+
+  This means that for example if you use execGCodes to run `G1 X100` the
+  mutation will wait until the printer has moved 100mm and then return.
+
+  This can be useful for informing users whether an action is in progress or
+  completed.
+
+  If the printer errors during the execution of the GCode the mutation will
+  fail.
+
+  See ExecGCodesInput.gcodes for GCode formatting options.
   """
-  spoolGCodes(input: SpoolGCodesInput!): Boolean
+  execGCodes(input: ExecGCodesInput!): Task!
 
   """
   Starts a print by spooling a task to print the job file.
   """
-  spoolJobFile(input: SpoolJobFileInput!): Boolean
+  spoolJobFile(input: SpoolJobFileInput!): Task!
 }
 
-input SpoolGCodesInput {
+input ExecGCodesInput {
   printerID: ID!
-  sync: Boolean
 
   """
   Tegh supports 3 formats of GCode:

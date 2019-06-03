@@ -32,6 +32,7 @@ import requestDespool, { REQUEST_DESPOOL } from '../actions/requestDespool'
 import { DESPOOL_COMPLETED } from '../actions/despoolCompleted'
 import despoolTask from '../actions/despoolTask'
 import { CANCEL_TASK } from '../actions/cancelTask'
+import taskErrored from '../actions/taskErrored'
 
 export const initialState = Record({
   priorityQueues: Record({
@@ -80,8 +81,15 @@ const spoolReducer = (state = initialState, action) => {
     case PRINTER_READY:
     case ESTOP:
     case DRIVER_ERROR: {
-      return initialState
+      const nextState = initialState
         .set('enabledHostMacros', state.enabledHostMacros)
+
+      return loop(
+        nextState,
+        Cmd.list(
+          state.tasks.toArray().map(task => Cmd.action(taskErrored({ task }))),
+        ),
+      )
     }
     case DELETE_JOB: {
       const { jobID } = action.payload

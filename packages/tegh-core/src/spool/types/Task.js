@@ -46,6 +46,8 @@ const TaskRecord = Record({
   createdAt: null,
   startedAt: null,
   stoppedAt: null,
+  onComplete: null,
+  onError: null,
 })
 
 const Task = (attrs) => {

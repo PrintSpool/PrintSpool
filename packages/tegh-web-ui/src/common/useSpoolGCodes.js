@@ -3,18 +3,18 @@ import { useMutation } from 'react-apollo-hooks'
 
 import gql from 'graphql-tag'
 
-const SPOOL_GCODES = gql`
-  mutation spoolGCodes($input: SpoolGCodesInput!) {
-    spoolGCodes(input: $input)
+const EXEC_GCODES = gql`
+  mutation execGCodes($input: ExecGCodesInput!) {
+    execGCodes(input: $input) { id }
   }
 `
 
 const useSpoolGCodes = (callback) => {
-  const spoolGCodesMutation = useMutation(SPOOL_GCODES)
+  const execGCodesMutation = useMutation(EXEC_GCODES)
 
   return useCallback((...args) => {
     const input = callback(...args)
-    spoolGCodesMutation(input)
+    execGCodesMutation(input)
   })
 }
 
