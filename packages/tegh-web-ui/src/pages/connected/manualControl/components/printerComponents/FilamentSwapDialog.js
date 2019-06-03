@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react'
 import { useMutation } from 'react-apollo-hooks'
 import gql from 'graphql-tag'
 import classnames from 'classnames'
+import { animated, useSpring } from 'react-spring'
 
 import {
   Button,
@@ -103,13 +104,19 @@ const MaterialDialog = ({
   }, [configForm, printer.id])
 
   const steps = [
-    'Remove old filament',
-    'Select new filament',
-    'Extrude',
+    { name: 'Get Started', required: true },
+    { name: 'Heat Extruder', required: true },
+    { name: 'Retract Filament', required: true },
+    { name: 'Remove Filament', required: true },
+    { name: 'Select New Filament', required: true },
+    { name: 'Heat Extruder', required: true },
+    { name: 'Load Filament', required: true },
   ]
 
   const [activeStep, setActiveStep] = useState(0)
   const [heating, setHeating] = useState(false)
+
+  // const heatingSpring = useSpring({ x: heating ? 1 : 0 })
 
   return (
     <Dialog
@@ -147,38 +154,79 @@ const MaterialDialog = ({
 
               return (
                 <React.Fragment>
-                  <Stepper activeStep={activeStep} alternativeLabel className={classes.stepper}>
+                  <Stepper
+                    activeStep={activeStep}
+                    alternativeLabel
+                    className={classes.stepper}
+                    orientation="vertical"
+                  >
                     {steps.map(step => (
-                      <Step key={step}>
-                        <StepLabel>{step}</StepLabel>
+                      <Step key={step.name}>
+                        <StepLabel>{step.name}</StepLabel>
                       </Step>
                     ))}
                   </Stepper>
                   { activeStep === 0 && (
                     <React.Fragment>
-                      <div className={classes.removeFilamentContent}>
+                      <div className={classes.introContent}>
                         <Typography variant="h5">
-                          Let's start by removing your previous filament
+                          Let's start by removing your current filament
                         </Typography>
                         <Typography variant="body1">
                           When your ready Tegh will heat your extruder to 220° and then retract the filament 100mm out of the extruder.
                         </Typography>
                       </div>
-                      <div className={classes.adjustFilament}>
-                        <Typography variant="body1" className={classes.adjustFilamentInstructions}>
-                          Need to adjust the filament?
-                        </Typography>
-                        <ExtruderButtons
-                          printer={printer}
-                          address={component.address}
-                          showExtrude={false}
-                        />
-                      </div>
                     </React.Fragment>
                   )}
                   { activeStep === 1 && (
-                    <div>
-                      3. Swap in the new filament
+                    <div
+                      className={classnames(
+                        heating && classes.heatingOldFilament,
+                        !heating && classes.oldFilamentHeated,
+                      )}
+                    >
+                      <Typography variant="h5" className={classes.heatingOverlayHeader}>
+                        Waiting to reach temperature (
+                        {currentTemperature.toFixed(1)}
+                        {' / '}
+                        {targetTemperature}
+                        °C)...
+                      </Typography>
+                      <HistoryChart
+                        className={classes.heatingOverlayChart}
+                        data={component.heater.history}
+                        materialTarget={component.heater.materialTarget || 220}
+                      />
+                    </div>
+                  )}
+                  { activeStep === 2 && (
+                    <Typography variant="h5">
+                      Retracting 100mm of filament
+                    </Typography>
+                  )}
+                  { activeStep === 3 && (
+                    <div className={classnames(
+                      // classes.removeFilamentContent,
+                    )}>
+                      <Typography variant="h5">
+                        Please remove your filament
+                      </Typography>
+                      <Typography variant="body1">
+                        It should now safe to remove the filament from your extruder
+                        however if the filament does not come out easily you may need to retract it further.
+                      </Typography>
+                      <ExtruderButtons
+                        printer={printer}
+                        address={component.address}
+                        extrudeColor="default"
+                      />
+                    </div>
+                  )}
+                  { activeStep === 4 && (
+                    <div className={classes.removeFilamentContent}>
+                      <Typography variant="h5">
+                        Select your new filament
+                      </Typography>
                       <TextField
                         label="Material"
                         value={configForm.model.materialID}
@@ -194,39 +242,31 @@ const MaterialDialog = ({
                       </TextField>
                     </div>
                   )}
-                  { activeStep === 2 && (
+                  { activeStep === 5 && (
                     <div>
-                      <div>
-                      4. Wait for the Extruder to reach the new material's target temperature
-                      </div>
-                      5. Extruder the new filament
+                      <Typography variant="h5">
+                        Wait for the Extruder to reach the new material's target temperature (TODO: chart)
+                      </Typography>
+                    </div>
+                  )}
+                  { activeStep === 6 && (
+                    <div>
+                      <Typography variant="h5" paragraph>
+                        Load the Filament
+                      </Typography>
+                      <Typography variant="body1" paragraph>
+                        Please insert the new filament and slowly extrude it until it until it begins to push out of the nozzle.
+                      </Typography>
+                      <Typography variant="body2" paragraph>
+                        <b>Warning:</b> Filaments can easily jam while loading. Watch that filament is fed into the printer with each extrusion. If the filament jams please retract the filament and determine why the jam occured. Continuing to extrude a jammed filament may damage your printer.
+                      </Typography>
                       <ExtruderButtons
                         printer={printer}
                         address={component.address}
-                        showRetract={false}
                         extrudeColor="default"
                       />
                     </div>
                   )}
-                  <div
-                    className={classnames([
-                      classes.heatingOverlay,
-                      heating && classes.activeHeatingOverlay,
-                    ])}
-                  >
-                    <Typography variant="h5" className={classes.heatingOverlayHeader}>
-                      Waiting to reach temperature (
-                      {currentTemperature.toFixed(1)}
-                      {' / '}
-                      {targetTemperature}
-                      °C)...
-                    </Typography>
-                    <HistoryChart
-                      className={classes.heatingOverlayChart}
-                      data={component.heater.history}
-                      materialTarget={component.heater.materialTarget || 220}
-                    />
-                  </div>
                 </React.Fragment>
               )
             })}
@@ -236,19 +276,20 @@ const MaterialDialog = ({
       <DialogActions>
         <Button
           disabled={heating}
-          onClick={() => setActiveStep(activeStep + 1)}
+          onClick={() => setActiveStep(4)}
         >
-          Skip this Step
+          Skip to Filament Selection
         </Button>
         <Button
           color="primary"
           variant="contained"
-          disabled={heating}
+          disabled={false && heating}
           onClick={() => {
             if (activeStep === 0) {
               removeFilament()
               setHeating(true)
             }
+            setActiveStep(activeStep + 1)
           }}
         >
           Next

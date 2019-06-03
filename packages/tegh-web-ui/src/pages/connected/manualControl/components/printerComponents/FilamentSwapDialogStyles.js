@@ -11,18 +11,12 @@ const useStyles = makeStyles(() => ({
   },
   removeFilamentContent: {
     gridArea: '2 / 1',
-    alignSelf: 'center',
-    // display: 'grid',
-    // grid: 'max-content max-content / auto',
   },
-  heatingOverlay: {
-    display: 'none',
-  },
-  activeHeatingOverlay: {
-    gridArea: '1 / 1 / span 2',
+  heatingOldFilament: {
+    gridArea: '2 / 1',
     display: 'grid',
     gridTemplateRows: 'auto',
-    background: 'rgba(255,255,255,0.7)',
+    background: 'rgba(255, 255, 255, 1)',
     zIndex: 10,
   },
   heatingOverlayHeader: {
