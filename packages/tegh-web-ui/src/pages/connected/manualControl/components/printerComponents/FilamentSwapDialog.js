@@ -75,8 +75,8 @@ const MaterialDialog = ({
       input: {
         printerID: printer.id,
         gcodes: [
-          `toggleHeater ${JSON.stringify({ [component.id]: true })}`,
-          `moveBy ${JSON.stringify({ [component.address]: distance })}`,
+          { toggleHeater: { [component.id]: true } },
+          { moveBy: { [component.address]: distance } },
         ],
       },
     },

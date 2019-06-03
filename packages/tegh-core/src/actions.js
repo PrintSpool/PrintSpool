@@ -22,6 +22,5 @@ export despoolCompleted, { DESPOOL_COMPLETED } from './spool/actions/despoolComp
 export despoolTask, { DESPOOL_TASK } from './spool/actions/despoolTask'
 export spoolGCodes from './spool/actions/spoolGCodes'
 export requestSpoolJobFile from './spool/actions/requestSpoolJobFile'
-export spoolMacro from './spool/actions/spoolMacro'
 export spoolTask, { SPOOL_TASK } from './spool/actions/spoolTask'
 export spoolMacroExpansion from './spool/actions/spoolMacroExpansion'

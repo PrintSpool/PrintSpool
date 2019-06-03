@@ -6,11 +6,24 @@ const forEachNewLine = (input, cb) => {
   if (input.forEach == null) {
     throw new Error('input MUST be an array of strings')
   }
-  input.forEach((text) => {
-    if (text.split == null) {
-      throw new Error(`${text} (type: ${typeof text}) is not a string`)
+  input.forEach((entry) => {
+    if (typeof entry === 'object') {
+      const keys = Object.keys(entry)
+      if (keys.length != 1) {
+        throw new Error(
+          'JSON GCode objects must only contain one key. '
+          + `Found: ${keys.join(',')}`
+        )
+      }
+
+      return cb(JSON.stringify(entry))
     }
-    return text.split(NEWLINE).forEach(cb)
+
+    if (typeof entry !== 'string') {
+      throw new Error(`${entry} (type: ${typeof entry}) is not a string`)
+    }
+
+    return entry.split(NEWLINE).forEach(cb)
   })
 }
 

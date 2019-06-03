@@ -1,24 +1,20 @@
-const parseGCodeArgs = (argsString) => {
-  if (argsString.startsWith('{')) {
+const parseGCode = (line) => {
+  if (line[0] === '{') {
     /*
-     * JSON format args.
-     * eg: "G1 {x: 10, y: 30}"
+     * JSON GCode format
+     * eg: `{ "g1": {"x": 10, "y": 30} }`
      */
-    return JSON.parse(argsString)
+    const jsonGCode = JSON.parse(line)
+    const [macro] = Object.keys(jsonGCode)
+    const args = jsonGCode[macro]
+
+    return { macro, args }
   }
+
   /*
-   * Traditional GCode format args.
+   * Traditional GCode format
    * eg: "G1 X10 Y30"
    */
-  const argWords = argsString.split(/ +/)
-  const args = {}
-  argWords.forEach((word) => {
-    args[word[0].toLowerCase()] = parseFloat(word.slice(1))
-  })
-  return args
-}
-
-const parseGCode = (line) => {
   const trimmedLine = line.trim()
   const firstSpace = trimmedLine.indexOf(' ')
   const hasArgs = firstSpace !== -1
@@ -27,7 +23,12 @@ const parseGCode = (line) => {
     const macro = trimmedLine.slice(0, firstSpace)
 
     const argsString = trimmedLine.slice(firstSpace + 1).trim()
-    const args = parseGCodeArgs(argsString)
+
+    const argWords = argsString.split(/ +/)
+    const args = {}
+    argWords.forEach((word) => {
+      args[word[0].toLowerCase()] = parseFloat(word.slice(1))
+    })
 
     return {
       macro,

@@ -2,9 +2,7 @@
 
 extend type Mutation {
   """
-  Spools a task to execute a GCode file. The file name MUST end in either
-  `.gcode` or `.ngc`. Non-GCode file formats may be supported in the future and
-  differentiated by different file extensions.
+  Spools the GCode. See SpoolGCodesInput.gcodes for GCode formatting options.
   """
   spoolGCodes(input: SpoolGCodesInput!): Boolean
 
@@ -12,35 +10,32 @@ extend type Mutation {
   Starts a print by spooling a task to print the job file.
   """
   spoolJobFile(input: SpoolJobFileInput!): Boolean
-
-  """
-  Spools a task to execute a macro.
-  """
-  spoolMacro(input: SpoolMacroInput!): Boolean
 }
 
 input SpoolGCodesInput {
   printerID: ID!
-  gcodes: [String!]!
+  sync: Boolean
+
+  """
+  Tegh supports 3 formats of GCode:
+
+  1. Standard GCode Strings
+    eg. `gcodes: ["G1 X10", "G1 Y20"]`
+    and equivalently:
+    `gcodes: ["G1 X0\nG1 Y0"]`
+  2. JSON GCode Objects - To make constructing GCode easier with modern languages Tegh allows GCodes to be sent as JSON objects in the format { [GCODE|MACRO]: ARGS }.
+    eg. `gcodes: [{ g1: { x: 10 } }, { g1: { y: 20 } }]`
+    Macros can also be called using JSON GCode Objects.
+    eg. `gcodes: [{ g1: { x: 10 } }, { delay: { period: 5000 } }]`
+  3. JSON GCode Strings - Tegh allows GCodes to be serialized as JSON. JSON GCode Strings can also be Macro calls.
+    GCode: `gcodes: ["{ \"g1\": { \"x\": 10 } }", "{ \"delay\": { \"period\": 5000 } }"]`
+  """
+  gcodes: [JSON!]!
 }
 
 input SpoolJobFileInput {
   printerID: ID!
   jobFileID: ID!
-}
-
-input SpoolMacroInput {
-  printerID: ID!
-
-  """
-  The name of the macro
-  """
-  macro: String!
-
-  """
-  The args to pass to the macro
-  """
-  args: JSON
 }
 
 """
