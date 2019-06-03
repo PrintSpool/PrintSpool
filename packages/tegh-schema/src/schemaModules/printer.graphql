@@ -23,11 +23,11 @@ type Printer {
 
   fixedListComponentTypes: [String!]!
 
-  """
-  The estimated number of seconds until the heater(s) reach their
-  targetTemperature.
-  """
-  targetTemperaturesCountdown: Float
+  # """
+  # The estimated number of seconds until the heater(s) reach their
+  # targetTemperature.
+  # """
+  # targetTemperaturesCountdown: Float
 
   """
   The active extruder ID

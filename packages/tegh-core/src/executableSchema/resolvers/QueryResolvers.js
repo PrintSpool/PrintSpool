@@ -19,15 +19,15 @@ const QueryResolvers = {
 
       return state.config.printer.isConfigured
     },
-    hosts: (source, args, { store }) => {
-      const state = store.getState()
-
-      if (args.hostID && args.hostID !== state.config.host.id) {
-        return []
-      }
-
-      return [state.config.host]
-    },
+    // hosts: (source, args, { store }) => {
+    //   const state = store.getState()
+    //
+    //   if (args.hostID && args.hostID !== state.config.host.id) {
+    //     return []
+    //   }
+    //
+    //   return [state.config.host]
+    // },
     materials: (source, args, { store }) => {
       const state = store.getState()
 

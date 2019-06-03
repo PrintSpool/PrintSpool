@@ -10,7 +10,10 @@ const PrinterResolvers = {
     id: source => source.config.printer.id,
     name: source => getPluginModels(source.config).getIn(['@tegh/core', 'name']),
 
-    targetTemperaturesCountdown: source => getComponentsState(source).targetTemperaturesCountdown,
+    // targetTemperaturesCountdown: source => (
+    //   getComponentsState(source).targetTemperaturesCountdown
+    // ),
+
     activeExtruderID: source => getComponentsState(source).activeExtruderID,
 
     motorsEnabled: source => getComponentsState(source).motorsEnabled,

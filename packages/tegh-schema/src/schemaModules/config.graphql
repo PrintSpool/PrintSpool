@@ -1,7 +1,7 @@
 # Queries
 
 extend type Query {
-  hosts(hostID: ID): [Host!]!
+  # hosts(hostID: ID): [Host!]!
 
   materials(materialID: ID): [Material!]!
 
@@ -33,10 +33,10 @@ input SchemaFormQueryInput {
   schemaFormKey: ID!
 }
 
-type Host {
-  id: ID!
-  configForm: ConfigForm!
-}
+# type Host {
+#   id: ID!
+#   configForm: ConfigForm!
+# }
 
 type Material {
   id: ID!
