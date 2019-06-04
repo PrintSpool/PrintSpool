@@ -10,7 +10,7 @@ const os = require('os')
  * making any change here.
  */
 const printerConfig = {
-  id: 'aaxcvxcvcxv-bvb-csdf234231',
+  id: '0',
   isConfigured: false,
   modelVersion: 1,
   components: [

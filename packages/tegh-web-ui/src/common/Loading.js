@@ -19,7 +19,9 @@ const Loading = ({
 
   return (
     <Fade
-      style={{ transitionDelay: `${transitionDelay}ms` }}
+      style={{
+        transitionDelay: `${transitionDelay}ms`
+      }}
       timeout={ transitionDuration }
       in
       unmountOnExit

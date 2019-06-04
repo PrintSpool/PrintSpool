@@ -46,7 +46,7 @@ const frontend = {
     alias: {
       'apollo-react-live-subscriptions': path.resolve(
         __dirname,
-        'packages/tegh-web-ui/src/util/LiveSubscription',
+        'packages/tegh-web-ui/src/common/LiveSubscription',
       ),
     },
   },

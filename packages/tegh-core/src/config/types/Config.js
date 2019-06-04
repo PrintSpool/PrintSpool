@@ -41,7 +41,7 @@ export const MockConfig = ({
   ...props
 } = {}) => {
   // eslint-disable-next-line global-require
-  const developmentConfig = require('../../../../../development.config')
+  const developmentConfig = require('../../../../development.config')
   return Config({
     ...developmentConfig,
     host: {

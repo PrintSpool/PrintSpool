@@ -4,21 +4,22 @@ import { HashRouter } from 'react-router-dom'
 
 import { UserDataContext } from './UserDataProvider'
 
-import LandingPage from './landingPage/LandingPage'
-import BrowserUpgradeNotice from './landingPage/BrowserUpgradeNotice'
-import GettingStarted from './gettingStarted/GettingStarted'
-import Home from './authenticated/home/Home'
-import Terminal from './authenticated/terminal/Terminal'
-import GraphQLPlayground from './authenticated/graphqlPlayground/GraphQLPlayground'
+import LandingPage from './onboarding/landingPage/LandingPage'
+import BrowserUpgradeNotice from './onboarding/landingPage/BrowserUpgradeNotice'
+import GettingStarted from './onboarding/gettingStarted/GettingStarted'
 
-import ConnectionFrame from './pages/connected/frame/ConnectionFrame'
-import QueuePage from './pages/connected/queue/Queue.page'
-import JobPage from './pages/connected/job/Job.page'
-import ManualControlPage from './pages/connected/manualControl/ManualControl.page'
-import ConfigIndexPage from './pages/connected/config/Index.page'
-import ComponentsConfigPage from './pages/connected/config/printerComponents/Index.page'
-import MaterialsConfigPage from './pages/connected/config/materials/Index.page'
-import PluginsConfigPage from './pages/connected/config/plugins/Plugins'
+import Home from './printer/home/Home'
+import Terminal from './printer/terminal/Terminal'
+import GraphQLPlayground from './printer/graphqlPlayground/GraphQLPlayground'
+
+import ConnectionFrame from './printer/common/frame/ConnectionFrame'
+import QueuePage from './printer/queue/Queue.page'
+import JobPage from './printer/job/Job.page'
+import ManualControlPage from './printer/manualControl/ManualControl.page'
+import ConfigIndexPage from './printer/config/Index.page'
+import ComponentsConfigPage from './printer/config/printerComponents/Index.page'
+import MaterialsConfigPage from './printer/config/materials/Index.page'
+import PluginsConfigPage from './printer/config/plugins/Plugins'
 
 const Routes = ({
   isBeaker = typeof DatArchive !== 'undefined',
@@ -109,6 +110,23 @@ const Routes = ({
           />
         )}
       </Switch>
+      { /* Dialogs */ }
+      { isAuthorized && (
+        <Route
+          exact
+          path={[
+            '/:hostID/:printerID/manual-control/filament-swap',
+          ]}
+          component={
+            <FilamentSwapDialog
+              onClose={closeFilamentSwapDialog}
+              open={filamentSwapDialogOpen}
+              printer={printer}
+              component={component}
+            />
+          }
+        />
+      )}
     </HashRouter>
   )
 }
