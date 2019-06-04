@@ -12,22 +12,6 @@ const useStyles = makeStyles(() => ({
   removeFilamentContent: {
     gridArea: '2 / 1',
   },
-  heatingOldFilament: {
-    gridArea: '2 / 1',
-    display: 'grid',
-    gridTemplateRows: 'auto',
-    background: 'rgba(255, 255, 255, 1)',
-    zIndex: 10,
-  },
-  heatingOverlayHeader: {
-    gridArea: '1 / 1',
-    placeSelf: 'center',
-    zIndex: 10,
-  },
-  heatingOverlayChart: {
-    gridArea: '1 / 1',
-    placeSelf: 'stretch',
-  },
   adjustFilament: {
     display: 'none',
   },

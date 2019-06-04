@@ -22,20 +22,11 @@ import useLiveSubscription from '../../_hooks/useLiveSubscription'
 import useExecGCodes from '../../_hooks/useExecGCodes'
 
 import ExtrudeRetractButtons from '../ExtrudeRetractButtons'
-import TemperatureChart from '../TemperatureChart'
+
+import Step1Introduction from './steps/Step1Introduction'
+import HeatExtruder from './steps/HeatExtruder'
 
 import FilamentSwapDialogStyles from './FilamentSwapDialogStyles'
-
-const CHANGE_MATERIAL = gql`
-  mutation changeMaterial($input: UpdateConfigInput!) {
-    updateConfig(input: $input) {
-      errors {
-        dataPath
-        message
-      }
-    }
-  }
-`
 
 const FILAMENT_SWAP_SUBSCRIPTION = gql`
   subscription MaterialsSubscription($printerID: ID, $componentID: ID) {
@@ -80,31 +71,9 @@ const FilamentSwapDialog = ({
   const removeFilament = useExecGCodes(() => ({
     printerID,
     gcodes: [
-      { toggleHeaters: { heaters: { [componentID]: true } } },
       { moveBy: { distances: { [componentID]: distance } } },
     ],
   }))
-
-  const changeMaterialMutation = useMutation(CHANGE_MATERIAL)
-
-  // TODO: optimistic update to the query
-  // TODO: loading spinner
-  const onMaterialChange = useCallback((e) => {
-    changeMaterialMutation({
-      variables: {
-        input: {
-          configFormID: configForm.id,
-          modelVersion: configForm.modelVersion,
-          printerID,
-          collection: 'COMPONENT',
-          model: {
-            ...configForm.model,
-            materialID: e.target.value,
-          },
-        },
-      },
-    })
-  }, [configForm, printer.id])
 
   const steps = [
     { name: 'Get Started', required: true },
@@ -157,10 +126,6 @@ const FilamentSwapDialog = ({
   const {
     configForm,
     name,
-    heater: {
-      currentTemperature,
-      targetTemperature,
-    },
   } = component
 
   return (
@@ -175,9 +140,7 @@ const FilamentSwapDialog = ({
       }}
     >
       <DialogTitle id="material-dialog-title" onClose={onClose}>
-        {name}
-        {' '}
-        Filament Swap
+        {`${name} Filament Swap`}
       </DialogTitle>
       <DialogContent className={classes.root}>
         <Stepper
@@ -193,37 +156,10 @@ const FilamentSwapDialog = ({
           ))}
         </Stepper>
         { activeStep === 0 && (
-          <React.Fragment>
-            <div className={classes.introContent}>
-              <Typography variant="h5">
-                Let's start by removing your current filament
-              </Typography>
-              <Typography variant="body1">
-                When your ready Tegh will heat your extruder to 220° and then retract the filament 100mm out of the extruder.
-              </Typography>
-            </div>
-          </React.Fragment>
+          <Step1Introduction />
         )}
         { activeStep === 1 && (
-          <div
-            className={classnames(
-              heating && classes.heatingOldFilament,
-              !heating && classes.oldFilamentHeated,
-            )}
-          >
-            <Typography variant="h5" className={classes.heatingOverlayHeader}>
-              Waiting to reach temperature (
-              {currentTemperature.toFixed(1)}
-              {' / '}
-              {targetTemperature}
-              °C)...
-            </Typography>
-            <TemperatureChart
-              className={classes.heatingOverlayChart}
-              data={component.heater.history}
-              materialTarget={component.heater.materialTarget || 220}
-            />
-          </div>
+          <HeatExtruder />
         )}
         { activeStep === 2 && (
           <Typography variant="h5">

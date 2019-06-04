@@ -4,13 +4,18 @@ import Config from '../types/Config'
 export const REQUEST_SET_CONFIG = 'tegh/config/REQUEST_SET_CONFIG'
 
 const requestSetConfig = (params) => {
+  const { onComplete, onError } = params
   let { config } = params
 
   if (!isImmutable(config)) config = Config(config)
 
   return {
     type: REQUEST_SET_CONFIG,
-    payload: { config },
+    payload: {
+      config,
+      onComplete,
+      onError,
+    },
   }
 }
 

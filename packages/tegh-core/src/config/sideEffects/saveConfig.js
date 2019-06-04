@@ -5,7 +5,10 @@ import writeFileAtomic from 'write-file-atomic'
 
 import getConfigDirectory from '../selectors/getConfigDirectory'
 
-const saveConfig = async ({ config }) => {
+const saveConfig = async ({
+  config,
+  onComplete,
+}) => {
   const configDirectory = getConfigDirectory(config)
   const configFile = path.join(configDirectory, 'config.json')
 
@@ -15,6 +18,8 @@ const saveConfig = async ({ config }) => {
     mode: 0o700,
   })
   await Promise.promisify(writeFileAtomic)(configFile, fileContent)
+
+  if (onComplete != null) onComplete(config)
 }
 
 export default saveConfig

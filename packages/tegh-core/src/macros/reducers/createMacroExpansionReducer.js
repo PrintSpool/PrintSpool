@@ -4,6 +4,7 @@ import { Record } from 'immutable'
 import isMacroEnabled from '../../config/selectors/isMacroEnabled'
 
 import { SET_CONFIG } from '../../config/actions/setConfig'
+import { SET_TOOLHEAD_MATERIALS } from '../../config/actions/setToolheadMaterials'
 import { DESPOOL_TASK } from '../../spool/actions/despoolTask'
 
 import spoolMacroExpansion from '../../spool/actions/spoolMacroExpansion'
@@ -19,6 +20,7 @@ const createMacroExpansionReducer = (
   macroFn,
 ) => (state = initialState, action) => {
   switch (action.type) {
+    case SET_TOOLHEAD_MATERIALS:
     case SET_CONFIG: {
       const { config } = action.payload
       const enabled = isMacroEnabled({ config, meta })

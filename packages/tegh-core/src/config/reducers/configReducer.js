@@ -1,5 +1,6 @@
 import { loop, Cmd } from 'redux-loop'
 
+import { SET_TOOLHEAD_MATERIALS } from '../actions/setToolheadMaterials'
 import { SET_CONFIG } from '../actions/setConfig'
 import requestSetConfig from '../actions/requestSetConfig'
 import saveConfig from '../sideEffects/saveConfig'
@@ -10,15 +11,24 @@ export const initialState = null
 
 const configReducer = (state = initialState, action) => {
   switch (action.type) {
+    case SET_TOOLHEAD_MATERIALS:
     case SET_CONFIG: {
-      const { config } = action.payload
+      const {
+        config,
+        onComplete,
+        onError,
+      } = action.payload
 
       // If the config is being changed by a user then save it to disk.
       if (state != null) {
         return loop(
           config,
           Cmd.run(saveConfig, {
-            args: [{ config }],
+            args: [{
+              config,
+              onComplete,
+              onError,
+            }],
           }),
         )
       }

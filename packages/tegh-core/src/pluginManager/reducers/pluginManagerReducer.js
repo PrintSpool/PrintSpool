@@ -32,12 +32,14 @@ const pluginManagerReducer = (state = initialState, action) => {
       )
     }
     case REQUEST_SET_CONFIG: {
-      const { config } = action.payload
+      const { config, onComplete, onError } = action.payload
 
       return loop(state, Cmd.run(loadPlugins, {
         args: [{
           pluginLoader: state.pluginLoader,
           config,
+          onComplete,
+          onError,
         }],
         successActionCreator: setConfig,
       }))
