@@ -12,25 +12,29 @@ const meta = {
 }
 
 // example useage:
-// { setTargetTemperature: { heaters: { [id]: 220 }, sync: true } }
+// { setTargetTemperature: { heaters: { e0: 220 }, sync: true } }
 export const macroFn = (
   { heaters, sync },
   { config },
 ) => {
   const gcodeLines = []
 
-  Object.entries(heaters).forEach(([id, v]) => {
-    const heater = getHeaterConfigs(config).get(id)
+  Object.entries(heaters).forEach(([address, v]) => {
+    const heater = getHeaterConfigs(config).find(h => (
+      h.model.get('address') === address
+    ))
 
-    if (heater == null) throw new Error(`Heater ${id} does not exist`)
-    if (typeof v !== 'number') throw new Error(`${id}: ${v} is not a number`)
+    if (heater == null) {
+      throw new Error(`Heater ${address} does not exist`)
+    }
+    if (typeof v !== 'number') {
+      throw new Error(`${address}: ${v} is not a number`)
+    }
 
-    const component = config.printer.components.find(c => c.id === id)
-
-    if (component.type === BUILD_PLATFORM) {
+    if (heater.type === BUILD_PLATFORM) {
       gcodeLines.push({ m140: { s: v } })
     } else {
-      const extruderNumber = parseFloat(component.model.get('address').slice(1))
+      const extruderNumber = parseFloat(address.slice(1))
       gcodeLines.push({ m104: { s: v, t: extruderNumber } })
     }
   })

@@ -19,13 +19,15 @@ const move = ({ axes, relativeMovement, allowExtruderAxes }, { config }) => {
   const allowTypes = [MOVEMENT_AXIS]
   if (allowExtruderAxes) allowTypes.push(EXTRUDER_AXIS)
 
-  Object.entries(axes).forEach(([id, v]) => {
-    if (!axisExists(config)(id, { allowTypes })) {
-      throw new Error(`Axis ${id} does not exist`)
+  Object.entries(axes).forEach(([address, v]) => {
+    if (!axisExists(config)(address, { allowTypes })) {
+      throw new Error(`Axis ${address} does not exist`)
     }
 
     // if (!validAxes.includes(id)) throw new Error(`Axis ${id} does not exist`)
-    if (typeof v !== 'number') throw new Error(`${id}: ${v} is not a number`)
+    if (typeof v !== 'number') {
+      throw new Error(`${address}: ${v} is not a number`)
+    }
 
     // const feedrate = config.feedrates[id]
     // if (feedrate == null) {
@@ -33,7 +35,9 @@ const move = ({ axes, relativeMovement, allowExtruderAxes }, { config }) => {
     // }
 
     // TODO: multi-extruder support
-    const component = getComponents(config).get(id)
+    const component = getComponents(config).find(c => (
+      c.model.get('address') === address
+    ))
     const isToolhead = component.type === TOOLHEAD
 
     g1Args[(isToolhead ? 'e' : component.address)] = v

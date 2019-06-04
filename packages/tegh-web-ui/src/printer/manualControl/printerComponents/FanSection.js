@@ -11,6 +11,7 @@ const FanSection = ({
   printer,
   component: {
     id,
+    address,
     fan: {
       enabled,
       speed,
@@ -21,7 +22,7 @@ const FanSection = ({
   const onChange = useExecGCodes((e, enable) => ({
     printerID: printer.id,
     gcodes: [
-      { toggleFan: { fans: { [id]: { enable } } } },
+      { toggleFan: { fans: { [address]: { enable } } } },
     ],
   }), [id])
 

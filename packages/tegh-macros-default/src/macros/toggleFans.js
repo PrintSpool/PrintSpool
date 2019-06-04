@@ -15,22 +15,26 @@ const toggleFans = createMacroExpansionReducer(meta, (
   { fans },
   { config },
 ) => (
-  Object.entries(fans).map(([id, { enable } = {}]) => {
+  Object.entries(fans).map(([address, { enable } = {}]) => {
     if (typeof enable !== 'boolean') {
       throw new Error(
-        'toggleFan fans arg must be in the format { [id]: { enable: boolean } }'
+        'toggleFan fans arg must be in the format '
+        + '{ [address]: { enable: boolean } }'
         + ` received ${JSON.stringify(fans)}`,
       )
     }
-    const component = config.printer.components.find(c => c.id === id)
+
+    const component = config.printer.components.find(c => (
+      c.model.get('address') === address
+    ))
 
     if (component == null || component.type !== FAN) {
-      throw new Error(`fan (${id}) does not exist`)
+      throw new Error(`fan (${address}) does not exist`)
     }
 
     const macro = enable ? 'M106' : 'M107'
 
-    const fanIndex = component.model.get('address').replace('f', '')
+    const fanIndex = address.replace('f', '')
 
     return { [macro]: { p: fanIndex } }
   })

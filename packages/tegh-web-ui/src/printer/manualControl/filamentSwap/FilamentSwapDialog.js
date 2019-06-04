@@ -71,7 +71,7 @@ const FilamentSwapDialog = ({
   const removeFilament = useExecGCodes(() => ({
     printerID,
     gcodes: [
-      { moveBy: { distances: { [componentID]: distance } } },
+      { moveBy: { distances: { [component.address]: distance } } },
     ],
   }))
 

@@ -17,6 +17,7 @@ const TemperatureSection = ({
 }) => {
   const {
     id,
+    address,
     heater: {
       currentTemperature,
       targetTemperature,
@@ -28,7 +29,7 @@ const TemperatureSection = ({
   const toggleHeater = useExecGCodes((e, enable) => ({
     printerID: printer.id,
     gcodes: [
-      { toggleHeaters: { heaters: { [id]: enable } } },
+      { toggleHeaters: { heaters: { [address]: enable } } },
     ],
   }), [id])
 

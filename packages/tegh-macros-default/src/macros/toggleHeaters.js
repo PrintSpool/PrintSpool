@@ -18,19 +18,22 @@ const toggleHeaters = createMacroExpansionReducer(meta, (
 ) => {
   const targetTemperatures = {}
 
-  Object.entries(heaters).forEach(([id, enable]) => {
-    const heater = getHeaterConfigs(config).get(id)
+  Object.entries(heaters).forEach(([address, enable]) => {
+    const heater = getHeaterConfigs(config).find(c => (
+      c.model.get('address') === address
+    ))
 
     if (heater == null) {
-      throw new Error(`heater (${id}) does not exist`)
+      throw new Error(`heater (${address}) does not exist`)
     }
 
-    if (!enable) {
-      targetTemperatures[id] = 0
-      return null
+    if (enable) {
+      targetTemperatures[address] = (
+        getHeaterMaterialTargets(config).get(heater.id)
+      )
+    } else {
+      targetTemperatures[address] = 0
     }
-
-    targetTemperatures[id] = getHeaterMaterialTargets(config).get(id)
   })
 
   const setTempArgs = { heaters: targetTemperatures, sync }

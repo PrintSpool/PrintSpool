@@ -28,11 +28,13 @@ const home = createMacroExpansionReducer(meta, (
   }
 
   const gcodeWords = ['G28']
-  axes.forEach(([id]) => {
-    if (!axisExists(config)(id, { allowTypes: [MOVEMENT_AXIS] })) {
-      throw new Error(`Axis ${id} does not exist`)
+  axes.forEach(([address]) => {
+    if (!axisExists(config)(address, { allowTypes: [MOVEMENT_AXIS] })) {
+      throw new Error(`Axis ${address} does not exist`)
     }
-    const component = getComponents(config).get(id)
+    const component = getComponents(config).find(c => (
+      c.model.get('address') === address
+    ))
 
     gcodeWords.push(component.address.toUpperCase())
   })
