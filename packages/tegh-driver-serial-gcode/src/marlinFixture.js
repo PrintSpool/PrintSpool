@@ -33,9 +33,19 @@ export const responses = {
   g1: () => [
     'ok',
   ],
-  m105: () => [
-    `ok T:${25.3 + Math.random()} /0.0 B:${25.8 + Math.random()} /0.0 B@:0 @:0`,
+  m105: ({
+    extruder = 25.3 + Math.random(),
+    bed = 25.8 + Math.random(),
+  } = {}) => [
+    `ok T:${extruder} /0.0 B:${bed} /0.0 B@:0 @:0`,
   ],
+  m109: ({
+    extruder = 25.3 + Math.random(),
+    bed = 25.8 + Math.random(),
+  } = {}) => [
+    `T:${extruder} /0.0 B:${bed} /0.0 B@:0 @:0`,
+  ],
+
   m114: () => [
     `X:${position()} Y:${position()} Z:${position()} E:0.00 Count X: 0.00Y:0.00Z:0.00`,
     'ok',

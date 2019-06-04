@@ -119,12 +119,16 @@ const serialReducer = (state = initialState, action) => {
         return state
       }
 
+      const { line, macro, args } = action.payload
+
       return loop(
         state,
         Cmd.run(writeToSerialPort, {
           args: [{
             serialPort: state.serialPort,
-            line: action.payload.line,
+            line,
+            macro,
+            args,
           }],
         }),
       )
