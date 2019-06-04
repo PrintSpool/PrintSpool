@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react'
+import React from 'react'
 import { compose } from 'recompose'
 
 import {
@@ -8,12 +8,9 @@ import {
 import spoolNextPrintHandler from '../mutations/spoolNextPrintHandler'
 import deleteJobHandler from '../mutations/deleteJobHandler'
 
-import PrintDialog from '../../printDialog/PrintDialog'
-import { UserDataContext } from '../../../UserDataProvider'
-
 import useExecGCodes from '../../_hooks/useExecGCodes'
 
-import FloatingAddJobButton from './FloatingAddJobButton'
+import FloatingAddJobButton from '../../printButton/FloatingAddJobButton'
 import FloatingPrintNextButton from './FloatingPrintNextButton'
 import JobCard from './JobCard'
 
@@ -50,9 +47,7 @@ const JobSubList = ({
 }
 
 const JobList = ({
-  history,
   jobs,
-  hostID,
   printers,
   spoolNextPrint,
   deleteJob,
@@ -67,11 +62,6 @@ const JobList = ({
     statuses.includes('READY') === false
     || jobs.every(job => job.files.every(jobFile => jobFile.printsQueued === 0))
   )
-
-  const [printDialogState, setPrintDialogState] = useState()
-  const { hosts } = useContext(UserDataContext)
-
-  const host = hosts[hostID]
 
   // TODO: recreate job status with a more limited scope
   const categories = [
@@ -91,12 +81,6 @@ const JobList = ({
 
   return (
     <div>
-      <PrintDialog
-        state={printDialogState}
-        history={history}
-        open={printDialogState != null}
-        onCancel={() => setPrintDialogState(null)}
-      />
       {
         jobs.length === 0
         && (
@@ -128,9 +112,7 @@ const JobList = ({
         ))
       }
 
-      <FloatingAddJobButton
-        onChange={files => setPrintDialogState({ files, host })}
-      />
+      <FloatingAddJobButton href="print/" />
       <FloatingPrintNextButton
         disabled={disablePrintNextButton}
         onClick={spoolNextPrint}

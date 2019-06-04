@@ -10,13 +10,13 @@ const os = require('os')
  * making any change here.
  */
 const printerConfig = {
-  id: '0',
+  id: '1',
   isConfigured: false,
   modelVersion: 1,
   components: [
     {
       // Controller must be the first component for driver test mocks
-      id: 'bbbserialController',
+      id: '1',
       modelVersion: 1,
       type: 'CONTROLLER',
       model: {
@@ -52,7 +52,7 @@ const printerConfig = {
     //   "axeIDs" ['x111', 'y111', 'z111']
     // },
     {
-      id: 'x',
+      id: '2',
       modelVersion: 1,
       type: 'AXIS',
       model: {
@@ -62,7 +62,7 @@ const printerConfig = {
       },
     },
     {
-      id: 'y',
+      id: '3',
       modelVersion: 1,
       type: 'AXIS',
       model: {
@@ -72,7 +72,7 @@ const printerConfig = {
       },
     },
     {
-      id: 'z',
+      id: '4',
       modelVersion: 1,
       type: 'AXIS',
       model: {
@@ -82,7 +82,7 @@ const printerConfig = {
       },
     },
     {
-      id: 'e0',
+      id: '5',
       modelVersion: 1,
       type: 'TOOLHEAD',
       model: {
@@ -94,7 +94,7 @@ const printerConfig = {
       },
     },
     {
-      id: 'f0',
+      id: '6',
       modelVersion: 1,
       type: 'FAN',
       model: {
@@ -103,7 +103,7 @@ const printerConfig = {
       },
     },
     {
-      id: 'b',
+      id: '7',
       modelVersion: 1,
       type: 'BUILD_PLATFORM',
       model: {
@@ -116,7 +116,7 @@ const printerConfig = {
   plugins: [
     // TODO: move general settings to @tegh/core plugin settings
     {
-      id: 'asgbvas23',
+      id: '1',
       modelVersion: 1,
       package: '@tegh/core',
       model: {
@@ -126,12 +126,12 @@ const printerConfig = {
       },
     },
     {
-      id: 'aaabbbccc333',
+      id: '2',
       modelVersion: 1,
       package: '@tegh/driver-serial-gcode',
     },
     {
-      id: 'aaabbbccc123',
+      id: '3',
       modelVersion: 1,
       package: '@tegh/macros-default',
       model: {

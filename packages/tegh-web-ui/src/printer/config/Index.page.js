@@ -41,7 +41,7 @@ const enhance = compose(
   withRouter,
   withProps(({ match }) => ({
     printerID: match.params.printerID,
-    printerDialogOpen: match.path === '/:hostID/:printerID/config/printer/',
+    printerDialogOpen: match.path === '/p/:hostID/:printerID/config/printer/',
     subscription: DEVICES_SUBSCRIPTION,
   })),
   withLiveData,

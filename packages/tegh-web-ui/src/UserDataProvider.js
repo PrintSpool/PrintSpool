@@ -1,7 +1,6 @@
-import React, {
-  useState,
-  useMemo,
-} from 'react'
+import React, { useState, useMemo } from 'react'
+
+import bs58 from 'bs58'
 
 import readFile from './common/readFile'
 
@@ -9,18 +8,31 @@ export const UserDataContext = React.createContext({
   name: 'DatArchive',
 })
 
-const addHostToData = (prevData, { invite, name }) => ({
-  ...prevData,
-  hosts: {
-    ...prevData.hosts,
-    [invite.peerIdentityPublicKey]: {
-      id: invite.peerIdentityPublicKey,
-      name,
-      // position: prevData.hosts.length,
-      invite,
+export const HOST_SLUG_LENGTH = 12
+
+const getID = ({ peerIdentityPublicKey }) => {
+  const bytes = Buffer.from(peerIdentityPublicKey, 'hex')
+  return bs58.encode(bytes).slice(0, HOST_SLUG_LENGTH)
+}
+
+const addHostToData = (prevData, { invite, name }) => {
+  const { peerIdentityPublicKey } = invite
+  const id = getID(invite)
+
+  return {
+    ...prevData,
+    hosts: {
+      ...prevData.hosts,
+      [id]: {
+        id,
+        peerIdentityPublicKey,
+        name,
+        // position: prevData.hosts.length,
+        invite,
+      },
     },
-  },
-})
+  }
+}
 
 const UserDataProvider = ({
   children,

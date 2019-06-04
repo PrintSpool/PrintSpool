@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext, useCallback } from 'react'
 
 import {
   Button,
@@ -9,23 +9,33 @@ import {
   Typography,
 } from '@material-ui/core'
 
-import TeghApolloProvider from '../common/frame/higherOrderComponents/TeghApolloProvider'
+import { UserDataContext } from '../../UserDataProvider'
 
 import PrintDialogContent from './PrintDialogContent'
 import CreateJobMutation from './CreateJobMutation'
 
+import PrintFilesContext from './PrintFilesContext'
+
 const PrintDialog = ({
-  state,
-  onCancel,
-  open,
   history,
+  match,
 }) => {
-  const { host, files } = state || {}
-  if (state && host == null) {
+  const [files] = useContext(PrintFilesContext)
+
+  const { hosts } = useContext(UserDataContext)
+  const host = hosts[match.params.hostID]
+
+  const open = true
+
+  const onClose = useCallback(() => {
+    history.goBack()
+  })
+
+  if (host == null) {
     return (
       <Dialog
         maxWidth={false}
-        onClose={onCancel}
+        onClose={onClose}
         aria-labelledby="print-dialog-title"
         open={open}
         transitionDuration={0}
@@ -46,14 +56,14 @@ const PrintDialog = ({
   return (
     <Dialog
       maxWidth={false}
-      onClose={onCancel}
+      onClose={onClose}
       aria-labelledby="print-dialog-title"
       open={open}
       transitionDuration={{
         exit: 0,
       }}
     >
-      <DialogTitle id="print-dialog-title" onClose={onCancel}>
+      <DialogTitle id="print-dialog-title" onClose={onClose}>
         Print Preview
       </DialogTitle>
       <DialogContent>
@@ -62,28 +72,26 @@ const PrintDialog = ({
         )}
       </DialogContent>
       <DialogActions>
-        <TeghApolloProvider hostIdentity={host && host.invite}>
-          <CreateJobMutation
-            files={files}
-            onCompleted={() => {
-              history.push(`/${host.id}/`)
-            }}
-            onError={(e) => {
-              // eslint-disable-next-line no-console
-              console.error('PRINTING ERROR', e)
-            }}
-          >
-            {({ createJob }) => (
-              <Button
-                onClick={createJob}
-                color="primary"
-                variant="contained"
-              >
-                Print
-              </Button>
-            )}
-          </CreateJobMutation>
-        </TeghApolloProvider>
+        <CreateJobMutation
+          files={files}
+          onCompleted={() => {
+            history.push(`/q/${host.id}/`)
+          }}
+          onError={(e) => {
+            // eslint-disable-next-line no-console
+            console.error('PRINTING ERROR', e)
+          }}
+        >
+          {({ createJob }) => (
+            <Button
+              onClick={createJob}
+              color="primary"
+              variant="contained"
+            >
+              Print
+            </Button>
+          )}
+        </CreateJobMutation>
       </DialogActions>
     </Dialog>
   )

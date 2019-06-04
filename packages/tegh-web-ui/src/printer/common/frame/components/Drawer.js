@@ -115,7 +115,7 @@ const DrawerContents = ({ hostIdentity, printers, classes }) => (
       <DrawerLink
         text="Print Queue"
         icon={<Inbox />}
-        href={`/${hostIdentity.id}/`}
+        href={`/q/${hostIdentity.id}/`}
         classes={classes}
       />
       {
@@ -127,19 +127,19 @@ const DrawerContents = ({ hostIdentity, printers, classes }) => (
             <DrawerLink
               text="Control Panel"
               icon={<OpenWith />}
-              href={`/${hostIdentity.id}/${printer.id}/manual-control/`}
+              href={`/p/${hostIdentity.id}/${printer.id}/manual-control/`}
               classes={classes}
             />
             <DrawerLink
               text="Terminal"
               icon={<Keyboard />}
-              href={`/${hostIdentity.id}/${printer.id}/terminal/`}
+              href={`/p/${hostIdentity.id}/${printer.id}/terminal/`}
               classes={classes}
             />
             <DrawerLink
               text="Config"
               icon={<Settings />}
-              href={`/${hostIdentity.id}/${printer.id}/config/`}
+              href={`/p/${hostIdentity.id}/${printer.id}/config/`}
               classes={classes}
             />
           </div>
@@ -149,7 +149,7 @@ const DrawerContents = ({ hostIdentity, printers, classes }) => (
       <DrawerLink
         text="GraphQL"
         icon={<Code />}
-        href={`/${hostIdentity.id}/graphql-playground/`}
+        href={`/q/${hostIdentity.id}/graphql-playground/`}
         classes={classes}
       />
     </List>

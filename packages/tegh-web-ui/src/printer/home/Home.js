@@ -15,13 +15,11 @@ import HomeStyles from './HomeStyles'
 
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
 import PrintButton from '../printButton/PrintButton'
-import PrintDialog from '../printDialog/PrintDialog'
 
-const Home = ({ history }) => {
+const Home = () => {
   const classes = HomeStyles()
 
   const { hosts } = useContext(UserDataContext)
-  const [printDialogState, setPrintDialogState] = useState()
 
   return (
     <React.Fragment>
@@ -45,14 +43,14 @@ const Home = ({ history }) => {
       <div className={classes.root}>
         <List>
           { Object.values(hosts).map(host => (
-            <ListItem key={host.invite.peerIdentityPublicKey}>
+            <ListItem key={host.id}>
               <ListItemText primary={host.name} />
               <ListItemSecondaryAction>
                 <Button
                   className={classes.manage}
                   component={props => (
                     <Link
-                      to={`/${host.invite.peerIdentityPublicKey}/`}
+                      to={`/q/${host.id}/`}
                       className={classes.manage}
                       {...props}
                     />
@@ -60,20 +58,12 @@ const Home = ({ history }) => {
                 >
                   Manage
                 </Button>
-                <PrintButton
-                  onClick={files => setPrintDialogState({ files, host })}
-                />
+                <PrintButton href={`/print/?q=${host.id}`}/>
               </ListItemSecondaryAction>
             </ListItem>
           ))}
         </List>
       </div>
-      <PrintDialog
-        state={printDialogState}
-        history={history}
-        open={printDialogState != null}
-        onCancel={() => setPrintDialogState(null)}
-      />
     </React.Fragment>
   )
 }

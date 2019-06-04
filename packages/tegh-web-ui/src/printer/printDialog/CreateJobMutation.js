@@ -6,7 +6,9 @@ import gql from 'graphql-tag'
 
 const createJobGraphQL = gql`
   mutation createJob($input: CreateJobInput!) {
-    createJob(input: $input)
+    createJob(input: $input) {
+      id
+    }
   }
 `
 

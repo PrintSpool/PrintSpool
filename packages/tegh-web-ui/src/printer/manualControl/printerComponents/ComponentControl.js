@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import gql from 'graphql-tag'
 import {
   Card,
@@ -7,6 +7,7 @@ import {
   Typography,
   Button,
 } from '@material-ui/core'
+import { Link } from 'react-router-dom'
 
 import TemperatureSection from './TemperatureSection'
 import ExtruderButtons from '../ExtrudeRetractButtons'
@@ -102,7 +103,13 @@ const ToolheadAndBedControl = ({
                   customButton={
                     toolhead && (
                       <Button
-                        onClick={openFilamentSwapDialog}
+                        component={useCallback(props => (
+                          <Link
+                            to={`${component.id}/swap-filament`}
+                            style={{ textDecoration: 'none' }}
+                            {...props}
+                          />
+                        ))}
                       >
                         Swap Filament
                       </Button>

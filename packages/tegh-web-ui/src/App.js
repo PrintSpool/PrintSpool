@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import 'typeface-roboto'
 
 import '../node_modules/react-vis/dist/style.css'
@@ -13,6 +13,7 @@ import {
 import { SnackbarProvider } from 'notistack'
 
 import UserDataProvider from './UserDataProvider'
+import PrintFilesContext from './printer/printDialog/PrintFilesContext'
 import Routes from './Routes'
 
 import theme from './theme'
@@ -24,10 +25,12 @@ const App = () => (
       <ThemeProvider theme={theme}>
         <SnackbarProvider maxSnack={3}>
           <UserDataProvider filePath="/tegh-user.json">
-            <Routes />
-            {
-              // <ReduxSnackbar />
-            }
+            <PrintFilesContext.Provider value={useState()}>
+              <Routes />
+              {
+                // <ReduxSnackbar />
+              }
+            </PrintFilesContext.Provider>
           </UserDataProvider>
         </SnackbarProvider>
       </ThemeProvider>

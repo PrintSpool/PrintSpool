@@ -3,6 +3,7 @@ import { Route, Switch } from 'react-router'
 import { HashRouter } from 'react-router-dom'
 
 import { UserDataContext } from './UserDataProvider'
+import TeghApolloProvider from './printer/common/frame/higherOrderComponents/TeghApolloProvider'
 
 import LandingPage from './onboarding/landingPage/LandingPage'
 import BrowserUpgradeNotice from './onboarding/landingPage/BrowserUpgradeNotice'
@@ -11,6 +12,7 @@ import GettingStarted from './onboarding/gettingStarted/GettingStarted'
 import Home from './printer/home/Home'
 import Terminal from './printer/terminal/Terminal'
 import GraphQLPlayground from './printer/graphqlPlayground/GraphQLPlayground'
+import PrintDialog from './printer/printDialog/PrintDialog'
 
 import ConnectionFrame from './printer/common/frame/ConnectionFrame'
 import QueuePage from './printer/queue/Queue.page'
@@ -21,10 +23,12 @@ import ComponentsConfigPage from './printer/config/printerComponents/Index.page'
 import MaterialsConfigPage from './printer/config/materials/Index.page'
 import PluginsConfigPage from './printer/config/plugins/Plugins'
 
+import FilamentSwapDialog from './printer/manualControl/filamentSwap/FilamentSwapDialog'
+
 const Routes = ({
   isBeaker = typeof DatArchive !== 'undefined',
 }) => {
-  const { isAuthorized } = useContext(UserDataContext)
+  const { isAuthorized, hosts } = useContext(UserDataContext)
 
   return (
     <HashRouter>
@@ -55,53 +59,96 @@ const Routes = ({
         { isAuthorized && (
           <Route
             exact
-            path="/"
-            component={Home}
+            path={['/', '/print/']}
+            render={() => (
+              <React.Fragment>
+                <Home />
+
+                <Route
+                  exact
+                  path="/print/"
+                  render={({ history, location }) => {
+                    const hostID = new URLSearchParams(location.search).get('q')
+                    const printerID = new URLSearchParams(location.search).get('p')
+
+                    const host = hosts[hostID]
+
+                    return (
+                      <TeghApolloProvider hostIdentity={host && host.invite}>
+                        <PrintDialog
+                          history={history}
+                          match={{ params: { hostID, printerID } }}
+                        />
+                      </TeghApolloProvider>
+                    )
+                  }}
+                />
+              </React.Fragment>
+            )}
           />
         )}
         { isAuthorized && (
           <Route
-            path="/:hostID/:page?"
+            path={[
+              '/p/:hostID/',
+              '/q/:hostID/',
+            ]}
             render={({ match }) => (
               <ConnectionFrame match={match}>
-                <Route exact path="/:hostID/" component={QueuePage} />
-                {/* <Route exact path="/:hostID/print" component={Print} /> */}
-                <Route exact path="/:hostID/jobs/:jobID/" component={JobPage} />
-                <Route exact path="/:hostID/:printerID/manual-control/" component={ManualControlPage} />
-                <Route exact path="/:hostID/:printerID/terminal/" component={Terminal} />
-                <Route exact path="/:hostID/graphql-playground/" component={GraphQLPlayground} />
+                <Route
+                  exact
+                  path={['/q/:hostID/', '/q/:hostID/print/']}
+                  component={QueuePage}
+                />
+                <Route exact path="/q/:hostID/jobs/:jobID/" component={JobPage} />
+                <Route exact path="/q/:hostID/print/" component={PrintDialog} />
+                <Route exact path="/q/:hostID/graphql-playground/" component={GraphQLPlayground} />
+
+                <Route
+                  exact
+                  path="/p/:hostID/:printerID/manual-control/"
+                  component={ManualControlPage}
+                />
+                <Route
+                  exact
+                  path="/p/:hostID/:printerID/manual-control/:componentID/swap-filament"
+                  component={FilamentSwapDialog}
+                />
+
+                <Route exact path="/p/:hostID/:printerID/terminal/" component={Terminal} />
+
                 <Route
                   exact
                   path={[
-                    '/:hostID/:printerID/config/',
-                    '/:hostID/:printerID/config/printer/',
+                    '/p/:hostID/:printerID/config/',
+                    '/p/:hostID/:printerID/config/printer/',
                   ]}
                   component={ConfigIndexPage}
                 />
                 <Route
                   exact
                   path={[
-                    '/:hostID/:printerID/config/components/',
-                    '/:hostID/:printerID/config/components/:componentID/',
-                    '/:hostID/:printerID/config/components/:componentID/:verb',
+                    '/p/:hostID/:printerID/config/components/',
+                    '/p/:hostID/:printerID/config/components/:componentID/',
+                    '/p/:hostID/:printerID/config/components/:componentID/:verb',
                   ]}
                   component={ComponentsConfigPage}
                 />
                 <Route
                   exact
                   path={[
-                    '/:hostID/:printerID/config/materials/',
-                    '/:hostID/:printerID/config/materials/:materialID/',
-                    '/:hostID/:printerID/config/materials/:materialID/:verb',
+                    '/p/:hostID/:printerID/config/materials/',
+                    '/p/:hostID/:printerID/config/materials/:materialID/',
+                    '/p/:hostID/:printerID/config/materials/:materialID/:verb',
                   ]}
                   component={MaterialsConfigPage}
                 />
                 <Route
                   exact
                   path={[
-                    '/:hostID/:printerID/config/plugins/',
-                    '/:hostID/:printerID/config/plugins/:pluginID/',
-                    '/:hostID/:printerID/config/plugins/:pluginID/:verb',
+                    '/p/:hostID/:printerID/config/plugins/',
+                    '/p/:hostID/:printerID/config/plugins/:pluginID/',
+                    '/p/:hostID/:printerID/config/plugins/:pluginID/:verb',
                   ]}
                   component={PluginsConfigPage}
                 />
@@ -110,23 +157,6 @@ const Routes = ({
           />
         )}
       </Switch>
-      { /* Dialogs */ }
-      { isAuthorized && (
-        <Route
-          exact
-          path={[
-            '/:hostID/:printerID/manual-control/filament-swap',
-          ]}
-          component={
-            <FilamentSwapDialog
-              onClose={closeFilamentSwapDialog}
-              open={filamentSwapDialogOpen}
-              printer={printer}
-              component={component}
-            />
-          }
-        />
-      )}
     </HashRouter>
   )
 }

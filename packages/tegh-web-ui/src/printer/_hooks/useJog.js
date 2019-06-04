@@ -4,7 +4,7 @@ const useJog = ({ printer, distance }) => (
   (axis, direction) => useExecGCodes(() => ({
     printerID: printer.id,
     gcodes: [
-      { moveBy: { [axis]: direction * distance } },
+      { moveBy: { distance: { [axis]: direction * distance } } },
     ],
   }))
 )

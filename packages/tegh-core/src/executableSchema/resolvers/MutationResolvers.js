@@ -76,7 +76,7 @@ const MutationResolvers = {
     },
     /* jobQueue */
     createJob: (source, args, { store }) => {
-      const action = requestCreateJob(args)
+      const action = requestCreateJob(args.input)
 
       store.dispatch(action)
 

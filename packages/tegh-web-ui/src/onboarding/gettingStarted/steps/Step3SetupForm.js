@@ -17,7 +17,7 @@ import Loading from '../../../common/Loading'
 
 import ButtonsFooter from '../ButtonsFooter'
 
-import FormikSchemaForm from '../../../printer/config/componets/FormikSchemaForm/index'
+import FormikSchemaForm from '../../../printer/config/components/FormikSchemaForm/index'
 import transformComponentSchema from '../../../printer/config/printerComponents/transformComponentSchema'
 
 import useSchemaValidation from '../../../printer/config/components/FormikSchemaForm/useSchemaValidation'

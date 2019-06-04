@@ -1,13 +1,26 @@
-import React from 'react'
+import React, { useCallback, useContext } from 'react'
 import {
   Button,
 } from '@material-ui/core'
+import useReactRouter from 'use-react-router'
+
+import PrintFilesContext from '../printDialog/PrintFilesContext'
 
 import PrintButtonStyles from './PrintButtonStyles'
 import FileInput from '../../common/FileInput'
 
-const PrintButton = ({ onClick }) => {
+const PrintButton = ({
+  href,
+}) => {
   const classes = PrintButtonStyles()
+  const [, setFiles] = useContext(PrintFilesContext)
+
+  const { history } = useReactRouter()
+
+  const onClick = useCallback((files) => {
+    setFiles(files)
+    history.push(href)
+  })
 
   return (
     <Button

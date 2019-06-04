@@ -1,4 +1,6 @@
-import React from 'react'
+import React, { useCallback, useContext } from 'react'
+import useReactRouter from 'use-react-router'
+
 import {
   withStyles,
   Fab,
@@ -7,6 +9,9 @@ import {
 import {
   Add,
 } from '@material-ui/icons'
+
+import PrintFilesContext from '../printDialog/PrintFilesContext'
+import FileInput from '../../common/FileInput'
 
 const styles = theme => ({
   fab: {
@@ -18,13 +23,15 @@ const styles = theme => ({
 
 const enhance = withStyles(styles, { withTheme: true })
 
-const FloatingAddJobButton = ({ classes, onChange }) => {
-  const onHTMLInputChange = (e) => {
-    e.preventDefault()
-    // convert files to an array
-    const files = [...e.target.files]
-    onChange(files)
-  }
+const FloatingAddJobButton = ({ classes, href }) => {
+  const [, setFiles] = useContext(PrintFilesContext)
+
+  const { history } = useReactRouter()
+
+  const onClick = useCallback((files) => {
+    setFiles(files)
+    history.push(href)
+  })
 
   return (
     <Tooltip title="Add Job" placement="left">
@@ -33,13 +40,9 @@ const FloatingAddJobButton = ({ classes, onChange }) => {
         className={classes.fab}
         color="default"
       >
-        <input
-          name="gcodeFile"
-          type="file"
+        <FileInput
           accept=".ngc,.gcode"
-          style={{ display: 'none' }}
-          value=""
-          onChange={onHTMLInputChange}
+          onClick={onClick}
         />
         <Add />
       </Fab>
