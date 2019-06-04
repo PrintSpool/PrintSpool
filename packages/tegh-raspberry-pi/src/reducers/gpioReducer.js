@@ -1,6 +1,5 @@
 import { loop, Cmd } from 'redux-loop'
 import { Record, Set } from 'immutable'
-import gpio from 'rpi-gpio'
 
 import {
   SET_CONFIG,
@@ -11,11 +10,12 @@ import {
 } from '@tegh/core'
 
 import setupPins from '../sideEffects/setupPins'
+import setGPIOs from '../sideEffects/setGPIOs'
 
 import gpioSetupComplete, { GPIO_SETUP_COMPLETE } from '../actions/gpioSetupComplete'
 import gpioError from '../actions/gpioError'
 
-export const SET_GPIO = 'setGPIO'
+export const MACRO = 'setGPIOs'
 
 const initialState = Record({
   enabled: false,
@@ -25,16 +25,16 @@ const initialState = Record({
 
 const meta = {
   package: '@tegh/raspberry-pi',
-  macro: SET_GPIO,
+  macro: MACRO,
 }
 
 /*
  * sets the value of a gpio output pin
- * args:
- *  pin: the pin number to set
+ * Takes an object of gpios:
+ *  key: the pin number to set
  *  value: the on/off boolean value of the pin
  *
- * example use: { setGPIO: { pin: 4, value: true } }
+ * example use: { setGPIOs: { gpios: {4: true} } }
  */
 const gpioReducer = (state, action) => {
   switch (action.type) {
@@ -69,8 +69,8 @@ const gpioReducer = (state, action) => {
     case DESPOOL_TASK: {
       const { macro, args } = action.payload
 
-      if (macro === SET_GPIO) {
-        const { pin, value } = args
+      if (macro === MACRO) {
+        const { gpios } = args
 
         if (!state.enabled) {
           return state
@@ -80,19 +80,23 @@ const gpioReducer = (state, action) => {
           throw new Error('Cannot setGPIO before setup is completed')
         }
 
-        if (!state.outputPins.includes(pin)) {
-          throw new Error(`GPIO pin not configured: ${pin}`)
-        }
+        Object.entries(gpios).forEach(([pin, value]) => {
+          if (!state.outputPins.includes(pin)) {
+            throw new Error(`GPIO pin not configured: ${pin}`)
+          }
 
-        if (typeof value !== 'boolean') {
-          throw new Error(`Invalid setGPIO value: ${value}`)
-        }
+          if (typeof value !== 'boolean') {
+            throw new Error(`Invalid setGPIO value: ${value}`)
+          }
+        })
 
-        return loop(state, Cmd.run(gpio.promise.write, {
-          args: [pin, value],
-          successActionCreator: requestDespool,
-          failActionCreator: gpioError,
-        }))
+        return loop(
+          state,
+          Cmd.run(setGPIOs, {
+            successActionCreator: requestDespool,
+            failActionCreator: gpioError,
+          }),
+        )
       }
 
       return state
