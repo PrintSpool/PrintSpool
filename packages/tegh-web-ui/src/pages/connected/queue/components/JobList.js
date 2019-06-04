@@ -6,11 +6,12 @@ import {
 } from '@material-ui/core'
 
 import spoolNextPrintHandler from '../mutations/spoolNextPrintHandler'
-import cancelTaskHandler from '../mutations/cancelTaskHandler'
 import deleteJobHandler from '../mutations/deleteJobHandler'
 
 import PrintDialog from '../../../../authenticated/printDialog/PrintDialog'
 import { UserDataContext } from '../../../../UserDataProvider'
+
+import useExecGCodes from '../../../../common/useExecGCodes'
 
 import FloatingAddJobButton from './FloatingAddJobButton'
 import FloatingPrintNextButton from './FloatingPrintNextButton'
@@ -18,7 +19,6 @@ import JobCard from './JobCard'
 
 const enhance = compose(
   spoolNextPrintHandler,
-  cancelTaskHandler,
   deleteJobHandler,
 )
 
@@ -55,9 +55,13 @@ const JobList = ({
   hostID,
   printers,
   spoolNextPrint,
-  cancelTask,
   deleteJob,
 }) => {
+  const cancelTask = useExecGCodes(() => ({
+    printer: printers[0],
+    gcodes: ['estop'],
+  }))
+
   const statuses = printers.map(printer => printer.status)
   const disablePrintNextButton = (
     statuses.includes('READY') === false

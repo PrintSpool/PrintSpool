@@ -19,7 +19,7 @@ import {
 } from '@material-ui/core'
 
 import { LiveSubscription } from '../../../../../util/LiveSubscription'
-import useSpoolGCodes from '../../../../../common/useSpoolGCodes'
+import useExecGCodes from '../../../../../common/useExecGCodes'
 
 import ExtruderButtons from './ExtruderButtons'
 import HistoryChart from './HistoryChart'
@@ -70,16 +70,12 @@ const MaterialDialog = ({
 
   const distance = 100
 
-  const removeFilament = useSpoolGCodes(() => ({
-    variables: {
-      input: {
-        printerID: printer.id,
-        gcodes: [
-          { toggleHeater: { [component.id]: true } },
-          { moveBy: { [component.address]: distance } },
-        ],
-      },
-    },
+  const removeFilament = useExecGCodes(() => ({
+    printerID: printer.id,
+    gcodes: [
+      { toggleHeaters: { heaters: { [component.id]: true } } },
+      { moveBy: { distances: { [component.id]: distance } } },
+    ],
   }))
 
   const changeMaterialMutation = useMutation(CHANGE_MATERIAL)

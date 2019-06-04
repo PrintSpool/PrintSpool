@@ -1,5 +1,4 @@
 import React from 'react'
-import { compose, withProps } from 'recompose'
 import {
   Card,
   CardContent,
@@ -7,41 +6,34 @@ import {
   Switch,
 } from '@material-ui/core'
 
-import withSpoolMacro from '../shared/higherOrderComponents/withSpoolMacro'
-
-const enhance = compose(
-  withSpoolMacro,
-  withProps(({ spoolMacro, printer }) => ({
-    toggleMotorsEnabled: (args) => {
-      spoolMacro({
-        printerID: printer.id,
-        macro: 'toggleMotorsEnabled',
-        args,
-      })
-    },
-  })),
-)
+import useExecGCodes from '../../../common/useExecGCodes'
 
 const MotorsEnabled = ({
-  toggleMotorsEnabled,
   printer,
-}) => (
-  <Card>
-    <CardContent style={{ paddingBottom: 16 }}>
-      <Typography variant="subtitle1">
-        <div style={{ float: 'right', marginTop: -4 }}>
-          <Switch
-            checked={printer.motorsEnabled}
-            onChange={() => {
-              toggleMotorsEnabled({ enable: !printer.motorsEnabled })
-            }}
-            aria-label="motor-power"
-          />
-        </div>
-        Motors Enabled
-      </Typography>
-    </CardContent>
-  </Card>
-)
+}) => {
+  const toggleMotorsEnabled = useExecGCodes(() => ({
+    printer,
+    gcodes: [
+      { toggleMotorsEnabled: { enable: !printer.motorsEnabled } },
+    ],
+  }))
 
-export default enhance(MotorsEnabled)
+  return (
+    <Card>
+      <CardContent style={{ paddingBottom: 16 }}>
+        <Typography variant="subtitle1">
+          <div style={{ float: 'right', marginTop: -4 }}>
+            <Switch
+              checked={printer.motorsEnabled}
+              onChange={toggleMotorsEnabled}
+              aria-label="motor-power"
+            />
+          </div>
+          Motors Enabled
+        </Typography>
+      </CardContent>
+    </Card>
+  )
+}
+
+export default MotorsEnabled

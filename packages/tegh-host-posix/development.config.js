@@ -52,7 +52,7 @@ const printerConfig = {
     //   "axeIDs" ['x111', 'y111', 'z111']
     // },
     {
-      id: 'x111',
+      id: 'x',
       modelVersion: 1,
       type: 'AXIS',
       model: {
@@ -62,7 +62,7 @@ const printerConfig = {
       },
     },
     {
-      id: 'y111',
+      id: 'y',
       modelVersion: 1,
       type: 'AXIS',
       model: {
@@ -72,7 +72,7 @@ const printerConfig = {
       },
     },
     {
-      id: 'z111',
+      id: 'z',
       modelVersion: 1,
       type: 'AXIS',
       model: {
@@ -82,7 +82,7 @@ const printerConfig = {
       },
     },
     {
-      id: 'heater_1',
+      id: 'e0',
       modelVersion: 1,
       type: 'TOOLHEAD',
       model: {
@@ -94,7 +94,7 @@ const printerConfig = {
       },
     },
     {
-      id: 'ndrgrwef',
+      id: 'f0',
       modelVersion: 1,
       type: 'FAN',
       model: {
@@ -103,7 +103,7 @@ const printerConfig = {
       },
     },
     {
-      id: 'bdfbxb',
+      id: 'b',
       modelVersion: 1,
       type: 'BUILD_PLATFORM',
       model: {

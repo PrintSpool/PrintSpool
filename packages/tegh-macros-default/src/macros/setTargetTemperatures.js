@@ -8,18 +8,19 @@ const { BUILD_PLATFORM } = ComponentTypeEnum
 
 const meta = {
   package: '@tegh/macros-default',
-  macro: 'setTargetTemperature',
+  macro: 'setTargetTemperatures',
 }
 
+// example useage:
+// { setTargetTemperature: { heaters: { [id]: 220 }, sync: true } }
 export const macroFn = (
-  args,
+  { heaters, sync },
   { config },
 ) => {
-  const heaters = getHeaterConfigs(config)
   const gcodeLines = []
 
-  Object.entries(args).forEach(([id, v]) => {
-    const heater = heaters.get(id)
+  Object.entries(heaters).forEach(([id, v]) => {
+    const heater = getHeaterConfigs(config).get(id)
 
     if (heater == null) throw new Error(`Heater ${id} does not exist`)
     if (typeof v !== 'number') throw new Error(`${id}: ${v} is not a number`)
@@ -27,12 +28,17 @@ export const macroFn = (
     const component = config.printer.components.find(c => c.id === id)
 
     if (component.type === BUILD_PLATFORM) {
-      gcodeLines.push(`M140 S${v}`)
+      gcodeLines.push({ m140: { s: v } })
     } else {
       const extruderNumber = parseFloat(component.model.get('address').slice(1))
-      gcodeLines.push(`M104 S${v} T${extruderNumber}`)
+      gcodeLines.push({ m104: { s: v, t: extruderNumber } })
     }
   })
+
+  if (sync) {
+    gcodeLines.push('M109')
+  }
+
   return gcodeLines
 }
 

@@ -13,40 +13,38 @@ const move = ({ axes, relativeMovement, allowExtruderAxes }, { config }) => {
   // if (!allowExtruderAxes) {
   //   validAxes = validAxes.filter((axis) => !axis.startsWith('e'))
   // }
-  const gcodeWords = ['G1']
+  const g1Args = {}
   const feedrates = []
 
   const allowTypes = [MOVEMENT_AXIS]
   if (allowExtruderAxes) allowTypes.push(EXTRUDER_AXIS)
 
-  Object.entries(axes).forEach(([address, v]) => {
-    if (!axisExists(config)(address, { allowTypes })) {
-      throw new Error(`Axis ${address} does not exist`)
+  Object.entries(axes).forEach(([id, v]) => {
+    if (!axisExists(config)(id, { allowTypes })) {
+      throw new Error(`Axis ${id} does not exist`)
     }
 
-    // if (!validAxes.includes(address)) throw new Error(`Axis ${address} does not exist`)
-    if (typeof v !== 'number') throw new Error(`${address}: ${v} is not a number`)
+    // if (!validAxes.includes(id)) throw new Error(`Axis ${id} does not exist`)
+    if (typeof v !== 'number') throw new Error(`${id}: ${v} is not a number`)
 
-    // const feedrate = config.feedrates[address]
+    // const feedrate = config.feedrates[id]
     // if (feedrate == null) {
-    //   throw new Error(`no feedrate configured for ${address}`)
+    //   throw new Error(`no feedrate configured for ${id}`)
     // }
 
     // TODO: multi-extruder support
-    const component = getComponents(config).find(c => (
-      c.model.get('address') === address
-    ))
+    const component = getComponents(config).get(id)
     const isToolhead = component.type === TOOLHEAD
 
-    gcodeWords.push(`${(isToolhead ? 'e' : address).toUpperCase()}${v}`)
+    g1Args[(isToolhead ? 'e' : component.address)] = v
 
     feedrates.push(component.model.get('feedrate'))
   })
 
   return [
     relativeMovement ? 'G91' : 'G90',
-    `G1 F${Math.min.apply(null, feedrates) * 60}`,
-    gcodeWords.join(' '),
+    { g1: { f: Math.min.apply(null, feedrates) * 60 } },
+    { g1: g1Args },
   ]
 }
 

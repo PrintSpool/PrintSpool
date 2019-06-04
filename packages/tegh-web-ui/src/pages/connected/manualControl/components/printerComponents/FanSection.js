@@ -7,7 +7,7 @@ import {
   FormControlLabel,
 } from '@material-ui/core'
 
-import useSpoolGCodes from '../../../../../common/useSpoolGCodes'
+import useExecGCodes from '../../../../../common/useExecGCodes'
 
 const targetText = (targetTemperature) => {
   if (targetTemperature == null) return 'OFF'
@@ -25,14 +25,12 @@ const FanSection = ({
   },
   disabled,
 }) => {
-  const onChange = useSpoolGCodes((e, enable) => ({
-    variables: {
-      input: {
-        printerID: printer.id,
-        gcodes: [`toggleFan ${JSON.stringify({ [id]: { enable } })}`],
-      },
-    },
-  }))
+  const onChange = useExecGCodes((e, enable) => ({
+    printerID: printer.id,
+    gcodes: [
+      { toggleFan: { fans: { [id]: { enable } } } },
+    ],
+  }), [id])
 
   return (
     <div>

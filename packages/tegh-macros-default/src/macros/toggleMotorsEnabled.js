@@ -7,6 +7,7 @@ const meta = {
   macro: 'toggleMotorsEnabled',
 }
 
+// example useage: { toggleMotorsEnabled: { enable: true } }
 const toggleMotorsEnabled = createMacroExpansionReducer(meta, (
   args,
 ) => {

@@ -34,7 +34,7 @@ const meta = {
  *  pin: the pin number to set
  *  value: the on/off boolean value of the pin
  *
- * example use: setGPIO {"pin": 4, "value": true}
+ * example use: { setGPIO: { pin: 4, value: true } }
  */
 const gpioReducer = (state, action) => {
   switch (action.type) {

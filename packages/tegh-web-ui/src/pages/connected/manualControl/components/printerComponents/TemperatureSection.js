@@ -7,7 +7,7 @@ import {
   Button,
 } from '@material-ui/core'
 
-import useSpoolGCodes from '../../../../../common/useSpoolGCodes'
+import useExecGCodes from '../../../../../common/useExecGCodes'
 
 import TemperatureSectionStyles from './TemperatureSectionStyles'
 
@@ -28,14 +28,12 @@ const TemperatureSection = ({
 
   const classes = TemperatureSectionStyles()
 
-  const toggleHeater = useSpoolGCodes((e, enable) => ({
-    variables: {
-      input: {
-        printerID: printer.id,
-        gcodes: [`toggleHeater ${JSON.stringify({ [id]: enable })}`],
-      },
-    },
-  }))
+  const toggleHeater = useExecGCodes((e, enable) => ({
+    printerID: printer.id,
+    gcodes: [
+      { toggleHeaters: { heaters: { [id]: enable } } },
+    ],
+  }), [id])
 
   const isHeating = (targetTemperature || 0) > 0
   const targetText = (

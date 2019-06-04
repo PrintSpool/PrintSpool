@@ -5,17 +5,13 @@ import {
   Button,
 } from '@material-ui/core'
 
-import withJog from '../../higherOrderComponents/withJog'
-import JogDistanceButtons from '../jog/JogDistanceButtons'
+import useJog from '../../../../../common/useJog'
 
-const enhance = compose(
-  withJog,
-)
+import JogDistanceButtons from '../jog/JogDistanceButtons'
 
 const ExtruderButtons = ({
   printer,
   address,
-  jog,
   disabled,
   extrudeColor = 'primary',
   customButton,
@@ -24,6 +20,8 @@ const ExtruderButtons = ({
 }) => {
   const distanceOptions = [0.1, 1, 10, 50, 100]
   const [distance, onChange] = useState(distanceOptions[2])
+
+  const jog = useJog({ printer, distance })
 
   return (
     <Grid
@@ -49,7 +47,7 @@ const ExtruderButtons = ({
             <Button
               variant="contained"
               disabled={disabled}
-              onClick={jog(printer.id, address, '-', distance)}
+              onClick={jog(address, -1)}
             >
               Retract
             </Button>
@@ -62,7 +60,7 @@ const ExtruderButtons = ({
               variant="contained"
               color={extrudeColor}
               disabled={disabled}
-              onClick={jog(printer.id, address, '+', distance)}
+              onClick={jog(address, 1)}
             >
               Extrude
             </Button>

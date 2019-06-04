@@ -7,18 +7,19 @@ const { FAN } = ComponentTypeEnum
 
 const meta = {
   package: '@tegh/macros-default',
-  macro: 'toggleFan',
+  macro: 'toggleFans',
 }
 
-const toggleFan = createMacroExpansionReducer(meta, (
-  args,
+// example useage: { toggleFans: { fans: { [id]: true } }}
+const toggleFans = createMacroExpansionReducer(meta, (
+  { fans },
   { config },
 ) => (
-  Object.entries(args).map(([id, { enable } = {}]) => {
+  Object.entries(fans).map(([id, { enable } = {}]) => {
     if (typeof enable !== 'boolean') {
       throw new Error(
-        'toggleFan args must be in the format { [id]: { enable: boolean } }'
-        + ` received ${JSON.stringify(args)}`,
+        'toggleFan fans arg must be in the format { [id]: { enable: boolean } }'
+        + ` received ${JSON.stringify(fans)}`,
       )
     }
     const component = config.printer.components.find(c => c.id === id)
@@ -29,8 +30,10 @@ const toggleFan = createMacroExpansionReducer(meta, (
 
     const macro = enable ? 'M106' : 'M107'
 
-    return `${macro} P${component.model.get('address').replace('f', '')}`
+    const fanIndex = component.model.get('address').replace('f', '')
+
+    return { [macro]: { p: fanIndex } }
   })
 ))
 
-export default toggleFan
+export default toggleFans

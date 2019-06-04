@@ -10,17 +10,16 @@ import {
   ArrowDownward,
 } from '@material-ui/icons'
 
-import withJog from '../../higherOrderComponents/withJog'
+import useJog from '../../../../../common/useJog'
+
 import JogButton from './JogButton'
 import JogDistanceButtons from './JogDistanceButtons'
 
-const enhance = compose(
-  withJog,
-)
-
-const ZJogButtons = ({ printer, jog }) => {
+const ZJogButtons = ({ printer }) => {
   const distanceOptions = [0.1, 1, 10]
   const [distance, onChange] = useState(distanceOptions[0])
+
+  const jog = useJog({ printer, distance })
 
   return (
     <Card>
@@ -29,13 +28,13 @@ const ZJogButtons = ({ printer, jog }) => {
           container
           spacing={24}
         >
-          <JogButton xs={12} onClick={jog(printer.id, 'z', '+', distance)}>
+          <JogButton xs={12} onClick={jog('z', 1)}>
             <ArrowUpward />
           </JogButton>
           <JogButton xs={12} disabled>
             Z
           </JogButton>
-          <JogButton xs={12} onClick={jog(printer.id, 'z', '-', distance)}>
+          <JogButton xs={12} onClick={jog('z', -1)}>
             <ArrowDownward />
           </JogButton>
           <JogDistanceButtons

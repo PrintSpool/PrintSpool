@@ -9,7 +9,8 @@ import {
   Report,
 } from '@material-ui/icons'
 
-import withSpoolMacro from '../../shared/higherOrderComponents/withSpoolMacro'
+import useExecGCodes from '../../../../common/useExecGCodes'
+
 import StatusDialog from './StatusDialog'
 
 const styles = theme => ({
@@ -34,7 +35,6 @@ const styles = theme => ({
 
 const enhance = compose(
   withState('dialogOpen', 'setDialogOpen', false),
-  withSpoolMacro,
   withStyles(styles),
 )
 
@@ -53,7 +53,6 @@ const enhance = compose(
 
 const EStopResetToggle = ({
   printer,
-  spoolMacro,
   classes,
   dialogOpen,
   setDialogOpen,
@@ -63,12 +62,17 @@ const EStopResetToggle = ({
   const showEStop = status !== 'ERRORED' && status !== 'ESTOPPED'
   const disabled = status === 'DISCONNECTED'
 
-  const onClick = () => {
-    spoolMacro({
-      printerID: printer.id,
-      macro: showEStop ? 'eStop' : 'reset',
-    })
-  }
+  const toggle = useExecGCodes(() => ({
+    printer,
+    gcodes: [
+      showEStop ? 'eStop' : 'reset',
+    ],
+  }), [showEStop])
+
+  const reset = useExecGCodes(() => ({
+    printer,
+    gcodes: ['reset'],
+  }))
 
   return (
     <div>
@@ -76,10 +80,7 @@ const EStopResetToggle = ({
         open={dialogOpen}
         printer={printer}
         handleClose={() => { setDialogOpen(false) }}
-        handleReset={() => spoolMacro({
-          printerID: printer.id,
-          macro: 'reset',
-        })}
+        handleReset={reset}
       />
       <Button
         className={classNames(buttonClass, classes.status)}
@@ -93,7 +94,7 @@ const EStopResetToggle = ({
         }
         variant="contained"
         disabled={disabled}
-        onClick={onClick}
+        onClick={toggle}
       >
         {
           showEStop

@@ -5,9 +5,9 @@ import delay from './macros/delay'
 import home from './macros/home'
 import moveBy from './macros/moveBy'
 import moveTo from './macros/moveTo'
-import setTemperature from './macros/setTargetTemperature'
-import toggleFan from './macros/toggleFan'
-import toggleHeater from './macros/toggleHeater'
+import setTargetTemperatures from './macros/setTargetTemperatures'
+import toggleFans from './macros/toggleFans'
+import toggleHeaters from './macros/toggleHeaters'
 import toggleMotorsEnabled from './macros/toggleMotorsEnabled'
 
 const reducers = {
@@ -15,9 +15,9 @@ const reducers = {
   home,
   moveBy,
   moveTo,
-  setTemperature,
-  toggleFan,
-  toggleHeater,
+  setTargetTemperatures,
+  toggleFans,
+  toggleHeaters,
   toggleMotorsEnabled,
 }
 

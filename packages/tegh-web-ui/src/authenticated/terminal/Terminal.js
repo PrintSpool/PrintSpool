@@ -9,7 +9,7 @@ import {
 
 import gql from 'graphql-tag'
 
-import useSpoolGCodes from '../../common/useSpoolGCodes'
+import useExecGCodes from '../../common/useExecGCodes'
 import { LiveSubscription } from '../../util/LiveSubscription'
 
 import TerminalStyles from './TerminalStyles'
@@ -48,17 +48,13 @@ const Terminal = ({
   const classes = TerminalStyles()
   const { printerID } = match.params
 
-  const onSubmit = useSpoolGCodes((e) => {
+  const onSubmit = useExecGCodes((e) => {
     e.preventDefault()
     resetForm()
 
     return {
-      variables: {
-        input: {
-          printerID,
-          gcodes: values.gcode,
-        },
-      },
+      printerID,
+      gcodes: values.gcode,
     }
   })
 

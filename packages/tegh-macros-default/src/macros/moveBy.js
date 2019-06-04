@@ -7,12 +7,13 @@ const meta = {
   macro: 'moveBy',
 }
 
+// example useage: { moveBy: { distances: { [id]: 100 } } }
 const moveBy = createMacroExpansionReducer(meta, (
-  args,
+  { distances },
   { config },
 ) => {
   const moveArgs = {
-    axes: args,
+    axes: distances,
     allowExtruderAxes: true,
     relativeMovement: true,
   }

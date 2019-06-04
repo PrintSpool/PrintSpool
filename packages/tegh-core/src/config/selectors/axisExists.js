@@ -6,7 +6,7 @@ import { TOOLHEAD, AXIS } from '../types/components/ComponentTypeEnum'
 const axisExists = createSelector(
   getPrinterConfig,
   config => (k, { allowTypes }) => {
-    const component = config.components.find(c => c.model.get('address') === k)
+    const component = config.components.find(c => c.model.get('id') === k)
 
     if (component == null) {
       return false
