@@ -35,6 +35,8 @@ const FILAMENT_SWAP_SUBSCRIPTION = gql`
             id
             address
             heater {
+              currentTemperature
+              targetTemperature
               materialTarget
               history {
                 id

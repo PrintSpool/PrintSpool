@@ -35,7 +35,6 @@ const HeatExtruder = ({
   const {
     materialTarget,
     currentTemperature,
-    targetTemperature,
     history,
   } = component.heater
 
@@ -44,8 +43,8 @@ const HeatExtruder = ({
       <div className={classes.root}>
         <Typography variant="h5" className={classes.title}>
           {t('heatExtruder.title', {
-            currentTemperature: currentTemperature.toFixed(1),
-            targetTemperature,
+            currentTemperature: (currentTemperature || 0).toFixed(1),
+            targetTemperature: (materialTarget || 0).toFixed(1),
           })}
         </Typography>
 

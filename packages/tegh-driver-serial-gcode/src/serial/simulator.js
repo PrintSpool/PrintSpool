@@ -17,10 +17,10 @@ const simulator = () => {
 
   const updateTemperatures = () => {
     if (targets.e0 !== temperatures.e0) {
-      temperatures.e0 += targets.e0 > temperatures.e0 ? 10 : -2
+      temperatures.e0 += targets.e0 > temperatures.e0 ? 5 : -2
     }
     if (targets.b !== temperatures.b) {
-      temperatures.b += targets.b > temperatures.b ? 5 : -2
+      temperatures.b += targets.b > temperatures.b ? 3 : -2
     }
   }
 
@@ -32,9 +32,9 @@ const simulator = () => {
       bed: temperatures.b - 2 + Math.random() * 4,
     }).forEach((line) => {
       // console.log(line)
-      setImmediate(() => {
+      setTimeout(() => {
         parser.emit('data', line)
-      })
+      }, 100)
     })
   )
 
@@ -55,25 +55,25 @@ const simulator = () => {
       targets[id] = changes.targetTemperature || 22
     }
 
-    if (responses[macro.toLowerCase()] == null) {
-      sendLines(responses.g1)
-    } else if (macro === 'M109') {
-      // console.log('TX!!!', macro)
-      let linesSent = 0
+    const lowerCaseMacro = macro.toLowerCase()
 
+    if (responses[lowerCaseMacro] == null) {
+      sendLines(responses.g1)
+    } else if (lowerCaseMacro === 'm109') {
+      // console.log('TX!!!', macro)
       const sendNextLine = () => {
-        if (linesSent === 50) {
+        // console.log('send response')
+        if (temperatures[id] >= targets[id] - 3) {
           return sendLines(responses.m105)
         }
 
         sendLines(responses.m109)
-        linesSent += 1
-        setTimeout(sendNextLine, 2000 / 50)
+        setTimeout(sendNextLine, 3000 / 50)
       }
 
       sendNextLine()
     } else {
-      sendLines(responses[macro.toLowerCase()])
+      sendLines(responses[lowerCaseMacro])
     }
     if (cb != null) cb()
   }

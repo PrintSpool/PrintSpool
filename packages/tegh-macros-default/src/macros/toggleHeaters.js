@@ -29,7 +29,7 @@ const toggleHeaters = createMacroExpansionReducer(meta, (
 
     if (enable) {
       targetTemperatures[address] = (
-        getHeaterMaterialTargets(config).get(heater.id)
+        getHeaterMaterialTargets(config).get(heater.id) || 0
       )
     } else {
       targetTemperatures[address] = 0

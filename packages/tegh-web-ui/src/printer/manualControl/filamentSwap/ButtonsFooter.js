@@ -8,7 +8,6 @@ import StepperContext from './StepperContext'
 
 const ButtonsFooter = ({
   disabledNext,
-  disabledBack,
   skipButton,
   onClickNext,
 }) => {

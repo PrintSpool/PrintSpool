@@ -80,12 +80,9 @@ const parseHeaterMCodes = (
   }
   if (macro === 'M109' || macro === 'M190') {
     const targetTemperature:mixed = args.r || args.s
-    if (typeof (targetTemperature) !== 'number') {
-      throw new Error(
-        `Heater MCode target temperature is not a number on line: ${line}`,
-      )
+    if (typeof (targetTemperature) === 'number') {
+      heaterControl.changes.targetTemperature = targetTemperature
     }
-    heaterControl.changes.targetTemperature = targetTemperature
   } else if (macro !== 'M116') {
     // Only M116 (the Wait MCode) does not set a target temperature
     if (typeof args.s !== 'number') {

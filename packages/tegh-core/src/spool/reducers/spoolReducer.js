@@ -151,74 +151,78 @@ const spoolReducer = (state = initialState, action) => {
       return nextState
     }
     case REQUEST_DESPOOL: {
-      const { priorityQueues, currentTaskID, despooling } = state
-
-      let nextState = state.set('despooling', true)
-
-      const currentTask = nextState.tasks.get(currentTaskID)
+      const { priorityQueues, despooling } = state
 
       if (despooling) {
         throw new Error('Cannot request despool while already despooling')
       }
 
-      if (currentTask != null) {
-        /*
-         * despool the next line or finish the task
-         */
-        if (currentTask.currentLineNumber < currentTask.data.size - 1) {
-          /*
-           * if the task has more lines to execute then increment the line number
-           */
-          nextState = nextState
-            .updateIn(['tasks', currentTaskID, 'currentLineNumber'], i => i + 1)
-        } else {
-          /* delete the task upon completion */
-          nextState = nextState
-            .set('currentTaskID', null)
-            .update('tasks', tasks => tasks.remove(currentTaskID))
-        }
+      /*
+       * find the current task. By looking this up each despool we allow
+       * for tasks to preempt one another depending on priority.
+       */
+      const priority = priorityOrder.find(priorityOption => (
+        priorityQueues[priorityOption].size > 0
+      ))
+
+      const allQueuesAreEmpty = priority == null
+      if (allQueuesAreEmpty) {
+        return initialState
+          .set('enabledHostMacros', state.enabledHostMacros)
       }
 
-      if (nextState.currentTaskID == null) {
-        /*
-         * if the current task is done then despool the next task if there is
-         * anything to despool.
-         */
-        const priority = priorityOrder.find(priorityOption => (
-          priorityQueues[priorityOption].size > 0
-        ))
+      const currentTaskID = state.priorityQueues[priority].first()
+      let currentTask = state.tasks.get(currentTaskID)
 
-        const allQueuesAreEmpty = priority == null
-        if (allQueuesAreEmpty) {
-          return initialState
-            .set('enabledHostMacros', state.enabledHostMacros)
-        }
+      let nextState = state
+        .set('despooling', true)
+        .set('currentTaskID', currentTaskID)
 
-        const nextTaskID = state.priorityQueues[priority].first()
-
+      if (currentTask.status !== PRINTING) {
         /*
          * start the task
          */
-        nextState = nextState
-          .mergeIn(['tasks', nextTaskID], {
-            startedAt: new Date().toISOString(),
-            status: PRINTING,
-            currentLineNumber: 0,
-          })
-          .set('currentTaskID', nextTaskID)
-          .updateIn(['priorityQueues', priority], list => list.shift())
+        currentTask = currentTask.merge({
+          startedAt: new Date().toISOString(),
+          status: PRINTING,
+          currentLineNumber: 0,
+        })
+      } else {
+        /*
+         * if the task is already printing then increment the line number
+         */
+        currentTask = currentTask.update('currentLineNumber', i => i + 1)
       }
 
-      const nextTask = nextState.tasks.get(nextState.currentTaskID)
+      nextState = nextState.setIn(['tasks', currentTaskID], currentTask)
+
       return loop(
         nextState,
-        Cmd.action(despoolTask(nextTask, state.enabledHostMacros)),
+        Cmd.action(despoolTask(currentTask, state.enabledHostMacros)),
       )
     }
     case DESPOOL_COMPLETED: {
-      const nextState = state
+      let nextState = state
         .set('despooling', false)
         .set('despoolRequested', true)
+
+      const currentTask = state.tasks.get(state.currentTaskID)
+
+      if (
+        currentTask != null
+        && currentTask.currentLineNumber === currentTask.data.size - 1
+      ) {
+        /*
+         * delete the task upon completion
+         */
+        nextState = nextState
+          .set('currentTaskID', null)
+          .update('tasks', tasks => tasks.remove(currentTask.id))
+          .updateIn(['priorityQueues', currentTask.priority], list => (
+            list.filter(id => id !== currentTask.id)
+          ))
+      }
+
       return loop(nextState, Cmd.action(requestDespool()))
     }
     default: {
