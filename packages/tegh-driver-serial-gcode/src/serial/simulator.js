@@ -28,9 +28,10 @@ const simulator = () => {
 
   const sendLines = lines => (
     lines({
-      extruder: temperatures.e0,
-      bed: temperatures.b,
+      extruder: temperatures.e0 - 2 + Math.random() * 4,
+      bed: temperatures.b - 2 + Math.random() * 4,
     }).forEach((line) => {
+      // console.log(line)
       setImmediate(() => {
         parser.emit('data', line)
       })
@@ -54,14 +55,10 @@ const simulator = () => {
       targets[id] = changes.targetTemperature || 22
     }
 
-    const words = line.split(/ +/)
-    const code = (() => {
-      if (words[1] == null) return null
-      return words[1].toLowerCase().replace(/\*.*|\n/g, '')
-    })()
-    if (responses[code] == null) {
+    if (responses[macro.toLowerCase()] == null) {
       sendLines(responses.g1)
-    } else if (code === 'm109') {
+    } else if (macro === 'M109') {
+      // console.log('TX!!!', macro)
       let linesSent = 0
 
       const sendNextLine = () => {
@@ -69,14 +66,14 @@ const simulator = () => {
           return sendLines(responses.m105)
         }
 
-        sendLines(responses[code])
+        sendLines(responses.m109)
         linesSent += 1
         setTimeout(sendNextLine, 2000 / 50)
       }
 
       sendNextLine()
     } else {
-      sendLines(responses[code])
+      sendLines(responses[macro.toLowerCase()])
     }
     if (cb != null) cb()
   }

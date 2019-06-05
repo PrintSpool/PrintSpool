@@ -35,14 +35,16 @@ const ButtonsFooter = ({
 
   return (
     <div>
-      <Button
-        disabled={disabledBack || activeStep === 0}
-        onClick={
-          useCallback(() => setActiveStep(activeStep - 1), [activeStep])
-        }
-      >
-        Back
-      </Button>
+      {/*
+        <Button
+          disabled={disabledBack || activeStep === 0}
+          onClick={
+            useCallback(() => setActiveStep(activeStep - 1), [activeStep])
+          }
+        >
+          Back
+        </Button>
+      */}
       { skipButton && (
         <Button
           onClick={

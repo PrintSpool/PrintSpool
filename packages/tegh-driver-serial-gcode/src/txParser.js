@@ -145,7 +145,9 @@ const parseFanMCodes = (
   }
 }
 
-const txParser = ({ macro, args }) => {
+const txParser = ({ macro: anycaseMacro, args }) => {
+  const macro = anycaseMacro.toUpperCase()
+
   if (macro.startsWith('T')) {
     return {
       activeExtruderID: macro.slice(1),

@@ -31,14 +31,14 @@ const useLiveSubscription = (subscription, options = {}) => {
     }
   }
 
-  const { error, loading } = useSubscription(subscription, {
+  const { error } = useSubscription(subscription, {
     ...options,
     onSubscriptionData,
   })
 
   return {
     error,
-    loading,
+    loading: state == null && error == null,
     data: state,
   }
 }

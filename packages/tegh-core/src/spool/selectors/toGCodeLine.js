@@ -13,7 +13,7 @@ const toGCodeLine = createSelector(
     const argsString = Object.entries(args)
       .map(([k, v]) => `${k.toUpperCase()}${v}`)
       .join(' ')
-    const line = `${macro} ${argsString}`
+    const line = `${macro.toUpperCase()} ${argsString}`
 
     return line.trim()
   },

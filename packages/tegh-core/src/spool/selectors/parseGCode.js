@@ -5,7 +5,7 @@ const parseGCode = (line) => {
      * eg: `{ "g1": {"x": 10, "y": 30} }`
      */
     const jsonGCode = JSON.parse(line)
-    const [macro] = Object.keys(jsonGCode)
+    const macro = Object.keys(jsonGCode)[0]
     const args = jsonGCode[macro]
 
     return { macro, args }
