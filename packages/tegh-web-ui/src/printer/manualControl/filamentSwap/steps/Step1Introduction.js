@@ -7,9 +7,7 @@ import { useTranslation } from 'react-i18next'
 
 import ButtonsFooter from '../ButtonsFooter'
 
-const Step1InstallTegh = ({
-  history,
-}) => {
+const Step1Introduction = () => {
   const { t } = useTranslation('filamentSwap')
 
   return (
@@ -20,9 +18,15 @@ const Step1InstallTegh = ({
       <Typography variant="body1">
         {t('intro.content')}
       </Typography>
-      <ButtonsFooter step={1} history={history} />
+
+      <ButtonsFooter
+        skipButton={{
+          step: 4,
+          label: t('intro.skipToFilamentSelection'),
+        }}
+      />
     </React.Fragment>
   )
 }
 
-export default Step1InstallTegh
+export default Step1Introduction

@@ -5,17 +5,32 @@ import {
 
 import { useTranslation } from 'react-i18next'
 
+import ButtonsFooter from '../ButtonsFooter'
 import TemperatureChart from '../../TemperatureChart'
 import useExecGCodes from '../../../_hooks/useExecGCodes'
 
 import HeatExtruderStyles from './HeatExtruderStyles'
 
 const HeatExtruder = ({
-  printerID,
+  printer,
   component,
+  next,
 }) => {
   const classes = HeatExtruderStyles()
   const { t } = useTranslation('filamentSwap')
+
+  const heatExtruder = useExecGCodes(() => ({
+    printer,
+    gcodes: [
+      { toggleHeaters: { heaters: { [component.address]: true }, sync: true } },
+    ],
+    update: () => {
+      // Wait for the extruder to reach temperature and then go to the next step
+      next()
+    },
+  }))
+
+  useEffect(heatExtruder, [])
 
   const {
     materialTarget,
@@ -24,31 +39,27 @@ const HeatExtruder = ({
     history,
   } = component.heater
 
-  const heat = useExecGCodes(() => ({
-    printerID,
-    gcodes: [
-      { toggleHeaters: { heaters: { [component.address]: true }, sync: true } },
-    ],
-  }))
-
-  // TODO:  is this how you do something on mount?
-  useEffect(heat, [])
-
   return (
-    <div className={classes.root}>
-      <Typography variant="h5" className={classes.title}>
-        {t('heatExtruder.title', {
-          currentTemperature: currentTemperature.toFixed(1),
-          targetTemperature,
-        })}
-      </Typography>
+    <React.Fragment>
+      <div className={classes.root}>
+        <Typography variant="h5" className={classes.title}>
+          {t('heatExtruder.title', {
+            currentTemperature: currentTemperature.toFixed(1),
+            targetTemperature,
+          })}
+        </Typography>
 
-      <TemperatureChart
-        className={classes.chart}
-        data={history}
-        materialTarget={materialTarget}
+        <TemperatureChart
+          className={classes.chart}
+          data={history}
+          materialTarget={materialTarget}
+        />
+      </div>
+      <ButtonsFooter
+        disabledNext
+        disabledBack
       />
-    </div>
+    </React.Fragment>
   )
 }
 

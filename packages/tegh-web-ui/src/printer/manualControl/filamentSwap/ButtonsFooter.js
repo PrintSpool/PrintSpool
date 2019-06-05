@@ -1,43 +1,65 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useContext, useCallback } from 'react'
 
 import {
   Button,
 } from '@material-ui/core'
 
-import GettingStartedStyles from './GettingStartedStyles'
+import StepperContext from './StepperContext'
 
 const ButtonsFooter = ({
-  step,
-  disable,
-  component,
-  type = 'button',
-  history,
+  disabledNext,
+  disabledBack,
+  skipButton,
+  onClickNext,
 }) => {
-  const classes = GettingStartedStyles()
+  const context = useContext(StepperContext)
+
+  const {
+    activeStep,
+    setActiveStep,
+    totalSteps,
+    close,
+  } = context
+
+  const lastStep = activeStep === totalSteps - 1
+
+  const next = useCallback(() => {
+    if (onClickNext != null) {
+      onClickNext()
+    } else if (lastStep) {
+      close()
+    } else {
+      context.next()
+    }
+  }, [activeStep])
 
   return (
-    <div className={classes.buttons}>
+    <div>
       <Button
-        className={classes.button}
-        onClick={() => history.goBack()}
+        disabled={disabledBack || activeStep === 0}
+        onClick={
+          useCallback(() => setActiveStep(activeStep - 1), [activeStep])
+        }
       >
         Back
       </Button>
+      { skipButton && (
+        <Button
+          onClick={
+            useCallback(() => setActiveStep(skipButton.step), [skipButton])
+          }
+        >
+          { skipButton.label }
+        </Button>
+      )}
+
       <Button
         variant="contained"
         color="primary"
-        disabled={disable}
-        className={classes.button}
-        type={type}
-        component={component || (props => (
-          <Link
-            to={step === 4 ? '/' : `/get-started/${step + 1}`}
-            {...props}
-          />
-        ))}
+        disabled={disabledNext}
+        onClick={next}
       >
-        {step === 4 ? 'Finish' : 'Next'}
+        {lastStep ? 'Finish' : 'Next'}
       </Button>
     </div>
   )
