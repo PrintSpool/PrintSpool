@@ -6,14 +6,25 @@ import {
 import { useTranslation } from 'react-i18next'
 
 import ExtrudeRetractButtons from '../../ExtrudeRetractButtons'
+import useExecGCodes from '../../../_hooks/useExecGCodes'
 
 import ButtonsFooter from '../ButtonsFooter'
 
 const Step7LoadFilament = ({
   printer,
   component,
+  next,
 }) => {
   const { t } = useTranslation('filamentSwap')
+
+  const disableExtruder = useExecGCodes(() => ({
+    printer,
+    gcodes: [
+      { toggleHeaters: { heaters: { [component.address]: false } } },
+    ],
+    // Wait for the extruder to reach temperature and then go to the next step
+    update: next,
+  }))
 
   return (
     <React.Fragment>
@@ -33,7 +44,7 @@ const Step7LoadFilament = ({
         extrudeColor="default"
       />
 
-      <ButtonsFooter />
+      <ButtonsFooter onClickNext={disableExtruder} />
     </React.Fragment>
   )
 }

@@ -1,6 +1,7 @@
 /* config */
 export setConfig, { SET_CONFIG } from './config/actions/setConfig'
 export initializeConfig from './config/actions/initializeConfig'
+export setToolheadMaterials, { SET_TOOLHEAD_MATERIALS } from './config/actions/setToolheadMaterials'
 /* devices */
 export deviceConnected, { DEVICE_CONNECTED } from './devices/actions/deviceConnected'
 export deviceDisconnected, { DEVICE_DISCONNECTED } from './devices/actions/deviceDisconnected'

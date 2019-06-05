@@ -24,10 +24,8 @@ const HeatExtruder = ({
     gcodes: [
       { toggleHeaters: { heaters: { [component.address]: true }, sync: true } },
     ],
-    update: () => {
-      // Wait for the extruder to reach temperature and then go to the next step
-      next()
-    },
+    // Wait for the extruder to reach temperature and then go to the next step
+    update: next,
   }))
 
   useEffect(heatExtruder, [])

@@ -14,7 +14,7 @@ const PrinterResolvers = {
     //   getComponentsState(source).targetTemperaturesCountdown
     // ),
 
-    activeExtruderID: source => getComponentsState(source).activeExtruderID,
+    // activeExtruderID: source => getComponentsState(source).activeExtruderID,
 
     motorsEnabled: source => getComponentsState(source).motorsEnabled,
 

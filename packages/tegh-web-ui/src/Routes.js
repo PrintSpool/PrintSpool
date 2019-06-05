@@ -105,13 +105,12 @@ const Routes = ({
                 <Route exact path="/q/:hostID/graphql-playground/" component={GraphQLPlayground} />
 
                 <Route
-                  exact
                   path="/p/:hostID/:printerID/manual-control/"
                   component={ManualControlPage}
                 />
                 <Route
                   exact
-                  path="/p/:hostID/:printerID/manual-control/:componentID/swap-filament"
+                  path="/p/:hostID/:printerID/manual-control/swap-filament/:componentID"
                   component={FilamentSwapDialog}
                 />
 

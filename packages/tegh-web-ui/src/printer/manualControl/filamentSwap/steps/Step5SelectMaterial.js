@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import {
   Typography,
   TextField,
@@ -28,10 +28,8 @@ const Step5SelectMaterial = ({
     gcodes: [
       { setMaterials: { toolheads: { [component.address]: materialID } } },
     ],
-    update: () => {
-      next()
-    },
-  }))
+    update: next,
+  }), [materialID])
 
   return (
     <React.Fragment>
@@ -42,7 +40,7 @@ const Step5SelectMaterial = ({
       <TextField
         label="Material"
         value={materialID}
-        onChange={setMaterialID}
+        onChange={useCallback(e => setMaterialID(e.target.value))}
         select
         fullWidth
       >

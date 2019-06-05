@@ -14,7 +14,7 @@ const filamentSwapEn = {
       ({{currentTemperature}} / {{targetTemperature}}°C)...
     `,
   },
-  retracct: {
+  retract: {
     title: 'Retracting {{distance}}mm of filament',
   },
 }

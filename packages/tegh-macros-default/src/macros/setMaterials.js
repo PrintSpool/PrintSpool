@@ -14,7 +14,7 @@ const { TOOLHEAD } = ComponentTypeEnum
 
 const meta = {
   package: '@tegh/macros-default',
-  macro: 'setMaterial',
+  macro: 'setMaterials',
 }
 
 export const initialState = Record({
@@ -46,8 +46,8 @@ const setMaterials = (state = initialState, action) => {
 
       let nextConfig = state.config
 
-      Object.entries(toolheads, ([address, materialID]) => {
-        const component = config.printer.components.find(c => (
+      Object.entries(toolheads).forEach(([address, materialID]) => {
+        const [index, component] = config.printer.components.findEntry(c => (
           c.model.get('address') === address
         ))
 
@@ -62,7 +62,7 @@ const setMaterials = (state = initialState, action) => {
         }
 
         nextConfig = nextConfig.setIn(
-          ['printer', 'components', component.id, 'model', 'materialID'],
+          ['printer', 'components', index, 'model', 'materialID'],
           materialID,
         )
       })

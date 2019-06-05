@@ -105,7 +105,7 @@ const ToolheadAndBedControl = ({
                       <Button
                         component={useCallback(props => (
                           <Link
-                            to={`${component.id}/swap-filament`}
+                            to={`swap-filament/${component.id}`}
                             style={{ textDecoration: 'none' }}
                             {...props}
                           />

@@ -14,23 +14,11 @@ const ButtonsFooter = ({
   const context = useContext(StepperContext)
 
   const {
-    activeStep,
+    // activeStep,
     setActiveStep,
-    totalSteps,
-    close,
+    next,
+    lastStep,
   } = context
-
-  const lastStep = activeStep === totalSteps - 1
-
-  const next = useCallback(() => {
-    if (onClickNext != null) {
-      onClickNext()
-    } else if (lastStep) {
-      close()
-    } else {
-      context.next()
-    }
-  }, [activeStep])
 
   return (
     <div>
@@ -58,7 +46,7 @@ const ButtonsFooter = ({
         variant="contained"
         color="primary"
         disabled={disabledNext}
-        onClick={next}
+        onClick={onClickNext || next}
       >
         {lastStep ? 'Finish' : 'Next'}
       </Button>

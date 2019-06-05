@@ -29,10 +29,11 @@ type Printer {
   # """
   # targetTemperaturesCountdown: Float
 
-  """
-  The active extruder ID
-  """
-  activeExtruderID: String
+  # """
+  # The active extruder ID
+  # """
+  # activeExtruderID: String
+
   motorsEnabled: Boolean!
   status: PrinterStatusEnum!
   error: PrinterError

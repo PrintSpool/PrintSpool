@@ -34,6 +34,11 @@ const FILAMENT_SWAP_SUBSCRIPTION = gql`
           components(componentID: $componentID) {
             id
             address
+            name
+            configForm {
+              id
+              model
+            }
             heater {
               currentTemperature
               targetTemperature
@@ -108,17 +113,25 @@ const FilamentSwapDialog = ({
 
   const open = true
   const close = useCallback(() => {
-    history.go(history.location.replace(/\/[^/]+$/))
+    history.push('../')
   })
 
   const [activeStep, setActiveStep] = useState(0)
+  const lastStep = activeStep === steps.length - 1
 
   const context = {
     activeStep,
     setActiveStep,
-    totalSteps: steps.length,
     close,
-    next: useCallback(() => setActiveStep(activeStep + 1)),
+    totalSteps: steps.length,
+    lastStep,
+    next: useCallback(() => {
+      if (lastStep) {
+        close()
+      } else {
+        setActiveStep(activeStep + 1)
+      }
+    }, [activeStep, close, lastStep]),
   }
 
   if (loading) {
@@ -155,7 +168,6 @@ const FilamentSwapDialog = ({
         <StepperContext.Provider value={context}>
           <Stepper
             activeStep={activeStep}
-            alternativeLabel
             orientation="vertical"
           >
             {steps.map((step, index) => {

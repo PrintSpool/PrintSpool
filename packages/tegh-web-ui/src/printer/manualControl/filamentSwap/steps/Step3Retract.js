@@ -23,13 +23,11 @@ const Step3Retract = ({
     gcodes: [
       { moveBy: { distances: { [component.address]: distance } } },
     ],
-    update: () => {
-      // Wait for the filament to retract and then go to the next step
-      next()
-    },
+    // Wait for the filament to retract and then go to the next step
+    update: next,
   }))
 
-  useEffect(() => retractFilament, [])
+  useEffect(retractFilament, [])
 
   return (
     <React.Fragment>
@@ -37,7 +35,7 @@ const Step3Retract = ({
         {t('retract.title', { distance })}
       </Typography>
 
-      <ButtonsFooter />
+      <ButtonsFooter disabledNext />
     </React.Fragment>
   )
 }
