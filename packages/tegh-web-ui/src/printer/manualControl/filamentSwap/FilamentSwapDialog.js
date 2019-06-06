@@ -5,13 +5,11 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  Stepper,
-  Step,
-  StepLabel,
-  StepContent,
 } from '@material-ui/core'
 
 import { useTranslation } from 'react-i18next'
+
+import SwipeableViews from 'react-swipeable-views'
 
 import useLiveSubscription from '../../_hooks/useLiveSubscription'
 
@@ -165,35 +163,30 @@ const FilamentSwapDialog = ({
         exit: 0,
       }}
     >
-      <DialogTitle id="material-dialog-title" onClose={close}>
-        {t('title', component)}
-      </DialogTitle>
       <DialogContent className={classes.root}>
         <StepperContext.Provider value={context}>
-          <Stepper
-            activeStep={activeStep}
-            orientation="vertical"
+          <SwipeableViews
+            index={activeStep}
+            onChangeIndex={setActiveStep}
           >
             {steps.map((step, index) => {
               const ComponentForStep = step.component
 
               return (
-                <Step key={step.name}>
-                  <StepLabel>{step.name}</StepLabel>
-                  <StepContent>
-                    { index <= activeStep && (
-                      <ComponentForStep
-                        printer={printer}
-                        component={component}
-                        materials={materials}
-                        next={context.next}
-                      />
-                    )}
-                  </StepContent>
-                </Step>
+                // eslint-disable-next-line react/no-array-index-key
+                <div key={index}>
+                  { index <= activeStep && (
+                    <ComponentForStep
+                      printer={printer}
+                      component={component}
+                      materials={materials}
+                      next={context.next}
+                    />
+                  )}
+                </div>
               )
             })}
-          </Stepper>
+          </SwipeableViews>
         </StepperContext.Provider>
       </DialogContent>
     </Dialog>

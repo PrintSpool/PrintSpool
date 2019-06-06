@@ -50,7 +50,7 @@ const StaticTopNavigation = ({
           <MenuIcon />
         </IconButton>
       </Hidden>
-      <Typography variant="h5" inline className={classes.title}>
+      <Typography variant="h5" className={classes.title}>
         {title()}
       </Typography>
       <div

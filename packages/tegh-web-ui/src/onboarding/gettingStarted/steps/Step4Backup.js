@@ -50,11 +50,15 @@ const Step4Backup = ({
             variant="contained"
             color="primary"
             onClick={() => history.push('/')}
-            component={props => (
-              <a href={userDataURL} {...props}>
+            component={React.forwardRef((props, ref) => (
+              <a
+                href={userDataURL}
+                ref={ref}
+                {...props}
+              >
                 {props.children}
               </a>
-            )}
+            ))}
           >
             Download User Data Backup
           </Button>

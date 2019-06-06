@@ -28,13 +28,14 @@ const Home = () => {
         actions={({ buttonClass }) => (
           <Button
             className={buttonClass}
-            component={props => (
+            component={React.forwardRef((props, ref) => (
               <Link
                 to="/get-started"
                 className={classes.manage}
+                innerRef={ref}
                 {...props}
               />
-            )}
+            ))}
           >
             Add Printer
           </Button>
@@ -48,17 +49,18 @@ const Home = () => {
               <ListItemSecondaryAction>
                 <Button
                   className={classes.manage}
-                  component={props => (
+                  component={React.forwardRef((props, ref) => (
                     <Link
                       to={`/q/${host.id}/`}
                       className={classes.manage}
+                      innerRef={ref}
                       {...props}
                     />
-                  )}
+                  ))}
                 >
                   Manage
                 </Button>
-                <PrintButton href={`/print/?q=${host.id}`}/>
+                <PrintButton href={`/print/?q=${host.id}`} />
               </ListItemSecondaryAction>
             </ListItem>
           ))}

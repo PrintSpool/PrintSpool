@@ -16,8 +16,8 @@ import FileInput from '../../common/FileInput'
 const styles = theme => ({
   fab: {
     position: 'fixed',
-    bottom: theme.spacing.unit * 4 + 56,
-    right: theme.spacing.unit * 2,
+    bottom: theme.spacing(4) + 56,
+    right: theme.spacing(2),
   },
 })
 

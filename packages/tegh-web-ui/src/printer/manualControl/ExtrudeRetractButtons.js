@@ -8,7 +8,7 @@ import useJog from '../_hooks/useJog'
 
 import JogDistanceButtons from './jog/JogDistanceButtons'
 
-const ExtruderButtons = ({
+const ExtrudeRetractButtons = ({
   printer,
   address,
   disabled,
@@ -25,7 +25,7 @@ const ExtruderButtons = ({
   return (
     <Grid
       container
-      spacing={8}
+      spacing={1}
     >
       <Grid item xs={12}>
         <div style={{ textAlign: 'right' }}>
@@ -70,4 +70,4 @@ const ExtruderButtons = ({
   )
 }
 
-export default ExtruderButtons
+export default ExtrudeRetractButtons

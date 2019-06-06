@@ -5,11 +5,11 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'column',
     width: '100%',
-    padding: theme.spacing.unit * 2,
+    padding: theme.spacing(2),
   },
   terminalHistory: {
     flexGrow: 1,
-    marginTop: theme.spacing.unit * 4,
+    marginTop: theme.spacing(4),
     maxHeight: 'calc(100vh - 200px)',
     overflowY: 'scroll',
   },
@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme => ({
   },
   input: {
     flexGrow: 1,
-    marginRight: theme.spacing.unit * 2,
+    marginRight: theme.spacing(2),
   },
   createdAt: {
     color: '#666',

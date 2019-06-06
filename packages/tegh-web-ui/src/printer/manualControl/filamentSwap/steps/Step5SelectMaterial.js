@@ -33,7 +33,7 @@ const Step5SelectMaterial = ({
 
   return (
     <React.Fragment>
-      <Typography variant="h5">
+      <Typography variant="h6">
         {t('selectMaterial.title')}
       </Typography>
 

@@ -28,7 +28,7 @@ const Step7LoadFilament = ({
 
   return (
     <React.Fragment>
-      <Typography variant="h5" paragraph>
+      <Typography variant="h6" paragraph>
         {t('loadFilament.title')}
       </Typography>
       <Typography variant="body1" paragraph>

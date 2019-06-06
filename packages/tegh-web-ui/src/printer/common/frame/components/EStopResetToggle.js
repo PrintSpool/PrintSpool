@@ -15,13 +15,13 @@ import StatusDialog from './StatusDialog'
 
 const styles = theme => ({
   leftIcon: {
-    marginRight: theme.spacing.unit,
+    marginRight: theme.spacing(1),
   },
   rightIcon: {
-    marginLeft: theme.spacing.unit,
+    marginLeft: theme.spacing(1),
   },
   status: {
-    marginRight: theme.spacing.unit,
+    marginRight: theme.spacing(1),
   },
   toggleEStopReset: {
     backgroundColor: theme.palette.background.default,

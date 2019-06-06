@@ -4,11 +4,11 @@ const useStyles = makeStyles(theme => ({
   root: {
   },
   donateButton: {
-    marginRight: theme.spacing.unit * 2,
+    marginRight: theme.spacing(2),
   },
   donationButtonLogo: {
     height: '1em',
-    marginRight: theme.spacing.unit,
+    marginRight: theme.spacing(1),
   },
 }), { withTheme: true })
 

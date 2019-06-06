@@ -45,12 +45,12 @@ const CONFIG_SUBSCRIPTION = gql`
 
 const styles = theme => ({
   title: {
-    paddingTop: theme.spacing.unit * 3,
+    paddingTop: theme.spacing(3),
   },
   addFab: {
     position: 'fixed',
-    bottom: theme.spacing.unit * 4,
-    right: theme.spacing.unit * 2,
+    bottom: theme.spacing(4),
+    right: theme.spacing(2),
   },
 })
 
@@ -114,13 +114,14 @@ const MaterialsConfigIndex = ({
     <Tooltip title="Add Component" placement="left">
       <Fab
         disabled={hasPendingUpdates || printers[0].status === 'PRINTING'}
-        component={props => (
+        component={React.forwardRef((props, ref) => (
           <Link
             to="new/"
+            innerRef={ref}
             style={{ textDecoration: 'none' }}
             {...props}
           />
-        )}
+        ))}
         className={classes.addFab}
       >
         <Add />
@@ -133,7 +134,9 @@ const MaterialsConfigIndex = ({
             button
             divider
             key={material.id}
-            component={props => <Link to={`${material.id}/`} {...props} />}
+            component={React.forwardRef((props, ref) => (
+              <Link to={`${material.id}/`} innerRef={ref} {...props} />
+            ))}
           >
             <ListItemIcon>
               <Style />

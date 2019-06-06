@@ -78,7 +78,7 @@ const ManualControl = ({ printer, isReady }) => (
       >
         <Grid
           container
-          spacing={16}
+          spacing={2}
           style={{ marginTop: 16, marginBottom: 16 }}
         >
           <Grid item xs={12} lg={6}>
@@ -97,7 +97,7 @@ const ManualControl = ({ printer, isReady }) => (
       </Loader>
       <Grid
         container
-        spacing={16}
+        spacing={2}
       >
         {
           printer.components

@@ -10,8 +10,8 @@ const useStyles = makeStyles(theme => ({
     background: '#DD25C4',
     paddingTop: 10,
     paddingBottom: 10,
-    paddingLeft: theme.spacing.unit * 2,
-    paddingRight: theme.spacing.unit * 2,
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
   },
   withMenu: {
     [theme.breakpoints.down('sm')]: {
@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
   },
   logo: {
     height: 50,
-    marginRight: theme.spacing.unit * 2,
+    marginRight: theme.spacing(2),
   },
   title: {
     color: 'white',

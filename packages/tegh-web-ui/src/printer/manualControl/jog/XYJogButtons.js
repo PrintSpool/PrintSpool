@@ -27,7 +27,7 @@ const XYJogButtons = ({ printer }) => {
       <CardContent>
         <Grid
           container
-          spacing={24}
+          spacing={3}
         >
           <JogButton xs={12} onClick={jog('y', -1)}>
             <ArrowUpward />

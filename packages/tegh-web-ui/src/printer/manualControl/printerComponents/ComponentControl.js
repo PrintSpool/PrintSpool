@@ -62,7 +62,7 @@ const ToolheadAndBedControl = ({
       <CardContent>
         <Grid
           container
-          spacing={24}
+          spacing={3}
         >
           <Grid item xs={12} md={component.fan ? 12 : 4}>
             <Typography variant="subtitle1">
@@ -103,9 +103,10 @@ const ToolheadAndBedControl = ({
                   customButton={
                     toolhead && (
                       <Button
-                        component={useCallback(props => (
+                        component={React.forwardRef((props, ref) => (
                           <Link
                             to={`swap-filament/${component.id}`}
+                            innerRef={ref}
                             style={{ textDecoration: 'none' }}
                             {...props}
                           />

@@ -64,7 +64,7 @@ const styles = theme => ({
   content: {
     backgroundColor: theme.palette.background.default,
     width: '100%',
-    padding: theme.spacing.unit * 3,
+    padding: theme.spacing(3),
     height: 'calc(100% - 56px)',
     marginTop: 56,
     [theme.breakpoints.up('sm')]: {
@@ -86,7 +86,9 @@ const DrawerLink = withRouter(({
 }) => (
   <ListItem
     button
-    component={props => <Link to={href} {...props} />}
+    component={React.forwardRef((props, ref) => (
+      <Link to={href} innerRef={ref} {...props} />
+    ))}
     className={location.pathname === href ? classes.activeLink : null}
   >
     {

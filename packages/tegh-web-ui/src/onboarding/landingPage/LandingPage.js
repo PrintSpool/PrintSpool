@@ -102,7 +102,7 @@ const LandingPage = () => {
 
       <Grid
         container
-        spacing={32}
+        spacing={4}
         style={{
           marginLeft: -32,
           paddingLeft: 32 + 32,

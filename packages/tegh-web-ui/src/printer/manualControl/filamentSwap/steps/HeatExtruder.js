@@ -39,7 +39,7 @@ const HeatExtruder = ({
   return (
     <React.Fragment>
       <div className={classes.root}>
-        <Typography variant="h5" className={classes.title}>
+        <Typography variant="h6" className={classes.title}>
           {t('heatExtruder.title', {
             currentTemperature: (currentTemperature || 0).toFixed(1),
             targetTemperature: (materialTarget || 0).toFixed(1),

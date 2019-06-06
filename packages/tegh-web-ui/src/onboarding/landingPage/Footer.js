@@ -31,7 +31,9 @@ const Footer = ({ t }) => {
             color="primary"
             size="large"
             className={classes.callToActionButton}
-            component={props => <Link to="/get-started/" {...props} />}
+            component={React.forwardRef((props, ref) => (
+              <Link to="/get-started/" innerRef={ref} {...props} />
+            ))}
           >
             {t('hero.callToActionButton')}
           </Button>

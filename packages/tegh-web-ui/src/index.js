@@ -2,9 +2,6 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 // import { ReduxSnackbar } from '@d1plo1d/material-ui-redux-snackbar'
 // import { ApolloProvider } from 'react-apollo
-import { install } from '@material-ui/styles'
-
-install()
 
 // eslint-disable-next-line import/first
 import App from './App'

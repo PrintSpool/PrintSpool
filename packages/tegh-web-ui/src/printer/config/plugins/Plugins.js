@@ -46,13 +46,13 @@ const PLUGINS_SUBSCRIPTION = gql`
 
 const styles = theme => ({
   title: {
-    paddingTop: theme.spacing.unit * 3,
+    paddingTop: theme.spacing(3),
   },
   addFab: {
     position: 'fixed',
     zIndex: 10,
-    bottom: theme.spacing.unit * 4,
-    right: theme.spacing.unit * 2,
+    bottom: theme.spacing(4),
+    right: theme.spacing(2),
   },
 })
 
@@ -134,13 +134,14 @@ const ComponentsConfigIndex = ({
     <Tooltip title="Add Plugin" placement="left">
       <Fab
         disabled={hasPendingUpdates || status === 'PRINTING'}
-        component={props => (
+        component={React.forwardRef((props, ref) => (
           <Link
             to="new/"
+            innerRef={ref}
             style={{ textDecoration: 'none' }}
             {...props}
           />
-        )}
+        ))}
         className={classes.addFab}
       >
         <Add />
@@ -153,9 +154,9 @@ const ComponentsConfigIndex = ({
             button
             divider
             key={plugin.id}
-            component={props => (
-              <Link to={`${plugin.id}/`} {...props} />
-            )}
+            component={React.forwardRef((props, ref) => (
+              <Link to={`${plugin.id}/`} innerRef={ref} {...props} />
+            ))}
           >
             <ListItemIcon>
               <Widgets />

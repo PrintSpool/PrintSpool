@@ -18,7 +18,7 @@ const styles = theme => ({
     height: '90vh',
   },
   progress: {
-    marginRight: theme.spacing.unit * 2,
+    marginRight: theme.spacing(2),
   },
 })
 

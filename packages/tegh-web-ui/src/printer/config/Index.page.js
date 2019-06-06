@@ -118,25 +118,33 @@ const ConfigPage = ({
       </ListItem>
       <ListItem
         button
-        component={props => <Link to="printer/" {...props} />}
+        component={React.forwardRef((props, ref) => (
+          <Link to="printer/" innerRef={ref} {...props} />
+        ))}
       >
         <ListItemText primary="3D Printer" />
       </ListItem>
       <ListItem
         button
-        component={props => <Link to="components/" {...props} />}
+        component={React.forwardRef((props, ref) => (
+          <Link to="components/" innerRef={ref} {...props} />
+        ))}
       >
         <ListItemText primary="Components" />
       </ListItem>
       <ListItem
         button
-        component={props => <Link to="plugins/" {...props} />}
+        component={React.forwardRef((props, ref) => (
+          <Link to="plugins/" innerRef={ref} {...props} />
+        ))}
       >
         <ListItemText primary="Plugins" />
       </ListItem>
       <ListItem
         button
-        component={props => <Link to="materials/" {...props} />}
+        component={React.forwardRef((props, ref) => (
+          <Link to="materials/" innerRef={ref} {...props} />
+        ))}
       >
         <ListItemText primary="Materials" />
       </ListItem>

@@ -17,7 +17,7 @@ const Step4RemoveFilament = ({
 
   return (
     <React.Fragment>
-      <Typography variant="h5">
+      <Typography variant="h6">
         {t('remove.title')}
       </Typography>
       <Typography variant="body1">
