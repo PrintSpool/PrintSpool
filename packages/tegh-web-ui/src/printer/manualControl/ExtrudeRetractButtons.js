@@ -27,16 +27,7 @@ const ExtruderButtons = ({
       container
       spacing={8}
     >
-      <Grid item sm={6}>
-        <JogDistanceButtons
-          distanceOptions={distanceOptions}
-          input={{
-            value: distance,
-            onChange,
-          }}
-        />
-      </Grid>
-      <Grid item sm={6}>
+      <Grid item xs={12}>
         <div style={{ textAlign: 'right' }}>
           { customButton }
           { customButton && (showExtrude || showRetract) && (
@@ -65,6 +56,15 @@ const ExtruderButtons = ({
             </Button>
           )}
         </div>
+      </Grid>
+      <Grid item xs={12}>
+        <JogDistanceButtons
+          distanceOptions={distanceOptions}
+          input={{
+            value: distance,
+            onChange,
+          }}
+        />
       </Grid>
     </Grid>
   )
