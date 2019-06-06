@@ -11,6 +11,8 @@ import {
   StepContent,
 } from '@material-ui/core'
 
+import { useTranslation } from 'react-i18next'
+
 import useLiveSubscription from '../../_hooks/useLiveSubscription'
 
 import StepperContext from './StepperContext'
@@ -98,6 +100,8 @@ const FilamentSwapDialog = ({
 }) => {
   const classes = FilamentSwapDialogStyles()
 
+  const { t } = useTranslation('filamentSwap')
+
   const { printerID, componentID } = match.params
 
   const {
@@ -162,7 +166,7 @@ const FilamentSwapDialog = ({
       }}
     >
       <DialogTitle id="material-dialog-title" onClose={close}>
-        {`${component.name} Filament Swap`}
+        {t('title', component)}
       </DialogTitle>
       <DialogContent className={classes.root}>
         <StepperContext.Provider value={context}>

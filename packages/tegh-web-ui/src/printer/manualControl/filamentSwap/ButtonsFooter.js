@@ -4,6 +4,8 @@ import {
   Button,
 } from '@material-ui/core'
 
+import { useTranslation } from 'react-i18next'
+
 import StepperContext from './StepperContext'
 
 const ButtonsFooter = ({
@@ -12,6 +14,7 @@ const ButtonsFooter = ({
   onClickNext,
 }) => {
   const context = useContext(StepperContext)
+  const { t } = useTranslation('filamentSwap')
 
   const {
     // activeStep,
@@ -48,7 +51,7 @@ const ButtonsFooter = ({
         disabled={disabledNext}
         onClick={onClickNext || next}
       >
-        {lastStep ? 'Finish' : 'Next'}
+        {lastStep ? t('finishWord') : t('nextWord')}
       </Button>
     </div>
   )

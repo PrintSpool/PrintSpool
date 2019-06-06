@@ -34,11 +34,11 @@ const Step5SelectMaterial = ({
   return (
     <React.Fragment>
       <Typography variant="h5">
-        Select your new filament
+        {t('selectMaterial.title')}
       </Typography>
 
       <TextField
-        label="Material"
+        label={t('selectMaterial.materialWord')}
         value={materialID}
         onChange={useCallback(e => setMaterialID(e.target.value))}
         select

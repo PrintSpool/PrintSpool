@@ -18,11 +18,10 @@ const Step4RemoveFilament = ({
   return (
     <React.Fragment>
       <Typography variant="h5">
-        Please remove your filament
+        {t('remove.title')}
       </Typography>
       <Typography variant="body1">
-        It should now safe to remove the filament from your extruder
-        however if the filament does not come out easily you may need to retract it further.
+        {t('remove.content')}
       </Typography>
 
       <ExtrudeRetractButtons
