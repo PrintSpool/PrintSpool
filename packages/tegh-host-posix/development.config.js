@@ -123,12 +123,20 @@ const printerConfig = {
         machineDefinitionURL: 'dat://a295acba915cf57a98854f9f4ecf4be0aa03342a1b814bed591592b611f87e66+preview/definitions/alfawise_u20.def.json',
         name: 'New Printer',
         automaticPrinting: false,
+        macros: [
+          '*',
+        ],
       },
     },
     {
       id: '2',
       modelVersion: 1,
       package: '@tegh/driver-serial-gcode',
+      model: {
+        macros: [
+          '*',
+        ],
+      },
     },
     {
       id: '3',

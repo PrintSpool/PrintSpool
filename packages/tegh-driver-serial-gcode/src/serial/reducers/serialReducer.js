@@ -110,16 +110,15 @@ const serialReducer = (state = initialState, action) => {
         .set('serialPort', action.payload.serialPort)
     }
     case SERIAL_SEND: {
-      // Resets are handled by reconnecting the serial port
-      if (action.payload.code === 'M999') return state
+      const {
+        line,
+        macro,
+        args,
+      } = action.payload
 
-      // Sometimes estops are attempted after the serial port is closed
-      // ignore them - an error will be thrown by the status reducer.
-      if (state.serialPort === null && action.payload.code === 'M999') {
-        return state
+      if (state.serialPort === null) {
+        throw new Error(`Cannot write to disconnected serialPort: ${line}`)
       }
-
-      const { line, macro, args } = action.payload
 
       return loop(
         state,

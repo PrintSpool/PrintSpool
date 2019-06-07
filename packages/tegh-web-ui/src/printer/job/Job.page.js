@@ -80,7 +80,7 @@ const JobPage = ({
 }) => {
   const cancelTask = useExecGCodes(() => ({
     printer,
-    gcodes: ['estop'],
+    gcodes: ['eStop'],
   }))
 
   return (

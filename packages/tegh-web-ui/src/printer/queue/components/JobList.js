@@ -54,7 +54,7 @@ const JobList = ({
 }) => {
   const cancelTask = useExecGCodes(() => ({
     printer: printers[0],
-    gcodes: ['estop'],
+    gcodes: ['eStop'],
   }))
 
   const statuses = printers.map(printer => printer.status)
