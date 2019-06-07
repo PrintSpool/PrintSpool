@@ -2,7 +2,11 @@ import Promise from 'bluebird'
 import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
 
-import { SET_CONFIG, getController } from '@tegh/core'
+import {
+  SET_CONFIG,
+  PRINTER_READY,
+  getController,
+} from '@tegh/core'
 
 import { SERIAL_RECEIVE } from '../../serial/actions/serialReceive'
 import serialSend, { SERIAL_SEND } from '../../serial/actions/serialSend'
@@ -11,6 +15,7 @@ import serialTimeout from '../../serial/actions/serialTimeout'
 import requestSerialPortTickle, { REQUEST_SERIAL_PORT_TICKLE } from '../actions/requestSerialPortTickle'
 
 export const initialState = Record({
+  lastResetAt: 0,
   awaitingLineNumber: null,
   ticklesAttempted: 0,
   timeoutPeriod: null,
@@ -23,8 +28,11 @@ export const initialState = Record({
   })(),
 })()
 
-const waitToTickleCmd = ({ awaitingLineNumber, timeoutPeriod }) => {
-  const successAction = requestSerialPortTickle({ awaitingLineNumber })
+const waitToTickleCmd = ({ awaitingLineNumber, timeoutPeriod }, createdAt) => {
+  const successAction = requestSerialPortTickle({
+    awaitingLineNumber,
+    createdAt,
+  })
 
   return Cmd.run(Promise.delay, {
     args: [timeoutPeriod],
@@ -45,8 +53,11 @@ const serialTimeoutReducer = (state = initialState, action) => {
           .toJS(),
       )
     }
+    case PRINTER_READY: {
+      return state.set('lastResetAt', Date.now())
+    }
     case SERIAL_SEND: {
-      const { lineNumber, macro } = action.payload
+      const { lineNumber, macro, createdAt } = action.payload
 
       if (typeof lineNumber !== 'number') return state
 
@@ -66,7 +77,7 @@ const serialTimeoutReducer = (state = initialState, action) => {
 
       return loop(
         nextState,
-        waitToTickleCmd(nextState),
+        waitToTickleCmd(nextState, createdAt),
       )
     }
     case SERIAL_RECEIVE: {
@@ -85,7 +96,10 @@ const serialTimeoutReducer = (state = initialState, action) => {
         .set('timeoutPeriod', null)
     }
     case REQUEST_SERIAL_PORT_TICKLE: {
-      if (action.payload.awaitingLineNumber !== state.awaitingLineNumber) {
+      if (
+        action.payload.awaitingLineNumber !== state.awaitingLineNumber
+        || action.payload.createdAt < state.lastResetAt
+      ) {
         return state
       }
 

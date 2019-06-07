@@ -1,8 +1,12 @@
 export const REQUEST_SERIAL_PORT_TICKLE = 'tegh-driver-serial-gcode/spool/REQUEST_SERIAL_PORT_TICKLE'
 
-const requestSerialPortTickle = ({ awaitingLineNumber }) => ({
+const requestSerialPortTickle = ({
+  createdAt,
+  awaitingLineNumber,
+}) => ({
   type: REQUEST_SERIAL_PORT_TICKLE,
   payload: {
+    createdAt,
     awaitingLineNumber,
   },
 })

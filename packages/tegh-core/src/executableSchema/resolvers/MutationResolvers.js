@@ -91,6 +91,8 @@ const MutationResolvers = {
     execGCodes: async (source, args, { store }) => {
       const { gcodes } = args.input
 
+      const isEmergency = gcodes.every(line => line === 'reset')
+
       const completedTask = await new Promise((resolve, reject) => {
         const action = spoolTask({
           name: '[spoolGCodes]',
@@ -103,7 +105,7 @@ const MutationResolvers = {
             */
             'noOp',
           ],
-          priority: gcodes.every(line => line === 'reset') ? EMERGENCY : NORMAL,
+          priority: isEmergency ? EMERGENCY : NORMAL,
           internal: false,
           onComplete: resolve,
           onError: reject,
