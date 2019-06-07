@@ -3,7 +3,7 @@ import gql from 'graphql-tag'
 
 const deleteJobGraphQL = gql`
   mutation deleteJob($input: DeleteJobInput!) {
-    deleteJob(input: $input) { id }
+    deleteJob(input: $input)
   }
 `
 

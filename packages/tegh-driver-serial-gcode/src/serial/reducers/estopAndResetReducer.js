@@ -34,7 +34,7 @@ const estopAndResetReducer = (state = initialState, action) => {
       const { macro, task } = action.payload
 
       if (macro === 'eStop') {
-        if (state.estopping) return state
+        if (state.estopping || state.resetting) return state
 
         const nextState = state.set('estopping', true)
 
