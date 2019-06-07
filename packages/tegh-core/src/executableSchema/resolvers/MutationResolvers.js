@@ -97,10 +97,11 @@ const MutationResolvers = {
           data: [
             ...gcodes,
             /*
-            * Synchronize the end of the task with M400 by waiting until all
-            * scheduled movements in the task are finished.
+             * the noOp executes after any macro expansions. This allows us
+             * to synchronize the end of the task/mutation with the end of a
+             * host macro if the host macro is the line line of gcode.
             */
-            'M400',
+            'noOp',
           ],
           priority: NORMAL,
           internal: false,

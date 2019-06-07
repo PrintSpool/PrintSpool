@@ -33,7 +33,7 @@ const simulator = () => {
     }).forEach((line) => {
       setTimeout(() => {
         parser.emit('data', line)
-      }, lowerCaseMacro === 'g1' ? 3000 : 10)
+      }, lowerCaseMacro === 'm400' ? 3000 : 10)
     })
   )
 

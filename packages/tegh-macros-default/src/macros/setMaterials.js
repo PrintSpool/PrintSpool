@@ -35,7 +35,7 @@ const setMaterials = (state = initialState, action) => {
       })
     }
     case DESPOOL_TASK: {
-      const { macro, args } = action.payload
+      const { macro, args, task } = action.payload
 
       if (macro !== meta.macro || !state.enabled) {
         return state
@@ -73,7 +73,7 @@ const setMaterials = (state = initialState, action) => {
           Cmd.action(setToolheadMaterials({
             config: nextConfig,
           })),
-          Cmd.action(despoolCompleted()),
+          Cmd.action(despoolCompleted({ task })),
         ]),
       )
     }

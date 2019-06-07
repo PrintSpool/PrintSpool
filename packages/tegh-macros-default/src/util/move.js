@@ -8,7 +8,12 @@ import {
 const { MOVEMENT_AXIS, EXTRUDER_AXIS } = AxisTypeEnum
 const { TOOLHEAD } = ComponentTypeEnum
 
-const move = ({ axes, relativeMovement, allowExtruderAxes }, { config }) => {
+const move = ({
+  axes,
+  sync,
+  relativeMovement,
+  allowExtruderAxes,
+}, { config }) => {
   // let validAxes = config.axes
   // if (!allowExtruderAxes) {
   //   validAxes = validAxes.filter((axis) => !axis.startsWith('e'))
@@ -49,6 +54,11 @@ const move = ({ axes, relativeMovement, allowExtruderAxes }, { config }) => {
     relativeMovement ? 'G91' : 'G90',
     { g1: { f: Math.min.apply(null, feedrates) * 60 } },
     { g1: g1Args },
+    /*
+    * Synchronize the end of the task with M400 by waiting until all
+    * scheduled movements in the task are finished.
+    */
+    ...(sync === true ? ['M400'] : []),
   ]
 }
 

@@ -9,7 +9,7 @@ import { DESPOOL_TASK } from '../../spool/actions/despoolTask'
 const jobQueueMacrosReducer = (state, action) => {
   switch (action.type) {
     case DESPOOL_TASK: {
-      const { macro, args } = action.payload
+      const { macro, args, task } = action.payload
       let nextAction = null
 
       switch (macro) {
@@ -30,7 +30,7 @@ const jobQueueMacrosReducer = (state, action) => {
         state,
         Cmd.list([
           Cmd.action(nextAction),
-          Cmd.action(despoolCompleted()),
+          Cmd.action(despoolCompleted({ task })),
         ]),
       )
     }

@@ -97,18 +97,20 @@ describe(autodropJobDownloadReducer, () => {
         const state = initialState.merge({
           downloadingJob: true,
           blocking: true,
+          despoolingTask: 'my_task'
         })
 
         const results = autodropJobDownloadReducer(state, action)
 
         expect(getCmd(results)).toEqual(Cmd.list([
           runPollAfterInterval(),
-          Cmd.action(despoolCompleted()),
+          Cmd.action(despoolCompleted({ task: 'my_task' })),
         ]))
         expect(getModel(results)).toEqual(
           state.merge({
             downloadingJob: false,
             blocking: false,
+            despoolingTask: null,
           }),
         )
       })

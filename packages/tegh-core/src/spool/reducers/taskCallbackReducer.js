@@ -1,5 +1,5 @@
 import { loop, Cmd } from 'redux-loop'
-import { Record } from 'immutable'
+import { Record, List } from 'immutable'
 
 // TODO: implement task errored in spoolReducer
 import { PRINTER_READY } from '../../printer/actions/printerReady'
@@ -10,9 +10,7 @@ import { TASK_ERRORED } from '../actions/taskErrored'
 import { DESPOOL_TASK } from '../actions/despoolTask'
 import { DESPOOL_COMPLETED } from '../actions/despoolCompleted'
 
-export const initialState = Record({
-  completingTask: null,
-})()
+export const initialState = List()
 
 const spoolReducer = (state = initialState, action) => {
   switch (action.type) {
@@ -24,40 +22,27 @@ const spoolReducer = (state = initialState, action) => {
     case TASK_ERRORED: {
       const { task } = action.payload
 
-      let nextState = state
-
-      if (task.id === state.completingTask.id) {
-        nextState = initialState
-      }
-
       if (task.onError) {
         return loop(
-          nextState,
+          state,
           Cmd.run(task.onError, {
             args: [task],
           }),
         )
       }
 
-      return nextState
-    }
-    case DESPOOL_TASK: {
-      const { isLastLineInTask, task } = action.payload
-
-      if (isLastLineInTask) {
-        return state.set('completingTask', task)
-      }
-
       return state
     }
     case DESPOOL_COMPLETED: {
-      const { completingTask } = state
+      const { task, isLastLineInTask } = action.payload
 
-      if (completingTask && completingTask.onComplete) {
+      const nextState = state.shift()
+
+      if (isLastLineInTask && task.onComplete) {
         return loop(
-          initialState,
-          Cmd.run(completingTask.onComplete, {
-            args: [completingTask],
+          nextState,
+          Cmd.run(task.onComplete, {
+            args: [task],
           }),
         )
       }

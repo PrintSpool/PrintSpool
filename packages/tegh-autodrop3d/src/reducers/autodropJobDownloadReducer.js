@@ -33,6 +33,7 @@ export const initialState = Record({
   downloadingJob: false,
   autodropJobInProgress: false,
   blocking: false,
+  despoolingTask: null,
 })()
 
 /*
@@ -77,7 +78,7 @@ const autodropJobDownloadReducer = (state = initialState, action) => {
       return nextState
     }
     case DESPOOL_TASK: {
-      const { macro } = action.payload
+      const { macro, task } = action.payload
 
       if (macro === FETCH_AUTODROP_MACRO) {
         const {
@@ -97,6 +98,7 @@ const autodropJobDownloadReducer = (state = initialState, action) => {
         const nextState = state
           .set('downloadingJob', true)
           .set('blocking', true)
+          .set('despoolingTask', task)
 
         return loop(
           nextState,
@@ -178,9 +180,12 @@ const autodropJobDownloadReducer = (state = initialState, action) => {
       ]
 
       if (state.blocking) {
-        nextState = nextState.set('blocking', false)
+        nextState = nextState
+          .set('blocking', false)
+          .set('despoolingTask', null)
+
         cmds.push(
-          Cmd.action(despoolCompleted()),
+          Cmd.action(despoolCompleted({ task: state.despoolingTask })),
         )
       }
 

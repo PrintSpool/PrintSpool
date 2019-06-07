@@ -41,7 +41,6 @@ export const initialState = Record({
     [NORMAL]: List(),
   })(),
   tasks: Map(),
-  currentTaskID: null,
   enabledHostMacros: List(),
   despoolRequested: false,
   despooling: false,
@@ -56,10 +55,6 @@ const removeTaskReferences = (state) => {
       queue.filter(taskID => nextTaskIDs.includes(taskID))
     ))
   })
-
-  if (nextTaskIDs.includes(state.currentTaskID) === false) {
-    nextState = nextState.set('currentTaskID', null)
-  }
 
   return nextState
 }
@@ -139,10 +134,10 @@ const spoolReducer = (state = initialState, action) => {
        * despool the first line if nothing is spooled
        */
       const shouldDespool = (
-        nextState.currentTaskID == null
-        && state.despooling === false
+        state.despooling === false
         && state.despoolRequested === false
       )
+
       if (shouldDespool) {
         nextState = nextState.set('despoolRequested', true)
         return loop(nextState, Cmd.action(requestDespool()))
@@ -171,18 +166,17 @@ const spoolReducer = (state = initialState, action) => {
           .set('enabledHostMacros', state.enabledHostMacros)
       }
 
-      const currentTaskID = state.priorityQueues[priority].first()
-      let currentTask = state.tasks.get(currentTaskID)
+      const taskID = state.priorityQueues[priority].first()
+      let task = state.tasks.get(taskID)
 
       let nextState = state
         .set('despooling', true)
-        .set('currentTaskID', currentTaskID)
 
-      if (currentTask.status !== PRINTING) {
+      if (task.status !== PRINTING) {
         /*
          * start the task
          */
-        currentTask = currentTask.merge({
+        task = task.merge({
           startedAt: new Date().toISOString(),
           status: PRINTING,
           currentLineNumber: 0,
@@ -191,35 +185,31 @@ const spoolReducer = (state = initialState, action) => {
         /*
          * if the task is already printing then increment the line number
          */
-        currentTask = currentTask.update('currentLineNumber', i => i + 1)
+        task = task.update('currentLineNumber', i => i + 1)
       }
 
-      nextState = nextState.setIn(['tasks', currentTaskID], currentTask)
+      nextState = nextState.setIn(['tasks', taskID], task)
 
       return loop(
         nextState,
-        Cmd.action(despoolTask(currentTask, state.enabledHostMacros)),
+        Cmd.action(despoolTask(task, state.enabledHostMacros)),
       )
     }
     case DESPOOL_COMPLETED: {
+      const { task, isLastLineInTask } = action.payload
+
       let nextState = state
         .set('despooling', false)
         .set('despoolRequested', true)
 
-      const currentTask = state.tasks.get(state.currentTaskID)
-
-      if (
-        currentTask != null
-        && currentTask.currentLineNumber === currentTask.data.size - 1
-      ) {
+      if (isLastLineInTask) {
         /*
          * delete the task upon completion
          */
         nextState = nextState
-          .set('currentTaskID', null)
-          .update('tasks', tasks => tasks.remove(currentTask.id))
-          .updateIn(['priorityQueues', currentTask.priority], list => (
-            list.filter(id => id !== currentTask.id)
+          .update('tasks', tasks => tasks.remove(task.id))
+          .updateIn(['priorityQueues', task.priority], list => (
+            list.filter(id => id !== task.id)
           ))
       }
 

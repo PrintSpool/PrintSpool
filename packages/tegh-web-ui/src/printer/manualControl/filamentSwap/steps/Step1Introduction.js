@@ -37,7 +37,7 @@ const Step1Introduction = ({
           variant="outlined"
           onClick={() => setActiveStep(4)}
         >
-        {t('intro.skipButton')}
+          {t('intro.skipButton')}
         </Button>
       </div>
 

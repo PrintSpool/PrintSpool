@@ -9,11 +9,12 @@ const meta = {
 
 // example useage: { moveTo: { positions: { [id]: 100 } } }
 const moveTo = createMacroExpansionReducer(meta, (
-  { positions },
+  { positions, sync },
   { config },
 ) => {
   const moveArgs = {
     axes: positions,
+    sync,
     allowExtruderAxes: false,
     relativeMovement: false,
   }

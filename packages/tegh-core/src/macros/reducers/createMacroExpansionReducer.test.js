@@ -76,10 +76,11 @@ describe('createMacroExpansionReducer', () => {
       expect(nextState).toEqual(state)
     })
     it('spools the gcode expansion and despools the next line', () => {
-      const action = despoolTask(MockTask({
+      const task = MockTask({
         currentLineNumber: 0,
         data: ['doExample X10'],
-      }), List())
+      })
+      const action = despoolTask(task, List())
 
       const config = MockConfig()
 
@@ -97,7 +98,7 @@ describe('createMacroExpansionReducer', () => {
         config.printer.id,
         '{"x":10}',
       ]))
-      expect(nextActions[1]).toEqual(despoolCompleted())
+      expect(nextActions[1]).toEqual(despoolCompleted({ task }))
     })
   })
 })

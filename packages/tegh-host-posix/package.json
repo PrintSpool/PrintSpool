@@ -26,7 +26,7 @@
     "trace-gc": "npx node-dev ./dist/index.js --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
     "dev": "npx node-dev ./dist/index.js --trace-warnings -- serve",
     "snap:test:pre-refresh": "npx node-dev ./dist/index.js --trace-warnings -- pre-refresh",
-    "debug": "DEBUG=\"*,-babel:*,-babel,-gulp-*,-snapdragon:*\" yarn dev"
+    "debug": "DEBUG=\"*,-babel:*,-babel,-gulp-*,-snapdragon:*,-dns-discovery,-discovery-*\" yarn dev"
   },
   "dependencies": {
     "@babel/core": "^7.0.0-0",

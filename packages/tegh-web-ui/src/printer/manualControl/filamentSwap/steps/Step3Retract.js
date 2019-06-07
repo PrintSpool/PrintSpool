@@ -24,7 +24,7 @@ const Step3Retract = ({
   const retractFilament = useExecGCodes(() => ({
     printer,
     gcodes: [
-      { moveBy: { distances: { [component.address]: distance } } },
+      { moveBy: { distances: { [component.address]: distance }, sync: true } },
     ],
     // Wait for the filament to retract and then go to the next step
     update: next,

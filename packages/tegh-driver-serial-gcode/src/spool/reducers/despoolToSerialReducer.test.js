@@ -73,7 +73,14 @@ describe('despoolToSerialReducer', () => {
 
       describe(REQUEST_DESPOOL_ON_OK, () => {
         it('marks the despool as completed', () => {
-          const state = initialState.set('onNextOK', REQUEST_DESPOOL_ON_OK)
+          const task = MockTask({
+            currentLineNumber: 0,
+            data: ['(╯°□°）╯︵┻━┻'],
+          })
+
+          const state = initialState
+            .set('onNextOK', REQUEST_DESPOOL_ON_OK)
+            .set('lastTaskSent', task)
 
           const [
             nextState,
@@ -83,7 +90,7 @@ describe('despoolToSerialReducer', () => {
           ] = reducer(state, action)
 
           expect(nextState).toEqual(state)
-          expect(nextAction).toEqual(despoolCompleted())
+          expect(nextAction).toEqual(despoolCompleted({ task }))
         })
       })
       describe(IGNORE_OK, () => {

@@ -1,8 +1,16 @@
 import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
+import Debug from 'debug'
+
+const txDebug = Debug('tegh:serial:tx')
+const rxDebug = Debug('tegh:serial:rx')
 
 import {
   DESPOOL_TASK,
+  DRIVER_ERROR,
+  ESTOP,
+  PRINTER_DISCONNECTED,
+  PRINTER_READY,
   getCurrentLine,
   isEmergency,
   driverError,
@@ -19,6 +27,7 @@ export const RESEND_ON_OK = 'RESEND_ON_OK'
 export const IGNORE_OK = 'IGNORE_OK'
 
 export const initialState = Record({
+  printerReady: false,
   onNextOK: REQUEST_DESPOOL_ON_OK,
   currentSerialLineNumber: 1,
   lastTaskSent: null,
@@ -32,6 +41,14 @@ export const initialState = Record({
  */
 const despoolToSerialReducer = (state = initialState, action) => {
   switch (action.type) {
+    case DRIVER_ERROR:
+    case ESTOP:
+    case PRINTER_DISCONNECTED: {
+      return state.set('printerReady', false)
+    }
+    case PRINTER_READY: {
+      return state.set('printerReady', true)
+    }
     case DESPOOL_TASK: {
       const { task, isHostMacro, createdAt } = action.payload
 
@@ -69,7 +86,9 @@ const despoolToSerialReducer = (state = initialState, action) => {
       return state.set('currentSerialLineNumber', 1)
     }
     case SERIAL_SEND: {
-      const { lineNumber } = action.payload
+      const { lineNumber, gcode } = action.payload
+
+      txDebug(gcode)
 
       if (typeof lineNumber !== 'number') return state
 
@@ -79,13 +98,19 @@ const despoolToSerialReducer = (state = initialState, action) => {
       const { payload } = action
       const task = state.lastTaskSent
 
+      rxDebug(payload.raw)
+
+      if (state.printerReady === false) {
+        return state
+      }
+
       switch (payload.type) {
         case 'ok': {
           switch (state.onNextOK) {
             case REQUEST_DESPOOL_ON_OK: {
               return loop(
                 state,
-                Cmd.action(despoolCompleted()),
+                Cmd.action(despoolCompleted({ task })),
               )
             }
 
