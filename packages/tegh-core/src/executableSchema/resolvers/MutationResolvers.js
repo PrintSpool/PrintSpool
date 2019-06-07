@@ -10,7 +10,7 @@ import deleteJob from '../../jobQueue/actions/deleteJob'
 /* spool */
 import spoolTask from '../../spool/actions/spoolTask'
 import requestSpoolJobFile from '../../spool/actions/requestSpoolJobFile'
-import { NORMAL } from '../../spool/types/PriorityEnum'
+import { NORMAL, EMERGENCY } from '../../spool/types/PriorityEnum'
 
 const MutationResolvers = {
   Mutation: {
@@ -103,7 +103,7 @@ const MutationResolvers = {
             */
             'noOp',
           ],
-          priority: NORMAL,
+          priority: gcodes.every(line => line === 'reset') ? EMERGENCY : NORMAL,
           internal: false,
           onComplete: resolve,
           onError: reject,
