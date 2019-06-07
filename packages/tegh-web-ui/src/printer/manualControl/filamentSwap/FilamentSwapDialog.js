@@ -3,11 +3,8 @@ import gql from 'graphql-tag'
 
 import {
   Dialog,
-  DialogTitle,
   DialogContent,
 } from '@material-ui/core'
-
-import { useTranslation } from 'react-i18next'
 
 import SwipeableViews from 'react-swipeable-views'
 
@@ -98,8 +95,6 @@ const FilamentSwapDialog = ({
 }) => {
   const classes = FilamentSwapDialogStyles()
 
-  const { t } = useTranslation('filamentSwap')
-
   const { printerID, componentID } = match.params
 
   const {
@@ -169,23 +164,30 @@ const FilamentSwapDialog = ({
             index={activeStep}
             onChangeIndex={setActiveStep}
           >
-            {steps.map((step, index) => {
-              const ComponentForStep = step.component
+            {steps
+              .filter((step, index) => index <= activeStep)
+              .map((step, index) => {
+                const ComponentForStep = step.component
 
-              return (
-                // eslint-disable-next-line react/no-array-index-key
-                <div key={index}>
-                  { index <= activeStep && (
+                return (
+                  <div
+                    className={classes.step}
+                    // eslint-disable-next-line react/no-array-index-key
+                    key={index}
+                  >
                     <ComponentForStep
                       printer={printer}
                       component={component}
                       materials={materials}
                       next={context.next}
+                      setActiveStep={context.setActiveStep}
+                      active={index === activeStep}
+                      classes={classes}
                     />
-                  )}
-                </div>
-              )
-            })}
+                  </div>
+                )
+              })
+            }
           </SwipeableViews>
         </StepperContext.Provider>
       </DialogContent>

@@ -5,32 +5,36 @@ import {
 
 import { useTranslation } from 'react-i18next'
 
-import ExtrudeRetractButtons from '../../ExtrudeRetractButtons'
+import ExtruderButtons from '../ExtruderButtons'
 
 import ButtonsFooter from '../ButtonsFooter'
 
 const Step4RemoveFilament = ({
   printer,
   component,
+  classes,
 }) => {
   const { t } = useTranslation('filamentSwap')
 
   return (
     <React.Fragment>
-      <Typography variant="h6">
-        {t('remove.title')}
-      </Typography>
-      <Typography variant="body1">
-        {t('remove.content')}
-      </Typography>
+      <div className={classes.removeFilamentRoot}>
+        <Typography variant="h6" paragraph>
+          {t('remove.title')}
+        </Typography>
+        <Typography variant="body1" paragraph>
+          {t('remove.content')}
+        </Typography>
 
-      <ExtrudeRetractButtons
-        printer={printer}
-        address={component.address}
-        extrudeColor="default"
+        <ExtruderButtons
+          printer={printer}
+          component={component}
+        />
+      </div>
+
+      <ButtonsFooter
+        backTo={0}
       />
-
-      <ButtonsFooter />
     </React.Fragment>
   )
 }

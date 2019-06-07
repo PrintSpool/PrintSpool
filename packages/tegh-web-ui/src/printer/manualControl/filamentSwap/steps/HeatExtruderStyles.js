@@ -6,6 +6,7 @@ const useStyles = makeStyles(() => ({
     gridTemplateRows: 'auto',
     background: 'rgba(255, 255, 255, 1)',
     zIndex: 10,
+    placeSelf: 'stretch',
   },
   title: {
     gridArea: '1 / 1',

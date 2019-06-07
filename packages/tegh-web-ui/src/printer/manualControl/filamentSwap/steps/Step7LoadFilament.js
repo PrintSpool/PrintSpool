@@ -5,9 +5,10 @@ import {
 
 import { useTranslation } from 'react-i18next'
 
-import ExtrudeRetractButtons from '../../ExtrudeRetractButtons'
+// import ExtrudeRetractButtons from '../../ExtrudeRetractButtons'
 import useExecGCodes from '../../../_hooks/useExecGCodes'
 
+import ExtruderButtons from '../ExtruderButtons'
 import ButtonsFooter from '../ButtonsFooter'
 
 const Step7LoadFilament = ({
@@ -28,27 +29,34 @@ const Step7LoadFilament = ({
 
   return (
     <React.Fragment>
-      <Typography variant="h6" paragraph>
-        {t('loadFilament.title')}
-      </Typography>
-      <Typography variant="body1" paragraph>
-        {t('loadFilament.content')}
-      </Typography>
-      <Typography variant="body2" paragraph>
-        <b>
-          {t('loadFilament.warningWord')}
-          :
-        </b>
-        {t('loadFilament.warningContent')}
-      </Typography>
+      <div>
+        <Typography variant="h6" paragraph>
+          {t('loadFilament.title')}
+        </Typography>
+        <Typography variant="body1" paragraph>
+          {t('loadFilament.content')}
+        </Typography>
+        <ExtruderButtons
+          printer={printer}
+          component={component}
+        />
+        <Typography variant="body2" paragraph>
+          <b>
+            {t('loadFilament.warningWord')}
+            :
+            {' '}
+          </b>
+          {t('loadFilament.warningTitle')}
+        </Typography>
+        <Typography variant="body2" paragraph>
+          {t('loadFilament.warningContent')}
+        </Typography>
+      </div>
 
-      <ExtrudeRetractButtons
-        printer={printer}
-        address={component.address}
-        extrudeColor="default"
+      <ButtonsFooter
+        backTo={-2}
+        onClickNext={disableExtruder}
       />
-
-      <ButtonsFooter onClickNext={disableExtruder} />
     </React.Fragment>
   )
 }

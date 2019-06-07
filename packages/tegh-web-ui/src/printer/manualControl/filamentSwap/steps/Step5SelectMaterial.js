@@ -16,6 +16,7 @@ const Step5SelectMaterial = ({
   component,
   materials,
   next,
+  classes,
 }) => {
   const { t } = useTranslation('filamentSwap')
 
@@ -29,29 +30,37 @@ const Step5SelectMaterial = ({
       { setMaterials: { toolheads: { [component.address]: materialID } } },
     ],
     update: next,
-  }), [materialID])
+  }), [component, materialID, next])
 
   return (
     <React.Fragment>
-      <Typography variant="h6">
-        {t('selectMaterial.title')}
-      </Typography>
+      <div className={classes.selectMaterialRoot}>
+        <Typography variant="h6" paragraph>
+          {t('selectMaterial.title')}
+        </Typography>
+        <Typography variant="body1" paragraph>
+          {t('selectMaterial.content')}
+        </Typography>
 
-      <TextField
-        label={t('selectMaterial.materialWord')}
-        value={materialID}
-        onChange={useCallback(e => setMaterialID(e.target.value))}
-        select
-        fullWidth
-      >
-        { materials.map(material => (
-          <MenuItem key={material.id} value={material.id}>
-            {material.name}
-          </MenuItem>
-        ))}
-      </TextField>
+        <TextField
+          label={t('selectMaterial.materialWord')}
+          value={materialID}
+          onChange={useCallback(e => setMaterialID(e.target.value))}
+          select
+          fullWidth
+        >
+          { materials.map(material => (
+            <MenuItem key={material.id} value={material.id}>
+              {material.name}
+            </MenuItem>
+          ))}
+        </TextField>
+      </div>
 
-      <ButtonsFooter onClickNext={saveAndGoToNext} />
+      <ButtonsFooter
+        backTo={-1}
+        onClickNext={saveAndGoToNext}
+      />
     </React.Fragment>
   )
 }

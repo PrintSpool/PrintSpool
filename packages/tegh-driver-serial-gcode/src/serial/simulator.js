@@ -26,15 +26,14 @@ const simulator = () => {
 
   setInterval(updateTemperatures, 100)
 
-  const sendLines = lines => (
+  const sendLines = (lines, lowerCaseMacro) => (
     lines({
       extruder: temperatures.e0 - 2 + Math.random() * 4,
       bed: temperatures.b - 2 + Math.random() * 4,
     }).forEach((line) => {
-      // console.log(line)
       setTimeout(() => {
         parser.emit('data', line)
-      }, 100)
+      }, lowerCaseMacro === 'g1' ? 3000 : 10)
     })
   )
 
@@ -64,16 +63,16 @@ const simulator = () => {
       const sendNextLine = () => {
         // console.log('send response')
         if (temperatures[id] >= targets[id] - 3) {
-          return sendLines(responses.m105)
+          return sendLines(responses.m105, lowerCaseMacro)
         }
 
-        sendLines(responses.m109)
+        sendLines(responses.m109, lowerCaseMacro)
         setTimeout(sendNextLine, 3000 / 50)
       }
 
       sendNextLine()
     } else {
-      sendLines(responses[lowerCaseMacro])
+      sendLines(responses[lowerCaseMacro], lowerCaseMacro)
     }
     if (cb != null) cb()
   }

@@ -6,6 +6,7 @@ import {
 } from '@material-ui/core'
 
 const JogDistanceButtons = ({
+  className,
   distanceOptions,
   input,
 }) => {
@@ -14,7 +15,7 @@ const JogDistanceButtons = ({
   ))
 
   return (
-    <Grid item xs={12}>
+    <Grid item xs={12} className={className}>
       <BottomNavigation
         value={input.value}
         onChange={onChange}

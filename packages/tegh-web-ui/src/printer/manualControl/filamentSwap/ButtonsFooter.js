@@ -16,9 +16,11 @@ import { useTranslation } from 'react-i18next'
 
 import StepperContext from './StepperContext'
 
+import ButtonsFooterStyles from './ButtonsFooterStyles'
+
 
 const ButtonsFooter = ({
-  disabledBack = true,
+  backTo,
   disabledNext,
   // skipButton,
   onClickNext,
@@ -26,6 +28,7 @@ const ButtonsFooter = ({
   const context = useContext(StepperContext)
   const { t } = useTranslation('filamentSwap')
   const theme = useTheme()
+  const classes = ButtonsFooterStyles()
 
   const {
     activeStep,
@@ -35,56 +38,38 @@ const ButtonsFooter = ({
     lastStep,
   } = context
 
-  return (
-    <div>
-      {/*
-        <Button
-          disabled={disabledBack || activeStep === 0}
-          onClick={
-            useCallback(() => setActiveStep(activeStep - 1), [activeStep])
-          }
-        >
-          Back
-        </Button>
-      { skipButton && (
-        <Button
-          onClick={
-            useCallback(() => setActiveStep(skipButton.step), [skipButton])
-          }
-        >
-          { skipButton.label }
-        </Button>
-      )*/}
+  const back = useCallback(() => (
+    setActiveStep(backTo >= 0 ? backTo : activeStep + backTo)
+  ), [activeStep, backTo])
 
-      <MobileStepper
-        variant="dots"
-        steps={totalSteps}
-        position="static"
-        activeStep={activeStep}
-        nextButton={(
-          <Button
-            size="small"
-            disabled={disabledNext}
-            onClick={onClickNext || next}
-          >
-            {lastStep ? t('finishWord') : t('nextWord')}
-            {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
-          </Button>
-        )}
-        backButton={(
-          <Button
-            size="small"
-            disabled={disabledBack || activeStep === 0}
-            onClick={
-              useCallback(() => setActiveStep(activeStep - 1), [activeStep])
-            }
-          >
-            {t('backWord')}
-            {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
-          </Button>
-        )}
-      />
-    </div>
+  return (
+    <MobileStepper
+      className={classes.root}
+      variant="dots"
+      steps={totalSteps}
+      position="static"
+      activeStep={activeStep}
+      nextButton={(
+        <Button
+          size="small"
+          disabled={disabledNext}
+          onClick={onClickNext || next}
+        >
+          {lastStep ? t('finishWord') : t('nextWord')}
+          {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+        </Button>
+      )}
+      backButton={(
+        <Button
+          size="small"
+          disabled={backTo == null}
+          onClick={back}
+        >
+          {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+          {t('backWord')}
+        </Button>
+      )}
+    />
   )
 }
 

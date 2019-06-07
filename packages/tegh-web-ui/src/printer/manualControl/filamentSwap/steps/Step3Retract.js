@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import {
   Typography,
+  LinearProgress,
 } from '@material-ui/core'
 
 import { useTranslation } from 'react-i18next'
@@ -15,6 +16,8 @@ const Step3Retract = ({
   printer,
   component,
   next,
+  classes,
+  active,
 }) => {
   const { t } = useTranslation('filamentSwap')
 
@@ -27,13 +30,21 @@ const Step3Retract = ({
     update: next,
   }))
 
-  useEffect(retractFilament, [])
+  useEffect(() => {
+    if (active) retractFilament()
+  }, [active])
 
   return (
     <React.Fragment>
-      <Typography variant="h6">
-        {t('retract.title', { distance })}
-      </Typography>
+      <div className={classes.retractRoot}>
+        <Typography variant="body1" paragraph>
+          {t('retract.title', {
+            distance,
+            targetTemperature: component.heater.targetTemperature,
+          })}
+        </Typography>
+        <LinearProgress />
+      </div>
 
       <ButtonsFooter disabledNext />
     </React.Fragment>

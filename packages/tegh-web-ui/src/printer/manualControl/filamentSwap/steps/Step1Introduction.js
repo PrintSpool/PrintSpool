@@ -1,6 +1,7 @@
 import React from 'react'
 import {
   Typography,
+  Button,
 } from '@material-ui/core'
 
 import { useTranslation } from 'react-i18next'
@@ -11,22 +12,37 @@ import ButtonsFooter from '../ButtonsFooter'
 
 const Step1Introduction = ({
   component,
+  classes,
+  setActiveStep,
 }) => {
   const { t } = useTranslation('filamentSwap')
 
   return (
     <React.Fragment>
-      <Typography variant="h6" id="material-dialog-title">
-        {t('title', component)}
-      </Typography>
-      <Typography variant="body1">
-        {t('intro.content')}
-      </Typography>
+      <div className={classes.introRoot}>
+        <Typography variant="h6" paragraph id="material-dialog-title">
+          {t('title')}
+        </Typography>
+        <Typography variant="body1" paragraph>
+          {t('intro.content', {
+            name: component.name,
+            materialTarget: component.heater.materialTarget,
+            distance: 100,
+          })}
+        </Typography>
+        <Typography variant="body1" paragraph>
+          {t('intro.skipContent')}
+          <Button
+            onClick={() => setActiveStep(4)}
+          >
+            {t('intro.skipButton')}
+          </Button>
+        </Typography>
+      </div>
 
       <ButtonsFooter
         skipButton={{
           step: 4,
-          label: t('intro.skipToFilamentSelection'),
         }}
       />
     </React.Fragment>

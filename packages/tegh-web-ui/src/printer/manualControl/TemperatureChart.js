@@ -10,6 +10,7 @@ const TemperatureChart = ({
   data,
   materialTarget,
   horizontalGridLines = false,
+  ticks = 2,
   className,
   xyPlotProps: xyPlotPropsOverride,
   flexibleHeight = true,
@@ -35,7 +36,13 @@ const TemperatureChart = ({
         {...xyPlotProps}
       >
         { horizontalGridLines && (
-          <HorizontalGridLines tickValues={[0, materialTarget]} />
+          <HorizontalGridLines
+            tickValues={
+              // eslint-disable-next-line prefer-spread
+              Array.apply(null, Array(ticks))
+                .map((entry, i) => materialTarget * i / (ticks - 1))
+            }
+          />
         )}
         <LineSeries
           data={data.map(entry => ({

@@ -2,26 +2,29 @@ import deline from 'deline'
 
 const filamentSwapEn = {
   // Dialog
-  title: '{{name}} Filament Swap',
+  title: 'Swap Filament',
   finishWord: 'Finish',
   nextWord: 'Next',
+  backWord: 'Back',
 
   // Steps
   intro: {
-    title: 'Let\'s start by removing your current filament',
     content: deline`
-      When your ready Tegh will heat your extruder to 220° and then retract the filament 100mm out of the extruder.
+      When your ready Tegh will heat {{name}} to {{materialTarget}}°C and then retract the filament {{distance}}mm to remove it from the extruder.
     `,
-    skipToFilamentSelection: 'Skip to Filament Selection',
+    skipContent: deline`
+      If you have already removed your filament you can
+    `,
+    skipButton: 'Skip to selecting a new material.',
   },
   heatExtruder: {
     title: deline`
-      Waiting while your extruder heats up
+      Heating
       ({{currentTemperature}} / {{targetTemperature}}°C)...
     `,
   },
   retract: {
-    title: 'Retracting {{distance}}mm of filament',
+    title: 'Heated to {{targetTemperature}}°C. Retracting {{distance}}mm...',
   },
   remove: {
     title: 'Please remove your filament',
@@ -32,6 +35,9 @@ const filamentSwapEn = {
   },
   selectMaterial: {
     title: 'Select your new filament',
+    content: deline`
+      Now that the filament has been removed you can replace it.
+    `,
     materialWord: 'Material',
   },
   loadFilament: {
@@ -40,8 +46,11 @@ const filamentSwapEn = {
       Please insert the new filament and slowly extrude it until it until it begins to push out of the nozzle.\n
     `,
     warningWord: 'Warning',
+    warningTitle: deline`
+      Filament can easily jam while loading. Watch that filament is fed into the printer with each extrusion.
+    `,
     warningContent: deline`
-      Filaments can easily jam while loading. Watch that filament is fed into the printer with each extrusion. If the filament jams please retract the filament and determine why the jam occured. Continuing to extrude a jammed filament may damage your printer.
+      If the filament jams please retract the filament and determine why the jam occured. Continuing to extrude a jammed filament may damage your printer.
     `,
   },
 }

@@ -15,6 +15,7 @@ const HeatExtruder = ({
   printer,
   component,
   next,
+  active,
 }) => {
   const classes = HeatExtruderStyles()
   const { t } = useTranslation('filamentSwap')
@@ -28,7 +29,9 @@ const HeatExtruder = ({
     update: next,
   }))
 
-  useEffect(heatExtruder, [])
+  useEffect(() => {
+    if (active) heatExtruder()
+  }, [active])
 
   const {
     materialTarget,
@@ -39,7 +42,7 @@ const HeatExtruder = ({
   return (
     <React.Fragment>
       <div className={classes.root}>
-        <Typography variant="h6" className={classes.title}>
+        <Typography variant="body1" className={classes.title}>
           {t('heatExtruder.title', {
             currentTemperature: (currentTemperature || 0).toFixed(1),
             targetTemperature: (materialTarget || 0).toFixed(1),
@@ -50,6 +53,8 @@ const HeatExtruder = ({
           className={classes.chart}
           data={history}
           materialTarget={materialTarget}
+          horizontalGridLines
+          ticks={4}
         />
       </div>
       <ButtonsFooter

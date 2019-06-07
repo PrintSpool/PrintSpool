@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useState } from 'react'
 import gql from 'graphql-tag'
 import {
   Card,
@@ -9,10 +9,14 @@ import {
 } from '@material-ui/core'
 import { Link } from 'react-router-dom'
 
+import ExtrudeRetractButtons from '../ExtrudeRetractButtons'
+import JogDistanceButtons from '../jog/JogDistanceButtons'
+
 import TemperatureSection from './TemperatureSection'
-import ExtruderButtons from '../ExtrudeRetractButtons'
 import FanSection from './FanSection'
 import TemperatureChart from '../TemperatureChart'
+
+import ComponentControlStyles from './ComponentControlStyles'
 
 export const ComponentControlFragment = gql`
   fragment ComponentControlFragment on Component {
@@ -48,14 +52,18 @@ export const ComponentControlFragment = gql`
     }
   }
 `
-const ToolheadAndBedControl = ({
+const ComponentControl = ({
   printer,
   component,
   disabled,
 }) => {
+  const classes = ComponentControlStyles()
   const { toolhead } = component
 
   const isToolhead = toolhead != null
+
+  const distanceOptions = [0.1, 1, 10, 50, 100]
+  const [distance, onChange] = useState(distanceOptions[2])
 
   return (
     <Card>
@@ -94,31 +102,41 @@ const ToolheadAndBedControl = ({
               flexDirection: 'column',
             }}
           >
-            {
-              component.type === 'TOOLHEAD' && (
-                <ExtruderButtons
-                  printer={printer}
-                  address={component.address}
-                  disabled={disabled}
-                  customButton={
-                    toolhead && (
-                      <Button
-                        component={React.forwardRef((props, ref) => (
-                          <Link
-                            to={`swap-filament/${component.id}`}
-                            innerRef={ref}
-                            style={{ textDecoration: 'none' }}
-                            {...props}
-                          />
-                        ))}
-                      >
-                        Swap Filament
-                      </Button>
-                    )
-                  }
+            {component.type === 'TOOLHEAD' && (
+              <React.Fragment>
+                <div className={classes.extruderButtons}>
+                  {toolhead && (
+                    <Button
+                      className={classes.extruderButton}
+                      component={React.forwardRef((props, ref) => (
+                        <Link
+                          to={`swap-filament/${component.id}`}
+                          innerRef={ref}
+                          {...props}
+                        />
+                      ))}
+                    >
+                      Swap Filament
+                    </Button>
+                  )}
+                  <ExtrudeRetractButtons
+                    className={classes.extruderButton}
+                    printer={printer}
+                    component={component}
+                    distance={distance}
+                    disabled={disabled}
+                  />
+                </div>
+                <JogDistanceButtons
+                  className={classes.extruderJogDistances}
+                  distanceOptions={distanceOptions}
+                  input={{
+                    value: distance,
+                    onChange,
+                  }}
                 />
-              )
-            }
+              </React.Fragment>
+            )}
             {
               component.heater && (
                 <TemperatureChart
@@ -153,4 +171,4 @@ const ToolheadAndBedControl = ({
   )
 }
 
-export default ToolheadAndBedControl
+export default ComponentControl
