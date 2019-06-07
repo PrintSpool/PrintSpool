@@ -10,6 +10,11 @@ const useStyles = makeStyles(() => ({
     gridTemplateRows: 'auto max-content',
     alignItems: 'center',
   },
+  saving: {
+    gridArea: '1 / 1',
+    backgroundColor: 'white',
+    placeSelf: 'stretch',
+  },
   introRoot: {
   },
   skipToFilamentSelectionButton: {
@@ -21,6 +26,10 @@ const useStyles = makeStyles(() => ({
   removeFilamentRoot: {
   },
   selectMaterialRoot: {
+    gridArea: '1 / 1',
+  },
+  loadFilamentRoot: {
+    gridArea: '1 / 1',
   },
 }))
 

@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next'
 import useExecGCodes from '../../../_hooks/useExecGCodes'
 
 import ButtonsFooter from '../ButtonsFooter'
+import Loading from '../../../../common/Loading'
 
 const Step5SelectMaterial = ({
   printer,
@@ -24,13 +25,22 @@ const Step5SelectMaterial = ({
     component.configForm.model.materialID,
   )
 
-  const saveAndGoToNext = useExecGCodes(() => ({
-    printer,
-    gcodes: [
-      { setMaterials: { toolheads: { [component.address]: materialID } } },
-    ],
-    update: next,
-  }), [component, materialID, next])
+  const [saving, setSaving] = useState(false)
+
+  const saveAndGoToNext = useExecGCodes(() => {
+    setSaving(true)
+
+    return {
+      printer,
+      gcodes: [
+        { setMaterials: { toolheads: { [component.address]: materialID } } },
+      ],
+      update: () => {
+        setSaving(false)
+        next()
+      },
+    }
+  }, [component, materialID, next])
 
   return (
     <React.Fragment>
@@ -56,10 +66,16 @@ const Step5SelectMaterial = ({
           ))}
         </TextField>
       </div>
+      { saving && (
+        <Loading transitionDelay={200} className={classes.saving}>
+          Saving...
+        </Loading>
+      )}
 
       <ButtonsFooter
         backTo={-1}
         onClickNext={saveAndGoToNext}
+        disabledNext={saving}
       />
     </React.Fragment>
   )

@@ -13,6 +13,7 @@ const Loading = ({
   transitionDelay = 800,
   transitionDuration = 600,
   className,
+  noText = false,
   children = 'Loading...',
 }) => {
   const classes = LoadingStyles()
@@ -27,10 +28,14 @@ const Loading = ({
       unmountOnExit
     >
       <div className={classNames(classes.root, className)}>
-        <CircularProgress />
-        <Typography variant="h5" inline className={classes.text}>
-          {children}
-        </Typography>
+        <div>
+          <CircularProgress />
+          { !noText && (
+            <Typography variant="h5" className={classes.text}>
+              {children}
+            </Typography>
+          )}
+        </div>
       </div>
     </Fade>
   )

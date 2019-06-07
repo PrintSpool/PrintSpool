@@ -2,10 +2,9 @@ import { makeStyles } from '@material-ui/styles'
 
 const useStyles = makeStyles(() => ({
   root: {
-    display: 'flex',
-    marginTop: 'auto',
-    marginBottom: 'auto',
-    justifyContent: 'center',
+    display: 'grid',
+    placeItems: 'center',
+    zIndex: '10',
   },
   text: {
     paddingLeft: 16,
