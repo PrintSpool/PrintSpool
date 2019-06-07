@@ -32,12 +32,13 @@ const Step1Introduction = ({
         </Typography>
         <Typography variant="body1" paragraph>
           {t('intro.skipContent')}
-          <Button
-            onClick={() => setActiveStep(4)}
-          >
-            {t('intro.skipButton')}
-          </Button>
         </Typography>
+        <Button
+          variant="outlined"
+          onClick={() => setActiveStep(4)}
+        >
+        {t('intro.skipButton')}
+        </Button>
       </div>
 
       <ButtonsFooter
