@@ -47,6 +47,7 @@
     "babel-plugin-import-graphql": "^2.6.2",
     "bluebird": "^3.5.3",
     "bs58": "^4.0.1",
+    "camelcase": "^5.3.1",
     "classnames": "^2.2.6",
     "deline": "^1.0.4",
     "downshift": "^3.2.10",
@@ -94,9 +95,9 @@
     "subscriptions-transport-ws": "^0.9.4",
     "three": "^0.103.0",
     "three-gcode-loader": "^1.0.1",
+    "truncate": "^2.1.0",
     "typeface-roboto": "^0.0.54",
     "use-react-router": "^1.0.5",
-    "voca": "^1.4.0",
     "yup": "^0.27.0"
   },
   "devDependencies": {

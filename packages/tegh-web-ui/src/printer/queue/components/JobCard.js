@@ -14,7 +14,7 @@ import {
   MoreVert,
   Delete,
 } from '@material-ui/icons'
-import V from 'voca'
+import truncate from 'truncate'
 
 import TaskStatusRow from './TaskStatusRow'
 
@@ -42,7 +42,7 @@ const JobCard = ({
   return (
     <Card>
       <CardHeader
-        title={V.truncate(name, 32)}
+        title={truncate(name, 32)}
         subheader={`${printsCompleted} / ${totalPrints} prints completed`}
         action={
             // hide the delete button when the job is printing

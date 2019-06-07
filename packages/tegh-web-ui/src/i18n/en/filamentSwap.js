@@ -6,6 +6,7 @@ const filamentSwapEn = {
   finishWord: 'Finish',
   nextWord: 'Next',
   backWord: 'Back',
+  notReadyWhiteoutTitle: 'Filament swap disabled while {{status}}',
 
   // Steps
   intro: {

@@ -7,8 +7,12 @@ import {
 } from '@material-ui/core'
 
 import SwipeableViews from 'react-swipeable-views'
+import camelCase from 'camelcase'
+import { useTranslation } from 'react-i18next'
 
 import useLiveSubscription from '../../_hooks/useLiveSubscription'
+
+import Loading from '../../../common/Loading'
 
 import StepperContext from './StepperContext'
 
@@ -28,6 +32,7 @@ const FILAMENT_SWAP_SUBSCRIPTION = gql`
       query {
         printers(printerID: $printerID) {
           id
+          status
           components(componentID: $componentID) {
             id
             address
@@ -93,6 +98,7 @@ const FilamentSwapDialog = ({
   history,
   match,
 }) => {
+  const { t } = useTranslation('filamentSwap')
   const classes = FilamentSwapDialogStyles()
 
   const { printerID, componentID } = match.params
@@ -159,10 +165,24 @@ const FilamentSwapDialog = ({
       }}
     >
       <DialogContent className={classes.root}>
+        <Loading
+          noSpinner
+          className={classes.notReadyWhiteout}
+          transitionDelay={0}
+          transitionDuration={400}
+          in={printer.status !== 'READY'}
+        >
+          { printer.status !== 'READY'
+            && t('notReadyWhiteoutTitle', {
+              status: t(printer.status.toLowerCase()),
+            })
+          }
+        </Loading>
         <StepperContext.Provider value={context}>
           <SwipeableViews
             index={activeStep}
             onChangeIndex={setActiveStep}
+            className={classes.swipeableViews}
           >
             {steps
               .filter((step, index) => index <= activeStep)

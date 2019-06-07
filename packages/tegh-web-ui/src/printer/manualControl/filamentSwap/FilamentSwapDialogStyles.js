@@ -2,6 +2,15 @@ import { makeStyles } from '@material-ui/styles'
 
 const useStyles = makeStyles(() => ({
   root: {
+    display: 'grid',
+  },
+  notReadyWhiteout: {
+    gridArea: '1 / 1',
+    backgroundColor: '#fff',
+    placeSelf: 'stretch',
+  },
+  swipeableViews: {
+    gridArea: '1 / 1',
   },
   step: {
     height: '100%',

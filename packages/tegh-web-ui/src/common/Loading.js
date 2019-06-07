@@ -14,7 +14,9 @@ const Loading = ({
   transitionDuration = 600,
   className,
   noText = false,
+  noSpinner = false,
   children = 'Loading...',
+  ...props
 }) => {
   const classes = LoadingStyles()
 
@@ -24,12 +26,13 @@ const Loading = ({
         transitionDelay: `${transitionDelay}ms`
       }}
       timeout={ transitionDuration }
-      in
-      unmountOnExit
+      in={props.in == null ? true : props.in}
     >
       <div className={classNames(classes.root, className)}>
         <div>
-          <CircularProgress />
+          { !noSpinner && (
+            <CircularProgress />
+          )}
           { !noText && (
             <Typography variant="h5" className={classes.text}>
               {children}

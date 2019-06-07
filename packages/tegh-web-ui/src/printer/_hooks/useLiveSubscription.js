@@ -3,6 +3,7 @@ import { useSubscription } from 'react-apollo-hooks'
 import jsonpatch from 'json-patch'
 
 const useLiveSubscription = (subscription, options = {}) => {
+  const [counter, setRenderCounter] = useState(0)
   const [state, setState] = useState()
 
   const onSubscriptionData = (event) => {
@@ -20,6 +21,8 @@ const useLiveSubscription = (subscription, options = {}) => {
     }
 
     setState(nextState)
+    // force a re-render for each response
+    setRenderCounter(counter + 1)
 
     if (options.onSubscriptionData != null) {
       options.onSubscriptionData({
