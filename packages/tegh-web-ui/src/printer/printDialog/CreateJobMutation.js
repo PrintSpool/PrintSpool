@@ -1,5 +1,4 @@
 import React from 'react'
-import Promise from 'bluebird'
 
 import { Mutation } from 'react-apollo'
 import gql from 'graphql-tag'

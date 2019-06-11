@@ -14,6 +14,7 @@ import { SnackbarProvider } from 'notistack'
 
 import UserDataProvider from './UserDataProvider'
 import PrintFilesContext from './printer/printDialog/PrintFilesContext'
+// import Loading from './common/Loading'
 import Routes from './Routes'
 
 import theme from './theme'
@@ -26,7 +27,9 @@ const App = () => (
         <SnackbarProvider maxSnack={3}>
           <UserDataProvider filePath="/tegh-user.json">
             <PrintFilesContext.Provider value={useState()}>
-              <Routes />
+              <React.Suspense fallback={<div />}>
+                <Routes />
+              </React.Suspense>
               {
                 // <ReduxSnackbar />
               }

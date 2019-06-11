@@ -1,4 +1,3 @@
-import { List } from 'immutable'
 import { graphql } from 'react-apollo'
 import gql from 'graphql-tag'
 
@@ -12,9 +11,9 @@ const spoolNextPrintHandler = graphql(spoolJobFileGraphQL, {
   props: ({ mutate, ownProps }) => {
     if (ownProps.loading || ownProps.error) return {}
 
-    const jobFiles = List(ownProps.jobs)
-      .map(job => List(job.files))
-      .flatten()
+    const jobFiles = ownProps.jobs
+      .map(job => job.files)
+      .flat()
 
     const nextJobFile = jobFiles.find(jobFile => jobFile.printsQueued > 0)
 

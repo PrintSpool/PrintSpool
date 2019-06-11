@@ -1,5 +1,13 @@
+import {
+  Vector2,
+  Vector3,
+  MOUSE,
+  Quaternion,
+  Spherical,
+  EventDispatcher,
+} from 'three'
+
 /* eslint-disable */
-import * as THREE from 'three'
 
 /**
  * @author qiao / https://github.com/qiao
@@ -16,7 +24,7 @@ import * as THREE from 'three'
 //    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
 //    Pan - right mouse, or left mouse + ctrl/meta/shiftKey, or arrow keys / touch: two-finger move
 
-THREE.OrbitControls = function (object, domElement) {
+const OrbitControls = function (object, domElement) {
   this.object = object
 
   this.domElement = (domElement !== undefined) ? domElement : document
@@ -25,7 +33,7 @@ THREE.OrbitControls = function (object, domElement) {
   this.enabled = true
 
   // "target" sets the location of focus, where the object orbits around
-  this.target = new THREE.Vector3()
+  this.target = new Vector3()
 
   // How far you can dolly in and out ( PerspectiveCamera only )
   this.minDistance = 0
@@ -79,7 +87,7 @@ THREE.OrbitControls = function (object, domElement) {
   }
 
   // Mouse buttons
-  this.mouseButtons = { LEFT: THREE.MOUSE.LEFT, MIDDLE: THREE.MOUSE.MIDDLE, RIGHT: THREE.MOUSE.RIGHT }
+  this.mouseButtons = { LEFT: MOUSE.LEFT, MIDDLE: MOUSE.MIDDLE, RIGHT: MOUSE.RIGHT }
 
   // for reset
   this.target0 = this.target.clone()
@@ -119,14 +127,14 @@ THREE.OrbitControls = function (object, domElement) {
 
   // this method is exposed, but perhaps it would be better if we can make it private...
   this.update = (function () {
-    const offset = new THREE.Vector3()
+    const offset = new Vector3()
 
     // so camera.up is the orbit axis
-    const quat = new THREE.Quaternion().setFromUnitVectors(object.up, new THREE.Vector3(0, 1, 0))
+    const quat = new Quaternion().setFromUnitVectors(object.up, new Vector3(0, 1, 0))
     const quatInverse = quat.clone().inverse()
 
-    const lastPosition = new THREE.Vector3()
-    const lastQuaternion = new THREE.Quaternion()
+    const lastPosition = new Vector3()
+    const lastQuaternion = new Quaternion()
 
     return function update() {
       const position = scope.object.position
@@ -241,24 +249,24 @@ THREE.OrbitControls = function (object, domElement) {
   var EPS = 0.000001
 
   // current position in spherical coordinates
-  var spherical = new THREE.Spherical()
-  var sphericalDelta = new THREE.Spherical()
+  var spherical = new Spherical()
+  var sphericalDelta = new Spherical()
 
   var scale = 1
-  var panOffset = new THREE.Vector3()
+  var panOffset = new Vector3()
   var zoomChanged = false
 
-  const rotateStart = new THREE.Vector2()
-  const rotateEnd = new THREE.Vector2()
-  const rotateDelta = new THREE.Vector2()
+  const rotateStart = new Vector2()
+  const rotateEnd = new Vector2()
+  const rotateDelta = new Vector2()
 
-  const panStart = new THREE.Vector2()
-  const panEnd = new THREE.Vector2()
-  const panDelta = new THREE.Vector2()
+  const panStart = new Vector2()
+  const panEnd = new Vector2()
+  const panDelta = new Vector2()
 
-  const dollyStart = new THREE.Vector2()
-  const dollyEnd = new THREE.Vector2()
-  const dollyDelta = new THREE.Vector2()
+  const dollyStart = new Vector2()
+  const dollyEnd = new Vector2()
+  const dollyDelta = new Vector2()
 
   function getAutoRotationAngle() {
     return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed
@@ -277,7 +285,7 @@ THREE.OrbitControls = function (object, domElement) {
   }
 
   const panLeft = (function () {
-    const v = new THREE.Vector3()
+    const v = new Vector3()
 
     return function panLeft(distance, objectMatrix) {
       v.setFromMatrixColumn(objectMatrix, 0) // get X column of objectMatrix
@@ -288,7 +296,7 @@ THREE.OrbitControls = function (object, domElement) {
   }())
 
   const panUp = (function () {
-    const v = new THREE.Vector3()
+    const v = new Vector3()
 
     return function panUp(distance, objectMatrix) {
       if (scope.screenSpacePanning === true) {
@@ -306,7 +314,7 @@ THREE.OrbitControls = function (object, domElement) {
 
   // deltaX and deltaY are in pixels; right and down are positive
   const pan = (function () {
-    const offset = new THREE.Vector3()
+    const offset = new Vector3()
 
     return function pan(deltaX, deltaY) {
       const element = scope.domElement === document ? scope.domElement.body : scope.domElement
@@ -799,15 +807,15 @@ THREE.OrbitControls = function (object, domElement) {
   this.update()
 }
 
-THREE.OrbitControls.prototype = Object.create(THREE.EventDispatcher.prototype)
-THREE.OrbitControls.prototype.constructor = THREE.OrbitControls
+OrbitControls.prototype = Object.create(EventDispatcher.prototype)
+OrbitControls.prototype.constructor = OrbitControls
 
-Object.defineProperties(THREE.OrbitControls.prototype, {
+Object.defineProperties(OrbitControls.prototype, {
 
   center: {
 
     get() {
-      console.warn('THREE.OrbitControls: .center has been renamed to .target')
+      console.warn('OrbitControls: .center has been renamed to .target')
       return this.target
     },
 
@@ -818,12 +826,12 @@ Object.defineProperties(THREE.OrbitControls.prototype, {
   noZoom: {
 
     get() {
-      console.warn('THREE.OrbitControls: .noZoom has been deprecated. Use .enableZoom instead.')
+      console.warn('OrbitControls: .noZoom has been deprecated. Use .enableZoom instead.')
       return !this.enableZoom
     },
 
     set(value) {
-      console.warn('THREE.OrbitControls: .noZoom has been deprecated. Use .enableZoom instead.')
+      console.warn('OrbitControls: .noZoom has been deprecated. Use .enableZoom instead.')
       this.enableZoom = !value
     },
 
@@ -832,12 +840,12 @@ Object.defineProperties(THREE.OrbitControls.prototype, {
   noRotate: {
 
     get() {
-      console.warn('THREE.OrbitControls: .noRotate has been deprecated. Use .enableRotate instead.')
+      console.warn('OrbitControls: .noRotate has been deprecated. Use .enableRotate instead.')
       return !this.enableRotate
     },
 
     set(value) {
-      console.warn('THREE.OrbitControls: .noRotate has been deprecated. Use .enableRotate instead.')
+      console.warn('OrbitControls: .noRotate has been deprecated. Use .enableRotate instead.')
       this.enableRotate = !value
     },
 
@@ -846,12 +854,12 @@ Object.defineProperties(THREE.OrbitControls.prototype, {
   noPan: {
 
     get() {
-      console.warn('THREE.OrbitControls: .noPan has been deprecated. Use .enablePan instead.')
+      console.warn('OrbitControls: .noPan has been deprecated. Use .enablePan instead.')
       return !this.enablePan
     },
 
     set(value) {
-      console.warn('THREE.OrbitControls: .noPan has been deprecated. Use .enablePan instead.')
+      console.warn('OrbitControls: .noPan has been deprecated. Use .enablePan instead.')
       this.enablePan = !value
     },
 
@@ -860,12 +868,12 @@ Object.defineProperties(THREE.OrbitControls.prototype, {
   noKeys: {
 
     get() {
-      console.warn('THREE.OrbitControls: .noKeys has been deprecated. Use .enableKeys instead.')
+      console.warn('OrbitControls: .noKeys has been deprecated. Use .enableKeys instead.')
       return !this.enableKeys
     },
 
     set(value) {
-      console.warn('THREE.OrbitControls: .noKeys has been deprecated. Use .enableKeys instead.')
+      console.warn('OrbitControls: .noKeys has been deprecated. Use .enableKeys instead.')
       this.enableKeys = !value
     },
 
@@ -874,12 +882,12 @@ Object.defineProperties(THREE.OrbitControls.prototype, {
   staticMoving: {
 
     get() {
-      console.warn('THREE.OrbitControls: .staticMoving has been deprecated. Use .enableDamping instead.')
+      console.warn('OrbitControls: .staticMoving has been deprecated. Use .enableDamping instead.')
       return !this.enableDamping
     },
 
     set(value) {
-      console.warn('THREE.OrbitControls: .staticMoving has been deprecated. Use .enableDamping instead.')
+      console.warn('OrbitControls: .staticMoving has been deprecated. Use .enableDamping instead.')
       this.enableDamping = !value
     },
 
@@ -888,15 +896,17 @@ Object.defineProperties(THREE.OrbitControls.prototype, {
   dynamicDampingFactor: {
 
     get() {
-      console.warn('THREE.OrbitControls: .dynamicDampingFactor has been renamed. Use .dampingFactor instead.')
+      console.warn('OrbitControls: .dynamicDampingFactor has been renamed. Use .dampingFactor instead.')
       return this.dampingFactor
     },
 
     set(value) {
-      console.warn('THREE.OrbitControls: .dynamicDampingFactor has been renamed. Use .dampingFactor instead.')
+      console.warn('OrbitControls: .dynamicDampingFactor has been renamed. Use .dampingFactor instead.')
       this.dampingFactor = value
     },
 
   },
 })
 /* eslint-enable */
+
+export default OrbitControls

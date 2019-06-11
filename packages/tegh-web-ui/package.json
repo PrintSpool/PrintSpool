@@ -9,24 +9,13 @@
   "license": "AGPL-3.0-or-later",
   "private": false,
   "scripts": {
-    "dev": "webpack-dev-server --mode development",
-    "build": "webpack --mode production",
+    "serve": "parcel ./src/index.html",
+    "watch": "parcel watch ./src/index.html --no-hmr",
+    "build": "NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/index.html --detailed-report --experimental-scope-hoisting",
+    "report": "xdg-open ./dist/report.html",
     "storybook": "start-storybook -p 9001 -c .storybook"
   },
   "dependencies": {
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.1.2",
-    "@babel/plugin-proposal-export-default-from": "^7.0.0",
-    "@babel/plugin-proposal-export-namespace-from": "^7.0.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
-    "@babel/plugin-syntax-dynamic-import": "^7.0.0",
-    "@babel/plugin-transform-runtime": "^7.1.0",
-    "@babel/polyfill": "^7.0.0",
-    "@babel/preset-env": "^7.1.0",
-    "@babel/preset-flow": "^7.0.0",
-    "@babel/preset-react": "^7.0.0",
-    "@babel/register": "^7.0.0",
-    "@babel/runtime": "^7.1.2",
     "@material-ui/core": "^4.0.2",
     "@material-ui/icons": "^4.0.1",
     "@material-ui/styles": "^4.0.2",
@@ -45,7 +34,6 @@
     "babel-jest": "^24.0.0",
     "babel-loader": "^8.0.4",
     "babel-plugin-import-graphql": "^2.6.2",
-    "bluebird": "^3.5.3",
     "bs58": "^4.0.1",
     "camelcase": "^5.3.1",
     "classnames": "^2.2.6",
@@ -64,7 +52,6 @@
     "graphql-things": "^0.2.7",
     "history": "^4.7.2",
     "i18next": "^15.1.2",
-    "immutable": "^4.0.0-rc.12",
     "isomorphic-fetch": "^2.2.1",
     "json-patch": "^0.7.0",
     "keypair": "^1.0.1",
@@ -101,10 +88,15 @@
     "yup": "^0.27.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.0.0-0",
+    "@babel/plugin-transform-react-jsx": "^7.3.0",
+    "@babel/plugin-proposal-export-default-from": "^7.0.0",
     "@storybook/addon-actions": "^4.1.0-alpha.8",
     "@storybook/addon-links": "^4.1.0-alpha.8",
     "@storybook/addon-storyshots": "^4.1.0-alpha.8",
     "@storybook/react": "^4.1.0-alpha.8",
+    "babel-preset-nano-react-app": "^0.1.0",
+    "caniuse-lite": "^1.0.30000974",
     "eslint": "^5.3.0",
     "eslint-config-airbnb": "17.1.0",
     "eslint-plugin-babel": "^5.1.0",
@@ -114,7 +106,27 @@
     "eslint-plugin-monorepo": "^0.2.0",
     "eslint-plugin-react": "^7.11.0",
     "jest": "^24.1.0",
+    "parcel-bundler": "^1.12.3",
+    "parcel-plugin-bundle-visualiser": "^1.2.0",
     "storybook-addon-material-ui": "^0.9.0-alpha.16",
     "storybook-react-router": "^1.0.5"
+  },
+  "babel": {
+    "presets": [
+      "nano-react-app"
+    ],
+    "plugins": [
+      "@babel/plugin-proposal-export-default-from",
+      [
+        "@babel/plugin-transform-react-jsx",
+        {
+          "pragmaFrag": "React.Fragment"
+        }
+      ]
+    ]
+  },
+  "resolutions": {
+    "graphql": "^14.0.2",
+    "caniuse-lite": "^1.0.30000974"
   }
 }

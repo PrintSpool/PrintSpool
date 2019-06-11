@@ -23,7 +23,7 @@ const Hero = ({ t }) => {
           <Grid container>
             <Grid item xs={12} sm={6}>
               <img
-                alt="Tegh"
+                alt=""
                 src={teghLogoSVG}
                 className={classes.logo}
               />

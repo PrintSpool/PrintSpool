@@ -7,23 +7,45 @@ import TeghApolloProvider from './printer/common/frame/higherOrderComponents/Teg
 
 import LandingPage from './onboarding/landingPage/LandingPage'
 import BrowserUpgradeNotice from './onboarding/landingPage/BrowserUpgradeNotice'
-import GettingStarted from './onboarding/gettingStarted/GettingStarted'
 
 import Home from './printer/home/Home'
 import Terminal from './printer/terminal/Terminal'
-import GraphQLPlayground from './printer/graphqlPlayground/GraphQLPlayground'
-import PrintDialog from './printer/printDialog/PrintDialog'
 
 import ConnectionFrame from './printer/common/frame/ConnectionFrame'
 import QueuePage from './printer/queue/Queue.page'
 import JobPage from './printer/job/Job.page'
-import ManualControlPage from './printer/manualControl/ManualControl.page'
-import ConfigIndexPage from './printer/config/Index.page'
-import ComponentsConfigPage from './printer/config/printerComponents/Index.page'
-import MaterialsConfigPage from './printer/config/materials/Index.page'
-import PluginsConfigPage from './printer/config/plugins/Plugins'
 
-import FilamentSwapDialog from './printer/manualControl/filamentSwap/FilamentSwapDialog'
+const GettingStarted = React.lazy(() => (
+  import('./onboarding/gettingStarted/GettingStarted')
+))
+
+const GraphQLPlayground = React.lazy(() => (
+  import('./printer/graphqlPlayground/GraphQLPlayground')
+))
+
+const PrintDialog = React.lazy(() => (
+  import('./printer/printDialog/PrintDialog')
+))
+
+const ManualControlPage = React.lazy(() => (
+  import('./printer/manualControl/ManualControl.page')
+))
+const FilamentSwapDialog = React.lazy(() => (
+  import('./printer/manualControl/filamentSwap/FilamentSwapDialog')
+))
+
+const ConfigIndexPage = React.lazy(() => (
+ import('./printer/config/Index.page')
+))
+const ComponentsConfigPage = React.lazy(() => (
+ import('./printer/config/printerComponents/Index.page')
+))
+const MaterialsConfigPage = React.lazy(() => (
+ import('./printer/config/materials/Index.page')
+))
+const PluginsConfigPage = React.lazy(() => (
+ import('./printer/config/plugins/Plugins')
+))
 
 const Routes = ({
   isBeaker = typeof DatArchive !== 'undefined',
@@ -52,7 +74,6 @@ const Routes = ({
           <Route
             exact
             path="/get-started/:step?"
-            // TODO!QueuePage
             component={GettingStarted}
           />
         )}

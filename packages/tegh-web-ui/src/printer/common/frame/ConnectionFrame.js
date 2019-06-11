@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 import gql from 'graphql-tag'
 import { makeStyles } from '@material-ui/styles'
 
-import { LiveSubscription } from 'apollo-react-live-subscriptions'
+import { LiveSubscription } from '../../../common/LiveSubscription'
 
 import TeghApolloProvider from './higherOrderComponents/TeghApolloProvider'
 

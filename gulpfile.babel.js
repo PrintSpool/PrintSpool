@@ -8,12 +8,9 @@ import babel from 'gulp-babel'
 // import through from 'through2'
 import plumber from 'gulp-plumber'
 import gutil from 'gulp-util'
-import webpack from 'webpack'
-import WebpackDevServer from 'webpack-dev-server'
 
 import packageJSON from './package.json'
 import babelConfig from './.babelrc'
-import webpackConfig from './webpack.config.babel'
 
 const { packages } = packageJSON.workspaces
 
@@ -73,55 +70,10 @@ const watch = () => {
   })
 }
 
-const webpackCompiler = () => {
-  const compiler = webpack({
-    // configuration
-    mode: 'development',
-    ...webpackConfig[0],
-  })
-
-  return compiler
-}
-
-const watchWebpack = () => {
-  webpackCompiler().watch({
-    // aggregateTimeout: 300,
-    // poll: undefined
-  }, (err, stats) => {
-    // eslint-disable-next-line no-console
-    console.log(stats.toString({
-      chunks: false, // Makes the build much quieter
-      colors: true, // Shows colors in the console
-    }))
-  })
-}
-
-const webpackDevServerTask = () => {
-  // Start a webpack-dev-server
-  const compiler = webpackCompiler()
-
-  new WebpackDevServer(compiler, {
-    // server and middleware options
-  }).listen(8080, 'localhost', (err) => {
-    if (err) throw new gutil.PluginError('webpack-dev-server', err)
-    // Server listening
-    gutil.log(
-      '[webpack-dev-server]',
-      'http://localhost:8080/webpack-dev-server/index.html',
-    )
-    // keep the server alive or continue?
-    // callback();
-  })
-}
-
-const start = (pkg, options = {}) => () => {
-  const {
-    dev = false,
-  } = options
-
+const run = (pkg, taskName) => () => {
   const proc = spawn(
     'yarn',
-    [dev ? 'dev' : 'start'],
+    [taskName],
     {
       cwd: path.resolve(__dirname, `packages/${pkg}`),
       env: Object.create(process.env),
@@ -144,30 +96,15 @@ const start = (pkg, options = {}) => () => {
 
 gulp.task('clean', clean)
 
-gulp.task('build-dev', gulp.series('clean', buildDev))
-
-gulp.task(
-  'watch',
-  gulp.series(
-    'build-dev',
-    gulp.parallel(watch, watchWebpack),
-  ),
-)
-
-gulp.task('webpack-dev-server', webpackDevServerTask)
-
-// gulp.task('start-host', start('tegh-host-posix'))
-gulp.task('dev-host', start('tegh-host-posix', { dev: true }))
-
 gulp.task(
   'start',
   gulp.series(
     'clean',
-    'build-dev',
+    buildDev,
     gulp.parallel(
-      watch,
-      'dev-host',
-      // webpackDevServerTask,
+      run('tegh-host-posix', 'dev'),
+      run('tegh-web-ui', 'watch'),
+      // run('tegh-web-ui', 'serve'),
     ),
   ),
 )

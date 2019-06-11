@@ -1,38 +1,47 @@
 /* eslint-disable */
-import * as THREE from 'three'
+import {
+  DefaultLoadingManager,
+  FileLoader,
+  LineBasicMaterial,
+  BufferGeometry,
+  Float32BufferAttribute,
+  LineSegments,
+  Group,
+  Euler,
+} from 'three'
 
 /**
- * THREE.GCodeLoader is used to load gcode files usually used for 3D printing or CNC applications.
+ * GCodeLoader is used to load gcode files usually used for 3D printing or CNC applications.
  *
  * Gcode files are composed by commands used by machines to create objects.
  *
- * @class THREE.GCodeLoader
+ * @class GCodeLoader
  * @param {Manager} manager Loading manager.
  * @author tentone
  * @author joewalnes
  */
-THREE.GCodeLoader = function (manager) {
-  this.manager = (manager !== undefined) ? manager : THREE.DefaultLoadingManager
+const GCodeLoader = function (manager) {
+  this.manager = (manager !== undefined) ? manager : DefaultLoadingManager
 
   this.splitLayer = false
 }
 
-THREE.GCodeLoader.prototype.load = function (url, onLoad, onProgress, onError) {
+GCodeLoader.prototype.load = function (url, onLoad, onProgress, onError) {
   const self = this
 
-  const loader = new THREE.FileLoader(self.manager)
+  const loader = new FileLoader(self.manager)
   loader.setPath(self.path)
   loader.load(url, (text) => {
     onLoad(self.parse(text))
   }, onProgress, onError)
 }
 
-THREE.GCodeLoader.prototype.setPath = function (value) {
+GCodeLoader.prototype.setPath = function (value) {
   this.path = value
   return this
 }
 
-THREE.GCodeLoader.prototype.parse = function (data) {
+GCodeLoader.prototype.parse = function (data) {
   let state = {
     x: 0, y: 0, z: 0, e: 0, f: 0, extruding: false, relative: false,
   }
@@ -40,10 +49,10 @@ THREE.GCodeLoader.prototype.parse = function (data) {
 
   let currentLayer
 
-  const pathMaterial = new THREE.LineBasicMaterial({ color: 0xFF0000 })
+  const pathMaterial = new LineBasicMaterial({ color: 0xFF0000 })
   pathMaterial.name = 'path'
 
-  const extrudingMaterial = new THREE.LineBasicMaterial({ color: 0x00FF00 })
+  const extrudingMaterial = new LineBasicMaterial({ color: 0x00FF00 })
   extrudingMaterial.name = 'extruded'
 
   function newLayer(line) {
@@ -115,7 +124,7 @@ THREE.GCodeLoader.prototype.parse = function (data) {
     } else if (cmd === 'G2' || cmd === 'G3') {
 
       // G2/G3 - Arc Movement ( G2 clock wise and G3 counter clock wise )
-      // console.warn( 'THREE.GCodeLoader: Arc command not supported' );
+      // console.warn( 'GCodeLoader: Arc command not supported' );
 
     } else if (cmd === 'G90') {
       // G90: Set to Absolute Positioning
@@ -133,21 +142,21 @@ THREE.GCodeLoader.prototype.parse = function (data) {
       state = line
     } else {
 
-      // console.warn( 'THREE.GCodeLoader: Command not supported:' + cmd );
+      // console.warn( 'GCodeLoader: Command not supported:' + cmd );
 
     }
   }
 
   function addObject(vertex, extruding) {
-    const geometry = new THREE.BufferGeometry()
-    geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertex, 3))
+    const geometry = new BufferGeometry()
+    geometry.addAttribute('position', new Float32BufferAttribute(vertex, 3))
 
-    const segments = new THREE.LineSegments(geometry, extruding ? extrudingMaterial : pathMaterial)
+    const segments = new LineSegments(geometry, extruding ? extrudingMaterial : pathMaterial)
     segments.name = `layer${i}`
     object.add(segments)
   }
 
-  var object = new THREE.Group()
+  var object = new Group()
   object.name = 'gcode'
 
   if (this.splitLayer) {
@@ -171,8 +180,10 @@ THREE.GCodeLoader.prototype.parse = function (data) {
     addObject(pathVertex, false)
   }
 
-  object.quaternion.setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0))
+  object.quaternion.setFromEuler(new Euler(-Math.PI / 2, 0, 0))
 
   return object
 }
 /* eslint-enable */
+
+export default GCodeLoader
