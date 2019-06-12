@@ -12,15 +12,14 @@ import {
   Tooltip,
   Fab,
 } from '@material-ui/core'
-import {
-  Usb,
-  Toys,
-  VideoLabel,
-  Widgets,
-  Waves,
-  CompareArrows,
-  Add,
-} from '@material-ui/icons'
+
+import Usb from '@material-ui/icons/Usb'
+import Toys from '@material-ui/icons/Toys'
+import VideoLabel from '@material-ui/icons/VideoLabel'
+import Widgets from '@material-ui/icons/Widgets'
+import Waves from '@material-ui/icons/Waves'
+import CompareArrows from '@material-ui/icons/CompareArrows'
+import Add from '@material-ui/icons/Add'
 
 import gql from 'graphql-tag'
 

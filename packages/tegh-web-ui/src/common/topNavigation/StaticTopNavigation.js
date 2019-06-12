@@ -7,9 +7,7 @@ import {
   Hidden,
   IconButton,
 } from '@material-ui/core'
-import {
-  Menu as MenuIcon,
-} from '@material-ui/icons'
+import MenuIcon from '@material-ui/icons/Menu'
 
 import TopNavigationStyles from './TopNavigationStyles'
 import teghLogoNoTextSVG from './images/teghLogoNoText.svg'

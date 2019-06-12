@@ -4,9 +4,8 @@ import {
   Typography,
   LinearProgress,
 } from '@material-ui/core'
-import {
-  Cancel,
-} from '@material-ui/icons'
+
+import Cancel from '@material-ui/icons/Cancel'
 
 // const taskColor = (status) => {
 //   switch (status) {

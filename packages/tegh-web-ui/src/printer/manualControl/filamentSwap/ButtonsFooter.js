@@ -7,10 +7,8 @@ import {
 
 import { useTheme } from '@material-ui/styles'
 
-import {
-  KeyboardArrowLeft,
-  KeyboardArrowRight,
-} from '@material-ui/icons'
+import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft'
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 
 import { useTranslation } from 'react-i18next'
 

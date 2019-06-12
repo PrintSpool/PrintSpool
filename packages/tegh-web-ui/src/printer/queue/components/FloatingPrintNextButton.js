@@ -4,9 +4,8 @@ import {
   Tooltip,
   Fab,
 } from '@material-ui/core'
-import {
-  PlayArrow,
-} from '@material-ui/icons'
+
+import PlayArrow from '@material-ui/icons/PlayArrow'
 
 const styles = theme => ({
   fab: {

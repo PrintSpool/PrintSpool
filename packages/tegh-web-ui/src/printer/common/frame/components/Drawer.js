@@ -9,14 +9,14 @@ import {
   ListItemText,
   ListSubheader,
 } from '@material-ui/core'
-import {
-  Inbox,
-  OpenWith,
-  Code,
-  Keyboard,
-  Settings,
-  Home,
-} from '@material-ui/icons'
+
+import Inbox from '@material-ui/icons/Inbox'
+import OpenWith from '@material-ui/icons/OpenWith'
+import Code from '@material-ui/icons/Code'
+import Keyboard from '@material-ui/icons/Keyboard'
+import Settings from '@material-ui/icons/Settings'
+import Home from '@material-ui/icons/Home'
+
 import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
 import gql from 'graphql-tag'

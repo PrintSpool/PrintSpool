@@ -10,10 +10,9 @@ import {
   Tooltip,
   Fab,
 } from '@material-ui/core'
-import {
-  Style,
-  Add,
-} from '@material-ui/icons'
+
+import Style from '@material-ui/icons/Style'
+import Add from '@material-ui/icons/Add'
 
 import gql from 'graphql-tag'
 

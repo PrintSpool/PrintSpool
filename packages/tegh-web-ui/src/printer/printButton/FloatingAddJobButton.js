@@ -6,9 +6,8 @@ import {
   Fab,
   Tooltip,
 } from '@material-ui/core'
-import {
-  Add,
-} from '@material-ui/icons'
+
+import Add from '@material-ui/icons/Add'
 
 import PrintFilesContext from '../printDialog/PrintFilesContext'
 import FileInput from '../../common/FileInput'

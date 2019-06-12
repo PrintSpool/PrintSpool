@@ -4,10 +4,9 @@ import {
   CardContent,
   Grid,
 } from '@material-ui/core'
-import {
-  ArrowUpward,
-  ArrowDownward,
-} from '@material-ui/icons'
+
+import ArrowUpward from '@material-ui/icons/ArrowUpward'
+import ArrowDownward from '@material-ui/icons/ArrowDownward'
 
 import useJog from '../../_hooks/useJog'
 

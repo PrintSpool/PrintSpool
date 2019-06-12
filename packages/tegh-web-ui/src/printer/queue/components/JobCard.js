@@ -10,10 +10,10 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@material-ui/core'
-import {
-  MoreVert,
-  Delete,
-} from '@material-ui/icons'
+
+import MoreVert from '@material-ui/icons/MoreVert'
+import Delete from '@material-ui/icons/Delete'
+
 import truncate from 'truncate'
 
 import TaskStatusRow from './TaskStatusRow'

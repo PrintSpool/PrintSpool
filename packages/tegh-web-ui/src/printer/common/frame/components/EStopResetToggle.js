@@ -5,9 +5,7 @@ import {
   Button,
   withStyles,
 } from '@material-ui/core'
-import {
-  Report,
-} from '@material-ui/icons'
+import Report from '@material-ui/icons/Report'
 
 import useExecGCodes from '../../../_hooks/useExecGCodes'
 
