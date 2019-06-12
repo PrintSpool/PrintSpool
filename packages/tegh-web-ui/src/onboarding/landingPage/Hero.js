@@ -28,7 +28,7 @@ const Hero = ({ t }) => {
                 className={classes.logo}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={6} className={classes.rightSide}>
               <div className={classes.taglines}>
                 <Typography
                   variant="h4"
@@ -36,14 +36,6 @@ const Hero = ({ t }) => {
                 >
                   {t('hero.title')}
                 </Typography>
-                <Hidden smDown>
-                  <Typography
-                    variant="h4"
-                    className={classes.taglinePart2}
-                  >
-                    {t('hero.subtitle')}
-                  </Typography>
-                </Hidden>
                 <Button
                   variant="contained"
                   color="primary"

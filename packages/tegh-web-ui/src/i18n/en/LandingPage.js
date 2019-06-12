@@ -2,14 +2,19 @@ import deline from 'deline'
 
 const LandingPageEN = {
   hero: {
-    title: '3D Printing. Simplified.',
-    subtitle: 'Tegh is your all new streamlined 3D printing experience',
+    // title: '3D Printing. Simplified.',
+    // subtitle: 'Tegh is your all new streamlined 3D printing experience',
+    title: 'A bold new way to 3D Print over WiFi.',
     callToActionButton: 'Get Started',
   },
   introduction: {
-    title: 'Worry Less. <1>Create</1> More.',
+    title: 'Worry Less. Create <1>More</1>.',
     content: deline`
-      Tegh is free, open source software designed from the ground up to streamline your 3D printing experience.
+      3D printing is a powerful tool for prototyping and designing new things but managing 3D prints can take up valuable time and energy.\n
+
+      Tegh is designed from the ground up to streamline your WiFi 3D printing experience. Re-imagining the 3D printer workflow to remove print management obstacles so you can worry less and create more.\n
+
+      Tegh is and will always be AGPL3 Free Software built on the distributed web.
     `,
   },
   features: {

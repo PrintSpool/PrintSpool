@@ -25,6 +25,9 @@ const useStyles = makeStyles(theme => ({
     //   marginTop: `calc(-45vw - 50px - ${CUBES_BOTTOM_WHITESPACE})`,
     // },
   },
+  rightSide: {
+    alignSelf: 'center',
+  },
   logo: {
     display: 'block',
     marginLeft: 'auto',
