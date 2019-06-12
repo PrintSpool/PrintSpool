@@ -15,6 +15,7 @@ const useStyles = makeStyles(theme => ({
   },
   logo: {
     gridArea: 'logo',
+    width: '100%',
   },
   logoAdjacent: {
     gridArea: 'logoAdjacent',

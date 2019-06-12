@@ -144,6 +144,39 @@ const LandingPage = () => {
         </Hidden>
 
         <Grid item xs={12}>
+          <GreenHeader title={t('printQueueing.title')} />
+        </Grid>
+
+        <Grid item xs={6}>
+          TODO
+        </Grid>
+        <Grid item xs={6}>
+          <ReactMarkdown
+            source={t('printQueueing.content')}
+            renderers={{
+              heading,
+              paragraph: largeParagraph,
+            }}
+          />
+        </Grid>
+
+        <Grid item xs={12}>
+          <OrangeHeader title={t('fullyAutomatic.title')} />
+        </Grid>
+
+        <Grid item xs={6}>
+          <ReactMarkdown
+            source={t('fullyAutomatic.content')}
+            renderers={{
+              paragraph: largeParagraph,
+            }}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          TODO
+        </Grid>
+
+        <Grid item xs={12}>
           <GreenHeader title={t('features.title')} />
         </Grid>
 
@@ -165,6 +198,7 @@ const LandingPage = () => {
         </Grid>
         */}
         <Grid item xs={12}>
+          {/*
           <OrangeHeader title={t('contribute.title')} />
           <ReactMarkdown
             source={t('contribute.content')}
@@ -173,6 +207,8 @@ const LandingPage = () => {
               paragraph,
             }}
           />
+          */}
+          <Typography variant="h5">Support Tegh</Typography>
           <Button
             className={classes.donateButton}
             component="a"

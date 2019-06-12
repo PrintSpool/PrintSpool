@@ -17,8 +17,26 @@ const LandingPageEN = {
       Tegh is and will always be AGPL3 Free Software built on the distributed web.
     `,
   },
+  printQueueing: {
+    title: 'Print Queueing',
+    content: deline`
+    Printing multiple parts should be easy. With Tegh when you click print your part is added to a queue - it's like a playlist for your 3D printer.\n
+
+    Once you've cleared the build platform Tegh's play button is there for you to start up your next print in the queue - no looking up file names or trying to remember what part was supposed to be next. Printing is always simple, no matter how many parts you have to print.
+    `
+  },
+  fullyAutomatic: {
+    title: 'Fully Automatic',
+    content: deline`
+      Removing each print by hand takes time and it can be a frustrating interuption to your work. Tegh automates removing prints.\n
+
+      In Automatic Printing mode Tegh will automatically start, stop and remove each print from your queue for you.\n
+
+      If you have the hardware to support automatically ejecting prints all you have to do is add your designs to the queue and Tegh will automatically print piles of parts for you.
+    `
+  },
   features: {
-    title: 'Features',
+    title: 'And More',
     printQueueing: deline`
       ## Simple\n
 
