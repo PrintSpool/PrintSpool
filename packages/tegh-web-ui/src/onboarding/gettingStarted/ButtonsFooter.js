@@ -30,8 +30,9 @@ const ButtonsFooter = ({
         disabled={disable}
         className={classes.button}
         type={type}
-        component={component || (props => (
+        component={component || React.forwardRef((props, ref) => (
           <Link
+            innerRef={ref}
             to={step === 4 ? '/' : `/get-started/${step + 1}`}
             {...props}
           />
