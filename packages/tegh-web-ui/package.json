@@ -10,7 +10,7 @@
   "private": false,
   "scripts": {
     "serve": "parcel ./src/index.html",
-    "watch": "parcel watch ./src/index.html --no-hmr",
+    "watch": "parcel watch ./src/index.html --hmr-hostname localhost",
     "build": "NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/index.html --detailed-report --experimental-scope-hoisting",
     "report": "xdg-open ./dist/report.html",
     "storybook": "start-storybook -p 9001 -c .storybook"
