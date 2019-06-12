@@ -9,7 +9,7 @@
   "license": "AGPL-3.0-or-later",
   "private": false,
   "scripts": {
-    "serve": "parcel ./src/index.html",
+    "serve": "cd ./dist && static-server -p 1234",
     "watch": "parcel watch ./src/index.html --hmr-hostname localhost",
     "build": "NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/index.html --detailed-report --experimental-scope-hoisting",
     "report": "xdg-open ./dist/report.html",
@@ -89,8 +89,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-0",
-    "@babel/plugin-transform-react-jsx": "^7.3.0",
     "@babel/plugin-proposal-export-default-from": "^7.0.0",
+    "@babel/plugin-transform-react-jsx": "^7.3.0",
     "@storybook/addon-actions": "^4.1.0-alpha.8",
     "@storybook/addon-links": "^4.1.0-alpha.8",
     "@storybook/addon-storyshots": "^4.1.0-alpha.8",
@@ -108,6 +108,7 @@
     "jest": "^24.1.0",
     "parcel-bundler": "^1.12.3",
     "parcel-plugin-bundle-visualiser": "^1.2.0",
+    "static-server": "^2.2.1",
     "storybook-addon-material-ui": "^0.9.0-alpha.16",
     "storybook-react-router": "^1.0.5"
   },

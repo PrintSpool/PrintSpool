@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { Route, Switch } from 'react-router'
-import { HashRouter } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 
 import { UserDataContext } from './UserDataProvider'
 import TeghApolloProvider from './printer/common/frame/higherOrderComponents/TeghApolloProvider'
@@ -53,7 +53,7 @@ const Routes = ({
   const { isAuthorized, hosts } = useContext(UserDataContext)
 
   return (
-    <HashRouter>
+    <BrowserRouter>
       <Switch>
         { !isAuthorized && (
           <Route
@@ -177,7 +177,7 @@ const Routes = ({
           />
         )}
       </Switch>
-    </HashRouter>
+    </BrowserRouter>
   )
 }
 

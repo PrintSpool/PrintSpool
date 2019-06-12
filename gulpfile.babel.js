@@ -95,6 +95,11 @@ const run = (pkg, taskName) => () => {
 }
 
 gulp.task('clean', clean)
+gulp.task('babel:watch', gulp.series(
+  'clean',
+  buildDev,
+  watch,
+))
 
 gulp.task(
   'start',
@@ -102,9 +107,10 @@ gulp.task(
     'clean',
     buildDev,
     gulp.parallel(
+      watch,
       run('tegh-host-posix', 'dev'),
       run('tegh-web-ui', 'watch'),
-      // run('tegh-web-ui', 'serve'),
+      run('tegh-web-ui', 'serve'),
     ),
   ),
 )

@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "fix-dat": "yarn upgrade @beaker/dat-node",
     "lint": "eslint ./packages/",
     "delete-node-modules": "rm -rf node_modules && rm -rf packages/*/node_modules",
     "bootstrap": "yarn make-log-dir && yarn install-all",
@@ -10,9 +11,11 @@
     "update-defs": "./scripts/updateDefs.sh",
     "build": "cd packages/tegh-web-ui/ && yarn build",
     "test": "jest",
+    "serve-http": "cd ./packages/tegh-web-ui/ && yarn serve",
     "start": "gulp start",
     "debug-host": "cd ./packages/tegh-host-posix && yarn debug",
     "dev-host": "cd ./packages/tegh-host-posix && yarn dev",
+    "babel:watch": "gulp babel:watch",
     "pkg:build": "cd ./packages/tegh-host-posix && pkg -t node10-linux ./dist/index.js -o ../../snap/tegh",
     "snap:build:armv7": "./scripts/build-armv7-snap.sh",
     "snap:build:x64": "./scripts/build-x64-snap.sh",
