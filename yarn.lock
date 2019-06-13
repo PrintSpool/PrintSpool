@@ -786,6 +786,8 @@
   version "1.0.0"
   resolved "https://codeload.github.com/RangerMauve/dat-node/tar.gz/168b57c13560ff3f42652408bb43a0eba8fa4dd4"
   dependencies:
+    "@beaker/dat-ephemeral-ext-msg" "^1.0.1"
+    "@beaker/dat-session-data-ext-msg" "^1.1.1"
     beaker-error-constants "^1.4.0"
     concat-stream "^1.6.2"
     dat-dns "^3.0.1"
@@ -793,6 +795,7 @@
     dat-swarm-defaults "^1.0.1"
     discovery-swarm "^5.1.2"
     dom-event-target "^1.0.0"
+    emit-stream "^0.1.2"
     get-folder-size "^2.0.0"
     hypercore-protocol "^6.6.4"
     hyperdrive "^9.14.0"
@@ -11743,17 +11746,17 @@ quick-lru@^1.0.0:
   integrity sha1-Q2CxfGETatOAeDl/8RQW4Ybc+7g=
 
 random-access-file@^2.0.1, random-access-file@^2.1.0:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/random-access-file/-/random-access-file-2.1.2.tgz#eeb32e50b9831f32060516862381152ae4e05aa6"
-  integrity sha512-dZo7HEcEPbZ/6XLXC4GXypiWvFbXVkdeMrJTi0B94pBJwddt/AvJh8GaQhso6KGYROGYCI/VWdHbmRDtkwT9pQ==
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/random-access-file/-/random-access-file-2.1.3.tgz#642c4b29e39c7dd91609a2e912f174d70fd4f82a"
+  integrity sha512-AE0Z1ywR5gIkzACMC1lCsR6LP8g4ynNm7oYWYdKPSSU6Y3H+mGDJxBqfcV9B9KstfHNemhfX3nYmx99ZC9f/yg==
   dependencies:
     mkdirp "^0.5.1"
     random-access-storage "^1.1.1"
 
 random-access-storage@^1.1.1:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/random-access-storage/-/random-access-storage-1.3.0.tgz#d27e4d897b79dc4358afc2bbe553044e5c8cfe35"
-  integrity sha512-pdS9Mcb9TB7oICypPRALlheaSuszuAKmLVEPKJMuYor7R/zDuHh5ALuQoS+ox31XRwQUL+tDwWH2GPdyspwelA==
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/random-access-storage/-/random-access-storage-1.4.0.tgz#cbe5b5ccfb38680aac7b78a050d9f0a5ef36841f"
+  integrity sha512-7oszloM/+PdqWp/oFGyL6SeI14liqo8AAisHAZQGkWdHISyAnngKjNPL0JYIazeLxbHPY6oed2yUffowdq/o6A==
   dependencies:
     inherits "^2.0.3"
 
