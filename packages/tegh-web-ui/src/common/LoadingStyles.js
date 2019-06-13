@@ -6,6 +6,10 @@ const useStyles = makeStyles(() => ({
     placeItems: 'center',
     zIndex: '10',
   },
+  row: {
+    display: 'grid',
+    gridTemplateColumns: 'max-content auto',
+  },
   text: {
     paddingLeft: 16,
   },

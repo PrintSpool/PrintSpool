@@ -93,15 +93,6 @@ const GettingStarted = ({
           {step === 3 && (
             <LiveSubscription
               subscription={DEVICES_SUBSCRIPTION}
-              onSubscriptionData={(options) => {
-                const { data: { isConfigured } } = options.subscriptionData
-
-                // skip step 3 for configured 3D printers
-                if (isConfigured) {
-                  setSkippedStep3(true)
-                  history.push(`/get-started/4${location.search}`)
-                }
-              }}
             >
               {({ data, loading, error }) => {
                 if (error) {
@@ -117,6 +108,7 @@ const GettingStarted = ({
                     connecting={loading}
                     location={location}
                     history={history}
+                    setSkippedStep3={setSkippedStep3}
                     className={classes.content}
                     invite={invite}
                     data={data}

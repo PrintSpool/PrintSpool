@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Query } from 'react-apollo'
 import gql from 'graphql-tag'
 
@@ -24,6 +24,7 @@ const Step3Setup = ({
   className,
   history,
   location,
+  setSkippedStep3,
 }) => {
   const classes = Step3SetupStyles()
   const [machineDefinitionURL, setMachineDefinitionURL] = useState()
@@ -33,15 +34,25 @@ const Step3Setup = ({
     loading: loadingMachineDefs,
   } = useMachineDefSuggestions()
 
+  const { isConfigured } = data || {}
+
+  // skip step 3 for configured 3D printers
+  useEffect(() => {
+    if (isConfigured) {
+      setSkippedStep3(true)
+      history.push(`/get-started/4${location.search}`)
+    }
+  }, [isConfigured])
+
+  // TODO: determine which of these is slow
+  console.log(loadingMachineDefs, connecting)
   const loading = loadingMachineDefs || connecting
 
   if (loading) {
     return (
-      <div className={classes.root}>
-        <Loading>
-          Connecting to Raspberry Pi
-        </Loading>
-      </div>
+      <Loading className={classes.loading}>
+        Connecting to Raspberry Pi
+      </Loading>
     )
   }
 

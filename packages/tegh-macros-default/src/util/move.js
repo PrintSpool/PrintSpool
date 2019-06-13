@@ -50,6 +50,16 @@ const move = ({
     feedrates.push(component.model.get('feedrate'))
   })
 
+  console.log([
+    relativeMovement ? 'G91' : 'G90',
+    { g1: { f: Math.min.apply(null, feedrates) * 60 } },
+    { g1: g1Args },
+    /*
+    * Synchronize the end of the task with M400 by waiting until all
+    * scheduled movements in the task are finished.
+    */
+    ...(sync === true ? ['M400'] : []),
+  ])
   return [
     relativeMovement ? 'G91' : 'G90',
     { g1: { f: Math.min.apply(null, feedrates) * 60 } },

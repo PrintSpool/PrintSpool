@@ -108,6 +108,7 @@ const ComponentControl = ({
                   {toolhead && (
                     <Button
                       className={classes.extruderButton}
+                      disabled={disabled}
                       component={React.forwardRef((props, ref) => (
                         <Link
                           to={`swap-filament/${component.id}`}

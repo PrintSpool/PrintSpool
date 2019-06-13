@@ -25,6 +25,9 @@ import KofiCupLogoSVG from './images/kofiCupLogo.svg'
 import nanoMarkSVG from './images/nanoMark.svg'
 import ethereumPNG from './images/ethereumIconSmall.png'
 
+import automaticPrintingGIF from './images/automaticPrinting.gif'
+import printQueueingGIF from './images/printQueueing.gif'
+
 import Footer from './Footer'
 
 import LandingPageStyles from './LandingPageStyles'
@@ -148,7 +151,7 @@ const LandingPage = () => {
         </Grid>
 
         <Grid item xs={6}>
-          TODO
+          <img src={printQueueingGIF} alt="" />
         </Grid>
         <Grid item xs={6}>
           <ReactMarkdown
@@ -173,7 +176,7 @@ const LandingPage = () => {
           />
         </Grid>
         <Grid item xs={6}>
-          TODO
+          <img src={automaticPrintingGIF} alt="" />
         </Grid>
 
         <Grid item xs={12}>

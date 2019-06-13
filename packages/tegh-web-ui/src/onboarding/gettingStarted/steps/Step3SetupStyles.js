@@ -1,6 +1,9 @@
 import { makeStyles } from '@material-ui/styles'
 
 const useStyles = makeStyles(() => ({
+  loading: {
+    minHeight: '60vh',
+  },
   root: {
     display: 'flex',
     flexDirection: 'column',

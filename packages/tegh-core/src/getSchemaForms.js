@@ -42,6 +42,23 @@ const getSchemaForms = () => ({
           type: 'string',
           minLength: 1,
         },
+        automaticPrinting: {
+          title: 'Automatic Printing',
+          desciption: (
+            'Start prints automatically without human interaction.'
+            + ' Requires automation hardware such as an auto-scraper or'
+            + ' conveyor.'
+          ),
+          type: 'boolean',
+        },
+        beforePrintHook: {
+          title: 'Before Print Hook (Extended GCode)',
+          type: 'string',
+        },
+        afterPrintHook: {
+          title: 'After Print Hook (Extended GCode)',
+          type: 'string',
+        },
       },
     }),
     form: [
@@ -52,6 +69,9 @@ const getSchemaForms = () => ({
       ...configPaths,
       machineDefinitionURL: getCorePluginConfigPath,
       name: getCorePluginConfigPath,
+      automaticPrinting: getCorePluginConfigPath,
+      beforePrintHook: getCorePluginConfigPath,
+      afterPrintHook: getCorePluginConfigPath,
     }),
   },
   plugins: {
@@ -67,23 +87,6 @@ const getSchemaForms = () => ({
         ],
         properties: {
           ...(schema.properties || {}),
-          automaticPrinting: {
-            title: 'Automatic Printing',
-            desciption: (
-              'Start prints automatically without human interaction.'
-              + ' Requires automation hardware such as an auto-scraper or'
-              + ' conveyor.'
-            ),
-            type: 'boolean',
-          },
-          beforePrintHook: {
-            title: 'Before Print Hook (Extended GCode)',
-            type: 'string',
-          },
-          afterPrintHook: {
-            title: 'After Print Hook (Extended GCode)',
-            type: 'string',
-          },
         },
       }),
       form: [

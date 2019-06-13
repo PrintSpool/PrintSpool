@@ -85,25 +85,27 @@ const Routes = ({
               <React.Fragment>
                 <Home />
 
-                <Route
-                  exact
-                  path="/print/"
-                  render={({ history, location }) => {
-                    const hostID = new URLSearchParams(location.search).get('q')
-                    const printerID = new URLSearchParams(location.search).get('p')
+                <React.Suspense fallback={<div />}>
+                  <Route
+                    exact
+                    path="/print/"
+                    render={({ history, location }) => {
+                      const hostID = new URLSearchParams(location.search).get('q')
+                      const printerID = new URLSearchParams(location.search).get('p')
 
-                    const host = hosts[hostID]
+                      const host = hosts[hostID]
 
-                    return (
-                      <TeghApolloProvider hostIdentity={host && host.invite}>
-                        <PrintDialog
-                          history={history}
-                          match={{ params: { hostID, printerID } }}
-                        />
-                      </TeghApolloProvider>
-                    )
-                  }}
-                />
+                      return (
+                        <TeghApolloProvider hostIdentity={host && host.invite}>
+                          <PrintDialog
+                            history={history}
+                            match={{ params: { hostID, printerID } }}
+                          />
+                        </TeghApolloProvider>
+                      )
+                    }}
+                  />
+                </React.Suspense>
               </React.Fragment>
             )}
           />
@@ -122,18 +124,25 @@ const Routes = ({
                   component={QueuePage}
                 />
                 <Route exact path="/q/:hostID/jobs/:jobID/" component={JobPage} />
-                <Route exact path="/q/:hostID/print/" component={PrintDialog} />
+
+                <React.Suspense fallback={<div />}>
+                  <Route exact path="/q/:hostID/print/" component={PrintDialog} />
+                </React.Suspense>
+
                 <Route exact path="/q/:hostID/graphql-playground/" component={GraphQLPlayground} />
 
                 <Route
                   path="/p/:hostID/:printerID/manual-control/"
                   component={ManualControlPage}
                 />
-                <Route
-                  exact
-                  path="/p/:hostID/:printerID/manual-control/swap-filament/:componentID"
-                  component={FilamentSwapDialog}
-                />
+
+                <React.Suspense fallback={<div />}>
+                  <Route
+                    exact
+                    path="/p/:hostID/:printerID/manual-control/swap-filament/:componentID"
+                    component={FilamentSwapDialog}
+                  />
+                </React.Suspense>
 
                 <Route exact path="/p/:hostID/:printerID/terminal/" component={Terminal} />
 

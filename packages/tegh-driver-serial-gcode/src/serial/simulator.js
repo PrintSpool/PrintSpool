@@ -57,16 +57,15 @@ const simulator = () => {
     const lowerCaseMacro = macro.toLowerCase()
 
     if (responses[lowerCaseMacro] == null) {
-      sendLines(responses.g1)
+      sendLines(responses.g1, 'g1')
     } else if (lowerCaseMacro === 'm109') {
-      // console.log('TX!!!', macro)
       const sendNextLine = () => {
         // console.log('send response')
         if (temperatures[id] >= targets[id] - 3) {
-          return sendLines(responses.m105, lowerCaseMacro)
+          return sendLines(responses.m105, 'm105')
         }
 
-        sendLines(responses.m109, lowerCaseMacro)
+        sendLines(responses.m109, 'm109')
         setTimeout(sendNextLine, 3000 / 50)
       }
 

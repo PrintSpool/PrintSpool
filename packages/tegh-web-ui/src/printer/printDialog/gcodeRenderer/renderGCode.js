@@ -30,7 +30,7 @@ const renderGCode = (files, containerRef, setLoading) => {
 
   // eslint-disable-next-line no-new
   const controls = new OrbitControls(camera)
-  camera.position.set(0, 0, 200)
+  camera.position.set(0, 0, 80)
   controls.update()
 
   // const controls = new OrbitControls(camera)

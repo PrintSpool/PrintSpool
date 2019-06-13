@@ -4,7 +4,7 @@ const LandingPageEN = {
   hero: {
     // title: '3D Printing. Simplified.',
     // subtitle: 'Tegh is your all new streamlined 3D printing experience',
-    title: 'A bold new way to 3D Print over WiFi.',
+    title: 'A bold new way to 3D print over WiFi.',
     callToActionButton: 'Get Started',
   },
   introduction: {
@@ -14,7 +14,7 @@ const LandingPageEN = {
 
       Tegh is designed from the ground up to streamline your WiFi 3D printing experience. Re-imagining the 3D printer workflow to remove print management obstacles so you can worry less and create more.\n
 
-      Tegh is and will always be AGPL3 Free Software built on the distributed web.
+      Tegh is and will always be free software.
     `,
   },
   printQueueing: {
@@ -45,7 +45,7 @@ const LandingPageEN = {
     easySetup: deline`
       ## Easy to Setup\n
 
-      No python scripts to run. No SD Cards to flash. No static IPs to route. Just [download the app](https://snapcraft.io/tegh) and [get started](#/get-started/).
+      No python scripts to run. No SD Cards to flash. No static IPs to route. Just [install the snap](https://snapcraft.io/tegh) and [get started](#/get-started/).
     `,
     secure: deline`
       ## Secure\n

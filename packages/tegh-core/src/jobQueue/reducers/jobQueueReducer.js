@@ -35,6 +35,7 @@ import jobQueueComplete from '../actions/jobQueueComplete'
 
 import spoolTask, { SPOOL_TASK } from '../../spool/actions/spoolTask'
 import { DESPOOL_TASK } from '../../spool/actions/despoolTask'
+import { DESPOOL_COMPLETED } from '../../spool/actions/despoolCompleted'
 import { CANCEL_TASK } from '../../spool/actions/cancelTask'
 import requestSpoolJobFile, { REQUEST_SPOOL_JOB_FILE } from '../../spool/actions/requestSpoolJobFile'
 import { REQUEST_SPOOL_NEXT_JOB_FILE } from '../../spool/actions/requestSpoolNextJobFile'
@@ -250,51 +251,67 @@ const jobQueueReducer = (state = initialState, action) => {
         jobID,
         jobFileID,
         currentLineNumber,
-        data,
       } = action.payload.task
 
-      if (jobID == null) return state
-
-      const eventTypes = []
-
-      const jobIsDone = currentLineNumber === data.size - 1
-
-      if (currentLineNumber === 0) eventTypes.push(START_PRINT)
-      if (jobIsDone) eventTypes.push(FINISH_PRINT)
-
-      if (eventTypes.length === 0) return state
+      if (jobID == null || currentLineNumber !== 0) {
+        return state
+      }
 
       /*
-       * record the start or finish of the print in the job history
+       * record the start of the print in the job history
        */
-      const historyEvents = eventTypes.map(eventType => (
-        JobHistoryEvent({
-          jobID,
-          jobFileID,
-          taskID,
-          type: eventType,
-        })
-      ))
+      const historyEvent = JobHistoryEvent({
+        jobID,
+        jobFileID,
+        taskID,
+        type: START_PRINT,
+      })
 
       const nextState = state
-        .update('history', history => history.concat(historyEvents))
+        .update('history', history => history.push(historyEvent))
+
+      return nextState
+    }
+    case DESPOOL_COMPLETED: {
+      const { task, isLastLineInTask } = action.payload
+
+      const {
+        id: taskID,
+        jobID,
+        jobFileID,
+      } = task
+
+      if (jobID == null || !isLastLineInTask) {
+        return state
+      }
+
+      /*
+       * record the finish of the print in the job history
+       */
+      const historyEvent = JobHistoryEvent({
+        jobID,
+        jobFileID,
+        taskID,
+        type: FINISH_PRINT,
+      })
+
+      const nextState = state
+        .update('history', history => history.push(historyEvent))
 
 
-      if (jobIsDone) {
-        const nextJobFile = getNextJobFile(nextState)
+      const nextJobFile = getNextJobFile(nextState)
 
-        if (state.automaticPrinting && nextJobFile != null) {
-          return loop(
-            nextState,
-            Cmd.action(requestSpoolJobFile({
-              jobFileID: nextJobFile.id,
-            })),
-          )
-        }
+      if (state.automaticPrinting && nextJobFile != null) {
+        return loop(
+          nextState,
+          Cmd.action(requestSpoolJobFile({
+            jobFileID: nextJobFile.id,
+          })),
+        )
+      }
 
-        if (nextJobFile == null) {
-          return loop(nextState, Cmd.action(jobQueueComplete()))
-        }
+      if (nextJobFile == null) {
+        return loop(nextState, Cmd.action(jobQueueComplete()))
       }
 
       return nextState

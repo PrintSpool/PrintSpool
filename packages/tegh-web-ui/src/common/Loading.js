@@ -29,7 +29,7 @@ const Loading = ({
       in={props.in == null ? true : props.in}
     >
       <div className={classNames(classes.root, className)}>
-        <div>
+        <div className={classes.row}>
           { !noSpinner && (
             <CircularProgress />
           )}
