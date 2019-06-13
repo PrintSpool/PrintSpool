@@ -29,7 +29,7 @@ const errorsLogger = () => (
   })
 )
 
-const clean = (done) => {
+const babelClean = (done) => {
   rimraf(path.join(__dirname, 'packages/!(tegh-web-ui)/dist'), done)
 }
 
@@ -53,14 +53,14 @@ const buildProcess = gulpInput => (
     }))
 )
 
-const buildDev = () => (
+const buildBabel = () => (
   // gutil.log(`Building '${chalk.cyan(pkg.name())}'`)
   buildProcess(
     gulp.src(srcFiles, { base: 'packages' }),
   )
 )
 
-const watch = () => {
+const watchBabel = () => {
   const watcher = gulp.watch(srcFiles, { delay: 50 })
   watcher.on('change', (filePath) => {
     gutil.log(`Compiling '${chalk.cyan(filePath)}'...`)
@@ -94,20 +94,22 @@ const run = (pkg, taskName) => () => {
   })
 }
 
-gulp.task('clean', clean)
+gulp.task('babel:clean', babelClean)
+gulp.task('babel:build', gulp.series(
+  'babel:clean',
+  buildBabel,
+))
 gulp.task('babel:watch', gulp.series(
-  'clean',
-  buildDev,
-  watch,
+  'babel:build',
+  watchBabel,
 ))
 
 gulp.task(
   'start',
   gulp.series(
-    'clean',
-    buildDev,
+    'babel:build',
     gulp.parallel(
-      watch,
+      watchBabel,
       run('tegh-host-posix', 'dev'),
       run('tegh-web-ui', 'watch'),
       run('tegh-web-ui', 'serve'),
