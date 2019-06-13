@@ -8,4 +8,4 @@
 [build]
   base    = "packages/tegh-web-ui"
   command = "yarn build"
-  publish = "dist"
+  publish = "packages/tegh-web-ui/dist"
