@@ -10,6 +10,13 @@ const useStyles = makeStyles(theme => ({
     height: '1em',
     marginRight: theme.spacing(1),
   },
+  animationGridItem: {
+    display: 'grid',
+    alignItems: 'center',
+  },
+  animation: {
+    maxWidth: '100%',
+  },
 }), { withTheme: true })
 
 export default useStyles

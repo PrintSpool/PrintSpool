@@ -150,8 +150,8 @@ const LandingPage = () => {
           <GreenHeader title={t('printQueueing.title')} />
         </Grid>
 
-        <Grid item xs={6}>
-          <img src={printQueueingGIF} alt="" />
+        <Grid item xs={6} className={classes.animationGridItem}>
+          <img src={printQueueingGIF} alt="" className={classes.animation} />
         </Grid>
         <Grid item xs={6}>
           <ReactMarkdown
@@ -175,8 +175,8 @@ const LandingPage = () => {
             }}
           />
         </Grid>
-        <Grid item xs={6}>
-          <img src={automaticPrintingGIF} alt="" />
+        <Grid item xs={6} className={classes.animationGridItem}>
+          <img src={automaticPrintingGIF} alt="" className={classes.animation} />
         </Grid>
 
         <Grid item xs={12}>

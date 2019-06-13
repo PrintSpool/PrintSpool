@@ -4,12 +4,24 @@ const CUBES_BOTTOM_WHITESPACE = '20px'
 
 const useStyles = makeStyles(theme => ({
   root: {
-    display: 'flex',
+    display: 'grid',
+    gridTemplateRows: 'max-content auto max-content',
     alignItems: 'center',
     background: 'linear-gradient(#DD25C4, #9602A7)',
-    height: `calc(100vh - 10vw - ${CUBES_BOTTOM_WHITESPACE})`,
+    backgroundSize: '100% 90%',
+    backgroundRepeat: 'no-repeat',
+    minHeight: '100vh',
+    // height: `calc(100vh - 10vw - ${CUBES_BOTTOM_WHITESPACE})`,
     // marginBottom: `calc(10vw + ${CUBES_BOTTOM_WHITESPACE})`,
     width: '100%',
+  },
+  githubButton: {
+    display: 'block',
+    justifySelf: 'right',
+    color: 'white',
+    marginTop: theme.spacing(4),
+    marginLeft: theme.spacing(6),
+    marginRight: theme.spacing(6),
   },
   centeredContent: {
     width: '100%',
@@ -18,9 +30,10 @@ const useStyles = makeStyles(theme => ({
       marginLeft: 'auto',
       marginRight: 'auto',
     },
-    // [theme.breakpoints.up('sm')]: {
-    //   marginTop: `calc(- 10vw - ${CUBES_BOTTOM_WHITESPACE})`,
-    // },
+    [theme.breakpoints.up('sm')]: {
+      // marginBottom: theme.spacing(14)
+      // marginTop: `calc(- 10vw - ${CUBES_BOTTOM_WHITESPACE})`,
+    },
     // [theme.breakpoints.up('lg')]: {
     //   marginTop: `calc(-45vw - 50px - ${CUBES_BOTTOM_WHITESPACE})`,
     // },
@@ -33,8 +46,10 @@ const useStyles = makeStyles(theme => ({
     marginLeft: 'auto',
     marginRight: 'auto',
     [theme.breakpoints.down('xs')]: {
-      marginTop: -100,
       height: '30vh',
+    },
+    [theme.breakpoints.up('sm')]: {
+      maxWidth: '40vw',
     },
     [theme.breakpoints.only('sm')]: {
       height: '35vh',
@@ -78,8 +93,9 @@ const useStyles = makeStyles(theme => ({
   },
   callToActionButton: {
     marginTop: '3vh',
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.only('xs')]: {
       marginTop: '5vh',
+      marginBottom: '5vh',
     },
     // [theme.breakpoints.up('sm')]: {
     //   position: 'absolute',
@@ -91,12 +107,12 @@ const useStyles = makeStyles(theme => ({
   },
   cubes: {
     width: '100%',
-    marginTop: `calc(-10vw - ${CUBES_BOTTOM_WHITESPACE})`,
+    // marginTop: `calc(-10vw - ${CUBES_BOTTOM_WHITESPACE})`,
     overflow: 'hidden',
     [theme.breakpoints.up('lg')]: {
       display: 'flex',
       alignItems: 'center',
-      marginTop: '-100px',
+      // marginTop: '-100px',
     },
   },
   firstInnerCubes: {
