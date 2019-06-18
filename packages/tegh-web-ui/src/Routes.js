@@ -6,7 +6,6 @@ import { UserDataContext } from './UserDataProvider'
 import TeghApolloProvider from './printer/common/frame/higherOrderComponents/TeghApolloProvider'
 
 import LandingPage from './onboarding/landingPage/LandingPage'
-import BrowserUpgradeNotice from './onboarding/landingPage/BrowserUpgradeNotice'
 
 import Home from './printer/home/Home'
 import Terminal from './printer/terminal/Terminal'
@@ -58,16 +57,8 @@ const Routes = ({
         { !isAuthorized && (
           <Route
             exact
-            path={isBeaker ? '/' : ['/', '/get-started/:step?']}
-            render={({ match, history }) => (
-              <React.Fragment>
-                <LandingPage />
-                <BrowserUpgradeNotice
-                  open={match.url.startsWith('/get-started/')}
-                  onClose={() => history.push('/')}
-                />
-              </React.Fragment>
-            )}
+            path="/"
+            component={<LandingPage />}
           />
         )}
         { isBeaker && (

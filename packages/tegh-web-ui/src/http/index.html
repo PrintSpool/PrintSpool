@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tegh</title>
+</head>
+<body>
+  <div id="tegh-app"></div>
+  <script>
+    //<![CDATA[
+    // GDPR compliance: https://www.jeffalytics.com/gdpr-compliance/
+
+    // Conditionally load Google Analytics for HTTP site only.
+    // This prevents loading Google Analytics on DAT pages.
+    (function () {
+      if (!document.location.protocol.startsWith('http')) {
+        return
+      }
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-142113249-1']);
+      _gaq.push (['_gat._anonymizeIp']);
+      _gaq.push(['_trackPageview']);
+
+      var ga = document.createElement('script');
+      ga.type = 'text/javascript';
+      ga.async = true;
+      ga.src = 'https://ssl.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(ga, s);
+    })();
+    //]]>
+  </script>
+  <script src="./index.js"></script>
+</body>
+</html>

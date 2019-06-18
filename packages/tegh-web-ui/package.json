@@ -14,7 +14,7 @@
     "serve:direct": "parcel serve ./src/index.html -d ./dev-dist",
     "watch": "parcel watch ./src/index.html -d ./dev-dist --hmr-hostname localhost",
     "watch:production": "parcel watch ./src/index.html --no-hmr",
-    "build": "NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/index.html --detailed-report",
+    "build": "NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/index.html ./src/http/index.html --detailed-report",
     "report": "xdg-open ./dist/report.html",
     "storybook": "start-storybook -p 9001 -c .storybook"
   },
