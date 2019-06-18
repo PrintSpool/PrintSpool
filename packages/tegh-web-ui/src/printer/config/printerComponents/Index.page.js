@@ -2,7 +2,6 @@ import React from 'react'
 import { compose, withProps } from 'recompose'
 import { Link } from 'react-router-dom'
 import {
-  withStyles,
   Divider,
   List,
   ListItem,
@@ -12,6 +11,9 @@ import {
   Tooltip,
   Fab,
 } from '@material-ui/core'
+import {
+  withStyles,
+} from '@material-ui/styles'
 
 import Usb from '@material-ui/icons/Usb'
 import Toys from '@material-ui/icons/Toys'

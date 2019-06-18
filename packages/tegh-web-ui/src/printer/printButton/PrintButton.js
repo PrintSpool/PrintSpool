@@ -13,7 +13,7 @@ const PrintButton = ({
   href,
 }) => {
   const classes = PrintButtonStyles()
-  const [, setFiles] = useContext(PrintFilesContext)
+  const setFiles = useContext(PrintFilesContext)[1]
 
   const { history } = useReactRouter()
 

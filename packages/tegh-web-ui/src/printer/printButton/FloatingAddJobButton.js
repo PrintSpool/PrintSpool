@@ -2,10 +2,12 @@ import React, { useCallback, useContext } from 'react'
 import useReactRouter from 'use-react-router'
 
 import {
-  withStyles,
   Fab,
   Tooltip,
 } from '@material-ui/core'
+import {
+  withStyles,
+} from '@material-ui/styles'
 
 import Add from '@material-ui/icons/Add'
 
@@ -23,7 +25,7 @@ const styles = theme => ({
 const enhance = withStyles(styles, { withTheme: true })
 
 const FloatingAddJobButton = ({ classes, href }) => {
-  const [, setFiles] = useContext(PrintFilesContext)
+  const setFiles = useContext(PrintFilesContext)[1]
 
   const { history } = useReactRouter()
 

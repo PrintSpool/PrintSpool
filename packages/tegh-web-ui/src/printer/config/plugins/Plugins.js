@@ -2,7 +2,6 @@ import React from 'react'
 import { compose, withProps } from 'recompose'
 import { Link } from 'react-router-dom'
 import {
-  withStyles,
   List,
   ListItem,
   ListItemIcon,
@@ -10,6 +9,9 @@ import {
   Tooltip,
   Fab,
 } from '@material-ui/core'
+import {
+  withStyles,
+} from '@material-ui/styles'
 
 import Widgets from '@material-ui/icons/Widgets'
 import Add from '@material-ui/icons/Add'

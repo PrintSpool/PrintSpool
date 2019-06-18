@@ -2,20 +2,20 @@ import React from 'react'
 import { configure, addDecorator } from '@storybook/react'
 // import {muiTheme} from 'storybook-addon-material-ui'
 import ErrorBoundary from 'react-error-boundary'
+import { ThemeProvider } from '@material-ui/styles'
 import {
   CssBaseline,
-  MuiThemeProvider,
 } from '@material-ui/core'
 import theme from '../src/theme'
 
 // addDecorator(muiTheme())
 addDecorator(story => (
   <ErrorBoundary>
-    <MuiThemeProvider theme={theme}>
+    <ThemeProvider theme={theme}>
       <CssBaseline>
         {story()}
       </CssBaseline>
-    </MuiThemeProvider>
+    </ThemeProvider>
   </ErrorBoundary>
 ))
 

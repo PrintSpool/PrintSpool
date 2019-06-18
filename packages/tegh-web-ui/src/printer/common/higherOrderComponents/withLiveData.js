@@ -4,7 +4,7 @@ import Loader from 'react-loader-advanced'
 import { compose } from 'recompose'
 import {
   withStyles,
-} from '@material-ui/core'
+} from '@material-ui/styles'
 import gql from 'graphql-tag'
 
 import { LiveSubscription } from '../../../common/LiveSubscription'

@@ -3,8 +3,11 @@ import { compose, withState } from 'recompose'
 import classNames from 'classnames'
 import {
   Button,
-  withStyles,
 } from '@material-ui/core'
+import {
+  withStyles,
+} from '@material-ui/styles'
+
 import Report from '@material-ui/icons/Report'
 
 import useExecGCodes from '../../../_hooks/useExecGCodes'

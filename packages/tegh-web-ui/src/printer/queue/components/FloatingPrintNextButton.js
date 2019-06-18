@@ -1,9 +1,11 @@
 import React from 'react'
 import {
-  withStyles,
   Tooltip,
   Fab,
 } from '@material-ui/core'
+import {
+  withStyles,
+} from '@material-ui/styles'
 
 import PlayArrow from '@material-ui/icons/PlayArrow'
 

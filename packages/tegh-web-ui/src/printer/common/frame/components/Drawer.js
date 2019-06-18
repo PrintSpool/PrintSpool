@@ -1,7 +1,9 @@
 import React from 'react'
 import {
-  Drawer as MaterialUIDrawer,
   withStyles,
+} from '@material-ui/styles'
+import {
+  Drawer as MaterialUIDrawer,
   Hidden,
   List,
   ListItem,

@@ -2,8 +2,10 @@ import React from 'react'
 import {
   Typography,
   CircularProgress,
-  withStyles,
 } from '@material-ui/core'
+import {
+  withStyles,
+} from '@material-ui/styles'
 
 import {
   compose,
