@@ -220,6 +220,8 @@ const LandingPage = () => {
           />
           */}
           <Typography variant="h5" paragraph>
+            { /* eslint-disable-next-line */ }
+            <a name="donate" />
             {t('support.title')}
           </Typography>
           <ReactMarkdown
