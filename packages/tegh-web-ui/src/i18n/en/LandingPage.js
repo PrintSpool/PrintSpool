@@ -37,25 +37,10 @@ const LandingPageEN = {
   },
   features: {
     title: 'And More',
-    printQueueing: deline`
-      ## Simple\n
-
-      Print parts now or queue them up for later with Tegh's easy to use print queue.
-    `,
-    easySetup: deline`
-      ## Easy to Setup\n
-
-      No python scripts to run. No SD Cards to flash. No static IPs to route. Just [install the snap](https://snapcraft.io/tegh) and [get started](#/get-started/).
-    `,
     secure: deline`
       ## Secure\n
 
-      Protect your prints with the worlds first end-to-end encrypted 3D printing software.
-    `,
-    automatic: deline`
-      ## Automatic\n
-
-      Sit back and relax while Tegh uses your [Autodrop auto-scraper](https://www.autodrop3d.com/) to fully automatically print and eject piles of parts.
+      Strongly protect your prints with the worlds first end-to-end encrypted 3D printing software.
     `,
     multiPrinter: deline`
       ## Multi-Printer\n
@@ -63,29 +48,39 @@ const LandingPageEN = {
       Access all of your 3D printers from one convenient dashboard.
     `,
     openSource: deline`
-      ## 100% Open Source\n
+      ## Open Source\n
 
-      Tegh is and will always be free. Tegh is open source software under the Affero General Public License (AGPL).
+      Tegh will always be free for you to use and mod. Tegh's AGPL3 free software license ensures that.
     `,
   },
   contribute: {
-    title: 'Help Tegh Grow',
-    content: deline`
-    There are many ways to help Tegh!
-
-    #### Translations
-
-    #### Bug Reports
-
-    #### Pull Requests
-
-    #### Donations
-    `,
+    // title: 'Help Tegh Grow',
+    // content: deline`
+    // There are many ways to help Tegh!
+    //
+    // #### Translations
+    //
+    // #### Bug Reports
+    //
+    // #### Pull Requests
+    //
+    // #### Donations
+    // `,
     kofiButton: 'Support Me on Ko-fi',
     cryptoDonationButton: 'Donate {{shortName}}',
     cryptoAddressCopied: 'We copied Tegh\'s {{shortName}} address to your clipboard. Thanks for supporting Tegh!',
     cryptoDonationDialogTitle: 'Thank you for supporting Tegh!',
     cryptoDonationDialogContent: 'You can use the {{longName}} address below to donate to Tegh\'s development',
+  },
+  support: {
+    title: 'Support Tegh',
+    content: deline`
+      Tegh is about creating awesome 3D printing software and giving it to the world for free. Empowering makers rich and poor, technical and non-technical to 3D print and explore their full creative making potential.\n
+
+      It's an exciting prospect but designing and developing that takes a lot of work. It's like running a startup but without any of the money. Tegh started as an experiment for me to explore the possibilities of 3D printing workflows but it can't continue indefinitely without funding. The future of Tegh depends on donations from people like you.\n
+
+      If you like Tegh consider sending a tip. That would be cool of you.\n
+    `,
   },
   footer: {
     connectTitle: 'Connect with us at'

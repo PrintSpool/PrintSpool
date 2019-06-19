@@ -46,9 +46,8 @@ const PluginsConfigPage = React.lazy(() => (
  import('./printer/config/plugins/Plugins')
 ))
 
-const Routes = ({
-  isBeaker = typeof DatArchive !== 'undefined',
-}) => {
+const Routes = () => {
+  // isBeaker = typeof DatArchive !== 'undefined'
   const { isAuthorized, hosts } = useContext(UserDataContext)
 
   return (
@@ -58,16 +57,14 @@ const Routes = ({
           <Route
             exact
             path="/"
-            component={<LandingPage />}
+            component={LandingPage}
           />
         )}
-        { isBeaker && (
-          <Route
-            exact
-            path="/get-started/:step?"
-            component={GettingStarted}
-          />
-        )}
+        <Route
+          exact
+          path="/get-started/:step?"
+          component={GettingStarted}
+        />
         { isAuthorized && (
           <Route
             exact

@@ -84,11 +84,8 @@ const LandingPage = () => {
   ))
 
   const features = [
-    'printQueueing',
     'secure',
     'multiPrinter',
-    'automatic',
-    'easySetup',
     'openSource',
   ]
 
@@ -184,7 +181,7 @@ const LandingPage = () => {
         </Grid>
 
         {features.map(featureKey => (
-          <Grid item key={featureKey} xs={6} lg={4}>
+          <Grid item key={featureKey} xs={12} md={4}>
             <ReactMarkdown
               source={t(`features.${featureKey}`)}
               renderers={{
@@ -211,7 +208,16 @@ const LandingPage = () => {
             }}
           />
           */}
-          <Typography variant="h5">Support Tegh</Typography>
+          <Typography variant="h5" paragraph>
+            {t('support.title')}
+          </Typography>
+          <ReactMarkdown
+            source={t('support.content')}
+            renderers={{
+              heading,
+              paragraph: largeParagraph,
+            }}
+          />
           <Button
             className={classes.donateButton}
             component="a"
