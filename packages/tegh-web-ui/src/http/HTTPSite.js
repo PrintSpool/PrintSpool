@@ -18,6 +18,8 @@ import theme from '../theme'
 import BrowserUpgradeNotice from '../onboarding/landingPage/BrowserUpgradeNotice'
 import LandingPage from '../onboarding/landingPage/LandingPage'
 
+import '../i18n'
+
 const HTTPSite = () => (
   <CssBaseline>
     <ThemeProvider theme={theme}>
@@ -25,13 +27,17 @@ const HTTPSite = () => (
         <BrowserRouter>
           <Route
             path="/"
-            component={<LandingPage />}
+            component={LandingPage}
           />
           <Route
             path="/get-started/"
-            component={<BrowserUpgradeNotice />}
+            render={({ history }) => (
+              <BrowserUpgradeNotice
+                open
+                onClose={() => history.push('/')}
+              />
+            )}
           />
-
         </BrowserRouter>
       </SnackbarProvider>
     </ThemeProvider>
