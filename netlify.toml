@@ -7,7 +7,7 @@
 
 [build]
   base    = "packages/tegh-web-ui"
-  command = "yarn build"
+  command = "yarn build:http"
   publish = "packages/tegh-web-ui/dist"
 
 # The following redirect is intended for use with most SPAs that handle
