@@ -7,31 +7,16 @@
 </head>
 <body>
   <div id="tegh-app"></div>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-142113249-1"></script>
   <script>
-    //<![CDATA[
-    // GDPR compliance: https://www.jeffalytics.com/gdpr-compliance/
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
 
-    // Conditionally load Google Analytics for HTTP site only.
-    // This prevents loading Google Analytics on DAT pages.
-    (function () {
-      if (!document.location.protocol.startsWith('http')) {
-        return
-      }
-
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-142113249-1']);
-      _gaq.push (['_gat._anonymizeIp']);
-      _gaq.push(['_trackPageview']);
-
-      var ga = document.createElement('script');
-      ga.type = 'text/javascript';
-      ga.async = true;
-      ga.src = 'https://ssl.google-analytics.com/ga.js';
-      var s = document.getElementsByTagName('script')[0];
-      s.parentNode.insertBefore(ga, s);
-    })();
-    //]]>
+    gtag('config', 'UA-142113249-1', { 'anonymize_ip': true });
   </script>
+
   <script src="./index.js"></script>
 </body>
 </html>
