@@ -131,7 +131,8 @@ const LandingPage = () => {
         <Hidden smDown>
           <Grid item md={6}>
             <img
-              alt="Screenshot of Tegh"
+              async
+              alt=""
               src={teghMockupSVG}
               style={{
                 width: '60%',
@@ -148,7 +149,12 @@ const LandingPage = () => {
         </Grid>
 
         <Grid item xs={6} className={classes.animationGridItem}>
-          <img src={printQueueingGIF} alt="" className={classes.animation} />
+          <img
+            async
+            src={printQueueingGIF}
+            alt=""
+            className={classes.animation}
+          />
         </Grid>
         <Grid item xs={6}>
           <ReactMarkdown
@@ -173,7 +179,12 @@ const LandingPage = () => {
           />
         </Grid>
         <Grid item xs={6} className={classes.animationGridItem}>
-          <img src={automaticPrintingGIF} alt="" className={classes.animation} />
+          <img
+            async
+            src={automaticPrintingGIF}
+            alt=""
+            className={classes.animation}
+          />
         </Grid>
 
         <Grid item xs={12}>
