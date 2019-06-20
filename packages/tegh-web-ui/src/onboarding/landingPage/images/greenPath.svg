@@ -1,3 +1,14 @@
-<svg viewBox="0 0 1136 156" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M0.724658 35.2993L81.9503 0L1136 0V116L84.1757 116L0 156L0.724658 35.2993Z" fill="#05CB0D"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 84 156"
+   version="1.1"
+   width="84"
+   height="156"
+   style="fill:none"
+>
+  <path
+     d="M 84,0 84,116 0,156 0,35 81,0"
+     style="fill:#05cb0d"
+  />
 </svg>

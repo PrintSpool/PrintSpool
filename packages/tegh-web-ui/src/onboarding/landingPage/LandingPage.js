@@ -18,8 +18,7 @@ import teghMockupSVG from './images/teghMockup.png'
 
 import ScrollSpyTopNavigation from '../../common/topNavigation/ScrollSpyTopNavigation'
 import Hero from './Hero'
-import GreenHeader from './GreenHeader'
-import OrangeHeader from './OrangeHeader'
+import Header from './Header'
 
 import KofiCupLogoSVG from './images/kofiCupLogo.svg'
 import nanoMarkSVG from './images/nanoMark.svg'
@@ -103,11 +102,7 @@ const LandingPage = () => {
       <Grid
         container
         spacing={4}
-        style={{
-          marginLeft: -32,
-          paddingLeft: 32 + 32,
-          paddingRight: 32,
-        }}
+        className={classes.content}
       >
         <Grid item xs={12} md={6}>
           <Typography variant="h4" paragraph>
@@ -145,7 +140,7 @@ const LandingPage = () => {
         </Hidden>
 
         <Grid item xs={12}>
-          <GreenHeader title={t('printQueueing.title')} />
+          <Header variant="green" title={t('printQueueing.title')} />
         </Grid>
 
         <Grid item xs={6} className={classes.animationGridItem}>
@@ -167,7 +162,7 @@ const LandingPage = () => {
         </Grid>
 
         <Grid item xs={12}>
-          <OrangeHeader title={t('fullyAutomatic.title')} />
+          <Header variant="orange" title={t('fullyAutomatic.title')} />
         </Grid>
 
         <Grid item xs={6}>
@@ -188,7 +183,7 @@ const LandingPage = () => {
         </Grid>
 
         <Grid item xs={12}>
-          <GreenHeader title={t('features.title')} />
+          <Header variant="green" title={t('features.title')} />
         </Grid>
 
         {features.map(featureKey => (
@@ -205,12 +200,12 @@ const LandingPage = () => {
 
         {/*
         <Grid item xs={12}>
-          <OrangeHeader title="How it Works" />
+          <Header variant="orange" title="How it Works" />
         </Grid>
         */}
         <Grid item xs={12}>
           {/*
-          <OrangeHeader title={t('contribute.title')} />
+          <Header variant="orange" title={t('contribute.title')} />
           <ReactMarkdown
             source={t('contribute.content')}
             renderers={{
@@ -219,11 +214,10 @@ const LandingPage = () => {
             }}
           />
           */}
-          <Typography variant="h5" paragraph>
-            { /* eslint-disable-next-line */ }
-            <a name="donate" />
-            {t('support.title')}
-          </Typography>
+          <Grid item xs={12}>
+            <Header variant="orange" name="donate" title={t('support.title')} />
+          </Grid>
+
           <ReactMarkdown
             source={t('support.content')}
             renderers={{
