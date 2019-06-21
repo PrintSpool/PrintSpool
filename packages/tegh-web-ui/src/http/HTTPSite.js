@@ -25,15 +25,12 @@ const HTTPSite = () => (
     <ThemeProvider theme={theme}>
       <SnackbarProvider maxSnack={3}>
         <BrowserRouter>
+          <LandingPage />
           <Route
             path="/"
-            component={LandingPage}
-          />
-          <Route
-            path="/get-started/"
-            render={({ history }) => (
+            render={({ history, location }) => (
               <BrowserUpgradeNotice
-                open
+                open={location.pathname === '/get-started/'}
                 onClose={() => history.push('/')}
               />
             )}
