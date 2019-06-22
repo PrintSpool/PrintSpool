@@ -92,7 +92,7 @@ const BrowserUpgradeNotice = ({
         <Grid container>
           <Grid item xs={12}>
             <Typography paragraph>
-              Be ready for Teghs launch this Fall, 2019. Joining our mailing list to get the latest updates.
+              Be ready for Tegh's launch this Fall, 2019. Join our mailing list to get the latest updates.
             </Typography>
             <iframe
               title="Subscribe to Tegh"
