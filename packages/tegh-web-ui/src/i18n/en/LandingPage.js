@@ -38,7 +38,7 @@ const LandingPageEN = {
     secure: deline`
       ## Secure\n
 
-      Strongly protect your prints with the worlds first end-to-end encrypted 3D printing software.
+      Protect your prints with the worlds first end-to-end encrypted 3D printing software.
     `,
     multiPrinter: deline`
       ## Multi-Printer\n
