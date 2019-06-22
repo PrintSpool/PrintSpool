@@ -10,12 +10,15 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: theme.spacing(8),
 
     [theme.breakpoints.down('sm')]: {
-      gridTemplateColumns: '5% [logo] 25% 5% [logoAdjacent] auto',
+      gridTemplateColumns: '[logoAdjacent] auto',
     },
   },
   logo: {
     gridArea: 'logo',
     width: '100%',
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
   },
   logoAdjacent: {
     gridArea: 'logoAdjacent',
@@ -31,6 +34,9 @@ const useStyles = makeStyles(theme => ({
     gridTemplateColumns: '[left] auto [right] 33%',
     paddingTop: theme.spacing(4),
     paddingBottom: theme.spacing(2),
+    [theme.breakpoints.down('sm')]: {
+      gridTemplateColumns: '[right] max-content',
+    },
   },
   navigationRight: {
     gridArea: 'right',
@@ -40,6 +46,9 @@ const useStyles = makeStyles(theme => ({
   },
   connectTitle: {
     color: '#fff',
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '1rem',
+    },
   },
   freenode: {
     color: '#fff',

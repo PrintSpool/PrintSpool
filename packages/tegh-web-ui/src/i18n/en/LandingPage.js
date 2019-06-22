@@ -13,8 +13,6 @@ const LandingPageEN = {
       3D printing is a powerful tool for prototyping and designing new things but managing 3D prints can take up valuable time and energy.\n
 
       Tegh is designed from the ground up to streamline your WiFi 3D printing experience. Re-imagining the 3D printer workflow to remove print management obstacles so you can worry less and create more.\n
-
-      Tegh is and will always be free software.
     `,
   },
   printQueueing: {
@@ -50,7 +48,7 @@ const LandingPageEN = {
     openSource: deline`
       ## Open Source\n
 
-      Tegh will always be free for you to use and mod. Tegh's AGPL3 free software license ensures that.
+      Tegh will always be free for you to use and mod. Tegh's AGPL3 free software license guarentees it.
     `,
   },
   contribute: {

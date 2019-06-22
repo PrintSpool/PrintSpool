@@ -124,7 +124,7 @@ const LandingPage = () => {
         </Grid>
 
         <Hidden smDown>
-          <Grid item md={6}>
+          <Grid item xs={12} md={6}>
             <img
               async
               alt=""
@@ -143,7 +143,7 @@ const LandingPage = () => {
           <Header variant="green" title={t('printQueueing.title')} />
         </Grid>
 
-        <Grid item xs={6} className={classes.animationGridItem}>
+        <Grid item xs={12} md={6} className={classes.animationGridItem}>
           <img
             async
             src={printQueueingGIF}
@@ -151,7 +151,7 @@ const LandingPage = () => {
             className={classes.animation}
           />
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={12} md={6}>
           <ReactMarkdown
             source={t('printQueueing.content')}
             renderers={{
@@ -165,20 +165,20 @@ const LandingPage = () => {
           <Header variant="orange" title={t('fullyAutomatic.title')} />
         </Grid>
 
-        <Grid item xs={6}>
-          <ReactMarkdown
-            source={t('fullyAutomatic.content')}
-            renderers={{
-              paragraph: largeParagraph,
-            }}
-          />
-        </Grid>
-        <Grid item xs={6} className={classes.animationGridItem}>
+        <Grid item xs={12} md={6} className={classes.animationGridItem}>
           <img
             async
             src={automaticPrintingGIF}
             alt=""
             className={classes.animation}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <ReactMarkdown
+            source={t('fullyAutomatic.content')}
+            renderers={{
+              paragraph: largeParagraph,
+            }}
           />
         </Grid>
 
@@ -204,6 +204,10 @@ const LandingPage = () => {
         </Grid>
         */}
         <Grid item xs={12}>
+          <Header variant="orange" name="donate" title={t('support.title')} />
+        </Grid>
+
+        <Grid item xs={12}>
           {/*
           <Header variant="orange" title={t('contribute.title')} />
           <ReactMarkdown
@@ -214,10 +218,6 @@ const LandingPage = () => {
             }}
           />
           */}
-          <Grid item xs={12}>
-            <Header variant="orange" name="donate" title={t('support.title')} />
-          </Grid>
-
           <ReactMarkdown
             source={t('support.content')}
             renderers={{

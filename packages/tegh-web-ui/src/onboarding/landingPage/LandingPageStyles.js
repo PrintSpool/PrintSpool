@@ -5,14 +5,8 @@ const useStyles = makeStyles(theme => ({
   },
   content: {
     marginLeft: theme.spacing(-4),
-    paddingLeft: theme.spacing(8),
-    paddingRight: theme.spacing(4),
-
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: theme.spacing(-2),
-      paddingLeft: theme.spacing(4),
-      paddingRight: theme.spacing(2),
-    },
+    paddingLeft: theme.spacing(6),
+    paddingRight: theme.spacing(2),
   },
   donateButton: {
     marginRight: theme.spacing(2),
@@ -22,11 +16,14 @@ const useStyles = makeStyles(theme => ({
     marginRight: theme.spacing(1),
   },
   animationGridItem: {
-    display: 'grid',
-    alignItems: 'center',
+    // display: 'grid',
+    // alignItems: 'center',
   },
   animation: {
     maxWidth: '100%',
+    [theme.breakpoints.down('md')]: {
+      width: '100%',
+    },
   },
 }), { withTheme: true })
 

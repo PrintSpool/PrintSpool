@@ -18,7 +18,9 @@ const useStyles = makeStyles((theme) => ({
       gridTemplateColumns: 'auto',
       height: 'auto',
       marginLeft: theme.spacing(-4),
-      marginRight: theme.spacing(-2),
+      marginRight: theme.spacing(-4),
+      marginTop: theme.spacing(1),
+      marginBottom: theme.spacing(2),
     },
   },
   greenRoot: {
