@@ -10,10 +10,31 @@ const useStyles = makeStyles(theme => ({
   },
   donateButton: {
     marginRight: theme.spacing(2),
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
+      marginRight: 0,
+      width: '100%',
+      textAlign: 'left',
+    },
   },
   donationButtonLogo: {
-    height: '1em',
     marginRight: theme.spacing(1),
+    display: 'inline-block',
+    width: 30.85,
+    marginBottom: '-0.1em',
+    height: '0.9em',
+  },
+  nanoLogo: {
+    marginRight: theme.spacing(1),
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: '-0.3em',
+    },
+  },
+  ethereumLogo: {
+    marginRight: theme.spacing(1),
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: '-0.3em',
+    },
   },
   animationGridItem: {
     // display: 'grid',

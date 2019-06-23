@@ -21,8 +21,8 @@ import Hero from './Hero'
 import Header from './Header'
 
 import KofiCupLogoSVG from './images/kofiCupLogo.svg'
-import nanoMarkSVG from './images/nanoMark.svg'
-import ethereumPNG from './images/ethereumIconSmall.png'
+import NanoIcon from './currencyIcons/NanoIcon'
+import EthereumIcon from './currencyIcons/EthereumIcon'
 
 import automaticPrintingGIF from './images/automaticPrinting.gif'
 import printQueueingGIF from './images/printQueueing.gif'
@@ -33,13 +33,13 @@ import LandingPageStyles from './LandingPageStyles'
 
 const currencies = {
   nano: {
-    icon: nanoMarkSVG,
+    icon: className => <NanoIcon className={className} />,
     shortName: 'Nano',
     longName: 'Nano',
     address: 'nano_1cpesa6ushct9zieue8uo981cbz8rbfbjb7h9dw1a3nmibwysyzpipjhfufa',
   },
   ethereum: {
-    icon: ethereumPNG,
+    icon: className => <EthereumIcon className={className} />,
     shortName: 'Ethereum',
     longName: 'Ethereum/ERC20',
     address: '0xcfa4ebcac84e806199864b70dcc6a3a463ab62aa',
@@ -244,11 +244,8 @@ const LandingPage = () => {
               className={classes.donateButton}
               onClick={onCryptoDonationClick(buttonCurrency)}
             >
-              <img
-                alt=""
-                src={buttonCurrency.icon}
-                className={classes.donationButtonLogo}
-              />
+              {buttonCurrency.icon(classes[`${key}Logo`])}
+
               {t('contribute.cryptoDonationButton', buttonCurrency)}
             </Button>
           ))}

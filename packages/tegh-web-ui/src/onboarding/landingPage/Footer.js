@@ -42,7 +42,7 @@ const Footer = ({ t }) => {
       <div className={classes.navigation}>
         <div className={classes.navigationRight}>
           <Typography
-            variant={{ xs: 'body2', md: 'body1' }}
+            variant="body2"
             paragraph
             className={classes.connectTitle}
           >
