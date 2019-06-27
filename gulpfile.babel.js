@@ -111,8 +111,7 @@ gulp.task(
     gulp.parallel(
       watchBabel,
       run('tegh-host-posix', 'dev'),
-      run('tegh-web-ui', 'watch'),
-      run('tegh-web-ui', 'serve'),
+      run('tegh-web-ui', 'serve:http'),
     ),
   ),
 )

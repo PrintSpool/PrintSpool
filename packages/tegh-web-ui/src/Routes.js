@@ -47,7 +47,6 @@ const PluginsConfigPage = React.lazy(() => (
 ))
 
 const Routes = () => {
-  // isBeaker = typeof DatArchive !== 'undefined'
   const { isAuthorized, hosts } = useContext(UserDataContext)
 
   return (

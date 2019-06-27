@@ -9,15 +9,12 @@
   "license": "AGPL-3.0-or-later",
   "private": false,
   "scripts": {
-    "serve": "mkdir -p ./dev-dist && cd ./dev-dist && static-server -p 1234",
-    "serve:production": "mkdir -p ./dist && cd ./dist && static-server -p 1234",
-    "serve:direct": "parcel serve ./src/index.html -d ./dev-dist",
-    "serve:http": "parcel serve ./src/http/index.html -d ./dev-dist",
-    "watch": "parcel watch ./src/index.html -d ./dev-dist --hmr-hostname localhost",
-    "watch:production": "parcel watch ./src/index.html --no-hmr",
+    "serve:http": "parcel serve ./src/http.html -d ./dev-dist",
+    "watch": "parcel watch ./src/dat.html -d ./dev-dist --hmr-hostname localhost",
+    "watch:production": "parcel watch ./src/dat.html --no-hmr",
     "clean": "cd dist && ls | grep -v dat.json | xargs rm -rf",
-    "build": "yarn clean && NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/index.html --detailed-report",
-    "build:http": "NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/http/index.html --detailed-report",
+    "build:dat": "yarn clean && NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/dat.html --detailed-report",
+    "build:http": "NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/http.html --detailed-report",
     "report": "xdg-open ./dist/report.html",
     "storybook": "start-storybook -p 9001 -c .storybook"
   },
@@ -55,7 +52,7 @@
     "graphql-anywhere": "^3.1.0",
     "graphql-playground-react": "^1.7.20",
     "graphql-tag": "^2.5.0",
-    "graphql-things": "^0.2.7",
+    "graphql-things": "^0.3.1",
     "history": "^4.7.2",
     "i18next": "^15.1.2",
     "isomorphic-fetch": "^2.2.1",
@@ -92,7 +89,8 @@
     "truncate": "^2.1.0",
     "typeface-roboto": "^0.0.54",
     "use-react-router": "^1.0.5",
-    "yup": "^0.27.0"
+    "yup": "^0.27.0",
+    "webrtc-adapter": "D1plo1d/adapter#getStats-length"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-0",
@@ -146,6 +144,7 @@
   "resolutions": {
     "graphql": "^14.0.2",
     "subscriptions-transport-ws": "^0.9.4",
-    "caniuse-lite": "^1.0.30000974"
+    "caniuse-lite": "^1.0.30000974",
+    "webrtc-adapter": "D1plo1d/adapter#getStats-length"
   }
 }

@@ -24,7 +24,7 @@
   "private": false,
   "scripts": {
     "trace-gc": "npx node-dev ./dist/index.js --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
-    "dev": "npx node-dev ./dist/index.js --trace-warnings -- serve",
+    "dev": "npx node-dev ./dist/index.js -r esm --trace-warnings -- serve",
     "snap:test:pre-refresh": "npx node-dev ./dist/index.js --trace-warnings -- pre-refresh",
     "debug": "DEBUG=\"*,-babel:*,-babel,-gulp-*,-snapdragon:*,-dns-discovery,-discovery-*\" yarn dev"
   },
@@ -43,10 +43,11 @@
     "dedent": "^0.7.0",
     "domexception": "^1.0.1",
     "ejs": "^2.5.7",
+    "esm": "^3.2.25",
     "fast-memoize": "^2.5.1",
     "graphql": "^14.0.2",
     "graphql-live-subscriptions": "^1.1.0",
-    "graphql-things": "^0.2.7",
+    "graphql-things": "^0.3.1",
     "graphql-type-json": "^0.2.0",
     "immutable": "^4.0.0-rc.12",
     "iterall": "^1.2.2",

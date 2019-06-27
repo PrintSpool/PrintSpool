@@ -8,12 +8,15 @@ const useMachineDefSuggestions = () => {
 
   useEffect(() => {
     (async () => {
-      // eslint-disable-next-line no-undef
-      const archive = new DatArchive(MACHINE_DEFS_DAT)
-      const indexFileContent = await archive.readFile('/index.json')
-      const index = JSON.parse(indexFileContent)
+      // TODO: re-implement machine lookups
 
-      setMachineDefs(index)
+      // // eslint-disable-next-line no-undef
+      // const archive = new DatArchive(MACHINE_DEFS_DAT)
+      // const indexFileContent = await archive.readFile('/index.json')
+      // const index = JSON.parse(indexFileContent)
+      //
+      // setMachineDefs(index)
+      setMachineDefs({})
     })()
   }, [])
 

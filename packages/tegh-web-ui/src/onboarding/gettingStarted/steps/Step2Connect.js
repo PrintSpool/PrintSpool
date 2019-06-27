@@ -7,7 +7,7 @@ import {
 
 import QRReader from 'react-qr-reader'
 
-import { parseInviteCode } from 'graphql-things'
+import { parseInviteCode } from 'graphql-things/client'
 
 import Step2ConnectStyles from './Step2ConnectStyles'
 

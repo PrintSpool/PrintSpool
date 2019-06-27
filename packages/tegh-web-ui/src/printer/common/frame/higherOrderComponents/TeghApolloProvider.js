@@ -12,7 +12,7 @@ import { ApolloLink } from 'apollo-link'
 import { onError } from 'apollo-link-error'
 // import ReduxLink from 'apollo-link-redux'
 
-import { ThingLink } from 'graphql-things'
+import { ThingLink } from 'graphql-things/client'
 
 // import { store } from '../../../../index'
 
@@ -32,6 +32,9 @@ export const createTeghApolloLink = ({
     // identityKeys: myIdentity,
     identityKeys: hostIdentity.identityKeys,
     peerIdentityPublicKey: hostIdentity.peerIdentityPublicKey,
+    onError: (error) => {
+      throw new Error(error)
+    },
     options: { reconnect: false },
   })
 

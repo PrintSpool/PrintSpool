@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@material-ui/core'
 
-import { parseInviteCode } from 'graphql-things'
+import { parseInviteCode } from 'graphql-things/client'
 
 import { LiveSubscription } from '../../common/LiveSubscription'
 
