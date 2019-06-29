@@ -52,7 +52,7 @@
     "graphql-anywhere": "^3.1.0",
     "graphql-playground-react": "^1.7.20",
     "graphql-tag": "^2.5.0",
-    "graphql-things": "^0.3.1",
+    "graphql-things": "^0.4.1",
     "history": "^4.7.2",
     "i18next": "^15.1.2",
     "isomorphic-fetch": "^2.2.1",
@@ -89,8 +89,8 @@
     "truncate": "^2.1.0",
     "typeface-roboto": "^0.0.54",
     "use-react-router": "^1.0.5",
-    "yup": "^0.27.0",
-    "webrtc-adapter": "D1plo1d/adapter#getStats-length"
+    "webrtc-adapter": "D1plo1d/adapter#getStats-length",
+    "yup": "^0.27.0"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-0",

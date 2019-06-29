@@ -28,17 +28,17 @@ const getSchemaForms = () => ({
       title: 'Basic Printer Settings',
       required: [
         ...(schema.required || []),
-        'machineDefinitionURL',
+        // 'machineDefinitionURL',
         'name',
       ],
       properties: {
         ...(schema.properties || {}),
-        machineDefinitionURL: {
-          title: 'Printer make and model DAT',
-          type: 'string',
-        },
+        // machineDefinitionURL: {
+        //   title: 'Printer make and model DAT',
+        //   type: 'string',
+        // },
         name: {
-          title: 'Name',
+          title: 'Printer Name',
           type: 'string',
           minLength: 1,
         },

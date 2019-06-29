@@ -102,10 +102,14 @@ const FormikSchemaField = ({
     }
     case 'boolean': {
       return (
-        <Field
-          {...sharedFieldProps}
-          component={SwitchWithLabel}
-        />
+        <div
+          style={{ marginTop: 24 }}
+        >
+          <Field
+            {...sharedFieldProps}
+            component={SwitchWithLabel}
+          />
+        </div>
       )
     }
     case 'array': {

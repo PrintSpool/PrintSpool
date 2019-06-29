@@ -12,7 +12,7 @@ import { ApolloLink } from 'apollo-link'
 import { onError } from 'apollo-link-error'
 // import ReduxLink from 'apollo-link-redux'
 
-import { ThingLink } from 'graphql-things/client'
+import { ThingLink, connect } from 'graphql-things/client'
 
 // import { store } from '../../../../index'
 
@@ -28,38 +28,37 @@ export const createTeghApolloLink = ({
   // the public key is retreaved by scanning the QR Code displayed by Tegh on
   // the 3D printer's screen.
 
-  const thingLink = ThingLink({
-    // identityKeys: myIdentity,
-    identityKeys: hostIdentity.identityKeys,
-    peerIdentityPublicKey: hostIdentity.peerIdentityPublicKey,
-    onError: (error) => {
-      throw new Error(error)
-    },
+  const thingLink = new ThingLink({
+    createConnection: () => connect({
+      // identityKeys: myIdentity,
+      identityKeys: hostIdentity.identityKeys,
+      peerIdentityPublicKey: hostIdentity.peerIdentityPublicKey,
+    }),
     options: { reconnect: false },
   })
 
   const errorLink = onError(({ graphQLErrors, networkError }) => {
-    if (graphQLErrors) {
-      const errorMessages = graphQLErrors.map(
-        ({ message, locations, path }) => {
-          // eslint-disable-next-line no-console
-          console.log(snl`
-            [GraphQL error]:
-            Message: ${message}, Location: ${locations}, Path: ${path}
-          `)
-          return (snl`
-            Unexpected GraphQL Error\n\n
-            Message: ${message}\n
-            Location: ${JSON.stringify(locations)}\n
-            Path: ${path}
-          `)
-        },
-      )
-      // eslint-disable-next-line no-alert, no-undef
-      if (errorMessages.length > 0) alert(errorMessages.join('\n\n'))
-    }
-    // eslint-disable-next-line no-alert, no-undef
-    if (networkError) alert(`[Network error]: ${networkError}`)
+    // if (graphQLErrors) {
+    //   const errorMessages = graphQLErrors.map(
+    //     ({ message, locations, path }) => {
+    //       // eslint-disable-next-line no-console
+    //       console.log(snl`
+    //         [GraphQL error]:
+    //         Message: ${message}, Location: ${locations}, Path: ${path}
+    //       `)
+    //       return (snl`
+    //         Unexpected GraphQL Error\n\n
+    //         Message: ${message}\n
+    //         Location: ${JSON.stringify(locations)}\n
+    //         Path: ${path}
+    //       `)
+    //     },
+    //   )
+    //   // eslint-disable-next-line no-alert, no-undef
+    //   // if (errorMessages.length > 0) alert(errorMessages.join('\n\n'))
+    // }
+    // // eslint-disable-next-line no-alert, no-undef
+    // // if (networkError) alert(`[Network error]: ${networkError}`)
   })
 
   return ApolloLink.from([

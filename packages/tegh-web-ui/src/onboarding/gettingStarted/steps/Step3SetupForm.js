@@ -60,19 +60,23 @@ const Step3SetupForm = ({
   location,
 }) => {
 
-  const machineDefName = useMemo(() => {
-    const suggestion = suggestions.find((suggestion) => (
-      suggestion.value === machineDefinitionURL
-    ))
+  // const machineDefName = useMemo(() => {
+  //   const suggestion = suggestions.find((suggestion) => (
+  //     suggestion.value === machineDefinitionURL
+  //   ))
+  //
+  //   if (suggestion == null) return null
+  //
+  //   return suggestion.label
+  // }, [machineDefinitionURL, suggestions])
+  //
+  // const machineIsSet = machineDefName != null
 
-    if (suggestion == null) return null
+  const machineDefName = null
+  const machineIsSet = true
 
-    return suggestion.label
-  }, [machineDefinitionURL, suggestions])
-
-  const machineIsSet = machineDefName != null
-
-  const configSpring = useSpring({ x: machineIsSet ? 1 : 0 })
+  // const configSpring = useSpring({ x: machineIsSet ? 1 : 0 })
+  const configSpring = useSpring({ x: 1 })
 
   const { schema = {}, form } = useMemo(() => {
     if (schemaForm == null) {
@@ -100,7 +104,7 @@ const Step3SetupForm = ({
         history.push(nextURL)
       }}
     >
-      {(addPrinter, { loading, data }) => (
+      {(createMachine, { loading, data }) => (
         <Formik
           enableReinitialize
           initialValues={{
@@ -116,7 +120,7 @@ const Step3SetupForm = ({
               model: values,
             }
             try {
-              await addPrinter({ variables: { input } })
+              await createMachine({ variables: { input } })
             } catch (e) {
               setSubmitting(false)
               alert(e)
@@ -157,15 +161,17 @@ const Step3SetupForm = ({
                         </animated.div>
                       )}
                     </Measure>
-                    <Typography variant="body1" paragraph>
-                      Now, what kind of 3D Printer do you have?
-                    </Typography>
-                    <Typeahead
-                      suggestions={suggestions}
-                      name="machineDefinitionURL"
-                      label="Search printer make and models"
-                      onChange={setMachineDefinitionURL}
-                    />
+                    {/*
+                      <Typography variant="body1" paragraph>
+                        Now, what kind of 3D Printer do you have?
+                      </Typography>
+                      <Typeahead
+                        suggestions={suggestions}
+                        name="machineDefinitionURL"
+                        label="Search printer make and models"
+                        onChange={setMachineDefinitionURL}
+                      />
+                    */}
                   </div>
                   <animated.div
                     className={classes.config}
@@ -199,16 +205,21 @@ const Step3SetupForm = ({
 
                       return (
                         <React.Fragment>
-                          <Typography variant="body1" paragraph>
-                            { 'aeiouAEIOU'.includes(machineDefName[0]) ? 'An' : 'A'}
-                            {' '}
-                            <b>
-                              {machineDefName}
-                            </b>
-                            ?
-                            {' '}
-                            Great. We just need a bit of information to get it set up.
+                          <Typography variant="body1">
+                            Great! We just need a bit of information to get it set up.
                           </Typography>
+                          {/*
+                            <Typography variant="body1" paragraph>
+                              { 'aeiouAEIOU'.includes(machineDefName[0]) ? 'An' : 'A'}
+                              {' '}
+                              <b>
+                                {machineDefName}
+                              </b>
+                              ?
+                              {' '}
+                              Great. We just need a bit of information to get it set up.
+                            </Typography>
+                          */}
                           <FormikSchemaForm
                             schema={schema}
                             form={form}
@@ -230,7 +241,7 @@ const Step3SetupForm = ({
               </div>
               <ButtonsFooter
                 step={3}
-                disable={machineIsSet === false || isSubmitting}
+                // disable={machineIsSet === false || isSubmitting}
                 type="submit"
                 component="button"
                 history={history}

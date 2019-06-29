@@ -20,12 +20,12 @@ const useStyles = makeStyles(() => ({
     paddingBottom: 8,
   },
   config: {
-    marginTop: 8 * 4,
+    // marginTop: 8 * 4,
     display: 'flex',
     flexDirection: 'column',
   },
   configForm: {
-    marginTop: -8 * 3,
+    // marginTop: -8 * 3,
   },
   stretchedContent: {
     justifyContent: 'stretch',

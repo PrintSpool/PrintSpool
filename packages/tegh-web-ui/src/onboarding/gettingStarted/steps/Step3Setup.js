@@ -27,12 +27,12 @@ const Step3Setup = ({
   setSkippedStep3,
 }) => {
   const classes = Step3SetupStyles()
-  const [machineDefinitionURL, setMachineDefinitionURL] = useState()
+  const [machineDefinitionURL, setMachineDefinitionURL] = useState('placeholder')
 
-  const {
-    suggestions,
-    loading: loadingMachineDefs,
-  } = useMachineDefSuggestions()
+  // const {
+  //   suggestions,
+  //   loading: loadingMachineDefs,
+  // } = useMachineDefSuggestions()
 
   const { isConfigured } = data || {}
 
@@ -44,9 +44,9 @@ const Step3Setup = ({
     }
   }, [isConfigured])
 
-  // TODO: determine which of these is slow
-  console.log(loadingMachineDefs, connecting)
-  const loading = loadingMachineDefs || connecting
+  // console.log(loadingMachineDefs, connecting)
+  // const loading = loadingMachineDefs || connecting
+  const loading = connecting
 
   if (loading) {
     return (
@@ -62,10 +62,10 @@ const Step3Setup = ({
       variables={{
         input: {
           collection: 'MACHINE',
-          schemaFormKey: machineDefinitionURL,
+          schemaFormKey: 'PLACEHOLDER', // machineDefinitionURL,
         },
       }}
-      skip={machineDefinitionURL == null}
+      // skip={machineDefinitionURL == null}
       fetchPolicy="network-only"
     >
       {({
@@ -78,7 +78,7 @@ const Step3Setup = ({
           className={className}
           history={history}
           location={location}
-          suggestions={suggestions}
+          // suggestions={suggestions}
           machineDefinitionURL={machineDefinitionURL}
           setMachineDefinitionURL={setMachineDefinitionURL}
           devices={
