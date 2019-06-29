@@ -33,6 +33,11 @@ const CREATE_MACHINE = gql`
 const schemaWithoutDef = ({ schema }) => {
   const {
     machineDefinitionURL,
+    // TODO: temporary hack: manually filtering out advanced properites
+    automaticPrinting,
+    beforePrintHook,
+    afterPrintHook,
+
     ...properties
   } = schema.properties
 
