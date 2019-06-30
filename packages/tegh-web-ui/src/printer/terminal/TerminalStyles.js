@@ -21,25 +21,26 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
     marginRight: theme.spacing(2),
   },
+  macroTerminalEntry: {
+    background: '#DDD',
+  },
+  txTerminalEntry: {
+    background: '#EEE',
+  },
   createdAt: {
     color: '#666',
   },
   rx: {
     color: theme.palette.primary.dark,
-    opacity: 0.6,
+    marginRight: theme.spacing(1),
   },
   rxMessage: {
-    color: theme.palette.primary.dark,
-    filter: 'brightness(20%)',
-    opacity: 0.9,
   },
   tx: {
     color: '#DD25C4',
-    opacity: 0.6,
+    marginRight: theme.spacing(1),
   },
   txMessage: {
-    color: '#DD25C4',
-    filter: 'brightness(80%)',
   },
   macro: {
     color: '#6704D8',

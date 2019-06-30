@@ -101,7 +101,10 @@ const Terminal = ({
 
               return (
                 // eslint-disable-next-line react/no-array-index-key
-                <div key={entry.id} className={classes.terminalEntry}>
+                <div
+                  key={entry.id}
+                  className={classes[`${txRXOrMacro}TerminalEntry`]}
+                >
                   {
                     /*
                     <span className={classes.createdAt}>
