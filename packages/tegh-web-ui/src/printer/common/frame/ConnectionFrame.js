@@ -99,7 +99,7 @@ const ConnectionFrame = ({
           ({ data, loading, error }) => (
             <div className={classes.root}>
               {
-                !loading && (
+                !loading && !error && (
                   <StaticTopNavigation
                     title={() => host.name}
                     className={classes.topNavigation}
@@ -116,7 +116,7 @@ const ConnectionFrame = ({
 
               {
                 // connected && !loading && (
-                !loading && (
+                !loading && !error && (
                   <Drawer
                     hostIdentity={host}
                     machines={data.machines}
