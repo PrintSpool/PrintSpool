@@ -30,7 +30,7 @@ const TaskStatusRow = ({ task, cancelTask }) => (
     >
       {
         (() => {
-          const taskOnMachine = `${task.name} on ${task.printer.name}`
+          const taskOnMachine = `${task.name} on ${task.machine.name}`
           if (['CANCELLED', 'ERRORED'].includes(task.status)) {
             return `${task.status} ${taskOnMachine}`
           }

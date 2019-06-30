@@ -26,7 +26,7 @@ import classnames from 'classnames'
 
 export const DrawerFragment = gql`
   fragment DrawerFragment on Query {
-    printers {
+    machines {
       id
       name
     }
@@ -104,7 +104,7 @@ const DrawerLink = withRouter(({
   </ListItem>
 ))
 
-const DrawerContents = ({ hostIdentity, printers, classes }) => (
+const DrawerContents = ({ hostIdentity, machines, classes }) => (
   <div>
     <List>
       <Hidden mdUp>
@@ -123,27 +123,27 @@ const DrawerContents = ({ hostIdentity, printers, classes }) => (
         classes={classes}
       />
       {
-        printers.map(printer => (
+        machines.map(machine => (
           <div
-            key={printer.id}
+            key={machine.id}
           >
-            <ListSubheader>{printer.name}</ListSubheader>
+            <ListSubheader>{machine.name}</ListSubheader>
             <DrawerLink
               text="Control Panel"
               icon={<OpenWith />}
-              href={`/p/${hostIdentity.id}/${printer.id}/manual-control/`}
+              href={`/m/${hostIdentity.id}/${machine.id}/manual-control/`}
               classes={classes}
             />
             <DrawerLink
               text="Terminal"
               icon={<Keyboard />}
-              href={`/p/${hostIdentity.id}/${printer.id}/terminal/`}
+              href={`/m/${hostIdentity.id}/${machine.id}/terminal/`}
               classes={classes}
             />
             <DrawerLink
               text="Config"
               icon={<Settings />}
-              href={`/p/${hostIdentity.id}/${printer.id}/config/`}
+              href={`/m/${hostIdentity.id}/${machine.id}/config/`}
               classes={classes}
             />
           </div>
@@ -162,7 +162,7 @@ const DrawerContents = ({ hostIdentity, printers, classes }) => (
 
 const Drawer = ({
   hostIdentity,
-  printers,
+  machines,
   mobileOpen,
   onClose,
   classes,
@@ -185,7 +185,7 @@ const Drawer = ({
       >
         <DrawerContents
           hostIdentity={hostIdentity}
-          printers={printers}
+          machines={machines}
           classes={classes}
         />
       </MaterialUIDrawer>
@@ -201,7 +201,7 @@ const Drawer = ({
       >
         <DrawerContents
           hostIdentity={hostIdentity}
-          printers={printers}
+          machines={machines}
           classes={classes}
         />
       </MaterialUIDrawer>

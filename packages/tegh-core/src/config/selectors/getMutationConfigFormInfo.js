@@ -13,7 +13,7 @@ const MACHINE = 'MACHINE'
 const getMutationConfigFormInfo = ({ state, args }) => {
   const {
     collection,
-    printerID,
+    machineID,
     // TODO: host config forms
     // hostID,
     configFormID,
@@ -38,9 +38,9 @@ const getMutationConfigFormInfo = ({ state, args }) => {
 
   if (
     [PLUGIN, COMPONENT, MACHINE].includes(collection)
-    && printerID !== state.config.printer.id
+    && machineID !== state.config.printer.id
   ) {
-    throw new Error(`Printer ID: ${printerID} does not exist`)
+    throw new Error(`Machine ID: ${machineID} does not exist`)
   }
 
   switch (collection) {

@@ -11,7 +11,7 @@ const JOBS_SUBSCRIPTION = gql`
     live {
       patch { op, path, from, value }
       query {
-        printers {
+        machines {
           id
           status
         }
@@ -37,7 +37,7 @@ const JOBS_SUBSCRIPTION = gql`
               percentComplete(digits: 1)
               startedAt
               status
-              printer {
+              machine {
                 id
                 name
               }
@@ -58,7 +58,7 @@ const enhance = compose(
 )
 
 const Index = ({
-  printers,
+  machines,
   history,
   match,
   jobQueue: {
@@ -71,7 +71,7 @@ const Index = ({
     history={history}
     name={name}
     jobs={jobs}
-    printers={printers}
+    machines={machines}
   />
 )
 

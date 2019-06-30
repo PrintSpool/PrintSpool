@@ -32,11 +32,8 @@ const home = createMacroExpansionReducer(meta, (
     if (!axisExists(config)(address, { allowTypes: [MOVEMENT_AXIS] })) {
       throw new Error(`Axis ${address} does not exist`)
     }
-    const component = getComponents(config).find(c => (
-      c.model.get('address') === address
-    ))
 
-    gcodeWords.push(component.address.toUpperCase())
+    gcodeWords.push(address.toUpperCase())
   })
   return [
     gcodeWords.join(' '),

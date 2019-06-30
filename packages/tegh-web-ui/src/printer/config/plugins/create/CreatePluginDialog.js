@@ -89,7 +89,7 @@ const STEPS = [
 ]
 
 const createComponentDialog = ({
-  printerID,
+  machineID,
   open,
   history,
   addPlugin,
@@ -135,7 +135,7 @@ const createComponentDialog = ({
           return addPlugin({
             variables: {
               input: {
-                printerID,
+                machineID,
                 collection: 'PLUGIN',
                 schemaFormKey: values.package,
                 model: values.model,
@@ -149,7 +149,7 @@ const createComponentDialog = ({
           // TODO: move variables to where query is called
           variables: {
             input: {
-              printerID,
+              machineID,
               collection: 'PLUGIN',
               schemaFormKey: values.package,
             },

@@ -14,7 +14,7 @@ import ButtonsFooter from '../ButtonsFooter'
 import Loading from '../../../../common/Loading'
 
 const Step7LoadFilament = ({
-  printer,
+  machine,
   component,
   next,
   classes,
@@ -27,14 +27,14 @@ const Step7LoadFilament = ({
     setSaving(true)
 
     return {
-      printer,
+      machine,
       gcodes: [
         { toggleHeaters: { heaters: { [component.address]: false } } },
       ],
       // Wait for the extruder to reach temperature and then go to the next step
       update: next,
     }
-  }, [printer, component.address])
+  }, [machine, component.address])
 
   return (
     <React.Fragment>
@@ -46,7 +46,7 @@ const Step7LoadFilament = ({
           {t('loadFilament.content')}
         </Typography>
         <ExtruderButtons
-          printer={printer}
+          machine={machine}
           component={component}
         />
         <Typography variant="body2" paragraph>

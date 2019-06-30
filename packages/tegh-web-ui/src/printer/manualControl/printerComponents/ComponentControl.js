@@ -53,7 +53,7 @@ export const ComponentControlFragment = gql`
   }
 `
 const ComponentControl = ({
-  printer,
+  machine,
   component,
   disabled,
 }) => {
@@ -85,7 +85,7 @@ const ComponentControl = ({
             {
               component.heater && (
                 <TemperatureSection
-                  printer={printer}
+                  machine={machine}
                   component={component}
                   disabled={disabled}
                 />
@@ -122,7 +122,7 @@ const ComponentControl = ({
                   )}
                   <ExtrudeRetractButtons
                     className={classes.extruderButton}
-                    printer={printer}
+                    machine={machine}
                     component={component}
                     distance={distance}
                     disabled={disabled}
@@ -158,7 +158,7 @@ const ComponentControl = ({
             {
               component.type === 'FAN' && (
                 <FanSection
-                  printer={printer}
+                  machine={machine}
                   component={component}
                   address={component.address}
                   disabled={disabled}

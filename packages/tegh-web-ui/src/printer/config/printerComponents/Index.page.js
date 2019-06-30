@@ -34,7 +34,7 @@ import CreateComponentDialog from '../components/CreateComponentDialog/Index'
 import transformComponentSchema from './transformComponentSchema'
 
 const COMPONENTS_SUBSCRIPTION = gql`
-  subscription ConfigSubscription($printerID: ID!) {
+  subscription ConfigSubscription($machineID: ID!) {
     live {
       patch { op, path, from, value }
       query {
@@ -47,7 +47,7 @@ const COMPONENTS_SUBSCRIPTION = gql`
           id
           name
         }
-        printers(printerID: $printerID) {
+        machines(machineID: $machineID) {
           id
           status
           fixedListComponentTypes
@@ -110,20 +110,20 @@ const enhance = compose(
   withProps(ownProps => ({
     subscription: COMPONENTS_SUBSCRIPTION,
     variables: {
-      printerID: ownProps.match.params.printerID,
+      machineID: ownProps.match.params.machineID,
     },
   })),
   withLiveData,
-  withProps(({ printers, match }) => {
-    const { componentID, printerID, verb } = match.params
-    const { components, fixedListComponentTypes, status } = printers[0]
+  withProps(({ machines, match }) => {
+    const { componentID, machineID, verb } = match.params
+    const { components, fixedListComponentTypes, status } = machines[0]
 
     return {
       selectedComponent: components.find(c => c.id === componentID),
       components,
       fixedListComponentTypes,
       status,
-      printerID,
+      machineID,
       componentID,
       verb,
     }
@@ -133,7 +133,7 @@ const enhance = compose(
 
 const ComponentsConfigIndex = ({
   classes,
-  printerID,
+  machineID,
   components,
   fixedListComponentTypes,
   status,
@@ -160,10 +160,10 @@ const ComponentsConfigIndex = ({
           materials,
           devices,
         })}
-        variables={{ printerID, componentID: selectedComponent.id }}
+        variables={{ machineID, componentID: selectedComponent.id }}
         query={gql`
-          query($printerID: ID!, $componentID: ID) {
-            printers(printerID: $printerID) {
+          query($machineID: ID!, $componentID: ID) {
+            machines(machineID: $machineID) {
               components(componentID: $componentID) {
                 configForm {
                   ...UpdateDialogFragment
@@ -181,12 +181,12 @@ const ComponentsConfigIndex = ({
         title={selectedComponent.name}
         id={selectedComponent.id}
         collection="COMPONENT"
-        printerID={printerID}
+        machineID={machineID}
         open={selectedComponent != null}
       />
     )}
     <CreateComponentDialog
-      printerID={printerID}
+      machineID={machineID}
       open={componentID === 'new'}
       fixedListComponentTypes={fixedListComponentTypes}
       devices={devices}

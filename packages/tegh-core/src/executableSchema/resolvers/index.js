@@ -19,7 +19,7 @@ import JobResolvers from '../../jobQueue/resolvers/JobResolvers'
 import ComponentResolvers from '../../printer/resolvers/ComponentResolvers'
 import HeaterResolvers from '../../printer/resolvers/HeaterResolvers'
 import MovementHistoryEntryResolvers from '../../printer/resolvers/MovementHistoryEntryResolvers'
-import PrinterResolvers from '../../printer/resolvers/PrinterResolvers'
+import MachineResolvers from '../../printer/resolvers/MachineResolvers'
 import ToolheadResolvers from '../../printer/resolvers/ToolheadResolvers'
 
 import TaskResolvers from '../../spool/resolvers/TaskResolvers'
@@ -50,7 +50,7 @@ const coreResolvers = [
   ComponentResolvers,
   HeaterResolvers,
   MovementHistoryEntryResolvers,
-  PrinterResolvers,
+  MachineResolvers,
   ToolheadResolvers,
 
   TaskResolvers,

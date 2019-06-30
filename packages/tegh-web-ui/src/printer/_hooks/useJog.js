@@ -1,8 +1,8 @@
 import useExecGCodes from './useExecGCodes'
 
-const useJog = ({ printer, distance }) => (
+const useJog = ({ machine, distance }) => (
   (axis, direction) => useExecGCodes(() => ({
-    printerID: printer.id,
+    machineID: machine.id,
     gcodes: [
       { moveBy: { distances: { [axis]: direction * distance } } },
     ],

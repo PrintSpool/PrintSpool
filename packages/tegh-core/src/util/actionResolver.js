@@ -1,13 +1,13 @@
 const actionResolver = ({
-  requirePrinterID = true,
+  requireMachineID = true,
   actionCreator,
   selector,
 }) => async (_source, args, { store }) => {
   try {
     const state = store.getState()
-    const { printerID } = args.input
-    if (requirePrinterID && printerID !== state.config.printer.id) {
-      throw new Error(`Printer ID ${printerID} does not exist`)
+    const { machineID } = args.input
+    if (requireMachineID && machineID !== state.config.printer.id) {
+      throw new Error(`Machine ID ${machineID} does not exist`)
     }
 
     const action = actionCreator(args.input)

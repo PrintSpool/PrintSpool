@@ -51,7 +51,7 @@ const filamentSwapEn = {
       Filament can easily jam while loading. Watch that filament is fed into the printer with each extrusion.
     `,
     warningContent: deline`
-      If the filament jams please retract the filament and determine why the jam occured. Continuing to extrude a jammed filament may damage your printer.
+      If the filament jams please retract the filament and determine why the jam occured. Continuing to extrude a jammed filament may damage your machine.
     `,
   },
 }

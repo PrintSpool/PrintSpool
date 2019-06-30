@@ -41,7 +41,7 @@ const QueryResolvers = {
       return state.config.materials
     },
     schemaForm: (source, args, { store }) => {
-      const { collection, printerID, schemaFormKey } = args.input
+      const { collection, machineID, schemaFormKey } = args.input
       const state = store.getState()
 
       switch (collection) {
@@ -53,8 +53,8 @@ const QueryResolvers = {
           return state.schemaForms.get('machine')
         }
         case 'COMPONENT': {
-          if (printerID !== state.config.printer.id) {
-            throw new Error(`Printer ID: ${printerID} does not exist`)
+          if (machineID !== state.config.printer.id) {
+            throw new Error(`Printer ID: ${machineID} does not exist`)
           }
           const schemaForm = state.schemaForms.getIn(
             ['components', schemaFormKey],
@@ -68,8 +68,8 @@ const QueryResolvers = {
           return schemaForm
         }
         case 'PLUGIN': {
-          if (printerID !== state.config.printer.id) {
-            throw new Error(`Printer ID: ${printerID} does not exist`)
+          if (machineID !== state.config.printer.id) {
+            throw new Error(`Printer ID: ${machineID} does not exist`)
           }
 
           const { availablePlugins } = state.pluginManager
@@ -123,8 +123,8 @@ const QueryResolvers = {
     /*
      * printer
      */
-    printers: (_source, args, { store }) => {
-      const id = args.printerID
+    machines: (_source, args, { store }) => {
+      const id = args.machineID
       const state = store.getState()
       if (id != null && id !== state.config.printer.id) {
         return []

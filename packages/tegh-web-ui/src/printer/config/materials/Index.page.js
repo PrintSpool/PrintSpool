@@ -30,7 +30,7 @@ const CONFIG_SUBSCRIPTION = gql`
       patch { op, path, from, value }
       query {
         hasPendingUpdates
-        printers {
+        machines {
           id
           status
         }
@@ -73,7 +73,7 @@ const MaterialsConfigIndex = ({
   materials,
   materialID,
   verb,
-  printers,
+  machines,
   hasPendingUpdates,
 }) => (
   <main>
@@ -83,7 +83,7 @@ const MaterialsConfigIndex = ({
           title={(materials.find(m => m.id === materialID) || {}).name}
           open
           deleteButton
-          status={printers[0].status}
+          status={machines[0].status}
           hasPendingUpdates={hasPendingUpdates}
           collection="MATERIAL"
           variables={{ materialID }}
@@ -114,7 +114,7 @@ const MaterialsConfigIndex = ({
     />
     <Tooltip title="Add Component" placement="left">
       <Fab
-        disabled={hasPendingUpdates || printers[0].status === 'PRINTING'}
+        disabled={hasPendingUpdates || machines[0].status === 'PRINTING'}
         component={React.forwardRef((props, ref) => (
           <Link
             to="new/"

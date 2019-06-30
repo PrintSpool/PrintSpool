@@ -78,13 +78,13 @@ const enhance = compose(
               return data.materials[0]
             }
 
-            const printer = data.printers[0]
+            const machine = data.machines[0]
 
-            if (printer.configForm != null) {
-              return printer
+            if (machine.configForm != null) {
+              return machine
             }
 
-            return (printer.plugins || printer.components)[0]
+            return (machine.plugins || machine.components)[0]
           })().configForm
 
           return (
@@ -93,7 +93,7 @@ const enhance = compose(
               open={open}
               data={configFormModel}
               client={client}
-              printerID={variables.printerID}
+              machineID={variables.machineID}
               {...props}
             />
           )
@@ -104,7 +104,7 @@ const enhance = compose(
   Component => (props) => {
     const {
       collection,
-      printerID,
+      machineID,
       data,
       history,
     } = props
@@ -112,7 +112,7 @@ const enhance = compose(
     const input = {
       configFormID: data.id,
       modelVersion: data.modelVersion,
-      printerID,
+      machineID,
       collection,
     }
 

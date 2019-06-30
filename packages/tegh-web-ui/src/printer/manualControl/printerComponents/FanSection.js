@@ -8,7 +8,7 @@ import {
 import useExecGCodes from '../../_hooks/useExecGCodes'
 
 const FanSection = ({
-  printer,
+  machine,
   component: {
     id,
     address,
@@ -20,7 +20,7 @@ const FanSection = ({
   disabled,
 }) => {
   const onChange = useExecGCodes((e, enable) => ({
-    printerID: printer.id,
+    machineID: machine.id,
     gcodes: [
       { toggleFan: { fans: { [address]: { enable } } } },
     ],

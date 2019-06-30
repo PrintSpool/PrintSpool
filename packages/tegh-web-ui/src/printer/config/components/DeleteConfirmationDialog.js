@@ -24,14 +24,14 @@ const enhance = compose(
     const {
       id,
       collection,
-      printerID,
+      machineID,
       history,
     } = props
 
     const input = {
       configFormID: id,
       collection,
-      printerID,
+      machineID,
     }
 
     return (

@@ -15,11 +15,11 @@ import useJog from '../../_hooks/useJog'
 import JogButton from './JogButton'
 import JogDistanceButtons from './JogDistanceButtons'
 
-const XYJogButtons = ({ printer }) => {
+const XYJogButtons = ({ machine }) => {
   const distanceOptions = [1, 10, 50, 100]
   const [distance, onChange] = useState(distanceOptions[0])
 
-  const jog = useJog({ printer, distance })
+  const jog = useJog({ machine, distance })
 
   return (
     <Card>

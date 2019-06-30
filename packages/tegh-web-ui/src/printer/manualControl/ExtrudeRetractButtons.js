@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next'
 import useJog from '../_hooks/useJog'
 
 const ExtruderButton = ({
-  printer,
+  machine,
   component,
   distance,
   buttons = ['retract', 'extrude'],
@@ -16,7 +16,7 @@ const ExtruderButton = ({
 }) => {
   const { t } = useTranslation('extruderButton')
 
-  const jog = useJog({ printer, distance })
+  const jog = useJog({ machine, distance })
 
   return (
     <React.Fragment>

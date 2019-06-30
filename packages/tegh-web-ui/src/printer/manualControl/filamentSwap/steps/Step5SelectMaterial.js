@@ -13,7 +13,7 @@ import ButtonsFooter from '../ButtonsFooter'
 import Loading from '../../../../common/Loading'
 
 const Step5SelectMaterial = ({
-  printer,
+  machine,
   component,
   materials,
   next,
@@ -31,7 +31,7 @@ const Step5SelectMaterial = ({
     setSaving(true)
 
     return {
-      printer,
+      machine,
       gcodes: [
         { setMaterials: { toolheads: { [component.address]: materialID } } },
       ],

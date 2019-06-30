@@ -23,7 +23,7 @@ export const createTeghApolloLink = ({
   // onWebRTCConnect = () => {},
   // onWebRTCDisconnect = () => {},
 }) => {
-  // The public key of the 3D printer. This uniquely identifies your 3D printer
+  // The public key of the 3D machine. This uniquely identifies your 3D printer
   // and allows us to end-to-end encrypt everything you do with it. Usually
   // the public key is retreaved by scanning the QR Code displayed by Tegh on
   // the 3D printer's screen.
@@ -38,27 +38,27 @@ export const createTeghApolloLink = ({
   })
 
   const errorLink = onError(({ graphQLErrors, networkError }) => {
-    // if (graphQLErrors) {
-    //   const errorMessages = graphQLErrors.map(
-    //     ({ message, locations, path }) => {
-    //       // eslint-disable-next-line no-console
-    //       console.log(snl`
-    //         [GraphQL error]:
-    //         Message: ${message}, Location: ${locations}, Path: ${path}
-    //       `)
-    //       return (snl`
-    //         Unexpected GraphQL Error\n\n
-    //         Message: ${message}\n
-    //         Location: ${JSON.stringify(locations)}\n
-    //         Path: ${path}
-    //       `)
-    //     },
-    //   )
-    //   // eslint-disable-next-line no-alert, no-undef
-    //   // if (errorMessages.length > 0) alert(errorMessages.join('\n\n'))
-    // }
-    // // eslint-disable-next-line no-alert, no-undef
-    // // if (networkError) alert(`[Network error]: ${networkError}`)
+    if (graphQLErrors) {
+      const errorMessages = graphQLErrors.map(
+        ({ message, locations, path }) => {
+          // eslint-disable-next-line no-console
+          console.error(snl`
+            [GraphQL error]:
+            Message: ${message}, Location: ${locations}, Path: ${path}
+          `)
+          return (snl`
+            Unexpected GraphQL Error\n\n
+            Message: ${message}\n
+            Location: ${JSON.stringify(locations)}\n
+            Path: ${path}
+          `)
+        },
+      )
+      // eslint-disable-next-line no-alert, no-undef
+      if (errorMessages.length > 0) alert(errorMessages.join('\n\n'))
+    }
+    // eslint-disable-next-line no-alert, no-undef
+    // if (networkError) alert(`[Network error]: ${networkError}`)
   })
 
   return ApolloLink.from([

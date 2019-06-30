@@ -11,9 +11,9 @@ extend type Query {
 input SchemaFormQueryInput {
   collection: ConfigCollection!
   """
-    printerID is required for PRINTER ConfigCollection config forms
+    machineID is required for MACHINE ConfigCollection config forms
   """
-  printerID: ID
+  machineID: ID
   # TODO: host conig support
   # """
   #   hostID is required for HOST ConfigCollection config forms
@@ -83,9 +83,9 @@ input CreateConfigInput {
   """
   schemaFormKey: String!
   """
-    printerID is required for PLUGIN and COMPONENT ConfigCollection config forms
+    machineID is required for PLUGIN and COMPONENT ConfigCollection config forms
   """
-  printerID: ID
+  machineID: ID
   # TODO: host conig support
   # """
   #   hostID is required for HOST ConfigCollection config forms
@@ -97,9 +97,9 @@ input CreateConfigInput {
 input UpdateConfigInput {
   collection: ConfigCollection!
   """
-    printerID is required for PLUGIN and COMPONENT ConfigCollection config forms
+    machineID is required for PLUGIN and COMPONENT ConfigCollection config forms
   """
-  printerID: ID
+  machineID: ID
   # TODO: host conig support
   # """
   #   hostID is required for HOST ConfigCollection config forms
@@ -113,9 +113,9 @@ input UpdateConfigInput {
 input DeleteConfigInput {
   collection: ConfigCollection!
   """
-    printerID is required for PRINTER ConfigCollection config forms
+    machineID is required for MACHINE ConfigCollection config forms
   """
-  printerID: ID
+  machineID: ID
   # TODO: host conig support
   # """
   #   hostID is required for HOST ConfigCollection config forms

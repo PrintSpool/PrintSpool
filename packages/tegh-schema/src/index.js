@@ -2,7 +2,7 @@ import index from './index.graphql'
 import config from './schemaModules/config.graphql'
 import devices from './schemaModules/devices.graphql'
 import jobQueue from './schemaModules/jobQueue.graphql'
-import printer from './schemaModules/printer.graphql'
+import machine from './schemaModules/machine.graphql'
 import spool from './schemaModules/spool.graphql'
 
 const teghTypeDefs = [
@@ -10,7 +10,7 @@ const teghTypeDefs = [
   config,
   devices,
   jobQueue,
-  printer,
+  machine,
   spool,
 ]
 

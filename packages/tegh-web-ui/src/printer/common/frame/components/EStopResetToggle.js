@@ -53,25 +53,25 @@ const enhance = compose(
 // }
 
 const EStopResetToggle = ({
-  printer,
+  machine,
   classes,
   dialogOpen,
   setDialogOpen,
   buttonClass,
 }) => {
-  const { status } = printer
+  const { status } = machine
   const showEStop = status !== 'ERRORED' && status !== 'ESTOPPED'
   const disabled = status === 'DISCONNECTED'
 
   const toggle = useExecGCodes(() => ({
-    printer,
+    machine,
     gcodes: [
       showEStop ? 'eStop' : 'reset',
     ],
   }), [showEStop])
 
   const reset = useExecGCodes(() => ({
-    printer,
+    machine,
     gcodes: ['reset'],
   }))
 
@@ -79,7 +79,7 @@ const EStopResetToggle = ({
     <div>
       <StatusDialog
         open={dialogOpen}
-        printer={printer}
+        machine={machine}
         handleClose={() => { setDialogOpen(false) }}
         handleReset={reset}
       />

@@ -14,8 +14,8 @@ const useExecGCodes = (callback, dependencies) => {
 
   return useCallback((...args) => {
     const {
-      printer,
-      printerID,
+      machine,
+      machineID,
       gcodes,
       ...mutationOptions
     } = callback(...args)
@@ -24,7 +24,7 @@ const useExecGCodes = (callback, dependencies) => {
       ...mutationOptions,
       variables: {
         input: {
-          printerID: printerID || printer.id,
+          machineID: machineID || machine.id,
           gcodes,
         },
       },

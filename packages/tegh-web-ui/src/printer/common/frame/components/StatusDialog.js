@@ -28,7 +28,7 @@ const descriptions = {
   ESTOPPED: () => snl`
     The 3D printer has been estopped by a user.
     Please verify that the printer is safe and free of obstructions and then
-    reset the printer.
+    reset the machine.
   `,
   ERRORED: () => snl`
     The 3D printer has encountered an error.
@@ -39,11 +39,11 @@ const descriptions = {
 
 const StatusDialog = ({
   open,
-  printer,
+  machine,
   handleClose,
   handleReset,
 }) => {
-  const { status, error } = printer
+  const { status, error } = machine
 
   return (
     <Dialog
@@ -70,7 +70,7 @@ const StatusDialog = ({
               <p>
                 Please write down the error message and error code for
                 your reference, verify the printer is safe and free of
-                obstructions and reset the printer.
+                obstructions and reset the machine.
               </p>
               <p>
                 If you belive this is an issue with Tegh you can file a bug

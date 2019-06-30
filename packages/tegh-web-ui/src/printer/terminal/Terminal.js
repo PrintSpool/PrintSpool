@@ -15,11 +15,11 @@ import { LiveSubscription } from '../../common/LiveSubscription'
 import TerminalStyles from './TerminalStyles'
 
 const GCODE_HISTORY_SUBSCRIPTION = gql`
-  subscription DevicesSubscription($printerID: ID!) {
+  subscription DevicesSubscription($machineID: ID!) {
     live {
       patch { op, path, from, value }
       query {
-        printers(printerID: $printerID) {
+        machines(machineID: $machineID) {
           id
           gcodeHistory(excludePolling: true, limit: 200) {
             id
@@ -46,14 +46,14 @@ const Terminal = ({
   resetForm,
 }) => {
   const classes = TerminalStyles()
-  const { printerID } = match.params
+  const { machineID } = match.params
 
   const onSubmit = useExecGCodes((e) => {
     e.preventDefault()
     resetForm()
 
     return {
-      printerID,
+      machineID,
       gcodes: values.gcode,
     }
   })
@@ -79,7 +79,7 @@ const Terminal = ({
         <LiveSubscription
           subscription={GCODE_HISTORY_SUBSCRIPTION}
           variables={{
-            printerID,
+            machineID,
           }}
         >
           {({ data, loading, error }) => {
@@ -95,7 +95,7 @@ const Terminal = ({
               )
             }
 
-            return [...data.printers[0].gcodeHistory].reverse().map((entry) => {
+            return [...data.machines[0].gcodeHistory].reverse().map((entry) => {
               const macroOrTX = entry.isHostMacro ? 'macro' : 'tx'
               const txRXOrMacro = entry.direction === 'RX' ? 'rx' : macroOrTX
 

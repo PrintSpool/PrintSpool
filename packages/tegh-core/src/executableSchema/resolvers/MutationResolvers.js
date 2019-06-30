@@ -55,7 +55,7 @@ const MutationResolvers = {
 
       const updateArgs = {
         input: {
-          printerID: state.config.printer.id,
+          machineID: state.config.printer.id,
           collection: 'MACHINE',
           modelVersion: state.config.printer.modelVersion,
           model: args.input.model,
@@ -83,7 +83,7 @@ const MutationResolvers = {
       return action.payload.job
     },
     deleteJob: actionResolver({
-      requirePrinterID: false,
+      requireMachineID: false,
       actionCreator: deleteJob,
       selector: () => null,
     }),

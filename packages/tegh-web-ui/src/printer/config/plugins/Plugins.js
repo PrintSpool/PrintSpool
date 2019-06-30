@@ -25,12 +25,12 @@ import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog'
 import CreatePluginDialog from './create/CreatePluginDialog'
 
 const PLUGINS_SUBSCRIPTION = gql`
-  subscription ConfigSubscription($printerID: ID!) {
+  subscription ConfigSubscription($machineID: ID!) {
     live {
       patch { op, path, from, value }
       query {
         hasPendingUpdates
-        printers(printerID: $printerID) {
+        machines(machineID: $machineID) {
           id
           status
           plugins {
@@ -61,19 +61,19 @@ const enhance = compose(
   withProps(ownProps => ({
     subscription: PLUGINS_SUBSCRIPTION,
     variables: {
-      printerID: ownProps.match.params.printerID,
+      machineID: ownProps.match.params.machineID,
     },
   })),
   withLiveData,
-  withProps(({ printers, match }) => {
-    const { pluginID, printerID, verb } = match.params
-    const { plugins, availablePackages, status } = printers[0]
+  withProps(({ machines, match }) => {
+    const { pluginID, machineID, verb } = match.params
+    const { plugins, availablePackages, status } = machines[0]
 
     return {
       selectedPlugin: plugins.find(c => c.id === pluginID),
       plugins,
       availablePackages,
-      printerID,
+      machineID,
       pluginID,
       verb,
       status,
@@ -84,7 +84,7 @@ const enhance = compose(
 
 const ComponentsConfigIndex = ({
   classes,
-  printerID,
+  machineID,
   plugins,
   pluginID,
   selectedPlugin,
@@ -100,12 +100,12 @@ const ComponentsConfigIndex = ({
         open={selectedPlugin != null}
         deleteButton={selectedPlugin.isEssential === false}
         collection="PLUGIN"
-        variables={{ printerID, package: selectedPlugin.package }}
+        variables={{ machineID, package: selectedPlugin.package }}
         status={status}
         hasPendingUpdates={hasPendingUpdates}
         query={gql`
-          query($printerID: ID!, $package: String) {
-            printers(printerID: $printerID) {
+          query($machineID: ID!, $package: String) {
+            machines(machineID: $machineID) {
               plugins(package: $package) {
                 configForm {
                   ...UpdateDialogFragment
@@ -123,12 +123,12 @@ const ComponentsConfigIndex = ({
         title={selectedPlugin.package}
         id={selectedPlugin.id}
         collection="PLUGIN"
-        printerID={printerID}
+        machineID={machineID}
         open={selectedPlugin != null}
       />
     )}
     <CreatePluginDialog
-      printerID={printerID}
+      machineID={machineID}
       open={pluginID === 'new'}
       availablePackages={availablePackages}
     />

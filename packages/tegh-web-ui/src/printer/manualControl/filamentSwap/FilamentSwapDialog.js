@@ -26,11 +26,11 @@ import Step7LoadFilament from './steps/Step7LoadFilament'
 import FilamentSwapDialogStyles from './FilamentSwapDialogStyles'
 
 const FILAMENT_SWAP_SUBSCRIPTION = gql`
-  subscription MaterialsSubscription($printerID: ID, $componentID: ID) {
+  subscription MaterialsSubscription($machineID: ID, $componentID: ID) {
     live {
       patch { op, path, from, value }
       query {
-        printers(printerID: $printerID) {
+        machines(machineID: $machineID) {
           id
           status
           components(componentID: $componentID) {
@@ -101,7 +101,7 @@ const FilamentSwapDialog = ({
   const { t } = useTranslation('filamentSwap')
   const classes = FilamentSwapDialogStyles()
 
-  const { printerID, componentID } = match.params
+  const { machineID, componentID } = match.params
 
   const {
     data,
@@ -110,7 +110,7 @@ const FilamentSwapDialog = ({
   } = useLiveSubscription(FILAMENT_SWAP_SUBSCRIPTION, {
     variables: {
       componentID,
-      printerID,
+      machineID,
     },
   })
 
@@ -149,8 +149,8 @@ const FilamentSwapDialog = ({
     )
   }
 
-  const printer = data.printers[0]
-  const component = printer.components[0]
+  const machine = data.machines[0]
+  const component = machine.components[0]
   const { materials } = data
 
   return (
@@ -170,11 +170,11 @@ const FilamentSwapDialog = ({
           className={classes.notReadyWhiteout}
           transitionDelay={0}
           transitionDuration={400}
-          in={printer.status !== 'READY'}
+          in={machine.status !== 'READY'}
         >
-          { printer.status !== 'READY'
+          { machine.status !== 'READY'
             && t('notReadyWhiteoutTitle', {
-              status: t(printer.status.toLowerCase()),
+              status: t(machine.status.toLowerCase()),
             })
           }
         </Loading>
@@ -196,7 +196,7 @@ const FilamentSwapDialog = ({
                     key={index}
                   >
                     <ComponentForStep
-                      printer={printer}
+                      machine={machine}
                       component={component}
                       materials={materials}
                       next={context.next}

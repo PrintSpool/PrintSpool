@@ -2,7 +2,7 @@ import React from 'react'
 import { storiesOf } from '@storybook/react'
 import StatusDialog from './StatusDialog'
 
-const printerStatuses = [
+const machineStatuses = [
   'CONNECTING',
   'READY',
   'PRINTING',
@@ -18,11 +18,11 @@ const error = {
 
 const stories = storiesOf('StatusDialog', module)
 
-printerStatuses.forEach((status) => {
+machineStatuses.forEach((status) => {
   stories.add(status, () => {
     const props = {
       open: true,
-      printer: {
+      machine: {
         status,
         error: status === 'ERRORED' ? error : null,
       },

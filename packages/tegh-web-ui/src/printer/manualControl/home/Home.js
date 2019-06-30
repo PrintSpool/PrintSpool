@@ -9,10 +9,10 @@ import {
 import useExecGCodes from '../../_hooks/useExecGCodes'
 
 const Home = ({
-  printer,
+  machine,
 }) => {
   const home = axes => useExecGCodes(() => ({
-    printer,
+    machine,
     gcodes: [
       { home: { axes } },
     ],

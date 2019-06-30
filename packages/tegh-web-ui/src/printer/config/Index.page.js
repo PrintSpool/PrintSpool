@@ -28,7 +28,7 @@ const DEVICES_SUBSCRIPTION = gql`
           id
           type
         }
-        printers {
+        machines {
           id
           status
         }
@@ -40,8 +40,8 @@ const DEVICES_SUBSCRIPTION = gql`
 const enhance = compose(
   withRouter,
   withProps(({ match }) => ({
-    printerID: match.params.printerID,
-    printerDialogOpen: match.path === '/p/:hostID/:printerID/config/printer/',
+    machineID: match.params.machineID,
+    machineDialogOpen: match.path === '/m/:hostID/:machineID/config/machine/',
     subscription: DEVICES_SUBSCRIPTION,
   })),
   withLiveData,
@@ -64,25 +64,25 @@ const enhance = compose(
 )
 
 const ConfigPage = ({
-  printerID,
-  printerDialogOpen = false,
+  machineID,
+  machineDialogOpen = false,
   teghVersion,
   hasPendingUpdates,
   devices,
-  printers,
+  machines,
   loading,
   machineDefSuggestions,
   loadingMachineDefs,
 }) => (
   <main>
     {
-      printerDialogOpen && !loading && !loadingMachineDefs && (
+      machineDialogOpen && !loading && !loadingMachineDefs && (
         <UpdateDialog
           title="3D Printer"
           collection="MACHINE"
-          open={printerDialogOpen}
-          variables={{ printerID }}
-          status={printers[0].status}
+          open={machineDialogOpen}
+          variables={{ machineID }}
+          status={machines[0].status}
           hasPendingUpdates={hasPendingUpdates}
           transformSchema={schema => transformComponentSchema({
             schema,
@@ -91,8 +91,8 @@ const ConfigPage = ({
             machineDefSuggestions,
           })}
           query={gql`
-            query($printerID: ID!) {
-              printers(printerID: $printerID) {
+            query($machineID: ID!) {
+              machines(machineID: $machineID) {
                 configForm {
                   ...UpdateDialogFragment
                 }
@@ -119,7 +119,7 @@ const ConfigPage = ({
       <ListItem
         button
         component={React.forwardRef((props, ref) => (
-          <Link to="printer/" innerRef={ref} {...props} />
+          <Link to="machine/" innerRef={ref} {...props} />
         ))}
       >
         <ListItemText primary="3D Printer" />

@@ -16,7 +16,7 @@ export const NULL_SUBSCRIPTION = gql`
     live {
       patch { op, path, from, value }
       query {
-        printers {
+        machines {
           id
         }
       }

@@ -114,6 +114,9 @@ const Step3SetupForm = ({
           enableReinitialize
           initialValues={{
             machineDefinitionURL,
+            automaticPrinting: false,
+            beforePrintHook: null,
+            afterPrintHook: null,
             ...Object.keys(schema.properties || {}).reduce((acc, k) => {
               acc[k] = null
               return acc

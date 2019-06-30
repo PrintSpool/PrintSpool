@@ -10,7 +10,7 @@ import ExtruderButtons from '../ExtruderButtons'
 import ButtonsFooter from '../ButtonsFooter'
 
 const Step4RemoveFilament = ({
-  printer,
+  machine,
   component,
   classes,
 }) => {
@@ -27,7 +27,7 @@ const Step4RemoveFilament = ({
         </Typography>
 
         <ExtruderButtons
-          printer={printer}
+          machine={machine}
           component={component}
         />
       </div>

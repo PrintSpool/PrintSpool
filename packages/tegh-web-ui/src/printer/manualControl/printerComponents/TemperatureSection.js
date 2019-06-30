@@ -11,7 +11,7 @@ import useExecGCodes from '../../_hooks/useExecGCodes'
 // import TemperatureSectionStyles from './TemperatureSectionStyles'
 
 const TemperatureSection = ({
-  printer,
+  machine,
   component,
   disabled,
 }) => {
@@ -27,7 +27,7 @@ const TemperatureSection = ({
   // const classes = TemperatureSectionStyles()
 
   const toggleHeater = useExecGCodes((e, enable) => ({
-    printerID: printer.id,
+    machineID: machine.id,
     gcodes: [
       { toggleHeaters: { heaters: { [address]: enable } } },
     ],

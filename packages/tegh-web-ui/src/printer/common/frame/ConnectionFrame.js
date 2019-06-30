@@ -17,7 +17,7 @@ const FRAME_SUBSCRIPTION = gql`
     live {
       patch { op, path, from, value }
       query {
-        printers {
+        machines {
           status
           error {
             code
@@ -107,7 +107,7 @@ const ConnectionFrame = ({
                     actions={({ buttonClass }) => (
                       <EStopResetToggle
                         buttonClass={buttonClass}
-                        printer={data.printers[0]}
+                        machine={data.machines[0]}
                       />
                     )}
                   />
@@ -119,7 +119,7 @@ const ConnectionFrame = ({
                 !loading && (
                   <Drawer
                     hostIdentity={host}
-                    printers={data.printers}
+                    machines={data.machines}
                     className={classes.drawer}
                     mobileOpen={mobileOpen}
                     onClose={() => setMobileOpen(false)}

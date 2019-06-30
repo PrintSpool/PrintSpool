@@ -18,11 +18,11 @@ import ZJogButtons from './jog/ZJogButtons'
 import ComponentControl, { ComponentControlFragment } from './printerComponents/ComponentControl'
 
 const MANUAL_CONTROL_SUBSCRIPTION = gql`
-  subscription ManualControlSubscription($printerID: ID!) {
+  subscription ManualControlSubscription($machineID: ID!) {
     live {
       patch { op, path, from, value }
       query {
-        singularPrinter: printers(printerID: $printerID) {
+        singularMachine: machines(machineID: $machineID) {
           ...PrinterStatus
           motorsEnabled
           components {
@@ -42,17 +42,17 @@ const enhance = compose(
   withProps(ownProps => ({
     subscription: MANUAL_CONTROL_SUBSCRIPTION,
     variables: {
-      printerID: ownProps.match.params.printerID,
+      machineID: ownProps.match.params.machineID,
     },
   })),
   withLiveData,
-  withProps(({ singularPrinter }) => ({
-    printer: singularPrinter[0],
-    isReady: singularPrinter[0].status === 'READY',
+  withProps(({ singularMachine }) => ({
+    machine: singularMachine[0],
+    isReady: singularMachine[0].status === 'READY',
   })),
 )
 
-const ManualControl = ({ printer, isReady }) => (
+const ManualControl = ({ machine, isReady }) => (
   <div style={{ paddingLeft: 16, paddingRight: 16 }}>
     <main>
       <Loader
@@ -61,7 +61,7 @@ const ManualControl = ({ printer, isReady }) => (
           <Typography variant="h4" style={{ color: '#fff' }}>
             manual controls disabled while
             {' '}
-            {printer.status.toLowerCase()}
+            {machine.status.toLowerCase()}
           </Typography>
         )}
         style={{
@@ -82,16 +82,16 @@ const ManualControl = ({ printer, isReady }) => (
           style={{ marginTop: 16, marginBottom: 16 }}
         >
           <Grid item xs={12} lg={6}>
-            <Home printer={printer} />
+            <Home machine={machine} />
           </Grid>
           <Grid item xs={12} lg={6}>
-            <MotorsEnabled printer={printer} />
+            <MotorsEnabled machine={machine} />
           </Grid>
           <Grid item xs={12} sm={8}>
-            <XYJogButtons printer={printer} form="xyJog" />
+            <XYJogButtons machine={machine} form="xyJog" />
           </Grid>
           <Grid item xs={12} sm={4}>
-            <ZJogButtons printer={printer} form="zJog" />
+            <ZJogButtons machine={machine} form="zJog" />
           </Grid>
         </Grid>
       </Loader>
@@ -100,12 +100,12 @@ const ManualControl = ({ printer, isReady }) => (
         spacing={2}
       >
         {
-          printer.components
+          machine.components
             .filter(c => ['BUILD_PLATFORM', 'TOOLHEAD', 'FAN'].includes(c.type))
             .map(component => (
               <Grid item xs={12} key={component.id}>
                 <ComponentControl
-                  printer={printer}
+                  machine={machine}
                   component={component}
                   disabled={!isReady}
                 />

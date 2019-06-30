@@ -15,9 +15,9 @@ import { initialState as statusInitialState } from '../reducers/statusReducer'
 import { MockConfig } from '../../config/types/Config'
 import SchemaForm from '../../pluginManager/types/SchemaForm'
 
-import PrinterResolvers from './PrinterResolvers'
+import MachineResolvers from './MachineResolvers'
 
-describe('PrinterResolvers', () => {
+describe('MachineResolvers', () => {
   it('presents a consistent API', () => {
     deterministicTestSetup()
 
@@ -65,8 +65,8 @@ describe('PrinterResolvers', () => {
 
     snapshotTestResolvers({
       typeDefs,
-      typeName: 'Printer',
-      resolvers: PrinterResolvers,
+      typeName: 'Machine',
+      resolvers: MachineResolvers,
       rootValue: state,
       contextValue: {
         store: {

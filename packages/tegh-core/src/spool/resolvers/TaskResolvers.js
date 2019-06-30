@@ -9,7 +9,7 @@ const TaskResolvers = {
         digits,
       })
     ),
-    printer: (_source, args, { store }) => {
+    machine: (_source, args, { store }) => {
       const state = store.getState()
       return state
     },

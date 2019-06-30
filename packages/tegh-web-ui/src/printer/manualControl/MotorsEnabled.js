@@ -9,12 +9,12 @@ import {
 import useExecGCodes from '../_hooks/useExecGCodes'
 
 const MotorsEnabled = ({
-  printer,
+  machine,
 }) => {
   const toggleMotorsEnabled = useExecGCodes(() => ({
-    printer,
+    machine,
     gcodes: [
-      { toggleMotorsEnabled: { enable: !printer.motorsEnabled } },
+      { toggleMotorsEnabled: { enable: !machine.motorsEnabled } },
     ],
   }))
 
@@ -24,7 +24,7 @@ const MotorsEnabled = ({
         <Typography variant="subtitle1">
           <div style={{ float: 'right', marginTop: -4 }}>
             <Switch
-              checked={printer.motorsEnabled}
+              checked={machine.motorsEnabled}
               onChange={toggleMotorsEnabled}
               aria-label="motor-power"
             />

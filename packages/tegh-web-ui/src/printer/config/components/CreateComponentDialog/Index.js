@@ -91,7 +91,7 @@ const STEPS = [
 ]
 
 const createComponentDialog = ({
-  printerID,
+  machineID,
   open,
   history,
   create,
@@ -139,7 +139,7 @@ const createComponentDialog = ({
           return create({
             variables: {
               input: {
-                printerID,
+                machineID,
                 collection: 'COMPONENT',
                 schemaFormKey: values.componentType,
                 model: values.model,
@@ -154,7 +154,7 @@ const createComponentDialog = ({
           variables: {
             input: {
               collection: 'COMPONENT',
-              printerID,
+              machineID,
               schemaFormKey: values.componentType,
             },
           },

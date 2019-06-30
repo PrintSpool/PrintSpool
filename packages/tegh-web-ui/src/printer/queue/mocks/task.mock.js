@@ -3,7 +3,7 @@ const taskMock = (attrs = {}) => ({
   percentComplete: 30,
   startedAt: '2018-03-20T01:19:35.646Z',
   status: 'PRINTING',
-  printer: { name: 'Lulzbot' },
+  machine: { name: 'Lulzbot' },
   ...attrs,
 })
 
@@ -13,10 +13,10 @@ export const gear = taskMock()
 
 export const yCarriage = taskMock({
   name: 'x_carriage.gcode',
-  printer: { name: 'Prusa i3' },
+  machine: { name: 'Prusa i3' },
 })
 
 export const xCarriage = taskMock({
   name: 'y_carriage.gcode',
-  printer: { name: 'MakerGear 3' },
+  machine: { name: 'MakerGear 3' },
 })

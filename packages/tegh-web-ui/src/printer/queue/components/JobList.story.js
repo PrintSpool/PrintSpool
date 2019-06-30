@@ -16,7 +16,7 @@ const baselineProps = {
     gear,
     robot,
   ],
-  printers: [{
+  machines: [{
     status: 'READY',
   }],
   addJob: () => {},
@@ -35,7 +35,7 @@ storiesOf('JobList', module)
   .add('printing', () => (
     <JobList
       {...baselineProps}
-      printers={[{
+      machines={[{
         status: 'PRINTING',
       }]}
     />

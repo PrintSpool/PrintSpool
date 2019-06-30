@@ -5,8 +5,8 @@ import getPluginModels from '../../config/selectors/getPluginModels'
 import ComponentTypeEnum from '../../config/types/components/ComponentTypeEnum'
 import getMachineConfigForm from '../../config/selectors/getMachineConfigForm'
 
-const PrinterResolvers = {
-  Printer: {
+const MachineResolvers = {
+  Machine: {
     id: source => source.config.printer.id,
     name: source => getPluginModels(source.config).getIn(['@tegh/core', 'name']),
 
@@ -128,4 +128,4 @@ const PrinterResolvers = {
   },
 }
 
-export default PrinterResolvers
+export default MachineResolvers

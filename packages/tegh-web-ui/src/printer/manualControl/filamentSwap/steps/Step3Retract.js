@@ -13,7 +13,7 @@ import ButtonsFooter from '../ButtonsFooter'
 const distance = 100
 
 const Step3Retract = ({
-  printer,
+  machine,
   component,
   next,
   classes,
@@ -22,7 +22,7 @@ const Step3Retract = ({
   const { t } = useTranslation('filamentSwap')
 
   const retractFilament = useExecGCodes(() => ({
-    printer,
+    machine,
     gcodes: [
       { moveBy: { distances: { [component.address]: distance }, sync: true } },
     ],

@@ -48,16 +48,16 @@ const JobSubList = ({
 
 const JobList = ({
   jobs,
-  printers,
+  machines,
   spoolNextPrint,
   deleteJob,
 }) => {
   const cancelTask = useExecGCodes(() => ({
-    printer: printers[0],
+    machine: machines[0],
     gcodes: ['eStop'],
   }))
 
-  const statuses = printers.map(printer => printer.status)
+  const statuses = machines.map(machine => machine.status)
   const disablePrintNextButton = (
     statuses.includes('READY') === false
     || jobs.every(job => job.files.every(jobFile => jobFile.printsQueued === 0))

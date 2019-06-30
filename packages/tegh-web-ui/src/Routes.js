@@ -78,7 +78,7 @@ const Routes = () => {
                     path="/print/"
                     render={({ history, location }) => {
                       const hostID = new URLSearchParams(location.search).get('q')
-                      const printerID = new URLSearchParams(location.search).get('p')
+                      const machineID = new URLSearchParams(location.search).get('m')
 
                       const host = hosts[hostID]
 
@@ -86,7 +86,7 @@ const Routes = () => {
                         <TeghApolloProvider hostIdentity={host && host.invite}>
                           <PrintDialog
                             history={history}
-                            match={{ params: { hostID, printerID } }}
+                            match={{ params: { hostID, machineID } }}
                           />
                         </TeghApolloProvider>
                       )
@@ -100,7 +100,7 @@ const Routes = () => {
         { isAuthorized && (
           <Route
             path={[
-              '/p/:hostID/',
+              '/m/:hostID/',
               '/q/:hostID/',
             ]}
             render={({ match }) => (
@@ -119,52 +119,52 @@ const Routes = () => {
                 <Route exact path="/q/:hostID/graphql-playground/" component={GraphQLPlayground} />
 
                 <Route
-                  path="/p/:hostID/:printerID/manual-control/"
+                  path="/m/:hostID/:machineID/manual-control/"
                   component={ManualControlPage}
                 />
 
                 <React.Suspense fallback={<div />}>
                   <Route
                     exact
-                    path="/p/:hostID/:printerID/manual-control/swap-filament/:componentID"
+                    path="/m/:hostID/:machineID/manual-control/swap-filament/:componentID"
                     component={FilamentSwapDialog}
                   />
                 </React.Suspense>
 
-                <Route exact path="/p/:hostID/:printerID/terminal/" component={Terminal} />
+                <Route exact path="/m/:hostID/:machineID/terminal/" component={Terminal} />
 
                 <Route
                   exact
                   path={[
-                    '/p/:hostID/:printerID/config/',
-                    '/p/:hostID/:printerID/config/printer/',
+                    '/m/:hostID/:machineID/config/',
+                    '/m/:hostID/:machineID/config/machine/',
                   ]}
                   component={ConfigIndexPage}
                 />
                 <Route
                   exact
                   path={[
-                    '/p/:hostID/:printerID/config/components/',
-                    '/p/:hostID/:printerID/config/components/:componentID/',
-                    '/p/:hostID/:printerID/config/components/:componentID/:verb',
+                    '/m/:hostID/:machineID/config/components/',
+                    '/m/:hostID/:machineID/config/components/:componentID/',
+                    '/m/:hostID/:machineID/config/components/:componentID/:verb',
                   ]}
                   component={ComponentsConfigPage}
                 />
                 <Route
                   exact
                   path={[
-                    '/p/:hostID/:printerID/config/materials/',
-                    '/p/:hostID/:printerID/config/materials/:materialID/',
-                    '/p/:hostID/:printerID/config/materials/:materialID/:verb',
+                    '/m/:hostID/:machineID/config/materials/',
+                    '/m/:hostID/:machineID/config/materials/:materialID/',
+                    '/m/:hostID/:machineID/config/materials/:materialID/:verb',
                   ]}
                   component={MaterialsConfigPage}
                 />
                 <Route
                   exact
                   path={[
-                    '/p/:hostID/:printerID/config/plugins/',
-                    '/p/:hostID/:printerID/config/plugins/:pluginID/',
-                    '/p/:hostID/:printerID/config/plugins/:pluginID/:verb',
+                    '/m/:hostID/:machineID/config/plugins/',
+                    '/m/:hostID/:machineID/config/plugins/:pluginID/',
+                    '/m/:hostID/:machineID/config/plugins/:pluginID/:verb',
                   ]}
                   component={PluginsConfigPage}
                 />

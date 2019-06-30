@@ -43,7 +43,7 @@ const JOB_SUBSCRIPTION = gql`
               percentComplete(digits: 1)
               startedAt
               status
-              printer {
+              machine {
                 id
                 name
               }
@@ -69,7 +69,7 @@ const enhance = compose(
 )
 
 const JobPage = ({
-  printer,
+  machine,
   job: {
     name,
     tasks,
@@ -79,7 +79,7 @@ const JobPage = ({
   },
 }) => {
   const cancelTask = useExecGCodes(() => ({
-    printer,
+    machine,
     gcodes: ['eStop'],
   }))
 

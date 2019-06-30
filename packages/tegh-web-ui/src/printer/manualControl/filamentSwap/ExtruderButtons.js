@@ -6,7 +6,7 @@ import JogDistanceButtons from '../jog/JogDistanceButtons'
 import ExtruderButtonsStyles from './ExtruderButtonsStyles'
 
 const ExtruderButtons = ({
-  printer,
+  machine,
   component,
   ...buttonProps
 }) => {
@@ -27,7 +27,7 @@ const ExtruderButtons = ({
       />
       <ExtrudeRetractButtons
         className={classes.extruderButton}
-        printer={printer}
+        machine={machine}
         component={component}
         distance={distance}
         {...buttonProps}

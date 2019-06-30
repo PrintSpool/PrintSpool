@@ -12,7 +12,7 @@ import useExecGCodes from '../../../_hooks/useExecGCodes'
 import HeatExtruderStyles from './HeatExtruderStyles'
 
 const HeatExtruder = ({
-  printer,
+  machine,
   component,
   next,
   active,
@@ -21,7 +21,7 @@ const HeatExtruder = ({
   const { t } = useTranslation('filamentSwap')
 
   const heatExtruder = useExecGCodes(() => ({
-    printer,
+    machine,
     gcodes: [
       { toggleHeaters: { heaters: { [component.address]: true }, sync: true } },
     ],

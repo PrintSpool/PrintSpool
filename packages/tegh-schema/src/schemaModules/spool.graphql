@@ -8,12 +8,12 @@ extend type Mutation {
   and any resulting machine movements are done.
 
   This means that for example if you use execGCodes to run `G1 X100` the
-  mutation will wait until the printer has moved 100mm and then return.
+  mutation will wait until the toolhead has moved 100mm and then return.
 
   This can be useful for informing users whether an action is in progress or
   completed.
 
-  If the printer errors during the execution of the GCode the mutation will
+  If the machine errors during the execution of the GCode the mutation will
   fail.
 
   See ExecGCodesInput.gcodes for GCode formatting options.
@@ -27,7 +27,7 @@ extend type Mutation {
 }
 
 input ExecGCodesInput {
-  printerID: ID!
+  machineID: ID!
 
   """
   Tegh supports 3 formats of GCode:
@@ -47,12 +47,12 @@ input ExecGCodesInput {
 }
 
 input SpoolJobFileInput {
-  printerID: ID!
+  machineID: ID!
   jobFileID: ID!
 }
 
 """
-A spooled set of gcodes to be executed by the printer
+A spooled set of gcodes to be executed by the machine
 """
 type Task {
   id: ID!
@@ -70,5 +70,5 @@ type Task {
   startedAt: DateTime
   stoppedAt: DateTime
   status: String!
-  printer: Printer!
+  machine: Machine!
 }

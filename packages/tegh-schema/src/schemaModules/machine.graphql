@@ -4,10 +4,10 @@ extend type Query {
   teghVersion: String!
   hasPendingUpdates: Boolean!
   isConfigured: Boolean!
-  printers(printerID: ID): [Printer!]!
+  machines(machineID: ID): [Machine!]!
 }
 
-type Printer {
+type Machine {
   id: ID!
   name: String!
 
@@ -35,8 +35,8 @@ type Printer {
   # activeExtruderID: String
 
   motorsEnabled: Boolean!
-  status: PrinterStatusEnum!
-  error: PrinterError
+  status: MachineStatusEnum!
+  error: MachineError
   enabledMacros: [String!]!
   # logEntries(level: String, sources: [String!], limit: Int): [LogEntry!]
   gcodeHistory(excludePolling: Boolean, limit: Int): [GCodeHistoryEntry!]
@@ -116,7 +116,7 @@ type Heater {
   currentTemperature: Float!
 
   """
-  True if the printer is waiting on this heater to reach it’s targetTemp and
+  True if the machine is waiting on this heater to reach it’s targetTemp and
   preventing any more gcodes from executing until it does.
   """
   blocking: Boolean!
@@ -160,10 +160,10 @@ type GCodeHistoryEntry {
 }
 
 enum GCodeDirection {
-  """GCode sent to the 3D Printer"""
+  """GCode sent to the 3D Machine"""
   TX
 
-  """GCode response received from the 3D Printer"""
+  """GCode response received from the 3D Machine"""
   RX
 }
 
@@ -175,7 +175,7 @@ enum GCodeDirection {
 #   message: String!
 # }
 
-type PrinterError {
+type MachineError {
   """
   A machine-readable code indicating the type of error
   """
@@ -187,34 +187,34 @@ type PrinterError {
   message: String!
 }
 
-enum PrinterStatusEnum {
+enum MachineStatusEnum {
   """
-  The printer is being initialized. Attempting to spool anything will result in an error.
+  The machine is being initialized. Attempting to spool anything will result in an error.
   """
   CONNECTING
 
-  """The printer is connected and able to spool tasks/jobs."""
+  """The machine is connected and able to spool tasks/jobs."""
   READY
 
   """
-  The printer is printing a job. Attempting to spool anything will result in an error.
+  The machine is printing a job. Attempting to spool anything will result in an error.
   """
   PRINTING
 
   """
-  The printer is disconnected or turned off. Attempting to spool anything will result in an error.
+  The machine is disconnected or turned off. Attempting to spool anything will result in an error.
   """
   DISCONNECTED
 
   """
-  The printer is being initialized. Attempting to spool anything except for an
+  The machine is being initialized. Attempting to spool anything except for an
   emergency macro (ie. reset) will result in an error. Spool the `reset` macro
   to reset the error and change the status to `CONNECTING`.
   """
   ERRORED
 
   """
-  The printer is estopped. Attempting to spool anything except for an emergency
+  The machine is estopped. Attempting to spool anything except for an emergency
   macro (ie. reset) will result in an error. Spool the `reset` macro to reset
   the estop and change the status to `CONNECTING`.
   """

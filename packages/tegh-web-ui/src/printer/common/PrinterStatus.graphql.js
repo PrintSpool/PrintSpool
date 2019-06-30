@@ -1,7 +1,7 @@
 import gql from 'graphql-tag'
 
 const PrinterStatusGraphQL = gql`
-  fragment PrinterStatus on Printer {
+  fragment PrinterStatus on Machine {
     id
     name
     status
