@@ -6808,10 +6808,10 @@ graphql-tag@^2.10.0, graphql-tag@^2.9.2:
   resolved "https://registry.yarnpkg.com/graphql-tag/-/graphql-tag-2.10.1.tgz#10aa41f1cd8fae5373eaf11f1f67260a3cad5e02"
   integrity sha512-jApXqWBzNXQ8jYa/HLkZJaVw9jgwNqZkywa2zfFn16Iv1Zb7ELNHkJaXHR7Quvd5SIGsy6Ny7SUKATgnu05uEg==
 
-graphql-things@^0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/graphql-things/-/graphql-things-0.4.1.tgz#105f9c0f52a6449c709dc13b2ffed016a1ce7881"
-  integrity sha512-iq/KHwxJVpkjOX4KwBO92GRFTxGQDN55H/+ZCLwMeQkNb02FeavgU1LEzky/dcXohkLaJ26VzTkdn0EIZAIrlA==
+graphql-things@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/graphql-things/-/graphql-things-0.5.0.tgz#c6e50118f114bfa5a433430eb57ee669a7bbd186"
+  integrity sha512-xLfUhK2S5c1Lw+EY5gR2mgZ9a20+qkw1tX46Lx8kZq1CfGBUT9o8JYckfs0AEu7riIbJG9T691AOv8GWddqW1Q==
   dependencies:
     any-promise "^1.3.0"
     apollo-link-ws "^1.0.12"

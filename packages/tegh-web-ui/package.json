@@ -52,7 +52,7 @@
     "graphql-anywhere": "^3.1.0",
     "graphql-playground-react": "^1.7.20",
     "graphql-tag": "^2.5.0",
-    "graphql-things": "^0.4.1",
+    "graphql-things": "^0.5.0",
     "history": "^4.7.2",
     "i18next": "^15.1.2",
     "isomorphic-fetch": "^2.2.1",

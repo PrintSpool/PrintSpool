@@ -31,6 +31,10 @@ const webRTCServer = async ({
     identityKeys,
     authenticate,
     wrtc,
+    meta: {
+      schemaVersion: '0.8',
+      schemaExtensions: [],
+    },
   })
 
   const options = {

@@ -27,12 +27,13 @@ export const createTeghApolloLink = ({
   // and allows us to end-to-end encrypt everything you do with it. Usually
   // the public key is retreaved by scanning the QR Code displayed by Tegh on
   // the 3D printer's screen.
-
   const thingLink = new ThingLink({
     createConnection: () => connect({
       // identityKeys: myIdentity,
       identityKeys: hostIdentity.identityKeys,
       peerIdentityPublicKey: hostIdentity.peerIdentityPublicKey,
+      // eslint-disable-next-line no-console
+      onMeta: meta => console.log('Received meta data', meta),
     }),
     options: { reconnect: false },
   })
