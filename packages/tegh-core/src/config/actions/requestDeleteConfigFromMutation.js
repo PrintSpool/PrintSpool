@@ -13,7 +13,7 @@ const requestDeleteConfigFromMutation = (source, args, { store }) => {
     subject.isEssentialPlugin
   ) {
     throw new Error(
-      `Cannot delete plugins that are essential to Tegh: ${subject.package}`,
+      `Cannot delete plugins that are essential to Teg: ${subject.package}`,
     )
   }
 

@@ -1,6 +1,6 @@
-## Tegh AutoDrop3D Client
+## Teg AutoDrop3D Client
 
-Pulls jobs from your AutoDrop3D queue and runs them on your Tegh 3D printer.
+Pulls jobs from your AutoDrop3D queue and runs them on your Teg 3D printer.
 
 ## Installation
 

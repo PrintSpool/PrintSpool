@@ -25,7 +25,7 @@ const TopNavigation = () => {
       }}
     >
       <img
-        alt="Tegh"
+        alt="Teg"
         src={teghLogoNoTextSVG}
         style={{
           height: 50,

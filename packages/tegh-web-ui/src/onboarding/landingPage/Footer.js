@@ -21,7 +21,7 @@ const Footer = ({ t }) => {
     >
       <div className={classes.gradient}>
         <img
-          alt="Tegh"
+          alt="Teg"
           src={teghLogoSVG}
           className={classes.logo}
         />

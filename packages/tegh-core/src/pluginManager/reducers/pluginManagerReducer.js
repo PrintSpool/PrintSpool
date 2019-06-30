@@ -13,7 +13,7 @@ export const initialState = Record({
 })()
 
 /*
- * manages the loading of Tegh plugins
+ * manages the loading of Teg plugins
  */
 const pluginManagerReducer = (state = initialState, action) => {
   switch (action.type) {

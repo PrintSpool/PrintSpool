@@ -1,7 +1,7 @@
 {
   "name": "@tegh/driver-serial-gcode",
   "version": "0.8.0",
-  "description": "Tegh serial driver for RepRap/Marlin compatible printers",
+  "description": "Teg serial driver for RepRap/Marlin compatible printers",
   "main": "dist/index.js",
   "files": [
     "dist/*"

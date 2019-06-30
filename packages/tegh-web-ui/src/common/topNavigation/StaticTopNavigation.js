@@ -33,7 +33,7 @@ const StaticTopNavigation = ({
       <Hidden smDown={hasMenu}>
         <Link to="/">
           <img
-            alt="Tegh"
+            alt="Teg"
             src={teghLogoNoTextSVG}
             className={classes.logo}
           />

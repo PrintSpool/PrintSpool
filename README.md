@@ -1,8 +1,8 @@
 <div align="center">
-<img src="./packages/tegh-web-ui/images/TEGH_Logo.svg" alt="Tegh" width="200"/>
+<img src="./packages/tegh-web-ui/images/TEGH_Logo.svg" alt="Teg" width="200"/>
 </div>
 
-## Tegh
+## Teg
 
 A bold new way to 3D print over WiFi.
 

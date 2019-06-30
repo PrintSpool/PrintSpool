@@ -9,14 +9,14 @@
 
 ## Context and Problem Statement
 
-A hypothetical future maker space has many networked CNC devices; Mills, Lathes, 3D Printers, Laser Cutters, and so on. The hypothetical maker space uses various future versions of Tegh with different plugins to control each of these machines. The maker space has an additional combinator Tegh host that combines the other Tegh instances and allows makers to securely control and configure all of the machines through a single WebRTC connection to a single GraphQL schema.
+A hypothetical future maker space has many networked CNC devices; Mills, Lathes, 3D Printers, Laser Cutters, and so on. The hypothetical maker space uses various future versions of Teg with different plugins to control each of these machines. The maker space has an additional combinator Teg host that combines the other Teg instances and allows makers to securely control and configure all of the machines through a single WebRTC connection to a single GraphQL schema.
 
-What would the configuration API of Tegh look like to accomodate all the different machines/tegh version/tegh plugin variations in that hypothetical future makerspace with one GraphQL Schema accessed by users from a statically hosted tegh.io GUI?
+What would the configuration API of Teg look like to accomodate all the different machines/tegh version/tegh plugin variations in that hypothetical future makerspace with one GraphQL Schema accessed by users from a statically hosted tegh.io GUI?
 
 ## Decision Drivers
 
 * Current `extendedConfig` GUI puts Plugin-specific settings into a JSON text field under 'Advanced'. The UX of which is that Plugin settings do not feel as tightly integrated as other settings. It is felt that plugin-specific settings should not feel like second class citizens and that having them feel that way limits their usefulness.
-* Tegh is being designed with intent to support combinators in a future version. Any current configuration architecture decision that does not take combinators into account today may cause breaking changes and cause unneccessary rewrites when combinators are introduced in the future.
+* Teg is being designed with intent to support combinators in a future version. Any current configuration architecture decision that does not take combinators into account today may cause breaking changes and cause unneccessary rewrites when combinators are introduced in the future.
 
 ## Considered Options
 
@@ -60,7 +60,7 @@ Add Plugin-specific settings by dynamically adding extensions to the configurati
 
 * Good, because all types would be self documented by GraphQL
 * Bad, because it would require the GraphQL schema to dynamically change based on which plugins are loaded which complicates the host and is not common practice in GraphQL.
-* Bad, because a dynamic schema could have conflicting types defined in incompatible plugins or hosts that would be unresolvable by a Tegh Combinator.
+* Bad, because a dynamic schema could have conflicting types defined in incompatible plugins or hosts that would be unresolvable by a Teg Combinator.
 
 ### Queries: JSON Flat Objects
 
@@ -86,7 +86,7 @@ A mutation `patchConfig(printerID: ID!, patch: [JSONPatchInput!]!` would be crea
 
 A mutation would be created, `updateConfigObjects(printerID: ID!, input: [{action: CreateOrUpdateEnum!, type: ComponentOrPackageEnum!, id: ID, data: JSON!}!]!)`, such that an array of configuration objects - meaning Components or Plugins (General Conifgs such as printer name being wrapped in a `@tegh/core` plugin) could be created and modified transactionally.
 
-Each updated configuration object would be looked up by it's id on the host and have updates merged into it overwriting any previous values. To keep host update logic simple each configuration object would be required to be flat objects with either a scalar value or a list of scalar values at each key. Finally for type safety procedurally named configuration object-specific GraphQL mutations (eg. `addSerialController`, `updateAxis`, `updateTeghCorePlugin`) could be created for each type and mutated internally by the Host as part of an action creator or reducer to make sure that the data conforms to the expected Input Types and Output Types.
+Each updated configuration object would be looked up by it's id on the host and have updates merged into it overwriting any previous values. To keep host update logic simple each configuration object would be required to be flat objects with either a scalar value or a list of scalar values at each key. Finally for type safety procedurally named configuration object-specific GraphQL mutations (eg. `addSerialController`, `updateAxis`, `updateTegCorePlugin`) could be created for each type and mutated internally by the Host as part of an action creator or reducer to make sure that the data conforms to the expected Input Types and Output Types.
 
 * Good, because the internal GraphQL mutations would allow type safety to be achieved using GraphQL itself as opposed to a more custom solution.
 * Good, because read-only fields can be implemented via the internal GraphQL mutations
@@ -101,7 +101,7 @@ A modification on the Flat Objects proposal in which an Input Union would be sub
 
 * Good, because the `updateConfigObjects` inputs would be fully self-documented by GraphQL
 * Bad because it would require the GraphQL schema to dynamically change based on which plugins are loaded which complicates the host and is not common practice in GraphQL.
-* A dynamic schema could have conflicting input types defined in incompatible plugins or hosts that would be unresolvable by a Tegh Combinator.
+* A dynamic schema could have conflicting input types defined in incompatible plugins or hosts that would be unresolvable by a Teg Combinator.
 * Bad, because GraphQL does not yet support input unions so our static typing options are limited for now. See: https://github.com/facebook/graphql/issues/488
 
 ### GUI: Dynamic Forms

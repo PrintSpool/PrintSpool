@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/styles'
 
 import { LiveSubscription } from '../../../common/LiveSubscription'
 
-import TeghApolloProvider from './higherOrderComponents/TeghApolloProvider'
+import TegApolloProvider from './higherOrderComponents/TegApolloProvider'
 
 import Drawer, { DrawerFragment } from './components/Drawer'
 import StaticTopNavigation from '../../../common/topNavigation/StaticTopNavigation'
@@ -82,7 +82,7 @@ const ConnectionFrame = ({
   }
 
   return (
-    <TeghApolloProvider
+    <TegApolloProvider
       hostIdentity={host.invite}
     >
       <LiveSubscription
@@ -142,7 +142,7 @@ const ConnectionFrame = ({
           )
         }
       </LiveSubscription>
-    </TeghApolloProvider>
+    </TegApolloProvider>
   )
 }
 

@@ -72,7 +72,7 @@ const updatesReducer = (state = initialState, action) => {
     }
     case REQUEST_CREATE_JOB: {
       if (state.updating) {
-        throw new Error('Cannot create a job while updating Tegh')
+        throw new Error('Cannot create a job while updating Teg')
       }
 
       return state
@@ -81,7 +81,7 @@ const updatesReducer = (state = initialState, action) => {
       if (state.hasPendingUpdates) {
         throw new Error(
           'Cannot modify configs while updates are pending. Please empty the '
-          + 'job queue so Tegh can finish updating.',
+          + 'job queue so Teg can finish updating.',
         )
       }
 

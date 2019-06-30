@@ -33,7 +33,7 @@ const descriptions = {
   ERRORED: () => snl`
     The 3D printer has encountered an error.
     This may indicate an issue with your 3D printer itself, it's
-    firmware or Tegh.
+    firmware or Teg.
   `,
 }
 
@@ -73,7 +73,7 @@ const StatusDialog = ({
                 obstructions and reset the machine.
               </p>
               <p>
-                If you belive this is an issue with Tegh you can file a bug
+                If you belive this is an issue with Teg you can file a bug
                 report at
                 {' '}
                 {' '}

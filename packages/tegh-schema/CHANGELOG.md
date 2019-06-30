@@ -15,7 +15,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Add a GCode Terminal to the Manage UI ([f2ac418](https://github.com/tegh/tegh/commit/f2ac418))
 * Add hasPendingUpdates Boolean! to GraphQL to introspect the update process. ([bd0d78c](https://github.com/tegh/tegh/commit/bd0d78c))
 * Add host macros to the GCode Terminal UI and to GCodeHistoryEntry in the API ([4ba9d91](https://github.com/tegh/tegh/commit/4ba9d91))
-* Add Tegh version to config UI and GraphQL API ([f06edc8](https://github.com/tegh/tegh/commit/f06edc8))
+* Add Teg version to config UI and GraphQL API ([f06edc8](https://github.com/tegh/tegh/commit/f06edc8))
 * New GCode History API ([857dd67](https://github.com/tegh/tegh/commit/857dd67))
 * Replace spoolCommands to spoolGCodes ([a501808](https://github.com/tegh/tegh/commit/a501808))
 

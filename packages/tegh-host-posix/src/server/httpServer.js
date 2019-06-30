@@ -91,7 +91,7 @@ const httpServer = async ({
   }
   // eslint-disable-next-line no-console
   console.error(
-    `Tegh is listening on ${portFullName}`,
+    `Teg is listening on ${portFullName}`,
   )
 }
 

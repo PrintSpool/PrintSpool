@@ -25,7 +25,7 @@ const useStyles = makeStyles(() => ({
   dontHaveRaspberryPi: {
     // marginTop: '1rem',
   },
-  alreadyHaveTegh: {
+  alreadyHaveTeg: {
     marginTop: '2rem',
   },
 }), { withTheme: true })

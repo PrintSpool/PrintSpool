@@ -17,7 +17,7 @@ import BrowserUpgradeNoticeStyles from './BrowserUpgradeNoticeStyles'
 // <Typography gutterBottom>
 //   {
 //     `
-//       Tegh requires the Beaker Browser to connect to 3D printers.
+//       Teg requires the Beaker Browser to connect to 3D printers.
 //     `
 //   }
 // </Typography>
@@ -31,7 +31,7 @@ import BrowserUpgradeNoticeStyles from './BrowserUpgradeNoticeStyles'
 // <Typography gutterBottom>
 //   {
 //     `
-//     Tegh uses Beaker to enable better
+//     Teg uses Beaker to enable better
 //     experiences such as automatically connecting to your
 //     3D printers so you don't have to memorize their IP addresses.
 //   `
@@ -85,17 +85,17 @@ const BrowserUpgradeNotice = ({
       open={open}
     >
       <DialogTitle id="browser-upgrade-title" onClose={onClose}>
-        Tegh launches this Fall
+        Teg launches this Fall
         {/* Upgrade to Beaker */}
       </DialogTitle>
       <DialogContent>
         <Grid container>
           <Grid item xs={12}>
             <Typography paragraph>
-              Be ready for Tegh's launch this Fall, 2019. Join our mailing list to get the latest updates.
+              Be ready for Teg's launch this Fall, 2019. Join our mailing list to get the latest updates.
             </Typography>
             <iframe
-              title="Subscribe to Tegh"
+              title="Subscribe to Teg"
               className="mj-w-res-iframe"
               frameBorder="0"
               scrolling="no"

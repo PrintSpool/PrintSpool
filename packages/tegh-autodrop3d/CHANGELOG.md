@@ -34,7 +34,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
-* @tegh/autodrop3D - an Autodrop3D plugin for Tegh ([835b763](https://github.com/tegh/tegh/commit/835b763))
+* @tegh/autodrop3D - an Autodrop3D plugin for Teg ([835b763](https://github.com/tegh/tegh/commit/835b763))
 * AutoDrop 3D plugin ([d972a54](https://github.com/tegh/tegh/commit/d972a54))
 * New GCode Hooks: beforePrintHook and afterPrintHook ([25835a0](https://github.com/tegh/tegh/commit/25835a0))
 * New Job Queue and Autodrop macros: spoolNextJobFile, spoolJobFile and fetchAutodropJob ([e894fcf](https://github.com/tegh/tegh/commit/e894fcf))

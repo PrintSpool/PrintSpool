@@ -11,7 +11,7 @@
 // const createLocalFileJobGraphQL = () => ({
 //   type: tql`${JobGraphQL}!`,
 //   description: snl`
-//     creates a job to print a file already on the Tegh server.
+//     creates a job to print a file already on the Teg server.
 //   `,
 //
 //   resolve: actionResolver({

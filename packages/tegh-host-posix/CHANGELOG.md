@@ -8,7 +8,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
-* Add Tegh version to config UI and GraphQL API ([f06edc8](https://github.com/tegh/tegh-host-posix/commit/f06edc8))
+* Add Teg version to config UI and GraphQL API ([f06edc8](https://github.com/tegh/tegh-host-posix/commit/f06edc8))
 
 
 
@@ -37,6 +37,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
-* @tegh/autodrop3D - an Autodrop3D plugin for Tegh ([835b763](https://github.com/tegh/tegh-host-posix/commit/835b763))
+* @tegh/autodrop3D - an Autodrop3D plugin for Teg ([835b763](https://github.com/tegh/tegh-host-posix/commit/835b763))
 * Automatic Printing for conveyors and auto-scrapers ([057ae50](https://github.com/tegh/tegh-host-posix/commit/057ae50))
 * Now available in the snap store: https://snapcraft.io/tegh ([73209bf](https://github.com/tegh/tegh-host-posix/commit/73209bf))

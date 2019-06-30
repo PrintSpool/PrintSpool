@@ -21,7 +21,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Add a GCode Terminal to the Manage UI ([f2ac418](https://github.com/tegh/tegh-host-posix/commit/f2ac418))
 * Add hasPendingUpdates Boolean! to GraphQL to introspect the update process. ([bd0d78c](https://github.com/tegh/tegh-host-posix/commit/bd0d78c))
 * Add host macros to the GCode Terminal UI and to GCodeHistoryEntry in the API ([4ba9d91](https://github.com/tegh/tegh-host-posix/commit/4ba9d91))
-* Add Tegh version to config UI and GraphQL API ([f06edc8](https://github.com/tegh/tegh-host-posix/commit/f06edc8))
+* Add Teg version to config UI and GraphQL API ([f06edc8](https://github.com/tegh/tegh-host-posix/commit/f06edc8))
 * Automic configs - configuration changes are now atomically saved to disk to prevent corruption ([66efe22](https://github.com/tegh/tegh-host-posix/commit/66efe22))
 * New GCode History API ([857dd67](https://github.com/tegh/tegh-host-posix/commit/857dd67))
 * Prevent modifications to configs while printing ([83ac819](https://github.com/tegh/tegh-host-posix/commit/83ac819))

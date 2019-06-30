@@ -1,4 +1,4 @@
-##  Publishing the Tegh UI
+##  Publishing the Teg UI
 
 1. run `yarn watch` and once the dev server is started run `yarn start` in a second tab
 2. verify that the UI works as expected in Beaker and Firefox
@@ -7,6 +7,6 @@
 5. `cp -R ./packages/tegh-web-ui/dist/* ../tegh.github.com && cd ../tegh.github.com && git add -A && git commit -a && git push`
 6. verify that https://tegh.io has been updated
 
-##  Publishing the Tegh Snap
+##  Publishing the Teg Snap
 
 `yarn snap:publish`

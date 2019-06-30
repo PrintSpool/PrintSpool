@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 import { Playground, store } from 'graphql-playground-react'
 
 import { UserDataContext } from '../../UserDataProvider'
-import { createTeghApolloLink } from '../common/frame/higherOrderComponents/TeghApolloProvider'
+import { createTegApolloLink } from '../common/frame/higherOrderComponents/TegApolloProvider'
 
 import GraphQLPlaygroundStyles from './GraphQLPlaygroundStyles'
 
@@ -19,7 +19,7 @@ const GraphQLPlayground = ({
   // endpoint={`tegh://${hostID}`}
 
   const createLink = useCallback(() => ({
-    link: createTeghApolloLink({ hostIdentity }),
+    link: createTegApolloLink({ hostIdentity }),
   }))
 
   return (

@@ -106,13 +106,13 @@ const ConfigPage = ({
     <List component="nav">
       <ListItem divider>
         <ListItemText
-          primary={`Tegh v${teghVersion}`}
+          primary={`Teg v${teghVersion}`}
           secondary={
             (
               hasPendingUpdates
               && 'Updates Pending. Please empty job queue to auto-update.'
             )
-            || 'Tegh is up to date and running the latest version available.'
+            || 'Teg is up to date and running the latest version available.'
           }
         />
       </ListItem>

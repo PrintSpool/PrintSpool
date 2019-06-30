@@ -11,7 +11,7 @@ export * from './selectors'
 export authenticate from './auth/sideEffects/authenticate'
 
 export executableSchema from './executableSchema/executableSchema'
-export createTeghHostStore from './executableSchema/createTeghHostStore'
+export createTegHostStore from './executableSchema/createTegHostStore'
 
 export getSchemaForms from './getSchemaForms'
 

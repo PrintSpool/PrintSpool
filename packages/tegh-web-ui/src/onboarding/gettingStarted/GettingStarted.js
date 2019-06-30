@@ -13,12 +13,12 @@ import { parseInviteCode } from 'graphql-things/client'
 
 import { LiveSubscription } from '../../common/LiveSubscription'
 
-import TeghApolloProvider from '../../printer/common/frame/higherOrderComponents/TeghApolloProvider'
+import TegApolloProvider from '../../printer/common/frame/higherOrderComponents/TegApolloProvider'
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
 
 import GettingStartedStyles from './GettingStartedStyles'
 
-import Step1InstallTegh from './steps/Step1InstallTegh'
+import Step1InstallTeg from './steps/Step1InstallTeg'
 import Step2Connect from './steps/Step2Connect'
 import Step3Setup from './steps/Step3Setup'
 import Step4Backup from './steps/Step4Backup'
@@ -67,7 +67,7 @@ const GettingStarted = ({
 
   return (
     <div className={classes.root}>
-      <StaticTopNavigation title={() => 'Welcome to Tegh!'} />
+      <StaticTopNavigation title={() => 'Welcome to Teg!'} />
       <Stepper activeStep={step - 1} className={classes.stepper}>
         {steps.map((label, i) => (
           <Step key={label}>
@@ -83,13 +83,13 @@ const GettingStarted = ({
         ))}
       </Stepper>
       { step === 1 && (
-        <Step1InstallTegh history={history} className={classes.content} />
+        <Step1InstallTeg history={history} className={classes.content} />
       )}
       { step === 2 && (
         <Step2Connect history={history} className={classes.content} />
       )}
       { step >= 3 && (
-        <TeghApolloProvider hostIdentity={invite}>
+        <TegApolloProvider hostIdentity={invite}>
           {step === 3 && (
             <LiveSubscription
               subscription={DEVICES_SUBSCRIPTION}
@@ -153,7 +153,7 @@ const GettingStarted = ({
               }}
             </Query>
           )}
-        </TeghApolloProvider>
+        </TegApolloProvider>
       )}
     </div>
   )

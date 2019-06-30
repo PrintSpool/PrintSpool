@@ -11,7 +11,7 @@ const filamentSwapEn = {
   // Steps
   intro: {
     content: deline`
-      When you're ready Tegh will heat {{name}} to {{materialTarget}}°C and then retract the filament {{distance}}mm to remove it from the extruder.
+      When you're ready Teg will heat {{name}} to {{materialTarget}}°C and then retract the filament {{distance}}mm to remove it from the extruder.
     `,
     skipContent: deline`
       If you have already removed your filament you can skip this step.

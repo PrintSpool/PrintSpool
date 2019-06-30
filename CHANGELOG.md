@@ -25,7 +25,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Add a GraphQL Playground page to the Manage UI for developers ([cc4678f](https://github.com/tegh/tegh/commit/cc4678f))
 * Add hasPendingUpdates Boolean! to GraphQL to introspect the update process. ([bd0d78c](https://github.com/tegh/tegh/commit/bd0d78c))
 * Add host macros to the GCode Terminal UI and to GCodeHistoryEntry in the API ([4ba9d91](https://github.com/tegh/tegh/commit/4ba9d91))
-* Add Tegh version to config UI and GraphQL API ([f06edc8](https://github.com/tegh/tegh/commit/f06edc8))
+* Add Teg version to config UI and GraphQL API ([f06edc8](https://github.com/tegh/tegh/commit/f06edc8))
 * Automic configs - configuration changes are now atomically saved to disk to prevent corruption ([66efe22](https://github.com/tegh/tegh/commit/66efe22))
 * Integrated Print Preview in the Job Queue UI ([142b036](https://github.com/tegh/tegh/commit/142b036))
 * New GCode History API ([857dd67](https://github.com/tegh/tegh/commit/857dd67))
@@ -90,11 +90,11 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
-* @tegh/autodrop3D - an Autodrop3D plugin for Tegh ([835b763](https://github.com/tegh/tegh/commit/835b763))
+* @tegh/autodrop3D - an Autodrop3D plugin for Teg ([835b763](https://github.com/tegh/tegh/commit/835b763))
 * AutoDrop 3D plugin ([d972a54](https://github.com/tegh/tegh/commit/d972a54))
 * Automatic Printing for conveyors and auto-scrapers ([057ae50](https://github.com/tegh/tegh/commit/057ae50))
 * Custom Dockerfile for drone builds ([bb9773c](https://github.com/tegh/tegh/commit/bb9773c))
-* drone.io continuous build pipeline for Tegh snaps ([88d5544](https://github.com/tegh/tegh/commit/88d5544))
+* drone.io continuous build pipeline for Teg snaps ([88d5544](https://github.com/tegh/tegh/commit/88d5544))
 * New GCode Hooks: beforePrintHook and afterPrintHook ([25835a0](https://github.com/tegh/tegh/commit/25835a0))
 * New Job Queue and Autodrop macros: spoolNextJobFile, spoolJobFile and fetchAutodropJob ([e894fcf](https://github.com/tegh/tegh/commit/e894fcf))
 * Now available in the snap store: https://snapcraft.io/tegh ([73209bf](https://github.com/tegh/tegh/commit/73209bf))

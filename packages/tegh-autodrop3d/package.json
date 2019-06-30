@@ -1,7 +1,7 @@
 {
   "name": "@tegh/autodrop3d",
   "version": "0.8.0",
-  "description": "AutoDrop3D plugin for Tegh",
+  "description": "AutoDrop3D plugin for Teg",
   "main": "dist/index.js",
   "author": "Rob Gilson",
   "license": "AGPL-3.0-or-later",

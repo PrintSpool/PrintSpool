@@ -190,7 +190,7 @@ const UpdateDialog = ({
             title={() => {
               if (hasPendingUpdates) {
                 return (
-                  'Pending Updates: Configuration diabled while updating Tegh'
+                  'Pending Updates: Configuration diabled while updating Teg'
                 )
               }
               return (

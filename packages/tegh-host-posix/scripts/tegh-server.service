@@ -1,5 +1,5 @@
 [Unit]
-Description=Tegh 3D Printer Network Server
+Description=Teg 3D Printer Network Server
 After=network.target
 Requires=network.target
 

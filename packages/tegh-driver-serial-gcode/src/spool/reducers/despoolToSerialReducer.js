@@ -146,7 +146,7 @@ const despoolToSerialReducer = (state = initialState, action) => {
           const previousSerialLineNumber = state.currentSerialLineNumber - 1
 
           /*
-           * Tegh only sends one line at a time. If a resend is requested for a
+           * Teg only sends one line at a time. If a resend is requested for a
            * different line number then this is likely an issue of the printer's
            * firmware.
            */

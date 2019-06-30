@@ -40,7 +40,7 @@ const availablePlugins = {
 const {
   initializeConfig,
   executableSchema,
-  createTeghHostStore,
+  createTegHostStore,
   authenticate,
 } = teghCore
 
@@ -67,7 +67,7 @@ const loadConfigForm = async (configPath) => {
 
 const teghServer = async (argv, pluginLoader) => {
   // eslint-disable-next-line no-console
-  console.error(`Tegh v${packageJSON.version}`)
+  console.error(`Teg v${packageJSON.version}`)
 
   const expectedUseage = 'Useage: tegh serve [CONFIG_DIRECTORY]'
 
@@ -124,7 +124,7 @@ const teghServer = async (argv, pluginLoader) => {
       if (isRunning) {
         // eslint-disable-next-line no-console
         console.error(
-          `Another copy of Tegh is running (pid: ${pid}). Shutting down.`,
+          `Another copy of Teg is running (pid: ${pid}). Shutting down.`,
         )
         return { pidCreated: false }
       }
@@ -152,11 +152,11 @@ const teghServer = async (argv, pluginLoader) => {
   //
   // if (updates.hasPendingUpdates) {
   //   // eslint-disable-next-line no-console
-  //   console.error('Tegh updates in progress. Will retry in 10 seconds...')
+  //   console.error('Teg updates in progress. Will retry in 10 seconds...')
   //
   //   setTimeout(() => {
   //     // eslint-disable-next-line no-console
-  //     console.error('Restarting Tegh')
+  //     console.error('Restarting Teg')
   //   }, 10 * 1000)
   //
   //   return
@@ -172,7 +172,7 @@ const teghServer = async (argv, pluginLoader) => {
   //   setErrorHandlerStore,
   // }) => {
 
-  const store = createTeghHostStore()
+  const store = createTegHostStore()
 
   const action = initializeConfig({
     config,

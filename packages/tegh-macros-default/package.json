@@ -1,7 +1,7 @@
 {
   "name": "@tegh/macros-default",
   "version": "0.8.0",
-  "description": "Tegh default macros",
+  "description": "Teg default macros",
   "main": "dist/index.js",
   "files": [
     "dist/*"

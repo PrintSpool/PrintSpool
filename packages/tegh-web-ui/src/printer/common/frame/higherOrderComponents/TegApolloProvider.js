@@ -16,7 +16,7 @@ import { ThingLink, connect } from 'graphql-things/client'
 
 // import { store } from '../../../../index'
 
-export const createTeghApolloLink = ({
+export const createTegApolloLink = ({
   // myIdentity,
   hostIdentity,
   // signallingServer = 'ws://localhost:3000',
@@ -25,7 +25,7 @@ export const createTeghApolloLink = ({
 }) => {
   // The public key of the 3D machine. This uniquely identifies your 3D printer
   // and allows us to end-to-end encrypt everything you do with it. Usually
-  // the public key is retreaved by scanning the QR Code displayed by Tegh on
+  // the public key is retreaved by scanning the QR Code displayed by Teg on
   // the 3D printer's screen.
   const thingLink = new ThingLink({
     createConnection: () => connect({
@@ -69,10 +69,10 @@ export const createTeghApolloLink = ({
   ])
 }
 
-const createTeghApolloClient = ({
+const createTegApolloClient = ({
   hostIdentity,
 }) => {
-  const link = createTeghApolloLink({ hostIdentity })
+  const link = createTegApolloLink({ hostIdentity })
   const client = new ApolloClient({
     link,
     cache: new InMemoryCache(),
@@ -82,12 +82,12 @@ const createTeghApolloClient = ({
 }
 
 // TODO: does not work for some reason
-const memoizedCreateTeghApolloClient = memoize(createTeghApolloClient, {
+const memoizedCreateTegApolloClient = memoize(createTegApolloClient, {
   serializer: ({ hostIdentity }) => hostIdentity && hostIdentity.id,
 })
 
 
-const TeghApolloProvider = ({
+const TegApolloProvider = ({
   hostIdentity,
   children,
 }) => {
@@ -100,7 +100,7 @@ const TeghApolloProvider = ({
     //   // state.client.close()
     // }
 
-    const client = memoizedCreateTeghApolloClient({
+    const client = memoizedCreateTegApolloClient({
       hostIdentity,
     })
 
@@ -123,4 +123,4 @@ const TeghApolloProvider = ({
   )
 }
 
-export default TeghApolloProvider
+export default TegApolloProvider

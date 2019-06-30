@@ -1,4 +1,4 @@
-## Tegh AGPLv3 License
+## Teg AGPLv3 License
 
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
@@ -677,7 +677,7 @@ Public License instead of this License.  But first, please read
 
 ## 3D4MD Libraries licensed under the MIT LICENSE
 
-Tegh as a whole is **only** licensed under the AGPLv3 license however it includes some MIT Licensed code developed by Rob Gilson for 3D4MD in 2017/2018 and so must include the MIT notice for those few lines of legacy code. This is a legal requirement and **does not** give you permission to use Tegh under an MIT license:
+Teg as a whole is **only** licensed under the AGPLv3 license however it includes some MIT Licensed code developed by Rob Gilson for 3D4MD in 2017/2018 and so must include the MIT notice for those few lines of legacy code. This is a legal requirement and **does not** give you permission to use Teg under an MIT license:
 
 Copyright 2018 3D4MD
 

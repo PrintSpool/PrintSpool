@@ -2,7 +2,7 @@
 set -e
 
 TEGH_VERSION=`node -e "console.log(require('./packages/tegh-core/package.json').version);"`;
-echo "\e[32mSnapping Tegh $TEGH_VERSION for x64:\e[0m Ignore the warnings and scary yellow text. This is not a pretty process.\n"
+echo "\e[32mSnapping Teg $TEGH_VERSION for x64:\e[0m Ignore the warnings and scary yellow text. This is not a pretty process.\n"
 
 yarn pkg:build
 

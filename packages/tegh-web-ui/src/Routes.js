@@ -3,7 +3,7 @@ import { Route, Switch } from 'react-router'
 import { BrowserRouter } from 'react-router-dom'
 
 import { UserDataContext } from './UserDataProvider'
-import TeghApolloProvider from './printer/common/frame/higherOrderComponents/TeghApolloProvider'
+import TegApolloProvider from './printer/common/frame/higherOrderComponents/TegApolloProvider'
 
 import LandingPage from './onboarding/landingPage/LandingPage'
 
@@ -83,12 +83,12 @@ const Routes = () => {
                       const host = hosts[hostID]
 
                       return (
-                        <TeghApolloProvider hostIdentity={host && host.invite}>
+                        <TegApolloProvider hostIdentity={host && host.invite}>
                           <PrintDialog
                             history={history}
                             match={{ params: { hostID, machineID } }}
                           />
-                        </TeghApolloProvider>
+                        </TegApolloProvider>
                       )
                     }}
                   />

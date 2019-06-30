@@ -78,7 +78,7 @@ extend type Mutation {
   createJob(input: CreateJobInput): Job!
 
   """
-  creates a job to print a file already on the Tegh server.
+  creates a job to print a file already on the Teg server.
   """
   deleteJob(input: DeleteJobInput): Boolean
 }

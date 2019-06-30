@@ -2,12 +2,12 @@
 set -e
 
 TEGH_VERSION=`node -e "console.log(require('./packages/tegh-core/package.json').version);"`;
-echo "\e[32mSnapping Tegh $TEGH_VERSION for armv7:\e[0m Ignore the warnings and scary yellow text. This is not a pretty process.\n"
+echo "\e[32mSnapping Teg $TEGH_VERSION for armv7:\e[0m Ignore the warnings and scary yellow text. This is not a pretty process.\n"
 USER=`whoami`
 
-echo "Remotely building Tegh"
+echo "Remotely building Teg"
 ssh $TEGH_ARMV7_HOST -p $TEGH_ARMV7_PORT 'cd tegh && nvm use && git checkout master && git pull origin master && yarn bootstrap && yarn build-dev && yarn pkg:build'
-echo "Remotely building Tegh [DONE]"
+echo "Remotely building Teg [DONE]"
 
 cd ./snap
 

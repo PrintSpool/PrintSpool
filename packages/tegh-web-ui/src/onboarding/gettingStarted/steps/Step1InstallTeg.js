@@ -6,7 +6,7 @@ import {
   Link as MaterialUILink,
 } from '@material-ui/core'
 
-import Step1InstallTeghStyles from './Step1InstallTeghStyles'
+import Step1InstallTegStyles from './Step1InstallTegStyles'
 
 import FileInput from '../../../common/FileInput'
 
@@ -14,11 +14,11 @@ import { UserDataContext } from '../../../UserDataProvider'
 
 import ButtonsFooter from '../ButtonsFooter'
 
-const Step1InstallTegh = ({
+const Step1InstallTeg = ({
   className,
   history,
 }) => {
-  const classes = Step1InstallTeghStyles()
+  const classes = Step1InstallTegStyles()
 
   const { importUserData } = useContext(UserDataContext)
 
@@ -32,10 +32,10 @@ const Step1InstallTegh = ({
       <div className={className}>
         <div className={classes.root}>
           <Typography variant="h5" paragraph>
-            Install Tegh on your Raspberry Pi
+            Install Teg on your Raspberry Pi
           </Typography>
           <Typography variant="body1" paragraph className={classes.intro}>
-            Welcome to Tegh, in order to get started we&apos;ll need to install Tegh on a Raspberry Pi 3B or newer.
+            Welcome to Teg, in order to get started we&apos;ll need to install Teg on a Raspberry Pi 3B or newer.
           </Typography>
           <Typography variant="body1" paragraph className={classes.codeInstruction}>
             To start the installation paste this line in your Pi's terminal and hit enter:
@@ -43,8 +43,8 @@ const Step1InstallTegh = ({
           <code className={classes.code}>
             sudo apt update && sudo apt install snapd && sudo snap install tegh --beta
           </code>
-          <Typography variant="body2" paragraph className={classes.alreadyHaveTegh}>
-            Already have Tegh installed?
+          <Typography variant="body2" paragraph className={classes.alreadyHaveTeg}>
+            Already have Teg installed?
             {' '}
             <MaterialUILink
               underline="always"
@@ -87,4 +87,4 @@ const Step1InstallTegh = ({
   )
 }
 
-export default Step1InstallTegh
+export default Step1InstallTeg

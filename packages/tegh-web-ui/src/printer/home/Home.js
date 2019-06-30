@@ -24,7 +24,7 @@ const Home = () => {
   return (
     <React.Fragment>
       <StaticTopNavigation
-        title={() => 'Tegh'}
+        title={() => 'Teg'}
         actions={({ buttonClass }) => (
           <Button
             className={buttonClass}

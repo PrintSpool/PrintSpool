@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "Are you sure you want to release a new Beta for Tegh?"
+echo "Are you sure you want to release a new Beta for Teg?"
 select yn in "Yes" "No"; do
     case $yn in
         Yes ) exit 0;;

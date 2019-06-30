@@ -1,7 +1,7 @@
 {
   "name": "@tegh/core",
   "version": "0.8.0",
-  "description": "core reusable types, selectors, actions, reducers, etc. for Tegh",
+  "description": "core reusable types, selectors, actions, reducers, etc. for Teg",
   "main": "dist/index.js",
   "repository": {
     "type": "git",
