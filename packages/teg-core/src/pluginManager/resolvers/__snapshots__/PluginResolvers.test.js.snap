@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PluginResolvers presents a consistent API 1`] = `
+Object {
+  "_testPlugin": Object {
+    "configForm": Object {
+      "id": "asgbvas23",
+    },
+    "id": "asgbvas23",
+    "package": "@tegapp/core",
+  },
+}
+`;

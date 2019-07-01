@@ -1,0 +1,24 @@
+{
+  "name": "@tegapp/driver-serial-gcode",
+  "version": "0.8.0",
+  "description": "Teg serial driver for RepRap/Marlin compatible printers",
+  "main": "dist/index.js",
+  "files": [
+    "dist/*"
+  ],
+  "author": "Rob Gilson",
+  "license": "AGPL-3.0-or-later",
+  "private": true,
+  "dependencies": {
+    "@d1plo1d/redux-loop-immutable": "1.0.1-1",
+    "@tegapp/core": "^0.8.0",
+    "bluebird": "^3.5.3",
+    "immutable": "^4.0.0-rc.12",
+    "redux": "^4.0.1",
+    "redux-loop": "^4.5.2",
+    "reselect": "^4.0.0",
+    "strip-newlines": "^1.0.1",
+    "tcomb-validation": "^3.4.1",
+    "yup": "^0.26.6"
+  }
+}

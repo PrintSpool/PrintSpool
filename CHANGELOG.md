@@ -90,7 +90,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Features
 
-* @tegh/autodrop3D - an Autodrop3D plugin for Teg ([835b763](https://github.com/tegh/tegh/commit/835b763))
+* @tegapp/autodrop3D - an Autodrop3D plugin for Teg ([835b763](https://github.com/tegh/tegh/commit/835b763))
 * AutoDrop 3D plugin ([d972a54](https://github.com/tegh/tegh/commit/d972a54))
 * Automatic Printing for conveyors and auto-scrapers ([057ae50](https://github.com/tegh/tegh/commit/057ae50))
 * Custom Dockerfile for drone builds ([bb9773c](https://github.com/tegh/tegh/commit/bb9773c))

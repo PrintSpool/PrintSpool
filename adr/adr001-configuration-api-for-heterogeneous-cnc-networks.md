@@ -84,7 +84,7 @@ A mutation `patchConfig(printerID: ID!, patch: [JSONPatchInput!]!` would be crea
 
 ### Mutations: JSON Flat Objects
 
-A mutation would be created, `updateConfigObjects(printerID: ID!, input: [{action: CreateOrUpdateEnum!, type: ComponentOrPackageEnum!, id: ID, data: JSON!}!]!)`, such that an array of configuration objects - meaning Components or Plugins (General Conifgs such as printer name being wrapped in a `@tegh/core` plugin) could be created and modified transactionally.
+A mutation would be created, `updateConfigObjects(printerID: ID!, input: [{action: CreateOrUpdateEnum!, type: ComponentOrPackageEnum!, id: ID, data: JSON!}!]!)`, such that an array of configuration objects - meaning Components or Plugins (General Conifgs such as printer name being wrapped in a `@tegapp/core` plugin) could be created and modified transactionally.
 
 Each updated configuration object would be looked up by it's id on the host and have updates merged into it overwriting any previous values. To keep host update logic simple each configuration object would be required to be flat objects with either a scalar value or a list of scalar values at each key. Finally for type safety procedurally named configuration object-specific GraphQL mutations (eg. `addSerialController`, `updateAxis`, `updateTegCorePlugin`) could be created for each type and mutated internally by the Host as part of an action creator or reducer to make sure that the data conforms to the expected Input Types and Output Types.
 

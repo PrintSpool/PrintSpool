@@ -41,8 +41,6 @@ packages/tegh-host-posix/log
 packages/*/build
 packages/*/dist
 dist
-!.well-known/dat
-!dat.json
 
 packages/*/android/app/build
 
@@ -84,3 +82,6 @@ defs/staging/*
 
 .cache
 dev-dist
+
+!.well-known/dat
+!dat.json

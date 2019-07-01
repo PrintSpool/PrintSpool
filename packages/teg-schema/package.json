@@ -1,0 +1,11 @@
+{
+  "name": "@tegapp/schema",
+  "version": "0.8.0",
+  "main": "dist/index.js",
+  "files": [
+    "dist/*"
+  ],
+  "license": "AGPL-3.0-or-later",
+  "private": true,
+  "scripts": {}
+}

@@ -1,0 +1,94 @@
+{
+  "name": "@tegapp/host-posix",
+  "version": "0.8.0",
+  "description": "graphql server for 3D printers",
+  "main": "dist/index.js",
+  "bin": {
+    "tegh": "./bin/tegh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tegh/tegh-host-posix.git"
+  },
+  "keywords": [
+    "tegh",
+    "graphql"
+  ],
+  "files": [
+    "dist/*",
+    "bin/*",
+    "development.config.js"
+  ],
+  "author": "Rob Gilson",
+  "license": "AGPL-3.0-or-later",
+  "private": true,
+  "scripts": {
+    "trace-gc": "npx node-dev ./dist/index.js --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
+    "dev": "npx node-dev ./dist/index.js -r esm --trace-warnings -- serve",
+    "snap:test:pre-refresh": "npx node-dev ./dist/index.js --trace-warnings -- pre-refresh",
+    "debug": "DEBUG=\"*,-babel:*,-babel,-gulp-*,-snapdragon:*,-dns-discovery,-discovery-*\" yarn dev"
+  },
+  "dependencies": {
+    "@babel/core": "^7.0.0-0",
+    "@babel/register": "^7.0.0",
+    "@beaker/dat-node": "RangerMauve/dat-node#168b57c",
+    "@tegapp/autodrop3d": "^0.8.0",
+    "@tegapp/core": "^0.8.0",
+    "@tegapp/driver-serial-gcode": "^0.8.0",
+    "@tegapp/macros-default": "^0.8.0",
+    "@tegapp/raspberry-pi": "^0.8.0",
+    "apollo-server-koa": "^2.4.8",
+    "babel-preset-flow": "^6.23.0",
+    "bluebird": "^3.5.3",
+    "dedent": "^0.7.0",
+    "domexception": "^1.0.1",
+    "ejs": "^2.5.7",
+    "esm": "^3.2.25",
+    "fast-memoize": "^2.5.1",
+    "graphql": "^14.0.2",
+    "graphql-live-subscriptions": "^1.1.0",
+    "graphql-things": "^0.5.0",
+    "graphql-type-json": "^0.2.0",
+    "immutable": "^4.0.0-rc.12",
+    "iterall": "^1.2.2",
+    "jiff": "^0.7.3",
+    "keypair": "^1.0.1",
+    "koa": "^2.3.0",
+    "koa-bodyparser": "^4.2.0",
+    "koa-cors": "^0.0.16",
+    "koa-router": "^7.2.1",
+    "mkdirp": "^0.5.1",
+    "msgpack-lite": "^0.1.26",
+    "npid": "^0.4.0",
+    "qrcode-terminal": "^0.12.0",
+    "raven": "^2.3.0",
+    "raven-for-redux": "^1.2.0",
+    "redux": "^4.0.1",
+    "redux-immutable": "^4.0.0",
+    "redux-logger": "^3.0.6",
+    "redux-loop": "^4.5.2",
+    "redux-saga": "^0.16.0",
+    "redux-thunk": "^2.2.0",
+    "redux-watch": "^1.1.1",
+    "reselect": "^3.0.1",
+    "source-map-support": "^0.5.9",
+    "strip-newlines": "^1.0.1",
+    "subscriptions-transport-ws": "^0.9.14",
+    "tcomb-validation": "^3.4.1",
+    "tmp-promise": "^1.0.4",
+    "typiql": "^0.3.0",
+    "untildify": "^3.0.2",
+    "uuid": "^3.1.0",
+    "vm2": "^3.5.2",
+    "write-file-atomic": "^2.4.2",
+    "wrtc": "^0.3.4",
+    "ws": "~3.3.1"
+  },
+  "devDependencies": {
+    "node-dev": "github:d1plo1d/node-dev#6abc92102cb4e7dde52ffc7681dd453f67ac5350",
+    "pkg": "^4.3.7"
+  },
+  "resolutions": {
+    "subscriptions-transport-ws/iterall": "^1.2.2"
+  }
+}
