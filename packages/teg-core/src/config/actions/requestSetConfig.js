@@ -1,7 +1,7 @@
 import { isImmutable } from 'immutable'
 import Config from '../types/Config'
 
-export const REQUEST_SET_CONFIG = 'tegh/config/REQUEST_SET_CONFIG'
+export const REQUEST_SET_CONFIG = 'teg/config/REQUEST_SET_CONFIG'
 
 const requestSetConfig = (params) => {
   const { onComplete, onError } = params

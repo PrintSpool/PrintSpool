@@ -158,8 +158,8 @@ type JSONSchemaError {
 """
   Each config model encapsulates a PLUGIN, COMPONENT, MATERIAL or HOST.
 
-  The collection enables tegh combinators to route configuration changes to
-  the correct delegate tegh host.
+  The collection enables teg combinators to route configuration changes to
+  the correct delegate teg host.
 
   Host collection is reserved for future use.
 """

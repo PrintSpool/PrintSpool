@@ -1,4 +1,4 @@
-export const DEVICE_DISCONNECTED = 'tegh-core/devices/DEVICE_DISCONNECTED'
+export const DEVICE_DISCONNECTED = 'teg-core/devices/DEVICE_DISCONNECTED'
 
 const deviceDisconnected = ({ device }) => ({
   type: DEVICE_DISCONNECTED,

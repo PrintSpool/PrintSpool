@@ -78,11 +78,11 @@ const StatusDialog = ({
                 {' '}
                 {' '}
                 <a
-                  href="https://github.com/tegh/tegh/issues"
+                  href="https://github.com/teg/teg/issues"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  https://github.com/tegh/tegh/issues
+                  https://github.com/teg/teg/issues
                 </a>
                 .
               </p>

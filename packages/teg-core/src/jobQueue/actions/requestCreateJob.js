@@ -1,6 +1,6 @@
 import Job from '../types/Job'
 
-export const REQUEST_CREATE_JOB = 'tegh/jobQueue/REQUEST_CREATE_JOB'
+export const REQUEST_CREATE_JOB = 'teg/jobQueue/REQUEST_CREATE_JOB'
 
 const requestCreateJob = ({ files, name, meta = {} }) => {
   if (name == null) {

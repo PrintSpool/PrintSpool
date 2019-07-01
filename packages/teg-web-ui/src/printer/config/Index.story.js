@@ -12,7 +12,7 @@
 //
 // const config = configRoot.printer
 //
-// const teghCoreSchemaForm = {
+// const tegCoreSchemaForm = {
 //   schema: {
 //     type: 'object',
 //     required: [
@@ -88,7 +88,7 @@
 //       onSubmit={linkTo('Config', 'index')}
 //       data={{
 //         model: config.plugins.find(p => p.package === '@tegapp/core'),
-//         schemaForm: teghCoreSchemaForm,
+//         schemaForm: tegCoreSchemaForm,
 //       }}
 //     />
 //   ))

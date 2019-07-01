@@ -1,3 +1,3 @@
 #!/bin/bash
-cd packages/tegh-host-posix
+cd packages/teg-host-posix
 node ./dist/index.js --trace-warnings

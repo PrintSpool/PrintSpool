@@ -22,7 +22,7 @@ platform:
 
 steps:
 - name: build
-  image: d1plo1d/tegh
+  image: d1plo1d/teg
   environment:
     SNAPCRAFT_LOGIN:
       from_secret: snapcraft.login

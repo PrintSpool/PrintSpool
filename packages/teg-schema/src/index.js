@@ -5,7 +5,7 @@ import jobQueue from './schemaModules/jobQueue.graphql'
 import machine from './schemaModules/machine.graphql'
 import spool from './schemaModules/spool.graphql'
 
-const teghTypeDefs = [
+const tegTypeDefs = [
   index,
   config,
   devices,
@@ -14,4 +14,4 @@ const teghTypeDefs = [
   spool,
 ]
 
-export default teghTypeDefs
+export default tegTypeDefs

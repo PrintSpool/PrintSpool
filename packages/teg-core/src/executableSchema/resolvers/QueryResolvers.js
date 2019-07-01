@@ -5,7 +5,7 @@ import packageJSON from '../../../package.json'
 
 const QueryResolvers = {
   Query: {
-    teghVersion: () => packageJSON.version,
+    tegVersion: () => packageJSON.version,
     hasPendingUpdates: (source, args, { store }) => {
       const state = store.getState()
 

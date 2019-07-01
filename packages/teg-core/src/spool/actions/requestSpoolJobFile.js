@@ -1,4 +1,4 @@
-export const REQUEST_SPOOL_JOB_FILE = 'tegh-core/spool/REQUEST_SPOOL_JOB_FILE'
+export const REQUEST_SPOOL_JOB_FILE = 'teg-core/spool/REQUEST_SPOOL_JOB_FILE'
 
 const requestSpoolJobFile = ({ jobFileID }) => ({
   type: REQUEST_SPOOL_JOB_FILE,

@@ -1,4 +1,4 @@
-export const CLEAR_LOG = 'tegh/log/CLEAR_LOG'
+export const CLEAR_LOG = 'teg/log/CLEAR_LOG'
 
 const clearLog = () => {
   const action = {

@@ -30,7 +30,7 @@ export const initialState = Record({
   // dynamic state
   lastUpdate: 0,
   autodropJobID: null,
-  teghJobID: null,
+  tegJobID: null,
 })()
 
 const PACKAGE = '@tegapp/autodrop3d'
@@ -75,7 +75,7 @@ const autodropJobStatusReducer = (state = initialState, action) => {
       })
 
       const nextState = state.merge({
-        teghJobID: nextAction.payload.job.id,
+        tegJobID: nextAction.payload.job.id,
         autodropJobID,
       })
 
@@ -95,7 +95,7 @@ const autodropJobStatusReducer = (state = initialState, action) => {
         config,
         lastUpdate,
         autodropJobID,
-        teghJobID,
+        tegJobID,
       } = state
 
       const {
@@ -103,7 +103,7 @@ const autodropJobStatusReducer = (state = initialState, action) => {
         isLastLineInTask,
       } = action.payload
 
-      if (task.jobID == null || task.jobID !== teghJobID) {
+      if (task.jobID == null || task.jobID !== tegJobID) {
         return state
       }
 
@@ -179,7 +179,7 @@ const autodropJobStatusReducer = (state = initialState, action) => {
     case AUTODROP_JOB_DONE: {
       return state.merge({
         autodropJobID: null,
-        teghJobID: null,
+        tegJobID: null,
       })
     }
     case AUTODROP_JOB_DONE_FAIL: {

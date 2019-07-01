@@ -1,4 +1,4 @@
-export const SERIAL_RECEIVE = 'tegh-driver-gcode/serial/SERIAL_RECEIVE'
+export const SERIAL_RECEIVE = 'teg-driver-gcode/serial/SERIAL_RECEIVE'
 
 const serialReceive = ({
   createdAt = new Date().toISOString(),

@@ -44,7 +44,7 @@ import { PRINTER_READY } from '../../printer/actions/printerReady'
 import { ESTOP } from '../../printer/actions/estop'
 import { DRIVER_ERROR } from '../../printer/actions/driverError'
 
-const debug = Debug('tegh:jobQueue')
+const debug = Debug('teg:jobQueue')
 
 /* reducer */
 

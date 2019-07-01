@@ -5,7 +5,7 @@ const configValidation = () => yup.object().shape({
   plugins: yup.mixed()
     .test(
       'one-driver',
-      'tegh cannot have multiple drivers',
+      'teg cannot have multiple drivers',
       plugins => (
         plugins.filter(p => p.driver).size === 1
       ),

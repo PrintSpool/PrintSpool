@@ -1,4 +1,4 @@
-export const INITIALIZE_CONFIG = '/tegh/config/INITIALIZE_CONFIG'
+export const INITIALIZE_CONFIG = '/teg/config/INITIALIZE_CONFIG'
 
 const initializeConfig = ({
   config,

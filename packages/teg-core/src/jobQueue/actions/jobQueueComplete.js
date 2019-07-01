@@ -1,4 +1,4 @@
-export const JOB_QUEUE_COMPLETE = 'tegh/jobQueue/JOB_QUEUE_COMPLETE'
+export const JOB_QUEUE_COMPLETE = 'teg/jobQueue/JOB_QUEUE_COMPLETE'
 
 const jobQueueComplete = () => ({
   type: JOB_QUEUE_COMPLETE,

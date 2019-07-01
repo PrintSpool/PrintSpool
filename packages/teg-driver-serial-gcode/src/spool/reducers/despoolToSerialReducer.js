@@ -2,8 +2,8 @@ import { loop, Cmd } from 'redux-loop'
 import { Record } from 'immutable'
 import Debug from 'debug'
 
-const txDebug = Debug('tegh:serial:tx')
-const rxDebug = Debug('tegh:serial:rx')
+const txDebug = Debug('teg:serial:tx')
+const rxDebug = Debug('teg:serial:rx')
 
 import {
   DESPOOL_TASK,

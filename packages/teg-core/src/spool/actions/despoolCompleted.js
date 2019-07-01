@@ -1,4 +1,4 @@
-export const DESPOOL_COMPLETED = 'tegh/spool/DESPOOL_COMPLETED'
+export const DESPOOL_COMPLETED = 'teg/spool/DESPOOL_COMPLETED'
 
 const despoolCompleted = ({ task }) => ({
   type: DESPOOL_COMPLETED,

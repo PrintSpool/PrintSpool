@@ -1,4 +1,4 @@
-export const SET_CONFIG = 'tegh/config/SET_CONFIG'
+export const SET_CONFIG = 'teg/config/SET_CONFIG'
 
 const setConfig = ({
   config,

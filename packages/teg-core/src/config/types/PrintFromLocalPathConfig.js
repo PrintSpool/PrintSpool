@@ -12,7 +12,7 @@
 //   enabled: false,
 //   allowSymlinks: false,
 //   whitelist: [
-//     '~/.tegh-local-files/',
+//     '~/.teg-local-files/',
 //   ],
 // })
 // export default PrintFromLocalPathConfig

@@ -7,7 +7,7 @@ import ReactDOM from 'react-dom'
 import App from './App'
 
 // eslint-disable-next-line no-undef
-const wrapper = document.getElementById('tegh-app')
+const wrapper = document.getElementById('teg-app')
 ReactDOM.render(<App />, wrapper)
 
 export default App

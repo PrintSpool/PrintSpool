@@ -5,7 +5,7 @@ const getSerialPortID = createSelector(
   getController,
   ({ id, model }) => {
     if (model.get('simulate')) {
-      return `/tmp/printer-tegh-simulation-${id}`
+      return `/tmp/printer-teg-simulation-${id}`
     }
 
     return model.get('serialPortID')

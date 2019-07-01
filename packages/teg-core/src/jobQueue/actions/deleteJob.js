@@ -1,4 +1,4 @@
-export const DELETE_JOB = 'tegh/jobQueue/DELETE_JOB'
+export const DELETE_JOB = 'teg/jobQueue/DELETE_JOB'
 
 const deleteJob = ({ jobID }) => ({
   type: DELETE_JOB,

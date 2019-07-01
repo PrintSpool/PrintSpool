@@ -1,7 +1,7 @@
 # Queries
 
 extend type Query {
-  teghVersion: String!
+  tegVersion: String!
   hasPendingUpdates: Boolean!
   isConfigured: Boolean!
   machines(machineID: ID): [Machine!]!

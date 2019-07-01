@@ -30,7 +30,7 @@ const errorsLogger = () => (
 )
 
 const babelClean = (done) => {
-  rimraf(path.join(__dirname, 'packages/!(tegh-web-ui)/dist'), done)
+  rimraf(path.join(__dirname, 'packages/!(teg-web-ui)/dist'), done)
 }
 
 const srcJSDir = `packages/@(${packages.join('|').replace(/packages\//g, '')})/src/**/`
@@ -110,8 +110,8 @@ gulp.task(
     'babel:build',
     gulp.parallel(
       watchBabel,
-      run('tegh-host-posix', 'dev'),
-      run('tegh-web-ui', 'serve:http'),
+      run('teg-host-posix', 'dev'),
+      run('teg-web-ui', 'serve:http'),
     ),
   ),
 )

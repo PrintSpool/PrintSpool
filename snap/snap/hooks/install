@@ -19,6 +19,6 @@ set -e
 # exit 1
 
 # # add a log directory for Teg
-# sudo mkdir -p /run/log/tegh
-# sudo chmod 700 /run/log/tegh
-# sudo chown root: /run/log/tegh
+# sudo mkdir -p /run/log/teg
+# sudo chmod 700 /run/log/teg
+# sudo chown root: /run/log/teg

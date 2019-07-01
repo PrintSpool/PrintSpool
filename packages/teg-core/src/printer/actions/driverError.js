@@ -1,4 +1,4 @@
-export const DRIVER_ERROR = 'tegh/status/DRIVER_ERROR'
+export const DRIVER_ERROR = 'teg/status/DRIVER_ERROR'
 
 const driverError = ({ code, message, stack }) => {
   if (typeof code !== 'string') {

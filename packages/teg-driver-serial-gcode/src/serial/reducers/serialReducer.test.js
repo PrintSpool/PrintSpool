@@ -60,7 +60,7 @@ describe('serialReducer', () => {
       expect(nextState).toEqual(
         configuredState
           .set('config', { ...configuredState.config, simulate: true })
-          .set('serialPortID', '/tmp/printer-tegh-simulation-bbbserialController'),
+          .set('serialPortID', '/tmp/printer-teg-simulation-bbbserialController'),
       )
     })
   })

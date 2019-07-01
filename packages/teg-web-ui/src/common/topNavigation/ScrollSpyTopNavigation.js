@@ -4,7 +4,7 @@ import useWindowScrollPosition from '@rehooks/window-scroll-position'
 import useWindowSize from '@rehooks/window-size'
 import { animated } from 'react-spring'
 
-import teghLogoNoTextSVG from './images/teghLogoNoText.svg'
+import tegLogoNoTextSVG from './images/tegLogoNoText.svg'
 
 const TopNavigation = () => {
   // const [props, set, stop] = useSpring(() => ({ opacity: 0 }))
@@ -26,7 +26,7 @@ const TopNavigation = () => {
     >
       <img
         alt="Teg"
-        src={teghLogoNoTextSVG}
+        src={tegLogoNoTextSVG}
         style={{
           height: 50,
         }}

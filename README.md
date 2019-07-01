@@ -1,5 +1,5 @@
 <div align="center">
-<img src="./packages/tegh-web-ui/images/TEGH_Logo.svg" alt="Teg" width="200"/>
+<img src="./packages/teg-web-ui/src/onboarding/landingPage/tegLogo.svg" alt="Teg" width="200"/>
 </div>
 
 ## Teg
@@ -9,14 +9,14 @@ A bold new way to 3D print over WiFi.
 ## Getting Started
 
 1. Download [Beaker Browser](https://beakerbrowser.com)
-3. Open Beaker and follow the instructions at [dat://tegh.io](dat://tegh.io)
+3. Open Beaker and follow the instructions at [dat://tegapp.io](dat://tegapp.io)
 
 ## Hacking
 
 ### Dev Installation
 
 1. Install [nvm](https://github.com/creationix/nvm)
-2. Bootstrap the dev environment with tegh, node 10 and yarn:
+2. Bootstrap the dev environment with teg, node 10 and yarn:
 `nvm use && npm i -g yarn && yarn bootstrap`
 
 <!-- ### [Optional] Emulating a Raspberry Pi
@@ -26,11 +26,11 @@ A bold new way to 3D print over WiFi.
 
 ### Running the Dev Host + Web UI
 
-Disable any other copies of tegh and run `yarn start`
+Disable any other copies of teg and run `yarn start`
 
 This:
-* starts a hot reloading development server using your `~/.tegh/config.json`.
-* compiles the tegh-web-ui and watches for changes. To preview the UI open `packages/tegh-web-ui/dist` in Beaker's Library.
+* starts a hot reloading development server using your `~/.teg/config.json`.
+* compiles the teg-web-ui and watches for changes. To preview the UI open `packages/teg-web-ui/dist` in Beaker's Library.
 * echos an invite code to the command line if you haven't connected already.
 
 ### Running the test suite

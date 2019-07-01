@@ -9,7 +9,7 @@
   "files": [
     "dist/*"
   ],
-  "repository": "https://github.com/tegh/tegh",
+  "repository": "https://github.com/teg/teg",
   "dependencies": {
     "@tegapp/core": "^0.8.0",
     "bluebird": "^3.5.3",

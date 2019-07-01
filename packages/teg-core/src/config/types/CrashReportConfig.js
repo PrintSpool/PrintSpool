@@ -4,7 +4,7 @@ import uuid from 'uuid'
 export const CrashReportConfigFactory = Record({
   id: null,
   modelVersion: 0,
-  directory: '/var/log/tegh',
+  directory: '/var/log/teg',
   uploadCrashReportsToDevs: true,
   model: Map(),
 })

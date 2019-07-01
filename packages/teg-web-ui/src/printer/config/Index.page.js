@@ -22,7 +22,7 @@ const DEVICES_SUBSCRIPTION = gql`
     live {
       patch { op, path, from, value }
       query {
-        teghVersion
+        tegVersion
         hasPendingUpdates
         devices {
           id
@@ -66,7 +66,7 @@ const enhance = compose(
 const ConfigPage = ({
   machineID,
   machineDialogOpen = false,
-  teghVersion,
+  tegVersion,
   hasPendingUpdates,
   devices,
   machines,
@@ -106,7 +106,7 @@ const ConfigPage = ({
     <List component="nav">
       <ListItem divider>
         <ListItemText
-          primary={`Teg v${teghVersion}`}
+          primary={`Teg v${tegVersion}`}
           secondary={
             (
               hasPendingUpdates

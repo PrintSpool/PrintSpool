@@ -4,7 +4,7 @@ Pulls jobs from your AutoDrop3D queue and runs them on your Teg 3D printer.
 
 ## Installation
 
-Add the following lines to the plugins array in your `./tegh/config.json` replacing the `DEVICE_ID` with your own AutoDrop3D device ID:
+Add the following lines to the plugins array in your `./teg/config.json` replacing the `DEVICE_ID` with your own AutoDrop3D device ID:
 
 ```json
 {

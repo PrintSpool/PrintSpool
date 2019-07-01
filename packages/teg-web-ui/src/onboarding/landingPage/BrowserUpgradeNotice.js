@@ -40,7 +40,7 @@ import BrowserUpgradeNoticeStyles from './BrowserUpgradeNoticeStyles'
 // <Typography gutterBottom>
 //   Please install Beaker and go to
 //   {' '}
-//   <a href="dat://tegh.io">dat://tegh.io</a>
+//   <a href="dat://tegapp.io">dat://tegapp.io</a>
 //   .
 // </Typography>
 // <a

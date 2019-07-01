@@ -6,7 +6,7 @@ import {
   Link as MUILink,
 } from '@material-ui/core'
 
-import teghLogoSVG from './images/teghLogo.svg'
+import tegLogoSVG from './images/tegLogo.svg'
 
 import FooterStyles from './FooterStyles'
 
@@ -22,7 +22,7 @@ const Footer = ({ t }) => {
       <div className={classes.gradient}>
         <img
           alt="Teg"
-          src={teghLogoSVG}
+          src={tegLogoSVG}
           className={classes.logo}
         />
         <div className={classes.logoAdjacent}>
@@ -50,9 +50,9 @@ const Footer = ({ t }) => {
             {' '}
             <MUILink
               className={classes.freenode}
-              href="https://webchat.freenode.net/?channels=%23tegh&uio=d4"
+              href="https://webchat.freenode.net/?channels=%23teg&uio=d4"
             >
-              freenode #tegh
+              freenode #teg
             </MUILink>
           </Typography>
         </div>

@@ -1,4 +1,4 @@
-export const PRINTER_READY = 'tegh/status/PRINTER_READY'
+export const PRINTER_READY = 'teg/status/PRINTER_READY'
 
 const printerReady = () => ({
   type: PRINTER_READY,

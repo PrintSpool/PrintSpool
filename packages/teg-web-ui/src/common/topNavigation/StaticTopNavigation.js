@@ -10,7 +10,7 @@ import {
 import MenuIcon from '@material-ui/icons/Menu'
 
 import TopNavigationStyles from './TopNavigationStyles'
-import teghLogoNoTextSVG from './images/teghLogoNoText.svg'
+import tegLogoNoTextSVG from './images/tegLogoNoText.svg'
 
 const StaticTopNavigation = ({
   title = () => null,
@@ -34,7 +34,7 @@ const StaticTopNavigation = ({
         <Link to="/">
           <img
             alt="Teg"
-            src={teghLogoNoTextSVG}
+            src={tegLogoNoTextSVG}
             className={classes.logo}
           />
         </Link>

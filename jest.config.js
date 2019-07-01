@@ -22,5 +22,5 @@ module.exports = {
   //   '!**/node_modules/**',
   //   '!**/dist/**',
   // ],
-  snapshotResolver: './packages/tegh-core/dist/util/testing/snapshotResolver.js',
+  snapshotResolver: './packages/teg-core/dist/util/testing/snapshotResolver.js',
 }

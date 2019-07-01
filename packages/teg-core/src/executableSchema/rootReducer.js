@@ -6,7 +6,7 @@ import { SET_CONFIG } from '../config/actions/setConfig'
 import getAllReducers from '../pluginManager/selectors/getAllReducers'
 import * as coreReducers from '../reducers'
 
-const debug = Debug('tegh:redux:action')
+const debug = Debug('teg:redux:action')
 
 const createStateRecord = (reducers, previousState = Record({})()) => (
   Record({

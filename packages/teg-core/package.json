@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tegh/tegh-host-posix.git"
+    "url": "https://github.com/teg/teg-host-posix.git"
   },
   "keywords": [
     "graphql"

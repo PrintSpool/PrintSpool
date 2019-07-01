@@ -1,4 +1,4 @@
-export const ESTOP = 'tegh/status/ESTOP'
+export const ESTOP = 'teg/status/ESTOP'
 
 const estop = () => ({
   type: ESTOP,

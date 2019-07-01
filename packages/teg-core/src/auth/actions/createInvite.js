@@ -1,4 +1,4 @@
-export const CREATE_INVITE = 'tegh/auth/CREATE_INVITE'
+export const CREATE_INVITE = 'teg/auth/CREATE_INVITE'
 
 const createInvite = invite => ({
   type: CREATE_INVITE,

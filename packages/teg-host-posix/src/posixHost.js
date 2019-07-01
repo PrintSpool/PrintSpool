@@ -9,11 +9,11 @@ import { createECDHKey } from 'graphql-things'
 import writeFileAtomic from 'write-file-atomic'
 import npid from 'npid'
 
-import * as teghAutodrop3D from '@tegapp/autodrop3d'
-import * as teghCore from '@tegapp/core'
-import * as teghDriverSerialGCode from '@tegapp/driver-serial-gcode'
-import * as teghMacrosDefault from '@tegapp/macros-default'
-import * as teghRaspberryPi from '@tegapp/raspberry-pi'
+import * as tegAutodrop3D from '@tegapp/autodrop3d'
+import * as tegCore from '@tegapp/core'
+import * as tegDriverSerialGCode from '@tegapp/driver-serial-gcode'
+import * as tegMacrosDefault from '@tegapp/macros-default'
+import * as tegRaspberryPi from '@tegapp/raspberry-pi'
 
 // import { wrapInCrashReporting } from './crashReport'
 import httpServer from './server/httpServer'
@@ -30,11 +30,11 @@ import packageJSON from '../package.json'
 // });
 
 const availablePlugins = {
-  '@tegapp/autodrop3d': teghAutodrop3D,
-  '@tegapp/core': teghCore,
-  '@tegapp/driver-serial-gcode': teghDriverSerialGCode,
-  '@tegapp/macros-default': teghMacrosDefault,
-  '@tegapp/raspberry-pi': teghRaspberryPi,
+  '@tegapp/autodrop3d': tegAutodrop3D,
+  '@tegapp/core': tegCore,
+  '@tegapp/driver-serial-gcode': tegDriverSerialGCode,
+  '@tegapp/macros-default': tegMacrosDefault,
+  '@tegapp/raspberry-pi': tegRaspberryPi,
 }
 
 const {
@@ -42,7 +42,7 @@ const {
   executableSchema,
   createTegHostStore,
   authenticate,
-} = teghCore
+} = tegCore
 
 // global.Promise = Promise
 
@@ -65,11 +65,11 @@ const loadConfigForm = async (configPath) => {
   }
 }
 
-const teghServer = async (argv, pluginLoader) => {
+const tegServer = async (argv, pluginLoader) => {
   // eslint-disable-next-line no-console
   console.error(`Teg v${packageJSON.version}`)
 
-  const expectedUseage = 'Useage: tegh serve [CONFIG_DIRECTORY]'
+  const expectedUseage = 'Useage: teg serve [CONFIG_DIRECTORY]'
 
   const [, , cmd, configArg] = argv
 
@@ -94,7 +94,7 @@ const teghServer = async (argv, pluginLoader) => {
 
   const configDir = path.resolve(
     configArg
-    || path.join(os.homedir(), '.tegh'),
+    || path.join(os.homedir(), '.teg'),
   )
 
   // const updatesFile = path.join(configDir, '.updates')
@@ -109,7 +109,7 @@ const teghServer = async (argv, pluginLoader) => {
   //   writeFileAtomic.sync(updatesFile, JSON.stringify(json, null, 2))
   // }
 
-  const pidFile = path.join(configDir, 'tegh.pid')
+  const pidFile = path.join(configDir, 'teg.pid')
 
   const createPidFile = () => {
     try {
@@ -185,7 +185,7 @@ const teghServer = async (argv, pluginLoader) => {
   // setErrorHandlerStore(store)
 
   // TODO: make server plugin config dynamic and based on the store.
-  const teghServerConfig = {
+  const tegServerConfig = {
     schema: executableSchema(),
     context: {
       store,
@@ -198,20 +198,20 @@ const teghServer = async (argv, pluginLoader) => {
 
   const newKeys = JSON.stringify(keypair())
   try {
-    mkdirp.sync(path.dirname(teghServerConfig.keys))
-    writeFileAtomic.sync(teghServerConfig.keys, newKeys, { flag: 'wx' })
+    mkdirp.sync(path.dirname(tegServerConfig.keys))
+    writeFileAtomic.sync(tegServerConfig.keys, newKeys, { flag: 'wx' })
   } catch (e) {
     // eslint-disable-next-line no-empty-block
   }
 
   if (serverSettings.webRTC) {
-    webRTCServer(teghServerConfig)
+    webRTCServer(tegServerConfig)
   }
   if (serverSettings.tcpPort) {
-    httpServer(teghServerConfig, serverSettings.tcpPort)
+    httpServer(tegServerConfig, serverSettings.tcpPort)
   }
   if (serverSettings.unixSocket) {
-    httpServer(teghServerConfig, serverSettings.unixSocket)
+    httpServer(tegServerConfig, serverSettings.unixSocket)
   }
 }
 
@@ -226,4 +226,4 @@ const nodeModulesPluginLoader = async (pluginName) => {
 
 process.on('unhandledRejection', (e) => { throw e })
 
-teghServer(process.argv, nodeModulesPluginLoader)
+tegServer(process.argv, nodeModulesPluginLoader)

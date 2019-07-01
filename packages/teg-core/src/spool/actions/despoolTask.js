@@ -1,7 +1,7 @@
 import getCurrentLine from '../selectors/getCurrentLine'
 import parseGCode from '../selectors/parseGCode'
 
-export const DESPOOL_TASK = 'tegh-core/spool/DESPOOL_TASK'
+export const DESPOOL_TASK = 'teg-core/spool/DESPOOL_TASK'
 
 const despoolTask = (task, enabledHostMacros = [], {
   createdAt = new Date().toISOString(),
@@ -14,7 +14,7 @@ const despoolTask = (task, enabledHostMacros = [], {
     payload: {
       createdAt,
       /*
-       * true if a macro is defined in tegh with the same name as the first
+       * true if a macro is defined in teg with the same name as the first
        * word of the gcode line. Host macros should be implemented in a
        * macro reducer and are skipped by the driver.
        */

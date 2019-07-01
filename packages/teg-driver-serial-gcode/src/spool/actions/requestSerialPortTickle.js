@@ -1,4 +1,4 @@
-export const REQUEST_SERIAL_PORT_TICKLE = 'tegh-driver-serial-gcode/spool/REQUEST_SERIAL_PORT_TICKLE'
+export const REQUEST_SERIAL_PORT_TICKLE = 'teg-driver-serial-gcode/spool/REQUEST_SERIAL_PORT_TICKLE'
 
 const requestSerialPortTickle = ({
   createdAt,

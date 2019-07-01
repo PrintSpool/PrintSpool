@@ -14,7 +14,7 @@ import {
 import { useTranslation, Trans } from 'react-i18next'
 import { useSnackbar } from 'notistack'
 
-import teghMockupSVG from './images/teghMockup.png'
+import tegMockupSVG from './images/tegMockup.png'
 
 import ScrollSpyTopNavigation from '../../common/topNavigation/ScrollSpyTopNavigation'
 import Hero from './Hero'
@@ -128,7 +128,7 @@ const LandingPage = () => {
             <img
               async
               alt=""
-              src={teghMockupSVG}
+              src={tegMockupSVG}
               style={{
                 width: '60%',
                 marginLeft: 'auto',

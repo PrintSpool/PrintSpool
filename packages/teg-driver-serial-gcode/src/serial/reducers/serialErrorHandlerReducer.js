@@ -5,7 +5,7 @@ import { SERIAL_ERROR } from '../actions/serialError'
 
 const serialDriverError = error => (
   driverError({
-    code: 'tegh/serial/SERIAL_ERROR',
+    code: 'teg/serial/SERIAL_ERROR',
     message: error.message,
   })
 )

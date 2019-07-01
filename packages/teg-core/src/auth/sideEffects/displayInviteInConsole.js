@@ -14,7 +14,7 @@ const displayInviteInConsole = ({ invite }) => {
       + thickLine + '\n'
       + 'Your almost ready to start 3D Printing! To connect to your printer:\n\n'
       + '1. Install the Beaker Distributed Web Browser from https://beakerbrowser.com/\n'
-      + '2, Go to dat://tegh.io and use the Invite Code above.\n\n'
+      + '2, Go to dat://tegapp.io and use the Invite Code above.\n\n'
       + thickLine
       + '\n'
     )

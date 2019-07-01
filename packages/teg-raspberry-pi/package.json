@@ -6,7 +6,7 @@
   "files": [
     "dist/*"
   ],
-  "repository": "https://github.com/tegh/tegh",
+  "repository": "https://github.com/teg/teg",
   "author": "Rob Gilson",
   "license": "AGPL-3.0-or-later",
   "private": true,

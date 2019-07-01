@@ -16,7 +16,7 @@ const GraphQLPlayground = ({
   const { hosts } = useContext(UserDataContext)
 
   const hostIdentity = hosts[hostID].invite
-  // endpoint={`tegh://${hostID}`}
+  // endpoint={`teg://${hostID}`}
 
   const createLink = useCallback(() => ({
     link: createTegApolloLink({ hostIdentity }),
@@ -29,7 +29,7 @@ const GraphQLPlayground = ({
     >
       <div className={classes.root}>
         <Playground
-          endpoint="tegh://"
+          endpoint="teg://"
           fixedEndpoint
           createApolloLink={createLink}
           settings={{

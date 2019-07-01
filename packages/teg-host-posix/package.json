@@ -4,14 +4,14 @@
   "description": "graphql server for 3D printers",
   "main": "dist/index.js",
   "bin": {
-    "tegh": "./bin/tegh"
+    "teg": "./bin/teg"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tegh/tegh-host-posix.git"
+    "url": "https://github.com/teg/teg-host-posix.git"
   },
   "keywords": [
-    "tegh",
+    "teg",
     "graphql"
   ],
   "files": [

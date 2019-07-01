@@ -1,4 +1,4 @@
-export const SET_TOOLHEAD_MATERIALS = 'tegh/config/SET_TOOLHEAD_MATERIALS'
+export const SET_TOOLHEAD_MATERIALS = 'teg/config/SET_TOOLHEAD_MATERIALS'
 
 const setToolheadMaterials = ({
   config,

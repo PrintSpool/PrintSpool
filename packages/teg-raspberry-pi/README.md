@@ -1,10 +1,10 @@
-## tegh-raspberry-pi
+## teg-raspberry-pi
 
-Adds control of raspberry pi GPIO output pins to tegh.
+Adds control of raspberry pi GPIO output pins to teg.
 
 ## Configuration
 
-development.config.js includes an example of how to configure tegh-raspberry-pi.
+development.config.js includes an example of how to configure teg-raspberry-pi.
 
 For documentation on which pin is which see:
 

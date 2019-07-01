@@ -1,7 +1,7 @@
 const DeviceResolvers = {
   Device: {
     type: source => (
-      source.type.replace('tegh/devices/type/', '')
+      source.type.replace('teg/devices/type/', '')
     ),
   },
 }

@@ -1,7 +1,7 @@
 import { Record } from 'immutable'
 import Task from '../types/Task'
 
-export const SPOOL_TASK = 'tegh-core/spool/SPOOL_TASK'
+export const SPOOL_TASK = 'teg-core/spool/SPOOL_TASK'
 
 /*
  * creates a new Task and spools it

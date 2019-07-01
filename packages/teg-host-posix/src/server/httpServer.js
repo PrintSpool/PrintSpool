@@ -22,14 +22,14 @@ const httpServer = async ({
   // eslint-disable-next-line new-cap
   const router = new koaRouter()
 
-  const teghGraphqlKoa = new ApolloServer({
+  const tegGraphqlKoa = new ApolloServer({
     context,
     schema,
     debug: true,
     tracing: true,
   })
 
-  teghGraphqlKoa.applyMiddleware({ app: koaApp })
+  tegGraphqlKoa.applyMiddleware({ app: koaApp })
 
   // router.get('/graphiql', graphiqlKoa({ endpointURL: '/graphql' }))
 

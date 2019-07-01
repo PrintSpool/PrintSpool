@@ -173,7 +173,7 @@ if (['arm', 'arm64'].includes(os.arch())) {
 const hostConfig = {
   id: 'pzxcvkkwn',
   name: 'New Print Farm',
-  configDirectory: '~/.tegh/',
+  configDirectory: '~/.teg/',
   log: {
     id: 'lolcatz95',
     modelVersion: 1,
@@ -188,7 +188,7 @@ const hostConfig = {
   crashReports: {
     id: 'bfdbdffeews',
     modelVersion: 1,
-    directory: '/run/log/tegh',
+    directory: '/run/log/teg',
     uploadCrashReportsToDevs: true,
   },
   server: {

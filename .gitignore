@@ -18,7 +18,7 @@ tmp
 .next
 /package-lock.json
 packages/*/package-lock.json
-packages/tegh-web-ui/out
+packages/teg-web-ui/out
 
 dist/*.snap
 snap/parts/
@@ -26,7 +26,7 @@ snap/prime/
 snap/stage/
 snap/snap/.snapcraft
 snap/*.tar.bz2
-snap/tegh
+snap/teg
 snapcraft.login
 
 coverage
@@ -37,7 +37,7 @@ node_modules
 sftp-config.json
 yarn-error.log
 ubuntu-xenial-16.04-cloudimg-console.log
-packages/tegh-host-posix/log
+packages/teg-host-posix/log
 packages/*/build
 packages/*/dist
 dist

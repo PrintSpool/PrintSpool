@@ -23,7 +23,7 @@ const App = () => (
   <CssBaseline>
     <ThemeProvider theme={theme}>
       <SnackbarProvider maxSnack={3}>
-        <UserDataProvider filePath="/tegh-user.json">
+        <UserDataProvider filePath="/teg-user.json">
           <PrintFilesContext.Provider value={useState()}>
             <React.Suspense fallback={<div />}>
               <Routes />

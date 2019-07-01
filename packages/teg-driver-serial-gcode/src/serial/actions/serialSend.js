@@ -1,7 +1,7 @@
 import { toGCodeLine } from '@tegapp/core'
 import txParser from '../../txParser'
 
-export const SERIAL_SEND = 'tegh-serial-driver/serial/SERIAL_SEND'
+export const SERIAL_SEND = 'teg-serial-driver/serial/SERIAL_SEND'
 
 const addChecksum = (line, shouldChecksum) => {
   if (shouldChecksum === false) return `${line}\n`

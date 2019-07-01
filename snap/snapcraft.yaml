@@ -1,4 +1,4 @@
-name: tegh
+name: teg
 version: 0.8.0
 summary: A graphql server for 3D printers
 description: >
@@ -29,14 +29,14 @@ hooks:
 
 # see https://docs.snapcraft.io/node-apps/6747
 parts:
-  tegh:
+  teg:
     plugin: dump
     source: .
     build-attributes: [no-patchelf]
 
 apps:
-  tegh:
-    command: tegh serve
+  teg:
+    command: teg serve
     daemon: simple
     restart-condition: always
     refresh-mode: endure

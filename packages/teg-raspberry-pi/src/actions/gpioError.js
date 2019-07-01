@@ -1,7 +1,7 @@
 import { driverError } from '@tegapp/core'
 
 const gpioError = ({ name, stack }) => driverError({
-  code: `tegh-raspberry-pi/gpio/${name}`,
+  code: `teg-raspberry-pi/gpio/${name}`,
   message: stack,
 })
 

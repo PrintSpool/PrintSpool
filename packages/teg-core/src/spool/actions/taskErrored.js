@@ -1,4 +1,4 @@
-export const TASK_ERRORED = 'tegh-core/spool/TASK_ERRORED'
+export const TASK_ERRORED = 'teg-core/spool/TASK_ERRORED'
 
 const taskErrored = ({ task }) => ({
   type: TASK_ERRORED,

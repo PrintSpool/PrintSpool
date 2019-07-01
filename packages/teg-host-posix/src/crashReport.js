@@ -39,7 +39,7 @@
 //   }
 //   // uninstallRaven()
 //   fs.writeFileSync(
-//     path.join(errorDir, `tegh_crash_report_${date.getTime()}.json`),
+//     path.join(errorDir, `teg_crash_report_${date.getTime()}.json`),
 //     JSON.stringify(crashReport, null, 2),
 //     {
 //       mode: 0o660,

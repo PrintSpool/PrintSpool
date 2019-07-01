@@ -41,7 +41,7 @@ const Step1InstallTeg = ({
             To start the installation paste this line in your Pi's terminal and hit enter:
           </Typography>
           <code className={classes.code}>
-            sudo apt update && sudo apt install snapd && sudo snap install tegh --beta
+            sudo apt update && sudo apt install snapd && sudo snap install teg --beta
           </code>
           <Typography variant="body2" paragraph className={classes.alreadyHaveTeg}>
             Already have Teg installed?

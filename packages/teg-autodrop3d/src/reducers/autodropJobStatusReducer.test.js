@@ -47,7 +47,7 @@ describe(autodropJobStatusReducer, () => {
         expect(getModel(results)).toEqual(
           initialState.merge({
             autodropJobID: '99',
-            teghJobID: 'MOCK_ID',
+            tegJobID: 'MOCK_ID',
           }),
         )
         expect(getCmd(results)).toEqual(Cmd.list([
@@ -85,14 +85,14 @@ describe(autodropJobStatusReducer, () => {
 
         const action = despoolTask(
           MockTask({
-            jobID: 'TEGH_99',
+            jobID: 'teg_99',
             data: ['G1 X10', 'G1 Y10', 'G1 Z10', 'G1 X-10'],
             currentLineNumber: 0,
           }),
         )
         const state = initialState.merge({
           autodropJobID: '99',
-          teghJobID: 'TEGH_99',
+          tegJobID: 'teg_99',
           config: {
             deviceID: 'A',
             deviceKey: 'B',
@@ -124,14 +124,14 @@ describe(autodropJobStatusReducer, () => {
       it('marks the autodrop job as done', () => {
         const action = despoolTask(
           MockTask({
-            jobID: 'TEGH_99',
+            jobID: 'teg_99',
             data: ['G1 X10', 'G1 Y10', 'G1 Z10', 'G1 X-10'],
             currentLineNumber: 3,
           }),
         )
         const state = initialState.merge({
           autodropJobID: '99',
-          teghJobID: 'TEGH_99',
+          tegJobID: 'teg_99',
           config: {
             deviceID: 'A',
             deviceKey: 'B',

@@ -9,7 +9,7 @@ import {
 
 import cubesSVG from './images/cubes.svg'
 import cubesMobileSVG from './images/cubesMobile.svg'
-import teghLogoSVG from './images/teghLogo.svg'
+import tegLogoSVG from './images/tegLogo.svg'
 
 import HeroStyles from './HeroStyles'
 
@@ -22,7 +22,7 @@ const Hero = ({ t }) => {
         className={classes.githubButton}
         component="a"
         variant="outlined"
-        href="https://github.com/tegh/tegh"
+        href="https://github.com/teg/teg"
       >
         Github
       </Button>
@@ -31,7 +31,7 @@ const Hero = ({ t }) => {
           <Grid item xs={12} sm={6}>
             <img
               alt=""
-              src={teghLogoSVG}
+              src={tegLogoSVG}
               className={classes.logo}
             />
           </Grid>

@@ -1,6 +1,6 @@
 import { driverError } from '@tegapp/core'
 
-export const SERIAL_TIMEOUT = 'tegh-driver-serial-gcode/serial/SERIAL_TIMEOUT'
+export const SERIAL_TIMEOUT = 'teg-driver-serial-gcode/serial/SERIAL_TIMEOUT'
 
 const serialTimeout = () => (
   driverError({
