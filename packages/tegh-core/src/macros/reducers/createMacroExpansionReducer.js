@@ -9,6 +9,7 @@ import { DESPOOL_TASK } from '../../spool/actions/despoolTask'
 
 import spoolMacroExpansion from '../../spool/actions/spoolMacroExpansion'
 import despoolCompleted from '../../spool/actions/despoolCompleted'
+import driverError from '../../printer/actions/driverError'
 
 export const initialState = Record({
   config: null,
@@ -34,7 +35,17 @@ const createMacroExpansionReducer = (
       const { macro, args, task } = action.payload
       if (macro === meta.macro && state.enabled) {
         // expand the macro into it's expanded gcode (an array of strings)
-        const data = macroFn(args, state)
+        let data
+        try {
+          data = macroFn(args, state)
+        } catch (e) {
+          return loop(state, Cmd.action(driverError({
+            code: e.code || 'INVALID_MACRO',
+            message: e.message,
+            stack: e.stack,
+          })))
+        }
+
         /*
          * 1. insert the expanded gcode lines in a task before everything else
          * effectively swapping the host macro for the expanded gcode lines

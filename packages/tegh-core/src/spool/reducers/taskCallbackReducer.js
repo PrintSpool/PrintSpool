@@ -1,5 +1,4 @@
 import { loop, Cmd } from 'redux-loop'
-import { Record, List } from 'immutable'
 
 // TODO: implement task errored in spoolReducer
 import { PRINTER_READY } from '../../printer/actions/printerReady'
@@ -7,12 +6,11 @@ import { ESTOP } from '../../printer/actions/estop'
 import { DRIVER_ERROR } from '../../printer/actions/driverError'
 
 import { TASK_ERRORED } from '../actions/taskErrored'
-import { DESPOOL_TASK } from '../actions/despoolTask'
 import { DESPOOL_COMPLETED } from '../actions/despoolCompleted'
 
-export const initialState = List()
+export const initialState = null
 
-const spoolReducer = (state = initialState, action) => {
+const taskCallbackReducer = (state = initialState, action) => {
   switch (action.type) {
     case PRINTER_READY:
     case ESTOP:
@@ -36,18 +34,16 @@ const spoolReducer = (state = initialState, action) => {
     case DESPOOL_COMPLETED: {
       const { task, isLastLineInTask } = action.payload
 
-      const nextState = state.shift()
-
       if (isLastLineInTask && task.onComplete) {
         return loop(
-          nextState,
+          state,
           Cmd.run(task.onComplete, {
             args: [task],
           }),
         )
       }
 
-      return initialState
+      return state
     }
     default: {
       return state
@@ -55,4 +51,4 @@ const spoolReducer = (state = initialState, action) => {
   }
 }
 
-export default spoolReducer
+export default taskCallbackReducer
