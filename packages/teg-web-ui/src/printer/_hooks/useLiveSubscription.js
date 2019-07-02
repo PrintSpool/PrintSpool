@@ -11,12 +11,12 @@ const useLiveSubscription = (subscription, options = {}) => {
    * the initial query response loads.
    */
   const [suspension] = useState(() => {
-    const initialSuspension = {
-      promise: new Promise((resolve, reject) => {
-        suspension.resolve = resolve
-        suspension.reject = reject
-      }),
-    }
+    const initialSuspension = {}
+    initialSuspension.promise = new Promise((resolve, reject) => {
+      initialSuspension.resolve = resolve
+      initialSuspension.reject = reject
+    })
+
     return initialSuspension
   })
 
@@ -59,20 +59,21 @@ const useLiveSubscription = (subscription, options = {}) => {
 
   useEffect(() => {
     if (error != null) {
-      suspension.reject(error)
+      suspension.resolve()
     }
-  }, error)
+  }, [error])
 
   const loading = state == null && error == null
 
-  if (loading) {
-    throw suspension.promise
-  }
+  // if (loading) {
+  //   throw suspension.promise
+  // }
 
   return {
     error,
     loading,
     data: state,
+    suspensionPromise: suspension.promise,
   }
 }
 

@@ -2,7 +2,6 @@ import React, { useContext } from 'react'
 import { Route, Switch } from 'react-router'
 
 import { UserDataContext } from './UserDataProvider'
-import Loading from './common/Loading'
 
 import LandingPage from './onboarding/landingPage/LandingPage'
 
@@ -69,24 +68,23 @@ const Routes = () => {
           render={() => (
             <React.Fragment>
               <Home />
+              <Route
+                exact
+                path="/print/"
+                render={({ history, location }) => {
+                  const hostID = new URLSearchParams(location.search).get('q')
+                  const machineID = new URLSearchParams(location.search).get('m')
 
-              <React.Suspense fallback={<Loading fullScreen />}>
-                <Route
-                  exact
-                  path="/print/"
-                  render={({ history, location }) => {
-                    const hostID = new URLSearchParams(location.search).get('q')
-                    const machineID = new URLSearchParams(location.search).get('m')
-
-                    return (
+                  return (
+                    <React.Suspense fallback={<div />}>
                       <PrintDialog
                         history={history}
                         match={{ params: { hostID, machineID } }}
                       />
-                    )
-                  }}
-                />
-              </React.Suspense>
+                    </React.Suspense>
+                  )
+                }}
+              />
             </React.Fragment>
           )}
         />
@@ -106,7 +104,7 @@ const Routes = () => {
               />
               <Route exact path="/q/:hostID/jobs/:jobID/" component={JobPage} />
 
-              <React.Suspense fallback={<Loading fullScreen />}>
+              <React.Suspense fallback={<div />}>
                 <Route exact path="/q/:hostID/print/" component={PrintDialog} />
               </React.Suspense>
 
@@ -117,7 +115,7 @@ const Routes = () => {
                 component={ManualControlPage}
               />
 
-              <React.Suspense fallback={<Loading fullScreen />}>
+              <React.Suspense fallback={<div />}>
                 <Route
                   exact
                   path="/m/:hostID/:machineID/manual-control/swap-filament/:componentID"

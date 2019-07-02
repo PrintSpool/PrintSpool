@@ -1,64 +1,30 @@
-import React, { useState, useCallback } from 'react'
-import { Subscription } from 'react-apollo'
-import jsonpatch from 'json-patch'
+import React, { useMemo } from 'react'
+import useLiveSubscription from '../printer/_hooks/useLiveSubscription'
+import Loading from './Loading'
 
 // eslint-disable-next-line import/prefer-default-export
 export const LiveSubscription = ({
-  variables,
   subscription,
-  onSubscriptionData,
   children,
+  ...options
 }) => {
-  if (children.length !== 1) {
+  if (typeof children !== 'function') {
     throw new Error('LiveSubscription must have 1 child component')
   }
-  const key = 'live'
 
-  const [state, setState] = useState()
+  const {
+    error,
+    loading,
+    data,
+  } = useLiveSubscription(subscription, options)
 
-  const internalOnSubscriptionData = useCallback((options) => {
-    const { data } = options.subscriptionData
-    let nextState = state
+  if (loading) {
+    return <Loading fullScreen />
+  }
 
-    if (data != null) {
-      const { query, patch } = data[key]
-
-      if (query != null) nextState = query
-
-      if (patch != null) {
-        patch.forEach((patchOp) => {
-          nextState = jsonpatch.apply(nextState, patchOp)
-        })
-      }
-
-      setState(nextState)
-    }
-
-    if (onSubscriptionData != null) {
-      onSubscriptionData({
-        ...options,
-        subscriptionData: {
-          data: nextState,
-        },
-      })
-    }
+  return children({
+    data,
+    loading,
+    error,
   })
-
-  return (
-    <Subscription
-      subscription={subscription}
-      variables={variables}
-      onSubscriptionData={internalOnSubscriptionData}
-    >
-      {
-        useCallback(({ loading, error }) => (
-          children({
-            data: state,
-            loading,
-            error,
-          })
-        ), [children, state])
-      }
-    </Subscription>
-  )
 }
