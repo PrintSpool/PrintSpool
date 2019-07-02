@@ -16,6 +16,7 @@ const Loading = ({
   noText = false,
   noSpinner = false,
   children = 'Loading...',
+  fullScreen = false,
   ...props
 }) => {
   const classes = LoadingStyles()
@@ -28,7 +29,11 @@ const Loading = ({
       timeout={ transitionDuration }
       in={props.in == null ? true : props.in}
     >
-      <div className={classNames(classes.root, className)}>
+      <div className={classNames(
+        classes.root,
+        fullScreen && classes.fullScreen,
+        className,
+      )}>
         <div className={classes.row}>
           { !noSpinner && (
             <CircularProgress />

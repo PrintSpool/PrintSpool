@@ -6,6 +6,9 @@ const useStyles = makeStyles(() => ({
     placeItems: 'center',
     zIndex: '10',
   },
+  fullScreen: {
+    height: '100vh',
+  },
   row: {
     display: 'grid',
     gridTemplateColumns: 'max-content auto',

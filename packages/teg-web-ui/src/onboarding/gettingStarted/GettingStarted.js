@@ -13,7 +13,6 @@ import { parseInviteCode } from 'graphql-things/client'
 
 import { LiveSubscription } from '../../common/LiveSubscription'
 
-import TegApolloProvider from '../../printer/common/frame/higherOrderComponents/TegApolloProvider'
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
 
 import GettingStartedStyles from './GettingStartedStyles'
@@ -56,13 +55,15 @@ const GettingStarted = ({
 
   const step = parseInt(match.params.step || 1, 10)
   const invite = useMemo(() => {
-    const inviteCodeParam = location.search.replace('?invite=', '')
+    const params = new URLSearchParams(location.search)
 
-    if (inviteCodeParam.length === 0) {
+    const inviteCode = params.get('invite')
+
+    if (inviteCode == null) {
       return null
     }
 
-    return parseInviteCode(inviteCodeParam)
+    return parseInviteCode(inviteCode)
   })
 
   return (
@@ -88,72 +89,68 @@ const GettingStarted = ({
       { step === 2 && (
         <Step2Connect history={history} className={classes.content} />
       )}
-      { step >= 3 && (
-        <TegApolloProvider hostIdentity={invite}>
-          {step === 3 && (
-            <LiveSubscription
-              subscription={DEVICES_SUBSCRIPTION}
-            >
-              {({ data, loading, error }) => {
-                if (error) {
-                  return (
-                    <div>
-                      {JSON.stringify(error)}
-                    </div>
-                  )
-                }
+      { step === 3 && (
+        <LiveSubscription
+          subscription={DEVICES_SUBSCRIPTION}
+        >
+          {({ data, loading, error }) => {
+            if (error) {
+              return (
+                <div>
+                  {JSON.stringify(error)}
+                </div>
+              )
+            }
 
-                return (
-                  <Step3Setup
-                    connecting={loading}
-                    location={location}
-                    history={history}
-                    setSkippedStep3={setSkippedStep3}
-                    className={classes.content}
-                    invite={invite}
-                    data={data}
-                  />
-                )
-              }}
-            </LiveSubscription>
-          )}
-          {step === 4 && (
-            <Query
-              query={gql`
-                query {
-                  jobQueue {
-                    name
-                  }
-                }
-              `}
-              fetchPolicy="network-only"
-            >
-              {({
-                data,
-                loading,
-                error,
-              }) => {
-                if (loading) return <div />
-                if (error != null) {
-                  return (
-                    <div>
-                      <h1>Error</h1>
-                      {JSON.stringify(error)}
-                    </div>
-                  )
-                }
-                return (
-                  <Step4Backup
-                    history={history}
-                    invite={invite}
-                    className={classes.content}
-                    data={data}
-                  />
-                )
-              }}
-            </Query>
-          )}
-        </TegApolloProvider>
+            return (
+              <Step3Setup
+                connecting={loading}
+                location={location}
+                history={history}
+                setSkippedStep3={setSkippedStep3}
+                className={classes.content}
+                invite={invite}
+                data={data}
+              />
+            )
+          }}
+        </LiveSubscription>
+      )}
+      { step === 4 && (
+        <Query
+          query={gql`
+            query {
+              jobQueue {
+                name
+              }
+            }
+          `}
+          fetchPolicy="network-only"
+        >
+          {({
+            data,
+            loading,
+            error,
+          }) => {
+            if (loading) return <div />
+            if (error != null) {
+              return (
+                <div>
+                  <h1>Error</h1>
+                  {JSON.stringify(error)}
+                </div>
+              )
+            }
+            return (
+              <Step4Backup
+                history={history}
+                invite={invite}
+                className={classes.content}
+                data={data}
+              />
+            )
+          }}
+        </Query>
       )}
     </div>
   )

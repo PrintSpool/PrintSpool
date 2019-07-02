@@ -25,7 +25,11 @@ const Step2Connect = ({
 
     if (invite == null) return
 
-    history.push(`/get-started/3?invite=${sanitizedInviteString}`)
+    const params = new URLSearchParams()
+
+    params.set('invite', sanitizedInviteString)
+
+    history.push(`/get-started/3?${params.toString()}`)
   }
 
   const onTextChange = (event) => {

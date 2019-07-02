@@ -4,8 +4,6 @@ import { makeStyles } from '@material-ui/styles'
 
 import { LiveSubscription } from '../../../common/LiveSubscription'
 
-import TegApolloProvider from './higherOrderComponents/TegApolloProvider'
-
 import Drawer, { DrawerFragment } from './components/Drawer'
 import StaticTopNavigation from '../../../common/topNavigation/StaticTopNavigation'
 
@@ -82,67 +80,63 @@ const ConnectionFrame = ({
   }
 
   return (
-    <TegApolloProvider
-      hostIdentity={host.invite}
+    <LiveSubscription
+      reduxKey="ConnectionFrame"
+      subscription={FRAME_SUBSCRIPTION}
+      onSubscriptionData={({ subscriptionData }) => {
+        setHostName({
+          id: host.id,
+          name: subscriptionData.data.jobQueue.name,
+        })
+      }}
     >
-      <LiveSubscription
-        reduxKey="ConnectionFrame"
-        subscription={FRAME_SUBSCRIPTION}
-        onSubscriptionData={({ subscriptionData }) => {
-          setHostName({
-            id: host.id,
-            name: subscriptionData.data.jobQueue.name,
-          })
-        }}
-      >
-        {
-          ({ data, loading, error }) => (
-            <div className={classes.root}>
-              {
-                !loading && !error && (
-                  <StaticTopNavigation
-                    title={() => host.name}
-                    className={classes.topNavigation}
-                    onMenuButtonClick={() => setMobileOpen(true)}
-                    actions={({ buttonClass }) => (
-                      <EStopResetToggle
-                        buttonClass={buttonClass}
-                        machine={data.machines[0]}
-                      />
-                    )}
-                  />
-                )
-              }
+      {
+        ({ data, loading, error }) => (
+          <div className={classes.root}>
+            {
+              !loading && !error && (
+                <StaticTopNavigation
+                  title={() => host.name}
+                  className={classes.topNavigation}
+                  onMenuButtonClick={() => setMobileOpen(true)}
+                  actions={({ buttonClass }) => (
+                    <EStopResetToggle
+                      buttonClass={buttonClass}
+                      machine={data.machines[0]}
+                    />
+                  )}
+                />
+              )
+            }
 
+            {
+              // connected && !loading && (
+              !loading && !error && (
+                <Drawer
+                  hostIdentity={host}
+                  machines={data.machines}
+                  className={classes.drawer}
+                  mobileOpen={mobileOpen}
+                  onClose={() => setMobileOpen(false)}
+                />
+              )
+            }
+            <div className={classes.content}>
               {
-                // connected && !loading && (
-                !loading && !error && (
-                  <Drawer
-                    hostIdentity={host}
-                    machines={data.machines}
-                    className={classes.drawer}
-                    mobileOpen={mobileOpen}
-                    onClose={() => setMobileOpen(false)}
-                  />
+                error && (
+                  <div>
+                    {JSON.stringify(error)}
+                  </div>
                 )
               }
-              <div className={classes.content}>
-                {
-                  error && (
-                    <div>
-                      {JSON.stringify(error)}
-                    </div>
-                  )
-                }
-                {
-                  !error && children
-                }
-              </div>
+              {
+                !error && children
+              }
             </div>
-          )
-        }
-      </LiveSubscription>
-    </TegApolloProvider>
+          </div>
+        )
+      }
+    </LiveSubscription>
   )
 }
 

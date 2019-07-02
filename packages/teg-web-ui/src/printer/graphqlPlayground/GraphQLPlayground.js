@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 import { Playground, store } from 'graphql-playground-react'
 
 import { UserDataContext } from '../../UserDataProvider'
-import { createTegApolloLink } from '../common/frame/higherOrderComponents/TegApolloProvider'
+import { createTegApolloLink } from '../../TegApolloProvider'
 
 import GraphQLPlaygroundStyles from './GraphQLPlaygroundStyles'
 

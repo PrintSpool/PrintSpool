@@ -1,10 +1,24 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSubscription } from 'react-apollo-hooks'
 import jsonpatch from 'json-patch'
 
 const useLiveSubscription = (subscription, options = {}) => {
   const [counter, setRenderCounter] = useState(0)
   const [state, setState] = useState()
+
+  /*
+   * A promise to emulate React.lazy and trigger React.suspension while
+   * the initial query response loads.
+   */
+  const [suspension] = useState(() => {
+    const initialSuspension = {
+      promise: new Promise((resolve, reject) => {
+        suspension.resolve = resolve
+        suspension.reject = reject
+      }),
+    }
+    return initialSuspension
+  })
 
   const onSubscriptionData = (event) => {
     const { query, patch } = event.subscriptionData.data.live
@@ -32,6 +46,10 @@ const useLiveSubscription = (subscription, options = {}) => {
         },
       })
     }
+
+    if (query != null) {
+      suspension.resolve()
+    }
   }
 
   const { error } = useSubscription(subscription, {
@@ -39,9 +57,21 @@ const useLiveSubscription = (subscription, options = {}) => {
     onSubscriptionData,
   })
 
+  useEffect(() => {
+    if (error != null) {
+      suspension.reject(error)
+    }
+  }, error)
+
+  const loading = state == null && error == null
+
+  if (loading) {
+    throw suspension.promise
+  }
+
   return {
     error,
-    loading: state == null && error == null,
+    loading,
     data: state,
   }
 }
