@@ -1,6 +1,6 @@
 import React, {
-  useState,
   useMemo,
+  useRef,
   useContext,
 } from 'react'
 import { ApolloProvider } from 'react-apollo'
@@ -15,8 +15,6 @@ import { onError } from 'apollo-link-error'
 
 import { ThingLink, connect, parseInviteCode } from 'graphql-things/client'
 import { UserDataContext } from './UserDataProvider'
-
-let hostChangePromise = null
 
 const TegApolloProvider = ({
   children,
@@ -99,28 +97,25 @@ const TegApolloProvider = ({
     }
   }
 
-  const [{ link, client, prevHostIdentity }, setClient] = useState(createClient)
+  const clientRef = useRef({})
 
-  const prevID = prevHostIdentity && prevHostIdentity.peerIdentityPublicKey
-  const nextID = nextHostIdentity && nextHostIdentity.peerIdentityPublicKey
+  const { prevHostIdentity, link } = clientRef.current
 
-  if (nextID !== prevID) {
-    if (link != null) link.client.close()
-    // throw new Promise(() => {})
+  const prevPeerID = prevHostIdentity && prevHostIdentity.peerIdentityPublicKey
+  const nextPeerID = nextHostIdentity && nextHostIdentity.peerIdentityPublicKey
 
-    if (hostChangePromise == null) {
-      hostChangePromise = new Promise(resolve => setTimeout(() => {
-        setClient(createClient())
-        hostChangePromise = null
-        resolve()
-      }, 0))
+  if (prevPeerID !== nextPeerID) {
+    if (link != null) {
+      link.client.close()
     }
 
-    throw hostChangePromise
+    clientRef.current = createClient()
   }
 
-  if (nextHostIdentity == null) {
-    return <>{ children}</>
+  const { client } = clientRef.current
+
+  if (nextPeerID == null) {
+    return <>{ children }</>
   }
 
   return (
