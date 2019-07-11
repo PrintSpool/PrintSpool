@@ -7,7 +7,14 @@ const useStyles = makeStyles(() => ({
     zIndex: '10',
   },
   fullScreen: {
-    height: '100vh',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '95vh',
+    paddingBottom: '5vh',
+    background: 'white',
+    zIndex: 1000,
   },
   row: {
     display: 'grid',

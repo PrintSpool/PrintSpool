@@ -9,6 +9,7 @@ import {
 import {
   ThemeProvider,
 } from '@material-ui/styles'
+import ErrorBoundary from 'react-error-boundary'
 import { SnackbarProvider } from 'notistack'
 import { BrowserRouter } from 'react-router-dom'
 import { Route } from 'react-router'
@@ -20,6 +21,7 @@ import PrintFilesContext from './printer/printDialog/PrintFilesContext'
 // import Loading from './common/Loading'
 import Routes from './Routes'
 import Loading from './common/Loading'
+import ErrorFallback from './common/ErrorFallback'
 
 import theme from './theme'
 import './i18n'
@@ -39,9 +41,11 @@ const App = () => (
                     '/',
                   ]}
                   render={() => (
-                    <TegApolloProvider>
-                      <Routes />
-                    </TegApolloProvider>
+                    <ErrorBoundary FallbackComponent={ErrorFallback}>
+                      <TegApolloProvider>
+                        <Routes />
+                      </TegApolloProvider>
+                    </ErrorBoundary>
                   )}
                 />
               </BrowserRouter>

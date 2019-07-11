@@ -6,19 +6,19 @@ const useLiveSubscription = (subscription, options = {}) => {
   const [counter, setRenderCounter] = useState(0)
   const [state, setState] = useState()
 
-  /*
-   * A promise to emulate React.lazy and trigger React.suspension while
-   * the initial query response loads.
-   */
-  const [suspension] = useState(() => {
-    const initialSuspension = {}
-    initialSuspension.promise = new Promise((resolve, reject) => {
-      initialSuspension.resolve = resolve
-      initialSuspension.reject = reject
-    })
-
-    return initialSuspension
-  })
+  // /*
+  //  * A promise to emulate React.lazy and trigger React.suspension while
+  //  * the initial query response loads.
+  //  */
+  // const [suspension] = useState(() => {
+  //   const initialSuspension = {}
+  //   initialSuspension.promise = new Promise((resolve, reject) => {
+  //     initialSuspension.resolve = resolve
+  //     initialSuspension.reject = reject
+  //   })
+  //
+  //   return initialSuspension
+  // })
 
   const onSubscriptionData = (event) => {
     const { query, patch } = event.subscriptionData.data.live
@@ -47,9 +47,9 @@ const useLiveSubscription = (subscription, options = {}) => {
       })
     }
 
-    if (query != null) {
-      suspension.resolve()
-    }
+    // if (query != null) {
+    //   suspension.resolve()
+    // }
   }
 
   const { error } = useSubscription(subscription, {
@@ -59,9 +59,12 @@ const useLiveSubscription = (subscription, options = {}) => {
 
   useEffect(() => {
     if (error != null) {
-      suspension.resolve()
+      throw error
+      // suspension.resolve()
     }
   }, [error])
+
+  useEffect(() => { throw new Error('wat') }, [])
 
   const loading = state == null && error == null
 
@@ -73,7 +76,7 @@ const useLiveSubscription = (subscription, options = {}) => {
     error,
     loading,
     data: state,
-    suspensionPromise: suspension.promise,
+    // suspensionPromise: suspension.promise,
   }
 }
 

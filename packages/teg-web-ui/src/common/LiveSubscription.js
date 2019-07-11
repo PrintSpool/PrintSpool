@@ -1,6 +1,4 @@
-import React, { useMemo } from 'react'
 import useLiveSubscription from '../printer/_hooks/useLiveSubscription'
-import Loading from './Loading'
 
 // eslint-disable-next-line import/prefer-default-export
 export const LiveSubscription = ({
@@ -17,10 +15,6 @@ export const LiveSubscription = ({
     loading,
     data,
   } = useLiveSubscription(subscription, options)
-
-  if (loading) {
-    return <Loading fullScreen />
-  }
 
   return children({
     data,

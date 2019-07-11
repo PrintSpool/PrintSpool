@@ -3,6 +3,7 @@ import gql from 'graphql-tag'
 import { makeStyles } from '@material-ui/styles'
 
 import { LiveSubscription } from '../../../common/LiveSubscription'
+import Loading from '../../../common/Loading'
 
 import Drawer, { DrawerFragment } from './components/Drawer'
 import StaticTopNavigation from '../../../common/topNavigation/StaticTopNavigation'
@@ -93,6 +94,9 @@ const ConnectionFrame = ({
       {
         ({ data, loading, error }) => (
           <div className={classes.root}>
+            { loading && (
+              <Loading fullScreen />
+            )}
             {
               !loading && !error && (
                 <StaticTopNavigation
