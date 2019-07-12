@@ -64,7 +64,7 @@ const useLiveSubscription = (subscription, options = {}) => {
     }
   }, [error])
 
-  useEffect(() => { throw new Error('wat') }, [])
+  // useEffect(() => { throw new Error('wat') }, [])
 
   const loading = state == null && error == null
 

@@ -1,26 +1,16 @@
 import React, { useContext, useCallback } from 'react'
 
+import { useApolloClient } from 'react-apollo-hooks'
 import { Provider } from 'react-redux'
 import { Playground, store } from 'graphql-playground-react'
 
-import { UserDataContext } from '../../UserDataProvider'
-import { createTegApolloLink } from '../../TegApolloProvider'
-
 import GraphQLPlaygroundStyles from './GraphQLPlaygroundStyles'
 
-const GraphQLPlayground = ({
-  match: { params: { hostID } },
-}) => {
+const GraphQLPlayground = () => {
   const classes = GraphQLPlaygroundStyles()
+  const { link } = useApolloClient()
 
-  const { hosts } = useContext(UserDataContext)
-
-  const hostIdentity = hosts[hostID].invite
-  // endpoint={`teg://${hostID}`}
-
-  const createLink = useCallback(() => ({
-    link: createTegApolloLink({ hostIdentity }),
-  }))
+  const createLink = useCallback(() => ({ link }))
 
   return (
     <Provider
