@@ -5,7 +5,7 @@ import bs58 from 'bs58'
 import readFile from './common/readFile'
 
 export const UserDataContext = React.createContext({
-  name: 'DatArchive',
+  name: 'UserDataContext',
 })
 
 export const HOST_SLUG_LENGTH = 12

@@ -30,14 +30,22 @@ const ErrorFallback = ({ error }) => {
     )
   }
 
+  // GraphQL Errors use error.location and JS Errors use error.stack
+  const stack = error.stack == null ? error.location : error.stack.split('\n')
+
   return (
     <div className={classes.root}>
       <Typography variant="h5" className={classes.header}>
         {`Error: ${error.message}`}
       </Typography>
+      { error.path && (
+        <Typography variant="h6" className={classes.path}>
+          {error.path}
+        </Typography>
+      )}
       <div className={classes.stack}>
         {
-          error.stack.split('\n').map((line, i) => (
+          stack.map((line, i) => (
             // eslint-disable-next-line react/no-array-index-key
             <Typography variant="body2" key={i}>
               {line}

@@ -1,4 +1,4 @@
-import React, { useContext, useCallback } from 'react'
+import React, { useCallback } from 'react'
 
 import { useApolloClient } from 'react-apollo-hooks'
 import { Provider } from 'react-redux'

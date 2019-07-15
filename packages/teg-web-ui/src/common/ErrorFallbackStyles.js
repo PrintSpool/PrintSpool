@@ -9,6 +9,11 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
   },
+  path: {
+    background: theme.palette.error.dark,
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+  },
   stack: {
     paddingTop: theme.spacing(2),
     paddingLeft: theme.spacing(2),

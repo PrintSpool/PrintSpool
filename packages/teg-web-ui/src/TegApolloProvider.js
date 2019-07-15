@@ -2,12 +2,12 @@ import React, {
   useMemo,
   useRef,
   useContext,
+  useState,
 } from 'react'
 import { ApolloProvider } from 'react-apollo'
 import useReactRouter from 'use-react-router'
 import { ApolloProvider as ApolloHooksProvider } from 'react-apollo-hooks'
 
-import snl from 'strip-newlines'
 import { ApolloClient } from 'apollo-client'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloLink } from 'apollo-link'
@@ -15,12 +15,14 @@ import { onError } from 'apollo-link-error'
 
 import { ThingLink, connect, parseInviteCode } from 'graphql-things/client'
 import { UserDataContext } from './UserDataProvider'
+import ErrorFallback from './common/ErrorFallback'
 
 const TegApolloProvider = ({
   children,
 }) => {
   const { location, match } = useReactRouter()
   const { hosts } = useContext(UserDataContext)
+  const { errors, setErrors } = useState(null)
 
   const nextHostIdentity = useMemo(() => {
     const params = new URLSearchParams(location.search)
@@ -58,27 +60,12 @@ const TegApolloProvider = ({
     })
 
     const errorLink = onError(({ graphQLErrors }) => {
-      if (graphQLErrors) {
-        const errorMessages = graphQLErrors.map(
-          ({ message, locations, path }) => {
-            // eslint-disable-next-line no-console
-            console.error(snl`
-              [GraphQL error]:
-              Message: ${message}, Location: ${locations}, Path: ${path}
-            `)
-            return (snl`
-              Unexpected GraphQL Error\n\n
-              Message: ${message}\n
-              Location: ${JSON.stringify(locations)}\n
-              Path: ${path}
-            `)
-          },
-        )
-        // eslint-disable-next-line no-alert, no-undef
-        if (errorMessages.length > 0) alert(errorMessages.join('\n\n'))
+      if (graphQLErrors !== errors) {
+        // eslint-disable-next-line no-console
+        console.error('Unexpected GraphQL Errors', errors)
+
+        setErrors(graphQLErrors)
       }
-      // eslint-disable-next-line no-alert, no-undef
-      // if (networkError) alert(`[Network error]: ${networkError}`)
     })
 
     const nextClient = new ApolloClient({
@@ -113,6 +100,12 @@ const TegApolloProvider = ({
   }
 
   const { client } = clientRef.current
+
+  if (errors != null) {
+    return (
+      <ErrorFallback error={errors[0]} />
+    )
+  }
 
   if (nextPeerID == null) {
     return <>{ children }</>
