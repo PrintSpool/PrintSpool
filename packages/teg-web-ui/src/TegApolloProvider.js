@@ -16,6 +16,7 @@ import { onError } from 'apollo-link-error'
 import { ThingLink, connect, parseInviteCode } from 'graphql-things/client'
 import { UserDataContext } from './UserDataProvider'
 import ErrorFallback from './common/ErrorFallback'
+import ConnectionStatus from './common/ConnectionStatus'
 
 const TegApolloProvider = ({
   children,
@@ -50,13 +51,13 @@ const TegApolloProvider = ({
     // the 3D printer's screen.
     const thingLink = new ThingLink({
       createConnection: () => connect({
+        // timeout: 1000,
         // identityKeys: myIdentity,
         identityKeys: nextHostIdentity.identityKeys,
         peerIdentityPublicKey: nextHostIdentity.peerIdentityPublicKey,
         // eslint-disable-next-line no-console
         onMeta: meta => console.log('Received meta data', meta),
       }),
-      options: { reconnect: false },
     })
 
     const errorLink = onError(({ graphQLErrors }) => {
@@ -74,6 +75,7 @@ const TegApolloProvider = ({
         errorLink,
         thingLink,
       ]),
+      resolvers: thingLink.resolvers,
       cache: new InMemoryCache(),
     })
 
@@ -114,7 +116,9 @@ const TegApolloProvider = ({
   return (
     <ApolloProvider client={client}>
       <ApolloHooksProvider client={client}>
-        { children }
+        <ConnectionStatus>
+          { children }
+        </ConnectionStatus>
       </ApolloHooksProvider>
     </ApolloProvider>
   )

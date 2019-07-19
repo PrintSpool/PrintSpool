@@ -10,7 +10,7 @@ const EXEC_GCODES = gql`
 `
 
 const useExecGCodes = (callback, dependencies) => {
-  const execGCodesMutation = useMutation(EXEC_GCODES)
+  const [execGCodesMutation] = useMutation(EXEC_GCODES)
 
   return useCallback((...args) => {
     const {
