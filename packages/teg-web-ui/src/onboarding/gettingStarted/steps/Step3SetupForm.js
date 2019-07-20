@@ -109,155 +109,161 @@ const Step3SetupForm = ({
         history.push(nextURL)
       }}
     >
-      {(createMachine, { loading, data }) => (
-        <Formik
-          enableReinitialize
-          initialValues={{
-            machineDefinitionURL,
-            automaticPrinting: false,
-            beforePrintHook: null,
-            afterPrintHook: null,
-            ...Object.keys(schema.properties || {}).reduce((acc, k) => {
-              acc[k] = null
-              return acc
-            }, {}),
-          }}
-          validate={validate}
-          onSubmit={async (values, { setSubmitting }) => {
-            const input = {
-              model: values,
-            }
-            try {
-              await createMachine({ variables: { input } })
-            } catch (e) {
-              setSubmitting(false)
-              alert(e)
-            }
-          }}
-        >
-          {({ values, isSubmitting }) => (
-            <Form className={classes.form}>
-              <div
-                className={classNames([
-                  className,
-                  classes.stretchedContent,
-                ])}
-              >
-                <div className={classes.root}>
-                  <div className={classes.part1}>
-                    <Measure bounds>
-                      {({ measureRef, contentRect: { bounds } }) => (
-                        <animated.div
-                          style={{
-                            height: configSpring.x
-                              .interpolate({
-                                range: [0, 0.5, 1],
-                                output: [bounds.height, bounds.height, 0],
-                              })
-                              .interpolate(x => `${x}px`),
-                            opacity: configSpring.x.interpolate({
-                              range: [0, 0.5],
-                              output: [1, 0],
-                            }),
-                          }}
-                        >
-                          <div className={classes.introText} ref={measureRef}>
-                            <Typography variant="h6" paragraph>
-                              Great! we've connected to your Raspberry Pi!
-                            </Typography>
-                          </div>
-                        </animated.div>
-                      )}
-                    </Measure>
-                    {/*
-                      <Typography variant="body1" paragraph>
-                        Now, what kind of 3D Printer do you have?
-                      </Typography>
-                      <Typeahead
-                        suggestions={suggestions}
-                        name="machineDefinitionURL"
-                        label="Search printer make and models"
-                        onChange={setMachineDefinitionURL}
-                      />
-                    */}
-                  </div>
-                  <animated.div
-                    className={classes.config}
-                    style={{
-                      flex: configSpring.x.interpolate({
-                        range: [0, 0.5],
-                        output: [0, 1],
-                      }),
-                      opacity: configSpring.x.interpolate({
-                        range: [0, 0.5, 1],
-                        output: [0, 0, 1],
-                      }),
-                    }}
-                  >
-                    { machineIsSet && (() => {
-                      if (loadingMachineSettings) {
-                        return (
-                          <Loading className={classes.loadingPart2}>
-                            Loading Printer Settings...
-                          </Loading>
-                        )
-                      }
-                      if (machineSettingsError != null) {
-                        return (
-                          <div>
-                            <h1>Error</h1>
-                            {JSON.stringify(machineSettingsError)}
-                          </div>
-                        )
-                      }
+      {(createMachine, { loading, data, error }) => {
+        if (error != null) {
+          throw error
+        }
 
-                      return (
-                        <React.Fragment>
-                          <Typography variant="body1">
-                            Great! We just need a bit of information to get it set up.
-                          </Typography>
-                          {/*
-                            <Typography variant="body1" paragraph>
-                              { 'aeiouAEIOU'.includes(machineDefName[0]) ? 'An' : 'A'}
-                              {' '}
-                              <b>
-                                {machineDefName}
-                              </b>
-                              ?
-                              {' '}
-                              Great. We just need a bit of information to get it set up.
-                            </Typography>
-                          */}
-                          <FormikSchemaForm
-                            schema={schema}
-                            form={form}
-                            path=""
-                            className={classes.configForm}
-                          />
-                          { (values.name||'').endsWith('uuddlrlr') && (
-                            <div>
-                              Dev Mode Enabled
-                              {' '}
-                              <Link to={nextURL}>Skip Setup</Link>
+        return (
+          <Formik
+            enableReinitialize
+            initialValues={{
+              machineDefinitionURL,
+              automaticPrinting: false,
+              beforePrintHook: null,
+              afterPrintHook: null,
+              ...Object.keys(schema.properties || {}).reduce((acc, k) => {
+                acc[k] = null
+                return acc
+              }, {}),
+            }}
+            validate={validate}
+            onSubmit={async (values, { setSubmitting }) => {
+              const input = {
+                model: values,
+              }
+              try {
+                await createMachine({ variables: { input } })
+              } catch (e) {
+                setSubmitting(false)
+                alert(e)
+              }
+            }}
+          >
+            {({ values, isSubmitting }) => (
+              <Form className={classes.form}>
+                <div
+                  className={classNames([
+                    className,
+                    classes.stretchedContent,
+                  ])}
+                >
+                  <div className={classes.root}>
+                    <div className={classes.part1}>
+                      <Measure bounds>
+                        {({ measureRef, contentRect: { bounds } }) => (
+                          <animated.div
+                            style={{
+                              height: configSpring.x
+                                .interpolate({
+                                  range: [0, 0.5, 1],
+                                  output: [bounds.height, bounds.height, 0],
+                                })
+                                .interpolate(x => `${x}px`),
+                              opacity: configSpring.x.interpolate({
+                                range: [0, 0.5],
+                                output: [1, 0],
+                              }),
+                            }}
+                          >
+                            <div className={classes.introText} ref={measureRef}>
+                              <Typography variant="h6" paragraph>
+                                Great! we've connected to your Raspberry Pi!
+                              </Typography>
                             </div>
-                          )}
-                        </React.Fragment>
-                      )
-                    })()}
-                  </animated.div>
+                          </animated.div>
+                        )}
+                      </Measure>
+                      {/*
+                        <Typography variant="body1" paragraph>
+                          Now, what kind of 3D Printer do you have?
+                        </Typography>
+                        <Typeahead
+                          suggestions={suggestions}
+                          name="machineDefinitionURL"
+                          label="Search printer make and models"
+                          onChange={setMachineDefinitionURL}
+                        />
+                      */}
+                    </div>
+                    <animated.div
+                      className={classes.config}
+                      style={{
+                        flex: configSpring.x.interpolate({
+                          range: [0, 0.5],
+                          output: [0, 1],
+                        }),
+                        opacity: configSpring.x.interpolate({
+                          range: [0, 0.5, 1],
+                          output: [0, 0, 1],
+                        }),
+                      }}
+                    >
+                      { machineIsSet && (() => {
+                        if (loadingMachineSettings) {
+                          return (
+                            <Loading className={classes.loadingPart2}>
+                              Loading Printer Settings...
+                            </Loading>
+                          )
+                        }
+                        if (machineSettingsError != null) {
+                          return (
+                            <div>
+                              <h1>Error</h1>
+                              {JSON.stringify(machineSettingsError)}
+                            </div>
+                          )
+                        }
+
+                        return (
+                          <React.Fragment>
+                            <Typography variant="body1">
+                              Great! We just need a bit of information to get it set up.
+                            </Typography>
+                            {/*
+                              <Typography variant="body1" paragraph>
+                                { 'aeiouAEIOU'.includes(machineDefName[0]) ? 'An' : 'A'}
+                                {' '}
+                                <b>
+                                  {machineDefName}
+                                </b>
+                                ?
+                                {' '}
+                                Great. We just need a bit of information to get it set up.
+                              </Typography>
+                            */}
+                            <FormikSchemaForm
+                              schema={schema}
+                              form={form}
+                              path=""
+                              className={classes.configForm}
+                            />
+                            { (values.name||'').endsWith('uuddlrlr') && (
+                              <div>
+                                Dev Mode Enabled
+                                {' '}
+                                <Link to={nextURL}>Skip Setup</Link>
+                              </div>
+                            )}
+                          </React.Fragment>
+                        )
+                      })()}
+                    </animated.div>
+                  </div>
                 </div>
-              </div>
-              <ButtonsFooter
-                step={3}
-                // disable={machineIsSet === false || isSubmitting}
-                type="submit"
-                component="button"
-                history={history}
-              />
-            </Form>
-          )}
-        </Formik>
-      )}
+                <ButtonsFooter
+                  step={3}
+                  // disable={machineIsSet === false || isSubmitting}
+                  type="submit"
+                  component="button"
+                  history={history}
+                />
+              </Form>
+            )}
+          </Formik>
+        )
+      }}
     </Mutation>
   )
 }

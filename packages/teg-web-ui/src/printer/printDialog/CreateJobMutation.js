@@ -55,12 +55,16 @@ const CreateJobMutation = ({
     mutation={createJobGraphQL}
     {...props}
   >
-    {(mutation, { data }) => (
-      children({
+    {(mutation, { data, error }) => {
+      if (error != null) {
+        throw error
+      }
+
+      return children({
         createJob: createJobHOF(mutation, files),
         data,
       })
-    )}
+    }}
   </Mutation>
 )
 

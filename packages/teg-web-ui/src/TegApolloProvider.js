@@ -2,7 +2,6 @@ import React, {
   useMemo,
   useRef,
   useContext,
-  useState,
 } from 'react'
 import { ApolloProvider } from 'react-apollo'
 import useReactRouter from 'use-react-router'
@@ -15,7 +14,6 @@ import { onError } from 'apollo-link-error'
 
 import { ThingLink, connect, parseInviteCode } from 'graphql-things/client'
 import { UserDataContext } from './UserDataProvider'
-import ErrorFallback from './common/ErrorFallback'
 import ConnectionStatus from './common/ConnectionStatus'
 
 const TegApolloProvider = ({
@@ -23,7 +21,6 @@ const TegApolloProvider = ({
 }) => {
   const { location, match } = useReactRouter()
   const { hosts } = useContext(UserDataContext)
-  const { errors, setErrors } = useState(null)
 
   const nextHostIdentity = useMemo(() => {
     const params = new URLSearchParams(location.search)
@@ -61,12 +58,8 @@ const TegApolloProvider = ({
     })
 
     const errorLink = onError(({ graphQLErrors }) => {
-      if (graphQLErrors !== errors) {
-        // eslint-disable-next-line no-console
-        console.error('Unexpected GraphQL Errors', errors)
-
-        setErrors(graphQLErrors)
-      }
+      // eslint-disable-next-line no-console
+      console.error('Unexpected GraphQL Errors', graphQLErrors)
     })
 
     const nextClient = new ApolloClient({
@@ -102,12 +95,6 @@ const TegApolloProvider = ({
   }
 
   const { client } = clientRef.current
-
-  if (errors != null) {
-    return (
-      <ErrorFallback error={errors[0]} />
-    )
-  }
 
   if (nextPeerID == null) {
     return <>{ children }</>

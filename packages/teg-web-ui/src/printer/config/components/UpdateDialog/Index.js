@@ -127,8 +127,12 @@ const enhance = compose(
       >
         {
           (submitUpdateDialog, { called, error }) => {
-            if (error != null) return <div>{JSON.stringify(error)}</div>
+            if (error != null) {
+              throw error
+            }
+
             if (called) return <div />
+
             return (
               <Component
                 onSubmit={(model) => {

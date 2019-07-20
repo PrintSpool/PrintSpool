@@ -67,8 +67,12 @@ const enhance = compose(
       >
         {
           (create, { called, error, client }) => {
-            if (error != null) return <div>{JSON.stringify(error)}</div>
+            if (error != null) {
+              throw error
+            }
+
             if (called) return <div />
+
             return (
               <Component
                 create={create}
