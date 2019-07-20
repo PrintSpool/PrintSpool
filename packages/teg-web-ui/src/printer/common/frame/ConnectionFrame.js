@@ -92,53 +92,52 @@ const ConnectionFrame = ({
       }}
     >
       {
-        ({ data, loading, error }) => (
-          <div className={classes.root}>
-            { loading && (
-              <Loading fullScreen />
-            )}
-            {
-              !loading && !error && (
-                <StaticTopNavigation
-                  title={() => host.name}
-                  className={classes.topNavigation}
-                  onMenuButtonClick={() => setMobileOpen(true)}
-                  actions={({ buttonClass }) => (
-                    <EStopResetToggle
-                      buttonClass={buttonClass}
-                      machine={data.machines[0]}
-                    />
-                  )}
-                />
-              )
-            }
+        ({ data, loading, error }) => {
+          if (error) {
+            throw error
+          }
 
-            {
-              // connected && !loading && (
-              !loading && !error && (
-                <Drawer
-                  hostIdentity={host}
-                  machines={data.machines}
-                  className={classes.drawer}
-                  mobileOpen={mobileOpen}
-                  onClose={() => setMobileOpen(false)}
-                />
-              )
-            }
-            <div className={classes.content}>
+          return (
+            <div className={classes.root}>
+              { loading && (
+                <Loading fullScreen />
+              )}
               {
-                error && (
-                  <div>
-                    {JSON.stringify(error)}
-                  </div>
+                !loading && (
+                  <StaticTopNavigation
+                    title={() => host.name}
+                    className={classes.topNavigation}
+                    onMenuButtonClick={() => setMobileOpen(true)}
+                    actions={({ buttonClass }) => (
+                      <EStopResetToggle
+                        buttonClass={buttonClass}
+                        machine={data.machines[0]}
+                      />
+                    )}
+                  />
                 )
               }
+
               {
-                !error && children
+                // connected && !loading && (
+                !loading && (
+                  <Drawer
+                    hostIdentity={host}
+                    machines={data.machines}
+                    className={classes.drawer}
+                    mobileOpen={mobileOpen}
+                    onClose={() => setMobileOpen(false)}
+                  />
+                )
               }
+              <div className={classes.content}>
+                {
+                  children
+                }
+              </div>
             </div>
-          </div>
-        )
+          )
+        }
       }
     </LiveSubscription>
   )

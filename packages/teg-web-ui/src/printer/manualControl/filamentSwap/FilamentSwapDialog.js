@@ -142,11 +142,7 @@ const FilamentSwapDialog = ({
   }
 
   if (error) {
-    return (
-      <div>
-        {JSON.stringify(error)}
-      </div>
-    )
+    throw error
   }
 
   const machine = data.machines[0]

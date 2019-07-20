@@ -88,11 +88,7 @@ const Terminal = ({
             }
 
             if (error) {
-              return (
-                <div>
-                  {JSON.stringify(error)}
-                </div>
-              )
+              throw error
             }
 
             return [...data.machines[0].gcodeHistory].reverse().map((entry) => {

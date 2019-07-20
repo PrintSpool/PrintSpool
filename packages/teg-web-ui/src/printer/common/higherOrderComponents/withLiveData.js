@@ -58,11 +58,7 @@ const withLiveData = PageComponent => ({
     {
       ({ data, loading, error }) => {
         if (error) {
-          return (
-            <div>
-              {JSON.stringify(error)}
-            </div>
-          )
+          throw error
         }
 
         // if (!connected) return <ConnectingPage />

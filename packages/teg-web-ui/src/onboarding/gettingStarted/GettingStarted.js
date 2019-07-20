@@ -95,11 +95,7 @@ const GettingStarted = ({
         >
           {({ data, loading, error }) => {
             if (error) {
-              return (
-                <div>
-                  {JSON.stringify(error)}
-                </div>
-              )
+              throw error
             }
 
             return (
@@ -133,14 +129,10 @@ const GettingStarted = ({
             error,
           }) => {
             if (loading) return <div />
-            if (error != null) {
-              return (
-                <div>
-                  <h1>Error</h1>
-                  {JSON.stringify(error)}
-                </div>
-              )
+            if (error) {
+              throw error
             }
+
             return (
               <Step4Backup
                 history={history}

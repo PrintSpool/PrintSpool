@@ -64,13 +64,8 @@ const enhance = compose(
           client,
         }) => {
           if (loading) return <div />
-          if (error != null) {
-            return (
-              <div>
-                <h1>Error</h1>
-                {JSON.stringify(error)}
-              </div>
-            )
+          if (error) {
+            throw error
           }
 
           const configFormModel = (() => {
