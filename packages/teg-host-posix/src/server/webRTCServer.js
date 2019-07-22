@@ -1,4 +1,4 @@
-import Dat from '@beaker/dat-node'
+// import Dat from '@beaker/dat-node'
 import wrtc from 'wrtc'
 
 import { execute, subscribe } from 'graphql'
@@ -12,22 +12,19 @@ const webRTCServer = async ({
   identityKeys,
   authenticate,
 }) => {
-  // const keysJSON = JSON.parse(
-  //   fs.readFileSync(untildify(keys), 'utf8'),
+  // // instantiate the dat node
+  // const DAT_URL = (
+  //   process.env.DAT_URL
+  //   || 'dat://0588d04a52162b001c489a68182daac3de41a18487f88e8a93b6a69fbd38b1ed/'
   // )
-  // instantiate the dat node
-  const DAT_URL = (
-    process.env.DAT_URL
-    || 'dat://0588d04a52162b001c489a68182daac3de41a18487f88e8a93b6a69fbd38b1ed/'
-  )
-
-  const dat = Dat.createNode({
-    path: './.dat-data',
-  })
-  const datPeers = dat.getPeers(DAT_URL)
+  //
+  // const dat = Dat.createNode({
+  //   path: './.dat-data',
+  // })
+  // const datPeers = dat.getPeers(DAT_URL)
 
   const thing = GraphQLThing({
-    datPeers,
+    // datPeers,
     identityKeys,
     authenticate,
     wrtc,

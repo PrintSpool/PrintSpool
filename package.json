@@ -1,12 +1,12 @@
 {
   "private": true,
   "scripts": {
-    "fix-dat": "yarn upgrade @beaker/dat-node",
     "lint": "eslint ./packages/",
     "delete-node-modules": "rm -rf node_modules && rm -rf packages/*/node_modules",
     "bootstrap": "yarn make-log-dir && yarn install-all",
     "make-log-dir": "sudo mkdir /run/log/teg; sudo chmod 700 /run/log/teg && sudo chown $USER: /run/log/teg",
-    "install-all": "yarn --network-timeout 1000000 && lerna exec --concurrency 1 -- yarn --network-timeout 1000000 && cd ./packages/teg-web-ui/ && yarn --network-timeout 1000000 && cd ../../ && yarn fix-dat",
+    "install-all": "yarn --network-timeout 1000000 && lerna exec --concurrency 1 -- yarn --network-timeout 1000000 && cd ./packages/teg-web-ui/ && yarn --network-timeout 1000000",
+    "install-all-fast": "yarn && lerna exec yarn && cd ./packages/teg-web-ui/ && yarn",
     "update-defs": "./scripts/updateDefs.sh",
     "frontend:build": "cd packages/teg-web-ui/ && yarn build",
     "test": "jest",
@@ -87,7 +87,6 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/register": "^7.0.0",
     "@babel/runtime": "^7.1.2",
-    "@beaker/dat-node": "RangerMauve/dat-node#168b57c",
     "babel-core": "^7.0.0-bridge",
     "babel-eslint": "^9.0.0-beta.3",
     "babel-jest": "^23.6.0",
