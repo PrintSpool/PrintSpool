@@ -56,7 +56,7 @@ const StatusDialog = ({
         { status }
       </DialogTitle>
       <DialogContent>
-        <DialogContentText id="alert-dialog-description">
+        <DialogContentText id="alert-dialog-description" component="div">
           { (descriptions[status] || (() => ''))(error) }
           {
             status === 'ERRORED'

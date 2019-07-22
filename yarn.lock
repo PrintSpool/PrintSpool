@@ -6792,10 +6792,10 @@ graphql-extensions@0.5.7:
   dependencies:
     "@apollographql/apollo-tools" "^0.3.3"
 
-graphql-live-subscriptions@^1.1.0, graphql-live-subscriptions@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/graphql-live-subscriptions/-/graphql-live-subscriptions-1.4.0.tgz#eb3fa18e13c9ca8537daefcd63d79cfbc8c2feee"
-  integrity sha512-KHm0blCJYiHVowxcPw1bFrzwOdpL22SmQ5f48S+mEkdIrDA1rSsLiSDfkv/tTfB+KMUXnaJSzhbgHR8K25zDIg==
+graphql-live-subscriptions@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/graphql-live-subscriptions/-/graphql-live-subscriptions-1.4.1.tgz#1587958d9b544b0014a7ef0933eb8e2b88015030"
+  integrity sha512-/mQNYOCLlC6Cu0whn8/P2x5u71yJK83+ISpbJfmP7BG5b4BWNZ7acg+y/u5ZwAxRv/+f4dBnaJ3zpxCTmnO6yw==
   dependencies:
     "@d1plo1d/list-diff2" "^0.1.5-0"
     fast-json-patch "^2.0.6"
@@ -7262,9 +7262,9 @@ hypercore-crypto@^1.0.0:
     uint64be "^2.0.2"
 
 hypercore-protocol@^6.4.1, hypercore-protocol@^6.6.4:
-  version "6.11.0"
-  resolved "https://registry.yarnpkg.com/hypercore-protocol/-/hypercore-protocol-6.11.0.tgz#feffde791aea9986e62859229d7cab331d4884c7"
-  integrity sha512-V/0Vru8gavoO++K2QFOAXu7xgBuXcBAjURQ9BQ48DnQ/p4hK4Jy76ulRnppDHpbDthxRziMWLZfmYXncwD63Aw==
+  version "6.11.1"
+  resolved "https://registry.yarnpkg.com/hypercore-protocol/-/hypercore-protocol-6.11.1.tgz#34fb9afe494f9b67207503e19448637f27f532c9"
+  integrity sha512-4vyYGzSTRCfpIPnpYO/WN0VeS2oGeIrzCCwIXfz5TL2dyyHu7wF5xiigNuUfTn9n3cTOwwbH+EKsygTNsO2yfw==
   dependencies:
     buffer-alloc-unsafe "^1.0.0"
     buffer-from "^1.0.0"
