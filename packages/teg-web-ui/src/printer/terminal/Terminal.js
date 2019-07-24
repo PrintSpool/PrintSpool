@@ -10,7 +10,7 @@ import {
 import gql from 'graphql-tag'
 
 import useExecGCodes from '../_hooks/useExecGCodes'
-import { LiveSubscription } from '../../common/LiveSubscription'
+import useLiveSubscription from '../_hooks/useLiveSubscription'
 
 import TerminalStyles from './TerminalStyles'
 
@@ -58,6 +58,25 @@ const Terminal = ({
     }
   })
 
+  const {
+    data,
+    loading,
+    error,
+  } = useLiveSubscription(GCODE_HISTORY_SUBSCRIPTION, {
+    variables: {
+      machineID,
+    },
+  })
+
+  if (loading) {
+    return <div />
+  }
+
+  if (error) {
+    throw error
+  }
+
+
   return (
     <div className={classes.root}>
       <Form className={classes.inputRow} onSubmit={onSubmit}>
@@ -76,51 +95,36 @@ const Terminal = ({
         className={classes.terminalHistory}
         component="div"
       >
-        <LiveSubscription
-          subscription={GCODE_HISTORY_SUBSCRIPTION}
-          variables={{
-            machineID,
-          }}
-        >
-          {({ data, loading, error }) => {
-            if (loading) {
-              return <div />
-            }
+        {
+          [...data.machines[0].gcodeHistory].reverse().map((entry) => {
+            const macroOrTX = entry.isHostMacro ? 'macro' : 'tx'
+            const txRXOrMacro = entry.direction === 'RX' ? 'rx' : macroOrTX
 
-            if (error) {
-              throw error
-            }
-
-            return [...data.machines[0].gcodeHistory].reverse().map((entry) => {
-              const macroOrTX = entry.isHostMacro ? 'macro' : 'tx'
-              const txRXOrMacro = entry.direction === 'RX' ? 'rx' : macroOrTX
-
-              return (
-                // eslint-disable-next-line react/no-array-index-key
-                <div
-                  key={entry.id}
-                  className={classes[`${txRXOrMacro}TerminalEntry`]}
+            return (
+              // eslint-disable-next-line react/no-array-index-key
+              <div
+                key={entry.id}
+                className={classes[`${txRXOrMacro}TerminalEntry`]}
+              >
+                {
+                  /*
+                  <span className={classes.createdAt}>
+                    {entry.createdAt}
+                  </span>
+                  */
+                }
+                <span
+                  className={classes[txRXOrMacro]}
                 >
-                  {
-                    /*
-                    <span className={classes.createdAt}>
-                      {entry.createdAt}
-                    </span>
-                    */
-                  }
-                  <span
-                    className={classes[txRXOrMacro]}
-                  >
-                    {` ${entry.isHostMacro ? 'MO' : entry.direction} `}
-                  </span>
-                  <span className={classes[`${txRXOrMacro}Message`]}>
-                    {entry.message}
-                  </span>
-                </div>
-              )
-            })
-          }}
-        </LiveSubscription>
+                  {` ${entry.isHostMacro ? 'MO' : entry.direction} `}
+                </span>
+                <span className={classes[`${txRXOrMacro}Message`]}>
+                  {entry.message}
+                </span>
+              </div>
+            )
+          })
+        }
       </Typography>
     </div>
   )

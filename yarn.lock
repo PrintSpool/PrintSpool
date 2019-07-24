@@ -6777,10 +6777,10 @@ graphql-extensions@0.5.7:
   dependencies:
     "@apollographql/apollo-tools" "^0.3.3"
 
-graphql-live-subscriptions@^1.4.1:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/graphql-live-subscriptions/-/graphql-live-subscriptions-1.4.1.tgz#1587958d9b544b0014a7ef0933eb8e2b88015030"
-  integrity sha512-/mQNYOCLlC6Cu0whn8/P2x5u71yJK83+ISpbJfmP7BG5b4BWNZ7acg+y/u5ZwAxRv/+f4dBnaJ3zpxCTmnO6yw==
+graphql-live-subscriptions@^1.4.2:
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/graphql-live-subscriptions/-/graphql-live-subscriptions-1.4.2.tgz#acdcb46546fa9d5d3dc90c0922c11ef96e9ddae4"
+  integrity sha512-HAziVHoV7SPDq/my5OJeN5rZ9xWkscjDhEuPv6zs+RX3KuAlTQyqu2fttlae5OQHx5J6EwM9Drey3hwByLaxAw==
   dependencies:
     "@d1plo1d/list-diff2" "^0.1.5-0"
     fast-json-patch "^2.0.6"
