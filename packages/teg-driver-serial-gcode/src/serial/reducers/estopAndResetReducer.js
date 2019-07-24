@@ -39,8 +39,8 @@ const estopAndResetReducer = (state = initialState, action) => {
         const nextState = state.set('estopping', true)
 
         return loop(nextState, Cmd.list([
-          Cmd.action(despoolCompleted({ task })),
           Cmd.action(estop()),
+          Cmd.action(despoolCompleted({ task })),
         ]))
       }
 
@@ -50,8 +50,8 @@ const estopAndResetReducer = (state = initialState, action) => {
         const nextState = state.set('resetting', true)
 
         return loop(nextState, Cmd.list([
-          Cmd.action(despoolCompleted({ task })),
           Cmd.action(connectPrinter()),
+          Cmd.action(despoolCompleted({ task })),
         ]))
       }
 
