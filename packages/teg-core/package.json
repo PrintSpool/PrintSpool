@@ -39,7 +39,7 @@
     "graphql": "^14.0.2",
     "graphql-live-subscriptions": "^1.4.2",
     "graphql-subscriptions": "^1.0.0",
-    "graphql-things": "^0.6.2",
+    "graphql-things": "^0.7.0",
     "graphql-tools": "^4.0.3",
     "graphql-type-json": "^0.2.0",
     "immutable": "^4.0.0-rc.12",
