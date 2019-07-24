@@ -63,7 +63,7 @@ const enhance = compose(
         mutation={CREATE_COMPONENT}
         update={(mutationResult) => {
           if (mutationResult.data != null) {
-            history.goBack()
+            history.push('../')
           }
         }}
       >
@@ -109,7 +109,7 @@ const createComponentDialog = ({
 }) => (
   <Dialog
     open={open}
-    onClose={() => history.goBack()}
+    onClose={() => history.push('../')}
     aria-labelledby="create-dialog-title"
     maxWidth="md"
     fullWidth
@@ -223,7 +223,7 @@ const createComponentDialog = ({
           </DialogContent>
           <DialogActions>
             {wizard.activeStep === 0 && (
-              <Button onClick={() => history.goBack()}>
+              <Button onClick={() => history.push('../')}>
                 Cancel
               </Button>
             )}

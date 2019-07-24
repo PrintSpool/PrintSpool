@@ -116,7 +116,7 @@ const enhance = compose(
         mutation={SUBMIT_UPDATE_DIALOG}
         update={(mutationResult) => {
           if (mutationResult.data != null) {
-            history.go(-1)
+            history.push('../')
           }
         }}
       >
@@ -170,7 +170,7 @@ const UpdateDialog = ({
 }) => (
   <Dialog
     open={open}
-    onClose={() => history.goBack()}
+    onClose={() => history.push('../')}
     aria-labelledby="form-dialog-title"
     maxWidth="md"
     fullWidth
@@ -219,7 +219,7 @@ const UpdateDialog = ({
                 </Link>
               </div>
             )}
-            <Button onClick={() => history.goBack()}>
+            <Button onClick={() => history.push('../')}>
               Cancel
             </Button>
             <Button

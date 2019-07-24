@@ -28,7 +28,7 @@ const PrintDialog = ({
   const open = true
 
   const onClose = useCallback(() => {
-    history.goBack()
+    history.push('../')
   })
 
   if (host == null) {

@@ -40,7 +40,7 @@ const enhance = compose(
         variables={{ input }}
         update={(mutationResult) => {
           if (mutationResult.data != null) {
-            history.go(-2)
+            history.push('../../')
           }
         }}
       >
@@ -74,7 +74,7 @@ const FormDialog = ({
 }) => (
   <Dialog
     open={open}
-    onClose={() => history.goBack()}
+    onClose={() => history.push('../')}
     aria-labelledby="alert-dialog-description"
   >
     <DialogTitle>
@@ -92,7 +92,7 @@ const FormDialog = ({
       </DialogContentText>
     </DialogContent>
     <DialogActions>
-      <Button onClick={() => history.goBack()}>
+      <Button onClick={() => history.push('../')}>
         Cancel
       </Button>
       <Button onClick={onDelete}>
