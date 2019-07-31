@@ -1,5 +1,5 @@
 const closeSerialPort = async ({ serialPort }) => {
-  if (serialPort.isOpen) {
+  if (serialPort != null && serialPort.isOpen) {
     await serialPort.close()
   }
 }

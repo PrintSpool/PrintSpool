@@ -5,6 +5,7 @@ const setConfig = ({
   plugins,
   onComplete,
   onError,
+  error,
 }) => {
   const validationPayload = {
     config,
@@ -26,6 +27,7 @@ const setConfig = ({
       ...validationPayload,
       onComplete,
       onError,
+      error,
     },
   }
 }

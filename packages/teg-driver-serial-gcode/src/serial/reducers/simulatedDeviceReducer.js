@@ -3,6 +3,7 @@ import { Record } from 'immutable'
 
 import {
   SET_CONFIG,
+  CONNECT_PRINTER,
   getController,
   DeviceTypeEnum,
   deviceConnected,
@@ -17,12 +18,30 @@ const { SERIAL_PORT } = DeviceTypeEnum
 export const initialState = Record({
   isConnected: false,
   device: null,
+  config: null,
+  initialized: false,
 })()
 
 const simulatedDeviceReducer = (state = initialState, action) => {
   switch (action.type) {
-    case SET_CONFIG: {
-      const { config } = action.payload
+    case SET_CONFIG:
+    case CONNECT_PRINTER: {
+      const isConfigError = (
+        action.type === SET_CONFIG && action.payload.error != null
+      )
+
+      let nextState = state
+      if (action.type === SET_CONFIG) {
+        nextState = state.set('config', action.payload.config)
+      }
+
+      if (state.initialized || isConfigError) {
+        return nextState
+      }
+
+      nextState = nextState.set('initialized', true)
+      const { config } = nextState
+
       const controllerConfig = getController(config).model
       const serialPortID = getSerialPortID(config)
       const simulate = controllerConfig.get('simulate')
@@ -35,7 +54,7 @@ const simulatedDeviceReducer = (state = initialState, action) => {
           simulated: true,
         })
 
-        const nextState = state.merge({
+        nextState = nextState.merge({
           isConnected: true,
           device,
         })
@@ -49,7 +68,7 @@ const simulatedDeviceReducer = (state = initialState, action) => {
         const { device } = state
 
         return loop(
-          initialState,
+          initialState.set('config', config),
           Cmd.action(deviceDisconnected({ device })),
         )
       }

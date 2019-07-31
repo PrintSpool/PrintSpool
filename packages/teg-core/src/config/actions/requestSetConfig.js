@@ -4,7 +4,7 @@ import Config from '../types/Config'
 export const REQUEST_SET_CONFIG = 'teg/config/REQUEST_SET_CONFIG'
 
 const requestSetConfig = (params) => {
-  const { onComplete, onError } = params
+  const { onComplete, onError, error } = params
   let { config } = params
 
   if (!isImmutable(config)) config = Config(config)
@@ -15,6 +15,7 @@ const requestSetConfig = (params) => {
       config,
       onComplete,
       onError,
+      error,
     },
   }
 }

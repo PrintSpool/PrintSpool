@@ -18,21 +18,41 @@ export const initialState = Record({
 const pluginManagerReducer = (state = initialState, action) => {
   switch (action.type) {
     case INITIALIZE_CONFIG: {
-      const { config, pluginLoader, availablePlugins } = action.payload
+      const {
+        config,
+        pluginLoader,
+        availablePlugins,
+        previousFatalException,
+      } = action.payload
 
       const nextState = state
         .set('pluginLoader', pluginLoader)
         .set('availablePlugins', availablePlugins)
 
+      let error
+      if (previousFatalException != null) {
+        const { message, stack } = previousFatalException
+        error = {
+          code: 'fatal_error',
+          message,
+          stack,
+        }
+      }
+
       return loop(
         nextState,
         Cmd.action(
-          requestSetConfig({ config }),
+          requestSetConfig({ config, error }),
         ),
       )
     }
     case REQUEST_SET_CONFIG: {
-      const { config, onComplete, onError } = action.payload
+      const {
+        config,
+        onComplete,
+        onError,
+        error,
+      } = action.payload
 
       return loop(state, Cmd.run(loadPlugins, {
         args: [{
@@ -40,6 +60,7 @@ const pluginManagerReducer = (state = initialState, action) => {
           config,
           onComplete,
           onError,
+          error,
         }],
         successActionCreator: setConfig,
       }))

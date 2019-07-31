@@ -4,6 +4,7 @@ import { Map, Record } from 'immutable'
 import watchSerialPorts from '../sideEffects/watchSerialPorts'
 
 import { SET_CONFIG } from '../../config/actions/setConfig'
+import { CONNECT_PRINTER } from '../../printer/actions/connectPrinter'
 import { DEVICE_CONNECTED } from '../actions/deviceConnected'
 import { DEVICE_DISCONNECTED } from '../actions/deviceDisconnected'
 
@@ -14,8 +15,13 @@ export const initialState = Record({
 
 const devicesReducer = (state = initialState, action) => {
   switch (action.type) {
-    case SET_CONFIG: {
-      if (state.initialized) return state
+    case SET_CONFIG:
+    case CONNECT_PRINTER: {
+      const isConfigError = (
+        action.type === SET_CONFIG && action.payload.error != null
+      )
+
+      if (state.initialized || isConfigError) return state
 
       const nextState = state.set('initialized', true)
 

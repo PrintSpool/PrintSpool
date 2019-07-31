@@ -2,7 +2,12 @@ import { Map } from 'immutable'
 
 const loadPlugins = async (params) => {
   const { pluginLoader } = params
-  const { config, onComplete, onError } = params
+  const {
+    config,
+    onComplete,
+    onError,
+    error,
+  } = params
 
   if (pluginLoader == null) {
     throw new Error('pluginLoaderPath must be defined')
@@ -24,6 +29,7 @@ const loadPlugins = async (params) => {
     plugins,
     onComplete,
     onError,
+    error,
   }
 }
 

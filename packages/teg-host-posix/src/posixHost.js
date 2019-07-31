@@ -15,7 +15,10 @@ import * as tegDriverSerialGCode from '@tegapp/driver-serial-gcode'
 import * as tegMacrosDefault from '@tegapp/macros-default'
 import * as tegRaspberryPi from '@tegapp/raspberry-pi'
 
-// import { wrapInCrashReporting } from './crashReport'
+import {
+  handleFatalExceptions,
+  getPreviousFatalException,
+} from './FatalExceptionManager'
 import httpServer from './server/httpServer'
 import webRTCServer from './server/webRTCServer'
 
@@ -165,12 +168,11 @@ const tegServer = async (argv, pluginLoader) => {
   const configPath = path.join(configDir, 'config.json')
   const config = await loadConfigForm(configPath)
 
+  handleFatalExceptions({ config })
+  const previousFatalException = getPreviousFatalException({ config })
+
   const serverSettings = config.host.server
   delete config.server
-
-  // wrapInCrashReporting({ configPath, config }, ({
-  //   setErrorHandlerStore,
-  // }) => {
 
   const store = createTegHostStore()
 
@@ -178,6 +180,7 @@ const tegServer = async (argv, pluginLoader) => {
     config,
     pluginLoader,
     availablePlugins,
+    previousFatalException,
     // updatesFile,
   })
 

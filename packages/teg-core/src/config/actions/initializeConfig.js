@@ -4,12 +4,14 @@ const initializeConfig = ({
   config,
   pluginLoader,
   availablePlugins,
+  previousFatalException,
 }) => ({
   type: INITIALIZE_CONFIG,
   payload: {
     config,
     pluginLoader,
     availablePlugins,
+    previousFatalException,
   },
 })
 
