@@ -3,7 +3,7 @@ import { Record } from 'immutable'
 
 import {
   SET_CONFIG,
-  CONNECT_PRINTER,
+  PRINTER_DISCONNECTED,
   getController,
   DeviceTypeEnum,
   deviceConnected,
@@ -25,7 +25,7 @@ export const initialState = Record({
 const simulatedDeviceReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG:
-    case CONNECT_PRINTER: {
+    case PRINTER_DISCONNECTED: {
       const isConfigError = (
         action.type === SET_CONFIG && action.payload.error != null
       )
@@ -67,8 +67,12 @@ const simulatedDeviceReducer = (state = initialState, action) => {
       if (simulate === false && state.isConnected === true) {
         const { device } = state
 
+        nextState = initialState
+          .set('config', config)
+          .set('initialized', true)
+
         return loop(
-          initialState.set('config', config),
+          nextState,
           Cmd.action(deviceDisconnected({ device })),
         )
       }

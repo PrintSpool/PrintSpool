@@ -5,6 +5,7 @@ import delay from './macros/delay'
 import home from './macros/home'
 import moveBy from './macros/moveBy'
 import moveTo from './macros/moveTo'
+import noOp from './macros/noOp'
 import setMaterials from './macros/setMaterials'
 import setTargetTemperatures from './macros/setTargetTemperatures'
 import toggleFans from './macros/toggleFans'
@@ -16,6 +17,7 @@ const reducers = {
   home,
   moveBy,
   moveTo,
+  noOp,
   setMaterials,
   setTargetTemperatures,
   toggleFans,
