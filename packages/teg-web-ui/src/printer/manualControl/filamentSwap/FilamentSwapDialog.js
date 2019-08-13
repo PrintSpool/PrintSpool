@@ -42,13 +42,13 @@ const FILAMENT_SWAP_SUBSCRIPTION = gql`
               model
             }
             heater {
-              currentTemperature
+              actualTemperature
               targetTemperature
               materialTarget
               history {
                 id
                 createdAt
-                currentTemperature
+                actualTemperature
                 targetTemperature
               }
             }

@@ -19,7 +19,7 @@ const TemperatureSection = ({
     id,
     address,
     heater: {
-      currentTemperature,
+      actualTemperature,
       targetTemperature,
     },
   } = component
@@ -41,7 +41,7 @@ const TemperatureSection = ({
   return (
     <React.Fragment>
       <Typography variant="h4" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
-        {currentTemperature.toFixed(1)}
+        {actualTemperature.toFixed(1)}
           °C /
         <sup style={{ fontSize: '50%' }}>
           {' '}

@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+// Combinators send CombinatorMessages
+message CombinatorMessage {
+  repeated string ack_message_ids = 1;
+  string message_id = 2;
+
+  oneof payload {
+    NewConnection new_connection = 8;
+    SetConfig set_config = 9;
+    SpoolTask spool_task = 10;
+    DeleteTaskHistory delete_task_history = 11;
+
+    EStop estop = 15;
+    Reset reset = 16;
+  }
+
+  message NewConnection {}
+
+  message SetConfig {
+    // JSON encoded machine configuration
+    string file_path = 1;
+  }
+
+  message SpoolTask {
+    string id = 1;
+    string file_path = 2;
+
+    // 3-7 are reserved for future file formats
+
+    string name = 8;
+
+    // Override tasks can be ran during jobs, do not generate task history
+    // and do not effect the despooled_line_number in the MachineMessage.
+    //
+    // The are executed silently to adjust machine settings such as feedrate
+    // override during a job.
+    optional bool override = 9;
+  }
+
+  message EStop {}
+  message Reset {}
+
+  message DeleteTaskHistory {
+    repeated string task_ids = 1;
+  }
+}

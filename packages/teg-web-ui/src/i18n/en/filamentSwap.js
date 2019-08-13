@@ -21,7 +21,7 @@ const filamentSwapEn = {
   heatExtruder: {
     title: deline`
       Heating
-      ({{currentTemperature}} / {{targetTemperature}}°C)...
+      ({{actualTemperature}} / {{targetTemperature}}°C)...
     `,
   },
   retract: {

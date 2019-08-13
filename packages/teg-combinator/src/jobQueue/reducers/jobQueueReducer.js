@@ -203,14 +203,15 @@ const jobQueueReducer = (state = initialState, action) => {
 
       return loop(state, Cmd.run(loadJobFileInToTask, {
         args: [{ jobFile }],
-        successActionCreator: spoolTask,
+        successActionCreator: sendTaskToMachine,
       }))
     }
-    case SPOOL_TASK: {
+    case TASK_SENT_TO_MACHINE: {
       const {
         jobID,
         jobFileID,
         id: taskID,
+        machineID,
       } = action.payload.task
 
       if (jobID == null) return state

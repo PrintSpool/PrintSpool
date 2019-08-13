@@ -7,11 +7,16 @@ const GREETINGS = /^\u0000?(start|grbl |marlin)/
 const OK = /^o?k?ok/
 
 type Feedback = {
-  /* any temperature values received with the ack */
-  temperatures?: mixed,
-  /* Estimated time in millis until the heaters reach their target
-   * temperatures */
-  targetTemperaturesCountdown?: ?number,
+  setsActualTemperatures?: boolean,
+  /* JSON Patches may include:
+   * - Estimated time in millis until the heaters reach their target
+   *   temperatures (/components/:address/heater/targetTemperaturesCountdown)
+   * - any temperature values received with the ack
+   *   (/components/:address/heater/actualTemperature)
+   * - any position values received with the ack
+   *   (/components/:address/axis/actualPosition)
+   */
+  patch?: mixed,
 }
 
 type RxDataWithoutRaw =
@@ -35,6 +40,37 @@ type RxDataWithoutRaw =
 
 type RxData = RxDataWithoutRaw & { raw: string }
 
+
+const createPatchOp = (k, v) => {
+  switch (k) {
+    // case w: {
+    //   return {
+    //     op: 'replace',
+    //     path: `/targetTemperaturesCountdown`,
+    //     value: v * 1000,
+    //   }
+    // }
+    case x:
+    case y:
+    case z: {
+      obj.components[k] = { actualPosition: v }
+      return {
+        op: 'replace',
+        path: `/components/${k}/axis/actualPosition`,
+        value: v,
+      }
+    }
+    default: {
+      // temperature values
+      return {
+        op: 'replace',
+        path: `/components/${k}/heater/actualTemperature`,
+        value: v,
+      }
+    }
+  }
+}
+
 const parsePrinterFeedback = (line: string): Feedback => {
   if (line.match('t:') == null && line.match('x:') == null) return {}
   // Filtering out non-temperature values
@@ -47,26 +83,25 @@ const parsePrinterFeedback = (line: string): Feedback => {
     .replace('t:', 'e0:')
     .replace(/:[\s\t]*/g, ':')
     .split(' ')
-  // Construct an object containing current temperature values
-  const feedbackVals = {}
+  // Construct an object containing sanitized feedback values
+  const patch = []
+  let setsActualTemperatures = false
+
   keyValueWords.forEach((word) => {
     const [key, rawValue] = word.split(':')
     const value = parseFloat(rawValue)
-    if (!Number.isNaN(value)) feedbackVals[key] = value
+    if (!Number.isNaN(value) && key !== 'w') {
+      patch.push(createPatchOp(feedbackObj, key, value))
+      if (['x', 'y', 'z'].includes(key) === false) {
+        setsActualTemperatures = true
+      }
+    }
   })
-  const {
-    w, x, y, z, ...temperatures
-  } = feedbackVals
 
-  const meta = {
-    temperatures,
-    // Parsing "w" temperature countdown values
-    // see: http://git.io/FEACGw or google "TEMP_RESIDENCY_TIME"
-    targetTemperaturesCountdown: w == null ? null : w * 1000,
-    position: x == null ? null : { x, y, z },
+  return {
+    patch,
+    setsActualTemperatures,
   }
-
-  return meta
 }
 
 const rxParser = (raw: string): RxData => {
@@ -118,7 +153,7 @@ const rxParser = (raw: string): RxData => {
   if (line.match(OK) != null) {
     return {
       type: 'ok',
-      ...parsePrinterFeedback(line),
+      feedback: parsePrinterFeedback(line),
       raw,
     }
   }
@@ -129,7 +164,7 @@ const rxParser = (raw: string): RxData => {
   ) {
     return {
       type: 'feedback',
-      ...parsePrinterFeedback(line),
+      feedback: parsePrinterFeedback(line),
       raw,
     }
   }

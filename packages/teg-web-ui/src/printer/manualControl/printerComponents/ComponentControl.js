@@ -37,12 +37,12 @@ export const ComponentControlFragment = gql`
     }
     heater {
       materialTarget
-      currentTemperature
+      actualTemperature
       targetTemperature
       history {
         id
         createdAt
-        currentTemperature
+        actualTemperature
         targetTemperature
       }
     }

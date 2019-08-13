@@ -70,7 +70,7 @@ describe('componentsReducer', () => {
     describe(actionType, () => {
       it('initializes each component\'s state', () => {
         const state = configuredState
-          .setIn(['byAddress', 'e0', 'currentTemperature'], 120)
+          .setIn(['byAddress', 'e0', 'actualTemperature'], 120)
           .setIn(['byAddress', 'f0', 'enabled'], true)
         const action = { type: actionType }
 
@@ -96,7 +96,7 @@ describe('componentsReducer', () => {
 
       expect(nextState.toJSON()).toEqual(
         configuredState
-          .setIn(['byAddress', 'e0', 'currentTemperature'], temperature)
+          .setIn(['byAddress', 'e0', 'actualTemperature'], temperature)
           .set('targetTemperaturesCountdown', countdown * 1000)
           .set('temperatureHistory', List([
             {
@@ -105,17 +105,17 @@ describe('componentsReducer', () => {
               temperatures: [
                 {
                   address: 'e0',
-                  currentTemperature: temperature,
+                  actualTemperature: temperature,
                   targetTemperature: null,
                 },
                 {
                   address: 'e1',
-                  currentTemperature: 0,
+                  actualTemperature: 0,
                   targetTemperature: null,
                 },
                 {
                   address: 'b',
-                  currentTemperature: 0,
+                  actualTemperature: 0,
                   targetTemperature: null,
                 },
               ],

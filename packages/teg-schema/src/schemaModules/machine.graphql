@@ -60,6 +60,10 @@ type Component {
   configForm: ConfigForm!
 
   """
+  set if this component is an axis. Null for all other components.
+  """
+  axis: Axis
+  """
   set if this component contains a heater. Null for non-heater components.
   """
   heater: Heater
@@ -71,27 +75,14 @@ type Component {
   set if this component is a fan. Null for all other components.
   """
   fan: Fan
-
-  """
-  set if this component is an axis. Null for all other components.
-  """
-  axis: Axis
 }
 
-type Fan {
+type Axis {
+  id: ID!
   """
-  True if the fan is on.
+  The current position in mm.
   """
-  enabled: Boolean!
-
-  """
-  The speed of the fan as a percentage of full speed (range: 0 to 100).
-  """
-  speed: Int!
-}
-
-type Toolhead  {
-  currentMaterial: Material
+  actualPosition: Float!
 }
 
 type Heater {
@@ -105,7 +96,7 @@ type Heater {
 
   """
   The target temperature in °C for this heater. The heater will attempt to make
-  the currentTemperature equal to this temperature.
+  the actualTemperature equal to this temperature.
   """
   targetTemperature: Float
 
@@ -113,7 +104,7 @@ type Heater {
   The current temperature in °C recorded by the heater’s thermocouple or
   thermister.
   """
-  currentTemperature: Float!
+  actualTemperature: Float!
 
   """
   True if the machine is waiting on this heater to reach it’s targetTemp and
@@ -124,19 +115,28 @@ type Heater {
   history: [TemperatureHistoryEntry!]!
 }
 
-type Axis {
-  id: ID!
+type Fan {
   """
-  The current position in mm.
+  True if the fan is on.
   """
-  position: Float!
+  enabled: Boolean!
+
+  """
+  The speed of the fan in RPM.
+  """
+  speed: Float!
+  maxSpeed: Float!
+}
+
+type Toolhead  {
+  currentMaterial: Material
 }
 
 type TemperatureHistoryEntry {
   id: ID!
   createdAt: DateTime!
   targetTemperature: Float!
-  currentTemperature: Float!
+  actualTemperature: Float!
 }
 
 type MovementDataPoint {

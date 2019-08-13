@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+// Machines send MachineMessages
+message MachineMessage {
+  repeated string ack_message_ids = 1;
+
+  oneof payload {
+    NewConnection new_connection = 8;
+    Feedback feedback = 9;
+  }
+
+  message NewConnection {
+    string messageID = 1;
+  }
+
+  message Feedback {
+    optional uint32 despooled_line_number = 1;
+
+    // 2-7: Frequently used sub-messages
+    // TODO: should printer status be sent in the histroy feedback?
+    // optional PrinterStatus status = 3;
+    repeated Event events = 3;
+    repeated Axis axes = 4;
+    repeated Heater heaters = 5;
+    repeated SpeedController speed_controllers = 6;
+
+    // 8-15: Frequently used bools
+    optional bool sets_target_temperatures = 8;
+    optional bool sets_actual_temperatures = 9;
+    optional bool sets_target_position = 10;
+    optional bool sets_actual_position = 11;
+
+    // Less frequently set fields (field numbers 16 through 2047 take 2 bytes)
+
+    // 100-999 Less frequently set sub-messages
+    // *Reserved for future use*
+
+    // 1000-2047: Less frequently set bools start
+    optional bool motors_enabled = 1000;
+  }
+
+  message Event {
+    string id = 1;
+    optional string task_id = 2;
+    EventType type = 3;
+    string created_at = 4;
+  }
+
+  enum EventType {
+    ERROR,
+    SPOOL_TASK,
+    START_TASK,
+    CANCEL_TASK,
+    FINISH_TASK,
+  }
+
+  message Axis {
+    string address = 1;
+
+    // Positions are in mm
+    optional float target_position = 2;
+    optional float actual_position = 3;
+    optional bool homed = 4;
+  }
+
+  message Heater {
+    string address = 1;
+
+    // Temperatures are in celsius
+    optional float target_temperature = 2;
+    optional float actual_temperature = 3;
+
+    optional bool enabled = 4;
+    optional bool blocking = 5;
+  }
+
+  message SpeedController {
+    string address = 1;
+
+    // Speeds are is in RPM. > 0: clockwise, < 0: counterclockwise.
+    optional float target_speed = 2;
+    optional float actual_speed = 3;
+
+    optional bool enabled = 4;
+  }
+}

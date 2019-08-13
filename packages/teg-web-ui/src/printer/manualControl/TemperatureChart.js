@@ -47,7 +47,7 @@ const TemperatureChart = ({
         <LineSeries
           data={data.map(entry => ({
             x: new Date(entry.createdAt).getTime(),
-            y: entry.currentTemperature,
+            y: entry.actualTemperature,
           }))}
           curve="curveMonotoneX"
           opacity={1}

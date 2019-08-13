@@ -37,7 +37,7 @@ describe('ComponentResolvers', () => {
             e1: Record({
               id: 'heater_1',
               address: 'e1',
-              currentTemperature: 32,
+              actualTemperature: 32,
               targetTemperature: 40,
               blocking: true,
             })(),

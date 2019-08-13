@@ -31,7 +31,7 @@ export const initialState = Record({
   relativeMovement: false,
   /*
    * the components' non-configuration/dynamic/ephemeral data (eg.
-   * currentTemperature) indexed by their ID
+   * actualTemperature) indexed by their ID
    */
   byAddress: Map(),
   movementHistory: List([initialPosition]),
@@ -44,7 +44,7 @@ export const Heater = Record({
   id: null,
   type: null,
   address: null,
-  currentTemperature: 0,
+  actualTemperature: 0,
   targetTemperature: null,
   blocking: false,
 })
@@ -170,7 +170,7 @@ const componentsReducer = (state = initialState, action) => {
 
           Object.entries(temperatures).forEach(([
             address,
-            currentTemperature,
+            actualTemperature,
           ]) => {
             const component = state.byAddress.get(address)
             if (component == null) return null
@@ -182,7 +182,7 @@ const componentsReducer = (state = initialState, action) => {
               createdAt,
               componentID: component.id,
               targetTemperature: component.targetTemperature || 0,
-              currentTemperature,
+              actualTemperature,
             })
           })
 
@@ -193,7 +193,7 @@ const componentsReducer = (state = initialState, action) => {
         })
         Object.entries(temperatures).forEach(([k, v]) => {
           if (state.byAddress.get(k) == null) return
-          nextState = nextState.setIn(['byAddress', k, 'currentTemperature'], v)
+          nextState = nextState.setIn(['byAddress', k, 'actualTemperature'], v)
         })
       }
 
