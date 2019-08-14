@@ -46,7 +46,8 @@ while(true) {
         createMachineUpdate()
     }
     if (exceptional.len != 0) {
-
+        print >>sys.stderr, "Unknown Teg Socket Error"
+        sys.exit(1)
     }
     if (readable.len == 0 && writable.len == 0) {
         # Wait 50ms and then check if there's anything to do again.
@@ -66,8 +67,11 @@ interpretCombinatorMessage() {
     } elif (type == "set_config") {
         # This machine implementation does not load anything from the configuration
     } elif (type == "spool_task") {
-        if (msg.spool_task.job) {
-            # Start the print
+        if (msg.spool_task.override) {
+            # THIS TODO SHOULD BE DELAYED UNTIL AFTER PROOF OF CONCEPT WITH A REAL INSTANCE OF LINUXCNC
+            # TODO: what about if the spool task is setting a feedrate override during a print?
+        } else {
+            # Start the task
             cnc.mode(linuxcnc.MODE_AUTO)
             cnc.wait_complete() # wait until mode switch executed
             cnc.program_open(msg.file_path)
@@ -78,11 +82,6 @@ interpretCombinatorMessage() {
             # Update the task history
             # TODO: create a task history object here instead of a string
             newTaskHistoryEvents.push("JOB_START")
-        } else {
-            # Non-job task
-
-            # THIS TODO SHOULD BE DELAYED UNTIL AFTER PROOF OF CONCEPT WITH A REAL INSTANCE OF LINUXCNC
-            # TODO: what about if the spool task is setting a feedrate override during a print?
         }
     } elif (type == "estop") {
         cnc.estop()
