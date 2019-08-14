@@ -23,18 +23,18 @@ message CombinatorMessage {
   }
 
   message SpoolTask {
-    string id = 1;
+    string task_id = 1;
     string file_path = 2;
 
     // 3-7 are reserved for future file formats
 
     string name = 8;
 
-    // Override tasks can be ran during jobs, do not generate task history
-    // and do not effect the despooled_line_number in the MachineMessage.
+    // Override tasks can be ran during jobs and do not set the
+    // despooled_line_number in the MachineMessage.
     //
     // The are executed silently to adjust machine settings such as feedrate
-    // override during a job.
+    // override during another task.
     optional bool override = 9;
   }
 

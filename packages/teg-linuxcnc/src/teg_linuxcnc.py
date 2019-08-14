@@ -1,9 +1,11 @@
 import linuxcnc
 import socket
 import sys
+import uuid
+from time import sleep
+
 import combinator_protobuf
 import machine_protobuf
-from time import sleep
 
 MAX_COMBINATOR_MSG_SIZE = 16 * 1024
 
@@ -23,14 +25,28 @@ except socket.error, msg:
     print >>sys.stderr, msg
     sys.exit(1)
 
-taskHistoryEvents = []
-task_state = None
-current_file = None
-newTaskHistoryEvents = []
+all_events = []
+new_events = []
+
+current_task = None
 lastMachineUpdate = 0
 
 ## TODO: Startup
 
+
+function add_event(type, task_id = None) {
+    if task_id == None && current_task != None:
+        task_id = current_task["id"]
+
+    event = {
+        "id": uuid.uuid4(),
+        "type": type,
+        "created_at": time.time(),
+        "task_id": task_id
+    }
+    new_events.push(event)
+    all_events.push(event)
+}
 
 # Main loop
 while(true) {
@@ -68,8 +84,20 @@ interpretCombinatorMessage() {
         # This machine implementation does not load anything from the configuration
     } elif (type == "spool_task") {
         if (msg.spool_task.override) {
-            # THIS TODO SHOULD BE DELAYED UNTIL AFTER PROOF OF CONCEPT WITH A REAL INSTANCE OF LINUXCNC
-            # TODO: what about if the spool task is setting a feedrate override during a print?
+            commands = open(msg.spool_task.file_path, "r").read().split('\n')
+            # Update the task history
+            add_event("JOB_START", msg.spool_task.task_id)
+            # c.mode(linuxcnc.MODE_MDI)
+            # c.wait_complete() # wait until mode switch executed
+            for command in commands:
+                c.mdi()
+                c.wait_complete() # wait until mode command executed
+            # if (current_task != None): {
+            #     c.mode(linuxcnc.MODE_AUTO)
+            #     c.wait_complete() # wait until mode switch executed
+            # }
+            # Update the task history
+            add_event("JOB_DONE", msg.spool_task.task_id)
         } else {
             # Start the task
             cnc.mode(linuxcnc.MODE_AUTO)
@@ -77,20 +105,27 @@ interpretCombinatorMessage() {
             cnc.program_open(msg.file_path)
             cnc.auto(linuxcnc.AUTO_RUN, 0)
 
-            current_file = msg.spool_task.file_path
+            current_task = {
+                "id": msg.spool_task.task_id,
+                "name": msg.spool_task.name,
+                "file_path": msg.spool_task.file_path
+            }
 
             # Update the task history
-            # TODO: create a task history object here instead of a string
-            newTaskHistoryEvents.push("JOB_START")
+            add_event("JOB_START")
         }
     } elif (type == "estop") {
         cnc.estop()
 
-        current_file = None
-        # TODO: Update the task history
-        newTaskHistoryEvents.push("JOB_CANCEL")
-    } elif (type == "delete_task_history") {
+        # Update the task history
+        add_event("JOB_CANCEL")
 
+        current_task = None
+    } elif (type == "delete_task_history") {
+        event_filter = lambda x: !msg.task_ids.includes(x.task_id)
+
+        all_events = list(filter(event_filter, all_events))
+        new_events = list(filter(event_filter, new_events))
     } else {
         print >>sys.stderr, "Unrecognized message type %s" % type
     }
@@ -116,8 +151,8 @@ createMachineUpdate() {
 }
 
 buildTaskUpdate(stat, feedback) {
-    if (current_file != None) {
-        if (stat.file != current_file) {
+    if (current_task != None) {
+        if (stat.file != current_task["file"]) {
             print >>sys.stderr, 'Unexpected file change: %s' % stat.file
             sys.exit(1)
         }
@@ -126,18 +161,18 @@ buildTaskUpdate(stat, feedback) {
             stat.exec_state == 'EXEC_ERROR'
             || cnc.stat.exec_state == 'EXEC_DONE'
         ) {
-            # TODO: create a task history object here instead of a string
-            newTaskHistoryEvents.push(
-                cnc.stat.exec_state == 'EXEC_DONE'? "JOB_DONE" : "JOB_ERROR"
-            )
-            current_file = None
+            event_type = "JOB_ERROR"
+            if (cnc.stat.exec_state == 'EXEC_DONE'):
+                event_type = "JOB_DONE"
+
+            add_event(event_type)
+            current_task = None
             cnc.reset_interpreter()
         } else {
             # Task is still running
             feedback.despooled_line_number = stat.current_line
         }
     }
-    # TODO: Send machine messages
 }
 
 AXES = "xyzabcuvw"
