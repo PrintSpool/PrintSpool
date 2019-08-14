@@ -86,7 +86,7 @@ interpretCombinatorMessage() {
         if (msg.spool_task.override) {
             commands = open(msg.spool_task.file_path, "r").read().split('\n')
             # Update the task history
-            add_event("JOB_START", msg.spool_task.task_id)
+            add_event(machine_protobuf.EventType.START_TASK, msg.spool_task.task_id)
             # c.mode(linuxcnc.MODE_MDI)
             # c.wait_complete() # wait until mode switch executed
             for command in commands:
@@ -97,7 +97,7 @@ interpretCombinatorMessage() {
             #     c.wait_complete() # wait until mode switch executed
             # }
             # Update the task history
-            add_event("JOB_DONE", msg.spool_task.task_id)
+            add_event(machine_protobuf.EventType.FINISH_TASK, msg.spool_task.task_id)
         } else {
             # Start the task
             cnc.mode(linuxcnc.MODE_AUTO)
@@ -112,13 +112,13 @@ interpretCombinatorMessage() {
             }
 
             # Update the task history
-            add_event("JOB_START")
+            add_event(machine_protobuf.EventType.START_TASK)
         }
     } elif (type == "estop") {
         cnc.estop()
 
         # Update the task history
-        add_event("JOB_CANCEL")
+        add_event(machine_protobuf.EventType.CANCEL_TASK)
 
         current_task = None
     } elif (type == "delete_task_history") {
@@ -161,11 +161,11 @@ buildTaskUpdate(stat, feedback) {
             stat.exec_state == 'EXEC_ERROR'
             || cnc.stat.exec_state == 'EXEC_DONE'
         ) {
-            event_type = "JOB_ERROR"
-            if (cnc.stat.exec_state == 'EXEC_DONE'):
-                event_type = "JOB_DONE"
+            if (cnc.stat.exec_state == 'EXEC_ERROR'):
+                add_event(machine_protobuf.EventType.ERROR)
+            else:
+                add_event(machine_protobuf.EventType.FINISH_TASK)
 
-            add_event(event_type)
             current_task = None
             cnc.reset_interpreter()
         } else {
@@ -173,11 +173,17 @@ buildTaskUpdate(stat, feedback) {
             feedback.despooled_line_number = stat.current_line
         }
     }
+    for event in new_events:
+        ev = feedback.add_event()
+        ev.id = event.id
+        ev.task_id = event.task_id
+        ev.type = event.type
+        ev.created_at = event.created_at
 }
 
 AXES = "xyzabcuvw"
 
-buildMachineOperationUpdate(stat, msg) {
+buildMachineOperationUpdate(stat, feedback) {
     # Axis positions
     for i in range(len(AXES)):
         axis = feedback.axis.add()

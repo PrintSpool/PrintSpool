@@ -1,5 +1,13 @@
 syntax = "proto3";
 
+enum EventType {
+  ERROR,
+  SPOOL_TASK,
+  START_TASK,
+  CANCEL_TASK,
+  FINISH_TASK,
+}
+
 // Machines send MachineMessages
 message MachineMessage {
   repeated string ack_message_ids = 1;
@@ -44,14 +52,6 @@ message MachineMessage {
     optional string task_id = 2;
     EventType type = 3;
     string created_at = 4;
-  }
-
-  enum EventType {
-    ERROR,
-    SPOOL_TASK,
-    START_TASK,
-    CANCEL_TASK,
-    FINISH_TASK,
   }
 
   message Axis {
