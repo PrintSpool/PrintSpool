@@ -25,6 +25,7 @@ except socket.error, msg:
     print >>sys.stderr, msg
     sys.exit(1)
 
+received_message_ids = []
 all_events = []
 new_events = []
 
@@ -76,6 +77,8 @@ interpretCombinatorMessage() {
     msg = combinator_protobuf.CombinatorMessage()
     msg.ParseFromString(socket.recv(MAX_COMBINATOR_MSG_SIZE))
     type = msg.WhichOneof("payload")
+
+    received_message_ids.push(msg.message_id)
 
     # Interpretter
     if (type == "new_connection") {
@@ -147,6 +150,8 @@ createMachineUpdate() {
     buildTaskUpdate(stat, feedback)
     buildMachineOperationUpdate(stat, feedback)
 
+    sock.sendall(msg.SerializeToString())
+
     lastMachineUpdate = time.time()
 }
 
@@ -173,12 +178,17 @@ buildTaskUpdate(stat, feedback) {
             feedback.despooled_line_number = stat.current_line
         }
     }
+    # Events
     for event in new_events:
-        ev = feedback.add_event()
-        ev.id = event.id
-        ev.task_id = event.task_id
-        ev.type = event.type
-        ev.created_at = event.created_at
+        protobufEv = feedback.add_event()
+        protobufEv.id = event.id
+        protobufEv.task_id = event.task_id
+        protobufEv.type = event.type
+        protobufEv.created_at = event.created_at
+    new_events = []
+    # Acks
+    feedback.ack_message_ids = received_message_ids
+    received_message_ids = []
 }
 
 AXES = "xyzabcuvw"
