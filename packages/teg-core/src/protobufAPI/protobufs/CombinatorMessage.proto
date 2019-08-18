@@ -6,7 +6,7 @@ message CombinatorMessage {
   string message_id = 2;
 
   oneof payload {
-    NewConnection new_connection = 8;
+    ResetConnection reset_connection = 8;
     SetConfig set_config = 9;
     SpoolTask spool_task = 10;
     DeleteTaskHistory delete_task_history = 11;
@@ -15,7 +15,7 @@ message CombinatorMessage {
     Reset reset = 16;
   }
 
-  message NewConnection {}
+  message ResetConnection {}
 
   message SetConfig {
     // JSON encoded machine configuration

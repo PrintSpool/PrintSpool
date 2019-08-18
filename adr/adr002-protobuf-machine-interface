@@ -7,6 +7,7 @@
   * the machine MUST be able to relay changes back to the new combinator process after a combinator crash
   * the combinator SHOULD mark the job as errored in the event of a machine crash
 * Both remote machines and combinators MUST be designed to gracefully handle network disconnects in case they are not running on the same machine
+* Where possible idempotent communication should be used to reduce implementation difficulty in deduplicating data.
 
 ### Architecture
 Use WebRTC for remote machines and Unix Sockets for local machines.
@@ -48,7 +49,7 @@ Actions from all Combinators:
 Actions from all Machines:
 * NEW_SOCKET
 * ACK
-* ADD_TASK_HISTORY_EVENTS
+* `events`
 * PRINTER_STATUS_CHANGE (printer connect, disconnect, estopped, reset)
 
 Actions sent only to localhost Combinators:
@@ -62,14 +63,17 @@ Since the GraphQL API must provide a gcodeHistory reliably the GCODE_FEEDBACK ne
 The job history events need to be pushed through a reliable socket so that in the case of a temporary network disconnect or back pressure on the socket the combinator is guaranteed to receive the job history event.
 
 #### Startup Workflow
-* On startup the local combinator and machine connect their pair sockets
-* When the machine starts up it will send a NEW_CONNECTION action to the combinator.
+* On startup the local combinator and machine connect their pair sockets.
+  * The machine binds the socket
+  * The combinator connects to the machine's socket.
+  * Note: The combinator's initial call to `connect` will block until the machine has bound it's end of the socket but if the machine crashes then the combinator will maintain it's smart socket while the machine restarts.
+* When the machine starts up it will send a `MachineStartup` action to the combinator.
   * If the combinator is listening then it will reset it's connection to the machine
   * If the combinator is not yet listening then it is in the startup process as well and a new connection will be established once the combinator is initialized.
-* When the combinator resets it's connection to the machine or starts a new connection it sends a REQ_FULL_STATE.
-* Upon receiving a REQ_FULL_STATE the machine sends it's complete job history with a ADD_TASK_HISTORY_EVENTS action. This will always include the MACHINE_START_UP event but a PRINT_ERROR may be included as well *before* the MACHINE_START_UP event in the event that the machine had a fatal error that was saved to disk before it crashed and re-hydrated on startup.
-* The machine ignores all non-REQ_NEW_CONNECTION messages until an acknowledgement is received for a new connection
-* If the only event in a ADD_TASK_HISTORY_EVENTS payload is the MACHINE_START_UP event then the local combinator will cancel any pending requests, set it's internal state of the machine to START_UP and sends a SET_CONFIG action initializing the machine's configuration.
+* When the combinator resets it's connection to the machine or starts a new connection it sends a `ResetConnection`.
+  * Upon startup the machine ignores all messages until `ResetConnection` is received.
+* Upon receiving a `ResetConnection` the machine sends it's complete job history with a `events` action. This will always include the MACHINE_START_UP event but a PRINT_ERROR may be included as well *before* the MACHINE_START_UP event in the event that the machine had a fatal error that was saved to disk before it crashed and re-hydrated on startup.
+* If the only event in a `events` payload is the MACHINE_START_UP event then the local combinator will cancel any pending requests, set it's internal state of the machine to START_UP and sends a SET_CONFIG action initializing the machine's configuration.
 * If the state is set to START_UP the user will need to verify that the build platform is clear before resetting the machine. Resetting the machine will set the state to IDLE internally in the combinator but does not effect the machine in any way since the START_UP state only exists to prevent user mistakes in not clearing the build platform before stating a print.
 * Resetting the state from START_UP will delay until the machine has received it's initial configuration.
 
@@ -80,9 +84,9 @@ The job history events need to be pushed through a reliable socket so that in th
 
 #### Job Workflow
 * Upon starting a job the combinator sends a SPOOL_TASK action to the machine
-* Upon receiving a SPOOL_TASK action the machine sends a ADD_TASK_HISTORY_EVENTS action with a SPOOL_PRINT event. The machine may also send a START_PRINT event if it is ready to start the print immediately or send another ADD_TASK_HISTORY_EVENTS action later when it is ready to start the print.
-* Upon canceling, erroing or finishing the job the combinator sends a ADD_TASK_HISTORY_EVENTS with CANCEL_PRINT, PRINT_ERROR or FINISH_PRINT respectively. Some fatal errors may cause the error to send only a MACHINE_START_UP event. If a print is ongoing a MACHINE_START_UP event should be treated as a print failure.
-* Upon receiving a ADD_TASK_HISTORY_EVENTS action the combinator filters out and job history events that are not relevant to it. If the combinator is the machine's local host (and therefore also acting as a reverse proxy for the machine to other networked combinators) then it keeps all job history events so they can be forwarded through the proxy.
+* Upon receiving a SPOOL_TASK action the machine sends a `events` action with a SPOOL_PRINT event. The machine may also send a START_PRINT event if it is ready to start the print immediately or send another `events` action later when it is ready to start the print.
+* Upon canceling, erroing or finishing the job the combinator sends a `events` with CANCEL_PRINT, PRINT_ERROR or FINISH_PRINT respectively. Some fatal errors may cause the error to send only a MACHINE_START_UP event. If a print is ongoing a MACHINE_START_UP event should be treated as a print failure.
+* Upon receiving a `events` action the combinator filters out and job history events that are not relevant to it. If the combinator is the machine's local host (and therefore also acting as a reverse proxy for the machine to other networked combinators) then it keeps all job history events so they can be forwarded through the proxy.
 * Upon receiving a job history event that indicates the completion of the print (successful or not) the machine first persists the job history and then sends a DELETE_JOB_HISTORY action to the machine for the jobID that was completed.
 
 #### Machine Errors
