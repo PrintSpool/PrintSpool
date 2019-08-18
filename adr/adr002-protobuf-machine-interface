@@ -6,7 +6,7 @@
 * Both the machine and the combinator MUST be able to crash independently without effecting the operation of the other.
   * the machine MUST be able to relay changes back to the new combinator process after a combinator crash
   * the combinator SHOULD mark the job as errored in the event of a machine crash
-* Both the machine and the combinator MUST be designed to handle network disconnects in case they are not running on the same machine
+* Both remote machines and combinators MUST be designed to gracefully handle network disconnects in case they are not running on the same machine
 
 ### Architecture
 Use WebRTC for remote machines and Unix Sockets for local machines.
@@ -52,7 +52,7 @@ Actions from all Machines:
 * PRINTER_STATUS_CHANGE (printer connect, disconnect, estopped, reset)
 
 Actions sent only to localhost Combinators:
-* GCODE_FEEDBACK
+* FEEDBACK
 * SET_TASK_LINE_NUMBER - a rate limited update on the current line number of the task.
 
 Further Notes:
@@ -62,11 +62,16 @@ Since the GraphQL API must provide a gcodeHistory reliably the GCODE_FEEDBACK ne
 The job history events need to be pushed through a reliable socket so that in the case of a temporary network disconnect or back pressure on the socket the combinator is guaranteed to receive the job history event.
 
 #### Startup Workflow
-* On startup the combinator and machine connect their pair sockets and/or WebRTC channels.
-* On connection the machine sends it's complete job history with a ADD_TASK_HISTORY_EVENTS action. This will always include the MACHINE_START_UP event but a PRINT_ERROR may be included as well *before* the MACHINE_START_UP event in the event that the machine had a fatal error that was saved to disk before it crashed and re-hydrated on startup.
+* On startup the local combinator and machine connect their pair sockets
+* When the machine starts up it will send a NEW_CONNECTION action to the combinator.
+  * If the combinator is listening then it will reset it's connection to the machine
+  * If the combinator is not yet listening then it is in the startup process as well and a new connection will be established once the combinator is initialized.
+* When the combinator resets it's connection to the machine or starts a new connection it sends a REQ_FULL_STATE.
+* Upon receiving a REQ_FULL_STATE the machine sends it's complete job history with a ADD_TASK_HISTORY_EVENTS action. This will always include the MACHINE_START_UP event but a PRINT_ERROR may be included as well *before* the MACHINE_START_UP event in the event that the machine had a fatal error that was saved to disk before it crashed and re-hydrated on startup.
+* The machine ignores all non-REQ_NEW_CONNECTION messages until an acknowledgement is received for a new connection
 * If the only event in a ADD_TASK_HISTORY_EVENTS payload is the MACHINE_START_UP event then the local combinator will cancel any pending requests, set it's internal state of the machine to START_UP and sends a SET_CONFIG action initializing the machine's configuration.
 * If the state is set to START_UP the user will need to verify that the build platform is clear before resetting the machine. Resetting the machine will set the state to IDLE internally in the combinator but does not effect the machine in any way since the START_UP state only exists to prevent user mistakes in not clearing the build platform before stating a print.
-* Ressetting the state from START_UP will delay until the machine has received it's initial configuration.
+* Resetting the state from START_UP will delay until the machine has received it's initial configuration.
 
 #### Configuration Workflow
 * Upon changing the configuration the combinator validates the new config with json schema forms and defers relaying it to the machine until the machine is not printing a job.

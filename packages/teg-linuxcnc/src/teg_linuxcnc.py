@@ -15,62 +15,63 @@ cnc = linuxcnc.command()
 # Create a unix domain socket to the localhost combinator
 sock = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
 
-# Connect the socket to the port where the server is listening
-socket_address = "./uds_socket"
-print >>sys.stderr, "connecting to %s" % socket_address
+with sock:
+    # Connect the socket to the port where the server is listening
+    socket_address = "./uds_socket"
+    print >>sys.stderr, "connecting to %s" % socket_address
 
-try:
-    sock.connect(server_address)
-except socket.error, msg:
-    print >>sys.stderr, msg
-    sys.exit(1)
-
-received_message_ids = []
-all_events = []
-new_events = []
-
-current_task = None
-lastMachineUpdate = 0
-
-## TODO: Startup
-
-
-function add_event(type, task_id = None) {
-    if task_id == None && current_task != None:
-        task_id = current_task["id"]
-
-    event = {
-        "id": uuid.uuid4(),
-        "type": type,
-        "created_at": time.time(),
-        "task_id": task_id
-    }
-    new_events.push(event)
-    all_events.push(event)
-}
-
-# Main loop
-while(true) {
-    readable, writable, exceptional = select.select([socket], [socket], [socket])
-
-    if (readable.len != 0) {
-        # Only do a blocking read when a message is available
-        interpretCombinatorMessage()
-    }
-    if (writable.len != 0 && lastMachineUpdate + 200 * 1000 < time.time()) {
-        # Only create a machine update when an update can be sent over the
-        # socket. Rate limited to one update every 200ms.
-        createMachineUpdate()
-    }
-    if (exceptional.len != 0) {
-        print >>sys.stderr, "Unknown Teg Socket Error"
+    try:
+        sock.connect(server_address)
+    except socket.error, msg:
+        print >>sys.stderr, msg
         sys.exit(1)
+
+    received_message_ids = []
+    all_events = []
+    new_events = []
+
+    current_task = None
+    lastMachineUpdate = 0
+
+    ## TODO: Startup
+
+
+    function add_event(type, task_id = None) {
+        if task_id == None && current_task != None:
+            task_id = current_task["id"]
+
+        event = {
+            "id": uuid.uuid4(),
+            "type": type,
+            "created_at": time.time(),
+            "task_id": task_id
+        }
+        new_events.push(event)
+        all_events.push(event)
     }
-    if (readable.len == 0 && writable.len == 0) {
-        # Wait 50ms and then check if there's anything to do again.
-        sleep(0.05)
+
+    # Main loop
+    while(true) {
+        readable, writable, exceptional = select.select([socket], [socket], [socket])
+
+        if (readable.len != 0) {
+            # Only do a blocking read when a message is available
+            interpretCombinatorMessage()
+        }
+        if (writable.len != 0 && lastMachineUpdate + 200 * 1000 < time.time()) {
+            # Only create a machine update when an update can be sent over the
+            # socket. Rate limited to one update every 200ms.
+            createMachineUpdate()
+        }
+        if (exceptional.len != 0) {
+            print >>sys.stderr, "Unknown Teg Socket Error"
+            sys.exit(1)
+        }
+        if (readable.len == 0 && writable.len == 0) {
+            # Wait 50ms and then check if there's anything to do again.
+            sleep(0.05)
+        }
     }
-}
 
 interpretCombinatorMessage() {
     # Receive combinator messages
