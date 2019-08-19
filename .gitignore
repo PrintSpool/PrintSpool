@@ -80,6 +80,8 @@ defs/staging/*
 !defs/staging/.datignore
 !defs/staging/dat.json
 
+target
+
 .cache
 dev-dist
 
