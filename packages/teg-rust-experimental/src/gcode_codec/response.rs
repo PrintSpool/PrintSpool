@@ -29,7 +29,7 @@ pub enum Response {
     }
 };
 
-fn parse_feedback(&mut words: std::iter::Iterator) {
+fn parse_feedback(&mut words: std::iter::Iterator) -> Response::Feedback {
     let mut feedback = HashMap::new();
 
     while let mut Some(word) = words.next {
@@ -61,6 +61,8 @@ fn parse_feedback(&mut words: std::iter::Iterator) {
             }
         }
     }
+
+    return Result::Feedback
 }
 
 pub fn parse_response(src: String) -> Result<Response, io::Error> {
@@ -71,10 +73,10 @@ pub fn parse_response(src: String) -> Result<Response, io::Error> {
     let mut words = trimmedSrc.split_whitespace()
 
     match words.peek() {
-        "start" | "grbl " | "marlin" => Response::Greeting,
+        "start" | "grbl" | "marlin" => Response::Greeting,
         "ok" | "ook" | "kok" | "okok" => {
             words.skip(1)
-            parseFeedback(words)
+            Ok(Response::Ok { feedback: parseFeedback(words) })
         },
         "debug_" | "compiled:" => Response::Debug,
         "echo:" => Response::Echo,
@@ -83,22 +85,23 @@ pub fn parse_response(src: String) -> Result<Response, io::Error> {
             let isWarning = trimmedSrc.startsWith("error:checksum mismatch")
 
             if (isWarning) {
-                Response::Warning { message: message }
+                Ok(Response::Warning { message: message })
             } else {
-                Response::Error { message: message }
+                Ok(Response::Error { message: message })
             }
         },
         "resend" | "rs" => {
             match trimmedSrc.split(":").next() {
                 None => Err(io::Error::new(io::ErrorKind::Other, "Invalid Resend Request")
-                Some(lineNumberStr) => Response::Resend { lineNumber: lineNumberStr.parse<i32>() }
+                Some(lineNumberStr) => {
+                    Ok(Response::Resend {
+                        lineNumber: lineNumberStr.parse<i32>(),
+                    })
+                }
             }
         },
         "t:" | "x:" => {
-            parseFeedback(words)
-            Response::Feedback
+            Ok(parseFeedback(words))
         }
     }
-
-    Ok(Response {})
 }
