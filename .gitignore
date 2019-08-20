@@ -80,10 +80,14 @@ defs/staging/*
 !defs/staging/.datignore
 !defs/staging/dat.json
 
+# Rust
 target
+# End  Rust
 
 .cache
 dev-dist
 
 !.well-known/dat
 !dat.json
+
+!.gitkeep

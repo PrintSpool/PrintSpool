@@ -1,0 +1,97 @@
+syntax = "proto3";
+package teg_protobufs;
+
+// Machines send MachineMessages
+message MachineMessage {
+  // repeated uint32 ack_message_ids = 1;
+
+  oneof payload {
+    Feedback feedback = 9;
+  }
+
+  message Feedback {
+    uint32 despooled_line_number = 1;
+    Status status = 2;
+
+    // 3-7: Frequently used sub-messages
+    repeated Event events = 3;
+    repeated Axis axes = 4;
+    repeated Heater heaters = 5;
+    repeated SpeedController speed_controllers = 6;
+
+    // // 8-15: Frequently used bools
+    // bool sets_target_temperatures = 8;
+    // bool sets_actual_temperatures = 9;
+    // bool sets_target_position = 10;
+    // bool sets_actual_position = 11;
+
+    // Less frequently set fields (field numbers 16 through 2047 take 2 bytes)
+
+    // 100-999 Less frequently set sub-messages
+    Error error = 100;
+
+    // 1000-2047: Less frequently set bools start
+    bool motors_enabled = 1000;
+  }
+
+  enum Status {
+    ERRORED = 0;
+    ESTOPPED = 1;
+    DISCONNECTED = 2;
+    CONNECTING = 3;
+    READY = 4;
+  }
+
+  message Error {
+    string message = 1;
+    // 2: reserved for future error codes implementation
+    // string code = 2;
+  }
+
+  enum EventType {
+    ERROR = 0;
+    START_TASK = 1;
+    CANCEL_TASK = 2;
+    FINISH_TASK = 3;
+  }
+
+  message Event {
+    uint32 task_id = 1;
+    EventType type = 2;
+
+    // the number of non-leap seconds since January 1, 1970 0:00:00 UTC (aka "UNIX timestamp")
+    int64 created_at = 3;
+
+    Error error = 4;
+  }
+
+  message Axis {
+    string address = 1;
+
+    // Positions are in mm
+    float target_position = 2;
+    float actual_position = 3;
+    bool homed = 4;
+  }
+
+  message Heater {
+    string address = 1;
+
+    // Temperatures are in celsius
+    float target_temperature = 2;
+    float actual_temperature = 3;
+
+    bool enabled = 4;
+    bool blocking = 5;
+  }
+
+  message SpeedController {
+    string address = 1;
+
+    // Speeds are is in RPM. > 0: clockwise, < 0: counterclockwise.
+    float target_speed = 2;
+    float actual_speed = 3;
+
+    bool enabled = 4;
+  }
+}

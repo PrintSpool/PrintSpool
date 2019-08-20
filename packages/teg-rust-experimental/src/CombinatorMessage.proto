@@ -1,21 +1,20 @@
 syntax = "proto3";
+package teg_protobufs;
 
 // Combinators send CombinatorMessages
 message CombinatorMessage {
-  repeated string ack_message_ids = 1;
-  string message_id = 2;
+  // repeated uint32 ack_message_ids = 1;
+  // uint32 message_id = 2;
 
   oneof payload {
-    ResetConnection reset_connection = 8;
     SetConfig set_config = 9;
     SpoolTask spool_task = 10;
     DeleteTaskHistory delete_task_history = 11;
+    DeviceDiscovered device_discovered = 12;
 
     EStop estop = 15;
     Reset reset = 16;
   }
-
-  message ResetConnection {}
 
   message SetConfig {
     // JSON encoded machine configuration
@@ -23,21 +22,22 @@ message CombinatorMessage {
   }
 
   message SpoolTask {
-    string task_id = 1;
+    uint32 task_id = 1;
     string file_path = 2;
 
     // 3-7 are reserved for future file formats
 
-    string name = 8;
+    // string name = 8;
 
     // Override tasks can be ran during jobs and do not set the
     // despooled_line_number in the MachineMessage.
     //
-    // The are executed silently to adjust machine settings such as feedrate
+    // They are executed silently to adjust machine settings such as feedrate
     // override during another task.
-    optional bool override = 9;
+    bool machine_override = 9;
   }
 
+  message DeviceDiscovered {}
   message EStop {}
   message Reset {}
 

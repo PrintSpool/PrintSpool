@@ -1,14 +1,27 @@
 [package]
-name = "teg-rust-experimental"
+name = "teg-marlin"
 version = "0.1.0"
 authors = ["D1plo1d <thatotherdude@gmail.com>"]
 edition = "2018"
 
+[build-dependencies]
+prost-build = "0.5.0"
+
 [dependencies]
-tokio-serial = "3.2"
 bytes = "0.4.12"
-futures = "0.1.28"
-tokio = "0.1.22"
-tokio-io = "0.1.12"
-nanomsg = "0.7.2"
-combine = "3.8.1"
+tokio = "0.2.0-alpha.4"
+tokio-net = "0.2.0-alpha.4"
+tokio-io = "0.2.0-alpha.4"
+# tokio-serial = { git = 'https://github.com/berkowski/tokio-serial.git' }
+tokio-serial = { git = 'https://github.com/d1plo1d/tokio-serial.git', branch = 'tokio-0.2.0-alpha.2' }
+# tokio-serial = { path = "../../../tokio-serial"}
+futures-core-preview = "0.3.0-alpha.18"
+futures-util-preview = { version = "0.3.0-alpha.18", features = ["sink", "compat"] }
+futures-sink-preview = "0.3.0-alpha.18"
+mio = "0.6.19"
+prost = "0.5.0"
+# combine = "3.8.1"
+tempfile = "3.1.0"
+bus_queue = "0.4.1"
+fallible-iterator = "0.2.0"
+chrono = "0.4.9"

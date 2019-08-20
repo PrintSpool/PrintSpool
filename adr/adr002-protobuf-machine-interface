@@ -37,7 +37,6 @@ All actions from the Combinator wait for an ACK before sending the next action.
 Only the NEW_SOCKET action from the machine waits for an ACK before sending the next action.
 
 Actions from all Combinators:
-* NEW_SOCKET
 * ACK
 * SET_CONFIG
 * SPOOL_TASK
@@ -47,7 +46,6 @@ Actions from all Combinators:
 #### Sending Machine Messages to Combinators
 
 Actions from all Machines:
-* NEW_SOCKET
 * ACK
 * `events`
 * PRINTER_STATUS_CHANGE (printer connect, disconnect, estopped, reset)
