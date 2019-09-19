@@ -1,6 +1,10 @@
 use std::{
     env,
     fs,
+    time::{
+        Duration,
+        Instant,
+    },
 };
 
 use futures_util::compat::{
@@ -28,6 +32,7 @@ use tokio::codec::{
 // use bytes::BufMut;
 
 use tokio::{
+    timer,
     sync::mpsc,
 };
 
@@ -48,6 +53,8 @@ async fn handle_connection(
     connection: tokio::net::UnixStream,
 ) {
     println!("New connection!");
+    let mut connection_event_sender = mpsc::Sender::clone(&channel_sender);
+
     let codec = length_delimited::Builder::new()
         .little_endian()
         .new_codec();
@@ -60,6 +67,7 @@ async fn handle_connection(
         .take_while(|result| {
             future::ready(result.is_ok())
         }).map(|result| Bytes::clone(&*result.unwrap()));
+        // .inspect(|result| println!("SENDING PROTOBUF {:?}", result));
 
     // Read from the server. TODO: Switch to read_to_end.
     // let mut buf = [0u8; 5];
@@ -75,9 +83,25 @@ async fn handle_connection(
             future::ready(result.is_ok())
         }).map(|result| result.unwrap());
 
-    futures_util::future::select(
-        channel_sender.send_all(&mut read_stream),
+    // NodeJS sometimes needs a delay after opening the unix socket to prevent it from dropping the first message
+    // See: https://github.com/nodejs/help/issues/521
+    tokio::spawn(async move {
+        // println!("New connection starting delay!");
+        timer::delay(Instant::now() + Duration::from_millis(100)).await;
+
+        connection_event_sender.send(Event::ProtobufClientConnection).await
+            .expect("Unable to send connection event");
+
+        timer::delay(Instant::now() + Duration::from_millis(500)).await;
+
+        connection_event_sender.send(Event::ProtobufClientConnection).await
+            .expect("Unable to send connection event");
+        println!("New connection ready!!!!");
+    });
+
+    let _ = futures_util::future::select(
         socket_sender.send_all(&mut broadcast_subscriber),
+        channel_sender.send_all(&mut read_stream),
     ).await;
 
     println!("Connection Closed");

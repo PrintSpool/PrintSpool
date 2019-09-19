@@ -48,7 +48,7 @@ pub struct ReadyState {
     next_serial_line_number: u32,
     // spool
     loading_gcode: bool,
-    task: Option<Task>,
+    pub task: Option<Task>,
 }
 
 impl Default for ReadyState {
@@ -86,6 +86,20 @@ impl ReadyState {
 
                         Loop::new(Ready(self), effects)
                     }
+                    combinator_message::Payload::PauseTask(combinator_message::PauseTask { task_id }) => {
+                        self.loading_gcode = true;
+                        match self.task.as_ref() {
+                            Some(task) if task.id == task_id => {
+                                context.push_pause_task(&task);
+                                self.task = None;
+
+                                self.and_no_effects()
+                            }
+                            _ => {
+                                self.and_no_effects()
+                            }
+                        }
+                    }
                     _ => {
                         self.and_no_effects()
                     }
@@ -98,6 +112,8 @@ impl ReadyState {
                     // TODO: try to re-open the serial port immediately in case a new port is already available
                     // Effect::DetectSerialPort,
                 ];
+
+                context.handle_state_change(&Disconnected);
 
                 Loop::new(
                     Disconnected,

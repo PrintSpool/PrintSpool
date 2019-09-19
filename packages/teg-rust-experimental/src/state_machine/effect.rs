@@ -60,10 +60,12 @@ pub enum Effect {
     CancelDelay { key: String },
     CancelAllDelays,
     SendSerial ( GCodeLine ),
-    TryOpenSerialPort { baud_rate: u32 },
+    OpenSerialPort { baud_rate: u32 },
     // ResetSerial
     ProtobufSend,
     LoadGCode ( combinator_message::SpoolTask ),
+    CloseSerialPort,
+    ExitProcess,
 }
 
 impl Effect {
@@ -110,9 +112,11 @@ impl Effect {
             //         tokio::spawn(serial_future);
             //     }
             // }
-            Effect::TryOpenSerialPort { baud_rate } => {
-                if let Ok(serial_future) = reactor.serial_manager.open(baud_rate) {
+            Effect::OpenSerialPort { baud_rate } => {
+                if let Ok(serial_future) = reactor.serial_manager.open(baud_rate).await {
                     tokio::spawn(serial_future);
+                } else {
+
                 }
             }
             Effect::SendSerial ( gcode_line ) => {
@@ -125,12 +129,12 @@ impl Effect {
                 // });
             }
             Effect::ProtobufSend => {
-                let machine_message = reactor.context.machine_message_protobuf();
+                let message = reactor.context.machine_message_protobuf();
 
-                let mut buf = Vec::with_capacity(machine_message.encoded_len());
-                machine_message.encode(&mut buf).expect("machine message encoding failed");
+                let mut buf = Vec::with_capacity(message.encoded_len());
+                message.encode(&mut buf).expect("machine message encoding failed");
 
-                println!("Feedback ({:?} Bytes): {:#?}", machine_message.encoded_len(), reactor.context.feedback);
+                println!("Feedback ({:?} Bytes): {:#?}", message.encoded_len(), message.payload);
 
                 reactor.protobuf_broadcast
                     .send(Bytes::from(buf))
@@ -164,6 +168,13 @@ impl Effect {
                     .await
                     .expect("printer event channel send failed");
 
+            }
+            Effect::CloseSerialPort => {
+                reactor.serial_manager.close();
+            }
+            Effect::ExitProcess => {
+                reactor.serial_manager.close();
+                std::process::exit(0);
             }
             // _ => ()
         }

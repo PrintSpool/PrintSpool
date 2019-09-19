@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`loadJobFileInToTask creates a Task 1`] = `
+Object {
+  "data": Array [
+    "g1 x10
+g1 y10",
+  ],
+  "internal": false,
+  "jobFileID": "test_test_test",
+  "jobID": "123",
+  "name": "abc",
+  "priority": "NORMAL",
+}
+`;

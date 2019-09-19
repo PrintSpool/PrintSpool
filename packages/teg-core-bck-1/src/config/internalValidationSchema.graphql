@@ -1,0 +1,32 @@
+# scalar JSON
+#
+# type HostConfig {
+#   id: ID!
+#   name: String!
+#   crashReports: CrashReportConfig!
+#   model: JSON!
+# }
+#
+# type CrashReportConfig {
+#   id: ID!
+#   uploadCrashReportsToDevs: Boolean!
+#   model: JSON!
+# }
+#
+# type PrinterConfig {
+#   id: ID!
+#   printerID: ID!
+#   modelID: ID!
+#
+#   name: String
+#   components: [ComponentConfig!]!
+#   plugins: [PluginConfig!]!
+#   log: LogConfig!
+#   model: JSON!
+# }
+#
+# type LogConfig {
+#   id: ID!
+#   maxLength: Int!
+#   model: JSON!
+# }

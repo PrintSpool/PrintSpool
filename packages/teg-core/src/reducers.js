@@ -21,6 +21,6 @@ export fixedListComponentTypes from './pluginManager/reducers/fixedListComponent
 export spool from './spool/reducers/spoolReducer'
 export taskCallbackReducer from './spool/reducers/taskCallbackReducer'
 
-export status from './printer/reducers/statusReducer'
+export sockets from './printer/reducers/socketsReducer'
 
 export updates from './updates/reducers/updatesReducer'

@@ -1,7 +1,8 @@
 // exports
 export logReducer from './log/reducers/logReducer'
 
-export reducer from './reducer'
+// export reducer from './reducer'
+export const reducer = () => {}
 
 export getSchemaForms from './getSchemaForms'
 

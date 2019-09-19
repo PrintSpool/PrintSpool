@@ -21,6 +21,7 @@ use futures_util::{
     future:: {
         // self,
         Either,
+        AbortHandle
     },
 };
 use futures_core::{
@@ -76,6 +77,7 @@ pub struct SerialManager {
 
     event_sender: tokio::sync::mpsc::Sender<Event>,
     gcode_sender: Option<tokio::sync::mpsc::Sender<GCodeLine>>,
+    abort_handle: Option<AbortHandle>,
 }
 
 impl SerialManager {
@@ -92,16 +94,22 @@ impl SerialManager {
 
             event_sender,
             gcode_sender: None,
+            abort_handle: None,
         }
 
         // TODO: connect to the serial port at some point? Could be here for now but will probably
         // need to moved to accomidate connect/disconnect logic.
     }
 
-    pub fn open(&mut self, baud_rate: u32) -> Result<impl Future<Output = ()>, std::io::Error> {
+    pub async fn open(&mut self, baud_rate: u32) -> Result<impl Future<Output = ()>, std::io::Error> {
+        self.close();
+
+        use std::{thread, time};
+
+        // the serial port needs a moment to reset when reconnecting
+        thread::sleep(time::Duration::from_millis(100));
+
         self.settings.baud_rate = baud_rate;
-        // TODO: abort handle
-        // self.serial_abort_handle.map(|abort_handle| abort_handle.abort());
 
         let mut port = tokio_serial::Serial::from_path(
             self.tty_path.clone(),
@@ -110,6 +118,8 @@ impl SerialManager {
 
         // #[cfg(unix)]
         port.set_exclusive(false)?;
+
+        port.write_all(&[b'\n']).await?;
 
         let (serial_sender, serial_reader) = GCodeCodec.framed(port).split();
 
@@ -169,7 +179,17 @@ impl SerialManager {
             .forward(end_of_stream_event_sender)
             .map(|_| ());
 
-        Ok(serial_future)
+        let (serial_future, abort_handle) = futures_util::future::abortable(serial_future);
+        self.abort_handle = Some(abort_handle);
+
+        Ok(serial_future.map(|_| ()))
+    }
+
+    pub fn close(&mut self) {
+        self.abort_handle.as_ref().map(|abort_handle| abort_handle.abort());
+
+        self.abort_handle = None;
+        self.gcode_sender = None;
     }
 
     pub async fn send_if_open(&mut self, gcode_line: GCodeLine) {

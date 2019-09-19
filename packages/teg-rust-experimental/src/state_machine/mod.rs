@@ -36,6 +36,7 @@ pub enum Event {
     ConnectionTimeout,
     GreetingTimerCompleted,
     SerialRec ( Response ),
+    ProtobufClientConnection,
     ProtobufRec ( CombinatorMessage ),
     PollFeedback,
     TickleSerialPort,
@@ -57,6 +58,7 @@ pub enum State {
     Connecting (Connecting),
     Ready ( ReadyState ),
     Errored { message: String },
+    EStopped,
 }
 
 pub struct Loop {
@@ -121,9 +123,10 @@ fn send_serial(effects: &mut Vec<Effect>, gcode_line: GCodeLine) {
 impl State {
     pub fn default_baud_rates() -> Vec<u32> {
         // baud rate candidates sorted by likelihood
-        let mut baud_rates = vec![115200, 250000, 230400, 57600, 38400, 19200, 9600];
+        // let mut baud_rates = vec![115_200, 250_000, 230_400, 57_600, 38_400, 19_200, 9_600];
         // Test order to see if baudrate detection works
         // let mut baud_rates = vec![250000, 230400, 57600, 38400, 19200, 9600, 115200];
+        let mut baud_rates = vec![115200];
         baud_rates.reverse();
 
         baud_rates
@@ -154,20 +157,57 @@ impl State {
 
     pub fn consume(self, event: Event, context: &mut Context) -> Loop {
         println!("event received {:?} in state {:?}", event, self);
+
+        if let ProtobufClientConnection = &event {
+            return Loop::new(
+                self,
+                vec![Effect::ProtobufSend],
+            )
+        }
+
+        if let ProtobufRec( CombinatorMessage { payload } ) = &event {
+            use combinator_message::*;
+
+            match payload {
+                Some(Payload::DeviceDiscovered(_)) => {
+                    // Due to the async nature of discovery the new port could be discovered before disconnecting from the old one.
+                    // The state machine will automatically attempt to reconnect on disconnect to handle this edge case.
+                    return if let Disconnected = self {
+                        self.reconnect_with_next_baud(context)
+                    } else {
+                        self.and_no_effects()
+                    }
+                }
+                Some(Payload::DeleteTaskHistory( DeleteTaskHistory { task_ids })) => {
+                    context.delete_task_history(task_ids);
+                    return self.and_no_effects()
+                }
+                Some(Payload::Estop(_)) => {
+                    if let Ready( ReadyState { task: Some(task), .. }) = self {
+                        context.push_cancel_task(&task);
+                    };
+
+                    return Loop::new(
+                        State::EStopped,
+                        vec![
+                            Effect::CloseSerialPort,
+                            Effect::CancelAllDelays,
+                        ],
+                    )
+                }
+                _ => {
+                    println!("PROTOBUF RECEIVED IN STATE_MACHINE {:?}", payload);
+                }
+            }
+        }
+
         if let Ready ( inner_ready_state ) = self {
             return inner_ready_state.consume(event, context)
         }
+
         match &event {
             Init => {
-                self.connect_if_disconnected()
-            }
-            ProtobufRec( CombinatorMessage { payload } ) => {
-                if let Some(combinator_message::Payload::DeviceDiscovered(_)) = payload {
-                    self.connect_if_disconnected()
-                } else {
-                    println!("PROTOBUF RECEIVED IN STATE_MACHINE {:?}", payload);
-                    self.and_no_effects()
-                }
+                self.reconnect_with_next_baud(context)
             }
             SerialPortDisconnected => {
                 Disconnected.and_no_effects()
@@ -204,7 +244,7 @@ impl State {
             /* Awaiting Greeting Timer: After Delay */
             GreetingTimerCompleted => {
                 if let Connecting(Connecting { received_greeting: true, .. }) = self {
-                    self.greeting_timer_completed()
+                    self.greeting_timer_completed(context)
                 } else {
                     self.invalid_transition_error(&event, context)
                 }
@@ -213,7 +253,9 @@ impl State {
             PollFeedback |
             TickleSerialPort |
             GCodeLoaded(..) |
-            GCodeLoadFailed(..) => {
+            GCodeLoadFailed(..) |
+            ProtobufRec(_) |
+            ProtobufClientConnection => {
                 self.invalid_transition_warning(&event)
             }
             /* Errors */
@@ -221,48 +263,59 @@ impl State {
         }
     }
 
-    fn connect_if_disconnected(self) -> Loop {
-        // Due to the async nature of discovery the new port could be discovered before disconnecting from the old one.
-        // The state machine will automatically attempt to reconnect on disconnect to handle this edge case.
-        if let Disconnected = self {
-            let mut baud_rate_candidates = Self::default_baud_rates();
-            let effects = vec![
-                Effect::TryOpenSerialPort { baud_rate: baud_rate_candidates.pop().unwrap() },
+    fn reconnect_with_next_baud(self, context: &mut Context) -> Loop {
+        // let connection_timeout_ms = if let Connecting(_) = self {
+        //     5_000
+        // } else {
+        //     1_000
+        // };
+        let connection_timeout_ms = 1_000;
+
+        let mut baud_rate_candidates = match self {
+            Connecting(Connecting { baud_rate_candidates, .. }) => baud_rate_candidates,
+            _ => Self::default_baud_rates(),
+        };
+
+        let baud_rate = baud_rate_candidates.pop();
+
+        let mut effects = vec![
+            Effect::CancelAllDelays,
+        ];
+
+        if let Some(baud_rate) = baud_rate {
+            effects.append(&mut vec![
+                Effect::OpenSerialPort { baud_rate },
                 Effect::Delay {
                     key: "connection_timeout".to_string(),
-                    duration: Duration::from_millis(1000),
+                    duration: Duration::from_millis(connection_timeout_ms),
                     event: ConnectionTimeout,
                 },
-            ];
+            ]);
+
+            let next_state = Self::new_connection(baud_rate_candidates);
+
+            context.handle_state_change(&next_state);
 
             Loop::new(
-                Self::new_connection(baud_rate_candidates),
+                next_state,
                 effects,
             )
         } else {
-            self.and_no_effects()
+            effects.push(Effect::CloseSerialPort);
+            effects.push(Effect::ProtobufSend);
+
+            context.handle_state_change(&Disconnected);
+
+            Loop::new(
+                Disconnected,
+                effects,
+            )
         }
     }
 
     fn connection_timeout(self, event: Event, context: &mut Context) -> Loop {
-        if let Connecting(Connecting { mut baud_rate_candidates, .. }) = self {
-            let mut effects = vec![
-                Effect::CancelAllDelays,
-            ];
-
-            if let Some(baud_rate) = baud_rate_candidates.pop() {
-                effects.push(Effect::TryOpenSerialPort { baud_rate });
-
-                Loop::new(
-                    Self::new_connection(baud_rate_candidates),
-                    effects,
-                )
-            } else {
-                Loop::new(
-                    Disconnected,
-                    effects,
-                )
-            }
+        if let Connecting(_) = self {
+            self.reconnect_with_next_baud(context)
         } else {
             self.invalid_transition_error(&event, context)
         }
@@ -284,7 +337,7 @@ impl State {
         )
     }
 
-    fn greeting_timer_completed(self) -> Loop {
+    fn greeting_timer_completed(self, context: &mut Context) -> Loop {
         let gcode = "M110 N0".to_string();
 
         let mut effects = vec![
@@ -303,11 +356,15 @@ impl State {
         let mut ready = ReadyState::default();
         ready.last_gcode_sent = Some(gcode);
 
+        let next_state = Ready( ready );
+
+        context.handle_state_change(&next_state);
+
         // let the protobuf clients know that the machine is ready
         effects.push(Effect::ProtobufSend);
 
         Loop::new(
-            Ready( ready ),
+            next_state,
             effects,
         )
     }
