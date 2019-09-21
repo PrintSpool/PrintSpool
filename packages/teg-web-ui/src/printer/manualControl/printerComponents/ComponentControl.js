@@ -46,9 +46,9 @@ export const ComponentControlFragment = gql`
         targetTemperature
       }
     }
-    fan {
+    speedController {
       enabled
-      speed
+      targetSpeed
     }
   }
 `

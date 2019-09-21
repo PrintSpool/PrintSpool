@@ -4,15 +4,17 @@ import getHeaterMaterialTargets from '../selectors/getHeaterMaterialTargets'
 const HeaterResolvers = {
   Heater: {
     history: (source, args, { store }) => {
-      const state = store.getState()
-      return getComponentsState(state).temperatureHistory
-        .filter(entry => entry.componentID === source.id)
-        .toArray()
+      // TODO: heater history
+      // const state = store.getState()
+      // return getComponentsState(state).temperatureHistory
+      //   .filter(entry => entry.componentID === source.id)
+      //   .toArray()
     },
     materialTarget: (source, args, { store }) => {
-      const { config } = store.getState()
+      // TODO: config-based values
+      // const { config } = store.getState()
 
-      return getHeaterMaterialTargets(config).get(source.id)
+      // return getHeaterMaterialTargets(config).get(source.id)
     },
   },
 }

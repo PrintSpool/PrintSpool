@@ -28,20 +28,20 @@ export const startSocketManager = async (manager, dispatch) => {
   const MachineMessage = machineRoot.lookupType('teg_protobufs.MachineMessage')
 
   const onDisconnect = (dispatch) => {
-    console.log("disconnect")
+    // console.log("disconnect")
     manager.socket = null
     // immediately try reconnecting on disconnect in case a new socket is already available
     if (manager.connected) connect()
   }
 
   const connect = () => {
-    console.log("attempt connection")
+    // console.log("attempt connection")
     manager.connected = false
     manager.socket = net.connect(manager.socketPath)
 
     let buffer = Buffer.from([])
     manager.socket.on('connect', () => {
-      console.log('connect')
+      // console.log('connect')
       // if the socket is closed before we try to connect an error event will be emitted instead
       // and this code will not be reached
       manager.connected = true
@@ -54,11 +54,11 @@ export const startSocketManager = async (manager, dispatch) => {
       buffer = Buffer.concat([buffer, data])
 
       const size = buffer.readInt32LE()
-      console.log(size, buffer.length)
+      // console.log(size, buffer.length)
 
       if (buffer.length >= size) {
         const message = MachineMessage.decode(buffer.slice(SIZE_DELIMETER_BYTES, SIZE_DELIMETER_BYTES + size))
-        console.log(message.feedback.heaters)
+        // console.log(message.feedback.heaters)
 
         const event = socketMessage(manager.machineID, message)
         dispatch(event)

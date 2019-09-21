@@ -1,13 +1,36 @@
 import path from 'path'
 
-import { Record, Map, List, mergeDeep } from 'immutable'
+import { Record, Map, List } from 'immutable'
 import { loop, Cmd } from 'redux-loop'
+import camelCase from 'camelcase'
 
 import { createSocketManager, startSocketManager } from '../effects/socketManager'
 import { SET_CONFIG } from '../../config/actions/setConfig'
 import { SOCKET_MESSAGE } from '../actions/socketMessage'
 
-/* reducer */
+import {
+  ERRORED,
+  ESTOPPED,
+  DISCONNECTED,
+  CONNECTING,
+  READY,
+} from '../types/statusEnum'
+
+import {
+  // CONTROLLER,
+  AXIS,
+  TOOLHEAD,
+  // BUILD_PLATFORM,
+  FAN,
+} from '../../config/types/components/ComponentTypeEnum'
+
+const statusCodes = [
+  ERRORED, // 0
+  ESTOPPED, // 1
+  DISCONNECTED, // 2
+  CONNECTING, // 3
+  READY, // 4
+]
 
 export const initialState = Record({
   machines: Map(),
@@ -15,56 +38,96 @@ export const initialState = Record({
 })()
 
 const Machine = Record({
-  despooled_line_number: null,
+  id: null,
+  despooledLineNumber: null,
   status: null,
   error: null,
-  motors_enabled: null,
+  motorsEnabled: null,
 
   events: List(),
   components: Map(),
 })
 
+const Component = Record({
+  id: null,
+  type: null,
+  address: null,
+  axis: null,
+  heater: null,
+  speedController: null,
+})
+
+const Axis = Record({
+  id: null,
+  targetPosition: null,
+  actualPosition: null,
+  homed: null,
+})
+
+const Heater = Record({
+  id: null,
+  targetTemperature: null,
+  actualTemperature: null,
+  enabled: null,
+  blocking: null,
+})
+
+const SpeedController = Record({
+  id: null,
+  targetSpeed: null,
+  actualSpeed: null,
+  enabled: null,
+})
 
 // TODO: initial machine state generation based on configuration
-const initialMachineState = () => {
+const initialMachineState = ({ id }) => {
   const components = {
-    axes: ['x', 'y', 'z'].map(address => Map({
+    axes: ['x', 'y', 'z'].map((address, i) => Component({
+      id: `${id}-axis-${i}`,
+      type: AXIS,
       address,
-      axis: Map({
-        target_position: null,
-        actual_position: null,
+      axis: Axis({
+        id: `${id}-axis-${i}`,
+        targetPosition: null,
+        actualPosition: null,
         homed: false,
       }),
     })),
-    heaters: ['e0'].map(address => Map({
+    heaters: ['b', 'e0'].map((address, i) => Component({
+      id: `${id}-heater-${i}`,
+      type: TOOLHEAD,
       address,
-      heater: {
-        target_temperature: null,
-        actual_temperature: null,
+      heater: Heater({
+        id: `${id}-heater-${i}`,
+        targetTemperature: null,
+        actualTemperature: null,
         enabled: false,
         blocking: false,
-      },
+      }),
     })),
-    // TODO: speed controllers
-    speed_controllers: [].map(address => Map({
+    speedControllers: ['f0'].map((address, i) => Component({
+      id: `${id}-speedController-${i}`,
+      type: FAN,
       address,
-      axis: {
-        target_speed: null,
-        actual_speed: null,
+      speedController: SpeedController({
+        id: `${id}-speedController-${i}`,
+        targetSpeed: null,
+        actualSpeed: null,
         enabled: false,
-      }
+      }),
     })),
   }
 
-  let componentMap = List(Object.values(components).flat())
+  const componentMap = List(Object.values(components).flat())
     .toMap()
     .mapKeys((k, v) => v.get('address'))
 
   return Machine({
-    despooled_line_number: null,
-    status: 3, // 3 = Connecting
+    id,
+    despooledLineNumber: null,
+    status: CONNECTING,
     error: null,
-    motors_enabled: false,
+    motorsEnabled: false,
 
     events: List(),
     components: componentMap,
@@ -86,9 +149,7 @@ const socketsReducer = (state = initialState, action) => {
 
       const nextState = state
         .merge({ socketManager })
-        .setIn(['machines', machineID], initialMachineState())
-
-      console.log('initial state', initialMachineState())
+        .setIn(['machines', machineID], initialMachineState({ id: machineID }))
 
       return loop(
         nextState,
@@ -102,44 +163,60 @@ const socketsReducer = (state = initialState, action) => {
 
       const feedback = message.feedback || {}
 
-      console.log('FEE1D', message.feedback)
+      // console.log('FEE1D', message.feedback)
 
-
-      let nextState = state.updateIn(['machines', machineID], m => m.withMutations((machine) => {
+      /* eslint-disable no-param-reassign */
+      const nextState = state.updateIn(['machines', machineID], m => m.withMutations((machine) => {
         // restructue component feedback to be structured more like the graphql Component type
-        ['axes', 'heaters', 'speedControllers'].forEach((componentType) => {
-          (feedback[componentType] || []).forEach((entry) => {
-            machine = machine.mergeIn(['components', entry.address, componentType], entry)
-          })
-  
+        [
+          ['axes', 'axis'],
+          ['heaters', 'heater'],
+          ['speedControllers', 'speedController'],
+        ].forEach(([feedbackCollectionKey, componentType]) => {
+          const entries = feedback[feedbackCollectionKey] || []
+
+          entries
+            .map(entry => Map(entry).mapKeys(k => camelCase(k)))
+            .forEach((entry) => {
+              machine = machine.mergeIn(['components', entry.get('address'), componentType], entry)
+            })
+
           delete message.feedback[componentType]
         })
-  
-        let {
-          events,
-        } = feedback
-        const {
-          status,
-        } = feedback
 
+        // append events
         const existingEventIDs = machine.events.map(ev => ev.id)
 
-        events = events
+        const events = feedback.events
           .map(ev => ({
             ...ev,
             id: `${ev.task_id}_${ev.type}`,
           }))
           .filter(ev => existingEventIDs.includes(ev.id) === false)
 
-        // merge the remaining feilds directly into the machine's state
         machine = machine
-          .set('status', status)
           .update('events', existingEvents => existingEvents.concat(events))
+
+        // set the status
+        if (feedback.status != null) {
+          machine = machine.set('status', statusCodes[feedback.status])
+        }
+
+        // merge the remaining feilds directly into the machine's state
+        const scalars = [
+          'despooled_line_number',
+          'error',
+          'motors_enabled',
+        ]
+
+        scalars
+          .filter(k => feedback[k] != null)
+          .forEach((k) => { machine = machine.set(camelCase(k), feedback[k]) })
 
         return machine
       }))
 
-      console.log('STATE!', JSON.stringify(nextState.machines.get(machineID).toJS(), null, 2))
+      // console.log('STATE!', JSON.stringify(nextState.machines.get(machineID).toJS(), null, 2))
       return nextState
     }
     default: {

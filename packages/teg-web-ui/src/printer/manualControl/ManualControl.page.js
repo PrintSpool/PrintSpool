@@ -48,7 +48,7 @@ const enhance = compose(
   withLiveData,
   withProps(({ singularMachine }) => ({
     machine: singularMachine[0],
-    isReady: singularMachine[0].status === 'READY',
+    isReady: singularMachine[0] && singularMachine[0].status === 'READY',
   })),
 )
 

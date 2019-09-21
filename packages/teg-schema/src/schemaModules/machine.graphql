@@ -41,7 +41,7 @@ type Machine {
   # logEntries(level: String, sources: [String!], limit: Int): [LogEntry!]
   gcodeHistory(excludePolling: Boolean, limit: Int): [GCodeHistoryEntry!]
 
-  movementHistory: [MovementHistoryEntry!]!
+  # movementHistory: [MovementHistoryEntry!]!
 }
 
 type Plugin {
@@ -72,9 +72,9 @@ type Component {
   """
   toolhead: Toolhead
   """
-  set if this component is a fan. Null for all other components.
+  set if this component is a SpeedController. Null for all other components.
   """
-  fan: Fan
+  speedController: SpeedController
 }
 
 type Axis {
@@ -82,7 +82,11 @@ type Axis {
   """
   The current position in mm.
   """
-  actualPosition: Float!
+  actualPosition: Float
+  """
+  The target position in mm.
+  """
+  targetPosition: Float
 }
 
 type Heater {
@@ -115,16 +119,17 @@ type Heater {
   history: [TemperatureHistoryEntry!]!
 }
 
-type Fan {
+type SpeedController {
   """
-  True if the fan is on.
+  True if the SpeedController is on.
   """
   enabled: Boolean!
 
   """
-  The speed of the fan in RPM.
+  The speed of the SpeedController in RPM.
   """
-  speed: Float!
+  actualSpeed: Float
+  targetSpeed: Float
   maxSpeed: Float!
 }
 
@@ -144,12 +149,12 @@ type MovementDataPoint {
   value: Float!
 }
 
-type MovementHistoryEntry {
-  id: ID!
-  createdAt: DateTime!
-  position: [MovementDataPoint!]!
-  inboundFeedrate: Float!
-}
+# type MovementHistoryEntry {
+#   id: ID!
+#   createdAt: DateTime!
+#   position: [MovementDataPoint!]!
+#   inboundFeedrate: Float!
+# }
 
 type GCodeHistoryEntry {
   id: ID!

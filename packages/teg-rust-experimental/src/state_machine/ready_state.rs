@@ -75,7 +75,7 @@ impl ReadyState {
     pub fn consume(mut self, event: Event, context: &mut Context) -> Loop {
         match event {
             ProtobufRec( CombinatorMessage { payload: Some(message) } ) => {
-                println!("PROTOBUF RECEIVED WHEN READY {:?}", message);
+                // println!("PROTOBUF RECEIVED WHEN READY {:?}", message);
                 match message {
                     combinator_message::Payload::SpoolTask(spool_task) => {
                         self.loading_gcode = true;

@@ -126,10 +126,11 @@ const QueryResolvers = {
     machines: (_source, args, { store }) => {
       const id = args.machineID
       const state = store.getState()
-      if (id != null && id !== state.config.printer.id) {
-        return []
-      }
-      return [state]
+      // TODO: ID-based machine lookup
+      // if (id != null && id !== state.config.printer.id) {
+      //   return []
+      // }
+      return state.sockets.machines
     },
   },
 }

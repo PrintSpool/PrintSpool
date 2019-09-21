@@ -106,7 +106,7 @@ pub fn parse_response(src: String) -> Option<Response> {
         .replace(":", ": ");
 
     sanitized_src.make_ascii_lowercase();
-    println!("RX: {:?}", sanitized_src);
+    // println!("RX: {:?}", sanitized_src);
 
     let mut words = sanitized_src.split_whitespace().peekable();
     

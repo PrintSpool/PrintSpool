@@ -134,7 +134,7 @@ impl Effect {
                 let mut buf = Vec::with_capacity(message.encoded_len());
                 message.encode(&mut buf).expect("machine message encoding failed");
 
-                println!("Feedback ({:?} Bytes): {:#?}", message.encoded_len(), message.payload);
+                // println!("Feedback ({:?} Bytes): {:#?}", message.encoded_len(), message.payload);
 
                 reactor.protobuf_broadcast
                     .send(Bytes::from(buf))

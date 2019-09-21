@@ -21,6 +21,7 @@ import HeaterResolvers from '../../printer/resolvers/HeaterResolvers'
 import MovementHistoryEntryResolvers from '../../printer/resolvers/MovementHistoryEntryResolvers'
 import MachineResolvers from '../../printer/resolvers/MachineResolvers'
 import ToolheadResolvers from '../../printer/resolvers/ToolheadResolvers'
+import SpeedControllerResolvers from '../../printer/resolvers/SpeedControllerResolvers'
 
 import TaskResolvers from '../../spool/resolvers/TaskResolvers'
 
@@ -52,6 +53,7 @@ const coreResolvers = [
   MovementHistoryEntryResolvers,
   MachineResolvers,
   ToolheadResolvers,
+  SpeedControllerResolvers,
 
   TaskResolvers,
 ].reduce(mergeResolvers, {})

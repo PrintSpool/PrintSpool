@@ -7,8 +7,9 @@ import getMachineConfigForm from '../../config/selectors/getMachineConfigForm'
 
 const MachineResolvers = {
   Machine: {
-    id: source => source.config.printer.id,
-    name: source => getPluginModels(source.config).getIn(['@tegapp/core', 'name']),
+    // TODO: configurable printer name
+    // name: source => getPluginModels(source.config).getIn(['@tegapp/core', 'name']),
+    name: () => "testbot",
 
     // targetTemperaturesCountdown: source => (
     //   getComponentsState(source).targetTemperaturesCountdown
@@ -16,10 +17,11 @@ const MachineResolvers = {
 
     // activeExtruderID: source => getComponentsState(source).activeExtruderID,
 
-    motorsEnabled: source => getComponentsState(source).motorsEnabled,
-
-    enabledMacros: source => source.macros.enabledMacros,
-    error: source => source.status.error,
+    enabledMacros: (source, args, { store }) => {
+      const state = store.getState()
+      
+      return state.macros.enabledMacros
+    },
 
     availablePackages: (source, args, { store }) => {
       const state = store.getState()
@@ -50,21 +52,28 @@ const MachineResolvers = {
     },
 
     components: (source, args) => {
-      const id = args.componentID
-      const components = getComponents(source.config)
+      // TODO: id-based lookup
 
-      if (id != null) {
-        const component = components.get(id)
-        if (component == null) {
-          throw new Error(`Component ID: ${id} does not exist`)
-        }
-        return [component]
-      }
-      return components
+      // const id = args.componentID
+      // const components = getComponents(source.config)
+
+      // if (id != null) {
+      //   const component = components.get(id)
+      //   if (component == null) {
+      //     throw new Error(`Component ID: ${id} does not exist`)
+      //   }
+      //   return [component]
+      // }
+      console.log(
+        source.components
         .toList()
-        .sortBy(c => (
-          `${ComponentTypeEnum.indexOf(c.type)}${c.model.get('name')}`
-        ))
+      )
+      return source.components
+        .toList()
+        // TODO: sorting. Whouldn't this be client side?
+        // .sortBy(c => (
+        //   `${ComponentTypeEnum.indexOf(c.type)}${c.model.get('name')}`
+        // ))
     },
 
     plugins: (source, args) => {
@@ -82,8 +91,9 @@ const MachineResolvers = {
     },
 
     status: (source) => {
-      if (!isIdle(source.spool)) return 'PRINTING'
-      const { status } = source.status
+      // TODO: PRINTING status
+      // if (!isIdle(source.spool)) return 'PRINTING'
+      const { status } = source
       return status.substring(status.lastIndexOf('/') + 1)
     },
 
@@ -120,11 +130,11 @@ const MachineResolvers = {
 
       return entries.toArray()
     },
-    movementHistory: (source, args, { store }) => {
-      const state = store.getState()
-      return getComponentsState(state).movementHistory
-        .toArray()
-    },
+    // movementHistory: (source, args, { store }) => {
+    //   const state = store.getState()
+    //   return getComponentsState(state).movementHistory
+    //     .toArray()
+    // },
   },
 }
 

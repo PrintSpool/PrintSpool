@@ -15,8 +15,10 @@ const JobResolvers = {
       return getJobFilesByJobID(state).get(jobID, List())
     },
     tasks: (source, args, { store }) => {
-      const state = store.getState().spool
-      return getTasksByTaskableID(state).get(source.id, List())
+      // TODO: task spooling
+      return []
+      // const state = store.getState().spool
+      // return getTasksByTaskableID(state).get(source.id, List())
     },
     history: (source, args, { store }) => {
       const state = store.getState().jobQueue

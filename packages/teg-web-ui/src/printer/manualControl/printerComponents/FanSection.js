@@ -12,9 +12,9 @@ const FanSection = ({
   component: {
     id,
     address,
-    fan: {
+    speedController: {
       enabled,
-      speed,
+      targetSpeed,
     },
   },
   disabled,
@@ -29,7 +29,7 @@ const FanSection = ({
   return (
     <div>
       <Typography variant="h4" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
-        {speed.toFixed(1)}
+        {targetSpeed.toFixed(1)}
         %
       </Typography>
       <div style={{ marginTop: -3 }}>
