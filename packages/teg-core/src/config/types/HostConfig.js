@@ -8,7 +8,7 @@ import LogConfig from './LogConfig'
 export const HostConfigRecordFactory = Record({
   id: null,
   modelVersion: 0,
-  configDirectory: '~/.teg/',
+  configDirectory: '/etc/teg',
   name: null,
   crashReports: CrashReportConfig(),
   server: Map(),

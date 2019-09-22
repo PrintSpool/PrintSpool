@@ -12,6 +12,8 @@ const webRTCServer = async ({
   identityKeys,
   authenticate,
 }) => {
+  // console.log("NODE_ENV:", process.env.NODE_ENV)
+
   // // instantiate the dat node
   // const DAT_URL = (
   //   process.env.DAT_URL
@@ -38,6 +40,7 @@ const webRTCServer = async ({
     execute,
     subscribe,
     schema,
+
     // the onOperation function is called for every new operation
     // and we use it to inject context to track the session and
     // user
@@ -47,6 +50,24 @@ const webRTCServer = async ({
         ...context,
         sessionID: socket.sessionID,
         peerIdentityPublicKey: socket.peerIdentityPublicKey,
+      },
+      formatResponse: (res) => {
+        if (res.errors) {
+          res.errors.forEach((err, i) => {
+            // eslint-disable-next-line no-console
+            console.error(`Teg GraphQL Error ${i + 1} / ${res.errors.length} at [${err.path}]: ${err.message}`)
+            // eslint-disable-next-line no-console
+            // console.error(err.stack)
+          })
+        }
+        return res
+      },
+      formatError: (err) => {
+        // eslint-disable-next-line no-console
+        console.error(`Teg GraphQL Serious Error: ${err.message}`)
+        // eslint-disable-next-line no-console
+        console.error(err.stack)
+        return err
       },
     }),
   }

@@ -90,16 +90,13 @@ fn errored(message: String, context: &mut Context) -> Loop {
     Loop::new(next_state, effects)
 }
 
-fn send_serial(effects: &mut Vec<Effect>, gcode_line: GCodeLine) {
-    // TODO: configurable tickle delays
-    // const {
-    //     longRunningCodeTimeout,
-    //     fastCodeTimeout,
-    //     longRunningCodes,
-    // } = state.config
-    let long_running_code_timeout = 30_000;
-    let fast_code_timeout = 5000;
-    let long_running_codes: [String; 0] = [];
+fn send_serial(effects: &mut Vec<Effect>, gcode_line: GCodeLine, context: &Context) {
+    let crate::configuration::Controller {
+        long_running_code_timeout,
+        fast_code_timeout,
+        long_running_codes,
+        ..
+    } = &context.controller;
     // TODO: parse gcodes in SendSerial instead of the encoder
     let gcode_macro = "G1";
 
@@ -114,7 +111,7 @@ fn send_serial(effects: &mut Vec<Effect>, gcode_line: GCodeLine) {
         Effect::Delay {
             key: "tickle_delay".to_string(),
             // TODO: configurable delayFromGreetingToReady
-            duration: Duration::from_millis(duration),
+            duration: Duration::from_millis(*duration),
             event: TickleSerialPort,
         },
     );
@@ -208,7 +205,10 @@ impl State {
                 self.reconnect_with_next_baud(context)
             }
             SerialPortDisconnected => {
-                Disconnected.and_no_effects()
+                Loop::new(
+                    Disconnected,
+                    vec![Effect::CancelAllDelays],
+                )
             }
             SerialPortError { message } => {
                 errored(message.to_string(), context)
@@ -348,7 +348,8 @@ impl State {
                 gcode: gcode.clone(),
                 line_number: None,
                 checksum: true,
-            }
+            },
+            context,
         );
 
         let mut ready = ReadyState::default();

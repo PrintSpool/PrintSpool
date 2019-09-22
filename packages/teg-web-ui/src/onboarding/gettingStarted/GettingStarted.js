@@ -94,6 +94,7 @@ const GettingStarted = ({
           subscription={DEVICES_SUBSCRIPTION}
         >
           {({ data, loading, error }) => {
+            console.log({ data, loading, error})
             if (error) {
               throw error
             }

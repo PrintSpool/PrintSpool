@@ -12,12 +12,15 @@ extern crate tokio_serial;
 // #[macro_use]
 // extern crate combine;
 extern crate bus_queue;
+extern crate serde;
+extern crate toml;
 
 mod protobuf_server;
 mod gcode_codec;
 mod serial_manager;
 
 pub mod state_machine;
+pub mod configuration;
 
 pub mod protos {
     include!(concat!(env!("OUT_DIR"), "/teg_protobufs.rs"));
@@ -87,10 +90,10 @@ async fn tick_state_machine(
     event: Event,
     reactor: &mut StateMachineReactor,
 ) -> State {
-    // println!("IN  {:?}", event);
+    println!("IN  {:?}", event);
     let Loop{ next_state, effects } = state.consume(event, &mut reactor.context);
 
-    // println!("OUT {:?} {:?}", next_state, effects);
+    println!("OUT {:?} {:?}", next_state, effects);
 
     for effect in effects.into_iter() {
         effect.exec(reactor).await;
@@ -99,14 +102,24 @@ async fn tick_state_machine(
     next_state
 }
 
-pub async fn start(_tty_path: Option<String>) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn start(config_path: Option<String>) -> Result<(), Box<dyn std::error::Error>> {
+    // Config
+    // ----------------------------------------------------
+    let config_path = config_path.unwrap_or("/etc/teg/machine.toml".to_string());
+
+    let config_file_content = std::fs::read_to_string(config_path.clone())
+        .expect(&format!("Unabled to open config (file: {:?})", config_path));
+
+    let config: configuration::Config = toml::from_str(&config_file_content)
+        .expect(&format!("Invalid config format (file: {:?})", config_path));
+
     // Channels
     // ----------------------------------------------------
     let (mut event_sender, event_reader) = mpsc::channel::<Event>(100);
 
     // Serial Port
     // ----------------------------------------------------
-    let serial_manager = SerialManager::new(event_sender.clone(), None);
+    let serial_manager = SerialManager::new(event_sender.clone(), config.tty_path().clone());
 
     // attempt to connect to serial on startup if the port is available
     event_sender.send(Event::Init)
@@ -131,7 +144,7 @@ pub async fn start(_tty_path: Option<String>) -> Result<(), Box<dyn std::error::
         event_sender,
         serial_manager,
         delays: HashMap::new(),
-        context: Context::new(),
+        context: Context::new(config),
     };
 
     // Glue Code

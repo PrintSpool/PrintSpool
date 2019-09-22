@@ -23,6 +23,7 @@ import httpServer from './server/httpServer'
 import webRTCServer from './server/webRTCServer'
 
 import packageJSON from '../package.json'
+// import Config from '@tegapp/core/dist/config/types/Config'
 
 // var exec = require('child_process').exec
 // exec("id", function(err, stdout, stderr) {
@@ -45,28 +46,11 @@ const {
   executableSchema,
   createTegHostStore,
   authenticate,
+  loadConfigOrSetDefault,
 } = tegCore
 
 // global.Promise = Promise
 
-// Get document, or throw exception on error
-const loadConfigForm = async (configPath) => {
-  if (!fs.existsSync(configPath)) {
-    // const devPath = path.join(__dirname, '../../../development.config')
-    // eslint-disable-next-line global-require, import/no-dynamic-require
-    const devConfig = require('../development.config')
-    if (devConfig.auth.hostIdentityKeys == null) {
-      devConfig.auth.hostIdentityKeys = await createECDHKey()
-    }
-    writeFileAtomic.sync(configPath, JSON.stringify(devConfig, null, 2))
-  }
-  try {
-    // eslint-disable-next-line global-require, import/no-dynamic-require
-    return JSON.parse(fs.readFileSync(configPath))
-  } catch (e) {
-    throw new Error(`Unable to load config file ${configPath}\n${e.message}`, e)
-  }
-}
 
 const tegServer = async (argv, pluginLoader) => {
   // eslint-disable-next-line no-console
@@ -95,15 +79,24 @@ const tegServer = async (argv, pluginLoader) => {
     return
   }
 
-  const configDir = path.resolve(
+  const configDirectory = path.resolve(
     configArg
-    || path.join(os.homedir(), '.teg'),
+    || '/etc/teg',
   )
 
-  // const updatesFile = path.join(configDir, '.updates')
+  const pidDirectory = path.resolve(
+    configArg
+    || '/var/run/teg',
+  )
+
+  // const updatesFile = path.join(configDirectory, '.updates')
 
   // create the config directory if it doesn't exist
-  mkdirp.sync(configDir)
+  if (!fs.existsSync(pidDirectory)) {
+    mkdirp.sync(pidDirectory, {
+      mode: 0o700,
+    })
+  }
 
   // touch the updates file
   // fs.closeSync(fs.openSync(updatesFile, 'a'))
@@ -112,7 +105,7 @@ const tegServer = async (argv, pluginLoader) => {
   //   writeFileAtomic.sync(updatesFile, JSON.stringify(json, null, 2))
   // }
 
-  const pidFile = path.join(configDir, 'teg.pid')
+  const pidFile = path.join(pidDirectory, 'teg.pid')
 
   const createPidFile = () => {
     try {
@@ -121,6 +114,9 @@ const tegServer = async (argv, pluginLoader) => {
 
       return { pidCreated: true }
     } catch (err) {
+      if (!fs.existsSync(pidFile)) {
+        throw err
+      }
       const pid = parseInt(fs.readFileSync(pidFile, 'utf8').trim(), 10)
       const isRunning = childProcess.spawnSync('ps', ['-p', pid]).status === 0
 
@@ -165,8 +161,14 @@ const tegServer = async (argv, pluginLoader) => {
   //   return
   // }
 
-  const configPath = path.join(configDir, 'config.json')
-  const config = await loadConfigForm(configPath)
+  // eslint-disable-next-line global-require, import/no-dynamic-require
+  const defaultConfig = require('../development.config')
+
+  const config = await loadConfigOrSetDefault({
+    configDirectory,
+    defaultConfig,
+    createECDHKey,
+  })
 
   handleFatalExceptions({ config })
   const previousFatalException = getPreviousFatalException({ config })

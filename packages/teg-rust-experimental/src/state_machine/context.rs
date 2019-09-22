@@ -10,26 +10,36 @@ use crate::protos::{
     MachineMessage,
 };
 use crate::state_machine;
+use crate::configuration::{
+    Config,
+    Controller,
+};
 
 #[derive(Clone, Debug)]
 pub struct Context {
+    pub config: Config,
+    pub controller: Controller,
     pub feedback: machine_message::Feedback,
 }
 
 impl Context {
-    pub fn new() -> Self {
+    pub fn new(config: Config) -> Self {
         let status = machine_message::Status::Disconnected as i32;
-        Self { feedback: Self::reset_feedback(status) }
+        let controller = config.get_controller().clone();
+        let feedback = Self::reset_feedback(status, &config);
+
+        Self {
+            feedback,
+            config,
+            controller,
+        }
     }
 
-    fn reset_feedback(status: i32) -> machine_message::Feedback {
-        let heater_addresses = vec!["b", "e0"];
-
+    fn reset_feedback(status: i32, config: &Config) -> machine_message::Feedback {
         machine_message::Feedback {
             status,
 
-            // TODO: configurable number of extruders
-            heaters: heater_addresses.iter().map(|address| {
+            heaters: config.heater_addresses().iter().map(|address| {
                 machine_message::Heater {
                     address: address.to_string(),
                     ..machine_message::Heater::default()
@@ -58,7 +68,7 @@ impl Context {
         };
 
         // reset everything except the new status and then move over the events from the previous struct
-        let next_feedback = Self::reset_feedback(status);
+        let next_feedback = Self::reset_feedback(status, &self.config);
 
         let previous_feedback = std::mem::replace(&mut self.feedback, next_feedback);
 

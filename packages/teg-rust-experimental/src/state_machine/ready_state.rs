@@ -183,7 +183,7 @@ impl ReadyState {
                 if let OnOK::NotAwaitingOk = self.on_ok {
                     let mut effects = vec![];
 
-                    self.poll_feedback(&mut effects, Polling::PollPosition);
+                    self.poll_feedback(&mut effects, &context, Polling::PollPosition);
 
                     Loop::new(
                         Ready(self),
@@ -227,8 +227,7 @@ impl ReadyState {
         if feedback.actual_temperatures.len() != 0 {
             let delay = Effect::Delay {
                 key: "polling_delay".to_string(),
-                // TODO: configurable pollingInterval
-                duration: Duration::from_millis(1000),
+                duration: Duration::from_millis(context.controller.polling_interval),
                 event: PollFeedback,
             };
 
@@ -257,7 +256,8 @@ impl ReadyState {
                         gcode,
                         line_number: Some(self.next_serial_line_number - 1),
                         checksum: true,
-                    }
+                    },
+                    &context,
                 );
 
                 self.on_ok = OnOK::IgnoreOK;
@@ -268,13 +268,13 @@ impl ReadyState {
             }
             OnOK::Despool => {
                 if let Some(poll_for) = self.poll_for {
-                    self.poll_feedback(effects, poll_for);
+                    self.poll_feedback(effects, &context, poll_for);
                 } else {
                     if let Some(_) = self.despool_task(effects, context) {
                         return
                     } else {
                         self.on_ok = OnOK::NotAwaitingOk;
-                        // Cancel the tickle if there's nothing else to serial_send
+                        // Cancel the tickle if there's nothing else to send_serial
                         effects.push(
                             Effect::CancelDelay { key: "tickle_delay".to_string() }
                         );
@@ -295,7 +295,8 @@ impl ReadyState {
                     gcode,
                     line_number: Some(self.next_serial_line_number),
                     checksum: true,
-                }
+                },
+                &context,
             );
 
             self.on_ok = OnOK::Despool;
@@ -310,7 +311,7 @@ impl ReadyState {
         }
     }
 
-    fn poll_feedback(&mut self, effects: &mut Vec<Effect>, poll_for: Polling) {
+    fn poll_feedback(&mut self, effects: &mut Vec<Effect>, context: &Context, poll_for: Polling) {
         let gcode = match poll_for {
             Polling::PollTemperature => "M105",
             Polling::PollPosition => "M114",
@@ -322,7 +323,8 @@ impl ReadyState {
                 gcode: gcode.to_string(),
                 line_number: Some(self.next_serial_line_number),
                 checksum: true,
-            }
+            },
+            &context,
         );
 
         self.on_ok = OnOK::Despool;
@@ -335,9 +337,8 @@ impl ReadyState {
     }
 
     fn tickle_serial_port(mut self, context: &mut Context) -> Loop {
-        // TODO: configurable responseTimeoutTickleAttempts, checksumTickles
-        let response_timeout_tickle_attempts = 3;
-        let checksum_tickles = true;
+        let response_timeout_tickle_attempts = context.controller.response_timeout_tickle_attempts;
+        let checksum_tickles = context.controller.checksum_tickles;
 
         if self.tickles_attempted >= response_timeout_tickle_attempts {
             let message = "Serial port communication timed out.".to_string();
@@ -351,7 +352,8 @@ impl ReadyState {
                     gcode: format!("M110 N{:}", self.next_serial_line_number - 1),
                     line_number: None,
                     checksum: checksum_tickles,
-                }
+                },
+                &context,
             );
 
             self.tickles_attempted += 1;

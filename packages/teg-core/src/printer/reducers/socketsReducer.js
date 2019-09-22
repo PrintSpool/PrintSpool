@@ -17,10 +17,10 @@ import {
 } from '../types/statusEnum'
 
 import {
-  // CONTROLLER,
+  CONTROLLER,
   AXIS,
   TOOLHEAD,
-  // BUILD_PLATFORM,
+  BUILD_PLATFORM,
   FAN,
 } from '../../config/types/components/ComponentTypeEnum'
 
@@ -80,45 +80,65 @@ const SpeedController = Record({
 })
 
 // TODO: initial machine state generation based on configuration
-const initialMachineState = ({ id }) => {
-  const components = {
-    axes: ['x', 'y', 'z'].map((address, i) => Component({
-      id: `${id}-axis-${i}`,
-      type: AXIS,
-      address,
-      axis: Axis({
-        id: `${id}-axis-${i}`,
-        targetPosition: null,
-        actualPosition: null,
-        homed: false,
-      }),
-    })),
-    heaters: ['b', 'e0'].map((address, i) => Component({
-      id: `${id}-heater-${i}`,
-      type: TOOLHEAD,
-      address,
-      heater: Heater({
-        id: `${id}-heater-${i}`,
-        targetTemperature: null,
-        actualTemperature: null,
-        enabled: false,
-        blocking: false,
-      }),
-    })),
-    speedControllers: ['f0'].map((address, i) => Component({
-      id: `${id}-speedController-${i}`,
-      type: FAN,
-      address,
-      speedController: SpeedController({
-        id: `${id}-speedController-${i}`,
-        targetSpeed: null,
-        actualSpeed: null,
-        enabled: false,
-      }),
-    })),
-  }
+const initialMachineState = ({ id, config }) => {
+  const components = config.components
+    .map((componentConfig, i) => {
+      const address = componentConfig.model.get('address')
+      const { id, type } = componentConfig
 
-  const componentMap = List(Object.values(components).flat())
+      switch (type) {
+        case CONTROLLER: {
+          return Component({
+            id,
+            type,
+          })
+        }
+        case AXIS: {
+          return Component({
+            id,
+            type,
+            address,
+            axis: Axis({
+              id,
+              targetPosition: null,
+              actualPosition: null,
+              homed: false,
+            }),
+          })
+        }
+        case TOOLHEAD:
+        case BUILD_PLATFORM: {
+          return Component({
+            id,
+            type,
+            address,
+            heater: Heater({
+              id,
+              targetTemperature: null,
+              actualTemperature: null,
+              enabled: false,
+              blocking: false,
+            }),
+          })
+        }
+        case FAN: {
+          return Component({
+            id,
+            type,
+            address,
+            speedController: SpeedController({
+              id,
+              targetSpeed: null,
+              actualSpeed: null,
+              enabled: false,
+            }),
+          })
+        }
+        default: {
+          throw new Error(`Invalid component type: ${type}`)
+        }
+      }
+    })
     .toMap()
     .mapKeys((k, v) => v.get('address'))
 
@@ -130,26 +150,29 @@ const initialMachineState = ({ id }) => {
     motorsEnabled: false,
 
     events: List(),
-    components: componentMap,
+    components,
   })
 }
 
 const socketsReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
-      // const { config } = action.payload
-      // const model = getPluginModels(config).get('@tegapp/core')
+      const { config } = action.payload
+      // const model = getPluginModels(config).get('@tegapp/teg-marlin')
       // return state.set('automaticPrinting', model.get('automaticPrinting'))
 
       // TODO: machine IDs and socket paths
-      const machineID = 0
+      const machineID = config.printer.id
       const socketPath = path.join(__dirname, '../../../../teg-rust-experimental/target/debug/machine.sock')
 
+      if (state.socketManager != null) {
+        state.socketManager.close()
+      }
       const socketManager = createSocketManager({ machineID, socketPath })
 
       const nextState = state
         .merge({ socketManager })
-        .setIn(['machines', machineID], initialMachineState({ id: machineID }))
+        .setIn(['machines', machineID], initialMachineState({ id: machineID, config: config.printer }))
 
       return loop(
         nextState,

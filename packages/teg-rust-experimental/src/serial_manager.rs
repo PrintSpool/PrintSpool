@@ -66,11 +66,6 @@ use tokio::codec::Decoder;
 
 // use bus_queue::async_::Publisher;
 
-#[cfg(unix)]
-const DEFAULT_TTY: &str = "/dev/ttyUSB0";
-#[cfg(windows)]
-const DEFAULT_TTY: &str = "COM1";
-
 pub struct SerialManager {
     settings: tokio_serial::SerialPortSettings,
     tty_path: String,
@@ -83,9 +78,8 @@ pub struct SerialManager {
 impl SerialManager {
     pub fn new(
         event_sender: tokio::sync::mpsc::Sender<Event>,
-        tty_path: Option<String>,
+        tty_path: String,
     ) -> Self {
-        let tty_path = tty_path.unwrap_or_else(|| DEFAULT_TTY.into());
         let settings = tokio_serial::SerialPortSettings::default();
 
         Self {

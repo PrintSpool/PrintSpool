@@ -116,7 +116,8 @@ impl Effect {
                 if let Ok(serial_future) = reactor.serial_manager.open(baud_rate).await {
                     tokio::spawn(serial_future);
                 } else {
-
+                    reactor.event_sender.send(Event::SerialPortDisconnected).await
+                        .expect("failed to send serial connection failure event");
                 }
             }
             Effect::SendSerial ( gcode_line ) => {

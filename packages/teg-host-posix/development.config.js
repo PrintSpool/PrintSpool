@@ -22,16 +22,22 @@ const printerConfig = {
       model: {
         interface: 'SERIAL',
         name: 'RAMPS Controller Board',
+
         serialPortID: null,
+
+        automaticBaudRateDetection: true,
         baudRate: 250000,
+
         simulate: false,
+        awaitGreetingFromFirmware: true,
+        checksumTickles: false,
+
         delayFromGreetingToReady: 2500,
-        temperaturePollingInterval: 1000,
-        positionPollingInterval: 500,
+        pollingInterval: 500,
         responseTimeoutTickleAttempts: 3,
         fastCodeTimeout: 30000,
         longRunningCodeTimeout: 60000,
-        awaitGreetingFromFirmware: true,
+
         longRunningCodes: [
           'G4',
           'G28',
@@ -173,7 +179,7 @@ if (['arm', 'arm64'].includes(os.arch())) {
 const hostConfig = {
   id: 'pzxcvkkwn',
   name: 'New Print Farm',
-  configDirectory: '~/.teg/',
+  modelVersion: 1,
   log: {
     id: 'lolcatz95',
     modelVersion: 1,
@@ -228,6 +234,7 @@ const authConfig = {
 }
 
 const config = {
+  modelVersion: 1,
   printer: printerConfig,
   host: hostConfig,
   auth: authConfig,

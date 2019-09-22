@@ -13618,6 +13618,11 @@ toiletdb@^1.4.1:
     debug "^2.6.0"
     last-one-wins "^1.0.4"
 
+toml-js@^0.0.8:
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/toml-js/-/toml-js-0.0.8.tgz#648ea6f1a4d63b19c0bb30b8ed03e40d09473b0a"
+  integrity sha1-ZI6m8aTWOxnAuzC47QPkDQlHOwo=
+
 toposort@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/toposort/-/toposort-2.0.2.tgz#ae21768175d1559d48bef35420b2f4962f09c330"

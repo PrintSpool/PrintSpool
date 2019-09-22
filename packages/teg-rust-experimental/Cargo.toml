@@ -25,3 +25,5 @@ tempfile = "3.1.0"
 bus_queue = "0.4.1"
 fallible-iterator = "0.2.0"
 chrono = "0.4.9"
+toml = "0.5.3"
+serde = { version = "1.0.101", features = ["derive"] }

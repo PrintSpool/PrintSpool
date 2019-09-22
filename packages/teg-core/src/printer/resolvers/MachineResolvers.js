@@ -7,9 +7,17 @@ import getMachineConfigForm from '../../config/selectors/getMachineConfigForm'
 
 const MachineResolvers = {
   Machine: {
-    // TODO: configurable printer name
-    // name: source => getPluginModels(source.config).getIn(['@tegapp/core', 'name']),
-    name: () => "testbot",
+    name: (source, args, { store }) => {
+      const state = store.getState()
+
+      return getPluginModels(state.config).getIn(['@tegapp/core', 'name'])
+    },
+
+    fixedListComponentTypes: (source, args, { store }) => {
+      const state = store.getState()
+
+      return state.fixedListComponentTypes
+    },
 
     // targetTemperaturesCountdown: source => (
     //   getComponentsState(source).targetTemperaturesCountdown
@@ -44,7 +52,7 @@ const MachineResolvers = {
       } = getMachineConfigForm(state)
 
       return {
-        id: source.config.printer.id,
+        id: state.config.printer.id,
         model,
         modelVersion,
         schemaForm,
@@ -54,30 +62,22 @@ const MachineResolvers = {
     components: (source, args) => {
       // TODO: id-based lookup
 
-      // const id = args.componentID
-      // const components = getComponents(source.config)
+      const id = args.componentID
 
-      // if (id != null) {
-      //   const component = components.get(id)
-      //   if (component == null) {
-      //     throw new Error(`Component ID: ${id} does not exist`)
-      //   }
-      //   return [component]
-      // }
-      console.log(
-        source.components
-        .toList()
-      )
-      return source.components
-        .toList()
-        // TODO: sorting. Whouldn't this be client side?
-        // .sortBy(c => (
-        //   `${ComponentTypeEnum.indexOf(c.type)}${c.model.get('name')}`
-        // ))
+      if (id != null) {
+        const component = source.components.find(c => c.id === id)
+        if (component == null) {
+          throw new Error(`Component ID: ${id} does not exist`)
+        }
+        return [component]
+      }
+      return source.components.toList()
     },
 
-    plugins: (source, args) => {
-      const { plugins } = source.config.printer
+    plugins: (source, args, { store }) => {
+      const state = store.getState()
+
+      const { plugins } = state.config.printer
 
       if (args.package != null) {
         const plugin = plugins.find(p => p.package === args.package)
