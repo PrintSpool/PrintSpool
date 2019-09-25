@@ -1,16 +1,12 @@
 use serde::{Serialize, Deserialize};
 
-fn default_serial_port_id() -> String {
-    "/dev/null/no-serial-port".to_string()
-}
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Controller {
-    #[serde(rename = "serialPortID", default = "default_serial_port_id")]
+    #[serde(rename = "serialPortID")]
     pub serial_port_id: String,
 
-    automatic_baud_rate_detection: bool,
+    pub automatic_baud_rate_detection: bool,
     pub baud_rate: u32,
 
     pub simulate: bool,

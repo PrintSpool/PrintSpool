@@ -77,7 +77,7 @@
     "react-test-renderer": "^16.5.2",
     "react-vis": "^1.11.7",
     "recompose": "^0.26.0",
-    "simple-peer": "^9.1.2",
+    "simple-peer": "^9.6.0",
     "strip-newlines": "^1.0.1",
     "styled-components": "^3.0.2",
     "subscriptions-transport-ws": "^0.9.4",

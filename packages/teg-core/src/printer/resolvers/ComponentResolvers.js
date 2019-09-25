@@ -10,7 +10,6 @@ const ComponentResolvers = {
     name: (source, args, { store }) => {
       const state = store.getState()
       const component = getComponents(state.config).get(source.id)
-      console.log(component.model.toJS())
 
       return component.model.get('name')
     },

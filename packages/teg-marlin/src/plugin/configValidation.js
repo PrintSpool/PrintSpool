@@ -9,12 +9,12 @@ const configValidation = () => yup.object().shape({
       components: yup.mixed()
         .test(
           'single-controller',
-          'teg-driver-serial-gcode driver requires exactly one controller per printer',
+          '@tegapp/marlin driver requires exactly one controller per printer',
           components => components.filter(c => c.type === CONTROLLER).size === 1,
         )
         .test(
           'xyz',
-          'teg-driver-serial-gcode driver: only supports printers with x, y and z axes',
+          '@tegapp/marlin driver: only supports printers with x, y and z axes',
           (components) => {
             const axes = components.filter(c => c.type === AXIS)
 
@@ -27,7 +27,7 @@ const configValidation = () => yup.object().shape({
         )
         .test(
           'single-build-platform',
-          'teg-driver-serial-gcode driver only supports one build platform per printer',
+          '@tegapp/marlin driver only supports one build platform per printer',
           components => (
             components
               .filter(c => c.type === BUILD_PLATFORM)

@@ -8,6 +8,7 @@ use super::{
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
+    pub id: String,
     pub is_configured: bool,
     components: Vec<Component>,
 }
@@ -39,5 +40,8 @@ impl Config {
                 }
             })
             .collect()
+    }
+    pub fn socket_path(&self) -> String {
+        format!("/var/run/teg/machine-{}.sock", self.id)
     }
 }

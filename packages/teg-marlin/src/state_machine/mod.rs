@@ -271,7 +271,15 @@ impl State {
 
         let mut baud_rate_candidates = match self {
             Connecting(Connecting { baud_rate_candidates, .. }) => baud_rate_candidates,
-            _ => Self::default_baud_rates(),
+            _ => {
+                let mut new_candidates = vec![context.controller.baud_rate];
+                // prioritize the set baud rate in auto detection. That way we can cache the previous baud rate using
+                // the baud_rate field. TODO: actually implement saving the previous baud rate
+                if context.controller.automatic_baud_rate_detection {
+                    new_candidates.extend(State::default_baud_rates());
+                }
+                new_candidates
+            },
         };
 
         let baud_rate = baud_rate_candidates.pop();
@@ -393,7 +401,7 @@ mod tests {
     }
 
     #[test]
-    fn ignores_multiple_greetings() {
+    fn ignores_multiple_greetings(context: &Context) {
         let state = State::Connecting(Connecting {
             baud_rate_candidates: State::default_baud_rates(),
             received_greeting: true,

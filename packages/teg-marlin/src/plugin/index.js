@@ -1,6 +1,14 @@
 import { List } from 'immutable'
 import { ComponentTypeEnum } from '@tegapp/core'
 
+import getSchemaForms from './getSchemaForms'
+import configValidation from './configValidation'
+
+export {
+  getSchemaForms,
+  configValidation,
+}
+
 const {
   CONTROLLER,
   AXIS,
@@ -15,10 +23,6 @@ export const fixedListComponentTypes = List([
 
 export const logReducer = () => null
 export const reducer = () => {}
-export const macros = List([])
-
-export getSchemaForms from './getSchemaForms'
-
-export configValidation from './configValidation'
+export const macros = () => List([])
 
 export const driver = true

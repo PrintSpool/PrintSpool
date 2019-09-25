@@ -11,7 +11,7 @@ import npid from 'npid'
 
 import * as tegAutodrop3D from '@tegapp/autodrop3d'
 import * as tegCore from '@tegapp/core'
-import * as tegDriverSerialGCode from '@tegapp/driver-serial-gcode'
+import * as tegMarlin from '@tegapp/marlin'
 import * as tegMacrosDefault from '@tegapp/macros-default'
 import * as tegRaspberryPi from '@tegapp/raspberry-pi'
 
@@ -36,7 +36,7 @@ import packageJSON from '../package.json'
 const availablePlugins = {
   '@tegapp/autodrop3d': tegAutodrop3D,
   '@tegapp/core': tegCore,
-  '@tegapp/driver-serial-gcode': tegDriverSerialGCode,
+  '@tegapp/marlin': tegMarlin,
   '@tegapp/macros-default': tegMacrosDefault,
   '@tegapp/raspberry-pi': tegRaspberryPi,
 }

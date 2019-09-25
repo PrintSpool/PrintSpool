@@ -34,7 +34,7 @@ type Machine {
   # """
   # activeExtruderID: String
 
-  motorsEnabled: Boolean!
+  motorsEnabled: Boolean
   status: MachineStatusEnum!
   error: MachineError
   enabledMacros: [String!]!
@@ -108,7 +108,7 @@ type Heater {
   The current temperature in °C recorded by the heater’s thermocouple or
   thermister.
   """
-  actualTemperature: Float!
+  actualTemperature: Float
 
   """
   True if the machine is waiting on this heater to reach it’s targetTemp and
@@ -123,7 +123,7 @@ type SpeedController {
   """
   True if the SpeedController is on.
   """
-  enabled: Boolean!
+  enabled: Boolean
 
   """
   The speed of the SpeedController in RPM.

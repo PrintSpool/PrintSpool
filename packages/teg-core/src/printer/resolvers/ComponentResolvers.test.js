@@ -14,14 +14,14 @@ describe('ComponentResolvers', () => {
     deterministicTestSetup()
 
     const state = Record({
-      driver: '@tegapp/driver-serial-gcode',
+      driver: '@tegapp/marlin',
       config: MockConfig(),
       schemaForms: Record({
         components: Map({
           TOOLHEAD: SchemaForm({}),
         }),
       })(),
-      '@tegapp/driver-serial-gcode': {
+      '@tegapp/marlin': {
         components: Record({
           movementHistory: List([{
             id: 1,

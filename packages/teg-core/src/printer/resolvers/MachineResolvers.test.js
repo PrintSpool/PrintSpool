@@ -28,7 +28,7 @@ describe('MachineResolvers', () => {
           '@tegapp/core': SchemaForm({
             id: '@tegapp/core',
           }),
-          '@tegapp/driver-serial-gcode': SchemaForm({}),
+          '@tegapp/marlin': SchemaForm({}),
           '@tegapp/macros-default': SchemaForm({}),
         }),
       })(),
@@ -41,8 +41,8 @@ describe('MachineResolvers', () => {
         level: INFO,
         message: 'This is an example log',
       }),
-      driver: '@tegapp/driver-serial-gcode',
-      '@tegapp/driver-serial-gcode': {
+      driver: '@tegapp/marlin',
+      '@tegapp/marlin': {
         components: Record({
           targetTemperaturesCountdown: 3,
           activeExtruderID: 'heater1ID',

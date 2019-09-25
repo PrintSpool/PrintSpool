@@ -3,7 +3,7 @@ import uuid from 'uuid'
 
 const ESSENTIAL_PLUGINS = [
   '@tegapp/core',
-  '@tegapp/driver-serial-gcode',
+  '@tegapp/marlin',
   '@tegapp/macros-default',
 ]
 

@@ -23,7 +23,7 @@ const printerConfig = {
         interface: 'SERIAL',
         name: 'RAMPS Controller Board',
 
-        serialPortID: null,
+        serialPortID: '/dev/null/no-serial-port',
 
         automaticBaudRateDetection: true,
         baudRate: 250000,
@@ -129,8 +129,8 @@ const printerConfig = {
         machineDefinitionURL: 'dat://a295acba915cf57a98854f9f4ecf4be0aa03342a1b814bed591592b611f87e66+preview/definitions/alfawise_u20.def.json',
         name: 'New Printer',
         automaticPrinting: false,
-        beforePrintHook: null,
-        afterPrintHook: null,
+        beforePrintHook: '',
+        afterPrintHook: '',
         macros: [
           '*',
         ],
@@ -139,7 +139,7 @@ const printerConfig = {
     {
       id: '2',
       modelVersion: 1,
-      package: '@tegapp/driver-serial-gcode',
+      package: '@tegapp/marlin',
       model: {
         macros: [
           '*',

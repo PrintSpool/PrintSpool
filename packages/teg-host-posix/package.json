@@ -34,7 +34,7 @@
     "@beaker/dat-node": "RangerMauve/dat-node#168b57c",
     "@tegapp/autodrop3d": "^0.8.0",
     "@tegapp/core": "^0.8.0",
-    "@tegapp/driver-serial-gcode": "^0.8.0",
+    "@tegapp/marlin": "^0.8.0",
     "@tegapp/macros-default": "^0.8.0",
     "@tegapp/raspberry-pi": "^0.8.0",
     "apollo-server-koa": "^2.4.8",
@@ -80,7 +80,8 @@
     "uuid": "^3.1.0",
     "vm2": "^3.5.2",
     "write-file-atomic": "^2.4.2",
-    "wrtc": "^0.3.4",
+    "wrtc": "^0.4.2",
+    "simple-peer": "^9.6.0",
     "ws": "~3.3.1"
   },
   "devDependencies": {

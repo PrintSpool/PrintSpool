@@ -80,6 +80,8 @@ impl SerialManager {
         event_sender: tokio::sync::mpsc::Sender<Event>,
         tty_path: String,
     ) -> Self {
+        println!("tty: {}", tty_path);
+
         let settings = tokio_serial::SerialPortSettings::default();
 
         Self {

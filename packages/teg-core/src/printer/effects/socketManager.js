@@ -58,6 +58,7 @@ export const startSocketManager = async (manager, dispatch) => {
 
       if (buffer.length >= size) {
         const message = MachineMessage.decode(buffer.slice(SIZE_DELIMETER_BYTES, SIZE_DELIMETER_BYTES + size))
+        buffer = buffer.slice(SIZE_DELIMETER_BYTES + size)
         // console.log(message.feedback.heaters)
 
         const event = socketMessage(manager.machineID, message)

@@ -3,7 +3,7 @@ import { Query } from 'react-apollo'
 import gql from 'graphql-tag'
 
 import Loading from '../../../common/Loading'
-import useMachineDefSuggestions from '../../../common/_hooks/useMachineDefSuggestions'
+// import useMachineDefSuggestions from '../../../common/_hooks/useMachineDefSuggestions'
 
 import Step3SetupForm from './Step3SetupForm'
 

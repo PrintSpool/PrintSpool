@@ -41,7 +41,7 @@ const TemperatureSection = ({
   return (
     <React.Fragment>
       <Typography variant="h4" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
-        {actualTemperature.toFixed(1)}
+        {actualTemperature == null ? '--' : actualTemperature.toFixed(1)}
           °C /
         <sup style={{ fontSize: '50%' }}>
           {' '}

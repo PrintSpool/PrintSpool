@@ -130,7 +130,7 @@ const QueryResolvers = {
       // if (id != null && id !== state.config.printer.id) {
       //   return []
       // }
-      return state.sockets.machines
+      return state.sockets.machines.toList()
     },
   },
 }

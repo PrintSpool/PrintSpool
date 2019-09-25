@@ -12,7 +12,7 @@ fn main() {
     let includes  = [protos_path.to_str().unwrap()];
 
     let mut config = prost_build::Config::new();
-    // config.out_dir(cargo_path.join("src").join("protos"));
+    config.out_dir(cargo_path.join("src").join("protos"));
 
     config.compile_protos(
         &[

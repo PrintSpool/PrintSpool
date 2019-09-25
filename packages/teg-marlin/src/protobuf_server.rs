@@ -1,5 +1,4 @@
 use std::{
-    env,
     fs,
     time::{
         Duration,
@@ -108,20 +107,17 @@ async fn handle_connection(
 }
 
 pub async fn serve(
+    socket_path: &String,
     channel_sender: &mpsc::Sender<Event>,
     broadcast_subscriber: bus_queue::async_::Subscriber<Bytes>,
 ) -> std::io::Result<()> {
-    let mut sock_path = env::current_exe()?;
-    sock_path.pop();
-    sock_path.push("machine.sock");
-    let sock_path = sock_path.as_os_str();
 
-    println!("socket: {:?}", sock_path);
+    println!("socket: {:?}", socket_path);
 
     // delete the previous socket if one exists
-    let _ = fs::remove_file(sock_path);
+    let _ = fs::remove_file(socket_path);
 
-    let listener = UnixListener::bind(&sock_path)
+    let listener = UnixListener::bind(&socket_path)
         .expect("Unable to create unix socket")
         .incoming();
 

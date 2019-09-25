@@ -29,7 +29,7 @@ const FanSection = ({
   return (
     <div>
       <Typography variant="h4" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
-        {targetSpeed.toFixed(1)}
+        {targetSpeed == null ? '--' : targetSpeed.toFixed(1)}
         %
       </Typography>
       <div style={{ marginTop: -3 }}>

@@ -63,7 +63,6 @@ const MachineResolvers = {
       // TODO: id-based lookup
 
       const id = args.componentID
-
       if (id != null) {
         const component = source.components.find(c => c.id === id)
         if (component == null) {
@@ -112,23 +111,24 @@ const MachineResolvers = {
     // },
 
     gcodeHistory: (source, args, { store }) => {
-      const state = store.getState()
-      const {
-        fullHistory,
-        historyExcludingPolling,
-      } = state.get('@tegapp/driver-serial-gcode').gcodeHistory
+      throw new Error('TODO: GCODE HISTORY')
+      // const state = store.getState()
+      // const {
+      //   fullHistory,
+      //   historyExcludingPolling,
+      // } = state.get('@tegapp/marlin').gcodeHistory
 
-      let entries = fullHistory
+      // let entries = fullHistory
 
-      if (args.excludePolling === true) {
-        entries = historyExcludingPolling
-      }
+      // if (args.excludePolling === true) {
+      //   entries = historyExcludingPolling
+      // }
 
-      if (args.limit != null) {
-        entries = entries.slice(0, args.limit)
-      }
+      // if (args.limit != null) {
+      //   entries = entries.slice(0, args.limit)
+      // }
 
-      return entries.toArray()
+      // return entries.toArray()
     },
     // movementHistory: (source, args, { store }) => {
     //   const state = store.getState()

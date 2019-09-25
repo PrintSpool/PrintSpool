@@ -31,23 +31,26 @@ const CREATE_MACHINE = gql`
 `
 
 const schemaWithoutDef = ({ schema }) => {
+  // TODO: temporary hack: manually filtering out advanced properites
   const {
-    machineDefinitionURL,
-    // TODO: temporary hack: manually filtering out advanced properites
-    automaticPrinting,
-    beforePrintHook,
-    afterPrintHook,
-
-    ...properties
+    name,
+    serialPortID
   } = schema.properties
+  const properties = {
+    name,
+    serialPortID,
+  }
 
-  const required = schema.required.filter(fieldName => (
-    fieldName === 'machineDefinitionURL'
-  ))
+  // const required = schema.required.filter(fieldName => (
+  //   fieldName === 'machineDefinitionURL'
+  // ))
 
   return {
     properties,
-    required,
+    required: [
+      'name',
+      'serialPortID'
+    ],
   }
 }
 
@@ -98,7 +101,7 @@ const Step3SetupForm = ({
     }
   }, [schemaForm])
 
-  const validate = useSchemaValidation(schemaForm)
+  const validate = useSchemaValidation({ schema })
 
   const nextURL = `/get-started/4${location.search}`
 

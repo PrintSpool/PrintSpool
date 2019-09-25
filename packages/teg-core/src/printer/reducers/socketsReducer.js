@@ -140,7 +140,7 @@ const initialMachineState = ({ id, config }) => {
       }
     })
     .toMap()
-    .mapKeys((k, v) => v.get('address'))
+    .mapKeys((k, v) => (v.type === CONTROLLER ? 'CONTROLLER' : v.get('address')))
 
   return Machine({
     id,
@@ -163,7 +163,7 @@ const socketsReducer = (state = initialState, action) => {
 
       // TODO: machine IDs and socket paths
       const machineID = config.printer.id
-      const socketPath = path.join(__dirname, '../../../../teg-rust-experimental/target/debug/machine.sock')
+      const socketPath = `/var/run/teg/machine-${machineID}.sock`
 
       if (state.socketManager != null) {
         state.socketManager.close()
@@ -186,7 +186,7 @@ const socketsReducer = (state = initialState, action) => {
 
       const feedback = message.feedback || {}
 
-      // console.log('FEE1D', message.feedback)
+      // console.log('FEE1D', feedback)
 
       /* eslint-disable no-param-reassign */
       const nextState = state.updateIn(['machines', machineID], m => m.withMutations((machine) => {
@@ -204,7 +204,7 @@ const socketsReducer = (state = initialState, action) => {
               machine = machine.mergeIn(['components', entry.get('address'), componentType], entry)
             })
 
-          delete message.feedback[componentType]
+          delete feedback[componentType]
         })
 
         // append events

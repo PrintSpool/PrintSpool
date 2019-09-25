@@ -23,7 +23,9 @@ pub mod state_machine;
 pub mod configuration;
 
 pub mod protos {
-    include!(concat!(env!("OUT_DIR"), "/teg_protobufs.rs"));
+    mod teg_protobufs;
+
+    pub use teg_protobufs::*;
 }
 
 pub use serial_manager::SerialManager;
@@ -90,10 +92,10 @@ async fn tick_state_machine(
     event: Event,
     reactor: &mut StateMachineReactor,
 ) -> State {
-    println!("IN  {:?}", event);
+    // println!("IN  {:?}", event);
     let Loop{ next_state, effects } = state.consume(event, &mut reactor.context);
 
-    println!("OUT {:?} {:?}", next_state, effects);
+    // println!("OUT {:?} {:?}", next_state, effects);
 
     for effect in effects.into_iter() {
         effect.exec(reactor).await;
@@ -133,7 +135,8 @@ pub async fn start(config_path: Option<String>) -> Result<(), Box<dyn std::error
     let protobuf_broadcast = protobuf_broadcast.sink_compat();
     let protobuf_sender = mpsc::Sender::clone(&event_sender);
 
-    protobuf_server::serve(&protobuf_sender, protobuf_recv)
+    let socket_path = config.socket_path();
+    protobuf_server::serve(&socket_path, &protobuf_sender, protobuf_recv)
         .await
         .expect("Error starting teg protobuf server error");
 
