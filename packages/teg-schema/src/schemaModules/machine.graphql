@@ -39,7 +39,7 @@ type Machine {
   error: MachineError
   enabledMacros: [String!]!
   # logEntries(level: String, sources: [String!], limit: Int): [LogEntry!]
-  gcodeHistory(excludePolling: Boolean, limit: Int): [GCodeHistoryEntry!]
+  gcodeHistory(limit: Int): [GCodeHistoryEntry!]
 
   # movementHistory: [MovementHistoryEntry!]!
 }
@@ -159,17 +159,7 @@ type MovementDataPoint {
 type GCodeHistoryEntry {
   id: ID!
   createdAt: DateTime!
-  direction: GCodeDirection!
-  isHostMacro: Boolean!
-  message: String!
-}
-
-enum GCodeDirection {
-  """GCode sent to the 3D Machine"""
-  TX
-
-  """GCode response received from the 3D Machine"""
-  RX
+  command: String!
 }
 
 # type LogEntry {

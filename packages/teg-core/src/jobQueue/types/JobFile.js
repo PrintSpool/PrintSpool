@@ -1,16 +1,15 @@
-// @flow
 import uuid from 'uuid'
 import { Record } from 'immutable'
 
-import type { RecordOf } from 'immutable'
+// import type { RecordOf } from 'immutable'
 
-export type JobFileT = RecordOf<{
-  name: string,
-  filePath: string,
-  isTmpFile: boolean,
-  quantity: number,
-  jobID: string,
-}>
+// export type JobFileT = RecordOf<{
+//   name: string,
+//   filePath: string,
+//   isTmpFile: boolean,
+//   quantity: number,
+//   jobID: string,
+// }>
 
 const JobFileRecord = Record({
   id: null,
@@ -18,6 +17,8 @@ const JobFileRecord = Record({
   filePath: null,
   isTmpFile: null,
   quantity: 1,
+  totalLines: null,
+  annotations: null,
   jobID: null,
 })
 

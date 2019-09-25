@@ -71,7 +71,7 @@ const JobList = ({
     },
     {
       title: 'Printing',
-      jobsSubset: jobs.filter(job => job.tasks.length > 0),
+      jobsSubset: jobs.filter(job => !job.isDone && job.tasks.length > 0),
     },
     {
       title: 'Queued',

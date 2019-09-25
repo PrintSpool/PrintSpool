@@ -39,34 +39,39 @@ type JobFile {
 type JobHistoryEvent {
   id: ID!
   createdAt: String!
-  type: JobStatus!
+  type: TaskStatus!
 }
 
-enum JobStatus {
+enum TaskStatus {
   """
   The subject has a task spooled for printing. It will begin printing as soon as the tasks spooled before it finish.
   """
-  SPOOL_PRINT
+  SPOOLED_TASK
 
   """
   The subject has a task is in the process of being printed.
   """
-  START_PRINT
+  START_TASK
 
   """
   An error occurred durring the print and it has been stopped automatically.
   """
-  PRINT_ERROR
+  ERROR
 
   """
   The subject was halted pre-emptively by a user's action.
   """
-  CANCEL_PRINT
+  CANCEL_TASK
+
+  """
+  The subject was paused by a user's action.
+  """
+  PAUSE_TASK
 
   """
   The subject was completed successfully.
   """
-  FINISH_PRINT
+  FINISH_TASK
 }
 
 # Mutations

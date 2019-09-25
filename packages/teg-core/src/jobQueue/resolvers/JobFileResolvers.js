@@ -1,6 +1,6 @@
 import { List } from 'immutable'
 
-import getTasksByTaskableID from '../../spool/selectors/getTasksByTaskableID'
+import getTasksByTaskableID from '../selectors/getTasksByTaskableID'
 import getPrintsCompletedByJobFileID from '../selectors/getPrintsCompletedByJobFileID'
 import getTotalPrintsByJobFileID from '../selectors/getTotalPrintsByJobFileID'
 import getIsDoneByJobFileID from '../selectors/getIsDoneByJobFileID'
@@ -8,8 +8,8 @@ import getIsDoneByJobFileID from '../selectors/getIsDoneByJobFileID'
 const JobFileResolvers = {
   JobFile: {
     tasks: (source, args, { store }) => {
-      const state = store.getState().spool
-      const tasks = getTasksByTaskableID(state).get(source.id, List())
+      const state = store.getState()
+      const tasks = getTasksByTaskableID(state.jobQueue).get(source.id, List())
 
       return tasks
     },
@@ -26,7 +26,7 @@ const JobFileResolvers = {
 
       const total = getTotalPrintsByJobFileID(state.jobQueue).get(source.id)
       const printed = getIsDoneByJobFileID(state.jobQueue).get(source.id)
-      const tasks = getTasksByTaskableID(state.spool).get(source.id, List())
+      const tasks = getTasksByTaskableID(state.jobQueue).get(source.id, List())
 
       return total - (printed + tasks.size)
     },

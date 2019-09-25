@@ -1,13 +1,14 @@
 import uuid from 'uuid'
 import { Record } from 'immutable'
 
-import JobHistoryTypeEnum from './JobHistoryTypeEnum'
+import TaskHistoryEnum from './TaskStatusEnum'
 
 const JobHistoryEventRecord = Record({
   id: null,
   jobID: null,
   jobFileID: null,
   taskID: null,
+  machineID: null,
   createdAt: null,
   type: null,
 })
@@ -15,7 +16,7 @@ const JobHistoryEventRecord = Record({
 const JobHistoryEvent = (attrs) => {
   const { type } = attrs
 
-  if (JobHistoryTypeEnum.includes(type) === false) {
+  if (TaskHistoryEnum[type] == null) {
     throw new Error(`Invalid Job History type: ${attrs.type}`)
   }
 

@@ -76,6 +76,7 @@ async fn handle_connection(
             if let Ok(message) = CombinatorMessage::decode(buf) {
                 future::ok(Event::ProtobufRec( message ))
             } else {
+                eprintln!("Warning: Unable to decode combinator message");
                 future::err(())
             }
         }).take_while(|result| {

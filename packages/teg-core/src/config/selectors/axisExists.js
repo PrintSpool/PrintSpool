@@ -1,10 +1,9 @@
 import { createSelector } from 'reselect'
-import getPrinterConfig from './getPrinterConfig'
 import { MOVEMENT_AXIS, EXTRUDER_AXIS } from '../types/AxisTypeEnum'
 import { TOOLHEAD, AXIS } from '../types/components/ComponentTypeEnum'
 
 const axisExists = createSelector(
-  getPrinterConfig,
+  machineConfig => machineConfig,
   config => (k, { allowTypes }) => {
     const component = config.components.find(c => c.model.get('address') === k)
 

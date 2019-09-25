@@ -5,7 +5,6 @@ import deterministicTestSetup from '../../util/testing/deterministicTestSetup'
 import snapshotTestResolvers from '../../util/testing/snapshotTestResolvers'
 
 import { initialState as jobQueueState } from '../reducers/jobQueueReducer'
-import { initialState as spoolState } from '../../spool/reducers/spoolReducer'
 import Job from '../types/Job'
 import JobFile from '../types/JobFile'
 // import { NORMAL } from './PriorityEnum'

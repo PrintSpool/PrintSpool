@@ -22,7 +22,11 @@ export const fixedListComponentTypes = List([
 ])
 
 export const logReducer = () => null
-export const reducer = () => {}
-export const macros = () => List([])
+export const macros = []
+export const configuredDevices = ({ machineConfig }) => {
+  const controller = machineConfig.components.find(c => c.type === 'CONTROLLER')
+  const deviceID = controller.model.get('serialPortID')
+  return [deviceID]
+}
 
 export const driver = true

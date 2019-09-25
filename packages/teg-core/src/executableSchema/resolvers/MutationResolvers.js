@@ -8,9 +8,8 @@ import requestDeleteConfigFromMutation from '../../config/actions/requestDeleteC
 import requestCreateJob from '../../jobQueue/actions/requestCreateJob'
 import deleteJob from '../../jobQueue/actions/deleteJob'
 /* spool */
-import spoolTask from '../../spool/actions/spoolTask'
-import requestSpoolJobFile from '../../spool/actions/requestSpoolJobFile'
-import { NORMAL, EMERGENCY } from '../../spool/types/PriorityEnum'
+import execGCodes from '../../jobQueue/actions/execGCodes'
+import requestSpoolJobFile from '../../jobQueue/actions/requestSpoolJobFile'
 
 const MutationResolvers = {
   Mutation: {
@@ -76,39 +75,35 @@ const MutationResolvers = {
     },
     /* jobQueue */
     createJob: (source, args, { store }) => {
-      const action = requestCreateJob(args.input)
+      const { macros, config } = store.getState()
+      const action = requestCreateJob({
+        ...args.input,
+        macros,
+        combinatorConfig: config,
+        // TODO: multimachine: need to add a machineID arg to the mutation
+        machineConfig: config.printer,
+      })
 
       store.dispatch(action)
 
       return action.payload.job
     },
     deleteJob: actionResolver({
-      requireMachineID: false,
       actionCreator: deleteJob,
+      requireMachineID: false,
       selector: () => null,
     }),
     /* spool */
     execGCodes: async (source, args, { store }) => {
-      const { gcodes } = args.input
-
-      const isEmergency = gcodes.every(line => (
-        ['reset', 'eStop'].includes(line)
-      ))
+      const { macros, config } = store.getState()
+      const { gcodes: commands, machineID } = args.input
 
       const completedTask = await new Promise((resolve, reject) => {
-        const action = spoolTask({
-          name: '[spoolGCodes]',
-          data: [
-            ...gcodes,
-            /*
-             * the noOp executes after any macro expansions. This allows us
-             * to synchronize the end of the task/mutation with the end of a
-             * host macro if the host macro is the line line of gcode.
-            */
-            'noOp',
-          ],
-          priority: isEmergency ? EMERGENCY : NORMAL,
-          internal: false,
+        const action = execGCodes({
+          machineID,
+          commands,
+          macros,
+          combinatorConfig: config,
           onComplete: resolve,
           onError: reject,
         })

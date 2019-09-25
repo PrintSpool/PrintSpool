@@ -1,16 +1,17 @@
-import isIdle from '../../spool/selectors/isIdle'
-import getComponents from '../../config/selectors/getComponents'
-import getComponentsState from '../selectors/getComponentsState'
+import busyMachines, { BUSY_WITH_JOB } from '../../jobQueue/selectors/busyMachines'
+// import getComponents from '../../config/selectors/getComponents'
+// import getComponentsState from '../selectors/getComponentsState'
 import getPluginModels from '../../config/selectors/getPluginModels'
-import ComponentTypeEnum from '../../config/types/components/ComponentTypeEnum'
+// import ComponentTypeEnum from '../../config/types/components/ComponentTypeEnum'
 import getMachineConfigForm from '../../config/selectors/getMachineConfigForm'
 
 const MachineResolvers = {
   Machine: {
     name: (source, args, { store }) => {
       const state = store.getState()
+      const machineConfig = state.config.machines.get(source.id)
 
-      return getPluginModels(state.config).getIn(['@tegapp/core', 'name'])
+      return getPluginModels(machineConfig).getIn(['@tegapp/core', 'name'])
     },
 
     fixedListComponentTypes: (source, args, { store }) => {
@@ -27,15 +28,17 @@ const MachineResolvers = {
 
     enabledMacros: (source, args, { store }) => {
       const state = store.getState()
-      
-      return state.macros.enabledMacros
+
+      return state.macros.get(source.machineID)
     },
 
     availablePackages: (source, args, { store }) => {
       const state = store.getState()
+      const machineConfig = state.config.machines.get(source.id)
+
       const { availablePlugins } = state.pluginManager
 
-      const installedPackages = state.config.printer.plugins.map(p => p.package)
+      const installedPackages = machineConfig.plugins.map(p => p.package)
 
       return Object.keys(availablePlugins).filter(packageName => (
         installedPackages.includes(packageName) === false
@@ -45,6 +48,7 @@ const MachineResolvers = {
     configForm: (source, args, { store }) => {
       const state = store.getState()
 
+      // TODO: multimachine config forms
       const {
         model,
         modelVersion,
@@ -52,7 +56,7 @@ const MachineResolvers = {
       } = getMachineConfigForm(state)
 
       return {
-        id: state.config.printer.id,
+        id: source.id,
         model,
         modelVersion,
         schemaForm,
@@ -75,8 +79,7 @@ const MachineResolvers = {
 
     plugins: (source, args, { store }) => {
       const state = store.getState()
-
-      const { plugins } = state.config.printer
+      const { plugins } = state.config.machines.get(source.id)
 
       if (args.package != null) {
         const plugin = plugins.find(p => p.package === args.package)
@@ -89,9 +92,12 @@ const MachineResolvers = {
       return plugins
     },
 
-    status: (source) => {
-      // TODO: PRINTING status
-      // if (!isIdle(source.spool)) return 'PRINTING'
+    status: (source, args, { store }) => {
+      const state = store.getState()
+
+      if (busyMachines(state.jobQueue)[source.id] === BUSY_WITH_JOB) {
+        return 'PRINTING'
+      }
       const { status } = source
       return status.substring(status.lastIndexOf('/') + 1)
     },
@@ -111,24 +117,15 @@ const MachineResolvers = {
     // },
 
     gcodeHistory: (source, args, { store }) => {
-      throw new Error('TODO: GCODE HISTORY')
-      // const state = store.getState()
-      // const {
-      //   fullHistory,
-      //   historyExcludingPolling,
-      // } = state.get('@tegapp/marlin').gcodeHistory
+      const state = store.getState()
 
-      // let entries = fullHistory
+      let { historyEntries } = state.gcodeHistory.get(source.id)
 
-      // if (args.excludePolling === true) {
-      //   entries = historyExcludingPolling
-      // }
+      if (args.limit != null) {
+        historyEntries = historyEntries.slice(0, args.limit)
+      }
 
-      // if (args.limit != null) {
-      //   entries = entries.slice(0, args.limit)
-      // }
-
-      // return entries.toArray()
+      return historyEntries.toArray()
     },
     // movementHistory: (source, args, { store }) => {
     //   const state = store.getState()

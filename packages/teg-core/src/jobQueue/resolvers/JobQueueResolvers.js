@@ -3,7 +3,8 @@ import getPluginModels from '../../config/selectors/getPluginModels'
 const JobQueueResolvers = {
   JobQueue: {
     id: source => source.config.host.id,
-    name: source => getPluginModels(source.config).getIn(['@tegapp/core', 'name']),
+    // TODO: multimachine job queue name
+    name: source => getPluginModels(source.config.printer).getIn(['@tegapp/core', 'name']),
     // name: source => source.config.host.name,
     jobs: (source, { id }) => {
       const { jobQueue } = source

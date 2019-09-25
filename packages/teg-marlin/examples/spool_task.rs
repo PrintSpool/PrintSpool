@@ -118,7 +118,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         // payload: Some(combinator_message::Payload::Reset(combinator_message::Reset {})),
         payload: Some(combinator_message::Payload::SpoolTask(combinator_message::SpoolTask {
             task_id: 123,
-            file_path: file.path().to_str().unwrap().to_string(),
+            content: Some(combinator_message::spool_task::Content::FilePath (
+                file.path().to_str().unwrap().to_string(),
+            )),
             machine_override: false,
         }))
     };

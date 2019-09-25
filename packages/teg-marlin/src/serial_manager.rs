@@ -156,9 +156,6 @@ impl SerialManager {
         )
             .map(|either| {
                 match either {
-                    // Ok(_) => {
-                    //     println!("the serial port just kinda went away?")
-                    // }
                     Ok(_) => {
                         Event::SerialPortDisconnected
                     }

@@ -13,7 +13,8 @@ const move = ({
   sync,
   relativeMovement,
   allowExtruderAxes,
-}, { config }) => {
+  machineConfig,
+}) => {
   // let validAxes = config.axes
   // if (!allowExtruderAxes) {
   //   validAxes = validAxes.filter((axis) => !axis.startsWith('e'))
@@ -25,7 +26,7 @@ const move = ({
   if (allowExtruderAxes) allowTypes.push(EXTRUDER_AXIS)
 
   Object.entries(axes).forEach(([address, v]) => {
-    if (!axisExists(config)(address, { allowTypes })) {
+    if (!axisExists(machineConfig)(address, { allowTypes })) {
       throw new Error(`Axis ${address} does not exist`)
     }
 
@@ -34,23 +35,23 @@ const move = ({
       throw new Error(`${address}: ${v} is not a number`)
     }
 
-    // const feedrate = config.feedrates[id]
+    // const feedrate = machineConfig.feedrates[id]
     // if (feedrate == null) {
     //   throw new Error(`no feedrate configured for ${id}`)
     // }
 
     // TODO: multi-extruder support
-    const component = getComponents(config).find(c => (
+    const component = getComponents(machineConfig).find(c => (
       c.model.get('address') === address
     ))
     const isToolhead = component.type === TOOLHEAD
 
-    g1Args[(isToolhead ? 'e' : component.address)] = v
+    g1Args[(isToolhead ? 'e' : address)] = v
 
     feedrates.push(component.model.get('feedrate'))
   })
 
-  return [
+  const commands = [
     relativeMovement ? 'G91' : 'G90',
     { g1: { f: Math.min.apply(null, feedrates) * 60 } },
     { g1: g1Args },
@@ -60,6 +61,8 @@ const move = ({
     */
     ...(sync === true ? ['M400'] : []),
   ]
+
+  return { commands }
 }
 
 export default move

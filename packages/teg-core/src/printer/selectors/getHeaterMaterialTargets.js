@@ -6,13 +6,14 @@ import getMaterialForToolhead from './getMaterialForToolhead'
 import { TOOLHEAD, BUILD_PLATFORM } from '../../config/types/components/ComponentTypeEnum'
 
 const getHeaterMaterialTargets = createSelector(
-  config => config,
-  getHeaterConfigs,
-  (config, heaters) => (
-    heaters.mapEntries(([id, heater]) => {
+  configPair => configPair,
+  ({ machineConfig, combinatorConfig }) => {
+    const heaters = getHeaterConfigs(machineConfig)
+
+    return heaters.mapEntries(([id, heater]) => {
       switch (heater.type) {
         case TOOLHEAD: {
-          const material = getMaterialForToolhead({ toolhead: heater, config })
+          const material = getMaterialForToolhead({ toolhead: heater, combinatorConfig })
           const target = material.model.get('targetExtruderTemperature')
 
           return [id, target]
@@ -23,7 +24,7 @@ const getHeaterMaterialTargets = createSelector(
           const target = heaters.toList()
             .filter(h => h.type === TOOLHEAD)
             .map(t => (
-              getMaterialForToolhead({ toolhead: t, config })
+              getMaterialForToolhead({ toolhead: t, combinatorConfig })
                 .model
                 .get('targetBedTemperature')
             ))
@@ -36,7 +37,7 @@ const getHeaterMaterialTargets = createSelector(
         }
       }
     })
-  ),
+  },
 )
 
 export default getHeaterMaterialTargets

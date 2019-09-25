@@ -1,24 +1,17 @@
 import {
-  createMacroExpansionReducer,
-  getComponents,
   axisExists,
   AxisTypeEnum,
 } from '@tegapp/core'
 
 const { MOVEMENT_AXIS } = AxisTypeEnum
 
-const meta = {
-  package: '@tegapp/macros-default',
-  macro: 'home',
-}
-
 // example useage:
 // { home: { axes: 'all' } }
 // { home: { axes: [ axisID1, axisID2 ] } }
-const home = createMacroExpansionReducer(meta, (
-  { axes },
-  { config },
-) => {
+const compileHome = ({
+  args: { axes },
+  machineConfig,
+}) => {
   if (axes === 'all') return ['G28']
 
   if (!Array.isArray(axes) || axes.length === 0) {
@@ -28,16 +21,35 @@ const home = createMacroExpansionReducer(meta, (
   }
 
   const gcodeWords = ['G28']
+
   axes.forEach(([address]) => {
-    if (!axisExists(config)(address, { allowTypes: [MOVEMENT_AXIS] })) {
+    if (!axisExists(machineConfig)(address, { allowTypes: [MOVEMENT_AXIS] })) {
       throw new Error(`Axis ${address} does not exist`)
     }
 
     gcodeWords.push(address.toUpperCase())
   })
-  return [
-    gcodeWords.join(' '),
-  ]
-})
 
-export default home
+  return {
+    commands: [gcodeWords.join(' ')],
+  }
+}
+
+const homeMacro = {
+  key: 'home',
+  schema: {
+    type: 'object',
+    required: ['axes'],
+    properties: {
+      axes: {
+        oneOf: [
+          { type: 'string' },
+          { type: 'array', contains: { type: 'string' } },
+        ],
+      },
+    },
+  },
+  compile: compileHome,
+}
+
+export default homeMacro

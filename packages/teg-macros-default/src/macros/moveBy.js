@@ -1,24 +1,35 @@
-import { createMacroExpansionReducer } from '@tegapp/core'
-
 import move from '../util/move'
 
-const meta = {
-  package: '@tegapp/macros-default',
-  macro: 'moveBy',
-}
-
 // example useage: { moveBy: { distances: { [id]: 100 } } }
-const moveBy = createMacroExpansionReducer(meta, (
-  { distances, sync },
-  { config },
-) => {
-  const moveArgs = {
+const compileMoveBy = ({
+  args: { distances, sync },
+  machineConfig,
+}) => (
+  move({
     axes: distances,
     sync,
     allowExtruderAxes: true,
     relativeMovement: true,
-  }
-  return move(moveArgs, { config })
-})
+    machineConfig,
+  })
+)
 
-export default moveBy
+const moveByMacro = {
+  key: 'moveBy',
+  schema: {
+    type: 'object',
+    required: ['distances'],
+    properties: {
+      distances: {
+        type: 'object',
+        additionalProperties: { type: 'number' },
+      },
+      sync: {
+        type: 'boolean',
+      },
+    },
+  },
+  compile: compileMoveBy,
+}
+
+export default moveByMacro

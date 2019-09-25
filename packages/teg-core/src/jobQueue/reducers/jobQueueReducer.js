@@ -4,17 +4,20 @@ import Debug from 'debug'
 
 import createTmpFiles from '../sideEffects/createTmpFiles'
 import unlinkTmpFiles from '../sideEffects/unlinkTmpFiles'
-import loadJobFileInToTask from '../sideEffects/loadJobFileInToTask'
 
 import JobHistoryEvent from '../types/JobHistoryEvent'
 
 import {
-  SPOOL_PRINT,
-  START_PRINT,
-  CANCEL_PRINT,
-  PRINT_ERROR,
-  FINISH_PRINT,
-} from '../types/JobHistoryTypeEnum'
+  indexedTaskStatuses,
+  taskFailureStatuses,
+  // CANCEL_TASK,
+  // PAUSE_TASK,
+  // ERROR,
+  START_TASK,
+  FINISH_TASK,
+  SPOOLED_TASK,
+} from '../types/TaskStatusEnum'
+import Task from '../types/Task'
 
 import getPluginModels from '../../config/selectors/getPluginModels'
 
@@ -28,21 +31,26 @@ import getJobFilesByJobID from '../selectors/getJobFilesByJobID'
 /* config actions */
 import { SET_CONFIG } from '../../config/actions/setConfig'
 
+import loadTaskFile from '../sideEffects/loadTaskFile'
+
 import { REQUEST_CREATE_JOB } from '../actions/requestCreateJob'
 import createJob, { CREATE_JOB } from '../actions/createJob'
 import deleteJob, { DELETE_JOB } from '../actions/deleteJob'
 import jobQueueComplete from '../actions/jobQueueComplete'
+import lineNumberChange from '../actions/lineNumberChange'
 
-import spoolTask, { SPOOL_TASK } from '../../spool/actions/spoolTask'
-import { DESPOOL_TASK } from '../../spool/actions/despoolTask'
-import { DESPOOL_COMPLETED } from '../../spool/actions/despoolCompleted'
-import { CANCEL_TASK } from '../../spool/actions/cancelTask'
-import requestSpoolJobFile, { REQUEST_SPOOL_JOB_FILE } from '../../spool/actions/requestSpoolJobFile'
-import { REQUEST_SPOOL_NEXT_JOB_FILE } from '../../spool/actions/requestSpoolNextJobFile'
+import spoolTask, { SPOOL_TASK } from '../actions/spoolTask'
+import cancelTasks from '../actions/cancelTasks'
+import requestSpoolJobFile, { REQUEST_SPOOL_JOB_FILE } from '../actions/requestSpoolJobFile'
+import { REQUEST_SPOOL_NEXT_JOB_FILE } from '../actions/requestSpoolNextJobFile'
+import sendTaskToSocket, { SEND_TASK_TO_SOCKET } from '../../printer/actions/sendTaskToSocket'
+import sendDeleteTaskHistoryToSocket from '../../printer/actions/sendDeleteTaskHistoryToSocket'
 
 import { PRINTER_READY } from '../../printer/actions/printerReady'
 import { ESTOP } from '../../printer/actions/estop'
 import { DRIVER_ERROR } from '../../printer/actions/driverError'
+import { SOCKET_MESSAGE } from '../../printer/actions/socketMessage'
+import busyMachines, { NOT_BUSY } from '../selectors/busyMachines'
 
 const debug = Debug('teg:jobQueue')
 
@@ -52,6 +60,8 @@ export const initialState = Record({
   automaticPrinting: false,
   jobs: Map(),
   jobFiles: Map(),
+  tasks: Map(),
+  taskIDOrder: List(),
   /*
    * A list of JobFileHistory records which can be reduced to determine the
    * current status of any job or jobFile in the queue.
@@ -63,11 +73,14 @@ const jobQueueReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
       const { config } = action.payload
-      const model = getPluginModels(config).get('@tegapp/core')
-      return state.set('automaticPrinting', model.get('automaticPrinting'))
+      // TODO: multimachine job queue will need per machine automatic printing configs
+      const model = getPluginModels(config.printer).get('@tegapp/core')
+      return state
+        .set('automaticPrinting', model.get('automaticPrinting'))
     }
     case REQUEST_CREATE_JOB: {
       debug('request create job')
+      // TODO: parse the job file macros into gcodes and save the associated actions here
 
       return loop(
         state,
@@ -124,57 +137,176 @@ const jobQueueReducer = (state = initialState, action) => {
     case PRINTER_READY:
     case ESTOP:
     case DRIVER_ERROR: {
-      const isCancelledByUser = action.type === ESTOP
-      const eventType = isCancelledByUser ? CANCEL_PRINT : PRINT_ERROR
-
-      const taskIDs = getTaskIDByJobFileID(state)
-
       /* error or cancel any printing job file */
-      const events = getSpooledJobFiles(state).map(jobFile => (
-        JobHistoryEvent({
-          jobID: jobFile.jobID,
-          jobFileID: jobFile.id,
-          taskID: taskIDs.get(jobFile.id),
-          type: eventType,
-        })
-      ))
-      return state.update('history', history => history.concat(events))
+      const taskIDs = getTaskIDByJobFileID(state)
+      const cancelledTaskIDs = getSpooledJobFiles(state).map(jobFile => taskIDs.get(jobFile.id))
+
+      return loop(
+        state,
+        Cmd.action(cancelTasks({ taskIDs: cancelledTaskIDs })),
+      )
     }
-    case CANCEL_TASK: {
-      const { taskID } = action.payload
-      const jobFileID = getTaskIDByJobFileID(state).findKey(v => v === taskID)
+    case SOCKET_MESSAGE: {
+      /* eslint-disable no-param-reassign */
+      const { machineID } = action.payload
+      const { feedback = {} } = action.payload.message
+      const { events = [] } = feedback
 
-      if (jobFileID == null) return state
+      let currentTask = state.tasks.find(t => (
+        t.machineID === machineID
+        && t.status === START_TASK
+      ))
 
-      const { jobID } = state.jobFiles.get(jobFileID)
+      let nextState = state
+      const nextEffects = []
 
-      const historyEvent = JobHistoryEvent({
-        jobID,
-        jobFileID,
-        taskID,
-        type: CANCEL_PRINT,
+      /* task history */
+
+      const newHistoryEvents = events
+        .map((ev) => {
+          ev.type = indexedTaskStatuses[ev.type]
+          ev.id = `${ev.taskId}-${ev.type}`
+          ev.task = state.tasks.get(ev.taskId)
+          return ev
+        })
+        .filter(({ id, task }) => (
+          task != null
+          && !state.history.some(historyEvent => historyEvent.id === id)
+        ))
+        .map(({
+          id,
+          type,
+          task,
+          createdAt,
+        }) => {
+          nextState = nextState.setIn(
+            ['tasks', task.id, 'status'],
+            type,
+          )
+          return JobHistoryEvent({
+            id,
+            jobID: task.jobID,
+            jobFileID: task.jobFileID,
+            machineID,
+            taskID: task.id,
+            type,
+            createdAt: new Date(createdAt * 1000).toISOString(),
+          })
+        })
+
+      nextState = nextState
+        .update('history', history => history.concat(newHistoryEvents))
+
+      const finishedTask = newHistoryEvents.some(ev => ev.type === FINISH_TASK)
+
+      /* task annotations + line number updates */
+
+      let { despooledLineNumber } = feedback
+      if (finishedTask) {
+        despooledLineNumber = currentTask.totalLines - 1
+      }
+
+      if (
+        currentTask != null
+        && despooledLineNumber != null
+        && despooledLineNumber > currentTask.currentLineNumber
+      ) {
+        // reload the task from the next state
+        currentTask = nextState.tasks.get(currentTask.id)
+          .set('previousLineNumber', currentTask.currentLineNumber)
+          .set('currentLineNumber', despooledLineNumber)
+
+        // add the actions annotated for this line number to the effects and
+        // remove them from the annotations so they don't get executed again.
+        currentTask = currentTask.updateIn(['annotations'], annotations => (
+          annotations.filter((ann) => {
+            const shouldExecAction = ann.lineNumber <= despooledLineNumber
+            if (shouldExecAction) {
+              nextEffects.push(Cmd.action(ann.action))
+            }
+            return !shouldExecAction
+          })
+        ))
+
+        nextEffects.push(Cmd.action(lineNumberChange(currentTask)))
+        nextState = nextState.setIn(['tasks', currentTask.id], currentTask)
+      }
+
+      /* task completion */
+
+      // console.log({ events, newHistoryEvents, finishedTask })
+
+      if (finishedTask) {
+        /* task cleanup */
+        const finishedTaskIDs = newHistoryEvents
+          .filter(ev => ev.type === FINISH_TASK)
+          .map(ev => ev.taskID)
+
+        finishedTaskIDs.forEach((id) => {
+          const task = state.tasks.get(id)
+          task.onComplete()
+
+          nextState = nextState.deleteIn(['tasks', task.id])
+        })
+
+        const deleteTaskHistory = sendDeleteTaskHistoryToSocket({
+          machineID,
+          taskIDs: finishedTaskIDs,
+        })
+        nextEffects.push(Cmd.action(deleteTaskHistory))
+
+        /* next task */
+
+        // TODO: multimachine change: this would need to be changed to find
+        // the next task for this particular machine
+        const nextTaskID = nextState.taskIDOrder.first()
+
+        if (nextTaskID != null) {
+          // if a task exists send it to the machine
+          nextState = nextState.update('taskIDOrder', list => list.shift())
+
+          nextEffects.push(
+            Cmd.action(sendTaskToSocket(nextState.tasks.get(nextTaskID))),
+          )
+        } else {
+          // if no tasks exist and automatic printing is enabled then spool
+          // the next job file
+          const nextJobFile = getNextJobFile(nextState)
+
+          // Automatic printing: start the next job after the current job finishes
+          if (state.automaticPrinting && nextJobFile != null) {
+            const nextAction = requestSpoolJobFile({
+              jobFileID: nextJobFile.id,
+              machineID,
+            })
+            nextEffects.push(
+              Cmd.action(nextAction),
+            )
+          }
+
+          if (nextJobFile == null) {
+            // TODO: this should be renamed jobQueueExhausted.
+            // Jobs may still be in progress in the multi-machine model
+            nextEffects.push(
+              Cmd.action(jobQueueComplete()),
+            )
+          }
+        }
+      }
+
+      newHistoryEvents.forEach((event) => {
+        const task = nextState.tasks.get(event.taskID)
+
+        if (taskFailureStatuses.includes(event.type) && task.onError != null) {
+          nextEffects.push(
+            Cmd.run(task.onError, {
+              args: [task],
+            }),
+          )
+        }
       })
 
-      /* mark each spooled job file as cancelled */
-      const nextState = state
-        .update('history', history => history.push(historyEvent))
-
-      const nextJobFile = getNextJobFile(nextState)
-
-      if (state.automaticPrinting && nextJobFile != null) {
-        return loop(
-          nextState,
-          Cmd.action(requestSpoolJobFile({
-            jobFileID: nextJobFile.id,
-          })),
-        )
-      }
-
-      if (nextJobFile == null) {
-        return loop(nextState, Cmd.action(jobQueueComplete()))
-      }
-
-      return nextState
+      return loop(nextState, Cmd.list(nextEffects))
     }
     case REQUEST_SPOOL_NEXT_JOB_FILE: {
       const jobID = state.getIn(['jobs', 0, 'id'])
@@ -194,26 +326,47 @@ const jobQueueReducer = (state = initialState, action) => {
       )
     }
     case REQUEST_SPOOL_JOB_FILE: {
-      const { jobFileID } = action.payload
+      const { jobFileID, machineID } = action.payload
       const jobFile = state.jobFiles.get(jobFileID)
 
       if (jobFile == null) {
         throw new Error(`jobFile (id: ${jobFileID}) does not exist`)
       }
 
-      return loop(state, Cmd.run(loadJobFileInToTask, {
-        args: [{ jobFile }],
-        successActionCreator: spoolTask,
-      }))
+      const {
+        jobID,
+        name,
+        filePath,
+        totalLines,
+        annotations,
+      } = jobFile
+
+      const task = Task({
+        machineID,
+        jobFileID: jobFile.id,
+        jobID,
+        name,
+        filePath,
+        totalLines,
+        annotations,
+      })
+
+      return loop(
+        state,
+        Cmd.run(loadTaskFile, {
+          args: [task],
+          successActionCreator: spoolTask,
+        }),
+      )
     }
     case SPOOL_TASK: {
+      const { task } = action.payload
       const {
         jobID,
         jobFileID,
         id: taskID,
-      } = action.payload.task
-
-      if (jobID == null) return state
+        machineID,
+      } = task
 
       /*
        * record the spooling of the print in the job history
@@ -222,96 +375,62 @@ const jobQueueReducer = (state = initialState, action) => {
         jobID,
         jobFileID,
         taskID,
-        type: SPOOL_PRINT,
+        machineID,
+        type: SPOOLED_TASK,
       })
 
-      const nextState = state
+      let nextState = state
+        .setIn(['tasks', taskID], task)
         .update('history', history => history.push(historyEvent))
 
-      /*
-       * delete the previous job upon spooling a subsequent job
-       */
-      const jobsForDeletion = getCompletedJobs(state).toList()
-
-      if (jobsForDeletion.size > 1) {
-        throw new Error('only one completed Job should exist at a time')
+      if (busyMachines(state)[machineID] === NOT_BUSY) {
+        return loop(nextState, Cmd.action(sendTaskToSocket(task)))
       }
 
-      if (jobsForDeletion.size === 1) {
-        const nextAction = deleteJob({ jobID: jobsForDeletion.get(0).id })
-
-        return loop(nextState, Cmd.action(nextAction))
-      }
+      nextState = nextState.updateIn(['taskIDOrder'], list => list.push(task.id))
 
       return nextState
     }
-    case DESPOOL_TASK: {
+    case SEND_TASK_TO_SOCKET: {
+      const { task } = action.payload
       const {
-        id: taskID,
         jobID,
         jobFileID,
-        currentLineNumber,
-      } = action.payload.task
-
-      if (jobID == null || currentLineNumber !== 0) {
-        return state
-      }
+        id: taskID,
+        machineID,
+      } = task
 
       /*
        * record the start of the print in the job history
        */
       const historyEvent = JobHistoryEvent({
+        id: `${taskID}-${START_TASK}`,
         jobID,
         jobFileID,
         taskID,
-        type: START_PRINT,
+        machineID,
+        type: START_TASK,
       })
 
       const nextState = state
+        .setIn(['tasks', taskID, 'status'], START_TASK)
         .update('history', history => history.push(historyEvent))
 
-      return nextState
-    }
-    case DESPOOL_COMPLETED: {
-      const { task, isLastLineInTask } = action.payload
+      if (task.jobID != null) {
+        /*
+        * delete the previous job upon spooling a subsequent job
+        */
+        const jobsForDeletion = getCompletedJobs(state).toList()
 
-      const {
-        id: taskID,
-        jobID,
-        jobFileID,
-      } = task
+        if (jobsForDeletion.size > 1) {
+          throw new Error('only one completed Job should exist at a time')
+        }
 
-      if (jobID == null || !isLastLineInTask) {
-        return state
-      }
+        if (jobsForDeletion.size === 1) {
+          const nextAction = deleteJob({ jobID: jobsForDeletion.get(0).id })
 
-      /*
-       * record the finish of the print in the job history
-       */
-      const historyEvent = JobHistoryEvent({
-        jobID,
-        jobFileID,
-        taskID,
-        type: FINISH_PRINT,
-      })
-
-      const nextState = state
-        .update('history', history => history.push(historyEvent))
-
-
-      const nextJobFile = getNextJobFile(nextState)
-
-      if (state.automaticPrinting && nextJobFile != null) {
-        return loop(
-          nextState,
-          Cmd.action(requestSpoolJobFile({
-            jobFileID: nextJobFile.id,
-          })),
-        )
-      }
-
-      if (nextJobFile == null) {
-        return loop(nextState, Cmd.action(jobQueueComplete()))
+          return loop(nextState, Cmd.action(nextAction))
+        }
       }
 
       return nextState

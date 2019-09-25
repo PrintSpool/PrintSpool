@@ -2,16 +2,16 @@ import getTaskPercentComplete from '../selectors/getTaskPercentComplete'
 
 const TaskResolvers = {
   Task: {
-    totalLineNumbers: source => source.data.size,
+    totalLineNumbers: source => source.totalLines,
     percentComplete: (source, { digits = 2 }) => (
       getTaskPercentComplete({
         task: source,
         digits,
       })
     ),
-    machine: (_source, args, { store }) => {
+    machine: (source, args, { store }) => {
       const state = store.getState()
-      return state
+      return state.sockets.machines.get(source.machineID)
     },
   },
 }

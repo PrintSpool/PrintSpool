@@ -4,7 +4,7 @@ import deterministicTestSetup from '../../util/testing/deterministicTestSetup'
 import snapshotTestResolvers from '../../util/testing/snapshotTestResolvers'
 
 import JobHistoryEvent from '../types/JobHistoryEvent'
-import { FINISH_PRINT } from '../types/JobHistoryTypeEnum'
+import { FINISH_TASK } from '../types/TaskStatusEnum'
 
 import JobHistoryEventResolvers from './JobHistoryEventResolvers'
 
@@ -13,7 +13,7 @@ describe('JobHistoryEventResolvers', () => {
     deterministicTestSetup()
 
     const event = JobHistoryEvent({
-      type: FINISH_PRINT,
+      type: FINISH_TASK,
     })
 
 

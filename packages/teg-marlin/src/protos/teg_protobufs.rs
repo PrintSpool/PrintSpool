@@ -4,7 +4,7 @@
 /// uint32 message_id = 2;
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CombinatorMessage {
-    #[prost(oneof="combinator_message::Payload", tags="9, 10, 11, 12, 13, 15, 16")]
+    #[prost(oneof="combinator_message::Payload", tags="9, 10, 11, 15, 16, 100, 110, 111")]
     pub payload: ::std::option::Option<combinator_message::Payload>,
 }
 pub mod combinator_message {
@@ -18,10 +18,6 @@ pub mod combinator_message {
     pub struct SpoolTask {
         #[prost(uint32, tag="1")]
         pub task_id: u32,
-        #[prost(string, tag="2")]
-        pub file_path: std::string::String,
-        // 3-7 are reserved for future file formats
-
         // string name = 8;
 
         /// Override tasks can be ran during jobs and do not set the
@@ -31,6 +27,24 @@ pub mod combinator_message {
         /// override during another task.
         #[prost(bool, tag="9")]
         pub machine_override: bool,
+        /// 2-7: task file is sent as either a file path or array of GCode commands
+        #[prost(oneof="spool_task::Content", tags="2, 3")]
+        pub content: ::std::option::Option<spool_task::Content>,
+    }
+    pub mod spool_task {
+        /// 2-7: task file is sent as either a file path or array of GCode commands
+        #[derive(Clone, PartialEq, ::prost::Oneof)]
+        pub enum Content {
+            #[prost(string, tag="2")]
+            FilePath(std::string::String),
+            #[prost(message, tag="3")]
+            Inline(super::InlineContent),
+        }
+    }
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct InlineContent {
+        #[prost(string, repeated, tag="3")]
+        pub commands: ::std::vec::Vec<std::string::String>,
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PauseTask {
@@ -39,6 +53,13 @@ pub mod combinator_message {
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct DeviceDiscovered {
+        #[prost(string, tag="1")]
+        pub device_path: std::string::String,
+    }
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct DeviceDisconnected {
+        #[prost(string, tag="1")]
+        pub device_path: std::string::String,
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct EStop {
@@ -53,20 +74,29 @@ pub mod combinator_message {
     }
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Payload {
+        /// TODO: maybe the machine service should just listen to it's config file for changes?
         #[prost(message, tag="9")]
         SetConfig(SetConfig),
         #[prost(message, tag="10")]
         SpoolTask(SpoolTask),
+        /// TODO: task pausing
         #[prost(message, tag="11")]
         PauseTask(PauseTask),
-        #[prost(message, tag="12")]
-        DeleteTaskHistory(DeleteTaskHistory),
-        #[prost(message, tag="13")]
-        DeviceDiscovered(DeviceDiscovered),
+        /// immediately stop the machine
         #[prost(message, tag="15")]
         Estop(EStop),
+        /// close and restart the machine service clearing any EStop in the process
         #[prost(message, tag="16")]
         Reset(Reset),
+        /// TODO: delete task history at the end of a task
+        #[prost(message, tag="100")]
+        DeleteTaskHistory(DeleteTaskHistory),
+        /// A notification that the relevant hardware (eg. an controller board or arduino) has been connected to hint
+        /// that the machine service should try to connect if it is presently disconnected.
+        #[prost(message, tag="110")]
+        DeviceDiscovered(DeviceDiscovered),
+        #[prost(message, tag="111")]
+        DeviceDisconnected(DeviceDisconnected),
     }
 }
 /// Machines send MachineMessages

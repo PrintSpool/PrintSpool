@@ -124,7 +124,8 @@ pub async fn start(config_path: Option<String>) -> Result<(), Box<dyn std::error
     let serial_manager = SerialManager::new(event_sender.clone(), config.tty_path().clone());
 
     // attempt to connect to serial on startup if the port is available
-    event_sender.send(Event::Init)
+    let serial_port_available = std::path::Path::new(config.tty_path()).exists();
+    event_sender.send(Event::Init { serial_port_available })
         .await
         .expect("Unable to send init event");
 

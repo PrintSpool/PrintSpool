@@ -7,7 +7,14 @@ fn main() {
     let mut protos_path = cargo_path.clone();
     // protos_path.pop();
     // protos_path.push("teg-protobufs");
-    protos_path.push("src");
+    protos_path.pop();
+    protos_path.pop();
+    protos_path.push("protos");
+
+    if !protos_path.as_path().exists() {
+        println!("Skipping protobuf compilation");
+        return
+    }
 
     let includes  = [protos_path.to_str().unwrap()];
 

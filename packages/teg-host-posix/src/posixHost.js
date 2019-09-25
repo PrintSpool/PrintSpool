@@ -9,11 +9,11 @@ import { createECDHKey } from 'graphql-things'
 import writeFileAtomic from 'write-file-atomic'
 import npid from 'npid'
 
-import * as tegAutodrop3D from '@tegapp/autodrop3d'
+// import * as tegAutodrop3D from '@tegapp/autodrop3d'
 import * as tegCore from '@tegapp/core'
 import * as tegMarlin from '@tegapp/marlin'
 import * as tegMacrosDefault from '@tegapp/macros-default'
-import * as tegRaspberryPi from '@tegapp/raspberry-pi'
+// import * as tegRaspberryPi from '@tegapp/raspberry-pi'
 
 import {
   handleFatalExceptions,
@@ -34,11 +34,11 @@ import packageJSON from '../package.json'
 // });
 
 const availablePlugins = {
-  '@tegapp/autodrop3d': tegAutodrop3D,
+  // '@tegapp/autodrop3d': tegAutodrop3D,
   '@tegapp/core': tegCore,
   '@tegapp/marlin': tegMarlin,
   '@tegapp/macros-default': tegMacrosDefault,
-  '@tegapp/raspberry-pi': tegRaspberryPi,
+  // '@tegapp/raspberry-pi': tegRaspberryPi,
 }
 
 const {

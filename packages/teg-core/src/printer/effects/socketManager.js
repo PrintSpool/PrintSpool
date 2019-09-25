@@ -11,9 +11,9 @@ const SIZE_DELIMETER_BYTES = 4
 
 // TODO: productionn protos directory
 // const protosDir = path.join(__dirname, 'protos')
-const protosDir = path.join(__dirname, '../../../',  'protos')
+const protosDir = path.join(__dirname, '../../../../../', 'protos')
 
-export const createSocketManager =  ({ machineID, socketPath }) => ({
+export const createSocketManager = ({ machineID, socketPath }) => ({
   machineID,
   socketPath,
   connected: false,
@@ -27,6 +27,10 @@ export const startSocketManager = async (manager, dispatch) => {
 
   const MachineMessage = machineRoot.lookupType('teg_protobufs.MachineMessage')
 
+  manager.CombinatorMessage = combinatorRoot.lookupType('teg_protobufs.CombinatorMessage')
+
+  let connect
+
   const onDisconnect = (dispatch) => {
     // console.log("disconnect")
     manager.socket = null
@@ -34,7 +38,7 @@ export const startSocketManager = async (manager, dispatch) => {
     if (manager.connected) connect()
   }
 
-  const connect = () => {
+  connect = () => {
     // console.log("attempt connection")
     manager.connected = false
     manager.socket = net.connect(manager.socketPath)
@@ -53,7 +57,7 @@ export const startSocketManager = async (manager, dispatch) => {
     manager.socket.on('data', (data) => {
       buffer = Buffer.concat([buffer, data])
 
-      const size = buffer.readInt32LE()
+      const size = buffer.readUInt32LE()
       // console.log(size, buffer.length)
 
       if (buffer.length >= size) {
@@ -85,7 +89,32 @@ export const startSocketManager = async (manager, dispatch) => {
   manager.close = () => {
     watcher.close()
     if (manager.socket != null) {
-      manager.socke.close()
+      manager.socket.destroy()
     }
   }
+}
+
+export const sendToSocket = (manager, machineID, message) => {
+  if (manager.socket == null) return
+
+  const err = manager.CombinatorMessage.verify(message)
+  if (err) {
+    console.error("Error creating message to machine service", err)
+    throw new Error(err)
+  }
+
+  let buffer = manager.CombinatorMessage.encode(message).finish()
+  const messageSize = buffer.length
+
+  if (messageSize === 0) {
+    throw new Error('CombinatorMessage Serialization Error: Zero-sized machine message detected.')
+  }
+
+  buffer = Buffer.concat(
+    [Buffer.alloc(SIZE_DELIMETER_BYTES), buffer],
+    messageSize + SIZE_DELIMETER_BYTES,
+  )
+  buffer.writeUInt32LE(messageSize, 0)
+
+  manager.socket.write(buffer)
 }

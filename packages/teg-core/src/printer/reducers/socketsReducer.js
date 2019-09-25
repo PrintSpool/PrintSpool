@@ -1,12 +1,12 @@
-import path from 'path'
-
-import { Record, Map, List } from 'immutable'
+// import path from 'path'
+import { Record, List, Map } from 'immutable'
 import { loop, Cmd } from 'redux-loop'
 import camelCase from 'camelcase'
 
-import { createSocketManager, startSocketManager } from '../effects/socketManager'
+import { createSocketManager, startSocketManager, sendToSocket } from '../effects/socketManager'
 import { SET_CONFIG } from '../../config/actions/setConfig'
 import { SOCKET_MESSAGE } from '../actions/socketMessage'
+import { DEVICE_CONNECTED } from '../../devices/actions/deviceConnected'
 
 import {
   ERRORED,
@@ -24,6 +24,9 @@ import {
   FAN,
 } from '../../config/types/components/ComponentTypeEnum'
 
+import { SEND_TASK_TO_SOCKET } from '../actions/sendTaskToSocket'
+import { SEND_DELETE_TASK_HISTORY_TO_SOCKET } from '../actions/sendDeleteTaskHistoryToSocket'
+
 const statusCodes = [
   ERRORED, // 0
   ESTOPPED, // 1
@@ -38,18 +41,19 @@ export const initialState = Record({
 })()
 
 const Machine = Record({
+  configuredDeviceIDs: List(),
   id: null,
   despooledLineNumber: null,
   status: null,
   error: null,
   motorsEnabled: null,
 
-  events: List(),
   components: Map(),
 })
 
 const Component = Record({
   id: null,
+  machineID: null,
   type: null,
   address: null,
   axis: null,
@@ -59,6 +63,7 @@ const Component = Record({
 
 const Axis = Record({
   id: null,
+  machineID: null,
   targetPosition: null,
   actualPosition: null,
   homed: null,
@@ -66,6 +71,7 @@ const Axis = Record({
 
 const Heater = Record({
   id: null,
+  machineID: null,
   targetTemperature: null,
   actualTemperature: null,
   enabled: null,
@@ -74,32 +80,43 @@ const Heater = Record({
 
 const SpeedController = Record({
   id: null,
+  machineID: null,
   targetSpeed: null,
   actualSpeed: null,
   enabled: null,
 })
 
 // TODO: initial machine state generation based on configuration
-const initialMachineState = ({ id, config }) => {
-  const components = config.components
-    .map((componentConfig, i) => {
+const initialMachineState = ({
+  machineID,
+  machineConfig,
+  plugins,
+}) => {
+  const components = machineConfig.components
+    .map((componentConfig) => {
       const address = componentConfig.model.get('address')
       const { id, type } = componentConfig
 
+      const idAttrs = {
+        id,
+        machineID,
+      }
+
+      const commonComponentAttrs = {
+        ...idAttrs,
+        type,
+      }
+
       switch (type) {
         case CONTROLLER: {
-          return Component({
-            id,
-            type,
-          })
+          return Component(commonComponentAttrs)
         }
         case AXIS: {
           return Component({
-            id,
-            type,
+            ...commonComponentAttrs,
             address,
             axis: Axis({
-              id,
+              ...idAttrs,
               targetPosition: null,
               actualPosition: null,
               homed: false,
@@ -109,11 +126,10 @@ const initialMachineState = ({ id, config }) => {
         case TOOLHEAD:
         case BUILD_PLATFORM: {
           return Component({
-            id,
-            type,
+            ...commonComponentAttrs,
             address,
             heater: Heater({
-              id,
+              ...idAttrs,
               targetTemperature: null,
               actualTemperature: null,
               enabled: false,
@@ -123,11 +139,10 @@ const initialMachineState = ({ id, config }) => {
         }
         case FAN: {
           return Component({
-            id,
-            type,
+            ...commonComponentAttrs,
             address,
             speedController: SpeedController({
-              id,
+              ...idAttrs,
               targetSpeed: null,
               actualSpeed: null,
               enabled: false,
@@ -142,14 +157,21 @@ const initialMachineState = ({ id, config }) => {
     .toMap()
     .mapKeys((k, v) => (v.type === CONTROLLER ? 'CONTROLLER' : v.get('address')))
 
+  const driverPlugin = plugins.find((plugin, packageName) => (
+    plugin.driver && machineConfig.plugins.some(c => c.package === packageName)
+  ))
+
+  const { configuredDevices = () => [] } = driverPlugin
+  console.log(configuredDevices({ machineConfig }))
+
   return Machine({
-    id,
+    id: machineID,
+    configuredDeviceIDs: List(configuredDevices({ machineConfig })),
     despooledLineNumber: null,
     status: CONNECTING,
     error: null,
     motorsEnabled: false,
 
-    events: List(),
     components,
   })
 }
@@ -157,10 +179,7 @@ const initialMachineState = ({ id, config }) => {
 const socketsReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
-      const { config } = action.payload
-      // const model = getPluginModels(config).get('@tegapp/teg-marlin')
-      // return state.set('automaticPrinting', model.get('automaticPrinting'))
-
+      const { config, plugins } = action.payload
       // TODO: machine IDs and socket paths
       const machineID = config.printer.id
       const socketPath = `/var/run/teg/machine-${machineID}.sock`
@@ -170,14 +189,85 @@ const socketsReducer = (state = initialState, action) => {
       }
       const socketManager = createSocketManager({ machineID, socketPath })
 
+      const machineState = initialMachineState({
+        machineID,
+        machineConfig: config.printer,
+        plugins,
+      })
+
       const nextState = state
         .merge({ socketManager })
-        .setIn(['machines', machineID], initialMachineState({ id: machineID, config: config.printer }))
+        .setIn(['machines', machineID], machineState)
 
       return loop(
         nextState,
         Cmd.run(startSocketManager, {
           args: [socketManager, Cmd.dispatch],
+        }),
+      )
+    }
+    case SEND_TASK_TO_SOCKET: {
+      const { task } = action.payload
+      const { machineID } = task
+
+      const message = {
+        spoolTask: {
+          taskId: task.id,
+          machineOverride: task.machineOverride,
+        },
+      }
+
+      if (task.filePath != null) {
+        message.spoolTask.filePath = task.filePath
+      } else {
+        message.spoolTask.inline = { commands: task.commands }
+      }
+
+      return loop(
+        state,
+        Cmd.run(sendToSocket, {
+          args: [state.socketManager, machineID, message],
+        }),
+      )
+    }
+    case SEND_DELETE_TASK_HISTORY_TO_SOCKET: {
+      const { taskIDs, machineID } = action.payload
+
+      const message = {
+        deleteTaskHistory: {
+          taskIds: taskIDs,
+        },
+      }
+
+      return loop(
+        state,
+        Cmd.run(sendToSocket, {
+          args: [state.socketManager, machineID, message],
+        }),
+      )
+    }
+    case DEVICE_CONNECTED: {
+      const { device } = action.payload
+      console.log('CONNECTED', device.id)
+
+      const machine = state.machines.find(m => (
+        m.configuredDeviceIDs.includes(device.id)
+      ))
+
+      if (machine == null) {
+        return state
+      }
+
+      const message = {
+        deviceDiscovered: {
+          devicePath: device.id,
+        },
+      }
+
+      return loop(
+        state,
+        Cmd.run(sendToSocket, {
+          args: [state.socketManager, machine.id, message],
         }),
       )
     }
@@ -207,28 +297,20 @@ const socketsReducer = (state = initialState, action) => {
           delete feedback[componentType]
         })
 
-        // append events
-        const existingEventIDs = machine.events.map(ev => ev.id)
-
-        const events = feedback.events
-          .map(ev => ({
-            ...ev,
-            id: `${ev.task_id}_${ev.type}`,
-          }))
-          .filter(ev => existingEventIDs.includes(ev.id) === false)
-
-        machine = machine
-          .update('events', existingEvents => existingEvents.concat(events))
-
         // set the status
         if (feedback.status != null) {
           machine = machine.set('status', statusCodes[feedback.status])
+        }
+        if (feedback.error != null) {
+          machine = machine.set('error', {
+            code: 'MACHINE_SERVICE_INTERNAL_ERROR',
+            ...feedback.error,
+          })
         }
 
         // merge the remaining feilds directly into the machine's state
         const scalars = [
           'despooled_line_number',
-          'error',
           'motors_enabled',
         ]
 

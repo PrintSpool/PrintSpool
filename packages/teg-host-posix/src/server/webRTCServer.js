@@ -57,7 +57,7 @@ const webRTCServer = async ({
             // eslint-disable-next-line no-console
             console.error(`Teg GraphQL Error ${i + 1} / ${res.errors.length} at [${err.path}]: ${err.message}`)
             // eslint-disable-next-line no-console
-            // console.error(err.stack)
+            console.error(err.stack)
           })
         }
         return res

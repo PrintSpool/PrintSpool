@@ -11,7 +11,33 @@ export const initialState = null
 
 const configReducer = (state = initialState, action) => {
   switch (action.type) {
-    case SET_TOOLHEAD_MATERIALS:
+    case SET_TOOLHEAD_MATERIALS: {
+      const {
+        machineID,
+        changes,
+      } = action.payload
+
+      let nextConfig = state
+      const machineConfig = state.machines.get(machineID)
+
+      changes.forEach(({ materialID, toolheadID }) => {
+        const index = machineConfig.components.findIndex(c => c.id === toolheadID)
+
+        nextConfig = nextConfig.setIn(
+          ['machines', machineID, 'components', index, 'model', 'materialID'],
+          materialID,
+        )
+      })
+
+      return loop(
+        nextConfig,
+        Cmd.run(saveConfig, {
+          args: [{
+            config: nextConfig,
+          }],
+        }),
+      )
+    }
     case SET_CONFIG: {
       const {
         config,

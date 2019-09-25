@@ -7,12 +7,16 @@ export getFeedrate from './config/selectors/getFeedrate'
 export getHeaterConfigs from './config/selectors/getHeaterConfigs'
 export getMaterials from './config/selectors/getMaterials'
 export getPrinterConfig from './config/selectors/getPrinterConfig'
-export isMacroEnabled from './config/selectors/isMacroEnabled'
 export getPluginModels from './config/selectors/getPluginModels'
 // export getMacroDefinitions from './config/selectors/getMacroDefinitions'
 // export runMacro from './config/selectors/runMacro'
 
-// // ./jobQueue/selectors:
+// ./jobQueue/selectors:
+// export getCurrentTask from './jobQueue/selectors/getCurrentTask'
+export getTaskPercentComplete from './jobQueue/selectors/getTaskPercentComplete'
+// export getTasksByTaskableID from './jobQueue/selectors/getTasksByTaskableID'
+// export getTasks from './jobQueue/selectors/getTasks'
+
 // export getCompletedJobs from './jobQueue/selectors/getCompletedJobs'
 // export getHistoryByJobID from './jobQueue/selectors/getHistoryByJobID'
 // export getIsDoneByJobFileID from './jobQueue/selectors/getIsDoneByJobFileID'
@@ -39,14 +43,3 @@ export getAllReducers from './pluginManager/selectors/getAllReducers'
 // export getComponentsState from './printer/selectors/getComponentsState'
 // export getMaterialForToolhead from './printer/selectors/getMaterialForToolhead'
 export getHeaterMaterialTargets from './printer/selectors/getHeaterMaterialTargets'
-
-// ./spool/selectors:
-export getCurrentLine from './spool/selectors/getCurrentLine'
-// export getCurrentTask from './spool/selectors/getCurrentTask'
-export getTaskPercentComplete from './spool/selectors/getTaskPercentComplete'
-// export getTasksByTaskableID from './spool/selectors/getTasksByTaskableID'
-// export getTasks from './spool/selectors/getTasks'
-export isEmergency from './spool/selectors/isEmergency'
-export isIdle from './spool/selectors/isIdle'
-export parseGCode from './spool/selectors/parseGCode'
-export toGCodeLine from './spool/selectors/toGCodeLine'

@@ -1,8 +1,7 @@
 import { createSelector } from 'reselect'
-import getPrinterConfig from './getPrinterConfig'
 
 const getMaterials = createSelector(
-  getPrinterConfig,
+  machineConfig => machineConfig,
   config => (
     config.components.toMap().mapKeys((index, component) => component.id)
   ),

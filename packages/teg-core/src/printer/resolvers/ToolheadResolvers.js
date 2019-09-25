@@ -5,7 +5,7 @@ const ToolheadResolvers = {
     currentMaterial: (source, args, { store }) => {
       const { config } = store.getState()
       return getMaterialForToolhead({
-        config,
+        combinatorConfig: config,
         toolhead: source,
       })
     },

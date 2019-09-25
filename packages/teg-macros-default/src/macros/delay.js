@@ -1,13 +1,3 @@
-import { loop, Cmd } from 'redux-loop'
-import Promise from 'bluebird'
-
-import {
-  despoolCompleted,
-  DESPOOL_TASK,
-} from '@tegapp/core'
-
-export const DELAY = 'delay'
-
 /*
  * delays execution of the next gcode by a number of milliseconds
  * args:
@@ -15,24 +5,23 @@ export const DELAY = 'delay'
  *
  * example use: { delay: { period: 5000 } }
  */
-const delayReducer = (state, action) => {
-  switch (action.type) {
-    case DESPOOL_TASK: {
-      const { macro, args } = action.payload
+const compileDelay = ({
+  args: { period },
+}) => ({
+  commands: [`G4 P${period}`],
+})
 
-      if (macro === DELAY) {
-        return loop(state, Cmd.run(Promise.delay, {
-          args: [args.period],
-          successActionCreator: despoolCompleted,
-        }))
-      }
-
-      return state
-    }
-    default: {
-      return state
-    }
-  }
+const delayMacro = {
+  key: 'delay',
+  schema: {
+    type: 'object',
+    properties: {
+      period: {
+        type: 'number',
+      },
+    },
+  },
+  compile: compileDelay,
 }
 
-export default delayReducer
+export default delayMacro

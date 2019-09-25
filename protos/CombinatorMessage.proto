@@ -1,0 +1,74 @@
+syntax = "proto3";
+package teg_protobufs;
+
+// Combinators send CombinatorMessages
+message CombinatorMessage {
+  // repeated uint32 ack_message_ids = 1;
+  // uint32 message_id = 2;
+
+  oneof payload {
+    // TODO: maybe the machine service should just listen to it's config file for changes?
+    SetConfig set_config = 9;
+    SpoolTask spool_task = 10;
+    // TODO: task pausing
+    PauseTask pause_task = 11;
+
+    // immediately stop the machine
+    EStop estop = 15;
+    // close and restart the machine service clearing any EStop in the process
+    Reset reset = 16;
+
+    // TODO: delete task history at the end of a task
+    DeleteTaskHistory delete_task_history = 100;
+    // A notification that the relevant hardware (eg. an controller board or arduino) has been connected to hint
+    // that the machine service should try to connect if it is presently disconnected.
+    DeviceDiscovered device_discovered = 110;
+    DeviceDisconnected device_disconnected = 111;
+  }
+
+  message SetConfig {
+    // JSON encoded machine configuration
+    string file_path = 1;
+  }
+
+  message SpoolTask {
+    uint32 task_id = 1;
+    // 2-7: task file is sent as either a file path or array of GCode commands
+    oneof content {
+      string file_path = 2;
+      InlineContent inline = 3;
+    }
+
+    // string name = 8;
+
+    // Override tasks can be ran during jobs and do not set the
+    // despooled_line_number in the MachineMessage.
+    //
+    // They are executed silently to adjust machine settings such as feedrate
+    // override during another task.
+    bool machine_override = 9;
+  }
+
+  message InlineContent {
+    repeated string commands = 3;
+  }
+
+  message PauseTask {
+    uint32 task_id = 1;
+  }
+
+  message DeviceDiscovered {
+    string device_path = 1;
+  }
+
+  message DeviceDisconnected {
+    string device_path = 1;
+  }
+
+  message EStop {}
+  message Reset {}
+
+  message DeleteTaskHistory {
+    repeated uint32 task_ids = 1;
+  }
+}

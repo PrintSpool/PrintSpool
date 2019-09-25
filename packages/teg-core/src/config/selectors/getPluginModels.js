@@ -1,8 +1,7 @@
 import { createSelector } from 'reselect'
-import getPrinterConfig from './getPrinterConfig'
 
 const getPluginModels = createSelector(
-  getPrinterConfig,
+  machineConfig => machineConfig,
   config => (
     config.plugins.toMap().mapEntries(([, p]) => [p.package, p.model])
   ),

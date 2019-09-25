@@ -1,10 +1,8 @@
 import { createSelector } from 'reselect'
 
 import {
-  START_PRINT,
-  CANCEL_PRINT,
-  PRINT_ERROR,
-} from '../types/JobHistoryTypeEnum'
+  FINISH_TASK,
+} from '../types/TaskStatusEnum'
 
 const getCompletedJobs = createSelector(
   state => state,
@@ -13,20 +11,7 @@ const getCompletedJobs = createSelector(
     const printsStarted = history
       .groupBy(event => event.jobFileID)
       // get the number of prints started and not cancelled or errored
-      .map(h => h.count((event) => {
-        switch (event.type) {
-          case START_PRINT: {
-            return 1
-          }
-          case CANCEL_PRINT:
-          case PRINT_ERROR: {
-            return -1
-          }
-          default: {
-            return 0
-          }
-        }
-      }))
+      .map(h => h.count(event => (event.type === FINISH_TASK ? 1 : 0)))
 
     const result = state.jobFiles
       // map job files with unfufilled prints remaining to true

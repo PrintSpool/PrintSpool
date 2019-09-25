@@ -31,7 +31,7 @@ import { SPOOL_TASK } from '../actions/spoolTask'
 import requestDespool, { REQUEST_DESPOOL } from '../actions/requestDespool'
 import { DESPOOL_COMPLETED } from '../actions/despoolCompleted'
 import despoolTask from '../actions/despoolTask'
-import { CANCEL_TASK } from '../actions/cancelTask'
+import { CANCEL_TASK } from '../actions/cancelTasks'
 import taskErrored from '../actions/taskErrored'
 
 export const initialState = Record({
@@ -64,13 +64,6 @@ const spoolReducer = (state = initialState, action) => {
     case SET_CONFIG: {
       return initialState
         .set('enabledHostMacros', getEnabledHostMacros(action.payload))
-    }
-    case REQUEST_SET_CONFIG: {
-      if (!isIdle(state)) {
-        throw new Error('Cannot modify configurations while Printing')
-      }
-
-      return state
     }
     /* Spool reset actions */
     case PRINTER_READY:

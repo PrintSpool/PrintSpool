@@ -13,7 +13,9 @@ const saveConfig = async ({
   const configDirectory = getConfigDirectory(config)
 
   const machine = config.printer
-  const combinator = config.set('printer', null)
+  const combinator = config
+    .set('printer', null)
+    .set('machines', null)
 
   await Promise.all([
     ['combinator.toml', combinator],

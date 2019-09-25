@@ -23,7 +23,7 @@ import MachineResolvers from '../../printer/resolvers/MachineResolvers'
 import ToolheadResolvers from '../../printer/resolvers/ToolheadResolvers'
 import SpeedControllerResolvers from '../../printer/resolvers/SpeedControllerResolvers'
 
-import TaskResolvers from '../../spool/resolvers/TaskResolvers'
+import TaskResolvers from '../../jobQueue/resolvers/TaskResolvers'
 
 const mergeResolvers = (resolvers, accumulator) => ({
   ...accumulator,

@@ -13,8 +13,10 @@ const HeaterResolvers = {
     },
     materialTarget: (source, args, { store }) => {
       const { config } = store.getState()
+      const machineConfig = config.machines.get(source.machineID)
+      const configPair = { machineConfig, combinatorConfig: config }
 
-      return getHeaterMaterialTargets(config).get(source.id)
+      return getHeaterMaterialTargets(configPair).get(source.id)
     },
   },
 }

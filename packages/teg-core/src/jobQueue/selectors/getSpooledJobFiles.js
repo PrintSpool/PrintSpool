@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 
-import { SPOOLED_TYPES } from '../types/JobHistoryTypeEnum'
+import { spooledTaskStatuses } from '../types/TaskStatusEnum'
 
 const getSpooledJobFiles = createSelector(
   state => state,
@@ -8,7 +8,7 @@ const getSpooledJobFiles = createSelector(
     state.history
       .groupBy(e => e.jobFileID)
       .filter(jobFileHistory => (
-        SPOOLED_TYPES.includes(jobFileHistory.last().type)
+        spooledTaskStatuses.includes(jobFileHistory.last().type)
       ))
       .map((jobFileHistory, jobFileID) => state.jobFiles.get(jobFileID))
       .toList()

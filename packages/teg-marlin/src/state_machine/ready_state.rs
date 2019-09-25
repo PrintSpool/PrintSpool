@@ -74,17 +74,42 @@ impl ReadyState {
 
     pub fn consume(mut self, event: Event, context: &mut Context) -> Loop {
         match event {
+            ProtobufRec( msg@CombinatorMessage { payload: None } ) => {
+                eprintln!("Warning: CombinatorMessage received without a payload. Ignoring: {:?}", msg);
+                self.and_no_effects()
+            }
             ProtobufRec( CombinatorMessage { payload: Some(message) } ) => {
                 // println!("PROTOBUF RECEIVED WHEN READY {:?}", message);
                 match message {
                     combinator_message::Payload::SpoolTask(spool_task) => {
+                        use combinator_message::{
+                            spool_task::Content,
+                            InlineContent,
+                        };
+
                         self.loading_gcode = true;
 
-                        let effects = vec![
-                            Effect::LoadGCode(spool_task.clone()),
-                        ];
+                        let combinator_message::SpoolTask { task_id, content, .. } = spool_task;
 
-                        Loop::new(Ready(self), effects)
+                        match content {
+                            Some(Content::Inline ( InlineContent { commands })) => {
+                                let task = Task {
+                                    id: spool_task.task_id,
+                                    gcode_lines: commands.into_iter(),
+                                };
+                                self.consume(GCodeLoaded(task), context)
+                            }
+                            Some(Content::FilePath( file_path )) => {
+                                let effects = vec![
+                                    Effect::LoadGCode{ file_path: file_path.clone(), task_id },
+                                ];
+                                Loop::new(Ready(self), effects)
+                            }
+                            None => {
+                                println!("Warning: spool_task received without content. Ignoring.");
+                                self.and_no_effects()
+                            }
+                        }
                     }
                     combinator_message::Payload::PauseTask(combinator_message::PauseTask { task_id }) => {
                         self.loading_gcode = true;
@@ -92,6 +117,7 @@ impl ReadyState {
                             Some(task) if task.id == task_id => {
                                 context.push_pause_task(&task);
                                 self.task = None;
+                                context.feedback.despooled_line_number = 0;
 
                                 self.and_no_effects()
                             }
@@ -121,14 +147,15 @@ impl ReadyState {
                 )
             }
             GCodeLoaded ( task ) => {
+                // println!("LOADED {:?}", self.on_ok);
+                context.push_start_task(&task);
+
                 // despool the first line of the task if ready to do so
                 if let OnOK::NotAwaitingOk = self.on_ok {
                     let mut effects = vec![];
 
-                    context.push_start_task(&task);
-
                     self.task = Some(task);
-                    let _ = self.despool_task(&mut effects, context);
+                    self.despool_task(&mut effects, context);
 
                     Loop::new(Ready(self), effects)
                 } else {
@@ -164,7 +191,10 @@ impl ReadyState {
                         )
                     }
                     Response::Feedback( feedback ) => {
-                        let effects = self.receive_feedback( &feedback, context );
+                        let mut effects = self.receive_feedback( &feedback, context );
+                        effects.push(
+                            Effect::CancelDelay { key: "tickle_delay".to_string() }
+                        );
 
                         Loop::new(
                             Ready(self),
@@ -205,7 +235,10 @@ impl ReadyState {
 
         // set actual_temperatures
         for (address, val) in feedback.actual_temperatures.iter() {
-            if let Some(heater) = context.feedback.heaters.iter_mut().find(|h| h.address == *address) {
+            if address == "E" {
+                // Skip "E" values. I have no idea what they are for but Marlin always sends them.
+                continue
+            } if let Some(heater) = context.feedback.heaters.iter_mut().find(|h| h.address == *address) {
                 heater.actual_temperature = *val;
             }
             else {
@@ -270,44 +303,51 @@ impl ReadyState {
                 if let Some(poll_for) = self.poll_for {
                     self.poll_feedback(effects, &context, poll_for);
                 } else {
-                    if let Some(_) = self.despool_task(effects, context) {
-                        return
-                    } else {
-                        self.on_ok = OnOK::NotAwaitingOk;
-                        // Cancel the tickle if there's nothing else to send_serial
-                        effects.push(
-                            Effect::CancelDelay { key: "tickle_delay".to_string() }
-                        );
-                    }
+                    self.despool_task(effects, context);
                 }
             }
         }
     }
 
-    fn despool_task(&mut self, effects: &mut Vec<Effect>, context: &mut Context) -> Option<()> {
-        let task = self.task.as_mut()?;
-        let gcode = task.gcode_lines.next();
+    fn despool_task(&mut self, effects: &mut Vec<Effect>, context: &mut Context) {
+        if let Some(task) = self.task.as_mut() {
+            let gcode = task.gcode_lines.next();
 
-        if let Some(gcode) = gcode {
-            send_serial(
-                effects,
-                GCodeLine {
-                    gcode,
-                    line_number: Some(self.next_serial_line_number),
-                    checksum: true,
-                },
-                &context,
-            );
+            if let Some(gcode) = gcode {
+                send_serial(
+                    effects,
+                    GCodeLine {
+                        gcode,
+                        line_number: Some(self.next_serial_line_number),
+                        checksum: true,
+                    },
+                    &context,
+                );
 
-            self.on_ok = OnOK::Despool;
-            self.next_serial_line_number += 1;
+                self.on_ok = OnOK::Despool;
+                self.next_serial_line_number += 1;
+                context.feedback.despooled_line_number += 1;
+            } else {
+                // record a task completion event
+                context.push_finish_task(&task);
 
-            Some(())
+                self.task = None;
+                context.feedback.despooled_line_number = 0;
+                self.on_ok = OnOK::NotAwaitingOk;
+
+                // Cancel the tickle if there's nothing else to send_serial
+                effects.push(
+                    Effect::CancelDelay { key: "tickle_delay".to_string() }
+                );
+                effects.push(
+                    Effect::ProtobufSend,
+                );
+            }
         } else {
-            // record a task completion event
-            context.push_finish_task(&task);
-            self.task = None;
-            None
+            self.on_ok = OnOK::NotAwaitingOk;
+            effects.push(
+                Effect::CancelDelay { key: "tickle_delay".to_string() }
+            );
         }
     }
 

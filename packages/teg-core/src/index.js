@@ -18,10 +18,3 @@ export createTegHostStore from './executableSchema/createTegHostStore'
 export getSchemaForms from './getSchemaForms'
 
 export configValidation from './configValidation'
-
-export createMacroExpansionReducer from './macros/reducers/createMacroExpansionReducer'
-
-export const macros = () => List([
-  'spoolJobFile',
-  'spoolNextJobFile',
-])

@@ -1,21 +1,15 @@
 import {
-  createMacroExpansionReducer,
   ComponentTypeEnum,
 } from '@tegapp/core'
 
 const { FAN } = ComponentTypeEnum
 
-const meta = {
-  package: '@tegapp/macros-default',
-  macro: 'toggleFans',
-}
-
 // example useage: { toggleFans: { fans: { [id]: true } }}
-const toggleFans = createMacroExpansionReducer(meta, (
-  { fans },
-  { config },
-) => (
-  Object.entries(fans).map(([address, { enable } = {}]) => {
+const compileToggleFans = ({
+  args: { fans },
+  machineConfig,
+}) => {
+  const commands = Object.entries(fans).map(([address, { enable } = {}]) => {
     if (typeof enable !== 'boolean') {
       throw new Error(
         'toggleFan fans arg must be in the format '
@@ -24,7 +18,7 @@ const toggleFans = createMacroExpansionReducer(meta, (
       )
     }
 
-    const component = config.printer.components.find(c => (
+    const component = machineConfig.components.find(c => (
       c.model.get('address') === address
     ))
 
@@ -38,6 +32,24 @@ const toggleFans = createMacroExpansionReducer(meta, (
 
     return { [macro]: { p: fanIndex } }
   })
-))
 
-export default toggleFans
+  return { commands }
+}
+
+const toggleFansMacro = {
+  key: 'toggleFans',
+  schema: {
+    type: 'object',
+    properties: {
+      fans: {
+        type: 'object',
+        additionalProperties: {
+          type: 'boolean',
+        },
+      },
+    },
+  },
+  compile: compileToggleFans,
+}
+
+export default toggleFansMacro

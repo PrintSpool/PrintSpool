@@ -1,15 +1,11 @@
 import spoolTask from './spoolTask'
-import { NORMAL } from '../types/PriorityEnum'
 import validateCommandsFileExtension from '../../util/validateCommandsFileExtension'
 
 /*
  * creates a new Task from the file and spools it.
-
- * internal?: Boolean [default: false]
- * priority?: TaskPriority [default: macro.priority || NORMAL],
  * file?: { name: String, content: String }
  */
-const spoolGCodes = ({ internal = false, priority, file }) => {
+const spoolGCodes = ({ file }) => {
   if (file == null) {
     throw new Error('file cannot be null')
   }
@@ -27,9 +23,8 @@ const spoolGCodes = ({ internal = false, priority, file }) => {
 
   return spoolTask({
     name,
-    internal,
-    priority: priority || NORMAL,
     data: [content],
+    totalLines: content.split('\n').length,
   })
 }
 

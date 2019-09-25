@@ -1,25 +1,31 @@
 import {
-  createMacroExpansionReducer,
   getHeaterConfigs,
   getHeaterMaterialTargets,
 } from '@tegapp/core'
 
-import { macroFn as setTargetTemperatures } from './setTargetTemperatures'
+import { compileSetTargetTemperatures } from './setTargetTemperatures'
 
-const meta = {
-  package: '@tegapp/macros-default',
-  macro: 'toggleHeaters',
-}
+// const component = machineConfig.components.find(c => (
+//   c.model.get('address') === address
+// ))
+
+// if (component == null || component.type !== TOOLHEAD) {
+//   throw new Error(`Toolhead (${address}) does not exist`)
+// }
+
+// const materialID = toolheadMaterials.get(component.id)
+// const material = combinatorConfig.materials.find(m => m.id === materialID)
 
 // example useage: { toggleHeaters: { heaters: { [id]: true }, sync: true }}
-const toggleHeaters = createMacroExpansionReducer(meta, (
-  { heaters, sync },
-  { config },
-) => {
+const compileToggleHeaters = ({
+  args: { heaters, sync },
+  machineConfig,
+  combinatorConfig,
+}) => {
   const targetTemperatures = {}
 
   Object.entries(heaters).forEach(([address, enable]) => {
-    const heater = getHeaterConfigs(config).find(c => (
+    const heater = getHeaterConfigs(machineConfig).find(c => (
       c.model.get('address') === address
     ))
 
@@ -29,7 +35,7 @@ const toggleHeaters = createMacroExpansionReducer(meta, (
 
     if (enable) {
       targetTemperatures[address] = (
-        getHeaterMaterialTargets(config).get(heater.id) || 0
+        getHeaterMaterialTargets({ machineConfig, combinatorConfig }).get(heater.id) || 0
       )
     } else {
       targetTemperatures[address] = 0
@@ -38,7 +44,31 @@ const toggleHeaters = createMacroExpansionReducer(meta, (
 
   const setTempArgs = { heaters: targetTemperatures, sync }
 
-  return setTargetTemperatures(setTempArgs, { config })
-})
+  return compileSetTargetTemperatures({
+    args: setTempArgs,
+    machineConfig,
+    combinatorConfig,
+  })
+}
 
-export default toggleHeaters
+const toggleHeatersMacro = {
+  key: 'toggleHeaters',
+  schema: {
+    type: 'object',
+    required: ['heaters'],
+    properties: {
+      heaters: {
+        type: 'object',
+        additionalProperties: {
+          type: 'boolean',
+        },
+      },
+      sync: {
+        type: 'boolean',
+      },
+    },
+  },
+  compile: compileToggleHeaters,
+}
+
+export default toggleHeatersMacro

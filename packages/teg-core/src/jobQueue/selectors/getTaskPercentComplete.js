@@ -15,11 +15,11 @@ const getTaskPercentComplete = createSelector(
     }
 
     const linesDespooled = (
-      (task.currentLineNumber == null ? -1 : task.currentLineNumber) + 1
+      task.currentLineNumber == null ? 0 : (task.currentLineNumber + 1)
     )
 
     const factor = 10 ** digits
-    const value = (linesDespooled / task.data.size) * 100
+    const value = (linesDespooled / task.totalLines) * 100
     return Math.round(value * factor) / factor
   },
 )

@@ -24,7 +24,8 @@ const setConfig = ({
   return {
     type: SET_CONFIG,
     payload: {
-      ...validationPayload,
+      config,
+      plugins,
       onComplete,
       onError,
       error,

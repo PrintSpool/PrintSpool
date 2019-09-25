@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 
-import { SPOOLED_TYPES } from '../types/JobHistoryTypeEnum'
+import { spooledTaskStatuses } from '../types/TaskStatusEnum'
 
 const getTaskIDByJobFileID = createSelector(
   state => state.history,
@@ -10,7 +10,7 @@ const getTaskIDByJobFileID = createSelector(
     return historyByJobFileID
       .map((jobFileHistory) => {
         const e = jobFileHistory.first()
-        if (SPOOLED_TYPES.includes(e.type)) return e.taskID
+        if (spooledTaskStatuses.includes(e.type)) return e.taskID
         return null
       })
   },

@@ -1,12 +1,25 @@
-import { Map } from 'immutable'
+import delay from './macros/delay'
+import home from './macros/home'
+import moveBy from './macros/moveBy'
+import moveTo from './macros/moveTo'
+import noOp from './macros/noOp'
+import setMaterials from './macros/setMaterials'
+import setTargetTemperatures from './macros/setTargetTemperatures'
+import toggleFans from './macros/toggleFans'
+import toggleHeaters from './macros/toggleHeaters'
+import toggleMotorsEnabled from './macros/toggleMotorsEnabled'
 
-import { initialState } from './reducer'
-
-// an array of the names of the macros
-const macros = () => (
-  Map(initialState)
-    .keySeq()
-    .toList()
-)
+const macros = [
+  delay,
+  home,
+  moveBy,
+  moveTo,
+  noOp,
+  setMaterials,
+  setTargetTemperatures,
+  toggleFans,
+  toggleHeaters,
+  toggleMotorsEnabled,
+]
 
 export default macros

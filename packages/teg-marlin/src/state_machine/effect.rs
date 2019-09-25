@@ -45,12 +45,12 @@ use crate::{
         GCodeLine,
         // response::Response,
     },
-    protos::{
-        // machine_message,
-        // MachineMessage,
-        combinator_message,
-        // CombinatorMessage,
-    },
+    // protos::{
+    //     // machine_message,
+    //     // MachineMessage,
+    //     combinator_message,
+    //     // CombinatorMessage,
+    // },
     StateMachineReactor,
 };
 
@@ -63,7 +63,7 @@ pub enum Effect {
     OpenSerialPort { baud_rate: u32 },
     // ResetSerial
     ProtobufSend,
-    LoadGCode ( combinator_message::SpoolTask ),
+    LoadGCode { file_path: String, task_id: u32 },
     CloseSerialPort,
     ExitProcess,
 }
@@ -142,10 +142,10 @@ impl Effect {
                     .await
                     .expect("machine message send failed");
             }
-            Effect::LoadGCode (spool_task) => {
+            Effect::LoadGCode { file_path, task_id } => {
                 let mut tx = mpsc::Sender::clone(&reactor.event_sender);
 
-                let gcode_lines = std::fs::File::open(spool_task.file_path.clone())
+                let gcode_lines = std::fs::File::open(file_path)
                     .map(|file| BufReader::new(file).lines())
                     .map(|iter| fallible_iterator::convert(iter))
                     .and_then(|iter| {
@@ -157,12 +157,12 @@ impl Effect {
                 let event = if let Ok(gcode_lines) = gcode_lines {
                     Event::GCodeLoaded(
                         Task {
-                            id: spool_task.task_id,
+                            id: task_id,
                             gcode_lines,
                         }
                     )
                 } else {
-                    Event::GCodeLoadFailed( spool_task )
+                    Event::GCodeLoadFailed { task_id }
                 };
 
                 tx.send(event)

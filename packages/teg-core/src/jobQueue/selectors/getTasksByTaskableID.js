@@ -1,9 +1,7 @@
 import { createSelector } from 'reselect'
 
-import getTasks from './getTasks'
-
 const getTasksByTaskableID = createSelector(
-  getTasks,
+  config => config.tasks,
   tasks => (
     tasks
       .toList()

@@ -1,7 +1,7 @@
 import getTaskPercentComplete from './getTaskPercentComplete'
 
 import { MockTask } from '../types/Task'
-import { PRINTING } from '../types/TaskStatusEnum'
+import { START_TASK } from '../types/TaskStatusEnum'
 
 describe(getTaskPercentComplete, () => {
   it('returns the percent complete', () => {

@@ -21,12 +21,10 @@ const GCODE_HISTORY_SUBSCRIPTION = gql`
       query {
         machines(machineID: $machineID) {
           id
-          gcodeHistory(excludePolling: true, limit: 200) {
+          gcodeHistory(limit: 200) {
             id
             createdAt
-            direction
-            isHostMacro
-            message
+            command
           }
         }
       }
@@ -96,34 +94,24 @@ const Terminal = ({
         component="div"
       >
         {
-          [...data.machines[0].gcodeHistory].reverse().map((entry) => {
-            const macroOrTX = entry.isHostMacro ? 'macro' : 'tx'
-            const txRXOrMacro = entry.direction === 'RX' ? 'rx' : macroOrTX
-
-            return (
-              // eslint-disable-next-line react/no-array-index-key
-              <div
-                key={entry.id}
-                className={classes[`${txRXOrMacro}TerminalEntry`]}
-              >
-                {
-                  /*
-                  <span className={classes.createdAt}>
-                    {entry.createdAt}
-                  </span>
-                  */
-                }
-                <span
-                  className={classes[txRXOrMacro]}
-                >
-                  {` ${entry.isHostMacro ? 'MO' : entry.direction} `}
+          [...data.machines[0].gcodeHistory].reverse().map(entry => (
+            // eslint-disable-next-line react/no-array-index-key
+            <div
+              key={entry.id}
+              className={classes.terminalEntry}
+            >
+              {
+                /*
+                <span className={classes.createdAt}>
+                  {entry.createdAt}
                 </span>
-                <span className={classes[`${txRXOrMacro}Message`]}>
-                  {entry.message}
-                </span>
-              </div>
-            )
-          })
+                */
+              }
+              <span className={classes.command}>
+                {entry.command}
+              </span>
+            </div>
+          ))
         }
       </Typography>
     </div>

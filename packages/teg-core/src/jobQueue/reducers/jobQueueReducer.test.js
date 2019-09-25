@@ -3,15 +3,8 @@ import { Set, List, Map } from 'immutable'
 
 import { MockJob } from '../types/Job'
 import { MockJobFile } from '../types/JobFile'
-import { MockTask } from '../../spool/types/Task'
+import { MockTask } from '../../jobQueue/types/Task'
 import JobHistoryEvent from '../types/JobHistoryEvent'
-import {
-  START_PRINT,
-  SPOOL_PRINT,
-  CANCEL_PRINT,
-  PRINT_ERROR,
-  FINISH_PRINT,
-} from '../types/JobHistoryTypeEnum'
 
 import unlinkTmpFiles from '../sideEffects/unlinkTmpFiles'
 

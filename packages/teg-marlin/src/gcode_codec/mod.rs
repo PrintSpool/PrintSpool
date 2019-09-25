@@ -18,7 +18,6 @@ impl Decoder for GCodeCodec {
     type Error = io::Error;
 
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
-        // println!("DECODING {:?}", str::from_utf8(src));
         let newline = src.as_ref().iter().position(|b| *b == b'\n');
         if let Some(n) = newline {
             // Invalid UTF8 lines are replaced by empty strings and treated as dropped responses.
@@ -26,6 +25,7 @@ impl Decoder for GCodeCodec {
                 .unwrap_or_else(|_| "")
                 .to_string();
 
+            // println!("RX {:?}", line);
             return Ok(response::parse_response(line));
         }
         Ok(None)

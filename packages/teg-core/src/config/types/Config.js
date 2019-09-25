@@ -1,4 +1,4 @@
-import { Record, List } from 'immutable'
+import { Record, List, Map } from 'immutable'
 import uuid from 'uuid'
 
 import HostConfig from './HostConfig'
@@ -11,6 +11,7 @@ export const ConfigRecordFactory = Record({
   modelVersion: 0,
   host: null,
   printer: null,
+  machines: Map(),
   auth: null,
   materials: List(),
 })
@@ -23,17 +24,20 @@ const Config = ({
   auth = {},
   materials = [],
   ...props
-} = {}) => (
-  ConfigRecordFactory({
+} = {}) => {
+  const printerConfig = PrinterConfig(printer)
+
+  return ConfigRecordFactory({
     id,
     modelVersion,
     host: HostConfig(host),
-    printer: PrinterConfig(printer),
+    printer: printerConfig,
+    machines: Map({ [printerConfig.id]: printerConfig }),
     auth: AuthConfig(auth),
-    materials: List(materials).map(material => MaterialConfig(material)),
+    materials: List(materials).map(MaterialConfig),
     ...props,
   })
-)
+}
 
 export const MockConfig = ({
   host = {},
