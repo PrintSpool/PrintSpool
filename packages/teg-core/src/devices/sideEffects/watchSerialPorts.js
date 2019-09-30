@@ -13,6 +13,7 @@ const watchSerialPorts = (getState, dispatch) => {
   const addWatcherListeners = (watcher) => {
     watcher
       .on('add', (path) => {
+        console.log('DEVICE WATCHER:', path)
         if (getState().devices.byID.has(path)) return
 
         const device = Device({

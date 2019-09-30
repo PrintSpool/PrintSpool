@@ -32,6 +32,7 @@ pub enum Polling {
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum OnOK {
+    TransitionToReady,
     Resend,
     IgnoreOK,
     Despool,
@@ -54,7 +55,7 @@ pub struct ReadyState {
 impl Default for ReadyState {
     fn default() -> Self {
         Self {
-            on_ok: OnOK::Despool,
+            on_ok: OnOK::TransitionToReady,
             last_gcode_sent: None,
             poll_for: Some(Polling::PollPosition),
             awaiting_polling_delay: false,
@@ -298,6 +299,16 @@ impl ReadyState {
             OnOK::IgnoreOK => {
                 // Do not cancel the trickle here because it will already have been overwritten by the resend request
                 self.on_ok = OnOK::Despool;
+            }
+            OnOK::TransitionToReady => {
+                println!("Connected");
+                context.handle_state_change(&Ready( self.clone() ));
+
+                // let the protobuf clients know that the machine is ready
+                effects.push(Effect::ProtobufSend);
+
+                self.on_ok = OnOK::Despool;
+                self.receive_ok(effects, context);
             }
             OnOK::Despool => {
                 if let Some(poll_for) = self.poll_for {

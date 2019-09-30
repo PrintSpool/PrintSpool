@@ -295,6 +295,12 @@ impl State {
         // };
         let connection_timeout_ms = 1_000;
 
+        let new_connection = if let Connecting(Connecting { .. }) = self {
+            false
+        } else {
+            true
+        };
+
         let mut baud_rate_candidates = match self {
             Connecting(Connecting { baud_rate_candidates, .. }) => baud_rate_candidates,
             _ => {
@@ -326,17 +332,22 @@ impl State {
 
             let next_state = Self::new_connection(baud_rate_candidates);
 
-            context.handle_state_change(&next_state);
+            if new_connection {
+                println!("Connecting to serial device...");
+                context.handle_state_change(&next_state);
+                effects.push(Effect::ProtobufSend);
+            }
 
             Loop::new(
                 next_state,
                 effects,
             )
         } else {
+            println!("Unable to Connect");
+            context.handle_state_change(&Disconnected);
+
             effects.push(Effect::CloseSerialPort);
             effects.push(Effect::ProtobufSend);
-
-            context.handle_state_change(&Disconnected);
 
             Loop::new(
                 Disconnected,
@@ -390,11 +401,6 @@ impl State {
         ready.last_gcode_sent = Some(gcode);
 
         let next_state = Ready( ready );
-
-        context.handle_state_change(&next_state);
-
-        // let the protobuf clients know that the machine is ready
-        effects.push(Effect::ProtobufSend);
 
         Loop::new(
             next_state,

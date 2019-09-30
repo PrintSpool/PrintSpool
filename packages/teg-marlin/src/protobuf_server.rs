@@ -51,7 +51,6 @@ async fn handle_connection(
     broadcast_subscriber: bus_queue::async_::Subscriber<Bytes>,
     connection: tokio::net::UnixStream,
 ) {
-    println!("New connection!");
     let mut connection_event_sender = mpsc::Sender::clone(&channel_sender);
 
     let codec = length_delimited::Builder::new()
@@ -96,7 +95,7 @@ async fn handle_connection(
 
         connection_event_sender.send(Event::ProtobufClientConnection).await
             .expect("Unable to send connection event");
-        println!("New connection ready!!!!");
+        println!("Socket Ready");
     });
 
     let _ = futures_util::future::select(
@@ -104,7 +103,7 @@ async fn handle_connection(
         channel_sender.send_all(&mut read_stream),
     ).await;
 
-    println!("Connection Closed");
+    println!("Socket Closed");
 }
 
 pub async fn serve(
