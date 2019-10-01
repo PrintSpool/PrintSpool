@@ -10,6 +10,9 @@ import deleteJob from '../../jobQueue/actions/deleteJob'
 /* spool */
 import execGCodes from '../../jobQueue/actions/execGCodes'
 import requestSpoolJobFile from '../../jobQueue/actions/requestSpoolJobFile'
+/* machine */
+import requestEStop from '../../printer/actions/requestEStop'
+import requestReset from '../../printer/actions/requestReset'
 
 const MutationResolvers = {
   Mutation: {
@@ -122,6 +125,29 @@ const MutationResolvers = {
         state.jobQueue.jobFiles.get(action.payload.jobFileID)
       ),
     }),
+
+    eStop: (source, { machineID }, { store }) => {
+      const state = store.getState()
+
+      if (state.config.machines.get(machineID) == null) {
+        throw new Error(`machine ID ${machineID} does not exist`)
+      }
+
+      store.dispatch(requestEStop({ machineID }))
+
+      return null
+    },
+    reset: (source, { machineID }, { store }) => {
+      const state = store.getState()
+
+      if (state.config.machines.get(machineID) == null) {
+        throw new Error(`machine ID ${machineID} does not exist`)
+      }
+
+      store.dispatch(requestReset({ machineID }))
+
+      return null
+    },
   },
 }
 

@@ -137,6 +137,7 @@ const jobQueueReducer = (state = initialState, action) => {
     case PRINTER_READY:
     case ESTOP:
     case DRIVER_ERROR: {
+      // TODO: in a multimachine queue estop/error/reset would only cancel tasks for the one machine
       /* error or cancel any printing job file */
       const taskIDs = getTaskIDByJobFileID(state)
       const cancelledTaskIDs = getSpooledJobFiles(state).map(jobFile => taskIDs.get(jobFile.id))

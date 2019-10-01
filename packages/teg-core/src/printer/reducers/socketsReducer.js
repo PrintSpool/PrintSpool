@@ -26,6 +26,8 @@ import {
 
 import { SEND_TASK_TO_SOCKET } from '../actions/sendTaskToSocket'
 import { SEND_DELETE_TASK_HISTORY_TO_SOCKET } from '../actions/sendDeleteTaskHistoryToSocket'
+import { REQUEST_ESTOP } from '../actions/requestEStop'
+import { REQUEST_RESET } from '../actions/requestReset'
 
 const statusCodes = [
   ERRORED, // 0
@@ -237,6 +239,34 @@ const socketsReducer = (state = initialState, action) => {
         deleteTaskHistory: {
           taskIds: taskIDs,
         },
+      }
+
+      return loop(
+        state,
+        Cmd.run(sendToSocket, {
+          args: [state.socketManager, machineID, message],
+        }),
+      )
+    }
+    case REQUEST_ESTOP: {
+      const { machineID } = action.payload
+
+      const message = {
+        estop: {},
+      }
+
+      return loop(
+        state,
+        Cmd.run(sendToSocket, {
+          args: [state.socketManager, machineID, message],
+        }),
+      )
+    }
+    case REQUEST_RESET: {
+      const { machineID } = action.payload
+
+      const message = {
+        reset: {},
       }
 
       return loop(

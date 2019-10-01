@@ -1,6 +1,8 @@
 import React from 'react'
 import { compose, withState } from 'recompose'
 import classNames from 'classnames'
+import { useMutation } from 'react-apollo-hooks'
+import gql from 'graphql-tag'
 import {
   Button,
 } from '@material-ui/core'
@@ -9,8 +11,6 @@ import {
 } from '@material-ui/styles'
 
 import Report from '@material-ui/icons/Report'
-
-import useExecGCodes from '../../../_hooks/useExecGCodes'
 
 import StatusDialog from './StatusDialog'
 
@@ -52,6 +52,18 @@ const enhance = compose(
 //   }
 // }
 
+const RESET = gql`
+  mutation reset($input: ResetInput!) {
+    reset(input: $input)
+  }
+`
+
+const ESTOP = gql`
+  mutation eStop($input: EStopInput!) {
+    eStop(input: $input)
+  }
+`
+
 const EStopResetToggle = ({
   machine,
   classes,
@@ -63,17 +75,11 @@ const EStopResetToggle = ({
   const showEStop = status !== 'ERRORED' && status !== 'ESTOPPED'
   const disabled = status === 'DISCONNECTED'
 
-  const toggle = useExecGCodes(() => ({
-    machine,
-    gcodes: [
-      showEStop ? 'eStop' : 'reset',
-    ],
-  }), [showEStop])
+  const variables = { input: { machineID: machine.id } }
+  const [reset] = useMutation(RESET, { variables })
+  const [eStop] = useMutation(ESTOP, { variables })
 
-  const reset = useExecGCodes(() => ({
-    machine,
-    gcodes: ['reset'],
-  }))
+  const toggle = showEStop ? eStop : reset
 
   return (
     <div>

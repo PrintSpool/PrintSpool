@@ -7,6 +7,11 @@ extend type Query {
   machines(machineID: ID): [Machine!]!
 }
 
+extend type Mutation {
+  eStop(machineID: ID!): Boolean
+  reset(machineID: ID!): Boolean
+}
+
 type Machine {
   id: ID!
   name: String!
