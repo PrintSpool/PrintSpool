@@ -12,7 +12,7 @@ import {
   taskFailureStatuses,
   // CANCEL_TASK,
   // PAUSE_TASK,
-  // ERROR,
+  ERROR,
   START_TASK,
   FINISH_TASK,
   SPOOLED_TASK,
@@ -162,6 +162,23 @@ const jobQueueReducer = (state = initialState, action) => {
       const nextEffects = []
 
       /* task history */
+
+      // if the current task is missing it means the machine service may have
+      // crashed.
+      if (events.none(ev => ev.taskID === currentTask.id)) {
+        nextState = nextState.setIn(['tasks', currentTask.id, 'status'], ERROR)
+        nextState = nextState.update('history', h => h.push(
+          JobHistoryEvent({
+            id: `${currentTask.taskId}-${ERROR}`,
+            jobID: currentTask.jobID,
+            jobFileID: currentTask.jobFileID,
+            machineID,
+            taskID: currentTask.id,
+            type: ERROR,
+            createdAt: new Date().toISOString(),
+          }),
+        ))
+      }
 
       const newHistoryEvents = events
         .map((ev) => {
