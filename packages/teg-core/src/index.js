@@ -3,8 +3,6 @@ import loadConfigOrSetDefault from './config/sideEffects/loadConfigOrSetDefault'
 
 export uuid from 'uuid'
 
-export SerialPort from './util/SerialPort'
-
 export * from './actions'
 export * from './types'
 export * from './selectors'

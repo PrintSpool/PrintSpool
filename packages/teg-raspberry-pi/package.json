@@ -11,9 +11,5 @@
   "license": "AGPL-3.0-or-later",
   "private": true,
   "dependencies": {
-    "@tegapp/core": "^0.8.0",
-    "immutable": "^4.0.0-rc.12",
-    "redux-loop": "^4.5.2",
-    "rpi-gpio": "^2.1.2"
   }
 }

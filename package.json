@@ -39,7 +39,7 @@
     }
   },
   "engines": {
-    "node": "10.15.1"
+    "node": "12.11.0"
   },
   "os": [
     "linux"
@@ -50,7 +50,6 @@
       "packages/teg-core",
       "packages/teg-marlin",
       "packages/teg-macros-default",
-      "packages/teg-raspberry-pi",
       "packages/teg-host-posix",
       "packages/teg-schema"
     ],
