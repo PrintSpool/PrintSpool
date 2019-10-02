@@ -2,8 +2,10 @@ use std::time::Duration;
 
 use crate::gcode_codec::{
     GCodeLine,
-    response::Response,
-    response::Feedback,
+    response::{
+        ResponsePayload,
+        Feedback,
+    }
 };
 
 use super::{
@@ -165,24 +167,28 @@ impl ReadyState {
                 }
             }
             /* Echo, Debug and Error function the same in all states */
-            SerialRec( serial_message ) => {
-                match serial_message {
+            SerialRec( response ) => {
+                if let Some(task) = &self.task {
+                    context.push_response(&task, response.raw_src);
+                }
+
+                match response.payload {
                     /* No ops */
-                    Response::Echo |
-                    Response::Debug |
-                    Response::Warning { .. } => {
+                    ResponsePayload::Echo |
+                    ResponsePayload::Debug |
+                    ResponsePayload::Warning { .. } => {
                         self.and_no_effects()
                     }
                     /* Errors */
-                    Response::Error(error) => {
+                    ResponsePayload::Error(error) => {
                         errored(error.to_string(), context)
                     }
-                    Response::Greeting => {
+                    ResponsePayload::Greeting => {
                         let message = format!("Unexpected printer firmware restart. State: {:?}", self);
 
                         errored(message, context)
                     }
-                    Response::Ok( feedback ) => {
+                    ResponsePayload::Ok( feedback ) => {
                         let mut effects = self.receive_feedback( &feedback, context );
                         self.receive_ok(&mut effects, context);
 
@@ -191,7 +197,7 @@ impl ReadyState {
                             effects,
                         )
                     }
-                    Response::Feedback( feedback ) => {
+                    ResponsePayload::Feedback( feedback ) => {
                         let mut effects = self.receive_feedback( &feedback, context );
                         effects.push(
                             Effect::CancelDelay { key: "tickle_delay".to_string() }
@@ -202,7 +208,7 @@ impl ReadyState {
                             effects,
                         )
                     }
-                    Response::Resend { line_number } => {
+                    ResponsePayload::Resend { line_number } => {
                         self.receive_resend_request(line_number, context)
                     }
                 }

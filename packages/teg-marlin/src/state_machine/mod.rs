@@ -2,7 +2,10 @@ use std::time::Duration;
 
 use crate::gcode_codec::{
     GCodeLine,
-    response::Response,
+    response::{
+        Response,
+        ResponsePayload,
+    },
 };
 
 use crate::protos::{
@@ -240,22 +243,22 @@ impl State {
                 errored(message.to_string(), context)
             }
             /* Echo, Debug and Error function the same in all states */
-            SerialRec( serial_message ) => {
-                match (self, serial_message) {
+            SerialRec( response ) => {
+                match (self, &response.payload) {
                     /* Errors */
                     (state @ Errored { .. }, _) => {
                         state.and_no_effects()
                     }
-                    (_, Response::Error(error)) => {
+                    (_, ResponsePayload::Error(error)) => {
                         errored(error.to_string(), context)
                     }
                     /* New socket */
-                    (Connecting(conn @ Connecting { received_greeting: false, .. }), Response::Greeting) |
-                    (Connecting(conn @ Connecting { received_greeting: false, .. }), Response::Ok {..}) => {
+                    (Connecting(conn @ Connecting { received_greeting: false, .. }), ResponsePayload::Greeting) |
+                    (Connecting(conn @ Connecting { received_greeting: false, .. }), ResponsePayload::Ok {..}) => {
                         Self::receive_greeting(conn)
                     }
                     /* Invalid transitions */
-                    (state, Response::Resend { .. }) => {
+                    (state, ResponsePayload::Resend { .. }) => {
                         state.invalid_transition_error(&event, context)
                     }
                     /* No ops */
@@ -416,7 +419,7 @@ impl State {
 //     #[test]
 //     fn runs_the_greeting_handshake() {
 //         let state = State::new_connection(State::default_baud_rates());
-//         let event = SerialRec( Response::Greeting );
+//         let event = SerialRec( ResponsePayload::Greeting );
 //         let mut context = Context::new();
 //
 //         let Loop { next_state, effects } = state.consume(event, &mut context);
@@ -438,7 +441,7 @@ impl State {
 //             baud_rate_candidates: State::default_baud_rates(),
 //             received_greeting: true,
 //         });
-//         let event = SerialRec( Response::Greeting );
+//         let event = SerialRec( ResponsePayload::Greeting );
 //         let mut context = Context::new();
 //
 //         let Loop { next_state:_, effects } = state.clone().consume(event, &mut context);

@@ -14,10 +14,18 @@ message MachineMessage {
     Status status = 2;
 
     // 3-7: Frequently used sub-messages
+    // Events may be duplicated and sent more then once.
     repeated Event events = 3;
     repeated Axis axes = 4;
     repeated Heater heaters = 5;
     repeated SpeedController speed_controllers = 6;
+
+    // Raw response strings from the device.No guarentee is made that all
+    // responses received will be relayed to the combinator. A best effort
+    // attempt will be made to relay responses within a performance constraint.
+    //
+    // Responses may be duplicated and sent more then once.
+    repeated CommandResponse responses = 7;
 
     // // 8-15: Frequently used bools
     // bool sets_target_temperatures = 8;
@@ -94,5 +102,15 @@ message MachineMessage {
     float actual_speed = 3;
 
     bool enabled = 4;
+  }
+
+  // Raw response strings from the device correlated to the task + line number
+  // that preceeded them.
+  message CommandResponse {
+    // response IDs MUST be an incremented integer starting at 1
+    uint64 id = 1;
+    uint32 task_id = 2;
+    uint32 line_number = 3;
+    string content = 4;
   }
 }

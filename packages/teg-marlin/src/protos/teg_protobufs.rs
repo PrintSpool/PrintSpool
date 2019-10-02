@@ -115,6 +115,7 @@ pub mod machine_message {
         #[prost(enumeration="Status", tag="2")]
         pub status: i32,
         /// 3-7: Frequently used sub-messages
+        /// Events may be duplicated and sent more then once.
         #[prost(message, repeated, tag="3")]
         pub events: ::std::vec::Vec<Event>,
         #[prost(message, repeated, tag="4")]
@@ -123,6 +124,13 @@ pub mod machine_message {
         pub heaters: ::std::vec::Vec<Heater>,
         #[prost(message, repeated, tag="6")]
         pub speed_controllers: ::std::vec::Vec<SpeedController>,
+        /// Raw response strings from the device.No guarentee is made that all
+        /// responses received will be relayed to the combinator. A best effort
+        /// attempt will be made to relay responses within a performance constraint.
+        ///
+        /// Responses may be duplicated and sent more then once.
+        #[prost(message, repeated, tag="7")]
+        pub responses: ::std::vec::Vec<CommandResponse>,
         // // 8-15: Frequently used bools
         // bool sets_target_temperatures = 8;
         // bool sets_actual_temperatures = 9;
@@ -194,6 +202,20 @@ pub mod machine_message {
         pub actual_speed: f32,
         #[prost(bool, tag="4")]
         pub enabled: bool,
+    }
+    /// Raw response strings from the device correlated to the task + line number
+    /// that preceeded them.
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct CommandResponse {
+        /// response IDs MUST be an incremented integer starting at 1
+        #[prost(uint64, tag="1")]
+        pub id: u64,
+        #[prost(uint32, tag="2")]
+        pub task_id: u32,
+        #[prost(uint32, tag="3")]
+        pub line_number: u32,
+        #[prost(string, tag="4")]
+        pub content: std::string::String,
     }
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
     #[repr(i32)]

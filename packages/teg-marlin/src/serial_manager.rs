@@ -42,7 +42,7 @@ use crate::{
     },
     gcode_codec::{
         GCodeCodec,
-        // response::Response,
+        // ResponsePayload::Response,
         GCodeLine
     },
     // protos::MachineMessage,
@@ -139,7 +139,7 @@ impl SerialManager {
                 use std::io::{ Error, ErrorKind };
 
                 match result {
-                    Ok(message) => Ok(Event::SerialRec ( message )),
+                    Ok(response) => Ok(Event::SerialRec ( response )),
                     Err(error) => {
                         let message = format!("Serial Reader Error: {:?}", error);
                         Err(Error::new(ErrorKind::Other, message))

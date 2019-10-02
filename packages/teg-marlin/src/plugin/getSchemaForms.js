@@ -69,6 +69,11 @@ const getSchemaForms = () => ({
             type: 'boolean',
             default: true,
           },
+          responseBufferSize: {
+            title: 'Number of GCode responses to keep buffered on the machine service',
+            type: 'integer',
+            default: 10,
+          },
           delayFromGreetingToReady: {
             title: 'Delay from greeting to ready (ms)',
             type: 'integer',

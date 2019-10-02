@@ -20,6 +20,12 @@ const gcodeHistoryReducer = (state = initialState, action) => {
       console.log('start history')
       return config.machines.map(() => MachineHistory())
     }
+    case SOCKET_MESSAGE: {
+      const { machineID } = action.payload
+      const { feedback = {} } = action.payload.message
+      const { responses = [] } = feedback
+      // TODO: coalate responses into the history
+    }
     case LINE_NUMBER_CHANGE: {
       const { task } = action.payload
       const { machineID } = task

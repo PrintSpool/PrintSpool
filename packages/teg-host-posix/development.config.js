@@ -31,6 +31,7 @@ const printerConfig = {
         simulate: false,
         awaitGreetingFromFirmware: true,
         checksumTickles: true,
+        responseBufferSize: 10,
 
         delayFromGreetingToReady: 2500,
         pollingInterval: 500,

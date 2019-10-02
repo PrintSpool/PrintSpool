@@ -1,5 +1,6 @@
 use chrono::prelude::*;
 use super::Task;
+use std::collections::vec_deque::VecDeque;
 use crate::protos::{
     machine_message::{
         self,
@@ -20,6 +21,9 @@ pub struct Context {
     pub config: Config,
     pub controller: Controller,
     pub feedback: machine_message::Feedback,
+
+    next_response_id: u64,
+    response_buffer: VecDeque<machine_message::CommandResponse>,
 }
 
 impl Context {
@@ -27,18 +31,20 @@ impl Context {
         let status = machine_message::Status::Disconnected as i32;
         let controller = config.get_controller().clone();
         let feedback = Self::reset_feedback(status, &config);
+        let response_buffer = VecDeque::with_capacity(controller.response_buffer_size);
 
         Self {
             feedback,
             config,
             controller,
+            next_response_id: 1,
+            response_buffer,
         }
     }
 
     fn reset_feedback(status: i32, config: &Config) -> machine_message::Feedback {
         machine_message::Feedback {
             status,
-
             heaters: config.heater_addresses().iter().map(|address| {
                 machine_message::Heater {
                     address: address.to_string(),
@@ -50,7 +56,9 @@ impl Context {
         }
     }
 
-    pub fn machine_message_protobuf(&self) -> MachineMessage {
+    pub fn machine_message_protobuf(&mut self) -> MachineMessage {
+        self.feedback.responses = self.response_buffer.drain(..).collect();
+
         MachineMessage {
             payload: Some(machine_message::Payload::Feedback ( self.feedback.clone() )),
         }
@@ -110,6 +118,22 @@ impl Context {
     pub fn push_error(&mut self, task: &Task, error: &Error) {
         let error = Some(error.clone());
         add_event(self, task, EventType::FinishTask, error);
+    }
+
+    pub fn push_response(&mut self, task: &Task, raw_src: String) {
+        let command_response = machine_message::CommandResponse {
+            id: self.next_response_id,
+            line_number: self.feedback.despooled_line_number,
+            task_id: task.id,
+            content: raw_src,
+        };
+
+        self.next_response_id += 1;
+
+        if self.response_buffer.len() >= self.controller.response_buffer_size {
+            let _ = self.response_buffer.pop_back();
+        }
+        self.response_buffer.push_front(command_response)
     }
 }
 

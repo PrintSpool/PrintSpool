@@ -11,10 +11,12 @@ use bytes::{BytesMut, BufMut};
 
 pub mod response;
 
+pub use response::*;
+
 pub struct GCodeCodec;
 
 impl Decoder for GCodeCodec {
-    type Item = response::Response;
+    type Item = Response;
     type Error = io::Error;
 
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
@@ -26,7 +28,7 @@ impl Decoder for GCodeCodec {
                 .to_string();
 
             // println!("RX {:?}", line);
-            return Ok(response::parse_response(line));
+            return Ok(parse_response(line));
         }
         Ok(None)
     }

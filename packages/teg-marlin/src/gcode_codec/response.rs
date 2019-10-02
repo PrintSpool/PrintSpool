@@ -13,7 +13,13 @@ pub struct Feedback {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub enum Response {
+pub struct Response {
+    pub payload: ResponsePayload,
+    pub raw_src: String,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum ResponsePayload {
     Greeting,
     Ok( Feedback ),
     Feedback( Feedback ),
@@ -109,40 +115,43 @@ pub fn parse_response(src: String) -> Option<Response> {
     // println!("RX: {:?}", sanitized_src);
 
     let mut words = sanitized_src.split_whitespace().peekable();
-    
+
     // let event = many1(letter());
 
-    let response = match *words.peek()? {
-        "start" | "grbl" | "marlin" => Response::Greeting,
-        "debug_" | "compiled:" => Response::Debug,
-        "echo:" => Response::Echo,
+    let payload = match *words.peek()? {
+        "start" | "grbl" | "marlin" => ResponsePayload::Greeting,
+        "debug_" | "compiled:" => ResponsePayload::Debug,
+        "echo:" => ResponsePayload::Echo,
         "ok" | "ook" | "kok" | "okok" => {
-            Response::Ok( parse_feedback(words.skip(1)) )
+            ResponsePayload::Ok( parse_feedback(words.skip(1)) )
         },
         "error:" => {
             let message = src.replacen("error:", "", 1);
             let is_warning = sanitized_src.starts_with("error:checksum mismatch");
 
             if is_warning {
-                Response::Warning { message: message }
+                ResponsePayload::Warning { message: message }
             } else {
-                Response::Error(message)
+                ResponsePayload::Error(message)
             }
         },
         "resend:" | "rs:" | "resend" | "rs" => {
             let line_number = words.skip(1).next()?.parse::<u32>().ok()?;
 
-            Response::Resend { line_number }
+            ResponsePayload::Resend { line_number }
         },
         "t:" | "x:" => {
-            Response::Feedback( parse_feedback(words) )
+            ResponsePayload::Feedback( parse_feedback(words) )
         }
         _ => {
             return None
         }
     };
 
-    Some(response)
+    Some(Response {
+        raw_src: src,
+        payload,
+    })
 }
 
 
@@ -161,10 +170,15 @@ mod tests {
         let res_str = "ok t: 20.0 /0.0 b: 20.2 /0.0 t0: 20.0 /0.0 @: 0 b@: 0\n";
         let res = parse_response(res_str.to_string());
 
-        if let Some(Response::Ok(Feedback {
-            actual_temperatures,
-            actual_positions,
-        })) = res {
+        if let Some(
+            Response {
+                payload: ResponsePayload::Ok(Feedback {
+                    actual_temperatures,
+                    actual_positions,
+                }),
+                ..
+            },
+        ) = res {
             assert_eq!(actual_temperatures, vec![
                 ("t0".to_string(), 20.0),
                 ("b".to_string(), 20.2),
@@ -180,7 +194,7 @@ mod tests {
     //     let res_str = "x: 0.00y: 1.00z: 0.00e: 0.00 count x:  0.00y: 0.00z: 0.00\n";
     //     let res = parse_response(res_str.to_string());
 
-    //     if let Some(Response::Feedback { values }) = res {
+    //     if let Some(ResponsePayload::Feedback { values }) = res {
     //         assert_eq!(values, vec![
     //             ("x".to_string(), 0.0),
     //             ("y".to_string(), 1.0),
