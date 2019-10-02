@@ -12,8 +12,9 @@ const displayInviteInConsole = ({ invite }) => {
       + `${qr}\n`
       + `${invite.code}\n\n`
       + thickLine + '\n'
-      + 'Your almost ready to start 3D Printing! To connect to your printer\n\n'
-      + 'go to https://tegapp.io and use the Invite Code above.\n\n'
+      + 'Your almost ready to start 3D Printing!\n\n'
+      + 'To get started go to https://tegapp.io and use the '
+      + 'Invite Code above.\n\n'
       + thickLine
       + '\n'
     )
