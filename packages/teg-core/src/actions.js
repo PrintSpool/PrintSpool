@@ -6,11 +6,7 @@ export setToolheadMaterials, { SET_TOOLHEAD_MATERIALS } from './config/actions/s
 export deviceConnected, { DEVICE_CONNECTED } from './devices/actions/deviceConnected'
 export deviceDisconnected, { DEVICE_DISCONNECTED } from './devices/actions/deviceDisconnected'
 /* printer */
-export driverError, { DRIVER_ERROR } from './printer/actions/driverError'
-export estop, { ESTOP } from './printer/actions/estop'
-export printerReady, { PRINTER_READY } from './printer/actions/printerReady'
-export connectPrinter, { CONNECT_PRINTER } from './printer/actions/connectPrinter'
-export printerDisconnected, { PRINTER_DISCONNECTED } from './printer/actions/printerDisconnected'
+export statusChanged, { STATUS_CHANGED } from './printer/actions/statusChanged'
 /* jobQueue */
 export requestCreateJob, { REQUEST_CREATE_JOB } from './jobQueue/actions/requestCreateJob'
 export createJob, { CREATE_JOB } from './jobQueue/actions/createJob'
@@ -18,6 +14,5 @@ export jobQueueComplete, { JOB_QUEUE_COMPLETE } from './jobQueue/actions/jobQueu
 // export createLocalFileJob from './jobQueue/actions/createLocalFileJob'
 export deleteJob, { DELETE_JOB } from './jobQueue/actions/deleteJob'
 /* spool */
-export spoolGCodes from './jobQueue/actions/spoolGCodes'
 export requestSpoolJobFile from './jobQueue/actions/requestSpoolJobFile'
 export spoolTask, { SPOOL_TASK } from './jobQueue/actions/spoolTask'

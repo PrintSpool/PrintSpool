@@ -40,15 +40,11 @@ import jobQueueComplete from '../actions/jobQueueComplete'
 import lineNumberChange from '../actions/lineNumberChange'
 
 import spoolTask, { SPOOL_TASK } from '../actions/spoolTask'
-import cancelTasks from '../actions/cancelTasks'
 import requestSpoolJobFile, { REQUEST_SPOOL_JOB_FILE } from '../actions/requestSpoolJobFile'
 import { REQUEST_SPOOL_NEXT_JOB_FILE } from '../actions/requestSpoolNextJobFile'
 import sendTaskToSocket, { SEND_TASK_TO_SOCKET } from '../../printer/actions/sendTaskToSocket'
 import sendDeleteTaskHistoryToSocket from '../../printer/actions/sendDeleteTaskHistoryToSocket'
 
-import { PRINTER_READY } from '../../printer/actions/printerReady'
-import { ESTOP } from '../../printer/actions/estop'
-import { DRIVER_ERROR } from '../../printer/actions/driverError'
 import { SOCKET_MESSAGE } from '../../printer/actions/socketMessage'
 import busyMachines, { NOT_BUSY } from '../selectors/busyMachines'
 
@@ -132,19 +128,6 @@ const jobQueueReducer = (state = initialState, action) => {
       return loop(
         nextState,
         Cmd.run(unlinkTmpFiles, { args: [tmpFilePaths] }),
-      )
-    }
-    case PRINTER_READY:
-    case ESTOP:
-    case DRIVER_ERROR: {
-      // TODO: in a multimachine queue estop/error/reset would only cancel tasks for the one machine
-      /* error or cancel any printing job file */
-      const taskIDs = getTaskIDByJobFileID(state)
-      const cancelledTaskIDs = getSpooledJobFiles(state).map(jobFile => taskIDs.get(jobFile.id))
-
-      return loop(
-        state,
-        Cmd.action(cancelTasks({ taskIDs: cancelledTaskIDs })),
       )
     }
     case SOCKET_MESSAGE: {
@@ -312,6 +295,7 @@ const jobQueueReducer = (state = initialState, action) => {
         }
       }
 
+      // failed tasks
       newHistoryEvents.forEach((event) => {
         const task = nextState.tasks.get(event.taskID)
 

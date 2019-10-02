@@ -28,6 +28,7 @@ import { SEND_TASK_TO_SOCKET } from '../actions/sendTaskToSocket'
 import { SEND_DELETE_TASK_HISTORY_TO_SOCKET } from '../actions/sendDeleteTaskHistoryToSocket'
 import { REQUEST_ESTOP } from '../actions/requestEStop'
 import { REQUEST_RESET } from '../actions/requestReset'
+import statusChanged from '../actions/statusChanged'
 
 const statusCodes = [
   ERRORED, // 0
@@ -278,7 +279,6 @@ const socketsReducer = (state = initialState, action) => {
     }
     case DEVICE_CONNECTED: {
       const { device } = action.payload
-      console.log('CONNECTED', device.id)
 
       const machine = state.machines.find(m => (
         m.configuredDeviceIDs.includes(device.id)
@@ -305,6 +305,7 @@ const socketsReducer = (state = initialState, action) => {
       const { machineID, message } = action.payload
 
       const feedback = message.feedback || {}
+      const nextEffects = []
 
       // console.log('FEE1D', feedback)
 
@@ -329,7 +330,11 @@ const socketsReducer = (state = initialState, action) => {
 
         // set the status
         if (feedback.status != null) {
-          machine = machine.set('status', statusCodes[feedback.status])
+          const nextStatus = statusCodes[feedback.status]
+          if (nextStatus !== machine.status) {
+            nextEffects.push(Cmd.actions(statusChanged(nextStatus)))
+          }
+          machine = machine.set('status', nextStatus)
         }
         if (feedback.error != null) {
           machine = machine.set('error', {
@@ -352,7 +357,10 @@ const socketsReducer = (state = initialState, action) => {
       }))
 
       // console.log('STATE!', JSON.stringify(nextState.machines.get(machineID).toJS(), null, 2))
-      return nextState
+      return loop(
+        nextState,
+        nextEffects,
+      )
     }
     default: {
       return state
