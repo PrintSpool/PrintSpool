@@ -23,6 +23,7 @@ const GCODE_HISTORY_SUBSCRIPTION = gql`
           id
           gcodeHistory(limit: 200) {
             id
+            direction
             createdAt
             command
           }
@@ -98,7 +99,10 @@ const Terminal = ({
             // eslint-disable-next-line react/no-array-index-key
             <div
               key={entry.id}
-              className={classes.terminalEntry}
+              className={[
+                classes.terminalEntry,
+                classes[entry.direction === 'TX' ? 'tx' : 'rx'],
+              ].join(' ')}
             >
               {
                 /*
@@ -107,6 +111,9 @@ const Terminal = ({
                 </span>
                 */
               }
+              <span className={classes.direction}>
+                {` ${entry.direction} `}
+              </span>
               <span className={classes.command}>
                 {entry.command}
               </span>

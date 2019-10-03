@@ -5,4 +5,4 @@ const dataSentAndReceived = (task, responses) => ({
   payload: { task, responses },
 })
 
-export default lineNumberChange
+export default dataSentAndReceived

@@ -21,8 +21,19 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
     marginRight: theme.spacing(2),
   },
-  terminalEntry: {
+  tx: {
+    direction: {
+      color: '#DD25C4',
+    },
     background: '#EEE',
+  },
+  rx: {
+    direction: {
+      color: theme.palette.primary.dark,
+    },
+  },
+  direction: {
+    marginRight: theme.spacing(1),
   },
   createdAt: {
     color: '#666',
