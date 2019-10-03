@@ -15,6 +15,7 @@
     "start": "DAT_URL=\"dat://d6531c1a9b6b23901fa4c766b5842d08fb498e9aabbeca31b14d75ba93dc4ab6/\" gulp start",
     "debug-host": "cd ./packages/teg-host-posix && yarn debug",
     "dev-host": "cd ./packages/teg-host-posix && yarn dev",
+    "protobuf:build": "cd packages/teg-core/ && npx pbjs -t static-module -w commonjs -o src/printer/effects/protobufs.js ../../protos/MachineMessage.proto ../../protos/CombinatorMessage.proto",
     "babel:clean": "gulp clean",
     "babel:build": "gulp babel:build",
     "babel:watch": "gulp babel:watch",

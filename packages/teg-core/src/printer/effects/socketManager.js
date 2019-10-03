@@ -1,17 +1,16 @@
+/* eslint-disable no-param-reassign */
 import path from 'path'
 import * as net from 'net'
 import { Buffer } from 'buffer'
-
-import protobuf from 'protobufjs'
 import chokidar from 'chokidar'
+
+import { teg_protobufs as protobufRoot } from './protobufs'
 
 import socketMessage from '../actions/socketMessage'
 
 const SIZE_DELIMETER_BYTES = 4
 
-// TODO: productionn protos directory
-// const protosDir = path.join(__dirname, 'protos')
-const protosDir = path.join(__dirname, '../../../../../', 'protos')
+const { MachineMessage, CombinatorMessage } = protobufRoot
 
 export const createSocketManager = ({ machineID, socketPath }) => ({
   machineID,
@@ -22,16 +21,9 @@ export const createSocketManager = ({ machineID, socketPath }) => ({
 })
 
 export const startSocketManager = async (manager, dispatch) => {
-  const machineRoot = await protobuf.load(path.join(protosDir, 'MachineMessage.proto'))
-  const combinatorRoot = await protobuf.load(path.join(protosDir, 'CombinatorMessage.proto'))
-
-  const MachineMessage = machineRoot.lookupType('teg_protobufs.MachineMessage')
-
-  manager.CombinatorMessage = combinatorRoot.lookupType('teg_protobufs.CombinatorMessage')
-
   let connect
 
-  const onDisconnect = (dispatch) => {
+  const onDisconnect = () => {
     // console.log("disconnect")
     manager.socket = null
     // immediately try reconnecting on disconnect in case a new socket is already available
@@ -61,7 +53,10 @@ export const startSocketManager = async (manager, dispatch) => {
       // console.log(size, buffer.length)
 
       if (buffer.length >= size) {
-        const message = MachineMessage.decode(buffer.slice(SIZE_DELIMETER_BYTES, SIZE_DELIMETER_BYTES + size))
+        const message = MachineMessage.decode(
+          buffer.slice(SIZE_DELIMETER_BYTES, SIZE_DELIMETER_BYTES + size),
+        )
+
         buffer = buffer.slice(SIZE_DELIMETER_BYTES + size)
         // console.log(message.feedback.heaters)
 
@@ -97,13 +92,14 @@ export const startSocketManager = async (manager, dispatch) => {
 export const sendToSocket = (manager, machineID, message) => {
   if (manager.socket == null) return
 
-  const err = manager.CombinatorMessage.verify(message)
+  const err = CombinatorMessage.verify(message)
   if (err) {
-    console.error("Error creating message to machine service", err)
+    // eslint-disable-next-line no-console
+    console.error('Error creating message to machine service', err)
     throw new Error(err)
   }
 
-  let buffer = manager.CombinatorMessage.encode(message).finish()
+  let buffer = CombinatorMessage.encode(message).finish()
   const messageSize = buffer.length
 
   if (messageSize === 0) {

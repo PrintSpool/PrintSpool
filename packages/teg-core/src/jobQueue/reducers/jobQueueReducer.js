@@ -215,7 +215,7 @@ const jobQueueReducer = (state = initialState, action) => {
 
       if (hasDespooledLines || responses.length > 0) {
         nextEffects.push(Cmd.action(
-          dataSentAndReceived(currentTask, responses)
+          dataSentAndReceived(currentTask, responses),
         ))
       }
 
@@ -237,7 +237,6 @@ const jobQueueReducer = (state = initialState, action) => {
           })
         ))
 
-        nextEffects.push(Cmd.action(lineNumberChange(currentTask)))
         nextState = nextState.setIn(['tasks', currentTask.id], currentTask)
       }
 
