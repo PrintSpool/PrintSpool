@@ -46,7 +46,6 @@ export const initialState = Record({
 const Machine = Record({
   configuredDeviceIDs: List(),
   id: null,
-  despooledLineNumber: null,
   status: null,
   error: null,
   motorsEnabled: null,
@@ -170,7 +169,6 @@ const initialMachineState = ({
   return Machine({
     id: machineID,
     configuredDeviceIDs: List(configuredDevices({ machineConfig })),
-    despooledLineNumber: null,
     status: CONNECTING,
     error: null,
     motorsEnabled: false,

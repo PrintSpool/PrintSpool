@@ -24,7 +24,7 @@ import getPluginModels from '../../config/selectors/getPluginModels'
 import getJobTmpFiles from '../selectors/getJobTmpFiles'
 import getSpooledJobFiles from '../selectors/getSpooledJobFiles'
 import getCompletedJobs from '../selectors/getCompletedJobs'
-import getTaskIDByJobFileID from '../selectors/getTaskIDByJobFileID'
+// import getTaskIDByJobFileID from '../selectors/getTaskIDByJobFileID'
 import getNextJobFile from '../selectors/getNextJobFile'
 import getJobFilesByJobID from '../selectors/getJobFilesByJobID'
 
@@ -37,7 +37,7 @@ import { REQUEST_CREATE_JOB } from '../actions/requestCreateJob'
 import createJob, { CREATE_JOB } from '../actions/createJob'
 import deleteJob, { DELETE_JOB } from '../actions/deleteJob'
 import jobQueueComplete from '../actions/jobQueueComplete'
-import lineNumberChange from '../actions/lineNumberChange'
+import dataSentAndReceived from '../actions/dataSentAndReceived'
 
 import spoolTask, { SPOOL_TASK } from '../actions/spoolTask'
 import requestSpoolJobFile, { REQUEST_SPOOL_JOB_FILE } from '../actions/requestSpoolJobFile'
@@ -134,7 +134,7 @@ const jobQueueReducer = (state = initialState, action) => {
       /* eslint-disable no-param-reassign */
       const { machineID } = action.payload
       const { feedback = {} } = action.payload.message
-      const { events = [] } = feedback
+      const { events = [], responses = [] } = feedback
 
       let currentTask = state.tasks.find(t => (
         t.machineID === machineID
@@ -207,11 +207,19 @@ const jobQueueReducer = (state = initialState, action) => {
         despooledLineNumber = currentTask.totalLines - 1
       }
 
-      if (
+      const hasDespooledLines = (
         currentTask != null
         && despooledLineNumber != null
         && despooledLineNumber > currentTask.currentLineNumber
-      ) {
+      )
+
+      if (hasDespooledLines || responses.length > 0) {
+        nextEffects.push(Cmd.action(
+          dataSentAndReceived(currentTask, responses)
+        ))
+      }
+
+      if (hasDespooledLines) {
         // reload the task from the next state
         currentTask = nextState.tasks.get(currentTask.id)
           .set('previousLineNumber', currentTask.currentLineNumber)

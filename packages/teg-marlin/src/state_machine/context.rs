@@ -21,8 +21,6 @@ pub struct Context {
     pub config: Config,
     pub controller: Controller,
     pub feedback: machine_message::Feedback,
-
-    next_response_id: u64,
     response_buffer: VecDeque<machine_message::CommandResponse>,
 }
 
@@ -37,7 +35,6 @@ impl Context {
             feedback,
             config,
             controller,
-            next_response_id: 1,
             response_buffer,
         }
     }
@@ -122,13 +119,10 @@ impl Context {
 
     pub fn push_response(&mut self, task: &Task, raw_src: String) {
         let command_response = machine_message::CommandResponse {
-            id: self.next_response_id,
             line_number: self.feedback.despooled_line_number,
             task_id: task.id,
             content: raw_src,
         };
-
-        self.next_response_id += 1;
 
         if self.response_buffer.len() >= self.controller.response_buffer_size {
             let _ = self.response_buffer.pop_back();

@@ -128,7 +128,8 @@ pub mod machine_message {
         /// responses received will be relayed to the combinator. A best effort
         /// attempt will be made to relay responses within a performance constraint.
         ///
-        /// Responses may be duplicated and sent more then once.
+        /// Responses will not be duplicated and will be sent at most once to each
+        /// client.
         #[prost(message, repeated, tag="7")]
         pub responses: ::std::vec::Vec<CommandResponse>,
         // // 8-15: Frequently used bools
@@ -207,9 +208,6 @@ pub mod machine_message {
     /// that preceeded them.
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct CommandResponse {
-        /// response IDs MUST be an incremented integer starting at 1
-        #[prost(uint64, tag="1")]
-        pub id: u64,
         #[prost(uint32, tag="2")]
         pub task_id: u32,
         #[prost(uint32, tag="3")]

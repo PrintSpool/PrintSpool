@@ -24,7 +24,8 @@ message MachineMessage {
     // responses received will be relayed to the combinator. A best effort
     // attempt will be made to relay responses within a performance constraint.
     //
-    // Responses may be duplicated and sent more then once.
+    // Responses will not be duplicated and will be sent at most once to each
+    // client.
     repeated CommandResponse responses = 7;
 
     // // 8-15: Frequently used bools
@@ -107,8 +108,6 @@ message MachineMessage {
   // Raw response strings from the device correlated to the task + line number
   // that preceeded them.
   message CommandResponse {
-    // response IDs MUST be an incremented integer starting at 1
-    uint64 id = 1;
     uint32 task_id = 2;
     uint32 line_number = 3;
     string content = 4;

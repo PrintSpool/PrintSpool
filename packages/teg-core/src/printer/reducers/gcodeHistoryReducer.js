@@ -1,58 +1,113 @@
 import { Record, List, Map } from 'immutable'
 
 import { SET_CONFIG } from '../../config/actions/setConfig'
-import { LINE_NUMBER_CHANGE } from '../../jobQueue/actions/lineNumberChange'
+import { DATA_SENT_AND_RECEIVED } from '../../jobQueue/actions/dataSentAndReceived'
+
+export const TX = 'TX'
+export const RX = 'RX'
 
 const MachineHistory = Record({
   historyEntries: List(),
   maxSize: 400,
+  lastResponseID: 0,
 })
 
 export const initialState = Map()
 
 let nextID = 0
 
+const HistoryEntry = (entry) => {
+  // eslint-disable-next-line no-param-reassign
+  entry.id = nextID
+  nextID += 1
+  return entry
+}
+
+const addCommands = (
+  task,
+  previousLineNumber,
+  lineNumber,
+  createdAt,
+  newEntries,
+) => {
+  const addedCommands = task.commands.slice(
+    previousLineNumber + 1,
+    lineNumber + 1,
+  )
+
+  addedCommands.forEach(command => (
+    newEntries.push(
+      HistoryEntry({
+        content: command,
+        createdAt,
+        direction: TX,
+      }),
+    )
+  ))
+}
+
+
 const gcodeHistoryReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
       const { config } = action.payload
 
-      console.log('start history')
       return config.machines.map(() => MachineHistory())
     }
-    case SOCKET_MESSAGE: {
-      const { machineID } = action.payload
-      const { feedback = {} } = action.payload.message
-      const { responses = [] } = feedback
-      // TODO: coalate responses into the history
-    }
-    case LINE_NUMBER_CHANGE: {
-      const { task } = action.payload
-      const { machineID } = task
+    case DATA_SENT_AND_RECEIVED: {
+      const {
+        machineID,
+        task,
+        responses = [],
+      } = action.payload
       const { maxSize } = state.get(machineID)
 
-      const sliceStart = (
-        task.previousLineNumber == null ? 0 : task.previousLineNumber + 1
-      )
-
-      const addedCommands = task.commands.slice(
-        sliceStart,
-        task.currentLineNumber + 1,
-      )
+      let { previousLineNumber = -1 } = task
 
       const createdAt = new Date().toISOString()
 
-      // eslint-disable-next-line no-return-assign
-      const addedEntries = addedCommands.map(command => ({
-        id: (nextID += 1),
-        command,
+      const newEntries = []
+      responses.forEach((res) => {
+        const {
+          taskId,
+          lineNumber,
+          content,
+        } = res
+
+        // TX Entries preceeding an RX response
+        if (taskId === task.id && lineNumber > previousLineNumber) {
+          addCommands(
+            task,
+            previousLineNumber,
+            lineNumber,
+            createdAt,
+            newEntries,
+          )
+          previousLineNumber = lineNumber
+        }
+
+        // RX Entries
+        newEntries.push(
+          HistoryEntry({
+            content,
+            createdAt,
+            direction: RX,
+          }),
+        )
+      })
+
+      // TX Entries after the last RX entry
+      addCommands(
+        task,
+        previousLineNumber,
+        task.currentLineNumber,
         createdAt,
-      }))
-      console.log('HISTORY:', addedCommands)
+        newEntries,
+      )
 
       return state
         .updateIn([machineID, 'historyEntries'], (entries) => {
-          let nextEntries = entries.concat(addedEntries)
+          let nextEntries = entries.concat(newEntries)
 
           if (nextEntries.size > maxSize) {
             nextEntries = nextEntries.slice(-maxSize)
