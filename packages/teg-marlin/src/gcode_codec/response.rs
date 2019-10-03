@@ -60,18 +60,18 @@ where
     }
 
     let mut key_and_value = word.split(':');
-    let mut key = key_and_value.next()?;
+    let key = key_and_value.next()?;
     let value = key_and_value.next()?.parse::<f32>().ok()?;
-
-    if key == "t" {
-        key = "t0"
-    }
 
     // if key == "w" {
     //     let value = value * 1000.0;
     // };
 
-    let key = key.to_string().replace('t', "e");
+    let mut key = key.to_string().replace('t', "e");
+
+    if key == "e" {
+        key = "e0".to_string()
+    }
 
     let key_values_list =
         if key.starts_with(&['e', 'b'][..]) {
