@@ -10,6 +10,7 @@ import JobHistoryEvent from '../types/JobHistoryEvent'
 import {
   indexedTaskStatuses,
   taskFailureStatuses,
+  spooledTaskStatuses,
   // CANCEL_TASK,
   // PAUSE_TASK,
   ERROR,
@@ -46,6 +47,7 @@ import sendTaskToSocket, { SEND_TASK_TO_SOCKET } from '../../printer/actions/sen
 import sendDeleteTaskHistoryToSocket from '../../printer/actions/sendDeleteTaskHistoryToSocket'
 
 import { SOCKET_MESSAGE } from '../../printer/actions/socketMessage'
+import requestEStop from '../../printer/actions/requestEStop'
 import busyMachines, { NOT_BUSY } from '../selectors/busyMachines'
 
 const debug = Debug('teg:jobQueue')
@@ -116,18 +118,34 @@ const jobQueueReducer = (state = initialState, action) => {
 
       const tmpFilePaths = getJobTmpFiles(state)({ jobID }).toArray()
 
+      const nextEffects = [
+        Cmd.run(unlinkTmpFiles, { args: [tmpFilePaths] }),
+      ]
+
       const nextState = state
         .deleteIn(['jobs', jobID])
-        .updateIn(['jobFiles'], jobFiles => (
+        .update('jobFiles', jobFiles => (
           jobFiles.filter(file => file.jobID !== jobID)
         ))
-        .updateIn(['history'], history => (
+        .update('history', history => (
           history.filter(historyEvent => historyEvent.jobID !== jobID)
+        ))
+        .update('tasks', tasks => (
+          tasks.filter((task) => {
+            if (
+              task.jobID === jobID
+              && spooledTaskStatuses.includes(task.status)
+            ) {
+              nextEffects.push(requestEStop({ machineID: task.machineID }))
+            }
+
+            return task.jobID !== jobID
+          })
         ))
 
       return loop(
         nextState,
-        Cmd.run(unlinkTmpFiles, { args: [tmpFilePaths] }),
+        Cmd.list(nextEffects),
       )
     }
     case SOCKET_MESSAGE: {
