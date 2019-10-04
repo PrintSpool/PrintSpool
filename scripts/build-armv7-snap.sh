@@ -6,7 +6,7 @@ echo "\e[32mSnapping Teg $teg_VERSION for armv7:\e[0m Ignore the warnings and sc
 USER=`whoami`
 
 echo "Remotely building Teg"
-ssh $teg_ARMV7_HOST -p $teg_ARMV7_PORT 'cd teg && nvm use && git checkout master && git pull origin master && yarn bootstrap && yarn build-dev && yarn pkg:build'
+ssh $teg_ARMV7_HOST -p $teg_ARMV7_PORT 'cd teg && nvm use && git checkout master && git pull origin master && yarn bootstrap && yarn build-dev && yarn pkg:build && yarn tegmarlin:build'
 echo "Remotely building Teg [DONE]"
 
 cd ./snap

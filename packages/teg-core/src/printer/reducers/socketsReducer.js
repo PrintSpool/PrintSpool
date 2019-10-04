@@ -183,7 +183,7 @@ const socketsReducer = (state = initialState, action) => {
       const { config, plugins } = action.payload
       // TODO: machine IDs and socket paths
       const machineID = config.printer.id
-      const socketPath = `/var/run/teg/machine-${machineID}.sock`
+      const socketPath = `/var/lib/teg/machine-${machineID}.sock`
 
       if (state.socketManager != null) {
         state.socketManager.close()

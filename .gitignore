@@ -27,6 +27,7 @@ snap/stage/
 snap/snap/.snapcraft
 snap/*.tar.bz2
 snap/teg
+snap/teg-marlin
 snapcraft.login
 
 coverage

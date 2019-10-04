@@ -4,6 +4,7 @@ summary: A graphql server for 3D printers
 description: >
   Teg is an experimental 3D printing software designed from the ground up to streamline your 3D printing experience. Teg features a print queue that enables users to easily queue up prints without managing complicated file systems. To manage prints remotely Teg is built on top of encrypted, distributed web technologies so you can use your 3D printer from anywhere in the world just as easily as from your home. With Teg you can worry less and create more.
 
+base: core18
 # confinement: classic
 confinement: devmode
 # confinement: strict
@@ -22,6 +23,13 @@ architectures:
 #     write:
 #     - /tmp/printer
 
+# passthrough:
+layout:
+  /var/lib/teg:
+    bind: $SNAP_DATA/var
+  /etc/teg:
+    bind: $SNAP_DATA/etc
+
 hooks:
   install:
     plugs:
@@ -37,6 +45,20 @@ parts:
 apps:
   teg:
     command: teg serve
+    daemon: simple
+    restart-condition: always
+    refresh-mode: endure
+    # stop-mode: sigusr2
+    plugs:
+      # - klipper-printers
+      - network
+      - network-bind
+      - process-control
+      - system-observe
+      - hardware-observe
+      - hardware-random-control
+  teg-marlin:
+    command: teg-marlin
     daemon: simple
     restart-condition: always
     refresh-mode: endure

@@ -42,6 +42,6 @@ impl Config {
             .collect()
     }
     pub fn socket_path(&self) -> String {
-        format!("/var/run/teg/machine-{}.sock", self.id)
+        format!("/var/lib/teg/machine-{}.sock", self.id)
     }
 }

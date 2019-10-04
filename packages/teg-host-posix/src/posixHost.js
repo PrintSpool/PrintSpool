@@ -86,7 +86,7 @@ const tegServer = async (argv, pluginLoader) => {
 
   const pidDirectory = path.resolve(
     configArg
-    || '/var/run/teg',
+    || '/var/lib/teg',
   )
 
   // const updatesFile = path.join(configDirectory, '.updates')
