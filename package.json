@@ -1,5 +1,6 @@
 {
   "private": true,
+  "bin" : { "teg" : "./packages/teg-host/bin/teg.js" },
   "scripts": {
     "lint": "eslint ./packages/",
     "delete-node-modules": "rm -rf node_modules && rm -rf packages/*/node_modules",
