@@ -13,6 +13,8 @@ grade: stable
 architectures:
   - build-on: amd64
     run-on: amd64
+  - build-on: armhf
+    run-on: armhf
 
 # plugs:
 #   klipper-printers:
@@ -38,9 +40,54 @@ hooks:
 # see https://docs.snapcraft.io/node-apps/6747
 parts:
   teg:
-    plugin: dump
-    source: .
+    # plugin: gulp
+    # node-engine: 12.11.0
+    # gulp-tasks:
+    #   - pkg:build
+
+    plugin: nodejs
+    nodejs-version: 12.11.0
+    override-build: |
+      export PATH=$PATH:$(pwd)/../npm/bin
+
+      yarn pkg:build
+
+      rsync -a --include="*.node" --include="*/" --exclude="*" --prune-empty-dirs ./node_modules ./pruned
+      rm -rf ./packages
+
+      cp ./teg ../install/teg
+      cp -r ./pruned/node_modules ../install/
+
+      # snapcraftctl build
+    build-packages:
+      - rsync
+      - python
+    source: https://github.com/tegapp/teg.git
+    source-type: git
+    source-branch: feature/printer-process
+    source-depth: 1
     build-attributes: [no-patchelf]
+  teg-marlin:
+    plugin: dump
+    source: teg-marlin-bin/
+    override-build: |
+      export ARCHITECTURE=`dpkg --print-architecture`
+
+      if [ $ARCHITECTURE == 'armhf' ]
+      then
+        echo "ARM TEG-MARLIN"
+        cp ./teg-marlin-armv7 ../install/teg-marlin
+      else
+        echo "X64 TEG-MARLIN"
+        cp ./teg-marlin-x64 ../install/teg-marlin
+      fi
+
+  # teg-marlin:
+  #   plugin: rust
+  #   source: https://github.com/tegapp/teg.git
+  #   source-type: git
+  #   source-branch: feature/printer-process
+  #   source-subdir: packages/teg-marlin
 
 apps:
   teg:

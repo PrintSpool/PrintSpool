@@ -56,7 +56,7 @@ const tegServer = async (argv, pluginLoader) => {
   // eslint-disable-next-line no-console
   console.error(`Teg v${packageJSON.version}`)
 
-  const expectedUseage = 'Useage: teg serve [CONFIG_DIRECTORY]'
+  const expectedUseage = 'Useage: teg [serve|create-config]'
 
   const [, , cmd, configArg] = argv
 
@@ -68,6 +68,7 @@ const tegServer = async (argv, pluginLoader) => {
 
   const allCmds = [
     'serve',
+    'create-config',
   ]
 
   if (allCmds.includes(cmd) === false) {
@@ -96,6 +97,20 @@ const tegServer = async (argv, pluginLoader) => {
     mkdirp.sync(pidDirectory, {
       mode: 0o700,
     })
+  }
+
+  // eslint-disable-next-line global-require, import/no-dynamic-require
+  const defaultConfig = require('../development.config')
+
+  const config = await loadConfigOrSetDefault({
+    configDirectory,
+    defaultConfig,
+    createECDHKey,
+  })
+
+  if (cmd === 'create-config') {
+    console.error('create-config: Configuration ready.')
+    return
   }
 
   // touch the updates file
@@ -160,15 +175,6 @@ const tegServer = async (argv, pluginLoader) => {
   //
   //   return
   // }
-
-  // eslint-disable-next-line global-require, import/no-dynamic-require
-  const defaultConfig = require('../development.config')
-
-  const config = await loadConfigOrSetDefault({
-    configDirectory,
-    defaultConfig,
-    createECDHKey,
-  })
 
   handleFatalExceptions({ config })
   const previousFatalException = getPreviousFatalException({ config })

@@ -70,7 +70,7 @@ const watchBabel = () => {
   })
 }
 
-const run = (pkg, taskName) => () => {
+const run = (pkg, taskName) => (cb) => {
   const proc = spawn(
     'yarn',
     [taskName],
@@ -90,7 +90,11 @@ const run = (pkg, taskName) => () => {
   })
 
   proc.on('close', (code) => {
-    process.exit(code)
+    if (code === 0) {
+      cb()
+    } else {
+      process.exitCode = code
+    }
   })
 }
 
@@ -103,6 +107,14 @@ gulp.task('babel:watch', gulp.series(
   'babel:build',
   watchBabel,
 ))
+
+gulp.task(
+  'pkg:build',
+  gulp.series(
+    'babel:build',
+    run('teg-host-posix', 'pkg:build'),
+  ),
+)
 
 gulp.task(
   'start',
