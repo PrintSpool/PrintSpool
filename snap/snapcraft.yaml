@@ -41,12 +41,12 @@ hooks:
 parts:
   teg:
     # plugin: gulp
-    # node-engine: 12.11.0
+    # node-engine: 10.16.3
     # gulp-tasks:
     #   - pkg:build
 
     plugin: nodejs
-    nodejs-version: 12.11.0
+    nodejs-version: 10.16.3
     override-build: |
       export PATH=$PATH:$(pwd)/../npm/bin
 
