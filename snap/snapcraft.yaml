@@ -41,7 +41,7 @@ hooks:
 parts:
   # teg:
   #   plugin: nodejs
-  #   nodejs-version: 10.16.3
+  #   nodejs-version: 12.11.1
   #   override-build: |
   #     export PATH=$PATH:$(pwd)/../npm/bin
   #
