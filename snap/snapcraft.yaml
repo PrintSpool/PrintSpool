@@ -39,34 +39,43 @@ hooks:
 
 # see https://docs.snapcraft.io/node-apps/6747
 parts:
+  # teg:
+  #   plugin: nodejs
+  #   nodejs-version: 10.16.3
+  #   override-build: |
+  #     export PATH=$PATH:$(pwd)/../npm/bin
+  #
+  #     yarn pkg:build
+  #
+  #     rsync -a --include="*.node" --include="*/" --exclude="*" --prune-empty-dirs ./node_modules ./pruned
+  #     rm -rf ./packages
+  #
+  #     cp ./teg ../install/teg
+  #     cp -r ./pruned/node_modules ../install/
+  #   build-packages:
+  #     - rsync
+  #     - python
+  #   source: https://github.com/tegapp/teg.git
+  #   source-type: git
+  #   source-branch: feature/printer-process
+  #   source-depth: 1
+  #   build-attributes: [no-patchelf]
+
   teg:
-    # plugin: gulp
-    # node-engine: 10.16.3
-    # gulp-tasks:
-    #   - pkg:build
-
-    plugin: nodejs
-    nodejs-version: 10.16.3
+    plugin: dump
     override-build: |
-      export PATH=$PATH:$(pwd)/../npm/bin
+      export ARCHITECTURE=`dpkg --print-architecture`
 
-      yarn pkg:build
-
-      rsync -a --include="*.node" --include="*/" --exclude="*" --prune-empty-dirs ./node_modules ./pruned
-      rm -rf ./packages
-
-      cp ./teg ../install/teg
-      cp -r ./pruned/node_modules ../install/
-
-      # snapcraftctl build
-    build-packages:
-      - rsync
-      - python
-    source: https://github.com/tegapp/teg.git
-    source-type: git
-    source-branch: feature/printer-process
-    source-depth: 1
+      if [ $ARCHITECTURE == 'armhf' ]
+      then
+        echo "ARM TEG"
+        cp -r ./teg-armv7-bin/* ../install/
+      else
+        echo "X64 TEG"
+        cp -r ./teg-x64-bin/* ../install/
+      fi
     build-attributes: [no-patchelf]
+
   teg-marlin:
     plugin: dump
     source: teg-marlin-bin/
