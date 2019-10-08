@@ -63,6 +63,7 @@ parts:
 
   teg:
     plugin: dump
+    source: .
     override-build: |
       export ARCHITECTURE=`dpkg --print-architecture`
 

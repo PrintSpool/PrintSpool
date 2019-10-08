@@ -12,9 +12,9 @@ yarn tegmarlin:build:x64
 yarn tegmarlin:build:armv7
 echo "\n\nBuilding teg-marlin... [DONE]\n"
 
-cd ./snap
-
 TEG_VERSION=`node -e "console.log(require('./packages/teg-core/package.json').version);"`;
+
+cd ./snap
 
 sed -i -E "s/^version:[^\n]+/version: $TEG_VERSION/g" ./snapcraft.yaml
 
