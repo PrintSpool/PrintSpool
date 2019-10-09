@@ -160,22 +160,22 @@ const printerConfig = {
   ],
 }
 
-// Only add the raspberry pi plugin when running on an ARM CPU
-if (['arm', 'arm64'].includes(os.arch())) {
-  printerConfig.plugins.push({
-    id: 'aa00bb33',
-    modelVersion: 1,
-    package: '@tegapp/raspberry-pi',
-    model: {
-      outputPins: [
-        7,
-      ],
-      macros: [
-        '*',
-      ],
-    },
-  })
-}
+// // Only add the raspberry pi plugin when running on an ARM CPU
+// if (['arm', 'arm64'].includes(os.arch())) {
+//   printerConfig.plugins.push({
+//     id: 'aa00bb33',
+//     modelVersion: 1,
+//     package: '@tegapp/raspberry-pi',
+//     model: {
+//       outputPins: [
+//         7,
+//       ],
+//       macros: [
+//         '*',
+//       ],
+//     },
+//   })
+// }
 
 const hostConfig = {
   id: 'pzxcvkkwn',
