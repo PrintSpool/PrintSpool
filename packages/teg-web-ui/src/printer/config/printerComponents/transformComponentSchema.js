@@ -8,7 +8,7 @@ const transformComponentSchema = ({
   if (schema.properties.serialPortID != null) {
     // inject the devices list into the schema as an enum
     const enumValues = devices
-      .filter(d => d.type === 'SERIAL_PORT')
+      // .filter(d => d.type === 'SERIAL_PORT')
       .map(d => d.id)
 
     const properties = { ...nextSchema.properties }

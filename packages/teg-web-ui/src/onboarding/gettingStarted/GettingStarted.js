@@ -31,7 +31,6 @@ const DEVICES_SUBSCRIPTION = gql`
         isConfigured
         devices {
           id
-          type
         }
       }
     }

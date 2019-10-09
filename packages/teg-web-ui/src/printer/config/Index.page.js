@@ -26,7 +26,6 @@ const DEVICES_SUBSCRIPTION = gql`
         hasPendingUpdates
         devices {
           id
-          type
         }
         machines {
           id

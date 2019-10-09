@@ -41,7 +41,6 @@ const COMPONENTS_SUBSCRIPTION = gql`
         hasPendingUpdates
         devices {
           id
-          type
         }
         materials {
           id

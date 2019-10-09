@@ -109,6 +109,7 @@ const tegServer = async (argv, pluginLoader) => {
   })
 
   if (cmd === 'create-config') {
+    // eslint-disable-next-line no-console
     console.error('create-config: Configuration ready.')
     return
   }
@@ -153,6 +154,10 @@ const tegServer = async (argv, pluginLoader) => {
   }
 
   if (createPidFile().pidCreated === false) {
+    // eslint-disable-next-line no-console
+    console.error(
+      `Unable to create pid file (${pidFile}). Shutting down.`,
+    )
     process.exitCode = 1
     return
   }
@@ -180,7 +185,7 @@ const tegServer = async (argv, pluginLoader) => {
   const previousFatalException = getPreviousFatalException({ config })
 
   const serverSettings = config.host.server
-  delete config.server
+  delete config.host.server
 
   const store = createTegHostStore()
 
@@ -192,37 +197,53 @@ const tegServer = async (argv, pluginLoader) => {
     // updatesFile,
   })
 
-  store.dispatch(action)
-  // setErrorHandlerStore(store)
-
-  // TODO: make server plugin config dynamic and based on the store.
-  const tegServerConfig = {
-    schema: executableSchema(),
-    context: {
-      store,
-    },
-    identityKeys: config.auth.hostIdentityKeys,
-    authenticate: ({ peerIdentityPublicKey }) => (
-      authenticate({ peerIdentityPublicKey, store })
-    ),
-  }
-
-  const newKeys = JSON.stringify(keypair())
   try {
-    mkdirp.sync(path.dirname(tegServerConfig.keys))
-    writeFileAtomic.sync(tegServerConfig.keys, newKeys, { flag: 'wx' })
+    store.dispatch(action)
   } catch (e) {
-    // eslint-disable-next-line no-empty-block
+    // eslint-disable-next-line no-console
+    console.error(`Store Initialization Error. Shutting down: ${e}`)
+    process.exitCode = 1
+    return
   }
+  // setErrorHandlerStore(store)
+  try {
+    // TODO: make server plugin config dynamic and based on the store.
+    const tegServerConfig = {
+      schema: executableSchema(),
+      context: {
+        store,
+      },
+      identityKeys: config.auth.hostIdentityKeys,
+      authenticate: ({ peerIdentityPublicKey }) => (
+        authenticate({ peerIdentityPublicKey, store })
+      ),
+    }
 
-  if (serverSettings.webRTC) {
-    webRTCServer(tegServerConfig)
-  }
-  if (serverSettings.tcpPort) {
-    httpServer(tegServerConfig, serverSettings.tcpPort)
-  }
-  if (serverSettings.unixSocket) {
-    httpServer(tegServerConfig, serverSettings.unixSocket)
+    const newKeys = JSON.stringify(keypair())
+
+    try {
+      mkdirp.sync(path.dirname(tegServerConfig.keys))
+      writeFileAtomic.sync(tegServerConfig.keys, newKeys, { flag: 'wx' })
+    } catch (e) {
+      // eslint-disable-next-line no-empty-block
+    }
+
+    if (serverSettings.webRTC) {
+      webRTCServer(tegServerConfig)
+    }
+    if (serverSettings.tcpPort) {
+      httpServer(tegServerConfig, serverSettings.tcpPort)
+    }
+    if (serverSettings.unixSocket) {
+      httpServer(tegServerConfig, serverSettings.unixSocket)
+    }
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(`Server Initialization Error. Shutting down: ${e}`)
+    process.exitCode = 1
+    // hack: setting process.exitCode is not working for some reason
+    setTimeout(() => process.exit(1), 200)
+    throw e
   }
 }
 

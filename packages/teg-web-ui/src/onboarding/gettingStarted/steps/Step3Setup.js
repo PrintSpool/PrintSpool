@@ -56,6 +56,7 @@ const Step3Setup = ({
     )
   }
 
+  console.log(data.devices)
   return (
     <Query
       query={MACHINE_FORM_QUERY}
