@@ -1,4 +1,3 @@
-import getConfiguredDevices from '../../config/selectors/getConfiguredDevices'
 import getSchemaForms from '../../pluginManager/selectors/getSchemaForms'
 
 import packageJSON from '../../../package.json'
@@ -101,9 +100,15 @@ const QueryResolvers = {
       const connectedDevices = state.devices.byID
       // replace each configured device with it's connected equivalent if
       // it is connected.
-      const configuredDevices = getConfiguredDevices(state.config)
-        .map(device => (
-          connectedDevices.find(d2 => d2.id === device.id) || device
+      const configuredDevices = state.sockets.machines
+        .map(machine => machine.configuredDeviceIDs)
+        .toList()
+        .flatten()
+        .map(deviceID => (
+          connectedDevices.find(d2 => d2.id === deviceID) || {
+            id: deviceID,
+            connected: false,
+          }
         ))
 
       // remove duplicate devices

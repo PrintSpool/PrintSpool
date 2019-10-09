@@ -65,15 +65,15 @@ parts:
     plugin: dump
     source: .
     override-build: |
-      export ARCHITECTURE=`dpkg --print-architecture`
-
-      if [ $ARCHITECTURE == 'armhf' ]
-      then
+      if [ "$SNAPCRAFT_ARCH_TRIPLET" == "arm-linux-gnueabihf" ]; then
         echo "ARM TEG"
         cp -r ./teg-armv7-bin/* ../install/
-      else
+      elif [ "$SNAPCRAFT_ARCH_TRIPLET" == "x86_64-linux-gnu" ]; then
         echo "X64 TEG"
         cp -r ./teg-x64-bin/* ../install/
+      else
+        echo "Error! Invalid Architecture: $SNAPCRAFT_ARCH_TRIPLET" 1>&2
+        exit 1
       fi
     build-attributes: [no-patchelf]
 
@@ -81,15 +81,15 @@ parts:
     plugin: dump
     source: teg-marlin-bin/
     override-build: |
-      export ARCHITECTURE=`dpkg --print-architecture`
-
-      if [ $ARCHITECTURE == 'armhf' ]
-      then
+      if [ "$SNAPCRAFT_ARCH_TRIPLET" == "arm-linux-gnueabihf" ]; then
         echo "ARM TEG-MARLIN"
         cp ./teg-marlin-armv7 ../install/teg-marlin
-      else
+      elif [ "$SNAPCRAFT_ARCH_TRIPLET" == "x86_64-linux-gnu" ]; then
         echo "X64 TEG-MARLIN"
         cp ./teg-marlin-x64 ../install/teg-marlin
+      else
+        echo "Error! Invalid Architecture: $SNAPCRAFT_ARCH_TRIPLET" 1>&2
+        exit 1
       fi
 
   # teg-marlin:

@@ -12,7 +12,8 @@ import { InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloLink } from 'apollo-link'
 import { onError } from 'apollo-link-error'
 
-import { ThingLink, connect, parseInviteCode } from 'graphql-things/client'
+// import { ThingLink, connect, parseInviteCode } from 'graphql-things/client'
+import { ThingLink, connect, parseInviteCode } from 'graphql-things'
 import { UserDataContext } from './UserDataProvider'
 import ConnectionStatus from './common/ConnectionStatus'
 

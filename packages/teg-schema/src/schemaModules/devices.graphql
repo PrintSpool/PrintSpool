@@ -6,6 +6,6 @@ extend type Query {
 
 type Device {
   id: ID!
-  type: String!
+  # type: String!
   connected: Boolean!
 }

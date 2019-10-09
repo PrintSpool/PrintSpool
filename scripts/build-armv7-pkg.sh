@@ -7,6 +7,7 @@ GIT_BRANCH=`git branch | grep \* | cut -d ' ' -f2`
 
 echo "Remotely building Teg"
 ssh $TEG_ARMV7_HOST -p $TEG_ARMV7_PORT "
+  rm -f ~/teg/teg;
   cd teg && \
   git checkout $GIT_BRANCH && \
   git pull origin $GIT_BRANCH && \

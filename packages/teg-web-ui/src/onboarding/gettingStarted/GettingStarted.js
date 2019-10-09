@@ -9,7 +9,8 @@ import {
   Typography,
 } from '@material-ui/core'
 
-import { parseInviteCode } from 'graphql-things/client'
+// import { parseInviteCode } from 'graphql-things/client'
+import { parseInviteCode } from 'graphql-things'
 
 import { LiveSubscription } from '../../common/LiveSubscription'
 

@@ -1,10 +1,9 @@
 #!/bin/bash
 set -e
 
-echo "INSTALL HOOK???"
-env
-echo $(pwd)
-ls
+echo "INSTALL HOOK!"
+ls $SNAP
+
 $SNAP/teg create-config
 
 # USERNAME="root"
