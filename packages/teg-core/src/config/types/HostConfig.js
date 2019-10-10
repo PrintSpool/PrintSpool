@@ -17,9 +17,11 @@ export const HostConfigRecordFactory = Record({
   log: LogConfig(),
 })
 
+const MAX_U32 = (2 ** 32) - 1
+
 const HostConfig = ({
   id = libUUID.v4(),
-  localID = Math.floor(Math.random() * ((2 ** 32) - 1)),
+  localID = Math.floor(Math.random() * MAX_U32),
   modelVersion = 0,
   crashReports = {},
   materials = [],

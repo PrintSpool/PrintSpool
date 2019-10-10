@@ -25,7 +25,7 @@ const GCODE_HISTORY_SUBSCRIPTION = gql`
             id
             direction
             createdAt
-            command
+            content
           }
         }
       }
@@ -114,8 +114,8 @@ const Terminal = ({
               <span className={classes.direction}>
                 {` ${entry.direction} `}
               </span>
-              <span className={classes.command}>
-                {entry.command}
+              <span className={classes.content}>
+                {entry.content}
               </span>
             </div>
           ))

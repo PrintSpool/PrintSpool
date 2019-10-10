@@ -36,6 +36,7 @@ export const startSocketManager = async (manager, dispatch) => {
     // console.log("attempt connection")
     manager.connected = false
     manager.socket = net.connect(manager.socketPath)
+    let newConnection = true
 
     let buffer = Buffer.from([])
     manager.socket.on('connect', () => {
@@ -43,6 +44,7 @@ export const startSocketManager = async (manager, dispatch) => {
       // if the socket is closed before we try to connect an error event will be emitted instead
       // and this code will not be reached
       manager.connected = true
+      newConnection = true
     })
 
     manager.socket.on('error', () => {})
@@ -62,7 +64,12 @@ export const startSocketManager = async (manager, dispatch) => {
         buffer = buffer.slice(SIZE_DELIMETER_BYTES + size)
         // console.log(message.feedback.heaters)
 
-        const event = socketMessage(manager.machineID, message)
+        const event = socketMessage(
+          manager.machineID,
+          newConnection,
+          message
+        )
+        newConnection = false
         dispatch(event)
       }
     })

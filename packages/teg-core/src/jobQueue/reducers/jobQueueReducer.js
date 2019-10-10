@@ -152,7 +152,7 @@ const jobQueueReducer = (state = initialState, action) => {
     }
     case SOCKET_MESSAGE: {
       /* eslint-disable no-param-reassign */
-      const { machineID } = action.payload
+      const { machineID, newConnection } = action.payload
       const { feedback = {} } = action.payload.message
       const { events = [], responses = [] } = feedback
 
@@ -171,7 +171,8 @@ const jobQueueReducer = (state = initialState, action) => {
       // if the current task is missing it means the machine service may have
       // crashed.
       if (
-        currentTask != null
+        newConnection
+        && currentTask != null
         && events.every(ev => ev.taskID !== currentTask.id)
       ) {
         nextState = nextState.setIn(['tasks', currentTask.id, 'status'], ERROR)
@@ -231,7 +232,8 @@ const jobQueueReducer = (state = initialState, action) => {
           && ev.type === FINISH_TASK
         ))
       )
-      // console.log({currentTask: currentTask&&currentTask.toJS(), machineID, finishedTask, newHistoryEvents})
+      // console.log({currentTask: currentTask&&currentTask.toJS(), finishedTask, events})
+      // console.log({tasks: state.tasks.toJS(), finishedTask, events})
 
       /* task annotations + line number updates */
 
@@ -278,7 +280,6 @@ const jobQueueReducer = (state = initialState, action) => {
       /* task cleanup */
       const finishedTaskIDs = events
         .filter(ev => (
-          console.log(ev.clientId) ||
           ev.type === FINISH_TASK
           && ev.clientId === state.localID
         ))
@@ -294,16 +295,15 @@ const jobQueueReducer = (state = initialState, action) => {
         nextState = nextState.deleteIn(['tasks', task.id])
       })
 
-      console.log(finishedTaskIDs, state.localID, events)
       if (finishedTaskIDs.length > 0) {
         const deleteTaskHistory = sendDeleteTaskHistoryToSocket({
           machineID,
           taskIDs: finishedTaskIDs,
         })
-        console.log({ deleteTaskHistory })
         nextEffects.push(Cmd.action(deleteTaskHistory))
       }
 
+      // console.log(finishedTask)
       /* next task */
       if (finishedTask) {
         // TODO: multimachine change: this would need to be changed to find

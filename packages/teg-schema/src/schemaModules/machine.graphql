@@ -165,7 +165,7 @@ type GCodeHistoryEntry {
   id: ID!
   direction: GCodeHistoryDirection!,
   createdAt: DateTime!
-  command: String!
+  content: String!
 }
 
 enum GCodeHistoryDirection {

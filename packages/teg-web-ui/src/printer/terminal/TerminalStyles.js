@@ -22,13 +22,13 @@ const useStyles = makeStyles(theme => ({
     marginRight: theme.spacing(2),
   },
   tx: {
-    direction: {
+    '& $direction': {
       color: '#DD25C4',
     },
     background: '#EEE',
   },
   rx: {
-    direction: {
+    '& $direction': {
       color: theme.palette.primary.dark,
     },
   },
