@@ -53,14 +53,14 @@ const enhance = compose(
 // }
 
 const RESET = gql`
-  mutation reset($input: ResetInput!) {
-    reset(input: $input)
+  mutation reset($machineID: ID!) {
+    reset(machineID: $machineID)
   }
 `
 
 const ESTOP = gql`
-  mutation eStop($input: EStopInput!) {
-    eStop(input: $input)
+  mutation eStop($machineID: ID!) {
+    eStop(machineID: $machineID)
   }
 `
 
@@ -75,7 +75,7 @@ const EStopResetToggle = ({
   const showEStop = status !== 'ERRORED' && status !== 'ESTOPPED'
   const disabled = status === 'DISCONNECTED'
 
-  const variables = { input: { machineID: machine.id } }
+  const variables = { machineID: machine.id }
   const [reset] = useMutation(RESET, { variables })
   const [eStop] = useMutation(ESTOP, { variables })
 

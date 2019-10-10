@@ -65,7 +65,7 @@ async fn handle_connection(
         .take_while(|result| {
             future::ready(result.is_ok())
         })
-        .inspect(|result| println!("SENDING PROTOBUF {:?}", result.clone().unwrap()))
+        // .inspect(|result| println!("SENDING PROTOBUF {:?}", result.clone().unwrap()))
         .map(|result| Bytes::clone(&*result.unwrap()));
 
     // Read from the server. TODO: Switch to read_to_end.

@@ -208,11 +208,16 @@ impl State {
                         context.push_cancel_task(&task);
                     };
 
+                    println!("ESTOP");
+
+                    context.handle_state_change(&State::EStopped);
+
                     return Loop::new(
                         State::EStopped,
                         vec![
                             Effect::CloseSerialPort,
                             Effect::CancelAllDelays,
+                            Effect::ProtobufSend,
                         ],
                     )
                 }

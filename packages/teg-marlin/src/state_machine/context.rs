@@ -56,7 +56,7 @@ impl Context {
     pub fn machine_message_protobuf(&mut self) -> MachineMessage {
         self.feedback.gcode_history = self.gcode_history_buffer.drain(..).collect();
 
-        println!("ProtoBuf Responses + Events: {:?} {:?}", self.feedback.gcode_history, self.feedback.events);
+        // println!("ProtoBuf Responses + Events: {:?} {:?}", self.feedback.gcode_history, self.feedback.events);
 
         MachineMessage {
             payload: Some(machine_message::Payload::Feedback ( self.feedback.clone() )),
