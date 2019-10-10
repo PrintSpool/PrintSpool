@@ -126,10 +126,10 @@ fn send_serial(effects: &mut Vec<Effect>, gcode_line: GCodeLine, context: &Conte
 impl State {
     pub fn default_baud_rates() -> Vec<u32> {
         // baud rate candidates sorted by likelihood
-        // let mut baud_rates = vec![115_200, 250_000, 230_400, 57_600, 38_400, 19_200, 9_600];
+        let mut baud_rates = vec![115_200, 250_000, 230_400, 57_600, 38_400, 19_200, 9_600];
         // Test order to see if baudrate detection works
         // let mut baud_rates = vec![250000, 230400, 57600, 38400, 19200, 9600, 115200];
-        let mut baud_rates = vec![115200];
+        // let mut baud_rates = vec![115200];
         baud_rates.reverse();
 
         baud_rates
@@ -216,9 +216,18 @@ impl State {
                         State::EStopped,
                         vec![
                             Effect::CloseSerialPort,
+                            Effect::OpenSerialPort { baud_rate: 19_200 },
                             Effect::CancelAllDelays,
                             Effect::ProtobufSend,
                         ],
+                    )
+                }
+                Some(Payload::Reset(_)) => {
+                    println!("RESET: restarting service");
+
+                    return Loop::new(
+                        self,
+                        vec![Effect::ExitProcess],
                     )
                 }
                 _ => ()
