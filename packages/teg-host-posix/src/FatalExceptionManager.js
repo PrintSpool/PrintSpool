@@ -44,13 +44,14 @@ const onFatalException = (err, config) => {
   process.exitCode = 1
 }
 
+// eslint-disable-next-line
 export const handleFatalExceptions = ({ config }) => {
-  const handler = (err) => {
-    onFatalException(err, config)
-  }
+  // const handler = (err) => {
+  //   onFatalException(err, config)
+  // }
 
-  process.on('unhandledRejection', handler)
-  process.on('uncaughtException', handler)
+  // process.on('unhandledRejection', handler)
+  // process.on('uncaughtException', handler)
 }
 
 export const getPreviousFatalException = ({ config }) => {

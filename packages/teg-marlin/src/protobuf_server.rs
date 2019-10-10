@@ -64,8 +64,9 @@ async fn handle_connection(
         .compat()
         .take_while(|result| {
             future::ready(result.is_ok())
-        }).map(|result| Bytes::clone(&*result.unwrap()));
-        // .inspect(|result| println!("SENDING PROTOBUF {:?}", result));
+        })
+        .inspect(|result| println!("SENDING PROTOBUF {:?}", result.clone().unwrap()))
+        .map(|result| Bytes::clone(&*result.unwrap()));
 
     // Read from the server. TODO: Switch to read_to_end.
     // let mut buf = [0u8; 5];

@@ -43,7 +43,7 @@ const TaskRecord = Record({
   onError: () => {},
 })
 
-let nextTaskID = 1
+let nextTaskID = Math.round(Math.random() * (Number.MAX_SAFE_INTEGER / 2))
 
 const Task = (attrs) => {
   const {

@@ -964,6 +964,7 @@ $root.teg_protobufs = (function() {
              * @memberof teg_protobufs.MachineMessage
              * @interface IEvent
              * @property {number|null} [taskId] Event taskId
+             * @property {number|null} [clientId] Event clientId
              * @property {teg_protobufs.MachineMessage.EventType|null} [type] Event type
              * @property {number|Long|null} [createdAt] Event createdAt
              * @property {teg_protobufs.MachineMessage.IError|null} [error] Event error
@@ -991,6 +992,14 @@ $root.teg_protobufs = (function() {
              * @instance
              */
             Event.prototype.taskId = 0;
+
+            /**
+             * Event clientId.
+             * @member {number} clientId
+             * @memberof teg_protobufs.MachineMessage.Event
+             * @instance
+             */
+            Event.prototype.clientId = 0;
 
             /**
              * Event type.
@@ -1042,12 +1051,14 @@ $root.teg_protobufs = (function() {
                     writer = $Writer.create();
                 if (message.taskId != null && message.hasOwnProperty("taskId"))
                     writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.taskId);
+                if (message.clientId != null && message.hasOwnProperty("clientId"))
+                    writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.clientId);
                 if (message.type != null && message.hasOwnProperty("type"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).int32(message.type);
+                    writer.uint32(/* id 8, wireType 0 =*/64).int32(message.type);
                 if (message.createdAt != null && message.hasOwnProperty("createdAt"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).int64(message.createdAt);
+                    writer.uint32(/* id 9, wireType 0 =*/72).int64(message.createdAt);
                 if (message.error != null && message.hasOwnProperty("error"))
-                    $root.teg_protobufs.MachineMessage.Error.encode(message.error, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
+                    $root.teg_protobufs.MachineMessage.Error.encode(message.error, writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
                 return writer;
             };
 
@@ -1086,12 +1097,15 @@ $root.teg_protobufs = (function() {
                         message.taskId = reader.uint32();
                         break;
                     case 2:
+                        message.clientId = reader.uint32();
+                        break;
+                    case 8:
                         message.type = reader.int32();
                         break;
-                    case 3:
+                    case 9:
                         message.createdAt = reader.int64();
                         break;
-                    case 4:
+                    case 10:
                         message.error = $root.teg_protobufs.MachineMessage.Error.decode(reader, reader.uint32());
                         break;
                     default:
@@ -1132,6 +1146,9 @@ $root.teg_protobufs = (function() {
                 if (message.taskId != null && message.hasOwnProperty("taskId"))
                     if (!$util.isInteger(message.taskId))
                         return "taskId: integer expected";
+                if (message.clientId != null && message.hasOwnProperty("clientId"))
+                    if (!$util.isInteger(message.clientId))
+                        return "clientId: integer expected";
                 if (message.type != null && message.hasOwnProperty("type"))
                     switch (message.type) {
                     default:
@@ -1168,6 +1185,8 @@ $root.teg_protobufs = (function() {
                 var message = new $root.teg_protobufs.MachineMessage.Event();
                 if (object.taskId != null)
                     message.taskId = object.taskId >>> 0;
+                if (object.clientId != null)
+                    message.clientId = object.clientId >>> 0;
                 switch (object.type) {
                 case "CANCEL_TASK":
                 case 0:
@@ -1222,6 +1241,7 @@ $root.teg_protobufs = (function() {
                 var object = {};
                 if (options.defaults) {
                     object.taskId = 0;
+                    object.clientId = 0;
                     object.type = options.enums === String ? "CANCEL_TASK" : 0;
                     if ($util.Long) {
                         var long = new $util.Long(0, 0, false);
@@ -1232,6 +1252,8 @@ $root.teg_protobufs = (function() {
                 }
                 if (message.taskId != null && message.hasOwnProperty("taskId"))
                     object.taskId = message.taskId;
+                if (message.clientId != null && message.hasOwnProperty("clientId"))
+                    object.clientId = message.clientId;
                 if (message.type != null && message.hasOwnProperty("type"))
                     object.type = options.enums === String ? $root.teg_protobufs.MachineMessage.EventType[message.type] : message.type;
                 if (message.createdAt != null && message.hasOwnProperty("createdAt"))
@@ -2917,6 +2939,7 @@ $root.teg_protobufs = (function() {
              * @memberof teg_protobufs.CombinatorMessage
              * @interface ISpoolTask
              * @property {number|null} [taskId] SpoolTask taskId
+             * @property {number|null} [clientId] SpoolTask clientId
              * @property {string|null} [filePath] SpoolTask filePath
              * @property {teg_protobufs.CombinatorMessage.IInlineContent|null} [inline] SpoolTask inline
              * @property {boolean|null} [machineOverride] SpoolTask machineOverride
@@ -2944,6 +2967,14 @@ $root.teg_protobufs = (function() {
              * @instance
              */
             SpoolTask.prototype.taskId = 0;
+
+            /**
+             * SpoolTask clientId.
+             * @member {number} clientId
+             * @memberof teg_protobufs.CombinatorMessage.SpoolTask
+             * @instance
+             */
+            SpoolTask.prototype.clientId = 0;
 
             /**
              * SpoolTask filePath.
@@ -3009,10 +3040,12 @@ $root.teg_protobufs = (function() {
                     writer = $Writer.create();
                 if (message.taskId != null && message.hasOwnProperty("taskId"))
                     writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.taskId);
+                if (message.clientId != null && message.hasOwnProperty("clientId"))
+                    writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.clientId);
                 if (message.filePath != null && message.hasOwnProperty("filePath"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.filePath);
+                    writer.uint32(/* id 4, wireType 2 =*/34).string(message.filePath);
                 if (message.inline != null && message.hasOwnProperty("inline"))
-                    $root.teg_protobufs.CombinatorMessage.InlineContent.encode(message.inline, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+                    $root.teg_protobufs.CombinatorMessage.InlineContent.encode(message.inline, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
                 if (message.machineOverride != null && message.hasOwnProperty("machineOverride"))
                     writer.uint32(/* id 9, wireType 0 =*/72).bool(message.machineOverride);
                 return writer;
@@ -3053,9 +3086,12 @@ $root.teg_protobufs = (function() {
                         message.taskId = reader.uint32();
                         break;
                     case 2:
+                        message.clientId = reader.uint32();
+                        break;
+                    case 4:
                         message.filePath = reader.string();
                         break;
-                    case 3:
+                    case 5:
                         message.inline = $root.teg_protobufs.CombinatorMessage.InlineContent.decode(reader, reader.uint32());
                         break;
                     case 9:
@@ -3100,6 +3136,9 @@ $root.teg_protobufs = (function() {
                 if (message.taskId != null && message.hasOwnProperty("taskId"))
                     if (!$util.isInteger(message.taskId))
                         return "taskId: integer expected";
+                if (message.clientId != null && message.hasOwnProperty("clientId"))
+                    if (!$util.isInteger(message.clientId))
+                        return "clientId: integer expected";
                 if (message.filePath != null && message.hasOwnProperty("filePath")) {
                     properties.content = 1;
                     if (!$util.isString(message.filePath))
@@ -3135,6 +3174,8 @@ $root.teg_protobufs = (function() {
                 var message = new $root.teg_protobufs.CombinatorMessage.SpoolTask();
                 if (object.taskId != null)
                     message.taskId = object.taskId >>> 0;
+                if (object.clientId != null)
+                    message.clientId = object.clientId >>> 0;
                 if (object.filePath != null)
                     message.filePath = String(object.filePath);
                 if (object.inline != null) {
@@ -3162,10 +3203,13 @@ $root.teg_protobufs = (function() {
                 var object = {};
                 if (options.defaults) {
                     object.taskId = 0;
+                    object.clientId = 0;
                     object.machineOverride = false;
                 }
                 if (message.taskId != null && message.hasOwnProperty("taskId"))
                     object.taskId = message.taskId;
+                if (message.clientId != null && message.hasOwnProperty("clientId"))
+                    object.clientId = message.clientId;
                 if (message.filePath != null && message.hasOwnProperty("filePath")) {
                     object.filePath = message.filePath;
                     if (options.oneofs)

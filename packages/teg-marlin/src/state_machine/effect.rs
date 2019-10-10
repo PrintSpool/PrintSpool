@@ -63,7 +63,7 @@ pub enum Effect {
     OpenSerialPort { baud_rate: u32 },
     // ResetSerial
     ProtobufSend,
-    LoadGCode { file_path: String, task_id: u32 },
+    LoadGCode { file_path: String, task_id: u32, client_id: u32 },
     CloseSerialPort,
     ExitProcess,
 }
@@ -135,14 +135,15 @@ impl Effect {
                 let mut buf = Vec::with_capacity(message.encoded_len());
                 message.encode(&mut buf).expect("machine message encoding failed");
 
-                // println!("Feedback ({:?} Bytes): {:#?}", message.encoded_len(), message.payload);
+                println!("Protobuf TX ({:?} Bytes)", message.encoded_len());
+                // println!("Protobuf TX ({:?} Bytes): {:#?}", message.encoded_len(), message.payload);
 
                 reactor.protobuf_broadcast
                     .send(Bytes::from(buf))
                     .await
                     .expect("machine message send failed");
             }
-            Effect::LoadGCode { file_path, task_id } => {
+            Effect::LoadGCode { file_path, task_id, client_id } => {
                 let mut tx = mpsc::Sender::clone(&reactor.event_sender);
 
                 let gcode_lines = std::fs::File::open(file_path)
@@ -158,6 +159,7 @@ impl Effect {
                     Event::GCodeLoaded(
                         Task {
                             id: task_id,
+                            client_id,
                             gcode_lines,
                         }
                     )

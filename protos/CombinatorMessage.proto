@@ -33,10 +33,11 @@ message CombinatorMessage {
 
   message SpoolTask {
     uint32 task_id = 1;
-    // 2-7: task file is sent as either a file path or array of GCode commands
+    uint32 client_id = 2;
+    // 4-7: task file is sent as either a file path or array of GCode commands
     oneof content {
-      string file_path = 2;
-      InlineContent inline = 3;
+      string file_path = 4;
+      InlineContent inline = 5;
     }
 
     // string name = 8;

@@ -23,8 +23,10 @@ export const createSocketManager = ({ machineID, socketPath }) => ({
 export const startSocketManager = async (manager, dispatch) => {
   let connect
 
+  console.error(`Machine Socket: ${manager.socketPath}`)
+
   const onDisconnect = () => {
-    // console.log("disconnect")
+    console.error('Machine Socket Disconnected')
     manager.socket = null
     // immediately try reconnecting on disconnect in case a new socket is already available
     if (manager.connected) connect()
@@ -37,7 +39,7 @@ export const startSocketManager = async (manager, dispatch) => {
 
     let buffer = Buffer.from([])
     manager.socket.on('connect', () => {
-      // console.log('connect')
+      console.error('Machine Socket Connected')
       // if the socket is closed before we try to connect an error event will be emitted instead
       // and this code will not be reached
       manager.connected = true

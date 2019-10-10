@@ -1,5 +1,5 @@
 import { Record, Map } from 'immutable'
-import uuid from 'uuid'
+import libUUID from 'uuid'
 
 import CrashReportConfig from './CrashReportConfig'
 import MaterialConfig from './MaterialConfig'
@@ -7,6 +7,7 @@ import LogConfig from './LogConfig'
 
 export const HostConfigRecordFactory = Record({
   id: null,
+  localID: null,
   modelVersion: 0,
   configDirectory: '/etc/teg',
   name: null,
@@ -17,7 +18,8 @@ export const HostConfigRecordFactory = Record({
 })
 
 const HostConfig = ({
-  id = uuid.v4(),
+  id = libUUID.v4(),
+  localID = Math.floor(Math.random() * ((2 ** 32) - 1)),
   modelVersion = 0,
   crashReports = {},
   materials = [],
@@ -28,6 +30,7 @@ const HostConfig = ({
   HostConfigRecordFactory({
     ...props,
     id,
+    localID,
     modelVersion,
     crashReports: CrashReportConfig(crashReports),
     materials: materials.map(MaterialConfig),

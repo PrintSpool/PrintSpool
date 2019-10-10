@@ -18,6 +18,8 @@ pub mod combinator_message {
     pub struct SpoolTask {
         #[prost(uint32, tag="1")]
         pub task_id: u32,
+        #[prost(uint32, tag="2")]
+        pub client_id: u32,
         // string name = 8;
 
         /// Override tasks can be ran during jobs and do not set the
@@ -27,17 +29,17 @@ pub mod combinator_message {
         /// override during another task.
         #[prost(bool, tag="9")]
         pub machine_override: bool,
-        /// 2-7: task file is sent as either a file path or array of GCode commands
-        #[prost(oneof="spool_task::Content", tags="2, 3")]
+        /// 4-7: task file is sent as either a file path or array of GCode commands
+        #[prost(oneof="spool_task::Content", tags="4, 5")]
         pub content: ::std::option::Option<spool_task::Content>,
     }
     pub mod spool_task {
-        /// 2-7: task file is sent as either a file path or array of GCode commands
+        /// 4-7: task file is sent as either a file path or array of GCode commands
         #[derive(Clone, PartialEq, ::prost::Oneof)]
         pub enum Content {
-            #[prost(string, tag="2")]
+            #[prost(string, tag="4")]
             FilePath(std::string::String),
-            #[prost(message, tag="3")]
+            #[prost(message, tag="5")]
             Inline(super::InlineContent),
         }
     }
@@ -158,12 +160,14 @@ pub mod machine_message {
     pub struct Event {
         #[prost(uint32, tag="1")]
         pub task_id: u32,
-        #[prost(enumeration="EventType", tag="2")]
+        #[prost(uint32, tag="2")]
+        pub client_id: u32,
+        #[prost(enumeration="EventType", tag="8")]
         pub r#type: i32,
         /// the number of non-leap seconds since January 1, 1970 0:00:00 UTC (aka "UNIX timestamp")
-        #[prost(int64, tag="3")]
+        #[prost(int64, tag="9")]
         pub created_at: i64,
-        #[prost(message, optional, tag="4")]
+        #[prost(message, optional, tag="10")]
         pub error: ::std::option::Option<Error>,
     }
     #[derive(Clone, PartialEq, ::prost::Message)]

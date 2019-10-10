@@ -179,6 +179,7 @@ const printerConfig = {
 
 const hostConfig = {
   id: 'pzxcvkkwn',
+  localID: 4,
   name: 'New Print Farm',
   modelVersion: 1,
   log: {

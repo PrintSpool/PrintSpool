@@ -56,6 +56,8 @@ impl Context {
     pub fn machine_message_protobuf(&mut self) -> MachineMessage {
         self.feedback.responses = self.response_buffer.drain(..).collect();
 
+        println!("ProtoBuf Responses + Events: {:?} {:?}", self.feedback.responses, self.feedback.events);
+
         MachineMessage {
             payload: Some(machine_message::Payload::Feedback ( self.feedback.clone() )),
         }
@@ -136,6 +138,7 @@ fn add_event(context: &mut Context, task: &Task, event_type: EventType, error: O
 
     events.push(Event {
         task_id: task.id,
+        client_id: task.client_id,
         r#type: event_type as i32,
         created_at: Utc::now().timestamp(),
         error,

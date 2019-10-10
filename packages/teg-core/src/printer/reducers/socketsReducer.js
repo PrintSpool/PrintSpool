@@ -39,6 +39,7 @@ const statusCodes = [
 ]
 
 export const initialState = Record({
+  localID: null,
   machines: Map(),
   socketManager: null,
 })()
@@ -198,6 +199,7 @@ const socketsReducer = (state = initialState, action) => {
 
       const nextState = state
         .merge({ socketManager })
+        .set('localID', config.host.localID)
         .setIn(['machines', machineID], machineState)
 
       return loop(
@@ -214,6 +216,7 @@ const socketsReducer = (state = initialState, action) => {
       const message = {
         spoolTask: {
           taskId: task.id,
+          clientId: state.localID,
           machineOverride: task.machineOverride,
         },
       }
@@ -306,6 +309,7 @@ const socketsReducer = (state = initialState, action) => {
       const nextEffects = []
 
       // console.log('FEE1D', feedback)
+      // console.log('responses + events', feedback.responses, feedback.events)
 
       /* eslint-disable no-param-reassign */
       const nextState = state.updateIn(['machines', machineID], m => m.withMutations((machine) => {
@@ -329,11 +333,14 @@ const socketsReducer = (state = initialState, action) => {
         // set the status
         if (feedback.status != null) {
           const nextStatus = statusCodes[feedback.status]
+
           if (nextStatus !== machine.status) {
-            nextEffects.push(Cmd.actions(statusChanged(nextStatus)))
+            machine = machine.set('status', nextStatus)
+
+            nextEffects.push(Cmd.action(statusChanged(nextStatus)))
           }
-          machine = machine.set('status', nextStatus)
         }
+
         if (feedback.error != null) {
           machine = machine.set('error', {
             code: 'MACHINE_SERVICE_INTERNAL_ERROR',
@@ -355,9 +362,11 @@ const socketsReducer = (state = initialState, action) => {
       }))
 
       // console.log('STATE!', JSON.stringify(nextState.machines.get(machineID).toJS(), null, 2))
+      // console.log('STATUS!', state.machines.get(machineID).status, nextState.machines.get(machineID).status)
+
       return loop(
         nextState,
-        nextEffects,
+        Cmd.list(nextEffects),
       )
     }
     default: {

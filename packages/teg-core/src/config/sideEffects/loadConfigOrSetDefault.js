@@ -38,6 +38,8 @@ const loadConfigOrSetDefault = async ({
       let dataToWrite = data
       if (data === defaultCombinator) {
         /* eslint-disable no-param-reassign */
+        delete data.host.id
+        delete data.host.localID
         data.auth.hostIdentityKeys = await createECDHKey()
         dataToWrite = Config(data)
           .set('printer', null)

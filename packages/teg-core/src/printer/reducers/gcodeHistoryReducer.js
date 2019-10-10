@@ -60,6 +60,16 @@ const gcodeHistoryReducer = (state = initialState, action) => {
         task,
         responses = [],
       } = action.payload
+      if (state.get(machineID) == null) {
+        throw new Error(`Unexpected machineID: ${machineID}`)
+      }
+
+      console.log('DATA SENT AND RECEIVED THOUGH', { task })
+
+      if (task == null) {
+        return state
+      }
+
       const { maxSize } = state.get(machineID)
 
       let { previousLineNumber = -1 } = task

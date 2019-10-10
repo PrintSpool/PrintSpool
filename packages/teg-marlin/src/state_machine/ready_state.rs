@@ -92,19 +92,29 @@ impl ReadyState {
 
                         self.loading_gcode = true;
 
-                        let combinator_message::SpoolTask { task_id, content, .. } = spool_task;
+                        let combinator_message::SpoolTask {
+                            task_id,
+                            client_id,
+                            content,
+                            ..
+                        } = spool_task;
 
                         match content {
                             Some(Content::Inline ( InlineContent { commands })) => {
                                 let task = Task {
                                     id: spool_task.task_id,
+                                    client_id,
                                     gcode_lines: commands.into_iter(),
                                 };
                                 self.consume(GCodeLoaded(task), context)
                             }
                             Some(Content::FilePath( file_path )) => {
                                 let effects = vec![
-                                    Effect::LoadGCode{ file_path: file_path.clone(), task_id },
+                                    Effect::LoadGCode {
+                                        file_path: file_path.clone(),
+                                        task_id,
+                                        client_id
+                                    },
                                 ];
                                 Loop::new(Ready(self), effects)
                             }

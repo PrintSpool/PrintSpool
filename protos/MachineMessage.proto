@@ -67,12 +67,14 @@ message MachineMessage {
 
   message Event {
     uint32 task_id = 1;
-    EventType type = 2;
+    uint32 client_id = 2;
+
+    EventType type = 8;
 
     // the number of non-leap seconds since January 1, 1970 0:00:00 UTC (aka "UNIX timestamp")
-    int64 created_at = 3;
+    int64 created_at = 9;
 
-    Error error = 4;
+    Error error = 10;
   }
 
   message Axis {

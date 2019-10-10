@@ -55,6 +55,7 @@ const debug = Debug('teg:jobQueue')
 /* reducer */
 
 export const initialState = Record({
+  localID: null,
   automaticPrinting: false,
   jobs: Map(),
   jobFiles: Map(),
@@ -74,6 +75,7 @@ const jobQueueReducer = (state = initialState, action) => {
       // TODO: multimachine job queue will need per machine automatic printing configs
       const model = getPluginModels(config.printer).get('@tegapp/core')
       return state
+        .set('localID', config.host.localID)
         .set('automaticPrinting', model.get('automaticPrinting'))
     }
     case REQUEST_CREATE_JOB: {
@@ -155,9 +157,11 @@ const jobQueueReducer = (state = initialState, action) => {
       const { events = [], responses = [] } = feedback
 
       let currentTask = state.tasks.find(t => (
+        // console.log('task?', t.status, t.machineID === machineID, t.status === START_TASK) ||
         t.machineID === machineID
         && t.status === START_TASK
       ))
+      // console.log({currentTask, machineID, tasks: state.tasks.toJS()})
 
       let nextState = state
       const nextEffects = []
@@ -166,7 +170,10 @@ const jobQueueReducer = (state = initialState, action) => {
 
       // if the current task is missing it means the machine service may have
       // crashed.
-      if (events.none(ev => ev.taskID === currentTask.id)) {
+      if (
+        currentTask != null
+        && events.every(ev => ev.taskID !== currentTask.id)
+      ) {
         nextState = nextState.setIn(['tasks', currentTask.id, 'status'], ERROR)
         nextState = nextState.update('history', h => h.push(
           JobHistoryEvent({
@@ -186,6 +193,7 @@ const jobQueueReducer = (state = initialState, action) => {
           ev.type = indexedTaskStatuses[ev.type]
           ev.id = `${ev.taskId}-${ev.type}`
           ev.task = state.tasks.get(ev.taskId)
+          // console.log(ev.taskId)
           return ev
         })
         .filter(({ id, task }) => (
@@ -216,7 +224,14 @@ const jobQueueReducer = (state = initialState, action) => {
       nextState = nextState
         .update('history', history => history.concat(newHistoryEvents))
 
-      const finishedTask = newHistoryEvents.some(ev => ev.type === FINISH_TASK)
+      const finishedTask = (
+        currentTask != null
+        && newHistoryEvents.some(ev => (
+          ev.taskId === currentTask.id
+          && ev.type === FINISH_TASK
+        ))
+      )
+      // console.log({currentTask: currentTask&&currentTask.toJS(), machineID, finishedTask, newHistoryEvents})
 
       /* task annotations + line number updates */
 
@@ -231,9 +246,11 @@ const jobQueueReducer = (state = initialState, action) => {
         && despooledLineNumber > currentTask.currentLineNumber
       )
 
+      // console.log({currentTask, hasDespooledLines, responses: responses.length > 0})
       if (hasDespooledLines || responses.length > 0) {
+        // console.log({ currentTask, hasDespooledLines, responses })
         nextEffects.push(Cmd.action(
-          dataSentAndReceived(currentTask, responses),
+          dataSentAndReceived(currentTask, responses, machineID),
         ))
       }
 
@@ -258,31 +275,37 @@ const jobQueueReducer = (state = initialState, action) => {
         nextState = nextState.setIn(['tasks', currentTask.id], currentTask)
       }
 
-      /* task completion */
+      /* task cleanup */
+      const finishedTaskIDs = events
+        .filter(ev => (
+          console.log(ev.clientId) ||
+          ev.type === FINISH_TASK
+          && ev.clientId === state.localID
+        ))
+        .map(ev => ev.taskId)
 
-      // console.log({ events, newHistoryEvents, finishedTask })
+      finishedTaskIDs.forEach((id) => {
+        const task = state.tasks.get(id)
+        if (task == null) {
+          return
+        }
+        task.onComplete()
 
-      if (finishedTask) {
-        /* task cleanup */
-        const finishedTaskIDs = newHistoryEvents
-          .filter(ev => ev.type === FINISH_TASK)
-          .map(ev => ev.taskID)
+        nextState = nextState.deleteIn(['tasks', task.id])
+      })
 
-        finishedTaskIDs.forEach((id) => {
-          const task = state.tasks.get(id)
-          task.onComplete()
-
-          nextState = nextState.deleteIn(['tasks', task.id])
-        })
-
+      console.log(finishedTaskIDs, state.localID, events)
+      if (finishedTaskIDs.length > 0) {
         const deleteTaskHistory = sendDeleteTaskHistoryToSocket({
           machineID,
           taskIDs: finishedTaskIDs,
         })
+        console.log({ deleteTaskHistory })
         nextEffects.push(Cmd.action(deleteTaskHistory))
+      }
 
-        /* next task */
-
+      /* next task */
+      if (finishedTask) {
         // TODO: multimachine change: this would need to be changed to find
         // the next task for this particular machine
         const nextTaskID = nextState.taskIDOrder.first()
