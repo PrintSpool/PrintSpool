@@ -26,7 +26,7 @@ message MachineMessage {
     //
     // Responses will not be duplicated and will be sent at most once to each
     // client.
-    repeated CommandResponse responses = 7;
+    repeated GCodeHistoryEntry gcode_history = 7;
 
     // // 8-15: Frequently used bools
     // bool sets_target_temperatures = 8;
@@ -107,11 +107,15 @@ message MachineMessage {
     bool enabled = 4;
   }
 
+  enum GCodeHistoryDirection {
+    RX = 0;
+    TX = 1;
+  }
+
   // Raw response strings from the device correlated to the task + line number
   // that preceeded them.
-  message CommandResponse {
-    uint32 task_id = 2;
-    uint32 line_number = 3;
+  message GCodeHistoryEntry {
+    GCodeHistoryDirection direction = 3;
     string content = 4;
   }
 }

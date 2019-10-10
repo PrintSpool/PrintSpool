@@ -133,7 +133,7 @@ pub mod machine_message {
         /// Responses will not be duplicated and will be sent at most once to each
         /// client.
         #[prost(message, repeated, tag="7")]
-        pub responses: ::std::vec::Vec<CommandResponse>,
+        pub gcode_history: ::std::vec::Vec<GCodeHistoryEntry>,
         // // 8-15: Frequently used bools
         // bool sets_target_temperatures = 8;
         // bool sets_actual_temperatures = 9;
@@ -211,11 +211,9 @@ pub mod machine_message {
     /// Raw response strings from the device correlated to the task + line number
     /// that preceeded them.
     #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct CommandResponse {
-        #[prost(uint32, tag="2")]
-        pub task_id: u32,
-        #[prost(uint32, tag="3")]
-        pub line_number: u32,
+    pub struct GCodeHistoryEntry {
+        #[prost(enumeration="GCodeHistoryDirection", tag="3")]
+        pub direction: i32,
         #[prost(string, tag="4")]
         pub content: std::string::String,
     }
@@ -236,6 +234,12 @@ pub mod machine_message {
         Error = 2,
         StartTask = 3,
         FinishTask = 4,
+    }
+    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[repr(i32)]
+    pub enum GCodeHistoryDirection {
+        Rx = 0,
+        Tx = 1,
     }
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Payload {

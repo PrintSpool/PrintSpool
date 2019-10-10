@@ -21,7 +21,7 @@ pub struct Context {
     pub config: Config,
     pub controller: Controller,
     pub feedback: machine_message::Feedback,
-    response_buffer: VecDeque<machine_message::CommandResponse>,
+    gcode_history_buffer: VecDeque<machine_message::GCodeHistoryEntry>,
 }
 
 impl Context {
@@ -29,13 +29,13 @@ impl Context {
         let status = machine_message::Status::Disconnected as i32;
         let controller = config.get_controller().clone();
         let feedback = Self::reset_feedback(status, &config);
-        let response_buffer = VecDeque::with_capacity(controller.response_buffer_size);
+        let gcode_history_buffer = VecDeque::with_capacity(controller.gcode_history_buffer_size);
 
         Self {
             feedback,
             config,
             controller,
-            response_buffer,
+            gcode_history_buffer,
         }
     }
 
@@ -54,9 +54,9 @@ impl Context {
     }
 
     pub fn machine_message_protobuf(&mut self) -> MachineMessage {
-        self.feedback.responses = self.response_buffer.drain(..).collect();
+        self.feedback.gcode_history = self.gcode_history_buffer.drain(..).collect();
 
-        println!("ProtoBuf Responses + Events: {:?} {:?}", self.feedback.responses, self.feedback.events);
+        println!("ProtoBuf Responses + Events: {:?} {:?}", self.feedback.gcode_history, self.feedback.events);
 
         MachineMessage {
             payload: Some(machine_message::Payload::Feedback ( self.feedback.clone() )),
@@ -119,17 +119,26 @@ impl Context {
         add_event(self, task, EventType::FinishTask, error);
     }
 
-    pub fn push_response(&mut self, task: &Task, raw_src: String) {
-        let command_response = machine_message::CommandResponse {
-            line_number: self.feedback.despooled_line_number,
-            task_id: task.id,
-            content: raw_src,
+    pub fn push_gcode_rx(&mut self, raw_src: String) {
+        let direction = machine_message::GCodeHistoryDirection::Rx as i32;
+        self.push_gcode_history_entry(raw_src, direction)
+    }
+
+    pub fn push_gcode_tx(&mut self, raw_src: String) {
+        let direction = machine_message::GCodeHistoryDirection::Tx as i32;
+        self.push_gcode_history_entry(raw_src, direction)
+    }
+
+    fn push_gcode_history_entry(&mut self, content: String, direction: i32) {
+        let entry = machine_message::GCodeHistoryEntry {
+            content,
+            direction,
         };
 
-        if self.response_buffer.len() >= self.controller.response_buffer_size {
-            let _ = self.response_buffer.pop_back();
+        if self.gcode_history_buffer.len() >= self.controller.gcode_history_buffer_size {
+            let _ = self.gcode_history_buffer.pop_front();
         }
-        self.response_buffer.push_front(command_response)
+        self.gcode_history_buffer.push_back(entry)
     }
 }
 

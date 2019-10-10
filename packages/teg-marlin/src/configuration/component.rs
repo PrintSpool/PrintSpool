@@ -11,7 +11,7 @@ pub struct Controller {
 
     pub simulate: bool,
     pub await_greeting_from_firmware: bool,
-    pub response_buffer_size: usize,
+    pub gcode_history_buffer_size: usize,
 
     // delays
     pub delay_from_greeting_to_ready: u64,

@@ -4,7 +4,7 @@ import {
   subscribeToLiveData,
 } from 'graphql-live-subscriptions'
 
-const MAX_UPDATE_RATE_MS = 500
+const MAX_UPDATE_RATE_MS = 300
 
 const SubscriptionResolvers = {
   Subscription: {

@@ -38,7 +38,6 @@ import { REQUEST_CREATE_JOB } from '../actions/requestCreateJob'
 import createJob, { CREATE_JOB } from '../actions/createJob'
 import deleteJob, { DELETE_JOB } from '../actions/deleteJob'
 import jobQueueComplete from '../actions/jobQueueComplete'
-import dataSentAndReceived from '../actions/dataSentAndReceived'
 
 import spoolTask, { SPOOL_TASK } from '../actions/spoolTask'
 import requestSpoolJobFile, { REQUEST_SPOOL_JOB_FILE } from '../actions/requestSpoolJobFile'
@@ -247,14 +246,6 @@ const jobQueueReducer = (state = initialState, action) => {
         && despooledLineNumber != null
         && despooledLineNumber > currentTask.currentLineNumber
       )
-
-      // console.log({currentTask, hasDespooledLines, responses: responses.length > 0})
-      if (hasDespooledLines || responses.length > 0) {
-        // console.log({ currentTask, hasDespooledLines, responses })
-        nextEffects.push(Cmd.action(
-          dataSentAndReceived(currentTask, responses, machineID),
-        ))
-      }
 
       if (hasDespooledLines) {
         // reload the task from the next state

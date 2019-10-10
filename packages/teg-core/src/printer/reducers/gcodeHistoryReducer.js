@@ -1,10 +1,15 @@
 import { Record, List, Map } from 'immutable'
 
 import { SET_CONFIG } from '../../config/actions/setConfig'
-import { DATA_SENT_AND_RECEIVED } from '../../jobQueue/actions/dataSentAndReceived'
+import { SOCKET_MESSAGE } from '../actions/socketMessage'
 
 export const TX = 'TX'
 export const RX = 'RX'
+
+const directionsIndex = [
+  RX,
+  TX,
+]
 
 const MachineHistory = Record({
   historyEntries: List(),
@@ -23,30 +28,6 @@ const HistoryEntry = (entry) => {
   return entry
 }
 
-const addCommands = (
-  task,
-  previousLineNumber,
-  lineNumber,
-  createdAt,
-  newEntries,
-) => {
-  const addedCommands = task.commands.slice(
-    previousLineNumber + 1,
-    lineNumber + 1,
-  )
-
-  addedCommands.forEach(command => (
-    newEntries.push(
-      HistoryEntry({
-        content: command,
-        createdAt,
-        direction: TX,
-      }),
-    )
-  ))
-}
-
-
 const gcodeHistoryReducer = (state = initialState, action) => {
   switch (action.type) {
     case SET_CONFIG: {
@@ -54,66 +35,29 @@ const gcodeHistoryReducer = (state = initialState, action) => {
 
       return config.machines.map(() => MachineHistory())
     }
-    case DATA_SENT_AND_RECEIVED: {
+    case SOCKET_MESSAGE: {
       const {
         machineID,
-        task,
-        responses = [],
+        message,
       } = action.payload
+
+      const { gcodeHistory = [] } = message.feedback || {}
+
       if (state.get(machineID) == null) {
         throw new Error(`Unexpected machineID: ${machineID}`)
       }
 
-      console.log('DATA SENT AND RECEIVED THOUGH', { task })
-
-      if (task == null) {
-        return state
-      }
-
       const { maxSize } = state.get(machineID)
-
-      let { previousLineNumber = -1 } = task
 
       const createdAt = new Date().toISOString()
 
-      const newEntries = []
-      responses.forEach((res) => {
-        const {
-          taskId,
-          lineNumber,
+      const newEntries = gcodeHistory.map(({ content, direction }) => (
+        HistoryEntry({
           content,
-        } = res
-
-        // TX Entries preceeding an RX response
-        if (taskId === task.id && lineNumber > previousLineNumber) {
-          addCommands(
-            task,
-            previousLineNumber,
-            lineNumber,
-            createdAt,
-            newEntries,
-          )
-          previousLineNumber = lineNumber
-        }
-
-        // RX Entries
-        newEntries.push(
-          HistoryEntry({
-            content,
-            createdAt,
-            direction: RX,
-          }),
-        )
-      })
-
-      // TX Entries after the last RX entry
-      addCommands(
-        task,
-        previousLineNumber,
-        task.currentLineNumber,
-        createdAt,
-        newEntries,
-      )
+          direction: directionsIndex[direction],
+          createdAt,
+        })
+      ))
 
       return state
         .updateIn([machineID, 'historyEntries'], (entries) => {

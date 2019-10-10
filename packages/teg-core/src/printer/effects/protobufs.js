@@ -238,7 +238,7 @@ $root.teg_protobufs = (function() {
              * @property {Array.<teg_protobufs.MachineMessage.IAxis>|null} [axes] Feedback axes
              * @property {Array.<teg_protobufs.MachineMessage.IHeater>|null} [heaters] Feedback heaters
              * @property {Array.<teg_protobufs.MachineMessage.ISpeedController>|null} [speedControllers] Feedback speedControllers
-             * @property {Array.<teg_protobufs.MachineMessage.ICommandResponse>|null} [responses] Feedback responses
+             * @property {Array.<teg_protobufs.MachineMessage.IGCodeHistoryEntry>|null} [gcodeHistory] Feedback gcodeHistory
              * @property {teg_protobufs.MachineMessage.IError|null} [error] Feedback error
              * @property {boolean|null} [motorsEnabled] Feedback motorsEnabled
              */
@@ -256,7 +256,7 @@ $root.teg_protobufs = (function() {
                 this.axes = [];
                 this.heaters = [];
                 this.speedControllers = [];
-                this.responses = [];
+                this.gcodeHistory = [];
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -312,12 +312,12 @@ $root.teg_protobufs = (function() {
             Feedback.prototype.speedControllers = $util.emptyArray;
 
             /**
-             * Feedback responses.
-             * @member {Array.<teg_protobufs.MachineMessage.ICommandResponse>} responses
+             * Feedback gcodeHistory.
+             * @member {Array.<teg_protobufs.MachineMessage.IGCodeHistoryEntry>} gcodeHistory
              * @memberof teg_protobufs.MachineMessage.Feedback
              * @instance
              */
-            Feedback.prototype.responses = $util.emptyArray;
+            Feedback.prototype.gcodeHistory = $util.emptyArray;
 
             /**
              * Feedback error.
@@ -375,9 +375,9 @@ $root.teg_protobufs = (function() {
                 if (message.speedControllers != null && message.speedControllers.length)
                     for (var i = 0; i < message.speedControllers.length; ++i)
                         $root.teg_protobufs.MachineMessage.SpeedController.encode(message.speedControllers[i], writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
-                if (message.responses != null && message.responses.length)
-                    for (var i = 0; i < message.responses.length; ++i)
-                        $root.teg_protobufs.MachineMessage.CommandResponse.encode(message.responses[i], writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
+                if (message.gcodeHistory != null && message.gcodeHistory.length)
+                    for (var i = 0; i < message.gcodeHistory.length; ++i)
+                        $root.teg_protobufs.MachineMessage.GCodeHistoryEntry.encode(message.gcodeHistory[i], writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
                 if (message.error != null && message.hasOwnProperty("error"))
                     $root.teg_protobufs.MachineMessage.Error.encode(message.error, writer.uint32(/* id 100, wireType 2 =*/802).fork()).ldelim();
                 if (message.motorsEnabled != null && message.hasOwnProperty("motorsEnabled"))
@@ -443,9 +443,9 @@ $root.teg_protobufs = (function() {
                         message.speedControllers.push($root.teg_protobufs.MachineMessage.SpeedController.decode(reader, reader.uint32()));
                         break;
                     case 7:
-                        if (!(message.responses && message.responses.length))
-                            message.responses = [];
-                        message.responses.push($root.teg_protobufs.MachineMessage.CommandResponse.decode(reader, reader.uint32()));
+                        if (!(message.gcodeHistory && message.gcodeHistory.length))
+                            message.gcodeHistory = [];
+                        message.gcodeHistory.push($root.teg_protobufs.MachineMessage.GCodeHistoryEntry.decode(reader, reader.uint32()));
                         break;
                     case 100:
                         message.error = $root.teg_protobufs.MachineMessage.Error.decode(reader, reader.uint32());
@@ -538,13 +538,13 @@ $root.teg_protobufs = (function() {
                             return "speedControllers." + error;
                     }
                 }
-                if (message.responses != null && message.hasOwnProperty("responses")) {
-                    if (!Array.isArray(message.responses))
-                        return "responses: array expected";
-                    for (var i = 0; i < message.responses.length; ++i) {
-                        var error = $root.teg_protobufs.MachineMessage.CommandResponse.verify(message.responses[i]);
+                if (message.gcodeHistory != null && message.hasOwnProperty("gcodeHistory")) {
+                    if (!Array.isArray(message.gcodeHistory))
+                        return "gcodeHistory: array expected";
+                    for (var i = 0; i < message.gcodeHistory.length; ++i) {
+                        var error = $root.teg_protobufs.MachineMessage.GCodeHistoryEntry.verify(message.gcodeHistory[i]);
                         if (error)
-                            return "responses." + error;
+                            return "gcodeHistory." + error;
                     }
                 }
                 if (message.error != null && message.hasOwnProperty("error")) {
@@ -634,14 +634,14 @@ $root.teg_protobufs = (function() {
                         message.speedControllers[i] = $root.teg_protobufs.MachineMessage.SpeedController.fromObject(object.speedControllers[i]);
                     }
                 }
-                if (object.responses) {
-                    if (!Array.isArray(object.responses))
-                        throw TypeError(".teg_protobufs.MachineMessage.Feedback.responses: array expected");
-                    message.responses = [];
-                    for (var i = 0; i < object.responses.length; ++i) {
-                        if (typeof object.responses[i] !== "object")
-                            throw TypeError(".teg_protobufs.MachineMessage.Feedback.responses: object expected");
-                        message.responses[i] = $root.teg_protobufs.MachineMessage.CommandResponse.fromObject(object.responses[i]);
+                if (object.gcodeHistory) {
+                    if (!Array.isArray(object.gcodeHistory))
+                        throw TypeError(".teg_protobufs.MachineMessage.Feedback.gcodeHistory: array expected");
+                    message.gcodeHistory = [];
+                    for (var i = 0; i < object.gcodeHistory.length; ++i) {
+                        if (typeof object.gcodeHistory[i] !== "object")
+                            throw TypeError(".teg_protobufs.MachineMessage.Feedback.gcodeHistory: object expected");
+                        message.gcodeHistory[i] = $root.teg_protobufs.MachineMessage.GCodeHistoryEntry.fromObject(object.gcodeHistory[i]);
                     }
                 }
                 if (object.error != null) {
@@ -672,7 +672,7 @@ $root.teg_protobufs = (function() {
                     object.axes = [];
                     object.heaters = [];
                     object.speedControllers = [];
-                    object.responses = [];
+                    object.gcodeHistory = [];
                 }
                 if (options.defaults) {
                     object.despooledLineNumber = 0;
@@ -704,10 +704,10 @@ $root.teg_protobufs = (function() {
                     for (var j = 0; j < message.speedControllers.length; ++j)
                         object.speedControllers[j] = $root.teg_protobufs.MachineMessage.SpeedController.toObject(message.speedControllers[j], options);
                 }
-                if (message.responses && message.responses.length) {
-                    object.responses = [];
-                    for (var j = 0; j < message.responses.length; ++j)
-                        object.responses[j] = $root.teg_protobufs.MachineMessage.CommandResponse.toObject(message.responses[j], options);
+                if (message.gcodeHistory && message.gcodeHistory.length) {
+                    object.gcodeHistory = [];
+                    for (var j = 0; j < message.gcodeHistory.length; ++j)
+                        object.gcodeHistory[j] = $root.teg_protobufs.MachineMessage.GCodeHistoryEntry.toObject(message.gcodeHistory[j], options);
                 }
                 if (message.error != null && message.hasOwnProperty("error"))
                     object.error = $root.teg_protobufs.MachineMessage.Error.toObject(message.error, options);
@@ -2064,26 +2064,39 @@ $root.teg_protobufs = (function() {
             return SpeedController;
         })();
 
-        MachineMessage.CommandResponse = (function() {
+        /**
+         * GCodeHistoryDirection enum.
+         * @name teg_protobufs.MachineMessage.GCodeHistoryDirection
+         * @enum {string}
+         * @property {number} RX=0 RX value
+         * @property {number} TX=1 TX value
+         */
+        MachineMessage.GCodeHistoryDirection = (function() {
+            var valuesById = {}, values = Object.create(valuesById);
+            values[valuesById[0] = "RX"] = 0;
+            values[valuesById[1] = "TX"] = 1;
+            return values;
+        })();
+
+        MachineMessage.GCodeHistoryEntry = (function() {
 
             /**
-             * Properties of a CommandResponse.
+             * Properties of a GCodeHistoryEntry.
              * @memberof teg_protobufs.MachineMessage
-             * @interface ICommandResponse
-             * @property {number|null} [taskId] CommandResponse taskId
-             * @property {number|null} [lineNumber] CommandResponse lineNumber
-             * @property {string|null} [content] CommandResponse content
+             * @interface IGCodeHistoryEntry
+             * @property {teg_protobufs.MachineMessage.GCodeHistoryDirection|null} [direction] GCodeHistoryEntry direction
+             * @property {string|null} [content] GCodeHistoryEntry content
              */
 
             /**
-             * Constructs a new CommandResponse.
+             * Constructs a new GCodeHistoryEntry.
              * @memberof teg_protobufs.MachineMessage
-             * @classdesc Represents a CommandResponse.
-             * @implements ICommandResponse
+             * @classdesc Represents a GCodeHistoryEntry.
+             * @implements IGCodeHistoryEntry
              * @constructor
-             * @param {teg_protobufs.MachineMessage.ICommandResponse=} [properties] Properties to set
+             * @param {teg_protobufs.MachineMessage.IGCodeHistoryEntry=} [properties] Properties to set
              */
-            function CommandResponse(properties) {
+            function GCodeHistoryEntry(properties) {
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -2091,98 +2104,85 @@ $root.teg_protobufs = (function() {
             }
 
             /**
-             * CommandResponse taskId.
-             * @member {number} taskId
-             * @memberof teg_protobufs.MachineMessage.CommandResponse
+             * GCodeHistoryEntry direction.
+             * @member {teg_protobufs.MachineMessage.GCodeHistoryDirection} direction
+             * @memberof teg_protobufs.MachineMessage.GCodeHistoryEntry
              * @instance
              */
-            CommandResponse.prototype.taskId = 0;
+            GCodeHistoryEntry.prototype.direction = 0;
 
             /**
-             * CommandResponse lineNumber.
-             * @member {number} lineNumber
-             * @memberof teg_protobufs.MachineMessage.CommandResponse
-             * @instance
-             */
-            CommandResponse.prototype.lineNumber = 0;
-
-            /**
-             * CommandResponse content.
+             * GCodeHistoryEntry content.
              * @member {string} content
-             * @memberof teg_protobufs.MachineMessage.CommandResponse
+             * @memberof teg_protobufs.MachineMessage.GCodeHistoryEntry
              * @instance
              */
-            CommandResponse.prototype.content = "";
+            GCodeHistoryEntry.prototype.content = "";
 
             /**
-             * Creates a new CommandResponse instance using the specified properties.
+             * Creates a new GCodeHistoryEntry instance using the specified properties.
              * @function create
-             * @memberof teg_protobufs.MachineMessage.CommandResponse
+             * @memberof teg_protobufs.MachineMessage.GCodeHistoryEntry
              * @static
-             * @param {teg_protobufs.MachineMessage.ICommandResponse=} [properties] Properties to set
-             * @returns {teg_protobufs.MachineMessage.CommandResponse} CommandResponse instance
+             * @param {teg_protobufs.MachineMessage.IGCodeHistoryEntry=} [properties] Properties to set
+             * @returns {teg_protobufs.MachineMessage.GCodeHistoryEntry} GCodeHistoryEntry instance
              */
-            CommandResponse.create = function create(properties) {
-                return new CommandResponse(properties);
+            GCodeHistoryEntry.create = function create(properties) {
+                return new GCodeHistoryEntry(properties);
             };
 
             /**
-             * Encodes the specified CommandResponse message. Does not implicitly {@link teg_protobufs.MachineMessage.CommandResponse.verify|verify} messages.
+             * Encodes the specified GCodeHistoryEntry message. Does not implicitly {@link teg_protobufs.MachineMessage.GCodeHistoryEntry.verify|verify} messages.
              * @function encode
-             * @memberof teg_protobufs.MachineMessage.CommandResponse
+             * @memberof teg_protobufs.MachineMessage.GCodeHistoryEntry
              * @static
-             * @param {teg_protobufs.MachineMessage.ICommandResponse} message CommandResponse message or plain object to encode
+             * @param {teg_protobufs.MachineMessage.IGCodeHistoryEntry} message GCodeHistoryEntry message or plain object to encode
              * @param {$protobuf.Writer} [writer] Writer to encode to
              * @returns {$protobuf.Writer} Writer
              */
-            CommandResponse.encode = function encode(message, writer) {
+            GCodeHistoryEntry.encode = function encode(message, writer) {
                 if (!writer)
                     writer = $Writer.create();
-                if (message.taskId != null && message.hasOwnProperty("taskId"))
-                    writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.taskId);
-                if (message.lineNumber != null && message.hasOwnProperty("lineNumber"))
-                    writer.uint32(/* id 3, wireType 0 =*/24).uint32(message.lineNumber);
+                if (message.direction != null && message.hasOwnProperty("direction"))
+                    writer.uint32(/* id 3, wireType 0 =*/24).int32(message.direction);
                 if (message.content != null && message.hasOwnProperty("content"))
                     writer.uint32(/* id 4, wireType 2 =*/34).string(message.content);
                 return writer;
             };
 
             /**
-             * Encodes the specified CommandResponse message, length delimited. Does not implicitly {@link teg_protobufs.MachineMessage.CommandResponse.verify|verify} messages.
+             * Encodes the specified GCodeHistoryEntry message, length delimited. Does not implicitly {@link teg_protobufs.MachineMessage.GCodeHistoryEntry.verify|verify} messages.
              * @function encodeDelimited
-             * @memberof teg_protobufs.MachineMessage.CommandResponse
+             * @memberof teg_protobufs.MachineMessage.GCodeHistoryEntry
              * @static
-             * @param {teg_protobufs.MachineMessage.ICommandResponse} message CommandResponse message or plain object to encode
+             * @param {teg_protobufs.MachineMessage.IGCodeHistoryEntry} message GCodeHistoryEntry message or plain object to encode
              * @param {$protobuf.Writer} [writer] Writer to encode to
              * @returns {$protobuf.Writer} Writer
              */
-            CommandResponse.encodeDelimited = function encodeDelimited(message, writer) {
+            GCodeHistoryEntry.encodeDelimited = function encodeDelimited(message, writer) {
                 return this.encode(message, writer).ldelim();
             };
 
             /**
-             * Decodes a CommandResponse message from the specified reader or buffer.
+             * Decodes a GCodeHistoryEntry message from the specified reader or buffer.
              * @function decode
-             * @memberof teg_protobufs.MachineMessage.CommandResponse
+             * @memberof teg_protobufs.MachineMessage.GCodeHistoryEntry
              * @static
              * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
              * @param {number} [length] Message length if known beforehand
-             * @returns {teg_protobufs.MachineMessage.CommandResponse} CommandResponse
+             * @returns {teg_protobufs.MachineMessage.GCodeHistoryEntry} GCodeHistoryEntry
              * @throws {Error} If the payload is not a reader or valid buffer
              * @throws {$protobuf.util.ProtocolError} If required fields are missing
              */
-            CommandResponse.decode = function decode(reader, length) {
+            GCodeHistoryEntry.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
-                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.teg_protobufs.MachineMessage.CommandResponse();
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.teg_protobufs.MachineMessage.GCodeHistoryEntry();
                 while (reader.pos < end) {
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
-                    case 2:
-                        message.taskId = reader.uint32();
-                        break;
                     case 3:
-                        message.lineNumber = reader.uint32();
+                        message.direction = reader.int32();
                         break;
                     case 4:
                         message.content = reader.string();
@@ -2196,38 +2196,40 @@ $root.teg_protobufs = (function() {
             };
 
             /**
-             * Decodes a CommandResponse message from the specified reader or buffer, length delimited.
+             * Decodes a GCodeHistoryEntry message from the specified reader or buffer, length delimited.
              * @function decodeDelimited
-             * @memberof teg_protobufs.MachineMessage.CommandResponse
+             * @memberof teg_protobufs.MachineMessage.GCodeHistoryEntry
              * @static
              * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-             * @returns {teg_protobufs.MachineMessage.CommandResponse} CommandResponse
+             * @returns {teg_protobufs.MachineMessage.GCodeHistoryEntry} GCodeHistoryEntry
              * @throws {Error} If the payload is not a reader or valid buffer
              * @throws {$protobuf.util.ProtocolError} If required fields are missing
              */
-            CommandResponse.decodeDelimited = function decodeDelimited(reader) {
+            GCodeHistoryEntry.decodeDelimited = function decodeDelimited(reader) {
                 if (!(reader instanceof $Reader))
                     reader = new $Reader(reader);
                 return this.decode(reader, reader.uint32());
             };
 
             /**
-             * Verifies a CommandResponse message.
+             * Verifies a GCodeHistoryEntry message.
              * @function verify
-             * @memberof teg_protobufs.MachineMessage.CommandResponse
+             * @memberof teg_protobufs.MachineMessage.GCodeHistoryEntry
              * @static
              * @param {Object.<string,*>} message Plain object to verify
              * @returns {string|null} `null` if valid, otherwise the reason why it is not
              */
-            CommandResponse.verify = function verify(message) {
+            GCodeHistoryEntry.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.taskId != null && message.hasOwnProperty("taskId"))
-                    if (!$util.isInteger(message.taskId))
-                        return "taskId: integer expected";
-                if (message.lineNumber != null && message.hasOwnProperty("lineNumber"))
-                    if (!$util.isInteger(message.lineNumber))
-                        return "lineNumber: integer expected";
+                if (message.direction != null && message.hasOwnProperty("direction"))
+                    switch (message.direction) {
+                    default:
+                        return "direction: enum value expected";
+                    case 0:
+                    case 1:
+                        break;
+                    }
                 if (message.content != null && message.hasOwnProperty("content"))
                     if (!$util.isString(message.content))
                         return "content: string expected";
@@ -2235,65 +2237,68 @@ $root.teg_protobufs = (function() {
             };
 
             /**
-             * Creates a CommandResponse message from a plain object. Also converts values to their respective internal types.
+             * Creates a GCodeHistoryEntry message from a plain object. Also converts values to their respective internal types.
              * @function fromObject
-             * @memberof teg_protobufs.MachineMessage.CommandResponse
+             * @memberof teg_protobufs.MachineMessage.GCodeHistoryEntry
              * @static
              * @param {Object.<string,*>} object Plain object
-             * @returns {teg_protobufs.MachineMessage.CommandResponse} CommandResponse
+             * @returns {teg_protobufs.MachineMessage.GCodeHistoryEntry} GCodeHistoryEntry
              */
-            CommandResponse.fromObject = function fromObject(object) {
-                if (object instanceof $root.teg_protobufs.MachineMessage.CommandResponse)
+            GCodeHistoryEntry.fromObject = function fromObject(object) {
+                if (object instanceof $root.teg_protobufs.MachineMessage.GCodeHistoryEntry)
                     return object;
-                var message = new $root.teg_protobufs.MachineMessage.CommandResponse();
-                if (object.taskId != null)
-                    message.taskId = object.taskId >>> 0;
-                if (object.lineNumber != null)
-                    message.lineNumber = object.lineNumber >>> 0;
+                var message = new $root.teg_protobufs.MachineMessage.GCodeHistoryEntry();
+                switch (object.direction) {
+                case "RX":
+                case 0:
+                    message.direction = 0;
+                    break;
+                case "TX":
+                case 1:
+                    message.direction = 1;
+                    break;
+                }
                 if (object.content != null)
                     message.content = String(object.content);
                 return message;
             };
 
             /**
-             * Creates a plain object from a CommandResponse message. Also converts values to other types if specified.
+             * Creates a plain object from a GCodeHistoryEntry message. Also converts values to other types if specified.
              * @function toObject
-             * @memberof teg_protobufs.MachineMessage.CommandResponse
+             * @memberof teg_protobufs.MachineMessage.GCodeHistoryEntry
              * @static
-             * @param {teg_protobufs.MachineMessage.CommandResponse} message CommandResponse
+             * @param {teg_protobufs.MachineMessage.GCodeHistoryEntry} message GCodeHistoryEntry
              * @param {$protobuf.IConversionOptions} [options] Conversion options
              * @returns {Object.<string,*>} Plain object
              */
-            CommandResponse.toObject = function toObject(message, options) {
+            GCodeHistoryEntry.toObject = function toObject(message, options) {
                 if (!options)
                     options = {};
                 var object = {};
                 if (options.defaults) {
-                    object.taskId = 0;
-                    object.lineNumber = 0;
+                    object.direction = options.enums === String ? "RX" : 0;
                     object.content = "";
                 }
-                if (message.taskId != null && message.hasOwnProperty("taskId"))
-                    object.taskId = message.taskId;
-                if (message.lineNumber != null && message.hasOwnProperty("lineNumber"))
-                    object.lineNumber = message.lineNumber;
+                if (message.direction != null && message.hasOwnProperty("direction"))
+                    object.direction = options.enums === String ? $root.teg_protobufs.MachineMessage.GCodeHistoryDirection[message.direction] : message.direction;
                 if (message.content != null && message.hasOwnProperty("content"))
                     object.content = message.content;
                 return object;
             };
 
             /**
-             * Converts this CommandResponse to JSON.
+             * Converts this GCodeHistoryEntry to JSON.
              * @function toJSON
-             * @memberof teg_protobufs.MachineMessage.CommandResponse
+             * @memberof teg_protobufs.MachineMessage.GCodeHistoryEntry
              * @instance
              * @returns {Object.<string,*>} JSON object
              */
-            CommandResponse.prototype.toJSON = function toJSON() {
+            GCodeHistoryEntry.prototype.toJSON = function toJSON() {
                 return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
             };
 
-            return CommandResponse;
+            return GCodeHistoryEntry;
         })();
 
         return MachineMessage;

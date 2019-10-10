@@ -178,8 +178,8 @@ impl ReadyState {
             }
             /* Echo, Debug and Error function the same in all states */
             SerialRec( response ) => {
-                if let Some(task) = &self.task {
-                    context.push_response(&task, response.raw_src);
+                if let Some(_) = &self.task {
+                    context.push_gcode_rx(response.raw_src);
                 }
 
                 match response.payload {
@@ -341,6 +341,7 @@ impl ReadyState {
             let gcode = task.gcode_lines.next();
 
             if let Some(gcode) = gcode {
+                context.push_gcode_tx(gcode.clone());
                 send_serial(
                     effects,
                     GCodeLine {
