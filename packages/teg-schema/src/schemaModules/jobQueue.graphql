@@ -61,7 +61,7 @@ enum TaskStatus {
   """
   The subject was halted pre-emptively by a user's action.
   """
-  CANCEL_TASK
+  CANCELLED
 
   """
   The subject was paused by a user's action.

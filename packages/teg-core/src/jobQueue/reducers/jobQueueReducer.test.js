@@ -15,7 +15,7 @@ import deleteJob, { DELETE_JOB } from '../actions/deleteJob'
 
 import spoolTask, { SPOOL_TASK } from '../../spool/actions/spoolTask'
 import despoolTask, { DESPOOL_TASK } from '../../spool/actions/despoolTask'
-import cancelTask, { CANCEL_TASK } from '../../spool/actions/cancelTask'
+import cancelTask, { CANCELLED } from '../../spool/actions/cancelTask'
 import requestSpoolJobFile from '../../spool/actions/requestSpoolJobFile'
 
 import { PRINTER_READY } from '../../printer/actions/printerReady'
@@ -138,7 +138,7 @@ describe('jobQueueReducer', () => {
     })
   })
 
-  describe(CANCEL_TASK, () => {
+  describe(CANCELLED, () => {
     it('does nothing if the task does not belong to a job', () => {
       const action = cancelTask({ taskID: 'test_test_test' })
 

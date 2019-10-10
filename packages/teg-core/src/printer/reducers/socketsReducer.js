@@ -333,6 +333,7 @@ const socketsReducer = (state = initialState, action) => {
         // set the status
         if (feedback.status != null) {
           const nextStatus = statusCodes[feedback.status]
+          // console.log(nextStatus)
 
           if (nextStatus !== machine.status) {
             machine = machine.set('status', nextStatus)

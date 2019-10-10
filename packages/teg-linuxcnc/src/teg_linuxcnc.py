@@ -137,7 +137,7 @@ def interpretCombinatorMessage(binary_message):
         cnc.estop()
 
         # Update the task history
-        add_event(machine_protobuf.EventType.CANCEL_TASK)
+        add_event(machine_protobuf.EventType.CANCELLED)
 
         current_task = None
     elif type == "delete_task_history":

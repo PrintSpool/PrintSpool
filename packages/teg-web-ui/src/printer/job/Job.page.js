@@ -1,14 +1,13 @@
 import React from 'react'
 import { compose, withProps } from 'recompose'
 import gql from 'graphql-tag'
+import { useMutation } from 'react-apollo-hooks'
 
 import {
   Typography,
 } from '@material-ui/core'
 
 import TaskStatusRow from '../queue/components/TaskStatusRow'
-
-import useExecGCodes from '../_hooks/useExecGCodes'
 
 import withLiveData from '../common/higherOrderComponents/withLiveData'
 
@@ -55,6 +54,12 @@ const JOB_SUBSCRIPTION = gql`
   }
 `
 
+const ESTOP = gql`
+  mutation eStop($machineID: ID!) {
+    eStop(machineID: $machineID)
+  }
+`
+
 const enhance = compose(
   withProps(ownProps => ({
     subscription: JOB_SUBSCRIPTION,
@@ -78,10 +83,9 @@ const JobPage = ({
     history,
   },
 }) => {
-  const cancelTask = useExecGCodes(() => ({
-    machine,
-    gcodes: ['eStop'],
-  }))
+  const [cancelTask] = useMutation(ESTOP, {
+    variables: { machineID: machine.id },
+  })
 
   return (
     <div>

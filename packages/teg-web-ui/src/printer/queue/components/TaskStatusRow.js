@@ -31,8 +31,11 @@ const TaskStatusRow = ({ task, cancelTask }) => (
       {
         (() => {
           const taskOnMachine = `${task.name} on ${task.machine.name}`
-          if (['CANCELLED', 'ERRORED'].includes(task.status)) {
-            return `${task.status} ${taskOnMachine}`
+          if (['CANCELLED', 'ERROR'].includes(task.status)) {
+            const statusWord = (
+              task.status === 'CANCELLED' ? 'Cancelled' : 'Errored'
+            )
+            return `${statusWord} ${taskOnMachine}`
           }
           if (task.status === 'DONE') {
             return `Printed ${taskOnMachine}`
@@ -55,7 +58,7 @@ const TaskStatusRow = ({ task, cancelTask }) => (
         }}
       >
         {task.percentComplete.toFixed(1)}
-%
+        %
       </Typography>
       <div
         style={{
@@ -71,9 +74,9 @@ const TaskStatusRow = ({ task, cancelTask }) => (
       <IconButton
         aria-label="cancel"
         disabled={
-          ['CANCELLED', 'ERRORED', 'DONE'].includes(task.status)
+          ['CANCELLED', 'ERROR', 'DONE'].includes(task.status)
         }
-        onClick={() => cancelTask(task)}
+        onClick={cancelTask}
         style={{
           marginTop: -12,
           marginBottom: -12,

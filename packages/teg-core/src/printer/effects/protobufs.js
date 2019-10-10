@@ -941,7 +941,7 @@ $root.teg_protobufs = (function() {
          * EventType enum.
          * @name teg_protobufs.MachineMessage.EventType
          * @enum {string}
-         * @property {number} CANCEL_TASK=0 CANCEL_TASK value
+         * @property {number} CANCELLED=0 CANCELLED value
          * @property {number} PAUSE_TASK=1 PAUSE_TASK value
          * @property {number} ERROR=2 ERROR value
          * @property {number} START_TASK=3 START_TASK value
@@ -949,7 +949,7 @@ $root.teg_protobufs = (function() {
          */
         MachineMessage.EventType = (function() {
             var valuesById = {}, values = Object.create(valuesById);
-            values[valuesById[0] = "CANCEL_TASK"] = 0;
+            values[valuesById[0] = "CANCELLED"] = 0;
             values[valuesById[1] = "PAUSE_TASK"] = 1;
             values[valuesById[2] = "ERROR"] = 2;
             values[valuesById[3] = "START_TASK"] = 3;
@@ -1188,7 +1188,7 @@ $root.teg_protobufs = (function() {
                 if (object.clientId != null)
                     message.clientId = object.clientId >>> 0;
                 switch (object.type) {
-                case "CANCEL_TASK":
+                case "CANCELLED":
                 case 0:
                     message.type = 0;
                     break;
@@ -1242,7 +1242,7 @@ $root.teg_protobufs = (function() {
                 if (options.defaults) {
                     object.taskId = 0;
                     object.clientId = 0;
-                    object.type = options.enums === String ? "CANCEL_TASK" : 0;
+                    object.type = options.enums === String ? "CANCELLED" : 0;
                     if ($util.Long) {
                         var long = new $util.Long(0, 0, false);
                         object.createdAt = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;

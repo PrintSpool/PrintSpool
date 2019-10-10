@@ -1,5 +1,7 @@
 import { List } from 'immutable'
 
+import { CANCELLED, ERROR } from '../types/TaskStatusEnum'
+
 import getTasksByTaskableID from '../selectors/getTasksByTaskableID'
 import getPrintsCompletedByJobFileID from '../selectors/getPrintsCompletedByJobFileID'
 import getTotalPrintsByJobFileID from '../selectors/getTotalPrintsByJobFileID'
@@ -26,7 +28,10 @@ const JobFileResolvers = {
 
       const total = getTotalPrintsByJobFileID(state.jobQueue).get(source.id)
       const printed = getIsDoneByJobFileID(state.jobQueue).get(source.id)
-      const tasks = getTasksByTaskableID(state.jobQueue).get(source.id, List())
+
+      const tasks = getTasksByTaskableID(state.jobQueue)
+        .get(source.id, List())
+        .filter(task => task.status !== CANCELLED && task.status !== ERROR)
 
       return total - (printed + tasks.size)
     },

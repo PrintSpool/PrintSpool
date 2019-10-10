@@ -229,7 +229,7 @@ pub mod machine_message {
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
     #[repr(i32)]
     pub enum EventType {
-        CancelTask = 0,
+        Cancelled = 0,
         PauseTask = 1,
         Error = 2,
         StartTask = 3,

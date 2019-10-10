@@ -56,6 +56,7 @@ impl Context {
     pub fn machine_message_protobuf(&mut self) -> MachineMessage {
         self.feedback.gcode_history = self.gcode_history_buffer.drain(..).collect();
 
+        // println!("ProtoBuf Status: {:?}", self.feedback.status);
         // println!("ProtoBuf Responses + Events: {:?} {:?}", self.feedback.gcode_history, self.feedback.events);
 
         MachineMessage {
@@ -103,7 +104,7 @@ impl Context {
     }
 
     pub fn push_cancel_task(&mut self, task: &Task) {
-        add_event(self, task, EventType::CancelTask, None);
+        add_event(self, task, EventType::Cancelled, None);
     }
 
     pub fn push_pause_task(&mut self, task: &Task) {

@@ -58,7 +58,7 @@ message MachineMessage {
   }
 
   enum EventType {
-    CANCEL_TASK = 0;
+    CANCELLED = 0;
     PAUSE_TASK = 1;
     ERROR = 2;
     START_TASK = 3;

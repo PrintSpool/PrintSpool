@@ -84,7 +84,9 @@ const JobCard = ({
             tasks.map(task => (
               <TaskStatusRow
                 task={task}
-                cancelTask={cancelTask}
+                cancelTask={() => cancelTask({
+                  variables: { machineID: task.machine.id },
+                })}
                 key={task.id}
               />
             ))

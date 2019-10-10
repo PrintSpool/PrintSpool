@@ -1,4 +1,4 @@
-export const CANCEL_TASK = 'CANCEL_TASK'
+export const CANCELLED = 'CANCELLED'
 export const PAUSE_TASK = 'PAUSE_TASK'
 export const ERROR = 'ERROR'
 export const START_TASK = 'START_TASK'
@@ -6,7 +6,7 @@ export const FINISH_TASK = 'FINISH_TASK'
 export const SPOOLED_TASK = 'SPOOLED_TASK'
 
 const TaskStatusEnum = {
-  CANCEL_TASK,
+  CANCELLED,
   PAUSE_TASK,
   ERROR,
   START_TASK,
@@ -17,7 +17,7 @@ const TaskStatusEnum = {
 }
 
 export const indexedTaskStatuses = [
-  CANCEL_TASK, // 0
+  CANCELLED, // 0
   PAUSE_TASK, // 1
   ERROR, // 2
   START_TASK, // 3
@@ -25,7 +25,7 @@ export const indexedTaskStatuses = [
 ]
 
 export const taskFailureStatuses = [
-  CANCEL_TASK,
+  CANCELLED,
   ERROR,
 ]
 

@@ -1,5 +1,7 @@
 import React from 'react'
 import { compose } from 'recompose'
+import gql from 'graphql-tag'
+import { useMutation } from 'react-apollo-hooks'
 
 import {
   Typography,
@@ -8,11 +10,15 @@ import {
 import spoolNextPrintHandler from '../mutations/spoolNextPrintHandler'
 import deleteJobHandler from '../mutations/deleteJobHandler'
 
-import useExecGCodes from '../../_hooks/useExecGCodes'
-
 import FloatingAddJobButton from '../../printButton/FloatingAddJobButton'
 import FloatingPrintNextButton from './FloatingPrintNextButton'
 import JobCard from './JobCard'
+
+const ESTOP = gql`
+  mutation eStop($machineID: ID!) {
+    eStop(machineID: $machineID)
+  }
+`
 
 const enhance = compose(
   spoolNextPrintHandler,
@@ -52,10 +58,7 @@ const JobList = ({
   spoolNextPrint,
   deleteJob,
 }) => {
-  const cancelTask = useExecGCodes(() => ({
-    machine: machines[0],
-    gcodes: ['eStop'],
-  }))
+  const [cancelTask] = useMutation(ESTOP)
 
   const statuses = machines.map(machine => machine.status)
   const disablePrintNextButton = (

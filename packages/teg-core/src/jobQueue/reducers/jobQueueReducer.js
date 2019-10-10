@@ -11,7 +11,7 @@ import {
   indexedTaskStatuses,
   taskFailureStatuses,
   spooledTaskStatuses,
-  // CANCEL_TASK,
+  CANCELLED,
   // PAUSE_TASK,
   ERROR,
   START_TASK,
@@ -46,7 +46,7 @@ import sendTaskToSocket, { SEND_TASK_TO_SOCKET } from '../../printer/actions/sen
 import sendDeleteTaskHistoryToSocket from '../../printer/actions/sendDeleteTaskHistoryToSocket'
 
 import { SOCKET_MESSAGE } from '../../printer/actions/socketMessage'
-import requestEStop from '../../printer/actions/requestEStop'
+import requestEStop, { REQUEST_ESTOP } from '../../printer/actions/requestEStop'
 import busyMachines, { NOT_BUSY } from '../selectors/busyMachines'
 
 const debug = Debug('teg:jobQueue')
@@ -137,7 +137,9 @@ const jobQueueReducer = (state = initialState, action) => {
               task.jobID === jobID
               && spooledTaskStatuses.includes(task.status)
             ) {
-              nextEffects.push(requestEStop({ machineID: task.machineID }))
+              nextEffects.push(
+                Cmd.action(requestEStop({ machineID: task.machineID })),
+              )
             }
 
             return task.jobID !== jobID
@@ -153,7 +155,7 @@ const jobQueueReducer = (state = initialState, action) => {
       /* eslint-disable no-param-reassign */
       const { machineID, newConnection } = action.payload
       const { feedback = {} } = action.payload.message
-      const { events = [], responses = [] } = feedback
+      const { events = [] } = feedback
 
       let currentTask = state.tasks.find(t => (
         // console.log('task?', t.status, t.machineID === machineID, t.status === START_TASK) ||
@@ -350,21 +352,23 @@ const jobQueueReducer = (state = initialState, action) => {
       return loop(nextState, Cmd.list(nextEffects))
     }
     case REQUEST_SPOOL_NEXT_JOB_FILE: {
-      const jobID = state.getIn(['jobs', 0, 'id'])
-      if (jobID == null) {
-        return state
-      }
-
-      const jobFileID = getJobFilesByJobID(state).getIn([jobID, 0, 'id'])
-
-      if (jobFileID == null) {
-        return state
-      }
-
-      return loop(
-        state,
-        Cmd.action(requestSpoolJobFile({ jobFileID })),
-      )
+      // TODO: fix REQUEST_SPOOL_NEXT_JOB_FILE
+      throw new Error('THIS IS BROKEN')
+      // const jobID = state.getIn(['jobs', 0, 'id'])
+      // if (jobID == null) {
+      //   return state
+      // }
+      //
+      // const jobFileID = getJobFilesByJobID(state).getIn([jobID, 0, 'id'])
+      //
+      // if (jobFileID == null) {
+      //   return state
+      // }
+      //
+      // return loop(
+      //   state,
+      //   Cmd.action(requestSpoolJobFile({ jobFileID })),
+      // )
     }
     case REQUEST_SPOOL_JOB_FILE: {
       const { jobFileID, machineID } = action.payload
