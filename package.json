@@ -30,7 +30,7 @@
     "snap:push": "snapcraft push --release=beta ./dist/amd64.snap && snapcraft push --release=beta ./dist/armhf.snap",
     "snap:remove": "sudo snap remove teg",
     "snap:install": "sudo snap install --devmode --dangerous ./dist/teg_$(echo $npm_package_version)_amd64.snap && yarn journalctl",
-    "snap:build-and-install": "yarn build-dev && yarn snap:build:x64 && yarn snap:install",
+    "snap:build-and-install": "yarn snap:build && yarn snap:install",
     "snap:version": "./scripts/releaseConfirmation.sh && lerna version --conventional-commits",
     "snap:publish": "yarn snap:version && yarn snap:build && yarn snap:push",
     "snap:debug": "sudo journalctl --output=short --follow --all | sudo snappy-debug",
