@@ -27,3 +27,4 @@ fallible-iterator = "0.2.0"
 chrono = "0.4.9"
 toml = "0.5.3"
 serde = { version = "1.0.101", features = ["derive"] }
+gcode = "0.5.0"

@@ -14,6 +14,7 @@ extern crate tokio_serial;
 extern crate bus_queue;
 extern crate serde;
 extern crate toml;
+extern crate gcode;
 
 mod protobuf_server;
 mod gcode_codec;
@@ -21,6 +22,7 @@ mod serial_manager;
 
 pub mod state_machine;
 pub mod configuration;
+pub mod gcode_parser;
 
 pub mod protos {
     mod teg_protobufs;

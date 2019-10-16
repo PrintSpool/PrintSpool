@@ -16,8 +16,16 @@ use crate::configuration::{
     Controller,
 };
 
+use crate::gcode_parser::{
+    PositionUnits,
+    PositionMode,
+};
+
 #[derive(Clone, Debug)]
 pub struct Context {
+    pub current_hotend_index: u32,
+    pub position_mode: PositionMode,
+    pub position_units: PositionUnits,
     pub config: Config,
     pub controller: Controller,
     pub feedback: machine_message::Feedback,
@@ -32,6 +40,9 @@ impl Context {
         let gcode_history_buffer = VecDeque::with_capacity(controller.gcode_history_buffer_size);
 
         Self {
+            current_hotend_index: 0,
+            position_mode: PositionMode::Absolute,
+            position_units: PositionUnits::Millimetre,
             feedback,
             config,
             controller,
@@ -81,6 +92,7 @@ impl Context {
         let previous_feedback = std::mem::replace(&mut self.feedback, next_feedback);
 
         self.feedback.events = previous_feedback.events;
+        self.current_hotend_index = 0;
 
         if let Errored { message } = state  {
             let error = machine_message::Error {

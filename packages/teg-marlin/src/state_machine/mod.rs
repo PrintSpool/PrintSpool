@@ -18,9 +18,11 @@ use crate::protos::{
 mod ready_state;
 mod context;
 mod effect;
+mod send_serial;
 
 pub use context::Context;
 pub use effect::Effect;
+pub use send_serial::send_serial;
 
 use ready_state::ReadyState;
 
@@ -94,33 +96,6 @@ fn errored(message: String, context: &mut Context) -> Loop {
     ];
 
     Loop::new(next_state, effects)
-}
-
-fn send_serial(effects: &mut Vec<Effect>, gcode_line: GCodeLine, context: &Context) {
-    let crate::configuration::Controller {
-        long_running_code_timeout,
-        fast_code_timeout,
-        long_running_codes,
-        ..
-    } = &context.controller;
-    // TODO: parse gcodes in SendSerial instead of the encoder
-    let gcode_macro = "G1";
-
-    let duration = if long_running_codes.contains(&gcode_macro.to_string()) {
-        long_running_code_timeout
-    } else {
-        fast_code_timeout
-    };
-
-    effects.push(Effect::SendSerial(gcode_line));
-    effects.push(
-        Effect::Delay {
-            key: "tickle_delay".to_string(),
-            // TODO: configurable delayFromGreetingToReady
-            duration: Duration::from_millis(*duration),
-            event: TickleSerialPort,
-        },
-    );
 }
 
 impl State {
