@@ -2,6 +2,7 @@
 #![crate_name = "teg_marlin"]
 
 #![feature(async_closure)]
+#![feature(inner_deref)]
 
 extern crate bytes;
 // #[macro_use]

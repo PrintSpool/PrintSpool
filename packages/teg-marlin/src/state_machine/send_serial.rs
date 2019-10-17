@@ -1,9 +1,9 @@
-use gcode;
-
 use super::*;
-use crate::gcode_parse::parse_gcode;
+use crate::gcode_parser::parse_gcode;
 
-pub fn send_serial(effects: &mut Vec<Effect>, gcode_line: GCodeLine, context: &Context) {
+pub fn send_serial(effects: &mut Vec<Effect>, gcode_line: GCodeLine, context: &mut Context) {
+    let parser_result = parse_gcode(&gcode_line.gcode, context);
+
     let crate::configuration::Controller {
         long_running_code_timeout,
         fast_code_timeout,
@@ -11,10 +11,8 @@ pub fn send_serial(effects: &mut Vec<Effect>, gcode_line: GCodeLine, context: &C
         ..
     } = &context.controller;
 
-    let parser_result = parse_gcode(gcode_line);
-
-    let duration = if let Ok(Some(cmd)) = parser_result {
-        let gcode_macro = format!("{}{}", cmd.mnemonic(), cmd.major_number());
+    let duration = if let Ok(Some((mnemonic, major_number))) = parser_result {
+        let gcode_macro = format!("{}{}", mnemonic, major_number);
 
         if long_running_codes.contains(&gcode_macro) {
             long_running_code_timeout

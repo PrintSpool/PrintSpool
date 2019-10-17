@@ -12,17 +12,20 @@ pub use {
     find_u32_arg::find_u32_arg,
 };
 
-pub enum GCodeSynchronicity = {
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum GCodeSynchronicity {
     Blocking,
     NonBlocking,
 }
 
-pub enum Units = {
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum PositionUnits {
     Inches,
     Millimetre,
 }
 
-pub enum PositionMode = {
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum PositionMode {
     Relative,
     Absolute,
 }

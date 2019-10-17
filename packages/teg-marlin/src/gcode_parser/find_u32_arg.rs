@@ -1,7 +1,8 @@
-use gcode::GCode
+use gcode::GCode;
 
-pub find_u32_arg(cmd: GCode, letter: String) -> u32 {
-    cmd.arguments
+pub fn find_u32_arg(cmd: &GCode, letter: char) -> Option<u32> {
+    cmd.arguments()
+        .iter()
         .find(|word| word.letter == letter)
         .map(|word| word.value as u32)
 }

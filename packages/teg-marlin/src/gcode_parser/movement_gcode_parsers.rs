@@ -1,18 +1,21 @@
 // TODO: Movement GCode parsing
-use std::io::{self, Error, ErrorKind};
-use gcode
+use std::io;
+use gcode::GCode;
 
-use crate::state_machine::Context
+use crate::state_machine::Context;
 
 use super::{
     whitelist_args,
-}
+    find_u32_arg,
+    PositionMode,
+    PositionUnits,
+};
 
 pub fn parse_linear_move(
-    cmd: gcode::GCode,
+    cmd: &GCode,
     context: &mut Context,
 ) -> io::Result<()> {
-    if let Err(err) = whitelist_args(cmd, ["E", "F", "X", "Y", "Z"]) {
+    if let Err(err) = whitelist_args(cmd, &['E', 'F', 'X', 'Y', 'Z']) {
         return Err(err)
     };
 
@@ -20,23 +23,30 @@ pub fn parse_linear_move(
     // let feedrate = find_u32_arg(cmd, "E");
     // context.feedback.feedrate = feedrate;
 
-    let Context { position_mode, position_units, .. } = context
+    let Context { position_mode, position_units, .. } = context;
 
-    context.feedback.axis.iter_mut().map(|axis| {
-        let address = axis.address.to_ascii_uppercase();
+    context.feedback.axes.iter_mut().for_each(|axis| {
+        let maybe_address = axis.address
+            .to_ascii_uppercase()
+            .chars()
+            .next();
 
-        if (axis.homed || position_mode == PositionMode::Absolute) {
-            if let Some(value) = find_u32_arg(cmd, address) {
-                let value = if (position_units == PositionUnits::Inches) {
+        if axis.homed || *position_mode == PositionMode::Absolute {
+            let maybe_value = maybe_address.and_then(|address| find_u32_arg(cmd, address));
+
+            if let Some(value) = maybe_value {
+                let value = value as f32;
+
+                let value = if *position_units == PositionUnits::Inches {
                     value * 25.4
                 } else {
                     value
-                }
+                };
 
-                if (position_mode == PositionMode::Absolute) {
-                    axis.target_position = value
+                if *position_mode == PositionMode::Absolute {
+                    axis.target_position = value;
                 } else {
-                    axis.target_position += value
+                    axis.target_position += value;
                 }
             };
         };
@@ -46,22 +56,27 @@ pub fn parse_linear_move(
 }
 
 pub fn parse_home(
-    cmd: gcode::GCode,
+    cmd: &GCode,
     context: &mut Context,
 ) -> io::Result<()> {
-    if let Err(err) = whitelist_args(cmd, ["O", "R", "X", "Y", "Z"]) {
+    if let Err(err) = whitelist_args(&cmd, &['O', 'R', 'X', 'Y', 'Z']) {
         return Err(err)
     };
 
-    const axes = ["X", "Y", "Z"]
-    let home_all = cmd.arguments.iter().some(|word| axes.includes(word.letter)) == false
+    const AXES: [char; 3] = ['X', 'Y', 'Z'];
+    let home_all = cmd.arguments().iter().any(|word|
+        AXES.iter().any(|a| *a == word.letter)
+    ) == false;
 
-    context.feedback.axis.iter_mut().map(|axis| {
-        let address = axis.address.to_ascii_uppercase();
+    context.feedback.axes.iter_mut().for_each(|axis| {
+        let address = axis.address
+            .to_ascii_uppercase()
+            .chars()
+            .next();
 
-        if home_all || cmd.arguments.find(|word| word.letter == address) {
-            axis.homed = true
-            axis.target_position = 0
+        if home_all || cmd.arguments().iter().any(|word| Some(word.letter) == address) {
+            axis.homed = true;
+            axis.target_position = 0.0;
         }
     });
 

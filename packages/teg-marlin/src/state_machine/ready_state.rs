@@ -230,7 +230,7 @@ impl ReadyState {
                 if let OnOK::NotAwaitingOk = self.on_ok {
                     let mut effects = vec![];
 
-                    self.poll_feedback(&mut effects, &context, Polling::PollPosition);
+                    self.poll_feedback(&mut effects, context, Polling::PollPosition);
 
                     Loop::new(
                         Ready(self),
@@ -307,7 +307,7 @@ impl ReadyState {
                         line_number: Some(self.next_serial_line_number - 1),
                         checksum: true,
                     },
-                    &context,
+                    context,
                 );
 
                 self.on_ok = OnOK::IgnoreOK;
@@ -328,7 +328,7 @@ impl ReadyState {
             }
             OnOK::Despool => {
                 if let Some(poll_for) = self.poll_for {
-                    self.poll_feedback(effects, &context, poll_for);
+                    self.poll_feedback(effects, context, poll_for);
                 } else {
                     self.despool_task(effects, context);
                 }
@@ -349,7 +349,7 @@ impl ReadyState {
                         line_number: Some(self.next_serial_line_number),
                         checksum: true,
                     },
-                    &context,
+                    context,
                 );
 
                 self.on_ok = OnOK::Despool;
@@ -379,7 +379,12 @@ impl ReadyState {
         }
     }
 
-    fn poll_feedback(&mut self, effects: &mut Vec<Effect>, context: &Context, poll_for: Polling) {
+    fn poll_feedback(
+        &mut self,
+        effects: &mut Vec<Effect>,
+        context: &mut Context,
+        poll_for: Polling,
+    ) {
         let gcode = match poll_for {
             Polling::PollTemperature => "M105",
             Polling::PollPosition => "M114",
@@ -392,7 +397,7 @@ impl ReadyState {
                 line_number: Some(self.next_serial_line_number),
                 checksum: true,
             },
-            &context,
+            context,
         );
 
         self.on_ok = OnOK::Despool;
@@ -421,7 +426,7 @@ impl ReadyState {
                     line_number: None,
                     checksum: checksum_tickles,
                 },
-                &context,
+                context,
             );
 
             self.tickles_attempted += 1;

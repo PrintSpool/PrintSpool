@@ -29,6 +29,6 @@ fn main() {
     }
 }
 
-fn parse_heater_mcode(cmd: &gcode::GCode) {
+fn parse_heater_mcode(_cmd: &gcode::GCode) {
     println!("heater!")
 }
