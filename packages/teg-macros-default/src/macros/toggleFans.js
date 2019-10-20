@@ -9,15 +9,7 @@ const compileToggleFans = ({
   args: { fans },
   machineConfig,
 }) => {
-  const commands = Object.entries(fans).map(([address, { enable } = {}]) => {
-    if (typeof enable !== 'boolean') {
-      throw new Error(
-        'toggleFan fans arg must be in the format '
-        + '{ [address]: { enable: boolean } }'
-        + ` received ${JSON.stringify(fans)}`,
-      )
-    }
-
+  const commands = Object.entries(fans).map(([address, enable]) => {
     const component = machineConfig.components.find(c => (
       c.model.get('address') === address
     ))

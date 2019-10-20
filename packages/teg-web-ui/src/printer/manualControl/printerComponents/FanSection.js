@@ -22,15 +22,14 @@ const FanSection = ({
   const onChange = useExecGCodes((e, enable) => ({
     machineID: machine.id,
     gcodes: [
-      { toggleFan: { fans: { [address]: { enable } } } },
+      { toggleFans: { fans: { [address]: enable } } },
     ],
   }), [id])
 
   return (
     <div>
       <Typography variant="h4" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
-        {targetSpeed == null ? '--' : targetSpeed.toFixed(1)}
-        %
+        {targetSpeed == null ? 'OFF' : `${targetSpeed.toFixed(1)}%`}
       </Typography>
       <div style={{ marginTop: -3 }}>
         <FormControlLabel

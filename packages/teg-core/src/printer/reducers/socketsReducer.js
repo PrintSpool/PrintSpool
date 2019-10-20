@@ -317,12 +317,19 @@ const socketsReducer = (state = initialState, action) => {
         ].forEach(([feedbackCollectionKey, componentType]) => {
           const entries = feedback[feedbackCollectionKey] || []
 
+          // temporary speed controller percentage speed hack for 8 bit
+          // marlin speeds
+          if (componentType === 'speedController') {
+            entries.forEach((entry) => {
+              entry.targetSpeed = entry.targetSpeed === 255 ? 100 : null
+            })
+          }
+
           entries
-            .map(entry => Map(entry).mapKeys(k => camelCase(k)))
             .forEach((entry) => {
               const Feature = componentFeatures[componentType]
               machine = machine.updateIn(
-                ['components', entry.get('address'), componentType],
+                ['components', entry.address, componentType],
                 feature => (
                   Feature({
                     id: feature.id,
@@ -361,8 +368,9 @@ const socketsReducer = (state = initialState, action) => {
           'motorsEnabled',
         ]
 
-        scalars
-          .forEach((k) => { machine = machine.set(camelCase(k), feedback[k]) })
+        scalars.forEach((k) => {
+          machine = machine.set(k, feedback[k])
+        })
 
         return machine
       }))

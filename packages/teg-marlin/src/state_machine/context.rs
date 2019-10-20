@@ -59,6 +59,12 @@ impl Context {
                     ..machine_message::Heater::default()
                 }
             }).collect(),
+            speed_controllers: config.fan_addresses().iter().map(|address| {
+                machine_message::SpeedController {
+                    address: address.to_string(),
+                    ..machine_message::SpeedController::default()
+                }
+            }).collect(),
 
             ..machine_message::Feedback::default()
         }

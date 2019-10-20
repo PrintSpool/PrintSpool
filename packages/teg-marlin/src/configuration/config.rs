@@ -41,6 +41,19 @@ impl Config {
             })
             .collect()
     }
+    pub fn fan_addresses(&self) -> Vec<String> {
+        self.components
+            .iter()
+            .filter_map(|component| {
+                match component {
+                    | Component::Fan { address, .. } => {
+                        Some(address.clone())
+                    }
+                    _ => None
+                }
+            })
+            .collect()
+    }
     pub fn socket_path(&self) -> String {
         format!("/var/lib/teg/machine-{}.sock", self.id)
     }
