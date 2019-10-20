@@ -25,6 +25,8 @@ pub fn parse_linear_move(
 
     let Context { position_mode, position_units, .. } = context;
 
+    context.feedback.motors_enabled = true;
+
     context.feedback.axes.iter_mut().for_each(|axis| {
         let maybe_address = axis.address
             .to_ascii_uppercase()
@@ -62,6 +64,8 @@ pub fn parse_home(
     if let Err(err) = whitelist_args(&cmd, &['O', 'R', 'X', 'Y', 'Z']) {
         return Err(err)
     };
+
+    context.feedback.motors_enabled = true;
 
     const AXES: [char; 3] = ['X', 'Y', 'Z'];
     let home_all = cmd.arguments().iter().any(|word|

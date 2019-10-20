@@ -12,7 +12,11 @@ const compileHome = ({
   args: { axes },
   machineConfig,
 }) => {
-  if (axes === 'all') return ['G28']
+  if (axes === 'all') {
+    return {
+      commands: ['G28'],
+    }
+  }
 
   if (!Array.isArray(axes) || axes.length === 0) {
     throw new Error(

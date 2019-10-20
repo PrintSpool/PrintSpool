@@ -49,7 +49,7 @@ const Machine = Record({
   id: null,
   status: null,
   error: null,
-  motorsEnabled: null,
+  motorsEnabled: false,
 
   components: Map(),
 })
@@ -69,7 +69,7 @@ const Axis = Record({
   machineID: null,
   targetPosition: null,
   actualPosition: null,
-  homed: null,
+  homed: false,
 })
 
 const Heater = Record({
@@ -77,8 +77,8 @@ const Heater = Record({
   machineID: null,
   targetTemperature: null,
   actualTemperature: null,
-  enabled: null,
-  blocking: null,
+  enabled: false,
+  blocking: false,
 })
 
 const SpeedController = Record({
@@ -86,8 +86,14 @@ const SpeedController = Record({
   machineID: null,
   targetSpeed: null,
   actualSpeed: null,
-  enabled: null,
+  enabled: false,
 })
+
+const componentFeatures = {
+  axis: Axis,
+  heater: Heater,
+  speedController: SpeedController,
+}
 
 // TODO: initial machine state generation based on configuration
 const initialMachineState = ({
@@ -120,9 +126,6 @@ const initialMachineState = ({
             address,
             axis: Axis({
               ...idAttrs,
-              targetPosition: null,
-              actualPosition: null,
-              homed: false,
             }),
           })
         }
@@ -133,10 +136,6 @@ const initialMachineState = ({
             address,
             heater: Heater({
               ...idAttrs,
-              targetTemperature: null,
-              actualTemperature: null,
-              enabled: false,
-              blocking: false,
             }),
           })
         }
@@ -146,9 +145,6 @@ const initialMachineState = ({
             address,
             speedController: SpeedController({
               ...idAttrs,
-              targetSpeed: null,
-              actualSpeed: null,
-              enabled: false,
             }),
           })
         }
@@ -324,7 +320,16 @@ const socketsReducer = (state = initialState, action) => {
           entries
             .map(entry => Map(entry).mapKeys(k => camelCase(k)))
             .forEach((entry) => {
-              machine = machine.mergeIn(['components', entry.get('address'), componentType], entry)
+              const Feature = componentFeatures[componentType]
+              machine = machine.updateIn(
+                ['components', entry.get('address'), componentType],
+                feature => (
+                  Feature({
+                    id: feature.id,
+                    machineID: feature.machineID,
+                  }).merge(entry)
+                ),
+              )
             })
 
           delete feedback[componentType]
@@ -341,6 +346,7 @@ const socketsReducer = (state = initialState, action) => {
             nextEffects.push(Cmd.action(statusChanged(nextStatus)))
           }
         }
+        // console.log(feedback)
 
         if (feedback.error != null) {
           machine = machine.set('error', {
@@ -351,12 +357,11 @@ const socketsReducer = (state = initialState, action) => {
 
         // merge the remaining feilds directly into the machine's state
         const scalars = [
-          'despooled_line_number',
-          'motors_enabled',
+          'despooledLineNumber',
+          'motorsEnabled',
         ]
 
         scalars
-          .filter(k => feedback[k] != null)
           .forEach((k) => { machine = machine.set(camelCase(k), feedback[k]) })
 
         return machine

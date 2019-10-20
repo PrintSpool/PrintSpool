@@ -51,6 +51,8 @@ const G91_RELATIVE_POSITIONING: u32 = 91;
 
 const G28_HOME: u32 = 28;
 
+const M17_ENABLE_STEPPERS: u32 = 17;
+
 pub fn parse_gcode(
     gcode_line: &String,
     context: &mut Context,
@@ -60,7 +62,7 @@ pub fn parse_gcode(
 
     let result = if let Some(line) = maybe_line {
         if let Some(cmd) = line.gcodes().into_iter().next() {
-            println!("GCode: {:?} {:?}", cmd, cmd.major_number());
+            // println!("GCode: {:?} {:?}", cmd, cmd.major_number());
             maybe_cmd_tuple = Some((cmd.mnemonic(), cmd.major_number()));
 
             match (&cmd.mnemonic(), &cmd.major_number()) {
@@ -113,6 +115,16 @@ pub fn parse_gcode(
                 }
                 (M, &M107_FAN_OFF) => {
                     parse_fan_off(&cmd, context)
+                }
+                | (M, &M17_ENABLE_STEPPERS) => {
+                    context.feedback.motors_enabled = true;
+                    Ok(())
+                }
+                // disable steppers
+                | (M, 18)
+                | (M, 84) => {
+                    context.feedback.motors_enabled = false;
+                    Ok(())
                 }
                 _ => Ok(())
             }
