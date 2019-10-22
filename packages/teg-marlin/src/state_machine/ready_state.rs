@@ -132,6 +132,13 @@ impl ReadyState {
                                 self.task = None;
                                 context.feedback.despooled_line_number = 0;
 
+                                if context.reset_when_idle {
+                                    return Loop::new(
+                                        Ready(self),
+                                        vec![Effect::ExitProcess],
+                                    )
+                                }
+
                                 self.and_no_effects()
                             }
                             _ => {
@@ -370,6 +377,10 @@ impl ReadyState {
                 effects.push(
                     Effect::ProtobufSend,
                 );
+
+                if context.reset_when_idle {
+                    effects.push(Effect::ExitProcess)
+                };
             }
         } else {
             self.on_ok = OnOK::NotAwaitingOk;

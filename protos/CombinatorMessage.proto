@@ -18,6 +18,9 @@ message CombinatorMessage {
     // close and restart the machine service clearing any EStop in the process
     Reset reset = 16;
 
+    // reset the machine once the current task completes
+    Reset reset_when_idle = 17;
+
     // TODO: delete task history at the end of a task
     DeleteTaskHistory delete_task_history = 100;
     // A notification that the relevant hardware (eg. an controller board or arduino) has been connected to hint

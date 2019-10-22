@@ -2315,6 +2315,7 @@ $root.teg_protobufs = (function() {
          * @property {teg_protobufs.CombinatorMessage.IPauseTask|null} [pauseTask] CombinatorMessage pauseTask
          * @property {teg_protobufs.CombinatorMessage.IEStop|null} [estop] CombinatorMessage estop
          * @property {teg_protobufs.CombinatorMessage.IReset|null} [reset] CombinatorMessage reset
+         * @property {teg_protobufs.CombinatorMessage.IReset|null} [resetWhenIdle] CombinatorMessage resetWhenIdle
          * @property {teg_protobufs.CombinatorMessage.IDeleteTaskHistory|null} [deleteTaskHistory] CombinatorMessage deleteTaskHistory
          * @property {teg_protobufs.CombinatorMessage.IDeviceDiscovered|null} [deviceDiscovered] CombinatorMessage deviceDiscovered
          * @property {teg_protobufs.CombinatorMessage.IDeviceDisconnected|null} [deviceDisconnected] CombinatorMessage deviceDisconnected
@@ -2376,6 +2377,14 @@ $root.teg_protobufs = (function() {
         CombinatorMessage.prototype.reset = null;
 
         /**
+         * CombinatorMessage resetWhenIdle.
+         * @member {teg_protobufs.CombinatorMessage.IReset|null|undefined} resetWhenIdle
+         * @memberof teg_protobufs.CombinatorMessage
+         * @instance
+         */
+        CombinatorMessage.prototype.resetWhenIdle = null;
+
+        /**
          * CombinatorMessage deleteTaskHistory.
          * @member {teg_protobufs.CombinatorMessage.IDeleteTaskHistory|null|undefined} deleteTaskHistory
          * @memberof teg_protobufs.CombinatorMessage
@@ -2404,12 +2413,12 @@ $root.teg_protobufs = (function() {
 
         /**
          * CombinatorMessage payload.
-         * @member {"setConfig"|"spoolTask"|"pauseTask"|"estop"|"reset"|"deleteTaskHistory"|"deviceDiscovered"|"deviceDisconnected"|undefined} payload
+         * @member {"setConfig"|"spoolTask"|"pauseTask"|"estop"|"reset"|"resetWhenIdle"|"deleteTaskHistory"|"deviceDiscovered"|"deviceDisconnected"|undefined} payload
          * @memberof teg_protobufs.CombinatorMessage
          * @instance
          */
         Object.defineProperty(CombinatorMessage.prototype, "payload", {
-            get: $util.oneOfGetter($oneOfFields = ["setConfig", "spoolTask", "pauseTask", "estop", "reset", "deleteTaskHistory", "deviceDiscovered", "deviceDisconnected"]),
+            get: $util.oneOfGetter($oneOfFields = ["setConfig", "spoolTask", "pauseTask", "estop", "reset", "resetWhenIdle", "deleteTaskHistory", "deviceDiscovered", "deviceDisconnected"]),
             set: $util.oneOfSetter($oneOfFields)
         });
 
@@ -2447,6 +2456,8 @@ $root.teg_protobufs = (function() {
                 $root.teg_protobufs.CombinatorMessage.EStop.encode(message.estop, writer.uint32(/* id 15, wireType 2 =*/122).fork()).ldelim();
             if (message.reset != null && message.hasOwnProperty("reset"))
                 $root.teg_protobufs.CombinatorMessage.Reset.encode(message.reset, writer.uint32(/* id 16, wireType 2 =*/130).fork()).ldelim();
+            if (message.resetWhenIdle != null && message.hasOwnProperty("resetWhenIdle"))
+                $root.teg_protobufs.CombinatorMessage.Reset.encode(message.resetWhenIdle, writer.uint32(/* id 17, wireType 2 =*/138).fork()).ldelim();
             if (message.deleteTaskHistory != null && message.hasOwnProperty("deleteTaskHistory"))
                 $root.teg_protobufs.CombinatorMessage.DeleteTaskHistory.encode(message.deleteTaskHistory, writer.uint32(/* id 100, wireType 2 =*/802).fork()).ldelim();
             if (message.deviceDiscovered != null && message.hasOwnProperty("deviceDiscovered"))
@@ -2501,6 +2512,9 @@ $root.teg_protobufs = (function() {
                     break;
                 case 16:
                     message.reset = $root.teg_protobufs.CombinatorMessage.Reset.decode(reader, reader.uint32());
+                    break;
+                case 17:
+                    message.resetWhenIdle = $root.teg_protobufs.CombinatorMessage.Reset.decode(reader, reader.uint32());
                     break;
                 case 100:
                     message.deleteTaskHistory = $root.teg_protobufs.CombinatorMessage.DeleteTaskHistory.decode(reader, reader.uint32());
@@ -2595,6 +2609,16 @@ $root.teg_protobufs = (function() {
                         return "reset." + error;
                 }
             }
+            if (message.resetWhenIdle != null && message.hasOwnProperty("resetWhenIdle")) {
+                if (properties.payload === 1)
+                    return "payload: multiple values";
+                properties.payload = 1;
+                {
+                    var error = $root.teg_protobufs.CombinatorMessage.Reset.verify(message.resetWhenIdle);
+                    if (error)
+                        return "resetWhenIdle." + error;
+                }
+            }
             if (message.deleteTaskHistory != null && message.hasOwnProperty("deleteTaskHistory")) {
                 if (properties.payload === 1)
                     return "payload: multiple values";
@@ -2665,6 +2689,11 @@ $root.teg_protobufs = (function() {
                     throw TypeError(".teg_protobufs.CombinatorMessage.reset: object expected");
                 message.reset = $root.teg_protobufs.CombinatorMessage.Reset.fromObject(object.reset);
             }
+            if (object.resetWhenIdle != null) {
+                if (typeof object.resetWhenIdle !== "object")
+                    throw TypeError(".teg_protobufs.CombinatorMessage.resetWhenIdle: object expected");
+                message.resetWhenIdle = $root.teg_protobufs.CombinatorMessage.Reset.fromObject(object.resetWhenIdle);
+            }
             if (object.deleteTaskHistory != null) {
                 if (typeof object.deleteTaskHistory !== "object")
                     throw TypeError(".teg_protobufs.CombinatorMessage.deleteTaskHistory: object expected");
@@ -2720,6 +2749,11 @@ $root.teg_protobufs = (function() {
                 object.reset = $root.teg_protobufs.CombinatorMessage.Reset.toObject(message.reset, options);
                 if (options.oneofs)
                     object.payload = "reset";
+            }
+            if (message.resetWhenIdle != null && message.hasOwnProperty("resetWhenIdle")) {
+                object.resetWhenIdle = $root.teg_protobufs.CombinatorMessage.Reset.toObject(message.resetWhenIdle, options);
+                if (options.oneofs)
+                    object.payload = "resetWhenIdle";
             }
             if (message.deleteTaskHistory != null && message.hasOwnProperty("deleteTaskHistory")) {
                 object.deleteTaskHistory = $root.teg_protobufs.CombinatorMessage.DeleteTaskHistory.toObject(message.deleteTaskHistory, options);

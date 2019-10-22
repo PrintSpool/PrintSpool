@@ -26,8 +26,12 @@ pub struct Context {
     pub current_hotend_index: u32,
     pub position_mode: PositionMode,
     pub position_units: PositionUnits,
+
     pub config: Config,
     pub controller: Controller,
+
+    pub reset_when_idle: bool,
+
     pub feedback: machine_message::Feedback,
     gcode_history_buffer: VecDeque<machine_message::GCodeHistoryEntry>,
 }
@@ -43,6 +47,7 @@ impl Context {
             current_hotend_index: 0,
             position_mode: PositionMode::Absolute,
             position_units: PositionUnits::Millimetre,
+            reset_when_idle: false,
             feedback,
             config,
             controller,

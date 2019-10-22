@@ -205,6 +205,18 @@ impl State {
                         vec![Effect::ExitProcess],
                     )
                 }
+                Some(Payload::ResetWhenIdle(_)) => {
+                    if let Ready ( ReadyState { task: Some(_), .. } ) = self {
+                        context.reset_when_idle = true
+                    } else  {
+                        println!("RESET: restarting service");
+
+                        return Loop::new(
+                            self,
+                            vec![Effect::ExitProcess],
+                        )
+                    }
+                }
                 _ => ()
             }
         }

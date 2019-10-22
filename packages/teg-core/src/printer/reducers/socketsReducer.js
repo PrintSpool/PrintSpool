@@ -1,12 +1,12 @@
 // import path from 'path'
 import { Record, List, Map } from 'immutable'
 import { loop, Cmd } from 'redux-loop'
-import camelCase from 'camelcase'
 
 import { createSocketManager, startSocketManager, sendToSocket } from '../effects/socketManager'
 import { SET_CONFIG } from '../../config/actions/setConfig'
 import { SOCKET_MESSAGE } from '../actions/socketMessage'
 import { DEVICE_CONNECTED } from '../../devices/actions/deviceConnected'
+import { APPROVE_UPDATES } from '../../updates/actions/approveUpdates'
 
 import {
   ERRORED,
@@ -182,8 +182,17 @@ const socketsReducer = (state = initialState, action) => {
       const machineID = config.printer.id
       const socketPath = `/var/lib/teg/machine-${machineID}.sock`
 
+      let effects = []
+
       if (state.socketManager != null) {
-        state.socketManager.close()
+        const message = { resetWhenIdle: {} }
+
+        effects = state.machines.map(machine => (
+          Cmd.run(sendToSocket, {
+            args: [state.socketManager, machine.id, message],
+          })
+        ))
+        // state.socketManager.close()
       }
       const socketManager = createSocketManager({ machineID, socketPath })
 
@@ -198,11 +207,29 @@ const socketsReducer = (state = initialState, action) => {
         .set('localID', config.host.localID)
         .setIn(['machines', machineID], machineState)
 
-      return loop(
-        nextState,
+      effects.push(
         Cmd.run(startSocketManager, {
           args: [socketManager, Cmd.dispatch],
         }),
+      )
+
+      return loop(
+        nextState,
+        Cmd.list(effects),
+      )
+    }
+    case APPROVE_UPDATES: {
+      const message = {
+        reset: {},
+      }
+
+      return loop(
+        state,
+        Cmd.list(state.machines.map(machine => (
+          Cmd.run(sendToSocket, {
+            args: [state.socketManager, machine.id, message],
+          })
+        ))),
       )
     }
     case SEND_TASK_TO_SOCKET: {

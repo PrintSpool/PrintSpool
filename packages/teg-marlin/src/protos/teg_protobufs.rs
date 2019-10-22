@@ -4,7 +4,7 @@
 /// uint32 message_id = 2;
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CombinatorMessage {
-    #[prost(oneof="combinator_message::Payload", tags="9, 10, 11, 15, 16, 100, 110, 111")]
+    #[prost(oneof="combinator_message::Payload", tags="9, 10, 11, 15, 16, 17, 100, 110, 111")]
     pub payload: ::std::option::Option<combinator_message::Payload>,
 }
 pub mod combinator_message {
@@ -90,6 +90,9 @@ pub mod combinator_message {
         /// close and restart the machine service clearing any EStop in the process
         #[prost(message, tag="16")]
         Reset(Reset),
+        /// reset the machine once the current task completes
+        #[prost(message, tag="17")]
+        ResetWhenIdle(Reset),
         /// TODO: delete task history at the end of a task
         #[prost(message, tag="100")]
         DeleteTaskHistory(DeleteTaskHistory),
