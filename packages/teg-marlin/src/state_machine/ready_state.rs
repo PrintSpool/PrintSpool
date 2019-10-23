@@ -135,7 +135,7 @@ impl ReadyState {
                                 if context.reset_when_idle {
                                     return Loop::new(
                                         Ready(self),
-                                        vec![Effect::ExitProcess],
+                                        vec![Effect::ExitProcessAfterDelay],
                                     )
                                 }
 
@@ -379,7 +379,7 @@ impl ReadyState {
                 );
 
                 if context.reset_when_idle {
-                    effects.push(Effect::ExitProcess)
+                    effects.push(Effect::ExitProcessAfterDelay)
                 };
             }
         } else {

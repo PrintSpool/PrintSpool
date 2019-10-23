@@ -66,6 +66,7 @@ pub enum Effect {
     LoadGCode { file_path: String, task_id: u32, client_id: u32 },
     CloseSerialPort,
     ExitProcess,
+    ExitProcessAfterDelay,
 }
 
 impl Effect {
@@ -176,6 +177,13 @@ impl Effect {
                 reactor.serial_manager.close();
             }
             Effect::ExitProcess => {
+                reactor.serial_manager.close();
+                std::process::exit(0);
+            }
+            Effect::ExitProcessAfterDelay => {
+                let when = Instant::now() + Duration::from_millis(500);
+                delay(when).await;
+
                 reactor.serial_manager.close();
                 std::process::exit(0);
             }
