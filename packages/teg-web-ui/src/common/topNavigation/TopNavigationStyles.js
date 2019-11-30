@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/styles'
 const useStyles = makeStyles(theme => ({
   root: {
     display: 'grid',
-    gridTemplateColumns: 'min-content max-content 1fr',
+    gridTemplateColumns: 'min-content max-content 1fr auto',
     gridTemplateRows: 'auto',
     alignItems: 'center',
     // background: 'linear-gradient(#DD25C4, #9602A7)',

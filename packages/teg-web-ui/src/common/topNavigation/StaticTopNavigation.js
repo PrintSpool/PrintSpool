@@ -9,6 +9,8 @@ import {
 } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
 
+import NavigationAuthLink from '../auth/NavigationAuthLink'
+
 import TopNavigationStyles from './TopNavigationStyles'
 import tegLogoNoTextSVG from './images/tegLogoNoText.svg'
 
@@ -56,6 +58,7 @@ const StaticTopNavigation = ({
       >
         {actions({ buttonClass: classes.buttonClass })}
       </div>
+      <NavigationAuthLink buttonClass={classes.buttonClass} />
     </div>
   )
 }
