@@ -98,6 +98,34 @@ const run = (pkg, taskName) => (cb) => {
   })
 }
 
+const cargoRun = pkg => (cb) => {
+  const proc = spawn(
+    'cargo',
+    ['run'],
+    {
+      cwd: path.resolve(__dirname, `packages/${pkg}`),
+      env: Object.create(process.env),
+    },
+  )
+  proc.stdout.on('data', (data) => {
+    // eslint-disable-next-line no-console
+    console.log(`${pkg}: ${data}`)
+  })
+
+  proc.stderr.on('data', (data) => {
+    // eslint-disable-next-line no-console
+    console.error(`${pkg}: ${data}`)
+  })
+
+  proc.on('close', (code) => {
+    if (code === 0) {
+      cb()
+    } else {
+      process.exitCode = code
+    }
+  })
+}
+
 gulp.task('babel:clean', babelClean)
 gulp.task('babel:build', gulp.series(
   'babel:clean',
@@ -124,6 +152,7 @@ gulp.task(
       watchBabel,
       run('teg-host-posix', 'dev'),
       run('teg-web-ui', 'serve:http'),
+      cargoRun('teg-marlin'),
     ),
   ),
 )
