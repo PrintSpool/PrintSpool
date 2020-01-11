@@ -27,6 +27,7 @@ const useStyles = makeStyles(theme => ({
   },
   actions: {
     justifySelf: 'end',
+    display: 'flex',
   },
   buttonClass: {
     color: 'white',

@@ -58,7 +58,6 @@ const StaticTopNavigation = ({
       >
         {actions({ buttonClass: classes.buttonClass })}
       </div>
-      <NavigationAuthLink buttonClass={classes.buttonClass} />
     </div>
   )
 }

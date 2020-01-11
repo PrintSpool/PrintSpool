@@ -191,7 +191,7 @@ const socketsReducer = (state = initialState, action) => {
           Cmd.run(sendToSocket, {
             args: [state.socketManager, machine.id, message],
           })
-        ))
+        )).toList().toArray()
         // state.socketManager.close()
       }
       const socketManager = createSocketManager({ machineID, socketPath })
@@ -229,7 +229,7 @@ const socketsReducer = (state = initialState, action) => {
           Cmd.run(sendToSocket, {
             args: [state.socketManager, machine.id, message],
           })
-        ))),
+        )).toList().toArray()),
       )
     }
     case SEND_TASK_TO_SOCKET: {

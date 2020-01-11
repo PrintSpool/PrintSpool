@@ -35,6 +35,13 @@ export const Auth0Provider = ({
 
       if (isAuthenticated) {
         const user = await auth0FromHook.getUser();
+        // const token = await auth0FromHook.getTokenSilently();
+        const differentAudienceOptions = {
+            scope: 'read:rules',
+            redirect_uri: 'http://localhost:1234/'
+          };
+        const token = await auth0FromHook.getTokenSilently(differentAudienceOptions);
+        console.log({ user, token })
         setUser(user);
       }
 

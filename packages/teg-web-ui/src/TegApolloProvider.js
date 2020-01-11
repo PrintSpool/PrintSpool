@@ -21,6 +21,7 @@ const TegApolloProvider = ({
   children,
 }) => {
   const { location, match } = useReactRouter()
+  // TODO: use the Auth0 context here
   const { hosts } = useContext(UserDataContext)
 
   const nextHostIdentity = useMemo(() => {
@@ -48,9 +49,12 @@ const TegApolloProvider = ({
     // the public key is retreaved by scanning the QR Code displayed by Teg on
     // the 3D printer's screen.
     const thingLink = new ThingLink({
+      // TODO: pass the invite key and/or auth0 token here
       createConnection: () => connect({
         // timeout: 1000,
         // identityKeys: myIdentity,
+        // auth0Token: auth0Token,
+        // inviteKey: inviteKey,
         identityKeys: nextHostIdentity.identityKeys,
         peerIdentityPublicKey: nextHostIdentity.peerIdentityPublicKey,
         // eslint-disable-next-line no-console
