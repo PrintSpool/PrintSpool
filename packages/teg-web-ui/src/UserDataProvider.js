@@ -10,7 +10,8 @@ export const UserDataContext = React.createContext({
 
 export const HOST_SLUG_LENGTH = 12
 
-const getID = ({ peerIdentityPublicKey }) => {
+// TODO: getID is used to generate the slug. It will need to be moved before this file is deleted.
+export const getID = ({ peerIdentityPublicKey }) => {
   const bytes = Buffer.from(peerIdentityPublicKey, 'hex')
   return bs58.encode(bytes).slice(0, HOST_SLUG_LENGTH)
 }

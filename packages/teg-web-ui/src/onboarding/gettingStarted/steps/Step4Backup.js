@@ -1,11 +1,16 @@
 import React, { useContext, useEffect, useMemo } from 'react'
+import { useGraphQL } from 'graphql-react'
 
 import {
   Button,
   Typography,
 } from '@material-ui/core'
 
-import { UserDataContext } from '../../../UserDataProvider'
+import { getID } from '../../../UserDataProvider'
+import userProfileServerFetchOptions from '../../../common/userProfileServer/fetchOptions'
+import WithAuth0Token from '../../../common/auth/WithAuth0Token'
+
+import Loading from '../../../common/Loading'
 
 import Step4BackupStyles from './Step4BackupStyles'
 
@@ -16,58 +21,73 @@ const Step4Backup = ({
   history,
   invite,
   data,
+  auth0Token,
 }) => {
   const classes = Step4BackupStyles()
 
-  const { addHost, userData } = useContext(UserDataContext)
+  const { loading, cacheValue = {} } = useGraphQL({
+    fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
+    operation: {
+      query: `
+        mutation($input: CreateMachine!) {
+          createMachine(input: $input) { id }
+        }
+      `,
+      variables: {
+        input:  {
+          publicKey: invite.peerIdentityPublicKey,
+          name: data.jobQueue.name,
+          slug: getID(invite),
+        }
+      }
+    },
 
-  useEffect(() => {
-    addHost({ invite, name: data.jobQueue.name })
-  }, [])
+    // Load the query whenever the component mounts. This is desirable for
+    // queries to display content, but not for on demand situations like
+    // pagination view more buttons or forms that submit mutations.
+    loadOnMount: true,
 
-  const userDataURL = useMemo(() => {
-    const json = JSON.stringify(userData)
-    const blob = new Blob([json], { type: 'octet/stream' })
-    const url = window.URL.createObjectURL(blob)
-    return url
+    // Reload the query whenever a global cache reload is signaled.
+    loadOnReload: true,
+
+    // Reload the query whenever the global cache is reset. Resets immediately
+    // delete the cache and are mostly only used when logging out the user.
+    loadOnReset: true
   })
+
+  if (loading) {
+    return (
+      <Loading />
+    )
+  }
+  console.log(cacheValue)
+
+  if (cacheValue.httpError || cacheValue.graphqlErrors) {
+    return (
+      <div>
+        <Typography variant="h6" paragraph>
+          Something went wrong. Here's what we know:
+        </Typography>
+        <pre>
+          {JSON.stringify(cacheValue, null, 2)}
+        </pre>
+      </div>
+    )
+  }
 
   return (
     <React.Fragment>
       <div className={className}>
         <div className={classes.root}>
           <Typography variant="h6" paragraph>
-            Your 3D Printer is ready to configure
+            Your 3D Printer is ready to use
           </Typography>
-          <Typography variant="body1" paragraph>
-            Your account has been created but you may need to import it again in
-            the future.
-          </Typography>
-          <Typography variant="body1" paragraph>
-            To prevent data loss please save a backup before you continue.
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => history.push('/')}
-            component={React.forwardRef((props, ref) => (
-              <a
-                href={userDataURL}
-                ref={ref}
-                {...props}
-              >
-                {props.children}
-              </a>
-            ))}
-          >
-            Download User Data Backup
-          </Button>
           { /* TODO: User / Printer Setup */ }
         </div>
       </div>
-      <ButtonsFooter step={4} disable history={history} />
+      <ButtonsFooter step={4} history={history} />
     </React.Fragment>
   )
 }
 
-export default Step4Backup
+export default WithAuth0Token(Step4Backup)
