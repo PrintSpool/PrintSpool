@@ -127,24 +127,24 @@ const Home = ({
   //   }
   // `)
 
-  // const { loading, cacheValue = {} } = useGraphQL({
-  //   fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
-  //   operation: {
-  //     query: `
-  //       {
-  //         my {
-  //           machines {
-  //             id
-  //             publicKey
-  //             name
-  //             slug
-  //           }
-  //         }
-  //       }
-  //     `
-  //   },
-  //   loadOnMount: true,
-  // })
+  const { loading, cacheValue = {} } = useGraphQL({
+    fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
+    operation: {
+      query: `
+        {
+          my {
+            machines {
+              id
+              publicKey
+              name
+              slug
+            }
+          }
+        }
+      `
+    },
+    loadOnMount: true,
+  })
 
   const navActions = ({ buttonClass }) => (
     <>
@@ -173,7 +173,7 @@ const Home = ({
       />
       <div className={classes.root}>
         <List>
-          { !loading && Object.values(data.my.machines).map(machine => (
+          { !loading && Object.values(cacheValue.my.machines).map(machine => (
             <ListItem key={machine.slug}>
               <ListItemText primary={machine.name} />
               <ListItemSecondaryAction>
