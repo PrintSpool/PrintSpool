@@ -49,6 +49,7 @@
     "graphql": "^14.0.2",
     "graphql-anywhere": "^3.1.0",
     "graphql-playground-react": "^1.7.20",
+    "graphql-react": "^9.1.0",
     "graphql-tag": "^2.5.0",
     "graphql-things": "^0.7.3",
     "history": "^4.7.2",
