@@ -10,6 +10,13 @@ const useStyles = makeStyles(() => ({
   manage: {
     marginRight: '1rem',
   },
+  emptyListMessage: {
+    textAlign: 'center',
+    marginTop: '25vh',
+  },
+  addFirstPrinterButton: {
+    marginTop: '1rem',
+  },
 }))
 
 export default useStyles

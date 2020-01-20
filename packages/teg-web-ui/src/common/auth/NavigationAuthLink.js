@@ -3,15 +3,15 @@ import { Button } from '@material-ui/core'
 
 import { useAuth0 } from './auth0'
 
-const NavigationAuthLink = ({ buttonClass }) => {
+const NavigationAuthLink = ({ ...buttonProps }) => {
   const { isAuthenticated, loginWithRedirect, logout } = useAuth0()
 
   return (
-    <div>
+    <>
       {!isAuthenticated && (
         <Button
-          className={buttonClass}
           onClick={() => loginWithRedirect({})}
+          {...buttonProps}
         >
           Log in
         </Button>
@@ -19,13 +19,13 @@ const NavigationAuthLink = ({ buttonClass }) => {
 
       {isAuthenticated && (
         <Button
-          className={buttonClass}
           onClick={() => logout({})}
+          {...buttonProps}
         >
           Log out
         </Button>
       )}
-    </div>
+    </>
   )
 }
 

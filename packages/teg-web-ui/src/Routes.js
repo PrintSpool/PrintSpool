@@ -1,7 +1,8 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import { Route, Switch } from 'react-router'
 
-import { UserDataContext } from './UserDataProvider'
+// import { UserDataContext } from './UserDataProvider'
+import { useAuth0 } from './common/auth/auth0'
 
 import LandingPage from './onboarding/landingPage/LandingPage'
 
@@ -45,11 +46,15 @@ const PluginsConfigPage = React.lazy(() => (
 ))
 
 const Routes = () => {
-  const { isAuthorized } = useContext(UserDataContext)
+  const { isAuthenticated, loading } = useAuth0()
+
+  if (loading) {
+    return <div></div>
+  }
 
   return (
     <Switch>
-      { !isAuthorized && (
+      { !isAuthenticated && (
         <Route
           exact
           path="/"
@@ -61,7 +66,7 @@ const Routes = () => {
         path="/get-started/:step?"
         component={GettingStarted}
       />
-      { isAuthorized && (
+      { isAuthenticated && (
         <Route
           exact
           path={['/', '/print/']}
@@ -89,7 +94,7 @@ const Routes = () => {
           )}
         />
       )}
-      { isAuthorized && (
+      { isAuthenticated && (
         <Route
           path={[
             '/m/:hostID/',

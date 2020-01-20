@@ -8,6 +8,7 @@ import {
   ListItem,
   ListItemText,
   ListItemSecondaryAction,
+  Typography,
 } from '@material-ui/core'
 
 // import { UserDataContext } from '../../UserDataProvider'
@@ -34,7 +35,7 @@ const WithAuth0Token = Child => props => {
     fetchData()
   }, [auth0.isAuthenticated])
 
-  if (loading) {
+  if (state.loading) {
     return <div></div>
   }
 
@@ -93,7 +94,7 @@ const WithAuth0Token = Child => props => {
 //   return state
 // }
 
-const userProfileServerFetchOptions = auth0Token => optons => {
+const userProfileServerFetchOptions = auth0Token => options => {
     // const url = 'https://app-f49757b3-f48d-4078-8e8c-47b27b8b9d6d.cleverapps.io/graphql'
     const url = 'http://localhost:8080/graphql'
 
@@ -143,8 +144,20 @@ const Home = ({
         }
       `
     },
+
+    // Load the query whenever the component mounts. This is desirable for
+    // queries to display content, but not for on demand situations like
+    // pagination view more buttons or forms that submit mutations.
     loadOnMount: true,
+
+    // Reload the query whenever a global cache reload is signaled.
+    loadOnReload: true,
+
+    // Reload the query whenever the global cache is reset. Resets immediately
+    // delete the cache and are mostly only used when logging out the user.
+    loadOnReset: true
   })
+  console.log({ loading, cacheValue })
 
   const navActions = ({ buttonClass }) => (
     <>
@@ -161,9 +174,15 @@ const Home = ({
       >
         Add Printer
       </Button>
-      <NavigationAuthLink buttonClass={buttonClass} />
+      <NavigationAuthLink className={buttonClass} />
     </>
   )
+
+  if (loading || cacheValue.data == null) {
+    return <div />
+  }
+
+  const machines = Object.values(cacheValue.data.my.machines)
 
   return (
     <React.Fragment>
@@ -172,29 +191,50 @@ const Home = ({
         actions={navActions}
       />
       <div className={classes.root}>
-        <List>
-          { !loading && Object.values(cacheValue.my.machines).map(machine => (
-            <ListItem key={machine.slug}>
-              <ListItemText primary={machine.name} />
-              <ListItemSecondaryAction>
-                <Button
-                  className={classes.manage}
-                  component={React.forwardRef((props, ref) => (
-                    <Link
-                      to={`/q/${machine.slug}/`}
-                      className={classes.manage}
-                      innerRef={ref}
-                      {...props}
-                    />
-                  ))}
-                >
-                  Manage
-                </Button>
-                <PrintButton href={`/print/?q=${machine.slug}`} />
-              </ListItemSecondaryAction>
-            </ListItem>
-          ))}
-        </List>
+          <List>
+            { machines.map(machine => (
+              <ListItem key={machine.slug}>
+                <ListItemText primary={machine.name} />
+                <ListItemSecondaryAction>
+                  <Button
+                    className={classes.manage}
+                    component={React.forwardRef((props, ref) => (
+                      <Link
+                        to={`/q/${machine.slug}/`}
+                        className={classes.manage}
+                        innerRef={ref}
+                        {...props}
+                      />
+                    ))}
+                  >
+                    Manage
+                  </Button>
+                  <PrintButton href={`/print/?q=${machine.slug}`} />
+                </ListItemSecondaryAction>
+              </ListItem>
+            ))}
+          </List>
+          { machines.length === 0 && (
+            <div className={classes.emptyListMessage}>
+              <Typography variant="h6" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
+                It looks like you don't have any 3D printers setup yet.
+              </Typography>
+              <Button
+                className={classes.addFirstPrinterButton}
+                variant="contained"
+                color="primary"
+                component={React.forwardRef((props, ref) => (
+                  <Link
+                    to="/get-started"
+                    innerRef={ref}
+                    {...props}
+                  />
+                ))}
+              >
+                Add your first printer
+              </Button>
+            </div>
+          )}
       </div>
     </React.Fragment>
   )

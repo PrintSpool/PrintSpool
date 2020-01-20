@@ -7,6 +7,8 @@ import {
   Hidden,
 } from '@material-ui/core'
 
+import NavigationAuthLink from '../../common/auth/NavigationAuthLink'
+
 import cubesSVG from './images/cubes.svg'
 import cubesMobileSVG from './images/cubesMobile.svg'
 import tegLogoSVG from './images/tegLogo.svg'
@@ -18,6 +20,11 @@ const Hero = ({ t }) => {
 
   return (
     <div className={classes.root}>
+      <NavigationAuthLink
+        className={classes.githubButton}
+        variant="outlined"
+      />
+      {/* 
       <Button
         className={classes.githubButton}
         component="a"
@@ -26,6 +33,7 @@ const Hero = ({ t }) => {
       >
         Github
       </Button>
+      */}
       <div className={classes.centeredContent}>
         <Grid container>
           <Grid item xs={12} sm={6}>
