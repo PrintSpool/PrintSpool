@@ -2,9 +2,12 @@
 * return true to allow the connection if an authorized user can be found with
 * the identity public key.
 */
-const authenticate = ({ store, peerIdentityPublicKey }) => {
+const authenticate = ({ store, peerIdentityPublicKey, authToken }) => {
   // eslint-disable-next-line no-console
   console.log(`\n\nNew connection from ${peerIdentityPublicKey}`)
+
+  // TODO: auth token authentication
+  console.log({ authToken })
 
   const { config } = store.getState()
 

@@ -104,7 +104,7 @@ const DrawerLink = withRouter(({
   </ListItem>
 ))
 
-const DrawerContents = ({ hostIdentity, machines, classes }) => (
+const DrawerContents = ({ machineSlug, machines, classes }) => (
   <div>
     <List>
       <Hidden mdUp>
@@ -119,7 +119,7 @@ const DrawerContents = ({ hostIdentity, machines, classes }) => (
       <DrawerLink
         text="Print Queue"
         icon={<Inbox />}
-        href={`/q/${hostIdentity.id}/`}
+        href={`/q/${machineSlug}/`}
         classes={classes}
       />
       {
@@ -131,19 +131,19 @@ const DrawerContents = ({ hostIdentity, machines, classes }) => (
             <DrawerLink
               text="Control Panel"
               icon={<OpenWith />}
-              href={`/m/${hostIdentity.id}/${machine.id}/manual-control/`}
+              href={`/m/${machineSlug}/${machine.id}/manual-control/`}
               classes={classes}
             />
             <DrawerLink
               text="Terminal"
               icon={<Keyboard />}
-              href={`/m/${hostIdentity.id}/${machine.id}/terminal/`}
+              href={`/m/${machineSlug}/${machine.id}/terminal/`}
               classes={classes}
             />
             <DrawerLink
               text="Config"
               icon={<Settings />}
-              href={`/m/${hostIdentity.id}/${machine.id}/config/`}
+              href={`/m/${machineSlug}/${machine.id}/config/`}
               classes={classes}
             />
           </div>
@@ -153,7 +153,7 @@ const DrawerContents = ({ hostIdentity, machines, classes }) => (
       <DrawerLink
         text="GraphQL"
         icon={<Code />}
-        href={`/q/${hostIdentity.id}/graphql-playground/`}
+        href={`/q/${machineSlug}/graphql-playground/`}
         classes={classes}
       />
     </List>
@@ -161,7 +161,7 @@ const DrawerContents = ({ hostIdentity, machines, classes }) => (
 )
 
 const Drawer = ({
-  hostIdentity,
+  machineSlug,
   machines,
   mobileOpen,
   onClose,
@@ -184,7 +184,7 @@ const Drawer = ({
         }}
       >
         <DrawerContents
-          hostIdentity={hostIdentity}
+          machineSlug={machineSlug}
           machines={machines}
           classes={classes}
         />
@@ -200,7 +200,7 @@ const Drawer = ({
         }}
       >
         <DrawerContents
-          hostIdentity={hostIdentity}
+          machineSlug={machineSlug}
           machines={machines}
           classes={classes}
         />

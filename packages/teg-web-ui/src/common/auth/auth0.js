@@ -26,6 +26,10 @@ export const Auth0Provider = ({
 
       if (window.location.search.includes("code=")) {
         const { appState } = await auth0FromHook.handleRedirectCallback();
+
+        // Temporary Firefox workaround
+        window.location.hash = window.location.hash; // eslint-disable-line no-self-assign
+
         onRedirectCallback(appState);
       }
 
@@ -35,12 +39,12 @@ export const Auth0Provider = ({
 
       if (isAuthenticated) {
         const user = await auth0FromHook.getUser();
-        // const token = await auth0FromHook.getTokenSilently();
-        const differentAudienceOptions = {
-            scope: 'read:rules',
-            redirect_uri: 'http://localhost:1234/'
-          };
-        const token = await auth0FromHook.getTokenSilently(differentAudienceOptions);
+        const token = await auth0FromHook.getTokenSilently();
+        // const differentAudienceOptions = {
+        //     scope: 'read:rules',
+        //     redirect_uri: 'http://localhost:1234/'
+        //   };
+        // const token = await auth0FromHook.getTokenSilently(differentAudienceOptions);
         console.log({ user, token })
         setUser(user);
       }

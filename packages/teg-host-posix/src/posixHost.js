@@ -214,8 +214,8 @@ const tegServer = async (argv, pluginLoader) => {
         store,
       },
       identityKeys: config.auth.hostIdentityKeys,
-      authenticate: ({ peerIdentityPublicKey }) => (
-        authenticate({ peerIdentityPublicKey, store })
+      authenticate: ({ peerIdentityPublicKey, authToken }) => (
+        authenticate({ peerIdentityPublicKey, authToken, store })
       ),
     }
 

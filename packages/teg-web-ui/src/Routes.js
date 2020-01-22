@@ -47,6 +47,7 @@ const PluginsConfigPage = React.lazy(() => (
 
 const Routes = () => {
   const { isAuthenticated, loading } = useAuth0()
+  console.log({ isAuthenticated, loading })
 
   if (loading) {
     return <div></div>

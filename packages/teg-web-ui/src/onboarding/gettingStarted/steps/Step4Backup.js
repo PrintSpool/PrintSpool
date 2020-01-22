@@ -62,7 +62,7 @@ const Step4Backup = ({
   }
   console.log(cacheValue)
 
-  if (cacheValue.httpError || cacheValue.graphqlErrors) {
+  if (cacheValue.httpError || cacheValue.graphQLErrors) {
     return (
       <div>
         <Typography variant="h6" paragraph>

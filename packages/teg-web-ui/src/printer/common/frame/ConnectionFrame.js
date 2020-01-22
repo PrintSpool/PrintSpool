@@ -65,20 +65,14 @@ const ConnectionFrame = ({
   match,
   children,
 }) => {
-  const { hostID } = match.params
+  const { hostID: machineSlug } = match.params
 
   const classes = useStyles()
-  const { hosts, setHostName } = useContext(UserDataContext)
+  // const { hosts, setHostName } = useContext(UserDataContext)
+  // TODO: setHostName
+  const setHostName = () => {}
 
   const [mobileOpen, setMobileOpen] = useState(false)
-
-  const host = hosts[hostID]
-
-  if (host == null) {
-    return (
-      <div>404 Page Not Found</div>
-    )
-  }
 
   return (
     <LiveSubscription
@@ -86,7 +80,7 @@ const ConnectionFrame = ({
       subscription={FRAME_SUBSCRIPTION}
       onSubscriptionData={({ subscriptionData }) => {
         setHostName({
-          id: host.id,
+          machineSlug,
           name: subscriptionData.data.jobQueue.name,
         })
       }}
@@ -105,7 +99,7 @@ const ConnectionFrame = ({
               {
                 !loading && (
                   <StaticTopNavigation
-                    title={() => host.name}
+                    title={() => data.jobQueue.name}
                     className={classes.topNavigation}
                     onMenuButtonClick={() => setMobileOpen(true)}
                     actions={({ buttonClass }) => (
@@ -122,7 +116,7 @@ const ConnectionFrame = ({
                 // connected && !loading && (
                 !loading && (
                   <Drawer
-                    hostIdentity={host}
+                    machineSlug={machineSlug}
                     machines={data.machines}
                     className={classes.drawer}
                     mobileOpen={mobileOpen}
