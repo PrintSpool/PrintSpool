@@ -1,5 +1,5 @@
 import React from 'react'
-import { Route, Switch } from 'react-router'
+import { Route, Switch, Redirect } from 'react-router'
 
 // import { UserDataContext } from './UserDataProvider'
 import { useAuth0 } from './common/auth/auth0'
@@ -62,6 +62,13 @@ const Routes = () => {
           component={LandingPage}
         />
       )}
+      <Route
+        exact
+        path="/i/:inviteURLCode"
+        render={({ match }) => (
+          <Redirect to={`/get-started/3?invite=${match.params.inviteURLCode}`} />
+        )}
+      />
       <Route
         exact
         path="/get-started/:step?"

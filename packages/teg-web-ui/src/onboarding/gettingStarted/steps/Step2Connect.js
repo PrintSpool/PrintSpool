@@ -9,6 +9,7 @@ import QRReader from 'react-qr-reader'
 
 // import { parseInviteCode } from 'graphql-things/client'
 import { parseInviteCode } from 'graphql-things'
+import base64url from 'base64url'
 
 import Step2ConnectStyles from './Step2ConnectStyles'
 
@@ -21,14 +22,18 @@ const Step2Connect = ({
   const classes = Step2ConnectStyles()
 
   const onSubmit = (inviteString) => {
-    const sanitizedInviteString = inviteString.replace(/[\n ]/g, '')
+    let sanitizedInviteString = inviteString
+      .replace(/[\n ]/g, '')
+      .replace(/.*\/i\//, '')
+    sanitizedInviteString = base64url.toBase64(sanitizedInviteString)
+
     const invite = parseInviteCode(sanitizedInviteString)
 
     if (invite == null) return
 
     const params = new URLSearchParams()
 
-    params.set('invite', sanitizedInviteString)
+    params.set('invite', base64url.fromBase64(sanitizedInviteString))
 
     history.push(`/get-started/3?${params.toString()}`)
   }

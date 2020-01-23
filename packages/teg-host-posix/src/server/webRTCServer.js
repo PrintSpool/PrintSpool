@@ -53,6 +53,7 @@ const webRTCServer = async ({
       ...params,
       context: {
         ...context,
+        ...socket.authContext,
         sessionID: socket.sessionID,
         peerIdentityPublicKey: socket.peerIdentityPublicKey,
       },

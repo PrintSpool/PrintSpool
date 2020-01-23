@@ -11,6 +11,7 @@ import {
 
 // import { parseInviteCode } from 'graphql-things/client'
 import { parseInviteCode } from 'graphql-things'
+import base64url from 'base64url'
 
 import { LiveSubscription } from '../../common/LiveSubscription'
 
@@ -57,11 +58,13 @@ const GettingStarted = ({
   const invite = useMemo(() => {
     const params = new URLSearchParams(location.search)
 
-    const inviteCode = params.get('invite')
+    let inviteCode = params.get('invite')
 
     if (inviteCode == null) {
       return null
     }
+
+    inviteCode = base64url.toBase64(inviteCode)
 
     return parseInviteCode(inviteCode)
   })

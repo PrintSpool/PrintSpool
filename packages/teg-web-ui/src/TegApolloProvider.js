@@ -19,6 +19,7 @@ import { useGraphQL, GraphQLContext } from 'graphql-react'
 import {
   Typography,
 } from '@material-ui/core'
+import base64url from 'base64url'
 
 // import { ThingLink, connect, parseInviteCode } from 'graphql-things/client'
 import { ThingLink, connect, parseInviteCode, createECDHKey } from 'graphql-things'
@@ -50,7 +51,7 @@ const TegApolloProvider = ({
   const inviteCode = params.get('invite')
   const invite = useMemo(() => {
     if (inviteCode != null) {
-      return parseInviteCode(inviteCode)
+      return parseInviteCode(base64url.toBase64(inviteCode))
     }
   }, [inviteCode])
 
@@ -96,7 +97,7 @@ const TegApolloProvider = ({
   const graphql = useContext(GraphQLContext)
 
   const saveName = (meta) => {
-    if (meta.name === machine.name) {
+    if (invite != null || meta.name === machine.name) {
       return
     }
 
