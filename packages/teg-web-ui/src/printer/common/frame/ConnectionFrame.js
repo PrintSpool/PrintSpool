@@ -68,9 +68,6 @@ const ConnectionFrame = ({
   const { hostID: machineSlug } = match.params
 
   const classes = useStyles()
-  // const { hosts, setHostName } = useContext(UserDataContext)
-  // TODO: setHostName
-  const setHostName = () => {}
 
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -78,12 +75,6 @@ const ConnectionFrame = ({
     <LiveSubscription
       reduxKey="ConnectionFrame"
       subscription={FRAME_SUBSCRIPTION}
-      onSubscriptionData={({ subscriptionData }) => {
-        setHostName({
-          machineSlug,
-          name: subscriptionData.data.jobQueue.name,
-        })
-      }}
     >
       {
         ({ data, loading, error }) => {

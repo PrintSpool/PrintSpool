@@ -3,6 +3,7 @@ import wrtc from 'wrtc'
 
 import { execute, subscribe } from 'graphql'
 import { SubscriptionServer } from 'subscriptions-transport-ws'
+import { getPluginModels } from '@tegapp/core'
 
 import { GraphQLThing } from 'graphql-things'
 
@@ -33,6 +34,10 @@ const webRTCServer = async ({
     meta: {
       schemaVersion: '0.8',
       schemaExtensions: [],
+      get name() {
+        const state = context.store.getState()
+        return getPluginModels(state.config.printer).getIn(['@tegapp/core', 'name'])
+      }
     },
   })
 

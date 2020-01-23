@@ -3,6 +3,7 @@ import React, {
   useRef,
   useEffect,
   useState,
+  useContext,
 } from 'react'
 import { ApolloProvider } from 'react-apollo'
 import useReactRouter from 'use-react-router'
@@ -13,7 +14,7 @@ import { InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloLink } from 'apollo-link'
 import { onError } from 'apollo-link-error'
 
-import { useGraphQL } from 'graphql-react'
+import { useGraphQL, GraphQLContext } from 'graphql-react'
 
 import {
   Typography,
@@ -74,6 +75,14 @@ const TegApolloProvider = ({
     },
   })
 
+  // onSubscriptionData={({ subscriptionData }) => {
+  //   setHostName({
+  //     machineSlug,
+  //     name: subscriptionData.data.jobQueue.name,
+  //   })
+  // }}
+
+
   useEffect(() => {
     if (invite == null && auth0Token != null) {
       load()
@@ -83,6 +92,32 @@ const TegApolloProvider = ({
   const { data, httpError, graphQLErrors } = cacheValue
 
   const machine = data && data.my.machines[0]
+
+  const graphql = useContext(GraphQLContext)
+
+  const saveName = (meta) => {
+    if (meta.name === machine.name) {
+      return
+    }
+
+    graphql.operate({
+      fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
+      operation: {
+        query: `
+          mutation($input: SetMachineName!) {
+            setMachineName(input: $input) { id }
+          }
+        `,
+        variables: {
+          input: {
+            id: machine.id,
+            name: meta.name,
+          }
+        }
+      },
+    })
+  }
+
 
   const [connectionProps, setConnectionProps] = useState()
 
@@ -139,7 +174,10 @@ const TegApolloProvider = ({
         authToken: connectionProps.authToken,
         peerIdentityPublicKey: connectionProps.peerIdentityPublicKey,
         // eslint-disable-next-line no-console
-        onMeta: meta => console.log('Received meta data', meta),
+        onMeta: meta => {
+          console.log('Received meta data', meta)
+          saveName(meta)
+        },
       }),
     })
 
