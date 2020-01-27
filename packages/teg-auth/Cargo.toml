@@ -1,0 +1,17 @@
+[package]
+name = "teg-auth"
+version = "0.1.0"
+authors = ["D1plo1d <thatotherdude@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+diesel = { version = "1.4.3", features = ["postgres", "r2d2"] }
+diesel_logger = "0.1.0"
+dotenv = "0.15.0"
+juniper = "0.14.2"
+juniper_warp = "0.5.2"
+warp = "0.1.20"
+log = "0.4.8"
+env_logger = "0.7.1"
