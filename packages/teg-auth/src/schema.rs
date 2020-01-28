@@ -1,4 +1,13 @@
 table! {
+    invites (id) {
+        id -> Int4,
+        public_key -> Text,
+        private_key -> Text,
+        created_at -> Timestamp,
+    }
+}
+
+table! {
     users (id) {
         id -> Int4,
         user_profile_id -> Text,
@@ -9,3 +18,8 @@ table! {
         is_authorized -> Bool,
     }
 }
+
+allow_tables_to_appear_in_same_query!(
+    invites,
+    users,
+);

@@ -25,4 +25,16 @@ impl Context {
                 )
             })
     }
+
+    pub async fn sqlx_db(
+        &self
+    ) -> sqlx::Result<sqlx::pool::PoolConnection<sqlx::PgConnection>> {
+        self.sqlx_pool.acquire().await
+    }
+
+    pub async fn tx(
+        &self
+    ) -> sqlx::Result<sqlx_core::Transaction<sqlx::pool::PoolConnection<sqlx::PgConnection>>> {
+        self.sqlx_pool.begin().await
+    }
 }
