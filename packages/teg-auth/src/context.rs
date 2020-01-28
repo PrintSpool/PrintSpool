@@ -2,9 +2,11 @@ use super::PgPool;
 use juniper::{FieldResult, FieldError};
 use super::PgPooledConnection;
 use diesel_logger::LoggingConnection;
+use std::sync::Arc;
 
 pub struct Context {
     pub pool: PgPool,
+    pub sqlx_pool: Arc<sqlx::PgPool>,
     // pub user_id: i32,
 }
 

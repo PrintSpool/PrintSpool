@@ -1,8 +1,10 @@
+#[macro_use] extern crate async_std;
 #[macro_use] extern crate diesel;
 #[macro_use] extern crate juniper;
 #[macro_use] extern crate log;
+#[macro_use] extern crate graphql_client;
 extern crate diesel_logger;
-// extern crate reqwest;
+extern crate reqwest;
 // extern crate futures;
 // extern crate futures03;
 // extern crate serde;
@@ -20,9 +22,11 @@ pub mod schema;
 pub mod models;
 mod context;
 mod graphql_schema;
+pub mod user_profile_query;
 
 pub use context::Context;
 pub use graphql_schema::{ Schema, Query, Mutation };
+
 use diesel_logger::LoggingConnection;
 
 pub type PgPool = Arc<Pool<ConnectionManager<PgConnection>>>;
@@ -41,7 +45,9 @@ pub fn establish_db_connection() -> PgPool {
     Arc::new(pool)
 }
 
-fn main() {
+
+#[async_std::main]
+async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     dotenv().ok();
@@ -61,10 +67,19 @@ fn main() {
     });
 
     let pool = establish_db_connection();
+
+    let database_url = env::var("POSTGRESQL_ADDON_URI")
+        .expect("$POSTGRESQL_ADDON_URI must be set");
+    let sqlx_pool = sqlx::PgPool::new(&database_url)
+        .await
+        .map(|p| Arc::new(p))
+        .expect("Could not connect to Postgres");
+
     let schema = Schema::new(Query, Mutation{});
 
     let state = warp::any().map(move || {
         Context {
+            sqlx_pool: Arc::clone(&sqlx_pool),
             pool: Arc::clone(&pool),
         }
     });
@@ -79,4 +94,6 @@ fn main() {
             .with(log),
     )
     .run(([127, 0, 0, 1], port));
+
+    Ok(())
 }
