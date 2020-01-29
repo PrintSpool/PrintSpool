@@ -19,8 +19,12 @@ impl Invite {
     pub async fn new(
         context: &Context,
     ) -> FieldResult<Invite> {
-        let public_key = "".to_string(); // TODO
-        let private_key = "".to_string(); // TODO
+        use rand::rngs::OsRng;
+        use secp256k1::Secp256k1;
+
+        let secp = Secp256k1::new();
+        let mut rng = OsRng::new().expect("OsRng");
+        let (private_key, public_key) = secp.generate_keypair(&mut rng);
 
         let invite = sqlx::query!(
             "
@@ -28,8 +32,8 @@ impl Invite {
                 VALUES ($1, $2, $3)
                 RETURNING *
             ",
-            public_key,
-            private_key,
+            format!("{:x}", public_key),
+            format!("{:x}", private_key),
             Utc::now().naive_utc()
         )
             .fetch_one(&mut context.sqlx_db().await?)

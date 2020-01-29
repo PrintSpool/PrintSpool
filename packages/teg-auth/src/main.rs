@@ -5,6 +5,8 @@
 #[macro_use] extern crate graphql_client;
 extern crate diesel_logger;
 extern crate reqwest;
+extern crate secp256k1;
+extern crate rand;
 // extern crate futures;
 // extern crate futures03;
 // extern crate serde;
