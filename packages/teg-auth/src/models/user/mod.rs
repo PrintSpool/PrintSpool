@@ -27,27 +27,33 @@ pub struct UpdateUser {
 
 impl User {
     pub async fn all(context: &Context) -> FieldResult<Vec<User>> {
+        context.authorize_admins_only()?;
+
         let users = sqlx::query_as!(
             User,
             "SELECT * FROM users",
         )
-            .fetch_all(&mut context.sqlx_db().await?)
+            .fetch_all(&mut context.db().await?)
             .await?;
 
         Ok(users)
     }
 
     pub async fn remove(context: &Context, user_id: String) -> FieldResult<Option<bool>> {
+        context.authorize_admins_only()?;
+
         let _ = sqlx::query!(
             "DELETE FROM users WHERE id=$1",
             user_id.parse::<i32>()?
         )
-        .fetch_optional(&mut context.sqlx_db().await?);
+        .fetch_optional(&mut context.db().await?);
 
         Ok(None)
     }
 
     pub async fn update(context: &Context, user: UpdateUser) -> FieldResult<User> {
+        context.authorize_admins_only()?;
+
         let next_user = sqlx::query_as!(
             User,
             "
@@ -59,7 +65,7 @@ impl User {
             user.id.parse::<i32>()?,
             user.is_admin
         )
-            .fetch_one(&mut context.sqlx_db().await?)
+            .fetch_one(&mut context.db().await?)
             .await?;
 
         Ok(next_user)

@@ -19,6 +19,8 @@ impl Invite {
     pub async fn new(
         context: &Context,
     ) -> FieldResult<Invite> {
+        context.authorize_admins_only()?;
+
         use rand::rngs::OsRng;
         use secp256k1::Secp256k1;
 
@@ -36,7 +38,7 @@ impl Invite {
             format!("{:x}", private_key),
             Utc::now().naive_utc()
         )
-            .fetch_one(&mut context.sqlx_db().await?)
+            .fetch_one(&mut context.db().await?)
             .await?;
 
         let invite = Invite {

@@ -1,8 +1,8 @@
-#[macro_use] extern crate async_std;
+// #[macro_use] extern crate async_std;
 #[macro_use] extern crate diesel;
 #[macro_use] extern crate juniper;
-#[macro_use] extern crate log;
-#[macro_use] extern crate graphql_client;
+// #[macro_use] extern crate log;
+// #[macro_use] extern crate graphql_client;
 extern crate diesel_logger;
 extern crate reqwest;
 extern crate secp256k1;
@@ -14,8 +14,6 @@ extern crate rand;
 // extern crate url;
 
 use warp::{http::Response, Filter};
-use diesel::pg::PgConnection;
-use diesel::r2d2::{ Pool, PooledConnection, ConnectionManager };
 use dotenv::dotenv;
 use std::env;
 use std::sync::Arc;
@@ -29,24 +27,7 @@ pub mod user_profile_query;
 pub use context::Context;
 pub use graphql_schema::{ Schema, Query, Mutation };
 
-use diesel_logger::LoggingConnection;
-
-pub type PgPool = Arc<Pool<ConnectionManager<PgConnection>>>;
-pub type PgPooledConnection = LoggingConnection<PooledConnection<ConnectionManager<PgConnection>>>;
-
-pub fn establish_db_connection() -> PgPool {
-    let database_url = env::var("POSTGRESQL_ADDON_URI")
-        .expect("$POSTGRESQL_ADDON_URI must be set");
-    let manager = ConnectionManager::<PgConnection>::new(database_url.clone());
-
-    let pool = Pool::builder()
-        .max_size(2)
-        .build(manager)
-        .expect(&format!("Error connecting to {}", database_url));
-
-    Arc::new(pool)
-}
-
+use async_std::task;
 
 #[async_std::main]
 async fn main() -> std::io::Result<()> {
@@ -68,23 +49,29 @@ async fn main() -> std::io::Result<()> {
             ))
     });
 
-    let pool = establish_db_connection();
-
     let database_url = env::var("POSTGRESQL_ADDON_URI")
         .expect("$POSTGRESQL_ADDON_URI must be set");
-    let sqlx_pool = sqlx::PgPool::new(&database_url)
+ 
+    let pool = sqlx::PgPool::new(&database_url)
         .await
         .map(|p| Arc::new(p))
         .expect("Could not connect to Postgres");
 
     let schema = Schema::new(Query, Mutation{});
 
-    let state = warp::any().map(move || {
-        Context {
-            sqlx_pool: Arc::clone(&sqlx_pool),
-            pool: Arc::clone(&pool),
-        }
-    });
+    let state = warp::any()
+        .and(warp::header::optional::<i32>("user-id"))
+        .and_then(move |user_id| {
+            task::block_on(
+                Context::new(
+                    Arc::clone(&pool),
+                    user_id,
+                )
+            ).map_err(|err| {
+                warp::reject::custom(err)
+            })
+        });
+
     let graphql_filter = juniper_warp::make_graphql_filter(schema, state.boxed());
 
     warp::serve(
