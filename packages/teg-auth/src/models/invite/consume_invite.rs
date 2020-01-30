@@ -15,7 +15,7 @@ impl ConsumeInvite {
         let mut tx = context.tx().await?;
 
         // Verify that the invite has not yet been consumed
-        sqlx::query!(
+        let invite = sqlx::query!(
             "SELECT * FROM invites WHERE public_key=$1",
             self.invite_public_key
         )
@@ -27,11 +27,14 @@ impl ConsumeInvite {
             User,
             "
                 UPDATE users
-                SET is_authorized=True
+                SET
+                    is_authorized=True,
+                    is_admin=$2
                 WHERE id=$1
                 RETURNING *
             ",
-            self.user_id
+            self.user_id,
+            invite.is_admin
         )
             .fetch_one(&mut tx)
             .await?;

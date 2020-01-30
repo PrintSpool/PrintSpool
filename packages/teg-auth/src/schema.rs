@@ -3,6 +3,8 @@ table! {
         id -> Int4,
         public_key -> Text,
         private_key -> Text,
+        is_admin -> Bool,
+        slug -> Text,
         created_at -> Timestamp,
     }
 }

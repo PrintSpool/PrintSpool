@@ -47,7 +47,7 @@ impl Mutation {
     fn create_invite(
         context: &Context,
     ) -> FieldResult<Invite> {
-        task::block_on(Invite::new(context))
+        task::block_on(Invite::admin_create_invite(context))
     }
 
     fn consume_invite(context: &Context, input: ConsumeInvite) -> FieldResult<User> {
