@@ -1,5 +1,3 @@
-export inviteConsoleDisplay from './auth/reducers/inviteConsoleDisplayReducer'
-
 export config from './config/reducers/configReducer'
 export configError from './config/reducers/configErrorReducer'
 export macros from './config/reducers/macrosReducer'

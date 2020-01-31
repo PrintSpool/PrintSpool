@@ -28,17 +28,17 @@ impl User {
         */
         let request_body = UserProfileQuery::build_query(Variables);
 
-        let res: Response<ResponseData> = reqwest::Client::new()
+        let res: Response<ResponseData> = reqwest::blocking::Client::new()
             .post(user_profile_server)
             .json(&request_body)
             .header(
                 reqwest::header::AUTHORIZATION,
                 format!("BEARER {}", auth_token),
             )
-            .send()
-            .await?
-            .json()
-            .await?;
+            .send()?
+            // .await?
+            .json()?;
+            // .await?;
 
         if let Some(errors) = res.errors {
             return Err(FieldError::new(

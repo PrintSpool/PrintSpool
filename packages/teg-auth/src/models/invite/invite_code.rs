@@ -2,6 +2,7 @@ use juniper::{
     FieldResult,
 };
 use serde::{Serialize, Deserialize};
+use rmps::{Serializer};
 use std::fs;
 
 use super::Invite;
@@ -29,12 +30,17 @@ impl Invite {
             isk: String,
         }
 
+        
         let json = InviteJSON {
             peerIPK: host_identity_public_key,
             isk: private_key,
         };
 
-        let buf = rmps::to_vec(&json)?;
+        use crate::rmps::encode::Ext;
+
+        let mut buf = Vec::new();
+        let mut serializer = Serializer::new(&mut buf).with_struct_map();
+        json.serialize(&mut serializer)?;
 
         let slug = data_encoding::BASE64URL.encode(&buf);
 

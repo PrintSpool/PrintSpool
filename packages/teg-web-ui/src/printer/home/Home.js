@@ -52,7 +52,7 @@ const Home = ({
 
     // Reload the query whenever the global cache is reset. Resets immediately
     // delete the cache and are mostly only used when logging out the user.
-    loadOnReset: true
+    loadOnReset: true,
   })
   console.log({ loading, cacheValue })
 
@@ -75,7 +75,28 @@ const Home = ({
     </>
   )
 
-  if (loading || cacheValue.data == null) {
+  if (loading) {
+    return <div />
+  }
+
+  const error = !loading && (
+    cacheValue.fetchError || cacheValue.httpError || cacheValue.graphQLErrors
+  )
+
+  if (error) {
+    return (
+      <div>
+        <Typography variant="h6" paragraph>
+          Something went wrong. Here's what we know:
+        </Typography>
+        <pre>
+          {JSON.stringify(cacheValue, null, 2)}
+        </pre>
+      </div>
+    )
+  }
+
+  if (cacheValue.data == null) {
     return <div />
   }
 

@@ -1,27 +1,48 @@
+import { request } from 'graphql-request'
+
 /*
 * return true to allow the connection if an authorized user can be found with
 * the identity public key.
 */
-const authenticate = ({ store, peerIdentityPublicKey, authToken }) => {
+const authenticate = async ({ peerIdentityPublicKey, authToken }) => {
   // eslint-disable-next-line no-console
   console.log(`\n\nNew connection from ${peerIdentityPublicKey}`)
 
-  // TODO: auth token authentication
   console.log({ authToken })
 
-  const { config } = store.getState()
 
-  const user = config.auth.users.find(u => (
-    u.publicKey === peerIdentityPublicKey
-  ))
+  const query = `
+    mutation(
+      $authToken: String!,
+      $identityPublicKey: String!
+    ) {
+      authenticateUser(
+        authToken: $authToken,
+        identityPublicKey: $identityPublicKey
+      ) {
+        id
+        userProfileId
+        isAdmin
+        isAuthorized
+      }
+    }
+  `
 
-  const invite = config.auth.invites.find(u => (
-    u.keys.publicKey === peerIdentityPublicKey
-  ))
+  const variables = {
+    authToken,
+    identityPublicKey: peerIdentityPublicKey,
+  }
 
-  if (user == null && invite == null) return false
+  try {
+    const data = await request('http://127.0.0.1:33005/graphql', query, variables)
+    const user = data.authenticateUser
 
-  return { user, invite }
+    console.error({ data })
+    return { user, peerIdentityPublicKey }
+  } catch(e) {
+    console.error(e)
+    return false
+  }
 }
 
 export default authenticate

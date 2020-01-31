@@ -3,7 +3,8 @@
 #[macro_use] extern crate juniper;
 // #[macro_use] extern crate log;
 // #[macro_use] extern crate graphql_client;
-extern crate diesel_logger;
+// extern crate diesel_logger;
+// extern crate tokio;
 extern crate reqwest;
 extern crate secp256k1;
 extern crate rand;
@@ -90,7 +91,7 @@ async fn main() -> std::io::Result<()> {
             .or(warp::path("graphql").and(graphql_filter))
             .with(log),
     )
-    .run(([127, 0, 0, 1], port));
+        .run(([127, 0, 0, 1], port));
 
     Ok(())
 }
