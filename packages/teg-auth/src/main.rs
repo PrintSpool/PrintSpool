@@ -58,6 +58,13 @@ async fn main() -> std::io::Result<()> {
         .map(|p| Arc::new(p))
         .expect("Could not connect to Postgres");
 
+    models::Invite::generate_or_display_initial_invite(
+        Arc::clone(&pool)
+    ).await
+    .map_err(|err| {
+        std::io::Error::new(std::io::ErrorKind::Other, format!("{:?}", err))
+    })?;
+
     let schema = Schema::new(Query, Mutation{});
 
     let state = warp::any()

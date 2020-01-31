@@ -2,27 +2,9 @@ use juniper::{
     FieldResult,
 };
 use serde::{Serialize, Deserialize};
-use qrcodegen::{QrCode, QrCodeEcc};
 use std::fs;
 
 use super::Invite;
-
-fn print_qr(qr: &QrCode) -> std::io::Result<String> {
-    let mut text = "".to_string();
-
-    for y in 0 .. qr.size() {
-        for x in 0 .. qr.size() {
-            text += if qr.get_module(x, y) {
-                "██"
-            } else {
-                "  "
-            };
-        };
-        text += "\n";
-    };
-
-    Ok(text)
-}
 
 impl Invite {
     pub fn generate_slug(private_key: String) -> FieldResult<String>  {
@@ -59,7 +41,7 @@ impl Invite {
         Ok(slug)
     }
 
-    pub fn welcome_text(&self) -> FieldResult<String> {
+    pub fn print_welcome_text(&self) -> FieldResult<()> {
         // TODO: production URLs
         // const webAppDomain = isDev ? 'http://localhost:1234' : 'https://tegapp.io'
 
@@ -71,28 +53,33 @@ impl Invite {
             self.slug,
         );
 
-        let qr = QrCode::encode_text(&invite_url, QrCodeEcc::Medium)?;
-        let qr = print_qr(&qr)?;
+        let thick_line = std::iter::repeat("=").take(80).collect::<String>();
 
-        let thick_line = std::iter::repeat("=").take(10).collect::<String>();
-
-        let text = format!(
+        println!(
             "\
                 \n\n\n\
                 Invite Code\n\
                 {line}\n\
-                {qr}\n\
-                {line}\n\
+            ",
+            line = thick_line,
+        );
+
+        // let qr = QrCode::encode_text(&invite_url, QrCodeEcc::Low)?;
+        // let qr = print_qr(&qr)?;
+        qr2term::print_qr(&invite_url)?;
+
+        println!(
+            "\
+                \n{line}\n\
                 Your almost ready to start 3D Printing!\n\n\
-                To finish setting up your 3D printer go to:\n\n\
+                To finish setting up your 3D printer scan the QR Code above or go to:\n\n\
                 {url}\n\n\
                 {line}\n\
             ",
             line = thick_line,
-            qr = qr,
             url = invite_url.to_string(),
         );
 
-        Ok(text)
+        Ok(())
     }
 }

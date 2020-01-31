@@ -1,5 +1,5 @@
 use chrono::prelude::*;
-use futures::prelude::*;
+// use futures::prelude::*;
 use juniper::{
     FieldResult,
 };
@@ -38,7 +38,7 @@ impl Invite {
         Self::new(&mut db?, false).await
     }
 
-    pub async fn display_initial_invite(
+    pub async fn generate_or_display_initial_invite(
         pool: Arc<sqlx::PgPool>,
     ) -> FieldResult<()> {
         let mut db = pool.acquire().await?;
@@ -63,7 +63,7 @@ impl Invite {
                 None => Self::new(&mut db, true).await?,
             };
 
-            println!("{}", initial_invite.welcome_text()?);
+            initial_invite.print_welcome_text()?;
         };
 
         Ok(())
