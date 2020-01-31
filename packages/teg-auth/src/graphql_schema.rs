@@ -1,6 +1,7 @@
 use async_std::task;
 // use futures::prelude::*;
 // use chrono::prelude::*;
+use log::{warn};
 
 use juniper::{
     FieldResult,
@@ -38,10 +39,14 @@ impl Mutation {
         context: &Context,
         auth_token: String,
         identity_public_key: String
-    ) -> FieldResult<User> {
+    ) -> FieldResult<Option<User>> {
         task::block_on(
             User::authenticate(context, auth_token, identity_public_key)
         )
+            .map_err(|err| {
+                warn!("{:?}", err);
+                err
+            })
     }
 
     fn create_invite(

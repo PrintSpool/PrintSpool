@@ -80,7 +80,13 @@ impl Invite {
         let mut rng = OsRng::new().expect("OsRng");
         let (private_key, public_key) = secp.generate_keypair(&mut rng);
 
+        use hex::ToHex;
+
         let hex_private_key = format!("{:x}", private_key);
+        let hex_public_key = public_key
+            .serialize_uncompressed()
+            .to_vec()
+            .encode_hex::<String>();
 
         let slug = Self::generate_slug(hex_private_key.clone())?;
 
@@ -91,7 +97,7 @@ impl Invite {
                 VALUES ($1, $2, $3, $4, $5)
                 RETURNING *
             ",
-            format!("{:x}", public_key),
+            hex_public_key,
             hex_private_key,
             slug,
             is_admin,

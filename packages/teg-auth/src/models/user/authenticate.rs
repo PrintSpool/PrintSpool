@@ -17,7 +17,7 @@ impl User {
         context: &Context,
         auth_token: String,
         identity_public_key: String
-    ) -> FieldResult<User> {
+    ) -> FieldResult<Option<User>> {
         // TODO: switch url depending on environment
         let user_profile_server = "http://localhost:8080/graphql";
 
@@ -72,18 +72,16 @@ impl User {
             .await?;
 
         if invite.is_none() {
-            let _ = sqlx::query!(
+            let user = sqlx::query!(
                 "SELECT * FROM users WHERE user_profile_id=$1 AND is_authorized=True",
                 user_profile.id
             )
                 .fetch_optional(&mut db)
-                .await?
-                .ok_or(
-                    FieldError::new(
-                        "Unauthorized",
-                        graphql_value!({ "internal_error": "Unauthorized" }),
-                    )
-                )?;
+                .await?;
+
+            if user.is_none() {
+                return Ok(None)
+            }
         }
 
         /*
@@ -110,6 +108,6 @@ impl User {
             .fetch_one(&mut db)
             .await?;
 
-        Ok(user)
+        Ok(Some(user))
     }
 }

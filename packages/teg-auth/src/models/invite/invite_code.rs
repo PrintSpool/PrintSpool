@@ -30,7 +30,6 @@ impl Invite {
             isk: String,
         }
 
-        
         let json = InviteJSON {
             peerIPK: host_identity_public_key,
             isk: private_key,

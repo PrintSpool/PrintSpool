@@ -8,9 +8,6 @@ const authenticate = async ({ peerIdentityPublicKey, authToken }) => {
   // eslint-disable-next-line no-console
   console.log(`\n\nNew connection from ${peerIdentityPublicKey}`)
 
-  console.log({ authToken })
-
-
   const query = `
     mutation(
       $authToken: String!,
@@ -37,9 +34,14 @@ const authenticate = async ({ peerIdentityPublicKey, authToken }) => {
     const data = await request('http://127.0.0.1:33005/graphql', query, variables)
     const user = data.authenticateUser
 
-    console.error({ data })
+    if (user == null) {
+      return false
+    }
+
+    console.error('AUTHORIZED', { user, peerIdentityPublicKey })
+
     return { user, peerIdentityPublicKey }
-  } catch(e) {
+  } catch (e) {
     console.error(e)
     return false
   }
