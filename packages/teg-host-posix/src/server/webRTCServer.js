@@ -37,7 +37,7 @@ const webRTCServer = async ({
       get name() {
         const state = context.store.getState()
         return getPluginModels(state.config.printer).getIn(['@tegapp/core', 'name'])
-      }
+      },
     },
   })
 
@@ -55,7 +55,6 @@ const webRTCServer = async ({
         ...context,
         ...socket.authContext,
         sessionID: socket.sessionID,
-        peerIdentityPublicKey: socket.peerIdentityPublicKey,
       },
       formatResponse: (res) => {
         if (res.errors) {

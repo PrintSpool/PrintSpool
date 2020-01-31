@@ -11,11 +11,14 @@ pub use authenticate::*;
 #[derive(Debug, juniper::GraphQLObject)]
 pub struct User {
     pub id: i32,
-    pub user_profile_id: String,
     pub name: Option<String>,
     pub email: Option<String>,
     pub email_verified: bool,
     pub is_admin: bool,
+
+    #[graphql(skip)]
+    pub user_profile_id: String,
+    #[graphql(skip)]
     pub is_authorized: bool,
 }
 

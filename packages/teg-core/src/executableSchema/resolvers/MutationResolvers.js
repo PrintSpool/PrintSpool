@@ -1,5 +1,7 @@
 import actionResolver from '../../util/actionResolver'
 
+/* auth */
+import consumeInvite from '../../auth/sideEffects/consumeInvite'
 /* config */
 import requestCreateConfigFromMutation from '../../config/actions/requestCreateConfigFromMutation'
 import requestUpdateConfigFromMutation from '../../config/actions/requestUpdateConfigFromMutation'
@@ -16,6 +18,8 @@ import requestReset from '../../printer/actions/requestReset'
 
 const MutationResolvers = {
   Mutation: {
+    /* auth */
+    consumeInvite: (source, args, context) => consumeInvite(context),
     /* config */
     createConfig: (source, args, { store }) => {
       const {

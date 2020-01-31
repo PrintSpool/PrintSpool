@@ -74,9 +74,18 @@ enum TaskStatus {
   FINISH_TASK
 }
 
+type User {
+  id: ID!
+  name: String
+  email: String
+  emailVerified: Boolean!
+  isAdmin: Boolean!
+}
+
 # Mutations
 
 extend type Mutation {
+  consumeInvite: User!
   """
   create a Job from the content and fileName of a file upload.
   """

@@ -25,6 +25,7 @@ const Step3Setup = ({
   history,
   location,
   setSkippedStep3,
+  invite,
 }) => {
   const classes = Step3SetupStyles()
   const [machineDefinitionURL, setMachineDefinitionURL] = useState('placeholder')
@@ -89,6 +90,7 @@ const Step3Setup = ({
           loadingMachineSettings={loadingMachineSettings}
           machineSettingsError={machineSettingsError}
           schemaForm={settingsData && settingsData.schemaForm}
+          invite={invite}
         />
       )}
     </Query>

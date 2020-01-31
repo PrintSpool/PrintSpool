@@ -6,6 +6,7 @@ use crate::{ Context, models::User };
 
 #[derive(GraphQLInputObject)]
 pub struct ConsumeInvite {
+    #[graphql(name="userID")]
     user_id: i32,
     invite_public_key: String,
 }

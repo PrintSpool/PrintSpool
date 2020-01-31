@@ -122,36 +122,38 @@ const TegApolloProvider = ({
 
   const [connectionProps, setConnectionProps] = useState()
 
-  useEffect(() => {(async () => {
-    // console.log(auth0.isAuthenticated, auth0Token, machine)
-    try {
-      if (
-        !auth0.isAuthenticated
-        || auth0Token == null
-        || (invite == null && (machine && machine.slug) !== slug)
-      ) {
-        return
-      }
+  useEffect(() => {
+    (async () => {
+      // console.log(auth0.isAuthenticated, auth0Token, machine)
+      try {
+        if (
+          !auth0.isAuthenticated
+          || auth0Token == null
+          || (invite == null && (machine && machine.slug) !== slug)
+        ) {
+          return
+        }
 
-      let connectionPropsBuilder = {
-        slug,
-        authToken: auth0Token,
-      }
+        const connectionPropsBuilder = {
+          slug,
+          authToken: auth0Token,
+        }
 
-      if (invite != null) {
-        Object.assign(connectionPropsBuilder, invite)
-      } else {
-        Object.assign(connectionPropsBuilder, {
-          identityKeys: await createECDHKey(),
-          peerIdentityPublicKey: machine.publicKey,
-        })
-      }
+        if (invite != null) {
+          Object.assign(connectionPropsBuilder, invite)
+        } else {
+          Object.assign(connectionPropsBuilder, {
+            identityKeys: await createECDHKey(),
+            peerIdentityPublicKey: machine.publicKey,
+          })
+        }
 
-      setConnectionProps(connectionPropsBuilder)
-    } catch (e) {
-      setError(e)
-    }
-  })()}, [location, match, auth0Token, auth0.isAuthenticated, machine])
+        setConnectionProps(connectionPropsBuilder)
+      } catch (e) {
+        setError(e)
+      }
+    })()
+  }, [location, match, auth0Token, auth0.isAuthenticated, machine])
 
   error = error || graphQLErrors || httpError
 
@@ -175,7 +177,7 @@ const TegApolloProvider = ({
         authToken: connectionProps.authToken,
         peerIdentityPublicKey: connectionProps.peerIdentityPublicKey,
         // eslint-disable-next-line no-console
-        onMeta: meta => {
+        onMeta: (meta) => {
           console.log('Received meta data', meta)
           saveName(meta)
         },

@@ -18,9 +18,7 @@ const authenticate = async ({ peerIdentityPublicKey, authToken }) => {
         identityPublicKey: $identityPublicKey
       ) {
         id
-        userProfileId
         isAdmin
-        isAuthorized
       }
     }
   `
