@@ -18,10 +18,11 @@ import PrintFilesContext from './PrintFilesContext'
 
 const PrintDialog = ({
   history,
-  match: { hostID },
+  match,
 }) => {
   const [files] = useContext(PrintFilesContext)
 
+  const { hostID } = match.params
   const open = true
 
   const onClose = useCallback(() => {
