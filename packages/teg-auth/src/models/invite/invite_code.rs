@@ -47,10 +47,13 @@ impl Invite {
     }
 
     pub fn print_welcome_text(&self) -> FieldResult<()> {
-        // TODO: production URLs
-        // const webAppDomain = isDev ? 'http://localhost:1234' : 'https://tegapp.io'
+        let is_dev = std::env::var("RUST_ENV") == Ok("development".to_string());
 
-        let web_app_domain = "http://localhost:1234";
+        let web_app_domain = if is_dev {
+            "http://localhost:1234"
+        } else {
+            "https://tegapp.io"
+        };
 
         let invite_url = format!(
             "{}/i/{}",

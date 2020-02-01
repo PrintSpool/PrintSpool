@@ -104,7 +104,10 @@ const cargoRun = pkg => (cb) => {
     ['run'],
     {
       cwd: path.resolve(__dirname, `packages/${pkg}`),
-      env: Object.create(process.env),
+      env: {
+        RUST_ENV: 'development',
+        ...Object.create(process.env),
+      },
     },
   )
   proc.stdout.on('data', (data) => {
