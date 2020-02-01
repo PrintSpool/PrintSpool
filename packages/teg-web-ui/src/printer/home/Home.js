@@ -9,6 +9,7 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   Typography,
+  Divider,
 } from '@material-ui/core'
 
 import WithAuth0Token from '../../common/auth/WithAuth0Token'
@@ -55,23 +56,23 @@ const Home = ({
   })
   console.log({ loading, cacheValue })
 
-  const navActions = ({ buttonClass }) => (
-    <>
-      <Button
-        className={buttonClass}
-        component={React.forwardRef((props, ref) => (
-          <Link
-            to="/get-started"
-            className={classes.manage}
-            innerRef={ref}
-            {...props}
-          />
-        ))}
-      >
-        Add Printer
-      </Button>
-    </>
-  )
+  // const navActions = ({ buttonClass }) => (
+  //   <>
+  //     <Button
+  //       className={buttonClass}
+  //       component={React.forwardRef((props, ref) => (
+  //         <Link
+  //           to="/get-started"
+  //           className={classes.manage}
+  //           innerRef={ref}
+  //           {...props}
+  //         />
+  //       ))}
+  //     >
+  //       Add Printer
+  //     </Button>
+  //   </>
+  // )
 
   if (loading) {
     return <div />
@@ -104,9 +105,27 @@ const Home = ({
     <React.Fragment>
       <StaticTopNavigation
         title={() => 'Teg'}
-        actions={navActions}
       />
+
       <div className={classes.root}>
+        <div className={classes.header}>
+          <Button
+            size="small"
+            component={React.forwardRef((props, ref) => (
+              <Link
+                to="/get-started"
+                innerRef={ref}
+                {...props}
+              />
+            ))}
+          >
+            Add a Printer
+          </Button>
+          <Typography variant="subtitle2" component="h1">
+            3D Printers
+          </Typography>
+        </div>
+
         <List>
           { machines.map(machine => (
             <ListItem key={machine.slug}>
