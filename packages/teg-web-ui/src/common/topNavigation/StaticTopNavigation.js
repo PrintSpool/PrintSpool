@@ -6,17 +6,18 @@ import {
   Typography,
   Hidden,
   IconButton,
+  // Button,
 } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
-
-import NavigationAuthLink from '../auth/NavigationAuthLink'
 
 import TopNavigationStyles from './TopNavigationStyles'
 import tegLogoNoTextSVG from './images/tegLogoNoText.svg'
 
+import UserProfileMenu from './UserProfileMenu'
+
 const StaticTopNavigation = ({
-  title = () => null,
   actions = () => null,
+  title = () => null,
   onMenuButtonClick,
   className,
 }) => {
@@ -24,40 +25,48 @@ const StaticTopNavigation = ({
 
   const hasMenu = onMenuButtonClick != null
 
+  let actionsJSX = actions({ buttonClass: classes.actionButton })
+
   return (
-    <div
-      className={classnames(
-        classes.root,
-        hasMenu && classes.withMenu,
-        className,
-      )}
-    >
-      <Hidden smDown={hasMenu}>
-        <Link to="/">
-          <img
-            alt="Teg"
-            src={tegLogoNoTextSVG}
-            className={classes.logo}
-          />
-        </Link>
-      </Hidden>
-      <Hidden smDown={!hasMenu} mdUp>
-        <IconButton
-          className={classes.buttonClass}
-          aria-label="Menu"
-          onClick={onMenuButtonClick}
-        >
-          <MenuIcon />
-        </IconButton>
-      </Hidden>
-      <Typography variant="h5" className={classes.title}>
-        {title()}
-      </Typography>
+    <div className={className}>
       <div
-        className={classes.actions}
+        className={classnames(
+          classes.mainMenu,
+          hasMenu && classes.withMenu,
+        )}
       >
-        {actions({ buttonClass: classes.buttonClass })}
+        <Hidden smDown={hasMenu}>
+          <Link to="/">
+            <img
+              alt="Teg"
+              src={tegLogoNoTextSVG}
+              className={classes.logo}
+            />
+          </Link>
+        </Hidden>
+        <Hidden smDown={!hasMenu} mdUp>
+          <IconButton
+            className={classes.buttonClass}
+            aria-label="Menu"
+            onClick={onMenuButtonClick}
+          >
+            <MenuIcon />
+          </IconButton>
+        </Hidden>
+        <Typography variant="h5" className={classes.title}>
+          {title()}
+        </Typography>
+        <div
+          className={classes.userProfileMenu}
+        >
+          <UserProfileMenu />
+        </div>
       </div>
+      {actionsJSX && (
+        <div className={classes.actionsMenu}>
+          {actionsJSX}
+        </div>
+      )}
     </div>
   )
 }

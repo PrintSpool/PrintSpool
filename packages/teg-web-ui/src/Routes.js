@@ -7,6 +7,7 @@ import { useAuth0 } from './common/auth/auth0'
 import LandingPage from './onboarding/landingPage/LandingPage'
 
 import Home from './printer/home/Home'
+import UserAccount from './printer/userAccount/UserAccount'
 import Terminal from './printer/terminal/Terminal'
 
 import ConnectionFrame from './printer/common/frame/ConnectionFrame'
@@ -74,6 +75,14 @@ const Routes = () => {
         path="/get-started/:step?"
         component={GettingStarted}
       />
+      { isAuthenticated && (
+        <Route
+          exact
+          path="/account"
+        >
+          <UserAccount />
+        </Route>
+      )}
       { isAuthenticated && (
         <Route
           exact

@@ -17,7 +17,6 @@ import userProfileServerFetchOptions from '../../common/userProfileServer/fetchO
 import HomeStyles from './HomeStyles'
 
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
-import NavigationAuthLink from '../../common/auth/NavigationAuthLink'
 import PrintButton from '../printButton/PrintButton'
 
 const Home = ({
@@ -71,7 +70,6 @@ const Home = ({
       >
         Add Printer
       </Button>
-      <NavigationAuthLink className={buttonClass} />
     </>
   )
 
@@ -109,50 +107,50 @@ const Home = ({
         actions={navActions}
       />
       <div className={classes.root}>
-          <List>
-            { machines.map(machine => (
-              <ListItem key={machine.slug}>
-                <ListItemText primary={machine.name} />
-                <ListItemSecondaryAction>
-                  <Button
-                    className={classes.manage}
-                    component={React.forwardRef((props, ref) => (
-                      <Link
-                        to={`/q/${machine.slug}/`}
-                        className={classes.manage}
-                        innerRef={ref}
-                        {...props}
-                      />
-                    ))}
-                  >
-                    Manage
-                  </Button>
-                  <PrintButton href={`/print/?q=${machine.slug}`} />
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-          </List>
-          { machines.length === 0 && (
-            <div className={classes.emptyListMessage}>
-              <Typography variant="h6" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
-                It looks like you don't have any 3D printers setup yet.
-              </Typography>
-              <Button
-                className={classes.addFirstPrinterButton}
-                variant="contained"
-                color="primary"
-                component={React.forwardRef((props, ref) => (
-                  <Link
-                    to="/get-started"
-                    innerRef={ref}
-                    {...props}
-                  />
-                ))}
-              >
-                Add your first printer
-              </Button>
-            </div>
-          )}
+        <List>
+          { machines.map(machine => (
+            <ListItem key={machine.slug}>
+              <ListItemText primary={machine.name} />
+              <ListItemSecondaryAction>
+                <Button
+                  className={classes.manage}
+                  component={React.forwardRef((props, ref) => (
+                    <Link
+                      to={`/q/${machine.slug}/`}
+                      className={classes.manage}
+                      innerRef={ref}
+                      {...props}
+                    />
+                  ))}
+                >
+                  Manage
+                </Button>
+                <PrintButton href={`/print/?q=${machine.slug}`} />
+              </ListItemSecondaryAction>
+            </ListItem>
+          ))}
+        </List>
+        { machines.length === 0 && (
+          <div className={classes.emptyListMessage}>
+            <Typography variant="h6" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
+              It looks like you don't have any 3D printers setup yet.
+            </Typography>
+            <Button
+              className={classes.addFirstPrinterButton}
+              variant="contained"
+              color="primary"
+              component={React.forwardRef((props, ref) => (
+                <Link
+                  to="/get-started"
+                  innerRef={ref}
+                  {...props}
+                />
+              ))}
+            >
+              Add your first printer
+            </Button>
+          </div>
+        )}
       </div>
     </React.Fragment>
   )

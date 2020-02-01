@@ -1,15 +1,14 @@
 import { makeStyles } from '@material-ui/styles'
 
 const useStyles = makeStyles(theme => ({
-  root: {
+  mainMenu: {
     display: 'grid',
     gridTemplateColumns: 'min-content max-content 1fr auto',
     gridTemplateRows: 'auto',
     alignItems: 'center',
     // background: 'linear-gradient(#DD25C4, #9602A7)',
     background: '#DD25C4',
-    paddingTop: 10,
-    paddingBottom: 10,
+    paddingTop: theme.spacing(1 / 2),
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
   },
@@ -25,12 +24,25 @@ const useStyles = makeStyles(theme => ({
   title: {
     color: 'white',
   },
-  actions: {
+  userProfileMenu: {
     justifySelf: 'end',
     display: 'flex',
   },
   buttonClass: {
     color: 'white',
+  },
+  actionsMenu: {
+    background: 'white',
+    borderBottom: '1px solid #CCC',
+    justifyContent: 'end',
+    display: 'flex',
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+  },
+  actionButton: {
+    // color: 'white',
   },
 }), { withTheme: true })
 
