@@ -8,6 +8,7 @@ import {
 } from '@material-ui/core'
 
 import NavigationAuthLink from '../../common/auth/NavigationAuthLink'
+import { useAuth0 } from '../../common/auth/auth0'
 
 import cubesSVG from './images/cubes.svg'
 import cubesMobileSVG from './images/cubesMobile.svg'
@@ -18,13 +19,14 @@ import HeroStyles from './HeroStyles'
 const Hero = ({ t }) => {
   const classes = HeroStyles()
 
+  const { loginWithRedirect } = useAuth0()
   return (
     <div className={classes.root}>
       <NavigationAuthLink
         className={classes.githubButton}
         variant="outlined"
       />
-      {/* 
+      {/*
       <Button
         className={classes.githubButton}
         component="a"
@@ -56,9 +58,9 @@ const Hero = ({ t }) => {
                 color="primary"
                 size="large"
                 className={classes.callToActionButton}
-                component={React.forwardRef((props, ref) => (
-                  <Link to="/get-started/" innerRef={ref} {...props} />
-                ))}
+                onClick={() => loginWithRedirect({
+                  redirect_uri: `${window.location.protocol}//${window.location.host}/get-started/`,
+                })}
               >
                 {t('hero.callToActionButton')}
               </Button>
