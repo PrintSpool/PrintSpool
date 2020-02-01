@@ -55,8 +55,9 @@ const TegApolloProvider = ({
     }
   }, [inviteCode])
 
-  // console.log({ inviteCode, invite, match, params })
   const slug = (invite && getID(invite)) || match.params.hostID || params.get('q')
+  
+  // console.log({ inviteCode, invite, match, params, slug })
 
   const { load, loading, cacheValue = {} } = useGraphQL({
     fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
@@ -75,14 +76,6 @@ const TegApolloProvider = ({
       `
     },
   })
-
-  // onSubscriptionData={({ subscriptionData }) => {
-  //   setHostName({
-  //     machineSlug,
-  //     name: subscriptionData.data.jobQueue.name,
-  //   })
-  // }}
-
 
   useEffect(() => {
     if (invite == null && auth0Token != null) {
@@ -124,13 +117,14 @@ const TegApolloProvider = ({
 
   useEffect(() => {
     (async () => {
-      // console.log(auth0.isAuthenticated, auth0Token, machine)
+      // console.log('con props??', auth0.isAuthenticated, auth0Token, machine)
       try {
         if (
           !auth0.isAuthenticated
           || auth0Token == null
-          || (invite == null && (machine && machine.slug) !== slug)
+          || (machine == null && invite == null)
         ) {
+          setConnectionProps(null)
           return
         }
 
@@ -150,10 +144,11 @@ const TegApolloProvider = ({
 
         setConnectionProps(connectionPropsBuilder)
       } catch (e) {
+        console.error(e)
         setError(e)
       }
     })()
-  }, [location, match, auth0Token, auth0.isAuthenticated, machine])
+  }, [location, match, auth0Token, auth0.isAuthenticated, machine, invite])
 
   error = error || graphQLErrors || httpError
 
@@ -161,6 +156,8 @@ const TegApolloProvider = ({
     if (slug == null) {
       return { prevSlug: slug }
     }
+
+    // console.log('con pros!', connectionProps)
 
     // The public key of the 3D machine. This uniquely identifies your 3D printer
     // and allows us to end-to-end encrypt everything you do with it. Usually
@@ -226,6 +223,7 @@ const TegApolloProvider = ({
     )
   }
 
+  // console.log({ prevSlug, slug, connectionProps, link })
   if (
     slug != null
     && (connectionProps && connectionProps.slug) !== slug

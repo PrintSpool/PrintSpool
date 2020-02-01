@@ -199,11 +199,6 @@ const hostConfig = {
     directory: '/run/log/teg',
     uploadCrashReportsToDevs: true,
   },
-  server: {
-    id: 'vcxbksdkewj',
-    modelVersion: 1,
-    webRTC: true,
-  },
 }
 
 const materials = [

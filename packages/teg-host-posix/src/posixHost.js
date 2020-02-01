@@ -184,9 +184,6 @@ const tegServer = async (argv, pluginLoader) => {
   handleFatalExceptions({ config })
   const previousFatalException = getPreviousFatalException({ config })
 
-  const serverSettings = config.host.server
-  delete config.host.server
-
   const store = createTegHostStore()
 
   const action = initializeConfig({
@@ -228,15 +225,16 @@ const tegServer = async (argv, pluginLoader) => {
       // eslint-disable-next-line no-empty-block
     }
 
-    if (serverSettings.webRTC) {
-      webRTCServer(tegServerConfig)
-    }
-    if (serverSettings.tcpPort) {
-      httpServer(tegServerConfig, serverSettings.tcpPort)
-    }
-    if (serverSettings.unixSocket) {
-      httpServer(tegServerConfig, serverSettings.unixSocket)
-    }
+    // console.error(serverSettings)
+    // if (serverSettings.webRTC) {
+    webRTCServer(tegServerConfig)
+    // }
+    // if (serverSettings.tcpPort) {
+    //   httpServer(tegServerConfig, serverSettings.tcpPort)
+    // }
+    // if (serverSettings.unixSocket) {
+    //   httpServer(tegServerConfig, serverSettings.unixSocket)
+    // }
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(`Server Initialization Error. Shutting down: ${e}`)

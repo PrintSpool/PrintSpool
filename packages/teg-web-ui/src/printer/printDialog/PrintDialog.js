@@ -18,12 +18,9 @@ import PrintFilesContext from './PrintFilesContext'
 
 const PrintDialog = ({
   history,
-  match,
+  match: { hostID },
 }) => {
   const [files] = useContext(PrintFilesContext)
-
-  const { hosts } = useContext(UserDataContext)
-  const host = hosts[match.params.hostID]
 
   const open = true
 
@@ -31,27 +28,27 @@ const PrintDialog = ({
     history.push('../')
   })
 
-  if (host == null) {
-    return (
-      <Dialog
-        maxWidth={false}
-        onClose={onClose}
-        aria-labelledby="print-dialog-title"
-        open={open}
-        transitionDuration={0}
-      >
-        <DialogContent>
-          { open && (
-            <Typography
-              variant="h5"
-            >
-              404 Printer Not Found :(
-            </Typography>
-          )}
-        </DialogContent>
-      </Dialog>
-    )
-  }
+  // if (host == null) {
+  //   return (
+  //     <Dialog
+  //       maxWidth={false}
+  //       onClose={onClose}
+  //       aria-labelledby="print-dialog-title"
+  //       open={open}
+  //       transitionDuration={0}
+  //     >
+  //       <DialogContent>
+  //         { open && (
+  //           <Typography
+  //             variant="h5"
+  //           >
+  //             404 Printer Not Found :(
+  //           </Typography>
+  //         )}
+  //       </DialogContent>
+  //     </Dialog>
+  //   )
+  // }
 
   return (
     <Dialog
@@ -75,7 +72,7 @@ const PrintDialog = ({
         <CreateJobMutation
           files={files}
           onCompleted={() => {
-            history.push(`/q/${host.id}/`)
+            history.push(`/q/${hostID}/`)
           }}
           onError={(e) => {
             // eslint-disable-next-line no-console

@@ -12,7 +12,6 @@ export const HostConfigRecordFactory = Record({
   configDirectory: '/etc/teg',
   name: null,
   crashReports: CrashReportConfig(),
-  server: Map(),
   model: Map(),
   log: LogConfig(),
 })
@@ -26,7 +25,6 @@ const HostConfig = ({
   crashReports = {},
   materials = [],
   log = {},
-  server = {},
   ...props
 } = {}) => (
   HostConfigRecordFactory({
@@ -37,7 +35,6 @@ const HostConfig = ({
     crashReports: CrashReportConfig(crashReports),
     materials: materials.map(MaterialConfig),
     log: LogConfig(log),
-    server: Map(server),
     model: Map(props.model),
   })
 )

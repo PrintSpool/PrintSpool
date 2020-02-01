@@ -26,6 +26,8 @@ const webRTCServer = async ({
   // })
   // const datPeers = dat.getPeers(DAT_URL)
 
+  console.error('listening for WebRTC connections to', identityKeys.publicKey)
+
   const thing = GraphQLThing({
     // datPeers,
     identityKeys,
