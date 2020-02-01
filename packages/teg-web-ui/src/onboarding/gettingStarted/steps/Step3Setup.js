@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { Query } from 'react-apollo'
 import gql from 'graphql-tag'
+import { GraphQL } from 'graphql-react'
+import { useMutation } from 'react-apollo-hooks'
+
+import { getID } from '../../../UserDataProvider'
+import userProfileServerFetchOptions from '../../../common/userProfileServer/fetchOptions'
+
+import WithAuth0Token from '../../../common/auth/WithAuth0Token'
 
 import Loading from '../../../common/Loading'
 // import useMachineDefSuggestions from '../../../common/_hooks/useMachineDefSuggestions'
@@ -18,6 +25,15 @@ const MACHINE_FORM_QUERY = gql`
   }
 `
 
+const CONSUME_INVITE = gql`
+  mutation {
+    consumeInvite {
+      id
+    }
+  }
+`
+
+
 const Step3Setup = ({
   connecting,
   data,
@@ -26,9 +42,34 @@ const Step3Setup = ({
   location,
   setSkippedStep3,
   invite,
+  auth0Token,
 }) => {
   const classes = Step3SetupStyles()
   const [machineDefinitionURL, setMachineDefinitionURL] = useState('placeholder')
+
+  const [consumeInvite] = useMutation(CONSUME_INVITE)
+
+  const saveToUserProfile = async (values) => {
+    const graphql = new GraphQL()
+
+    await graphql.operate({
+      fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
+      operation: {
+        query: `
+          mutation($input: CreateMachine!) {
+            createMachine(input: $input) { id }
+          }
+        `,
+        variables: {
+          input: {
+            publicKey: invite.peerIdentityPublicKey,
+            name: values.name,
+            slug: getID(invite),
+          },
+        },
+      },
+    })
+  }
 
   // const {
   //   suggestions,
@@ -39,10 +80,16 @@ const Step3Setup = ({
 
   // skip step 3 for configured 3D printers
   useEffect(() => {
-    if (isConfigured) {
-      setSkippedStep3(true)
-      history.push(`/get-started/4${location.search}`)
-    }
+    (async () => {
+      if (isConfigured) {
+        await saveToUserProfile({
+          name: data.jobQueue.name,
+        })
+        await consumeInvite()
+        setSkippedStep3(true)
+        history.push(`/get-started/4${location.search}`)
+      }
+    })()
   }, [isConfigured])
 
   // console.log(loadingMachineDefs, connecting)
@@ -90,11 +137,11 @@ const Step3Setup = ({
           loadingMachineSettings={loadingMachineSettings}
           machineSettingsError={machineSettingsError}
           schemaForm={settingsData && settingsData.schemaForm}
-          invite={invite}
+          saveToUserProfile={saveToUserProfile}
         />
       )}
     </Query>
   )
 }
 
-export default Step3Setup
+export default WithAuth0Token(Step3Setup)

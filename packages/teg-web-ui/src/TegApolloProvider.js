@@ -97,7 +97,7 @@ const TegApolloProvider = ({
   const graphql = useContext(GraphQLContext)
 
   const saveName = (meta) => {
-    if (invite != null || meta.name === machine.name) {
+    if (invite != null || meta.name === machine && machine.name) {
       return
     }
 

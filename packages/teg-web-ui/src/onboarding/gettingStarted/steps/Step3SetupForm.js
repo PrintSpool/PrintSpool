@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useMemo } from 'react'
-import { useGraphQL, GraphQL } from 'graphql-react'
 
 import { Link } from 'react-router-dom'
 import { Formik, Field, Form } from 'formik'
@@ -23,11 +22,6 @@ import FormikSchemaForm from '../../../printer/config/components/FormikSchemaFor
 import transformComponentSchema from '../../../printer/config/printerComponents/transformComponentSchema'
 
 import useSchemaValidation from '../../../printer/config/components/FormikSchemaForm/useSchemaValidation'
-
-import { getID } from '../../../UserDataProvider'
-import userProfileServerFetchOptions from '../../../common/userProfileServer/fetchOptions'
-
-import WithAuth0Token from '../../../common/auth/WithAuth0Token'
 
 const CREATE_MACHINE = gql`
   mutation(
@@ -78,8 +72,7 @@ const Step3SetupForm = ({
   schemaForm,
   history,
   location,
-  invite,
-  auth0Token,
+  saveToUserProfile,
 }) => {
 
   // const machineDefName = useMemo(() => {
@@ -118,28 +111,6 @@ const Step3SetupForm = ({
   const validate = useSchemaValidation({ schema })
 
   const nextURL = `/get-started/4${location.search}`
-
-  const saveToUserProfile = async (values) => {
-    const graphql = new GraphQL()
-
-    await graphql.operate({
-      fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
-      operation: {
-        query: `
-          mutation($input: CreateMachine!) {
-            createMachine(input: $input) { id }
-          }
-        `,
-        variables: {
-          input: {
-            publicKey: invite.peerIdentityPublicKey,
-            name: values.name,
-            slug: getID(invite),
-          },
-        },
-      },
-    })
-  }
 
   return (
     <Mutation
@@ -325,4 +296,4 @@ const Step3SetupForm = ({
   )
 }
 
-export default WithAuth0Token(Step3SetupForm)
+export default Step3SetupForm
