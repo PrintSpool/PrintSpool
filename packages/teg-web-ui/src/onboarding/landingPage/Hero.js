@@ -7,7 +7,6 @@ import {
   Hidden,
 } from '@material-ui/core'
 
-import NavigationAuthLink from '../../common/auth/NavigationAuthLink'
 import { useAuth0 } from '../../common/auth/auth0'
 
 import cubesSVG from './images/cubes.svg'
@@ -22,10 +21,13 @@ const Hero = ({ t }) => {
   const { loginWithRedirect } = useAuth0()
   return (
     <div className={classes.root}>
-      <NavigationAuthLink
+      <Button
+        onClick={() => loginWithRedirect({})}
         className={classes.githubButton}
         variant="outlined"
-      />
+      >
+        Log in
+      </Button>
       {/*
       <Button
         className={classes.githubButton}
