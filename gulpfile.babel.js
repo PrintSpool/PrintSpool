@@ -153,6 +153,7 @@ gulp.task(
       run('teg-host-posix', 'dev'),
       run('teg-web-ui', 'serve:http'),
       cargoRun('teg-marlin'),
+      cargoRun('teg-auth'),
     ),
   ),
 )
