@@ -92,6 +92,21 @@ parts:
         exit 1
       fi
 
+  teg-auth:
+    plugin: dump
+    source: teg-auth-bin/
+    override-build: |
+      if [ "$SNAPCRAFT_ARCH_TRIPLET" = "arm-linux-gnueabihf" ]; then
+        echo "ARM TEG-MARLIN"
+        cp ./teg-auth-armv7 ../install/teg-auth
+      elif [ "$SNAPCRAFT_ARCH_TRIPLET" = "x86_64-linux-gnu" ]; then
+        echo "X64 TEG-MARLIN"
+        cp ./teg-auth-x64 ../install/teg-auth
+      else
+        echo "Error! Invalid Architecture: $SNAPCRAFT_ARCH_TRIPLET" 1>&2
+        exit 1
+      fi
+
   # teg-marlin:
   #   plugin: rust
   #   source: https://github.com/tegapp/teg.git

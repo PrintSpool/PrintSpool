@@ -12,6 +12,11 @@ yarn tegmarlin:build:x64
 yarn tegmarlin:build:armv7
 echo "\n\nBuilding teg-marlin... [DONE]\n"
 
+echo "\nBuilding teg-auth...\n\n"
+yarn tegauth:build:x64
+yarn tegauth:build:armv7
+echo "\n\nBuilding teg-auth... [DONE]\n"
+
 TEG_VERSION=`node -e "console.log(require('./packages/teg-core/package.json').version);"`;
 
 cd ./snap
