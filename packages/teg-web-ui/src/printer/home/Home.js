@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import { useGraphQL } from 'graphql-react'
 
@@ -9,7 +9,7 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   Typography,
-  Divider,
+  // Divider,
 } from '@material-ui/core'
 
 import WithAuth0Token from '../../common/auth/WithAuth0Token'
@@ -39,7 +39,7 @@ const Home = ({
             }
           }
         }
-      `
+      `,
     },
 
     // Load the query whenever the component mounts. This is desirable for
@@ -55,28 +55,6 @@ const Home = ({
     loadOnReset: true,
   })
   console.log({ loading, cacheValue })
-
-  // const navActions = ({ buttonClass }) => (
-  //   <>
-  //     <Button
-  //       className={buttonClass}
-  //       component={React.forwardRef((props, ref) => (
-  //         <Link
-  //           to="/get-started"
-  //           className={classes.manage}
-  //           innerRef={ref}
-  //           {...props}
-  //         />
-  //       ))}
-  //     >
-  //       Add Printer
-  //     </Button>
-  //   </>
-  // )
-
-  if (loading) {
-    return <div />
-  }
 
   const error = !loading && (
     cacheValue.fetchError || cacheValue.httpError || cacheValue.graphQLErrors
@@ -95,14 +73,14 @@ const Home = ({
     )
   }
 
-  if (cacheValue.data == null) {
+  if (loading || cacheValue.data == null) {
     return <div />
   }
 
   const machines = Object.values(cacheValue.data.my.machines)
 
   return (
-    <React.Fragment>
+    <>
       <StaticTopNavigation
         title={() => 'Teg'}
       />
@@ -171,7 +149,7 @@ const Home = ({
           </div>
         )}
       </div>
-    </React.Fragment>
+    </>
   )
 }
 
