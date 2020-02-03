@@ -106,7 +106,7 @@ const cargoRun = pkg => (cb) => {
       cwd: path.resolve(__dirname, `packages/${pkg}`),
       env: {
         RUST_ENV: 'development',
-        ...Object.create(process.env),
+        ...process.env,
       },
     },
   )
@@ -148,6 +148,17 @@ gulp.task(
 )
 
 gulp.task(
+  'marlin:start',
+  cargoRun('teg-marlin'),
+)
+
+gulp.task(
+  'auth:start',
+  cargoRun('teg-auth'),
+)
+
+
+gulp.task(
   'start',
   gulp.series(
     'babel:build',
@@ -155,8 +166,8 @@ gulp.task(
       watchBabel,
       run('teg-host-posix', 'dev'),
       run('teg-web-ui', 'serve:http'),
-      cargoRun('teg-marlin'),
-      cargoRun('teg-auth'),
+      'marlin:start',
+      'auth:start',
     ),
   ),
 )
