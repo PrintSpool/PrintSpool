@@ -55,138 +55,135 @@ const Routes = () => {
   }
 
   return (
-    <Switch>
+    <>
       { !isAuthenticated && (
         <Route
-          exact
           path="/"
           component={LandingPage}
         />
       )}
-      <Route
-        exact
-        path="/i/:inviteURLCode"
-        render={({ match }) => (
-          <Redirect to={`/get-started/3?invite=${match.params.inviteURLCode}`} />
-        )}
-      />
-      <Route
-        exact
-        path="/get-started/:step?"
-        component={GettingStarted}
-      />
       { isAuthenticated && (
-        <Route
-          exact
-          path="/account"
-        >
-          <UserAccount />
-        </Route>
-      )}
-      { isAuthenticated && (
-        <Route
-          exact
-          path={['/', '/print/']}
-          render={() => (
-            <React.Fragment>
-              <Home />
-              <Route
-                exact
-                path="/print/"
-                render={({ history, location }) => {
-                  const hostID = new URLSearchParams(location.search).get('q')
-                  const machineID = new URLSearchParams(location.search).get('m')
-
-                  return (
-                    <React.Suspense fallback={<div />}>
-                      <PrintDialog
-                        history={history}
-                        match={{ params: { hostID, machineID } }}
-                      />
-                    </React.Suspense>
-                  )
-                }}
-              />
-            </React.Fragment>
-          )}
-        />
-      )}
-      { isAuthenticated && (
-        <Route
-          path={[
-            '/m/:hostID/',
-            '/q/:hostID/',
-          ]}
-          render={({ match }) => (
-            <ConnectionFrame match={match}>
-              <Route
-                exact
-                path={['/q/:hostID/', '/q/:hostID/print/']}
-                component={QueuePage}
-              />
-              <Route exact path="/q/:hostID/jobs/:jobID/" component={JobPage} />
-
-              <React.Suspense fallback={<div />}>
-                <Route exact path="/q/:hostID/print/" component={PrintDialog} />
-              </React.Suspense>
-
-              <Route exact path="/q/:hostID/graphql-playground/" component={GraphQLPlayground} />
-
-              <Route
-                path="/m/:hostID/:machineID/manual-control/"
-                component={ManualControlPage}
-              />
-
-              <React.Suspense fallback={<div />}>
+        <Switch>
+          <Route
+            exact
+            path="/i/:inviteURLCode"
+            render={({ match }) => (
+              <Redirect to={`/get-started/3?invite=${match.params.inviteURLCode}`} />
+            )}
+          />
+          <Route
+            exact
+            path="/get-started/:step?"
+            component={GettingStarted}
+          />
+          <Route
+            exact
+            path="/account"
+          >
+            <UserAccount />
+          </Route>
+          <Route
+            exact
+            path={['/', '/print/']}
+            render={() => (
+              <React.Fragment>
+                <Home />
                 <Route
                   exact
-                  path="/m/:hostID/:machineID/manual-control/swap-filament/:componentID"
-                  component={FilamentSwapDialog}
+                  path="/print/"
+                  render={({ history, location }) => {
+                    const hostID = new URLSearchParams(location.search).get('q')
+                    const machineID = new URLSearchParams(location.search).get('m')
+
+                    return (
+                      <React.Suspense fallback={<div />}>
+                        <PrintDialog
+                          history={history}
+                          match={{ params: { hostID, machineID } }}
+                        />
+                      </React.Suspense>
+                    )
+                  }}
                 />
-              </React.Suspense>
+              </React.Fragment>
+            )}
+          />
+          <Route
+            path={[
+              '/m/:hostID/',
+              '/q/:hostID/',
+            ]}
+            render={({ match }) => (
+              <ConnectionFrame match={match}>
+                <Route
+                  exact
+                  path={['/q/:hostID/', '/q/:hostID/print/']}
+                  component={QueuePage}
+                />
+                <Route exact path="/q/:hostID/jobs/:jobID/" component={JobPage} />
 
-              <Route exact path="/m/:hostID/:machineID/terminal/" component={Terminal} />
+                <React.Suspense fallback={<div />}>
+                  <Route exact path="/q/:hostID/print/" component={PrintDialog} />
+                </React.Suspense>
 
-              <Route
-                exact
-                path={[
-                  '/m/:hostID/:machineID/config/',
-                  '/m/:hostID/:machineID/config/machine/',
-                ]}
-                component={ConfigIndexPage}
-              />
-              <Route
-                exact
-                path={[
-                  '/m/:hostID/:machineID/config/components/',
-                  '/m/:hostID/:machineID/config/components/:componentID/',
-                  '/m/:hostID/:machineID/config/components/:componentID/:verb',
-                ]}
-                component={ComponentsConfigPage}
-              />
-              <Route
-                exact
-                path={[
-                  '/m/:hostID/:machineID/config/materials/',
-                  '/m/:hostID/:machineID/config/materials/:materialID/',
-                  '/m/:hostID/:machineID/config/materials/:materialID/:verb',
-                ]}
-                component={MaterialsConfigPage}
-              />
-              <Route
-                exact
-                path={[
-                  '/m/:hostID/:machineID/config/plugins/',
-                  '/m/:hostID/:machineID/config/plugins/:pluginID/',
-                  '/m/:hostID/:machineID/config/plugins/:pluginID/:verb',
-                ]}
-                component={PluginsConfigPage}
-              />
-            </ConnectionFrame>
-          )}
-        />
+                <Route exact path="/q/:hostID/graphql-playground/" component={GraphQLPlayground} />
+
+                <Route
+                  path="/m/:hostID/:machineID/manual-control/"
+                  component={ManualControlPage}
+                />
+
+                <React.Suspense fallback={<div />}>
+                  <Route
+                    exact
+                    path="/m/:hostID/:machineID/manual-control/swap-filament/:componentID"
+                    component={FilamentSwapDialog}
+                  />
+                </React.Suspense>
+
+                <Route exact path="/m/:hostID/:machineID/terminal/" component={Terminal} />
+
+                <Route
+                  exact
+                  path={[
+                    '/m/:hostID/:machineID/config/',
+                    '/m/:hostID/:machineID/config/machine/',
+                  ]}
+                  component={ConfigIndexPage}
+                />
+                <Route
+                  exact
+                  path={[
+                    '/m/:hostID/:machineID/config/components/',
+                    '/m/:hostID/:machineID/config/components/:componentID/',
+                    '/m/:hostID/:machineID/config/components/:componentID/:verb',
+                  ]}
+                  component={ComponentsConfigPage}
+                />
+                <Route
+                  exact
+                  path={[
+                    '/m/:hostID/:machineID/config/materials/',
+                    '/m/:hostID/:machineID/config/materials/:materialID/',
+                    '/m/:hostID/:machineID/config/materials/:materialID/:verb',
+                  ]}
+                  component={MaterialsConfigPage}
+                />
+                <Route
+                  exact
+                  path={[
+                    '/m/:hostID/:machineID/config/plugins/',
+                    '/m/:hostID/:machineID/config/plugins/:pluginID/',
+                    '/m/:hostID/:machineID/config/plugins/:pluginID/:verb',
+                  ]}
+                  component={PluginsConfigPage}
+                />
+              </ConnectionFrame>
+            )}
+          />
+        </Switch>
       )}
-    </Switch>
+    </>
   )
 }
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { withRouter } from 'react-router'
 
 import {
   Typography,
@@ -15,7 +16,9 @@ import {
 import { useAuth0 } from '../auth/auth0'
 import useStyles from './UserProfileMenuStyles'
 
-const UserProfileMenu = () => {
+const UserProfileMenu = ({
+  history,
+}) => {
   const classes = useStyles()
 
   const [anchorEl, setAnchorEl] = useState(null)
@@ -76,8 +79,12 @@ const UserProfileMenu = () => {
         </MenuItem>
         <MenuItem
           onClick={() => {
+            console.log("logout?")
             handleClose()
-            logout({})
+            logout({
+              returnTo: `${window.location.protocol}//${window.location.host}/`,
+            })
+            // history.push('../')
           }}
         >
             Log out
@@ -87,4 +94,4 @@ const UserProfileMenu = () => {
   )
 }
 
-export default UserProfileMenu
+export default withRouter(UserProfileMenu)
