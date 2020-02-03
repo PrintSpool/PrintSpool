@@ -43,13 +43,25 @@ impl User {
     }
 
     pub async fn remove(context: &Context, user_id: String) -> FieldResult<Option<bool>> {
-        context.authorize_admins_only()?;
+        println!("{:?}", user_id);
+        let user_id = user_id.parse::<i32>()?;
+
+        let self_deletion = context.current_user
+            .as_ref()
+            .map(|current_user| current_user.id == user_id)
+            .unwrap_or(false);
+        println!("{:?} == {:?} = {:?}", user_id, context.current_user, self_deletion);
+
+        if !self_deletion {
+            context.authorize_admins_only()?;
+        };
 
         let _ = sqlx::query!(
             "DELETE FROM users WHERE id=$1",
-            user_id.parse::<i32>()?
+            user_id
         )
-        .fetch_optional(&mut context.db().await?);
+        .fetch_optional(&mut context.db().await?)
+        .await?;
 
         Ok(None)
     }

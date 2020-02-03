@@ -14,7 +14,7 @@ import { InMemoryCache } from 'apollo-cache-inmemory'
 import { ApolloLink } from 'apollo-link'
 import { onError } from 'apollo-link-error'
 
-import { useGraphQL, GraphQLContext } from 'graphql-react'
+import { GraphQL, GraphQLContext } from 'graphql-react'
 
 import {
   Typography,
@@ -31,99 +31,78 @@ import userProfileServerFetchOptions from './common/userProfileServer/fetchOptio
 
 const TegApolloProvider = ({
   children,
+  slug: slugParam,
 }) => {
   const { location, match } = useReactRouter()
   const auth0 = useAuth0()
-  const [auth0Token, setAuth0Token] = useState()
-  let [error, setError] = useState()
 
-  useEffect(() => {(async () => {
-    if (auth0.isAuthenticated) {
-      const nextAuth0Token = await auth0.getTokenSilently()
-      setAuth0Token(nextAuth0Token)
-    } else {
-      setAuth0Token(null)
-    }
-  })()}, [auth0.isAuthenticated])
+  const [error, setError] = useState()
+  const [connectionProps, setConnectionProps] = useState()
+  const [machine, setMachine] = useState()
 
   const params = new URLSearchParams(location.search)
-
   const inviteCode = params.get('invite')
+
   const invite = useMemo(() => {
     if (inviteCode != null) {
       return parseInviteCode(base64url.toBase64(inviteCode))
     }
   }, [inviteCode])
 
-  const slug = (invite && getID(invite)) || match.params.hostID || params.get('q')
-  
+  const slug = slugParam || (invite && getID(invite)) || match.params.hostID || params.get('q')
+
   // console.log({ inviteCode, invite, match, params, slug })
 
-  const { load, loading, cacheValue = {} } = useGraphQL({
-    fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
-    operation: {
-      query: `
-        {
-          my {
-            machines(slug: "${slug}") {
-              id
-              publicKey
-              name
-              slug
-            }
-          }
-        }
-      `
-    },
-  })
-
-  useEffect(() => {
-    if (invite == null && auth0Token != null) {
-      load()
-    }
-  }, [invite, auth0Token])
-
-  const { data, httpError, graphQLErrors } = cacheValue
-
-  const machine = data && data.my.machines[0]
-
-  const graphql = useContext(GraphQLContext)
-
-  const saveName = (meta) => {
-    if (invite != null || meta.name === machine && machine.name) {
-      return
-    }
-
-    graphql.operate({
-      fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
-      operation: {
-        query: `
-          mutation($input: SetMachineName!) {
-            setMachineName(input: $input) { id }
-          }
-        `,
-        variables: {
-          input: {
-            id: machine.id,
-            name: meta.name,
-          }
-        }
-      },
-    })
-  }
-
-
-  const [connectionProps, setConnectionProps] = useState()
-
+  console.log(auth0.isAuthenticated)
   useEffect(() => {
     (async () => {
-      // console.log('con props??', auth0.isAuthenticated, auth0Token, machine)
+      if (!auth0.isAuthenticated || (invite == null && slug == null)) {
+        return
+      }
+
+      const auth0Token = await auth0.getTokenSilently()
+
+      const graphql = new GraphQL()
+
+      let nextMachine
+      if (invite == null && auth0Token != null) {
+        const { cacheValuePromise } = await graphql.operate({
+          fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
+          operation: {
+            query: `
+              {
+                my {
+                  machines(slug: "${slug}") {
+                    id
+                    publicKey
+                    name
+                    slug
+                  }
+                }
+              }
+            `,
+          },
+        })
+
+        const { data, httpError, graphQLErrors } = await cacheValuePromise
+
+        console.log(data)
+        if (data) {
+          // eslint-disable-next-line prefer-destructuring
+          nextMachine = data.my.machines[0]
+          setMachine(nextMachine)
+        } else {
+          setError(graphQLErrors || httpError)
+        }
+      }
+
+      console.log('con props??', auth0.isAuthenticated, auth0Token, nextMachine)
       try {
         if (
-          !auth0.isAuthenticated
-          || auth0Token == null
-          || (machine == null && invite == null)
+          auth0Token == null
+          || (nextMachine == null && invite == null)
         ) {
+          console.error('No machine or invite')
           setConnectionProps(null)
           return
         }
@@ -138,19 +117,43 @@ const TegApolloProvider = ({
         } else {
           Object.assign(connectionPropsBuilder, {
             identityKeys: await createECDHKey(),
-            peerIdentityPublicKey: machine.publicKey,
+            peerIdentityPublicKey: nextMachine.publicKey,
           })
         }
 
         setConnectionProps(connectionPropsBuilder)
       } catch (e) {
-        console.error(e)
         setError(e)
       }
     })()
-  }, [location, match, auth0Token, auth0.isAuthenticated, machine, invite])
+  }, [location, invite, slug, auth0.isAuthenticated])
 
-  error = error || graphQLErrors || httpError
+  const graphql = useContext(GraphQLContext)
+
+  const saveName = async (meta) => {
+    if (invite != null || (machine && meta.name === machine.name)) {
+      return
+    }
+
+    const auth0Token = await auth0.getTokenSilently()
+
+    graphql.operate({
+      fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
+      operation: {
+        query: `
+          mutation($input: SetMachineName!) {
+            setMachineName(input: $input) { id }
+          }
+        `,
+        variables: {
+          input: {
+            id: machine.id,
+            name: meta.name,
+          },
+        },
+      },
+    })
+  }
 
   const createClient = () => {
     if (slug == null) {

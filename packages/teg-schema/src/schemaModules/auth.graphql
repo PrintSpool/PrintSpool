@@ -1,0 +1,16 @@
+# Queries
+
+extend type Mutation {
+  consumeInvite: User!
+
+  removeUser(userID: ID!): Boolean
+  removeCurrentUser: Boolean
+}
+
+type User {
+  id: ID!
+  name: String
+  email: String
+  emailVerified: Boolean!
+  isAdmin: Boolean!
+}

@@ -2,6 +2,7 @@ import actionResolver from '../../util/actionResolver'
 
 /* auth */
 import consumeInvite from '../../auth/sideEffects/consumeInvite'
+import removeUser from '../../auth/sideEffects/removeUser'
 /* config */
 import requestCreateConfigFromMutation from '../../config/actions/requestCreateConfigFromMutation'
 import requestUpdateConfigFromMutation from '../../config/actions/requestUpdateConfigFromMutation'
@@ -20,6 +21,10 @@ const MutationResolvers = {
   Mutation: {
     /* auth */
     consumeInvite: (source, args, context) => consumeInvite(context),
+    removeUser: (source, args, context) => removeUser(args, context),
+    removeCurrentUser: (source, args, context) => {
+      removeUser({ userID: context.user.id.toString() }, context)
+    },
     /* config */
     createConfig: (source, args, { store }) => {
       const {

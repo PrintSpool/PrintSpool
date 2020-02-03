@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { useGraphQL } from 'graphql-react'
+import { useMutation } from 'react-apollo-hooks'
+import gql from 'graphql-tag'
 
 import {
   Button,
@@ -17,14 +19,77 @@ import {
 } from '@material-ui/core'
 
 import WithAuth0Token from '../../common/auth/WithAuth0Token'
-import { useAuth0 } from '../../common/auth/auth0'
 
 import userProfileServerFetchOptions from '../../common/userProfileServer/fetchOptions'
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
+import TegApolloProvider from '../../TegApolloProvider'
+
+const DeleteDialog = ({
+  machine,
+  onClose,
+  auth0Token,
+}) => {
+  const { load: removeMachineFromUserProfile } = useGraphQL({
+    fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
+    operation: {
+      variables: {
+        machineID: machine && machine.id.toString(),
+      },
+      query: `
+        mutation($machineID: String!) {
+          removeMachine(machineId: $machineID)
+        }
+      `,
+    },
+  })
+
+  const REMOVE_USER_FROM_MACHINE = gql`
+    mutation {
+      removeCurrentUser
+    }
+  `
+
+  const [removeUserFromMachine] = useMutation(REMOVE_USER_FROM_MACHINE)
+
+  const deleteMachine = async () => {
+    await removeMachineFromUserProfile()
+    await removeUserFromMachine()
+    await onClose()
+  }
+
+  return (
+    <Dialog
+      open={machine != null}
+      onClose={onClose}
+      aria-labelledby="alert-dialog-description"
+    >
+      <DialogTitle>
+        Delete
+        {' '}
+        {machine && machine.name}
+        ?
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+          {
+            `Are you sure you want to remove ${machine && machine.name}?`
+          }
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>
+          Cancel
+        </Button>
+        <Button onClick={deleteMachine}>
+          Delete
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
 
 const UserSettings = ({ auth0Token }) => {
-  const { user } = useAuth0()
-  const [deleteMachine, setDeleteMachine] = useState()
+  const [deletionMachine, setDeletionMachine] = useState()
 
   const { loading, cacheValue = {}, load } = useGraphQL({
     fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
@@ -55,22 +120,6 @@ const UserSettings = ({ auth0Token }) => {
     // delete the cache and are mostly only used when logging out the user.
     loadOnReset: true,
   })
-  console.log({ loading, cacheValue })
-
-  const { load: executeDelete } = useGraphQL({
-    fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
-    operation: {
-      variables: {
-        machineID: deleteMachine && deleteMachine.id.toString(),
-      },
-      query: `
-        mutation($machineID: String!) {
-          removeMachine(machineId: $machineID)
-        }
-      `,
-    },
-  })
-
 
   const error = !loading && (
     cacheValue.fetchError || cacheValue.httpError || cacheValue.graphQLErrors
@@ -96,7 +145,7 @@ const UserSettings = ({ auth0Token }) => {
   const machines = Object.values(cacheValue.data.my.machines)
 
   return (
-    <>
+    <TegApolloProvider slug={deletionMachine && deletionMachine.slug}>
       <StaticTopNavigation
         title={() => 'Teg'}
       />
@@ -120,7 +169,7 @@ const UserSettings = ({ auth0Token }) => {
               <Button
                 color="secondary"
                 variant="outlined"
-                onClick={() => setDeleteMachine(machine)}
+                onClick={() => setDeletionMachine(machine)}
               >
                 Delete
               </Button>
@@ -129,38 +178,17 @@ const UserSettings = ({ auth0Token }) => {
         ))}
       </List>
 
-      <Dialog
-        open={deleteMachine != null}
-        onClose={() => setDeleteMachine(null)}
-        aria-labelledby="alert-dialog-description"
-      >
-        <DialogTitle>
-          Delete
-          {' '}
-          {deleteMachine && deleteMachine.name}
-          ?
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {
-              `Are you sure you want to remove ${deleteMachine && deleteMachine.name}?`
-            }
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteMachine(null)}>
-            Cancel
-          </Button>
-          <Button onClick={async () => {
-            await executeDelete()
+      {deletionMachine && (
+        <DeleteDialog
+          machine={deletionMachine}
+          auth0Token={auth0Token}
+          onClose={async () => {
             await load()
-            setDeleteMachine(null)
-          }}>
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </>
+            setDeletionMachine(null)
+          }}
+        />
+      )}
+    </TegApolloProvider>
   )
 }
 
