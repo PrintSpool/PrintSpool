@@ -10,6 +10,7 @@ import StaticTopNavigation from '../../../common/topNavigation/StaticTopNavigati
 
 import { UserDataContext } from '../../../UserDataProvider'
 import EStopResetToggle from './components/EStopResetToggle'
+import ActionBar from '../../../common/topNavigation/ActionBar'
 
 const FRAME_SUBSCRIPTION = gql`
   subscription ConnectionFrameSubscription {
@@ -50,9 +51,8 @@ const useStyles = makeStyles(() => ({
     gridRow: '1',
   },
   content: {
-    gridColumn: '2',
-    gridRow: '2',
     display: 'flex',
+    flexDirection: 'column',
     // width: '100%',
   },
   drawer: {
@@ -87,21 +87,13 @@ const ConnectionFrame = ({
               { loading && (
                 <Loading fullScreen />
               )}
-              {
-                !loading && (
-                  <StaticTopNavigation
-                    title={() => data.jobQueue.name}
-                    className={classes.topNavigation}
-                    onMenuButtonClick={() => setMobileOpen(true)}
-                    actions={({ buttonClass }) => (
-                      <EStopResetToggle
-                        buttonClass={buttonClass}
-                        machine={data.machines[0]}
-                      />
-                    )}
-                  />
-                )
-              }
+              { !loading && (
+                <StaticTopNavigation
+                  title={() => data.jobQueue.name}
+                  className={classes.topNavigation}
+                  onMenuButtonClick={() => setMobileOpen(true)}
+                />
+              )}
 
               {
                 // connected && !loading && (
@@ -116,6 +108,16 @@ const ConnectionFrame = ({
                 )
               }
               <div className={classes.content}>
+                { !loading && (
+                  <ActionBar
+                    actions={({ buttonClass }) => (
+                      <EStopResetToggle
+                        buttonClass={buttonClass}
+                        machine={data.machines[0]}
+                      />
+                    )}
+                  />
+                )}
                 {
                   children
                 }

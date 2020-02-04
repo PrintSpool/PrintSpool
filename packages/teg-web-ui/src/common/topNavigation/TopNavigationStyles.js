@@ -32,19 +32,6 @@ const useStyles = makeStyles(theme => ({
   buttonClass: {
     color: 'white',
   },
-  actionsMenu: {
-    background: 'white',
-    borderBottom: '1px solid #CCC',
-    justifyContent: 'end',
-    display: 'flex',
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-  },
-  actionButton: {
-    // color: 'white',
-  },
 }), { withTheme: true })
 
 export default useStyles

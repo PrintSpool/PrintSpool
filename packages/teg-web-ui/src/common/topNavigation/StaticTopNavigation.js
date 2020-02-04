@@ -16,7 +16,6 @@ import tegLogoNoTextSVG from './images/tegLogoNoText.svg'
 import UserProfileMenu from './UserProfileMenu'
 
 const StaticTopNavigation = ({
-  actions = () => null,
   title = () => null,
   onMenuButtonClick,
   className,
@@ -24,8 +23,6 @@ const StaticTopNavigation = ({
   const classes = TopNavigationStyles()
 
   const hasMenu = onMenuButtonClick != null
-
-  let actionsJSX = actions({ buttonClass: classes.actionButton })
 
   return (
     <div className={className}>
@@ -62,11 +59,6 @@ const StaticTopNavigation = ({
           <UserProfileMenu />
         </div>
       </div>
-      {actionsJSX && (
-        <div className={classes.actionsMenu}>
-          {actionsJSX}
-        </div>
-      )}
     </div>
   )
 }
