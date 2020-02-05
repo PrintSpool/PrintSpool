@@ -2,7 +2,14 @@ import actionResolver from '../../util/actionResolver'
 
 /* auth */
 import consumeInvite from '../../auth/sideEffects/consumeInvite'
-import removeUser from '../../auth/sideEffects/removeUser'
+
+import updateUser from '../../auth/sideEffects/updateUser'
+import deleteUser from '../../auth/sideEffects/deleteUser'
+
+import createInvite from '../../auth/sideEffects/createInvite'
+import updateInvite from '../../auth/sideEffects/updateInvite'
+import deleteInvite from '../../auth/sideEffects/deleteInvite'
+
 /* config */
 import requestCreateConfigFromMutation from '../../config/actions/requestCreateConfigFromMutation'
 import requestUpdateConfigFromMutation from '../../config/actions/requestUpdateConfigFromMutation'
@@ -20,13 +27,34 @@ import requestReset from '../../printer/actions/requestReset'
 const MutationResolvers = {
   Mutation: {
     /* auth */
+    createInvite: (source, args, context) => createInvite(args, context),
+    updateInvite: (source, args, context) => updateInvite(args, context),
+    deleteInvite: (source, args, context) => deleteInvite(args, context),
+
     consumeInvite: (source, args, context) => consumeInvite(context),
-    removeUser: (source, args, context) => removeUser(args, context),
-    removeCurrentUser: (source, args, context) => {
-      removeUser({ userID: context.user.id.toString() }, context)
+
+    updateUser: (source, args, context) => updateUser(args, context),
+    deleteUser: (source, args, context) => deleteUser(args, context),
+    deleteCurrentUser: (source, args, context) => {
+      deleteUser({ userID: context.user.id.toString() }, context)
     },
     /* config */
-    createConfig: (source, args, { store }) => {
+    createConfig: (source, args, context) => {
+      // const {
+      //   collection,
+      //   schemaFormKey,
+      //   model,
+      // } = args.input
+
+      const { store } = context
+
+      // if (collection === 'AUTH') {
+      //   if (schemaFormKey === 'invite') {
+      //     return createInvite(model, context)
+      //   }
+      //   throw new Error(`Invalid AUTH shemaFormKey: ${schemaFormKey}`)
+      // }
+
       const {
         action,
         errors,
@@ -39,7 +67,26 @@ const MutationResolvers = {
       store.dispatch(action)
       return {}
     },
-    updateConfig: (source, args, { store }) => {
+    updateConfig: (source, args, context) => {
+      // const {
+      //   collection,
+      //   schemaFormKey,
+      //   model,
+      //   configFormID,
+      // } = args.input
+
+      const { store } = context
+
+      // if (collection === 'AUTH') {
+      //   if (schemaFormKey === 'user') {
+      //     return updateUser(configFormID, model, context)
+      //   }
+      //   if (schemaFormKey === 'invite') {
+      //     return updateInvite(configFormID, model, context)
+      //   }
+      //   throw new Error(`Invalid AUTH shemaFormKey: ${schemaFormKey}`)
+      // }
+
       const {
         action,
         errors,
@@ -52,7 +99,25 @@ const MutationResolvers = {
       store.dispatch(action)
       return {}
     },
-    deleteConfig: (source, args, { store }) => {
+    deleteConfig: (source, args, context) => {
+      const {
+        collection,
+        schemaFormKey,
+        model,
+      } = args.input
+
+      const { store } = context
+
+      if (collection === 'AUTH') {
+        if (schemaFormKey === 'user') {
+          return deleteUser(model, context)
+        }
+        if (schemaFormKey === 'invite') {
+          return deleteInvite(model, context)
+        }
+        throw new Error(`Invalid AUTH shemaFormKey: ${schemaFormKey}`)
+      }
+
       const action = requestDeleteConfigFromMutation(source, args, { store })
       if (action == null) {
         return null

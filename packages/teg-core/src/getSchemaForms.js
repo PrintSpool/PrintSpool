@@ -74,6 +74,74 @@ const getSchemaForms = () => ({
       afterPrintHook: getCorePluginConfigPath,
     }),
   },
+  auth: {
+    user: {
+      schema: schema => ({
+        ...schema,
+        type: 'object',
+        title: 'User',
+        required: [
+          ...(schema.required || []),
+          'isAdmin',
+        ],
+        properties: {
+          ...(schema.properties || {}),
+          name: {
+            title: 'Name',
+            type: 'string',
+            readOnly: true,
+          },
+          email: {
+            title: 'Email',
+            type: 'string',
+            readOnly: true,
+          },
+          emailVerified: {
+            title: 'Email Verified',
+            type: 'boolean',
+            readOnly: true,
+          },
+          isAdmin: {
+            title: 'Admin',
+            type: 'boolean',
+          },
+        },
+      }),
+      form: [
+        'name',
+        'email',
+        'emailVerified',
+        'isAdmin',
+      ],
+    },
+    invite: {
+      schema: schema => ({
+        ...schema,
+        type: 'object',
+        title: 'User',
+        required: [
+          ...(schema.required || []),
+          'isAdmin',
+        ],
+        properties: {
+          ...(schema.properties || {}),
+          createdAt: {
+            title: 'Created At',
+            type: 'string',
+            readOnly: true,
+          },
+          isAdmin: {
+            title: 'Admin',
+            type: 'boolean',
+          },
+        },
+      }),
+      form: [
+        'createdAt',
+        'isAdmin',
+      ],
+    },
+  },
   plugins: {
     '@tegapp/core': {
       schema: schema => ({

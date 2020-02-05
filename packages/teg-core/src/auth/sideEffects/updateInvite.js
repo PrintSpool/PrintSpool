@@ -1,14 +1,14 @@
 import { GraphQLClient } from 'graphql-request'
 
-const consumeInvite = async (args, context) => {
+const updateInvite = async (id, args, context) => {
   const { user } = context
 
   const query = `
     mutation(
-      $userID: String!
+      $input: UpdateInvite!
     ) {
-      removeUser(
-        userId: $userID
+      updateInvite(
+        input: $input
       )
     }
   `
@@ -17,9 +17,9 @@ const consumeInvite = async (args, context) => {
     headers: { 'user-id': user.id },
   })
 
-  const data = await client.request(query, args)
+  await client.request(query, args)
 
-  return data.consumeInvite
+  return {}
 }
 
-export default consumeInvite
+export default updateInvite

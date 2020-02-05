@@ -13,6 +13,8 @@ const consumeInvite = async ({ peerIdentityPublicKey, user }) => {
         email
         emailVerified
         isAdmin
+        createdAt
+        lastLoggedInAt
       }
     }
   `

@@ -2,9 +2,9 @@ table! {
     invites (id) {
         id -> Int4,
         public_key -> Text,
-        private_key -> Text,
+        private_key -> Nullable<Text>,
         is_admin -> Bool,
-        slug -> Text,
+        slug -> Nullable<Text>,
         created_at -> Timestamp,
     }
 }
@@ -18,6 +18,8 @@ table! {
         email_verified -> Bool,
         is_admin -> Bool,
         is_authorized -> Bool,
+        created_at -> Timestamp,
+        last_logged_in_at -> Nullable<Timestamp>,
     }
 }
 

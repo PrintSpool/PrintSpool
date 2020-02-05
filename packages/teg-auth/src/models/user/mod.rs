@@ -1,5 +1,7 @@
+use chrono::prelude::*;
 use juniper::{
     FieldResult,
+    ID,
 };
 
 use crate::{ Context };
@@ -15,6 +17,8 @@ pub struct User {
     pub email: Option<String>,
     pub email_verified: bool,
     pub is_admin: bool,
+    pub created_at: NaiveDateTime,
+    pub last_logged_in_at: Option<NaiveDateTime>,
 
     #[graphql(skip)]
     pub user_profile_id: String,
@@ -24,8 +28,14 @@ pub struct User {
 
 #[derive(juniper::GraphQLInputObject)]
 pub struct UpdateUser {
-    pub id: String,
+    pub user_id: String,
     pub is_admin: bool,
+}
+
+#[derive(juniper::GraphQLInputObject)]
+pub struct DeleteUser {
+    #[graphql(name="userID")]
+    pub user_id: ID,
 }
 
 impl User {
@@ -42,7 +52,27 @@ impl User {
         Ok(users)
     }
 
-    pub async fn remove(context: &Context, user_id: String) -> FieldResult<Option<bool>> {
+    pub async fn update(context: &Context, user: UpdateUser) -> FieldResult<User> {
+        context.authorize_admins_only()?;
+
+        let next_user = sqlx::query_as!(
+            User,
+            "
+                UPDATE users
+                SET is_admin=COALESCE($2, is_admin)
+                WHERE id=$1
+                RETURNING *
+            ",
+            user.user_id.parse::<i32>()?,
+            user.is_admin
+        )
+            .fetch_one(&mut context.db().await?)
+            .await?;
+
+        Ok(next_user)
+    }
+
+    pub async fn delete(context: &Context, user_id: String) -> FieldResult<Option<bool>> {
         println!("{:?}", user_id);
         let user_id = user_id.parse::<i32>()?;
 
@@ -64,25 +94,5 @@ impl User {
         .await?;
 
         Ok(None)
-    }
-
-    pub async fn update(context: &Context, user: UpdateUser) -> FieldResult<User> {
-        context.authorize_admins_only()?;
-
-        let next_user = sqlx::query_as!(
-            User,
-            "
-                UPDATE users
-                SET is_admin=COALESCE($2, is_admin)
-                WHERE id=$1
-                RETURNING *
-            ",
-            user.id.parse::<i32>()?,
-            user.is_admin
-        )
-            .fetch_one(&mut context.db().await?)
-            .await?;
-
-        Ok(next_user)
     }
 }

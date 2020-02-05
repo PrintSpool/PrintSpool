@@ -2,6 +2,7 @@ use chrono::prelude::*;
 // use futures::prelude::*;
 use juniper::{
     FieldResult,
+    ID,
 };
 use std::sync::Arc;
 
@@ -17,8 +18,20 @@ pub struct Invite {
     pub private_key: String,
     #[graphql(skip)]
     pub is_admin: bool,
-    #[graphql(skip)]
     pub slug: String,
+}
+
+#[derive(juniper::GraphQLInputObject)]
+pub struct UpdateInvite {
+    #[graphql(name="inviteID")]
+    pub invite_id: ID,
+    pub is_admin: bool,
+}
+
+#[derive(juniper::GraphQLInputObject)]
+pub struct DeleteInvite {
+    #[graphql(name="inviteID")]
+    pub invite_id: ID,
 }
 
 mod consume_invite;
@@ -107,5 +120,41 @@ impl Invite {
             .await?;
 
         Ok(invite)
+    }
+
+    pub async fn update(context: &Context, invite: UpdateInvite) -> FieldResult<Invite> {
+        context.authorize_admins_only()?;
+
+        let next_invite = sqlx::query_as!(
+            Invite,
+            "
+                UPDATE invites
+                SET is_admin=COALESCE($2, is_admin)
+                WHERE id=$1
+                RETURNING *
+            ",
+            invite.invite_id.parse::<i32>()?,
+            invite.is_admin
+        )
+            .fetch_one(&mut context.db().await?)
+            .await?;
+
+        Ok(next_invite)
+    }
+
+    pub async fn delete(context: &Context, invite_id: String) -> FieldResult<Option<bool>> {
+        println!("{:?}", invite_id);
+        let invite_id = invite_id.parse::<i32>()?;
+
+        context.authorize_admins_only()?;
+
+        let _ = sqlx::query!(
+            "DELETE FROM invites WHERE id=$1",
+            invite_id
+        )
+        .fetch_optional(&mut context.db().await?)
+        .await?;
+
+        Ok(None)
     }
 }

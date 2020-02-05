@@ -1,3 +1,4 @@
+use chrono::prelude::*;
 use juniper::{
     FieldResult,
     FieldError,
@@ -90,12 +91,20 @@ impl User {
         let user = sqlx::query_as!(
             User,
             "
-                INSERT INTO users (name, user_profile_id, email, email_verified)
-                VALUES ($1, $2, $3, $4)
+                INSERT INTO users (
+                    name,
+                    user_profile_id,
+                    email,
+                    email_verified,
+                    created_at,
+                    last_logged_in_at
+                )
+                VALUES ($1, $2, $3, $4, $5, $5)
                 ON CONFLICT (user_profile_id) DO UPDATE SET
                     name = $1,
                     email = $3,
-                    email_verified = $4
+                    email_verified = $4,
+                    last_logged_in_at = $5
                 RETURNING *
             ",
             // TODO: proper NULL handling
@@ -103,7 +112,8 @@ impl User {
             user_profile.id,
             // TODO: proper NULL handling
             user_profile.email.unwrap_or("".to_string()),
-            user_profile.email_verified
+            user_profile.email_verified,
+            Utc::now().naive_utc()
         )
             .fetch_one(&mut db)
             .await?;

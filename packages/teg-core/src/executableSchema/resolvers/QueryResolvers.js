@@ -1,5 +1,8 @@
 import getSchemaForms from '../../pluginManager/selectors/getSchemaForms'
 
+import invites from '../../auth/sideEffects/invites'
+import users from '../../auth/sideEffects/users'
+
 import packageJSON from '../../../package.json'
 
 const QueryResolvers = {
@@ -10,6 +13,11 @@ const QueryResolvers = {
 
       return state.updates.hasPendingUpdates
     },
+    /*
+     * auth
+     */
+    invites,
+    users,
     /*
      * config
      */
@@ -44,6 +52,15 @@ const QueryResolvers = {
       const state = store.getState()
 
       switch (collection) {
+        case 'AUTH': {
+          const schemaForm = state.schemaForms.getIn(['auth', schemaFormKey])
+
+          if (schemaForm == null) {
+            throw new Error(`Invalid AUTH schemaFormKey: ${schemaFormKey}`)
+          }
+
+          return schemaForm
+        }
         case 'MACHINE': {
           /*
            * TODO: make use of the DAT URL to generate
@@ -129,7 +146,7 @@ const QueryResolvers = {
      * printer
      */
     machines: (_source, args, { store }) => {
-      const id = args.machineID
+      // const id = args.machineID
       const state = store.getState()
       // TODO: ID-based machine lookup
       // if (id != null && id !== state.config.printer.id) {

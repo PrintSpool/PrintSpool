@@ -11,9 +11,13 @@ use juniper::{
 use crate::models::{
     User,
     UpdateUser,
+    DeleteUser,
     Invite,
+    UpdateInvite,
+    DeleteInvite,
     ConsumeInvite,
 };
+
 use crate::Context;
 
 pub struct Query;
@@ -49,25 +53,39 @@ impl Mutation {
             })
     }
 
+    // Invites
     fn create_invite(
         context: &Context,
     ) -> FieldResult<Invite> {
         task::block_on(Invite::admin_create_invite(context))
     }
 
+    fn update_invite(context: &Context, input: UpdateInvite) -> FieldResult<Invite> {
+        task::block_on(
+            Invite::update(context, input)
+        )
+    }
+
+    fn delete_invite(context: &Context, input: DeleteInvite) -> FieldResult<Option<bool>> {
+        task::block_on(
+            Invite::delete(context, input.invite_id.to_string())
+        )
+    }
+
     fn consume_invite(context: &Context, input: ConsumeInvite) -> FieldResult<User> {
         task::block_on(input.consume(context))
     }
 
-    fn remove_user(context: &Context, user_id: String) -> FieldResult<Option<bool>> {
+    // Users
+    fn update_user(context: &Context, input: UpdateUser) -> FieldResult<User> {
         task::block_on(
-            User::remove(context, user_id)
+            User::update(context, input)
         )
     }
 
-    fn update_user(context: &Context, user: UpdateUser) -> FieldResult<User> {
+    fn delete_user(context: &Context, input: DeleteUser) -> FieldResult<Option<bool>> {
         task::block_on(
-            User::update(context, user)
+            User::delete(context, input.user_id.to_string())
         )
     }
 }

@@ -45,7 +45,7 @@ const DeleteDialog = ({
 
   const REMOVE_USER_FROM_MACHINE = gql`
     mutation {
-      removeCurrentUser
+      deleteCurrentUser
     }
   `
 

@@ -4,6 +4,7 @@ import getSchemaForms from '../selectors/getSchemaForms'
 
 export const initialState = Record({
   machine: null,
+  auth: Map(),
   plugins: Map(),
   materials: Map(),
   components: Map(),
