@@ -53,7 +53,7 @@ const TegApolloProvider = ({
 
   // console.log({ inviteCode, invite, match, params, slug })
 
-  console.log(auth0.isAuthenticated)
+  // console.log(auth0.isAuthenticated)
   useEffect(() => {
     (async () => {
       if (!auth0.isAuthenticated || (invite == null && slug == null)) {
@@ -126,7 +126,7 @@ const TegApolloProvider = ({
         setError(e)
       }
     })()
-  }, [location, invite, slug, auth0.isAuthenticated])
+  }, [invite, slug, auth0.isAuthenticated])
 
   const graphql = useContext(GraphQLContext)
 
