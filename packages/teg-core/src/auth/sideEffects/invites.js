@@ -20,8 +20,10 @@ const invites = async (source, args, context) => {
 
   const data = await client.request(query, args)
 
-  console.log(data)
-  return data.invites
+  return data.invites.map(invite => ({
+    ...invite,
+    createdAt: new Date(invite.createdAt * 1000),
+  }))
 }
 
 export default invites

@@ -24,7 +24,7 @@ import { useValidate } from '../../components/FormikSchemaForm/withValidate'
 import Loading from '../../../../common/Loading'
 
 const addInviteGraphQL = gql`
-  mutation addPlugin($input: CreateConfigInput!) {
+  mutation addInvite($input: CreateConfigInput!) {
     createConfig(input: $input) {
       errors {
         dataPath
@@ -97,8 +97,8 @@ const enhance = Component => ({
       await addInviteMutation({
         variables: {
           input: {
-            collection: 'PLUGIN',
-            schemaFormKey: values.package,
+            collection: 'AUTH',
+            schemaFormKey: 'invite',
             model: values.model,
           },
         },
@@ -141,7 +141,7 @@ const enhance = Component => ({
     wizard,
     updateWizard,
     validate,
-    client,
+    history,
   }
 
 

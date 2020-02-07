@@ -23,7 +23,12 @@ const createInvite = async (source, args, context) => {
 
   const data = await client.request(query, args)
 
-  return data.users
+  return data.users.map(u => ({
+    ...u,
+    createdAt: new Date(u.createdAt * 1000),
+    lastLoggedInAt: u.lastLoggedInAt && new Date(u.lastLoggedInAt * 1000),
+  }))
+
 }
 
 export default createInvite

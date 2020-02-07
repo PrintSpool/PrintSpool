@@ -40,7 +40,7 @@ const UserProfileMenu = ({
         aria-haspopup="true"
         onClick={handleClick}
       >
-        <Avatar src={user.picture}>{user.name}</Avatar>
+        <Avatar src={user.picture}>{user.name[0]}</Avatar>
       </IconButton>
       <Menu
         id="user-profile-menu"
