@@ -22,7 +22,7 @@ const invites = async (source, args, context) => {
 
   return data.invites.map(invite => ({
     ...invite,
-    createdAt: new Date(invite.createdAt * 1000),
+    createdAt: Date.parse(invite.createdAt),
   }))
 }
 

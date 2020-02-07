@@ -58,6 +58,7 @@ type User {
   email: String
   emailVerified: Boolean!
   isAdmin: Boolean!
+  picture: String
   createdAt: DateTime!
   lastLoggedInAt: DateTime
 }

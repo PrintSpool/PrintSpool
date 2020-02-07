@@ -5,5 +5,5 @@ CREATE TABLE invites (
     is_admin BOOLEAN NOT NULL DEFAULT False,
     slug TEXT,
 
-    created_at TIMESTAMP NOT NULL
+    created_at TIMESTAMP with time zone NOT NULL
 );

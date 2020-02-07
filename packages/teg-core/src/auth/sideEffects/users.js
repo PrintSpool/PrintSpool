@@ -11,6 +11,7 @@ const createInvite = async (source, args, context) => {
         email
         emailVerified
         isAdmin
+        picture
         createdAt
         lastLoggedInAt
       }
@@ -23,11 +24,12 @@ const createInvite = async (source, args, context) => {
 
   const data = await client.request(query, args)
 
-  return data.users.map(u => ({
-    ...u,
-    createdAt: new Date(u.createdAt * 1000),
-    lastLoggedInAt: u.lastLoggedInAt && new Date(u.lastLoggedInAt * 1000),
-  }))
+  return data.users
+  // return data.users.map(u => ({
+  //   ...u,
+  //   createdAt: Date.parse(u.createdAt),
+  //   lastLoggedInAt: u.lastLoggedInAt && Date.parse(u.lastLoggedInAt),
+  // }))
 
 }
 

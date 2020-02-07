@@ -113,7 +113,7 @@ impl User {
             // TODO: proper NULL handling
             user_profile.email.unwrap_or("".to_string()),
             user_profile.email_verified,
-            Utc::now().naive_utc()
+            Utc::now()
         )
             .fetch_one(&mut db)
             .await?;

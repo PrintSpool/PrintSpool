@@ -7,22 +7,21 @@ use juniper::{
 use crate::{ Context };
 
 mod authenticate;
+mod graphql;
 
 pub use authenticate::*;
 
-#[derive(Debug, juniper::GraphQLObject)]
+#[derive(Debug)]
 pub struct User {
     pub id: i32,
     pub name: Option<String>,
     pub email: Option<String>,
     pub email_verified: bool,
     pub is_admin: bool,
-    pub created_at: NaiveDateTime,
-    pub last_logged_in_at: Option<NaiveDateTime>,
+    pub created_at: DateTime<Utc>,
+    pub last_logged_in_at: Option<DateTime<Utc>>,
 
-    #[graphql(skip)]
     pub user_profile_id: String,
-    #[graphql(skip)]
     pub is_authorized: bool,
 }
 

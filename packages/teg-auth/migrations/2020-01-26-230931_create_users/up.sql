@@ -7,6 +7,6 @@ CREATE TABLE users (
     is_admin BOOLEAN NOT NULL DEFAULT FALSE,
     is_authorized BOOLEAN NOT NULL DEFAULT FALSE,
 
-    created_at TIMESTAMP NOT NULL,
-    last_logged_in_at TIMESTAMP
+    created_at TIMESTAMP with time zone NOT NULL,
+    last_logged_in_at TIMESTAMP with time zone
 );

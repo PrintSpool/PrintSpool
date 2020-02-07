@@ -5,7 +5,7 @@ table! {
         private_key -> Nullable<Text>,
         is_admin -> Bool,
         slug -> Nullable<Text>,
-        created_at -> Timestamp,
+        created_at -> Timestamptz,
     }
 }
 
@@ -18,8 +18,8 @@ table! {
         email_verified -> Bool,
         is_admin -> Bool,
         is_authorized -> Bool,
-        created_at -> Timestamp,
-        last_logged_in_at -> Nullable<Timestamp>,
+        created_at -> Timestamptz,
+        last_logged_in_at -> Nullable<Timestamptz>,
     }
 }
 

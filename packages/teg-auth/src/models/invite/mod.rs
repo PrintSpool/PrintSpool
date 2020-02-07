@@ -12,7 +12,7 @@ use crate::{ Context };
 pub struct Invite {
     pub id: i32,
     pub public_key: String,
-    pub created_at: NaiveDateTime,
+    pub created_at: DateTime<Utc>,
     pub is_admin: bool,
     pub slug: String,
 
@@ -126,7 +126,7 @@ impl Invite {
             hex_private_key,
             slug,
             is_admin,
-            Utc::now().naive_utc()
+            Utc::now()
         )
             .fetch_one(db)
             .await?;

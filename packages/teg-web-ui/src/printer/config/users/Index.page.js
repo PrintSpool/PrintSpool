@@ -7,12 +7,12 @@ import {
   ListItemText,
   Avatar,
 } from '@material-ui/core'
-// import { makeStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
 import { useQuery } from 'react-apollo-hooks'
 import gql from 'graphql-tag'
 
-import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog/Index'
+import UpdateDialog from '../components/UpdateDialog/Index'
 import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog'
 import Loading from '../../../common/Loading'
 
@@ -23,14 +23,20 @@ const UsersQuery = gql`
       id
       name
       email
-      createdAt
       isAdmin
+      picture
+      createdAt
     }
   }
 `
 
-// const useStyles = makeStyles(theme => ({
-// }))
+const useStyles = makeStyles(theme => ({
+  updateTitleAvatar: {
+    float: 'left',
+    marginTop: '0.2em',
+    marginRight: theme.spacing(1),
+  },
+}), { useTheme: true })
 
 const enhance = Component => (props) => {
   const { match } = props
@@ -64,19 +70,26 @@ const enhance = Component => (props) => {
   )
 }
 
-const ComponentsConfigIndex = ({
+const UsersIndex = ({
   users,
   selectedUser,
   verb,
   hasPendingUpdates,
 }) => {
-  // const classes = useStyles()
+  const classes = useStyles()
 
   return (
     <main>
       {selectedUser != null && verb == null && (
         <UpdateDialog
-          title={`Invite (ID: ${selectedUser.id})`}
+          title={(
+            <>
+              <Avatar src={selectedUser.picture} className={classes.updateTitleAvatar}>
+                {selectedUser.name[0]}
+              </Avatar>
+              {selectedUser.name}
+            </>
+          )}
           open={selectedUser != null}
           deleteButton
           collection="AUTH"
@@ -84,16 +97,22 @@ const ComponentsConfigIndex = ({
           hasPendingUpdates={hasPendingUpdates}
           query={gql`
             query {
-              // THIS WILL NOT WORK BECAUSE UPDATE DIALOG FRAGMENT NEEDS A MODEL FIELD
               schemaForm(input: {
-                collection: "AUTH"
+                collection: AUTH
                 schemaFormKey: "user"
               }) {
-                ...UpdateDialogFragment
+                id
+                schema
+                form
               }
             }
-            ${UPDATE_DIALOG_FRAGMENT}
           `}
+          getConfigForm={(data) => {
+            return {
+              schemaForm: data.schemaForm,
+              model: selectedUser,
+            }
+          }}
         />
       )}
       { selectedUser != null && verb === 'delete' && (
@@ -130,5 +149,5 @@ const ComponentsConfigIndex = ({
   )
 }
 
-export const Component = ComponentsConfigIndex
-export default enhance(ComponentsConfigIndex)
+export const Component = UsersIndex
+export default enhance(UsersIndex)

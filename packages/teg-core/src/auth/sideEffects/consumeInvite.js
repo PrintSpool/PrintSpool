@@ -13,6 +13,7 @@ const consumeInvite = async ({ peerIdentityPublicKey, user }) => {
         email
         emailVerified
         isAdmin
+        picture
         createdAt
         lastLoggedInAt
       }
@@ -28,7 +29,15 @@ const consumeInvite = async ({ peerIdentityPublicKey, user }) => {
 
   const data = await request('http://127.0.0.1:33005/graphql', query, variables)
 
-  return data.consumeInvite
+  let createdUser = data.consumeInvite
+
+  createdUser = {
+    ...createdUser,
+    createdAt: Date.parse(createdUser.createdAt),
+    lastLoggedInAt: createdUser.lastLoggedInAt && Date.parse(createdUser.lastLoggedInAt),
+  }
+
+  return createdUser
 }
 
 export default consumeInvite

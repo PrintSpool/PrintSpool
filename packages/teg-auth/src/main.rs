@@ -13,7 +13,8 @@ extern crate rmp_serde as rmps;
 // extern crate futures03;
 extern crate serde;
 // extern crate serde_json;
-// extern crate url;
+extern crate url;
+extern crate gravatar;
 
 use warp::{http::Response, Filter};
 use dotenv::dotenv;
@@ -53,7 +54,7 @@ async fn main() -> std::io::Result<()> {
 
     let database_url = env::var("POSTGRESQL_ADDON_URI")
         .expect("$POSTGRESQL_ADDON_URI must be set");
- 
+
     let pool = sqlx::PgPool::new(&database_url)
         .await
         .map(|p| Arc::new(p))

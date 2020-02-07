@@ -44,8 +44,9 @@ const enhance = compose(
   withRouter,
   Component => (({
     query,
-    variables,
+    variables = {},
     open,
+    getConfigForm,
     ...props
   }) => {
     const { collection } = props
@@ -68,19 +69,19 @@ const enhance = compose(
             throw error
           }
 
-          const configFormModel = (() => {
+          const configFormModel = (getConfigForm || (() => {
             if (data.materials != null) {
-              return data.materials[0]
+              return data.materials[0].configForm
             }
 
             const machine = data.machines[0]
 
             if (machine.configForm != null) {
-              return machine
+              return machine.configForm
             }
 
-            return (machine.plugins || machine.components)[0]
-          })().configForm
+            return (machine.plugins || machine.components)[0].configForm
+          }))(data)
 
           return (
             <Component
