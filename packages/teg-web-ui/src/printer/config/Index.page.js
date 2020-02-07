@@ -134,18 +134,26 @@ const ConfigPage = ({
       <ListItem
         button
         component={React.forwardRef((props, ref) => (
-          <Link to="plugins/" innerRef={ref} {...props} />
-        ))}
-      >
-        <ListItemText primary="Plugins" />
-      </ListItem>
-      <ListItem
-        button
-        component={React.forwardRef((props, ref) => (
           <Link to="materials/" innerRef={ref} {...props} />
         ))}
       >
         <ListItemText primary="Materials" />
+      </ListItem>
+      <ListItem
+        button
+        component={React.forwardRef((props, ref) => (
+          <Link to="users/" innerRef={ref} {...props} />
+        ))}
+      >
+        <ListItemText primary="Users" />
+      </ListItem>
+      <ListItem
+        button
+        component={React.forwardRef((props, ref) => (
+          <Link to="invites/" innerRef={ref} {...props} />
+        ))}
+      >
+        <ListItemText primary="Invite Keys" />
       </ListItem>
     </List>
   </main>

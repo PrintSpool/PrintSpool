@@ -31,6 +31,12 @@ impl Query {
             User::all(context)
         )
     }
+
+    fn invites(context: &Context) -> FieldResult<Vec<Invite>> {
+        task::block_on(
+            Invite::all(context)
+        )
+    }
 }
 
 pub struct Mutation;

@@ -1,6 +1,6 @@
 import { GraphQLClient } from 'graphql-request'
 
-const createInvite = async (args, context) => {
+const createInvite = async (source, args, context) => {
   const { user } = context
 
   const query = `

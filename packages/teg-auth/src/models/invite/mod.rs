@@ -13,12 +13,11 @@ pub struct Invite {
     pub id: i32,
     pub public_key: String,
     pub created_at: NaiveDateTime,
+    pub is_admin: bool,
+    pub slug: String,
 
     #[graphql(skip)]
     pub private_key: String,
-    #[graphql(skip)]
-    pub is_admin: bool,
-    pub slug: String,
 }
 
 #[derive(juniper::GraphQLInputObject)]
@@ -41,6 +40,19 @@ pub use consume_invite::*;
 pub use invite_code::*;
 
 impl Invite {
+    pub async fn all(context: &Context) -> FieldResult<Vec<Invite>> {
+        context.authorize_admins_only()?;
+
+        let invites = sqlx::query_as!(
+            Invite,
+            "SELECT * FROM invites",
+        )
+            .fetch_all(&mut context.db().await?)
+            .await?;
+
+        Ok(invites)
+    }
+
     pub async fn admin_create_invite(
         context: &Context,
     ) -> FieldResult<Invite> {

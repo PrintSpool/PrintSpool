@@ -1,5 +1,5 @@
+import React, { useMemo } from 'react'
 import Ajv from 'ajv'
-import { withPropsOnChange } from 'recompose'
 
 // !!!!!!!!!!!!!!!!!
 // DEPRECATED
@@ -18,11 +18,9 @@ import { withPropsOnChange } from 'recompose'
 //   return out
 // }
 
-const withValidate = withPropsOnChange(
-  // (props, nextProps) => props.schema !== nextProps.schema,
-  ['schema'],
-  ({ schema }) => {
-    if (schema == null) return { validate: () => ({}) }
+export const useValidate = ({ schema }) => (
+  useMemo(() => {
+    if (schema == null) return () => ({})
 
     const ajv = new Ajv({
       allErrors: true,
@@ -47,8 +45,16 @@ const withValidate = withPropsOnChange(
       return errors
     }
 
-    return { validate }
-  },
+    return validate
+  }, [schema])
 )
+
+const withValidate = Component => (props) => {
+  const validate = useValidate(props)
+
+  return (
+    <Component validate={validate} {...props} />
+  )
+}
 
 export default withValidate

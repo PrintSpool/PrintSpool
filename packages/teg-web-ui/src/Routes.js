@@ -42,9 +42,12 @@ const ComponentsConfigPage = React.lazy(() => (
 const MaterialsConfigPage = React.lazy(() => (
  import('./printer/config/materials/Index.page')
 ))
-const PluginsConfigPage = React.lazy(() => (
- import('./printer/config/plugins/Plugins')
+const UsersConfigPage = React.lazy(() => (
+ import('./printer/config/users/Index.page')
 ))
+const InvitesConfigPage = React.lazy(() => (
+  import('./printer/config/invites/Index.page')
+ ))
 
 const Routes = () => {
   const { isAuthenticated, loading } = useAuth0()
@@ -171,11 +174,20 @@ const Routes = () => {
                 <Route
                   exact
                   path={[
-                    '/m/:hostID/:machineID/config/plugins/',
-                    '/m/:hostID/:machineID/config/plugins/:pluginID/',
-                    '/m/:hostID/:machineID/config/plugins/:pluginID/:verb',
+                    '/m/:hostID/:machineID/config/users/',
+                    '/m/:hostID/:machineID/config/users/:userID/',
+                    '/m/:hostID/:machineID/config/users/:userID/:verb',
                   ]}
-                  component={PluginsConfigPage}
+                  component={UsersConfigPage}
+                />
+                <Route
+                  exact
+                  path={[
+                    '/m/:hostID/:machineID/config/invites/',
+                    '/m/:hostID/:machineID/config/invites/:inviteID/',
+                    '/m/:hostID/:machineID/config/invites/:inviteID/:verb',
+                  ]}
+                  component={InvitesConfigPage}
                 />
               </ConnectionFrame>
             )}

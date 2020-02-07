@@ -1,6 +1,6 @@
 import { GraphQLClient } from 'graphql-request'
 
-const createInvite = async (args, context) => {
+const invites = async (source, args, context) => {
   const { user } = context
 
   const query = `
@@ -20,7 +20,8 @@ const createInvite = async (args, context) => {
 
   const data = await client.request(query, args)
 
+  console.log(data)
   return data.invites
 }
 
-export default createInvite
+export default invites
