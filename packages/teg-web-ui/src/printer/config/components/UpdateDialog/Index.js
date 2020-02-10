@@ -18,6 +18,7 @@ import withValidate from '../FormikSchemaForm/withValidate'
 import StatusFilter from '../../../../common/StatusFilter'
 import removeReadOnlyFields from '../FormikSchemaForm/removeReadOnlyFields'
 import Loading from '../../../../common/Loading'
+import LoadingOverlay from '../../../../common/LoadingOverlay'
 
 export const UPDATE_DIALOG_FRAGMENT = gql`
   fragment UpdateDialogFragment on ConfigForm {
@@ -197,30 +198,8 @@ const UpdateDialog = ({
       onSubmit={onSubmit}
     >
       {props => (
-        <Form
-          style={{
-            display: 'grid',
-            gridTemplateRows: '1fr',
-            gridTemplateColumns: '1fr',
-          }}
-        >
-          { props.isSubmitting && (
-            <div
-              style={{
-                gridArea: '1 / 1',
-                display: 'grid',
-                background: 'rgba(255,255,255,0.7)',
-                zIndex: 10,
-              }}
-            >
-              <Loading />
-            </div>
-          )}
-          <div
-            style={{
-              gridArea: '1 / 1',
-            }}
-          >
+        <Form>
+          <LoadingOverlay loading={props.isSubmitting}>
             <DialogTitle id="form-dialog-title">{title || name || id}</DialogTitle>
             <StatusFilter
               status={hasPendingUpdates ? 'UPDATES_PENDING' : status}
@@ -269,7 +248,7 @@ const UpdateDialog = ({
                 Save
               </Button>
             </DialogActions>
-          </div>
+          </LoadingOverlay>
         </Form>
       )}
     </Formik>

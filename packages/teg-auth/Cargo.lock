@@ -1938,17 +1938,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "sqlx"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+version = "0.2.5"
+source = "git+https://github.com/launchbadge/sqlx.git?branch=ab/null-param-fix#957459a9b6e59cdcffff3b1ebef847cda69fdcc6"
 dependencies = [
- "sqlx-core 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "sqlx-macros 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sqlx-core 0.2.5 (git+https://github.com/launchbadge/sqlx.git?branch=ab/null-param-fix)",
+ "sqlx-macros 0.2.4 (git+https://github.com/launchbadge/sqlx.git?branch=ab/null-param-fix)",
 ]
 
 [[package]]
 name = "sqlx-core"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+version = "0.2.5"
+source = "git+https://github.com/launchbadge/sqlx.git?branch=ab/null-param-fix#957459a9b6e59cdcffff3b1ebef847cda69fdcc6"
 dependencies = [
  "async-native-tls 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "async-std 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1966,6 +1966,7 @@ dependencies = [
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "md-5 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "memchr 2.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "percent-encoding 2.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "sha-1 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "sha2 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1974,15 +1975,15 @@ dependencies = [
 
 [[package]]
 name = "sqlx-macros"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+version = "0.2.4"
+source = "git+https://github.com/launchbadge/sqlx.git?branch=ab/null-param-fix#957459a9b6e59cdcffff3b1ebef847cda69fdcc6"
 dependencies = [
  "async-std 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "dotenv 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "proc-macro2 1.0.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "quote 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "sqlx-core 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sqlx-core 0.2.5 (git+https://github.com/launchbadge/sqlx.git?branch=ab/null-param-fix)",
  "syn 1.0.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "url 2.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -2055,8 +2056,8 @@ dependencies = [
  "rmp-serde 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "secp256k1 0.17.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
- "sqlx 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "sqlx-core 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sqlx 0.2.5 (git+https://github.com/launchbadge/sqlx.git?branch=ab/null-param-fix)",
+ "sqlx-core 0.2.5 (git+https://github.com/launchbadge/sqlx.git?branch=ab/null-param-fix)",
  "toml 0.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "url 2.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "warp 0.1.20 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2915,9 +2916,9 @@ dependencies = [
 "checksum smallvec 0.6.13 (registry+https://github.com/rust-lang/crates.io-index)" = "f7b0758c52e15a8b5e3691eae6cc559f08eee9406e548a4477ba4e67770a82b6"
 "checksum smallvec 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "44e59e0c9fa00817912ae6e4e6e3c4fe04455e75699d06eedc7d85917ed8e8f4"
 "checksum sourcefile 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)" = "4bf77cb82ba8453b42b6ae1d692e4cdc92f9a47beaf89a847c8be83f4e328ad3"
-"checksum sqlx 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)" = "ee32338e37ff890318e86f12411d0ade56cc71fefc8f32aa74b1c8e76f490023"
-"checksum sqlx-core 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)" = "b74431ebf01eda617fb326471f712213a21473a0ecd34710e13f640092382a17"
-"checksum sqlx-macros 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "3c63eb99eda1a38e509926b1f9406951cf89f27ce5554f24f1c38c8853d82b62"
+"checksum sqlx 0.2.5 (git+https://github.com/launchbadge/sqlx.git?branch=ab/null-param-fix)" = "<none>"
+"checksum sqlx-core 0.2.5 (git+https://github.com/launchbadge/sqlx.git?branch=ab/null-param-fix)" = "<none>"
+"checksum sqlx-macros 0.2.4 (git+https://github.com/launchbadge/sqlx.git?branch=ab/null-param-fix)" = "<none>"
 "checksum string 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d24114bfcceb867ca7f71a0d3fe45d45619ec47a6fbfa98cb14e14250bfa5d6d"
 "checksum subtle 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "2d67a5a62ba6e01cb2192ff309324cb4875d0c451d55fe2319433abe7a05a8ee"
 "checksum syn 0.15.44 (registry+https://github.com/rust-lang/crates.io-index)" = "9ca4b3b69a77cbe1ffc9e198781b7acb0c7365a883670e8f1c1bc66fba79a5c5"

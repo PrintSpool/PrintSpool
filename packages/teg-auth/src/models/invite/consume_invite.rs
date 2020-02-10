@@ -18,7 +18,7 @@ impl ConsumeInvite {
         // Verify that the invite has not yet been consumed
         let invite = sqlx::query!(
             "SELECT * FROM invites WHERE public_key=$1",
-            self.invite_public_key
+            &self.invite_public_key
         )
             .fetch_one(&mut tx)
             .await?;
@@ -43,7 +43,7 @@ impl ConsumeInvite {
         // Delete the invite
         sqlx::query!(
             "DELETE FROM invites WHERE public_key=$1",
-            self.invite_public_key
+            &self.invite_public_key
         )
             .fetch_optional(&mut tx)
             .await?;

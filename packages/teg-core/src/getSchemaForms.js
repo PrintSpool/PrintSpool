@@ -125,11 +125,11 @@ const getSchemaForms = () => ({
         ],
         properties: {
           ...(schema.properties || {}),
-          createdAt: {
-            title: 'Created At',
-            type: 'string',
-            readOnly: true,
-          },
+          // createdAt: {
+          //   title: 'Created At',
+          //   type: 'string',
+          //   readOnly: true,
+          // },
           isAdmin: {
             title: 'Admin Access Invite',
             type: 'boolean',
@@ -137,7 +137,7 @@ const getSchemaForms = () => ({
         },
       }),
       form: [
-        'createdAt',
+        // 'createdAt',
         'isAdmin',
       ],
     },

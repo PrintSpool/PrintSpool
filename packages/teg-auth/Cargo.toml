@@ -18,8 +18,8 @@ env_logger = "0.7.1"
 graphql_client = "0.8.0"
 serde = { version = "1.0.104", features = ["derive"] }
 reqwest = { version = "0.10.1", features = ["blocking", "json"] }
-sqlx = { version = "0.2.4", features = ["postgres", "chrono"] }
-sqlx-core = "0.2.4"
+sqlx = { git = "https://github.com/launchbadge/sqlx.git", branch = "ab/null-param-fix", features = ["postgres", "chrono"] }
+sqlx-core = { git = "https://github.com/launchbadge/sqlx.git", branch = "ab/null-param-fix" }
 async-std = { version = "1.4.0", features = ["attributes"] }
 futures = "0.3.1"
 chrono = "0.4.10"

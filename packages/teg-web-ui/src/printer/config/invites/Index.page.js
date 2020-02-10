@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 import {
   List,
   ListItem,
@@ -13,10 +13,10 @@ import { makeStyles } from '@material-ui/core/styles'
 import PersonOutline from '@material-ui/icons/PersonOutline'
 import Add from '@material-ui/icons/Add'
 
-import { useQuery } from 'react-apollo-hooks'
+import { useQuery, useApolloClient } from 'react-apollo-hooks'
 import gql from 'graphql-tag'
 
-import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog/Index'
+import UpdateDialog from '../components/UpdateDialog/Index'
 import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog'
 import CreateInviteDialog from './create/CreateInviteDialog'
 import Loading from '../../../common/Loading'
@@ -28,6 +28,16 @@ const InvitesQuery = gql`
       id
       createdAt
       isAdmin
+    }
+  }
+`
+
+const updateInvite = gql`
+  mutation updateInvite($input: UpdateInviteInput!) {
+    updateInvite(input: $input) {
+      errors {
+        message
+      }
     }
   }
 `
@@ -49,6 +59,9 @@ const enhance = Component => (props) => {
   // InvitesQuery
   const { inviteID, verb } = match.params
 
+  const history = useHistory()
+  const apollo = useApolloClient()
+
   const { data, loading, error } = useQuery(InvitesQuery, {
     pollInterval: 1000,
   })
@@ -62,13 +75,32 @@ const enhance = Component => (props) => {
   }
 
   const { invites } = data
+  const selectedInvite = invites.find(c => c.id === inviteID)
+
+  const onUpdate = async (model) => {
+    console.log({ model })
+    const { data: { errors } } = await apollo.mutate({
+      mutation: updateInvite,
+      variables: {
+        input: {
+          inviteID: selectedInvite.id,
+          ...model,
+        },
+      },
+    })
+    if (errors) {
+      throw new Error(JSON.stringify(errors))
+    }
+    history.push('../')
+  }
 
   const nextProps = {
     ...props,
-    selectedInvite: invites.find(c => c.id === inviteID),
+    selectedInvite,
     invites,
     inviteID,
     verb,
+    onUpdate,
   }
 
   return (
@@ -82,6 +114,8 @@ const InvitesConfigIndex = ({
   selectedInvite,
   verb,
   hasPendingUpdates,
+  onUpdate,
+  onDelete,
 }) => {
   const classes = useStyles()
 
@@ -89,20 +123,32 @@ const InvitesConfigIndex = ({
     <main>
       { inviteID !== 'new' && selectedInvite != null && verb == null && (
         <UpdateDialog
-          title={`Invite (ID: ${selectedInvite.id})`}
+          title={`Invite #${selectedInvite.id}`}
           open={selectedInvite != null}
           deleteButton
           collection="AUTH"
           status="READY"
           hasPendingUpdates={hasPendingUpdates}
           query={gql`
-            query() {
-              invitesConfigForm {
-                ...UpdateDialogFragment
+            query {
+              schemaForm(input: {
+                collection: AUTH
+                schemaFormKey: "invite"
+              }) {
+                id
+                schema
+                form
               }
             }
-            ${UPDATE_DIALOG_FRAGMENT}
           `}
+          getConfigForm={data => ({
+            id: selectedInvite.id,
+            modelVersion: 1,
+            schemaForm: data.schemaForm,
+            model: selectedInvite,
+          })}
+          onSubmit={onUpdate}
+          onDelete={onDelete}
         />
       )}
       { selectedInvite != null && verb === 'delete' && (

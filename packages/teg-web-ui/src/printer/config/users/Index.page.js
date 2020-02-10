@@ -72,15 +72,6 @@ const enhance = Component => (props) => {
   const selectedUser = users.find(c => c.id === userID)
 
   const onUpdate = async (model) => {
-    console.log('UPDATING!', {
-      query: updateUser,
-      variables: {
-        input: {
-          userID: selectedUser.id,
-          ...model,
-        },
-      },
-    })
     const { data: { errors } } = await apollo.mutate({
       mutation: updateUser,
       variables: {
@@ -93,7 +84,6 @@ const enhance = Component => (props) => {
     if (errors) {
       throw new Error(JSON.stringify(errors))
     }
-    console.log('DONE')
     history.push('../')
   }
 

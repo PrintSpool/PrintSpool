@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 use crate::{ Context };
 
-#[derive(juniper::GraphQLObject)]
+#[derive(juniper::GraphQLObject, Debug)]
 pub struct Invite {
     pub id: i32,
     pub public_key: String,
@@ -52,7 +52,7 @@ impl Invite {
 
         let invites = sqlx::query_as!(
             Invite,
-            "SELECT * FROM invites",
+            "SELECT * FROM invites ORDER BY id",
         )
             .fetch_all(&mut context.db().await?)
             .await?;

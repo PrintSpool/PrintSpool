@@ -5,6 +5,8 @@ import { useHistory } from 'react-router-dom'
 import gql from 'graphql-tag'
 import { Formik, Form } from 'formik'
 import { createInvite } from 'graphql-things'
+import QRCode from 'qrcode.react'
+import base64url from 'base64url'
 import {
   Dialog,
   DialogTitle,
@@ -14,6 +16,8 @@ import {
   Stepper,
   Step,
   StepLabel,
+  TextField,
+  Typography,
 } from '@material-ui/core'
 
 // import Page2 from './Page2'
@@ -25,6 +29,9 @@ import { useValidate } from '../../components/FormikSchemaForm/withValidate'
 // import getDefaultValues from '../../components/FormikSchemaForm/getDefaultValues'
 
 import Loading from '../../../../common/Loading'
+import LoadingOverlay from '../../../../common/LoadingOverlay'
+
+import useStyles from './CreateInviteDialogStyles'
 
 const addInviteGraphQL = gql`
   mutation addInvite($input: CreateInviteInput!) {
@@ -94,18 +101,19 @@ const enhance = Component => ({
     }
   }
 
-  const [addInviteMutation, { called, error }] = useMutation(addInviteGraphQL)
+  const [addInviteMutation, { error }] = useMutation(addInviteGraphQL)
 
-  const onSubmit = async (values) => {
-    console.log('SUBMITTING>???')
+  const onSubmit = async (values, bag) => {
     const nextInvite = await createInvite({
       identityKeys: {
         publicKey: tegApolloContext.peerIdentityPublicKey,
       },
     })
 
+    const slug = base64url.fromBase64(nextInvite.code)
+
     const webAppURL = `${window.location.protocol}//${window.location.host}`
-    const nextInviteURL = `${webAppURL}/i/${nextInvite.code}`
+    const nextInviteURL = `${webAppURL}/i/${slug}`
 
     if (wizard.activeStep === 0) {
       await addInviteMutation({
@@ -123,6 +131,8 @@ const enhance = Component => ({
         invite: nextInvite,
         inviteURL: nextInviteURL,
       })
+
+      bag.setSubmitting(false)
 
       return
     }
@@ -164,77 +174,98 @@ const createInviteDialog = ({
   validate,
   wizard,
   schemaForm,
-}) => (
-  <Dialog
-    open={open}
-    onClose={onClose}
-    aria-labelledby="create-dialog-title"
-    maxWidth="md"
-    fullWidth
-  >
-    <Formik
-      initialValues={{
-        package: '',
-        model: {
-          isAdmin: false,
-        },
-      }}
-      validate={validate}
-      onSubmit={onSubmit}
-    >
-      {({ values, isSubmitting }) => (
-        <Form>
-          <DialogTitle id="create-dialog-title">
-            Create an Invite Code
-          </DialogTitle>
-          <DialogContent style={{ minHeight: '12em' }}>
-            { isSubmitting && (
-              <Loading />
-            )}
-            <Stepper activeStep={wizard.activeStep}>
-              {
-                STEPS.map((label, index) => (
-                  <Step key={label} completed={index < wizard.activeStep}>
-                    <StepLabel>{label}</StepLabel>
-                  </Step>
-                ))
-              }
-            </Stepper>
-            {wizard.activeStep === 0 && (() => {
-              const { schema, form } = schemaForm
+}) => {
+  const classes = useStyles()
 
-              return (
-                <FormikSchemaForm
-                  schema={schema}
-                  form={form}
-                  path="model."
-                  hideReadOnlyFields
-                  values={values}
-                />
-              )
-            })()}
-            {wizard.activeStep === 1 && (
-              <div>
-                {wizard.inviteURL}
-                TODO: display the QR CODE and Invite URL
-              </div>
-            )}
-          </DialogContent>
-          <DialogActions>
-            {wizard.activeStep === 0 && (
-              <Button onClick={() => history.push('../')}>
-                Cancel
-              </Button>
-            )}
-            <Button type="submit" color="primary">
-              {wizard.activeStep === STEPS.length - 1 ? 'Finish' : 'Next'}
-            </Button>
-          </DialogActions>
-        </Form>
-      )}
-    </Formik>
-  </Dialog>
-)
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      aria-labelledby="create-dialog-title"
+      maxWidth="md"
+      fullWidth
+    >
+      <Formik
+        initialValues={{
+          package: '',
+          model: {
+            isAdmin: false,
+          },
+        }}
+        validate={validate}
+        onSubmit={onSubmit}
+      >
+        {({ values, isSubmitting }) => (
+          <Form>
+            <LoadingOverlay loading={isSubmitting}>
+              <DialogTitle id="create-dialog-title">
+                Create an Invite Code
+              </DialogTitle>
+              <DialogContent style={{ minHeight: '12em' }}>
+                <Stepper activeStep={wizard.activeStep}>
+                  {
+                    STEPS.map((label, index) => (
+                      <Step key={label} completed={index < wizard.activeStep}>
+                        <StepLabel>{label}</StepLabel>
+                      </Step>
+                    ))
+                  }
+                </Stepper>
+                {wizard.activeStep === 0 && (() => {
+                  const { schema, form } = schemaForm
+
+                  return (
+                    <FormikSchemaForm
+                      schema={schema}
+                      form={form}
+                      path="model."
+                      hideReadOnlyFields
+                      values={values}
+                    />
+                  )
+                })()}
+                {wizard.activeStep === 1 && (
+                  <div>
+                    <Typography variant="body1" paragraph className={classes.shareTitle}>
+                      Share your 3D Printer with a friend
+                    </Typography>
+                    <div className={classes.qrCode}>
+                      <QRCode
+                        value={wizard.inviteURL}
+                        size={300}
+                      />
+                    </div>
+                    <TextField
+                      label="Invite URL"
+                      InputProps={{ classes: { input: classes.inviteURLField } }}
+                      value={wizard.inviteURL}
+                      fullWidth
+                      multiline
+                      onClick={event => event.target.select()}
+                    />
+                    <Typography variant="body2" paragraph className={classes.shareWarning}>
+                      Please share the invite code before you leave this page. For security purposes the invite code will no longer be accessible after you leave this page.
+                    </Typography>
+                  </div>
+                )}
+              </DialogContent>
+              <DialogActions>
+                {wizard.activeStep === 0 && (
+                  <Button onClick={() => history.push('../')}>
+                    Cancel
+                  </Button>
+                )}
+                <Button type="submit" color="primary">
+                  {wizard.activeStep === STEPS.length - 1 ? 'Finish' : 'Next'}
+                </Button>
+              </DialogActions>
+            </LoadingOverlay>
+          </Form>
+        )}
+      </Formik>
+    </Dialog>
+  )
+}
 
 export const Component = createInviteDialog
 export default enhance(createInviteDialog)

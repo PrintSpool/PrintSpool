@@ -44,7 +44,7 @@ impl User {
 
         let users = sqlx::query_as!(
             User,
-            "SELECT * FROM users",
+            "SELECT * FROM users ORDER BY id",
         )
             .fetch_all(&mut context.db().await?)
             .await?;

@@ -62,6 +62,7 @@
     "msgpack-lite": "^0.1.26",
     "notistack": "^0.8.6",
     "prop-types": "^15.6.1",
+    "qrcode.react": "^1.0.0",
     "react": "^16.8.6",
     "react-apollo": "^2.2.4",
     "react-apollo-hooks": "^0.5.0",
