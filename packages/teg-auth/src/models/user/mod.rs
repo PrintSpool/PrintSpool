@@ -27,8 +27,9 @@ pub struct User {
 
 #[derive(juniper::GraphQLInputObject)]
 pub struct UpdateUser {
+    #[graphql(name="userID")]
     pub user_id: String,
-    pub is_admin: bool,
+    pub is_admin: Option<bool>,
 }
 
 #[derive(juniper::GraphQLInputObject)]
@@ -54,16 +55,27 @@ impl User {
     pub async fn update(context: &Context, user: UpdateUser) -> FieldResult<User> {
         context.authorize_admins_only()?;
 
+        let db_user = sqlx::query_as!(
+            User,
+            "
+                SELECT * FROM users
+                WHERE id=$1
+            ",
+            user.user_id.parse::<i32>()?
+        )
+            .fetch_one(&mut context.db().await?)
+            .await?;
+
         let next_user = sqlx::query_as!(
             User,
             "
                 UPDATE users
-                SET is_admin=COALESCE($2, is_admin)
+                SET is_admin=$2
                 WHERE id=$1
                 RETURNING *
             ",
             user.user_id.parse::<i32>()?,
-            user.is_admin
+            user.is_admin.unwrap_or(db_user.is_admin)
         )
             .fetch_one(&mut context.db().await?)
             .await?;

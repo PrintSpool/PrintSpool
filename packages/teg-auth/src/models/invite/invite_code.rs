@@ -58,7 +58,7 @@ impl Invite {
         let invite_url = format!(
             "{}/i/{}",
             web_app_domain,
-            self.slug,
+            self.slug.as_ref().expect("Invite Code slug not found"),
         );
 
         let thick_line = std::iter::repeat("=").take(80).collect::<String>();

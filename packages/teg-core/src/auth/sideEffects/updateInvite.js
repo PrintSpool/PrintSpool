@@ -1,6 +1,6 @@
 import { GraphQLClient } from 'graphql-request'
 
-const updateInvite = async (id, args, context) => {
+const updateInvite = async (args, context) => {
   const { user } = context
 
   const query = `
@@ -9,7 +9,7 @@ const updateInvite = async (id, args, context) => {
     ) {
       updateInvite(
         input: $input
-      )
+      ) { id }
     }
   `
 

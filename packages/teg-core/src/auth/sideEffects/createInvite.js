@@ -5,11 +5,13 @@ const createInvite = async (args, context) => {
 
   const query = `
     mutation(
-      $input: CreateInvite!
+      $input: CreateInviteInput!
     ) {
       createInvite(
         input: $input
-      )
+      ) {
+        id
+      }
     }
   `
 

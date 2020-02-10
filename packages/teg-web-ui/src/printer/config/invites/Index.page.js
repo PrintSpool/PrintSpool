@@ -10,7 +10,7 @@ import {
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 
-import Widgets from '@material-ui/icons/Widgets'
+import PersonOutline from '@material-ui/icons/PersonOutline'
 import Add from '@material-ui/icons/Add'
 
 import { useQuery } from 'react-apollo-hooks'
@@ -76,7 +76,7 @@ const enhance = Component => (props) => {
   )
 }
 
-const ComponentsConfigIndex = ({
+const InvitesConfigIndex = ({
   invites,
   inviteID,
   selectedInvite,
@@ -145,13 +145,11 @@ const ComponentsConfigIndex = ({
               ))}
             >
               <ListItemIcon>
-                <Widgets />
+                <PersonOutline />
               </ListItemIcon>
               <ListItemText>
-                Invite (ID:
-                {' '}
+                Invite #
                 {invite.id}
-                )
               </ListItemText>
             </ListItem>
           ))
@@ -161,5 +159,5 @@ const ComponentsConfigIndex = ({
   )
 }
 
-export const Component = ComponentsConfigIndex
-export default enhance(ComponentsConfigIndex)
+export const Component = InvitesConfigIndex
+export default enhance(InvitesConfigIndex)

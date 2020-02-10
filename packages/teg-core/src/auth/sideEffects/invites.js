@@ -20,10 +20,7 @@ const invites = async (source, args, context) => {
 
   const data = await client.request(query, args)
 
-  return data.invites.map(invite => ({
-    ...invite,
-    createdAt: Date.parse(invite.createdAt),
-  }))
+  return data.invites
 }
 
 export default invites

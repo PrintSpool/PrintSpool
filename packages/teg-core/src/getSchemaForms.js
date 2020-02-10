@@ -131,7 +131,7 @@ const getSchemaForms = () => ({
             readOnly: true,
           },
           isAdmin: {
-            title: 'Admin',
+            title: 'Admin Access Invite',
             type: 'boolean',
           },
         },

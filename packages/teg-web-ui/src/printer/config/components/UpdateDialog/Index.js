@@ -16,6 +16,8 @@ import {
 import FormikSchemaForm from '../FormikSchemaForm/index'
 import withValidate from '../FormikSchemaForm/withValidate'
 import StatusFilter from '../../../../common/StatusFilter'
+import removeReadOnlyFields from '../FormikSchemaForm/removeReadOnlyFields'
+import Loading from '../../../../common/Loading'
 
 export const UPDATE_DIALOG_FRAGMENT = gql`
   fragment UpdateDialogFragment on ConfigForm {
@@ -69,7 +71,7 @@ const enhance = compose(
             throw error
           }
 
-          const configFormModel = (getConfigForm || (() => {
+          const configFormData = (getConfigForm || (() => {
             if (data.materials != null) {
               return data.materials[0].configForm
             }
@@ -87,7 +89,7 @@ const enhance = compose(
             <Component
               collection={collection}
               open={open}
-              data={configFormModel}
+              data={configFormData}
               client={client}
               machineID={variables.machineID}
               {...props}
@@ -103,6 +105,7 @@ const enhance = compose(
       machineID,
       data,
       history,
+      onSubmit,
     } = props
 
     const input = {
@@ -110,6 +113,18 @@ const enhance = compose(
       modelVersion: data.modelVersion,
       machineID,
       collection,
+    }
+
+    if (onSubmit) {
+      return (
+        <Component
+          {...props}
+          onSubmit={(model) => {
+            const filteredModel = removeReadOnlyFields(model, data.schemaForm.schema)
+            return onSubmit(filteredModel)
+          }}
+        />
+      )
     }
 
     return (
@@ -136,7 +151,7 @@ const enhance = compose(
                     variables: {
                       input: {
                         ...input,
-                        model,
+                        model: removeReadOnlyFields(model, data.schemaForm.schema),
                       },
                     },
                   })
@@ -182,55 +197,79 @@ const UpdateDialog = ({
       onSubmit={onSubmit}
     >
       {props => (
-        <Form>
-          <DialogTitle id="form-dialog-title">{title || name || id}</DialogTitle>
-          <StatusFilter
-            status={hasPendingUpdates ? 'UPDATES_PENDING' : status}
-            not={['PRINTING', 'UPDATES_PENDING']}
-            title={() => {
-              if (hasPendingUpdates) {
-                return (
-                  'Pending Updates: Configuration diabled while updating Teg'
-                )
-              }
-              return (
-                `Configuration disabled while ${status.toLowerCase()}`
-              )
-            }}
-            lighten
-          >
-            <DialogContent>
-              <FormikSchemaForm
-                schema={transformSchema(data.schemaForm.schema)}
-                form={data.schemaForm.form}
-                values={props.values}
-              />
-            </DialogContent>
-          </StatusFilter>
-          <DialogActions>
-            { deleteButton && (
-              <div style={{ flex: 1 }}>
-                <Link to="delete" style={{ textDecoration: 'none' }}>
-                  <Button
-                    color="secondary"
-                    disabled={hasPendingUpdates || status === 'PRINTING'}
-                  >
-                    Delete
-                  </Button>
-                </Link>
-              </div>
-            )}
-            <Button onClick={() => history.push('../')}>
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              color="primary"
-              disabled={hasPendingUpdates || status === 'PRINTING'}
+        <Form
+          style={{
+            display: 'grid',
+            gridTemplateRows: '1fr',
+            gridTemplateColumns: '1fr',
+          }}
+        >
+          { props.isSubmitting && (
+            <div
+              style={{
+                gridArea: '1 / 1',
+                display: 'grid',
+                background: 'rgba(255,255,255,0.7)',
+                zIndex: 10,
+              }}
             >
-              Save
-            </Button>
-          </DialogActions>
+              <Loading />
+            </div>
+          )}
+          <div
+            style={{
+              gridArea: '1 / 1',
+            }}
+          >
+            <DialogTitle id="form-dialog-title">{title || name || id}</DialogTitle>
+            <StatusFilter
+              status={hasPendingUpdates ? 'UPDATES_PENDING' : status}
+              not={['PRINTING', 'UPDATES_PENDING']}
+              title={() => {
+                if (hasPendingUpdates) {
+                  return (
+                    'Pending Updates: Configuration diabled while updating Teg'
+                  )
+                }
+                return (
+                  `Configuration disabled while ${status.toLowerCase()}`
+                )
+              }}
+              lighten
+            >
+              <DialogContent>
+                <FormikSchemaForm
+                  schema={transformSchema(data.schemaForm.schema)}
+                  form={data.schemaForm.form}
+                  values={props.values}
+                />
+              </DialogContent>
+            </StatusFilter>
+            <DialogActions>
+              { deleteButton && (
+                <div style={{ flex: 1 }}>
+                  <Link to="delete" style={{ textDecoration: 'none' }}>
+                    <Button
+                      color="secondary"
+                      disabled={hasPendingUpdates || status === 'PRINTING'}
+                    >
+                      Delete
+                    </Button>
+                  </Link>
+                </div>
+              )}
+              <Button onClick={() => history.push('../')}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                color="primary"
+                disabled={hasPendingUpdates || status === 'PRINTING'}
+              >
+                Save
+              </Button>
+            </DialogActions>
+          </div>
         </Form>
       )}
     </Formik>

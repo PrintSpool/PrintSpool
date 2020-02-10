@@ -29,6 +29,8 @@ import ConnectionStatus from './common/ConnectionStatus'
 import { useAuth0 } from './common/auth/auth0'
 import userProfileServerFetchOptions from './common/userProfileServer/fetchOptions'
 
+export const TegApolloContext = React.createContext(null)
+
 const TegApolloProvider = ({
   children,
   slug: slugParam,
@@ -214,16 +216,7 @@ const TegApolloProvider = ({
 
 
   if (error) {
-    return (
-      <div>
-        <Typography variant="h6" paragraph>
-          Something went wrong. Here's what we know:
-        </Typography>
-        <pre>
-          {JSON.stringify(error, null, 2)}
-        </pre>
-      </div>
-    )
+    throw new Error(JSON.stringify(error, null, 2))
   }
 
   // console.log({ prevSlug, slug, connectionProps, link })
@@ -252,9 +245,11 @@ const TegApolloProvider = ({
   return (
     <ApolloProvider client={client}>
       <ApolloHooksProvider client={client}>
-        <ConnectionStatus>
-          { children }
-        </ConnectionStatus>
+        <TegApolloContext.Provider value={connectionProps}>
+          <ConnectionStatus>
+            { children }
+          </ConnectionStatus>
+        </TegApolloContext.Provider>
       </ApolloHooksProvider>
     </ApolloProvider>
   )

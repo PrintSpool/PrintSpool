@@ -18,6 +18,7 @@ const replaceNullValueWith = (field, nullReplacement) => ({
 
 const SwitchWithLabel = ({
   label,
+  field,
   ...props
 }) => (
   <div>
@@ -26,7 +27,7 @@ const SwitchWithLabel = ({
       control={(
         <Switch
           {...props}
-          field={replaceNullValueWith(props.field, false)}
+          field={replaceNullValueWith(field, false)}
         />
       )}
     />
@@ -56,6 +57,7 @@ const FormikSchemaField = ({
     key: name,
     label: property.title,
     margin: 'normal',
+    disabled: property.readOnly,
   }
 
   switch (property.type) {

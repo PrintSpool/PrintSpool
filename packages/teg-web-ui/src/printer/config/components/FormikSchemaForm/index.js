@@ -29,12 +29,15 @@ const FormikSchemaForm = ({
   path = '',
   className,
   values,
+  hideReadOnlyFields = false,
 }) => (
   // <TextField
   <div className={className}>
     { expandForm({ form, schema }).form.map((name) => {
       const property = schema.properties[name]
-
+      if (hideReadOnlyFields && property.readOnly) {
+        return null
+      }
       return (
         <FormikSchemaField
           property={property}

@@ -14,17 +14,24 @@ pub struct Invite {
     pub public_key: String,
     pub created_at: DateTime<Utc>,
     pub is_admin: bool,
-    pub slug: String,
 
     #[graphql(skip)]
-    pub private_key: String,
+    pub slug: Option<String>,
+    #[graphql(skip)]
+    pub private_key: Option<String>,
+}
+
+#[derive(juniper::GraphQLInputObject)]
+pub struct CreateInviteInput {
+    pub public_key: String,
+    pub is_admin: Option<bool>,
 }
 
 #[derive(juniper::GraphQLInputObject)]
 pub struct UpdateInvite {
     #[graphql(name="inviteID")]
     pub invite_id: ID,
-    pub is_admin: bool,
+    pub is_admin: Option<bool>,
 }
 
 #[derive(juniper::GraphQLInputObject)]
@@ -55,12 +62,27 @@ impl Invite {
 
     pub async fn admin_create_invite(
         context: &Context,
+        input: CreateInviteInput,
     ) -> FieldResult<Invite> {
         context.authorize_admins_only()?;
 
-        let db = context.db().await;
+        let mut db = context.db().await?;
 
-        Self::new(&mut db?, false).await
+        let invite = sqlx::query_as!(
+            Invite,
+            "
+                INSERT INTO invites (public_key, is_admin, created_at)
+                VALUES ($1, $2, $3)
+                RETURNING *
+            ",
+            input.public_key,
+            input.is_admin.unwrap_or(false),
+            Utc::now()
+        )
+            .fetch_one(&mut db)
+            .await?;
+
+        Ok(invite)
     }
 
     pub async fn generate_or_display_initial_invite(
@@ -69,7 +91,10 @@ impl Invite {
         let mut db = pool.acquire().await?;
 
         let user_count = sqlx::query!(
-            "SELECT COUNT(id) as count FROM users WHERE is_admin = True",
+            "
+                SELECT COUNT(id) as count FROM users
+                WHERE is_admin = True
+            ",
         )
             .fetch_one(&mut db)
             .await?
@@ -78,7 +103,10 @@ impl Invite {
         if  user_count == 0 {
             let initial_invite = sqlx::query_as!(
                 Self,
-                "SELECT * FROM invites WHERE is_admin = True",
+                "
+                    SELECT * FROM invites
+                    WHERE is_admin = True AND slug IS NOT NULL
+                ",
             )
                 .fetch_optional(&mut db)
                 .await?;
@@ -137,16 +165,27 @@ impl Invite {
     pub async fn update(context: &Context, invite: UpdateInvite) -> FieldResult<Invite> {
         context.authorize_admins_only()?;
 
+        let db_invite = sqlx::query_as!(
+            Invite,
+            "
+                SELECT * FROM invites
+                WHERE id=$1
+            ",
+            invite.invite_id.parse::<i32>()?
+        )
+            .fetch_one(&mut context.db().await?)
+            .await?;
+
         let next_invite = sqlx::query_as!(
             Invite,
             "
                 UPDATE invites
-                SET is_admin=COALESCE($2, is_admin)
+                SET is_admin=$2
                 WHERE id=$1
                 RETURNING *
             ",
             invite.invite_id.parse::<i32>()?,
-            invite.is_admin
+            invite.is_admin.unwrap_or(db_invite.is_admin)
         )
             .fetch_one(&mut context.db().await?)
             .await?;

@@ -13,6 +13,7 @@ use crate::models::{
     UpdateUser,
     DeleteUser,
     Invite,
+    CreateInviteInput,
     UpdateInvite,
     DeleteInvite,
     ConsumeInvite,
@@ -62,8 +63,9 @@ impl Mutation {
     // Invites
     fn create_invite(
         context: &Context,
+        input: CreateInviteInput,
     ) -> FieldResult<Invite> {
-        task::block_on(Invite::admin_create_invite(context))
+        task::block_on(Invite::admin_create_invite(context, input))
     }
 
     fn update_invite(context: &Context, input: UpdateInvite) -> FieldResult<Invite> {

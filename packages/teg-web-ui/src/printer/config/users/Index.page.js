@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 import {
   List,
   ListItem,
@@ -9,15 +9,15 @@ import {
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 
-import { useQuery } from 'react-apollo-hooks'
+import { useQuery, useApolloClient } from 'react-apollo-hooks'
 import gql from 'graphql-tag'
 
 import UpdateDialog from '../components/UpdateDialog/Index'
 import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog'
 import Loading from '../../../common/Loading'
 
-const UsersQuery = gql`
-  query UsersQuery {
+const usersQuery = gql`
+  query usersQuery {
     hasPendingUpdates
     users {
       id
@@ -26,6 +26,16 @@ const UsersQuery = gql`
       isAdmin
       picture
       createdAt
+    }
+  }
+`
+
+const updateUser = gql`
+  mutation updateUser($input: UpdateUserInput!) {
+    updateUser(input: $input) {
+      errors {
+        message
+      }
     }
   }
 `
@@ -43,7 +53,9 @@ const enhance = Component => (props) => {
   // UsersQuery
   const { userID, verb } = match.params
 
-  const { data, loading, error } = useQuery(UsersQuery, {
+  const history = useHistory()
+  const apollo = useApolloClient()
+  const { data, loading, error } = useQuery(usersQuery, {
     pollInterval: 1000,
   })
 
@@ -57,12 +69,42 @@ const enhance = Component => (props) => {
 
   const { users } = data
 
+  const selectedUser = users.find(c => c.id === userID)
+
+  const onUpdate = async (model) => {
+    console.log('UPDATING!', {
+      query: updateUser,
+      variables: {
+        input: {
+          userID: selectedUser.id,
+          ...model,
+        },
+      },
+    })
+    const { data: { errors } } = await apollo.mutate({
+      mutation: updateUser,
+      variables: {
+        input: {
+          userID: selectedUser.id,
+          ...model,
+        },
+      },
+    })
+    if (errors) {
+      throw new Error(JSON.stringify(errors))
+    }
+    console.log('DONE')
+    history.push('../')
+  }
+
   const nextProps = {
     ...props,
-    selectedUser: users.find(c => c.id === userID),
+    selectedUser,
     users,
     userID,
     verb,
+    onUpdate,
+    onDelete: null, // TODO
   }
 
   return (
@@ -75,6 +117,8 @@ const UsersIndex = ({
   selectedUser,
   verb,
   hasPendingUpdates,
+  onDelete,
+  onUpdate,
 }) => {
   const classes = useStyles()
 
@@ -109,10 +153,14 @@ const UsersIndex = ({
           `}
           getConfigForm={(data) => {
             return {
+              id: selectedUser.id,
+              modelVersion: 1,
               schemaForm: data.schemaForm,
               model: selectedUser,
             }
           }}
+          onSubmit={onUpdate}
+          onDelete={onDelete}
         />
       )}
       { selectedUser != null && verb === 'delete' && (
