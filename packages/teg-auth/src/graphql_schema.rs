@@ -54,10 +54,6 @@ impl Mutation {
         task::block_on(
             User::authenticate(context, auth_token, identity_public_key)
         )
-            .map_err(|err| {
-                warn!("{:?}", err);
-                err
-            })
     }
 
     // Invites

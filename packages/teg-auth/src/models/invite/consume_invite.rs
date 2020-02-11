@@ -17,7 +17,7 @@ impl ConsumeInvite {
 
         // Verify that the invite has not yet been consumed
         let invite = sqlx::query!(
-            "SELECT * FROM invites WHERE public_key=$1",
+            "SELECT is_admin FROM invites WHERE public_key=$1",
             &self.invite_public_key
         )
             .fetch_one(&mut tx)

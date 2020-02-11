@@ -9,6 +9,7 @@ import {
   Fab,
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
+import { useAsync } from 'react-async'
 
 import PersonOutline from '@material-ui/icons/PersonOutline'
 import Add from '@material-ui/icons/Add'
@@ -42,6 +43,12 @@ const updateInvite = gql`
   }
 `
 
+const deleteInviteMutation = gql`
+  mutation deleteInvite($input: DeleteInviteInput!) {
+    deleteInvite(input: $input)
+  }
+`
+
 const useStyles = makeStyles(theme => ({
   title: {
     paddingTop: theme.spacing(3),
@@ -66,6 +73,27 @@ const enhance = Component => (props) => {
     pollInterval: 1000,
   })
 
+  const { invites = [] } = data || {}
+  const selectedInvite = invites.find(c => c.id === inviteID)
+
+  const deleteInvite = useAsync({
+    deferFn: async () => {
+      await apollo.mutate({
+        mutation: deleteInviteMutation,
+        variables: {
+          input: {
+            inviteID: selectedInvite.id,
+          },
+        },
+      })
+      history.push('../')
+    },
+  })
+
+  if (deleteInvite.error) {
+    throw deleteInvite.error
+  }
+
   if (loading) {
     return <Loading />
   }
@@ -73,9 +101,6 @@ const enhance = Component => (props) => {
   if (error) {
     throw new Error(JSON.stringify(error))
   }
-
-  const { invites } = data
-  const selectedInvite = invites.find(c => c.id === inviteID)
 
   const onUpdate = async (model) => {
     console.log({ model })
@@ -101,6 +126,7 @@ const enhance = Component => (props) => {
     inviteID,
     verb,
     onUpdate,
+    deleteInvite,
   }
 
   return (
@@ -115,7 +141,7 @@ const InvitesConfigIndex = ({
   verb,
   hasPendingUpdates,
   onUpdate,
-  onDelete,
+  deleteInvite,
 }) => {
   const classes = useStyles()
 
@@ -148,7 +174,6 @@ const InvitesConfigIndex = ({
             model: selectedInvite,
           })}
           onSubmit={onUpdate}
-          onDelete={onDelete}
         />
       )}
       { selectedInvite != null && verb === 'delete' && (
@@ -158,6 +183,7 @@ const InvitesConfigIndex = ({
           id={selectedInvite.id}
           collection="AUTH"
           open={selectedInvite != null}
+          onDelete={deleteInvite.run}
         />
       )}
       <CreateInviteDialog

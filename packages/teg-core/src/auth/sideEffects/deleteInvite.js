@@ -5,10 +5,10 @@ const deleteInvite = async (args, context) => {
 
   const query = `
     mutation(
-      $inviteID: String!
+      $input: DeleteInvite!
     ) {
       deleteInvite(
-        inviteID: $inviteID
+        input: $input
       )
     }
   `

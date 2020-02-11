@@ -5,10 +5,10 @@ const deleteUser = async (args, context) => {
 
   const query = `
     mutation(
-      $userID: String!
+      $input: DeleteUser!
     ) {
       deleteUser(
-        userId: $userID
+        input: $input
       )
     }
   `

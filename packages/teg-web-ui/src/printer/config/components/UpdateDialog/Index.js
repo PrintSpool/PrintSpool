@@ -17,7 +17,7 @@ import FormikSchemaForm from '../FormikSchemaForm/index'
 import withValidate from '../FormikSchemaForm/withValidate'
 import StatusFilter from '../../../../common/StatusFilter'
 import removeReadOnlyFields from '../FormikSchemaForm/removeReadOnlyFields'
-import Loading from '../../../../common/Loading'
+// import Loading from '../../../../common/Loading'
 import LoadingOverlay from '../../../../common/LoadingOverlay'
 
 export const UPDATE_DIALOG_FRAGMENT = gql`

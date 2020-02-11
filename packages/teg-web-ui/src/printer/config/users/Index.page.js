@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link, useHistory } from 'react-router-dom'
+import { useAsync } from 'react-async'
 import {
   List,
   ListItem,
@@ -40,6 +41,12 @@ const updateUser = gql`
   }
 `
 
+const deleteUser = gql`
+  mutation deleteUser($input: DeleteUserInput!) {
+    deleteUser(input: $input)
+  }
+`
+
 const useStyles = makeStyles(theme => ({
   updateTitleAvatar: {
     float: 'left',
@@ -59,6 +66,28 @@ const enhance = Component => (props) => {
     pollInterval: 1000,
   })
 
+  const { users = [] } = data || {}
+
+  const selectedUser = users.find(c => c.id === userID)
+
+  const deleteAction = useAsync({
+    deferFn: async () => {
+      await apollo.mutate({
+        mutation: deleteUser,
+        variables: {
+          input: {
+            userID: selectedUser.id,
+          },
+        },
+      })
+      history.push('../')
+    },
+  })
+
+  if (deleteAction.error) {
+    throw deleteAction.error
+  }
+
   if (loading) {
     return <Loading />
   }
@@ -66,10 +95,6 @@ const enhance = Component => (props) => {
   if (error) {
     throw new Error(JSON.stringify(error))
   }
-
-  const { users } = data
-
-  const selectedUser = users.find(c => c.id === userID)
 
   const onUpdate = async (model) => {
     const { data: { errors } } = await apollo.mutate({
@@ -94,7 +119,7 @@ const enhance = Component => (props) => {
     userID,
     verb,
     onUpdate,
-    onDelete: null, // TODO
+    deleteAction,
   }
 
   return (
@@ -107,7 +132,7 @@ const UsersIndex = ({
   selectedUser,
   verb,
   hasPendingUpdates,
-  onDelete,
+  deleteAction,
   onUpdate,
 }) => {
   const classes = useStyles()
@@ -150,16 +175,16 @@ const UsersIndex = ({
             }
           }}
           onSubmit={onUpdate}
-          onDelete={onDelete}
         />
       )}
       { selectedUser != null && verb === 'delete' && (
         <DeleteConfirmationDialog
           type="user"
-          title="User"
+          fullTitle
+          title={`Remove ${selectedUser.name} from this machine?`}
           id={selectedUser.id}
-          collection="AUTH"
           open={selectedUser != null}
+          onDelete={deleteAction.run}
         />
       )}
       <List>

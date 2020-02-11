@@ -66,6 +66,7 @@
     "react": "^16.8.6",
     "react-apollo": "^2.2.4",
     "react-apollo-hooks": "^0.5.0",
+    "react-async": "^10.0.0",
     "react-css-grid": "^2.0.0-0",
     "react-dom": "^16.8.6",
     "react-error-boundary": "^1.2.5",

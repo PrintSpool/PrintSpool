@@ -26,12 +26,21 @@ const enhance = compose(
       collection,
       machineID,
       history,
+      onDelete,
     } = props
 
     const input = {
       configFormID: id,
       collection,
       machineID,
+    }
+
+    if (onDelete != null) {
+      return (
+        <Component
+          {...props}
+        />
+      )
     }
 
     return (
@@ -66,6 +75,7 @@ const enhance = compose(
 )
 
 const FormDialog = ({
+  fullTitle,
   title,
   open,
   history,
@@ -78,10 +88,8 @@ const FormDialog = ({
     aria-labelledby="alert-dialog-description"
   >
     <DialogTitle>
-      Delete
-      {' '}
-      {title}
-      ?
+      { fullTitle && title }
+      { !fullTitle && `Delete ${title}?`}
     </DialogTitle>
     <DialogContent>
       <DialogContentText id="alert-dialog-description">

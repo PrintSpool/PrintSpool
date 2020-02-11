@@ -66,7 +66,7 @@ impl User {
         let mut db = context.db().await?;
 
         let invite = sqlx::query!(
-            "SELECT * FROM invites WHERE public_key=$1",
+            "SELECT id FROM invites WHERE public_key=$1",
             identity_public_key
         )
             .fetch_optional(&mut db)
@@ -84,6 +84,8 @@ impl User {
                 return Ok(None)
             }
         }
+
+        println!("{:?}", user_profile);
 
         /*
         * Upsert and return the user
@@ -108,15 +110,17 @@ impl User {
                 RETURNING *
             ",
             // TODO: proper NULL handling
-            user_profile.name.unwrap_or("".to_string()),
+            user_profile.name,
             user_profile.id,
             // TODO: proper NULL handling
-            user_profile.email.unwrap_or("".to_string()),
+            user_profile.email,
             user_profile.email_verified,
             Utc::now()
         )
             .fetch_one(&mut db)
             .await?;
+
+        println!("user?? {:?}", user);
 
         Ok(Some(user))
     }

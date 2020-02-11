@@ -106,6 +106,7 @@ const cargoRun = pkg => (cb) => {
       cwd: path.resolve(__dirname, `packages/${pkg}`),
       env: {
         RUST_ENV: 'development',
+        RUST_LOG: 'debug',
         ...process.env,
       },
     },
