@@ -16,6 +16,7 @@ import MotorsEnabled from './MotorsEnabled'
 import XYJogButtons from './jog/XYJogButtons'
 import ZJogButtons from './jog/ZJogButtons'
 import ComponentControl, { ComponentControlFragment } from './printerComponents/ComponentControl'
+import VideoStreamer from './videoStreamer/VideoStreamer'
 
 const MANUAL_CONTROL_SUBSCRIPTION = gql`
   subscription ManualControlSubscription($machineID: ID!) {
@@ -55,6 +56,14 @@ const enhance = compose(
 const ManualControl = ({ machine, isReady }) => (
   <div style={{ paddingLeft: 16, paddingRight: 16 }}>
     <main>
+      <Grid
+        container
+        spacing={2}
+      >
+        <Grid item xs={12}>
+          <VideoStreamer />
+        </Grid>
+      </Grid>
       <Loader
         show={!isReady}
         message={(

@@ -18,6 +18,19 @@ extend type Mutation {
   deleteUser(input: DeleteUserInput!): Boolean
 
   deleteCurrentUser: Boolean
+
+  createVideoSDP(offer: RTCSessionDescriptionInput!): RTCSessionDescription!
+}
+
+# Video
+input RTCSessionDescriptionInput {
+  type: String!
+  sdp: String!
+}
+
+type RTCSessionDescription {
+  type: String!
+  sdp: String!
 }
 
 # Invite

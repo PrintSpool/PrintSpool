@@ -36,3 +36,16 @@ This:
 ### Running the test suite
 
 Run `yarn test`
+
+
+### Enabling V4L2 on the Offial RaspberryPi Camera
+
+See: https://www.raspberrypi.org/forums/viewtopic.php?t=62364
+
+TL;DR: run: `sudo modprobe bcm2835-v4l2`
+
+This will default the camera to 128x96px
+
+To increase the resolution run:
+
+`v4l2-ctl --set-fmt-video=width=1920,height=1088,pixelformat=4`

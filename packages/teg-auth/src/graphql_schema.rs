@@ -1,7 +1,7 @@
 use async_std::task;
 // use futures::prelude::*;
 // use chrono::prelude::*;
-use log::{warn};
+// use log::{warn};
 
 use juniper::{
     FieldResult,
@@ -17,6 +17,9 @@ use crate::models::{
     UpdateInvite,
     DeleteInvite,
     ConsumeInvite,
+    create_video_sdp,
+    RTCSessionDescription,
+    RTCSessionDescriptionInput,
 };
 
 use crate::Context;
@@ -90,6 +93,16 @@ impl Mutation {
     fn delete_user(context: &Context, input: DeleteUser) -> FieldResult<Option<bool>> {
         task::block_on(
             User::delete(context, input.user_id.to_string())
+        )
+    }
+
+    // Video
+    #[graphql(
+        name = "createVideoSDP",
+    )]
+    fn create_video_sdp(context: &Context, offer: RTCSessionDescriptionInput) -> FieldResult<RTCSessionDescription> {
+        task::block_on(
+            create_video_sdp(context, offer)
         )
     }
 }

@@ -10,6 +10,8 @@ import createInvite from '../../auth/sideEffects/createInvite'
 import updateInvite from '../../auth/sideEffects/updateInvite'
 import deleteInvite from '../../auth/sideEffects/deleteInvite'
 
+import createVideoSDP from '../../auth/sideEffects/createVideoSDP'
+
 /* config */
 import requestCreateConfigFromMutation from '../../config/actions/requestCreateConfigFromMutation'
 import requestUpdateConfigFromMutation from '../../config/actions/requestUpdateConfigFromMutation'
@@ -38,6 +40,9 @@ const MutationResolvers = {
     deleteCurrentUser: (source, args, context) => {
       deleteUser({ userID: context.user.id.toString() }, context)
     },
+
+    createVideoSDP,
+
     /* config */
     createConfig: (source, args, context) => {
       // const {
