@@ -20,7 +20,14 @@ impl User {
         identity_public_key: String
     ) -> FieldResult<Option<User>> {
         // TODO: switch url depending on environment
-        let user_profile_server = "http://localhost:8080/graphql";
+        let environment = std::env::var("RUST_ENV").unwrap_or("development".to_string());
+        let is_dev = environment == "development";
+
+        let user_profile_server = if is_dev {
+            "http://localhost:8080/graphql"
+        } else {
+            "https://app-f49757b3-f48d-4078-8e8c-47b27b8b9d6d.cleverapps.io/graphql"
+        };
 
         use user_profile_query::{ UserProfileQuery, Variables, ResponseData };
 
