@@ -18,20 +18,20 @@
   status = 200
 
 
-[[redirects]]
-  from = "https://tegh.io/*"
-  to = "https://tegapp.io/"
-  status = 301
-  force = true
+# [[redirects]]
+#   from = "https://tegh.io/*"
+#   to = "https://tegapp.io/"
+#   status = 301
+#   force = true
 
-[[redirects]]
-  from = "https://www.tegh.io/*"
-  to = "https://tegapp.io/"
-  status = 301
-  force = true
+# [[redirects]]
+#   from = "https://www.tegh.io/*"
+#   to = "https://tegapp.io/"
+#   status = 301
+#   force = true
 
-[[redirects]]
-  from = "https://www.tegapp.io/*"
-  to = "https://tegapp.io/"
-  status = 301
-  force = true
+# [[redirects]]
+#   from = "https://www.tegapp.io/*"
+#   to = "https://tegapp.io/"
+#   status = 301
+#   force = true
