@@ -8,7 +8,7 @@
 [build]
   base    = "packages/teg-web-ui"
   command = "yarn build:http"
-  publish = "packages/teg-web-ui/dist"
+  publish = "dist"
 
 # The following redirect is intended for use with most SPAs that handle
 # routing internally.
