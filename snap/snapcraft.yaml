@@ -107,6 +107,13 @@ parts:
         exit 1
       fi
 
+  # https://snapcraft.io/blog/the-smart-dump-plugin
+  webrtc-streamer:
+    plugin: dump
+    source:
+      - on amd64: https://github.com/mpromonet/webrtc-streamer/releases/download/v0.2.4/webrtc-streamer-v0.2.4-Linux-x86_64-Release.tar.gz
+      - on armhf: https://github.com/mpromonet/webrtc-streamer/releases/download/v0.2.4/webrtc-streamer-v0.2.4-Linux-armv7l-Release.tar.gz
+
   # teg-marlin:
   #   plugin: rust
   #   source: https://github.com/tegapp/teg.git
@@ -146,3 +153,7 @@ apps:
       - raw-usb
       - gpio
       - gpio-memory-control
+  webrtc-streamer:
+    command: webrtc-streamer -H 127.0.0.1:8009
+    daemon: simple
+    plugs: [network-bind]
