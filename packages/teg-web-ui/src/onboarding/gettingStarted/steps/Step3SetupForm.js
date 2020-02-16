@@ -121,16 +121,7 @@ const Step3SetupForm = ({
     >
       {(createMachine, { error }) => {
         if (error != null) {
-          return (
-            <div>
-              <Typography variant="h6" paragraph>
-                Something went wrong. Here's what we know:
-              </Typography>
-              <pre>
-                {JSON.stringify(error, null, 2)}
-              </pre>
-            </div>
-          )
+          throw new Error(JSON.stringify(error, null, 2))
         }
 
         return (
