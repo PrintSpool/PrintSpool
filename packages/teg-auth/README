@@ -1,3 +1,11 @@
 ## Generating  `data/user_profile_schema.json`
 
 `graphql-client introspect-schema http://localhost:8080/graphql > ./data/user_profile_schema.json`
+
+## Build Dependencies
+
+See: https://eighty-twenty.org/2019/10/15/cross-compiling-rust
+
+`rustup target add armv7-unknown-linux-musleabihf`
+`sudo apt install binutils-arm-linux-gnueabihf`
+`sudo apt install gcc-arm-linux-gnueabihf`

@@ -7,8 +7,6 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-diesel = { version = "1.4.3", features = ["postgres", "r2d2"] }
-diesel_logger = "0.1.0"
 dotenv = "0.15.0"
 juniper = "0.14.2"
 juniper_warp = "0.5.2"
@@ -17,7 +15,7 @@ log = "0.4.8"
 env_logger = "0.7.1"
 graphql_client = "0.8.0"
 serde = { version = "1.0.104", features = ["derive"] }
-reqwest = { version = "0.10.1", features = ["blocking", "json"] }
+reqwest = { version = "0.10.1", features = ["blocking", "json", "rustls-tls"], default-features = false }
 sqlx = { git = "https://github.com/launchbadge/sqlx.git", branch = "ab/null-param-fix", features = ["postgres", "chrono"] }
 sqlx-core = { git = "https://github.com/launchbadge/sqlx.git", branch = "ab/null-param-fix" }
 async-std = { version = "1.4.0", features = ["attributes"] }
@@ -32,3 +30,4 @@ qr2term = "0.1.7"
 hex = "0.4.0"
 gravatar = "0.2.0"
 url = "2.1.1"
+openssl = { version = "0.10", features = ["vendored"] }

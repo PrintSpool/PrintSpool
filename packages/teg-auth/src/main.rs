@@ -1,9 +1,7 @@
 // #[macro_use] extern crate async_std;
-#[macro_use] extern crate diesel;
 #[macro_use] extern crate juniper;
 // #[macro_use] extern crate log;
 // #[macro_use] extern crate graphql_client;
-// extern crate diesel_logger;
 // extern crate tokio;
 extern crate reqwest;
 extern crate secp256k1;
@@ -21,7 +19,6 @@ use dotenv::dotenv;
 use std::env;
 use std::sync::Arc;
 
-pub mod schema;
 pub mod models;
 mod context;
 mod graphql_schema;
