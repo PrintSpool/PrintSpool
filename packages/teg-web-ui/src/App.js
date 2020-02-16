@@ -31,10 +31,20 @@ import './i18n'
 // Zero config GraphQL client that manages the cache.
 const graphql = new GraphQL()
 
-const auth0Config = {
-  domain: 'thirtybots-dev.eu.auth0.com',
-  clientID: 'c0iSV8M7sXIJUkb3Q00XfopoC85SNmbm',
+let auth0Config
+if (process.env.NODE_ENV === 'production') {
+  auth0Config = {
+    domain: 'thirtybots-dev.eu.auth0.com',
+    clientID: 'FLoKaNwwm27nOHeYpa25Z00QeGKwSLdT',
+  }
+} else {
+  auth0Config = {
+    domain: 'thirtybots-dev.eu.auth0.com',
+    clientID: 'c0iSV8M7sXIJUkb3Q00XfopoC85SNmbm',
+  }
 }
+
+console.log(process.env.NODE_ENV)
 
 const App = () => (
   <CssBaseline>

@@ -14,7 +14,7 @@
     "watch:production": "parcel watch ./src/dat.html --no-hmr",
     "clean": "cd dist && ls | grep -v dat.json | xargs rm -rf",
     "build:dat": "yarn clean && NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/dat.html --detailed-report",
-    "build:http": "NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/http.html --detailed-report",
+    "build:http": "NODE_ENV=production NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/http.html --detailed-report",
     "report": "xdg-open ./dist/report.html",
     "storybook": "start-storybook -p 9001 -c .storybook"
   },
