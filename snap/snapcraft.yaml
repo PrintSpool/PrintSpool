@@ -95,6 +95,13 @@ parts:
   teg-auth:
     plugin: dump
     source: teg-auth-bin/
+    # TODO: how do you add apt dependencies
+    # Also you need to set up postgres: https://gist.github.com/p1nox/4953113
+    # Also `diesel db setup`
+    dependencies:
+      - postgresql
+      - libpq-dev
+      - postgresql-client
     override-build: |
       if [ "$SNAPCRAFT_ARCH_TRIPLET" = "arm-linux-gnueabihf" ]; then
         echo "ARM TEG-MARLIN"
@@ -153,6 +160,12 @@ apps:
       - raw-usb
       - gpio
       - gpio-memory-control
+  teg-auth:
+    command: RUST_ENV=production teg-auth
+    daemon: simple
+    restart-condition: always
+    plugs:
+      - network-bind
   webrtc-streamer:
     command: webrtc-streamer -H 127.0.0.1:8009
     daemon: simple
