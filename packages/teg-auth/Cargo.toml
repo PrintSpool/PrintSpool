@@ -31,3 +31,4 @@ hex = "0.4.0"
 gravatar = "0.2.0"
 url = "2.1.1"
 openssl = { version = "0.10", features = ["vendored"] }
+error-chain = "0.12.1"
