@@ -28,6 +28,6 @@ sed -i -E "s/^version:[^\n]+/version: $TEG_VERSION/g" ./snapcraft.yaml
 #
 # snapcraft --debug
 
-snapcraft remote-build --accept-public-upload
+snapcraft remote-build --launchpad-accept-public-upload
 
 mv ./*.snap ../dist/

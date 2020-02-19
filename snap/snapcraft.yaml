@@ -98,7 +98,7 @@ parts:
     # TODO: how do you add apt dependencies
     # Also you need to set up postgres: https://gist.github.com/p1nox/4953113
     # Also `diesel db setup`
-    dependencies:
+    stage-packages:
       - postgresql
       - libpq-dev
       - postgresql-client
@@ -161,7 +161,9 @@ apps:
       - gpio
       - gpio-memory-control
   teg-auth:
-    command: RUST_ENV=production teg-auth
+    environment:
+      RUST_ENV: production
+    command: teg-auth
     daemon: simple
     restart-condition: always
     plugs:

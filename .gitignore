@@ -30,6 +30,7 @@ snap/*-bin/teg*
 /teg
 /teg-marlin
 snapcraft.login
+snap/teg_*.txt
 
 coverage
 
