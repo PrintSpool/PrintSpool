@@ -53,35 +53,33 @@ const App = () => (
         <Auth0Provider
           domain={auth0Config.domain}
           client_id={auth0Config.clientID}
-          redirect_uri={window.location.origin}
+          redirect_uri={`${window.location.origin}/auth`}
           // onRedirectCallback={onRedirectCallback}
         >
           <SnackbarProvider maxSnack={3}>
-            <UserDataProvider filePath="/teg-user.json">
-              <PrintFilesContext.Provider value={useState()}>
-                <React.Suspense fallback={<Loading fullScreen />}>
-                  <BrowserRouter>
-                    <Route
-                      path={[
-                        '/m/:hostID/',
-                        '/q/:hostID/',
-                        '/',
-                      ]}
-                      render={() => (
-                        <ErrorBoundary FallbackComponent={ErrorFallback}>
-                          <TegApolloProvider>
-                            <Routes />
-                          </TegApolloProvider>
-                        </ErrorBoundary>
-                      )}
-                    />
-                  </BrowserRouter>
-                </React.Suspense>
-                {
-                  // <ReduxSnackbar />
-                }
-              </PrintFilesContext.Provider>
-            </UserDataProvider>
+            <PrintFilesContext.Provider value={useState()}>
+              <React.Suspense fallback={<Loading fullScreen />}>
+                <BrowserRouter>
+                  <Route
+                    path={[
+                      '/m/:hostID/',
+                      '/q/:hostID/',
+                      '/',
+                    ]}
+                    render={() => (
+                      <ErrorBoundary FallbackComponent={ErrorFallback}>
+                        <TegApolloProvider>
+                          <Routes />
+                        </TegApolloProvider>
+                      </ErrorBoundary>
+                    )}
+                  />
+                </BrowserRouter>
+              </React.Suspense>
+              {
+                // <ReduxSnackbar />
+              }
+            </PrintFilesContext.Provider>
           </SnackbarProvider>
         </Auth0Provider>
       </GraphQLProvider>

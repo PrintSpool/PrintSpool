@@ -60,9 +60,9 @@ const Hero = ({ t }) => {
                 color="primary"
                 size="large"
                 className={classes.callToActionButton}
-                onClick={() => loginWithRedirect({
-                  redirect_uri: `${window.location.protocol}//${window.location.host}/get-started/`,
-                })}
+                component={React.forwardRef((props, ref) => (
+                  <Link to="/get-started/" innerRef={ref} {...props} />
+                ))}
               >
                 {t('hero.callToActionButton')}
               </Button>

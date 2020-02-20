@@ -49,3 +49,9 @@ This will default the camera to 128x96px
 To increase the resolution run:
 
 `v4l2-ctl --set-fmt-video=width=1920,height=1088,pixelformat=4`
+
+### Raspian
+
+Teg requires Raspbian Buster. To upgrade to Raspbian Buster see:
+
+https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/

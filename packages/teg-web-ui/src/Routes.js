@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Route, Switch, Redirect } from 'react-router'
 
 // import { UserDataContext } from './UserDataProvider'
@@ -47,25 +47,63 @@ const UsersConfigPage = React.lazy(() => (
 ))
 const InvitesConfigPage = React.lazy(() => (
   import('./printer/config/invites/Index.page')
- ))
+))
+
+const AuthRedirect = () => {
+  const redirectURL = useMemo(() => {
+    const url = localStorage.getItem('redirectURL') || '/'
+    localStorage.setItem('redirectURL', null)
+    return url
+  }, [])
+
+  return (
+    <Redirect to={redirectURL} />
+  )
+}
 
 const Routes = () => {
-  const { isAuthenticated, loading } = useAuth0()
+  const { isAuthenticated, loading, loginWithRedirect } = useAuth0()
+
+  // console.log({ isAuthenticated, loading })
 
   if (loading) {
-    return <div></div>
+    return <div />
   }
 
   return (
     <>
       { !isAuthenticated && (
-        <Route
-          path="/"
-          component={LandingPage}
-        />
+        <Switch>
+          <Route
+            exact
+            path="/"
+            component={LandingPage}
+          />
+          <Route
+            exact
+            path="/i/:inviteURLCode"
+            render={({ match }) => (
+              <Redirect to={`/get-started/3?invite=${match.params.inviteURLCode}`} />
+            )}
+          />
+          <Route
+            render={({ location }) => {
+              localStorage.setItem('redirectURL', location.pathname + location.search)
+
+              loginWithRedirect()
+
+              return <div />
+            }}
+          />
+        </Switch>
       )}
       { isAuthenticated && (
         <Switch>
+          <Route
+            exact
+            path="/auth"
+            component={AuthRedirect}
+          />
           <Route
             exact
             path="/i/:inviteURLCode"

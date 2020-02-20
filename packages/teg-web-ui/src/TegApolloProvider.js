@@ -220,10 +220,11 @@ const TegApolloProvider = ({
   }
 
   // console.log({ prevSlug, slug, connectionProps, link })
-  if (
-    slug != null
-    && (connectionProps && connectionProps.slug) !== slug
-  ) {
+  if (slug == null || (!auth0.loading && !auth0.isAuthenticated)) {
+    return <>{ children }</>
+  }
+
+  if (!connectionProps || connectionProps.slug !== slug) {
     return <div />
   }
 
@@ -236,11 +237,6 @@ const TegApolloProvider = ({
   }
 
   const { client } = clientRef.current
-
-  // console.log({ slug })
-  if (slug == null) {
-    return <>{ children }</>
-  }
 
   return (
     <ApolloProvider client={client}>
