@@ -120,6 +120,9 @@ parts:
     source:
       - on amd64: https://github.com/mpromonet/webrtc-streamer/releases/download/v0.2.4/webrtc-streamer-v0.2.4-Linux-x86_64-Release.tar.gz
       - on armhf: https://github.com/mpromonet/webrtc-streamer/releases/download/v0.2.4/webrtc-streamer-v0.2.4-Linux-armv7l-Release.tar.gz
+    stage-packages:
+      - libgtk-3-0
+      - libasound2
 
   # teg-marlin:
   #   plugin: rust
@@ -163,12 +166,17 @@ apps:
   teg-auth:
     environment:
       RUST_ENV: production
+      POSTGRESQL_ADDON_URI: postgres://postgres@localhost/teg-auth
+      DATABASE_URL: postgres://postgres@localhost/teg-auth
+      PORT: 33005
+      RUST_LOG: INFO
     command: teg-auth
     daemon: simple
     restart-condition: always
     plugs:
       - network-bind
   webrtc-streamer:
+    adapter: full
     command: webrtc-streamer -H 127.0.0.1:8009
     daemon: simple
     plugs: [network-bind]

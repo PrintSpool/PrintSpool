@@ -44,8 +44,8 @@ pub async fn create_video_sdp(
         .query(&[
             ("peerid", peer_id),
             // TODO: configurable video source
-            // ("url", "videocap://1".to_string()),
-            ("url", "mmal service 16.1".to_string()),
+            ("url", "videocap://1".to_string()),
+            // ("url", "mmal service 16.1".to_string()),
             ("options", "rtptransport=tcp&timeout=60".to_string()),
         ])
         .send()?

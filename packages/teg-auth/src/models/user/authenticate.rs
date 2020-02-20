@@ -8,6 +8,7 @@ use {
     graphql_client::{ GraphQLQuery, Response },
 };
 
+use crate::ResultExt;
 use super::User;
 // use crate::models::{ Invite };
 use crate::{ Context };
@@ -43,9 +44,11 @@ impl User {
                 reqwest::header::AUTHORIZATION,
                 format!("BEARER {}", auth_token),
             )
-            .send()?
+            .send()
+            .chain_err(|| "Unable to connect to user profile server")?
             // .await?
-            .json()?;
+            .json()
+            .chain_err(|| "Bad user profile response")?;
             // .await?;
 
         if let Some(errors) = res.errors {
@@ -77,15 +80,17 @@ impl User {
             identity_public_key
         )
             .fetch_optional(&mut db)
-            .await?;
+            .await
+            .chain_err(|| "Unable to load invite for authentication")?;
 
         if invite.is_none() {
             let user = sqlx::query!(
-                "SELECT * FROM users WHERE user_profile_id=$1 AND is_authorized=True",
+                "SELECT id FROM users WHERE user_profile_id=$1 AND is_authorized=True",
                 user_profile.id
             )
                 .fetch_optional(&mut db)
-                .await?;
+                .await
+                .chain_err(|| "Unable to load user for authentication")?;
 
             if user.is_none() {
                 return Ok(None)
@@ -125,7 +130,9 @@ impl User {
             Utc::now()
         )
             .fetch_one(&mut db)
-            .await?;
+            .await
+            .chain_err(|| "Unable to update user after authentication")?;
+
 
         println!("user?? {:?}", user);
 
