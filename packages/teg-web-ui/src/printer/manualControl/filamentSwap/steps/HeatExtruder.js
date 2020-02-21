@@ -25,6 +25,7 @@ const HeatExtruder = ({
     gcodes: [
       { toggleHeaters: { heaters: { [component.address]: true }, sync: true } },
     ],
+    sync: true,
     // Wait for the extruder to reach temperature and then go to the next step
     update: next,
   }))

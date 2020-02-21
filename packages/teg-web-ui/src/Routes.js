@@ -52,7 +52,7 @@ const InvitesConfigPage = React.lazy(() => (
 const AuthRedirect = () => {
   const redirectURL = useMemo(() => {
     const url = localStorage.getItem('redirectURL') || '/'
-    localStorage.setItem('redirectURL', null)
+    localStorage.removeItem('redirectURL')
     return url
   }, [])
 

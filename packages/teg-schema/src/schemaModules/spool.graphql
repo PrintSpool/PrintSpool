@@ -31,6 +31,10 @@ extend type Mutation {
 
 input ExecGCodesInput {
   machineID: ID!
+  """
+  If true blocks the mutation until the GCodes have been spooled to the machine (default: false)
+  """
+  sync: Boolean
 
   """
   Teg supports 3 formats of GCode:

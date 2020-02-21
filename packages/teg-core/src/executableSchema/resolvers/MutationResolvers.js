@@ -178,22 +178,30 @@ const MutationResolvers = {
     /* spool */
     execGCodes: async (source, args, { store }) => {
       const { macros, config } = store.getState()
-      const { gcodes: commands, machineID } = args.input
+      const {
+        gcodes: commands,
+        machineID,
+        sync = false,
+      } = args.input
 
-      const completedTask = await new Promise((resolve, reject) => {
+      const task = await new Promise((resolve, reject) => {
         const action = execGCodes({
           machineID,
           commands,
           macros,
           combinatorConfig: config,
-          onComplete: resolve,
-          onError: reject,
+          onComplete: sync ? resolve : null,
+          onError: sync ? reject : null,
         })
 
         store.dispatch(action)
+
+        if (!sync) {
+          resolve(action.payload.task)
+        }
       })
 
-      return completedTask
+      return task
     },
     // TODO: the job file returned by spoolJobFile won't have been spooled yet.
     // A promise should be used to await the job file actually being spooled

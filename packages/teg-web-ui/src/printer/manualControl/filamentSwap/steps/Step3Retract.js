@@ -26,6 +26,7 @@ const Step3Retract = ({
     gcodes: [
       { moveBy: { distances: { [component.address]: distance }, sync: true } },
     ],
+    sync: true,
     // Wait for the filament to retract and then go to the next step
     update: next,
   }))

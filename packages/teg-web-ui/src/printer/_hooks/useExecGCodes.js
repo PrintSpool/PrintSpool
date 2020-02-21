@@ -17,6 +17,7 @@ const useExecGCodes = (callback, dependencies) => {
       machine,
       machineID,
       gcodes,
+      sync,
       ...mutationOptions
     } = callback(...args)
 
@@ -26,6 +27,7 @@ const useExecGCodes = (callback, dependencies) => {
         input: {
           machineID: machineID || machine.id,
           gcodes,
+          sync,
         },
       },
     })
