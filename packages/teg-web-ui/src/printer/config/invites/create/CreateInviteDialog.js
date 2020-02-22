@@ -105,10 +105,8 @@ const enhance = Component => ({
 
   const [addInviteMutation, { error }] = useMutation(addInviteGraphQL)
 
-  const close = (bag) => {
+  const close = () => {
     history.push('../')
-    updateWizard(initialWizard)
-    bag.resetForm()
   }
 
   const onSubmit = async (values, bag) => {

@@ -109,15 +109,15 @@ const MaterialsConfigIndex = ({
         open={materialID != null}
       />
     )}
-    <CreateMaterialDialog
-      open={verb === 'new'}
-    />
+    { verb === 'new' && (
+      <CreateMaterialDialog open />
+    )}
     <Tooltip title="Add Component" placement="left">
       <Fab
         disabled={hasPendingUpdates || machines[0].status === 'PRINTING'}
         component={React.forwardRef((props, ref) => (
           <Link
-            to="new/"
+            to={verb === 'new' ? './' : 'new/'}
             innerRef={ref}
             style={{ textDecoration: 'none' }}
             {...props}

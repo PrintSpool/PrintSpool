@@ -184,19 +184,21 @@ const ComponentsConfigIndex = ({
         open={selectedComponent != null}
       />
     )}
-    <CreateComponentDialog
-      machineID={machineID}
-      open={componentID === 'new'}
-      fixedListComponentTypes={fixedListComponentTypes}
-      devices={devices}
-      materials={materials}
-    />
+    { componentID === 'new' && (
+      <CreateComponentDialog
+        machineID={machineID}
+        open
+        fixedListComponentTypes={fixedListComponentTypes}
+        devices={devices}
+        materials={materials}
+      />
+    )}
     <Tooltip title="Add Component" placement="left">
       <Fab
         disabled={hasPendingUpdates || status === 'PRINTING'}
         component={React.forwardRef((props, ref) => (
           <Link
-            to="new/"
+            to={componentID === 'new' ? './' : 'new/'}
             innerRef={ref}
             style={{ textDecoration: 'none' }}
             {...props}
@@ -225,7 +227,11 @@ const ComponentsConfigIndex = ({
                   divider
                   key={component.id}
                   component={React.forwardRef((props, ref) => (
-                    <Link to={`${component.id}/`} innerRef={ref} {...props} />
+                    <Link
+                      to={`${component.id}/`}
+                      innerRef={ref}
+                      {...props}
+                    />
                   ))}
                 >
 

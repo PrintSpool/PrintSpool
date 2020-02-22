@@ -186,15 +186,15 @@ const InvitesConfigIndex = ({
           onDelete={deleteInvite.run}
         />
       )}
-      <CreateInviteDialog
-        open={inviteID === 'new'}
-      />
+      { inviteID === 'new' && (
+        <CreateInviteDialog open />
+      )}
       <Tooltip title="Create an Invite Code" placement="left">
         <Fab
           disabled={hasPendingUpdates}
           component={React.forwardRef((props, ref) => (
             <Link
-              to="new/"
+              to={inviteID === 'new' ? './' : 'new/'}
               innerRef={ref}
               style={{ textDecoration: 'none' }}
               {...props}
