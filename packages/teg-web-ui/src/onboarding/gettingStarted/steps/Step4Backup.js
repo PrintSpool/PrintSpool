@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 
 import {
   // Button,
@@ -8,12 +8,14 @@ import {
 import Step4BackupStyles from './Step4BackupStyles'
 
 import ButtonsFooter from '../ButtonsFooter'
+import { TegApolloContext } from '../../../TegApolloProvider'
 
 const Step4Backup = ({
   className,
   history,
 }) => {
   const classes = Step4BackupStyles()
+  const { slug } = useContext(TegApolloContext)
 
   return (
     <React.Fragment>
@@ -25,7 +27,7 @@ const Step4Backup = ({
           { /* TODO: User / Printer Setup */ }
         </div>
       </div>
-      <ButtonsFooter step={4} history={history} />
+      <ButtonsFooter step={4} nextURL={`/q/${slug}/`} history={history} />
     </React.Fragment>
   )
 }

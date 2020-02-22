@@ -16,9 +16,6 @@ import { onError } from 'apollo-link-error'
 
 import { GraphQL, GraphQLContext } from 'graphql-react'
 
-import {
-  Typography,
-} from '@material-ui/core'
 import base64url from 'base64url'
 
 // import { ThingLink, connect, parseInviteCode } from 'graphql-things/client'
