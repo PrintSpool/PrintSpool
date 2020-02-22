@@ -32,6 +32,7 @@ import Loading from '../../../../common/Loading'
 import LoadingOverlay from '../../../../common/LoadingOverlay'
 
 import useStyles from './CreateInviteDialogStyles'
+import { useEffect } from 'react'
 
 const addInviteGraphQL = gql`
   mutation addInvite($input: CreateInviteInput!) {
@@ -59,14 +60,15 @@ const STEPS = [
   'Share the Invite Code',
 ]
 
+const initialWizard = {
+  activeStep: 0,
+  invite: null,
+}
 
 const enhance = Component => ({
   open,
 }) => {
-  const [wizard, updateWizard] = useState({
-    activeStep: 0,
-    invite: null,
-  })
+  const [wizard, updateWizard] = useState(initialWizard)
 
   const history = useHistory()
   const tegApolloContext = useContext(TegApolloContext)
@@ -103,6 +105,12 @@ const enhance = Component => ({
 
   const [addInviteMutation, { error }] = useMutation(addInviteGraphQL)
 
+  const close = (bag) => {
+    history.push('../')
+    updateWizard(initialWizard)
+    bag.resetForm()
+  }
+
   const onSubmit = async (values, bag) => {
     const nextInvite = await createInvite({
       identityKeys: {
@@ -133,10 +141,9 @@ const enhance = Component => ({
       })
 
       bag.setSubmitting(false)
-
-      return
+    } else {
+      close(bag)
     }
-    history.push('../')
   }
 
   if (error != null) {
@@ -151,7 +158,7 @@ const enhance = Component => ({
 
   const nextProps = {
     open,
-    onClose: () => history.push('../'),
+    onClose: close,
     onSubmit,
     schemaForm,
     wizard,
@@ -162,7 +169,20 @@ const enhance = Component => ({
 
 
   return (
-    <Component {...nextProps} />
+    <Formik
+      initialValues={{
+        package: '',
+        model: {
+          isAdmin: false,
+        },
+      }}
+      validate={validate}
+      onSubmit={onSubmit}
+    >
+      {bag => (
+        <Component {...nextProps} bag={bag} />
+      )}
+    </Formik>
   )
 }
 
@@ -174,95 +194,85 @@ const createInviteDialog = ({
   validate,
   wizard,
   schemaForm,
+  bag
 }) => {
   const classes = useStyles()
+
+  const { values, isSubmitting } = bag
 
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={() => onClose(bag)}
       aria-labelledby="create-dialog-title"
       maxWidth="md"
       fullWidth
     >
-      <Formik
-        initialValues={{
-          package: '',
-          model: {
-            isAdmin: false,
-          },
-        }}
-        validate={validate}
-        onSubmit={onSubmit}
-      >
-        {({ values, isSubmitting }) => (
-          <Form>
-            <LoadingOverlay loading={isSubmitting}>
-              <DialogTitle id="create-dialog-title">
-                Create an Invite Code
-              </DialogTitle>
-              <DialogContent style={{ minHeight: '12em' }}>
-                <Stepper activeStep={wizard.activeStep}>
-                  {
-                    STEPS.map((label, index) => (
-                      <Step key={label} completed={index < wizard.activeStep}>
-                        <StepLabel>{label}</StepLabel>
-                      </Step>
-                    ))
-                  }
-                </Stepper>
-                {wizard.activeStep === 0 && (() => {
-                  const { schema, form } = schemaForm
+      <Form>
+        <LoadingOverlay loading={isSubmitting}>
+          <DialogTitle id="create-dialog-title">
+            Create an Invite Code
+          </DialogTitle>
+          <DialogContent style={{ minHeight: '12em' }}>
+            <Stepper activeStep={wizard.activeStep}>
+              {
+                STEPS.map((label, index) => (
+                  <Step key={label} completed={index < wizard.activeStep}>
+                    <StepLabel>{label}</StepLabel>
+                  </Step>
+                ))
+              }
+            </Stepper>
+            {wizard.activeStep === 0 && (() => {
+              const { schema, form } = schemaForm
 
-                  return (
-                    <FormikSchemaForm
-                      schema={schema}
-                      form={form}
-                      path="model."
-                      hideReadOnlyFields
-                      values={values}
-                    />
-                  )
-                })()}
-                {wizard.activeStep === 1 && (
-                  <div>
-                    <Typography variant="body1" paragraph className={classes.shareTitle}>
-                      Share your 3D Printer with a friend
-                    </Typography>
-                    <div className={classes.qrCode}>
-                      <QRCode
-                        value={wizard.inviteURL}
-                        size={300}
-                      />
-                    </div>
-                    <TextField
-                      label="Invite URL"
-                      InputProps={{ classes: { input: classes.inviteURLField } }}
-                      value={wizard.inviteURL}
-                      fullWidth
-                      multiline
-                      onClick={event => event.target.select()}
-                    />
-                    <Typography variant="body2" paragraph className={classes.shareWarning}>
-                      Please share the invite code before you leave this page. For security purposes the invite code will no longer be accessible after you leave this page.
-                    </Typography>
-                  </div>
-                )}
-              </DialogContent>
-              <DialogActions>
-                {wizard.activeStep === 0 && (
-                  <Button onClick={() => history.push('../')}>
-                    Cancel
-                  </Button>
-                )}
-                <Button type="submit" color="primary">
-                  {wizard.activeStep === STEPS.length - 1 ? 'Finish' : 'Next'}
-                </Button>
-              </DialogActions>
-            </LoadingOverlay>
-          </Form>
-        )}
-      </Formik>
+              return (
+                <FormikSchemaForm
+                  schema={schema}
+                  form={form}
+                  path="model."
+                  hideReadOnlyFields
+                  values={values}
+                />
+              )
+            })()}
+            {wizard.activeStep === 1 && (
+              <div>
+                <Typography variant="body1" paragraph className={classes.shareTitle}>
+                  Share your 3D Printer with a friend
+                </Typography>
+                <div className={classes.qrCode}>
+                  <QRCode
+                    value={wizard.inviteURL}
+                    size={300}
+                  />
+                </div>
+                <TextField
+                  label="Invite URL"
+                  InputProps={{ classes: { input: classes.inviteURLField } }}
+                  value={wizard.inviteURL}
+                  fullWidth
+                  multiline
+                  onClick={event => event.target.select()}
+                />
+                <Typography variant="body2" paragraph className={classes.shareWarning}>
+                  Please share the invite code before you leave this page. For security purposes the invite code will no longer be accessible after you leave this page.
+                </Typography>
+              </div>
+            )}
+          </DialogContent>
+          <DialogActions>
+            {wizard.activeStep === 0 && (
+              <Button onClick={() => history.push('../')}>
+                Cancel
+              </Button>
+            )}
+            <Button type="submit" color="primary">
+              {wizard.activeStep === STEPS.length - 1 ? 'Finish' : 'Next'}
+            </Button>
+          </DialogActions>
+        </LoadingOverlay>
+      </Form>
     </Dialog>
   )
 }
