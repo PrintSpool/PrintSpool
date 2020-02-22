@@ -24,6 +24,7 @@ const useStyles = makeStyles(theme => ({
   },
   title: {
     color: 'white',
+    textDecoration: 'none',
   },
   userProfileMenu: {
     justifySelf: 'end',

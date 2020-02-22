@@ -10,17 +10,17 @@ import {
 } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
 
-import TopNavigationStyles from './TopNavigationStyles'
+import useStyle from './TopNavigationStyles'
 import tegLogoNoTextSVG from './images/tegLogoNoText.svg'
 
 import UserProfileMenu from './UserProfileMenu'
 
 const StaticTopNavigation = ({
-  title = () => null,
+  title = () => 'Teg',
   onMenuButtonClick,
   className,
 }) => {
-  const classes = TopNavigationStyles()
+  const classes = useStyle()
 
   const hasMenu = onMenuButtonClick != null
 
@@ -50,7 +50,13 @@ const StaticTopNavigation = ({
             <MenuIcon />
           </IconButton>
         </Hidden>
-        <Typography variant="h5" className={classes.title}>
+        <Typography
+          variant="h5"
+          className={classes.title}
+          component={React.forwardRef((props, ref) => (
+            <Link to="/" innerRef={ref} {...props} />
+          ))}
+        >
           {title()}
         </Typography>
         <div

@@ -72,9 +72,7 @@ const Home = ({
 
   return (
     <>
-      <StaticTopNavigation
-        title={() => 'Teg'}
-      />
+      <StaticTopNavigation />
 
       <div className={classes.root}>
         <div className={classes.header}>

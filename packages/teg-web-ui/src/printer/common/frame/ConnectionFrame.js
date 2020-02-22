@@ -89,7 +89,6 @@ const ConnectionFrame = ({
               )}
               { !loading && (
                 <StaticTopNavigation
-                  title={() => data.jobQueue.name}
                   className={classes.topNavigation}
                   onMenuButtonClick={() => setMobileOpen(true)}
                 />

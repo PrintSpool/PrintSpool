@@ -115,7 +115,9 @@ const DrawerContents = ({ machineSlug, machines, classes }) => (
           classes={classes}
         />
       </Hidden>
-      <ListSubheader>Print Queue</ListSubheader>
+      { machines[0] && (
+        <ListSubheader>{machines[0].name}</ListSubheader>
+      )}
       <DrawerLink
         text="Print Queue"
         icon={<Inbox />}
@@ -127,7 +129,9 @@ const DrawerContents = ({ machineSlug, machines, classes }) => (
           <div
             key={machine.id}
           >
-            <ListSubheader>{machine.name}</ListSubheader>
+            <ListSubheader>
+              { machines.length > 1 ? machine.name : 'Machine' }
+            </ListSubheader>
             <DrawerLink
               text="Control Panel"
               icon={<OpenWith />}

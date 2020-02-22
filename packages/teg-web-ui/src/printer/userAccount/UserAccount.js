@@ -137,9 +137,7 @@ const UserSettings = ({ auth0Token }) => {
 
   return (
     <TegApolloProvider slug={deletionMachine && deletionMachine.slug}>
-      <StaticTopNavigation
-        title={() => 'Teg'}
-      />
+      <StaticTopNavigation />
       <Typography variant="h5" component="h1">
         Account Settings
       </Typography>
