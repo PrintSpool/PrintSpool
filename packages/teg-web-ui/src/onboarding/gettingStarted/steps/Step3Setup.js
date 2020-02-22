@@ -96,7 +96,7 @@ const Step3Setup = ({
   // const loading = loadingMachineDefs || connecting
   const loading = connecting
 
-  if (loading) {
+  if (loading || isConfigured) {
     return (
       <Loading className={classes.loading}>
         Connecting to Raspberry Pi

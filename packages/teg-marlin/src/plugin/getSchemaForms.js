@@ -26,10 +26,12 @@ const getSchemaForms = () => ({
         automaticBaudRateDetection: {
           title: 'Automatic Baud Rate Detection',
           type: 'boolean',
+          default: true,
         },
         baudRate: {
           title: 'Baud Rate',
           type: 'integer',
+          default: 115200,
           enum: [
             250000,
             230400,

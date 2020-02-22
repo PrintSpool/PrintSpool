@@ -50,24 +50,27 @@ const getSchemaForms = () => ({
             + ' conveyor.'
           ),
           type: 'boolean',
+          default: false,
         },
         beforePrintHook: {
           title: 'Before Print Hook (Extended GCode)',
           type: 'string',
+          default: '',
         },
         afterPrintHook: {
           title: 'After Print Hook (Extended GCode)',
           type: 'string',
+          default: '',
         },
       },
     }),
     form: [
-      'machineDefinitionURL',
+      // 'machineDefinitionURL',
       'name',
     ],
     configPaths: configPaths => ({
       ...configPaths,
-      machineDefinitionURL: getCorePluginConfigPath,
+      // machineDefinitionURL: getCorePluginConfigPath,
       name: getCorePluginConfigPath,
       automaticPrinting: getCorePluginConfigPath,
       beforePrintHook: getCorePluginConfigPath,

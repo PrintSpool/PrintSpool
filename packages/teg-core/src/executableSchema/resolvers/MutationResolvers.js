@@ -38,7 +38,8 @@ const MutationResolvers = {
     updateUser: (source, args, context) => updateUser(args, context),
     deleteUser: (source, args, context) => deleteUser(args, context),
     deleteCurrentUser: (source, args, context) => {
-      deleteUser({ userID: context.user.id.toString() }, context)
+      const input = { userID: context.user.id.toString() }
+      return deleteUser({ input }, context)
     },
 
     createVideoSDP,

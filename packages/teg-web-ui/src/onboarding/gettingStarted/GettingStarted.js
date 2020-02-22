@@ -30,6 +30,9 @@ const DEVICES_SUBSCRIPTION = gql`
       patch { op, path, from, value }
       query {
         isConfigured
+        jobQueue {
+          name
+        }
         devices {
           id
         }
