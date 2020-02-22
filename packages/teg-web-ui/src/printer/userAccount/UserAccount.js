@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { useGraphQL } from 'graphql-react'
-import { useMutation } from 'react-apollo-hooks'
+import { useGraphQL, GraphQL } from 'graphql-react'
+import { useApolloClient } from 'react-apollo-hooks'
 import gql from 'graphql-tag'
+import { useAsync } from 'react-async'
 
 import {
   Button,
@@ -19,6 +20,7 @@ import {
 } from '@material-ui/core'
 
 import WithAuth0Token from '../../common/auth/WithAuth0Token'
+import LoadingOverlay from '../../common/LoadingOverlay'
 
 import userProfileServerFetchOptions from '../../common/userProfileServer/fetchOptions'
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
@@ -29,61 +31,73 @@ const DeleteDialog = ({
   onClose,
   auth0Token,
 }) => {
-  const { load: removeMachineFromUserProfile } = useGraphQL({
-    fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
-    operation: {
-      variables: {
-        machineID: machine && machine.id.toString(),
-      },
-      query: `
-        mutation($machineID: String!) {
-          removeMachine(machineId: $machineID)
-        }
-      `,
+  const apollo = useApolloClient()
+
+  const deleteMachine = useAsync({
+    deferFn: async () => {
+      // remove the machine from the user profile server
+      const graphql = new GraphQL()
+
+      await graphql.operate({
+        fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
+        operation: {
+          query: `
+            mutation($machineID: String!) {
+              removeMachine(machineId: $machineID)
+            }
+          `,
+          variables: {
+            machineID: machine && machine.id.toString(),
+          },
+        },
+      })
+
+      // remove the user from the machine
+      await apollo.mutate({
+        mutation: gql`
+          mutation {
+            deleteCurrentUser
+          }
+        `,
+      })
+
+      await onClose()
     },
   })
 
-  const REMOVE_USER_FROM_MACHINE = gql`
-    mutation {
-      deleteCurrentUser
-    }
-  `
-
-  const [removeUserFromMachine] = useMutation(REMOVE_USER_FROM_MACHINE)
-
-  const deleteMachine = async () => {
-    await removeMachineFromUserProfile()
-    await removeUserFromMachine()
-    await onClose()
+  if (deleteMachine.error) {
+    throw new Error(deleteMachine.error)
   }
 
   return (
     <Dialog
-      open={machine != null}
+      open
       onClose={onClose}
       aria-labelledby="alert-dialog-description"
     >
-      <DialogTitle>
-        Delete
-        {' '}
-        {machine && machine.name}
-        ?
-      </DialogTitle>
-      <DialogContent>
-        <DialogContentText id="alert-dialog-description">
-          {
-            `Are you sure you want to remove ${machine && machine.name}?`
-          }
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>
-          Cancel
-        </Button>
-        <Button onClick={deleteMachine}>
+      <LoadingOverlay loading={deleteMachine.isPending || machine == null}>
+        <DialogTitle>
           Delete
-        </Button>
-      </DialogActions>
+          {' '}
+          {machine && machine.name}
+          ?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {
+              `Are you sure you want to remove ${machine && machine.name}?`
+            }
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={deleteMachine.run}>
+            Delete
+          </Button>
+        </DialogActions>
+      </LoadingOverlay>
     </Dialog>
   )
 }
