@@ -33,7 +33,7 @@ export const DrawerFragment = gql`
   }
 `
 
-export const drawerWidth = 240
+export const drawerWidth = 280
 
 const styles = theme => ({
   // root: {
@@ -55,7 +55,7 @@ const styles = theme => ({
     height: '100%',
   },
   drawerPaper: {
-    width: 250,
+    width: 280,
     height: '100%',
     [theme.breakpoints.up('md')]: {
       width: drawerWidth,
@@ -119,7 +119,7 @@ const DrawerContents = ({ machineSlug, machines, classes }) => (
         <ListSubheader>{machines[0].name}</ListSubheader>
       )}
       <DrawerLink
-        text="Print Queue"
+        text="Printing"
         icon={<Inbox />}
         href={`/q/${machineSlug}/`}
         classes={classes}
@@ -129,11 +129,13 @@ const DrawerContents = ({ machineSlug, machines, classes }) => (
           <div
             key={machine.id}
           >
-            <ListSubheader>
-              { machines.length > 1 ? machine.name : 'Machine' }
-            </ListSubheader>
+            { machine.length > 1 && (
+              <ListSubheader>
+                { machine.name }
+              </ListSubheader>
+            )}
             <DrawerLink
-              text="Control Panel"
+              text="Maintenance"
               icon={<OpenWith />}
               href={`/m/${machineSlug}/${machine.id}/manual-control/`}
               classes={classes}
