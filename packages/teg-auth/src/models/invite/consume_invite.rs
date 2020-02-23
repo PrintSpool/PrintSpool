@@ -27,15 +27,15 @@ impl ConsumeInvite {
         let user = sqlx::query_as!(
             User,
             "
-                SELECT is_authorized FROM users
+                SELECT * FROM users
                 WHERE id=$1
             ",
-            self.user_id,
+            self.user_id
         )
             .fetch_one(&mut tx)
             .await?;
 
-        if (user.is_authorized) {
+        if user.is_authorized {
             Err(crate::Error::from_kind(
                 "Cannot consume invite. User already authorized.".into()
             ))?
