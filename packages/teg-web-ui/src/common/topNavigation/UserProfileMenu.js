@@ -32,6 +32,10 @@ const UserProfileMenu = ({
     setAnchorEl(null)
   }
 
+  if (!user) {
+    return <div />
+  }
+
   return (
     <>
       <IconButton

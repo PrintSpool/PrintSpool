@@ -28,7 +28,7 @@ const Step1InstallTeg = ({
   }
 
   return (
-    <React.Fragment>
+    <>
       <div className={className}>
         <div className={classes.root}>
           <Typography variant="h5" paragraph>
@@ -83,7 +83,7 @@ const Step1InstallTeg = ({
         </div>
       </div>
       <ButtonsFooter step={1} history={history} />
-    </React.Fragment>
+    </>
   )
 }
 

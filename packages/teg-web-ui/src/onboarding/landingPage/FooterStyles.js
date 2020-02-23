@@ -29,30 +29,32 @@ const useStyles = makeStyles(theme => ({
   },
   navigation: {
     display: 'grid',
+    gridTemplateColumns: '[left] auto [right] 33%',
+
     background: '#3D3D3D',
     color: '#fff',
-    gridTemplateColumns: '[left] auto [right] 33%',
+
     paddingTop: theme.spacing(4),
     paddingBottom: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+
     [theme.breakpoints.down('sm')]: {
       gridTemplateColumns: '[right] max-content',
+      fontSize: '1rem',
     },
+
+    '& a': {
+      color: '#fff',
+      textDecoration: 'underline',
+    },
+  },
+  navigationLeft: {
+    gridArea: 'left',
   },
   navigationRight: {
     gridArea: 'right',
     justifySelf: 'right',
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(8),
-  },
-  connectTitle: {
-    color: '#fff',
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '1rem',
-    },
-  },
-  freenode: {
-    color: '#fff',
-    textDecoration: 'underline',
   },
 }), { withTheme: true })
 

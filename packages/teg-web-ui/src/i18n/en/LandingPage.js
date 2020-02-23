@@ -81,7 +81,8 @@ const LandingPageEN = {
     `,
   },
   footer: {
-    connectTitle: 'Connect with us at'
+    privacyPolicy: 'Privacy Policy',
+    connectTitle: 'Connect with us at',
   },
 }
 

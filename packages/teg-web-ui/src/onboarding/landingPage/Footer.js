@@ -39,24 +39,30 @@ const Footer = ({ t }) => {
           </Button>
         </div>
       </div>
-      <div className={classes.navigation}>
-        <div className={classes.navigationRight}>
-          <Typography
-            variant="body2"
-            paragraph
-            className={classes.connectTitle}
+      <Typography
+        variant="body2"
+        component="div"
+        paragraph
+        className={classes.navigation}
+      >
+        <div className={classes.navigationLeft}>
+          <Link
+            to="/privacy-policy"
           >
-            {t('footer.connectTitle')}
-            {' '}
-            <MUILink
-              className={classes.freenode}
-              href="https://webchat.freenode.net/?channels=%23teg&uio=d4"
-            >
-              freenode #teg
-            </MUILink>
-          </Typography>
+            {t('footer.privacyPolicy')}
+          </Link>
         </div>
-      </div>
+
+        <div className={classes.navigationRight}>
+          {t('footer.connectTitle')}
+          {' '}
+          <MUILink
+            href="https://webchat.freenode.net/?channels=%23teg&uio=d4"
+          >
+            freenode #teg
+          </MUILink>
+        </div>
+      </Typography>
     </Typography>
   )
 }
