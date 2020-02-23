@@ -3,6 +3,7 @@ import { Query } from 'react-apollo'
 import gql from 'graphql-tag'
 import { GraphQL } from 'graphql-react'
 import { useMutation } from 'react-apollo-hooks'
+import { useAsync } from 'react-async'
 
 import { getID } from '../../../UserDataProvider'
 import userProfileServerFetchOptions from '../../../common/userProfileServer/fetchOptions'
@@ -79,18 +80,24 @@ const Step3Setup = ({
   const { isConfigured } = data || {}
 
   // skip step 3 for configured 3D printers
+  const skipStep3Async = useAsync({
+    deferFn: async () => {
+      await saveToUserProfile({
+        name: data.jobQueue.name,
+      })
+      await consumeInvite()
+      setSkippedStep3(true)
+      history.push(`/get-started/4${location.search}`)
+    },
+  })
+
   useEffect(() => {
-    (async () => {
-      if (isConfigured) {
-        await saveToUserProfile({
-          name: data.jobQueue.name,
-        })
-        await consumeInvite()
-        setSkippedStep3(true)
-        history.push(`/get-started/4${location.search}`)
-      }
-    })()
+    if (isConfigured) skipStep3Async.run()
   }, [isConfigured])
+
+  if (skipStep3Async.error) {
+    throw skipStep3Async.error
+  }
 
   // console.log(loadingMachineDefs, connecting)
   // const loading = loadingMachineDefs || connecting

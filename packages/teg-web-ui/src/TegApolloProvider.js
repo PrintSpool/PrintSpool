@@ -183,17 +183,18 @@ const TegApolloProvider = ({
       }),
     })
 
-    const errorLink = onError(({ graphQLErrors }) => {
-      // eslint-disable-next-line no-console
-      console.error('Unexpected GraphQL Errors', graphQLErrors)
-    })
+    // const errorLink = onError(({ graphQLErrors }) => {
+    //   // eslint-disable-next-line no-console
+    //   console.error('Unexpected GraphQL Errors', graphQLErrors)
+    // })
 
     const nextClient = new ApolloClient({
-      link: ApolloLink.from([
-        // new ReduxLink(store),
-        errorLink,
-        thingLink,
-      ]),
+      // link: ApolloLink.from([
+      //   // new ReduxLink(store),
+      //   errorLink,
+      //   thingLink,
+      // ]),
+      link: thingLink,
       resolvers: thingLink.resolvers,
       cache: new InMemoryCache(),
     })
