@@ -94,7 +94,7 @@ const Auth = () => {
       header={<StaticTopNavigation />}
       providers={[PROVIDER_GOOGLE]}
       onLogin={() => {}}
-      onLoginWithProvider={googleAuth.signIn}
+      onLoginWithProvider={() => googleAuth.signIn({ preventDefault: () => {} })}
       onRegister={() => {}}
       onRegisterWithProvider={() => {}}
     />
