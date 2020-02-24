@@ -73,7 +73,6 @@ const ConnectionFrame = ({
 
   return (
     <LiveSubscription
-      reduxKey="ConnectionFrame"
       subscription={FRAME_SUBSCRIPTION}
     >
       {

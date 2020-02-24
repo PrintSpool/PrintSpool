@@ -1,18 +1,15 @@
 import React from 'react'
 
-import useWindowScrollPosition from '@rehooks/window-scroll-position'
-import useWindowSize from '@rehooks/window-size'
+import useWindowScroll from '@react-hook/window-scroll'
+import useWindowSize from '@react-hook/window-size'
 import { animated } from 'react-spring'
 
 import tegLogoNoTextSVG from './images/tegLogoNoText.svg'
 
 const TopNavigation = () => {
   // const [props, set, stop] = useSpring(() => ({ opacity: 0 }))
-
   const windowSize = useWindowSize()
-  const position = useWindowScrollPosition({
-    throttle: 100,
-  })
+  const scrollY = useWindowScroll(60)
 
   // console.log({ position, windowSize})
 
@@ -20,7 +17,7 @@ const TopNavigation = () => {
     <animated.div
       style={{
         position: 'static',
-        display: position.y >= windowSize.innerHeight ? 'block' : 'none',
+        display: scrollY >= windowSize.height ? 'block' : 'none',
         // height: 50,
       }}
     >
