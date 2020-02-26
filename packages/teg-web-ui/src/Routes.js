@@ -6,11 +6,11 @@ import {
   useLocation,
 } from 'react-router'
 
-import LoginRegister, { PROVIDER_GOOGLE } from 'react-mui-login-register'
 import { useGoogleLogin } from 'react-google-login'
 
 // import { UserDataContext } from './UserDataProvider'
 import { useAuth0 } from './common/auth/auth0'
+import LoginRegister from './common/auth/LoginRegister'
 
 import LandingPage from './onboarding/landingPage/LandingPage'
 import PrivacyPolicy from './onboarding/privacyPolicy/PrivacyPolicy'
@@ -71,35 +71,6 @@ const AuthRedirect = () => {
   )
 }
 
-const Auth = () => {
-  const responseGoogle = (response) => {
-    console.log(response)
-  }
-
-  const location = useLocation()
-  useEffect(() => {
-    localStorage.setItem('redirectURL', location.pathname + location.search)
-  }, [])
-
-  const googleAuth = useGoogleLogin({
-    clientId: '685652528606-2bi260g0099ho4stjmtlrn1ltvp29ku8.apps.googleusercontent.com',
-    onSuccess: responseGoogle,
-    onFailure: responseGoogle,
-    cookiePolicy: 'single_host_origin',
-    jsSrc: 'https://apis.google.com/js/api.js',
-  })
-
-  return (
-    <LoginRegister
-      header={<StaticTopNavigation />}
-      providers={[PROVIDER_GOOGLE]}
-      onLogin={() => {}}
-      onLoginWithProvider={() => googleAuth.signIn({ preventDefault: () => {} })}
-      onRegister={() => {}}
-      onRegisterWithProvider={() => {}}
-    />
-  )
-}
 
 const Routes = () => {
   // const { isAuthenticated, loading, loginWithRedirect } = useAuth0()
@@ -136,7 +107,7 @@ const Routes = () => {
               <LandingPage />
             </Route>
             <Route>
-              <Auth />
+              <LoginRegister />
             </Route>
           </Switch>
         </Route>

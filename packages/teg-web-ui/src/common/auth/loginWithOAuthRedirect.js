@@ -1,5 +1,5 @@
 const clientID = '685652528606-2bi260g0099ho4stjmtlrn1ltvp29ku8.apps.googleusercontent.com'
-const redirectURI = 'https://tegapp.io/auth'
+const redirectURI = `${window.location.origin}/auth`
 
 const loginWithOAuthRedirect = async () => {
   // Google's OAuth 2.0 endpoint for requesting an access token
