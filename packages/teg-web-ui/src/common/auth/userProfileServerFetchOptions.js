@@ -1,5 +1,5 @@
 
-const userProfileServerFetchOptions = auth0Token => (options) => {
+const userProfileServerFetchOptions = idToken => (options) => {
   let url
 
   if (process.env.NODE_ENV === 'production') {
@@ -9,8 +9,8 @@ const userProfileServerFetchOptions = auth0Token => (options) => {
   }
 
   const headers = new Headers({
-    Authorization: `Bearer ${auth0Token}`,
-    ContentType: 'application/json',
+    Authorization: `Bearer ${idToken}`,
+    'Content-Type': 'application/json',
   })
 
   Object.assign(options, {

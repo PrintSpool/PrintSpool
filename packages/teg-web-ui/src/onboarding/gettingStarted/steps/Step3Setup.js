@@ -6,9 +6,7 @@ import { useMutation } from 'react-apollo-hooks'
 import { useAsync } from 'react-async'
 
 import { getID } from '../../../UserDataProvider'
-import userProfileServerFetchOptions from '../../../common/userProfileServer/fetchOptions'
-
-import WithAuth0Token from '../../../common/auth/WithAuth0Token'
+import { useAuth } from '../../../common/auth'
 
 import Loading from '../../../common/Loading'
 // import useMachineDefSuggestions from '../../../common/_hooks/useMachineDefSuggestions'
@@ -43,10 +41,10 @@ const Step3Setup = ({
   location,
   setSkippedStep3,
   invite,
-  auth0Token,
 }) => {
   const classes = Step3SetupStyles()
   const [machineDefinitionURL, setMachineDefinitionURL] = useState('placeholder')
+  const { fetchOptions } = useAuth()
 
   const [consumeInvite] = useMutation(CONSUME_INVITE)
 
@@ -54,7 +52,7 @@ const Step3Setup = ({
     const graphql = new GraphQL()
 
     await graphql.operate({
-      fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
+      fetchOptionsOverride: fetchOptions,
       operation: {
         query: `
           mutation($input: CreateMachine!) {
@@ -151,4 +149,4 @@ const Step3Setup = ({
   )
 }
 
-export default WithAuth0Token(Step3Setup)
+export default Step3Setup

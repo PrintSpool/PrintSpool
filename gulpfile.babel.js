@@ -162,9 +162,9 @@ gulp.task(
 gulp.task(
   'start',
   gulp.series(
-    'babel:build',
+    // 'babel:build',
     gulp.parallel(
-      watchBabel,
+      // watchBabel,
       run('teg-host-posix', 'dev'),
       run('teg-web-ui', 'serve:http'),
       'marlin:start',

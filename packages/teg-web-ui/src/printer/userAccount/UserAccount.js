@@ -19,18 +19,17 @@ import {
   DialogContentText,
 } from '@material-ui/core'
 
-import WithAuth0Token from '../../common/auth/WithAuth0Token'
+import { useAuth } from '../../common/auth'
 import LoadingOverlay from '../../common/LoadingOverlay'
 
-import userProfileServerFetchOptions from '../../common/userProfileServer/fetchOptions'
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
 import TegApolloProvider from '../../TegApolloProvider'
 
 const DeleteDialog = ({
   machine,
   onClose,
-  auth0Token,
 }) => {
+  const { fetchOptions } = useAuth()
   const apollo = useApolloClient()
 
   const deleteMachine = useAsync({
@@ -39,7 +38,7 @@ const DeleteDialog = ({
       const graphql = new GraphQL()
 
       await graphql.operate({
-        fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
+        fetchOptionsOverride: fetchOptions,
         operation: {
           query: `
             mutation($machineID: String!) {
@@ -102,11 +101,12 @@ const DeleteDialog = ({
   )
 }
 
-const UserSettings = ({ auth0Token }) => {
+const UserAccount = ({ auth0Token }) => {
+  const { fetchOptions } = useAuth()
   const [deletionMachine, setDeletionMachine] = useState()
 
   const { loading, cacheValue = {}, load } = useGraphQL({
-    fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
+    fetchOptionsOverride: fetchOptions,
     operation: {
       query: `
         {
@@ -195,4 +195,4 @@ const UserSettings = ({ auth0Token }) => {
   )
 }
 
-export default WithAuth0Token(UserSettings)
+export default UserAccount

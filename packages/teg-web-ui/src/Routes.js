@@ -6,11 +6,7 @@ import {
   useLocation,
 } from 'react-router'
 
-import { useGoogleLogin } from 'react-google-login'
-
-// import { UserDataContext } from './UserDataProvider'
-import { useAuth0 } from './common/auth/auth0'
-import LoginRegister from './common/auth/LoginRegister'
+import { useAuth } from './common/auth'
 
 import LandingPage from './onboarding/landingPage/LandingPage'
 import PrivacyPolicy from './onboarding/privacyPolicy/PrivacyPolicy'
@@ -22,7 +18,6 @@ import Terminal from './printer/terminal/Terminal'
 import ConnectionFrame from './printer/common/frame/ConnectionFrame'
 import QueuePage from './printer/queue/Queue.page'
 import JobPage from './printer/job/Job.page'
-import StaticTopNavigation from './common/topNavigation/StaticTopNavigation'
 
 const GettingStarted = React.lazy(() => (
   import('./onboarding/gettingStarted/GettingStarted')
@@ -60,6 +55,15 @@ const InvitesConfigPage = React.lazy(() => (
 ))
 
 const AuthRedirect = () => {
+  const urlWithToken = new URL(document.location.origin + document.location.hash.replace(/#/, '?'))
+  const params = Object.fromEntries(urlWithToken.searchParams)
+
+  const googleJWT = params.id_token
+
+  console.log({ googleJWT, params })
+
+  // TODO: log the user in here
+
   const redirectURL = useMemo(() => {
     const url = localStorage.getItem('redirectURL') || '/'
     localStorage.removeItem('redirectURL')
@@ -71,14 +75,27 @@ const AuthRedirect = () => {
   )
 }
 
+// const AuthRedirect = () => {
+//   const url = new URL(document.location.origin + document.location.hash.replace(/#/, '?'))
+//   const params = Object.fromEntries(url.searchParams)
+
+//   const googleJWT = params.id_token
+
+//   console.log({ googleJWT, params })
+
+//   return (
+//     <div />
+//   )
+// }
 
 const Routes = () => {
-  // const { isAuthenticated, loading, loginWithRedirect } = useAuth0()
+  // const { isSignedIn, loading, loginWithRedirect } = useAuth0()
   const loading = false
-  const isAuthenticated = false
 
-  console.log('wat')
-  // console.log({ isAuthenticated, loading })
+  const { isSignedIn } = useAuth()
+  console.log('wat', { isSignedIn })
+
+  // console.log({ isSignedIn, loading })
 
   const { pathname } = useLocation()
 
@@ -97,7 +114,13 @@ const Routes = () => {
         path="/privacy-policy"
         component={PrivacyPolicy}
       />
-      { !isAuthenticated && (
+      <Route
+        exact
+        path="auth"
+      >
+        <AuthRedirect />
+      </Route>
+      { !isSignedIn && (
         <Route>
           <Switch>
             <Route
@@ -107,19 +130,15 @@ const Routes = () => {
               <LandingPage />
             </Route>
             <Route>
-              <LoginRegister />
+              TODO: Login Page
+              {/* <LoginRegister /> */}
             </Route>
           </Switch>
         </Route>
       )}
-      { isAuthenticated && (
+      { isSignedIn && (
         <Route>
           <Switch>
-            <Route
-              exact
-              path="/auth"
-              component={AuthRedirect}
-            />
             <Route
               exact
               path="/i/:inviteURLCode"

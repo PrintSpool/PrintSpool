@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { withRouter } from 'react-router'
 
 import {
   Typography,
@@ -13,16 +12,15 @@ import {
   Divider,
 } from '@material-ui/core'
 
-import { useAuth0 } from '../auth/auth0'
+import { useAuth } from '../auth'
 import useStyles from './UserProfileMenuStyles'
 
-const UserProfileMenu = ({
-  history,
-}) => {
+const UserProfileMenu = () => {
+  const { user, firebase } = useAuth()
+
   const classes = useStyles()
 
   const [anchorEl, setAnchorEl] = useState(null)
-  const { logout, user } = useAuth0()
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
@@ -44,7 +42,7 @@ const UserProfileMenu = ({
         aria-haspopup="true"
         onClick={handleClick}
       >
-        <Avatar src={user.picture}>{user.name[0]}</Avatar>
+        <Avatar src={user.picture}>{user.displayName[0]}</Avatar>
       </IconButton>
       <Menu
         id="user-profile-menu"
@@ -58,10 +56,10 @@ const UserProfileMenu = ({
           src={user.picture}
           className={classes.largeAvatar}
         >
-          {user.name}
+          {user.displayName}
         </Avatar>
         <Typography variant="h6" className={classes.largeName}>
-          {user.name}
+          {user.displayName}
         </Typography>
         {user.email && (
           <Typography variant="subtitle1" className={classes.email}>
@@ -83,9 +81,9 @@ const UserProfileMenu = ({
         </MenuItem>
         <MenuItem
           onClick={() => {
-            console.log("logout?")
+            console.log("logout?", firebase)
             handleClose()
-            logout({
+            firebase.logout({
               returnTo: `${window.location.protocol}//${window.location.host}/`,
             })
             // history.push('../')
@@ -98,4 +96,4 @@ const UserProfileMenu = ({
   )
 }
 
-export default withRouter(UserProfileMenu)
+export default UserProfileMenu

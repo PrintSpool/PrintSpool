@@ -11,20 +11,24 @@ import { ApolloProvider as ApolloHooksProvider } from 'react-apollo-hooks'
 
 import { ApolloClient } from 'apollo-client'
 import { InMemoryCache } from 'apollo-cache-inmemory'
-import { ApolloLink } from 'apollo-link'
-import { onError } from 'apollo-link-error'
+// import { ApolloLink } from 'apollo-link'
+// import { onError } from 'apollo-link-error'
 
 import { GraphQL, GraphQLContext } from 'graphql-react'
 
 import base64url from 'base64url'
 
 // import { ThingLink, connect, parseInviteCode } from 'graphql-things/client'
-import { ThingLink, connect, parseInviteCode, createECDHKey } from 'graphql-things'
+import {
+  ThingLink,
+  connect,
+  parseInviteCode,
+  createECDHKey,
+} from 'graphql-things'
 
 import { getID } from './UserDataProvider'
 import ConnectionStatus from './common/ConnectionStatus'
-import { useAuth0 } from './common/auth/auth0'
-import userProfileServerFetchOptions from './common/userProfileServer/fetchOptions'
+import { useAuth } from './common/auth'
 
 export const TegApolloContext = React.createContext(null)
 
@@ -33,7 +37,7 @@ const TegApolloProvider = ({
   slug: slugParam,
 }) => {
   const { location, match } = useReactRouter()
-  const auth0 = useAuth0()
+  const { isSignedIn, fetchOptions, idToken } = useAuth()
 
   const [error, setError] = useState()
   const [connectionProps, setConnectionProps] = useState()
@@ -55,18 +59,16 @@ const TegApolloProvider = ({
   // console.log(auth0.isAuthenticated)
   useEffect(() => {
     (async () => {
-      if (!auth0.isAuthenticated || (invite == null && slug == null)) {
+      if (!isSignedIn || (invite == null && slug == null)) {
         return
       }
-
-      const auth0Token = await auth0.getTokenSilently()
 
       const graphql = new GraphQL()
 
       let nextMachine
-      if (invite == null && auth0Token != null) {
+      if (invite == null) {
         const { cacheValuePromise } = await graphql.operate({
-          fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
+          fetchOptionsOverride: fetchOptions,
           operation: {
             query: `
               {
@@ -95,10 +97,10 @@ const TegApolloProvider = ({
         }
       }
 
-      console.log('con props??', auth0.isAuthenticated, auth0Token, nextMachine)
+      console.log('con props??', nextMachine)
       try {
         if (
-          auth0Token == null
+          idToken == null
           || (nextMachine == null && invite == null)
         ) {
           console.error('No machine or invite')
@@ -108,7 +110,7 @@ const TegApolloProvider = ({
 
         const connectionPropsBuilder = {
           slug,
-          authToken: auth0Token,
+          authToken: idToken,
         }
 
         if (invite != null) {
@@ -125,7 +127,7 @@ const TegApolloProvider = ({
         setError(e)
       }
     })()
-  }, [invite, slug, auth0.isAuthenticated])
+  }, [invite, slug, isSignedIn])
 
   const graphql = useContext(GraphQLContext)
 
@@ -134,10 +136,8 @@ const TegApolloProvider = ({
       return
     }
 
-    const auth0Token = await auth0.getTokenSilently()
-
     graphql.operate({
-      fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
+      fetchOptionsOverride: fetchOptions,
       operation: {
         query: `
           mutation($input: SetMachineName!) {
@@ -170,7 +170,7 @@ const TegApolloProvider = ({
       createConnection: () => connect({
         // timeout: 1000,
         // identityKeys: myIdentity,
-        // auth0Token: auth0Token,
+        // idToken: idToken,
         // inviteKey: inviteKey,
         identityKeys: connectionProps.identityKeys,
         authToken: connectionProps.authToken,
@@ -210,7 +210,7 @@ const TegApolloProvider = ({
 
   const { prevSlug, link } = clientRef.current
 
-  // console.log({ slug, connectionProps, auth0Token })
+  // console.log({ slug, connectionProps, idToken })
 
 
   if (error) {
@@ -218,7 +218,7 @@ const TegApolloProvider = ({
   }
 
   // console.log({ prevSlug, slug, connectionProps, link })
-  if (slug == null || (!auth0.loading && !auth0.isAuthenticated)) {
+  if (slug == null || !isSignedIn) {
     return <>{ children }</>
   }
 

@@ -6,8 +6,7 @@ import {
   Typography,
   Hidden,
 } from '@material-ui/core'
-
-import { useAuth0 } from '../../common/auth/auth0'
+import { useAuth } from '../../common/auth'
 
 import cubesSVG from './images/cubes.svg'
 import cubesMobileSVG from './images/cubesMobile.svg'
@@ -18,11 +17,18 @@ import HeroStyles from './HeroStyles'
 const Hero = ({ t }) => {
   const classes = HeroStyles()
 
-  const { loginWithRedirect } = useAuth0()
+  const { firebase } = useAuth()
+  console.log(firebase, "test2")
+
+  const login = () => {
+    const googleAuthProvider = new firebase.auth.GoogleAuthProvider()
+    firebase.auth().signInWithRedirect(googleAuthProvider)
+  }
+
   return (
     <div className={classes.root}>
       <Button
-        onClick={() => loginWithRedirect({})}
+        onClick={login}
         className={classes.githubButton}
         variant="outlined"
       >

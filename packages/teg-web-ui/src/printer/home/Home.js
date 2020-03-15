@@ -12,21 +12,19 @@ import {
   // Divider,
 } from '@material-ui/core'
 
-import WithAuth0Token from '../../common/auth/WithAuth0Token'
-import userProfileServerFetchOptions from '../../common/userProfileServer/fetchOptions'
+import { useAuth } from '../../common/auth'
 
 import HomeStyles from './HomeStyles'
 
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
 import PrintButton from '../printButton/PrintButton'
 
-const Home = ({
-  auth0Token,
-}) => {
+const Home = () => {
   const classes = HomeStyles()
+  const { fetchOptions } = useAuth()
 
   const { loading, cacheValue = {} } = useGraphQL({
-    fetchOptionsOverride: userProfileServerFetchOptions(auth0Token),
+    fetchOptionsOverride: fetchOptions,
     operation: {
       query: `
         {
@@ -73,7 +71,6 @@ const Home = ({
   return (
     <>
       <StaticTopNavigation />
-
       <div className={classes.root}>
         <div className={classes.header}>
           <Button
@@ -142,4 +139,4 @@ const Home = ({
   )
 }
 
-export default WithAuth0Token(Home)
+export default Home
