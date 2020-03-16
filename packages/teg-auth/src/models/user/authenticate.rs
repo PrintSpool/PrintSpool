@@ -36,13 +36,14 @@ impl User {
         * Query the user profile server
         */
         let request_body = UserProfileQuery::build_query(Variables);
+        println!("BEARER {}", auth_token);
 
         let res: Response<ResponseData> = reqwest::blocking::Client::new()
             .post(user_profile_server)
             .json(&request_body)
             .header(
                 reqwest::header::AUTHORIZATION,
-                format!("BEARER {}", auth_token),
+                format!("Bearer {}", auth_token),
             )
             .send()
             .chain_err(|| "Unable to connect to user profile server")?

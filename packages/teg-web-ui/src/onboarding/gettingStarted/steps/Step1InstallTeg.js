@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 
 import {
@@ -8,10 +8,6 @@ import {
 
 import Step1InstallTegStyles from './Step1InstallTegStyles'
 
-import FileInput from '../../../common/FileInput'
-
-import { UserDataContext } from '../../../UserDataProvider'
-
 import ButtonsFooter from '../ButtonsFooter'
 
 const Step1InstallTeg = ({
@@ -19,13 +15,6 @@ const Step1InstallTeg = ({
   history,
 }) => {
   const classes = Step1InstallTegStyles()
-
-  const { importUserData } = useContext(UserDataContext)
-
-  const onImportClick = async (files) => {
-    await importUserData(files)
-    history.push('/')
-  }
 
   return (
     <>
@@ -53,20 +42,6 @@ const Step1InstallTeg = ({
             >
               Skip this step
             </MaterialUILink>
-            {' '}
-            or
-            {' '}
-            <MaterialUILink
-              underline="always"
-              component="label"
-            >
-              import your user data
-              <FileInput
-                onClick={onImportClick}
-              />
-            </MaterialUILink>
-            {' '}
-            from a backup.
           </Typography>
           <Typography variant="body2" paragraph className={classes.dontHaveRaspberryPi}>
             Don't have a Raspberry Pi? Get one from

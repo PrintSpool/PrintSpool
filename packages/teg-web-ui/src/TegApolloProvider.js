@@ -85,25 +85,27 @@ const TegApolloProvider = ({
           },
         })
 
-        const { data, httpError, graphQLErrors } = await cacheValuePromise
+        const { data, ...errors } = await cacheValuePromise
 
         console.log(data)
         if (data) {
+          console.log('data recieved', data.my.machines)
           // eslint-disable-next-line prefer-destructuring
           nextMachine = data.my.machines[0]
           setMachine(nextMachine)
         } else {
-          setError(graphQLErrors || httpError)
+          setError(errors)
+          return
         }
       }
 
-      console.log('con props??', nextMachine)
+      console.log('machine??', { hasIdToken: idToken != null, nextMachine, invite })
       try {
         if (
           idToken == null
           || (nextMachine == null && invite == null)
         ) {
-          console.error('No machine or invite')
+          setError('No machine or invite')
           setConnectionProps(null)
           return
         }
@@ -211,7 +213,6 @@ const TegApolloProvider = ({
   const { prevSlug, link } = clientRef.current
 
   // console.log({ slug, connectionProps, idToken })
-
 
   if (error) {
     throw new Error(JSON.stringify(error, null, 2))

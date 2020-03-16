@@ -51,11 +51,11 @@ const Step3Setup = ({
   const saveToUserProfile = async (values) => {
     const graphql = new GraphQL()
 
-    await graphql.operate({
+    const { cacheValuePromise } = graphql.operate({
       fetchOptionsOverride: fetchOptions,
       operation: {
         query: `
-          mutation($input: CreateMachine!) {
+          mutation($input: CreateMachineInput!) {
             createMachine(input: $input) { id }
           }
         `,
@@ -68,6 +68,12 @@ const Step3Setup = ({
         },
       },
     })
+
+    const { data: userProfileData, ...errors } = await cacheValuePromise
+
+    if (userProfileData == null) {
+      throw new Error(JSON.stringify(errors))
+    }
   }
 
   // const {

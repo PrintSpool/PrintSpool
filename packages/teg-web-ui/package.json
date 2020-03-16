@@ -24,7 +24,6 @@
     "@material-ui/icons": "^4.0.1",
     "@material-ui/styles": "^4.0.2",
     "@material-ui/system": "^4.0.2",
-    "@react-firebase/auth": "^0.2.10",
     "@react-hook/window-scroll": "^1.0.7",
     "@react-hook/window-size": "^1.0.12",
     "ajv": "^6.6.1",

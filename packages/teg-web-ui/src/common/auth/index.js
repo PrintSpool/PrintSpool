@@ -1,8 +1,12 @@
-import React, { useContext, useCallback, useEffect, useState } from 'react'
+import React, {
+  useContext,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react'
 import { useAsync } from 'react-async'
 import 'firebase/auth'
 import firebase from 'firebase/app'
-import { FirebaseAuthProvider, FirebaseAuthConsumer } from '@react-firebase/auth'
 
 import userProfileServerFetchOptions from './userProfileServerFetchOptions'
 
@@ -23,13 +27,14 @@ if (process.env.NODE_ENV === 'production') {
   }
 }
 
+firebase.initializeApp(firebaseConfig)
+
 export const AuthContext = React.createContext()
 
 export const useAuth = () => useContext(AuthContext)
 
-const InnerAuth = ({
+export const AuthProvider = ({
   children,
-  ...firebaseProps
 }) => {
   const [{ user, loading }, setState] = useState({
     loading: true,
@@ -64,28 +69,13 @@ const InnerAuth = ({
   return (
     <AuthContext.Provider
       value={{
-        ...firebaseProps,
+        isSignedIn: idToken != null,
+        idToken,
         user,
         fetchOptions: userProfileServerFetchOptions(idToken),
       }}
     >
       {children}
     </AuthContext.Provider>
-  )
-}
-
-export const AuthProvider = ({
-  children,
-}) => {
-  return (
-    <FirebaseAuthProvider firebase={firebase} {...firebaseConfig}>
-      <FirebaseAuthConsumer>
-        { firebaseProps => (
-          <InnerAuth {...firebaseProps}>
-            {children}
-          </InnerAuth>
-        )}
-      </FirebaseAuthConsumer>
-    </FirebaseAuthProvider>
   )
 }
