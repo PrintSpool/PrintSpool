@@ -9,9 +9,7 @@
   "license": "AGPL-3.0-or-later",
   "private": true,
   "scripts": {
-    "serve:http": "parcel serve ./src/http.html",
-    "watch": "parcel watch ./src/dat.html -d ./dev-dist --hmr-hostname localhost",
-    "watch:production": "parcel watch ./src/dat.html --no-hmr",
+    "start": "parcel ./src/http.html",
     "clean": "cd dist && ls | grep -v dat.json | xargs rm -rf",
     "build:dat": "yarn clean && NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/dat.html --detailed-report",
     "build:http": "NODE_ENV=production NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/http.html --detailed-report",
