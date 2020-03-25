@@ -1,6 +1,6 @@
 {
-  "url-loader": {
-    "exts": ["jpg", "jpeg", "png", "gif", "svg"],
-    "limit": 10240
+  "extends": "@parcel/config-default",
+  "transformers": {
+    "*.png": ["@parcel/transformer-raw"]
   }
 }

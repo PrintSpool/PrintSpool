@@ -14,18 +14,18 @@ import {
 import { useTranslation, Trans } from 'react-i18next'
 import { useSnackbar } from 'notistack'
 
-import tegMockupSVG from './images/tegMockup.png'
+import tegMockupSVG from 'url:./images/tegMockup.png'
 
 import ScrollSpyTopNavigation from '../../common/topNavigation/ScrollSpyTopNavigation'
 import Hero from './Hero'
 import Header from './Header'
 
-import KofiCupLogoSVG from './images/kofiCupLogo.svg'
+import KofiCupLogoSVG from 'url:./images/kofiCupLogo.svg'
 import NanoIcon from './currencyIcons/NanoIcon'
 import EthereumIcon from './currencyIcons/EthereumIcon'
 
-import automaticPrintingGIF from './images/automaticPrinting.gif'
-import printQueueingGIF from './images/printQueueing.gif'
+import automaticPrintingGIF from 'url:./images/automaticPrinting.gif'
+import printQueueingGIF from 'url:./images/printQueueing.gif'
 
 import Footer from './Footer'
 

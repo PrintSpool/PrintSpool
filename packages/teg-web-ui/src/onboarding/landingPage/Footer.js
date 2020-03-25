@@ -6,7 +6,7 @@ import {
   Link as MUILink,
 } from '@material-ui/core'
 
-import tegLogoSVG from './images/tegLogo.svg'
+import tegLogoSVG from 'url:./images/tegLogo.svg'
 
 import FooterStyles from './FooterStyles'
 

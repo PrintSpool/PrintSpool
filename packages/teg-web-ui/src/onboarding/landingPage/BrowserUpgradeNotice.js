@@ -9,7 +9,7 @@ import {
   Grid,
 } from '@material-ui/core'
 
-// import beakerSVG from './images/beaker.svg'
+// import beakerSVG from 'url:./images/beaker.svg'
 
 import BrowserUpgradeNoticeStyles from './BrowserUpgradeNoticeStyles'
 

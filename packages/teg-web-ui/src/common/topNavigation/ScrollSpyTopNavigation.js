@@ -4,7 +4,7 @@ import useWindowScroll from '@react-hook/window-scroll'
 import useWindowSize from '@react-hook/window-size'
 import { animated } from 'react-spring'
 
-import tegLogoNoTextSVG from './images/tegLogoNoText.svg'
+import tegLogoNoTextSVG from 'url:./images/tegLogoNoText.svg'
 
 const TopNavigation = () => {
   // const [props, set, stop] = useSpring(() => ({ opacity: 0 }))

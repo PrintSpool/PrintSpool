@@ -88,7 +88,7 @@ target
 # End  Rust
 
 .cache
-dev-dist
+.parcel-cache
 
 !.well-known/dat
 !dat.json

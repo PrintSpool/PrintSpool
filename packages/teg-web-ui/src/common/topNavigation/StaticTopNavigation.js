@@ -11,7 +11,7 @@ import {
 import MenuIcon from '@material-ui/icons/Menu'
 
 import useStyle from './TopNavigationStyles'
-import tegLogoNoTextSVG from './images/tegLogoNoText.svg'
+import tegLogoNoTextSVG from 'url:./images/tegLogoNoText.svg'
 
 import UserProfileMenu from './UserProfileMenu'
 

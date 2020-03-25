@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/styles'
 
-import greenPathSVG from './images/greenPath.svg'
-import orangePathSVG from './images/orangePath.svg'
+import greenPathSVG from 'url:./images/greenPath.svg'
+import orangePathSVG from 'url:./images/orangePath.svg'
 
 const pathWidth = 83
 

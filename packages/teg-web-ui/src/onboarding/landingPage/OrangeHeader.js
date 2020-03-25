@@ -4,7 +4,7 @@ import {
   Typography,
 } from '@material-ui/core'
 
-import orangePathSVG from './images/orangePath.svg'
+import orangePathSVG from 'url:./images/orangePath.svg'
 
 const OrangeHeader = ({ title }) => (
   <Typography

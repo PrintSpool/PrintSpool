@@ -8,9 +8,9 @@ import {
 } from '@material-ui/core'
 import { useAuth } from '../../common/auth'
 
-import cubesSVG from './images/cubes.svg'
-import cubesMobileSVG from './images/cubesMobile.svg'
-import tegLogoSVG from './images/tegLogo.svg'
+import cubesSVG from 'url:./images/cubes.svg'
+import cubesMobileSVG from 'url:./images/cubesMobile.svg'
+import tegLogoSVG from 'url:./images/tegLogo.svg'
 
 import HeroStyles from './HeroStyles'
 
