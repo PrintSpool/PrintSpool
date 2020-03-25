@@ -116,6 +116,14 @@ const Step3Setup = ({
   }
 
   console.log(data.devices)
+
+  let { devices } = data
+  if (devices.length === 0) {
+    devices = [
+      { id: '/dev/null' },
+    ]
+  }
+
   return (
     <Query
       query={MACHINE_FORM_QUERY}
@@ -143,7 +151,7 @@ const Step3Setup = ({
           setMachineDefinitionURL={setMachineDefinitionURL}
           devices={
             // data.devices.filter(device => device.connected)
-            data.devices
+            devices
           }
           loadingMachineSettings={loadingMachineSettings}
           machineSettingsError={machineSettingsError}
