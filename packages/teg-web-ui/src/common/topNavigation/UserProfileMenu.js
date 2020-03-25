@@ -16,7 +16,7 @@ import { useAuth } from '../auth'
 import useStyles from './UserProfileMenuStyles'
 
 const UserProfileMenu = () => {
-  const { user, firebase } = useAuth()
+  const { user, logOut } = useAuth()
 
   const classes = useStyles()
 
@@ -81,11 +81,8 @@ const UserProfileMenu = () => {
         </MenuItem>
         <MenuItem
           onClick={() => {
-            console.log("logout?", firebase)
             handleClose()
-            firebase.logout({
-              returnTo: `${window.location.protocol}//${window.location.host}/`,
-            })
+            logOut()
             // history.push('../')
           }}
         >

@@ -27,7 +27,16 @@ if (process.env.NODE_ENV === 'production') {
   }
 }
 
-firebase.initializeApp(firebaseConfig)
+if (firebase.apps.length === 0) {
+  firebase.initializeApp(firebaseConfig)
+}
+
+const logIn = () => {
+  const googleAuthProvider = new firebase.auth.GoogleAuthProvider()
+  firebase.auth().signInWithRedirect(googleAuthProvider)
+}
+
+const logOut = () => firebase.auth().signOut()
 
 export const AuthContext = React.createContext()
 
@@ -64,7 +73,7 @@ export const AuthProvider = ({
     return <div />
   }
 
-  console.log({ user, idToken })
+  // console.log({ user, idToken })
 
   return (
     <AuthContext.Provider
@@ -72,6 +81,8 @@ export const AuthProvider = ({
         isSignedIn: idToken != null,
         idToken,
         user,
+        logIn,
+        logOut,
         fetchOptions: userProfileServerFetchOptions(idToken),
       }}
     >

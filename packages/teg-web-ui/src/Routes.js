@@ -93,7 +93,6 @@ const Routes = () => {
   const loading = false
 
   const { isSignedIn } = useAuth()
-  console.log('wat', { isSignedIn })
 
   // console.log({ isSignedIn, loading })
 

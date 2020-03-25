@@ -17,18 +17,12 @@ import HeroStyles from './HeroStyles'
 const Hero = ({ t }) => {
   const classes = HeroStyles()
 
-  const { firebase } = useAuth()
-  console.log(firebase, "test2")
-
-  const login = () => {
-    const googleAuthProvider = new firebase.auth.GoogleAuthProvider()
-    firebase.auth().signInWithRedirect(googleAuthProvider)
-  }
+  const { logIn } = useAuth()
 
   return (
     <div className={classes.root}>
       <Button
-        onClick={login}
+        onClick={logIn}
         className={classes.githubButton}
         variant="outlined"
       >
