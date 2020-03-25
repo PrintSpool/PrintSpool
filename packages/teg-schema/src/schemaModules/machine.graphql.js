@@ -1,3 +1,4 @@
+export default `
 # Queries
 
 extend type Query {
@@ -217,15 +218,16 @@ enum MachineStatusEnum {
 
   """
   The machine is being initialized. Attempting to spool anything except for an
-  emergency macro (ie. reset) will result in an error. Spool the `reset` macro
-  to reset the error and change the status to `CONNECTING`.
+  emergency macro (ie. reset) will result in an error. Spool the \`reset\` macro
+  to reset the error and change the status to \`CONNECTING\`.
   """
   ERRORED
 
   """
   The machine is estopped. Attempting to spool anything except for an emergency
-  macro (ie. reset) will result in an error. Spool the `reset` macro to reset
-  the estop and change the status to `CONNECTING`.
+  macro (ie. reset) will result in an error. Spool the \`reset\` macro to reset
+  the estop and change the status to \`CONNECTING\`.
   """
   ESTOPPED
 }
+`

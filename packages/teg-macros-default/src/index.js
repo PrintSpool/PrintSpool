@@ -1,1 +1,1 @@
-export macros from './macros'
+export { default as macros } from './macros'

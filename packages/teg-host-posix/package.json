@@ -24,7 +24,8 @@
   "private": true,
   "scripts": {
     "trace-gc": "npx node-dev ./dist/index.js --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
-    "dev": "npx nodemon -r esm --trace-warnings --watch ../../ --ignore packages/teg-web-ui/ --ignore dist/ --ignore dev-dist/ ./src/index.js serve",
+    "dev": "nodemon -r esm --trace-warnings --watch ../../ --ignore packages/teg-web-ui/ --ignore dist/ --ignore dev-dist/ ./src/index.js serve",
+    "create-config": "node -r esm ./src/index.js create-config",
     "snap:test:pre-refresh": "npx node-dev ./dist/index.js --trace-warnings -- pre-refresh",
     "debug": "DEBUG=\"*,-nodemon,-nodemon:*,-babel:*,-babel,-gulp-*,-snapdragon:*,-dns-discovery,-discovery-*\" yarn dev",
     "pkg:build": "pkg -t node10-linux ./dist/index.js -o ../../teg"

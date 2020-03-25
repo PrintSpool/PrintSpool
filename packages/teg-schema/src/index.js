@@ -1,3 +1,5 @@
+import fs from 'fs'
+
 import index from './index.graphql'
 import auth from './schemaModules/auth.graphql'
 import config from './schemaModules/config.graphql'

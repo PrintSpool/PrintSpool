@@ -1,3 +1,4 @@
+export default `
 # Queries
 
 extend type Query {
@@ -24,10 +25,10 @@ input SchemaFormQueryInput {
   # for plugins the schemaFormKey is the plugin's package
   """
     The schemaFormKey is dependent on the collection:
-    - For collection = **"COMPONENT"** schemaFormKey should be the **component type** (eg. `"CONTROLLER"`)
-    - For collection = **"MATERIAL"** schemaFormKey should be the **material type** (eg. `"FDM_FILAMENT"`)
-    - For collection = **"PLUGIN"** schemaFormKey should be the **plugin name** (eg. `"@tegapp/core"`)
-    - For collection = **"MACHINE"** schemaFormKey should be the **machine descriptor DAT URL** (eg. `"dat://..."`)
+    - For collection = **"COMPONENT"** schemaFormKey should be the **component type** (eg. \`"CONTROLLER"\`)
+    - For collection = **"MATERIAL"** schemaFormKey should be the **material type** (eg. \`"FDM_FILAMENT"\`)
+    - For collection = **"PLUGIN"** schemaFormKey should be the **plugin name** (eg. \`"@tegapp/core"\`)
+    - For collection = **"MACHINE"** schemaFormKey should be the **machine descriptor DAT URL** (eg. \`"dat://..."\`)
   """
 
   schemaFormKey: ID!
@@ -78,9 +79,9 @@ input CreateConfigInput {
   """
     The schemaFormKey is dependent on the collection:
     - For collection = **"AUTH"** schemaFormKey should be the either "user" or "invite"
-    - For collection = **"COMPONENT"** schemaFormKey should be the **component type** (eg. `"CONTROLLER"`)
-    - For collection = **"MATERIAL"** schemaFormKey should be the **material type** (eg. `"FDM_FILAMENT"`)
-    - For collection = **"PLUGIN"** schemaFormKey should be the **plugin name** (eg. `"@tegapp/core"`)
+    - For collection = **"COMPONENT"** schemaFormKey should be the **component type** (eg. \`"CONTROLLER"\`)
+    - For collection = **"MATERIAL"** schemaFormKey should be the **material type** (eg. \`"FDM_FILAMENT"\`)
+    - For collection = **"PLUGIN"** schemaFormKey should be the **plugin name** (eg. \`"@tegapp/core"\`)
   """
   schemaFormKey: String!
   """
@@ -172,3 +173,4 @@ enum ConfigCollection {
   HOST,
   MACHINE,
 }
+`

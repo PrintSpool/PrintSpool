@@ -1,18 +1,18 @@
 import { List } from 'immutable'
 import loadConfigOrSetDefault from './config/sideEffects/loadConfigOrSetDefault'
 
-export uuid from 'uuid'
+export { default as uuid } from 'uuid'
 
 export * from './actions'
 export * from './types'
 export * from './selectors'
 
-export authenticate from './auth/sideEffects/authenticate'
-export loadConfigOrSetDefault from './config/sideEffects/loadConfigOrSetDefault'
+export { default as authenticate } from './auth/sideEffects/authenticate'
+export { default as loadConfigOrSetDefault } from './config/sideEffects/loadConfigOrSetDefault'
 
-export executableSchema from './executableSchema/executableSchema'
-export createTegHostStore from './executableSchema/createTegHostStore'
+export { default as executableSchema } from './executableSchema/executableSchema'
+export { default as createTegHostStore } from './executableSchema/createTegHostStore'
 
-export getSchemaForms from './getSchemaForms'
+export { default as getSchemaForms } from './getSchemaForms'
 
-export configValidation from './configValidation'
+export { default as configValidation } from './configValidation'

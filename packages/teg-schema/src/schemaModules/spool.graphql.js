@@ -1,3 +1,4 @@
+export default `
 # Mutations
 
 extend type Mutation {
@@ -7,7 +8,7 @@ extend type Mutation {
   execGCodes is synchronous and will return only once the GCode has executed
   and any resulting machine movements are done.
 
-  This means that for example if you use execGCodes to run `G1 X100\nM400` the
+  This means that for example if you use execGCodes to run \`G1 X100\nM400\` the
   mutation will wait until the toolhead has moved 100mm and then return.
 
   This can be useful for informing users whether an action is in progress or
@@ -40,15 +41,15 @@ input ExecGCodesInput {
   Teg supports 3 formats of GCode:
 
   1. Standard GCode Strings
-    eg. `gcodes: ["G1 X10", "G1 Y20"]`
+    eg. \`gcodes: ["G1 X10", "G1 Y20"]\`
     and equivalently:
-    `gcodes: ["G1 X0\nG1 Y0"]`
+    \`gcodes: ["G1 X0\nG1 Y0"]\`
   2. JSON GCode Objects - To make constructing GCode easier with modern languages Teg allows GCodes to be sent as JSON objects in the format { [GCODE|MACRO]: ARGS }.
-    eg. `gcodes: [{ g1: { x: 10 } }, { g1: { y: 20 } }]`
+    eg. \`gcodes: [{ g1: { x: 10 } }, { g1: { y: 20 } }]\`
     Macros can also be called using JSON GCode Objects.
-    eg. `gcodes: [{ g1: { x: 10 } }, { delay: { period: 5000 } }]`
+    eg. \`gcodes: [{ g1: { x: 10 } }, { delay: { period: 5000 } }]\`
   3. JSON GCode Strings - Teg allows GCodes to be serialized as JSON. JSON GCode Strings can also be Macro calls.
-    GCode: `gcodes: ["{ \"g1\": { \"x\": 10 } }", "{ \"delay\": { \"period\": 5000 } }"]`
+    GCode: \`gcodes: ["{ \"g1\": { \"x\": 10 } }", "{ \"delay\": { \"period\": 5000 } }"]\`
   """
   gcodes: [JSON!]!
 }
@@ -69,7 +70,7 @@ type Task {
   percentComplete(
     """
     The number of digits to the right of the decimal place to round to. eg.
-    `digits: 0` => 83 `digits: 1` => 82.6 `digits: 2` => 82.62
+    \`digits: 0\` => 83 \`digits: 1\` => 82.6 \`digits: 2\` => 82.62
     """
     digits: Int
   ): Float!
@@ -79,3 +80,4 @@ type Task {
   status: TaskStatus!
   machine: Machine!
 }
+`

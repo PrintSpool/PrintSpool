@@ -2,9 +2,9 @@
   "name": "@tegapp/macros-default",
   "version": "0.8.0",
   "description": "Teg default macros",
-  "main": "dist/index.js",
+  "main": "src/index.js",
   "files": [
-    "dist/*"
+    "src/*"
   ],
   "author": "Rob Gilson",
   "license": "AGPL-3.0-or-later",

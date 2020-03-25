@@ -1,15 +1,12 @@
-// @flow
 import uuid from 'uuid'
 import { Record } from 'immutable'
 
-import type { RecordOf } from 'immutable'
-
-export type JobT = RecordOf<{
-  id: string,
-  name: string,
-  createdAt: ?number,
-  quantity: number,
-}>
+// export type JobT = RecordOf<{
+//   id: string,
+//   name: string,
+//   createdAt: ?number,
+//   quantity: number,
+// }>
 
 const JobRecord = Record({
   id: null,

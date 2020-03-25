@@ -1,3 +1,4 @@
+export default `
 # Queries
 
 extend type Query {
@@ -75,3 +76,4 @@ type User {
   createdAt: DateTime!
   lastLoggedInAt: DateTime
 }
+`

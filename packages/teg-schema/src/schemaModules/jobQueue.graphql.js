@@ -1,3 +1,4 @@
+export default `
 # Queries
 
 extend type Query {
@@ -101,3 +102,4 @@ input FileInput {
   name: String!
   content: String!
 }
+`

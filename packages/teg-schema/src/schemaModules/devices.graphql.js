@@ -1,3 +1,4 @@
+export default `
 # Queries
 
 extend type Query {
@@ -9,3 +10,4 @@ type Device {
   # type: String!
   connected: Boolean!
 }
+`

@@ -2,9 +2,9 @@
   "name": "@tegapp/marlin",
   "version": "0.8.0",
   "description": "Teg serial driver for RepRaps and Marlin-compatible firmware",
-  "main": "dist/plugin/index.js",
+  "main": "src/plugin/index.js",
   "files": [
-    "dist/*"
+    "src/*"
   ],
   "author": "Rob Gilson",
   "license": "AGPL-3.0-or-later",

@@ -1,5 +1,6 @@
+export default `
 """
-The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+The \`JSON\` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
 scalar JSON
 
@@ -36,3 +37,4 @@ type RFC6902Operation {
 # Mutations
 
 type Mutation
+`

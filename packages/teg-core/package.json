@@ -2,7 +2,7 @@
   "name": "@tegapp/core",
   "version": "0.8.0",
   "description": "core reusable types, selectors, actions, reducers, etc. for Teg",
-  "main": "dist/index.js",
+  "main": "src/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/teg/teg-host-posix.git"
@@ -11,7 +11,7 @@
     "graphql"
   ],
   "files": [
-    "dist/*"
+    "src/*"
   ],
   "jest": {
     "testPathIgnorePatterns": [
