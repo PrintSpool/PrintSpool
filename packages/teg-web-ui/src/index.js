@@ -1,3 +1,5 @@
+import 'regenerator-runtime/runtime'
+
 import React from 'react'
 import ReactDOM from 'react-dom'
 // import { ReduxSnackbar } from '@d1plo1d/material-ui-redux-snackbar'
