@@ -11,7 +11,7 @@
     "start": "parcel ./src/index.html",
     "clean": "cd dist && ls | grep -v dat.json | xargs rm -rf",
     "build:dat": "yarn clean && NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/dat.html",
-    "build:http": "NODE_ENV=production NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/index.html",
+    "build:http": "NODE_ENV=production NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/index.html --no-scope-hoist",
     "report": "xdg-open ./dist/report.html",
     "storybook": "start-storybook -p 9001 -c .storybook"
   },
