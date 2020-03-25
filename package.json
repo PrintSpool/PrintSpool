@@ -8,7 +8,7 @@
   "scripts": {
     "lint": "eslint ./packages/",
     "delete-node-modules": "rm -rf node_modules && rm -rf packages/*/node_modules",
-    "bootstrap": "yarn make-dirs && yarn && cd ./packages/teg-web-ui/ && yarn && cd ../teg-host-posix/ && yarn create-config",
+    "bootstrap": "sh ./scripts/bootstrap.sh",
     "make-dirs": "sudo mkdir /run/log/teg || true; sudo mkdir /etc/teg || true; sudo mkdir /var/lib/teg || true; sudo chmod 700 /run/log/teg && sudo chown $USER: /run/log/teg && sudo chmod 700 /etc/teg && sudo chown $USER: /etc/teg && sudo chmod 700 /var/lib/teg && sudo chown $USER: /var/lib/teg",
     "install-all": "yarn --network-timeout 1000000 && lerna exec --concurrency 1 -- yarn --network-timeout 1000000 && cd ./packages/teg-web-ui/ && yarn --network-timeout 1000000",
     "install-all-fast": "yarn && lerna exec yarn && cd ./packages/teg-web-ui/ && yarn",

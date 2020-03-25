@@ -16,7 +16,10 @@ A bold new way to 3D print over WiFi.
 ### Dev Installation
 
 1. Install [nvm](https://github.com/creationix/nvm)
-2. Bootstrap the dev environment with teg, node 10 and yarn:
+2. Install [Rust](https://rustup.rs/)
+3. Install Postgres: `sudo apt install postgresql postgres-client libpq-dev`
+4. Enable Passwordless local logins in Postgres: https://gist.github.com/p1nox/4953113
+4. Bootstrap the dev environment with teg, node 10 and yarn:
 `nvm use && npm i -g yarn && yarn bootstrap`
 
 <!-- ### [Optional] Emulating a Raspberry Pi

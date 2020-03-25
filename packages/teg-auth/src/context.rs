@@ -3,6 +3,8 @@ use std::sync::Arc;
 
 use crate::models::User;
 
+type SqlxError = sqlx::Error<sqlx::Postgres>;
+
 pub struct Context {
     pub pool: Arc<sqlx::PgPool>,
     pub current_user: Option<User>,
@@ -15,7 +17,7 @@ impl Context {
     pub async fn new(
         pool: Arc<sqlx::PgPool>,
         current_user_id: Option<i32>
-    ) -> Result<Self, sqlx::Error> {
+    ) -> Result<Self, SqlxError> {
         let mut context = Self {
             pool,
             current_user: None,
@@ -36,13 +38,13 @@ impl Context {
 
     pub async fn db(
         &self
-    ) -> sqlx::Result<sqlx::pool::PoolConnection<sqlx::PgConnection>> {
+    ) -> sqlx::Result<sqlx::Postgres, sqlx::pool::PoolConnection<sqlx::PgConnection>> {
         self.pool.acquire().await
     }
 
     pub async fn tx(
         &self
-    ) -> sqlx::Result<sqlx_core::Transaction<sqlx::pool::PoolConnection<sqlx::PgConnection>>> {
+    ) -> sqlx::Result<sqlx::Postgres, sqlx::Transaction<sqlx::pool::PoolConnection<sqlx::PgConnection>>> {
         self.pool.begin().await
     }
 

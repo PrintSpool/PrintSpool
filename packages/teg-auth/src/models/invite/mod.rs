@@ -203,7 +203,7 @@ impl Invite {
             "DELETE FROM invites WHERE id=$1",
             invite_id
         )
-        .fetch_optional(&mut context.db().await?)
+        .execute(&mut context.db().await?)
         .await?;
 
         Ok(None)

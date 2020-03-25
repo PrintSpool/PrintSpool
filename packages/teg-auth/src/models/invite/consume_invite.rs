@@ -63,7 +63,7 @@ impl ConsumeInvite {
             "DELETE FROM invites WHERE public_key=$1",
             &self.invite_public_key
         )
-            .fetch_optional(&mut tx)
+            .execute(&mut tx)
             .await?;
 
         tx.commit().await?;

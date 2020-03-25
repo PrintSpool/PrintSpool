@@ -144,7 +144,7 @@ impl User {
             "DELETE FROM users WHERE id=$1",
             user_id
         )
-        .fetch_optional(&mut db)
+        .execute(&mut db)
         .await?;
 
         Ok(None)
