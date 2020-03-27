@@ -194,7 +194,7 @@ impl Invite {
     }
 
     pub async fn delete(context: &Context, invite_id: String) -> FieldResult<Option<bool>> {
-        println!("{:?}", invite_id);
+        eprintln!("{:?}", invite_id);
         let invite_id = invite_id.parse::<i32>()?;
 
         context.authorize_admins_only()?;

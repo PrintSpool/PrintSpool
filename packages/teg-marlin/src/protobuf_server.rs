@@ -65,7 +65,7 @@ async fn handle_connection(
         .take_while(|result| {
             future::ready(result.is_ok())
         })
-        // .inspect(|result| println!("SENDING PROTOBUF {:?}", result.clone().unwrap()))
+        // .inspect(|result| eprintln!("SENDING PROTOBUF {:?}", result.clone().unwrap()))
         .map(|result| Bytes::clone(&*result.unwrap()));
 
     // Read from the server. TODO: Switch to read_to_end.
@@ -86,7 +86,7 @@ async fn handle_connection(
     // NodeJS sometimes needs a delay after opening the unix socket to prevent it from dropping the first message
     // See: https://github.com/nodejs/help/issues/521
     tokio::spawn(async move {
-        // println!("New connection starting delay!");
+        // eprintln!("New connection starting delay!");
         timer::delay(Instant::now() + Duration::from_millis(100)).await;
 
         connection_event_sender.send(Event::ProtobufClientConnection).await
@@ -96,7 +96,7 @@ async fn handle_connection(
 
         connection_event_sender.send(Event::ProtobufClientConnection).await
             .expect("Unable to send connection event");
-        println!("Socket Ready");
+        eprintln!("Socket Ready");
     });
 
     let _ = futures_util::future::select(
@@ -104,7 +104,7 @@ async fn handle_connection(
         channel_sender.send_all(&mut read_stream),
     ).await;
 
-    println!("Socket Closed");
+    eprintln!("Socket Closed");
 }
 
 pub async fn serve(
@@ -113,7 +113,7 @@ pub async fn serve(
     broadcast_subscriber: bus_queue::async_::Subscriber<Bytes>,
 ) -> std::io::Result<()> {
 
-    println!("socket: {:?}", socket_path);
+    eprintln!("socket: {:?}", socket_path);
 
     // delete the previous socket if one exists
     let _ = fs::remove_file(socket_path);

@@ -12,7 +12,7 @@ fn main() {
     protos_path.push("protos");
 
     if !protos_path.as_path().exists() {
-        println!("Skipping protobuf compilation");
+        eprintln!("Skipping protobuf compilation");
         return
     }
 
@@ -36,7 +36,7 @@ fn main() {
 //     path.push("teg-protobufs");
 //     // path.push("");
 
-//     println!("PATH {:?}", path);
+//     eprintln!("PATH {:?}", path);
 
 //     let input = [
 //         "CombinatorMessage.proto",

@@ -134,7 +134,7 @@ impl State {
     }
 
     pub fn consume(self, event: Event, context: &mut Context) -> Loop {
-        // println!("event received {:?} in state {:?}", event, self);
+        // eprintln!("event received {:?} in state {:?}", event, self);
 
         if let ProtobufClientConnection = &event {
             return Loop::new(
@@ -183,7 +183,7 @@ impl State {
                         context.push_cancel_task(&task);
                     };
 
-                    println!("ESTOP");
+                    eprintln!("ESTOP");
 
                     context.handle_state_change(&State::EStopped);
 
@@ -198,7 +198,7 @@ impl State {
                     )
                 }
                 Some(Payload::Reset(_)) => {
-                    println!("RESET: restarting service");
+                    eprintln!("RESET: restarting service");
 
                     return Loop::new(
                         self,
@@ -209,7 +209,7 @@ impl State {
                     if let Ready ( ReadyState { task: Some(_), .. } ) = self {
                         context.reset_when_idle = true
                     } else  {
-                        println!("RESET: restarting service");
+                        eprintln!("RESET: restarting service");
 
                         return Loop::new(
                             self,
@@ -228,10 +228,10 @@ impl State {
         match &event {
             Init { serial_port_available } => {
                 if *serial_port_available {
-                    println!("Serial Port Found");
+                    eprintln!("Serial Port Found");
                     self.reconnect_with_next_baud(context)
                 } else {
-                    println!("Disconnected");
+                    eprintln!("Disconnected");
                     self.and_no_effects()
                 }
             }
@@ -338,7 +338,7 @@ impl State {
             let next_state = Self::new_connection(baud_rate_candidates);
 
             if new_connection {
-                println!("Connecting to serial device...");
+                eprintln!("Connecting to serial device...");
                 context.handle_state_change(&next_state);
                 effects.push(Effect::ProtobufSend);
             }
@@ -348,7 +348,7 @@ impl State {
                 effects,
             )
         } else {
-            println!("Unable to Connect");
+            eprintln!("Unable to Connect");
             context.handle_state_change(&Disconnected);
 
             effects.push(Effect::CloseSerialPort);

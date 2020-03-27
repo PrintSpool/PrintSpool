@@ -36,7 +36,7 @@ impl User {
         * Query the user profile server
         */
         let request_body = UserProfileQuery::build_query(Variables);
-        println!("BEARER {}", auth_token);
+        eprintln!("BEARER {}", auth_token);
 
         let res: Response<ResponseData> = reqwest::blocking::Client::new()
             .post(user_profile_server)
@@ -98,7 +98,7 @@ impl User {
             }
         }
 
-        println!("{:?}", user_profile);
+        eprintln!("{:?}", user_profile);
 
         /*
         * Upsert and return the user
@@ -135,7 +135,7 @@ impl User {
             .chain_err(|| "Unable to update user after authentication")?;
 
 
-        println!("user?? {:?}", user);
+        eprintln!("user?? {:?}", user);
 
         Ok(Some(user))
     }

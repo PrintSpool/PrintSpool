@@ -62,7 +62,7 @@ pub fn parse_gcode(
 
     let result = if let Some(line) = maybe_line {
         if let Some(cmd) = line.gcodes().into_iter().next() {
-            // println!("GCode: {:?} {:?}", cmd, cmd.major_number());
+            // eprintln!("GCode: {:?} {:?}", cmd, cmd.major_number());
             maybe_cmd_tuple = Some((cmd.mnemonic(), cmd.major_number()));
 
             match (&cmd.mnemonic(), &cmd.major_number()) {

@@ -3,7 +3,7 @@ extern crate gcode;
 fn main() {
     if let Some(line) = gcode::parse("M109 S3").next() {
         line.gcodes().into_iter().for_each(|cmd| {
-            println!("GCode: {:?} {:?}", cmd, cmd.major_number());
+            eprintln!("GCode: {:?} {:?}", cmd, cmd.major_number());
 
             use gcode::Mnemonic::{
                 Miscellaneous as M,
@@ -30,5 +30,5 @@ fn main() {
 }
 
 fn parse_heater_mcode(_cmd: &gcode::GCode) {
-    println!("heater!")
+    eprintln!("heater!")
 }

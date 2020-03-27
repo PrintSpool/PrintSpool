@@ -63,7 +63,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await
         .expect("Unexpected teg-marlin error");
 
-    println!("SENDING SPOOL_TASK");
+    eprintln!("SENDING SPOOL_TASK");
     let mut sock_path = env::current_exe()?;
     sock_path.pop();
     sock_path.push("machine.sock");
@@ -104,7 +104,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await;
 
 
-    println!("The printer is ready");
+    eprintln!("The printer is ready");
 
     // create a file to spool to the printer
     let mut file = NamedTempFile::new()?;

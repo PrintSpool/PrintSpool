@@ -104,7 +104,7 @@ impl User {
     }
 
     pub async fn delete(context: &Context, user_id: String) -> FieldResult<Option<bool>> {
-        println!("{:?}", user_id);
+        eprintln!("{:?}", user_id);
         let mut db = context.db().await?;
         let user_id = user_id.parse::<i32>()?;
 
@@ -112,7 +112,7 @@ impl User {
             .as_ref()
             .map(|current_user| current_user.id == user_id)
             .unwrap_or(false);
-        println!("{:?} == {:?} = {:?}", user_id, context.current_user, self_deletion);
+        eprintln!("{:?} == {:?} = {:?}", user_id, context.current_user, self_deletion);
 
         if !self_deletion {
             context.authorize_admins_only()?;

@@ -82,7 +82,7 @@ impl ReadyState {
                 self.and_no_effects()
             }
             ProtobufRec( CombinatorMessage { payload: Some(message) } ) => {
-                // println!("PROTOBUF RECEIVED WHEN READY {:?}", message);
+                // eprintln!("PROTOBUF RECEIVED WHEN READY {:?}", message);
                 match message {
                     combinator_message::Payload::SpoolTask(spool_task) => {
                         use combinator_message::{
@@ -119,7 +119,7 @@ impl ReadyState {
                                 Loop::new(Ready(self), effects)
                             }
                             None => {
-                                println!("Warning: spool_task received without content. Ignoring.");
+                                eprintln!("Warning: spool_task received without content. Ignoring.");
                                 self.and_no_effects()
                             }
                         }
@@ -167,7 +167,7 @@ impl ReadyState {
                 )
             }
             GCodeLoaded ( task ) => {
-                // println!("LOADED {:?}", self.on_ok);
+                // eprintln!("LOADED {:?}", self.on_ok);
                 context.push_start_task(&task);
 
                 // despool the first line of the task if ready to do so
@@ -233,7 +233,7 @@ impl ReadyState {
             PollFeedback => {
                 self.poll_for = Some(Polling::PollPosition);
 
-                // println!("POLL FEEDBACK!!!!! {:?}", self);
+                // eprintln!("POLL FEEDBACK!!!!! {:?}", self);
                 if let OnOK::NotAwaitingOk = self.on_ok {
                     let mut effects = vec![];
 
@@ -324,7 +324,7 @@ impl ReadyState {
                 self.on_ok = OnOK::Despool;
             }
             OnOK::TransitionToReady => {
-                println!("Connected");
+                eprintln!("Connected");
                 context.handle_state_change(&Ready( self.clone() ));
 
                 // let the protobuf clients know that the machine is ready

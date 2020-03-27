@@ -61,7 +61,7 @@ impl Invite {
 
         let thick_line = std::iter::repeat("=").take(80).collect::<String>();
 
-        println!(
+        eprintln!(
             "\
                 \n\n\n\
                 Invite Code\n\
@@ -75,7 +75,7 @@ impl Invite {
         qr2term::print_qr(&invite_url)
             .chain_err(|| "Unable to print invite QR code")?;
 
-        println!(
+        eprintln!(
             "\
                 \n{line}\n\
                 Your almost ready to start 3D Printing!\n\n\
