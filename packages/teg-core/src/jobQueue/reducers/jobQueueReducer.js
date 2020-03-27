@@ -283,7 +283,7 @@ const jobQueueReducer = (state = initialState, action) => {
         if (task == null) {
           return
         }
-        task.onComplete()
+        task.onComplete && task.onComplete()
 
         nextState = nextState.deleteIn(['tasks', task.id])
       })
