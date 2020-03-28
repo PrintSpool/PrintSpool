@@ -2,7 +2,8 @@
   "name": "@tegapp/core",
   "version": "0.8.0",
   "description": "core reusable types, selectors, actions, reducers, etc. for Teg",
-  "main": "src/index.js",
+  "main": "dist/index.js",
+  "esmMain": "src/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/teg/teg-host-posix.git"

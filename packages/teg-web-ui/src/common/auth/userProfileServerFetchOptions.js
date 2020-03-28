@@ -2,7 +2,12 @@
 const userProfileServerFetchOptions = idToken => (options) => {
   let url
 
-  if (process.env.NODE_ENV === 'production') {
+  const use_dev_user_profile_server = false
+
+  if (
+    process.env.NODE_ENV === 'production'
+    || use_dev_user_profile_server === false
+  ) {
     url = 'https://app-f49757b3-f48d-4078-8e8c-47b27b8b9d6d.cleverapps.io/graphql'
   } else {
     url = 'http://localhost:8080/graphql'

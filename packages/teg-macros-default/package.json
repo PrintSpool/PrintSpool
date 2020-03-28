@@ -2,7 +2,8 @@
   "name": "@tegapp/macros-default",
   "version": "0.8.0",
   "description": "Teg default macros",
-  "main": "src/index.js",
+  "main": "dist/index.js",
+  "esmMain": "src/index.js",
   "files": [
     "src/*"
   ],

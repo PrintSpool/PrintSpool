@@ -24,7 +24,9 @@ impl User {
         let environment = std::env::var("RUST_ENV").unwrap_or("development".to_string());
         let is_dev = environment == "development";
 
-        let user_profile_server = if is_dev {
+        let use_dev_user_profile_server = false;
+
+        let user_profile_server = if is_dev && use_dev_user_profile_server {
             "http://localhost:8080/graphql"
         } else {
             "https://app-f49757b3-f48d-4078-8e8c-47b27b8b9d6d.cleverapps.io/graphql"

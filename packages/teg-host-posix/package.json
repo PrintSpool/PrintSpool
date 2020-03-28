@@ -3,6 +3,7 @@
   "version": "0.8.0",
   "description": "graphql server for 3D printers",
   "main": "dist/index.js",
+  "esmMain": "src/index.js",
   "bin": {
     "teg": "./bin/teg"
   },
@@ -22,6 +23,9 @@
   "author": "Rob Gilson",
   "license": "AGPL-3.0-or-later",
   "private": true,
+  "esm": {
+    "mainFields":["esmMain"]
+  },
   "scripts": {
     "trace-gc": "npx node-dev ./dist/index.js --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
     "dev": "nodemon -r esm --trace-warnings --watch ../../ --ignore packages/teg-web-ui/ --ignore dist/ --ignore dev-dist/ ./src/index.js serve",
