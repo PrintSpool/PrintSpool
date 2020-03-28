@@ -23,6 +23,12 @@ A bold new way to 3D print over WiFi.
 4. Bootstrap the dev environment with teg, node 10 and yarn:
 `nvm use && npm i -g yarn && yarn bootstrap`
 
+### Release Build dependencies
+
+These dependencies are only required for building a release/not needed for every day development.
+
+1. Install Podman: https://podman.io/getting-started/installation.html
+
 <!-- ### [Optional] Emulating a Raspberry Pi
 
 1. Install [qemu](https://www.qemu.org/download/): `sudo apt-get install qemu-system qemu-system-arm qemu-kvm libvirt-daemon bridge-utils virt-manager`
