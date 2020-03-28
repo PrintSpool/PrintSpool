@@ -154,7 +154,7 @@ impl ReadyState {
                 }
             }
             SerialPortDisconnected => {
-                disconnect(context)
+                disconnect(&Ready(self), context)
             }
             GCodeLoaded ( task ) => {
                 // eprintln!("LOADED {:?}", self.on_ok);
@@ -175,6 +175,8 @@ impl ReadyState {
             }
             /* Echo, Debug and Error function the same in all states */
             SerialRec( response ) => {
+                eprintln!("RX: {:?}", response.raw_src);
+
                 if let Some(_) = &self.task {
                     context.push_gcode_rx(response.raw_src);
                 }
@@ -188,12 +190,12 @@ impl ReadyState {
                     }
                     /* Errors */
                     ResponsePayload::Error(error) => {
-                        errored(error.to_string(), context)
+                        errored(error.to_string(), &Ready(self), context)
                     }
                     ResponsePayload::Greeting => {
                         let message = format!("Unexpected printer firmware restart. State: {:?}", self);
 
-                        errored(message, context)
+                        errored(message, &Ready(self), context)
                     }
                     ResponsePayload::Ok( feedback ) => {
                         let mut effects = self.receive_feedback( &feedback, context );
@@ -291,11 +293,14 @@ impl ReadyState {
         match self.on_ok {
             OnOK::NotAwaitingOk => {
                 // Ignore erroneous OKs
+                eprintln!("Warning: Received Unexpected OK");
             }
             OnOK::Resend => {
                 let gcode = self.last_gcode_sent
                     .clone()
                     .expect("Cannot resend GCode if none was sent");
+
+                eprintln!("Resending GCode: {:?}", gcode);
 
                 send_serial(
                     effects,
@@ -416,7 +421,7 @@ impl ReadyState {
 
         if self.tickles_attempted >= response_timeout_tickle_attempts {
             let message = "Serial port communication timed out.".to_string();
-            errored(message, context)
+            errored(message, &Ready(self), context)
         } else {
             eprintln!("Warning: GCode acknowledgement not received. Attempting to continue.");
 
@@ -461,7 +466,7 @@ impl ReadyState {
                 sent_line_number,
             );
 
-            errored(message, context)
+            errored(message, &Ready(self), context)
         } else {
             // wait for the ok sent after the resend (see marlinFixture.js)
             self.on_ok = OnOK::Resend;

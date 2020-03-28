@@ -2,7 +2,7 @@ use super::*;
 use crate::gcode_parser::parse_gcode;
 
 pub fn send_serial(effects: &mut Vec<Effect>, gcode_line: GCodeLine, context: &mut Context) {
-    // eprintln!("TX: {:?}", gcode_line.gcode);
+    eprintln!("TX: {:?}", gcode_line.gcode);
 
     let parser_result = parse_gcode(&gcode_line.gcode, context);
 
@@ -29,7 +29,11 @@ pub fn send_serial(effects: &mut Vec<Effect>, gcode_line: GCodeLine, context: &m
     };
 
     effects.push(Effect::SendSerial(gcode_line));
-    if !is_blocking {
+    if is_blocking {
+        effects.push(
+            Effect::CancelDelay { key: "tickle_delay".to_string() }
+        );
+    } else {
         effects.push(
             Effect::Delay {
                 key: "tickle_delay".to_string(),

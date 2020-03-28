@@ -87,8 +87,16 @@ impl Loop {
 use State::*;
 use Event::*;
 
-fn errored(message: String, context: &mut Context) -> Loop {
+pub fn cancel_task(state: &State, context: &mut Context) {
+    if let Ready( ReadyState { task: Some(task), .. }) = state {
+        context.push_cancel_task(&task);
+    };
+}
+
+fn errored(message: String, state: &State, context: &mut Context) -> Loop {
     eprintln!("Error State: {:?}", message);
+
+    cancel_task(state, context);
 
     let next_state = Errored { message };
     context.handle_state_change(&next_state);
@@ -133,7 +141,7 @@ impl State {
     fn invalid_transition_error(self, event: &Event, context: &mut Context) -> Loop {
         let message = format!("Invalid transition. State: {:?} Event: {:?}", self, event);
 
-        errored(message, context)
+        errored(message, &self, context)
     }
 
     pub fn consume(self, event: Event, context: &mut Context) -> Loop {
@@ -166,7 +174,7 @@ impl State {
                     return if let Disconnected = self {
                         self.and_no_effects()
                     } else {
-                        disconnect(context)
+                        disconnect(&self, context)
                     }
                 }
                 Some(Payload::DeleteTaskHistory( DeleteTaskHistory { task_ids })) => {
@@ -174,11 +182,9 @@ impl State {
                     return self.and_no_effects()
                 }
                 Some(Payload::Estop(_)) => {
-                    if let Ready( ReadyState { task: Some(task), .. }) = self {
-                        context.push_cancel_task(&task);
-                    };
-
                     eprintln!("ESTOP");
+
+                    cancel_task(&self, context);
 
                     context.handle_state_change(&State::EStopped);
 
@@ -231,7 +237,7 @@ impl State {
                 }
             }
             SerialPortDisconnected => {
-                disconnect(context)
+                disconnect(&self, context)
                 // eprintln!("Disconnected");
                 // Loop::new(
                 //     Disconnected,
@@ -240,17 +246,17 @@ impl State {
             }
             SerialPortError { message } => {
                 eprintln!("Disconnected (serial port error)");
-                errored(message.to_string(), context)
+                errored(message.to_string(), &self, context)
             }
             /* Echo, Debug and Error function the same in all states */
             SerialRec( response ) => {
-                match (self, &response.payload) {
+                match (self, response.payload.clone()) {
                     /* Errors */
                     (state @ Errored { .. }, _) => {
                         state.and_no_effects()
                     }
-                    (_, ResponsePayload::Error(error)) => {
-                        errored(error.to_string(), context)
+                    (state, ResponsePayload::Error(error)) => {
+                        errored(error.to_string(), &state, context)
                     }
                     /* New socket */
                     (Connecting(conn @ Connecting { received_greeting: false, .. }), ResponsePayload::Greeting) |
@@ -304,8 +310,8 @@ impl State {
             true
         };
 
-        let mut baud_rate_candidates = match self {
-            Connecting(Connecting { baud_rate_candidates, .. }) => baud_rate_candidates,
+        let mut baud_rate_candidates = match &self {
+            Connecting(Connecting { baud_rate_candidates, .. }) => baud_rate_candidates.clone(),
             _ => {
                 let mut new_candidates = vec![context.controller.baud_rate];
                 // prioritize the set baud rate in auto detection. That way we can cache the previous baud rate using
@@ -347,15 +353,8 @@ impl State {
             )
         } else {
             eprintln!("Unable to Connect");
-            context.handle_state_change(&Disconnected);
 
-            effects.push(Effect::CloseSerialPort);
-            effects.push(Effect::ProtobufSend);
-
-            Loop::new(
-                Disconnected,
-                effects,
-            )
+            disconnect(&self, context)
         }
     }
 
