@@ -12,7 +12,7 @@ ssh $TEG_ARMV7_HOST -p $TEG_ARMV7_PORT "
   git checkout $GIT_BRANCH && \
   git pull origin $GIT_BRANCH && \
   nvm use && \
-  npm install -g yarn && yarn bootstrap \
+  npm install -g yarn && yarn bootstrap:minimal \
   && yarn pkg:build
 "
 echo "Remotely building Teg [DONE]"
