@@ -157,18 +157,3 @@ gulp.task(
   'auth:start',
   cargoRun('teg-auth'),
 )
-
-
-gulp.task(
-  'start',
-  gulp.series(
-    // 'babel:build',
-    gulp.parallel(
-      // watchBabel,
-      run('teg-host-posix', 'dev'),
-      // run('teg-web-ui', 'start'),
-      // 'marlin:start',
-      'auth:start',
-    ),
-  ),
-)
