@@ -5,8 +5,8 @@ cargo install diesel_cli --no-default-features --features postgres
 cd ./packages/teg-auth/
 diesel setup
 
-yarn make-dirs
 yarn
+yarn make-dirs
 
 cd ../teg-web-ui/
 yarn
