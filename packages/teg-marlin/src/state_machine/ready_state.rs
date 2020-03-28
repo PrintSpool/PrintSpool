@@ -343,7 +343,6 @@ impl ReadyState {
             let gcode = task.gcode_lines.next();
 
             if let Some(gcode) = gcode {
-                context.push_gcode_tx(gcode.clone());
                 send_serial(
                     effects,
                     GCodeLine {

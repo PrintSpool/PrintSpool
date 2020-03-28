@@ -4,6 +4,8 @@ use crate::gcode_parser::parse_gcode;
 pub fn send_serial(effects: &mut Vec<Effect>, gcode_line: GCodeLine, context: &mut Context) {
     eprintln!("TX: {:?}", gcode_line.gcode);
 
+    context.push_gcode_tx(gcode_line.gcode.clone());
+
     let parser_result = parse_gcode(&gcode_line.gcode, context);
 
     let crate::configuration::Controller {
