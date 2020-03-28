@@ -28,6 +28,9 @@ A bold new way to 3D print over WiFi.
 These dependencies are only required for building a release/not needed for every day development.
 
 1. Install Podman: https://podman.io/getting-started/installation.html
+2. `cargo install cross`
+3. `rustup target add armv7-unknown-linux-musleabihf`
+4. `sudo apt install binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf`
 
 <!-- ### [Optional] Emulating a Raspberry Pi
 

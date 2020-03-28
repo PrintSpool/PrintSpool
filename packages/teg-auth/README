@@ -4,8 +4,4 @@
 
 ## Build Dependencies
 
-See: https://eighty-twenty.org/2019/10/15/cross-compiling-rust
-
-`rustup target add armv7-unknown-linux-musleabihf`
-`sudo apt install binutils-arm-linux-gnueabihf`
-`sudo apt install gcc-arm-linux-gnueabihf`
+See project root README.md and https://eighty-twenty.org/2019/10/15/cross-compiling-rust
