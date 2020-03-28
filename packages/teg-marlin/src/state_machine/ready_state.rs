@@ -17,6 +17,7 @@ use super::{
     errored,
     send_serial,
     Context,
+    disconnect,
 };
 
 use crate::protos::{
@@ -153,19 +154,7 @@ impl ReadyState {
                 }
             }
             SerialPortDisconnected => {
-                let effects = vec![
-                    Effect::CancelAllDelays,
-                    Effect::ProtobufSend,
-                    // TODO: try to re-open the serial port immediately in case a new port is already available
-                    // Effect::DetectSerialPort,
-                ];
-
-                context.handle_state_change(&Disconnected);
-
-                Loop::new(
-                    Disconnected,
-                    effects,
-                )
+                disconnect(context)
             }
             GCodeLoaded ( task ) => {
                 // eprintln!("LOADED {:?}", self.on_ok);

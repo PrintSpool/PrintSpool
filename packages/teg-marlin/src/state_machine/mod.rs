@@ -24,6 +24,9 @@ pub use context::Context;
 pub use effect::Effect;
 pub use send_serial::send_serial;
 
+mod disconnect;
+pub use disconnect::disconnect;
+
 use ready_state::ReadyState;
 
 #[derive(Clone, Debug)]
@@ -148,6 +151,7 @@ impl State {
 
             match payload {
                 Some(Payload::DeviceDiscovered(_)) => {
+                    eprintln!("Device Discovered");
                     // Due to the async nature of discovery the new port could be discovered before disconnecting from the old one.
                     // The state machine will automatically attempt to reconnect on disconnect to handle this edge case.
                     return if let Disconnected = self {
@@ -162,16 +166,7 @@ impl State {
                     return if let Disconnected = self {
                         self.and_no_effects()
                     } else {
-                        context.handle_state_change(&Disconnected);
-
-                        Loop::new(
-                            Disconnected,
-                            vec![
-                                Effect::CancelAllDelays,
-                                Effect::CloseSerialPort,
-                                Effect::ProtobufSend,
-                            ],
-                        )
+                        disconnect(context)
                     }
                 }
                 Some(Payload::DeleteTaskHistory( DeleteTaskHistory { task_ids })) => {
@@ -228,20 +223,23 @@ impl State {
         match &event {
             Init { serial_port_available } => {
                 if *serial_port_available {
-                    eprintln!("Serial Port Found");
+                    eprintln!("Teg Marlin: Started (Serial port found)");
                     self.reconnect_with_next_baud(context)
                 } else {
-                    eprintln!("Disconnected");
+                    eprintln!("Teg Marlin: Started (No device found)");
                     self.and_no_effects()
                 }
             }
             SerialPortDisconnected => {
-                Loop::new(
-                    Disconnected,
-                    vec![Effect::CancelAllDelays],
-                )
+                disconnect(context)
+                // eprintln!("Disconnected");
+                // Loop::new(
+                //     Disconnected,
+                //     vec![Effect::CancelAllDelays],
+                // )
             }
             SerialPortError { message } => {
+                eprintln!("Disconnected (serial port error)");
                 errored(message.to_string(), context)
             }
             /* Echo, Debug and Error function the same in all states */
