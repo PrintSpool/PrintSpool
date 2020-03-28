@@ -140,7 +140,7 @@ impl Context {
 
     pub fn push_error(&mut self, task: &Task, error: &Error) {
         let error = Some(error.clone());
-        add_event(self, task, EventType::FinishTask, error);
+        add_event(self, task, EventType::Error, error);
     }
 
     pub fn push_gcode_rx(&mut self, raw_src: String) {

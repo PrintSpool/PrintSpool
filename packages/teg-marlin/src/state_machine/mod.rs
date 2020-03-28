@@ -9,7 +9,7 @@ use crate::gcode_codec::{
 };
 
 use crate::protos::{
-    // machine_message,
+    machine_message,
     // MachineMessage,
     combinator_message,
     CombinatorMessage,
@@ -96,7 +96,9 @@ pub fn cancel_task(state: &State, context: &mut Context) {
 fn errored(message: String, state: &State, context: &mut Context) -> Loop {
     eprintln!("Error State: {:?}", message);
 
-    cancel_task(state, context);
+    if let Ready( ReadyState { task: Some(task), .. }) = state {
+        context.push_error(&task, &machine_message::Error { message: message.clone() });
+    };
 
     let next_state = Errored { message };
     context.handle_state_change(&next_state);
@@ -105,6 +107,21 @@ fn errored(message: String, state: &State, context: &mut Context) -> Loop {
         Effect::CancelAllDelays,
         Effect::ProtobufSend,
     ];
+
+    Loop::new(next_state, effects)
+}
+
+fn append_to_error(message: String, next_line: &String, context: &mut Context) -> Loop {
+    let effects = vec![
+        Effect::CancelAllDelays,
+        Effect::ProtobufSend,
+    ];
+
+    let message = format!("{}\n{}", message, next_line);
+
+    let next_state = Errored { message };
+    context.handle_state_change(&next_state);
+
 
     Loop::new(next_state, effects)
 }
@@ -250,10 +267,13 @@ impl State {
             }
             /* Echo, Debug and Error function the same in all states */
             SerialRec( response ) => {
-                match (self, response.payload.clone()) {
+                let Response { raw_src, payload } = response;
+
+                match (self, payload.clone()) {
                     /* Errors */
-                    (state @ Errored { .. }, _) => {
-                        state.and_no_effects()
+                    (Errored { message }, _) => {
+                        eprintln!("RX ERR: {}", message);
+                        append_to_error(message, raw_src, context)
                     }
                     (state, ResponsePayload::Error(error)) => {
                         errored(error.to_string(), &state, context)
