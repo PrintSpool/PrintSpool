@@ -161,7 +161,7 @@ const initialMachineState = ({
   ))
 
   const { configuredDevices = () => [] } = driverPlugin
-  console.log(configuredDevices({ machineConfig }))
+  // console.log(configuredDevices({ machineConfig }))
 
   return Machine({
     id: machineID,
@@ -372,6 +372,7 @@ const socketsReducer = (state = initialState, action) => {
         // set the status
         if (feedback.status != null) {
           const nextStatus = statusCodes[feedback.status]
+          // console.log(feedback.status, nextStatus)
           // console.log(nextStatus)
 
           if (nextStatus !== machine.status) {

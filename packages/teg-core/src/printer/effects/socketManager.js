@@ -53,15 +53,28 @@ export const startSocketManager = async (manager, dispatch) => {
     manager.socket.on('data', (data) => {
       buffer = Buffer.concat([buffer, data])
 
-      const size = buffer.readUInt32LE()
-      // console.log(size, buffer.length)
+      const getSizeWithLengthByte = () => {
+        const size = buffer.readUInt32LE()
+        return size + SIZE_DELIMETER_BYTES
+      }
 
-      if (buffer.length >= size) {
+      let sizeWithLengthByte
+
+      const hasMoreMessages = () => {
+        if (buffer.length < SIZE_DELIMETER_BYTES) return false
+
+        sizeWithLengthByte = getSizeWithLengthByte()
+        // console.log(sizeWithLengthByte, buffer.length)
+
+        return buffer.length >= sizeWithLengthByte
+      }
+
+      while (hasMoreMessages()) {
         const message = MachineMessage.decode(
-          buffer.slice(SIZE_DELIMETER_BYTES, SIZE_DELIMETER_BYTES + size),
+          buffer.slice(SIZE_DELIMETER_BYTES, sizeWithLengthByte),
         )
 
-        buffer = buffer.slice(SIZE_DELIMETER_BYTES + size)
+        buffer = buffer.slice(sizeWithLengthByte)
         // console.log(message.feedback.heaters)
 
         const event = socketMessage(
@@ -69,6 +82,7 @@ export const startSocketManager = async (manager, dispatch) => {
           newConnection,
           message
         )
+
         newConnection = false
         dispatch(event)
       }
