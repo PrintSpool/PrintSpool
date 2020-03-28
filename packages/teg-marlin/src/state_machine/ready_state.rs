@@ -76,6 +76,7 @@ impl ReadyState {
     }
 
     pub fn consume(mut self, event: Event, context: &mut Context) -> Loop {
+        // eprintln!("E: {:?}", event);
         match event {
             ProtobufRec( msg@CombinatorMessage { payload: None } ) => {
                 eprintln!("Warning: CombinatorMessage received without a payload. Ignoring: {:?}", msg);
@@ -428,12 +429,22 @@ impl ReadyState {
             let message = "Serial port communication timed out.".to_string();
             errored(message, context)
         } else {
+            eprintln!("Warning: GCode acknowledgement not received. Attempting to continue.");
+
             let mut effects = vec![];
 
+            // Send M105 without a line number or a checksum. This should cause the
+            // printer to return an "OK" and then the line number will be correct
+            // unless a line has been missed (in which case we are in an error state
+            // and the print will then be aborted by a firmware line number error as it should be).
+            //
+            // Should be equivalent to Octoprint's tickle logic:
+            // https://github.com/foosel/OctoPrint/blob/master/src/octoprint/util/comm.py#L2302
             send_serial(
                 &mut effects,
                 GCodeLine {
-                    gcode: format!("M110 N{:}", self.next_serial_line_number - 1),
+                    // gcode: format!("M110 N{:}", self.next_serial_line_number - 1),
+                    gcode: format!("M105"),
                     line_number: None,
                     checksum: checksum_tickles,
                 },

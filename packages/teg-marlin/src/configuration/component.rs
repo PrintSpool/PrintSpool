@@ -21,6 +21,7 @@ pub struct Controller {
 
     pub response_timeout_tickle_attempts: u32,
     pub long_running_codes: Vec<String>,
+    pub blocking_codes: Vec<String>,
     pub checksum_tickles: bool,
 }
 

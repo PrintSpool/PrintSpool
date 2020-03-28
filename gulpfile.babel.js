@@ -167,7 +167,7 @@ gulp.task(
       // watchBabel,
       run('teg-host-posix', 'dev'),
       // run('teg-web-ui', 'start'),
-      'marlin:start',
+      // 'marlin:start',
       'auth:start',
     ),
   ),

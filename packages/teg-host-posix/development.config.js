@@ -30,7 +30,7 @@ const printerConfig = {
 
         simulate: false,
         awaitGreetingFromFirmware: true,
-        checksumTickles: true,
+        checksumTickles: false,
         gcodeHistoryBufferSize: 20,
 
         delayFromGreetingToReady: 2500,
@@ -49,6 +49,12 @@ const printerConfig = {
           'M400',
           'M600',
         ],
+        blockingCodes: [
+          'M109',
+          'M116',
+          'M190',
+          'M191',
+        ]
       },
     },
     // {

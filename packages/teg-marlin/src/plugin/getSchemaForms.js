@@ -106,6 +106,7 @@ const getSchemaForms = () => ({
             type: 'integer',
             default: 60000,
           },
+          // TODO: longRunningCodes
           // longRunningCodes: {
           //   title: 'Long running code timeout',
           //   type: 'array',
@@ -124,6 +125,7 @@ const getSchemaForms = () => ({
           //     'M600',
           //   ],
           // },
+          // blockingCodes: TODO
         },
       }),
       form: [
