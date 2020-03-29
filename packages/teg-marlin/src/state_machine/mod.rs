@@ -350,6 +350,8 @@ impl State {
         ];
 
         if let Some(baud_rate) = baud_rate {
+            context.baud_rate = baud_rate;
+
             effects.append(&mut vec![
                 Effect::OpenSerialPort { baud_rate },
                 Effect::Delay {

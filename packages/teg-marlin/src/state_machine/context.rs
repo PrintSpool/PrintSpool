@@ -23,6 +23,7 @@ use crate::gcode_parser::{
 
 #[derive(Clone, Debug)]
 pub struct Context {
+    pub baud_rate: u32,
     pub current_hotend_index: u32,
     pub position_mode: PositionMode,
     pub position_units: PositionUnits,
@@ -44,6 +45,7 @@ impl Context {
         let gcode_history_buffer = VecDeque::with_capacity(controller.gcode_history_buffer_size);
 
         Self {
+            baud_rate: 115_200,
             current_hotend_index: 0,
             position_mode: PositionMode::Absolute,
             position_units: PositionUnits::Millimetre,
