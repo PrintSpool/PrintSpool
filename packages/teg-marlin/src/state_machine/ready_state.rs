@@ -177,9 +177,9 @@ impl ReadyState {
             SerialRec( response ) => {
                 eprintln!("RX: {:?}", response.raw_src);
 
-                if let Some(_) = &self.task {
-                    context.push_gcode_rx(response.raw_src);
-                }
+                // if let Some(_) = &self.task {
+                context.push_gcode_rx(response.raw_src);
+                // }
 
                 match response.payload {
                     /* No ops */

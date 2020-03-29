@@ -269,6 +269,8 @@ impl State {
             SerialRec( response ) => {
                 let Response { raw_src, payload } = response;
 
+                context.push_gcode_rx(raw_src.clone());
+
                 match (self, payload.clone()) {
                     /* Errors */
                     (Errored { message }, _) => {
