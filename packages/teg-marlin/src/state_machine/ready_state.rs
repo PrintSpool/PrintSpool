@@ -175,7 +175,7 @@ impl ReadyState {
             }
             /* Echo, Debug and Error function the same in all states */
             SerialRec( response ) => {
-                eprintln!("RX: {:?}", response.raw_src);
+                // eprintln!("RX: {:?}", response.raw_src);
 
                 // if let Some(_) = &self.task {
                 context.push_gcode_rx(response.raw_src);
@@ -343,6 +343,7 @@ impl ReadyState {
             let gcode = task.gcode_lines.next();
 
             if let Some(gcode) = gcode {
+                // eprintln!("SENDING: TASK GCODE");
                 send_serial(
                     effects,
                     GCodeLine {
@@ -390,6 +391,8 @@ impl ReadyState {
         context: &mut Context,
         poll_for: Polling,
     ) {
+        // eprintln!("SENDING: FEEDBACK REQ");
+
         let gcode = match poll_for {
             Polling::PollTemperature => "M105",
             Polling::PollPosition => "M114",
