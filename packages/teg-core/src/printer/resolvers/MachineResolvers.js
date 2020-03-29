@@ -122,7 +122,7 @@ const MachineResolvers = {
       let { historyEntries } = state.gcodeHistory.get(source.id)
 
       if (args.limit != null) {
-        historyEntries = historyEntries.slice(0, args.limit)
+        historyEntries = historyEntries.slice(-args.limit)
       }
 
       return historyEntries.toArray()

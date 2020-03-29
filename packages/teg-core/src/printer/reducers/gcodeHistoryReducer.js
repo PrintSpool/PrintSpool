@@ -14,7 +14,6 @@ const directionsIndex = [
 const MachineHistory = Record({
   historyEntries: List(),
   maxSize: 400,
-  lastResponseID: 0,
 })
 
 export const initialState = Map()
