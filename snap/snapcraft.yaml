@@ -147,6 +147,8 @@ apps:
       - hardware-observe
       - hardware-random-control
   teg-marlin:
+    environment:
+      RUST_LOG: INFO
     command: teg-marlin
     daemon: simple
     restart-condition: always
