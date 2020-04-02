@@ -113,7 +113,7 @@ async fn tick_state_machine(
 pub async fn start(
     config_path: Option<String>
 ) -> std::result::Result<(), Box<dyn std::error::Error>> {
-    dotenv().ok();
+    dotenv::dotenv().ok();
     pretty_env_logger::init();
 
     // Config
