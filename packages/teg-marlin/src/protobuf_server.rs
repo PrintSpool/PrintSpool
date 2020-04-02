@@ -63,7 +63,7 @@ async fn handle_connection(
         .clone()
         .compat()
         .map_err(|err| {
-            error!("Broadcast Error: {:?}", err);
+            error!("Send Error: {:?}", err);
             ()
         })
         .take_while(|result| {
