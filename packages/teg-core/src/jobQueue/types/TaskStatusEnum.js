@@ -29,6 +29,12 @@ export const taskFailureStatuses = [
   ERROR,
 ]
 
+export const endedTaskStatuses = [
+  CANCELLED,
+  ERROR,
+  FINISH_TASK,
+]
+
 export const spooledTaskStatuses = [
   PAUSE_TASK,
   START_TASK,

@@ -1,3 +1,4 @@
+use std::path::Path;
 use serde::{Serialize, Deserialize};
 
 use super::{
@@ -10,6 +11,7 @@ use super::{
 pub struct Config {
     pub id: String,
     pub is_configured: bool,
+    pub socket_dir: Option<String>,
     components: Vec<Component>,
 }
 
@@ -55,6 +57,15 @@ impl Config {
             .collect()
     }
     pub fn socket_path(&self) -> String {
-        format!("/var/lib/teg/machine-{}.sock", self.id)
+        let socket_dir = self.socket_dir
+            .as_ref()
+            .map(|dir| dir.clone())
+            .unwrap_or("/var/lib/teg/".to_string());
+
+        Path::new(&socket_dir)
+            .join(format!("machine-{}.sock", self.id))
+            .to_str()
+            .expect("Unable to build socket directory")
+            .to_string()
     }
 }

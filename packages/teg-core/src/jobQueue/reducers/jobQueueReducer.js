@@ -10,6 +10,7 @@ import JobHistoryEvent from '../types/JobHistoryEvent'
 import {
   indexedTaskStatuses,
   taskFailureStatuses,
+  endedTaskStatuses,
   spooledTaskStatuses,
   CANCELLED,
   // PAUSE_TASK,
@@ -168,28 +169,6 @@ const jobQueueReducer = (state = initialState, action) => {
       const nextEffects = []
 
       /* task history */
-
-      // if the current task is missing it means the machine service may have
-      // crashed.
-      if (
-        newConnection
-        && currentTask != null
-        && events.every(ev => ev.taskID !== currentTask.id)
-      ) {
-        nextState = nextState.setIn(['tasks', currentTask.id, 'status'], ERROR)
-        nextState = nextState.update('history', h => h.push(
-          JobHistoryEvent({
-            id: `${currentTask.taskId}-${ERROR}`,
-            jobID: currentTask.jobID,
-            jobFileID: currentTask.jobFileID,
-            machineID,
-            taskID: currentTask.id,
-            type: ERROR,
-            createdAt: new Date().toISOString(),
-          }),
-        ))
-      }
-
       const newHistoryEvents = events
         .map((ev) => {
           ev.type = indexedTaskStatuses[ev.type]
@@ -222,6 +201,36 @@ const jobQueueReducer = (state = initialState, action) => {
             createdAt: new Date(createdAt * 1000).toISOString(),
           })
         })
+
+      let isMidTask = (
+        currentTask != null
+        && newHistoryEvents.every(ev => {
+          ev.taskID !== currentTask.id
+          && endedTaskStatuses.includes(ev.type) === false
+        })
+      )
+
+      // if the current task is missing it means the machine service may have
+      // crashed and the task should be marked as errored.
+      //
+      // Also if the status is errored and there is no error event
+      // then the task should be marked as errored anyways.
+      if (
+        isMidTask
+        && (newConnection || feedback.status === ERRORED)
+      ) {
+        newHistoryEvents.push(
+          JobHistoryEvent({
+            id: `${currentTask.taskId}-${ERROR}`,
+            jobID: currentTask.jobID,
+            jobFileID: currentTask.jobFileID,
+            machineID,
+            taskID: currentTask.id,
+            type: ERROR,
+            createdAt: new Date().toISOString(),
+          }),
+        )
+      }
 
       nextState = nextState
         .update('history', history => history.concat(newHistoryEvents))
@@ -341,6 +350,8 @@ const jobQueueReducer = (state = initialState, action) => {
         const task = nextState.tasks.get(event.taskID)
 
         if (taskFailureStatuses.includes(event.type) && task.onError != null) {
+          nextState = nextState.setIn(['tasks', task.id, 'status'], ERROR)
+
           nextEffects.push(
             Cmd.run(task.onError, {
               args: [task],
