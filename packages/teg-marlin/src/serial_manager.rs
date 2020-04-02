@@ -66,6 +66,8 @@ use tokio::codec::Decoder;
 
 // use bus_queue::async_::Publisher;
 
+use crate::ResultExt;
+
 pub struct SerialManager {
     settings: tokio_serial::SerialPortSettings,
     tty_path: String,
@@ -80,7 +82,7 @@ impl SerialManager {
         event_sender: tokio::sync::mpsc::Sender<Event>,
         tty_path: String,
     ) -> Self {
-        eprintln!("tty: {}", tty_path);
+        info!("tty: {}", tty_path);
 
         let settings = tokio_serial::SerialPortSettings::default();
 
@@ -92,9 +94,6 @@ impl SerialManager {
             gcode_sender: None,
             abort_handle: None,
         }
-
-        // TODO: connect to the serial port at some point? Could be here for now but will probably
-        // need to moved to accomidate connect/disconnect logic.
     }
 
     pub async fn open(&mut self, baud_rate: u32) -> Result<impl Future<Output = ()>, std::io::Error> {
@@ -185,15 +184,14 @@ impl SerialManager {
         self.gcode_sender = None;
     }
 
-    pub async fn send_if_open(&mut self, gcode_line: GCodeLine) {
+    pub async fn send(&mut self, gcode_line: GCodeLine) -> crate::Result<()> {
         if let Some(gcode_sender) = &mut self.gcode_sender {
-            let _ = gcode_sender
+            gcode_sender
                 .send(gcode_line)
                 .await
-                .map_err(|_err| {
-                    // TODO: abort the serial connection on send error
-                    ()
-                });
+                .chain_err(|| "Unable to send to serial port")
+        } else {
+            Err("Unable to send. Serial port is not open.".into())
         }
     }
 }

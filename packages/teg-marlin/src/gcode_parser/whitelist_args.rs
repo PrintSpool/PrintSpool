@@ -11,13 +11,12 @@ pub fn whitelist_args(cmd: &GCode, valid_args: &[char]) -> io::Result<()> {
     );
 
     if invalid {
-        let msg = format!(
+        warn!(
             "Invalid {}{} args: {:?}",
             cmd.mnemonic(),
             cmd.major_number(),
             cmd.arguments(),
         );
-        eprintln!("GCode Parser Warning: {}", msg);
         Ok(())
         // Err(Error::new(ErrorKind::Other, msg))
     } else {

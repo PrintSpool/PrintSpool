@@ -122,13 +122,10 @@ impl Effect {
                 }
             }
             Effect::SendSerial ( gcode_line ) => {
-                reactor.serial_manager.send_if_open(gcode_line).await;
-                // tokio::spawn(async move {
-                //     gcode_sender
-                //         .send(gcode_line)
-                //         .await
-                //         .expect("Unable to send to serial channel");
-                // });
+                reactor.serial_manager
+                    .send(gcode_line)
+                    .await
+                    .unwrap();
             }
             Effect::ProtobufSend => {
                 let message = reactor.context.machine_message_protobuf();

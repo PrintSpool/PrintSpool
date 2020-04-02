@@ -27,7 +27,7 @@ impl Decoder for GCodeCodec {
                 .unwrap_or_else(|_| "")
                 .to_string();
 
-            // eprintln!("RX {:?}", line);
+            trace!("RX {:?}", line);
             return Ok(parse_response(line));
         }
         Ok(None)
@@ -71,7 +71,7 @@ impl Encoder for GCodeCodec {
             line + "\n"
         };
 
-        // eprintln!("TX  {:?}", line);
+        trace!("TX  {:?}", line);
         dst.reserve(line.len() + 1);
         dst.put(line);
         Ok(())

@@ -94,7 +94,7 @@ pub fn cancel_task(state: &State, context: &mut Context) {
 }
 
 fn errored(message: String, state: &State, context: &mut Context) -> Loop {
-    eprintln!("Error State: {:?}", message);
+    error!("Error State: {:?}", message);
 
     if let Ready( ReadyState { task: Some(task), .. }) = state {
         context.push_error(&task, &machine_message::Error { message: message.clone() });
@@ -150,7 +150,7 @@ impl State {
     }
 
     fn invalid_transition_warning(self, event: &Event) -> Loop {
-        eprintln!("Warning: received invalid event: {:?} in state: {:?}", event, self);
+        warn!("Warning: received invalid event: {:?} in state: {:?}", event, self);
 
         self.and_no_effects()
     }
@@ -176,7 +176,7 @@ impl State {
 
             match payload {
                 Some(Payload::DeviceDiscovered(_)) => {
-                    eprintln!("Device Discovered");
+                    info!("Device Discovered");
                     // Due to the async nature of discovery the new port could be discovered before disconnecting from the old one.
                     // The state machine will automatically attempt to reconnect on disconnect to handle this edge case.
                     return if let Disconnected = self {
@@ -199,7 +199,7 @@ impl State {
                     return self.and_no_effects()
                 }
                 Some(Payload::Estop(_)) => {
-                    eprintln!("ESTOP");
+                    info!("ESTOP");
 
                     cancel_task(&self, context);
 
@@ -216,7 +216,7 @@ impl State {
                     )
                 }
                 Some(Payload::Reset(_)) => {
-                    eprintln!("RESET: restarting service");
+                    info!("RESET: restarting service");
 
                     return Loop::new(
                         self,
@@ -227,7 +227,7 @@ impl State {
                     if let Ready ( ReadyState { task: Some(_), .. } ) = self {
                         context.reset_when_idle = true
                     } else  {
-                        eprintln!("RESET: restarting service");
+                        info!("RESET: restarting service");
 
                         return Loop::new(
                             self,
@@ -246,10 +246,10 @@ impl State {
         match &event {
             Init { serial_port_available } => {
                 if *serial_port_available {
-                    eprintln!("Teg Marlin: Started (Serial port found)");
+                    info!("Teg Marlin: Started (Serial port found)");
                     self.reconnect_with_next_baud(context)
                 } else {
-                    eprintln!("Teg Marlin: Started (No device found)");
+                    info!("Teg Marlin: Started (No device found)");
                     self.and_no_effects()
                 }
             }
@@ -262,7 +262,7 @@ impl State {
                 // )
             }
             SerialPortError { message } => {
-                eprintln!("Disconnected (serial port error)");
+                error!("Disconnected due to serial port error: {:?}", message);
                 errored(message.to_string(), &self, context)
             }
             /* Echo, Debug and Error function the same in all states */
@@ -274,7 +274,7 @@ impl State {
                 match (self, payload.clone()) {
                     /* Errors */
                     (Errored { message }, _) => {
-                        eprintln!("RX ERR: {}", message);
+                        error!("RX ERR: {}", message);
                         append_to_error(message, raw_src, context)
                     }
                     (state, ResponsePayload::Error(error)) => {
@@ -366,7 +366,7 @@ impl State {
             let next_state = Self::new_connection(baud_rate_candidates);
 
             if new_connection {
-                eprintln!("Connecting to serial device...");
+                info!("Connecting to serial device...");
                 context.handle_state_change(&next_state);
                 effects.push(Effect::ProtobufSend);
             }
@@ -376,7 +376,7 @@ impl State {
                 effects,
             )
         } else {
-            eprintln!("Unable to Connect");
+            info!("Unable to Connect");
 
             disconnect(&self, context)
         }

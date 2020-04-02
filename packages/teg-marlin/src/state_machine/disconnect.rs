@@ -8,7 +8,7 @@ use super::{
 };
 
 pub fn disconnect(state: &State, context: &mut Context) -> Loop {
-    eprintln!("Disconnected");
+    info!("Disconnected");
 
     cancel_task(state, context);
 

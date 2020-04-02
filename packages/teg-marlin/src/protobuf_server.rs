@@ -62,31 +62,43 @@ async fn handle_connection(
     let mut broadcast_subscriber = broadcast_subscriber
         .clone()
         .compat()
+        .map_err(|err| {
+            error!("Broadcast Error: {:?}", err);
+            ()
+        })
         .take_while(|result| {
             future::ready(result.is_ok())
         })
-        // .inspect(|_| eprintln!("PROTO TX at {:?}", chrono::Utc::now().to_rfc3339()))
+        .inspect(|_| trace!("Protobuf Sent"))
         .map(|result| Bytes::clone(&*result.unwrap()));
 
     // Read from the server. TODO: Switch to read_to_end.
     // let mut buf = [0u8; 5];
     let mut read_stream = socket_reader
-        .map_err(|_| ())
+        .map_err(|e| {
+            error!("Read Error: {:?}", e);
+            ()
+        })
         .and_then(move |buf| -> future::Ready<Result<Event, ()>> {
-            if let Ok(message) = CombinatorMessage::decode(buf) {
+            let decoded_result = CombinatorMessage::decode(buf);
+
+            if let Ok(message) = decoded_result {
                 future::ok(Event::ProtobufRec( message ))
             } else {
-                eprintln!("Warning: Unable to decode combinator message");
+                error!("Unable to decode combinator message: {:?}", decoded_result);
                 future::err(())
             }
-        }).take_while(|result| {
+        })
+        .take_while(|result| {
             future::ready(result.is_ok())
-        }).map(|result| result.unwrap());
+        })
+        .map(|result| result.unwrap());
 
     // NodeJS sometimes needs a delay after opening the unix socket to prevent it from dropping the first message
     // See: https://github.com/nodejs/help/issues/521
     tokio::spawn(async move {
-        // eprintln!("New connection starting delay!");
+        debug!("New connection received. Waiting 100ms.");
+
         timer::delay(Instant::now() + Duration::from_millis(100)).await;
 
         connection_event_sender.send(Event::ProtobufClientConnection).await
@@ -96,7 +108,8 @@ async fn handle_connection(
 
         connection_event_sender.send(Event::ProtobufClientConnection).await
             .expect("Unable to send connection event");
-        eprintln!("Socket Ready");
+
+        info!("Socket Ready");
     });
 
     let _ = futures_util::future::select(
@@ -104,7 +117,7 @@ async fn handle_connection(
         channel_sender.send_all(&mut read_stream),
     ).await;
 
-    eprintln!("Socket Closed");
+    info!("Socket Closed");
 }
 
 pub async fn serve(
@@ -113,7 +126,7 @@ pub async fn serve(
     broadcast_subscriber: bus_queue::async_::Subscriber<Bytes>,
 ) -> std::io::Result<()> {
 
-    eprintln!("socket: {:?}", socket_path);
+    info!("Socket: {:?}", socket_path);
 
     // delete the previous socket if one exists
     let _ = fs::remove_file(socket_path);

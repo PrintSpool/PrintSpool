@@ -9,7 +9,5 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     teg_marlin::start(tty_path).await?;
 
-    futures_util::future::pending::<()>().await;
-
     Ok(())
 }

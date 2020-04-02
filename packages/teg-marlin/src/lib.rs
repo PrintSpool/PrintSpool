@@ -1,16 +1,14 @@
 #![crate_type = "lib"]
 #![crate_name = "teg_marlin"]
 
-#![feature(async_closure)]
-#![feature(inner_deref)]
+#[macro_use] extern crate log;
+#[macro_use] extern crate error_chain;
 
 extern crate bytes;
-// #[macro_use]
 extern crate futures_core;
 extern crate futures_util;
 extern crate tokio;
 extern crate tokio_serial;
-// #[macro_use]
 // extern crate combine;
 extern crate bus_queue;
 extern crate serde;
@@ -79,6 +77,9 @@ use futures_util::compat::{
 
 // use bus_queue::async_::Publisher;
 
+// Create the Error, ErrorKind, ResultExt, and Result types
+error_chain! {}
+
 // type SerialSender = Arc<Mutex<SplitSink<tokio::codec::Framed<tokio_serial::Serial, GCodeCodec>, GCodeLine>>>;
 // type SerialSender = mpsc::Sender<GCodeLine>;
 
@@ -95,10 +96,12 @@ async fn tick_state_machine(
     event: Event,
     reactor: &mut StateMachineReactor,
 ) -> State {
-    // eprintln!("IN  {:?}", event);
+    trace!("Received Event:  {:?}", event);
+
     let Loop{ next_state, effects } = state.consume(event, &mut reactor.context);
 
-    // eprintln!("OUT {:?} {:?}", next_state, effects);
+    trace!("Next State: {:?}", next_state);
+    trace!("Effects: {:?}", effects);
 
     for effect in effects.into_iter() {
         effect.exec(reactor).await;
@@ -107,7 +110,11 @@ async fn tick_state_machine(
     next_state
 }
 
-pub async fn start(config_path: Option<String>) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn start(
+    config_path: Option<String>
+) -> std::result::Result<(), Box<dyn std::error::Error>> {
+    pretty_env_logger::init();
+
     // Config
     // ----------------------------------------------------
     let config_path = config_path.unwrap_or("/etc/teg/machine.toml".to_string());
@@ -156,26 +163,24 @@ pub async fn start(config_path: Option<String>) -> Result<(), Box<dyn std::error
 
     // Glue Code
     // ----------------------------------------------------
-    tokio::spawn(async move {
-        let initial_acc = (
-            State::Disconnected,
-            reactor,
-        );
+    let initial_acc = (
+        State::Disconnected,
+        reactor,
+    );
 
-        event_reader
-            .fold(initial_acc, async move |acc, message| {
-                let (state, mut reactor) = acc;
+    event_reader
+        .fold(initial_acc, move |acc, message| async {
+            let (state, mut reactor) = acc;
 
-                let next_state = tick_state_machine(
-                    state,
-                    message,
-                    &mut reactor,
-                ).await;
+            let next_state = tick_state_machine(
+                state,
+                message,
+                &mut reactor,
+            ).await;
 
-                (next_state, reactor)
-            })
-            .await;
-    });
+            (next_state, reactor)
+        })
+        .await;
 
     Ok(())
 }

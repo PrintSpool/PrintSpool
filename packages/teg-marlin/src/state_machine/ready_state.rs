@@ -77,10 +77,9 @@ impl ReadyState {
     }
 
     pub fn consume(mut self, event: Event, context: &mut Context) -> Loop {
-        // eprintln!("E: {:?}", event);
         match event {
             ProtobufRec( msg@CombinatorMessage { payload: None } ) => {
-                eprintln!("Warning: CombinatorMessage received without a payload. Ignoring: {:?}", msg);
+                warn!("Warning: CombinatorMessage received without a payload. Ignoring: {:?}", msg);
                 self.and_no_effects()
             }
             ProtobufRec( CombinatorMessage { payload: Some(message) } ) => {
@@ -121,7 +120,7 @@ impl ReadyState {
                                 Loop::new(Ready(self), effects)
                             }
                             None => {
-                                eprintln!("Warning: spool_task received without content. Ignoring.");
+                                warn!("Warning: spool_task received without content. Ignoring.");
                                 self.and_no_effects()
                             }
                         }
@@ -258,7 +257,7 @@ impl ReadyState {
                 heater.actual_temperature = *val;
             }
             else {
-                eprintln!("Warning: unknown actual_temperature address: {:?} = {:?}°C", address, val);
+                warn!("Warning: unknown actual_temperature address: {:?} = {:?}°C", address, val);
             }
         }
 
@@ -268,7 +267,7 @@ impl ReadyState {
                 heater.actual_position = *val;
             }
             else {
-                eprintln!("Warning: unknown actual_position axis: {:?} = ${:?}", address, val);
+                warn!("Warning: unknown actual_position axis: {:?} = ${:?}", address, val);
             }
         }
 
@@ -293,14 +292,14 @@ impl ReadyState {
         match self.on_ok {
             OnOK::NotAwaitingOk => {
                 // Ignore erroneous OKs
-                eprintln!("Warning: Received Unexpected OK");
+                warn!("Warning: Received Unexpected OK");
             }
             OnOK::Resend => {
                 let gcode = self.last_gcode_sent
                     .clone()
                     .expect("Cannot resend GCode if none was sent");
 
-                eprintln!("Resending GCode: {:?}", gcode);
+                warn!("Resending GCode: {:?}", gcode);
 
                 send_serial(
                     effects,
@@ -319,7 +318,7 @@ impl ReadyState {
                 self.on_ok = OnOK::Despool;
             }
             OnOK::TransitionToReady => {
-                eprintln!("Connected");
+                info!("Connected");
                 context.handle_state_change(&Ready( self.clone() ));
 
                 // let the protobuf clients know that the machine is ready
@@ -343,7 +342,8 @@ impl ReadyState {
             let gcode = task.gcode_lines.next();
 
             if let Some(gcode) = gcode {
-                // eprintln!("SENDING: TASK GCODE");
+                trace!("Despool: Task GCode");
+
                 send_serial(
                     effects,
                     GCodeLine {
@@ -358,6 +358,8 @@ impl ReadyState {
                 self.next_serial_line_number += 1;
                 context.feedback.despooled_line_number += 1;
             } else {
+                trace!("Despool: Task Completed");
+
                 // record a task completion event
                 context.push_finish_task(&task);
 
@@ -378,6 +380,8 @@ impl ReadyState {
                 };
             }
         } else {
+            trace!("Despool: Nothing to send");
+
             self.on_ok = OnOK::NotAwaitingOk;
             effects.push(
                 Effect::CancelDelay { key: "tickle_delay".to_string() }
@@ -391,12 +395,12 @@ impl ReadyState {
         context: &mut Context,
         poll_for: Polling,
     ) {
-        // eprintln!("SENDING: FEEDBACK REQ");
-
         let gcode = match poll_for {
             Polling::PollTemperature => "M105",
             Polling::PollPosition => "M114",
         };
+
+        trace!("Despool: Polling ({:})", gcode);
 
         send_serial(
             effects,
@@ -425,7 +429,7 @@ impl ReadyState {
             let message = "Serial port communication timed out.".to_string();
             errored(message, &Ready(self), context)
         } else {
-            eprintln!("Warning: GCode acknowledgement not received. Attempting to continue.");
+            warn!("Warning: GCode acknowledgement not received. Attempting to continue.");
 
             let mut effects = vec![];
 
