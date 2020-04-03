@@ -4,6 +4,9 @@ import busyMachines, { BUSY_WITH_JOB } from '../../jobQueue/selectors/busyMachin
 import getPluginModels from '../../config/selectors/getPluginModels'
 // import ComponentTypeEnum from '../../config/types/components/ComponentTypeEnum'
 import getMachineConfigForm from '../../config/selectors/getMachineConfigForm'
+import {
+  READY,
+} from '../types/statusEnum'
 
 const MachineResolvers = {
   Machine: {
@@ -95,10 +98,14 @@ const MachineResolvers = {
     status: (source, args, { store }) => {
       const state = store.getState()
 
-      if (busyMachines(state.jobQueue)[source.id] === BUSY_WITH_JOB) {
+      const { status } = source
+      if (
+        busyMachines(state.jobQueue)[source.id] === BUSY_WITH_JOB
+        && status == READY
+      ) {
         return 'PRINTING'
       }
-      const { status } = source
+
       return status.substring(status.lastIndexOf('/') + 1)
     },
 

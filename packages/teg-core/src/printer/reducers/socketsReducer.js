@@ -5,6 +5,7 @@ import { loop, Cmd } from 'redux-loop'
 import { createSocketManager, startSocketManager, sendToSocket } from '../effects/socketManager'
 import { SET_CONFIG } from '../../config/actions/setConfig'
 import { SOCKET_MESSAGE } from '../actions/socketMessage'
+import { SOCKET_DISCONNECTED } from '../actions/socketDisconnected'
 import { DEVICE_CONNECTED } from '../../devices/actions/deviceConnected'
 import { APPROVE_UPDATES } from '../../updates/actions/approveUpdates'
 
@@ -325,6 +326,29 @@ const socketsReducer = (state = initialState, action) => {
         }),
       )
     }
+    case SOCKET_DISCONNECTED: {
+      const { machineID } = action.payload
+
+      let statusChanged
+
+      const nextState = state.updateIn(
+        ['machines', machineID],
+        m => m.withMutations((machine) => {
+          statusChanged = machine.status !== DISCONNECTED
+
+          return machine.set('status', DISCONNECTED)
+        })
+      )
+
+      if (statusChanged) {
+        return loop(
+          nextState,
+          Cmd.action(statusChanged(DISCONNECTED))
+        )
+      }
+
+      return nextState
+    },
     case SOCKET_MESSAGE: {
       const { machineID, message } = action.payload
 

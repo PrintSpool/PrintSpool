@@ -7,6 +7,7 @@ import chokidar from 'chokidar'
 import { teg_protobufs as protobufRoot } from './protobufs'
 
 import socketMessage from '../actions/socketMessage'
+import socketDisconnected from '../actions/socketDisconnected'
 
 const SIZE_DELIMETER_BYTES = 4
 
@@ -28,6 +29,9 @@ export const startSocketManager = async (manager, dispatch) => {
   const onDisconnect = () => {
     console.error('Machine Socket Disconnected')
     manager.socket = null
+
+    dispatch(socketDisconnected(manager.machineID))
+
     // immediately try reconnecting on disconnect in case a new socket is already available
     if (manager.connected) connect()
   }
@@ -47,7 +51,9 @@ export const startSocketManager = async (manager, dispatch) => {
       newConnection = true
     })
 
-    manager.socket.on('error', () => {})
+    manager.socket.on('error', (e) => {
+      console.error('Machine Socket Error', e)
+    })
     manager.socket.on('close', onDisconnect)
 
     manager.socket.on('data', (data) => {

@@ -1,0 +1,10 @@
+export const SOCKET_MDISCONNECTED = 'teg/machine/SOCKET_DISCONNECTED'
+
+const socketDisconnected = (machineID) => ({
+  type: SOCKET_DISCONNECTED,
+  payload: {
+    machineID,
+  },
+})
+
+export default socketDisconnected
