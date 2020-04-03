@@ -11,7 +11,9 @@ use super::{
 pub struct Config {
     pub id: String,
     pub is_configured: bool,
-    pub socket_dir: Option<String>,
+    // Set to the name of the snap to connect an external teg-marlin process to the snap's
+    // tmp directory and socket. Generally this is only useful for teg-marlin development.
+    pub debug_snap_name: Option<String>,
     components: Vec<Component>,
 }
 
@@ -26,9 +28,11 @@ impl Config {
         })
         .expect("No type=CONTROLLER component found in config")
     }
+
     pub fn tty_path(&self) -> &String {
         &self.get_controller().serial_port_id
     }
+
     pub fn heater_addresses(&self) -> Vec<String> {
         self.components
             .iter()
@@ -43,6 +47,7 @@ impl Config {
             })
             .collect()
     }
+
     pub fn fan_addresses(&self) -> Vec<String> {
         self.components
             .iter()
@@ -56,16 +61,22 @@ impl Config {
             })
             .collect()
     }
-    pub fn socket_path(&self) -> String {
-        let socket_dir = self.socket_dir
-            .as_ref()
-            .map(|dir| dir.clone())
-            .unwrap_or("/var/lib/teg/".to_string());
 
-        Path::new(&socket_dir)
-            .join(format!("machine-{}.sock", self.id))
-            .to_str()
-            .expect("Unable to build socket directory")
-            .to_string()
+    pub fn transform_gcode_file_path(&self, file_path: String) -> String {
+        if let Some(snap_name) = &self.debug_snap_name {
+            format!("/tmp/snap.{}{}", snap_name, file_path)
+        } else {
+            file_path
+        }
+    }
+
+    pub fn socket_path(&self) -> String {
+        let socket_dir = if let Some(snap_name) = &self.debug_snap_name {
+            format!("/var/snap/{}/current/var", snap_name)
+        } else {
+            "/var/lib/teg".to_string()
+        };
+
+        format!("{}/machine-{}.sock", socket_dir, self.id)
     }
 }

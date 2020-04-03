@@ -144,7 +144,9 @@ impl Effect {
             Effect::LoadGCode { file_path, task_id, client_id } => {
                 let mut tx = mpsc::Sender::clone(&reactor.event_sender);
 
-                let gcode_lines = std::fs::File::open(file_path)
+                let file_path = reactor.context.config.transform_gcode_file_path(file_path);
+
+                let gcode_lines = std::fs::File::open(&file_path)
                     .map(|file| BufReader::new(file).lines())
                     .map(|iter| fallible_iterator::convert(iter))
                     .and_then(|iter| {
@@ -162,7 +164,7 @@ impl Effect {
                         }
                     )
                 } else {
-                    Event::GCodeLoadFailed { task_id }
+                    Event::GCodeLoadFailed { task_id, file_path }
                 };
 
                 tx.send(event)

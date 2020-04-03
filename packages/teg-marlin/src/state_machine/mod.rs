@@ -52,7 +52,7 @@ pub enum Event {
     SerialPortDisconnected,
     SerialPortError{ message: String },
     GCodeLoaded(Task),
-    GCodeLoadFailed{ task_id: u32 },
+    GCodeLoadFailed{ task_id: u32, file_path: String },
 }
 
 #[derive(Clone, Debug)]
@@ -170,6 +170,12 @@ impl State {
                 vec![Effect::ProtobufSend],
             )
         }
+
+        if let GCodeLoadFailed { file_path, ..} = &event {
+            let message = format!("Failed to load GCode: {:}", file_path);
+            return errored(message, &self, context)
+        }
+
 
         if let ProtobufRec( CombinatorMessage { payload } ) = &event {
             use combinator_message::*;
