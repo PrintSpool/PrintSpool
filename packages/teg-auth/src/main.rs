@@ -1,5 +1,7 @@
 // #[macro_use] extern crate async_std;
 #[macro_use] extern crate juniper;
+#[macro_use] extern crate log;
+
 // #[macro_use] extern crate log;
 // #[macro_use] extern crate graphql_client;
 // extern crate tokio;
@@ -14,6 +16,7 @@ extern crate serde;
 extern crate url;
 extern crate gravatar;
 
+use std::collections::HashMap;
 use warp::{http::Response, Filter};
 use dotenv::dotenv;
 use std::env;
@@ -22,7 +25,6 @@ use std::sync::Arc;
 pub mod models;
 mod context;
 mod graphql_schema;
-pub mod user_profile_query;
 
 pub use context::Context;
 pub use graphql_schema::{ Schema, Query, Mutation };
@@ -31,11 +33,72 @@ use async_std::task;
 
 error_chain::error_chain! {}
 
+use openssl::x509::X509;
+
+fn get_pem_keys() -> Result<Vec<Vec<u8>>> {
+    info!("Downloading Firebase Certs");
+
+    // get the latest signing keys
+    let uri = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com";
+
+    // let pem_keys = reqwest::get(uri)
+    let pem_keys = reqwest::blocking::Client::new()
+        .get(uri)
+        // .await
+        .send()
+        .map_err(|_| "Unable to fetch google PEM keys")?
+        .json::<HashMap<String, String>>()
+        // .await
+        .map_err(|_| "Unable to parse google PEM keys")?
+        .values()
+        .map(|x509| {
+            X509::from_pem(&x509[..].as_bytes())
+                .ok()?
+                .public_key()
+                .ok()?
+                .public_key_to_pem()
+                .ok()
+        })
+        .map(|result| result.expect("Unable to parse one of google's PEM keys"))
+        .collect();
+
+    info!("Firebase Certs Updated");
+
+    Ok(pem_keys)
+}
+
 #[async_std::main]
-async fn main() -> std::io::Result<()> {
+async fn main() -> Result<()> {
+    dotenv().ok();
     env_logger::init();
 
-    dotenv().ok();
+    if std::env::args().any(|arg| arg == "migrate") {
+        eprintln!("Running Auth Migrations [TODO: Not yet implemented!]");
+
+        // use diesel::prelude::*;
+        //
+        // let database_url = env::var("POSTGRESQL_ADDON_URI")
+        //     .expect("POSTGRESQL_ADDON_URI must be set");
+        //
+        // let connection = PgConnection::establish(&database_url)
+        //     .expect(&format!("Error connecting to {}", database_url));
+        //
+        // // This will run the necessary migrations.
+        // embedded_migrations::run(&connection)
+        //     .chain_err(|| "Error running migrations")?;
+
+        // By default the output is thrown out. If you want to redirect it to stdout, you
+        // should call embedded_migrations::run_with_output.
+        // embedded_migrations::run_with_output(&connection, &mut std::io::stdout())
+        //     .chain_err(|| "Error running migrations")?;
+
+        eprintln!("Running Auth Migrations: DONE");
+
+        return Ok(())
+    }
+
+    eprintln!("Starting Auth Server");
+
     let log = warp::log("auth");
 
     let port = env::var("PORT")
@@ -61,12 +124,22 @@ async fn main() -> std::io::Result<()> {
 
     models::Invite::generate_or_display_initial_invite(
         Arc::clone(&pool)
-    ).await
-    .map_err(|err| {
-        std::io::Error::new(std::io::ErrorKind::Other, format!("{:?}", err))
-    })?;
+    )
+        .await
+        .map_err(|err| {
+            format!("{:?}", err)
+        })?;
 
     let schema = Schema::new(Query, Mutation{});
+
+    let pem_keys = Arc::new(get_pem_keys()?);
+    task::spawn(async {
+        info!("Firebase certs will refresh in an hour");
+        task::sleep(std::time::Duration::from_secs(60 * 60)).await;
+
+        info!("Restarting server to refresh Firebase certs");
+        std::process::exit(0);
+    });
 
     let state = warp::any()
         .and(warp::header::optional::<i32>("user-id"))
@@ -75,6 +148,7 @@ async fn main() -> std::io::Result<()> {
                 Context::new(
                     Arc::clone(&pool),
                     user_id,
+                    Arc::clone(&pem_keys),
                 )
             ).map_err(|err| {
                 warp::reject::custom(err)

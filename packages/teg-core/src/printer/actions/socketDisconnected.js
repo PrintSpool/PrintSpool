@@ -1,4 +1,4 @@
-export const SOCKET_MDISCONNECTED = 'teg/machine/SOCKET_DISCONNECTED'
+export const SOCKET_DISCONNECTED = 'teg/machine/SOCKET_DISCONNECTED'
 
 const socketDisconnected = (machineID) => ({
   type: SOCKET_DISCONNECTED,

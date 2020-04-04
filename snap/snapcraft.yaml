@@ -170,6 +170,7 @@ apps:
       RUST_ENV: production
       POSTGRESQL_ADDON_URI: postgres://postgres@localhost/teg-auth
       DATABASE_URL: postgres://postgres@localhost/teg-auth
+      FIREBASE_PROJECT_ID: tegapp-dev
       PORT: 33005
       RUST_LOG: INFO
     command: teg-auth

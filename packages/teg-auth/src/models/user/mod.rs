@@ -8,9 +8,12 @@ use juniper::{
 use crate::{ Context };
 
 mod authenticate;
-mod graphql;
-
 pub use authenticate::*;
+
+mod validate_jwt;
+pub use validate_jwt::*;
+
+mod graphql;
 
 #[derive(Debug)]
 pub struct User {
@@ -22,7 +25,7 @@ pub struct User {
     pub created_at: DateTime<Utc>,
     pub last_logged_in_at: Option<DateTime<Utc>>,
 
-    pub user_profile_id: String,
+    pub firebase_uid: String,
     pub is_authorized: bool,
 }
 

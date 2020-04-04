@@ -348,7 +348,7 @@ const socketsReducer = (state = initialState, action) => {
       }
 
       return nextState
-    },
+    }
     case SOCKET_MESSAGE: {
       const { machineID, message } = action.payload
 

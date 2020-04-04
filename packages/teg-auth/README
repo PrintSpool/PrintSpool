@@ -1,7 +1,3 @@
-## Generating  `data/user_profile_schema.json`
-
-`graphql-client introspect-schema http://localhost:8080/graphql > ./data/user_profile_schema.json`
-
 ## Build Dependencies
 
 See project root README.md and https://eighty-twenty.org/2019/10/15/cross-compiling-rust

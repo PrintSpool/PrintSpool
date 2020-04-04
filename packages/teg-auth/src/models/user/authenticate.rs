@@ -1,18 +1,13 @@
 use chrono::prelude::*;
 use juniper::{
     FieldResult,
-    FieldError,
-};
-
-use {
-    graphql_client::{ GraphQLQuery, Response },
 };
 
 use crate::ResultExt;
 use super::User;
+use super::validate_jwt;
 // use crate::models::{ Invite };
 use crate::{ Context };
-use crate::user_profile_query;
 
 impl User {
     pub async fn authenticate(
@@ -20,55 +15,7 @@ impl User {
         auth_token: String,
         identity_public_key: String
     ) -> FieldResult<Option<User>> {
-        // TODO: switch url depending on environment
-        let environment = std::env::var("RUST_ENV").unwrap_or("development".to_string());
-        let is_dev = environment == "development";
-
-        let use_dev_user_profile_server = false;
-
-        let user_profile_server = if is_dev && use_dev_user_profile_server {
-            "http://localhost:8080/graphql"
-        } else {
-            "https://app-f49757b3-f48d-4078-8e8c-47b27b8b9d6d.cleverapps.io/graphql"
-        };
-
-        use user_profile_query::{ UserProfileQuery, Variables, ResponseData };
-
-        /*
-        * Query the user profile server
-        */
-        let request_body = UserProfileQuery::build_query(Variables);
-        eprintln!("BEARER {}", auth_token);
-
-        let res: Response<ResponseData> = reqwest::blocking::Client::new()
-            .post(user_profile_server)
-            .json(&request_body)
-            .header(
-                reqwest::header::AUTHORIZATION,
-                format!("Bearer {}", auth_token),
-            )
-            .send()
-            .chain_err(|| "Unable to connect to user profile server")?
-            // .await?
-            .json()
-            .chain_err(|| "Bad user profile response")?;
-            // .await?;
-
-        if let Some(errors) = res.errors {
-            return Err(FieldError::new(
-                errors.iter().map(|e| e.message.clone()).collect::<Vec<String>>().join(" "),
-                graphql_value!({ "internal_error": "Unable to fetch user profile data" }),
-            ))
-        }
-
-        let user_profile = res.data
-            .map(|data| data.current_user)
-            .ok_or(
-                FieldError::new(
-                    "Invalid GraphQL Response: No error or data received",
-                    graphql_value!({ "internal_error": "Unable to fetch user profile data" }),
-                )
-            )?;
+        let jwt_payload = validate_jwt(context, auth_token).await?;
 
         /*
         * Verify that either:
@@ -77,7 +24,7 @@ impl User {
         * 2. the user's token is authorized
         */
         let mut db = context.db().await?;
-
+        
         let invite = sqlx::query!(
             "SELECT id FROM invites WHERE public_key=$1",
             identity_public_key
@@ -88,8 +35,8 @@ impl User {
 
         if invite.is_none() {
             let user = sqlx::query!(
-                "SELECT id FROM users WHERE user_profile_id=$1 AND is_authorized=True",
-                user_profile.id
+                "SELECT id FROM users WHERE firebase_uid=$1 AND is_authorized=True",
+                jwt_payload.sub
             )
                 .fetch_optional(&mut db)
                 .await
@@ -100,7 +47,7 @@ impl User {
             }
         }
 
-        eprintln!("{:?}", user_profile);
+        eprintln!("JWT Payload: {:?}", jwt_payload);
 
         /*
         * Upsert and return the user
@@ -110,34 +57,31 @@ impl User {
             "
                 INSERT INTO users (
                     name,
-                    user_profile_id,
+                    firebase_uid,
                     email,
                     email_verified,
                     created_at,
                     last_logged_in_at
                 )
                 VALUES ($1, $2, $3, $4, $5, $5)
-                ON CONFLICT (user_profile_id) DO UPDATE SET
+                ON CONFLICT (firebase_uid) DO UPDATE SET
                     name = $1,
                     email = $3,
                     email_verified = $4,
                     last_logged_in_at = $5
                 RETURNING *
             ",
-            // TODO: proper NULL handling
-            user_profile.name,
-            user_profile.id,
-            // TODO: proper NULL handling
-            user_profile.email,
-            user_profile.email_verified,
+            jwt_payload.name,
+            jwt_payload.sub,
+            jwt_payload.email,
+            jwt_payload.email_verified,
             Utc::now()
         )
             .fetch_one(&mut db)
             .await
             .chain_err(|| "Unable to update user after authentication")?;
 
-
-        eprintln!("user?? {:?}", user);
+        eprintln!("User Authorized: {:?}", user);
 
         Ok(Some(user))
     }

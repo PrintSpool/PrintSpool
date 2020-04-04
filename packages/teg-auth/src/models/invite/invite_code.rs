@@ -32,8 +32,6 @@ impl Invite {
             isk: private_key,
         };
 
-        use crate::rmps::encode::Ext;
-
         let mut buf = Vec::new();
         let mut serializer = Serializer::new(&mut buf).with_struct_map();
         json.serialize(&mut serializer)

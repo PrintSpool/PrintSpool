@@ -12,7 +12,6 @@ table! {
 table! {
     users (id) {
         id -> Int4,
-        user_profile_id -> Text,
         name -> Nullable<Text>,
         email -> Nullable<Text>,
         email_verified -> Bool,
@@ -20,6 +19,7 @@ table! {
         is_authorized -> Bool,
         created_at -> Timestamptz,
         last_logged_in_at -> Nullable<Timestamptz>,
+        firebase_uid -> Text,
     }
 }
 

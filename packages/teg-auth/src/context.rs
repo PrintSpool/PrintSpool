@@ -3,11 +3,12 @@ use std::sync::Arc;
 
 use crate::models::User;
 
-type SqlxError = sqlx::Error<sqlx::Postgres>;
+type SqlxError = sqlx::Error;
 
 pub struct Context {
     pub pool: Arc<sqlx::PgPool>,
     pub current_user: Option<User>,
+    pub auth_pem_keys: Arc<Vec<Vec<u8>>>,
 }
 
 // To make our context usable by Juniper, we have to implement a marker trait.
@@ -16,11 +17,13 @@ impl juniper::Context for Context {}
 impl Context {
     pub async fn new(
         pool: Arc<sqlx::PgPool>,
-        current_user_id: Option<i32>
+        current_user_id: Option<i32>,
+        auth_pem_keys: Arc<Vec<Vec<u8>>>,
     ) -> Result<Self, SqlxError> {
         let mut context = Self {
             pool,
             current_user: None,
+            auth_pem_keys,
         };
 
         if let Some(current_user_id) = current_user_id {
@@ -38,13 +41,13 @@ impl Context {
 
     pub async fn db(
         &self
-    ) -> sqlx::Result<sqlx::Postgres, sqlx::pool::PoolConnection<sqlx::PgConnection>> {
+    ) -> sqlx::Result<sqlx::pool::PoolConnection<sqlx::PgConnection>> {
         self.pool.acquire().await
     }
 
     pub async fn tx(
         &self
-    ) -> sqlx::Result<sqlx::Postgres, sqlx::Transaction<sqlx::pool::PoolConnection<sqlx::PgConnection>>> {
+    ) -> sqlx::Result<sqlx::Transaction<sqlx::pool::PoolConnection<sqlx::PgConnection>>> {
         self.pool.begin().await
     }
 
