@@ -5,7 +5,7 @@ use juniper::{
 
 use crate::ResultExt;
 use super::User;
-use super::validate_jwt;
+use super::jwt::validate_jwt;
 // use crate::models::{ Invite };
 use crate::{ Context };
 
@@ -24,7 +24,7 @@ impl User {
         * 2. the user's token is authorized
         */
         let mut db = context.db().await?;
-        
+
         let invite = sqlx::query!(
             "SELECT id FROM invites WHERE public_key=$1",
             identity_public_key

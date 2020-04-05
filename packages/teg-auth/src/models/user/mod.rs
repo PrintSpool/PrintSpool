@@ -10,8 +10,7 @@ use crate::{ Context };
 mod authenticate;
 pub use authenticate::*;
 
-mod validate_jwt;
-pub use validate_jwt::*;
+pub mod jwt;
 
 mod graphql;
 

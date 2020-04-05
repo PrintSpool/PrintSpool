@@ -16,7 +16,6 @@ extern crate serde;
 extern crate url;
 extern crate gravatar;
 
-use std::collections::HashMap;
 use warp::{http::Response, Filter};
 use dotenv::dotenv;
 use std::env;
@@ -32,40 +31,6 @@ pub use graphql_schema::{ Schema, Query, Mutation };
 use async_std::task;
 
 error_chain::error_chain! {}
-
-use openssl::x509::X509;
-
-fn get_pem_keys() -> Result<Vec<Vec<u8>>> {
-    info!("Downloading Firebase Certs");
-
-    // get the latest signing keys
-    let uri = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com";
-
-    // let pem_keys = reqwest::get(uri)
-    let pem_keys = reqwest::blocking::Client::new()
-        .get(uri)
-        // .await
-        .send()
-        .map_err(|_| "Unable to fetch google PEM keys")?
-        .json::<HashMap<String, String>>()
-        // .await
-        .map_err(|_| "Unable to parse google PEM keys")?
-        .values()
-        .map(|x509| {
-            X509::from_pem(&x509[..].as_bytes())
-                .ok()?
-                .public_key()
-                .ok()?
-                .public_key_to_pem()
-                .ok()
-        })
-        .map(|result| result.expect("Unable to parse one of google's PEM keys"))
-        .collect();
-
-    info!("Firebase Certs Updated");
-
-    Ok(pem_keys)
-}
 
 #[async_std::main]
 async fn main() -> Result<()> {
@@ -132,7 +97,7 @@ async fn main() -> Result<()> {
 
     let schema = Schema::new(Query, Mutation{});
 
-    let pem_keys = Arc::new(get_pem_keys()?);
+    let pem_keys = Arc::new(models::jwt::get_pem_keys()?);
     task::spawn(async {
         info!("Firebase certs will refresh in an hour");
         task::sleep(std::time::Duration::from_secs(60 * 60)).await;
