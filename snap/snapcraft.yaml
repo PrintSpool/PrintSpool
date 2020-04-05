@@ -148,7 +148,7 @@ apps:
       - hardware-random-control
   teg-marlin:
     environment:
-      RUST_LOG: INFO
+      RUST_LOG: info,teg_marlin=debug,teg_marlin::gcode_codec=trace,teg_marlin::protobuf_server
     command: teg-marlin
     daemon: simple
     restart-condition: always
