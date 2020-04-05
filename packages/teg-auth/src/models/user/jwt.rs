@@ -53,7 +53,7 @@ pub async fn validate_jwt(
     context: &Context,
     jwt: String,
 ) -> Result<JWTPayload, crate::Error> {
-    let (_, payload) = context.auth_pem_keys.iter().find_map(|pem_key| {
+    let (_, payload) = context.auth_pem_keys.read().await.iter().find_map(|pem_key| {
         decode(
             &jwt,
             pem_key,

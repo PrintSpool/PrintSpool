@@ -97,15 +97,36 @@ async fn main() -> Result<()> {
 
     let schema = Schema::new(Query, Mutation{});
 
-    let pem_keys = Arc::new(models::jwt::get_pem_keys()?);
-    task::spawn(async {
-        info!("Firebase certs will refresh in an hour");
-        task::sleep(std::time::Duration::from_secs(60 * 60)).await;
 
-        info!("Restarting server to refresh Firebase certs");
-        std::process::exit(0);
-    });
+    // Firebase Certs
+    use async_std::sync::RwLock;
 
+    let pem_keys = models::jwt::get_pem_keys()?;
+    let pem_keys_lock = Arc::new(RwLock::new(pem_keys));
+
+    let pem_keys_refresh = Arc::clone(&pem_keys_lock);
+
+    use futures::stream::StreamExt;
+
+    let firebase_refresh_task = async_std::stream::repeat(())
+        .fold(pem_keys_refresh, |pem_keys_refresh, _| async move {
+            info!("Firebase certs will refresh in an hour");
+            task::sleep(std::time::Duration::from_secs(60 * 60)).await;
+
+            let next_pem_keys = models::jwt::get_pem_keys().expect("Unable to refresh Firebase certs");
+
+            let pem_keys_borrow = Arc::clone(&pem_keys_refresh);
+            let mut writer = pem_keys_borrow.write().await;
+
+            *writer = next_pem_keys;
+
+            pem_keys_refresh
+        });
+
+    task::spawn(firebase_refresh_task);
+
+
+    // State
     let state = warp::any()
         .and(warp::header::optional::<i32>("user-id"))
         .and_then(move |user_id| {
@@ -113,7 +134,7 @@ async fn main() -> Result<()> {
                 Context::new(
                     Arc::clone(&pool),
                     user_id,
-                    Arc::clone(&pem_keys),
+                    Arc::clone(&pem_keys_lock),
                 )
             ).map_err(|err| {
                 warp::reject::custom(err)

@@ -2,13 +2,14 @@ use juniper::{FieldResult, FieldError};
 use std::sync::Arc;
 
 use crate::models::User;
+use async_std::sync::RwLock;
 
 type SqlxError = sqlx::Error;
 
 pub struct Context {
     pub pool: Arc<sqlx::PgPool>,
     pub current_user: Option<User>,
-    pub auth_pem_keys: Arc<Vec<Vec<u8>>>,
+    pub auth_pem_keys: Arc<RwLock<Vec<Vec<u8>>>>,
 }
 
 // To make our context usable by Juniper, we have to implement a marker trait.
@@ -18,7 +19,7 @@ impl Context {
     pub async fn new(
         pool: Arc<sqlx::PgPool>,
         current_user_id: Option<i32>,
-        auth_pem_keys: Arc<Vec<Vec<u8>>>,
+        auth_pem_keys: Arc<RwLock<Vec<Vec<u8>>>>,
     ) -> Result<Self, SqlxError> {
         let mut context = Self {
             pool,
