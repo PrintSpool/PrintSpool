@@ -41,7 +41,7 @@ const TegApolloProvider = ({
 
   const [error, setError] = useState()
   const [connectionProps, setConnectionProps] = useState()
-  const [machine, setMachine] = useState()
+  const [{ machine, iceServers }, setUserProfileData] = useState({})
 
   const params = new URLSearchParams(location.search)
   const inviteCode = params.get('invite')
@@ -66,6 +66,7 @@ const TegApolloProvider = ({
       const graphql = new GraphQL()
 
       let nextMachine
+
       if (invite == null) {
         const { cacheValuePromise } = await graphql.operate({
           fetchOptionsOverride: fetchOptions,
@@ -80,6 +81,12 @@ const TegApolloProvider = ({
                     slug
                   }
                 }
+                iceServers {
+                  url
+                  urls
+                  username
+                  credential
+                }
               }
             `,
           },
@@ -89,10 +96,13 @@ const TegApolloProvider = ({
 
         console.log(data)
         if (data) {
-          console.log('data recieved', data.my.machines)
+          console.log('user profile data', data)
           // eslint-disable-next-line prefer-destructuring
           nextMachine = data.my.machines[0]
-          setMachine(nextMachine)
+          setUserProfileData({
+            machine: nextMachine,
+            iceServers: data.iceServers,
+          })
         } else {
           setError(errors)
           return
@@ -174,6 +184,7 @@ const TegApolloProvider = ({
         // identityKeys: myIdentity,
         // idToken: idToken,
         // inviteKey: inviteKey,
+        iceServers,
         identityKeys: connectionProps.identityKeys,
         authToken: connectionProps.authToken,
         peerIdentityPublicKey: connectionProps.peerIdentityPublicKey,

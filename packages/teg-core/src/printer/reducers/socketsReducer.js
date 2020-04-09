@@ -329,18 +329,18 @@ const socketsReducer = (state = initialState, action) => {
     case SOCKET_DISCONNECTED: {
       const { machineID } = action.payload
 
-      let statusChanged
+      let statusWillChange
 
       const nextState = state.updateIn(
         ['machines', machineID],
         m => m.withMutations((machine) => {
-          statusChanged = machine.status !== DISCONNECTED
+          statusWillChange = machine.status !== DISCONNECTED
 
           return machine.set('status', DISCONNECTED)
         })
       )
 
-      if (statusChanged) {
+      if (statusWillChange) {
         return loop(
           nextState,
           Cmd.action(statusChanged(DISCONNECTED))
