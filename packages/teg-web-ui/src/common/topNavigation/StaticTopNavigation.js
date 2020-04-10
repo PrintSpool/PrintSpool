@@ -19,6 +19,7 @@ const StaticTopNavigation = ({
   title = () => 'Teg',
   onMenuButtonClick,
   className,
+  avatar = localStorage.getItem('avatar'),
 }) => {
   const classes = useStyle()
 
@@ -62,7 +63,7 @@ const StaticTopNavigation = ({
         <div
           className={classes.userProfileMenu}
         >
-          <UserProfileMenu />
+          <UserProfileMenu avatar={avatar}/>
         </div>
       </div>
     </div>

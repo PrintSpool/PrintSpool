@@ -21,6 +21,10 @@ import {
 } from '../types/TaskStatusEnum'
 import Task from '../types/Task'
 
+import {
+  ERRORED,
+} from '../../printer/types/statusEnum'
+
 import getPluginModels from '../../config/selectors/getPluginModels'
 
 import getJobTmpFiles from '../selectors/getJobTmpFiles'

@@ -14,6 +14,9 @@ const useStyles = makeStyles(theme => ({
     marginLeft: 'auto',
     marginRight: 'auto',
     marginTop: theme.spacing(2),
+    lineHeight: `${theme.spacing(12)}px`,
+    textAlign: 'center',
+    fontSize: '48px',
   },
   largeName: {
     textAlign: 'center',

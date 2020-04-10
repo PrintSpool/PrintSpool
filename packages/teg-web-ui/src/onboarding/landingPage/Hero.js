@@ -22,9 +22,11 @@ const Hero = ({ t }) => {
   return (
     <div className={classes.root}>
       <Button
-        onClick={logIn}
         className={classes.githubButton}
         variant="outlined"
+        component={React.forwardRef((props, ref) => (
+          <Link to="/login" innerRef={ref} {...props} />
+        ))}
       >
         Log in
       </Button>

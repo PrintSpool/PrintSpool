@@ -17,7 +17,6 @@ mod graphql;
 #[derive(Debug)]
 pub struct User {
     pub id: i32,
-    pub name: Option<String>,
     pub email: Option<String>,
     pub email_verified: bool,
     pub is_admin: bool,

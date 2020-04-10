@@ -10,7 +10,6 @@ use crate::{ ResultExt, Context };
 pub struct JWTPayload {
     pub sub: String,
     pub aud: String,
-    pub name: String,
     pub email: String,
     pub email_verified: bool,
 }

@@ -6,9 +6,6 @@ impl User {
     fn id(&self) -> i32 {
         self.id
     }
-    fn name(&self) -> Option<&String> {
-        self.name.as_ref()
-    }
     fn email(&self) -> Option<&String> {
         self.email.as_ref()
     }
@@ -39,4 +36,3 @@ impl User {
     }
 
 }
-

@@ -10,6 +10,7 @@ import { useAuth } from './common/auth'
 
 import LandingPage from './onboarding/landingPage/LandingPage'
 import PrivacyPolicy from './onboarding/privacyPolicy/PrivacyPolicy'
+import LoginRegister from './onboarding/loginRegister/LoginRegister'
 
 import Home from './printer/home/Home'
 import UserAccount from './printer/userAccount/UserAccount'
@@ -75,21 +76,7 @@ const AuthRedirect = () => {
   )
 }
 
-// const AuthRedirect = () => {
-//   const url = new URL(document.location.origin + document.location.hash.replace(/#/, '?'))
-//   const params = Object.fromEntries(url.searchParams)
-
-//   const googleJWT = params.id_token
-
-//   console.log({ googleJWT, params })
-
-//   return (
-//     <div />
-//   )
-// }
-
 const Routes = () => {
-  // const { isSignedIn, loading, loginWithRedirect } = useAuth0()
   const loading = false
 
   const { isSignedIn } = useAuth()
@@ -129,8 +116,7 @@ const Routes = () => {
               <LandingPage />
             </Route>
             <Route>
-              TODO: Login Page
-              {/* <LoginRegister /> */}
+              <LoginRegister />
             </Route>
           </Switch>
         </Route>
@@ -138,6 +124,12 @@ const Routes = () => {
       { isSignedIn && (
         <Route>
           <Switch>
+            <Route
+              exact
+              path="/login"
+            >
+              <Redirect to="/" />
+            </Route>
             <Route
               exact
               path="/i/:inviteURLCode"

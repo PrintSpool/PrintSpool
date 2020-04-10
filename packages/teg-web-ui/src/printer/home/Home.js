@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useGraphQL } from 'graphql-react'
 
@@ -28,6 +28,9 @@ const Home = () => {
     operation: {
       query: `
         {
+          currentUser {
+            picture
+          }
           my {
             machines {
               id
@@ -58,6 +61,14 @@ const Home = () => {
     cacheValue.fetchError || cacheValue.httpError || cacheValue.graphQLErrors
   )
 
+  const avatar = cacheValue.data && cacheValue.data.currentUser.picture
+
+  useEffect(() => {
+    if (avatar) {
+      localStorage.setItem('avatar', avatar)
+    }
+  }, [avatar])
+
   if (error) {
     throw new Error(JSON.stringify(error, null, 2))
   }
@@ -70,7 +81,7 @@ const Home = () => {
 
   return (
     <>
-      <StaticTopNavigation />
+      <StaticTopNavigation avatar={avatar} />
       <div className={classes.root}>
         <div className={classes.header}>
           <Button

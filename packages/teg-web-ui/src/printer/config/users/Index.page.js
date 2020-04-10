@@ -22,7 +22,6 @@ const usersQuery = gql`
     hasPendingUpdates
     users {
       id
-      name
       email
       isAdmin
       picture
@@ -144,9 +143,9 @@ const UsersIndex = ({
           title={(
             <>
               <Avatar src={selectedUser.picture} className={classes.updateTitleAvatar}>
-                {selectedUser.name[0]}
+                {selectedUser.email[0]}
               </Avatar>
-              {selectedUser.name}
+              {selectedUser.email}
             </>
           )}
           open={selectedUser != null}
@@ -181,7 +180,7 @@ const UsersIndex = ({
         <DeleteConfirmationDialog
           type="user"
           fullTitle
-          title={`Remove ${selectedUser.name} from this machine?`}
+          title={`Remove ${selectedUser.email} from this machine?`}
           id={selectedUser.id}
           open={selectedUser != null}
           onDelete={deleteAction.run}
@@ -199,10 +198,10 @@ const UsersIndex = ({
               ))}
             >
               <ListItemIcon>
-                <Avatar src={user.picture}>{user.name[0]}</Avatar>
+                <Avatar src={user.picture}>{user.email[0]}</Avatar>
               </ListItemIcon>
               <ListItemText>
-                {user.name}
+                {user.email}
               </ListItemText>
             </ListItem>
           ))

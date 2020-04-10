@@ -15,7 +15,7 @@ import {
 import { useAuth } from '../auth'
 import useStyles from './UserProfileMenuStyles'
 
-const UserProfileMenu = () => {
+const UserProfileMenu = ({ avatar }) => {
   const { user, logOut } = useAuth()
 
   const classes = useStyles()
@@ -42,7 +42,11 @@ const UserProfileMenu = () => {
         aria-haspopup="true"
         onClick={handleClick}
       >
-        <Avatar src={user.picture}>{user.displayName[0]}</Avatar>
+      <Avatar
+        src={avatar}
+      >
+        {user.email[0]}
+      </Avatar>
       </IconButton>
       <Menu
         id="user-profile-menu"
@@ -53,19 +57,14 @@ const UserProfileMenu = () => {
         onClose={handleClose}
       >
         <Avatar
-          src={user.picture}
+          src={avatar}
           className={classes.largeAvatar}
         >
-          {user.displayName}
+          {user.email[0]}
         </Avatar>
         <Typography variant="h6" className={classes.largeName}>
-          {user.displayName}
+          {user.email}
         </Typography>
-        {user.email && (
-          <Typography variant="subtitle1" className={classes.email}>
-            {user.email}
-          </Typography>
-        )}
         <Divider />
         <MenuItem
           onClick={handleClose}

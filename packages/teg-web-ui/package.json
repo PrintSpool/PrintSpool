@@ -12,7 +12,7 @@
     "clean": "cd dist && ls | grep -v dat.json | xargs rm -rf",
     "build:dat": "yarn clean && NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/dat.html",
     "build:http": "NODE_ENV=production NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/index.html --no-scope-hoist",
-    "report": "xdg-open ./dist/report.html",
+    "build:analyze": "PARCEL_BUNDLE_ANALYZER=1 yarn build:http && xdg-open ./parcel-bundle-reports/default.html",
     "storybook": "start-storybook -p 9001 -c .storybook"
   },
   "dependencies": {
@@ -65,6 +65,7 @@
     "react-dom": "^16.12.0",
     "react-error-boundary": "^1.2.5",
     "react-google-login": "^5.1.1",
+    "react-hook-form": "^5.3.1",
     "react-i18next": "^10.10.0",
     "react-loader-advanced": "^1.7.1",
     "react-markdown": "^4.0.8",
@@ -97,6 +98,8 @@
     "@storybook/addon-links": "^4.1.0-alpha.8",
     "@storybook/addon-storyshots": "^4.1.0-alpha.8",
     "@storybook/react": "^4.1.0-alpha.8",
+    "@types/react": "^16.9.33",
+    "@types/react-dom": "^16.9.6",
     "caniuse-lite": "^1.0.30000974",
     "eslint": "^5.3.0",
     "eslint-config-airbnb": "17.1.0",
@@ -118,5 +121,8 @@
     "subscriptions-transport-ws": "^0.9.4",
     "caniuse-lite": "^1.0.30000974",
     "webrtc-adapter": "D1plo1d/adapter#getStats-length"
+  },
+  "alias": {
+    "@material-ui/core": "./node_modules/@material-ui/core/es/"
   }
 }

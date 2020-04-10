@@ -31,9 +31,17 @@ if (firebase.apps.length === 0) {
   firebase.initializeApp(firebaseConfig)
 }
 
-const logIn = () => {
+const logInWithGoogle = () => {
   const googleAuthProvider = new firebase.auth.GoogleAuthProvider()
   firebase.auth().signInWithRedirect(googleAuthProvider)
+}
+
+const registerUserWithPassword = async ({ email, password }) => {
+  await firebase.auth().createUserWithEmailAndPassword(email, password)
+}
+
+const loginWithPassword = async ({ email, password }) => {
+  await firebase.auth().signInWithEmailAndPassword(email, password)
 }
 
 const logOut = () => firebase.auth().signOut()
@@ -81,7 +89,9 @@ export const AuthProvider = ({
         isSignedIn: idToken != null,
         idToken,
         user,
-        logIn,
+        logInWithGoogle,
+        loginWithPassword,
+        registerUserWithPassword,
         logOut,
         fetchOptions: userProfileServerFetchOptions(idToken),
       }}

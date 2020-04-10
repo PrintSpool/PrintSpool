@@ -56,22 +56,19 @@ impl User {
             User,
             "
                 INSERT INTO users (
-                    name,
                     firebase_uid,
                     email,
                     email_verified,
                     created_at,
                     last_logged_in_at
                 )
-                VALUES ($1, $2, $3, $4, $5, $5)
+                VALUES ($1, $2, $3, $4, $4)
                 ON CONFLICT (firebase_uid) DO UPDATE SET
-                    name = $1,
-                    email = $3,
-                    email_verified = $4,
-                    last_logged_in_at = $5
+                    email = $2,
+                    email_verified = $3,
+                    last_logged_in_at = $4
                 RETURNING *
             ",
-            jwt_payload.name,
             jwt_payload.sub,
             jwt_payload.email,
             jwt_payload.email_verified,

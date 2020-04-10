@@ -19,6 +19,7 @@ tmp
 /package-lock.json
 packages/*/package-lock.json
 packages/teg-web-ui/out
+parcel-bundle-reports
 
 dist/*.snap
 snap/parts/
