@@ -126,8 +126,11 @@ impl Invite {
         db: &mut sqlx::pool::PoolConnection<sqlx::PgConnection>,
         is_admin: bool,
     ) -> FieldResult<Invite> {
-        use rand::rngs::OsRng;
-        use secp256k1::Secp256k1;
+        use secp256k1::{
+            rand::rngs::OsRng,
+            Secp256k1,
+        };
+
 
         let secp = Secp256k1::new();
         let mut rng = OsRng::new().expect("OsRng");
