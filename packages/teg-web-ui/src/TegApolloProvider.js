@@ -251,7 +251,12 @@ const TegApolloProvider = ({
   return (
     <ApolloProvider client={client}>
       <ApolloHooksProvider client={client}>
-        <TegApolloContext.Provider value={connectionProps}>
+        <TegApolloContext.Provider
+          value={{
+            ...connectionProps,
+            iceServers,
+          }}
+        >
           <ConnectionStatus>
             { children }
           </ConnectionStatus>

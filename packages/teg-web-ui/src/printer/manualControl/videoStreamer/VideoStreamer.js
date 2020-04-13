@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react'
+import React, { useState, useRef, useCallback, useContext } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import {
   List,
@@ -16,6 +16,7 @@ import gql from 'graphql-tag'
 
 import SimplePeer from 'simple-peer'
 
+import { TegApolloContext } from '../../../TegApolloProvider'
 import LoadingOverlay from '../../../common/LoadingOverlay'
 
 const createVideoSDPMutation = gql`
@@ -41,6 +42,7 @@ const useStyles = makeStyles(() => ({
 
 const enhance = Component => (props) => {
   const apollo = useApolloClient()
+  const { iceServers } = useContext(TegApolloContext)
 
   const videoEl = useRef(null)
   const [peerError, setPeerError] = useState()
@@ -55,6 +57,7 @@ const enhance = Component => (props) => {
       initiator: true,
       trickle: false,
       offerOptions: mediaConstraints,
+      config: { iceServers },
     })
 
     p.on('error', err => setPeerError(err))
