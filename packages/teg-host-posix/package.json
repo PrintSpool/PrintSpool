@@ -50,7 +50,7 @@
     "esm": "^3.2.25",
     "fast-memoize": "^2.5.1",
     "graphql": "^14.0.2",
-    "graphql-things": "^0.13.0",
+    "graphql-things": "^0.13.1",
     "graphql-type-json": "^0.2.0",
     "immutable": "^4.0.0-rc.12",
     "iterall": "^1.2.2",
