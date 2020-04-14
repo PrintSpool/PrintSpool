@@ -1,23 +1,18 @@
 import React from 'react'
-import styled from 'styled-components'
 import {
   Grid,
   IconButton,
 } from '@material-ui/core'
 
-const AlignText = styled.div`
-  text-align: ${props => props.textAlign || 'center'};
-`
-
 const JogButton = ({
   textAlign, xs, children, ...props
 }) => (
   <Grid item xs={xs}>
-    <AlignText textAlign={textAlign}>
+    <div style={{ textAlign: props.textAlign || 'center'}}>
       <IconButton {...props}>
         {children}
       </IconButton>
-    </AlignText>
+    </div>
   </Grid>
 )
 

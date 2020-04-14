@@ -83,7 +83,6 @@
     "regenerator-runtime": "^0.13.5",
     "simple-peer": "^9.6.0",
     "strip-newlines": "^1.0.1",
-    "styled-components": "^3.0.2",
     "subscriptions-transport-ws": "^0.9.4",
     "three": "^0.103.0",
     "three-gcode-loader": "^1.0.1",
