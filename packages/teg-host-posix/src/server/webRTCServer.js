@@ -47,6 +47,7 @@ const webRTCServer = async ({
     execute,
     subscribe,
     schema,
+    keepAlive: 500,
 
     // the onOperation function is called for every new operation
     // and we use it to inject context to track the session and
