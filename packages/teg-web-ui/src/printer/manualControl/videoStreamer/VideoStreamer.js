@@ -90,10 +90,6 @@ const enhance = Component => (props) => {
     // console.log('answer', data.createVideoSDP.answer)
     p.signal(data.createVideoSDP.answer)
 
-    p.on('connect', () => {
-      console.log('CONNECT')
-    })
-
     const updateIceCandidates = async () => {
       const { data: { iceCandidates } } = await apollo.query({
         query: queryIceCandidates,
@@ -110,14 +106,13 @@ const enhance = Component => (props) => {
     }
     const IceCandidatePolling = setInterval(updateIceCandidates, 300)
 
-    let stream
-
-    try {
-      stream = await new Promise(resolve => p.on('stream', resolve))
-      console.log({ stream })
-    } finally {
+    p.on('connect', () => {
+      console.log('CONNECT')
       clearInterval(IceCandidatePolling)
-    }
+    })
+
+    const stream = await new Promise(resolve => p.on('stream', resolve))
+    console.log({ stream })
 
     // got remote video stream, now let's show it in a video tag
     if ('srcObject' in videoEl.current) {
