@@ -64,7 +64,6 @@
     "react-css-grid": "^2.0.0-0",
     "react-dom": "^16.12.0",
     "react-error-boundary": "^1.2.5",
-    "react-google-login": "^5.1.1",
     "react-hook-form": "^5.3.1",
     "react-i18next": "^10.10.0",
     "react-loader-advanced": "^1.7.1",
