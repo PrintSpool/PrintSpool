@@ -18,8 +18,11 @@ use crate::models::{
     DeleteInvite,
     ConsumeInvite,
     create_video_sdp,
-    RTCSessionDescription,
-    RTCSessionDescriptionInput,
+    RTCSignal,
+    RTCSignalInput,
+    VideoSession,
+    IceCandidate,
+    get_ice_candidates,
 };
 
 use crate::Context;
@@ -40,6 +43,16 @@ impl Query {
         task::block_on(
             Invite::all(context)
         )
+    }
+
+    fn ice_candidates(context: &Context, id: String) -> FieldResult<Vec<IceCandidate>> {
+        task::block_on(
+            get_ice_candidates(context, id)
+        )
+        .map_err(|err| {
+            error!("ERR {:?}", err);
+            err
+        })
     }
 }
 
@@ -97,13 +110,15 @@ impl Mutation {
     }
 
     // Video
-    #[graphql(
-        name = "createVideoSDP",
-    )]
-    fn create_video_sdp(context: &Context, offer: RTCSessionDescriptionInput) -> FieldResult<RTCSessionDescription> {
+    #[graphql(name = "createVideoSDP")]
+    fn create_video_sdp(context: &Context, offer: RTCSignalInput) -> FieldResult<VideoSession> {
         task::block_on(
             create_video_sdp(context, offer)
         )
+        .map_err(|err| {
+            error!("ERR {:?}", err);
+            err
+        })
     }
 }
 

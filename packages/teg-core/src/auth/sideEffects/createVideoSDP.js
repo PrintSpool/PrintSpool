@@ -5,13 +5,16 @@ const createVideoSDP = async (source, args, context) => {
 
   const query = `
     mutation(
-      $offer: RTCSessionDescriptionInput!
+      $offer: RTCSignalInput!
     ) {
       createVideoSDP(
         offer: $offer
       ) {
-        type
-        sdp
+        id
+        answer {
+          type
+          sdp
+        }
       }
     }
   `

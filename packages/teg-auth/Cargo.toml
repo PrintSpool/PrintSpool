@@ -34,3 +34,4 @@ url = "2.1.1"
 openssl = { version = "0.10.28", features = ["vendored"] }
 error-chain = "0.12.1"
 frank_jwt = "3.1.2"
+log-derive = "0.4.0"

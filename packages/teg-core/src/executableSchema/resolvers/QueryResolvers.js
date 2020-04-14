@@ -2,6 +2,7 @@ import getSchemaForms from '../../pluginManager/selectors/getSchemaForms'
 
 import invites from '../../auth/sideEffects/invites'
 import users from '../../auth/sideEffects/users'
+import iceCandidates from '../../auth/sideEffects/iceCandidates'
 
 import packageJSON from '../../../package.json'
 
@@ -18,6 +19,7 @@ const QueryResolvers = {
      */
     invites,
     users,
+    iceCandidates,
     /*
      * config
      */

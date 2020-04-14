@@ -20,10 +20,25 @@ import { TegApolloContext } from '../../../TegApolloProvider'
 import LoadingOverlay from '../../../common/LoadingOverlay'
 
 const createVideoSDPMutation = gql`
-  mutation createVideoSDPMutation($offer: RTCSessionDescriptionInput!) {
+  mutation createVideoSDPMutation($offer: RTCSignalInput!) {
     createVideoSDP(offer: $offer) {
-      type
-      sdp
+      id
+      answer {
+        type
+        sdp
+      }
+    }
+  }
+`
+
+const queryIceCandidates = gql`
+  query(
+    $id: ID!
+  ) {
+    iceCandidates(id: $id) {
+      candidate
+      sdpMLineIndex
+      sdpMid
     }
   }
 `
@@ -72,15 +87,37 @@ const enhance = Component => (props) => {
       },
     })
 
-    // console.log('answer', data.createVideoSDP)
-    p.signal(data.createVideoSDP)
+    // console.log('answer', data.createVideoSDP.answer)
+    p.signal(data.createVideoSDP.answer)
 
     p.on('connect', () => {
       console.log('CONNECT')
     })
 
-    const stream = await new Promise(resolve => p.on('stream', resolve))
-    console.log({ stream })
+    const updateIceCandidates = async () => {
+      const { data: { iceCandidates } } = await apollo.query({
+        query: queryIceCandidates,
+        variables: {
+          id: data.createVideoSDP.id,
+        },
+      })
+
+      // console.log(iceCandidates)
+
+      iceCandidates.map((candidate) => {
+        p.signal({ candidate })
+      })
+    }
+    const IceCandidatePolling = setInterval(updateIceCandidates, 300)
+
+    let stream
+
+    try {
+      stream = await new Promise(resolve => p.on('stream', resolve))
+      console.log({ stream })
+    } finally {
+      clearInterval(IceCandidatePolling)
+    }
 
     // got remote video stream, now let's show it in a video tag
     if ('srcObject' in videoEl.current) {

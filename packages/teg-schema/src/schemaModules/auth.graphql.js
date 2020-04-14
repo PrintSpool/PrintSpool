@@ -4,6 +4,7 @@ export default `
 extend type Query {
   invites: [Invite!]!
   users: [User!]!
+  iceCandidates(id: ID!): [IceCandidate!]!
 }
 
 # Mutations
@@ -20,18 +21,29 @@ extend type Mutation {
 
   deleteCurrentUser: Boolean
 
-  createVideoSDP(offer: RTCSessionDescriptionInput!): RTCSessionDescription!
+  createVideoSDP(offer: RTCSignalInput!): VideoSession!
 }
 
 # Video
-input RTCSessionDescriptionInput {
+input RTCSignalInput {
   type: String!
   sdp: String!
 }
 
-type RTCSessionDescription {
+type VideoSession {
+  id: String!
+  answer: RTCSignal!
+}
+
+type RTCSignal {
   type: String!
   sdp: String!
+}
+
+type IceCandidate {
+  candidate: String!
+  sdpMLineIndex: Int!
+  sdpMid: String!
 }
 
 # Invite

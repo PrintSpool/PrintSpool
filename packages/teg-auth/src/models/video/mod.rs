@@ -12,7 +12,7 @@ use serde::{
 use crate::{ Context };
 
 #[derive(juniper::GraphQLObject, Debug, Serialize, Deserialize)]
-pub struct RTCSessionDescription {
+pub struct RTCSignal {
     #[graphql(
         name = "type",
     )]
@@ -20,32 +20,52 @@ pub struct RTCSessionDescription {
     pub sdp: String,
 }
 
+#[derive(juniper::GraphQLObject, Debug, Serialize, Deserialize)]
+pub struct VideoSession {
+    pub id: String,
+    pub answer: RTCSignal,
+}
+
+#[derive(juniper::GraphQLObject, Debug, Serialize, Deserialize)]
+pub struct IceCandidate {
+    pub candidate: String,
+    #[graphql(name = "sdpMLineIndex")]
+    #[serde(rename = "sdpMLineIndex")]
+    pub sdp_mline_index: i32,
+    #[serde(rename = "sdpMid")]
+    pub sdp_mid: String,
+}
+
 #[derive(juniper::GraphQLInputObject, Debug, Serialize, Deserialize)]
-pub struct RTCSessionDescriptionInput {
+pub struct RTCSignalInput {
     pub r#type: String,
     pub sdp: String,
 }
 
-pub async fn create_video_sdp(
-    _context: &Context,
-    offer: RTCSessionDescriptionInput,
-) -> FieldResult<RTCSessionDescription> {
-    let webrtc_streamer_url = "http://localhost:8009/api/call";
+const webrtc_streamer_api: &'static str = "http://localhost:8009/api";
 
-    // TODO: Math.random peerID
-    let peer_id = rand::random::<f32>().to_string();
+pub async fn create_video_sdp(
+    context: &Context,
+    offer: RTCSignalInput,
+// ) -> FieldResult<RTCSignal> {
+) -> FieldResult<VideoSession> {
+    let user = context.current_user
+        .as_ref()
+        .ok_or("Unauthorized to create video SDP")?;
+
+    let id = format!("{}_{}", user.id, rand::random::<u32>().to_string());
 
     /*
     * Query the webrtc-streamer
     */
-    let answer: RTCSessionDescription = reqwest::blocking::Client::new()
-        .post(webrtc_streamer_url)
+    let answer: RTCSignal = reqwest::blocking::Client::new()
+        .post(&format!("{}/call", webrtc_streamer_api))
         .json(&offer)
         .query(&[
-            ("peerid", peer_id),
+            ("peerid", id.clone()),
             // TODO: configurable video source
-            // ("url", "videocap://1".to_string()),
-            ("url", "mmal service 16.1".to_string()),
+            ("url", "videocap://1".to_string()),
+            // ("url", "mmal service 16.1".to_string()),
             ("options", "rtptransport=tcp&timeout=60".to_string()),
         ])
         .send()?
@@ -53,5 +73,61 @@ pub async fn create_video_sdp(
         .json()?;
         // .await?;
 
-    Ok(answer)
+    // // use std::sync::Arc;
+    // // let id = Arc::new(id);
+    // loop {
+    //     // let id = Arc::clone(&id);
+    //     let ice_candidates: Vec<IceCandidate> = reqwest::blocking::Client::new()
+    //         .post(&format!("{}/getIceCandidate", webrtc_streamer_api))
+    //         .json(&offer)
+    //         .query(&[
+    //             ("peerid", id.clone()),
+    //         ])
+    //         .send()?
+    //         // .await?
+    //         .json()?;
+    //         // .await?;
+    //
+    //     info!("ICE: {:?}", ice_candidates);
+    //
+    //     use async_std::task;
+    //     task::sleep(std::time::Duration::from_millis(500)).await;
+    // };
+
+    Ok(VideoSession {
+        id,
+        answer,
+    })
+    // Ok(answer)
+}
+
+pub async fn get_ice_candidates(
+    context: &Context,
+    id: String,
+) -> FieldResult<Vec<IceCandidate>> {
+    let user = context.current_user
+        .as_ref()
+        .ok_or("Unauthorized to create video SDP")?;
+
+    if !id.starts_with(&format!("{}_", user.id).to_string()) {
+        Err("Invalid Video Session ID")?;
+    }
+
+    /*
+    * Query the webrtc-streamer
+    */
+    // let id = Arc::clone(&id);
+    let ice_candidates: Vec<IceCandidate> = reqwest::blocking::Client::new()
+        .get(&format!("{}/getIceCandidate", webrtc_streamer_api))
+        .query(&[
+            ("peerid", id.clone()),
+        ])
+        .send()?
+        // .await?
+        .json()?;
+        // .await?;
+
+    info!("ICE: {:?}", ice_candidates);
+
+    Ok(ice_candidates)
 }
