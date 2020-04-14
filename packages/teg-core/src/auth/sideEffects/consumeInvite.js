@@ -9,7 +9,6 @@ const consumeInvite = async ({ peerIdentityPublicKey, user }) => {
         input: $input
       ) {
         id
-        name
         email
         emailVerified
         isAdmin
