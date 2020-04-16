@@ -4,6 +4,7 @@ import {
   TOOLHEAD,
   BUILD_PLATFORM,
   FAN,
+  VIDEO,
 } from './config/types/components/ComponentTypeEnum'
 
 const getCorePluginConfigPath = (printerConfig) => {
@@ -300,6 +301,35 @@ const getSchemaForms = () => ({
           ...componentBaseProperties(schema),
           address: {
             title: 'GCode Address',
+            type: 'string',
+            minLength: 1,
+          },
+        },
+      }),
+      form: [
+        'name',
+        'address',
+      ],
+    },
+    [VIDEO]: {
+      schema: schema => ({
+        ...schema,
+        type: 'object',
+        title: 'Fan',
+        required: [
+          ...(schema.required || []),
+          'name',
+          'source',
+        ],
+        properties: {
+          ...componentBaseProperties(schema),
+          name: {
+            title: 'Name',
+            type: 'string',
+            minLength: 1,
+          },
+          source: {
+            title: 'Source',
             type: 'string',
             minLength: 1,
           },

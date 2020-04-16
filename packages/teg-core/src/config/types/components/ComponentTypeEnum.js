@@ -5,6 +5,7 @@ export const AXIS = 'AXIS'
 export const TOOLHEAD = 'TOOLHEAD'
 export const BUILD_PLATFORM = 'BUILD_PLATFORM'
 export const FAN = 'FAN'
+export const VIDEO = 'VIDEO'
 
 const ComponentTypeEnum = List([
   CONTROLLER,
@@ -12,6 +13,7 @@ const ComponentTypeEnum = List([
   TOOLHEAD,
   BUILD_PLATFORM,
   FAN,
+  VIDEO,
 ])
 
 export default ComponentTypeEnum

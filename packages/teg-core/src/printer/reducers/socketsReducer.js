@@ -23,6 +23,7 @@ import {
   TOOLHEAD,
   BUILD_PLATFORM,
   FAN,
+  VIDEO,
 } from '../../config/types/components/ComponentTypeEnum'
 
 import { SEND_TASK_TO_SOCKET } from '../actions/sendTaskToSocket'
@@ -118,7 +119,8 @@ const initialMachineState = ({
       }
 
       switch (type) {
-        case CONTROLLER: {
+        case CONTROLLER:
+        case VIDEO: {
           return Component(commonComponentAttrs)
         }
         case AXIS: {

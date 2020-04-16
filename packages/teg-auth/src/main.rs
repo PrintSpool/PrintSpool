@@ -1,7 +1,7 @@
 // #[macro_use] extern crate async_std;
 #[macro_use] extern crate juniper;
 #[macro_use] extern crate log;
-#[macro_use] extern crate log_derive;
+// #[macro_use] extern crate log_derive;
 
 
 // #[macro_use] extern crate log;
@@ -26,6 +26,7 @@ use std::sync::Arc;
 pub mod models;
 mod context;
 mod graphql_schema;
+mod configuration;
 
 pub use context::Context;
 pub use graphql_schema::{ Schema, Query, Mutation };
@@ -127,6 +128,17 @@ async fn main() -> Result<()> {
 
     task::spawn(firebase_refresh_task);
 
+    // Config
+    // ----------------------------------------------------
+    let config_path = None; // TODO: configurable config_path
+    let config_path = config_path.unwrap_or("/etc/teg/machine.toml".to_string());
+
+    let config_file_content = std::fs::read_to_string(config_path.clone())
+        .expect(&format!("Unabled to open config (file: {:?})", config_path));
+
+    let config: configuration::Config = toml::from_str(&config_file_content)
+        .expect(&format!("Invalid config format (file: {:?})", config_path));
+
 
     // State
     let state = warp::any()
@@ -137,6 +149,7 @@ async fn main() -> Result<()> {
                     Arc::clone(&pool),
                     user_id,
                     Arc::clone(&pem_keys_lock),
+                    config.clone(),
                 )
             ).map_err(|err| {
                 warp::reject::custom(err)

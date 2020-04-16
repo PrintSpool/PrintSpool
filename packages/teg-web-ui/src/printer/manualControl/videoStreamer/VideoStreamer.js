@@ -91,6 +91,8 @@ const enhance = Component => (props) => {
     p.signal(data.createVideoSDP.answer)
 
     const updateIceCandidates = async () => {
+      console.log('querying ice candidates')
+
       const { data: { iceCandidates } } = await apollo.query({
         query: queryIceCandidates,
         variables: {
@@ -98,18 +100,27 @@ const enhance = Component => (props) => {
         },
       })
 
-      // console.log(iceCandidates)
+      console.log({ iceCandidates })
 
       iceCandidates.map((candidate) => {
         p.signal({ candidate })
       })
     }
-    const IceCandidatePolling = setInterval(updateIceCandidates, 300)
+    const iceCandidatePollingInterval = setInterval(updateIceCandidates, 300)
 
+    console.log("WAT")
     p.on('connect', () => {
       console.log('CONNECT')
-      clearInterval(IceCandidatePolling)
+      clearInterval(iceCandidatePollingInterval)
     })
+
+    // p.on('iceStateChange', (iceConnectionState, iceGatheringState) => {
+    //   console.log('ICE:', iceConnectionState, iceGatheringState)
+    //
+    //   if (iceConnectionState === 'completed') {
+    //     clearInterval(iceCandidatePollingInterval)
+    //   }
+    // })
 
     const stream = await new Promise(resolve => p.on('stream', resolve))
     console.log({ stream })
@@ -155,6 +166,7 @@ const VideoStreamer = ({
         <video
           ref={videoEl}
           className={classes.video}
+          controls="controls"
         >
         </video>
       </div>

@@ -18,6 +18,7 @@ import {
 import Usb from '@material-ui/icons/Usb'
 import Toys from '@material-ui/icons/Toys'
 import VideoLabel from '@material-ui/icons/VideoLabel'
+import Videocam from '@material-ui/icons/VideocamRounded'
 import Widgets from '@material-ui/icons/Widgets'
 import Waves from '@material-ui/icons/Waves'
 import CompareArrows from '@material-ui/icons/CompareArrows'
@@ -102,6 +103,11 @@ const CATEGORIES = [
     type: 'FAN',
     heading: 'Fans',
     Icon: Toys,
+  },
+  {
+    type: 'VIDEO',
+    heading: 'Video Sources',
+    Icon: Videocam,
   },
 ]
 

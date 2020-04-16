@@ -18,7 +18,6 @@ use crate::models::{
     DeleteInvite,
     ConsumeInvite,
     create_video_sdp,
-    RTCSignal,
     RTCSignalInput,
     VideoSession,
     IceCandidate,

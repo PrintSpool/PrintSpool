@@ -125,6 +125,28 @@ const printerConfig = {
         heater: true,
       },
     },
+    // // Pi Cam Example
+    // {
+    //   id: '8',
+    //   modelVersion: 1,
+    //   type: 'VIDEO',
+    //   model: {
+    //     name: 'PiCam',
+    //     source: 'mmal service 16.1',
+    //   },
+    // },
+    {
+      id: '8',
+      modelVersion: 1,
+      type: 'VIDEO',
+      model: {
+        name: 'Video Camera',
+        // Non-Pi Cam
+        source: 'videocap://1',
+        // Pi Cam
+        // source: 'mmal service 16.1',
+      },
+    },
   ],
   plugins: [
     // TODO: move general settings to @tegapp/core plugin settings

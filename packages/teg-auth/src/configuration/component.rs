@@ -28,8 +28,8 @@ pub struct Controller {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Video {
-   name: String,
-   source: String,
+   pub name: String,
+   pub source: String,
 }
 
 

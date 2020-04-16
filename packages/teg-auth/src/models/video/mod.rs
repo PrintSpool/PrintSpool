@@ -42,7 +42,7 @@ pub struct RTCSignalInput {
     pub sdp: String,
 }
 
-const webrtc_streamer_api: &'static str = "http://localhost:8009/api";
+const WEBRTC_STREAMER_API: &'static str = "http://localhost:8009/api";
 
 pub async fn create_video_sdp(
     context: &Context,
@@ -55,16 +55,25 @@ pub async fn create_video_sdp(
 
     let id = format!("{}_{}", user.id, rand::random::<u32>().to_string());
 
+    // TODO: multiple video sources
+    let source_url = context.machine_config.get_videos()
+        .next()
+        .ok_or("No video source configured")?
+        .source
+        .to_owned();
+
+    info!("creating video sdp for: {}", source_url);
+
     /*
     * Query the webrtc-streamer
     */
     let answer: RTCSignal = reqwest::blocking::Client::new()
-        .post(&format!("{}/call", webrtc_streamer_api))
+        .post(&format!("{}/call", WEBRTC_STREAMER_API))
         .json(&offer)
         .query(&[
             ("peerid", id.clone()),
-            // TODO: configurable video source
-            ("url", "videocap://1".to_string()),
+            ("url", source_url),
+            // ("url", "videocap://1".to_string()),
             // ("url", "mmal service 16.1".to_string()),
             ("options", "rtptransport=tcp&timeout=60".to_string()),
         ])
@@ -78,7 +87,7 @@ pub async fn create_video_sdp(
     // loop {
     //     // let id = Arc::clone(&id);
     //     let ice_candidates: Vec<IceCandidate> = reqwest::blocking::Client::new()
-    //         .post(&format!("{}/getIceCandidate", webrtc_streamer_api))
+    //         .post(&format!("{}/getIceCandidate", WEBRTC_STREAMER_API))
     //         .json(&offer)
     //         .query(&[
     //             ("peerid", id.clone()),
@@ -118,7 +127,7 @@ pub async fn get_ice_candidates(
     */
     // let id = Arc::clone(&id);
     let ice_candidates: Vec<IceCandidate> = reqwest::blocking::Client::new()
-        .get(&format!("{}/getIceCandidate", webrtc_streamer_api))
+        .get(&format!("{}/getIceCandidate", WEBRTC_STREAMER_API))
         .query(&[
             ("peerid", id.clone()),
         ])
