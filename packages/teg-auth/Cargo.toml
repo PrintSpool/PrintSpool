@@ -1,35 +1,57 @@
 [package]
-name = "teg-auth"
-version = "0.1.0"
 authors = ["D1plo1d <thatotherdude@gmail.com>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
+name = "teg-auth"
+version = "0.1.0"
 [dependencies]
+chrono = "0.4.10"
+data-encoding = "2.1.2"
 dotenv = "0.15.0"
+env_logger = "0.7.1"
+error-chain = "0.12.1"
+frank_jwt = "3.1.2"
+futures = "0.3.1"
+gravatar = "0.2.0"
+hex = "0.4.0"
 juniper = "0.14.2"
 juniper_warp = "0.5.2"
-warp = "0.1.20"
 log = "0.4.8"
-env_logger = "0.7.1"
-serde = { version = "1.0.104", features = ["derive"] }
-reqwest = { version = "0.10.1", features = ["blocking", "json", "rustls-tls"], default-features = false }
-sqlx = { git = "https://github.com/JesperAxelsson/sqlx", branch="feature/cargo-sqlx-migrate", features = ["postgres", "chrono"] }
-# sqlx = { version = "0.3.0-alpha.2", features = ["postgres", "chrono"] }
-# sqlx-core = { version = "0.3.0-alpha.2" }
-async-std = { version = "1.4.0", features = ["attributes"] }
-futures = "0.3.1"
-chrono = "0.4.10"
-secp256k1 = { version = "0.17.2", features = ["rand"] }
+log-derive = "0.4.0"
+notify = "4.0.15"
+qr2term = "0.1.7"
 rand = "0.5.6"
 rmp-serde = "0.14.0"
 serde_json = "1.0.44"
-data-encoding = "2.1.2"
 toml = "0.5.6"
-qr2term = "0.1.7"
-hex = "0.4.0"
-gravatar = "0.2.0"
+url = "2.1.1"
+warp = "0.1.20"
+
+[dependencies.async-std]
+features = ["attributes"]
+version = "1.4.0"
+
+[dependencies.openssl]
+features = ["vendored"]
+version = "0.10.28"
+
+[dependencies.reqwest]
+default-features = false
+features = ["blocking", "json", "rustls-tls"]
+version = "0.10.1"
+
+[dependencies.secp256k1]
+features = ["rand"]
+version = "0.17.2"
+
+[dependencies.serde]
+features = ["derive"]
+version = "1.0.104"
+
+[dependencies.sqlx]
+branch = "feature/cargo-sqlx-migrate"
+features = ["postgres", "chrono"]
+git = "https://github.com/JesperAxelsson/sqlx"
+ar = "0.2.0"
 url = "2.1.1"
 openssl = { version = "0.10.28", features = ["vendored"] }
 error-chain = "0.12.1"

@@ -56,7 +56,10 @@ pub async fn create_video_sdp(
     let id = format!("{}_{}", user.id, rand::random::<u32>().to_string());
 
     // TODO: multiple video sources
-    let source_url = context.machine_config.get_videos()
+    let source_url = context.machine_config
+        .read()
+        .await
+        .get_videos()
         .next()
         .ok_or("No video source configured")?
         .source

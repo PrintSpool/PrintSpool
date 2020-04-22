@@ -11,7 +11,7 @@ pub struct Context {
     pub pool: Arc<sqlx::PgPool>,
     pub current_user: Option<User>,
     pub auth_pem_keys: Arc<RwLock<Vec<Vec<u8>>>>,
-    pub machine_config: Config,
+    pub machine_config: Arc<RwLock<Config>>,
 }
 
 // To make our context usable by Juniper, we have to implement a marker trait.
@@ -22,7 +22,7 @@ impl Context {
         pool: Arc<sqlx::PgPool>,
         current_user_id: Option<i32>,
         auth_pem_keys: Arc<RwLock<Vec<Vec<u8>>>>,
-        machine_config: Config,
+        machine_config: Arc<RwLock<Config>>,
     ) -> Result<Self, SqlxError> {
         let mut context = Self {
             pool,

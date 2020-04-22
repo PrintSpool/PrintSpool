@@ -35,6 +35,16 @@ use async_std::task;
 
 error_chain::error_chain! {}
 
+fn read_config(config_path: &str) -> crate::Result<configuration::Config> {
+    let config_file_content = std::fs::read_to_string(config_path.clone())
+        .chain_err(|| format!("Unabled to open config (file: {:?})", config_path))?;
+
+    let config: configuration::Config = toml::from_str(&config_file_content)
+        .chain_err(|| format!("Invalid config format (file: {:?})", config_path))?;
+
+    Ok(config)
+}
+
 #[async_std::main]
 async fn main() -> Result<()> {
     dotenv().ok();
@@ -133,11 +143,56 @@ async fn main() -> Result<()> {
     let config_path = None; // TODO: configurable config_path
     let config_path = config_path.unwrap_or("/etc/teg/machine.toml".to_string());
 
-    let config_file_content = std::fs::read_to_string(config_path.clone())
-        .expect(&format!("Unabled to open config (file: {:?})", config_path));
+    let config = read_config(&config_path).unwrap();
+    let config = Arc::new(RwLock::new(config));
 
-    let config: configuration::Config = toml::from_str(&config_file_content)
-        .expect(&format!("Invalid config format (file: {:?})", config_path));
+    // Watch the config file for changes
+    let config_clone = Arc::clone(&config);
+    let config_path_clone = config_path.clone();
+    std::thread::spawn(move || {
+        use notify::{Watcher, RecursiveMode, watcher, DebouncedEvent};
+        use std::sync::mpsc::channel;
+        use std::time::Duration;
+
+        let mut config_dir = std::path::PathBuf::from(&config_path_clone);
+        config_dir.pop();
+        let config_dir = config_dir.to_str()
+            .expect("Unable to set config directory");
+
+        // Create a channel to receive the events.
+        let (tx, rx) = channel();
+
+        // Create a watcher object, delivering debounced events.
+        // The notification back-end is selected based on the platform.
+        let mut watcher = watcher(tx, Duration::from_millis(100))
+            .expect("Unable to initialize config watcher");
+
+        watcher.watch(&config_dir, RecursiveMode::NonRecursive)
+            .expect("Unable to watch config file");
+
+        loop {
+            match rx.recv() {
+               | Ok(DebouncedEvent::Create(file_path))
+               | Ok(DebouncedEvent::Write(file_path)) => {
+                   if file_path.to_str() == Some(&config_path_clone) {
+                       info!("Config file changed");
+
+                       let next_config = read_config(&config_path_clone).unwrap();
+
+                       let mut writer = async_std::task::block_on(config_clone.write());
+
+                       *writer = next_config;
+
+                       info!("Config changes applied");
+                   }
+               },
+               Err(e) => println!("watch error: {:?}", e),
+               _ => (),
+            }
+        }
+    });
+
+    info!("Watching for config changes at: {}", &config_path);
 
 
     // State
@@ -149,7 +204,7 @@ async fn main() -> Result<()> {
                     Arc::clone(&pool),
                     user_id,
                     Arc::clone(&pem_keys_lock),
-                    config.clone(),
+                    Arc::clone(&config),
                 )
             ).map_err(|err| {
                 warp::reject::custom(err)
