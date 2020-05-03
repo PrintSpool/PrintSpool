@@ -4,8 +4,14 @@ set -e
 mkdir -p ./dist
 rm -f ./dist/*.snap
 
-./scripts/build-armv7-pkg.sh
-./scripts/build-x64-pkg.sh
+echo "$SKIP_PKG"
+if test -z "$SKIP_PKG" 
+then
+  ./scripts/build-armv7-pkg.sh
+  ./scripts/build-x64-pkg.sh
+else
+  echo "\n\$SKIP_PKG detected. Reusing previous pkg builds. NodeJS changes will *not* be included in this build."
+fi
 
 echo "\nBuilding teg-marlin...\n\n"
 yarn tegmarlin:build:x64

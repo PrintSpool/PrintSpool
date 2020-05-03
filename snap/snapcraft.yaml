@@ -4,7 +4,7 @@ summary: A graphql server for 3D printers
 description: >
   Teg is an experimental 3D printing software designed from the ground up to streamline your 3D printing experience. Teg features a print queue that enables users to easily queue up prints without managing complicated file systems. To manage prints remotely Teg is built on top of encrypted, distributed web technologies so you can use your 3D printer from anywhere in the world just as easily as from your home. With Teg you can worry less and create more.
 
-base: core18
+base: core20
 # confinement: classic
 confinement: devmode
 # confinement: strict
@@ -132,7 +132,7 @@ parts:
   #   source-subdir: packages/teg-marlin
 
 apps:
-  teg:
+  server:
     command: teg serve
     daemon: simple
     restart-condition: always
@@ -146,9 +146,10 @@ apps:
       - system-observe
       - hardware-observe
       - hardware-random-control
-  teg-marlin:
+  marlin:
     environment:
       RUST_LOG: info,teg_marlin=debug,teg_marlin::gcode_codec=trace,teg_marlin::protobuf_server
+      RUST_BACKTRACE: 1
     command: teg-marlin
     daemon: simple
     restart-condition: always
@@ -165,11 +166,12 @@ apps:
       - raw-usb
       - gpio
       - gpio-memory-control
-  teg-auth:
+  auth:
     environment:
       RUST_ENV: production
-      POSTGRESQL_ADDON_URI: postgres://postgres@localhost/teg-auth
-      DATABASE_URL: postgres://postgres@localhost/teg-auth
+      RUST_BACKTRACE: 1
+      POSTGRESQL_ADDON_URI: postgres://postgres@localhost/teg
+      DATABASE_URL: postgres://postgres@localhost/teg
       FIREBASE_PROJECT_ID: tegapp-dev
       PORT: 33005
       RUST_LOG: INFO
