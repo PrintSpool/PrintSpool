@@ -11,6 +11,8 @@ ssh $TEG_ARMV7_HOST -p $TEG_ARMV7_PORT "
   cd teg && \
   git checkout $GIT_BRANCH && \
   git pull origin $GIT_BRANCH && \
+  export NVM_DIR=\"\$HOME/.nvm\" && \
+  [ -s \"\$NVM_DIR/nvm.sh\" ] && \. \"\$NVM_DIR/nvm.sh\" && \
   nvm use && \
   npm install -g yarn && yarn bootstrap:minimal \
   && yarn pkg:build

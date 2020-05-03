@@ -30,8 +30,7 @@ These dependencies are only required for building a release/not needed for every
 
 1. Install Podman: https://podman.io/getting-started/installation.html
 2. `cargo install cross`
-3. `rustup target add armv7-unknown-linux-musleabihf`
-4. `sudo apt install binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf`
+3. `sudo apt install binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf`
 
 <!-- ### [Optional] Emulating a Raspberry Pi
 
