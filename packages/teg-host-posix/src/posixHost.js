@@ -206,7 +206,7 @@ const tegServer = async (argv, pluginLoader) => {
   try {
     // TODO: make server plugin config dynamic and based on the store.
     const tegServerConfig = {
-      schema: executableSchema(),
+      schema: await executableSchema(),
       context: {
         store,
       },

@@ -6,6 +6,7 @@ use async_std::task;
 use juniper::{
     FieldResult,
     // FieldError,
+    ID,
 };
 
 use crate::models::{
@@ -17,7 +18,10 @@ use crate::models::{
     UpdateInvite,
     DeleteInvite,
     ConsumeInvite,
+
+    get_video_providers,
     create_video_sdp,
+    VideoProvider,
     RTCSignalInput,
     VideoSession,
     IceCandidate,
@@ -44,7 +48,17 @@ impl Query {
         )
     }
 
-    fn ice_candidates(context: &Context, id: String) -> FieldResult<Vec<IceCandidate>> {
+    fn video_providers(context: &Context) -> FieldResult<Vec<VideoProvider>> {
+        task::block_on(
+            get_video_providers(context)
+        )
+        .map_err(|err| {
+            error!("ERR {:?}", err);
+            err
+        })
+    }
+
+    fn ice_candidates(context: &Context, id: ID) -> FieldResult<Vec<IceCandidate>> {
         task::block_on(
             get_ice_candidates(context, id)
         )

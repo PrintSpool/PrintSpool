@@ -2,6 +2,7 @@
 use juniper::{
     FieldResult,
     // FieldError,
+    ID,
 };
 use serde::{
     Serialize,
@@ -42,7 +43,25 @@ pub struct RTCSignalInput {
     pub sdp: String,
 }
 
+#[derive(juniper::GraphQLObject, Debug, Serialize, Deserialize)]
+pub struct VideoProvider {
+    video: String,
+}
+
 const WEBRTC_STREAMER_API: &'static str = "http://localhost:8009/api";
+
+pub async fn get_video_providers(
+    _context: &Context,
+) -> FieldResult<Vec<VideoProvider>> {
+    let answer: Vec<VideoProvider> = reqwest::blocking::Client::new()
+        .post(&format!("{}/getMediaList", WEBRTC_STREAMER_API))
+        .send()?
+        // .await?
+        .json()?;
+        // .await?;
+
+    Ok(answer)
+}
 
 pub async fn create_video_sdp(
     context: &Context,
@@ -115,7 +134,7 @@ pub async fn create_video_sdp(
 
 pub async fn get_ice_candidates(
     context: &Context,
-    id: String,
+    id: ID,
 ) -> FieldResult<Vec<IceCandidate>> {
     let user = context.current_user
         .as_ref()

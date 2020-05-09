@@ -24,7 +24,9 @@
   "license": "AGPL-3.0-or-later",
   "private": true,
   "esm": {
-    "mainFields":["esmMain"]
+    "mainFields": [
+      "esmMain"
+    ]
   },
   "scripts": {
     "trace-gc": "npx node-dev ./dist/index.js --trace-warnings --trace-gc --trace-gc-ignore-scavenger",
@@ -41,6 +43,7 @@
     "@tegapp/core": "^0.8.0",
     "@tegapp/macros-default": "^0.8.0",
     "@tegapp/marlin": "^0.8.0",
+    "apollo-link-http": "^1.5.17",
     "apollo-server-koa": "^2.4.8",
     "babel-preset-flow": "^6.23.0",
     "bluebird": "^3.5.3",

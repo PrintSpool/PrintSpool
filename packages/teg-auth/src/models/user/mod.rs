@@ -16,6 +16,8 @@ mod graphql;
 
 #[derive(Debug)]
 pub struct User {
+    // TODO: investigate how to add custom result exts to slqx
+    // pub id: ID,
     pub id: i32,
     pub email: Option<String>,
     pub email_verified: bool,
@@ -30,7 +32,7 @@ pub struct User {
 #[derive(juniper::GraphQLInputObject)]
 pub struct UpdateUser {
     #[graphql(name="userID")]
-    pub user_id: String,
+    pub user_id: ID,
     pub is_admin: Option<bool>,
 }
 
