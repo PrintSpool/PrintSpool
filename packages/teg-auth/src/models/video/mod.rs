@@ -44,8 +44,13 @@ pub struct RTCSignalInput {
 }
 
 #[derive(juniper::GraphQLObject, Debug, Serialize, Deserialize)]
-pub struct VideoProvider {
+pub struct Media {
     video: String,
+}
+
+#[derive(juniper::GraphQLObject, Debug, Serialize, Deserialize)]
+pub struct VideoProvider {
+    id: ID,
 }
 
 const WEBRTC_STREAMER_API: &'static str = "http://localhost:8009/api";
@@ -53,14 +58,20 @@ const WEBRTC_STREAMER_API: &'static str = "http://localhost:8009/api";
 pub async fn get_video_providers(
     _context: &Context,
 ) -> FieldResult<Vec<VideoProvider>> {
-    let answer: Vec<VideoProvider> = reqwest::blocking::Client::new()
+    let media_list: Vec<Media> = reqwest::blocking::Client::new()
         .post(&format!("{}/getMediaList", WEBRTC_STREAMER_API))
         .send()?
         // .await?
         .json()?;
         // .await?;
 
-    Ok(answer)
+    let video_providers = media_list.into_iter()
+        .map(|media| VideoProvider {
+            id: media.video.into()
+        })
+        .collect();
+
+     Ok(video_providers)
 }
 
 pub async fn create_video_sdp(
