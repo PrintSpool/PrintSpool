@@ -19,9 +19,9 @@ use crate::models::{
     DeleteInvite,
     ConsumeInvite,
 
-    get_video_providers,
+    get_video_sources,
     create_video_sdp,
-    VideoProvider,
+    VideoSource,
     RTCSignalInput,
     VideoSession,
     IceCandidate,
@@ -48,9 +48,9 @@ impl Query {
         )
     }
 
-    fn video_providers(context: &Context) -> FieldResult<Vec<VideoProvider>> {
+    fn video_sources(context: &Context) -> FieldResult<Vec<VideoSource>> {
         task::block_on(
-            get_video_providers(context)
+            get_video_sources(context)
         )
         .map_err(|err| {
             error!("ERR {:?}", err);
