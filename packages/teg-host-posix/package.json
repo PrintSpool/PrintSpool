@@ -43,6 +43,7 @@
     "@tegapp/core": "^0.8.0",
     "@tegapp/macros-default": "^0.8.0",
     "@tegapp/marlin": "^0.8.0",
+    "apollo-link-context": "^1.0.20",
     "apollo-link-http": "^1.5.17",
     "apollo-server-koa": "^2.4.8",
     "babel-preset-flow": "^6.23.0",

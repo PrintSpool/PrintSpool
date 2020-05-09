@@ -7,6 +7,7 @@ import {
   FilterRootFields,
 } from 'graphql-tools'
 import { HttpLink } from 'apollo-link-http'
+import { setContext } from 'apollo-link-context'
 
 import typeDefs from '@tegapp/schema'
 
@@ -38,21 +39,36 @@ const executableSchema = async () => {
     }
   }
 
+  const link = setContext((request, previousContext) => ({
+    headers: {
+      'user-id': previousContext.graphqlContext.user.id,
+    }
+  })).concat(new HttpLink({ uri: rustURI }))
+
   const rustSchema = await makeRemoteExecutableSchema({
     schema: introspectionResult,
-    link: new HttpLink({ uri: rustURI })
+    link,
   })
+
+  const ommittedFields = [
+    'authenticateUser',
+    'createInvite',
+    'updateInvite',
+    'deleteInvite',
+    'updateUser',
+    'deleteUser',
+  ]
 
   const transformedRustSchema = transformSchema(rustSchema, [
     new FilterRootFields(
-      (_operation, rootField) => rootField !== 'authenticateUser'
+      (_operation, rootField) => ommittedFields.includes(rootField) === false
     ),
   ])
 
   return mergeSchemas({
     schemas: [
-      transformedRustSchema,
       nodeJSSchema,
+      transformedRustSchema,
     ],
   })
 }
