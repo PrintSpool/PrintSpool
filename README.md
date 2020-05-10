@@ -6,10 +6,11 @@
 
 A bold new way to 3D print over WiFi.
 
-## Getting Started
+Get started at [https://tegapp.io]
 
-1. Download [Beaker Browser](https://beakerbrowser.com)
-3. Open Beaker and follow the instructions at [dat://tegapp.io](dat://tegapp.io)
+Note: Teg is an early-access alpha in active development. Please be aware that it may have substantial bugs.
+
+Last but not least if you find any please me know in the issues! Even if it is a known issue an upvote for the bug helps me prioritize what to work on next.
 
 ## Hacking
 
@@ -17,7 +18,7 @@ A bold new way to 3D print over WiFi.
 
 1. Install [nvm](https://github.com/creationix/nvm)
 2. Install [Rust](https://rustup.rs/)
-3. `sudo apt install libssl-dev postgresql libpq-dev tmux`
+3. `sudo apt install libssl-dev postgresql libpq-dev tmux qemu qemu-user qemu-user-static libarchive-tools`
 4. Enable Passwordless local logins in Postgres: https://gist.github.com/p1nox/4953113
 5. Allow serial port access via the dialout group and then log out and back in: `sudo gpasswd --add ${USER} dialout`
 6. Create an empty `teg-auth` database using psql
@@ -29,13 +30,14 @@ A bold new way to 3D print over WiFi.
 These dependencies are only required for building a release/not needed for every day development.
 
 1. Install Podman: https://podman.io/getting-started/installation.html
-2. `cargo install cross`
-3. `sudo apt install binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf`
+2. `podman pull ryankurte/docker-rpi-emu`
+3. `cargo install cross`
+4. `sudo apt install binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf`
 
-<!-- ### [Optional] Emulating a Raspberry Pi
+### WIP: Podman Cross Compilation Environment
 
-1. Install [qemu](https://www.qemu.org/download/): `sudo apt-get install qemu-system qemu-system-arm qemu-kvm libvirt-daemon bridge-utils virt-manager`
-2. Download the [ARMv7 Ubuntu 18.10 image](https://cloud-images.ubuntu.com/releases/18.10/release/ubuntu-18.10-server-cloudimg-armhf.img) -->
+1. build the docker image: `cd ./armhf && ./build.sh`
+2. run the container in podman: `podman run -v "$PWD/..":/usr/src/teg -w /usr/src/teg/ -it teg-armhf /bin/bash`
 
 ### Running the Dev Host + Web UI
 
