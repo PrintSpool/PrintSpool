@@ -49,6 +49,7 @@ RUN chmod +x /snap/bin/snapcraft
 FROM arm32v7/ubuntu:16.04 as runtime-image
 COPY --from=compile-stage /snap/core /snap/core
 COPY --from=compile-stage /snap/core18 /snap/core18
+COPY --from=compile-stage /snap/core20 /snap/core20
 COPY --from=compile-stage /snap/snapcraft /snap/snapcraft
 COPY --from=compile-stage /snap/bin/snapcraft /snap/bin/snapcraft
 
@@ -63,6 +64,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 
 # Install base dependencies
 RUN apt-get update && apt-get install -y -q --no-install-recommends \
+        nodejs \
         apt-transport-https \
         build-essential \
         ca-certificates \
@@ -72,20 +74,21 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
         wget \
         sudo \
         locales \
-    && locale-gen en_US.UTF-8
+    && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install nvm with node and npm
-ENV NODE_VERSION 12.11.1
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.35.3/install.sh | bash \
-    && . ~/nvm.sh \
-    && nvm install $NODE_VERSION \
-    && nvm alias default $NODE_VERSION \
-    && nvm use default
+    && . $HOME/.nvm/nvm.sh \
+    && nvm install  12.11.1
+    # && nvm use --delete-prefix v12.11.1
+    # && nvm use --delete-prefix v12.11.1 \
+    # && nvm alias default 12.11.1 \
+    # && npm i -g yarn
 
 # Set the proper environment.
 ENV NVM_DIR $HOME/.nvm
-ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
+ENV NODE_PATH $NVM_DIR/v12.11.1/lib/node_modules
 
 ENV LANG="en_US.UTF-8"
 ENV LANGUAGE="en_US:en"
@@ -95,7 +98,7 @@ ENV SNAP="/snap/snapcraft/current"
 ENV SNAP_NAME="snapcraft"
 ENV SNAP_ARCH="armhf"
 
-ENV PATH="/snap/bin:$NVM_DIR/v$NODE_VERSION/bin:$PATH"
+ENV PATH="/snap/bin:$NVM_DIR/v12.11.1/bin:$PATH"
 
 # Rust
 # ----------------------------------------------------------------------------------------------------------

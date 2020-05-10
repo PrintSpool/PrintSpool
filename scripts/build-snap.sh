@@ -4,36 +4,51 @@ set -e
 mkdir -p ./dist
 rm -f ./dist/*.snap
 
-echo "$SKIP_PKG"
-if test -z "$SKIP_PKG" 
-then
-  ./scripts/build-armv7-pkg.sh
-  ./scripts/build-x64-pkg.sh
-else
-  echo "\n\$SKIP_PKG detected. Reusing previous pkg builds. NodeJS changes will *not* be included in this build."
+if [ ! -d ./armhf/ephemeral-copy ] ; then
+  git clone -l ./ ./armhf/ephemeral-copy
 fi
 
-echo "\nBuilding teg-marlin...\n\n"
-yarn tegmarlin:build:x64
-yarn tegmarlin:build:armv7
-echo "\n\nBuilding teg-marlin... [DONE]\n"
 
-echo "\nBuilding teg-auth...\n\n"
-yarn tegauth:build:x64
-yarn tegauth:build:armv7
-echo "\n\nBuilding teg-auth... [DONE]\n"
+# echo "\nBuilding teg-marlin...\n\n"
+# if test -z "$SKIP_X64"
+# then
+#   yarn tegmarlin:build:x64
+# fi
+# if test -z "$SKIP_ARMV7"
+# then
+#   yarn tegmarlin:build:armv7
+# fi
+# echo "\n\nBuilding teg-marlin... [DONE]\n"
 
-TEG_VERSION=`node -e "console.log(require('./packages/teg-core/package.json').version);"`;
 
-cd ./snap
+# echo "\nBuilding teg-auth...\n\n"
+# if test -z "$SKIP_X64"
+# then
+#   yarn tegauth:build:x64
+# fi
+# if test -z "$SKIP_ARMV7"
+# then
+#   yarn tegauth:build:armv7
+# fi
+# echo "\n\nBuilding teg-auth... [DONE]\n"
 
-sed -i -E "s/^version:[^\n]+/version: $TEG_VERSION/g" ./snapcraft.yaml
 
-# snapcraft clean
-# snapcraft clean teg
-#
-# snapcraft --debug
+# if test -z "$SKIP_X64"
+# then
+#   echo "\n Building local (x64) snap...\n\n"
+#   ./build-snap-worker.sh
+#   echo "\n Building local (x64) snap... [DONE]\n\n"
+# fi
 
-snapcraft remote-build --launchpad-accept-public-upload
+if test -z "$SKIP_ARMV7"
+then
+  echo "\n Building armhf snap...\n\n"
+  # ./armhf/build-image.sh
+  podman run -v "$PWD":/usr/src/teg -w /usr/src/teg/ -it teg-armhf /bin/bash -c ./scripts/build-snap-worker-ephemeral.sh
+  echo "\n Building armhf snap... [DONE]\n\n"
+fi
+
+# snapcraft remote-build --launchpad-accept-public-upload
 
 mv ./*.snap ../dist/
+mv ./armhf/ephemeral-copy/*.snap ../dist/

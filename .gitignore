@@ -95,3 +95,5 @@ target
 !dat.json
 
 !.gitkeep
+
+armhf/ephemeral-copy

@@ -18,7 +18,7 @@ Last but not least if you find any please me know in the issues! Even if it is a
 
 1. Install [nvm](https://github.com/creationix/nvm)
 2. Install [Rust](https://rustup.rs/)
-3. `sudo apt install libssl-dev postgresql libpq-dev tmux qemu qemu-user qemu-user-static`
+3. `sudo apt update && sudo apt install libssl-dev postgresql libpq-dev tmux qemu qemu-user qemu-user-static binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf fuse-overlayfs`
 4. Enable Passwordless local logins in Postgres: https://gist.github.com/p1nox/4953113
 5. Allow serial port access via the dialout group and then log out and back in: `sudo gpasswd --add ${USER} dialout`
 6. Create an empty `teg-auth` database using psql
@@ -32,12 +32,11 @@ These dependencies are only required for building a release/not needed for every
 1. Install Podman: https://podman.io/getting-started/installation.html
 2. `podman pull ryankurte/docker-rpi-emu`
 3. `cargo install cross`
-4. `sudo apt install binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf fuse-overlayfs`
 
 ### WIP: Podman Cross Compilation Environment
 
-1. build the docker image: `cd ./armhf && ./build.sh`
-2. run the container in podman: `podman run -v "$PWD/..":/usr/src/teg -w /usr/src/teg/ -it teg-armhf /bin/bash`
+1. build the docker image: `./armhf/build-image.sh`
+2. run the container in podman: `podman run -v "$PWD":/usr/src/teg -w /usr/src/teg/ -it teg-armhf /bin/bash`
 
 ### Running the Dev Host + Web UI
 

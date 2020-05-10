@@ -1,13 +1,14 @@
 #!/bin/bash
 set -e
 
-teg_VERSION=`node -e "console.log(require('./packages/teg-core/package.json').version);"`;
+TEG_VERSION=`node -e "console.log(require('./packages/teg-core/package.json').version);"`;
+ARCH=`uname -m`
 
-echo "Building Teg PKG $teg_VERSION for X64: Ignore the warnings and scary yellow text. This is not a pretty process."
+echo "Building Teg PKG $TEG_VERSION for $ARCH: Ignore the warnings and scary yellow text. This is not a pretty process."
 
 yarn pkg:build
 
-cd ./snap/teg-x64-bin
+cd ./snap/teg-bin
 rm -rf ./node_modules
 rm -rf ./teg
 

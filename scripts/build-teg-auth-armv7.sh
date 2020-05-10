@@ -36,4 +36,4 @@ cd ./packages/teg-auth
 
 cargo build --release --target=armv7-unknown-linux-gnueabihf
 
-cp -R ./target/armv7-unknown-linux-gnueabihf/release/teg-auth ../../snap/teg-auth-bin/teg-auth-armv7
+cp -R ./target/armv7-unknown-linux-gnueabihf/release/teg-auth ../../armhf/ephemeral-copy/snap/teg-auth-bin/teg-auth
