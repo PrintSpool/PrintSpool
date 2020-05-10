@@ -65,6 +65,7 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 # Install base dependencies
 RUN apt-get update && apt-get install -y -q --no-install-recommends \
         nodejs \
+        python \
         apt-transport-https \
         build-essential \
         ca-certificates \

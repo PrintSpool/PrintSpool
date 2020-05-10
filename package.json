@@ -29,8 +29,6 @@
     "tegauth:build:x64": "cd ./packages/teg-auth && cargo build --release && cp -R ./target/release/teg-auth ../../snap/teg-auth-bin/teg-auth",
     "tegauth:build:armv7": "./scripts/build-teg-auth-armv7.sh",
     "tegauth:scp": "yarn tegauth:build:armv7 && scp ./snap/teg-auth-bin/teg-auth-armv7 $TEG_ARMV7_HOST:~/",
-    "pkg:build": "gulp pkg:build",
-    "pkg:build:armv7": "./scripts/build-armv7-pkg.sh",
     "snap:build": "./scripts/build-snap.sh",
     "snap:push": "snapcraft push --release=beta ./dist/amd64.snap && snapcraft push --release=beta ./dist/armhf.snap",
     "snap:remove": "sudo snap remove teg",

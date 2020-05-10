@@ -141,14 +141,6 @@ gulp.task('babel:watch', gulp.series(
 ))
 
 gulp.task(
-  'pkg:build',
-  gulp.series(
-    'babel:build',
-    run('teg-host-posix', 'pkg:build'),
-  ),
-)
-
-gulp.task(
   'marlin:start',
   cargoRun('teg-marlin'),
 )

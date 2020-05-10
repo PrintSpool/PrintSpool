@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-ARCH=`uname -m`
+ARCH=`dpkg --print-architecture`
 
 echo "start build-snap-worker (arch: $ARCH)"
 
