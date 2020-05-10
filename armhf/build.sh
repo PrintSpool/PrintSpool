@@ -7,11 +7,13 @@ set -euo pipefail
 
 # # Build the compile stage:
 # podman build --target compile-stage \
+#        --storage-driver=overlay \
 #        --cache-from=teg-armhf:compile-stage \
 #        --tag teg-armhf:compile-stage .
 
 # Build the runtime stage, using cached compile stage:
 podman build --target runtime-image \
+       --storage-driver=overlay \
        --cache-from=teg-armhf:compile-stage \
        --cache-from=teg-armhf:latest \
        --tag teg-armhf:latest .
