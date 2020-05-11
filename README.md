@@ -12,9 +12,9 @@ Note: Teg is an early-access alpha in active development. Please be aware that i
 
 Last but not least if you find any please me know in the issues! Even if it is a known issue an upvote for the bug helps me prioritize what to work on next.
 
-## Hacking
+## Dev Environment
 
-### Dev Installation
+### Environment Setup
 
 1. Install [nvm](https://github.com/creationix/nvm)
 2. Install [Rust](https://rustup.rs/)
@@ -25,20 +25,22 @@ Last but not least if you find any please me know in the issues! Even if it is a
 7. Bootstrap the dev environment with teg, node 10 and yarn:
 `nvm use && npm i -g yarn && yarn bootstrap`
 
-### Release Build dependencies
+## Compiling Releases
 
-These dependencies are only required for building a release/not needed for every day development.
+### Environment Setup
+
+Note: These dependencies are only for building snaps - they are not needed for most development.
 
 1. Install Podman: https://podman.io/getting-started/installation.html
-2. `podman pull ryankurte/docker-rpi-emu`
-3. `cargo install cross`
+2. `cargo install cross`
+3. Build the docker image: `./armhf/build-image.sh`
+4. `podman run -v "$PWD":/usr/src/teg -w /usr/src/teg/ -it teg-armhf /bin/bash -c ./scripts/build-pkg-ephemeral.sh`
 
-### WIP: Podman Cross Compilation Environment
+### Building the snap
 
-1. build the docker image: `./armhf/build-image.sh`
-2. run the container in podman: `podman run -v "$PWD":/usr/src/teg -w /usr/src/teg/ -it teg-armhf /bin/bash`
+`yarn snap:build`
 
-### Running the Dev Host + Web UI
+## Running the Dev Host + Web UI
 
 Disable any other copies of teg and run `yarn start`
 

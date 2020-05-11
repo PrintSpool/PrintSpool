@@ -5,6 +5,7 @@ description: >
   Teg is an experimental 3D printing software designed from the ground up to streamline your 3D printing experience. Teg features a print queue that enables users to easily queue up prints without managing complicated file systems. To manage prints remotely Teg is built on top of encrypted, distributed web technologies so you can use your 3D printer from anywhere in the world just as easily as from your home. With Teg you can worry less and create more.
 
 base: core20
+build-base: core18
 # confinement: classic
 confinement: devmode
 # confinement: strict
@@ -16,7 +17,7 @@ architectures:
   - build-on: armhf
     run-on: armhf
 
-# plugs:
+    # plugs:
 #   klipper-printers:
 #     interface: system-files
 #     read:
@@ -61,68 +62,54 @@ parts:
   #   source-depth: 1
   #   build-attributes: [no-patchelf]
 
+
   teg:
     plugin: dump
     source: .
-    override-build: |
-      if [ "$SNAPCRAFT_ARCH_TRIPLET" = "arm-linux-gnueabihf" ]; then
-        echo "ARM TEG"
-        cp -r ./teg-armv7-bin/* ../install/
-      elif [ "$SNAPCRAFT_ARCH_TRIPLET" = "x86_64-linux-gnu" ]; then
-        echo "X64 TEG"
-        cp -r ./teg-x64-bin/* ../install/
-      else
-        echo "Error! Invalid Architecture: $SNAPCRAFT_ARCH_TRIPLET" 1>&2
-        exit 1
-      fi
+    source:
+      - to armhf: teg-server-bin/armv7/
+      - to amd64: teg-server-bin/x64/
     build-attributes: [no-patchelf]
 
   teg-marlin:
     plugin: dump
-    source: teg-marlin-bin/
-    override-build: |
-      if [ "$SNAPCRAFT_ARCH_TRIPLET" = "arm-linux-gnueabihf" ]; then
-        echo "ARM TEG-MARLIN"
-        cp ./teg-marlin-armv7 ../install/teg-marlin
-      elif [ "$SNAPCRAFT_ARCH_TRIPLET" = "x86_64-linux-gnu" ]; then
-        echo "X64 TEG-MARLIN"
-        cp ./teg-marlin-x64 ../install/teg-marlin
-      else
-        echo "Error! Invalid Architecture: $SNAPCRAFT_ARCH_TRIPLET" 1>&2
-        exit 1
-      fi
+    source:
+      - to armhf: teg-marlin-bin/armv7/
+      - to amd64: teg-marlin-bin/x64/
 
   teg-auth:
     plugin: dump
-    source: teg-auth-bin/
+    source:
+      - to armhf: teg-auth-bin/armv7/
+      - to amd64: teg-auth-bin/x64/
     # TODO: how do you add apt dependencies
     # Also you need to set up postgres: https://gist.github.com/p1nox/4953113
     # Also `diesel db setup`
     stage-packages:
-      - postgresql
-      - libpq-dev
-      - postgresql-client
-    override-build: |
-      if [ "$SNAPCRAFT_ARCH_TRIPLET" = "arm-linux-gnueabihf" ]; then
-        echo "ARM TEG-MARLIN"
-        cp ./teg-auth-armv7 ../install/teg-auth
-      elif [ "$SNAPCRAFT_ARCH_TRIPLET" = "x86_64-linux-gnu" ]; then
-        echo "X64 TEG-MARLIN"
-        cp ./teg-auth-x64 ../install/teg-auth
-      else
-        echo "Error! Invalid Architecture: $SNAPCRAFT_ARCH_TRIPLET" 1>&2
-        exit 1
-      fi
+      - to armhf:
+          # - "sqlite3:armhf"
+        - postgresql:armhf
+        - libpq-dev:armhf
+        - postgresql-client:armhf
+      - else:
+        # - "sqlite3"
+        - postgresql
+        - libpq-dev
+        - postgresql-client
 
   # https://snapcraft.io/blog/the-smart-dump-plugin
   webrtc-streamer:
     plugin: dump
     source:
-      - on amd64: https://github.com/mpromonet/webrtc-streamer/releases/download/v0.2.4/webrtc-streamer-v0.2.4-Linux-x86_64-Release.tar.gz
-      - on armhf: https://github.com/mpromonet/webrtc-streamer/releases/download/v0.2.4/webrtc-streamer-v0.2.4-Linux-armv7l-Release.tar.gz
+      - to amd64: https://github.com/mpromonet/webrtc-streamer/releases/download/v0.2.4/webrtc-streamer-v0.2.4-Linux-x86_64-Release.tar.gz
+      - to armhf: https://github.com/mpromonet/webrtc-streamer/releases/download/v0.2.4/webrtc-streamer-v0.2.4-Linux-armv7l-Release.tar.gz
     stage-packages:
-      - libgtk-3-0
-      - libasound2
+      - to armhf:
+        - libgtk-3-0:armhf
+        - libasound2:armhf
+      - else:
+        - libgtk-3-0
+        - libasound2
 
   # teg-marlin:
   #   plugin: rust
