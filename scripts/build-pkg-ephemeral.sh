@@ -6,6 +6,7 @@ export NVM_DIR="$HOME/.nvm"
 
 cd ./armhf/ephemeral-copy/
 
+git add -A
 git reset --hard HEAD
 git pull
 

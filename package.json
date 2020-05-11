@@ -33,7 +33,7 @@
     "snap:push": "snapcraft push --release=beta ./dist/amd64.snap && snapcraft push --release=beta ./dist/armhf.snap",
     "snap:remove": "sudo snap remove teg",
     "snap:install": "sudo snap install --devmode --dangerous ./dist/teg_$(echo $npm_package_version)_amd64.snap && yarn journalctl",
-    "snap:install:remote": "ssh $TEG_ARMV7_HOST rm ./teg_$(echo $npm_package_version)_armhf.snap; rsync ./dist/teg_$(echo $npm_package_version)_armhf.snap $TEG_ARMV7_HOST:~/ && ssh $TEG_ARMV7_HOST sudo snap install --devmode --dangerous ./teg_$(echo $npm_package_version)_armhf.snap && ssh $TEG_ARMV7_HOST -t 'snap logs teg.server -f -n 50'",
+    "snap:install:remote": "ssh $TEG_ARMV7_HOST rm ./teg_$(echo $npm_package_version)_armhf.snap; rsync ./dist/teg_$(echo $npm_package_version)_armhf.snap $TEG_ARMV7_HOST:~/ && ssh $TEG_ARMV7_HOST sudo snap install --devmode --dangerous ./teg_$(echo $npm_package_version)_armhf.snap && ssh $TEG_ARMV7_HOST -t 'sudo snap logs teg.server -f -n=50'",
     "snap:build-and-install": "yarn snap:build && yarn snap:install",
     "snap:version": "./scripts/releaseConfirmation.sh && lerna version --conventional-commits",
     "snap:publish": "yarn snap:version && yarn snap:build && yarn snap:push",
