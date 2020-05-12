@@ -3,6 +3,20 @@ authors = ["D1plo1d <thatotherdude@gmail.com>"]
 edition = "2018"
 name = "teg-auth"
 version = "0.1.0"
+default-run = "teg_auth"
+
+[lib]
+name = "teg_auth"
+path = "src/lib.rs"
+
+[[bin]]
+name = "teg_auth"
+path = "src/bin/main.rs"
+
+[[bin]]
+name = "teg-add-invite"
+path = "src/bin/add_invite.rs"
+
 [dependencies]
 chrono = "0.4.10"
 data-encoding = "2.1.2"

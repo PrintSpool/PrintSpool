@@ -24,9 +24,9 @@ const executableSchema = async () => {
 
   const rustURI = 'http://localhost:33005/graphql'
 
-  let introspectionResult 
-  
-  while(introspectionResult == null) {
+  let introspectionResult
+
+  while (introspectionResult == null) {
     try {
       console.error('Connecting to rust server...')
       introspectionResult = await introspectSchema(
@@ -57,6 +57,7 @@ const executableSchema = async () => {
     'deleteInvite',
     'updateUser',
     'deleteUser',
+    'consumeInvite',
   ]
 
   const transformedRustSchema = transformSchema(rustSchema, [

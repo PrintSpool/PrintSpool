@@ -85,6 +85,18 @@ impl Invite {
         Ok(invite)
     }
 
+    pub async fn generate_and_display(
+        pool: Arc<sqlx::PgPool>,
+        is_admin: bool,
+    ) -> FieldResult<Self> {
+        let mut db = pool.acquire().await?;
+
+        let invite = Self::new(&mut db, is_admin).await?;
+        invite.print_welcome_text()?;
+
+        Ok(invite)
+    }
+
     pub async fn generate_or_display_initial_invite(
         pool: Arc<sqlx::PgPool>,
     ) -> FieldResult<()> {

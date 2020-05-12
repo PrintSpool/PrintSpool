@@ -18,10 +18,10 @@ extern crate serde;
 extern crate url;
 extern crate gravatar;
 
-use warp::{http::Response, Filter};
 use dotenv::dotenv;
 use std::env;
 use std::sync::Arc;
+use async_std::sync::RwLock;
 
 pub mod models;
 mod context;
@@ -45,8 +45,36 @@ fn read_config(config_path: &str) -> crate::Result<configuration::Config> {
     Ok(config)
 }
 
-#[async_std::main]
-async fn main() -> Result<()> {
+// Firebase Certs
+pub async fn watch_auth_pem_keys() -> crate::Result<Arc<RwLock<Vec<Vec<u8>>>>> {
+    let pem_keys = models::jwt::get_pem_keys()?;
+    let pem_keys_lock = Arc::new(RwLock::new(pem_keys));
+
+    let pem_keys_refresh = Arc::clone(&pem_keys_lock);
+
+    use futures::stream::StreamExt;
+
+    let firebase_refresh_task = async_std::stream::repeat(())
+        .fold(pem_keys_refresh, |pem_keys_refresh, _| async move {
+            info!("Firebase certs will refresh in an hour");
+            task::sleep(std::time::Duration::from_secs(60 * 60)).await;
+
+            let next_pem_keys = models::jwt::get_pem_keys().expect("Unable to refresh Firebase certs");
+
+            let pem_keys_borrow = Arc::clone(&pem_keys_refresh);
+            let mut writer = pem_keys_borrow.write().await;
+
+            *writer = next_pem_keys;
+
+            pem_keys_refresh
+        });
+
+    task::spawn(firebase_refresh_task);
+
+    Ok(pem_keys_lock)
+}
+
+pub async fn init() -> crate::Result<Context> {
     dotenv().ok();
     env_logger::init();
 
@@ -72,25 +100,8 @@ async fn main() -> Result<()> {
 
         eprintln!("Running Auth Migrations: DONE");
 
-        return Ok(())
+        return Err("TODO: Migration not yet implemented".into())
     }
-
-    eprintln!("Starting Auth Server");
-
-    let log = warp::log("auth");
-
-    let port = env::var("PORT")
-        .expect("$PORT must be set")
-        .parse()
-        .expect("Invalid $PORT");
-
-    let homepage = warp::path::end().map(|| {
-        Response::builder()
-            .header("content-type", "text/html")
-            .body(format!(
-                "<html><h1>juniper_warp</h1><div>visit <a href=\"/graphiql\">/graphiql</a></html>"
-            ))
-    });
 
     let database_url = env::var("POSTGRESQL_ADDON_URI")
         .expect("$POSTGRESQL_ADDON_URI must be set");
@@ -107,36 +118,6 @@ async fn main() -> Result<()> {
         .map_err(|err| {
             format!("{:?}", err)
         })?;
-
-    let schema = Schema::new(Query, Mutation{});
-
-
-    // Firebase Certs
-    use async_std::sync::RwLock;
-
-    let pem_keys = models::jwt::get_pem_keys()?;
-    let pem_keys_lock = Arc::new(RwLock::new(pem_keys));
-
-    let pem_keys_refresh = Arc::clone(&pem_keys_lock);
-
-    use futures::stream::StreamExt;
-
-    let firebase_refresh_task = async_std::stream::repeat(())
-        .fold(pem_keys_refresh, |pem_keys_refresh, _| async move {
-            info!("Firebase certs will refresh in an hour");
-            task::sleep(std::time::Duration::from_secs(60 * 60)).await;
-
-            let next_pem_keys = models::jwt::get_pem_keys().expect("Unable to refresh Firebase certs");
-
-            let pem_keys_borrow = Arc::clone(&pem_keys_refresh);
-            let mut writer = pem_keys_borrow.write().await;
-
-            *writer = next_pem_keys;
-
-            pem_keys_refresh
-        });
-
-    task::spawn(firebase_refresh_task);
 
     // Config
     // ----------------------------------------------------
@@ -172,56 +153,32 @@ async fn main() -> Result<()> {
 
         loop {
             match rx.recv() {
-               | Ok(DebouncedEvent::Create(file_path))
-               | Ok(DebouncedEvent::Write(file_path)) => {
-                   if file_path.to_str() == Some(&config_path_clone) {
-                       info!("Config file changed");
+                | Ok(DebouncedEvent::Create(file_path))
+                | Ok(DebouncedEvent::Write(file_path)) => {
+                    if file_path.to_str() == Some(&config_path_clone) {
+                        info!("Config file changed");
 
-                       let next_config = read_config(&config_path_clone).unwrap();
+                        let next_config = read_config(&config_path_clone).unwrap();
 
-                       let mut writer = async_std::task::block_on(config_clone.write());
+                        let mut writer = async_std::task::block_on(config_clone.write());
 
-                       *writer = next_config;
+                        *writer = next_config;
 
-                       info!("Config changes applied");
-                   }
-               },
-               Err(e) => println!("watch error: {:?}", e),
-               _ => (),
+                        info!("Config changes applied");
+                    }
+                },
+                Err(e) => println!("watch error: {:?}", e),
+                _ => (),
             }
         }
     });
 
     info!("Watching for config changes at: {}", &config_path);
 
-
-    // State
-    let state = warp::any()
-        .and(warp::header::optional::<i32>("user-id"))
-        .and_then(move |user_id| {
-            task::block_on(
-                Context::new(
-                    Arc::clone(&pool),
-                    user_id,
-                    Arc::clone(&pem_keys_lock),
-                    Arc::clone(&config),
-                )
-            ).map_err(|err| {
-                warp::reject::custom(err)
-            })
-        });
-
-    let graphql_filter = juniper_warp::make_graphql_filter(schema, state.boxed());
-
-    warp::serve(
-        warp::get2()
-            .and(warp::path("graphiql"))
-            .and(juniper_warp::graphiql_filter("/graphql"))
-            .or(homepage)
-            .or(warp::path("graphql").and(graphql_filter))
-            .with(log),
-    )
-        .run(([127, 0, 0, 1], port));
-
-    Ok(())
+    Ok(Context {
+        pool,
+        current_user: None,
+        auth_pem_keys: Arc::new(RwLock::new(vec![vec![]])),
+        machine_config: config,
+    })
 }
