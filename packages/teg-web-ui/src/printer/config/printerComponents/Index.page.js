@@ -43,6 +43,9 @@ const COMPONENTS_SUBSCRIPTION = gql`
         devices {
           id
         }
+        videoSources {
+          id
+        }
         materials {
           id
           name
@@ -147,6 +150,7 @@ const ComponentsConfigIndex = ({
   selectedComponent,
   devices,
   materials,
+  videoSources,
   verb,
 }) => (
   <main>
@@ -163,6 +167,7 @@ const ComponentsConfigIndex = ({
         transformSchema={schema => transformComponentSchema({
           schema,
           materials,
+          videoSources,
           devices,
         })}
         variables={{ machineID, componentID: selectedComponent.id }}

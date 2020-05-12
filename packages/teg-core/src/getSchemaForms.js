@@ -315,7 +315,7 @@ const getSchemaForms = () => ({
       schema: schema => ({
         ...schema,
         type: 'object',
-        title: 'Fan',
+        title: 'Video',
         required: [
           ...(schema.required || []),
           'name',

@@ -2,6 +2,7 @@ const transformComponentSchema = ({
   schema,
   materials,
   devices,
+  videoSources,
   machineDefSuggestions,
 }) => {
   let nextSchema = schema
@@ -14,6 +15,23 @@ const transformComponentSchema = ({
     const properties = { ...nextSchema.properties }
     properties.serialPortID = {
       ...nextSchema.properties.serialPortID,
+      enum: enumValues,
+    }
+
+    nextSchema = {
+      ...nextSchema,
+      properties,
+    }
+  }
+  if (schema.properties.source != null && videoSources != null) {
+    // inject the devices list into the schema as an enum
+    const enumValues = videoSources
+      // .filter(d => d.type === 'SERIAL_PORT')
+      .map(d => d.id)
+
+    const properties = { ...nextSchema.properties }
+    properties.source = {
+      ...nextSchema.properties.source,
       enum: enumValues,
     }
 
