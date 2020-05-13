@@ -62,7 +62,7 @@ const executableSchema = async () => {
 
   const transformedRustSchema = transformSchema(rustSchema, [
     new FilterRootFields(
-      (_operation, rootField) => ommittedFields.includes(rootField) === false
+      (_operation, rootField) => ommittedFields.includes(rootField) === false,
     ),
   ])
 
