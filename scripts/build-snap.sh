@@ -4,7 +4,7 @@ set -e
 mkdir -p ./dist
 rm -f ./dist/*.snap
 
-[ ! -d ./armhf/ephemeral-copy ] && git clone -l ./ ./armhf/ephemeral-copy
+[ ! -d ./armv7/ephemeral-copy ] && git clone -l ./ ./armv7/ephemeral-copy
 
 mkdir -p ./snap/teg-auth-bin/x64
 mkdir -p ./snap/teg-auth-bin/armv7
@@ -28,6 +28,8 @@ then
     [ -z "$SKIP_ARMV7" ] && yarn tegauth:build:armv7
     echo "Building teg-auth... [DONE]"
   fi
+else
+  echo "\n\$SKIP_RUST: Reusing previous rust builds. Rust changes will *not* be included in this build."
 fi
 
 if [ -z "$SKIP_PKG" ]
@@ -41,10 +43,10 @@ then
 
   if [ -z "$SKIP_ARMV7" ]
   then
-    echo "Building armhf pkg..."
-    # ./armhf/build-image.sh
-    podman run -v "$PWD":/usr/src/teg -w /usr/src/teg/ -it teg-armhf /bin/bash -c ./scripts/build-pkg-ephemeral.sh
-    echo "Building armhf pkg... [DONE]"
+    echo "Building armv7 pkg..."
+    # ./armv7/build-image.sh
+    podman run -v "$PWD":/usr/src/teg -w /usr/src/teg/ -it teg-armv7 /bin/bash -c ./scripts/build-pkg-ephemeral.sh
+    echo "Building armv7 pkg... [DONE]"
   fi
 else
   echo "\n\$SKIP_PKG: Reusing previous pkg builds. NodeJS changes will *not* be included in this build."

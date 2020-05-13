@@ -33,8 +33,8 @@ Note: These dependencies are only for building snaps - they are not needed for m
 
 1. Install Podman: https://podman.io/getting-started/installation.html
 2. `cargo install cross`
-3. Build the docker image: `./armhf/build-image.sh`
-4. `podman run -v "$PWD":/usr/src/teg -w /usr/src/teg/ -it teg-armhf /bin/bash -c ./scripts/build-pkg-ephemeral.sh`
+3. Build the docker image: `./armv7/build-image.sh`
+4. `podman run -v "$PWD":/usr/src/teg -w /usr/src/teg/ -it teg-armv7 /bin/bash -c ./scripts/build-pkg-ephemeral.sh`
 
 ### Building the snap
 

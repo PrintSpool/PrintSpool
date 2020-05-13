@@ -33,7 +33,8 @@
     "start": "DAT_URL=\"dat://d6531c1a9b6b23901fa4c766b5842d08fb498e9aabbeca31b14d75ba93dc4ab6/\" nodemon -r esm --trace-warnings --config ./nodemon.json --watch ../../ ./src/index.js serve",
     "create-config": "node -r esm ./src/index.js create-config",
     "snap:test:pre-refresh": "npx node-dev ./dist/index.js --trace-warnings -- pre-refresh",
-    "debug": "DEBUG=\"*,-nodemon,-nodemon:*,-babel:*,-babel,-gulp-*,-snapdragon:*,-dns-discovery,-discovery-*\" yarn dev"
+    "debug": "DEBUG=\"*,-nodemon,-nodemon:*,-babel:*,-babel,-gulp-*,-snapdragon:*,-dns-discovery,-discovery-*\" yarn dev",
+    "snap:debug": "node -r esm ./src/index.js serve /var/snap/teg/current/etc/ /var/snap/teg/current/var/"
   },
   "dependencies": {
     "@babel/core": "^7.0.0-0",
