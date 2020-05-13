@@ -58,7 +58,7 @@ const tegServer = async (argv, pluginLoader) => {
 
   const expectedUseage = 'Useage: teg [serve|create-config]'
 
-  const [, , cmd, configArg] = argv
+  const [, , cmd, configArg, pidArg] = argv
 
   if (cmd === '--help') {
     // eslint-disable-next-line no-console
@@ -86,7 +86,7 @@ const tegServer = async (argv, pluginLoader) => {
   )
 
   const pidDirectory = path.resolve(
-    configArg
+    pidArg
     || '/var/lib/teg',
   )
 
