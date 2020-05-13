@@ -153,6 +153,8 @@ apps:
       - raw-usb
       - gpio
       - gpio-memory-control
+  teg-add-invite:
+    command: teg-add-invite
   auth:
     environment:
       RUST_ENV: production

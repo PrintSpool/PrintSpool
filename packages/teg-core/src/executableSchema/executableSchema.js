@@ -42,7 +42,7 @@ const executableSchema = async () => {
   const link = setContext((request, previousContext) => ({
     headers: {
       'user-id': previousContext.graphqlContext.user.id,
-    }
+    },
   })).concat(new HttpLink({ uri: rustURI }))
 
   const rustSchema = await makeRemoteExecutableSchema({

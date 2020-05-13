@@ -34,6 +34,7 @@ cd ./packages/teg-auth
 
 # CC=arm-linux-gnueabihf-gcc
 
-cargo build --release --target=armv7-unknown-linux-gnueabihf
+cargo build --release --bins --target=armv7-unknown-linux-gnueabihf
 
 cp -R ./target/armv7-unknown-linux-gnueabihf/release/teg-auth ../../snap/teg-auth-bin/armv7/teg-auth
+cp -R ./target/armv7-unknown-linux-gnueabihf/release/teg-add-invite ../../snap/teg-auth-bin/armv7/teg-add-invite
