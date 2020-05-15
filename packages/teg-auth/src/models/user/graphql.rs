@@ -3,8 +3,8 @@ use super::User;
 
 #[juniper::object]
 impl User {
-    fn id(&self) -> i32 {
-        self.id
+    fn id(&self) -> juniper::ID {
+        self.id.to_string().into()
     }
     fn email(&self) -> Option<&String> {
         self.email.as_ref()

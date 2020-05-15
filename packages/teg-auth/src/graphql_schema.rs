@@ -17,7 +17,7 @@ use crate::models::{
     CreateInviteInput,
     UpdateInvite,
     DeleteInvite,
-    ConsumeInvite,
+    consume_invite,
 
     get_video_sources,
     create_video_sdp,
@@ -105,8 +105,8 @@ impl Mutation {
         )
     }
 
-    fn consume_invite(context: &Context, input: ConsumeInvite) -> FieldResult<User> {
-        task::block_on(input.consume(context))
+    fn consume_invite(context: &Context) -> FieldResult<User> {
+        task::block_on(consume_invite(context))
     }
 
     // Users

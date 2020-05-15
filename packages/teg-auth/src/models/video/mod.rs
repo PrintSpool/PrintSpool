@@ -23,7 +23,7 @@ pub struct RTCSignal {
 
 #[derive(juniper::GraphQLObject, Debug, Serialize, Deserialize)]
 pub struct VideoSession {
-    pub id: String,
+    pub id: ID,
     pub answer: RTCSignal,
 }
 
@@ -137,7 +137,7 @@ pub async fn create_video_sdp(
     // };
 
     Ok(VideoSession {
-        id,
+        id: id.into(),
         answer,
     })
     // Ok(answer)

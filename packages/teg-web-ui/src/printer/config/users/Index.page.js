@@ -95,6 +95,10 @@ const enhance = Component => (props) => {
     throw new Error(JSON.stringify(error))
   }
 
+  if (userID != null && selectedUser == null) {
+    return <div>Unable to load User</div>
+  }
+
   const onUpdate = async (model) => {
     const { data: { errors } } = await apollo.mutate({
       mutation: updateUser,

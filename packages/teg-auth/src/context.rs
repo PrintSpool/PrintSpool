@@ -10,6 +10,7 @@ type SqlxError = sqlx::Error;
 pub struct Context {
     pub pool: Arc<sqlx::PgPool>,
     pub current_user: Option<User>,
+    pub identity_public_key: Option<String>,
     pub auth_pem_keys: Arc<RwLock<Vec<Vec<u8>>>>,
     pub machine_config: Arc<RwLock<Config>>,
 }
@@ -21,12 +22,14 @@ impl Context {
     pub async fn new(
         pool: Arc<sqlx::PgPool>,
         current_user_id: Option<i32>,
+        identity_public_key: Option<String>,
         auth_pem_keys: Arc<RwLock<Vec<Vec<u8>>>>,
         machine_config: Arc<RwLock<Config>>,
     ) -> Result<Self, SqlxError> {
         let mut context = Self {
             pool,
             current_user: None,
+            identity_public_key,
             auth_pem_keys,
             machine_config,
         };

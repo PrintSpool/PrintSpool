@@ -18,6 +18,7 @@ mod graphql;
 pub struct User {
     // TODO: investigate how to add custom result exts to slqx
     // pub id: ID,
+    // pub id: String,
     pub id: i32,
     pub email: Option<String>,
     pub email_verified: bool,

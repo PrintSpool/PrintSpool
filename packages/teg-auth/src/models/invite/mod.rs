@@ -8,16 +8,16 @@ use std::sync::Arc;
 
 use crate::{ Context };
 
-#[derive(juniper::GraphQLObject, Debug)]
+mod graphql;
+
+#[derive(Debug)]
 pub struct Invite {
     pub id: i32,
     pub public_key: String,
-    pub created_at: DateTime<Utc>,
     pub is_admin: bool,
+    pub created_at: DateTime<Utc>,
 
-    #[graphql(skip)]
     pub slug: Option<String>,
-    #[graphql(skip)]
     pub private_key: Option<String>,
 }
 

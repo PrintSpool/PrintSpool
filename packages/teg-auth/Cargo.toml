@@ -65,9 +65,3 @@ version = "1.0.104"
 branch = "feature/cargo-sqlx-migrate"
 features = ["postgres", "chrono"]
 git = "https://github.com/JesperAxelsson/sqlx"
-ar = "0.2.0"
-url = "2.1.1"
-openssl = { version = "0.10.28", features = ["vendored"] }
-error-chain = "0.12.1"
-frank_jwt = "3.1.2"
-log-derive = "0.4.0"

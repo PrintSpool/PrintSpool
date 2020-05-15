@@ -39,9 +39,12 @@ const executableSchema = async () => {
     }
   }
 
+  console.log(introspectionResult)
+
   const link = setContext((request, previousContext) => ({
     headers: {
       'user-id': previousContext.graphqlContext.user.id,
+      'peer-identity-public-key': previousContext.graphqlContext.peerIdentityPublicKey,
     },
   })).concat(new HttpLink({ uri: rustURI }))
 
@@ -57,7 +60,6 @@ const executableSchema = async () => {
     'deleteInvite',
     'updateUser',
     'deleteUser',
-    'consumeInvite',
   ]
 
   const transformedRustSchema = transformSchema(rustSchema, [

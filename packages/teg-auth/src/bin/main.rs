@@ -43,11 +43,13 @@ async fn main() -> teg_auth::Result<()> {
     // State
     let state = warp::any()
         .and(warp::header::optional::<i32>("user-id"))
-        .and_then(move |user_id| {
+        .and(warp::header::optional::<String>("peer-identity-public-key"))  
+        .and_then(move |user_id, identity_public_key| {
             task::block_on(
                 Context::new(
                     Arc::clone(&pool),
                     user_id,
+                    identity_public_key,
                     Arc::clone(&auth_pem_keys),
                     Arc::clone(&machine_config),
                 )

@@ -178,6 +178,7 @@ pub async fn init() -> crate::Result<Context> {
     Ok(Context {
         pool,
         current_user: None,
+        identity_public_key: None,
         auth_pem_keys: Arc::new(RwLock::new(vec![vec![]])),
         machine_config: config,
     })

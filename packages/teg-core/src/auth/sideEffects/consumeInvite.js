@@ -21,7 +21,7 @@ const consumeInvite = async ({ peerIdentityPublicKey, user }) => {
 
   const variables = {
     input: {
-      userID: user.id,
+      userID: user.id.toString(),
       invitePublicKey: peerIdentityPublicKey,
     },
   }
