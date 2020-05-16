@@ -35,12 +35,6 @@ pub async fn consume_invite(context: &Context) -> FieldResult<User> {
         .fetch_one(&mut tx)
         .await?;
 
-    if user.is_authorized {
-        Err(crate::Error::from_kind(
-            "Cannot consume invite. User already authorized.".into()
-        ))?
-    }
-
     // Authorize the user
     let user = sqlx::query_as!(
         User,
@@ -53,7 +47,7 @@ pub async fn consume_invite(context: &Context) -> FieldResult<User> {
             RETURNING *
         ",
         user_id,
-        invite.is_admin
+        user.is_admin || invite.is_admin
     )
         .fetch_one(&mut tx)
         .await?;
