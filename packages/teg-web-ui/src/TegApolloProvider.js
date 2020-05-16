@@ -72,7 +72,7 @@ const TegApolloProvider = ({
         operation: {
           query: `
             {
-              ${invite != null && (`
+              ${invite == null ? (`
                 my {
                   machines(slug: "${slug}") {
                     id
@@ -81,7 +81,7 @@ const TegApolloProvider = ({
                     slug
                   }
                 }
-              `)}
+              `) : ''}
               iceServers {
                 url
                 urls
@@ -99,7 +99,7 @@ const TegApolloProvider = ({
       if (data) {
         console.log('user profile data', data)
         // eslint-disable-next-line prefer-destructuring
-        nextMachine = invite == null ? null : data.my.machines[0]
+        nextMachine = invite == null ? data.my.machines[0] : null
         setUserProfileData({
           machine: nextMachine,
           iceServers: data.iceServers,
