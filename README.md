@@ -16,12 +16,14 @@ Last but not least if you find any please me know in the issues! Even if it is a
 
 ### Environment Setup
 
+For completeness this documentation lists all the dependencies to get a development environment running on a fresh Ubuntu 18.04 install. You may opt to skip the dependencies you have installed already.
+z
 1. Install [nvm](https://github.com/creationix/nvm)
 2. Install [Rust](https://rustup.rs/)
-3. `sudo apt update && sudo apt install libssl-dev postgresql libpq-dev tmux qemu qemu-user qemu-user-static binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf fuse-overlayfs`
+3. `sudo apt update && sudo apt install build-essential pkg-config python libssl-dev postgresql libpq-dev tmux qemu qemu-user qemu-user-static binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf fuse-overlayfs`
 4. Enable Passwordless local logins in Postgres: https://gist.github.com/p1nox/4953113
 5. Allow serial port access via the dialout group and then log out and back in: `sudo gpasswd --add ${USER} dialout`
-6. Create an empty `teg-auth` database using psql
+6. Increase the max_user_watches: `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`
 7. Bootstrap the dev environment with teg, node 10 and yarn:
 `nvm use && npm i -g yarn && yarn bootstrap`
 
@@ -44,9 +46,11 @@ Note: These dependencies are only for building snaps - they are not needed for m
 
 Disable any other copies of teg and run `yarn start`
 
+It's recommended you do this in a dev environment with at least 16GB of ram.
+
 This:
-* starts a hot reloading development server using your `~/.teg/config.json`.
-* compiles the teg-web-ui and watches for changes. To preview the UI open `packages/teg-web-ui/dist` in Beaker's Library.
+* starts all the services required for a hot reloading development 3D print using your `/etc/teg/` configs
+* starts a hot reloading instance of the web ui
 * echos an invite code to the command line if you haven't connected already.
 
 ### Running the test suite
@@ -60,14 +64,18 @@ See: https://www.raspberrypi.org/forums/viewtopic.php?t=62364
 
 TL;DR: run: `sudo modprobe bcm2835-v4l2`
 
-This will default the camera to 128x96px
+<!-- 
+  TODO: I think the following information is out of date and no longer necessary to configure Teg:
 
-To increase the resolution run:
+  This will default the camera to 128x96px
 
-`v4l2-ctl --set-fmt-video=width=1920,height=1088,pixelformat=4`
+  To increase the resolution run:
 
-### Raspian
+  `v4l2-ctl --set-fmt-video=width=1920,height=1088,pixelformat=4`
 
-Teg requires Raspbian Buster. To upgrade to Raspbian Buster see:
+  ### Raspian
 
-https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/
+  Teg requires Raspbian Buster. To upgrade to Raspbian Buster see:
+
+  https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/
+-->
