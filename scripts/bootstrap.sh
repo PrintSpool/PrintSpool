@@ -6,6 +6,7 @@ cargo install cargo-watch
 # cargo install cargo-watch cargo-sqlx
 
 cd ./packages/teg-auth/
+sqlx db create
 sqlx migrate run
 
 yarn
