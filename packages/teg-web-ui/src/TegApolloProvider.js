@@ -67,12 +67,12 @@ const TegApolloProvider = ({
 
       let nextMachine
 
-      if (invite == null) {
-        const { cacheValuePromise } = await graphql.operate({
-          fetchOptionsOverride: fetchOptions,
-          operation: {
-            query: `
-              {
+      const { cacheValuePromise } = await graphql.operate({
+        fetchOptionsOverride: fetchOptions,
+        operation: {
+          query: `
+            {
+              ${invite != null && (`
                 my {
                   machines(slug: "${slug}") {
                     id
@@ -81,32 +81,32 @@ const TegApolloProvider = ({
                     slug
                   }
                 }
-                iceServers {
-                  url
-                  urls
-                  username
-                  credential
-                }
+              `)}
+              iceServers {
+                url
+                urls
+                username
+                credential
               }
-            `,
-          },
+            }
+          `,
+        },
+      })
+
+      const { data, ...errors } = await cacheValuePromise
+
+      console.log(data)
+      if (data) {
+        console.log('user profile data', data)
+        // eslint-disable-next-line prefer-destructuring
+        nextMachine = invite == null ? null : data.my.machines[0]
+        setUserProfileData({
+          machine: nextMachine,
+          iceServers: data.iceServers,
         })
-
-        const { data, ...errors } = await cacheValuePromise
-
-        console.log(data)
-        if (data) {
-          console.log('user profile data', data)
-          // eslint-disable-next-line prefer-destructuring
-          nextMachine = data.my.machines[0]
-          setUserProfileData({
-            machine: nextMachine,
-            iceServers: data.iceServers,
-          })
-        } else {
-          setError(errors)
-          return
-        }
+      } else {
+        setError(errors)
+        return
       }
 
       console.log('machine??', { hasIdToken: idToken != null, nextMachine, invite })
