@@ -52,7 +52,7 @@ else
   echo "\n\$SKIP_PKG: Reusing previous pkg builds. NodeJS changes will *not* be included in this build."
 fi
 
-TEG_VERSION=`node -e "console.log(require('./packages/teg-core/package.json').version);"`;
+TEG_VERSION=`node -e "console.log(require('./lerna.json').version);"`;
 
 cd ./snap
 
