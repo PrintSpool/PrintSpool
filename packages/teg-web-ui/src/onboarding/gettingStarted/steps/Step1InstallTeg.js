@@ -27,10 +27,10 @@ const Step1InstallTeg = ({
             Welcome to Teg, in order to get started we&apos;ll need to install Teg on a Raspberry Pi 3B or newer.
           </Typography>
           <Typography variant="body1" paragraph className={classes.codeInstruction}>
-            To start the installation paste this line in your Pi's terminal and hit enter:
+            Copy and paste this line in to your Pi's terminal and hit enter:
           </Typography>
           <code className={classes.code}>
-            sudo apt update && sudo apt install snapd && sudo snap install teg --beta
+            sudo apt update && sudo apt install snapd && sudo snap install teg --beta && teg.add-invite
           </code>
           <Typography variant="body2" paragraph className={classes.alreadyHaveTeg}>
             Already have Teg installed?
