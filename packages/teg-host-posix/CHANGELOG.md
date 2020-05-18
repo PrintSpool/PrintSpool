@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/teg/teg-host-posix/compare/v0.8.0...v0.9.0) (2020-05-18)
+
+
+### Bug Fixes
+
+* Added a pid arg for running outside of the snap ([481c3b4](https://github.com/teg/teg-host-posix/commit/481c3b4))
+* Added keepAlive polling to the server ([87d5123](https://github.com/teg/teg-host-posix/commit/87d5123))
+* Armv7 Pkg builds were not being updated in snap builds due to an incorrect directory ([4c9d085](https://github.com/teg/teg-host-posix/commit/4c9d085))
+* delete task history ([cd6f99a](https://github.com/teg/teg-host-posix/commit/cd6f99a))
+* gcodeHistoryBufferSize change ([b41c725](https://github.com/teg/teg-host-posix/commit/b41c725))
+* graphql-things security patch ([a203d5a](https://github.com/teg/teg-host-posix/commit/a203d5a))
+* graphql-things security update ([30693b8](https://github.com/teg/teg-host-posix/commit/30693b8))
+* Irrecoverable reducer errors should reboot the server with an error state. ([92b0b4e](https://github.com/teg/teg-host-posix/commit/92b0b4e))
+* Status changes were intermittently not updating the UI (Teg Host no longer drops messages from Teg Marlin when the buffer exceeds one message) ([1765b62](https://github.com/teg/teg-host-posix/commit/1765b62))
+* Upgraded to a new graphql-live-subscription version adding stability improvements for live data. ([6ed354e](https://github.com/teg/teg-host-posix/commit/6ed354e))
+
+
+### Features
+
+* Added a video_providers field to Query as well as schema stitching to combine node and rust GraphQL ([1a877cb](https://github.com/teg/teg-host-posix/commit/1a877cb))
+* Added TURN support for remote access ([582f26f](https://github.com/teg/teg-host-posix/commit/582f26f))
+* Added video source configuration ([8c84207](https://github.com/teg/teg-host-posix/commit/8c84207))
+* Upgraded graphql-things and removed Dat support for now. ([0299694](https://github.com/teg/teg-host-posix/commit/0299694))
+
+
+
+
+
 # [0.8.0](https://github.com/teg/teg-host-posix/compare/v0.7.0...v0.8.0) (2019-05-20)
 
 

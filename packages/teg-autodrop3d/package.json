@@ -1,6 +1,6 @@
 {
   "name": "@tegapp/autodrop3d",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "AutoDrop3D plugin for Teg",
   "main": "dist/index.js",
   "author": "Rob Gilson",
@@ -11,7 +11,7 @@
   ],
   "repository": "https://github.com/teg/teg",
   "dependencies": {
-    "@tegapp/core": "^0.8.0",
+    "@tegapp/core": "^0.9.0",
     "bluebird": "^3.5.3",
     "debug": "^4.1.1",
     "immutable": "^4.0.0-rc.12",

@@ -3,6 +3,48 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/teg/teg-host-posix/compare/v0.8.0...v0.9.0) (2020-05-18)
+
+
+### Bug Fixes
+
+* Added missing npm dependencies ([3612e58](https://github.com/teg/teg-host-posix/commit/3612e58))
+* delay ready transition until the first ok is received ([8cb6602](https://github.com/teg/teg-host-posix/commit/8cb6602))
+* delete task history ([cd6f99a](https://github.com/teg/teg-host-posix/commit/cd6f99a))
+* FINISH_TASK ([e21726f](https://github.com/teg/teg-host-posix/commit/e21726f))
+* Fixed consumeInvite mutation ([5b8fd6a](https://github.com/teg/teg-host-posix/commit/5b8fd6a))
+* graphql-things security patch ([a203d5a](https://github.com/teg/teg-host-posix/commit/a203d5a))
+* graphql-things security update ([30693b8](https://github.com/teg/teg-host-posix/commit/30693b8))
+* Irrecoverable reducer errors should reboot the server with an error state. ([92b0b4e](https://github.com/teg/teg-host-posix/commit/92b0b4e))
+* job deletion bugs ([e6f7b1e](https://github.com/teg/teg-host-posix/commit/e6f7b1e))
+* Jobs should be marked as errored if the machine errors ([70abb45](https://github.com/teg/teg-host-posix/commit/70abb45))
+* Killing teg-marlin changes the printer status to disconnected ([ef2864b](https://github.com/teg/teg-host-posix/commit/ef2864b))
+* Removed legacy instances of user.name ([e565cc2](https://github.com/teg/teg-host-posix/commit/e565cc2))
+* simplifying gcode history ([f2a81b6](https://github.com/teg/teg-host-posix/commit/f2a81b6))
+* Status changes were intermittently not updating the UI (Teg Host no longer drops messages from Teg Marlin when the buffer exceeds one message) ([1765b62](https://github.com/teg/teg-host-posix/commit/1765b62))
+* Terminal does not display until graphql is loaded. ([69aac37](https://github.com/teg/teg-host-posix/commit/69aac37))
+* Terminal limit was slicing from the wrong end of the array ([aea5309](https://github.com/teg/teg-host-posix/commit/aea5309))
+* Upgraded to a new graphql-live-subscription version adding stability improvements for live data. ([6ed354e](https://github.com/teg/teg-host-posix/commit/6ed354e))
+
+
+### Features
+
+* Added a video_providers field to Query as well as schema stitching to combine node and rust GraphQL ([1a877cb](https://github.com/teg/teg-host-posix/commit/1a877cb))
+* Added login and signup ([12b7330](https://github.com/teg/teg-host-posix/commit/12b7330))
+* Added multi-user support ([58b41c8](https://github.com/teg/teg-host-posix/commit/58b41c8))
+* Added sync option for execGCodes. GCode execution is now async by default. ([6ccebdf](https://github.com/teg/teg-host-posix/commit/6ccebdf))
+* Added teg-add-invite command ([33d6010](https://github.com/teg/teg-host-posix/commit/33d6010))
+* Added TURN support for remote access ([582f26f](https://github.com/teg/teg-host-posix/commit/582f26f))
+* Added video source configuration ([8c84207](https://github.com/teg/teg-host-posix/commit/8c84207))
+* Added video sources drop down menu ([4cbc3f7](https://github.com/teg/teg-host-posix/commit/4cbc3f7))
+* Full 30 frame per second video streaming ([f7e5f00](https://github.com/teg/teg-host-posix/commit/f7e5f00))
+* Remote camera streaming ([5abda8c](https://github.com/teg/teg-host-posix/commit/5abda8c))
+* Upgraded graphql-things and removed Dat support for now. ([0299694](https://github.com/teg/teg-host-posix/commit/0299694))
+
+
+
+
+
 # [0.8.0](https://github.com/teg/teg-host-posix/compare/v0.7.0...v0.8.0) (2019-05-20)
 
 

@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/tegapp/teg/compare/v0.8.0...v0.9.0) (2020-05-18)
+
+
+### Bug Fixes
+
+* FINISH_TASK ([e21726f](https://github.com/tegapp/teg/commit/e21726f))
+* job deletion bugs ([e6f7b1e](https://github.com/tegapp/teg/commit/e6f7b1e))
+
+
+### Features
+
+* Added sync option for execGCodes. GCode execution is now async by default. ([6ccebdf](https://github.com/tegapp/teg/commit/6ccebdf))
+* Full 30 frame per second video streaming ([f7e5f00](https://github.com/tegapp/teg/commit/f7e5f00))
+* Remote camera streaming ([5abda8c](https://github.com/tegapp/teg/commit/5abda8c))
+
+
+
+
+
 # [0.8.0](https://github.com/teg/teg/compare/v0.7.0...v0.8.0) (2019-05-20)
 
 
