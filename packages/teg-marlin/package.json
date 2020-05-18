@@ -1,6 +1,6 @@
 {
   "name": "@tegapp/marlin",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Teg serial driver for RepRaps and Marlin-compatible firmware",
   "main": "dist/plugin/index.js",
   "esmMain": "src/plugin/index.js",
