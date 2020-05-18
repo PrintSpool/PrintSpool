@@ -39,8 +39,7 @@
     "snap:publish": "yarn snap:version && yarn snap:build && yarn snap:push",
     "snap:debug": "sudo journalctl --output=short --follow --all | sudo snappy-debug",
     "journalctl": "journalctl -u snap.teg.teg.service -n 100 -f",
-    "journalctl:marlin": "journalctl -u snap.teg.teg-marlin.service -n 100 -f",
-    "version": "yarn build-dev"
+    "journalctl:marlin": "journalctl -u snap.teg.teg-marlin.service -n 100 -f"
   },
   "command": {
     "bootstrap": {
