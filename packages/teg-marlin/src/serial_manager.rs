@@ -1,40 +1,40 @@
-extern crate bytes;
-// #[macro_use]
-extern crate futures_core;
-extern crate futures_util;
-extern crate tokio;
-extern crate tokio_serial;
-// #[macro_use]
-// extern crate combine;
-extern crate bus_queue;
+// extern crate bytes;
+// // #[macro_use]
+// extern crate futures_core;
+// extern crate futures_util;
+// extern crate tokio;
+// extern crate tokio_serial;
+// // #[macro_use]
+// // extern crate combine;
+// extern crate bus_queue;
 
 // use futures_core::{ future, Poll };
 
-use futures_util::{
+use futures::{
     // stream::SplitSink,
     // TryStreamExt,
-    // StreamExt,
-    // SinkExt,
-    // FutureExt,
+    StreamExt,
+    SinkExt,
+    FutureExt,
     // TryFutureExt,
-    try_future,
     future:: {
-        // self,
+        self,
         Either,
-        AbortHandle
+        AbortHandle,
+        Future,
     },
-};
-use futures_core::{
-    Future,
+    channel::mpsc,
 };
 
+use tokio::prelude::*;
 // use futures_sink::Sink;
-use tokio::{
-    prelude::*,
-    // timer::delay,
-    sync::mpsc,
-    // sync::oneshot,
-};
+// use tokio::{
+//     // prelude::*,
+//     // timer::delay,
+//     // sync::mpsc,
+//     // stream::StreamExt as TokioStreamExt,
+//     // sync::oneshot,
+// };
 
 use crate::{
     state_machine::{
@@ -61,7 +61,7 @@ use crate::{
 //     },
 // };
 
-use tokio::codec::Decoder;
+use tokio_util::codec::Decoder;
 // use std::sync::Arc;
 
 // use bus_queue::async_::Publisher;
@@ -72,14 +72,14 @@ pub struct SerialManager {
     settings: tokio_serial::SerialPortSettings,
     tty_path: String,
 
-    event_sender: tokio::sync::mpsc::Sender<Event>,
-    gcode_sender: Option<tokio::sync::mpsc::Sender<GCodeLine>>,
+    event_sender: mpsc::Sender<Event>,
+    gcode_sender: Option<mpsc::Sender<GCodeLine>>,
     abort_handle: Option<AbortHandle>,
 }
 
 impl SerialManager {
     pub fn new(
-        event_sender: tokio::sync::mpsc::Sender<Event>,
+        event_sender: mpsc::Sender<Event>,
         tty_path: String,
     ) -> Self {
         info!("tty: {}", tty_path);
@@ -149,7 +149,7 @@ impl SerialManager {
 
         let end_of_stream_event_sender = mpsc::Sender::clone(&self.event_sender);
 
-        let serial_future = try_future::try_select(
+        let serial_future = future::try_select(
             reader_future,
             sender_future,
         )
@@ -171,7 +171,7 @@ impl SerialManager {
             .forward(end_of_stream_event_sender)
             .map(|_| ());
 
-        let (serial_future, abort_handle) = futures_util::future::abortable(serial_future);
+        let (serial_future, abort_handle) = futures::future::abortable(serial_future);
         self.abort_handle = Some(abort_handle);
 
         Ok(serial_future.map(|_| ()))

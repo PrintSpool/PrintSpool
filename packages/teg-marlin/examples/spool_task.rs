@@ -1,26 +1,26 @@
 extern crate teg_marlin;
 
-extern crate bytes;
-// #[macro_use]
-extern crate futures_core;
-extern crate futures_util;
-extern crate tokio;
-extern crate tokio_serial;
+// extern crate bytes;
+// // #[macro_use]
+// extern crate futures_core;
+// extern crate futures_util;
+// extern crate tokio;
+// extern crate tokio_serial;
 
 use std::{
     env,
     // fs,
 };
 
-use futures_util::{
+use futures::{
     future,
 //     FutureExt,
-    StreamExt,
+    stream::StreamExt,
 //     SinkExt,
 //     TryStreamExt,
 };
 
-use tokio_net::uds::*;
+use tokio::net::*;
 use tokio::io::{
     // AsyncReadExt,
     AsyncWriteExt,
@@ -39,7 +39,7 @@ use tokio::io::{
 use tempfile::NamedTempFile;
 use std::io::{Write};
 
-use tokio::codec::{
+use tokio_util::codec::{
     length_delimited,
     // Framed,
 };

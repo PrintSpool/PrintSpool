@@ -4,16 +4,15 @@
 #[macro_use] extern crate log;
 #[macro_use] extern crate error_chain;
 
-extern crate bytes;
-extern crate futures_core;
-extern crate futures_util;
-extern crate tokio;
-extern crate tokio_serial;
-// extern crate combine;
-extern crate bus_queue;
-extern crate serde;
-extern crate toml;
-extern crate gcode;
+// extern crate bytes;
+// extern crate futures;
+// extern crate tokio;
+// extern crate tokio_serial;
+// // extern crate combine;
+// extern crate bus_queue;
+// extern crate serde;
+// extern crate toml;
+// extern crate gcode;
 
 mod protobuf_server;
 mod gcode_codec;
@@ -36,20 +35,23 @@ use std::collections::HashMap;
 
 // use futures_core::{ future, Poll };
 
-use futures_util::{
+use futures::{
     // stream::SplitSink,
     StreamExt,
     // SinkExt,
     // future::FutureExt,
     future::{AbortHandle},
+    channel::mpsc,
+    sink::SinkExt,
 };
-// use futures_sink::Sink;
-use tokio::{
-    // prelude::*,
-    // timer::delay,
-    sync::mpsc,
-    // sync::oneshot,
-};
+// // use futures_sink::Sink;
+// use tokio::{
+//     // prelude::*,
+//     // timer::delay,
+//     // sync::mpsc,
+//     // sync::oneshot,
+//     // stream::StreamExt as TokioStreamExt,
+// };
 
 use bytes::Bytes;
 // use bytes::BufMut;
@@ -60,9 +62,9 @@ use {
 };
 
 
-use futures_util::compat::{
-    Sink01CompatExt,
-};
+// use futures::compat::{
+//     Sink01CompatExt,
+// };
 // use {
 //     futures_core::{
 //         future::{
@@ -85,7 +87,7 @@ error_chain! {}
 
 pub struct StateMachineReactor {
     pub event_sender: mpsc::Sender<Event>,
-    pub protobuf_broadcast: futures_util::compat::Compat01As03Sink<bus_queue::async_::Publisher<Bytes>, Bytes>,
+    pub protobuf_broadcast: bus_queue::flavors::arc_swap::Publisher<Bytes>,
     pub serial_manager: SerialManager,
     pub delays: HashMap<String, AbortHandle>,
     pub context: Context,
@@ -142,9 +144,8 @@ pub async fn start(
 
     // Protobuf Server
     // ----------------------------------------------------
-    let (protobuf_broadcast, protobuf_recv) = bus_queue::async_::channel(1);
+    let (protobuf_broadcast, protobuf_recv) = bus_queue::flavors::arc_swap::bounded(1);
 
-    let protobuf_broadcast = protobuf_broadcast.sink_compat();
     let protobuf_sender = mpsc::Sender::clone(&event_sender);
 
     let socket_path = config.socket_path();

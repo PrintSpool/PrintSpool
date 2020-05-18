@@ -2,28 +2,24 @@ use std::{
     fs,
     time::{
         Duration,
-        Instant,
+        // Instant,
     },
 };
 
-use futures_util::compat::{
-    Stream01CompatExt,
-};
+// use futures::compat::{
+//     Stream01CompatExt,
+// };
 
-use futures_util::{
+use futures::{
     future,
     FutureExt,
     StreamExt,
     SinkExt,
     TryStreamExt,
+    channel::mpsc,
 };
 
-use tokio_net::uds::*;
-// use tokio::io::{
-//     // AsyncReadExt,
-//     AsyncWriteExt,
-// };
-use tokio::codec::{
+use tokio_util::codec::{
     length_delimited,
     Framed,
 };
@@ -31,8 +27,8 @@ use tokio::codec::{
 // use bytes::BufMut;
 
 use tokio::{
-    timer,
-    sync::mpsc,
+    net::UnixListener,
+    // sync::mpsc,
 };
 
 use prost::Message;
@@ -48,7 +44,7 @@ use crate::state_machine::Event;
 
 async fn handle_connection(
     mut channel_sender: mpsc::Sender<Event>,
-    broadcast_subscriber: bus_queue::async_::Subscriber<Bytes>,
+    broadcast_subscriber: bus_queue::flavors::arc_swap::Subscriber<Bytes>,
     connection: tokio::net::UnixStream,
 ) {
     let mut connection_event_sender = mpsc::Sender::clone(&channel_sender);
@@ -61,16 +57,16 @@ async fn handle_connection(
 
     let mut broadcast_subscriber = broadcast_subscriber
         .clone()
-        .compat()
-        .map_err(|err| {
-            error!("Send Error: {:?}", err);
-            ()
-        })
-        .take_while(|result| {
-            future::ready(result.is_ok())
-        })
+        // .compat()
+        // .map_err(|err| {
+        //     error!("Send Error: {:?}", err);
+        //     ()
+        // })
+        // .take_while(|result| {
+        //     future::ready(result.is_ok())
+        // })
         .inspect(|_| trace!("Protobuf Sent"))
-        .map(|result| Bytes::clone(&*result.unwrap()));
+        .map(|result| Ok(Bytes::clone(&*result)));
 
     // Read from the server. TODO: Switch to read_to_end.
     // let mut buf = [0u8; 5];
@@ -92,19 +88,19 @@ async fn handle_connection(
         .take_while(|result| {
             future::ready(result.is_ok())
         })
-        .map(|result| result.unwrap());
+        .map(|result| Ok(result.unwrap()));
 
     // NodeJS sometimes needs a delay after opening the unix socket to prevent it from dropping the first message
     // See: https://github.com/nodejs/help/issues/521
     tokio::spawn(async move {
         debug!("New connection received. Waiting 100ms.");
 
-        timer::delay(Instant::now() + Duration::from_millis(100)).await;
+        tokio::time::delay_for(Duration::from_millis(100)).await;
 
         connection_event_sender.send(Event::ProtobufClientConnection).await
             .expect("Unable to send connection event");
 
-        timer::delay(Instant::now() + Duration::from_millis(500)).await;
+        tokio::time::delay_for(Duration::from_millis(500)).await;
 
         connection_event_sender.send(Event::ProtobufClientConnection).await
             .expect("Unable to send connection event");
@@ -112,7 +108,7 @@ async fn handle_connection(
         info!("Socket Ready");
     });
 
-    let _ = futures_util::future::select(
+    let _ = futures::future::select(
         socket_sender.send_all(&mut broadcast_subscriber),
         channel_sender.send_all(&mut read_stream),
     ).await;
@@ -123,7 +119,7 @@ async fn handle_connection(
 pub async fn serve(
     socket_path: &String,
     channel_sender: &mpsc::Sender<Event>,
-    broadcast_subscriber: bus_queue::async_::Subscriber<Bytes>,
+    broadcast_subscriber: bus_queue::flavors::arc_swap::Subscriber<Bytes>,
 ) -> std::io::Result<()> {
 
     info!("Socket: {:?}", socket_path);
@@ -132,8 +128,7 @@ pub async fn serve(
     let _ = fs::remove_file(socket_path);
 
     let listener = UnixListener::bind(&socket_path)
-        .expect("Unable to create unix socket")
-        .incoming();
+        .expect("Unable to create unix socket");
 
     let initial_channel_sender = mpsc::Sender::clone(channel_sender);
 

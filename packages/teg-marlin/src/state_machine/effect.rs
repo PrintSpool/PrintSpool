@@ -5,11 +5,11 @@ use std::{
     },
     time::{
         Duration,
-        Instant,
+        // Instant,
     },
 };
 
-use futures_util::{
+use futures::{
     // stream::SplitSink,
     // StreamExt,
     SinkExt,
@@ -19,14 +19,14 @@ use futures_util::{
         Aborted,
         // FutureExt,
     },
+    channel::mpsc,
 };
 
-use tokio::{
-    // prelude::*,
-    timer::delay,
-    sync::mpsc,
-    // sync::oneshot,
-};
+// use tokio::{
+//     // prelude::*,
+//     sync::mpsc,
+//     // sync::oneshot,
+// };
 
 use fallible_iterator::{
     FallibleIterator,
@@ -77,7 +77,6 @@ impl Effect {
         match self {
             Effect::Delay { key, event, duration, .. } => {
                 let mut task_tx = mpsc::Sender::clone(&reactor.event_sender);
-                let when = Instant::now() + duration;
                 // create a handle for cancelling the delay
                 let (abort_handle, abort_registration) = AbortHandle::new_pair();
 
@@ -86,7 +85,10 @@ impl Effect {
                 reactor.delays.insert(key, abort_handle);
 
                 tokio::spawn(async move {
-                    let abortable_delay = Abortable::new(delay(when), abort_registration);
+                    let abortable_delay = Abortable::new(
+                        tokio::time::delay_for(duration),
+                        abort_registration,
+                    );
 
                     if let Err(Aborted) = abortable_delay.await {
                         return
@@ -180,8 +182,7 @@ impl Effect {
                 std::process::exit(0);
             }
             Effect::ExitProcessAfterDelay => {
-                let when = Instant::now() + Duration::from_millis(500);
-                delay(when).await;
+                tokio::time::delay_for(Duration::from_millis(500)).await;
 
                 reactor.serial_manager.close();
                 std::process::exit(0);

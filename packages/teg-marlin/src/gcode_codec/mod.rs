@@ -1,11 +1,10 @@
 extern crate bytes;
 extern crate tokio;
-extern crate tokio_io;
 extern crate tokio_serial;
 
 use std::{io, str};
 
-use tokio::codec::{Decoder, Encoder};
+use tokio_util::codec::{Decoder, Encoder};
 
 use bytes::{BytesMut, BufMut};
 
@@ -52,11 +51,10 @@ fn add_checksum(line: String) -> String {
 }
 
 
-impl Encoder for GCodeCodec {
-    type Item = GCodeLine;
+impl Encoder<GCodeLine> for GCodeCodec {
     type Error = io::Error;
 
-    fn encode(&mut self, item: Self::Item, dst: &mut BytesMut) -> Result<(), Self::Error> {
+    fn encode(&mut self, item: GCodeLine, dst: &mut BytesMut) -> Result<(), Self::Error> {
         let GCodeLine { gcode, line_number, checksum } = item;
 
         let line = if let Some(line_number) = line_number {
@@ -70,6 +68,7 @@ impl Encoder for GCodeCodec {
         } else {
             line + "\n"
         };
+        let line = line.as_bytes();
 
         trace!("TX  {:?}", line);
         dst.reserve(line.len() + 1);
