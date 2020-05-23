@@ -39,7 +39,7 @@ const executableSchema = async () => {
     }
   }
 
-  console.log(introspectionResult)
+  // console.log(introspectionResult)
 
   const link = setContext((request, previousContext) => ({
     headers: {
