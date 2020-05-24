@@ -45,6 +45,9 @@ const CONFIG_SUBSCRIPTION = gql`
 `
 
 const styles = theme => ({
+  root: {
+    overflowY: 'scroll',
+  },
   title: {
     paddingTop: theme.spacing(3),
   },
@@ -76,7 +79,7 @@ const MaterialsConfigIndex = ({
   machines,
   hasPendingUpdates,
 }) => (
-  <main>
+  <main className={classes.root}>
     {
       materialID != null && verb == null && (
         <UpdateDialog

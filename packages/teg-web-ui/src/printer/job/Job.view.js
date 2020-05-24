@@ -14,7 +14,6 @@ import VideoStreamer from '../manualControl/videoStreamer/VideoStreamer'
 const JobView = ({
   cancelTask,
   job: {
-    id,
     name,
     tasks,
     printsCompleted,
@@ -27,7 +26,9 @@ const JobView = ({
   return (
     <div className={classes.root}>
       <Card raised className={classes.card}>
-        <VideoStreamer />
+        <div className={classes.videoStreamer}>
+          <VideoStreamer />
+        </div>
         <CardContent>
           <Breadcrumbs>
             <Link to="../">
@@ -42,12 +43,12 @@ const JobView = ({
               `${printsCompleted} / ${totalPrints} prints completed`
             }
           </Typography>
-          <Typography variant="h5" paragraph>
+          <Typography variant="h6">
             Current Prints
           </Typography>
           {
             tasks.length === 0 && (
-              <Typography variant="h5" color="textSecondary" paragraph>
+              <Typography variant="h6" color="textSecondary" paragraph>
                 This job is not currently being printed
               </Typography>
             )
@@ -68,12 +69,12 @@ const JobView = ({
               />
             ))
           }
-          <Typography variant="h5">
+          <Typography variant="h6">
             History
           </Typography>
           {
             history.length === 0 && (
-              <Typography variant="h5" color="textSecondary">
+              <Typography variant="h6" color="textSecondary">
                 Nothing yet
               </Typography>
             )

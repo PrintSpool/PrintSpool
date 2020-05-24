@@ -50,6 +50,9 @@ const deleteInviteMutation = gql`
 `
 
 const useStyles = makeStyles(theme => ({
+  root: {
+    overflowY: 'scroll',
+  },
   title: {
     paddingTop: theme.spacing(3),
   },
@@ -146,7 +149,7 @@ const InvitesConfigIndex = ({
   const classes = useStyles()
 
   return (
-    <main>
+    <main className={classes.root}>
       { inviteID !== 'new' && selectedInvite != null && verb == null && (
         <UpdateDialog
           title={`Invite #${selectedInvite.id}`}

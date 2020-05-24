@@ -47,7 +47,7 @@ const useStyles = makeStyles(() => ({
   },
   video: {
     width: '100%',
-    maxHeight: '40vh',
+    height: '100%',
   },
 }))
 

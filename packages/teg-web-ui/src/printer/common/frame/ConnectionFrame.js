@@ -1,6 +1,5 @@
-import React, { useContext, useState } from 'react'
+import React, { useState } from 'react'
 import gql from 'graphql-tag'
-import { makeStyles } from '@material-ui/styles'
 
 import { LiveSubscription } from '../../../common/LiveSubscription'
 import Loading from '../../../common/Loading'
@@ -8,9 +7,10 @@ import Loading from '../../../common/Loading'
 import Drawer, { DrawerFragment } from './components/Drawer'
 import StaticTopNavigation from '../../../common/topNavigation/StaticTopNavigation'
 
-import { UserDataContext } from '../../../UserDataProvider'
+// import { UserDataContext } from '../../../UserDataProvider'
 import EStopResetToggle from './components/EStopResetToggle'
 import ActionBar from '../../../common/topNavigation/ActionBar'
+import useStyles from './ConnectionFrame.styles'
 
 const FRAME_SUBSCRIPTION = gql`
   subscription ConnectionFrameSubscription {
@@ -35,31 +35,6 @@ const FRAME_SUBSCRIPTION = gql`
   # fragments
   ${DrawerFragment}
 `
-
-const useStyles = makeStyles(() => ({
-  root: {
-    position: 'relative',
-    display: 'grid',
-    gridTemplateColumns: 'auto 1fr',
-    gridTemplateRows: 'auto 1fr',
-    width: '100%',
-    height: '100%',
-    minHeight: '100vh',
-  },
-  topNavigation: {
-    gridColumn: '1 / 3',
-    gridRow: '1',
-  },
-  content: {
-    display: 'flex',
-    flexDirection: 'column',
-    // width: '100%',
-  },
-  drawer: {
-    gridColumn: '1',
-    gridRow: '2',
-  },
-}))
 
 const ConnectionFrame = ({
   match,

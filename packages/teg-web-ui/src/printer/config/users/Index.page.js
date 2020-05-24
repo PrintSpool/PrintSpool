@@ -52,6 +52,9 @@ const useStyles = makeStyles(theme => ({
     marginTop: '0.2em',
     marginRight: theme.spacing(1),
   },
+  root: {
+    overflowY: 'scroll',
+  },
 }), { useTheme: true })
 
 const enhance = Component => (props) => {
@@ -141,7 +144,7 @@ const UsersIndex = ({
   const classes = useStyles()
 
   return (
-    <main>
+    <main className={classes.root}>
       {selectedUser != null && verb == null && (
         <UpdateDialog
           title={(

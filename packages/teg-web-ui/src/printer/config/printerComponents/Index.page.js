@@ -1,6 +1,8 @@
 import React from 'react'
 import { compose, withProps } from 'recompose'
 import { Link } from 'react-router-dom'
+import useReactRouter from 'use-react-router'
+
 import {
   Divider,
   List,
@@ -33,6 +35,10 @@ import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog'
 import CreateComponentDialog from '../components/CreateComponentDialog/Index'
 
 import transformComponentSchema from './transformComponentSchema'
+import useLiveSubscription from '../../_hooks/useLiveSubscription'
+
+import useStyles from './PrinterComponents.styles'
+import PrinterComponentsView from './PrinterComponents.view'
 
 const COMPONENTS_SUBSCRIPTION = gql`
   subscription ConfigSubscription($machineID: ID!) {
@@ -64,18 +70,6 @@ const COMPONENTS_SUBSCRIPTION = gql`
     }
   }
 `
-
-const styles = theme => ({
-  title: {
-    paddingTop: theme.spacing(3),
-  },
-  addFab: {
-    position: 'fixed',
-    zIndex: 10,
-    bottom: theme.spacing(4),
-    right: theme.spacing(2),
-  },
-})
 
 const componentsOfType = (components, ofType) => (
   components.filter(component => component.type === ofType)
@@ -114,161 +108,41 @@ const CATEGORIES = [
   },
 ]
 
-const enhance = compose(
-  withProps(ownProps => ({
-    subscription: COMPONENTS_SUBSCRIPTION,
+const PrinterComponentsPage = () => {
+  const { match: { params } } = useReactRouter()
+  const { componentID, machineID, verb } = params
+
+  const { data, error, loading } = useLiveSubscription(COMPONENTS_SUBSCRIPTION, {
     variables: {
-      machineID: ownProps.match.params.machineID,
-    },
-  })),
-  withLiveData,
-  withProps(({ machines, match }) => {
-    const { componentID, machineID, verb } = match.params
-    const { components, fixedListComponentTypes, status } = machines[0]
-
-    return {
-      selectedComponent: components.find(c => c.id === componentID),
-      components,
-      fixedListComponentTypes,
-      status,
       machineID,
-      componentID,
-      verb,
-    }
-  }),
-  withStyles(styles, { withTheme: true }),
-)
+    },
+  })
 
-const ComponentsConfigIndex = ({
-  classes,
-  machineID,
-  components,
-  fixedListComponentTypes,
-  status,
-  hasPendingUpdates,
-  componentID,
-  selectedComponent,
-  devices,
-  materials,
-  videoSources,
-  verb,
-}) => (
-  <main>
-    { componentID !== 'new' && selectedComponent != null && verb == null && (
-      <UpdateDialog
-        title={selectedComponent.name}
-        open={selectedComponent != null}
-        status={status}
-        hasPendingUpdates={hasPendingUpdates}
-        deleteButton={
-          fixedListComponentTypes.includes(selectedComponent.type) === false
-        }
-        collection="COMPONENT"
-        transformSchema={schema => transformComponentSchema({
-          schema,
-          materials,
-          videoSources,
-          devices,
-        })}
-        variables={{ machineID, componentID: selectedComponent.id }}
-        query={gql`
-          query($machineID: ID!, $componentID: ID) {
-            machines(machineID: $machineID) {
-              components(componentID: $componentID) {
-                configForm {
-                  ...UpdateDialogFragment
-                }
-              }
-            }
-          }
-          ${UPDATE_DIALOG_FRAGMENT}
-        `}
-      />
-    )}
-    { selectedComponent != null && verb === 'delete' && (
-      <DeleteConfirmationDialog
-        type={selectedComponent.type.toLowerCase()}
-        title={selectedComponent.name}
-        id={selectedComponent.id}
-        collection="COMPONENT"
-        machineID={machineID}
-        open={selectedComponent != null}
-      />
-    )}
-    { componentID === 'new' && (
-      <CreateComponentDialog
-        machineID={machineID}
-        open
-        fixedListComponentTypes={fixedListComponentTypes}
-        devices={devices}
-        materials={materials}
-      />
-    )}
-    <Tooltip title="Add Component" placement="left">
-      <Fab
-        disabled={hasPendingUpdates || status === 'PRINTING'}
-        component={React.forwardRef((props, ref) => (
-          <Link
-            to={componentID === 'new' ? './' : 'new/'}
-            innerRef={ref}
-            style={{ textDecoration: 'none' }}
-            {...props}
-          />
-        ))}
-        className={classes.addFab}
-      >
-        <Add />
-      </Fab>
-    </Tooltip>
-    <List>
-      {
-        CATEGORIES.map(({
-          type,
-          heading,
-          Icon,
-        }) => (
-          <div key={type}>
-            <ListSubheader>
-              {heading}
-            </ListSubheader>
-            {
-              componentsOfType(components, type).map(component => (
-                <ListItem
-                  button
-                  divider
-                  key={component.id}
-                  component={React.forwardRef((props, ref) => (
-                    <Link
-                      to={`${component.id}/`}
-                      innerRef={ref}
-                      {...props}
-                    />
-                  ))}
-                >
+  if (loading) {
+    return <div />
+  }
 
-                  <ListItemIcon>
-                    {
-                      (
-                        Icon && <Icon />
-                      )
-                      || <Widgets />
-                    }
-                  </ListItemIcon>
-                  <ListItemText>
-                    {component.name}
-                  </ListItemText>
-                </ListItem>
-              ))
-            }
-            <Divider />
-          </div>
-        ))
-      }
-    </List>
-  </main>
-)
+  if (error) {
+    throw error
+  }
 
-export const Component = withStyles(styles, { withTheme: true })(
-  ComponentsConfigIndex,
-)
-export default enhance(ComponentsConfigIndex)
+  const { machines } = data
+  const { components, fixedListComponentTypes, status } = machines[0]
+
+  return (
+    <PrinterComponentsView
+      {...{
+        ...data,
+        selectedComponent: components.find(c => c.id === componentID),
+        components,
+        fixedListComponentTypes,
+        status,
+        machineID,
+        componentID,
+        verb,
+      }}
+    />
+  )
+}
+
+export default PrinterComponentsPage

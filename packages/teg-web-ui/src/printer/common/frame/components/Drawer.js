@@ -77,6 +77,9 @@ const styles = theme => ({
   activeLink: {
     backgroundColor: '#ccc',
   },
+  drawerContents: {
+    paddingBottom: 0,
+  },
 })
 
 const DrawerLink = withRouter(({
@@ -106,7 +109,7 @@ const DrawerLink = withRouter(({
 
 const DrawerContents = ({ machineSlug, machines, classes }) => (
   <div>
-    <List>
+    <List className={classes.drawerContents}>
       <Hidden mdUp>
         <DrawerLink
           text="Home"

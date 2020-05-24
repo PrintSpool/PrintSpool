@@ -73,7 +73,7 @@ const ConfigPage = ({
   machineDefSuggestions,
   loadingMachineDefs,
 }) => (
-  <main>
+  <main styles={{ overflowY: 'scroll' }}>
     {
       machineDialogOpen && !loading && !loadingMachineDefs && (
         <UpdateDialog

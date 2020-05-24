@@ -7,6 +7,7 @@ import {
 import FloatingAddJobButton from '../printButton/FloatingAddJobButton'
 import FloatingPrintNextButton from './components/FloatingPrintNextButton'
 import JobCard from './components/JobCard'
+import useStyles from './JobQueue.styles'
 
 const JobSubList = ({
   jobs,
@@ -14,6 +15,8 @@ const JobSubList = ({
   cancelTask,
   deleteJob,
 }) => {
+  const classes = useStyles()
+
   if (jobs.length === 0) return <div />
   return (
     <div>
@@ -22,7 +25,7 @@ const JobSubList = ({
       </Typography>
       {
         jobs.map(job => (
-          <div key={job.id} style={{ marginBottom: 24 }}>
+          <div key={job.id} className={classes.jobContainer}>
             <JobCard
               {...job}
               cancelTask={cancelTask}
@@ -42,6 +45,8 @@ const JobQueueView = ({
   deleteJob,
   cancelTask,
 }) => {
+  const classes = useStyles()
+
   const statuses = machines.map(machine => machine.status)
   const disablePrintNextButton = (
     statuses.includes('READY') === false
@@ -65,21 +70,12 @@ const JobQueueView = ({
   ]
 
   return (
-    <div>
+    <div className={classes.root}>
       {
         jobs.length === 0
         && (
-        <div
-          style={{
-            position: 'relative',
-            top: '12vh',
-            height: '50vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Typography variant="h4" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
+        <div className={classes.emptyQueueContainer}>
+          <Typography variant="h4" className={classes.emptyQueueText}>
             the print queue is empty
           </Typography>
         </div>
