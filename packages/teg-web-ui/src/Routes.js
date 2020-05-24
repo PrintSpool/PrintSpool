@@ -17,7 +17,7 @@ import UserAccount from './printer/userAccount/UserAccount'
 import Terminal from './printer/terminal/Terminal'
 
 import ConnectionFrame from './printer/common/frame/ConnectionFrame'
-import QueuePage from './printer/queue/Queue.page'
+import QueuePage from './printer/jobQueue/JobQueue.page'
 import JobPage from './printer/job/Job.page'
 
 const GettingStarted = React.lazy(() => (

@@ -1,29 +1,12 @@
 import React from 'react'
-import { compose } from 'recompose'
-import gql from 'graphql-tag'
-import { useMutation } from 'react-apollo-hooks'
 
 import {
   Typography,
 } from '@material-ui/core'
 
-import spoolNextPrintHandler from '../mutations/spoolNextPrintHandler'
-import deleteJobHandler from '../mutations/deleteJobHandler'
-
-import FloatingAddJobButton from '../../printButton/FloatingAddJobButton'
-import FloatingPrintNextButton from './FloatingPrintNextButton'
-import JobCard from './JobCard'
-
-const ESTOP = gql`
-  mutation eStop($machineID: ID!) {
-    eStop(machineID: $machineID)
-  }
-`
-
-const enhance = compose(
-  spoolNextPrintHandler,
-  deleteJobHandler,
-)
+import FloatingAddJobButton from '../printButton/FloatingAddJobButton'
+import FloatingPrintNextButton from './components/FloatingPrintNextButton'
+import JobCard from './components/JobCard'
 
 const JobSubList = ({
   jobs,
@@ -52,14 +35,13 @@ const JobSubList = ({
   )
 }
 
-const JobList = ({
+const JobQueueView = ({
   jobs,
   machines,
   spoolNextPrint,
   deleteJob,
+  cancelTask,
 }) => {
-  const [cancelTask] = useMutation(ESTOP)
-
   const statuses = machines.map(machine => machine.status)
   const disablePrintNextButton = (
     statuses.includes('READY') === false
@@ -124,5 +106,4 @@ const JobList = ({
   )
 }
 
-export const Component = JobList
-export default enhance(JobList)
+export default JobQueueView

@@ -7,7 +7,7 @@ import {
   Typography,
 } from '@material-ui/core'
 
-import TaskStatusRow from '../queue/components/TaskStatusRow'
+import TaskStatusRow from '../jobQueue/components/TaskStatusRow'
 
 import withLiveData from '../common/higherOrderComponents/withLiveData'
 

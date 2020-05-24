@@ -1,13 +1,13 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
-import { Component as JobList } from './JobList'
+import JobQueue from './JobQueue.view'
 
 import {
   drinkingGlass,
   gear,
   reprap,
   robot,
-} from '../mocks/job.mock'
+} from './mocks/job.mock'
 
 const baselineProps = {
   jobs: [
@@ -25,15 +25,15 @@ const baselineProps = {
   deleteJob: () => {},
 }
 
-storiesOf('JobList', module)
+storiesOf('JobQueue', module)
   .add('empty', () => (
-    <JobList
+    <JobQueue
       {...baselineProps}
       jobs={[]}
     />
   ))
   .add('printing', () => (
-    <JobList
+    <JobQueue
       {...baselineProps}
       machines={[{
         status: 'PRINTING',
@@ -41,7 +41,7 @@ storiesOf('JobList', module)
     />
   ))
   .add('ready to print', () => (
-    <JobList
+    <JobQueue
       {...baselineProps}
       jobs={[robot]}
     />

@@ -1,19 +1,18 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useCallback } from 'react'
 
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  IconButton,
-  Menu,
-  MenuItem,
-  ListItemIcon,
-  ListItemText,
-} from '@material-ui/core'
+import Card from '@material-ui/core/Card'
+import CardHeader from '@material-ui/core/CardHeader'
+import CardContent from '@material-ui/core/CardContent'
+import IconButton from '@material-ui/core/IconButton'
+import Menu from '@material-ui/core/Menu'
+import MenuItem from '@material-ui/core/MenuItem'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import ListItemText from '@material-ui/core/ListItemText'
 
 import MoreVert from '@material-ui/icons/MoreVert'
 import Delete from '@material-ui/icons/Delete'
 
+import { Link } from 'react-router-dom'
 import truncate from 'truncate'
 
 import TaskStatusRow from './TaskStatusRow'
@@ -31,18 +30,21 @@ const JobCard = ({
 }) => {
   const [menuAnchorEl, setMenuAnchorEl] = useState()
 
-  const {
-    openMenu,
-    closeMenu,
-  } = useMemo(() => ({
-    openMenu: event => setMenuAnchorEl(event.target),
-    closeMenu: () => setMenuAnchorEl(null),
-  }))
+  const openMenu = useCallback(event => setMenuAnchorEl(event.target))
+  const closeMenu = useCallback(() => setMenuAnchorEl(null))
+
+  const shortName = truncate(name, 32)
 
   return (
     <Card>
       <CardHeader
-        title={truncate(name, 32)}
+        title={(
+          tasks.length === 0 ? shortName : (
+            <Link to={`./task/${tasks[0].id}`}>
+              {shortName}
+            </Link>
+          )
+        )}
         subheader={`${printsCompleted} / ${totalPrints} prints completed`}
         action={
             // hide the delete button when the job is printing
@@ -64,7 +66,14 @@ const JobCard = ({
         onClose={closeMenu}
       >
         <MenuItem
-          onClick={() => deleteJob({ jobID: id }) && closeMenu()}
+          onClick={() => {
+            deleteJob({
+              variables: {
+                jobID: id,
+              },
+            })
+            closeMenu()
+          }}
         >
           <ListItemIcon>
             <Delete />
