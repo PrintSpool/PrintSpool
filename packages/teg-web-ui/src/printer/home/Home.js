@@ -2,22 +2,25 @@ import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useGraphQL } from 'graphql-react'
 
-import {
-  Button,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
-  Typography,
-  // Divider,
-} from '@material-ui/core'
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
+import Button from '@material-ui/core/Button'
+import Fab from '@material-ui/core/Fab'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
+import Typography from '@material-ui/core/Typography'
+import Icon from '@material-ui/core/Icon'
+import Tooltip from '@material-ui/core/Tooltip'
+import ListSubheader from '@material-ui/core/ListSubheader'
+
+import Add from '@material-ui/icons/Add'
 
 import { useAuth } from '../../common/auth'
 
 import HomeStyles from './HomeStyles'
 
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
-import PrintButton from '../printButton/PrintButton'
 
 const Home = () => {
   const classes = HomeStyles()
@@ -82,45 +85,46 @@ const Home = () => {
   return (
     <>
       <StaticTopNavigation avatar={avatar} />
-      <div className={classes.root}>
-        <div className={classes.header}>
-          <Button
-            size="small"
-            component={React.forwardRef((props, ref) => (
-              <Link
-                to="/get-started"
-                innerRef={ref}
-                {...props}
-              />
-            ))}
-          >
-            Add a Printer
-          </Button>
-          <Typography variant="subtitle2" component="h1">
-            3D Printers
-          </Typography>
-        </div>
+      <Card className={classes.card} raised>
+        <Typography
+          variant="h6"
+          component="h2"
+          className={classes.header}
+        >
+          3D Printers
+          <Tooltip title="Add 3D Printer" placement="left">
+            <Fab
+              className={classes.addButton}
+              size="small"
+              component={React.forwardRef((props, ref) => (
+                <Link
+                  to="/get-started"
+                  innerRef={ref}
+                  {...props}
+                />
+              ))}
+            >
+              <Add />
+              {/* Add a Printer */}
+            </Fab>
+          </Tooltip>
+        </Typography>
 
         <List>
           { machines.map(machine => (
-            <ListItem key={machine.slug}>
+            <ListItem
+              key={machine.slug}
+              button
+              component={React.forwardRef((props, ref) => (
+                <Link
+                  to={`/q/${machine.slug}/`}
+                  // className={classes.manage}
+                  innerRef={ref}
+                  {...props}
+                />
+              ))}
+            >
               <ListItemText primary={machine.name} />
-              <ListItemSecondaryAction>
-                <Button
-                  className={classes.manage}
-                  component={React.forwardRef((props, ref) => (
-                    <Link
-                      to={`/q/${machine.slug}/`}
-                      className={classes.manage}
-                      innerRef={ref}
-                      {...props}
-                    />
-                  ))}
-                >
-                  Manage
-                </Button>
-                <PrintButton href={`/print/?q=${machine.slug}`} />
-              </ListItemSecondaryAction>
             </ListItem>
           ))}
         </List>
@@ -145,7 +149,7 @@ const Home = () => {
             </Button>
           </div>
         )}
-      </div>
+      </Card>
     </>
   )
 }

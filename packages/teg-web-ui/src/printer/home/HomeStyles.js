@@ -2,22 +2,26 @@ import { makeStyles } from '@material-ui/styles'
 
 const useStyles = makeStyles(theme => ({
   header: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-    marginLeft: theme.spacing(2),
+    paddingTop: theme.spacing(3),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    color: '#FFF',
+    background: '#dd25c4',
+    // background: '#ff7a00', //theme.palette.secondary.main,
+  },
+  addButton: {
+    marginTop: theme.spacing(4),
     marginRight: theme.spacing(2),
-
-    '& h1': {
-      lineHeight: '2.3rem',
-    },
-    '& a': {
-      float: 'right',
-    },
+    float: 'left',
   },
-  printButton: {
-  },
-  manage: {
-    marginRight: '1rem',
+  card: {
+    marginTop: theme.spacing(4),
+    [theme.breakpoints.up('md')]: {
+      maxWidth: 400,
+      marginLeft: 'auto',
+      marginRight: 'auto',
+    },
   },
   emptyListMessage: {
     textAlign: 'center',
