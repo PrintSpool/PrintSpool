@@ -186,7 +186,7 @@ const Routes = () => {
                     path={['/q/:hostID/', '/q/:hostID/print/']}
                     component={QueuePage}
                   />
-                  <Route exact path="/q/:hostID/jobs/:jobID/" component={JobPage} />
+                  <Route exact path="/q/:hostID/printing/:jobID/" component={JobPage} />
 
                   <React.Suspense fallback={<div />}>
                     <Route exact path="/q/:hostID/print/" component={PrintDialog} />

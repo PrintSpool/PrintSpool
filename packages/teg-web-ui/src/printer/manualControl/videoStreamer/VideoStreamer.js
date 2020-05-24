@@ -1,13 +1,9 @@
-import React, { useState, useRef, useCallback, useContext } from 'react'
-import { Link, useHistory } from 'react-router-dom'
-import {
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Tooltip,
-  Fab,
-} from '@material-ui/core'
+import React, {
+  useState,
+  useRef,
+  useCallback,
+  useContext,
+} from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { useAsync } from 'react-async'
 
@@ -163,6 +159,7 @@ const VideoStreamer = ({
   return (
     <LoadingOverlay loading={isLoading}>
       <div className={classes.container}>
+        {/* eslint-disable-next-line */}
         <video
           ref={videoEl}
           className={classes.video}

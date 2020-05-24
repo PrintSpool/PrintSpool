@@ -19,10 +19,9 @@ const baselineProps = {
   machines: [{
     status: 'READY',
   }],
-  addJob: () => {},
   spoolNextPrint: () => {},
-  cancelTask: () => {},
   deleteJob: () => {},
+  cancelTask: () => {},
 }
 
 storiesOf('JobQueue', module)

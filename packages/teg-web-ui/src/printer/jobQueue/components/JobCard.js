@@ -39,11 +39,9 @@ const JobCard = ({
     <Card>
       <CardHeader
         title={(
-          tasks.length === 0 ? shortName : (
-            <Link to={`./task/${tasks[0].id}`}>
-              {shortName}
-            </Link>
-          )
+          <Link to={`./printing/${id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            {shortName}
+          </Link>
         )}
         subheader={`${printsCompleted} / ${totalPrints} prints completed`}
         action={
