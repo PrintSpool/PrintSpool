@@ -3,8 +3,8 @@ import { storiesOf } from '@storybook/react'
 import StoryRouter from 'storybook-react-router'
 import { linkTo } from '@storybook/addon-links'
 
-import { Component as ComponentsConfigPage } from './Index.page'
-import configRoot from '../../../../../../development.config'
+import configRoot from '../../../../../teg-host-posix/development.config'
+import PrinterComponentsView from './PrinterComponents.view'
 
 const { components } = configRoot.printer
 
@@ -17,30 +17,30 @@ storiesOf('Config/Components', module)
     '/fans/:id': linkTo('Config/Components', 'fan dialog'),
   }))
   .add('index', () => (
-    <ComponentsConfigPage
+    <PrinterComponentsView
       components={components}
     />
   ))
   .add('controller dialog', () => (
-    <ComponentsConfigPage
+    <PrinterComponentsView
       components={components}
       selectedComponent={components.find(c => c.type === 'CONTROLLER')}
     />
   ))
   .add('toolhead dialog', () => (
-    <ComponentsConfigPage
+    <PrinterComponentsView
       components={components}
       selectedComponent={components.find(c => c.type === 'TOOLHEAD')}
     />
   ))
   .add('build platform dialog', () => (
-    <ComponentsConfigPage
+    <PrinterComponentsView
       components={components}
       selectedComponent={components.find(c => c.type === 'BUILD_PLATFORM')}
     />
   ))
   .add('fan dialog', () => (
-    <ComponentsConfigPage
+    <PrinterComponentsView
       components={components}
       selectedComponent={components.find(c => c.type === 'FAN')}
     />
