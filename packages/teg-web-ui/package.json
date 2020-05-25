@@ -33,6 +33,7 @@
     "camelcase": "^5.3.1",
     "classnames": "^2.2.6",
     "deline": "^1.0.4",
+    "detectrtc": "^1.4.0",
     "downshift": "^3.2.10",
     "fast-async": "^6.3.8",
     "fast-json-patch": "^2.0.7",

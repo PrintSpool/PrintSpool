@@ -11,6 +11,7 @@ import { ApolloProvider as ApolloHooksProvider } from 'react-apollo-hooks'
 
 import { ApolloClient } from 'apollo-client'
 import { InMemoryCache } from 'apollo-cache-inmemory'
+import DetectRTC from 'detectrtc'
 // import { ApolloLink } from 'apollo-link'
 // import { onError } from 'apollo-link-error'
 
@@ -26,6 +27,7 @@ import {
   createECDHKey,
 } from 'graphql-things'
 
+import UnsupportedBrowser from './UnsupportedBrowser'
 import { getID } from './UserDataProvider'
 import ConnectionStatus from './common/ConnectionStatus'
 import { useAuth } from './common/auth'
@@ -54,12 +56,19 @@ const TegApolloProvider = ({
 
   const slug = slugParam || (invite && getID(invite)) || match.params.hostID || params.get('q')
 
+  const shouldConnect = isSignedIn && (invite != null || slug != null)
+
+  const unsupportedBrowser = (
+    shouldConnect
+    && !DetectRTC.isSctpDataChannelsSupported
+  )
+
   // console.log({ inviteCode, invite, match, params, slug })
 
   // console.log(auth0.isAuthenticated)
   useEffect(() => {
     (async () => {
-      if (!isSignedIn || (invite == null && slug == null)) {
+      if (!shouldConnect || unsupportedBrowser) {
         return
       }
 
@@ -227,6 +236,10 @@ const TegApolloProvider = ({
 
   if (error) {
     throw new Error(JSON.stringify(error, null, 2))
+  }
+
+  if (unsupportedBrowser) {
+    return <UnsupportedBrowser />
   }
 
   // console.log({ prevSlug, slug, connectionProps, link })

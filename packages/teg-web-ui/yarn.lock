@@ -6056,6 +6056,11 @@ detect-port@^1.2.3:
     address "^1.0.1"
     debug "^2.6.0"
 
+detectrtc@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/detectrtc/-/detectrtc-1.4.0.tgz#2626dd651c62374344f07999d6e06008c0fe7f46"
+  integrity sha512-VQWrlpttdKCog05BhdRmlRzWa4QaJDHEoyvn1EoQvqUWz1DfneKXwmBO1sizVHRUyhu54mu6LSPG6bDQk1VrsA==
+
 diff-sequences@^24.9.0:
   version "24.9.0"
   resolved "https://registry.yarnpkg.com/diff-sequences/-/diff-sequences-24.9.0.tgz#5715d6244e2aa65f48bba0bc972db0b0b11e95b5"
