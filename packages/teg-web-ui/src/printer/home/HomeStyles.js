@@ -6,8 +6,10 @@ const useStyles = makeStyles(theme => ({
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
     paddingBottom: theme.spacing(2),
+    // [theme.breakpoints.up('md')]: {
     color: '#FFF',
     background: '#dd25c4',
+    // },
     // background: '#ff7a00', //theme.palette.secondary.main,
   },
   addButton: {
@@ -17,11 +19,10 @@ const useStyles = makeStyles(theme => ({
   },
   card: {
     marginTop: theme.spacing(4),
-    [theme.breakpoints.up('md')]: {
-      maxWidth: 400,
-      marginLeft: 'auto',
-      marginRight: 'auto',
-    },
+    width: 400,
+    maxWidth: '90vw',
+    marginLeft: 'auto',
+    marginRight: 'auto',
   },
   emptyListMessage: {
     textAlign: 'center',

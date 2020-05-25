@@ -85,71 +85,73 @@ const Home = () => {
   return (
     <>
       <StaticTopNavigation avatar={avatar} />
-      <Card className={classes.card} raised>
-        <Typography
-          variant="h6"
-          component="h2"
-          className={classes.header}
-        >
-          3D Printers
-          <Tooltip title="Add 3D Printer" placement="left">
-            <Fab
-              className={classes.addButton}
-              size="small"
-              component={React.forwardRef((props, ref) => (
-                <Link
-                  to="/get-started"
-                  innerRef={ref}
-                  {...props}
-                />
-              ))}
-            >
-              <Add />
-              {/* Add a Printer */}
-            </Fab>
-          </Tooltip>
-        </Typography>
+      { machines.length > 0 && (
+        <Card className={classes.card} raised>
+          <Typography
+            variant="h6"
+            component="h2"
+            className={classes.header}
+          >
+            3D Printers
+            <Tooltip title="Add 3D Printer" placement="left">
+              <Fab
+                className={classes.addButton}
+                size="small"
+                component={React.forwardRef((props, ref) => (
+                  <Link
+                    to="/get-started"
+                    innerRef={ref}
+                    {...props}
+                  />
+                ))}
+              >
+                <Add />
+                {/* Add a Printer */}
+              </Fab>
+            </Tooltip>
+          </Typography>
 
-        <List>
-          { machines.map(machine => (
-            <ListItem
-              key={machine.slug}
-              button
-              component={React.forwardRef((props, ref) => (
-                <Link
-                  to={`/q/${machine.slug}/`}
-                  // className={classes.manage}
-                  innerRef={ref}
-                  {...props}
-                />
-              ))}
-            >
-              <ListItemText primary={machine.name} />
-            </ListItem>
-          ))}
-        </List>
-        { machines.length === 0 && (
-          <div className={classes.emptyListMessage}>
-            <Typography variant="h6" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
-              It looks like you don't have any 3D printers setup yet.
-            </Typography>
-            <Button
-              className={classes.addFirstPrinterButton}
-              variant="contained"
-              color="primary"
-              component={React.forwardRef((props, ref) => (
-                <Link
-                  to="/get-started"
-                  innerRef={ref}
-                  {...props}
-                />
-              ))}
-            >
-              Add your first printer
-            </Button>
-          </div>
-        )}
-      </Card>
+          <List>
+            { machines.map(machine => (
+              <ListItem
+                key={machine.slug}
+                button
+                component={React.forwardRef((props, ref) => (
+                  <Link
+                    to={`/q/${machine.slug}/`}
+                    // className={classes.manage}
+                    innerRef={ref}
+                    {...props}
+                  />
+                ))}
+              >
+                <ListItemText primary={machine.name} />
+              </ListItem>
+            ))}
+          </List>
+        </Card>
+      )}
+      { machines.length === 0 && (
+        <div className={classes.emptyListMessage}>
+          <Typography variant="h6" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
+            It looks like you do not have any 3D printers setup yet.
+          </Typography>
+          <Button
+            className={classes.addFirstPrinterButton}
+            variant="contained"
+            color="primary"
+            component={React.forwardRef((props, ref) => (
+              <Link
+                to="/get-started"
+                innerRef={ref}
+                {...props}
+              />
+            ))}
+          >
+            Add your first printer
+          </Button>
+        </div>
+      )}
     </>
   )
 }
