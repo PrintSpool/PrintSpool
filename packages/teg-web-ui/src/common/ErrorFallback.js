@@ -7,7 +7,7 @@ import {
 
 import { CONNECTION_TIMEOUT } from 'graphql-things'
 
-import ErrorFallbackStyles from './ErrorFallbackStyles'
+import ErrorFallbackStyles from './ErrorFallback.styles'
 
 // gql`
 //   query {

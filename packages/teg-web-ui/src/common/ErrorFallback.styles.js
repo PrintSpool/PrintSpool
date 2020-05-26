@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/styles'
 const useStyles = makeStyles(theme => ({
   root: {
     color: 'white',
+    overflow: 'scroll',
   },
   header: {
     background: theme.palette.error.dark,

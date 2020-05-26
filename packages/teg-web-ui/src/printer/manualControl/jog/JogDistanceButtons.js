@@ -24,7 +24,7 @@ const JogDistanceButtons = ({
           <BottomNavigationAction
             key={value}
             value={value}
-            label={`${value}mm`}
+            label={typeof value === 'number' ? `${value}mm` : value}
             showLabel
           />
         )) }

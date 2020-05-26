@@ -14,6 +14,7 @@ import SimplePeer from 'simple-peer'
 
 import { TegApolloContext } from '../../../TegApolloProvider'
 import LoadingOverlay from '../../../common/LoadingOverlay'
+import ErrorFallback from '../../../common/ErrorFallback'
 
 const createVideoSDPMutation = gql`
   mutation createVideoSDPMutation($offer: RTCSignalInput!) {
@@ -136,7 +137,9 @@ const enhance = Component => (props) => {
   })
 
   if (error || peerError) {
-    throw error || peerError
+    return (
+      <ErrorFallback error={error || peerError} />
+    )
   }
 
   const nextProps = {

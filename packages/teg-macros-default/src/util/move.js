@@ -4,6 +4,7 @@ import {
   AxisTypeEnum,
   ComponentTypeEnum,
 } from '@tegapp/core'
+import getMoveComponents from './getMoveComponents'
 
 const { MOVEMENT_AXIS, EXTRUDER_AXIS } = AxisTypeEnum
 const { TOOLHEAD } = ComponentTypeEnum
@@ -22,31 +23,19 @@ const move = ({
   const g1Args = {}
   const feedrates = []
 
-  const allowTypes = [MOVEMENT_AXIS]
-  if (allowExtruderAxes) allowTypes.push(EXTRUDER_AXIS)
-
-  Object.entries(axes).forEach(([address, v]) => {
-    if (!axisExists(machineConfig)(address, { allowTypes })) {
-      throw new Error(`Axis ${address} does not exist`)
+  getMoveComponents({
+    axes,
+    allowExtruderAxes,
+    machineConfig,
+  }).forEach(({ component, address, value }) => {
+    if (typeof value !== 'number') {
+      throw new Error(`${address}: ${value} is not a number`)
     }
 
-    // if (!validAxes.includes(id)) throw new Error(`Axis ${id} does not exist`)
-    if (typeof v !== 'number') {
-      throw new Error(`${address}: ${v} is not a number`)
-    }
-
-    // const feedrate = machineConfig.feedrates[id]
-    // if (feedrate == null) {
-    //   throw new Error(`no feedrate configured for ${id}`)
-    // }
-
-    // TODO: multi-extruder support
-    const component = getComponents(machineConfig).find(c => (
-      c.model.get('address') === address
-    ))
     const isToolhead = component.type === TOOLHEAD
 
-    g1Args[(isToolhead ? 'e' : address)] = v
+    // TODO: does this work with multi-extruder printers?
+    g1Args[(isToolhead ? 'e' : address)] = value
 
     feedrates.push(component.model.get('feedrate'))
   })
