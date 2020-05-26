@@ -12,7 +12,7 @@ const useContinuousMove = ({ machine }) => {
     mutationLastCompletedAt: null,
   })
 
-  const start = (axes) => () => {
+  const start = axes => () => {
     setState(prevState => ({
       ...prevState,
       axes,
@@ -40,7 +40,7 @@ const useContinuousMove = ({ machine }) => {
         input: {
           machineID: machine.id,
           gcodes: [
-            { continuousMove: { ms: 500, axes: state.axes } },
+            { continuousMove: { ms: 200, axes: state.axes, feedrateMultiplier: 0.5 } },
           ],
         },
       },
@@ -49,6 +49,7 @@ const useContinuousMove = ({ machine }) => {
     if (error != null) {
       throw new Error(error)
     }
+    // console.log((Date.now() - state.mutationLastCompletedAt) / 1000)
 
     setState(prevState => ({
       ...prevState,
@@ -56,7 +57,6 @@ const useContinuousMove = ({ machine }) => {
     }))
   }
 
-  console.log([state.startedAt, state.mutationLastCompletedAt])
   useEffect(() => {
     if (state.startedAt != null && state.startedAt > state.stoppedAt) {
       tickMovement()

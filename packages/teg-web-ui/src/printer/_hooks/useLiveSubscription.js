@@ -29,6 +29,7 @@ const useLiveSubscription = (subscription, options = {}) => {
     }
 
     if (patch != null) {
+      if (patch.length === 0) return
       patch.forEach((patchOp) => {
         nextState = jsonpatch.apply(nextState, patchOp)
       })
