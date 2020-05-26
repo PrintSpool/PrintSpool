@@ -1,12 +1,8 @@
 import {
-  axisExists,
-  getComponents,
-  AxisTypeEnum,
   ComponentTypeEnum,
 } from '@tegapp/core'
 import getMoveComponents from './getMoveComponents'
 
-const { MOVEMENT_AXIS, EXTRUDER_AXIS } = AxisTypeEnum
 const { TOOLHEAD } = ComponentTypeEnum
 
 const move = ({
@@ -16,10 +12,6 @@ const move = ({
   allowExtruderAxes,
   machineConfig,
 }) => {
-  // let validAxes = config.axes
-  // if (!allowExtruderAxes) {
-  //   validAxes = validAxes.filter((axis) => !axis.startsWith('e'))
-  // }
   const g1Args = {}
   const feedrates = []
 
@@ -28,7 +20,7 @@ const move = ({
     allowExtruderAxes,
     machineConfig,
   }).forEach(({ component, address, value }) => {
-    if (typeof value !== 'number') {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
       throw new Error(`${address}: ${value} is not a number`)
     }
 
