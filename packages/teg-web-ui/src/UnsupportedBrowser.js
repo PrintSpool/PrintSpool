@@ -47,7 +47,7 @@ const UnsupportedBrowser = () => {
               </Typography>
             </>
           )}
-          {/* <pre>
+          {/* <pre style={{ overflow: 'scroll' }}>
             { JSON.stringify(DetectRTC, null, 2) }
           </pre> */}
         </div>

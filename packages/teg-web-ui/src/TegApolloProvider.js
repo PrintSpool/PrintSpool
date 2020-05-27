@@ -58,9 +58,9 @@ const TegApolloProvider = ({
 
   const shouldConnect = isSignedIn && (invite != null || slug != null)
 
-  const unsupportedBrowser = (
-    shouldConnect
-    && !DetectRTC.isSctpDataChannelsSupported
+  const unsupportedBrowser = shouldConnect && (
+    RTCPeerConnection.prototype.createDataChannel == null
+    || DetectRTC.browser.name.includes('FB_IAB')
   )
 
   // console.log({ inviteCode, invite, match, params, slug })
