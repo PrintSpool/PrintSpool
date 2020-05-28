@@ -78,42 +78,22 @@ pub async fn init() -> crate::Result<Context> {
     dotenv().ok();
     env_logger::init();
 
-    if std::env::args().any(|arg| arg == "migrate") {
-        eprintln!("Running Auth Migrations [TODO: Not yet implemented!]");
+    // let database_url = env::var("POSTGRESQL_ADDON_URI")
+    //     .expect("$POSTGRESQL_ADDON_URI must be set");
 
-        // use diesel::prelude::*;
-        //
-        // let database_url = env::var("POSTGRESQL_ADDON_URI")
-        //     .expect("POSTGRESQL_ADDON_URI must be set");
-        //
-        // let connection = PgConnection::establish(&database_url)
-        //     .expect(&format!("Error connecting to {}", database_url));
-        //
-        // // This will run the necessary migrations.
-        // embedded_migrations::run(&connection)
-        //     .chain_err(|| "Error running migrations")?;
+    // let pool = sqlx::PgPool::new(&database_url)
+    //     .await
+    //     .map(|p| Arc::new(p))
+    //     .expect("Could not connect to Postgres");
 
-        // By default the output is thrown out. If you want to redirect it to stdout, you
-        // should call embedded_migrations::run_with_output.
-        // embedded_migrations::run_with_output(&connection, &mut std::io::stdout())
-        //     .chain_err(|| "Error running migrations")?;
+    let db_file = env::var("SLED_DB_PATH")
+        .expect("$SLED_DB_PATH not set");
 
-        eprintln!("Running Auth Migrations: DONE");
+    let db = sled::open(&db_file)
+        .map(|db| Arc::new(db))
+        .chain_err(|| format!("Unable to open sled database: {}", db_file))?;
 
-        return Err("TODO: Migration not yet implemented".into())
-    }
-
-    let database_url = env::var("POSTGRESQL_ADDON_URI")
-        .expect("$POSTGRESQL_ADDON_URI must be set");
-
-    let pool = sqlx::PgPool::new(&database_url)
-        .await
-        .map(|p| Arc::new(p))
-        .expect("Could not connect to Postgres");
-
-    models::Invite::generate_or_display_initial_invite(
-        Arc::clone(&pool)
-    )
+    models::Invite::generate_or_display_initial_invite(&db)
         .await
         .map_err(|err| {
             format!("{:?}", err)
@@ -176,7 +156,7 @@ pub async fn init() -> crate::Result<Context> {
     info!("Watching for config changes at: {}", &config_path);
 
     Ok(Context {
-        pool,
+        db,
         current_user: None,
         identity_public_key: None,
         auth_pem_keys: Arc::new(RwLock::new(vec![vec![]])),

@@ -1,4 +1,5 @@
 use warp::{http::Response, Filter};
+use juniper::{ID};
 use std::env;
 
 use async_std::task;
@@ -42,7 +43,7 @@ async fn main() -> teg_auth::Result<()> {
 
     // State
     let state = warp::any()
-        .and(warp::header::optional::<i32>("user-id"))
+        .and(warp::header::optional::<ID>("user-id"))
         .and(warp::header::optional::<String>("peer-identity-public-key"))  
         .and_then(move |user_id, identity_public_key| {
             task::block_on(

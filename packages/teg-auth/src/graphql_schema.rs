@@ -101,7 +101,7 @@ impl Mutation {
 
     fn delete_invite(context: &Context, input: DeleteInvite) -> FieldResult<Option<bool>> {
         task::block_on(
-            Invite::delete(context, input.invite_id.to_string())
+            Invite::delete(context, input.invite_id)
         )
     }
 
@@ -118,7 +118,7 @@ impl Mutation {
 
     fn delete_user(context: &Context, input: DeleteUser) -> FieldResult<Option<bool>> {
         task::block_on(
-            User::delete(context, input.user_id.to_string())
+            User::delete(context, input.user_id)
         )
     }
 

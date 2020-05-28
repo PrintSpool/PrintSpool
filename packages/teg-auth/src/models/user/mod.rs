@@ -4,8 +4,9 @@ use juniper::{
     FieldError,
     ID,
 };
+use serde::{Deserialize, Serialize};
 
-use crate::{ Context };
+use crate::{ Context, ResultExt };
 
 mod authenticate;
 pub use authenticate::*;
@@ -14,12 +15,9 @@ pub mod jwt;
 
 mod graphql;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct User {
-    // TODO: investigate how to add custom result exts to slqx
-    // pub id: ID,
-    // pub id: String,
-    pub id: i32,
+    pub id: ID,
     pub email: Option<String>,
     pub email_verified: bool,
     pub is_admin: bool,
@@ -43,43 +41,78 @@ pub struct DeleteUser {
     pub user_id: ID,
 }
 
+const DB_PREFIX: &str = "users";
+
 impl User {
-    pub async fn all(context: &Context) -> FieldResult<Vec<User>> {
+    pub fn key(user_id: &ID) -> String {
+        format!("{}:{}", DB_PREFIX, user_id.to_string())
+    }
+
+    pub fn generate_id(db: &sled::Db) -> crate::Result<ID> {
+        db.generate_id()
+            .map(|id| format!("{:64}", id).into())
+            .chain_err(|| "Error generating invite id")
+    }
+
+    pub async fn get(user_id: &ID, db: &sled::Db) -> crate::Result<Self> {
+        let iv_vec = db.get(Self::key(user_id))
+            .chain_err(|| "Unable to get user")?
+            .ok_or(format!("User {:?} not found", user_id))?;
+
+        let user = serde_cbor::from_slice(iv_vec.as_ref())
+            .chain_err(|| "Unable to deserialize user in User::get")?;
+
+        Ok(user)
+    }
+
+    pub async fn insert(self: &Self, db: &sled::Db) -> crate::Result<()> {
+        let bytes = serde_cbor::to_vec(self)
+            .chain_err(|| "Unable to deserialize user in User::get")?;
+
+        db.insert(Self::key(&self.id), bytes)
+            .chain_err(|| "Unable to insert user")?;
+
+        Ok(())
+    }
+
+    pub async fn scan(db: &sled::Db) -> impl Iterator<Item = crate::Result<Self>> {
+        db.scan_prefix(&DB_PREFIX)
+            .values()
+            .map(|iv_vec: sled::Result<sled::IVec>| {
+                iv_vec
+                    .chain_err(|| "Error scanning all users")
+                    .and_then(|iv_vec| {
+                        serde_cbor::from_slice(iv_vec.as_mut())
+                            .chain_err(|| "Unable to deserialize user in User::scan")
+                    })
+            })
+    }
+
+    pub async fn admin_count(db: &sled::Db) -> crate::Result<i32> {
+        Self::scan(db).await
+            .try_fold(0, |acc, user| {
+                user.map(|user| acc + (user.is_admin as i32) )
+            })
+    }
+
+    pub async fn all(context: &Context) -> FieldResult<Vec<Self>> {
         context.authorize_admins_only()?;
 
-        let users = sqlx::query_as!(
-            User,
-            "SELECT * FROM users ORDER BY id",
-        )
-            .fetch_all(&mut context.db().await?)
-            .await?;
+        let users = Self::scan(&context.db)
+            .await
+            .collect::<crate::Result<Vec<Self>>>()?;
 
         Ok(users)
     }
 
-    pub async fn update(context: &Context, user: UpdateUser) -> FieldResult<User> {
+    pub async fn update(context: &Context, changeset: UpdateUser) -> FieldResult<Self> {
         context.authorize_admins_only()?;
-        let mut db = context.db().await?;
 
-        let db_user = sqlx::query_as!(
-            User,
-            "
-                SELECT * FROM users
-                WHERE id=$1
-            ",
-            user.user_id.parse::<i32>()?
-        )
-            .fetch_one(&mut db)
-            .await?;
+        let user = Self::get(&changeset.user_id, &context.db).await?;
 
-        let admin_count = sqlx::query!(
-            "SELECT COUNT(id) FROM users AS count WHERE is_admin=True"
-        )
-        .fetch_one(&mut db)
-        .await?
-        .count;
+        let admin_count = Self::admin_count(&context.db).await?;
 
-        if db_user.is_admin && user.is_admin == Some(false) && admin_count == 1 {
+        if user.is_admin && changeset.is_admin == Some(false) && admin_count == 1 {
             let msg = "Cannot remove admin access. Machines must have at least one admin user";
 
             return Err(FieldError::new(
@@ -90,66 +123,37 @@ impl User {
             ));
         };
 
-        let next_user = sqlx::query_as!(
-            User,
-            "
-                UPDATE users
-                SET is_admin=$2
-                WHERE id=$1
-                RETURNING *
-            ",
-            user.user_id.parse::<i32>()?,
-            user.is_admin.unwrap_or(db_user.is_admin)
-        )
-            .fetch_one(&mut db)
-            .await?;
+        if let Some(is_admin) = changeset.is_admin {
+            user.is_admin = is_admin
+        }
 
-        Ok(next_user)
+        user.insert(&context.db).await?;
+
+        Ok(user)
     }
 
-    pub async fn delete(context: &Context, user_id: String) -> FieldResult<Option<bool>> {
-        eprintln!("{:?}", user_id);
-        let mut db = context.db().await?;
-        let user_id = user_id.parse::<i32>()?;
-
+    pub async fn delete(context: &Context, user_id: ID) -> FieldResult<Option<bool>> {
         let self_deletion = context.current_user
             .as_ref()
             .map(|current_user| current_user.id == user_id)
             .unwrap_or(false);
-        eprintln!("{:?} == {:?} = {:?}", user_id, context.current_user, self_deletion);
 
         if !self_deletion {
             context.authorize_admins_only()?;
         };
 
-        let admin_count = sqlx::query!(
-            "SELECT COUNT(id) FROM users AS count WHERE is_admin=True"
-        )
-        .fetch_one(&mut db)
-        .await?
-        .count;
+        let admin_count = Self::admin_count(&context.db).await?;
 
-        let admin_deletion= sqlx::query!(
-            "SELECT is_admin FROM users WHERE id=$1",
-            user_id
-        )
-        .fetch_one(&mut db)
-        .await?
-        .is_admin;
+        let user = Self::get(&user_id, &context.db).await?;
 
-        if admin_deletion && admin_count == 1 {
+        if user.is_admin && admin_count == 1 {
             return Err(FieldError::new(
                 "Cannot delete only admin user",
                 graphql_value!({ "internal_error": "Cannot delete only admin user" }),
             ))
         };
 
-        let _ = sqlx::query!(
-            "DELETE FROM users WHERE id=$1",
-            user_id
-        )
-        .execute(&mut db)
-        .await?;
+        context.db.remove(Self::key(&user_id));
 
         Ok(None)
     }

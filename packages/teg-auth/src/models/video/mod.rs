@@ -83,7 +83,7 @@ pub async fn create_video_sdp(
         .as_ref()
         .ok_or("Unauthorized to create video SDP")?;
 
-    let id = format!("{}_{}", user.id, rand::random::<u32>().to_string());
+    let id = format!("{}_{}", user.id.to_string(), rand::random::<u32>().to_string());
 
     // TODO: multiple video sources
     let source_url = context.machine_config
@@ -151,7 +151,7 @@ pub async fn get_ice_candidates(
         .as_ref()
         .ok_or("Unauthorized to create video SDP")?;
 
-    if !id.starts_with(&format!("{}_", user.id).to_string()) {
+    if !id.starts_with(&format!("{}_", user.id.to_string()).to_string()) {
         Err("Invalid Video Session ID")?;
     }
 

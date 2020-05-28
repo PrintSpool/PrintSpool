@@ -2,7 +2,16 @@ use juniper::{
     FieldResult,
 };
 
-use crate::{ Context, models::User };
+use crate::{
+    Context,
+    ResultExt,
+    models::{
+        User,
+        Invite,
+    }
+};
+
+use sled::transaction::ConflictableTransactionError;
 
 pub async fn consume_invite(context: &Context) -> FieldResult<User> {
     let user_id = context.current_user
@@ -11,56 +20,44 @@ pub async fn consume_invite(context: &Context) -> FieldResult<User> {
         .id;
     let invite_public_key = context.identity_public_key
         .as_ref()
-        .ok_or("Cannot consume_invite without public key")?;
+        .ok_or("Cannot consume_invite without public key".into())?;
 
-    let mut tx = context.tx().await?;
+    let user = context.db.transaction(|db| {
+        use ConflictableTransactionError::Abort;
 
-    // Verify that the invite has not yet been consumed
-    let invite = sqlx::query!(
-        "SELECT is_admin FROM invites WHERE public_key=$1",
-        &invite_public_key
-    )
-        .fetch_one(&mut tx)
-        .await?;
+        // Verify that the invite has not yet been consumed
+        let invite = futures::executor::block_on(
+            Invite::find_by_pk(invite_public_key, &context.db)
+        )
+            .map_err(|err| Abort(err))?
+            .ok_or(Abort("Invite has already been consumed".into()))?;
 
-    // Check if the user is already authorized
-    let user = sqlx::query_as!(
-        User,
-        "
-            SELECT * FROM users
-            WHERE id=$1
-        ",
-        user_id
-    )
-        .fetch_one(&mut tx)
-        .await?;
+        // .map_err(|err| {
+            //     Abort(err)
+            // })?
+            // .ok_or(
+            //     Abort("Invite has already been consumed")
+            // )?;
 
-    // Authorize the user
-    let user = sqlx::query_as!(
-        User,
-        "
-            UPDATE users
-            SET
-                is_authorized=True,
-                is_admin=$2
-            WHERE id=$1
-            RETURNING *
-        ",
-        user_id,
-        user.is_admin || invite.is_admin
-    )
-        .fetch_one(&mut tx)
-        .await?;
+        // Re-fetch the user inside the transaction to prevent overwriting changes from
+        // other transactions
+        let user = futures::executor::block_on(
+            User::get(&user_id, &context.db)
+        )
+            .map_err(|err| Abort(err))?;
 
-    // Delete the invite
-    sqlx::query!(
-        "DELETE FROM invites WHERE public_key=$1",
-        &invite_public_key
-    )
-        .execute(&mut tx)
-        .await?;
+        // Authorize the user
+        user.is_admin = user.is_admin || invite.is_admin;
+        user.is_authorized = true;
 
-    tx.commit().await?;
+        user.insert(&context.db);
+
+        // Delete the invite
+        context.db.remove(Invite::key(&invite.id))?;
+
+        Ok(user)
+    })
+        .chain_err(|| "Unable to consume invite")?;
 
     Ok(user)
 }

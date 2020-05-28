@@ -4,15 +4,23 @@ use juniper::{
     FieldResult,
     ID,
 };
-use std::sync::Arc;
+// use std::sync::Arc;
+use serde::{Deserialize, Serialize};
 
-use crate::{ Context };
+use crate::{
+    Context,
+    ResultExt,
+};
+
+use super::{
+    User,
+};
 
 mod graphql;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Invite {
-    pub id: i32,
+    pub id: ID,
     pub public_key: String,
     pub is_admin: bool,
     pub created_at: DateTime<Utc>,
@@ -46,16 +54,82 @@ mod invite_code;
 pub use consume_invite::*;
 pub use invite_code::*;
 
+
+const DB_PREFIX: &str = "invites";
+
 impl Invite {
-    pub async fn all(context: &Context) -> FieldResult<Vec<Invite>> {
+    pub fn key(invite_id: &ID) -> String {
+        format!("{}:{}", DB_PREFIX, invite_id.to_string())
+    }
+
+    pub fn generate_id(db: &sled::Db) -> crate::Result<ID> {
+        let id = db.generate_id()
+            .map(|id| format!("{:64}", id))
+            .chain_err(|| "Error generating invite id")?
+            .into();
+    }
+
+    pub async fn get(invite_id: &ID, db: &sled::Db) -> crate::Result<Self> {
+        let iv_vec = db.get(Self::key(invite_id))
+            .chain_err(|| "Unable to get invite")?
+            .ok_or(format!("invite {:?} not found", invite_id))?;
+
+        let invite = serde_cbor::from_slice(iv_vec.as_ref())
+            .chain_err(|| "Unable to deserialize invite in Invite::get")?;
+
+        Ok(invite)
+    }
+
+    pub async fn insert(&self, db: &sled::Db) -> crate::Result<()> {
+        let bytes = serde_cbor::to_vec(self)
+            .chain_err(|| "Unable to deserialize invite in Invite::get")?;
+
+        db.insert(Self::key(&self.id), bytes)
+            .chain_err(|| "Unable to insert invite")?;
+
+        Ok(())
+    }
+
+    pub async fn scan(db: &sled::Db) -> impl Iterator<Item = crate::Result<Self>> {
+        db.scan_prefix(&DB_PREFIX)
+            .values()
+            .map(|iv_vec: sled::Result<sled::IVec>| {
+                iv_vec
+                    .chain_err(|| "Error scanning all invites")
+                    .and_then(|iv_vec| {
+                        serde_cbor::from_slice(iv_vec.as_mut())
+                            .chain_err(|| "Unable to deserialize invite in Invite::scan")
+                    })
+            })
+    }
+
+    pub async fn find_by_pk(public_key: &String, db: &sled::Db) -> crate::Result<Option<Self>> {
+        Self::scan(&db)
+            .await
+            .find(|invite| {
+                if let Ok(invite) = invite {
+                    invite.public_key == *public_key
+                } else {
+                    true
+                }
+            })
+            .transpose()
+    }
+
+    // pub async fn admin_count(db: &sled::Db) -> crate::Result<i32> {
+    //     Self::scan(db).await
+    //         .try_fold(0, |acc, user| {
+    //             user.map(|user| acc + (user.is_admin as i32) )
+    //         })
+    // }
+
+    pub async fn all(context: &Context) -> FieldResult<Vec<Self>> {
         context.authorize_admins_only()?;
 
-        let invites = sqlx::query_as!(
-            Invite,
-            "SELECT * FROM invites ORDER BY id",
-        )
-            .fetch_all(&mut context.db().await?)
-            .await?;
+        // TODO: order the invites by their ids
+        let invites = Self::scan(&context.db)
+            .await
+            .collect::<crate::Result<Vec<Self>>>()?;
 
         Ok(invites)
     }
@@ -63,69 +137,54 @@ impl Invite {
     pub async fn admin_create_invite(
         context: &Context,
         input: CreateInviteInput,
-    ) -> FieldResult<Invite> {
+    ) -> FieldResult<Self> {
         context.authorize_admins_only()?;
 
-        let mut db = context.db().await?;
+        let invite = Self {
+            id: Self::generate_id(&context.db)?,
+            public_key: input.public_key,
+            private_key: None,
+            slug: None,
+            is_admin: input.is_admin.unwrap_or(false),
+            created_at: Utc::now(),
+        };
 
-        let invite = sqlx::query_as!(
-            Invite,
-            "
-                INSERT INTO invites (public_key, is_admin, created_at)
-                VALUES ($1, $2, $3)
-                RETURNING *
-            ",
-            input.public_key,
-            input.is_admin.unwrap_or(false),
-            Utc::now()
-        )
-            .fetch_one(&mut db)
+        invite.insert(&context.db)
             .await?;
 
         Ok(invite)
     }
 
     pub async fn generate_and_display(
-        pool: Arc<sqlx::PgPool>,
+        db: &sled::Db,
         is_admin: bool,
     ) -> FieldResult<Self> {
-        let mut db = pool.acquire().await?;
-
-        let invite = Self::new(&mut db, is_admin).await?;
+        let invite = Self::new(db, is_admin).await?;
         invite.print_welcome_text()?;
 
         Ok(invite)
     }
 
     pub async fn generate_or_display_initial_invite(
-        pool: Arc<sqlx::PgPool>,
+        db: &sled::Db,
     ) -> FieldResult<()> {
-        let mut db = pool.acquire().await?;
+        let admin_user_count = User::admin_count(db).await?;
 
-        let user_count = sqlx::query!(
-            "
-                SELECT COUNT(id) as count FROM users
-                WHERE is_admin = True
-            ",
-        )
-            .fetch_one(&mut db)
-            .await?
-            .count;
-
-        if  user_count == 0 {
-            let initial_invite = sqlx::query_as!(
-                Self,
-                "
-                    SELECT * FROM invites
-                    WHERE is_admin = True AND slug IS NOT NULL
-                ",
-            )
-                .fetch_optional(&mut db)
-                .await?;
+        if admin_user_count == 0 {
+            let initial_invite = Self::scan(db)
+                .await
+                .find(|user| {
+                    if let Ok(user) = user {
+                        user.is_admin && user.slug.is_some()
+                    } else {
+                        true
+                    }
+                })
+                .transpose()?;
 
             let initial_invite = match initial_invite {
                 Some(invite) => invite,
-                None => Self::new(&mut db, true).await?,
+                None => Self::new(db, true).await?,
             };
 
             initial_invite.print_welcome_text()?;
@@ -135,91 +194,60 @@ impl Invite {
     }
 
     pub async fn new(
-        db: &mut sqlx::pool::PoolConnection<sqlx::PgConnection>,
+        db: &sled::Db,
         is_admin: bool,
-    ) -> FieldResult<Invite> {
+    ) -> FieldResult<Self> {
         use secp256k1::{
             rand::rngs::OsRng,
             Secp256k1,
         };
 
-
         let secp = Secp256k1::new();
         let mut rng = OsRng::new().expect("OsRng");
-        let (private_key, public_key) = secp.generate_keypair(&mut rng);
+        let (binary_private_key, binary_public_key) = secp.generate_keypair(&mut rng);
 
         use hex::ToHex;
 
-        let hex_private_key = format!("{:x}", private_key);
-        let hex_public_key = public_key
+        let private_key = format!("{:x}", binary_private_key);
+        let public_key = binary_public_key
             .serialize_uncompressed()
             .to_vec()
             .encode_hex::<String>();
 
-        let slug = Self::generate_slug(hex_private_key.clone())?;
+        let slug = Self::generate_slug(private_key.clone())?;
 
-        let invite = sqlx::query_as!(
-            Invite,
-            "
-                INSERT INTO invites (public_key, private_key, slug, is_admin, created_at)
-                VALUES ($1, $2, $3, $4, $5)
-                RETURNING *
-            ",
-            hex_public_key,
-            hex_private_key,
-            slug,
+        let invite = Self {
+            id: Self::generate_id(db)?,
+            private_key: Some(private_key),
+            public_key,
+            slug: Some(slug),
             is_admin,
-            Utc::now()
-        )
-            .fetch_one(db)
-            .await?;
+            created_at: Utc::now(),
+        };
+
+        invite.insert(db);
 
         Ok(invite)
     }
 
-    pub async fn update(context: &Context, invite: UpdateInvite) -> FieldResult<Invite> {
+    pub async fn update(context: &Context, input: UpdateInvite) -> FieldResult<Self> {
         context.authorize_admins_only()?;
 
-        let db_invite = sqlx::query_as!(
-            Invite,
-            "
-                SELECT * FROM invites
-                WHERE id=$1
-            ",
-            invite.invite_id.parse::<i32>()?
-        )
-            .fetch_one(&mut context.db().await?)
+        let invite = Self::get(&input.invite_id, &context.db)
             .await?;
 
-        let next_invite = sqlx::query_as!(
-            Invite,
-            "
-                UPDATE invites
-                SET is_admin=$2
-                WHERE id=$1
-                RETURNING *
-            ",
-            invite.invite_id.parse::<i32>()?,
-            invite.is_admin.unwrap_or(db_invite.is_admin)
-        )
-            .fetch_one(&mut context.db().await?)
-            .await?;
+        invite.is_admin = input.is_admin.unwrap_or(invite.is_admin);
 
-        Ok(next_invite)
+        invite.insert(&context.db);
+
+        Ok(invite)
     }
 
-    pub async fn delete(context: &Context, invite_id: String) -> FieldResult<Option<bool>> {
-        eprintln!("{:?}", invite_id);
-        let invite_id = invite_id.parse::<i32>()?;
-
+    pub async fn delete(context: &Context, invite_id: ID) -> FieldResult<Option<bool>> {
         context.authorize_admins_only()?;
 
-        let _ = sqlx::query!(
-            "DELETE FROM invites WHERE id=$1",
-            invite_id
-        )
-        .execute(&mut context.db().await?)
-        .await?;
+        context.db.remove(Self::key(&invite_id))
+            .chain_err(|| "Error deleting invite")?;
 
         Ok(None)
     }
