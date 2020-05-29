@@ -12,7 +12,7 @@ async fn main() -> teg_auth::Result<()> {
 
   let context = init().await?;
 
-  let _ = Invite::generate_and_display(context.pool, true).await;
+  let _ = Invite::generate_and_display(&context.db, true).await;
 
   Ok(())
 }

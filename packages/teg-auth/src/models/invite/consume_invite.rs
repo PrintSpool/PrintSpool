@@ -16,13 +16,15 @@ use sled::transaction::ConflictableTransactionError;
 pub async fn consume_invite(context: &Context) -> FieldResult<User> {
     let user_id = context.current_user
         .as_ref()
-        .ok_or("Cannot consume_invite without user")?
-        .id;
+        .ok_or(crate::Error::from("Cannot consume_invite without user"))?
+        .id
+        .clone();
     let invite_public_key = context.identity_public_key
         .as_ref()
-        .ok_or("Cannot consume_invite without public key".into())?;
+        .ok_or(crate::Error::from("Cannot consume_invite without public key"))?;
 
-    let user = context.db.transaction(|db| {
+    // TODO: transactions (currently this transaction doesn't get used)
+    let user = context.db.transaction(|_db| {
         use ConflictableTransactionError::Abort;
 
         // Verify that the invite has not yet been consumed
@@ -41,7 +43,7 @@ pub async fn consume_invite(context: &Context) -> FieldResult<User> {
 
         // Re-fetch the user inside the transaction to prevent overwriting changes from
         // other transactions
-        let user = futures::executor::block_on(
+        let mut user = futures::executor::block_on(
             User::get(&user_id, &context.db)
         )
             .map_err(|err| Abort(err))?;
@@ -50,7 +52,10 @@ pub async fn consume_invite(context: &Context) -> FieldResult<User> {
         user.is_admin = user.is_admin || invite.is_admin;
         user.is_authorized = true;
 
-        user.insert(&context.db);
+        futures::executor::block_on(
+            user.insert(&context.db)
+        )
+            .map_err(|err| Abort(err))?;
 
         // Delete the invite
         context.db.remove(Invite::key(&invite.id))?;

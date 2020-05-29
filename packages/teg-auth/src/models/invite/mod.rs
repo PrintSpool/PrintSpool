@@ -63,10 +63,9 @@ impl Invite {
     }
 
     pub fn generate_id(db: &sled::Db) -> crate::Result<ID> {
-        let id = db.generate_id()
-            .map(|id| format!("{:64}", id))
-            .chain_err(|| "Error generating invite id")?
-            .into();
+        db.generate_id()
+            .map(|id| format!("{:64}", id).into())
+            .chain_err(|| "Error generating invite id")
     }
 
     pub async fn get(invite_id: &ID, db: &sled::Db) -> crate::Result<Self> {
@@ -97,7 +96,7 @@ impl Invite {
                 iv_vec
                     .chain_err(|| "Error scanning all invites")
                     .and_then(|iv_vec| {
-                        serde_cbor::from_slice(iv_vec.as_mut())
+                        serde_cbor::from_slice(iv_vec.as_ref())
                             .chain_err(|| "Unable to deserialize invite in Invite::scan")
                     })
             })
@@ -225,7 +224,8 @@ impl Invite {
             created_at: Utc::now(),
         };
 
-        invite.insert(db);
+        invite.insert(db)
+            .await?;
 
         Ok(invite)
     }
@@ -233,12 +233,13 @@ impl Invite {
     pub async fn update(context: &Context, input: UpdateInvite) -> FieldResult<Self> {
         context.authorize_admins_only()?;
 
-        let invite = Self::get(&input.invite_id, &context.db)
+        let mut invite = Self::get(&input.invite_id, &context.db)
             .await?;
 
         invite.is_admin = input.is_admin.unwrap_or(invite.is_admin);
 
-        invite.insert(&context.db);
+        invite.insert(&context.db)
+            .await?;
 
         Ok(invite)
     }

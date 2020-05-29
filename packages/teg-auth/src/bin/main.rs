@@ -18,7 +18,7 @@ use teg_auth::{
 #[async_std::main]
 async fn main() -> teg_auth::Result<()> {
     let Context {
-        pool,
+        db,
         machine_config,
         ..
     } = init().await?;
@@ -43,19 +43,21 @@ async fn main() -> teg_auth::Result<()> {
 
     // State
     let state = warp::any()
-        .and(warp::header::optional::<ID>("user-id"))
+        .and(warp::header::optional::<String>("user-id"))
         .and(warp::header::optional::<String>("peer-identity-public-key"))  
-        .and_then(move |user_id, identity_public_key| {
+        .and_then(move |user_id: Option<String>, identity_public_key| {
+            let user_id = user_id.map(|id| ID::from(id));
+
             task::block_on(
                 Context::new(
-                    Arc::clone(&pool),
+                    Arc::clone(&db),
                     user_id,
                     identity_public_key,
                     Arc::clone(&auth_pem_keys),
                     Arc::clone(&machine_config),
                 )
             ).map_err(|err| {
-                warp::reject::custom(err)
+                warp::reject::custom(format!("{:?}", err))
             })
         });
 

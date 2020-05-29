@@ -5,8 +5,6 @@ use crate::models::User;
 use async_std::sync::RwLock;
 use crate::configuration::Config;
 
-type SqlxError = sqlx::Error;
-
 pub struct Context {
     pub db: Arc<sled::Db>,
     pub current_user: Option<User>,

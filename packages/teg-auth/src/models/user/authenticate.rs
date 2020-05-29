@@ -49,7 +49,7 @@ impl User {
 
         eprintln!("JWT Payload: {:?}", jwt_payload);
 
-        let user = if let Some(user) = user {
+        let mut user = if let Some(user) = user {
             user
         } else {
             User {

@@ -82,7 +82,7 @@ impl User {
                 iv_vec
                     .chain_err(|| "Error scanning all users")
                     .and_then(|iv_vec| {
-                        serde_cbor::from_slice(iv_vec.as_mut())
+                        serde_cbor::from_slice(iv_vec.as_ref())
                             .chain_err(|| "Unable to deserialize user in User::scan")
                     })
             })
@@ -108,7 +108,7 @@ impl User {
     pub async fn update(context: &Context, changeset: UpdateUser) -> FieldResult<Self> {
         context.authorize_admins_only()?;
 
-        let user = Self::get(&changeset.user_id, &context.db).await?;
+        let mut user = Self::get(&changeset.user_id, &context.db).await?;
 
         let admin_count = Self::admin_count(&context.db).await?;
 
@@ -153,7 +153,7 @@ impl User {
             ))
         };
 
-        context.db.remove(Self::key(&user_id));
+        context.db.remove(Self::key(&user_id))?;
 
         Ok(None)
     }
