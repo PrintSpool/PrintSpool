@@ -50,19 +50,24 @@ impl User {
 
     pub fn generate_id(db: &sled::Db) -> crate::Result<ID> {
         db.generate_id()
-            .map(|id| format!("{:64}", id).into())
+            .map(|id| format!("{:064}", id).into())
             .chain_err(|| "Error generating invite id")
     }
 
-    pub async fn get(user_id: &ID, db: &sled::Db) -> crate::Result<Self> {
-        let iv_vec = db.get(Self::key(user_id))
+    pub async fn get_optional(user_id: &ID, db: &sled::Db) -> crate::Result<Option<Self>> {
+        db.get(Self::key(user_id))
             .chain_err(|| "Unable to get user")?
-            .ok_or(format!("User {:?} not found", user_id))?;
+            .map(|iv_vec| {
+                serde_cbor::from_slice(iv_vec.as_ref())
+                    .chain_err(|| "Unable to deserialize user in User::get")
+            })
+            .transpose()
+    }
 
-        let user = serde_cbor::from_slice(iv_vec.as_ref())
-            .chain_err(|| "Unable to deserialize user in User::get")?;
-
-        Ok(user)
+    pub async fn get(user_id: &ID, db: &sled::Db) -> crate::Result<Self> {
+        Self::get_optional(user_id, db)
+            .await?
+            .ok_or(format!("User {:?} not found", user_id).into())
     }
 
     pub async fn insert(self: &Self, db: &sled::Db) -> crate::Result<()> {

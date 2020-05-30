@@ -20,6 +20,8 @@ impl User {
     ) -> FieldResult<Option<User>> {
         let jwt_payload = validate_jwt(context, auth_token).await?;
 
+        info!("Acess Requested for JWT: {:?}", jwt_payload);
+
         /*
         * Verify that either:
         * 1. the public key belongs to an invite
@@ -35,7 +37,7 @@ impl User {
             .await
             .find(|user| {
                 if let Ok(user) = user {
-                    user.firebase_uid == jwt_payload.sub && user.is_authorized
+                    user.firebase_uid == jwt_payload.sub
                 } else {
                     true
                 }
@@ -43,11 +45,13 @@ impl User {
             .transpose()
             .chain_err(|| "Unable to load user for authentication")?;
 
-        if user.is_none() && invite.is_none() {
+        // To authenticate the user either must be authorized or include a valid invite
+        if
+            user.as_ref().map(|user| user.is_authorized).unwrap_or(false) == false
+            && invite.is_none()
+        {
             return Ok(None)
         }
-
-        eprintln!("JWT Payload: {:?}", jwt_payload);
 
         let mut user = if let Some(user) = user {
             user
@@ -75,7 +79,7 @@ impl User {
             .await
             .chain_err(|| "Unable to update user after authentication")?;
 
-        eprintln!("User Authorized: {:?}", user);
+        info!("User Authorized: {:?}", user.id);
 
         Ok(Some(user))
     }

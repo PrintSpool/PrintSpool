@@ -1,3 +1,5 @@
+#[macro_use] extern crate log;
+
 use warp::{http::Response, Filter};
 use juniper::{ID};
 use std::env;
@@ -57,7 +59,10 @@ async fn main() -> teg_auth::Result<()> {
                     Arc::clone(&machine_config),
                 )
             ).map_err(|err| {
-                warp::reject::custom(format!("{:?}", err))
+                use error_chain::ChainedError;
+
+                error!("{}", err.display_chain().to_string());
+                warp::reject::custom(err.to_string())
             })
         });
 

@@ -29,10 +29,14 @@ const authenticate = async ({ peerIdentityPublicKey, authToken }) => {
   }
 
   try {
+    console.error('REQUESTING ACCESS')
+
     const data = await request('http://127.0.0.1:33005/graphql', query, variables)
     const user = data.authenticateUser
 
     if (user == null) {
+      console.error('ACCESS DENIED', data)
+
       return false
     }
 

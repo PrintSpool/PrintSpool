@@ -23,16 +23,19 @@ pub async fn consume_invite(context: &Context) -> FieldResult<User> {
         .as_ref()
         .ok_or(crate::Error::from("Cannot consume_invite without public key"))?;
 
+    info!("Consume Invite Req: user: {:?} invite: {:?}", user_id, invite_public_key);
+
     // TODO: transactions (currently this transaction doesn't get used)
-    let user = context.db.transaction(|_db| {
+    // let user = context.db.transaction(|_db| {
         use ConflictableTransactionError::Abort;
 
         // Verify that the invite has not yet been consumed
         let invite = futures::executor::block_on(
             Invite::find_by_pk(invite_public_key, &context.db)
-        )
-            .map_err(|err| Abort(err))?
-            .ok_or(Abort("Invite has already been consumed".into()))?;
+        )?
+            .ok_or("Invite has already been consumed")?;
+            // .map_err(|err| Abort(err))?
+            // .ok_or(Abort("Invite has already been consumed".into()))?;
 
         // .map_err(|err| {
             //     Abort(err)
@@ -45,8 +48,8 @@ pub async fn consume_invite(context: &Context) -> FieldResult<User> {
         // other transactions
         let mut user = futures::executor::block_on(
             User::get(&user_id, &context.db)
-        )
-            .map_err(|err| Abort(err))?;
+        )?;
+            // .map_err(|err| Abort(err))?;
 
         // Authorize the user
         user.is_admin = user.is_admin || invite.is_admin;
@@ -54,15 +57,15 @@ pub async fn consume_invite(context: &Context) -> FieldResult<User> {
 
         futures::executor::block_on(
             user.insert(&context.db)
-        )
-            .map_err(|err| Abort(err))?;
+        )?;
+            // .map_err(|err| Abort(err))?;
 
         // Delete the invite
         context.db.remove(Invite::key(&invite.id))?;
 
-        Ok(user)
-    })
-        .chain_err(|| "Unable to consume invite")?;
+    //     Ok(user)
+    // })
+    //     .chain_err(|| "Unable to consume invite")?;
 
     Ok(user)
 }
