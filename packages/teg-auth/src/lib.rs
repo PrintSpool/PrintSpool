@@ -37,10 +37,10 @@ error_chain::error_chain! {}
 
 fn read_config(config_path: &str) -> crate::Result<configuration::Config> {
     let config_file_content = std::fs::read_to_string(config_path.clone())
-        .chain_err(|| format!("Unabled to open config (file: {:?})", config_path))?;
+        .chain_err(|| format!("Unabled to read machine config (file: {:?})", config_path))?;
 
     let config: configuration::Config = toml::from_str(&config_file_content)
-        .chain_err(|| format!("Invalid config format (file: {:?})", config_path))?;
+        .chain_err(|| format!("Invalid machine config format (file: {:?})", config_path))?;
 
     Ok(config)
 }
@@ -105,7 +105,7 @@ pub async fn init() -> crate::Result<Context> {
 
     // Config
     // ----------------------------------------------------
-    let config_path = None; // TODO: configurable config_path
+    let config_path = env::var("MACHINE_CONFIG");
     let config_path = config_path.unwrap_or("/etc/teg/machine.toml".to_string());
 
     let config = read_config(&config_path).unwrap();

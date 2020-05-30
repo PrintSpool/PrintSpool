@@ -28,7 +28,7 @@
     "tegmarlin:build:armv7": "cd ./packages/teg-marlin && cross build --release --bins --target=armv7-unknown-linux-gnueabihf && rsync -r ./target/armv7-unknown-linux-gnueabihf/release/teg-marlin ../../snap/teg-marlin-bin/armv7",
     "tegauth:build:x64": "cd ./packages/teg-auth && cargo build --release --bins && rsync -r ./target/release/teg-auth ../../snap/teg-auth-bin/x64 && rsync -r ./target/release/teg-add-invite ../../snap/teg-auth-bin/x64",
     "tegauth:build:armv7": "./scripts/build-teg-auth-armv7.sh",
-    "tegauth:scp": "yarn tegauth:build:armv7 && scp ./snap/teg-auth-bin/teg-auth-armv7 $TEG_ARMV7_HOST:~/",
+    "tegauth:scp": "yarn tegauth:build:armv7 && scp ./snap/teg-auth-bin/armv7/teg-auth $TEG_ARMV7_HOST:~/",
     "snap:build": "./scripts/build-snap.sh",
     "snap:push": "snapcraft push --release=beta ./dist/amd64.snap && snapcraft push --release=beta ./dist/armhf.snap",
     "snap:remove": "sudo snap remove teg",
