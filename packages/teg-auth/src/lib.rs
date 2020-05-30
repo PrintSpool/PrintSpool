@@ -89,7 +89,11 @@ pub async fn init() -> crate::Result<Context> {
     let db_file = env::var("SLED_DB_PATH")
         .expect("$SLED_DB_PATH not set");
 
-    let db = sled::open(&db_file)
+    let config = sled::Config::default()
+        .path(db_file.clone())
+        .cache_capacity(10_000_000);
+
+    let db = config.open()
         .map(|db| Arc::new(db))
         .chain_err(|| format!("Unable to open sled database: {}", db_file))?;
 
