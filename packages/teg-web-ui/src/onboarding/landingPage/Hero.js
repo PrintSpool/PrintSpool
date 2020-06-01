@@ -6,7 +6,6 @@ import {
   Typography,
   Hidden,
 } from '@material-ui/core'
-import { useAuth } from '../../common/auth'
 
 import cubesSVG from 'url:./images/cubes.svg'
 import cubesMobileSVG from 'url:./images/cubesMobile.svg'
@@ -17,29 +16,26 @@ import HeroStyles from './HeroStyles'
 const Hero = ({ t }) => {
   const classes = HeroStyles()
 
-  const { logIn } = useAuth()
-
   return (
     <div className={classes.root}>
-      <Button
-        className={classes.githubButton}
-        variant="outlined"
-        component={React.forwardRef((props, ref) => (
-          <Link to="/login" innerRef={ref} {...props} />
-        ))}
-      >
-        Log in
-      </Button>
-      {/*
-      <Button
-        className={classes.githubButton}
-        component="a"
-        variant="outlined"
-        href="https://github.com/teg/teg"
-      >
-        Github
-      </Button>
-      */}
+      <div className={classes.topButtons}>
+        <Button
+          className={classes.topButton}
+          component="a"
+          href="https://github.com/tegapp/teg"
+        >
+          Github
+        </Button>
+        <Button
+          className={classes.topButton}
+          variant="outlined"
+          component={React.forwardRef((props, ref) => (
+            <Link to="/login" innerRef={ref} {...props} />
+          ))}
+        >
+          Log in
+        </Button>
+      </div>
       <div className={classes.centeredContent}>
         <Grid container>
           <Grid item xs={12} sm={6}>
