@@ -238,7 +238,7 @@ const LandingPage = () => {
             {t('contribute.kofiButton')}
           </Button>
 
-          {Object.entries(currencies).map(([key, buttonCurrency]) => (
+          {/* {Object.entries(currencies).map(([key, buttonCurrency]) => (
             <Button
               key={key}
               className={classes.donateButton}
@@ -248,7 +248,7 @@ const LandingPage = () => {
 
               {t('contribute.cryptoDonationButton', buttonCurrency)}
             </Button>
-          ))}
+          ))} */}
 
           <Dialog
             open={cryptoDialogOpen}
