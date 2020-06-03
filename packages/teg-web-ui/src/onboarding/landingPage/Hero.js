@@ -59,7 +59,13 @@ const Hero = ({ t }) => {
                 size="large"
                 className={classes.callToActionButton}
                 component={React.forwardRef((props, ref) => (
-                  <Link to="/get-started/" innerRef={ref} {...props} />
+                  // eslint-disable-next-line
+                  <a
+                    href="https://f39c45f8.sibforms.com/serve/MUIEAE-_A4uUHTi1cRelH4oP-Fi21skRjdhqT4Bqd6PTwzyx7w-HnThYJlxGsbdxMQhtyFPhivfG60tOvTWmQL5P3eDxDzZHCh_G6JN0VdspzLX4ZgZzTm3XdfobEG6UCE4LkzTzLUQlPvL9HaSe5IWfaTyuG5RyZ2WJYvkxmHe-xTQ4ugNxkuPPf0l8PacyYVdkhZME24181ayK"
+                    ref={ref}
+                    {...props}
+                  />
+                  // <Link to="/get-started/" innerRef={ref} {...props} />
                 ))}
               >
                 {t('hero.callToActionButton')}

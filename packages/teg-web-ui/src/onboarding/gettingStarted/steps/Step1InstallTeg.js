@@ -15,6 +15,23 @@ const Step1InstallTeg = ({
   history,
 }) => {
   const classes = Step1InstallTegStyles()
+  const isTegReleased = false
+
+  if (!isTegReleased) {
+    document.location.href = (
+      'https://f39c45f8.sibforms.com/serve/MUIEAE-_A4uUHTi1cRelH4oP-Fi21skRjdhqT4Bqd6PTwzyx7w-HnThYJlxGsbdxMQhtyFPhivfG60tOvTWmQL5P3eDxDzZHCh_G6JN0VdspzLX4ZgZzTm3XdfobEG6UCE4LkzTzLUQlPvL9HaSe5IWfaTyuG5RyZ2WJYvkxmHe-xTQ4ugNxkuPPf0l8PacyYVdkhZME24181ayK'
+    )
+
+    return (
+      <div className={className}>
+        <div className={classes.root}>
+          <Typography variant="h5" paragraph>
+            Teg early access is coming soon.
+          </Typography>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>
