@@ -15,13 +15,19 @@ const useStyles = makeStyles(theme => ({
     // marginBottom: `calc(10vw + ${CUBES_BOTTOM_WHITESPACE})`,
     width: '100%',
   },
-  githubButton: {
-    display: 'block',
+  topButtons: {
+    // display: 'block',
+    display: 'grid',
     justifySelf: 'right',
-    color: 'white',
+    gridTemplateColumns: 'auto auto',
     marginTop: theme.spacing(4),
     marginLeft: theme.spacing(6),
     marginRight: theme.spacing(6),
+  },
+  topButton: {
+    display: 'block',
+    color: 'white',
+    marginLeft: theme.spacing(2),
   },
   centeredContent: {
     width: '100%',
