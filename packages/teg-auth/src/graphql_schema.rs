@@ -52,10 +52,11 @@ impl Query {
         task::block_on(
             get_video_sources(context)
         )
-        .map_err(|err| {
-            error!("ERR {:?}", err);
-            err
-        })
+            .map_err(|err| {
+                error!("ERR {:?}", err);
+                err
+            })
+            .or(Ok(vec![]))
     }
 
     fn ice_candidates(context: &Context, id: ID) -> FieldResult<Vec<IceCandidate>> {

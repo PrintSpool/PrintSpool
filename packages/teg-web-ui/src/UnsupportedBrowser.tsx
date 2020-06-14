@@ -1,9 +1,9 @@
 import React from 'react'
 import Typography from '@material-ui/core/Typography'
+import Paper from '@material-ui/core/Paper'
 import DetectRTC from 'detectrtc'
 
 import useStyles from './UnsupportedBrowser.style'
-import Paper from '@material-ui/core/Paper'
 
 const UnsupportedBrowser = () => {
   const classes = useStyles()
@@ -21,13 +21,13 @@ const UnsupportedBrowser = () => {
           { isFacebook && (
             <>
               <Typography variant="body1" paragraph>
-                Unfortunately you are in an unsupported version of Facebook's Browser but
+                Unfortunately you are in an unsupported version of Facebook&apos;s Browser but
                 this is easily fixed:
               </Typography>
               <Typography variant="body1" paragraph>
                 <ul>
                   <li>Click the 3 dots at the top of your screen</li>
-                  <li>Click "Open in Firefox/Chrome"</li>
+                  <li>Click &quot;Open in Firefox/Chrome&quot;</li>
                 </ul>
               </Typography>
             </>
@@ -41,8 +41,8 @@ const UnsupportedBrowser = () => {
               <Typography variant="body1" paragraph>
                 Please
                 {' '}
-                <a href="https://browser-update.org/update-browser.html">
-                  upgrade to Firefox or Chrome.
+                <a href="https://www.mozilla.org/en-CA/firefox/new/">
+                  upgrade to Firefox.
                 </a>
               </Typography>
             </>

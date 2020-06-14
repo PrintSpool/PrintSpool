@@ -4,7 +4,7 @@ use juniper::{
 
 use crate::{
     Context,
-    ResultExt,
+    // ResultExt,
     models::{
         User,
         Invite,
@@ -27,7 +27,7 @@ pub async fn consume_invite(context: &Context) -> FieldResult<User> {
 
     // TODO: transactions (currently this transaction doesn't get used)
     // let user = context.db.transaction(|_db| {
-        use ConflictableTransactionError::Abort;
+        // use ConflictableTransactionError::Abort;
 
         // Verify that the invite has not yet been consumed
         let invite = futures::executor::block_on(
