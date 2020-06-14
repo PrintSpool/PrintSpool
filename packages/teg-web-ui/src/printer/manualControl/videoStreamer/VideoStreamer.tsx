@@ -188,7 +188,7 @@ const VideoStreamer = ({
         <video
           ref={videoEl}
           className={classes.video}
-          // controls
+          controls
         >
         </video>
       </div>

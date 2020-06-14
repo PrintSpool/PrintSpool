@@ -7,7 +7,7 @@ import JobFile from '../types/JobFile'
 
 const writeFileAsync = Promise.promisify(fs.writeFile)
 
-const createTmpFiles = async ({ job, files }) => {
+const createTmpFiles = async ({ onCreate, job, files }) => {
   // console.log({ files })
   const jobFiles = await Promise.all(
     files.map(async (file) => {
@@ -33,6 +33,7 @@ const createTmpFiles = async ({ job, files }) => {
   )
 
   return {
+    onCreate,
     job,
     jobFiles: List(jobFiles).toMap().mapKeys((index, jobFile) => jobFile.id),
   }

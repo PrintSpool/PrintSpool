@@ -157,19 +157,22 @@ const MutationResolvers = {
       return {}
     },
     /* jobQueue */
-    createJob: (source, args, { store }) => {
+    createJob: async (source, args, { store }) => {
       const { macros, config } = store.getState()
-      const action = requestCreateJob({
-        ...args.input,
-        macros,
-        combinatorConfig: config,
-        // TODO: multimachine: need to add a machineID arg to the mutation
-        machineConfig: config.printer,
+      const job = await new Promise((onCreate) => {
+        const action = requestCreateJob({
+          ...args.input,
+          onCreate,
+          macros,
+          combinatorConfig: config,
+          // TODO: multimachine: need to add a machineID arg to the mutation
+          machineConfig: config.printer,
+        })
+
+        store.dispatch(action)
       })
 
-      store.dispatch(action)
-
-      return action.payload.job
+      return job
     },
     deleteJob: actionResolver({
       actionCreator: deleteJob,

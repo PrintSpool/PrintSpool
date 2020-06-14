@@ -11,6 +11,7 @@ const requestCreateJob = ({
   macros,
   combinatorConfig,
   machineConfig,
+  onCreate = () => {},
 }) => {
   if (name == null) {
     throw new Error('name cannot be null')
@@ -30,6 +31,7 @@ const requestCreateJob = ({
   return {
     type: REQUEST_CREATE_JOB,
     payload: {
+      onCreate,
       job,
       files: files.map((file) => {
         const { annotations, commands } = AnnotatedGCodes({

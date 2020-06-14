@@ -95,11 +95,13 @@ const jobQueueReducer = (state = initialState, action) => {
       )
     }
     case CREATE_JOB: {
-      const { job, jobFiles } = action.payload
+      const { onCreate, job, jobFiles } = action.payload
 
       const nextState = state
         .setIn(['jobs', job.id], job)
         .mergeIn(['jobFiles'], jobFiles)
+
+      const runCallback = Cmd.run(onCreate, { args: [job] })
 
       if (
         state.automaticPrinting
@@ -112,12 +114,15 @@ const jobQueueReducer = (state = initialState, action) => {
           jobFileID: getNextJobFile(nextState).id,
         })
 
-        return loop(nextState, Cmd.action(nextAction))
+        return loop(nextState, Cmd.list([
+          Cmd.action(nextAction),
+          runCallback,
+        ]))
       }
 
       debug(`creating Job #${job.id}: ${job.name}`)
 
-      return nextState
+      return loop(nextState, runCallback)
     }
     case DELETE_JOB: {
       const { jobID } = action.payload
