@@ -3,6 +3,7 @@ import React, {
   useRef,
   useCallback,
   useContext,
+  useEffect,
 } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import { useAsync } from 'react-async'
@@ -52,11 +53,13 @@ const useStyles = makeStyles(() => ({
   },
 }))
 
-const enhance = Component => (props) => {
+const enhance = (Component: any) => (props: any) => {
   const apollo = useApolloClient()
   const { iceServers } = useContext(TegApolloContext)
 
   const videoEl = useRef(null)
+  const MAX_RETRY_DELAY = 5000
+  const [retryDelay, setRetryDelay] = useState(500)
   const [peerError, setPeerError] = useState()
 
   const loadVideo = useCallback(async () => {
@@ -99,7 +102,7 @@ const enhance = Component => (props) => {
 
       console.log({ iceCandidates })
 
-      iceCandidates.map((candidate) => {
+      iceCandidates.forEach((candidate) => {
         p.signal({ candidate })
       })
     }
@@ -132,20 +135,39 @@ const enhance = Component => (props) => {
     videoEl.current.play()
   }, [])
 
-  const { isLoading, error } = useAsync({
-    promiseFn: loadVideo,
+  const { isLoading, error, run: runLoadVideo } = useAsync({
+    deferFn: loadVideo,
   })
 
-  if (error || peerError) {
+  // Load the video stream on startup
+  useEffect(() => {
+    runLoadVideo()
+  }, [])
+
+  // Re-try the video stream after a delay if there is a connection error
+  useEffect(() => {
+    if (peerError == null) return () => {}
+
+    console.error('Video Streaming Error', peerError)
+
+    const timeout = setTimeout(runLoadVideo, retryDelay)
+
+    setPeerError(null)
+    setRetryDelay(Math.min(retryDelay * 1.5, MAX_RETRY_DELAY))
+
+    return () => clearTimeout(timeout)
+  }, [peerError])
+
+  if (error) {
     return (
-      <ErrorFallback error={error || peerError} />
+      <ErrorFallback error={error} />
     )
   }
 
   const nextProps = {
     ...props,
     videoEl,
-    isLoading,
+    isLoading: isLoading || peerError,
   }
 
   return (
@@ -166,7 +188,7 @@ const VideoStreamer = ({
         <video
           ref={videoEl}
           className={classes.video}
-          controls="controls"
+          // controls
         >
         </video>
       </div>
