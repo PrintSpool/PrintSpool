@@ -17,11 +17,15 @@ import useStyles from './ManualControl.styles'
 const ManualControlView = ({ machine, isReady }) => {
   const classes = useStyles()
 
+  const showVideoStreamer = machine.components.some(c => c.type === 'VIDEO')
+
   return (
     <div className={classes.root}>
-      <div className={classes.videoStreamer}>
-        <VideoStreamer />
-      </div>
+      {showVideoStreamer && (
+        <div className={classes.videoStreamer}>
+          <VideoStreamer />
+        </div>
+      )}
 
       <div className={classes.controls}>
         <Loader
@@ -57,10 +61,10 @@ const ManualControlView = ({ machine, isReady }) => {
               <MotorsEnabled machine={machine} />
             </Grid>
             <Grid item xs={12} sm={8}>
-              <XYJogButtons machine={machine} form="xyJog" />
+              <XYJogButtons machine={machine} />
             </Grid>
             <Grid item xs={12} sm={4}>
-              <ZJogButtons machine={machine} form="zJog" />
+              <ZJogButtons machine={machine} />
             </Grid>
           </Grid>
         </Loader>

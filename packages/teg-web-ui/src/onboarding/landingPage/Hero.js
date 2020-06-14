@@ -7,8 +7,11 @@ import {
   Hidden,
 } from '@material-ui/core'
 
+// eslint-disable-next-line import/no-unresolved
 import cubesSVG from 'url:./images/cubes.svg'
+// eslint-disable-next-line import/no-unresolved
 import cubesMobileSVG from 'url:./images/cubesMobile.svg'
+// eslint-disable-next-line import/no-unresolved
 import tegLogoSVG from 'url:./images/tegLogo.svg'
 
 import HeroStyles from './HeroStyles'

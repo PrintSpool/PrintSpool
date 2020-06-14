@@ -41,6 +41,10 @@ const JOB_SUBSCRIPTION = gql`
               machine {
                 id
                 name
+                components {
+                  id
+                  type
+                }
               }
             }
           }
@@ -75,7 +79,7 @@ const JobPage = () => {
     throw error
   }
 
-  const job = data.jobQueue.jobs[0]
+  const job = (data as any).jobQueue.jobs[0]
 
   return (
     <JobView

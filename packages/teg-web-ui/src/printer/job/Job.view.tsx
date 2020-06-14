@@ -8,7 +8,7 @@ import Breadcrumbs from '@material-ui/core/Breadcrumbs'
 import { Link } from 'react-router-dom'
 
 import TaskStatusRow from '../jobQueue/components/TaskStatusRow'
-import useStyles from './Job.styles'
+import useStyles from './Job.styles.js'
 import VideoStreamer from '../manualControl/videoStreamer/VideoStreamer'
 
 const JobView = ({
@@ -23,12 +23,18 @@ const JobView = ({
 }) => {
   const classes = useStyles()
 
+  const showVideoStreamer = tasks.some(task => (
+    task.machine?.components.some(c => c.type === 'VIDEO')
+  ))
+
   return (
     <div className={classes.root}>
       <Card raised className={classes.card}>
-        <div className={classes.videoStreamer}>
-          <VideoStreamer />
-        </div>
+        { showVideoStreamer && (
+          <div className={classes.videoStreamer}>
+            <VideoStreamer />
+          </div>
+        )}
         <CardContent>
           <Breadcrumbs>
             <Link to="../">
@@ -38,7 +44,7 @@ const JobView = ({
               {name}
             </Typography>
           </Breadcrumbs>
-          <Typography variant="subtitle" paragraph>
+          <Typography variant="subtitle1" paragraph>
             {
               `${printsCompleted} / ${totalPrints} prints completed`
             }

@@ -47,7 +47,7 @@ const ManualControlPage = () => {
     throw error
   }
 
-  const machine = data.singularMachine[0]
+  const machine = (data as any).singularMachine[0]
   const isReady = machine?.status === 'READY'
 
   return (
