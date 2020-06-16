@@ -12,7 +12,7 @@ import {
   taskFailureStatuses,
   endedTaskStatuses,
   spooledTaskStatuses,
-  CANCELLED,
+  // CANCELLED,
   // PAUSE_TASK,
   ERROR,
   START_TASK,
@@ -32,7 +32,7 @@ import getSpooledJobFiles from '../selectors/getSpooledJobFiles'
 import getCompletedJobs from '../selectors/getCompletedJobs'
 // import getTaskIDByJobFileID from '../selectors/getTaskIDByJobFileID'
 import getNextJobFile from '../selectors/getNextJobFile'
-import getJobFilesByJobID from '../selectors/getJobFilesByJobID'
+// import getJobFilesByJobID from '../selectors/getJobFilesByJobID'
 
 /* config actions */
 import { SET_CONFIG } from '../../config/actions/setConfig'
@@ -42,6 +42,7 @@ import loadTaskFile from '../sideEffects/loadTaskFile'
 import { REQUEST_CREATE_JOB } from '../actions/requestCreateJob'
 import createJob, { CREATE_JOB } from '../actions/createJob'
 import deleteJob, { DELETE_JOB } from '../actions/deleteJob'
+import { SET_JOB_POSITION } from '../actions/setJobPosition'
 import jobQueueComplete from '../actions/jobQueueComplete'
 
 import spoolTask, { SPOOL_TASK } from '../actions/spoolTask'
@@ -51,7 +52,7 @@ import sendTaskToSocket, { SEND_TASK_TO_SOCKET } from '../../printer/actions/sen
 import sendDeleteTaskHistoryToSocket from '../../printer/actions/sendDeleteTaskHistoryToSocket'
 
 import { SOCKET_MESSAGE } from '../../printer/actions/socketMessage'
-import requestEStop, { REQUEST_ESTOP } from '../../printer/actions/requestEStop'
+import requestEStop from '../../printer/actions/requestEStop'
 import busyMachines, { NOT_BUSY } from '../selectors/busyMachines'
 
 const debug = Debug('teg:jobQueue')
@@ -95,7 +96,12 @@ const jobQueueReducer = (state = initialState, action) => {
       )
     }
     case CREATE_JOB: {
-      const { onCreate, job, jobFiles } = action.payload
+      const { onCreate, jobFiles } = action.payload
+
+      const lastJob = state.jobs.maxBy(job => job.position)
+
+      let { job } = action.payload
+      job = job.set('position', lastJob == null ? 0 : lastJob.position + 1)
 
       const nextState = state
         .setIn(['jobs', job.id], job)
@@ -123,6 +129,21 @@ const jobQueueReducer = (state = initialState, action) => {
       debug(`creating Job #${job.id}: ${job.name}`)
 
       return loop(nextState, runCallback)
+    }
+    case SET_JOB_POSITION: {
+      const { jobID, position } = action.payload
+
+      const nextJobs = state.jobs.map((job) => {
+        if (job.id === jobID) {
+          return job.set('position', position)
+        }
+        if (job.position >= position) {
+          return job.set('position', job.position + 1)
+        }
+        return job
+      })
+
+      return state.set('jobs', nextJobs)
     }
     case DELETE_JOB: {
       const { jobID } = action.payload

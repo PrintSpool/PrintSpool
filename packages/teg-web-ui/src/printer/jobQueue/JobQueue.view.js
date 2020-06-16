@@ -14,6 +14,7 @@ const JobSubList = ({
   title,
   cancelTask,
   deleteJob,
+  moveToTopOfQueue,
 }) => {
   const classes = useStyles()
 
@@ -30,6 +31,7 @@ const JobSubList = ({
               {...job}
               cancelTask={cancelTask}
               deleteJob={deleteJob}
+              moveToTopOfQueue={moveToTopOfQueue}
             />
           </div>
         ))
@@ -44,6 +46,7 @@ const JobQueueView = ({
   spoolNextPrint,
   deleteJob,
   cancelTask,
+  moveToTopOfQueue,
 }) => {
   const classes = useStyles()
 
@@ -89,6 +92,7 @@ const JobQueueView = ({
             jobs={jobsSubset}
             cancelTask={cancelTask}
             deleteJob={deleteJob}
+            moveToTopOfQueue={moveToTopOfQueue}
           />
         ))
       }

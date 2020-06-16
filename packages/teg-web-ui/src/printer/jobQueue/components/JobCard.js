@@ -11,6 +11,7 @@ import ListItemText from '@material-ui/core/ListItemText'
 
 import MoreVert from '@material-ui/icons/MoreVert'
 import Delete from '@material-ui/icons/Delete'
+import Reorder from '@material-ui/icons/Reorder'
 
 import { Link } from 'react-router-dom'
 import truncate from 'truncate'
@@ -27,6 +28,7 @@ const JobCard = ({
   tasks,
   cancelTask,
   deleteJob,
+  moveToTopOfQueue,
 }) => {
   const [menuAnchorEl, setMenuAnchorEl] = useState()
 
@@ -76,7 +78,18 @@ const JobCard = ({
           <ListItemIcon>
             <Delete />
           </ListItemIcon>
-          <ListItemText inset primary="Delete Job" />
+          <ListItemText primary="Delete Job" />
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            moveToTopOfQueue({ jobID: id })
+            closeMenu()
+          }}
+        >
+          <ListItemIcon>
+            <Reorder />
+          </ListItemIcon>
+          <ListItemText primary="Move to Top of Queue" />
         </MenuItem>
       </Menu>
 

@@ -12,7 +12,7 @@ const JobQueueResolvers = {
         const job = jobQueue.jobs.get(id)
         return [job]
       }
-      const jobs = jobQueue.jobs.toList().sortBy(job => job.createdAt)
+      const jobs = jobQueue.jobs.toList().sortBy(job => job.position)
       return jobs
     },
   },

@@ -4,6 +4,7 @@ import Typography from '@material-ui/core/Typography'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import Breadcrumbs from '@material-ui/core/Breadcrumbs'
+import Button from '@material-ui/core/Button'
 
 import { Link } from 'react-router-dom'
 
@@ -13,6 +14,7 @@ import VideoStreamer from '../manualControl/videoStreamer/VideoStreamer'
 
 const JobView = ({
   cancelTask,
+  moveToTopOfQueue,
   job: {
     name,
     tasks,
@@ -38,7 +40,7 @@ const JobView = ({
         <CardContent>
           <Breadcrumbs>
             <Link to="../">
-              Printing
+              Print Queue
             </Link>
             <Typography color="textPrimary">
               {name}
@@ -49,6 +51,15 @@ const JobView = ({
               `${printsCompleted} / ${totalPrints} prints completed`
             }
           </Typography>
+          {tasks.length === 0 && (
+            <Button
+              onClick={moveToTopOfQueue}
+              color="primary"
+              variant="contained"
+            >
+              Move to Top of Queue
+            </Button>
+          )}
           <Typography variant="h6">
             Current Prints
           </Typography>

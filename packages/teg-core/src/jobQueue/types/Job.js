@@ -14,6 +14,7 @@ const JobRecord = Record({
   createdAt: null,
   meta: null,
   quantity: 1,
+  position: null,
 })
 
 const Job = attrs => JobRecord({

@@ -18,6 +18,7 @@ import requestUpdateConfigFromMutation from '../../config/actions/requestUpdateC
 import requestDeleteConfigFromMutation from '../../config/actions/requestDeleteConfigFromMutation'
 /* jobQueue */
 import requestCreateJob from '../../jobQueue/actions/requestCreateJob'
+import setJobPosition from '../../jobQueue/actions/setJobPosition'
 import deleteJob from '../../jobQueue/actions/deleteJob'
 /* spool */
 import execGCodes from '../../jobQueue/actions/execGCodes'
@@ -174,6 +175,11 @@ const MutationResolvers = {
 
       return job
     },
+    setJobPosition: actionResolver({
+      actionCreator: setJobPosition,
+      requireMachineID: false,
+      selector: () => null,
+    }),
     deleteJob: actionResolver({
       actionCreator: deleteJob,
       requireMachineID: false,

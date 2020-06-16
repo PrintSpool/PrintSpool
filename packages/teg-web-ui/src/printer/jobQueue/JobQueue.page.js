@@ -54,6 +54,11 @@ const ESTOP = gql`
     eStop(machineID: $machineID)
   }
 `
+const SET_JOB_POSITION = gql`
+  mutation setJobPosition($input: SetJobPositionInput!) {
+    setJobPosition(input: $input)
+  }
+`
 
 const SPOOL_JOB_FILE = gql`
   mutation spoolJobFile($input: SpoolJobFileInput!) {
@@ -73,6 +78,16 @@ const JobQueuePage = () => {
   const [spoolJobFile] = useMutation(SPOOL_JOB_FILE)
   const [deleteJob] = useMutation(DELETE_JOB)
   const [cancelTask] = useMutation(ESTOP)
+  const [setJobPosition] = useMutation(SET_JOB_POSITION)
+
+  const moveToTopOfQueue = ({ jobID }) => setJobPosition({
+    variables: {
+      input: {
+        jobID,
+        position: 0,
+      },
+    },
+  })
 
   if (loading) {
     return <div />
@@ -123,6 +138,7 @@ const JobQueuePage = () => {
         spoolNextPrint,
         deleteJob,
         cancelTask,
+        moveToTopOfQueue,
       }}
     />
   )

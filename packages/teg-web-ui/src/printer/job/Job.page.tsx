@@ -60,16 +60,33 @@ const ESTOP = gql`
   }
 `
 
+const SET_JOB_POSITION = gql`
+  mutation setJobPosition($input: SetJobPositionInput!) {
+    setJobPosition(input: $input)
+  }
+`
+
 const JobPage = () => {
   const { match: { params } } = useReactRouter()
+  const { jobID } = params
 
   const { loading, error, data } = useLiveSubscription(JOB_SUBSCRIPTION, {
     variables: {
-      jobID: params.jobID,
+      jobID,
     },
   })
 
   const [cancelTask] = useMutation(ESTOP)
+  const [setJobPosition] = useMutation(SET_JOB_POSITION)
+
+  const moveToTopOfQueue = () => setJobPosition({
+    variables: {
+      input: {
+        jobID,
+        position: 0,
+      },
+    },
+  })
 
   if (loading) {
     return <div />
@@ -86,6 +103,7 @@ const JobPage = () => {
       {...{
         job,
         cancelTask,
+        moveToTopOfQueue,
       }}
     />
   )

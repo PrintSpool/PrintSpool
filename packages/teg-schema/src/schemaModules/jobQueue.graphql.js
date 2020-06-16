@@ -87,6 +87,11 @@ extend type Mutation {
   creates a job to print a file already on the Teg server.
   """
   deleteJob(input: DeleteJobInput): Boolean
+
+  """
+  Move a job in the print queue
+  """
+  setJobPosition(input: SetJobPositionInput!): Boolean
 }
 
 input CreateJobInput {
@@ -96,6 +101,11 @@ input CreateJobInput {
 
 input DeleteJobInput {
   jobID: ID!
+}
+
+input SetJobPositionInput {
+  jobID: ID!
+  position: Int!
 }
 
 input FileInput {
