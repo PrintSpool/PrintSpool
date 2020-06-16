@@ -17,6 +17,13 @@ const MachineResolvers = {
       return getPluginModels(machineConfig).getIn(['@tegapp/core', 'name'])
     },
 
+    swapXAndYOrientation: (source, args, { store }) => {
+      const state = store.getState()
+      const machineConfig = state.config.machines.get(source.id)
+
+      return getPluginModels(machineConfig).getIn(['@tegapp/core', 'swapXAndYOrientation'], false)
+    },
+
     fixedListComponentTypes: (source, args, { store }) => {
       const state = store.getState()
 

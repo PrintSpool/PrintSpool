@@ -53,6 +53,11 @@ const getSchemaForms = () => ({
           type: 'boolean',
           default: false,
         },
+        swapXAndYOrientation: {
+          title: 'Swap visual orientation of X and Y axes',
+          type: 'boolean',
+          default: false,
+        },
         beforePrintHook: {
           title: 'Before Print Hook (Extended GCode)',
           type: 'string',
@@ -76,6 +81,7 @@ const getSchemaForms = () => ({
       automaticPrinting: getCorePluginConfigPath,
       beforePrintHook: getCorePluginConfigPath,
       afterPrintHook: getCorePluginConfigPath,
+      swapXAndYOrientation: getCorePluginConfigPath,
     }),
   },
   auth: {

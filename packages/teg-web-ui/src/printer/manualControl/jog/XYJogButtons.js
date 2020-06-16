@@ -30,6 +30,10 @@ const XYJogButtons = ({ machine }) => {
   const continuousMove = useContinuousMove({ machine })
   const startContinuous = isContinuous ? continuousMove.start : () => null
 
+  const { swapXAndYOrientation } = machine
+
+  const axes = swapXAndYOrientation ? ['y', 'x'] : ['x', 'y']
+
   return (
     <Card>
       <CardContent>
@@ -47,14 +51,14 @@ const XYJogButtons = ({ machine }) => {
           <JogButton
             xs={12}
             onClick={jog('y', -1)}
-            onMouseDown={startContinuous({ y: { forward: false } })}
+            onMouseDown={startContinuous({ [axes[1]]: { forward: false } })}
           >
             <ArrowUpward />
           </JogButton>
           <JogButton
             xs={4}
             onClick={jog('x', -1)}
-            onMouseDown={startContinuous({ x: { forward: false } })}
+            onMouseDown={startContinuous({ [axes[0]]: { forward: false } })}
           >
             <ArrowBack />
           </JogButton>
@@ -64,14 +68,14 @@ const XYJogButtons = ({ machine }) => {
           <JogButton
             xs={4}
             onClick={jog('x', 1)}
-            onMouseDown={startContinuous({ x: { forward: true } })}
+            onMouseDown={startContinuous({ [axes[0]]: { forward: true } })}
           >
             <ArrowForward />
           </JogButton>
           <JogButton
             xs={12}
             onClick={jog('y', 1)}
-            onMouseDown={startContinuous({ y: { forward: true } })}
+            onMouseDown={startContinuous({ [axes[1]]: { forward: true } })}
           >
             <ArrowDownward />
           </JogButton>

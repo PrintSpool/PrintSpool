@@ -40,6 +40,7 @@ type Machine {
   # """
   # activeExtruderID: String
 
+  swapXAndYOrientation: Boolean!
   motorsEnabled: Boolean
   status: MachineStatusEnum!
   error: MachineError

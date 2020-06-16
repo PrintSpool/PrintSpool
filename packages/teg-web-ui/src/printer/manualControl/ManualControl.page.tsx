@@ -16,6 +16,7 @@ const MANUAL_CONTROL_SUBSCRIPTION = gql`
       query {
         singularMachine: machines(machineID: $machineID) {
           ...PrinterStatus
+          swapXAndYOrientation
           motorsEnabled
           components {
             ...ComponentControlFragment
