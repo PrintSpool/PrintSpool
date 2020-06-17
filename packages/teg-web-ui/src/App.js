@@ -14,6 +14,7 @@ import { SnackbarProvider } from 'notistack'
 import { BrowserRouter } from 'react-router-dom'
 import { Route } from 'react-router'
 import { GraphQL, GraphQLProvider } from 'graphql-react'
+import { ConfirmProvider } from 'material-ui-confirm'
 
 import TegApolloProvider from './TegApolloProvider'
 import { AuthProvider } from './common/auth'
@@ -37,31 +38,33 @@ const App = () => (
     <ThemeProvider theme={theme}>
       <GraphQLProvider graphql={graphql}>
         <SnackbarProvider maxSnack={3}>
-          <PrintFilesContext.Provider value={useState()}>
-            <React.Suspense fallback={<Loading fullScreen />}>
-              <ErrorBoundary FallbackComponent={ErrorFallback}>
-                <AuthProvider>
-                  <BrowserRouter>
-                    <Route
-                      path={[
-                        '/m/:hostID/',
-                        '/q/:hostID/',
-                        '/',
-                      ]}
-                      render={() => (
-                        <TegApolloProvider>
-                          <Routes />
-                        </TegApolloProvider>
-                      )}
-                    />
-                  </BrowserRouter>
-                </AuthProvider>
-              </ErrorBoundary>
-            </React.Suspense>
-            {
-              // <ReduxSnackbar />
-            }
-          </PrintFilesContext.Provider>
+          <ConfirmProvider>
+            <PrintFilesContext.Provider value={useState()}>
+              <React.Suspense fallback={<Loading fullScreen />}>
+                <ErrorBoundary FallbackComponent={ErrorFallback}>
+                  <AuthProvider>
+                    <BrowserRouter>
+                      <Route
+                        path={[
+                          '/m/:hostID/',
+                          '/q/:hostID/',
+                          '/',
+                        ]}
+                        render={() => (
+                          <TegApolloProvider>
+                            <Routes />
+                          </TegApolloProvider>
+                        )}
+                      />
+                    </BrowserRouter>
+                  </AuthProvider>
+                </ErrorBoundary>
+              </React.Suspense>
+              {
+                // <ReduxSnackbar />
+              }
+            </PrintFilesContext.Provider>
+          </ConfirmProvider>
         </SnackbarProvider>
       </GraphQLProvider>
     </ThemeProvider>

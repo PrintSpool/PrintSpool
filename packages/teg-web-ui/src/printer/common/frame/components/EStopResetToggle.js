@@ -13,6 +13,7 @@ import {
 import Report from '@material-ui/icons/Report'
 
 import StatusDialog from './StatusDialog'
+import useConfirm from '../../../../common/_hooks/useConfirm'
 
 const styles = theme => ({
   leftIcon: {
@@ -79,7 +80,15 @@ const EStopResetToggle = ({
   const [reset] = useMutation(RESET, { variables })
   const [eStop] = useMutation(ESTOP, { variables })
 
-  const toggle = showEStop ? eStop : reset
+  const confirm = useConfirm()
+
+  const confirmedEStop = confirm(() => ({
+    fn: eStop,
+    title: 'Are you sure you want to stop the machine?',
+    description: 'This will cancel your current print',
+  }))
+
+  const toggle = showEStop ? confirmedEStop : reset
 
   return (
     <div>
@@ -107,7 +116,7 @@ const EStopResetToggle = ({
           showEStop
           && <Report className={classes.leftIcon} />
         }
-        {showEStop ? 'EStop' : 'Reset'}
+        {showEStop ? 'Stop' : 'Reset'}
       </Button>
     </div>
   )

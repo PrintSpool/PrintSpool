@@ -2,7 +2,7 @@ import React from 'react'
 import gql from 'graphql-tag'
 import { useMutation } from 'react-apollo-hooks'
 
-import JobList from './JobQueue.view'
+import JobQueueView from './JobQueue.view'
 
 import useLiveSubscription from '../_hooks/useLiveSubscription'
 
@@ -131,7 +131,7 @@ const JobQueuePage = () => {
   }
 
   return (
-    <JobList
+    <JobQueueView
       {...{
         jobs,
         machines,

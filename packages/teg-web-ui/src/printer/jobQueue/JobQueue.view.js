@@ -9,37 +9,6 @@ import FloatingPrintNextButton from './components/FloatingPrintNextButton'
 import JobCard from './components/JobCard'
 import useStyles from './JobQueue.styles'
 
-const JobSubList = ({
-  jobs,
-  title,
-  cancelTask,
-  deleteJob,
-  moveToTopOfQueue,
-}) => {
-  const classes = useStyles()
-
-  if (jobs.length === 0) return <div />
-  return (
-    <div>
-      <Typography variant="subtitle1" gutterBottom>
-        { title }
-      </Typography>
-      {
-        jobs.map(job => (
-          <div key={job.id} className={classes.jobContainer}>
-            <JobCard
-              {...job}
-              cancelTask={cancelTask}
-              deleteJob={deleteJob}
-              moveToTopOfQueue={moveToTopOfQueue}
-            />
-          </div>
-        ))
-      }
-    </div>
-  )
-}
-
 const JobQueueView = ({
   jobs,
   machines,
@@ -64,11 +33,21 @@ const JobQueueView = ({
     },
     {
       title: 'Printing',
-      jobsSubset: jobs.filter(job => !job.isDone && job.tasks.length > 0),
+      jobsSubset: jobs.filter((job) => {
+        const currentTasks = job.tasks.filter(task => (
+          ['CANCELLED', 'ERROR'].includes(task.status) === false
+        ))
+        return !job.isDone && currentTasks.length > 0
+      }),
     },
     {
       title: 'Queued',
-      jobsSubset: jobs.filter(job => !job.isDone && job.tasks.length === 0),
+      jobsSubset: jobs.filter((job) => {
+        const currentTasks = job.tasks.filter(task => (
+          ['CANCELLED', 'ERROR'].includes(task.status) === false
+        ))
+        return !job.isDone && currentTasks.length === 0
+      }),
     },
   ]
 
@@ -85,16 +64,29 @@ const JobQueueView = ({
         )
       }
       {
-        categories.map(({ title, jobsSubset }) => (
-          <JobSubList
-            key={title}
-            title={title}
-            jobs={jobsSubset}
-            cancelTask={cancelTask}
-            deleteJob={deleteJob}
-            moveToTopOfQueue={moveToTopOfQueue}
-          />
-        ))
+        categories.map(({ title, jobsSubset }) => {
+          if (jobsSubset.length === 0) return <div key={title} />
+
+          return (
+            <div key={title}>
+              <Typography variant="subtitle1" gutterBottom>
+                { title }
+              </Typography>
+              {
+                jobsSubset.map(job => (
+                  <div key={job.id} className={classes.jobContainer}>
+                    <JobCard
+                      {...job}
+                      cancelTask={cancelTask}
+                      deleteJob={deleteJob}
+                      moveToTopOfQueue={moveToTopOfQueue}
+                    />
+                  </div>
+                ))
+              }
+            </div>
+          )
+        })
       }
 
       <FloatingAddJobButton href="print/" />

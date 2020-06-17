@@ -17,6 +17,7 @@ import { Link } from 'react-router-dom'
 import truncate from 'truncate'
 
 import TaskStatusRow from './TaskStatusRow'
+import useConfirm from '../../../common/_hooks/useConfirm'
 
 const JobCard = ({
   id,
@@ -30,12 +31,27 @@ const JobCard = ({
   deleteJob,
   moveToTopOfQueue,
 }) => {
+  const confirm = useConfirm()
   const [menuAnchorEl, setMenuAnchorEl] = useState()
 
   const openMenu = useCallback(event => setMenuAnchorEl(event.target))
   const closeMenu = useCallback(() => setMenuAnchorEl(null))
 
   const shortName = truncate(name, 32)
+
+  const confirmedCancelTask = confirm(() => ({
+    fn: cancelTask,
+    title: 'Are you sure you want to cancel this print?',
+    description: 'You will not be able to resume this print once it is cancelled.',
+  }))
+
+  const confirmedDeleteJob = confirm(() => ({
+    fn: deleteJob,
+    title: 'Are you sure you want to delete this job?',
+    description: name,
+  }))
+
+  const currentTasks = tasks.filter(task => ['CANCELLED', 'ERROR'].includes(task.status) === false)
 
   return (
     <Card>
@@ -67,9 +83,11 @@ const JobCard = ({
       >
         <MenuItem
           onClick={() => {
-            deleteJob({
+            confirmedDeleteJob({
               variables: {
-                jobID: id,
+                input: {
+                  jobID: id,
+                },
               },
             })
             closeMenu()
@@ -101,10 +119,10 @@ const JobCard = ({
 
         {
             /* Task list segment */
-            tasks.map(task => (
+            currentTasks.map(task => (
               <TaskStatusRow
                 task={task}
-                cancelTask={() => cancelTask({
+                cancelTask={() => confirmedCancelTask({
                   variables: { machineID: task.machine.id },
                 })}
                 key={task.id}
