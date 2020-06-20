@@ -39,14 +39,11 @@ const Drawer = ({
   const classes = useStyles()
   const { location } = useRouter()
 
-  console.log('pathname', location.pathname)
   const DrawerLink = useCallback(({
     text,
     href,
     icon,
   }) => {
-    console.log('memoized pathname', location.pathname)
-
     const linkComponent = useMemo(() => React.forwardRef((props, ref) => (
       <Link to={href} innerRef={ref} {...props} />
     )), [href])
