@@ -19,7 +19,7 @@ import useContinuousMove from '../../_hooks/useContinuousMove'
 const CONTINUOUS = 'Continuous'
 
 const XYJogButtons = ({ machine }) => {
-  const distanceOptions = [1, 10, 50, 100, CONTINUOUS]
+  const distanceOptions = [1, 10, 100, CONTINUOUS]
   const [distance, onChange] = useState(CONTINUOUS)
 
   const isContinuous = distance === CONTINUOUS
@@ -39,7 +39,6 @@ const XYJogButtons = ({ machine }) => {
       <CardContent>
         <Grid
           container
-          spacing={3}
         >
           <JogDistanceButtons
             distanceOptions={distanceOptions}

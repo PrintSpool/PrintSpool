@@ -51,8 +51,12 @@ const ManualControlView = ({ machine, isReady }) => {
         >
           <Grid
             container
-            spacing={2}
-            style={{ marginTop: 16, marginBottom: 16 }}
+            style={{
+              margin: 0,
+              marginTop: 16,
+              marginBottom: 16,
+              width: '100%',
+            }}
           >
             <Grid item xs={12} lg={6}>
               <Home machine={machine} />
@@ -68,24 +72,18 @@ const ManualControlView = ({ machine, isReady }) => {
             </Grid>
           </Grid>
         </Loader>
-        <Grid
-          container
-          spacing={2}
-        >
-          {
-            machine.components
-              .filter(c => ['BUILD_PLATFORM', 'TOOLHEAD', 'FAN'].includes(c.type))
-              .map(component => (
-                <Grid item xs={12} key={component.id}>
-                  <ComponentControl
-                    machine={machine}
-                    component={component}
-                    disabled={!isReady}
-                  />
-                </Grid>
-              ))
-          }
-        </Grid>
+        {
+          machine.components
+            .filter(c => ['BUILD_PLATFORM', 'TOOLHEAD', 'FAN'].includes(c.type))
+            .map(component => (
+              <ComponentControl
+                key={component.id}
+                machine={machine}
+                component={component}
+                disabled={!isReady}
+              />
+            ))
+        }
       </div>
     </div>
   )

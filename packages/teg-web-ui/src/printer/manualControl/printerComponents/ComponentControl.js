@@ -66,11 +66,10 @@ const ComponentControl = ({
   const [distance, onChange] = useState(distanceOptions[2])
 
   return (
-    <Card>
+    <Card className={classes.root}>
       <CardContent>
         <Grid
           container
-          spacing={3}
         >
           <Grid item xs={12} md={component.fan ? 12 : 4}>
             <Typography variant="subtitle1">

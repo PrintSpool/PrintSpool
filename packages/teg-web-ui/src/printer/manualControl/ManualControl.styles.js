@@ -39,6 +39,10 @@ const useStyles = makeStyles(theme => ({
     //   paddingRight: theme.spacing(2),
     // },
   },
+  fansAndHeatersContainer: {
+    // margin: 0,
+    // width: '100%',
+  },
 }), { withTheme: true })
 
 export default useStyles
