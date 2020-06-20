@@ -9,12 +9,13 @@ import {
 import {
   ThemeProvider,
 } from '@material-ui/styles'
-import ErrorBoundary from 'react-error-boundary'
+import { ErrorBoundary } from 'react-error-boundary'
 import { SnackbarProvider } from 'notistack'
 import { BrowserRouter } from 'react-router-dom'
 import { Route } from 'react-router'
 import { GraphQL, GraphQLProvider } from 'graphql-react'
 import { ConfirmProvider } from 'material-ui-confirm'
+import useRouter from 'use-react-router'
 
 import TegApolloProvider from './TegApolloProvider'
 import { AuthProvider } from './common/auth'
@@ -33,6 +34,19 @@ const graphql = new GraphQL()
 
 // console.log(process.env.NODE_ENV)
 
+const RouterErrorBoundary = ({ children }) => {
+  const { location } = useRouter()
+
+  return (
+    <ErrorBoundary
+      FallbackComponent={ErrorFallback}
+      resetKeys={[location.pathname]}
+    >
+      {children}
+    </ErrorBoundary>
+  )
+}
+
 const App = () => (
   <CssBaseline>
     <ThemeProvider theme={theme}>
@@ -41,9 +55,9 @@ const App = () => (
           <ConfirmProvider>
             <PrintFilesContext.Provider value={useState()}>
               <React.Suspense fallback={<Loading fullScreen />}>
-                <ErrorBoundary FallbackComponent={ErrorFallback}>
-                  <AuthProvider>
-                    <BrowserRouter>
+                <BrowserRouter>
+                  <RouterErrorBoundary>
+                    <AuthProvider>
                       <Route
                         path={[
                           '/m/:hostID/',
@@ -56,9 +70,9 @@ const App = () => (
                           </TegApolloProvider>
                         )}
                       />
-                    </BrowserRouter>
-                  </AuthProvider>
-                </ErrorBoundary>
+                    </AuthProvider>
+                  </RouterErrorBoundary>
+                </BrowserRouter>
               </React.Suspense>
               {
                 // <ReduxSnackbar />
