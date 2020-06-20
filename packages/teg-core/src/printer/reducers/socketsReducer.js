@@ -81,6 +81,7 @@ const Heater = Record({
   actualTemperature: null,
   enabled: false,
   blocking: false,
+  history: List(),
 })
 
 const SpeedController = Record({
@@ -96,6 +97,8 @@ const componentFeatures = {
   heater: Heater,
   speedController: SpeedController,
 }
+
+let lastHistoryID = 0
 
 // TODO: initial machine state generation based on configuration
 const initialMachineState = ({
@@ -378,18 +381,47 @@ const socketsReducer = (state = initialState, action) => {
             })
           }
 
+          const now = new Date()
+
           entries
             .forEach((entry) => {
               const Feature = componentFeatures[componentType]
-              machine = machine.updateIn(
-                ['components', entry.address, componentType],
-                feature => (
-                  Feature({
-                    id: feature.id,
-                    machineID: feature.machineID,
-                  }).merge(entry)
-                ),
-              )
+              const { address } = entry
+
+              machine = machine.updateIn(['components', address, componentType], (feature) => {
+                let nextFeature = Feature({
+                  id: feature.id,
+                  machineID: feature.machineID,
+                }).merge(entry)
+
+                // heater temperature history
+                if (componentType === 'heater') {
+                  let history = feature.history || List()
+
+                  // record a data point once every half second
+                  if (
+                    history.size === 0
+                    || now.getTime() > history.last().createdAt.getTime() + 500
+                  ) {
+                    history = history.push({
+                      id: (lastHistoryID += 1),
+                      createdAt: now,
+                      targetTemperature: entry.targetTemperature,
+                      actualTemperature: entry.actualTemperature,
+                    })
+                  }
+
+                  // limit the history to 60 entries (30 seconds)
+                  const maxHistoryLength = 60
+                  if (history.length > maxHistoryLength) {
+                    history = history.slice(0, maxHistoryLength)
+                  }
+
+                  nextFeature = nextFeature.set('history', history)
+                }
+
+                return nextFeature
+              })
             })
 
           delete feedback[componentType]
