@@ -30,8 +30,12 @@ const useContinuousMove = ({ machine }) => {
   // Stop the machines movement on mouse up regardless of where the mouse is
   useEffect(() => {
     document.addEventListener('mouseup', stop, true)
+    document.addEventListener('touchend', stop, true)
 
-    return () => document.removeEventListener('mouseup', stop, true)
+    return () => {
+      document.removeEventListener('mouseup', stop, true)
+      document.removeEventListener('touchend', stop, true)
+    }
   }, [])
 
   const tickMovement = async () => {
