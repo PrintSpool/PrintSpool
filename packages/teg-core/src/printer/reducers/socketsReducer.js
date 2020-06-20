@@ -413,8 +413,8 @@ const socketsReducer = (state = initialState, action) => {
 
                   // limit the history to 60 entries (30 seconds)
                   const maxHistoryLength = 60
-                  if (history.length > maxHistoryLength) {
-                    history = history.slice(0, maxHistoryLength)
+                  if (history.size > maxHistoryLength) {
+                    history = history.slice(-maxHistoryLength)
                   }
 
                   nextFeature = nextFeature.set('history', history)
