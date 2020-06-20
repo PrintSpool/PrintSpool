@@ -1,8 +1,6 @@
 import React, { useCallback } from 'react'
 import {
   Grid,
-  BottomNavigation,
-  BottomNavigationAction,
   Button,
 } from '@material-ui/core'
 
