@@ -1,13 +1,13 @@
 // import Promise from 'bluebird'
-import os from 'os'
-import fs from 'fs'
-import childProcess from 'child_process'
+// import os from 'os'
+// import fs from 'fs'
+// import childProcess from 'child_process'
 import path from 'path'
 import mkdirp from 'mkdirp'
 import keypair from 'keypair'
 import { createECDHKey } from 'graphql-things'
 import writeFileAtomic from 'write-file-atomic'
-import npid from 'npid'
+// import npid from 'npid'
 
 // import * as tegAutodrop3D from '@tegapp/autodrop3d'
 import * as tegCore from '@tegapp/core'
@@ -58,7 +58,7 @@ const tegServer = async (argv, pluginLoader) => {
 
   const expectedUseage = 'Useage: teg [serve|create-config]'
 
-  const [, , cmd, configArg, pidArg] = argv
+  const [, , cmd, configArg] = argv
 
   if (cmd === '--help') {
     // eslint-disable-next-line no-console
@@ -85,19 +85,19 @@ const tegServer = async (argv, pluginLoader) => {
     || '/etc/teg',
   )
 
-  const pidDirectory = path.resolve(
-    pidArg
-    || '/var/lib/teg',
-  )
+  // const pidDirectory = path.resolve(
+  //   pidArg
+  //   || '/run/teg',
+  // )
 
   // const updatesFile = path.join(configDirectory, '.updates')
 
-  // create the config directory if it doesn't exist
-  if (!fs.existsSync(pidDirectory)) {
-    mkdirp.sync(pidDirectory, {
-      mode: 0o700,
-    })
-  }
+  // // create the pid directory if it doesn't exist
+  // if (!fs.existsSync(pidDirectory)) {
+  //   mkdirp.sync(pidDirectory, {
+  //     mode: 0o700,
+  //   })
+  // }
 
   // eslint-disable-next-line global-require, import/no-dynamic-require
   const defaultConfig = require('../development.config')
@@ -121,46 +121,47 @@ const tegServer = async (argv, pluginLoader) => {
   //   writeFileAtomic.sync(updatesFile, JSON.stringify(json, null, 2))
   // }
 
-  const pidFile = path.join(pidDirectory, 'teg.pid')
+  // const pidFile = path.join(pidDirectory, 'teg.pid')
 
-  const createPidFile = () => {
-    try {
-      const pid = npid.create(pidFile)
-      pid.removeOnExit()
+  // const createPidFile = () => {
+  //   try {
+  //     const pid = npid.create(pidFile)
+  //     pid.removeOnExit()
 
-      return { pidCreated: true }
-    } catch (err) {
-      if (!fs.existsSync(pidFile)) {
-        throw err
-      }
-      const pid = parseInt(fs.readFileSync(pidFile, 'utf8').trim(), 10)
-      const isRunning = childProcess.spawnSync('ps', ['-p', pid]).status === 0
+  //     return { pidCreated: true }
+  //   } catch (err) {
+  //     if (!fs.existsSync(pidFile)) {
+  //       throw err
+  //     }
+  //     const pid = parseInt(fs.readFileSync(pidFile, 'utf8').trim(), 10)
+  //     const isRunning = childProcess.spawnSync('ps', ['-p', pid]).status === 0
 
-      if (isRunning) {
-        // eslint-disable-next-line no-console
-        console.error(
-          `Another copy of Teg is running (pid: ${pid}). Shutting down.`,
-        )
-        return { pidCreated: false }
-      }
+  //     if (isRunning) {
+  //       // eslint-disable-next-line no-console
+  //       console.error(
+  //         `Another copy of Teg is running (pid: ${pid}). Shutting down.`,
+  //       )
+  //       return { pidCreated: false }
+  //     }
 
-      /*
-       * if the pid file exists but there is no process with that pid running
-       * then delete the pid file and retry
-       */
-      fs.unlinkSync(pidFile)
-      return createPidFile()
-    }
-  }
+  //     /*
+  //      * if the pid file exists but there is no process with that pid running
+  //      * then delete the pid file and retry
+  //      */
+  //     fs.unlinkSync(pidFile)
+  //     return createPidFile()
+  //   }
+  // }
 
-  if (createPidFile().pidCreated === false) {
-    // eslint-disable-next-line no-console
-    console.error(
-      `Unable to create pid file (${pidFile}). Shutting down.`,
-    )
-    process.exitCode = 1
-    return
-  }
+  // if (createPidFile().pidCreated === false) {
+  //   // eslint-disable-next-line no-console
+  //   console.error(
+  //     `Unable to create pid file (${pidFile}). Shutting down.`,
+  //   )
+  //   process.exitCode = 1
+  //   return
+  // }
+
   //
   // const updatesText = fs.readFileSync(updatesFile, 'utf8')
   //
