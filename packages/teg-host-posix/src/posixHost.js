@@ -1,5 +1,5 @@
 // import Promise from 'bluebird'
-// import os from 'os'
+import os from 'os'
 // import fs from 'fs'
 // import childProcess from 'child_process'
 import path from 'path'
@@ -19,7 +19,7 @@ import {
   handleFatalExceptions,
   getPreviousFatalException,
 } from './FatalExceptionManager'
-import httpServer from './server/httpServer'
+// import httpServer from './server/httpServer'
 import webRTCServer from './server/webRTCServer'
 
 import packageJSON from '../package.json'
@@ -51,6 +51,15 @@ const {
 
 // global.Promise = Promise
 
+// This pid file is used to send USR2 signals to the process to indicate when an update to Teg 
+// is available and ready to swap over to from this one.
+const updatePidFile = async (pidArg) => {
+  const pidDirectory = path.resolve(
+    pidArg || (process.env.NODE_ENV === 'production' ? '/run' : os.homedir()),
+  )
+  const pidFile = path.join(pidDirectory, 'teg.pid')
+  writeFileAtomic.sync(pidFile, `${process.pid}`)
+}
 
 const tegServer = async (argv, pluginLoader) => {
   // eslint-disable-next-line no-console
@@ -58,7 +67,7 @@ const tegServer = async (argv, pluginLoader) => {
 
   const expectedUseage = 'Useage: teg [serve|create-config]'
 
-  const [, , cmd, configArg] = argv
+  const [, , cmd, configArg, pidArg] = argv
 
   if (cmd === '--help') {
     // eslint-disable-next-line no-console
@@ -85,20 +94,6 @@ const tegServer = async (argv, pluginLoader) => {
     || '/etc/teg',
   )
 
-  // const pidDirectory = path.resolve(
-  //   pidArg
-  //   || '/run/teg',
-  // )
-
-  // const updatesFile = path.join(configDirectory, '.updates')
-
-  // // create the pid directory if it doesn't exist
-  // if (!fs.existsSync(pidDirectory)) {
-  //   mkdirp.sync(pidDirectory, {
-  //     mode: 0o700,
-  //   })
-  // }
-
   // eslint-disable-next-line global-require, import/no-dynamic-require
   const defaultConfig = require('../development.config')
 
@@ -114,73 +109,7 @@ const tegServer = async (argv, pluginLoader) => {
     return
   }
 
-  // touch the updates file
-  // fs.closeSync(fs.openSync(updatesFile, 'a'))
-
-  // const writePIDFile = (json) => {
-  //   writeFileAtomic.sync(updatesFile, JSON.stringify(json, null, 2))
-  // }
-
-  // const pidFile = path.join(pidDirectory, 'teg.pid')
-
-  // const createPidFile = () => {
-  //   try {
-  //     const pid = npid.create(pidFile)
-  //     pid.removeOnExit()
-
-  //     return { pidCreated: true }
-  //   } catch (err) {
-  //     if (!fs.existsSync(pidFile)) {
-  //       throw err
-  //     }
-  //     const pid = parseInt(fs.readFileSync(pidFile, 'utf8').trim(), 10)
-  //     const isRunning = childProcess.spawnSync('ps', ['-p', pid]).status === 0
-
-  //     if (isRunning) {
-  //       // eslint-disable-next-line no-console
-  //       console.error(
-  //         `Another copy of Teg is running (pid: ${pid}). Shutting down.`,
-  //       )
-  //       return { pidCreated: false }
-  //     }
-
-  //     /*
-  //      * if the pid file exists but there is no process with that pid running
-  //      * then delete the pid file and retry
-  //      */
-  //     fs.unlinkSync(pidFile)
-  //     return createPidFile()
-  //   }
-  // }
-
-  // if (createPidFile().pidCreated === false) {
-  //   // eslint-disable-next-line no-console
-  //   console.error(
-  //     `Unable to create pid file (${pidFile}). Shutting down.`,
-  //   )
-  //   process.exitCode = 1
-  //   return
-  // }
-
-  //
-  // const updatesText = fs.readFileSync(updatesFile, 'utf8')
-  //
-  // const updates = updatesText !== '' ? JSON.parse(updatesText) : {
-  //   hasPendingUpdates: false,
-  //   readyToUpdate: false,
-  // }
-  //
-  // if (updates.hasPendingUpdates) {
-  //   // eslint-disable-next-line no-console
-  //   console.error('Teg updates in progress. Will retry in 10 seconds...')
-  //
-  //   setTimeout(() => {
-  //     // eslint-disable-next-line no-console
-  //     console.error('Restarting Teg')
-  //   }, 10 * 1000)
-  //
-  //   return
-  // }
+  await updatePidFile(pidArg)
 
   handleFatalExceptions({ config })
   const previousFatalException = getPreviousFatalException({ config })

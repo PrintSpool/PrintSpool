@@ -1,12 +1,8 @@
 #!/bin/bash
 set -e
 
-# TODO: Removing this because PID files broke reboots in some cases. Note that updates
-# will now wipe the print queue without waiting for it to empty. This should be dealt with
-# by moving to a database persisted print queue.
+PIDFILE=/run/teg.pid
 
-# PIDFILE=~/.teg/teg.pid
-
-# if test -f "$PIDFILE"; then
-#   kill -USR2 $(cat $PIDFILE)
-# fi
+if test -f "$PIDFILE"; then
+  kill -USR2 $(cat $PIDFILE)
+fi

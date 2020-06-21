@@ -125,6 +125,8 @@ apps:
     restart-condition: always
     refresh-mode: endure
     # stop-mode: sigusr2
+    environment:
+      NODE_ENV: production
     plugs:
       # - klipper-printers
       - network
