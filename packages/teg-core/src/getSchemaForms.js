@@ -114,6 +114,7 @@ const getSchemaForms = () => ({
           isAdmin: {
             title: 'Admin',
             type: 'boolean',
+            default: false,
           },
         },
       }),
@@ -143,6 +144,7 @@ const getSchemaForms = () => ({
           isAdmin: {
             title: 'Admin Access Invite',
             type: 'boolean',
+            default: false,
           },
         },
       }),
@@ -259,6 +261,7 @@ const getSchemaForms = () => ({
           heater: {
             title: 'Heated Build Platform',
             type: 'boolean',
+            default: false,
           },
         },
       }),
@@ -285,6 +288,7 @@ const getSchemaForms = () => ({
           simulate: {
             title: 'Simulate Attached Controller',
             type: 'boolean',
+            default: false,
           },
         },
       }),
@@ -378,6 +382,7 @@ const getSchemaForms = () => ({
           heater: {
             title: 'Heated Extruder',
             type: 'boolean',
+            default: false,
           },
         },
       }),
