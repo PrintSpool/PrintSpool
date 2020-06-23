@@ -21,6 +21,7 @@ const GCODE_HISTORY_SUBSCRIPTION = gql`
       query {
         machines(machineID: $machineID) {
           id
+          status
           gcodeHistory(limit: 200) {
             id
             direction
@@ -75,6 +76,8 @@ const Terminal = ({
     throw error
   }
 
+  const { status, gcodeHistory } = data.machines[0]
+  const isReady = ['READY', 'PRINTING'].includes(status)
 
   return (
     <div className={classes.root}>
@@ -84,8 +87,13 @@ const Terminal = ({
           label="GCode"
           name="gcode"
           component={TextField}
+          disabled={!isReady}
         />
-        <Button variant="contained" type="submit">
+        <Button
+          variant="contained"
+          type="submit"
+          disabled={!isReady}
+        >
           Send
         </Button>
       </Form>
@@ -95,7 +103,7 @@ const Terminal = ({
         component="div"
       >
         {
-          [...data.machines[0].gcodeHistory].reverse().map(entry => (
+          [...gcodeHistory].reverse().map(entry => (
             // eslint-disable-next-line react/no-array-index-key
             <div
               key={entry.id}
