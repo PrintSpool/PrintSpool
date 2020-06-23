@@ -13,12 +13,17 @@ const {
   CONTROLLER,
   AXIS,
   BUILD_PLATFORM,
+  TOOLHEAD,
 } = ComponentTypeEnum
 
 export const fixedListComponentTypes = List([
   CONTROLLER,
   AXIS,
   BUILD_PLATFORM,
+  // TODO: multi-extruder support.
+  // Getting this working will require someone with access to a multi-extruder 3D printer to debug
+  // it. Comment out the next line to re-enable the current non-functional multi-extruder support.
+  TOOLHEAD,
 ])
 
 export const logReducer = () => null
