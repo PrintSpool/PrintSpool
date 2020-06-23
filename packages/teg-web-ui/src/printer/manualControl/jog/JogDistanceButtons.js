@@ -17,6 +17,7 @@ const JogDistanceButtons = ({
     <Grid item xs={12} className={`${classes.root} ${className}`}>
       { distanceOptions.map(value => (
         <Button
+          key={value.toString()}
           className={classes.button}
           color={value === input.value ? 'primary' : 'default'}
           onClick={() => input.onChange(value)}
