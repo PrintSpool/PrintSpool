@@ -3,8 +3,8 @@ import { useConfirm as muiUseConfirm } from 'material-ui-confirm'
 const useConfirm = () => {
   const muiConfirm = muiUseConfirm()
 
-  return cb => async (...args) => {
-    const { fn, ...options } = cb(...args)
+  return cb => async () => {
+    const { fn, ...options } = cb()
 
     try {
       await muiConfirm(options)
@@ -13,7 +13,7 @@ const useConfirm = () => {
       return
     }
 
-    return fn(...args)
+    return fn()
   }
 }
 

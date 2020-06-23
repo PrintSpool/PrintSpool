@@ -108,7 +108,7 @@ const MachineResolvers = {
       const { status } = source
       if (
         busyMachines(state.jobQueue)[source.id] === BUSY_WITH_JOB
-        && status == READY
+        && status === READY
       ) {
         return 'PRINTING'
       }

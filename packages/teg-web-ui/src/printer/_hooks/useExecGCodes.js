@@ -10,7 +10,12 @@ export const EXEC_GCODES = gql`
 `
 
 const useExecGCodes = (callback, dependencies) => {
-  const [execGCodes] = useMutation(EXEC_GCODES)
+  const [execGCodes, results] = useMutation(EXEC_GCODES)
+
+  if (results.error) {
+    console.error(results.error)
+    throw results.error
+  }
 
   return useCallback((...args) => {
     const {

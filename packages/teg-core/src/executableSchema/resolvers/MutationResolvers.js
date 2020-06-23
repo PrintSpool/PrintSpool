@@ -26,6 +26,7 @@ import requestSpoolJobFile from '../../jobQueue/actions/requestSpoolJobFile'
 /* machine */
 import requestEStop from '../../printer/actions/requestEStop'
 import requestReset from '../../printer/actions/requestReset'
+import { READY } from '../../printer/types/statusEnum'
 
 const MutationResolvers = {
   Mutation: {
@@ -187,12 +188,17 @@ const MutationResolvers = {
     }),
     /* spool */
     execGCodes: async (source, args, { store }) => {
-      const { macros, config } = store.getState()
+      const { macros, config, sockets } = store.getState()
       const {
         gcodes: commands,
         machineID,
         sync = false,
       } = args.input
+
+      const { status } = sockets.machines.get(machineID)
+      if (status !== READY) {
+        throw new Error(`Cannot send gcodes while printer is ${status}`)
+      }
 
       const task = await new Promise((resolve, reject) => {
         const action = execGCodes({
