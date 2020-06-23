@@ -193,7 +193,7 @@ const jobQueueReducer = (state = initialState, action) => {
         t.machineID === machineID
         && t.status === START_TASK
       ))
-      // console.log({currentTask, machineID, tasks: state.tasks.toJS()})
+      // console.log({ currentTask, machineID, tasks: state.tasks.toJS() })
 
       let nextState = state
       const nextEffects = []
@@ -232,12 +232,16 @@ const jobQueueReducer = (state = initialState, action) => {
           })
         })
 
-      let isMidTask = (
+      // if (newHistoryEvents.size > 0) {
+      //   console.log('History:', newHistoryEvents.toJS())
+      // }
+
+      const isMidTask = (
         currentTask != null
-        && newHistoryEvents.every(ev => {
+        && newHistoryEvents.every(ev => (
           ev.taskID !== currentTask.id
           && endedTaskStatuses.includes(ev.type) === false
-        })
+        ))
       )
 
       // if the current task is missing it means the machine service may have
@@ -265,12 +269,17 @@ const jobQueueReducer = (state = initialState, action) => {
       nextState = nextState
         .update('history', history => history.concat(newHistoryEvents))
 
+      const finishedTaskIDs = events
+        .filter(ev => (
+          ev.type === FINISH_TASK
+          && ev.clientId === state.localID
+        ))
+        .map(ev => ev.taskId)
+
+      // console.log({ finishedTaskIDs })
       const finishedTask = (
         currentTask != null
-        && newHistoryEvents.some(ev => (
-          ev.taskId === currentTask.id
-          && ev.type === FINISH_TASK
-        ))
+        && finishedTaskIDs.includes(currentTask.id)
       )
       // console.log({currentTask: currentTask&&currentTask.toJS(), finishedTask, events})
       // console.log({tasks: state.tasks.toJS(), finishedTask, events})
@@ -279,7 +288,8 @@ const jobQueueReducer = (state = initialState, action) => {
 
       let { despooledLineNumber } = feedback
       if (finishedTask) {
-        despooledLineNumber = currentTask.totalLines - 1
+        despooledLineNumber = Math.max(0, currentTask.totalLines - 1)
+        // console.log({ currentTask: currentTask.toJS(), finishedTask })
       }
 
       const hasDespooledLines = (
@@ -288,7 +298,7 @@ const jobQueueReducer = (state = initialState, action) => {
         && despooledLineNumber > currentTask.currentLineNumber
       )
 
-      if (hasDespooledLines) {
+      if (finishedTask || hasDespooledLines) {
         // reload the task from the next state
         currentTask = nextState.tasks.get(currentTask.id)
           .set('previousLineNumber', currentTask.currentLineNumber)
@@ -299,6 +309,7 @@ const jobQueueReducer = (state = initialState, action) => {
         currentTask = currentTask.updateIn(['annotations'], annotations => (
           annotations.filter((ann) => {
             const shouldExecAction = ann.lineNumber <= despooledLineNumber
+            // console.log('annotation check', { shouldExecAction, despooledLineNumber }, ann.lineNumber)
             if (shouldExecAction) {
               nextEffects.push(Cmd.action(ann.action))
             }
@@ -310,19 +321,12 @@ const jobQueueReducer = (state = initialState, action) => {
       }
 
       /* task cleanup */
-      const finishedTaskIDs = events
-        .filter(ev => (
-          ev.type === FINISH_TASK
-          && ev.clientId === state.localID
-        ))
-        .map(ev => ev.taskId)
-
       finishedTaskIDs.forEach((id) => {
         const task = state.tasks.get(id)
         if (task == null) {
           return
         }
-        task.onComplete && task.onComplete()
+        if (task.onComplete) task.onComplete()
 
         nextState = nextState.deleteIn(['tasks', task.id])
       })
