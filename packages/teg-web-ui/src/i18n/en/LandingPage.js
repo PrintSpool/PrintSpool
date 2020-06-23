@@ -18,7 +18,7 @@ const LandingPageEN = {
   printQueueing: {
     title: 'Print Queueing',
     content: deline`
-    Printing multiple parts should be easy. With Teg when you click print your part is added to a queue - it's like a playlist for your 3D machine.\n
+    Printing multiple parts should be easy. With Teg when you click print your part is added to a queue - it's like a playlist for your 3D printer.\n
 
     Once you've cleared the build platform Teg's play button is there for you to start up your next print in the queue - no looking up file names or trying to remember what part was supposed to be next. Printing is always simple, no matter how many parts you have to print.
     `

@@ -5,6 +5,9 @@ import { GraphQL } from 'graphql-react'
 import { useMutation } from 'react-apollo-hooks'
 import { useAsync } from 'react-async'
 
+import Typography from '@material-ui/core/Typography'
+import Button from '@material-ui/core/Button'
+
 import { getID } from '../../../UserDataProvider'
 import { useAuth } from '../../../common/auth'
 
@@ -13,7 +16,8 @@ import Loading from '../../../common/Loading'
 
 import Step3SetupForm from './Step3SetupForm'
 
-import Step3SetupStyles from './Step3SetupStyles'
+import useStyles from './Step3Setup.styles'
+import { Link } from 'react-router-dom'
 
 const MACHINE_FORM_QUERY = gql`
   query($input: SchemaFormQueryInput!) {
@@ -42,7 +46,7 @@ const Step3Setup = ({
   setSkippedStep3,
   invite,
 }) => {
-  const classes = Step3SetupStyles()
+  const classes = useStyles()
   const [machineDefinitionURL, setMachineDefinitionURL] = useState('placeholder')
   const { fetchOptions } = useAuth()
 
@@ -100,6 +104,26 @@ const Step3Setup = ({
   }, [isConfigured])
 
   if (skipStep3Async.error) {
+    console.error('skip 3 error?', skipStep3Async.error.code, skipStep3Async.error.message)
+    // TODO: error codes instead of error message parsing
+    // Checks if the invite has been consumed
+    if (skipStep3Async.error.message.includes('consumed')) {
+      return (
+        <div className={classes.inviteAlreadyConsumed}>
+          <Typography variant="h5" paragraph>
+            Oh no, it looks like this invite code has already been used.
+          </Typography>
+          <Button
+            variant="outlined"
+            component={React.forwardRef((props, ref) => (
+              <Link to="/login" innerRef={ref} {...props} />
+            ))}
+          >
+            Back to Home
+          </Button>
+        </div>
+      )
+    }
     throw skipStep3Async.error
   }
 

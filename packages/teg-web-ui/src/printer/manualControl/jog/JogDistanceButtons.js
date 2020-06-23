@@ -13,17 +13,13 @@ const JogDistanceButtons = ({
 }) => {
   const classes = useStyle()
 
-  const onChange = useCallback((event, val) => (
-    input.onChange(val)
-  ))
-
   return (
     <Grid item xs={12} className={`${classes.root} ${className}`}>
       { distanceOptions.map(value => (
         <Button
           className={classes.button}
           color={value === input.value ? 'primary' : 'default'}
-          onClick={() => onChange(value)}
+          onClick={() => input.onChange(value)}
         >
           {typeof value === 'number' ? `${value}mm` : value}
         </Button>

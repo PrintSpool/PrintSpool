@@ -9,6 +9,12 @@ const useStyles = makeStyles(() => ({
     flexDirection: 'column',
     minHeight: '60vh',
   },
+  inviteAlreadyConsumed: {
+    display: 'grid',
+    placeItems: 'center',
+    alignContent: 'center',
+    minHeight: '60vh',
+  },
   part1: {
     display: 'flex',
     flexDirection: 'column',

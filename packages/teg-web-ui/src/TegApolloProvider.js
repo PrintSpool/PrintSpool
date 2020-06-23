@@ -182,7 +182,7 @@ const TegApolloProvider = ({
 
     // console.log('con pros!', connectionProps)
 
-    // The public key of the 3D machine. This uniquely identifies your 3D printer
+    // The public key of the 3D printer. This uniquely identifies your 3D printer
     // and allows us to end-to-end encrypt everything you do with it. Usually
     // the public key is retreaved by scanning the QR Code displayed by Teg on
     // the 3D printer's screen.

@@ -49,7 +49,7 @@ const enhance = compose(
         variables={{ input }}
         update={(mutationResult) => {
           if (mutationResult.data != null) {
-            history.push('../../')
+            history.push('../')
           }
         }}
       >
