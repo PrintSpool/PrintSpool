@@ -10,7 +10,7 @@ import useExecGCodes from '../../../_hooks/useExecGCodes'
 
 import ButtonsFooter from '../ButtonsFooter'
 
-const distance = 100
+const distance = 50
 
 const Step3Retract = ({
   machine,
@@ -24,7 +24,7 @@ const Step3Retract = ({
   const retractFilament = useExecGCodes(() => ({
     machine,
     gcodes: [
-      { moveBy: { distances: { [component.address]: distance }, sync: true } },
+      { moveBy: { distances: { [component.address]: -distance }, sync: true } },
     ],
     sync: true,
     // Wait for the filament to retract and then go to the next step
