@@ -28,6 +28,17 @@ const requestCreateJob = ({
 
   const job = Job({ name, meta })
 
+  const acceptedExtensions = ['.ngc', '.gcode']
+
+  const badFiles = files.filter(file => !acceptedExtensions.some(ext => file.name.endsWith(ext)))
+
+  if (badFiles.length > 0) {
+    throw new Error(
+      `Unsupported file extensions for: ${badFiles.map(f => f.name).join(', ')}. `
+      + `Only ${acceptedExtensions.join(', ')} allowed.`,
+    )
+  }
+
   return {
     type: REQUEST_CREATE_JOB,
     payload: {
