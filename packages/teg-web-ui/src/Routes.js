@@ -154,7 +154,7 @@ const Routes = () => {
               render={() => (
                 <React.Fragment>
                   <Home />
-                  <Route
+                  {/* <Route
                     exact
                     path="/print/"
                     render={({ history, location }) => {
@@ -170,7 +170,7 @@ const Routes = () => {
                         </React.Suspense>
                       )
                     }}
-                  />
+                  /> */}
                 </React.Fragment>
               )}
             />
@@ -183,15 +183,10 @@ const Routes = () => {
                 <ConnectionFrame match={match}>
                   <Route
                     exact
-                    path={['/q/:hostID/', '/q/:hostID/print/']}
+                    path="/q/:hostID/"
                     component={QueuePage}
                   />
                   <Route exact path="/q/:hostID/printing/:jobID/" component={JobPage} />
-
-                  <React.Suspense fallback={<div />}>
-                    <Route exact path="/q/:hostID/print/" component={PrintDialog} />
-                  </React.Suspense>
-
                   <Route exact path="/q/:hostID/graphql-playground/" component={GraphQLPlayground} />
 
                   <Route

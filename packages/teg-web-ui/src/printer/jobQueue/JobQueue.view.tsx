@@ -1,13 +1,16 @@
-import React from 'react'
+import React, { useState } from 'react'
 
-import {
-  Typography,
-} from '@material-ui/core'
+import Typography from '@material-ui/core/Typography'
+import Fab from '@material-ui/core/Fab'
+import Tooltip from '@material-ui/core/Tooltip'
 
-import FloatingAddJobButton from '../printButton/FloatingAddJobButton'
+import Add from '@material-ui/icons/Add'
+
+import FileInput from '../../common/FileInput'
 import FloatingPrintNextButton from './components/FloatingPrintNextButton'
 import JobCard from './components/JobCard'
 import useStyles from './JobQueue.styles'
+import PrintDialog from '../printDialog/PrintDialog'
 
 const JobQueueView = ({
   jobs,
@@ -24,6 +27,8 @@ const JobQueueView = ({
     statuses.includes('READY') === false
     || jobs.every(job => job.files.every(jobFile => jobFile.printsQueued === 0))
   )
+
+  const [printDialogFiles, setPrintDialogFiles] = useState()
 
   // TODO: recreate job status with a more limited scope
   const categories = [
@@ -53,16 +58,22 @@ const JobQueueView = ({
 
   return (
     <div className={classes.root}>
-      {
-        jobs.length === 0
-        && (
+      { printDialogFiles && (
+        <React.Suspense fallback={<div />}>
+          <PrintDialog
+            files={printDialogFiles}
+            onClose={() => setPrintDialogFiles(null)}
+          />
+        </React.Suspense>
+      )}
+
+      { jobs.length === 0 && (
         <div className={classes.emptyQueueContainer}>
           <Typography variant="h4" className={classes.emptyQueueText}>
             the print queue is empty
           </Typography>
         </div>
-        )
-      }
+      )}
       {
         categories.map(({ title, jobsSubset }) => {
           if (jobsSubset.length === 0) return <div key={title} />
@@ -89,7 +100,21 @@ const JobQueueView = ({
         })
       }
 
-      <FloatingAddJobButton href="print/" />
+      {/* Add Job Button */}
+      <Tooltip title="Add Job" placement="left">
+        <Fab
+          component="label"
+          className={classes.addJobFab}
+          color="default"
+        >
+          <FileInput
+            accept=".ngc,.gcode"
+            onClick={setPrintDialogFiles}
+          />
+          <Add />
+        </Fab>
+      </Tooltip>
+      {/* Print Next Button */}
       <FloatingPrintNextButton
         disabled={disablePrintNextButton}
         onClick={spoolNextPrint}

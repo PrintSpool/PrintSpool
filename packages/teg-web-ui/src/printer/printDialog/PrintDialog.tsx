@@ -1,18 +1,15 @@
-import React, { useContext, useCallback, useEffect } from 'react'
+import React, { useCallback } from 'react'
 import gql from 'graphql-tag'
 
-import {
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-} from '@material-ui/core'
+import Button from '@material-ui/core/Button'
+import Dialog from '@material-ui/core/Dialog'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogActions from '@material-ui/core/DialogActions'
 
 import PrintDialogContent from './PrintDialogContent'
 import useCreateJobMutation from './useCreateJobMutation'
 
-import PrintFilesContext from './PrintFilesContext'
 import useLiveSubscription from '../_hooks/useLiveSubscription'
 import { useMutation } from 'react-apollo-hooks'
 
@@ -38,25 +35,18 @@ const SPOOL_JOB_FILE = gql`
 `
 
 const PrintDialog = ({
-  history,
-  match,
+  files,
+  onClose,
 }) => {
-  const [files] = useContext(PrintFilesContext)
-
-  const { hostID } = match.params
-  const open = true
-
   const subscription = useLiveSubscription(PRINT_DIALOG_SUBSCRIPTION)
   const [ createJob, mutationResult ] = useCreateJobMutation(files, {})
   const [spoolJobFile, spoolMutationResult ] = useMutation(SPOOL_JOB_FILE)
 
   const machine = (subscription as any).data?.machines.find(machine => machine.status === 'READY')
 
-  const successRedirect = () => history.push(`/q/${hostID}/`)
-
   const addToQueue = useCallback(async () => {
     const createJobResult = await createJob()
-    if (createJobResult.errors == null) successRedirect()
+    if (createJobResult.errors == null) onClose()
   }, [])
 
   const printNow = useCallback(async () => {
@@ -75,12 +65,8 @@ const PrintDialog = ({
 
     if (spoolJobFileResult.errors != null) return
 
-    successRedirect()
+    onClose()
   }, [machine])
-
-  const onClose = useCallback(() => {
-    history.push('../')
-  }, [])
 
   if (subscription.loading) {
     return <div />
@@ -96,7 +82,7 @@ const PrintDialog = ({
       maxWidth={false}
       onClose={onClose}
       aria-labelledby="print-dialog-title"
-      open={open}
+      open
       transitionDuration={{
         exit: 0,
       }}

@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
 // eslint-disable-next-line
 const useStyles = makeStyles(theme => ({
@@ -19,6 +19,11 @@ const useStyles = makeStyles(theme => ({
   jobContainer: {
     marginBottom: theme.spacing(3),
   },
-}), { withTheme: true })
+  addJobFab: {
+    position: 'fixed',
+    bottom: theme.spacing(4) + 56,
+    right: theme.spacing(2),
+  },
+}))
 
 export default useStyles
