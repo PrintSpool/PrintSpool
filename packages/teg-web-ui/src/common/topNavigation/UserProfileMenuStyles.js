@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
   buttonClass: {
@@ -28,6 +28,6 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(2),
     fontSize: '1rem',
   },
-}), { withTheme: true })
+}))
 
 export default useStyles

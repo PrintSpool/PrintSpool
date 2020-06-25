@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
 // eslint-disable-next-line
 const useStyles = makeStyles(theme => ({
@@ -27,6 +27,6 @@ const useStyles = makeStyles(theme => ({
     gridColumn: '1',
     gridRow: '2',
   },
-}), { withTheme: true })
+}))
 
 export default useStyles

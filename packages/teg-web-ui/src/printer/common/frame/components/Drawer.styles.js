@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
 const drawerWidth = 280
 
@@ -48,6 +48,6 @@ const useStyles = makeStyles(theme => ({
   drawerContents: {
     paddingBottom: 0,
   },
-}), { withTheme: true })
+}))
 
 export default useStyles

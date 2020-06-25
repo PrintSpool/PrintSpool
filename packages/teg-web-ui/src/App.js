@@ -8,7 +8,7 @@ import {
 } from '@material-ui/core'
 import {
   ThemeProvider,
-} from '@material-ui/styles'
+} from '@material-ui/core/styles'
 import { ErrorBoundary } from 'react-error-boundary'
 import { SnackbarProvider } from 'notistack'
 import { BrowserRouter } from 'react-router-dom'

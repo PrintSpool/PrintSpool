@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
   gradient: {
@@ -56,6 +56,6 @@ const useStyles = makeStyles(theme => ({
     gridArea: 'right',
     justifySelf: 'right',
   },
-}), { withTheme: true })
+}))
 
 export default useStyles

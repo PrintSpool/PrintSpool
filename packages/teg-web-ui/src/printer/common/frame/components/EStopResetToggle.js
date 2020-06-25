@@ -8,7 +8,7 @@ import {
 } from '@material-ui/core'
 import {
   withStyles,
-} from '@material-ui/styles'
+} from '@material-ui/core/styles'
 
 import Report from '@material-ui/icons/Report'
 

@@ -5,7 +5,7 @@ import {
 } from '@material-ui/core'
 import {
   withStyles,
-} from '@material-ui/styles'
+} from '@material-ui/core/styles'
 
 import PlayArrow from '@material-ui/icons/PlayArrow'
 
@@ -17,7 +17,7 @@ const styles = theme => ({
   },
 })
 
-const enhance = withStyles(styles, { withTheme: true })
+const enhance = withStyles(styles)
 
 const Wrapper = ({ children, disabled }) => {
   if (disabled) return children

@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
   shareTitle: {
@@ -15,6 +15,6 @@ const useStyles = makeStyles(theme => ({
     fontSize: '0.8rem',
     lineHeight: '1rem',
   },
-}), { withTheme: true })
+}))
 
 export default useStyles

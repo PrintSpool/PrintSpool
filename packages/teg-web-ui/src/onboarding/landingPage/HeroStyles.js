@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
 const CUBES_BOTTOM_WHITESPACE = '20px'
 
@@ -130,6 +130,6 @@ const useStyles = makeStyles(theme => ({
     marginLeft: -2,
     marginRight: -2,
   },
-}), { withTheme: true })
+}))
 
 export default useStyles

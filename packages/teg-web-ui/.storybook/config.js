@@ -2,7 +2,7 @@ import React from 'react'
 import { configure, addDecorator } from '@storybook/react'
 // import {muiTheme} from 'storybook-addon-material-ui'
 import ErrorBoundary from 'react-error-boundary'
-import { ThemeProvider } from '@material-ui/styles'
+import { ThemeProvider } from '@material-ui/core/styles'
 import {
   CssBaseline,
 } from '@material-ui/core'

@@ -1,6 +1,6 @@
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   paper: {
     position: 'absolute',
     zIndex: 1,
@@ -21,6 +21,6 @@ const useStyles = makeStyles((theme) => ({
   divider: {
     height: theme.spacing(2),
   },
-}), { withTheme: true })
+}))
 
 export default useStyles

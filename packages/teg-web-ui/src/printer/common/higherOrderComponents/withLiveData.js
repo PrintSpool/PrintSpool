@@ -4,7 +4,7 @@ import Loader from 'react-loader-advanced'
 import { compose } from 'recompose'
 import {
   withStyles,
-} from '@material-ui/styles'
+} from '@material-ui/core/styles'
 import gql from 'graphql-tag'
 
 import { LiveSubscription } from '../../../common/LiveSubscription'
@@ -31,7 +31,7 @@ const styles = () => ({
 })
 
 const enhance = compose(
-  withStyles(styles, { withTheme: true }),
+  withStyles(styles),
   // connect(
   //   state => ({
   //     connected: (

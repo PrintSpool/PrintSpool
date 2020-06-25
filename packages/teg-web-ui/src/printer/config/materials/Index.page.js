@@ -11,7 +11,7 @@ import {
 } from '@material-ui/core'
 import {
   withStyles,
-} from '@material-ui/styles'
+} from '@material-ui/core/styles'
 
 import Style from '@material-ui/icons/Style'
 import Add from '@material-ui/icons/Add'
@@ -64,7 +64,7 @@ const enhance = compose(
     variables: {},
   })),
   withLiveData,
-  withStyles(styles, { withTheme: true }),
+  withStyles(styles),
   withProps(({ match: { params } }) => ({
     materialID: params.materialID,
     verb: params.materialID === 'new' ? 'new' : params.verb,
@@ -156,7 +156,7 @@ const MaterialsConfigIndex = ({
   </main>
 )
 
-export const Component = withStyles(styles, { withTheme: true })(
+export const Component = withStyles(styles)(
   MaterialsConfigIndex,
 )
 export default enhance(MaterialsConfigIndex)

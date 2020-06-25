@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
   mainMenu: {
@@ -33,6 +33,6 @@ const useStyles = makeStyles(theme => ({
   buttonClass: {
     color: 'white',
   },
-}), { withTheme: true })
+}))
 
 export default useStyles

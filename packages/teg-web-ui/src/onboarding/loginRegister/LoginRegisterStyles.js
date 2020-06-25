@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
 import googleIcon from './google.png'
 
@@ -47,6 +47,6 @@ const useStyles = makeStyles(theme => ({
     backgroundSize: 24,
     backgroundRepeat: 'no-repeat',
   }
-}), { withTheme: true })
+}))
 
 export default useStyles

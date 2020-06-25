@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles } from '@material-ui/core/styles'
 
 import greenPathSVG from 'url:./images/greenPath.svg'
 import orangePathSVG from 'url:./images/orangePath.svg'

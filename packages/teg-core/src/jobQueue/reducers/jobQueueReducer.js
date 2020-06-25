@@ -177,6 +177,16 @@ const jobQueueReducer = (state = initialState, action) => {
           })
         ))
 
+      const nextJobFile = getNextJobFile(nextState)
+
+      if (nextJobFile == null) {
+        // TODO: this should be renamed jobQueueExhausted.
+        // Jobs may still be in progress in the multi-machine model
+        nextEffects.push(
+          Cmd.action(jobQueueComplete()),
+        )
+      }
+
       return loop(
         nextState,
         Cmd.list(nextEffects),
