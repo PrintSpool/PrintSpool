@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next'
 
 import StepperContext from './StepperContext'
 
-import ButtonsFooterStyles from './ButtonsFooterStyles'
+import ButtonsFooterStyles from './ButtonsFooter.styles'
 
 
 const ButtonsFooter = ({

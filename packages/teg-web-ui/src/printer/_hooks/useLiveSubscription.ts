@@ -2,7 +2,14 @@ import { useState, useEffect } from 'react'
 import { useSubscription } from 'react-apollo-hooks'
 import jsonpatch from 'json-patch'
 
-const useLiveSubscription = (subscription, options = {}) => {
+const useLiveSubscription = (
+  subscription: any,
+  options: any = {},
+): {
+  data: any,
+  loading: boolean,
+  error: any,
+} => {
   const [counter, setRenderCounter] = useState(0)
   const [state, setState] = useState()
 

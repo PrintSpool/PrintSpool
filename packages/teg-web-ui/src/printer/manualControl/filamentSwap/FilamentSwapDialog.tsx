@@ -1,13 +1,11 @@
 import React, { useCallback, useState } from 'react'
 import gql from 'graphql-tag'
 
-import {
-  Dialog,
-  DialogContent,
-} from '@material-ui/core'
+import Dialog from '@material-ui/core/Dialog'
+import DialogContent from '@material-ui/core/DialogContent'
+import Typography from '@material-ui/core/Typography'
 
 import SwipeableViews from 'react-swipeable-views'
-import camelCase from 'camelcase'
 import { useTranslation } from 'react-i18next'
 
 import useLiveSubscription from '../../_hooks/useLiveSubscription'
@@ -23,7 +21,8 @@ import Step4RemoveFilament from './steps/Step4RemoveFilament'
 import Step5SelectMaterial from './steps/Step5SelectMaterial'
 import Step7LoadFilament from './steps/Step7LoadFilament'
 
-import FilamentSwapDialogStyles from './FilamentSwapDialogStyles'
+import useStyles from './FilamentSwapDialogStyles'
+import { useMutation } from 'react-apollo-hooks'
 
 const FILAMENT_SWAP_SUBSCRIPTION = gql`
   subscription MaterialsSubscription($machineID: ID, $componentID: ID) {
@@ -94,12 +93,19 @@ const steps = [
   },
 ]
 
+const ESTOP_AND_RESET = gql`
+  mutation reset($machineID: ID!) {
+    reset(machineID: $machineID)
+    eStop(machineID: $machineID)
+  }
+`
+
 const FilamentSwapDialog = ({
   history,
   match,
 }) => {
   const { t } = useTranslation('filamentSwap')
-  const classes = FilamentSwapDialogStyles()
+  const classes = useStyles()
 
   const { machineID, componentID } = match.params
 
@@ -114,10 +120,14 @@ const FilamentSwapDialog = ({
     },
   })
 
-  const open = true
-  const close = useCallback(() => {
+  const [closing, setClosing] = useState(false)
+  const [eStopAndReset] = useMutation(ESTOP_AND_RESET, { variables: { machineID } })
+
+  const close = useCallback(async () => {
+    setClosing(true)
+    await eStopAndReset()
     history.push('../')
-  })
+  }, [])
 
   const [activeStep, setActiveStep] = useState(0)
   const lastStep = activeStep === steps.length - 1
@@ -130,7 +140,7 @@ const FilamentSwapDialog = ({
     lastStep,
     next: useCallback(() => {
       if (lastStep) {
-        close()
+        history.push('../')
       } else {
         setActiveStep(activeStep + 1)
       }
@@ -155,57 +165,64 @@ const FilamentSwapDialog = ({
       fullWidth
       onClose={close}
       aria-labelledby="material-dialog-title"
-      open={open}
+      open
       transitionDuration={{
         exit: 0,
       }}
     >
       <DialogContent className={classes.root}>
-        <Loading
-          noSpinner
-          className={classes.notReadyWhiteout}
-          transitionDelay={0}
-          transitionDuration={400}
-          in={machine.status !== 'READY'}
-        >
-          { machine.status !== 'READY'
-            && t('notReadyWhiteoutTitle', {
-              status: t(machine.status.toLowerCase()),
-            })
-          }
-        </Loading>
-        <StepperContext.Provider value={context}>
-          <SwipeableViews
-            index={activeStep}
-            onChangeIndex={setActiveStep}
-            className={classes.swipeableViews}
-          >
-            {steps
-              .filter((step, index) => index <= activeStep)
-              .map((step, index) => {
-                const ComponentForStep = step.component
+        { closing && (
+          <Typography>Resetting Machine..</Typography>
+        )}
+        { !closing && (
+          <>
+            <Loading
+              noSpinner
+              className={classes.notReadyWhiteout}
+              transitionDelay={0}
+              transitionDuration={400}
+              in={machine.status !== 'READY'}
+            >
+              { machine.status !== 'READY'
+                && t('notReadyWhiteoutTitle', {
+                  status: t(machine.status.toLowerCase()),
+                })
+              }
+            </Loading>
+            <StepperContext.Provider value={context}>
+              <SwipeableViews
+                index={activeStep}
+                onChangeIndex={setActiveStep}
+                className={classes.swipeableViews}
+              >
+                {steps
+                  .filter((step, index) => index <= activeStep)
+                  .map((step, index) => {
+                    const ComponentForStep = step.component
 
-                return (
-                  <div
-                    className={classes.step}
-                    // eslint-disable-next-line react/no-array-index-key
-                    key={index}
-                  >
-                    <ComponentForStep
-                      machine={machine}
-                      component={component}
-                      materials={materials}
-                      next={context.next}
-                      setActiveStep={context.setActiveStep}
-                      active={index === activeStep}
-                      classes={classes}
-                    />
-                  </div>
-                )
-              })
-            }
-          </SwipeableViews>
-        </StepperContext.Provider>
+                    return (
+                      <div
+                        className={classes.step}
+                        // eslint-disable-next-line react/no-array-index-key
+                        key={index}
+                      >
+                        <ComponentForStep {...{
+                          machine,
+                          component,
+                          materials,
+                          next: context.next,
+                          setActiveStep: context.setActiveStep,
+                          active: index === activeStep,
+                          classes,
+                        }} />
+                      </div>
+                    )
+                  })
+                }
+              </SwipeableViews>
+            </StepperContext.Provider>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   )
