@@ -39,14 +39,27 @@ const JobCard = ({
 
   const shortName = truncate(name, 32)
 
-  const confirmedCancelTask = confirm(() => ({
-    fn: cancelTask,
+  const confirmedCancelTask = task => confirm(() => ({
+    fn: () => {
+      cancelTask({
+        variables: { machineID: task.machine.id },
+      })
+    },
     title: 'Are you sure you want to cancel this print?',
     description: 'You will not be able to resume this print once it is cancelled.',
   }))
 
   const confirmedDeleteJob = confirm(() => ({
-    fn: deleteJob,
+    fn: () => {
+      deleteJob({
+        variables: {
+          input: {
+            jobID: id,
+          },
+        },
+      })
+      closeMenu()
+    },
     title: 'Are you sure you want to delete this job?',
     description: name,
   }))
@@ -81,18 +94,7 @@ const JobCard = ({
         open={menuAnchorEl != null}
         onClose={closeMenu}
       >
-        <MenuItem
-          onClick={() => {
-            confirmedDeleteJob({
-              variables: {
-                input: {
-                  jobID: id,
-                },
-              },
-            })
-            closeMenu()
-          }}
-        >
+        <MenuItem onClick={confirmedDeleteJob}>
           <ListItemIcon>
             <Delete />
           </ListItemIcon>
@@ -122,9 +124,7 @@ const JobCard = ({
             currentTasks.map(task => (
               <TaskStatusRow
                 task={task}
-                cancelTask={() => confirmedCancelTask({
-                  variables: { machineID: task.machine.id },
-                })}
+                cancelTask={confirmedCancelTask(task)}
                 key={task.id}
               />
             ))
