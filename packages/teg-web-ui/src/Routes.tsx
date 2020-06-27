@@ -46,13 +46,13 @@ const ComponentsConfigPage = React.lazy(() => (
  import('./printer/config/printerComponents/PrinterComponents.page')
 ))
 const MaterialsConfigPage = React.lazy(() => (
- import('./printer/config/materials/Index.page')
+ import('./printer/config/materials/Materials.page')
 ))
 const UsersConfigPage = React.lazy(() => (
- import('./printer/config/users/Index.page')
+ import('./printer/config/users/User.page')
 ))
 const InvitesConfigPage = React.lazy(() => (
-  import('./printer/config/invites/Index.page')
+  import('./printer/config/invites/Invites.page')
 ))
 
 const AuthRedirect = () => {

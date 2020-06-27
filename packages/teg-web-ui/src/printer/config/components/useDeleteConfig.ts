@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
 import gql from 'graphql-tag'
 
-import useConfirm from '../../../common/_hooks/useConfirm'
 import { useMutation } from 'react-apollo-hooks'
 import useRouter from 'use-react-router'
+
+import useConfirm from '../../../common/_hooks/useConfirm'
 
 const deleteConfigMutation = gql`
   mutation deleteConfig($input: DeleteConfigInput!) {
@@ -11,42 +12,21 @@ const deleteConfigMutation = gql`
   }
 `
 
-const useDeleteConfig = ({
+export const useDelete = ({
+  fn,
   show,
-  id,
-  collection,
-  machineID,
   type,
   title,
-  onDelete = null,
   fullTitle = false,
 }) => {
-  useMutation(gql`{ hello }`)
-  const { history } = useRouter()
   const confirm = useConfirm()
-
-  const [deleteConfig] = useMutation(deleteConfigMutation)
 
   const confirmedDeleteConfig = confirm(() => {
     return {
-      fn: async () => {
-        if (onDelete != null) {
-          return onDelete()
-        }
-
-        const input = {
-          configFormID: id,
-          collection,
-          machineID,
-        }
-  
-        await deleteConfig({ variables: { input } })
-
-        history.push('../')
-      },
+      fn,
       title: fullTitle ? title : `Delete ${title}?`,
       description: (
-        `This ${type}'s configuration will be perminently deleted.`
+        `This ${type} will be perminently deleted.`
       ),
     }
   })
@@ -54,6 +34,37 @@ const useDeleteConfig = ({
   useEffect(() => {
     if (show) confirmedDeleteConfig()
   }, [show])
+}
+
+export const useDeleteConfig = ({
+  id,
+  collection,
+  machineID,
+  show,
+  type,
+  title,
+  fullTitle = false,
+}) => {
+  const { history } = useRouter()
+  const [deleteConfig] = useMutation(deleteConfigMutation)
+
+  useDelete({
+    show,
+    type,
+    title,
+    fullTitle,
+    fn: async () => {
+      const input = {
+        configFormID: id,
+        collection,
+        machineID,
+      }
+
+      await deleteConfig({ variables: { input } })
+
+      history.push('../')
+    }
+  })
 }
 
 export default useDeleteConfig

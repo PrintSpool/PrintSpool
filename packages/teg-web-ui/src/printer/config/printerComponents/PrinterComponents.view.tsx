@@ -28,7 +28,6 @@ import CreateComponentDialog from '../components/CreateComponentDialog/Index'
 import transformComponentSchema from './transformComponentSchema'
 
 import useStyles from './PrinterComponents.styles'
-import { useMutation } from 'react-apollo-hooks'
 
 const componentsOfType = (components, ofType) => (
   components.filter(component => component.type === ofType)
@@ -81,8 +80,6 @@ const PrinterComponentsView = ({
   verb,
 }) => {
   const classes = useStyles()
-
-  useMutation(gql`{ hello }`)
 
   useDeleteConfig({
     show: selectedComponent != null && verb === 'delete',

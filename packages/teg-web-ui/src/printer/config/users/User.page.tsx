@@ -14,7 +14,7 @@ import { useQuery, useApolloClient } from 'react-apollo-hooks'
 import gql from 'graphql-tag'
 
 import UpdateDialog from '../components/UpdateDialog/Index'
-import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog'
+import { useDelete } from '../components/useDeleteConfig'
 import Loading from '../../../common/Loading'
 
 const usersQuery = gql`
@@ -143,6 +143,14 @@ const UsersIndex = ({
 }) => {
   const classes = useStyles()
 
+  useDelete({
+    fn: deleteAction.run,
+    show: selectedUser != null && verb === 'delete',
+    type: 'user',
+    title: `Remove ${selectedUser.email} from this machine?`,
+    fullTitle: true,
+  })
+
   return (
     <main className={classes.root}>
       {selectedUser != null && verb == null && (
@@ -181,16 +189,6 @@ const UsersIndex = ({
             }
           }}
           onSubmit={onUpdate}
-        />
-      )}
-      { selectedUser != null && verb === 'delete' && (
-        <DeleteConfirmationDialog
-          type="user"
-          fullTitle
-          title={`Remove ${selectedUser.email} from this machine?`}
-          id={selectedUser.id}
-          open={selectedUser != null}
-          onDelete={deleteAction.run}
         />
       )}
       <List>

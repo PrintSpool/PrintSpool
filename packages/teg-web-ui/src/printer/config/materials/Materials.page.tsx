@@ -19,8 +19,8 @@ import gql from 'graphql-tag'
 import withLiveData from '../../common/higherOrderComponents/withLiveData'
 
 import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog/Index'
-import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog'
 import CreateMaterialDialog from '../components/CreateMaterialDialog/Index'
+import useDeleteConfig from '../components/useDeleteConfig'
 
 const CONFIG_SUBSCRIPTION = gql`
   subscription ConfigSubscription {
@@ -78,6 +78,15 @@ const MaterialsConfigIndex = ({
 }) => {
   const classes = useStyles()
 
+  useDeleteConfig({
+    show: materialID != null && verb === 'delete',
+    id: materialID,
+    collection: 'MATERIAL',
+    machineID: null,
+    type: 'material',
+    title: materialID,
+  })
+
   return (
     <main className={classes.root}>
       {
@@ -103,15 +112,6 @@ const MaterialsConfigIndex = ({
           />
         )
       }
-      { materialID != null && verb === 'delete' && (
-        <DeleteConfirmationDialog
-          type="material"
-          title={materialID}
-          id={materialID}
-          collection="MATERIAL"
-          open={materialID != null}
-        />
-      )}
       { verb === 'new' && (
         <CreateMaterialDialog open />
       )}
