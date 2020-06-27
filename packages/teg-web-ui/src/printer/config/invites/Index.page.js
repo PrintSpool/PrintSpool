@@ -18,7 +18,7 @@ import { useQuery, useApolloClient } from 'react-apollo-hooks'
 import gql from 'graphql-tag'
 
 import UpdateDialog from '../components/UpdateDialog/Index'
-import useDeleteConfig from '../components/useDeleteConfig'
+// import useDeleteConfig from '../components/useDeleteConfig'
 import CreateInviteDialog from './create/CreateInviteDialog'
 import Loading from '../../../common/Loading'
 
@@ -148,14 +148,14 @@ const InvitesConfigIndex = ({
 }) => {
   const classes = useStyles()
 
-  useDeleteConfig({
-    show: selectedInvite != null && verb === 'delete',
-    type: 'invite',
-    title: 'Invite',
-    id: selectedInvite?.id,
-    collection: 'AUTH',
-    onDelete: deleteInvite.run,
-  })
+  // useDeleteConfig({
+  //   show: selectedInvite != null && verb === 'delete',
+  //   type: 'invite',
+  //   title: 'Invite',
+  //   id: selectedInvite?.id,
+  //   collection: 'AUTH',
+  //   onDelete: deleteInvite.run,
+  // })
 
   return (
     <main className={classes.root}>

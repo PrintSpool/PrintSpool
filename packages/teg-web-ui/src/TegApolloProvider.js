@@ -55,6 +55,7 @@ const TegApolloProvider = ({
   }, [inviteCode])
 
   const slug = slugParam || (invite && getID(invite)) || match.params.hostID || params.get('q')
+  console.log( { slug })
 
   const shouldConnect = isSignedIn && (invite != null || slug != null)
 
