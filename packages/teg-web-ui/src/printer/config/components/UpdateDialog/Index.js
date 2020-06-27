@@ -5,13 +5,12 @@ import gql from 'graphql-tag'
 import { Query, Mutation } from 'react-apollo'
 import { Link } from 'react-router-dom'
 import { Formik, Form } from 'formik'
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-} from '@material-ui/core'
+
+import Dialog from '@material-ui/core/Dialog'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogActions from '@material-ui/core/DialogActions'
+import Button from '@material-ui/core/Button'
 
 import FormikSchemaForm from '../FormikSchemaForm/index'
 import withValidate from '../FormikSchemaForm/withValidate'

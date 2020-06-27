@@ -1,21 +1,17 @@
-import React from 'react'
-import { compose, withState } from 'recompose'
+import React, { useState } from 'react'
 import classNames from 'classnames'
 import { useMutation } from 'react-apollo-hooks'
 import gql from 'graphql-tag'
-import {
-  Button,
-} from '@material-ui/core'
-import {
-  withStyles,
-} from '@material-ui/core/styles'
+
+import Button from '@material-ui/core/Button'
+import { makeStyles } from '@material-ui/core/styles'
 
 import Report from '@material-ui/icons/Report'
 
 import StatusDialog from './StatusDialog'
 import useConfirm from '../../../../common/_hooks/useConfirm'
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   leftIcon: {
     marginRight: theme.spacing(1),
   },
@@ -32,13 +28,7 @@ const styles = theme => ({
   eStop: {
     color: theme.palette.error.main,
   },
-})
-
-
-const enhance = compose(
-  withState('dialogOpen', 'setDialogOpen', false),
-  withStyles(styles),
-)
+}))
 
 // const statusColor = (status) => {
 //   switch(status) {
@@ -67,11 +57,11 @@ const ESTOP = gql`
 
 const EStopResetToggle = ({
   machine,
-  classes,
-  dialogOpen,
-  setDialogOpen,
   buttonClass,
 }) => {
+  const classes = useStyles()
+  const [dialogOpen, setDialogOpen] = useState(false)
+
   const { status } = machine
   const showEStop = status !== 'ERRORED' && status !== 'ESTOPPED'
   const disabled = status === 'DISCONNECTED'
@@ -122,4 +112,4 @@ const EStopResetToggle = ({
   )
 }
 
-export default enhance(EStopResetToggle)
+export default EStopResetToggle

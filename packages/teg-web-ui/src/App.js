@@ -3,12 +3,9 @@ import 'typeface-roboto'
 
 import '../node_modules/react-vis/dist/style.css'
 
-import {
-  CssBaseline,
-} from '@material-ui/core'
-import {
-  ThemeProvider,
-} from '@material-ui/core/styles'
+import CssBaseline from '@material-ui/core/CssBaseline'
+import { ThemeProvider } from '@material-ui/core/styles'
+
 import { ErrorBoundary } from 'react-error-boundary'
 import { SnackbarProvider } from 'notistack'
 import { BrowserRouter } from 'react-router-dom'

@@ -1,17 +1,16 @@
 import React from 'react'
+
 import { Link } from 'react-router-dom'
 import gql from 'graphql-tag'
 
-import {
-  Divider,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  ListSubheader,
-  Tooltip,
-  Fab,
-} from '@material-ui/core'
+import Divider from '@material-ui/core/Divider'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import ListItemText from '@material-ui/core/ListItemText'
+import ListSubheader from '@material-ui/core/ListSubheader'
+import Tooltip from '@material-ui/core/Tooltip'
+import Fab from '@material-ui/core/Fab'
 
 import Usb from '@material-ui/icons/Usb'
 import Toys from '@material-ui/icons/Toys'
@@ -23,7 +22,7 @@ import CompareArrows from '@material-ui/icons/CompareArrows'
 import Add from '@material-ui/icons/Add'
 
 import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog/Index'
-import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog'
+import useDeleteConfig from '../components/useDeleteConfig'
 import CreateComponentDialog from '../components/CreateComponentDialog/Index'
 
 import transformComponentSchema from './transformComponentSchema'
@@ -82,6 +81,15 @@ const PrinterComponentsView = ({
 }) => {
   const classes = useStyles()
 
+  useDeleteConfig({
+    show: selectedComponent != null && verb === 'delete',
+    type: selectedComponent?.type.toLowerCase(),
+    title: selectedComponent?.name,
+    id: selectedComponent?.id,
+    collection: 'COMPONENT',
+    machineID,
+  })
+
   return (
     <main className={classes.root}>
       { componentID !== 'new' && selectedComponent != null && verb == null && (
@@ -113,16 +121,6 @@ const PrinterComponentsView = ({
             }
             ${UPDATE_DIALOG_FRAGMENT}
           `}
-        />
-      )}
-      { selectedComponent != null && verb === 'delete' && (
-        <DeleteConfirmationDialog
-          type={selectedComponent.type.toLowerCase()}
-          title={selectedComponent.name}
-          id={selectedComponent.id}
-          collection="COMPONENT"
-          machineID={machineID}
-          open={selectedComponent != null}
         />
       )}
       { componentID === 'new' && (

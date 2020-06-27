@@ -1,9 +1,7 @@
 import React from 'react'
 import { Field } from 'formik'
 import { TextField } from 'formik-material-ui'
-import {
-  MenuItem,
-} from '@material-ui/core'
+import MenuItem from '@material-ui/core/MenuItem'
 
 import componentTypeNames from './componentTypeNames'
 

@@ -1,17 +1,15 @@
 import React from 'react'
 import { compose, withProps } from 'recompose'
 import { Link } from 'react-router-dom'
-import {
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Tooltip,
-  Fab,
-} from '@material-ui/core'
-import {
-  withStyles,
-} from '@material-ui/core/styles'
+
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import ListItemText from '@material-ui/core/ListItemText'
+import Tooltip from '@material-ui/core/Tooltip'
+import Fab from '@material-ui/core/Fab'
+
+import { makeStyles } from '@material-ui/core/styles'
 
 import Style from '@material-ui/icons/Style'
 import Add from '@material-ui/icons/Add'
@@ -44,7 +42,8 @@ const CONFIG_SUBSCRIPTION = gql`
   }
 `
 
-const styles = theme => ({
+// eslint-disable-next-line
+const useStyles = makeStyles(theme => ({
   root: {
     overflowY: 'scroll',
   },
@@ -56,7 +55,7 @@ const styles = theme => ({
     bottom: theme.spacing(4),
     right: theme.spacing(2),
   },
-})
+}))
 
 const enhance = compose(
   withProps(() => ({
@@ -64,7 +63,6 @@ const enhance = compose(
     variables: {},
   })),
   withLiveData,
-  withStyles(styles),
   withProps(({ match: { params } }) => ({
     materialID: params.materialID,
     verb: params.materialID === 'new' ? 'new' : params.verb,
@@ -72,91 +70,91 @@ const enhance = compose(
 )
 
 const MaterialsConfigIndex = ({
-  classes,
   materials,
   materialID,
   verb,
   machines,
   hasPendingUpdates,
-}) => (
-  <main className={classes.root}>
-    {
-      materialID != null && verb == null && (
-        <UpdateDialog
-          title={(materials.find(m => m.id === materialID) || {}).name}
-          open
-          deleteButton
-          status={machines[0].status}
-          hasPendingUpdates={hasPendingUpdates}
-          collection="MATERIAL"
-          variables={{ materialID }}
-          query={gql`
-            query($materialID: ID) {
-              materials(materialID: $materialID) {
-                configForm {
-                  ...UpdateDialogFragment
+}) => {
+  const classes = useStyles()
+
+  return (
+    <main className={classes.root}>
+      {
+        materialID != null && verb == null && (
+          <UpdateDialog
+            title={(materials.find(m => m.id === materialID) || {}).name}
+            open
+            deleteButton
+            status={machines[0].status}
+            hasPendingUpdates={hasPendingUpdates}
+            collection="MATERIAL"
+            variables={{ materialID }}
+            query={gql`
+              query($materialID: ID) {
+                materials(materialID: $materialID) {
+                  configForm {
+                    ...UpdateDialogFragment
+                  }
                 }
               }
-            }
-            ${UPDATE_DIALOG_FRAGMENT}
-          `}
-        />
-      )
-    }
-    { materialID != null && verb === 'delete' && (
-      <DeleteConfirmationDialog
-        type="material"
-        title={materialID}
-        id={materialID}
-        collection="MATERIAL"
-        open={materialID != null}
-      />
-    )}
-    { verb === 'new' && (
-      <CreateMaterialDialog open />
-    )}
-    <Tooltip title="Add Component" placement="left">
-      <Fab
-        disabled={hasPendingUpdates || machines[0].status === 'PRINTING'}
-        component={React.forwardRef((props, ref) => (
-          <Link
-            to={verb === 'new' ? './' : 'new/'}
-            innerRef={ref}
-            style={{ textDecoration: 'none' }}
-            {...props}
+              ${UPDATE_DIALOG_FRAGMENT}
+            `}
           />
-        ))}
-        className={classes.addFab}
-      >
-        <Add />
-      </Fab>
-    </Tooltip>
-    <List>
-      {
-        materials.map(material => (
-          <ListItem
-            button
-            divider
-            key={material.id}
-            component={React.forwardRef((props, ref) => (
-              <Link to={`${material.id}/`} innerRef={ref} {...props} />
-            ))}
-          >
-            <ListItemIcon>
-              <Style />
-            </ListItemIcon>
-            <ListItemText
-              primary={material.name}
-              secondary={material.shortSummary}
-            />
-          </ListItem>
-        ))
+        )
       }
-    </List>
-  </main>
-)
+      { materialID != null && verb === 'delete' && (
+        <DeleteConfirmationDialog
+          type="material"
+          title={materialID}
+          id={materialID}
+          collection="MATERIAL"
+          open={materialID != null}
+        />
+      )}
+      { verb === 'new' && (
+        <CreateMaterialDialog open />
+      )}
+      <Tooltip title="Add Component" placement="left">
+        <Fab
+          disabled={hasPendingUpdates || machines[0].status === 'PRINTING'}
+          component={React.forwardRef((props, ref) => (
+            <Link
+              to={verb === 'new' ? './' : 'new/'}
+              innerRef={ref}
+              style={{ textDecoration: 'none' }}
+              {...props}
+            />
+          ))}
+          className={classes.addFab}
+        >
+          <Add />
+        </Fab>
+      </Tooltip>
+      <List>
+        {
+          materials.map(material => (
+            <ListItem
+              button
+              divider
+              key={material.id}
+              component={React.forwardRef((props, ref) => (
+                <Link to={`${material.id}/`} innerRef={ref} {...props} />
+              ))}
+            >
+              <ListItemIcon>
+                <Style />
+              </ListItemIcon>
+              <ListItemText
+                primary={material.name}
+                secondary={material.shortSummary}
+              />
+            </ListItem>
+          ))
+        }
+      </List>
+    </main>
+  )
+}
 
-export const Component = withStyles(styles)(
-  MaterialsConfigIndex,
-)
 export default enhance(MaterialsConfigIndex)

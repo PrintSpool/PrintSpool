@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useSubscription } from 'react-apollo-hooks'
 import jsonpatch from 'json-patch'
+import { useAsync } from 'react-async'
 
 const useLiveSubscription = (
   subscription: any,
@@ -27,50 +28,54 @@ const useLiveSubscription = (
   //   return initialSuspension
   // })
 
-  const onSubscriptionData = (event) => {
-    const { query, patch } = event.subscriptionData.data.live
-    let nextState = state
+  const onSubscriptionData = useAsync({
+    deferFn: async (args: [{ subscriptionData: any }]) => {
+      const { query, patch } = args[0].subscriptionData.data.live
+      let nextState = state
 
-    if (query != null) {
-      nextState = query
-    }
+      if (query != null) {
+        nextState = query
+      }
 
-    if (patch != null) {
-      if (patch.length === 0) return
-      patch.forEach((patchOp) => {
-        nextState = jsonpatch.apply(nextState, patchOp)
-      })
-    }
+      if (patch != null) {
+        if (patch.length === 0) return
+        patch.forEach((patchOp) => {
+          nextState = jsonpatch.apply(nextState, patchOp)
+        })
+      }
 
-    setState(nextState)
-    // force a re-render for each response
-    setRenderCounter(counter + 1)
+      setState(nextState)
+      // force a re-render for each response
+      setRenderCounter(val => val + 1)
 
-    if (options.onSubscriptionData != null) {
-      options.onSubscriptionData({
-        ...options,
-        subscriptionData: {
-          data: nextState,
-        },
-      })
-    }
+      if (options.onSubscriptionData != null) {
+        options.onSubscriptionData({
+          ...options,
+          subscriptionData: {
+            data: nextState,
+          },
+        })
+      }
 
-    // if (query != null) {
-    //   suspension.resolve()
-    // }
-  }
+      // if (query != null) {
+      //   suspension.resolve()
+      // }
+    },
+  })
 
   const { error } = useSubscription(subscription, {
     ...options,
-    onSubscriptionData,
+    onSubscriptionData: onSubscriptionData.run,
   })
 
+  const anyError = onSubscriptionData.error || error
+
   useEffect(() => {
-    if (error != null) {
-      throw error
+    if (anyError != null) {
+      throw anyError
       // suspension.resolve()
     }
-  }, [error])
+  }, [anyError])
 
   // useEffect(() => { throw new Error('wat') }, [])
 

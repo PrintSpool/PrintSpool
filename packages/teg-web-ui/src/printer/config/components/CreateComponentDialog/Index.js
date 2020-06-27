@@ -4,16 +4,15 @@ import { withRouter } from 'react-router'
 import gql from 'graphql-tag'
 import { Mutation } from 'react-apollo'
 import { Formik, Form } from 'formik'
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Stepper,
-  Step,
-  StepLabel,
-} from '@material-ui/core'
+
+import Dialog from '@material-ui/core/Dialog'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogActions from '@material-ui/core/DialogActions'
+import Button from '@material-ui/core/Button'
+import Stepper from '@material-ui/core/Stepper'
+import Step from '@material-ui/core/Step'
+import StepLabel from '@material-ui/core/StepLabel'
 
 import transformComponentSchema from '../../printerComponents/transformComponentSchema'
 

@@ -1,10 +1,8 @@
 import React from 'react'
 import Loader from 'react-loader-advanced'
-// import { connect } from 'react-redux'
-import { compose } from 'recompose'
-import {
-  withStyles,
-} from '@material-ui/core/styles'
+
+import { makeStyles } from '@material-ui/core/styles'
+
 import gql from 'graphql-tag'
 
 import { LiveSubscription } from '../../../common/LiveSubscription'
@@ -24,73 +22,64 @@ export const NULL_SUBSCRIPTION = gql`
   }
 `
 
-const styles = () => ({
+// eslint-disable-next-line
+const useStyles = makeStyles(theme => ({
   flex: {
     flex: 1,
   },
-})
-
-const enhance = compose(
-  withStyles(styles),
-  // connect(
-  //   state => ({
-  //     connected: (
-  //       state.liveSubscriptions.get('ConnectionFrame') != null
-  //       && state.liveSubscriptions.get('PageWithLiveData') != null
-  //       && state.webRTC.peer != null
-  //     ),
-  //   }),
-  // ),
-)
+}))
 
 const withLiveData = PageComponent => ({
   variables,
   subscription,
   // connected,
-  classes,
   ...props
-}) => (
-  <LiveSubscription
-    variables={variables}
-    subscription={subscription}
-  >
-    {
-      ({ data, loading, error }) => {
-        if (error) {
-          throw error
+}) => {
+  const classes = useStyles()
+
+  return (
+    <LiveSubscription
+      variables={variables}
+      subscription={subscription}
+    >
+      {
+        ({ data, loading, error }) => {
+          if (error) {
+            throw error
+          }
+
+          // if (!connected) return <ConnectingPage />
+
+          return (
+            <Loader
+              show={loading}
+              style={{
+                flex: 1,
+              }}
+              backgroundStyle={{
+                backgroundColor: 'inherit',
+              }}
+              contentStyle={{
+                display: 'flex',
+                flexWrap: 'wrap',
+              }}
+            >
+              <div className={classes.flex}>
+                {
+                  !loading && (
+                    <PageComponent
+                      {...props}
+                      {...data}
+                    />
+                  )
+                }
+              </div>
+            </Loader>
+          )
         }
-
-        // if (!connected) return <ConnectingPage />
-
-        return (
-          <Loader
-            show={loading}
-            style={{
-              flex: 1,
-            }}
-            backgroundStyle={{
-              backgroundColor: 'inherit',
-            }}
-            contentStyle={{
-              display: 'flex',
-              flexWrap: 'wrap',
-            }}
-          >
-            <div className={classes.flex}>
-              {
-                !loading && (
-                  <PageComponent
-                    {...props}
-                    {...data}
-                  />
-                )
-              }
-            </div>
-          </Loader>
-        )
       }
-    }
-  </LiveSubscription>
-)
+    </LiveSubscription>
+  )
+}
 
-export default compose(enhance, withLiveData)
+export default withLiveData

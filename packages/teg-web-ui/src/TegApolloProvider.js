@@ -242,7 +242,7 @@ const TegApolloProvider = ({
     return <UnsupportedBrowser />
   }
 
-  // console.log({ prevSlug, slug, connectionProps, link })
+  console.log({ prevSlug, slug, connectionProps, link })
   if (slug == null || !isSignedIn) {
     return <>{ children }</>
   }
@@ -260,6 +260,7 @@ const TegApolloProvider = ({
   }
 
   const { client } = clientRef.current
+  console.log({ client })
 
   return (
     <ApolloProvider client={client}>

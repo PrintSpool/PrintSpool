@@ -39,7 +39,7 @@
     "fast-json-patch": "^2.0.7",
     "firebase": "^7.10.0",
     "formik": "^1.5.4",
-    "formik-material-ui": "^0.0.16",
+    "formik-material-ui": "^1.0.0",
     "fuse.js": "^3.4.4",
     "graphql": "^14.0.2",
     "graphql-anywhere": "^3.1.0",
@@ -62,7 +62,7 @@
     "react": "^16.12.0",
     "react-apollo": "^2.2.4",
     "react-apollo-hooks": "^0.5.0",
-    "react-async": "^10.0.0",
+    "react-async": "^10.0.1",
     "react-css-grid": "^2.0.0-0",
     "react-dom": "^16.12.0",
     "react-error-boundary": "^2.2.2",
@@ -120,8 +120,5 @@
     "subscriptions-transport-ws": "^0.9.4",
     "caniuse-lite": "^1.0.30000974",
     "webrtc-adapter": "D1plo1d/adapter#getStats-length"
-  },
-  "alias": {
-    "@material-ui/core": "./node_modules/@material-ui/core/es/"
   }
 }

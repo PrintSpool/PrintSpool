@@ -7308,10 +7308,10 @@ format@^0.2.0:
   resolved "https://registry.yarnpkg.com/format/-/format-0.2.2.tgz#d6170107e9efdc4ed30c9dc39016df942b5cb58b"
   integrity sha1-1hcBB+nv3E7TDJ3DkBbflCtctYs=
 
-formik-material-ui@^0.0.16:
-  version "0.0.16"
-  resolved "https://registry.yarnpkg.com/formik-material-ui/-/formik-material-ui-0.0.16.tgz#bb56f46589df94d97d2f4be362d743b26143dd44"
-  integrity sha512-LVv7WG5o5VmKa2K1JUhr/NbCzgzlZrZXEUOXH57P44zVE+R8cOELy5U4RV7VU5lLQW4sq5nlBatW01WrqtfoDQ==
+formik-material-ui@^1.0.0:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/formik-material-ui/-/formik-material-ui-1.0.2.tgz#34368caa6eaffcbfa178fa12a798378e557241f3"
+  integrity sha512-mor+FmPWA92Jri9dGJUuLPZkYzWOeJqLfyg6qVcob80RY7IF5gHi7ukubjL7rITjWAD58bW6rYabMYQ+2MPFiw==
 
 formik@^1.5.4:
   version "1.5.8"
@@ -12323,10 +12323,10 @@ react-apollo@^2.2.4:
     ts-invariant "^0.4.2"
     tslib "^1.9.3"
 
-react-async@^10.0.0:
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/react-async/-/react-async-10.0.0.tgz#3a123017692e130b35b82e5e426699ac3f4d609b"
-  integrity sha512-Uk7yG49ftaJ1ShMfgTqsZUcEIRxdWHV2ABojw+dzFifCSMeqydCFhzj9x7okACClCzMDgkGqC5/bOtY95yQG1A==
+react-async@^10.0.1:
+  version "10.0.1"
+  resolved "https://registry.yarnpkg.com/react-async/-/react-async-10.0.1.tgz#575c083f808303d2f6ca52d11ec7554dbdbd9fcd"
+  integrity sha512-ORUz5ca0B57QgBIzEZM5SuhJ6xFjkvEEs0gylLNlWf06vuVcLZsjIw3wx58jJkZG38p+0nUAxRgFW2b7mnVZzA==
 
 react-codemirror@^1.0.0:
   version "1.0.0"

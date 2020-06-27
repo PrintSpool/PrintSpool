@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 import {
   List,
@@ -18,7 +18,7 @@ import { useQuery, useApolloClient } from 'react-apollo-hooks'
 import gql from 'graphql-tag'
 
 import UpdateDialog from '../components/UpdateDialog/Index'
-import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog'
+import useDeleteConfig from '../components/useDeleteConfig'
 import CreateInviteDialog from './create/CreateInviteDialog'
 import Loading from '../../../common/Loading'
 
@@ -148,6 +148,15 @@ const InvitesConfigIndex = ({
 }) => {
   const classes = useStyles()
 
+  useDeleteConfig({
+    show: selectedInvite != null && verb === 'delete',
+    type: 'invite',
+    title: 'Invite',
+    id: selectedInvite?.id,
+    collection: 'AUTH',
+    onDelete: deleteInvite.run,
+  })
+
   return (
     <main className={classes.root}>
       { inviteID !== 'new' && selectedInvite != null && verb == null && (
@@ -177,16 +186,6 @@ const InvitesConfigIndex = ({
             model: selectedInvite,
           })}
           onSubmit={onUpdate}
-        />
-      )}
-      { selectedInvite != null && verb === 'delete' && (
-        <DeleteConfirmationDialog
-          type="invite"
-          title="Invite"
-          id={selectedInvite.id}
-          collection="AUTH"
-          open={selectedInvite != null}
-          onDelete={deleteInvite.run}
         />
       )}
       { inviteID === 'new' && (

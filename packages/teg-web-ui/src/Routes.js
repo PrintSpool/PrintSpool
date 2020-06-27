@@ -43,7 +43,7 @@ const ConfigIndexPage = React.lazy(() => (
  import('./printer/config/Index.page')
 ))
 const ComponentsConfigPage = React.lazy(() => (
- import('./printer/config/printerComponents/Index.page')
+ import('./printer/config/printerComponents/PrinterComponents.page')
 ))
 const MaterialsConfigPage = React.lazy(() => (
  import('./printer/config/materials/Index.page')

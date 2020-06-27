@@ -1,17 +1,10 @@
 import React from 'react'
-import {
-  Typography,
-  CircularProgress,
-} from '@material-ui/core'
-import {
-  withStyles,
-} from '@material-ui/core/styles'
 
-import {
-  compose,
-} from 'recompose'
+import Typography from '@material-ui/core/Typography'
+import CircularProgress from '@material-ui/core/CircularProgress'
+import { makeStyles } from '@material-ui/core/styles'
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   page: {
     flex: 1,
     display: 'flex',
@@ -23,27 +16,26 @@ const styles = theme => ({
   progress: {
     marginRight: theme.spacing(2),
   },
-})
-
-const enhance = compose(
-  withStyles(styles),
-)
+}))
 
 const FullscreenProgress = ({
   variant = 'h5',
   color = '#eee',
-  classes,
   children,
-}) => (
-  <div className={classes.page}>
-    <Typography variant={variant} style={{ color }}>
-      <CircularProgress
-        className={classes.progress}
-        size={variant === 'h4' ? 40 : 30}
-      />
-      {children}
-    </Typography>
-  </div>
-)
+}) => {
+  const classes = useStyles()
 
-export default enhance(FullscreenProgress)
+  return (
+    <div className={classes.page}>
+      <Typography variant={variant} style={{ color }}>
+        <CircularProgress
+          className={classes.progress}
+          size={variant === 'h4' ? 40 : 30}
+        />
+        {children}
+      </Typography>
+    </div>
+  )
+}
+
+export default FullscreenProgress
