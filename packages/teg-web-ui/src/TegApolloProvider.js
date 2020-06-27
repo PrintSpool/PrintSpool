@@ -55,7 +55,7 @@ const TegApolloProvider = ({
   }, [inviteCode])
 
   const slug = slugParam || (invite && getID(invite)) || match.params.hostID || params.get('q')
-  console.log( { slug })
+  // console.log( { slug })
 
   const shouldConnect = isSignedIn && (invite != null || slug != null)
 
@@ -105,7 +105,7 @@ const TegApolloProvider = ({
 
       const { data, ...errors } = await cacheValuePromise
 
-      console.log(data)
+      // console.log(data)
       if (data) {
         console.log('user profile data', data)
         // eslint-disable-next-line prefer-destructuring
@@ -119,7 +119,7 @@ const TegApolloProvider = ({
         return
       }
 
-      console.log('machine??', { hasIdToken: idToken != null, nextMachine, invite })
+      // console.log('machine??', { hasIdToken: idToken != null, nextMachine, invite })
       try {
         if (
           idToken == null
@@ -243,7 +243,7 @@ const TegApolloProvider = ({
     return <UnsupportedBrowser />
   }
 
-  console.log({ prevSlug, slug, connectionProps, link })
+  // console.log({ prevSlug, slug, connectionProps, link })
   if (slug == null || !isSignedIn) {
     return <>{ children }</>
   }
@@ -261,7 +261,7 @@ const TegApolloProvider = ({
   }
 
   const { client } = clientRef.current
-  console.log({ client })
+  // console.log({ client })
 
   return (
     <ApolloProvider client={client}>
