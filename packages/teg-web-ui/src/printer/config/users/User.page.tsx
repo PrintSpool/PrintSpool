@@ -55,7 +55,7 @@ const useStyles = makeStyles(theme => ({
   root: {
     overflowY: 'scroll',
   },
-}), { useTheme: true })
+}))
 
 const enhance = Component => (props) => {
   const { match } = props
@@ -147,7 +147,7 @@ const UsersIndex = ({
     fn: deleteAction.run,
     show: selectedUser != null && verb === 'delete',
     type: 'user',
-    title: `Remove ${selectedUser.email} from this machine?`,
+    title: `Remove ${selectedUser?.email} from this machine?`,
     fullTitle: true,
   })
 

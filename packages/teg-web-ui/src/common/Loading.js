@@ -12,7 +12,7 @@ import LoadingStyles from './LoadingStyles'
 const Loading = ({
   transitionDelay = 800,
   transitionDuration = 600,
-  className,
+  className = null,
   noText = false,
   noSpinner = false,
   children = 'Loading...',

@@ -20,6 +20,12 @@ import ConnectionFrame from './printer/common/frame/ConnectionFrame'
 import QueuePage from './printer/jobQueue/JobQueue.page'
 import JobPage from './printer/job/Job.page'
 
+import ConfigIndexPage from './printer/config/Index.page'
+import ComponentsConfigPage from './printer/config/printerComponents/PrinterComponents.page'
+import MaterialsConfigPage from './printer/config/materials/Materials.page'
+import UsersConfigPage from './printer/config/users/User.page'
+import InvitesConfigPage from './printer/config/invites/Invites.page'
+
 const GettingStarted = React.lazy(() => (
   import('./onboarding/gettingStarted/GettingStarted')
 ))
@@ -39,21 +45,21 @@ const FilamentSwapDialog = React.lazy(() => (
   import('./printer/manualControl/filamentSwap/FilamentSwapDialog')
 ))
 
-const ConfigIndexPage = React.lazy(() => (
- import('./printer/config/Index.page')
-))
-const ComponentsConfigPage = React.lazy(() => (
- import('./printer/config/printerComponents/PrinterComponents.page')
-))
-const MaterialsConfigPage = React.lazy(() => (
- import('./printer/config/materials/Materials.page')
-))
-const UsersConfigPage = React.lazy(() => (
- import('./printer/config/users/User.page')
-))
-const InvitesConfigPage = React.lazy(() => (
-  import('./printer/config/invites/Invites.page')
-))
+// const ConfigIndexPage = React.lazy(() => (
+//  import('./printer/config/Index.page')
+// ))
+// const ComponentsConfigPage = React.lazy(() => (
+//  import('./printer/config/printerComponents/PrinterComponents.page')
+// ))
+// const MaterialsConfigPage = React.lazy(() => (
+//  import('./printer/config/materials/Materials.page')
+// ))
+// const UsersConfigPage = React.lazy(() => (
+//  import('./printer/config/users/User.page')
+// ))
+// const InvitesConfigPage = React.lazy(() => (
+//   import('./printer/config/invites/Invites.page')
+// ))
 
 const AuthRedirect = () => {
   const urlWithToken = new URL(document.location.origin + document.location.hash.replace(/#/, '?'))

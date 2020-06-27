@@ -1,26 +1,13 @@
-import React, { useEffect } from 'react'
-import { Link, useHistory } from 'react-router-dom'
-import {
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Tooltip,
-  Fab,
-} from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
+import React from 'react'
+import { useHistory } from 'react-router-dom'
 import { useAsync } from 'react-async'
-
-import PersonOutline from '@material-ui/icons/PersonOutline'
-import Add from '@material-ui/icons/Add'
 
 import { useQuery, useApolloClient } from 'react-apollo-hooks'
 import gql from 'graphql-tag'
 
-import UpdateDialog from '../components/UpdateDialog/Index'
 import { useDelete } from '../components/useDeleteConfig'
-import CreateInviteDialog from './create/CreateInviteDialog'
 import Loading from '../../../common/Loading'
+import InvitesView from './Invites.view'
 
 const InvitesQuery = gql`
   query InvitesQuery {
@@ -49,23 +36,9 @@ const deleteInviteMutation = gql`
   }
 `
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    overflowY: 'scroll',
-  },
-  title: {
-    paddingTop: theme.spacing(3),
-  },
-  addFab: {
-    position: 'fixed',
-    zIndex: 10,
-    bottom: theme.spacing(4),
-    right: theme.spacing(2),
-  },
-}))
-
-const enhance = Component => (props) => {
-  const { match } = props
+const InvitesPage = ({
+  match,
+}) => {
   // InvitesQuery
   const { inviteID, verb } = match.params
 
@@ -76,7 +49,7 @@ const enhance = Component => (props) => {
     pollInterval: 1000,
   })
 
-  const { invites = [] } = data || {}
+  const { hasPendingUpdates, invites = [] } = data || {}
   const selectedInvite = invites.find(c => c.id === inviteID)
 
   const deleteInvite = useAsync({
@@ -95,10 +68,6 @@ const enhance = Component => (props) => {
 
   if (deleteInvite.error) {
     throw deleteInvite.error
-  }
-
-  if (loading) {
-    return <Loading />
   }
 
   if (error) {
@@ -122,32 +91,6 @@ const enhance = Component => (props) => {
     history.push('../')
   }
 
-  const nextProps = {
-    ...props,
-    selectedInvite,
-    invites,
-    inviteID,
-    verb,
-    onUpdate,
-    deleteInvite,
-  }
-
-  return (
-    <Component {...nextProps} />
-  )
-}
-
-const InvitesConfigIndex = ({
-  invites,
-  inviteID,
-  selectedInvite,
-  verb,
-  hasPendingUpdates,
-  onUpdate,
-  deleteInvite,
-}) => {
-  const classes = useStyles()
-
   useDelete({
     fn: deleteInvite.run,
     show: selectedInvite != null && verb === 'delete',
@@ -155,81 +98,23 @@ const InvitesConfigIndex = ({
     title: 'Invite',
   })
 
+  if (loading) {
+    return <Loading />
+  }
+
   return (
-    <main className={classes.root}>
-      { inviteID !== 'new' && selectedInvite != null && verb == null && (
-        <UpdateDialog
-          title={`Invite #${selectedInvite.id}`}
-          open={selectedInvite != null}
-          deleteButton
-          collection="AUTH"
-          status="READY"
-          hasPendingUpdates={hasPendingUpdates}
-          query={gql`
-            query {
-              schemaForm(input: {
-                collection: AUTH
-                schemaFormKey: "invite"
-              }) {
-                id
-                schema
-                form
-              }
-            }
-          `}
-          getConfigForm={data => ({
-            id: selectedInvite.id,
-            modelVersion: 1,
-            schemaForm: data.schemaForm,
-            model: selectedInvite,
-          })}
-          onSubmit={onUpdate}
-        />
-      )}
-      { inviteID === 'new' && (
-        <CreateInviteDialog open />
-      )}
-      <Tooltip title="Create an Invite Code" placement="left">
-        <Fab
-          disabled={hasPendingUpdates}
-          component={React.forwardRef((props, ref) => (
-            <Link
-              to={inviteID === 'new' ? './' : 'new/'}
-              innerRef={ref}
-              style={{ textDecoration: 'none' }}
-              {...props}
-            />
-          ))}
-          className={classes.addFab}
-        >
-          <Add />
-        </Fab>
-      </Tooltip>
-      <List>
-        {
-          invites.map(invite => (
-            <ListItem
-              button
-              divider
-              key={invite.id}
-              component={React.forwardRef((props, ref) => (
-                <Link to={`${invite.id}/`} innerRef={ref} {...props} />
-              ))}
-            >
-              <ListItemIcon>
-                <PersonOutline />
-              </ListItemIcon>
-              <ListItemText>
-                Invite #
-                {invite.id}
-              </ListItemText>
-            </ListItem>
-          ))
-        }
-      </List>
-    </main>
+    <InvitesView {...{
+      invites,
+      inviteID,
+      selectedInvite,
+      verb,
+      hasPendingUpdates,
+      onUpdate,
+      deleteInvite,
+    }}
+    />
   )
 }
 
-export const Component = InvitesConfigIndex
-export default enhance(InvitesConfigIndex)
+export default InvitesPage
+// export default () => <div>WAT</div>
