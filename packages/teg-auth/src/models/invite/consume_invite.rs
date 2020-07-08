@@ -11,7 +11,7 @@ use crate::{
     }
 };
 
-use sled::transaction::ConflictableTransactionError;
+// use sled::transaction::ConflictableTransactionError;
 
 pub async fn consume_invite(context: &Context) -> FieldResult<User> {
     let user_id = context.current_user

@@ -1,3 +1,4 @@
+use std::convert::TryInto;
 use chrono::prelude::*;
 // use futures::prelude::*;
 use juniper::{
@@ -5,7 +6,6 @@ use juniper::{
     ID,
 };
 // use std::sync::Arc;
-use serde::{Deserialize, Serialize};
 
 use crate::{
     Context,
@@ -17,17 +17,11 @@ use super::{
 };
 
 mod graphql;
+mod revisions;
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Invite {
-    pub id: ID,
-    pub public_key: String,
-    pub is_admin: bool,
-    pub created_at: DateTime<Utc>,
+pub use revisions::{ Invite, InviteDBEntry };
 
-    pub slug: Option<String>,
-    pub private_key: Option<String>,
-}
+// ---------------------------------------------
 
 #[derive(juniper::GraphQLInputObject)]
 pub struct CreateInviteInput {
@@ -69,24 +63,23 @@ impl Invite {
     }
 
     pub async fn get(invite_id: &ID, db: &sled::Db) -> crate::Result<Self> {
-        let iv_vec = db.get(Self::key(invite_id))
+        db.get(Self::key(invite_id))
             .chain_err(|| "Unable to get invite")?
-            .ok_or(format!("invite {:?} not found", invite_id))?;
-
-        let invite = serde_cbor::from_slice(iv_vec.as_ref())
-            .chain_err(|| "Unable to deserialize invite in Invite::get")?;
-
-        Ok(invite)
+            .ok_or(format!("invite {:?} not found", invite_id))?
+            .try_into()
     }
 
-    pub async fn insert(&self, db: &sled::Db) -> crate::Result<()> {
-        let bytes = serde_cbor::to_vec(self)
-            .chain_err(|| "Unable to deserialize invite in Invite::get")?;
+    pub async fn insert(self, db: &sled::Db) -> crate::Result<Self> {
+        let id = self.id.clone();
+        let entry = InviteDBEntry::from(self);
 
-        db.insert(Self::key(&self.id), bytes)
+        let bytes = serde_cbor::to_vec(&entry)
+            .chain_err(|| "Unable to serialize invite in Invite::insert")?;
+
+        db.insert(Self::key(&id), bytes)
             .chain_err(|| "Unable to insert invite")?;
 
-        Ok(())
+        Ok(entry.into())
     }
 
     pub async fn scan(db: &sled::Db) -> impl Iterator<Item = crate::Result<Self>> {
@@ -94,11 +87,8 @@ impl Invite {
             .values()
             .map(|iv_vec: sled::Result<sled::IVec>| {
                 iv_vec
-                    .chain_err(|| "Error scanning all invites")
-                    .and_then(|iv_vec| {
-                        serde_cbor::from_slice(iv_vec.as_ref())
-                            .chain_err(|| "Unable to deserialize invite in Invite::scan")
-                    })
+                    .chain_err(|| "Error scanning invites")
+                    .and_then(|iv_vec| iv_vec.try_into())
             })
     }
 
@@ -148,7 +138,8 @@ impl Invite {
             created_at: Utc::now(),
         };
 
-        invite.insert(&context.db)
+        let invite = invite
+            .insert(&context.db)
             .await?;
 
         Ok(invite)
@@ -224,7 +215,8 @@ impl Invite {
             created_at: Utc::now(),
         };
 
-        invite.insert(db)
+        let invite = invite
+            .insert(db)
             .await?;
 
         Ok(invite)
@@ -238,7 +230,8 @@ impl Invite {
 
         invite.is_admin = input.is_admin.unwrap_or(invite.is_admin);
 
-        invite.insert(&context.db)
+        let invite = invite
+            .insert(&context.db)
             .await?;
 
         Ok(invite)

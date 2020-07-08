@@ -1,10 +1,8 @@
-use chrono::prelude::*;
 use juniper::{
     FieldResult,
     FieldError,
     ID,
 };
-use serde::{Deserialize, Serialize};
 
 use crate::{ Context, ResultExt };
 
@@ -15,18 +13,8 @@ pub mod jwt;
 
 mod graphql;
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct User {
-    pub id: ID,
-    pub email: Option<String>,
-    pub email_verified: bool,
-    pub is_admin: bool,
-    pub created_at: DateTime<Utc>,
-    pub last_logged_in_at: Option<DateTime<Utc>>,
-
-    pub firebase_uid: String,
-    pub is_authorized: bool,
-}
+mod revisions;
+pub use revisions::{ User, UserDBEntry };
 
 #[derive(juniper::GraphQLInputObject)]
 pub struct UpdateUser {
