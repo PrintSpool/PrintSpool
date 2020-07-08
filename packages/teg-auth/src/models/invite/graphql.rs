@@ -5,7 +5,7 @@ use super::Invite;
 #[Object]
 impl Invite {
     async fn id(&self) -> ID {
-        self.id
+        self.id.clone()
     }
     async fn public_key(&self) -> &String {
         &self.public_key

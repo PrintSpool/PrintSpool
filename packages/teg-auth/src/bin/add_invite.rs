@@ -1,4 +1,5 @@
 // extern crate teg_auth;
+use anyhow::{Result};
 use teg_auth::{
   init,
   models::{
@@ -7,7 +8,7 @@ use teg_auth::{
 };
 
 #[async_std::main]
-async fn main() -> teg_auth::Result<()> {
+async fn main() -> Result<()> {
   println!("hello world");
 
   let context = init().await?;

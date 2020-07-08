@@ -1,24 +1,51 @@
 #[macro_use] extern crate log;
 
-use warp::{http::Response, Filter};
 use async_graphql::*;
+use async_graphql_warp::*;
+use anyhow::{Result};
+
+use warp::Filter;
+
 use std::env;
 
-use async_std::task;
 use std::sync::Arc;
 
 extern crate teg_auth;
 use teg_auth::{
     init,
     Context,
-    Schema,
     Query,
     Mutation,
     watch_auth_pem_keys,
 };
 
-#[async_std::main]
-async fn main() -> teg_auth::Result<()> {
+#[derive(thiserror::Error, Debug)]
+pub enum ServiceError {
+    #[error(transparent)]
+    Other(#[from] anyhow::Error), // source and Display delegate to anyhow::Error
+}
+impl warp::reject::Reject for ServiceError {}
+impl From<ServiceError> for warp::reject::Rejection {
+    fn from(e: ServiceError) -> Self {
+        warp::reject::custom(e)
+    }
+}
+
+// impl From<anyhow::Error> for ServiceError {
+//     fn from(e: anyhow::Error) -> Self {
+//         ServiceError::Other(e)
+//     }
+// }
+
+// impl From<url::ParseError> for ServiceError {
+//     fn from(e: url::ParseError) -> Self {
+//         ServiceError::Other(e.into())
+//     }
+// }
+
+// #[async_std::main]
+#[smol_potat::main]
+async fn main() -> Result<()> {
     let Context {
         db,
         machine_config,
@@ -33,61 +60,43 @@ async fn main() -> teg_auth::Result<()> {
         .parse()
         .expect("Invalid $PORT");
 
-    let schema = Schema::new(QueryRoot, Mutation{}, EmptySubscription);
+    // let schema = Schema::new(Query, Mutation, EmptySubscription);
+    let schema = Schema::new(Query, Mutation, EmptySubscription);
     let graphql_filter = async_graphql_warp::graphql(schema)
         .and(warp::header::optional::<String>("user-id"))
         .and(warp::header::optional::<String>("peer-identity-public-key"))  
-        .and_then(|
+        .and_then(move |
             (schema, builder): (_, QueryBuilder),
             user_id: Option<String>,
             identity_public_key: Option<String>,
-        | async move {
-            let ctx = Context::new(
+        | {
+            let user_id = user_id.map(|id| ID::from(id));
+
+            let context = Context::new(
                 Arc::clone(&db),
                 user_id,
                 identity_public_key,
                 Arc::clone(&auth_pem_keys),
                 Arc::clone(&machine_config),
-            )
-                .await
-                .map_err(|err| {
-                    use error_chain::ChainedError;
+            );
 
-                    error!("{}", err.display_chain().to_string());
-                    warp::reject::custom(err.to_string())
-                })?;
+            async move {
+                let context = context
+                    .await
+                    .map_err(|err| {
+                        error!("{}", err);
+                        ServiceError::from(err)
+                    })?;
 
-            // Execute query
-            let resp = builder
-                .data(ctx)
-                .execute(&schema)
-                .await;
+                // Execute query
+                let resp = builder
+                    .data(context)
+                    .execute(&schema)
+                    .await;
 
-            // Return result
-            Ok::<_, Infallible>(warp::reply::json(&GQLResponse(resp)).into_response())
-        });
-
-    // State
-    let state = warp::any()
-        .and(warp::header::optional::<String>("user-id"))
-        .and(warp::header::optional::<String>("peer-identity-public-key"))  
-        .and_then(move |user_id: Option<String>, identity_public_key| {
-            let user_id = user_id.map(|id| ID::from(id));
-
-            task::block_on(
-                Context::new(
-                    Arc::clone(&db),
-                    user_id,
-                    identity_public_key,
-                    Arc::clone(&auth_pem_keys),
-                    Arc::clone(&machine_config),
-                )
-            ).map_err(|err| {
-                use error_chain::ChainedError;
-
-                error!("{}", err.display_chain().to_string());
-                warp::reject::custom(err.to_string())
-            })
+                // Return result
+                Ok::<_, warp::reject::Rejection>(GQLResponse::from(resp))
+            }
         });
 
     eprintln!("Starting Auth Server");
@@ -99,9 +108,10 @@ async fn main() -> teg_auth::Result<()> {
         //     .and(juniper_warp::graphiql_filter("/graphql"))
         //     .or(homepage)
         //     .or(warp::path("graphql").and(graphql_filter))
-        //     .with(log),
+            .with(log),
     )
-        .run(([127, 0, 0, 1], port));
+        .run(([127, 0, 0, 1], port))
+        .await;
 
     Ok(())
 }
