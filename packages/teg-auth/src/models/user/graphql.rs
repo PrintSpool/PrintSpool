@@ -1,28 +1,29 @@
+use async_graphql::*;
 use chrono::prelude::*;
 use super::User;
 
-#[juniper::object]
+#[Object]
 impl User {
-    fn id(&self) -> juniper::ID {
-        self.id.to_string().into()
+    async fn id(&self) -> ID {
+        self.id
     }
-    fn email(&self) -> Option<&String> {
+    async fn email(&self) -> Option<&String> {
         self.email.as_ref()
     }
-    fn email_verified(&self) -> bool {
+    async fn email_verified(&self) -> bool {
         self.email_verified
     }
-    fn is_admin(&self) -> bool {
+    async fn is_admin(&self) -> bool {
         self.is_admin
     }
-    fn created_at(&self) -> DateTime<Utc> {
+    async fn created_at(&self) -> DateTime<Utc> {
         self.created_at
     }
-    fn last_logged_in_at(&self) -> Option<DateTime<Utc>> {
+    async fn last_logged_in_at(&self) -> Option<DateTime<Utc>> {
         self.last_logged_in_at
     }
 
-    fn picture(&self) -> Option<url::Url> {
+    async fn picture(&self) -> Option<url::Url> {
         use gravatar::{ Gravatar, Default::Http404, Rating };
 
         let url = Gravatar::new(self.email.as_ref()?)

@@ -1,9 +1,7 @@
 use chrono::prelude::*;
-use juniper::{
-    FieldResult,
-};
+use async_graphql::*;
+use anyhow::{Context as _, Result};
 
-use crate::ResultExt;
 use super::{
     User,
     super::Invite,
@@ -17,7 +15,7 @@ impl User {
         context: &Context,
         auth_token: String,
         identity_public_key: String
-    ) -> FieldResult<Option<User>> {
+    ) -> Result<Option<User>> {
         let jwt_payload = validate_jwt(context, auth_token).await?;
 
         info!("Acess Requested for JWT: {:?}", jwt_payload);
@@ -31,7 +29,7 @@ impl User {
 
         let invite = Invite::find_by_pk(&identity_public_key, &context.db)
             .await
-            .chain_err(|| "Unable to load invite for authentication")?;
+            .with_context(|| "Unable to load invite for authentication")?;
 
         let user = User::scan(&context.db)
             .await
@@ -43,7 +41,7 @@ impl User {
                 }
             })
             .transpose()
-            .chain_err(|| "Unable to load user for authentication")?;
+            .with_context(|| "Unable to load user for authentication")?;
 
         // To authenticate the user either must be authorized or include a valid invite
         if
@@ -77,7 +75,7 @@ impl User {
 
         user.insert(&context.db)
             .await
-            .chain_err(|| "Unable to update user after authentication")?;
+            .with_context(|| "Unable to update user after authentication")?;
 
         info!("User Authorized: {:?}", user.id);
 

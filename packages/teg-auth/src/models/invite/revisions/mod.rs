@@ -1,6 +1,6 @@
 use std::convert::TryFrom;
 use serde::{Deserialize, Serialize};
-use crate::ResultExt;
+use anyhow::{Context as _, Result};
 
 mod invite_r1;
 pub use invite_r1::InviteR1;
@@ -37,11 +37,11 @@ impl From<Invite> for InviteDBEntry {
 }
 
 impl TryFrom<sled::IVec> for Invite {
-    type Error = crate::Error;
+    type Error = anyhow::Error;
 
-    fn try_from(iv_vec: sled::IVec) -> crate::Result<Self> {
+    fn try_from(iv_vec: sled::IVec) -> Result<Self> {
         serde_cbor::from_slice(iv_vec.as_ref())
-            .chain_err(|| "Unable to deserialize invite")
+            .with_context(|| "Unable to deserialize invite")
             .map(|entry: InviteDBEntry| entry.into())
     }
 }

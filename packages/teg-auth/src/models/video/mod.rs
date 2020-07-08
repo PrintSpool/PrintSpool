@@ -1,9 +1,5 @@
 // use chrono::prelude::*;
-use juniper::{
-    FieldResult,
-    // FieldError,
-    ID,
-};
+use async_graphql::*;
 use serde::{
     Serialize,
     Deserialize,
@@ -12,43 +8,48 @@ use serde::{
 // use crate::models::{ Invite };
 use crate::{ Context };
 
-#[derive(juniper::GraphQLObject, Debug, Serialize, Deserialize)]
+#[SimpleObject]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct RTCSignal {
-    #[graphql(
-        name = "type",
-    )]
+    #[field(name = "type")]
     pub r#type: String,
     pub sdp: String,
 }
 
-#[derive(juniper::GraphQLObject, Debug, Serialize, Deserialize)]
+#[SimpleObject]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct VideoSession {
     pub id: ID,
     pub answer: RTCSignal,
 }
 
-#[derive(juniper::GraphQLObject, Debug, Serialize, Deserialize)]
+#[SimpleObject]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct IceCandidate {
     pub candidate: String,
-    #[graphql(name = "sdpMLineIndex")]
+    #[field(name = "sdpMLineIndex")]
     #[serde(rename = "sdpMLineIndex")]
     pub sdp_mline_index: i32,
     #[serde(rename = "sdpMid")]
     pub sdp_mid: String,
 }
 
-#[derive(juniper::GraphQLInputObject, Debug, Serialize, Deserialize)]
+
+#[InputObject]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct RTCSignalInput {
     pub r#type: String,
     pub sdp: String,
 }
 
-#[derive(juniper::GraphQLObject, Debug, Serialize, Deserialize)]
+#[SimpleObject]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Media {
     video: String,
 }
 
-#[derive(juniper::GraphQLObject, Debug, Serialize, Deserialize)]
+#[SimpleObject]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct VideoSource {
     id: ID,
 }
@@ -104,7 +105,7 @@ pub async fn create_video_sdp(
         .post(&format!("{}/call", WEBRTC_STREAMER_API))
         .json(&offer)
         .query(&[
-            ("peerid", id.clone()),
+            ("peerid", id.to_string()),
             ("url", source_url),
             // ("url", "videocap://1".to_string()),
             // ("url", "mmal service 16.1".to_string()),
@@ -162,7 +163,7 @@ pub async fn get_ice_candidates(
     let ice_candidates: Vec<IceCandidate> = reqwest::blocking::Client::new()
         .get(&format!("{}/getIceCandidate", WEBRTC_STREAMER_API))
         .query(&[
-            ("peerid", id.clone()),
+            ("peerid", id.to_string()),
         ])
         .send()?
         // .await?

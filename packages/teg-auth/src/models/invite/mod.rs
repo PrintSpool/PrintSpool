@@ -1,16 +1,9 @@
 use std::convert::TryInto;
 use chrono::prelude::*;
 // use futures::prelude::*;
-use juniper::{
-    FieldResult,
-    ID,
-};
+use async_graphql::*;
 // use std::sync::Arc;
-
-use crate::{
-    Context,
-    ResultExt,
-};
+use anyhow::{anyhow, Context as _, Result};
 
 use super::{
     User,
@@ -23,22 +16,22 @@ pub use revisions::{ Invite, InviteDBEntry };
 
 // ---------------------------------------------
 
-#[derive(juniper::GraphQLInputObject)]
+#[InputObject]
 pub struct CreateInviteInput {
     pub public_key: String,
     pub is_admin: Option<bool>,
 }
 
-#[derive(juniper::GraphQLInputObject)]
+#[InputObject]
 pub struct UpdateInvite {
-    #[graphql(name="inviteID")]
+    #[field(name="inviteID")]
     pub invite_id: ID,
     pub is_admin: Option<bool>,
 }
 
-#[derive(juniper::GraphQLInputObject)]
+#[InputObject]
 pub struct DeleteInvite {
-    #[graphql(name="inviteID")]
+    #[field(name="inviteID")]
     pub invite_id: ID,
 }
 
@@ -56,43 +49,43 @@ impl Invite {
         format!("{}:{}", DB_PREFIX, invite_id.to_string())
     }
 
-    pub fn generate_id(db: &sled::Db) -> crate::Result<ID> {
+    pub fn generate_id(db: &sled::Db) -> Result<ID> {
         db.generate_id()
             .map(|id| format!("{:64}", id).into())
-            .chain_err(|| "Error generating invite id")
+            .with_context(|| "Error generating invite id")
     }
 
-    pub async fn get(invite_id: &ID, db: &sled::Db) -> crate::Result<Self> {
+    pub async fn get(invite_id: &ID, db: &sled::Db) -> Result<Self> {
         db.get(Self::key(invite_id))
-            .chain_err(|| "Unable to get invite")?
-            .ok_or(format!("invite {:?} not found", invite_id))?
+            .with_context(|| "Unable to get invite")?
+            .ok_or(anyhow!("invite {:?} not found", invite_id))?
             .try_into()
     }
 
-    pub async fn insert(self, db: &sled::Db) -> crate::Result<Self> {
+    pub async fn insert(self, db: &sled::Db) -> Result<Self> {
         let id = self.id.clone();
         let entry = InviteDBEntry::from(self);
 
         let bytes = serde_cbor::to_vec(&entry)
-            .chain_err(|| "Unable to serialize invite in Invite::insert")?;
+            .with_context(|| "Unable to serialize invite in Invite::insert")?;
 
         db.insert(Self::key(&id), bytes)
-            .chain_err(|| "Unable to insert invite")?;
+            .with_context(|| "Unable to insert invite")?;
 
         Ok(entry.into())
     }
 
-    pub async fn scan(db: &sled::Db) -> impl Iterator<Item = crate::Result<Self>> {
+    pub async fn scan(db: &sled::Db) -> impl Iterator<Item = Result<Self>> {
         db.scan_prefix(&DB_PREFIX)
             .values()
             .map(|iv_vec: sled::Result<sled::IVec>| {
                 iv_vec
-                    .chain_err(|| "Error scanning invites")
+                    .with_context(|| "Error scanning invites")
                     .and_then(|iv_vec| iv_vec.try_into())
             })
     }
 
-    pub async fn find_by_pk(public_key: &String, db: &sled::Db) -> crate::Result<Option<Self>> {
+    pub async fn find_by_pk(public_key: &String, db: &sled::Db) -> Result<Option<Self>> {
         Self::scan(&db)
             .await
             .find(|invite| {
@@ -105,26 +98,26 @@ impl Invite {
             .transpose()
     }
 
-    // pub async fn admin_count(db: &sled::Db) -> crate::Result<i32> {
+    // pub async fn admin_count(db: &sled::Db) -> Result<i32> {
     //     Self::scan(db).await
     //         .try_fold(0, |acc, user| {
     //             user.map(|user| acc + (user.is_admin as i32) )
     //         })
     // }
 
-    pub async fn all(context: &Context) -> FieldResult<Vec<Self>> {
+    pub async fn all(context: &crate::Context) -> FieldResult<Vec<Self>> {
         context.authorize_admins_only()?;
 
         // TODO: order the invites by their ids
         let invites = Self::scan(&context.db)
             .await
-            .collect::<crate::Result<Vec<Self>>>()?;
+            .collect::<Result<Vec<Self>>>()?;
 
         Ok(invites)
     }
 
     pub async fn admin_create_invite(
-        context: &Context,
+        context: &crate::Context,
         input: CreateInviteInput,
     ) -> FieldResult<Self> {
         context.authorize_admins_only()?;
@@ -222,7 +215,7 @@ impl Invite {
         Ok(invite)
     }
 
-    pub async fn update(context: &Context, input: UpdateInvite) -> FieldResult<Self> {
+    pub async fn update(context: &crate::Context, input: UpdateInvite) -> FieldResult<Self> {
         context.authorize_admins_only()?;
 
         let mut invite = Self::get(&input.invite_id, &context.db)
@@ -237,11 +230,11 @@ impl Invite {
         Ok(invite)
     }
 
-    pub async fn delete(context: &Context, invite_id: ID) -> FieldResult<Option<bool>> {
+    pub async fn delete(context: &crate::Context, invite_id: ID) -> FieldResult<Option<bool>> {
         context.authorize_admins_only()?;
 
         context.db.remove(Self::key(&invite_id))
-            .chain_err(|| "Error deleting invite")?;
+            .with_context(|| "Error deleting invite")?;
 
         Ok(None)
     }

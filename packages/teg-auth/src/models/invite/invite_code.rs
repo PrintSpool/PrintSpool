@@ -2,24 +2,24 @@ use serde::{Serialize, Deserialize};
 use rmps::{Serializer};
 use std::fs;
 use std::env;
-use crate::ResultExt;
+use anyhow::{anyhow, Context as _, Result};
 
 use super::Invite;
 
 impl Invite {
-    pub fn generate_slug(private_key: String) -> crate::Result<String>  {
+    pub fn generate_slug(private_key: String) -> Result<String>  {
         let config_path = env::var("COMBINATOR_CONFIG");
         let config_path = config_path.unwrap_or("/etc/teg/combinator.toml".to_string());
         let config_text = fs::read_to_string(&config_path)
-            .chain_err(|| format!("Unable to read combinator config (file: {:?})", config_path))?;
+            .with_context(|| format!("Unable to read combinator config (file: {:?})", config_path))?;
 
         let host_identity_public_key: String = config_text.parse::<toml::Value>()
-            .chain_err(|| format!("Unable to parse combinator config (file: {:?})", config_path))?
+            .with_context(|| format!("Unable to parse combinator config (file: {:?})", config_path))?
             .get("auth")
             .and_then(|v| v.get("hostIdentityKeys"))
             .and_then(|v| v.get("publicKey"))
             .and_then(|v| v.as_str())
-            .chain_err(|| "auth.hostIdentityKeys.publicKey not found")?
+            .with_context(|| "auth.hostIdentityKeys.publicKey not found")?
             .to_string();
 
         #[derive(Serialize, Deserialize, Debug)]
@@ -37,14 +37,14 @@ impl Invite {
         let mut buf = Vec::new();
         let mut serializer = Serializer::new(&mut buf).with_struct_map();
         json.serialize(&mut serializer)
-            .chain_err(|| "Unable to serialize invite JSON")?;
+            .with_context(|| "Unable to serialize invite JSON")?;
 
         let slug = data_encoding::BASE64URL.encode(&buf);
 
         Ok(slug)
     }
 
-    pub fn print_welcome_text(&self) -> crate::Result<()> {
+    pub fn print_welcome_text(&self) -> Result<()> {
         let is_dev = std::env::var("RUST_ENV") == Ok("development".to_string());
 
         let web_app_domain = if is_dev {
@@ -56,7 +56,7 @@ impl Invite {
         let invite_url = format!(
             "{}/i/{}",
             web_app_domain,
-            self.slug.as_ref().ok_or(crate::Error::from_kind("Invite Code slug not found".into()))?,
+            self.slug.as_ref().ok_or(anyhow!("Invite Code slug not found"))?,
         );
 
         let thick_line = std::iter::repeat("=").take(80).collect::<String>();
@@ -73,7 +73,7 @@ impl Invite {
         // let qr = QrCode::encode_text(&invite_url, QrCodeEcc::Low)?;
         // let qr = print_qr(&qr)?;
         qr2term::print_qr(&invite_url)
-            .chain_err(|| "Unable to print invite QR code")?;
+            .with_context(|| "Unable to print invite QR code")?;
 
         eprintln!(
             "\

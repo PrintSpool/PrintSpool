@@ -1,18 +1,19 @@
+use async_graphql::*;
 use chrono::prelude::*;
 use super::Invite;
 
-#[juniper::object]
+#[Object]
 impl Invite {
-    fn id(&self) -> juniper::ID {
-        self.id.to_string().into()
+    async fn id(&self) -> ID {
+        self.id
     }
-    fn public_key(&self) -> &String {
+    async fn public_key(&self) -> &String {
         &self.public_key
     }
-    fn is_admin(&self) -> bool {
+    async fn is_admin(&self) -> bool {
         self.is_admin
     }
-    fn created_at(&self) -> DateTime<Utc> {
+    async fn created_at(&self) -> DateTime<Utc> {
         self.created_at
     }
 }

@@ -1,4 +1,5 @@
-use juniper::{ID, FieldResult, FieldError};
+use async_graphql::*;
+use anyhow::{anyhow, Result};
 use std::sync::Arc;
 
 use crate::models::User;
@@ -13,9 +14,6 @@ pub struct Context {
     pub machine_config: Arc<RwLock<Config>>,
 }
 
-// To make our context usable by Juniper, we have to implement a marker trait.
-impl juniper::Context for Context {}
-
 impl Context {
     pub async fn new(
         db: Arc<sled::Db>,
@@ -23,7 +21,7 @@ impl Context {
         identity_public_key: Option<String>,
         auth_pem_keys: Arc<RwLock<Vec<Vec<u8>>>>,
         machine_config: Arc<RwLock<Config>>,
-    ) -> crate::Result<Self> {
+    ) -> Result<Self> {
         let mut context = Self {
             db,
             current_user: None,
@@ -46,14 +44,11 @@ impl Context {
             .unwrap_or(false)
     }
 
-    pub fn authorize_admins_only(&self) -> FieldResult<()> {
+    pub fn authorize_admins_only(&self) -> Result<()> {
         if self.is_admin() {
             Ok(())
         } else  {
-            Err(FieldError::new(
-                "Unauthorized",
-                graphql_value!({ "internal_error": "Unauthorized" }),
-            ))
+            Err(anyhow!("Unauthorized"))
         }
     }
 }

@@ -1,5 +1,4 @@
 // #[macro_use] extern crate async_std;
-#[macro_use] extern crate juniper;
 #[macro_use] extern crate log;
 // #[macro_use] extern crate log_derive;
 
@@ -28,24 +27,23 @@ mod graphql_schema;
 mod configuration;
 
 pub use context::Context;
-pub use graphql_schema::{ Schema, Query, Mutation };
+pub use graphql_schema::{ Query, Mutation };
 
 use async_std::task;
+use anyhow::{anyhow, Context as _, Result};
 
-error_chain::error_chain! {}
-
-fn read_config(config_path: &str) -> crate::Result<configuration::Config> {
+fn read_config(config_path: &str) -> Result<configuration::Config> {
     let config_file_content = std::fs::read_to_string(config_path.clone())
-        .chain_err(|| format!("Unabled to read machine config (file: {:?})", config_path))?;
+        .with_context(|| format!("Unabled to read machine config (file: {:?})", config_path))?;
 
     let config: configuration::Config = toml::from_str(&config_file_content)
-        .chain_err(|| format!("Invalid machine config format (file: {:?})", config_path))?;
+        .with_context(|| format!("Invalid machine config format (file: {:?})", config_path))?;
 
     Ok(config)
 }
 
 // Firebase Certs
-pub async fn watch_auth_pem_keys() -> crate::Result<Arc<RwLock<Vec<Vec<u8>>>>> {
+pub async fn watch_auth_pem_keys() -> Result<Arc<RwLock<Vec<Vec<u8>>>>> {
     let pem_keys = models::jwt::get_pem_keys()?;
     let pem_keys_lock = Arc::new(RwLock::new(pem_keys));
 
@@ -73,7 +71,7 @@ pub async fn watch_auth_pem_keys() -> crate::Result<Arc<RwLock<Vec<Vec<u8>>>>> {
     Ok(pem_keys_lock)
 }
 
-pub async fn init() -> crate::Result<Context> {
+pub async fn init() -> Result<Context> {
     dotenv().ok();
     env_logger::init();
 
@@ -94,12 +92,12 @@ pub async fn init() -> crate::Result<Context> {
 
     let db = config.open()
         .map(|db| Arc::new(db))
-        .chain_err(|| format!("Unable to open sled database: {}", db_file))?;
+        .with_context(|| format!("Unable to open sled database: {}", db_file))?;
 
     models::Invite::generate_or_display_initial_invite(&db)
         .await
         .map_err(|err| {
-            format!("{:?}", err)
+            anyhow!("{:?}", err)
         })?;
 
     // Config
