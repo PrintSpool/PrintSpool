@@ -17,15 +17,22 @@ pub trait VersionedModel: Sized + Send + TryFrom<sled::IVec, Error = anyhow::Err
 
   fn get_id(&self) -> &ID;
 
+  fn prefix() -> Vec<u8> {
+    format!("{}#", &Self::NAMESPACE)
+      .into_bytes()
+  }
+
   fn key(id: &ID) -> Result<Vec<u8>> {
-    // let prefix_bytes = format!("{}#", DB_PREFIX).bytes();
     let id = id.parse::<u64>()
-      .with_context(|| format!("Invalid ID: {}", id.as_str()))?;
-  
-    let key_tuple = (&Self::NAMESPACE, id.to_be_bytes());
-  
-    serde_cbor::to_vec(&key_tuple)
-      .with_context(|| format!("Error serializing key for {}", &Self::NAMESPACE))
+      .with_context(|| format!("Invalid ID: {}", id.as_str()))?
+      .to_be_bytes()
+      .to_vec();
+ 
+    let prefix = Self::prefix();
+
+    let key = [prefix, id].concat();
+
+    Ok(key)
   }
 
   fn generate_id(db: &sled::Db) -> Result<ID> {
@@ -61,7 +68,7 @@ pub trait VersionedModel: Sized + Send + TryFrom<sled::IVec, Error = anyhow::Err
   }
 
   async fn scan(db: &sled::Db) -> Box<dyn Iterator<Item = Result<Self>>> {
-    let iter = db.scan_prefix(Self::NAMESPACE)
+    let iter = db.scan_prefix(Self::prefix())
         .values()
         .map(|iv_vec: sled::Result<sled::IVec>| {
             iv_vec
