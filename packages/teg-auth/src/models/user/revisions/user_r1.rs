@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 // use super::{ User, UserR2 };
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UserR1 {
     pub id: ID,
     pub email: Option<String>,

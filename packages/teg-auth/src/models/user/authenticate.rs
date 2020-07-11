@@ -73,7 +73,7 @@ impl User {
         user.email_verified = jwt_payload.email_verified;
         user.last_logged_in_at = Some(Utc::now());
 
-        user.insert(&context.db)
+        let user = user.insert(&context.db)
             .await
             .with_context(|| "Unable to update user after authentication")?;
 

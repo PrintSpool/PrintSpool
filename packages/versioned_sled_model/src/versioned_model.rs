@@ -36,14 +36,22 @@ pub fn impl_versioned_model(meta: &crate::Meta) -> proc_macro2::TokenStream {
             .with_context(|| format!("Error generating {} id", #name))
       }
 
-      pub async fn get(invite_id: &#id, db: &sled::Db) -> #result<Self> {
-        use std::convert::TryInto;
-        use anyhow::{anyhow, Context as _};
+      pub async fn get(id: &#id, db: &sled::Db) -> #result<Self> {
+        use anyhow::{anyhow};
 
-        db.get(Self::key(invite_id))
-            .with_context(|| "Unable to get invite")?
-            .ok_or(anyhow!("{} {:?} not found", #name, invite_id))?
-            .try_into()
+        Self::get_optional(id, db)
+          .await?
+          .ok_or(anyhow!("{} {:?} not found", #name, id))
+      }
+
+      pub async fn get_optional(id: &#id, db: &sled::Db) -> #result<Option<Self>> {
+        use std::convert::TryInto;
+        use anyhow::{Context as _};
+
+        db.get(Self::key(id))
+            .with_context(|| format!("Unable to get {}", #name))?
+            .map(|iv_vec| iv_vec.try_into())
+            .transpose()
       }
 
       pub async fn insert(self, db: &sled::Db) -> #result<Self> {
@@ -53,7 +61,7 @@ pub fn impl_versioned_model(meta: &crate::Meta) -> proc_macro2::TokenStream {
         let entry = #entry_ident::from(self);
 
         let bytes = serde_cbor::to_vec(&entry)
-            .with_context(|| format!("Unable to serialize invite in {}::insert", #name))?;
+            .with_context(|| format!("Unable to serialize in {}::insert", #name))?;
 
         db.insert(Self::key(&id), bytes)
             .with_context(|| format!("Unable to insert {}", #name))?;
@@ -69,7 +77,7 @@ pub fn impl_versioned_model(meta: &crate::Meta) -> proc_macro2::TokenStream {
             .values()
             .map(|iv_vec: sled::Result<sled::IVec>| {
                 iv_vec
-                    .with_context(|| "Error scanning invites")
+                    .with_context(|| format!("Error scanning {}", #name))
                     .and_then(|iv_vec| iv_vec.try_into())
             })
       }

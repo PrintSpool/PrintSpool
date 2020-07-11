@@ -4,6 +4,7 @@ pub fn impl_model_from_entry(meta: &crate::Meta) -> proc_macro2::TokenStream {
   let crate::Meta {
     entry_ident,
     variants,
+    model_type,
     ..
   } = meta;
 
@@ -17,7 +18,7 @@ pub fn impl_model_from_entry(meta: &crate::Meta) -> proc_macro2::TokenStream {
       });
 
   let gen = quote! {
-      impl From<#entry_ident> for Invite {
+      impl From<#entry_ident> for #model_type {
           fn from(entry: #entry_ident) -> Self {
               match entry {
                   #(#revisions_into_models)*

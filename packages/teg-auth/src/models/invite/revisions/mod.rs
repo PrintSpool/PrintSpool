@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use anyhow::{Context as _, Result};
 use versioned_sled_model::VersionedSledModel;
 
 mod invite_r1;

@@ -1,5 +1,5 @@
 use async_graphql::*;
-use anyhow::{anyhow, Context as _, Result};
+use anyhow::{anyhow, Result};
 
 mod authenticate;
 pub use authenticate::*;
@@ -24,58 +24,7 @@ pub struct DeleteUser {
     pub user_id: ID,
 }
 
-const DB_PREFIX: &str = "users";
-
 impl User {
-    pub fn key(user_id: &ID) -> String {
-        format!("{}:{}", DB_PREFIX, user_id.to_string())
-    }
-
-    pub fn generate_id(db: &sled::Db) -> Result<ID> {
-        db.generate_id()
-            .map(|id| format!("{:064}", id).into())
-            .with_context(|| "Error generating invite id")
-    }
-
-    pub async fn get_optional(user_id: &ID, db: &sled::Db) -> Result<Option<Self>> {
-        db.get(Self::key(user_id))
-            .with_context(|| "Unable to get user")?
-            .map(|iv_vec| {
-                serde_cbor::from_slice(iv_vec.as_ref())
-                    .with_context(|| "Unable to deserialize user in User::get")
-            })
-            .transpose()
-    }
-
-    pub async fn get(user_id: &ID, db: &sled::Db) -> Result<Self> {
-        Self::get_optional(user_id, db)
-            .await?
-            .ok_or(anyhow!("User {:?} not found", user_id))
-    }
-
-    pub async fn insert(self: &Self, db: &sled::Db) -> Result<()> {
-        let bytes = serde_cbor::to_vec(self)
-            .with_context(|| "Unable to deserialize user in User::get")?;
-
-        db.insert(Self::key(&self.id), bytes)
-            .with_context(|| "Unable to insert user")?;
-
-        Ok(())
-    }
-
-    pub async fn scan(db: &sled::Db) -> impl Iterator<Item = Result<Self>> {
-        db.scan_prefix(&DB_PREFIX)
-            .values()
-            .map(|iv_vec: sled::Result<sled::IVec>| {
-                iv_vec
-                    .with_context(|| "Error scanning all users")
-                    .and_then(|iv_vec| {
-                        serde_cbor::from_slice(iv_vec.as_ref())
-                            .with_context(|| "Unable to deserialize user in User::scan")
-                    })
-            })
-    }
-
     pub async fn admin_count(db: &sled::Db) -> Result<i32> {
         Self::scan(db).await
             .try_fold(0, |acc, user| {
@@ -108,7 +57,7 @@ impl User {
             user.is_admin = is_admin
         }
 
-        user.insert(&context.db).await?;
+        let user = user.insert(&context.db).await?;
 
         Ok(user)
     }

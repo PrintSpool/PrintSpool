@@ -54,7 +54,7 @@ pub async fn consume_invite(context: &Context) -> Result<User> {
         user.is_admin = user.is_admin || invite.is_admin;
         user.is_authorized = true;
 
-        futures::executor::block_on(
+        let user = futures::executor::block_on(
             user.insert(&context.db)
         )?;
             // .map_err(|err| Abort(err))?;
