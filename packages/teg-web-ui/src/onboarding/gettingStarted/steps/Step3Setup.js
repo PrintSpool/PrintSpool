@@ -103,8 +103,13 @@ const Step3Setup = ({
     if (isConfigured) skipStep3Async.run()
   }, [isConfigured])
 
+  useEffect(() => {
+    if (skipStep3Async.error) {
+      console.error('skip 3 error?', skipStep3Async.error.code, skipStep3Async.error.message)
+    }
+  }, [skipStep3Async.error])
+
   if (skipStep3Async.error) {
-    console.error('skip 3 error?', skipStep3Async.error.code, skipStep3Async.error.message)
     // TODO: error codes instead of error message parsing
     // Checks if the invite has been consumed
     if (skipStep3Async.error.message.includes('consumed')) {
