@@ -2536,6 +2536,7 @@ dependencies = [
  "async-graphql",
  "async-graphql-warp",
  "async-std",
+ "async-trait",
  "chrono",
  "data-encoding",
  "dotenv",
@@ -2917,8 +2918,10 @@ name = "versioned_sled_model"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "async-graphql",
  "proc-macro2",
  "quote",
+ "serde_cbor",
  "syn",
 ]
 

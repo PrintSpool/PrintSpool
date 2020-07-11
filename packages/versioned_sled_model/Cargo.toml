@@ -9,8 +9,13 @@ anyhow = "1.0"
 quote = "1.0.7"
 syn = "1.0.33"
 proc-macro2 = "1.0.18"
+serde_cbor = "0.11.1"
 
 [lib]
 name = "versioned_sled_model"
 path = "src/mod.rs"
 proc-macro = true
+
+[dependencies.async-graphql]
+branch = "patch-1"
+git = "https://github.com/D1plo1d/async-graphql.git"

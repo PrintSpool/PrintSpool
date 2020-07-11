@@ -12,11 +12,18 @@ pub use invite_r1::InviteR1;
 
 pub type Invite = InviteR1;
 
-const DB_PREFIX: &str = "invites";
-
 #[derive(Debug, Serialize, Deserialize, VersionedSledModel)]
 pub enum InviteDBEntry {
     InviteR1 (InviteR1),
     // InviteR2 (InviteR2),
     // InviteR3 (InviteR3),
+}
+
+impl crate::models::VersionedModel for Invite {
+    type Entry = InviteDBEntry;
+    const NAMESPACE: &'static str = "Invite";
+
+    fn get_id(&self) -> &async_graphql::ID {
+        &self.id
+    }
 }

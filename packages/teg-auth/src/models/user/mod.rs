@@ -1,6 +1,8 @@
 use async_graphql::*;
 use anyhow::{anyhow, Result};
 
+use crate::models::VersionedModel;
+
 mod authenticate;
 pub use authenticate::*;
 
@@ -80,7 +82,7 @@ impl User {
             Err(anyhow!("Cannot delete only admin user"))?
         };
 
-        context.db.remove(Self::key(&user_id))?;
+        context.db.remove(Self::key(&user_id)?)?;
 
         Ok(None)
     }

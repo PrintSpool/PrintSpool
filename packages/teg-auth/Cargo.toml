@@ -40,6 +40,7 @@ toml = "0.5.6"
 url = "2.1.1"
 warp = "0.2.2"
 versioned_sled_model = { path = "../versioned_sled_model/" }
+async-trait = "0.1.36"
 
 [dependencies.async-graphql]
 branch = "patch-1"

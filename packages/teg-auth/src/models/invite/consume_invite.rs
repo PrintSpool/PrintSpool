@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result};
 use async_graphql::*;
 
+use crate::models::VersionedModel;
 use crate::{
     Context,
     // ResultExt,
@@ -60,7 +61,7 @@ pub async fn consume_invite(context: &Context) -> Result<User> {
             // .map_err(|err| Abort(err))?;
 
         // Delete the invite
-        context.db.remove(Invite::key(&invite.id))?;
+        context.db.remove(Invite::key(&invite.id)?)?;
 
     //     Ok(user)
     // })

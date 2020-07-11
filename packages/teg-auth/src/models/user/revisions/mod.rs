@@ -6,9 +6,16 @@ pub use user_r1::UserR1;
 
 pub type User = UserR1;
 
-const DB_PREFIX: &str = "users";
-
 #[derive(Debug, Serialize, Deserialize, VersionedSledModel)]
 pub enum UserDBEntry {
     UserR1 (UserR1),
+}
+
+impl crate::models::VersionedModel for User {
+    type Entry = UserDBEntry;
+    const NAMESPACE: &'static str = "User";
+
+    fn get_id(&self) -> &async_graphql::ID {
+        &self.id
+    }
 }

@@ -53,7 +53,7 @@ async fn main() -> Result<()> {
     } = init().await?;
     let auth_pem_keys = watch_auth_pem_keys().await?;
 
-    let log = warp::log("auth");
+    let log = warp::log("warp");
 
     let port = env::var("PORT")
         .expect("$PORT must be set")
@@ -93,6 +93,8 @@ async fn main() -> Result<()> {
                     .data(context)
                     .execute(&schema)
                     .await;
+
+                println!("RESP: {:?}", resp);
 
                 // Return result
                 Ok::<_, warp::reject::Rejection>(GQLResponse::from(resp))

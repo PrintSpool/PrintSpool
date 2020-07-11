@@ -4,6 +4,7 @@ use async_graphql::*;
 // use std::sync::Arc;
 use anyhow::{Context as _, Result};
 
+use crate::models::VersionedModel;
 use super::{
     User,
 };
@@ -189,7 +190,7 @@ impl Invite {
     pub async fn delete(context: &crate::Context, invite_id: ID) -> FieldResult<Option<bool>> {
         context.authorize_admins_only()?;
 
-        context.db.remove(Self::key(&invite_id))
+        context.db.remove(Self::key(&invite_id)?)
             .with_context(|| "Error deleting invite")?;
 
         Ok(None)

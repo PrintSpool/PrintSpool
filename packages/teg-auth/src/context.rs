@@ -5,6 +5,7 @@ use std::sync::Arc;
 use crate::models::User;
 use async_std::sync::RwLock;
 use crate::configuration::Config;
+use crate::models::VersionedModel;
 
 pub struct Context {
     pub db: Arc<sled::Db>,

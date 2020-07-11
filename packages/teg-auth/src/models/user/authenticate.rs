@@ -9,6 +9,7 @@ use super::{
 use super::jwt::validate_jwt;
 // use crate::models::{ Invite };
 use crate::{ Context };
+use crate::models::VersionedModel;
 
 impl User {
     pub async fn authenticate(
