@@ -113,9 +113,9 @@ impl Invite {
         if admin_user_count == 0 {
             let initial_invite = Self::scan(db)
                 .await
-                .find(|user| {
-                    if let Ok(user) = user {
-                        user.is_admin && user.slug.is_some()
+                .find(|invite| {
+                    if let Ok(invite) = invite {
+                        invite.is_admin && invite.slug.is_some()
                     } else {
                         true
                     }
@@ -192,6 +192,8 @@ impl Invite {
 
         context.db.remove(Self::key(&invite_id)?)
             .with_context(|| "Error deleting invite")?;
+
+        Self::flush(&context.db).await?;
 
         Ok(None)
     }

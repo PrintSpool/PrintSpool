@@ -12,7 +12,13 @@ use std::convert::{
 
 #[async_trait]
 pub trait VersionedModel: Sized + Send + TryFrom<sled::IVec, Error = anyhow::Error> {
-  type Entry: Into<Self> + From<Self> + serde::Serialize + for<'de> serde::Deserialize<'de>;
+  type Entry:
+    Sized
+    + Send
+    + Into<Self>
+    + From<Self>
+    + serde::Serialize
+    + for<'de> serde::Deserialize<'de>;
   const NAMESPACE: &'static str;
 
   fn get_id(&self) -> &ID;
@@ -49,9 +55,17 @@ pub trait VersionedModel: Sized + Send + TryFrom<sled::IVec, Error = anyhow::Err
   }
 
   async fn get(id: &ID, db: &sled::Db) -> Result<Self> {
-    VersionedModel::get_optional(id, db)
+    Self::get_optional(id, db)
       .await?
       .ok_or(anyhow!("{} {:?} not found", &Self::NAMESPACE, id))
+  }
+
+  async fn flush(db: &sled::Db) -> Result<()> {
+    db.flush_async()
+      .await
+      .with_context(|| format!("Unable to flush database for {}", Self::NAMESPACE))?;
+
+    Ok(())
   }
 
   async fn insert(self, db: &sled::Db) -> Result<Self> {
@@ -63,6 +77,8 @@ pub trait VersionedModel: Sized + Send + TryFrom<sled::IVec, Error = anyhow::Err
 
     db.insert(key, bytes)
         .with_context(|| format!("Unable to insert {}", Self::NAMESPACE))?;
+
+    Self::flush(db).await?;
 
     Ok(entry.into())
   }

@@ -9,8 +9,6 @@ use teg_auth::{
 
 #[async_std::main]
 async fn main() -> Result<()> {
-  println!("hello world");
-
   let context = init().await?;
 
   let _ = Invite::generate_and_display(&context.db, true).await;

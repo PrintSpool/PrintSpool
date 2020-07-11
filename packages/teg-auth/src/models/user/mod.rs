@@ -84,6 +84,8 @@ impl User {
 
         context.db.remove(Self::key(&user_id)?)?;
 
+        Self::flush(&context.db).await?;
+
         Ok(None)
     }
 }

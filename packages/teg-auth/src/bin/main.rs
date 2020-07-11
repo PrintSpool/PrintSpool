@@ -94,7 +94,7 @@ async fn main() -> Result<()> {
                     .execute(&schema)
                     .await;
 
-                println!("RESP: {:?}", resp);
+                // println!("RESP: {:?}", resp);
 
                 // Return result
                 Ok::<_, warp::reject::Rejection>(GQLResponse::from(resp))
