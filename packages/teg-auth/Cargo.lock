@@ -2550,6 +2550,7 @@ dependencies = [
  "notify",
  "openssl",
  "qr2term",
+ "quote",
  "rand 0.5.6",
  "reqwest",
  "rmp-serde",
@@ -2561,9 +2562,11 @@ dependencies = [
  "smol",
  "smol-potat",
  "sqlx",
+ "syn",
  "thiserror",
  "toml",
  "url 2.1.1",
+ "versioned_sled_model",
  "warp",
 ]
 
@@ -2908,6 +2911,16 @@ name = "version_check"
 version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b5a972e5669d67ba988ce3dc826706fb0a8b01471c088cb0b6110b805cc36aed"
+
+[[package]]
+name = "versioned_sled_model"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "waker-fn"

@@ -1,3 +1,5 @@
+// #![feature(proc_macro)]
+extern crate proc_macro;
 // #[macro_use] extern crate async_std;
 #[macro_use] extern crate log;
 // #[macro_use] extern crate log_derive;

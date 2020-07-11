@@ -1,0 +1,16 @@
+[package]
+authors = ["D1plo1d <thatotherdude@gmail.com>"]
+edition = "2018"
+name = "versioned_sled_model"
+version = "0.1.0"
+
+[dependencies]
+anyhow = "1.0"
+quote = "1.0.7"
+syn = "1.0.33"
+proc-macro2 = "1.0.18"
+
+[lib]
+name = "versioned_sled_model"
+path = "src/mod.rs"
+proc-macro = true

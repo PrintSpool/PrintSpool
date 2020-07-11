@@ -1,9 +1,8 @@
-use std::convert::TryInto;
 use chrono::prelude::*;
 // use futures::prelude::*;
 use async_graphql::*;
 // use std::sync::Arc;
-use anyhow::{anyhow, Context as _, Result};
+use anyhow::{Context as _, Result};
 
 use super::{
     User,
@@ -41,50 +40,7 @@ mod invite_code;
 pub use consume_invite::*;
 pub use invite_code::*;
 
-
-const DB_PREFIX: &str = "invites";
-
 impl Invite {
-    pub fn key(invite_id: &ID) -> String {
-        format!("{}:{}", DB_PREFIX, invite_id.to_string())
-    }
-
-    pub fn generate_id(db: &sled::Db) -> Result<ID> {
-        db.generate_id()
-            .map(|id| format!("{:64}", id).into())
-            .with_context(|| "Error generating invite id")
-    }
-
-    pub async fn get(invite_id: &ID, db: &sled::Db) -> Result<Self> {
-        db.get(Self::key(invite_id))
-            .with_context(|| "Unable to get invite")?
-            .ok_or(anyhow!("invite {:?} not found", invite_id))?
-            .try_into()
-    }
-
-    pub async fn insert(self, db: &sled::Db) -> Result<Self> {
-        let id = self.id.clone();
-        let entry = InviteDBEntry::from(self);
-
-        let bytes = serde_cbor::to_vec(&entry)
-            .with_context(|| "Unable to serialize invite in Invite::insert")?;
-
-        db.insert(Self::key(&id), bytes)
-            .with_context(|| "Unable to insert invite")?;
-
-        Ok(entry.into())
-    }
-
-    pub async fn scan(db: &sled::Db) -> impl Iterator<Item = Result<Self>> {
-        db.scan_prefix(&DB_PREFIX)
-            .values()
-            .map(|iv_vec: sled::Result<sled::IVec>| {
-                iv_vec
-                    .with_context(|| "Error scanning invites")
-                    .and_then(|iv_vec| iv_vec.try_into())
-            })
-    }
-
     pub async fn find_by_pk(public_key: &String, db: &sled::Db) -> Result<Option<Self>> {
         Self::scan(&db)
             .await
