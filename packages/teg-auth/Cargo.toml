@@ -41,6 +41,8 @@ url = "2.1.1"
 warp = "0.2.2"
 versioned_sled_model = { path = "../versioned_sled_model/" }
 async-trait = "0.1.36"
+base64 = "0.12.3"
+sha2 = "0.9.1"
 
 [dependencies.async-graphql]
 branch = "patch-1"

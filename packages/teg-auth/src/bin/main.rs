@@ -103,7 +103,7 @@ async fn main() -> Result<()> {
 
     eprintln!("Starting Auth Server");
 
-    warp::serve(
+    let server = warp::serve(
         graphql_filter
         // warp::get2()
         //     .and(warp::path("graphiql"))
@@ -113,7 +113,15 @@ async fn main() -> Result<()> {
             .with(log),
     )
         .run(([127, 0, 0, 1], port))
-        .await;
+        .map(|_| Ok(()));
+
+    let backup_scheduler = schedule_backups(
+        &db,
+        "/var/teg/backups",
+        Duration::from_secs(10),
+    );
+
+    try_join!(server, backup_scheduler).await?;
 
     Ok(())
 }

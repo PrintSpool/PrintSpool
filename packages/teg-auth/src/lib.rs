@@ -22,17 +22,17 @@ use dotenv::dotenv;
 use std::env;
 use std::sync::Arc;
 use async_std::sync::RwLock;
+use async_std::task;
+use anyhow::{anyhow, Context as _, Result};
 
 pub mod models;
 mod context;
 mod graphql_schema;
 mod configuration;
+pub mod backup;
 
 pub use context::Context;
 pub use graphql_schema::{ Query, Mutation };
-
-use async_std::task;
-use anyhow::{anyhow, Context as _, Result};
 
 fn read_config(config_path: &str) -> Result<configuration::Config> {
     let config_file_content = std::fs::read_to_string(config_path.clone())
