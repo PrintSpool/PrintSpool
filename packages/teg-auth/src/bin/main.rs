@@ -121,6 +121,7 @@ async fn main() -> Result<()> {
      let backup_scheduler = schedule_backups(
         &db,
         "/var/teg/backups",
+        4,
         Duration::from_secs(10),
     );
 

@@ -30,6 +30,7 @@ use async_std::io::BufReader;
 pub async fn schedule_backups(
     db: &Arc<sled::Db>,
     backups_dir: &str,
+    max_backups: u32,
     every: Duration,
 ) -> crate::Result<()> {
     let backups_dir = backups_dir.to_string();
@@ -48,7 +49,7 @@ pub async fn schedule_backups(
             async_std::task::sleep(duration).await;
 
             info!("Backing up Sled DB...");
-            backup(&db, &backups_dir).await?;
+            backup(&db, &backups_dir, max_backups).await?;
             info!("Backing up Sled DB... [DONE]");
 
             Ok(())
@@ -77,12 +78,16 @@ struct Collection {
 
 type TreeEntry = Vec<Vec<u8>>;
 
-pub async fn backup(db: &sled::Db, backups_dir: &str) -> crate::Result<()> {
-    // TODO: log rotate / delete older backups
-    create_backup_file(&db, &backups_dir).await
-}
+pub async fn backup(db: &sled::Db, backups_dir: &str, max_backups: u32) -> crate::Result<()> {
+    let backup_files: Vec<PathBuf> = backups(&backups_dir)?.collect();
 
-pub async fn create_backup_file(db: &sled::Db, backups_dir: &str) -> crate::Result<()> {
+    if let Some(oldest_backup) = backup_files.last() {
+        if backup_files.len() as u32 >= max_backups {
+            std::fs::remove_file(&oldest_backup)
+                .with_context(|| "Error rotating backup files")?;
+        }
+    }
+
     let tmp_path = Path::new(backups_dir).join("in-progress-backup.tmp");
 
     let _ = std::fs::remove_file(&tmp_path);
@@ -162,10 +167,9 @@ pub async fn create_backup_file(db: &sled::Db, backups_dir: &str) -> crate::Resu
     Ok(())
 }
 
-pub async fn restore_latest_backup(
-    db: &sled::Db,
+pub fn backups(
     backups_dir: &str,
-) -> crate::Result<()> {
+) -> crate::Result<impl std::iter::Iterator<Item = PathBuf>> {
     let dir = std::fs::read_dir(&backups_dir)?;
 
     let files: Vec<Option<PathBuf>> = dir
@@ -187,6 +191,15 @@ pub async fn restore_latest_backup(
         .into_iter()
         .filter_map(|option| option)
         .sorted();
+
+    Ok(files)
+}
+
+pub async fn restore_latest_backup(
+    db: &sled::Db,
+    backups_dir: &str,
+) -> crate::Result<()> {
+    let files = backups(&backups_dir)?;
 
     let (valid_backup_file, _) = stream::iter(files)
         .then(|file_path| async move {
