@@ -1,7 +1,0 @@
-{
-  "title": "Tegh",
-  "fallback_page": "/index.html",
-  "experimental": {
-    "apis": ["datPeers"]
-  }
-}

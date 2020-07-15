@@ -61,9 +61,11 @@ pub trait VersionedModel: Sized + Send + TryFrom<sled::IVec, Error = anyhow::Err
   }
 
   async fn flush(db: &sled::Db) -> Result<()> {
+    let namespace = Self::NAMESPACE;
+
     db.flush_async()
       .await
-      .with_context(|| format!("Unable to flush database for {}", Self::NAMESPACE))?;
+      .with_context(|| format!("Unable to flush database for {}", namespace))?;
 
     Ok(())
   }

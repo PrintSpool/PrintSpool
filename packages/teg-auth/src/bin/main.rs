@@ -8,7 +8,7 @@ use warp::Filter;
 
 use std::env;
 
-use std::sync::Arc;
+use std::{time::Duration, sync::Arc};
 
 extern crate teg_auth;
 use teg_auth::{
@@ -16,8 +16,9 @@ use teg_auth::{
     Context,
     Query,
     Mutation,
-    watch_auth_pem_keys,
+    watch_auth_pem_keys, backup::schedule_backups,
 };
+use futures::{try_join, FutureExt};
 
 #[derive(thiserror::Error, Debug)]
 pub enum ServiceError {
@@ -62,6 +63,8 @@ async fn main() -> Result<()> {
 
     // let schema = Schema::new(Query, Mutation, EmptySubscription);
     let schema = Schema::new(Query, Mutation, EmptySubscription);
+
+    let db_clone = Arc::clone(&db);
     let graphql_filter = async_graphql_warp::graphql(schema)
         .and(warp::header::optional::<String>("user-id"))
         .and(warp::header::optional::<String>("peer-identity-public-key"))  
@@ -73,7 +76,7 @@ async fn main() -> Result<()> {
             let user_id = user_id.map(|id| ID::from(id));
 
             let context = Context::new(
-                Arc::clone(&db),
+                Arc::clone(&db_clone),
                 user_id,
                 identity_public_key,
                 Arc::clone(&auth_pem_keys),
@@ -113,15 +116,15 @@ async fn main() -> Result<()> {
             .with(log),
     )
         .run(([127, 0, 0, 1], port))
-        .map(|_| Ok(()));
+        .map(|_| Ok(()) as crate::Result<()>);
 
-    let backup_scheduler = schedule_backups(
+     let backup_scheduler = schedule_backups(
         &db,
         "/var/teg/backups",
         Duration::from_secs(10),
     );
 
-    try_join!(server, backup_scheduler).await?;
+    try_join!(server, backup_scheduler)?;
 
     Ok(())
 }
