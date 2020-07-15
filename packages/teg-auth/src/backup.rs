@@ -1,6 +1,6 @@
 use std::time::Duration;
 use std::sync::Arc;
-use std::path::Path;
+use std::path::{PathBuf, Path};
 use std::collections::HashMap;
 use lazy_static::lazy_static;
 
@@ -78,6 +78,11 @@ struct Collection {
 type TreeEntry = Vec<Vec<u8>>;
 
 pub async fn backup(db: &sled::Db, backups_dir: &str) -> crate::Result<()> {
+    // TODO: log rotate / delete older backups
+    create_backup_file(&db, &backups_dir).await
+}
+
+pub async fn create_backup_file(db: &sled::Db, backups_dir: &str) -> crate::Result<()> {
     let tmp_path = Path::new(backups_dir).join("in-progress-backup.tmp");
 
     let _ = std::fs::remove_file(&tmp_path);
@@ -157,11 +162,63 @@ pub async fn backup(db: &sled::Db, backups_dir: &str) -> crate::Result<()> {
     Ok(())
 }
 
-pub async fn restore(db: &sled::Db, backups_dir: &str) -> crate::Result<()> {
-    let file_name = "10004_abc1.bck";
-    let file_path = Path::new(backups_dir).join(&file_name);
+pub async fn restore_latest_backup(
+    db: &sled::Db,
+    backups_dir: &str,
+) -> crate::Result<()> {
+    let dir = std::fs::read_dir(&backups_dir)?;
+
+    let files: Vec<Option<PathBuf>> = dir
+        .map(|entry| -> crate::Result<Option<PathBuf>> {
+            let entry = entry
+                .with_context(|| "Error reading file in backup directory")?;
+
+            let path = entry.path();
+
+            if path.is_dir() || !path.ends_with(".bck") {
+                Ok(None)
+            } else {
+                Ok(Some(path))
+            }
+        })
+        .try_collect()?;
+
+    let files = files
+        .into_iter()
+        .filter_map(|option| option)
+        .sorted();
+
+    let (valid_backup_file, _) = stream::iter(files)
+        .then(|file_path| async move {
+            validate_backup(&file_path)
+                .await
+                .map_err(|err| {
+                    error!("Skipping Corrupted Backup: {:?}", err);
+                    err
+                })
+        })
+        .filter_map(|result| futures::future::ready(result.ok()))
+        .boxed()
+        .into_future()
+        .await;
+
+    let valid_backup_file = valid_backup_file
+        .ok_or(anyhow!("No valid backups found"))?;
+    
+    restore_from_file(&db, &valid_backup_file).await?;
+
+    Ok(())
+}
+
+pub async fn validate_backup(
+    file_path: &PathBuf,
+) -> crate::Result<File> {
+    let file_name = file_path.file_name()
+        .ok_or(anyhow!("Unable to read file name of backup file"))?
+        .to_str()
+        .ok_or(anyhow!("Unable to read file name of backup file"))?;
+
     let mut f = std::fs::File::create(file_path)?;
-    // let mut f = File::create(file_path).await?;
 
     // Parse the file name
     lazy_static! {
@@ -182,10 +239,17 @@ pub async fn restore(db: &sled::Db, backups_dir: &str) -> crate::Result<()> {
         Err(anyhow!("Hash of backup file ({}) does not match file name ({})", hash, file_name))?
     }
 
-
-    // Seek back to the top of the top of the file and parse each JSON line
+    // Seek back to the top of the top of the file
     let mut f = async_std::fs::File::from(f);
     f.seek(async_std::io::SeekFrom::Start(0)).await?;
+
+    Ok(f)
+}
+
+pub async fn restore_from_file(
+    db: &sled::Db,
+    f: &File,
+) -> crate::Result<()> {
     let f = BufReader::new(f);
 
     fn parse_line(line: std::io::Result<String>) -> crate::Result<BackupRow> {
