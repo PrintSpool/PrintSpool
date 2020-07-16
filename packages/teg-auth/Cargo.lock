@@ -2622,6 +2622,7 @@ dependencies = [
  "smol-potat",
  "sqlx",
  "syn",
+ "tempfile",
  "thiserror",
  "toml",
  "url 2.1.1",

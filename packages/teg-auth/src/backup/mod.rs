@@ -1,6 +1,6 @@
 // use std::time::Duration;
 // use std::sync::Arc;
-use std::path::{PathBuf};
+use std::path::{PathBuf, Path};
 // use std::collections::HashMap;
 // use lazy_static::lazy_static;
 
@@ -11,8 +11,8 @@ use itertools::{ Itertools };
 // use chrono::prelude::*;
 
 use anyhow::{
-    // anyhow,
-    // Result,
+    anyhow,
+    Result,
     Context as _,
 };
 
@@ -60,21 +60,29 @@ pub struct Collection {
 pub type TreeEntry = Vec<Vec<u8>>;
 
 pub fn get_backup_files(
-    backups_dir: &str,
-) -> crate::Result<impl std::iter::Iterator<Item = PathBuf>> {
+    backups_dir: &Path,
+) -> Result<impl std::iter::Iterator<Item = PathBuf>> {
     let dir = std::fs::read_dir(&backups_dir)?;
 
     let files: Vec<Option<PathBuf>> = dir
-        .map(|entry| -> crate::Result<Option<PathBuf>> {
+        .map(|entry| -> Result<Option<PathBuf>> {
             let entry = entry
                 .with_context(|| "Error reading file in backup directory")?;
 
             let path = entry.path();
+            let file_name = path.file_name()
+                .and_then(|name| name.to_str());
 
-            if path.is_dir() || !path.ends_with(".bck") {
-                Ok(None)
+            if let Some(file_name) = file_name {
+                println!("{:?} {:?}", file_name, file_name.ends_with(".bck"));
+
+                if path.is_dir() || !file_name.ends_with(".bck") {
+                    Ok(None)
+                } else {
+                    Ok(Some(path))
+                }
             } else {
-                Ok(Some(path))
+                Ok(None)
             }
         })
         .try_collect()?;
@@ -85,4 +93,12 @@ pub fn get_backup_files(
         .sorted();
 
     Ok(files)
+}
+
+pub async fn get_latest_backup(
+    backups_dir: &Path,
+) -> Result<PathBuf> {
+    let mut files = get_backup_files(&backups_dir)?;
+
+    files.next().ok_or(anyhow!("No Backups Found"))
 }

@@ -8,7 +8,7 @@ use warp::Filter;
 
 use std::env;
 
-use std::{time::Duration, sync::Arc};
+use std::{time::Duration, sync::Arc, path::Path};
 
 extern crate teg_auth;
 use teg_auth::{
@@ -118,9 +118,10 @@ async fn main() -> Result<()> {
         .run(([127, 0, 0, 1], port))
         .map(|_| Ok(()) as crate::Result<()>);
 
+    let backups_dir = Path::new("/var/teg/backups");
      let backup_scheduler = schedule_backups(
         &db,
-        "/var/teg/backups",
+        backups_dir,
         4,
         Duration::from_secs(10),
     );

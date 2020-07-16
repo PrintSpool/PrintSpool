@@ -1,5 +1,6 @@
 use std::time::Duration;
 use std::sync::Arc;
+use std::path::Path;
 
 use anyhow::{
     // anyhow,
@@ -18,17 +19,17 @@ use super::backup;
 
 pub async fn schedule_backups(
     db: &Arc<sled::Db>,
-    backups_dir: &str,
+    backups_dir: &Path,
     max_backups: u32,
     every: Duration,
 ) -> Result<()> {
-    let backups_dir = backups_dir.to_string();
+    let backups_dir = backups_dir.clone();
     let db = Arc::clone(&db);
 
     async_std::stream::repeat(())
         .map(|_| Ok(()))
         .try_for_each(|_| {
-        let backups_dir = backups_dir.to_string();
+        let backups_dir = backups_dir.clone();
         let db = Arc::clone(&db);
         async move {
             // TODO: backup durations based on previous backup time

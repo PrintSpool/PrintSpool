@@ -17,7 +17,6 @@ use anyhow::{
 };
 
 use futures::stream::{
-    self,
     StreamExt,
     TryStreamExt,
 };
@@ -31,50 +30,20 @@ use super::{
     BackupRow,
     Collection,
     TreeEntry,
-    get_backup_files,
 };
-
-pub async fn restore_latest_backup(
-    db: &sled::Db,
-    backups_dir: &str,
-) -> Result<()> {
-    let files = get_backup_files(&backups_dir)?;
-
-    let (valid_backup_file, _) = stream::iter(files)
-        .then(|file_path| async move {
-            validate_backup(&file_path)
-                .await
-                .map_err(|err| {
-                    error!("Skipping Corrupted Backup: {:?}", err);
-                    err
-                })
-        })
-        .filter_map(|result| futures::future::ready(result.ok()))
-        .boxed()
-        .into_future()
-        .await;
-
-    let valid_backup_file = valid_backup_file
-        .ok_or(anyhow!("No valid backups found"))?;
-    
-    restore_from_file(&db, &valid_backup_file).await?;
-
-    Ok(())
-}
 
 pub async fn validate_backup(
     file_path: &PathBuf,
 ) -> Result<File> {
     let file_name = file_path.file_name()
-        .ok_or(anyhow!("Unable to read file name of backup file"))?
-        .to_str()
+        .and_then(|file_name| file_name.to_str())
         .ok_or(anyhow!("Unable to read file name of backup file"))?;
 
-    let mut f = std::fs::File::create(file_path)?;
+    let mut f = std::fs::File::open(file_path)?;
 
     // Parse the file name
     lazy_static! {
-        static ref FILE_NAME_REGEX: Regex = Regex::new(r"\d+_([a-zA-Z0-9]).bck").unwrap();
+        static ref FILE_NAME_REGEX: Regex = Regex::new(r"\d+_([a-zA-Z0-9]+)\.bck").unwrap();
     }
 
     // Validate the checksum
@@ -84,7 +53,10 @@ pub async fn validate_backup(
         .as_str();
 
     let mut hasher = Sha256::new();
-    std::io::copy(&mut f, &mut hasher)?;
+
+    std::io::copy(&mut f, &mut hasher)
+        .with_context(|| "Error hashing file contents for verification")?;
+
     let hash = hex::encode(hasher.finalize());
 
     if hash != expected_hash {
@@ -98,10 +70,13 @@ pub async fn validate_backup(
     Ok(f)
 }
 
-pub async fn restore_from_file(
+pub async fn restore(
     db: &sled::Db,
-    f: &File,
+    file_path: &PathBuf,
 ) -> Result<()> {
+    let f = validate_backup(&file_path)
+        .await?;
+
     let f = BufReader::new(f);
 
     fn parse_line(line: std::io::Result<String>) -> Result<BackupRow> {
@@ -131,7 +106,7 @@ pub async fn restore_from_file(
             Err(anyhow!("First row must be a collection, found: {:?}", invalid_first_row))
         }
     }?;
-    
+
     let entries_by_collection: HashMap<Arc<Collection>, Vec<TreeEntry>> = lines
         .into_iter()
         .filter_map(|row| {
