@@ -1,4 +1,3 @@
-// extern crate teg_auth;
 use anyhow::{Result};
 use teg_auth::{
   init,

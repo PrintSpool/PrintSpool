@@ -1,6 +1,6 @@
 // use std::time::Duration;
 use std::sync::Arc;
-use std::path::{PathBuf};
+use std::path::Path;
 use std::collections::HashMap;
 use lazy_static::lazy_static;
 
@@ -33,7 +33,7 @@ use super::{
 };
 
 pub async fn validate_backup(
-    file_path: &PathBuf,
+    file_path: &Path,
 ) -> Result<File> {
     let file_name = file_path.file_name()
         .and_then(|file_name| file_name.to_str())
@@ -72,7 +72,7 @@ pub async fn validate_backup(
 
 pub async fn restore(
     db: &sled::Db,
-    file_path: &PathBuf,
+    file_path: &Path,
 ) -> Result<()> {
     let f = validate_backup(&file_path)
         .await?;

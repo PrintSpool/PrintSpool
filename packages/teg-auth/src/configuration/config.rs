@@ -6,6 +6,7 @@ use super::{
     Controller,
     Video,
 };
+use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -81,13 +82,23 @@ impl Config {
         }
     }
 
-    pub fn socket_path(&self) -> String {
-        let socket_dir = if let Some(snap_name) = &self.debug_snap_name {
+    pub fn var_path(&self) -> PathBuf {
+        let path = if let Some(snap_name) = &self.debug_snap_name {
             format!("/var/snap/{}/current/var", snap_name)
         } else {
             "/var/lib/teg".to_string()
         };
 
-        format!("{}/machine-{}.sock", socket_dir, self.id)
+        PathBuf::from(path)
+    }
+
+    pub fn socket_path(&self) -> PathBuf {
+        let file_name = format!("machine-{}.sock", self.id);
+
+        self.var_path().join(file_name)
+    }
+
+    pub fn backups_dir(&self) -> PathBuf {
+        self.var_path().join("backups")
     }
 }

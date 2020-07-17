@@ -38,3 +38,4 @@ cargo build --release --bins --target=armv7-unknown-linux-gnueabihf
 
 cp -R ./target/armv7-unknown-linux-gnueabihf/release/teg-auth ../../snap/teg-auth-bin/armv7/teg-auth
 cp -R ./target/armv7-unknown-linux-gnueabihf/release/teg-add-invite ../../snap/teg-auth-bin/armv7/teg-add-invite
+cp -R ./target/armv7-unknown-linux-gnueabihf/release/teg-restore-backup ../../snap/teg-auth-bin/armv7/teg-restore-backup

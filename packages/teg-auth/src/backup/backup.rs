@@ -28,7 +28,11 @@ use super::{
     get_backup_files,
 };
 
-pub async fn backup(db: &sled::Db, backups_dir: &Path, max_backups: u32) -> Result<()> {
+pub async fn backup(
+    db: &sled::Db,
+    backups_dir: &Path,
+    max_backups: u32,
+) -> Result<()> {
     let backup_files: Vec<PathBuf> = get_backup_files(&backups_dir)?.collect();
 
     if let Some(oldest_backup) = backup_files.last() {
