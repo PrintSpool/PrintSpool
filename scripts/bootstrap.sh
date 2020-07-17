@@ -12,7 +12,7 @@ cargo install cargo-watch
 yarn
 yarn make-dirs
 
-cd .packages/teg-web-ui/
+cd ./packages/teg-web-ui/
 yarn
 
 cd ../teg-host-posix/

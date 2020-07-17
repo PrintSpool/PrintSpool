@@ -1,3 +1,4 @@
+#[macro_use] extern crate log;
 use std::path::PathBuf;
 use clap::Clap;
 use anyhow::{Result};
@@ -37,5 +38,6 @@ async fn main() -> Result<()> {
 
   let _ = restore(&context.db, &backup_path).await;
 
+  info!("Successfully restored from backup");
   Ok(())
 }

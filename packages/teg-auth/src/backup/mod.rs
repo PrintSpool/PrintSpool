@@ -62,7 +62,8 @@ pub type TreeEntry = Vec<Vec<u8>>;
 pub fn get_backup_files(
     backups_dir: &Path,
 ) -> Result<impl std::iter::Iterator<Item = PathBuf>> {
-    let dir = std::fs::read_dir(&backups_dir)?;
+    let dir = std::fs::read_dir(&backups_dir)
+    .with_context(|| format!("Unable to open backups directory ({:?})", backups_dir))?;
 
     let files: Vec<Option<PathBuf>> = dir
         .map(|entry| -> Result<Option<PathBuf>> {
@@ -74,8 +75,6 @@ pub fn get_backup_files(
                 .and_then(|name| name.to_str());
 
             if let Some(file_name) = file_name {
-                println!("{:?} {:?}", file_name, file_name.ends_with(".bck"));
-
                 if path.is_dir() || !file_name.ends_with(".bck") {
                     Ok(None)
                 } else {

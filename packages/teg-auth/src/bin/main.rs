@@ -8,7 +8,8 @@ use warp::Filter;
 
 use std::env;
 
-use std::{time::Duration, sync::Arc, path::Path};
+use std::{sync::Arc};
+use chrono::Duration;
 
 extern crate teg_auth;
 use teg_auth::{
@@ -65,6 +66,8 @@ async fn main() -> Result<()> {
     let schema = Schema::new(Query, Mutation, EmptySubscription);
 
     let db_clone = Arc::clone(&db);
+    let machine_config_clone = Arc::clone(&machine_config);
+
     let graphql_filter = async_graphql_warp::graphql(schema)
         .and(warp::header::optional::<String>("user-id"))
         .and(warp::header::optional::<String>("peer-identity-public-key"))  
@@ -80,7 +83,7 @@ async fn main() -> Result<()> {
                 user_id,
                 identity_public_key,
                 Arc::clone(&auth_pem_keys),
-                Arc::clone(&machine_config),
+                Arc::clone(&machine_config_clone),
             );
 
             async move {
@@ -118,12 +121,16 @@ async fn main() -> Result<()> {
         .run(([127, 0, 0, 1], port))
         .map(|_| Ok(()) as crate::Result<()>);
 
-    let backups_dir = Path::new("/var/teg/backups");
-     let backup_scheduler = schedule_backups(
+    let backups_dir = machine_config
+        .read()
+        .await
+        .backups_dir();
+
+    let backup_scheduler = schedule_backups(
         &db,
-        backups_dir,
+        &&backups_dir,
         4,
-        Duration::from_secs(10),
+        Duration::days(1),
     );
 
     try_join!(server, backup_scheduler)?;

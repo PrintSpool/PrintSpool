@@ -45,7 +45,9 @@ pub async fn backup(
     let tmp_path = Path::new(backups_dir).join("in-progress-backup.tmp");
 
     let _ = std::fs::remove_file(&tmp_path);
-    let f = File::create(&tmp_path).await?;
+    let f = File::create(&tmp_path)
+        .await
+        .with_context(|| format!("Unable to create backup file ({:?})", tmp_path))?;
 
     let hasher = Sha256::new();
 
