@@ -161,16 +161,29 @@ apps:
       RUST_BACKTRACE: 1
       POSTGRESQL_ADDON_URI: postgres://postgres@localhost/teg
       DATABASE_URL: postgres://postgres@localhost/teg
+      SLED_DB_PATH: /var/lib/teg/db.sled
       FIREBASE_PROJECT_ID: tegapp-dev
       PORT: 33005
       RUST_LOG: INFO
     command: teg-add-invite
+  restore-backup:
+    environment:
+      RUST_ENV: production
+      RUST_BACKTRACE: 1
+      POSTGRESQL_ADDON_URI: postgres://postgres@localhost/teg
+      DATABASE_URL: postgres://postgres@localhost/teg
+      SLED_DB_PATH: /var/lib/teg/db.sled
+      FIREBASE_PROJECT_ID: tegapp-dev
+      PORT: 33005
+      RUST_LOG: INFO
+    command: teg-restore-backup
   auth:
     environment:
       RUST_ENV: production
       RUST_BACKTRACE: 1
       POSTGRESQL_ADDON_URI: postgres://postgres@localhost/teg
       DATABASE_URL: postgres://postgres@localhost/teg
+      SLED_DB_PATH: /var/lib/teg/db.sled
       FIREBASE_PROJECT_ID: tegapp-dev
       PORT: 33005
       RUST_LOG: INFO

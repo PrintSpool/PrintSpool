@@ -30,12 +30,14 @@ MAKEFLAGS=-j8
 
 # GCC_BUILTIN_PREREQS=yes
 
-cd ./packages/teg-auth
+cd ./packages/${PACKAGE}
 
 # CC=arm-linux-gnueabihf-gcc
 
 cargo build --release --bins --target=armv7-unknown-linux-gnueabihf
 
-cp -R ./target/armv7-unknown-linux-gnueabihf/release/teg-auth ../../snap/teg-auth-bin/armv7/teg-auth
-cp -R ./target/armv7-unknown-linux-gnueabihf/release/teg-add-invite ../../snap/teg-auth-bin/armv7/teg-add-invite
-cp -R ./target/armv7-unknown-linux-gnueabihf/release/teg-restore-backup ../../snap/teg-auth-bin/armv7/teg-restore-backup
+RUST_RELEASE_DIR=./target/armv7-unknown-linux-gnueabihf/release
+SNAP_BIN_DIR=../../snap/${PACKAGE}-bin/armv7/
+
+find ${RUST_RELEASE_DIR} -maxdepth 1 -type f \( ! -iname ".*" ! -iname "*.d" \) -exec cp -t ${SNAP_BIN_DIR} {} +
+

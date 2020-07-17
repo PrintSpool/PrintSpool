@@ -50,6 +50,8 @@ const printerConfig = {
           'M600',
         ],
         blockingCodes: [
+          'M0',
+          'M1',
           'M109',
           'M116',
           'M190',

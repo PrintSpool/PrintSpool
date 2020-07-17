@@ -15,6 +15,7 @@ podman pull arm32v7/ubuntu:18.04 || true
 
 # Build the runtime stage, using cached compile stage:
 podman build \
+       --cgroup-manager="cgroupfs" \
        --cache-from=teg-armv7:compile-stage \
        --cache-from=teg-armv7:latest \
        --tag teg-armv7:latest .

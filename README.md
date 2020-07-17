@@ -12,37 +12,25 @@ Note: Teg is an early-access alpha in active development. Please be aware that i
 
 Last but not least if you find any please me know in the issues! Even if it is a known issue an upvote for the bug helps me prioritize what to work on next.
 
+
 ## Dev Environment
 
-### Environment Setup
+### Dev Environment Setup
 
 For completeness this documentation lists all the dependencies to get a development environment running on a fresh Ubuntu 18.04 install. You may opt to skip the dependencies you have installed already.
-z
+
 1. Install [nvm](https://github.com/creationix/nvm)
 2. Install [Rust](https://rustup.rs/)
-3. `sudo apt update && sudo apt install build-essential pkg-config python libssl-dev postgresql libpq-dev tmux qemu qemu-user qemu-user-static binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf fuse-overlayfs`
+3. `sudo apt update && sudo apt install build-essential pkg-config python tmux qemu qemu-user qemu-user-static binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf fuse-overlayfs`
+<!-- Removed until we need PG again: libssl-dev postgresql libpq-dev -->
 4. Enable Passwordless local logins in Postgres: https://gist.github.com/p1nox/4953113
 5. Allow serial port access via the dialout group and then log out and back in: `sudo gpasswd --add ${USER} dialout`
 6. Increase the max_user_watches: `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`
 7. Bootstrap the dev environment with teg, node 10 and yarn:
 `nvm use && npm i -g yarn && yarn bootstrap`
 
-## Compiling Releases
 
-### Environment Setup
-
-Note: These dependencies are only for building snaps - they are not needed for most development.
-
-1. Install Podman: https://podman.io/getting-started/installation.html
-2. `cargo install cross`
-3. Build the docker image: `./armv7/build-image.sh`
-4. `podman run -v "$PWD":/usr/src/teg -w /usr/src/teg/ -it teg-armv7 /bin/bash -c ./scripts/build-pkg-ephemeral.sh`
-
-### Building the snap
-
-`yarn snap:build`
-
-## Running the Dev Host + Web UI
+### Running the Dev Host + Web UI
 
 Disable any other copies of teg and run `yarn start`
 
@@ -52,6 +40,24 @@ This:
 * starts all the services required for a hot reloading development 3D print using your `/etc/teg/` configs
 * starts a hot reloading instance of the web ui
 * echos an invite code to the command line if you haven't connected already.
+
+
+## Building Releases
+
+### Build Environment Setup
+
+Note: These dependencies are only for building snaps - they are not needed for most development.
+
+1. Install Podman: https://podman.io/getting-started/installation.html
+2. `sudo snap install snapcraft --classic`
+3. `pushd . && cd ./packages/teg-auth/ && rustup target add armv7-unknown-linux-gnueabihf && popd`
+4. Build the docker image: `./armv7/build-image.sh`
+
+
+### Building the snap
+
+`yarn snap:build`
+
 
 ### Running the test suite
 
