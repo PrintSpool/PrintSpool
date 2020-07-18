@@ -68,9 +68,11 @@ impl Encoder<GCodeLine> for GCodeCodec {
         } else {
             line + "\n"
         };
-        let line = line.as_bytes();
 
         trace!("TX  {:?}", line);
+
+        let line = line.as_bytes();
+
         dst.reserve(line.len() + 1);
         dst.put(line);
         Ok(())
