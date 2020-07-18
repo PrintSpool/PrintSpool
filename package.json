@@ -56,7 +56,6 @@
   ],
   "workspaces": {
     "packages": [
-      "packages/teg-autodrop3d",
       "packages/teg-core",
       "packages/teg-marlin",
       "packages/teg-macros-default",

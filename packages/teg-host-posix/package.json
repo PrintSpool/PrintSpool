@@ -39,7 +39,6 @@
   "dependencies": {
     "@babel/core": "^7.0.0-0",
     "@babel/register": "^7.0.0",
-    "@tegapp/autodrop3d": "^0.9.0",
     "@tegapp/core": "^0.9.0",
     "@tegapp/macros-default": "^0.9.0",
     "@tegapp/marlin": "^0.9.1",
