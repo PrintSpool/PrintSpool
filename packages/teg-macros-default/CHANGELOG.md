@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/tegapp/teg/compare/v0.9.1...v0.10.0) (2020-07-18)
+
+
+### Features
+
+* Added a continuous movement mode in Maintenance ([9cda8e3](https://github.com/tegapp/teg/commit/9cda8e3))
+
+
+
+
+
 # [0.9.0](https://github.com/tegapp/teg/compare/v0.8.0...v0.9.0) (2020-05-18)
 
 

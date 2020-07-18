@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/teg/teg-host-posix/compare/v0.9.1...v0.10.0) (2020-07-18)
+
+
+### Bug Fixes
+
+* PIDs restart at zero and the pid file persisted after reboot may contain a pid that is reused by a new process post-reboot ([f120361](https://github.com/teg/teg-host-posix/commit/f120361))
+* Updated snap build process and added support for M0 and M1 pause MCodes ([b9d911b](https://github.com/teg/teg-host-posix/commit/b9d911b))
+
+
+### Features
+
+* Added an option to swap the visual orientation of the XY axes to match the angle you use your printer from ([6e6619a](https://github.com/teg/teg-host-posix/commit/6e6619a))
+
+
+
+
+
 ## [0.9.1](https://github.com/teg/teg-host-posix/compare/v0.9.0...v0.9.1) (2020-05-18)
 
 **Note:** Version bump only for package @tegapp/host-posix

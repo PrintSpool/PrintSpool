@@ -3,6 +3,60 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/tegapp/teg/compare/v0.9.1...v0.10.0) (2020-07-18)
+
+
+### Bug Fixes
+
+* 3D printers without video feeds no longer error trying to load non-existant video streams ([294114f](https://github.com/tegapp/teg/commit/294114f))
+* Added error handling to useExecGcodes and fixed Confirm dialog so that it no longer causes react errors ([16d5b71](https://github.com/tegapp/teg/commit/16d5b71))
+* Clicking a link in the mobile navigation should close the nav drawer ([d618cbb](https://github.com/tegapp/teg/commit/d618cbb))
+* Clicking back does not exit out of red error screens ([024a5c9](https://github.com/tegapp/teg/commit/024a5c9))
+* Connection randomly freezes when creating a toolhead ([ea67ae3](https://github.com/tegapp/teg/commit/ea67ae3))
+* Disabling the terminal when the printer is not ready to receive GCodes ([eb859b7](https://github.com/tegapp/teg/commit/eb859b7))
+* Fixed continuous move buttons on mobile ([52d9a19](https://github.com/tegapp/teg/commit/52d9a19))
+* Fixed direction of swap filament retraction ([24192fc](https://github.com/tegapp/teg/commit/24192fc))
+* Fixed max temperature history length limiting ([1bac810](https://github.com/tegapp/teg/commit/1bac810))
+* Fixed task annotations for swapping filaments via gcodes ([ffd5780](https://github.com/tegapp/teg/commit/ffd5780))
+* Flushing all db writes before responding to the client ([818fd62](https://github.com/tegapp/teg/commit/818fd62))
+* history length ([0ceaa66](https://github.com/tegapp/teg/commit/0ceaa66))
+* iOS no longer blocked by 'Unsupported Browser' screen ([b89da2f](https://github.com/tegapp/teg/commit/b89da2f))
+* PIDs restart at zero and the pid file persisted after reboot may contain a pid that is reused by a new process post-reboot ([f120361](https://github.com/tegapp/teg/commit/f120361))
+* prevent video sources query from erroring the whole page (return empty list on error) ([c58ce02](https://github.com/tegapp/teg/commit/c58ce02))
+* Prevented uploading of non-gcode files ([6bd4f45](https://github.com/tegapp/teg/commit/6bd4f45))
+* Removed reference to undocumented extended gcodes ([8a03df0](https://github.com/tegapp/teg/commit/8a03df0))
+* TX traces should log text not byte arrays ([fbf3bfb](https://github.com/tegapp/teg/commit/fbf3bfb))
+* Typo ([d04d225](https://github.com/tegapp/teg/commit/d04d225))
+* Updated snap build process and added support for M0 and M1 pause MCodes ([b9d911b](https://github.com/tegapp/teg/commit/b9d911b))
+* Video streaming now attempts to reconnect after its connection is lost ([2fc0759](https://github.com/tegapp/teg/commit/2fc0759))
+
+
+### Features
+
+* Add a "Move to top of queue" button for jobs ([f8f3faa](https://github.com/tegapp/teg/commit/f8f3faa))
+* Added a continuous movement mode in Maintenance ([9cda8e3](https://github.com/tegapp/teg/commit/9cda8e3))
+* Added a less scary error screen for previously consumed invites ([400ac43](https://github.com/tegapp/teg/commit/400ac43))
+* Added a Print Now button to skip directly to printing ([2324553](https://github.com/tegapp/teg/commit/2324553))
+* Added a teg-restore-backup command to revert the sled database ([109c899](https://github.com/tegapp/teg/commit/109c899))
+* Added an option to swap the visual orientation of the XY axes to match the angle you use your printer from ([6e6619a](https://github.com/tegapp/teg/commit/6e6619a))
+* Added confirmation dialogs to estop, delete job and cancel print ([f1681a3](https://github.com/tegapp/teg/commit/f1681a3))
+* Added MACHINE_CONFIG and COMBINATOR_CONFIG optional env variables to tegh-auth ([9bc25f4](https://github.com/tegapp/teg/commit/9bc25f4))
+* Added notices for unsupported browser versions ([3a95e03](https://github.com/tegapp/teg/commit/3a95e03))
+* Added video feeds to job view ([eac3e98](https://github.com/tegapp/teg/commit/eac3e98))
+* Automatic daily backups of the users and invites database ([d7f1c20](https://github.com/tegapp/teg/commit/d7f1c20))
+* Filament swap wizard now resets the 3D printer on exit to cancel blocking heating commands and allow the user to regain control of their machine. ([4e02e6f](https://github.com/tegapp/teg/commit/4e02e6f))
+* Implemented a sled model versioning library for database migrations ([ddad430](https://github.com/tegapp/teg/commit/ddad430))
+* Migrated to the sled embedded databaase ([c80d6d2](https://github.com/tegapp/teg/commit/c80d6d2))
+* Re-added github link ([90c3a60](https://github.com/tegapp/teg/commit/90c3a60))
+* Removed crypto currency links (do not use these accounts, these addresses are borked) ([04c6a43](https://github.com/tegapp/teg/commit/04c6a43))
+* Set up subscribe links in place of onboarding until early access is ready. ([849b287](https://github.com/tegapp/teg/commit/849b287))
+* Updated users to versioned sled models ([a535b9a](https://github.com/tegapp/teg/commit/a535b9a))
+* Video fixed to the screen as the user scrolls through maintenance controls ([e83559f](https://github.com/tegapp/teg/commit/e83559f))
+
+
+
+
+
 ## [0.9.1](https://github.com/tegapp/teg/compare/v0.9.0...v0.9.1) (2020-05-18)
 
 

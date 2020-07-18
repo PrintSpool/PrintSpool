@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/teg/teg-host-posix/compare/v0.9.1...v0.10.0) (2020-07-18)
+
+
+### Bug Fixes
+
+* Added error handling to useExecGcodes and fixed Confirm dialog so that it no longer causes react errors ([16d5b71](https://github.com/teg/teg-host-posix/commit/16d5b71))
+* Connection randomly freezes when creating a toolhead ([ea67ae3](https://github.com/teg/teg-host-posix/commit/ea67ae3))
+* Fixed max temperature history length limiting ([1bac810](https://github.com/teg/teg-host-posix/commit/1bac810))
+* Fixed task annotations for swapping filaments via gcodes ([ffd5780](https://github.com/teg/teg-host-posix/commit/ffd5780))
+* history length ([0ceaa66](https://github.com/teg/teg-host-posix/commit/0ceaa66))
+* Prevented uploading of non-gcode files ([6bd4f45](https://github.com/teg/teg-host-posix/commit/6bd4f45))
+* Removed reference to undocumented extended gcodes ([8a03df0](https://github.com/teg/teg-host-posix/commit/8a03df0))
+
+
+### Features
+
+* Add a "Move to top of queue" button for jobs ([f8f3faa](https://github.com/teg/teg-host-posix/commit/f8f3faa))
+* Added a Print Now button to skip directly to printing ([2324553](https://github.com/teg/teg-host-posix/commit/2324553))
+* Added an option to swap the visual orientation of the XY axes to match the angle you use your printer from ([6e6619a](https://github.com/teg/teg-host-posix/commit/6e6619a))
+
+
+
+
+
 # [0.9.0](https://github.com/teg/teg-host-posix/compare/v0.8.0...v0.9.0) (2020-05-18)
 
 

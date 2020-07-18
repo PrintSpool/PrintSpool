@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.10.0](https://github.com/tegapp/teg/compare/v0.9.1...v0.10.0) (2020-07-18)
+
+
+### Bug Fixes
+
+* TX traces should log text not byte arrays ([fbf3bfb](https://github.com/tegapp/teg/commit/fbf3bfb))
+* Updated snap build process and added support for M0 and M1 pause MCodes ([b9d911b](https://github.com/tegapp/teg/commit/b9d911b))
+
+
+
+
+
 ## [0.9.1](https://github.com/tegapp/teg/compare/v0.9.0...v0.9.1) (2020-05-18)
 
 **Note:** Version bump only for package @tegapp/marlin
