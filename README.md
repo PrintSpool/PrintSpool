@@ -59,10 +59,30 @@ Note: These dependencies are only for building snaps - they are not needed for m
 `yarn snap:build`
 
 
-### Running the test suite
+<!-- ### Running the test suite
 
 Run `yarn test`
+ -->
 
+### Developer Rapsberry Pi Setup
+
+Note: Teg is in Limited Closed Beta testing at the moment. These instructions are for my own personal use and will very likely not work on your computer.
+
+#### Part 1: Setting up a Rapsberry Pi
+
+Note: Pi Bakery may be an easier alternative to the steps bellow Windows and Mac users. See: https://www.pibakery.org/
+
+1. Use the [https://www.raspberrypi.org/downloads/](Raspberry Pi Imager) to install the latest Raspberry Pi OS
+2. *Recommended* Generate a password hash (`openssl passwd -6`) and replace the pi's password in `/YOUR_SD_CARD/etc/shadow` on your sd card
+3. *Optional, if using Wifi* Set up wifi: https://desertbot.io/blog/headless-raspberry-pi-3-bplus-ssh-wifi-setup
+4. *Optional* Add a ssh file to the boot partition to enable SSH ( See: https://www.raspberrypi.org/documentation/remote-access/ssh/README.md )
+5. *Optional* Set a host name: https://raspberrypi.stackexchange.com/a/44963
+
+#### Part 2: Installing Teg
+
+1. Start your Raspbery Pi
+2. On the Raspberry Pi (via SSH or with a monitor and keyboard) install Teg from the snap store using: `sudo apt update && sudo apt install -y snapd && sudo snap install tegh --devmode`
+<!-- 3. Generate an invite code using: `tegh.add-invite` -->
 
 ### Enabling V4L2 on the Offial RaspberryPi Camera
 
