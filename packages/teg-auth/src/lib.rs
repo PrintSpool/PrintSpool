@@ -77,14 +77,6 @@ pub async fn init() -> Result<Context> {
     dotenv().ok();
     env_logger::init();
 
-    // let database_url = env::var("POSTGRESQL_ADDON_URI")
-    //     .expect("$POSTGRESQL_ADDON_URI must be set");
-
-    // let pool = sqlx::PgPool::new(&database_url)
-    //     .await
-    //     .map(|p| Arc::new(p))
-    //     .expect("Could not connect to Postgres");
-
     let db_file = env::var("SLED_DB_PATH")
         .expect("$SLED_DB_PATH not set");
 
