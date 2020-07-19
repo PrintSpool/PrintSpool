@@ -330,7 +330,7 @@ impl State {
         // } else {
         //     1_000
         // };
-        let connection_timeout_ms = 1_000;
+        let connection_timeout_ms = 3_000;
 
         let new_connection = if let Connecting(Connecting { .. }) = self {
             false
@@ -369,7 +369,22 @@ impl State {
                 },
             ]);
 
-            let next_state = Self::new_connection(baud_rate_candidates);
+            let mut next_state = Self::new_connection(baud_rate_candidates);
+
+            // If the controller does not send a greeting then skip waiting for it
+            if !context.controller.await_greeting_from_firmware {
+                if let Connecting(connecting) = next_state {
+                    let Loop {
+                        next_state: after_greeting,
+                        effects: mut greeting_effects,
+                    } = Self::receive_greeting(connecting);
+
+                    next_state = after_greeting;
+                    effects.append(&mut greeting_effects);
+                } else {
+                    panic!("Invariant: Connecting state not matched for new_connection")
+                }
+            }
 
             if new_connection {
                 info!("Connecting to serial device...");

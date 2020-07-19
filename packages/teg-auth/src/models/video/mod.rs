@@ -59,12 +59,12 @@ const WEBRTC_STREAMER_API: &'static str = "http://localhost:8009/api";
 pub async fn get_video_sources(
     _context: &Context,
 ) -> FieldResult<Vec<VideoSource>> {
-    let media_list: Vec<Media> = reqwest::blocking::Client::new()
+    let media_list: Vec<Media> = reqwest::Client::new()
         .post(&format!("{}/getMediaList", WEBRTC_STREAMER_API))
-        .send()?
-        // .await?
-        .json()?;
-        // .await?;
+        .send()
+        .await?
+        .json()
+        .await?;
 
     let video_providers = media_list.into_iter()
         .map(|media| VideoSource {
@@ -101,7 +101,7 @@ pub async fn create_video_sdp(
     /*
     * Query the webrtc-streamer
     */
-    let answer: RTCSignal = reqwest::blocking::Client::new()
+    let answer: RTCSignal = reqwest::Client::new()
         .post(&format!("{}/call", WEBRTC_STREAMER_API))
         .json(&offer)
         .query(&[
@@ -111,10 +111,10 @@ pub async fn create_video_sdp(
             // ("url", "mmal service 16.1".to_string()),
             ("options", "rtptransport=tcp&timeout=60".to_string()),
         ])
-        .send()?
-        // .await?
-        .json()?;
-        // .await?;
+        .send()
+        .await?
+        .json()
+        .await?;
 
     // // use std::sync::Arc;
     // // let id = Arc::new(id);

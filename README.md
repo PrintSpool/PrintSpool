@@ -24,7 +24,7 @@ For completeness this documentation lists all the dependencies to get a developm
 3. `sudo apt update && sudo apt install build-essential pkg-config python tmux qemu qemu-user qemu-user-static binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf fuse-overlayfs`
 <!-- Removed until we need PG again: libssl-dev postgresql libpq-dev -->
 4. Enable Passwordless local logins in Postgres: https://gist.github.com/p1nox/4953113
-5. Allow serial port access via the dialout group and then log out and back in: `sudo gpasswd --add ${USER} dialout`
+5. Allow serial port access via the dialout group and then restart your computer: `sudo gpasswd --add ${USER} dialout`
 6. Increase the max_user_watches: `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`
 7. Bootstrap the dev environment with teg, node 10 and yarn:
 `nvm use && npm i -g yarn && yarn bootstrap`
