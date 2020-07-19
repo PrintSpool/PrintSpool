@@ -23,7 +23,11 @@ use std::env;
 use std::sync::Arc;
 use async_std::sync::RwLock;
 use async_std::task;
-use anyhow::{anyhow, Context as _, Result};
+use anyhow::{
+    anyhow,
+    Context as _,
+    Result,
+};
 
 pub mod models;
 mod context;

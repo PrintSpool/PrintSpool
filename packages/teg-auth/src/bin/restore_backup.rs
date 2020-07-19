@@ -1,7 +1,12 @@
 #[macro_use] extern crate log;
 use std::path::PathBuf;
 use clap::Clap;
-use anyhow::{Result};
+
+use anyhow::{
+  Context as _,
+  Result,
+};
+
 use teg_auth::{
   init,
   backup::{
@@ -9,6 +14,7 @@ use teg_auth::{
       get_latest_backup,
   },
 };
+
 
 /// Restore Teg's Sled Database from a backup. By default Teg takes a backup once a week and keeps 4
 /// weeks of backups to restore from.
@@ -23,7 +29,8 @@ struct Opts {
 async fn main() -> Result<()> {
   let opts: Opts = Opts::parse();
 
-  let context = init().await?;
+  let context = init().await
+    .with_context(|| "Teg must be stopped before restoring by running: sudo snap stop tegh")?;
 
   let backup_path = if let Some(backup_path) = opts.backup_file {
     PathBuf::from(&backup_path)
@@ -39,5 +46,7 @@ async fn main() -> Result<()> {
   let _ = restore(&context.db, &backup_path).await;
 
   info!("Successfully restored from backup");
+  info!("Teg is stopped. To restart Teg run: sudo snap start tegh");
+
   Ok(())
 }

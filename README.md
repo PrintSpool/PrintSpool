@@ -84,11 +84,23 @@ Note: Pi Bakery may be an easier alternative to the steps bellow Windows and Mac
 2. On the Raspberry Pi (via SSH or with a monitor and keyboard) install Teg from the snap store using: `sudo apt update && sudo apt install -y snapd && sudo snap install tegh --devmode`
 <!-- 3. Generate an invite code using: `tegh.add-invite` -->
 
-### Enabling V4L2 on the Offial RaspberryPi Camera
+## Troubleshooting
 
-See: https://www.raspberrypi.org/forums/viewtopic.php?t=62364
+### Enabling the RaspberryPi Camera
 
-TL;DR: run: `sudo modprobe bcm2835-v4l2`
+To enable the PiCam on the Raspberry Pi run: `sudo modprobe bcm2835-v4l2`
+
+You should not need to do this for a USB webcam.
+
+Source: https://www.raspberrypi.org/forums/viewtopic.php?t=62364
+
+### Restoring from Backup
+
+Teg takes weekly backups so if your database becomes corrupted you should be able to restore from an automatic backup.
+
+To learn how to restore from backup run: `tegh.restore-backup --help`
+
+Backups are stored in `/var/snap/tegh/current/backups`
 
 <!-- 
   TODO: I think the following information is out of date and no longer necessary to configure Teg:
