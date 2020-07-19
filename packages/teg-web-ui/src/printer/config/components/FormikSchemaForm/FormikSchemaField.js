@@ -60,6 +60,12 @@ const FormikSchemaField = ({
     disabled: property.readOnly,
   }
 
+  let multiline = false
+  if (['beforePrintHook', 'afterPrintHook'].includes(name)) {
+    multiline = true
+  }
+  console.log({ name, multiline })
+
   switch (property.type) {
     case 'number':
     case 'integer':
@@ -80,6 +86,8 @@ const FormikSchemaField = ({
       return (
         <FieldComponent
           {...sharedFieldProps}
+          multiline={multiline}
+          rows={multiline ? 5 : null}
           type={type}
           select={property.enum != null}
           component={TextFieldWrapper}

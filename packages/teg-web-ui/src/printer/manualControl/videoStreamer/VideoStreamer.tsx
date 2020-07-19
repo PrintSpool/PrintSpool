@@ -87,7 +87,7 @@ const enhance = (Component: any) => (props: any) => {
       },
     })
 
-    // console.log('answer', data.createVideoSDP.answer)
+    console.log('answer', data.createVideoSDP.answer)
     p.signal(data.createVideoSDP.answer)
 
     const updateIceCandidates = async () => {
@@ -138,6 +138,8 @@ const enhance = (Component: any) => (props: any) => {
   const { isLoading, error, run: runLoadVideo } = useAsync({
     deferFn: loadVideo,
   })
+
+  console.log({ error, isLoading })
 
   // Load the video stream on startup
   useEffect(() => {
