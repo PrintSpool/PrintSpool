@@ -1,11 +1,16 @@
-// use chrono::prelude::*;
+use std::time::Duration;
 use async_graphql::*;
+use async_std::future;
 use serde::{
     Serialize,
     Deserialize,
 };
+use anyhow::{
+    anyhow,
+    Result,
+    Context as _,
+};
 
-// use crate::models::{ Invite };
 use crate::{ Context };
 
 #[SimpleObject]
@@ -21,6 +26,8 @@ pub struct RTCSignal {
 pub struct VideoSession {
     pub id: ID,
     pub answer: RTCSignal,
+    #[field(name = "iceCandidates")]
+    pub ice_candidates: Vec<IceCandidate>,
 }
 
 #[SimpleObject]
@@ -59,12 +66,11 @@ const WEBRTC_STREAMER_API: &'static str = "http://localhost:8009/api";
 pub async fn get_video_sources(
     _context: &Context,
 ) -> FieldResult<Vec<VideoSource>> {
-    let media_list: Vec<Media> = reqwest::Client::new()
-        .post(&format!("{}/getMediaList", WEBRTC_STREAMER_API))
-        .send()
-        .await?
-        .json()
-        .await?;
+    let req = surf::post(&format!("{}/getMediaList", WEBRTC_STREAMER_API))
+        .recv_json();
+
+    let media_list: Vec<Media> = future::timeout(Duration::from_millis(5_000), req)
+        .await??;
 
     let video_providers = media_list.into_iter()
         .map(|media| VideoSource {
@@ -78,11 +84,10 @@ pub async fn get_video_sources(
 pub async fn create_video_sdp(
     context: &Context,
     offer: RTCSignalInput,
-// ) -> FieldResult<RTCSignal> {
-) -> FieldResult<VideoSession> {
+) -> Result<VideoSession> {
     let user = context.current_user
         .as_ref()
-        .ok_or("Unauthorized to create video SDP")?;
+        .ok_or(anyhow!("Unauthorized to create video SDP"))?;
 
     let id = format!("{}_{}", user.id.to_string(), rand::random::<u32>().to_string());
 
@@ -92,83 +97,66 @@ pub async fn create_video_sdp(
         .await
         .get_videos()
         .next()
-        .ok_or("No video source configured")?
+        .ok_or(anyhow!("No video source configured"))?
         .source
         .to_owned();
 
     info!("creating video sdp for: {}", source_url);
+    info!("offer: {:?}", offer);
 
     /*
     * Query the webrtc-streamer
     */
-    let answer: RTCSignal = reqwest::Client::new()
-        .post(&format!("{}/call", WEBRTC_STREAMER_API))
-        .json(&offer)
-        .query(&[
+    let req = surf::post(&format!("{}/call", WEBRTC_STREAMER_API))
+        .body_json(&offer)?
+        .set_query(&[
             ("peerid", id.to_string()),
             ("url", source_url),
-            // ("url", "videocap://1".to_string()),
-            // ("url", "mmal service 16.1".to_string()),
             ("options", "rtptransport=tcp&timeout=60".to_string()),
-        ])
-        .send()
-        .await?
-        .json()
-        .await?;
+        ])?
+        .recv_json();
 
-    // // use std::sync::Arc;
-    // // let id = Arc::new(id);
-    // loop {
-    //     // let id = Arc::clone(&id);
-    //     let ice_candidates: Vec<IceCandidate> = reqwest::blocking::Client::new()
-    //         .post(&format!("{}/getIceCandidate", WEBRTC_STREAMER_API))
-    //         .json(&offer)
-    //         .query(&[
-    //             ("peerid", id.clone()),
-    //         ])
-    //         .send()?
-    //         // .await?
-    //         .json()?;
-    //         // .await?;
-    //
-    //     info!("ICE: {:?}", ice_candidates);
-    //
-    //     use async_std::task;
-    //     task::sleep(std::time::Duration::from_millis(500)).await;
-    // };
+    let answer = future::timeout(Duration::from_millis(5_000), req)
+        .await?
+        .map_err(|err| anyhow!(err)) // TODO: Remove me when surf 2.0 is released
+        .with_context(|| "Unable to create video call")?;
+
+    let ice_candidates = get_ice_candidates(&context, id.clone().into())
+        .await?;
 
     Ok(VideoSession {
         id: id.into(),
         answer,
+        ice_candidates,
     })
-    // Ok(answer)
 }
 
 pub async fn get_ice_candidates(
     context: &Context,
     id: ID,
-) -> FieldResult<Vec<IceCandidate>> {
+) -> Result<Vec<IceCandidate>> {
+    // Ok(vec![])
     let user = context.current_user
         .as_ref()
-        .ok_or("Unauthorized to create video SDP")?;
+        .ok_or(anyhow!("Unauthorized to create video SDP"))?;
 
     if !id.starts_with(&format!("{}_", user.id.to_string()).to_string()) {
-        Err("Invalid Video Session ID")?;
+        Err(anyhow!("Invalid Video Session ID"))?;
     }
 
     /*
     * Query the webrtc-streamer
     */
-    // let id = Arc::clone(&id);
-    let ice_candidates: Vec<IceCandidate> = reqwest::blocking::Client::new()
-        .get(&format!("{}/getIceCandidate", WEBRTC_STREAMER_API))
-        .query(&[
+    let req = surf::get(&format!("{}/getIceCandidate", WEBRTC_STREAMER_API))
+        .set_query(&[
             ("peerid", id.to_string()),
-        ])
-        .send()?
-        // .await?
-        .json()?;
-        // .await?;
+        ])?
+        .recv_json();
+
+    let ice_candidates = future::timeout(Duration::from_millis(5_000), req)
+        .await?
+        .map_err(|err| anyhow!(err)) // TODO: Remove me when surf 2.0 is released
+        .with_context(|| "Unable to get ice candidates")?;
 
     info!("ICE: {:?}", ice_candidates);
 

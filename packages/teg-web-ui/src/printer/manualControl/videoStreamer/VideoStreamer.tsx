@@ -25,6 +25,11 @@ const createVideoSDPMutation = gql`
         type
         sdp
       }
+      iceCandidates {
+        candidate
+        sdpMLineIndex
+        sdpMid
+      }
     }
   }
 `
@@ -90,6 +95,12 @@ const enhance = (Component: any) => (props: any) => {
     console.log('answer', data.createVideoSDP.answer)
     p.signal(data.createVideoSDP.answer)
 
+    console.log('createVideoSDP ice candidates', data.createVideoSDP.iceCandidates)
+
+    data.createVideoSDP.iceCandidates.forEach((candidate) => {
+      p.signal({ candidate })
+    })
+
     const updateIceCandidates = async () => {
       console.log('querying ice candidates')
 
@@ -108,7 +119,6 @@ const enhance = (Component: any) => (props: any) => {
     }
     const iceCandidatePollingInterval = setInterval(updateIceCandidates, 300)
 
-    console.log("WAT")
     p.on('connect', () => {
       console.log('CONNECT')
       clearInterval(iceCandidatePollingInterval)

@@ -51,7 +51,7 @@ impl Query {
             .await
             .map_err(|err| {
                 error!("ERR {:?}", err);
-                err
+                err.into()
             })
     }
 }
@@ -115,7 +115,7 @@ impl Mutation {
         )
         .map_err(|err| {
             error!("ERR {:?}", err);
-            err
+            err.into()
         })
     }
 }
