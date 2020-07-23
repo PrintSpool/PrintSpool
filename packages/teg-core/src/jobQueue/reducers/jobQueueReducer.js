@@ -393,14 +393,16 @@ const jobQueueReducer = (state = initialState, action) => {
       newHistoryEvents.forEach((event) => {
         const task = nextState.tasks.get(event.taskID)
 
-        if (taskFailureStatuses.includes(event.type) && task.onError != null) {
+        if (taskFailureStatuses.includes(event.type)) {
           nextState = nextState.setIn(['tasks', task.id, 'status'], ERROR)
 
-          nextEffects.push(
-            Cmd.run(task.onError, {
-              args: [task],
-            }),
-          )
+          if (task.onError != null) {
+            nextEffects.push(
+              Cmd.run(task.onError, {
+                args: [task],
+              }),
+            )
+          }
         }
       })
 
