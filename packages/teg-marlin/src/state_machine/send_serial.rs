@@ -12,7 +12,8 @@ pub fn send_serial(effects: &mut Vec<Effect>, gcode_line: GCodeLine, context: &m
 
     context.push_gcode_tx(gcode_line.gcode.clone());
 
-    let parser_result = parse_gcode(&gcode_line.gcode, context);
+    let parser_result = parse_gcode(&gcode_line.gcode, context)
+        .map_err(|err| warn!("{}", err));
 
     let crate::configuration::Controller {
         long_running_code_timeout,

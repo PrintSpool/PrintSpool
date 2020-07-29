@@ -1,11 +1,10 @@
 // TODO: Movement GCode parsing
-use std::io;
-use gcode::GCode;
+use nom_gcode::GCode;
 
 use crate::state_machine::Context;
 
 use super::{
-    whitelist_args,
+    allow_list_args,
     find_u32_arg,
     PositionMode,
     PositionUnits,
@@ -14,10 +13,8 @@ use super::{
 pub fn parse_linear_move(
     cmd: &GCode,
     context: &mut Context,
-) -> io::Result<()> {
-    if let Err(err) = whitelist_args(cmd, &['E', 'F', 'X', 'Y', 'Z']) {
-        return Err(err)
-    };
+) -> anyhow::Result<()> {
+    allow_list_args(cmd, &['E', 'F', 'X', 'Y', 'Z'])?;
 
     // TODO: feedrate feedback
     // let feedrate = find_u32_arg(cmd, "E");
@@ -28,15 +25,15 @@ pub fn parse_linear_move(
     context.feedback.motors_enabled = true;
 
     context.feedback.axes.iter_mut().for_each(|axis| {
-        let maybe_address = axis.address
+        let address = axis.address
             .to_ascii_uppercase()
             .chars()
             .next();
 
         if axis.homed || *position_mode == PositionMode::Absolute {
-            let maybe_value = maybe_address.and_then(|address| find_u32_arg(cmd, address));
+            let value = address.and_then(|address| find_u32_arg(cmd, address));
 
-            if let Some(value) = maybe_value {
+            if let Some(value) = value {
                 let value = value as f32;
 
                 let value = if *position_units == PositionUnits::Inches {
@@ -60,29 +57,26 @@ pub fn parse_linear_move(
 pub fn parse_home(
     cmd: &GCode,
     context: &mut Context,
-) -> io::Result<()> {
-    if let Err(err) = whitelist_args(&cmd, &['O', 'R', 'X', 'Y', 'Z']) {
-        return Err(err)
-    };
+) -> anyhow::Result<()> {
+    allow_list_args(&cmd, &['O', 'R', 'X', 'Y', 'Z'])?;
 
     context.feedback.motors_enabled = true;
 
     const AXES: [char; 3] = ['X', 'Y', 'Z'];
-    let home_all = cmd.arguments().iter().any(|word|
-        AXES.iter().any(|a| *a == word.letter)
-    ) == false;
+    let home_all = cmd.arguments().any(|(k, _)| AXES.contains(k)) == false;
 
-    context.feedback.axes.iter_mut().for_each(|axis| {
-        let address = axis.address
-            .to_ascii_uppercase()
-            .chars()
-            .next();
+    context.feedback.axes.iter_mut()
+        .filter(|axis| {
+            let address = axis.address.to_ascii_uppercase();
 
-        if home_all || cmd.arguments().iter().any(|word| Some(word.letter) == address) {
+            home_all || (
+                address.len() == 1
+                && cmd.arguments().any(|(k, _)| address.starts_with(*k))
+            )
+        }).for_each(|axis| {
             axis.homed = true;
             axis.target_position = 0.0;
-        }
-    });
+        });
 
     Ok(())
 }

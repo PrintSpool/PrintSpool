@@ -120,7 +120,7 @@ pub async fn serve(
     socket_path: &String,
     channel_sender: &mpsc::Sender<Event>,
     broadcast_subscriber: bus_queue::flavors::arc_swap::Subscriber<Bytes>,
-) -> std::io::Result<()> {
+) -> anyhow::Result<()> {
 
     info!("Socket: {:?}", socket_path);
 

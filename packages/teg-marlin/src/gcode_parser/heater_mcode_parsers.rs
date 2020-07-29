@@ -1,5 +1,4 @@
-use std::io::{self};
-use gcode::GCode;
+use nom_gcode::GCode;
 
 use crate::state_machine::Context;
 
@@ -9,7 +8,7 @@ use super::{
         Blocking,
         // NonBlocking,
     },
-    whitelist_args,
+    allow_list_args,
     find_u32_arg,
 };
 
@@ -18,7 +17,7 @@ pub fn parse_hotend_setter(
     context: &mut Context,
     blocking: GCodeSynchronicity,
     valid_args: &[char],
-) -> io::Result<()> {
+) -> anyhow::Result<()> {
     let index = find_u32_arg(cmd, 'T').unwrap_or(context.current_hotend_index);
     let address = format!("e{}", index);
 
@@ -31,22 +30,19 @@ pub fn parse_heater_setter(
     context: &mut Context,
     blocking: GCodeSynchronicity,
     valid_args: &[char],
-) -> io::Result<()> {
-    if let Err(err) = whitelist_args(cmd, valid_args) {
-        return Err(err)
-    };
+) -> anyhow::Result<()> {
+    allow_list_args(cmd, valid_args)?;
 
-    let maybe_word = cmd.arguments().iter().find(|word|
-        word.letter == 'R'
-        || word.letter == 'S'
-    );
+    let target = cmd.arguments()
+        .find(|(k, _)| *k == 'R' || *k == 'S')
+        .and_then(|(_, v)| v.as_ref());
 
-    let maybe_heater = context.feedback.heaters
+    let heater = context.feedback.heaters
         .iter_mut()
         .find(|h| h.address == *address);
 
-    if let (Some(word), Some(heater)) = (maybe_word, maybe_heater) {
-        heater.target_temperature = word.value;
+    if let (Some(target), Some(heater)) = (target, heater) {
+        heater.target_temperature = *target;
         heater.blocking = blocking == Blocking;
     };
 
@@ -56,18 +52,21 @@ pub fn parse_heater_setter(
 pub fn parse_wait_for_temps(
     cmd: &GCode,
     context: &mut Context,
-) -> io::Result<()> {
-    if let Err(err) = whitelist_args(&cmd, &['P', 'H', 'C']) {
-        return Err(err)
-    };
+) -> anyhow::Result<()> {
+    allow_list_args(&cmd, &['P', 'H', 'C'])?;
 
-    let mut addresses = cmd.arguments().iter().map(|word| {
-        if word.letter == 'C' {
-             "c".to_string()
-        } else {
-            format!("e{}", word.value as u32)
-        }
-    });
+    let mut addresses = cmd.arguments()
+        // Filter out arguments without values
+        .filter_map(|(k, v)|
+            v.map(|v| (k, v))
+        )
+        .map(|(k, v)| {
+            if *k == 'C' {
+                "c".to_string()
+            } else {
+                format!("e{}", v as u32)
+            }
+        });
 
     context.feedback.heaters.iter_mut()
         .find(|h| addresses.any(|address| address == h.address))

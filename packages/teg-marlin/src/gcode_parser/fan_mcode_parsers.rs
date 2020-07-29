@@ -1,20 +1,17 @@
-use std::io::{self};
-use gcode::GCode;
+use nom_gcode::GCode;
 
 use crate::state_machine::Context;
 
 use super::{
-    whitelist_args,
+    allow_list_args,
     find_u32_arg,
 };
 
 pub fn parse_set_fan_speed(
     cmd: &GCode,
     context: &mut Context,
-) -> io::Result<()> {
-    if let Err(err) = whitelist_args(cmd, &['P', 'S', 'T']) {
-        return Err(err)
-    };
+) -> anyhow::Result<()> {
+    allow_list_args(cmd, &['P', 'S', 'T'])?;
 
     let index = find_u32_arg(cmd, 'P').unwrap_or(0);
     let address = format!("f{}", index);
@@ -36,10 +33,8 @@ pub fn parse_set_fan_speed(
 pub fn parse_fan_off(
     cmd: &GCode,
     context: &mut Context,
-) -> io::Result<()> {
-    if let Err(err) = whitelist_args(cmd, &['P']) {
-        return Err(err)
-    };
+) -> anyhow::Result<()> {
+    allow_list_args(cmd, &['P'])?;
 
     let index = find_u32_arg(cmd, 'P').unwrap_or(0);
     let address = format!("f{}", index);
