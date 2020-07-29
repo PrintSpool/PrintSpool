@@ -8,6 +8,7 @@ type FeedbackKeyValue = (String, f32);
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Feedback {
+    pub sd_card_enabled: Option<bool>,
     pub actual_temperatures: Vec<FeedbackKeyValue>,
     pub actual_positions: Vec<FeedbackKeyValue>,
 }
@@ -97,6 +98,7 @@ where
     I: Iterator<Item = &'a str>,
 {
     let mut feedback = Feedback {
+        sd_card_enabled: None,
         actual_positions: Vec::new(),
         actual_temperatures: Vec::new(),
     };
@@ -121,7 +123,28 @@ pub fn parse_response(src: String) -> Option<Response> {
     let payload = match *words.peek()? {
         "start" | "grbl" | "marlin" => ResponsePayload::Greeting,
         "debug_" | "compiled:" => ResponsePayload::Debug,
-        "echo:" => ResponsePayload::Echo,
+        "echo:" => {
+            // TODO: Wait for the full SD card response before outputing this response payload
+
+            // TRACE teg_marlin::gcode_codec                > TX  "N29 M21*43\n"
+            // TRACE teg_marlin::gcode_codec                > RX "echo:SD card ok\n"
+            // TRACE teg_marlin::gcode_codec                > RX "Init power off infomation.\n"
+            // TRACE teg_marlin::gcode_codec                > RX "size: \n"
+            // TRACE teg_marlin::gcode_codec                > RX "591\n"
+
+            // Note the last line of the response takes a long time to respond because it is querying
+            // the SD card.
+
+            if src.starts_with("echo:SD card ok") {
+                ResponsePayload::Ok(Feedback {
+                    sd_card_enabled: Some(true),
+                    actual_temperatures: vec![],
+                    actual_positions: vec![],
+                })
+            } else {
+                ResponsePayload::Echo
+            }
+        },
         "ok" | "ook" | "kok" | "okok" => {
             ResponsePayload::Ok( parse_feedback(words.skip(1)) )
         },
@@ -173,6 +196,7 @@ mod tests {
         if let Some(
             Response {
                 payload: ResponsePayload::Ok(Feedback {
+                    sd_card_enabled: none,
                     actual_temperatures,
                     actual_positions,
                 }),

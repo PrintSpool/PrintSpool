@@ -52,11 +52,12 @@ const printerConfig = {
         blockingCodes: [
           'M0',
           'M1',
+          'M21',
           'M109',
           'M116',
           'M190',
           'M191',
-        ]
+        ],
       },
     },
     // {
