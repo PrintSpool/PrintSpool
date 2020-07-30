@@ -887,6 +887,7 @@ dependencies = [
  "gcode 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "mio 0.6.22 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nom 6.0.0-alpha1 (registry+https://github.com/rust-lang/crates.io-index)",
  "nom-gcode 0.1.0 (git+https://github.com/D1plo1d/nom-gcode)",
  "pretty_env_logger 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "prost 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
