@@ -73,6 +73,21 @@ impl Config {
             .collect()
     }
 
+    pub fn axis_addresses(&self) -> Vec<String> {
+        self.components
+            .iter()
+            .filter_map(|component| {
+                match component {
+                    | Component::Axis { address, .. }
+                    | Component::Toolhead { address, .. } => {
+                            Some(address.clone())
+                    }
+                    _ => None
+                }
+            })
+            .collect()
+    }
+
     pub fn transform_gcode_file_path(&self, file_path: String) -> String {
         if let Some(snap_name) = &self.debug_snap_name {
             format!("/tmp/snap.{}{}", snap_name, file_path)

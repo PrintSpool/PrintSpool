@@ -143,10 +143,10 @@ impl SerialManager {
                         Event::SerialPortDisconnected
                     }
                     Err(Either::Left((e, _))) => {
-                        Event::SerialPortError { message: format!("Serial port send error: ${:?}", e) }
+                        Event::SerialPortError { message: format!("{:?}", e) }
                     }
                     Err(Either::Right((e, _))) => {
-                        Event::SerialPortError { message: format!("Serial port read error: ${:?}", e) }
+                        Event::SerialPortError { message: format!("Serial port read error: {:?}", e) }
                     }
                 }
             })

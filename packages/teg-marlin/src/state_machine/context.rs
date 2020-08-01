@@ -66,6 +66,12 @@ impl Context {
                     ..machine_message::Heater::default()
                 }
             }).collect(),
+            axes: config.axis_addresses().iter().map(|address| {
+                machine_message::Axis {
+                    address: address.to_string(),
+                    ..machine_message::Axis::default()
+                }
+            }).collect(),
             speed_controllers: config.fan_addresses().iter().map(|address| {
                 machine_message::SpeedController {
                     address: address.to_string(),

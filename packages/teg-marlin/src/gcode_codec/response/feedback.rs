@@ -16,8 +16,8 @@ use super::{
 #[derive(Clone, Debug, PartialEq)]
 pub enum Feedback {
     SDCard(SDCard),
-    ActualTemperatures(Vec<(char, f32)>),
-    ActualPositions(Vec<(char, f32)>),
+    ActualTemperatures(Vec<(String, f32)>),
+    ActualPositions(Vec<(String, f32)>),
     StartSDStreaming(StartSDStreaming),
     StopSDStreaming,
 }
@@ -47,11 +47,27 @@ pub fn feedback<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Feedback> {
     ))
 }
 
-pub fn key_value<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, (char, f32)> {
-    // 'X:0.00 Y:191.00 Z:159.00 E:0.00 Count X: 0 Y:19196 Z:254400',
-    // `X:${position()} Y:${position()} Z:${position()} E:0.00 Count X: 0.00Y:0.00Z:0.00`,
+pub fn key_value<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, (String, f32)> {
+    // T:25.0 /0.0 B:25.0 /0.0 T0:25.0 /0.0 @:0 B@:0
+    // X:0.00 Y:191.00 Z:159.00 E:0.00 Count X: 0 Y:19196 Z:254400
+    // X:${position()} Y:${position()} Z:${position()} E:0.00 Count X: 0.00Y:0.00Z:0.00
     separated_pair(
-        verify(anychar, |c| c.is_alphabetic()),
+        map(
+            recognize(many1(
+                verify(anychar, |c| c.is_ascii_alphanumeric() || c == &'@'),
+            )),
+            |address: &str| {
+                let address = address.to_ascii_lowercase();
+
+                if &address[..] == "t" || &address[..] == "e" {
+                    "e0".to_string()
+                } else if address.starts_with('t') {
+                    address.replace("t", "e")
+                }else {
+                    address
+                }
+            }
+        ),
         pair(
             char(':'),
             space0,
@@ -61,7 +77,7 @@ pub fn key_value<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, (char, f32)>
 }
 
 pub fn temperature_feedback<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Feedback> {
-    // ok T:${extruder} /0.0 B:${bed} /0.0 B@:0 @:0
+    // ok T:25.0 /0.0 B:25.0 /0.0 T0:25.0 /0.0 @:0 B@:0
     // T:${extruder} /0.0 B:${bed} /0.0 B@:0 @:0
     map(
         preceded(
@@ -91,15 +107,17 @@ pub fn position_feedback<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Feed
         preceded(
             peek(tag("X:")),
             terminated(
-                separated_list1(
-                    space1,
+                many1(terminated(
                     key_value(),
-                ),
-                opt(tuple((
-                    tag_no_case("Count"),
-                    space1,
-                    not_line_ending,
-                ))),
+                    space0,
+                )),
+                opt(not_line_ending),
+                // opt(tuple((
+                //     space1,
+                //     tag_no_case("Count"),
+                //     space1,
+                //     not_line_ending,
+                // ))),
             ),
         ),
         |positions| {

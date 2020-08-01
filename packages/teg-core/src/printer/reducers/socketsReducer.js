@@ -135,7 +135,18 @@ const initialMachineState = ({
             }),
           })
         }
-        case TOOLHEAD:
+        case TOOLHEAD: {
+          return Component({
+            ...commonComponentAttrs,
+            address,
+            axis: Axis({
+              ...idAttrs,
+            }),
+            heater: Heater({
+              ...idAttrs,
+            }),
+          })
+        }
         case BUILD_PLATFORM: {
           return Component({
             ...commonComponentAttrs,
@@ -342,7 +353,7 @@ const socketsReducer = (state = initialState, action) => {
           statusWillChange = machine.status !== DISCONNECTED
 
           return machine.set('status', DISCONNECTED)
-        })
+        }),
       )
 
       if (statusWillChange) {
@@ -389,6 +400,9 @@ const socketsReducer = (state = initialState, action) => {
               const { address } = entry
 
               machine = machine.updateIn(['components', address, componentType], (feature) => {
+                if (feature == null) {
+                  throw new Error(`No component found at address: ${address}`)
+                }
                 let nextFeature = Feature({
                   id: feature.id,
                   machineID: feature.machineID,

@@ -1,7 +1,7 @@
-use anyhow::{
-    anyhow,
-    // Context as _,
-};
+// use anyhow::{
+//     anyhow,
+//     // Context as _,
+// };
 
 use std::str;
 
@@ -12,7 +12,7 @@ use bytes::{BytesMut, BufMut};
 pub mod response;
 
 use response::{
-    parse_many_responses,
+    parse_response,
     Response,
 };
 
@@ -32,19 +32,57 @@ impl Decoder for GCodeCodec {
             return Ok(None)
         };
 
-        match parse_many_responses(src_str) {
-            Ok((remaining, responses)) => {
-                // Remove the matched bytes from the buffer
-                let matched_len = src_str.len() - remaining.len();
-                let _ = src.split_to(matched_len);
-                Ok(Some(responses))
-            }
-            Err(nom::Err::Incomplete(_)) => {
-                Ok(None)
-            },
-            Err(e) => {
-                Err(anyhow!("Invalid Response ({:?}) for input: {}", e, src_str))
-            }
+        let mut matched_bytes = 0;
+        let responses = std::iter::repeat(None)
+            .scan(src_str, |acc, _: Option<bool>| {
+                match parse_response(acc) {
+                    Ok((remaining, response)) => {
+                        matched_bytes += response.0.len();
+
+                        *acc = remaining;
+                        Some(response)
+                    }
+                    Err(nom::Err::Incomplete(_)) => {
+                        None
+                    },
+                    | Err(nom::Err::Failure(err))
+                    | Err(nom::Err::Error(err)) => {
+                        let (err_src, err_kind) = err;
+
+                        let warning = format!(
+                            "Error ({:?}) parsing serial response at {:?}",
+                            err_kind,
+                            err_src,
+                        );
+
+                        // Skip the erroneous line
+                        if let Some(n) = acc.find('\n') {
+                            matched_bytes += n + 1;
+
+                            let content = acc[..n].to_string();
+                            *acc = &acc[n + 1..];
+
+                            warn!("{} in line {:?}", warning, content);
+
+                            Some((content, Response::Unknown))
+                        } else {
+                            warn!("{}", warning);
+
+                            None
+                        }
+                    }
+                }
+            })
+            .inspect(|(line, _)| trace!("RX {:?}", line))
+            .collect::<Vec<_>>();
+
+        // Remove the matched bytes from the buffer
+        let _ = src.split_to(matched_bytes);
+
+        if responses.len() == 0 {
+            Ok(None)
+        } else {
+            Ok(Some(responses))
         }
     }
 }

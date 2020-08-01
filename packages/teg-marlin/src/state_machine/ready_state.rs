@@ -182,6 +182,7 @@ impl ReadyState {
 
                 match response {
                     /* No ops */
+                    Response::Unknown |
                     Response::Echo(_) |
                     Response::Debug(_) |
                     Response::Warning { .. } => {
@@ -253,27 +254,25 @@ impl ReadyState {
             Feedback::ActualTemperatures(temperatures) => {
                 // set actual_temperatures
                 temperatures.iter().for_each(|(address, val)| {
-                        // Skip "E" values. I have no idea what they are for but Marlin sends them.
-                        if address == &'E' {
-                            return
-                        };
+                    // Skip "@" values. I have no idea what they are for but Marlin sends them.
+                    if address.contains('@') {
+                        return
+                    };
 
-                        let heater = context.feedback.heaters
-                            .iter_mut()
-                            .find(|h| {
-                                h.address.len() == 1 && h.address.starts_with(*address)
-                            });
+                    let heater = context.feedback.heaters
+                        .iter_mut()
+                        .find(|h| h.address == *address);
 
-                        if let Some(heater) = heater {
-                            heater.actual_temperature = *val;
-                        } else {
-                            warn!(
-                                "Warning: unknown actual_temperature address: {:?} = {:?}°C",
-                                address,
-                                val,
-                            );
-                        };
-                    });
+                    if let Some(heater) = heater {
+                        heater.actual_temperature = *val;
+                    } else {
+                        warn!(
+                            "Warning: unknown actual_temperature address: {:?} = {:?}°C",
+                            address,
+                            val,
+                        );
+                    };
+                });
 
                 // update polling timers and send to protobuf clients
                 self.awaiting_polling_delay = true;
@@ -289,16 +288,19 @@ impl ReadyState {
             Feedback::ActualPositions(positions) => {
                 // set actual_positions
                 positions.iter().for_each(|(address, val)| {
+                    if address == "E" {
+                        return
+                    };
+
                     let axis = context.feedback.axes
                         .iter_mut()
-                        .find(|a| {
-                            a.address.len() == 1 && a.address.starts_with(*address)
-                        });
+                        .find(|a| a.address.to_ascii_lowercase() == *address);
+
                     if let Some(axis) = axis {
                         axis.actual_position = *val;
                     }
                     else {
-                        warn!("Warning: unknown actual_position axis: {:?} = ${:?}", address, val);
+                        warn!("Warning: unknown actual_position axis: {:?} = {:?}", address, val);
                     }
                 });
 

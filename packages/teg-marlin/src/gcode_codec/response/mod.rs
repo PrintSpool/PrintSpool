@@ -30,6 +30,7 @@ pub enum Response {
     Error(String),
     Warning(String),
     Resend(Resend),
+    Unknown,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -38,37 +39,23 @@ pub struct Resend {
 }
 
 
-pub fn parse_many_responses<'r>(src: &'r str) -> IResult<&'r str, Vec<(String, Response)>> {
+pub fn parse_response<'r>(src: &'r str) -> IResult<&'r str, (String, Response)> {
     let mut parser = preceded(
         // Quickly verify that the string contains a new line
         peek(pair(
             opt(not_line_ending),
             line_ending,
         )),
-        // Parse each response
-        many1(pair(
-            response(),
-            rest_len,
-        )),
+        // Parse the response
+        response(),
     );
 
-    let (remainder, responses) = parser(src)?;
+    let (remaining, response) = parser(src)?;
 
-    let responses = responses
-        .into_iter()
-        .scan(0usize, |start_index, item| {
-            let (response, len_after_response) = item;
-
-            let end_index: usize = src.len() - len_after_response;
-            let parsed_content = &src[*start_index..end_index];
-
-            *start_index = end_index + 1;
-
-            Some((parsed_content.to_string(), response))
-        })
-        .collect();
-
-    Ok((remainder, responses))
+    let matched_len = src.len() - remaining.len();
+    let matched_string = src[..matched_len].to_string();
+    
+    Ok((remaining, (matched_string, response)))
 }
 
 pub fn response<'r>() -> impl FnMut(&'r str) -> IResult<&'r str, Response> {
@@ -83,6 +70,7 @@ pub fn response<'r>() -> impl FnMut(&'r str) -> IResult<&'r str, Response> {
             feedback_resp(),
             file_list(),
             delete_file_resp(),
+            unknown_resp()
         )),
         pair(space0, line_ending),
     )
@@ -118,18 +106,28 @@ pub fn debug<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
 pub fn ok_resp<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
     map(
         preceded(
-            // Matches the following multiple "ok" strings with dropped characters:
-            // ok, kok, ook, kook, okok
-            tuple((
-                many_m_n(0, 2, one_of("ok")),
-                tag("ok"),
+            // Matches "ok" with up to 2 dropped preceeding "ok\n" characters (2 of \n, o or k):
+            // ok, okok, okokok, kok, ook
+            alt((
+                recognize(many_m_n(1, 3, tag_no_case("ok"))),
+                tag_no_case("kok"),
+                tag_no_case("ook"),
             )),
             opt(preceded(
                 space1,
-                feedback(),
-            )),
-        ),
-        |feedback| Response::Ok(feedback),
+                alt((
+                    map(feedback(), |feedback| Some(feedback)),
+                    map(not_line_ending, |unrecognized: &str| {
+                        if unrecognized.len() > 0 {
+                            warn!("Unrecognized feedback for response: \"ok {}\"", unrecognized);
+                        }
+
+                        None
+                    }),
+                )),
+            ),
+        )),
+        |feedback| Response::Ok(feedback.flatten())
     )
 }
 
@@ -167,6 +165,23 @@ pub fn resend<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
             space0,
         ),
         |line_number| Response::Resend(Resend { line_number }),
+    )
+}
+
+pub fn unknown_resp<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
+    value(
+        Response::Unknown,
+        pair(
+            not(alt((
+                // Do not match partial multi-line responses as unknown
+                tag_no_case("Begin file list"),
+                tag_no_case("Deletion failed, File:"),
+                tag_no_case("echo"),
+                tag_no_case("X:"),
+                tag_no_case("T:"),
+            ))),
+            opt(not_line_ending),
+        ),
     )
 }
 
