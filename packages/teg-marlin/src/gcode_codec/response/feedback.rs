@@ -1,9 +1,6 @@
 use nom::{
     IResult,
-    character::{
-        is_alphabetic,
-        streaming::*,
-    },
+    character::streaming::*,
     bytes::streaming::*,
 };
 use nom::branch::*;
@@ -13,7 +10,7 @@ use nom::multi::*;
 
 use super::{
     Response,
-    SDCardFeedback,
+    f32_str,
 };
 
 #[derive(Clone, Debug, PartialEq)]
@@ -21,25 +18,40 @@ pub enum Feedback {
     SDCard(SDCard),
     ActualTemperatures(Vec<(char, f32)>),
     ActualPositions(Vec<(char, f32)>),
+    StartSDStreaming(StartSDStreaming),
+    StopSDStreaming,
 }
 
+#[derive(Clone, Debug, PartialEq)]
+pub struct StartSDStreaming {
+    pub filename: String,
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct SDCard {
-    enabled: bool,
-    size: Option<i32>,
+    pub enabled: bool,
+    pub size: Option<u32>,
 }
 
-pub fn feedback() -> FnMut (&'r str) ->  IResult<&'r str, Response> {
+pub fn feedback_resp<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
+    map(
+        feedback(),
+        |feedback| Response::Feedback(feedback),
+    )
+}
+
+pub fn feedback<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Feedback> {
     alt((
         temperature_feedback(),
         position_feedback(),
     ))
 }
 
-pub fn key_value() -> FnMut (&'r str) ->  IResult<&'r str, (std::char, f32)> {
+pub fn key_value<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, (char, f32)> {
     // 'X:0.00 Y:191.00 Z:159.00 E:0.00 Count X: 0 Y:19196 Z:254400',
     // `X:${position()} Y:${position()} Z:${position()} E:0.00 Count X: 0.00Y:0.00Z:0.00`,
     separated_pair(
-        verify(anychar, |c| is_alphabetic(c)),
+        verify(anychar, |c| c.is_alphabetic()),
         pair(
             char(':'),
             space0,
@@ -48,7 +60,7 @@ pub fn key_value() -> FnMut (&'r str) ->  IResult<&'r str, (std::char, f32)> {
     )
 }
 
-pub fn temperature_feedback() -> FnMut (&'r str) ->  IResult<&'r str, Response> {
+pub fn temperature_feedback<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Feedback> {
     // ok T:${extruder} /0.0 B:${bed} /0.0 B@:0 @:0
     // T:${extruder} /0.0 B:${bed} /0.0 B@:0 @:0
     map(
@@ -67,19 +79,18 @@ pub fn temperature_feedback() -> FnMut (&'r str) ->  IResult<&'r str, Response> 
             ),
         ),
         |temperatures| {
-            let temperatures = Feedback::ActualTemperatures(temperatures);
-            Response::Feedback(temperatures)
+           Feedback::ActualTemperatures(temperatures)
         }
     )
 }
 
-pub fn position_feedback() -> FnMut (&'r str) ->  IResult<&'r str, Response> {
+pub fn position_feedback<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Feedback> {
     // 'X:0.00 Y:191.00 Z:159.00 E:0.00 Count X: 0 Y:19196 Z:254400',
     // `X:${position()} Y:${position()} Z:${position()} E:0.00 Count X: 0.00Y:0.00Z:0.00`,
     map(
         preceded(
             peek(tag("X:")),
-            pair(
+            terminated(
                 separated_list1(
                     space1,
                     key_value(),
@@ -91,9 +102,8 @@ pub fn position_feedback() -> FnMut (&'r str) ->  IResult<&'r str, Response> {
                 ))),
             ),
         ),
-        |(positions, _counts)|{
-            let positions = Feedback::ActualPositions(positions);
-            Response::Feedback(positions)
+        |positions| {
+            Feedback::ActualPositions(positions)
         }
     )
 }

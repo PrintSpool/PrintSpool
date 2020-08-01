@@ -1,5 +1,6 @@
 #![crate_type = "lib"]
 #![crate_name = "teg_marlin"]
+#![type_length_limit="1073741824"]
 
 #[macro_use] extern crate log;
 #[macro_use] extern crate error_chain;

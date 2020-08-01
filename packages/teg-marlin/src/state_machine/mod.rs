@@ -4,7 +4,6 @@ use crate::gcode_codec::{
     GCodeLine,
     response::{
         Response,
-        ResponsePayload,
     },
 };
 
@@ -44,7 +43,7 @@ pub enum Event {
     Init { serial_port_available: bool },
     ConnectionTimeout,
     GreetingTimerCompleted,
-    SerialRec ( Response ),
+    SerialRec ((String, Response)),
     ProtobufClientConnection,
     ProtobufRec ( CombinatorMessage ),
     PollFeedback,
@@ -249,9 +248,9 @@ impl State {
             return inner_ready_state.consume(event, context)
         }
 
-        match &event {
+        match event {
             Init { serial_port_available } => {
-                if *serial_port_available {
+                if serial_port_available {
                     info!("Teg Marlin: Started (Serial port found)");
                     self.reconnect_with_next_baud(context)
                 } else {
@@ -272,27 +271,26 @@ impl State {
                 errored(message.to_string(), &self, context)
             }
             /* Echo, Debug and Error function the same in all states */
-            SerialRec( response ) => {
-                let Response { raw_src, payload } = response;
+            SerialRec((src, response)) => {
+                context.push_gcode_rx(src.clone());
 
-                context.push_gcode_rx(raw_src.clone());
-
-                match (self, payload.clone()) {
+                match (self, response) {
                     /* Errors */
                     (Errored { message }, _) => {
                         error!("RX ERR: {}", message);
-                        append_to_error(message, raw_src, context)
+                        append_to_error(message, &src, context)
                     }
-                    (state, ResponsePayload::Error(error)) => {
+                    (state, Response::Error(error)) => {
                         errored(error.to_string(), &state, context)
                     }
                     /* New socket */
-                    (Connecting(conn @ Connecting { received_greeting: false, .. }), ResponsePayload::Greeting) |
-                    (Connecting(conn @ Connecting { received_greeting: false, .. }), ResponsePayload::Ok {..}) => {
+                    (Connecting(conn @ Connecting { received_greeting: false, .. }), Response::Greeting) |
+                    (Connecting(conn @ Connecting { received_greeting: false, .. }), Response::Ok {..}) => {
                         Self::receive_greeting(conn)
                     }
                     /* Invalid transitions */
-                    (state, ResponsePayload::Resend { .. }) => {
+                    (state, response @ Response::Resend { .. }) => {
+                        let event = SerialRec(( src, response ));
                         state.invalid_transition_error(&event, context)
                     }
                     /* No ops */

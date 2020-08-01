@@ -1,45 +1,50 @@
 use nom::{
     IResult,
-    character::{
-        is_alphabetic,
-        streaming::*,
-    },
+    character::streaming::*,
     bytes::streaming::*,
 };
 use nom::branch::*;
 use nom::combinator::*;
 use nom::sequence::*;
-use nom::multi::*;
+// use nom::multi::*;
 
 use super::{
     Response,
-    SDCardFeedback,
+    SDCard,
+    Feedback,
+    StartSDStreaming,
+    u32_str,
 };
 
-pub fn echo() -> FnMut (&'r str) ->  IResult<&'r str, Response> {
+pub fn echo<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
     preceded(
         pair(
             tag_no_case("echo:"),
             space0,
         ),
-        alt(
+        alt((
             m21_sd_card_ok(),
-            map(
-                not_line_ending,
-                |s| Response::Echo(s.to_string()),
-            ),
-        ),
+            m23_m28_fresh_file(),
+            normal_echo_content(),
+        )),
     )
 }
 
-// TRACE teg_marlin::gcode_codec                > TX  "N63 M21*37\n"
-// TRACE teg_marlin::gcode_codec                > RX "echo:SD card ok\n"
-// TRACE teg_marlin::gcode_codec                > RX "Init power off infomation.\n"
-// TRACE teg_marlin::gcode_codec                > RX "size: \n"
+fn normal_echo_content<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
+    map(
+        not_line_ending,
+        |s: &str| Response::Echo(s.to_string()),
+    )
+}
+
+// TX "N63 M21*37\n"
+// RX "echo:SD card ok\n"
+// RX "Init power off infomation.\n"
+// RX "size: \n"
 // 123
-fn m21_sd_card_ok() -> FnMut (&'r str) ->  IResult<&'r str, Response> {
-    map_res(
-        prefix(
+fn m21_sd_card_ok<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
+    map(
+        preceded(
             tuple((
                 tag("SD card ok"),
                 space0,
@@ -48,14 +53,63 @@ fn m21_sd_card_ok() -> FnMut (&'r str) ->  IResult<&'r str, Response> {
                 space0,
                 line_ending,
             )),
-            digit1,
+            u32_str(),
         ),
-        |size| {
+        |size: u32| {
             let sd_card = SDCard {
                 enabled: true,
-                size: Some(size.parse()),
+                size: Some(size),
             };
-            Response::Feedback(sd_card)
+            Response::Ok(Some(Feedback::SDCard(sd_card)))
         },
+    )
+}
+
+// TX "N389 M28 file.txt *75\n"
+// RX "echo:Now fresh file: file.txt\n"
+// RX "Writing to file: file.txt\n"
+// OR
+// TX "N125 M28 teg.gcode*13\n"
+// RX "echo:Now fresh file: teg.gcod\n"
+// RX "open failed, File: teg.gcod.\n"
+fn m23_m28_fresh_file<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
+    preceded(
+        tuple((
+            tag_no_case("Now fresh file:"),
+            not_line_ending,
+            line_ending,
+        )),
+        alt((
+            // RX "Writing to file: file.txt\n"
+            map(
+                preceded(
+                    pair(
+                        tag_no_case("Writing to file:"),
+                        space0,
+                    ),
+                    not_line_ending,
+                ),
+                |filename: &str| {
+                    let start_streaming = Feedback::StartSDStreaming(StartSDStreaming {
+                        filename: filename.to_string(),
+                    });
+
+                    Response::Ok(Some(start_streaming))
+                },
+            ),
+            // RX "open failed, File: teg.gcod.\n"
+            map(
+                preceded(
+                    tag_no_case("open failed"),
+                    not_line_ending,
+                ),
+                |_| {
+                    Response::Error("\
+                        Failed to open sd card file. \
+                        Check that SD card is inserted and enabled in firmware.\
+                    ".to_string())
+                },
+            ),
+        )),
     )
 }

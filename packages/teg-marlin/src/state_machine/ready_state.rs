@@ -3,7 +3,7 @@ use std::time::Duration;
 use crate::gcode_codec::{
     GCodeLine,
     response::{
-        ResponsePayload,
+        Response,
         Feedback,
     }
 };
@@ -173,31 +173,34 @@ impl ReadyState {
                 }
             }
             /* Echo, Debug and Error function the same in all states */
-            SerialRec( response ) => {
+            SerialRec((src, response)) => {
                 // eprintln!("RX: {:?}", response.raw_src);
 
                 // if let Some(_) = &self.task {
-                context.push_gcode_rx(response.raw_src);
+                context.push_gcode_rx(src);
                 // }
 
-                match response.payload {
+                match response {
                     /* No ops */
-                    ResponsePayload::Echo |
-                    ResponsePayload::Debug |
-                    ResponsePayload::Warning { .. } => {
+                    Response::Echo(_) |
+                    Response::Debug(_) |
+                    Response::Warning { .. } => {
                         self.and_no_effects()
                     }
                     /* Errors */
-                    ResponsePayload::Error(error) => {
+                    Response::Error(error) => {
                         errored(error.to_string(), &Ready(self), context)
                     }
-                    ResponsePayload::Greeting => {
+                    Response::Greeting => {
                         let message = format!("Unexpected printer firmware restart. State: {:?}", self);
 
                         errored(message, &Ready(self), context)
                     }
-                    ResponsePayload::Ok( feedback ) => {
-                        let mut effects = self.receive_feedback( &feedback, context );
+                    Response::Ok( feedback ) => {
+                        let mut effects = feedback
+                            .map(|feedback| self.receive_feedback( &feedback, context ))
+                            .unwrap_or(vec![]);
+
                         self.receive_ok(&mut effects, context);
 
                         Loop::new(
@@ -205,7 +208,7 @@ impl ReadyState {
                             effects,
                         )
                     }
-                    ResponsePayload::Feedback( feedback ) => {
+                    Response::Feedback( feedback ) => {
                         let mut effects = self.receive_feedback( &feedback, context );
                         effects.push(
                             Effect::CancelDelay { key: "tickle_delay".to_string() }
@@ -216,8 +219,8 @@ impl ReadyState {
                             effects,
                         )
                     }
-                    ResponsePayload::Resend { line_number } => {
-                        self.receive_resend_request(line_number, context)
+                    Response::Resend(resend) => {
+                        self.receive_resend_request(resend.line_number, context)
                     }
                 }
             }
@@ -246,46 +249,63 @@ impl ReadyState {
     }
 
     fn receive_feedback(&mut self, feedback: &Feedback, context: &mut Context) -> Vec<Effect> {
-        let mut effects = vec![];
+        match feedback {
+            Feedback::ActualTemperatures(temperatures) => {
+                // set actual_temperatures
+                temperatures.iter().for_each(|(address, val)| {
+                        // Skip "E" values. I have no idea what they are for but Marlin sends them.
+                        if address == &'E' {
+                            return
+                        };
 
-        // set actual_temperatures
-        for (address, val) in feedback.actual_temperatures.iter() {
-            if address == "E" {
-                // Skip "E" values. I have no idea what they are for but Marlin always sends them.
-                continue
-            } if let Some(heater) = context.feedback.heaters.iter_mut().find(|h| h.address == *address) {
-                heater.actual_temperature = *val;
-            }
-            else {
-                warn!("Warning: unknown actual_temperature address: {:?} = {:?}°C", address, val);
-            }
+                        let heater = context.feedback.heaters
+                            .iter_mut()
+                            .find(|h| {
+                                h.address.len() == 1 && h.address.starts_with(*address)
+                            });
+
+                        if let Some(heater) = heater {
+                            heater.actual_temperature = *val;
+                        } else {
+                            warn!(
+                                "Warning: unknown actual_temperature address: {:?} = {:?}°C",
+                                address,
+                                val,
+                            );
+                        };
+                    });
+
+                // update polling timers and send to protobuf clients
+                self.awaiting_polling_delay = true;
+
+                let delay = Effect::Delay {
+                    key: "polling_delay".to_string(),
+                    duration: Duration::from_millis(context.controller.polling_interval),
+                    event: PollFeedback,
+                };
+
+                vec![delay, Effect::ProtobufSend]
+            },
+            Feedback::ActualPositions(positions) => {
+                // set actual_positions
+                positions.iter().for_each(|(address, val)| {
+                    let axis = context.feedback.axes
+                        .iter_mut()
+                        .find(|a| {
+                            a.address.len() == 1 && a.address.starts_with(*address)
+                        });
+                    if let Some(axis) = axis {
+                        axis.actual_position = *val;
+                    }
+                    else {
+                        warn!("Warning: unknown actual_position axis: {:?} = ${:?}", address, val);
+                    }
+                });
+
+                vec![]
+            },
+            _ => vec![],
         }
-
-        // set actual_positions
-        for (address, val) in feedback.actual_positions.iter() {
-            if let Some(heater) = context.feedback.axes.iter_mut().find(|h| h.address == *address) {
-                heater.actual_position = *val;
-            }
-            else {
-                warn!("Warning: unknown actual_position axis: {:?} = ${:?}", address, val);
-            }
-        }
-
-        // update polling timers and send to protobuf clients
-        if feedback.actual_temperatures.len() != 0 {
-            let delay = Effect::Delay {
-                key: "polling_delay".to_string(),
-                duration: Duration::from_millis(context.controller.polling_interval),
-                event: PollFeedback,
-            };
-
-            self.awaiting_polling_delay = true;
-
-            effects.push(delay);
-            effects.push(Effect::ProtobufSend);
-        }
-
-        effects
     }
 
     fn receive_ok(&mut self, effects: &mut Vec<Effect>, context: &mut Context) {

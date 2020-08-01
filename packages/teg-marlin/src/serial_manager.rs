@@ -1,18 +1,13 @@
-// extern crate bytes;
-// // #[macro_use]
-// extern crate futures_core;
-// extern crate futures_util;
-// extern crate tokio;
-// extern crate tokio_serial;
-// // #[macro_use]
-// // extern crate combine;
-// extern crate bus_queue;
+use anyhow::{
+    anyhow,
+    // Context as _,
+};
 
 // use futures_core::{ future, Poll };
-
 use futures::{
+    stream,
     // stream::SplitSink,
-    // TryStreamExt,
+    TryStreamExt,
     StreamExt,
     SinkExt,
     FutureExt,
@@ -126,25 +121,14 @@ impl SerialManager {
             .forward(serial_sender);
 
         let reader_sender = mpsc::Sender::clone(&self.event_sender)
-            .sink_map_err(|error| {
-                use std::io::{ Error, ErrorKind };
-
-                let message = format!("Event Sender Error: {:?}", error);
-                Error::new(ErrorKind::Other, message)
-            });
+            .sink_map_err(|err| anyhow!("Serial Read SendError: {:?}", err));
 
         let reader_future = serial_reader
-            .map(|result| {
-                use std::io::{ Error, ErrorKind };
-
-                match result {
-                    Ok(response) => Ok(Event::SerialRec ( response )),
-                    Err(error) => {
-                        let message = format!("Serial Reader Error: {:?}", error);
-                        Err(Error::new(ErrorKind::Other, message))
-                    },
-                }
-            })
+            .map_ok(|responses|
+                stream::iter(responses).map(|r| Ok(r))
+            )
+            .try_flatten()
+            .map_ok(|response| Event::SerialRec ( response ))
             .forward(reader_sender);
 
         let end_of_stream_event_sender = mpsc::Sender::clone(&self.event_sender);

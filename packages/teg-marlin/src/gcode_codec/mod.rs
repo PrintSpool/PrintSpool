@@ -1,8 +1,9 @@
-extern crate bytes;
-extern crate tokio;
-extern crate tokio_serial;
+use anyhow::{
+    anyhow,
+    // Context as _,
+};
 
-use std::{io, str};
+use std::str;
 
 use tokio_util::codec::{Decoder, Encoder};
 
@@ -10,26 +11,41 @@ use bytes::{BytesMut, BufMut};
 
 pub mod response;
 
-pub use response::*;
+use response::{
+    parse_many_responses,
+    Response,
+};
 
 pub struct GCodeCodec;
 
 impl Decoder for GCodeCodec {
-    type Item = Response;
-    type Error = io::Error;
+    type Item = Vec<(String, Response)>;
+    type Error = anyhow::Error;
 
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
-        let newline = src.as_ref().iter().position(|b| *b == b'\n');
-        if let Some(n) = newline {
-            // Invalid UTF8 lines are replaced by empty strings and treated as dropped responses.
-            let line = str::from_utf8(src.split_to(n + 1).as_ref())
-                .unwrap_or_else(|_| "")
-                .to_string();
+        // Invalid UTF8 lines are replaced by empty strings and treated as dropped responses.
+        let src_str = str::from_utf8(src);
 
-            trace!("RX {:?}", line);
-            return Ok(parse_response(line));
+        let src_str = if let Ok(src_str) = src_str {
+            src_str
+        } else {
+            return Ok(None)
+        };
+
+        match parse_many_responses(src_str) {
+            Ok((remaining, responses)) => {
+                // Remove the matched bytes from the buffer
+                let matched_len = src_str.len() - remaining.len();
+                let _ = src.split_to(matched_len);
+                Ok(Some(responses))
+            }
+            Err(nom::Err::Incomplete(_)) => {
+                Ok(None)
+            },
+            Err(e) => {
+                Err(anyhow!("Invalid Response ({:?}) for input: {}", e, src_str))
+            }
         }
-        Ok(None)
     }
 }
 
@@ -52,7 +68,7 @@ fn add_checksum(line: String) -> String {
 
 
 impl Encoder<GCodeLine> for GCodeCodec {
-    type Error = io::Error;
+    type Error = anyhow::Error;
 
     fn encode(&mut self, item: GCodeLine, dst: &mut BytesMut) -> Result<(), Self::Error> {
         let GCodeLine { gcode, line_number, checksum } = item;
@@ -69,7 +85,7 @@ impl Encoder<GCodeLine> for GCodeCodec {
             line + "\n"
         };
 
-        trace!("TX  {:?}", line);
+        trace!("TX {:?}", line);
 
         let line = line.as_bytes();
 
