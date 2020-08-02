@@ -16,7 +16,7 @@
 // extern crate gcode;
 
 mod protobuf_server;
-mod gcode_codec;
+pub mod gcode_codec;
 mod serial_manager;
 
 pub mod state_machine;

@@ -20,6 +20,9 @@ pub use feedback::*;
 mod file_list;
 pub use file_list::file_list;
 
+#[cfg(test)]
+mod tests;
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum Response {
     Greeting,
@@ -37,7 +40,6 @@ pub enum Response {
 pub struct Resend {
     pub line_number: u32,
 }
-
 
 pub fn parse_response<'r>(src: &'r str) -> IResult<&'r str, (String, Response)> {
     let mut parser = preceded(
