@@ -10,6 +10,9 @@ harness = false
 
 [dev-dependencies]
 criterion = "0.3.3"
+insta = "0.16.1"
+toml = "0.5.6"
+colored = "2.0.0"
 
 [dependencies]
 anyhow = "1.0.32"

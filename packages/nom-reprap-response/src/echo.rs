@@ -16,25 +16,25 @@ use super::{
     u32_str,
 };
 
-pub fn echo<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
+pub fn echo<'r>(input: &'r str) ->  IResult<&'r str, Response> {
     preceded(
         pair(
             tag_no_case("echo:"),
             space0,
         ),
         alt((
-            m21_sd_card_ok(),
-            m23_m28_fresh_file(),
-            normal_echo_content(),
+            m21_sd_card_ok,
+            m23_m28_fresh_file,
+            normal_echo_content,
         )),
-    )
+    )(input)
 }
 
-fn normal_echo_content<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
+fn normal_echo_content<'r>(input: &'r str) ->  IResult<&'r str, Response> {
     map(
         not_line_ending,
         |s: &str| Response::Echo(s.to_string()),
-    )
+    )(input)
 }
 
 // TX "N63 M21*37\n"
@@ -42,7 +42,7 @@ fn normal_echo_content<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Respon
 // RX "Init power off infomation.\n"
 // RX "size: \n"
 // 123
-fn m21_sd_card_ok<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
+fn m21_sd_card_ok<'r>(input: &'r str) ->  IResult<&'r str, Response> {
     map(
         preceded(
             tuple((
@@ -62,7 +62,7 @@ fn m21_sd_card_ok<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
             };
             Response::Ok(Some(Feedback::SDCard(sd_card)))
         },
-    )
+    )(input)
 }
 
 // TX "N389 M28 file.txt *75\n"
@@ -72,7 +72,7 @@ fn m21_sd_card_ok<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
 // TX "N125 M28 teg.gcode*13\n"
 // RX "echo:Now fresh file: teg.gcod\n"
 // RX "open failed, File: teg.gcod.\n"
-fn m23_m28_fresh_file<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
+fn m23_m28_fresh_file<'r>(input: &'r str) ->  IResult<&'r str, Response> {
     preceded(
         tuple((
             tag_no_case("Now fresh file:"),
@@ -97,10 +97,21 @@ fn m23_m28_fresh_file<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Respons
                     Response::Ok(Some(start_streaming))
                 },
             ),
+            // RX "File opened: file.tx Size: 17\n"
+            // RX "File selected\n"
+            map(
+                recognize(tuple((
+                    tag("File opened:"),
+                    not_line_ending,
+                    line_ending,
+                    tag("File selected"),
+                ))),
+                |s: &str| Response::Debug(s.to_string())
+            ),
             // RX "open failed, File: teg.gcod.\n"
             map(
                 preceded(
-                    tag_no_case("open failed"),
+                    tag_no_case("open failed, File:"),
                     not_line_ending,
                 ),
                 |_| {
@@ -111,5 +122,5 @@ fn m23_m28_fresh_file<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Respons
                 },
             ),
         )),
-    )
+    )(input)
 }

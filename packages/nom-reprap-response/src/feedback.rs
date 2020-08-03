@@ -33,21 +33,21 @@ pub struct SDCard {
     pub size: Option<u32>,
 }
 
-pub fn feedback_resp<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
+pub fn feedback_resp<'r>(input: &'r str) ->  IResult<&'r str, Response> {
     map(
-        feedback(),
+        feedback,
         |feedback| Response::Feedback(feedback),
-    )
+    )(input)
 }
 
-pub fn feedback<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Feedback> {
+pub fn feedback<'r>(input: &'r str) ->  IResult<&'r str, Feedback> {
     alt((
-        temperature_feedback(),
-        position_feedback(),
-    ))
+        temperature_feedback,
+        position_feedback,
+    ))(input)
 }
 
-pub fn key_value<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, (String, f32)> {
+pub fn key_value<'r>(input: &'r str) ->  IResult<&'r str, (String, f32)> {
     // T:25.0 /0.0 B:25.0 /0.0 T0:25.0 /0.0 @:0 B@:0
     // X:0.00 Y:191.00 Z:159.00 E:0.00 Count X: 0 Y:19196 Z:254400
     // X:${position()} Y:${position()} Z:${position()} E:0.00 Count X: 0.00Y:0.00Z:0.00
@@ -73,10 +73,10 @@ pub fn key_value<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, (String, f32
             space0,
         ),
         f32_str(),
-    )
+    )(input)
 }
 
-pub fn temperature_feedback<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Feedback> {
+pub fn temperature_feedback<'r>(input: &'r str) ->  IResult<&'r str, Feedback> {
     // ok T:25.0 /0.0 B:25.0 /0.0 T0:25.0 /0.0 @:0 B@:0
     // T:${extruder} /0.0 B:${bed} /0.0 B@:0 @:0
     map(
@@ -91,16 +91,16 @@ pub fn temperature_feedback<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, F
                         space1,
                     ))),
                 ),
-                key_value(),
+                key_value,
             ),
         ),
         |temperatures| {
            Feedback::ActualTemperatures(temperatures)
         }
-    )
+    )(input)
 }
 
-pub fn position_feedback<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Feedback> {
+pub fn position_feedback<'r>(input: &'r str) ->  IResult<&'r str, Feedback> {
     // 'X:0.00 Y:191.00 Z:159.00 E:0.00 Count X: 0 Y:19196 Z:254400',
     // `X:${position()} Y:${position()} Z:${position()} E:0.00 Count X: 0.00Y:0.00Z:0.00`,
     map(
@@ -108,7 +108,7 @@ pub fn position_feedback<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Feed
             peek(tag("X:")),
             terminated(
                 many1(terminated(
-                    key_value(),
+                    key_value,
                     space0,
                 )),
                 opt(not_line_ending),
@@ -123,5 +123,5 @@ pub fn position_feedback<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Feed
         |positions| {
             Feedback::ActualPositions(positions)
         }
-    )
+    )(input)
 }

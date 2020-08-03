@@ -24,6 +24,9 @@ pub use feedback::*;
 mod file_list;
 pub use file_list::file_list;
 
+mod firmware_info_resp;
+pub use firmware_info_resp::firmware_info_resp;
+
 #[cfg(test)]
 mod tests;
 
@@ -67,22 +70,23 @@ pub fn parse_response<'r>(src: &'r str) -> IResult<&'r str, (String, Response)> 
 pub fn response<'r>() -> impl FnMut(&'r str) -> IResult<&'r str, Response> {
     terminated(
         alt((
-            greeting(),
-            debug(),
-            echo(),
-            ok_resp(),
-            err_resp(),
-            resend(),
-            feedback_resp(),
-            file_list(),
-            delete_file_resp(),
-            unknown_resp()
+            greeting,
+            debug,
+            echo,
+            ok_resp,
+            err_resp,
+            resend,
+            feedback_resp,
+            firmware_info_resp,
+            file_list,
+            delete_file_resp,
+            unknown_resp
         )),
         pair(space0, line_ending),
     )
 }
 
-pub fn greeting<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
+pub fn greeting<'r>(input: &'r str) ->  IResult<&'r str, Response> {
     value(
         Response::Greeting,
         alt((
@@ -93,26 +97,35 @@ pub fn greeting<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
                 not_line_ending,
             ),
         )),
-    )
+    )(input)
 }
 
-pub fn debug<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
+pub fn debug<'r>(input: &'r str) ->  IResult<&'r str, Response> {
     map(
-        preceded(
-            pair(
-                alt((
-                    tag_no_case("debug_"),
-                    tag_no_case("compiled:"),
-                )),
-                space0,
+        alt((
+            preceded(
+                pair(
+                    alt((
+                        tag_no_case("debug_"),
+                        peek(tag_no_case("compiled:")),
+                    )),
+                    space0,
+                ),
+                not_line_ending,
             ),
-            not_line_ending,
-        ),
+            tag_no_case("Init power off infomation."),
+            recognize(tuple((
+                tag_no_case("size:"),
+                space0,
+                line_ending,
+                digit1,
+            ))),
+        )),
         |s: &str| Response::Debug(s.to_string()),
-    )
+    )(input)
 }
 
-pub fn ok_resp<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
+pub fn ok_resp<'r>(input: &'r str) ->  IResult<&'r str, Response> {
     map(
         preceded(
             // Matches "ok" with up to 2 dropped preceeding "ok\n" characters (2 of \n, o or k):
@@ -125,7 +138,7 @@ pub fn ok_resp<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
             opt(preceded(
                 space1,
                 alt((
-                    map(feedback(), |feedback| Some(feedback)),
+                    map(feedback, |feedback| Some(feedback)),
                     map(not_line_ending, |unrecognized: &str| {
                         if unrecognized.len() > 0 {
                             warn!("Unrecognized feedback for response: \"ok {}\"", unrecognized);
@@ -137,10 +150,10 @@ pub fn ok_resp<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
             ),
         )),
         |feedback| Response::Ok(feedback.flatten())
-    )
+    )(input)
 }
 
-pub fn err_resp<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
+pub fn err_resp<'r>(input: &'r str) ->  IResult<&'r str, Response> {
     map(
         preceded(
             pair(
@@ -156,10 +169,10 @@ pub fn err_resp<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
                 Response::Error(s.to_string())
             }
         },
-    )
+    )(input)
 }
 
-pub fn resend<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
+pub fn resend<'r>(input: &'r str) ->  IResult<&'r str, Response> {
     map(
         delimited(
             tuple((
@@ -174,10 +187,10 @@ pub fn resend<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
             space0,
         ),
         |line_number| Response::Resend(Resend { line_number }),
-    )
+    )(input)
 }
 
-pub fn unknown_resp<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
+pub fn unknown_resp<'r>(input: &'r str) ->  IResult<&'r str, Response> {
     value(
         Response::Unknown,
         pair(
@@ -188,10 +201,11 @@ pub fn unknown_resp<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response>
                 tag_no_case("echo"),
                 tag_no_case("X:"),
                 tag_no_case("T:"),
+                tag_no_case("size:"),
             ))),
             opt(not_line_ending),
         ),
-    )
+    )(input)
 }
 
 pub fn f32_str<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, f32> {

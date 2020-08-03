@@ -19,7 +19,7 @@
   greeting_with_sd_card = """\
     start\n\
     echo: External Reset\n\
-    Marlin 1.0.0
+    Marlin 1.0.0\n\
     echo: Last Updated: Sep  3 2018 15:45:59 | Author: (Ender3)\n\
     Compiled: Sep  3 2018\n\
     echo: Free Memory: 9679  PlannerBufferBytes: 1232\n\
