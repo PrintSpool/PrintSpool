@@ -1,5 +1,5 @@
 use insta::assert_debug_snapshot;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use colored::Colorize;
 
 use anyhow::{
@@ -12,7 +12,7 @@ pub use super::{
     Response,
 };
 
-fn responses_for_k(k: &str, v: &str) -> anyhow::Result<Vec<Response>> {
+fn responses_for(v: &str) -> anyhow::Result<Vec<Response>> {
     std::iter::repeat(true)
         .scan(v, |acc, _| {
             let mut try_parse = move || {
@@ -55,30 +55,45 @@ fn responses_for_k(k: &str, v: &str) -> anyhow::Result<Vec<Response>> {
 #[test]
 fn test_parse_response() -> anyhow::Result<()> {
     let data = include_str!("data/ender3_marlin_2019_firmware.toml");
-    let data: HashMap<String, HashMap<String, String>> = toml::from_str(data)?;
+    let data: BTreeMap<String, BTreeMap<String, String>> = toml::from_str(data)?;
 
-    let mut data: Vec<(String, String)> = data
+    // let mut data: Vec<(String, String)> = data
+    //     .iter()
+    //     .map(|(k, v)| {
+    //         let k = k.clone();
+    //         v.clone().into_iter().map(move |(k2, v)| {
+    //             (format!("{}::{}", &k, k2), v)
+    //         })
+    //     })
+    //     .flatten()
+    //     .collect();
+
+    // data.sort_by_key(|(k, _)| k.to_owned());
+
+    type SectionResponseTree = BTreeMap<String, Vec<Response>>;
+    type Snapshot = BTreeMap<String, SectionResponseTree>;
+
+    let responses: anyhow::Result<Snapshot> = data
         .iter()
-        .map(|(k, v)| {
-            let k = k.clone();
-            v.clone().into_iter().map(move |(k2, v)| {
-                (format!("{}::{}", &k, k2), v)
-            })
-        })
-        .flatten()
-        .collect();
+        .map(|(section_title, scenarios)| {
+            let section_title = section_title.clone();
 
-    data.sort_by_key(|(k, _)| k.to_owned());
+            let section_responses = scenarios.clone()
+                .iter()
+                .map(|(k, v)| {
+                    let title = format!("{}::{}", &section_title, k);
 
-    let responses: anyhow::Result<HashMap<String, Vec<Response>>> = data
-        .iter()
-        .map(|(k, v)| {
-            print!("\nTesting {:?} ", k);
-            let res = responses_for_k(&k, &v)?;
+                    print!("\nTesting {:?} ", title);
+                    let res = responses_for(&v)?;
 
-            println!("[{}]", "DONE".green());
-            println!("Got: {:?}\n", res);
-            Ok((k.to_owned(), res))
+                    println!("[{}]", "DONE".green());
+                    println!("Got: {:?}\n", res);
+
+                    Ok((k.to_owned(), res))
+                })
+                .collect::<anyhow::Result<SectionResponseTree>>()?;
+            
+            Ok((section_title, section_responses))
         })
         .collect();
 

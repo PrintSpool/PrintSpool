@@ -18,12 +18,13 @@ pub enum Feedback {
     SDCard(SDCard),
     ActualTemperatures(Vec<(String, f32)>),
     ActualPositions(Vec<(String, f32)>),
-    StartSDStreaming(StartSDStreaming),
-    StopSDStreaming,
+    StartSDWrite(StartSDWrite),
+    SDWriteComplete,
+    SDPrintComplete,
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct StartSDStreaming {
+pub struct StartSDWrite {
     pub filename: String,
 }
 

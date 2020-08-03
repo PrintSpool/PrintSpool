@@ -12,7 +12,7 @@ use super::{
     Response,
     SDCard,
     Feedback,
-    StartSDStreaming,
+    StartSDWrite,
     u32_str,
 };
 
@@ -90,7 +90,7 @@ fn m23_m28_fresh_file<'r>(input: &'r str) ->  IResult<&'r str, Response> {
                     not_line_ending,
                 ),
                 |filename: &str| {
-                    let start_streaming = Feedback::StartSDStreaming(StartSDStreaming {
+                    let start_streaming = Feedback::StartSDWrite(StartSDWrite {
                         filename: filename.to_string(),
                     });
 

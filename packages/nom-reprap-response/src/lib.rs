@@ -27,6 +27,8 @@ pub use file_list::file_list;
 mod firmware_info_resp;
 pub use firmware_info_resp::firmware_info_resp;
 
+pub mod sd_responses;
+
 #[cfg(test)]
 mod tests;
 
@@ -78,6 +80,9 @@ pub fn response<'r>() -> impl FnMut(&'r str) -> IResult<&'r str, Response> {
             resend,
             feedback_resp,
             firmware_info_resp,
+            sd_responses::done_print_resp,
+            sd_responses::done_sd_write_resp,
+            sd_responses::file_deleted_resp,
             file_list,
             delete_file_resp,
             unknown_resp
@@ -114,6 +119,32 @@ pub fn debug<'r>(input: &'r str) ->  IResult<&'r str, Response> {
                 not_line_ending,
             ),
             tag_no_case("Init power off infomation."),
+            // "File(bin) deleted.\n"
+            // OR
+            // "File deleted.\n"
+            recognize(tuple((
+                tag_no_case("File"),
+                opt(tuple((
+                    char('('),
+                    many0(none_of(")\n\r")),
+                    char(')'),
+                ))),
+                space0,
+                tag_no_case("deleted."),
+            ))),
+            // "Deletion(bin) failed.\n"
+            recognize(tuple((
+                tag_no_case("Deletion"),
+                opt(tuple((
+                    char('('),
+                    many0(none_of(")\n\r")),
+                    char(')'),
+                ))),
+                space0,
+                tag_no_case("failed."),
+            ))),
+            // size: \n
+            // 591\n
             recognize(tuple((
                 tag_no_case("size:"),
                 space0,

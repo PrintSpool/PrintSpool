@@ -1,0 +1,333 @@
+---
+source: src/tests/mod.rs
+expression: responses?
+---
+{
+    "errors": {
+        "unknown_command": [
+            Echo(
+                "Unknown command: \"N27 m23 file.txt*119\"",
+            ),
+            Ok(
+                None,
+            ),
+        ],
+    },
+    "firmware": {
+        "m115_firmware_info": [
+            Echo(
+                "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:http://www.mendel-parts.com PROTOCOL_VERSION:1.0 MACHINE_TYPE:www.creality3d.cn EXTRUDER_COUNT:1 UUID:00000000-0000-0000-0000-000000000000",
+            ),
+            Ok(
+                None,
+            ),
+        ],
+    },
+    "greeting": {
+        "greeting_with_sd_card": [
+            Greeting,
+            Echo(
+                "External Reset",
+            ),
+            Greeting,
+            Echo(
+                "Last Updated: Sep  3 2018 15:45:59 | Author: (Ender3)",
+            ),
+            Debug(
+                "Compiled: Sep  3 2018",
+            ),
+            Echo(
+                "Free Memory: 9679  PlannerBufferBytes: 1232",
+            ),
+            Echo(
+                "Hardcoded Default Settings Loaded",
+            ),
+            Echo(
+                "SD card ok",
+            ),
+            Debug(
+                "Init power off infomation.",
+            ),
+            Debug(
+                "size: \n591",
+            ),
+        ],
+        "greeting_without_sd_card": [
+            Greeting,
+            Echo(
+                "External Reset",
+            ),
+            Greeting,
+            Echo(
+                "Last Updated: Sep  3 2018 15:45:59 | Author: (Ender3)",
+            ),
+            Debug(
+                "Compiled: Sep  3 2018",
+            ),
+            Echo(
+                "Free Memory: 9679  PlannerBufferBytes: 1232",
+            ),
+            Echo(
+                "Hardcoded Default Settings Loaded",
+            ),
+            Echo(
+                "SD init fail",
+            ),
+            Echo(
+                "SD init fail",
+            ),
+        ],
+    },
+    "m20_list_sd_card": {
+        "m20_sucess": [
+            Ok(
+                None,
+            ),
+        ],
+    },
+    "m21_init_sd_card": {
+        "m21_no_sd_card": [
+            Echo(
+                "SD init fail",
+            ),
+            Echo(
+                "SD init fail",
+            ),
+            Ok(
+                None,
+            ),
+        ],
+        "m21_success": [
+            Echo(
+                "SD card ok",
+            ),
+            Debug(
+                "Init power off infomation.",
+            ),
+            Debug(
+                "size: \n591",
+            ),
+        ],
+    },
+    "m23_select_sd_file": {
+        "m23_no_sd_card": [
+            Error(
+                "Failed to open sd card file. Check that SD card is inserted and enabled in firmware.",
+            ),
+        ],
+        "m23_success": [
+            Debug(
+                "File opened: file.tx Size: 17\nFile selected",
+            ),
+            Ok(
+                None,
+            ),
+        ],
+    },
+    "m24_start_or_resume_sd_print": {
+        "m24_no_file_selected": [
+            Debug(
+                "File(bin) deleted.",
+            ),
+            Ok(
+                None,
+            ),
+        ],
+        "m24_success": [
+            Debug(
+                "Deletion(bin) failed.",
+            ),
+            Ok(
+                None,
+            ),
+            Feedback(
+                ActualPositions(
+                    [
+                        (
+                            "x",
+                            0.0,
+                        ),
+                        (
+                            "y",
+                            0.0,
+                        ),
+                        (
+                            "z",
+                            0.0,
+                        ),
+                        (
+                            "e0",
+                            0.0,
+                        ),
+                    ],
+                ),
+            ),
+            Ok(
+                Some(
+                    ActualTemperatures(
+                        [
+                            (
+                                "e0",
+                                26.3,
+                            ),
+                            (
+                                "b",
+                                25.9,
+                            ),
+                            (
+                                "e0",
+                                26.3,
+                            ),
+                            (
+                                "@",
+                                0.0,
+                            ),
+                            (
+                                "b@",
+                                0.0,
+                            ),
+                        ],
+                    ),
+                ),
+            ),
+            Ok(
+                Some(
+                    SDPrintComplete,
+                ),
+            ),
+        ],
+    },
+    "m28_start_sd_write": {
+        "m28_no_sd_card": [
+            Error(
+                "Failed to open sd card file. Check that SD card is inserted and enabled in firmware.",
+            ),
+        ],
+        "m28_success": [
+            Ok(
+                Some(
+                    StartSDWrite(
+                        StartSDWrite {
+                            filename: "file.txt",
+                        },
+                    ),
+                ),
+            ),
+            Ok(
+                None,
+            ),
+        ],
+    },
+    "m29_stop_sd_write": {
+        "m29_file_open": [
+            Ok(
+                Some(
+                    SDWriteComplete,
+                ),
+            ),
+        ],
+        "m29_no_file_open": [
+            Ok(
+                None,
+            ),
+        ],
+    },
+    "m30_delete_sd_file": {
+        "m30_no_file": [
+            Error(
+                "Deletion failed, File: teg.gcod.",
+            ),
+        ],
+        "m30_success": [
+            Debug(
+                "File deleted:file.txok",
+            ),
+        ],
+    },
+    "movement_gcodes": {
+        "g1": [
+            Ok(
+                None,
+            ),
+        ],
+        "g28": [
+            Ok(
+                None,
+            ),
+        ],
+        "g90": [
+            Ok(
+                None,
+            ),
+        ],
+        "g91": [
+            Ok(
+                None,
+            ),
+        ],
+    },
+    "polling_mcodes": {
+        "m105": [
+            Ok(
+                Some(
+                    ActualTemperatures(
+                        [
+                            (
+                                "e0",
+                                25.9,
+                            ),
+                            (
+                                "b",
+                                25.5,
+                            ),
+                            (
+                                "e0",
+                                25.9,
+                            ),
+                            (
+                                "@",
+                                0.0,
+                            ),
+                            (
+                                "b@",
+                                0.0,
+                            ),
+                        ],
+                    ),
+                ),
+            ),
+        ],
+        "m114": [
+            Feedback(
+                ActualPositions(
+                    [
+                        (
+                            "x",
+                            0.0,
+                        ),
+                        (
+                            "y",
+                            0.0,
+                        ),
+                        (
+                            "z",
+                            0.0,
+                        ),
+                        (
+                            "e0",
+                            0.0,
+                        ),
+                    ],
+                ),
+            ),
+            Ok(
+                None,
+            ),
+        ],
+        "m155_temperature_auto_report": [
+            Ok(
+                None,
+            ),
+        ],
+    },
+}
