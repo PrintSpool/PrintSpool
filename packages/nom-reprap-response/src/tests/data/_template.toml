@@ -1,0 +1,121 @@
+# This template is used to create test fixtures for each supported firmware
+#
+# If you have an unsupported firmware you can help by copying this template and 
+# filling in the values you get back from your from your 3D printer for each scenario
+# (eg. Use Octoprint to send a "M115" and record the response under firmware: m115_firmware_info).
+#
+# These test fixtures are linked by adding a test to tests/mod.rs. If your unsure how to do this
+# that's ok, just having the fields completed in this file should help a bunch!
+
+[firmware]
+  # "N14 M115*19\n" - Note: this response has been split into multiple lines for readability
+  m115_firmware_info = """\
+  """
+
+[greeting]
+  # Start the Ender 3 with an SD card inserted
+  greeting_with_sd_card = """\
+  """
+
+  # Start the Ender 3 without any SD card
+  greeting_without_sd_card = """\
+  """
+
+[errors]
+  # "N27 m23 file.txt*119\n" (using a lowercase m is an invalid MCode)
+  unknown_command = """\
+  """
+
+# Common GCodes and MCodes
+# #############################
+
+[movement_gcodes]
+  # "N1822 G1 X1*88\n"
+  g1 = ""
+
+  # "N1581 G28 X*86\n"
+  g28 = ""
+
+  # "N1825 G90*46\n"
+  g90 = ""
+
+  # "N1820 G91*42\n"
+  g91 = ""
+
+
+[polling_mcodes]
+  # "N582 M105*40\n"
+  m105 = """\
+  """
+
+  # "N583 M114*41\n"
+  m114 = """\
+  """
+
+  # "N3 M155 S0.5*121\n"
+  m155_temperature_auto_report = ""
+
+# SD Card
+# #############################
+
+[m20_list_sd_card]
+  # "N187 M20*31\n"
+  m20_sucess = """\
+  """
+
+  # "N3 M20*18\n"
+  m20_no_sd_card = """\
+  """
+
+[m21_init_sd_card]
+  # "N2448 M21*42\n"
+  m21_success = """\
+  """
+
+  # "N44 M21*32\n"
+  m21_no_sd_card = """\
+  """
+
+[m23_select_sd_file]
+  # "N40 M23 file.txt*86\n"
+  m23_success = """\
+  """
+
+  # "N19 M23 /teg.gcode*23\n"
+  m23_no_sd_card = """\
+  """
+
+[m24_start_or_resume_sd_print]
+  # "N47 M24*38\n" (after streaming a G28, M114 and M105 to the file and opening it)
+  m24_success = """\
+  """
+
+  # "N56 M24*38\n"
+  m24_no_file_selected = """\
+  """
+
+[m28_start_sd_write]
+  # "N389 M28 file.txt *75\n" (after an M21)
+  m28_success = """\
+  """
+
+  # "N125 M28 teg.gcode*13\n" (same response as m23_no_sd_card)
+  m28_no_sd_card = """\
+  """
+
+[m29_stop_sd_write]
+  # "N18 M29*33\n"
+  m29_file_open = """\
+  """
+
+  # "N24 M29*46\n"
+  m29_no_file_open = ""
+
+[m30_delete_sd_file]
+  # "N59 M30 file.txt*92\n"
+  m30_success = """\
+  """
+
+  # "N109 M30 /teg.gcode*37\n"
+  m30_no_file = """\
+  """

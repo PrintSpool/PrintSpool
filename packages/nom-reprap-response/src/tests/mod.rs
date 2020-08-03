@@ -52,23 +52,8 @@ fn responses_for(v: &str) -> anyhow::Result<Vec<Response>> {
         .collect::<anyhow::Result<Vec<Response>>>()
 }
 
-#[test]
-fn test_parse_response() -> anyhow::Result<()> {
-    let data = include_str!("data/ender3_marlin_2019_firmware.toml");
+fn snapshot_test_responses(data: &str) -> anyhow::Result<()> {
     let data: BTreeMap<String, BTreeMap<String, String>> = toml::from_str(data)?;
-
-    // let mut data: Vec<(String, String)> = data
-    //     .iter()
-    //     .map(|(k, v)| {
-    //         let k = k.clone();
-    //         v.clone().into_iter().map(move |(k2, v)| {
-    //             (format!("{}::{}", &k, k2), v)
-    //         })
-    //     })
-    //     .flatten()
-    //     .collect();
-
-    // data.sort_by_key(|(k, _)| k.to_owned());
 
     type SectionResponseTree = BTreeMap<String, Vec<Response>>;
     type Snapshot = BTreeMap<String, SectionResponseTree>;
@@ -100,4 +85,10 @@ fn test_parse_response() -> anyhow::Result<()> {
     assert_debug_snapshot!(responses?);
 
     Ok(())
+}
+
+#[test]
+fn ender3_marlin_2019_firmware() -> anyhow::Result<()> {
+    let data = include_str!("data/ender3_marlin_2019_firmware.toml");
+    snapshot_test_responses(data)
 }
