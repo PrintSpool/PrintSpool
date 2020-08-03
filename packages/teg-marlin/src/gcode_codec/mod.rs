@@ -9,11 +9,10 @@ use tokio_util::codec::{Decoder, Encoder};
 
 use bytes::{BytesMut, BufMut};
 
-pub mod response;
-
-use response::{
+use nom_reprap_response::{
     parse_response,
     Response,
+    Feedback,
 };
 
 pub struct GCodeCodec;
@@ -73,7 +72,18 @@ impl Decoder for GCodeCodec {
                     }
                 }
             })
-            .inspect(|(line, _)| trace!("RX {:?}", line))
+            .inspect(|(line, response)| {
+                // Logging
+                let log_level = match response {
+                    | Response::Ok(Some(Feedback::ActualTemperatures(_)))
+                    | Response::Feedback(Feedback::ActualPositions(_)) => {
+                        log::Level::Trace
+                    },
+                    _ => log::Level::Debug,
+                };
+
+                log!(log_level, "RX {:?}", line);
+            })
             .collect::<Vec<_>>();
 
         // Remove the matched bytes from the buffer
@@ -111,6 +121,12 @@ impl Encoder<GCodeLine> for GCodeCodec {
     fn encode(&mut self, item: GCodeLine, dst: &mut BytesMut) -> Result<(), Self::Error> {
         let GCodeLine { gcode, line_number, checksum } = item;
 
+        let log_level = if gcode.starts_with("M105") || gcode.starts_with("M114") {
+            log::Level::Trace
+        } else {
+            log::Level::Debug
+        };
+
         let line = if let Some(line_number) = line_number {
             format!("N{:} {:}", line_number, gcode)
         } else {
@@ -123,7 +139,7 @@ impl Encoder<GCodeLine> for GCodeCodec {
             line + "\n"
         };
 
-        trace!("TX {:?}", line);
+        log!(log_level, "TX {:?}", line);
 
         let line = line.as_bytes();
 

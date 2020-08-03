@@ -1,11 +1,12 @@
 use std::time::Duration;
 
+use nom_reprap_response::{
+    Response,
+    Feedback,
+};
+
 use crate::gcode_codec::{
     GCodeLine,
-    response::{
-        Response,
-        Feedback,
-    }
 };
 
 use super::{

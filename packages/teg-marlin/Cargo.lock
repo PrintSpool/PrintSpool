@@ -726,6 +726,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "nom-reprap-response"
+version = "0.1.0"
+dependencies = [
+ "anyhow 1.0.32 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nom 6.0.0-alpha1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "num-integer"
 version = "0.1.42"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1166,6 +1175,7 @@ dependencies = [
  "mio 0.6.22 (registry+https://github.com/rust-lang/crates.io-index)",
  "nom 6.0.0-alpha1 (registry+https://github.com/rust-lang/crates.io-index)",
  "nom-gcode 0.1.0 (git+https://github.com/D1plo1d/nom-gcode)",
+ "nom-reprap-response 0.1.0",
  "pretty_env_logger 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "prost 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "prost-build 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",

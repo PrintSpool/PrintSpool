@@ -2,9 +2,10 @@ use std::time::Duration;
 
 use crate::gcode_codec::{
     GCodeLine,
-    response::{
-        Response,
-    },
+};
+
+use nom_reprap_response::{
+    Response,
 };
 
 use crate::protos::{

@@ -1,0 +1,186 @@
+# Ender 3 Marlin 2019 Firmware
+#
+# Marlin Docs: https://marlinfw.org/docs/gcode/G000-G001.html
+
+[firmware]
+  # "N14 M115*19\n" - Note: this response has been split into multiple lines for readability
+  m115_firmware_info = """\
+    FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 \
+    FIRMWARE_URL:http://www.mendel-parts.com \
+    PROTOCOL_VERSION:1.0 \
+    MACHINE_TYPE:www.creality3d.cn \
+    EXTRUDER_COUNT:1 \
+    UUID:00000000-0000-0000-0000-000000000000\n\
+    ok\n\
+  """
+
+[greeting]
+  # Start the Ender 3 with an SD card inserted
+  greeting_with_sd_card = """\
+    start\n\
+    echo: External Reset\n\
+    Marlin 1.0.0
+    echo: Last Updated: Sep  3 2018 15:45:59 | Author: (Ender3)\n\
+    Compiled: Sep  3 2018\n\
+    echo: Free Memory: 9679  PlannerBufferBytes: 1232\n\
+    echo:Hardcoded Default Settings Loaded\n\
+    echo:SD card ok\n\
+    Init power off infomation.\n\
+    size: \n\
+    591\n\
+  """
+
+  # Start the Ender 3 without any SD card
+  greeting_without_sd_card = """\
+    start\n\
+    echo: External Reset\n\
+    Marlin 1.0.0\n\
+    echo: Last Updated: Sep  3 2018 15:45:59 | Author: (Ender3)\n\
+    Compiled: Sep  3 2018\n\
+    echo: Free Memory: 9679  PlannerBufferBytes: 1232\n\
+    echo:Hardcoded Default Settings Loaded\n\
+    echo:SD init fail\n\
+    echo:SD init fail\n\
+  """
+
+[errors]
+  # "N27 m23 file.txt*119\n" (using a lowercase m is an invalid MCode)
+  unknown_command = """\
+    echo:Unknown command: \"N27 m23 file.txt*119\"\n\
+    ok\n\
+  """
+
+# Common GCodes and MCodes
+# #############################
+
+[movement_gcodes]
+  # "N1822 G1 X1*88\n"
+  g1 = "ok\n"
+
+  # "N1581 G28 X*86\n"
+  g28 = "ok\n"
+
+  # "N1825 G90*46\n"
+  g90 = "ok\n"
+
+  # "N1820 G91*42\n"
+  g91 = "ok\n"
+
+
+[polling_mcodes]
+  # "N582 M105*40\n"
+  m105 = """\
+    ok T:25.9 /0.0 B:25.5 /0.0 T0:25.9 /0.0 @:0 B@:0\n\
+  """
+
+  # "N583 M114*41\n"
+  m114 = """\
+    X:0.00Y:0.00Z:0.00E:0.00 Count X: 0.00Y:0.00Z:0.00\n\
+    ok\n\
+  """
+
+  # "N3 M155 S0.5*121\n" - Does nothing on the Ender 3. No temperature auto-reports, just an "ok".
+  m155_temperature_auto_report = "ok\n"
+
+# SD Card
+# #############################
+
+[m20_list_sd_card]
+  # "N187 M20*31\n"
+  m20_sucess = """\
+    Begin file list\n\
+    /47ACB~1.MOD/TEST/TEST-D~1.GCO\n\
+    TEST-D~1.GCO\n\
+    End file list\n\
+  """
+
+  # Firmware Bug: Running M20 ("N3 M20*18\n") when no SD card is inserted causes the
+  # MCU to stop responding even to tickle attemps ("M105\n")
+  #
+  # m20_no_sd_card = """\
+  # """
+
+[m21_init_sd_card]
+  # "N2448 M21*42\n"
+  m21_success = """\
+    echo:SD card ok\n\
+    Init power off infomation.\n\
+    size: \n\
+    591\n\
+  """
+
+  # "N44 M21*32\n"
+  m21_no_sd_card = """\
+    echo:SD init fail\n\
+    echo:SD init fail\n\
+    ok\n\
+  """
+
+[m23_select_sd_file]
+  # "N40 M23 file.txt*86\n"
+  m23_success = """\
+    echo:Now fresh file: file.tx\n\
+    File opened: file.tx Size: 17\n\
+    File selected\n\
+    ok\n\
+  """
+
+  # "N19 M23 /teg.gcode*23\n"
+  m23_no_sd_card = """\
+    echo:Now fresh file: /teg.gcod\n\
+    open failed, File: teg.gcod.\n\
+  """
+
+[m24_start_or_resume_sd_print]
+  # "N47 M24*38\n" (after streaming a G28, M114 and M105 to the file and opening it)
+  m24_success = """\
+    Deletion(bin) failed.\n\
+    ok\n\
+    X:0.00Y:0.00Z:0.00E:0.00 Count X: 0.00Y:0.00Z:0.00\n\
+    ok T:26.3 /0.0 B:25.9 /0.0 T0:26.3 /0.0 @:0 B@:0\n\
+    Done printing file\n\
+    echo:0 hours 0 minutes\n\
+    Writing to file: bin\n\
+    echo:enqueing \"M84 X Y Z E\"\n\
+    ok\n\
+  """
+
+  # "N56 M24*38\n"
+  m24_no_file_selected = """\
+    File(bin) deleted.\n\
+    ok\n\
+  """
+
+[m28_start_sd_write]
+  # "N389 M28 file.txt *75\n" (after an M21)
+  m28_success = """\
+    echo:Now fresh file: file.txt\n\
+    Writing to file: file.txt\n\
+    ok\n\
+  """
+
+  # "N125 M28 teg.gcode*13\n" (same response as m23_no_sd_card)
+  m28_no_sd_card = """\
+    echo:Now fresh file: teg.gcod\n\
+    open failed, File: teg.gcod.\n\
+  """
+
+[m29_stop_sd_write]
+  # "N18 M29*33\n"
+  m29_file_open = """\
+    Done saving file.\n\
+  """
+
+  # "N24 M29*46\n"
+  m29_no_file_open = "ok\n"
+
+[m30_delete_sd_file]
+  # "N59 M30 file.txt*92\n"
+  m30_success = """\
+    File deleted:file.txok\n\
+  """
+
+  # "N109 M30 /teg.gcode*37\n"
+  m30_no_file = """\
+    Deletion failed, File: teg.gcod.\n\
+  """

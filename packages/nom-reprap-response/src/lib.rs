@@ -1,3 +1,7 @@
+#![type_length_limit="1073741824"]
+
+#[macro_use] extern crate log;
+
 use nom::{
     IResult,
     character::streaming::*,
@@ -84,7 +88,10 @@ pub fn greeting<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, Response> {
         alt((
             tag_no_case("start"),
             tag_no_case("grbl"),
-            tag_no_case("marlin"),
+            terminated(
+                tag_no_case("marlin "),
+                not_line_ending,
+            ),
         )),
     )
 }
