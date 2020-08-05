@@ -33,7 +33,8 @@ const printerConfig = {
         checksumTickles: false,
         gcodeHistoryBufferSize: 20,
 
-        delayFromGreetingToReady: 2500,
+        serialConnectionTimeout: 3000,
+        delayFromGreetingToReady: 2000,
         pollingInterval: 500,
         responseTimeoutTickleAttempts: 3,
         fastCodeTimeout: 30000,

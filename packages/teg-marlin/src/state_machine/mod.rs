@@ -287,7 +287,7 @@ impl State {
                     /* New socket */
                     (Connecting(conn @ Connecting { received_greeting: false, .. }), Response::Greeting) |
                     (Connecting(conn @ Connecting { received_greeting: false, .. }), Response::Ok {..}) => {
-                        Self::receive_greeting(conn)
+                        Self::receive_greeting(conn, &context)
                     }
                     /* Invalid transitions */
                     (state, response @ Response::Resend { .. }) => {
@@ -329,7 +329,7 @@ impl State {
         // } else {
         //     1_000
         // };
-        let connection_timeout_ms = 3_000;
+        let connection_timeout_ms = context.controller.serial_connection_timeout;
 
         let new_connection = if let Connecting(Connecting { .. }) = self {
             false
@@ -376,7 +376,7 @@ impl State {
                     let Loop {
                         next_state: after_greeting,
                         effects: mut greeting_effects,
-                    } = Self::receive_greeting(connecting);
+                    } = Self::receive_greeting(connecting, &context);
 
                     next_state = after_greeting;
                     effects.append(&mut greeting_effects);
@@ -410,11 +410,13 @@ impl State {
         }
     }
 
-    fn receive_greeting(mut connecting: Connecting) -> Loop {
+    fn receive_greeting(mut connecting: Connecting, context: &Context) -> Loop {
+        let delay = context.controller.delay_from_greeting_to_ready;
+        info!("Greeting Received, waiting {}ms for firmware to finish startup", delay);
+
         let delay = Effect::Delay {
             key: "greeting_delay".to_string(),
-            // TODO: configurable delayFromGreetingToReady
-            duration: Duration::from_millis(500),
+            duration: Duration::from_millis(delay),
             event: GreetingTimerCompleted,
         };
 

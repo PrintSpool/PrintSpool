@@ -48,7 +48,7 @@ pub fn feedback<'r>(input: &'r str) ->  IResult<&'r str, Feedback> {
     ))(input)
 }
 
-pub fn key_value<'r>(input: &'r str) -> IResult<&'r str, (String, f32)> {
+pub fn key_value<'r>(input: &'r str) -> IResult<&'r str, (String, Option<f32>)> {
     // T:25.0 /0.0 B:25.0 /0.0 T0:25.0 /0.0 @:0 B@:0
     // X:0.00 Y:191.00 Z:159.00 E:0.00 Count X: 0 Y:19196 Z:254400
     // X:${position()} Y:${position()} Z:${position()} E:0.00 Count X: 0.00Y:0.00Z:0.00
@@ -63,7 +63,10 @@ pub fn key_value<'r>(input: &'r str) -> IResult<&'r str, (String, f32)> {
             char(':'),
             space0,
         ),
-        f32_str(),
+        alt((
+            value(None, char('?')),
+            map(f32_str(), |f| Some(f)),
+        ))
     )(input)
 }
 
@@ -82,7 +85,13 @@ pub fn temperature_feedback<'r>(input: &'r str) ->  IResult<&'r str, Feedback> {
                         space1,
                     ))),
                 ),
-                map(key_value, |(address, v)| {
+                key_value,
+            ),
+        ),
+        |temperatures| {
+            let temperatures = temperatures
+                .into_iter()
+                .filter_map(|(address, v)| {
                     let address = if &address[..] == "t" {
                         "e0".to_string()
                     } else if address.starts_with('t') {
@@ -91,12 +100,10 @@ pub fn temperature_feedback<'r>(input: &'r str) ->  IResult<&'r str, Feedback> {
                         address
                     };
 
-                    (address, v)
-                }),
-            ),
-        ),
-        |temperatures| {
-           Feedback::ActualTemperatures(temperatures)
+                    v.map(|v| (address, v))
+                })
+                .collect();
+            Feedback::ActualTemperatures(temperatures)
         }
     )(input)
 }
@@ -109,17 +116,7 @@ pub fn position_feedback<'r>(input: &'r str) ->  IResult<&'r str, Feedback> {
             peek(tag("X:")),
             terminated(
                 many1(terminated(
-                    map(key_value, |(address, v)| {
-                        let address = if &address[..] == "e" {
-                            "e0".to_string()
-                        } else if address.starts_with('t') {
-                            address.replace("t", "e")
-                        }else {
-                            address
-                        };
-    
-                        (address, v)
-                    }),
+                    key_value,
                     space0,
                 )),
                 opt(not_line_ending),
@@ -132,6 +129,21 @@ pub fn position_feedback<'r>(input: &'r str) ->  IResult<&'r str, Feedback> {
             ),
         ),
         |positions| {
+            let positions = positions
+                .into_iter()
+                .filter_map(|(address, v)| {
+                    let address = if &address[..] == "e" {
+                        "e0".to_string()
+                    } else if address.starts_with('t') {
+                        address.replace("t", "e")
+                    }else {
+                        address
+                    };
+
+                    v.map(|v| (address, v))
+                })
+                .collect();
+
             Feedback::ActualPositions(positions)
         }
     )(input)

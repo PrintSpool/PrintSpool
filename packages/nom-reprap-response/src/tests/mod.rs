@@ -92,3 +92,9 @@ fn ender3_marlin_2019_firmware() -> anyhow::Result<()> {
     let data = include_str!("data/ender3_marlin_2019_firmware.toml");
     snapshot_test_responses(data)
 }
+
+#[test]
+fn ultimaker2_marlin_dbg_2019_firmware() -> anyhow::Result<()> {
+    let data = include_str!("data/ultimaker2_marlin_dbg_2019_firmware.toml");
+    snapshot_test_responses(data)
+}

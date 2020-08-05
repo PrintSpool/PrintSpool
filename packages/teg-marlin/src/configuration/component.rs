@@ -14,6 +14,7 @@ pub struct Controller {
     pub gcode_history_buffer_size: usize,
 
     // delays
+    pub serial_connection_timeout: u64,
     pub delay_from_greeting_to_ready: u64,
     pub polling_interval: u64,
     pub fast_code_timeout: u64,

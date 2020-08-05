@@ -13,11 +13,11 @@
   """
 
 [greeting]
-  # Start the Ender 3 with an SD card inserted
+  # Start the printer with an SD card inserted
   greeting_with_sd_card = """\
   """
 
-  # Start the Ender 3 without any SD card
+  # Start the printer without any SD card
   greeting_without_sd_card = """\
   """
 
