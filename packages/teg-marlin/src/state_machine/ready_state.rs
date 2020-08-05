@@ -255,8 +255,9 @@ impl ReadyState {
             Feedback::ActualTemperatures(temperatures) => {
                 // set actual_temperatures
                 temperatures.iter().for_each(|(address, val)| {
-                    // Skip "@" values. I have no idea what they are for but Marlin sends them.
-                    if address.contains('@') {
+                    // Skip "@" and "e" values. I have no idea what they are for but Marlin sends 
+                    // them.
+                    if address.contains('@') || address.contains('e') {
                         return
                     };
 
@@ -289,7 +290,7 @@ impl ReadyState {
             Feedback::ActualPositions(positions) => {
                 // set actual_positions
                 positions.iter().for_each(|(address, val)| {
-                    if address == "E" {
+                    if address == "e" {
                         return
                     };
 
