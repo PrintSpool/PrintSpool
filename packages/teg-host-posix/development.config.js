@@ -108,7 +108,7 @@ const printerConfig = {
         feedrate: 3,
         materialID: 'dkdow2',
         bowdenTubeLength: 0,
-        filamentSwapFastMoveSpeed: 50,
+        filamentSwapFastMoveSpeed: 100,
         filamentSwapFastMoveEnabled: false,
         filamentSwapExtrudeDistance: 50,
       },

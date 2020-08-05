@@ -58,13 +58,14 @@ const FormikSchemaField = ({
     label: property.title,
     margin: 'normal',
     disabled: property.readOnly,
+    helperText: property.description,
   }
 
   let multiline = false
   if (['beforePrintHook', 'afterPrintHook'].includes(name)) {
     multiline = true
   }
-  console.log({ name, multiline })
+  // console.log({ name, multiline })
 
   switch (property.type) {
     case 'number':
@@ -135,19 +136,27 @@ const FormikSchemaField = ({
               <Typography varaint="body1">
                 {property.title}
               </Typography>
+              { property.description && (
+                <Typography varaint="body2">
+                  {property.description}
+                </Typography>
+              )}
               {(arrayValues || []).map((value, index) => (
                 <FormikSchemaField
                   property={{
-                    title: `${property.title} #${index+1}`,
-                    ...property.items
+                    title: `${property.title} #${index + 1}`,
+                    ...property.items,
                   }}
                   name={`${name}[${index}]`}
+                  // eslint-disable-next-line react/no-array-index-key
                   key={index}
                   values={values}
                 />
               ))}
-              <Button onClick={() => push('') }>
-                Add {property.title}
+              <Button onClick={() => push('')}>
+                Add
+                {' '}
+                {property.title}
               </Button>
             </React.Fragment>
           )}

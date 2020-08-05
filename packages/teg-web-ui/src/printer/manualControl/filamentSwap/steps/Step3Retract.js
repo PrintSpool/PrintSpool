@@ -20,10 +20,10 @@ const Step3Retract = ({
   const { t } = useTranslation('filamentSwap')
 
   const {
-    bowdenTubeLength = 0,
+    bowdenTubeLength,
     filamentSwapFastMoveSpeed,
     filamentSwapFastMoveEnabled,
-    filamentSwapExtrudeDistance = 50,
+    filamentSwapExtrudeDistance,
   } = component.configForm.model
 
   const distance = filamentSwapExtrudeDistance + bowdenTubeLength

@@ -373,36 +373,48 @@ const getSchemaForms = () => ({
           feedrate: {
             title: 'Feedrate (mm/s)',
             type: 'number',
+            description: ''
+              + 'The extrude/retract speed for the maintenance panel '
+              + 'as well as the extrude speed for filament swaps.',
           },
           materialID: {
             title: 'Material',
             type: 'string',
             minLength: 1,
           },
+          filamentSwapExtrudeDistance: {
+            title: 'Filament Swap Test Extrude (mm)',
+            description: ''
+              + 'Extrudes a small amount of filament to prime the extruder after a filament swap. '
+              + 'Also retracts the filament by this same amount when removing filament.',
+            type: 'number',
+            default: 100,
+          },
           heater: {
             title: 'Heated Extruder',
             type: 'boolean',
             default: false,
           },
+          filamentSwapFastMoveEnabled: {
+            title: 'Fast Bowden Tube Priming',
+            description: ''
+              + 'Adds an extruder movement before the test extrude to quickly move the filament '
+              + 'from the cold end to the hot end.',
+            type: 'boolean',
+            default: false,
+          },
           bowdenTubeLength: {
-            title: 'Bowden Tube Length',
+            title: 'Bowden Tube Length (mm)',
             type: 'number',
             default: 0,
           },
           filamentSwapFastMoveSpeed: {
-            title: 'Filament Swap Fast Move Speed',
+            title: 'Bowden Tube Priming Speed (mm/s)',
+            description: ''
+              + 'This should be the maximum non-extruding speed that you can move filament '
+              + 'through the bowden cable.',
             type: 'number',
-            default: 50,
-          },
-          filamentSwapFastMoveEnabled: {
-            title: 'Filament Swap Fast Move Enabled',
-            type: 'boolean',
-            default: false,
-          },
-          filamentSwapExtrudeDistance: {
-            title: 'Filament Swap Extrude Distance',
-            type: 'number',
-            default: 100,
+            default: 200,
           },
         },
       }),
