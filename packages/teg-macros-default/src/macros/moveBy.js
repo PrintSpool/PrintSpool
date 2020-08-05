@@ -2,11 +2,12 @@ import move from '../util/move'
 
 // example useage: { moveBy: { distances: { [id]: 100 } } }
 const compileMoveBy = ({
-  args: { distances, sync },
+  args: { distances, feedrate, sync },
   machineConfig,
 }) => (
   move({
     axes: distances,
+    feedrate,
     sync,
     allowExtruderAxes: true,
     relativeMovement: true,
@@ -23,6 +24,9 @@ const moveByMacro = {
       distances: {
         type: 'object',
         additionalProperties: { type: 'number' },
+      },
+      feedrate: {
+        type: 'number',
       },
       sync: {
         type: 'boolean',

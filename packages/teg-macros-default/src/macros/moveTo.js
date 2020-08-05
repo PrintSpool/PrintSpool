@@ -2,11 +2,12 @@ import move from '../util/move'
 
 // example useage: { moveTo: { positions: { [id]: 100 } } }
 const compileMoveTo = ({
-  args: { positions, sync },
+  args: { positions, feedrate, sync },
   machineConfig,
 }) => (
   move({
     axes: positions,
+    feedrate,
     sync,
     allowExtruderAxes: false,
     relativeMovement: false,
@@ -23,6 +24,9 @@ const moveToMacro = {
       positions: {
         type: 'object',
         additionalProperties: { type: 'number' },
+      },
+      feedrate: {
+        type: 'number',
       },
       sync: {
         type: 'boolean',

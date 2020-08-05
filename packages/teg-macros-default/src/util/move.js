@@ -11,7 +11,12 @@ const move = ({
   relativeMovement,
   allowExtruderAxes,
   machineConfig,
+  feedrate,
 }) => {
+  if (feedrate != null && feedrate < 0) {
+    throw new Error(`feedrate must be greater then zero if set. Got: ${feedrate}`)
+  }
+
   const g1Args = {}
   const feedrates = []
 
@@ -34,7 +39,7 @@ const move = ({
 
   const commands = [
     relativeMovement ? 'G91' : 'G90',
-    { g1: { f: Math.min.apply(null, feedrates) * 60 } },
+    { g1: { f: (feedrate || Math.min.apply(null, feedrates)) * 60 } },
     { g1: g1Args },
     'G90',
     /*

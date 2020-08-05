@@ -1,78 +1,106 @@
-import React, { useState } from 'react'
-import {
-  Typography,
-} from '@material-ui/core'
+import React, { useEffect, useState } from 'react'
+
+import Typography from '@material-ui/core/Typography'
+import LinearProgress from '@material-ui/core/LinearProgress'
+import Button from '@material-ui/core/Button'
 
 import { useTranslation } from 'react-i18next'
 
-// import ExtrudeRetractButtons from '../../ExtrudeRetractButtons'
-import useExecGCodes from '../../../_hooks/useExecGCodes'
+import { useExecGCodes2 } from '../../../_hooks/useExecGCodes'
 
-import ExtruderButtons from '../ExtruderButtons'
 import ButtonsFooter from '../ButtonsFooter'
 
-import Loading from '../../../../common/Loading'
-
-const Step7LoadFilament = ({
+const Step3Retract = ({
   machine,
   component,
   next,
   classes,
+  active,
 }) => {
   const { t } = useTranslation('filamentSwap')
 
-  const [saving, setSaving] = useState(false)
+  const {
+    bowdenTubeLength = 0,
+    filamentSwapFastMoveSpeed,
+    filamentSwapFastMoveEnabled,
+    filamentSwapExtrudeDistance = 100,
+  } = component.configForm.model
 
-  const disableExtruder = useExecGCodes(() => {
-    setSaving(true)
+  const gcodes = []
 
-    return {
-      machine,
-      gcodes: [
-        { toggleHeaters: { heaters: { [component.address]: false } } },
-      ],
-      // Wait for the extruder to reach temperature and then go to the next step
-      update: next,
-    }
-  }, [machine, component.address])
+  if (filamentSwapFastMoveEnabled) {
+    gcodes.push({
+      moveBy: {
+        distances: { [component.address]: bowdenTubeLength },
+        feedrate: filamentSwapFastMoveSpeed,
+      },
+    })
+  }
+
+  gcodes.push({
+    moveBy: {
+      distances: { [component.address]: filamentSwapExtrudeDistance },
+      sync: true,
+    },
+  })
+
+  const loadFilament = useExecGCodes2(() => ({
+    machine,
+    gcodes,
+    sync: true,
+    // Wait for the filament to retract and then go to the next step
+    update: next,
+  }))
 
   return (
-    <React.Fragment>
-      <div className={classes.loadFilamentRoot}>
-        <Typography variant="h6" paragraph>
-          {t('loadFilament.title')}
-        </Typography>
-        <Typography variant="body1" paragraph>
-          {t('loadFilament.content')}
-        </Typography>
-        <ExtruderButtons
-          machine={machine}
-          component={component}
-        />
-        <Typography variant="body2" paragraph>
-          <b>
-            {t('loadFilament.warningWord')}
-            :
-            {' '}
-          </b>
-          {t('loadFilament.warningTitle')}
-        </Typography>
-        <Typography variant="body2" paragraph>
-          {t('loadFilament.warningContent')}
-        </Typography>
+    <>
+      <div>
+        { loadFilament.isInitial && (
+          <>
+            <Typography variant="body1" paragraph>
+              {t('loadFilament.instructions.title')}
+            </Typography>
+            <Typography variant="body2" paragraph>
+              {t('loadFilament.instructions.details', {
+                bowdenTubeLength,
+                filamentSwapExtrudeDistance,
+              })}
+            </Typography>
+            <Typography variant="body2" paragraph>
+              <b>
+                {t('loadFilament.instructions.warningWord')}
+                :
+                {' '}
+              </b>
+              {t('loadFilament.instructions.warningContent')}
+            </Typography>
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={loadFilament.run}
+            >
+              {t('loadFilament.instructions.button')}
+            </Button>
+          </>
+        )}
+
+        { !loadFilament.isInitial && (
+          <>
+            <Typography variant="body1" paragraph>
+              {t('loadFilament.loading.title')}
+            </Typography>
+            <LinearProgress />
+            <Typography variant="body2" paragraph>
+              {t('loadFilament.loading.details', {
+                bowdenTubeLength,
+                filamentSwapExtrudeDistance,
+              })}
+            </Typography>
+          </>
+        )}
       </div>
-
-      { saving && (
-        <Loading noText className={classes.saving} transitionDelay={200} />
-      )}
-
-      <ButtonsFooter
-        backTo={-2}
-        onClickNext={disableExtruder}
-        disabledNext={saving}
-      />
-    </React.Fragment>
+    </>
   )
 }
 
-export default Step7LoadFilament
+export default Step3Retract

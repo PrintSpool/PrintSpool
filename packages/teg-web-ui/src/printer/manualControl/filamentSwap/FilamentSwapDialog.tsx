@@ -20,6 +20,7 @@ import Step3Retract from './steps/Step3Retract'
 import Step4RemoveFilament from './steps/Step4RemoveFilament'
 import Step5SelectMaterial from './steps/Step5SelectMaterial'
 import Step7LoadFilament from './steps/Step7LoadFilament'
+import Step8AdjustNewFilament from './steps/Step8AdjustNewFilament'
 
 import useStyles from './FilamentSwapDialogStyles'
 import { useMutation } from 'react-apollo-hooks'
@@ -90,6 +91,10 @@ const steps = [
   {
     name: 'Load Filament',
     component: Step7LoadFilament,
+  },
+  {
+    name: 'Filament Swap Complete',
+    component: Step8AdjustNewFilament,
   },
 ]
 

@@ -10,8 +10,6 @@ import useExecGCodes from '../../../_hooks/useExecGCodes'
 
 import ButtonsFooter from '../ButtonsFooter'
 
-const distance = 50
-
 const Step3Retract = ({
   machine,
   component,
@@ -21,10 +19,25 @@ const Step3Retract = ({
 }) => {
   const { t } = useTranslation('filamentSwap')
 
+  const {
+    bowdenTubeLength = 0,
+    filamentSwapFastMoveSpeed,
+    filamentSwapFastMoveEnabled,
+    filamentSwapExtrudeDistance = 50,
+  } = component.configForm.model
+
+  const distance = filamentSwapExtrudeDistance + bowdenTubeLength
+
   const retractFilament = useExecGCodes(() => ({
     machine,
     gcodes: [
-      { moveBy: { distances: { [component.address]: -distance }, sync: true } },
+      {
+        moveBy: {
+          distances: { [component.address]: -distance },
+          feedrate: filamentSwapFastMoveEnabled ? filamentSwapFastMoveSpeed : null,
+          sync: true,
+        },
+      },
     ],
     sync: true,
     // Wait for the filament to retract and then go to the next step

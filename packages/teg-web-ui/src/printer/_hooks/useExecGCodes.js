@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 import { useMutation } from 'react-apollo-hooks'
+import { useAsync } from 'react-async'
 
 import gql from 'graphql-tag'
 
@@ -37,6 +38,41 @@ const useExecGCodes = (callback, dependencies) => {
       },
     })
   }, dependencies)
+}
+
+// TODO: transition to this version everywhere for easier react-async workflows
+export const useExecGCodes2 = (callback, dependencies) => {
+  const [execGCodes] = useMutation(EXEC_GCODES)
+
+  const asyncExecGCodes = useAsync({
+    deferFn: async (args) => {
+      const {
+        machine,
+        machineID,
+        gcodes,
+        sync,
+        ...mutationOptions
+      } = callback(...args)
+
+      execGCodes({
+        ...mutationOptions,
+        variables: {
+          input: {
+            machineID: machineID || machine.id,
+            gcodes,
+            sync,
+          },
+        },
+      })
+    },
+  }, dependencies)
+
+  if (asyncExecGCodes.error) {
+    console.error(asyncExecGCodes.error)
+    throw new Error(asyncExecGCodes.error)
+  }
+
+  return asyncExecGCodes
 }
 
 export default useExecGCodes

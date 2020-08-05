@@ -48,7 +48,7 @@ pub fn feedback<'r>(input: &'r str) ->  IResult<&'r str, Feedback> {
     ))(input)
 }
 
-pub fn key_value<'r>(input: &'r str) ->  IResult<&'r str, (String, f32)> {
+pub fn key_value<'r>(input: &'r str) -> IResult<&'r str, (String, f32)> {
     // T:25.0 /0.0 B:25.0 /0.0 T0:25.0 /0.0 @:0 B@:0
     // X:0.00 Y:191.00 Z:159.00 E:0.00 Count X: 0 Y:19196 Z:254400
     // X:${position()} Y:${position()} Z:${position()} E:0.00 Count X: 0.00Y:0.00Z:0.00
@@ -57,17 +57,7 @@ pub fn key_value<'r>(input: &'r str) ->  IResult<&'r str, (String, f32)> {
             recognize(many1(
                 verify(anychar, |c| c.is_ascii_alphanumeric() || c == &'@'),
             )),
-            |address: &str| {
-                let address = address.to_ascii_lowercase();
-
-                if &address[..] == "t" || &address[..] == "e" {
-                    "e0".to_string()
-                } else if address.starts_with('t') {
-                    address.replace("t", "e")
-                }else {
-                    address
-                }
-            }
+            |address: &str| address.to_ascii_lowercase()
         ),
         pair(
             char(':'),
@@ -92,7 +82,17 @@ pub fn temperature_feedback<'r>(input: &'r str) ->  IResult<&'r str, Feedback> {
                         space1,
                     ))),
                 ),
-                key_value,
+                map(key_value, |(address, v)| {
+                    let address = if &address[..] == "t" {
+                        "e0".to_string()
+                    } else if address.starts_with('t') {
+                        address.replace("t", "e")
+                    }else {
+                        address
+                    };
+
+                    (address, v)
+                }),
             ),
         ),
         |temperatures| {
@@ -109,7 +109,17 @@ pub fn position_feedback<'r>(input: &'r str) ->  IResult<&'r str, Feedback> {
             peek(tag("X:")),
             terminated(
                 many1(terminated(
-                    key_value,
+                    map(key_value, |(address, v)| {
+                        let address = if &address[..] == "e" {
+                            "e0".to_string()
+                        } else if address.starts_with('t') {
+                            address.replace("t", "e")
+                        }else {
+                            address
+                        };
+    
+                        (address, v)
+                    }),
                     space0,
                 )),
                 opt(not_line_ending),

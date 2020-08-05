@@ -330,4 +330,36 @@ expression: responses?
             ),
         ],
     },
+    "temperature_control": {
+        "m109": [
+            Feedback(
+                ActualTemperatures(
+                    [
+                        (
+                            "e0",
+                            24.8,
+                        ),
+                        (
+                            "e",
+                            0.0,
+                        ),
+                    ],
+                ),
+            ),
+            Feedback(
+                ActualTemperatures(
+                    [
+                        (
+                            "e0",
+                            25.0,
+                        ),
+                        (
+                            "e",
+                            0.0,
+                        ),
+                    ],
+                ),
+            ),
+        ],
+    },
 }

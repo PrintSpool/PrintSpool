@@ -107,6 +107,10 @@ const printerConfig = {
         heater: true,
         feedrate: 3,
         materialID: 'dkdow2',
+        bowdenTubeLength: 0,
+        filamentSwapFastMoveSpeed: 50,
+        filamentSwapFastMoveEnabled: false,
+        filamentSwapExtrudeDistance: 50,
       },
     },
     {

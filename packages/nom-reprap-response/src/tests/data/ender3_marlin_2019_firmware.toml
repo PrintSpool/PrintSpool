@@ -82,6 +82,13 @@
   # "N3 M155 S0.5*121\n" - Does nothing on the Ender 3. No temperature auto-reports, just an "ok".
   m155_temperature_auto_report = "ok\n"
 
+[temperature_control]
+  # "N1044 M109*26\n"
+  m109 = """\
+    T:24.8 E:0\n\
+    T:25.0 E:0\n\
+  """
+
 # SD Card
 # #############################
 

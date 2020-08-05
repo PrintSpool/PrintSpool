@@ -17,6 +17,13 @@ const Step1Introduction = ({
 }) => {
   const { t } = useTranslation('filamentSwap')
 
+  const {
+    bowdenTubeLength = 0,
+    filamentSwapExtrudeDistance = 50,
+  } = component.configForm.model
+
+  const distance = filamentSwapExtrudeDistance + bowdenTubeLength
+
   return (
     <React.Fragment>
       <div className={classes.introRoot}>
@@ -27,7 +34,7 @@ const Step1Introduction = ({
           {t('intro.content', {
             name: component.name,
             materialTarget: component.heater.materialTarget,
-            distance: 100,
+            distance,
           })}
         </Typography>
         <Typography variant="body1" paragraph>

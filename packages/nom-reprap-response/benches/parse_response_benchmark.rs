@@ -1,4 +1,4 @@
-use teg_marlin::gcode_codec::response::parse_response;
+use nom_reprap_response:parse_response;
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 

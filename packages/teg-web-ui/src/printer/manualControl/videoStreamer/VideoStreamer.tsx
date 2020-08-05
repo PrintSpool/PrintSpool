@@ -149,7 +149,7 @@ const enhance = (Component: any) => (props: any) => {
     deferFn: loadVideo,
   })
 
-  console.log({ error, isLoading })
+  // console.log({ error, isLoading })
 
   // Load the video stream on startup
   useEffect(() => {

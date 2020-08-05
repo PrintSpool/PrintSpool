@@ -384,6 +384,26 @@ const getSchemaForms = () => ({
             type: 'boolean',
             default: false,
           },
+          bowdenTubeLength: {
+            title: 'Bowden Tube Length',
+            type: 'number',
+            default: 0,
+          },
+          filamentSwapFastMoveSpeed: {
+            title: 'Filament Swap Fast Move Speed',
+            type: 'number',
+            default: 50,
+          },
+          filamentSwapFastMoveEnabled: {
+            title: 'Filament Swap Fast Move Enabled',
+            type: 'boolean',
+            default: false,
+          },
+          filamentSwapExtrudeDistance: {
+            title: 'Filament Swap Extrude Distance',
+            type: 'number',
+            default: 100,
+          },
         },
       }),
       form: [

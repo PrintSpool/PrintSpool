@@ -55,6 +55,11 @@
   # "N3 M155 S0.5*121\n"
   m155_temperature_auto_report = ""
 
+[temperature_control]
+  # "N1044 M109*26\n"
+  m109 = """\
+  """
+
 # SD Card
 # #############################
 
