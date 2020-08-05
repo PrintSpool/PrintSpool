@@ -89,13 +89,13 @@ const Step3Retract = ({
             <Typography variant="body1" paragraph>
               {t('loadFilament.loading.title')}
             </Typography>
-            <LinearProgress />
             <Typography variant="body2" paragraph>
               {t('loadFilament.loading.details', {
                 bowdenTubeLength,
                 filamentSwapExtrudeDistance,
               })}
             </Typography>
+            <LinearProgress />
           </>
         )}
       </div>
