@@ -257,7 +257,7 @@ impl ReadyState {
                 temperatures.iter().for_each(|(address, val)| {
                     // Skip "@" and "e" values. I have no idea what they are for but Marlin sends 
                     // them.
-                    if address.contains('@') || address.contains('e') {
+                    if address.contains('@') || address == "e" {
                         return
                     };
 
