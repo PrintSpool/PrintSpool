@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/tegapp/teg/compare/v0.10.1...v0.11.0) (2020-08-06)
+
+
+### Bug Fixes
+
+* Added parsing for M21 and M21 blocking gcode support ([ed0cffa](https://github.com/tegapp/teg/commit/ed0cffa))
+
+
+### Features
+
+* Added benchmarks for response parser ([14927d3](https://github.com/tegapp/teg/commit/14927d3))
+* New rewritten GCode response parser with support for multi-line responses such as SD card MCodes ([f621e3e](https://github.com/tegapp/teg/commit/f621e3e))
+
+
+
+
+
 ## [0.10.1](https://github.com/tegapp/teg/compare/v0.10.0...v0.10.1) (2020-07-19)
 
 

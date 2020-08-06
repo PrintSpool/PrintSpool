@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/teg/teg-host-posix/compare/v0.10.1...v0.11.0) (2020-08-06)
+
+
+### Bug Fixes
+
+* After a mid-task teg-marlin panic the teg-core server lost the ability to send tasks to the printer due to the task state never getting updated when onError == null. ([add48b0](https://github.com/teg/teg-host-posix/commit/add48b0))
+
+
+### Features
+
+* Added descriptions to extruder settings ([f5785ff](https://github.com/teg/teg-host-posix/commit/f5785ff))
+* Added fast filament loading and removing for bowden cable 3D printer ([33a163a](https://github.com/teg/teg-host-posix/commit/33a163a))
+* New rewritten GCode response parser with support for multi-line responses such as SD card MCodes ([f621e3e](https://github.com/teg/teg-host-posix/commit/f621e3e))
+
+
+
+
+
 # [0.10.0](https://github.com/teg/teg-host-posix/compare/v0.9.1...v0.10.0) (2020-07-18)
 
 

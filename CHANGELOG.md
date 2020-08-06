@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/tegapp/teg/compare/v0.10.1...v0.11.0) (2020-08-06)
+
+
+### Bug Fixes
+
+* Added parsing for M21 and M21 blocking gcode support ([ed0cffa](https://github.com/tegapp/teg/commit/ed0cffa))
+* After a mid-task teg-marlin panic the teg-core server lost the ability to send tasks to the printer due to the task state never getting updated when onError == null. ([add48b0](https://github.com/tegapp/teg/commit/add48b0))
+* Fixed video streaming async issues (Switch to Surf) ([745b448](https://github.com/tegapp/teg/commit/745b448))
+* GCode hooks are multiline fields ([049c5cd](https://github.com/tegapp/teg/commit/049c5cd))
+* Refresh should not crash if a stale pid file exists ([f1c7890](https://github.com/tegapp/teg/commit/f1c7890))
+
+
+### Features
+
+* Added benchmarks for response parser ([14927d3](https://github.com/tegapp/teg/commit/14927d3))
+* Added descriptions to extruder settings ([f5785ff](https://github.com/tegapp/teg/commit/f5785ff))
+* Added fast filament loading and removing for bowden cable 3D printer ([33a163a](https://github.com/tegapp/teg/commit/33a163a))
+* New rewritten GCode response parser with support for multi-line responses such as SD card MCodes ([f621e3e](https://github.com/tegapp/teg/commit/f621e3e))
+
+
+
+
+
 ## [0.10.1](https://github.com/tegapp/teg/compare/v0.10.0...v0.10.1) (2020-07-19)
 
 

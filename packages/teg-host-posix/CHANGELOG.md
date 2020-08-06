@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.11.0](https://github.com/teg/teg-host-posix/compare/v0.10.1...v0.11.0) (2020-08-06)
+
+
+### Bug Fixes
+
+* Added parsing for M21 and M21 blocking gcode support ([ed0cffa](https://github.com/teg/teg-host-posix/commit/ed0cffa))
+
+
+### Features
+
+* Added descriptions to extruder settings ([f5785ff](https://github.com/teg/teg-host-posix/commit/f5785ff))
+* Added fast filament loading and removing for bowden cable 3D printer ([33a163a](https://github.com/teg/teg-host-posix/commit/33a163a))
+
+
+
+
+
 ## [0.10.1](https://github.com/teg/teg-host-posix/compare/v0.10.0...v0.10.1) (2020-07-19)
 
 **Note:** Version bump only for package @tegapp/host-posix
