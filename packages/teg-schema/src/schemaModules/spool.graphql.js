@@ -38,6 +38,14 @@ input ExecGCodesInput {
   sync: Boolean
 
   """
+  If true allows this gcode to be sent during a print and inserted before the print gcodes. This can
+  be used to override print settings such as extuder temperatures and fan speeds (default: false)
+
+  override GCodes will not block. Cannot be used with sync = true.
+  """
+  override: Boolean
+
+  """
   Teg supports 3 formats of GCode:
 
   1. Standard GCode Strings

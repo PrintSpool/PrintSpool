@@ -193,11 +193,16 @@ const MutationResolvers = {
         gcodes: commands,
         machineID,
         sync = false,
+        override = false,
       } = args.input
 
       const { status } = sockets.machines.get(machineID)
       if (status !== READY) {
         throw new Error(`Cannot send gcodes while printer is ${status}`)
+      }
+
+      if (override && sync) {
+        throw new Error('Override GCodes will not block. Cannot be used with sync = true.')
       }
 
       const task = await new Promise((resolve, reject) => {
@@ -206,6 +211,7 @@ const MutationResolvers = {
           commands,
           macros,
           combinatorConfig: config,
+          macineOverride: override,
           onComplete: sync ? resolve : null,
           onError: sync ? reject : null,
         })

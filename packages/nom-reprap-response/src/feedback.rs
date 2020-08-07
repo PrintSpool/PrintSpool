@@ -17,10 +17,16 @@ use super::{
 pub enum Feedback {
     SDCard(SDCard),
     ActualTemperatures(Vec<(String, f32)>),
-    ActualPositions(Vec<(String, f32)>),
+    Positions(Positions),
     StartSDWrite(StartSDWrite),
     SDWriteComplete,
     SDPrintComplete,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct Positions {
+    pub target_positions: Option<Vec<(String, f32)>>,
+    pub actual_positions: Vec<(String, f32)>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -92,6 +98,12 @@ pub fn temperature_feedback<'r>(input: &'r str) ->  IResult<&'r str, Feedback> {
             let temperatures = temperatures
                 .into_iter()
                 .filter_map(|(address, v)| {
+                    // Skip "@" and "e" values. I have no idea what they are for but Marlin sends 
+                    // them.
+                    if address.contains('@') || address == "e" {
+                        return None
+                    };
+
                     let address = if &address[..] == "t" {
                         "e0".to_string()
                     } else if address.starts_with('t') {
@@ -109,42 +121,60 @@ pub fn temperature_feedback<'r>(input: &'r str) ->  IResult<&'r str, Feedback> {
 }
 
 pub fn position_feedback<'r>(input: &'r str) ->  IResult<&'r str, Feedback> {
+    //           target positions                actual positions
+    // |-------------------------------|     |---------------------|
     // 'X:0.00 Y:191.00 Z:159.00 E:0.00 Count X: 0 Y:19196 Z:254400',
     // `X:${position()} Y:${position()} Z:${position()} E:0.00 Count X: 0.00Y:0.00Z:0.00`,
     map(
         preceded(
             peek(tag("X:")),
-            terminated(
-                many1(terminated(
-                    key_value,
+            pair(
+                many1(preceded(
                     space0,
+                    key_value,
                 )),
-                opt(not_line_ending),
-                // opt(tuple((
-                //     space1,
-                //     tag_no_case("Count"),
-                //     space1,
-                //     not_line_ending,
-                // ))),
+                opt(preceded(
+                    tuple((
+                        space1,
+                        tag_no_case("Count"),
+                        space1,
+                    )),
+                    many0(terminated(
+                        key_value,
+                        space0,
+                    )),
+                )),
             ),
         ),
-        |positions| {
-            let positions = positions
-                .into_iter()
-                .filter_map(|(address, v)| {
-                    let address = if &address[..] == "e" {
-                        "e0".to_string()
-                    } else if address.starts_with('t') {
-                        address.replace("t", "e")
-                    }else {
-                        address
-                    };
-
-                    v.map(|v| (address, v))
+        |(p1, p2)| {
+            if let Some(p2) = p2 {
+                Feedback::Positions(Positions {
+                    target_positions: Some(normalize_positions(p1)),
+                    actual_positions: normalize_positions(p2),
                 })
-                .collect();
-
-            Feedback::ActualPositions(positions)
+            } else {
+                Feedback::Positions(Positions {
+                    target_positions: None,
+                    actual_positions: normalize_positions(p1),
+                })
+            }
         }
     )(input)
+}
+
+fn normalize_positions(positions: Vec<(String, Option<f32>)>) -> Vec<(String, f32)> {
+    positions
+        .into_iter()
+        .filter_map(|(address, v)| {
+            let address = if &address[..] == "e" {
+                "e0".to_string()
+            } else if address.starts_with('t') {
+                address.replace("t", "e")
+            }else {
+                address
+            };
+
+            v.map(|v| (address, v))
+        })
+        .collect()
 }

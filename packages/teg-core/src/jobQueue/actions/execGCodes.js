@@ -5,6 +5,7 @@ const execGCodes = ({
   machineID,
   commands: inputCommands,
   macros,
+  machineOverride,
   combinatorConfig,
   onComplete,
   onError,
@@ -25,6 +26,7 @@ const execGCodes = ({
     commands,
     annotations,
     macros,
+    machineOverride,
     onComplete,
     onError,
   })

@@ -4,13 +4,13 @@ use super::{
     State::*,
     Effect,
     Context,
-    cancel_task,
+    cancel_all_tasks,
 };
 
 pub fn disconnect(state: &State, context: &mut Context) -> Loop {
     info!("Disconnected");
 
-    cancel_task(state, context);
+    cancel_all_tasks(state, context);
 
     let effects = vec![
         Effect::CancelAllDelays,

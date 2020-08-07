@@ -215,14 +215,6 @@ expression: responses?
                                 "b",
                                 26.6,
                             ),
-                            (
-                                "@",
-                                0.0,
-                            ),
-                            (
-                                "b@",
-                                0.0,
-                            ),
                         ],
                     ),
                 ),
@@ -230,25 +222,43 @@ expression: responses?
         ],
         "m114": [
             Feedback(
-                ActualPositions(
-                    [
-                        (
-                            "x",
-                            0.0,
+                Positions(
+                    Positions {
+                        target_positions: Some(
+                            [
+                                (
+                                    "x",
+                                    0.0,
+                                ),
+                                (
+                                    "y",
+                                    0.0,
+                                ),
+                                (
+                                    "z",
+                                    0.0,
+                                ),
+                                (
+                                    "e0",
+                                    0.0,
+                                ),
+                            ],
                         ),
-                        (
-                            "y",
-                            0.0,
-                        ),
-                        (
-                            "z",
-                            0.0,
-                        ),
-                        (
-                            "e0",
-                            0.0,
-                        ),
-                    ],
+                        actual_positions: [
+                            (
+                                "x",
+                                0.0,
+                            ),
+                            (
+                                "y",
+                                0.0,
+                            ),
+                            (
+                                "z",
+                                0.0,
+                            ),
+                        ],
+                    },
                 ),
             ),
         ],
@@ -267,10 +277,6 @@ expression: responses?
                             "e0",
                             24.7,
                         ),
-                        (
-                            "e",
-                            0.0,
-                        ),
                     ],
                 ),
             ),
@@ -280,10 +286,6 @@ expression: responses?
                         (
                             "e0",
                             24.4,
-                        ),
-                        (
-                            "e",
-                            0.0,
                         ),
                     ],
                 ),

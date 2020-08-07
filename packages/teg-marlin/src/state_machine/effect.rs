@@ -63,7 +63,12 @@ pub enum Effect {
     OpenSerialPort { baud_rate: u32 },
     // ResetSerial
     ProtobufSend,
-    LoadGCode { file_path: String, task_id: u32, client_id: u32 },
+    LoadGCode {
+        file_path: String,
+        task_id: u32,
+        client_id: u32,
+        machine_override: bool,
+    },
     CloseSerialPort,
     ExitProcess,
     ExitProcessAfterDelay,
@@ -143,7 +148,12 @@ impl Effect {
                     .await
                     .expect("machine message send failed");
             }
-            Effect::LoadGCode { file_path, task_id, client_id } => {
+            Effect::LoadGCode {
+                file_path,
+                task_id,
+                client_id,
+                machine_override,
+            } => {
                 let mut tx = mpsc::Sender::clone(&reactor.event_sender);
 
                 let file_path = reactor.context.config.transform_gcode_file_path(file_path);
@@ -163,6 +173,8 @@ impl Effect {
                             id: task_id,
                             client_id,
                             gcode_lines,
+                            machine_override,
+                            started: false,
                         }
                     )
                 } else {

@@ -37,6 +37,8 @@ pub struct Task
     // TODO: gcode_lines iterator. Does 'self lifetime do what I need?
     // gcode_lines: Option<Box<dyn std::slice::Iter<T: str>>>,
     pub gcode_lines: std::vec::IntoIter<String>,
+    pub machine_override: bool,
+    pub started: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -87,17 +89,23 @@ impl Loop {
 use State::*;
 use Event::*;
 
-pub fn cancel_task(state: &State, context: &mut Context) {
-    if let Ready( ReadyState { task: Some(task), .. }) = state {
-        context.push_cancel_task(&task);
+pub fn cancel_all_tasks(state: &State, context: &mut Context) {
+    if let Ready( ReadyState { tasks, .. }) = state {
+        tasks
+            .iter()
+            .for_each(|task| context.push_cancel_task(&task));
     };
 }
 
 fn errored(message: String, state: &State, context: &mut Context) -> Loop {
     error!("Error State: {:?}", message);
 
-    if let Ready( ReadyState { task: Some(task), .. }) = state {
-        context.push_error(&task, &machine_message::Error { message: message.clone() });
+    if let Ready( ReadyState { tasks, .. }) = state {
+        tasks
+            .iter()
+            .for_each(|task| {
+                context.push_error(&task, &machine_message::Error { message: message.clone() });
+            });
     };
 
     let next_state = Errored { message };
@@ -207,7 +215,7 @@ impl State {
                 Some(Payload::Estop(_)) => {
                     info!("ESTOP");
 
-                    cancel_task(&self, context);
+                    cancel_all_tasks(&self, context);
 
                     context.handle_state_change(&State::EStopped);
 
@@ -230,12 +238,20 @@ impl State {
                     )
                 }
                 Some(Payload::ResetWhenIdle(_)) => {
-                    if let Ready ( ReadyState { task: Some(_), .. } ) = self {
-                        context.reset_when_idle = true
+                    let busy = if let Ready ( ready ) = &self {
+                        ready.tasks.len() > 0
                     } else  {
+                        false
+                    };
+
+                    return if busy {
+                        context.reset_when_idle = true;
+
+                        self.and_no_effects()
+                    } else {
                         info!("RESET: restarting service");
 
-                        return Loop::new(
+                        Loop::new(
                             self,
                             vec![Effect::ExitProcess],
                         )
@@ -243,83 +259,83 @@ impl State {
                 }
                 _ => ()
             }
-        }
-
-        if let Ready ( inner_ready_state ) = self {
-            return inner_ready_state.consume(event, context)
-        }
-
-        match event {
-            Init { serial_port_available } => {
-                if serial_port_available {
-                    info!("Teg Marlin: Started (Serial port found)");
-                    self.reconnect_with_next_baud(context)
-                } else {
-                    info!("Teg Marlin: Started (No device found)");
-                    self.and_no_effects()
+        };
+        
+        if let Ready ( ready ) = self {
+            ready.consume(event, context)
+        } else {
+            match event {
+                Init { serial_port_available } => {
+                    if serial_port_available {
+                        info!("Teg Marlin: Started (Serial port found)");
+                        self.reconnect_with_next_baud(context)
+                    } else {
+                        info!("Teg Marlin: Started (No device found)");
+                        self.and_no_effects()
+                    }
                 }
-            }
-            SerialPortDisconnected => {
-                disconnect(&self, context)
-                // eprintln!("Disconnected");
-                // Loop::new(
-                //     Disconnected,
-                //     vec![Effect::CancelAllDelays],
-                // )
-            }
-            SerialPortError { message } => {
-                error!("Disconnected due to serial port error: {:?}", message);
-                errored(message.to_string(), &self, context)
-            }
-            /* Echo, Debug and Error function the same in all states */
-            SerialRec((src, response)) => {
-                context.push_gcode_rx(src.clone());
+                SerialPortDisconnected => {
+                    disconnect(&self, context)
+                    // eprintln!("Disconnected");
+                    // Loop::new(
+                    //     Disconnected,
+                    //     vec![Effect::CancelAllDelays],
+                    // )
+                }
+                SerialPortError { message } => {
+                    error!("Disconnected due to serial port error: {:?}", message);
+                    errored(message.to_string(), &self, context)
+                }
+                /* Echo, Debug and Error function the same in all states */
+                SerialRec((src, response)) => {
+                    context.push_gcode_rx(src.clone());
 
-                match (self, response) {
-                    /* Errors */
-                    (Errored { message }, _) => {
-                        error!("RX ERR: {}", message);
-                        append_to_error(message, &src, context)
+                    match (self, response) {
+                        /* Errors */
+                        (Errored { message }, _) => {
+                            error!("RX ERR: {}", message);
+                            append_to_error(message, &src, context)
+                        }
+                        (state, Response::Error(error)) => {
+                            errored(error.to_string(), &state, context)
+                        }
+                        /* New socket */
+                        (Connecting(conn @ Connecting { received_greeting: false, .. }), Response::Greeting) |
+                        (Connecting(conn @ Connecting { received_greeting: false, .. }), Response::Ok {..}) => {
+                            Self::receive_greeting(conn, &context)
+                        }
+                        /* Invalid transitions */
+                        (state, response @ Response::Resend { .. }) => {
+                            let event = SerialRec(( src, response ));
+                            state.invalid_transition_error(&event, context)
+                        }
+                        /* No ops */
+                        (state, _) => state.and_no_effects()
                     }
-                    (state, Response::Error(error)) => {
-                        errored(error.to_string(), &state, context)
-                    }
-                    /* New socket */
-                    (Connecting(conn @ Connecting { received_greeting: false, .. }), Response::Greeting) |
-                    (Connecting(conn @ Connecting { received_greeting: false, .. }), Response::Ok {..}) => {
-                        Self::receive_greeting(conn, &context)
-                    }
-                    /* Invalid transitions */
-                    (state, response @ Response::Resend { .. }) => {
-                        let event = SerialRec(( src, response ));
-                        state.invalid_transition_error(&event, context)
-                    }
-                    /* No ops */
-                    (state, _) => state.and_no_effects()
                 }
-            }
-            ConnectionTimeout => {
-                self.connection_timeout(event, context)
-            }
-            /* Awaiting Greeting Timer: After Delay */
-            GreetingTimerCompleted => {
-                if let Connecting(Connecting { received_greeting: true, .. }) = self {
-                    self.greeting_timer_completed(context)
-                } else {
-                    self.invalid_transition_error(&event, context)
+                ConnectionTimeout => {
+                    self.connection_timeout(event, context)
                 }
-            },
-            /* Warnings */
-            PollFeedback |
-            TickleSerialPort |
-            GCodeLoaded(..) |
-            GCodeLoadFailed{..} |
-            ProtobufRec(_) |
-            ProtobufClientConnection => {
-                self.invalid_transition_warning(&event)
+                /* Awaiting Greeting Timer: After Delay */
+                GreetingTimerCompleted => {
+                    if let Connecting(Connecting { received_greeting: true, .. }) = self {
+                        self.greeting_timer_completed(context)
+                    } else {
+                        self.invalid_transition_error(&event, context)
+                    }
+                },
+                /* Warnings */
+                PollFeedback |
+                TickleSerialPort |
+                GCodeLoaded(..) |
+                GCodeLoadFailed{..} |
+                ProtobufRec(_) |
+                ProtobufClientConnection => {
+                    self.invalid_transition_warning(&event)
+                }
+                /* Errors */
+                // _ => self.invalid_transition_error(&event)
             }
-            /* Errors */
-            // _ => self.invalid_transition_error(&event)
         }
     }
 

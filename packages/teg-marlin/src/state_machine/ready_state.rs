@@ -1,4 +1,5 @@
 use std::time::Duration;
+use std::collections::VecDeque;
 
 use nom_reprap_response::{
     Response,
@@ -53,7 +54,7 @@ pub struct ReadyState {
     next_serial_line_number: u32,
     // spool
     loading_gcode: bool,
-    pub task: Option<Task>,
+    pub tasks: VecDeque<Task>,
 }
 
 impl Default for ReadyState {
@@ -67,7 +68,7 @@ impl Default for ReadyState {
             next_serial_line_number: 1,
             // spool
             loading_gcode: false,
-            task: None,
+            tasks: VecDeque::new(),
         }
     }
 }
@@ -98,6 +99,7 @@ impl ReadyState {
                             task_id,
                             client_id,
                             content,
+                            machine_override,
                             ..
                         } = spool_task;
 
@@ -107,6 +109,8 @@ impl ReadyState {
                                     id: spool_task.task_id,
                                     client_id,
                                     gcode_lines: commands.into_iter(),
+                                    machine_override,
+                                    started: false,
                                 };
                                 self.consume(GCodeLoaded(task), context)
                             }
@@ -115,7 +119,8 @@ impl ReadyState {
                                     Effect::LoadGCode {
                                         file_path: file_path.clone(),
                                         task_id,
-                                        client_id
+                                        client_id,
+                                        machine_override,
                                     },
                                 ];
                                 Loop::new(Ready(self), effects)
@@ -128,13 +133,20 @@ impl ReadyState {
                     }
                     combinator_message::Payload::PauseTask(combinator_message::PauseTask { task_id }) => {
                         self.loading_gcode = true;
-                        match self.task.as_ref() {
-                            Some(task) if task.id == task_id => {
-                                context.push_pause_task(&task);
-                                self.task = None;
-                                context.feedback.despooled_line_number = 0;
+                        let task = self.tasks
+                            .iter()
+                            .position(|task| task.id == task_id)
+                            .and_then(|index| self.tasks.remove(index));
 
-                                if context.reset_when_idle {
+                        match task {
+                            Some(task) => {
+                                context.push_pause_task(&task);
+
+                                if !task.machine_override {
+                                    context.feedback.despooled_line_number = 0;
+                                };
+
+                                if context.reset_when_idle && self.tasks.is_empty() {
                                     return Loop::new(
                                         Ready(self),
                                         vec![Effect::ExitProcessAfterDelay],
@@ -157,19 +169,34 @@ impl ReadyState {
                 disconnect(&Ready(self), context)
             }
             GCodeLoaded ( task ) => {
-                // eprintln!("LOADED {:?}", self.on_ok);
-                context.push_start_task(&task);
+                // The non-override task is always the last task in the queue
+                let is_printing = self.tasks.back().filter(|t| !t.machine_override).is_some();
+
+                info!("LOADED! {}", is_printing);
+
+                // Only allow one non-override task at a time
+                if is_printing && !task.machine_override {
+                    context.push_error(&task, &crate::protos::machine_message::Error {
+                        message: "Attempted to print 2 non-override tasks at once".to_string(),
+                    });
+
+                    return self.and_no_effects()
+                }
+
+                if is_printing {
+                    self.tasks.insert(self.tasks.len() - 1, task)
+                } else {
+                    self.tasks.push_back(task)
+                };
 
                 // despool the first line of the task if ready to do so
                 if let OnOK::NotAwaitingOk = self.on_ok {
                     let mut effects = vec![];
 
-                    self.task = Some(task);
                     self.despool_task(&mut effects, context);
 
                     Loop::new(Ready(self), effects)
                 } else {
-                    self.task = Some(task);
                     self.and_no_effects()
                 }
             }
@@ -255,12 +282,6 @@ impl ReadyState {
             Feedback::ActualTemperatures(temperatures) => {
                 // set actual_temperatures
                 temperatures.iter().for_each(|(address, val)| {
-                    // Skip "@" and "e" values. I have no idea what they are for but Marlin sends 
-                    // them.
-                    if address.contains('@') || address == "e" {
-                        return
-                    };
-
                     let heater = context.feedback.heaters
                         .iter_mut()
                         .find(|h| h.address == *address);
@@ -287,13 +308,9 @@ impl ReadyState {
 
                 vec![delay, Effect::ProtobufSend]
             },
-            Feedback::ActualPositions(positions) => {
+            Feedback::Positions(positions) => {
                 // set actual_positions
-                positions.iter().for_each(|(address, val)| {
-                    if address == "e" {
-                        return
-                    };
-
+                positions.actual_positions.iter().for_each(|(address, val)| {
                     let axis = context.feedback.axes
                         .iter_mut()
                         .find(|a| a.address.to_ascii_lowercase() == *address);
@@ -306,6 +323,22 @@ impl ReadyState {
                     }
                 });
 
+                use std::convert::identity;
+
+                // set target_positions
+                positions.target_positions.iter().flat_map(identity).for_each(|(address, val)| {
+                    let axis = context.feedback.axes
+                        .iter_mut()
+                        .find(|a| a.address.to_ascii_lowercase() == *address);
+
+                    if let Some(axis) = axis {
+                        axis.target_position = *val;
+                    }
+                    else {
+                        warn!("Warning: unknown target_position axis: {:?} = {:?}", address, val);
+                    }
+                });
+                
                 vec![]
             },
             _ => vec![],
@@ -352,20 +385,35 @@ impl ReadyState {
                 self.receive_ok(effects, context);
             }
             OnOK::Despool => {
-                if let Some(poll_for) = self.poll_for {
-                    self.poll_feedback(effects, context, poll_for);
-                } else {
-                    self.despool_task(effects, context);
-                }
+                self.despool(effects, context);
             }
         }
     }
 
+
+    fn despool(&mut self, effects: &mut Vec<Effect>, context: &mut Context) {
+        if let Some(poll_for) = self.poll_for {
+            self.poll_feedback(effects, context, poll_for);
+        } else {
+            self.despool_task(effects, context);
+        }
+    }
+
     fn despool_task(&mut self, effects: &mut Vec<Effect>, context: &mut Context) {
-        if let Some(task) = self.task.as_mut() {
+        if let Some(task) = self.tasks.front_mut() {
             let gcode = task.gcode_lines.next();
 
             if let Some(gcode) = gcode {
+                if !task.started {
+                    trace!("Despool: Starting Task #{}", task.id);
+                    task.started = true;
+                    context.push_start_task(&task);
+
+                    effects.push(
+                        Effect::ProtobufSend,
+                    );
+                };
+
                 trace!("Despool: Task GCode");
 
                 send_serial(
@@ -380,37 +428,42 @@ impl ReadyState {
 
                 self.on_ok = OnOK::Despool;
                 self.next_serial_line_number += 1;
-                context.feedback.despooled_line_number += 1;
+
+                if !task.machine_override {
+                    context.feedback.despooled_line_number += 1;
+                };
             } else {
-                trace!("Despool: Task Completed");
+                trace!("Despool: Completed Task #{}", task.id);
 
                 // record a task completion event
                 context.push_finish_task(&task);
 
-                self.task = None;
-                context.feedback.despooled_line_number = 0;
-                self.on_ok = OnOK::NotAwaitingOk;
+                if !task.machine_override {
+                    context.feedback.despooled_line_number = 0;
+                };
 
-                // Cancel the tickle if there's nothing else to send_serial
-                effects.push(
-                    Effect::CancelDelay { key: "tickle_delay".to_string() }
-                );
                 effects.push(
                     Effect::ProtobufSend,
                 );
 
-                if context.reset_when_idle {
-                    effects.push(Effect::ExitProcessAfterDelay)
-                };
-            }
+                let _ = self.tasks.pop_front();
+
+                // use recursion to despool the next line
+                self.despool(effects, context);
+            };
         } else {
             trace!("Despool: Nothing to send");
 
             self.on_ok = OnOK::NotAwaitingOk;
+            // Cancel the tickle if there's nothing else to send_serial
             effects.push(
                 Effect::CancelDelay { key: "tickle_delay".to_string() }
             );
-        }
+
+            if context.reset_when_idle {
+                effects.push(Effect::ExitProcessAfterDelay)
+            };
+        };
     }
 
     fn poll_feedback(

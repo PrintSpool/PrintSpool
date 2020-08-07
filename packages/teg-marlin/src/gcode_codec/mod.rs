@@ -76,7 +76,7 @@ impl Decoder for GCodeCodec {
                 // Logging
                 let log_level = match response {
                     | Response::Ok(Some(Feedback::ActualTemperatures(_)))
-                    | Response::Feedback(Feedback::ActualPositions(_)) => {
+                    | Response::Feedback(Feedback::Positions(_)) => {
                         log::Level::Trace
                     },
                     _ => log::Level::Debug,
