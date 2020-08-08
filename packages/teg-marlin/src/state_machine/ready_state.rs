@@ -1,5 +1,7 @@
 use std::time::Duration;
 use std::collections::VecDeque;
+use std::collections::HashMap;
+use std::convert::identity;
 
 use nom_reprap_response::{
     Response,
@@ -44,8 +46,40 @@ pub enum OnOK {
     NotAwaitingOk,
 }
 
+#[derive(serde::Deserialize, Debug)]
+enum HostGCode {
+    #[serde(rename = "markTargetPosition")]
+    MarkTargetPosition {},
+    #[serde(rename = "waitToReachMark")]
+    WaitToReachMark(WaitToReachMark),
+}
+
+#[derive(serde::Deserialize, Debug)]
+struct WaitToReachMark {
+    axes: HashMap<String, MarkAxisDirection>,
+}
+
+#[derive(serde::Deserialize, Debug)]
+struct MarkAxisDirection {
+    forward: bool,
+}
+
+#[derive(Clone, Debug)]
+struct MarkAxis {
+    address: String,
+    forward: bool,
+    target_position: f32,
+}
+
+#[derive(Clone, Debug)]
+enum Mark {
+    MarkSet(Vec<crate::protos::machine_message::Axis>),
+    WaitingToReachMark(Vec<MarkAxis>),
+}
+
 #[derive(Clone, Debug)]
 pub struct ReadyState {
+    mark: Option<Mark>,
     poll_for: Option<Polling>,
     awaiting_polling_delay: bool,
     tickles_attempted: u32,
@@ -60,6 +94,7 @@ pub struct ReadyState {
 impl Default for ReadyState {
     fn default() -> Self {
         Self {
+            mark: None,
             on_ok: OnOK::TransitionToReady,
             last_gcode_sent: None,
             poll_for: Some(Polling::PollPosition),
@@ -172,8 +207,6 @@ impl ReadyState {
                 // The non-override task is always the last task in the queue
                 let is_printing = self.tasks.back().filter(|t| !t.machine_override).is_some();
 
-                info!("LOADED! {}", is_printing);
-
                 // Only allow one non-override task at a time
                 if is_printing && !task.machine_override {
                     context.push_error(&task, &crate::protos::machine_message::Error {
@@ -193,9 +226,16 @@ impl ReadyState {
                 if let OnOK::NotAwaitingOk = self.on_ok {
                     let mut effects = vec![];
 
-                    self.despool_task(&mut effects, context);
+                    let result = self.despool_task(&mut effects, context);
 
-                    Loop::new(Ready(self), effects)
+                    match result {
+                        Err(err) => {
+                            errored(err.to_string(), &Ready(self), context)
+                        }
+                        Ok(_) => {
+                            Loop::new(Ready(self), effects)
+                        }
+                    }
                 } else {
                     self.and_no_effects()
                 }
@@ -221,32 +261,52 @@ impl ReadyState {
                         errored(error.to_string(), &Ready(self), context)
                     }
                     Response::Greeting => {
-                        let message = format!("Unexpected printer firmware restart. State: {:?}", self);
+                        let message = format!(
+                            "Unexpected printer firmware restart. State: {:?}",
+                            self,
+                        );
 
                         errored(message, &Ready(self), context)
                     }
                     Response::Ok( feedback ) => {
-                        let mut effects = feedback
+                        let result = feedback
                             .map(|feedback| self.receive_feedback( &feedback, context ))
-                            .unwrap_or(vec![]);
+                            .transpose()
+                            .and_then(|effects| {
+                                let mut effects = effects.unwrap_or(vec![]);
+                                self.receive_ok(&mut effects, context)?;
+                                Ok(effects)
+                            });
 
-                        self.receive_ok(&mut effects, context);
-
-                        Loop::new(
-                            Ready(self),
-                            effects,
-                        )
+                        match result {
+                            Err(err) => {
+                                errored(err.to_string(), &Ready(self), context)
+                            }
+                            Ok(effects) => {
+                                Loop::new(
+                                    Ready(self),
+                                    effects,
+                                )
+                            }
+                        }
                     }
                     Response::Feedback( feedback ) => {
-                        let mut effects = self.receive_feedback( &feedback, context );
-                        effects.push(
-                            Effect::CancelDelay { key: "tickle_delay".to_string() }
-                        );
+                        let result = self.receive_feedback( &feedback, context );
+                        match result {
+                            Ok(mut effects) => {
+                                effects.push(
+                                    Effect::CancelDelay { key: "tickle_delay".to_string() }
+                                );
 
-                        Loop::new(
-                            Ready(self),
-                            effects,
-                        )
+                                Loop::new(
+                                    Ready(self),
+                                    effects,
+                                )
+                            }
+                            Err(err) => {
+                                errored(err.to_string(), &Ready(self), context)
+                            }
+                        }
                     }
                     Response::Resend(resend) => {
                         self.receive_resend_request(resend.line_number, context)
@@ -277,7 +337,11 @@ impl ReadyState {
         }
     }
 
-    fn receive_feedback(&mut self, feedback: &Feedback, context: &mut Context) -> Vec<Effect> {
+    fn receive_feedback(
+        &mut self,
+        feedback: &Feedback,
+        context: &mut Context
+    ) -> anyhow::Result<Vec<Effect>> {
         match feedback {
             Feedback::ActualTemperatures(temperatures) => {
                 // set actual_temperatures
@@ -300,13 +364,20 @@ impl ReadyState {
                 // update polling timers and send to protobuf clients
                 self.awaiting_polling_delay = true;
 
+                let polling_interval = if self.mark.is_some() {
+                    // Rapid polling when waiting to reach a position
+                    50
+                } else {
+                    context.controller.polling_interval
+                };
+
                 let delay = Effect::Delay {
                     key: "polling_delay".to_string(),
-                    duration: Duration::from_millis(context.controller.polling_interval),
+                    duration: Duration::from_millis(polling_interval),
                     event: PollFeedback,
                 };
 
-                vec![delay, Effect::ProtobufSend]
+                Ok(vec![delay, Effect::ProtobufSend])
             },
             Feedback::Positions(positions) => {
                 // set actual_positions
@@ -323,8 +394,6 @@ impl ReadyState {
                     }
                 });
 
-                use std::convert::identity;
-
                 // set target_positions
                 positions.target_positions.iter().flat_map(identity).for_each(|(address, val)| {
                     let axis = context.feedback.axes
@@ -338,14 +407,46 @@ impl ReadyState {
                         warn!("Warning: unknown target_position axis: {:?} = {:?}", address, val);
                     }
                 });
-                
-                vec![]
+
+                // Check if the mark has been reached
+                if let Some(Mark::WaitingToReachMark(mark)) = &self.mark {
+                    // true if all the axes have reached or passed the mark in the direction they
+                    // were traveling
+                    let reached_mark = mark
+                        .iter()
+                        .all(|mark| {
+                            context.feedback.axes
+                                .iter()
+                                .find(|current| current.address == mark.address)
+                                .map(|current| {
+                                    // println!(
+                                    //     "direction: {}, current: {}, target: {}, Good: {}",
+                                    //     mark.forward,
+                                    //     current.actual_position,
+                                    //     mark.target_position,
+                                    //     mark.forward as i32 as f32 * (current.actual_position - mark.target_position) >= 0.0,
+                                    // );
+                                    mark.forward as i32 as f32 * (current.actual_position - mark.target_position) >= 0.0
+                                })
+                                .unwrap_or(false)
+                        });
+
+                    if reached_mark {
+                        debug!("Macro: Wait to Reach Mark [COMPLETE]");
+                        self.mark = None;
+                        let mut effects = vec![];
+                        self.despool(&mut effects, context)?;
+                        return Ok(effects);
+                    };
+                };
+
+                Ok(vec![])
             },
-            _ => vec![],
+            _ => Ok(vec![]),
         }
     }
 
-    fn receive_ok(&mut self, effects: &mut Vec<Effect>, context: &mut Context) {
+    fn receive_ok(&mut self, effects: &mut Vec<Effect>, context: &mut Context) -> anyhow::Result<()> {
         match self.on_ok {
             OnOK::NotAwaitingOk => {
                 // Ignore erroneous OKs
@@ -382,24 +483,31 @@ impl ReadyState {
                 effects.push(Effect::ProtobufSend);
 
                 self.on_ok = OnOK::Despool;
-                self.receive_ok(effects, context);
+                self.receive_ok(effects, context)?;
             }
             OnOK::Despool => {
-                self.despool(effects, context);
+                self.despool(effects, context)?;
             }
         }
+
+        Ok(())
     }
 
-
-    fn despool(&mut self, effects: &mut Vec<Effect>, context: &mut Context) {
+    fn despool(&mut self, effects: &mut Vec<Effect>, context: &mut Context) -> anyhow::Result<()> {
         if let Some(poll_for) = self.poll_for {
             self.poll_feedback(effects, context, poll_for);
         } else {
-            self.despool_task(effects, context);
-        }
+            self.despool_task(effects, context)?;
+        };
+        Ok(())
     }
 
-    fn despool_task(&mut self, effects: &mut Vec<Effect>, context: &mut Context) {
+    fn despool_task(&mut self, effects: &mut Vec<Effect>, context: &mut Context) -> anyhow::Result<()> {
+        if let Some(Mark::WaitingToReachMark(_)) = self.mark {
+            self.on_ok = OnOK::NotAwaitingOk;
+            return Ok(());
+        };
+
         if let Some(task) = self.tasks.front_mut() {
             let gcode = task.gcode_lines.next();
 
@@ -416,21 +524,25 @@ impl ReadyState {
 
                 trace!("Despool: Task GCode");
 
-                send_serial(
-                    effects,
-                    GCodeLine {
-                        gcode,
-                        line_number: Some(self.next_serial_line_number),
-                        checksum: true,
-                    },
-                    context,
-                );
-
-                self.on_ok = OnOK::Despool;
-                self.next_serial_line_number += 1;
-
                 if !task.machine_override {
                     context.feedback.despooled_line_number += 1;
+                };
+
+                if gcode.starts_with('!') {
+                    self.execute_host_gcode(effects, context, &gcode)?;
+                } else {
+                    send_serial(
+                        effects,
+                        GCodeLine {
+                            gcode,
+                            line_number: Some(self.next_serial_line_number),
+                            checksum: true,
+                        },
+                        context,
+                    );
+
+                    self.on_ok = OnOK::Despool;
+                    self.next_serial_line_number += 1;
                 };
             } else {
                 trace!("Despool: Completed Task #{}", task.id);
@@ -449,7 +561,7 @@ impl ReadyState {
                 let _ = self.tasks.pop_front();
 
                 // use recursion to despool the next line
-                self.despool(effects, context);
+                self.despool(effects, context)?;
             };
         } else {
             trace!("Despool: Nothing to send");
@@ -464,6 +576,47 @@ impl ReadyState {
                 effects.push(Effect::ExitProcessAfterDelay)
             };
         };
+
+        Ok(())
+    }
+
+    fn execute_host_gcode(
+        &mut self,
+        effects: &mut Vec<Effect>,
+        context: &mut Context, gcode: &str,
+    ) -> anyhow::Result<()> {
+        let gcode: HostGCode = serde_json::from_str(&gcode[1..])?;
+
+        debug!("Macro: {:?}", gcode);
+
+        match gcode {
+            HostGCode::MarkTargetPosition {..} => {
+                self.mark = Some(Mark::MarkSet(context.feedback.axes.clone()));
+            },
+            HostGCode::WaitToReachMark(args) => {
+                if let Some(Mark::MarkSet(axes)) = &self.mark {
+                    let mark = axes
+                        .into_iter()
+                        .filter_map(|axis| {
+                            args.axes.get(&axis.address).map(|direction|
+                                MarkAxis {
+                                    address: axis.address.clone(),
+                                    target_position: axis.target_position,
+                                    forward: direction.forward,
+                                }
+                            )
+                        })
+                        .collect();
+
+                    self.mark = Some(Mark::WaitingToReachMark(mark));
+                    self.poll_for = Some(Polling::PollPosition);
+                } else {
+                    Err(anyhow::anyhow!("Cannot wait to reach mark if mark is not set"))?;
+                };
+            },
+        };
+
+        self.despool(effects, context)
     }
 
     fn poll_feedback(

@@ -39,16 +39,22 @@ const useContinuousMove = ({ machine }) => {
   }, [])
 
   const tickMovement = async () => {
+    // console.log("start!")
+    const feedrateMultiplier = Object.keys(state.axes).every(k => k === 'z') ? 1 : 0.25
+    console.log(Object.keys(state.axes), Object.keys(state.axes) === ['z'], feedrateMultiplier)
+
     const { error } = await execGCodes({
       variables: {
         input: {
           machineID: machine.id,
+          sync: true,
           gcodes: [
-            { continuousMove: { ms: 200, axes: state.axes, feedrateMultiplier: 0.5 } },
+            { continuousMove: { ms: 300, axes: state.axes, feedrateMultiplier } },
           ],
         },
       },
     })
+    // console.log("finish!")
 
     if (error != null) {
       throw new Error(error)

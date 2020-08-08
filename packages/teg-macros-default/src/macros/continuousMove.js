@@ -19,39 +19,62 @@ const compileContinuousMove = ({
     feedrates.push(component.model.get('feedrate'))
   })
 
-  const feedrateMMPerMS = Math.min.apply(null, feedrates) * feedrateMultiplier / 1000
+  const feedrateMMPerS = Math.min.apply(null, feedrates) * feedrateMultiplier
 
-  const totalDistance = feedrateMMPerMS * ms
+  const totalDistance = feedrateMMPerS / 1000 * ms
 
   //   ____________________
   // |/ x^2 + y^2 + z^2 ...  = totalDistance
   //
   // Move an equal distance on each axis. This is a simplification - it is valid for XY movements
   // but may not hold up well for mixed extrusion/Z/XY movements.
-  const axeDistance = Math.sqrt((totalDistance ** 2) / Object.keys(axes).length)
+  const axeDistance = Math.sqrt((totalDistance ** 2) * Object.keys(axes).length)
 
-  // console.log({ axeDistance })
-  const distances = Object.entries(axes).reduce((acc, [address, { forward }]) => {
-    acc[address] = axeDistance * (forward ? 1 : -1)
+  const segmentCount = 3
+  const segmentDistances = Object.entries(axes).reduce((acc, [address, { forward }]) => {
+    acc[address] = axeDistance * (forward ? 1 : -1) / segmentCount
     return acc
   }, {})
 
-  const { commands } = move({
-    axes: distances,
+  console.log(Math.min.apply(null, feedrates), totalDistance, axeDistance, { segmentDistances })
+
+  const directions = Object.entries(axes).reduce((acc, [address, { forward }]) => {
+    acc[address] = { forward }
+    return acc
+  }, {})
+
+  let { commands } = move({
+    axes: segmentDistances,
     sync: false,
     allowExtruderAxes: true,
     relativeMovement: true,
     machineConfig,
+    feedrate: feedrateMMPerS,
   })
 
+  commands = commands.filter(c => (
+    c !== 'G90'
+    && c !== 'G91'
+    && !(c.g1 && Object.keys(c.g1) === ['f'])
+  ))
+
+  console.log(commands)
+
   return {
-    // synchronize the previous movement and then move a short distance
     commands: [
-      // M400 stops the previous movement before starting the next. If there was a command that
-      // allowed us to not block the printer's movement but block this macro until it is
-      // notified by the printer that the previous command is complete that would be ideal.
-      'M400',
+      'M114',
+      // record the previous target position
+      `!${JSON.stringify({ markTargetPosition: {} }).replace('\n', ' ')}`,
+      // send the new movements before blocking so that the printer does not decelerate between
+      // moves
+      // Splitting the moves also seems to reduce toolhead pauses
+      'G91',
       ...commands,
+      ...commands,
+      ...commands,
+      'G90',
+      // wait to reach the previous target position and then unblock
+      `!${JSON.stringify({ waitToReachMark: { axes: directions } }).replace('\n', ' ')}`,
     ],
   }
 }

@@ -64,9 +64,13 @@ const normalizeGCodeLines = (input, cb, initialIndex = 0) => {
         index += injectedLines.length
       }
     } else {
-      const lineWithoutComment = line.replace(COMMENT, '')
-      if (lineWithoutComment.length === 0) return
-      lines.push(lineWithoutComment)
+      if (line.startsWith('!')) {
+        lines.push(line)
+      } else {
+        const lineWithoutComment = line.replace(COMMENT, '')
+        if (lineWithoutComment.length === 0) return
+        lines.push(lineWithoutComment)
+      }
       index += 1
     }
   })

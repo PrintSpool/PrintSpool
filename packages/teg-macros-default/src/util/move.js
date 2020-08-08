@@ -37,10 +37,12 @@ const move = ({
     feedrates.push(component.model.get('feedrate'))
   })
 
+  const f = (feedrate || Math.min.apply(null, feedrates)) * 60
+
   const commands = [
     relativeMovement ? 'G91' : 'G90',
-    { g1: { f: (feedrate || Math.min.apply(null, feedrates)) * 60 } },
-    { g1: g1Args },
+    { g1: { f } },
+    { g1: { ...g1Args, f } },
     'G90',
     /*
     * Synchronize the end of the task with M400 by waiting until all
