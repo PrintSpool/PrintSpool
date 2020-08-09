@@ -20,6 +20,7 @@ tmp
 packages/*/package-lock.json
 packages/teg-web-ui/out
 parcel-bundle-reports
+heaptrack.*
 
 dist/*.snap
 snap/parts/

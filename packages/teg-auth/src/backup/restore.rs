@@ -2,9 +2,8 @@
 use std::sync::Arc;
 use std::path::Path;
 use std::collections::HashMap;
-use lazy_static::lazy_static;
 
-use regex::Regex;
+// use regex::Regex;
 use sha2::{ Sha256, Digest };
 // use serde::{ Serialize, Deserialize };
 use itertools::{ Itertools };
@@ -32,6 +31,36 @@ use super::{
     TreeEntry,
 };
 
+fn nom_hash_from_filename<'a>(input: &'a str) -> Result<&'a str> {
+    use nom::{
+        IResult,
+        character::streaming::*,
+        bytes::streaming::*,
+    };
+    // use nom::branch::*;
+    // use nom::combinator::*;
+    use nom::sequence::*;
+    // use nom::multi::*;
+
+    let result: IResult<&'a str, &'a str> = delimited(
+        pair(
+            digit1,
+            char('_'),
+        ),
+        hex_digit1,
+        tag(".bck"),
+    )(input);
+
+    let (input, hash) = result
+        .map_err(|_| anyhow!("Invalid backup file name: {}", input))?;
+
+    if input.len() > 0 {
+        Err(anyhow!("Failed to parse entire filename: {}", input))
+    } else {
+        Ok(hash)
+    }
+}
+
 pub async fn validate_backup(
     file_path: &Path,
 ) -> Result<File> {
@@ -41,16 +70,8 @@ pub async fn validate_backup(
 
     let mut f = std::fs::File::open(file_path)?;
 
-    // Parse the file name
-    lazy_static! {
-        static ref FILE_NAME_REGEX: Regex = Regex::new(r"\d+_([a-zA-Z0-9]+)\.bck").unwrap();
-    }
-
     // Validate the checksum
-    let expected_hash = FILE_NAME_REGEX.captures(file_name)
-        .and_then(|cap| cap.get(1))
-        .ok_or(anyhow!("Invalid backup file name: {}", file_name))?
-        .as_str();
+    let expected_hash = nom_hash_from_filename(file_name)?;
 
     let mut hasher = Sha256::new();
 
