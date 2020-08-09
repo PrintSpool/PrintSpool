@@ -15,5 +15,6 @@ pub struct Part {
   // Props
   pub name: String,
   pub quantity: u32,
+  pub position: u32,
   pub file_path: String,
 }

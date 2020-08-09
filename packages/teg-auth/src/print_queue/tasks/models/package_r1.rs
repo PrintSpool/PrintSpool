@@ -14,6 +14,5 @@ pub struct Package {
   // Props
   pub name: String,
   pub quantity: u32,
-  pub position: u32,
   pub delete_files_after_print: bool,
 }
