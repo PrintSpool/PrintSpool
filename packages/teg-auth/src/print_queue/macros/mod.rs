@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use futures::prelude::*;
 // use std::collections::HashMap;
 // use chrono::prelude::*;
@@ -37,7 +38,7 @@ pub enum AnnotatedGCode {
 }
 
 impl InternalMacro {
-    pub async fn compile(line: &str, ctx: &Context) -> Result<Vec<AnnotatedGCode>> {
+    pub async fn compile(line: &str, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
         // handle internal macro
         let internal_macro: InternalMacro = serde_json::from_str(&line)
             .with_context(|| format!("Invalid JSON GCode: {:?}", line))?;
@@ -49,23 +50,28 @@ impl InternalMacro {
 }
 
 pub fn compile_macros<'a>(
-    ctx: &'static Context,
+    ctx: Arc<Context>,
     gcode_lines: impl IntoIterator<Item = String>
 ) -> impl TryStream<Ok = AnnotatedGCode, Error = anyhow::Error> {
     let gcode_lines = gcode_lines.into_iter();
 
     // Process macros and generate annotations
     stream::iter(gcode_lines)
-        .then(move |line| async move {
-            let line = line.clone();
-            let is_json = line.chars().next() == Some('{');
+        .scan(ctx, move |ctx, line| {
+            let ctx = Arc::clone(ctx);
+            async move {
+                let line = line.clone();
+                let is_json = line.chars().next() == Some('{');
 
-            if is_json {
-                // handle internal macro
-                InternalMacro::compile(&line, ctx).await
-                // handle JSON formatted GCode
-            } else {
-                Ok(vec![AnnotatedGCode::GCode(line)])
+                let result = if is_json {
+                    // handle internal macro
+                    InternalMacro::compile(&line, ctx).await
+                    // handle JSON formatted GCode
+                } else {
+                    Ok(vec![AnnotatedGCode::GCode(line)])
+                };
+
+                Some(result)
             }
         })
         .map_ok(|annotated_gcodes| {

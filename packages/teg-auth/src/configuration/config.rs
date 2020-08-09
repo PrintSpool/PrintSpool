@@ -51,7 +51,7 @@ impl Config {
             .iter()
             .find_map(|component| {
                 match component {
-                    Component::Toolhead(toolhead@Toolhead { address: address, .. }) => {
+                    Component::Toolhead(toolhead) if toolhead.address == address => {
                         Some(toolhead)
                     },
                     _ => None,

@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use std::collections::HashMap;
 // use futures::prelude::*;
 use async_graphql::ID;
@@ -44,7 +45,7 @@ impl SetMaterialsMacro {
         })
     }
 
-    pub async fn compile(&self, ctx: &Context) -> Result<Vec<AnnotatedGCode>> {
+    pub async fn compile(&self, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
         let config = ctx.machine_config.read().await;
 
         // verify that the toolheads exist in the config

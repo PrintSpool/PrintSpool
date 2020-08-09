@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use futures::prelude::*;
 use std::collections::HashMap;
 use chrono::prelude::*;
@@ -30,7 +31,7 @@ impl Mutation {
         ctx: &'ctx Context<'_>,
         input: ExecGCodesInput,
     ) -> FieldResult<Task> {
-        let ctx: &crate::Context = ctx.data()?;
+        let ctx: &Arc<crate::Context> = ctx.data()?;
 
         // if (!crate::Machine.exists(&ctx.db, input.machine_id).await) {
         //     Err(anyhow!("No machine found for ID: {}", input.machine_id))
@@ -58,7 +59,10 @@ impl Mutation {
             })
             .collect::<anyhow::Result<_>>()?;
 
-        let annotated_gcodes = compile_macros(ctx, gcodes);
+        let annotated_gcodes = compile_macros(
+            Arc::clone(ctx),
+            gcodes,
+        );
 
         let (gcodes, annotations) = annotated_gcodes
             .try_fold((vec![], vec![]), |mut acc, item| {
