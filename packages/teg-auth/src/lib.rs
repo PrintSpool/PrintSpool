@@ -31,9 +31,10 @@ use anyhow::{
 };
 
 pub mod models;
+pub mod materials;
 mod context;
 mod graphql_schema;
-mod configuration;
+pub mod configuration;
 pub mod backup;
 
 mod print_queue;

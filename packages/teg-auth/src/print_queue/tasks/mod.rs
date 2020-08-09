@@ -8,8 +8,8 @@
 //     Mutation
 // };
 
-mod revisions;
-pub use revisions::*;
+mod models;
+pub use models::*;
 
 #[path = "task.resolvers.rs"]
 mod task_resolvers;

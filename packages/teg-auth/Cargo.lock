@@ -2923,60 +2923,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
-name = "sqlx"
-version = "0.3.0-alpha.2"
-source = "git+https://github.com/JesperAxelsson/sqlx?branch=feature/cargo-sqlx-migrate#fcd6ef43a406d243c878a59d4dd9801766272542"
-dependencies = [
- "sqlx-core",
- "sqlx-macros",
-]
-
-[[package]]
-name = "sqlx-core"
-version = "0.3.0-alpha.2"
-source = "git+https://github.com/JesperAxelsson/sqlx?branch=feature/cargo-sqlx-migrate#fcd6ef43a406d243c878a59d4dd9801766272542"
-dependencies = [
- "async-native-tls",
- "async-std",
- "async-stream",
- "base64 0.12.3",
- "bitflags",
- "byteorder",
- "chrono",
- "crossbeam-queue",
- "crossbeam-utils",
- "futures-channel",
- "futures-core",
- "futures-util",
- "hex 0.4.2",
- "hmac",
- "libc",
- "log 0.4.8",
- "md-5",
- "memchr",
- "percent-encoding 2.1.0",
- "rand 0.7.3",
- "sha-1",
- "sha2 0.8.2",
- "url 2.1.1",
-]
-
-[[package]]
-name = "sqlx-macros"
-version = "0.3.0-alpha.2"
-source = "git+https://github.com/JesperAxelsson/sqlx?branch=feature/cargo-sqlx-migrate#fcd6ef43a406d243c878a59d4dd9801766272542"
-dependencies = [
- "async-std",
- "dotenv",
- "futures 0.3.5",
- "proc-macro2",
- "quote",
- "sqlx-core",
- "syn",
- "url 2.1.1",
-]
-
-[[package]]
 name = "stable_deref_trait"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3150,7 +3096,6 @@ dependencies = [
  "sled",
  "smol",
  "smol-potat",
- "sqlx",
  "surf",
  "syn",
  "tempfile",

@@ -4,6 +4,7 @@ use serde::{Serialize, Deserialize};
 use super::{
     Component,
     Controller,
+    Toolhead,
     Video,
 };
 use std::path::PathBuf;
@@ -45,13 +46,25 @@ impl Config {
         &self.get_controller().serial_port_id
     }
 
+    pub fn toolhead(&self, address: &str) -> Option<&Toolhead> {
+        self.components
+            .iter()
+            .find_map(|component| {
+                match component {
+                    Component::Toolhead(toolhead@Toolhead { address: address, .. }) => {
+                        Some(toolhead)
+                    },
+                    _ => None,
+                }
+            })
+    }
     pub fn heater_addresses(&self) -> Vec<String> {
         self.components
             .iter()
             .filter_map(|component| {
                 match component {
                     | Component::BuildPlatform { heater: true, address }
-                    | Component::Toolhead { heater: true, address } => {
+                    | Component::Toolhead(Toolhead { heater: true, address }) => {
                         Some(address.clone())
                     }
                     _ => None

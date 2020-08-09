@@ -1,6 +1,30 @@
 use serde::{Serialize, Deserialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(tag = "type", content = "model")]
+pub enum Component {
+    #[serde(rename = "CONTROLLER")]
+    Controller(Controller),
+    #[serde(rename = "AXIS", rename_all = "camelCase")]
+    Axis {
+        address: String,
+    },
+    #[serde(rename = "TOOLHEAD", rename_all = "camelCase")]
+    Toolhead(Toolhead),
+    #[serde(rename = "FAN", rename_all = "camelCase")]
+    Fan {
+        address: String,
+    },
+    #[serde(rename = "VIDEO", rename_all = "camelCase")]
+    Video(Video),
+    #[serde(rename = "BUILD_PLATFORM", rename_all = "camelCase")]
+    BuildPlatform {
+        address: String,
+        heater: bool,
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Controller {
     #[serde(rename = "serialPortID")]
@@ -26,36 +50,14 @@ pub struct Controller {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Toolhead {
+    pub address: String,
+    pub heater: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Video {
    pub name: String,
    pub source: String,
-}
-
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(tag = "type", content = "model")]
-pub enum Component {
-    #[serde(rename = "CONTROLLER")]
-    Controller(Controller),
-    #[serde(rename = "AXIS", rename_all = "camelCase")]
-    Axis {
-        address: String,
-    },
-    #[serde(rename = "TOOLHEAD", rename_all = "camelCase")]
-    Toolhead {
-        address: String,
-        heater: bool,
-    },
-    #[serde(rename = "FAN", rename_all = "camelCase")]
-    Fan {
-        address: String,
-    },
-    #[serde(rename = "VIDEO", rename_all = "camelCase")]
-    Video(Video),
-    #[serde(rename = "BUILD_PLATFORM", rename_all = "camelCase")]
-    BuildPlatform {
-        address: String,
-        heater: bool,
-    }
 }
