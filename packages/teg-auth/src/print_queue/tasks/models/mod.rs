@@ -1,23 +1,53 @@
 use serde::{Deserialize, Serialize};
 use versioned_sled_model::VersionedSledModel;
 
+mod package_r1;
+pub use package_r1::Package;
+
+mod part_r1;
+pub use part_r1::Part;
+
 mod task_r1;
 pub use task_r1::{
-    TaskR1 as Task,
-    TaskContentR1 as TaskContent,
-    GCodeAnnotationR1 as GCodeAnnotation,
+    Task,
+    TaskContent,
+    GCodeAnnotation,
 };
 
 mod task_status_r1;
-pub use task_status_r1::{
-    TaskStatusR1 as TaskStatus,
-};
+pub use task_status_r1::TaskStatus;
+
+#[derive(Debug, Serialize, Deserialize, VersionedSledModel)]
+pub enum PackageDBEntry {
+    R1 (package_r1::Package),
+}
+
+impl crate::models::VersionedModel for Package {
+    type Entry = PackageDBEntry;
+    const NAMESPACE: &'static str = "Package";
+
+    fn get_id(&self) -> &async_graphql::ID {
+        &self.id
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, VersionedSledModel)]
+pub enum PartDBEntry {
+    R1 (part_r1::Part),
+}
+
+impl crate::models::VersionedModel for Part {
+    type Entry = PartDBEntry;
+    const NAMESPACE: &'static str = "Part";
+
+    fn get_id(&self) -> &async_graphql::ID {
+        &self.id
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize, VersionedSledModel)]
 pub enum TaskDBEntry {
-    TaskR1 (task_r1::TaskR1),
-    // TaskR2 (task_r2::TaskR2),
-    // TaskR3 (task_r3::TaskR3),
+    R1 (task_r1::Task),
 }
 
 impl crate::models::VersionedModel for Task {

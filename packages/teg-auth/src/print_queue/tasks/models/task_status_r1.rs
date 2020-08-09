@@ -1,9 +1,10 @@
+// Task Status Revison 1 (LATEST)
 use async_graphql::*;
 use serde::{Deserialize, Serialize};
 
 #[Enum]
 #[derive(Debug, Serialize, Deserialize)]
-pub enum TaskStatusR1 {
+pub enum TaskStatus {
   /* Before sending to the driver */
   Spooled,
   /* After sending to the driver */
@@ -13,8 +14,6 @@ pub enum TaskStatusR1 {
   Cancelled,
   Errored,
 }
-
-type TaskStatus = TaskStatusR1;
 
 impl Default for TaskStatus {
     fn default() -> Self { TaskStatus::Spooled }

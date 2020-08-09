@@ -30,6 +30,7 @@ impl SpoolJobFileMutation {
 struct SpoolJobFileInput {
     #[field(name="machineID")]
     machine_id: ID,
+    // TODO: update graphql names to match latest Sled fields
     // #[field(name="partID")]
     #[field(name="jobFileID")]
     part_id: ID,
