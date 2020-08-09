@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use anyhow::{anyhow, Result};
 use async_graphql::*;
 
@@ -13,7 +14,7 @@ use crate::{
 
 // use sled::transaction::ConflictableTransactionError;
 
-pub async fn consume_invite(context: &Context) -> Result<User> {
+pub async fn consume_invite(context: &Arc<Context>) -> Result<User> {
     let user_id = context.current_user
         .as_ref()
         .ok_or(anyhow!("Cannot consume_invite without user"))?

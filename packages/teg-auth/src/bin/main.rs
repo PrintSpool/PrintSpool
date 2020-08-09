@@ -63,7 +63,12 @@ async fn main() -> Result<()> {
         .expect("Invalid $PORT");
 
     // let schema = Schema::new(Query, Mutation, EmptySubscription);
-    let schema = Schema::new(Query, Mutation, EmptySubscription);
+    let mutation: Mutation = Default::default();
+    let schema = Schema::new(
+        Query, 
+        mutation,
+        EmptySubscription
+    );
 
     let db_clone = Arc::clone(&db);
     let machine_config_clone = Arc::clone(&machine_config);
@@ -89,6 +94,7 @@ async fn main() -> Result<()> {
             async move {
                 let context = context
                     .await
+                    .map(|context| Arc::new(context))
                     .map_err(|err| {
                         error!("{}", err);
                         ServiceError::from(err)

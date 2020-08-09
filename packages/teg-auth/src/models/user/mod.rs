@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use async_graphql::*;
 use anyhow::{anyhow, Result};
 
@@ -34,7 +35,7 @@ impl User {
             })
     }
 
-    pub async fn all(context: &crate::Context) -> FieldResult<Vec<Self>> {
+    pub async fn all(context: &Arc<crate::Context>) -> FieldResult<Vec<Self>> {
         context.authorize_admins_only()?;
 
         let users = Self::scan(&context.db)
@@ -44,7 +45,7 @@ impl User {
         Ok(users)
     }
 
-    pub async fn update(context: &crate::Context, changeset: UpdateUser) -> FieldResult<Self> {
+    pub async fn update(context: &Arc<crate::Context>, changeset: UpdateUser) -> FieldResult<Self> {
         context.authorize_admins_only()?;
 
         let mut user = Self::get(&changeset.user_id, &context.db).await?;
@@ -64,7 +65,7 @@ impl User {
         Ok(user)
     }
 
-    pub async fn delete(context: &crate::Context, user_id: ID) -> FieldResult<Option<bool>> {
+    pub async fn delete(context: &Arc<crate::Context>, user_id: ID) -> FieldResult<Option<bool>> {
         let self_deletion = context.current_user
             .as_ref()
             .map(|current_user| current_user.id == user_id)

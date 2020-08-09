@@ -3,26 +3,27 @@
 use async_graphql::*;
 // use serde::{Deserialize, Serialize};
 
-// use super::revisions::*;
+use super::Task;
 
-pub struct Query;
-pub struct Mutation;
-
-#[Object]
-impl Query {
-}
+pub struct SpoolJobFileMutation;
 
 #[Object]
-impl Mutation {
-    // /// Starts a print by spooling a task to print the job file.
-    // async fn spool_job_file(input: SpoolJobFileInput, context: &crate::Context) -> Task {
+impl SpoolJobFileMutation {
+    /// Starts a print by spooling a task to print the job file.
+    async fn spool_job_file<'ctx>(
+        &self,
+        ctx: &'ctx Context<'_>,
+        input: SpoolJobFileInput,
+    // ) -> FieldResult<()> {
+    ) -> FieldResult<Option<Task>> {
+        Ok(None)
     //     // TODO
     //     let task = TaskBuilder::build();
 
     //     let task = task::insert(&context.db);
 
     //     task
-    // }
+    }
 }
 
 #[InputObject]

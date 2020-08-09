@@ -4,7 +4,6 @@ use versioned_sled_model::VersionedSledModel;
 mod task_r1;
 pub use task_r1::{
     TaskR1 as Task,
-    TaskR1Builder as TaskBuilder,
     TaskContentR1 as TaskContent,
     GCodeAnnotationR1 as GCodeAnnotation,
 };

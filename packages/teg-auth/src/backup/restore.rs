@@ -38,18 +38,18 @@ fn nom_hash_from_filename<'a>(input: &'a str) -> Result<&'a str> {
         bytes::streaming::*,
     };
     // use nom::branch::*;
-    // use nom::combinator::*;
+    use nom::combinator::*;
     use nom::sequence::*;
     // use nom::multi::*;
 
-    let result: IResult<&'a str, &'a str> = delimited(
+    let result: IResult<&'a str, &'a str> = all_consuming(delimited(
         pair(
             digit1,
             char('_'),
         ),
         hex_digit1,
         tag(".bck"),
-    )(input);
+    ))(input);
 
     let (input, hash) = result
         .map_err(|_| anyhow!("Invalid backup file name: {}", input))?;

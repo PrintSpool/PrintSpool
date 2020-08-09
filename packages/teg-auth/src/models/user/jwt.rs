@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use std::collections::HashMap;
 use serde::Deserialize;
 use anyhow::{anyhow, Context as _, Result};
@@ -50,7 +51,7 @@ pub fn get_pem_keys() -> Result<Vec<Vec<u8>>> {
 }
 
 pub async fn validate_jwt(
-    context: &Context,
+    context: &Arc<Context>,
     jwt: String,
 ) -> Result<JWTPayload> {
     let (_, payload) = context.auth_pem_keys.read().await.iter().find_map(|pem_key| {

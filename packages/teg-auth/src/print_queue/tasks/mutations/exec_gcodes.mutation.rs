@@ -1,7 +1,6 @@
 use std::sync::Arc;
 use futures::prelude::*;
-use std::collections::HashMap;
-use chrono::prelude::*;
+// use std::collections::HashMap;
 use async_graphql::*;
 use serde::{Deserialize, Serialize};
 use anyhow::{
@@ -11,6 +10,7 @@ use anyhow::{
 
 use crate::models::VersionedModel;
 use crate::{
+    print_queue::macros::AnyMacro,
     print_queue::macros::{
         compile_macros,
         AnnotatedGCode,
@@ -18,10 +18,10 @@ use crate::{
 };
 use super::*;
 
-pub struct Mutation;
+pub struct ExecGCodesMutation;
 
 #[Object]
-impl Mutation {
+impl ExecGCodesMutation {
     /// Spools and executes GCode outside of the job queue.
     ///
     /// See ExecGCodesInput.gcodes for GCode formatting options.
@@ -49,9 +49,9 @@ impl Mutation {
                             .map(|line| Ok(line.to_string()))
                             .collect()
                     },
-                    GCodeLine::JSON(json) => {
-                        let result = serde_json::to_string(json)
-                            .with_context(|| "Unable to load execGCodes json gcode");
+                    GCodeLine::Json(any_macro) => {
+                        let result = serde_json::to_string(any_macro)
+                            .with_context(|| "Unable to serialize execGCodes json gcode");
 
                         vec![result]
                     },
@@ -83,15 +83,17 @@ impl Mutation {
             .await?;
 
         // Create the task
-        let task = TaskBuilder::default()
-            .machine_id(input.machine_id)
-            .name("[execGCodes]")
-            .machine_override(input.r#override)
-            .created_at(Utc::now())
-            .total_lines(gcodes.len() as u64)
-            .content(TaskContent::GCodes(gcodes))
-            .annotations(annotations)
-            .build()?;
+        let total_lines = gcodes.len() as u64;
+
+        let mut task = Task::new(
+            Task::generate_id(&ctx.db)?,
+            input.machine_id,
+            TaskContent::GCodes(gcodes),
+            annotations,
+            total_lines,
+        );
+
+        task.machine_override = input.r#override;
 
         let mut task = task.insert(&ctx.db).await?;
 
@@ -172,14 +174,8 @@ struct ExecGCodesInput {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(untagged)]
 enum GCodeLine {
     String(String),
-    JSON(Json<HashMap<String, HashMap<String, GCodeValue>>>),
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-enum GCodeValue {
-    String(String),
-    F32(f32),
-    Bool(bool),
+    Json(AnyMacro),
 }

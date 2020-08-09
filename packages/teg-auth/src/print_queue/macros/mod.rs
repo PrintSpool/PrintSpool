@@ -2,7 +2,7 @@ use std::sync::Arc;
 use futures::prelude::*;
 // use std::collections::HashMap;
 // use chrono::prelude::*;
-use async_graphql::*;
+// use async_graphql::ID;
 use serde::{Deserialize, Serialize};
 use anyhow::{
     // anyhow,
@@ -19,32 +19,46 @@ use crate::{
     Context,
 };
 
+mod json_gcode;
+pub use json_gcode::JsonGCode;
+
 #[path = "internal_macros/set_materials.rs"]
 mod set_materials;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")] 
-enum InternalMacro {
+pub enum InternalMacro {
     SetMaterials(set_materials::SetMaterialsMacro),
 }
 
-// enum GCodeOrAnnotation {
-//     GCode(String)
-//     Annotation(TaskAnnotation)
-// }
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum AnyMacro {
+    InternalMacro(InternalMacro),
+    JsonGCode(JsonGCode),
+}
+
 pub enum AnnotatedGCode {
     GCode(String),
     Annotation((u64, GCodeAnnotation)),
 }
 
-impl InternalMacro {
+impl AnyMacro {
     pub async fn compile(line: &str, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
         // handle internal macro
-        let internal_macro: InternalMacro = serde_json::from_str(&line)
+        let parsed_line: AnyMacro = serde_json::from_str(&line)
             .with_context(|| format!("Invalid JSON GCode: {:?}", line))?;
 
-        match internal_macro {
-            InternalMacro::SetMaterials(m) => m.compile(ctx).await
+        match parsed_line {
+            AnyMacro::InternalMacro(internal_macro) => {
+                match internal_macro {
+                    InternalMacro::SetMaterials(m) => m.compile(ctx).await
+                }
+            }
+            AnyMacro::JsonGCode(json_gcode) => {
+                let gcode = json_gcode.try_to_string(line)?;
+                Ok(vec![AnnotatedGCode::GCode(gcode)])
+            }
         }
     }
 }
@@ -64,10 +78,10 @@ pub fn compile_macros<'a>(
                 let is_json = line.chars().next() == Some('{');
 
                 let result = if is_json {
-                    // handle internal macro
-                    InternalMacro::compile(&line, ctx).await
-                    // handle JSON formatted GCode
+                    // handle internal macros and JSON formatted GCodes
+                    AnyMacro::compile(&line, ctx).await
                 } else {
+                    // handle internal string GCodes lines
                     Ok(vec![AnnotatedGCode::GCode(line)])
                 };
 

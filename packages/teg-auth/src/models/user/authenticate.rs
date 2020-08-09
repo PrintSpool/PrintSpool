@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use chrono::prelude::*;
 use async_graphql::*;
 use anyhow::{Context as _, Result};
@@ -13,7 +14,7 @@ use crate::models::VersionedModel;
 
 impl User {
     pub async fn authenticate(
-        context: &Context,
+        context: &Arc<Context>,
         auth_token: String,
         identity_public_key: String
     ) -> Result<Option<User>> {

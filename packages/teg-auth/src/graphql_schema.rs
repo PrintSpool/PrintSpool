@@ -1,3 +1,4 @@
+use async_graphql::MergedObject;
 use async_std::task;
 // use futures::prelude::*;
 // use chrono::prelude::*;
@@ -23,6 +24,32 @@ use crate::models::{
     IceCandidate,
     get_ice_candidates,
 };
+
+
+use crate::print_queue::tasks::{
+    PrintQueueMutation,
+};
+
+// #[MergedObject]
+// pub struct Query(
+//     LegacyQuery,
+//     // crate::print_queue::tasks::Query,
+// );
+
+#[MergedObject]
+pub struct Mutation(
+    LegacyMutation,
+    PrintQueueMutation,
+);
+
+impl Default for Mutation {
+    fn default() -> Self {
+        Self::new(
+            LegacyMutation,
+            PrintQueueMutation::default(),
+        )
+    }
+}
 
 pub struct Query;
 
@@ -56,10 +83,10 @@ impl Query {
     }
 }
 
-pub struct Mutation;
+pub struct LegacyMutation;
 
 #[Object]
-impl Mutation {
+impl LegacyMutation {
     async fn authenticate_user<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,

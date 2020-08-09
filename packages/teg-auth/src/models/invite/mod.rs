@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use chrono::prelude::*;
 // use futures::prelude::*;
 use async_graphql::*;
@@ -62,7 +63,7 @@ impl Invite {
     //         })
     // }
 
-    pub async fn all(context: &crate::Context) -> FieldResult<Vec<Self>> {
+    pub async fn all(context: &Arc<crate::Context>) -> FieldResult<Vec<Self>> {
         context.authorize_admins_only()?;
 
         // TODO: order the invites by their ids
@@ -74,7 +75,7 @@ impl Invite {
     }
 
     pub async fn admin_create_invite(
-        context: &crate::Context,
+        context: &Arc<crate::Context>,
         input: CreateInviteInput,
     ) -> FieldResult<Self> {
         context.authorize_admins_only()?;
@@ -172,7 +173,7 @@ impl Invite {
         Ok(invite)
     }
 
-    pub async fn update(context: &crate::Context, input: UpdateInvite) -> FieldResult<Self> {
+    pub async fn update(context: &Arc<crate::Context>, input: UpdateInvite) -> FieldResult<Self> {
         context.authorize_admins_only()?;
 
         let mut invite = Self::get(&input.invite_id, &context.db)
@@ -187,7 +188,7 @@ impl Invite {
         Ok(invite)
     }
 
-    pub async fn delete(context: &crate::Context, invite_id: ID) -> FieldResult<Option<bool>> {
+    pub async fn delete(context: &Arc<crate::Context>, invite_id: ID) -> FieldResult<Option<bool>> {
         context.authorize_admins_only()?;
 
         context.db.remove(Self::key(&invite_id)?)

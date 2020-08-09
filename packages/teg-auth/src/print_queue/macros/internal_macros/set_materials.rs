@@ -22,7 +22,7 @@ use crate::{
     Context,
 };
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SetMaterialsMacro {
     toolheads: HashMap<String, ID>,
 }

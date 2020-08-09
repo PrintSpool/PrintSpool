@@ -10,7 +10,6 @@ use super::models::{
 #[Object]
 impl Task {
     async fn id(&self) -> &ID { &self.id }
-    async fn name(&self) -> &String { &self.name }
     async fn status(&self) -> &TaskStatus { &self.status }
     // TODO: rename
     async fn total_line_numbers(&self) -> &u64 { &self.total_lines }

@@ -1,6 +1,6 @@
 // use std::collections::HashMap;
 // use chrono::prelude::*;
-// use async_graphql::*;
+use async_graphql::MergedObject;
 // use serde::{Deserialize, Serialize};
 
 // use crate::{
@@ -15,12 +15,34 @@ pub use models::*;
 mod task_resolvers;
 
 #[path = "mutations/exec_gcodes.mutation.rs"]
-mod exec_gcodes_mutation;
+pub mod exec_gcodes_mutation;
+use exec_gcodes_mutation::ExecGCodesMutation;
 
 #[path = "mutations/spool_job_file.mutation.rs"]
-mod spool_job_file_mutation;
+pub mod spool_job_file_mutation;
+use spool_job_file_mutation::SpoolJobFileMutation;
 
-// pub struct Query;
-// pub struct Mutation;
+#[MergedObject]
+pub struct PrintQueueMutation(
+    ExecGCodesMutation,
+    SpoolJobFileMutation,
+);
 
-// TODO: combine resolvers
+impl Default for PrintQueueMutation {
+    fn default() -> Self {
+        Self::new(
+            ExecGCodesMutation,
+            SpoolJobFileMutation,
+        )
+    }
+}
+
+
+// impl Default for Mutation {
+//     fn default() -> Self {
+//         Self(
+//             exec_gcodes_mutation::Mutation,
+//             spool_job_file_mutation::Mutation,
+//         )
+//     }
+// }
