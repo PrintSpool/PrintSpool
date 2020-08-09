@@ -96,4 +96,10 @@ pub trait VersionedModel: Sized + Send + TryFrom<sled::IVec, Error = anyhow::Err
 
       Box::new(iter)
   }
+
+  fn watch(&self, db: &sled::Db) -> Result<sled::Subscriber> {
+    let key = Self::key(self.get_id())?;
+    let subscriber = db.watch_prefix(key);
+    Ok(subscriber)
+  }
 }

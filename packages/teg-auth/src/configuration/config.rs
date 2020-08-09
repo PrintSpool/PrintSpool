@@ -1,4 +1,5 @@
 // use std::path::Path;
+use async_graphql::ID;
 use serde::{Serialize, Deserialize};
 
 use super::{
@@ -12,7 +13,7 @@ use std::path::PathBuf;
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
-    pub id: String,
+    pub id: ID,
     pub is_configured: bool,
     // Set to the name of the snap to connect an external teg-marlin process to the snap's
     // tmp directory and socket. Generally this is only useful for teg-marlin development.
@@ -106,7 +107,7 @@ impl Config {
     }
 
     pub fn socket_path(&self) -> PathBuf {
-        let file_name = format!("machine-{}.sock", self.id);
+        let file_name = format!("machine-{}.sock", self.id.to_string());
 
         self.var_path().join(file_name)
     }

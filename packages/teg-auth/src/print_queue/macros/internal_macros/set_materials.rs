@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use async_graphql::ID;
 use futures::future;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
+// use serde_json::json;
 use anyhow::{
     anyhow,
     Result,
@@ -28,22 +28,22 @@ pub struct SetMaterialsMacro {
 }
 
 impl SetMaterialsMacro {
-    pub fn key() -> &'static str { "setMaterials" }
+    // pub fn key() -> &'static str { "setMaterials" }
 
-    pub fn json_schema(&self) -> serde_json::Value {
-        json!({
-            "type": "object",
-            "required": ["toolheads"],
-            "properties": {
-                "toolheads": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string",
-                    },
-                },
-            },
-        })
-    }
+    // pub fn json_schema(&self) -> serde_json::Value {
+    //     json!({
+    //         "type": "object",
+    //         "required": ["toolheads"],
+    //         "properties": {
+    //             "toolheads": {
+    //                 "type": "object",
+    //                 "additionalProperties": {
+    //                     "type": "string",
+    //                 },
+    //             },
+    //         },
+    //     })
+    // }
 
     pub async fn compile(&self, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
         let config = ctx.machine_config.read().await;

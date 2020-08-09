@@ -21,16 +21,27 @@ impl Default for TaskStatus {
 }
 
 impl TaskStatus {
-    pub fn is_settled(&self) -> bool {
-        [
-            Self::Cancelled,
-            Self::Errored,
-            Self::Finished,
-        ].contains(self)
-    }
+    // pub fn is_pending(&self) -> bool {
+    //     !self.is_settled()
+    // }
+
+    // pub fn is_settled(&self) -> bool {
+    //     [
+    //         Self::Cancelled,
+    //         Self::Errored,
+    //         Self::Finished,
+    //     ].contains(self)
+    // }
 
     pub fn was_successful(&self) -> bool {
         self == &Self::Finished
+    }
+
+    pub fn was_aborted(&self) -> bool {
+        [
+            Self::Cancelled,
+            Self::Errored,
+        ].contains(self)
     }
 }
 

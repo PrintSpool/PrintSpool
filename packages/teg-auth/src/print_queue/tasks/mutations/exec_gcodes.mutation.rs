@@ -33,9 +33,9 @@ impl Mutation {
     ) -> FieldResult<Task> {
         let ctx: &Arc<crate::Context> = ctx.data()?;
 
-        // if (!crate::Machine.exists(&ctx.db, input.machine_id).await) {
-        //     Err(anyhow!("No machine found for ID: {}", input.machine_id))
-        // }
+        if ctx.machine_config.read().await.id != input.machine_id {
+            Err(anyhow!("No machine found for ID: {:?}", input.machine_id))?
+        };
 
         // Normalize the JSON HashMaps into strings. Later JSON lines will be deserialized
         // the specific macro's input.
@@ -59,6 +59,7 @@ impl Mutation {
             })
             .collect::<anyhow::Result<_>>()?;
 
+        // Add annotations
         let annotated_gcodes = compile_macros(
             Arc::clone(ctx),
             gcodes,
@@ -81,33 +82,52 @@ impl Mutation {
             })
             .await?;
 
-
-        let content = TaskContent::GCodes(gcodes);
-
+        // Create the task
         let task = TaskBuilder::default()
             .machine_id(input.machine_id)
             .name("[execGCodes]")
             .machine_override(input.r#override)
             .created_at(Utc::now())
-            .content(content)
+            .total_lines(gcodes.len() as u64)
+            .content(TaskContent::GCodes(gcodes))
+            .annotations(annotations)
             .build()?;
 
-        // TODO: Still need to split newlines, remove empty gcode lines and add annotations
+        let mut task = task.insert(&ctx.db).await?;
 
-        let task = task.insert(&ctx.db).await?;
+        // Sync Mode: Block until the task is settled
+        if input.sync {
+            let mut subscriber = task.watch(&ctx.db)?;
+            loop {
+                use sled::Event;
+                use std::convert::TryInto;
 
-        // if input.sync {
-        //     let task = task.watch()
-        //         .take_while(|task| !task.status.is_settled())
-        //         .await()
-        // }
+                let event = (&mut subscriber).await;
 
+                match event {
+                    Some(Event::Insert{ value, .. }) => {
+                        task = value.try_into()?;
 
-        if task.status.was_successful() {
-            Ok(task)
-        } else {
-            Err(anyhow!(task.error_message.unwrap_or("Task Cancelled".to_string())).into())
-        }
+                        if task.status.was_successful() {
+                            return Ok(task)
+                        } else if task.status.was_aborted() {
+                            let err = task.error_message
+                                .unwrap_or(format!("Task Aborted. Reason: {:?}", task.status));
+
+                            return Err(anyhow!(err).into());
+                        }
+                    }
+                    Some(Event::Remove { .. }) => {
+                        Err(anyhow!("Task was deleted before it settled"))?;
+                    }
+                    None => {
+                        Err(anyhow!("execGCodes subscriber unexpectedly ended"))?;
+                    }
+                }
+            }
+        };
+
+        Ok(task)
     }
 }
 

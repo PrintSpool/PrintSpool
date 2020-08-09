@@ -9,7 +9,7 @@ use anyhow::{
     Result,
     Context as _,
 };
-use async_graphql::ID;
+// use async_graphql::ID;
 
 // use crate::models::VersionedModel;
 use crate::{
@@ -55,8 +55,8 @@ pub fn compile_macros<'a>(
 ) -> impl TryStream<Ok = AnnotatedGCode, Error = anyhow::Error> {
     let gcode_lines = gcode_lines.into_iter();
 
-    // Process macros and generate annotations
     stream::iter(gcode_lines)
+        // Process macros and generate annotations
         .scan(ctx, move |ctx, line| {
             let ctx = Arc::clone(ctx);
             async move {
@@ -74,12 +74,14 @@ pub fn compile_macros<'a>(
                 Some(result)
             }
         })
+        // Flatten the resulting gcodes and annotations
         .map_ok(|annotated_gcodes| {
             stream::iter(annotated_gcodes).map(|item| -> Result<AnnotatedGCode> {
                 Ok(item)
             })
         })
         .try_flatten()
+        // Add line numbers to annotations
         .scan(0, |next_line_number, item| {
             let result = match item {
                 item @ Ok(AnnotatedGCode::GCode(_)) => {
@@ -96,24 +98,4 @@ pub fn compile_macros<'a>(
 
             future::ready(Some(result))
         })
-
-    // let (gcodes, annotations) = annotated_gcodes
-    //     .try_fold((vec![], vec![]), |mut acc, item| {
-    //         let (gcodes, annotations) = &mut acc;
-
-    //         match item {
-    //             AnnotatedGCode::GCode(gcode) => {
-    //                 gcodes.push(gcode);
-    //             }
-    //             AnnotatedGCode::Annotation(annotation) => {
-    //                 annotations.push(annotation);
-    //             }
-    //         };
-
-    //         future::ok(acc)
-    //     })
-    //     .await?;
-
-    // // Ok(gcodes, annotations)
-    // Err(anyhow::anyhow!("wat"))
 }
