@@ -5,14 +5,14 @@ use serde::{Deserialize, Serialize};
 #[Enum]
 #[derive(Debug, Serialize, Deserialize)]
 pub enum TaskStatus {
-  /* Before sending to the driver */
-  Spooled,
-  /* After sending to the driver */
-  Started,
-  Finished,
-  Paused,
-  Cancelled,
-  Errored,
+    /* Before sending to the driver */
+    Spooled,
+    /* After sending to the driver */
+    Started,
+    Finished,
+    Paused,
+    Cancelled,
+    Errored,
 }
 
 impl Default for TaskStatus {

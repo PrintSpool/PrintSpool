@@ -38,6 +38,7 @@ pub mod configuration;
 pub mod backup;
 
 pub mod print_queue;
+pub mod machine;
 
 pub use context::Context;
 pub use graphql_schema::{ Query, Mutation };

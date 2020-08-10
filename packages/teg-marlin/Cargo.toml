@@ -4,9 +4,6 @@ version = "0.1.0"
 authors = ["D1plo1d <thatotherdude@gmail.com>"]
 edition = "2018"
 
-[build-dependencies]
-prost-build = "0.6.1"
-
 [dev-dependencies]
 criterion = "0.3.3"
 
@@ -18,7 +15,6 @@ tokio-serial = { version = "4.3.3", default-features = false }
 # tokio-serial = { path = "../../../tokio-serial"}
 futures = { version = "0.3.5", features=["compat"] }
 mio = "0.6.22"
-prost = "0.6.1"
 tempfile = "3.1.0"
 bus_queue = "0.5.3"
 fallible-iterator = "0.2.0"
@@ -28,6 +24,7 @@ serde = { version = "1.0.101", features = ["derive"] }
 gcode = "0.5.0"
 nom-gcode = { git = "https://github.com/D1plo1d/nom-gcode" }
 nom-reprap-response = { path= "../nom-reprap-response" }
+teg-protobufs = { path= "../teg-protobufs" }
 spin_sleep = "0.3.7"
 log = "0.4.8"
 pretty_env_logger = "0.4.0"

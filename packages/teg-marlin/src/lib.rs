@@ -24,8 +24,6 @@ pub mod configuration;
 pub mod gcode_parser;
 
 pub mod protos {
-    mod teg_protobufs;
-
     pub use teg_protobufs::*;
 }
 

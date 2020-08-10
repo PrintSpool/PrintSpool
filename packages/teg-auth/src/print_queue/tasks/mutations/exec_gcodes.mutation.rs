@@ -42,7 +42,7 @@ impl ExecGCodesMutation {
         let gcodes: Vec<String> = input.gcodes
             .iter()
             .flat_map(|line| {
-                match line {
+                match &line.0 {
                     GCodeLine::String(lines) => {
                         // Split newlines
                         lines.split('\n')
@@ -93,12 +93,12 @@ impl ExecGCodesMutation {
             total_lines,
         );
 
-        task.machine_override = input.r#override;
+        task.machine_override = input.r#override.unwrap_or(false);
 
         let mut task = task.insert(&ctx.db).await?;
 
         // Sync Mode: Block until the task is settled
-        if input.sync {
+        if input.sync.unwrap_or(false) {
             let mut subscriber = task.watch(&ctx.db)?;
             loop {
                 use sled::Event;
@@ -148,15 +148,13 @@ struct ExecGCodesInput {
     ///
     /// If the machine errors during the execution of a `sync = true` GCode the mutation will
     /// fail.
-    #[field(default=false)]
-    sync: bool,
+    sync: Option<bool>,
 
     /// If true allows this gcode to be sent during a print and inserted before the print gcodes. This can
     /// be used to override print settings such as extuder temperatures and fan speeds (default: false)
 
     /// override GCodes will not block. Cannot be used with sync = true.
-    #[field(default=false)]
-    r#override: bool,
+    r#override: Option<bool>,
 
     /// Teg supports 3 formats of GCode:
     ///
@@ -170,7 +168,7 @@ struct ExecGCodesInput {
     /// eg. \`gcodes: [{ g1: { x: 10 } }, { delay: { period: 5000 } }]\`
     /// 3. JSON GCode Strings - Teg allows GCodes to be serialized as JSON. JSON GCode Strings can also be Macro calls.
     /// GCode: \`gcodes: ["{ \"g1\": { \"x\": 10 } }", "{ \"delay\": { \"period\": 5000 } }"]\`
-    gcodes: Json<Vec<GCodeLine>>,
+    gcodes: Vec<Json<GCodeLine>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

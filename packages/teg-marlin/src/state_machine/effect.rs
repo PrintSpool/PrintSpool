@@ -32,7 +32,7 @@ use fallible_iterator::{
     FallibleIterator,
 };
 
-use prost::Message;
+use teg_protobufs::Message;
 use bytes::Bytes;
 
 use super::{

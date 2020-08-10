@@ -54,7 +54,7 @@ const Terminal = ({
 
     return {
       machineID,
-      gcodes: values.gcode,
+      gcodes: [values.gcode],
     }
   })
 

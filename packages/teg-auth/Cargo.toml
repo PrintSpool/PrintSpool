@@ -53,6 +53,8 @@ surf = "2.0.0-alpha.4"
 nom = "5.1.2"
 async-graphql = "1.17.4"
 derive-new = "0.5.8"
+teg-protobufs = { path= "../teg-protobufs" }
+bytes = "0.5.6"
 
 [dependencies.async-std]
 features = ["attributes"]

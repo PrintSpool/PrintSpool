@@ -31,7 +31,7 @@ use tokio::{
     // sync::mpsc,
 };
 
-use prost::Message;
+use teg_protobufs::Message;
 use bytes::Bytes;
 
 use crate::protos::{
@@ -72,7 +72,7 @@ async fn handle_connection(
     // let mut buf = [0u8; 5];
     let mut read_stream = socket_reader
         .map_err(|e| {
-            error!("Read Error: {:?}", e);
+            error!("Error receiving Teg Protobuf: {:?}", e);
             ()
         })
         .and_then(move |buf| -> future::Ready<Result<Event, ()>> {

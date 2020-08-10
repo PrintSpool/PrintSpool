@@ -73,6 +73,20 @@ async fn main() -> Result<()> {
     let db_clone = Arc::clone(&db);
     let machine_config_clone = Arc::clone(&machine_config);
 
+    let context = Context::new(
+        Arc::clone(&db_clone),
+        None,
+        None,
+        Arc::clone(&auth_pem_keys),
+        Arc::clone(&machine_config_clone),
+    ).await?;
+
+    use teg_auth::machine::socket::handle_machine_socket;
+
+    let _ = async_std::task::spawn(
+        handle_machine_socket(Arc::new(context)),
+    );
+
     let graphql_filter = async_graphql_warp::graphql(schema)
         .and(warp::header::optional::<String>("user-id"))
         .and(warp::header::optional::<String>("peer-identity-public-key"))  

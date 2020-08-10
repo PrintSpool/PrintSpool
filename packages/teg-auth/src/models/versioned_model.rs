@@ -102,4 +102,8 @@ pub trait VersionedModel: Sized + Send + TryFrom<sled::IVec, Error = anyhow::Err
     let subscriber = db.watch_prefix(key);
     Ok(subscriber)
   }
+
+  fn watch_all(db: &sled::Db) -> sled::Subscriber {
+    db.watch_prefix(Self::prefix())
+  }
 }

@@ -29,6 +29,8 @@ pub struct Task {
   #[new(default)]
   pub machine_override: bool,
   #[new(default)]
+  pub sent_to_machine: bool,
+  #[new(default)]
   pub status: TaskStatus,
   #[new(default)]
   pub error_message: Option<String>,
