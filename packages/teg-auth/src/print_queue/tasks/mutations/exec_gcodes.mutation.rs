@@ -25,9 +25,10 @@ struct ExecGCodesInput {
     #[field(name="machineID")]
     machine_config_id: ID,
 
-    /// If true blocks the mutation until the GCodes have been spooled to the machine (default: false)
+    /// If true blocks the mutation until the GCodes have been spooled to the machine
+    /// (default: false)
     ///
-    /// This means that for example if you use execGCodes to run \`G1 X100\nM400\` the
+    /// This means that for example if you use execGCodes to run `G1 X100\nM400` the
     /// mutation will wait until the toolhead has moved 100mm and then return.
     ///
     /// This can be useful for informing users whether an action is in progress or
@@ -37,24 +38,21 @@ struct ExecGCodesInput {
     /// fail.
     sync: Option<bool>,
 
-    /// If true allows this gcode to be sent during a print and inserted before the print gcodes. This can
-    /// be used to override print settings such as extuder temperatures and fan speeds (default: false)
-
+    /// If true allows this gcode to be sent during a print and inserted before the print gcodes.
+    /// This can be used to override print settings such as extuder temperatures and fan speeds
+    /// (default: false)
+    ///
     /// override GCodes will not block. Cannot be used with sync = true.
     r#override: Option<bool>,
 
-    /// Teg supports 3 formats of GCode:
+    /// In addition to GCodes strings (eg. `gcodes: ["G1 X10"]`), Teg also supports a 
+    /// JSON format to simplify writing gcode n javascript:
     ///
-    /// 1. Standard GCode Strings
-    /// eg. \`gcodes: ["G1 X10", "G1 Y20"]\`
-    /// and equivalently:
-    /// \`gcodes: ["G1 X0\nG1 Y0"]\`
-    /// 2. JSON GCode Objects - To make constructing GCode easier with modern languages Teg allows GCodes to be sent as JSON objects in the format { [GCODE|MACRO]: ARGS }.
-    /// eg. \`gcodes: [{ g1: { x: 10 } }, { g1: { y: 20 } }]\`
-    /// Macros can also be called using JSON GCode Objects.
-    /// eg. \`gcodes: [{ g1: { x: 10 } }, { delay: { period: 5000 } }]\`
-    /// 3. JSON GCode Strings - Teg allows GCodes to be serialized as JSON. JSON GCode Strings can also be Macro calls.
-    /// GCode: \`gcodes: ["{ \"g1\": { \"x\": 10 } }", "{ \"delay\": { \"period\": 5000 } }"]\`
+    ///     `gcodes: [{ g1: { x: 10 } }, { g1: { y: 20 } }]`
+    ///
+    /// Macros are able to be included in GCode via JSON as well:
+    ///
+    ///     `gcodes: [{ g1: { x: 10 } }, { delay: { period: 5000 } }]`
     gcodes: Vec<Json<GCodeLine>>,
 }
 
@@ -145,7 +143,7 @@ impl ExecGCodesMutation {
 
         task.machine_override = machine_override;
 
-        // TODO: Hol a lock that prevents other tasks from starting a print until this task is
+        // TODO: Hold a lock that prevents other tasks from starting a print until this task is
         // added.
         if !machine.status.can_start_task(&task) {
             Err(anyhow!("Cannot start task when machine is: {:?}", machine.status))?;

@@ -190,4 +190,5 @@ apps:
     adapter: full
     command: webrtc-streamer -H 127.0.0.1:8009
     daemon: simple
+    restart-condition: always
     plugs: [network-bind]
