@@ -45,12 +45,12 @@ impl User {
         Ok(users)
     }
 
-    pub async fn update(context: &Arc<crate::Context>, changeset: UpdateUser) -> FieldResult<Self> {
-        context.authorize_admins_only()?;
+    pub async fn update(ctx: &Arc<crate::Context>, changeset: UpdateUser) -> FieldResult<Self> {
+        ctx.authorize_admins_only()?;
 
-        let mut user = Self::get(&changeset.user_id, &context.db).await?;
+        let mut user = Self::get(&ctx.db, &changeset.user_id).await?;
 
-        let admin_count = Self::admin_count(&context.db).await?;
+        let admin_count = Self::admin_count(&ctx.db).await?;
 
         if user.is_admin && changeset.is_admin == Some(false) && admin_count == 1 {
             Err(anyhow!("Cannot remove admin access. Machines must have at least one admin user"))?
@@ -60,32 +60,32 @@ impl User {
             user.is_admin = is_admin
         }
 
-        let user = user.insert(&context.db).await?;
+        let user = user.insert(&ctx.db).await?;
 
         Ok(user)
     }
 
-    pub async fn delete(context: &Arc<crate::Context>, user_id: ID) -> FieldResult<Option<bool>> {
-        let self_deletion = context.current_user
+    pub async fn delete(ctx: &Arc<crate::Context>, user_id: ID) -> FieldResult<Option<bool>> {
+        let self_deletion = ctx.current_user
             .as_ref()
             .map(|current_user| current_user.id == user_id)
             .unwrap_or(false);
 
         if !self_deletion {
-            context.authorize_admins_only()?;
+            ctx.authorize_admins_only()?;
         };
 
-        let admin_count = Self::admin_count(&context.db).await?;
+        let admin_count = Self::admin_count(&ctx.db).await?;
 
-        let user = Self::get(&user_id, &context.db).await?;
+        let user = Self::get(&ctx.db, &user_id).await?;
 
         if user.is_admin && admin_count == 1 {
             Err(anyhow!("Cannot delete only admin user"))?
         };
 
-        context.db.remove(Self::key(&user_id)?)?;
+        ctx.db.remove(Self::key(&user_id)?)?;
 
-        Self::flush(&context.db).await?;
+        Self::flush(&ctx.db).await?;
 
         Ok(None)
     }

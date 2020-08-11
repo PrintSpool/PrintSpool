@@ -21,6 +21,17 @@ pub fn impl_model_try_from_ivec(meta: &crate::Meta) -> proc_macro2::TokenStream 
               .map(|entry: #entry_ident| entry.into())
       }
     }
+    impl std::convert::TryFrom<&[u8]> for #model_type {
+      type Error = anyhow::Error;
+
+      fn try_from(bytes: &[u8]) -> anyhow::Result<Self> {
+        use anyhow::{Context as _};
+
+        serde_cbor::from_slice(bytes)
+              .with_context(|| #error_msg)
+              .map(|entry: #entry_ident| entry.into())
+      }
+    }
   };
 
   gen

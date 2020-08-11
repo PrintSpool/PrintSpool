@@ -39,6 +39,11 @@ pub mod backup;
 
 pub mod print_queue;
 pub mod machine;
+pub use machine::models::{
+    Machine,
+    MachineStatus,
+};
+pub use models::VersionedModel as _;
 
 pub use context::Context;
 pub use graphql_schema::{ Query, Mutation };
@@ -110,6 +115,16 @@ pub async fn init() -> Result<Context> {
 
     let config = read_config(&config_path).unwrap();
     let config = Arc::new(RwLock::new(config));
+
+    // Initialize database entries from the config
+    let machine_config_id = config.read().await.id.clone();
+    if Machine::find_opt(&db, |m| m.config_id == machine_config_id).await?.is_none() {
+        let machine = Machine::new(
+            Machine::generate_id(&db)?,
+            machine_config_id,
+        );
+        let _ = machine.insert(&db).await?;
+    };
 
     // Watch the config file for changes
     let config_clone = Arc::clone(&config);

@@ -62,7 +62,7 @@ impl SetMaterialsMacro {
         // verify that the material IDs exist
         let materials = self.toolheads
             .iter()
-            .map(|(_, material_id)| Material::get(material_id, &ctx.db));
+            .map(|(_, material_id)| Material::get(&ctx.db, material_id));
 
         let _: Vec<Material> = future::join_all(materials)
             .await

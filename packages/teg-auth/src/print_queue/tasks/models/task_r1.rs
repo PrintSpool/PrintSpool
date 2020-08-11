@@ -46,3 +46,9 @@ pub enum TaskContent {
 pub enum GCodeAnnotation {
   SetToolheadMaterials()
 }
+
+impl Task {
+  pub fn is_print(&self) -> bool {
+    self.part_id.is_some()
+  }
+}

@@ -173,16 +173,16 @@ impl Invite {
         Ok(invite)
     }
 
-    pub async fn update(context: &Arc<crate::Context>, input: UpdateInvite) -> FieldResult<Self> {
-        context.authorize_admins_only()?;
+    pub async fn update(ctx: &Arc<crate::Context>, input: UpdateInvite) -> FieldResult<Self> {
+        ctx.authorize_admins_only()?;
 
-        let mut invite = Self::get(&input.invite_id, &context.db)
+        let mut invite = Self::get(&ctx.db, &input.invite_id)
             .await?;
 
         invite.is_admin = input.is_admin.unwrap_or(invite.is_admin);
 
         let invite = invite
-            .insert(&context.db)
+            .insert(&ctx.db)
             .await?;
 
         Ok(invite)

@@ -73,7 +73,7 @@ async fn main() -> Result<()> {
     let db_clone = Arc::clone(&db);
     let machine_config_clone = Arc::clone(&machine_config);
 
-    let context = Context::new(
+    let ctx = Context::new(
         Arc::clone(&db_clone),
         None,
         None,
@@ -81,11 +81,32 @@ async fn main() -> Result<()> {
         Arc::clone(&machine_config_clone),
     ).await?;
 
-    use teg_auth::machine::socket::handle_machine_socket;
+    let ctx = Arc::new(ctx);
 
-    let _ = async_std::task::spawn(
-        handle_machine_socket(Arc::new(context)),
-    );
+    // Machines
+    // -----------------------------------------------------------------
+
+    use teg_auth::machine::{
+        socket::handle_machine_socket,
+        models::Machine,
+    };
+    use teg_auth::models::VersionedModel as _;
+
+    let ctx_clone = Arc::clone(&ctx);
+
+    let _ = Machine::scan(&ctx.db)
+        .await
+        .map(move |machine| {
+            let machine: Machine = machine?;
+            async_std::task::spawn(
+                handle_machine_socket(Arc::clone(&ctx_clone), machine.id),
+            );
+            Ok(())
+        })
+        .collect::<anyhow::Result<Vec<()>>>()?;
+
+    // GraphQL Server
+    // -----------------------------------------------------------------
 
     let graphql_filter = async_graphql_warp::graphql(schema)
         .and(warp::header::optional::<String>("user-id"))
@@ -97,7 +118,7 @@ async fn main() -> Result<()> {
         | {
             let user_id = user_id.map(|id| ID::from(id));
 
-            let context = Context::new(
+            let ctx = Context::new(
                 Arc::clone(&db_clone),
                 user_id,
                 identity_public_key,
@@ -106,9 +127,9 @@ async fn main() -> Result<()> {
             );
 
             async move {
-                let context = context
+                let ctx = ctx
                     .await
-                    .map(|context| Arc::new(context))
+                    .map(|ctx| Arc::new(ctx))
                     .map_err(|err| {
                         error!("{}", err);
                         ServiceError::from(err)
@@ -116,7 +137,7 @@ async fn main() -> Result<()> {
 
                 // Execute query
                 let resp = builder
-                    .data(context)
+                    .data(ctx)
                     .execute(&schema)
                     .await;
 
@@ -140,6 +161,9 @@ async fn main() -> Result<()> {
     )
         .run(([127, 0, 0, 1], port))
         .map(|_| Ok(()) as crate::Result<()>);
+
+    // Backups
+    // -----------------------------------------------------------------
 
     let backups_dir = machine_config
         .read()

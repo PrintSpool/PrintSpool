@@ -23,7 +23,7 @@ impl Context {
         auth_pem_keys: Arc<RwLock<Vec<Vec<u8>>>>,
         machine_config: Arc<RwLock<Config>>,
     ) -> Result<Self> {
-        let mut context = Self {
+        let mut ctx = Self {
             db,
             current_user: None,
             identity_public_key,
@@ -32,10 +32,10 @@ impl Context {
         };
 
         if let Some(current_user_id) = current_user_id {
-            context.current_user  = Some(User::get(&current_user_id, &context.db).await?);
+            ctx.current_user  = Some(User::get(&ctx.db, &current_user_id).await?);
         }
 
-        Ok(context)
+        Ok(ctx)
     }
 
     pub fn is_admin(&self) -> bool {
