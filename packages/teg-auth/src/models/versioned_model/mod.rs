@@ -3,12 +3,55 @@ use anyhow::{
     Result,
     Context as _,
 };
+// use futures::future::Future;
 use async_graphql::ID;
 use async_trait::async_trait;
 use std::convert::{
     TryInto,
     TryFrom,
 };
+
+mod scoped_tree;
+use scoped_tree::{
+    ScopedTree,
+};
+
+use thiserror::Error;
+use sled::transaction::{
+    ConflictableTransactionError,
+    // ConflictableTransactionResult,
+};
+
+#[derive(Error, Debug)]
+pub enum VersionedModelError {
+    #[error("Error generating {namespace}")]
+    GenerateIdError{
+        namespace: &'static str,
+        source: sled::Error,
+    },
+    #[error("Unable to get {namespace} from database")]
+    GetError {
+        namespace: &'static str,
+        source: ConflictableTransactionError<()>,
+    },
+    #[error("{namespace} (ID: {id:?}) not found")]
+    NotFound {
+        namespace: &'static str,
+        id: ID,
+    },
+    #[error("Invalid ID: {0}")]
+    InvalidID(String),
+    #[error("Unable to insert {namespace}")]
+    InsertError {
+        namespace: &'static str,
+        source: ConflictableTransactionError<()>,
+    },
+    #[error(transparent)]
+    Other(#[from] anyhow::Error),  // source and Display delegate to anyhow::Error
+}
+
+pub type VersionedModelResult<T> = std::result::Result<T, VersionedModelError>;
+// type SledResult<T> = ConflictableTransactionResult<T, VersionedModelError>;
 
 #[async_trait]
 pub trait VersionedModel:
@@ -32,9 +75,9 @@ pub trait VersionedModel:
             .into_bytes()
     }
 
-    fn key(id: &ID) -> Result<Vec<u8>> {
+    fn key(id: &ID) -> VersionedModelResult<Vec<u8>> {
         let id = id.parse::<u64>()
-            .with_context(|| format!("Invalid ID: {}", id.as_str()))?
+            .map_err(|_| VersionedModelError::InvalidID(id.to_string()))?
             .to_be_bytes()
             .to_vec();
  
@@ -45,26 +88,41 @@ pub trait VersionedModel:
         Ok(key)
     }
 
-    fn generate_id(db: &sled::Db) -> Result<ID> {
+    fn generate_id(db: &sled::Db) -> VersionedModelResult<ID> {
         db.generate_id()
                 .map(|id| id.into())
-                .with_context(|| format!("Error generating {:} id", &Self::NAMESPACE))
+                .map_err(|source| {
+                    VersionedModelError::GenerateIdError {
+                        namespace: Self::NAMESPACE,
+                        source,
+                    }
+                })
     }
 
-    async fn get_opt(db: &sled::Db, id: &ID) -> Result<Option<Self>> {
-        db.get(Self::key(id)?)
-                .with_context(|| format!("Unable to get {:}", Self::NAMESPACE))?
+    fn get_opt(db: &impl ScopedTree, id: &ID) -> VersionedModelResult<Option<Self>> {
+        let item = db.get(Self::key(id)?)
+                .map_err(|source| {
+                    VersionedModelError::GetError{
+                        namespace: Self::NAMESPACE,
+                        source,
+                    }
+                })?
                 .map(|iv_vec| iv_vec.try_into())
-                .transpose()
+                .transpose()?;
+        Ok(item)
     }
 
-    async fn get(db: &sled::Db, id: &ID) -> Result<Self> {
-        Self::get_opt(db, id)
-            .await?
-            .ok_or(anyhow!("{} {:?} not found", &Self::NAMESPACE, id))
+    fn get(db: &impl ScopedTree, id: &ID) -> VersionedModelResult<Self> {
+        Self::get_opt(db, id)?
+            .ok_or_else(|| {
+                VersionedModelError::NotFound{
+                    namespace: Self::NAMESPACE,
+                    id: id.clone(),
+                }
+            })
     }
 
-    async fn fetch_and_update<F>(db: &sled::Db, id: &ID, mut f: F) -> Result<Option<Self>>
+    fn fetch_and_update<F>(db: &sled::Db, id: &ID, mut f: F) -> Result<Option<Self>>
     where
         F: Send + FnMut(Option<Self>) -> Option<Self>
     {
@@ -96,7 +154,7 @@ pub trait VersionedModel:
         Ok(())
     }
 
-    fn into_bytes(self) -> Result<(Self, Vec<u8>)> {
+    fn into_bytes(self) -> VersionedModelResult<(Self, Vec<u8>)> {
         let entry = Self::Entry::from(self);
 
         let bytes = serde_cbor::to_vec(&entry)
@@ -105,20 +163,27 @@ pub trait VersionedModel:
         Ok((entry.into(), bytes))
     }
 
-    async fn insert(self, db: &sled::Db) -> Result<Self> {
+    // async fn insert(self, db: &sled::Db) -> Result<Self> {
+    // async fn insert<Db>(self, db: &std::ops::Deref<Target = Db>) -> Result<Self>
+    // where
+    //     Db: ScopedTree,
+    fn insert(self, db: &impl ScopedTree) -> VersionedModelResult<Self> {
         let key = Self::key(self.get_id())?;
 
         let (new_self, bytes) = self.into_bytes()?;
 
         db.insert(key, bytes)
-                .with_context(|| format!("Unable to insert {}", Self::NAMESPACE))?;
-
-        Self::flush(db).await?;
+                .map_err(|source| {
+                    VersionedModelError::InsertError {
+                        namespace: Self::NAMESPACE,
+                        source,
+                    }
+                })?;
 
         Ok(new_self)
     }
 
-    async fn scan(db: &sled::Db) -> Box<dyn Iterator<Item = Result<Self>>> {
+    fn scan(db: &sled::Db) -> Box<dyn Iterator<Item = Result<Self>>> {
         let iter = db.scan_prefix(Self::prefix())
                 .values()
                 .map(|iv_vec: sled::Result<sled::IVec>| {
@@ -130,12 +195,11 @@ pub trait VersionedModel:
         Box::new(iter)
     }
 
-    async fn find_opt<F>(db: &sled::Db, mut f: F) -> Result<Option<Self>>
+    fn find_opt<F>(db: &sled::Db, mut f: F) -> Result<Option<Self>>
     where
         F: Send + FnMut(&Self) -> bool
     {
         Self::scan(db)
-            .await
             .find(|entry| 
                 match entry {
                     Ok(entry) => f(entry),
@@ -145,12 +209,11 @@ pub trait VersionedModel:
             .transpose()
     }
 
-    async fn find<F>(db: &sled::Db, f: F) -> Result<Self>
+    fn find<F>(db: &sled::Db, f: F) -> Result<Self>
     where
         F: Send + FnMut(&Self) -> bool
     {
-        Self::find_opt(db, f)
-            .await?
+        Self::find_opt(db, f)?
             .ok_or(anyhow!("{} not found", &Self::NAMESPACE))
     }
 

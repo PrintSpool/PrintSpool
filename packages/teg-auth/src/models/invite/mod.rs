@@ -44,16 +44,7 @@ pub use invite_code::*;
 
 impl Invite {
     pub async fn find_by_pk(public_key: &String, db: &sled::Db) -> Result<Option<Self>> {
-        Self::scan(&db)
-            .await
-            .find(|invite| {
-                if let Ok(invite) = invite {
-                    invite.public_key == *public_key
-                } else {
-                    true
-                }
-            })
-            .transpose()
+        Self::find_opt(&db, |invite| invite.public_key == *public_key)
     }
 
     // pub async fn admin_count(db: &sled::Db) -> Result<i32> {
@@ -68,7 +59,6 @@ impl Invite {
 
         // TODO: order the invites by their ids
         let invites = Self::scan(&context.db)
-            .await
             .collect::<Result<Vec<Self>>>()?;
 
         Ok(invites)
@@ -89,9 +79,7 @@ impl Invite {
             created_at: Utc::now(),
         };
 
-        let invite = invite
-            .insert(&context.db)
-            .await?;
+        let invite = invite.insert(&context.db)?;
 
         Ok(invite)
     }
@@ -100,7 +88,7 @@ impl Invite {
         db: &sled::Db,
         is_admin: bool,
     ) -> FieldResult<Self> {
-        let invite = Self::new(db, is_admin).await?;
+        let invite = Self::new(db, is_admin)?;
         invite.print_welcome_text()?;
 
         Ok(invite)
@@ -112,20 +100,13 @@ impl Invite {
         let admin_user_count = User::admin_count(db).await?;
 
         if admin_user_count == 0 {
-            let initial_invite = Self::scan(db)
-                .await
-                .find(|invite| {
-                    if let Ok(invite) = invite {
-                        invite.is_admin && invite.slug.is_some()
-                    } else {
-                        true
-                    }
-                })
-                .transpose()?;
+            let initial_invite = Self::find_opt(db, |invite| {
+                invite.is_admin && invite.slug.is_some()
+            })?;
 
             let initial_invite = match initial_invite {
                 Some(invite) => invite,
-                None => Self::new(db, true).await?,
+                None => Self::new(db, true)?,
             };
 
             initial_invite.print_welcome_text()?;
@@ -134,7 +115,7 @@ impl Invite {
         Ok(())
     }
 
-    pub async fn new(
+    pub fn new(
         db: &sled::Db,
         is_admin: bool,
     ) -> FieldResult<Self> {
@@ -166,9 +147,7 @@ impl Invite {
             created_at: Utc::now(),
         };
 
-        let invite = invite
-            .insert(db)
-            .await?;
+        let invite = invite.insert(db)?;
 
         Ok(invite)
     }
@@ -176,14 +155,11 @@ impl Invite {
     pub async fn update(ctx: &Arc<crate::Context>, input: UpdateInvite) -> FieldResult<Self> {
         ctx.authorize_admins_only()?;
 
-        let mut invite = Self::get(&ctx.db, &input.invite_id)
-            .await?;
+        let mut invite = Self::get(&ctx.db, &input.invite_id)?;
 
         invite.is_admin = input.is_admin.unwrap_or(invite.is_admin);
 
-        let invite = invite
-            .insert(&ctx.db)
-            .await?;
+        let invite = invite.insert(&ctx.db)?;
 
         Ok(invite)
     }

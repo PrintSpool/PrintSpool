@@ -82,7 +82,6 @@ impl ExecGCodesMutation {
         let machine = Machine::find(&ctx.db, |m| {
             m.config_id == input.machine_config_id
         })
-            .await
             .with_context(|| format!("No machine found for ID: {:?}", input.machine_config_id))?;
 
         // Normalize the JSON HashMaps into strings. Later JSON lines will be deserialized
@@ -149,7 +148,7 @@ impl ExecGCodesMutation {
             Err(anyhow!("Cannot start task when machine is: {:?}", machine.status))?;
         };
 
-        let mut task = task.insert(&ctx.db).await?;
+        let mut task = task.insert(&ctx.db)?;
 
         // Sync Mode: Block until the task is settled
         if input.sync.unwrap_or(false) {

@@ -29,7 +29,7 @@ pub struct DeleteUser {
 
 impl User {
     pub async fn admin_count(db: &sled::Db) -> Result<i32> {
-        Self::scan(db).await
+        Self::scan(db)
             .try_fold(0, |acc, user| {
                 user.map(|user| acc + (user.is_admin as i32) )
             })
@@ -39,7 +39,6 @@ impl User {
         context.authorize_admins_only()?;
 
         let users = Self::scan(&context.db)
-            .await
             .collect::<Result<Vec<Self>>>()?;
 
         Ok(users)
@@ -48,7 +47,7 @@ impl User {
     pub async fn update(ctx: &Arc<crate::Context>, changeset: UpdateUser) -> FieldResult<Self> {
         ctx.authorize_admins_only()?;
 
-        let mut user = Self::get(&ctx.db, &changeset.user_id).await?;
+        let mut user = Self::get(&ctx.db, &changeset.user_id)?;
 
         let admin_count = Self::admin_count(&ctx.db).await?;
 
@@ -60,7 +59,7 @@ impl User {
             user.is_admin = is_admin
         }
 
-        let user = user.insert(&ctx.db).await?;
+        let user = user.insert(&ctx.db)?;
 
         Ok(user)
     }
@@ -77,7 +76,7 @@ impl User {
 
         let admin_count = Self::admin_count(&ctx.db).await?;
 
-        let user = Self::get(&ctx.db, &user_id).await?;
+        let user = Self::get(&ctx.db, &user_id)?;
 
         if user.is_admin && admin_count == 1 {
             Err(anyhow!("Cannot delete only admin user"))?

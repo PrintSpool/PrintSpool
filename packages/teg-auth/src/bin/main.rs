@@ -95,7 +95,6 @@ async fn main() -> Result<()> {
     let ctx_clone = Arc::clone(&ctx);
 
     let _ = Machine::scan(&ctx.db)
-        .await
         .map(move |machine| {
             let machine: Machine = machine?;
             async_std::task::spawn(

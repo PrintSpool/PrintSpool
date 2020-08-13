@@ -11,11 +11,7 @@ pub struct Task {
   // Foreign Keys
   pub machine_id: ID, // machines have many (>=0) tasks
   #[new(default)]
-  pub print_queue_id: Option<ID>, // print queues have many packages
-  #[new(default)]
-  pub package_id: Option<ID>, // packages have many (>=1) parts
-  #[new(default)]
-  pub part_id: Option<ID>, // parts have many (>=0) tasks
+  pub print: Option<Print>,
   // Timestamps
   #[new(value = "Utc::now()")]
   pub created_at: DateTime<Utc>,
@@ -36,6 +32,13 @@ pub struct Task {
   pub error_message: Option<String>,
 }
 
+#[derive(new, Debug, Serialize, Deserialize, Clone)]
+pub struct Print {
+  pub print_queue_id: ID, // print queues have many packages
+  pub package_id: ID, // packages have many (>=1) parts
+  pub part_id: ID, // parts have many (>=0) tasks
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum TaskContent {
   FilePath(String),
@@ -49,6 +52,6 @@ pub enum GCodeAnnotation {
 
 impl Task {
   pub fn is_print(&self) -> bool {
-    self.part_id.is_some()
+    self.print.is_some()
   }
 }

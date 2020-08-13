@@ -2,7 +2,7 @@ use std::sync::Arc;
 use std::collections::HashMap;
 // use futures::prelude::*;
 use async_graphql::ID;
-use futures::future;
+// use futures::future;
 use serde::{Deserialize, Serialize};
 // use serde_json::json;
 use anyhow::{
@@ -15,6 +15,7 @@ use super::AnnotatedGCode;
 
 use crate::{
     models::VersionedModel,
+    models::VersionedModelResult,
     print_queue::tasks::{
         GCodeAnnotation,
     },
@@ -60,14 +61,10 @@ impl SetMaterialsMacro {
             .collect::<Result<Vec<()>>>()?;
 
         // verify that the material IDs exist
-        let materials = self.toolheads
+        let _: Vec<Material> = self.toolheads
             .iter()
-            .map(|(_, material_id)| Material::get(&ctx.db, material_id));
-
-        let _: Vec<Material> = future::join_all(materials)
-            .await
-            .into_iter()
-            .collect::<Result<Vec<Material>>>()?;
+            .map(|(_, material_id)| Material::get(&ctx.db, material_id))
+            .collect::<VersionedModelResult<Vec<Material>>>()?;
 
         // Add an annotation that will set the toolhead when the GCode is reached
         let annotation = AnnotatedGCode::Annotation(

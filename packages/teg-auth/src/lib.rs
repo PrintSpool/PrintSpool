@@ -118,12 +118,12 @@ pub async fn init() -> Result<Context> {
 
     // Initialize database entries from the config
     let machine_config_id = config.read().await.id.clone();
-    if Machine::find_opt(&db, |m| m.config_id == machine_config_id).await?.is_none() {
+    if Machine::find_opt(&db, |m| m.config_id == machine_config_id)?.is_none() {
         let machine = Machine::new(
             Machine::generate_id(&db)?,
             machine_config_id,
         );
-        let _ = machine.insert(&db).await?;
+        let _ = machine.insert(&db)?;
     };
 
     // Watch the config file for changes

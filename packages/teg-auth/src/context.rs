@@ -32,7 +32,7 @@ impl Context {
         };
 
         if let Some(current_user_id) = current_user_id {
-            ctx.current_user  = Some(User::get(&ctx.db, &current_user_id).await?);
+            ctx.current_user  = Some(User::get(&ctx.db, &current_user_id)?);
         }
 
         Ok(ctx)

@@ -33,16 +33,9 @@ impl User {
             .await
             .with_context(|| "Unable to load invite for authentication")?;
 
-        let user = User::scan(&context.db)
-            .await
-            .find(|user| {
-                if let Ok(user) = user {
-                    user.firebase_uid == jwt_payload.sub
-                } else {
-                    true
-                }
+        let user = User::find_opt(&context.db, |user| {
+                user.firebase_uid == jwt_payload.sub
             })
-            .transpose()
             .with_context(|| "Unable to load user for authentication")?;
 
         // To authenticate the user either must be authorized or include a valid invite
@@ -76,7 +69,6 @@ impl User {
         user.last_logged_in_at = Some(Utc::now());
 
         let user = user.insert(&context.db)
-            .await
             .with_context(|| "Unable to update user after authentication")?;
 
         info!("User Authorized: {:?}", user.id);

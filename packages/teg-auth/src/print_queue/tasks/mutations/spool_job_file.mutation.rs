@@ -14,9 +14,13 @@ use anyhow::{
     Context as _,
 };
 
-use crate::models::VersionedModel;
+use crate::models::{
+    VersionedModel,
+    VersionedModelError,
+};
 use crate::print_queue::tasks::{
     Task,
+    Print,
     // TaskStatus,
     TaskContent,
     Part,
@@ -39,6 +43,14 @@ struct SpoolJobFileInput {
     part_id: ID,
 }
 
+// fn spool_job_transaction(
+//     ctx: &Arc<crate::Context>,
+//     machine: &Machine,
+//     input: &SpoolJobFileInput) -> anyhow::Result<Task> {
+
+// }
+
+
 #[Object]
 impl SpoolJobFileMutation {
     /// Starts a print by spooling a task to print the job file.
@@ -49,61 +61,67 @@ impl SpoolJobFileMutation {
     ) -> FieldResult<Task> {
         let ctx: &Arc<crate::Context> = ctx.data()?;
 
-        let machine = Machine::find(&ctx.db, |m| {
+        let machine_id = Machine::find(&ctx.db, |m| {
             m.config_id == input.machine_config_id
         })
-            .await
-            .with_context(|| format!("No machine found for ID: {:?}", input.machine_config_id))?;
+            .with_context(|| format!("No machine found for ID: {:?}", input.machine_config_id))?
+            .id;
 
-        let part = Part::get(&ctx.db, &input.part_id).await?;
+        let task = ctx.db.transaction(move |db| {
+            // spool_job_transaction(ctx, &machine, &input)
 
-        // TODO:
-        // Preprocess the gcode file
-        let total_lines = 0 as u64;
-        let annotations = vec![];
-        let processed_gcode_file = "TODO".to_string();
+            let part = Part::get(&db, &input.part_id)?;
 
-        // Create the task
-        let mut task = Task::new(
-            Task::generate_id(&ctx.db)?,
-            machine.id.clone(),
-            TaskContent::FilePath(processed_gcode_file),
-            annotations,
-            total_lines,
-        );
+            // TODO:
+            // Preprocess the gcode file
+            let total_lines = 0 as u64;
+            let annotations = vec![];
+            let processed_gcode_file = "TODO".to_string();
 
-        task.part_id = Some(part.id);
-        task.package_id = Some(part.package_id);
-        task.print_queue_id = Some(part.print_queue_id);
+            // Create the task
+            let mut task = Task::new(
+                Task::generate_id(&ctx.db)?,
+                machine_id.clone(),
+                TaskContent::FilePath(processed_gcode_file),
+                annotations,
+                total_lines,
+            );
 
-        let task = task.insert(&ctx.db).await?;
+            task.print = Some(Print {
+                part_id: part.id,
+                package_id: part.package_id,
+                print_queue_id: part.print_queue_id,
+            });
 
-        // Atomically set the machine status to printing
-        let task_id = task.id.clone();
-        let machine = Machine::fetch_and_update(
-            &ctx.db,
-            &machine.id,
-            move |machine| {
-                let mut machine = machine?;
-                let task_id = task_id.clone();
+            let task = task.insert(&db)?;
 
-                if machine.status == MachineStatus::Ready {
-                    machine.status = MachineStatus::Printing(
-                        Printing { task_id }
-                    );
-                };
+            // Atomically set the machine status to printing
+            let task_id = task.id.clone();
+            let mut machine = Machine::get(
+                &db,
+                &machine_id,
+            )?;
+            let task_id = task_id.clone();
 
-                Some(machine)
-            },
-        )
-            .await?
-            .ok_or_else(|| {
-                anyhow!("No machine found while starting task id: {:?}", task.id)
-            })?;
+            if !machine.status.can_start_task(&task) {
+                Err(VersionedModelError::from(
+                    anyhow!("Cannot start task when machine is: {:?}", machine.status)
+                ))?;
+            };
 
-        if !machine.status.can_start_task(&task) {
-            Err(anyhow!("Cannot start task when machine is: {:?}", machine.status))?;
-        };
+            if machine.status == MachineStatus::Ready {
+                machine.status = MachineStatus::Printing(
+                    Printing { task_id }
+                );
+
+                let _ = machine.insert(&db)?;
+            };
+
+            Ok(task)
+        // }).map_err(|e|
+        //     anyhow!("Error while creating task {:?}", e)
+        // )?;
+        }).with_context(|| "Error while creating task")?;
 
         Ok(task)
     }

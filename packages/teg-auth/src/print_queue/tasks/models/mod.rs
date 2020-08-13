@@ -10,6 +10,7 @@ pub use part_r1::Part;
 mod task_r1;
 pub use task_r1::{
     Task,
+    Print,
     TaskContent,
     GCodeAnnotation,
 };

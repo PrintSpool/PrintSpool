@@ -47,18 +47,14 @@ pub async fn consume_invite(ctx: &Arc<Context>) -> Result<User> {
 
         // Re-fetch the user inside the transaction to prevent overwriting changes from
         // other transactions
-        let mut user = futures::executor::block_on(
-            User::get(&ctx.db, &user_id)
-        )?;
+        let mut user = User::get(&ctx.db, &user_id)?;
             // .map_err(|err| Abort(err))?;
 
         // Authorize the user
         user.is_admin = user.is_admin || invite.is_admin;
         user.is_authorized = true;
 
-        let user = futures::executor::block_on(
-            user.insert(&ctx.db)
-        )?;
+        let user = user.insert(&ctx.db)?;
             // .map_err(|err| Abort(err))?;
 
         // Delete the invite

@@ -61,7 +61,7 @@ pub async fn handle_machine_socket(ctx: Arc<crate::Context>, machine_id: ID) -> 
 
                     task.sent_to_machine = true;
 
-                    let _ = task.insert(&ctx.db);
+                    let _ = task.insert(&ctx.db)?;
                 }
             }
             _ => ()
