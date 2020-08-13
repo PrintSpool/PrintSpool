@@ -65,16 +65,19 @@ impl AnyMacro {
 
 pub fn compile_macros<'a>(
     ctx: Arc<Context>,
-    gcode_lines: impl IntoIterator<Item = String>
+    gcode_lines: impl Stream<Item = std::io::Result<String>>
 ) -> impl TryStream<Ok = AnnotatedGCode, Error = anyhow::Error> {
-    let gcode_lines = gcode_lines.into_iter();
-
-    stream::iter(gcode_lines)
+    gcode_lines
         // Process macros and generate annotations
         .scan(ctx, move |ctx, line| {
             let ctx = Arc::clone(ctx);
             async move {
-                let line = line.clone();
+                let line = line
+                    .with_context(|| "Error reading gcodes");
+                let line = match line {
+                    Ok(line) => line.clone(),
+                    Err(err) => return Some(Err(err)),
+                };
                 let is_json = line.chars().next() == Some('{');
 
                 let result = if is_json {

@@ -1,5 +1,12 @@
 // use std::collections::HashMap;
 // use chrono::prelude::*;
+// use async_std::prelude::*;
+use futures::prelude::*;
+use async_std::{
+    fs::{ self, File },
+    io::{ BufReader, BufWriter },
+};
+
 use std::sync::Arc;
 use async_graphql::{
     InputObject,
@@ -14,6 +21,13 @@ use anyhow::{
     Context as _,
 };
 
+use crate::{
+    // print_queue::macros::AnyMacro,
+    print_queue::macros::{
+        compile_macros,
+        AnnotatedGCode,
+    },
+};
 use crate::models::{
     VersionedModel,
     VersionedModelError,
@@ -43,13 +57,6 @@ struct SpoolJobFileInput {
     part_id: ID,
 }
 
-// fn spool_job_transaction(
-//     ctx: &Arc<crate::Context>,
-//     machine: &Machine,
-//     input: &SpoolJobFileInput) -> anyhow::Result<Task> {
-
-// }
-
 
 #[Object]
 impl SpoolJobFileMutation {
@@ -67,23 +74,83 @@ impl SpoolJobFileMutation {
             .with_context(|| format!("No machine found for ID: {:?}", input.machine_config_id))?
             .id;
 
-        let task = ctx.db.transaction(move |db| {
-            // spool_job_transaction(ctx, &machine, &input)
+        let part_file_path = Part::get(&ctx.db, &input.part_id)?.file_path;
 
+        let task_id = Task::generate_id(&ctx.db)?;
+        let task_dir = "/var/tegh/tasks";
+        let task_file_path = format!("{}/task_{}.gcode", task_dir, task_id.to_string());
+
+        /*
+         * Preprocess GCodes (part file => task file)
+         * =========================================================================================
+         */
+
+        let part_file = File::open(part_file_path).await?;
+        let gcodes = BufReader::new(part_file).lines();
+
+        let annotated_gcodes = compile_macros(
+            Arc::clone(ctx),
+            gcodes,
+        );
+
+        fs::create_dir_all(task_dir).await?;
+        let task_file = File::open(&task_file_path).await?;
+        let gcodes_writer = BufWriter::new(task_file);
+
+        let (
+            mut gcodes_writer,
+            total_lines,
+            annotations
+        ) = annotated_gcodes
+            .try_fold(
+                (gcodes_writer, 0u64, vec![]),
+                |mut acc, item| {
+                    async {
+                        let (
+                            gcodes_writer,
+                            total_lines,
+                            annotations,
+                        ) = &mut acc;
+    
+                        match item {
+                            AnnotatedGCode::GCode(mut gcode) => {
+                                *total_lines += 1;
+                                gcode.push('\n');
+                                gcodes_writer.write_all(&gcode.into_bytes()).await?;
+                            }
+                            AnnotatedGCode::Annotation(annotation) => {
+                                annotations.push(annotation);
+                            }
+                        };
+
+                        Ok(acc)
+                    }
+                },
+            )
+            .await?;
+
+        gcodes_writer.flush().await?;
+        gcodes_writer.close().await?;
+
+        /*
+         * Create the task
+         * =========================================================================================
+         */
+
+        let task = ctx.db.transaction(move |db| {
             let part = Part::get(&db, &input.part_id)?;
 
-            // TODO:
-            // Preprocess the gcode file
-            let total_lines = 0 as u64;
-            let annotations = vec![];
-            let processed_gcode_file = "TODO".to_string();
+            if part.printed >= part.quantity {
+                Err(VersionedModelError::from(
+                    anyhow!("Already printed {} / {} of {}", part.printed, part.quantity, part.name)
+                ))?;
+            }
 
-            // Create the task
             let mut task = Task::new(
-                Task::generate_id(&ctx.db)?,
+                task_id.clone(),
                 machine_id.clone(),
-                TaskContent::FilePath(processed_gcode_file),
-                annotations,
+                TaskContent::FilePath(task_file_path.clone()),
+                annotations.clone(),
                 total_lines,
             );
 
@@ -121,7 +188,7 @@ impl SpoolJobFileMutation {
         // }).map_err(|e|
         //     anyhow!("Error while creating task {:?}", e)
         // )?;
-        }).with_context(|| "Error while creating task")?;
+        }).with_context(|| "Unable to create task")?;
 
         Ok(task)
     }

@@ -8,7 +8,10 @@ use anyhow::{
     Context as _,
 };
 
-use crate::models::VersionedModel;
+use crate::models::{
+    VersionedModel,
+    VersionedModelError,
+};
 use crate::{
     Machine,
     // MachineStatus,
@@ -79,10 +82,16 @@ impl ExecGCodesMutation {
         let ctx: &Arc<crate::Context> = ctx.data()?;
         let machine_override = input.r#override.unwrap_or(false);
 
-        let machine = Machine::find(&ctx.db, |m| {
+        let machine_id = Machine::find(&ctx.db, |m| {
             m.config_id == input.machine_config_id
         })
-            .with_context(|| format!("No machine found for ID: {:?}", input.machine_config_id))?;
+            .with_context(|| format!("No machine found for ID: {:?}", input.machine_config_id))?
+            .id;
+
+        /*
+         * Preprocess GCodes
+         * =========================================================================================
+         */
 
         // Normalize the JSON HashMaps into strings. Later JSON lines will be deserialized
         // the specific macro's input.
@@ -106,6 +115,9 @@ impl ExecGCodesMutation {
             })
             .collect::<anyhow::Result<_>>()?;
 
+        let gcodes = stream::iter(gcodes)
+            .map(|gcode| Ok(gcode));
+
         // Add annotations
         let annotated_gcodes = compile_macros(
             Arc::clone(ctx),
@@ -114,7 +126,10 @@ impl ExecGCodesMutation {
 
         let (gcodes, annotations) = annotated_gcodes
             .try_fold((vec![], vec![]), |mut acc, item| {
-                let (gcodes, annotations) = &mut acc;
+                let (
+                    gcodes, 
+                    annotations,
+                ) = &mut acc;
 
                 match item {
                     AnnotatedGCode::GCode(gcode) => {
@@ -129,30 +144,41 @@ impl ExecGCodesMutation {
             })
             .await?;
 
-        // Create the task
+
+        /*
+         * Create the task
+         * =========================================================================================
+         */
+        let gcodes = gcodes;
         let total_lines = gcodes.len() as u64;
 
         let mut task = Task::new(
             Task::generate_id(&ctx.db)?,
-            machine.id,
+            machine_id.clone(),
             TaskContent::GCodes(gcodes),
             annotations,
             total_lines,
         );
 
         task.machine_override = machine_override;
+        let mut subscriber = task.watch(&ctx.db)?;
 
-        // TODO: Hold a lock that prevents other tasks from starting a print until this task is
-        // added.
-        if !machine.status.can_start_task(&task) {
-            Err(anyhow!("Cannot start task when machine is: {:?}", machine.status))?;
-        };
+        let mut task = ctx.db.transaction(move |db| {
+            let machine = Machine::get(&db, &machine_id)?;
 
-        let mut task = task.insert(&ctx.db)?;
+            if !machine.status.can_start_task(&task) {
+                Err(VersionedModelError::from(
+                    anyhow!("Cannot start task when machine is: {:?}", machine.status)
+                ))?;
+            };
+
+            let task = task.clone().insert(&ctx.db)?;
+
+            Ok(task)
+        })?;
 
         // Sync Mode: Block until the task is settled
         if input.sync.unwrap_or(false) {
-            let mut subscriber = task.watch(&ctx.db)?;
             loop {
                 use sled::Event;
                 use std::convert::TryInto;
@@ -166,8 +192,9 @@ impl ExecGCodesMutation {
                         if task.status.was_successful() {
                             return Ok(task)
                         } else if task.status.was_aborted() {
-                            let err = task.error_message
-                                .unwrap_or(format!("Task Aborted. Reason: {:?}", task.status));
+                            let err = task.error_message.unwrap_or(
+                                format!("Task Aborted. Reason: {:?}", task.status),
+                            );
 
                             return Err(anyhow!(err).into());
                         }
@@ -180,8 +207,8 @@ impl ExecGCodesMutation {
                     }
                 }
             }
-        };
-
-        Ok(task)
+        } else {
+            Ok(task)
+        }
     }
 }

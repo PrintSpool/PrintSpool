@@ -14,7 +14,10 @@ pub struct Part {
   pub created_at: DateTime<Utc>,
   // Props
   pub name: String,
-  pub quantity: u32,
+  pub quantity: u64,
+  #[new(default)]
+  pub printed: u64,
+  pub printing_task_ids: Vec<ID>,
   pub position: u32,
   pub file_path: String,
 }
