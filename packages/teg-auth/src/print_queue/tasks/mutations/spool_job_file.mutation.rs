@@ -190,6 +190,8 @@ impl SpoolJobFileMutation {
         // )?;
         }).with_context(|| "Unable to create task")?;
 
+        ctx.db.flush_async().await?;
+
         Ok(task)
     }
 }
