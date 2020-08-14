@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.12.0](https://github.com/teg/teg-host-posix/compare/v0.11.0...v0.12.0) (2020-08-14)
+
+
+### Features
+
+* Completely rewritten continuous movement substantially decreases stutters and overshoots ([bce67fc](https://github.com/teg/teg-host-posix/commit/bce67fc))
+
+
+
+
+
 # [0.11.0](https://github.com/teg/teg-host-posix/compare/v0.10.1...v0.11.0) (2020-08-06)
 
 
