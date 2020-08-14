@@ -57,11 +57,6 @@ const executableSchema = async () => {
 
   const ommittedRustFields = [
     'authenticateUser',
-    'createInvite',
-    'updateInvite',
-    'deleteInvite',
-    'updateUser',
-    'deleteUser',
   ]
 
 
@@ -80,6 +75,9 @@ const executableSchema = async () => {
       ...ommittedNodeJSTypes,
       'ExecGCodesInput',
       'SpoolJobFileInput',
+      'Job',
+      'JobFile',
+      'Task',
     ]
   }
 

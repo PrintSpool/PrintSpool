@@ -118,7 +118,12 @@ impl LegacyMutation {
     }
 
     async fn consume_invite<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<User> {
-        Ok(consume_invite(ctx.data()?).await?)
+        consume_invite(ctx.data()?)
+            .await
+            .map_err(|err| {
+                error!("ERR {:?}", err);
+                err.into()
+            })
     }
 
     // Users
