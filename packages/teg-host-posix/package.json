@@ -1,6 +1,6 @@
 {
   "name": "@tegapp/host-posix",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "description": "graphql server for 3D printers",
   "main": "dist/index.js",
   "esmMain": "src/index.js",
@@ -39,9 +39,9 @@
   "dependencies": {
     "@babel/core": "^7.0.0-0",
     "@babel/register": "^7.0.0",
-    "@tegapp/core": "^0.12.0",
-    "@tegapp/macros-default": "^0.12.0",
-    "@tegapp/marlin": "^0.12.0",
+    "@tegapp/core": "^0.12.1",
+    "@tegapp/macros-default": "^0.12.1",
+    "@tegapp/marlin": "^0.12.1",
     "apollo-link-context": "^1.0.20",
     "apollo-link-http": "^1.5.17",
     "apollo-server-koa": "^2.4.8",

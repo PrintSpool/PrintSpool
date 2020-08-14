@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.12.1](https://github.com/teg/teg-host-posix/compare/v0.12.0...v0.12.1) (2020-08-14)
+
+
+### Bug Fixes
+
+* Fixed error when users attempted to consume an invite ([cb9d574](https://github.com/teg/teg-host-posix/commit/cb9d574))
+
+
+
+
+
 # [0.12.0](https://github.com/teg/teg-host-posix/compare/v0.11.0...v0.12.0) (2020-08-14)
 
 

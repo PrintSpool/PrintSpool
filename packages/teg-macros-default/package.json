@@ -1,6 +1,6 @@
 {
   "name": "@tegapp/macros-default",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "description": "Teg default macros",
   "main": "dist/index.js",
   "esmMain": "src/index.js",
@@ -11,7 +11,7 @@
   "license": "AGPL-3.0-or-later",
   "private": true,
   "dependencies": {
-    "@tegapp/core": "^0.12.0",
+    "@tegapp/core": "^0.12.1",
     "immutable": "^4.0.0-rc.12"
   }
 }
