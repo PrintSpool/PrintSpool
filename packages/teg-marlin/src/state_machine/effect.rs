@@ -135,13 +135,39 @@ impl Effect {
                     .unwrap();
             }
             Effect::ProtobufSend => {
-                let message = reactor.context.machine_message_protobuf();
+                use teg_protobufs::{
+                    MachineMessage,
+                    machine_message::{ Feedback, Payload },
+                };
+                let empty_feedback: Feedback = Feedback::default();
+
+                let feedback = std::mem::replace(
+                    &mut reactor.context.feedback, 
+                    empty_feedback,
+                );
+
+                let message = MachineMessage {
+                    payload: Some(Payload::Feedback (
+                        feedback,
+                    )),
+                };
 
                 let mut buf = Vec::with_capacity(message.encoded_len());
                 message.encode(&mut buf).expect("machine message encoding failed");
 
+                reactor.context.feedback = message.payload
+                    .map(|payload| {
+                        match payload {
+                            Payload::Feedback (feedback) => Some(feedback)
+                        }
+                    })
+                    .flatten()
+                    .expect("Missing message payload in ProtobufSend");
+
                 // eprintln!("Protobuf TX ({:?} Bytes)", message.encoded_len());
                 // eprintln!("Protobuf TX ({:?} Bytes): {:#?}", message.encoded_len(), message.payload);
+
+                reactor.context.after_protobuf();
 
                 reactor.protobuf_broadcast
                     .send(Bytes::from(buf))
@@ -175,6 +201,7 @@ impl Effect {
                             gcode_lines,
                             machine_override,
                             started: false,
+                            despooled_line_number: None,
                         }
                     )
                 } else {

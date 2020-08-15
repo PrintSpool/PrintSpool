@@ -20,6 +20,9 @@ mod context;
 mod effect;
 mod send_serial;
 
+mod task;
+pub use task::Task;
+
 pub use context::Context;
 pub use effect::Effect;
 pub use send_serial::send_serial;
@@ -28,18 +31,6 @@ mod disconnect;
 pub use disconnect::disconnect;
 
 use ready_state::ReadyState;
-
-#[derive(Clone, Debug)]
-pub struct Task
-{
-    pub id: u32,
-    pub client_id: u32,
-    // TODO: gcode_lines iterator. Does 'self lifetime do what I need?
-    // gcode_lines: Option<Box<dyn std::slice::Iter<T: str>>>,
-    pub gcode_lines: std::vec::IntoIter<String>,
-    pub machine_override: bool,
-    pub started: bool,
-}
 
 #[derive(Clone, Debug)]
 pub enum Event {

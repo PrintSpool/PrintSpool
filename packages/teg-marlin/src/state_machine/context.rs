@@ -8,7 +8,7 @@ use crate::protos::{
         Error,
         EventType,
     },
-    MachineMessage,
+    // MachineMessage,
 };
 use crate::state_machine;
 use crate::configuration::{
@@ -83,15 +83,13 @@ impl Context {
         }
     }
 
-    pub fn machine_message_protobuf(&mut self) -> MachineMessage {
+    pub fn after_protobuf(&mut self) -> () {
         self.feedback.gcode_history = self.gcode_history_buffer.drain(..).collect();
 
-        // eprintln!("ProtoBuf Status: {:?}", self.feedback.status);
-        // eprintln!("ProtoBuf Responses + Events: {:?} {:?}", self.feedback.gcode_history, self.feedback.events);
-
-        MachineMessage {
-            payload: Some(machine_message::Payload::Feedback ( self.feedback.clone() )),
-        }
+        // Removed settled tasks
+        self.feedback.task_progress.retain(|p| {
+            p.status == machine_message::TaskStatus::TaskStarted as i32
+        });
     }
 
     pub fn handle_state_change(&mut self, state: &state_machine::State) {

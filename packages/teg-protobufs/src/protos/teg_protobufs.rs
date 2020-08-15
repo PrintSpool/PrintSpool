@@ -167,7 +167,10 @@ pub mod machine_message {
         pub task_id: u32,
         #[prost(uint32, tag="2")]
         pub despooled_line_number: u32,
+        #[prost(enumeration="TaskStatus", tag="3")]
+        pub status: i32,
     }
+    /// Legacy NodeJS Type
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Event {
         #[prost(uint32, tag="1")]
@@ -238,6 +241,19 @@ pub mod machine_message {
         Connecting = 3,
         Ready = 4,
     }
+    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[repr(i32)]
+    pub enum TaskStatus {
+        /// Before sending to the driver
+        /// SPOOLED;
+        /// After sending to the driver
+        TaskStarted = 0,
+        TaskFinished = 1,
+        TaskPaused = 2,
+        TaskCancelled = 3,
+        TaskErrored = 4,
+    }
+    /// Legacy NodeJS Type
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
     #[repr(i32)]
     pub enum EventType {

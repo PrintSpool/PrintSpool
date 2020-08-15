@@ -64,8 +64,21 @@ message MachineMessage {
   message TaskProgress {
     uint32 task_id = 1;
     uint32 despooled_line_number = 2;
+    TaskStatus status = 3;
   }
 
+  enum TaskStatus {
+      // Before sending to the driver
+      // SPOOLED;
+      // After sending to the driver
+      TASK_STARTED = 0;
+      TASK_FINISHED = 1;
+      TASK_PAUSED = 2;
+      TASK_CANCELLED = 3;
+      TASK_ERRORED = 4;
+  }
+
+  // Legacy NodeJS Type
   enum EventType {
     CANCELLED = 0;
     PAUSE_TASK = 1;
@@ -74,6 +87,7 @@ message MachineMessage {
     FINISH_TASK = 4;
   }
 
+  // Legacy NodeJS Type
   message Event {
     uint32 task_id = 1;
     uint32 client_id = 2;

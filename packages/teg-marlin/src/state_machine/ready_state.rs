@@ -146,6 +146,7 @@ impl ReadyState {
                                     gcode_lines: commands.into_iter(),
                                     machine_override,
                                     started: false,
+                                    despooled_line_number: None,
                                 };
                                 self.consume(GCodeLoaded(task), context)
                             }
@@ -179,6 +180,13 @@ impl ReadyState {
 
                                 context.feedback.task_progress
                                     .retain(|p| p.task_id != task_id);
+
+                                context.feedback.task_progress.push(machine_message::TaskProgress {
+                                    task_id,
+                                    despooled_line_number: task.despooled_line_number
+                                        .unwrap_or(0),
+                                    status: machine_message::TaskStatus::TaskPaused as i32,
+                                });
 
                                 if !task.machine_override {
                                     context.feedback.despooled_line_number = 0;
@@ -520,8 +528,14 @@ impl ReadyState {
 
                 trace!("Despool: Task GCode");
 
+                let despooled_line_number = task.despooled_line_number
+                    .map(|n| n + 1)
+                    .unwrap_or(0);
+
+                task.despooled_line_number = Some(despooled_line_number);
+
                 if !task.machine_override {
-                    context.feedback.despooled_line_number += 1;
+                    context.feedback.despooled_line_number = despooled_line_number;
                 };
 
                 let progress = context.feedback.task_progress
@@ -529,12 +543,13 @@ impl ReadyState {
                     .find(|p| p.task_id == task.id);
 
                 if let Some(mut progress) = progress {
-                    progress.despooled_line_number += 1;
+                    progress.despooled_line_number = despooled_line_number;
                 } else {
                     context.feedback.task_progress.push(
                         machine_message::TaskProgress {
                             task_id: task.id,
-                            despooled_line_number: 0,
+                            despooled_line_number: despooled_line_number,
+                            status: machine_message::TaskStatus::TaskStarted  as i32,
                         },
                     );
                 }
@@ -564,7 +579,6 @@ impl ReadyState {
                 if !task.machine_override {
                     context.feedback.despooled_line_number = 0;
                 };
-                context.feedback.task_progress.retain(|p| p.task_id != task.id);
 
                 effects.push(
                     Effect::ProtobufSend,
