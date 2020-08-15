@@ -48,6 +48,10 @@ impl SetMaterialsMacro {
 
     pub async fn compile(&self, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
         let config = ctx.machine_config.read().await;
+        let host_config = std::fs::read_to_string(
+            "/etc/teg/combinator.toml",
+        )?;
+        let host_config: toml::Value = toml::from_str(&host_config)?;
 
         // verify that the toolheads exist in the config
         let _ = self.toolheads
@@ -61,10 +65,18 @@ impl SetMaterialsMacro {
             .collect::<Result<Vec<()>>>()?;
 
         // verify that the material IDs exist
-        let _: Vec<Material> = self.toolheads
+        let _: Vec<bool> = self.toolheads
             .iter()
-            .map(|(_, material_id)| Material::get(&ctx.db, material_id))
-            .collect::<VersionedModelResult<Vec<Material>>>()?;
+            .map(|(_, material_id)| {
+                host_config["materials"]
+                    .as_array()
+                    .unwrap_or(&vec![])
+                    .iter()
+                    .any(|material: &toml::Value| material["id"] == material_id.to_string().into())
+                // TODO: move materials to sled db
+                // Material::get(&ctx.db, material_id)
+            })
+            .collect::<Vec<bool>>();
 
         // Add an annotation that will set the toolhead when the GCode is reached
         let annotation = AnnotatedGCode::Annotation(

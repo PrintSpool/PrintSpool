@@ -77,7 +77,7 @@ impl SpoolJobFileMutation {
         let part_file_path = Part::get(&ctx.db, &input.part_id)?.file_path;
 
         let task_id = Task::generate_id(&ctx.db)?;
-        let task_dir = "/var/tegh/tasks";
+        let task_dir = "/var/lib/teg/tasks";
         let task_file_path = format!("{}/task_{}.gcode", task_dir, task_id.to_string());
 
         /*
