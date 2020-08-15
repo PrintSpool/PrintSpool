@@ -37,6 +37,13 @@ impl Default for MachineStatus {
 // }
 
 impl MachineStatus {
+    pub fn is_driver_ready(&self) -> bool {
+      match self {
+        Self::Ready | Self::Printing(_) => true,
+        _ => false
+      }
+    }
+
     pub fn is_printing_task(&self, task_id: &ID) -> bool {
       if let MachineStatus::Printing(printing) = self {
         &printing.task_id == task_id

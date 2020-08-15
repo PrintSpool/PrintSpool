@@ -19,9 +19,11 @@ use teg_protobufs::{
 use crate::models::VersionedModel;
 use crate::print_queue::tasks::{
     Task,
-    // TaskStatus,
+    TaskStatus,
     // TaskContent,
 };
+
+use crate::machine::models::Machine;
 
 use super::receive_message;
 
@@ -43,7 +45,7 @@ pub async fn run_receive_loop(
 pub async fn record_feedback(
     feedback: machine_message::Feedback,
     ctx: &Arc<crate::Context>,
-    _machine_id: &ID,
+    machine_id: &ID,
 ) -> Result<()> {
     // Record task progress
     for progress in feedback.task_progress.iter() {
@@ -60,8 +62,43 @@ pub async fn record_feedback(
     }
 
     // TODO: Record task events
+    for event in feedback.events.iter() {
+        Task::fetch_and_update(
+            &ctx.db,
+            &event.task_id.to_string().into(),
+            |task| {
+                task.map(|mut task| {
+                    // TODO: record event history
+                    // task.status = event.status;
+                    task
+                })
+            }
+        )?;
+    }
 
-    // TODO: Record changes in machine state
+    // Record changes in machine state
+    let machine = Machine::get(&ctx.db, machine_id)?;
+    if
+        machine.status.is_driver_ready()
+        && feedback.status != machine_message::Status::Ready as i32
+    {
+        for task in Task::scan(&ctx.db) {
+            let task = task?;
+
+            if task.status.is_pending() {
+                Task::fetch_and_update(
+                    &ctx.db,
+                    &task.id,
+                    |task| {
+                        task.map(|mut task| {
+                            task.status = TaskStatus::Errored;
+                            task
+                        })
+                    }
+                )?;
+            }
+        }
+    }
 
     Ok(())
 }
