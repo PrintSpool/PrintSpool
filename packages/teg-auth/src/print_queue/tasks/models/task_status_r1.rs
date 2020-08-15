@@ -1,6 +1,14 @@
 // Task Status Revison 1 (LATEST)
+use std::convert::TryFrom;
 use async_graphql::*;
 use serde::{Deserialize, Serialize};
+use teg_protobufs::machine_message::TaskProgress;
+
+use anyhow::{
+    anyhow,
+    Result,
+    // Context as _,
+};
 
 #[Enum]
 #[derive(Debug, Serialize, Deserialize)]
@@ -41,6 +49,25 @@ impl TaskStatus {
             Self::Cancelled,
             Self::Errored,
         ].contains(self)
+    }
+}
+
+impl TryFrom<&TaskProgress> for TaskStatus {
+    type Error = anyhow::Error;
+
+    fn try_from(progress: &TaskProgress) -> Result<TaskStatus> {
+        use teg_protobufs::machine_message::TaskStatus as TS;
+
+        let status = match progress.status {
+            i if i == TS::TaskStarted as i32 => TaskStatus::Started,
+            i if i == TS::TaskFinished as i32 => TaskStatus::Finished,
+            i if i == TS::TaskPaused as i32 => TaskStatus::Paused,
+            i if i == TS::TaskCancelled as i32 => TaskStatus::Cancelled,
+            i if i == TS::TaskErrored as i32 => TaskStatus::Errored,
+            i => Err(anyhow!("Invalid task status: {}", i))?,
+        };
+
+        Ok(status)
     }
 }
 

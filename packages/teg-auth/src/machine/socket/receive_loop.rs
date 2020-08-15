@@ -2,6 +2,7 @@
 use async_std::os::unix::net::UnixStream;
 use async_graphql::ID;
 
+use std::convert::TryInto;
 use std::sync::Arc;
 use anyhow::{
     // anyhow,
@@ -49,34 +50,22 @@ pub async fn record_feedback(
 ) -> Result<()> {
     // Record task progress
     for progress in feedback.task_progress.iter() {
+        let status = progress.try_into()?;
+
         Task::fetch_and_update(
             &ctx.db,
             &progress.task_id.to_string().into(),
             |task| {
                 task.map(|mut task| {
                     task.despooled_line_number = Some(progress.despooled_line_number as u64);
+                    task.status = status;
                     task
                 })
             }
         )?;
     }
 
-    // TODO: Record task events
-    for event in feedback.events.iter() {
-        Task::fetch_and_update(
-            &ctx.db,
-            &event.task_id.to_string().into(),
-            |task| {
-                task.map(|mut task| {
-                    // TODO: record event history
-                    // task.status = event.status;
-                    task
-                })
-            }
-        )?;
-    }
-
-    // Record changes in machine state
+    // Record changes in machine state (eg. estops) to tasks status
     let machine = Machine::get(&ctx.db, machine_id)?;
     if
         machine.status.is_driver_ready()
