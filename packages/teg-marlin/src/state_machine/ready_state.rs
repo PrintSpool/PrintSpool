@@ -26,7 +26,7 @@ use super::{
 
 use crate::protos::{
     // MachineMessage,
-    // machine_message,
+    machine_message,
     CombinatorMessage,
     combinator_message,
 };
@@ -177,6 +177,9 @@ impl ReadyState {
                             Some(task) => {
                                 context.push_pause_task(&task);
 
+                                context.feedback.task_progress
+                                    .retain(|p| p.task_id != task_id);
+
                                 if !task.machine_override {
                                     context.feedback.despooled_line_number = 0;
                                 };
@@ -204,21 +207,14 @@ impl ReadyState {
                 disconnect(&Ready(self), context)
             }
             GCodeLoaded ( task ) => {
-                // The non-override task is always the last task in the queue
-                let is_printing = self.tasks.back().filter(|t| !t.machine_override).is_some();
-
-                // Only allow one non-override task at a time
-                if is_printing && !task.machine_override {
-                    context.push_error(&task, &crate::protos::machine_message::Error {
-                        message: "Attempted to print 2 non-override tasks at once".to_string(),
-                    });
-
-                    return self.and_no_effects()
-                }
-
-                if is_printing {
-                    self.tasks.insert(self.tasks.len() - 1, task)
+                if task.machine_override {
+                    let first_non_override = self.tasks.iter()
+                        .position(|t| !t.machine_override)
+                        .unwrap_or(self.tasks.len());
+                    // insert the overide task before the first non-override task
+                    self.tasks.insert(first_non_override, task)
                 } else {
+                    // append non-override tasks to the end of the queue
                     self.tasks.push_back(task)
                 };
 
@@ -528,6 +524,21 @@ impl ReadyState {
                     context.feedback.despooled_line_number += 1;
                 };
 
+                let progress = context.feedback.task_progress
+                    .iter_mut()
+                    .find(|p| p.task_id == task.id);
+
+                if let Some(mut progress) = progress {
+                    progress.despooled_line_number += 1;
+                } else {
+                    context.feedback.task_progress.push(
+                        machine_message::TaskProgress {
+                            task_id: task.id,
+                            despooled_line_number: 0,
+                        },
+                    );
+                }
+
                 if gcode.starts_with('!') {
                     self.execute_host_gcode(effects, context, &gcode)?;
                 } else {
@@ -553,6 +564,7 @@ impl ReadyState {
                 if !task.machine_override {
                     context.feedback.despooled_line_number = 0;
                 };
+                context.feedback.task_progress.retain(|p| p.task_id != task.id);
 
                 effects.push(
                     Effect::ProtobufSend,

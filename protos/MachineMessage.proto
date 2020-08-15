@@ -34,6 +34,8 @@ message MachineMessage {
     // bool sets_target_position = 10;
     // bool sets_actual_position = 11;
 
+    repeated TaskProgress task_progress = 15;
+
     // Less frequently set fields (field numbers 16 through 2047 take 2 bytes)
 
     // 100-999 Less frequently set sub-messages
@@ -42,6 +44,8 @@ message MachineMessage {
     // 1000-2047: Less frequently set bools start
     bool motors_enabled = 1000;
   }
+
+
 
   enum Status {
     ERRORED = 0;
@@ -55,6 +59,11 @@ message MachineMessage {
     string message = 1;
     // 2: reserved for future error codes implementation
     // string code = 2;
+  }
+
+  message TaskProgress {
+    uint32 task_id = 1;
+    uint32 despooled_line_number = 2;
   }
 
   enum EventType {

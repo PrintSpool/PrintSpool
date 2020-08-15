@@ -143,6 +143,8 @@ pub mod machine_message {
         // bool sets_target_position = 10;
         // bool sets_actual_position = 11;
 
+        #[prost(message, repeated, tag="15")]
+        pub task_progress: ::std::vec::Vec<TaskProgress>,
         // Less frequently set fields (field numbers 16 through 2047 take 2 bytes)
 
         /// 100-999 Less frequently set sub-messages
@@ -158,6 +160,13 @@ pub mod machine_message {
         /// string code = 2;
         #[prost(string, tag="1")]
         pub message: std::string::String,
+    }
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct TaskProgress {
+        #[prost(uint32, tag="1")]
+        pub task_id: u32,
+        #[prost(uint32, tag="2")]
+        pub despooled_line_number: u32,
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Event {
