@@ -29,7 +29,7 @@ pub struct MoveToMacro {
 }
 
 impl MoveToMacro {
-    pub fn key() -> &'static str { "moveBy" }
+    // pub fn key() -> &'static str { "moveBy" }
 
     // pub fn json_schema(&self) -> serde_json::Value {
     //     json!({

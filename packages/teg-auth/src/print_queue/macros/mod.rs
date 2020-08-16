@@ -22,6 +22,10 @@ use crate::{
 mod json_gcode;
 pub use json_gcode::JsonGCode;
 
+#[path = "internal_macros/home.rs"]
+mod home;
+use home::HomeMacro;
+
 #[path = "internal_macros/set_materials.rs"]
 mod set_materials;
 use set_materials::SetMaterialsMacro;
@@ -46,6 +50,7 @@ use move_utils::MoveMacro;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")] 
 pub enum InternalMacro {
+    Home(HomeMacro),
     SetMaterials(SetMaterialsMacro),
     ContinuousMove(MoveContinuousMacro),
     MoveBy(MoveByMacro),
@@ -73,6 +78,7 @@ impl AnyMacro {
         match parsed_line {
             AnyMacro::InternalMacro(internal_macro) => {
                 match internal_macro {
+                    InternalMacro::Home(m) => m.compile(ctx).await,
                     InternalMacro::SetMaterials(m) => m.compile(ctx).await,
                     InternalMacro::ContinuousMove(m) => m.compile(ctx).await,
                     InternalMacro::MoveBy(m) => m.compile(ctx).await,

@@ -8,6 +8,8 @@ use super::{
     Toolhead,
     Video,
     Axis,
+    Fan,
+    BuildPlatform,
 };
 use std::path::PathBuf;
 
@@ -66,6 +68,21 @@ impl Config {
         })
     }
 
+    pub fn at_address(&self, address: &str) -> Option<&Component> {
+        self.components
+            .iter()
+            .find(|component| {
+                match component {
+                    Component::Controller(_) => false,
+                    Component::Axis(c) => c.address == address,
+                    Component::Toolhead(c) => c.address == address,
+                    Component::Fan(c) => c.address == address,
+                    Component::Video(_) => false,
+                    Component::BuildPlatform(c) => c.address == address,
+                }
+            })
+    }
+
     pub fn toolhead(&self, address: &str) -> Option<&Toolhead> {
         self.components
             .iter()
@@ -102,7 +119,7 @@ impl Config {
             .iter()
             .filter_map(|component| {
                 match component {
-                    | Component::BuildPlatform { heater: true, address }
+                    | Component::BuildPlatform(BuildPlatform { heater: true, address })
                     | Component::Toolhead(Toolhead { heater: true, address, .. }) => {
                         Some(address.clone())
                     }
@@ -117,7 +134,7 @@ impl Config {
             .iter()
             .filter_map(|component| {
                 match component {
-                    | Component::Fan { address, .. } => {
+                    | Component::Fan(Fan { address, .. }) => {
                         Some(address.clone())
                     }
                     _ => None

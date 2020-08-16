@@ -10,16 +10,11 @@ pub enum Component {
     #[serde(rename = "TOOLHEAD", rename_all = "camelCase")]
     Toolhead(Toolhead),
     #[serde(rename = "FAN", rename_all = "camelCase")]
-    Fan {
-        address: String,
-    },
+    Fan(Fan),
     #[serde(rename = "VIDEO", rename_all = "camelCase")]
     Video(Video),
     #[serde(rename = "BUILD_PLATFORM", rename_all = "camelCase")]
-    BuildPlatform {
-        address: String,
-        heater: bool,
-    }
+    BuildPlatform(BuildPlatform),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -67,4 +62,17 @@ pub struct Axis {
     pub address: String,
     pub name: String,
     pub feedrate: f32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct BuildPlatform {
+    pub address: String,
+    pub heater: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct Fan {
+    pub address: String,
 }
