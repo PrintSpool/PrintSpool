@@ -30,6 +30,10 @@ use home::HomeMacro;
 mod set_materials;
 use set_materials::SetMaterialsMacro;
 
+#[path = "internal_macros/set_target_temperatures.rs"]
+mod set_target_temperatures;
+use set_target_temperatures::SetTargetTemperaturesMacro;
+
 #[path = "internal_macros/move_continuous.rs"]
 mod move_continuous;
 use move_continuous::MoveContinuousMacro;
@@ -52,6 +56,7 @@ use move_utils::MoveMacro;
 pub enum InternalMacro {
     Home(HomeMacro),
     SetMaterials(SetMaterialsMacro),
+    SetTargetTemperatures(SetTargetTemperaturesMacro),
     ContinuousMove(MoveContinuousMacro),
     MoveBy(MoveByMacro),
     MoveTo(MoveToMacro),
@@ -80,6 +85,7 @@ impl AnyMacro {
                 match internal_macro {
                     InternalMacro::Home(m) => m.compile(ctx).await,
                     InternalMacro::SetMaterials(m) => m.compile(ctx).await,
+                    InternalMacro::SetTargetTemperatures(m) => m.compile(ctx).await,
                     InternalMacro::ContinuousMove(m) => m.compile(ctx).await,
                     InternalMacro::MoveBy(m) => m.compile(ctx).await,
                     InternalMacro::MoveTo(m) => m.compile(ctx).await,
