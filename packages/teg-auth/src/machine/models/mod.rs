@@ -19,7 +19,7 @@ impl crate::models::VersionedModel for Machine {
     type Entry = MachineDBEntry;
     const NAMESPACE: &'static str = "Machine";
 
-    fn get_id(&self) -> &async_graphql::ID {
-        &self.id
+    fn get_id(&self) -> u64 {
+        self.id
     }
 }

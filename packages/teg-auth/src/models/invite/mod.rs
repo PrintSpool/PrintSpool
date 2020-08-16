@@ -155,7 +155,11 @@ impl Invite {
     pub async fn update(ctx: &Arc<crate::Context>, input: UpdateInvite) -> FieldResult<Self> {
         ctx.authorize_admins_only()?;
 
-        let mut invite = Self::get(&ctx.db, &input.invite_id)?;
+        let invite_id = input.invite_id;
+        let invite_id = invite_id.parse()
+            .with_context(|| format!("Invalid invite id: {:?}", invite_id))?;
+
+        let mut invite = Self::get(&ctx.db, invite_id)?;
 
         invite.is_admin = input.is_admin.unwrap_or(invite.is_admin);
 
@@ -167,7 +171,10 @@ impl Invite {
     pub async fn delete(context: &Arc<crate::Context>, invite_id: ID) -> FieldResult<Option<bool>> {
         context.authorize_admins_only()?;
 
-        context.db.remove(Self::key(&invite_id)?)
+        let invite_id = invite_id.parse()
+            .with_context(|| format!("Invalid invite id: {:?}", invite_id))?;
+
+        context.db.remove(Self::key(invite_id)?)
             .with_context(|| "Error deleting invite")?;
 
         Self::flush(&context.db).await?;

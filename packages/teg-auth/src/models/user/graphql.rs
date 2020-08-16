@@ -5,7 +5,7 @@ use super::User;
 #[Object]
 impl User {
     async fn id(&self) -> ID {
-        self.id.clone()
+        self.id.into()
     }
     async fn email(&self) -> Option<&String> {
         self.email.as_ref()

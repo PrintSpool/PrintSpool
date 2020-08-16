@@ -26,11 +26,11 @@ const JOB_SUBSCRIPTION = gql`
               printsQueued
             }
 
-            history {
-              id
-              createdAt
-              type
-            }
+            # history {
+            #   id
+            #   createdAt
+            #   type
+            # }
 
             tasks {
               id

@@ -1,6 +1,10 @@
 use std::sync::Arc;
 use async_graphql::*;
-use anyhow::{anyhow, Result};
+use anyhow::{
+    anyhow,
+    Result,
+    Context as _,
+};
 
 use crate::models::VersionedModel;
 
@@ -47,7 +51,11 @@ impl User {
     pub async fn update(ctx: &Arc<crate::Context>, changeset: UpdateUser) -> FieldResult<Self> {
         ctx.authorize_admins_only()?;
 
-        let mut user = Self::get(&ctx.db, &changeset.user_id)?;
+        let user_id = changeset.user_id;
+        let user_id = user_id.parse()
+            .with_context(|| format!("Invalid user_id: {:?}", user_id))?;
+
+        let mut user = Self::get(&ctx.db, user_id)?;
 
         let admin_count = Self::admin_count(&ctx.db).await?;
 
@@ -65,6 +73,9 @@ impl User {
     }
 
     pub async fn delete(ctx: &Arc<crate::Context>, user_id: ID) -> FieldResult<Option<bool>> {
+        let user_id = user_id.parse()
+            .with_context(|| format!("Invalid user id: {:?}", user_id))?;
+
         let self_deletion = ctx.current_user
             .as_ref()
             .map(|current_user| current_user.id == user_id)
@@ -76,13 +87,13 @@ impl User {
 
         let admin_count = Self::admin_count(&ctx.db).await?;
 
-        let user = Self::get(&ctx.db, &user_id)?;
+        let user = Self::get(&ctx.db, user_id)?;
 
         if user.is_admin && admin_count == 1 {
             Err(anyhow!("Cannot delete only admin user"))?
         };
 
-        ctx.db.remove(Self::key(&user_id)?)?;
+        ctx.db.remove(Self::key(user_id)?)?;
 
         Self::flush(&ctx.db).await?;
 

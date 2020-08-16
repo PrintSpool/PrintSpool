@@ -1,6 +1,5 @@
 // use async_std::prelude::*;
 use async_std::os::unix::net::UnixStream;
-use async_graphql::ID;
 
 use std::convert::TryInto;
 use std::sync::Arc;
@@ -31,14 +30,14 @@ use super::receive_message;
 pub async fn run_receive_loop(
     _client_id: u32,
     ctx: Arc<crate::Context>,
-    machine_id: ID,
+    machine_id: u64,
     mut stream: UnixStream,
 ) -> Result<()> {
     loop {
         let message = receive_message(&mut stream).await?;
 
         if let Some(machine_message::Payload::Feedback(feedback)) = message.payload {
-            record_feedback(feedback, &ctx, &machine_id).await?;
+            record_feedback(feedback, &ctx, machine_id).await?;
         }
     }
 }
@@ -46,7 +45,7 @@ pub async fn run_receive_loop(
 pub async fn record_feedback(
     feedback: machine_message::Feedback,
     ctx: &Arc<crate::Context>,
-    machine_id: &ID,
+    machine_id: u64,
 ) -> Result<()> {
     // Record task progress
     for progress in feedback.task_progress.iter() {
@@ -54,7 +53,7 @@ pub async fn record_feedback(
 
         Task::fetch_and_update(
             &ctx.db,
-            &progress.task_id.to_string().into(),
+            progress.task_id as u64,
             |task| {
                 task.map(|mut task| {
                     task.despooled_line_number = Some(progress.despooled_line_number as u64);
@@ -77,7 +76,7 @@ pub async fn record_feedback(
             if task.status.is_pending() {
                 Task::fetch_and_update(
                     &ctx.db,
-                    &task.id,
+                    task.id,
                     |task| {
                         task.map(|mut task| {
                             task.status = TaskStatus::Errored;

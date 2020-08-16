@@ -34,7 +34,7 @@ pub fn spool_task(client_id: u32, task: &Task) -> Result<CombinatorMessage> {
         payload: Some(
             combinator_message::Payload::SpoolTask(
                 combinator_message::SpoolTask {
-                    task_id: task.id.parse::<u32>()?,
+                    task_id: task.id as u32,
                     client_id,
                     machine_override: task.machine_override,
                     content: Some(content),

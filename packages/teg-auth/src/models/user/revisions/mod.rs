@@ -15,7 +15,7 @@ impl crate::models::VersionedModel for User {
     type Entry = UserDBEntry;
     const NAMESPACE: &'static str = "User";
 
-    fn get_id(&self) -> &async_graphql::ID {
-        &self.id
+    fn get_id(&self) -> u64 {
+        self.id
     }
 }

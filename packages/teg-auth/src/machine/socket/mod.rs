@@ -1,6 +1,5 @@
 // use async_std::prelude::*;
 use async_std::os::unix::net::UnixStream;
-use async_graphql::ID;
 
 use std::sync::Arc;
 use anyhow::{
@@ -21,7 +20,7 @@ use receive_loop::run_receive_loop;
 mod send_loop;
 use send_loop::run_send_loop;
 
-pub async fn handle_machine_socket(ctx: Arc<crate::Context>, machine_id: ID) -> Result<()> {
+pub async fn handle_machine_socket(ctx: Arc<crate::Context>, machine_id: u64) -> Result<()> {
     let socket_path = format!("/var/lib/teg/machine-{}.sock", machine_id.to_string());
 
     let client_id: u32 = 42; // Chosen at random. Very legit.
@@ -33,14 +32,14 @@ pub async fn handle_machine_socket(ctx: Arc<crate::Context>, machine_id: ID) -> 
     let send_loop = run_send_loop(
         client_id,
         Arc::clone(&ctx),
-        machine_id.clone(),
+        machine_id,
         stream.clone(),
     );
 
     let receive_loop = run_receive_loop(
         client_id,
         Arc::clone(&ctx),
-        machine_id.clone(),
+        machine_id,
         stream.clone(),
     );
 

@@ -1,6 +1,11 @@
 use async_graphql::*;
-use anyhow::{anyhow, Result};
 use std::sync::Arc;
+
+use anyhow::{
+    anyhow,
+    Result,
+    Context as _,
+};
 
 use crate::models::User;
 use async_std::sync::RwLock;
@@ -32,7 +37,10 @@ impl Context {
         };
 
         if let Some(current_user_id) = current_user_id {
-            ctx.current_user  = Some(User::get(&ctx.db, &current_user_id)?);
+            let current_user_id = current_user_id.parse()
+                .with_context(|| format!("Invalid user id: {:?}", current_user_id))?;
+
+            ctx.current_user  = Some(User::get(&ctx.db, current_user_id)?);
         }
 
         Ok(ctx)

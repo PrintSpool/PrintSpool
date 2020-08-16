@@ -68,13 +68,16 @@ impl SpoolJobFileMutation {
     ) -> FieldResult<Task> {
         let ctx: &Arc<crate::Context> = ctx.data()?;
 
+        let part_id = input.part_id.parse::<u64>()
+            .with_context(|| format!("Invalid part id: {:?}", input.part_id))?;
+
         let machine_id = Machine::find(&ctx.db, |m| {
             m.config_id == input.machine_config_id
         })
             .with_context(|| format!("No machine found for ID: {:?}", input.machine_config_id))?
             .id;
 
-        let part_file_path = Part::get(&ctx.db, &input.part_id)?.file_path;
+        let part_file_path = Part::get(&ctx.db, part_id)?.file_path;
 
         let task_id = Task::generate_id(&ctx.db)?;
         let task_dir = "/var/lib/teg/tasks";
@@ -94,7 +97,7 @@ impl SpoolJobFileMutation {
         );
 
         fs::create_dir_all(task_dir).await?;
-        let task_file = File::open(&task_file_path).await?;
+        let task_file = File::create(&task_file_path).await?;
         let gcodes_writer = BufWriter::new(task_file);
 
         let (
@@ -138,7 +141,7 @@ impl SpoolJobFileMutation {
          */
 
         let task = ctx.db.transaction(move |db| {
-            let part = Part::get(&db, &input.part_id)?;
+            let part = Part::get(&db, part_id)?;
 
             if part.printed >= part.quantity {
                 Err(VersionedModelError::from(
@@ -166,7 +169,7 @@ impl SpoolJobFileMutation {
             let task_id = task.id.clone();
             let mut machine = Machine::get(
                 &db,
-                &machine_id,
+                machine_id,
             )?;
             let task_id = task_id.clone();
 

@@ -1,12 +1,11 @@
 use chrono::prelude::*;
-use async_graphql::*;
 use serde::{Deserialize, Serialize};
 
 // use super::{ Invite, InviteR2 };
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct InviteR1 {
-    pub id: ID,
+    pub id: u64,
     pub public_key: String,
     pub is_admin: bool,
     pub created_at: DateTime<Utc>,

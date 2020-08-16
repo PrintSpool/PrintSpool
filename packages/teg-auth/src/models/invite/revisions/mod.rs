@@ -23,7 +23,7 @@ impl crate::models::VersionedModel for Invite {
     type Entry = InviteDBEntry;
     const NAMESPACE: &'static str = "Invite";
 
-    fn get_id(&self) -> &async_graphql::ID {
-        &self.id
+    fn get_id(&self) -> u64 {
+        self.id
     }
 }

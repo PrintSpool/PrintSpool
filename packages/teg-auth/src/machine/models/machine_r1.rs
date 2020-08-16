@@ -7,7 +7,7 @@ use super::machine_status_r1::MachineStatus;
 
 #[derive(new, Debug, Serialize, Deserialize, Clone)]
 pub struct Machine {
-    pub id: ID,
+    pub id: u64,
     // Foreign Keys
     pub config_id: ID,
     // Timestamps

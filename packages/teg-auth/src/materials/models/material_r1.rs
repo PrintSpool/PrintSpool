@@ -1,11 +1,10 @@
 // Material Revison 1 (LATEST)
 use serde::{Deserialize, Serialize};
-use async_graphql::ID;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Material {
-    pub id: ID,
-    pub version: u32,
+    pub id: u64,
+    pub version: u64,
     pub name: String,
     pub props: MaterialType,
 }

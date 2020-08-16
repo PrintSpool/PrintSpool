@@ -14,6 +14,9 @@ pub use models::*;
 #[path = "task.resolvers.rs"]
 mod task_resolvers;
 
+#[path = "package.resolvers.rs"]
+mod package_resolvers;
+
 #[path = "mutations/exec_gcodes.mutation.rs"]
 pub mod exec_gcodes_mutation;
 use exec_gcodes_mutation::ExecGCodesMutation;
@@ -22,10 +25,21 @@ use exec_gcodes_mutation::ExecGCodesMutation;
 pub mod spool_job_file_mutation;
 use spool_job_file_mutation::SpoolJobFileMutation;
 
+#[path = "mutations/create_job.mutation.rs"]
+pub mod create_job_mutation;
+use create_job_mutation::CreateJobMutation;
+
+// #[path = "mutations/delete_job.mutation.rs"]
+// pub mod delete_job;
+
+// #[path = "mutations/set_job_position.mutation.rs"]
+// pub mod set_job_position;
+
 #[MergedObject]
 pub struct PrintQueueMutation(
     ExecGCodesMutation,
     SpoolJobFileMutation,
+    CreateJobMutation,
 );
 
 impl Default for PrintQueueMutation {
@@ -33,16 +47,7 @@ impl Default for PrintQueueMutation {
         Self::new(
             ExecGCodesMutation,
             SpoolJobFileMutation,
+            CreateJobMutation,
         )
     }
 }
-
-
-// impl Default for Mutation {
-//     fn default() -> Self {
-//         Self(
-//             exec_gcodes_mutation::Mutation,
-//             spool_job_file_mutation::Mutation,
-//         )
-//     }
-// }

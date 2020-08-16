@@ -17,7 +17,7 @@ impl crate::models::VersionedModel for Material {
     type Entry = MaterialDBEntry;
     const NAMESPACE: &'static str = "Material";
 
-    fn get_id(&self) -> &async_graphql::ID {
-        &self.id
+    fn get_id(&self) -> u64 {
+        self.id
     }
 }

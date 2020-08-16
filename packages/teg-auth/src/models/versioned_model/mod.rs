@@ -4,7 +4,6 @@ use anyhow::{
     Context as _,
 };
 // use futures::future::Future;
-use async_graphql::ID;
 use async_trait::async_trait;
 use std::convert::{
     TryInto,
@@ -30,6 +29,11 @@ pub enum VersionedModelError {
         source: sled::Error,
     },
     #[error("Unable to get {namespace} from database")]
+    GetFirstError {
+        namespace: &'static str,
+        source: sled::Error,
+    },
+    #[error("Unable to get {namespace} from database")]
     GetError {
         namespace: &'static str,
         source: ConflictableTransactionError<()>,
@@ -37,7 +41,7 @@ pub enum VersionedModelError {
     #[error("{namespace} (ID: {id:?}) not found")]
     NotFound {
         namespace: &'static str,
-        id: ID,
+        id: Option<u64>,
     },
     #[error("Invalid ID: {0}")]
     InvalidID(String),
@@ -68,19 +72,18 @@ pub trait VersionedModel:
         + for<'de> serde::Deserialize<'de>;
     const NAMESPACE: &'static str;
 
-    fn get_id(&self) -> &ID;
+    fn get_id(&self) -> u64;
 
     fn prefix() -> Vec<u8> {
         format!("{}#", &Self::NAMESPACE)
             .into_bytes()
     }
 
-    fn key(id: &ID) -> VersionedModelResult<Vec<u8>> {
-        let id = id.parse::<u64>()
-            .map_err(|_| VersionedModelError::InvalidID(id.to_string()))?
+    fn key(id: u64) -> VersionedModelResult<Vec<u8>> {
+        let id = id
             .to_be_bytes()
             .to_vec();
- 
+
         let prefix = Self::prefix();
 
         let key = [prefix, id].concat();
@@ -88,10 +91,10 @@ pub trait VersionedModel:
         Ok(key)
     }
 
-    fn generate_id(db: &sled::Db) -> VersionedModelResult<ID> {
+    fn generate_id(db: &sled::Db) -> VersionedModelResult<u64> {
         db.generate_id()
-                .map(|id| id.into())
-                .map_err(|source| {
+        .map(|id| id.into())
+        .map_err(|source| {
                     VersionedModelError::GenerateIdError {
                         namespace: Self::NAMESPACE,
                         source,
@@ -99,7 +102,25 @@ pub trait VersionedModel:
                 })
     }
 
-    fn get_opt(db: &impl ScopedTree, id: &ID) -> VersionedModelResult<Option<Self>> {
+    fn first(db: &sled::Db) -> VersionedModelResult<Self> {
+        let (_key, val) = db.get_gt(Self::prefix())
+            .map_err(|source| {
+                VersionedModelError::GetFirstError{
+                    namespace: Self::NAMESPACE,
+                    source,
+                }
+            })?
+            .ok_or_else(|| {
+                VersionedModelError::NotFound{
+                    namespace: Self::NAMESPACE,
+                    id: None,
+                }
+            })?;
+
+        Ok(val.try_into()?)
+    }
+
+    fn get_opt(db: &impl ScopedTree, id: u64) -> VersionedModelResult<Option<Self>> {
         let item = db.get(Self::key(id)?)
                 .map_err(|source| {
                     VersionedModelError::GetError{
@@ -112,17 +133,17 @@ pub trait VersionedModel:
         Ok(item)
     }
 
-    fn get(db: &impl ScopedTree, id: &ID) -> VersionedModelResult<Self> {
+    fn get(db: &impl ScopedTree, id: u64) -> VersionedModelResult<Self> {
         Self::get_opt(db, id)?
             .ok_or_else(|| {
                 VersionedModelError::NotFound{
                     namespace: Self::NAMESPACE,
-                    id: id.clone(),
+                    id: Some(id),
                 }
             })
     }
 
-    fn fetch_and_update<F>(db: &sled::Db, id: &ID, mut f: F) -> Result<Option<Self>>
+    fn fetch_and_update<F>(db: &sled::Db, id: u64, mut f: F) -> Result<Option<Self>>
     where
         F: Send + FnMut(Option<Self>) -> Option<Self>
     {

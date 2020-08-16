@@ -1,12 +1,12 @@
 use chrono::prelude::*;
-use async_graphql::*;
+// use async_graphql::*;
 use serde::{Deserialize, Serialize};
 
 // use super::{ User, UserR2 };
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UserR1 {
-    pub id: ID,
+    pub id: u64,
     pub email: Option<String>,
     pub email_verified: bool,
     pub is_admin: bool,

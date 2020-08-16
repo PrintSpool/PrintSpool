@@ -47,7 +47,7 @@ pub async fn consume_invite(ctx: &Arc<Context>) -> Result<User> {
 
         // Re-fetch the user inside the transaction to prevent overwriting changes from
         // other transactions
-        let mut user = User::get(&ctx.db, &user_id)?;
+        let mut user = User::get(&ctx.db, user_id)?;
             // .map_err(|err| Abort(err))?;
 
         // Authorize the user
@@ -58,7 +58,7 @@ pub async fn consume_invite(ctx: &Arc<Context>) -> Result<User> {
             // .map_err(|err| Abort(err))?;
 
         // Delete the invite
-        ctx.db.remove(Invite::key(&invite.id)?)?;
+        ctx.db.remove(Invite::key(invite.id)?)?;
 
     //     Ok(user)
     // })

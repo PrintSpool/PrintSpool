@@ -154,7 +154,7 @@ impl ExecGCodesMutation {
 
         let mut task = Task::new(
             Task::generate_id(&ctx.db)?,
-            machine_id.clone(),
+            machine_id,
             TaskContent::GCodes(gcodes),
             annotations,
             total_lines,
@@ -164,7 +164,7 @@ impl ExecGCodesMutation {
         let mut subscriber = task.watch(&ctx.db)?;
 
         let mut task = ctx.db.transaction(move |db| {
-            let machine = Machine::get(&db, &machine_id)?;
+            let machine = Machine::get(&db, machine_id)?;
 
             if !machine.status.can_start_task(&task) {
                 Err(VersionedModelError::from(

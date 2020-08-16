@@ -20,7 +20,7 @@ const JobView = ({
     tasks,
     printsCompleted,
     totalPrints,
-    history,
+    // history,
   },
 }) => {
   const classes = useStyles()
@@ -86,7 +86,7 @@ const JobView = ({
               />
             ))
           }
-          <Typography variant="h6">
+          {/* <Typography variant="h6">
             History
           </Typography>
           {
@@ -102,7 +102,7 @@ const JobView = ({
                 {`${e.createdAt}: ${e.type}`}
               </div>
             ))
-          }
+          } */}
         </CardContent>
       </Card>
     </div>

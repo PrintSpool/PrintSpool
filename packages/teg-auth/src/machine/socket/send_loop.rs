@@ -1,6 +1,5 @@
 // use async_std::prelude::*;
 use async_std::os::unix::net::UnixStream;
-use async_graphql::ID;
 
 use std::sync::Arc;
 use anyhow::{
@@ -30,7 +29,7 @@ use super::{
 pub async fn run_send_loop(
     client_id: u32,
     ctx: Arc<crate::Context>,
-    _machine_id: ID,
+    _machine_id: u64,
     mut stream: UnixStream,
 ) -> Result<()> {
     let mut subscriber = Task::watch_all(&ctx.db);
@@ -56,7 +55,7 @@ pub async fn run_send_loop(
 
                     Task::fetch_and_update(
                         &ctx.db,
-                        &task.id,
+                        task.id,
                         |task| task.map(|mut task| {
                             task.sent_to_machine = true;
                             task
