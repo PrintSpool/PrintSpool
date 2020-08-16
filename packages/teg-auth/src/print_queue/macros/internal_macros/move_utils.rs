@@ -1,0 +1,110 @@
+use std::sync::Arc;
+use std::collections::HashMap;
+use anyhow::{
+    anyhow,
+    Result,
+    // Context as _,
+};
+
+use crate::{
+    Context,
+    configuration::Feedrate,
+};
+
+use super::AnnotatedGCode;
+
+#[derive(Clone, Debug, Default)]
+pub struct MoveMacro {
+    pub axes: HashMap<String, f32>,
+    pub feedrate: Option<f32>,
+    pub sync: bool,
+    pub allow_extruder_axes: bool,
+    pub relative_movement: bool,
+}
+
+impl MoveMacro {
+    pub async fn get_feedrates(
+        ctx: Arc<Context>,
+        axes: Vec<String>,
+        allow_extruder_axes: bool,
+    ) -> Result<Vec<Feedrate>> {
+        let config = ctx.machine_config.read().await;
+        let feedrates: Vec<Feedrate> = config.feedrates().collect();
+
+        axes.iter().map(move |address| {
+            let axis = feedrates.iter().find(|a| a.address == *address)
+                .ok_or_else(|| anyhow!("Axis not found: {}", address))?;
+
+            if !allow_extruder_axes && axis.is_toolhead {
+                Err(anyhow!("Cannot extrude when allow_extruder_axes = true"))
+            } else {
+                Ok(axis.clone())
+            }
+        }).collect()
+    }
+
+    pub async fn compile(&self, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
+        if let Some(feedrate) = self.feedrate {
+            if feedrate < 0.0 {
+                Err(anyhow!("feedrate must be greater then zero if set. Got: {}", feedrate))?;
+            }
+        }
+
+        let axes = Self::get_feedrates(
+            Arc::clone(&ctx),
+            self.axes.keys().map(|k| k.clone()).collect(),
+            self.allow_extruder_axes,
+        )
+            .await?;
+
+        let mut g1_args = vec![];
+        for axis in axes.iter() {
+            // TODO: does this work with multi-extruder printers?
+            let address = if axis.is_toolhead {
+                axis.address.clone()
+            } else {
+                "e".to_string()
+            };
+
+            let distance = self.axes.get(&address)
+                .expect("Invariant: address should exist in both axes and self.axes");
+
+            g1_args.push(format!("{}{}", address.to_ascii_uppercase(), distance));
+        }
+
+        let feedrate = if let Some(feedrate) = self.feedrate {
+            feedrate
+        } else {
+            let min_feedrate_axis = axes.iter().min_by(|a1, a2| {
+                use std::cmp::Ordering;
+                a1.feedrate.partial_cmp(&a2.feedrate).unwrap_or(Ordering::Equal)
+            })
+                .ok_or_else(|| anyhow!("Expected at least one axis in move macro"))?;
+
+            *self.axes.get(&min_feedrate_axis.address)
+                .expect("Invariant: address should exist in both axes and self.axes")
+        };
+
+        let mut gcodes = vec![
+            (if self.relative_movement { "G91" } else { "G90" }).to_string(),
+            format!("G1 F{}", feedrate),
+            format!("G1 {} F{}", g1_args.join(" "), feedrate),
+            "G90".to_string(),
+        ];
+
+        /*
+        * Synchronize the end of the task with M400 by waiting until all
+        * scheduled movements in the task are finished.
+        */
+        if self.sync {
+            gcodes.push("M400".to_string())
+        }
+
+        let gcodes = gcodes
+            .into_iter()
+            .map(|gcode| AnnotatedGCode::GCode(gcode))
+            .collect();
+
+        Ok(gcodes)
+    }
+}

@@ -6,9 +6,7 @@ pub enum Component {
     #[serde(rename = "CONTROLLER")]
     Controller(Controller),
     #[serde(rename = "AXIS", rename_all = "camelCase")]
-    Axis {
-        address: String,
-    },
+    Axis(Axis),
     #[serde(rename = "TOOLHEAD", rename_all = "camelCase")]
     Toolhead(Toolhead),
     #[serde(rename = "FAN", rename_all = "camelCase")]
@@ -53,6 +51,7 @@ pub struct Controller {
 pub struct Toolhead {
     pub address: String,
     pub heater: bool,
+    pub feedrate: f32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -60,4 +59,12 @@ pub struct Toolhead {
 pub struct Video {
    pub name: String,
    pub source: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct Axis {
+    pub address: String,
+    pub name: String,
+    pub feedrate: f32,
 }

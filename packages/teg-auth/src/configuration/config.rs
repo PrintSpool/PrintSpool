@@ -7,6 +7,7 @@ use super::{
     Controller,
     Toolhead,
     Video,
+    Axis,
 };
 use std::path::PathBuf;
 
@@ -19,6 +20,13 @@ pub struct Config {
     // tmp directory and socket. Generally this is only useful for teg-marlin development.
     pub debug_snap_name: Option<String>,
     components: Vec<Component>,
+}
+
+#[derive(Debug, Clone)]
+pub struct Feedrate {
+    pub address: String,
+    pub feedrate: f32,
+    pub is_toolhead: bool,
 }
 
 impl Config {
@@ -47,6 +55,17 @@ impl Config {
         &self.get_controller().serial_port_id
     }
 
+
+    pub fn axes(&self) -> impl std::iter::Iterator<Item = &Axis> {
+        self.components.iter().filter_map(|component| {
+            if let Component::Axis( axis ) = component {
+                Some(axis)
+            } else {
+                None
+            }
+        })
+    }
+
     pub fn toolhead(&self, address: &str) -> Option<&Toolhead> {
         self.components
             .iter()
@@ -59,13 +78,32 @@ impl Config {
                 }
             })
     }
+
+    pub fn feedrates(&self) -> impl std::iter::Iterator<Item = Feedrate> {
+        self.components.clone().into_iter().filter_map(|component| {
+            match component {
+                Component::Axis( axis ) => Some(Feedrate {
+                    address: axis.address.clone(),
+                    feedrate: axis.feedrate,
+                    is_toolhead: false,
+                }),
+                Component::Toolhead( toolhead ) => Some(Feedrate {
+                    address: toolhead.address.clone(),
+                    feedrate: toolhead.feedrate,
+                    is_toolhead: false,
+                }),
+                _ => None,
+            }
+        })
+    }
+
     pub fn heater_addresses(&self) -> Vec<String> {
         self.components
             .iter()
             .filter_map(|component| {
                 match component {
                     | Component::BuildPlatform { heater: true, address }
-                    | Component::Toolhead(Toolhead { heater: true, address }) => {
+                    | Component::Toolhead(Toolhead { heater: true, address, .. }) => {
                         Some(address.clone())
                     }
                     _ => None

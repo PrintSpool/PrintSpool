@@ -24,11 +24,27 @@ pub use json_gcode::JsonGCode;
 
 #[path = "internal_macros/set_materials.rs"]
 mod set_materials;
+use set_materials::SetMaterialsMacro;
+
+#[path = "internal_macros/move_by.rs"]
+mod move_by;
+use move_by::MoveByMacro;
+
+#[path = "internal_macros/move_to.rs"]
+mod move_to;
+use move_to::MoveToMacro;
+
+#[path = "internal_macros/move_utils.rs"]
+mod move_utils;
+
+use move_utils::MoveMacro;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")] 
 pub enum InternalMacro {
-    SetMaterials(set_materials::SetMaterialsMacro),
+    SetMaterials(SetMaterialsMacro),
+    MoveBy(MoveByMacro),
+    MoveTo(MoveToMacro),
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -52,7 +68,9 @@ impl AnyMacro {
         match parsed_line {
             AnyMacro::InternalMacro(internal_macro) => {
                 match internal_macro {
-                    InternalMacro::SetMaterials(m) => m.compile(ctx).await
+                    InternalMacro::SetMaterials(m) => m.compile(ctx).await,
+                    InternalMacro::MoveBy(m) => m.compile(ctx).await,
+                    InternalMacro::MoveTo(m) => m.compile(ctx).await,
                 }
             }
             AnyMacro::JsonGCode(json_gcode) => {
