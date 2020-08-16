@@ -17,6 +17,7 @@ use super::AnnotatedGCode;
 pub struct MoveMacro {
     pub axes: HashMap<String, f32>,
     pub feedrate: Option<f32>,
+    pub feedrate_multiplier: Option<f32>,
     pub sync: bool,
     pub allow_extruder_axes: bool,
     pub relative_movement: bool,
@@ -44,6 +45,32 @@ impl MoveMacro {
     }
 
     pub async fn compile(&self, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
+        let (g1, feedrate) = self.g1_and_feedrate(ctx).await?;
+
+        let mut gcodes = vec![
+            (if self.relative_movement { "G91" } else { "G90" }).to_string(),
+            format!("G1 F{}", feedrate),
+            g1,
+            "G90".to_string(),
+        ];
+
+        /*
+        * Synchronize the end of the task with M400 by waiting until all
+        * scheduled movements in the task are finished.
+        */
+        if self.sync {
+            gcodes.push("M400".to_string())
+        }
+
+        let gcodes = gcodes
+            .into_iter()
+            .map(|gcode| AnnotatedGCode::GCode(gcode))
+            .collect();
+
+        Ok(gcodes)
+    }
+
+    pub async fn g1_and_feedrate(&self, ctx: Arc<Context>) -> Result<(String, f32)> {
         if let Some(feedrate) = self.feedrate {
             if feedrate < 0.0 {
                 Err(anyhow!("feedrate must be greater then zero if set. Got: {}", feedrate))?;
@@ -85,26 +112,14 @@ impl MoveMacro {
                 .expect("Invariant: address should exist in both axes and self.axes")
         };
 
-        let mut gcodes = vec![
-            (if self.relative_movement { "G91" } else { "G90" }).to_string(),
-            format!("G1 F{}", feedrate),
-            format!("G1 {} F{}", g1_args.join(" "), feedrate),
-            "G90".to_string(),
-        ];
+        // MM per Minute to MM per Second conversion
+        let feedrate = feedrate * 60.0 * self.feedrate_multiplier.unwrap_or(1.0);
 
-        /*
-        * Synchronize the end of the task with M400 by waiting until all
-        * scheduled movements in the task are finished.
-        */
-        if self.sync {
-            gcodes.push("M400".to_string())
-        }
+        let gcode = format!("G1 {} F{}", g1_args.join(" "), feedrate);
 
-        let gcodes = gcodes
-            .into_iter()
-            .map(|gcode| AnnotatedGCode::GCode(gcode))
-            .collect();
-
-        Ok(gcodes)
+        Ok((
+            gcode,
+            feedrate,
+        ))
     }
 }

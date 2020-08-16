@@ -23,6 +23,8 @@ pub struct MoveByMacro {
     #[serde(default)]
     feedrate: Option<f32>,
     #[serde(default)]
+    feedrate_multiplier: Option<f32>,
+    #[serde(default)]
     sync: bool,
 }
 
@@ -54,6 +56,7 @@ impl MoveByMacro {
         let move_macro = MoveMacro {
             axes: self.distances.clone(),
             feedrate: self.feedrate,
+            feedrate_multiplier: self.feedrate_multiplier,
             sync: self.sync,
             allow_extruder_axes: true,
             relative_movement: true,

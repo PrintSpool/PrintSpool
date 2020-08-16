@@ -26,6 +26,10 @@ pub use json_gcode::JsonGCode;
 mod set_materials;
 use set_materials::SetMaterialsMacro;
 
+#[path = "internal_macros/move_continuous.rs"]
+mod move_continuous;
+use move_continuous::MoveContinuousMacro;
+
 #[path = "internal_macros/move_by.rs"]
 mod move_by;
 use move_by::MoveByMacro;
@@ -43,6 +47,7 @@ use move_utils::MoveMacro;
 #[serde(rename_all = "camelCase")] 
 pub enum InternalMacro {
     SetMaterials(SetMaterialsMacro),
+    ContinuousMove(MoveContinuousMacro),
     MoveBy(MoveByMacro),
     MoveTo(MoveToMacro),
 }
@@ -69,6 +74,7 @@ impl AnyMacro {
             AnyMacro::InternalMacro(internal_macro) => {
                 match internal_macro {
                     InternalMacro::SetMaterials(m) => m.compile(ctx).await,
+                    InternalMacro::ContinuousMove(m) => m.compile(ctx).await,
                     InternalMacro::MoveBy(m) => m.compile(ctx).await,
                     InternalMacro::MoveTo(m) => m.compile(ctx).await,
                 }
