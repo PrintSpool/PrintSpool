@@ -18,14 +18,12 @@ const FRAME_SUBSCRIPTION = gql`
       patch { op, path, from, value }
       query {
         machines {
+          name
           status
           error {
             code
             message
           }
-        }
-        jobQueue {
-          name
         }
         ...DrawerFragment
       }

@@ -21,7 +21,7 @@ pub struct Config {
     // Set to the name of the snap to connect an external teg-marlin process to the snap's
     // tmp directory and socket. Generally this is only useful for teg-marlin development.
     pub debug_snap_name: Option<String>,
-    components: Vec<Component>,
+    pub components: Vec<Component>,
 }
 
 #[derive(Debug, Clone)]

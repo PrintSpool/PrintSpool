@@ -63,10 +63,9 @@ async fn main() -> Result<()> {
         .expect("Invalid $PORT");
 
     // let schema = Schema::new(Query, Mutation, EmptySubscription);
-    let mutation: Mutation = Default::default();
     let schema = Schema::new(
-        Query, 
-        mutation,
+        <Query>::default(),
+        <Mutation>::default(),
         EmptySubscription
     );
 

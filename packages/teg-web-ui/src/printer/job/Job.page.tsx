@@ -36,11 +36,11 @@ const JOB_SUBSCRIPTION = gql`
               id
               name
               percentComplete(digits: 1)
-              startedAt
+              # startedAt
               status
               machine {
                 id
-                name
+                # name
                 components {
                   id
                   type

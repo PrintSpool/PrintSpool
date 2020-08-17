@@ -14,12 +14,27 @@ use anyhow::{
 #[derive(Debug, Serialize, Deserialize)]
 pub enum TaskStatus {
     /* Before sending to the driver */
+
+    /// The task is enqueued. It will begin printing as soon as the tasks spooled before it finish.
+    #[item(name = "SPOOLED_TASK")]
     Spooled,
+
     /* After sending to the driver */
+
+    /// The task is in the process of being printed.
+    #[item(name = "START_TASK")]
     Started,
+    /// The task completed its print successfully
+    #[item(name = "FINISH_TASK")]
     Finished,
+    /// The task was paused by the user
+    #[item(name = "PAUSE_TASK")]
     Paused,
+    /// The task was halted pre-emptively by the user.
+    #[item(name = "CANCELLED")]
     Cancelled,
+    /// An error occurred durring the print.
+    #[item(name = "ERROR")]
     Errored,
 }
 

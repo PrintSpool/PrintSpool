@@ -11,3 +11,6 @@ pub mod stop_and_reset;
 #[path = "mutations/estop_and_reset.mutation.rs"]
 mod estop_and_reset;
 pub use estop_and_reset::EStopAndResetMutation;
+
+mod component_resolvers;
+mod machine_resolvers;

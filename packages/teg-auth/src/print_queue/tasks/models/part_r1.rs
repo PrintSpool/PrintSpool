@@ -2,6 +2,14 @@
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 
+// use anyhow::{
+//   anyhow,
+//   Result,
+//   // Context as _,
+// };
+
+use super::Package;
+
 #[derive(new, Debug, Serialize, Deserialize, Clone)]
 pub struct Part {
   pub id: u64,
@@ -22,4 +30,10 @@ pub struct Part {
   pub printing_task_ids: Vec<u64>,
   pub position: u64,
   pub file_path: String,
+}
+
+impl Part {
+  pub fn total_prints(&self, package: &Package) -> u64 {
+    self.quantity * package.quantity
+  }
 }

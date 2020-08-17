@@ -32,6 +32,7 @@ use crate::machine::{
 
 use crate::print_queue::tasks::{
     PrintQueueMutation,
+    query_resolvers::PrintQueueQuery,
 };
 
 // #[MergedObject]
@@ -57,10 +58,26 @@ impl Default for Mutation {
     }
 }
 
-pub struct Query;
+
+#[MergedObject]
+pub struct Query(
+    LegacyQuery,
+    PrintQueueQuery,
+);
+
+impl Default for Query {
+    fn default() -> Self {
+        Self::new(
+            LegacyQuery,
+            PrintQueueQuery,
+        )
+    }
+}
+
+pub struct LegacyQuery;
 
 #[Object]
-impl Query {
+impl LegacyQuery {
     async fn users<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<User>> {
         User::all(ctx.data()?).await
     }

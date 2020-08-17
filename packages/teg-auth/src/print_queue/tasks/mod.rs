@@ -11,11 +11,12 @@ use async_graphql::MergedObject;
 mod models;
 pub use models::*;
 
-#[path = "task.resolvers.rs"]
-mod task_resolvers;
-
-#[path = "package.resolvers.rs"]
+// Resolvers
 mod package_resolvers;
+mod part_resolvers;
+mod print_queue_resolvers;
+pub mod query_resolvers;
+mod task_resolvers;
 
 #[path = "mutations/exec_gcodes.mutation.rs"]
 pub mod exec_gcodes_mutation;

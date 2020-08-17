@@ -2,6 +2,8 @@
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 
+use super::Part;
+
 #[derive(new, Debug, Serialize, Deserialize, Clone)]
 pub struct Package {
   pub id: u64,
@@ -17,4 +19,14 @@ pub struct Package {
   // Indexes
   #[new(default)]
   pub part_ids: Vec<u64>,
+}
+
+impl Package {
+  pub fn total_prints(&self, parts: &Vec<Part>) -> u64 {
+    self.quantity * parts.iter().map(|part| part.quantity).sum::<u64>()
+  }
+
+  pub fn printed(&self, parts: &Vec<Part>) -> u64 {
+    parts.iter().map(|part| part.printed).sum()
+  }
 }
