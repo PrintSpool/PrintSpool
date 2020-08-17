@@ -17,6 +17,7 @@ use crate::configuration::{
 /// A spooled set of gcodes to be executed by the machine
 #[Object]
 impl Component {
+    async fn id(&self) -> ID { "NOT_IMPLEMENTED_YET".into() }
     // async fn id(&self) -> &ID { self.id }
 
     async fn r#type<'ctx>(&self) -> FieldResult<String> {
