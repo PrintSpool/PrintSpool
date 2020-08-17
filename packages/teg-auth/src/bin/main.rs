@@ -21,6 +21,16 @@ use teg_auth::{
 };
 use futures::{try_join, FutureExt};
 
+use teg_auth::machine::{
+    socket::handle_machine_socket,
+    models::Machine,
+};
+use teg_auth::print_queue::{
+    tasks::PrintQueue,
+};
+
+use teg_auth::models::VersionedModel as _;
+
 #[derive(thiserror::Error, Debug)]
 pub enum ServiceError {
     #[error(transparent)]
@@ -82,15 +92,29 @@ async fn main() -> Result<()> {
 
     let ctx = Arc::new(ctx);
 
-    // Machines
+    // Database Initialization
     // -----------------------------------------------------------------
+    let config = machine_config.read().await;
 
-    use teg_auth::machine::{
-        socket::handle_machine_socket,
-        models::Machine,
+    if Machine::find_opt(&ctx.db, |m| m.config_id == config.id)?.is_none() {
+        let machine = Machine::new(
+            ctx.db.generate_id()?,
+            config.id.clone(),
+        );
+        machine.insert(&ctx.db)?;
     };
-    use teg_auth::models::VersionedModel as _;
 
+    if PrintQueue::first_opt(&ctx.db)?.is_none() {
+        let print_queue = PrintQueue::new(
+            ctx.db.generate_id()?,
+        );
+        print_queue.insert(&ctx.db)?;
+    };
+
+    drop(config);
+
+    // Machine Sockets
+    // -----------------------------------------------------------------
     let ctx_clone = Arc::clone(&ctx);
 
     let _ = Machine::scan(&ctx.db)

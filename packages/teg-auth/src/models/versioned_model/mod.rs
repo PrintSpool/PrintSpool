@@ -107,22 +107,28 @@ pub trait VersionedModel:
                 })
     }
 
-    fn first(db: &sled::Db) -> VersionedModelResult<Self> {
-        let (_key, val) = db.get_gt(Self::prefix())
+    fn first_opt(db: &sled::Db) -> VersionedModelResult<Option<Self>> {
+        let item = db.get_gt(Self::prefix())
             .map_err(|source| {
                 VersionedModelError::GetFirstError{
                     namespace: Self::NAMESPACE,
                     source,
                 }
             })?
+            .map(|(_key, val)| val.try_into())
+            .transpose()?;
+
+        Ok(item)
+    }
+
+    fn first(db: &sled::Db) -> VersionedModelResult<Self> {
+        Self::first_opt(&db)?
             .ok_or_else(|| {
                 VersionedModelError::NotFound{
                     namespace: Self::NAMESPACE,
                     id: None,
                 }
-            })?;
-
-        Ok(val.try_into()?)
+            })
     }
 
     fn remove(db: &impl ScopedTree, id: u64) -> VersionedModelResult<Option<Self>> {
