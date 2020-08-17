@@ -33,9 +33,9 @@ use create_job_mutation::CreateJobMutation;
 pub mod delete_job_mutation;
 use delete_job_mutation::DeleteJobMutation;
 
-// #[path = "mutations/set_job_position.mutation.rs"]
-// pub mod set_job_position_mutation;
-// use set_job_position_mutation::SetJobPositionMutation;
+#[path = "mutations/set_job_position.mutation.rs"]
+pub mod set_job_position_mutation;
+use set_job_position_mutation::SetJobPositionMutation;
 
 #[MergedObject]
 pub struct PrintQueueMutation(
@@ -43,7 +43,7 @@ pub struct PrintQueueMutation(
     SpoolJobFileMutation,
     CreateJobMutation,
     DeleteJobMutation,
-    // SetJobPositionMutation,
+    SetJobPositionMutation,
 );
 
 impl Default for PrintQueueMutation {
@@ -53,7 +53,7 @@ impl Default for PrintQueueMutation {
             SpoolJobFileMutation,
             CreateJobMutation,
             DeleteJobMutation,
-            // SetJobPositionMutation,
+            SetJobPositionMutation,
         )
     }
 }
