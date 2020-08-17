@@ -17,7 +17,6 @@ use crate::models::{
 };
 use crate::machine::models::{
     Machine,
-    MachineStatus,
 };
 
 pub struct EStopAndResetMutation;
@@ -35,12 +34,7 @@ impl EStopAndResetMutation {
         let machine_id = machine_id.parse::<u64>()
             .with_context(|| format!("Invalid machine id: {:?}", machine_id))?;
 
-        Machine::fetch_and_update(&ctx.db, machine_id, |machine| machine.map(|mut machine| {
-            machine.status = MachineStatus::Stopped;
-            machine.stop_counter += 1;
-
-            machine
-        }))?;
+        Machine::stop(&ctx.db, machine_id)?;
 
         Ok(None)
     }
@@ -56,11 +50,11 @@ impl EStopAndResetMutation {
         let machine_id = machine_id.parse::<u64>()
             .with_context(|| format!("Invalid machine id: {:?}", machine_id))?;
 
-        Machine::fetch_and_update(&ctx.db, machine_id, |machine| machine.map(|mut machine| {
+        Machine::get_and_update(&ctx.db, machine_id, |mut machine| {
             machine.reset_counter += 1;
 
             machine
-        }))?;
+        })?;
 
         Ok(None)
     }

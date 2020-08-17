@@ -4,7 +4,7 @@ use async_std::os::unix::net::UnixStream;
 use std::convert::TryInto;
 use std::sync::Arc;
 use anyhow::{
-    // anyhow,
+    anyhow,
     Result,
     // Context as _,
 };
@@ -13,17 +13,19 @@ use anyhow::{
 use teg_protobufs::{
     // MachineMessage,
     // Message,
-    machine_message,
+    machine_message::{self, Status},
 };
 
 use crate::models::VersionedModel;
 use crate::print_queue::tasks::{
     Task,
-    TaskStatus,
     // TaskContent,
 };
 
-use crate::machine::models::Machine;
+use crate::machine::models::{
+    Machine,
+    MachineStatus,
+};
 
 use super::receive_message;
 
@@ -33,11 +35,12 @@ pub async fn run_receive_loop(
     machine_id: u64,
     mut stream: UnixStream,
 ) -> Result<()> {
+    let mut previous_status = Status::Disconnected as i32;
     loop {
         let message = receive_message(&mut stream).await?;
 
         if let Some(machine_message::Payload::Feedback(feedback)) = message.payload {
-            record_feedback(feedback, &ctx, machine_id).await?;
+            record_feedback(feedback, &ctx, machine_id, &mut previous_status).await?;
         }
     }
 }
@@ -46,46 +49,41 @@ pub async fn record_feedback(
     feedback: machine_message::Feedback,
     ctx: &Arc<crate::Context>,
     machine_id: u64,
+    previous_status: &mut i32,
 ) -> Result<()> {
     // Record task progress
     for progress in feedback.task_progress.iter() {
         let status = progress.try_into()?;
 
-        Task::fetch_and_update(
+        Task::get_and_update(
             &ctx.db,
             progress.task_id as u64,
-            |task| {
-                task.map(|mut task| {
-                    task.despooled_line_number = Some(progress.despooled_line_number as u64);
-                    task.status = status;
-                    task
-                })
+            |mut task| {
+                task.despooled_line_number = Some(progress.despooled_line_number as u64);
+                task.status = status;
+                task
             }
         )?;
     }
 
-    // Record changes in machine state (eg. estops) to tasks status
-    let machine = Machine::get(&ctx.db, machine_id)?;
-    if
-        machine.status.is_driver_ready()
-        && feedback.status != machine_message::Status::Ready as i32
-    {
-        for task in Task::scan(&ctx.db) {
-            let task = task?;
+    // Update machine status
+    if feedback.status != *previous_status {
+        *previous_status = feedback.status;
 
-            if task.status.is_pending() {
-                Task::fetch_and_update(
-                    &ctx.db,
-                    task.id,
-                    |task| {
-                        task.map(|mut task| {
-                            task.status = TaskStatus::Errored;
-                            task
-                        })
-                    }
-                )?;
-            }
-        }
+        let next_machine_status = match feedback.status {
+            i if i == Status::Errored as i32 => MachineStatus::Errored,
+            i if i == Status::Estopped as i32 => MachineStatus::Stopped,
+            i if i == Status::Disconnected as i32 => MachineStatus::Disconnected,
+            i if i == Status::Connecting as i32 => MachineStatus::Connecting,
+            i if i == Status::Ready as i32 => MachineStatus::Ready,
+            i => Err(anyhow!("Invalid machine status: {:?}", i))?,
+        };
+
+        Machine::set_status(
+            &ctx.db,
+            machine_id,
+            |_| next_machine_status.clone(),
+        )?;
     }
 
     Ok(())

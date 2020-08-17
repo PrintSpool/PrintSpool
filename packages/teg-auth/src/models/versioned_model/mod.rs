@@ -167,13 +167,13 @@ pub trait VersionedModel:
             })
     }
 
-    fn fetch_and_update<F>(db: &sled::Db, id: u64, mut f: F) -> Result<Option<Self>>
+    fn get_opt_and_update<F>(db: &sled::Db, id: u64, mut f: F) -> Result<Option<Self>>
     where
         F: Send + FnMut(Option<Self>) -> Option<Self>
     {
         let key = Self::key(id)?;
-        let out = db.fetch_and_update(key, |iv_vec| {
-            // TODO: Corrupted data is dropped here. Need a try_fetch_and_update fn
+        let out = db.update_and_fetch(key, |iv_vec| {
+            // TODO: Corrupted data is dropped here. Need a try_update_and_fetch fn
             // to allow the user to respond to bad data.
             let item: Option<Self> = iv_vec
                 .map(|iv_vec| iv_vec.try_into().ok())
@@ -187,6 +187,23 @@ pub trait VersionedModel:
         out 
             .map(|iv_vec| iv_vec.try_into())
             .transpose()
+    }
+
+    fn get_and_update<F>(db: &sled::Db, id: u64, mut f: F) -> Result<Self>
+    where
+        F: Send + FnMut(Self) -> Self
+    {
+        let item = Self::get_opt_and_update(&db, id, |item| {
+            item.map(&mut f)
+        })?
+            .ok_or_else(|| {
+                VersionedModelError::NotFound{
+                    namespace: Self::NAMESPACE,
+                    id: Some(id),
+                }
+            })?;
+
+        Ok(item)
     }
 
     async fn flush(db: &sled::Db) -> Result<()> {

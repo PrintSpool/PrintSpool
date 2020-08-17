@@ -184,7 +184,7 @@ impl SpoolJobFileMutation {
                     Printing { task_id }
                 );
 
-                let _ = machine.insert(&db)?;
+                machine.insert(&db)?;
             };
 
             Ok(task)

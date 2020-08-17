@@ -43,6 +43,8 @@ pub async fn run_send_loop(
     let mut machine_subscriber = machine.watch(&ctx.db)?;
     let mut task_subscriber = Task::watch_all(&ctx.db);
 
+    let mut spooled_task_keys = vec![];
+
     loop {
         use sled::Event;
         use std::convert::TryInto;
@@ -55,45 +57,82 @@ pub async fn run_send_loop(
         ).await;
 
         match event {
+            // Machine Stops and Resets
             Either::Left((Some(Event::Insert{ value, .. }), _)) => {
                 let next_machine: Machine = value.try_into()?;
 
-                if next_machine.stop_counter > machine.stop_counter {
-                    send_message(&mut stream, stop_machine())
-                        .await?;
+                // Stop (from GraphQL mutation)
+                if next_machine.stop_counter != machine.stop_counter {
+                    send_message(&mut stream, stop_machine()).await?;
+                    spooled_task_keys.clear();
                 }
-                if next_machine.reset_counter > machine.reset_counter {
-                    send_message(&mut stream, reset_machine())
-                        .await?;
+                // Reset (from GraphQL mutation)
+                if next_machine.reset_counter != machine.reset_counter {
+                    send_message(&mut stream, reset_machine()).await?;
+                }
+                // Record all changes in machine state (eg. machine stops) to tasks status
+                if
+                    machine.status.is_driver_ready()
+                    && !next_machine.status.is_driver_ready()
+                {
+                    spooled_task_keys.clear();
+                    for task in Task::scan(&ctx.db) {
+                        let task = task?;
+
+                        if task.status.is_pending() {
+                            Task::get_and_update(
+                                &ctx.db,
+                                task.id,
+                                |mut task| {
+                                    task.status = TaskStatus::Errored;
+                                    task
+                                }
+                            )?;
+                        }
+                    }
                 }
 
                 machine = next_machine;
             },
+            // Exit gracefully upon deletion of the machine
             Either::Left((Some(Event::Remove { .. }), _)) => {
-                // exit gracefully upon deletion of the machine
                 return Ok(())
             },
+            // Task inserts
             Either::Right((Some(Event::Insert{ value, .. }), _)) => {
                 info!("Task Inserted");
 
                 let task: Task = value.try_into()?;
 
+                // Spool new tasks to the driver
                 if
                     task.machine_id == machine.id
                     && !task.sent_to_machine
                     && task.status == TaskStatus::Spooled
                 {
-                    send_message(&mut stream, spool_task(client_id, &task)?)
-                        .await?;
+                    spooled_task_keys.push(Task::key(task.id)?);
 
-                    Task::fetch_and_update(
+                    Task::get_and_update(
                         &ctx.db,
                         task.id,
-                        |task| task.map(|mut task| {
+                        |mut task| {
                             task.sent_to_machine = true;
                             task
-                        }),
+                        },
                     )?;
+
+                    send_message(&mut stream, spool_task(client_id, &task)?)
+                        .await?;
+                }
+            }
+            // Estop the machine on deletion of a spooled task
+            Either::Right((Some(Event::Remove { key }), _)) => {
+                let deleted_spooled_task = spooled_task_keys.iter().any(|k|
+                    k[..] == key[..]
+                );
+
+                if deleted_spooled_task {
+                    machine = Machine::stop(&ctx.db, machine.id)?
                 }
             }
             _ => ()
