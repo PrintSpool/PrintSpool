@@ -19,13 +19,14 @@ use crate::{
     print_queue::tasks::{
         GCodeAnnotation,
     },
+    configuration::Component,
     // materials::Material,
     Context,
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SetMaterialsMacro {
-    toolheads: HashMap<String, ID>,
+    pub toolheads: HashMap<String, ID>,
 }
 
 impl SetMaterialsMacro {
@@ -54,13 +55,14 @@ impl SetMaterialsMacro {
         let host_config: toml::Value = toml::from_str(&host_config)?;
 
         // verify that the toolheads exist in the config
-        let _ = self.toolheads
-            .iter()
-            .filter(|(address, _)| {
-                config.toolhead(address).is_none()
-            })
-            .map(|(address, _)| {
-                Err(anyhow!("Toolhead not found (addres: {:?})", address))
+        let _ = self.toolheads.iter().map(|(address, _)|
+            match config.at_address(address) {
+                Some(Component::Toolhead(_)) => {
+                    Ok(())
+                }
+                _ => {
+                    Err(anyhow!("Toolhead not found (address: {:?})", address))
+                }
             })
             .collect::<Result<Vec<()>>>()?;
 

@@ -19,19 +19,19 @@ use crate::{
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct HomeMacro {
-    axes: HomeAxes,
+    pub axes: HomeAxes,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
-enum HomeAxes {
+pub enum HomeAxes {
     All(String),
     Axes(Vec<String>),
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MoveContinuousAxis {
-    forward: bool,
+    pub forward: bool,
 }
 
 impl HomeMacro {

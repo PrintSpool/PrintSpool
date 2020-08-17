@@ -34,6 +34,18 @@ use set_materials::SetMaterialsMacro;
 mod set_target_temperatures;
 use set_target_temperatures::SetTargetTemperaturesMacro;
 
+#[path = "internal_macros/toggle_fans.rs"]
+mod toggle_fans;
+use toggle_fans::ToggleFansMacro;
+
+#[path = "internal_macros/toggle_heaters.rs"]
+mod toggle_heaters;
+use toggle_heaters::ToggleHeatersMacro;
+
+#[path = "internal_macros/toggle_motors_enabled.rs"]
+mod toggle_motors_enabled;
+use toggle_motors_enabled::ToggleMotorsEnabledMacro;
+
 #[path = "internal_macros/move_continuous.rs"]
 mod move_continuous;
 use move_continuous::MoveContinuousMacro;
@@ -57,6 +69,9 @@ pub enum InternalMacro {
     Home(HomeMacro),
     SetMaterials(SetMaterialsMacro),
     SetTargetTemperatures(SetTargetTemperaturesMacro),
+    ToggleFans(ToggleFansMacro),
+    ToggleHeaters(ToggleHeatersMacro),
+    ToggleMotorsEnabled(ToggleMotorsEnabledMacro),
     ContinuousMove(MoveContinuousMacro),
     MoveBy(MoveByMacro),
     MoveTo(MoveToMacro),
@@ -86,6 +101,9 @@ impl AnyMacro {
                     InternalMacro::Home(m) => m.compile(ctx).await,
                     InternalMacro::SetMaterials(m) => m.compile(ctx).await,
                     InternalMacro::SetTargetTemperatures(m) => m.compile(ctx).await,
+                    InternalMacro::ToggleFans(m) => m.compile(ctx).await,
+                    InternalMacro::ToggleHeaters(m) => m.compile(ctx).await,
+                    InternalMacro::ToggleMotorsEnabled(m) => m.compile(ctx).await,
                     InternalMacro::ContinuousMove(m) => m.compile(ctx).await,
                     InternalMacro::MoveBy(m) => m.compile(ctx).await,
                     InternalMacro::MoveTo(m) => m.compile(ctx).await,

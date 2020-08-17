@@ -21,14 +21,14 @@ use crate::{
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MoveContinuousMacro {
-    ms: f32,
-    feedrate_multiplier: Option<f32>,
-    axes: HashMap<String, MoveContinuousAxis>,
+    pub ms: f32,
+    pub feedrate_multiplier: Option<f32>,
+    pub axes: HashMap<String, MoveContinuousAxis>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MoveContinuousAxis {
-    forward: bool,
+    pub forward: bool,
 }
 
 

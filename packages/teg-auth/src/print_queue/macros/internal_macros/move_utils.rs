@@ -102,10 +102,9 @@ impl MoveMacro {
         let feedrate = if let Some(feedrate) = self.feedrate {
             feedrate
         } else {
-            let min_feedrate_axis = axes.iter().min_by(|a1, a2| {
-                use std::cmp::Ordering;
-                a1.feedrate.partial_cmp(&a2.feedrate).unwrap_or(Ordering::Equal)
-            })
+            let min_feedrate_axis = axes.iter()
+                // f32 cannot be compared so compare i64s
+                .min_by_key(|target| (target.feedrate * 1_000_000.0).round() as i64)
                 .ok_or_else(|| anyhow!("Expected at least one axis in move macro"))?;
 
             *self.axes.get(&min_feedrate_axis.address)

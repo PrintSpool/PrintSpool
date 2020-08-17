@@ -1,0 +1,121 @@
+use std::sync::Arc;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+// use serde_json::json;
+use anyhow::{
+    anyhow,
+    Result,
+    Context as _,
+};
+
+use super::AnnotatedGCode;
+use super::SetTargetTemperaturesMacro;
+
+use crate::{
+    Context,
+    configuration::Component,
+};
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ToggleHeatersMacro {
+    pub heaters: HashMap<String, bool>,
+    pub sync: bool,
+}
+
+fn find_material<'a>(host_config: &'a toml::Value, material_id: &String) -> Option<toml::Value> {
+    host_config["materials"]
+        .as_array()
+        .unwrap_or(&vec![])
+        .into_iter()
+        .find(|material| material["id"] == material_id.to_string().into())
+        .map(|material| material.clone())
+}
+
+impl ToggleHeatersMacro {
+    // pub fn key() -> &'static str { "toggleHeaters" }
+
+    // pub fn json_schema(&self) -> serde_json::Value {
+    //     json!({
+    //         type: 'object',
+    //         required: ['heaters'],
+    //         properties: {
+    //           heaters: {
+    //             type: 'object',
+    //             additionalProperties: {
+    //               type: 'boolean',
+    //             },
+    //           },
+    //           sync: {
+    //             type: 'boolean',
+    //           },
+    //         },
+    //     })
+    // }
+
+    pub async fn compile(&self, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
+        let ctx_clone = Arc::clone(&ctx);
+        let config = ctx_clone.machine_config.read().await;
+
+        let host_config = std::fs::read_to_string(
+            "/etc/teg/combinator.toml",
+        )?;
+        let host_config: toml::Value = toml::from_str(&host_config)?;
+
+        let heaters = self.heaters.iter()
+            .map(|(address, enable)| {
+                if !enable {
+                    return Ok((address.clone(), 0.0))
+                }
+
+                match config.at_address(address) {
+                    // set the extruder temperature
+                    Some(Component::Toolhead(toolhead)) => {
+                        let material_id = toolhead.material_id.clone();
+
+                        let target = find_material(&host_config, &material_id)
+                            .and_then(|material|
+                                material["model"]["targetExtruderTemperature"].as_float()
+                            )
+                            .with_context(||
+                                format!("Unable to find material (id: {:?})", material_id)
+                            )?;
+
+                        Ok((address.clone(), target as f32))
+                    }
+                    // set the bed temperature to the lowest of the materials loaded
+                    //
+                    // TODO: Is this the expected behaviour for multi-extruder?
+                    Some(Component::BuildPlatform(_)) => {
+                        let target = config.toolheads()
+                            .map(|toolhead| {
+                                let material_id = toolhead.material_id.clone();
+
+                                find_material(&host_config, &material_id)
+                                    .and_then(|material|
+                                        material["model"]["targetBedTemperature"].as_float()
+                                    )
+                                    .with_context(||
+                                        format!("Unable to find material (id: {:?})", material_id)
+                                    )
+                            })
+                            .collect::<Result<Vec<f64>>>()?
+                            .into_iter()
+                            // f32 cannot be compared so compare i64s
+                            .min_by_key(|target| (target * 1_000_000.0).round() as i64)
+                            .ok_or_else(||anyhow!("Materials must be set before toggling heaters"))?;
+
+                        Ok((address.clone(), target as f32))
+                    }
+                    _ => {
+                        Err(anyhow!("Heater not found (address: {:?})", address))
+                    }
+                }
+            })
+            .collect::<Result<HashMap<String, f32>>>()?;
+
+        SetTargetTemperaturesMacro {
+            heaters,
+            sync: self.sync,
+        }.compile(ctx).await
+    }
+}

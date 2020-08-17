@@ -19,13 +19,13 @@ use super::AnnotatedGCode;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MoveToMacro {
-    positions: HashMap<String, f32>,
+    pub positions: HashMap<String, f32>,
     #[serde(default)]
-    feedrate: Option<f32>,
+    pub feedrate: Option<f32>,
     #[serde(default)]
-    feedrate_multiplier: Option<f32>,
+    pub feedrate_multiplier: Option<f32>,
     #[serde(default)]
-    sync: bool,
+    pub sync: bool,
 }
 
 impl MoveToMacro {

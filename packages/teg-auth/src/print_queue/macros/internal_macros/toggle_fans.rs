@@ -16,28 +16,22 @@ use crate::{
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct SetTargetTemperaturesMacro {
-    pub heaters: HashMap<String, f32>,
-    #[serde(default)]
-    pub sync: bool,
+pub struct ToggleFansMacro {
+    pub fans: HashMap<String, bool>,
 }
 
-impl SetTargetTemperaturesMacro {
+impl ToggleFansMacro {
     // pub fn key() -> &'static str { "setTargetTemperatures" }
 
     // pub fn json_schema(&self) -> serde_json::Value {
     //     json!({
     //         type: 'object',
-    //         required: ['heaters'],
     //         properties: {
-    //           heaters: {
+    //           fans: {
     //             type: 'object',
     //             additionalProperties: {
-    //               type: 'number',
+    //               type: 'boolean',
     //             },
-    //           },
-    //           sync: {
-    //             type: 'boolean',
     //           },
     //         },
     //     })
@@ -46,22 +40,19 @@ impl SetTargetTemperaturesMacro {
     pub async fn compile(&self, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
         let config = ctx.machine_config.read().await;
 
-        let mut gcodes = self.heaters.iter()
-            .map(|(address, val)| {
+        let gcodes = self.fans.iter()
+            .map(|(address, enable)| {
                 match config.at_address(address) {
-                    // Extruder = M104
-                    Some(Component::Toolhead(_)) => {
-                        let extruder_index = address[1..].parse::<u32>()
-                            .with_context(|| format!("Invalid extruder address: {:?}", address))?;
+                    Some(Component::Fan(_)) => {
+                        let mcode = if *enable { "M106" } else { "M107" };
 
-                        Ok(format!("M104 S{} T{}", val, extruder_index))
-                    },
-                    // Build Platform = M140
-                    Some(Component::BuildPlatform(_)) => {
-                        Ok(format!("M140 S{}", val))
+                        let fan_index = address[1..].parse::<u32>()
+                            .with_context(|| format!("Invalid fan address: {:?}", address))?;
+
+                        Ok(format!("{} P{}", mcode, fan_index))
                     },
                     _ => {
-                        Err(anyhow!("Heater (address: {:?}) not found", address))
+                        Err(anyhow!("Fan (address: {:?}) not found", address))
                     },
                 }
             })
@@ -71,10 +62,6 @@ impl SetTargetTemperaturesMacro {
                 )
             )
             .collect::<Result<Vec<AnnotatedGCode>>>()?;
-
-        if self.sync {
-            gcodes.push(AnnotatedGCode::GCode("M109".to_string()))
-        }
 
         Ok(gcodes)
     }

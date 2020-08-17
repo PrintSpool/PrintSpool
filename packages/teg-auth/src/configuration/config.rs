@@ -83,17 +83,15 @@ impl Config {
             })
     }
 
-    pub fn toolhead(&self, address: &str) -> Option<&Toolhead> {
-        self.components
-            .iter()
-            .find_map(|component| {
-                match component {
-                    Component::Toolhead(toolhead) if toolhead.address == address => {
-                        Some(toolhead)
-                    },
-                    _ => None,
-                }
-            })
+    pub fn toolheads<'a>(&'a self) -> impl std::iter::Iterator<Item = &'a Toolhead> {
+        self.components.iter().filter_map(|component| {
+            match component {
+                Component::Toolhead(toolhead) => {
+                    Some(toolhead)
+                },
+                _ => None,
+            }
+        })
     }
 
     pub fn feedrates(&self) -> impl std::iter::Iterator<Item = Feedrate> {

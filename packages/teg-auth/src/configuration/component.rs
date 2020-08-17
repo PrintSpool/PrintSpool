@@ -47,6 +47,8 @@ pub struct Toolhead {
     pub address: String,
     pub heater: bool,
     pub feedrate: f32,
+    #[serde(rename = "materialID")]
+    pub material_id: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
