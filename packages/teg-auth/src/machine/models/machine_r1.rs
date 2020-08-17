@@ -16,5 +16,9 @@ pub struct Machine {
     // Props
     #[new(default)]
     pub status: MachineStatus,
+    #[new(default)]
+    pub stop_counter: u64, // Number of times the machine has been stopped
+    #[new(default)]
+    pub reset_counter: u64, // Number of times the machine has been reset
 }
 

@@ -26,6 +26,10 @@ use crate::models::{
 };
 
 
+use crate::machine::{
+    EStopAndResetMutation,
+};
+
 use crate::print_queue::tasks::{
     PrintQueueMutation,
 };
@@ -39,6 +43,7 @@ use crate::print_queue::tasks::{
 #[MergedObject]
 pub struct Mutation(
     LegacyMutation,
+    EStopAndResetMutation,
     PrintQueueMutation,
 );
 
@@ -46,6 +51,7 @@ impl Default for Mutation {
     fn default() -> Self {
         Self::new(
             LegacyMutation,
+            EStopAndResetMutation,
             PrintQueueMutation::default(),
         )
     }
