@@ -66,9 +66,7 @@ impl SetTargetTemperaturesMacro {
                 }
             })
             .map(|gcode|
-                gcode.map(|gcode|
-                    AnnotatedGCode::GCode(gcode)
-                )
+                gcode.map(AnnotatedGCode::GCode)
             )
             .collect::<Result<Vec<AnnotatedGCode>>>()?;
 
