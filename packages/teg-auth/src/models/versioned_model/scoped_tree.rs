@@ -36,6 +36,13 @@ pub trait ScopedTree:
         IVec: From<K> + From<V>,
         K: AsRef<[u8]>;
 
+    fn remove<K>(
+        &self,
+        key: K,
+    ) -> ConflictableTransactionResult<Option<IVec>>
+    where
+        IVec: From<K>,
+        K: AsRef<[u8]>;
 }
 
 impl ScopedTree for &TransactionalTree {
@@ -56,6 +63,17 @@ impl ScopedTree for &TransactionalTree {
         K: AsRef<[u8]>,
     {
         TransactionalTree::insert(&self, key, value)
+    }
+
+    fn remove<K>(
+        &self,
+        key: K,
+    ) -> ConflictableTransactionResult<Option<IVec>>
+    where
+        IVec: From<K>,
+        K: AsRef<[u8]>
+    {
+        TransactionalTree::remove(&self, key)
     }
 }
 
@@ -78,6 +96,17 @@ impl ScopedTree for sled::Db {
     {
         Tree::insert(&self, key, value).into_transaction_result()
     }
+
+    fn remove<K>(
+        &self,
+        key: K,
+    ) -> ConflictableTransactionResult<Option<IVec>>
+    where
+        IVec: From<K>,
+        K: AsRef<[u8]>
+    {
+        Tree::remove(&self, key).into_transaction_result()
+    }
 }
 
 impl ScopedTree for Arc<sled::Db> {
@@ -99,6 +128,17 @@ impl ScopedTree for Arc<sled::Db> {
     {
         Tree::insert(&self, key, value).into_transaction_result()
     }
+
+    fn remove<K>(
+        &self,
+        key: K,
+    ) -> ConflictableTransactionResult<Option<IVec>>
+    where
+        IVec: From<K>,
+        K: AsRef<[u8]>
+    {
+        Tree::remove(&self, key).into_transaction_result()
+    }
 }
 
 impl ScopedTree for &sled::Db {
@@ -119,5 +159,16 @@ impl ScopedTree for &sled::Db {
         K: AsRef<[u8]>,
     {
         Tree::insert(&self, key, value).into_transaction_result()
+    }
+
+    fn remove<K>(
+        &self,
+        key: K,
+    ) -> ConflictableTransactionResult<Option<IVec>>
+    where
+        IVec: From<K>,
+        K: AsRef<[u8]>
+    {
+        Tree::remove(&self, key).into_transaction_result()
     }
 }

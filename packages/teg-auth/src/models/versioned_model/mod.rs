@@ -38,6 +38,11 @@ pub enum VersionedModelError {
         namespace: &'static str,
         source: ConflictableTransactionError<()>,
     },
+    #[error("Unable to remove {namespace} from database")]
+    RemoveError {
+        namespace: &'static str,
+        source: ConflictableTransactionError<()>,
+    },
     #[error("{namespace} (ID: {id:?}) not found")]
     NotFound {
         namespace: &'static str,
@@ -118,6 +123,19 @@ pub trait VersionedModel:
             })?;
 
         Ok(val.try_into()?)
+    }
+
+    fn remove(db: &impl ScopedTree, id: u64) -> VersionedModelResult<Option<Self>> {
+        let item = db.remove(Self::key(id)?)
+                .map_err(|source| {
+                    VersionedModelError::RemoveError{
+                        namespace: Self::NAMESPACE,
+                        source,
+                    }
+                })?
+                .map(|iv_vec| iv_vec.try_into())
+                .transpose()?;
+        Ok(item)
     }
 
     fn get_opt(db: &impl ScopedTree, id: u64) -> VersionedModelResult<Option<Self>> {

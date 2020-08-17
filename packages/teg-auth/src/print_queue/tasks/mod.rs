@@ -29,17 +29,21 @@ use spool_job_file_mutation::SpoolJobFileMutation;
 pub mod create_job_mutation;
 use create_job_mutation::CreateJobMutation;
 
-// #[path = "mutations/delete_job.mutation.rs"]
-// pub mod delete_job;
+#[path = "mutations/delete_job.mutation.rs"]
+pub mod delete_job_mutation;
+use delete_job_mutation::DeleteJobMutation;
 
 // #[path = "mutations/set_job_position.mutation.rs"]
-// pub mod set_job_position;
+// pub mod set_job_position_mutation;
+// use set_job_position_mutation::SetJobPositionMutation;
 
 #[MergedObject]
 pub struct PrintQueueMutation(
     ExecGCodesMutation,
     SpoolJobFileMutation,
     CreateJobMutation,
+    DeleteJobMutation,
+    // SetJobPositionMutation,
 );
 
 impl Default for PrintQueueMutation {
@@ -48,6 +52,8 @@ impl Default for PrintQueueMutation {
             ExecGCodesMutation,
             SpoolJobFileMutation,
             CreateJobMutation,
+            DeleteJobMutation,
+            // SetJobPositionMutation,
         )
     }
 }
