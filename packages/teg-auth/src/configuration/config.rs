@@ -15,6 +15,15 @@ use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+pub struct Plugin {
+    pub id: ID,
+    pub model_version: u64,
+    pub package: String,
+    pub model: toml::Value,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct Config {
     pub id: ID,
     pub is_configured: bool,
@@ -22,6 +31,7 @@ pub struct Config {
     // tmp directory and socket. Generally this is only useful for teg-marlin development.
     pub debug_snap_name: Option<String>,
     pub components: Vec<Component>,
+    pub plugins: Vec<Plugin>,
 }
 
 #[derive(Debug, Clone)]

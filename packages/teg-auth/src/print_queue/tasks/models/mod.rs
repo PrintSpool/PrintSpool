@@ -10,6 +10,7 @@ pub use package_r1::Package;
 mod part_r1;
 pub use part_r1::Part;
 
+mod task;
 mod task_r1;
 pub use task_r1::{
     Task,

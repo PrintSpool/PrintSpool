@@ -27,6 +27,7 @@ use teg_auth::machine::{
 };
 use teg_auth::print_queue::{
     tasks::PrintQueue,
+    print_completion_loop::run_print_completion_loop,
 };
 
 use teg_auth::models::VersionedModel as _;
@@ -113,10 +114,18 @@ async fn main() -> Result<()> {
 
     drop(config);
 
+    // Print Completion Loop
+    // -----------------------------------------------------------------
+    let ctx_clone = Arc::clone(&ctx);
+    let print_completion_loop = async_std::task::spawn(
+        run_print_completion_loop(Arc::clone(&ctx_clone)),
+    );
+
     // Machine Sockets
     // -----------------------------------------------------------------
     let ctx_clone = Arc::clone(&ctx);
 
+    // TODO: handle socket errors task
     let _ = Machine::scan(&ctx.db)
         .map(move |machine| {
             let machine: Machine = machine?;
@@ -199,7 +208,11 @@ async fn main() -> Result<()> {
         Duration::days(1),
     );
 
-    try_join!(server, backup_scheduler)?;
+    try_join!(
+        print_completion_loop,
+        server,
+        backup_scheduler,
+    )?;
 
     Ok(())
 }
