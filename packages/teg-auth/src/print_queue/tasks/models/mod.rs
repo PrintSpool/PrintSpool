@@ -11,8 +11,7 @@ mod part_r1;
 pub use part_r1::Part;
 
 mod task;
-mod task_r1;
-pub use task_r1::{
+pub use task::task_r1::{
     Task,
     Print,
     TaskContent,
