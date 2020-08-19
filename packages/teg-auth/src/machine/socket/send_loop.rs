@@ -34,6 +34,7 @@ use super::{
             stop_machine,
             reset_machine,
         },
+        delete_task_history,
     },
     send_message,
 };
@@ -129,6 +130,16 @@ pub async fn run_send_loop(
                     )?;
 
                     send_message(&mut stream, spool_task(client_id, &task)?)
+                        .await?;
+                }
+            }
+            // Task deletions
+            Either::Right(Change { previous: Some(task), next: None, .. }) => {
+                // Delete the task from the driver
+                if
+                    task.machine_id == machine.id
+                {
+                    send_message(&mut stream, delete_task_history(task.id))
                         .await?;
                 }
             }
