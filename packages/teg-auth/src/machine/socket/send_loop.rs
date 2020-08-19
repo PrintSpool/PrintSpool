@@ -11,7 +11,11 @@ use anyhow::{
 };
 // use bytes::BufMut;
 
-use crate::models::VersionedModel;
+use crate::models::versioned_model::{
+    VersionedModel,
+    Change,
+    Event,
+};
 use crate::print_queue::tasks::{
     Task,
     TaskStatus,
@@ -42,16 +46,12 @@ pub async fn run_send_loop(
 ) -> Result<()> {
     let mut machine = Machine::get(&ctx.db, machine_id)?;
     let mut machine_events = Machine::watch_id(&ctx.db, machine_id)?;
-    let mut task_events = Task::watch_all(&ctx.db);
-
-    let mut spooled_task_keys = vec![];
+    let mut task_changes = Task::watch_all_changes(&ctx.db)?;
 
     loop {
-        use crate::models::versioned_model::Event;
-
         let event = future::select(
             machine_events.next(),
-            task_events.next(),
+            task_changes.next(),
         ).await;
 
         let event = match event {
@@ -71,11 +71,10 @@ pub async fn run_send_loop(
 
         match event {
             // Machine Stops and Resets
-            Either::Left(Event::Insert{ value: next_machine, .. }) => {
+            Either::Left(Event::Insert { value: next_machine, .. }) => {
                 // Stop (from GraphQL mutation)
                 if next_machine.stop_counter != machine.stop_counter {
                     send_message(&mut stream, stop_machine()).await?;
-                    spooled_task_keys.clear();
                 }
                 // Reset (from GraphQL mutation)
                 if next_machine.reset_counter != machine.reset_counter {
@@ -86,7 +85,6 @@ pub async fn run_send_loop(
                     machine.status.is_driver_ready()
                     && !next_machine.status.is_driver_ready()
                 {
-                    spooled_task_keys.clear();
                     for task in Task::scan(&ctx.db) {
                         let task = task?;
 
@@ -110,7 +108,7 @@ pub async fn run_send_loop(
                 return Ok(())
             },
             // Task inserts
-            Either::Right(Event::Insert{ value: task, .. }) => {
+            Either::Right(Change { next: Some(task), .. }) => {
                 info!("Task Inserted");
 
                 // Spool new tasks to the driver
@@ -119,8 +117,6 @@ pub async fn run_send_loop(
                     && !task.sent_to_machine
                     && task.status == TaskStatus::Spooled
                 {
-                    spooled_task_keys.push(Task::key(task.id));
-
                     Task::get_and_update(
                         &ctx.db,
                         task.id,
@@ -135,16 +131,15 @@ pub async fn run_send_loop(
                 }
             }
             // Estop the machine on deletion of a spooled task
-            Either::Right(Event::Remove { key }) => {
-                let deleted_spooled_task = spooled_task_keys.iter().any(|k|
-                    k[..] == key[..]
-                );
-
-                if deleted_spooled_task {
-                    machine = Machine::stop(&ctx.db, machine.id)?
-                }
-            }
+            // Either::Right(Change { previous: Some(task), next: None, .. }) => {
+            //     if 
+            //         task.id == machine_id &&
+            //         task.status.is_pending()
+            //     {
+            //         machine = Machine::stop(&ctx.db, machine.id)?
+            //     }
+            // }
+            _ => {}
         }
     }
 }
-

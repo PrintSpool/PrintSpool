@@ -17,7 +17,7 @@ use std::convert::{
 };
 
 mod scoped_tree;
-use scoped_tree::{
+pub use scoped_tree::{
     ScopedTree,
 };
 
@@ -184,34 +184,32 @@ pub trait VersionedModel:
             })
     }
 
-    fn get_opt_and_update<F>(db: &sled::Db, id: u64, mut f: F) -> Result<Option<Self>>
+    fn get_opt_and_update<F>(db: &impl ScopedTree, id: u64, f: F) -> VersionedModelResult<Option<Self>>
     where
-        F: Send + FnMut(Option<Self>) -> Option<Self>
+        F: Send + Fn(Option<Self>) -> Option<Self>
     {
-        let key = Self::key(id);
-        let out = db.update_and_fetch(key, |iv_vec| {
-            // TODO: Corrupted data is dropped here. Need a try_update_and_fetch fn
-            // to allow the user to respond to bad data.
-            let item: Option<Self> = iv_vec
-                .map(|iv_vec| iv_vec.try_into().ok())
-                .flatten();
+        let item = db.transaction(move |db| {
+            let item = Self::get_opt(&db, id)?;
+            let item = f(item);
 
-            // TODO: Serialization failure could also cause data loss here
-            let (_, bytes) = f(item)?.into_bytes().ok()?;
-            Some(bytes)
-        })?;
+            if let Some(item) = item {
+                let item = item.insert(&db)?;
+                Ok(Some(item))
+            } else {
+                Ok(None)
+            }
+        })
+            .with_context(|| "Transaction Error")?;
 
-        out 
-            .map(|iv_vec| iv_vec.try_into())
-            .transpose()
+        Ok(item)
     }
 
-    fn get_and_update<F>(db: &sled::Db, id: u64, mut f: F) -> Result<Self>
+    fn get_and_update<F>(db: &impl ScopedTree, id: u64, f: F) -> VersionedModelResult<Self>
     where
-        F: Send + FnMut(Self) -> Self
+        F: Send + Fn(Self) -> Self
     {
-        let item = Self::get_opt_and_update(&db, id, |item| {
-            item.map(&mut f)
+        let item = Self::get_opt_and_update(db, id, move |item| {
+            item.map(|item| f(item))
         })?
             .ok_or_else(|| {
                 VersionedModelError::NotFound{

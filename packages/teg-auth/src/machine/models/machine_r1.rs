@@ -3,7 +3,10 @@ use chrono::prelude::*;
 use async_graphql::ID;
 use serde::{Deserialize, Serialize};
 
-use crate::models::VersionedModel;
+use crate::models::versioned_model::{
+    VersionedModel,
+    ScopedTree,
+};
 use super::machine_status_r1::MachineStatus;
 
 use anyhow::{
@@ -30,8 +33,8 @@ pub struct Machine {
 }
 
 impl Machine {
-    pub fn stop(db: &sled::Db, id: u64) -> Result<Self> {
-        let machine = Self::set_status(&db, id, |machine| {
+    pub fn stop(db: &impl ScopedTree, id: u64) -> Result<Self> {
+        let machine = Self::set_status(db, id, |machine| {
             machine.stop_counter += 1;
             MachineStatus::Stopped
         })?;
@@ -41,13 +44,13 @@ impl Machine {
 
     // TODO: always use this function to set machine status and then
     // add task stops to the transaciton
-    pub fn set_status<F>(db: &sled::Db, id: u64, mut f: F) -> Result<Self>
+    pub fn set_status<F>(db: &impl ScopedTree, id: u64, f: F) -> Result<Self>
     where
-        F: Send + FnMut(&mut Self) -> MachineStatus
+        F: Send + Fn(&mut Self) -> MachineStatus
     {
-        let get_next_status = &mut f;
+        let get_next_status = f;
 
-        let machine = Self::get_and_update(&db, id, |mut machine| {
+        let machine = Self::get_and_update(db, id, move |mut machine| {
             machine.status = get_next_status(&mut machine);
             machine
         })?;

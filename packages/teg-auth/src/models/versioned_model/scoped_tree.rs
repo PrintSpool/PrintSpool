@@ -4,6 +4,8 @@ use sled::{
     Tree,
 };
 use sled::transaction::{
+    TransactionResult,
+    TransactionError,
     TransactionalTree,
     ConflictableTransactionError,
     ConflictableTransactionResult,
@@ -16,6 +18,16 @@ pub(crate) trait IntoTransactionResult<T, E> {
 impl<T, E> IntoTransactionResult<T, E> for sled::Result<T> {
     fn into_transaction_result(self) -> ConflictableTransactionResult<T, E> {
         self.map_err(|err| ConflictableTransactionError::Storage(err))
+    }
+}
+
+impl<T, E> IntoTransactionResult<T, E> for TransactionResult<T, E> {
+    fn into_transaction_result(self) -> ConflictableTransactionResult<T, E> {
+        match self {
+            Err(TransactionError::Abort(e)) => Err(ConflictableTransactionError::Abort(e)),
+            Err(TransactionError::Storage(e)) => Err(ConflictableTransactionError::Storage(e)),
+            Ok(t) => Ok(t),
+        }
     }
 }
 
@@ -43,6 +55,15 @@ pub trait ScopedTree:
     where
         IVec: From<K>,
         K: AsRef<[u8]>;
+
+    fn transaction<F, A, E>(
+        &self,
+        f: F,
+    ) -> ConflictableTransactionResult<A, E>
+    where
+        F: Fn(
+            &TransactionalTree,
+        ) -> ConflictableTransactionResult<A, E>;
 }
 
 impl ScopedTree for &TransactionalTree {
@@ -74,6 +95,18 @@ impl ScopedTree for &TransactionalTree {
         K: AsRef<[u8]>
     {
         TransactionalTree::remove(&self, key)
+    }
+
+    fn transaction<F, A, E>(
+        &self,
+        f: F,
+    ) -> ConflictableTransactionResult<A, E>
+    where
+        F: Fn(
+            &TransactionalTree,
+        ) -> ConflictableTransactionResult<A, E>
+    {
+        f(&self)
     }
 }
 
@@ -107,6 +140,18 @@ impl ScopedTree for sled::Db {
     {
         Tree::remove(&self, key).into_transaction_result()
     }
+
+    fn transaction<F, A, E>(
+        &self,
+        f: F,
+    ) -> ConflictableTransactionResult<A, E>
+    where
+        F: Fn(
+            &TransactionalTree,
+        ) -> ConflictableTransactionResult<A, E>
+    {
+        Tree::transaction(&self, f).into_transaction_result()
+    }
 }
 
 impl ScopedTree for Arc<sled::Db> {
@@ -139,6 +184,18 @@ impl ScopedTree for Arc<sled::Db> {
     {
         Tree::remove(&self, key).into_transaction_result()
     }
+
+    fn transaction<F, A, E>(
+        &self,
+        f: F,
+    ) -> ConflictableTransactionResult<A, E>
+    where
+        F: Fn(
+            &TransactionalTree,
+        ) -> ConflictableTransactionResult<A, E>
+    {
+        Tree::transaction(&self, f).into_transaction_result()
+    }
 }
 
 impl ScopedTree for &sled::Db {
@@ -170,5 +227,17 @@ impl ScopedTree for &sled::Db {
         K: AsRef<[u8]>
     {
         Tree::remove(&self, key).into_transaction_result()
+    }
+
+    fn transaction<F, A, E>(
+        &self,
+        f: F,
+    ) -> ConflictableTransactionResult<A, E>
+    where
+        F: Fn(
+            &TransactionalTree,
+        ) -> ConflictableTransactionResult<A, E>
+    {
+        Tree::transaction(&self, f).into_transaction_result()
     }
 }

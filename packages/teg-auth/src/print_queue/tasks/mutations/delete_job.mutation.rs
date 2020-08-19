@@ -29,15 +29,15 @@ use crate::print_queue::tasks::{
     Task,
     // Print,
     // TaskStatus,
-    TaskContent,
+    // TaskContent,
     Part,
     Package,
 };
-// use crate::machine::models::{
-//     Machine,
+use crate::machine::models::{
+    Machine,
 //     MachineStatus,
 //     Printing,
-// };
+};
 
 pub struct DeleteJobMutation;
 
@@ -99,7 +99,7 @@ impl DeleteJobMutation {
             )
             .collect::<Result<Vec<u64>>>()?;
 
-        let (parts, tasks): (Vec<Part>, Vec<Task>) = ctx.db.transaction(|db| {
+        let parts: Vec<Part> = ctx.db.transaction(|db| {
             Package::remove(&db, package_id)?;
 
             let parts= part_ids.clone()
@@ -112,29 +112,25 @@ impl DeleteJobMutation {
                 .filter_map(|task_id| Task::remove(&db, *task_id).transpose())
                 .collect::<VersionedModelResult<Vec<Task>>>()?;
 
-            Ok((parts, tasks))
+            tasks.iter()
+                .map(|task| task.machine_id)
+                .collect::<std::collections::HashSet<u64>>()
+                .iter()
+                .map(|machine_id| Machine::stop(&db, *machine_id).map_err(Into::into))
+                .collect::<VersionedModelResult<Vec<_>>>()?;
+
+            Ok(parts)
         })?;
 
         let part_files: Vec<String> = parts.into_iter()
             .map(|part| part.file_path)
             .collect();
 
-        let task_files = tasks.into_iter()
-            .filter_map(|task| {
-                if let TaskContent::FilePath(file_path) = task.content {
-                    Some(file_path)
-                } else {
-                    None
-                }
-            }).collect();
-
-        let files = [part_files, task_files].concat();
-
-        let delete_files = files
+        let delete_part_files = part_files
             .into_iter()
             .map(fs::remove_file);
 
-        try_join_all(delete_files).await?;
+        try_join_all(delete_part_files).await?;
 
         ctx.db.flush_async().await
             .with_context(|| "Error saving job to the database")?;
