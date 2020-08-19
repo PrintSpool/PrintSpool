@@ -133,18 +133,9 @@ pub async fn run_send_loop(
                     send_message(&mut stream, spool_task(client_id, &task)?)
                         .await?;
                 }
-                // Delete completed tasks
-                if
-                    task.machine_id == machine.id
-                    && task.status.is_settled()
-                {
-                    
-                }
-
             }
-            // Task deletion
+            // Estop the machine on deletion of a spooled task
             Either::Right(Event::Remove { key }) => {
-                // Estop the machine on deletion of a spooled task
                 let deleted_spooled_task = spooled_task_keys.iter().any(|k|
                     k[..] == key[..]
                 );
