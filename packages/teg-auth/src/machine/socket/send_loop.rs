@@ -80,7 +80,7 @@ pub async fn run_send_loop(
                 if next_machine.reset_counter != machine.reset_counter {
                     send_message(&mut stream, reset_machine()).await?;
                 }
-                // Record all changes in machine state (eg. machine stops) to tasks status
+                // Update task statuses on changes in machine state (eg. machine stops, errors)
                 if
                     machine.status.is_driver_ready()
                     && !next_machine.status.is_driver_ready()
@@ -88,12 +88,14 @@ pub async fn run_send_loop(
                     for task in Task::scan(&ctx.db) {
                         let task = task?;
 
-                        if task.status.is_pending() {
+                        if task.machine_id == machine.id {
                             Task::get_and_update(
                                 &ctx.db,
                                 task.id,
                                 |mut task| {
-                                    task.status = TaskStatus::Errored;
+                                    if task.status.is_pending() {
+                                        task.status = TaskStatus::Errored;
+                                    }
                                     task
                                 }
                             )?;
@@ -130,15 +132,6 @@ pub async fn run_send_loop(
                         .await?;
                 }
             }
-            // Estop the machine on deletion of a spooled task
-            // Either::Right(Change { previous: Some(task), next: None, .. }) => {
-            //     if 
-            //         task.id == machine_id &&
-            //         task.status.is_pending()
-            //     {
-            //         machine = Machine::stop(&ctx.db, machine.id)?
-            //     }
-            // }
             _ => {}
         }
     }

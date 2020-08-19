@@ -42,8 +42,6 @@ impl Machine {
         Ok(machine)
     }
 
-    // TODO: always use this function to set machine status and then
-    // add task stops to the transaciton
     pub fn set_status<F>(db: &impl ScopedTree, id: u64, f: F) -> Result<Self>
     where
         F: Send + Fn(&mut Self) -> MachineStatus

@@ -41,7 +41,7 @@ pub async fn run_print_completion_loop(
             .unwrap_or(true);
 
         match change {
-            // Handle print completion
+            // Handle settled tasks
             Change { next: Some(task), .. } if was_pending && task.status.is_settled() => {
                 if task.is_print() && task.status.was_successful() {
                     let config = ctx.machine_config.read().await;
@@ -62,7 +62,7 @@ pub async fn run_print_completion_loop(
                     ).await?;
                 }
 
-                // Delete the finished task
+                // Delete the settled task
                 Task::remove(&ctx.db, task.id)?;
 
                 ctx.db.flush_async().await?;
