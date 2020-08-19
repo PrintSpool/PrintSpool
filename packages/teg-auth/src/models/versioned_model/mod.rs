@@ -1,9 +1,15 @@
+use std::collections::HashMap;
 use anyhow::{
     anyhow,
     Result,
     Context as _,
 };
-// use futures::future::Future;
+use futures::stream::{
+    self,
+    StreamExt,
+    // TryStreamExt,
+};
+use futures::future;
 use async_trait::async_trait;
 use std::convert::{
     TryInto,
@@ -64,8 +70,10 @@ pub type VersionedModelResult<T> = std::result::Result<T, VersionedModelError>;
 
 #[async_trait]
 pub trait VersionedModel:
-     Sized
+    'static
+    + Sized
     + Send
+    + Clone
     + TryFrom<sled::IVec, Error = anyhow::Error>
     + for<'a> TryFrom<&'a [u8], Error = anyhow::Error> {
     type Entry:
@@ -84,7 +92,7 @@ pub trait VersionedModel:
             .into_bytes()
     }
 
-    fn key(id: u64) -> VersionedModelResult<Vec<u8>> {
+    fn key(id: u64) -> Vec<u8> {
         let id = id
             .to_be_bytes()
             .to_vec();
@@ -93,8 +101,17 @@ pub trait VersionedModel:
 
         let key = [prefix, id].concat();
 
-        Ok(key)
+        key
     }
+
+    // fn get_id_from_key(key: &sled::IVec) -> Result<u64> {
+    //     let prefix_bytes = Self::prefix().len();
+
+    //     let id = key.subslice(prefix_bytes, key.len());
+    //     let id = u64::from_le_bytes(id.try_into()?);
+
+    //     Ok(id)
+    // }
 
     fn generate_id(db: &sled::Db) -> VersionedModelResult<u64> {
         db.generate_id()
@@ -132,7 +149,7 @@ pub trait VersionedModel:
     }
 
     fn remove(db: &impl ScopedTree, id: u64) -> VersionedModelResult<Option<Self>> {
-        let item = db.remove(Self::key(id)?)
+        let item = db.remove(Self::key(id))
                 .map_err(|source| {
                     VersionedModelError::RemoveError{
                         namespace: Self::NAMESPACE,
@@ -145,7 +162,7 @@ pub trait VersionedModel:
     }
 
     fn get_opt(db: &impl ScopedTree, id: u64) -> VersionedModelResult<Option<Self>> {
-        let item = db.get(Self::key(id)?)
+        let item = db.get(Self::key(id))
                 .map_err(|source| {
                     VersionedModelError::GetError{
                         namespace: Self::NAMESPACE,
@@ -171,7 +188,7 @@ pub trait VersionedModel:
     where
         F: Send + FnMut(Option<Self>) -> Option<Self>
     {
-        let key = Self::key(id)?;
+        let key = Self::key(id);
         let out = db.update_and_fetch(key, |iv_vec| {
             // TODO: Corrupted data is dropped here. Need a try_update_and_fetch fn
             // to allow the user to respond to bad data.
@@ -230,7 +247,7 @@ pub trait VersionedModel:
     // where
     //     Db: ScopedTree,
     fn insert(self, db: &impl ScopedTree) -> VersionedModelResult<Self> {
-        let key = Self::key(self.get_id())?;
+        let key = Self::key(self.get_id());
 
         let (new_self, bytes) = self.into_bytes()?;
 
@@ -279,13 +296,96 @@ pub trait VersionedModel:
             .ok_or(anyhow!("{} not found", &Self::NAMESPACE))
     }
 
-    fn watch(&self, db: &sled::Db) -> Result<sled::Subscriber> {
-        let key = Self::key(self.get_id())?;
+    fn watch_id(db: &sled::Db, id: u64) -> Result<stream::BoxStream<Result<Event<Self>>>> {
+        let key = Self::key(id);
         let subscriber = db.watch_prefix(key);
-        Ok(subscriber)
+
+        let events = stream::iter(subscriber)
+            .map(transform_event::<Self>)
+            .boxed();
+
+        Ok(events)
     }
 
-    fn watch_all(db: &sled::Db) -> sled::Subscriber {
-        db.watch_prefix(Self::prefix())
+    fn watch_all(db: &sled::Db) -> stream::BoxStream<Result<Event<Self>>> {
+        let subscriber = db.watch_prefix(Self::prefix());
+
+        stream::iter(subscriber)
+            .map(transform_event::<Self>)
+            .boxed()
+    }
+
+    // Note: This is not optimized at all and stores a complete list of items in memory.
+    //
+    // Possible future optimizations:
+    // - Share a single previous state collection for multiple watch_changes calls
+    // - Store the previous states in Sled (Q: how would new watches rehydrate the previous state?)
+    fn watch_all_changes(db: &sled::Db) -> Result<stream::BoxStream<Result<Change<Self>>>> {
+        let state = Self::scan(&db)
+            .map(|item|
+                item.map(|item|
+                    (Self::key(item.get_id()), item)
+                )
+            )
+            .collect::<Result<HashMap<Vec<u8>, Self>>>()?;
+
+        let changes = Self::watch_all(&db)
+            .scan(state, |state, event| {
+                match event {
+                    Ok(Event::Insert{ key, value: next }) => {
+                        let previous = state.insert(
+                            Self::key(next.get_id()),
+                            next.clone(),
+                        );
+
+                        let change = Change {
+                            key,
+                            previous,
+                            next: Some(next),
+                        };
+
+                        future::ready(Some(Ok(change)))
+                    }
+                    Ok(Event::Remove { key }) => {
+                        // let id = Self::get_id_from_key(&key);
+                        let previous = state.remove(&key.to_vec());
+
+                        let change = Change {
+                            key,
+                            previous,
+                            next: None,
+                        };
+
+                        future::ready(Some(Ok(change)))
+                    }
+                    Err(err) => future::ready(Some(Err(err)))
+                }
+            });
+
+        Ok(changes.boxed())
+    }
+}
+
+pub enum Event<T> {
+    Insert { key: sled::IVec, value: T },
+    Remove { key: sled::IVec },
+}
+
+pub struct Change<T: VersionedModel> {
+    pub key: sled::IVec,
+    pub previous: Option<T>,
+    pub next: Option<T>,
+}
+
+fn transform_event<T: VersionedModel>(event: sled::Event) -> Result<Event<T>> {
+    match event {
+        sled::Event::Insert{ key, value } => {
+            value.try_into().map(|value| {
+                Event::Insert { key, value }
+            })
+        }
+        sled::Event::Remove { key } => {
+            Ok(Event::Remove { key })
+        }
     }
 }

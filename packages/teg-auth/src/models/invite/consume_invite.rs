@@ -26,43 +26,31 @@ pub async fn consume_invite(ctx: &Arc<Context>) -> Result<User> {
 
     info!("Consume Invite Req: user: {:?} invite: {:?}", user_id, invite_public_key);
 
-    // TODO: transactions (currently this transaction doesn't get used)
-    // let user = ctx.db.transaction(|_db| {
-        // use ConflictableTransactionError::Abort;
-
         // Verify that the invite has not yet been consumed
-        let invite = futures::executor::block_on(
-            Invite::find_by_pk(invite_public_key, &ctx.db)
-        )?
+        // TODO: This should be moved inside the transaction once transaction scans are supported
+        let invite = Invite::find_opt(&ctx.db, |invite| {
+            invite.public_key == *invite_public_key
+        })?
             .ok_or(anyhow!("Invite has already been consumed"))?;
-            // .map_err(|err| Abort(err))?
-            // .ok_or(Abort("Invite has already been consumed".into()))?;
 
-        // .map_err(|err| {
-            //     Abort(err)
-            // })?
-            // .ok_or(
-            //     Abort("Invite has already been consumed")
-            // )?;
+        let user = ctx.db.transaction(|db| {
+            // Fetch the user inside the transaction to prevent overwriting changes from
+            // other transactions
+            let mut user = User::get(&ctx.db, user_id)?;
 
-        // Re-fetch the user inside the transaction to prevent overwriting changes from
-        // other transactions
-        let mut user = User::get(&ctx.db, user_id)?;
-            // .map_err(|err| Abort(err))?;
+            // Authorize the user
+            user.is_admin = user.is_admin || invite.is_admin;
+            user.is_authorized = true;
 
-        // Authorize the user
-        user.is_admin = user.is_admin || invite.is_admin;
-        user.is_authorized = true;
+            let user = user.insert(&db)?;
 
-        let user = user.insert(&ctx.db)?;
-            // .map_err(|err| Abort(err))?;
+            // Delete the invite
+            db.remove(Invite::key(invite.id))?;
 
-        // Delete the invite
-        ctx.db.remove(Invite::key(invite.id)?)?;
+            Ok(user)
+        })?;
 
-    //     Ok(user)
-    // })
-    //     .chain_err(|| "Unable to consume invite")?;
+    ctx.db.flush_async().await?;
 
     Ok(user)
 }

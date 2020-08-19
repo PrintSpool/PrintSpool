@@ -12,14 +12,14 @@ pub use part_r1::Part;
 
 mod task;
 pub use task::task_r1::{
+    self,
     Task,
     Print,
     TaskContent,
     GCodeAnnotation,
 };
 
-mod task_status_r1;
-pub use task_status_r1::TaskStatus;
+pub use task::TaskStatus;
 
 #[derive(Debug, Serialize, Deserialize, VersionedSledModel)]
 pub enum PrintQueueDBEntry {

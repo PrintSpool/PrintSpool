@@ -1,5 +1,6 @@
 use std::sync::Arc;
 use futures::prelude::*;
+use futures::stream::{StreamExt};
 // use std::collections::HashMap;
 use async_graphql::*;
 use serde::{Deserialize, Serialize};
@@ -161,9 +162,9 @@ impl ExecGCodesMutation {
         );
 
         task.machine_override = machine_override;
-        let mut subscriber = task.watch(&ctx.db)?;
+        let mut task_stream = Task::watch_id(&ctx.db, task.id)?;
 
-        let mut task = ctx.db.transaction(move |db| {
+        let task = ctx.db.transaction(move |db| {
             let machine = Machine::get(&db, machine_id)?;
 
             if !machine.status.can_start_task(&task) {
@@ -180,15 +181,13 @@ impl ExecGCodesMutation {
         // Sync Mode: Block until the task is settled
         if input.sync.unwrap_or(false) {
             loop {
-                use sled::Event;
-                use std::convert::TryInto;
+                use crate::models::versioned_model::Event;
 
-                let event = (&mut subscriber).await;
+                let event = task_stream.next().await
+                    .ok_or_else(|| anyhow!("execGCodes task stream unexpectedly ended"))??;
 
                 match event {
-                    Some(Event::Insert{ value, .. }) => {
-                        task = value.try_into()?;
-
+                    Event::Insert{ value: task, .. } => {
                         if task.status.was_successful() {
                             return Ok(task)
                         } else if task.status.was_aborted() {
@@ -199,11 +198,8 @@ impl ExecGCodesMutation {
                             return Err(anyhow!(err).into());
                         }
                     }
-                    Some(Event::Remove { .. }) => {
+                    Event::Remove { .. } => {
                         Err(anyhow!("Task was deleted before it settled"))?;
-                    }
-                    None => {
-                        Err(anyhow!("execGCodes subscriber unexpectedly ended"))?;
                     }
                 }
             }

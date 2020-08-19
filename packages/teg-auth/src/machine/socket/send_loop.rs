@@ -1,12 +1,13 @@
 // use async_std::prelude::*;
 use futures::future::{self, Either};
+use futures::stream::{StreamExt};
 use async_std::os::unix::net::UnixStream;
 
 use std::sync::Arc;
 use anyhow::{
-    // anyhow,
+    anyhow,
     Result,
-    // Context as _,
+    Context as _,
 };
 // use bytes::BufMut;
 
@@ -40,27 +41,37 @@ pub async fn run_send_loop(
     mut stream: UnixStream,
 ) -> Result<()> {
     let mut machine = Machine::get(&ctx.db, machine_id)?;
-    let mut machine_subscriber = machine.watch(&ctx.db)?;
-    let mut task_subscriber = Task::watch_all(&ctx.db);
+    let mut machine_events = Machine::watch_id(&ctx.db, machine_id)?;
+    let mut task_events = Task::watch_all(&ctx.db);
 
     let mut spooled_task_keys = vec![];
 
     loop {
-        use sled::Event;
-        use std::convert::TryInto;
-
-        // let event = (&mut subscriber).await;
+        use crate::models::versioned_model::Event;
 
         let event = future::select(
-            &mut machine_subscriber,
-            &mut task_subscriber,
+            machine_events.next(),
+            task_events.next(),
         ).await;
+
+        let event = match event {
+            Either::Left((event, _)) => {
+                event
+                    .ok_or(anyhow!("Machine stream unexpectedly ended"))?
+                    .map(|event| Either::Left(event))
+                    .with_context(|| "Machine stream error")?
+            }
+            Either::Right((event, _)) => {
+                event
+                    .ok_or(anyhow!("Task stream unexpectedly ended"))?
+                    .map(|event| Either::Right(event))
+                    .with_context(|| "Task stream error")?
+            }
+        };
 
         match event {
             // Machine Stops and Resets
-            Either::Left((Some(Event::Insert{ value, .. }), _)) => {
-                let next_machine: Machine = value.try_into()?;
-
+            Either::Left(Event::Insert{ value: next_machine, .. }) => {
                 // Stop (from GraphQL mutation)
                 if next_machine.stop_counter != machine.stop_counter {
                     send_message(&mut stream, stop_machine()).await?;
@@ -92,17 +103,15 @@ pub async fn run_send_loop(
                     }
                 }
 
-                machine = next_machine;
+                machine = next_machine.clone();
             },
             // Exit gracefully upon deletion of the machine
-            Either::Left((Some(Event::Remove { .. }), _)) => {
+            Either::Left(Event::Remove { .. }) => {
                 return Ok(())
             },
             // Task inserts
-            Either::Right((Some(Event::Insert{ value, .. }), _)) => {
+            Either::Right(Event::Insert{ value: task, .. }) => {
                 info!("Task Inserted");
-
-                let task: Task = value.try_into()?;
 
                 // Spool new tasks to the driver
                 if
@@ -110,7 +119,7 @@ pub async fn run_send_loop(
                     && !task.sent_to_machine
                     && task.status == TaskStatus::Spooled
                 {
-                    spooled_task_keys.push(Task::key(task.id)?);
+                    spooled_task_keys.push(Task::key(task.id));
 
                     Task::get_and_update(
                         &ctx.db,
@@ -124,9 +133,18 @@ pub async fn run_send_loop(
                     send_message(&mut stream, spool_task(client_id, &task)?)
                         .await?;
                 }
+                // Delete completed tasks
+                if
+                    task.machine_id == machine.id
+                    && task.status.is_settled()
+                {
+                    
+                }
+
             }
-            // Estop the machine on deletion of a spooled task
-            Either::Right((Some(Event::Remove { key }), _)) => {
+            // Task deletion
+            Either::Right(Event::Remove { key }) => {
+                // Estop the machine on deletion of a spooled task
                 let deleted_spooled_task = spooled_task_keys.iter().any(|k|
                     k[..] == key[..]
                 );
@@ -135,7 +153,6 @@ pub async fn run_send_loop(
                     machine = Machine::stop(&ctx.db, machine.id)?
                 }
             }
-            _ => ()
         }
     }
 }

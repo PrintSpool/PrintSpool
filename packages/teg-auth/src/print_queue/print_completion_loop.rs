@@ -1,4 +1,6 @@
 // use async_std::prelude::*;
+use async_std::fs;
+
 use std::sync::Arc;
 use anyhow::{
     anyhow,
@@ -6,12 +8,13 @@ use anyhow::{
     // Context as _,
 };
 // use bytes::BufMut;
+use futures::stream::{StreamExt};
 
 use crate::models::VersionedModel;
 use crate::print_queue::tasks::{
     Task,
     // TaskStatus,
-    // TaskContent,
+    TaskContent,
     Part,
     Package,
 };
@@ -24,30 +27,23 @@ use crate::machine::models::{
 pub async fn run_print_completion_loop(
     ctx: Arc<crate::Context>,
 ) -> Result<()> {
-    let mut task_subscriber = Task::watch_all(&ctx.db);
-
-    let mut spooled_print_key = None;
+    let mut task_changes = Task::watch_all_changes(&ctx.db)?;
 
     loop {
-        use sled::Event;
-        use std::convert::TryInto;
+        use crate::models::versioned_model::Change;
 
-        // let event = (&mut subscriber).await;
+        let change = task_changes.next().await
+            .ok_or_else(|| anyhow!("print loop task stream unexpectedly ended"))??;
 
-        let event = (&mut task_subscriber).await;
+        let was_pending = change.previous
+            .as_ref()
+            .map(|t| t.status.is_pending())
+            .unwrap_or(true);
 
-        match event {
-            // Task inserts
-            Some(Event::Insert{ key, value }) => {
-                let task: Task = (*value).try_into()?;
-
-                if task.is_print() && task.status.is_pending() && spooled_print_key.is_none() {
-                    spooled_print_key = Some(key.clone());
-                }
-
-                if task.status.is_settled() && spooled_print_key == Some(key.clone()) {
-                    spooled_print_key = None;
-
+        match change {
+            // Handle print completion
+            Change { next: Some(task), .. } if was_pending && task.status.is_settled() => {
+                if task.is_print() && task.status.was_successful() {
                     let config = ctx.machine_config.read().await;
 
                     let core_plugin = config.plugins.iter()
@@ -58,23 +54,23 @@ pub async fn run_print_completion_loop(
                         .as_bool()
                         .unwrap_or(false);
 
-                    if task.status.was_successful() {
-                        handle_task_completion(
-                            &ctx,
-                            automatic_printing,
-                            task.machine_id,
-                            task.id,
-                        ).await?;
-                    }
+                    handle_print_completion(
+                        &ctx,
+                        automatic_printing,
+                        task.machine_id,
+                        task.id,
+                    ).await?;
                 }
+
+                // Delete the finished task
+                Task::remove(&ctx.db, task.id)?;
+
+                ctx.db.flush_async().await?;
             }
-            Some(Event::Remove { key }) => {
-                let is_spooled_key = spooled_print_key
-                    .as_ref()
-                    .map(|k| k == &key)
-                    .unwrap_or(false);
-                if is_spooled_key {
-                    spooled_print_key = None;
+            Change { previous: Some(task), next: None, .. } => {
+                // clean up files on task deletion
+                if let TaskContent::FilePath(file_path) = task.content {
+                    fs::remove_file(file_path).await?;
                 }
             }
             _ => {}
@@ -82,7 +78,7 @@ pub async fn run_print_completion_loop(
     }
 }
 
-async fn handle_task_completion(
+async fn handle_print_completion(
     ctx: &Arc<crate::Context>,
     automatic_printing: bool,
     machine_id: u64,

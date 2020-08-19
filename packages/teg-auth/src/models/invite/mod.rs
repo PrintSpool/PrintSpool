@@ -174,7 +174,7 @@ impl Invite {
         let invite_id = invite_id.parse()
             .with_context(|| format!("Invalid invite id: {:?}", invite_id))?;
 
-        context.db.remove(Self::key(invite_id)?)
+        context.db.remove(Self::key(invite_id))
             .with_context(|| "Error deleting invite")?;
 
         Self::flush(&context.db).await?;

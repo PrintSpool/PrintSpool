@@ -93,7 +93,7 @@ impl User {
             Err(anyhow!("Cannot delete only admin user"))?
         };
 
-        ctx.db.remove(Self::key(user_id)?)?;
+        ctx.db.remove(Self::key(user_id))?;
 
         Self::flush(&ctx.db).await?;
 

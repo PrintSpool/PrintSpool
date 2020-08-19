@@ -19,7 +19,7 @@ async fn backup_and_restore_inner() -> Result<()> {
     let db = sled::open(&tmp_db_dir)
       .with_context(|| "Unable to create tmp db")?;
 
-    // TODO: create some data
+    // create some data
     db.insert("test", "wat")?;
 
     // Backup the database
@@ -29,7 +29,7 @@ async fn backup_and_restore_inner() -> Result<()> {
     let backup_path = get_latest_backup(&tmp_backup_dir.path())
       .await?;
 
-    // TODO: wipe data before restoring
+    // wipe data before restoring
     db.remove("test")?;
     assert_eq!(db.get("test")?, None);
 
