@@ -85,11 +85,6 @@ impl Context {
 
     pub fn after_protobuf(&mut self) -> () {
         self.feedback.gcode_history = self.gcode_history_buffer.drain(..).collect();
-
-        // Removed settled tasks
-        self.feedback.task_progress.retain(|p| {
-            p.status == machine_message::TaskStatus::TaskStarted as i32
-        });
     }
 
     pub fn handle_state_change(&mut self, state: &state_machine::State) {
@@ -121,11 +116,13 @@ impl Context {
     }
 
     pub fn delete_task_history(&mut self, task_ids: &Vec<u32>) {
-        let events = std::mem::replace(&mut self.feedback.events, vec![]);
-        self.feedback.events = events
-            .into_iter()
-            .filter(|event| task_ids.contains(&event.task_id) == false)
-            .collect();
+        self.feedback.events.retain(|event| {
+            !task_ids.contains(&event.task_id)
+        });
+
+        self.feedback.task_progress.retain(|p| {
+            !task_ids.contains(&p.task_id)
+        });
     }
 
     pub fn push_start_task(&mut self, task: &Task) {
