@@ -4,8 +4,10 @@ import {
   TextField,
   MenuItem,
 } from '@material-ui/core'
-
+import { useMutation } from 'react-apollo-hooks'
+import { useAsync } from 'react-async'
 import { useTranslation } from 'react-i18next'
+import gql from 'graphql-tag'
 
 import useExecGCodes from '../../../_hooks/useExecGCodes'
 
@@ -25,22 +27,33 @@ const Step5SelectMaterial = ({
     component.configForm.model.materialID,
   )
 
-  const [saving, setSaving] = useState(false)
-
-  const saveAndGoToNext = useExecGCodes(() => {
-    setSaving(true)
-
-    return {
-      machine,
-      gcodes: [
-        { setMaterials: { toolheads: { [component.address]: materialID } } },
-      ],
-      update: () => {
-        setSaving(false)
-        next()
-      },
+  const [setMaterialsMutation] = useMutation(gql`
+    mutation setMaterials($input: SetMaterialsInput!) {
+      setMaterials(input: $input) { id }
     }
+  `)
+
+  const saveAndGoToNext = useAsync({
+    deferFn: async () => {
+      await setMaterialsMutation({
+        variables: {
+          input: {
+            machineID: machine.id,
+            toolheads: {
+              id: component.id,
+              materialID,
+            },
+          },
+        },
+      })
+      next()
+    },
   }, [component, materialID, next])
+
+  if (saveAndGoToNext.error) {
+    console.error(saveAndGoToNext.error)
+    throw new Error(saveAndGoToNext.error)
+  }
 
   return (
     <React.Fragment>
@@ -66,7 +79,7 @@ const Step5SelectMaterial = ({
           ))}
         </TextField>
       </div>
-      { saving && (
+      { saveAndGoToNext.isPending && (
         <Loading transitionDelay={200} className={classes.saving}>
           Saving...
         </Loading>
@@ -74,8 +87,8 @@ const Step5SelectMaterial = ({
 
       <ButtonsFooter
         backTo={-1}
-        onClickNext={saveAndGoToNext}
-        disabledNext={saving}
+        onClickNext={saveAndGoToNext.run}
+        disabledNext={saveAndGoToNext.isPending}
       />
     </React.Fragment>
   )

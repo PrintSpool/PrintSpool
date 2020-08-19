@@ -16,6 +16,7 @@ import updateInvite from '../../auth/sideEffects/updateInvite'
 import requestCreateConfigFromMutation from '../../config/actions/requestCreateConfigFromMutation'
 import requestUpdateConfigFromMutation from '../../config/actions/requestUpdateConfigFromMutation'
 import requestDeleteConfigFromMutation from '../../config/actions/requestDeleteConfigFromMutation'
+import setToolheadMaterials from '../../config/actions/setToolheadMaterials'
 /* jobQueue */
 import requestCreateJob from '../../jobQueue/actions/requestCreateJob'
 import setJobPosition from '../../jobQueue/actions/setJobPosition'
@@ -155,6 +156,31 @@ const MutationResolvers = {
       if (errors) {
         return { errors }
       }
+
+      store.dispatch(action)
+      return {}
+    },
+    setMaterials: (source, args, { store }) => {
+      const {
+        machineID,
+        toolheads,
+      } = args.input
+
+      const { sockets } = store.getState()
+      const { status } = sockets.machines.get(machineID)
+      if (status !== READY) {
+        throw new Error(`Cannot set materials while printer is ${status}`)
+      }
+
+      const changes = {}
+      toolheads.forEach(({ id, materialID }) => {
+        changes[id] = materialID
+      })
+
+      const action = setToolheadMaterials({
+        machineID,
+        changes,
+      })
 
       store.dispatch(action)
       return {}

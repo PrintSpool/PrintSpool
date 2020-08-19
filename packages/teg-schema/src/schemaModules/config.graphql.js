@@ -68,10 +68,21 @@ extend type Mutation {
   deleteConfig(input: DeleteConfigInput!): Boolean
 
   createMachine(input: CreateMachineInput!): SetConfigResponse!
+  setMaterials(input: SetMaterialsInput!): Boolean
 }
 
 input CreateMachineInput {
   model: JSON!
+}
+
+input SetMaterialsInput {
+  machineID: ID!
+  toolheads: [SetMaterialsToolhead!]!
+}
+
+input SetMaterialsToolhead {
+  id: ID!
+  material_id: ID!
 }
 
 input CreateConfigInput {
