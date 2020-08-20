@@ -71,11 +71,6 @@ version = "0.4.10"
 features = ["vendored"]
 version = "0.10.28"
 
-[dependencies.reqwest]
-default-features = false
-features = ["blocking", "json", "rustls-tls"]
-version = "0.10.1"
-
 [dependencies.secp256k1]
 features = ["rand"]
 version = "0.17.2"

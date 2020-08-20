@@ -5,7 +5,6 @@ extern crate proc_macro;
 // #[macro_use] extern crate log_derive;
 #[macro_use] extern crate derive_new;
 
-extern crate reqwest;
 extern crate secp256k1;
 extern crate rand;
 extern crate rmp_serde as rmps;
@@ -55,7 +54,7 @@ fn read_config(config_path: &str) -> Result<configuration::Config> {
 // Firebase Certs
 pub async fn watch_auth_pem_keys(
 ) -> Result<(ArcSwap<Vec<Vec<u8>>>, impl futures::Future<Output = Result<()>>)> {
-    let pem_keys = models::jwt::get_pem_keys()?;
+    let pem_keys = models::jwt::get_pem_keys().await?;
     let pem_keys = ArcSwap::new(Arc::new(pem_keys));
 
     let pem_keys_clone = pem_keys.clone();
@@ -65,7 +64,8 @@ pub async fn watch_auth_pem_keys(
             task::sleep(std::time::Duration::from_secs(60 * 60)).await;
 
             let next_pem_keys = models::jwt::get_pem_keys()
-                .expect("Unable to refresh Firebase certs");
+                .await
+                .with_context(|| "Unable to refresh Firebase certs")?;
 
             pem_keys_clone.store(Arc::new(next_pem_keys));
         }

@@ -1,7 +1,13 @@
 use std::sync::Arc;
 use std::collections::HashMap;
+use std::time::Duration;
 use serde::Deserialize;
-use anyhow::{anyhow, Context as _, Result};
+use async_std::future;
+use anyhow::{
+    anyhow,
+    Context as _,
+    Result,
+};
 
 use frank_jwt::{Algorithm, ValidationOptions, decode};
 
@@ -18,32 +24,33 @@ pub struct JWTPayload {
 
 use openssl::x509::X509;
 
-pub fn get_pem_keys() -> Result<Vec<Vec<u8>>> {
+pub async fn get_pem_keys() -> Result<Vec<Vec<u8>>> {
     info!("Downloading Firebase Certs");
 
     // get the latest signing keys
     let uri = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com";
 
-    // let pem_keys = reqwest::get(uri)
-    let pem_keys = reqwest::blocking::Client::new()
-        .get(uri)
-        // .await
-        .send()
-        .with_context(|| "Unable to fetch google PEM keys")?
-        .json::<HashMap<String, String>>()
-        // .await
-        .with_context(|| "Unable to parse google PEM keys")?
+    let req = surf::get(uri)
+        .recv_json();
+
+    let pem_keys: HashMap<String, String> = future::timeout(Duration::from_millis(5_000), req)
+        .await
+        .with_context(|| "Timedout fetching google PEM keys")?
+        .map_err(|_| anyhow!("Unable to parse google PEM keys json"))?;
+
+    let pem_keys = pem_keys
         .values()
         .map(|x509| {
-            X509::from_pem(&x509[..].as_bytes())
-                .ok()?
+            let x509 = X509::from_pem(&x509[..].as_bytes())
+                .with_context(|| "Google PEM key not found")?
                 .public_key()
-                .ok()?
-                .public_key_to_pem()
-                .ok()
+                .with_context(|| "Error parsing Google PEM public key")?
+                .public_key_to_pem()?;
+
+            Ok(x509)
         })
-        .map(|result| result.expect("Unable to parse one of google's PEM keys"))
-        .collect();
+        .collect::<Result<Vec<Vec<u8>>>>()
+        .with_context(|| "Error parsing one of google's PEM keys")?;
 
     info!("Firebase Certs Updated");
 
