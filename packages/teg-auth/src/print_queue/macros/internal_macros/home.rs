@@ -53,7 +53,7 @@ impl HomeMacro {
     // }
 
     pub async fn compile(&self, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
-        let config = ctx.machine_config.read().await;
+        let config = ctx.machine_config.load();
 
         let mut gcode_words = vec!["G28".to_string()];
 

@@ -38,7 +38,7 @@ impl ToggleFansMacro {
     // }
 
     pub async fn compile(&self, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
-        let config = ctx.machine_config.read().await;
+        let config = ctx.machine_config.load();
 
         let gcodes = self.fans.iter()
             .map(|(address, enable)| {

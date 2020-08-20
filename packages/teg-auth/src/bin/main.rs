@@ -71,7 +71,10 @@ async fn main() -> Result<()> {
         machine_config,
         ..
     } = init().await?;
-    let auth_pem_keys = watch_auth_pem_keys().await?;
+    let (
+        auth_pem_keys,
+        pem_keys_refresh_task
+    ) = watch_auth_pem_keys().await?;
 
     let log = warp::log("warp");
 
@@ -88,21 +91,21 @@ async fn main() -> Result<()> {
     );
 
     let db_clone = Arc::clone(&db);
-    let machine_config_clone = Arc::clone(&machine_config);
+    let machine_config_clone = machine_config.clone();
 
     let ctx = Context::new(
         Arc::clone(&db_clone),
         None,
         None,
-        Arc::clone(&auth_pem_keys),
-        Arc::clone(&machine_config_clone),
+        auth_pem_keys.clone(),
+        machine_config_clone.clone(),
     ).await?;
 
     let ctx = Arc::new(ctx);
 
     // Database Initialization
     // -----------------------------------------------------------------
-    let config = machine_config.read().await;
+    let config = machine_config.load();
 
     if Machine::find_opt(&ctx.db, |m| m.config_id == config.id)?.is_none() {
         let machine = Machine::new(
@@ -161,8 +164,8 @@ async fn main() -> Result<()> {
                 Arc::clone(&db_clone),
                 user_id,
                 identity_public_key,
-                Arc::clone(&auth_pem_keys),
-                Arc::clone(&machine_config_clone),
+                auth_pem_keys.clone(),
+                machine_config_clone.clone(),
             );
 
             async move {
@@ -208,8 +211,7 @@ async fn main() -> Result<()> {
     // -----------------------------------------------------------------
 
     let backups_dir = machine_config
-        .read()
-        .await
+        .load()
         .backups_dir();
 
     let backup_scheduler = schedule_backups(
@@ -225,6 +227,7 @@ async fn main() -> Result<()> {
         res = print_completion_loop.fuse() => res,
         res = server.fuse() => res,
         res = backup_scheduler.fuse() => res,
+        res = pem_keys_refresh_task.fuse() => res,
     };
 
     res?;

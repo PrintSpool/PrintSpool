@@ -48,7 +48,7 @@ impl SetMaterialsMacro {
     // }
 
     pub async fn compile(&self, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
-        let config = ctx.machine_config.read().await;
+        let config = ctx.machine_config.load();
         let host_config = std::fs::read_to_string(
             "/etc/teg/combinator.toml",
         )?;

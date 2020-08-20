@@ -44,7 +44,7 @@ impl SetTargetTemperaturesMacro {
     // }
 
     pub async fn compile(&self, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
-        let config = ctx.machine_config.read().await;
+        let config = ctx.machine_config.load();
 
         let mut gcodes = self.heaters.iter()
             .map(|(address, val)| {

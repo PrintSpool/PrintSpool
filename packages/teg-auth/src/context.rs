@@ -6,9 +6,9 @@ use anyhow::{
     Result,
     Context as _,
 };
+use arc_swap::ArcSwap;
 
 use crate::models::User;
-use async_std::sync::RwLock;
 use crate::configuration::Config;
 use crate::models::VersionedModel;
 
@@ -16,8 +16,8 @@ pub struct Context {
     pub db: Arc<sled::Db>,
     pub current_user: Option<User>,
     pub identity_public_key: Option<String>,
-    pub auth_pem_keys: Arc<RwLock<Vec<Vec<u8>>>>,
-    pub machine_config: Arc<RwLock<Config>>,
+    pub auth_pem_keys: ArcSwap<Vec<Vec<u8>>>,
+    pub machine_config: ArcSwap<Config>,
 }
 
 impl Context {
@@ -25,8 +25,8 @@ impl Context {
         db: Arc<sled::Db>,
         current_user_id: Option<ID>,
         identity_public_key: Option<String>,
-        auth_pem_keys: Arc<RwLock<Vec<Vec<u8>>>>,
-        machine_config: Arc<RwLock<Config>>,
+        auth_pem_keys: ArcSwap<Vec<Vec<u8>>>,
+        machine_config: ArcSwap<Config>,
     ) -> Result<Self> {
         let mut ctx = Self {
             db,

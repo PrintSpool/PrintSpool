@@ -54,7 +54,7 @@ pub async fn validate_jwt(
     context: &Arc<Context>,
     jwt: String,
 ) -> Result<JWTPayload> {
-    let (_, payload) = context.auth_pem_keys.read().await.iter().find_map(|pem_key| {
+    let (_, payload) = context.auth_pem_keys.load().iter().find_map(|pem_key| {
         decode(
             &jwt,
             pem_key,

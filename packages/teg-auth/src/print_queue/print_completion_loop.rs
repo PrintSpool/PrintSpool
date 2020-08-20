@@ -44,7 +44,7 @@ pub async fn run_print_completion_loop(
             // Handle settled tasks
             Change { next: Some(task), .. } if was_pending && task.status.is_settled() => {
                 if task.is_print() && task.status.was_successful() {
-                    let config = ctx.machine_config.read().await;
+                    let config = ctx.machine_config.load();
 
                     let core_plugin = config.plugins.iter()
                         .find(|plugin| plugin.package == "@tegapp/core")

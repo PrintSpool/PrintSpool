@@ -94,8 +94,7 @@ pub async fn create_video_sdp(
 
     // TODO: multiple video sources
     let source_url = context.machine_config
-        .read()
-        .await
+        .load()
         .get_videos()
         .next()
         .ok_or(anyhow!("No video source configured"))?

@@ -21,7 +21,7 @@ impl Machine {
 
     async fn components<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<Component>> {
         let ctx: &Arc<crate::Context> = ctx.data()?;
-        let config = ctx.machine_config.read().await;
+        let config = ctx.machine_config.load();
 
         Ok(config.components.clone())
     }

@@ -54,7 +54,7 @@ impl ToggleHeatersMacro {
 
     pub async fn compile(&self, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
         let ctx_clone = Arc::clone(&ctx);
-        let config = ctx_clone.machine_config.read().await;
+        let config = ctx_clone.machine_config.load();
 
         let host_config = std::fs::read_to_string(
             "/etc/teg/combinator.toml",

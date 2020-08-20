@@ -36,8 +36,7 @@ async fn main() -> Result<()> {
     PathBuf::from(&backup_path)
   } else {
     let backups_dir = context.machine_config
-      .read()
-      .await
+      .load()
       .backups_dir();
 
     get_latest_backup(&&backups_dir).await?

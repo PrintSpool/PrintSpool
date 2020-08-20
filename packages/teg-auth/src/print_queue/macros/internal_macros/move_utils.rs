@@ -29,7 +29,7 @@ impl MoveMacro {
         axes: Vec<String>,
         allow_extruder_axes: bool,
     ) -> Result<Vec<Feedrate>> {
-        let config = ctx.machine_config.read().await;
+        let config = ctx.machine_config.load();
         let feedrates: Vec<Feedrate> = config.feedrates().collect();
 
         axes.iter().map(move |address| {
