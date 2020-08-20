@@ -8,6 +8,9 @@ use anyhow::{
     // Context as _,
 };
 
+use crate::machine::models::Machine;
+use crate::models::versioned_model::VersionedModel;
+
 mod send_message;
 use send_message::send_message;
 
@@ -21,15 +24,30 @@ mod send_loop;
 use send_loop::run_send_loop;
 
 pub async fn handle_machine_socket(ctx: Arc<crate::Context>, machine_id: u64) -> Result<()> {
-    let socket_path = format!("/var/lib/teg/machine-{}.sock", machine_id.to_string());
+    let machine = Machine::get(&ctx.db, machine_id)?;
+    let socket_path = format!(
+        "/var/lib/teg/machine-{}.sock",
+        machine.config_id.to_string(),
+    );
 
     let client_id: u32 = 42; // Chosen at random. Very legit.
 
     loop {
         info!("Connecting to machine socket: {:?}", socket_path);
-        let stream = UnixStream::connect(&socket_path).await?;
+        let stream = match UnixStream::connect(&socket_path).await {
+            Ok(stream) => stream,
+            Err(err) => {
+                use std::time::Duration;
+                use async_std::task;
+
+                error!("Unable to open machine socket, retrying in 500ms: {:?}", err);
+                task::sleep(Duration::from_millis(500)).await;
+                continue
+            }
+        };
+        
         info!("Connected to machine socket: {:?}", socket_path);
-    
+
         let send_loop = run_send_loop(
             client_id,
             Arc::clone(&ctx),

@@ -57,6 +57,7 @@ async-graphql = "1.17.4"
 derive-new = "0.5.8"
 teg-protobufs = { path= "../teg-protobufs" }
 bytes = "0.5.6"
+arc-swap = "0.4.7"
 
 [dependencies.async-std]
 features = ["attributes"]

@@ -19,7 +19,7 @@ use teg_auth::{
     Mutation,
     watch_auth_pem_keys, backup::schedule_backups,
 };
-use futures::{try_join, FutureExt};
+use futures::FutureExt;
 
 use teg_auth::machine::{
     socket::handle_machine_socket,
@@ -59,6 +59,13 @@ impl From<ServiceError> for warp::reject::Rejection {
 // #[async_std::main]
 #[smol_potat::main]
 async fn main() -> Result<()> {
+    let is_dev = std::env::var("RUST_ENV") == Ok("development".to_string());
+
+    if is_dev {
+        // \x07 causes the dev starter to emit a beep on start up
+        println!("Staring Dev Server... \x07");
+    }
+
     let Context {
         db,
         machine_config,
@@ -147,6 +154,7 @@ async fn main() -> Result<()> {
             user_id: Option<String>,
             identity_public_key: Option<String>,
         | {
+            info!("Req");
             let user_id = user_id.map(|id| ID::from(id));
 
             let ctx = Context::new(
@@ -167,19 +175,22 @@ async fn main() -> Result<()> {
                     })?;
 
                 // Execute query
-                let resp = builder
+                let res = builder
                     .data(ctx)
                     .execute(&schema)
                     .await;
 
-                // println!("RESP: {:?}", resp);
+                match res.as_ref() {
+                    Ok(res) => info!("Res: {:?}", res.data),
+                    Err(err) => warn!("Res: {:?}", err),
+                };
+
+                let res = GQLResponse::from(res);
 
                 // Return result
-                Ok::<_, warp::reject::Rejection>(GQLResponse::from(resp))
+                Ok::<_, warp::reject::Rejection>(res)
             }
         });
-
-    eprintln!("Starting Auth Server");
 
     let server = warp::serve(
         graphql_filter
@@ -208,11 +219,15 @@ async fn main() -> Result<()> {
         Duration::days(1),
     );
 
-    try_join!(
-        print_completion_loop,
-        server,
-        backup_scheduler,
-    )?;
+    info!("Starting Auth Server");
+
+    let res = futures::select! {
+        res = print_completion_loop.fuse() => res,
+        res = server.fuse() => res,
+        res = backup_scheduler.fuse() => res,
+    };
+
+    res?;
 
     Ok(())
 }

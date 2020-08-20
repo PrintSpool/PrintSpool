@@ -30,9 +30,11 @@ const executableSchema = async () => {
   while (introspectionResult == null) {
     try {
       console.error('Connecting to rust server...')
+      console.log(rustURI)
       introspectionResult = await introspectSchema(
         new HttpLink({ uri: rustURI }),
       )
+      console.log({ introspectionResult })
       console.log({...introspectionResult._mutationType._fields})
       console.error('Connecting to rust server... [DONE]')
     } catch (e) {
@@ -41,7 +43,7 @@ const executableSchema = async () => {
     }
   }
 
-  // console.log(introspectionResult)
+  console.log({ introspectionResult })
 
   const link = setContext((request, previousContext) => ({
     headers: {

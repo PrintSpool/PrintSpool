@@ -3183,6 +3183,7 @@ name = "teg-auth"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "arc-swap",
  "async-graphql 1.17.4",
  "async-graphql-warp",
  "async-std",
