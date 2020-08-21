@@ -1,3 +1,4 @@
+// #![feature(backtrace)]
 #[macro_use] extern crate log;
 
 use async_graphql::*;
@@ -56,9 +57,11 @@ impl From<ServiceError> for warp::reject::Rejection {
 //     }
 // }
 
-// #[async_std::main]
-#[smol_potat::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
+    smol::run(app())
+}
+
+async fn app() -> Result<()> {
     let is_dev = std::env::var("RUST_ENV") == Ok("development".to_string());
 
     if is_dev {

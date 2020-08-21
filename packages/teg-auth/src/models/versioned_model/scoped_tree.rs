@@ -71,9 +71,7 @@ impl ScopedTree for &TransactionalTree {
         &self,
         key: K,
     ) -> ConflictableTransactionResult<Option<IVec>, E> {
-        info!("BEFORE GET");
         let res = TransactionalTree::get(&self, key);
-        info!("AFTER GET1");
         res
     }
 

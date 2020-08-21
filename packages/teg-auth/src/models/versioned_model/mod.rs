@@ -162,7 +162,7 @@ pub trait VersionedModel:
     }
 
     fn get_opt(db: &impl ScopedTree, id: u64) -> VersionedModelResult<Option<Self>> {
-        info!("GET OPT {:?} {:?}", id, Self::NAMESPACE);
+        trace!("get_opt {:?} {:?}", id, Self::NAMESPACE);
         let item = db.get(Self::key(id))
                 .map_err(|source| {
                     VersionedModelError::GetError{
@@ -172,7 +172,6 @@ pub trait VersionedModel:
                 })?
                 .map(|iv_vec| iv_vec.try_into())
                 .transpose()?;
-        info!("GET OPT {:?} {:?} [DONE]", id, Self::NAMESPACE);
         Ok(item)
     }
 

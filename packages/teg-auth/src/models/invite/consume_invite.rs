@@ -33,33 +33,24 @@ pub async fn consume_invite(ctx: &Arc<Context>) -> Result<User> {
     })?
         .ok_or(anyhow!("Invite has already been consumed"))?;
 
-    info!("wat11111");
     let user = ctx.db.transaction(|db| {
-        info!("lol11111");
         // Fetch the user inside the transaction to prevent overwriting changes from
         // other transactions
-        let user = User::get(&db, user_id);
-        info!("USER: {:?}", user);
-
         let mut user = User::get(&db, user_id)?;
 
         // Authorize the user
         user.is_admin = user.is_admin || invite.is_admin;
         user.is_authorized = true;
 
-        info!("lol22222");
         let user = user.insert(&db)?;
-        info!("lol3333");
 
         // Delete the invite
         db.remove(Invite::key(invite.id))?;
 
         Ok(user)
     })?;
-    info!("wat222222");
 
     ctx.db.flush_async().await?;
-    info!("wat3333333");
 
     Ok(user)
 }
