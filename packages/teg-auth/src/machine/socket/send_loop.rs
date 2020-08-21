@@ -45,6 +45,8 @@ pub async fn run_send_loop(
     machine_id: u64,
     mut stream: UnixStream,
 ) -> Result<()> {
+    info!("Machine #{:?}: Send Loop Started", machine_id);
+
     let mut machine = Machine::get(&ctx.db, machine_id)?;
     let mut machine_events = Machine::watch_id(&ctx.db, machine_id)?;
     let mut task_changes = Task::watch_all_changes(&ctx.db)?;

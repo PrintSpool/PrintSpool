@@ -1,19 +1,14 @@
-import { useMutation } from 'react-apollo-hooks'
-import { EXEC_GCODES } from './useExecGCodes'
+import { useExecGCodes2 } from './useExecGCodes'
 
 const useJog = ({ machine, distance }) => {
-  const [execGCodes] = useMutation(EXEC_GCODES)
+  const jog = useExecGCodes2((axis, direction) => ({
+    machineID: machine.id,
+    gcodes: [
+      { moveBy: { distances: { [axis]: direction * distance } } },
+    ],
+  }), [])
 
-  return (axis, direction) => () => execGCodes({
-    variables: {
-      input: {
-        machineID: machine.id,
-        gcodes: [
-          { moveBy: { distances: { [axis]: direction * distance } } },
-        ],
-      },
-    },
-  })
+  return (axis, direction) => () => jog.run(axis, direction)
 }
 
 export default useJog

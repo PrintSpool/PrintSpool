@@ -35,9 +35,11 @@ pub async fn run_receive_loop(
     machine_id: u64,
     mut stream: UnixStream,
 ) -> Result<()> {
+    info!("Machine #{:?}: Receive Loop Started", machine_id);
     let mut previous_status = Status::Disconnected as i32;
     loop {
         let message = receive_message(&mut stream).await?;
+        info!("Machine #{:?}: Socket Message Received", machine_id);
 
         if let Some(machine_message::Payload::Feedback(feedback)) = message.payload {
             record_feedback(feedback, &ctx, machine_id, &mut previous_status).await?;
@@ -66,6 +68,7 @@ pub async fn record_feedback(
         )?;
     }
 
+    info!("Feedback status: {:?}", feedback.status);
     // Update machine status
     if feedback.status != *previous_status {
         *previous_status = feedback.status;

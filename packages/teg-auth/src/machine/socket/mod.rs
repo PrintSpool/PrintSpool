@@ -1,5 +1,6 @@
 // use async_std::prelude::*;
 use async_std::os::unix::net::UnixStream;
+use futures::FutureExt;
 
 use std::sync::Arc;
 use anyhow::{
@@ -47,6 +48,7 @@ pub async fn handle_machine_socket(ctx: Arc<crate::Context>, machine_id: u64) ->
         };
         
         info!("Connected to machine socket: {:?}", socket_path);
+        info!("WAAAT111");
 
         let send_loop = run_send_loop(
             client_id,
@@ -54,6 +56,7 @@ pub async fn handle_machine_socket(ctx: Arc<crate::Context>, machine_id: u64) ->
             machine_id,
             stream.clone(),
         );
+        info!("WAAAT2222");
 
         let receive_loop = run_receive_loop(
             client_id,
@@ -62,12 +65,15 @@ pub async fn handle_machine_socket(ctx: Arc<crate::Context>, machine_id: u64) ->
             stream.clone(),
         );
 
-        let _ = futures::future::try_join(
-            send_loop,
-            receive_loop,
-        )
-            .await
-            .map_err(|err| error!("Socket closed: {:?}", err));
+        info!("WAAAT333");
+        let res = futures::select! {
+            res = send_loop.fuse() => res,
+            res = receive_loop.fuse() => res,
+        };
+        info!("WAAAT444");
+
+        info!("Machine socket closed");
+        let _ = res.map_err(|err| error!("Machine socket Error: {:?}", err));
 
         let _ = stream.shutdown(async_std::net::Shutdown::Both);
     }

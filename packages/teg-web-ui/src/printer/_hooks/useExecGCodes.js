@@ -54,7 +54,7 @@ export const useExecGCodes2 = (callback, dependencies) => {
         ...mutationOptions
       } = callback(...args)
 
-      execGCodes({
+      await execGCodes({
         ...mutationOptions,
         variables: {
           input: {

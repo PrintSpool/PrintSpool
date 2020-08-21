@@ -77,7 +77,7 @@ impl MoveMacro {
             }
         }
 
-        let axes = Self::get_feedrates(
+        let feedrates = Self::get_feedrates(
             Arc::clone(&ctx),
             self.axes.keys().map(|k| k.clone()).collect(),
             self.allow_extruder_axes,
@@ -85,7 +85,7 @@ impl MoveMacro {
             .await?;
 
         let mut g1_args = vec![];
-        for axis in axes.iter() {
+        for axis in feedrates.iter() {
             // TODO: does this work with multi-extruder printers?
             let address = if axis.is_toolhead {
                 axis.address.clone()
@@ -93,8 +93,10 @@ impl MoveMacro {
                 "e".to_string()
             };
 
-            let distance = self.axes.get(&address)
-                .expect("Invariant: address should exist in both axes and self.axes");
+            let distance = self.axes.get(&axis.address)
+                .ok_or_else(||
+                    anyhow!("Invariant: address ({:?}) not found in self.axes", axis.address)
+                )?;
 
             g1_args.push(format!("{}{}", address.to_ascii_uppercase(), distance));
         }
@@ -102,7 +104,7 @@ impl MoveMacro {
         let feedrate = if let Some(feedrate) = self.feedrate {
             feedrate
         } else {
-            let min_feedrate_axis = axes.iter()
+            let min_feedrate_axis = feedrates.iter()
                 // f32 cannot be compared so compare i64s
                 .min_by_key(|target| (target.feedrate * 1_000_000.0).round() as i64)
                 .ok_or_else(|| anyhow!("Expected at least one axis in move macro"))?;
