@@ -24,7 +24,7 @@ const JOBS_SUBSCRIPTION = gql`
             printsCompleted
             totalPrints
             isDone
-            stoppedAt
+            # stoppedAt
 
             files {
               id

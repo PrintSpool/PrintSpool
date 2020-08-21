@@ -3,7 +3,7 @@ use std::sync::Arc;
 use async_graphql::*;
 
 use anyhow::{
-    // anyhow,
+    anyhow,
     Result,
     // Context as _,
 };
@@ -11,6 +11,7 @@ use anyhow::{
 use super::models::{
     PrintQueue,
     Package,
+    Part,
 };
 
 // use crate::machine::models::{
@@ -26,20 +27,59 @@ use crate::models::{
 impl PrintQueue {
     async fn id(&self) -> ID { self.id.into() }
 
-    async fn jobs<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<Package>> {
+    async fn name<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<String> {
         let ctx: &Arc<crate::Context> = ctx.data()?;
 
-        let parts = Package::scan(&ctx.db)
-            // TODO: Migrate away from packages as the unit of work in the job queue
-            // .filter(|package| {
-            //     if let Ok(package) = package {
-            //         package.print_queue_id == self.id
-            //     } else {
-            //         true
-            //     }
-            // })
-            .collect::<Result<Vec<Package>>>()?;
+        let config = ctx.machine_config.load();
 
-        Ok(parts)
+        let core_plugin = config.plugins.iter()
+            .find(|plugin| plugin.package == "@tegapp/core")
+            .ok_or_else(|| anyhow!("Could not find @tegapp/core plugin config"))?;
+
+        let name = core_plugin.model["name"]
+            .as_str()
+            .ok_or_else(|| "Unable to get name of machine")?;
+
+        Ok(name.to_string())
+    }
+
+    async fn jobs<'ctx>(
+        &self,
+        ctx: &'ctx Context<'_>,
+        id: Option<ID>,
+    ) -> FieldResult<Vec<Package>> {
+        let ctx: &Arc<crate::Context> = ctx.data()?;
+
+        let packages = if let Some(id) = id {
+            let package = Package::get(&ctx.db, id.parse()?)?;
+
+            vec![package]
+        } else {
+            let parts = Part::scan(&ctx.db)
+                .collect::<Result<Vec<Part>>>()?;
+
+            let mut packages = Package::scan(&ctx.db)
+                // TODO: Migrate away from packages as the unit of work in the job queue
+                // .filter(|package| {
+                //     if let Ok(package) = package {
+                //         package.print_queue_id == self.id
+                //     } else {
+                //         true
+                //     }
+                // })
+                .collect::<Result<Vec<Package>>>()?;
+
+            packages.sort_by_cached_key(|package| {
+                parts
+                    .iter()
+                    .find(|part| part.package_id == package.id)
+                    .map(|part| part.position)
+                    .unwrap_or(u64::MAX)
+            });
+
+            packages
+        };
+
+        Ok(packages)
     }
 }

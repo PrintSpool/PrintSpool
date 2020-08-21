@@ -28,7 +28,7 @@ pub enum PrintQueueDBEntry {
 
 impl crate::models::VersionedModel for PrintQueue {
     type Entry = PrintQueueDBEntry;
-    const NAMESPACE: &'static str = "Package";
+    const NAMESPACE: &'static str = "PrintQueue";
 
     fn get_id(&self) -> u64 {
         self.id

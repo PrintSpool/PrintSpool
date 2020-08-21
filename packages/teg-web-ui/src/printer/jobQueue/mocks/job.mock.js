@@ -7,7 +7,7 @@ const JobMock = attrs => ({
   printsCompleted: 0,
   totalPrints: 1,
   isDone: false,
-  stoppedAt: null,
+  // stoppedAt: null,
   tasks: [],
   ...attrs,
 })

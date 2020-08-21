@@ -63,6 +63,7 @@ impl Task {
     }
 
     async fn created_at(&self) -> &DateTime<Utc> { &self.created_at }
+    async fn started_at(&self) -> &DateTime<Utc> { &self.created_at }
 
     async fn machine<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Machine> {
         let ctx: &Arc<crate::Context> = ctx.data()?;

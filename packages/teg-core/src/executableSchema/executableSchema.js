@@ -61,7 +61,6 @@ const executableSchema = async () => {
     'authenticateUser',
   ]
 
-
   let ommittedNodeJSFields = [
   ]
   let ommittedNodeJSTypes = [
@@ -70,13 +69,21 @@ const executableSchema = async () => {
   if (process.env.EXPERIMENTAL_RUST != null) {
     ommittedNodeJSFields = [
       ...ommittedNodeJSFields,
+      'createJob',
+      'deleteJob',
+      'setJobPosition',
+      'jobQueue',
       'execGCodes',
       'spoolJobFile',
     ]
     ommittedNodeJSTypes = [
       ...ommittedNodeJSTypes,
+      'CreateJobInput',
+      'DeleteJobInput',
+      'SetJobPositionInput',
       'ExecGCodesInput',
       'SpoolJobFileInput',
+      'JobQueue',
       'Job',
       'JobFile',
       'Task',

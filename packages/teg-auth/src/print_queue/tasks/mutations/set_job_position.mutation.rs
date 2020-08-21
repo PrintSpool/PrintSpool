@@ -73,7 +73,7 @@ impl SetJobPositionMutation {
 
             for mut part in parts.clone() {
                 let mut next_position = part.position;
-                if next_position >= previous_moved_part_position {
+                if next_position > previous_moved_part_position {
                     next_position -= 1;
                 }
                 if next_position >= next_moved_part_position {
