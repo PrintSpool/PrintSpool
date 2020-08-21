@@ -58,7 +58,7 @@ impl From<ServiceError> for warp::reject::Rejection {
 // }
 
 fn main() -> Result<()> {
-    smol::run(app())
+    async_std::task::block_on(app())
 }
 
 async fn app() -> Result<()> {
