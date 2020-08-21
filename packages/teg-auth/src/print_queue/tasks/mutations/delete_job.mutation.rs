@@ -102,16 +102,19 @@ impl DeleteJobMutation {
         let parts: Vec<Part> = ctx.db.transaction(|db| {
             Package::remove(&db, package_id)?;
 
+            // Delete each part
             let parts= part_ids.clone()
                 .iter()
                 .filter_map(|part_id| Part::remove(&db, *part_id).transpose())
                 .collect::<VersionedModelResult<Vec<Part>>>()?;
 
+            // Delete each task
             let tasks= task_ids.clone()
                 .iter()
                 .filter_map(|task_id| Task::remove(&db, *task_id).transpose())
                 .collect::<VersionedModelResult<Vec<Task>>>()?;
 
+            // Stop any running prints associated with this package
             tasks.iter()
                 .map(|task| task.machine_id)
                 .collect::<std::collections::HashSet<u64>>()
@@ -120,6 +123,24 @@ impl DeleteJobMutation {
                 .collect::<VersionedModelResult<Vec<_>>>()?;
 
             Ok(parts)
+        })?;
+
+
+        let mut all_parts = Part::scan(&ctx.db)
+            .collect::<Result<Vec<Part>>>()?;
+
+        all_parts.sort_by_key(|part| part.position);
+
+        // Update part positions to fill in any holes
+        ctx.db.transaction(|db| {
+            for (index, mut part) in all_parts.clone().into_iter().enumerate() {
+                if part.position != index as u64 {
+                    part.position = index as u64;
+                    part.insert(&db)?;
+                }
+            }
+
+            Ok(())
         })?;
 
         let part_files: Vec<String> = parts.into_iter()
