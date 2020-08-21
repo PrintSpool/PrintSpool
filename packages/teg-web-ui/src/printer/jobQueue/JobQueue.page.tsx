@@ -1,15 +1,15 @@
 import React from 'react'
 import gql from 'graphql-tag'
-import { useMutation } from 'react-apollo-hooks'
+import { useMutation, useQuery } from 'react-apollo-hooks'
 
 import JobQueueView from './JobQueue.view'
 
 import useLiveSubscription from '../_hooks/useLiveSubscription'
 
 const JOBS_SUBSCRIPTION = gql`
-  subscription JobQueueSubscription {
-    live {
-      patch { op, path, from, value }
+#  subscription JobQueueSubscription {
+#    live {
+#      patch { op, path, from, value }
       query {
         machines {
           id
@@ -45,8 +45,8 @@ const JOBS_SUBSCRIPTION = gql`
           }
         }
       }
-    }
-  }
+#    }
+#  }
 `
 
 const ESTOP = gql`
@@ -73,7 +73,10 @@ const DELETE_JOB = gql`
 `
 
 const JobQueuePage = () => {
-  const { loading, data, error } = useLiveSubscription(JOBS_SUBSCRIPTION)
+  // const { loading, data, error } = useLiveSubscription(JOBS_SUBSCRIPTION)
+  const { loading, data, error } = useQuery(JOBS_SUBSCRIPTION, {
+    pollInterval: 1000,
+  })
 
   const [spoolJobFile] = useMutation(SPOOL_JOB_FILE)
   const [deleteJob] = useMutation(DELETE_JOB)

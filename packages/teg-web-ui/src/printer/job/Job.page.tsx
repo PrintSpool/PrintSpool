@@ -1,6 +1,6 @@
 import React from 'react'
 import gql from 'graphql-tag'
-import { useMutation } from 'react-apollo-hooks'
+import { useMutation, useQuery } from 'react-apollo-hooks'
 import useReactRouter from 'use-react-router'
 
 import useLiveSubscription from '../_hooks/useLiveSubscription'
@@ -8,11 +8,12 @@ import useLiveSubscription from '../_hooks/useLiveSubscription'
 import JobView from './Job.view'
 
 const JOB_SUBSCRIPTION = gql`
-  subscription JobSubscription($jobID: ID!) {
-    live {
-      patch { op, path, from, value }
-      query {
-        jobQueue {
+#  subscription JobSubscription($jobID: ID!) {
+#    live {
+#      patch { op, path, from, value }
+#      query {
+      query($jobID: ID!) {
+          jobQueue {
           jobs(id: $jobID) {
             id
             name
@@ -50,8 +51,8 @@ const JOB_SUBSCRIPTION = gql`
           }
         }
       }
-    }
-  }
+#    }
+#  }
 `
 
 const ESTOP = gql`
@@ -70,7 +71,14 @@ const JobPage = () => {
   const { match: { params } } = useReactRouter()
   const { jobID } = params
 
-  const { loading, error, data } = useLiveSubscription(JOB_SUBSCRIPTION, {
+  // const { loading, error, data } = useLiveSubscription(JOB_SUBSCRIPTION, {
+  //   variables: {
+  //     jobID,
+  //   },
+  // })
+
+  const { loading, error, data } = useQuery(JOB_SUBSCRIPTION, {
+    pollInterval: 1000,
     variables: {
       jobID,
     },
