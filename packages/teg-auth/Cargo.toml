@@ -57,6 +57,7 @@ derive-new = "0.5.8"
 teg-protobufs = { path= "../teg-protobufs" }
 bytes = "0.5.6"
 arc-swap = "0.4.7"
+pin-project = "0.4.23"
 
 [dependencies.async-std]
 features = ["tokio02"]

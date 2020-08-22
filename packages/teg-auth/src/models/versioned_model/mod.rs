@@ -299,7 +299,7 @@ pub trait VersionedModel:
         let key = Self::key(id);
         let subscriber = db.watch_prefix(key);
 
-        let events = stream::iter(subscriber)
+        let events = WatchPrefix { subscriber }
             .map(transform_event::<Self>)
             .boxed();
 
@@ -309,7 +309,7 @@ pub trait VersionedModel:
     fn watch_all(db: &sled::Db) -> stream::BoxStream<Result<Event<Self>>> {
         let subscriber = db.watch_prefix(Self::prefix());
 
-        stream::iter(subscriber)
+        WatchPrefix { subscriber }
             .map(transform_event::<Self>)
             .boxed()
     }
@@ -361,9 +361,10 @@ pub trait VersionedModel:
                     }
                     Err(err) => future::ready(Some(Err(err)))
                 }
-            });
+            })
+            .boxed();
 
-        Ok(changes.boxed())
+        Ok(changes)
     }
 }
 
@@ -390,5 +391,27 @@ fn transform_event<T: VersionedModel>(event: sled::Event) -> Result<Event<T>> {
         sled::Event::Remove { key } => {
             Ok(Event::Remove { key })
         }
+    }
+}
+
+use pin_project::pin_project;
+
+#[pin_project]
+struct WatchPrefix {
+    #[pin]
+    subscriber: sled::Subscriber,
+}
+
+impl futures::stream::Stream for WatchPrefix {
+    type Item = sled::Event;
+
+    fn poll_next(
+        self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<Option<Self::Item>> {
+        use futures::Future;
+        let mut subscriber = self.project().subscriber;
+
+        subscriber.as_mut().poll(cx)
     }
 }

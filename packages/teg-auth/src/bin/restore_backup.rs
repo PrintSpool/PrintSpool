@@ -25,8 +25,11 @@ struct Opts {
     backup_file: Option<String>,
 }
 
-#[async_std::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
+  async_std::task::block_on(app())
+}
+
+async fn app() -> Result<()> {
   let opts: Opts = Opts::parse();
 
   let context = init().await

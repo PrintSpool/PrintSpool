@@ -59,21 +59,18 @@ pub async fn run_send_loop(
 
         let event = match event {
             Either::Left((event, _)) => {
-                info!("Send Event: {:#?}", event);
                 event
                     .ok_or(anyhow!("Machine stream unexpectedly ended"))?
                     .map(|event| Either::Left(event))
                     .with_context(|| "Machine stream error")?
             }
             Either::Right((event, _)) => {
-                info!("Send Event: {:#?}", event);
                 event
                     .ok_or(anyhow!("Task stream unexpectedly ended"))?
                     .map(|event| Either::Right(event))
                     .with_context(|| "Task stream error")?
             }
         };
-        info!("Send Event");
 
         match event {
             // Machine Stops and Resets

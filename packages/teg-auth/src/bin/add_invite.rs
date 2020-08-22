@@ -6,8 +6,11 @@ use teg_auth::{
   },
 };
 
-#[async_std::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
+  async_std::task::block_on(app())
+}
+
+async fn app() -> Result<()> {
   let context = init().await?;
 
   let _ = Invite::generate_and_display(&context.db, true).await;

@@ -20,6 +20,7 @@ use crate::{
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MoveContinuousMacro {
     pub ms: f32,
     pub feedrate_multiplier: Option<f32>,
@@ -73,10 +74,10 @@ impl MoveContinuousMacro {
 
         // calculate the feedrate
         let ctx_clone = Arc::clone(&ctx);
-        let (_, feedrate_mm_per_s) = move_macro.g1_and_feedrate(ctx_clone).await?;
+        let (_, feedrate_mm_per_min) = move_macro.g1_and_feedrate(ctx_clone).await?;
 
         // base move distances off the calculated feedrate
-        let total_distance = feedrate_mm_per_s as f32 / 1000.0 * self.ms;
+        let total_distance = feedrate_mm_per_min as f32 * self.ms / 60_000.0;
 
         //   ____________________
         // |/ x^2 + y^2 + z^2 ...  = total_distance
@@ -110,7 +111,7 @@ impl MoveContinuousMacro {
             g1.clone(),
             "G90".to_string(),
             // wait to reach the previous target position and then unblock
-            driver_macro(json!({"waitToReachMark": { "axes": directions } })),
+            driver_macro(json!({"waitToReachMark": { "axes": self.axes.clone() } })),
         ];
 
         let gcodes = gcodes
