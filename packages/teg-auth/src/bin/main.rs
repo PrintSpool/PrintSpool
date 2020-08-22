@@ -1,9 +1,11 @@
 // #![feature(backtrace)]
 #[macro_use] extern crate log;
+// extern crate teg_auth;
 
 use async_graphql::*;
 use async_graphql_warp::*;
 use anyhow::{Result};
+use async_std::task::spawn;
 
 use warp::Filter;
 
@@ -12,7 +14,6 @@ use std::env;
 use std::{sync::Arc};
 use chrono::Duration;
 
-extern crate teg_auth;
 use teg_auth::{
     init,
     Context,
@@ -160,7 +161,7 @@ async fn app() -> Result<()> {
             user_id: Option<String>,
             identity_public_key: Option<String>,
         | {
-            info!("Req");
+            info!("Req:\n{}", builder.query_source().trim());
             let user_id = user_id.map(|id| ID::from(id));
 
             let ctx = Context::new(
@@ -227,10 +228,10 @@ async fn app() -> Result<()> {
     info!("Starting Auth Server");
 
     let res = futures::select! {
-        res = print_completion_loop.fuse() => res,
-        res = server.fuse() => res,
+        res = spawn(print_completion_loop).fuse() => res,
+        res = spawn(server).fuse() => res,
         res = backup_scheduler.fuse() => res,
-        res = pem_keys_refresh_task.fuse() => res,
+        res = spawn(pem_keys_refresh_task).fuse() => res,
     };
 
     res?;

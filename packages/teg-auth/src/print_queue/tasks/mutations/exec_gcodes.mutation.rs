@@ -25,6 +25,7 @@ use crate::{
 use super::*;
 
 #[InputObject]
+#[derive(Debug)]
 struct ExecGCodesInput {
     #[field(name="machineID")]
     machine_config_id: ID,
@@ -80,6 +81,8 @@ impl ExecGCodesMutation {
         ctx: &'ctx Context<'_>,
         input: ExecGCodesInput,
     ) -> FieldResult<Task> {
+        info!("exec_gcodes {:#?}", input);
+
         let ctx: &Arc<crate::Context> = ctx.data()?;
         let machine_override = input.r#override.unwrap_or(false);
 
@@ -164,6 +167,8 @@ impl ExecGCodesMutation {
         task.machine_override = machine_override;
         let mut task_stream = Task::watch_id(&ctx.db, task.id)?;
 
+        info!("exec_gcodes task {:?}", task);
+
         let task = ctx.db.transaction(move |db| {
             let machine = Machine::get(&db, machine_id)?;
 
@@ -173,7 +178,7 @@ impl ExecGCodesMutation {
                 ))?;
             };
 
-            let task = task.clone().insert(&ctx.db)?;
+            let task = task.clone().insert(&db)?;
 
             Ok(task)
         })?;

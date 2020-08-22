@@ -330,8 +330,10 @@ pub trait VersionedModel:
 
         let changes = Self::watch_all(&db)
             .scan(state, |state, event| {
+                info!("{:?} changes event", Self::NAMESPACE);
                 match event {
                     Ok(Event::Insert{ key, value: next }) => {
+
                         let previous = state.insert(
                             Self::key(next.get_id()),
                             next.clone(),
@@ -365,11 +367,13 @@ pub trait VersionedModel:
     }
 }
 
+#[derive(Debug)]
 pub enum Event<T> {
     Insert { key: sled::IVec, value: T },
     Remove { key: sled::IVec },
 }
 
+#[derive(Debug)]
 pub struct Change<T: VersionedModel> {
     pub key: sled::IVec,
     pub previous: Option<T>,

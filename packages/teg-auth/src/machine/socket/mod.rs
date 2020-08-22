@@ -1,6 +1,7 @@
 // use async_std::prelude::*;
 use async_std::os::unix::net::UnixStream;
 use futures::FutureExt;
+use async_std::task::{self, spawn};
 
 use std::sync::Arc;
 use anyhow::{
@@ -39,7 +40,6 @@ pub async fn handle_machine_socket(ctx: Arc<crate::Context>, machine_id: u64) ->
             Ok(stream) => stream,
             Err(err) => {
                 use std::time::Duration;
-                use async_std::task;
 
                 error!("Unable to open machine socket, retrying in 500ms: {:?}", err);
                 task::sleep(Duration::from_millis(500)).await;
@@ -48,7 +48,6 @@ pub async fn handle_machine_socket(ctx: Arc<crate::Context>, machine_id: u64) ->
         };
         
         info!("Connected to machine socket: {:?}", socket_path);
-        info!("WAAAT111");
 
         let send_loop = run_send_loop(
             client_id,
@@ -56,7 +55,6 @@ pub async fn handle_machine_socket(ctx: Arc<crate::Context>, machine_id: u64) ->
             machine_id,
             stream.clone(),
         );
-        info!("WAAAT2222");
 
         let receive_loop = run_receive_loop(
             client_id,
@@ -65,12 +63,10 @@ pub async fn handle_machine_socket(ctx: Arc<crate::Context>, machine_id: u64) ->
             stream.clone(),
         );
 
-        info!("WAAAT333");
         let res = futures::select! {
             res = send_loop.fuse() => res,
-            res = receive_loop.fuse() => res,
+            res = spawn(receive_loop).fuse() => res,
         };
-        info!("WAAAT444");
 
         info!("Machine socket closed");
         let _ = res.map_err(|err| error!("Machine socket Error: {:?}", err));

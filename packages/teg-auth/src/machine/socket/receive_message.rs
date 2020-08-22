@@ -26,7 +26,5 @@ pub async fn receive_message(stream: &mut UnixStream) -> Result<MachineMessage> 
     let message = MachineMessage::decode(&buf[..])
         .with_context(|| "machine message decoding failed")?;
 
-    info!("Received Protobuf (Len: {})", message_len);
-
     Ok(message)
 }

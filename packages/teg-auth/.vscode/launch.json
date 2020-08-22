@@ -1,0 +1,138 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    // {
+    //   "type": "lldb",
+    //   "request": "launch",
+    //   "name": "Debug unit tests in library 'teg_auth'",
+    //   "cargo": {
+    //     "args": [
+    //       "test",
+    //       "--no-run",
+    //       "--lib",
+    //       "--package=teg-auth"
+    //     ],
+    //     "filter": {
+    //       "name": "teg_auth",
+    //       "kind": "lib"
+    //     }
+    //   },
+    //   "args": [],
+    //   "cwd": "${workspaceFolder}"
+    // },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'teg-auth'",
+      "cargo": {
+        "args": [
+          "build",
+          "--bin=teg-auth",
+          "--package=teg-auth"
+        ],
+        "filter": {
+          "name": "teg-auth",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    // {
+    //   "type": "lldb",
+    //   "request": "launch",
+    //   "name": "Debug unit tests in executable 'teg-auth'",
+    //   "cargo": {
+    //     "args": [
+    //       "test",
+    //       "--no-run",
+    //       "--bin=teg-auth",
+    //       "--package=teg-auth"
+    //     ],
+    //     "filter": {
+    //       "name": "teg-auth",
+    //       "kind": "bin"
+    //     }
+    //   },
+    //   "args": [],
+    //   "cwd": "${workspaceFolder}"
+    // },
+    // {
+    //   "type": "lldb",
+    //   "request": "launch",
+    //   "name": "Debug executable 'teg-add-invite'",
+    //   "cargo": {
+    //     "args": [
+    //       "build",
+    //       "--bin=teg-add-invite",
+    //       "--package=teg-auth"
+    //     ],
+    //     "filter": {
+    //       "name": "teg-add-invite",
+    //       "kind": "bin"
+    //     }
+    //   },
+    //   "args": [],
+    //   "cwd": "${workspaceFolder}"
+    // },
+    // {
+    //   "type": "lldb",
+    //   "request": "launch",
+    //   "name": "Debug unit tests in executable 'teg-add-invite'",
+    //   "cargo": {
+    //     "args": [
+    //       "test",
+    //       "--no-run",
+    //       "--bin=teg-add-invite",
+    //       "--package=teg-auth"
+    //     ],
+    //     "filter": {
+    //       "name": "teg-add-invite",
+    //       "kind": "bin"
+    //     }
+    //   },
+    //   "args": [],
+    //   "cwd": "${workspaceFolder}"
+    // },
+    // {
+    //   "type": "lldb",
+    //   "request": "launch",
+    //   "name": "Debug executable 'teg-restore-backup'",
+    //   "cargo": {
+    //     "args": [
+    //       "build",
+    //       "--bin=teg-restore-backup",
+    //       "--package=teg-auth"
+    //     ],
+    //     "filter": {
+    //       "name": "teg-restore-backup",
+    //       "kind": "bin"
+    //     }
+    //   },
+    //   "args": [],
+    //   "cwd": "${workspaceFolder}"
+    // },
+    // {
+    //   "type": "lldb",
+    //   "request": "launch",
+    //   "name": "Debug unit tests in executable 'teg-restore-backup'",
+    //   "cargo": {
+    //     "args": [
+    //       "test",
+    //       "--no-run",
+    //       "--bin=teg-restore-backup",
+    //       "--package=teg-auth"
+    //     ],
+    //     "filter": {
+    //       "name": "teg-restore-backup",
+    //       "kind": "bin"
+    //     }
+    //   },
+    //   "args": [],
+    //   "cwd": "${workspaceFolder}"
+    // }
+  ]
+}
