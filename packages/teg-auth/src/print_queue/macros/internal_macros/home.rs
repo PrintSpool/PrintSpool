@@ -70,7 +70,9 @@ impl HomeMacro {
                     }?;
                 }
 
-                axes
+                axes.into_iter()
+                    .map(|axis| axis.to_ascii_uppercase())
+                    .collect()
             },
             _ => {
                 Err(anyhow!("axes must either be an array or axis names or {all: true}"))?

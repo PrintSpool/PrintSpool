@@ -30,12 +30,11 @@ const executableSchema = async () => {
   while (introspectionResult == null) {
     try {
       console.error('Connecting to rust server...')
-      console.log(rustURI)
       introspectionResult = await introspectSchema(
         new HttpLink({ uri: rustURI }),
       )
-      console.log({ introspectionResult })
-      console.log({...introspectionResult._mutationType._fields})
+      // console.log({ introspectionResult })
+      // console.log({...introspectionResult._mutationType._fields})
       console.error('Connecting to rust server... [DONE]')
     } catch (e) {
       console.error('Unable to connect to rust server. Retrying in 500ms.')
@@ -66,7 +65,7 @@ const executableSchema = async () => {
   let ommittedNodeJSTypes = [
   ]
 
-  if (process.env.EXPERIMENTAL_RUST != null) {
+  if (process.env.LEGACY_NODE_APIS == null) {
     ommittedNodeJSFields = [
       ...ommittedNodeJSFields,
       'createJob',
