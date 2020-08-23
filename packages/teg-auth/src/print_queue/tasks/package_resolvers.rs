@@ -24,7 +24,7 @@ fn get_parts(db: &sled::Db, package: &Package) -> Result<Vec<Part>> {
     let parts = Part::scan(&db)
         .filter(|part| {
             if let Ok(part) = part {
-                part.print_queue_id == package.id
+                part.package_id == package.id
             } else {
                 true
             }
