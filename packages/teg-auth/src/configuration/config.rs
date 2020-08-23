@@ -136,7 +136,7 @@ impl Config {
                 Component::Toolhead( toolhead ) => Some(Feedrate {
                     address: toolhead.address.clone(),
                     feedrate: toolhead.feedrate,
-                    is_toolhead: false,
+                    is_toolhead: true,
                 }),
                 _ => None,
             }

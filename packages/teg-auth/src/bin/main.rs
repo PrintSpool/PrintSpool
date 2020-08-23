@@ -168,7 +168,11 @@ async fn app() -> Result<()> {
             user_id: Option<String>,
             identity_public_key: Option<String>,
         | {
-            info!("Req:\n{}", builder.query_source().trim());
+            info!("Req");
+            if std::env::var("TRACE_GRAPHQL_QUERY").is_ok() {
+                trace!("Query:\n{}", builder.query_source().trim());
+            }
+
             let user_id = user_id.map(|id| ID::from(id));
 
             let ctx = Context::new(
