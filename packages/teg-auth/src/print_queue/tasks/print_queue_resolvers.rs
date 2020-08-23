@@ -3,7 +3,7 @@ use std::sync::Arc;
 use async_graphql::*;
 
 use anyhow::{
-    anyhow,
+    // anyhow,
     Result,
     // Context as _,
 };
@@ -32,15 +32,7 @@ impl PrintQueue {
 
         let config = ctx.machine_config.load();
 
-        let core_plugin = config.plugins.iter()
-            .find(|plugin| plugin.package == "@tegapp/core")
-            .ok_or_else(|| anyhow!("Could not find @tegapp/core plugin config"))?;
-
-        let name = core_plugin.model["name"]
-            .as_str()
-            .ok_or_else(|| "Unable to get name of machine")?;
-
-        Ok(name.to_string())
+        Ok(config.name()?)
     }
 
     async fn jobs<'ctx>(

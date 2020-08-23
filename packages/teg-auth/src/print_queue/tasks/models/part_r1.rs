@@ -36,4 +36,8 @@ impl Part {
   pub fn total_prints(&self, package: &Package) -> u64 {
     self.quantity * package.quantity
   }
+
+  pub fn is_done(&self, package: &Package) -> bool {
+    self.printed >= self.total_prints(package)
+  }
 }

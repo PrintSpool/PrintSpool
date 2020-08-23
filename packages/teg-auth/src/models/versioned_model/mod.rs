@@ -273,6 +273,21 @@ pub trait VersionedModel:
         Box::new(iter)
     }
 
+
+    fn filter<F>(db: &sled::Db, mut f: F) -> Result<Vec<Self>>
+    where
+        F: Send + FnMut(&Self) -> bool
+    {
+        Self::scan(db)
+            .filter(|entry| 
+                match entry {
+                    Ok(entry) => f(entry),
+                    Err(_) => true,
+                }
+            )
+            .collect::<Result<Vec<Self>>>()
+    }
+
     fn find_opt<F>(db: &sled::Db, mut f: F) -> Result<Option<Self>>
     where
         F: Send + FnMut(&Self) -> bool

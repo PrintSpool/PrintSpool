@@ -19,6 +19,13 @@ use crate::configuration::{
 impl Machine {
     async fn id(&self) -> &ID { &self.config_id }
 
+    async fn name<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<String> {
+        let ctx: &Arc<crate::Context> = ctx.data()?;
+        let config = ctx.machine_config.load();
+
+        Ok(config.name()?)
+    }
+
     async fn components<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<Component>> {
         let ctx: &Arc<crate::Context> = ctx.data()?;
         let config = ctx.machine_config.load();

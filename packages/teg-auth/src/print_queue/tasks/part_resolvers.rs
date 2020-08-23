@@ -52,10 +52,11 @@ impl Part {
         Ok(prints_queued)
     }
 
-    async fn is_done<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<bool> {
+    #[field(name = "isDone")]
+    async fn is_done_<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<bool> {
         let ctx: &Arc<crate::Context> = ctx.data()?;
         let package = Package::get(&ctx.db, self.package_id)?;
 
-        Ok(self.printed >= self.total_prints(&package))
+        Ok(self.is_done(&package))
     }
 }

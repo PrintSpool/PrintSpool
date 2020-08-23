@@ -13,6 +13,11 @@ use super::{
 };
 use std::path::PathBuf;
 
+use anyhow::{
+    anyhow,
+    Result,
+    // Context as _,
+};
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Plugin {
@@ -42,6 +47,22 @@ pub struct Feedrate {
 }
 
 impl Config {
+    pub fn core_plugin<'a>(&'a self) -> Result<&'a Plugin> {
+        let core_plugin = self.plugins.iter()
+            .find(|plugin| plugin.package == "@tegapp/core")
+            .ok_or_else(|| anyhow!("Could not find @tegapp/core plugin config"))?;
+
+        Ok(core_plugin)
+    }
+
+    pub fn name(&self) -> Result<String> {
+        let name = self.core_plugin()?.model["name"]
+            .as_str()
+            .ok_or_else(|| anyhow!("Unable to get name of machine"))?;
+
+        Ok(name.to_string())
+    }
+
     pub fn get_controller(&self) -> &Controller {
         self.components.iter().find_map(|component| {
             if let Component::Controller( controller ) = component {

@@ -29,4 +29,10 @@ impl Package {
   pub fn printed(&self, parts: &Vec<Part>) -> u64 {
     parts.iter().map(|part| part.printed).sum()
   }
+
+  pub fn is_done(&self, parts: &Vec<Part>) -> bool {
+    parts
+      .iter()
+      .all(|part| part.is_done(&self))
+  }
 }

@@ -52,10 +52,12 @@ impl Package {
 
         let tasks = Task::scan(&ctx.db)
             .filter(|task| {
-                if let Ok(Task { print: Some(print), .. }) = task {
-                    print.package_id == self.id
-                } else {
-                    true
+                match task {
+                    Ok(Task { print: Some(print), .. }) => {
+                        print.package_id == self.id
+                    }
+                    Err(_)  => true,
+                    _ => false,
                 }
             })
             .collect::<Result<Vec<Task>>>()?;
@@ -80,12 +82,13 @@ impl Package {
         Ok(self.total_prints(&parts))
     }
 
-    async fn is_done<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<bool> {
+    #[field(name = "isDone")]
+    async fn is_done_<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<bool> {
         let ctx: &Arc<crate::Context> = ctx.data()?;
 
         let parts = get_parts(&ctx.db, &self)?;
 
-        Ok(self.total_prints(&parts) - self.printed(&parts) == 0)
+        Ok(self.is_done(&parts))
     }
 
     // Timestamps

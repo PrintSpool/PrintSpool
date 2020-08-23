@@ -46,19 +46,14 @@ pub async fn run_print_completion_loop(
                 if task.is_print() && task.status.was_successful() {
                     let config = ctx.machine_config.load();
 
-                    let core_plugin = config.plugins.iter()
-                        .find(|plugin| plugin.package == "@tegapp/core")
-                        .ok_or_else(|| anyhow!("Could not find @tegapp/core plugin config"))?;
-
-                    let automatic_printing = core_plugin.model["automaticPrinting"]
+                    let automatic_printing = config.core_plugin()?.model["automaticPrinting"]
                         .as_bool()
                         .unwrap_or(false);
 
                     handle_print_completion(
                         &ctx,
                         automatic_printing,
-                        task.machine_id,
-                        task.id,
+                        &task,
                     ).await?;
                 }
 
@@ -81,9 +76,35 @@ pub async fn run_print_completion_loop(
 async fn handle_print_completion(
     ctx: &Arc<crate::Context>,
     automatic_printing: bool,
-    machine_id: u64,
-    task_id: u64
+    task: &Task,
 ) -> Result<()> {
+    let print = task.print.as_ref().ok_or_else(||
+        anyhow!("Missing print for task: {}", task.id)
+    )?;
+
+    // Parts printed update
+    Part::get_and_update(&ctx.db, print.part_id, |mut part| {
+        part.printed += 1;
+        part
+    })?;
+
+    // Parts + Package deletion
+    let package = Package::find(&ctx.db, |package| {
+        package.id == print.package_id
+    })?;
+
+    let parts = Part::filter(&ctx.db, |part| {
+        part.package_id == print.package_id
+    })?;
+
+    if package.is_done(&parts) {
+        Package::remove(&ctx.db, package.id)?;
+        for part in parts {
+            Part::remove(&ctx.db, part.id)?;
+        }
+    }
+
+    // Automatic Printing
     let next_part = if automatic_printing {
         // Get the next part. Yeeaah it's a mess.
         Part::scan(&ctx.db)
@@ -111,11 +132,11 @@ async fn handle_print_completion(
 
     if let Some(next_part) = next_part {
         // Start the print
-        Task::insert_print(&ctx, machine_id, next_part.id).await?;
+        Task::insert_print(&ctx, task.machine_id, next_part.id).await?;
     } else {
         // Reset the machine status to ready if there are no more parts to print
-        Machine::set_status(&ctx.db, machine_id, |machine| {
-            if machine.status.is_printing_task(task_id) {
+        Machine::set_status(&ctx.db, task.machine_id, |machine| {
+            if machine.status.is_printing_task(task.id) {
                 MachineStatus::Ready
             } else {
                 machine.status.clone()
