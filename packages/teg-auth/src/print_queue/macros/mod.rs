@@ -26,10 +26,6 @@ pub use json_gcode::JsonGCode;
 mod home;
 use home::HomeMacro;
 
-#[path = "internal_macros/set_materials.rs"]
-mod set_materials;
-use set_materials::SetMaterialsMacro;
-
 #[path = "internal_macros/set_target_temperatures.rs"]
 mod set_target_temperatures;
 use set_target_temperatures::SetTargetTemperaturesMacro;
@@ -67,7 +63,6 @@ use move_utils::MoveMacro;
 #[serde(rename_all = "camelCase")] 
 pub enum InternalMacro {
     Home(HomeMacro),
-    SetMaterials(SetMaterialsMacro),
     SetTargetTemperatures(SetTargetTemperaturesMacro),
     ToggleFans(ToggleFansMacro),
     ToggleHeaters(ToggleHeatersMacro),
@@ -99,7 +94,6 @@ impl AnyMacro {
             AnyMacro::InternalMacro(internal_macro) => {
                 match internal_macro {
                     InternalMacro::Home(m) => m.compile(ctx).await,
-                    InternalMacro::SetMaterials(m) => m.compile(ctx).await,
                     InternalMacro::SetTargetTemperatures(m) => m.compile(ctx).await,
                     InternalMacro::ToggleFans(m) => m.compile(ctx).await,
                     InternalMacro::ToggleHeaters(m) => m.compile(ctx).await,
