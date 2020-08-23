@@ -513,7 +513,7 @@ impl ReadyState {
         };
 
         if let Some(task) = self.tasks.front_mut() {
-            let gcode = task.gcode_lines.next();
+            let gcode = task.next_gcode();
 
             if let Some(gcode) = gcode {
                 if !task.started {
