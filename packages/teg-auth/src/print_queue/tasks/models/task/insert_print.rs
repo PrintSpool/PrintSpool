@@ -31,6 +31,7 @@ use crate::print_queue::tasks::{
     Print,
     // TaskStatus,
     TaskContent,
+    Package,
     Part,
 };
 use crate::machine::models::{
@@ -109,8 +110,9 @@ impl Task {
          */
         let task = ctx.db.transaction(move |db| {
             let part = Part::get(&db, part_id)?;
+            let package = Package::get(&db, part.package_id)?;
 
-            if part.printed >= part.quantity {
+            if part.is_done(&package) {
                 Err(VersionedModelError::from(
                     anyhow!("Already printed {} / {} of {}", part.printed, part.quantity, part.name)
                 ))?;
