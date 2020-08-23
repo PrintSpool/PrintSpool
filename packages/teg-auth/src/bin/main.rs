@@ -31,6 +31,7 @@ use teg_auth::machine::{
 use teg_auth::print_queue::{
     tasks::PrintQueue,
     print_completion_loop::run_print_completion_loop,
+    part_deletion_watcher::run_part_deletion_watcher,
 };
 
 use teg_auth::models::VersionedModel as _;
@@ -130,11 +131,15 @@ async fn app() -> Result<()> {
 
     drop(config);
 
-    // Print Completion Loop
+    // Print completion and part deletes
     // -----------------------------------------------------------------
     let ctx_clone = Arc::clone(&ctx);
-    let print_completion_loop = async_std::task::spawn(
-        run_print_completion_loop(Arc::clone(&ctx_clone)),
+    let print_completion_loop = run_print_completion_loop(
+        Arc::clone(&ctx_clone),
+    );
+
+    let part_deletion_watcher = run_part_deletion_watcher(
+        Arc::clone(&ctx_clone),
     );
 
     // Machine Sockets
@@ -231,6 +236,7 @@ async fn app() -> Result<()> {
 
     let res = futures::select! {
         res = spawn(print_completion_loop).fuse() => res,
+        res = spawn(part_deletion_watcher).fuse() => res,
         res = spawn(server).fuse() => res,
         res = backup_scheduler.fuse() => res,
         res = spawn(pem_keys_refresh_task).fuse() => res,
