@@ -98,7 +98,8 @@ impl CreateJobMutation {
 
                 let mut file = File::create(&file_path).await
                     .with_context(|| "Could not create file for gcode. May be out of disk space")?;
-                file.write_all(&part_input.content.as_bytes());
+                file.write_all(&part_input.content.as_bytes()).await?;
+                file.flush().await?;
 
                 let part = Part::new(
                     part_id,
