@@ -29,7 +29,7 @@ const Step5SelectMaterial = ({
 
   const [setMaterialsMutation] = useMutation(gql`
     mutation setMaterials($input: SetMaterialsInput!) {
-      setMaterials(input: $input) { id }
+      setMaterials(input: $input)
     }
   `)
 

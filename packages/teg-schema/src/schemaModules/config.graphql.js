@@ -82,7 +82,7 @@ input SetMaterialsInput {
 
 input SetMaterialsToolhead {
   id: ID!
-  material_id: ID!
+  materialID: ID!
 }
 
 input CreateConfigInput {

@@ -18,8 +18,7 @@ use crate::{
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SetTargetTemperaturesMacro {
     pub heaters: HashMap<String, f32>,
-    #[serde(default)]
-    pub sync: bool,
+    pub sync: Option<bool>,
 }
 
 impl SetTargetTemperaturesMacro {
@@ -70,7 +69,7 @@ impl SetTargetTemperaturesMacro {
             )
             .collect::<Result<Vec<AnnotatedGCode>>>()?;
 
-        if self.sync {
+        if self.sync.unwrap_or(false) {
             gcodes.push(AnnotatedGCode::GCode("M109".to_string()))
         }
 

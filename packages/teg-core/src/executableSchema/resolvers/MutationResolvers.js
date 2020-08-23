@@ -172,10 +172,10 @@ const MutationResolvers = {
         throw new Error(`Cannot set materials while printer is ${status}`)
       }
 
-      const changes = {}
-      toolheads.forEach(({ id, materialID }) => {
-        changes[id] = materialID
-      })
+      const changes = toolheads.map(({ id, materialID }) => ({
+        materialID,
+        toolheadID: id,
+      }))
 
       const action = setToolheadMaterials({
         machineID,
@@ -183,7 +183,7 @@ const MutationResolvers = {
       })
 
       store.dispatch(action)
-      return {}
+      return null
     },
     /* jobQueue */
     createJob: async (source, args, { store }) => {

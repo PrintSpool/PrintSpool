@@ -19,15 +19,19 @@ use crate::{
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ToggleHeatersMacro {
     pub heaters: HashMap<String, bool>,
-    pub sync: bool,
+    pub sync: Option<bool>,
 }
 
 fn find_material<'a>(host_config: &'a toml::Value, material_id: &String) -> Option<toml::Value> {
+    dbg!(&host_config["materials"]);
     host_config["materials"]
         .as_array()
         .unwrap_or(&vec![])
         .into_iter()
-        .find(|material| material["id"] == material_id.to_string().into())
+        .find(|material| {
+            dbg!(&material["id"], toml::Value::String(material_id.clone()));
+            material["id"] == toml::Value::String(material_id.clone())
+        })
         .map(|material| material.clone())
 }
 
@@ -73,11 +77,16 @@ impl ToggleHeatersMacro {
                         let material_id = toolhead.material_id.clone();
 
                         let target = find_material(&host_config, &material_id)
-                            .and_then(|material|
-                                material["model"]["targetExtruderTemperature"].as_float()
+                            .map(|material|
+                                material["model"]["targetExtruderTemperature"]
+                                    .clone()
+                                    .try_into::<f32>()
                             )
                             .with_context(||
                                 format!("Unable to find material (id: {:?})", material_id)
+                            )?
+                            .with_context(||
+                                format!("Invalid material target temp (id: {:?})", material_id)
                             )?;
 
                         Ok((address.clone(), target as f32))
@@ -91,11 +100,16 @@ impl ToggleHeatersMacro {
                                 let material_id = toolhead.material_id.clone();
 
                                 find_material(&host_config, &material_id)
-                                    .and_then(|material|
-                                        material["model"]["targetBedTemperature"].as_float()
+                                    .map(|material|
+                                        material["model"]["targetBedTemperature"]
+                                            .clone()
+                                            .try_into::<f64>()
                                     )
                                     .with_context(||
                                         format!("Unable to find material (id: {:?})", material_id)
+                                    )?
+                                    .with_context(||
+                                        format!("Invalid material target temp (id: {:?})", material_id)
                                     )
                             })
                             .collect::<Result<Vec<f64>>>()?
