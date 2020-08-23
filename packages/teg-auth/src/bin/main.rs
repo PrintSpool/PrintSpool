@@ -13,6 +13,7 @@ use std::env;
 
 use std::{sync::Arc};
 use chrono::Duration;
+use dotenv::dotenv;
 
 use teg_auth::{
     init,
@@ -59,6 +60,7 @@ impl From<ServiceError> for warp::reject::Rejection {
 // }
 
 fn main() -> Result<()> {
+    dotenv().ok();
     async_std::task::block_on(app())
 }
 

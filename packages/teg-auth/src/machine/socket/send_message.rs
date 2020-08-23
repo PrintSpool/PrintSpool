@@ -24,7 +24,6 @@ pub async fn send_message(stream: &mut UnixStream, message: CombinatorMessage) -
         .with_context(|| "combinator message encoding failed")?;
 
     info!("Sending Protobuf (Len: {} {})", buf.len(), buf.len() as u32);
-    info!("Writing: {:?}", buf);
 
     // Prevent write_all from blocking the executor
     // Per https://rickyhan.com/jekyll/update/2019/12/22/convert-to-async-rust.html

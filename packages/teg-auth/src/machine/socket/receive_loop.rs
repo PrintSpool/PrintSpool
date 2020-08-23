@@ -61,6 +61,7 @@ pub async fn record_feedback(
             &ctx.db,
             progress.task_id as u64,
             |mut task| {
+                trace!("Task #{} status: {:?}", task.id, status);
                 task.despooled_line_number = Some(progress.despooled_line_number as u64);
                 task.status = status;
                 task

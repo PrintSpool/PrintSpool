@@ -330,7 +330,7 @@ pub trait VersionedModel:
 
         let changes = Self::watch_all(&db)
             .scan(state, |state, event| {
-                info!("{:?} changes event", Self::NAMESPACE);
+                trace!("{:?} changes event", Self::NAMESPACE);
                 match event {
                     Ok(Event::Insert{ key, value: next }) => {
 

@@ -576,6 +576,22 @@ impl ReadyState {
                 // record a task completion event
                 context.push_finish_task(&task);
 
+                let progress = context.feedback.task_progress
+                    .iter_mut()
+                    .find(|p| p.task_id == task.id);
+
+                if let Some(mut progress) = progress {
+                    progress.status = machine_message::TaskStatus::TaskFinished  as i32;
+                } else {
+                    context.feedback.task_progress.push(
+                        machine_message::TaskProgress {
+                            task_id: task.id,
+                            despooled_line_number: 0,
+                            status: machine_message::TaskStatus::TaskFinished  as i32,
+                        },
+                    );
+                }
+
                 if !task.machine_override {
                     context.feedback.despooled_line_number = 0;
                 };
@@ -619,12 +635,12 @@ impl ReadyState {
             HostGCode::MarkTargetPosition {..} => {
                 self.mark = Some(Mark::MarkSet(context.feedback.axes.clone()));
             },
-            HostGCode::WaitToReachMark(args) => {
+            HostGCode::WaitToReachMark(mut args) => {
                 if let Some(Mark::MarkSet(axes)) = &self.mark {
                     let mark = axes
                         .into_iter()
                         .filter_map(|axis| {
-                            args.axes.get(&axis.address).map(|direction|
+                            args.axes.remove(&axis.address).map(|direction|
                                 MarkAxis {
                                     address: axis.address.clone(),
                                     target_position: axis.target_position,
@@ -633,6 +649,10 @@ impl ReadyState {
                             )
                         })
                         .collect();
+
+                    if !args.axes.is_empty() {
+                        warn!("WaitToReachMark macro axes not found: {:?}", args.axes);
+                    }
 
                     self.mark = Some(Mark::WaitingToReachMark(mark));
                     self.poll_for = Some(Polling::PollPosition);

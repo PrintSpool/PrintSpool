@@ -72,6 +72,8 @@ pub async fn run_send_loop(
             }
         };
 
+        info!("send triggered");
+
         match event {
             // Machine Stops and Resets
             Either::Left(Event::Insert { value: next_machine, .. }) => {
@@ -116,14 +118,14 @@ pub async fn run_send_loop(
             },
             // Task inserts
             Either::Right(Change { next: Some(task), .. }) => {
-                info!("Task Inserted");
-
                 // Spool new tasks to the driver
                 if
                     task.machine_id == machine.id
                     && !task.sent_to_machine
                     && task.status == TaskStatus::Spooled
                 {
+                    info!("Sending task to machine");
+
                     Task::get_and_update(
                         &ctx.db,
                         task.id,
