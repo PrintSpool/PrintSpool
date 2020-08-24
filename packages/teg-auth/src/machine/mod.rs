@@ -18,3 +18,4 @@ pub use estop_and_reset::EStopAndResetMutation;
 
 mod component_resolvers;
 mod machine_resolvers;
+pub mod query_resolvers;

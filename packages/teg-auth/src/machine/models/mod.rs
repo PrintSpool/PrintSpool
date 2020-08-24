@@ -7,6 +7,7 @@ pub use machine_r1::Machine;
 mod machine_status_r1;
 pub use machine_status_r1::{
     MachineStatus,
+    MachineStatusGQL,
     Printing,
 };
 

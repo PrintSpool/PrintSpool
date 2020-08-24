@@ -3,6 +3,7 @@ use async_graphql::*;
 
 use super::models::{
     Machine,
+    MachineStatusGQL,
 };
 
 use crate::configuration::{
@@ -18,6 +19,7 @@ use crate::configuration::{
 #[Object]
 impl Machine {
     async fn id(&self) -> &ID { &self.config_id }
+    async fn status(&self) -> MachineStatusGQL { self.status.clone().into() }
 
     async fn name<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<String> {
         let ctx: &Arc<crate::Context> = ctx.data()?;

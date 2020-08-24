@@ -26,7 +26,10 @@ use futures::FutureExt;
 
 use teg_auth::machine::{
     socket::handle_machine_socket,
-    models::Machine,
+    models::{
+        Machine,
+        MachineStatus,
+    },
 };
 use teg_auth::print_queue::{
     tasks::PrintQueue,
@@ -144,6 +147,19 @@ async fn app() -> Result<()> {
 
     // Machine Sockets
     // -----------------------------------------------------------------
+    let ctx_clone = Arc::clone(&ctx);
+
+    // reset each machine status
+    let _ = Machine::scan(&ctx.db)
+        .map(move |machine| {
+            let mut machine: Machine = machine?;
+            machine.status = MachineStatus::Disconnected;
+            machine.insert(&Arc::clone(&ctx_clone.db))?;
+
+            Ok(())
+        })
+        .collect::<Result<Vec<()>>>();
+
     let ctx_clone = Arc::clone(&ctx);
 
     // TODO: handle socket errors task

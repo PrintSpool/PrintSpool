@@ -47,6 +47,9 @@ const SubscriptionResolvers = {
           Material: [
             'configForm',
           ],
+          Machine: [
+            'status',
+          ],
           Plugin: [
             'configForm',
           ],

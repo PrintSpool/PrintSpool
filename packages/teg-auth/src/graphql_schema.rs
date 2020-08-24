@@ -28,6 +28,7 @@ use crate::models::{
 
 use crate::machine::{
     EStopAndResetMutation,
+    query_resolvers::MachineQuery,
 };
 
 use crate::print_queue::tasks::{
@@ -63,6 +64,7 @@ impl Default for Mutation {
 pub struct Query(
     LegacyQuery,
     PrintQueueQuery,
+    MachineQuery,
 );
 
 impl Default for Query {
@@ -70,6 +72,7 @@ impl Default for Query {
         Self::new(
             LegacyQuery,
             PrintQueueQuery,
+            MachineQuery,
         )
     }
 }

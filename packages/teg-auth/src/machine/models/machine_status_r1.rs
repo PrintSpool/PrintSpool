@@ -1,5 +1,5 @@
 // Task Status Revison 1 (LATEST)
-// use async_graphql::Enum;
+use async_graphql::Enum;
 use serde::{Deserialize, Serialize};
 use crate::print_queue::tasks::Task;
 
@@ -11,6 +11,30 @@ pub enum MachineStatus {
     Printing(Printing),
     Errored,
     Stopped,
+}
+
+#[Enum]
+pub enum MachineStatusGQL {
+    Disconnected,
+    Connecting,
+    Ready,
+    Printing,
+    Errored,
+    #[item(name = "ESTOPPED")]
+    Stopped,
+}
+
+impl From<MachineStatus> for MachineStatusGQL {
+    fn from(status: MachineStatus) -> Self {
+        match status {
+          MachineStatus::Disconnected => MachineStatusGQL::Disconnected,
+          MachineStatus::Connecting => MachineStatusGQL::Connecting,
+          MachineStatus::Ready => MachineStatusGQL::Ready,
+          MachineStatus::Printing(_) => MachineStatusGQL::Printing,
+          MachineStatus::Errored => MachineStatusGQL::Errored,
+          MachineStatus::Stopped => MachineStatusGQL::Stopped,
+        }
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]

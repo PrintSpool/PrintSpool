@@ -1,3 +1,5 @@
+import { request } from 'graphql-request'
+
 import busyMachines, { BUSY_WITH_JOB } from '../../jobQueue/selectors/busyMachines'
 // import getComponents from '../../config/selectors/getComponents'
 // import getComponentsState from '../selectors/getComponentsState'
@@ -102,18 +104,38 @@ const MachineResolvers = {
       return plugins
     },
 
-    status: (source, args, { store }) => {
-      const state = store.getState()
+    // status: async (source, args, { store }) => {
+    //   const state = store.getState()
 
-      const { status } = source
-      if (
-        busyMachines(state.jobQueue)[source.id] === BUSY_WITH_JOB
-        && status === READY
-      ) {
-        return 'PRINTING'
+    //   const { status } = source
+    //   if (
+    //     busyMachines(state.jobQueue)[source.id] === BUSY_WITH_JOB
+    //     && status === READY
+    //   ) {
+    //     return 'PRINTING'
+    //   }
+
+    //   return status.substring(status.lastIndexOf('/') + 1)
+    // },
+
+    status: async (source) => {
+      const query = `
+        query(
+          $machineID: ID!
+        ) {
+          machines(id: $machineID) {
+            status
+          }
+        }
+      `
+
+      const variables = {
+        machineID: source.id,
       }
 
-      return status.substring(status.lastIndexOf('/') + 1)
+      const data = await request('http://127.0.0.1:33005/graphql', query, variables)
+
+      return data.machines[0].status
     },
 
     // logEntries: (source, args) => {
