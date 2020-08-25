@@ -45,7 +45,6 @@ fn read_config(config_path: &str) -> Result<configuration::Config> {
     let config_file_content = std::fs::read_to_string(config_path.clone())
         .with_context(|| format!("Unabled to read machine config (file: {:?})", config_path))?;
 
-    info!("CONFIG CONTENT: {}", config_file_content);
     let config: configuration::Config = toml::from_str(&config_file_content)
         .with_context(|| format!("Invalid machine config format (file: {:?})", config_path))?;
 
@@ -102,7 +101,9 @@ pub async fn init() -> Result<Context> {
     let config_path = config_path.unwrap_or("/etc/teg/machine.toml".to_string());
 
     let config = read_config(&config_path).unwrap();
-    let config = ArcSwap::new(Arc::new(config));
+    let config = Arc::new(ArcSwap::new(Arc::new(
+        config,
+    )));
 
     // Initialize database entries from the config
     let machine_config_id = config.load().id.clone();
@@ -115,7 +116,7 @@ pub async fn init() -> Result<Context> {
     };
 
     // Watch the config file for changes
-    let config_clone = config.clone();
+    let config_clone = Arc::clone(&config);
     let config_path_clone = config_path.clone();
     std::thread::spawn(move || {
         use notify::{Watcher, RecursiveMode, watcher, DebouncedEvent};

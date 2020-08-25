@@ -17,7 +17,7 @@ pub struct Context {
     pub current_user: Option<User>,
     pub identity_public_key: Option<String>,
     pub auth_pem_keys: ArcSwap<Vec<Vec<u8>>>,
-    pub machine_config: ArcSwap<Config>,
+    pub machine_config: Arc<ArcSwap<Config>>,
 }
 
 impl Context {
@@ -26,7 +26,7 @@ impl Context {
         current_user_id: Option<ID>,
         identity_public_key: Option<String>,
         auth_pem_keys: ArcSwap<Vec<Vec<u8>>>,
-        machine_config: ArcSwap<Config>,
+        machine_config: Arc<ArcSwap<Config>>,
     ) -> Result<Self> {
         let mut ctx = Self {
             db,

@@ -73,8 +73,8 @@ impl Task {
             stream::from_iter(iter)
         };
 
-        info!("before hook: {:#?}", core_plugin.model.before_print_hook);
-        info!("after hook: {:#?}", core_plugin.model.after_print_hook);
+        // info!("before hook: {:#?}", core_plugin.model.before_print_hook);
+        // info!("after hook: {:#?}", core_plugin.model.after_print_hook);
         let before_hook = hook(&core_plugin.model.before_print_hook);
         let after_hook = hook(&core_plugin.model.after_print_hook);
 
