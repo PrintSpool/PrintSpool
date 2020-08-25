@@ -46,9 +46,7 @@ pub async fn run_print_completion_loop(
                 if task.is_print() && task.status.was_successful() {
                     let config = ctx.machine_config.load();
 
-                    let automatic_printing = config.core_plugin()?.model["automaticPrinting"]
-                        .as_bool()
-                        .unwrap_or(false);
+                    let automatic_printing = config.core_plugin()?.model.automatic_printing;
 
                     handle_print_completion(
                         &ctx,

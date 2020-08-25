@@ -194,8 +194,10 @@ async fn app() -> Result<()> {
             user_id: Option<String>,
             identity_public_key: Option<String>,
         | {
-            info!("Req");
-            if std::env::var("TRACE_GRAPHQL_QUERY").is_ok() {
+            if std::env::var("LOG_GRAPHQL_REQ") == Ok("1".into()) {
+                info!("Req");
+            }
+            if std::env::var("TRACE_GRAPHQL_QUERY") == Ok("1".into()) {
                 trace!("Query:\n{}", builder.query_source().trim());
             }
 
@@ -224,10 +226,12 @@ async fn app() -> Result<()> {
                     .execute(&schema)
                     .await;
 
-                match res.as_ref() {
-                    Ok(res) => info!("Res: {:?}", res.data),
-                    Err(err) => warn!("Res: {:?}", err),
-                };
+                if std::env::var("LOG_GRAPHQL_RES") == Ok("1".into()) {
+                    match res.as_ref() {
+                        Ok(res) => info!("Res: {:?}", res.data),
+                        Err(err) => warn!("Res: {:?}", err),
+                    };
+                }
 
                 let res = GQLResponse::from(res);
 

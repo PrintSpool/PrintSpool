@@ -5,6 +5,7 @@ use futures::prelude::*;
 use async_std::{
     fs::{ self, File },
     io::{ BufReader, BufWriter },
+    stream,
 };
 
 use std::sync::Arc;
@@ -52,6 +53,9 @@ impl Task {
         let task_dir = "/var/lib/teg/tasks";
         let task_file_path = format!("{}/task_{}.gcode", task_dir, task_id.to_string());
 
+        let config = ctx.machine_config.load();
+        let core_plugin = config.core_plugin()?;
+
         /*
          * Preprocess GCodes (part file => task file)
          * =========================================================================================
@@ -59,6 +63,24 @@ impl Task {
 
         let part_file = File::open(part_file_path).await?;
         let gcodes = BufReader::new(part_file).lines();
+
+        let hook = |hook_gcodes: &String| {
+            let iter = hook_gcodes
+                .lines()
+                .map(|gcode| Ok(gcode.to_string()))
+                .collect::<Vec<_>>()
+                .into_iter();
+            stream::from_iter(iter)
+        };
+
+        info!("before hook: {:#?}", core_plugin.model.before_print_hook);
+        info!("after hook: {:#?}", core_plugin.model.after_print_hook);
+        let before_hook = hook(&core_plugin.model.before_print_hook);
+        let after_hook = hook(&core_plugin.model.after_print_hook);
+
+        let gcodes = before_hook
+            .chain(gcodes)
+            .chain(after_hook);
 
         let annotated_gcodes = compile_macros(
             Arc::clone(&ctx),
@@ -83,7 +105,7 @@ impl Task {
                             total_lines,
                             annotations,
                         ) = &mut acc;
-    
+
                         match item {
                             AnnotatedGCode::GCode(mut gcode) => {
                                 *total_lines += 1;

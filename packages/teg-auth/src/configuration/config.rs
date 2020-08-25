@@ -18,13 +18,36 @@ use anyhow::{
     Result,
     // Context as _,
 };
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(tag = "package")]
+pub enum Plugin {
+    #[serde(rename = "@tegapp/core")]
+    Core(PluginContainer<CorePluginModel>),
+    #[serde(other)]
+    UnknownPlugin,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct Plugin {
+pub struct PluginContainer<Model = toml::Value> {
     pub id: ID,
     pub model_version: u64,
-    pub package: String,
-    pub model: toml::Value,
+    pub model: Model,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CorePluginModel {
+    pub name: String,
+    #[serde(default)]
+    pub automatic_printing: bool,
+    pub before_print_hook: String,
+    pub after_print_hook: String,
+    #[serde(default)]
+    pub swap_x_and_y_orientation: bool,
+    #[serde(default)]
+    pub macros: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -47,20 +70,25 @@ pub struct Feedrate {
 }
 
 impl Config {
-    pub fn core_plugin<'a>(&'a self) -> Result<&'a Plugin> {
+    pub fn core_plugin<'a>(&'a self) -> Result<&'a PluginContainer<CorePluginModel>> {
         let core_plugin = self.plugins.iter()
-            .find(|plugin| plugin.package == "@tegapp/core")
+            .find_map(|plugin| {
+                match plugin {
+                    Plugin::Core(core_plugin) => {
+                        Some(core_plugin)
+                    }
+                    _ => None,
+                }
+            })
             .ok_or_else(|| anyhow!("Could not find @tegapp/core plugin config"))?;
 
         Ok(core_plugin)
     }
 
     pub fn name(&self) -> Result<String> {
-        let name = self.core_plugin()?.model["name"]
-            .as_str()
-            .ok_or_else(|| anyhow!("Unable to get name of machine"))?;
+        let name = self.core_plugin()?.model.name.clone();
 
-        Ok(name.to_string())
+        Ok(name)
     }
 
     pub fn get_controller(&self) -> &Controller {
@@ -87,7 +115,6 @@ impl Config {
     pub fn tty_path(&self) -> &String {
         &self.get_controller().serial_port_id
     }
-
 
     pub fn axes(&self) -> impl std::iter::Iterator<Item = &Axis> {
         self.components.iter().filter_map(|component| {
@@ -170,14 +197,6 @@ impl Config {
                 }
             })
             .collect()
-    }
-
-    pub fn transform_gcode_file_path(&self, file_path: String) -> String {
-        if let Some(snap_name) = &self.debug_snap_name {
-            format!("/tmp/snap.{}{}", snap_name, file_path)
-        } else {
-            file_path
-        }
     }
 
     pub fn var_path(&self) -> PathBuf {
