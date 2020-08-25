@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
   Typography,
   Button,
@@ -7,10 +7,12 @@ import {
 import { useTranslation } from 'react-i18next'
 
 import ButtonsFooter from '../ButtonsFooter'
+import { useExecGCodes2 } from '../../../_hooks/useExecGCodes'
 
 // {t('intro.title')}
 
 const Step1Introduction = ({
+  machine,
   component,
   classes,
   setActiveStep,
@@ -20,7 +22,16 @@ const Step1Introduction = ({
   const {
     bowdenTubeLength = 0,
     filamentSwapExtrudeDistance = 50,
+    beforeFilamentSwapHook = '',
   } = component.configForm.model
+
+  const execBeforeHook = useExecGCodes2(() => ({
+    machine,
+    gcodes: [beforeFilamentSwapHook],
+    sync: false,
+  }))
+
+  useEffect(execBeforeHook.run, [])
 
   const distance = filamentSwapExtrudeDistance + bowdenTubeLength
 

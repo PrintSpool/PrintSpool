@@ -61,10 +61,13 @@ const FormikSchemaField = ({
     helperText: property.description,
   }
 
-  let multiline = false
-  if (['beforePrintHook', 'afterPrintHook'].includes(name)) {
-    multiline = true
-  }
+  const gcodeHooks = [
+    'beforePrintHook',
+    'afterPrintHook',
+    'beforeFilamentSwapHook',
+  ]
+
+  const multiline = gcodeHooks.includes(name)
   // console.log({ name, multiline })
 
   switch (property.type) {

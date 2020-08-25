@@ -68,6 +68,7 @@ export const useExecGCodes2 = (callback, dependencies) => {
   }, dependencies)
 
   if (asyncExecGCodes.error) {
+    // eslint-disable-next-line no-console
     console.error(asyncExecGCodes.error)
     throw new Error(asyncExecGCodes.error)
   }

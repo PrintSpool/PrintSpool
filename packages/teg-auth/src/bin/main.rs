@@ -236,7 +236,8 @@ async fn app() -> Result<()> {
             };
 
             let req_handler = future::timeout(
-                std::time::Duration::from_millis(5_000),
+                // very long (1 hr 40 min) timeouts to allow for blocking sync gcodes
+                std::time::Duration::from_secs(6_000),
                 req_handler,
             );
 
@@ -246,6 +247,8 @@ async fn app() -> Result<()> {
                     Ok(Err(err)) => Err(err),
                     Err(err) => {
                         warn!("Request timeout");
+                        // TODO: this causes a parser error in NodeJS because it is expecting
+                        // json responses and gets plain text.
                         Err(ServiceError::from(err))?
                     },
                 }

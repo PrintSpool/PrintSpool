@@ -112,6 +112,7 @@ const printerConfig = {
         filamentSwapFastMoveSpeed: 100,
         filamentSwapFastMoveEnabled: false,
         filamentSwapExtrudeDistance: 50,
+        beforeFilamentSwapHook: '',
       },
     },
     {

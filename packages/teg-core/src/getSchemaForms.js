@@ -59,12 +59,12 @@ const getSchemaForms = () => ({
           default: false,
         },
         beforePrintHook: {
-          title: 'Before Print Hook (GCode)',
+          title: 'Before Print (GCode)',
           type: 'string',
           default: '',
         },
         afterPrintHook: {
-          title: 'After Print Hook (GCode)',
+          title: 'After Print (GCode)',
           type: 'string',
           default: '',
         },
@@ -415,6 +415,11 @@ const getSchemaForms = () => ({
               + 'through the bowden cable.',
             type: 'number',
             default: 200,
+          },
+          beforeFilamentSwapHook: {
+            title: 'Before Filament Swap (GCode)',
+            type: 'string',
+            default: '',
           },
         },
       }),
