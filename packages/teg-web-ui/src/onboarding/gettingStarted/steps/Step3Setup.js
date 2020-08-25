@@ -4,6 +4,7 @@ import gql from 'graphql-tag'
 import { GraphQL } from 'graphql-react'
 import { useMutation } from 'react-apollo-hooks'
 import { useAsync } from 'react-async'
+import { Link } from 'react-router-dom'
 
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
@@ -17,7 +18,6 @@ import Loading from '../../../common/Loading'
 import Step3SetupForm from './Step3SetupForm'
 
 import useStyles from './Step3Setup.styles'
-import { Link } from 'react-router-dom'
 
 const MACHINE_FORM_QUERY = gql`
   query($input: SchemaFormQueryInput!) {

@@ -57,6 +57,7 @@ const FILAMENT_SWAP_SUBSCRIPTION = gql`
         materials {
           id
           name
+          shortSummary
         }
       }
     }

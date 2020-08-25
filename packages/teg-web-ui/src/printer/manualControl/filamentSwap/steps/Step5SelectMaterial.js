@@ -1,15 +1,16 @@
 import React, { useState, useCallback } from 'react'
-import {
-  Typography,
-  TextField,
-  MenuItem,
-} from '@material-ui/core'
+
+import Typography from '@material-ui/core/Typography'
+import TextField from '@material-ui/core/TextField'
+import MenuItem from '@material-ui/core/MenuItem'
+import MUILink from '@material-ui/core/Link'
+
 import { useMutation } from 'react-apollo-hooks'
 import { useAsync } from 'react-async'
 import { useTranslation } from 'react-i18next'
 import gql from 'graphql-tag'
+import { Link } from 'react-router-dom'
 
-import useExecGCodes from '../../../_hooks/useExecGCodes'
 
 import ButtonsFooter from '../ButtonsFooter'
 import Loading from '../../../../common/Loading'
@@ -51,6 +52,7 @@ const Step5SelectMaterial = ({
   }, [component, materialID, next])
 
   if (saveAndGoToNext.error) {
+    // eslint-disable-next-line no-console
     console.error(saveAndGoToNext.error)
     throw new Error(saveAndGoToNext.error)
   }
@@ -70,14 +72,26 @@ const Step5SelectMaterial = ({
           value={materialID}
           onChange={useCallback(e => setMaterialID(e.target.value))}
           select
+          margin="normal"
           fullWidth
         >
           { materials.map(material => (
             <MenuItem key={material.id} value={material.id}>
-              {material.name}
+              {`${material.name} - ${material.shortSummary}`}
             </MenuItem>
           ))}
         </TextField>
+
+        <MUILink
+          className={classes.editMaterialsLink}
+          component={React.forwardRef((props, ref) => (
+            <Link to="../../config/materials/" innerRef={ref} {...props} />
+          ))}
+          paragraph
+          variant="body2"
+        >
+          Edit Materials
+        </MUILink>
       </div>
       { saveAndGoToNext.isPending && (
         <Loading transitionDelay={200} className={classes.saving}>

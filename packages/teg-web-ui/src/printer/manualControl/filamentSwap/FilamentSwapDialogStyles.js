@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core/styles'
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   root: {
     display: 'grid',
   },
@@ -37,9 +37,12 @@ const useStyles = makeStyles(() => ({
   selectMaterialRoot: {
     gridArea: '1 / 1',
   },
+  editMaterialsLink: {
+    marginTop: theme.spacing(2),
+  },
   loadFilamentRoot: {
     gridArea: '1 / 1',
   },
-}))
+}), { useTheme: true })
 
 export default useStyles
