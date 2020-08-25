@@ -6,6 +6,7 @@ use async_graphql::*;
 use async_graphql_warp::*;
 use anyhow::{Result};
 use async_std::task::spawn;
+use async_std::future;
 
 use warp::Filter;
 
@@ -14,6 +15,12 @@ use std::env;
 use std::{sync::Arc};
 use chrono::Duration;
 use dotenv::dotenv;
+
+use anyhow::{
+    // anyhow,
+    Context as _,
+    // Result,
+};
 
 use teg_auth::{
     init,
@@ -167,7 +174,10 @@ async fn app() -> Result<()> {
         .map(move |machine| {
             let machine: Machine = machine?;
             async_std::task::spawn(
-                handle_machine_socket(Arc::clone(&ctx_clone), machine.id),
+                handle_machine_socket(
+                    Arc::clone(&ctx_clone),
+                    machine.id,
+                ),
             );
             Ok(())
         })
@@ -178,7 +188,7 @@ async fn app() -> Result<()> {
 
     let graphql_filter = async_graphql_warp::graphql(schema)
         .and(warp::header::optional::<String>("user-id"))
-        .and(warp::header::optional::<String>("peer-identity-public-key"))  
+        .and(warp::header::optional::<String>("peer-identity-public-key"))
         .and_then(move |
             (schema, builder): (_, QueryBuilder),
             user_id: Option<String>,
@@ -199,7 +209,7 @@ async fn app() -> Result<()> {
                 machine_config_clone.clone(),
             );
 
-            async move {
+            let req_handler = async move {
                 let ctx = ctx
                     .await
                     .map(|ctx| Arc::new(ctx))
@@ -223,7 +233,23 @@ async fn app() -> Result<()> {
 
                 // Return result
                 Ok::<_, warp::reject::Rejection>(res)
-            }
+            };
+
+            let req_handler = future::timeout(
+                std::time::Duration::from_millis(5_000),
+                req_handler,
+            );
+
+            req_handler.then(|res| async {
+                match res.with_context(|| "Request timeout") {
+                    Ok(Ok(res)) => Ok(res),
+                    Ok(Err(err)) => Err(err),
+                    Err(err) => {
+                        warn!("Request timeout");
+                        Err(ServiceError::from(err))?
+                    },
+                }
+            })
         });
 
     let server = warp::serve(

@@ -33,7 +33,10 @@ pub async fn get_pem_keys() -> Result<Vec<Vec<u8>>> {
     let req = surf::get(uri)
         .recv_json();
 
-    let pem_keys: HashMap<String, String> = future::timeout(Duration::from_millis(5_000), req)
+    let pem_keys: HashMap<String, String> = future::timeout(
+        Duration::from_millis(5_000), 
+        req,
+    )
         .await
         .with_context(|| "Timedout fetching google PEM keys")?
         .map_err(|_| anyhow!("Unable to parse google PEM keys json"))?;
