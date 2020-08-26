@@ -290,6 +290,16 @@ expression: responses?
                     ],
                 ),
             ),
+            Feedback(
+                ActualTemperatures(
+                    [
+                        (
+                            "e0",
+                            24.4,
+                        ),
+                    ],
+                ),
+            ),
         ],
     },
 }

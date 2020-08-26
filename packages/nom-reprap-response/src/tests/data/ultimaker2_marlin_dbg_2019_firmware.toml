@@ -12,7 +12,7 @@
 
 [greeting]
   # Start the printer with an SD card inserted
-  # Note: There is a firmware bug where sarting the Ultimaker 2 with a SD Card the printer fails to 
+  # Note: There is a firmware bug where sarting the Ultimaker 2 with a SD Card the printer fails to
   # respond to MCodes sent over serial and eventually times out.
   greeting_with_sd_card = """\
     start\n\
@@ -106,6 +106,7 @@
   m109 = """\
     T:24.7 E:0 W:?\n\
     T:24.4 E:0 W:?\n\
+    T:24.4 E:0 W:2\n\
   """
 
 # SD Card
@@ -123,7 +124,7 @@
 
 [m21_init_sd_card]
   # "N2448 M21*42\n"
-  # Firmware Bug: m21 with an sd card inserted after the greeting freezes the printer/does not 
+  # Firmware Bug: m21 with an sd card inserted after the greeting freezes the printer/does not
   # even respond to tickles.
   # m21_success = """\
   # """

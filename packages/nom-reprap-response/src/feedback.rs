@@ -98,9 +98,9 @@ pub fn temperature_feedback<'r>(input: &'r str) ->  IResult<&'r str, Feedback> {
             let temperatures = temperatures
                 .into_iter()
                 .filter_map(|(address, v)| {
-                    // Skip "@" and "e" values. I have no idea what they are for but Marlin sends 
-                    // them.
-                    if address.contains('@') || address == "e" {
+                    // Skip "@", "e" and "w" values. I have no idea what they are for but Marlin
+                    // sends them.
+                    if address.contains('@') || address == "e" || address == "w" {
                         return None
                     };
 
