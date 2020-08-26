@@ -76,6 +76,9 @@ const EStopResetToggle = ({
     fn: eStop,
     title: 'Are you sure you want to stop the machine?',
     description: 'This will cancel your current print',
+    confirmationButtonProps: {
+      autoFocus: true,
+    },
   }))
 
   const toggle = showEStop ? confirmedEStop : reset
