@@ -1,10 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 
 import Typography from '@material-ui/core/Typography'
 import Fab from '@material-ui/core/Fab'
 import Tooltip from '@material-ui/core/Tooltip'
+import Button from '@material-ui/core/Button'
 
 import Add from '@material-ui/icons/Add'
+import MoveToInbox from '@material-ui/icons/MoveToInbox'
 
 import FileInput from '../../common/FileInput'
 import FloatingPrintNextButton from './components/FloatingPrintNextButton'
@@ -29,6 +31,7 @@ const JobQueueView = ({
   )
 
   const [printDialogFiles, setPrintDialogFiles] = useState()
+  const [isDragging, setDragging] = useState(false)
 
   // TODO: recreate job status with a more limited scope
   const categories = [
@@ -56,8 +59,50 @@ const JobQueueView = ({
     },
   ]
 
+
+  const onDragOver = useCallback((ev) => {
+    setDragging(true)
+
+    // Prevent default behavior (Prevent file from being opened)
+    ev.preventDefault()
+  }, [])
+
+  const onDragLeave = useCallback((ev) => {
+    setDragging(false)
+  }, [])
+
+  const onDrop = useCallback((ev) => {
+    setDragging(false)
+
+    // Prevent default behavior (Prevent file from being opened)
+    ev.preventDefault()
+
+    let files
+    if (ev.dataTransfer.items) {
+      // Use DataTransferItemList interface to access the file(s)
+      files = [...ev.dataTransfer.items]
+        .map((item) => item.getAsFile())
+        .filter(item => item != null)
+    } else {
+      files = [...ev.dataTransfer.files]
+    }
+
+    setPrintDialogFiles(files)
+  }, [])
+
+  console.log({ isDragging })
+
   return (
-    <div className={classes.root}>
+    <div
+      className={[
+        classes.root,
+        (isDragging || jobs.length === 0) ? classes.draggingOrEmpty : '',
+        isDragging ? classes.dragging : '',
+      ].join(' ')}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+    >
       { printDialogFiles && (
         <React.Suspense fallback={<div />}>
           <PrintDialog
@@ -67,15 +112,27 @@ const JobQueueView = ({
         </React.Suspense>
       )}
 
-      { jobs.length === 0 && (
-        <div className={classes.emptyQueueContainer}>
-          <Typography variant="h4" className={classes.emptyQueueText}>
-            the print queue is empty
+      { (isDragging || jobs.length === 0) && (
+        <div className={classes.dragArea}>
+          <MoveToInbox className={classes.dragIcon} />
+          <Typography variant="body2" className={classes.dragText}>
+            <Button
+              className={classes.chooseAFileButton}
+              component="label"
+            >
+              Choose a file
+              <FileInput
+                accept=".ngc,.gcode"
+                onClick={setPrintDialogFiles}
+              />
+            </Button>
+            or drag it here
           </Typography>
         </div>
       )}
+
       {
-        categories.map(({ title, jobsSubset }) => {
+        !isDragging && categories.map(({ title, jobsSubset }) => {
           if (jobsSubset.length === 0) return <div key={title} />
 
           return (

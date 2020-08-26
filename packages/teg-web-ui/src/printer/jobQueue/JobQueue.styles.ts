@@ -5,6 +5,45 @@ const useStyles = makeStyles(theme => ({
   root: {
     overflow: 'scroll',
   },
+  dragging: {
+    border: '4px dashed #666',
+  },
+  draggingOrEmpty: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dragArea: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    [theme.breakpoints.down('xs')]: {
+      flexDirection: 'column',
+    },
+  },
+  dragText: {
+    color: '#444',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    fontSize: '1.5rem',
+    [theme.breakpoints.down('xs')]: {
+      fontSize: '1rem',
+    },
+  },
+  chooseAFileButton: {
+    fontSize: '1.5rem',
+    [theme.breakpoints.down('xs')]: {
+      fontSize: '1rem',
+    },
+  },
+  dragIcon: {
+    fontSize: '3rem',
+    marginRight: '0.5rem',
+    color: '#444',
+  },
   emptyQueueContainer: {
     position: 'relative',
     top: '12vh',
