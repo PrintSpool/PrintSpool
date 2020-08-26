@@ -1,20 +1,16 @@
 import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(() => ({
-  webGLContainer: {
+  webGLLoadingOverlay: {
     minWidth: '80vw',
     height: '60vh',
     marginLeft: -24,
     marginRight: -24,
-    zIndex: 10,
   },
-  loading: {
-    position: 'absolute',
-    left: '0',
-    top: '40vh',
-    textAlign: 'center',
-    width: '100%',
-    color: '#999',
+  webGLContainer: {
+    minWidth: '80vw',
+    height: '60vh',
+    zIndex: 10,
   },
   largeFileMessage: {
     position: 'absolute',

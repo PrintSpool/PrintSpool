@@ -5,6 +5,7 @@ import {
   Button,
 } from '@material-ui/core'
 
+import LoadingOverlay from '../../common/LoadingOverlay'
 import PrintDialogContentStyles from './PrintDialogContentStyles'
 
 import renderGCode from './gcodeRenderer/renderGCode'
@@ -12,13 +13,15 @@ import renderGCode from './gcodeRenderer/renderGCode'
 const MB = 1000 * 1000
 
 const PrintDialogContent = ({
+  submitting,
   files,
+  loading,
+  setLoading,
 }) => {
   const classes = PrintDialogContentStyles()
 
   const largeFile = files[0].size > 5 * MB
 
-  const [loading, setLoading] = useState(true)
   const [shouldLoad, setShouldLoad] = useState(!largeFile)
   const webGLContainer = useRef()
 
@@ -48,18 +51,18 @@ const PrintDialogContent = ({
           </Button>
         </Typography>
       )}
-      {shouldLoad && loading && (
-        <Typography
-          variant="h5"
-          className={classes.loading}
-        >
-          Loading Preview...
-        </Typography>
-      )}
-      <div
-        ref={webGLContainer}
-        className={classes.webGLContainer}
-      />
+      <LoadingOverlay
+        className={classes.webGLLoadingOverlay}
+        loading={submitting || (shouldLoad && loading)}
+        loadingText={submitting ? 'Uploading Print...' : 'Loading Preview...'}
+        transitionDelay={300}
+        noSpinner
+      >
+        <div
+          className={classes.webGLContainer}
+          ref={webGLContainer}
+        />
+      </LoadingOverlay>
     </div>
   )
 }

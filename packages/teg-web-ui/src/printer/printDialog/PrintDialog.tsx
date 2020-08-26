@@ -1,5 +1,6 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import gql from 'graphql-tag'
+import { useAsync } from 'react-async'
 
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
@@ -44,29 +45,41 @@ const PrintDialog = ({
 
   const machine = (subscription as any).data?.machines.find(machine => machine.status === 'READY')
 
-  const addToQueue = useCallback(async () => {
-    const createJobResult = await createJob()
-    if (createJobResult.errors == null) onClose()
-  }, [])
+  const [loading, setLoading] = useState(true)
 
-  const printNow = useCallback(async () => {
-    const createJobResult = await createJob()
-    if (createJobResult.errors != null) return
-    console.log({ createJobResult })
+  const submit = useAsync({
+    deferFn: async ([{ printNow }]) => {
+      const createJobResult = await createJob()
+      if (createJobResult.errors != null) {
+        throw new Error(createJobResult.errors[0].message)
+      }
+      console.log({ createJobResult })
 
-    const spoolJobFileResult = await spoolJobFile({
-      variables: {
-        input: {
-          machineID: machine.id,
-          jobFileID: createJobResult.data.createJob.files[0].id,
-        },
-      },
-    })
+      if (printNow) {
+        const spoolJobFileResult = await spoolJobFile({
+          variables: {
+            input: {
+              machineID: machine.id,
+              jobFileID: createJobResult.data.createJob.files[0].id,
+            },
+          },
+        })
 
-    if (spoolJobFileResult.errors != null) return
+        if (spoolJobFileResult.errors != null) {
+          throw new Error(spoolJobFileResult.errors[0].message)
+        }
+      }
 
-    onClose()
-  }, [machine])
+      onClose()
+    },
+  })
+
+  if (submit.error) {
+    throw submit.error
+  }
+
+  const addToQueue = useCallback(() => submit.run({ printNow: false }), [machine, files])
+  const printNow = useCallback(() => submit.run({ printNow: true }), [machine, files])
 
   if (subscription.loading) {
     return <div />
@@ -92,13 +105,19 @@ const PrintDialog = ({
       </DialogTitle>
       <DialogContent>
         { open && (
-          <PrintDialogContent files={files} />
+          <PrintDialogContent
+            files={files}
+            submitting={submit.isPending}
+            loading={loading}
+            setLoading={setLoading}
+          />
         )}
       </DialogContent>
       <DialogActions>
         <Button
           onClick={addToQueue}
           variant="outlined"
+          disabled={loading || submit.isPending}
         >
           Add to Queue
         </Button>
@@ -106,7 +125,7 @@ const PrintDialog = ({
           onClick={printNow}
           color="primary"
           variant="contained"
-          disabled={machine == null}
+          disabled={machine == null || loading || submit.isPending}
         >
           Print Now
         </Button>

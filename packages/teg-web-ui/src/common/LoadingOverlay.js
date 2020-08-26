@@ -4,12 +4,23 @@ import React from 'react'
 import Loading from './Loading'
 import useStyles from './LoadingOverlayStyles'
 
-const LoadingOverlay = ({ children, loading }) => {
+const LoadingOverlay = ({
+  className,
+  children,
+  loading,
+  loadingText,
+  ...props
+}) => {
   const classes = useStyles()
   return (
-    <div className={classes.root}>
+    <div className={`${classes.root} ${className}`}>
       { loading && (
-        <Loading className={classes.loading} />
+        <Loading
+          className={classes.loading}
+          {...props}
+        >
+          {loadingText || 'Loading...'}
+        </Loading>
       )}
       <div className={classes.content}>
         {children}
