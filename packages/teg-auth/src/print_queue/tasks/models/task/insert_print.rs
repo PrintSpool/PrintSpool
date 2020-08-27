@@ -46,6 +46,7 @@ impl Task {
         ctx: &Arc<crate::Context>,
         machine_id: u64,
         part_id: u64,
+        automatic_print: bool,
     ) -> Result<Task> {
         let part_file_path = Part::get(&ctx.db, part_id)?.file_path;
 
@@ -164,7 +165,7 @@ impl Task {
             )?;
             let task_id = task_id.clone();
 
-            if !machine.status.can_start_task(&task) {
+            if !machine.status.can_start_task(&task, automatic_print) {
                 Err(VersionedModelError::from(
                     anyhow!("Cannot start task when machine is: {:?}", machine.status)
                 ))?;

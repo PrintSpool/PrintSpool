@@ -65,7 +65,12 @@ impl SpoolJobFileMutation {
             .with_context(|| format!("No machine found for ID: {:?}", input.machine_config_id))?
             .id;
 
-        let task = Task::insert_print(&ctx, machine_id, part_id).await?;
+        let task = Task::insert_print(
+            &ctx,
+            machine_id,
+            part_id,
+            false
+        ).await?;
 
         Ok(task)
     }

@@ -75,10 +75,9 @@ impl MachineStatus {
       }
     }
 
-    pub fn can_start_task(&self, task: &Task) -> bool {
+    pub fn can_start_task(&self, task: &Task, automatic_print: bool) -> bool {
         match self {
-            Self::Ready | Self::Printing(_) if task.machine_override => true,
-            Self::Printing(_) if self.is_printing_task(task.id) => true,
+            Self::Printing(_) if task.machine_override || automatic_print => true,
             Self::Ready => true,
             _ => false
         }

@@ -50,7 +50,7 @@ struct ExecGCodesInput {
     /// override GCodes will not block. Cannot be used with sync = true.
     r#override: Option<bool>,
 
-    /// In addition to GCodes strings (eg. `gcodes: ["G1 X10"]`), Teg also supports a 
+    /// In addition to GCodes strings (eg. `gcodes: ["G1 X10"]`), Teg also supports a
     /// JSON format to simplify writing gcode n javascript:
     ///
     ///     `gcodes: [{ g1: { x: 10 } }, { g1: { y: 20 } }]`
@@ -131,7 +131,7 @@ impl ExecGCodesMutation {
         let (gcodes, annotations) = annotated_gcodes
             .try_fold((vec![], vec![]), |mut acc, item| {
                 let (
-                    gcodes, 
+                    gcodes,
                     annotations,
                 ) = &mut acc;
 
@@ -172,7 +172,7 @@ impl ExecGCodesMutation {
         let task = ctx.db.transaction(move |db| {
             let machine = Machine::get(&db, machine_id)?;
 
-            if !machine.status.can_start_task(&task) {
+            if !machine.status.can_start_task(&task, false) {
                 Err(VersionedModelError::from(
                     anyhow!("Cannot start task when machine is: {:?}", machine.status)
                 ))?;

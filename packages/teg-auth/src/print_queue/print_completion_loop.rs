@@ -130,7 +130,12 @@ async fn handle_print_completion(
 
     if let Some(next_part) = next_part {
         // Start the print
-        Task::insert_print(&ctx, task.machine_id, next_part.id).await?;
+        Task::insert_print(
+            &ctx,
+            task.machine_id,
+            next_part.id,
+            true,
+        ).await?;
     } else {
         // Reset the machine status to ready if there are no more parts to print
         Machine::set_status(&ctx.db, task.machine_id, |machine| {
