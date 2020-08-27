@@ -45,7 +45,7 @@ impl MoveMacro {
     }
 
     pub async fn compile(&self, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
-        let (g1, feedrate) = self.g1_and_feedrate(ctx).await?;
+        let (g1, feedrate, _) = self.g1_and_feedrate(ctx).await?;
 
         let mut gcodes = vec![
             (if self.relative_movement { "G91" } else { "G90" }).to_string(),
@@ -70,7 +70,7 @@ impl MoveMacro {
         Ok(gcodes)
     }
 
-    pub async fn g1_and_feedrate(&self, ctx: Arc<Context>) -> Result<(String, f32)> {
+    pub async fn g1_and_feedrate(&self, ctx: Arc<Context>) -> Result<(String, f32, Vec<Feedrate>)> {
         if let Some(feedrate) = self.feedrate {
             if feedrate < 0.0 {
                 Err(anyhow!("feedrate must be greater then zero if set. Got: {}", feedrate))?;
@@ -85,20 +85,29 @@ impl MoveMacro {
             .await?;
 
         let mut g1_args = vec![];
-        for axis in feedrates.iter() {
+        for feedrate_info in feedrates.iter() {
             // TODO: does this work with multi-extruder printers?
-            let address = if axis.is_toolhead {
-                "e".to_string()
+            let address = if feedrate_info.is_toolhead {
+                "E".to_string()
             } else {
-                axis.address.clone()
+                feedrate_info.address.to_ascii_uppercase()
             };
 
-            let distance = self.axes.get(&axis.address)
+            let direction_sign = if feedrate_info.reverse_direction {
+                -1.0
+            } else {
+                1.0
+            };
+
+            let distance = self.axes.get(&feedrate_info.address)
                 .ok_or_else(||
-                    anyhow!("Invariant: address ({:?}) not found in self.axes", axis.address)
+                    anyhow!(
+                        "Invariant: address ({:?}) not found in self.axes",
+                        feedrate_info.address,
+                    )
                 )?;
 
-            g1_args.push(format!("{}{}", address.to_ascii_uppercase(), distance));
+            g1_args.push(format!("{}{}", address, direction_sign * distance));
         }
 
         let feedrate = if let Some(feedrate) = self.feedrate {
@@ -119,6 +128,7 @@ impl MoveMacro {
         Ok((
             gcode,
             feedrate,
+            feedrates,
         ))
     }
 }

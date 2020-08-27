@@ -232,12 +232,18 @@ const getSchemaForms = () => ({
             title: 'Feedrate (mm/s)',
             type: 'number',
           },
+          reverseDirection: {
+            title: 'Reverse direction for move buttons and macros',
+            type: 'boolean',
+            default: false,
+          },
         },
       }),
       form: [
         'name',
         'address',
         'feedrate',
+        'reverseDirection',
       ],
     },
     [BUILD_PLATFORM]: {

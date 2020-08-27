@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 // use serde_json::json;
 use anyhow::{
-    // anyhow,
+    anyhow,
     Result,
     // Context as _,
 };
@@ -74,7 +74,7 @@ impl MoveContinuousMacro {
 
         // calculate the feedrate
         let ctx_clone = Arc::clone(&ctx);
-        let (_, feedrate_mm_per_min) = move_macro.g1_and_feedrate(ctx_clone).await?;
+        let (_, feedrate_mm_per_min, _) = move_macro.g1_and_feedrate(ctx_clone).await?;
 
         // base move distances off the calculated feedrate
         let total_distance = feedrate_mm_per_min as f32 * self.ms / 60_000.0;
@@ -88,7 +88,7 @@ impl MoveContinuousMacro {
 
         let segment_count: i32 = 3;
         move_macro.axes = directions.iter().fold(
-            HashMap::new(), 
+            HashMap::new(),
             |mut acc, (k, direction)| {
                 acc.insert(k.clone(), axe_distance * direction / (segment_count as f32));
                 acc
@@ -97,7 +97,21 @@ impl MoveContinuousMacro {
 
         // recalculate a g1 move from the distances
         let ctx_clone = Arc::clone(&ctx);
-        let (g1, _) = move_macro.g1_and_feedrate(ctx_clone).await?;
+        let (g1, _, feedrates) = move_macro.g1_and_feedrate(ctx_clone).await?;
+
+        // applying reverse direction configs
+        let mut mark_axes = self.axes.clone();
+        for axis in mark_axes.iter_mut() {
+            let feedrate_info = feedrates.iter()
+                .find(|f| &f.address == axis.0)
+                .ok_or_else(||
+                    anyhow!("Invaraint: Continuous move axis not found in feedrates list")
+                )?;
+
+            if feedrate_info.reverse_direction {
+                axis.1.forward = !axis.1.forward
+            };
+        };
 
         let gcodes = vec![
             "M114".to_string(),
@@ -111,7 +125,7 @@ impl MoveContinuousMacro {
             g1.clone(),
             "G90".to_string(),
             // wait to reach the previous target position and then unblock
-            driver_macro(json!({"waitToReachMark": { "axes": self.axes.clone() } })),
+            driver_macro(json!({"waitToReachMark": { "axes": mark_axes } })),
         ];
 
         let gcodes = gcodes

@@ -64,6 +64,8 @@ pub struct Axis {
     pub address: String,
     pub name: String,
     pub feedrate: f32,
+    #[serde(default)]
+    pub reverse_direction: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

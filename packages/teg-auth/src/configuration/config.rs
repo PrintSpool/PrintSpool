@@ -66,6 +66,7 @@ pub struct Config {
 pub struct Feedrate {
     pub address: String,
     pub feedrate: f32,
+    pub reverse_direction: bool,
     pub is_toolhead: bool,
 }
 
@@ -158,11 +159,13 @@ impl Config {
                 Component::Axis( axis ) => Some(Feedrate {
                     address: axis.address.clone(),
                     feedrate: axis.feedrate,
+                    reverse_direction: axis.reverse_direction,
                     is_toolhead: false,
                 }),
                 Component::Toolhead( toolhead ) => Some(Feedrate {
                     address: toolhead.address.clone(),
                     feedrate: toolhead.feedrate,
+                    reverse_direction: false,
                     is_toolhead: true,
                 }),
                 _ => None,
