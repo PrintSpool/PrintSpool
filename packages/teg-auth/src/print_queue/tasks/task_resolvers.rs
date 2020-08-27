@@ -52,7 +52,7 @@ impl Task {
             .map(|n| n + 1)
             .unwrap_or(0);
 
-        let percent = (printed_lines / self.total_lines) as f32;
+        let percent = 100.0 * (printed_lines as f32) / (self.total_lines as f32);
 
         if let Some(digits) = digits {
             let scale = 10f32.powi(digits as i32);
