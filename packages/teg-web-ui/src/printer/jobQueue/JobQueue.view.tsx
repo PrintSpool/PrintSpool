@@ -87,7 +87,9 @@ const JobQueueView = ({
       files = [...ev.dataTransfer.files]
     }
 
-    setPrintDialogFiles(files)
+    if (files.length > 0) {
+      setPrintDialogFiles(files)
+    }
   }, [])
 
   console.log({ isDragging })
