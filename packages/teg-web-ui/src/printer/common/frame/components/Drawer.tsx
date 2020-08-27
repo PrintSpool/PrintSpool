@@ -106,7 +106,7 @@ const Drawer = ({
                 href={`/m/${machineSlug}/${machine.id}/terminal/`}
               />
               <DrawerLink
-                text="Config"
+                text="Settings"
                 icon={<Settings />}
                 href={`/m/${machineSlug}/${machine.id}/config/`}
               />
