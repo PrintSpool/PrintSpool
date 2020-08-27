@@ -14,7 +14,11 @@ import VideoStreamer from './videoStreamer/VideoStreamer'
 
 import useStyles from './ManualControl.styles'
 
-const ManualControlView = ({ machine, isReady }) => {
+const ManualControlView = ({
+  machine,
+  isReady,
+  execGCodes,
+}) => {
   const classes = useStyles()
 
   const showVideoStreamer = machine.components.some(c => c.type === 'VIDEO')
@@ -80,6 +84,7 @@ const ManualControlView = ({ machine, isReady }) => {
                 key={component.id}
                 machine={machine}
                 component={component}
+                execGCodes={execGCodes}
                 disabled={!isReady}
               />
             ))

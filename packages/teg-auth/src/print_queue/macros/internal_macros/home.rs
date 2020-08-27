@@ -29,11 +29,6 @@ pub enum HomeAxes {
     Axes(Vec<String>),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct MoveContinuousAxis {
-    pub forward: bool,
-}
-
 impl HomeMacro {
     // pub fn key() -> &'static str { "home" }
 

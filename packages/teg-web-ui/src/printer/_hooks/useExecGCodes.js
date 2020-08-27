@@ -23,16 +23,18 @@ const useExecGCodes = (callback, dependencies) => {
       machine,
       machineID,
       gcodes,
+      override,
       sync,
       ...mutationOptions
     } = callback(...args)
 
-    execGCodes({
+    return execGCodes({
       ...mutationOptions,
       variables: {
         input: {
           machineID: machineID || machine.id,
           gcodes,
+          override,
           sync,
         },
       },
@@ -50,20 +52,30 @@ export const useExecGCodes2 = (callback, dependencies) => {
         machine,
         machineID,
         gcodes,
+        override,
         sync,
         ...mutationOptions
       } = callback(...args)
 
-      await execGCodes({
+      console.log({
+        machineID: machineID || machine.id,
+        gcodes,
+        override,
+        sync,
+      })
+
+      const resp = await execGCodes({
         ...mutationOptions,
         variables: {
           input: {
             machineID: machineID || machine.id,
             gcodes,
+            override,
             sync,
           },
         },
       })
+      console.log(resp)
     },
   }, dependencies)
 

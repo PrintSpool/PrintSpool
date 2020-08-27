@@ -8,6 +8,7 @@ import { ComponentControlFragment } from './printerComponents/ComponentControl'
 
 import ManualControlView from './ManualControl.view'
 import useLiveSubscription from '../_hooks/useLiveSubscription'
+import useExecGCodes from '../_hooks/useExecGCodes'
 
 const MANUAL_CONTROL_SUBSCRIPTION = gql`
   subscription ManualControlSubscription($machineID: ID!) {
@@ -40,6 +41,15 @@ const ManualControlPage = () => {
     },
   })
 
+  const machine = (data as any)?.singularMachine[0]
+  const isReady = machine?.status === 'READY'
+
+  const execGCodes = useExecGCodes(args => ({ machine, ...args }), [machine])
+  // const execGCodes = useCallback(async (args) => {
+  //   execGCodesAsync.run(args)
+  //   await execGCodesAsync.promise
+  // }, [machine])
+
   if (loading) {
     return <div />
   }
@@ -48,14 +58,12 @@ const ManualControlPage = () => {
     throw error
   }
 
-  const machine = (data as any).singularMachine[0]
-  const isReady = machine?.status === 'READY'
-
   return (
     <ManualControlView
       {...{
         machine,
         isReady,
+        execGCodes,
       }}
     />
   )

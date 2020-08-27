@@ -19,7 +19,7 @@ const LoadingOverlay = ({
           className={classes.loading}
           {...props}
         >
-          {loadingText || 'Loading...'}
+          {loadingText == null ? 'Loading...' : loadingText}
         </Loading>
       )}
       <div className={classes.content}>

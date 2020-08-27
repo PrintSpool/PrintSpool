@@ -93,7 +93,8 @@ impl MoveMacro {
                 feedrate_info.address.to_ascii_uppercase()
             };
 
-            let direction_sign = if feedrate_info.reverse_direction {
+            let reverse = self.relative_movement && feedrate_info.reverse_direction;
+            let direction_sign = if reverse {
                 -1.0
             } else {
                 1.0

@@ -23,7 +23,7 @@ const ExtruderButton = ({
       {buttons.map(key => (
         <Button
           key={key}
-          variant="contained"
+          variant="outlined"
           color={key === 'extrude' ? 'primary' : 'default'}
           onClick={
             jog(component.address, key === 'extrude' ? 1 : -1)

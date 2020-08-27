@@ -19,7 +19,8 @@ use crate::{
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ToggleHeatersMacro {
     pub heaters: HashMap<String, bool>,
-    pub sync: Option<bool>,
+    #[serde(default)]
+    pub sync: bool,
 }
 
 fn find_material<'a>(host_config: &'a toml::Value, material_id: &String) -> Option<toml::Value> {

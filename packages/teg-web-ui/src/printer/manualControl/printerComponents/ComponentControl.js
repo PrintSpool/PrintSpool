@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import gql from 'graphql-tag'
-import {
-  Card,
-  CardContent,
-  Grid,
-  Typography,
-  Button,
-} from '@material-ui/core'
+
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
+import Grid from '@material-ui/core/Grid'
+import Typography from '@material-ui/core/Typography'
+import Button from '@material-ui/core/Button'
+
 import { Link } from 'react-router-dom'
 
 import ExtrudeRetractButtons from '../ExtrudeRetractButtons'
@@ -17,6 +17,7 @@ import FanSection from './FanSection'
 import TemperatureChart from '../TemperatureChart'
 
 import ComponentControlStyles from './ComponentControlStyles'
+import OverrideTempButton from './OverrideTempButton'
 
 export const ComponentControlFragment = gql`
   fragment ComponentControlFragment on Component {
@@ -56,6 +57,7 @@ const ComponentControl = ({
   machine,
   component,
   disabled,
+  execGCodes,
 }) => {
   const classes = ComponentControlStyles()
   const { toolhead } = component
@@ -101,31 +103,40 @@ const ComponentControl = ({
               flexDirection: 'column',
             }}
           >
-            {component.type === 'TOOLHEAD' && (
+            {component.heater != null && (
               <React.Fragment>
                 <div className={classes.extruderButtons}>
-                  {toolhead && (
-                    <Button
-                      className={classes.extruderButton}
-                      disabled={disabled}
-                      component={React.forwardRef((props, ref) => (
-                        <Link
-                          to={`swap-filament/${component.id}`}
-                          innerRef={ref}
-                          {...props}
-                        />
-                      ))}
-                    >
-                      Swap Filament
-                    </Button>
-                  )}
-                  <ExtrudeRetractButtons
-                    className={classes.extruderButton}
-                    machine={machine}
-                    component={component}
-                    distance={distance}
-                    disabled={disabled}
+                  <OverrideTempButton
+                    {...{
+                      machine,
+                      component,
+                      execGCodes,
+                    }}
                   />
+                  {isToolhead && (
+                    <>
+                      <Button
+                        className={classes.extruderButton}
+                        disabled={disabled}
+                        component={React.forwardRef((props, ref) => (
+                          <Link
+                            to={`swap-filament/${component.id}`}
+                            innerRef={ref}
+                            {...props}
+                          />
+                        ))}
+                      >
+                        Swap Filament
+                      </Button>
+                      <ExtrudeRetractButtons
+                        className={classes.extruderButton}
+                        machine={machine}
+                        component={component}
+                        distance={distance}
+                        disabled={disabled}
+                      />
+                    </>
+                  )}
                 </div>
                 <JogDistanceButtons
                   className={classes.extruderJogDistances}

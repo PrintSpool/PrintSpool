@@ -1,10 +1,9 @@
 import React from 'react'
 
-import {
-  Typography,
-  Switch,
-  FormControlLabel,
-} from '@material-ui/core'
+import Typography from '@material-ui/core/Typography'
+import Switch from '@material-ui/core/Switch'
+import Button from '@material-ui/core/Button'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
 
 import useExecGCodes from '../../_hooks/useExecGCodes'
 
@@ -34,9 +33,6 @@ const TemperatureSection = ({
   }), [id])
 
   const isHeating = (targetTemperature || 0) > 0
-  const targetText = (
-    targetTemperature == null ? 'OFF' : `${targetTemperature}°C`
-  )
 
   return (
     <React.Fragment>
@@ -45,7 +41,8 @@ const TemperatureSection = ({
         °C /
         <sup style={{ fontSize: '50%' }}>
           {' '}
-          {targetText}
+          { targetTemperature == null && 'OFF' }
+          { targetTemperature != null && `${targetTemperature}°C`}
         </sup>
       </Typography>
       <div style={{ marginTop: -3 }}>
