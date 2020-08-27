@@ -126,7 +126,7 @@ const JobQueueView = ({
                 onClick={setPrintDialogFiles}
               />
             </Button>
-            or drag it here
+            or drag it here to print
           </Typography>
         </div>
       )}
