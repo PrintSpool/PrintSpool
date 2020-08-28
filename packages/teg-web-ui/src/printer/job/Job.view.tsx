@@ -83,7 +83,9 @@ const JobView = ({
                 cancelTask={() => {
                   cancelTask({
                     variables: {
-                      machineID: task.machine.id,
+                      // Temporary work arounds for current Rust / NodeJS machine ID difference
+                      // machineID: task.machine.id,
+                      machineID: machine.id,
                     },
                   })
                 }}
