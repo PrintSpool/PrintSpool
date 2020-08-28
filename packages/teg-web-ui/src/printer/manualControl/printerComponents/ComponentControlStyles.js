@@ -8,6 +8,9 @@ const useStyles = makeStyles(theme => ({
   },
   extruderButtons: {
     textAlign: 'right',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'right',
   },
   extruderButton: {
     marginLeft: theme.spacing(1),

@@ -135,7 +135,7 @@ const ComponentControl = ({
                         machine={machine}
                         component={component}
                         distance={distance}
-                        disabled={!isReady}
+                        isReady={isReady}
                       />
                     </>
                   )}
