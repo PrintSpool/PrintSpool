@@ -43,6 +43,7 @@ const ManualControlPage = () => {
 
   const machine = (data as any)?.singularMachine[0]
   const isReady = machine?.status === 'READY'
+  const isPrinting = machine?.status === 'PRINTING'
 
   const execGCodes = useExecGCodes(args => ({ machine, ...args }), [machine])
   // const execGCodes = useCallback(async (args) => {
@@ -63,6 +64,7 @@ const ManualControlPage = () => {
       {...{
         machine,
         isReady,
+        isPrinting,
         execGCodes,
       }}
     />

@@ -14,6 +14,7 @@ import LoadingOverlay from '../../../common/LoadingOverlay'
 const OverrideTempButton = ({
   component,
   execGCodes,
+  disabled,
 }) => {
   const {
     handleSubmit,
@@ -57,7 +58,7 @@ const OverrideTempButton = ({
   return (
     <>
       <Button
-        disabled={component.heater.targetTemperature == null}
+        disabled={disabled}
         onClick={toggle}
       >
         Override Temperature

@@ -56,7 +56,8 @@ export const ComponentControlFragment = gql`
 const ComponentControl = ({
   machine,
   component,
-  disabled,
+  isReady,
+  isPrinting,
   execGCodes,
 }) => {
   const classes = ComponentControlStyles()
@@ -88,7 +89,7 @@ const ComponentControl = ({
                 <TemperatureSection
                   machine={machine}
                   component={component}
-                  disabled={disabled}
+                  disabled={!isReady}
                 />
               )
             }
@@ -111,13 +112,14 @@ const ComponentControl = ({
                       machine,
                       component,
                       execGCodes,
+                      disabled: !isReady && !isPrinting,
                     }}
                   />
                   {isToolhead && (
                     <>
                       <Button
                         className={classes.extruderButton}
-                        disabled={disabled}
+                        disabled={!isReady}
                         component={React.forwardRef((props, ref) => (
                           <Link
                             to={`swap-filament/${component.id}`}
@@ -133,7 +135,7 @@ const ComponentControl = ({
                         machine={machine}
                         component={component}
                         distance={distance}
-                        disabled={disabled}
+                        disabled={!isReady}
                       />
                     </>
                   )}
@@ -171,7 +173,7 @@ const ComponentControl = ({
                   machine={machine}
                   component={component}
                   address={component.address}
-                  disabled={disabled}
+                  disabled={!isReady}
                 />
               )
             }

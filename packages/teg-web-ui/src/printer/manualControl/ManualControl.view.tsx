@@ -17,6 +17,7 @@ import useStyles from './ManualControl.styles'
 const ManualControlView = ({
   machine,
   isReady,
+  isPrinting,
   execGCodes,
 }) => {
   const classes = useStyles()
@@ -85,7 +86,8 @@ const ManualControlView = ({
                 machine={machine}
                 component={component}
                 execGCodes={execGCodes}
-                disabled={!isReady}
+                isReady={isReady}
+                isPrinting={isPrinting}
               />
             ))
         }
