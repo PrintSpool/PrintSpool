@@ -2,7 +2,6 @@ import React from 'react'
 
 import Typography from '@material-ui/core/Typography'
 import Switch from '@material-ui/core/Switch'
-import Button from '@material-ui/core/Button'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 
 import useExecGCodes from '../../_hooks/useExecGCodes'
@@ -13,6 +12,7 @@ const TemperatureSection = ({
   machine,
   component,
   disabled,
+  printOverridesOnly,
 }) => {
   const {
     id,
@@ -45,19 +45,21 @@ const TemperatureSection = ({
           { targetTemperature != null && `${targetTemperature}°C`}
         </sup>
       </Typography>
-      <div style={{ marginTop: -3 }}>
-        <FormControlLabel
-          control={(
-            <Switch
-              checked={isHeating}
-              onChange={toggleHeater}
-              disabled={disabled}
-              aria-label="heating"
-            />
-            )}
-          label="Enable Heater"
-        />
-      </div>
+      {!printOverridesOnly && (
+        <div style={{ marginTop: -3 }}>
+          <FormControlLabel
+            control={(
+              <Switch
+                checked={isHeating}
+                onChange={toggleHeater}
+                disabled={disabled}
+                aria-label="heating"
+              />
+              )}
+            label="Enable Heater"
+          />
+        </div>
+      )}
     </React.Fragment>
   )
 }

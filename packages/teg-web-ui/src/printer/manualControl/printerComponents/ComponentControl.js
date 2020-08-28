@@ -53,12 +53,14 @@ export const ComponentControlFragment = gql`
     }
   }
 `
+
 const ComponentControl = ({
   machine,
   component,
   isReady,
   isPrinting,
   execGCodes,
+  printOverridesOnly = false,
 }) => {
   const classes = ComponentControlStyles()
   const { toolhead } = component
@@ -90,6 +92,7 @@ const ComponentControl = ({
                   machine={machine}
                   component={component}
                   disabled={!isReady}
+                  printOverridesOnly={printOverridesOnly}
                 />
               )
             }
@@ -115,7 +118,7 @@ const ComponentControl = ({
                       disabled: !isReady && !isPrinting,
                     }}
                   />
-                  {isToolhead && (
+                  {isToolhead && !printOverridesOnly && (
                     <>
                       <Button
                         className={classes.extruderButton}
@@ -140,14 +143,16 @@ const ComponentControl = ({
                     </>
                   )}
                 </div>
-                <JogDistanceButtons
-                  className={classes.extruderJogDistances}
-                  distanceOptions={distanceOptions}
-                  input={{
-                    value: distance,
-                    onChange,
-                  }}
-                />
+                { isToolhead && !printOverridesOnly && (
+                  <JogDistanceButtons
+                    className={classes.extruderJogDistances}
+                    distanceOptions={distanceOptions}
+                    input={{
+                      value: distance,
+                      onChange,
+                    }}
+                  />
+                )}
               </React.Fragment>
             )}
             {
@@ -173,7 +178,8 @@ const ComponentControl = ({
                   machine={machine}
                   component={component}
                   address={component.address}
-                  disabled={!isReady}
+                  disabled={!isReady && !isPrinting}
+                  execGCodes={execGCodes}
                 />
               )
             }

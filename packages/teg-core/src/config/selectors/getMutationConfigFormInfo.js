@@ -23,7 +23,7 @@ const getMutationConfigFormInfo = ({ state, args }) => {
     const collectionMap = state.config.getIn(collectionPath)
 
     const index = collectionMap.findIndex(c => (
-      c.id === configFormID
+      c.id === configFormID.replace('component-', '')
     ))
 
     if (index === -1) {

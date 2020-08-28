@@ -4,11 +4,11 @@ import actionResolver from '../../util/actionResolver'
 // import consumeInvite from '../../auth/sideEffects/consumeInvite'
 
 import updateUser from '../../auth/sideEffects/updateUser'
-// import deleteUser from '../../auth/sideEffects/deleteUser'
+import deleteUser from '../../auth/sideEffects/deleteUser'
 
 import createInvite from '../../auth/sideEffects/createInvite'
 import updateInvite from '../../auth/sideEffects/updateInvite'
-// import deleteInvite from '../../auth/sideEffects/deleteInvite'
+import deleteInvite from '../../auth/sideEffects/deleteInvite'
 
 // import createVideoSDP from '../../auth/sideEffects/createVideoSDP'
 

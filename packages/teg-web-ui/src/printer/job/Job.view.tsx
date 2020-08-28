@@ -11,10 +11,12 @@ import { Link } from 'react-router-dom'
 import TaskStatusRow from '../jobQueue/components/TaskStatusRow'
 import useStyles from './Job.styles.js'
 import VideoStreamer from '../manualControl/videoStreamer/VideoStreamer'
+import ComponentControl from '../manualControl/printerComponents/ComponentControl'
 
 const JobView = ({
   cancelTask,
   moveToTopOfQueue,
+  machine,
   job: {
     name,
     tasks,
@@ -22,6 +24,9 @@ const JobView = ({
     totalPrints,
     // history,
   },
+  execGCodes,
+  isReady,
+  isPrinting,
 }) => {
   const classes = useStyles()
 
@@ -104,6 +109,22 @@ const JobView = ({
             ))
           } */}
         </CardContent>
+
+        {
+          machine.components
+            .filter(c => ['BUILD_PLATFORM', 'TOOLHEAD', 'FAN'].includes(c.type))
+            .map(component => (
+              <ComponentControl
+                key={component.id}
+                machine={machine}
+                component={component}
+                execGCodes={execGCodes}
+                isReady={isReady}
+                isPrinting={isPrinting}
+                printOverridesOnly
+              />
+            ))
+        }
       </Card>
     </div>
   )

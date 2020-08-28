@@ -1,30 +1,27 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import {
   Typography,
   Switch,
   FormControlLabel,
 } from '@material-ui/core'
 
-import useExecGCodes from '../../_hooks/useExecGCodes'
-
 const FanSection = ({
-  machine,
   component: {
-    id,
     address,
     speedController: {
       enabled,
       targetSpeed,
     },
   },
+  execGCodes,
   disabled,
 }) => {
-  const onChange = useExecGCodes((e, enable) => ({
-    machineID: machine.id,
+  const onChange = useCallback((e, enable) => execGCodes({
     gcodes: [
       { toggleFans: { fans: { [address]: enable } } },
     ],
-  }), [id])
+    override: true,
+  }), [address])
 
   return (
     <div>

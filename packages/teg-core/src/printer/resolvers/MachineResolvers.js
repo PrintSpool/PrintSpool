@@ -80,7 +80,7 @@ const MachineResolvers = {
 
       const id = args.componentID
       if (id != null) {
-        const component = source.components.find(c => c.id === id)
+        const component = source.components.find(c => c.id === id.replace('component-', ''))
         if (component == null) {
           throw new Error(`Component ID: ${id} does not exist`)
         }
