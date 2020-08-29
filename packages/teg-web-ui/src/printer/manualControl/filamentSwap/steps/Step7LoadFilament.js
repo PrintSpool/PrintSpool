@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useCallback } from 'react'
 
 import Typography from '@material-ui/core/Typography'
 import LinearProgress from '@material-ui/core/LinearProgress'
@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button'
 import { useTranslation } from 'react-i18next'
 
 import { useExecGCodes2 } from '../../../_hooks/useExecGCodes'
+import useContinuousMove from '../../../_hooks/useContinuousMove'
 
 import ButtonsFooter from '../ButtonsFooter'
 
@@ -24,7 +25,22 @@ const Step3Retract = ({
     filamentSwapFastMoveSpeed,
     filamentSwapFastMoveEnabled,
     filamentSwapExtrudeDistance,
+    filamentSwapContinuousPullEnabled,
+    filamentSwapContinuousPullSpeed,
   } = component.configForm.model
+
+  const continuousMove = useContinuousMove({
+    machine,
+    feedrate: filamentSwapContinuousPullSpeed,
+    feedrateMultiplier: 1,
+  })
+
+  useEffect(() => {
+    if (active && filamentSwapContinuousPullEnabled) {
+      window.continuousMove = continuousMove
+      continuousMove.start({ [component.address]: { forward: true } })()
+    }
+  }, [active, filamentSwapContinuousPullEnabled])
 
   const gcodes = []
 
@@ -52,6 +68,11 @@ const Step3Retract = ({
     update: next,
   }))
 
+  const runLoadFilament = useCallback(() => {
+    continuousMove.stop()
+    loadFilament.run()
+  }, [loadFilament])
+
   return (
     <>
       <div>
@@ -77,7 +98,7 @@ const Step3Retract = ({
             <Button
               color="primary"
               variant="contained"
-              onClick={loadFilament.run}
+              onClick={runLoadFilament}
             >
               {t('loadFilament.instructions.button')}
             </Button>

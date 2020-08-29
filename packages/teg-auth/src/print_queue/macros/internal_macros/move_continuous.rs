@@ -23,6 +23,7 @@ use crate::{
 #[serde(rename_all = "camelCase")]
 pub struct MoveContinuousMacro {
     pub ms: f32,
+    pub feedrate: Option<f32>,
     pub feedrate_multiplier: Option<f32>,
     pub axes: HashMap<String, MoveContinuousAxis>,
 }
@@ -69,6 +70,9 @@ impl MoveContinuousMacro {
         let mut move_macro = MoveMacro {
             axes: directions.clone(),
             feedrate_multiplier: self.feedrate_multiplier,
+            feedrate: self.feedrate,
+            allow_extruder_axes: true,
+            relative_movement: true,
             ..Default::default()
         };
 
@@ -82,11 +86,13 @@ impl MoveContinuousMacro {
         //   ____________________
         // |/ x^2 + y^2 + z^2 ...  = total_distance
         //
-        // Move an equal distance on each axis. This is a simplification - it is valid for XY movements
-        // but may not hold up well for mixed extrusion/Z/XY movements.
+        // Move an equal distance on each axis. This is a simplification - it is valid for XY
+        // movements but may not hold up well for mixed extrusion/Z/XY movements.
         let axe_distance = (total_distance.powi(2) * (self.axes.iter().len() as f32)).sqrt();
 
         let segment_count: i32 = 3;
+
+        // Modify the move_macro distances
         move_macro.axes = directions.iter().fold(
             HashMap::new(),
             |mut acc, (k, direction)| {
@@ -97,7 +103,11 @@ impl MoveContinuousMacro {
 
         // recalculate a g1 move from the distances
         let ctx_clone = Arc::clone(&ctx);
-        let (g1, _, feedrates) = move_macro.g1_and_feedrate(ctx_clone).await?;
+        let (
+            g1,
+            _,
+            feedrates,
+        ) = move_macro.g1_and_feedrate(ctx_clone).await?;
 
         // applying reverse direction configs
         let mut mark_axes = self.axes.clone();
@@ -113,20 +123,42 @@ impl MoveContinuousMacro {
             };
         };
 
-        let gcodes = vec![
-            "M114".to_string(),
-            // record the previous target position
-            driver_macro(json!({"markTargetPosition": {} })),
-            // send the new movements before blocking so that the printer does not decelerate
-            // between moves. Splitting the moves seems to reduce toolhead pauses.
-            "G91".to_string(),
-            g1.clone(),
-            g1.clone(),
-            g1.clone(),
-            "G90".to_string(),
-            // wait to reach the previous target position and then unblock
-            driver_macro(json!({"waitToReachMark": { "axes": mark_axes } })),
-        ];
+        let gcodes = if feedrates.iter().all(|f| !f.is_toolhead) {
+            info!("CARTESIAN CONTINUOUS MOVE");
+            // Non toolheads can use wait to reach mark for reduced move stuttering
+            vec![
+                "M114".to_string(),
+                // record the previous target position
+                driver_macro(json!({"markTargetPosition": {} })),
+                // send the new movements before blocking so that the printer does not decelerate
+                // between moves. Splitting the moves seems to reduce toolhead pauses.
+                "G91".to_string(),
+                g1.clone(),
+                g1.clone(),
+                g1.clone(),
+                "G90".to_string(),
+                // wait to reach the previous target position and then unblock
+                driver_macro(json!({"waitToReachMark": { "axes": mark_axes } })),
+            ]
+        } else {
+            info!("CONTINUOUS EXTRUDE");
+            // Toolheads lack position feedback so we fallback to M400 (finish moves) which
+            // introduces some necessary move stuterring.
+            //
+            // See: https://github.com/MarlinFirmware/Marlin/issues/19190
+            // And: https://marlinfw.org/docs/gcode/M400.html
+            vec![
+                "G91".to_string(),
+                // block on the previous move
+                "M400".to_string(),
+                // Do the move as non-blocking to compensate for the latency between
+                // this task ending and the next one being received
+                g1.clone(),
+                g1.clone(),
+                g1.clone(),
+                "G90".to_string(),
+            ]
+        };
 
         let gcodes = gcodes
             .into_iter()

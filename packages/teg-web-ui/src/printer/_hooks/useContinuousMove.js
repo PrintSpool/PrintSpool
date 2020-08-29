@@ -2,13 +2,17 @@ import { useState, useEffect } from 'react'
 import { useMutation } from 'react-apollo-hooks'
 import { EXEC_GCODES } from './useExecGCodes'
 
-const useContinuousMove = ({ machine }) => {
+const useContinuousMove = ({
+  machine,
+  feedrate = null,
+  feedrateMultiplier = null,
+}) => {
   const [execGCodes] = useMutation(EXEC_GCODES)
 
   const [state, setState] = useState({
     axes: null,
     startedAt: null,
-    stoppedAt: null,
+    stoppedAt: 0,
     mutationLastCompletedAt: null,
   })
 
@@ -40,7 +44,6 @@ const useContinuousMove = ({ machine }) => {
 
   const tickMovement = async () => {
     // console.log("start!")
-    const feedrateMultiplier = Object.keys(state.axes).every(k => k === 'z') ? 1 : 0.25
     console.log(Object.keys(state.axes), Object.keys(state.axes) === ['z'], feedrateMultiplier)
 
     const { error } = await execGCodes({
@@ -49,7 +52,17 @@ const useContinuousMove = ({ machine }) => {
           machineID: machine.id,
           sync: true,
           gcodes: [
-            { continuousMove: { ms: 300, axes: state.axes, feedrateMultiplier } },
+            {
+              continuousMove: {
+                ms: 300,
+                axes: state.axes,
+                feedrate,
+                feedrateMultiplier: (
+                  feedrateMultiplier
+                  || Object.keys(state.axes).every(k => k === 'z') ? 1 : 0.25
+                ),
+              },
+            },
           ],
         },
       },
@@ -73,7 +86,7 @@ const useContinuousMove = ({ machine }) => {
     }
   }, [state.startedAt, state.mutationLastCompletedAt])
 
-  return { start }
+  return { start, stop }
 }
 
 

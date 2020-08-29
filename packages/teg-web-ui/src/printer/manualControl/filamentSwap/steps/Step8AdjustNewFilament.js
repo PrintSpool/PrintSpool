@@ -51,6 +51,7 @@ const Step7adjustNewFilament = ({
         <ExtruderButtons
           machine={machine}
           component={component}
+          isReady={machine?.status === 'READY'}
         />
       </div>
 

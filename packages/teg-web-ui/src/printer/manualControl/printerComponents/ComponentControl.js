@@ -54,6 +54,8 @@ export const ComponentControlFragment = gql`
   }
 `
 
+const CONTINUOUS = 'Continuous'
+
 const ComponentControl = ({
   machine,
   component,
@@ -67,8 +69,8 @@ const ComponentControl = ({
 
   const isToolhead = toolhead != null
 
-  const distanceOptions = [0.1, 1, 10, 50, 100]
-  const [distance, onChange] = useState(distanceOptions[2])
+  const distanceOptions = [1, 10, 50, 100, CONTINUOUS]
+  const [distance, onChange] = useState(CONTINUOUS)
 
   return (
     <Card className={classes.root}>

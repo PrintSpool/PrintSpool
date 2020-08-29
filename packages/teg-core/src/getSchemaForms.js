@@ -422,6 +422,23 @@ const getSchemaForms = () => ({
             type: 'number',
             default: 200,
           },
+          filamentSwapContinuousPullEnabled: {
+            title: 'Continuous Pull',
+            description: ''
+              + 'Continuously moves the extruder to catch and pull the new filament when loading '
+              + 'the next material in the filament swap wizard. '
+              + 'This should only be used on extruders which safeguard against filament jams.',
+            type: 'boolean',
+            default: false,
+          },
+          filamentSwapContinuousPullSpeed: {
+            title: 'Continuous Pull Speed (mm/s)',
+            description: ''
+              + 'A slow extrude speed is recommended to gradually pull filament in to the cold end '
+              + 'before the user clicks "Load Filament".',
+            type: 'number',
+            default: 0,
+          },
           beforeFilamentSwapHook: {
             title: 'Before Filament Swap (GCode)',
             type: 'string',

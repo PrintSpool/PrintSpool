@@ -8,6 +8,7 @@ import useStyles from './ExtruderButtons.styles'
 const ExtruderButtons = ({
   machine,
   component,
+  isReady,
   ...buttonProps
 }) => {
   const classes = useStyles()
@@ -30,6 +31,7 @@ const ExtruderButtons = ({
         machine={machine}
         component={component}
         distance={distance}
+        isReady={isReady}
         {...buttonProps}
       />
     </div>

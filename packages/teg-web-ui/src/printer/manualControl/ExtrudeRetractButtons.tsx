@@ -4,6 +4,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 
 import { useTranslation } from 'react-i18next'
 
+import useContinuousMove from '../_hooks/useContinuousMove'
 import useJog from '../_hooks/useJog'
 import useStyles from './ExtrudeRetractButtons.styles'
 
@@ -18,7 +19,17 @@ const ExtruderButton = ({
   const classes = useStyles()
   const { t } = useTranslation('extruderButton')
 
-  const jog = useJog({ machine, distance })
+  const CONTINUOUS = 'Continuous'
+  const isContinuous = distance === CONTINUOUS
+
+  const continuousMove = useContinuousMove({
+    machine,
+    feedrateMultiplier: 1,
+  })
+  const startContinuous = isContinuous ? continuousMove.start : () => null
+
+  let jog = useJog({ machine, distance })
+  jog = isContinuous ? () => null : jog
 
   const { targetTemperature, actualTemperature } = component.heater || {}
 
@@ -35,31 +46,35 @@ const ExtruderButton = ({
     tooltipMessage = "Extruder is not heating"
   }
 
+  const buttonsJSX = (
+    <div className={classes.buttons}>
+      {buttons.map(key => (
+        <Button
+          key={key}
+          variant="outlined"
+          color={key === 'extrude' ? 'primary' : 'default'}
+          disabled={!isReady || coldExtrude}
+          onClick={jog(component.address, key === 'extrude' ? 1 : -1)}
+          onMouseDown={startContinuous({ [component.address]: { forward: key === 'extrude' } })}
+          {...buttonProps}
+        >
+          {t(`${key}Word`)}
+        </Button>
+      ))}
+    </div>
+  )
+
+  if (!coldExtrude) {
+    return buttonsJSX
+  }
+
   return (
     <Tooltip
       title={tooltipMessage}
       enterDelay={0}
-      disableFocusListener={!coldExtrude}
-      disableHoverListener={!coldExtrude}
-      disableTouchListener={!coldExtrude}
       aria-label="cold-extrude"
     >
-      <div className={classes.buttons}>
-        {buttons.map(key => (
-          <Button
-            key={key}
-            variant="outlined"
-            color={key === 'extrude' ? 'primary' : 'default'}
-            disabled={!isReady || coldExtrude}
-            onClick={
-              jog(component.address, key === 'extrude' ? 1 : -1)
-            }
-            {...buttonProps}
-          >
-            {t(`${key}Word`)}
-          </Button>
-        ))}
-      </div>
+      {buttonsJSX}
     </Tooltip>
   )
 }
