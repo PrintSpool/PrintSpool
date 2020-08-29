@@ -34,9 +34,13 @@ pub struct Task {
 
 #[derive(new, Debug, Serialize, Deserialize, Clone)]
 pub struct Print {
+    // Foreign Keys
     pub print_queue_id: u64, // print queues have many (>=0) parts
     pub package_id: u64, // packages have many (>=1) parts
     pub part_id: u64, // parts have many (>=0) tasks
+    // Props
+    pub estimated_print_time: Option<std::time::Duration>,
+    pub estimated_filament_millimeters: Option<f64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

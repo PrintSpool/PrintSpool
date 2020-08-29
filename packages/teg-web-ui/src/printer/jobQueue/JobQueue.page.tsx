@@ -35,6 +35,7 @@ const JOBS_SUBSCRIPTION = gql`
               id
               name
               percentComplete(digits: 1)
+              estimatedPrintTimeMillis
               startedAt
               status
               machine {

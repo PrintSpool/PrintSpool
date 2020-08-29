@@ -95,20 +95,40 @@ impl Task {
         let (
             mut gcodes_writer,
             total_lines,
-            annotations
+            annotations,
+            estimated_print_time,
+            estimated_filament_millimeters,
         ) = annotated_gcodes
             .try_fold(
-                (gcodes_writer, 0u64, vec![]),
+                (gcodes_writer, 0u64, vec![], None, None),
                 |mut acc, item| {
                     async {
                         let (
                             gcodes_writer,
                             total_lines,
                             annotations,
+                            estimated_print_time,
+                            estimated_filament_millimeters,
                         ) = &mut acc;
 
                         match item {
                             AnnotatedGCode::GCode(mut gcode) => {
+                                // Parse the print time and filament usage estimates
+                                use nom_gcode::{ parse_gcode, GCodeLine, DocComment };
+
+                                let doc = parse_gcode(&gcode);
+                                if let Ok((_, Some(GCodeLine::DocComment(doc)))) = doc {
+                                    match doc {
+                                        DocComment::FilamentUsed { meters } => {
+                                            *estimated_filament_millimeters = Some(meters);
+                                        }
+                                        DocComment::PrintTime(time) => {
+                                            *estimated_print_time = Some(time);
+                                        }
+                                        _ => {}
+                                    };
+                                };
+                                // Add the gcode
                                 *total_lines += 1;
                                 gcode.push('\n');
                                 gcodes_writer.write_all(&gcode.into_bytes()).await?;
@@ -153,6 +173,8 @@ impl Task {
                 part_id: part.id,
                 package_id: part.package_id,
                 print_queue_id: part.print_queue_id,
+                estimated_print_time,
+                estimated_filament_millimeters,
             });
 
             let task = task.insert(&db)?;

@@ -4,6 +4,7 @@ import {
   Typography,
   LinearProgress,
 } from '@material-ui/core'
+import moment from 'moment'
 
 import Cancel from '@material-ui/icons/Cancel'
 
@@ -59,6 +60,17 @@ const TaskStatusRow = ({ task, cancelTask }) => (
       >
         {task.percentComplete.toFixed(1)}
         %
+        {(() => {
+          // console.log(task)
+          if (Date.now() > Date.parse(task.startedAt) + task.estimatedPrintTimeMillis) {
+            return '(Over time estimate)'
+          }
+
+          const eta = moment(task.startedAt)
+            .add(task.estimatedPrintTimeMillis, 'ms')
+            .fromNow(true)
+          return ` (${eta.charAt(0).toUpperCase() + eta.slice(1)} Remaining)`
+        })()}
       </Typography>
       <div
         style={{
@@ -70,7 +82,6 @@ const TaskStatusRow = ({ task, cancelTask }) => (
           value={task.percentComplete}
         />
       </div>
-
       <IconButton
         aria-label="cancel"
         disabled={

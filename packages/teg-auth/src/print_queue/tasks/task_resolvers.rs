@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{convert::TryInto, sync::Arc};
 use chrono::prelude::*;
 use async_graphql::*;
 
@@ -62,7 +62,21 @@ impl Task {
         }
     }
 
+    async fn estimated_print_time_millis(&self) -> Option<u64> {
+        self.print
+            .as_ref()
+            .and_then(|p| p.estimated_print_time)
+            .map(|durration| {
+                durration.as_millis().try_into().unwrap_or(u64::MAX)
+            })
+    }
+
+    async fn estimated_filament_millimeters(&self) -> Option<f64> {
+        self.print.as_ref().and_then(|p| p.estimated_filament_millimeters)
+    }
+
     async fn created_at(&self) -> &DateTime<Utc> { &self.created_at }
+    // TODO: rename field to match model
     async fn started_at(&self) -> &DateTime<Utc> { &self.created_at }
 
     async fn machine<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Machine> {
