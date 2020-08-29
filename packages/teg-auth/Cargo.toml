@@ -58,6 +58,7 @@ teg-protobufs = { path= "../teg-protobufs" }
 bytes = "0.5.6"
 arc-swap = "0.4.7"
 pin-project = "0.4.23"
+nom-gcode = "0.1.0"
 
 [dependencies.async-std]
 features = ["tokio02"]

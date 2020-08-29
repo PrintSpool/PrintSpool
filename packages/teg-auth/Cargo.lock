@@ -1991,6 +1991,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "nom"
+version = "6.0.0-alpha1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "25020779544bf717b917323b42f23c9dbef1bd2b97b576df6484a0c8709705c6"
+dependencies = [
+ "lexical-core",
+ "memchr",
+ "version_check 0.9.2",
+]
+
+[[package]]
+name = "nom-gcode"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5dfa906eb148663eb1bb5cb2b732f23924a4daa5ee807dc02aefb45e7787fd35"
+dependencies = [
+ "nom 6.0.0-alpha1",
+ "thiserror",
+]
+
+[[package]]
 name = "notify"
 version = "4.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3187,7 +3208,8 @@ dependencies = [
  "itertools 0.9.0",
  "lazy_static",
  "log 0.4.8",
- "nom",
+ "nom 5.1.2",
+ "nom-gcode",
  "notify",
  "openssl",
  "pin-project",
