@@ -40,7 +40,7 @@ pub struct Print {
     pub part_id: u64, // parts have many (>=0) tasks
     // Props
     pub estimated_print_time: Option<std::time::Duration>,
-    pub estimated_filament_millimeters: Option<f64>,
+    pub estimated_filament_meters: Option<f64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

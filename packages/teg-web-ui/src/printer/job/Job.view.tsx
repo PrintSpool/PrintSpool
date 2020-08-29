@@ -78,19 +78,27 @@ const JobView = ({
           {
             /* Task list segment */
             tasks.map(task => (
-              <TaskStatusRow
-                task={task}
-                cancelTask={() => {
-                  cancelTask({
-                    variables: {
-                      // Temporary work arounds for current Rust / NodeJS machine ID difference
-                      // machineID: task.machine.id,
-                      machineID: machine.id,
-                    },
-                  })
-                }}
-                key={task.id}
-              />
+              <>
+                <TaskStatusRow
+                  task={task}
+                  cancelTask={() => {
+                    cancelTask({
+                      variables: {
+                        // Temporary work arounds for current Rust / NodeJS machine ID difference
+                        // machineID: task.machine.id,
+                        machineID: machine.id,
+                      },
+                    })
+                  }}
+                  key={task.id}
+                />
+                { task.estimatedFilamentMeters != null && (
+                  <Typography variant="body2">
+                    Estimated filament usage for this print:
+                    {` ${task.estimatedFilamentMeters.toFixed(1)} meters`}
+                  </Typography>
+                )}
+              </>
             ))
           }
           {/* <Typography variant="h6">

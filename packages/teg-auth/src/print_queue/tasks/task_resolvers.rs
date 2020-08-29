@@ -71,8 +71,8 @@ impl Task {
             })
     }
 
-    async fn estimated_filament_millimeters(&self) -> Option<f64> {
-        self.print.as_ref().and_then(|p| p.estimated_filament_millimeters)
+    async fn estimated_filament_meters(&self) -> Option<f64> {
+        self.print.as_ref().and_then(|p| p.estimated_filament_meters)
     }
 
     async fn created_at(&self) -> &DateTime<Utc> { &self.created_at }

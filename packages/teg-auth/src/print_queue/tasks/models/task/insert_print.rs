@@ -97,7 +97,7 @@ impl Task {
             total_lines,
             annotations,
             estimated_print_time,
-            estimated_filament_millimeters,
+            estimated_filament_meters,
         ) = annotated_gcodes
             .try_fold(
                 (gcodes_writer, 0u64, vec![], None, None),
@@ -108,7 +108,7 @@ impl Task {
                             total_lines,
                             annotations,
                             estimated_print_time,
-                            estimated_filament_millimeters,
+                            estimated_filament_meters,
                         ) = &mut acc;
 
                         match item {
@@ -120,7 +120,7 @@ impl Task {
                                 if let Ok((_, Some(GCodeLine::DocComment(doc)))) = doc {
                                     match doc {
                                         DocComment::FilamentUsed { meters } => {
-                                            *estimated_filament_millimeters = Some(meters);
+                                            *estimated_filament_meters = Some(meters);
                                         }
                                         DocComment::PrintTime(time) => {
                                             *estimated_print_time = Some(time);
@@ -174,7 +174,7 @@ impl Task {
                 package_id: part.package_id,
                 print_queue_id: part.print_queue_id,
                 estimated_print_time,
-                estimated_filament_millimeters,
+                estimated_filament_meters,
             });
 
             let task = task.insert(&db)?;

@@ -50,6 +50,15 @@
     ok\n\
   """
 
+  min_temp = """\
+    T:21.95 E:0 B:22.0\n\
+    Error:0\n\
+    : Extruder switched off. MINTEMP triggered !\n\
+    Error:Printer stopped due to errors. Fix the error and use M999 to restart. \
+    (Temperature is reset. Set it after restarting)\n\
+    ok\n\
+  """
+
 # Common GCodes and MCodes
 # #############################
 

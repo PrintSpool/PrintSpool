@@ -45,7 +45,9 @@ const JOB_SUBSCRIPTION = gql`
               id
               name
               percentComplete(digits: 1)
-              # startedAt
+              estimatedPrintTimeMillis
+              estimatedFilamentMeters
+              startedAt
               status
               machine {
                 id

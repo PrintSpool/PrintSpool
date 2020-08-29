@@ -55,7 +55,6 @@
     "keypair": "^1.0.1",
     "koa-static": "^4.0.2",
     "material-ui-confirm": "^2.0.5",
-    "moment": "^2.27.0",
     "msgpack-lite": "^0.1.26",
     "notistack": "^0.8.6",
     "parcel": "^2.0.0-alpha.3.2",
