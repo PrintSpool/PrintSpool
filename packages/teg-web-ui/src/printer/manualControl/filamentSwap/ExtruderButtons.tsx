@@ -13,8 +13,9 @@ const ExtruderButtons = ({
 }) => {
   const classes = useStyles()
 
-  const distanceOptions = [0.1, 1, 10, 50, 100]
-  const [distance, onChange] = useState(distanceOptions[2])
+  const CONTINUOUS = 'Continuous'
+  const distanceOptions = [1, 10, 50, 100, CONTINUOUS]
+  const [distance, onChange] = useState(CONTINUOUS)
 
   return (
     <div className={classes.root}>
