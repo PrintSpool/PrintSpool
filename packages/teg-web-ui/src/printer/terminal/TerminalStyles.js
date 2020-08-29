@@ -7,9 +7,12 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     padding: theme.spacing(2),
   },
+  reference: {
+    flexGrow: 0,
+  },
   terminalHistory: {
     flexGrow: 1,
-    marginTop: theme.spacing(4),
+    marginTop: theme.spacing(2),
     maxHeight: 'calc(100vh - 200px)',
     overflowY: 'scroll',
   },

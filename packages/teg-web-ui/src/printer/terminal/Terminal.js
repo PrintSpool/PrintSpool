@@ -2,10 +2,9 @@ import React from 'react'
 import { withFormik, Form, Field } from 'formik'
 import { TextField } from 'formik-material-ui'
 
-import {
-  Button,
-  Typography,
-} from '@material-ui/core'
+import Button from '@material-ui/core/Button'
+import Typography from '@material-ui/core/Typography'
+import Link from '@material-ui/core/Link'
 
 import gql from 'graphql-tag'
 
@@ -77,7 +76,8 @@ const Terminal = ({
   }
 
   const { status, gcodeHistory } = data.machines[0]
-  const isReady = ['READY', 'PRINTING'].includes(status)
+  const isReady = ['READY'].includes(status)
+  // const isReady = ['READY', 'PRINTING'].includes(status)
 
   return (
     <div className={classes.root}>
@@ -97,6 +97,22 @@ const Terminal = ({
           Send
         </Button>
       </Form>
+      <Typography
+        variant="body2"
+        className={classes.reference}
+        component="div"
+      >
+        Need a GCode reference? Try the
+        {' '}
+        <Link
+          href="https://marlinfw.org/meta/gcode/"
+          underline="always"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Marlin GCode Index.
+        </Link>
+      </Typography>
       <Typography
         variant="body2"
         className={classes.terminalHistory}
