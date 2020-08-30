@@ -33,6 +33,7 @@ use crate::machine::models::{
     // Printing,
 };
 
+#[derive(Default)]
 pub struct SpoolJobFileMutation;
 
 #[InputObject]

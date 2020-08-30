@@ -13,6 +13,7 @@ use crate::models::{
     // VersionedModelError,
 };
 
+#[derive(Default)]
 pub struct PrintQueueQuery;
 
 #[Object]

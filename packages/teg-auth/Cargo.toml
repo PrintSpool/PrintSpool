@@ -18,7 +18,10 @@ path = "src/bin/restore_backup.rs"
 
 [dependencies]
 anyhow = "1.0"
-async-graphql-warp = "1.17.3"
+# async-graphql-warp = "1.17.3"
+# async-graphql = "1.17.4"
+async-graphql-warp = { path = "../../../async-graphql/async-graphql-warp" }
+async-graphql = { path = "../../../async-graphql" }
 data-encoding = "2.1.2"
 dotenv = "0.15.0"
 env_logger = "0.7.1"
@@ -52,7 +55,6 @@ clap = "3.0.0-beta.1"
 humantime = "2.0.1"
 surf = "2.0.0-alpha.4"
 nom = "5.1.2"
-async-graphql = "1.17.4"
 derive-new = "0.5.8"
 teg-protobufs = { path= "../teg-protobufs" }
 bytes = "0.5.6"
@@ -84,5 +86,4 @@ version = "1.0.104"
 name = "teg_auth"
 path = "src/lib.rs"
 
-[patch]
 [patch.crates-io]

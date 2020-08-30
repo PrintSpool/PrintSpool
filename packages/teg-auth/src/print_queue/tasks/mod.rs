@@ -1,6 +1,6 @@
 // use std::collections::HashMap;
 // use chrono::prelude::*;
-use async_graphql::MergedObject;
+use async_graphql::GQLMergedObject;
 // use serde::{Deserialize, Serialize};
 
 // use crate::{
@@ -38,7 +38,7 @@ use delete_job_mutation::DeleteJobMutation;
 pub mod set_job_position_mutation;
 use set_job_position_mutation::SetJobPositionMutation;
 
-#[MergedObject]
+#[derive(GQLMergedObject, Default)]
 pub struct PrintQueueMutation(
     ExecGCodesMutation,
     SpoolJobFileMutation,
@@ -47,14 +47,14 @@ pub struct PrintQueueMutation(
     SetJobPositionMutation,
 );
 
-impl Default for PrintQueueMutation {
-    fn default() -> Self {
-        Self::new(
-            ExecGCodesMutation,
-            SpoolJobFileMutation,
-            CreateJobMutation,
-            DeleteJobMutation,
-            SetJobPositionMutation,
-        )
-    }
-}
+// impl Default for PrintQueueMutation {
+//     fn default() -> Self {
+//         Self::new(
+//             ExecGCodesMutation,
+//             SpoolJobFileMutation,
+//             CreateJobMutation,
+//             DeleteJobMutation,
+//             SetJobPositionMutation,
+//         )
+//     }
+// }

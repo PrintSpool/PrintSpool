@@ -1,4 +1,4 @@
-use async_graphql::MergedObject;
+use async_graphql::GQLMergedObject;
 use async_std::task;
 // use futures::prelude::*;
 // use chrono::prelude::*;
@@ -43,7 +43,7 @@ use crate::print_queue::tasks::{
 //     // crate::print_queue::tasks::Query,
 // );
 
-#[MergedObject]
+#[derive(GQLMergedObject, Default)]
 pub struct Mutation(
     LegacyMutation,
     ContinueViewingMachineMutation,
@@ -51,35 +51,36 @@ pub struct Mutation(
     PrintQueueMutation,
 );
 
-impl Default for Mutation {
-    fn default() -> Self {
-        Self::new(
-            LegacyMutation,
-            ContinueViewingMachineMutation,
-            EStopAndResetMutation,
-            PrintQueueMutation::default(),
-        )
-    }
-}
+// impl Default for Mutation {
+//     fn default() -> Self {
+//         Self::new(
+//             LegacyMutation,
+//             ContinueViewingMachineMutation,
+//             EStopAndResetMutation,
+//             PrintQueueMutation::default(),
+//         )
+//     }
+// }
 
 
-#[MergedObject]
+#[derive(GQLMergedObject, Default)]
 pub struct Query(
     LegacyQuery,
     PrintQueueQuery,
     MachineQuery,
 );
 
-impl Default for Query {
-    fn default() -> Self {
-        Self::new(
-            LegacyQuery,
-            PrintQueueQuery,
-            MachineQuery,
-        )
-    }
-}
+// impl Default for Query {
+//     fn default() -> Self {
+//         Self::new(
+//             LegacyQuery,
+//             PrintQueueQuery,
+//             MachineQuery,
+//         )
+//     }
+// }
 
+#[derive(Default)]
 pub struct LegacyQuery;
 
 #[Object]
@@ -112,6 +113,7 @@ impl LegacyQuery {
     }
 }
 
+#[derive(Default)]
 pub struct LegacyMutation;
 
 #[Object]

@@ -19,6 +19,7 @@ use crate::machine::models::{
     Machine,
 };
 
+#[derive(Default)]
 pub struct EStopAndResetMutation;
 
 #[Object]

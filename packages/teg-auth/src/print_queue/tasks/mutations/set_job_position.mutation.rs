@@ -26,6 +26,7 @@ use crate::print_queue::tasks::{
 //     Printing,
 // };
 
+#[derive(Default)]
 pub struct SetJobPositionMutation;
 
 #[InputObject]

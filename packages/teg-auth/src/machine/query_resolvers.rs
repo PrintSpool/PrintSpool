@@ -18,6 +18,7 @@ use crate::models::{
     // VersionedModelError,
 };
 
+#[derive(Default)]
 pub struct MachineQuery;
 
 #[Object]

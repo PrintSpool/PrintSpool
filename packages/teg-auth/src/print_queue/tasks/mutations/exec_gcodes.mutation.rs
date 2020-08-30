@@ -68,6 +68,7 @@ enum GCodeLine {
     Json(AnyMacro),
 }
 
+#[derive(Default)]
 pub struct ExecGCodesMutation;
 
 #[Object]

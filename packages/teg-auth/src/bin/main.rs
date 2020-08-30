@@ -1,7 +1,12 @@
 // #![feature(backtrace)]
 #[macro_use] extern crate log;
 
-use async_graphql::*;
+use async_graphql::{
+    *,
+    extensions::{
+        Tracing,
+    },
+};
 use async_graphql_warp::*;
 use anyhow::{Result};
 use async_std::task::spawn;
@@ -226,6 +231,10 @@ async fn app() -> Result<()> {
 
                 // Execute query
                 let res = builder
+                    .extension(|| {
+                        // Tracing { root_id: None, fields: Default::default()}
+                        Tracing::default()
+                    })
                     .data(ctx)
                     .execute(&schema)
                     .await;

@@ -39,6 +39,7 @@ use crate::machine::models::{
 //     Printing,
 };
 
+#[derive(Default)]
 pub struct DeleteJobMutation;
 
 #[InputObject]

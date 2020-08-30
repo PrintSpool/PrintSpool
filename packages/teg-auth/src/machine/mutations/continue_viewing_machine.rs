@@ -20,6 +20,7 @@ use crate::machine::models::{
     MachineViewer,
 };
 
+#[derive(Default)]
 pub struct ContinueViewingMachineMutation;
 
 #[Object]
