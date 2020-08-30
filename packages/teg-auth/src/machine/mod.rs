@@ -12,6 +12,10 @@ pub mod stop_and_reset;
 mod delete_task_history;
 pub use delete_task_history::delete_task_history;
 
+#[path = "mutations/continue_viewing_machine.rs"]
+mod continue_viewing_machine;
+pub use continue_viewing_machine::ContinueViewingMachineMutation;
+
 #[path = "mutations/estop_and_reset.mutation.rs"]
 mod estop_and_reset;
 pub use estop_and_reset::EStopAndResetMutation;

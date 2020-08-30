@@ -30,6 +30,31 @@ pub struct Machine {
     pub stop_counter: u64, // Number of times the machine has been stopped through the GraphQL API
     #[new(default)]
     pub reset_counter: u64, // Number of times the machine has been reset through the GraphQL API
+    // Embedded Collections
+    #[new(default)]
+    #[serde(default)]
+    pub viewers: Vec<MachineViewer>
+}
+
+#[derive(new, Debug, Serialize, Deserialize, Clone)]
+pub struct MachineViewer {
+    // Foreign Keys
+    pub user_id: u64,
+    // Props
+    pub session_id: String,
+    // Timestamps
+    #[new(value = "Utc::now() + chrono::Duration::seconds(5)")]
+    pub expires_at: DateTime<Utc>,
+}
+
+impl MachineViewer {
+    pub fn continue_viewing(&mut self) {
+        self.expires_at = Utc::now() + chrono::Duration::seconds(5);
+    }
+
+    pub fn is_expired(&self) -> bool {
+        self.expires_at < Utc::now()
+    }
 }
 
 impl Machine {

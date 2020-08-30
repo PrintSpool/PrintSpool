@@ -47,6 +47,7 @@ const executableSchema = async () => {
   const link = setContext((request, previousContext) => ({
     headers: {
       'user-id': previousContext.graphqlContext.user.id,
+      'session-id': previousContext.graphqlContext.sessionID,
       'peer-identity-public-key': previousContext.graphqlContext.peerIdentityPublicKey,
     },
   })).concat(new HttpLink({ uri: rustURI }))

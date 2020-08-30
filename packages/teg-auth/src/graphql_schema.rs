@@ -27,6 +27,7 @@ use crate::models::{
 
 
 use crate::machine::{
+    ContinueViewingMachineMutation,
     EStopAndResetMutation,
     query_resolvers::MachineQuery,
 };
@@ -45,6 +46,7 @@ use crate::print_queue::tasks::{
 #[MergedObject]
 pub struct Mutation(
     LegacyMutation,
+    ContinueViewingMachineMutation,
     EStopAndResetMutation,
     PrintQueueMutation,
 );
@@ -53,6 +55,7 @@ impl Default for Mutation {
     fn default() -> Self {
         Self::new(
             LegacyMutation,
+            ContinueViewingMachineMutation,
             EStopAndResetMutation,
             PrintQueueMutation::default(),
         )

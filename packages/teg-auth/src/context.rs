@@ -15,6 +15,7 @@ use crate::models::VersionedModel;
 pub struct Context {
     pub db: Arc<sled::Db>,
     pub current_user: Option<User>,
+    pub session_id: Option<String>,
     pub identity_public_key: Option<String>,
     pub auth_pem_keys: ArcSwap<Vec<Vec<u8>>>,
     pub machine_config: Arc<ArcSwap<Config>>,
@@ -31,6 +32,7 @@ impl Context {
         let mut ctx = Self {
             db,
             current_user: None,
+            session_id: None,
             identity_public_key,
             auth_pem_keys,
             machine_config,

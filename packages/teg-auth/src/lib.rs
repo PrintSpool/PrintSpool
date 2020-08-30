@@ -164,6 +164,7 @@ pub async fn init() -> Result<Context> {
     Ok(Context {
         db,
         current_user: None,
+        session_id: None,
         identity_public_key: None,
         auth_pem_keys: ArcSwap::new(Arc::new(vec![vec![]])),
         machine_config: config,

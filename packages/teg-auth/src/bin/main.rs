@@ -188,10 +188,12 @@ async fn app() -> Result<()> {
 
     let graphql_filter = async_graphql_warp::graphql(schema)
         .and(warp::header::optional::<String>("user-id"))
+        .and(warp::header::optional::<String>("session-id"))
         .and(warp::header::optional::<String>("peer-identity-public-key"))
         .and_then(move |
             (schema, builder): (_, QueryBuilder),
             user_id: Option<String>,
+            session_id: Option<String>,
             identity_public_key: Option<String>,
         | {
             if std::env::var("LOG_GRAPHQL_REQ") == Ok("1".into()) {
@@ -214,7 +216,10 @@ async fn app() -> Result<()> {
             let req_handler = async move {
                 let ctx = ctx
                     .await
-                    .map(|ctx| Arc::new(ctx))
+                    .map(|mut ctx| {
+                        ctx.session_id = session_id;
+                        Arc::new(ctx)
+                    })
                     .map_err(|err| {
                         error!("{}", err);
                         ServiceError::from(err)
@@ -226,12 +231,14 @@ async fn app() -> Result<()> {
                     .execute(&schema)
                     .await;
 
-                if std::env::var("LOG_GRAPHQL_RES") == Ok("1".into()) {
-                    match res.as_ref() {
-                        Ok(res) => info!("Res: {:?}", res.data),
-                        Err(err) => warn!("Res: {:?}", err),
-                    };
-                }
+                match res.as_ref() {
+                    Ok(res) => {
+                        if std::env::var("LOG_GRAPHQL_RES") == Ok("1".into()) {
+                            info!("Res: {:?}", res.data);
+                        }
+                    }
+                    Err(err) => warn!("Res: {:?}", err),
+                };
 
                 let res = GQLResponse::from(res);
 

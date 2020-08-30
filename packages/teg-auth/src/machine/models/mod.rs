@@ -2,7 +2,10 @@ use serde::{Deserialize, Serialize};
 use versioned_sled_model::VersionedSledModel;
 
 mod machine_r1;
-pub use machine_r1::Machine;
+pub use machine_r1::{
+    Machine,
+    MachineViewer,
+};
 
 mod machine_status_r1;
 pub use machine_status_r1::{
