@@ -30,12 +30,14 @@ const ViewingUsersButton = ({
   const [open, setOpen] = useState(false)
   const toggle = useCallback(() => setOpen(open => !open), [])
 
-  const users = [
-    { email: "thatotherdude@gmail.com" },
-    { email: "michelle@michelle.michelle" },
-  ]
+  // const users = [
+  //   { email: "thatotherdude@gmail.com" },
+  //   { email: "michelle@michelle.michelle" },
+  // ]
 
-  const viewers = `${users.length} Viewers`
+  const users = machine.viewers
+
+  const viewers = `${users.length} Viewer${users.length !== 1 ? 's' : ''}`
 
   return (
     <>
@@ -51,14 +53,14 @@ const ViewingUsersButton = ({
           {viewers}
         </DialogTitle>
         <List>
-          {users.map(({ email }) => (
-            <ListItem key={email}>
+          {users.map((user) => (
+            <ListItem key={user.id}>
               <ListItemAvatar>
                 <Avatar className={classes.avatar}>
                   <PersonIcon />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary={email} />
+              <ListItemText primary={user.email} />
             </ListItem>
           ))}
         </List>

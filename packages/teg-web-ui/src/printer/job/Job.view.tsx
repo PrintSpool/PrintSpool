@@ -44,102 +44,81 @@ const JobView = ({
           </div>
         )}
         <CardContent>
-          <ViewingUsersButton
-            className={classes.viewingUsersButton}
-            machine={machine}
-          />
-          <Breadcrumbs>
-            <Link to="../">
-              Print Queue
-            </Link>
-            <Typography color="textPrimary">
-              {name}
-            </Typography>
-          </Breadcrumbs>
-          <Typography variant="subtitle1" paragraph>
-            {
-              `${printsCompleted} / ${totalPrints} prints completed`
-            }
-          </Typography>
-          {tasks.length === 0 && (
-            <Button
-              onClick={moveToTopOfQueue}
-              color="primary"
-              variant="contained"
-            >
-              Move to Top of Queue
-            </Button>
-          )}
-          <Typography variant="h6">
-            Current Prints
-          </Typography>
-          {
-            tasks.length === 0 && (
+          { tasks.length === 0 && (
+            <>
               <Typography variant="h6" color="textSecondary" paragraph>
                 This job is not currently being printed
               </Typography>
-            )
-          }
-          {
-            /* Task list segment */
-            tasks.map(task => (
-              <>
-                <TaskStatusRow
-                  task={task}
-                  cancelTask={() => {
-                    cancelTask({
-                      variables: {
-                        // Temporary work arounds for current Rust / NodeJS machine ID difference
-                        // machineID: task.machine.id,
-                        machineID: machine.id,
-                      },
-                    })
-                  }}
-                  key={task.id}
-                />
-                { task.estimatedFilamentMeters != null && (
-                  <Typography variant="body2">
-                    Estimated filament usage for this print:
-                    {` ${task.estimatedFilamentMeters.toFixed(1)} meters`}
-                  </Typography>
-                )}
-              </>
-            ))
-          }
-          {/* <Typography variant="h6">
-            History
-          </Typography>
-          {
-            history.length === 0 && (
-              <Typography variant="h6" color="textSecondary">
-                Nothing yet
+              <Typography variant="subtitle1" paragraph>
+                {
+                  `${printsCompleted} / ${totalPrints} prints completed`
+                }
               </Typography>
-            )
-          }
-          {
-            history.reverse().map(e => (
-              <div key={e.id}>
-                {`${e.createdAt}: ${e.type}`}
-              </div>
-            ))
-          } */}
-        </CardContent>
-
-        {
-          machine.components
-            .filter(c => ['BUILD_PLATFORM', 'TOOLHEAD', 'FAN'].includes(c.type))
-            .map(component => (
-              <ComponentControl
-                key={component.id}
-                machine={machine}
-                component={component}
-                execGCodes={execGCodes}
-                isReady={isReady}
-                isPrinting={isPrinting}
-                printOverridesOnly
+              <Button
+                onClick={moveToTopOfQueue}
+                color="primary"
+                variant="contained"
+              >
+                Move to Top of Queue
+              </Button>
+            </>
+          )}
+          { tasks.map(task => (
+            <div key={task.id}>
+              <ViewingUsersButton
+                className={classes.viewingUsersButton}
+                machine={task.machine}
               />
-            ))
-        }
+              <Breadcrumbs>
+                <Link to="../">
+                  Print Queue
+                </Link>
+                <Typography color="textPrimary">
+                  {name}
+                </Typography>
+              </Breadcrumbs>
+              <Typography variant="subtitle1" paragraph>
+                {
+                  `${printsCompleted} / ${totalPrints} prints completed`
+                }
+              </Typography>
+              <TaskStatusRow
+                task={task}
+                cancelTask={() => {
+                  cancelTask({
+                    variables: {
+                      // Temporary work arounds for current Rust / NodeJS machine ID difference
+                      // machineID: task.machine.id,
+                      machineID: machine.id,
+                    },
+                  })
+                }}
+                key={task.id}
+              />
+              { task.estimatedFilamentMeters != null && (
+                <Typography variant="body2">
+                  Estimated filament usage for this print:
+                  {` ${task.estimatedFilamentMeters.toFixed(1)} meters`}
+                </Typography>
+              )}
+              {
+                machine.components
+                  .filter(c => ['BUILD_PLATFORM', 'TOOLHEAD', 'FAN'].includes(c.type))
+                  .map(component => (
+                    <ComponentControl
+                      key={component.id}
+                      machine={machine}
+                      component={component}
+                      execGCodes={execGCodes}
+                      isReady={isReady}
+                      isPrinting={isPrinting}
+                      printOverridesOnly
+                    />
+                  ))
+              }
+            </div>
+          ))}
+        </CardContent>
       </Card>
     </div>
   )

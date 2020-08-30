@@ -13,9 +13,16 @@ extend type Mutation {
   reset(machineID: ID!): Boolean
 }
 
+type User {
+  id: ID!
+  email: String
+}
+
 type Machine {
   id: ID!
   name: String!
+
+  viewers: [User!]!
 
   """
   The machine configuration for general settings.

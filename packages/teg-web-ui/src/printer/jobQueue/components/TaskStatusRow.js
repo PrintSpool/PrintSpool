@@ -32,7 +32,7 @@ const TaskStatusRow = ({ task, cancelTask }) => {
 
   if (task.startedAt != null && task.estimatedPrintTimeMillis != null) {
     const etaMS = Date.parse(task.startedAt) + task.estimatedPrintTimeMillis - Date.now()
-    const eta = new Date(etaMS)
+    const eta = new Date(Math.abs(etaMS))
     const hours = Math.floor(Math.abs(etaMS) / 1000 / 3600)
     // const hoursStr = hours > 0 ? `${hours}:` : ''
     const hoursStr = hours > 0 ? `${hours}hr${hours > 1 ? 's ' : ' '}` : ''

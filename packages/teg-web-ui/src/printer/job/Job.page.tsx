@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import gql from 'graphql-tag'
 import { useMutation, useQuery } from 'react-apollo-hooks'
 import useReactRouter from 'use-react-router'
@@ -7,6 +7,7 @@ import useReactRouter from 'use-react-router'
 import { ComponentControlFragment } from '../manualControl/printerComponents/ComponentControl'
 import JobView from './Job.view'
 import useExecGCodes from '../_hooks/useExecGCodes'
+import viewMachine from '../_hooks/viewMachine'
 import PrinterStatusGraphQL from '../common/PrinterStatus.graphql'
 
 const JOB_SUBSCRIPTION = gql`
@@ -52,6 +53,10 @@ const JOB_SUBSCRIPTION = gql`
               machine {
                 id
                 # name
+                viewers {
+                  id
+                  email
+                }
                 components {
                   id
                   type
@@ -113,12 +118,11 @@ const JobPage = () => {
   const machine = ((data as any)?.machines || [])[0]
   const job = (data as any)?.jobQueue?.jobs[0]
 
+  viewMachine({ machine })
+
   const execGCodes = useExecGCodes(args => ({ machine, ...args }), [machine])
   const isReady = machine?.status === 'READY'
   const isPrinting = machine?.status === 'PRINTING'
-
-  console.log({ data, error, loading });
-
 
   if (error) {
     throw error
