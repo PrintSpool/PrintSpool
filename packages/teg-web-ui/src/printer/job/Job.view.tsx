@@ -12,6 +12,7 @@ import TaskStatusRow from '../jobQueue/components/TaskStatusRow'
 import useStyles from './Job.styles.js'
 import VideoStreamer from '../manualControl/videoStreamer/VideoStreamer'
 import ComponentControl from '../manualControl/printerComponents/ComponentControl'
+import ViewingUsersButton from './ViewingUsersButton'
 
 const JobView = ({
   cancelTask,
@@ -43,6 +44,10 @@ const JobView = ({
           </div>
         )}
         <CardContent>
+          <ViewingUsersButton
+            className={classes.viewingUsersButton}
+            machine={machine}
+          />
           <Breadcrumbs>
             <Link to="../">
               Print Queue

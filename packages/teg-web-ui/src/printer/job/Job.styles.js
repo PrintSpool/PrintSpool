@@ -17,6 +17,9 @@ const useStyles = makeStyles(theme => ({
     maxHeight: '35vh',
     width: '100%',
   },
+  viewingUsersButton: {
+    float: 'right',
+  },
 }))
 
 export default useStyles
