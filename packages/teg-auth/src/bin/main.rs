@@ -1,6 +1,5 @@
 // #![feature(backtrace)]
 #[macro_use] extern crate log;
-// extern crate teg_auth;
 
 use async_graphql::*;
 use async_graphql_warp::*;
