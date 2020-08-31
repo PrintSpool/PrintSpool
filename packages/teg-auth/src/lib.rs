@@ -1,7 +1,7 @@
 // #![feature(proc_macro)]
 extern crate proc_macro;
 // #[macro_use] extern crate async_std;
-#[macro_use] extern crate log;
+#[macro_use] extern crate tracing;
 // #[macro_use] extern crate log_derive;
 #[macro_use] extern crate derive_new;
 
@@ -76,7 +76,28 @@ pub async fn watch_auth_pem_keys(
 
 pub async fn init() -> Result<Context> {
     dotenv().ok();
-    env_logger::init();
+
+
+    // Trace executed code
+    // use tracing_subscriber::layer::SubscriberExt;
+    // use tracing_subscriber::Registry;
+
+    tracing_subscriber::fmt::init();
+
+    // Journald
+    // let journald_subscriber = Registry::default().with(tracing_journald::layer()?);
+    // tracing::subscriber::set_global_default(journald_subscriber)?;
+
+    // Tracing Tree
+    // let subscriber = Registry::default().with(tracing_tree::HierarchicalLayer::new(2));
+    // tracing::subscriber::set_global_default(subscriber).expect("Failed to start tracing");
+
+    // Custom Fmt
+    // let tracing_builder = tracing_subscriber::fmt::Subscriber::builder();
+    // let tracing_builder = tracing_builder
+    //     // .with_span_list(true)
+    //     .with_env_filter(tracing_subscriber::EnvFilter::from_default_env());
+    // tracing_builder.try_init().expect("Failed to start tracing");
 
     let db_file = env::var("SLED_DB_PATH")
         .expect("$SLED_DB_PATH not set");

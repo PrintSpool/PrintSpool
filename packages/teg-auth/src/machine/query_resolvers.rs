@@ -23,11 +23,13 @@ pub struct MachineQuery;
 
 #[Object]
 impl MachineQuery {
+    #[instrument(skip(self, ctx))]
     async fn machines<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
         id: Option<ID>,
     ) -> FieldResult<Vec<Machine>> {
+        info!("machines");
         let ctx: &Arc<crate::Context> = ctx.data()?;
 
         let machines = if let Some(id) = id {

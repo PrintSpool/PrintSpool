@@ -1,5 +1,5 @@
 // #![feature(backtrace)]
-#[macro_use] extern crate log;
+#[macro_use] extern crate tracing;
 
 use async_graphql::{
     *,
@@ -231,10 +231,8 @@ async fn app() -> Result<()> {
 
                 // Execute query
                 let res = builder
-                    .extension(|| {
-                        // Tracing { root_id: None, fields: Default::default()}
-                        Tracing::default()
-                    })
+                    .extension(|| Tracing::default())
+                    // .extension(|| async_graphql::extensions::Logger::default())
                     .data(ctx)
                     .execute(&schema)
                     .await;
