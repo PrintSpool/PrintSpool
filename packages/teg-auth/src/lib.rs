@@ -54,7 +54,16 @@ fn read_config(config_path: &str) -> Result<configuration::Config> {
 // Firebase Certs
 pub async fn watch_auth_pem_keys(
 ) -> Result<(ArcSwap<Vec<Vec<u8>>>, impl futures::Future<Output = Result<()>>)> {
-    let pem_keys = models::jwt::get_pem_keys().await?;
+    let pem_keys = async {
+        // Retry until the PEM keys are downloaded successfully
+        loop {
+            match models::jwt::get_pem_keys().await {
+                Ok(pem_keys) => return pem_keys,
+                Err(err) => warn!("{:?}", err),
+            };
+            task::sleep(std::time::Duration::from_millis(500)).await;
+        };
+    }.await;
     let pem_keys = ArcSwap::new(Arc::new(pem_keys));
 
     let pem_keys_clone = pem_keys.clone();
