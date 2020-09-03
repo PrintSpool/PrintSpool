@@ -279,7 +279,7 @@ pub trait VersionedModel:
         F: Send + FnMut(&Self) -> bool
     {
         Self::scan(db)
-            .filter(|entry| 
+            .filter(|entry|
                 match entry {
                     Ok(entry) => f(entry),
                     Err(_) => true,
@@ -293,7 +293,7 @@ pub trait VersionedModel:
         F: Send + FnMut(&Self) -> bool
     {
         Self::scan(db)
-            .find(|entry| 
+            .find(|entry|
                 match entry {
                     Ok(entry) => f(entry),
                     Err(_) => true,
@@ -319,6 +319,43 @@ pub trait VersionedModel:
             .boxed();
 
         Ok(events)
+    }
+
+    fn watch_id_changes(db: &sled::Db, id: u64) -> Result<stream::BoxStream<Result<Change<Self>>>> {
+        let state = Self::get_opt(&db, id)?;
+
+        let changes = Self::watch_id(&db, id)?
+            .scan(state, |state, event| {
+                trace!("{:?} changes event", Self::NAMESPACE);
+                match event {
+                    Ok(Event::Insert{ key, value: next }) => {
+                        let previous = state.replace(next.clone());
+
+                        let change = Change {
+                            key,
+                            previous,
+                            next: Some(next),
+                        };
+
+                        future::ready(Some(Ok(change)))
+                    }
+                    Ok(Event::Remove { key }) => {
+                        let previous = state.take();
+
+                        let change = Change {
+                            key,
+                            previous,
+                            next: None,
+                        };
+
+                        future::ready(Some(Ok(change)))
+                    }
+                    Err(err) => future::ready(Some(Err(err)))
+                }
+            })
+            .boxed();
+
+        Ok(changes)
     }
 
     fn watch_all(db: &sled::Db) -> stream::BoxStream<Result<Event<Self>>> {

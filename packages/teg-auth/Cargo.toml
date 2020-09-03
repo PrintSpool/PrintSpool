@@ -64,7 +64,7 @@ tracing-subscriber = "0.2.11"
 tracing-futures = "0.2.4"
 
 [dependencies.async-std]
-features = ["tokio02"]
+features = ["tokio02", "unstable"]
 version = "1.6.3"
 
 [dependencies.chrono]

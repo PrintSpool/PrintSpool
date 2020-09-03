@@ -1,20 +1,20 @@
 // use async_std::prelude::*;
-use futures::future::{self, Either};
-use futures::stream::{StreamExt};
+use futures::{TryStreamExt, stream::{StreamExt}};
 use async_std::os::unix::net::UnixStream;
+use futures::future::FutureExt;
 
 use std::sync::Arc;
 use anyhow::{
-    anyhow,
+    // anyhow,
     Result,
-    Context as _,
+    // Context as _,
 };
 // use bytes::BufMut;
 
 use crate::models::versioned_model::{
     VersionedModel,
     Change,
-    Event,
+    // Event,
 };
 use crate::print_queue::tasks::{
     Task,
@@ -39,118 +39,169 @@ use super::{
     send_message,
 };
 
+#[derive(PartialEq)]
+enum LoopState {
+    Continue,
+    Done,
+}
+
 pub async fn run_send_loop(
     client_id: u32,
     ctx: Arc<crate::Context>,
     machine_id: u64,
-    mut stream: UnixStream,
+    stream: UnixStream,
 ) -> Result<()> {
     info!("Machine #{:?}: Send Loop Started", machine_id);
 
-    let mut machine = Machine::get(&ctx.db, machine_id)?;
-    let mut machine_events = Machine::watch_id(&ctx.db, machine_id)?;
-    let mut task_changes = Task::watch_all_changes(&ctx.db)?;
+    let ctx_clone = Arc::clone(&ctx);
+    let stream_clone = stream.clone();
+    let machine_loop = Machine::watch_id_changes(&ctx.db, machine_id)?
+        .and_then(move |event| {
+            let ctx = Arc::clone(&ctx_clone);
+            let stream = stream_clone.clone();
 
-    loop {
-        let event = future::select(
-            machine_events.next(),
-            task_changes.next(),
-        ).await;
+            async move {
+                let ctx = Arc::clone(&ctx);
+                let mut stream = stream.clone();
 
-        let event = match event {
-            Either::Left((event, _)) => {
-                event
-                    .ok_or(anyhow!("Machine stream unexpectedly ended"))?
-                    .map(|event| Either::Left(event))
-                    .with_context(|| "Machine stream error")?
-            }
-            Either::Right((event, _)) => {
-                event
-                    .ok_or(anyhow!("Task stream unexpectedly ended"))?
-                    .map(|event| Either::Right(event))
-                    .with_context(|| "Task stream error")?
-            }
-        };
+                match event {
+                    // Machine Stops and Resets
+                    Change {
+                        next: Some(next_machine),
+                        previous: Some(machine),
+                        ..
+                    } => {
+                        info!("Machine Insert");
+                        // Stop (from GraphQL mutation)
+                        if next_machine.stop_counter != machine.stop_counter {
+                            send_message(&mut stream, stop_machine()).await?;
+                        }
+                        // Reset (from GraphQL mutation)
+                        if next_machine.reset_counter != machine.reset_counter {
+                            send_message(&mut stream, reset_machine()).await?;
+                        }
+                        // Update task statuses on changes in machine state (eg. machine stops, errors)
+                        if
+                            machine.status.is_driver_ready()
+                            && !next_machine.status.is_driver_ready()
+                        {
+                            async_std::task::spawn_blocking(move || {
+                                for task in Task::scan(&ctx.db) {
+                                    let task = task?;
 
-        info!("send triggered");
-
-        match event {
-            // Machine Stops and Resets
-            Either::Left(Event::Insert { value: next_machine, .. }) => {
-                info!("Machine Insert");
-                // Stop (from GraphQL mutation)
-                if next_machine.stop_counter != machine.stop_counter {
-                    send_message(&mut stream, stop_machine()).await?;
-                }
-                // Reset (from GraphQL mutation)
-                if next_machine.reset_counter != machine.reset_counter {
-                    send_message(&mut stream, reset_machine()).await?;
-                }
-                // Update task statuses on changes in machine state (eg. machine stops, errors)
-                if
-                    machine.status.is_driver_ready()
-                    && !next_machine.status.is_driver_ready()
-                {
-                    for task in Task::scan(&ctx.db) {
-                        let task = task?;
-
-                        if task.machine_id == machine.id {
-                            Task::get_and_update(
-                                &ctx.db,
-                                task.id,
-                                |mut task| {
-                                    if task.status.is_pending() {
-                                        task.status = TaskStatus::Errored;
+                                    if task.machine_id == machine.id {
+                                        Task::get_and_update(
+                                            &ctx.db,
+                                            task.id,
+                                            |mut task| {
+                                                if task.status.is_pending() {
+                                                    task.status = TaskStatus::Errored;
+                                                }
+                                                task
+                                            }
+                                        )?;
                                     }
-                                    task
-                                }
-                            )?;
+                                };
+                                Result::<()>::Ok(())
+                            }).await?;
+                        }
+                    },
+                    // Exit gracefully upon deletion of the machine
+                    Change { next: None, .. } => {
+                        info!("Machine Deleted");
+                        return Ok(LoopState::Done)
+                    },
+                    _ => {}
+                }
+                Ok(LoopState::Continue)
+            }
+        })
+        .try_filter_map(|loop_state| {
+            let opt = if loop_state == LoopState::Done {
+                Some(())
+            } else {
+                None
+            };
+            futures::future::ready(Ok(opt))
+        })
+        .boxed();
+
+    let ctx_clone = Arc::clone(&ctx);
+    let stream_clone = stream.clone();
+    let task_loop = Task::watch_all_changes(&ctx.db)?
+        .and_then(move |event| {
+            let ctx = Arc::clone(&ctx_clone);
+            let stream = stream_clone.clone();
+            let machine_id = machine_id.clone();
+
+            async move {
+                let ctx = Arc::clone(&ctx);
+                let mut stream = stream.clone();
+                let machine_id = machine_id.clone();
+
+                match event {
+                    // Task inserts
+                    Change { next: Some(task), .. } => {
+                        // Spool new tasks to the driver
+                        if
+                            task.machine_id == machine_id
+                            && !task.sent_to_machine
+                            && task.status == TaskStatus::Spooled
+                        {
+                            info!("Sending task to machine");
+
+                            let task = async_std::task::spawn_blocking(move || {
+                                Task::get_and_update(
+                                    &ctx.db,
+                                    task.id,
+                                    |mut task| {
+                                        task.sent_to_machine = true;
+                                        task
+                                    },
+                                )
+                            }).await?;
+
+                            send_message(
+                                &mut stream,
+                                spool_task(client_id, &task)?,
+                            ).await?;
                         }
                     }
+                    // Task deletions
+                    Change { previous: Some(task), next: None, .. } => {
+                        info!("Task Deleted");
+                        // Delete the task from the driver
+                        if
+                            task.machine_id == machine_id
+                        {
+                            send_message(
+                                &mut stream,
+                                delete_task_history(task.id),
+                            ).await?;
+                        }
+                    }
+                    _ => {}
                 }
-
-                machine = next_machine.clone();
-            },
-            // Exit gracefully upon deletion of the machine
-            Either::Left(Event::Remove { .. }) => {
-                info!("Machine Deleted");
-                return Ok(())
-            },
-            // Task inserts
-            Either::Right(Change { next: Some(task), .. }) => {
-                // Spool new tasks to the driver
-                if
-                    task.machine_id == machine.id
-                    && !task.sent_to_machine
-                    && task.status == TaskStatus::Spooled
-                {
-                    info!("Sending task to machine");
-
-                    Task::get_and_update(
-                        &ctx.db,
-                        task.id,
-                        |mut task| {
-                            task.sent_to_machine = true;
-                            task
-                        },
-                    )?;
-
-                    send_message(&mut stream, spool_task(client_id, &task)?)
-                        .await?;
-                }
+                Ok(())
             }
-            // Task deletions
-            Either::Right(Change { previous: Some(task), next: None, .. }) => {
-                info!("Task Deleted");
-                // Delete the task from the driver
-                if
-                    task.machine_id == machine.id
-                {
-                    send_message(&mut stream, delete_task_history(task.id))
-                        .await?;
-                }
-            }
-            _ => {}
-        }
-    }
+        })
+        .filter(|res| {
+            futures::future::ready(res.is_err())
+        })
+        .boxed();
+
+    // let res = futures::select! {
+    //     res = machine_loop.next().fuse() => res.transpose().map(|_| ()),
+    //     res = task_loop.next().fuse() => res.transpose().map(|_| ()),
+    // };
+
+    let machine_loop = machine_loop.into_future();
+    let task_loop = task_loop.into_future();
+
+    let res = futures::select! {
+        (res, _) = machine_loop.fuse() => res.transpose().map(|_| ()),
+        (res, _) = task_loop.fuse() => res.transpose().map(|_| ()),
+    };
+
+    res
 }

@@ -1,3 +1,4 @@
+// #[macro_use] extern crate tracing;
 use anyhow::{Result};
 use teg_auth::{
   init,
