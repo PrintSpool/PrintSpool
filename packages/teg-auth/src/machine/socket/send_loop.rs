@@ -1,5 +1,10 @@
 // use async_std::prelude::*;
-use futures::{TryStreamExt, stream::{StreamExt}};
+use futures::{
+    TryStreamExt,
+    stream::{StreamExt},
+    Future,
+    Stream,
+};
 use async_std::os::unix::net::UnixStream;
 use futures::future::FutureExt;
 
@@ -43,6 +48,47 @@ use super::{
 enum LoopState {
     Continue,
     Done,
+}
+
+use futures::channel::mpsc;
+
+fn prefilter<S, F>(
+    stream: S,
+    f: F,
+) -> (impl Future<Output = Result<()>>, mpsc::Receiver<S::Item>)
+where
+    S: Stream + Send + Unpin,
+    S::Item: Send + Unpin,
+    F: Send + Unpin + FnMut(&S::Item) -> bool,
+{
+    // use futures::sink::SinkExt;
+
+    let (tx, rx) = mpsc::channel(1024);
+    let runner = prefilter_runner(stream, f, tx);
+
+    (runner, rx)
+}
+
+async fn prefilter_runner<S, F>(
+    mut stream: S,
+    mut f: F,
+    mut tx: mpsc::Sender<S::Item>
+) -> Result<()>
+where
+    S: Stream + Send + Unpin,
+    S::Item: Send + Unpin,
+    F: Send + Unpin + FnMut(&S::Item) -> bool,
+{
+    use futures::sink::SinkExt;
+
+    while let Some(item) = stream.next().await {
+        let passed_filter = f(&item);
+        if passed_filter {
+            tx.send(item).await?;
+        };
+    }
+
+    Ok(())
 }
 
 pub async fn run_send_loop(
@@ -128,7 +174,28 @@ pub async fn run_send_loop(
 
     let ctx_clone = Arc::clone(&ctx);
     let stream_clone = stream.clone();
-    let task_loop = Task::watch_all_changes(&ctx.db)?
+    let task_loop = Task::watch_all_changes(&ctx.db)?;
+    let (filterer, task_loop) = prefilter(
+        task_loop,
+        |change| {
+            match change {
+                // Task inserts
+                Ok(Change { next: Some(task), .. }) => {
+                    task.machine_id == machine_id
+                    && !task.sent_to_machine
+                    && task.status == TaskStatus::Spooled
+                }
+                // Task deletions
+                Ok(Change { previous: Some(task), next: None, .. }) => {
+                    task.machine_id == machine_id
+                }
+                Err(_) => true,
+                _ => false,
+            }
+        },
+    );
+
+    let task_loop = task_loop
         .and_then(move |event| {
             let ctx = Arc::clone(&ctx_clone);
             let stream = stream_clone.clone();
@@ -143,42 +210,32 @@ pub async fn run_send_loop(
                     // Task inserts
                     Change { next: Some(task), .. } => {
                         // Spool new tasks to the driver
-                        if
-                            task.machine_id == machine_id
-                            && !task.sent_to_machine
-                            && task.status == TaskStatus::Spooled
-                        {
-                            info!("Sending task to machine");
+                        info!("Sending task to machine");
 
-                            let task = async_std::task::spawn_blocking(move || {
-                                Task::get_and_update(
-                                    &ctx.db,
-                                    task.id,
-                                    |mut task| {
-                                        task.sent_to_machine = true;
-                                        task
-                                    },
-                                )
-                            }).await?;
+                        let task = async_std::task::spawn_blocking(move || {
+                            Task::get_and_update(
+                                &ctx.db,
+                                task.id,
+                                |mut task| {
+                                    task.sent_to_machine = true;
+                                    task
+                                },
+                            )
+                        }).await?;
 
-                            send_message(
-                                &mut stream,
-                                spool_task(client_id, &task)?,
-                            ).await?;
-                        }
+                        send_message(
+                            &mut stream,
+                            spool_task(client_id, &task)?,
+                        ).await?;
                     }
                     // Task deletions
                     Change { previous: Some(task), next: None, .. } => {
                         info!("Task Deleted");
                         // Delete the task from the driver
-                        if
-                            task.machine_id == machine_id
-                        {
-                            send_message(
-                                &mut stream,
-                                delete_task_history(task.id),
-                            ).await?;
-                        }
+                        send_message(
+                            &mut stream,
+                            delete_task_history(task.id),
+                        ).await?;
                     }
                     _ => {}
                 }
@@ -199,6 +256,7 @@ pub async fn run_send_loop(
     let task_loop = task_loop.into_future();
 
     let res = futures::select! {
+        res = filterer.fuse() => res,
         (res, _) = machine_loop.fuse() => res.transpose().map(|_| ()),
         (res, _) = task_loop.fuse() => res.transpose().map(|_| ()),
     };
