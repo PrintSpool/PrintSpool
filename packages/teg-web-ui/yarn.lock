@@ -2719,6 +2719,11 @@
   resolved "https://registry.yarnpkg.com/@redux-saga/types/-/types-1.1.0.tgz#0e81ce56b4883b4b2a3001ebe1ab298b84237204"
   integrity sha512-afmTuJrylUU/0OtqzaRkbyYFFNgCF73Bvel/sw90pvGrWIZ+vyoIJqA6eMSoA6+nb443kTmulmBtC9NerXboNg==
 
+"@saltyrtc/chunked-dc@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@saltyrtc/chunked-dc/-/chunked-dc-2.0.1.tgz#4636c9e0b9bf4f6eec978df790193e25859aa8fb"
+  integrity sha512-0LhnDVsiI3trhba90Ih8QZrgmN4qy27YAAiuNq06Ql7FNzocNS1BA80Y0Vd4nbWAbOE+LcPkrDyPCyFGc7ku/g==
+
 "@storybook/addon-actions@^4.1.0-alpha.8":
   version "4.1.18"
   resolved "https://registry.yarnpkg.com/@storybook/addon-actions/-/addon-actions-4.1.18.tgz#f8eae3fef92b9f3f4d166d066e98b47377784a7b"
@@ -7829,21 +7834,9 @@ graphql-tag@^2.5.0:
   resolved "https://registry.yarnpkg.com/graphql-tag/-/graphql-tag-2.10.3.tgz#ea1baba5eb8fc6339e4c4cf049dabe522b0edf03"
   integrity sha512-4FOv3ZKfA4WdOKJeHdz6B3F/vxBLSgmBcGeAFPf4n1F64ltJUvOOerNj0rsJxONQGdhUMynQIvd6LzB+1J5oKA==
 
-graphql-things@^0.13.1:
-  version "0.13.1"
-  resolved "https://registry.yarnpkg.com/graphql-things/-/graphql-things-0.13.1.tgz#4d54d5329d4ab69696f20e3ded606bfc2a212d2b"
-  integrity sha512-APg6m+wfUxLy7hh10P0zEMTNrBaK8XeysIDxDCBDDu2/MeyUKLcdeVDXARY2Xs3XFuas50B8mLJbO7jT+t/H8Q==
-  dependencies:
-    any-promise "^1.3.0"
-    apollo-link-ws "^1.0.12"
-    backo2 "^1.0.2"
-    debug "^4.1.1"
-    elliptic "^6.4.1"
-    eventemitter3 "^3.1.0"
-    futoin-hkdf "^1.0.3"
-    simple-peer "^9.4.0"
-    symbol-observable "^1.2.0"
-    ws "^7.0.1"
+"graphql-things@link:../../../graphql-things":
+  version "0.0.0"
+  uid ""
 
 graphql@^14.0.2, graphql@^14.6.0:
   version "14.6.0"
@@ -10536,11 +10529,6 @@ mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@^0.5.3, mkdirp@~0.5.1:
   integrity sha512-iG9AK/dJLtJ0XNgTuDbSyNS3zECqDlAhnQW4CsNxBG3LQJBbHmRX1egw39DmtOdCAqY+dKXV+sgPgilNWUKMVw==
   dependencies:
     minimist "^1.2.5"
-
-moment@^2.27.0:
-  version "2.27.0"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.27.0.tgz#8bff4e3e26a236220dfe3e36de756b6ebaa0105d"
-  integrity sha512-al0MUK7cpIcglMv3YF13qSgdAIqxHTO7brRtaz3DlSULbqfazqkc5kEjNrLDOM7fsjshoFIihnU8snrP7zUvhQ==
 
 move-concurrently@^1.0.1:
   version "1.0.1"

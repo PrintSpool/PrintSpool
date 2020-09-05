@@ -27,7 +27,11 @@ const PrintDialogContent = ({
 
   useEffect(() => {
     if (shouldLoad === false) {
+      setLoading(false)
       return
+    }
+    if (loading === false) {
+      setLoading(true)
     }
     return renderGCode(files, webGLContainer, setLoading)
   }, [shouldLoad])
