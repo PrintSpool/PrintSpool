@@ -199,12 +199,12 @@ pub async fn run_send_loop(
         .and_then(move |event| {
             let ctx = Arc::clone(&ctx_clone);
             let stream = stream_clone.clone();
-            let machine_id = machine_id.clone();
+            // let machine_id = machine_id.clone();
 
             async move {
                 let ctx = Arc::clone(&ctx);
                 let mut stream = stream.clone();
-                let machine_id = machine_id.clone();
+                // let machine_id = machine_id.clone();
 
                 match event {
                     // Task inserts

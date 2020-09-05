@@ -1,10 +1,7 @@
 // use std::collections::HashMap;
 // use chrono::prelude::*;
 // use futures::prelude::*;
-use futures::future::try_join_all;
-use async_std::{
-    fs,
-};
+// use futures::future::try_join_all;
 
 use std::sync::Arc;
 use async_graphql::{
@@ -100,7 +97,7 @@ impl DeleteJobMutation {
             )
             .collect::<Result<Vec<u64>>>()?;
 
-        let parts: Vec<Part> = ctx.db.transaction(|db| {
+        let _: Vec<Part> = ctx.db.transaction(|db| {
             Package::remove(&db, package_id)?;
 
             // Delete each part
