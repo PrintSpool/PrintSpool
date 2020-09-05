@@ -29,7 +29,6 @@ impl MachineQuery {
         ctx: &'ctx Context<'_>,
         id: Option<ID>,
     ) -> FieldResult<Vec<Machine>> {
-        info!("machines");
         let ctx: &Arc<crate::Context> = ctx.data()?;
 
         let machines = if let Some(id) = id {
