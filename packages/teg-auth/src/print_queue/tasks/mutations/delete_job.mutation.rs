@@ -144,16 +144,6 @@ impl DeleteJobMutation {
             Ok(())
         })?;
 
-        let part_files: Vec<String> = parts.into_iter()
-            .map(|part| part.file_path)
-            .collect();
-
-        let delete_part_files = part_files
-            .into_iter()
-            .map(fs::remove_file);
-
-        try_join_all(delete_part_files).await?;
-
         ctx.db.flush_async().await
             .with_context(|| "Error saving job to the database")?;
 
