@@ -9,7 +9,7 @@ const useStyles = makeStyles(() => ({
   loading: {
     gridArea: '1 / 1',
     display: 'grid',
-    background: 'rgba(255,255,255,0.8)',
+    background: 'rgba(255,255,255,0.9)',
     zIndex: 10,
   },
   content: {

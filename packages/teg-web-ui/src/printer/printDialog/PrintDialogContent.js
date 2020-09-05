@@ -38,7 +38,7 @@ const PrintDialogContent = ({
 
   return (
     <div>
-      {!shouldLoad && (
+      {!shouldLoad && !submitting && (
         <Typography
           variant="h5"
           className={classes.largeFileMessage}
@@ -58,9 +58,9 @@ const PrintDialogContent = ({
       <LoadingOverlay
         className={classes.webGLLoadingOverlay}
         loading={submitting || (shouldLoad && loading)}
-        loadingText={submitting ? 'Uploading Print...' : 'Loading Preview...'}
+        loadingText={submitting ? ('Uploading') : 'Loading Preview...'}
         transitionDelay={300}
-        noSpinner
+        noSpinner={!submitting}
       >
         <div
           className={classes.webGLContainer}
