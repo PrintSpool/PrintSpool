@@ -40,10 +40,11 @@ impl Part {
         let package = Package::get(&ctx.db, self.package_id)?;
         let tasks = Task::scan(&ctx.db)
             .filter(|task|
-                if let Ok(Task { print: Some(print), .. }) = task {
-                    print.part_id == self.id
-                } else {
-                    true
+                match task {
+                    Ok(Task { print: Some(print), .. }) => {
+                        print.part_id == self.id
+                    }
+                    task => task.is_err(),
                 }
             )
             .collect::<Result<Vec<Task>>>()?;
