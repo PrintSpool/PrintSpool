@@ -30,6 +30,9 @@ pub struct Machine {
     pub stop_counter: u64, // Number of times the machine has been stopped through the GraphQL API
     #[new(default)]
     pub reset_counter: u64, // Number of times the machine has been reset through the GraphQL API
+    #[new(default)]
+    #[serde(default)]
+    pub pausing_task_id: Option<u64>,
     // Embedded Collections
     #[new(default)]
     #[serde(default)]
@@ -61,6 +64,7 @@ impl Machine {
     pub fn stop(db: &impl ScopedTree, id: u64) -> Result<Self> {
         let machine = Self::set_status(db, id, |machine| {
             machine.stop_counter += 1;
+            machine.pausing_task_id = None;
             MachineStatus::Stopped
         })?;
 

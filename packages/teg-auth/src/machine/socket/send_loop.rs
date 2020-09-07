@@ -40,6 +40,7 @@ use super::{
             reset_machine,
         },
         delete_task_history,
+        pause_task,
     },
     send_message,
 };
@@ -125,6 +126,12 @@ pub async fn run_send_loop(
                         // Reset (from GraphQL mutation)
                         if next_machine.reset_counter != machine.reset_counter {
                             send_message(&mut stream, reset_machine()).await?;
+                        }
+                        // Paused (from GraphQL mutation)
+                        if let Some(task_id) = next_machine.pausing_task_id {
+                            if machine.pausing_task_id.is_none() {
+                                send_message(&mut stream, pause_task(task_id)).await?;
+                            }
                         }
                         // Update task statuses on changes in machine state (eg. machine stops, errors)
                         if
