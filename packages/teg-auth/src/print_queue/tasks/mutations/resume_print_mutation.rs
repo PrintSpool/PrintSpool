@@ -1,9 +1,5 @@
 use std::sync::Arc;
-use futures::prelude::*;
-use futures::stream::{StreamExt};
-// use std::collections::HashMap;
 use async_graphql::*;
-use serde::{Deserialize, Serialize};
 use anyhow::{
     anyhow,
     Context as _,
@@ -15,12 +11,6 @@ use crate::models::{
 };
 use crate::{
     Machine,
-    // MachineStatus,
-    print_queue::macros::AnyMacro,
-    print_queue::macros::{
-        compile_macros,
-        AnnotatedGCode,
-    },
 };
 use super::*;
 
@@ -43,13 +33,26 @@ impl ResumePrintMutation {
         let config = ctx.machine_config.load();
         let core_plugin = config.core_plugin()?;
 
+        let task = Task::get(&ctx.db, task_id)?;
+        let resume_hook = Task::from_hook(
+            task.machine_id,
+            &core_plugin.model.resume_hook,
+            ctx,
+        ).await?;
+
         let (task, send_to_machine) = ctx.db.transaction(|db| {
             let task = Task::get(&db, task_id)?;
-            let machine = Machine::get(&db, task.machine_id)?;
+            let mut machine = Machine::get(&db, task.machine_id)?;
 
             if task.status.is_settled() {
-                Err(anyhow!("Cannot resume a task that is settled")).into()?;
+                Err(
+                    VersionedModelError::from(anyhow!("Cannot resume a task that is settled")),
+                )?;
             }
+
+            task.print.as_ref().ok_or_else(|| {
+                VersionedModelError::from(anyhow!("Task is not a print"))
+            })?;
 
             if machine.pausing_task_id.is_none() {
                 // handle redundant calls as a no-op to resume idempotently
@@ -57,15 +60,15 @@ impl ResumePrintMutation {
             }
 
             if machine.pausing_task_id != Some(task.id) {
-                Err(anyhow!("Machine is paused on a different print")).into()?;
+                Err(
+                    VersionedModelError::from(anyhow!("Machine is paused on a different print")),
+                )?;
             }
 
-            let print = task.print.ok_or_else(|| anyhow!("Task is not a print")).into()?;
-
+            machine.pausing_task_id = None;
             machine.insert(&db)?;
 
-            // TODO: how to share spool task logic?
-            spool_task(core_plugin.model.resume_hook);
+            resume_hook.clone().insert(&db)?;
 
             Ok((task, true))
         })?;
@@ -74,7 +77,7 @@ impl ResumePrintMutation {
             return Ok(task)
         }
 
-        let task = Task::get_and_update(&ctx.db, task.id, |task| {
+        let task = Task::get_and_update(&ctx.db, task.id, |mut task| {
             task.sent_to_machine = false;
             task
         })?;
