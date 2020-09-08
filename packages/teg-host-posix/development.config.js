@@ -162,6 +162,8 @@ const printerConfig = {
         automaticPrinting: false,
         beforePrintHook: '',
         afterPrintHook: '',
+        pauseHook: '',
+        resumeHook: '',
         swapXAndYOrientation: false,
         macros: [
           '*',

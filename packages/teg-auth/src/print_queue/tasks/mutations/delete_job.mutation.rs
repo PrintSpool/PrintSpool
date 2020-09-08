@@ -104,7 +104,7 @@ impl DeleteJobMutation {
                     Ok(MachineStatus::Printing(Printing { task_id })) => {
                         task_ids.contains(task_id)
                     }
-                    Err(err) => true,
+                    Err(_) => true,
                     _ => false,
                 }
             })

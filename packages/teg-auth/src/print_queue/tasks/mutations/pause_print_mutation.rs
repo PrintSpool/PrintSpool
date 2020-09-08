@@ -60,9 +60,9 @@ impl PausePrintMutation {
             }
 
             machine.pausing_task_id = Some(task.id);
-            machine.insert(&db);
+            machine.insert(&db)?;
 
-            pause_hook.clone().insert(&db);
+            pause_hook.clone().insert(&db)?;
 
             Ok(task)
         })?;

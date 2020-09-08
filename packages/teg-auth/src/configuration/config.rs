@@ -44,7 +44,9 @@ pub struct CorePluginModel {
     pub automatic_printing: bool,
     pub before_print_hook: String,
     pub after_print_hook: String,
+    #[serde(default)]
     pub pause_hook: String,
+    #[serde(default)]
     pub resume_hook: String,
     #[serde(default)]
     pub swap_x_and_y_orientation: bool,

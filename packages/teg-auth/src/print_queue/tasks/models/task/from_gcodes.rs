@@ -84,7 +84,7 @@ impl Task {
         let gcodes = gcodes;
         let total_lines = gcodes.len() as u64;
 
-        let mut task = Task::new(
+        let task = Task::new(
             Task::generate_id(&ctx.db)?,
             machine_id,
             TaskContent::GCodes(gcodes),
