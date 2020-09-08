@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react'
-import {
-  IconButton,
-  Typography,
-  LinearProgress,
-} from '@material-ui/core'
+import React, { useState, useEffect, useCallback } from 'react'
 
+import IconButton from '@material-ui/core/IconButton'
+import Typography from '@material-ui/core/Typography'
+import LinearProgress from '@material-ui/core/LinearProgress'
 import Cancel from '@material-ui/icons/Cancel'
+import Play from '@material-ui/icons/PlayArrow'
+import Pause from '@material-ui/icons/Pause'
+
+import useConfirm from '../../../common/_hooks/useConfirm'
 
 // const taskColor = (status) => {
 //   switch (status) {
@@ -19,7 +21,33 @@ import Cancel from '@material-ui/icons/Cancel'
 //   }
 // }
 
-const TaskStatusRow = ({ task, cancelTask }) => {
+const TaskStatusRow = ({
+  task,
+  cancelTask,
+  pausePrint,
+  resumePrint,
+}) => {
+  const confirm = useConfirm()
+
+  const confirmedCancelTask = confirm(() => ({
+    fn: () => {
+      cancelTask({
+        variables: { machineID: task.machine.id.replace('rust-', '') },
+      })
+    },
+    title: 'Are you sure you want to cancel this print?',
+    description: 'You will not be able to resume this print once it is cancelled.',
+  }))
+
+  const togglePause = useCallback(() => {
+    const mutationFn = task.paused ? resumePrint : pausePrint
+    mutationFn({
+      variables: {
+        taskID: task.id,
+      },
+    })
+  })
+
   const [, setEtaUpdateCounter] = useState(0)
   useEffect(() => {
     const interval = setInterval(() => {
@@ -102,11 +130,24 @@ const TaskStatusRow = ({ task, cancelTask }) => {
           />
         </div>
         <IconButton
+          aria-label={task.paused ? 'resume print' : 'pause print'}
+          disabled={
+            ['CANCELLED', 'ERROR', 'DONE'].includes(task.status)
+          }
+          onClick={togglePause}
+          style={{
+            marginTop: -12,
+            marginBottom: -12,
+          }}
+        >
+          {task.paused ? <Play /> : <Pause />}
+        </IconButton>
+        <IconButton
           aria-label="cancel"
           disabled={
             ['CANCELLED', 'ERROR', 'DONE'].includes(task.status)
           }
-          onClick={cancelTask}
+          onClick={confirmedCancelTask}
           style={{
             marginTop: -12,
             marginBottom: -12,

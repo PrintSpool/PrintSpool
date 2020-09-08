@@ -23,7 +23,7 @@ impl ResumePrintMutation {
     async fn resume_print<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
-        #[field(name="taskID")]
+        #[arg(name="taskID")]
         task_id: ID,
     ) -> FieldResult<Task> {
         let task_id = task_id.parse::<u64>()

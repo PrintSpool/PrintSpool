@@ -75,6 +75,14 @@ impl MachineStatus {
       }
     }
 
+    pub fn is_printing(&self) -> bool {
+      if let MachineStatus::Printing(_) = self {
+        true
+      } else {
+        false
+      }
+    }
+
     pub fn can_start_task(&self, task: &Task, automatic_print: bool) -> bool {
         match self {
             Self::Printing(_) if task.machine_override || automatic_print => true,

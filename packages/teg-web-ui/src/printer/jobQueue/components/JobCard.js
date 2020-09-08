@@ -28,6 +28,8 @@ const JobCard = ({
   status,
   tasks,
   cancelTask,
+  pausePrint,
+  resumePrint,
   deleteJob,
   moveToTopOfQueue,
 }) => {
@@ -38,16 +40,6 @@ const JobCard = ({
   const closeMenu = useCallback(() => setMenuAnchorEl(null))
 
   const shortName = truncate(name, 32)
-
-  const confirmedCancelTask = task => confirm(() => ({
-    fn: () => {
-      cancelTask({
-        variables: { machineID: task.machine.id },
-      })
-    },
-    title: 'Are you sure you want to cancel this print?',
-    description: 'You will not be able to resume this print once it is cancelled.',
-  }))
 
   const confirmedDeleteJob = confirm(() => ({
     fn: () => {
@@ -124,8 +116,12 @@ const JobCard = ({
             currentTasks.map(task => (
               <TaskStatusRow
                 task={task}
-                cancelTask={confirmedCancelTask(task)}
                 key={task.id}
+                {...{
+                  cancelTask,
+                  pausePrint,
+                  resumePrint,
+                }}
               />
             ))
           }

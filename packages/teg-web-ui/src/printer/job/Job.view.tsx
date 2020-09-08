@@ -16,6 +16,8 @@ import ViewingUsersButton from './ViewingUsersButton'
 
 const JobView = ({
   cancelTask,
+  pausePrint,
+  resumePrint,
   moveToTopOfQueue,
   machine,
   job: {
@@ -83,17 +85,13 @@ const JobView = ({
                 }
               </Typography>
               <TaskStatusRow
-                task={task}
-                cancelTask={() => {
-                  cancelTask({
-                    variables: {
-                      // Temporary work arounds for current Rust / NodeJS machine ID difference
-                      // machineID: task.machine.id,
-                      machineID: machine.id,
-                    },
-                  })
-                }}
                 key={task.id}
+                {...{
+                  task,
+                  cancelTask,
+                  pausePrint,
+                  resumePrint,
+                }}
               />
               { task.estimatedFilamentMeters != null && (
                 <Typography variant="body2">

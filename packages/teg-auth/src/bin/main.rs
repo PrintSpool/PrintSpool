@@ -164,8 +164,10 @@ async fn app() -> Result<()> {
     let _ = Machine::scan(&ctx.db)
         .map(move |machine| {
             let mut machine: Machine = machine?;
-            machine.status = MachineStatus::Disconnected;
-            machine.insert(&Arc::clone(&ctx_clone.db))?;
+            if !machine.status.is_printing() {
+                machine.status = MachineStatus::Disconnected;
+                machine.insert(&Arc::clone(&ctx_clone.db))?;
+            }
 
             Ok(())
         })
