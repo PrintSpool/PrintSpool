@@ -68,6 +68,7 @@ pub enum Effect {
         task_id: u32,
         client_id: u32,
         machine_override: bool,
+        despooled_line_number: Option<u32>,
     },
     CloseSerialPort,
     ExitProcess,
@@ -142,7 +143,7 @@ impl Effect {
                 let empty_feedback: Feedback = Feedback::default();
 
                 let feedback = std::mem::replace(
-                    &mut reactor.context.feedback, 
+                    &mut reactor.context.feedback,
                     empty_feedback,
                 );
 
@@ -179,6 +180,7 @@ impl Effect {
                 task_id,
                 client_id,
                 machine_override,
+                despooled_line_number,
             } => {
                 let mut tx = mpsc::Sender::clone(&reactor.event_sender);
 
@@ -201,7 +203,7 @@ impl Effect {
                             gcode_lines,
                             machine_override,
                             started: false,
-                            despooled_line_number: None,
+                            despooled_line_number,
                         }
                     )
                 } else {

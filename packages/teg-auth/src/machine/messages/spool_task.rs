@@ -30,12 +30,17 @@ pub fn spool_task(client_id: u32, task: &Task) -> Result<CombinatorMessage> {
         }
     };
 
+    let start_at_line_number = task.despooled_line_number
+        .map(|n| n + 1)
+        .unwrap_or(0);
+
     let message = CombinatorMessage {
         payload: Some(
             combinator_message::Payload::SpoolTask(
                 combinator_message::SpoolTask {
                     task_id: task.id as u32,
                     client_id,
+                    start_at_line_number,
                     machine_override: task.machine_override,
                     content: Some(content),
                 }

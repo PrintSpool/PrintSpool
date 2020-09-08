@@ -20,8 +20,10 @@ pub mod combinator_message {
         pub task_id: u32,
         #[prost(uint32, tag="2")]
         pub client_id: u32,
-        // string name = 8;
-
+        /// Starting at a line number other then zero allows for prints to be resumed from a mid-print
+        /// pause.
+        #[prost(uint64, tag="8")]
+        pub start_at_line_number: u64,
         /// Override tasks can be ran during jobs and do not set the
         /// despooled_line_number in the MachineMessage.
         ///

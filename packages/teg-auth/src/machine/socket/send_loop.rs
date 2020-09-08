@@ -214,8 +214,17 @@ pub async fn run_send_loop(
                 // let machine_id = machine_id.clone();
 
                 match event {
-                    // Task inserts
-                    Change { next: Some(task), .. } => {
+                    // New and resumed tasks
+                    Change {
+                        previous,
+                        next: Some(task),
+                        ..
+                    } if
+                        previous.as_ref()
+                            .map(|t| t.sent_to_machine)
+                            .unwrap_or(true)
+                        && !task.sent_to_machine
+                    => {
                         // Spool new tasks to the driver
                         info!("Sending task to machine");
 
