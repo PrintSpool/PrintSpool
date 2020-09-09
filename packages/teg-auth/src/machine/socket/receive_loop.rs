@@ -57,15 +57,15 @@ pub async fn record_feedback(
     for progress in feedback.task_progress.iter() {
         let status = progress.try_into()?;
 
-        Task::get_and_update(
+        Task::get_opt_and_update(
             &ctx.db,
             progress.task_id as u64,
-            |mut task| {
+            |task| task.map(|mut task| {
                 trace!("Task #{} status: {:?}", task.id, status);
                 task.despooled_line_number = Some(progress.despooled_line_number as u64);
                 task.status = status;
                 task
-            }
+            })
         )?;
     }
 
