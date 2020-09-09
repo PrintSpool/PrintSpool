@@ -1,6 +1,6 @@
 {
   "name": "@tegapp/core",
-  "version": "0.12.1",
+  "version": "0.13.0",
   "description": "core reusable types, selectors, actions, reducers, etc. for Teg",
   "main": "dist/index.js",
   "esmMain": "src/index.js",
@@ -28,7 +28,7 @@
     "@d1plo1d/graphql-scalars": "^0.4.3-0",
     "@d1plo1d/redux-loop-immutable": "1.0.1-1",
     "@iarna/toml": "^2.2.3",
-    "@tegapp/schema": "^0.12.1",
+    "@tegapp/schema": "^0.13.0",
     "ajv": "^6.6.1",
     "base64url": "^3.0.1",
     "bluebird": "^3.5.3",

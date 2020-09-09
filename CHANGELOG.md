@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.13.0](https://github.com/tegapp/teg/compare/v0.12.1...v0.13.0) (2020-09-09)
+
+
+### Bug Fixes
+
+* Fixed deadlocks by updating smol ([1188238](https://github.com/tegapp/teg/commit/1188238))
+* Fixed parsing of temperature feedback with "W" values ([5fa702d](https://github.com/tegapp/teg/commit/5fa702d))
+* Preventing users from clicking Add to Queue or Print Now multiple times ([23226bf](https://github.com/tegapp/teg/commit/23226bf))
+* Retrying get_pem_keys until they are downloaded. Fixes teg-auth startup issues when DNS is not yet available. ([3da4361](https://github.com/tegapp/teg/commit/3da4361))
+
+
+### Features
+
+* Added a continuous pull option to the start of the filament swap ([280f82c](https://github.com/tegapp/teg/commit/280f82c))
+* Added a gcode hook to swap filament - users can now choose to have their extruder move to their prefered location for filament swaps automatically. ([eca1061](https://github.com/tegapp/teg/commit/eca1061))
+* Added a link to help users discover GCode commands ([e5a5e83](https://github.com/tegapp/teg/commit/e5a5e83))
+* Added a live updating list of users watching the print to the job page ([c1c56ea](https://github.com/tegapp/teg/commit/c1c56ea))
+* Added an override temperature button to adjust temperatures while your printing ([64201d1](https://github.com/tegapp/teg/commit/64201d1))
+* Added filament usage estimates to prints ([610288b](https://github.com/tegapp/teg/commit/610288b))
+* Added material temperatures and an edit materials link to filament swap. ([5774c15](https://github.com/tegapp/teg/commit/5774c15))
+* Added option to reverse the direction for move buttons and macros ([5a48afa](https://github.com/tegapp/teg/commit/5a48afa))
+* Added print ETAs ([99c111c](https://github.com/tegapp/teg/commit/99c111c))
+* Added print queue drag and drop support ([cddfb8a](https://github.com/tegapp/teg/commit/cddfb8a))
+* Added temperature graphs and override buttons to the job page ([7db122f](https://github.com/tegapp/teg/commit/7db122f))
+* Disabled extrude and retract buttons when extruder is too cold ([2379f69](https://github.com/tegapp/teg/commit/2379f69))
+* Enter key now submits EStop Confirmation Dialog ([5c24809](https://github.com/tegapp/teg/commit/5c24809))
+* Improved file upload times by 20% ([e1dba45](https://github.com/tegapp/teg/commit/e1dba45))
+
+
+
+
+
 ## [0.12.1](https://github.com/tegapp/teg/compare/v0.12.0...v0.12.1) (2020-08-14)
 
 

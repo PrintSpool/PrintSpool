@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.13.0](https://github.com/teg/teg-host-posix/compare/v0.12.1...v0.13.0) (2020-09-09)
+
+
+### Features
+
+* Added a continuous pull option to the start of the filament swap ([280f82c](https://github.com/teg/teg-host-posix/commit/280f82c))
+* Added a gcode hook to swap filament - users can now choose to have their extruder move to their prefered location for filament swaps automatically. ([eca1061](https://github.com/teg/teg-host-posix/commit/eca1061))
+* Added option to reverse the direction for move buttons and macros ([5a48afa](https://github.com/teg/teg-host-posix/commit/5a48afa))
+* Added temperature graphs and override buttons to the job page ([7db122f](https://github.com/teg/teg-host-posix/commit/7db122f))
+* Improved file upload times by 20% ([e1dba45](https://github.com/teg/teg-host-posix/commit/e1dba45))
+
+
+
+
+
 ## [0.12.1](https://github.com/teg/teg-host-posix/compare/v0.12.0...v0.12.1) (2020-08-14)
 
 
