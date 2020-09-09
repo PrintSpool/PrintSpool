@@ -1,0 +1,6 @@
+{
+  "name": "teg-auth",
+  "version": "0.13.0",
+  "main": "index.js",
+  "license": "AGPL"
+}
