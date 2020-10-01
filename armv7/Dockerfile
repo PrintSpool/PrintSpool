@@ -33,15 +33,17 @@ RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selectio
 # Install nvm with node and npm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.35.3/install.sh | bash \
     && . $HOME/.nvm/nvm.sh \
-    && nvm install  12.11.1 \
+    && nvm install  12.11.1
     # && nvm use --delete-prefix v12.11.1
     # && nvm use --delete-prefix v12.11.1 \
     # && nvm alias default 12.11.1 \
-    && ~/.nvm/versions/node/v12.11.1/bin/npm i -g yarn
+    # && ~/.nvm/versions/node/v12.11.1/bin/npm i -g yarn
 
 # Set the proper environment.
 ENV NVM_DIR $HOME/.nvm
 ENV NODE_PATH $NVM_DIR/v12.11.1/lib/node_modules
+
+RUN ~/.nvm/versions/node/v12.11.1/bin/npm i -g yarn@1.22.4
 
 ENV LANG="en_US.UTF-8"
 ENV LANGUAGE="en_US:en"
