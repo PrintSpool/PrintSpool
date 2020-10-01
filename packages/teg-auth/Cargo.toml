@@ -18,10 +18,10 @@ path = "src/bin/restore_backup.rs"
 
 [dependencies]
 anyhow = "1.0"
-# async-graphql-warp = "1.17.3"
-# async-graphql = "1.17.4"
-async-graphql-warp = { path = "../../../async-graphql/async-graphql-warp" }
-async-graphql = { path = "../../../async-graphql" }
+async-graphql-warp = "1.18.1"
+async-graphql = "1.18.2"
+# async-graphql-warp = { path = "../../../async-graphql/async-graphql-warp" }
+# async-graphql = { path = "../../../async-graphql" }
 data-encoding = "2.1.2"
 dotenv = "0.15.0"
 error-chain = "0.12.1"

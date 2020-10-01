@@ -51,6 +51,7 @@ Note: These dependencies are only for building snaps - they are not needed for m
 1. Install Podman: https://podman.io/getting-started/installation.html
 2. `sudo snap install snapcraft --classic`
 3. `pushd . && cd ./packages/teg-auth/ && rustup target add armv7-unknown-linux-gnueabihf && popd`
+4. `pushd . && cd ./packages/teg-marlin/ && rustup target add armv7-unknown-linux-gnueabihf && popd`
 4. Build the docker image: `./armv7/build-image.sh`
 
 
