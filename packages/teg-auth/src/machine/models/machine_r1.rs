@@ -27,6 +27,9 @@ pub struct Machine {
     #[new(default)]
     pub status: MachineStatus,
     #[new(default)]
+    #[serde(default)]
+    pub motors_enabled: bool,
+    #[new(default)]
     pub stop_counter: u64, // Number of times the machine has been stopped through the GraphQL API
     #[new(default)]
     pub reset_counter: u64, // Number of times the machine has been reset through the GraphQL API

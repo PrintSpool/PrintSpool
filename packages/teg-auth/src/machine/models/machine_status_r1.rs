@@ -9,7 +9,7 @@ pub enum MachineStatus {
     Connecting,
     Ready,
     Printing(Printing),
-    Errored,
+    Errored(Errored),
     Stopped,
 }
 
@@ -31,7 +31,7 @@ impl From<MachineStatus> for MachineStatusGQL {
           MachineStatus::Connecting => MachineStatusGQL::Connecting,
           MachineStatus::Ready => MachineStatusGQL::Ready,
           MachineStatus::Printing(_) => MachineStatusGQL::Printing,
-          MachineStatus::Errored => MachineStatusGQL::Errored,
+          MachineStatus::Errored(_) => MachineStatusGQL::Errored,
           MachineStatus::Stopped => MachineStatusGQL::Stopped,
         }
     }
@@ -40,6 +40,11 @@ impl From<MachineStatus> for MachineStatusGQL {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Printing {
     pub task_id: u64,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+pub struct Errored {
+    pub message: String,
 }
 
 impl Default for MachineStatus {

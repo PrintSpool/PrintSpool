@@ -25,6 +25,7 @@ use crate::print_queue::tasks::{
 use crate::machine::models::{
     Machine,
     MachineStatus,
+    Errored
 };
 
 use super::receive_message;
@@ -36,13 +37,12 @@ pub async fn run_receive_loop(
     mut stream: UnixStream,
 ) -> Result<()> {
     info!("Machine #{:?}: Receive Loop Started", machine_id);
-    let mut previous_status = Status::Disconnected as i32;
     loop {
         let message = receive_message(&mut stream).await?;
         trace!("Machine #{:?}: Socket Message Received", machine_id);
 
         if let Some(machine_message::Payload::Feedback(feedback)) = message.payload {
-            record_feedback(feedback, &ctx, machine_id, &mut previous_status).await?;
+            record_feedback(feedback, &ctx, machine_id).await?;
         }
     }
 }
@@ -51,7 +51,6 @@ pub async fn record_feedback(
     feedback: machine_message::Feedback,
     ctx: &Arc<crate::Context>,
     machine_id: u64,
-    previous_status: &mut i32,
 ) -> Result<()> {
     // Record task progress
     for progress in feedback.task_progress.iter() {
@@ -71,24 +70,28 @@ pub async fn record_feedback(
 
     trace!("Feedback status: {:?}", feedback.status);
     // Update machine status
-    if feedback.status != *previous_status {
-        *previous_status = feedback.status;
+    let next_machine_status = match feedback.status {
+        i if i == Status::Errored as i32 && feedback.error.is_some() => {
+            let message = feedback.error.unwrap().message;
+            MachineStatus::Errored(Errored { message })
+        }
+        i if i == Status::Estopped as i32 => MachineStatus::Stopped,
+        i if i == Status::Disconnected as i32 => MachineStatus::Disconnected,
+        i if i == Status::Connecting as i32 => MachineStatus::Connecting,
+        i if i == Status::Ready as i32 => MachineStatus::Ready,
+        i => Err(anyhow!("Invalid machine status: {:?}", i))?,
+    };
 
-        let next_machine_status = match feedback.status {
-            i if i == Status::Errored as i32 => MachineStatus::Errored,
-            i if i == Status::Estopped as i32 => MachineStatus::Stopped,
-            i if i == Status::Disconnected as i32 => MachineStatus::Disconnected,
-            i if i == Status::Connecting as i32 => MachineStatus::Connecting,
-            i if i == Status::Ready as i32 => MachineStatus::Ready,
-            i => Err(anyhow!("Invalid machine status: {:?}", i))?,
-        };
+    let motors_enabled = feedback.motors_enabled;
 
-        Machine::set_status(
-            &ctx.db,
-            machine_id,
-            |_| next_machine_status.clone(),
-        )?;
-    }
+    Machine::set_status(
+        &ctx.db,
+        machine_id,
+        |machine| {
+            machine.motors_enabled = motors_enabled;
+            next_machine_status.clone()
+        },
+    )?;
 
     Ok(())
 }

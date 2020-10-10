@@ -12,6 +12,7 @@ pub use machine_status_r1::{
     MachineStatus,
     MachineStatusGQL,
     Printing,
+    Errored,
 };
 
 #[derive(Debug, Serialize, Deserialize, VersionedSledModel)]
