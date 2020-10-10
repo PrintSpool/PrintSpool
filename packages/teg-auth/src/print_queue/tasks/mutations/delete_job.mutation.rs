@@ -32,8 +32,8 @@ use crate::print_queue::tasks::{
 };
 use crate::machine::models::{
     Machine,
-//     MachineStatus,
-//     Printing,
+    MachineStatus,
+    Printing,
 };
 
 #[derive(Default)]
@@ -96,6 +96,24 @@ impl DeleteJobMutation {
                 }
             )
             .collect::<Result<Vec<u64>>>()?;
+
+        // EStop any prints (including paused prints)
+        let _ = Machine::scan(&ctx.db)
+            .filter(|machine| {
+                match machine.as_ref().map(|m| &m.status) {
+                    Ok(MachineStatus::Printing(Printing { task_id })) => {
+                        task_ids.contains(task_id)
+                    }
+                    Err(_) => true,
+                    _ => false,
+                }
+            })
+            .map(|machine| {
+                let machine = machine?;
+                Machine::stop(&ctx.db, machine.id)?;
+                Ok(())
+            })
+            .collect::<Result<Vec<()>>>()?;
 
         let _: Vec<Part> = ctx.db.transaction(|db| {
             Package::remove(&db, package_id)?;

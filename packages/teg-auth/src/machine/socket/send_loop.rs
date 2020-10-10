@@ -40,6 +40,7 @@ use super::{
             reset_machine,
         },
         delete_task_history,
+        pause_task,
     },
     send_message,
 };
@@ -126,6 +127,12 @@ pub async fn run_send_loop(
                         if next_machine.reset_counter != machine.reset_counter {
                             send_message(&mut stream, reset_machine()).await?;
                         }
+                        // Paused (from GraphQL mutation)
+                        if let Some(task_id) = next_machine.pausing_task_id {
+                            if machine.pausing_task_id.is_none() {
+                                send_message(&mut stream, pause_task(task_id)).await?;
+                            }
+                        }
                         // Update task statuses on changes in machine state (eg. machine stops, errors)
                         if
                             machine.status.is_driver_ready()
@@ -207,8 +214,17 @@ pub async fn run_send_loop(
                 // let machine_id = machine_id.clone();
 
                 match event {
-                    // Task inserts
-                    Change { next: Some(task), .. } => {
+                    // New and resumed tasks
+                    Change {
+                        previous,
+                        next: Some(task),
+                        ..
+                    } if
+                        previous.as_ref()
+                            .map(|t| t.sent_to_machine)
+                            .unwrap_or(true)
+                        && !task.sent_to_machine
+                    => {
                         // Spool new tasks to the driver
                         info!("Sending task to machine");
 

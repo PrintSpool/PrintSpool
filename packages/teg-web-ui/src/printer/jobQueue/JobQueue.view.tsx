@@ -7,7 +7,6 @@ import Button from '@material-ui/core/Button'
 
 import Add from '@material-ui/icons/Add'
 import MoveToInbox from '@material-ui/icons/MoveToInbox'
-import moment from 'moment'
 
 import FileInput from '../../common/FileInput'
 import FloatingPrintNextButton from './components/FloatingPrintNextButton'
@@ -21,6 +20,8 @@ const JobQueueView = ({
   spoolNextPrint,
   deleteJob,
   cancelTask,
+  pausePrint,
+  resumePrint,
   moveToTopOfQueue,
 }) => {
   const classes = useStyles()
@@ -148,9 +149,13 @@ const JobQueueView = ({
                   <div key={job.id} className={classes.jobContainer}>
                     <JobCard
                       {...job}
-                      cancelTask={cancelTask}
-                      deleteJob={deleteJob}
-                      moveToTopOfQueue={moveToTopOfQueue}
+                      {...{
+                        cancelTask,
+                        pausePrint,
+                        resumePrint,
+                        deleteJob,
+                        moveToTopOfQueue,
+                      }}
                     />
                   </div>
                 ))

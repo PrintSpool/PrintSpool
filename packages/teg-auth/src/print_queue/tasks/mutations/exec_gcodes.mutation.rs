@@ -1,9 +1,7 @@
 use std::sync::Arc;
-use futures::prelude::*;
 use futures::stream::{StreamExt};
-// use std::collections::HashMap;
-use async_graphql::*;
 use serde::{Deserialize, Serialize};
+use async_graphql::*;
 use anyhow::{
     anyhow,
     Context as _,
@@ -17,10 +15,6 @@ use crate::{
     Machine,
     // MachineStatus,
     print_queue::macros::AnyMacro,
-    print_queue::macros::{
-        compile_macros,
-        AnnotatedGCode,
-    },
 };
 use super::*;
 
@@ -63,7 +57,7 @@ struct ExecGCodesInput {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
-enum GCodeLine {
+pub enum GCodeLine {
     String(String),
     Json(AnyMacro),
 }
@@ -120,55 +114,21 @@ impl ExecGCodesMutation {
             })
             .collect::<anyhow::Result<_>>()?;
 
-        let gcodes = stream::iter(gcodes)
-            .map(|gcode| Ok(gcode));
-
-        // Add annotations
-        let annotated_gcodes = compile_macros(
-            Arc::clone(ctx),
-            gcodes,
-        );
-
-        let (gcodes, annotations) = annotated_gcodes
-            .try_fold((vec![], vec![]), |mut acc, item| {
-                let (
-                    gcodes,
-                    annotations,
-                ) = &mut acc;
-
-                match item {
-                    AnnotatedGCode::GCode(gcode) => {
-                        gcodes.push(gcode);
-                    }
-                    AnnotatedGCode::Annotation(annotation) => {
-                        annotations.push(annotation);
-                    }
-                };
-
-                future::ok(acc)
-            })
-            .await?;
-
-
         /*
-         * Create the task
+         * Insert task and sync task completion
          * =========================================================================================
          */
-        let gcodes = gcodes;
-        let total_lines = gcodes.len() as u64;
 
-        let mut task = Task::new(
-            Task::generate_id(&ctx.db)?,
+        let mut task = Task::from_gcodes(
             machine_id,
-            TaskContent::GCodes(gcodes),
-            annotations,
-            total_lines,
-        );
+            gcodes,
+            ctx,
+        ).await?;
 
         task.machine_override = machine_override;
         let mut task_stream = Task::watch_id(&ctx.db, task.id)?;
 
-        info!("exec_gcodes task {:?}", task);
+        info!("task {:?}", task);
 
         let task = ctx.db.transaction(move |db| {
             let machine = Machine::get(&db, machine_id)?;

@@ -31,8 +31,9 @@ use crate::models::{
 #[Object]
 impl Machine {
     // TODO: temporary workaround to id cache colission with nodeJS resolver responses
-    async fn id(&self) -> ID { format!("rust-{:?}", &self.config_id).into() }
+    async fn id(&self) -> ID { format!("rust-{:?}", &self.id).into() }
     async fn status(&self) -> MachineStatusGQL { self.status.clone().into() }
+    async fn paused(&self) -> bool { self.pausing_task_id.is_some() }
 
     async fn name<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<String> {
         let ctx: &Arc<crate::Context> = ctx.data()?;

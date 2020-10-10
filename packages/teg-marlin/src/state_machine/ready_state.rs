@@ -133,10 +133,16 @@ impl ReadyState {
                         let combinator_message::SpoolTask {
                             task_id,
                             client_id,
+                            start_at_line_number,
                             content,
                             machine_override,
-                            ..
                         } = spool_task;
+
+                        let despooled_line_number = if start_at_line_number == 0 {
+                            None
+                        } else {
+                            Some((start_at_line_number - 1) as u32)
+                        };
 
                         match content {
                             Some(Content::Inline ( InlineContent { commands })) => {
@@ -146,7 +152,7 @@ impl ReadyState {
                                     gcode_lines: commands.into_iter(),
                                     machine_override,
                                     started: false,
-                                    despooled_line_number: None,
+                                    despooled_line_number,
                                 };
                                 self.consume(GCodeLoaded(task), context)
                             }
@@ -157,6 +163,7 @@ impl ReadyState {
                                         task_id,
                                         client_id,
                                         machine_override,
+                                        despooled_line_number,
                                     },
                                 ];
                                 Loop::new(Ready(self), effects)

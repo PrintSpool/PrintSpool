@@ -187,6 +187,11 @@ impl Task {
             )?;
             let task_id = task_id.clone();
 
+            if machine.pausing_task_id.is_some() {
+                Err(VersionedModelError::from(
+                    anyhow!("Cannot start a new print when an existing print is paused")
+                ))?;
+            }
             if !machine.status.can_start_task(&task, automatic_print) {
                 Err(VersionedModelError::from(
                     anyhow!("Cannot start task when machine is: {:?}", machine.status)

@@ -68,6 +68,16 @@ const getSchemaForms = () => ({
           type: 'string',
           default: '',
         },
+        pauseHook: {
+          title: 'Pause GCode',
+          type: 'string',
+          default: '',
+        },
+        resumeHook: {
+          title: 'Resume GCode',
+          type: 'string',
+          default: '',
+        },
       },
     }),
     form: [

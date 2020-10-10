@@ -43,6 +43,10 @@ impl Default for TaskStatus {
 }
 
 impl TaskStatus {
+    pub fn is_paused(&self) -> bool {
+        *self == Self::Paused
+    }
+
     pub fn is_pending(&self) -> bool {
         !self.is_settled()
     }

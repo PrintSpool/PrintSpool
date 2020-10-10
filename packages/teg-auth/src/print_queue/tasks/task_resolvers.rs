@@ -35,6 +35,7 @@ impl Task {
     }
 
     async fn status(&self) -> &TaskStatus { &self.status }
+    async fn paused(&self) -> bool { self.status == TaskStatus::Paused }
 
     // TODO: rename field to match model
     async fn total_line_numbers(&self) -> u64 { self.total_lines }

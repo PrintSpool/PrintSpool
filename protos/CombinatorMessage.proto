@@ -43,7 +43,9 @@ message CombinatorMessage {
       InlineContent inline = 5;
     }
 
-    // string name = 8;
+    // Starting at a line number other then zero allows for prints to be resumed from a mid-print
+    // pause.
+    uint64 start_at_line_number = 8;
 
     // Override tasks can be ran during jobs and do not set the
     // despooled_line_number in the MachineMessage.

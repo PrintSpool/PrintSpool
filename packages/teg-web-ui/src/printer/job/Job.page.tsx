@@ -50,6 +50,7 @@ const JOB_SUBSCRIPTION = gql`
               estimatedFilamentMeters
               startedAt
               status
+              paused
               machine {
                 id
                 # name
@@ -104,6 +105,16 @@ const JobPage = () => {
   })
 
   const [cancelTask] = useMutation(ESTOP)
+  const [pausePrint] = useMutation(gql`
+    mutation pausePrint($taskID: ID!) {
+      pausePrint(taskID: $taskID) { id }
+    }
+  `)
+  const [resumePrint] = useMutation(gql`
+    mutation resumePrint($taskID: ID!) {
+      resumePrint(taskID: $taskID) { id }
+    }
+  `)
   const [setJobPosition] = useMutation(SET_JOB_POSITION)
 
   const moveToTopOfQueue = () => setJobPosition({
@@ -138,6 +149,8 @@ const JobPage = () => {
         machine,
         job,
         cancelTask,
+        pausePrint,
+        resumePrint,
         moveToTopOfQueue,
         execGCodes,
         isReady,

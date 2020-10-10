@@ -38,6 +38,7 @@ const JOBS_SUBSCRIPTION = gql`
               estimatedPrintTimeMillis
               startedAt
               status
+              paused
               machine {
                 id
                 name
@@ -83,6 +84,16 @@ const JobQueuePage = () => {
   const [deleteJob] = useMutation(DELETE_JOB)
   const [cancelTask] = useMutation(ESTOP)
   const [setJobPosition] = useMutation(SET_JOB_POSITION)
+  const [pausePrint] = useMutation(gql`
+    mutation pausePrint($taskID: ID!) {
+      pausePrint(taskID: $taskID) { id }
+    }
+  `)
+  const [resumePrint] = useMutation(gql`
+    mutation resumePrint($taskID: ID!) {
+      resumePrint(taskID: $taskID) { id }
+    }
+  `)
 
   const moveToTopOfQueue = ({ jobID }) => setJobPosition({
     variables: {
@@ -142,6 +153,8 @@ const JobQueuePage = () => {
         spoolNextPrint,
         deleteJob,
         cancelTask,
+        pausePrint,
+        resumePrint,
         moveToTopOfQueue,
       }}
     />
