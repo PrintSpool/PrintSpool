@@ -29,6 +29,8 @@ use crate::machine::models::{
     Errored,
     Heater,
     TemperatureHistoryEntry,
+    Axis,
+    SpeedController,
 };
 
 use super::receive_message;
@@ -97,13 +99,16 @@ pub async fn record_feedback(
     )?;
 
     // Update heaters
-    let heaters = Heater::scan(&ctx.db).collect::<Result<Vec<Heater>>>()?;
+    let heaters = Heater::scan(&ctx.db)
+        .collect::<Result<Vec<Heater>>>()?;
 
     for h in feedback.heaters.iter() {
-        let heater = heaters.iter().find(|heater| heater.address == h.address);
+        let id = heaters.iter()
+            .find(|heater| heater.address == h.address)
+            .map(|heater| heater.id);
 
-        let heater_id = if let Some(heater_id) = heater.map(|heater| heater.id) {
-            heater_id
+        let id = if let Some(id) = id {
+            id
         } else {
             warn!("Heater not found: {}", h.address);
             continue
@@ -111,7 +116,7 @@ pub async fn record_feedback(
 
         let temperature_history_id = Heater::generate_id(&ctx.db)?;
 
-        Heater::get_and_update(&ctx.db, heater_id, |mut heater| {
+        Heater::get_and_update(&ctx.db, id, |mut heater| {
             let history = &mut heater.history;
 
             // record a data point once every half second
@@ -141,6 +146,58 @@ pub async fn record_feedback(
                 enabled: h.enabled,
                 blocking: h.blocking,
                 ..heater
+            }
+        });
+    }
+
+    // Update axes
+    let axes = Axis::scan(&ctx.db)
+        .collect::<Result<Vec<Axis>>>()?;
+
+    for a in feedback.axes.iter() {
+        let id = axes.iter()
+            .find(|axis| axis.address == a.address)
+            .map(|axis| axis.id);
+
+        let id = if let Some(id) = id {
+            id
+        } else {
+            warn!("axes not found: {}", a.address);
+            continue
+        };
+
+        Axis::get_and_update(&ctx.db, id, |mut axis| {
+            Axis {
+                target_position: Some(a.target_position),
+                actual_position: Some(a.actual_position),
+                homed: a.homed,
+                ..axis
+            }
+        });
+    }
+
+    // Update speed controllers
+    let speed_controllers = SpeedController::scan(&ctx.db)
+        .collect::<Result<Vec<SpeedController>>>()?;
+
+    for sc in feedback.speed_controllers.iter() {
+        let id = speed_controllers.iter()
+            .find(|speed_controller| speed_controller.address == sc.address)
+            .map(|speed_controller| speed_controller.id);
+
+        let id = if let Some(id) = id {
+            id
+        } else {
+            warn!("speed_controllers not found: {}", sc.address);
+            continue
+        };
+
+        SpeedController::get_and_update(&ctx.db, id, |mut speed_controller| {
+            SpeedController {
+                target_speed: Some(sc.target_speed),
+                actual_speed: Some(sc.actual_speed),
+                enabled: sc.enabled,
+                ..speed_controller
             }
         });
     }

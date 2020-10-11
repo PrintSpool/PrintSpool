@@ -21,6 +21,12 @@ pub use heater_r1::{
     TemperatureHistoryEntry,
 };
 
+mod axis_r1;
+pub use axis_r1::Axis;
+
+mod speed_controller_r1;
+pub use speed_controller_r1::SpeedController;
+
 #[derive(Debug, Serialize, Deserialize, VersionedSledModel)]
 pub enum MachineDBEntry {
     R1 (machine_r1::Machine),
@@ -43,6 +49,34 @@ pub enum HeaterDBEntry {
 impl crate::models::VersionedModel for Heater {
     type Entry = HeaterDBEntry;
     const NAMESPACE: &'static str = "Heater";
+
+    fn get_id(&self) -> u64 {
+        self.id
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, VersionedSledModel)]
+pub enum AxisDBEntry {
+    R1 (axis_r1::Axis),
+}
+
+impl crate::models::VersionedModel for Axis {
+    type Entry = AxisDBEntry;
+    const NAMESPACE: &'static str = "Axis";
+
+    fn get_id(&self) -> u64 {
+        self.id
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, VersionedSledModel)]
+pub enum SpeedControllerDBEntry {
+    R1 (speed_controller_r1::SpeedController),
+}
+
+impl crate::models::VersionedModel for SpeedController {
+    type Entry = SpeedControllerDBEntry;
+    const NAMESPACE: &'static str = "SpeedController";
 
     fn get_id(&self) -> u64 {
         self.id
