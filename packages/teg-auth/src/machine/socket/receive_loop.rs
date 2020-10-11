@@ -1,5 +1,6 @@
 // use async_std::prelude::*;
 use async_std::os::unix::net::UnixStream;
+use chrono::{ prelude::*, Duration };
 
 use std::convert::TryInto;
 use std::sync::Arc;
@@ -25,7 +26,9 @@ use crate::print_queue::tasks::{
 use crate::machine::models::{
     Machine,
     MachineStatus,
-    Errored
+    Errored,
+    Heater,
+    TemperatureHistoryEntry,
 };
 
 use super::receive_message;
@@ -92,6 +95,55 @@ pub async fn record_feedback(
             next_machine_status.clone()
         },
     )?;
+
+    // Update heaters
+    let heaters = Heater::scan(&ctx.db).collect::<Result<Vec<Heater>>>()?;
+
+    for h in feedback.heaters.iter() {
+        let heater = heaters.iter().find(|heater| heater.address == h.address);
+
+        let heater_id = if let Some(heater_id) = heater.map(|heater| heater.id) {
+            heater_id
+        } else {
+            warn!("Heater not found: {}", h.address);
+            continue
+        };
+
+        let temperature_history_id = Heater::generate_id(&ctx.db)?;
+
+        Heater::get_and_update(&ctx.db, heater_id, |mut heater| {
+            let history = &mut heater.history;
+
+            // record a data point once every half second
+            if (
+                history.back()
+                    .map(|last| Utc::now() > last.created_at + Duration::milliseconds(500))
+                    .unwrap_or(true)
+            ) {
+                history.push_back(
+                    TemperatureHistoryEntry {
+                        target_temperature: Some(h.target_temperature),
+                        actual_temperature: Some(h.actual_temperature),
+                        ..TemperatureHistoryEntry::new(temperature_history_id)
+                    }
+                );
+            }
+
+            // limit the history to 60 entries (30 seconds)
+            const max_history_length: usize = 60;
+            while history.len() > max_history_length {
+                history.pop_front();
+            };
+
+            Heater {
+                target_temperature: Some(h.target_temperature),
+                actual_temperature: Some(h.actual_temperature),
+                enabled: h.enabled,
+                blocking: h.blocking,
+                ..heater
+            }
+        });
+    }
 
     Ok(())
 }
