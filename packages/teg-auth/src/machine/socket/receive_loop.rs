@@ -31,6 +31,8 @@ use crate::machine::models::{
     TemperatureHistoryEntry,
     Axis,
     SpeedController,
+    GCodeHistoryDirection,
+    GCodeHistoryEntry,
 };
 
 use super::receive_message;
@@ -200,6 +202,34 @@ pub async fn record_feedback(
                 ..speed_controller
             }
         });
+    }
+
+    // Update GCode History
+    let mut history = if let Some(ephemeral) = ctx.ephemeral_machine_data.get_mut(&machine_id) {
+        ephemeral.gcode_history
+    } else {
+        return Err(anyhow!("Machine (id: {}) ephemeral data not found", machine_id));
+    };
+
+    for entry in feedback.gcode_history.iter() {
+        let direction = if entry.direction == 0 {
+            GCodeHistoryDirection::Tx
+        } else {
+            GCodeHistoryDirection::Rx
+        };
+
+        history.push_back(
+            GCodeHistoryEntry::new(
+                Machine::generate_id(&ctx.db)?,
+                entry.content,
+                direction,
+            )
+        );
+
+        const max_history_length: usize = 400;
+        while history.len() > max_history_length {
+            history.pop_front();
+        };
     }
 
     Ok(())

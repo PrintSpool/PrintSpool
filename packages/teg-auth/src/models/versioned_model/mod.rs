@@ -115,8 +115,8 @@ pub trait VersionedModel:
 
     fn generate_id(db: &sled::Db) -> VersionedModelResult<u64> {
         db.generate_id()
-        .map(|id| id.into())
-        .map_err(|source| {
+            .map(|id| id.into())
+            .map_err(|source| {
                     VersionedModelError::GenerateIdError {
                         namespace: Self::NAMESPACE,
                         source,

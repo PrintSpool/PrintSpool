@@ -7,10 +7,15 @@ use anyhow::{
     Context as _,
 };
 use arc_swap::ArcSwap;
+use std::collections::HashMap;
 
 use crate::models::User;
 use crate::configuration::Config;
 use crate::models::VersionedModel;
+use crate::machine::models::{
+    Machine,
+    EphemeralMachineData,
+};
 
 pub struct Context {
     pub db: Arc<sled::Db>,
@@ -19,6 +24,7 @@ pub struct Context {
     pub identity_public_key: Option<String>,
     pub auth_pem_keys: ArcSwap<Vec<Vec<u8>>>,
     pub machine_config: Arc<ArcSwap<Config>>,
+    pub ephemeral_machine_data: HashMap<u64, EphemeralMachineData>,
 }
 
 impl Context {
@@ -29,6 +35,11 @@ impl Context {
         auth_pem_keys: ArcSwap<Vec<Vec<u8>>>,
         machine_config: Arc<ArcSwap<Config>>,
     ) -> Result<Self> {
+        let mut ephemeral_machine_data = HashMap::new();
+        let config_id = machine_config.load().id;
+        let machine_id = Machine::find(&db, |machine| machine.config_id = config_id)?.id;
+        ephemeral_machine_data.insert(machine_id, EphemeralMachineData::new(machine_id));
+
         let mut ctx = Self {
             db,
             current_user: None,
@@ -36,6 +47,7 @@ impl Context {
             identity_public_key,
             auth_pem_keys,
             machine_config,
+            ephemeral_machine_data,
         };
 
         if let Some(current_user_id) = current_user_id {

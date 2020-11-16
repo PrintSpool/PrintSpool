@@ -24,6 +24,15 @@ pub use heater_r1::{
 mod axis_r1;
 pub use axis_r1::Axis;
 
+mod ephemeral_machine_data;
+pub use ephemeral_machine_data::EphemeralMachineData;
+
+mod gcode_history_entry;
+pub use gcode_history_entry::{
+    GCodeHistoryEntry,
+    GCodeHistoryDirection,
+};
+
 mod speed_controller_r1;
 pub use speed_controller_r1::SpeedController;
 

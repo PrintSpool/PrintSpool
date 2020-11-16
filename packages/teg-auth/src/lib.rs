@@ -198,5 +198,6 @@ pub async fn init() -> Result<Context> {
         identity_public_key: None,
         auth_pem_keys: ArcSwap::new(Arc::new(vec![vec![]])),
         machine_config: config,
+        ephemeral_machine_data: std::collections::HashMap::new(),
     })
 }
