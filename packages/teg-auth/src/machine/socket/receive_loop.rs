@@ -205,8 +205,8 @@ pub async fn record_feedback(
     }
 
     // Update GCode History
-    let mut history = if let Some(ephemeral) = ctx.ephemeral_machine_data.get_mut(&machine_id) {
-        ephemeral.gcode_history
+    let history = if let mut Some(ephemeral) = ctx.ephemeral_machine_data.get_mut(&machine_id) {
+        &mut ephemeral.gcode_history
     } else {
         return Err(anyhow!("Machine (id: {}) ephemeral data not found", machine_id));
     };
@@ -221,7 +221,7 @@ pub async fn record_feedback(
         history.push_back(
             GCodeHistoryEntry::new(
                 Machine::generate_id(&ctx.db)?,
-                entry.content,
+                entry.content.clone(),
                 direction,
             )
         );

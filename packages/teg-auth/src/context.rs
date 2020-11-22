@@ -37,7 +37,7 @@ impl Context {
     ) -> Result<Self> {
         let mut ephemeral_machine_data = HashMap::new();
         let config_id = machine_config.load().id;
-        let machine_id = Machine::find(&db, |machine| machine.config_id = config_id)?.id;
+        let machine_id = Machine::find(&db, |machine| machine.config_id == config_id)?.id;
         ephemeral_machine_data.insert(machine_id, EphemeralMachineData::new(machine_id));
 
         let mut ctx = Self {
