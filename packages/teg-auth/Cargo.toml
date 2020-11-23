@@ -62,6 +62,7 @@ nom-gcode = "0.1.0"
 tracing = "0.1.19"
 tracing-subscriber = "0.2.11"
 tracing-futures = "0.2.4"
+xactor = "0.7.8"
 
 [dependencies.async-std]
 features = ["tokio02", "unstable"]

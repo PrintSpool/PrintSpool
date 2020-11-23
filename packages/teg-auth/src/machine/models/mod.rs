@@ -25,7 +25,10 @@ mod axis_r1;
 pub use axis_r1::Axis;
 
 mod ephemeral_machine_data;
-pub use ephemeral_machine_data::EphemeralMachineData;
+pub use ephemeral_machine_data::{
+    EphemeralMachineData,
+    RecordFeedback,
+};
 
 mod gcode_history_entry;
 pub use gcode_history_entry::{

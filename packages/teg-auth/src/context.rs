@@ -6,6 +6,10 @@ use anyhow::{
     Result,
     Context as _,
 };
+use xactor::{
+    Actor,
+    Addr,
+};
 use arc_swap::ArcSwap;
 use std::collections::HashMap;
 
@@ -24,7 +28,7 @@ pub struct Context {
     pub identity_public_key: Option<String>,
     pub auth_pem_keys: ArcSwap<Vec<Vec<u8>>>,
     pub machine_config: Arc<ArcSwap<Config>>,
-    pub ephemeral_machine_data: HashMap<u64, EphemeralMachineData>,
+    pub ephemeral_machine_data: HashMap<u64, Addr<EphemeralMachineData>>,
 }
 
 impl Context {
@@ -36,9 +40,16 @@ impl Context {
         machine_config: Arc<ArcSwap<Config>>,
     ) -> Result<Self> {
         let mut ephemeral_machine_data = HashMap::new();
-        let config_id = machine_config.load().id;
-        let machine_id = Machine::find(&db, |machine| machine.config_id == config_id)?.id;
-        ephemeral_machine_data.insert(machine_id, EphemeralMachineData::new(machine_id));
+        let config_id = &machine_config.load().id;
+        let machine_id = Machine::find(&db, |machine|
+            &machine.config_id == config_id
+        )?.id;
+
+        let ephemeral_machine = EphemeralMachineData::new(
+            machine_id,
+            Arc::clone(&db),
+        ).start().await?;
+        ephemeral_machine_data.insert(machine_id, ephemeral_machine);
 
         let mut ctx = Self {
             db,
