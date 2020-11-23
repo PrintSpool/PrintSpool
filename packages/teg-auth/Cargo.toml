@@ -16,6 +16,10 @@ path = "src/bin/add_invite.rs"
 name = "teg-restore-backup"
 path = "src/bin/restore_backup.rs"
 
+[profile.release]
+# opt-level = "z"
+lto = true
+
 [dependencies]
 anyhow = "1.0"
 async-graphql-warp = "1.18.1"
