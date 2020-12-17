@@ -1,0 +1,30 @@
+use serde::{Deserialize, Serialize};
+
+use super::ComponentInner;
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ControllerConfig {
+    #[serde(rename = "serialPortID")]
+    pub serial_port_id: String,
+
+    pub automatic_baud_rate_detection: bool,
+    pub baud_rate: u32,
+
+    pub simulate: bool,
+    pub await_greeting_from_firmware: bool,
+    pub gcode_history_buffer_size: usize,
+
+    // delays
+    pub delay_from_greeting_to_ready: u64,
+    pub polling_interval: u64,
+    pub fast_code_timeout: u64,
+    pub long_running_code_timeout: u64,
+
+    pub response_timeout_tickle_attempts: u32,
+    pub long_running_codes: Vec<String>,
+    pub blocking_codes: Vec<String>,
+    pub checksum_tickles: bool,
+}
+
+pub type Controller = ComponentInner<ControllerConfig, ()>;

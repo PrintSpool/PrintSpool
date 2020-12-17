@@ -89,33 +89,3 @@ impl TryFrom<&TaskProgress> for TaskStatus {
         Ok(status)
     }
 }
-
-// export const indexedTaskStatuses = [
-//   CANCELLED, // 0
-//   PAUSE_TASK, // 1
-//   ERROR, // 2
-//   START_TASK, // 3
-//   FINISH_TASK, // 4
-// ]
-
-// export const taskFailureStatuses = [
-//   CANCELLED,
-//   ERROR,
-// ]
-
-// export const endedTaskStatuses = [
-//   CANCELLED,
-//   ERROR,
-//   FINISH_TASK,
-// ]
-
-// export const spooledTaskStatuses = [
-//   PAUSE_TASK,
-//   START_TASK,
-//   SPOOLED_TASK,
-// ]
-
-// export const busyMachineTaskStatuses = [
-//   PAUSE_TASK,
-//   START_TASK,
-// ]
