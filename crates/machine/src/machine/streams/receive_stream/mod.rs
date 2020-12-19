@@ -1,15 +1,7 @@
-// use async_std::prelude::*;
-use async_std::os::unix::net::UnixStream;
-// use chrono::{ prelude::*, Duration };
-
-// use std::convert::TryInto;
-use std::sync::Arc;
-use anyhow::{
-    anyhow,
-    Result,
-    // Context as _,
+use xactor::{
+    StreamHandler,
+    Context as XContext,
 };
-// use bytes::BufMut;
 
 use teg_protobufs::{
     MachineMessage,
@@ -17,9 +9,7 @@ use teg_protobufs::{
     machine_message,
 };
 
-use crate::machine::models::{
-    RecordFeedback,
-};
+use crate::machine::Machine;
 
 mod codec;
 mod record_feedback;
@@ -27,20 +17,27 @@ use record_feedback::record_feedback;
 
 #[async_trait::async_trait]
 impl StreamHandler<MachineMessage> for Machine {
-    async fn handle(&mut self, _ctx: &mut Context<Self>, msg: MachineMessage) {
-        trace!("Machine #{:?}: Socket Message Received", machine_id);
+    async fn handle(&mut self, ctx: &mut XContext<Self>, msg: MachineMessage) {
+        trace!("Machine #{:?}: Socket Message Received", self.id);
 
-        if let Some(machine_message::Payload::Feedback(feedback)) = message.payload {
-            // TODO: kill the actor if record_feedback errors
-            record_feedback(&mut self).await?
-        }
+        let feedback = match msg.payload {
+            Some(
+                machine_message::Payload::Feedback(feedback)
+            ) => feedback,
+            _ => return,
+        };
+
+        if let Err(err) = record_feedback(self, feedback).await {
+            error!("Restarting machine #{} due to rx error: {:?}", self.id, err);
+            ctx.stop(Some(err));
+        };
     }
 
-    async fn started(&mut self, _ctx: &mut Context<Self>) {
+    async fn started(&mut self, _ctx: &mut XContext<Self>) {
         info!("Machine #{:?}: Receive Loop Started", self.id);
     }
 
-    async fn finished(&mut self, _ctx: &mut Context<Self>) {
+    async fn finished(&mut self, _ctx: &mut XContext<Self>) {
         info!("Machine #{:?}: Receive Loop Finished", self.id);
     }
 }

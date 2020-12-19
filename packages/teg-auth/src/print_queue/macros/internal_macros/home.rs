@@ -59,10 +59,8 @@ impl HomeMacro {
             HomeAxes::Axes(axes) => {
                 // Verify that each axis from the input exists in the machine config
                 for address in axes.iter() {
-                    match config.at_address(address) {
-                        Some(Component::Axis(_)) => Ok(()),
-                        _ => Err(anyhow!("Axis (address: {:?}) not found", address)),
-                    }?;
+                    config.axes.find(|c| c.model.address == address)
+                        .ok_or_else(|| anyhow!("Axis (address: {:?}) not found", address))?;
                 }
 
                 axes.into_iter()

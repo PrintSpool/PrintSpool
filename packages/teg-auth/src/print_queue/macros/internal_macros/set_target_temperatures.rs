@@ -50,21 +50,20 @@ impl SetTargetTemperaturesMacro {
 
         let mut gcodes = self.heaters.iter()
             .map(|(address, val)| {
-                match config.at_address(address) {
-                    // Extruder = M104
-                    Some(Component::Toolhead(_)) => {
-                        let extruder_index = address[1..].parse::<u32>()
-                            .with_context(|| format!("Invalid extruder address: {:?}", address))?;
+                // Extruder = M104
+                if let Some(toolhead) = config.toolheads.find(|c| c.model.address == address)
+                {
+                    let extruder_index = address[1..].parse::<u32>()
+                        .with_context(|| format!("Invalid extruder address: {:?}", address))?;
 
-                        Ok(format!("M104 S{} T{}", val, extruder_index))
-                    },
-                    // Build Platform = M140
-                    Some(Component::BuildPlatform(_)) => {
-                        Ok(format!("M140 S{}", val))
-                    },
-                    _ => {
-                        Err(anyhow!("Heater (address: {:?}) not found", address))
-                    },
+                    Ok(format!("M104 S{} T{}", val, extruder_index))
+                }
+                // Build Platform = M140
+                else if config.build_platforms.find(|c| c.model.address == address).is_some()
+                {
+                    Ok(format!("M140 S{}", val))
+                } else {
+                    Err(anyhow!("Heater (address: {:?}) not found", address))
                 }
             })
             .map(|gcode|

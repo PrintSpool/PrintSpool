@@ -8,8 +8,6 @@ pub struct Task {
     pub id: u64,
     // Foreign Keys
     pub machine_id: u64, // machines have many (>=0) tasks
-    // #[new(default)]
-    // pub print: Option<Print>,
     // Timestamps
     #[new(value = "Utc::now()")]
     pub created_at: DateTime<Utc>,
@@ -22,8 +20,8 @@ pub struct Task {
     pub despooled_line_number: Option<u64>,
     #[new(default)]
     pub machine_override: bool,
-    #[new(default)]
-    pub sent_to_machine: bool,
+    // #[new(default)]
+    // pub sent_to_machine: bool,
     #[new(default)]
     pub status: TaskStatus,
     #[new(default)]
@@ -39,4 +37,34 @@ pub enum TaskContent {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum GCodeAnnotation {
     SetToolheadMaterials()
+}
+
+
+impl Task {
+    async fn insert(
+        &self,
+        db: &Arc<sqlx::sqlite::SqlitePool>,
+    ) -> Result<()> {
+        sqlx::query!(r#"
+            INSERT INTO tasks
+            (id, machine_id, json)
+            VALUES ?, ?, ?
+        "#)
+            .bind(self.id)
+            .bind(self.machine_id)
+            .bind(serde_json::to_string(self)?)
+            .await?;
+    }
+
+    async fn update(
+        &self,
+        db: &Arc<sqlx::sqlite::SqlitePool>,
+    ) -> Result<()> {
+        sqlx::query!(r#"
+            UPDATE tasks
+            SET json=?
+        "#)
+            .bind(serde_json::to_string(self)?)
+            .await?;
+    }
 }

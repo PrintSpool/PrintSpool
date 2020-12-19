@@ -14,48 +14,22 @@ path = "src/lib.rs"
 
 [dependencies]
 anyhow = "1.0"
-async-graphql-warp = "1.18.1"
-async-graphql = "1.18.2"
+async-graphql = "2.2.0"
 # async-graphql-warp = { path = "../../../async-graphql/async-graphql-warp" }
 # async-graphql = { path = "../../../async-graphql" }
-data-encoding = "2.1.2"
-dotenv = "0.15.0"
-error-chain = "0.12.1"
-frank_jwt = "3.1.2"
 futures = "0.3.5"
-gravatar = "0.2.0"
-hex = "0.4.0"
-notify = "4.0.15"
-qr2term = "0.1.7"
-rand = "0.5.6"
-rmp-serde = "0.14.0"
-serde_cbor = "0.11.1"
 serde_json = { version = "1.0.44", features = ["raw_value"] }
-thiserror = "1.0.20"
 toml = "0.5.6"
-url = "2.1.1"
-warp = "0.2.4"
 async-trait = "0.1.36"
-base64 = "0.12.3"
-sha2 = "0.9.1"
-itertools = "0.9.0"
-lazy_static = "1.4.0"
-tempfile = "3.1.0"
-clap = "3.0.0-beta.1"
-humantime = "2.0.1"
-surf = "2.0.0-alpha.4"
-nom = "5.1.2"
 derive-new = "0.5.8"
 teg-protobufs = { path= "../protobufs" }
 bytes = "0.5.6"
 arc-swap = "0.4.7"
-pin-project = "0.4.23"
-nom-gcode = "0.1.0"
 tracing = "0.1.19"
-tracing-subscriber = "0.2.11"
-tracing-futures = "0.2.4"
+# tracing-futures = "0.2.4"
 xactor = "0.7.8"
 async-codec = "0.4.0"
+sqlx = "0.4.1"
 
 [dependencies.async-std]
 features = ["tokio02", "unstable"]
@@ -64,14 +38,6 @@ version = "1.6.3"
 [dependencies.chrono]
 features = ["serde"]
 version = "0.4.10"
-
-[dependencies.openssl]
-features = ["vendored"]
-version = "0.10.28"
-
-[dependencies.secp256k1]
-features = ["rand"]
-version = "0.17.2"
 
 [dependencies.serde]
 features = ["derive"]

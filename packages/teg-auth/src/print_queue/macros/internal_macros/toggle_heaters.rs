@@ -72,58 +72,54 @@ impl ToggleHeatersMacro {
                     return Ok((address.clone(), 0.0))
                 }
 
-                match config.at_address(address) {
-                    // set the extruder temperature
-                    Some(Component::Toolhead(toolhead)) => {
-                        let material_id = toolhead.material_id.clone();
+                // set the extruder temperature
+                if let Some(toolhead) = config.toolheads.find(|c| c.address == address) {
+                    let material_id = toolhead.material_id.clone();
 
-                        let target = find_material(&host_config, &material_id)
-                            .map(|material|
-                                material["model"]["targetExtruderTemperature"]
-                                    .clone()
-                                    .try_into::<f32>()
-                            )
-                            .with_context(||
-                                format!("Unable to find material (id: {:?})", material_id)
-                            )?
-                            .with_context(||
-                                format!("Invalid material target temp (id: {:?})", material_id)
-                            )?;
+                    let target = find_material(&host_config, &material_id)
+                        .map(|material|
+                            material["model"]["targetExtruderTemperature"]
+                                .clone()
+                                .try_into::<f32>()
+                        )
+                        .with_context(||
+                            format!("Unable to find material (id: {:?})", material_id)
+                        )?
+                        .with_context(||
+                            format!("Invalid material target temp (id: {:?})", material_id)
+                        )?;
 
-                        Ok((address.clone(), target as f32))
-                    }
-                    // set the bed temperature to the lowest of the materials loaded
-                    //
-                    // TODO: Is this the expected behaviour for multi-extruder?
-                    Some(Component::BuildPlatform(_)) => {
-                        let target = config.toolheads()
-                            .map(|toolhead| {
-                                let material_id = toolhead.material_id.clone();
+                    Ok((address.clone(), target as f32))
+                // set the bed temperature to the lowest of the materials loaded
+                //
+                // TODO: Is this the expected behaviour for multi-extruder?
+                } else if config.build_platform.iter().any(|c| c.address == address) {
+                    let target = config.toolheads()
+                        .map(|toolhead| {
+                            let material_id = toolhead.material_id.clone();
 
-                                find_material(&host_config, &material_id)
-                                    .map(|material|
-                                        material["model"]["targetBedTemperature"]
-                                            .clone()
-                                            .try_into::<f64>()
-                                    )
-                                    .with_context(||
-                                        format!("Unable to find material (id: {:?})", material_id)
-                                    )?
-                                    .with_context(||
-                                        format!("Invalid material target temp (id: {:?})", material_id)
-                                    )
-                            })
-                            .collect::<Result<Vec<f64>>>()?
-                            .into_iter()
-                            // f32 cannot be compared so compare i64s
-                            .min_by_key(|target| (target * 1_000_000.0).round() as i64)
-                            .ok_or_else(||anyhow!("Materials must be set before toggling heaters"))?;
+                            find_material(&host_config, &material_id)
+                                .map(|material|
+                                    material["model"]["targetBedTemperature"]
+                                        .clone()
+                                        .try_into::<f64>()
+                                )
+                                .with_context(||
+                                    format!("Unable to find material (id: {:?})", material_id)
+                                )?
+                                .with_context(||
+                                    format!("Invalid material target temp (id: {:?})", material_id)
+                                )
+                        })
+                        .collect::<Result<Vec<f64>>>()?
+                        .into_iter()
+                        // f32 cannot be compared so compare i64s
+                        .min_by_key(|target| (target * 1_000_000.0).round() as i64)
+                        .ok_or_else(||anyhow!("Materials must be set before toggling heaters"))?;
 
-                        Ok((address.clone(), target as f32))
-                    }
-                    _ => {
-                        Err(anyhow!("Heater not found (address: {:?})", address))
-                    }
+                    Ok((address.clone(), target as f32))
+                } else {
+                    Err(anyhow!("Heater not found (address: {:?})", address))
                 }
             })
             .collect::<Result<HashMap<String, f32>>>()?;

@@ -1,19 +1,16 @@
-use std::{
-    io,
-};
+use std::convert::TryInto;
 
 use anyhow::{
-    anyhow,
-    Result,
     Error,
-};
-
-use futures::{
-    io::Cursor,
-    prelude::*,
+    Context as _,
 };
 
 use async_codec::*;
+
+use teg_protobufs::{
+    MachineMessage,
+    Message,
+};
 
 pub struct ReceiveStreamCodec;
 
@@ -26,7 +23,7 @@ impl Decode for ReceiveStreamCodec {
 
         // Read the message length
         let message_len = match buf.get(0..SIZE_DELIMETER_BYTES) {
-            Some(bytes) => bytes,
+            Some(bytes) => bytes.try_into().expect("message_len is explicitly 4 bytes"),
             None => return (0, DecodeResult::UnexpectedEnd),
         };
 
@@ -39,11 +36,11 @@ impl Decode for ReceiveStreamCodec {
         };
 
         let message = MachineMessage::decode(&message[..])
-            .with_context(|| "machine message decoding failed")?;
+            .with_context(|| "machine message decoding failed");
 
         (
             message_len,
-            message,
+            message.into(),
         )
     }
 }

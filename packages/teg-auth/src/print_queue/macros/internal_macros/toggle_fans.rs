@@ -42,18 +42,15 @@ impl ToggleFansMacro {
 
         let gcodes = self.fans.iter()
             .map(|(address, enable)| {
-                match config.at_address(address) {
-                    Some(Component::Fan(_)) => {
-                        let mcode = if *enable { "M106" } else { "M107" };
+                if config.speed_controllers.iter().any(|c| c.model.address == address) {
+                    let mcode = if *enable { "M106" } else { "M107" };
 
-                        let fan_index = address[1..].parse::<u32>()
-                            .with_context(|| format!("Invalid fan address: {:?}", address))?;
+                    let fan_index = address[1..].parse::<u32>()
+                        .with_context(|| format!("Invalid fan address: {:?}", address))?;
 
-                        Ok(format!("{} P{}", mcode, fan_index))
-                    },
-                    _ => {
-                        Err(anyhow!("Fan (address: {:?}) not found", address))
-                    },
+                    Ok(format!("{} P{}", mcode, fan_index))
+                } else {
+                    Err(anyhow!("Fan (address: {:?}) not found", address))
                 }
             })
             .map(|gcode|

@@ -1,0 +1,119 @@
+id = "1"
+isConfigured = false
+modelVersion = 1
+
+[[controller]]
+id = "1"
+modelVersion = 1
+
+  [controller.model]
+  interface = "SERIAL"
+  name = "RAMPS Controller Board"
+  serialPortID = "/dev/null/no-serial-port"
+  automaticBaudRateDetection = true
+  baudRate = 250_000
+  simulate = false
+  awaitGreetingFromFirmware = true
+  checksumTickles = false
+  gcodeHistoryBufferSize = 20
+  serialConnectionTimeout = 3_000
+  delayFromGreetingToReady = 2_000
+  pollingInterval = 500
+  responseTimeoutTickleAttempts = 3
+  fastCodeTimeout = 30_000
+  longRunningCodeTimeout = 60_000
+  longRunningCodes = [ "G4", "G28", "G29", "G30", "G32", "M226", "M400", "M600" ]
+  blockingCodes = [ "M0", "M1", "M21", "M109", "M116", "M190", "M191" ]
+
+[[axes]]
+id = "2"
+modelVersion = 1
+
+  [axes.model]
+  address = "x"
+  name = "X"
+  feedrate = 150
+
+[[axes]]
+id = "3"
+modelVersion = 1
+
+  [axes.model]
+  address = "y"
+  name = "Y"
+  feedrate = 150
+
+[[axes]]
+id = "4"
+modelVersion = 1
+
+  [axes.model]
+  address = "z"
+  name = "Z"
+  feedrate = 4
+
+[[toolheads]]
+id = "5"
+modelVersion = 1
+type = "TOOLHEAD"
+
+  [toolheads.model]
+  address = "e0"
+  name = "Extruder 1"
+  heater = true
+  feedrate = 3
+  materialID = "dkdow2"
+  bowdenTubeLength = 0
+  filamentSwapFastMoveSpeed = 100
+  filamentSwapFastMoveEnabled = false
+  filamentSwapExtrudeDistance = 50
+  beforeFilamentSwapHook = ""
+  filamentSwapContinuousPullEnabled = false
+  filamentSwapContinuousPullSpeed = 3
+
+[[fans]]
+id = "6"
+modelVersion = 1
+
+  [fans.model]
+  address = "f0"
+  name = "Hot End Fan"
+
+[[build_platforms]]
+id = "7"
+modelVersion = 1
+type = "BUILD_PLATFORM"
+
+  [build_platforms.model]
+  address = "b"
+  name = "Bed"
+  heater = true
+
+[[plugins]]
+id = "1"
+modelVersion = 1
+package = "@tegapp/core"
+
+  [plugins.model]
+  name = "New Printer"
+  automaticPrinting = false
+  beforePrintHook = ""
+  afterPrintHook = ""
+  swapXAndYOrientation = false
+  macros = [ "*" ]
+
+[[plugins]]
+id = "2"
+modelVersion = 1
+package = "@tegapp/marlin"
+
+  [plugins.model]
+  macros = [ "*" ]
+
+[[plugins]]
+id = "3"
+modelVersion = 1
+package = "@tegapp/macros-default"
+
+  [plugins.model]
+  macros = [ "*" ]
