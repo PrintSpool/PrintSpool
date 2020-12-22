@@ -3,7 +3,7 @@ use teg_protobufs::{
     combinator_message,
 };
 
-pub fn pause_task(task_id: u64) -> CombinatorMessage {
+pub fn pause_task(task_id: u32) -> CombinatorMessage {
     CombinatorMessage {
         payload: Some(
             combinator_message::Payload::PauseTask(

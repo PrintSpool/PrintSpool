@@ -4,9 +4,11 @@ use teg_protobufs::{
     combinator_message,
 };
 
+use crate::machine::Machine;
+
 #[message(result = "()")]
 pub struct PauseTask {
-    task_id: u64,
+    task_id: u32,
 }
 
 impl From<PauseTask> for CombinatorMessage {
@@ -21,9 +23,14 @@ impl From<PauseTask> for CombinatorMessage {
     }
 }
 
-// #[async_trait::async_trait]
-// impl Handler<PauseTask> for Machine {
-//     async fn handle(&mut self, _ctx: &mut Context<Self>, msg: PauseTask) -> () {
-//         self.send_message(msg.into())
-//     }
-// }
+#[async_trait::async_trait]
+impl Handler<PauseTask> for Machine {
+    async fn handle(&mut self, ctx: &mut Context<Self>, msg: PauseTask) -> () {
+        self.data.paused_task_id = Some(msg.task_id);
+
+        if let Err(err) = self.send_message(msg.into()).await {
+            error!("Error pausing task on machine #{}: {:?}", self.data.config.id, err);
+            ctx.stop(Some(err));
+        };
+    }
+}

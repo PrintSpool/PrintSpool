@@ -18,7 +18,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(new, Debug, Serialize, Deserialize, Clone)]
 pub struct Axis {
-    pub id: u64,
+    pub id: u32,
     // Foreign Keys
     pub component_id: ID,
     // Timestamps

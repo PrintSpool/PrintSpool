@@ -9,7 +9,7 @@ use crate::task::{
     TaskContent,
 };
 
-use crate::machine::Machine;
+// use crate::machine::Machine;
 
 #[message(result = "()")]
 pub struct SpoolTask {

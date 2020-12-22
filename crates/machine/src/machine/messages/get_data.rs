@@ -1,15 +1,12 @@
 use xactor::*;
-use teg_protobufs::{
-    CombinatorMessage,
-    combinator_message,
-};
 
 use crate::machine::{
     Machine,
     MachineData,
 };
 
-struct GetData();
+#[message(result = "MachineData")]
+pub struct GetData();
 
 #[async_trait::async_trait]
 impl Handler<GetData> for Machine {

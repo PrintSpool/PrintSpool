@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Material {
-    pub id: u64,
+    pub id: u32,
     pub version: u64,
     pub name: String,
     pub props: MaterialType,

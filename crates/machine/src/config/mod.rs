@@ -1,25 +1,6 @@
 use async_graphql::ID;
 use serde::{Serialize, Deserialize};
 
-use crate::components::{
-    Component,
-    ControllerConfig,
-    Toolhead,
-    ToolheadConfig,
-    Video,
-    Axis,
-    SpeedController,
-    SpeedControllerConfig,
-    BuildPlatform,
-    BuildPlatformConfig,
-};
-use std::path::PathBuf;
-
-use anyhow::{
-    anyhow,
-    Result,
-    // Context as _,
-};
 mod machine_config;
 pub use machine_config::{ MachineConfig };
 
@@ -37,7 +18,7 @@ pub enum Plugin {
 #[serde(rename_all = "camelCase")]
 pub struct PluginContainer<Model = toml::Value> {
     pub id: ID,
-    pub model_version: u64,
+    pub model_version: u32,
     pub model: Model,
 }
 

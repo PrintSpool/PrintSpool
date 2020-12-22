@@ -1,45 +1,58 @@
 use std::sync::Arc;
+use std::collections::HashMap;
+use futures::future::join_all;
 // use chrono::prelude::*;
-use async_graphql::*;
+use async_graphql::{
+    ID,
+    FieldResult,
+    Context,
+};
+use xactor::Addr;
 use anyhow::{
-    // anyhow,
+    anyhow,
     Result,
     // Context as _,
 };
 
-use super::models::{
+use crate::machine::messages::GetData;
+
+use crate::machine::{
     Machine,
+    MachineData,
     // Task,
     // TaskStatus,
-};
-
-use crate::models::{
-    VersionedModel,
-    // VersionedModelError,
 };
 
 #[derive(Default)]
 pub struct MachineQuery;
 
-#[Object]
+#[async_graphql::Object]
 impl MachineQuery {
     #[instrument(skip(self, ctx))]
     async fn machines<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
         id: Option<ID>,
-    ) -> FieldResult<Vec<Machine>> {
-        let ctx: &Arc<crate::Context> = ctx.data()?;
+    ) -> FieldResult<Vec<MachineData>> {
+        let db: &crate::Db = ctx.data()?;
+        let machines: &Arc<HashMap<ID, Addr<Machine>>> = ctx.data()?;
 
-        let machines = if let Some(id) = id {
-            let machine = Machine::find(&ctx.db, |machine| {
-                machine.config_id == id
-            })?;
+        let machines: Vec<&Addr<Machine>> = if let Some(id) = id {
+            let addr = machines.get(&id)
+                .ok_or_else(|| anyhow!("No machine found ({:?})", id))?;
 
-            vec![machine]
+            vec![addr]
         } else {
-            Machine::scan(&ctx.db).collect::<Result<Vec<Machine>>>()?
+            machines.values().collect()
         };
+
+        let machines = machines
+            .into_iter()
+            .map(|addr| addr.call(GetData()));
+
+        let machines = join_all(machines).await
+            .into_iter()
+            .collect::<Result<Vec<_>>>()?;
 
         Ok(machines)
     }

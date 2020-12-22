@@ -25,7 +25,7 @@ use receive_loop::run_receive_loop;
 mod send_loop;
 use send_loop::run_send_loop;
 
-pub async fn handle_machine_socket(ctx: Arc<crate::Context>, machine_id: u64) -> Result<()> {
+pub async fn handle_machine_socket(ctx: Arc<crate::Context>, machine_id: u32) -> Result<()> {
     let machine = Machine::get(&ctx.db, machine_id)?;
     let socket_path = format!(
         "/var/lib/teg/machine-{}.sock",

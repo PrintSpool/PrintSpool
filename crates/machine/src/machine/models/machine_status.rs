@@ -1,9 +1,8 @@
 // Task Status Revison 1 (LATEST)
-use async_graphql::Enum;
 use serde::{Deserialize, Serialize};
 use crate::task::Task;
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum MachineStatus {
     Disconnected,
     Connecting,
@@ -13,14 +12,14 @@ pub enum MachineStatus {
     Stopped,
 }
 
-#[Enum]
+#[derive(async_graphql::Enum, Debug, Copy, Clone, Eq, PartialEq)]
 pub enum MachineStatusGQL {
     Disconnected,
     Connecting,
     Ready,
     Printing,
     Errored,
-    #[item(name = "ESTOPPED")]
+    #[graphql(name = "ESTOPPED")]
     Stopped,
 }
 
@@ -39,7 +38,7 @@ impl From<MachineStatus> for MachineStatusGQL {
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Printing {
-    pub task_id: u64,
+    pub task_id: u32,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -72,7 +71,7 @@ impl MachineStatus {
       }
     }
 
-    pub fn is_printing_task(&self, task_id: u64) -> bool {
+    pub fn is_printing_task(&self, task_id: u32) -> bool {
       if let MachineStatus::Printing(printing) = self {
         printing.task_id == task_id
       } else {

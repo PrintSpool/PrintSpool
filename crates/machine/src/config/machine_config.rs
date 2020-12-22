@@ -1,5 +1,4 @@
 // use std::path::Path;
-use async_graphql::ID;
 use serde::{Serialize, Deserialize};
 use std::path::PathBuf;
 use anyhow::{
@@ -11,15 +10,14 @@ use anyhow::{
 use crate::components::{
     Axis,
     BuildPlatform,
-    BuildPlatformConfig,
-    ControllerConfig,
+    Component,
+    Controller,
     HeaterEphemeral,
     SpeedController,
-    SpeedControllerConfig,
     Toolhead,
-    ToolheadConfig,
     Video,
 };
+
 use super::{
     Feedrate,
     Plugin,
@@ -30,7 +28,7 @@ use super::{
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct MachineConfig {
-    pub id: ID,
+    pub id: u32,
     pub is_configured: bool,
     // Set to the name of the snap to connect an external teg-marlin process to the snap's
     // tmp directory and socket. Generally this is only useful for teg-marlin development.
@@ -70,26 +68,32 @@ impl MachineConfig {
         Ok(name)
     }
 
-    pub fn get_controller(&self) -> &ControllerConfig {
+    pub fn get_controller(&self) -> &Controller {
         self.controllers.get(0)
             .expect("No controller found in config")
     }
 
     pub fn tty_path(&self) -> &String {
-        &self.get_controller().serial_port_id
+        &self.get_controller().model.serial_port_id
     }
 
-    pub fn get_heater_mut(&mut self, address: String) -> &mut HeaterEphemeral {
-        if let Some(toolhead) = self.toolheads.iter_mut().find(|c| c.address == address) {
-            Some(toolhead.ephemeral)
-        } else if let Some(build_platform) = self.build_platforms.iter_mut().find(|c| c.address == address) {
-            Some(build_platform.ephemeral)
+    pub fn get_heater_mut(&mut self, address: String) -> Option<&mut HeaterEphemeral> {
+        if let Some(toolhead) = self.toolheads
+            .iter_mut()
+            .find(|c| c.model.address == address)
+        {
+            Some(&mut toolhead.ephemeral)
+        } else if let Some(build_platform) = self.build_platforms
+            .iter_mut()
+            .find(|c| c.model.address == address)
+        {
+            Some(&mut build_platform.ephemeral)
         } else {
             None
         }
     }
 
-    pub fn feedrates(&self) -> impl std::iter::Iterator<Item = Feedrate> {
+    pub fn feedrates(&self) -> Vec<Feedrate> {
         let axe_feedrates = self.axes.iter()
             .map(|Axis { model: axis, .. }| {
                 Feedrate {
@@ -100,8 +104,8 @@ impl MachineConfig {
                 }
             });
 
-        let toolhead_feedrates = self.axes.iter()
-            .map(|ToolheadConfig { model: toolhead, .. }| {
+        let toolhead_feedrates = self.toolheads.iter()
+            .map(|Toolhead { model: toolhead, .. }| {
                 Feedrate {
                     address: toolhead.address.clone(),
                     feedrate: toolhead.feedrate,
@@ -110,7 +114,7 @@ impl MachineConfig {
                 }
             });
 
-        axe_feedrates.chain(toolhead_feedrates)
+        axe_feedrates.chain(toolhead_feedrates).collect()
     }
 
     pub fn var_path(&self) -> PathBuf {
@@ -131,5 +135,18 @@ impl MachineConfig {
 
     pub fn backups_dir(&self) -> PathBuf {
         self.var_path().join("backups")
+    }
+
+    pub fn components(&self) -> Vec<Component> {
+        use Component::*;
+
+        std::iter::empty()
+            .chain(self.controllers.iter().map(|c| Controller(c.clone())))
+            .chain(self.axes.iter().map(|c| Axis(c.clone())))
+            .chain(self.toolheads.iter().map(|c| Toolhead(c.clone())))
+            .chain(self.speed_controllers.iter().map(|c| SpeedController(c.clone())))
+            .chain(self.videos.iter().map(|c| Video(c.clone())))
+            .chain(self.build_platforms.iter().map(|c| BuildPlatform(c.clone())))
+            .collect()
     }
 }

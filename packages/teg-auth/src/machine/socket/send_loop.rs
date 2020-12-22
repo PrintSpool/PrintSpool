@@ -95,7 +95,7 @@ where
 pub async fn run_send_loop(
     client_id: u32,
     ctx: Arc<crate::Context>,
-    machine_id: u64,
+    machine_id: u32,
     stream: UnixStream,
 ) -> Result<()> {
     info!("Machine #{:?}: Send Loop Started", machine_id);

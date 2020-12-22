@@ -26,7 +26,7 @@ use super::receive_message;
 pub async fn run_receive_loop(
     _client_id: u32,
     ctx: Arc<crate::Context>,
-    machine_id: u64,
+    machine_id: u32,
     mut stream: UnixStream,
 ) -> Result<()> {
     info!("Machine #{:?}: Receive Loop Started", machine_id);

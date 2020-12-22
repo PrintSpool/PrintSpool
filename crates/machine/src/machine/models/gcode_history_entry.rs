@@ -1,10 +1,8 @@
 use chrono::prelude::*;
-use async_graphql::Enum;
-use serde::{Deserialize, Serialize};
 
-#[derive(new, Debug, Serialize, Deserialize, Clone)]
+#[derive(async_graphql::SimpleObject, new, Debug, Clone)]
 pub struct GCodeHistoryEntry {
-    pub id: u64,
+    pub id: u32,
     // Timestamps
     #[new(value = "Utc::now()")]
     pub created_at: DateTime<Utc>,
@@ -13,11 +11,10 @@ pub struct GCodeHistoryEntry {
     direction: GCodeHistoryDirection,
 }
 
-#[Enum]
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(async_graphql::Enum, Debug, Copy, Clone, Eq, PartialEq)]
 pub enum GCodeHistoryDirection {
-    #[item(name = "RX")]
+    #[graphql(name="RX")]
     Rx,
-    #[item(name = "TX")]
+    #[graphql(name="TX")]
     Tx,
 }

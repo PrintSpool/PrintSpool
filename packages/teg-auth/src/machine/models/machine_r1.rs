@@ -17,7 +17,7 @@ use anyhow::{
 
 #[derive(new, Debug, Serialize, Deserialize, Clone)]
 pub struct Machine {
-    pub id: u64,
+    pub id: u32,
     // Foreign Keys
     pub config_id: ID,
     // Timestamps
@@ -45,7 +45,7 @@ pub struct Machine {
 #[derive(new, Debug, Serialize, Deserialize, Clone)]
 pub struct MachineViewer {
     // Foreign Keys
-    pub user_id: u64,
+    pub user_id: u32,
     // Props
     pub session_id: String,
     // Timestamps

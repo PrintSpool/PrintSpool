@@ -1,6 +1,5 @@
 // Task Status Revison 1 (LATEST)
 use std::convert::TryFrom;
-use async_graphql::*;
 use serde::{Deserialize, Serialize};
 use teg_protobufs::machine_message::TaskProgress;
 
@@ -10,31 +9,30 @@ use anyhow::{
     // Context as _,
 };
 
-#[Enum]
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(async_graphql::Enum, Debug, Serialize, Deserialize, Copy, Clone, PartialEq, Eq)]
 pub enum TaskStatus {
     /* Before sending to the driver */
 
     /// The task is enqueued. It will begin printing as soon as the tasks spooled before it finish.
-    #[item(name = "SPOOLED_TASK")]
+    #[graphql(name = "SPOOLED_TASK")]
     Spooled,
 
     /* After sending to the driver */
 
     /// The task is in the process of being printed.
-    #[item(name = "START_TASK")]
+    #[graphql(name = "START_TASK")]
     Started,
     /// The task completed its print successfully
-    #[item(name = "FINISH_TASK")]
+    #[graphql(name = "FINISH_TASK")]
     Finished,
     /// The task was paused by the user
-    #[item(name = "PAUSE_TASK")]
+    #[graphql(name = "PAUSE_TASK")]
     Paused,
     /// The task was halted pre-emptively by the user.
-    #[item(name = "CANCELLED")]
+    #[graphql(name = "CANCELLED")]
     Cancelled,
     /// An error occurred durring the print.
-    #[item(name = "ERROR")]
+    #[graphql(name = "ERROR")]
     Errored,
 }
 

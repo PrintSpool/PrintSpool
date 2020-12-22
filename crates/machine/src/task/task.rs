@@ -1,13 +1,18 @@
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
+use anyhow::{
+    // anyhow,
+    Result,
+    // Context as _,
+};
 
 use super::task_status::TaskStatus;
 
 #[derive(new, Debug, Serialize, Deserialize, Clone)]
 pub struct Task {
-    pub id: u64,
+    pub id: u32,
     // Foreign Keys
-    pub machine_id: u64, // machines have many (>=0) tasks
+    pub machine_id: u32, // machines have many (>=0) tasks
     // Timestamps
     #[new(value = "Utc::now()")]
     pub created_at: DateTime<Utc>,
@@ -41,9 +46,9 @@ pub enum GCodeAnnotation {
 
 
 impl Task {
-    async fn insert(
+    pub async fn insert(
         &self,
-        db: &Arc<sqlx::sqlite::SqlitePool>,
+        db: &crate::Db,
     ) -> Result<()> {
         sqlx::query!(r#"
             INSERT INTO tasks
@@ -54,11 +59,13 @@ impl Task {
             .bind(self.machine_id)
             .bind(serde_json::to_string(self)?)
             .await?;
+        
+        Ok(())
     }
 
-    async fn update(
+    pub async fn update(
         &self,
-        db: &Arc<sqlx::sqlite::SqlitePool>,
+        db: &crate::Db,
     ) -> Result<()> {
         sqlx::query!(r#"
             UPDATE tasks
@@ -66,5 +73,7 @@ impl Task {
         "#)
             .bind(serde_json::to_string(self)?)
             .await?;
+
+        Ok(())
     }
 }

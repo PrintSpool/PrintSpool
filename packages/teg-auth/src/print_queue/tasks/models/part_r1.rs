@@ -14,8 +14,8 @@ use super::Package;
 pub struct Part {
   pub id: u64,
   // Foreign Keys
-  pub print_queue_id: u64, // print queues have many (>=0) parts
-  pub package_id: u64, // packages have many (>=1) parts
+  pub print_queue_id: u32, // print queues have many (>=0) parts
+  pub package_id: u32, // packages have many (>=1) parts
   // Timestamps
   #[new(value = "Utc::now()")]
   pub created_at: DateTime<Utc>,

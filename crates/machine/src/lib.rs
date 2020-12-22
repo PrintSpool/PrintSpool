@@ -4,7 +4,7 @@
 #[macro_use] extern crate tracing;
 // #[macro_use] extern crate log_derive;
 #[macro_use] extern crate derive_new;
-
+#[macro_use] extern crate smart_default;
 // extern crate secp256k1;
 // extern crate rand;
 // extern crate rmp_serde as rmps;
@@ -27,3 +27,7 @@ pub mod components;
 pub mod config;
 pub mod machine;
 pub mod task;
+pub mod config_form;
+
+use std::sync::Arc;
+pub type Db = sqlx::sqlite::SqlitePool;

@@ -34,17 +34,16 @@ use crate::components::{
     SpeedController,
 };
 
-use crate::machine::Machine;
-
-pub async fn update_tasks(db: &Arc<sqlx::sqlite::SqlitePool>, feedback: &Feedback) -> Result<()> {
+pub async fn update_tasks(db: &crate::Db, feedback: &Feedback) -> Result<()> {
     for progress in feedback.task_progress.iter() {
         let status = progress.try_into()?;
 
         let task = sqlx::query_as("SELECT * FROM tasks WHERE id = ?")
             .bind(progress.task_id)
-            .fetch_one(&db)
-            .await
-            .and_then(|task| serde_json::<Task>::from_str(task.json))?;
+            .fetch_one(db)
+            .await?;
+
+        let task: Task = serde_json::from_str(task.json)?;
 
         trace!("Task #{} status: {:?}", task.id, status);
         task.despooled_line_number = Some(progress.despooled_line_number as u64);
@@ -58,7 +57,7 @@ pub async fn update_tasks(db: &Arc<sqlx::sqlite::SqlitePool>, feedback: &Feedbac
 
 pub async fn update_heaters(machine: &mut Machine, feedback: &Feedback) -> Result<()> {
     for h in feedback.heaters.iter() {
-        let heater = machine.config.get_mut_heater(h.address);
+        let heater = machine.data.config.get_mut_heater(h.address);
 
         let heater = if let Some(heater) = heater {
             heater
@@ -102,56 +101,54 @@ pub async fn update_heaters(machine: &mut Machine, feedback: &Feedback) -> Resul
 }
 
 pub async fn update_axes(machine: &mut Machine, feedback: &Feedback) -> Result<()> {
-    let axes = Axis::scan(&self.db)
-        .collect::<Result<Vec<Axis>>>()?;
+    let axes = machine.data.config.axes;
 
     for a in feedback.axes.iter() {
         let id = axes.iter()
             .find(|axis| axis.address == a.address)
             .map(|axis| axis.id);
 
-        let id = if let Some(id) = id {
-            id
+        let axis = axes.iter_mut()
+            .find(|c| c.model.address == a.address)
+            .map(|c| &mut c.ephemeral);
+
+        let axis = if let Some(axis) = axis {
+            axis
         } else {
             warn!("axes not found: {}", a.address);
             continue
         };
 
-        Axis::get_and_update(&self.db, id, |axis| {
-            Axis {
-                target_position: Some(a.target_position),
-                actual_position: Some(a.actual_position),
-                homed: a.homed,
-                ..axis
-            }
-        })?;
+        axis.target_position = Some(a.target_position);
+        axis.actual_position = Some(a.actual_position);
+        axis.homed = a.homed;
     }
 
     Ok(())
 }
 
 pub async fn update_speed_controllers(machine: &mut Machine, feedback: &Feedback) -> Result<()> {
-    let speed_controllers = machine.data.config
+    let speed_controllers = machine.data.config.speed_controllers;
+
     for sc in feedback.speed_controllers.iter() {
         let id = speed_controllers.iter()
             .find(|speed_controller| speed_controller.address == sc.address)
             .map(|speed_controller| speed_controller.id);
 
-        let id = if let Some(id) = id {
-            id
+        let sc_eph = speed_controllers.iter_mut()
+            .find(|c| c.model.address == a.address)
+            .map(|c| &mut c.ephemeral);
+
+        let sc_eph = if let Some(sc_eph) = sc_eph {
+            sc_eph
         } else {
             warn!("speed_controllers not found: {}", sc.address);
             continue
         };
 
-        SpeedController::get_and_update(&self.db, id, |speed_controller| {
-            SpeedController {
-                target_speed: Some(sc.target_speed),
-                actual_speed: Some(sc.actual_speed),
-                enabled: sc.enabled,
-                ..speed_controller
-            }
-        })?;
+        sc_eph.target_speed = Some(sc.target_speed);
+        sc_eph.actual_speed = Some(sc.actual_speed);
+        sc_eph.enabled = sc.enabled;
     }
 
     Ok(())
@@ -202,17 +199,17 @@ pub async fn update_machine(machine: &mut Machine, feedback: &Feedback) -> Resul
 }
 
 pub async fn record_feedback(machine: &mut Machine, feedback: Feedback) -> Result<()> {
-    let db = machine.db;
-    let transaction = db.begin()?;
+    let db = &machine.db;
+    let transaction = db.begin().await?;
 
-    update_tasks(db, &feedback);
-    update_heaters(db, &feedback);
-    update_axes(db, &feedback);
-    update_speed_controllers(db, &feedback);
+    update_tasks(db, &feedback).await;
+    update_heaters(machine, &feedback).await;
+    update_axes(machine, &feedback).await;
+    update_speed_controllers(machine, &feedback).await;
 
-    update_machine(machine, &feedback);
+    update_machine(machine, &feedback).await;
 
-    transaction.commit()?;
+    transaction.commit().await?;
 
     Ok(())
 }

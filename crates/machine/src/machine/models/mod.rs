@@ -1,7 +1,7 @@
-use serde::{Deserialize, Serialize};
+// use serde::{Deserialize, Serialize};
 
-mod machine;
-pub use machine::*;
+// mod machine;
+// pub use machine::*;
 
 mod machine_status;
 pub use machine_status::*;

@@ -44,8 +44,8 @@ use crate::machine::models::{
 impl Task {
     pub async fn insert_print(
         ctx: &Arc<crate::Context>,
-        machine_id: u64,
-        part_id: u64,
+        machine_id: u32,
+        part_id: u32,
         automatic_print: bool,
     ) -> Result<Task> {
         let part_file_path = Part::get(&ctx.db, part_id)?.file_path;

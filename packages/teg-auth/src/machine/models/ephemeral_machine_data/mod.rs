@@ -25,7 +25,7 @@ pub use record_feedback::RecordFeedback;
 
 #[derive(new, Debug, Clone)]
 pub struct EphemeralMachineData {
-    pub id: u64,
+    pub id: u32,
     pub db: Arc<sled::Db>,
     #[new(default)]
     pub gcode_history: VecDeque<GCodeHistoryEntry>,

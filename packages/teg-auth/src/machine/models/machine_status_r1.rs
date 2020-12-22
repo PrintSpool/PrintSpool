@@ -39,7 +39,7 @@ impl From<MachineStatus> for MachineStatusGQL {
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Printing {
-    pub task_id: u64,
+    pub task_id: u32,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -72,7 +72,7 @@ impl MachineStatus {
       }
     }
 
-    pub fn is_printing_task(&self, task_id: u64) -> bool {
+    pub fn is_printing_task(&self, task_id: u32) -> bool {
       if let MachineStatus::Printing(printing) = self {
         printing.task_id == task_id
       } else {

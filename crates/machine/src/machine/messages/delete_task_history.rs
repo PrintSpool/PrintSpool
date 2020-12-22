@@ -6,7 +6,7 @@ use teg_protobufs::{
 
 #[message(result = "()")]
 pub struct DeleteTaskHistory {
-    task_id: u64,
+    task_id: u32,
 }
 
 impl From<DeleteTaskHistory> for CombinatorMessage {

@@ -220,250 +220,152 @@ const getSchemaForms = () => ({
     },
   },
   components: {
-    [AXIS]: {
-      schema: schema => ({
-        ...schema,
-        type: 'object',
-        title: 'Axis',
-        required: [
-          ...(schema.required || []),
-          'name',
-          'address',
-          'feedrate',
-        ],
-        properties: {
-          ...componentBaseProperties(schema),
-          address: {
-            title: 'GCode Address',
-            type: 'string',
-            minLength: 1,
-          },
-          feedrate: {
-            title: 'Feedrate (mm/s)',
-            type: 'number',
-          },
-          reverseDirection: {
-            title: 'Reverse direction for move buttons and macros',
-            type: 'boolean',
-            default: false,
-          },
-        },
-      }),
-      form: [
-        'name',
-        'address',
-        'feedrate',
-        'reverseDirection',
-      ],
-    },
-    [BUILD_PLATFORM]: {
-      schema: schema => ({
-        ...schema,
-        type: 'object',
-        title: 'Build Platform',
-        required: [
-          ...(schema.required || []),
-          'name',
-          'address',
-          'heater',
-        ],
-        properties: {
-          ...componentBaseProperties(schema),
-          address: {
-            title: 'GCode Address',
-            type: 'string',
-            minLength: 1,
-          },
-          heater: {
-            title: 'Heated Build Platform',
-            type: 'boolean',
-            default: false,
-          },
-        },
-      }),
-      form: [
-        'name',
-        'address',
-        'heater',
-      ],
-    },
-    [CONTROLLER]: {
-      schema: schema => ({
-        ...schema,
-        type: 'object',
-        title: 'Controller',
-        required: [
-          ...(schema.required || []),
-          'name',
-          'serialPortID',
-          'baudRate',
-          'simulate',
-        ],
-        properties: {
-          ...componentBaseProperties(schema),
-          simulate: {
-            title: 'Simulate Attached Controller',
-            type: 'boolean',
-            default: false,
-          },
-        },
-      }),
-      form: [
-        'name',
-        'simulate',
-      ],
-    },
-    [FAN]: {
-      schema: schema => ({
-        ...schema,
-        type: 'object',
-        title: 'Fan',
-        required: [
-          ...(schema.required || []),
-          'name',
-          'address',
-        ],
-        properties: {
-          ...componentBaseProperties(schema),
-          address: {
-            title: 'GCode Address',
-            type: 'string',
-            minLength: 1,
-          },
-        },
-      }),
-      form: [
-        'name',
-        'address',
-      ],
-    },
-    [VIDEO]: {
-      schema: schema => ({
-        ...schema,
-        type: 'object',
-        title: 'Video',
-        required: [
-          ...(schema.required || []),
-          'name',
-          'source',
-        ],
-        properties: {
-          ...componentBaseProperties(schema),
-          name: {
-            title: 'Name',
-            type: 'string',
-            minLength: 1,
-          },
-          source: {
-            title: 'Source',
-            type: 'string',
-            minLength: 1,
-          },
-        },
-      }),
-      form: [
-        'name',
-        'address',
-      ],
-    },
-    [TOOLHEAD]: {
-      schema: schema => ({
-        ...schema,
-        type: 'object',
-        title: 'Fan',
-        required: [
-          ...(schema.required || []),
-          'name',
-          'address',
-          'feedrate',
-          'materialID',
-          'heater',
-        ],
-        properties: {
-          ...componentBaseProperties(schema),
-          address: {
-            title: 'GCode Address',
-            type: 'string',
-            minLength: 1,
-          },
-          feedrate: {
-            title: 'Feedrate (mm/s)',
-            type: 'number',
-            description: ''
-              + 'The extrude/retract speed for the maintenance panel '
-              + 'as well as the extrude speed for filament swaps.',
-          },
-          materialID: {
-            title: 'Material',
-            type: 'string',
-            minLength: 1,
-          },
-          filamentSwapExtrudeDistance: {
-            title: 'Filament Swap Test Extrude (mm)',
-            description: ''
-              + 'Extrudes a small amount of filament to prime the extruder after a filament swap. '
-              + 'Also retracts the filament by this same amount when removing filament.',
-            type: 'number',
-            default: 100,
-          },
-          heater: {
-            title: 'Heated Extruder',
-            type: 'boolean',
-            default: false,
-          },
-          filamentSwapFastMoveEnabled: {
-            title: 'Fast Bowden Tube Priming',
-            description: ''
-              + 'Adds an extruder movement before the test extrude to quickly move the filament '
-              + 'from the cold end to the hot end.',
-            type: 'boolean',
-            default: false,
-          },
-          bowdenTubeLength: {
-            title: 'Bowden Tube Length (mm)',
-            type: 'number',
-            default: 0,
-          },
-          filamentSwapFastMoveSpeed: {
-            title: 'Bowden Tube Priming Speed (mm/s)',
-            description: ''
-              + 'This should be the maximum non-extruding speed that you can move filament '
-              + 'through the bowden cable.',
-            type: 'number',
-            default: 200,
-          },
-          filamentSwapContinuousPullEnabled: {
-            title: 'Continuous Pull',
-            description: ''
-              + 'Continuously moves the extruder to catch and pull the new filament when loading '
-              + 'the next material in the filament swap wizard. '
-              + 'This should only be used on extruders which safeguard against filament jams.',
-            type: 'boolean',
-            default: false,
-          },
-          filamentSwapContinuousPullSpeed: {
-            title: 'Continuous Pull Speed (mm/s)',
-            description: ''
-              + 'A slow extrude speed is recommended to gradually pull filament in to the cold end '
-              + 'before the user clicks "Load Filament".',
-            type: 'number',
-            default: 0,
-          },
-          beforeFilamentSwapHook: {
-            title: 'Before Filament Swap (GCode)',
-            type: 'string',
-            default: '',
-          },
-        },
-      }),
-      form: [
-        'name',
-        'address',
-        'feedrate',
-        'materialID',
-        'heater',
-      ],
-    },
+    // [AXIS]: {
+    //   schema: schema => ({
+    //     ...schema,
+    //     type: 'object',
+    //     title: 'Axis',
+    //     required: [
+    //       ...(schema.required || []),
+    //       'name',
+    //       'address',
+    //       'feedrate',
+    //     ],
+    //     properties: {
+    //       ...componentBaseProperties(schema),
+    //       address: {
+    //         title: 'GCode Address',
+    //         type: 'string',
+    //         minLength: 1,
+    //       },
+    //       feedrate: {
+    //         title: 'Feedrate (mm/s)',
+    //         type: 'number',
+    //       },
+    //       reverseDirection: {
+    //         title: 'Reverse direction for move buttons and macros',
+    //         type: 'boolean',
+    //         default: false,
+    //       },
+    //     },
+    //   }),
+    //   form: [
+    //     'name',
+    //     'address',
+    //     'feedrate',
+    //     'reverseDirection',
+    //   ],
+    // },
+    // [BUILD_PLATFORM]: {
+    //   schema: schema => ({
+    //     ...schema,
+    //     type: 'object',
+    //     title: 'Build Platform',
+    //     required: [
+    //       ...(schema.required || []),
+    //       'name',
+    //       'address',
+    //       'heater',
+    //     ],
+    //     properties: {
+    //       ...componentBaseProperties(schema),
+    //       address: {
+    //         title: 'GCode Address',
+    //         type: 'string',
+    //         minLength: 1,
+    //       },
+    //       heater: {
+    //         title: 'Heated Build Platform',
+    //         type: 'boolean',
+    //         default: false,
+    //       },
+    //     },
+    //   }),
+    //   form: [
+    //     'name',
+    //     'address',
+    //     'heater',
+    //   ],
+    // },
+    // [CONTROLLER]: {
+    //   schema: schema => ({
+    //     ...schema,
+    //     type: 'object',
+    //     title: 'Controller',
+    //     required: [
+    //       ...(schema.required || []),
+    //       'name',
+    //       'serialPortID',
+    //       'baudRate',
+    //       'simulate',
+    //     ],
+    //     properties: {
+    //       ...componentBaseProperties(schema),
+    //       simulate: {
+    //         title: 'Simulate Attached Controller',
+    //         type: 'boolean',
+    //         default: false,
+    //       },
+    //     },
+    //   }),
+    //   form: [
+    //     'name',
+    //     'simulate',
+    //   ],
+    // },
+    // [FAN]: {
+    //   schema: schema => ({
+    //     ...schema,
+    //     type: 'object',
+    //     title: 'Fan',
+    //     required: [
+    //       ...(schema.required || []),
+    //       'name',
+    //       'address',
+    //     ],
+    //     properties: {
+    //       ...componentBaseProperties(schema),
+    //       address: {
+    //         title: 'GCode Address',
+    //         type: 'string',
+    //         minLength: 1,
+    //       },
+    //     },
+    //   }),
+    //   form: [
+    //     'name',
+    //     'address',
+    //   ],
+    // },
+    // [VIDEO]: {
+    //   schema: schema => ({
+    //     ...schema,
+    //     type: 'object',
+    //     title: 'Video',
+    //     required: [
+    //       ...(schema.required || []),
+    //       'name',
+    //       'source',
+    //     ],
+    //     properties: {
+    //       ...componentBaseProperties(schema),
+    //       name: {
+    //         title: 'Name',
+    //         type: 'string',
+    //         minLength: 1,
+    //       },
+    //       source: {
+    //         title: 'Source',
+    //         type: 'string',
+    //         minLength: 1,
+    //       },
+    //     },
+    //   }),
+    //   form: [
+    //     'name',
+    //     'address',
+    //   ],
+    // },
   },
 })
 

@@ -32,7 +32,7 @@ pub enum Plugin {
 #[serde(rename_all = "camelCase")]
 pub struct PluginContainer<Model = toml::Value> {
     pub id: ID,
-    pub model_version: u64,
+    pub model_version: u32,
     pub model: Model,
 }
 
