@@ -39,11 +39,11 @@ pub async fn update_tasks(db: &crate::Db, feedback: &Feedback) -> Result<()> {
         let status = progress.try_into()?;
 
         let task = sqlx::query_as("SELECT * FROM tasks WHERE id = ?")
-            .bind(progress.task_id)
+            .bind(&progress.task_id)
             .fetch_one(db)
             .await?;
 
-        let task: Task = serde_json::from_str(task.json)?;
+        let task: Task = serde_json::from_str(task.props)?;
 
         trace!("Task #{} status: {:?}", task.id, status);
         task.despooled_line_number = Some(progress.despooled_line_number as u64);

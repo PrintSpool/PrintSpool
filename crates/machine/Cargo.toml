@@ -29,7 +29,7 @@ tracing = "0.1.19"
 tracing-futures = "0.2.4"
 xactor = "0.7.8"
 async-codec = "0.4.0"
-sqlx = { version = "0.4.2", features = [ "runtime-async-std-native-tls", "sqlite" ] }
+sqlx = { version = "0.4.2", features = [ "runtime-async-std-native-tls", "sqlite", "offline" ] }
 rand = "0.7.3"
 smart-default = "0.6.0"
 schemars = "0.8.0"

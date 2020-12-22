@@ -11,6 +11,7 @@ use super::task_status::TaskStatus;
 #[derive(new, Debug, Serialize, Deserialize, Clone)]
 pub struct Task {
     pub id: u32,
+    pub version: u32,
     // Foreign Keys
     pub machine_id: u32, // machines have many (>=0) tasks
     // Timestamps
@@ -50,14 +51,16 @@ impl Task {
         &self,
         db: &crate::Db,
     ) -> Result<()> {
-        sqlx::query!(r#"
+        sqlx::query(r#"
             INSERT INTO tasks
-            (id, machine_id, json)
-            VALUES ?, ?, ?
+            (id, version, machine_id, props)
+            VALUES (?, ?, ?, ?)
         "#)
-            .bind(self.id)
-            .bind(self.machine_id)
+            .bind(&self.id)
+            .bind(&self.version)
+            .bind(&self.machine_id)
             .bind(serde_json::to_string(self)?)
+            .fetch_one(db)
             .await?;
         
         Ok(())
@@ -67,11 +70,18 @@ impl Task {
         &self,
         db: &crate::Db,
     ) -> Result<()> {
-        sqlx::query!(r#"
+        sqlx::query(r#"
             UPDATE tasks
-            SET json=?
+            SET
+                version=?
+                props=?
+            WHERE id=? AND version=?
         "#)
+            .bind(&self.version + 1)
             .bind(serde_json::to_string(self)?)
+            .bind(&self.id)
+            .bind(&self.version)
+            .fetch_one(db)
             .await?;
 
         Ok(())
