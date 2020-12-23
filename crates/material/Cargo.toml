@@ -1,0 +1,18 @@
+[package]
+name = "teg_material"
+version = "0.1.0"
+authors = ["D1plo1d <thatotherdude@gmail.com>"]
+edition = "2018"
+
+[lib]
+name = "material"
+path = "src/lib.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+sqlx = { version = "0.4.2", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json" ] }
+
+[dependencies.serde]
+features = ["derive"]
+version = "1.0.104"
