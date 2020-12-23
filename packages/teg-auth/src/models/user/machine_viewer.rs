@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 #[derive(new, Debug, Serialize, Deserialize, Clone)]
 pub struct MachineViewer {
     // Foreign Keys
-    pub machine_id: u32,
-    pub user_id: u32,
+    pub machine_id: crate::DbId,
+    pub user_id: crate::DbId,
     // Props
     pub session_id: String,
     // Timestamps

@@ -29,7 +29,7 @@ pub struct MachineData {
     pub status: MachineStatus,
     pub motors_enabled: bool,
     pub gcode_history: VecDeque<GCodeHistoryEntry>,
-    pub paused_task_id: Option<u32>,
+    pub paused_task_id: Option<crate::DbId>,
 }
 
 impl Actor for Machine {}

@@ -45,7 +45,7 @@ pub enum Event {
     SerialPortDisconnected,
     SerialPortError{ message: String },
     GCodeLoaded(Task),
-    GCodeLoadFailed{ task_id: u32, file_path: String },
+    GCodeLoadFailed{ task_id: crate::DbId, file_path: String },
 }
 
 #[derive(Clone, Debug)]

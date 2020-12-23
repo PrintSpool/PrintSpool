@@ -35,8 +35,8 @@ message CombinatorMessage {
   }
 
   message SpoolTask {
-    uint32 task_id = 1;
-    uint32 client_id = 2;
+    int32 task_id = 1;
+    int32 client_id = 2;
     // 4-7: task file is sent as either a file path or array of GCode commands
     oneof content {
       string file_path = 4;
@@ -60,7 +60,7 @@ message CombinatorMessage {
   }
 
   message PauseTask {
-    uint32 task_id = 1;
+    int32 task_id = 1;
   }
 
   message DeviceDiscovered {
@@ -75,6 +75,6 @@ message CombinatorMessage {
   message Reset {}
 
   message DeleteTaskHistory {
-    repeated uint32 task_ids = 1;
+    repeated int32 task_ids = 1;
   }
 }

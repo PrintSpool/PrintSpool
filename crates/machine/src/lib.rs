@@ -29,5 +29,5 @@ pub mod machine;
 pub mod task;
 pub mod config_form;
 
-use std::sync::Arc;
 pub type Db = sqlx::sqlite::SqlitePool;
+pub type DbId = i32;

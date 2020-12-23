@@ -62,7 +62,7 @@ message MachineMessage {
   }
 
   message TaskProgress {
-    uint32 task_id = 1;
+    int32 task_id = 1;
     uint32 despooled_line_number = 2;
     TaskStatus status = 3;
   }
@@ -89,8 +89,8 @@ message MachineMessage {
 
   // Legacy NodeJS Type
   message Event {
-    uint32 task_id = 1;
-    uint32 client_id = 2;
+    int32 task_id = 1;
+    int32 client_id = 2;
 
     EventType type = 8;
 

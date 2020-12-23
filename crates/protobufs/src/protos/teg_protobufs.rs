@@ -16,10 +16,10 @@ pub mod combinator_message {
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct SpoolTask {
-        #[prost(uint32, tag="1")]
-        pub task_id: u32,
-        #[prost(uint32, tag="2")]
-        pub client_id: u32,
+        #[prost(int32, tag="1")]
+        pub task_id: i32,
+        #[prost(int32, tag="2")]
+        pub client_id: i32,
         /// Starting at a line number other then zero allows for prints to be resumed from a mid-print
         /// pause.
         #[prost(uint64, tag="8")]
@@ -52,8 +52,8 @@ pub mod combinator_message {
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PauseTask {
-        #[prost(uint32, tag="1")]
-        pub task_id: u32,
+        #[prost(int32, tag="1")]
+        pub task_id: i32,
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct DeviceDiscovered {
@@ -73,8 +73,8 @@ pub mod combinator_message {
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct DeleteTaskHistory {
-        #[prost(uint32, repeated, tag="1")]
-        pub task_ids: ::std::vec::Vec<u32>,
+        #[prost(int32, repeated, tag="1")]
+        pub task_ids: ::std::vec::Vec<i32>,
     }
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Payload {
@@ -165,8 +165,8 @@ pub mod machine_message {
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct TaskProgress {
-        #[prost(uint32, tag="1")]
-        pub task_id: u32,
+        #[prost(int32, tag="1")]
+        pub task_id: i32,
         #[prost(uint32, tag="2")]
         pub despooled_line_number: u32,
         #[prost(enumeration="TaskStatus", tag="3")]
@@ -175,10 +175,10 @@ pub mod machine_message {
     /// Legacy NodeJS Type
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Event {
-        #[prost(uint32, tag="1")]
-        pub task_id: u32,
-        #[prost(uint32, tag="2")]
-        pub client_id: u32,
+        #[prost(int32, tag="1")]
+        pub task_id: i32,
+        #[prost(int32, tag="2")]
+        pub client_id: i32,
         #[prost(enumeration="EventType", tag="8")]
         pub r#type: i32,
         /// the number of non-leap seconds since January 1, 1970 0:00:00 UTC (aka "UNIX timestamp")

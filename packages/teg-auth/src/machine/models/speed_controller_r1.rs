@@ -18,7 +18,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(new, Debug, Serialize, Deserialize, Clone)]
 pub struct SpeedController {
-    pub id: u32,
+    pub id: crate::DbId,
     // Foreign Keys
     pub component_id: ID,
     // Timestamps

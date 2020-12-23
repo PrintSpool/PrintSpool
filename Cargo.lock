@@ -2422,6 +2422,7 @@ dependencies = [
  "parking_lot",
  "percent-encoding",
  "serde",
+ "serde_json",
  "sha2",
  "smallvec",
  "sqlformat",
@@ -2571,6 +2572,14 @@ version = "0.1.0"
 dependencies = [
  "prost",
  "prost-build",
+]
+
+[[package]]
+name = "teg_material"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "sqlx",
 ]
 
 [[package]]

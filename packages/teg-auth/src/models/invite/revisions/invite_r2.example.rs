@@ -5,7 +5,7 @@
 // use super::{ Invite, InviteR3 };
 // #[derive(Debug, Serialize, Deserialize, Clone)]
 // pub struct InviteR2 {
-//     pub id: u32,
+//     pub id: crate::DbId,
 //     pub public_key: String,
 //     pub is_admin: bool,
 //     pub created_at: DateTime<Utc>,

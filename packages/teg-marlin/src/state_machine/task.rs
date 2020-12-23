@@ -5,8 +5,8 @@ use nom_gcode::{
 #[derive(Clone, Debug)]
 pub struct Task
 {
-    pub id: u32,
-    pub client_id: u32,
+    pub id: crate::DbId,
+    pub client_id: crate::DbId,
     // TODO: gcode_lines iterator. Does 'self lifetime do what I need?
     // gcode_lines: Option<Box<dyn std::slice::Iter<T: str>>>,
     pub gcode_lines: std::vec::IntoIter<String>,

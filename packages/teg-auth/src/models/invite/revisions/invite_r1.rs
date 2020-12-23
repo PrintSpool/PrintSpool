@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct InviteR1 {
-    pub id: u32,
+    pub id: crate::DbId,
     pub public_key: String,
     pub is_admin: bool,
     pub created_at: DateTime<Utc>,

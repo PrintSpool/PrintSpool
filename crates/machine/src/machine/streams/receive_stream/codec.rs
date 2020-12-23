@@ -30,7 +30,7 @@ impl Decode for ReceiveStreamCodec {
         let message_len = u32::from_le_bytes(message_len) as usize + SIZE_DELIMETER_BYTES;
 
         // Read the message's content
-        let mut message = match buf.get(SIZE_DELIMETER_BYTES..message_len) {
+        let message = match buf.get(SIZE_DELIMETER_BYTES..message_len) {
             Some(bytes) => bytes,
             None => return (0, DecodeResult::UnexpectedEnd),
         };

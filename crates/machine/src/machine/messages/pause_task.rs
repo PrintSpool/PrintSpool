@@ -8,7 +8,7 @@ use crate::machine::Machine;
 
 #[message(result = "()")]
 pub struct PauseTask {
-    task_id: u32,
+    task_id: crate::DbId,
 }
 
 impl From<PauseTask> for CombinatorMessage {
@@ -16,7 +16,7 @@ impl From<PauseTask> for CombinatorMessage {
         CombinatorMessage {
             payload: Some(
                 combinator_message::Payload::PauseTask(
-                    combinator_message::PauseTask { task_id: msg.task_id as u32 }
+                    combinator_message::PauseTask { task_id: msg.task_id }
                 )
             ),
         }

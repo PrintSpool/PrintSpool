@@ -9,53 +9,66 @@ use anyhow::{
     // Context as _,
 };
 
-use super::{AxisEphemeral, Component, HeaterEphemeral, SpeedController, SpeedControllerEphemeral, Toolhead};
-
+use super::{
+    AxisEphemeral,
+    Component,
+    HeaterEphemeral,
+    SpeedControllerEphemeral,
+    Toolhead,
+};
 use crate::config_form::ConfigForm;
 
 #[async_graphql::Object]
 impl Component {
     async fn id(&self) -> ID {
+        use Component::*;
+
         match self {
-            Component::Controller(c) => c.id,
-            Component::Axis(c) => c.id,
-            Component::Toolhead(c) => c.id,
-            Component::SpeedController(c) => c.id,
-            Component::Video(c) => c.id,
-            Component::BuildPlatform(c) => c.id,
+            Controller(c) => c.id,
+            Axis(c) => c.id,
+            Toolhead(c) => c.id,
+            SpeedController(c) => c.id,
+            Video(c) => c.id,
+            BuildPlatform(c) => c.id,
         }.into()
     }
 
     async fn name(&self) -> &String {
+        use Component::*;
+
         match self {
-            Component::Controller(c) => &c.model.name,
-            Component::Axis(c) => &c.model.name,
-            Component::Toolhead(c) => &c.model.name,
-            Component::SpeedController(c) => &c.model.name,
-            Component::Video(c) => &c.model.name,
-            Component::BuildPlatform(c) => &c.model.name,
+            Controller(c) => &c.model.name,
+            Axis(c) => &c.model.name,
+            Toolhead(c) => &c.model.name,
+            SpeedController(c) => &c.model.name,
+            Video(c) => &c.model.name,
+            BuildPlatform(c) => &c.model.name,
         }
     }
 
     async fn address(&self) -> Option<&String> {
+        use Component::*;
+
         match self {
-            Component::Controller(c) => None,
-            Component::Axis(c) => Some(&c.model.address),
-            Component::Toolhead(c) => Some(&c.model.address),
-            Component::SpeedController(c) => Some(&c.model.address),
-            Component::Video(c) => None,
-            Component::BuildPlatform(c) => Some(&c.model.address),
+            Controller(_) => None,
+            Axis(c) => Some(&c.model.address),
+            Toolhead(c) => Some(&c.model.address),
+            SpeedController(c) => Some(&c.model.address),
+            Video(_) => None,
+            BuildPlatform(c) => Some(&c.model.address),
         }
     }
 
     async fn r#type(&self) -> String {
+        use Component::*;
+
         match self {
-            Component::Controller(_) => "CONTROLLER",
-            Component::Axis(_) => "AXIS",
-            Component::Toolhead(_) => "TOOLHEAD",
-            Component::SpeedController(_) => "FAN",
-            Component::Video(_) => "VIDEO",
-            Component::BuildPlatform(_) => "BUILD_PLATFORM",
+            Controller(_) => "CONTROLLER",
+            Axis(_) => "AXIS",
+            Toolhead(_) => "TOOLHEAD",
+            SpeedController(_) => "FAN",
+            Video(_) => "VIDEO",
+            BuildPlatform(_) => "BUILD_PLATFORM",
         }.to_string()
     }
 
@@ -105,7 +118,7 @@ impl Component {
     /// set if this component contains a toolhead. Null for non-toolhead components.
     async fn toolhead(&self) -> Option<&Toolhead> {
         if let Component::Toolhead(toolhead) = self {
-            Some(&toolhead)
+            Some(toolhead)
         } else {
             None
         }

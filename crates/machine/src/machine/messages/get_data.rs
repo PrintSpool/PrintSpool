@@ -10,7 +10,7 @@ pub struct GetData();
 
 #[async_trait::async_trait]
 impl Handler<GetData> for Machine {
-    async fn handle(&mut self, _ctx: &mut Context<Self>, msg: GetData) -> MachineData {
+    async fn handle(&mut self, _ctx: &mut Context<Self>, _msg: GetData) -> MachineData {
         self.data.clone()
     }
 }

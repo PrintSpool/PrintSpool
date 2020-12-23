@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UserR1 {
-    pub id: u32,
+    pub id: crate::DbId,
     pub email: Option<String>,
     pub email_verified: bool,
     pub is_admin: bool,

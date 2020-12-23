@@ -26,7 +26,7 @@ mod resolvers;
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ComponentInner<Model, Ephemeral: Default> {
-    pub id: u32,
+    pub id: crate::DbId,
     pub model_version: u32,
     pub model: Model,
     #[serde(skip)]

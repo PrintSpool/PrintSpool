@@ -22,78 +22,78 @@ const componentBaseProperties = schema => ({
 })
 
 const getSchemaForms = () => ({
-  machine: {
-    schema: schema => ({
-      ...schema,
-      type: 'object',
-      title: 'Basic Printer Settings',
-      required: [
-        ...(schema.required || []),
-        // 'machineDefinitionURL',
-        'name',
-      ],
-      properties: {
-        ...(schema.properties || {}),
-        // machineDefinitionURL: {
-        //   title: 'Printer make and model DAT',
-        //   type: 'string',
-        // },
-        name: {
-          title: 'Printer Name',
-          type: 'string',
-          minLength: 1,
-        },
-        automaticPrinting: {
-          title: 'Automatic Printing',
-          desciption: (
-            'Start prints automatically without human interaction.'
-            + ' Requires automation hardware such as an auto-scraper or'
-            + ' conveyor.'
-          ),
-          type: 'boolean',
-          default: false,
-        },
-        swapXAndYOrientation: {
-          title: 'Swap visual orientation of X and Y axes',
-          type: 'boolean',
-          default: false,
-        },
-        beforePrintHook: {
-          title: 'Before Print (GCode)',
-          type: 'string',
-          default: '',
-        },
-        afterPrintHook: {
-          title: 'After Print (GCode)',
-          type: 'string',
-          default: '',
-        },
-        pauseHook: {
-          title: 'Pause GCode',
-          type: 'string',
-          default: '',
-        },
-        resumeHook: {
-          title: 'Resume GCode',
-          type: 'string',
-          default: '',
-        },
-      },
-    }),
-    form: [
-      // 'machineDefinitionURL',
-      'name',
-    ],
-    configPaths: configPaths => ({
-      ...configPaths,
-      // machineDefinitionURL: getCorePluginConfigPath,
-      name: getCorePluginConfigPath,
-      automaticPrinting: getCorePluginConfigPath,
-      beforePrintHook: getCorePluginConfigPath,
-      afterPrintHook: getCorePluginConfigPath,
-      swapXAndYOrientation: getCorePluginConfigPath,
-    }),
-  },
+  // machine: {
+  //   schema: schema => ({
+  //     ...schema,
+  //     type: 'object',
+  //     title: 'Basic Printer Settings',
+  //     required: [
+  //       ...(schema.required || []),
+  //       // 'machineDefinitionURL',
+  //       'name',
+  //     ],
+  //     properties: {
+  //       ...(schema.properties || {}),
+  //       // machineDefinitionURL: {
+  //       //   title: 'Printer make and model DAT',
+  //       //   type: 'string',
+  //       // },
+  //       name: {
+  //         title: 'Printer Name',
+  //         type: 'string',
+  //         minLength: 1,
+  //       },
+  //       automaticPrinting: {
+  //         title: 'Automatic Printing',
+  //         desciption: (
+  //           'Start prints automatically without human interaction.'
+  //           + ' Requires automation hardware such as an auto-scraper or'
+  //           + ' conveyor.'
+  //         ),
+  //         type: 'boolean',
+  //         default: false,
+  //       },
+  //       swapXAndYOrientation: {
+  //         title: 'Swap visual orientation of X and Y axes',
+  //         type: 'boolean',
+  //         default: false,
+  //       },
+  //       beforePrintHook: {
+  //         title: 'Before Print (GCode)',
+  //         type: 'string',
+  //         default: '',
+  //       },
+  //       afterPrintHook: {
+  //         title: 'After Print (GCode)',
+  //         type: 'string',
+  //         default: '',
+  //       },
+  //       pauseHook: {
+  //         title: 'Pause GCode',
+  //         type: 'string',
+  //         default: '',
+  //       },
+  //       resumeHook: {
+  //         title: 'Resume GCode',
+  //         type: 'string',
+  //         default: '',
+  //       },
+  //     },
+  //   }),
+  //   form: [
+  //     // 'machineDefinitionURL',
+  //     'name',
+  //   ],
+  //   configPaths: configPaths => ({
+  //     ...configPaths,
+  //     // machineDefinitionURL: getCorePluginConfigPath,
+  //     name: getCorePluginConfigPath,
+  //     automaticPrinting: getCorePluginConfigPath,
+  //     beforePrintHook: getCorePluginConfigPath,
+  //     afterPrintHook: getCorePluginConfigPath,
+  //     swapXAndYOrientation: getCorePluginConfigPath,
+  //   }),
+  // },
   auth: {
     user: {
       schema: schema => ({
@@ -164,27 +164,27 @@ const getSchemaForms = () => ({
       ],
     },
   },
-  plugins: {
-    '@tegapp/core': {
-      schema: schema => ({
-        ...schema,
-        type: 'object',
-        title: '@tegapp/core',
-        required: [
-          ...(schema.required || []),
-          'name',
-          'automaticPrinting',
-        ],
-        properties: {
-          ...(schema.properties || {}),
-        },
-      }),
-      form: [
-        'name',
-        'automaticPrinting',
-      ],
-    },
-  },
+  // plugins: {
+  //   '@tegapp/core': {
+  //     schema: schema => ({
+  //       ...schema,
+  //       type: 'object',
+  //       title: '@tegapp/core',
+  //       required: [
+  //         ...(schema.required || []),
+  //         'name',
+  //         'automaticPrinting',
+  //       ],
+  //       properties: {
+  //         ...(schema.properties || {}),
+  //       },
+  //     }),
+  //     form: [
+  //       'name',
+  //       'automaticPrinting',
+  //     ],
+  //   },
+  // },
   materials: {
     FDM_FILAMENT: {
       schema: schema => ({

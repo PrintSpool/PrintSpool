@@ -24,9 +24,9 @@ use crate::machine::models::{
 use super::receive_message;
 
 pub async fn run_receive_loop(
-    _client_id: u32,
+    _client_id: crate::DbId,
     ctx: Arc<crate::Context>,
-    machine_id: u32,
+    machine_id: crate::DbId,
     mut stream: UnixStream,
 ) -> Result<()> {
     info!("Machine #{:?}: Receive Loop Started", machine_id);

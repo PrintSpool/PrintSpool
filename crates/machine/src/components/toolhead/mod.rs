@@ -28,7 +28,7 @@ pub struct ToolheadConfig {
     
     /// # Material
     #[serde(rename = "materialID")]
-    pub material_id: Option<u32>,
+    pub material_id: Option<crate::DbId>,
 
     /// # Filament Swap Test Extrude (mm)
     /// Extrudes a small amount of filament to prime the extruder after a filament swap.

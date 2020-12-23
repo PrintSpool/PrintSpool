@@ -16,7 +16,7 @@ use crate::print_queue::tasks::{
     TaskContent,
 };
 
-pub fn spool_task(client_id: u32, task: &Task) -> Result<CombinatorMessage> {
+pub fn spool_task(client_id: crate::DbId, task: &Task) -> Result<CombinatorMessage> {
     let content = match &task.content {
         TaskContent::FilePath(file_path) => {
             combinator_message::spool_task::Content::FilePath(file_path.clone())

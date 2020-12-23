@@ -3,7 +3,7 @@ use async_graphql::{
     FieldResult,
     ID,
 };
-use teg_material::Material;
+// use teg_material::Material;
 
 use super::Toolhead;
 
@@ -19,8 +19,12 @@ impl Toolhead {
 
         let material = if let Some(material_id) = self.model.material_id {
             // TODO: Query the material sqlx table
-            let material = sqlx::query_as("SELECT * FROM materials WHERE id = ?")
-                .bind(material_id)
+            Material::get(material_id).await?;
+            let material = sqlx::query_as!(
+                Material,
+                "SELECT * FROM materials WHERE id = ?",
+                material_id
+            )
                 .fetch_one(db)
                 .await?;
 

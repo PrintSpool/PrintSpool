@@ -28,7 +28,7 @@ use super::{
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct MachineConfig {
-    pub id: u32,
+    pub id: crate::DbId,
     pub is_configured: bool,
     // Set to the name of the snap to connect an external teg-marlin process to the snap's
     // tmp directory and socket. Generally this is only useful for teg-marlin development.
@@ -77,15 +77,15 @@ impl MachineConfig {
         &self.get_controller().model.serial_port_id
     }
 
-    pub fn get_heater_mut(&mut self, address: String) -> Option<&mut HeaterEphemeral> {
+    pub fn get_heater_mut(&mut self, address: &String) -> Option<&mut HeaterEphemeral> {
         if let Some(toolhead) = self.toolheads
             .iter_mut()
-            .find(|c| c.model.address == address)
+            .find(|c| &c.model.address == address)
         {
             Some(&mut toolhead.ephemeral)
         } else if let Some(build_platform) = self.build_platforms
             .iter_mut()
-            .find(|c| c.model.address == address)
+            .find(|c| &c.model.address == address)
         {
             Some(&mut build_platform.ephemeral)
         } else {

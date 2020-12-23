@@ -18,7 +18,7 @@ use std::collections::VecDeque;
 
 #[derive(new, Debug, Serialize, Deserialize, Clone)]
 pub struct Heater {
-    pub id: u32,
+    pub id: crate::DbId,
     // Foreign Keys
     pub component_id: ID,
     // Timestamps
@@ -40,7 +40,7 @@ pub struct Heater {
 
 #[derive(new, Debug, Serialize, Deserialize, Clone)]
 pub struct TemperatureHistoryEntry {
-    pub id: u32,
+    pub id: crate::DbId,
     // Timestamps
     #[new(value = "Utc::now()")]
     pub created_at: DateTime<Utc>,

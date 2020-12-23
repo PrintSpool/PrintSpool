@@ -25,14 +25,14 @@ use receive_loop::run_receive_loop;
 mod send_loop;
 use send_loop::run_send_loop;
 
-pub async fn handle_machine_socket(ctx: Arc<crate::Context>, machine_id: u32) -> Result<()> {
+pub async fn handle_machine_socket(ctx: Arc<crate::Context>, machine_id: crate::DbId) -> Result<()> {
     let machine = Machine::get(&ctx.db, machine_id)?;
     let socket_path = format!(
         "/var/lib/teg/machine-{}.sock",
         machine.config_id.to_string(),
     );
 
-    let client_id: u32 = 42; // Chosen at random. Very legit.
+    let client_id: crate::DbId = 42; // Chosen at random. Very legit.
 
     loop {
         info!("Connecting to machine socket: {:?}", socket_path);

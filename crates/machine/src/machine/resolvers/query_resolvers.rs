@@ -34,7 +34,6 @@ impl MachineQuery {
         ctx: &'ctx Context<'_>,
         id: Option<ID>,
     ) -> FieldResult<Vec<MachineData>> {
-        let db: &crate::Db = ctx.data()?;
         let machines: &Arc<HashMap<ID, Addr<Machine>>> = ctx.data()?;
 
         let machines: Vec<&Addr<Machine>> = if let Some(id) = id {

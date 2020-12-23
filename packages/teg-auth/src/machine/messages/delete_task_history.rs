@@ -3,7 +3,7 @@ use teg_protobufs::{
     combinator_message,
 };
 
-pub fn delete_task_history(task_id: u32) -> CombinatorMessage {
+pub fn delete_task_history(task_id: crate::DbId) -> CombinatorMessage {
     CombinatorMessage {
         payload: Some(
             combinator_message::Payload::DeleteTaskHistory(

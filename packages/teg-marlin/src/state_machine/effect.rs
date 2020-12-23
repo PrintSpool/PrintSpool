@@ -65,8 +65,8 @@ pub enum Effect {
     ProtobufSend,
     LoadGCode {
         file_path: String,
-        task_id: u32,
-        client_id: u32,
+        task_id: crate::DbId,
+        client_id: crate::DbId,
         machine_override: bool,
         despooled_line_number: Option<u32>,
     },

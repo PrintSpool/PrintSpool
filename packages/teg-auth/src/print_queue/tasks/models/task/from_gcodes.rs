@@ -28,7 +28,7 @@ use super::{
 
 impl Task {
     pub async fn from_hook<'ctx>(
-        machine_id: u32,
+        machine_id: crate::DbId,
         hook: &String,
         ctx: &'ctx Arc<crate::Context>,
     ) -> Result<Task> {
@@ -40,7 +40,7 @@ impl Task {
     }
 
     pub async fn from_gcodes<'ctx>(
-        machine_id: u32,
+        machine_id: crate::DbId,
         gcodes: Vec<String>,
         ctx: &'ctx Arc<crate::Context>,
     ) -> Result<Task> {

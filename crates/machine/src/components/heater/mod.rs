@@ -1,4 +1,5 @@
 use std::collections::VecDeque;
+use std::sync::atomic::{ AtomicU64, Ordering };
 use serde::{Deserialize, Serialize};
 use chrono::prelude::*;
 use nanoid::nanoid;
@@ -30,8 +31,12 @@ pub struct HeaterEphemeral {
     pub history: VecDeque<TemperatureHistoryEntry>,
 }
 
+
+static NEXT_TEMPERATURE_ID: AtomicU64 = AtomicU64::new(0);
+
 #[derive(async_graphql::SimpleObject, new, Debug, Serialize, Deserialize, Clone)]
 pub struct TemperatureHistoryEntry {
+    #[new(value = "NEXT_TEMPERATURE_ID.fetch_add(1, Ordering::SeqCst).into()")]
     pub id: async_graphql::ID,
     // Timestamps
     #[new(value = "Utc::now()")]

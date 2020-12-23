@@ -13,7 +13,7 @@ use crate::task::{
 
 #[message(result = "()")]
 pub struct SpoolTask {
-    client_id: u32,
+    client_id: crate::DbId,
     task: Task,
 }
 
@@ -45,7 +45,7 @@ impl From<SpoolTask> for CombinatorMessage {
             payload: Some(
                 combinator_message::Payload::SpoolTask(
                     combinator_message::SpoolTask {
-                        task_id: task.id as u32,
+                        task_id: task.id,
                         client_id,
                         start_at_line_number,
                         machine_override: task.machine_override,

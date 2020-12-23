@@ -28,28 +28,23 @@ use crate::machine::{
     },
 };
 use crate::components::{
-    HeaterEphemeral,
+    // HeaterEphemeral,
     TemperatureHistoryEntry,
-    Axis,
-    SpeedController,
+    // Axis,
+    // SpeedController,
 };
 
 pub async fn update_tasks(db: &crate::Db, feedback: &Feedback) -> Result<()> {
     for progress in feedback.task_progress.iter() {
         let status = progress.try_into()?;
 
-        let task = sqlx::query_as("SELECT * FROM tasks WHERE id = ?")
-            .bind(&progress.task_id)
-            .fetch_one(db)
-            .await?;
-
-        let task: Task = serde_json::from_str(task.props)?;
+        let mut task = Task::get(db, progress.task_id).await?;
 
         trace!("Task #{} status: {:?}", task.id, status);
         task.despooled_line_number = Some(progress.despooled_line_number as u64);
         task.status = status;
 
-        task.update(db);
+        task.update(db).await?;
     }
 
     Ok(())
@@ -57,7 +52,7 @@ pub async fn update_tasks(db: &crate::Db, feedback: &Feedback) -> Result<()> {
 
 pub async fn update_heaters(machine: &mut Machine, feedback: &Feedback) -> Result<()> {
     for h in feedback.heaters.iter() {
-        let heater = machine.data.config.get_mut_heater(h.address);
+        let heater = machine.data.config.get_heater_mut(&h.address);
 
         let heater = if let Some(heater) = heater {
             heater
@@ -66,21 +61,21 @@ pub async fn update_heaters(machine: &mut Machine, feedback: &Feedback) -> Resul
             continue
         };
 
-        let temperature_history_id = Heater::generate_id(&self.db)?;
-
         let history = &mut heater.history;
 
         // record a data point once every half second
         if
             history.back()
-                .map(|last| Utc::now() > last.created_at + Duration::milliseconds(500))
+                .map(|last|
+                    Utc::now() > last.created_at + Duration::milliseconds(500)
+                )
                 .unwrap_or(true)
         {
             history.push_back(
                 TemperatureHistoryEntry {
                     target_temperature: Some(h.target_temperature),
                     actual_temperature: Some(h.actual_temperature),
-                    ..TemperatureHistoryEntry::new(temperature_history_id)
+                    ..TemperatureHistoryEntry::new()
                 }
             );
         }
@@ -101,13 +96,9 @@ pub async fn update_heaters(machine: &mut Machine, feedback: &Feedback) -> Resul
 }
 
 pub async fn update_axes(machine: &mut Machine, feedback: &Feedback) -> Result<()> {
-    let axes = machine.data.config.axes;
+    let axes = &mut machine.data.config.axes;
 
     for a in feedback.axes.iter() {
-        let id = axes.iter()
-            .find(|axis| axis.address == a.address)
-            .map(|axis| axis.id);
-
         let axis = axes.iter_mut()
             .find(|c| c.model.address == a.address)
             .map(|c| &mut c.ephemeral);
@@ -128,15 +119,11 @@ pub async fn update_axes(machine: &mut Machine, feedback: &Feedback) -> Result<(
 }
 
 pub async fn update_speed_controllers(machine: &mut Machine, feedback: &Feedback) -> Result<()> {
-    let speed_controllers = machine.data.config.speed_controllers;
+    let speed_controllers = &mut machine.data.config.speed_controllers;
 
     for sc in feedback.speed_controllers.iter() {
-        let id = speed_controllers.iter()
-            .find(|speed_controller| speed_controller.address == sc.address)
-            .map(|speed_controller| speed_controller.id);
-
         let sc_eph = speed_controllers.iter_mut()
-            .find(|c| c.model.address == a.address)
+            .find(|c| c.model.address == sc.address)
             .map(|c| &mut c.ephemeral);
 
         let sc_eph = if let Some(sc_eph) = sc_eph {
@@ -183,7 +170,6 @@ pub async fn update_machine(machine: &mut Machine, feedback: &Feedback) -> Resul
 
         history.push_back(
             GCodeHistoryEntry::new(
-                Machine::generate_id()?,
                 entry.content.clone(),
                 direction,
             )
@@ -202,12 +188,12 @@ pub async fn record_feedback(machine: &mut Machine, feedback: Feedback) -> Resul
     let db = &machine.db;
     let transaction = db.begin().await?;
 
-    update_tasks(db, &feedback).await;
-    update_heaters(machine, &feedback).await;
-    update_axes(machine, &feedback).await;
-    update_speed_controllers(machine, &feedback).await;
+    update_tasks(db, &feedback).await?;
+    update_heaters(machine, &feedback).await?;
+    update_axes(machine, &feedback).await?;
+    update_speed_controllers(machine, &feedback).await?;
 
-    update_machine(machine, &feedback).await;
+    update_machine(machine, &feedback).await?;
 
     transaction.commit().await?;
 
