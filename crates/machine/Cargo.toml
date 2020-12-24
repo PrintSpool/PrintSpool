@@ -13,6 +13,8 @@ path = "src/lib.rs"
 # lto = true
 
 [dependencies]
+teg_material = { path = "../material" }
+
 anyhow = "1.0"
 async-graphql = "2.2.0"
 # async-graphql-warp = { path = "../../../async-graphql/async-graphql-warp" }

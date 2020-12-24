@@ -10,7 +10,7 @@ use anyhow::{
 use super::task_status::TaskStatus;
 
 #[derive(new, Debug, Serialize, Deserialize, Clone)]
-pub struct TaskProps {
+pub struct Task {
     pub id: crate::DbId,
     pub version: crate::DbId,
     // Foreign Keys
@@ -46,79 +46,77 @@ pub enum GCodeAnnotation {
     SetToolheadMaterials()
 }
 
-pub struct JsonRow<T> {
-    pub props: sqlx::types::Json<T>,
-}
-
-use std::ops::Deref;
-impl<T> Deref for JsonRow<T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        &self.props
-    }
-}
-
-pub type Task = JsonRow<TaskProps>;
-
 impl Task {
     pub async fn get(
         db: &crate::Db,
+        table_name: String,
         id: crate::DbId,
     ) -> Result<Self> {
-        let task = sqlx::query_as!(
-            Self,
-            "SELECT * FROM tasks WHERE id = ?",
-            id
-        )
-            .fetch_one(db)
-            .await?;
-
-        Ok(task)
-    }
-
-    pub async fn insert(
-        &self,
-        db: &crate::Db,
-    ) -> Result<()> {
-        let json = serde_json::to_string(self)?;
- 
-        sqlx::query!(
-            r#"
-                INSERT INTO tasks
-                (id, props)
-                VALUES (?, ?)
-            "#,
-            self.id,
-            // self.version,
-            // self.machine_id,
-            json,
-        )
-            .fetch_one(db)
-            .await?;
+        #[derive(sqlx::FromRow)]
+        struct JsonRow {
+            pub props: String,
+        }
         
-        Ok(())
+        let sql_query = format!("SELECT props FROM {} WHERE id = ?", table_name);
+        let row: JsonRow = sqlx::query_as(&sql_query)
+            .bind(id)
+            .fetch_one(db)
+            .await?;
+
+            let entry: Self = serde_json::from_str(&row.props)?;
+        Ok(entry)
     }
 
-    pub async fn update(
-        &mut self,
+    // pub async fn insert(
+    //     &self,
+    //     table_name: String,
+    //     db: &crate::Db,
+    // ) -> Result<()> {
+    //     let json = serde_json::to_string(self)?;
+
+    //     let sql_query = format!(
+    //         r#"
+    //             INSERT INTO {}
+    //             (id, machine_id, props)
+    //             VALUES (?, ?, ?)
+    //         "#,
+    //         table_name,
+    //     );
+
+    //     sqlx::query(&sql_query)
+    //         .bind(self.id)
+    //         .bind(self.machine_id)
+    //         .bind(json)
+    //         .fetch_one(db)
+    //         .await?;
+
+    //     Ok(())
+    // }
+
+    pub async fn update<T: serde::Serialize>(
         db: &crate::Db,
+        table_name: String,
+        entry: T, 
     ) -> Result<()> {
-        let version = self.version;
-        self.version = self.version + 1;
+        let previous_version = entry.version;
+        entry.version = entry.version + 1;
 
-        let json = serde_json::to_string(self)?;
+        let json = serde_json::to_string(entry)?;
 
-        sqlx::query!(
+        let sql_query = format!(
             r#"
-                UPDATE tasks
-                SET props=?
+                UPDATE {}
+                SET props=?, version=?
                 WHERE id=? AND version=?
             "#,
-            json,
-            self.id,
-            version,
-        )
+            table_name,
+        );
+
+        sqlx::query(&sql_query)
+            .bind(json)
+            .bind(entry.version)
+            .bind(entry.id)
+            .bind(previous_version)
             .fetch_one(db)
             .await?;
 

@@ -3,7 +3,7 @@ use async_graphql::{
     FieldResult,
     ID,
 };
-// use teg_material::Material;
+use teg_material::Material;
 
 use super::Toolhead;
 

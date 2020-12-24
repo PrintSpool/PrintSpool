@@ -2560,6 +2560,7 @@ dependencies = [
  "smart-default",
  "sqlx",
  "teg-protobufs",
+ "teg_material",
  "toml",
  "tracing",
  "tracing-futures",
@@ -2578,6 +2579,7 @@ dependencies = [
 name = "teg_material"
 version = "0.1.0"
 dependencies = [
+ "schemars",
  "serde",
  "sqlx",
 ]

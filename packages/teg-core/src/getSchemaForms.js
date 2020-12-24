@@ -94,76 +94,76 @@ const getSchemaForms = () => ({
   //     swapXAndYOrientation: getCorePluginConfigPath,
   //   }),
   // },
-  auth: {
-    user: {
-      schema: schema => ({
-        ...schema,
-        type: 'object',
-        title: 'User',
-        required: [
-          ...(schema.required || []),
-          'isAdmin',
-        ],
-        properties: {
-          ...(schema.properties || {}),
-          name: {
-            title: 'Name',
-            type: 'string',
-            readOnly: true,
-          },
-          email: {
-            title: 'Email',
-            type: 'string',
-            readOnly: true,
-          },
-          emailVerified: {
-            title: 'Email Verified',
-            type: 'boolean',
-            readOnly: true,
-          },
-          isAdmin: {
-            title: 'Admin',
-            type: 'boolean',
-            default: false,
-          },
-        },
-      }),
-      form: [
-        'name',
-        'email',
-        'emailVerified',
-        'isAdmin',
-      ],
-    },
-    invite: {
-      schema: schema => ({
-        ...schema,
-        type: 'object',
-        title: 'User',
-        required: [
-          ...(schema.required || []),
-          'isAdmin',
-        ],
-        properties: {
-          ...(schema.properties || {}),
-          // createdAt: {
-          //   title: 'Created At',
-          //   type: 'string',
-          //   readOnly: true,
-          // },
-          isAdmin: {
-            title: 'Admin Access Invite',
-            type: 'boolean',
-            default: false,
-          },
-        },
-      }),
-      form: [
-        // 'createdAt',
-        'isAdmin',
-      ],
-    },
-  },
+  // auth: {
+  //   user: {
+  //     schema: schema => ({
+  //       ...schema,
+  //       type: 'object',
+  //       title: 'User',
+  //       required: [
+  //         ...(schema.required || []),
+  //         'isAdmin',
+  //       ],
+  //       properties: {
+  //         ...(schema.properties || {}),
+  //         name: {
+  //           title: 'Name',
+  //           type: 'string',
+  //           readOnly: true,
+  //         },
+  //         email: {
+  //           title: 'Email',
+  //           type: 'string',
+  //           readOnly: true,
+  //         },
+  //         emailVerified: {
+  //           title: 'Email Verified',
+  //           type: 'boolean',
+  //           readOnly: true,
+  //         },
+  //         isAdmin: {
+  //           title: 'Admin',
+  //           type: 'boolean',
+  //           default: false,
+  //         },
+  //       },
+  //     }),
+  //     form: [
+  //       'name',
+  //       'email',
+  //       'emailVerified',
+  //       'isAdmin',
+  //     ],
+  //   },
+  //   invite: {
+  //     schema: schema => ({
+  //       ...schema,
+  //       type: 'object',
+  //       title: 'User',
+  //       required: [
+  //         ...(schema.required || []),
+  //         'isAdmin',
+  //       ],
+  //       properties: {
+  //         ...(schema.properties || {}),
+  //         // createdAt: {
+  //         //   title: 'Created At',
+  //         //   type: 'string',
+  //         //   readOnly: true,
+  //         // },
+  //         isAdmin: {
+  //           title: 'Admin Access Invite',
+  //           type: 'boolean',
+  //           default: false,
+  //         },
+  //       },
+  //     }),
+  //     form: [
+  //       // 'createdAt',
+  //       'isAdmin',
+  //     ],
+  //   },
+  // },
   // plugins: {
   //   '@tegapp/core': {
   //     schema: schema => ({
@@ -185,40 +185,40 @@ const getSchemaForms = () => ({
   //     ],
   //   },
   // },
-  materials: {
-    FDM_FILAMENT: {
-      schema: schema => ({
-        ...schema,
-        type: 'object',
-        title: 'FDM Filament',
-        required: [
-          ...(schema.required || []),
-          'targetExtruderTemperature',
-          'targetBedTemperature',
-        ],
-        properties: {
-          ...(schema.properties || {}),
-          name: {
-            title: 'Name',
-            type: 'string',
-            minLength: 1,
-          },
-          targetExtruderTemperature: {
-            title: 'Target Extruder Temperature',
-            type: 'number',
-          },
-          targetBedTemperature: {
-            title: 'Target Bed Temperature',
-            type: 'number',
-          },
-        },
-      }),
-      form: [
-        'targetExtruderTemperature',
-        'targetBedTemperature',
-      ],
-    },
-  },
+  // materials: {
+  //   FDM_FILAMENT: {
+  //     schema: schema => ({
+  //       ...schema,
+  //       type: 'object',
+  //       title: 'FDM Filament',
+  //       required: [
+  //         ...(schema.required || []),
+  //         'targetExtruderTemperature',
+  //         'targetBedTemperature',
+  //       ],
+  //       properties: {
+  //         ...(schema.properties || {}),
+  //         name: {
+  //           title: 'Name',
+  //           type: 'string',
+  //           minLength: 1,
+  //         },
+  //         targetExtruderTemperature: {
+  //           title: 'Target Extruder Temperature',
+  //           type: 'number',
+  //         },
+  //         targetBedTemperature: {
+  //           title: 'Target Bed Temperature',
+  //           type: 'number',
+  //         },
+  //       },
+  //     }),
+  //     form: [
+  //       'targetExtruderTemperature',
+  //       'targetBedTemperature',
+  //     ],
+  //   },
+  // },
   components: {
     // [AXIS]: {
     //   schema: schema => ({
