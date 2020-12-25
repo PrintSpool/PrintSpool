@@ -5,7 +5,11 @@ use anyhow::{
     Result,
     // Context as _,
 };
-use async_graphql::ID;
+use async_graphql::{
+    ID,
+    Context,
+    FieldResult,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Material {
@@ -14,12 +18,32 @@ pub struct Material {
     pub config: MaterialConfigEnum,
 }
 
+pub struct Query();
+
+#[async_graphql::Object]
+impl Query {
+    async fn materials<'ctx>(&self, ctx: &'ctx Context<'_>,) -> FieldResult<Vec<Material>> {
+        let db: &crate::Db = ctx.data()?;
+
+        let materials = Material::get_all(&db).await?;
+
+        Ok(materials)
+    }
+}
+
 #[async_graphql::Object]
 impl Material {
     async fn id(&self) -> ID {
         self.id.into()
     }
     // TODO: Material GraphQL!
+    // type Material {
+    //     id: ID!
+    //     type: String!
+    //     name: String!
+    //     shortSummary: String!
+    //     configForm: ConfigForm!
+    //   }
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
@@ -68,6 +92,23 @@ impl Material {
     
         let entry: Self = serde_json::from_str(&row.props)?;
         Ok(entry)
+    }
+
+    pub async fn get_all(
+        db: &crate::Db,
+    ) -> Result<Vec<Self>> {
+        let rows = sqlx::query_as!(
+            JsonRow,
+            "SELECT props FROM materials",
+        )
+            .fetch_all(db)
+            .await?;
+
+        let rows = rows.into_iter()
+            .map(|row| serde_json::from_str(&row.props))
+            .collect::<std::result::Result<Vec<_>, _>>()?;
+
+        Ok(rows)
     }
 
     pub async fn insert(
