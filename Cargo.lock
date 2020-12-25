@@ -2579,8 +2579,11 @@ dependencies = [
 name = "teg_material"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
+ "async-graphql",
  "schemars",
  "serde",
+ "serde_json",
  "sqlx",
 ]
 

@@ -1,14 +1,14 @@
 -- Add migration script here
 CREATE TABLE materials(
   id INT PRIMARY KEY NOT NULL,
-  version INT NOT NULL,
+  version INT NOT NULL DEFAULT 0,
 
   props TEXT NOT NULL
 );
 
 CREATE TABLE tasks(
   id INT PRIMARY KEY NOT NULL,
-  version INT NOT NULL,
+  version INT NOT NULL DEFAULT 0,
 
   machine_id INT NOT NULL,
 
