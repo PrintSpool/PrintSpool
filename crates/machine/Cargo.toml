@@ -13,6 +13,7 @@ path = "src/lib.rs"
 # lto = true
 
 [dependencies]
+teg_config_form = { path = "../config_form" }
 teg_material = { path = "../material" }
 
 anyhow = "1.0"

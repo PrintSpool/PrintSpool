@@ -6,7 +6,7 @@ use anyhow::{
     // Context as _,
 };
 
-use super::{
+use teg_config_form::{
     ConfigForm,
     JsonSchemaForm,
 };
@@ -38,12 +38,3 @@ where
         })
     }
 }
-
-// impl<T, U> From<&ComponentInner<T, U>> for Result<ConfigForm>
-// where
-//     U: Default,
-// {
-//     fn from(component: &ComponentInner<T, U>) -> Result<ConfigForm> {
-//         Err(anyhow!("wat"))
-//     }
-// }

@@ -22,12 +22,13 @@ mod controller;
 pub use controller::*;
 
 mod resolvers;
+mod into_config_form;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ComponentInner<Model, Ephemeral: Default> {
     pub id: crate::DbId,
-    pub model_version: u32,
+    pub model_version: i32,
     pub model: Model,
     #[serde(skip)]
     pub ephemeral: Ephemeral,

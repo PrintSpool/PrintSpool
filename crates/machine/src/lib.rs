@@ -27,7 +27,6 @@ pub mod components;
 pub mod config;
 pub mod machine;
 pub mod task;
-pub mod config_form;
 
 pub type Db = sqlx::sqlite::SqlitePool;
 pub type DbId = i32;

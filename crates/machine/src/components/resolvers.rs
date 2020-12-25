@@ -16,7 +16,7 @@ use super::{
     SpeedControllerEphemeral,
     Toolhead,
 };
-use crate::config_form::ConfigForm;
+use teg_config_form::ConfigForm;
 
 #[async_graphql::Object]
 impl Component {

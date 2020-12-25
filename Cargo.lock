@@ -2560,6 +2560,7 @@ dependencies = [
  "smart-default",
  "sqlx",
  "teg-protobufs",
+ "teg_config_form",
  "teg_material",
  "toml",
  "tracing",
@@ -2576,6 +2577,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "teg_config_form"
+version = "0.1.0"
+dependencies = [
+ "async-graphql",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "teg_material"
 version = "0.1.0"
 dependencies = [
@@ -2585,6 +2595,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sqlx",
+ "teg_config_form",
 ]
 
 [[package]]

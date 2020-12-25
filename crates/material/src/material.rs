@@ -5,45 +5,12 @@ use anyhow::{
     Result,
     // Context as _,
 };
-use async_graphql::{
-    ID,
-    Context,
-    FieldResult,
-};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Material {
     pub id: crate::DbId,
     pub version: crate::DbId,
     pub config: MaterialConfigEnum,
-}
-
-pub struct Query();
-
-#[async_graphql::Object]
-impl Query {
-    async fn materials<'ctx>(&self, ctx: &'ctx Context<'_>,) -> FieldResult<Vec<Material>> {
-        let db: &crate::Db = ctx.data()?;
-
-        let materials = Material::get_all(&db).await?;
-
-        Ok(materials)
-    }
-}
-
-#[async_graphql::Object]
-impl Material {
-    async fn id(&self) -> ID {
-        self.id.into()
-    }
-    // TODO: Material GraphQL!
-    // type Material {
-    //     id: ID!
-    //     type: String!
-    //     name: String!
-    //     shortSummary: String!
-    //     configForm: ConfigForm!
-    //   }
 }
 
 #[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
