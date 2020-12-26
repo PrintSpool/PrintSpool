@@ -4,6 +4,7 @@ use serde::{Serialize, Deserialize};
 mod machine_config;
 pub use machine_config::{ MachineConfig };
 
+mod into_config_form;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(tag = "package")]

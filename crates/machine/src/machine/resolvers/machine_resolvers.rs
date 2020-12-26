@@ -5,22 +5,24 @@ use async_graphql::{
     // Context,
     FieldResult,
 };
-// use anyhow::{
-//     // anyhow,
-//     Result,
-//     // Context as _,
-// };
+use anyhow::{
+    // anyhow,
+    Result,
+    // Context as _,
+};
 use std::collections::VecDeque;
 use teg_config_form::ConfigForm;
 
 use crate::machine::{
     MachineData,
     models::MachineStatusGQL,
+    models::MachineStatus,
 };
 use crate::components::{
     Component
 };
-use super::models::GCodeHistoryEntry;
+use super::super::models::GCodeHistoryEntry;
+use super::machine_error_resolvers::MachineError;
 
 #[Object]
 impl MachineData {
@@ -35,7 +37,8 @@ impl MachineData {
     // TODO: config_form
     /// The machine configuration for general settings.
     async fn config_form(&self) -> FieldResult<ConfigForm> {
-        Ok(self.config.into()?)
+        let config_form: Result<ConfigForm> = (&self.config).into();
+        Ok(config_form?)
     }
 
     async fn components(&self) -> Vec<Component> {
@@ -64,9 +67,23 @@ impl MachineData {
     //     self.config.components()
     // }
 
-    async fn swap_x_and_y_orientation(&self) -> bool { self.config.swap_x_and_y_orientation }
+    async fn swap_x_and_y_orientation(&self) -> FieldResult<bool> {
+        let val = self.config.core_plugin()?.model.swap_x_and_y_orientation;
+        Ok(val)
+    }
+
     async fn motors_enabled(&self) -> bool { self.motors_enabled }
-    async fn error(&self) -> &MachineError { &self.error }
+
+    async fn error(&self) -> Option<MachineError> {
+        if let MachineStatus::Errored(error) = &self.status {
+            Some(MachineError {
+                code: "FIRMWARE_ERROR".to_string(),
+                message: error.message.clone(),
+            })
+        } else {
+            None
+        }
+     }
 
     async fn enabled_macros(&self) -> Vec<String> {
         vec![
@@ -81,7 +98,7 @@ impl MachineData {
         ]
     }
 
-    async fn gcode_history(&self, limit: u32) -> VecDeque<GCodeHistoryEntry> {
-        self.gcode_history
+    async fn gcode_history(&self, limit: u32) -> &VecDeque<GCodeHistoryEntry> {
+        &self.gcode_history
     }
 }
