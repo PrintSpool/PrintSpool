@@ -6,6 +6,26 @@ CREATE TABLE materials(
   props TEXT NOT NULL
 );
 
+CREATE TABLE users(
+  id INT PRIMARY KEY NOT NULL,
+  version INT NOT NULL DEFAULT 0,
+
+  props TEXT NOT NULL
+);
+
+CREATE TABLE invites(
+  id INT PRIMARY KEY NOT NULL,
+  version INT NOT NULL DEFAULT 0,
+
+  public_key TEXT NOT NULL,
+  slug TEXT NOT NULL,
+
+  props TEXT NOT NULL
+);
+
+CREATE UNIQUE INDEX invites_pk ON invites(public_key);
+CREATE UNIQUE INDEX invites_slug ON invites(slug);
+
 CREATE TABLE tasks(
   id INT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,

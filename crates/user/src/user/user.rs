@@ -1,41 +1,28 @@
-use serde::{Deserialize, Serialize, de::DeserializeOwned};
-use schemars::JsonSchema;
+use chrono::prelude::*;
+use serde::{Deserialize, Serialize};
 use anyhow::{
     // anyhow,
     Result,
     // Context as _,
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Material {
+use super::UserConfig;
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct User {
     pub id: crate::DbId,
     pub version: crate::DbId,
-    pub config: MaterialConfigEnum,
-}
 
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
-pub enum MaterialConfigEnum {
-    FdmFilament(Box<FdmFilament>),
-}
+    pub config: UserConfig,
+    pub created_at: DateTime<Utc>,
+    pub last_logged_in_at: Option<DateTime<Utc>>,
 
-pub trait MaterialConfig: Serialize + DeserializeOwned {
-    fn name(&self) -> &String;
-}
-
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
-pub struct FdmFilament {
-    /// # Name
-    pub name: String,
-    /// # Target Extruder Temperature
-    pub target_extruder_temperature: f32,
-    /// # Target Bed Temperature
-    pub target_bed_temperature: f32,
-}
-
-impl MaterialConfig for FdmFilament {
-    fn name(&self) -> &String {
-        &self.name
-    }
+    pub firebase_uid: String,
+    pub is_authorized: bool,
+    /// # Email
+    pub email: Option<String>,
+    /// # Email Verified
+    pub email_verified: bool,
 }
 
 // TODO: Create a macro to generate this JSON Store code
@@ -44,19 +31,19 @@ struct JsonRow {
     pub props: String,
 }
 
-impl Material {
+impl User {
     pub async fn get(
         db: &crate::Db,
         id: crate::DbId,
     ) -> Result<Self> {
         let row = sqlx::query_as!(
             JsonRow,
-            "SELECT props FROM materials WHERE id = ?",
+            "SELECT props FROM users WHERE id = ?",
             id
         )
             .fetch_one(db)
             .await?;
-    
+
         let entry: Self = serde_json::from_str(&row.props)?;
         Ok(entry)
     }
@@ -66,7 +53,7 @@ impl Material {
     ) -> Result<Vec<Self>> {
         let rows = sqlx::query_as!(
             JsonRow,
-            "SELECT props FROM materials",
+            "SELECT props FROM users",
         )
             .fetch_all(db)
             .await?;
@@ -83,10 +70,10 @@ impl Material {
         db: &crate::Db,
     ) -> Result<()> {
         let json = serde_json::to_string(self)?;
- 
+
         sqlx::query!(
             r#"
-                INSERT INTO materials
+                INSERT INTO users
                 (id, props)
                 VALUES (?, ?)
             "#,
@@ -95,14 +82,17 @@ impl Material {
         )
             .fetch_one(db)
             .await?;
-        
+
         Ok(())
     }
 
-    pub async fn update(
+    pub async fn update<'e, 'c, E>(
         &mut self,
-        db: &crate::Db,
-    ) -> Result<()> {
+        db: E,
+    ) -> Result<()>
+    where
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    {
         let previous_version = self.version;
         self.version = self.version + 1;
 
@@ -110,7 +100,7 @@ impl Material {
 
         sqlx::query!(
             r#"
-                UPDATE materials
+                UPDATE users
                 SET props=?, version=?
                 WHERE id=? AND version=?
             "#,

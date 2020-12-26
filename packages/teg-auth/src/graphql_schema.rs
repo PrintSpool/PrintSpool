@@ -85,14 +85,6 @@ pub struct LegacyQuery;
 
 #[Object]
 impl LegacyQuery {
-    async fn users<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<User>> {
-        User::all(ctx.data()?).await
-    }
-
-    async fn invites<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<Invite>> {
-        Invite::all(ctx.data()?).await
-    }
-
     async fn video_sources<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<VideoSource>> {
             get_video_sources(ctx.data()?)
                 .await
@@ -118,44 +110,14 @@ pub struct LegacyMutation;
 
 #[Object]
 impl LegacyMutation {
-    async fn authenticate_user<'ctx>(
-        &self,
-        ctx: &'ctx Context<'_>,
-        auth_token: String,
-        identity_public_key: String
-    ) -> FieldResult<Option<User>> {
-        Ok(User::authenticate(ctx.data()?, auth_token, identity_public_key).await?)
-    }
-
-    // Invites
-    async fn create_invite<'ctx>(
-        &self,
-        ctx: &'ctx Context<'_>,
-        input: CreateInviteInput,
-    ) -> FieldResult<Invite> {
-        Invite::admin_create_invite(ctx.data()?, input).await
-    }
-
-    async fn update_invite<'ctx>(&self, ctx: &'ctx Context<'_>, input: UpdateInvite) -> FieldResult<Invite> {
-        task::block_on(
-            Invite::update(ctx.data()?, input)
-        )
-    }
-
-    async fn delete_invite<'ctx>(&self, ctx: &'ctx Context<'_>, input: DeleteInvite) -> FieldResult<Option<bool>> {
-        task::block_on(
-            Invite::delete(ctx.data()?, input.invite_id)
-        )
-    }
-
-    async fn consume_invite<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<User> {
-        consume_invite(ctx.data()?)
-            .await
-            .map_err(|err| {
-                error!("ERR {:?}", err);
-                err.into()
-            })
-    }
+    // async fn authenticate_user<'ctx>(
+    //     &self,
+    //     ctx: &'ctx Context<'_>,
+    //     auth_token: String,
+    //     identity_public_key: String
+    // ) -> FieldResult<Option<User>> {
+    //     Ok(User::authenticate(ctx.data()?, auth_token, identity_public_key).await?)
+    // }
 
     // Users
     async fn update_user<'ctx>(&self, ctx: &'ctx Context<'_>, input: UpdateUser) -> FieldResult<User> {

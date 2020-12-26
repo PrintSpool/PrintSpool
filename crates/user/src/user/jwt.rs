@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use std::collections::HashMap;
 use std::time::Duration;
 use serde::Deserialize;
@@ -8,10 +7,8 @@ use anyhow::{
     Context as _,
     Result,
 };
-
+use arc_swap::ArcSwap;
 use frank_jwt::{Algorithm, ValidationOptions, decode};
-
-use crate::{ Context };
 
 // decode the JWT with the matching signing key and validate the payload
 #[derive(Deserialize, Debug)]
@@ -34,7 +31,7 @@ pub async fn get_pem_keys() -> Result<Vec<Vec<u8>>> {
         .recv_json();
 
     let pem_keys: HashMap<String, String> = future::timeout(
-        Duration::from_millis(5_000), 
+        Duration::from_millis(5_000),
         req,
     )
         .await
@@ -61,10 +58,10 @@ pub async fn get_pem_keys() -> Result<Vec<Vec<u8>>> {
 }
 
 pub async fn validate_jwt(
-    context: &Arc<Context>,
+    auth_pem_keys: &ArcSwap<Vec<Vec<u8>>>,
     jwt: String,
 ) -> Result<JWTPayload> {
-    let (_, payload) = context.auth_pem_keys.load().iter().find_map(|pem_key| {
+    let (_, payload) = auth_pem_keys.load().iter().find_map(|pem_key| {
         decode(
             &jwt,
             pem_key,

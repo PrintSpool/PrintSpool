@@ -5,11 +5,12 @@ use anyhow::{Context as _, Result};
 
 use super::{
     User,
-    super::Invite,
+    UserConfig,
+    jwt::validate_jwt,
 };
-use super::jwt::validate_jwt;
 // use crate::models::{ Invite };
 use crate::{ Context };
+use crate::invite::Invite;
 use crate::models::VersionedModel;
 
 impl User {
@@ -56,7 +57,9 @@ impl User {
                 email_verified: false,
                 created_at: Utc::now(),
                 last_logged_in_at: None,
-                is_admin: false,
+                config: UserConfig {
+                    is_admin: false,
+                },
                 is_authorized: false,
             }
         };

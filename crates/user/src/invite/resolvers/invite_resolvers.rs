@@ -1,6 +1,6 @@
 use async_graphql::*;
 use chrono::prelude::*;
-use super::Invite;
+use crate::invite::Invite;
 
 #[Object]
 impl Invite {
@@ -11,7 +11,7 @@ impl Invite {
         &self.public_key
     }
     async fn is_admin(&self) -> bool {
-        self.is_admin
+        self.config.is_admin
     }
     async fn created_at(&self) -> DateTime<Utc> {
         self.created_at

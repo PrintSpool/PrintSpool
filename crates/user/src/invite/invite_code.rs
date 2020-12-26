@@ -1,5 +1,5 @@
 use serde::{Serialize, Deserialize};
-use rmps::{Serializer};
+use rmp_serde::Serializer;
 use std::fs;
 use std::env;
 use anyhow::{anyhow, Context as _, Result};
