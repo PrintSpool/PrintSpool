@@ -27,7 +27,7 @@ impl Invite {
         db: &crate::Db,
         is_admin: bool,
     ) -> Result<Self> {
-        let invite = Self::new(db, is_admin)?;
+        let invite = Self::new(db, is_admin).await?;
         invite.print_welcome_text()?;
 
         Ok(invite)
@@ -49,7 +49,7 @@ impl Invite {
 
             let initial_invite = match initial_invite {
                 Some(invite) => invite,
-                None => Self::new(db, true)?,
+                None => Self::new(db, true).await?,
             };
 
             initial_invite.print_welcome_text()?;
