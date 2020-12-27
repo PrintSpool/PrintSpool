@@ -5,7 +5,6 @@ use anyhow::{
     Result,
     // Context as _,
 };
-use std::any::{Any, TypeId};
 
 use super::UserConfig;
 

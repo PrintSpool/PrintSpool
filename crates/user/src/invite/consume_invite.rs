@@ -5,7 +5,7 @@ use super::Invite;
 
 pub async fn consume_invite(
     db: &crate::Db,
-    identity_public_key: String,
+    // identity_public_key: String,
     invite_public_key: String,
     mut user: User,
 ) -> Result<User> {
