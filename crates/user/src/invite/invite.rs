@@ -111,31 +111,46 @@ struct JsonRow {
     pub props: String,
 }
 
-struct IdRow {
-    pub id: crate::DbId,
-}
-
 impl UnsavedInvite {
     pub async fn insert(
         &self,
         db: &crate::Db,
     ) -> Result<Invite> {
-        let mut db = db.begin().await?;
+        let db = db.begin().await?;
 
+        let (user, db) = self.insert_no_rollback(db).await?;
+
+        db.commit().await?;
+
+        Ok(user)
+    }
+
+    /// Insert but without a transaction. Intended to be used inside functions that provide their
+    /// own transactions.
+    pub async fn insert_no_rollback<'c>(
+        &self,
+        mut db: sqlx::Transaction<'c, sqlx::Sqlite>,
+    ) -> Result<(Invite, sqlx::Transaction<'c, sqlx::Sqlite>)> {
         // Generate an ID for the row
-        let IdRow { id } = sqlx::query_as!(
-            IdRow,
+        sqlx::query!(
             r#"
                 INSERT INTO invites
                 (props)
                 VALUES ("{}")
-            "#,
+            "#
         )
             .fetch_one(&mut db)
             .await?;
 
+        let id = sqlx::query!(
+            "SELECT last_insert_rowid() as id"
+        )
+            .fetch_one(&mut db)
+            .await?
+            .id;
+
         // Add the sqlite-generated monotonic ID and other default fields in to the json
-        let json = serde_json::to_value(self)?;
+        let mut json = serde_json::to_value(self)?;
         let map = json
             .as_object_mut()
             .expect("Struct incorrectly serialized for JsonRow insert");
@@ -145,14 +160,14 @@ impl UnsavedInvite {
         map.insert("created_at".to_string(), serde_json::to_value(Utc::now())?);
 
         // Update Sqlite - adding the modified JSON including the ID
-        let row = sqlx::query_as!(
-            JsonRow,
+        let json_string = json.to_string();
+        sqlx::query!(
             r#"
                 UPDATE invites
                 SET props=?
                 WHERE id=?
             "#,
-            json.to_string(),
+            json_string,
             id,
         )
             .fetch_one(&mut db)
@@ -160,8 +175,7 @@ impl UnsavedInvite {
 
         let entry: Invite = serde_json::from_value(json)?;
 
-        db.commit().await?;
-        Ok(entry)
+        Ok((entry, db))
     }
 }
 
@@ -184,7 +198,7 @@ impl Invite {
 
     pub async fn get_by_pk<'e, 'c, E>(
         db: E,
-        public_key: String,
+        public_key: &str,
     ) -> Result<Self>
     where
         E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,

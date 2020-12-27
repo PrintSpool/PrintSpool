@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 
-use crate::User;
+use crate::user::User;
 use super::Invite;
 
 pub async fn consume_invite(
@@ -15,7 +15,7 @@ pub async fn consume_invite(
 
     // Verify that the invite has not yet been consumed
     // TODO: This should be moved inside the transaction once transaction scans are supported
-    let invite = Invite::get_by_pk(&mut db, invite_public_key)
+    let invite = Invite::get_by_pk(&mut db, &invite_public_key)
         .await
         .map_err(|_| anyhow!("Invite has already been consumed"))?;
 

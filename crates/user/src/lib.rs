@@ -3,8 +3,6 @@
 pub mod invite;
 pub mod user;
 
-pub use user::*;
-
 mod auth_context;
 pub use auth_context::AuthContext;
 

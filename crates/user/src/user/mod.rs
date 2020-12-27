@@ -6,7 +6,11 @@ pub use authenticate::*;
 pub mod jwt;
 
 mod user;
-pub use user::User;
+pub use user::{
+    User,
+    UnsavedUser,
+};
+
 
 mod user_config;
 pub use user_config::UserConfig;
