@@ -53,7 +53,7 @@ impl User {
                 email_verified: false,
                 last_logged_in_at: None,
                 config: UserConfig {
-                    is_admin: false,
+                    is_admin: invite.config.is_admin,
                 },
                 is_authorized: false,
             };
