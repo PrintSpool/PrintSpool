@@ -20,6 +20,7 @@ use crate::machine::{
 use crate::components::{
     Component
 };
+use crate::plugins::Plugin;
 use crate::machine::models::GCodeHistoryEntry;
 use super::machine_error_resolvers::MachineError;
 
@@ -52,10 +53,13 @@ impl MachineData {
         ])
     }
 
-    // TODO: Plugins
-    // async fn plugins(&self) -> Vec<Plugin> {
-    //     vec![]
-    // }
+    async fn plugins(&self, package: Option<String>) -> Vec<&Plugin> {
+        if package.is_some() && package != Some("teg-core".into()) {
+            return vec![]
+        } else {
+            self.config.plugins.iter().collect()
+        }
+    }
 
     async fn available_packages(&self) -> FieldResult<Vec<String>> {
         Ok(vec![])

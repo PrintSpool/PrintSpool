@@ -17,12 +17,13 @@ use crate::components::{
     Toolhead,
     Video,
 };
-
-use super::{
-    Feedrate,
+use crate::plugins::{
     Plugin,
     PluginContainer,
-    CorePluginModel,
+    core::CorePluginConfig,
+};
+use super::{
+    Feedrate,
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -47,14 +48,14 @@ pub struct MachineConfig {
 }
 
 impl MachineConfig {
-    pub fn core_plugin<'a>(&'a self) -> Result<&'a PluginContainer<CorePluginModel>> {
+    pub fn core_plugin<'a>(&'a self) -> Result<&'a PluginContainer<CorePluginConfig>> {
         let core_plugin = self.plugins.iter()
             .find_map(|plugin| {
                 match plugin {
                     Plugin::Core(core_plugin) => {
                         Some(core_plugin)
                     }
-                    _ => None,
+                    // _ => None,
                 }
             })
             .ok_or_else(|| anyhow!("Could not find @tegapp/core plugin config"))?;

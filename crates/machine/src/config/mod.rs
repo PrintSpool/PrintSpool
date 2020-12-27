@@ -1,45 +1,7 @@
-use async_graphql::ID;
-use serde::{Serialize, Deserialize};
-
 mod machine_config;
 pub use machine_config::{ MachineConfig };
 
 mod into_config_form;
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(tag = "package")]
-pub enum Plugin {
-    #[serde(rename = "@tegapp/core")]
-    Core(PluginContainer<CorePluginModel>),
-    #[serde(other)]
-    UnknownPlugin,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct PluginContainer<Model = toml::Value> {
-    pub id: ID,
-    pub model_version: u32,
-    pub model: Model,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct CorePluginModel {
-    pub name: String,
-    #[serde(default)]
-    pub automatic_printing: bool,
-    pub before_print_hook: String,
-    pub after_print_hook: String,
-    #[serde(default)]
-    pub pause_hook: String,
-    #[serde(default)]
-    pub resume_hook: String,
-    #[serde(default)]
-    pub swap_x_and_y_orientation: bool,
-    #[serde(default)]
-    pub macros: Vec<String>,
-}
 
 #[derive(Debug, Clone)]
 pub struct Feedrate {

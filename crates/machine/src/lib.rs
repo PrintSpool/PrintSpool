@@ -26,6 +26,7 @@
 pub mod components;
 pub mod config;
 pub mod machine;
+pub mod plugins;
 pub mod task;
 
 pub type Db = sqlx::sqlite::SqlitePool;

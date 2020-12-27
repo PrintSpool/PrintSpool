@@ -1,3 +1,5 @@
+use serde::{Serialize, Deserialize};
+use schemars::JsonSchema;
 
 // // TODO: Previously these configs were include in the machine config for onboarding:
 // impl MachineForm for ControllerConfig {
@@ -12,7 +14,9 @@
 //     }
 // }
 
-pub struct CorePlugin {
+#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CorePluginConfig {
   /// # Printer Name
   // TODO: validate: #[schemars(min_length = 1)]
   pub name: String,
@@ -25,7 +29,7 @@ pub struct CorePlugin {
   pub automatic_printing: bool,
 
   /// # Swap visual orientation of X and Y axes
-  pub swap_x_And_y_orientation: bool,
+  pub swap_x_and_y_orientation: bool,
 
   /// # Before Print (GCode)
   pub before_print_hook: String,
@@ -38,4 +42,6 @@ pub struct CorePlugin {
 
   /// # Before Resume (GCode)
   pub resume_hook: String,
+
+  // pub macros: Vec<String>,
 }
