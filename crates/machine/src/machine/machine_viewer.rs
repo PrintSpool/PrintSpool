@@ -1,16 +1,20 @@
-// TODO: move this back to core
-
 use chrono::prelude::*;
-use async_graphql::ID;
 use serde::{Deserialize, Serialize};
+// use anyhow::{
+//     // anyhow,
+//     Result,
+//     // Context as _,
+// };
 
 #[derive(new, Debug, Serialize, Deserialize, Clone)]
 pub struct MachineViewer {
+    pub id: crate::DbId,
+    pub version: crate::DbId,
+    pub created_at: DateTime<Utc>,
+
     // Foreign Keys
     pub machine_id: crate::DbId,
     pub user_id: crate::DbId,
-    // Props
-    pub session_id: String,
     // Timestamps
     #[new(value = "Utc::now() + chrono::Duration::seconds(5)")]
     pub expires_at: DateTime<Utc>,
@@ -25,3 +29,4 @@ impl MachineViewer {
         self.expires_at < Utc::now()
     }
 }
+

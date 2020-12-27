@@ -1,17 +1,16 @@
-// use std::sync::Arc;
+use chrono::prelude::*;
 use async_graphql::{
-    Object,
     ID,
-    // Context,
+    Context,
     FieldResult,
 };
 use anyhow::{
     // anyhow,
     Result,
-    // Context as _,
+    Context as _,
 };
-use std::collections::VecDeque;
 use teg_config_form::ConfigForm;
+use teg_user::user::User;
 
 use crate::machine::{
     MachineData,
@@ -21,10 +20,10 @@ use crate::machine::{
 use crate::components::{
     Component
 };
-use super::super::models::GCodeHistoryEntry;
+use crate::machine::models::GCodeHistoryEntry;
 use super::machine_error_resolvers::MachineError;
 
-#[Object]
+#[async_graphql::Object]
 impl MachineData {
     async fn id(&self) -> ID { self.config.id.into() }
     async fn status(&self) -> MachineStatusGQL { self.status.clone().into() }
@@ -63,9 +62,39 @@ impl MachineData {
     }
 
     // TODO: Viewers
-    // async fn viewers(&self) -> Vec<MachineViewer> {
-    //     self.config.components()
-    // }
+    async fn viewers<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<User>> {
+        let db: &crate::Db = ctx.data()?;
+
+        struct JsonRow {
+            pub props: String,
+        }
+
+        let now = Utc::now();
+
+        let users: Vec<User> = sqlx::query_as!(
+            JsonRow,
+            r#"
+                SELECT DISTINCT users.props FROM users
+                INNER JOIN machine_viewers ON machine_viewers.user_id = users.id
+                WHERE
+                    machine_viewers.machine_id = ?
+                    AND machine_viewers.expires_at < ?
+                ORDER BY users.id
+            "#,
+            self.config.id,
+            now,
+        )
+            .fetch_all(db)
+            .await?
+            .into_iter()
+            .map(|row| {
+                serde_json::from_str(&row.props)
+                    .with_context(|| "Corrupted user data found during machineViewers query")
+            })
+            .collect::<Result<_>>()?;
+
+        Ok(users)
+    }
 
     async fn swap_x_and_y_orientation(&self) -> FieldResult<bool> {
         let val = self.config.core_plugin()?.model.swap_x_and_y_orientation;
@@ -98,7 +127,12 @@ impl MachineData {
         ]
     }
 
-    async fn gcode_history(&self, limit: u32) -> &VecDeque<GCodeHistoryEntry> {
-        &self.gcode_history
+    async fn gcode_history(&self, limit: Option<usize>) -> Vec<&GCodeHistoryEntry> {
+        let limit = limit.unwrap_or(self.gcode_history.len());
+
+        self.gcode_history
+            .iter()
+            .take(limit)
+            .collect()
     }
 }

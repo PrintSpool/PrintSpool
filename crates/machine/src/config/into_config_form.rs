@@ -16,7 +16,7 @@ use super::MachineConfig;
 impl From<&MachineConfig> for Result<ConfigForm> {
     fn from(machine: &MachineConfig) -> Result<ConfigForm> {
         // Machines only have empty schema placeholders for now
-        let mut root_schema = serde_json::json!({
+        let root_schema = serde_json::json!({
             "type": "object"
         });
 

@@ -15,6 +15,7 @@ path = "src/lib.rs"
 [dependencies]
 teg_config_form = { path = "../config_form" }
 teg_material = { path = "../material" }
+teg_user = { path = "../user" }
 
 anyhow = "1.0"
 async-graphql = "2.2.0"
@@ -32,7 +33,7 @@ tracing = "0.1.19"
 tracing-futures = "0.2.4"
 xactor = "0.7.8"
 async-codec = "0.4.0"
-sqlx = { version = "0.4.2", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros" ] }
+sqlx = { version = "0.4.2", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros", "chrono" ] }
 rand = "0.7.3"
 smart-default = "0.6.0"
 schemars = "0.8.0"

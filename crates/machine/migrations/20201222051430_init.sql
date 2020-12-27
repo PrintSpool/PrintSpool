@@ -26,6 +26,20 @@ CREATE TABLE invites(
 CREATE UNIQUE INDEX invites_pk ON invites(public_key);
 CREATE UNIQUE INDEX invites_slug ON invites(slug);
 
+CREATE TABLE machine_viewers(
+  id INT PRIMARY KEY NOT NULL,
+  version INT NOT NULL DEFAULT 0,
+
+  machine_id INT NOT NULL,
+  user_id INT NOT NULL,
+  expires_at TEXT NOT NULL,
+
+  props TEXT NOT NULL
+);
+
+CREATE UNIQUE INDEX machine_viewers_user ON machine_viewers(user_id);
+CREATE UNIQUE INDEX machine_viewers_machine ON machine_viewers(machine_id, expires_at);
+
 CREATE TABLE tasks(
   id INT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,

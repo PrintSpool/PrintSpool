@@ -7,3 +7,6 @@ mod machine;
 pub use machine::{ Machine, MachineData };
 
 mod send_message;
+
+mod machine_viewer;
+pub use machine_viewer::MachineViewer;
