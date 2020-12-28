@@ -1,10 +1,9 @@
-use xactor::message;
 use teg_protobufs::{
     CombinatorMessage,
     combinator_message,
 };
 
-#[message(result = "()")]
+#[xactor::message(result = "()")]
 pub struct DeleteTaskHistory {
     task_id: crate::DbId,
 }

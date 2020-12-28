@@ -12,16 +12,8 @@
 // extern crate url;
 // extern crate gravatar;
 
-// use dotenv::dotenv;
-// use std::env;
-// use std::sync::Arc;
-// use arc_swap::ArcSwap;
-// use async_std::task;
-// use anyhow::{
-//     anyhow,
-//     Context as _,
-//     Result,
-// };
+use arc_swap::ArcSwap;
+use std::collections::HashMap;
 
 pub mod components;
 pub mod config;
@@ -31,3 +23,6 @@ pub mod task;
 
 pub type Db = sqlx::sqlite::SqlitePool;
 pub type DbId = i32;
+
+/// GraphQL Context containing all the machine xactor addresses for message passing.
+pub type MachineMap = ArcSwap<HashMap<async_graphql::ID, xactor::Addr<machine::Machine>>>;

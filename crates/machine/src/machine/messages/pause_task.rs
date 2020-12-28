@@ -1,4 +1,3 @@
-use xactor::*;
 use teg_protobufs::{
     CombinatorMessage,
     combinator_message,
@@ -6,7 +5,7 @@ use teg_protobufs::{
 
 use crate::machine::Machine;
 
-#[message(result = "()")]
+#[xactor::message(result = "()")]
 pub struct PauseTask {
     task_id: crate::DbId,
 }
@@ -24,8 +23,8 @@ impl From<PauseTask> for CombinatorMessage {
 }
 
 #[async_trait::async_trait]
-impl Handler<PauseTask> for Machine {
-    async fn handle(&mut self, ctx: &mut Context<Self>, msg: PauseTask) -> () {
+impl xactor::Handler<PauseTask> for Machine {
+    async fn handle(&mut self, ctx: &mut xactor::Context<Self>, msg: PauseTask) -> () {
         self.data.paused_task_id = Some(msg.task_id);
 
         if let Err(err) = self.send_message(msg.into()).await {

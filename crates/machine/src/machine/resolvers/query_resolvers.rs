@@ -1,5 +1,3 @@
-use std::sync::Arc;
-use std::collections::HashMap;
 use futures::future::join_all;
 // use chrono::prelude::*;
 use async_graphql::{
@@ -34,7 +32,8 @@ impl MachineQuery {
         ctx: &'ctx Context<'_>,
         id: Option<ID>,
     ) -> FieldResult<Vec<MachineData>> {
-        let machines: &Arc<HashMap<ID, Addr<Machine>>> = ctx.data()?;
+        let machines: &crate::MachineMap = ctx.data()?;
+        let machines = machines.load();
 
         let machines: Vec<&Addr<Machine>> = if let Some(id) = id {
             let addr = machines.get(&id)

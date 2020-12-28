@@ -1,4 +1,3 @@
-use xactor::*;
 use teg_protobufs::{
     CombinatorMessage,
     combinator_message,
@@ -11,7 +10,7 @@ use crate::task::{
 
 // use crate::machine::Machine;
 
-#[message(result = "()")]
+#[xactor::message(result = "()")]
 pub struct SpoolTask {
     client_id: crate::DbId,
     task: Task,
