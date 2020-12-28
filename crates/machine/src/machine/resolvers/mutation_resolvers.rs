@@ -6,10 +6,15 @@ use async_graphql::{
 use anyhow::{
     anyhow,
     // Result,
-    // Context as _,
+    Context as _,
 };
+use teg_user::AuthContext;
 
-use crate::machine::messages;
+use crate::machine::{
+    MachineViewer,
+    UnsavedMachineViewer,
+    messages,
+};
 
 #[derive(Default)]
 pub struct MachineMutation;
@@ -50,4 +55,48 @@ impl MachineMutation {
         Ok(None)
     }
 
+    #[instrument(skip(self, ctx))]
+    async fn continue_viewing_machine<'ctx>(
+        &self,
+        ctx: &'ctx async_graphql::Context<'_>,
+        #[graphql(name="machineID")]
+        machine_id: ID,
+    ) -> FieldResult<Option<bool>> {
+        let db: &crate::Db = ctx.data()?;
+        let auth: &AuthContext = ctx.data()?;
+
+        let user = auth.require_user()?;
+
+        let machine_id = machine_id.parse::<crate::DbId>()
+            .with_context(|| format!("Invalid machine id: {:?}", machine_id))?;
+
+        let viewer: Option<MachineViewer> = sqlx::query!(
+            r#"
+                SELECT props FROM machine_viewers
+                WHERE
+                    machine_id = ? AND
+                    user_id = ?
+            "#,
+            machine_id,
+            user.id,
+        )
+            .fetch_optional(db)
+            .await?
+            .map(|row| serde_json::from_str(&row.props))
+            .transpose()?;
+
+        if let Some(mut viewer) = viewer {
+            // Renew a pre-existing viewer
+            viewer.continue_viewing(db).await?;
+        } else {
+            // Add a new viewer
+            let viewer = UnsavedMachineViewer::new(
+                machine_id,
+                user.id,
+            );
+            viewer.insert(db).await?;
+        };
+
+        Ok(None)
+    }
 }

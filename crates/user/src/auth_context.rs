@@ -46,4 +46,16 @@ impl AuthContext {
             Err(anyhow!("Unauthorized"))
         }
     }
+
+    pub fn require_user(&self) -> Result<&User> {
+        self.current_user
+            .as_ref()
+            .ok_or_else(|| anyhow!("Unauthorized"))
+    }
+
+    pub fn require_session_id(&self) -> Result<&String> {
+        self.session_id
+            .as_ref()
+            .ok_or_else(|| anyhow!("Unauthorized"))
+    }
 }
