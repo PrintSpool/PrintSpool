@@ -23,7 +23,7 @@ impl From<&Material> for Result<ConfigForm> {
             .collect();
 
         Ok(ConfigForm {
-            id: material.id.into(),
+            id: format!("material-{}", material.id).into(),
             model: serde_json::to_value(&material.config)?.into(),
             model_version: material.version,
             schema_form: JsonSchemaForm {

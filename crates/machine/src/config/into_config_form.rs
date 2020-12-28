@@ -23,7 +23,7 @@ impl From<&MachineConfig> for Result<ConfigForm> {
         let form = vec![];
 
         Ok(ConfigForm {
-            id: machine.id.into(),
+            id: format!("machine-{}", machine.id).into(),
             model: async_graphql::Json(serde_json::json!({})),
             model_version: 0,
             schema_form: JsonSchemaForm {

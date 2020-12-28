@@ -8,7 +8,9 @@ use anyhow::{
     // Result,
     Context as _,
 };
-use teg_user::AuthContext;
+use teg_user::{
+    AuthContext,
+};
 
 use crate::machine::{
     MachineViewer,

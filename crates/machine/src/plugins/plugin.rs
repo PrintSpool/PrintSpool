@@ -8,6 +8,7 @@ use anyhow::{
     // Context as _,
 };
 use serde::{Serialize, Deserialize};
+use nanoid::nanoid;
 use teg_config_form::ConfigForm;
 
 use super::core::CorePluginConfig;
@@ -21,10 +22,12 @@ pub enum Plugin {
     // UnknownPlugin,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(new, Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct PluginContainer<Model = toml::Value> {
-    pub id: crate::DbId,
+    #[new(value = "nanoid!()")]
+    pub id: String,
+    #[new(default)]
     pub model_version: crate::DbId,
     pub model: Model,
 }

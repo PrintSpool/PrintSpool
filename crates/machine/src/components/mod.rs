@@ -1,4 +1,5 @@
 use serde::{Serialize, Deserialize};
+use nanoid::nanoid;
 
 mod axis;
 pub use axis::*;
@@ -24,13 +25,16 @@ pub use controller::*;
 mod resolvers;
 mod into_config_form;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(new, Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ComponentInner<Model, Ephemeral: Default> {
-    pub id: crate::DbId,
-    pub model_version: i32,
+    #[new(value = "nanoid!()")]
+    pub id: String,
+    #[new(default)]
+    pub model_version: crate::DbId,
     pub model: Model,
     #[serde(skip)]
+    #[new(default)]
     pub ephemeral: Ephemeral,
 }
 

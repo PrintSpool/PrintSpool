@@ -21,14 +21,18 @@ pub struct Machine {
     pub data: MachineData,
 }
 
-#[derive(Debug, Clone)]
+#[derive(new, Debug, Clone)]
 pub struct MachineData {
     // Config-driven data and ephemeral component data
     pub config: MachineConfig,
     // Top-level ephemeral machine data
+    #[new(default)]
     pub status: MachineStatus,
+    #[new(default)]
     pub motors_enabled: bool,
+    #[new(default)]
     pub gcode_history: VecDeque<GCodeHistoryEntry>,
+    #[new(default)]
     pub paused_task_id: Option<crate::DbId>,
 }
 
