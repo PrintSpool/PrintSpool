@@ -78,6 +78,8 @@ use {
 
 // use bus_queue::async_::Publisher;
 
+pub type DbId = i32;
+
 // Create the Error, ErrorKind, ResultExt, and Result types
 error_chain! {}
 

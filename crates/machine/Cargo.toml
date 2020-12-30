@@ -8,10 +8,6 @@ version = "0.1.0"
 name = "machine"
 path = "src/lib.rs"
 
-# [profile.release]
-# # opt-level = "z"
-# lto = true
-
 [dependencies]
 teg_config_form = { path = "../config_form" }
 teg_material = { path = "../material" }
@@ -51,5 +47,3 @@ version = "0.4.10"
 [dependencies.serde]
 features = ["derive"]
 version = "1.0.104"
-
-[patch.crates-io]

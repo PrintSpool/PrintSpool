@@ -3,3 +3,7 @@
 members = [
     "crates/*",
 ]
+
+[profile.release]
+# opt-level = "z"
+lto = true

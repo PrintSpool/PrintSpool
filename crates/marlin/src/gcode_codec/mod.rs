@@ -46,12 +46,9 @@ impl Decoder for GCodeCodec {
                     },
                     | Err(nom::Err::Failure(err))
                     | Err(nom::Err::Error(err)) => {
-                        let (err_src, err_kind) = err;
-
                         let warning = format!(
-                            "Error ({:?}) parsing serial response at {:?}",
-                            err_kind,
-                            err_src,
+                            "Error parsing serial response: {:?}",
+                            err,
                         );
 
                         // Skip the erroneous line

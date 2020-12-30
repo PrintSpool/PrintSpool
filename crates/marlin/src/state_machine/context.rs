@@ -115,7 +115,7 @@ impl Context {
         };
     }
 
-    pub fn delete_task_history(&mut self, task_ids: &Vec<u32>) {
+    pub fn delete_task_history(&mut self, task_ids: &Vec<crate::DbId>) {
         self.feedback.events.retain(|event| {
             !task_ids.contains(&event.task_id)
         });
