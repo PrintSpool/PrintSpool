@@ -1,24 +1,27 @@
+use async_codec::Framed;
 use xactor::Actor;
 // use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 // use std::sync::Arc;
 use async_std::os::unix::net::UnixStream;
-// use anyhow::{
-//     // anyhow,
-//     Result,
-//     // Context as _,
-// };
+use anyhow::{
+    // anyhow,
+    Result,
+    // Context as _,
+};
+use async_std::fs;
 
-use super::models::MachineStatus;
+use super::{messages::ConnectToSocket, models::MachineStatus, streams::receive_stream::codec::MachineCodec};
 use super::models::GCodeHistoryEntry;
 use crate::config::MachineConfig;
 
-#[derive(Debug, Clone)]
 pub struct Machine {
     pub db: crate::Db,
-    pub write_stream: Option<UnixStream>,
+    pub id: crate::DbId,
+    pub write_stream: Option<Framed<UnixStream, MachineCodec>>,
+    pub unix_socket: Option<UnixStream>,
 
-    pub data: MachineData,
+    pub data: Option<MachineData>,
 }
 
 #[derive(new, Debug, Clone)]
@@ -26,6 +29,8 @@ pub struct MachineData {
     // Config-driven data and ephemeral component data
     pub config: MachineConfig,
     // Top-level ephemeral machine data
+    #[new(default)]
+    pub attempting_to_connect: bool,
     #[new(default)]
     pub status: MachineStatus,
     #[new(default)]
@@ -36,4 +41,24 @@ pub struct MachineData {
     pub paused_task_id: Option<crate::DbId>,
 }
 
-impl Actor for Machine {}
+#[async_trait::async_trait]
+impl Actor for Machine {
+    #[instrument(fields(id = self.id), skip(self, ctx))]
+    async fn started(&mut self, ctx: &mut xactor::Context<Self>) -> Result<()> {
+        // Load the config file
+        let config_path = format!("/etc/teg/machine-{}.toml", self.id);
+
+        let config = fs::read_to_string(config_path).await?;
+        let config: MachineConfig = toml::from_str(&config)?;
+
+        self.data = Some(MachineData::new(config));
+
+        // Begin attempting to connect to the driver socket
+        if let Err(err) = ctx.address().send(ConnectToSocket) {
+            warn!("Error starting machine: {:?}", err);
+            ctx.stop(Some(err));
+        };
+
+        Ok(())
+    }
+}

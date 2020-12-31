@@ -26,7 +26,7 @@ use crate::{components::{
         ToolheadConfig,
         Video,
         VideoConfig
-    }, machine::{MachineData, messages}, plugins::{
+    }, config::{CombinedConfigView, MachineConfig}, machine::{MachineData, messages}, plugins::{
         Plugin,
         PluginContainer,
         core::CorePluginConfig,
@@ -289,26 +289,79 @@ impl ConfigMutation {
 
         let machines_store: &crate::MachineMap = ctx.data()?;
 
-        // TODO: how do we get the config form into a machine config?
-        let some_aggregate_config_structure = serde_json::from_value(&input.model)?;
-        // let machine_config: MachineConfig = // TODO
+        let default_config = include_str!("../../../../../machine.default.toml");
+        let mut machine_config: MachineConfig = toml::from_str(default_config)?;
 
-        // TODO: start a new driver process somehow
+        // TODO: increment machine IDs in a sql table
+        let machine_id = NEXT_ID++;
+        machine_config.id = machine_id;
 
-        let machine = Machine {
-            db: db.clone(),
-            write_stream: none, // TODO
-            data: MachineData::new(machine_config),
+        // Create the Machine by copying fields out of the CombinedConfigView
+        let CombinedConfigView {
+            // Core Plugin
+            name,
+            automatic_printing,
+            // Controller Component
+            serial_port_id,
+            automatic_baud_rate_detection,
+            baud_rate,
+            // Build Platform Component
+            heated_build_platform,
+        } = input.model;
+
+        let core_plugin = machine_config.core_plugin()?;
+        core_plugin.model = CorePluginConfig {
+            name,
+            automatic_printing,
+            ..core_plugin.model
         };
 
-        let mut machine_addr = machine.start().await?;
+        let controller = machine_config.get_controller();
+        controller.model = ControllerConfig {
+            serial_port_id,
+            automatic_baud_rate_detection,
+            baud_rate,
+            ..controller.model
+        };
+
+        let build_platform = machine_config.build_platforms
+            .first_mut()
+            .ok_or_else(|| anyhow!("Build Platform not found"))?;
+
+        build_platform.model.heater = heated_build_platform;
+
+        // TODO: Save the config file
+        machine_config.save_config();
+
+        // Start the machine actor
+        let mut machine = machine.start().await?;
+        let machine = Supervisor::start(||
+            Machine {
+                db: db.clone(),
+                id: machine_id,
+                write_stream: None,
+                unix_socket: None,
+                data: None,
+            }
+        ).await?;
+
+        // Give the driver 100ms to startup so the first connection attempt usually succeeds
+        use std::time::Duration;
+        use async_std::task;
+        task::sleep(Duration::from_millis(100)).await;
+
+        // Connect to the driver process
+        machine.call(ConnectToSocket).await?;
 
         machines_store.rcu(|machines| {
             let mut machines = (**machines).clone();
-            machines.set(machine.id.into(), machine_addr.clone())
+            machines.set(machine_id.into(), machine.clone())
         });
 
-        Ok(None)
+        // TODO: Also return the new machine!
+        Ok(SetConfigResponse {
+            errors: vec![],
+        })
     }
 
     #[instrument(skip(self, ctx))]

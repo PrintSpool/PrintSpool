@@ -1,5 +1,7 @@
 use async_graphql::ID;
 
+use crate::config::CombinedConfigView;
+
 /// Each config model encapsulates configuration of AUTH, PLUGIN, COMPONENT or MATERIAL.
 #[derive(async_graphql::Enum, Copy, Clone, Eq, PartialEq, Debug)]
 pub enum ConfigCollection {
@@ -50,7 +52,7 @@ pub struct DeleteConfigInput {
 
 #[derive(async_graphql::InputObject, Debug)]
 pub struct CreateMachineInput {
-    pub model: async_graphql::Json<serde_json::Value>,
+    pub model: async_graphql::Json<CombinedConfigView>,
 }
 
 #[derive(async_graphql::InputObject, Debug)]

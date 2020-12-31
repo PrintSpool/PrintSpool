@@ -1,3 +1,4 @@
+use async_codec::ReadFrameError;
 use xactor::{
     StreamHandler,
     Context as XContext,
@@ -11,14 +12,29 @@ use teg_protobufs::{
 
 use crate::machine::Machine;
 
-mod codec;
+pub mod codec;
 mod record_feedback;
 use record_feedback::record_feedback;
 
+type RxResult = std::result::Result<MachineMessage, ReadFrameError<anyhow::Error>>;
+
 #[async_trait::async_trait]
-impl StreamHandler<MachineMessage> for Machine {
-    async fn handle(&mut self, ctx: &mut XContext<Self>, msg: MachineMessage) {
-        trace!("Machine #{:?}: Socket Message Received", self.data.config.id);
+impl StreamHandler<RxResult> for Machine
+{
+    #[instrument(fields(id = self.id), skip(self, ctx))]
+    async fn handle(&mut self, ctx: &mut XContext<Self>, msg: RxResult) {
+        // Handle invalid byte streams
+        let msg = match msg {
+            Ok(msg) => msg,
+            Err(ReadFrameError::Decode(err)) => {
+                return ctx.stop(Some(err));
+            }
+            Err(ReadFrameError::Io(err)) => {
+                return ctx.stop(Some(err.into()));
+            }
+        };
+
+        trace!("Socket Message Received");
 
         let feedback = match msg.payload {
             Some(
@@ -37,7 +53,23 @@ impl StreamHandler<MachineMessage> for Machine {
         info!("Machine #{:?}: Receive Loop Started", self.data.config.id);
     }
 
-    async fn finished(&mut self, _ctx: &mut XContext<Self>) {
-        info!("Machine #{:?}: Receive Loop Finished", self.data.config.id);
+    async fn finished(&mut self, ctx: &mut XContext<Self>) {
+        info!("Machine #{:?} Socket Closed", self.data.config.id);
+
+        let shutdown_result = self.unix_socket
+            .as_ref()
+            .map(|socket|
+                socket.shutdown(async_std::net::Shutdown::Both)
+            );
+
+        match shutdown_result {
+            Some(Err(err)) => warn!("Error cleaning up socket: {:?}", err),
+            None => warn!("No machine socket found"),
+            _ => {}
+        };
+
+        // Restart the machine actor & attempt a new socket connection
+        ctx.stop(None);
+        // ctx.address().send(ConnectToSocket());
     }
 }

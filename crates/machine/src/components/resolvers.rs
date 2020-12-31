@@ -24,12 +24,12 @@ impl Component {
         use Component::*;
 
         match self {
-            Controller(c) => c.id,
-            Axis(c) => c.id,
-            Toolhead(c) => c.id,
-            SpeedController(c) => c.id,
-            Video(c) => c.id,
-            BuildPlatform(c) => c.id,
+            Controller(c) => &c.id,
+            Axis(c) => &c.id,
+            Toolhead(c) => &c.id,
+            SpeedController(c) => &c.id,
+            Video(c) => &c.id,
+            BuildPlatform(c) => &c.id,
         }.into()
     }
 
@@ -87,7 +87,7 @@ impl Component {
         Ok(config_form?)
     }
 
-    /// set if this component is an axis. Null for all other components.  
+    /// set if this component is an axis. Null for all other components.
     async fn axis(&self) -> Option<&AxisEphemeral> {
         if let Component::Axis(axis) = self {
             Some(&axis.ephemeral)
@@ -138,7 +138,7 @@ impl Component {
 //     address: String!
 //     value: Float!
 //   }
-  
+
 //   # type MovementHistoryEntry {
 //   #   id: ID!
 //   #   createdAt: DateTime!

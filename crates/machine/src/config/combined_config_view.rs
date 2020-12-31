@@ -1,6 +1,8 @@
 use serde::{Serialize, Deserialize};
 use schemars::JsonSchema;
 
+use crate::components::BaudRate;
+
 // // TODO: Previously these configs were include in the machine config for onboarding:
 // impl MachineForm for ControllerConfig {
 //     fn machine_form() -> Vec<&'static str> {
@@ -16,7 +18,10 @@ use schemars::JsonSchema;
 
 #[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct CorePluginConfig {
+pub struct CombinedConfigView {
+    // Core Plugin
+    // ----------------------------------
+
     /// # Printer Name
     // TODO: validate: #[schemars(min_length = 1)]
     pub name: String,
@@ -27,20 +32,22 @@ pub struct CorePluginConfig {
     /// conveyor.
     pub automatic_printing: bool,
 
-    /// # Swap visual orientation of X and Y axes
-    pub swap_x_and_y_orientation: bool,
+    // Controller Component
+    // ----------------------------------
 
-    /// # Before Print (GCode)
-    pub before_print_hook: String,
+    /// # Serial Port
+    // TODO: validate: #[schemars(min_length = 1)]
+    #[serde(rename = "serialPortID")]
+    pub serial_port_id: String,
 
-    /// # After Print (GCode)
-    pub after_print_hook: String,
+    /// # Automatic Baud Rate Detection
+    pub automatic_baud_rate_detection: bool,
+    /// # Baud Rate
+    pub baud_rate: BaudRate,
 
-    /// # After Pause (GCode)
-    pub pause_hook: String,
+    // Build Platform Component
+    // ----------------------------------
 
-    /// # Before Resume (GCode)
-    pub resume_hook: String,
-
-    // pub macros: Vec<String>,
+    /// # Heated Build Platform
+    pub heated_build_platform: bool,
 }

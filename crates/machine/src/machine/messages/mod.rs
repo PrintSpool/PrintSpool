@@ -18,3 +18,6 @@ pub use reset_when_idle::ResetWhenIdle;
 
 mod stop_machine;
 pub use stop_machine::StopMachine;
+
+mod connect_to_socket;
+pub use connect_to_socket::ConnectToSocket;

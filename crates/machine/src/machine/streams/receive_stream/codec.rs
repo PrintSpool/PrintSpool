@@ -1,20 +1,19 @@
 use std::convert::TryInto;
-
 use anyhow::{
     Error,
     Context as _,
+    anyhow,
 };
-
 use async_codec::*;
+use bytes::BufMut;
 
-use teg_protobufs::{
-    MachineMessage,
-    Message,
-};
 
-pub struct ReceiveStreamCodec;
+use teg_protobufs::{CombinatorMessage, MachineMessage, Message};
 
-impl Decode for ReceiveStreamCodec {
+#[derive(Debug, Clone)]
+pub struct MachineCodec;
+
+impl Decode for MachineCodec {
     type Item = MachineMessage;
     type Error = Error;
 
@@ -42,5 +41,32 @@ impl Decode for ReceiveStreamCodec {
             message_len,
             message.into(),
         )
+    }
+}
+
+impl Encode for MachineCodec {
+    type Item = CombinatorMessage;
+    type Error = Error;
+
+    fn encode(&mut self, item: &CombinatorMessage, buf: &mut [u8]) -> EncodeResult<Error> {
+        const SIZE_DELIMETER_BYTES: usize = 4;
+        let needed = item.encoded_len() + SIZE_DELIMETER_BYTES;
+        if buf.len() < needed {
+            return EncodeResult::Overflow(needed);
+        }
+
+        // let mut item_bytes = Vec::with_capacity(
+        //     item.encoded_len() + SIZE_DELIMETER_BYTES,
+        // );
+        buf.put_u32_le(item.encoded_len() as u32);
+
+        if let Err(err) = item.encode(&mut buf) {
+            return EncodeResult::Err(anyhow!("combinator message encoding failed: {:?}", err));
+        }
+
+        // buf[..needed - 1].copy_from_slice(&item_bytes[..]);
+        info!("Sending Protobuf (Len: {} {})", buf.len(), buf.len() as u32);
+
+        Ok(needed).into()
     }
 }

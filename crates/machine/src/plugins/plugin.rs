@@ -38,7 +38,7 @@ impl Plugin {
         use Plugin::*;
 
         match self {
-            Core(p) => p.id,
+            Core(p) => &p.id,
         }.into()
     }
 
