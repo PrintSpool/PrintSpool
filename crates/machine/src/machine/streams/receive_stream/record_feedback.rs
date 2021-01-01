@@ -14,10 +14,10 @@ use teg_protobufs::{
     machine_message::{self, Status},
 };
 
-use crate::task::{
+use crate::{machine::MachineData, task::{
     Task,
     // TaskContent,
-};
+}};
 use crate::machine::{
     Machine,
     models::{
@@ -33,6 +33,23 @@ use crate::components::{
     // Axis,
     // SpeedController,
 };
+
+pub async fn record_feedback(machine: &mut Machine, feedback: Feedback) -> Result<()> {
+    let db = machine.db.clone();
+    let machine_data = machine.get_data()?;
+    let transaction = db.begin().await?;
+
+    update_tasks(&db, &feedback).await?;
+    update_heaters(machine_data, &feedback).await?;
+    update_axes(machine_data, &feedback).await?;
+    update_speed_controllers(machine_data, &feedback).await?;
+
+    update_machine(machine_data, &feedback).await?;
+
+    transaction.commit().await?;
+
+    Ok(())
+}
 
 pub async fn update_tasks(db: &crate::Db, feedback: &Feedback) -> Result<()> {
     for progress in feedback.task_progress.iter() {
@@ -50,9 +67,9 @@ pub async fn update_tasks(db: &crate::Db, feedback: &Feedback) -> Result<()> {
     Ok(())
 }
 
-pub async fn update_heaters(machine: &mut Machine, feedback: &Feedback) -> Result<()> {
+pub async fn update_heaters(machine: &mut MachineData, feedback: &Feedback) -> Result<()> {
     for h in feedback.heaters.iter() {
-        let heater = machine.data.config.get_heater_mut(&h.address);
+        let heater = machine.config.get_heater_mut(&h.address);
 
         let heater = if let Some(heater) = heater {
             heater
@@ -95,8 +112,8 @@ pub async fn update_heaters(machine: &mut Machine, feedback: &Feedback) -> Resul
     Ok(())
 }
 
-pub async fn update_axes(machine: &mut Machine, feedback: &Feedback) -> Result<()> {
-    let axes = &mut machine.data.config.axes;
+pub async fn update_axes(machine: &mut MachineData, feedback: &Feedback) -> Result<()> {
+    let axes = &mut machine.config.axes;
 
     for a in feedback.axes.iter() {
         let axis = axes.iter_mut()
@@ -118,8 +135,8 @@ pub async fn update_axes(machine: &mut Machine, feedback: &Feedback) -> Result<(
     Ok(())
 }
 
-pub async fn update_speed_controllers(machine: &mut Machine, feedback: &Feedback) -> Result<()> {
-    let speed_controllers = &mut machine.data.config.speed_controllers;
+pub async fn update_speed_controllers(machine: &mut MachineData, feedback: &Feedback) -> Result<()> {
+    let speed_controllers = &mut machine.config.speed_controllers;
 
     for sc in feedback.speed_controllers.iter() {
         let sc_eph = speed_controllers.iter_mut()
@@ -141,10 +158,10 @@ pub async fn update_speed_controllers(machine: &mut Machine, feedback: &Feedback
     Ok(())
 }
 
-pub async fn update_machine(machine: &mut Machine, feedback: &Feedback) -> Result<()> {
+pub async fn update_machine(machine: &mut MachineData, feedback: &Feedback) -> Result<()> {
     trace!("Feedback status: {:?}", feedback.status);
     // Update machine status
-    machine.data.status = match feedback.status {
+    machine.status = match feedback.status {
         i if i == Status::Errored as i32 && feedback.error.is_some() => {
             let message = feedback.error.as_ref().unwrap().message.clone();
             MachineStatus::Errored(Errored { message })
@@ -156,10 +173,10 @@ pub async fn update_machine(machine: &mut Machine, feedback: &Feedback) -> Resul
         i => Err(anyhow!("Invalid machine status: {:?}", i))?,
     };
 
-    machine.data.motors_enabled = feedback.motors_enabled;
+    machine.motors_enabled = feedback.motors_enabled;
 
     // Update GCode History
-    let history = &mut machine.data.gcode_history;
+    let history = &mut machine.gcode_history;
 
     for entry in feedback.gcode_history.iter() {
         let direction = if entry.direction == 0 {
@@ -180,22 +197,6 @@ pub async fn update_machine(machine: &mut Machine, feedback: &Feedback) -> Resul
             history.pop_front();
         };
     }
-
-    Ok(())
-}
-
-pub async fn record_feedback(machine: &mut Machine, feedback: Feedback) -> Result<()> {
-    let db = &machine.db;
-    let transaction = db.begin().await?;
-
-    update_tasks(db, &feedback).await?;
-    update_heaters(machine, &feedback).await?;
-    update_axes(machine, &feedback).await?;
-    update_speed_controllers(machine, &feedback).await?;
-
-    update_machine(machine, &feedback).await?;
-
-    transaction.commit().await?;
 
     Ok(())
 }

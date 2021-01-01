@@ -10,7 +10,7 @@ use super::Toolhead;
 #[async_graphql::Object]
 impl Toolhead {
     async fn id(&self) -> ID {
-        self.id.into()
+        (&self.id).into()
     }
 
     async fn current_material<'ctx>(&self, ctx: &'ctx Context<'_>,) -> FieldResult<Option<Material>> {

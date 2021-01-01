@@ -1,8 +1,20 @@
 use async_codec::Framed;
 use async_std::os::unix::net::UnixStream;
 use std::time::Duration;
+use async_std::fs;
+use anyhow::{
+    // anyhow,
+    Result,
+    // Context as _,
+};
 
-use crate::machine::{Machine, streams::receive_stream::codec::MachineCodec};
+use crate::{
+    config::MachineConfig,
+    machine::{Machine,
+        MachineData,
+        streams::receive_stream::codec::MachineCodec
+    },
+};
 
 #[xactor::message(result = "()")]
 pub struct ConnectToSocket;
@@ -10,14 +22,35 @@ pub struct ConnectToSocket;
 #[async_trait::async_trait]
 impl xactor::Handler<ConnectToSocket> for Machine {
     async fn handle(&mut self, ctx: &mut xactor::Context<Self>, msg: ConnectToSocket) -> () {
-        if self.data.attempting_to_connect {
+        if self.attempting_to_connect {
             return
         };
-        self.data.attempting_to_connect = true;
+        self.attempting_to_connect = true;
+
+        // Load the config file
+        if self.data.is_none() {
+            let config_path = format!("/etc/teg/machine-{}.toml", self.id);
+
+            let machine_data = (|| async move {
+                let config = fs::read_to_string(config_path).await?;
+                let config: MachineConfig = toml::from_str(&config)?;
+
+                Result::<_>::Ok(MachineData::new(config))
+            })().await;
+
+            if let Err(err) = machine_data {
+                error!("Unable to load machine config, retrying in 500ms: {:?}", err);
+
+                ctx.send_later(ConnectToSocket, Duration::from_millis(500));
+                return
+            }
+
+            self.data = machine_data.ok();
+        }
 
         let socket_path = format!(
             "/var/lib/teg/machine-{}.sock",
-            self.data.config.id,
+            self.id,
         );
 
         let client_id: crate::DbId = 42; // Chosen at random. Very legit.

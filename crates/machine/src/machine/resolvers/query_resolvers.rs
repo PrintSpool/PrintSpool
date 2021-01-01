@@ -50,7 +50,7 @@ impl MachineQuery {
 
         let machines = join_all(machines).await
             .into_iter()
-            .collect::<Result<Vec<_>>>()?;
+            .collect::<Result<Result<Vec<_>>>>()??;
 
         Ok(machines)
     }

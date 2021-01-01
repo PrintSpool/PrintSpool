@@ -20,6 +20,7 @@ pub struct Machine {
     pub id: crate::DbId,
     pub write_stream: Option<Framed<UnixStream, MachineCodec>>,
     pub unix_socket: Option<UnixStream>,
+    pub attempting_to_connect: bool,
 
     pub data: Option<MachineData>,
 }
@@ -29,8 +30,6 @@ pub struct MachineData {
     // Config-driven data and ephemeral component data
     pub config: MachineConfig,
     // Top-level ephemeral machine data
-    #[new(default)]
-    pub attempting_to_connect: bool,
     #[new(default)]
     pub status: MachineStatus,
     #[new(default)]
@@ -45,14 +44,6 @@ pub struct MachineData {
 impl Actor for Machine {
     #[instrument(fields(id = self.id), skip(self, ctx))]
     async fn started(&mut self, ctx: &mut xactor::Context<Self>) -> Result<()> {
-        // Load the config file
-        let config_path = format!("/etc/teg/machine-{}.toml", self.id);
-
-        let config = fs::read_to_string(config_path).await?;
-        let config: MachineConfig = toml::from_str(&config)?;
-
-        self.data = Some(MachineData::new(config));
-
         // Begin attempting to connect to the driver socket
         if let Err(err) = ctx.address().send(ConnectToSocket) {
             warn!("Error starting machine: {:?}", err);

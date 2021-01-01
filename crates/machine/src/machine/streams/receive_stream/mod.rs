@@ -44,17 +44,17 @@ impl StreamHandler<RxResult> for Machine
         };
 
         if let Err(err) = record_feedback(self, feedback).await {
-            error!("Restarting machine #{} due to rx error: {:?}", self.data.config.id, err);
+            error!("Restarting machine #{} due to rx error: {:?}", self.id, err);
             ctx.stop(Some(err));
         };
     }
 
     async fn started(&mut self, _ctx: &mut XContext<Self>) {
-        info!("Machine #{:?}: Receive Loop Started", self.data.config.id);
+        info!("Machine #{:?}: Receive Loop Started", self.id);
     }
 
     async fn finished(&mut self, ctx: &mut XContext<Self>) {
-        info!("Machine #{:?} Socket Closed", self.data.config.id);
+        info!("Machine #{:?} Socket Closed", self.id);
 
         let shutdown_result = self.unix_socket
             .as_ref()

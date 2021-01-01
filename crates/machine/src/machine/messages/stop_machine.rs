@@ -24,7 +24,7 @@ impl From<StopMachine> for CombinatorMessage {
 impl xactor::Handler<StopMachine> for Machine {
     async fn handle(&mut self, ctx: &mut xactor::Context<Self>, msg: StopMachine) -> () {
         if let Err(err) = self.send_message(msg.into()).await {
-            error!("Error stopping machine #{}: {:?}", self.data.config.id, err);
+            error!("Error stopping machine #{}: {:?}", self.id, err);
             ctx.stop(Some(err));
         };
     }

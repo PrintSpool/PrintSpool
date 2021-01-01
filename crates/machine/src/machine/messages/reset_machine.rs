@@ -24,7 +24,7 @@ impl From<ResetMachine> for CombinatorMessage {
 impl xactor::Handler<ResetMachine> for Machine {
     async fn handle(&mut self, ctx: &mut xactor::Context<Self>, msg: ResetMachine) -> () {
         if let Err(err) = self.send_message(msg.into()).await {
-            error!("Error resetting machine #{}: {:?}", self.data.config.id, err);
+            error!("Error resetting machine #{}: {:?}", self.id, err);
             ctx.stop(Some(err));
         };
     }

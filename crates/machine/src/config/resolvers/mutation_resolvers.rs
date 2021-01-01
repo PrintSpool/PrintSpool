@@ -26,11 +26,21 @@ use crate::{components::{
         ToolheadConfig,
         Video,
         VideoConfig
-    }, config::{CombinedConfigView, MachineConfig}, machine::{MachineData, messages}, plugins::{
+    },
+    config::{
+        CombinedConfigView,
+        MachineConfig,
+    },
+    machine::{
+        MachineData,
+        messages,
+    },
+    plugins::{
         Plugin,
         PluginContainer,
         core::CorePluginConfig,
-    }};
+    }
+};
 use super::config_graphql_types as cgt;
 
 #[derive(Default)]
