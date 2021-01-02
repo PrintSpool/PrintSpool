@@ -53,3 +53,10 @@ CREATE TABLE tasks(
   -- version INT AS (JSON_EXTRACT(props, "$.version")) STORED,
   -- machine_id INT AS (JSON_EXTRACT(props, "$.machine_id")) STORED
 );
+
+-- A singelton for global configuration of this host
+CREATE TABLE host_globals(
+  version INT NOT NULL DEFAULT 0,
+
+  next_machine_id INT NOT NULL DEFAULT 0
+);

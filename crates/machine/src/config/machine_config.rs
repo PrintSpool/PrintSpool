@@ -63,6 +63,21 @@ impl MachineConfig {
         Ok(core_plugin)
     }
 
+    pub fn core_plugin_mut<'a>(&'a mut self) -> Result<&'a mut PluginContainer<CorePluginConfig>> {
+        let core_plugin = self.plugins.iter_mut()
+            .find_map(|plugin| {
+                match plugin {
+                    Plugin::Core(core_plugin) => {
+                        Some(core_plugin)
+                    }
+                    // _ => None,
+                }
+            })
+            .ok_or_else(|| anyhow!("Could not find @tegapp/core plugin config"))?;
+
+        Ok(core_plugin)
+    }
+
     pub fn name(&self) -> Result<String> {
         let name = self.core_plugin()?.model.name.clone();
 
@@ -71,6 +86,11 @@ impl MachineConfig {
 
     pub fn get_controller(&self) -> &Controller {
         self.controllers.get(0)
+            .expect("No controller found in config")
+    }
+
+    pub fn get_controller_mut(&mut self) -> &mut Controller {
+        self.controllers.get_mut(0)
             .expect("No controller found in config")
     }
 
@@ -149,5 +169,19 @@ impl MachineConfig {
             .chain(self.videos.iter().map(|c| Video(c.clone())))
             .chain(self.build_platforms.iter().map(|c| BuildPlatform(c.clone())))
             .collect()
+    }
+
+    pub async fn save_config(&self) -> Result<()> {
+        let config_content = toml::to_string(&self)?;
+        async_std::fs::write(
+            Self::config_file_path(self.id),
+            config_content,
+        ).await?;
+
+        Ok(())
+    }
+
+    pub fn config_file_path(id: crate::DbId) -> String {
+        format!("/etc/teg/machine-{}.toml", id)
     }
 }
