@@ -55,21 +55,6 @@ pub struct CreateMachineInput {
     pub model: async_graphql::Json<CombinedConfigView>,
 }
 
-#[derive(async_graphql::InputObject, Debug)]
-pub struct SetMaterialsInput {
-    #[graphql(name: "machineID")]
-    pub machine_id: ID,
-    pub toolheads: Vec<SetMaterialsToolhead>,
-}
-
-#[derive(async_graphql::InputObject, Debug)]
-pub struct SetMaterialsToolhead {
-    pub id: ID,
-    #[graphql(name: "machineID")]
-    pub machine_id: ID,
-}
-
-
 #[derive(async_graphql::SimpleObject)]
 pub struct SetConfigResponse {
     pub errors: Vec<JSONSchemaError>,

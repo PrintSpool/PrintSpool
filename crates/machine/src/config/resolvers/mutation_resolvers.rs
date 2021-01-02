@@ -11,6 +11,7 @@ use anyhow::{
     // Context as _,
 };
 use cgt::SetConfigResponse;
+use messages::set_materials::SetMaterialsInput;
 use teg_user::{
     AuthContext,
     user::User,
@@ -18,7 +19,8 @@ use teg_user::{
 };
 use teg_material::Material;
 
-use crate::{components::{
+use crate::{
+    components::{
         Component,
         Controller,
         ControllerConfig,
@@ -28,10 +30,17 @@ use crate::{components::{
         ToolheadConfig,
         Video,
         VideoConfig
-    }, config::{
+    },
+    config::{
         CombinedConfigView,
         MachineConfig,
-    }, machine::{Machine, MachineData, messages}, plugins::{
+    },
+    machine::{
+        Machine,
+        // MachineData,
+        messages
+    },
+        plugins::{
         Plugin,
         PluginContainer,
         core::CorePluginConfig,
@@ -387,7 +396,7 @@ impl ConfigMutation {
     async fn set_materials<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
-        input: cgt::SetMaterialsInput,
+        input: SetMaterialsInput,
     ) -> FieldResult<Option<bool>> {
         // use cgt::ConfigCollection::*;
         let db: &crate::Db = ctx.data()?;
@@ -399,7 +408,8 @@ impl ConfigMutation {
         let machine = machines.get(&machine_id.into())
             .ok_or_else(|| anyhow!("Machine ID {} not found", machine_id))?;
 
-        machine.call(messages::SetMaterial(input.toolheads)).await?;
+        let msg = messages::set_materials::SetMaterial(input.toolheads);
+        machine.call(msg).await?;
 
         Ok(None)
     }
