@@ -274,7 +274,7 @@ impl Invite {
             "#,
             id,
         )
-            .fetch_one(db)
+            .fetch_optional(db)
             .await?;
 
         Ok(())

@@ -56,7 +56,7 @@ impl Material {
         )
             .fetch_one(db)
             .await?;
-    
+
         let entry: Self = serde_json::from_str(&row.props)?;
         Ok(entry)
     }
@@ -83,7 +83,7 @@ impl Material {
         db: &crate::Db,
     ) -> Result<()> {
         let json = serde_json::to_string(self)?;
- 
+
         sqlx::query!(
             r#"
                 INSERT INTO materials
@@ -95,7 +95,7 @@ impl Material {
         )
             .fetch_one(db)
             .await?;
-        
+
         Ok(())
     }
 
@@ -120,6 +120,25 @@ impl Material {
             previous_version,
         )
             .fetch_one(db)
+            .await?;
+
+        Ok(())
+    }
+
+    pub async fn remove<'e, 'c, E>(
+        db: E,
+        id: crate::DbId,
+    ) -> Result<()>
+    where
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    {
+        sqlx::query!(
+            r#"
+                DELETE FROM materials WHERE id=?
+            "#,
+            id,
+        )
+            .fetch_optional(db)
             .await?;
 
         Ok(())

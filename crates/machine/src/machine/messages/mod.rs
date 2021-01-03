@@ -9,6 +9,9 @@ pub mod set_materials;
 mod pause_task;
 pub use pause_task::PauseTask;
 
+mod remove_component;
+pub use remove_component::RemoveComponent;
+
 mod spool_task;
 pub use spool_task::SpoolTask;
 

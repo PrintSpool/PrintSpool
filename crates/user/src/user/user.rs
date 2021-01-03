@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use anyhow::{
     // anyhow,
     Result,
-    // Context as _,
+    Context as _,
 };
 
 use super::UserConfig;
@@ -23,6 +23,35 @@ pub struct User {
     pub email: Option<String>,
     /// # Email Verified
     pub email_verified: bool,
+}
+
+impl User {
+    pub async fn remove_from_mutation(
+        db: &crate::Db,
+        id: crate::DbId,
+    ) -> Result<()> {
+        let mut tx = db.begin().await?;
+        // Verify that there will be at least one admin in the database after this user is
+        // removed.
+        sqlx::query!(
+            r#"
+                SELECT id FROM users
+                WHERE id != ? AND json_extract(props, '$.config.is_admin')
+            "#,
+            id,
+        )
+            .fetch_one(&mut tx)
+            .await
+            .with_context(|| r#"
+                Cannot delete only admin user.
+                Please add another administrator before deleting this user.
+            "#)?;
+
+        Self::remove(&mut tx, id).await?;
+        tx.commit().await?;
+
+        Ok(())
+    }
 }
 
 // TODO: Create a macro to generate this JSON Store code
@@ -210,7 +239,7 @@ impl User {
             "#,
             id,
         )
-            .fetch_one(db)
+            .fetch_optional(db)
             .await?;
 
         Ok(())

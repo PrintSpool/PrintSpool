@@ -46,7 +46,7 @@ impl MachineQuery {
 
         let machines = machines
             .into_iter()
-            .map(|addr| addr.call(GetData()));
+            .map(|addr| addr.call(GetData));
 
         let machines = join_all(machines).await
             .into_iter()

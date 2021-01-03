@@ -3,8 +3,10 @@ use teg_protobufs::{
     combinator_message,
 };
 
+use crate::machine::Machine;
+
 #[xactor::message(result = "()")]
-pub struct ResetWhenIdle();
+pub struct ResetWhenIdle;
 
 impl From<ResetWhenIdle> for CombinatorMessage {
     fn from(_msg: ResetWhenIdle) -> CombinatorMessage {
@@ -15,5 +17,16 @@ impl From<ResetWhenIdle> for CombinatorMessage {
                 )
             ),
         }
+    }
+}
+
+
+#[async_trait::async_trait]
+impl xactor::Handler<ResetWhenIdle> for Machine {
+    async fn handle(&mut self, ctx: &mut xactor::Context<Self>, msg: ResetWhenIdle) -> () {
+        if let Err(err) = self.send_message(msg.into()).await {
+            error!("Error resetting machine #{}: {:?}", self.id, err);
+            ctx.stop(Some(err));
+        };
     }
 }

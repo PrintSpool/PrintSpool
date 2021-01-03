@@ -10,7 +10,7 @@ use crate::machine::{
 };
 
 #[xactor::message(result = "Result<MachineData>")]
-pub struct GetData();
+pub struct GetData;
 
 impl Machine {
     pub fn get_data(&mut self) -> Result<&mut MachineData> {

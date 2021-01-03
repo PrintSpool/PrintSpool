@@ -6,7 +6,7 @@ use teg_protobufs::{
 use crate::machine::Machine;
 
 #[xactor::message(result = "()")]
-pub struct StopMachine();
+pub struct StopMachine;
 
 impl From<StopMachine> for CombinatorMessage {
     fn from(_msg: StopMachine) -> CombinatorMessage {

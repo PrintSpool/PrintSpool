@@ -246,7 +246,6 @@ impl ConfigMutation {
             // Database persisted types (users, invites, materials)
             // ----------------------------------------------------------
             (AUTH, id) if id.starts_with("user-") => {
-                // TODO: check if this is the last admin in this function
                 User::remove_from_mutation(
                     db,
                     id.replacen("user-", "", 1).parse()?,
@@ -272,15 +271,19 @@ impl ConfigMutation {
                     .ok_or_else(|| anyhow!("Machine ID not found"))?;
 
                 let id = input.config_form_id.into();
-                machine.call(messages::DeleteComponent(id)).await?
+                machine.call(messages::RemoveComponent(id)).await?
             }
-            (PLUGIN, _) => {
+            (PLUGIN, package) => {
                 let machine = input.machine_id
                     .map(|id| machines.get(&id))
                     .ok_or_else(|| anyhow!("Machine ID not found"))?;
 
-                let id = input.config_form_id.into();
-                machine.call(messages::DeletePlugin(id)).await?
+                // There is only one "core" plugin at the moment so deletion doesn't makes
+                // sense yet.
+                Err(anyhow!("Cannot delete plugin ({:?})", package))?;
+
+                // let id = input.config_form_id.into();
+                // machine.call(messages::DeletePlugin(id)).await?
             }
             _ => {
                 Err(anyhow!("Invalid config_form_id: {:?}", input.config_form_id))?;
