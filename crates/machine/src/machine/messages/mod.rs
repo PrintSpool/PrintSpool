@@ -29,3 +29,9 @@ pub use reset_when_idle::ResetWhenIdle;
 
 mod stop_machine;
 pub use stop_machine::StopMachine;
+
+mod update_component;
+pub use update_component::UpdateComponent;
+
+mod update_plugin;
+pub use update_plugin::UpdatePlugin;

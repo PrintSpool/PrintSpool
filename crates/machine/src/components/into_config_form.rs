@@ -27,11 +27,11 @@ where
             .collect();
 
         Ok(ConfigForm {
-            id: component.id.into(),
+            id: (&component.id).into(),
             model: serde_json::to_value(&component.model)?.into(),
             model_version: component.model_version,
             schema_form: JsonSchemaForm {
-                id: component.id.into(),
+                id: (&component.id).into(),
                 schema: serde_json::to_value(root_schema)?.into(),
                 form,
             },

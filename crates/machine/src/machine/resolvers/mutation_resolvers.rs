@@ -35,7 +35,7 @@ impl MachineMutation {
         let machine = machines.get(&id)
             .ok_or_else(|| anyhow!("Machine #{:?} not found", id))?;
 
-        machine.call(messages::StopMachine()).await?;
+        machine.call(messages::StopMachine).await?;
 
         Ok(None)
     }
@@ -52,7 +52,7 @@ impl MachineMutation {
         let machine = machines.get(&id)
             .ok_or_else(|| anyhow!("Machine #{:?} not found", id))?;
 
-        machine.call(messages::ResetMachine()).await?;
+        machine.call(messages::ResetMachine).await?;
 
         Ok(None)
     }

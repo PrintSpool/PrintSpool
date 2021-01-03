@@ -48,7 +48,7 @@ impl Encode for MachineCodec {
     type Item = CombinatorMessage;
     type Error = Error;
 
-    fn encode(&mut self, item: &CombinatorMessage, buf: &mut [u8]) -> EncodeResult<Error> {
+    fn encode(&mut self, item: &CombinatorMessage, mut buf: &mut [u8]) -> EncodeResult<Error> {
         const SIZE_DELIMETER_BYTES: usize = 4;
         let needed = item.encoded_len() + SIZE_DELIMETER_BYTES;
         if buf.len() < needed {

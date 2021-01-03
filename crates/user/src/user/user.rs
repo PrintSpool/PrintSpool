@@ -26,6 +26,21 @@ pub struct User {
 }
 
 impl User {
+    pub async fn update_from_mutation(
+        db: &crate::Db,
+        id: crate::DbId,
+        version: crate::DbId,
+        model: serde_json::Value,
+    ) -> Result<Self> {
+        let mut user = Self::get_with_version(db, id, version).await?;
+
+        user.config = serde_json::from_value(model)?;
+
+        user.update(db).await?;
+
+        Ok(user)
+    }
+
     pub async fn remove_from_mutation(
         db: &crate::Db,
         id: crate::DbId,
@@ -150,6 +165,24 @@ impl User {
             JsonRow,
             "SELECT props FROM users WHERE id = ?",
             id
+        )
+            .fetch_one(db)
+            .await?;
+
+        let entry: Self = serde_json::from_str(&row.props)?;
+        Ok(entry)
+    }
+
+    pub async fn get_with_version(
+        db: &crate::Db,
+        id: crate::DbId,
+        version: crate::DbId,
+    ) -> Result<Self> {
+        let row = sqlx::query_as!(
+            JsonRow,
+            "SELECT props FROM users WHERE id = ? AND version = ?",
+            id,
+            version,
         )
             .fetch_one(db)
             .await?;

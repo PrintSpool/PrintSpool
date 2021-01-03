@@ -14,12 +14,13 @@ pub struct GetData;
 
 impl Machine {
     pub fn get_data(&mut self) -> Result<&mut MachineData> {
+        let id = self.id;
         self.data
             .as_mut()
             .ok_or_else(|| anyhow!(r#"
                 Attempted to read machine data but machine-{id}.toml has not yet been parsed.
                 Check that your /etc/teg/machine-{id}.toml config file is valid!
-            "#, id = self.id))
+            "#, id = id))
     }
 }
 

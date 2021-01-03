@@ -9,7 +9,6 @@ use anyhow::{
     Result,
     // Context as _,
 };
-use async_std::fs;
 
 use super::{messages::ConnectToSocket, models::MachineStatus, streams::receive_stream::codec::MachineCodec};
 use super::models::GCodeHistoryEntry;

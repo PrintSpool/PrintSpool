@@ -19,18 +19,17 @@ use teg_user::{
 };
 use teg_material::Material;
 
-use crate::{components::{self, Component, Controller, ControllerConfig, SpeedController, SpeedControllerConfig, Toolhead, ToolheadConfig, Video, VideoConfig}, config::{
+use crate::{
+    config::{
         CombinedConfigView,
         MachineConfig,
-    }, machine::{
+    },
+    machine::{
         Machine,
         // MachineData,
         messages
-    }, plugins::{
-        Plugin,
-        PluginContainer,
-        core::CorePluginConfig,
-    }};
+    },
+};
 use super::config_graphql_types as cgt;
 
 #[derive(Default)]
@@ -52,6 +51,7 @@ impl ConfigMutation {
 
         let machines: &crate::MachineMap = ctx.data()?;
         let machines = machines.load();
+
         let model = (*input.model).clone();
 
         match (&input.collection, &input.schema_form_key[..]) {
@@ -78,12 +78,12 @@ impl ConfigMutation {
                     component_type: component_type.to_string(),
                     model: model,
                 };
-                machine.call(msg).await?;
+                machine.call(msg).await??;
             }
             (PLUGIN, "teg-core") => {
-                let machine = input.machine_id
-                    .map(|id| machines.get(&id))
-                    .ok_or_else(|| anyhow!("Machine ID not found"))?;
+                // let machine = input.machine_id
+                //     .map(|id| machines.get(&id))
+                //     .ok_or_else(|| anyhow!("Machine ID not found"))?;
 
                 // let plugin_config: CorePluginConfig = serde_json::from_value(*input.model)?;
                 // let plugin = Plugin::Core(
@@ -119,88 +119,69 @@ impl ConfigMutation {
         let machines: &crate::MachineMap = ctx.data()?;
         let machines = machines.load();
 
-        let response = match (&input.collection, &input.config_form_id) {
+        let model = (*input.model).clone();
+
+        match (&input.collection, &input.config_form_id) {
             // Database persisted types (users, invites, materials)
             // ----------------------------------------------------------
             (AUTH, id) if id.starts_with("user-") => {
-                User::update_from_mutation(
+                let _ = User::update_from_mutation(
                     db,
                     id.replacen("user-", "", 1).parse()?,
-                    &input.model_version,
-                    &input.model,
-                ).await?
+                    input.model_version,
+                    model,
+                ).await?;
             }
             (AUTH, id) if id.starts_with("invite-") => {
-                Invite::update_from_mutation(
+                let _ = Invite::update_from_mutation(
                     db,
                     id.replacen("invite-", "", 1).parse()?,
-                    &input.model_version,
-                    &input.model,
-                ).await?
+                    input.model_version,
+                    model,
+                ).await?;
             }
             (MATERIAL, id) if id.starts_with("material-")  => {
-                Material::update_from_mutation(
+                let _ = Material::update_from_mutation(
                     db,
                     id.replacen("material-", "", 1).parse()?,
-                    &input.model_version,
-                    &input.model,
-                ).await?
+                    input.model_version,
+                    model,
+                ).await?;
             }
             // Config file persisted types (components, plugins)
             // ----------------------------------------------------------
-            (COMPONENT, _) => {
+            (COMPONENT, id) => {
                 let machine = input.machine_id
                     .and_then(|id| machines.get(&id))
                     .ok_or_else(|| anyhow!("Machine ID not found"))?;
 
-                // let component: Component = match &component_type[..] {
-                //     "CONTROLLER" => {
-                //         let config: ControllerConfig = serde_json::from_value(*input.model)?;
-                //         Component::Controller(Controller::new(config))
-                //     },
-                //     "TOOLHEAD" => {
-                //         let config: ToolheadConfig = serde_json::from_value(*input.model)?;
-                //         Component::Toolhead(Toolhead::new(config))
-                //     },
-                //     "SPEED_CONTROLLER" => {
-                //         let config: SpeedControllerConfig = serde_json::from_value(*input.model)?;
-                //         Component::SpeedController(SpeedController::new(config))
-                //     },
-                //     "VIDEO" => {
-                //         let config: VideoConfig = serde_json::from_value(*input.model)?;
-                //         Component::Video(Video::new(config))
-                //     },
-                // };
-
-                let id = input.config_form_id.into();
-                machine.call(messages::UpdateComponent(
-                    id,
-                    input.model_version,
-                    input.model,
-                )).await?
+                let msg = messages::UpdateComponent {
+                    id: id.to_string(),
+                    version: input.model_version,
+                    model,
+                };
+                machine.call(msg).await??;
             }
-            (PLUGIN, _) => {
+            (PLUGIN, package) => {
                 let machine = input.machine_id
-                    .map(|id| machines.get(&id))
+                    .and_then(|id| machines.get(&id))
                     .ok_or_else(|| anyhow!("Machine ID not found"))?;
 
-                let plugin_config: CorePluginConfig = serde_json::from_value(*input.model)?;
-                let plugin = Plugin::Core(
-                    PluginContainer::new(plugin_config)
-                );
-
-                let id = input.config_form_id.into();
-                machine.call(messages::UpdatePlugin(
-                    id,
-                    input.model_version,
-                    input.model,
-                )).await?
+                let msg = messages::UpdatePlugin {
+                    package: package.to_string(),
+                    version: input.model_version,
+                    model,
+                };
+                machine.call(msg).await??;
             }
             _ => {
                 Err(anyhow!("Invalid config_form_id: {:?}", input.config_form_id))?;
             }
         };
 
+        let response = SetConfigResponse {
+            errors: vec![],
+        };
         Ok(response)
     }
 
@@ -219,26 +200,26 @@ impl ConfigMutation {
         let machines: &crate::MachineMap = ctx.data()?;
         let machines = machines.load();
 
-        let response = match (&input.collection, &input.config_form_id) {
+        match (&input.collection, &input.config_form_id) {
             // Database persisted types (users, invites, materials)
             // ----------------------------------------------------------
             (AUTH, id) if id.starts_with("user-") => {
                 User::remove_from_mutation(
                     db,
                     id.replacen("user-", "", 1).parse()?,
-                ).await?
+                ).await?;
             }
             (AUTH, id) if id.starts_with("invite-") => {
                 Invite::remove(
                     db,
                     id.replacen("invite-", "", 1).parse()?,
-                ).await?
+                ).await?;
             }
             (MATERIAL, id) if id.starts_with("material-")  => {
                 Material::remove(
                     db,
                     id.replacen("material-", "", 1).parse()?,
-                ).await?
+                ).await?;
             }
             // Config file persisted types (components, plugins)
             // ----------------------------------------------------------
@@ -248,12 +229,12 @@ impl ConfigMutation {
                     .ok_or_else(|| anyhow!("Machine ID not found"))?;
 
                 let id = input.config_form_id.into();
-                machine.call(messages::RemoveComponent(id)).await?
+                machine.call(messages::RemoveComponent(id)).await??;
             }
-            (PLUGIN, package) => {
-                let machine = input.machine_id
-                    .map(|id| machines.get(&id))
-                    .ok_or_else(|| anyhow!("Machine ID not found"))?;
+            (PLUGIN, _package) => {
+                // let machine = input.machine_id
+                //     .map(|id| machines.get(&id))
+                //     .ok_or_else(|| anyhow!("Machine ID not found"))?;
 
                 // let id = input.config_form_id.into();
                 // machine.call(messages::DeletePlugin(id)).await?
@@ -379,7 +360,7 @@ impl ConfigMutation {
         input: SetMaterialsInput,
     ) -> FieldResult<Option<bool>> {
         // use cgt::ConfigCollection::*;
-        let db: &crate::Db = ctx.data()?;
+        // let db: &crate::Db = ctx.data()?;
 
         let machines: &crate::MachineMap = ctx.data()?;
         let machines = machines.load();
@@ -389,7 +370,7 @@ impl ConfigMutation {
             .ok_or_else(|| anyhow!("Machine ID {} not found", machine_id))?;
 
         let msg = messages::set_materials::SetMaterial(input.toolheads);
-        machine.call(msg).await?;
+        machine.call(msg).await??;
 
         Ok(None)
     }

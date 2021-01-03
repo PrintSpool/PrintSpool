@@ -21,7 +21,7 @@ pub struct ConnectToSocket;
 
 #[async_trait::async_trait]
 impl xactor::Handler<ConnectToSocket> for Machine {
-    async fn handle(&mut self, ctx: &mut xactor::Context<Self>, msg: ConnectToSocket) -> () {
+    async fn handle(&mut self, ctx: &mut xactor::Context<Self>, _msg: ConnectToSocket) -> () {
         if self.attempting_to_connect {
             return
         };
@@ -53,7 +53,7 @@ impl xactor::Handler<ConnectToSocket> for Machine {
             self.id,
         );
 
-        let client_id: crate::DbId = 42; // Chosen at random. Very legit.
+        // let client_id: crate::DbId = 42; // Chosen at random. Very legit.
 
         info!("Connecting to machine socket: {:?}", socket_path);
         let unix_socket = match UnixStream::connect(&socket_path).await {

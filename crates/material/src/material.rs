@@ -53,6 +53,21 @@ impl Material {
 
         Ok(material)
     }
+
+    pub async fn update_from_mutation(
+        db: &crate::Db,
+        id: crate::DbId,
+        version: crate::DbId,
+        model: serde_json::Value,
+    ) -> Result<Self> {
+        let mut invite = Self::get_with_version(db, id, version).await?;
+
+        invite.config = serde_json::from_value(model)?;
+
+        invite.update(db).await?;
+
+        Ok(invite)
+    }
 }
 // TODO: Create a macro to generate this JSON Store code
 // -------------------------------------------------------------
@@ -142,6 +157,24 @@ impl Material {
             JsonRow,
             "SELECT props FROM materials WHERE id = ?",
             id
+        )
+            .fetch_one(db)
+            .await?;
+
+        let entry: Self = serde_json::from_str(&row.props)?;
+        Ok(entry)
+    }
+
+    pub async fn get_with_version(
+        db: &crate::Db,
+        id: crate::DbId,
+        version: crate::DbId,
+    ) -> Result<Self> {
+        let row = sqlx::query_as!(
+            JsonRow,
+            "SELECT props FROM materials WHERE id = ? AND version = ?",
+            id,
+            version,
         )
             .fetch_one(db)
             .await?;

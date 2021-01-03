@@ -28,7 +28,7 @@ pub struct SetMaterial(pub Vec<SetMaterialsToolhead>);
 
 #[async_trait::async_trait]
 impl xactor::Handler<SetMaterial> for Machine {
-    async fn handle(&mut self, ctx: &mut xactor::Context<Self>, msg: SetMaterial) -> Result<()> {
+    async fn handle(&mut self, _ctx: &mut xactor::Context<Self>, msg: SetMaterial) -> Result<()> {
         let db = self.db.clone();
         let data = self.get_data()?;
 
@@ -67,6 +67,8 @@ impl xactor::Handler<SetMaterial> for Machine {
                 toolhead.model.material_id = None;
             }
         }
+
+        data.config.save_config().await?;
 
         Ok(())
     }
