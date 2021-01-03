@@ -22,3 +22,7 @@ async-graphql = "2.2.0"
 [dependencies.serde]
 features = ["derive"]
 version = "1.0.104"
+
+[dependencies.chrono]
+features = ["serde"]
+version = "0.4.10"

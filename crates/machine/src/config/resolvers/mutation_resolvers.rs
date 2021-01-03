@@ -19,28 +19,14 @@ use teg_user::{
 };
 use teg_material::Material;
 
-use crate::{
-    components::{
-        Component,
-        Controller,
-        ControllerConfig,
-        SpeedController,
-        SpeedControllerConfig,
-        Toolhead,
-        ToolheadConfig,
-        Video,
-        VideoConfig
-    },
-    config::{
+use crate::{components::{self, Component, Controller, ControllerConfig, SpeedController, SpeedControllerConfig, Toolhead, ToolheadConfig, Video, VideoConfig}, config::{
         CombinedConfigView,
         MachineConfig,
-    },
-    machine::{
+    }, machine::{
         Machine,
         // MachineData,
         messages
-    },
-        plugins::{
+    }, plugins::{
         Plugin,
         PluginContainer,
         core::CorePluginConfig,
@@ -66,18 +52,20 @@ impl ConfigMutation {
 
         let machines: &crate::MachineMap = ctx.data()?;
         let machines = machines.load();
+        let model = (*input.model).clone();
 
-        let response = match (&input.collection, &input.schema_form_key[..]) {
+        match (&input.collection, &input.schema_form_key[..]) {
             // Database persisted types (users, invites, materials)
             // ----------------------------------------------------------
             (AUTH, "user") => {
-                User::create(db, &input.model).await?
+                // User::create(db, &input.model).await?
+                Err(anyhow!("Cannot create users directly. Use an invite instead."))?;
             }
             (AUTH, "invite") => {
-                Invite::create(db, &input.model).await?
+                Err(anyhow!("Deprecated. Use createInvite mutation instead."))?;
             }
             (MATERIAL, _) => {
-                Material::create(db, &input.model).await?
+                Material::create(db, model).await?;
             }
             // Config file persisted types (components, plugins)
             // ----------------------------------------------------------
@@ -86,44 +74,33 @@ impl ConfigMutation {
                     .and_then(|id| machines.get(&id))
                     .ok_or_else(|| anyhow!("Machine ID not found"))?;
 
-                let component: Component = match component_type {
-                    "CONTROLLER" => {
-                        let config: ControllerConfig = serde_json::from_value(*input.model)?;
-                        Component::Controller(Controller::new(config))
-                    },
-                    "TOOLHEAD" => {
-                        let config: ToolheadConfig = serde_json::from_value(*input.model)?;
-                        Component::Toolhead(Toolhead::new(config))
-                    },
-                    "SPEED_CONTROLLER" => {
-                        let config: SpeedControllerConfig = serde_json::from_value(*input.model)?;
-                        Component::SpeedController(SpeedController::new(config))
-                    },
-                    "VIDEO" => {
-                        let config: VideoConfig = serde_json::from_value(*input.model)?;
-                        Component::Video(Video::new(config))
-                    },
+                let msg = messages::CreateComponent {
+                    component_type: component_type.to_string(),
+                    model: model,
                 };
-
-                machine.call(messages::CreateComponent(component)).await?
+                machine.call(msg).await?;
             }
             (PLUGIN, "teg-core") => {
                 let machine = input.machine_id
                     .map(|id| machines.get(&id))
                     .ok_or_else(|| anyhow!("Machine ID not found"))?;
 
-                let plugin_config: CorePluginConfig = serde_json::from_value(*input.model)?;
-                let plugin = Plugin::Core(
-                    PluginContainer::new(plugin_config)
-                );
+                // let plugin_config: CorePluginConfig = serde_json::from_value(*input.model)?;
+                // let plugin = Plugin::Core(
+                //     PluginContainer::new(plugin_config)
+                // );
 
-                machine.call(messages::CreatePlugin(plugin)).await?
+                // machine.call(messages::CreatePlugin(plugin)).await?
+                Err(anyhow!("Cannot create plugins in current implementation."))?;
             }
             _ => {
                 Err(anyhow!("Invalid schemaFormKey: {:?}", input.schema_form_key))?;
             }
         };
 
+        let response = SetConfigResponse {
+            errors: vec![],
+        };
         Ok(response)
     }
 
@@ -278,12 +255,12 @@ impl ConfigMutation {
                     .map(|id| machines.get(&id))
                     .ok_or_else(|| anyhow!("Machine ID not found"))?;
 
-                // There is only one "core" plugin at the moment so deletion doesn't makes
-                // sense yet.
-                Err(anyhow!("Cannot delete plugin ({:?})", package))?;
-
                 // let id = input.config_form_id.into();
                 // machine.call(messages::DeletePlugin(id)).await?
+
+                // There is only one "core" plugin at the moment so deletion doesn't makes
+                // sense yet.
+                Err(anyhow!("Cannot delete plugins in current implementation."))?;
             }
             _ => {
                 Err(anyhow!("Invalid config_form_id: {:?}", input.config_form_id))?;

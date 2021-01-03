@@ -34,7 +34,7 @@ impl xactor::Handler<RemoveComponent> for Machine {
         remove_component(&id, &mut data.config.videos);
 
         data.config.save_config().await?;
-        ctx.address().call(ResetWhenIdle).await?;
+        ctx.address().send(ResetWhenIdle)?;
 
         Ok(())
     }

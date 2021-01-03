@@ -1,3 +1,4 @@
+use chrono::prelude::*;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use schemars::JsonSchema;
 use anyhow::{
@@ -38,10 +39,98 @@ impl MaterialConfig for FdmFilament {
     }
 }
 
+
+impl Material {
+    pub async fn create(
+        db: &crate::Db,
+        json: serde_json::Value,
+    ) -> Result<Self> {
+        let material = UnsavedMaterial {
+            config: serde_json::from_value(json)?,
+        };
+
+        let material = material.insert(db).await?;
+
+        Ok(material)
+    }
+}
 // TODO: Create a macro to generate this JSON Store code
 // -------------------------------------------------------------
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct UnsavedMaterial {
+    pub config: MaterialConfigEnum,
+}
+
 struct JsonRow {
     pub props: String,
+}
+
+impl UnsavedMaterial {
+    pub async fn insert(
+        &self,
+        db: &crate::Db,
+    ) -> Result<Material> {
+        let db = db.begin().await?;
+
+        let (user, db) = self.insert_no_rollback(db).await?;
+
+        db.commit().await?;
+
+        Ok(user)
+    }
+
+    /// Insert but without a transaction. Intended to be used inside functions that provide their
+    /// own transactions.
+    pub async fn insert_no_rollback<'c>(
+        &self,
+        mut db: sqlx::Transaction<'c, sqlx::Sqlite>,
+    ) -> Result<(Material, sqlx::Transaction<'c, sqlx::Sqlite>)> {
+        // Generate an ID for the row
+        sqlx::query!(
+            r#"
+                INSERT INTO materials
+                (props)
+                VALUES ("{}")
+            "#
+        )
+            .fetch_one(&mut db)
+            .await?;
+
+        let id = sqlx::query!(
+            "SELECT last_insert_rowid() as id"
+        )
+            .fetch_one(&mut db)
+            .await?
+            .id;
+
+        // Add the sqlite-generated monotonic ID and other default fields in to the json
+        let mut json = serde_json::to_value(self)?;
+        let map = json
+            .as_object_mut()
+            .expect("Struct incorrectly serialized for JsonRow insert");
+
+        map.insert("id".to_string(), id.into());
+        map.insert("version".to_string(), 0.into());
+        map.insert("created_at".to_string(), serde_json::to_value(Utc::now())?);
+
+        // Update Sqlite - adding the modified JSON including the ID
+        let json_string = json.to_string();
+        sqlx::query!(
+            r#"
+                UPDATE materials
+                SET props=?
+                WHERE id=?
+            "#,
+            json_string,
+            id,
+        )
+            .fetch_one(&mut db)
+            .await?;
+
+        let entry: Material = serde_json::from_value(json)?;
+
+        Ok((entry, db))
+    }
 }
 
 impl Material {
@@ -76,27 +165,6 @@ impl Material {
             .collect::<std::result::Result<Vec<_>, _>>()?;
 
         Ok(rows)
-    }
-
-    pub async fn insert(
-        &self,
-        db: &crate::Db,
-    ) -> Result<()> {
-        let json = serde_json::to_string(self)?;
-
-        sqlx::query!(
-            r#"
-                INSERT INTO materials
-                (id, props)
-                VALUES (?, ?)
-            "#,
-            self.id,
-            json,
-        )
-            .fetch_one(db)
-            .await?;
-
-        Ok(())
     }
 
     pub async fn update(
