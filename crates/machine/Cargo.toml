@@ -1,11 +1,11 @@
 [package]
 authors = ["D1plo1d <thatotherdude@gmail.com>"]
 edition = "2018"
-name = "teg-machine"
+name = "teg_machine"
 version = "0.1.0"
 
 [lib]
-name = "machine"
+name = "teg_machine"
 path = "src/lib.rs"
 
 [dependencies]
