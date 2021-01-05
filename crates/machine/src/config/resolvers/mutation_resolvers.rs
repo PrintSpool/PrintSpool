@@ -12,7 +12,7 @@ use anyhow::{
 };
 use cgt::SetConfigResponse;
 use messages::set_materials::SetMaterialsInput;
-use teg_user::{
+use teg_auth::{
     AuthContext,
     user::User,
     invite::Invite,

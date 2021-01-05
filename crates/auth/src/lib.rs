@@ -2,6 +2,7 @@
 
 pub mod invite;
 pub mod user;
+pub mod data_channel;
 
 mod auth_context;
 pub use auth_context::AuthContext;

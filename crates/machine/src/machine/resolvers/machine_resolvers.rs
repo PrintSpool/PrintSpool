@@ -10,7 +10,7 @@ use anyhow::{
     Context as _,
 };
 use teg_config_form::ConfigForm;
-use teg_user::user::User;
+use teg_auth::user::User;
 
 use crate::machine::{
     MachineData,

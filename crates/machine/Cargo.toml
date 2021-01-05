@@ -11,7 +11,7 @@ path = "src/lib.rs"
 [dependencies]
 teg_config_form = { path = "../config_form" }
 teg_material = { path = "../material" }
-teg_user = { path = "../user" }
+teg_auth = { path = "../auth" }
 
 anyhow = "1.0"
 async-graphql = "2.2.0"

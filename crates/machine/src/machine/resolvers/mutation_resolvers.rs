@@ -8,7 +8,7 @@ use anyhow::{
     // Result,
     Context as _,
 };
-use teg_user::{
+use teg_auth::{
     AuthContext,
 };
 

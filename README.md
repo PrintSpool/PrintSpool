@@ -21,7 +21,7 @@ For completeness this documentation lists all the dependencies to get a developm
 
 1. Install [nvm](https://github.com/creationix/nvm)
 2. Install [Rust](https://rustup.rs/)
-3. `sudo apt update && sudo apt install build-essential pkg-config python tmux qemu qemu-user qemu-user-static binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf fuse-overlayfs`
+3. `sudo apt update && sudo apt install build-essential clang libclang1 pkg-config python tmux qemu qemu-user qemu-user-static binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf fuse-overlayfs`
 <!-- Removed until we need PG again: libssl-dev postgresql libpq-dev -->
 4. Enable Passwordless local logins in Postgres: https://gist.github.com/p1nox/4953113
 5. Allow serial port access via the dialout group and then restart your computer: `sudo gpasswd --add ${USER} dialout`
@@ -103,7 +103,7 @@ To learn how to restore from backup run: `tegh.restore-backup --help`
 
 Backups are stored in `/var/snap/tegh/current/backups`
 
-<!-- 
+<!--
   TODO: I think the following information is out of date and no longer necessary to configure Teg:
 
   This will default the camera to 128x96px
