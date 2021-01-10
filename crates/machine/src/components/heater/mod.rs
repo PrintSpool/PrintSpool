@@ -16,10 +16,10 @@ pub struct HeaterEphemeral {
     /// thermister.
     pub actual_temperature: Option<f32>,
     /// The current material's configured temperature in °C for this heater.
-    /// 
+    ///
     /// For build platforms if multiple toolhead materials are loaded but then the
     /// material_target is set to their average.
-    /// 
+    ///
     /// When the Heater is enabled the toolhead target_temperature will normally be set to the
     /// material_target.
     pub material_target: Option<f32>,
