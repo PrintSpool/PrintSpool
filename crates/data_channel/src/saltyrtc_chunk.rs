@@ -20,7 +20,7 @@ use bytes::Buf;
 
 use crate::iter::IdentifyFirstLast;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ReliabilityMode {
     ReliableOrdered,
     UnreliableUnordered,

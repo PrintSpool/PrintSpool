@@ -20,64 +20,91 @@ use async_tungstenite::{
     tungstenite::Message,
     tungstenite::handshake::client::Request,
 };
-use futures_util::{SinkExt, StreamExt, future::{join_all, try_join_all}};
 use std::sync::atomic::{ AtomicU64, Ordering };
+use futures_util::{
+    future::Future,
+    future::FutureExt,
+    future::try_join_all,
+    SinkExt,
+    stream::{
+        Stream,
+        StreamExt,
+        TryStreamExt,
+    },
+};
 
 pub type Db = sqlx::sqlite::SqlitePool;
 
 static NEXT_MESSAGE_ID: AtomicU64 = AtomicU64::new(0);
 
 #[derive(Clone)]
-struct Chan {
+struct OutgoingChannel {
     output: channel::Sender<Vec<u8>>,
-    ready: channel::Sender<()>,
 }
 
-impl DataChannel for Chan {
-    fn on_open(&mut self) {
-        let ready = self.ready.clone();
-        spawn_blocking(|| async {
-            ready.send(()).await
-        });
-    }
+#[derive(Clone)]
+enum Channel {
+    Outgoing(OutgoingChannel),
+    Incoming,
+}
+
+impl DataChannel for Channel {
+    // fn on_open(&mut self) {
+    //     if let Channel::Outgoing(channel) = self {
+    //         let ready = channel.ready.clone();
+    //         spawn_blocking(|| async {
+    //             ready.send(()).await
+    //         });
+    //     }
+    // }
 
     fn on_message(&mut self, msg: &[u8]) {
-        // let msg = String::from_utf8_lossy(msg).to_string();
-        let msg = msg.to_vec();
-        let output = self.output.clone();
-        spawn_blocking(|| async {
-            output.send(msg).await;
-        });
+        if let Channel::Outgoing(channel) = self {
+            // let msg = String::from_utf8_lossy(msg).to_string();
+            let msg = msg.to_vec();
+            let output = channel.output.clone();
+            spawn_blocking(|| async {
+                output.send(msg)
+                    .await
+                    .expect("Unable to receive DataChannel message");
+            });
+        }
     }
 }
 
 struct Conn {
-    signalling: channel::Sender<Message>,
-    dc: Option<Box<RtcDataChannel<Chan>>>,
+    dc: Option<Box<RtcDataChannel<Channel>>>,
+    sdp_answer_sender: channel::Sender<SessionDescription>,
+    ice_candidate_sender: channel::Sender<IceCandidate>,
 }
 
 impl PeerConnection for Conn {
-    type DC = Chan;
+    type DC = Channel;
 
     fn on_description(&mut self, sess_desc: SessionDescription) {
         // TODO: Send a response via the websocket including our sess_desc answer
         // mutation(input: AnswerConnectionRequestInput) {
         //     answerConnectionRequest(input: $input)
         // }
-
-        // let peer_msg = PeerMsg {
-        //     dest_id: self.dest_id,
-        //     kind: MsgKind::Description(sess_desc),
-        // };
-
-        // self.signalling
-        //     .try_send(Message::binary(serde_json::to_vec(&peer_msg).unwrap()))
-        //     .ok();
+        let sdp_answer_sender = self.sdp_answer_sender.clone();
+        spawn_blocking(|| async {
+            sdp_answer_sender
+                .send(sess_desc)
+                .await
+                .expect("Unable to send SDP Answer")
+        });
     }
 
     fn on_candidate(&mut self, cand: IceCandidate) {
         // log::info!("Candidate {}: {} {}", self.id, &cand.candidate, &cand.mid);
         // self.signalling.send(PeerMsg::RemoteCandidate { cand }).ok();
+        let ice_candidate_sender = self.ice_candidate_sender.clone();
+        spawn_blocking(|| async {
+            ice_candidate_sender
+                .send(cand)
+                .await
+                .expect("Unable to send SDP Answer")
+        });
     }
 
     fn on_connection_state_change(&mut self, state: ConnectionState) {
@@ -88,7 +115,7 @@ impl PeerConnection for Conn {
         // log::info!("Gathering state {}: {:?}", self.id, state);
     }
 
-    fn on_data_channel(&mut self, mut dc: Box<RtcDataChannel<Chan>>) {
+    fn on_data_channel(&mut self, mut dc: Box<RtcDataChannel<Channel>>) {
         info!(
             "Received Datachannel with: label={}, protocol={:?}, reliability={:?}",
             dc.label(),
@@ -102,45 +129,83 @@ impl PeerConnection for Conn {
     }
 }
 
-pub async fn open_data_channel(
+pub async fn open_data_channel<F, Fut, S>(
     remote_description: SessionDescription,
-    signalling: channel::Sender<Message>,
-) -> Result<()> {
+    mut handle_data_channel: F,
+) -> Result<(
+    SessionDescription,
+    impl Stream<Item = IceCandidate>,
+    impl Future<Output = Result<()>>,
+)>
+where
+    F: FnMut(Box<dyn Stream<Item = Result<Vec<u8>>>>) -> Fut,
+    Fut: Future<Output = Result<S>>,
+    S: Stream<Item = Vec<u8>> + Sync + Send + 'static,
+{
+    use saltyrtc_chunk::{
+        ReliabilityMode,
+        ChunkDecoder,
+        ChunkEncoder,
+    };
+
+    let mode = ReliabilityMode::ReliableOrdered;
+
     let ice_servers = vec!["stun:stun.l.google.com:19302".to_string()];
     let conf = Config::new(ice_servers);
 
-    let (input_sender, input_receiver) = unbounded::<Vec<u8>>();
-    let (output_sender, output_receiver) = unbounded::<Vec<u8>>();
-    let (ready_sender, mut ready_receiver) = unbounded::<()>();
+    let (
+        sdp_answer_sender,
+        mut sdp_answer_receiver,
+    ) = unbounded::<SessionDescription>();
 
-    let input_receiver = input_receiver
-        .flat_map(|msg|: {
+    let (
+        ice_candidate_sender,
+        mut ice_candidate_receiver,
+    ) = unbounded::<IceCandidate>();
 
-        })
+    let (
+        dc_output_sender,
+        dc_output_receiver,
+    ) = unbounded::<Vec<u8>>();
+
+    let dc_output_receiver = ChunkDecoder::new(mode)
+        .decode_stream(dc_output_receiver);
 
     let conn = Conn {
         dc: None,
-        signalling,
+        sdp_answer_sender,
+        ice_candidate_sender,
     };
-    let chan = Chan {
-        output: output_sender,
-        ready: ready_sender,
-    };
+
+    let channel = Channel::Outgoing(OutgoingChannel {
+        output: dc_output_sender,
+    });
 
     let mut pc = RtcPeerConnection::new(
         &conf,
         conn,
-        chan,
+        Channel::Incoming,
     )?;
 
-    // let mut dc = pc.create_data_channel("graphql", chan)?;
-    // dc.send("Hello Peer!".as_bytes())?;
+    let mut dc = pc.create_data_channel("graphql", channel)?;
 
     pc.set_remote_description(&remote_description)?;
 
-    // TODO: connection timeout?
-    ready_receiver.next().await;
+    let dc_input_msgs = handle_data_channel(
+        Box::new(dc_output_receiver)
+    )
+        .await?;
 
+    let mut dc_input_chunks = ChunkEncoder::new(mode)
+        .encode_stream(dc_input_msgs)
+        .boxed();
+
+    let datachannel_completion = async move {
+        while let Some(msg) = dc_input_chunks.next().await {
+            dc.send(&msg)?;
+        }
+        Result::<()>::Ok(())
+    };
     // let _ = async_graphql::http::WebSocket::with_data(
     //     schema,
     //     ws_receiver
@@ -155,7 +220,15 @@ pub async fn open_data_channel(
     //     .forward(ws_sender)
     //     .await;
 
-    Ok(())
+    let sdp_answer = sdp_answer_receiver.next()
+        .await
+        .ok_or_else(|| anyhow!("SDP answer not received"))?;
+
+    Ok((
+        sdp_answer,
+        ice_candidate_receiver,
+        datachannel_completion,
+    ))
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -197,11 +270,16 @@ enum GraphQLWSMessage {
     },
 }
 
-pub async fn listen_for_signalling(
+pub async fn listen_for_signalling<F, Fut, S>(
     db: crate::Db,
     machines: teg_machine::MachineMap,
-    // query_graphql: async Fn(),
-) -> Result<()> {
+    mut handle_data_channel: F,
+) -> Result<()>
+where
+    F: FnMut(Box<dyn Stream<Item = Result<Vec<u8>>>>) -> Fut,
+    Fut: Future<Output = Result<S>>,
+    S: Stream<Item = Vec<u8>> + Sync + Send + 'static,
+{
     let identity_private_key = fs::read_to_string("/etc/teg/id_ecdsa")?;
     let identity_public_key = fs::read_to_string("/etc/teg/id_ecdsa.pub")?;
     let signalling_url = "https:://signalling.tegapp.com";
@@ -225,8 +303,9 @@ pub async fn listen_for_signalling(
         frank_jwt::Algorithm::ES256,
     )?;
 
+    let signalling_server = std::env::var("SIGNALLING_SERVER")?;
     let request = Request::builder()
-        .uri("wss://echo.websocket.org")
+        .uri(signalling_server)
         .header("Authorization", jwt)
         .body(())?;
 
@@ -367,8 +446,19 @@ pub async fn listen_for_signalling(
                 let ReceiveSignalsResponse {
                     offer
                 } = serde_json::from_value(data)?;
-                let answer = open_data_channel(offer).await?;
-                // TODO: send a mutation containing the answer back to the signalling server
+                let (
+                    answer,
+                    ice_candidates,
+                    data_channel_completion,
+                 ) = open_data_channel(offer, handle_data_channel).await?;
+
+                 // Send up to 10 ice candidates at a time if they are available
+                 let ice_candidates = ice_candidates
+                    .ready_chunks(10)
+                    .boxed();
+
+                // Send a mutation containing the answer and initial ice candidates back to the
+                // signalling server
                 let msg = GraphQLWSMessage::Subscribe {
                     id: NEXT_MESSAGE_ID.fetch_add(1, Ordering::SeqCst).to_string(),
                     payload: SubscribeMessagePayload {
@@ -383,6 +473,7 @@ pub async fn listen_for_signalling(
                         variables: Some(serde_json::json!({
                             "input": {
                                 "answer": answer,
+                                "iceCandidates": ice_candidates.next().await
                             },
                         })),
                     },
@@ -392,6 +483,7 @@ pub async fn listen_for_signalling(
                 println!("Sending: \"{}\"", msg);
                 ws_stream.send(Message::Text(msg)).await?;
 
+                // TODO: interlace streaming ice candidates and data channel completion with other operations
                 ()
             }
             // Ignoring sucessful mutation responses
