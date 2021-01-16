@@ -15,7 +15,7 @@ teg_machine = { path = "../machine" }
 teg_auth = { path = "../auth" }
 
 serde_json = { version = "1.0.44", features = ["raw_value"] }
-async-graphql = "2.2.0"
+async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }
 anyhow = "1.0"
 derive-new = "0.5.8"
 frank_jwt = "3.1.2"

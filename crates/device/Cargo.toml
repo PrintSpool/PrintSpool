@@ -15,7 +15,7 @@ teg_machine = { path = "../machine" }
 
 anyhow = "1.0"
 serde_json = { version = "1.0.44", features = ["raw_value"] }
-async-graphql = "2.2.0"
+async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }
 xactor = "0.7.11"
 notify = "5.0.0-pre.2"
 async-trait = "0.1.36"

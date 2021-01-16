@@ -75,8 +75,8 @@ impl ChunkDecoder {
         S: Stream<Item = Vec<u8>>,
     {
         stream
-            .scan(self, |saltyRTCChunk, chunk| {
-                let msg = saltyRTCChunk.decode_single_message(chunk);
+            .scan(self, |chunk_decoder, chunk| {
+                let msg = chunk_decoder.decode_single_message(chunk);
                 future::ready(Some(msg))
             })
             .try_filter_map(|msg| {
@@ -85,9 +85,8 @@ impl ChunkDecoder {
     }
 
     fn decode_single_message(&mut self, buf: Vec<u8>) -> Result<Option<Vec<u8>>> {
-        let chunk_payload_size = u16::MAX as usize - self.mode.header_bytes_size();
         let reliable_mode = self.mode == ReliabilityMode::ReliableOrdered;
-        let buf = buf.as_slice();
+        let mut buf = buf.as_slice();
 
         // Validate the message length
         if buf.len() < self.mode.header_bytes_size() + 1 {
@@ -159,7 +158,7 @@ impl ChunkDecoder {
 
             if is_complete {
                 partial_message.chunks
-                    .sort_by_key(|(serial_number, _)| serial_number);
+                    .sort_by_key(|(serial_number, _)| *serial_number);
 
                 return self.complete_message(msg_id);
             }
@@ -196,8 +195,8 @@ impl ChunkEncoder {
         S: Stream<Item = Vec<u8>>,
     {
         stream
-            .scan(self, |saltyRTCChunk, msg| {
-                let chunks = saltyRTCChunk.encode_single_message(msg);
+            .scan(self, |chunk_encoder, msg| {
+                let chunks = chunk_encoder.encode_single_message(msg);
                 let chunks = stream::iter(chunks);
                 future::ready(Some(chunks))
             })
@@ -217,7 +216,7 @@ impl ChunkEncoder {
             .map(|(_first, last, (chunk_serial, chunk_payload))| {
                 // Option Bitfield
                 let options_bit_field = self.mode.bit_field_value(last);
-                let chunk = vec![options_bit_field];
+                let mut chunk = vec![options_bit_field];
 
                 // Long Headers
                 if let ReliabilityMode::UnreliableUnordered = self.mode {

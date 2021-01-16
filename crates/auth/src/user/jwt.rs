@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 use std::time::Duration;
 use serde::Deserialize;
 use async_std::future;
@@ -58,7 +58,7 @@ pub async fn get_pem_keys() -> Result<Vec<Vec<u8>>> {
 }
 
 pub async fn validate_jwt(
-    auth_pem_keys: &ArcSwap<Vec<Vec<u8>>>,
+    auth_pem_keys: Arc<ArcSwap<Vec<Vec<u8>>>>,
     jwt: String,
 ) -> Result<JWTPayload> {
     let (_, payload) = auth_pem_keys.load().iter().find_map(|pem_key| {

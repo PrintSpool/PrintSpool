@@ -330,16 +330,8 @@ impl ConfigMutation {
 
         // Start the machine actor
         let db_clone = db.clone();
-        let machine = xactor::Supervisor::start(move ||
-            Machine {
-                db: db_clone.clone(),
-                id: machine_id,
-                write_stream: None,
-                unix_socket: None,
-                data: None,
-                attempting_to_connect: false,
-            }
-        ).await?;
+        let machine = Machine::start(db_clone, machine_id)
+            .await?;
 
         machines_store.rcu(|machines| {
             let mut machines = HashMap::clone(&machines);

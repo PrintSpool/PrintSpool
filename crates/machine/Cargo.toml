@@ -14,7 +14,7 @@ teg_material = { path = "../material" }
 teg_auth = { path = "../auth" }
 
 anyhow = "1.0"
-async-graphql = "2.2.0"
+async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }
 # async-graphql-warp = { path = "../../../async-graphql/async-graphql-warp" }
 # async-graphql = { path = "../../../async-graphql" }
 futures = "0.3.5"
@@ -24,7 +24,7 @@ async-trait = "0.1.36"
 derive-new = "0.5.8"
 teg-protobufs = { path= "../protobufs" }
 bytes = "0.5.6"
-arc-swap = "0.4.7"
+arc-swap = "1.1.0"
 tracing = "0.1.19"
 tracing-futures = "0.2.4"
 xactor = "0.7.11"

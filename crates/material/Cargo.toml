@@ -17,7 +17,7 @@ sqlx = { version = "0.4.2", features = [ "runtime-async-std-native-tls", "sqlite
 schemars = "0.8.0"
 anyhow = "1.0"
 serde_json = { version = "1.0.44", features = ["raw_value"] }
-async-graphql = "2.2.0"
+async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }
 
 [dependencies.serde]
 features = ["derive"]

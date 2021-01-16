@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use chrono::prelude::*;
 use anyhow::{
     // anyhow,
@@ -16,9 +18,9 @@ use crate::invite::Invite;
 impl User {
     pub async fn authenticate(
         db: &crate::Db,
-        auth_pem_keys: &ArcSwap<Vec<Vec<u8>>>,
+        auth_pem_keys: Arc<ArcSwap<Vec<Vec<u8>>>>,
         auth_token: String,
-        identity_public_key: String
+        identity_public_key: Option<String>
     ) -> Result<Option<User>> {
         let jwt_payload = validate_jwt(auth_pem_keys, auth_token).await?;
 
@@ -32,9 +34,13 @@ impl User {
         * 2. the user's token is authorized
         */
 
-        let invite = Invite::get_by_pk(&mut db, &identity_public_key)
-            .await
-            .ok();
+        let invite = if let Some(pk) = identity_public_key {
+            Invite::get_by_pk(&mut db, &pk)
+                .await
+                .ok()
+        } else {
+            None
+        };
 
         // TODO: This could be optimized with a SQL index
         let user = User::get_all(&mut db).await?

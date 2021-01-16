@@ -1,4 +1,5 @@
 use async_codec::Framed;
+use sqlx::SqlitePool;
 use xactor::Actor;
 // use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
@@ -50,5 +51,21 @@ impl Actor for Machine {
         };
 
         Ok(())
+    }
+}
+
+impl Machine {
+    pub async fn start(db: SqlitePool, machine_id: i32) -> Result<xactor::Addr<Machine>> {
+        let machine = xactor::Supervisor::start(move ||
+            Machine {
+                db: db.clone(),
+                id: machine_id,
+                write_stream: None,
+                unix_socket: None,
+                data: None,
+                attempting_to_connect: false,
+            }
+        ).await?;
+        Ok(machine)
     }
 }

@@ -12,7 +12,7 @@ path = "src/lib.rs"
 
 [dependencies]
 serde_json = { version = "1.0.44", features = ["raw_value"] }
-async-graphql = "2.2.0"
+async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }
 
 [dependencies.serde]
 features = ["derive"]
