@@ -1,39 +1,24 @@
-#![type_length_limit="15873664"]
+#![type_length_limit="15941749"]
 // #[macro_use] extern crate tracing;
 // #[macro_use] extern crate derive_new;
 
 mod mutation;
 mod query;
 
-use async_std::task::block_on;
-use futures_util::future::join_all;
+use std::{env, sync::Arc};
 use serde::Deserialize;
 use sqlx::SqlitePool;
-use teg_auth::watch_pem_keys;
-use std::{env, sync::Arc};
 use arc_swap::ArcSwap;
-use teg_machine::{
-    // config::MachineConfig,
-    machine::Machine,
-};
-use std::collections::HashMap;
-
 use anyhow::{
     anyhow,
     Result,
     // Context as _,
 };
-// use serde::{Serialize, Deserialize};
-// use teg_machine::machine::messages::GetData;
-// use std::fs;
-// use chrono::{
-//     Duration,
-//     Utc
-// };
 use futures_util::{
-    future::Future,
+    future,
+    // future::Future,
     future::FutureExt,
-    // future::try_join_all,
+    future::join_all,
     // SinkExt,
     stream::{
         // Stream,
@@ -42,6 +27,8 @@ use futures_util::{
     },
     select,
 };
+use teg_auth::{AuthContext, watch_pem_keys};
+use teg_machine::{MachineMap, MachineMapLocal, machine::Machine};
 
 const CONFIG_DIR: &'static str = "/etc/teg/";
 
@@ -95,12 +82,12 @@ async fn app() -> Result<()> {
             }
         });
 
-    let machines: HashMap<async_graphql::ID, xactor::Addr<Machine>> = join_all(machines)
+    let machines: MachineMapLocal = join_all(machines)
         .await
         .into_iter()
         .collect::<Result<_>>()?;
 
-    let machines = ArcSwap::new(Arc::new(machines));
+    let machines: MachineMap = Arc::new(ArcSwap::new(Arc::new(machines)));
 
     let schema = async_graphql::Schema::new(
         <query::Query>::default(),
@@ -113,56 +100,54 @@ async fn app() -> Result<()> {
         auth_pem_keys_watcher,
     ) = watch_pem_keys().await?;
 
+    let machines_clone = machines.clone();
+
     let signalling_future = teg_data_channel::listen_for_signalling(
         &machines,
         move |message_stream| {
             let schema = schema.clone();
             let db = db.clone();
             let auth_pem_keys = auth_pem_keys.clone();
-            async move {
-                let initializer = |init_payload| async move {
-                    // block_on(async move {
-                        // pub async fn authenticate(
-                        //     db: &crate::Db,
-                        //     auth_pem_keys: &ArcSwap<Vec<Vec<u8>>>,
-                        //     auth_token: String,
-                        //     identity_public_key: String
-                        // ) -> Result<Option<User>> {
+            let machines = machines_clone.clone();
+            let initializer = |init_payload| async move {
+                #[derive(Deserialize)]
+                struct InitPayload {
+                    auth_token: String,
+                    identity_public_key: Option<String>,
+                }
 
-                        #[derive(Deserialize)]
-                        struct InitPayload {
-                            auth_token: String,
-                            identity_public_key: Option<String>,
-                        }
+                let InitPayload {
+                    auth_token,
+                    identity_public_key,
+                } = serde_json::from_value(init_payload)?;
 
-                        let InitPayload {
-                            auth_token,
-                            identity_public_key,
-                        } = serde_json::from_value(init_payload)?;
+                let user = teg_auth::user::User::authenticate(
+                    &db,
+                    auth_pem_keys,
+                    auth_token,
+                    identity_public_key,
+                ).await?;
 
-                        let user = teg_auth::user::User::authenticate(
-                            &db,
-                            auth_pem_keys,
-                            auth_token,
-                            identity_public_key,
-                        ).await?;
+                let auth_context = AuthContext::new(user);
 
-                        let mut data = async_graphql::Data::default();
-                        data.insert(user);
-                        Ok(data)
-                    // })
-                };
+                let mut data = async_graphql::Data::default();
 
-                let connection = async_graphql::http::WebSocket::with_data(
-                    schema,
-                    message_stream,
-                    initializer,
-                    async_graphql::http::WebSocketProtocols::GraphQLWS,
-                )
-                    .map(|msg| msg.into_bytes());
+                data.insert(db.clone());
+                data.insert(auth_context);
+                data.insert(machines);
 
-                Ok(connection)
-            }
+                Ok(data)
+            };
+
+            let connection = async_graphql::http::WebSocket::with_data(
+                schema,
+                message_stream,
+                initializer,
+                async_graphql::http::WebSocketProtocols::GraphQLWS,
+            )
+                .map(|msg| msg.into_bytes());
+
+            future::ok(connection)
         },
     );
 

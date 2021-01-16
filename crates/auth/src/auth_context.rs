@@ -1,3 +1,4 @@
+use std::{sync::atomic::{ AtomicU64, Ordering }};
 use anyhow::{
     anyhow,
     Result,
@@ -6,30 +7,21 @@ use anyhow::{
 
 use crate::user::User;
 
+static NEXT_ID: AtomicU64 = AtomicU64::new(0);
+
 pub struct AuthContext {
     pub current_user: Option<User>,
-    pub session_id: Option<String>,
-    pub identity_public_key: Option<String>,
+    pub session_id: u64,
 }
 
 impl AuthContext {
-    pub async fn new(
-        db: &crate::Db,
-        current_user_id: Option<crate::DbId>,
-        identity_public_key: Option<String>,
-    ) -> Result<Self> {
-        let mut ctx = Self {
-            current_user: None,
-            session_id: None,
-            identity_public_key,
-        };
-
-        if let Some(current_user_id) = current_user_id {
-            let user = User::get(db, current_user_id).await?;
-            ctx.current_user  = Some(user);
+    pub fn new(
+        current_user: Option<User>,
+    ) -> Self {
+        Self {
+            current_user,
+            session_id: NEXT_ID.fetch_add(1, Ordering::SeqCst),
         }
-
-        Ok(ctx)
     }
 
     pub fn is_admin(&self) -> bool {
@@ -49,12 +41,6 @@ impl AuthContext {
 
     pub fn require_user(&self) -> Result<&User> {
         self.current_user
-            .as_ref()
-            .ok_or_else(|| anyhow!("Unauthorized"))
-    }
-
-    pub fn require_session_id(&self) -> Result<&String> {
-        self.session_id
             .as_ref()
             .ok_or_else(|| anyhow!("Unauthorized"))
     }

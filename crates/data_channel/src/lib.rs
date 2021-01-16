@@ -272,7 +272,7 @@ where
                 payload: ExecutionResult { data: Some(data), .. },
             } if id == rx_signals_id => {
                 let ReceiveSignalsResponse {
-                    session_id,
+                    session_id: handshake_session_id,
                     offer,
                 } = serde_json::from_value(data)?;
                 let (
@@ -300,7 +300,7 @@ where
                         "#.to_string(),
                         variables: Some(serde_json::json!({
                             "input": {
-                                "sessionID": session_id.clone(),
+                                "sessionID": handshake_session_id.clone(),
                                 "answer": answer,
                                 "iceCandidates": ice_candidates.next().await
                             },
@@ -330,7 +330,7 @@ where
                                 "#.to_string(),
                                 variables: Some(serde_json::json!({
                                     "input": {
-                                        "sessionID": session_id,
+                                        "sessionID": handshake_session_id,
                                         "iceCandidates": ic,
                                     },
                                 })),

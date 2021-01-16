@@ -12,6 +12,7 @@
 // extern crate url;
 // extern crate gravatar;
 
+use std::sync::Arc;
 use arc_swap::ArcSwap;
 use std::collections::HashMap;
 
@@ -25,4 +26,5 @@ pub type Db = sqlx::sqlite::SqlitePool;
 pub type DbId = i32;
 
 /// GraphQL Context containing all the machine xactor addresses for message passing.
-pub type MachineMap = ArcSwap<HashMap<async_graphql::ID, xactor::Addr<machine::Machine>>>;
+pub type MachineMapLocal = HashMap<async_graphql::ID, xactor::Addr<machine::Machine>>;
+pub type MachineMap = Arc<ArcSwap<MachineMapLocal>>;
