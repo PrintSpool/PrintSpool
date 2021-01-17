@@ -10,7 +10,7 @@ use anyhow::{
 };
 
 use crate::models::VersionedModel;
-use crate::print_queue::tasks::{
+use crate::tasks::{
     Part,
 };
 

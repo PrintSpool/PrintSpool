@@ -12,12 +12,7 @@ use anyhow::{
 // use async_graphql::ID;
 
 // use crate::models::VersionedModel;
-use crate::{
-    print_queue::tasks::{
-        GCodeAnnotation,
-    },
-    Context,
-};
+use teg_machine::task::GCodeAnnotation;
 
 mod json_gcode;
 pub use json_gcode::JsonGCode;
@@ -60,7 +55,7 @@ mod move_utils;
 use move_utils::MoveMacro;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")] 
+#[serde(rename_all = "camelCase")]
 pub enum InternalMacro {
     Home(HomeMacro),
     SetTargetTemperatures(SetTargetTemperaturesMacro),
