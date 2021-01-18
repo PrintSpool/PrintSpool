@@ -1,19 +1,12 @@
-use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-// use serde_json::json;
 use anyhow::{
     anyhow,
     Result,
     Context as _,
 };
-
-use super::AnnotatedGCode;
-
-use crate::{
-    Context,
-    configuration::Component,
-};
+use teg_machine::config::MachineConfig;
+use crate::AnnotatedGCode;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ToggleFansMacro {
@@ -37,12 +30,13 @@ impl ToggleFansMacro {
     //     })
     // }
 
-    pub async fn compile(&self, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
-        let config = ctx.machine_config.load();
-
+    pub async fn compile(&self, config: &MachineConfig) -> Result<Vec<AnnotatedGCode>> {
         let gcodes = self.fans.iter()
             .map(|(address, enable)| {
-                if config.speed_controllers.iter().any(|c| c.model.address == address) {
+                if config.speed_controllers
+                    .iter()
+                    .any(|c| &c.model.address == address)
+                {
                     let mcode = if *enable { "M106" } else { "M107" };
 
                     let fan_index = address[1..].parse::<u32>()

@@ -4147,6 +4147,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "36474e732d1affd3a6ed582781b3683df3d0563714c59c39591e8ff707cf078e"
 
 [[package]]
+name = "teg-macros"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "futures 0.3.12",
+ "nom 5.1.2",
+ "nom-gcode",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "teg_machine",
+ "teg_material",
+ "tracing",
+ "xactor",
+]
+
+[[package]]
 name = "teg-marlin"
 version = "0.1.0"
 dependencies = [
@@ -4190,8 +4208,6 @@ dependencies = [
  "derive-new",
  "dotenv",
  "futures 0.3.12",
- "nom 5.1.2",
- "nom-gcode",
  "rmp-serde",
  "serde",
  "serde_json",

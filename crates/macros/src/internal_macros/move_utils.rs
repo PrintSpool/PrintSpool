@@ -1,17 +1,11 @@
-use std::sync::Arc;
 use std::collections::HashMap;
 use anyhow::{
     anyhow,
     Result,
     // Context as _,
 };
-
-use crate::{
-    Context,
-    configuration::Feedrate,
-};
-
-use super::AnnotatedGCode;
+use teg_machine::config::{Feedrate, MachineConfig};
+use crate::AnnotatedGCode;
 
 #[derive(Clone, Debug, Default)]
 pub struct MoveMacro {
@@ -25,12 +19,11 @@ pub struct MoveMacro {
 
 impl MoveMacro {
     pub async fn get_feedrates(
-        ctx: Arc<Context>,
+        config: &MachineConfig,
         axes: Vec<String>,
         allow_extruder_axes: bool,
     ) -> Result<Vec<Feedrate>> {
-        let config = ctx.machine_config.load();
-        let feedrates: Vec<Feedrate> = config.feedrates().collect();
+        let feedrates: Vec<Feedrate> = config.feedrates();
 
         axes.iter().map(move |address| {
             let axis = feedrates.iter().find(|a| a.address == *address)
@@ -44,8 +37,8 @@ impl MoveMacro {
         }).collect()
     }
 
-    pub async fn compile(&self, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
-        let (g1, feedrate, _) = self.g1_and_feedrate(ctx).await?;
+    pub async fn compile(&self, config: &MachineConfig) -> Result<Vec<AnnotatedGCode>> {
+        let (g1, feedrate, _) = self.g1_and_feedrate(&config).await?;
 
         let mut gcodes = vec![
             (if self.relative_movement { "G91" } else { "G90" }).to_string(),
@@ -70,7 +63,7 @@ impl MoveMacro {
         Ok(gcodes)
     }
 
-    pub async fn g1_and_feedrate(&self, ctx: Arc<Context>) -> Result<(String, f32, Vec<Feedrate>)> {
+    pub async fn g1_and_feedrate(&self, config: &MachineConfig) -> Result<(String, f32, Vec<Feedrate>)> {
         if let Some(feedrate) = self.feedrate {
             if feedrate < 0.0 {
                 Err(anyhow!("feedrate must be greater then zero if set. Got: {}", feedrate))?;
@@ -78,7 +71,7 @@ impl MoveMacro {
         }
 
         let feedrates = Self::get_feedrates(
-            Arc::clone(&ctx),
+            &config,
             self.axes.keys().map(|k| k.clone()).collect(),
             self.allow_extruder_axes,
         )

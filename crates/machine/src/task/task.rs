@@ -6,7 +6,10 @@ use anyhow::{
     // Context as _,
 };
 
-use super::task_status::TaskStatus;
+use super::{
+    GCodeAnnotation,
+    TaskStatus,
+};
 
 #[derive(new, Debug, Serialize, Deserialize, Clone)]
 pub struct Task {
@@ -40,11 +43,6 @@ pub enum TaskContent {
     GCodes(Vec<String>),
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub enum GCodeAnnotation {
-    SetToolheadMaterials()
-}
-
 // TODO: Create a macro to generate this JSON Store code
 // -------------------------------------------------------------
 struct JsonRow {
@@ -63,7 +61,7 @@ impl Task {
         )
             .fetch_one(db)
             .await?;
-    
+
         let entry: Self = serde_json::from_str(&row.props)?;
         Ok(entry)
     }
@@ -73,7 +71,7 @@ impl Task {
         db: &crate::Db,
     ) -> Result<()> {
         let json = serde_json::to_string(self)?;
- 
+
         sqlx::query!(
             r#"
                 INSERT INTO tasks
@@ -86,7 +84,7 @@ impl Task {
         )
             .fetch_one(db)
             .await?;
-        
+
         Ok(())
     }
 

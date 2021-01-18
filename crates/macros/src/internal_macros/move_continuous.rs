@@ -1,23 +1,14 @@
-use std::sync::Arc;
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-// use serde_json::json;
 use anyhow::{
     anyhow,
     Result,
     // Context as _,
 };
-
+use teg_machine::config::MachineConfig;
+use crate::AnnotatedGCode;
 use super::MoveMacro;
-use super::AnnotatedGCode;
-
-use crate::{
-    // models::VersionedModel,
-    // models::VersionedModelResult,
-    // materials::Material,
-    Context,
-};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -61,7 +52,7 @@ impl MoveContinuousMacro {
     //     })
     // }
 
-    pub async fn compile(&self, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
+    pub async fn compile(&self, config: &MachineConfig) -> Result<Vec<AnnotatedGCode>> {
         let mut directions = HashMap::<String, f32>::new();
         for (k, axis) in self.axes.iter() {
             directions.insert(k.clone(), if axis.forward { 1.0 } else { -1.0 });
@@ -77,8 +68,7 @@ impl MoveContinuousMacro {
         };
 
         // calculate the feedrate
-        let ctx_clone = Arc::clone(&ctx);
-        let (_, feedrate_mm_per_min, _) = move_macro.g1_and_feedrate(ctx_clone).await?;
+        let (_, feedrate_mm_per_min, _) = move_macro.g1_and_feedrate(&config).await?;
 
         // base move distances off the calculated feedrate
         let total_distance = feedrate_mm_per_min as f32 * self.ms / 60_000.0;
@@ -102,12 +92,11 @@ impl MoveContinuousMacro {
         );
 
         // recalculate a g1 move from the distances
-        let ctx_clone = Arc::clone(&ctx);
         let (
             g1,
             _,
             feedrates,
-        ) = move_macro.g1_and_feedrate(ctx_clone).await?;
+        ) = move_macro.g1_and_feedrate(&config).await?;
 
         // applying reverse direction configs
         let mut mark_axes = self.axes.clone();

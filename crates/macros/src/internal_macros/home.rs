@@ -1,21 +1,11 @@
-use std::sync::Arc;
 use serde::{Deserialize, Serialize};
-// use serde_json::json;
 use anyhow::{
     anyhow,
     Result,
     // Context as _,
 };
-
-use super::AnnotatedGCode;
-
-use crate::{
-    // models::VersionedModel,
-    // models::VersionedModelResult,
-    // materials::Material,
-    Context,
-    configuration::Component,
-};
+use teg_machine::config::MachineConfig;
+use crate::AnnotatedGCode;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct HomeMacro {
@@ -47,23 +37,23 @@ impl HomeMacro {
     //     })
     // }
 
-    pub async fn compile(&self, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
-        let config = ctx.machine_config.load();
-
+    pub async fn compile(&self, config: &MachineConfig) -> Result<Vec<AnnotatedGCode>> {
         let mut gcode_words = vec!["G28".to_string()];
 
         let mut gcode_args = match self.axes.clone() {
             HomeAxes::All(all) if &all == "all" => {
                 vec![]
             },
-            HomeAxes::Axes(axes) => {
+            HomeAxes::Axes(macro_axes) => {
                 // Verify that each axis from the input exists in the machine config
-                for address in axes.iter() {
-                    config.axes.find(|c| c.model.address == address)
+                for address in macro_axes.iter() {
+                    config.axes
+                        .iter()
+                        .find(|c| &c.model.address == address)
                         .ok_or_else(|| anyhow!("Axis (address: {:?}) not found", address))?;
                 }
 
-                axes.into_iter()
+                macro_axes.into_iter()
                     .map(|axis| axis.to_ascii_uppercase())
                     .collect()
             },

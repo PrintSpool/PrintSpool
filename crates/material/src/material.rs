@@ -165,6 +165,26 @@ impl Material {
         Ok(entry)
     }
 
+    // pub async fn get_vec<I>(
+    //     db: &crate::Db,
+    //     ids: I,
+    // ) -> Result<Vec<Self>>
+    // where
+    //     I: IntoIterator<Item = crate::DbId>
+    // {
+    //     let entries = sqlx::query_as!(
+    //         JsonRow,
+    //         "SELECT props FROM materials WHERE id IN ?",
+    //         ids
+    //     )
+    //         .fetch_many(db)
+    //         .await?
+    //         .map(|row| serde_json::from_str(&row.props))
+    //         .collect::<std::result::Result<Vec<_>, _>>()?;
+
+    //     Ok(entries)
+    // }
+
     pub async fn get_with_version(
         db: &crate::Db,
         id: crate::DbId,

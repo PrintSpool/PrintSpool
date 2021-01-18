@@ -1,17 +1,11 @@
-use std::sync::Arc;
 use serde::{Deserialize, Serialize};
-// use serde_json::json;
 use anyhow::{
     // anyhow,
     Result,
     // Context as _,
 };
-
-use super::AnnotatedGCode;
-
-use crate::{
-    Context,
-};
+use teg_machine::config::MachineConfig;
+use crate::AnnotatedGCode;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ToggleMotorsEnabledMacro {
@@ -32,7 +26,7 @@ impl ToggleMotorsEnabledMacro {
     //     })
     // }
 
-    pub async fn compile(&self, _ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
+    pub async fn compile(&self, _config: &MachineConfig) -> Result<Vec<AnnotatedGCode>> {
         let gcode = if self.enable { "M17" } else { "M18" };
         let gcode = AnnotatedGCode::GCode(gcode.to_string());
 

@@ -1,19 +1,12 @@
-use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-// use serde_json::json;
 use anyhow::{
     anyhow,
     Result,
     Context as _,
 };
-
-use super::AnnotatedGCode;
-
-use crate::{
-    Context,
-    configuration::Component,
-};
+use teg_machine::config::MachineConfig;
+use crate::AnnotatedGCode;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SetTargetTemperaturesMacro {
@@ -45,13 +38,13 @@ impl SetTargetTemperaturesMacro {
     //     })
     // }
 
-    pub async fn compile(&self, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
-        let config = ctx.machine_config.load();
-
+    pub async fn compile(&self, config: &MachineConfig) -> Result<Vec<AnnotatedGCode>> {
         let mut gcodes = self.heaters.iter()
             .map(|(address, val)| {
                 // Extruder = M104
-                if let Some(toolhead) = config.toolheads.find(|c| c.model.address == address)
+                if let Some(_toolhead) = config.toolheads
+                    .iter()
+                    .find(|c| &c.model.address == address)
                 {
                     let extruder_index = address[1..].parse::<u32>()
                         .with_context(|| format!("Invalid extruder address: {:?}", address))?;
@@ -59,7 +52,10 @@ impl SetTargetTemperaturesMacro {
                     Ok(format!("M104 S{} T{}", val, extruder_index))
                 }
                 // Build Platform = M140
-                else if config.build_platforms.find(|c| c.model.address == address).is_some()
+                else if config.build_platforms
+                    .iter()
+                    .find(|c| &c.model.address == address)
+                    .is_some()
                 {
                     Ok(format!("M140 S{}", val))
                 } else {

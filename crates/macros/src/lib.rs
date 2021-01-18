@@ -1,71 +1,28 @@
-use std::sync::Arc;
-use futures::prelude::*;
-// use std::collections::HashMap;
-// use chrono::prelude::*;
-// use async_graphql::ID;
+#[macro_use] extern crate tracing;
+
 use serde::{Deserialize, Serialize};
+use futures::prelude::*;
 use anyhow::{
     // anyhow,
     Result,
     Context as _,
 };
-// use async_graphql::ID;
+use teg_machine::machine::Machine;
 
-// use crate::models::VersionedModel;
-use teg_machine::task::GCodeAnnotation;
+// Re-export
+pub use teg_machine::task::GCodeAnnotation;
+
+mod internal_macros;
+pub use internal_macros::InternalMacro;
 
 mod json_gcode;
 pub use json_gcode::JsonGCode;
 
-#[path = "internal_macros/home.rs"]
-mod home;
-use home::HomeMacro;
+mod compile_internal_macro;
+use compile_internal_macro::CompileInternalMacro;
 
-#[path = "internal_macros/set_target_temperatures.rs"]
-mod set_target_temperatures;
-use set_target_temperatures::SetTargetTemperaturesMacro;
-
-#[path = "internal_macros/toggle_fans.rs"]
-mod toggle_fans;
-use toggle_fans::ToggleFansMacro;
-
-#[path = "internal_macros/toggle_heaters.rs"]
-mod toggle_heaters;
-use toggle_heaters::ToggleHeatersMacro;
-
-#[path = "internal_macros/toggle_motors_enabled.rs"]
-mod toggle_motors_enabled;
-use toggle_motors_enabled::ToggleMotorsEnabledMacro;
-
-#[path = "internal_macros/move_continuous.rs"]
-mod move_continuous;
-use move_continuous::MoveContinuousMacro;
-
-#[path = "internal_macros/move_by.rs"]
-mod move_by;
-use move_by::MoveByMacro;
-
-#[path = "internal_macros/move_to.rs"]
-mod move_to;
-use move_to::MoveToMacro;
-
-#[path = "internal_macros/move_utils.rs"]
-mod move_utils;
-
-use move_utils::MoveMacro;
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub enum InternalMacro {
-    Home(HomeMacro),
-    SetTargetTemperatures(SetTargetTemperaturesMacro),
-    ToggleFans(ToggleFansMacro),
-    ToggleHeaters(ToggleHeatersMacro),
-    ToggleMotorsEnabled(ToggleMotorsEnabledMacro),
-    ContinuousMove(MoveContinuousMacro),
-    MoveBy(MoveByMacro),
-    MoveTo(MoveToMacro),
-}
+pub type Db = sqlx::sqlite::SqlitePool;
+pub type DbId = i32;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -80,23 +37,14 @@ pub enum AnnotatedGCode {
 }
 
 impl AnyMacro {
-    pub async fn compile(line: &str, ctx: Arc<Context>) -> Result<Vec<AnnotatedGCode>> {
+    pub async fn compile(line: &str, machine: &xactor::Addr<Machine>) -> Result<Vec<AnnotatedGCode>> {
         // handle internal macro
         let parsed_line: AnyMacro = serde_json::from_str(&line)
             .with_context(|| format!("Invalid JSON GCode: {:?}", line))?;
 
         match parsed_line {
             AnyMacro::InternalMacro(internal_macro) => {
-                match internal_macro {
-                    InternalMacro::Home(m) => m.compile(ctx).await,
-                    InternalMacro::SetTargetTemperatures(m) => m.compile(ctx).await,
-                    InternalMacro::ToggleFans(m) => m.compile(ctx).await,
-                    InternalMacro::ToggleHeaters(m) => m.compile(ctx).await,
-                    InternalMacro::ToggleMotorsEnabled(m) => m.compile(ctx).await,
-                    InternalMacro::ContinuousMove(m) => m.compile(ctx).await,
-                    InternalMacro::MoveBy(m) => m.compile(ctx).await,
-                    InternalMacro::MoveTo(m) => m.compile(ctx).await,
-                }
+                machine.call(CompileInternalMacro(internal_macro)).await?
             }
             AnyMacro::JsonGCode(json_gcode) => {
                 let gcode = json_gcode.try_to_string(line)?;
@@ -107,13 +55,13 @@ impl AnyMacro {
 }
 
 pub fn compile_macros<'a>(
-    ctx: Arc<Context>,
+    machine: xactor::Addr<Machine>,
     gcode_lines: impl Stream<Item = std::io::Result<String>>
 ) -> impl TryStream<Ok = AnnotatedGCode, Error = anyhow::Error> {
     gcode_lines
         // Process macros and generate annotations
-        .scan(ctx, move |ctx, line| {
-            let ctx = Arc::clone(ctx);
+        .scan(machine, move |machine, line| {
+            let machine = machine.clone();
             async move {
                 let line = line
                     .with_context(|| "Error reading gcodes");
@@ -125,7 +73,7 @@ pub fn compile_macros<'a>(
 
                 let result = if is_json {
                     // handle internal macros and JSON formatted GCodes
-                    AnyMacro::compile(&line, ctx).await
+                    AnyMacro::compile(&line, &machine).await
                 } else {
                     // handle internal string GCodes lines
                     Ok(vec![AnnotatedGCode::GCode(line)])
