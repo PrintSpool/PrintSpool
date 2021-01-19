@@ -1,28 +1,19 @@
-use std::sync::Arc;
-use futures::stream::{StreamExt};
 use serde::{Deserialize, Serialize};
-use async_graphql::*;
 use anyhow::{
+    Result,
     anyhow,
     Context as _,
 };
+use async_graphql::{ID, Context, FieldResult};
 
-use crate::models::{
-    VersionedModel,
-    VersionedModelError,
-};
-use crate::{
-    Machine,
-    // MachineStatus,
-    print_queue::macros::AnyMacro,
-};
-use super::*;
+use teg_auth::AuthContext;
+use teg_machine::{MachineMap, machine::messages::SpoolTask, task::{AnyTask, Task}};
+use teg_macros::AnyMacro;
 
-#[InputObject]
-#[derive(Debug)]
+#[derive(async_graphql::InputObject, Debug)]
 struct ExecGCodesInput {
-    #[field(name="machineID")]
-    machine_config_id: ID,
+    #[graphql(name = "machineID")]
+    machine_id: ID,
 
     /// If true blocks the mutation until the GCodes have been spooled to the machine
     /// (default: false)
@@ -52,7 +43,7 @@ struct ExecGCodesInput {
     /// Macros are able to be included in GCode via JSON as well:
     ///
     ///     `gcodes: [{ g1: { x: 10 } }, { delay: { period: 5000 } }]`
-    gcodes: Vec<Json<GCodeLine>>,
+    gcodes: Vec<async_graphql::Json<GCodeLine>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -65,27 +56,31 @@ pub enum GCodeLine {
 #[derive(Default)]
 pub struct ExecGCodesMutation;
 
-#[Object]
+#[async_graphql::Object]
 impl ExecGCodesMutation {
     /// Spools and executes GCode outside of the job queue.
     ///
     /// See ExecGCodesInput.gcodes for GCode formatting options.
-    #[field(name="execGCodes")]
+    #[graphql(name = "execGCodes")]
+    #[instrument(skip(self, ctx))]
     async fn exec_gcodes<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
         input: ExecGCodesInput,
     ) -> FieldResult<Task> {
-        info!("exec_gcodes {:#?}", input);
+        let db: &crate::Db = ctx.data()?;
+        let auth: &AuthContext = ctx.data()?;
+        let machines: &MachineMap = ctx.data()?;
 
-        let ctx: &Arc<crate::Context> = ctx.data()?;
+        let _ = auth.require_user()?;
+
         let machine_override = input.r#override.unwrap_or(false);
 
-        let machine_id = Machine::find(&ctx.db, |m| {
-            m.config_id == input.machine_config_id
-        })
-            .with_context(|| format!("No machine found for ID: {:?}", input.machine_config_id))?
-            .id;
+        let machine_id = input.machine_id.parse()
+            .with_context(|| format!("Invalid machine id: {:?}", input.machine_id))?;
+
+        let machine = machines.load().get(&input.machine_id)
+            .with_context(|| format!("No machine found for ID: {:?}", input.machine_id))?;
 
         /*
          * Preprocess GCodes
@@ -112,37 +107,23 @@ impl ExecGCodesMutation {
                     },
                 }
             })
-            .collect::<anyhow::Result<_>>()?;
+            .collect::<Result<_>>()?;
 
         /*
          * Insert task and sync task completion
          * =========================================================================================
          */
-
-        let mut task = Task::from_gcodes(
+        let mut task = crate::task_from_gcodes(
             machine_id,
+            machine.clone(),
+            machine_override,
             gcodes,
-            ctx,
         ).await?;
 
-        task.machine_override = machine_override;
-        let mut task_stream = Task::watch_id(&ctx.db, task.id)?;
-
-        info!("task {:?}", task);
-
-        let task = ctx.db.transaction(move |db| {
-            let machine = Machine::get(&db, machine_id)?;
-
-            if !machine.status.can_start_task(&task, false) {
-                Err(VersionedModelError::from(
-                    anyhow!("Cannot start task when machine is: {:?}", machine.status)
-                ))?;
-            };
-
-            let task = task.clone().insert(&db)?;
-
-            Ok(task)
-        })?;
+        let msg = SpoolTask {
+            task: AnyTask::Unsaved(task),
+        };
+        let task = machine.call(msg).await?;
 
         // Sync Mode: Block until the task is settled
         if input.sync.unwrap_or(false) {

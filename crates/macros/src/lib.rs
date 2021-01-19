@@ -57,8 +57,8 @@ impl AnyMacro {
 pub fn compile_macros<'a>(
     machine: xactor::Addr<Machine>,
     gcode_lines: impl Stream<Item = std::io::Result<String>>
-) -> impl TryStream<Ok = AnnotatedGCode, Error = anyhow::Error> {
-    gcode_lines
+) -> impl Stream<Item = Result<AnnotatedGCode>> + Unpin {
+    let stream = gcode_lines
         // Process macros and generate annotations
         .scan(machine, move |machine, line| {
             let machine = machine.clone();
@@ -105,5 +105,6 @@ pub fn compile_macros<'a>(
             };
 
             future::ready(Some(result))
-        })
+        });
+    Box::pin(stream)
 }

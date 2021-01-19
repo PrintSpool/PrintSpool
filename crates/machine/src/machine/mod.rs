@@ -1,3 +1,4 @@
+pub mod events;
 pub mod messages;
 pub mod streams;
 pub mod models;

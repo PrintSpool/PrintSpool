@@ -43,10 +43,105 @@ pub enum TaskContent {
     GCodes(Vec<String>),
 }
 
+#[derive(Debug, Clone)]
+pub enum AnyTask {
+    Saved(Task),
+    Unsaved(UnsavedTask),
+}
+
+impl AnyTask {
+    pub fn machine_override(&self) -> bool {
+        match self {
+            AnyTask::Saved(task) => task.machine_override,
+            AnyTask::Unsaved(task) => task.machine_override,
+        }
+    }
+}
+
 // TODO: Create a macro to generate this JSON Store code
 // -------------------------------------------------------------
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct UnsavedTask {
+    pub machine_id: crate::DbId, // machines have many (>=0) tasks
+    // Content
+    pub content: TaskContent,
+    // Props
+    pub annotations: Vec<(u64, GCodeAnnotation)>,
+    pub total_lines: u64,
+    pub machine_override: bool,
+}
+
 struct JsonRow {
     pub props: String,
+}
+
+
+impl UnsavedTask {
+    pub async fn insert(
+        &self,
+        db: &crate::Db,
+    ) -> Result<Task> {
+        let db = db.begin().await?;
+
+        let (user, db) = self.insert_no_rollback(db).await?;
+
+        db.commit().await?;
+
+        Ok(user)
+    }
+
+    /// Insert but without a transaction. Intended to be used inside functions that provide their
+    /// own transactions.
+    pub async fn insert_no_rollback<'c>(
+        &self,
+        mut db: sqlx::Transaction<'c, sqlx::Sqlite>,
+    ) -> Result<(Task, sqlx::Transaction<'c, sqlx::Sqlite>)> {
+        // Generate an ID for the row
+        sqlx::query!(
+            r#"
+                INSERT INTO materials
+                (props)
+                VALUES ("{}")
+            "#
+        )
+            .fetch_one(&mut db)
+            .await?;
+
+        let id = sqlx::query!(
+            "SELECT last_insert_rowid() as id"
+        )
+            .fetch_one(&mut db)
+            .await?
+            .id;
+
+        // Add the sqlite-generated monotonic ID and other default fields in to the json
+        let mut json = serde_json::to_value(self)?;
+        let map = json
+            .as_object_mut()
+            .expect("Struct incorrectly serialized for JsonRow insert");
+
+        map.insert("id".to_string(), id.into());
+        map.insert("version".to_string(), 0.into());
+        map.insert("created_at".to_string(), serde_json::to_value(Utc::now())?);
+
+        // Update Sqlite - adding the modified JSON including the ID
+        let json_string = json.to_string();
+        sqlx::query!(
+            r#"
+                UPDATE materials
+                SET props=?
+                WHERE id=?
+            "#,
+            json_string,
+            id,
+        )
+            .fetch_one(&mut db)
+            .await?;
+
+        let entry: Task = serde_json::from_value(json)?;
+
+        Ok((entry, db))
+    }
 }
 
 impl Task {

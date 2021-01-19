@@ -2,26 +2,48 @@ use teg_protobufs::{
     CombinatorMessage,
     combinator_message,
 };
-
-use crate::task::{
-    Task,
-    TaskContent,
+use anyhow::{
+    anyhow,
+    Result,
+    // Context as _,
 };
+
+use crate::{machine::Machine, task::{AnyTask, Task, TaskContent}};
 
 // use crate::machine::Machine;
 
-#[xactor::message(result = "()")]
+#[xactor::message(result = "Result<Task>")]
+#[derive(Debug)]
 pub struct SpoolTask {
-    client_id: crate::DbId,
-    task: Task,
+    task: AnyTask,
 }
 
-impl From<SpoolTask> for CombinatorMessage {
-    fn from(msg: SpoolTask) -> CombinatorMessage {
+#[async_trait::async_trait]
+impl xactor::Handler<SpoolTask> for Machine {
+    #[instrument(skip(self, _ctx))]
+    async fn handle(
+        &mut self,
+        _ctx: &mut xactor::Context<Self>,
+        msg: SpoolTask
+    ) -> Result<Task> {
         let SpoolTask {
-            client_id,
             task
         } = msg;
+
+        let client_id: crate::DbId = 42; // Chosen at random. Very legit.
+
+        let machine = self.get_data()?;
+
+        if !machine.status.can_start_task(&task, false) {
+            Err(anyhow!("Cannot start task while machine is: {:?}", machine.status))?;
+        };
+
+        info!("spooling task");
+
+        let task = match task {
+            AnyTask::Saved(task) => task,
+            AnyTask::Unsaved(task) => task.insert(&self.db).await?,
+        };
 
         let content = match &task.content {
             TaskContent::FilePath(file_path) => {
@@ -54,13 +76,8 @@ impl From<SpoolTask> for CombinatorMessage {
             ),
         };
 
-        message
+        self.send_message(message).await?;
+
+        Ok(task)
     }
 }
-
-// #[async_trait::async_trait]
-// impl Handler<SpoolTask> for Machine {
-//     async fn handle(&mut self, _ctx: &mut Context<Self>, msg: SpoolTask) -> () {
-//         self.send_message(msg.into())
-//     }
-// }

@@ -39,7 +39,7 @@ use set_job_position_mutation::SetJobPositionMutation;
 pub mod spool_job_file_mutation;
 use spool_job_file_mutation::SpoolJobFileMutation;
 
-#[derive(GQLMergedObject, Default)]
+#[derive(async_graphql::MergedObject, Default)]
 pub struct PrintQueueMutation(
     CreateJobMutation,
     DeleteJobMutation,
