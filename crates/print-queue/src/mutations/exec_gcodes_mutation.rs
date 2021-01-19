@@ -5,9 +5,10 @@ use anyhow::{
     Context as _,
 };
 use async_graphql::{ID, Context, FieldResult};
+use xactor::Actor as _;
 
 use teg_auth::AuthContext;
-use teg_machine::{MachineMap, machine::messages::SpoolTask, task::{AnyTask, Task}};
+use teg_machine::{MachineMap, machine::{events::TaskSettled, messages::SpoolTask}, task::{AnyTask, Task}};
 use teg_macros::AnyMacro;
 
 #[derive(async_graphql::InputObject, Debug)]
@@ -113,45 +114,78 @@ impl ExecGCodesMutation {
          * Insert task and sync task completion
          * =========================================================================================
          */
+        let tx = db.begin().await?;
         let mut task = crate::task_from_gcodes(
             machine_id,
             machine.clone(),
             machine_override,
             gcodes,
         ).await?;
+        let (task, tx) = task.insert_no_rollback(tx).await?;
+
+        // Sync Mode: Initialize a watcher so that it can be used later
+        let watcher = if input.sync.unwrap_or(false) {
+            let watcher = TaskCompletionWatcher {
+                task_id: task.id,
+            };
+            let watcher = watcher
+                .start()
+                .await?;
+            Some(watcher)
+        } else {
+            None
+        };
 
         let msg = SpoolTask {
-            task: AnyTask::Unsaved(task),
+            task: AnyTask::Saved(task),
         };
-        let task = machine.call(msg).await?;
+        let task = machine.call(msg).await??;
+        tx.commit();
 
         // Sync Mode: Block until the task is settled
-        if input.sync.unwrap_or(false) {
-            loop {
-                use crate::models::versioned_model::Event;
+        if let Some(watcher) = watcher {
+            watcher
+                .wait_for_stop()
+                .await??;
 
-                let event = task_stream.next().await
-                    .ok_or_else(|| anyhow!("execGCodes task stream unexpectedly ended"))??;
-
-                match event {
-                    Event::Insert{ value: task, .. } => {
-                        if task.status.was_successful() {
-                            return Ok(task)
-                        } else if task.status.was_aborted() {
-                            let err = task.error_message.unwrap_or(
-                                format!("Task Aborted. Reason: {:?}", task.status),
-                            );
-
-                            return Err(anyhow!(err).into());
-                        }
-                    }
-                    Event::Remove { .. } => {
-                        Err(anyhow!("Task was deleted before it settled"))?;
-                    }
-                }
-            }
+            // Refresh the task
+            let task = Task::get(task.id).await?;
+            Ok(task)
         } else {
             Ok(task)
         }
+    }
+}
+
+struct TaskCompletionWatcher {
+    task_id: crate::DbId,
+}
+
+impl xactor::Actor for TaskCompletionWatcher {}
+
+#[async_trait::async_trait]
+impl xactor::Handler<TaskSettled> for TaskCompletionWatcher {
+    async fn handle(
+        &mut self,
+        ctx: &mut xactor::Context<Self>,
+        msg: TaskSettled
+    ) -> () {
+        if msg.task_id != self.task_id {
+            return
+        }
+
+        let err = match msg.task_status {
+            TaskStatus::Finished => None,
+            TaskStatus::Cancelled => {
+                Some("Task Cancelled".to_string())
+            }
+            TaskStatus::Errored(error) => {
+                Some(error.message)
+            }
+            invalid_status => {
+                Some(format!("Task settled with invalid status: {:?}", invalid_status))
+            }
+        };
+        ctx.stop(err);
     }
 }

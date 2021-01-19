@@ -11,10 +11,7 @@ use machine_message::Feedback;
 use teg_protobufs::{
     machine_message::{self, Status},
 };
-use crate::{machine::{MachineData, events::TaskSettled}, task::{
-    Task,
-    // TaskContent,
-}};
+use crate::{machine::{MachineData, events::TaskSettled}, task::{Task, TaskStatus}};
 use crate::machine::{
     Machine,
     models::{
@@ -56,7 +53,7 @@ pub async fn update_tasks(
     feedback: &Feedback,
 ) -> Result<()> {
     for progress in feedback.task_progress.iter() {
-        let status = progress.try_into()?;
+        let status = TaskStatus::from_task_progress(&progress, &feedback.error)?;
 
         let mut task = Task::get(db, progress.task_id).await?;
 

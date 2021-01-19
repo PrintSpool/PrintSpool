@@ -33,8 +33,6 @@ pub struct Task {
     // pub sent_to_machine: bool,
     #[new(default)]
     pub status: TaskStatus,
-    #[new(default)]
-    pub error_message: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
