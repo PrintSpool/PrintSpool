@@ -1,20 +1,17 @@
-// use async_std::prelude::*;
-use chrono::{ prelude::*, Duration };
-use machine_message::Feedback;
-
 use std::convert::TryInto;
-// use std::sync::Arc;
+use chrono::{ prelude::*, Duration };
+use xactor::{Service as _, Message as _};
 use anyhow::{
     anyhow,
     Result,
     // Context as _,
 };
 
+use machine_message::Feedback;
 use teg_protobufs::{
     machine_message::{self, Status},
 };
-
-use crate::{machine::MachineData, task::{
+use crate::{machine::{MachineData, events::TaskSettled}, task::{
     Task,
     // TaskContent,
 }};
@@ -34,7 +31,10 @@ use crate::components::{
     // SpeedController,
 };
 
-pub async fn record_feedback(machine: &mut Machine, feedback: Feedback) -> Result<()> {
+pub async fn record_feedback(
+    machine: &mut Machine,
+    feedback: Feedback,
+) -> Result<()> {
     let db = machine.db.clone();
     let machine_data = machine.get_data()?;
     let transaction = db.begin().await?;
@@ -51,7 +51,10 @@ pub async fn record_feedback(machine: &mut Machine, feedback: Feedback) -> Resul
     Ok(())
 }
 
-pub async fn update_tasks(db: &crate::Db, feedback: &Feedback) -> Result<()> {
+pub async fn update_tasks(
+    db: &crate::Db,
+    feedback: &Feedback,
+) -> Result<()> {
     for progress in feedback.task_progress.iter() {
         let status = progress.try_into()?;
 
@@ -62,6 +65,14 @@ pub async fn update_tasks(db: &crate::Db, feedback: &Feedback) -> Result<()> {
         task.status = status;
 
         task.update(db).await?;
+
+        if task.status.is_settled() {
+            let mut broker = xactor::Broker::from_registry().await?;
+            broker.publish(TaskSettled {
+                task_id: task.id,
+                task_status: task.status.clone(),
+            })?;
+        }
     }
 
     Ok(())

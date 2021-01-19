@@ -1,2 +1,2 @@
-mod task_completed;
-pub use task_completed::TaskCompleted;
+mod task_settled;
+pub use task_settled::TaskSettled;
