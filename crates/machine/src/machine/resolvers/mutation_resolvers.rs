@@ -11,6 +11,7 @@ use anyhow::{
 use teg_auth::{
     AuthContext,
 };
+use teg_json_store::UnsavedRecord as _;
 
 use crate::machine::{
     MachineViewer,

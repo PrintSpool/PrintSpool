@@ -5,6 +5,7 @@ use anyhow::{
     Result,
     // Context as _,
 };
+use teg_json_store::{Record, UnsavedRecord};
 
 use crate::user::User;
 use super::InviteConfig;
@@ -111,8 +112,6 @@ impl Invite {
     }
 }
 
-// TODO: Create a macro to generate this JSON Store code
-// -------------------------------------------------------------
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UnsavedInvite {
     pub config: InviteConfig,
@@ -195,40 +194,6 @@ impl UnsavedInvite {
 }
 
 impl Invite {
-    pub async fn get(
-        db: &crate::Db,
-        id: crate::DbId,
-    ) -> Result<Self> {
-        let row = sqlx::query_as!(
-            JsonRow,
-            "SELECT props FROM invites WHERE id = ?",
-            id
-        )
-            .fetch_one(db)
-            .await?;
-
-        let entry: Self = serde_json::from_str(&row.props)?;
-        Ok(entry)
-    }
-
-    pub async fn get_with_version(
-        db: &crate::Db,
-        id: crate::DbId,
-        version: crate::DbId,
-    ) -> Result<Self> {
-        let row = sqlx::query_as!(
-            JsonRow,
-            "SELECT props FROM invites WHERE id = ? AND version = ?",
-            id,
-            version,
-        )
-            .fetch_one(db)
-            .await?;
-
-        let entry: Self = serde_json::from_str(&row.props)?;
-        Ok(entry)
-    }
-
     pub async fn get_by_pk<'e, 'c, E>(
         db: E,
         public_key: &str,
@@ -247,69 +212,40 @@ impl Invite {
         let entry: Self = serde_json::from_str(&row.props)?;
         Ok(entry)
     }
+}
 
-    pub async fn get_all(
-        db: &crate::Db,
-    ) -> Result<Vec<Self>> {
-        let rows = sqlx::query_as!(
-            JsonRow,
-            "SELECT props FROM invites",
-        )
-            .fetch_all(db)
-            .await?;
+impl Record for Invite {
+    const TABLE: &'static str = "invites";
 
-        let rows = rows.into_iter()
-            .map(|row| serde_json::from_str(&row.props))
-            .collect::<std::result::Result<Vec<_>, _>>()?;
-
-        Ok(rows)
+    fn id(&self) -> crate::DbId {
+        self.id
     }
 
-    pub async fn update<'e, 'c, E>(
-        &mut self,
-        db: E,
-    ) -> Result<()>
-    where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
-    {
-        let previous_version = self.version;
-        self.version = self.version + 1;
+    fn version(&self) -> crate::DbId {
+        self.version
+    }
 
-        let json = serde_json::to_string(self)?;
+    fn version_mut(&mut self) -> &mut crate::DbId {
+        &mut self.version
+    }
+}
 
-        sqlx::query!(
+#[async_trait::async_trait]
+impl UnsavedRecord<Invite> for UnsavedInvite {
+    async fn query_sqlx<'c>(
+        &self,
+        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+    ) -> Result<()> {
+        sqlx::query(
             r#"
-                UPDATE invites
-                SET props=?, version=?
-                WHERE id=? AND version=?
+                INSERT INTO invites
+                (props, version, public_key)
+                VALUES ("{}", 0, ?)
             "#,
-            json,
-            self.version,
-            self.id,
-            previous_version,
         )
+            .bind(&self.public_key)
             .fetch_one(db)
             .await?;
-
-        Ok(())
-    }
-
-    pub async fn remove<'e, 'c, E>(
-        db: E,
-        id: crate::DbId,
-    ) -> Result<()>
-    where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
-    {
-        sqlx::query!(
-            r#"
-                DELETE FROM invites WHERE id=?
-            "#,
-            id,
-        )
-            .fetch_optional(db)
-            .await?;
-
         Ok(())
     }
 }

@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-
 use async_graphql::{
     // ID,
     FieldResult,
@@ -18,6 +17,7 @@ use teg_auth::{
     invite::Invite,
 };
 use teg_material::Material;
+use teg_json_store::Record as _;
 
 use crate::{
     config::{

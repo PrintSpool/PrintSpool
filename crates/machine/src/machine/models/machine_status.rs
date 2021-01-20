@@ -1,6 +1,6 @@
 // Task Status Revison 1 (LATEST)
 use serde::{Deserialize, Serialize};
-use crate::task::{AnyTask, Task};
+use crate::task::AnyTask;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum MachineStatus {
@@ -41,7 +41,7 @@ pub struct Printing {
     pub task_id: crate::DbId,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Errored {
     pub message: String,
 }

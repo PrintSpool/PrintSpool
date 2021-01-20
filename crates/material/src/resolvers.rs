@@ -9,6 +9,7 @@ use async_graphql::{
     FieldResult,
 };
 use teg_config_form::ConfigForm;
+use teg_json_store::Record as _;
 
 use crate::{
     Material,
@@ -22,7 +23,7 @@ impl Query {
     async fn materials<'ctx>(&self, ctx: &'ctx Context<'_>,) -> FieldResult<Vec<Material>> {
         let db: &crate::Db = ctx.data()?;
 
-        let materials = Material::get_all(&db).await?;
+        let materials = Material::get_all(db).await?;
 
         Ok(materials)
     }

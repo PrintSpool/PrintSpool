@@ -12,6 +12,7 @@ path = "src/lib.rs"
 teg_config_form = { path = "../config_form" }
 teg_material = { path = "../material" }
 teg_auth = { path = "../auth" }
+teg-json-store = { path = "../json-store" }
 
 anyhow = "1.0"
 async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }

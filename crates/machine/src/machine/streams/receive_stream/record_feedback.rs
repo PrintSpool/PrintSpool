@@ -1,16 +1,16 @@
-use std::convert::TryInto;
 use chrono::{ prelude::*, Duration };
-use xactor::{Service as _, Message as _};
+use xactor::{Service as _};
 use anyhow::{
     anyhow,
     Result,
     // Context as _,
 };
-
-use machine_message::Feedback;
 use teg_protobufs::{
     machine_message::{self, Status},
 };
+use teg_json_store::Record as _;
+
+use machine_message::Feedback;
 use crate::{machine::{MachineData, events::TaskSettled}, task::{Task, TaskStatus}};
 use crate::machine::{
     Machine,

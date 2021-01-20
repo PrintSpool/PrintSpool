@@ -7,6 +7,7 @@ use anyhow::{
     Result,
     // Context as _,
 };
+use teg_json_store::UnsavedRecord as _;
 
 use crate::{machine::Machine, task::{AnyTask, Task, TaskContent}};
 

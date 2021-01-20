@@ -4,6 +4,7 @@ use async_graphql::{
     ID,
 };
 use teg_material::Material;
+use teg_json_store::Record as _;
 
 use super::Toolhead;
 

@@ -1,5 +1,4 @@
 // Task Status Revison 1 (LATEST)
-use std::convert::TryFrom;
 use serde::{Deserialize, Serialize};
 use teg_protobufs::machine_message::TaskProgress;
 
@@ -33,6 +32,7 @@ pub enum TaskStatus {
 }
 
 #[derive(async_graphql::Enum, Debug, Serialize, Deserialize, Copy, Clone, PartialEq, Eq)]
+#[graphql(name = "TaskStatus")]
 pub enum TaskStatusGQL {
     /* Before sending to the driver */
 
@@ -59,8 +59,8 @@ pub enum TaskStatusGQL {
     Errored,
 }
 
-impl From<TaskStatus> for TaskStatusGQL {
-    fn from(status: TaskStatus) -> Self {
+impl From<&TaskStatus> for TaskStatusGQL {
+    fn from(status: &TaskStatus) -> Self {
         match status {
           TaskStatus::Spooled => TaskStatusGQL::Spooled,
           TaskStatus::Started => TaskStatusGQL::Started,
@@ -90,6 +90,7 @@ impl TaskStatus {
             i if i == TS::TaskCancelled as i32 => TaskStatus::Cancelled,
             i if i == TS::TaskErrored as i32 => {
                 let message = error
+                    .as_ref()
                     .map(|e| e.message.clone())
                     .unwrap_or_else(|| "Error message not found".to_string());
 

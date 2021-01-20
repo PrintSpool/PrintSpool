@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use teg_json_store::Record as _;
 
 use crate::user::User;
 use super::Invite;

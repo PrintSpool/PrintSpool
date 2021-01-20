@@ -11,8 +11,11 @@ path = "src/lib.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+teg-json-store = { path = "../json-store" }
+
 serde_json = { version = "1.0.44", features = ["raw_value"] }
 async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }
+async-trait = "0.1.36"
 anyhow = "1.0"
 frank_jwt = "3.1.2"
 schemars = "0.8.0"
