@@ -4170,6 +4170,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sqlx",
+ "teg-json-store",
  "teg_machine",
  "teg_material",
  "tracing",

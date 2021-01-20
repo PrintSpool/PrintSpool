@@ -12,6 +12,8 @@ use teg_material::{
     Material,
     MaterialConfigEnum::FdmFilament,
 };
+use teg_json_store::Record;
+
 use crate::AnnotatedGCode;
 use super::SetTargetTemperaturesMacro;
 
