@@ -15,7 +15,7 @@ use super::ResetWhenIdle;
 #[derive(Clone)]
 pub struct UpdateComponent {
     pub id: String,
-    pub version: crate::DbId,
+    pub version: i32,
     pub model: serde_json::Value,
 }
 

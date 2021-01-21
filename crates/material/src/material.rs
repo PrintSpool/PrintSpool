@@ -1,3 +1,4 @@
+use chrono::prelude::*;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use schemars::JsonSchema;
 use anyhow::{
@@ -10,7 +11,9 @@ use teg_json_store::{Record, UnsavedRecord};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Material {
     pub id: crate::DbId,
-    pub version: crate::DbId,
+    pub version: i32,
+    pub created_at: DateTime<Utc>,
+    // Props
     pub config: MaterialConfigEnum,
 }
 

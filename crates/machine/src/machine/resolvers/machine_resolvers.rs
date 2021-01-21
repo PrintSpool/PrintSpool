@@ -14,14 +14,14 @@ use teg_auth::user::User;
 
 use crate::machine::{
     MachineData,
-    models::MachineStatusGQL,
-    models::MachineStatus,
+    MachineStatusGQL,
+    MachineStatus,
 };
 use crate::components::{
     Component
 };
 use crate::plugins::Plugin;
-use crate::machine::models::GCodeHistoryEntry;
+use crate::machine::GCodeHistoryEntry;
 use super::machine_error_resolvers::MachineError;
 
 #[async_graphql::Object]

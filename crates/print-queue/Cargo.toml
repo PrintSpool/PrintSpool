@@ -15,6 +15,7 @@ teg_machine = { path = "../machine" }
 teg-macros = { path = "../macros" }
 teg_auth = { path = "../auth" }
 teg_data_channel = { path = "../data_channel" }
+teg-json-store = { path = "../json-store" }
 
 serde_json = { version = "1.0.44", features = ["raw_value"] }
 async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }
@@ -27,6 +28,8 @@ arc-swap = "1.1.0"
 xactor = "0.7.11"
 async-trait = "0.1.36"
 futures = "0.3.12"
+nanoid = "0.3.0"
+nom-gcode = "0.1.0"
 
 [dependencies.serde]
 features = ["derive"]

@@ -10,7 +10,7 @@ use teg_json_store::{Record, UnsavedRecord};
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct MachineViewer {
     pub id: crate::DbId,
-    pub version: crate::DbId,
+    pub version: i32,
     pub created_at: DateTime<Utc>,
 
     // Foreign Keys

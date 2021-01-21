@@ -22,7 +22,7 @@ mod compile_internal_macro;
 use compile_internal_macro::CompileInternalMacro;
 
 pub type Db = sqlx::sqlite::SqlitePool;
-pub type DbId = i32;
+pub type DbId = teg_json_store::DbId;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]

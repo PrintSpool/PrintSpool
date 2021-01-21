@@ -78,7 +78,7 @@ use {
 
 // use bus_queue::async_::Publisher;
 
-pub type DbId = i32;
+pub type DbId = teg_json_store::DbId;
 
 // Create the Error, ErrorKind, ResultExt, and Result types
 error_chain! {}

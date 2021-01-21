@@ -12,7 +12,7 @@ use super::UserConfig;
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct User {
     pub id: crate::DbId,
-    pub version: crate::DbId,
+    pub version: i32,
     pub created_at: DateTime<Utc>,
 
     pub config: UserConfig,

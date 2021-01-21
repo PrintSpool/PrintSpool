@@ -13,7 +13,7 @@ pub mod plugins;
 pub mod task;
 
 pub type Db = sqlx::sqlite::SqlitePool;
-pub type DbId = i32;
+pub type DbId = teg_json_store::DbId;
 
 /// GraphQL Context containing all the machine xactor addresses for message passing.
 pub type MachineMapLocal = HashMap<async_graphql::ID, xactor::Addr<machine::Machine>>;

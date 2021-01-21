@@ -13,7 +13,7 @@ use super::InviteConfig;
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Invite {
     pub id: crate::DbId,
-    pub version: crate::DbId,
+    pub version: i32,
     pub created_at: DateTime<Utc>,
 
     pub config: InviteConfig,

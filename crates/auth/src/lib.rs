@@ -10,4 +10,4 @@ mod auth_context;
 pub use auth_context::AuthContext;
 
 pub type Db = sqlx::sqlite::SqlitePool;
-pub type DbId = i32;
+pub type DbId = teg_json_store::DbId;

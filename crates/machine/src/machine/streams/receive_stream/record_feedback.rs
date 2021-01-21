@@ -14,12 +14,10 @@ use machine_message::Feedback;
 use crate::{machine::{MachineData, events::TaskSettled}, task::{Task, TaskStatus}};
 use crate::machine::{
     Machine,
-    models::{
-        MachineStatus,
-        GCodeHistoryEntry,
-        GCodeHistoryDirection,
-        Errored,
-    },
+    MachineStatus,
+    GCodeHistoryEntry,
+    GCodeHistoryDirection,
+    Errored,
 };
 use crate::components::{
     // HeaterEphemeral,

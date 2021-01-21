@@ -11,8 +11,8 @@ use anyhow::{
     // Context as _,
 };
 
-use super::{messages::ConnectToSocket, models::MachineStatus, streams::receive_stream::codec::MachineCodec};
-use super::models::GCodeHistoryEntry;
+use super::{messages::ConnectToSocket, MachineStatus, streams::receive_stream::codec::MachineCodec};
+use super::GCodeHistoryEntry;
 use crate::config::MachineConfig;
 
 pub struct Machine {

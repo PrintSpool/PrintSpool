@@ -6,4 +6,4 @@ pub mod resolvers;
 mod into_config_form;
 
 pub type Db = sqlx::sqlite::SqlitePool;
-pub type DbId = i32;
+pub type DbId = teg_json_store::DbId;

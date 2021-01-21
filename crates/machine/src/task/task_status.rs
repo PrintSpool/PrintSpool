@@ -8,7 +8,7 @@ use anyhow::{
     // Context as _,
 };
 
-use crate::machine::models::Errored;
+use crate::machine::Errored;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub enum TaskStatus {

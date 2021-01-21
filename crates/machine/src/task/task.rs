@@ -12,27 +12,23 @@ use super::{
     TaskStatus,
 };
 
-#[derive(new, Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Task {
     pub id: crate::DbId,
-    pub version: crate::DbId,
+    pub version: i32,
+    pub created_at: DateTime<Utc>,
     // Foreign Keys
     pub machine_id: crate::DbId, // machines have many (>=0) tasks
-    // Timestamps
-    #[new(value = "Utc::now()")]
-    pub created_at: DateTime<Utc>,
     // Content
     pub content: TaskContent,
     // Props
     pub annotations: Vec<(u64, GCodeAnnotation)>,
     pub total_lines: u64,
-    #[new(default)]
     pub despooled_line_number: Option<u64>,
-    #[new(default)]
     pub machine_override: bool,
     // #[new(default)]
     // pub sent_to_machine: bool,
-    #[new(default)]
+    #[serde(default)]
     pub status: TaskStatus,
 }
 
@@ -59,6 +55,7 @@ impl AnyTask {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UnsavedTask {
+    pub id: crate::DbId,
     pub machine_id: crate::DbId, // machines have many (>=0) tasks
     // Content
     pub content: TaskContent,
