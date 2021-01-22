@@ -54,9 +54,48 @@ CREATE TABLE tasks(
   -- machine_id TEXT AS (JSON_EXTRACT(props, "$.machine_id")) STORED
 );
 
--- A singelton for global configuration of this host
-CREATE TABLE host_globals(
+-- Print Queue
+-- =======================================
+
+CREATE TABLE print_queues(
+  id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
 
-  next_machine_id TEXT NOT NULL DEFAULT 0
+  props TEXT NOT NULL
+);
+
+CREATE TABLE packages(
+  id TEXT PRIMARY KEY NOT NULL,
+  version INT NOT NULL DEFAULT 0,
+
+  print_queue_id TEXT NOT NULL,
+
+  -- quantity BLOB NOT NULL,
+
+  props TEXT NOT NULL
+);
+
+CREATE TABLE parts(
+  id TEXT PRIMARY KEY NOT NULL,
+  version INT NOT NULL DEFAULT 0,
+
+  -- print_queue_id TEXT NOT NULL,
+  package_id TEXT NOT NULL,
+
+  -- quantity BLOB NOT NULL,
+  -- position BLOB NOT NULL,
+
+  props TEXT NOT NULL
+);
+
+CREATE TABLE prints(
+  id TEXT PRIMARY KEY NOT NULL,
+  version INT NOT NULL DEFAULT 0,
+
+  part_id TEXT NOT NULL,
+  task_id TEXT NOT NULL,
+
+  -- status TEXT NOT NULL,
+
+  props TEXT NOT NULL
 );

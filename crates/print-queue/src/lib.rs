@@ -7,6 +7,9 @@ pub mod package;
 pub mod part;
 pub mod print;
 
+mod print_queue;
+pub use print_queue::PrintQueue;
+
 mod task_from_gcodes;
 pub use task_from_gcodes::{
     task_from_gcodes,

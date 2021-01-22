@@ -1,4 +1,4 @@
 mod print;
-pub use print::Print;
+pub use print::PrintTask;
 
 mod insert_print;

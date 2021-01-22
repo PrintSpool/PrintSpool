@@ -1,14 +1,14 @@
 use serde::{Deserialize, Serialize};
 use anyhow::{
     Result,
-    anyhow,
+    // anyhow,
     Context as _,
 };
 use async_graphql::{ID, Context, FieldResult};
 use xactor::Actor as _;
 
 use teg_auth::AuthContext;
-use teg_machine::{MachineMap, machine::{events::TaskSettled, messages::SpoolTask}, task::{AnyTask, Task}};
+use teg_machine::{MachineMap, machine::{events::TaskSettled, messages::SpoolTask}, task::{Task, TaskStatus}};
 use teg_macros::AnyMacro;
 
 #[derive(async_graphql::InputObject, Debug)]
@@ -137,7 +137,7 @@ impl ExecGCodesMutation {
         };
 
         let msg = SpoolTask {
-            task: AnyTask::Saved(task),
+            task,
         };
         let task = machine.call(msg).await??;
         tx.commit();
