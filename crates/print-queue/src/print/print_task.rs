@@ -11,7 +11,7 @@ pub struct PrintTask {
     #[new(value = "Utc::now()")]
     pub created_at: DateTime<Utc>,
     // Foreign Keys
-    pub print_id: crate::DbId, // prints have many (>=0) print_tasks
+    pub package_id: crate::DbId, // packages have many (>=0) print_tasks
     pub part_id: crate::DbId, // parts have many (>=0) print_tasks
     pub task_id: crate::DbId, // print_tasks have one task
     // Props
@@ -35,5 +35,51 @@ impl Record for PrintTask {
     }
 }
 
-#[async_trait::async_trait]
-impl UnsavedRecord<PrintTask> for PrintTask {}
+pub struct PrintTaskStats {
+    printed: u32,
+    total: u32,
+}
+
+impl PrintTask {
+    pub async fn prints_in_progress(
+        &self,
+        db: &crate::Db
+    ) -> Result<u32> {
+        let printed = sqlx::query!(
+            r#"
+                SELECT
+                    COUNT(id) as printed
+                FROM print_tasks
+                WHERE
+                    package_id = ?
+                    AND part_id = ?
+                    AND status IN ("Started", "Paused", "Finished")
+            "#,
+            &self.package_id,
+            &self.part_id,
+        )
+            .await?
+            .printed;
+        Ok(printed)
+    }
+
+    pub async fn total_quantity_required(
+        &self,
+        print_id: &crate::DbId,
+        db: &crate::Db
+    ) -> Result<u32> {
+        let quantity = sqlx::query!(
+            r#"
+                SELECT
+                    SUM(quantity) as quantity
+                FROM parts
+                INNER JOIN packages ON parts.package_id = package.id
+                WHERE parts.id = ?
+            "#,
+            &self.part_id,
+        )
+            .await?
+            .quantity;
+        Ok(printed)
+    }
+}

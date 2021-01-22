@@ -66,6 +66,27 @@ impl Record for Part {
     fn version_mut(&mut self) -> &mut crate::DbId {
             &mut self.version
     }
+
+    async fn insert_no_rollback<'c>(
+        &self,
+        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+    ) -> Result<()> {
+        sqlx::query!(
+            r#"
+                INSERT INTO part
+                (id, version, props, quantity)
+                VALUES (?, ?, ?, ?)
+            "#,
+            &self.id,
+            &self.version,
+            serde_json::to_string(&self)?,
+            &self.quantity,
+        )
+            .fetch_one(db)
+            .await?;
+
+        Ok(())
+    }
 }
 
 #[async_trait::async_trait]

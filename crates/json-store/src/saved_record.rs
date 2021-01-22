@@ -18,7 +18,44 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
 
     fn id(&self) -> crate::DbId;
     fn version(&self) -> crate::DbId;
-    fn version_mut(&mut self) -> &mut crate::DbId;
+    fn version_mut(&mut self) -> &mut i32;
+
+    async fn insert(
+        &self,
+        db: &crate::Db,
+    ) -> Result<()> {
+        let mut tx = db.begin().await?;
+
+        self.insert_no_rollback(&mut tx).await?;
+
+        tx.commit().await?;
+
+        Ok(())
+    }
+
+    /// Insert but without a transaction. Intended to be used inside functions that provide their
+    /// own transactions.
+    async fn insert_no_rollback<'c>(
+        &self,
+        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+    ) -> Result<()> {
+        sqlx::query(&format!(
+            r#"
+                INSERT INTO {}
+                (id, version, props)
+                VALUES (?, ?, ?)
+            "#,
+            Self::TABLE,
+        ))
+            .bind(self.id())
+            .bind(self.version())
+            .bind(serde_json::to_string(&self)?)
+
+            .fetch_one(db)
+            .await?;
+
+        Ok(())
+    }
 
     async fn get(
         db: &crate::Db,

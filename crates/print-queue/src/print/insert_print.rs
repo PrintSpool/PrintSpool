@@ -17,19 +17,12 @@ use teg_macros::{
     compile_macros,
     AnnotatedGCode,
 };
-use teg_machine::{
-    machine::{
-        Machine,
-        MachineStatus,
-        Printing,
-        messages::GetData,
-    },
-    task::{
+use teg_machine::{machine::{Machine, MachineStatus, Printing, messages::{GetData, SpoolTask}}, task::{
         Task,
         // TaskStatus,
         TaskContent,
-    },
-};
+    }};
+use xactor::Handler;
 
 use crate::{
     print::Print,
@@ -144,22 +137,7 @@ pub async fn insert_print(
     gcodes_writer.flush().await?;
     gcodes_writer.close().await?;
 
-    // TODO: move the entire transaction inside a Machine message handler?
-    /*
-     * Create the task
-     * =========================================================================================
-     */
-    let tx = db.begin().await;
-    let part = Part::get(&db, part_id).await?;
-    let package = Package::get(&db, part.package_id).await?;
-
-    if part.is_done(&package) {
-        Err(
-            anyhow!("Already printed {} / {} of {}", part.printed, part.quantity, part.name)
-        )?;
-    }
-
-    let (task, tx) = Task {
+    let task = Task {
         id: task_id.clone(),
         version: 0,
         created_at: Utc::now(),
@@ -173,49 +151,102 @@ pub async fn insert_print(
         despooled_line_number: None,
         machine_override: false,
         status: Default::default(),
-    }.insert_no_rollback(tx).await?;
+    };
 
-    let (print_task, tx) = PrintTask {
+    let print_task = PrintTask {
         id: naonid!(),
         version: 0,
         created_at: Utc::now(),
         // Foreign Keys
         print_id: print_id.clone(),
-        part_id: part.id.clone(),
+        part_id: part_id.clone(),
         task_id: task.id.clone(),
         // Props
         estimated_print_time,
         estimated_filament_meters,
-    }.insert_no_rollback(tx).await?;
-
-    // Atomically set the machine status to printing
-    let task_id = task.id.clone();
-    let mut machine = Machine::get(
-        &db,
-        machine_id,
-    )?;
-    let task_id = task_id.clone();
-
-    if machine.pausing_task_id.is_some() {
-        Err(VersionedModelError::from(
-            anyhow!("Cannot start a new print when an existing print is paused")
-        ))?;
-    }
-    if !machine.status.can_start_task(&task, automatic_print) {
-        Err(VersionedModelError::from(
-            anyhow!("Cannot start task when machine is: {:?}", machine.status)
-        ))?;
     };
 
-    if machine.status == MachineStatus::Ready {
-        machine.status = MachineStatus::Printing(
-            Printing { task_id }
-        );
-
-        machine.insert(&db)?;
+    let msg = SpoolPrintTask {
+        task,
+        print_task,
     };
-
-    tx.commit().await?
+    machine.call(msg).await??;
 
     Ok(task)
+}
+
+
+#[xactor::message(result = "Result<Task>")]
+#[derive(Debug)]
+pub struct SpoolPrintTask {
+    task: Task,
+    print_task: PrintTask,
+}
+
+#[async_trait::async_trait]
+impl xactor::Handler<SpoolPrintTask> for Machine {
+    #[instrument(skip(self, _ctx))]
+    async fn handle(
+        &mut self,
+        ctx: &mut xactor::Context<Self>,
+        msg: SpoolPrintTask
+    ) -> Result<Task> {
+        let part = Part::get(&self.db, print_task.part_id).await?;
+        let package = Package::get(&self.db, part.package_id).await?;
+
+        /*
+        * Create the task
+        * =========================================================================================
+        */
+        let tx = self.db.begin().await;
+
+        // Get the number of printed parts and the total number of prints
+        let ( printed, total_prints ) = print_task.get_stats(&print_id, &package);
+
+        if printed >= total_prints {
+            Err(
+                anyhow!("Already printed {} / {} of {}", printed, total_prints, part.name)
+            )?;
+        }
+
+        task.insert_no_rollback(&mut tx).await?;
+        print_task.insert_no_rollback(&mut tx).await?;
+
+        // Atomically set the machine status to printing
+        let task_id = task.id.clone();
+        let mut machine = Machine::get(
+            &db,
+            machine_id,
+        )?;
+        let task_id = task_id.clone();
+
+        if machine.pausing_task_id.is_some() {
+            Err(VersionedModelError::from(
+                anyhow!("Cannot start a new print when an existing print is paused")
+            ))?;
+        }
+        if !machine.status.can_start_task(&task, automatic_print) {
+            Err(VersionedModelError::from(
+                anyhow!("Cannot start task when machine is: {:?}", machine.status)
+            ))?;
+        };
+
+        if machine.status == MachineStatus::Ready {
+            machine.status = MachineStatus::Printing(
+                Printing { task_id }
+            );
+
+            machine.insert(&db)?;
+        };
+
+        tx.commit().await?;
+
+        // (self as xactor::Handler<SpoolTask>)
+        self.handle(
+            &mut ctx,
+            SpoolTask { task },
+        ).await??;
+
+        Ok(task)
+    }
 }
