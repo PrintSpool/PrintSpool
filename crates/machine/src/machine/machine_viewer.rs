@@ -5,18 +5,22 @@ use anyhow::{
     Result,
     // Context as _,
 };
-use teg_json_store::{Record, UnsavedRecord};
+use teg_json_store::Record;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(new, Debug, Serialize, Deserialize, Clone)]
 pub struct MachineViewer {
+    #[new(value = "nanoid!()")]
     pub id: crate::DbId,
+    #[new(default)]
     pub version: i32,
+    #[new(value = "Utc::now()")]
     pub created_at: DateTime<Utc>,
 
     // Foreign Keys
     pub machine_id: crate::DbId,
     pub user_id: crate::DbId,
     // Timestamps
+    #[new(value = "Utc::now() + chrono::Duration::seconds(5)")]
     pub expires_at: DateTime<Utc>,
 }
 
@@ -32,31 +36,18 @@ impl MachineViewer {
     }
 }
 
-#[derive(new, Debug, Serialize, Deserialize, Clone)]
-pub struct UnsavedMachineViewer {
-    // Foreign Keys
-    pub machine_id: crate::DbId,
-    pub user_id: crate::DbId,
-    // Timestamps
-    #[new(value = "Utc::now() + chrono::Duration::seconds(5)")]
-    pub expires_at: DateTime<Utc>,
-}
-
 impl Record for MachineViewer {
     const TABLE: &'static str = "machine_viewers";
 
-    fn id(&self) -> crate::DbId {
-        self.id
+    fn id(&self) -> &crate::DbId {
+        &self.id
     }
 
-    fn version(&self) -> crate::DbId {
+    fn version(&self) -> teg_json_store::Version {
         self.version
     }
 
-    fn version_mut(&mut self) -> &mut crate::DbId {
+    fn version_mut(&mut self) -> &mut teg_json_store::Version {
         &mut self.version
     }
 }
-
-#[async_trait::async_trait]
-impl UnsavedRecord<MachineViewer> for UnsavedMachineViewer {}

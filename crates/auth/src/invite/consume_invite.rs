@@ -12,11 +12,11 @@ pub async fn consume_invite(
 ) -> Result<User> {
     info!("Consume Invite Req: user: {:?} invite: {:?}", user.id, invite_public_key);
 
-    let mut db = db.begin().await?;
+    let mut tx = db.begin().await?;
 
     // Verify that the invite has not yet been consumed
     // TODO: This should be moved inside the transaction once transaction scans are supported
-    let invite = Invite::get_by_pk(&mut db, &invite_public_key)
+    let invite = Invite::get_by_pk(&mut tx, &invite_public_key)
         .await
         .map_err(|_| anyhow!("Invite has already been consumed"))?;
 
@@ -24,12 +24,12 @@ pub async fn consume_invite(
     user.config.is_admin = user.config.is_admin || invite.config.is_admin;
     user.is_authorized = true;
 
-    user.update(&mut db).await?;
+    user.update(&mut tx).await?;
 
     // Delete the invite
-    Invite::remove(&mut db, invite.id).await?;
+    Invite::remove(&mut tx, &invite.id).await?;
 
-    db.commit().await?;
+    tx.commit().await?;
 
     Ok(user)
 }

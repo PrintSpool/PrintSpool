@@ -1,3 +1,5 @@
+#[macro_use] extern crate nanoid;
+
 mod material;
 pub use material::*;
 

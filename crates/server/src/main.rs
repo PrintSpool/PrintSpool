@@ -32,9 +32,11 @@ use teg_machine::{MachineMap, MachineMapLocal, machine::Machine};
 
 const CONFIG_DIR: &'static str = "/etc/teg/";
 
+pub type DbId = teg_json_store::DbId;
+
 #[derive(Deserialize)]
 struct IdFromConfig {
-    id: i32
+    id: crate::DbId,
 }
 
 fn main() -> Result<()> {
@@ -45,7 +47,7 @@ fn main() -> Result<()> {
 async fn app() -> Result<()> {
     let db = SqlitePool::connect(&env::var("DATABASE_URL")?).await?;
 
-    let machine_ids: Vec<i32> = std::fs::read_dir(CONFIG_DIR)?
+    let machine_ids: Vec<crate::DbId> = std::fs::read_dir(CONFIG_DIR)?
         .map(|entry| {
             let entry = entry?;
             let file_name = entry.file_name().to_str()
@@ -76,7 +78,7 @@ async fn app() -> Result<()> {
         .map(|machine_id| {
             let db_clone = db_clone.clone();
             async move {
-                let machine = Machine::start(db_clone, machine_id)
+                let machine = Machine::start(db_clone, &machine_id)
                     .await?;
                 Result::<_>::Ok((async_graphql::ID::from(machine_id), machine))
             }

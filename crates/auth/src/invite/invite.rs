@@ -5,7 +5,7 @@ use anyhow::{
     Result,
     // Context as _,
 };
-use teg_json_store::{Record, UnsavedRecord};
+use teg_json_store::Record;
 
 use crate::user::User;
 use super::InviteConfig;
@@ -26,8 +26,8 @@ pub struct Invite {
 impl Invite {
     pub async fn update_from_mutation(
         db: &crate::Db,
-        id: crate::DbId,
-        version: crate::DbId,
+        id: &crate::DbId,
+        version: teg_json_store::Version,
         model: serde_json::Value,
     ) -> Result<Self> {
         let mut invite = Self::get_with_version(db, id, version).await?;
@@ -97,7 +97,10 @@ impl Invite {
 
         let slug = Self::generate_slug(private_key.clone())?;
 
-        let invite = UnsavedInvite {
+        let invite = Invite {
+            id: nanoid!(),
+            version: 0,
+            created_at: Utc::now(),
             private_key: Some(private_key),
             public_key,
             slug: Some(slug),
@@ -106,90 +109,9 @@ impl Invite {
             },
         };
 
-        let invite = invite.insert(db).await?;
+        invite.insert(db).await?;
 
         Ok(invite)
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct UnsavedInvite {
-    pub config: InviteConfig,
-
-    pub public_key: String,
-    pub private_key: Option<String>,
-    pub slug: Option<String>,
-}
-
-struct JsonRow {
-    pub props: String,
-}
-
-impl UnsavedInvite {
-    pub async fn insert(
-        &self,
-        db: &crate::Db,
-    ) -> Result<Invite> {
-        let db = db.begin().await?;
-
-        let (user, db) = self.insert_no_rollback(db).await?;
-
-        db.commit().await?;
-
-        Ok(user)
-    }
-
-    /// Insert but without a transaction. Intended to be used inside functions that provide their
-    /// own transactions.
-    pub async fn insert_no_rollback<'c>(
-        &self,
-        mut db: sqlx::Transaction<'c, sqlx::Sqlite>,
-    ) -> Result<(Invite, sqlx::Transaction<'c, sqlx::Sqlite>)> {
-        // Generate an ID for the row
-        sqlx::query!(
-            r#"
-                INSERT INTO invites
-                (props)
-                VALUES ("{}")
-            "#
-        )
-            .fetch_one(&mut db)
-            .await?;
-
-        let id = sqlx::query!(
-            "SELECT last_insert_rowid() as id"
-        )
-            .fetch_one(&mut db)
-            .await?
-            .id;
-
-        // Add the sqlite-generated monotonic ID and other default fields in to the json
-        let mut json = serde_json::to_value(self)?;
-        let map = json
-            .as_object_mut()
-            .expect("Struct incorrectly serialized for JsonRow insert");
-
-        map.insert("id".to_string(), id.into());
-        map.insert("version".to_string(), 0.into());
-        map.insert("created_at".to_string(), serde_json::to_value(Utc::now())?);
-
-        // Update Sqlite - adding the modified JSON including the ID
-        let json_string = json.to_string();
-        sqlx::query!(
-            r#"
-                UPDATE invites
-                SET props=?
-                WHERE id=?
-            "#,
-            json_string,
-            id,
-        )
-            .fetch_one(&mut db)
-            .await?;
-
-        let entry: Invite = serde_json::from_value(json)?;
-
-        Ok((entry, db))
     }
 }
 
@@ -201,8 +123,7 @@ impl Invite {
     where
         E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
     {
-        let row = sqlx::query_as!(
-            JsonRow,
+        let row = sqlx::query!(
             "SELECT props FROM invites WHERE public_key = ?",
             public_key,
         )
@@ -214,36 +135,38 @@ impl Invite {
     }
 }
 
+#[async_trait::async_trait]
 impl Record for Invite {
     const TABLE: &'static str = "invites";
 
-    fn id(&self) -> crate::DbId {
-        self.id
+    fn id(&self) -> &crate::DbId {
+        &self.id
     }
 
-    fn version(&self) -> crate::DbId {
+    fn version(&self) -> teg_json_store::Version {
         self.version
     }
 
-    fn version_mut(&mut self) -> &mut crate::DbId {
+    fn version_mut(&mut self) -> &mut teg_json_store::Version {
         &mut self.version
     }
-}
 
-#[async_trait::async_trait]
-impl UnsavedRecord<Invite> for UnsavedInvite {
-    async fn query_sqlx<'c>(
+    async fn insert_no_rollback<'c>(
         &self,
         db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
     ) -> Result<()> {
-        sqlx::query(
+        let json = serde_json::to_string(&self)?;
+        sqlx::query!(
             r#"
                 INSERT INTO invites
-                (props, version, public_key)
-                VALUES ("{}", 0, ?)
+                (id, version, props, public_key)
+                VALUES (?, ?, ?, ?)
             "#,
+            self.id,
+            self.version,
+            json,
+            self.public_key,
         )
-            .bind(&self.public_key)
             .fetch_one(db)
             .await?;
         Ok(())

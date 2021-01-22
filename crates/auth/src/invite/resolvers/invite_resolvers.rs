@@ -5,7 +5,7 @@ use crate::invite::Invite;
 #[Object]
 impl Invite {
     async fn id(&self) -> ID {
-        self.id.into()
+        (&self.id).into()
     }
     async fn public_key(&self) -> &String {
         &self.public_key

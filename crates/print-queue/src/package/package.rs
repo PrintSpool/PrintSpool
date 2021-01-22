@@ -1,6 +1,6 @@
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
-use teg_json_store::{Record, UnsavedRecord};
+use teg_json_store::Record;
 
 use crate::part::Part;
 
@@ -9,21 +9,13 @@ pub struct Package {
     pub id: crate::DbId,
     pub version: i32,
     pub created_at: DateTime<Utc>,
+    // Foreign Keys
+    pub print_queue_id: crate::DbId, // print queues have many (>=0) packages queued for printing
     // Props
     pub name: String,
     pub quantity: u64,
     // #[new(value = "true")]
     // pub delete_files_after_print: bool,
-    // Indexes
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct UnsavedPackage {
-    pub name: String,
-    pub quantity: u64,
-    // #[new(value = "true")]
-    // pub delete_files_after_print: bool,
-    // Indexes
 }
 
 impl Package {
@@ -45,18 +37,15 @@ impl Package {
 impl Record for Package {
     const TABLE: &'static str = "tasks";
 
-    fn id(&self) -> crate::DbId {
-        self.id
+    fn id(&self) -> &crate::DbId {
+        &self.id
     }
 
-    fn version(&self) -> crate::DbId {
+    fn version(&self) -> teg_json_store::Version {
         self.version
     }
 
-    fn version_mut(&mut self) -> &mut crate::DbId {
+    fn version_mut(&mut self) -> &mut teg_json_store::Version {
         &mut self.version
     }
 }
-
-#[async_trait::async_trait]
-impl UnsavedRecord<Package> for UnsavedPackage {}

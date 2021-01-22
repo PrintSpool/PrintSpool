@@ -27,5 +27,4 @@ use super::MachineViewer;
 #[async_graphql::Object]
 impl MachineViewer {
     async fn id(&self) -> ID { self.config.id.into() }
-
 }

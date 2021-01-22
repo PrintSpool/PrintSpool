@@ -27,7 +27,7 @@ impl From<&Material> for Result<ConfigForm> {
             model: serde_json::to_value(&material.config)?.into(),
             model_version: material.version,
             schema_form: JsonSchemaForm {
-                id: material.id.into(),
+                id: (&material.id).into(),
                 schema: serde_json::to_value(root_schema)?.into(),
                 form,
             },

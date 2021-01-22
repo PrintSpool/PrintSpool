@@ -1,6 +1,7 @@
 #[macro_use] extern crate tracing;
 #[macro_use] extern crate derive_new;
 #[macro_use] extern crate smart_default;
+#[macro_use] extern crate nanoid;
 
 use std::sync::Arc;
 use arc_swap::ArcSwap;

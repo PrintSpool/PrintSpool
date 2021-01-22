@@ -2,9 +2,7 @@
 
 pub type Db = sqlx::sqlite::SqlitePool;
 pub type DbId = String;
+pub type Version = i32;
 
-mod saved_record;
-pub use saved_record::Record;
-
-mod unsaved_record;
-pub use unsaved_record::UnsavedRecord;
+mod record;
+pub use record::Record;

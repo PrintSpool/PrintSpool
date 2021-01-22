@@ -1,7 +1,6 @@
 mod invite;
 pub use invite::{
     Invite,
-    UnsavedInvite,
 };
 
 mod invite_config;

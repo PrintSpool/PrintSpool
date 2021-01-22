@@ -1,6 +1,6 @@
 // Task Status Revison 1 (LATEST)
 use serde::{Deserialize, Serialize};
-use crate::task::AnyTask;
+use crate::task::Task;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum MachineStatus {
@@ -71,9 +71,9 @@ impl MachineStatus {
       }
     }
 
-    pub fn is_printing_task(&self, task_id: crate::DbId) -> bool {
+    pub fn is_printing_task(&self, task_id: &crate::DbId) -> bool {
       if let MachineStatus::Printing(printing) = self {
-        printing.task_id == task_id
+        &printing.task_id == task_id
       } else {
         false
       }
@@ -87,9 +87,9 @@ impl MachineStatus {
       }
     }
 
-    pub fn can_start_task(&self, task: &AnyTask, is_automatic_print: bool) -> bool {
+    pub fn can_start_task(&self, task: &Task, is_automatic_print: bool) -> bool {
         match self {
-            Self::Printing(_) if is_automatic_print || task.machine_override() => {
+            Self::Printing(_) if is_automatic_print || task.machine_override => {
               true
             }
             Self::Ready => {

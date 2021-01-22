@@ -158,7 +158,7 @@ impl ExecGCodesMutation {
 }
 
 struct TaskCompletionWatcher {
-    task_id: crate::DbId,
+    pub task_id: crate::DbId,
 }
 
 impl xactor::Actor for TaskCompletionWatcher {}

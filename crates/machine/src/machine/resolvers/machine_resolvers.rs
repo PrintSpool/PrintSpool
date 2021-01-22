@@ -26,7 +26,9 @@ use super::machine_error_resolvers::MachineError;
 
 #[async_graphql::Object]
 impl MachineData {
-    async fn id(&self) -> ID { self.config.id.into() }
+    async fn id(&self) -> ID {
+        (&self.config.id).into()
+    }
     async fn status(&self) -> MachineStatusGQL { self.status.clone().into() }
     async fn paused(&self) -> bool { self.paused_task_id.is_some() }
 

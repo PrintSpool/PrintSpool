@@ -173,8 +173,8 @@ fn add_event(context: &mut Context, task: &Task, event_type: EventType, error: O
     let events = &mut context.feedback.events;
 
     events.push(Event {
-        task_id: task.id,
-        client_id: task.client_id,
+        task_id: task.id.clone(),
+        client_id: task.client_id.clone(),
         r#type: event_type as i32,
         created_at: Utc::now().timestamp(),
         error,

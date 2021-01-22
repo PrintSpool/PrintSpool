@@ -31,7 +31,7 @@ pub struct ComponentInner<Model, Ephemeral: Default> {
     #[new(value = "nanoid!()")]
     pub id: String,
     #[new(default)]
-    pub model_version: crate::DbId,
+    pub model_version: teg_json_store::Version,
     pub model: Model,
     #[serde(skip)]
     #[new(default)]

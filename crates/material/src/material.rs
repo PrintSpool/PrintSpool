@@ -6,7 +6,7 @@ use anyhow::{
     Result,
     // Context as _,
 };
-use teg_json_store::{Record, UnsavedRecord};
+use teg_json_store::Record;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Material {
@@ -48,19 +48,22 @@ impl Material {
         db: &crate::Db,
         json: serde_json::Value,
     ) -> Result<Self> {
-        let material = UnsavedMaterial {
+        let material = Material {
+            id: nanoid!(),
+            version: 0,
+            created_at: Utc::now(),
             config: serde_json::from_value(json)?,
         };
 
-        let material = material.insert(db).await?;
+        material.insert(db).await?;
 
         Ok(material)
     }
 
     pub async fn update_from_mutation(
         db: &crate::Db,
-        id: crate::DbId,
-        version: crate::DbId,
+        id: &crate::DbId,
+        version: teg_json_store::Version,
         model: serde_json::Value,
     ) -> Result<Self> {
         let mut invite = Self::get_with_version(db, id, version).await?;
@@ -72,25 +75,19 @@ impl Material {
         Ok(invite)
     }
 }
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct UnsavedMaterial {
-    pub config: MaterialConfigEnum,
-}
-
 
 impl Record for Material {
     const TABLE: &'static str = "materials";
 
-    fn id(&self) -> crate::DbId {
-        self.id
+    fn id(&self) -> &crate::DbId {
+        &self.id
     }
 
-    fn version(&self) -> crate::DbId {
+    fn version(&self) -> teg_json_store::Version {
         self.version
     }
 
-    fn version_mut(&mut self) -> &mut crate::DbId {
+    fn version_mut(&mut self) -> &mut teg_json_store::Version {
         &mut self.version
     }
 }
-impl UnsavedRecord<Material> for UnsavedMaterial {}

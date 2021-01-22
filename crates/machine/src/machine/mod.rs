@@ -9,7 +9,6 @@ pub use machine::{ Machine, MachineData };
 mod machine_viewer;
 pub use machine_viewer::{
     MachineViewer,
-    UnsavedMachineViewer,
 };
 
 mod machine_status;

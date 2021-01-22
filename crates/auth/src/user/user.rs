@@ -5,7 +5,7 @@ use anyhow::{
     Result,
     Context as _,
 };
-use teg_json_store::{Record, UnsavedRecord};
+use teg_json_store::Record;
 
 use super::UserConfig;
 
@@ -29,8 +29,8 @@ pub struct User {
 impl User {
     pub async fn update_from_mutation(
         db: &crate::Db,
-        id: crate::DbId,
-        version: crate::DbId,
+        id: &crate::DbId,
+        version: teg_json_store::Version,
         model: serde_json::Value,
     ) -> Result<Self> {
         let mut user = Self::get_with_version(db, id, version).await?;
@@ -44,7 +44,7 @@ impl User {
 
     pub async fn remove_from_mutation(
         db: &crate::Db,
-        id: crate::DbId,
+        id: &crate::DbId,
     ) -> Result<()> {
         let mut tx = db.begin().await?;
         // Verify that there will be at least one admin in the database after this user is
@@ -70,32 +70,18 @@ impl User {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct UnsavedUser {
-    pub config: UserConfig,
-    pub last_logged_in_at: Option<DateTime<Utc>>,
-
-    pub firebase_uid: String,
-    pub is_authorized: bool,
-    /// # Email
-    pub email: Option<String>,
-    /// # Email Verified
-    pub email_verified: bool,
-}
-
 impl Record for User {
     const TABLE: &'static str = "users";
 
-    fn id(&self) -> crate::DbId {
-        self.id
+    fn id(&self) -> &crate::DbId {
+        &self.id
     }
 
-    fn version(&self) -> crate::DbId {
+    fn version(&self) -> teg_json_store::Version {
         self.version
     }
 
-    fn version_mut(&mut self) -> &mut crate::DbId {
+    fn version_mut(&mut self) -> &mut teg_json_store::Version {
         &mut self.version
     }
 }
-impl UnsavedRecord<User> for UnsavedUser {}

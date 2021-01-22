@@ -58,9 +58,10 @@ impl ToggleHeatersMacro {
                     }
 
                     let material_id = toolhead.model.material_id
+                        .as_ref()
                         .ok_or_else(|| anyhow!("No material loaded for {}", address))?;
 
-                    let material = Material::get(&db, material_id)
+                    let material = Material::get(db, &material_id)
                         .await
                         .with_context(||
                             format!("Unable to find material (id: {:?})", material_id)
@@ -85,8 +86,8 @@ impl ToggleHeatersMacro {
                     let toolhead_materials = config.toolheads
                         .iter()
                         .map(|toolhead| async move {
-                            let material_id = toolhead.model.material_id?;
-                            let material = Material::get(&db, material_id).await;
+                            let material_id = toolhead.model.material_id.as_ref()?;
+                            let material = Material::get(db, &material_id).await;
                             Some(material)
                         });
 

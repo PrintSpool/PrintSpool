@@ -5,14 +5,17 @@ use anyhow::{
     // anyhow,
     // Context as _,
 };
-use teg_machine::{machine::Machine, task::{TaskContent, UnsavedTask}};
+use teg_machine::{
+    machine::Machine,
+    task::TaskContent,
+};
 use teg_macros::{AnnotatedGCode, compile_macros};
 
 pub async fn task_from_hook<'ctx>(
-    machine_id: crate::DbId,
+    machine_id: &crate::DbId,
     machine: xactor::Addr<Machine>,
     hook: &String,
-) -> Result<UnsavedTask> {
+) -> Result<Task> {
     let gcodes = hook.lines().map(String::from).collect::<Vec<String>>();
     task_from_gcodes(
         machine_id,
@@ -23,11 +26,11 @@ pub async fn task_from_hook<'ctx>(
 }
 
 pub async fn task_from_gcodes(
-    machine_id: crate::DbId,
+    machine_id: &crate::DbId,
     machine: xactor::Addr<Machine>,
     machine_override: bool,
     gcodes: Vec<String>,
-) -> Result<UnsavedTask> {
+) -> Result<Task> {
     /*
     * Preprocess GCodes
     * =========================================================================================
@@ -63,7 +66,10 @@ pub async fn task_from_gcodes(
     let gcodes = gcodes;
     let total_lines = gcodes.len() as u64;
 
-    let task = UnsavedTask {
+    let task = Task {
+        id: nanoid!(),
+        version: 0,
+        created_at: Utc::now(),
         machine_id,
         machine_override,
         content: TaskContent::GCodes(gcodes),

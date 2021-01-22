@@ -12,7 +12,7 @@ use crate::machine::Machine;
 
 #[xactor::message(result = "Result<()>")]
 pub struct PauseTask {
-    task_id: crate::DbId,
+    pub task_id: crate::DbId,
 }
 
 impl From<PauseTask> for CombinatorMessage {
@@ -30,7 +30,7 @@ impl From<PauseTask> for CombinatorMessage {
 #[async_trait::async_trait]
 impl xactor::Handler<PauseTask> for Machine {
     async fn handle(&mut self, ctx: &mut xactor::Context<Self>, msg: PauseTask) -> Result<()> {
-        self.get_data()?.paused_task_id = Some(msg.task_id);
+        self.get_data()?.paused_task_id = Some(msg.task_id.clone());
 
         if let Err(err) = self.send_message(msg.into()).await {
             error!("Error pausing task on machine #{}: {:?}", self.id, err);

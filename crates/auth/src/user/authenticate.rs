@@ -6,11 +6,10 @@ use anyhow::{
     Result,
 };
 use arc_swap::ArcSwap;
-use teg_json_store::{Record as _, UnsavedRecord as _};
+use teg_json_store::Record as _;
 
 use super::{
     User,
-    UnsavedUser,
     UserConfig,
     jwt::validate_jwt,
 };
@@ -26,7 +25,7 @@ impl User {
         let jwt_payload = validate_jwt(auth_pem_keys, auth_token).await?;
 
         info!("Acess Requested for JWT: {:?}", jwt_payload);
-        let mut db = db.begin().await?;
+        let mut tx = db.begin().await?;
 
         /*
         * Verify that either:
@@ -36,7 +35,7 @@ impl User {
         */
 
         let invite = if let Some(pk) = identity_public_key {
-            Invite::get_by_pk(&mut db, &pk)
+            Invite::get_by_pk(&mut tx, &pk)
                 .await
                 .ok()
         } else {
@@ -44,7 +43,7 @@ impl User {
         };
 
         // TODO: This could be optimized with a SQL index
-        let user = User::get_all(&mut db).await?
+        let user = User::get_all(&mut tx).await?
             .into_iter()
             .find(|user| {
                 user.firebase_uid == jwt_payload.sub
@@ -54,7 +53,10 @@ impl User {
         let mut user = if let Some(user @ User { is_authorized: true, .. }) = user {
             user
         } else if let Some(invite) = invite  {
-            let user = UnsavedUser {
+            let user = User {
+                id: nanoid!(),
+                version: 0,
+                created_at: Utc::now(),
                 firebase_uid: jwt_payload.sub,
                 email: None,
                 email_verified: false,
@@ -65,9 +67,8 @@ impl User {
                 is_authorized: false,
             };
 
-            let (next_user, next_db) = user.insert_no_rollback(db).await?;
-            db = next_db;
-            next_user
+            user.insert_no_rollback(&mut tx).await?;
+            user
         } else {
             return Ok(None)
         };
@@ -79,10 +80,10 @@ impl User {
         user.email_verified = jwt_payload.email_verified;
         user.last_logged_in_at = Some(Utc::now());
 
-        user.update(&mut db).await
+        user.update(&mut tx).await
             .with_context(|| "Unable to update user after authentication")?;
 
-        db.commit().await?;
+        tx.commit().await?;
 
         info!("User Authorized: {:?}", user.id);
         Ok(Some(user))

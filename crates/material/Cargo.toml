@@ -19,6 +19,7 @@ schemars = "0.8.0"
 anyhow = "1.0"
 serde_json = { version = "1.0.44", features = ["raw_value"] }
 async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }
+nanoid = "0.3.0"
 
 [dependencies.serde]
 features = ["derive"]

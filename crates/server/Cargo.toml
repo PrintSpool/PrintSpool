@@ -14,6 +14,7 @@ path = "src/main.rs"
 teg_machine = { path = "../machine" }
 teg_auth = { path = "../auth" }
 teg_data_channel = { path = "../data_channel" }
+teg-json-store = { path = "../json-store" }
 
 serde_json = { version = "1.0.44", features = ["raw_value"] }
 async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }

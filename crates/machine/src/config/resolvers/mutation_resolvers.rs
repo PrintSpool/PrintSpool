@@ -125,25 +125,28 @@ impl ConfigMutation {
             // Database persisted types (users, invites, materials)
             // ----------------------------------------------------------
             (AUTH, id) if id.starts_with("user-") => {
+                let id = id.replacen("user-", "", 1).parse()?;
                 let _ = User::update_from_mutation(
                     db,
-                    id.replacen("user-", "", 1).parse()?,
+                    &id,
                     input.model_version,
                     model,
                 ).await?;
             }
             (AUTH, id) if id.starts_with("invite-") => {
+                let id = id.replacen("invite-", "", 1).parse()?;
                 let _ = Invite::update_from_mutation(
                     db,
-                    id.replacen("invite-", "", 1).parse()?,
+                    &id,
                     input.model_version,
                     model,
                 ).await?;
             }
             (MATERIAL, id) if id.starts_with("material-")  => {
+                let id = id.replacen("material-", "", 1).parse()?;
                 let _ = Material::update_from_mutation(
                     db,
-                    id.replacen("material-", "", 1).parse()?,
+                    &id,
                     input.model_version,
                     model,
                 ).await?;
@@ -204,21 +207,24 @@ impl ConfigMutation {
             // Database persisted types (users, invites, materials)
             // ----------------------------------------------------------
             (AUTH, id) if id.starts_with("user-") => {
+                let id = id.replacen("user-", "", 1).parse()?;
                 User::remove_from_mutation(
                     db,
-                    id.replacen("user-", "", 1).parse()?,
+                    &id,
                 ).await?;
             }
             (AUTH, id) if id.starts_with("invite-") => {
+                let id = id.replacen("invite-", "", 1).parse()?;
                 Invite::remove(
                     db,
-                    id.replacen("invite-", "", 1).parse()?,
+                    &id,
                 ).await?;
             }
             (MATERIAL, id) if id.starts_with("material-")  => {
+                let id = id.replacen("material-", "", 1).parse()?;
                 Material::remove(
                     db,
-                    id.replacen("material-", "", 1).parse()?,
+                    &id,
                 ).await?;
             }
             // Config file persisted types (components, plugins)
@@ -267,29 +273,8 @@ impl ConfigMutation {
         let default_config = include_str!("../../../../../machine.default.toml");
         let mut machine_config: MachineConfig = toml::from_str(default_config)?;
 
-        // Icrement machine IDs in the host_globals table
-        let host_globals = sqlx::query!("SELECT next_machine_id, version FROM host_globals")
-            .fetch_one(db)
-            .await?;
-
-        let machine_id = host_globals.next_machine_id as crate::DbId;
-
-        sqlx::query!(
-            r#"
-                UPDATE host_globals
-                SET
-                    next_machine_id=? + 1,
-                    version=? + 1
-                WHERE version=?
-            "#,
-            host_globals.next_machine_id,
-            host_globals.version,
-            host_globals.version,
-        )
-            .fetch_one(db)
-            .await?;
-
-        machine_config.id = machine_id;
+        let machine_id = nanoid!();
+        machine_config.id = machine_id.clone();
 
         // Create the Machine by copying fields out of the CombinedConfigView
         let CombinedConfigView {
@@ -330,12 +315,13 @@ impl ConfigMutation {
 
         // Start the machine actor
         let db_clone = db.clone();
-        let machine = Machine::start(db_clone, machine_id)
+        let machine = Machine::start(db_clone, &machine_id)
             .await?;
 
+        let machine_id = machine_id.clone();
         machines_store.rcu(|machines| {
             let mut machines = HashMap::clone(&machines);
-            machines.insert(machine_id.into(), machine.clone());
+            machines.insert(machine_id.clone().into(), machine.clone());
             machines
         });
 
@@ -357,9 +343,9 @@ impl ConfigMutation {
         let machines: &crate::MachineMap = ctx.data()?;
         let machines = machines.load();
 
-        let machine_id: crate::DbId = input.machine_id.parse()?;
-        let machine = machines.get(&machine_id.into())
-            .ok_or_else(|| anyhow!("Machine ID {} not found", machine_id))?;
+        let machine_id = input.machine_id;
+        let machine = machines.get(&machine_id)
+            .ok_or_else(|| anyhow!("Machine ({:?}) not found", &machine_id))?;
 
         let msg = messages::set_materials::SetMaterial(input.toolheads);
         machine.call(msg).await??;

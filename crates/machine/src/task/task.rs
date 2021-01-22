@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 //     Result,
 //     // Context as _,
 // };
-use teg_json_store::{Record, UnsavedRecord};
+use teg_json_store::Record;
 
 use super::{
     GCodeAnnotation,
@@ -38,49 +38,18 @@ pub enum TaskContent {
     GCodes(Vec<String>),
 }
 
-#[derive(Debug, Clone)]
-pub enum AnyTask {
-    Saved(Task),
-    Unsaved(UnsavedTask),
-}
-
-impl AnyTask {
-    pub fn machine_override(&self) -> bool {
-        match self {
-            AnyTask::Saved(task) => task.machine_override,
-            AnyTask::Unsaved(task) => task.machine_override,
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct UnsavedTask {
-    pub id: crate::DbId,
-    pub machine_id: crate::DbId, // machines have many (>=0) tasks
-    // Content
-    pub content: TaskContent,
-    // Props
-    pub annotations: Vec<(u64, GCodeAnnotation)>,
-    pub total_lines: u64,
-    pub machine_override: bool,
-}
-
-
 impl Record for Task {
     const TABLE: &'static str = "tasks";
 
-    fn id(&self) -> crate::DbId {
-        self.id
+    fn id(&self) -> &crate::DbId {
+        &self.id
     }
 
-    fn version(&self) -> crate::DbId {
+    fn version(&self) -> teg_json_store::Version {
         self.version
     }
 
-    fn version_mut(&mut self) -> &mut crate::DbId {
+    fn version_mut(&mut self) -> &mut teg_json_store::Version {
         &mut self.version
     }
 }
-
-#[async_trait::async_trait]
-impl UnsavedRecord<Task> for UnsavedTask {}

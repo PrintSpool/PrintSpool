@@ -14,7 +14,7 @@ pub struct GetData;
 
 impl Machine {
     pub fn get_data(&mut self) -> Result<&mut MachineData> {
-        let id = self.id;
+        let id = &self.id;
         self.data
             .as_mut()
             .ok_or_else(|| anyhow!(r#"

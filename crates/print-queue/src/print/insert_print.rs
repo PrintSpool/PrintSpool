@@ -191,6 +191,11 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
         ctx: &mut xactor::Context<Self>,
         msg: SpoolPrintTask
     ) -> Result<Task> {
+        let SpoolPrintTask {
+            task,
+            print_task,
+        } = msg;
+
         let part = Part::get(&self.db, print_task.part_id).await?;
         let package = Package::get(&self.db, part.package_id).await?;
 
@@ -201,11 +206,19 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
         let tx = self.db.begin().await;
 
         // Get the number of printed parts and the total number of prints
-        let ( printed, total_prints ) = print_task.get_stats(&print_id, &package);
+        let total_prints = Part::query_total_prints(&mut tx, print_task.part_id)
+            .await?;
+        let prints_in_progress = Part::query_prints_in_progress(&mut tx, print_task.part_id)
+            .await?;
 
-        if printed >= total_prints {
+        if prints_in_progress >= total_prints {
             Err(
-                anyhow!("Already printed {} / {} of {}", printed, total_prints, part.name)
+                anyhow!(
+                    "Already printing {} / {} of {}",
+                    prints_in_progress,
+                    total_prints,
+                    part.name,
+                )
             )?;
         }
 

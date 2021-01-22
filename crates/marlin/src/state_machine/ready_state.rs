@@ -147,7 +147,7 @@ impl ReadyState {
                         match content {
                             Some(Content::Inline ( InlineContent { commands })) => {
                                 let task = Task {
-                                    id: spool_task.task_id,
+                                    id: task_id,
                                     client_id,
                                     gcode_lines: commands.into_iter(),
                                     machine_override,
@@ -554,7 +554,7 @@ impl ReadyState {
                 } else {
                     context.feedback.task_progress.push(
                         machine_message::TaskProgress {
-                            task_id: task.id,
+                            task_id: task.id.clone(),
                             despooled_line_number: despooled_line_number,
                             status: machine_message::TaskStatus::TaskStarted  as i32,
                         },
@@ -592,7 +592,7 @@ impl ReadyState {
                 } else {
                     context.feedback.task_progress.push(
                         machine_message::TaskProgress {
-                            task_id: task.id,
+                            task_id: task.id.clone(),
                             despooled_line_number: 0,
                             status: machine_message::TaskStatus::TaskFinished  as i32,
                         },

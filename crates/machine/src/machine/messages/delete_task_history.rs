@@ -5,7 +5,7 @@ use teg_protobufs::{
 
 #[xactor::message(result = "()")]
 pub struct DeleteTaskHistory {
-    task_id: crate::DbId,
+    pub task_id: crate::DbId,
 }
 
 impl From<DeleteTaskHistory> for CombinatorMessage {

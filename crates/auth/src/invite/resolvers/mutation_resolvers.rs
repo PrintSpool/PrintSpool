@@ -1,3 +1,4 @@
+use chrono::prelude::*;
 use async_graphql::{
     FieldResult,
     ID,
@@ -13,7 +14,6 @@ use crate::AuthContext;
 use crate::invite::{
     Invite,
     InviteConfig,
-    UnsavedInvite,
 };
 
 // Input Types
@@ -55,7 +55,10 @@ impl Mutation {
 
         auth.authorize_admins_only()?;
 
-        let invite = UnsavedInvite {
+        let invite = Invite {
+            id: nanoid!(),
+            version: 0,
+            created_at: Utc::now(),
             config: InviteConfig {
                 is_admin: input.is_admin.unwrap_or(false),
             },
@@ -64,7 +67,7 @@ impl Mutation {
             slug: None,
         };
 
-        let invite = invite.insert(db).await?;
+        invite.insert(db).await?;
 
         Ok(invite)
     }
@@ -76,10 +79,9 @@ impl Mutation {
         auth.authorize_admins_only()?;
 
         let invite_id = input.invite_id;
-        let invite_id = invite_id.parse()
-            .with_context(|| format!("Invalid invite id: {:?}", invite_id))?;
+        let invite_id = invite_id.to_string();
 
-        let mut invite = Invite::get(db, invite_id).await?;
+        let mut invite = Invite::get(db, &invite_id).await?;
 
         invite.config.is_admin = input.is_admin.unwrap_or(invite.config.is_admin);
 
@@ -95,10 +97,9 @@ impl Mutation {
         auth.authorize_admins_only()?;
 
         let DeleteInvite { invite_id } = input;
-        let invite_id = invite_id.parse()
-            .with_context(|| format!("Invalid invite id: {:?}", invite_id))?;
+        let invite_id = invite_id.to_string();
 
-        Invite::remove(db, invite_id)
+        Invite::remove(db, &invite_id)
             .await
             .with_context(|| "Error deleting invite")?;
 

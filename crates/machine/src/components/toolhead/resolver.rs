@@ -17,8 +17,9 @@ impl Toolhead {
     async fn current_material<'ctx>(&self, ctx: &'ctx Context<'_>,) -> FieldResult<Option<Material>> {
         let db: &crate::Db = ctx.data()?;
 
-        let material = if let Some(material_id) = self.model.material_id {
-            let material = Material::get(&db, material_id).await?;
+        let material_id = self.model.material_id.as_ref();
+        let material = if let Some(material_id) = material_id {
+            let material = Material::get(db, material_id).await?;
 
             Some(material)
         } else {

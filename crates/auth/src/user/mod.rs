@@ -8,7 +8,6 @@ pub mod jwt;
 mod user;
 pub use user::{
     User,
-    UnsavedUser,
 };
 
 

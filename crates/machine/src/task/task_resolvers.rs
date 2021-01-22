@@ -16,7 +16,7 @@ use crate::{MachineMap, machine::{
 /// A spooled set of gcodes to be executed by the machine
 #[async_graphql::Object]
 impl Task {
-    async fn id(&self) -> ID { self.id.into() }
+    async fn id(&self) -> ID { (&self.id).into() }
 
     // async fn name<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<String> {
     //     let ctx: &Arc<crate::Context> = ctx.data()?;
@@ -84,7 +84,7 @@ impl Task {
     async fn machine<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<MachineData> {
         let machines: &MachineMap = ctx.data()?;
         let machines = machines.load();
-        let machine_id = self.machine_id.into();
+        let machine_id = (&self.machine_id).into();
 
         let addr = machines.get(&machine_id)
             .ok_or_else(|| anyhow!("Unable to get machine ({:?}) for task", machine_id))?;

@@ -27,7 +27,7 @@ impl From<&MachineConfig> for Result<ConfigForm> {
             model: async_graphql::Json(serde_json::json!({})),
             model_version: 0,
             schema_form: JsonSchemaForm {
-                id: machine.id.into(),
+                id: (&machine.id).into(),
                 schema: serde_json::to_value(root_schema)?.into(),
                 form,
             },

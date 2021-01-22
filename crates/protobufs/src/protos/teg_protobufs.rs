@@ -16,10 +16,10 @@ pub mod combinator_message {
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct SpoolTask {
-        #[prost(int32, tag="1")]
-        pub task_id: i32,
-        #[prost(int32, tag="2")]
-        pub client_id: i32,
+        #[prost(string, tag="1")]
+        pub task_id: std::string::String,
+        #[prost(string, tag="2")]
+        pub client_id: std::string::String,
         /// Starting at a line number other then zero allows for prints to be resumed from a mid-print
         /// pause.
         #[prost(uint64, tag="8")]
@@ -52,8 +52,8 @@ pub mod combinator_message {
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PauseTask {
-        #[prost(int32, tag="1")]
-        pub task_id: i32,
+        #[prost(string, tag="1")]
+        pub task_id: std::string::String,
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct DeviceDiscovered {
@@ -73,8 +73,8 @@ pub mod combinator_message {
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct DeleteTaskHistory {
-        #[prost(int32, repeated, tag="1")]
-        pub task_ids: ::std::vec::Vec<i32>,
+        #[prost(string, repeated, tag="1")]
+        pub task_ids: ::std::vec::Vec<std::string::String>,
     }
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Payload {
@@ -165,8 +165,8 @@ pub mod machine_message {
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct TaskProgress {
-        #[prost(int32, tag="1")]
-        pub task_id: i32,
+        #[prost(string, tag="1")]
+        pub task_id: std::string::String,
         #[prost(uint32, tag="2")]
         pub despooled_line_number: u32,
         #[prost(enumeration="TaskStatus", tag="3")]
@@ -175,10 +175,10 @@ pub mod machine_message {
     /// Legacy NodeJS Type
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Event {
-        #[prost(int32, tag="1")]
-        pub task_id: i32,
-        #[prost(int32, tag="2")]
-        pub client_id: i32,
+        #[prost(string, tag="1")]
+        pub task_id: std::string::String,
+        #[prost(string, tag="2")]
+        pub client_id: std::string::String,
         #[prost(enumeration="EventType", tag="8")]
         pub r#type: i32,
         /// the number of non-leap seconds since January 1, 1970 0:00:00 UTC (aka "UNIX timestamp")

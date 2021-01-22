@@ -7,16 +7,15 @@ use anyhow::{
     Result,
     // Context as _,
 };
-use teg_json_store::UnsavedRecord as _;
 
-use crate::{machine::Machine, task::{AnyTask, Task, TaskContent}};
+use crate::{machine::Machine, task::{Task, TaskContent}};
 
 // use crate::machine::Machine;
 
 #[xactor::message(result = "Result<Task>")]
 #[derive(Debug)]
 pub struct SpoolTask {
-    task: AnyTask,
+    task: Task,
 }
 
 #[async_trait::async_trait]
@@ -31,7 +30,10 @@ impl xactor::Handler<SpoolTask> for Machine {
             task
         } = msg;
 
-        let client_id: crate::DbId = 42; // Chosen at random. Very legit.
+        // client_id is a placeholder for now. It could allow multiple servers to connect
+        // to a single machine driver process in future if that is needed but for now it does
+        // nothing.
+        let client_id = "42".to_string(); // Chosen at random. Very legit.
 
         let machine = self.get_data()?;
 
@@ -40,11 +42,6 @@ impl xactor::Handler<SpoolTask> for Machine {
         };
 
         info!("spooling task");
-
-        let task = match task {
-            AnyTask::Saved(task) => task,
-            AnyTask::Unsaved(task) => task.insert(&self.db).await?,
-        };
 
         let content = match &task.content {
             TaskContent::FilePath(file_path) => {
@@ -67,7 +64,7 @@ impl xactor::Handler<SpoolTask> for Machine {
             payload: Some(
                 combinator_message::Payload::SpoolTask(
                     combinator_message::SpoolTask {
-                        task_id: task.id,
+                        task_id: task.id.clone(),
                         client_id,
                         start_at_line_number,
                         machine_override: task.machine_override,

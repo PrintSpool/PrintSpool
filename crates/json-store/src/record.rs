@@ -16,10 +16,17 @@ struct JsonRow {
 pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
     const TABLE: &'static str;
 
-    fn id(&self) -> crate::DbId;
-    fn version(&self) -> crate::DbId;
-    fn version_mut(&mut self) -> &mut i32;
+    fn id(&self) -> &crate::DbId;
+    fn version(&self) -> crate::Version;
+    fn version_mut(&mut self) -> &mut crate::Version;
 
+    // async fn insert<'e, 'c, E>(
+    //     &self,
+    //     db: E,
+    // ) -> Result<Self>
+    // where
+    //     E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    // {
     async fn insert(
         &self,
         db: &crate::Db,
@@ -57,10 +64,13 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         Ok(())
     }
 
-    async fn get(
-        db: &crate::Db,
-        id: crate::DbId,
-    ) -> Result<Self> {
+    async fn get<'e, 'c, E>(
+        db: E,
+        id: &crate::DbId,
+    ) -> Result<Self>
+    where
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    {
         let row: JsonRow = sqlx::query_as(&format!(
             "SELECT props FROM {} WHERE id = ?",
             Self::TABLE,
@@ -73,11 +83,14 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         Ok(entry)
     }
 
-    async fn get_with_version(
-        db: &crate::Db,
-        id: crate::DbId,
-        version: crate::DbId,
-    ) -> Result<Self> {
+    async fn get_with_version<'e, 'c, E>(
+        db: E,
+        id: &crate::DbId,
+        version: crate::Version,
+    ) -> Result<Self>
+    where
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    {
         let row: JsonRow = sqlx::query_as(&format!(
             "SELECT props FROM {} WHERE id = ? AND version = ?",
             Self::TABLE,
@@ -144,7 +157,7 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
 
     async fn remove<'e, 'c, E>(
         db: E,
-        id: crate::DbId,
+        id: &crate::DbId,
     ) -> Result<()>
     where
         E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,

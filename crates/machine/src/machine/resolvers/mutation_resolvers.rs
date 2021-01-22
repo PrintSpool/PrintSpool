@@ -11,11 +11,10 @@ use anyhow::{
 use teg_auth::{
     AuthContext,
 };
-use teg_json_store::UnsavedRecord as _;
+use teg_json_store::Record;
 
 use crate::machine::{
     MachineViewer,
-    UnsavedMachineViewer,
     messages,
 };
 
@@ -93,9 +92,9 @@ impl MachineMutation {
             viewer.continue_viewing(db).await?;
         } else {
             // Add a new viewer
-            let viewer = UnsavedMachineViewer::new(
+            let viewer = MachineViewer::new(
                 machine_id,
-                user.id,
+                user.id.clone(),
             );
             viewer.insert(db).await?;
         };

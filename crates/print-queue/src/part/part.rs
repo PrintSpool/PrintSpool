@@ -1,6 +1,6 @@
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
-use teg_json_store::{Record, UnsavedRecord};
+use teg_json_store::Record;
 // use anyhow::{
 //   anyhow,
 //   Result,
@@ -21,23 +21,6 @@ pub struct Part {
     pub name: String,
 
     pub quantity: u64,
-    pub printed: u64,
-    pub position: u64,
-    pub file_path: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct UnsavedPart {
-    // Foreign Keys
-    pub print_queue_id: crate::DbId, // print queues have many (>=0) parts
-    pub package_id: crate::DbId, // packages have many (>=1) parts
-    // Props
-    pub name: String,
-
-    // #[new(value = "1")]
-    pub quantity: u64,
-    // #[new(default)]
-    pub printed: u64,
     pub position: u64,
     pub file_path: String,
 }
@@ -50,44 +33,83 @@ impl Part {
     pub fn is_done(&self, package: &Package) -> bool {
         self.printed >= self.total_prints(package)
     }
+
+    pub async fn query_prints_in_progress(
+        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        part_id: &crate::DbId,
+    ) -> Result<u32> {
+        let printed = sqlx::query!(
+            r#"
+                SELECT
+                    COUNT(id)
+                FROM print_tasks
+                WHERE
+                    part_id = ?
+                    AND status IN ("Started", "Paused", "Finished")
+            "#,
+            &self.part_id,
+        )
+            .fetch_one(&mut db)
+            .await?
+            .printed;
+        Ok(printed)
+    }
+
+    pub async fn query_total_prints(
+        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        part_id: &crate::DbId,
+    ) -> Result<u32> {
+        let quantity = sqlx::query!(
+            r#"
+                SELECT
+                    parts.quantity * packages.quantity
+                FROM parts
+                INNER JOIN packages ON parts.package_id = package.id
+                WHERE parts.id = ?
+            "#,
+            part_id,
+        )
+            .fetch_one(&mut db)
+            .await?
+            .quantity;
+        Ok(printed)
+    }
 }
 
+#[async_trait::async_trait]
 impl Record for Part {
     const TABLE: &'static str = "tasks";
 
-    fn id(&self) -> crate::DbId {
-            self.id
+    fn id(&self) -> &crate::DbId {
+        self.id
     }
 
-    fn version(&self) -> crate::DbId {
-            self.version
+    fn version(&self) -> teg_json_store::Version {
+        self.version
     }
 
-    fn version_mut(&mut self) -> &mut crate::DbId {
-            &mut self.version
+    fn version_mut(&mut self) -> &mut teg_json_store::Version {
+        &mut self.version
     }
 
     async fn insert_no_rollback<'c>(
         &self,
         db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
     ) -> Result<()> {
+        let json = serde_json::to_string(&self)?;
         sqlx::query!(
             r#"
-                INSERT INTO part
+                INSERT INTO invites
                 (id, version, props, quantity)
                 VALUES (?, ?, ?, ?)
             "#,
-            &self.id,
-            &self.version,
-            serde_json::to_string(&self)?,
-            &self.quantity,
+            self.id,
+            self.version,
+            json,
+            self.quantity,
         )
             .fetch_one(db)
             .await?;
-
         Ok(())
     }
 }
-
-#[async_trait::async_trait]
-impl UnsavedRecord<Part> for UnsavedPart {}

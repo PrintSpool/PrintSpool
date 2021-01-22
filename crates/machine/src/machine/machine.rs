@@ -1,5 +1,4 @@
 use async_codec::Framed;
-use sqlx::SqlitePool;
 use xactor::Actor;
 // use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
@@ -42,7 +41,7 @@ pub struct MachineData {
 
 #[async_trait::async_trait]
 impl Actor for Machine {
-    #[instrument(fields(id = self.id), skip(self, ctx))]
+    #[instrument(fields(id = &self.id[..]), skip(self, ctx))]
     async fn started(&mut self, ctx: &mut xactor::Context<Self>) -> Result<()> {
         // Begin attempting to connect to the driver socket
         if let Err(err) = ctx.address().send(ConnectToSocket) {
@@ -55,11 +54,15 @@ impl Actor for Machine {
 }
 
 impl Machine {
-    pub async fn start(db: SqlitePool, machine_id: i32) -> Result<xactor::Addr<Machine>> {
+    pub async fn start(
+        db: crate::Db,
+        machine_id: &crate::DbId,
+    ) -> Result<xactor::Addr<Machine>> {
+        let machine_id = machine_id.clone();
         let machine = xactor::Supervisor::start(move ||
             Machine {
                 db: db.clone(),
-                id: machine_id,
+                id: machine_id.clone(),
                 write_stream: None,
                 unix_socket: None,
                 data: None,

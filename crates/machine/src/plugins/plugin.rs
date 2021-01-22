@@ -28,7 +28,7 @@ pub struct PluginContainer<Model = toml::Value> {
     #[new(value = "nanoid!()")]
     pub id: String,
     #[new(default)]
-    pub model_version: crate::DbId,
+    pub model_version: teg_json_store::Version,
     pub model: Model,
 }
 

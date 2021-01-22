@@ -32,7 +32,7 @@ impl Query {
 #[async_graphql::Object]
 impl Material {
     async fn id(&self) -> ID {
-        self.id.into()
+        (&self.id).into()
     }
 
     async fn r#type(&self) -> String {

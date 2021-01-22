@@ -14,7 +14,7 @@ use super::User;
 #[async_graphql::Object]
 impl User {
     async fn id(&self) -> ID {
-        self.id.into()
+        (&self.id).into()
     }
     async fn email(&self) -> Option<&String> {
         self.email.as_ref()

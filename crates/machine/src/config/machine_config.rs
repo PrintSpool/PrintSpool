@@ -174,14 +174,14 @@ impl MachineConfig {
     pub async fn save_config(&self) -> Result<()> {
         let config_content = toml::to_string(&self)?;
         async_std::fs::write(
-            Self::config_file_path(self.id),
+            Self::config_file_path(&self.id),
             config_content,
         ).await?;
 
         Ok(())
     }
 
-    pub fn config_file_path(id: crate::DbId) -> String {
+    pub fn config_file_path(id: &crate::DbId) -> String {
         format!("/etc/teg/machine-{}.toml", id)
     }
 }
