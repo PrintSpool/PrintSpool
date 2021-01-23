@@ -273,7 +273,7 @@ impl ConfigMutation {
         let default_config = include_str!("../../../../../machine.default.toml");
         let mut machine_config: MachineConfig = toml::from_str(default_config)?;
 
-        let machine_id = nanoid!();
+        let machine_id = nanoid!(11);
         machine_config.id = machine_id.clone();
 
         // Create the Machine by copying fields out of the CombinedConfigView

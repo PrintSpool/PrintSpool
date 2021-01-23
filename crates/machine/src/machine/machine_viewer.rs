@@ -9,7 +9,7 @@ use teg_json_store::Record;
 
 #[derive(new, Debug, Serialize, Deserialize, Clone)]
 pub struct MachineViewer {
-    #[new(value = "nanoid!()")]
+    #[new(value = "nanoid!(11)")]
     pub id: crate::DbId,
     #[new(default)]
     pub version: i32,

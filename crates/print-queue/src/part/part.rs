@@ -15,7 +15,6 @@ pub struct Part {
     pub version: i32,
     pub created_at: DateTime<Utc>,
     // Foreign Keys
-    pub print_queue_id: crate::DbId, // print queues have many (>=0) parts
     pub package_id: crate::DbId, // packages have many (>=1) parts
     // Props
     pub name: String,

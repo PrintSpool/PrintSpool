@@ -19,7 +19,7 @@ pub struct SpeedControllerConfig {
 
 #[derive(async_graphql::SimpleObject, Debug, Clone, SmartDefault)]
 pub struct SpeedControllerEphemeral {
-    #[default(nanoid!().into())]
+    #[default(nanoid!(11).into())]
     pub id: async_graphql::ID,
     /// The expected speed of the SpeedController when it is enabled (in RPM).
     pub target_speed: Option<f32>,

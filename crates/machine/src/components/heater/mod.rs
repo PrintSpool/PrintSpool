@@ -6,7 +6,7 @@ use nanoid::nanoid;
 
 #[derive(async_graphql::SimpleObject, Debug, Clone, SmartDefault)]
 pub struct HeaterEphemeral {
-    #[default(nanoid!().into())]
+    #[default(nanoid!(11).into())]
     pub id: async_graphql::ID,
 
     /// The target temperature in °C for this heater. The heater will attempt to make

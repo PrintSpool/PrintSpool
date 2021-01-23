@@ -27,7 +27,7 @@ pub struct AxisConfig {
 
 #[derive(async_graphql::SimpleObject, Debug, Clone, SmartDefault)]
 pub struct AxisEphemeral {
-    #[default(nanoid!().into())]
+    #[default(nanoid!(11).into())]
     pub id: async_graphql::ID,
 
     /// The target position in mm.

@@ -56,7 +56,7 @@ impl Mutation {
         auth.authorize_admins_only()?;
 
         let invite = Invite {
-            id: nanoid!(),
+            id: nanoid!(11),
             version: 0,
             created_at: Utc::now(),
             config: InviteConfig {

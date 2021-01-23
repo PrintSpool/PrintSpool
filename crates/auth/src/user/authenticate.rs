@@ -54,7 +54,7 @@ impl User {
             user
         } else if let Some(invite) = invite  {
             let user = User {
-                id: nanoid!(),
+                id: nanoid!(11),
                 version: 0,
                 created_at: Utc::now(),
                 firebase_uid: jwt_payload.sub,

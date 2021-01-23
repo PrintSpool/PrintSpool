@@ -1,4 +1,3 @@
-// use std::collections::HashMap;
 // use chrono::prelude::*;
 use futures::future::try_join_all;
 use async_std::prelude::*;
@@ -8,9 +7,9 @@ use async_std::{
 use std::sync::Arc;
 use async_graphql::{
     ID,
+    Context,
     FieldResult,
 };
-// use serde::{Deserialize, Serialize};
 use anyhow::{
     // anyhow,
     Result,
@@ -18,19 +17,10 @@ use anyhow::{
 };
 
 use crate::{
-    // Task,
-    // Print,
-    // TaskStatus,
-    // TaskContent,
     PrintQueue,
     part::Part,
     package::Package,
 };
-// use crate::machine::models::{
-//     Machine,
-//     MachineStatus,
-//     Printing,
-// };
 
 #[derive(Default)]
 pub struct CreateJobMutation;
@@ -39,7 +29,7 @@ pub struct CreateJobMutation;
 struct CreateJobInput {
     name: String,
     print_queue_id: ID,
-    // TODO: update graphql names to match latest Sled fields
+    // TODO: update graphql names to match latest fields
     #[graphql(name="files")]
     parts: Vec<PartInput>,
 }
@@ -55,7 +45,7 @@ impl CreateJobMutation {
     /// create a Job from the content and fileName of a file upload.
     async fn create_job<'ctx>(
         &self,
-        ctx: &'ctx async_graphql::Context<'_>,
+        ctx: &'ctx Context<'_>,
         input: CreateJobInput,
     ) -> FieldResult<Package> {
         let db: &crate::Db = ctx.data()?;
@@ -65,30 +55,29 @@ impl CreateJobMutation {
 
         let print_queue = PrintQueue::get(&db, &input.print_queue_id).await?;
         let print_queue_id = print_queue.id;
-        let package_id = nanoid!();
+        let package_id = nanoid!(11);
 
         let package = Package::new(
             package_id,
             input.name,
         );
 
-        let next_position = Part::scan(&db)
-            .filter(|part| {
-                if let Ok(part) = part {
-                    part.print_queue_id == print_queue.id
-                } else {
-                    true
-                }
-            })
-            .collect::<Result<Vec<Part>>>()?
-            .len();
+        let next_position = sqlite::query!(
+            r#"
+                SELECT MAX(position) + 1 FROM parts
+                INNER JOIN packages ON packages.id = parts.id
+                WHERE packages.print_queue_id = ?
+            "#,
+            print_queue_id
+        )
+            .fetch_scalar(&db)
+            .await;
 
         let parts = input.parts
             .into_iter()
             .enumerate()
             .map(|(index, part_input)| async move {
-                let part_id = db.generate_id()
-                    .with_context(|| "Could not generate id for uploaded part")?;
+                let part_id = nanoid!(11);
                 let file_path = format!("{}/part_{}.gcode", part_dir, part_id.to_string());
 
                 let mut file = File::create(&file_path).await
@@ -96,31 +85,28 @@ impl CreateJobMutation {
                 file.write_all(&part_input.content.as_bytes()).await?;
                 file.flush().await?;
 
-                let part = Part::new(
-                    part_id,
-                    print_queue_id,
+                let part = Part {
+                    id: part_id,
+                    version: 0,
+                    created_at: Utc::now(),
                     package_id,
-                    part_input.name,
-                    (next_position + index) as u64,
+                    name: part_input.name,
+                    position: next_position + (index as u64),
+                    quantity: 1,
                     file_path,
-                );
+                };
 
                 Ok(part) as anyhow::Result<Part>
             });
 
         let parts = try_join_all(parts).await?;
 
-        db.transaction(|db| {
-            package.clone().insert(&db)?;
-            for part in parts.iter() {
-                part.clone().insert(&db)?;
-            }
-
-            Ok(())
-        })?;
-
-        db.flush_async().await
-            .with_context(|| "Error saving job to the database")?;
+        let mut tx = db.begin().await?;
+        package.insert(&mut tx).await?;
+        for part in parts.iter() {
+            part.insert(&mut tx).await?;
+        }
+        tx.commit().await?;
 
         Ok(package)
     }

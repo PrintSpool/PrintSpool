@@ -45,7 +45,7 @@ pub async fn insert_print(
 ) -> Result<Task> {
     let part_file_path = Part::get(db, &part_id).await?.file_path;
 
-    let task_id = nanoid!();
+    let task_id = nanoid!(11);
     let task_dir = "/var/lib/teg/tasks";
     let task_file_path = format!("{}/task_{}.gcode", task_dir, task_id.to_string());
 

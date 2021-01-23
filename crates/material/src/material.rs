@@ -49,7 +49,7 @@ impl Material {
         json: serde_json::Value,
     ) -> Result<Self> {
         let material = Material {
-            id: nanoid!(),
+            id: nanoid!(11),
             version: 0,
             created_at: Utc::now(),
             config: serde_json::from_value(json)?,

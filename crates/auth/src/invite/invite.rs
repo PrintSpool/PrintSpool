@@ -98,7 +98,7 @@ impl Invite {
         let slug = Self::generate_slug(private_key.clone())?;
 
         let invite = Invite {
-            id: nanoid!(),
+            id: nanoid!(11),
             version: 0,
             created_at: Utc::now(),
             private_key: Some(private_key),

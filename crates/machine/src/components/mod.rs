@@ -28,7 +28,7 @@ mod into_config_form;
 #[derive(new, Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ComponentInner<Model, Ephemeral: Default> {
-    #[new(value = "nanoid!()")]
+    #[new(value = "nanoid!(11)")]
     pub id: String,
     #[new(default)]
     pub model_version: teg_json_store::Version,

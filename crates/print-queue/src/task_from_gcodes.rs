@@ -71,15 +71,18 @@ pub async fn task_from_gcodes(
     let total_lines = gcodes.len() as u64;
 
     let task = Task {
-        id: nanoid!(),
+        id: nanoid!(11),
         version: 0,
         created_at: Utc::now(),
         machine_id,
+        part_id: None,
         despooled_line_number: None,
         machine_override,
         content: TaskContent::GCodes(gcodes),
         annotations,
         total_lines,
+        estimated_filament_meters: None,
+        estimated_print_time: None,
         status: Default::default(),
     };
 
