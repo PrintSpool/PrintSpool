@@ -42,11 +42,11 @@ impl Part {
             r#"
                 SELECT
                     COUNT(id) as printed
-                FROM prints
+                FROM tasks
                 WHERE
                     part_id = ?
-                    AND JSON_EXTRACT(props, '$.status') IN ("Started", "Paused", "Finished")
-            "#,
+                    AND tasks.status IN ('started', 'paused', 'finished')
+                "#,
             part_id,
         )
             .fetch_one(db)
@@ -60,14 +60,10 @@ impl Part {
         part_id: &crate::DbId,
     ) -> Result<u32> {
         // parts.props * packages.quantity
-        let quantity = sqlx::query!(
+        let total = sqlx::query!(
             r#"
                 SELECT
-                    id,
-                    CAST(
-                        JSON_EXTRACT(parts.props, '$.quantity') *
-                        JSON_EXTRACT(packages.props, '$.quantity')
-                    AS NUMERIC) AS quantity
+                    parts.quantity * packages.quantity AS total
                 FROM parts
                 INNER JOIN packages ON parts.package_id = packages.id
                 WHERE parts.id = ?
@@ -76,8 +72,33 @@ impl Part {
         )
             .fetch_one(db)
             .await?
-            .quantity;
-        Ok(quantity)
+            .total;
+        Ok(total)
+    }
+
+    pub async fn is_done(
+        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        part_id: &crate::DbId,
+    ) -> Result<u32> {
+        let part_stats = sqlx::query!(
+            r#"
+                SELECT
+                    COUNT(id) AS printed,
+                    parts.quantity * packages.quantity AS total
+                FROM parts
+                WHERE part.id = ?
+            "#,
+            part_id,
+        )
+            .fetch_one(&mut db)
+            .await?;
+
+        let done = part_stats.printed >= part_stats.total;
+        Ok(done)
+    }
+
+    pub fn quantity_db_blob(&self) -> Vec<u8> {
+        self.quantity.to_be_bytes().to_vec()
     }
 }
 
@@ -102,22 +123,57 @@ impl Record for Part {
         db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
     ) -> Result<()> {
         let json = serde_json::to_string(&self)?;
+        let quantity = self.quantity_db_blob();
+
         sqlx::query!(
             r#"
                 INSERT INTO parts
-                (id, version, props, package_id)
-                VALUES (?, ?, ?, ?)
+                (id, version, props, package_id, quantity)
+                VALUES (?, ?, ?, ?, ?)
             "#,
             self.id,
             self.version,
             json,
-            // self.print_queue_id,
             self.package_id,
-            // self.quantity,
-            // self.position,
+            quantity,
         )
             .fetch_one(db)
             .await?;
+        Ok(())
+    }
+
+    async fn update<'e, 'c, E>(
+        &mut self,
+        db: E,
+    ) -> Result<()>
+    where
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    {
+        let (json, previous_version) = self.prep_for_update()?;
+        let quantity = self.quantity_db_blob();
+
+        sqlx::query!(
+            r#"
+                UPDATE packages
+                SET
+                    props=?,
+                    version=?,
+                    quantity=?
+                WHERE
+                    id=?
+                    AND version=?
+            "#,
+            // SET
+            json,
+            self.version,
+            quantity,
+            // WHERE
+            self.id,
+            previous_version,
+        )
+            .fetch_one(db)
+            .await?;
+
         Ok(())
     }
 }

@@ -5,4 +5,7 @@ pub type DbId = String;
 pub type Version = i32;
 
 mod record;
-pub use record::Record;
+pub use record::{
+    Record,
+    JsonRow,
+};

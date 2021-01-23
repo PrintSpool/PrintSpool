@@ -34,7 +34,6 @@ use crate::{
     package::Package,
     part::Part,
 };
-use super::PrintTask;
 
 pub async fn insert_print(
     db: &crate::Db,
@@ -149,6 +148,7 @@ pub async fn insert_print(
         created_at: Utc::now(),
         // Foreign Keys
         machine_id: machine_id.clone(),
+        part_id: Some(part_id.clone()),
         // Content
         content: TaskContent::FilePath(task_file_path.clone()),
         // Props
@@ -156,24 +156,13 @@ pub async fn insert_print(
         total_lines,
         despooled_line_number: None,
         machine_override: false,
-        status: Default::default(),
-    };
-
-    let print_task = PrintTask {
-        id: nanoid!(),
-        version: 0,
-        created_at: Utc::now(),
-        // Foreign Keys
-        part_id: part_id.clone(),
-        task_id: task.id.clone(),
-        // Props
         estimated_print_time,
         estimated_filament_meters,
+        status: Default::default(),
     };
 
     let msg = SpoolPrintTask {
         task,
-        print_task,
         automatic_print,
     };
     let task = machine.call(msg).await??;
@@ -186,7 +175,6 @@ pub async fn insert_print(
 #[derive(Debug)]
 pub struct SpoolPrintTask {
     task: Task,
-    print_task: PrintTask,
     automatic_print: bool,
 }
 
@@ -200,11 +188,12 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
     ) -> Result<Task> {
         let SpoolPrintTask {
             task,
-            print_task,
             automatic_print,
         } = msg;
 
-        let part = Part::get(&self.db, &print_task.part_id).await?;
+        let part_id = task.part_id
+            .ok_or_else(|| anyhow!("New print missing part id"))?;
+        let part = Part::get(&self.db, &part_id).await?;
         let package = Package::get(&self.db, &part.package_id).await?;
 
         /*
@@ -214,9 +203,9 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
         let mut tx = self.db.begin().await?;
 
         // Get the number of printed parts and the total number of prints
-        let total_prints = Part::query_total_prints(&mut tx, &print_task.part_id)
+        let total_prints = Part::query_total_prints(&mut tx, &part_id)
             .await?;
-        let prints_in_progress = Part::query_prints_in_progress(&mut tx, &print_task.part_id)
+        let prints_in_progress = Part::query_prints_in_progress(&mut tx, &part_id)
             .await?;
 
         if prints_in_progress >= total_prints {
@@ -231,7 +220,6 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
         }
 
         task.insert_no_rollback(&mut tx).await?;
-        print_task.insert_no_rollback(&mut tx).await?;
 
         // Atomically set the machine status to printing
         let task_id = task.id.clone();

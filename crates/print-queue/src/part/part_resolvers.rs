@@ -1,63 +1,39 @@
-use std::sync::Arc;
-// use chrono::prelude::*;
-use async_graphql::*;
+use async_graphql::{
+    ID,
+    FieldResult,
+    Context,
+};
+// use anyhow::{
+//     // anyhow,
+//     Result,
+//     // Context as _,
+// };
 
-use anyhow::{
-    // anyhow,
-    Result,
-    // Context as _,
+use crate::{
+    part::Part,
 };
 
-use super::models::{
-    Part,
-    Package,
-    Task,
-};
-
-use crate::models::{
-    VersionedModel,
-    // VersionedModelError,
-};
-
-#[Object]
+#[async_graphql::Object]
 impl Part {
     async fn id(&self) -> ID { self.id.into() }
     async fn name(&self) -> &String { &self.name }
     async fn quantity(&self) -> u64 { self.quantity }
 
-    async fn prints_completed(&self) -> u64 { self.printed }
-
-    #[field(name = "totalPrints")]
     async fn total_prints_<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<u64> {
-        let ctx: &Arc<crate::Context> = ctx.data()?;
-        let package = Package::get(&ctx.db, self.package_id)?;
+        let db: &crate::Db = ctx.data()?;
 
-        Ok(self.total_prints(&package))
+        Ok(Self::query_total_prints(&db, &self.id)?)
     }
 
-    async fn prints_queued<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<u64> {
-        let ctx: &Arc<crate::Context> = ctx.data()?;
-        let package = Package::get(&ctx.db, self.package_id)?;
-        let tasks = Task::scan(&ctx.db)
-            .filter(|task|
-                match task {
-                    Ok(Task { print: Some(print), .. }) => {
-                        print.part_id == self.id
-                    }
-                    task => task.is_err(),
-                }
-            )
-            .collect::<Result<Vec<Task>>>()?;
+    async fn prints_completed<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<u64> {
+        let db: &crate::Db = ctx.data()?;
 
-        let prints_queued = self.total_prints(&package) - self.printed - (tasks.len() as u64);
-        Ok(prints_queued)
+        Ok(Self::query_prints_completed(&db, &self.id)?)
     }
 
-    #[field(name = "isDone")]
     async fn is_done_<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<bool> {
-        let ctx: &Arc<crate::Context> = ctx.data()?;
-        let package = Package::get(&ctx.db, self.package_id)?;
+        let db: &crate::Db = ctx.data()?;
 
-        Ok(self.is_done(&package))
+        Ok(Self::is_done(&db, &self.id)?)
     }
 }

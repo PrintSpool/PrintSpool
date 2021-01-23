@@ -8,7 +8,7 @@ use anyhow::{
 };
 
 #[derive(sqlx::FromRow)]
-struct JsonRow {
+pub struct JsonRow {
     pub props: String,
 }
 
@@ -117,11 +117,28 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
             .fetch_all(db)
             .await?;
 
+        Ok(Self::from_rows(rows)?)
+    }
+
+    fn from_rows<I: IntoIterator<Item = JsonRow>>(
+        rows: I
+    ) -> Result<Vec<Self>>
+    {
         let rows = rows.into_iter()
             .map(|row| serde_json::from_str(&row.props))
             .collect::<std::result::Result<Vec<_>, _>>()?;
 
         Ok(rows)
+    }
+
+    fn prep_for_update(&mut self) -> Result<(String, crate::Version)> {
+        let previous_version = self.version();
+        let version_mut = self.version_mut();
+        *version_mut = previous_version + 1;
+
+        let json = serde_json::to_string(self)?;
+
+        Ok((json, previous_version))
     }
 
     async fn update<'e, 'c, E>(
@@ -131,11 +148,7 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
     where
         E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
     {
-        let previous_version = self.version();
-        let version_mut = self.version_mut();
-        *version_mut = previous_version + 1;
-
-        let json = serde_json::to_string(self)?;
+        let (json, previous_version) = self.prep_for_update()?;
 
         sqlx::query(&format!(
             r#"

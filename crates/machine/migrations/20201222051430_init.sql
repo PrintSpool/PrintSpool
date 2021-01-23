@@ -45,11 +45,11 @@ CREATE TABLE tasks(
   version INT NOT NULL DEFAULT 0,
 
   machine_id TEXT NOT NULL,
+  part_id TEXT NOT NULL,
+  status TEXT NOT NULL,
 
   props TEXT NOT NULL
 
-  -- id TEXT PRIMARY KEY NOT NULL,
-  -- props JSON NOT NULL
   -- version INT AS (JSON_EXTRACT(props, "$.version")) STORED,
   -- machine_id TEXT AS (JSON_EXTRACT(props, "$.machine_id")) STORED
 );
@@ -69,8 +69,7 @@ CREATE TABLE packages(
   version INT NOT NULL DEFAULT 0,
 
   print_queue_id TEXT NOT NULL,
-
-  -- quantity BLOB NOT NULL,
+  quantity BLOB NOT NULL,
 
   props TEXT NOT NULL
 );
@@ -79,23 +78,10 @@ CREATE TABLE parts(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
 
-  -- print_queue_id TEXT NOT NULL,
   package_id TEXT NOT NULL,
+  quantity BLOB NOT NULL,
 
-  -- quantity BLOB NOT NULL,
   -- position BLOB NOT NULL,
-
-  props TEXT NOT NULL
-);
-
-CREATE TABLE prints(
-  id TEXT PRIMARY KEY NOT NULL,
-  version INT NOT NULL DEFAULT 0,
-
-  part_id TEXT NOT NULL,
-  task_id TEXT NOT NULL,
-
-  -- status TEXT NOT NULL,
 
   props TEXT NOT NULL
 );

@@ -1,12 +1,11 @@
 // Task Status Revison 1 (LATEST)
 use serde::{Deserialize, Serialize};
-use teg_protobufs::machine_message::TaskProgress;
-
 use anyhow::{
     anyhow,
     Result,
     // Context as _,
 };
+use teg_protobufs::machine_message::TaskProgress;
 
 use crate::machine::Errored;
 
@@ -100,6 +99,18 @@ impl TaskStatus {
         };
 
         Ok(status)
+    }
+
+    pub fn to_db_str(&self) -> &'static str {
+        use TaskStatus::*;
+        match self {
+            Spooled => "spooled",
+            Started => "started",
+            Finished => "finished",
+            Paused => "paused",
+            Cancelled => "cancelled",
+            Errored(..) => "errored",
+        }
     }
 
     pub fn is_paused(&self) -> bool {
