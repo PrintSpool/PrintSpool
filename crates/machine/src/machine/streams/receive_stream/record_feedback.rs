@@ -170,7 +170,10 @@ pub async fn update_machine(machine: &mut MachineData, feedback: &Feedback) -> R
     machine.status = match feedback.status {
         i if i == Status::Errored as i32 && feedback.error.is_some() => {
             let message = feedback.error.as_ref().unwrap().message.clone();
-            MachineStatus::Errored(Errored { message })
+            MachineStatus::Errored(Errored {
+                errored_at: Utc::now(),
+                message,
+            })
         }
         i if i == Status::Estopped as i32 => MachineStatus::Stopped,
         i if i == Status::Disconnected as i32 => MachineStatus::Disconnected,

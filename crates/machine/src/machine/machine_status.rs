@@ -1,4 +1,4 @@
-// Task Status Revison 1 (LATEST)
+use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use crate::task::Task;
 
@@ -43,6 +43,7 @@ pub struct Printing {
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Errored {
+    pub errored_at: DateTime<Utc>,
     pub message: String,
 }
 

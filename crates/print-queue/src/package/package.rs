@@ -1,7 +1,7 @@
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use anyhow::{
-    // anyhow,
+    anyhow,
     Result,
     // Context as _,
 };
@@ -22,20 +22,23 @@ pub struct Package {
     pub print_queue_id: crate::DbId, // print queues have many (>=0) packages queued for printing
     // Props
     pub name: String,
-    pub quantity: u64,
+    pub quantity: i32,
     // #[new(value = "true")]
     // pub delete_files_after_print: bool,
 }
 
 impl Package {
-    pub fn total_prints(&self, parts: &Vec<Part>) -> u64 {
-        self.quantity * parts.iter().map(|part| part.quantity).sum::<u64>()
-    }
+    // pub fn total_prints(&self, parts: &Vec<Part>) -> u64 {
+    //     self.quantity * parts.iter().map(|part| part.quantity).sum::<u64>()
+    // }
 
-    pub async fn query_prints_completed<'c>(
-        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+    pub async fn query_prints_completed<'e, 'c, E>(
+        db: E,
         package_id: &crate::DbId,
-    ) -> Result<u32> {
+    ) -> Result<i32>
+    where
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    {
         let printed = sqlx::query!(
             r#"
                 SELECT
@@ -45,7 +48,6 @@ impl Package {
                 WHERE
                     parts.package_id = ?
                     AND tasks.status = 'finished'
-                GROUP BY parts.package_id
             "#,
             package_id,
         )
@@ -56,54 +58,74 @@ impl Package {
         Ok(printed)
     }
 
-    pub async fn query_total_prints(
-        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+    pub async fn query_total_prints<'e, 'c, E>(
+        db: E,
         package_id: &crate::DbId,
-    ) -> Result<bool> {
+    ) -> Result<i64>
+    where
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    {
         let total = sqlx::query!(
             r#"
                 SELECT
-                    SUM(parts.quantity * packages.quantity) AS total
+                    CAST(parts.quantity * packages.quantity AS INT) AS total
                 FROM parts
                 INNER JOIN packages ON parts.package_id = packages.id
                 WHERE packages.id = ?
-                GROUP BY packages.id
+                -- GROUP BY packages.id
             "#,
             package_id,
         )
-            .fetch_one(&mut db)
+            .fetch_one(db)
             .await?
-            .total;
+            .total
+            .ok_or_else(|| anyhow!("invalid part or package quantity"))?;
 
         Ok(total)
     }
 
-    pub async fn is_done(
-        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+    pub async fn is_done<'e, 'c, E>(
+        db: E,
         package_id: &crate::DbId,
-    ) -> Result<u32> {
-        let done = sqlx::query!(
-            r#"
-                SELECT
-                    COUNT(tasks.id) AS printed,
-                    parts.quantity * packages.quantity AS total
-                FROM parts
-                INNER JOIN tasks ON tasks.part_id = parts.id
-                INNER JOIN packages ON parts.package_id = packages.id
-                WHERE packages.id = ?
-                GROUP BY parts.id
-            "#,
-            package_id,
-        )
-            .fetch_all(&mut db)
-            .await?
-            .into_iter()
-            .every(|part_stats| part_stats.printed >= part_stats.total);
+    ) -> Result<bool>
+    where
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite> + Copy,
+    {
+        for part in Self::get_parts(db, package_id).await? {
+            let is_done = Part::is_done(db, &part.id).await?;
+            if !is_done {
+                return Ok(false)
+            }
+        }
 
-        Ok(done)
+        Ok(true)
+        //     let done = sqlx::query!(
+        //         r#"
+        //             SELECT
+        //                 COUNT(tasks.id) AS printed,
+        //                 CAST(parts.quantity * packages.quantity AS INT) AS total
+        //             FROM parts
+        //             LEFT JOIN tasks ON tasks.part_id = parts.id
+        //             INNER JOIN packages ON parts.package_id = packages.id
+        //             WHERE packages.id = ?
+        //         "#,
+        //         package_id,
+        //     )
+        //         .fetch_all(&mut db)
+        //         .await?
+        //         .into_iter()
+        //         .every(|part_stats| part_stats.printed >= part_stats.total);
+
+    //     Ok(done)
     }
 
-    async fn get_parts(db: &crate::Db, package_id: &crate::DbId) -> Result<Vec<Part>> {
+    pub async fn get_parts<'e, 'c, E>(
+        db: E,
+        package_id: &crate::DbId,
+    ) -> Result<Vec<Part>>
+    where
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    {
         let parts = sqlx::query_as!(
             JsonRow,
             r#"
@@ -121,8 +143,8 @@ impl Package {
         Ok(parts)
     }
 
-    async fn get_tasks(db: &crate::Db, package_id: &crate::DbId) -> Result<Vec<Part>> {
-        let parts = sqlx::query_as!(
+    pub async fn get_tasks(db: &crate::Db, package_id: &crate::DbId) -> Result<Vec<Task>> {
+        let tasks = sqlx::query_as!(
             JsonRow,
             r#"
                 SELECT tasks.props FROM tasks
@@ -135,13 +157,9 @@ impl Package {
             .fetch_all(db)
             .await?;
 
-        let parts = Task::from_rows(parts)?;
+        let tasks = Task::from_rows(tasks)?;
 
-        Ok(parts)
-    }
-
-    pub fn quantity_db_blob(&self) -> Vec<u8> {
-        self.quantity.to_be_bytes().to_vec()
+        Ok(tasks)
     }
 }
 
@@ -167,7 +185,6 @@ impl Record for Package {
         db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
     ) -> Result<()> {
         let json = serde_json::to_string(&self)?;
-        let quantity = self.quantity_db_blob();
 
         sqlx::query!(
             r#"
@@ -179,7 +196,7 @@ impl Record for Package {
             self.version,
             json,
             self.print_queue_id,
-            quantity,
+            self.quantity,
         )
             .fetch_one(db)
             .await?;
@@ -194,7 +211,6 @@ impl Record for Package {
         E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
     {
         let (json, previous_version) = self.prep_for_update()?;
-        let quantity = self.quantity_db_blob();
 
         sqlx::query!(
             r#"
@@ -210,7 +226,7 @@ impl Record for Package {
             // SET
             json,
             self.version,
-            quantity,
+            self.quantity,
             // WHERE
             self.id,
             previous_version,

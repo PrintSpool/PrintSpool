@@ -6,7 +6,7 @@ use anyhow::{
     // Context as _,
 };
 
-use super::{Task, TaskStatus, task_status::TaskStatusGQL};
+use super::{Task, task_status::TaskStatusGQL};
 
 use crate::{MachineMap, machine::{
     MachineData,
@@ -31,7 +31,7 @@ impl Task {
     // }
 
     async fn status(&self) -> TaskStatusGQL { (&self.status).into() }
-    async fn paused(&self) -> bool { self.status == TaskStatus::Paused }
+    async fn paused(&self) -> bool { self.status.is_paused() }
 
     // TODO: rename field to match model
     async fn total_line_numbers(&self) -> u64 { self.total_lines }

@@ -1,8 +1,3 @@
-// use std::collections::HashMap;
-// use chrono::prelude::*;
-// use futures::prelude::*;
-// use futures::future::try_join_all;
-
 use std::sync::Arc;
 use async_graphql::{
     ID,
@@ -10,46 +5,30 @@ use async_graphql::{
     Object,
     FieldResult,
 };
-// use serde::{Deserialize, Serialize};
 use anyhow::{
     // anyhow,
     Result,
     Context as _,
 };
 
-use crate::models::{
-    VersionedModel,
-    // VersionedModelError,
-    VersionedModelResult,
+use crate::{
+    part::Part,
+    package::Package,
 };
-use crate::print_queue::tasks::{
-    Task,
-    // Print,
-    // TaskStatus,
-    // TaskContent,
-    Part,
-    Package,
-};
-use crate::machine::models::{
+use teg_machine::{machine::{
     Machine,
     MachineStatus,
     Printing,
-};
+}, task::TaskStatus};
 
 #[derive(Default)]
 pub struct DeleteJobMutation;
 
-#[InputObject]
+#[derive(async_graphql::InputObject)]
 struct DeleteJobInput {
     // TODO: update graphql names to match latest Sled fields
     #[field(name="jobID")]
     package_id: ID,
-}
-
-#[InputObject]
-struct PartInput {
-    name: String,
-    content: String,
 }
 
 #[Object]
@@ -60,60 +39,48 @@ impl DeleteJobMutation {
         ctx: &'ctx async_graphql::Context<'_>,
         input: DeleteJobInput,
     ) -> FieldResult<Option<bool>> {
-        let ctx: &Arc<crate::Context> = ctx.data()?;
+        let db: &crate::Db = ctx.data()?;
+        let mut tx = db.begin().await?;
 
-        let package_id = input.package_id.parse::<u64>()
-            .with_context(|| format!("Invalid package id: {:?}", input.package_id))?;
+        let machines: &crate::MachineMap = ctx.data()?;
+        let machines = machines.load();
 
-        // TODO: Not part of the transaction. Entries may be added or removed. Consider adding
-        // indexes to parent type
-        let part_ids: Vec<u64> = Part::scan(&ctx.db)
-            .filter_map(|part|
-                match part {
-                    Ok(part) if part.package_id == package_id => {
-                        Some(Ok(part.id))
-                    }
-                    Err(err) => {
-                        Some(Err(err))
-                    }
-                    _ => None
-                }
-            )
-            .collect::<Result<Vec<u64>>>()?;
-
-        // TODO: Not part of the transaction. Entries may be added or removed. Consider adding
-        // indexes to parent type
-        let task_ids: Vec<u64> = Part::scan(&ctx.db)
-            .filter_map(|task|
-                match task {
-                    Ok(task) if task.package_id == package_id => {
-                        Some(Ok(task.id))
-                    }
-                    Err(err) => {
-                        Some(Err(err))
-                    }
-                    _ => None
-                }
-            )
-            .collect::<Result<Vec<u64>>>()?;
+        let package_id = input.package_id.to_string();
+        // Verify the package exists
+        let package = Package::get(&mut tx, &package_id).await?;
 
         // EStop any prints (including paused prints)
-        let _ = Machine::scan(&ctx.db)
-            .filter(|machine| {
-                match machine.as_ref().map(|m| &m.status) {
-                    Ok(MachineStatus::Printing(Printing { task_id })) => {
-                        task_ids.contains(task_id)
-                    }
-                    Err(_) => true,
-                    _ => false,
-                }
-            })
-            .map(|machine| {
-                let machine = machine?;
-                Machine::stop(&ctx.db, machine.id)?;
-                Ok(())
-            })
-            .collect::<Result<Vec<()>>>()?;
+        let pending_tasks = sqlx::query_as!(
+            JsonRow,
+            r#"
+                SELECT props FROM tasks
+                WHERE
+                    parts.package_id = ?
+                    tasks.status IN ('spooled', 'started', 'paused')
+            "#,
+            package_id,
+        )
+            .fetch_all(&tx)
+            .await;
+
+        // Stop any prints (including paused prints)
+        for task in Task::from_rows(pending_tasks) {
+            task.status = TaskStatus::Cancelled;
+            
+            let machine = machines.get(&task.machine_id.into())
+                .ok_or_else(||
+                    anyhow!("machine (ID: {}) not found for package deletion", task.machine_id)
+                )?;
+
+            machine.call(StopMachine).await?
+        }
+
+
+        // Soft delete the package
+        package.deleted_at = Utc::now();
+        package.insert(&mut tx);
+
+        tx.commit().await?;
 
         let _: Vec<Part> = ctx.db.transaction(|db| {
             Package::remove(&db, package_id)?;

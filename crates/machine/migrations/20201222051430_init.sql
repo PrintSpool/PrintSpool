@@ -69,7 +69,7 @@ CREATE TABLE packages(
   version INT NOT NULL DEFAULT 0,
 
   print_queue_id TEXT NOT NULL,
-  quantity BLOB NOT NULL,
+  quantity INT NOT NULL,
 
   props TEXT NOT NULL
 );
@@ -79,7 +79,7 @@ CREATE TABLE parts(
   version INT NOT NULL DEFAULT 0,
 
   package_id TEXT NOT NULL,
-  quantity BLOB NOT NULL,
+  quantity INT NOT NULL,
 
   -- position BLOB NOT NULL,
 

@@ -1,4 +1,4 @@
-// Task Status Revison 1 (LATEST)
+use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use anyhow::{
     anyhow,
@@ -21,13 +21,31 @@ pub enum TaskStatus {
     /// The task is in the process of being printed.
     Started,
     /// The task completed its print successfully
-    Finished,
+    Finished(Finished),
     /// The task was paused by the user
-    Paused,
+    Paused(Paused),
     /// The task was halted pre-emptively by the user.
-    Cancelled,
-    /// An error occurred durring the print.
+    Cancelled(Cancelled),
+    /// An error occurred during the print.
+    ///
+    /// Re-uses the MachineStatus::Errored type for easier cloning of the MachineStatus into the
+    /// TaskStatus.
     Errored(Errored),
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub struct Finished {
+    pub finished_at: DateTime<Utc>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub struct Paused {
+    pub paused_at: DateTime<Utc>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub struct Cancelled {
+    pub cancelled_at: DateTime<Utc>,
 }
 
 #[derive(async_graphql::Enum, Debug, Serialize, Deserialize, Copy, Clone, PartialEq, Eq)]
@@ -53,7 +71,7 @@ pub enum TaskStatusGQL {
     /// The task was halted pre-emptively by the user.
     #[graphql(name = "CANCELLED")]
     Cancelled,
-    /// An error occurred durring the print.
+    /// An error occurred during the print.
     #[graphql(name = "ERROR")]
     Errored,
 }
@@ -63,9 +81,9 @@ impl From<&TaskStatus> for TaskStatusGQL {
         match status {
           TaskStatus::Spooled => TaskStatusGQL::Spooled,
           TaskStatus::Started => TaskStatusGQL::Started,
-          TaskStatus::Finished => TaskStatusGQL::Finished,
-          TaskStatus::Paused => TaskStatusGQL::Paused,
-          TaskStatus::Cancelled => TaskStatusGQL::Cancelled,
+          TaskStatus::Finished(_) => TaskStatusGQL::Finished,
+          TaskStatus::Paused(_) => TaskStatusGQL::Paused,
+          TaskStatus::Cancelled(_) => TaskStatusGQL::Cancelled,
           TaskStatus::Errored(_) => TaskStatusGQL::Errored,
         }
     }
@@ -84,16 +102,31 @@ impl TaskStatus {
 
         let status = match progress.status {
             i if i == TS::TaskStarted as i32 => TaskStatus::Started,
-            i if i == TS::TaskFinished as i32 => TaskStatus::Finished,
-            i if i == TS::TaskPaused as i32 => TaskStatus::Paused,
-            i if i == TS::TaskCancelled as i32 => TaskStatus::Cancelled,
+            i if i == TS::TaskFinished as i32 => {
+                TaskStatus::Finished(Finished {
+                    finished_at: Utc::now(),
+                })
+            }
+            i if i == TS::TaskPaused as i32 => {
+                TaskStatus::Paused(Paused {
+                    paused_at: Utc::now(),
+                })
+            }
+            i if i == TS::TaskCancelled as i32 => {
+                TaskStatus::Cancelled(Cancelled {
+                    cancelled_at: Utc::now(),
+                })
+            }
             i if i == TS::TaskErrored as i32 => {
                 let message = error
                     .as_ref()
                     .map(|e| e.message.clone())
                     .unwrap_or_else(|| "Error message not found".to_string());
 
-                TaskStatus::Errored(Errored { message })
+                TaskStatus::Errored(Errored {
+                    message,
+                    errored_at: Utc::now(),
+                })
             },
             i => Err(anyhow!("Invalid task status: {}", i))?,
         };
@@ -106,15 +139,18 @@ impl TaskStatus {
         match self {
             Spooled => "spooled",
             Started => "started",
-            Finished => "finished",
-            Paused => "paused",
-            Cancelled => "cancelled",
-            Errored(..) => "errored",
+            Finished(_) => "finished",
+            Paused(_) =>"paused",
+            Cancelled(_) => "cancelled",
+            Errored(_) => "errored",
         }
     }
 
     pub fn is_paused(&self) -> bool {
-        *self == Self::Paused
+        match self {
+            TaskStatus::Paused(_) => true,
+            _ => false,
+          }
     }
 
     pub fn is_pending(&self) -> bool {
@@ -123,8 +159,8 @@ impl TaskStatus {
 
     pub fn is_settled(&self) -> bool {
         match self {
-            | TaskStatus::Finished
-            | TaskStatus::Cancelled
+            | TaskStatus::Finished(_)
+            | TaskStatus::Cancelled(_)
             | TaskStatus::Errored(_)
             => true,
             _ => false,
@@ -132,12 +168,15 @@ impl TaskStatus {
     }
 
     pub fn was_successful(&self) -> bool {
-        self == &Self::Finished
+        match self {
+            TaskStatus::Finished(_) => true,
+            _ => false,
+          }
     }
 
     pub fn was_aborted(&self) -> bool {
         match self {
-            | TaskStatus::Cancelled
+            | TaskStatus::Cancelled(_)
             | TaskStatus::Errored(_)
             => true,
             _ => false,
