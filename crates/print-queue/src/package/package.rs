@@ -18,6 +18,7 @@ pub struct Package {
     pub id: crate::DbId,
     pub version: i32,
     pub created_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
     // Foreign Keys
     pub print_queue_id: crate::DbId, // print queues have many (>=0) packages queued for printing
     // Props
