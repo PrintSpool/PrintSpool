@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use anyhow::{
     // anyhow,
     Result,
-    Context as _,
+    // Context as _,
 };
 use teg_json_store::Record;
 
@@ -27,28 +27,13 @@ pub struct User {
 }
 
 impl User {
-    pub async fn update_from_mutation(
-        db: &crate::Db,
+    pub async fn verify_other_admins_exist<'e, 'c, E>(
+        db: E,
         id: &crate::DbId,
-        version: teg_json_store::Version,
-        model: serde_json::Value,
-    ) -> Result<Self> {
-        let mut user = Self::get_with_version(db, id, version).await?;
-
-        user.config = serde_json::from_value(model)?;
-
-        user.update(db).await?;
-
-        Ok(user)
-    }
-
-    pub async fn remove_from_mutation(
-        db: &crate::Db,
-        id: &crate::DbId,
-    ) -> Result<()> {
-        let mut tx = db.begin().await?;
-        // Verify that there will be at least one admin in the database after this user is
-        // removed.
+    ) -> Result<()>
+    where
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    {
         sqlx::query!(
             r#"
                 SELECT id FROM users
@@ -56,15 +41,8 @@ impl User {
             "#,
             id,
         )
-            .fetch_one(&mut tx)
-            .await
-            .with_context(|| r#"
-                Cannot delete only admin user.
-                Please add another administrator before deleting this user.
-            "#)?;
-
-        Self::remove(&mut tx, id).await?;
-        tx.commit().await?;
+            .fetch_one(db)
+            .await?;
 
         Ok(())
     }

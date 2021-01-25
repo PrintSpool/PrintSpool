@@ -9,7 +9,7 @@ use async_graphql::{
 //     Context as _,
 // };
 
-use super::User;
+use crate::user::User;
 
 #[async_graphql::Object]
 impl User {

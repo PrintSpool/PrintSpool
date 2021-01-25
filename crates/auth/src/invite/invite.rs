@@ -24,21 +24,6 @@ pub struct Invite {
 }
 
 impl Invite {
-    pub async fn update_from_mutation(
-        db: &crate::Db,
-        id: &crate::DbId,
-        version: teg_json_store::Version,
-        model: serde_json::Value,
-    ) -> Result<Self> {
-        let mut invite = Self::get_with_version(db, id, version).await?;
-
-        invite.config = serde_json::from_value(model)?;
-
-        invite.update(db).await?;
-
-        Ok(invite)
-    }
-
     pub async fn generate_and_display(
         db: &crate::Db,
         is_admin: bool,

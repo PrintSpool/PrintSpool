@@ -30,7 +30,8 @@ pub struct CreateInviteInput {
 pub struct UpdateInvite {
     #[graphql(name="inviteID")]
     pub invite_id: ID,
-    pub is_admin: Option<bool>,
+    pub model_version: i32,
+    pub model: async_graphql::Json<InviteConfig>,
 }
 
 #[derive(async_graphql::InputObject)]
@@ -80,12 +81,13 @@ impl InviteMutation {
 
         auth.authorize_admins_only()?;
 
-        let invite_id = input.invite_id;
-        let invite_id = invite_id.to_string();
+        let mut invite = Invite::get_with_version(
+            db,
+            &input.invite_id,
+            input.model_version,
+        ).await?;
 
-        let mut invite = Invite::get(db, &invite_id).await?;
-
-        invite.config.is_admin = input.is_admin.unwrap_or(invite.config.is_admin);
+        invite.config = input.model.0;
 
         invite.update(db).await?;
 

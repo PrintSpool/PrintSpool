@@ -14,8 +14,7 @@ pub use user::{
 mod user_config;
 pub use user_config::UserConfig;
 
-pub mod query_resolvers;
-mod user_resolvers;
+pub mod resolvers;
 
 #[derive(async_graphql::InputObject)]
 pub struct UpdateUser {

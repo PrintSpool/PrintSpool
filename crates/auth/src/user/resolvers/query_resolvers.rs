@@ -7,15 +7,14 @@ use teg_json_store::Record as _;
 
 use crate::{
     AuthContext,
-};
-use super::{
-    User,
+    user::User,
 };
 
-pub struct Query();
+#[derive(Default)]
+pub struct UserQuery;
 
 #[async_graphql::Object]
-impl Query {
+impl UserQuery {
     async fn users<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<User>> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;

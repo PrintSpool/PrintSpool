@@ -13,11 +13,9 @@ use cgt::SetConfigResponse;
 use messages::set_materials::SetMaterialsInput;
 use teg_auth::{
     AuthContext,
-    user::User,
-    invite::Invite,
 };
 use teg_material::Material;
-use teg_json_store::Record as _;
+// use teg_json_store::Record as _;
 
 use crate::{
     config::{
@@ -62,7 +60,7 @@ impl ConfigMutation {
                 Err(anyhow!("Cannot create users directly. Use an invite instead."))?;
             }
             (AUTH, "invite") => {
-                Err(anyhow!("Deprecated. Use createInvite mutation instead."))?;
+                Err(anyhow!("Please use createInvite mutation instead."))?;
             }
             (MATERIAL, _) => {
                 Material::create(db, model).await?;
@@ -111,7 +109,7 @@ impl ConfigMutation {
         input: cgt::UpdateConfigInput,
     ) -> FieldResult<cgt::SetConfigResponse> {
         use cgt::ConfigCollection::*;
-        let db: &crate::Db = ctx.data()?;
+        // let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 
         auth.authorize_admins_only()?;
@@ -125,31 +123,34 @@ impl ConfigMutation {
             // Database persisted types (users, invites, materials)
             // ----------------------------------------------------------
             (AUTH, id) if id.starts_with("user-") => {
-                let id = id.replacen("user-", "", 1).parse()?;
-                let _ = User::update_from_mutation(
-                    db,
-                    &id,
-                    input.model_version,
-                    model,
-                ).await?;
+                Err(anyhow!("Please use updateUser mutation instead."))?;
+                // let id = id.replacen("user-", "", 1).parse()?;
+                // let _ = User::update_from_mutation(
+                //     db,
+                //     &id,
+                //     input.model_version,
+                //     model,
+                // ).await?;
             }
             (AUTH, id) if id.starts_with("invite-") => {
-                let id = id.replacen("invite-", "", 1).parse()?;
-                let _ = Invite::update_from_mutation(
-                    db,
-                    &id,
-                    input.model_version,
-                    model,
-                ).await?;
+                Err(anyhow!("Please use updateInvite mutation instead."))?;
+                // let id = id.replacen("invite-", "", 1).parse()?;
+                // let _ = Invite::update_from_mutation(
+                //     db,
+                //     &id,
+                //     input.model_version,
+                //     model,
+                // ).await?;
             }
             (MATERIAL, id) if id.starts_with("material-")  => {
-                let id = id.replacen("material-", "", 1).parse()?;
-                let _ = Material::update_from_mutation(
-                    db,
-                    &id,
-                    input.model_version,
-                    model,
-                ).await?;
+                Err(anyhow!("Please use updateMaterial mutation instead."))?;
+                // let id = id.replacen("material-", "", 1).parse()?;
+                // let _ = Material::update_from_mutation(
+                //     db,
+                //     &id,
+                //     input.model_version,
+                //     model,
+                // ).await?;
             }
             // Config file persisted types (components, plugins)
             // ----------------------------------------------------------
@@ -195,7 +196,7 @@ impl ConfigMutation {
         input: cgt::DeleteConfigInput,
     ) -> FieldResult<Option<bool>> {
         use cgt::ConfigCollection::*;
-        let db: &crate::Db = ctx.data()?;
+        // let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 
         auth.authorize_admins_only()?;
@@ -207,25 +208,28 @@ impl ConfigMutation {
             // Database persisted types (users, invites, materials)
             // ----------------------------------------------------------
             (AUTH, id) if id.starts_with("user-") => {
-                let id = id.replacen("user-", "", 1).parse()?;
-                User::remove_from_mutation(
-                    db,
-                    &id,
-                ).await?;
+                Err(anyhow!("Please use deleteUser mutation instead."))?;
+                // let id = id.replacen("user-", "", 1).parse()?;
+                // User::remove_from_mutation(
+                //     db,
+                //     &id,
+                // ).await?;
             }
             (AUTH, id) if id.starts_with("invite-") => {
-                let id = id.replacen("invite-", "", 1).parse()?;
-                Invite::remove(
-                    db,
-                    &id,
-                ).await?;
+                Err(anyhow!("Please use deleteInvite mutation instead."))?;
+                // let id = id.replacen("invite-", "", 1).parse()?;
+                // Invite::remove(
+                //     db,
+                //     &id,
+                // ).await?;
             }
             (MATERIAL, id) if id.starts_with("material-")  => {
-                let id = id.replacen("material-", "", 1).parse()?;
-                Material::remove(
-                    db,
-                    &id,
-                ).await?;
+                Err(anyhow!("Please use deleteMaterial mutation instead."))?;
+                // let id = id.replacen("material-", "", 1).parse()?;
+                // Material::remove(
+                //     db,
+                //     &id,
+                // ).await?;
             }
             // Config file persisted types (components, plugins)
             // ----------------------------------------------------------

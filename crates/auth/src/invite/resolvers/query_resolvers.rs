@@ -12,10 +12,11 @@ use crate::invite::{
     Invite,
 };
 
-pub struct Query();
+#[derive(Default)]
+pub struct InviteQuery;
 
 #[async_graphql::Object]
-impl Query {
+impl InviteQuery {
     async fn invites<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<Invite>> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
