@@ -11,14 +11,16 @@ use teg_protobufs::{
 use teg_json_store::Record as _;
 
 use machine_message::Feedback;
-use crate::{machine::{MachineData, events::TaskSettled}, task::{Task, TaskStatus}};
 use crate::machine::{
+    MachineData,
+    events::TaskSettled,
     Machine,
     MachineStatus,
     GCodeHistoryEntry,
     GCodeHistoryDirection,
     Errored,
 };
+use crate::task::{Task, TaskContent, TaskStatus};
 use crate::components::{
     // HeaterEphemeral,
     TemperatureHistoryEntry,
@@ -59,9 +61,21 @@ pub async fn update_tasks(
         task.despooled_line_number = Some(progress.despooled_line_number as u64);
         task.status = status;
 
+        if task.status.is_settled() {
+            // delete the completed GCode file
+            if let TaskContent::FilePath(file_path) = task.content {
+                if let Err(err) = async_std::fs::remove_file(&file_path).await {
+                    warn!("Unable to remove completed GCode file ({}): {:?}", file_path, err);
+                }
+            }
+            // Replace the completed GCodes with an empty vec to save space
+            task.content = TaskContent::GCodes(vec![]);
+        }
+
         task.update(db).await?;
 
         if task.status.is_settled() {
+            // publish TaskSettled event
             let mut broker = xactor::Broker::from_registry().await?;
             broker.publish(TaskSettled {
                 task_id: task.id,
