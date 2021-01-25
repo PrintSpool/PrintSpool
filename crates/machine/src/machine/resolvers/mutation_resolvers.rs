@@ -67,7 +67,7 @@ impl MachineMutation {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 
-        let user = auth.require_user()?;
+        let user = auth.require_authorized_user()?;
 
         let machine_id = machine_id.parse::<crate::DbId>()
             .with_context(|| format!("Invalid machine id: {:?}", machine_id))?;

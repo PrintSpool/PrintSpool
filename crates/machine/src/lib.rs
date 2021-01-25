@@ -9,7 +9,10 @@ use std::collections::HashMap;
 
 pub mod components;
 pub mod config;
+
 pub mod machine;
+pub use machine::resolvers::mutation_resolvers::MachineMutation;
+
 pub mod plugins;
 pub mod task;
 

@@ -2,6 +2,8 @@
 #[macro_use] extern crate nanoid;
 
 pub mod invite;
+pub use invite::resolvers::InviteMutation;
+
 pub mod user;
 
 mod watch_pem_keys;

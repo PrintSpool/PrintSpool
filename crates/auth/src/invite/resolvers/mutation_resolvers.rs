@@ -6,11 +6,12 @@ use async_graphql::{
 };
 use anyhow::{
     Context as _,
+    anyhow,
     // Result
 };
 use teg_json_store::Record as _;
 
-use crate::AuthContext;
+use crate::{AuthContext, invite::consume_invite, user::User};
 use crate::invite::{
     Invite,
     InviteConfig,
@@ -41,10 +42,11 @@ pub struct DeleteInvite {
 // Resolvers
 // ---------------------------------------------
 
-struct Mutation();
+#[derive(Default)]
+pub struct InviteMutation;
 
 #[async_graphql::Object]
-impl Mutation {
+impl InviteMutation {
     async fn create_invite<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
@@ -104,5 +106,24 @@ impl Mutation {
             .with_context(|| "Error deleting invite")?;
 
         Ok(None)
+    }
+
+    async fn consume_invite<'ctx>(
+        &self,
+        ctx: &'ctx Context<'_>,
+    ) -> FieldResult<User> {
+        let db: &crate::Db = ctx.data()?;
+        let auth: &AuthContext = ctx.data()?;
+        let user = auth.allow_unauthorized_user()?;
+
+        let invite_public_key = auth.identity_public_key
+            .as_ref()
+            .ok_or_else(||
+                anyhow!("identity_public_key must be sent in connection initialization")
+            )?;
+
+        let user = consume_invite(db, invite_public_key, user).await?;
+
+        Ok(user)
     }
 }

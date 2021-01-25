@@ -127,10 +127,13 @@ async fn app() -> Result<()> {
                     &db,
                     auth_pem_keys,
                     auth_token,
-                    identity_public_key,
+                    &identity_public_key,
                 ).await?;
 
-                let auth_context = AuthContext::new(user);
+                let auth_context = AuthContext::new(
+                    user,
+                    identity_public_key,
+                );
 
                 let mut data = async_graphql::Data::default();
 

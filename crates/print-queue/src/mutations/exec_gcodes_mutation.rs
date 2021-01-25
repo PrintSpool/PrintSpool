@@ -73,7 +73,7 @@ impl ExecGCodesMutation {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 
-        let _ = auth.require_user()?;
+        let _ = auth.require_authorized_user()?;
 
         let machines: &MachineMap = ctx.data()?;
         let machines = machines.load();

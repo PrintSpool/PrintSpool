@@ -20,7 +20,7 @@ impl User {
         db: &crate::Db,
         auth_pem_keys: Arc<ArcSwap<Vec<Vec<u8>>>>,
         auth_token: String,
-        identity_public_key: Option<String>
+        identity_public_key: &Option<String>
     ) -> Result<Option<User>> {
         let jwt_payload = validate_jwt(auth_pem_keys, auth_token).await?;
 
@@ -34,7 +34,7 @@ impl User {
         * 2. the user's token is authorized
         */
 
-        let invite = if let Some(pk) = identity_public_key {
+        let invite = if let Some(pk) = identity_public_key.as_ref() {
             Invite::get_by_pk(&mut tx, &pk)
                 .await
                 .ok()

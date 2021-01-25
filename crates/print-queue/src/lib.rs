@@ -3,6 +3,8 @@
 #[macro_use] extern crate derive_new;
 
 pub mod mutations;
+pub use mutations::PrintQueueMutation;
+
 pub mod package;
 pub mod part;
 pub mod print;

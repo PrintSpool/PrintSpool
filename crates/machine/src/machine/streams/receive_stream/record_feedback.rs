@@ -1,4 +1,5 @@
 use chrono::{ prelude::*, Duration };
+use machine::messages::DeleteTaskHistory;
 use xactor::{Service as _};
 use anyhow::{
     anyhow,
@@ -11,15 +12,7 @@ use teg_protobufs::{
 use teg_json_store::Record as _;
 
 use machine_message::Feedback;
-use crate::machine::{
-    MachineData,
-    events::TaskSettled,
-    Machine,
-    MachineStatus,
-    GCodeHistoryEntry,
-    GCodeHistoryDirection,
-    Errored,
-};
+use crate::machine::{self, Errored, GCodeHistoryDirection, GCodeHistoryEntry, Machine, MachineData, MachineStatus, events::TaskSettled};
 use crate::task::{Task, TaskContent, TaskStatus};
 use crate::components::{
     // HeaterEphemeral,
@@ -33,10 +26,12 @@ pub async fn record_feedback(
     feedback: Feedback,
 ) -> Result<()> {
     let db = machine.db.clone();
-    let machine_data = machine.get_data()?;
     let transaction = db.begin().await?;
 
-    update_tasks(&db, &feedback).await?;
+    update_tasks(machine, &db, &feedback).await?;
+
+    let machine_data = machine.get_data()?;
+
     update_heaters(machine_data, &feedback).await?;
     update_axes(machine_data, &feedback).await?;
     update_speed_controllers(machine_data, &feedback).await?;
@@ -49,6 +44,7 @@ pub async fn record_feedback(
 }
 
 pub async fn update_tasks(
+    machine: &mut Machine,
     db: &crate::Db,
     feedback: &Feedback,
 ) -> Result<()> {
@@ -78,9 +74,13 @@ pub async fn update_tasks(
             // publish TaskSettled event
             let mut broker = xactor::Broker::from_registry().await?;
             broker.publish(TaskSettled {
-                task_id: task.id,
+                task_id: task.id.clone(),
                 task_status: task.status.clone(),
             })?;
+
+            machine.send_message(DeleteTaskHistory {
+                task_id: task.id,
+            }.into()).await?;
         }
     }
 
