@@ -15,7 +15,7 @@ use crate::{machine::Machine, task::{Task, TaskContent}};
 #[xactor::message(result = "Result<Task>")]
 #[derive(Debug)]
 pub struct SpoolTask {
-    task: Task,
+    pub task: Task,
 }
 
 #[async_trait::async_trait]

@@ -125,10 +125,18 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
     ) -> Result<Vec<Self>>
     {
         let rows = rows.into_iter()
-            .map(|row| serde_json::from_str(&row.props))
+            .map(Self::from_row)
             .collect::<std::result::Result<Vec<_>, _>>()?;
 
         Ok(rows)
+    }
+
+    fn from_row(
+        row: JsonRow
+    ) -> Result<Self>
+    {
+        let record = serde_json::from_str(&row.props)?;
+        Ok(record)
     }
 
     fn prep_for_update(&mut self) -> Result<(String, crate::Version)> {

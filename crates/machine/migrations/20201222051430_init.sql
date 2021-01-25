@@ -68,6 +68,8 @@ CREATE TABLE packages(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
 
+  deleted_at TEXT NOT NULL,
+
   print_queue_id TEXT NOT NULL,
   quantity INT NOT NULL,
 
@@ -78,10 +80,11 @@ CREATE TABLE parts(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
 
+  deleted_at TEXT NOT NULL,
+
   package_id TEXT NOT NULL,
   quantity INT NOT NULL,
-
-  -- position BLOB NOT NULL,
+  position BLOB NOT NULL,
 
   props TEXT NOT NULL
 );

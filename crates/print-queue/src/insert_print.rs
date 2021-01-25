@@ -31,7 +31,6 @@ use teg_machine::{
 };
 
 use crate::{
-    package::Package,
     part::Part,
 };
 
@@ -40,7 +39,6 @@ pub async fn insert_print(
     machine: xactor::Addr<Machine>,
     machine_id: crate::DbId,
     part_id: crate::DbId,
-    print_id: crate::DbId,
     automatic_print: bool,
 ) -> Result<Task> {
     let part_file_path = Part::get(db, &part_id).await?.file_path;
@@ -192,9 +190,9 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
         } = msg;
 
         let part_id = task.part_id
+            .as_ref()
             .ok_or_else(|| anyhow!("New print missing part id"))?;
         let part = Part::get(&self.db, &part_id).await?;
-        let package = Package::get(&self.db, &part.package_id).await?;
 
         /*
         * Create the task
@@ -208,7 +206,7 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
         let prints_in_progress = Part::query_prints_in_progress(&mut tx, &part_id)
             .await?;
 
-        if prints_in_progress >= total_prints {
+        if prints_in_progress as i64 >= total_prints {
             Err(
                 anyhow!(
                     "Already printing {} / {} of {}",

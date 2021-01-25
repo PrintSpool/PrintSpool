@@ -4407,6 +4407,7 @@ dependencies = [
  "sqlx",
  "surf",
  "teg-json-store",
+ "teg-print-queue",
  "teg_auth",
  "teg_data_channel",
  "teg_machine",

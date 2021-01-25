@@ -13,11 +13,15 @@ use teg_machine::task::Task;
 
 use crate::part::Part;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(new, Debug, Serialize, Deserialize, Clone)]
 pub struct Package {
+    #[new(value = "nanoid!(11)")]
     pub id: crate::DbId,
+    #[new(default)]
     pub version: i32,
+    #[new(value = "Utc::now()")]
     pub created_at: DateTime<Utc>,
+    #[new(default)]
     pub deleted_at: Option<DateTime<Utc>>,
     // Foreign Keys
     pub print_queue_id: crate::DbId, // print queues have many (>=0) packages queued for printing
@@ -219,7 +223,8 @@ impl Record for Package {
                 SET
                     props=?,
                     version=?,
-                    quantity=?
+                    quantity=?,
+                    deleted_at=?
                 WHERE
                     id=?
                     AND version=?
@@ -228,6 +233,7 @@ impl Record for Package {
             json,
             self.version,
             self.quantity,
+            self.deleted_at,
             // WHERE
             self.id,
             previous_version,

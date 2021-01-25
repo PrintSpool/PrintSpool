@@ -14,11 +14,6 @@ use teg_json_store::{
 };
 use teg_machine::{
     MachineMap,
-    // machine::{
-    //     Machine,
-    //     MachineStatus,
-    //     Printing,
-    // },
     task::{
         Task,
         TaskStatus,
@@ -30,7 +25,6 @@ use teg_machine::{
 };
 
 use crate::{
-    // part::Part,
     package::Package,
 };
 
@@ -83,12 +77,20 @@ impl DeleteJobMutation {
             task.status = TaskStatus::Cancelled(Cancelled {
                 cancelled_at: Utc::now(),
             });
-            task.update(&mut tx).await;
+            task.update(&mut tx).await?;
         }
 
         // Soft delete the package
-        package.deleted_at = Some(Utc::now());
+        let now= Utc::now();
+        package.deleted_at = Some(now.clone());
         package.insert_no_rollback(&mut tx).await?;
+
+        // Soft delete the parts
+        let parts = Package::get_parts(&mut tx, &package.id).await?;
+        for mut part in parts {
+            part.deleted_at = Some(now.clone());
+            part.insert_no_rollback(&mut tx).await?;
+        }
 
         tx.commit().await?;
 

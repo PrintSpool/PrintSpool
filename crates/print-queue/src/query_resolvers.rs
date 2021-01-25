@@ -1,27 +1,24 @@
-use std::sync::Arc;
-// use chrono::prelude::*;
-use async_graphql::*;
-
-use super::models::{
-    PrintQueue,
-    // Task,
-    // TaskStatus,
+use async_graphql::{
+    Context,
+    // ID,
+    FieldResult,
 };
+use teg_json_store::Record;
 
-use crate::models::{
-    VersionedModel,
-    // VersionedModelError,
-};
+use crate::PrintQueue;
 
 #[derive(Default)]
 pub struct PrintQueueQuery;
 
-#[Object]
+#[async_graphql::Object]
 impl PrintQueueQuery {
     async fn job_queue<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<PrintQueue> {
-        let ctx: &Arc<crate::Context> = ctx.data()?;
+        let db: &crate::Db = ctx.data()?;
 
-        let print_queue = PrintQueue::first(&ctx.db)?;
+        // TODO: Support multiple print queues
+        let print_queue = PrintQueue::get_all(db).await?.first()
+            .unwrap()
+            .clone();
 
         Ok(print_queue)
     }

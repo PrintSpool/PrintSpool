@@ -1,71 +1,85 @@
-use std::sync::Arc;
-use async_graphql::*;
+use chrono::prelude::*;
 use anyhow::{
     anyhow,
-    Context as _,
+    // Context as _,
 };
+use async_graphql::{
+    ID,
+    Context,
+    FieldResult,
+};
+use machine::messages::{GetData, PauseTask};
+use teg_json_store::Record;
+use teg_machine::{MachineMap, machine, task::{Paused, Task, TaskStatus}};
 
-use crate::models::{
-    VersionedModel,
-    VersionedModelError,
-};
 use crate::{
-    Machine,
+    task_from_hook,
 };
-use super::*;
 
 #[derive(Default)]
 pub struct PausePrintMutation;
 
-#[Object]
+#[async_graphql::Object]
 impl PausePrintMutation {
     /// Pauses a print
     async fn pause_print<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
-        #[arg(name="taskID")]
+        #[graphql(name="taskID")]
         task_id: ID,
     ) -> FieldResult<Task> {
-        let task_id = task_id.parse::<u64>()
-            .with_context(|| format!("Invalid task id: {:?}", task_id))?;
+        let db: &crate::Db = ctx.data()?;
 
-        let ctx: &Arc<crate::Context> = ctx.data()?;
-        let config = ctx.machine_config.load();
+        let task = Task::get(db, &task_id).await?;
+
+        let machines: &MachineMap = ctx.data()?;
+        let machines = machines.load();
+        let machine = machines.get(&(&task.machine_id).into())
+            .ok_or_else(||
+                anyhow!("machine (ID: {}) not found for print pause", task.machine_id)
+            )?;
+
+        let config = machine.call(GetData).await??.config;
         let core_plugin = config.core_plugin()?;
 
-        let task = Task::get(&ctx.db, task_id)?;
-        let pause_hook = Task::from_hook(
-            task.machine_id,
+        let pause_hook = task_from_hook(
+            &task.machine_id,
+            machine.clone(),
             &core_plugin.model.pause_hook,
-            ctx,
         ).await?;
 
-        let task = ctx.db.transaction(|db| {
-            let task = Task::get(&ctx.db, task_id)?;
-            let mut machine = Machine::get(&ctx.db, task.machine_id)?;
+        let mut tx = db.begin().await?;
+        // Re-fetch the task within the transaction
+        let mut task = Task::get(&mut tx, &task_id).await?;
 
-            if task.status.is_settled() {
-                Err(
-                    VersionedModelError::from(anyhow!("Cannot pause a task that is not running")),
-                )?;
-            }
+        if task.status.is_settled() {
+            Err(anyhow!("Cannot pause a task that is not running"))?;
+        }
 
-            task.print.as_ref().ok_or_else(|| {
-                VersionedModelError::from(anyhow!("Task is not a print"))
-            })?;
+        if !task.is_print() {
+            Err(anyhow!("Cannot pause task because task is not a print"))?;
+        }
 
-            if machine.pausing_task_id == Some(task.id) {
-                // handle redundant calls as a no-op to pause idempotently
-                return Ok(task);
-            }
+        if task.status.is_paused() {
+            // handle redundant calls as a no-op to pause idempotently
+            return Ok(task);
+        }
 
-            machine.pausing_task_id = Some(task.id);
-            machine.insert(&db)?;
+        task.status = TaskStatus::Paused(Paused {
+            paused_at: Utc::now(),
+        });
 
-            pause_hook.clone().insert(&db)?;
+        task.insert_no_rollback(&mut tx).await?;
+        pause_hook.insert_no_rollback(&mut tx).await?;
 
-            Ok(task)
-        })?;
+        tx.commit().await?;
+
+        // Pause the task and spool the pause hook
+        let msg = PauseTask {
+            task_id: task.id.clone(),
+            pause_hook,
+        };
+        machine.call(msg).await??;
 
         Ok(task)
     }

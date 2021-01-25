@@ -1,86 +1,80 @@
-use std::sync::Arc;
-use async_graphql::*;
 use anyhow::{
     anyhow,
-    Context as _,
+    // Context as _,
 };
+use async_graphql::{
+    ID,
+    Context,
+    FieldResult,
+};
+use machine::messages::{GetData, ResumeTask};
+use teg_json_store::Record;
+use teg_machine::{MachineMap, machine, task::{Task, TaskStatus}};
 
-use crate::models::{
-    VersionedModel,
-    VersionedModelError,
-};
-use crate::{
-    Machine,
-};
-use super::*;
+use crate::task_from_hook;
 
 #[derive(Default)]
 pub struct ResumePrintMutation;
 
-#[Object]
+#[async_graphql::Object]
 impl ResumePrintMutation {
     /// Resumes a paused print
     async fn resume_print<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
-        #[arg(name="taskID")]
+        #[graphql(name="taskID")]
         task_id: ID,
     ) -> FieldResult<Task> {
-        let task_id = task_id.parse::<u64>()
-            .with_context(|| format!("Invalid task id: {:?}", task_id))?;
+        let db: &crate::Db = ctx.data()?;
 
-        let ctx: &Arc<crate::Context> = ctx.data()?;
-        let config = ctx.machine_config.load();
+        let task = Task::get(db, &task_id).await?;
+
+        let machines: &MachineMap = ctx.data()?;
+        let machines = machines.load();
+        let machine = machines.get(&(&task.machine_id).into())
+            .ok_or_else(||
+                anyhow!("machine (ID: {}) not found for print pause", task.machine_id)
+            )?;
+
+        let config = machine.call(GetData).await??.config;
         let core_plugin = config.core_plugin()?;
 
-        let task = Task::get(&ctx.db, task_id)?;
-        let resume_hook = Task::from_hook(
-            task.machine_id,
+        let resume_hook = task_from_hook(
+            &task.machine_id,
+            machine.clone(),
             &core_plugin.model.resume_hook,
-            ctx,
         ).await?;
 
-        let (task, send_to_machine) = ctx.db.transaction(|db| {
-            let task = Task::get(&db, task_id)?;
-            let mut machine = Machine::get(&db, task.machine_id)?;
+        let mut tx = db.begin().await?;
+        // Re-fetch the task within the transaction
+        let mut task = Task::get(&mut tx, &task_id).await?;
 
-            if task.status.is_settled() {
-                Err(
-                    VersionedModelError::from(anyhow!("Cannot resume a task that is settled")),
-                )?;
-            }
-
-            task.print.as_ref().ok_or_else(|| {
-                VersionedModelError::from(anyhow!("Task is not a print"))
-            })?;
-
-            if machine.pausing_task_id.is_none() {
-                // handle redundant calls as a no-op to resume idempotently
-                return Ok((task, false));
-            }
-
-            if machine.pausing_task_id != Some(task.id) {
-                Err(
-                    VersionedModelError::from(anyhow!("Machine is paused on a different print")),
-                )?;
-            }
-
-            machine.pausing_task_id = None;
-            machine.insert(&db)?;
-
-            resume_hook.clone().insert(&db)?;
-
-            Ok((task, true))
-        })?;
-
-        if !send_to_machine {
-            return Ok(task)
+        if task.status.is_settled() {
+            Err(anyhow!("Cannot resume a task that is {}", task.status.to_db_str()))?;
         }
 
-        let task = Task::get_and_update(&ctx.db, task.id, |mut task| {
-            task.sent_to_machine = false;
-            task
-        })?;
+        if !task.is_print() {
+            Err(anyhow!("Cannot resume task because task is not a print"))?;
+        }
+
+        if !task.status.is_paused() {
+            // handle redundant calls as a no-op to pause idempotently
+            return Ok(task);
+        }
+
+        task.status = TaskStatus::Spooled;
+
+        task.insert_no_rollback(&mut tx).await?;
+        resume_hook.insert_no_rollback(&mut tx).await?;
+
+        tx.commit().await?;
+
+        // Spool the resume hook and then the task
+        let msg = ResumeTask {
+            task: task,
+            resume_hook,
+        };
+        let task = machine.call(msg).await??;
 
         Ok(task)
     }

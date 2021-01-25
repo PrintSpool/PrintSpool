@@ -41,6 +41,12 @@ pub enum TaskContent {
     GCodes(Vec<String>),
 }
 
+impl Task {
+    pub fn is_print(&self) -> bool {
+        self.part_id.is_some()
+    }
+}
+
 #[async_trait::async_trait]
 impl Record for Task {
     const TABLE: &'static str = "tasks";

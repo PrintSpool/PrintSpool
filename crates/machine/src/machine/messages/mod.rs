@@ -27,6 +27,9 @@ pub use reset_machine::ResetMachine;
 mod reset_when_idle;
 pub use reset_when_idle::ResetWhenIdle;
 
+mod resume_task;
+pub use resume_task::ResumeTask;
+
 mod stop_machine;
 pub use stop_machine::StopMachine;
 

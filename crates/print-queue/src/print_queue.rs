@@ -1,6 +1,13 @@
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
-use teg_json_store::Record;
+use anyhow::{
+    // anyhow,
+    Result,
+    // Context as _,
+};
+use teg_json_store::{ Record, JsonRow };
+
+use crate::part::Part;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PrintQueue {
@@ -9,6 +16,35 @@ pub struct PrintQueue {
     pub created_at: DateTime<Utc>,
     // Foreign Keys
     // Props
+    pub name: String,
+}
+
+impl PrintQueue {
+    pub async fn get_parts<'e, 'c, E>(
+        db: E,
+        print_queue_id: &crate::DbId,
+    ) -> Result<Vec<Part>>
+    where
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    {
+        let parts = sqlx::query_as!(
+            JsonRow,
+            r#"
+                SELECT parts.props FROM parts
+                INNER JOIN packages ON packages.id = parts.package_id
+                WHERE
+                    packages.print_queue_id = ?
+                    AND parts.deleted_at IS NULL
+            "#,
+            print_queue_id,
+        )
+            .fetch_all(db)
+            .await?;
+
+        let parts = Part::from_rows(parts)?;
+
+        Ok(parts)
+    }
 }
 
 #[async_trait::async_trait]

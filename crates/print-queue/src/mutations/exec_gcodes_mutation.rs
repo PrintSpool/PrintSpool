@@ -1,11 +1,12 @@
 use serde::{Deserialize, Serialize};
 use anyhow::{
     Result,
-    // anyhow,
+    anyhow,
     Context as _,
 };
 use async_graphql::{ID, Context, FieldResult};
 use xactor::Actor as _;
+use teg_json_store::Record;
 
 use teg_auth::AuthContext;
 use teg_machine::{MachineMap, machine::{events::TaskSettled, messages::SpoolTask}, task::{Task, TaskStatus}};
@@ -71,17 +72,18 @@ impl ExecGCodesMutation {
     ) -> FieldResult<Task> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
-        let machines: &MachineMap = ctx.data()?;
 
         let _ = auth.require_user()?;
 
-        let machine_override = input.r#override.unwrap_or(false);
+        let machines: &MachineMap = ctx.data()?;
+        let machines = machines.load();
 
-        let machine_id = input.machine_id.parse()
-            .with_context(|| format!("Invalid machine id: {:?}", input.machine_id))?;
-
-        let machine = machines.load().get(&input.machine_id)
+        let machine = machines.get(&input.machine_id)
             .with_context(|| format!("No machine found for ID: {:?}", input.machine_id))?;
+
+        let machine_id = input.machine_id.to_string();
+
+        let machine_override = input.r#override.unwrap_or(false);
 
         /*
          * Preprocess GCodes
@@ -114,19 +116,20 @@ impl ExecGCodesMutation {
          * Insert task and sync task completion
          * =========================================================================================
          */
-        let tx = db.begin().await?;
-        let mut task = crate::task_from_gcodes(
-            machine_id,
+        let mut tx = db.begin().await?;
+
+        let task = crate::task_from_gcodes(
+            &machine_id,
             machine.clone(),
             machine_override,
             gcodes,
         ).await?;
-        let (task, tx) = task.insert_no_rollback(tx).await?;
+        task.insert_no_rollback(&mut tx).await?;
 
         // Sync Mode: Initialize a watcher so that it can be used later
         let watcher = if input.sync.unwrap_or(false) {
             let watcher = TaskCompletionWatcher {
-                task_id: task.id,
+                task_id: task.id.clone(),
             };
             let watcher = watcher
                 .start()
@@ -136,21 +139,36 @@ impl ExecGCodesMutation {
             None
         };
 
+        tx.commit().await?;
+
         let msg = SpoolTask {
             task,
         };
         let task = machine.call(msg).await??;
-        tx.commit();
 
         // Sync Mode: Block until the task is settled
         if let Some(watcher) = watcher {
             watcher
                 .wait_for_stop()
-                .await??;
+                .await;
 
             // Refresh the task
-            let task = Task::get(task.id).await?;
-            Ok(task)
+            let task = Task::get(db, &task.id).await?;
+
+            match task.status {
+                TaskStatus::Finished(_) => {
+                    Ok(task)
+                },
+                TaskStatus::Cancelled(_) => {
+                    Err(anyhow!("Task Cancelled"))?
+                }
+                TaskStatus::Errored(error) => {
+                    Err(anyhow!(error.message))?
+                }
+                invalid_status => {
+                    Err(anyhow!("Task settled with invalid status: {:?}", invalid_status))?
+                }
+            }
         } else {
             Ok(task)
         }
@@ -170,22 +188,8 @@ impl xactor::Handler<TaskSettled> for TaskCompletionWatcher {
         ctx: &mut xactor::Context<Self>,
         msg: TaskSettled
     ) -> () {
-        if msg.task_id != self.task_id {
-            return
+        if msg.task_id == self.task_id {
+            ctx.stop(None);
         }
-
-        let err = match msg.task_status {
-            TaskStatus::Finished => None,
-            TaskStatus::Cancelled => {
-                Some("Task Cancelled".to_string())
-            }
-            TaskStatus::Errored(error) => {
-                Some(error.message)
-            }
-            invalid_status => {
-                Some(format!("Task settled with invalid status: {:?}", invalid_status))
-            }
-        };
-        ctx.stop(err);
     }
 }

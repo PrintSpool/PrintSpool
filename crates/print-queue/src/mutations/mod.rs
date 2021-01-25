@@ -1,12 +1,3 @@
-use async_graphql::GQLMergedObject;
-
-// Resolvers
-mod package_resolvers;
-mod part_resolvers;
-mod print_queue_resolvers;
-pub mod query_resolvers;
-mod task_resolvers;
-
 pub mod create_job_mutation;
 use create_job_mutation::CreateJobMutation;
 
@@ -22,11 +13,11 @@ use pause_print_mutation::PausePrintMutation;
 pub mod resume_print_mutation;
 use resume_print_mutation::ResumePrintMutation;
 
-pub mod set_job_position_mutation;
-use set_job_position_mutation::SetJobPositionMutation;
+pub mod set_part_position_mutation;
+use set_part_position_mutation::SetPartPositionMutation;
 
-pub mod spool_job_file_mutation;
-use spool_job_file_mutation::SpoolJobFileMutation;
+pub mod print_mutation;
+use print_mutation::PrintMutation;
 
 #[derive(async_graphql::MergedObject, Default)]
 pub struct PrintQueueMutation(
@@ -35,6 +26,6 @@ pub struct PrintQueueMutation(
     ExecGCodesMutation,
     PausePrintMutation,
     ResumePrintMutation,
-    SetJobPositionMutation,
-    SpoolJobFileMutation,
+    SetPartPositionMutation,
+    PrintMutation,
 );

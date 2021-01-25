@@ -14,6 +14,7 @@ pub struct Part {
     pub id: crate::DbId,
     pub version: i32,
     pub created_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
     // Foreign Keys
     pub package_id: crate::DbId, // packages have many (>=1) parts
     // Props
@@ -133,6 +134,10 @@ impl Part {
         let done = part_stats.printed as i64 >= total;
         Ok(done)
     }
+
+    pub fn position_db_blob(&self) -> Vec<u8> {
+        self.position.to_be_bytes().to_vec()
+    }
 }
 
 #[async_trait::async_trait]
@@ -156,18 +161,20 @@ impl Record for Part {
         db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
     ) -> Result<()> {
         let json = serde_json::to_string(&self)?;
+        let position = self.position_db_blob();
 
         sqlx::query!(
             r#"
                 INSERT INTO parts
-                (id, version, props, package_id, quantity)
-                VALUES (?, ?, ?, ?, ?)
+                (id, version, props, package_id, quantity, position)
+                VALUES (?, ?, ?, ?, ?, ?)
             "#,
             self.id,
             self.version,
             json,
             self.package_id,
             self.quantity,
+            position,
         )
             .fetch_one(db)
             .await?;
@@ -182,14 +189,17 @@ impl Record for Part {
         E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
     {
         let (json, previous_version) = self.prep_for_update()?;
+        let position = self.position_db_blob();
 
         sqlx::query!(
             r#"
-                UPDATE packages
+                UPDATE parts
                 SET
                     props=?,
                     version=?,
-                    quantity=?
+                    quantity=?,
+                    position=?,
+                    deleted_at=?
                 WHERE
                     id=?
                     AND version=?
@@ -198,6 +208,8 @@ impl Record for Part {
             json,
             self.version,
             self.quantity,
+            position,
+            self.deleted_at,
             // WHERE
             self.id,
             previous_version,
