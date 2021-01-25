@@ -13,6 +13,7 @@ pub enum MachineStatus {
 }
 
 #[derive(async_graphql::Enum, Debug, Copy, Clone, Eq, PartialEq)]
+#[graphql(name = "MachineStatus")]
 pub enum MachineStatusGQL {
     Disconnected,
     Connecting,

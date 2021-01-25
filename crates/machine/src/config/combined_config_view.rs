@@ -16,6 +16,7 @@ use crate::components::BaudRate;
 //     }
 // }
 
+/// Top-level printer configuration (Settings -> 3D Printer)
 #[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CombinedConfigView {

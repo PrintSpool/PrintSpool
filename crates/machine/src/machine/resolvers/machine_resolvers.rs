@@ -36,7 +36,6 @@ impl MachineData {
         Ok(self.config.name()?)
     }
 
-    // TODO: config_form
     /// The machine configuration for general settings.
     async fn config_form(&self) -> FieldResult<ConfigForm> {
         let config_form: Result<ConfigForm> = (&self.config).into();

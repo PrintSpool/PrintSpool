@@ -55,6 +55,24 @@ pub enum Component {
     BuildPlatform(BuildPlatform),
 }
 
+
+#[derive(async_graphql::Enum, Copy, Clone, Eq, PartialEq, Debug)]
+#[graphql(name = "ComponentType")]
+pub enum ComponentTypeGQL {
+    #[graphql(name = "CONTROLLER")]
+    Controller,
+    #[graphql(name = "AXIS")]
+    Axis,
+    #[graphql(name = "TOOLHEAD")]
+    Toolhead,
+    #[graphql(name = "FAN")]
+    SpeedController,
+    #[graphql(name = "VIDEO")]
+    Video,
+    #[graphql(name = "BUILD_PLATFORM")]
+    BuildPlatform,
+}
+
 // impl<T, U> Configurable for ComponentInner<T, U>
 // where
 //     T: JsonSchema + Serialize,

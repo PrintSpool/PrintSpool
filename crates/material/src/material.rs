@@ -22,6 +22,13 @@ pub enum MaterialConfigEnum {
     FdmFilament(Box<FdmFilament>),
 }
 
+#[derive(async_graphql::Enum, Copy, Clone, Eq, PartialEq, Debug)]
+#[graphql(name = "MaterialType")]
+pub enum MaterialTypeGQL {
+    #[graphql(name = "FDM_FILAMENT")]
+    FdmFilament
+}
+
 pub trait MaterialConfig: Serialize + DeserializeOwned {
     fn name(&self) -> &String;
 }
