@@ -9,7 +9,7 @@ use anyhow::{
 use teg_protobufs::{
     machine_message::{self, Status},
 };
-use teg_json_store::{ Record as _, JsonRow };
+use teg_json_store::{ Record as _ };
 
 use machine_message::Feedback;
 use crate::machine::{self, Errored, GCodeHistoryDirection, GCodeHistoryEntry, Machine, MachineData, MachineStatus, events::TaskSettled};
@@ -28,7 +28,7 @@ pub async fn record_feedback(
     let db = machine.db.clone();
     let now = Utc::now();
 
-    update_tasks(machine, &db, &feedback).await?;
+    update_tasks(machine, &db, &feedback, &now).await?;
 
     let machine_data = machine.get_data()?;
 
@@ -38,14 +38,55 @@ pub async fn record_feedback(
 
     update_machine(&db, machine_data, &feedback, &now).await?;
 
+    machine.has_received_feedback = true;
     Ok(())
+}
+
+pub async fn settle_task(task: &mut Task) {
+    // delete the completed GCode file
+    if let TaskContent::FilePath(file_path) = &task.content {
+        if let Err(err) = async_std::fs::remove_file(file_path).await {
+            warn!("Unable to remove completed GCode file ({}): {:?}", file_path, err);
+        }
+    }
+    // Replace the completed GCodes with an empty vec to save space
+    task.content = TaskContent::GCodes(vec![]);
 }
 
 pub async fn update_tasks(
     machine: &mut Machine,
     db: &crate::Db,
     feedback: &Feedback,
+    now: &DateTime<Utc>,
 ) -> Result<()> {
+    if !machine.has_received_feedback {
+        // On first feedback error out any previously running tasks that have disapeared from the
+        // driver.
+        let tasks = Task::tasks_running_on_machine(
+            db,
+            &machine.get_data()?.config.id,
+        ).await?;
+
+        for mut task in tasks {
+            if !feedback.task_progress.iter().any(|p| p.task_id == task.id) {
+                let message = format!(
+                    "Task (#{}) missing from driver, possibly due to driver crash.",
+                    task.id
+                );
+
+                warn!("{}", message);
+
+                task.status = TaskStatus::Errored(Errored {
+                    message,
+                    errored_at: now.clone(),
+                });
+
+                settle_task(&mut task).await;
+                task.update(db).await?;
+            }
+        }
+    }
+
     for progress in feedback.task_progress.iter() {
         let status = TaskStatus::from_task_progress(&progress, &feedback.error)?;
 
@@ -56,14 +97,7 @@ pub async fn update_tasks(
         task.status = status;
 
         if task.status.is_settled() {
-            // delete the completed GCode file
-            if let TaskContent::FilePath(file_path) = task.content {
-                if let Err(err) = async_std::fs::remove_file(&file_path).await {
-                    warn!("Unable to remove completed GCode file ({}): {:?}", file_path, err);
-                }
-            }
-            // Replace the completed GCodes with an empty vec to save space
-            task.content = TaskContent::GCodes(vec![]);
+            settle_task(&mut task).await;
         }
 
         task.update(db).await?;
@@ -210,19 +244,10 @@ pub async fn update_machine(
         // to an errored state.
         let mut tx = db.begin().await?;
 
-        let tasks = sqlx::query_as!(
-            JsonRow,
-            r#"
-                SELECT props FROM tasks
-                WHERE
-                    tasks.machine_id = ?
-                    AND tasks.status IN ('spooled', 'started')
-            "#,
-            machine.config.id,
-        )
-            .fetch_all(&mut tx)
-            .await?;
-        let tasks = Task::from_rows(tasks)?;
+        let tasks = Task::tasks_running_on_machine(
+            &mut tx,
+            &machine.config.id,
+        ).await?;
 
         let err = match &next_status {
             MachineStatus::Errored(err) => err.clone(),
@@ -234,6 +259,7 @@ pub async fn update_machine(
 
         for mut task in tasks {
             task.status = TaskStatus::Errored(err.clone());
+            settle_task(&mut task).await;
             task.update(&mut tx).await?;
         }
     }

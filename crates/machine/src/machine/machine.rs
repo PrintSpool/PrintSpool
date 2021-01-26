@@ -20,6 +20,7 @@ pub struct Machine {
     pub write_stream: Option<Framed<UnixStream, MachineCodec>>,
     pub unix_socket: Option<UnixStream>,
     pub attempting_to_connect: bool,
+    pub has_received_feedback: bool,
 
     pub data: Option<MachineData>,
 }
@@ -67,6 +68,7 @@ impl Machine {
                 unix_socket: None,
                 data: None,
                 attempting_to_connect: false,
+                has_received_feedback: false,
             }
         ).await?;
         Ok(machine)

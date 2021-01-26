@@ -5,7 +5,7 @@ use anyhow::{
     Result,
     // Context as _,
 };
-use teg_json_store::Record;
+use teg_json_store::{ Record, JsonRow };
 
 use super::{
     GCodeAnnotation,
@@ -44,6 +44,30 @@ pub enum TaskContent {
 impl Task {
     pub fn is_print(&self) -> bool {
         self.part_id.is_some()
+    }
+
+    pub async fn tasks_running_on_machine<'e, 'c, E>(
+        db: E,
+        machine_id: &crate::DbId,
+    ) -> Result<Vec<Self>>
+    where
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    {
+        let tasks = sqlx::query_as!(
+            JsonRow,
+            r#"
+                SELECT props FROM tasks
+                WHERE
+                    tasks.machine_id = ?
+                    AND tasks.status IN ('spooled', 'started')
+            "#,
+            machine_id,
+        )
+            .fetch_all(db)
+            .await?;
+
+        let tasks = Task::from_rows(tasks)?;
+        Ok(tasks)
     }
 }
 

@@ -20,10 +20,10 @@ pub struct SpoolTask {
 
 #[async_trait::async_trait]
 impl xactor::Handler<SpoolTask> for Machine {
-    #[instrument(skip(self, _ctx))]
+    #[instrument(skip(self, ctx))]
     async fn handle(
         &mut self,
-        _ctx: &mut xactor::Context<Self>,
+        ctx: &mut xactor::Context<Self>,
         msg: SpoolTask
     ) -> Result<Task> {
         let SpoolTask {
@@ -74,7 +74,10 @@ impl xactor::Handler<SpoolTask> for Machine {
             ),
         };
 
-        self.send_message(message).await?;
+        if let Err(err) = self.send_message(message).await {
+            error!("Error sending message #{}: {:?}", self.id, err);
+            ctx.stop(Some(err));
+        };
 
         Ok(task)
     }
