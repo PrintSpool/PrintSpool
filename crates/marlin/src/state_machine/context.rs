@@ -1,12 +1,9 @@
-use chrono::prelude::*;
+use machine_message::TaskStatus;
 use super::Task;
 use std::collections::vec_deque::VecDeque;
 use crate::protos::{
     machine_message::{
         self,
-        Event,
-        Error,
-        EventType,
     },
     // MachineMessage,
 };
@@ -103,7 +100,7 @@ impl Context {
 
         let previous_feedback = std::mem::replace(&mut self.feedback, next_feedback);
 
-        self.feedback.events = previous_feedback.events;
+        self.feedback.task_progress = previous_feedback.task_progress;
         self.current_hotend_index = 0;
 
         if let Errored { message } = state  {
@@ -116,34 +113,57 @@ impl Context {
     }
 
     pub fn delete_task_history(&mut self, task_ids: &Vec<crate::DbId>) {
-        self.feedback.events.retain(|event| {
-            !task_ids.contains(&event.task_id)
-        });
-
         self.feedback.task_progress.retain(|p| {
             !task_ids.contains(&p.task_id)
         });
     }
 
     pub fn push_start_task(&mut self, task: &Task) {
-        add_event(self, task, EventType::StartTask, None);
+        self.push_task_progress(task, TaskStatus::TaskStarted);
     }
 
     pub fn push_cancel_task(&mut self, task: &Task) {
-        add_event(self, task, EventType::Cancelled, None);
+        self.push_task_progress(task, TaskStatus::TaskCancelled);
     }
 
     pub fn push_pause_task(&mut self, task: &Task) {
-        add_event(self, task, EventType::PauseTask, None);
+        self.push_task_progress(task, TaskStatus::TaskPaused);
     }
 
     pub fn push_finish_task(&mut self, task: &Task) {
-        add_event(self, task, EventType::FinishTask, None);
+        self.push_task_progress(task, TaskStatus::TaskFinished);
     }
 
-    pub fn push_error(&mut self, task: &Task, error: &Error) {
-        let error = Some(error.clone());
-        add_event(self, task, EventType::Error, error);
+    pub fn push_error(&mut self, task: &Task) {
+        self.push_task_progress(task, TaskStatus::TaskErrored);
+    }
+
+    fn push_task_progress(
+        &mut self,
+        task: &Task,
+        status: TaskStatus,
+    ) {
+        let despooled_line_number = task.despooled_line_number
+            .unwrap_or(0);
+
+        let progress = self.feedback.task_progress
+            .iter_mut()
+            .find(|p| p.task_id == task.id);
+
+        if let Some(mut progress) = progress {
+            // Optimized by re-using existing progress structs if they exist
+            progress.despooled_line_number = despooled_line_number;
+            progress.status = status as i32;
+        } else {
+            // If a progress struct doesn't exist for this task we push a new one
+            let new_progress = machine_message::TaskProgress {
+                task_id: task.id.clone(),
+                despooled_line_number,
+                status: status as i32,
+            };
+
+            self.feedback.task_progress.push(new_progress);
+        }
     }
 
     pub fn push_gcode_rx(&mut self, raw_src: String) {
@@ -167,16 +187,4 @@ impl Context {
         }
         self.gcode_history_buffer.push_back(entry)
     }
-}
-
-fn add_event(context: &mut Context, task: &Task, event_type: EventType, error: Option<Error>) {
-    let events = &mut context.feedback.events;
-
-    events.push(Event {
-        task_id: task.id.clone(),
-        client_id: task.client_id.clone(),
-        r#type: event_type as i32,
-        created_at: Utc::now().timestamp(),
-        error,
-    });
 }

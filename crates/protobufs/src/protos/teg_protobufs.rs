@@ -117,14 +117,10 @@ pub struct MachineMessage {
 pub mod machine_message {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Feedback {
-        #[prost(uint32, tag="1")]
-        pub despooled_line_number: u32,
         #[prost(enumeration="Status", tag="2")]
         pub status: i32,
         /// 3-7: Frequently used sub-messages
         /// Events may be duplicated and sent more then once.
-        #[prost(message, repeated, tag="3")]
-        pub events: ::std::vec::Vec<Event>,
         #[prost(message, repeated, tag="4")]
         pub axes: ::std::vec::Vec<Axis>,
         #[prost(message, repeated, tag="5")]
@@ -171,21 +167,6 @@ pub mod machine_message {
         pub despooled_line_number: u32,
         #[prost(enumeration="TaskStatus", tag="3")]
         pub status: i32,
-    }
-    /// Legacy NodeJS Type
-    #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct Event {
-        #[prost(string, tag="1")]
-        pub task_id: std::string::String,
-        #[prost(string, tag="2")]
-        pub client_id: std::string::String,
-        #[prost(enumeration="EventType", tag="8")]
-        pub r#type: i32,
-        /// the number of non-leap seconds since January 1, 1970 0:00:00 UTC (aka "UNIX timestamp")
-        #[prost(int64, tag="9")]
-        pub created_at: i64,
-        #[prost(message, optional, tag="10")]
-        pub error: ::std::option::Option<Error>,
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Axis {
@@ -254,16 +235,6 @@ pub mod machine_message {
         TaskPaused = 2,
         TaskCancelled = 3,
         TaskErrored = 4,
-    }
-    /// Legacy NodeJS Type
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
-    #[repr(i32)]
-    pub enum EventType {
-        Cancelled = 0,
-        PauseTask = 1,
-        Error = 2,
-        StartTask = 3,
-        FinishTask = 4,
     }
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
     #[repr(i32)]

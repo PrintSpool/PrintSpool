@@ -25,8 +25,6 @@ use super::{
 };
 
 use crate::protos::{
-    // MachineMessage,
-    machine_message,
     CombinatorMessage,
     combinator_message,
 };
@@ -185,28 +183,20 @@ impl ReadyState {
                             Some(task) => {
                                 context.push_pause_task(&task);
 
-                                context.feedback.task_progress
-                                    .retain(|p| p.task_id != task_id);
-
-                                context.feedback.task_progress.push(machine_message::TaskProgress {
-                                    task_id,
-                                    despooled_line_number: task.despooled_line_number
-                                        .unwrap_or(0),
-                                    status: machine_message::TaskStatus::TaskPaused as i32,
-                                });
-
-                                if !task.machine_override {
-                                    context.feedback.despooled_line_number = 0;
-                                };
-
                                 if context.reset_when_idle && self.tasks.is_empty() {
                                     return Loop::new(
                                         Ready(self),
-                                        vec![Effect::ExitProcessAfterDelay],
+                                        vec![
+                                            Effect::ProtobufSend,
+                                            Effect::ExitProcessAfterDelay,
+                                        ],
                                     )
                                 }
 
-                                self.and_no_effects()
+                                Loop::new(
+                                    Ready(self),
+                                    vec![Effect::ProtobufSend],
+                                )
                             }
                             _ => {
                                 self.and_no_effects()
@@ -526,7 +516,6 @@ impl ReadyState {
                 if !task.started {
                     trace!("Despool: Starting Task #{}", task.id);
                     task.started = true;
-                    context.push_start_task(&task);
 
                     effects.push(
                         Effect::ProtobufSend,
@@ -541,25 +530,7 @@ impl ReadyState {
 
                 task.despooled_line_number = Some(despooled_line_number);
 
-                if !task.machine_override {
-                    context.feedback.despooled_line_number = despooled_line_number;
-                };
-
-                let progress = context.feedback.task_progress
-                    .iter_mut()
-                    .find(|p| p.task_id == task.id);
-
-                if let Some(mut progress) = progress {
-                    progress.despooled_line_number = despooled_line_number;
-                } else {
-                    context.feedback.task_progress.push(
-                        machine_message::TaskProgress {
-                            task_id: task.id.clone(),
-                            despooled_line_number: despooled_line_number,
-                            status: machine_message::TaskStatus::TaskStarted  as i32,
-                        },
-                    );
-                }
+                context.push_start_task(&task);
 
                 if gcode.starts_with('!') {
                     self.execute_host_gcode(effects, context, &gcode)?;
@@ -582,26 +553,6 @@ impl ReadyState {
 
                 // record a task completion event
                 context.push_finish_task(&task);
-
-                let progress = context.feedback.task_progress
-                    .iter_mut()
-                    .find(|p| p.task_id == task.id);
-
-                if let Some(mut progress) = progress {
-                    progress.status = machine_message::TaskStatus::TaskFinished  as i32;
-                } else {
-                    context.feedback.task_progress.push(
-                        machine_message::TaskProgress {
-                            task_id: task.id.clone(),
-                            despooled_line_number: 0,
-                            status: machine_message::TaskStatus::TaskFinished  as i32,
-                        },
-                    );
-                }
-
-                if !task.machine_override {
-                    context.feedback.despooled_line_number = 0;
-                };
 
                 effects.push(
                     Effect::ProtobufSend,

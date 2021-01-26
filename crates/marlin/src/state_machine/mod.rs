@@ -9,7 +9,7 @@ use nom_reprap_response::{
 };
 
 use crate::protos::{
-    machine_message,
+    // machine_message,
     // MachineMessage,
     combinator_message,
     CombinatorMessage,
@@ -95,7 +95,7 @@ fn errored(message: String, state: &State, context: &mut Context) -> Loop {
         tasks
             .iter()
             .for_each(|task| {
-                context.push_error(&task, &machine_message::Error { message: message.clone() });
+                context.push_error(&task);
             });
     };
 
@@ -251,7 +251,7 @@ impl State {
                 _ => ()
             }
         };
-        
+
         if let Ready ( ready ) = self {
             ready.consume(event, context)
         } else {

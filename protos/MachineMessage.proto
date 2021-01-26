@@ -10,12 +10,10 @@ message MachineMessage {
   }
 
   message Feedback {
-    uint32 despooled_line_number = 1;
     Status status = 2;
 
     // 3-7: Frequently used sub-messages
     // Events may be duplicated and sent more then once.
-    repeated Event events = 3;
     repeated Axis axes = 4;
     repeated Heater heaters = 5;
     repeated SpeedController speed_controllers = 6;
@@ -76,28 +74,6 @@ message MachineMessage {
       TASK_PAUSED = 2;
       TASK_CANCELLED = 3;
       TASK_ERRORED = 4;
-  }
-
-  // Legacy NodeJS Type
-  enum EventType {
-    CANCELLED = 0;
-    PAUSE_TASK = 1;
-    ERROR = 2;
-    START_TASK = 3;
-    FINISH_TASK = 4;
-  }
-
-  // Legacy NodeJS Type
-  message Event {
-    string task_id = 1;
-    string client_id = 2;
-
-    EventType type = 8;
-
-    // the number of non-leap seconds since January 1, 1970 0:00:00 UTC (aka "UNIX timestamp")
-    int64 created_at = 9;
-
-    Error error = 10;
   }
 
   message Axis {

@@ -108,6 +108,8 @@ impl xactor::Handler<UpdateComponent> for Machine {
             }
         }
 
+        result?;
+
         let data = self.get_data()?;
         data.config.save_config().await?;
         ctx.address().send(ResetWhenIdle)?;
