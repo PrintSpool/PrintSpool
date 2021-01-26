@@ -12,6 +12,7 @@ path = "src/lib.rs"
 
 [dependencies]
 teg_config_form = { path = "../config_form" }
+teg_auth = { path = "../auth" }
 teg-json-store = { path = "../json-store" }
 
 sqlx = { version = "0.4.2", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros" ] }

@@ -12,6 +12,7 @@ path = "src/main.rs"
 
 [dependencies]
 teg_machine = { path = "../machine" }
+teg_material = { path = "../material" }
 teg_auth = { path = "../auth" }
 teg_data_channel = { path = "../data_channel" }
 teg-json-store = { path = "../json-store" }

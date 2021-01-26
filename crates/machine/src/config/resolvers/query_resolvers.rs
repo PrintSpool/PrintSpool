@@ -10,14 +10,13 @@ use schemars::{
 use teg_auth::invite::InviteConfig;
 use teg_config_form::JsonSchemaForm;
 use anyhow::{
-    // anyhow,
+    anyhow,
     Result,
     // Context as _,
 };
 use teg_material::{FdmFilament, MaterialTypeGQL};
 
-use crate::{
-    components::{
+use crate::{components::{
         ComponentTypeGQL,
         ControllerConfig,
         AxisConfig,
@@ -25,9 +24,7 @@ use crate::{
         SpeedControllerConfig,
         VideoConfig,
         BuildPlatformConfig,
-    },
-    config::CombinedConfigView,
-};
+    }, config::CombinedConfigView, plugins::core::CorePluginConfig};
 
 #[derive(Default)]
 pub struct ConfigQuery;
@@ -57,6 +54,11 @@ struct ComponentSchemaFormInput {
 #[derive(async_graphql::InputObject, Debug)]
 struct MaterialSchemaFormInput {
     r#type: MaterialTypeGQL,
+}
+
+#[derive(async_graphql::InputObject, Debug)]
+struct PluginSchemaFormInput {
+    package: String,
 }
 
 #[async_graphql::Object]
@@ -101,6 +103,22 @@ impl ConfigQuery {
         };
 
         let schema_form = to_schema_form(schema)?;
+        Ok(schema_form)
+    }
+
+    #[instrument(skip(self))]
+    async fn plugin_schema_form<'ctx>(
+        &self,
+        input: PluginSchemaFormInput,
+    ) -> FieldResult<JsonSchemaForm> {
+        if &input.package[..] != "teg-core" {
+            Err(anyhow!("Plugin not found: {}", input.package))?
+        }
+
+        let schema_form = to_schema_form(schema_for!(
+            CorePluginConfig
+        ))?;
+
         Ok(schema_form)
     }
 

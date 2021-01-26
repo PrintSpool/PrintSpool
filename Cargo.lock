@@ -4385,6 +4385,7 @@ dependencies = [
  "serde_json",
  "sqlx",
  "teg-json-store",
+ "teg_auth",
  "teg_config_form",
 ]
 
@@ -4411,6 +4412,7 @@ dependencies = [
  "teg_auth",
  "teg_data_channel",
  "teg_machine",
+ "teg_material",
  "toml",
  "tracing",
  "url 2.2.0",

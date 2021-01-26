@@ -3,6 +3,8 @@ use teg_auth::{
     UserQuery,
 };
 
+use teg_material::MaterialQuery;
+
 use teg_machine::{
     ConfigQuery,
     MachineQuery,
@@ -17,6 +19,8 @@ pub struct Query(
     // machine
     ConfigQuery,
     MachineQuery,
+    // material
+    MaterialQuery,
     // print queue
     PrintQueueQuery,
 );

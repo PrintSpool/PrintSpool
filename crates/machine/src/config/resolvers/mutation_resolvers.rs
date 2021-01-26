@@ -14,7 +14,6 @@ use messages::set_materials::SetMaterialsInput;
 use teg_auth::{
     AuthContext,
 };
-use teg_material::Material;
 // use teg_json_store::Record as _;
 
 use crate::{
@@ -42,7 +41,7 @@ impl ConfigMutation {
         input: cgt::CreateConfigInput,
     ) -> FieldResult<cgt::SetConfigResponse> {
         use cgt::ConfigCollection::*;
-        let db: &crate::Db = ctx.data()?;
+        // let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 
         auth.authorize_admins_only()?;
@@ -63,7 +62,7 @@ impl ConfigMutation {
                 Err(anyhow!("Please use createInvite mutation instead."))?;
             }
             (MATERIAL, _) => {
-                Material::create(db, model).await?;
+                Err(anyhow!("Please use createMaterial mutation instead."))?;
             }
             // Config file persisted types (components, plugins)
             // ----------------------------------------------------------

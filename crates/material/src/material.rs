@@ -1,11 +1,11 @@
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use schemars::JsonSchema;
-use anyhow::{
-    // anyhow,
-    Result,
-    // Context as _,
-};
+// use anyhow::{
+//     // anyhow,
+//     Result,
+//     // Context as _,
+// };
 use teg_json_store::Record;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -46,40 +46,6 @@ pub struct FdmFilament {
 impl MaterialConfig for FdmFilament {
     fn name(&self) -> &String {
         &self.name
-    }
-}
-
-
-impl Material {
-    pub async fn create(
-        db: &crate::Db,
-        json: serde_json::Value,
-    ) -> Result<Self> {
-        let material = Material {
-            id: nanoid!(11),
-            version: 0,
-            created_at: Utc::now(),
-            config: serde_json::from_value(json)?,
-        };
-
-        material.insert(db).await?;
-
-        Ok(material)
-    }
-
-    pub async fn update_from_mutation(
-        db: &crate::Db,
-        id: &crate::DbId,
-        version: teg_json_store::Version,
-        model: serde_json::Value,
-    ) -> Result<Self> {
-        let mut invite = Self::get_with_version(db, id, version).await?;
-
-        invite.config = serde_json::from_value(model)?;
-
-        invite.update(db).await?;
-
-        Ok(invite)
     }
 }
 

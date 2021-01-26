@@ -5,29 +5,15 @@ use anyhow::{
 };
 use async_graphql::{
     ID,
-    Context,
+    // Context,
     FieldResult,
 };
 use teg_config_form::ConfigForm;
-use teg_json_store::Record as _;
 
 use crate::{
     Material,
     MaterialConfigEnum,
 };
-
-pub struct Query();
-
-#[async_graphql::Object]
-impl Query {
-    async fn materials<'ctx>(&self, ctx: &'ctx Context<'_>,) -> FieldResult<Vec<Material>> {
-        let db: &crate::Db = ctx.data()?;
-
-        let materials = Material::get_all(db).await?;
-
-        Ok(materials)
-    }
-}
 
 #[async_graphql::Object]
 impl Material {
