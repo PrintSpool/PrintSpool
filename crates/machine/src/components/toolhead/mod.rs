@@ -1,10 +1,19 @@
-mod resolver;
-
+use anyhow::{
+    anyhow,
+    Result,
+    // Context as _,
+};
 use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
+use teg_json_store::{ Record as _, JsonRow };
+use teg_material::{Material, MaterialConfigEnum};
+
+use crate::machine::MachineData;
 
 use super::ComponentInner;
 use super::HeaterEphemeral;
+
+mod resolver;
 
 /// # Toolhead
 #[derive(Deserialize, Serialize, JsonSchema, Debug, Clone)]
@@ -25,7 +34,7 @@ pub struct ToolheadConfig {
     /// The extrude/retract speed for the maintenance panel
     /// as well as the extrude speed for filament swaps.
     pub feedrate: f32,
-    
+
     /// # Material
     #[serde(rename = "materialID")]
     pub material_id: Option<crate::DbId>,
@@ -63,3 +72,54 @@ pub struct ToolheadConfig {
 }
 
 pub type Toolhead = ComponentInner<ToolheadConfig, HeaterEphemeral>;
+
+impl Toolhead {
+    pub async fn set_material(
+        db: &crate::Db,
+        machine: &mut MachineData,
+        toolhead_id: &crate::DbId,
+        material_id: &Option<crate::DbId>,
+    ) -> Result<()> {
+        // Get the toolhead
+        let toolhead = machine.config.toolheads
+            .iter_mut()
+            .find(|toolhead| {
+                &toolhead.id == toolhead_id
+            })
+            .ok_or_else(|| anyhow!("Toolhead not found"))?;
+
+        if let Some(material_id) = material_id {
+            let material_id: crate::DbId = material_id.parse()?;
+
+            // Verify that the material id exists
+            let material = sqlx::query_as!(
+                JsonRow,
+                "SELECT props FROM materials WHERE id = ?",
+                material_id,
+            )
+                .fetch_one(db)
+                .await?;
+
+            let material = Material::from_row(material)?;
+            let material = match material.config {
+                MaterialConfigEnum::FdmFilament(filament) => filament,
+            };
+
+            // Set the material id and extruder temperature
+            toolhead.model.material_id = Some(material_id);
+            toolhead.ephemeral.material_target = Some(material.target_extruder_temperature);
+
+            // Set the bed target temperature
+            for build_platform in &mut machine.config.build_platforms {
+                build_platform.ephemeral.material_target = Some(material.target_bed_temperature);
+            }
+        } else {
+            toolhead.model.material_id = None;
+            toolhead.ephemeral.material_target = None;
+        }
+
+        toolhead.model_version += 1;
+
+        Ok(())
+    }
+}

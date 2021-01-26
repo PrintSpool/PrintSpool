@@ -9,7 +9,7 @@ use anyhow::{
 use teg_protobufs::{
     machine_message::{self, Status},
 };
-use teg_json_store::Record as _;
+use teg_json_store::{ Record as _, JsonRow };
 
 use machine_message::Feedback;
 use crate::machine::{self, Errored, GCodeHistoryDirection, GCodeHistoryEntry, Machine, MachineData, MachineStatus, events::TaskSettled};
@@ -26,19 +26,17 @@ pub async fn record_feedback(
     feedback: Feedback,
 ) -> Result<()> {
     let db = machine.db.clone();
-    let transaction = db.begin().await?;
+    let now = Utc::now();
 
     update_tasks(machine, &db, &feedback).await?;
 
     let machine_data = machine.get_data()?;
 
-    update_heaters(machine_data, &feedback).await?;
+    update_heaters(machine_data, &feedback, &now).await?;
     update_axes(machine_data, &feedback).await?;
     update_speed_controllers(machine_data, &feedback).await?;
 
-    update_machine(machine_data, &feedback).await?;
-
-    transaction.commit().await?;
+    update_machine(&db, machine_data, &feedback, &now).await?;
 
     Ok(())
 }
@@ -87,7 +85,11 @@ pub async fn update_tasks(
     Ok(())
 }
 
-pub async fn update_heaters(machine: &mut MachineData, feedback: &Feedback) -> Result<()> {
+pub async fn update_heaters(
+    machine: &mut MachineData,
+    feedback: &Feedback,
+    now: &DateTime<Utc>,
+) -> Result<()> {
     for h in feedback.heaters.iter() {
         let heater = machine.config.get_heater_mut(&h.address);
 
@@ -104,7 +106,7 @@ pub async fn update_heaters(machine: &mut MachineData, feedback: &Feedback) -> R
         if
             history.back()
                 .map(|last|
-                    Utc::now() > last.created_at + Duration::milliseconds(500)
+                    *now > last.created_at + Duration::milliseconds(500)
                 )
                 .unwrap_or(true)
         {
@@ -178,14 +180,19 @@ pub async fn update_speed_controllers(machine: &mut MachineData, feedback: &Feed
     Ok(())
 }
 
-pub async fn update_machine(machine: &mut MachineData, feedback: &Feedback) -> Result<()> {
+pub async fn update_machine(
+    db: &crate::Db,
+    machine: &mut MachineData,
+    feedback: &Feedback,
+    now: &DateTime<Utc>,
+) -> Result<()> {
     trace!("Feedback status: {:?}", feedback.status);
     // Update machine status
-    machine.status = match feedback.status {
+    let next_status = match feedback.status {
         i if i == Status::Errored as i32 && feedback.error.is_some() => {
             let message = feedback.error.as_ref().unwrap().message.clone();
             MachineStatus::Errored(Errored {
-                errored_at: Utc::now(),
+                errored_at: now.clone(),
                 message,
             })
         }
@@ -195,6 +202,43 @@ pub async fn update_machine(machine: &mut MachineData, feedback: &Feedback) -> R
         i if i == Status::Ready as i32 => MachineStatus::Ready,
         i => Err(anyhow!("Invalid machine status: {:?}", i))?,
     };
+
+    if next_status != machine.status && !next_status.is_driver_ready() {
+        // Error any tasks not explicitly stopped by task-level Feedback
+        //
+        // The driver was not aware of these tasks when it sent the feedback so they are moved
+        // to an errored state.
+        let mut tx = db.begin().await?;
+
+        let tasks = sqlx::query_as!(
+            JsonRow,
+            r#"
+                SELECT props FROM tasks
+                WHERE
+                    tasks.machine_id = ?
+                    AND tasks.status IN ('spooled', 'started')
+            "#,
+            machine.config.id,
+        )
+            .fetch_all(&mut tx)
+            .await?;
+        let tasks = Task::from_rows(tasks)?;
+
+        let err = match &next_status {
+            MachineStatus::Errored(err) => err.clone(),
+            _ => Errored {
+                errored_at: now.clone(),
+                message: "Task desync. Task not found in driver responses".to_string(),
+            }
+        };
+
+        for mut task in tasks {
+            task.status = TaskStatus::Errored(err.clone());
+            task.update(&mut tx).await?;
+        }
+    }
+
+    machine.status = next_status;
 
     machine.motors_enabled = feedback.motors_enabled;
 

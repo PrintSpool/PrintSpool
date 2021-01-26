@@ -7,7 +7,7 @@ use async_graphql::{
     ID,
 };
 
-use crate::machine::Machine;
+use crate::{components::Toolhead, machine::Machine};
 
 #[derive(async_graphql::InputObject, Debug)]
 pub struct SetMaterialsInput {
@@ -40,34 +40,19 @@ impl xactor::Handler<SetMaterial> for Machine {
         }
 
         for toolhead_input in msg.0.into_iter() {
-            let toolhead_id: String = toolhead_input.id.into();
+            let material_id = toolhead_input.material_id.map(Into::into);
 
-            // Get the toolhead
-            let toolhead = data.config.toolheads
-                .iter_mut()
-                .find(|toolhead| {
-                    toolhead.id == toolhead_id
-                })
-                .ok_or_else(|| anyhow!("Toolhead not found"))?;
-
-            if let Some(material_id) = toolhead_input.material_id {
-                let material_id: crate::DbId = material_id.parse()?;
-
-                // Verify that the material id exists
-                sqlx::query!(
-                    "SELECT id FROM materials WHERE id = ?",
-                    material_id,
-                )
-                    .fetch_one(&db)
-                    .await?;
-
-                // Set the material id
-                toolhead.model.material_id = Some(material_id);
-            } else {
-                toolhead.model.material_id = None;
-            }
+            Toolhead::set_material(
+                &db,
+                data,
+                &toolhead_input.id,
+                &material_id,
+            )
+                .await?;
         }
 
+        // Persist the config changes
+        let data = self.get_data()?;
         data.config.save_config().await?;
 
         Ok(())
