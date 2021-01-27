@@ -8,9 +8,9 @@ use crate::protos::{
     // MachineMessage,
 };
 use crate::state_machine;
-use crate::configuration::{
-    Config,
-    Controller,
+use teg_machine::{
+    config::MachineConfig,
+    components::Controller,
 };
 
 use crate::gcode_parser::{
@@ -25,7 +25,7 @@ pub struct Context {
     pub position_mode: PositionMode,
     pub position_units: PositionUnits,
 
-    pub config: Config,
+    pub config: MachineConfig,
     pub controller: Controller,
 
     pub reset_when_idle: bool,
@@ -35,11 +35,13 @@ pub struct Context {
 }
 
 impl Context {
-    pub fn new(config: Config) -> Self {
+    pub fn new(config: MachineConfig) -> Self {
         let status = machine_message::Status::Disconnected as i32;
         let controller = config.get_controller().clone();
         let feedback = Self::reset_feedback(status, &config);
-        let gcode_history_buffer = VecDeque::with_capacity(controller.gcode_history_buffer_size);
+        let gcode_history_buffer = VecDeque::with_capacity(
+            controller.model.gcode_history_buffer_size
+        );
 
         Self {
             baud_rate: 115_200,
@@ -54,24 +56,24 @@ impl Context {
         }
     }
 
-    fn reset_feedback(status: i32, config: &Config) -> machine_message::Feedback {
+    fn reset_feedback(status: i32, config: &MachineConfig) -> machine_message::Feedback {
         machine_message::Feedback {
             status,
-            heaters: config.heater_addresses().iter().map(|address| {
+            heaters: config.heater_addresses().into_iter().map(|address| {
                 machine_message::Heater {
-                    address: address.to_string(),
+                    address: address,
                     ..machine_message::Heater::default()
                 }
             }).collect(),
-            axes: config.axis_addresses().iter().map(|address| {
+            axes: config.feedrates().into_iter().map(|f| {
                 machine_message::Axis {
-                    address: address.to_string(),
+                    address: f.address,
                     ..machine_message::Axis::default()
                 }
             }).collect(),
-            speed_controllers: config.fan_addresses().iter().map(|address| {
+            speed_controllers: config.speed_controllers.iter().map(|sc| {
                 machine_message::SpeedController {
-                    address: address.to_string(),
+                    address: sc.model.address.clone(),
                     ..machine_message::SpeedController::default()
                 }
             }).collect(),
@@ -182,7 +184,7 @@ impl Context {
             direction,
         };
 
-        if self.gcode_history_buffer.len() >= self.controller.gcode_history_buffer_size {
+        if self.gcode_history_buffer.len() >= self.controller.model.gcode_history_buffer_size {
             let _ = self.gcode_history_buffer.pop_front();
         }
         self.gcode_history_buffer.push_back(entry)

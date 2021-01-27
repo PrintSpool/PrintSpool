@@ -336,7 +336,7 @@ impl State {
         // } else {
         //     1_000
         // };
-        let connection_timeout_ms = context.controller.serial_connection_timeout;
+        let connection_timeout_ms = context.controller.model.serial_connection_timeout;
 
         let new_connection = if let Connecting(Connecting { .. }) = self {
             false
@@ -347,10 +347,12 @@ impl State {
         let mut baud_rate_candidates = match &self {
             Connecting(Connecting { baud_rate_candidates, .. }) => baud_rate_candidates.clone(),
             _ => {
-                let mut new_candidates = vec![context.controller.baud_rate];
+                let mut new_candidates = vec![
+                    context.controller.model.baud_rate as u32,
+                ];
                 // prioritize the set baud rate in auto detection. That way we can cache the previous baud rate using
                 // the baud_rate field. TODO: actually implement saving the previous baud rate
-                if context.controller.automatic_baud_rate_detection {
+                if context.controller.model.automatic_baud_rate_detection {
                     new_candidates.extend(State::default_baud_rates());
                 }
                 new_candidates
@@ -378,7 +380,7 @@ impl State {
             let mut next_state = Self::new_connection(baud_rate_candidates);
 
             // If the controller does not send a greeting then skip waiting for it
-            if !context.controller.await_greeting_from_firmware {
+            if !context.controller.model.await_greeting_from_firmware {
                 if let Connecting(connecting) = next_state {
                     let Loop {
                         next_state: after_greeting,
@@ -418,7 +420,7 @@ impl State {
     }
 
     fn receive_greeting(mut connecting: Connecting, context: &Context) -> Loop {
-        let delay = context.controller.delay_from_greeting_to_ready;
+        let delay = context.controller.model.delay_from_greeting_to_ready;
         info!("Greeting Received, waiting {}ms for firmware to finish startup", delay);
 
         let delay = Effect::Delay {

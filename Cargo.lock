@@ -4262,6 +4262,7 @@ dependencies = [
  "spin_sleep",
  "teg-json-store",
  "teg-protobufs",
+ "teg_machine",
  "tempfile",
  "tokio 0.2.24",
  "tokio-serial",

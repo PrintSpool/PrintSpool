@@ -44,6 +44,7 @@ pub struct ControllerConfig {
 
     // delays
 
+    /// # Serial connnection timeout (ms)
     /// # Delay from greeting to ready (ms)
     pub delay_from_greeting_to_ready: u64,
     /// # Temperature polling interval (ms)
@@ -52,6 +53,9 @@ pub struct ControllerConfig {
     pub fast_code_timeout: u64,
     /// # Long running code timeout (ms)
     pub long_running_code_timeout: u64,
+    /// The number of milliseconds to wait for a response for each baudrate when attempting
+    /// automatic baudrate detection.
+    pub serial_connection_timeout: u64,
 
     /// # Response timeout tickle attempts
     pub response_timeout_tickle_attempts: u32,
@@ -65,7 +69,7 @@ pub struct ControllerConfig {
 
 pub type Controller = ComponentInner<ControllerConfig, ()>;
 
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Debug, Copy, Clone)]
 pub enum BaudRate {
     #[serde(rename = "250000")]
     Baud250K = 250_000,

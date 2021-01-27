@@ -30,7 +30,6 @@ use super::{
 #[serde(rename_all = "camelCase")]
 pub struct MachineConfig {
     pub id: crate::DbId,
-    pub is_configured: bool,
     // Set to the name of the snap to connect an external teg-marlin process to the snap's
     // tmp directory and socket. Generally this is only useful for teg-marlin development.
     pub debug_snap_name: Option<String>,
@@ -171,6 +170,17 @@ impl MachineConfig {
             .collect()
     }
 
+    pub fn heater_addresses(&self) -> Vec<String> {
+        std::iter::empty()
+            .chain(self.toolheads.iter().map(|c| {
+                c.model.address.clone()
+            }))
+            .chain(self.build_platforms.iter().map(|c| {
+                c.model.address.clone()
+            }))
+            .collect()
+    }
+
     pub async fn save_config(&self) -> Result<()> {
         let config_content = toml::to_string(&self)?;
         async_std::fs::write(
@@ -179,6 +189,14 @@ impl MachineConfig {
         ).await?;
 
         Ok(())
+    }
+
+    pub fn transform_gcode_file_path(&self, file_path: String) -> String {
+        if let Some(snap_name) = &self.debug_snap_name {
+            format!("/tmp/snap.{}{}", snap_name, file_path)
+        } else {
+            file_path
+        }
     }
 
     pub fn config_file_path(id: &crate::DbId) -> String {

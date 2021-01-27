@@ -9,6 +9,7 @@ criterion = "0.3.3"
 
 [dependencies]
 teg-json-store = { path = "../json-store" }
+teg_machine = { path = "../machine" }
 
 bytes = "0.5.4"
 tokio = { version = "0.2.21", features = ["full"] }

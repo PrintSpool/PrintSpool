@@ -1,10 +1,7 @@
-use std::{
-    fs,
-    time::{
+use std::{fs, path::PathBuf, time::{
         Duration,
         // Instant,
-    },
-};
+    }};
 
 // use futures::compat::{
 //     Stream01CompatExt,
@@ -117,7 +114,7 @@ async fn handle_connection(
 }
 
 pub async fn serve(
-    socket_path: &String,
+    socket_path: &PathBuf,
     channel_sender: &mpsc::Sender<Event>,
     broadcast_subscriber: bus_queue::flavors::arc_swap::Subscriber<Bytes>,
 ) -> anyhow::Result<()> {

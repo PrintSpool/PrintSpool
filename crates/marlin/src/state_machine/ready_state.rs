@@ -369,7 +369,7 @@ impl ReadyState {
                     // Rapid polling when waiting to reach a position
                     50
                 } else {
-                    context.controller.polling_interval
+                    context.controller.model.polling_interval
                 };
 
                 let delay = Effect::Delay {
@@ -656,8 +656,8 @@ impl ReadyState {
     }
 
     fn tickle_serial_port(mut self, context: &mut Context) -> Loop {
-        let response_timeout_tickle_attempts = context.controller.response_timeout_tickle_attempts;
-        let checksum_tickles = context.controller.checksum_tickles;
+        let response_timeout_tickle_attempts = context.controller.model.response_timeout_tickle_attempts;
+        let checksum_tickles = context.controller.model.checksum_tickles;
 
         if self.tickles_attempted >= response_timeout_tickle_attempts {
             let message = "Serial port communication timed out.".to_string();

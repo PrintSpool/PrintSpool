@@ -1,12 +1,11 @@
 id = "1"
-isConfigured = false
 modelVersion = 1
 
-[[controller]]
+[[controllers]]
 id = "1"
 modelVersion = 1
 
-  [controller.model]
+  [controllers.model]
   interface = "SERIAL"
   name = "RAMPS Controller Board"
   serialPortID = "/dev/null/no-serial-port"

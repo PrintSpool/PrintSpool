@@ -20,7 +20,6 @@ pub mod gcode_codec;
 mod serial_manager;
 
 pub mod state_machine;
-pub mod configuration;
 pub mod gcode_parser;
 
 pub mod protos {
@@ -28,6 +27,7 @@ pub mod protos {
 }
 
 pub use serial_manager::SerialManager;
+use teg_machine::config::MachineConfig;
 
 use std::collections::HashMap;
 // use std::sync::{Arc, Mutex};
@@ -126,7 +126,7 @@ pub async fn start(
     let config_file_content = std::fs::read_to_string(config_path.clone())
         .expect(&format!("Unabled to open config (file: {:?})", config_path));
 
-    let config: configuration::Config = toml::from_str(&config_file_content)
+    let config: MachineConfig = toml::from_str(&config_file_content)
         .expect(&format!("Invalid config format (file: {:?})", config_path));
 
     // Channels

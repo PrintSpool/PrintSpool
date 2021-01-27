@@ -1,3 +1,5 @@
+use teg_machine::components::ControllerConfig;
+
 use super::*;
 use crate::gcode_parser::parse_gcode;
 
@@ -15,13 +17,13 @@ pub fn send_serial(effects: &mut Vec<Effect>, gcode_line: GCodeLine, context: &m
     let parser_result = parse_gcode(&gcode_line.gcode, context)
         .map_err(|err| warn!("{}", err));
 
-    let crate::configuration::Controller {
+    let ControllerConfig {
         long_running_code_timeout,
         fast_code_timeout,
         long_running_codes,
         blocking_codes,
         ..
-    } = &context.controller;
+    } = &context.controller.model;
 
 
     let mut duration = fast_code_timeout;
