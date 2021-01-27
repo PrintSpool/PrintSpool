@@ -8,6 +8,8 @@ use async_graphql::{
 //     Result,
 //     // Context as _,
 // };
+use teg_machine::task::Task;
+use teg_json_store::{ Record as _, JsonRow };
 
 use crate::{
     part::Part,
@@ -35,5 +37,24 @@ impl Part {
         let db: &crate::Db = ctx.data()?;
 
         Ok(Self::is_done(db, &self.id).await?)
+    }
+
+    async fn tasks<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<Task>> {
+        let db: &crate::Db = ctx.data()?;
+
+        let tasks = sqlx::query_as!(
+            JsonRow,
+            r#"
+                SELECT props FROM tasks
+                WHERE
+                    part_id = ?
+            "#,
+            self.id,
+        )
+            .fetch_all(db)
+            .await?;
+
+        let tasks = Task::from_rows(tasks)?;
+        Ok(tasks)
     }
 }

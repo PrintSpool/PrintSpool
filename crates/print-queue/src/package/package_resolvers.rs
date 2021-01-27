@@ -22,7 +22,7 @@ impl Package {
     async fn name(&self) -> &String { &self.name }
     async fn quantity(&self) -> i32 { self.quantity }
 
-    async fn files<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<Part>> {
+    async fn parts<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<Part>> {
         let db: &crate::Db = ctx.data()?;
         let parts = Self::get_parts(db, &self.id).await?;
 

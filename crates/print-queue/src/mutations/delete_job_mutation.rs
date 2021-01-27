@@ -77,6 +77,7 @@ impl DeleteJobMutation {
             task.status = TaskStatus::Cancelled(Cancelled {
                 cancelled_at: Utc::now(),
             });
+            task.settle_task().await;
             task.update(&mut tx).await?;
         }
 

@@ -42,17 +42,6 @@ pub async fn record_feedback(
     Ok(())
 }
 
-pub async fn settle_task(task: &mut Task) {
-    // delete the completed GCode file
-    if let TaskContent::FilePath(file_path) = &task.content {
-        if let Err(err) = async_std::fs::remove_file(file_path).await {
-            warn!("Unable to remove completed GCode file ({}): {:?}", file_path, err);
-        }
-    }
-    // Replace the completed GCodes with an empty vec to save space
-    task.content = TaskContent::GCodes(vec![]);
-}
-
 pub async fn update_tasks(
     machine: &mut Machine,
     db: &crate::Db,
@@ -81,7 +70,7 @@ pub async fn update_tasks(
                     errored_at: now.clone(),
                 });
 
-                settle_task(&mut task).await;
+                task.settle_task().await;
                 task.update(db).await?;
             }
         }
@@ -94,10 +83,13 @@ pub async fn update_tasks(
 
         trace!("Task #{} status: {:?}", task.id, status);
         task.despooled_line_number = Some(progress.despooled_line_number as u64);
-        task.status = status;
+
+        if !task.status.is_settled() {
+            task.status = status;
+        }
 
         if task.status.is_settled() {
-            settle_task(&mut task).await;
+            task.settle_task().await;
         }
 
         task.update(db).await?;
@@ -259,7 +251,7 @@ pub async fn update_machine(
 
         for mut task in tasks {
             task.status = TaskStatus::Errored(err.clone());
-            settle_task(&mut task).await;
+            task.settle_task().await;
             task.update(&mut tx).await?;
         }
     }

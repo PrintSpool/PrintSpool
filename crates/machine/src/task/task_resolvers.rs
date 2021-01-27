@@ -1,4 +1,4 @@
-use chrono::prelude::*;
+use chrono::{prelude::*};
 use async_graphql::{ FieldResult, ID, Context };
 use anyhow::{
     anyhow,
@@ -62,24 +62,29 @@ impl Task {
         }
     }
 
-    // TODO: migrate print data to a seperate table/wrapping graphql object in the job queue crate?
-    //
-    // async fn estimated_print_time_millis(&self) -> Option<u64> {
-    //     self.print
-    //         .as_ref()
-    //         .and_then(|p| p.estimated_print_time)
-    //         .map(|durration| {
-    //             durration.as_millis().try_into().unwrap_or(u64::MAX)
-    //         })
-    // }
+    async fn estimated_print_time_millis(&self) -> Option<std::time::Duration> {
+        self.estimated_print_time
+    }
 
-    // async fn estimated_filament_meters(&self) -> Option<f64> {
-    //     self.print.as_ref().and_then(|p| p.estimated_filament_meters)
-    // }
+    async fn estimated_filament_meters(&self) -> &Option<f64> {
+        &self.estimated_filament_meters
+    }
 
     async fn created_at(&self) -> &DateTime<Utc> { &self.created_at }
     // TODO: rename field to match model
     async fn started_at(&self) -> &DateTime<Utc> { &self.created_at }
+
+    async fn stopped_at(&self) -> &DateTime<Utc> {
+        use super::*;
+
+        match self.status {
+            | TaskStatus::Finished(Finished { finished_at: t })
+            | TaskStatus::Paused(Paused { paused_at: t })
+            | TaskStatus::Cancelled(Cancelled { cancelled_at: t })
+            | TaskStatus::Errored(Errored { errored_at: t, .. })
+            => t
+        }
+    }
 
     async fn machine<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<MachineData> {
         let machines: &MachineMap = ctx.data()?;

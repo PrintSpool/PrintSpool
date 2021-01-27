@@ -69,6 +69,17 @@ impl Task {
         let tasks = Task::from_rows(tasks)?;
         Ok(tasks)
     }
+
+    pub async fn settle_task(&mut self) {
+        // delete the completed GCode file
+        if let TaskContent::FilePath(file_path) = &self.content {
+            if let Err(err) = async_std::fs::remove_file(file_path).await {
+                warn!("Unable to remove completed GCode file ({}): {:?}", file_path, err);
+            }
+        }
+        // Replace the completed GCodes with an empty vec to save space
+        self.content = TaskContent::GCodes(vec![]);
+    }
 }
 
 #[async_trait::async_trait]

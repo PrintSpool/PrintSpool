@@ -1,26 +1,26 @@
 export default `
-  extend type Mutation {
-    createInvite(input: CreateInviteInput!): SetConfigResponse!
-    updateInvite(input: UpdateInviteInput!): SetConfigResponse!
-    updateUser(input: UpdateUserInput!): SetConfigResponse!
-  }
+  // extend type Mutation {
+  //   createInvite(input: CreateInviteInput!): SetConfigResponse!
+  //   updateInvite(input: UpdateInviteInput!): SetConfigResponse!
+  //   updateUser(input: UpdateUserInput!): SetConfigResponse!
+  // }
 
-  # Invite
-  input CreateInviteInput {
-    publicKey: String!
-    isAdmin: Boolean!
-  }
-  
-  input UpdateInviteInput {
-    inviteID: ID!
-    isAdmin: Boolean
-  }
+  // # Invite
+  // input CreateInviteInput {
+  //   publicKey: String!
+  //   isAdmin: Boolean!
+  // }
 
-  # User
-  input UpdateUserInput {
-    userID: ID!
-    isAdmin: Boolean
-  }
+  // input UpdateInviteInput {
+  //   inviteID: ID!
+  //   isAdmin: Boolean
+  // }
+
+  // # User
+  // input UpdateUserInput {
+  //   userID: ID!
+  //   isAdmin: Boolean
+  // }
   
 `
 

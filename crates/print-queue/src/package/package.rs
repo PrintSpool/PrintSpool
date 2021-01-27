@@ -136,7 +136,8 @@ impl Package {
             r#"
                 SELECT props FROM parts
                 WHERE
-                    package_id = ?
+                    deleted_at IS NULL
+                    AND package_id = ?
             "#,
             package_id,
         )
@@ -155,7 +156,8 @@ impl Package {
                 SELECT tasks.props FROM tasks
                 INNER JOIN parts ON parts.id = tasks.part_id
                 WHERE
-                    parts.package_id = ?
+                    parts.deleted_at IS NULL
+                    AND parts.package_id = ?
             "#,
             package_id,
         )
