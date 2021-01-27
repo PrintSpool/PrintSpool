@@ -6,6 +6,7 @@ mod device;
 pub use device::Device;
 
 pub mod resolvers;
+pub use resolvers::query_resolvers::DeviceQuery;
 
 mod device_manager;
 pub use device_manager::{DeviceManager, DeviceManagerAddr};

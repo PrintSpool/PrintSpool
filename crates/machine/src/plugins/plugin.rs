@@ -42,7 +42,7 @@ impl Plugin {
         }.into()
     }
 
-    async fn package(&self) -> String {
+    async fn name(&self) -> String {
         use Plugin::*;
 
         match self {

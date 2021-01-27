@@ -88,4 +88,4 @@ export default `
 //   status: TaskStatus!
 //   machine: Machine!
 // }
-// `
+`

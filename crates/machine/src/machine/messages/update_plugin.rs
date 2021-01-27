@@ -13,7 +13,7 @@ use super::ResetWhenIdle;
 #[xactor::message(result = "Result<()>")]
 #[derive(Clone)]
 pub struct UpdatePlugin {
-    pub package: String,
+    pub plugin_id: String,
     pub version: i32,
     pub model: serde_json::Value,
 }
@@ -23,8 +23,8 @@ impl xactor::Handler<UpdatePlugin> for Machine {
     async fn handle(&mut self, ctx: &mut xactor::Context<Self>, msg: UpdatePlugin) -> Result<()> {
         let data = self.get_data()?;
 
-        if &msg.package[..] != "teg-core" {
-            Err(anyhow!("Plugin not found: {}", msg.package))?
+        if &msg.plugin_id[..] != "teg-core" {
+            Err(anyhow!("Plugin not found: {}", msg.plugin_id))?
         }
 
         let plugin = data.config.core_plugin_mut()?;

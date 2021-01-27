@@ -24,16 +24,16 @@ pub struct MachineMutation;
 #[async_graphql::Object]
 impl MachineMutation {
     #[instrument(skip(self, ctx))]
-    async fn e_stop<'ctx>(
+    async fn stop<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
-        id: ID,
+        machine_id: ID,
     ) -> FieldResult<Option<bool>> {
         let machines: &crate::MachineMap = ctx.data()?;
         let machines = machines.load();
 
-        let machine = machines.get(&id)
-            .ok_or_else(|| anyhow!("Machine #{:?} not found", id))?;
+        let machine = machines.get(&machine_id)
+            .ok_or_else(|| anyhow!("Machine #{:?} not found", machine_id))?;
 
         machine.call(messages::StopMachine).await?;
 
@@ -44,13 +44,13 @@ impl MachineMutation {
     async fn reset<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
-        id: ID,
+        machine_id: ID,
     ) -> FieldResult<Option<bool>> {
         let machines: &crate::MachineMap = ctx.data()?;
         let machines = machines.load();
 
-        let machine = machines.get(&id)
-            .ok_or_else(|| anyhow!("Machine #{:?} not found", id))?;
+        let machine = machines.get(&machine_id)
+            .ok_or_else(|| anyhow!("Machine #{:?} not found", machine_id))?;
 
         machine.call(messages::ResetMachine).await?;
 

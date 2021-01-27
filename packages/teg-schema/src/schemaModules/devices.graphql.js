@@ -1,13 +1,13 @@
 export default `
-# Queries
+// # Queries
 
-extend type Query {
-  devices: [Device!]!
-}
+// extend type Query {
+//   devices: [Device!]!
+// }
 
-type Device {
-  id: ID!
-  # type: String!
-  connected: Boolean!
-}
+// type Device {
+//   id: ID!
+//   # type: String!
+//   connected: Boolean!
+// }
 `

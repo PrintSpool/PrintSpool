@@ -15,12 +15,20 @@ pub enum MachineStatus {
 #[derive(async_graphql::Enum, Debug, Copy, Clone, Eq, PartialEq)]
 #[graphql(name = "MachineStatus")]
 pub enum MachineStatusGQL {
+    /// The machine is disconnected or turned off.
     Disconnected,
+    /// The machine is being initialized.
     Connecting,
+    /// The machine is connected and able to exececute gcodes and start prints.
     Ready,
+    /// The machine is printing a job.
     Printing,
+    /// The machine has encountered an error and automatically stopped the print. Send a reset
+    /// mutation to change the status to \`CONNECTING\`.
     Errored,
     #[graphql(name = "ESTOPPED")]
+    /// The machine was stopped by the user. Send a reset mutation to change the status to
+    /// \`CONNECTING\`.
     Stopped,
 }
 

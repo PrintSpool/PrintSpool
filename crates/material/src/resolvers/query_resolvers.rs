@@ -4,7 +4,7 @@
 //     // Context as _,
 // };
 use async_graphql::{
-    // ID,
+    ID,
     Context,
     FieldResult,
 };
@@ -19,10 +19,21 @@ pub struct MaterialQuery;
 
 #[async_graphql::Object]
 impl MaterialQuery {
-    async fn materials<'ctx>(&self, ctx: &'ctx Context<'_>,) -> FieldResult<Vec<Material>> {
+    async fn materials<'ctx>(
+        &self,
+        ctx: &'ctx Context<'_>,
+        #[graphql(name = "materialID")]
+        material_id: Option<ID>,
+    ) -> FieldResult<Vec<Material>> {
         let db: &crate::Db = ctx.data()?;
 
-        let materials = Material::get_all(db).await?;
+        let materials = if let Some(id) = material_id {
+            let material = Material::get(db, &id).await?;
+
+            vec![material]
+        } else {
+            Material::get_all(db).await?
+        };
 
         Ok(materials)
     }

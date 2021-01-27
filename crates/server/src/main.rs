@@ -2,8 +2,15 @@
 // #[macro_use] extern crate tracing;
 // #[macro_use] extern crate derive_new;
 
+// The file `built.rs` was placed there by cargo and `build.rs`
+#[allow(dead_code)]
+mod built_info {
+    include!(concat!(env!("OUT_DIR"), "/built.rs"));
+}
+
 mod mutation;
 mod query;
+mod server_query;
 
 use std::{env, sync::Arc};
 use serde::Deserialize;

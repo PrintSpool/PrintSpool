@@ -1,2 +1,1 @@
-mod query_resolvers;
-pub use query_resolvers::DeviceQuery;
+pub mod query_resolvers;

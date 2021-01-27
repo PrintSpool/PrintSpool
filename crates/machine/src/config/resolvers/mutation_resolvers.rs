@@ -165,13 +165,13 @@ impl ConfigMutation {
                 };
                 machine.call(msg).await??;
             }
-            (PLUGIN, package) => {
+            (PLUGIN, plugin_id) => {
                 let machine = input.machine_id
                     .and_then(|id| machines.get(&id))
                     .ok_or_else(|| anyhow!("Machine ID not found"))?;
 
                 let msg = messages::UpdatePlugin {
-                    package: package.to_string(),
+                    plugin_id: plugin_id.to_string(),
                     version: input.model_version,
                     model,
                 };

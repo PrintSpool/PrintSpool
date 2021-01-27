@@ -3,6 +3,7 @@ name = "teg_server"
 version = "0.1.0"
 authors = ["D1plo1d <thatotherdude@gmail.com>"]
 edition = "2018"
+build = "build.rs"
 
 [[bin]]
 name = "teg_server"
@@ -10,11 +11,15 @@ path = "src/main.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[build-dependencies]
+built = { version = "0.4.4", features = ["git2"] }
+
 [dependencies]
 teg_machine = { path = "../machine" }
 teg_material = { path = "../material" }
 teg_auth = { path = "../auth" }
 teg_data_channel = { path = "../data_channel" }
+teg_device = { path = "../device" }
 teg-json-store = { path = "../json-store" }
 teg-print-queue = { path = "../print-queue" }
 

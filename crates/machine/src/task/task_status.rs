@@ -7,7 +7,7 @@ use anyhow::{
 };
 use teg_protobufs::machine_message::TaskProgress;
 
-use crate::machine::Errored;
+pub use crate::machine::Errored;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub enum TaskStatus {

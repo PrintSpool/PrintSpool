@@ -46,19 +46,6 @@ impl Component {
         }
     }
 
-    async fn address(&self) -> Option<&String> {
-        use Component::*;
-
-        match self {
-            Controller(_) => None,
-            Axis(c) => Some(&c.model.address),
-            Toolhead(c) => Some(&c.model.address),
-            SpeedController(c) => Some(&c.model.address),
-            Video(_) => None,
-            BuildPlatform(c) => Some(&c.model.address),
-        }
-    }
-
     async fn r#type(&self) -> String {
         use Component::*;
 
@@ -70,6 +57,19 @@ impl Component {
             Video(_) => "VIDEO",
             BuildPlatform(_) => "BUILD_PLATFORM",
         }.to_string()
+    }
+
+    async fn address(&self) -> Option<&String> {
+        use Component::*;
+
+        match self {
+            Controller(_) => None,
+            Axis(c) => Some(&c.model.address),
+            Toolhead(c) => Some(&c.model.address),
+            SpeedController(c) => Some(&c.model.address),
+            Video(_) => None,
+            BuildPlatform(c) => Some(&c.model.address),
+        }
     }
 
     async fn config_form(&self) -> FieldResult<ConfigForm> {

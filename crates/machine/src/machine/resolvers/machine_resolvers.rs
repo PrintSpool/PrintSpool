@@ -29,12 +29,13 @@ impl MachineData {
     async fn id(&self) -> ID {
         (&self.config.id).into()
     }
-    async fn status(&self) -> MachineStatusGQL { self.status.clone().into() }
-    async fn paused(&self) -> bool { self.paused_task_id.is_some() }
 
     async fn name(&self) -> FieldResult<String> {
         Ok(self.config.name()?)
     }
+
+    async fn status(&self) -> MachineStatusGQL { self.status.clone().into() }
+    async fn paused(&self) -> bool { self.paused_task_id.is_some() }
 
     /// The machine configuration for general settings.
     async fn config_form(&self) -> FieldResult<ConfigForm> {
@@ -54,8 +55,8 @@ impl MachineData {
         ])
     }
 
-    async fn plugins(&self, package: Option<String>) -> Vec<&Plugin> {
-        if package.is_some() && package != Some("teg-core".into()) {
+    async fn plugins(&self, plugin_id: Option<String>) -> Vec<&Plugin> {
+        if plugin_id.is_some() && plugin_id != Some("teg-core".into()) {
             return vec![]
         } else {
             self.config.plugins.iter().collect()

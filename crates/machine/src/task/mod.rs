@@ -7,6 +7,7 @@ pub use task_status::{
     Finished,
     Paused,
     Cancelled,
+    Errored,
 };
 
 mod task;

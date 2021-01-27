@@ -12,8 +12,20 @@ use teg_protobufs::{
 use teg_json_store::{ Record as _ };
 
 use machine_message::Feedback;
-use crate::machine::{self, Errored, GCodeHistoryDirection, GCodeHistoryEntry, Machine, MachineData, MachineStatus, events::TaskSettled};
-use crate::task::{Task, TaskContent, TaskStatus};
+use crate::machine::{
+    self,
+    Errored,
+    GCodeHistoryDirection,
+    GCodeHistoryEntry,
+    Machine,
+    MachineData,
+    MachineStatus,
+    events::TaskSettled,
+};
+use crate::task::{
+    Task,
+    TaskStatus,
+};
 use crate::components::{
     // HeaterEphemeral,
     TemperatureHistoryEntry,

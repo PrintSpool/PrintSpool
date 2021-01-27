@@ -62,8 +62,12 @@ impl Task {
         }
     }
 
-    async fn estimated_print_time_millis(&self) -> Option<std::time::Duration> {
-        self.estimated_print_time
+    async fn estimated_print_time_millis(&self) -> Option<u64> {
+        self.estimated_print_time.map(|duration| {
+            let millis = duration.as_millis();
+            // Saturating conversion to u64
+            std::cmp::min(millis, std::u64::MAX as u128) as u64
+        })
     }
 
     async fn estimated_filament_meters(&self) -> &Option<f64> {
@@ -74,15 +78,16 @@ impl Task {
     // TODO: rename field to match model
     async fn started_at(&self) -> &DateTime<Utc> { &self.created_at }
 
-    async fn stopped_at(&self) -> &DateTime<Utc> {
+    async fn stopped_at(&self) -> Option<&DateTime<Utc>> {
         use super::*;
 
-        match self.status {
+        match &self.status {
             | TaskStatus::Finished(Finished { finished_at: t })
             | TaskStatus::Paused(Paused { paused_at: t })
             | TaskStatus::Cancelled(Cancelled { cancelled_at: t })
             | TaskStatus::Errored(Errored { errored_at: t, .. })
-            => t
+            => Some(t),
+            _ => None,
         }
     }
 
