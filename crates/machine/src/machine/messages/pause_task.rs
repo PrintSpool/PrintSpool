@@ -2,8 +2,8 @@ use teg_protobufs::{
     CombinatorMessage,
     combinator_message,
 };
-use anyhow::{
-    // anyhow,
+use eyre::{
+    // eyre,
     Result,
     // Context as _,
 };

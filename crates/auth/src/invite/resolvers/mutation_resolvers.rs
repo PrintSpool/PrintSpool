@@ -4,9 +4,9 @@ use async_graphql::{
     ID,
     Context,
 };
-use anyhow::{
+use eyre::{
     Context as _,
-    anyhow,
+    eyre,
     // Result
 };
 use teg_json_store::Record as _;
@@ -121,7 +121,7 @@ impl InviteMutation {
         let invite_public_key = auth.identity_public_key
             .as_ref()
             .ok_or_else(||
-                anyhow!("identity_public_key must be sent in connection initialization")
+                eyre!("identity_public_key must be sent in connection initialization")
             )?;
 
         let user = consume_invite(db, invite_public_key, user).await?;

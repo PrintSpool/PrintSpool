@@ -4,8 +4,8 @@ use async_graphql::{
     FieldResult,
     Context,
 };
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     // Result,
     // Context as _,
 };
@@ -65,7 +65,7 @@ impl VideoQuery {
         let user = auth.require_authorized_user()?;
 
         if !video_session_id.starts_with(&format!("{}:", user.id)) {
-            Err(anyhow!("Invalid Video Session ID"))?;
+            Err(eyre!("Invalid Video Session ID"))?;
         }
 
         let ice_candidates = get_ice_candidates(&video_session_id).await?;

@@ -1,8 +1,8 @@
 // use std::path::Path;
 use serde::{Serialize, Deserialize};
 use std::path::PathBuf;
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -57,7 +57,7 @@ impl MachineConfig {
                     // _ => None,
                 }
             })
-            .ok_or_else(|| anyhow!("Could not find @tegapp/core plugin config"))?;
+            .ok_or_else(|| eyre!("Could not find @tegapp/core plugin config"))?;
 
         Ok(core_plugin)
     }
@@ -72,7 +72,7 @@ impl MachineConfig {
                     // _ => None,
                 }
             })
-            .ok_or_else(|| anyhow!("Could not find @tegapp/core plugin config"))?;
+            .ok_or_else(|| eyre!("Could not find @tegapp/core plugin config"))?;
 
         Ok(core_plugin)
     }

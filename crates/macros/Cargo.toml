@@ -13,10 +13,10 @@ teg-json-store = { path = "../json-store" }
 
 serde_json = { version = "1.0.44", features = ["raw_value"] }
 sqlx = { version = "0.4.2", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros", "chrono" ] }
-anyhow = "1.0"
+eyre = "0.6.5"
 tracing = "0.1.19"
 async-trait = "0.1.36"
-xactor = "0.7.11"
+xactor = { git = "https://github.com/D1plo1d/xactor.git", branch = "eyre-feature",  default-features = false, features = ["runtime-async-std", "eyre"] }
 futures = "0.3.12"
 nom = "5.1.2"
 nom-gcode = "0.1.0"

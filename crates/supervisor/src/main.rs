@@ -2,8 +2,8 @@
 
 use std::sync::Arc;
 use std::env;
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -36,7 +36,7 @@ async fn run() -> Result<()> {
     for entry in std::fs::read_dir(CONFIG_DIR)? {
         let entry = entry?;
         let file_name = entry.file_name().to_str()
-            .ok_or_else(|| anyhow!("Invalid file name in config dir"))?
+            .ok_or_else(|| eyre!("Invalid file name in config dir"))?
             .to_string();
 
         if
@@ -155,7 +155,7 @@ async fn spawn_driver(drivers: Arc<DashMap<String, u32>>, config_file: &str) -> 
         marlin.push("crates/marlin");
 
         let marlin = marlin.to_str()
-            .ok_or_else(|| anyhow!("Error loading file path to drivers"))?;
+            .ok_or_else(|| eyre!("Error loading file path to drivers"))?;
 
         format!("cd {} && cargo watch -s \"cargo run -- {}\"", marlin, config_file)
     } else {

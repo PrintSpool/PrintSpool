@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     Context as _,
 };
@@ -59,7 +59,7 @@ impl SetTargetTemperaturesMacro {
                 {
                     Ok(format!("M140 S{}", val))
                 } else {
-                    Err(anyhow!("Heater (address: {:?}) not found", address))
+                    Err(eyre!("Heater (address: {:?}) not found", address))
                 }
             })
             .map(|gcode|

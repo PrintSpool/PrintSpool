@@ -2,7 +2,7 @@
 use std::path::PathBuf;
 use clap::Clap;
 
-use anyhow::{
+use eyre::{
   Context as _,
   Result,
 };

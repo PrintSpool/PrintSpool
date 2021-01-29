@@ -9,8 +9,8 @@ use sha2::{ Sha256, Digest };
 use itertools::{ Itertools };
 // use chrono::prelude::*;
 
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     Context as _,
 };
@@ -52,10 +52,10 @@ fn nom_hash_from_filename<'a>(input: &'a str) -> Result<&'a str> {
     ))(input);
 
     let (input, hash) = result
-        .map_err(|_| anyhow!("Invalid backup file name: {}", input))?;
+        .map_err(|_| eyre!("Invalid backup file name: {}", input))?;
 
     if input.len() > 0 {
-        Err(anyhow!("Failed to parse entire filename: {}", input))
+        Err(eyre!("Failed to parse entire filename: {}", input))
     } else {
         Ok(hash)
     }
@@ -66,7 +66,7 @@ pub async fn validate_backup(
 ) -> Result<File> {
     let file_name = file_path.file_name()
         .and_then(|file_name| file_name.to_str())
-        .ok_or(anyhow!("Unable to read file name of backup file"))?;
+        .ok_or(eyre!("Unable to read file name of backup file"))?;
 
     let mut f = std::fs::File::open(file_path)?;
 
@@ -81,7 +81,7 @@ pub async fn validate_backup(
     let hash = hex::encode(hasher.finalize());
 
     if hash != expected_hash {
-        Err(anyhow!("Hash of backup file ({}) does not match file name ({})", hash, file_name))?
+        Err(eyre!("Hash of backup file ({}) does not match file name ({})", hash, file_name))?
     }
 
     // Seek back to the top of the top of the file
@@ -117,14 +117,14 @@ pub async fn restore(
         .into_iter();
 
     let first_line = lines.next()
-        .ok_or(anyhow!("Empty backup file"))?;
+        .ok_or(eyre!("Empty backup file"))?;
 
     let mut collection = match first_line {
         BackupRow::Collection(c) => {
             Ok(Arc::new(c))
         }
         invalid_first_row => {
-            Err(anyhow!("First row must be a collection, found: {:?}", invalid_first_row))
+            Err(eyre!("First row must be a collection, found: {:?}", invalid_first_row))
         }
     }?;
 

@@ -3,8 +3,8 @@ use async_graphql::{
     FieldResult,
     ID,
 };
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     // Result,
     Context as _,
 };
@@ -79,7 +79,7 @@ impl VideoMutation {
         let machines = machines.load();
 
         let machine = machines.get(&input.machine_id)
-            .ok_or_else(|| anyhow!("Machine ({:?}) not found", input.machine_id))?;
+            .ok_or_else(|| eyre!("Machine ({:?}) not found", input.machine_id))?;
 
         let machine = machine.call(messages::GetData).await??;
 
@@ -95,7 +95,7 @@ impl VideoMutation {
             .videos
             .iter()
             .find(|video| video.id == video_id)
-            .ok_or(anyhow!("No video source configured"))?;
+            .ok_or(eyre!("No video source configured"))?;
 
         info!("creating video sdp for: {}", video.model.source);
 
@@ -113,7 +113,7 @@ impl VideoMutation {
 
         let answer = future::timeout(std::time::Duration::from_millis(5_000), req)
             .await?
-            .map_err(|err| anyhow!(err)) // TODO: Remove me when surf 2.0 is released
+            .map_err(|err| eyre!(err)) // TODO: Remove me when surf 2.0 is released
             .with_context(|| "Unable to create video call")?;
 
         let ice_candidates = get_ice_candidates(&video_session_id).await?;

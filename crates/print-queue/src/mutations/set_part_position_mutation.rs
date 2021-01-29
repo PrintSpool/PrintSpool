@@ -3,8 +3,8 @@ use async_graphql::{
     Context,
     FieldResult,
 };
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     // Result,
     // Context as _,
 };
@@ -58,7 +58,7 @@ impl SetPartPositionMutation {
 
         let moved_part = parts.iter()
             .find(|part| part.id == part_id)
-            .ok_or_else(|| anyhow!("Part not found in job queue"))?;
+            .ok_or_else(|| eyre!("Part not found in job queue"))?;
 
         let previous_moved_part_position = moved_part.position;
         let next_moved_part_position = input.position;

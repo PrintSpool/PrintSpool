@@ -1,7 +1,7 @@
 use chrono::{prelude::*};
 use async_graphql::{ FieldResult, ID, Context };
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     // Result,
     // Context as _,
 };
@@ -97,7 +97,7 @@ impl Task {
         let machine_id = (&self.machine_id).into();
 
         let addr = machines.get(&machine_id)
-            .ok_or_else(|| anyhow!("Unable to get machine ({:?}) for task", machine_id))?;
+            .ok_or_else(|| eyre!("Unable to get machine ({:?}) for task", machine_id))?;
 
         let machine_data = addr.call(GetData).await??;
 

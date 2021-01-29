@@ -8,7 +8,7 @@ use async_graphql::{
     },
 };
 use async_graphql_warp::*;
-use anyhow::{Result};
+use eyre::{Result};
 use async_std::task::spawn;
 use async_std::future;
 
@@ -20,8 +20,8 @@ use std::{sync::Arc};
 use chrono::Duration;
 use dotenv::dotenv;
 
-use anyhow::{
-    // anyhow,
+use eyre::{
+    // eyre,
     Context as _,
     // Result,
 };
@@ -53,7 +53,7 @@ use teg_auth::models::VersionedModel as _;
 #[derive(thiserror::Error, Debug)]
 pub enum ServiceError {
     #[error(transparent)]
-    Other(#[from] anyhow::Error), // source and Display delegate to anyhow::Error
+    Other(#[from] eyre::Error), // source and Display delegate to eyre::Error
 }
 impl warp::reject::Reject for ServiceError {}
 impl From<ServiceError> for warp::reject::Rejection {
@@ -62,8 +62,8 @@ impl From<ServiceError> for warp::reject::Rejection {
     }
 }
 
-// impl From<anyhow::Error> for ServiceError {
-//     fn from(e: anyhow::Error) -> Self {
+// impl From<eyre::Error> for ServiceError {
+//     fn from(e: eyre::Error) -> Self {
 //         ServiceError::Other(e)
 //     }
 // }
@@ -187,7 +187,7 @@ async fn app() -> Result<()> {
             );
             Ok(())
         })
-        .collect::<anyhow::Result<Vec<()>>>()?;
+        .collect::<eyre::Result<Vec<()>>>()?;
 
     // GraphQL Server
     // -----------------------------------------------------------------

@@ -1,5 +1,5 @@
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -20,7 +20,7 @@ impl xactor::Handler<CompileInternalMacro> for Machine {
         use InternalMacro::*;
         let data = self.data
             .as_ref()
-            .ok_or_else(|| anyhow!(r#"
+            .ok_or_else(|| eyre!(r#"
                 Attempted to compile macro but machine-{id}.toml has not yet been parsed.
             "#, id = self.id))?;
         let config = &data.config;

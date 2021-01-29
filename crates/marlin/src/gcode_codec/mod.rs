@@ -1,5 +1,5 @@
-// use anyhow::{
-//     anyhow,
+// use eyre::{
+//     eyre,
 //     // Context as _,
 // };
 
@@ -19,7 +19,7 @@ pub struct GCodeCodec;
 
 impl Decoder for GCodeCodec {
     type Item = Vec<(String, Response)>;
-    type Error = anyhow::Error;
+    type Error = eyre::Error;
 
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
         // Invalid UTF8 lines are replaced by empty strings and treated as dropped responses.
@@ -113,7 +113,7 @@ fn add_checksum(line: String) -> String {
 
 
 impl Encoder<GCodeLine> for GCodeCodec {
-    type Error = anyhow::Error;
+    type Error = eyre::Error;
 
     fn encode(&mut self, item: GCodeLine, dst: &mut BytesMut) -> Result<(), Self::Error> {
         let GCodeLine { gcode, line_number, checksum } = item;

@@ -17,7 +17,7 @@ pub fn parse_hotend_setter(
     context: &mut Context,
     blocking: GCodeSynchronicity,
     valid_args: &[char],
-) -> anyhow::Result<()> {
+) -> eyre::Result<()> {
     let index = find_u32_arg(cmd, 'T').unwrap_or(context.current_hotend_index);
     let address = format!("e{}", index);
 
@@ -30,7 +30,7 @@ pub fn parse_heater_setter(
     context: &mut Context,
     blocking: GCodeSynchronicity,
     valid_args: &[char],
-) -> anyhow::Result<()> {
+) -> eyre::Result<()> {
     allow_list_args(cmd, valid_args)?;
 
     let target = cmd.arguments()
@@ -52,7 +52,7 @@ pub fn parse_heater_setter(
 pub fn parse_wait_for_temps(
     cmd: &GCode,
     context: &mut Context,
-) -> anyhow::Result<()> {
+) -> eyre::Result<()> {
     allow_list_args(&cmd, &['P', 'H', 'C'])?;
 
     let mut addresses = cmd.arguments()

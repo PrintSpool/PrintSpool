@@ -1,7 +1,7 @@
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -102,7 +102,7 @@ impl Part {
             .fetch_one(db)
             .await?
             .total
-            .ok_or_else(|| anyhow!("invalid part or package quantity"))?;
+            .ok_or_else(|| eyre!("invalid part or package quantity"))?;
         Ok(total)
     }
 
@@ -129,7 +129,7 @@ impl Part {
             .await?;
 
         let total = part_stats.total
-            .ok_or_else(|| anyhow!("invalid part or package quantity"))?;
+            .ok_or_else(|| eyre!("invalid part or package quantity"))?;
 
         let done = part_stats.printed as i64 >= total;
         Ok(done)

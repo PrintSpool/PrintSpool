@@ -2,7 +2,11 @@ use serde::{Serialize, Deserialize};
 use rmp_serde::Serializer;
 use std::fs;
 use std::env;
-use anyhow::{anyhow, Context as _, Result};
+use eyre::{
+    eyre,
+    Context as _,
+    Result,
+};
 
 use super::Invite;
 
@@ -19,7 +23,7 @@ impl Invite {
             .and_then(|v| v.get("hostIdentityKeys"))
             .and_then(|v| v.get("publicKey"))
             .and_then(|v| v.as_str())
-            .with_context(|| "auth.hostIdentityKeys.publicKey not found")?
+            .ok_or_else(|| eyre!("auth.hostIdentityKeys.publicKey not found"))?
             .to_string();
 
         #[derive(Serialize, Deserialize, Debug)]
@@ -56,7 +60,7 @@ impl Invite {
         let invite_url = format!(
             "{}/i/{}",
             web_app_domain,
-            self.slug.as_ref().ok_or(anyhow!("Invite Code slug not found"))?,
+            self.slug.as_ref().ok_or(eyre!("Invite Code slug not found"))?,
         );
 
         let thick_line = std::iter::repeat("=").take(80).collect::<String>();

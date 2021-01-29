@@ -2,8 +2,8 @@ use async_codec::Framed;
 use async_std::os::unix::net::UnixStream;
 use std::time::Duration;
 use async_std::fs;
-use anyhow::{
-    // anyhow,
+use eyre::{
+    // eyre,
     Result,
     // Context as _,
 };

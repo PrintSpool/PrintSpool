@@ -11,8 +11,8 @@ use async_graphql::{
     Context,
     FieldResult,
 };
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     // Result,
     Context as _,
 };
@@ -79,7 +79,7 @@ impl CreateJobMutation {
             .fetch_one(&mut tx)
             .await?
             .position
-            .ok_or_else(|| anyhow!("Unable to get max print queue position"))?;
+            .ok_or_else(|| eyre!("Unable to get max print queue position"))?;
 
         let next_position = u64::from_be_bytes(max_position[..].try_into()?) + 1;
 
@@ -110,7 +110,7 @@ impl CreateJobMutation {
                         file_path,
                     };
 
-                    Ok(part) as anyhow::Result<Part>
+                    Ok(part) as eyre::Result<Part>
                 }
             });
 

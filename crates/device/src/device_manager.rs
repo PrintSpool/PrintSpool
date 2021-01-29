@@ -1,8 +1,8 @@
 use std::{collections::HashMap, path::PathBuf};
 
 use xactor::Actor;
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -22,7 +22,7 @@ impl Actor for DeviceManager {
 
 pub fn device_path(path_buf: PathBuf) -> Result<Option<String>> {
     let path = path_buf.into_os_string().into_string()
-        .map_err(|_| anyhow!("Unable to convert file path to string"))?;
+        .map_err(|_| eyre!("Unable to convert file path to string"))?;
 
     let is_serial_port = path.starts_with("/dev/serial/by-id/");
     let is_klipper_printer = path.starts_with("/tmp/printer");

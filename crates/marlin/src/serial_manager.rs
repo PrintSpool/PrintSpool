@@ -1,5 +1,5 @@
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     // Context as _,
 };
 
@@ -121,7 +121,7 @@ impl SerialManager {
             .forward(serial_sender);
 
         let reader_sender = mpsc::Sender::clone(&self.event_sender)
-            .sink_map_err(|err| anyhow!("Serial Read SendError: {:?}", err));
+            .sink_map_err(|err| eyre!("Serial Read SendError: {:?}", err));
 
         let reader_future = serial_reader
             .map_ok(|responses|

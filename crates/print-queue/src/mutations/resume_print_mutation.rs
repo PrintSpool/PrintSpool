@@ -1,5 +1,5 @@
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     // Context as _,
 };
 use async_graphql::{
@@ -33,7 +33,7 @@ impl ResumePrintMutation {
         let machines = machines.load();
         let machine = machines.get(&(&task.machine_id).into())
             .ok_or_else(||
-                anyhow!("machine (ID: {}) not found for print pause", task.machine_id)
+                eyre!("machine (ID: {}) not found for print pause", task.machine_id)
             )?;
 
         let config = machine.call(GetData).await??.config;
@@ -50,11 +50,11 @@ impl ResumePrintMutation {
         let mut task = Task::get(&mut tx, &task_id).await?;
 
         if task.status.is_settled() {
-            Err(anyhow!("Cannot resume a task that is {}", task.status.to_db_str()))?;
+            Err(eyre!("Cannot resume a task that is {}", task.status.to_db_str()))?;
         }
 
         if !task.is_print() {
-            Err(anyhow!("Cannot resume task because task is not a print"))?;
+            Err(eyre!("Cannot resume task because task is not a print"))?;
         }
 
         if !task.status.is_paused() {

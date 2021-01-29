@@ -6,8 +6,8 @@ use async_std::{
     io::{ BufReader, BufWriter },
     stream,
 };
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -191,7 +191,7 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
 
         let part_id = task.part_id
             .as_ref()
-            .ok_or_else(|| anyhow!("New print missing part id"))?;
+            .ok_or_else(|| eyre!("New print missing part id"))?;
         let part = Part::get(&self.db, &part_id).await?;
 
         /*
@@ -208,7 +208,7 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
 
         if prints_in_progress as i64 >= total_prints {
             Err(
-                anyhow!(
+                eyre!(
                     "Already printing {} / {} of {}",
                     prints_in_progress,
                     total_prints,
@@ -226,12 +226,12 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
 
         if machine.paused_task_id.is_some() {
             Err(
-                anyhow!("Cannot start a new print when an existing print is paused")
+                eyre!("Cannot start a new print when an existing print is paused")
             )?;
         }
         if !machine.status.can_start_task(&task, automatic_print) {
             Err(
-                anyhow!("Cannot start task when machine is: {:?}", machine.status)
+                eyre!("Cannot start task when machine is: {:?}", machine.status)
             )?;
         };
 

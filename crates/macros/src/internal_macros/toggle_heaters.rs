@@ -2,8 +2,8 @@ use std::collections::HashMap;
 use future::join_all;
 use futures::prelude::*;
 use serde::{Deserialize, Serialize};
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     Context as _,
 };
@@ -59,7 +59,7 @@ impl ToggleHeatersMacro {
 
                     let material_id = toolhead.model.material_id
                         .as_ref()
-                        .ok_or_else(|| anyhow!("No material loaded for {}", address))?;
+                        .ok_or_else(|| eyre!("No material loaded for {}", address))?;
 
                     let material = Material::get(db, &material_id)
                         .await
@@ -113,11 +113,11 @@ impl ToggleHeatersMacro {
                     let target = target_bed_temperatures
                         // f32 cannot be compared so compare i64s
                         .min_by_key(|target| (target * 1_000_000.0).round() as i64)
-                        .ok_or_else(||anyhow!("Materials must be set before toggling heaters"))?;
+                        .ok_or_else(||eyre!("Materials must be set before toggling heaters"))?;
 
                     Ok((address.clone(), target as f32))
                 } else {
-                    Err(anyhow!("Heater not found (address: {:?})", address))
+                    Err(eyre!("Heater not found (address: {:?})", address))
                 }
             });
 

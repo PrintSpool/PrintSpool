@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -27,10 +27,10 @@ impl MoveMacro {
 
         axes.iter().map(move |address| {
             let axis = feedrates.iter().find(|a| a.address == *address)
-                .ok_or_else(|| anyhow!("Axis not found: {}", address))?;
+                .ok_or_else(|| eyre!("Axis not found: {}", address))?;
 
             if !allow_extruder_axes && axis.is_toolhead {
-                Err(anyhow!("Cannot extrude when allow_extruder_axes = true"))
+                Err(eyre!("Cannot extrude when allow_extruder_axes = true"))
             } else {
                 Ok(axis.clone())
             }
@@ -66,7 +66,7 @@ impl MoveMacro {
     pub async fn g1_and_feedrate(&self, config: &MachineConfig) -> Result<(String, f32, Vec<Feedrate>)> {
         if let Some(feedrate) = self.feedrate {
             if feedrate < 0.0 {
-                Err(anyhow!("feedrate must be greater then zero if set. Got: {}", feedrate))?;
+                Err(eyre!("feedrate must be greater then zero if set. Got: {}", feedrate))?;
             }
         }
 
@@ -95,7 +95,7 @@ impl MoveMacro {
 
             let distance = self.axes.get(&feedrate_info.address)
                 .ok_or_else(||
-                    anyhow!(
+                    eyre!(
                         "Invariant: address ({:?}) not found in self.axes",
                         feedrate_info.address,
                     )
@@ -110,7 +110,7 @@ impl MoveMacro {
             feedrates.iter()
                 // f32 cannot be compared so compare i64s
                 .min_by_key(|target| (target.feedrate * 1_000_000.0).round() as i64)
-                .ok_or_else(|| anyhow!("Expected at least one axis in move macro"))?
+                .ok_or_else(|| eyre!("Expected at least one axis in move macro"))?
                 .feedrate
         };
 

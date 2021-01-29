@@ -2,8 +2,8 @@
 use futures::SinkExt;
 use async_codec::framed_std::WriteFrameError;
 
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -18,7 +18,7 @@ impl Machine {
     pub async fn send_message(&mut self, message: CombinatorMessage) -> Result<()> {
         let stream = self.write_stream
             .as_mut()
-            .ok_or_else(|| anyhow!("Machine write stream not initialized"))?;
+            .ok_or_else(|| eyre!("Machine write stream not initialized"))?;
 
         // Note: If blocking weirdness crops up we may need to reimplement this hack.
         // Not sure if it is mitigated against by the Framed stream and using poll_write

@@ -16,11 +16,7 @@ use std::{env, sync::Arc};
 use serde::Deserialize;
 use sqlx::SqlitePool;
 use arc_swap::ArcSwap;
-use anyhow::{
-    anyhow,
-    Result,
-    // Context as _,
-};
+use eyre::{Context, Result, eyre};
 use futures_util::{
     future,
     // future::Future,
@@ -52,13 +48,16 @@ fn main() -> Result<()> {
 }
 
 async fn app() -> Result<()> {
+    tracing_subscriber::fmt::init();
+    color_eyre::install()?;
+
     let db = SqlitePool::connect(&env::var("DATABASE_URL")?).await?;
 
     let machine_ids: Vec<crate::DbId> = std::fs::read_dir(CONFIG_DIR)?
         .map(|entry| {
             let entry = entry?;
             let file_name = entry.file_name().to_str()
-                .ok_or_else(|| anyhow!("Invalid file name in config dir"))?
+                .ok_or_else(|| eyre!("Invalid file name in config dir"))?
                 .to_string();
 
             if
@@ -68,9 +67,22 @@ async fn app() -> Result<()> {
             {
                 let config_file = std::fs::read_to_string(
                     format!("{}{}", CONFIG_DIR, file_name)
-                )?;
+                )
+                    .wrap_err(format!("Unable to read machine config file: {}", file_name))?;
 
-                let IdFromConfig { id, .. } = serde_json::from_str(&config_file)?;
+                let IdFromConfig {
+                    id,
+                    ..
+                } = toml::from_str(&config_file)
+                    .wrap_err(format!("Bad machine config file: {}", file_name))?;
+
+                if !file_name.ends_with(&format!("machine-{}.toml", id)) {
+                    Err(eyre!(
+                        "Machine ID in config file ({}) does not match up with filename: {}",
+                        id,
+                        file_name,
+                    ))?;
+                }
                 Ok(Some(id))
             } else {
                 Ok(None)

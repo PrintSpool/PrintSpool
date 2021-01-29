@@ -4,8 +4,8 @@ use serde::{
     Serialize,
     Deserialize,
 };
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     Context as _,
 };
@@ -37,12 +37,12 @@ pub async fn get_ice_candidates(
         .query(&[
             ("peerid", video_session_id),
         ])
-        .map_err(|err| anyhow!(err))? // TODO: Remove me when surf 2.0 is released
+        .map_err(|err| eyre!(err))? // TODO: Remove me when surf 2.0 is released
         .recv_json();
 
     let ice_candidates = future::timeout(Duration::from_millis(5_000), req)
         .await?
-        .map_err(|err| anyhow!(err)) // TODO: Remove me when surf 2.0 is released
+        .map_err(|err| eyre!(err)) // TODO: Remove me when surf 2.0 is released
         .with_context(|| "Unable to get ice candidates")?;
 
     info!("ICE: {:?}", ice_candidates);

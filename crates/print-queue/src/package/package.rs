@@ -1,7 +1,7 @@
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -84,7 +84,7 @@ impl Package {
             .fetch_one(db)
             .await?
             .total
-            .ok_or_else(|| anyhow!("invalid part or package quantity"))?;
+            .ok_or_else(|| eyre!("invalid part or package quantity"))?;
 
         Ok(total)
     }

@@ -2,8 +2,8 @@ use teg_protobufs::{
     CombinatorMessage,
     combinator_message,
 };
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -38,7 +38,7 @@ impl xactor::Handler<SpoolTask> for Machine {
         let machine = self.get_data()?;
 
         if !machine.status.can_start_task(&task, false) {
-            Err(anyhow!("Cannot start task while machine is: {:?}", machine.status))?;
+            Err(eyre!("Cannot start task while machine is: {:?}", machine.status))?;
         };
 
         info!("spooling task");

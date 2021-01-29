@@ -4,8 +4,8 @@ use async_graphql::{
     FieldResult,
     Context,
 };
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     // Result,
     // Context as _,
 };
@@ -56,20 +56,20 @@ impl ConfigMutation {
             // ----------------------------------------------------------
             (AUTH, "user") => {
                 // User::create(db, &input.model).await?
-                Err(anyhow!("Cannot create users directly. Use an invite instead."))?;
+                Err(eyre!("Cannot create users directly. Use an invite instead."))?;
             }
             (AUTH, "invite") => {
-                Err(anyhow!("Please use createInvite mutation instead."))?;
+                Err(eyre!("Please use createInvite mutation instead."))?;
             }
             (MATERIAL, _) => {
-                Err(anyhow!("Please use createMaterial mutation instead."))?;
+                Err(eyre!("Please use createMaterial mutation instead."))?;
             }
             // Config file persisted types (components, plugins)
             // ----------------------------------------------------------
             (COMPONENT, component_type) => {
                 let machine = input.machine_id
                     .and_then(|id| machines.get(&id))
-                    .ok_or_else(|| anyhow!("Machine ID not found"))?;
+                    .ok_or_else(|| eyre!("Machine ID not found"))?;
 
                 let msg = messages::CreateComponent {
                     component_type: component_type.to_string(),
@@ -80,7 +80,7 @@ impl ConfigMutation {
             (PLUGIN, "teg-core") => {
                 // let machine = input.machine_id
                 //     .map(|id| machines.get(&id))
-                //     .ok_or_else(|| anyhow!("Machine ID not found"))?;
+                //     .ok_or_else(|| eyre!("Machine ID not found"))?;
 
                 // let plugin_config: CorePluginConfig = serde_json::from_value(*input.model)?;
                 // let plugin = Plugin::Core(
@@ -88,10 +88,10 @@ impl ConfigMutation {
                 // );
 
                 // machine.call(messages::CreatePlugin(plugin)).await?
-                Err(anyhow!("Cannot create plugins in current implementation."))?;
+                Err(eyre!("Cannot create plugins in current implementation."))?;
             }
             _ => {
-                Err(anyhow!("Invalid schemaFormKey: {:?}", input.schema_form_key))?;
+                Err(eyre!("Invalid schemaFormKey: {:?}", input.schema_form_key))?;
             }
         };
 
@@ -122,7 +122,7 @@ impl ConfigMutation {
             // Database persisted types (users, invites, materials)
             // ----------------------------------------------------------
             (AUTH, id) if id.starts_with("user-") => {
-                Err(anyhow!("Please use updateUser mutation instead."))?;
+                Err(eyre!("Please use updateUser mutation instead."))?;
                 // let id = id.replacen("user-", "", 1).parse()?;
                 // let _ = User::update_from_mutation(
                 //     db,
@@ -132,7 +132,7 @@ impl ConfigMutation {
                 // ).await?;
             }
             (AUTH, id) if id.starts_with("invite-") => {
-                Err(anyhow!("Please use updateInvite mutation instead."))?;
+                Err(eyre!("Please use updateInvite mutation instead."))?;
                 // let id = id.replacen("invite-", "", 1).parse()?;
                 // let _ = Invite::update_from_mutation(
                 //     db,
@@ -142,7 +142,7 @@ impl ConfigMutation {
                 // ).await?;
             }
             (MATERIAL, id) if id.starts_with("material-")  => {
-                Err(anyhow!("Please use updateMaterial mutation instead."))?;
+                Err(eyre!("Please use updateMaterial mutation instead."))?;
                 // let id = id.replacen("material-", "", 1).parse()?;
                 // let _ = Material::update_from_mutation(
                 //     db,
@@ -156,7 +156,7 @@ impl ConfigMutation {
             (COMPONENT, id) => {
                 let machine = input.machine_id
                     .and_then(|id| machines.get(&id))
-                    .ok_or_else(|| anyhow!("Machine ID not found"))?;
+                    .ok_or_else(|| eyre!("Machine ID not found"))?;
 
                 let msg = messages::UpdateComponent {
                     id: id.to_string(),
@@ -168,7 +168,7 @@ impl ConfigMutation {
             (PLUGIN, plugin_id) => {
                 let machine = input.machine_id
                     .and_then(|id| machines.get(&id))
-                    .ok_or_else(|| anyhow!("Machine ID not found"))?;
+                    .ok_or_else(|| eyre!("Machine ID not found"))?;
 
                 let msg = messages::UpdatePlugin {
                     plugin_id: plugin_id.to_string(),
@@ -178,7 +178,7 @@ impl ConfigMutation {
                 machine.call(msg).await??;
             }
             _ => {
-                Err(anyhow!("Invalid config_form_id: {:?}", input.config_form_id))?;
+                Err(eyre!("Invalid config_form_id: {:?}", input.config_form_id))?;
             }
         };
 
@@ -207,7 +207,7 @@ impl ConfigMutation {
             // Database persisted types (users, invites, materials)
             // ----------------------------------------------------------
             (AUTH, id) if id.starts_with("user-") => {
-                Err(anyhow!("Please use deleteUser mutation instead."))?;
+                Err(eyre!("Please use deleteUser mutation instead."))?;
                 // let id = id.replacen("user-", "", 1).parse()?;
                 // User::remove_from_mutation(
                 //     db,
@@ -215,7 +215,7 @@ impl ConfigMutation {
                 // ).await?;
             }
             (AUTH, id) if id.starts_with("invite-") => {
-                Err(anyhow!("Please use deleteInvite mutation instead."))?;
+                Err(eyre!("Please use deleteInvite mutation instead."))?;
                 // let id = id.replacen("invite-", "", 1).parse()?;
                 // Invite::remove(
                 //     db,
@@ -223,7 +223,7 @@ impl ConfigMutation {
                 // ).await?;
             }
             (MATERIAL, id) if id.starts_with("material-")  => {
-                Err(anyhow!("Please use deleteMaterial mutation instead."))?;
+                Err(eyre!("Please use deleteMaterial mutation instead."))?;
                 // let id = id.replacen("material-", "", 1).parse()?;
                 // Material::remove(
                 //     db,
@@ -235,7 +235,7 @@ impl ConfigMutation {
             (COMPONENT, _) => {
                 let machine = input.machine_id
                     .and_then(|id| machines.get(&id))
-                    .ok_or_else(|| anyhow!("Machine ID not found"))?;
+                    .ok_or_else(|| eyre!("Machine ID not found"))?;
 
                 let id = input.config_form_id.into();
                 machine.call(messages::RemoveComponent(id)).await??;
@@ -243,17 +243,17 @@ impl ConfigMutation {
             (PLUGIN, _package) => {
                 // let machine = input.machine_id
                 //     .map(|id| machines.get(&id))
-                //     .ok_or_else(|| anyhow!("Machine ID not found"))?;
+                //     .ok_or_else(|| eyre!("Machine ID not found"))?;
 
                 // let id = input.config_form_id.into();
                 // machine.call(messages::DeletePlugin(id)).await?
 
                 // There is only one "core" plugin at the moment so deletion doesn't makes
                 // sense yet.
-                Err(anyhow!("Cannot delete plugins in current implementation."))?;
+                Err(eyre!("Cannot delete plugins in current implementation."))?;
             }
             _ => {
-                Err(anyhow!("Invalid config_form_id: {:?}", input.config_form_id))?;
+                Err(eyre!("Invalid config_form_id: {:?}", input.config_form_id))?;
             }
         };
 
@@ -303,7 +303,7 @@ impl ConfigMutation {
 
         let build_platform = machine_config.build_platforms
             .first_mut()
-            .ok_or_else(|| anyhow!("Build Platform not found"))?;
+            .ok_or_else(|| eyre!("Build Platform not found"))?;
 
         build_platform.model.heater = heated_build_platform;
 
@@ -348,7 +348,7 @@ impl ConfigMutation {
 
         let machine_id = input.machine_id;
         let machine = machines.get(&machine_id)
-            .ok_or_else(|| anyhow!("Machine ({:?}) not found", &machine_id))?;
+            .ok_or_else(|| eyre!("Machine ({:?}) not found", &machine_id))?;
 
         let msg = messages::set_materials::SetMaterial(input.toolheads);
         machine.call(msg).await??;

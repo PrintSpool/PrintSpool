@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
-use anyhow::{
+use eyre::{
     Result,
-    anyhow,
+    eyre,
     Context as _,
 };
 use async_graphql::{ID, Context, FieldResult};
@@ -79,7 +79,7 @@ impl ExecGCodesMutation {
         let machines = machines.load();
 
         let machine = machines.get(&input.machine_id)
-            .with_context(|| format!("No machine found for ID: {:?}", input.machine_id))?;
+            .ok_or_else(|| format!("No machine found for ID: {:?}", input.machine_id))?;
 
         let machine_id = input.machine_id.to_string();
 
@@ -160,13 +160,13 @@ impl ExecGCodesMutation {
                     Ok(task)
                 },
                 TaskStatus::Cancelled(_) => {
-                    Err(anyhow!("Task Cancelled"))?
+                    Err(eyre!("Task Cancelled"))?
                 }
                 TaskStatus::Errored(error) => {
-                    Err(anyhow!(error.message))?
+                    Err(eyre!(error.message))?
                 }
                 invalid_status => {
-                    Err(anyhow!("Task settled with invalid status: {:?}", invalid_status))?
+                    Err(eyre!("Task settled with invalid status: {:?}", invalid_status))?
                 }
             }
         } else {

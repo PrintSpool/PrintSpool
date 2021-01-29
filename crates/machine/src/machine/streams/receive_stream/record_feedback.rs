@@ -1,8 +1,8 @@
 use chrono::{ prelude::*, Duration };
 use machine::messages::DeleteTaskHistory;
 use xactor::{Service as _};
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -238,7 +238,7 @@ pub async fn update_machine(
         i if i == Status::Disconnected as i32 => MachineStatus::Disconnected,
         i if i == Status::Connecting as i32 => MachineStatus::Connecting,
         i if i == Status::Ready as i32 => MachineStatus::Ready,
-        i => Err(anyhow!("Invalid machine status: {:?}", i))?,
+        i => Err(eyre!("Invalid machine status: {:?}", i))?,
     };
 
     if next_status != machine.status && !next_status.is_driver_ready() {

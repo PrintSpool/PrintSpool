@@ -5,11 +5,7 @@ pub mod saltyrtc_chunk;
 pub mod iter;
 pub mod open_data_channel;
 
-use anyhow::{
-    anyhow,
-    Result,
-    // Context as _,
-};
+use eyre::{Context, Result, eyre};
 use datachannel::SessionDescription;
 use open_data_channel::open_data_channel;
 use serde::{Serialize, Deserialize};
@@ -92,8 +88,10 @@ where
     Fut: Future<Output = Result<S>> + 'static,
     S: Stream<Item = Vec<u8>> + Send + 'static,
 {
-    let identity_private_key = fs::read_to_string("/etc/teg/id_ecdsa")?;
-    let identity_public_key = fs::read_to_string("/etc/teg/id_ecdsa.pub")?;
+    let identity_private_key = fs::read_to_string("/etc/teg/id_ecdsa")
+        .wrap_err_with(|| format!("Missing identity private key"))?;
+    let identity_public_key = fs::read_to_string("/etc/teg/id_ecdsa.pub")
+        .wrap_err_with(|| format!("Missing identity public key"))?;
     let signalling_url = "https:://signalling.tegapp.com";
 
     let machines = machines.load();
@@ -133,13 +131,13 @@ where
     let msg = ws_stream
         .next()
         .await
-        .ok_or_else(|| anyhow!("didn't receive anything"))??
+        .ok_or_else(|| eyre!("didn't receive anything"))??
         .into_text()?;
 
     let msg: GraphQLWSMessage = serde_json::from_str(&msg)?;
     if let GraphQLWSMessage::ConnectionAck {..} = msg {
     } else {
-        Err(anyhow!("Expected ConnectionAck, received: {:?}", msg))?;
+        Err(eyre!("Expected ConnectionAck, received: {:?}", msg))?;
     }
 
     // Update the signalling servers list of machines
@@ -182,25 +180,25 @@ where
     let msg = ws_stream
         .next()
         .await
-        .ok_or_else(|| anyhow!("didn't receive anything"))??
+        .ok_or_else(|| eyre!("didn't receive anything"))??
         .into_text()?;
 
     let msg: GraphQLWSMessage = serde_json::from_str(&msg)?;
     if let GraphQLWSMessage::Next {..} = msg {
     } else {
-        Err(anyhow!("Expected Next, received: {:?}", msg))?;
+        Err(eyre!("Expected Next, received: {:?}", msg))?;
     }
 
     let msg = ws_stream
         .next()
         .await
-        .ok_or_else(|| anyhow!("didn't receive anything"))??
+        .ok_or_else(|| eyre!("didn't receive anything"))??
         .into_text()?;
 
     let msg: GraphQLWSMessage = serde_json::from_str(&msg)?;
     if let GraphQLWSMessage::Complete {..} = msg {
     } else {
-        Err(anyhow!("Expected Complete, received: {:?}", msg))?;
+        Err(eyre!("Expected Complete, received: {:?}", msg))?;
     }
 
     // Subscribe to receive incoming connection requests
@@ -264,7 +262,7 @@ where
                 payload: ExecutionResult { errors: Some(errors), .. },
                 ..
             } => {
-                Err(anyhow!("Signalling GraphQL Errors: {:?}", errors))?;
+                Err(eyre!("Signalling GraphQL Errors: {:?}", errors))?;
             }
             // Signal Received => Open a Data Channel
             GraphQLWSMessage::Next {
@@ -361,7 +359,7 @@ where
             if id != rx_signals_id => {
                 ()
             }
-            msg => Err(anyhow!("Unexpected Signalling Message: {:?}", msg))?,
+            msg => Err(eyre!("Unexpected Signalling Message: {:?}", msg))?,
         }
     }
     Ok(())

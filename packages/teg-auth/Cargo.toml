@@ -17,7 +17,7 @@ name = "teg-restore-backup"
 path = "src/bin/restore_backup.rs"
 
 [dependencies]
-anyhow = "1.0"
+eyre = "0.6.5"
 async-graphql-warp = "1.18.1"
 async-graphql = "1.18.2"
 # async-graphql-warp = { path = "../../../async-graphql/async-graphql-warp" }
@@ -62,7 +62,7 @@ nom-gcode = "0.1.0"
 tracing = "0.1.19"
 tracing-subscriber = "0.2.11"
 tracing-futures = "0.2.4"
-xactor = "0.7.8"
+xactor = { git = "https://github.com/D1plo1d/xactor.git", branch = "eyre-feature",  default-features = false, features = ["runtime-async-std", "eyre"] }
 
 [dependencies.async-std]
 features = ["tokio02", "unstable"]

@@ -2,8 +2,8 @@ use std::{collections::HashMap, sync::Arc};
 use std::time::Duration;
 use serde::Deserialize;
 use async_std::future;
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Context as _,
     Result,
 };
@@ -36,7 +36,7 @@ pub async fn get_pem_keys() -> Result<Vec<Vec<u8>>> {
     )
         .await
         .with_context(|| "Timedout fetching google PEM keys")?
-        .map_err(|_| anyhow!("Unable to parse google PEM keys json"))?;
+        .map_err(|_| eyre!("Unable to parse google PEM keys json"))?;
 
     let pem_keys = pem_keys
         .values()
@@ -68,7 +68,7 @@ pub async fn validate_jwt(
             Algorithm::RS256,
             &ValidationOptions::default(),
         ).ok()
-    }).ok_or(anyhow!("Invalid authorization token"))?;
+    }).ok_or(eyre!("Invalid authorization token"))?;
 
     let payload: JWTPayload = serde_json::from_value(payload)
         .with_context(|| "Invalid authorization payload")?;
@@ -77,7 +77,7 @@ pub async fn validate_jwt(
         .expect("$FIREBASE_PROJECT_ID must be set");
 
     if payload.aud != firebase_project_id {
-        Err(anyhow!("Invalid JWT Audience"))?
+        Err(eyre!("Invalid JWT Audience"))?
     }
 
     Ok(payload)

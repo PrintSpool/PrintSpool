@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -104,7 +104,7 @@ impl MoveContinuousMacro {
             let feedrate_info = feedrates.iter()
                 .find(|f| &f.address == axis.0)
                 .ok_or_else(||
-                    anyhow!("Invaraint: Continuous move axis not found in feedrates list")
+                    eyre!("Invaraint: Continuous move axis not found in feedrates list")
                 )?;
 
             if feedrate_info.reverse_direction {

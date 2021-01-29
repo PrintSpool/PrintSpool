@@ -887,6 +887,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "color-eyre"
+version = "0.5.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7b29030875fd8376e4a28ef497790d5b4a7843d8d1396bf08ce46f5eec562c5c"
+dependencies = [
+ "backtrace",
+ "color-spantrace",
+ "eyre",
+ "indenter",
+ "once_cell",
+ "owo-colors",
+ "tracing-error",
+]
+
+[[package]]
+name = "color-spantrace"
+version = "0.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b6eee477a4a8a72f4addd4de416eb56d54bc307b284d6601bafdee1f4ea462d1"
+dependencies = [
+ "once_cell",
+ "owo-colors",
+ "tracing-core",
+ "tracing-error",
+]
+
+[[package]]
 name = "colored"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1427,6 +1454,16 @@ name = "event-listener"
 version = "2.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f7531096570974c3a9dcf9e4b8e1cede1ec26cf5046219fb3b9d897503b9be59"
+
+[[package]]
+name = "eyre"
+version = "0.6.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "221239d1d5ea86bf5d6f91c9d6bc3646ffe471b08ff9b0f91c44f115ac969d2b"
+dependencies = [
+ "indenter",
+ "once_cell",
+]
 
 [[package]]
 name = "fake-simd"
@@ -2030,6 +2067,12 @@ dependencies = [
  "unicode-bidi",
  "unicode-normalization",
 ]
+
+[[package]]
+name = "indenter"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f4d5eb2e114fec2b7fe0fadc22888ad2658789bb7acac4dbee9cf8389f971ec8"
 
 [[package]]
 name = "indexmap"
@@ -2697,9 +2740,9 @@ dependencies = [
 name = "nom-reprap-response"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "colored",
  "criterion",
+ "eyre",
  "insta",
  "log",
  "nom 6.0.1",
@@ -2842,6 +2885,12 @@ dependencies = [
  "pkg-config",
  "vcpkg",
 ]
+
+[[package]]
+name = "owo-colors"
+version = "1.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2386b4ebe91c2f7f51082d4cefa145d030e33a1842a96b12e4885cc3c01f7a55"
 
 [[package]]
 name = "parking"
@@ -4210,9 +4259,9 @@ checksum = "36474e732d1affd3a6ed582781b3683df3d0563714c59c39591e8ff707cf078e"
 name = "teg-json-store"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "async-trait",
  "chrono",
+ "eyre",
  "serde",
  "serde_json",
  "sqlx",
@@ -4222,8 +4271,8 @@ dependencies = [
 name = "teg-macros"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "async-trait",
+ "eyre",
  "futures 0.3.12",
  "nom 5.1.2",
  "nom-gcode",
@@ -4241,13 +4290,13 @@ dependencies = [
 name = "teg-marlin"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "bus_queue",
  "bytes 0.5.6",
  "chrono",
  "criterion",
  "dotenv",
  "error-chain",
+ "eyre",
  "fallible-iterator",
  "futures 0.3.12",
  "gcode",
@@ -4274,13 +4323,13 @@ dependencies = [
 name = "teg-print-queue"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "arc-swap 1.2.0",
  "async-graphql",
  "async-std",
  "async-trait",
  "chrono",
  "derive-new",
+ "eyre",
  "futures 0.3.12",
  "nanoid",
  "nom-gcode",
@@ -4309,7 +4358,6 @@ dependencies = [
 name = "teg_auth"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "arc-swap 1.2.0",
  "async-graphql",
  "async-std",
@@ -4318,6 +4366,7 @@ dependencies = [
  "chrono",
  "data-encoding",
  "datachannel",
+ "eyre",
  "frank_jwt",
  "futures-util",
  "gravatar",
@@ -4352,7 +4401,6 @@ dependencies = [
 name = "teg_data_channel"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "arc-swap 1.2.0",
  "async-codec",
  "async-graphql",
@@ -4363,6 +4411,7 @@ dependencies = [
  "data-encoding",
  "datachannel",
  "derive-new",
+ "eyre",
  "frank_jwt",
  "futures-util",
  "gravatar",
@@ -4388,10 +4437,10 @@ dependencies = [
 name = "teg_device"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "async-graphql",
  "async-std",
  "async-trait",
+ "eyre",
  "notify",
  "serde_json",
  "teg_machine",
@@ -4404,7 +4453,6 @@ dependencies = [
 name = "teg_machine"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "arc-swap 1.2.0",
  "async-codec",
  "async-graphql",
@@ -4413,6 +4461,7 @@ dependencies = [
  "bytes 0.5.6",
  "chrono",
  "derive-new",
+ "eyre",
  "futures 0.3.12",
  "jsonschema",
  "nanoid",
@@ -4438,9 +4487,9 @@ dependencies = [
 name = "teg_material"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "async-graphql",
  "chrono",
+ "eyre",
  "nanoid",
  "schemars",
  "serde",
@@ -4455,15 +4504,16 @@ dependencies = [
 name = "teg_server"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "arc-swap 1.2.0",
  "async-graphql",
  "async-std",
  "built",
  "bytes 0.5.6",
  "chrono",
+ "color-eyre",
  "derive-new",
  "dotenv",
+ "eyre",
  "futures-util",
  "rmp-serde",
  "serde",
@@ -4479,6 +4529,7 @@ dependencies = [
  "teg_material",
  "toml",
  "tracing",
+ "tracing-subscriber",
  "url 2.2.0",
  "xactor",
 ]
@@ -4487,11 +4538,11 @@ dependencies = [
 name = "teg_supervisor"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "async-graphql",
  "async-std",
  "dashmap",
  "dotenv",
+ "eyre",
  "nix 0.19.1",
  "notify",
  "serde_json",
@@ -4809,6 +4860,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f50de3927f93d202783f4513cda820ab47ef17f624b03c096e86ef00c67e6b5f"
 dependencies = [
  "lazy_static",
+]
+
+[[package]]
+name = "tracing-error"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b4d7c0b83d4a500748fa5879461652b361edf5c9d51ede2a2ac03875ca185e24"
+dependencies = [
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -5274,12 +5335,11 @@ checksum = "85e60b0d1b5f99db2556934e21937020776a5d31520bf169e851ac44e6420214"
 [[package]]
 name = "xactor"
 version = "0.7.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a5297548253bd91993bedcc70ae166e64b3fab5ded1965055b2a450777870ff"
+source = "git+https://github.com/D1plo1d/xactor.git?branch=eyre-feature#802593eac511ddbd921e11f40c6118602e1aae23"
 dependencies = [
- "anyhow",
  "async-std",
  "async-trait",
+ "eyre",
  "fnv",
  "futures 0.3.12",
  "once_cell",
@@ -5290,8 +5350,7 @@ dependencies = [
 [[package]]
 name = "xactor-derive"
 version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ce65a6e78fedf06f36b8e7b3154175226fad605971f535062339c05f5caecbed"
+source = "git+https://github.com/D1plo1d/xactor.git?branch=eyre-feature#802593eac511ddbd921e11f40c6118602e1aae23"
 dependencies = [
  "proc-macro2",
  "quote",

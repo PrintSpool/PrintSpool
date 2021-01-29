@@ -9,8 +9,8 @@ use schemars::{
 };
 use teg_auth::invite::InviteConfig;
 use teg_config_form::JsonSchemaForm;
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -112,7 +112,7 @@ impl ConfigQuery {
         input: PluginSchemaFormInput,
     ) -> FieldResult<JsonSchemaForm> {
         if &input.package[..] != "teg-core" {
-            Err(anyhow!("Plugin not found: {}", input.package))?
+            Err(eyre!("Plugin not found: {}", input.package))?
         }
 
         let schema_form = to_schema_form(schema_for!(

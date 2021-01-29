@@ -3,8 +3,8 @@ use async_std::fs;
 
 use futures::stream::StreamExt;
 use std::sync::Arc;
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -23,7 +23,7 @@ pub async fn run_part_deletion_watcher(
         use crate::models::versioned_model::Change;
 
         let change = part_changes.next().await
-            .ok_or_else(|| anyhow!("part deletion stream unexpectedly ended"))??;
+            .ok_or_else(|| eyre!("part deletion stream unexpectedly ended"))??;
 
         match change {
             Change { previous: Some(part), next: None, .. } => {

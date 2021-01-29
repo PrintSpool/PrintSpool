@@ -1,5 +1,5 @@
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -24,13 +24,13 @@ impl xactor::Handler<UpdatePlugin> for Machine {
         let data = self.get_data()?;
 
         if &msg.plugin_id[..] != "teg-core" {
-            Err(anyhow!("Plugin not found: {}", msg.plugin_id))?
+            Err(eyre!("Plugin not found: {}", msg.plugin_id))?
         }
 
         let plugin = data.config.core_plugin_mut()?;
 
         if plugin.model_version != msg.version {
-            Err(anyhow!("Editing conflict, please reload the page and try again."))?
+            Err(eyre!("Editing conflict, please reload the page and try again."))?
         }
 
         plugin.model = serde_json::from_value(msg.model)?;

@@ -2,8 +2,8 @@
 use async_std::fs;
 
 use std::sync::Arc;
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -33,7 +33,7 @@ pub async fn run_print_completion_loop(
         use crate::models::versioned_model::Change;
 
         let change = task_changes.next().await
-            .ok_or_else(|| anyhow!("print loop task stream unexpectedly ended"))??;
+            .ok_or_else(|| eyre!("print loop task stream unexpectedly ended"))??;
 
         let was_pending = change.previous
             .as_ref()
@@ -77,7 +77,7 @@ async fn handle_print_completion(
     task: &Task,
 ) -> Result<()> {
     let print = task.print.as_ref().ok_or_else(||
-        anyhow!("Missing print for task: {}", task.id)
+        eyre!("Missing print for task: {}", task.id)
     )?;
 
     // Parts printed update

@@ -3,8 +3,8 @@ use async_graphql::{
     ID,
     FieldResult,
 };
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     // Result,
     // Context as _,
 };
@@ -99,7 +99,7 @@ impl DeleteJobMutation {
         for task in tasks {
             let machine = machines.get(&(&task.machine_id).into())
                 .ok_or_else(||
-                    anyhow!("machine (ID: {}) not found for package deletion", task.machine_id)
+                    eyre!("machine (ID: {}) not found for package deletion", task.machine_id)
                 )?;
 
             machine.call(StopMachine).await?

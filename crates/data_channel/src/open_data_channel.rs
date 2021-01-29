@@ -1,6 +1,6 @@
 use std::{pin::Pin, sync::atomic::{ AtomicU64, Ordering }};
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -214,7 +214,7 @@ where
 
     let sdp_answer = sdp_answer_receiver.next()
         .await
-        .ok_or_else(|| anyhow!("SDP answer not received"))?;
+        .ok_or_else(|| eyre!("SDP answer not received"))?;
 
     Ok((
         sdp_answer,

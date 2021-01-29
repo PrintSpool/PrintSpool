@@ -13,8 +13,8 @@ use super::{
 };
 use std::path::PathBuf;
 
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -85,7 +85,7 @@ impl Config {
                     _ => None,
                 }
             })
-            .ok_or_else(|| anyhow!("Could not find @tegapp/core plugin config"))?;
+            .ok_or_else(|| eyre!("Could not find @tegapp/core plugin config"))?;
 
         Ok(core_plugin)
     }

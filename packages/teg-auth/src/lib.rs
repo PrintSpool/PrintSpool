@@ -17,8 +17,8 @@ use std::env;
 use std::sync::Arc;
 use arc_swap::ArcSwap;
 use async_std::task;
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Context as _,
     Result,
 };
@@ -122,7 +122,7 @@ pub async fn init() -> Result<Context> {
     models::Invite::generate_or_display_initial_invite(&db)
         .await
         .map_err(|err| {
-            anyhow!("{:?}", err)
+            eyre!("{:?}", err)
         })?;
 
     // Config

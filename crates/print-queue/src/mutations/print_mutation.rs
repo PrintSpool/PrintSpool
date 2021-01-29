@@ -1,6 +1,6 @@
-use anyhow::{
+use eyre::{
     // Result,
-    anyhow,
+    eyre,
     // Context as _,
 };
 use async_graphql::{
@@ -39,7 +39,7 @@ impl PrintMutation {
         let machines = machines.load();
         let machine = machines.get(&input.machine_id)
             .ok_or_else(||
-                anyhow!("machine ({:?}) not found for spool job file", input.machine_id)
+                eyre!("machine ({:?}) not found for spool job file", input.machine_id)
             )?;
 
         let task = insert_print(

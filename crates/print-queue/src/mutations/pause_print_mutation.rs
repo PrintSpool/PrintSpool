@@ -1,6 +1,6 @@
 use chrono::prelude::*;
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     // Context as _,
 };
 use async_graphql::{
@@ -36,7 +36,7 @@ impl PausePrintMutation {
         let machines = machines.load();
         let machine = machines.get(&(&task.machine_id).into())
             .ok_or_else(||
-                anyhow!("machine (ID: {}) not found for print pause", task.machine_id)
+                eyre!("machine (ID: {}) not found for print pause", task.machine_id)
             )?;
 
         let config = machine.call(GetData).await??.config;
@@ -53,11 +53,11 @@ impl PausePrintMutation {
         let mut task = Task::get(&mut tx, &task_id).await?;
 
         if task.status.is_settled() {
-            Err(anyhow!("Cannot pause a task that is not running"))?;
+            Err(eyre!("Cannot pause a task that is not running"))?;
         }
 
         if !task.is_print() {
-            Err(anyhow!("Cannot pause task because task is not a print"))?;
+            Err(eyre!("Cannot pause task because task is not a print"))?;
         }
 
         if task.status.is_paused() {

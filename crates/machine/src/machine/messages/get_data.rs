@@ -1,5 +1,5 @@
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -17,7 +17,7 @@ impl Machine {
         let id = &self.id;
         self.data
             .as_mut()
-            .ok_or_else(|| anyhow!(r#"
+            .ok_or_else(|| eyre!(r#"
                 Attempted to read machine data but machine-{id}.toml has not yet been parsed.
                 Check that your /etc/teg/machine-{id}.toml config file is valid!
             "#, id = id))

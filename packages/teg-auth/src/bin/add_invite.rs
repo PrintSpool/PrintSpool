@@ -1,5 +1,5 @@
 // #[macro_use] extern crate tracing;
-use anyhow::{Result};
+use eyre::{Result};
 use teg_auth::{
   init,
   models::{

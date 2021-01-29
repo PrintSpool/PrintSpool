@@ -1,5 +1,5 @@
-use anyhow::{
-    // anyhow,
+use eyre::{
+    // eyre,
     Context as _,
 };
 
@@ -63,7 +63,7 @@ const M17_ENABLE_STEPPERS: u32 = 17;
 pub fn parse_gcode(
     gcode_line: &String,
     context: &mut Context,
-) -> anyhow::Result<Option<(Mnemonic, u32)>> {
+) -> eyre::Result<Option<(Mnemonic, u32)>> {
     let (remainder, gcode) = nom_gcode::parse_gcode(&gcode_line)
         .with_context(|| "Failed to parse GCode")?;
 

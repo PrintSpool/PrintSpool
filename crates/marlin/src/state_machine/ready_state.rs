@@ -342,7 +342,7 @@ impl ReadyState {
         &mut self,
         feedback: &Feedback,
         context: &mut Context
-    ) -> anyhow::Result<Vec<Effect>> {
+    ) -> eyre::Result<Vec<Effect>> {
         match feedback {
             Feedback::ActualTemperatures(temperatures) => {
                 // set actual_temperatures
@@ -447,7 +447,7 @@ impl ReadyState {
         }
     }
 
-    fn receive_ok(&mut self, effects: &mut Vec<Effect>, context: &mut Context) -> anyhow::Result<()> {
+    fn receive_ok(&mut self, effects: &mut Vec<Effect>, context: &mut Context) -> eyre::Result<()> {
         match self.on_ok {
             OnOK::NotAwaitingOk => {
                 // Ignore erroneous OKs
@@ -494,7 +494,7 @@ impl ReadyState {
         Ok(())
     }
 
-    fn despool(&mut self, effects: &mut Vec<Effect>, context: &mut Context) -> anyhow::Result<()> {
+    fn despool(&mut self, effects: &mut Vec<Effect>, context: &mut Context) -> eyre::Result<()> {
         if let Some(poll_for) = self.poll_for {
             self.poll_feedback(effects, context, poll_for);
         } else {
@@ -503,7 +503,7 @@ impl ReadyState {
         Ok(())
     }
 
-    fn despool_task(&mut self, effects: &mut Vec<Effect>, context: &mut Context) -> anyhow::Result<()> {
+    fn despool_task(&mut self, effects: &mut Vec<Effect>, context: &mut Context) -> eyre::Result<()> {
         if let Some(Mark::WaitingToReachMark(_)) = self.mark {
             self.on_ok = OnOK::NotAwaitingOk;
             return Ok(());
@@ -584,7 +584,7 @@ impl ReadyState {
         &mut self,
         effects: &mut Vec<Effect>,
         context: &mut Context, gcode: &str,
-    ) -> anyhow::Result<()> {
+    ) -> eyre::Result<()> {
         let gcode: HostGCode = serde_json::from_str(&gcode[1..])?;
 
         debug!("Macro: {:?}", gcode);
@@ -615,7 +615,7 @@ impl ReadyState {
                     self.mark = Some(Mark::WaitingToReachMark(mark));
                     self.poll_for = Some(Polling::PollPosition);
                 } else {
-                    Err(anyhow::anyhow!("Cannot wait to reach mark if mark is not set"))?;
+                    Err(eyre::eyre!("Cannot wait to reach mark if mark is not set"))?;
                 };
             },
         };

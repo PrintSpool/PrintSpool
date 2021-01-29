@@ -1,6 +1,6 @@
 use std::{sync::atomic::{ AtomicU64, Ordering }};
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -38,7 +38,7 @@ impl AuthContext {
         if self.is_admin() {
             Ok(())
         } else  {
-            Err(anyhow!("Unauthorized"))
+            Err(eyre!("Unauthorized"))
         }
     }
 
@@ -46,7 +46,7 @@ impl AuthContext {
         self.current_user
             .as_ref()
             .ok_or_else(||
-                anyhow!("Not authorized. Required firebase_id missing from connection init.")
+                eyre!("Not authorized. Required firebase_id missing from connection init.")
             )
     }
 
@@ -55,7 +55,7 @@ impl AuthContext {
 
         if !user.is_authorized {
             Err(
-                anyhow!("Unauthorized User. `consumeInvite()` required to authorize this account.")
+                eyre!("Unauthorized User. `consumeInvite()` required to authorize this account.")
             )
         } else {
             Ok(user)

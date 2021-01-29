@@ -3,8 +3,8 @@ use std::sync::Arc;
 use std::path::Path;
 use humantime::format_duration;
 
-use anyhow::{
-    // anyhow,
+use eyre::{
+    // eyre,
     Result,
     Context as _,
 };

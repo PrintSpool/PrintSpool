@@ -6,8 +6,8 @@ use async_graphql::{
     Context,
 };
 use xactor::Addr;
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -37,7 +37,7 @@ impl MachineQuery {
 
         let machines: Vec<&Addr<Machine>> = if let Some(id) = id {
             let addr = machines.get(&id)
-                .ok_or_else(|| anyhow!("No machine found ({:?})", id))?;
+                .ok_or_else(|| eyre!("No machine found ({:?})", id))?;
 
             vec![addr]
         } else {

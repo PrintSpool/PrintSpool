@@ -4,8 +4,8 @@ use async_graphql::{
     Context,
 };
 use teg_machine::machine::messages::GetData;
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     // Result,
     // Context as _,
 };
@@ -32,7 +32,7 @@ impl DeviceQuery {
 
         if let Some(machine_id) = machine_id {
             let machine = machines.get(&machine_id)
-                .ok_or_else(|| anyhow!("Machine not found: {:?}", machine_id))?
+                .ok_or_else(|| eyre!("Machine not found: {:?}", machine_id))?
                 .call(GetData)
                 .await??;
 

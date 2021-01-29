@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     Context as _,
 };
@@ -44,7 +44,7 @@ impl ToggleFansMacro {
 
                     Ok(format!("{} P{}", mcode, fan_index))
                 } else {
-                    Err(anyhow!("Fan (address: {:?}) not found", address))
+                    Err(eyre!("Fan (address: {:?}) not found", address))
                 }
             })
             .map(|gcode|

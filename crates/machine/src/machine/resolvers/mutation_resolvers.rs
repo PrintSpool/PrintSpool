@@ -3,8 +3,8 @@ use async_graphql::{
     FieldResult,
     Context,
 };
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     // Result,
     Context as _,
 };
@@ -33,7 +33,7 @@ impl MachineMutation {
         let machines = machines.load();
 
         let machine = machines.get(&machine_id)
-            .ok_or_else(|| anyhow!("Machine #{:?} not found", machine_id))?;
+            .ok_or_else(|| eyre!("Machine #{:?} not found", machine_id))?;
 
         machine.call(messages::StopMachine).await?;
 
@@ -50,7 +50,7 @@ impl MachineMutation {
         let machines = machines.load();
 
         let machine = machines.get(&machine_id)
-            .ok_or_else(|| anyhow!("Machine #{:?} not found", machine_id))?;
+            .ok_or_else(|| eyre!("Machine #{:?} not found", machine_id))?;
 
         machine.call(messages::ResetMachine).await?;
 

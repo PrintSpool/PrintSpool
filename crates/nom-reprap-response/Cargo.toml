@@ -15,6 +15,6 @@ toml = "0.5.6"
 colored = "2.0.0"
 
 [dependencies]
-anyhow = "1.0.32"
+eyre = "0.6.5"
 nom = "6.0.0-alpha.1"
 log = "0.4.8"

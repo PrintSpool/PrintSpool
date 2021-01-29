@@ -9,8 +9,8 @@ use serde::{ Serialize, Deserialize };
 use itertools::{ Itertools };
 // use chrono::prelude::*;
 
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     Context as _,
 };
@@ -98,5 +98,5 @@ pub async fn get_latest_backup(
 ) -> Result<PathBuf> {
     let mut files = get_backup_files(&backups_dir)?;
 
-    files.next().ok_or(anyhow!("No Backups Found"))
+    files.next().ok_or(eyre!("No Backups Found"))
 }

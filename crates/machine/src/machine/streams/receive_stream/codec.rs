@@ -1,8 +1,8 @@
 use std::convert::TryInto;
-use anyhow::{
+use eyre::{
     Error,
     Context as _,
-    anyhow,
+    eyre,
 };
 use async_codec::*;
 use bytes::BufMut;
@@ -61,7 +61,7 @@ impl Encode for MachineCodec {
         buf.put_u32_le(item.encoded_len() as u32);
 
         if let Err(err) = item.encode(&mut buf) {
-            return EncodeResult::Err(anyhow!("combinator message encoding failed: {:?}", err));
+            return EncodeResult::Err(eyre!("combinator message encoding failed: {:?}", err));
         }
 
         // buf[..needed - 1].copy_from_slice(&item_bytes[..]);

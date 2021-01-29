@@ -1,5 +1,5 @@
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -54,7 +54,7 @@ impl xactor::Handler<CreateComponent> for Machine {
                 let component = Video::new(config);
                 data.config.videos.push(component);
             }
-            _ => Err(anyhow!("Invalid component type: {}", msg.component_type))?,
+            _ => Err(eyre!("Invalid component type: {}", msg.component_type))?,
         };
 
         data.config.save_config().await?;

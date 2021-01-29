@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 // use async_graphql::*;
 use serde::{Deserialize, Serialize};
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -14,7 +14,7 @@ impl JsonGCode {
     pub fn try_to_string(&self, original_line: &str) -> Result<String> {
         let keys = self.0.keys();
         if keys.len() > 1 {
-            Err(anyhow!(
+            Err(eyre!(
                 "Expected 1 GCode, got {} for JSON: {:?}",
                 keys.len(),
                 original_line
@@ -24,7 +24,7 @@ impl JsonGCode {
         let (gcode, args) = self.0.iter()
             .next()
             .ok_or_else(|| {
-                anyhow!("No GCodes found in JSON: {:?}", original_line)
+                eyre!("No GCodes found in JSON: {:?}", original_line)
             })?;
 
         let gcode = gcode.to_ascii_uppercase();
@@ -57,8 +57,8 @@ impl JsonGCode {
             ),
         )(input);
 
-        result.map_err(|_| anyhow!("Invalid GCode: {}", input))?;
-    
+        result.map_err(|_| eyre!("Invalid GCode: {}", input))?;
+
         Ok(())
     }
 }
@@ -67,8 +67,8 @@ impl JsonGCode {
 mod tests {
     use std::iter::FromIterator;
     use std::collections::HashMap;
-    use anyhow::{
-        // anyhow,
+    use eyre::{
+        // eyre,
         Result,
         // Context as _,
     };

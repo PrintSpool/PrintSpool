@@ -1,5 +1,5 @@
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -33,7 +33,7 @@ impl xactor::Handler<SetMaterial> for Machine {
         let data = self.get_data()?;
 
         if data.status.is_printing() {
-            Err(anyhow!(r#"
+            Err(eyre!(r#"
                 Cannot swap materials while printing.
                 Please pause your print first.
             "#))?;

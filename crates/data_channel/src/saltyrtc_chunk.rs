@@ -2,10 +2,10 @@
 // See https://github.com/saltyrtc/saltyrtc-meta/blob/master/Chunking.md
 
 use std::collections::HashMap;
-use anyhow::{
+use eyre::{
     Result,
     // Context as _,
-    anyhow,
+    eyre,
 };
 use futures_util::{
     future,
@@ -90,7 +90,7 @@ impl ChunkDecoder {
 
         // Validate the message length
         if buf.len() < self.mode.header_bytes_size() + 1 {
-            Err(anyhow!(
+            Err(eyre!(
                 "Incomplete SaltyRTC Chunk received (size: {})",
                 buf.len(),
             ))?
@@ -106,7 +106,7 @@ impl ChunkDecoder {
 
         // The remaining bit field after XORing should equal 0 or 1 for the end of message bit
         if end_of_message_bit > 1 {
-            Err(anyhow!(
+            Err(eyre!(
                 "Invalid bit field received for SaltyRTC Chunk: {}",
                 actual_bit_field,
             ))?
@@ -171,7 +171,7 @@ impl ChunkDecoder {
     fn complete_message(&mut self, msg_id: u32) -> Result<Option<Vec<u8>>> {
         let partial_message = self.partial_messages
             .remove(&msg_id)
-            .ok_or_else(|| anyhow!("SaltyRTC parial message not found"))?;
+            .ok_or_else(|| eyre!("SaltyRTC parial message not found"))?;
 
         let msg = partial_message.chunks
             .into_iter()

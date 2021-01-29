@@ -10,7 +10,7 @@ use super::{
 pub fn parse_set_fan_speed(
     cmd: &GCode,
     context: &mut Context,
-) -> anyhow::Result<()> {
+) -> eyre::Result<()> {
     allow_list_args(cmd, &['P', 'S', 'T'])?;
 
     let index = find_u32_arg(cmd, 'P').unwrap_or(0);
@@ -33,7 +33,7 @@ pub fn parse_set_fan_speed(
 pub fn parse_fan_off(
     cmd: &GCode,
     context: &mut Context,
-) -> anyhow::Result<()> {
+) -> eyre::Result<()> {
     allow_list_args(cmd, &['P'])?;
 
     let index = find_u32_arg(cmd, 'P').unwrap_or(0);

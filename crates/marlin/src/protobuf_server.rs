@@ -117,7 +117,7 @@ pub async fn serve(
     socket_path: &PathBuf,
     channel_sender: &mpsc::Sender<Event>,
     broadcast_subscriber: bus_queue::flavors::arc_swap::Subscriber<Bytes>,
-) -> anyhow::Result<()> {
+) -> eyre::Result<()> {
 
     info!("Socket: {:?}", socket_path);
 

@@ -13,7 +13,7 @@ use super::{
 pub fn parse_linear_move(
     cmd: &GCode,
     context: &mut Context,
-) -> anyhow::Result<()> {
+) -> eyre::Result<()> {
     allow_list_args(cmd, &['E', 'F', 'X', 'Y', 'Z'])?;
 
     // TODO: feedrate feedback
@@ -57,7 +57,7 @@ pub fn parse_linear_move(
 pub fn parse_home(
     cmd: &GCode,
     context: &mut Context,
-) -> anyhow::Result<()> {
+) -> eyre::Result<()> {
     allow_list_args(&cmd, &['O', 'R', 'X', 'Y', 'Z'])?;
 
     context.feedback.motors_enabled = true;

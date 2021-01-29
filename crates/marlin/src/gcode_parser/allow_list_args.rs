@@ -1,6 +1,6 @@
 use nom_gcode::GCode;
 
-pub fn allow_list_args(cmd: &GCode, valid_args: &[char]) -> anyhow::Result<()> {
+pub fn allow_list_args(cmd: &GCode, valid_args: &[char]) -> eyre::Result<()> {
     let invalid = cmd.arguments().any(|(key, _)| !valid_args.contains(key));
 
     if invalid {

@@ -3,8 +3,8 @@ use async_graphql::{
     // FieldResult,
     ID,
 };
-// use anyhow::{
-//     anyhow,
+// use eyre::{
+//     eyre,
 //     Result,
 //     Context as _,
 // };
@@ -61,7 +61,7 @@ impl User {
     //     let admin_count = Self::admin_count(&ctx.db).await?;
 
     //     if user.is_admin && changeset.is_admin == Some(false) && admin_count == 1 {
-    //         Err(anyhow!("Cannot remove admin access. Machines must have at least one admin user"))?
+    //         Err(eyre!("Cannot remove admin access. Machines must have at least one admin user"))?
     //     };
 
     //     if let Some(is_admin) = changeset.is_admin {
@@ -91,7 +91,7 @@ impl User {
     //     let user = Self::get(&ctx.db, user_id)?;
 
     //     if user.is_admin && admin_count == 1 {
-    //         Err(anyhow!("Cannot delete only admin user"))?
+    //         Err(eyre!("Cannot delete only admin user"))?
     //     };
 
     //     ctx.db.remove(Self::key(user_id))?;

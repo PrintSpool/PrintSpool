@@ -1,5 +1,5 @@
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -28,7 +28,7 @@ impl xactor::Handler<UpdateComponent> for Machine {
                 .find(|c|
                     c.id == msg.id && c.model_version == msg.version
                 )
-                .ok_or_else(|| anyhow!("Component not found"))
+                .ok_or_else(|| eyre!("Component not found"))
         }
 
         // Controller

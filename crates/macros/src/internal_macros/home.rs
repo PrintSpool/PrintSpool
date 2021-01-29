@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -50,7 +50,7 @@ impl HomeMacro {
                     config.axes
                         .iter()
                         .find(|c| &c.model.address == address)
-                        .ok_or_else(|| anyhow!("Axis (address: {:?}) not found", address))?;
+                        .ok_or_else(|| eyre!("Axis (address: {:?}) not found", address))?;
                 }
 
                 macro_axes.into_iter()
@@ -58,7 +58,7 @@ impl HomeMacro {
                     .collect()
             },
             _ => {
-                Err(anyhow!("axes must either be an array or axis names or {all: true}"))?
+                Err(eyre!("axes must either be an array or axis names or {all: true}"))?
             }
         };
 

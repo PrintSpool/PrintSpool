@@ -16,7 +16,7 @@ pub mod codec;
 mod record_feedback;
 use record_feedback::record_feedback;
 
-type RxResult = std::result::Result<MachineMessage, ReadFrameError<anyhow::Error>>;
+type RxResult = std::result::Result<MachineMessage, ReadFrameError<eyre::Error>>;
 
 #[async_trait::async_trait]
 impl StreamHandler<RxResult> for Machine

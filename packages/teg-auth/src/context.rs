@@ -1,8 +1,8 @@
 use async_graphql::*;
 use std::sync::Arc;
 
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     Context as _,
 };
@@ -82,7 +82,7 @@ impl Context {
         if self.is_admin() {
             Ok(())
         } else  {
-            Err(anyhow!("Unauthorized"))
+            Err(eyre!("Unauthorized"))
         }
     }
 }

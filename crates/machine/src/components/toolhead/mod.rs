@@ -1,5 +1,5 @@
-use anyhow::{
-    anyhow,
+use eyre::{
+    eyre,
     Result,
     // Context as _,
 };
@@ -86,7 +86,7 @@ impl Toolhead {
             .find(|toolhead| {
                 &toolhead.id == toolhead_id
             })
-            .ok_or_else(|| anyhow!("Toolhead not found"))?;
+            .ok_or_else(|| eyre!("Toolhead not found"))?;
 
         if let Some(material_id) = material_id {
             let material_id: crate::DbId = material_id.parse()?;
