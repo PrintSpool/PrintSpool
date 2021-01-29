@@ -83,27 +83,39 @@ pub struct Query(
 #[derive(Default)]
 pub struct LegacyQuery;
 
-#[Object]
-impl LegacyQuery {
-    async fn video_sources<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<VideoSource>> {
-            get_video_sources(ctx.data()?)
-                .await
-                .map_err(|err| {
-                    error!("ERR {:?}", err);
-                    err
-                })
-                .or(Ok(vec![]))
-    }
+// #[Object]
+// impl LegacyQuery {
+//     async fn video_sources<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<VideoSource>> {
+//             get_video_sources(ctx.data()?)
+//                 .await
+//                 .map_err(|err| {
+//                     error!("ERR {:?}", err);
+//                     err
+//                 })
+//                 .or(Ok(vec![]))
+//     }
 
-    async fn ice_candidates<'ctx>(&self, ctx: &'ctx Context<'_>, id: ID) -> FieldResult<Vec<IceCandidate>> {
-        get_ice_candidates(ctx.data()?, id)
-            .await
-            .map_err(|err| {
-                error!("ERR {:?}", err);
-                err.into()
-            })
-    }
-}
+//     async fn ice_candidates<'ctx>(&self, ctx: &'ctx Context<'_>, id: ID) -> FieldResult<Vec<IceCandidate>> {
+//         get_ice_candidates(ctx.data()?, id)
+//             .await
+//             .map_err(|err| {
+//                 error!("ERR {:?}", err);
+//                 err.into()
+//             })
+//     }
+// }
+
+//     // Video
+//     #[field(name = "createVideoSDP")]
+//     async fn create_video_sdp<'ctx>(&self, ctx: &'ctx Context<'_>, offer: RTCSignalInput) -> FieldResult<VideoSession> {
+//         task::block_on(
+//             create_video_sdp(ctx.data()?, offer)
+//         )
+//         .map_err(|err| {
+//             error!("ERR {:?}", err);
+//             err.into()
+//         })
+//     }
 
 #[derive(Default)]
 pub struct LegacyMutation;
@@ -132,15 +144,15 @@ impl LegacyMutation {
         )
     }
 
-    // Video
-    #[field(name = "createVideoSDP")]
-    async fn create_video_sdp<'ctx>(&self, ctx: &'ctx Context<'_>, offer: RTCSignalInput) -> FieldResult<VideoSession> {
-        task::block_on(
-            create_video_sdp(ctx.data()?, offer)
-        )
-        .map_err(|err| {
-            error!("ERR {:?}", err);
-            err.into()
-        })
-    }
+    // // Video
+    // #[field(name = "createVideoSDP")]
+    // async fn create_video_sdp<'ctx>(&self, ctx: &'ctx Context<'_>, offer: RTCSignalInput) -> FieldResult<VideoSession> {
+    //     task::block_on(
+    //         create_video_sdp(ctx.data()?, offer)
+    //     )
+    //     .map_err(|err| {
+    //         error!("ERR {:?}", err);
+    //         err.into()
+    //     })
+    // }
 }

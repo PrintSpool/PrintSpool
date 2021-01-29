@@ -36,6 +36,7 @@ smart-default = "0.6.0"
 schemars = "0.8.0"
 jsonschema = "0.4.3"
 nanoid = "0.3.0"
+surf = "2.1.0"
 
 [dependencies.async-std]
 features = ["tokio02", "unstable"]

@@ -20,6 +20,10 @@ pub use machine::resolvers::mutation_resolvers::MachineMutation;
 pub mod plugins;
 pub mod task;
 
+mod video;
+pub use video::video_query_resolvers::VideoQuery;
+pub use video::video_mutation_resolvers::VideoMutation;
+
 pub type Db = sqlx::sqlite::SqlitePool;
 pub type DbId = teg_json_store::DbId;
 

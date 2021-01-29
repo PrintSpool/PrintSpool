@@ -4422,6 +4422,7 @@ dependencies = [
  "serde_json",
  "smart-default",
  "sqlx",
+ "surf",
  "teg-json-store",
  "teg-protobufs",
  "teg_auth",
