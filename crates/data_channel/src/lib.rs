@@ -276,13 +276,27 @@ where
 
                 let (
                     answer,
-                    ice_candidates,
-                 ) = open_data_channel(response, &handle_data_channel).await?;
+                    mut ice_candidates_stream,
+                ) = open_data_channel(response, &handle_data_channel).await?;
 
-                 // Send up to 10 ice candidates at a time if they are available
-                 let mut ice_candidates = ice_candidates
-                    .ready_chunks(10)
-                    .boxed();
+                // Commented out: trickle ICE candidates were previously considered but have been
+                // replaced by sending all ICE candidates at once for implementation simplicity.
+                //
+                // // Send up to 10 ice candidates at a time if they are available
+                // let mut ice_candidates = ice_candidates
+                //     .ready_chunks(10)
+                //     .boxed();
+
+                let mut ice_candidates = vec![];
+
+                // Take all ice candidates up to and including the final empty string candidate
+                while let Some(ic) = ice_candidates_stream.next().await {
+                    let last_candidate = ic.candidate.is_empty();
+                    ice_candidates.push(ic);
+                    if last_candidate {
+                        break
+                    };
+                }
 
                 // Send a mutation containing the answer and initial ice candidates back to the
                 // signalling server
@@ -301,7 +315,7 @@ where
                             "input": {
                                 "sessionID": handshake_session_id,
                                 "answer": answer,
-                                "iceCandidates": ice_candidates.next().await
+                                "iceCandidates": ice_candidates,
                             },
                         })),
                     },
@@ -311,37 +325,40 @@ where
                 println!("Sending: \"{}\"", msg);
                 ws_write.send(Message::Text(msg)).await?;
 
-                // Send the ice candidates back to the signalling server in a detached task
-                let ws_clone = ws_write.clone();
-                let send_ice_candidates = async move {
-                    while let Some(ic) = ice_candidates.next().await {
-                        // Send the ice candidates back to the signalling server
-                        let msg = GraphQLWSMessage::Subscribe {
-                            id: NEXT_MESSAGE_ID.fetch_add(1, Ordering::SeqCst).to_string(),
-                            payload: SubscribeMessagePayload {
-                                operation_name: Some("sendICECandidatesToClient".to_string()),
-                                query: r#"
-                                    mutation sendICECandidatesToClient(
-                                        input: SendICECandidatesInput!
-                                    ) {
-                                        sendICECandidatesToClient(input: input)
-                                    }
-                                "#.to_string(),
-                                variables: Some(serde_json::json!({
-                                    "input": {
-                                        "sessionID": handshake_session_id,
-                                        "iceCandidates": ic,
-                                    },
-                                })),
-                            },
-                        };
+                // Commented out: trickle ICE candidates were previously considered but have been
+                // replaced by sending all ICE candidates at once for implementation simplicity.
+                //
+                // // Send the ice candidates back to the signalling server in a detached task
+                // let ws_clone = ws_write.clone();
+                // let send_ice_candidates = async move {
+                //     while let Some(ic) = ice_candidates_stream.next().await {
+                //         // Send the ice candidates back to the signalling server
+                //         let msg = GraphQLWSMessage::Subscribe {
+                //             id: NEXT_MESSAGE_ID.fetch_add(1, Ordering::SeqCst).to_string(),
+                //             payload: SubscribeMessagePayload {
+                //                 operation_name: Some("sendICECandidatesToClient".to_string()),
+                //                 query: r#"
+                //                     mutation sendICECandidatesToClient(
+                //                         input: SendICECandidatesInput!
+                //                     ) {
+                //                         sendICECandidatesToClient(input: input)
+                //                     }
+                //                 "#.to_string(),
+                //                 variables: Some(serde_json::json!({
+                //                     "input": {
+                //                         "sessionID": handshake_session_id,
+                //                         "iceCandidates": ic,
+                //                     },
+                //                 })),
+                //             },
+                //         };
 
-                        let msg = serde_json::to_string(&msg)?;
-                        println!("Sending: \"{}\"", msg);
-                        ws_clone.send(Message::Text(msg)).await?;
-                    }
-                    Result::<()>::Ok(())
-                };
+                //         let msg = serde_json::to_string(&msg)?;
+                //         println!("Sending: \"{}\"", msg);
+                //         ws_clone.send(Message::Text(msg)).await?;
+                //     }
+                //     Result::<()>::Ok(())
+                // };
 
                 async_std::task::spawn(async move {
                     if let Err(err) = send_ice_candidates.await {
