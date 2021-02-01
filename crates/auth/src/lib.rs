@@ -16,6 +16,9 @@ pub use user::resolvers::{
 mod signal;
 pub use signal::Signal;
 
+mod server_keys;
+pub use server_keys::ServerKeys;
+
 // mod watch_pem_keys;
 // pub use watch_pem_keys::watch_pem_keys;
 

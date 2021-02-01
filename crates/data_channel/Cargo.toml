@@ -50,10 +50,6 @@ version = "1.8.0"
 features = ["serde"]
 version = "0.4.10"
 
-[dependencies.openssl]
-features = ["vendored"]
-version = "0.10.28"
-
 [dependencies.secp256k1]
 features = ["rand", "rand-std"]
 version = "0.19.0"

@@ -634,6 +634,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "bs58"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "771fe0050b883fcc3ea2359b1a96bcfbc090b7116eae7c3c512c7a083fdf23d3"
+
+[[package]]
 name = "bson"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4363,6 +4369,7 @@ dependencies = [
  "async-std",
  "async-trait",
  "async-tungstenite",
+ "bs58",
  "chrono",
  "data-encoding",
  "datachannel",
@@ -4416,7 +4423,6 @@ dependencies = [
  "futures-util",
  "gravatar",
  "hex",
- "openssl",
  "qr2term",
  "rmp",
  "rmp-serde",

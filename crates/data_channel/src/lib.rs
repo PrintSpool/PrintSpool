@@ -5,11 +5,18 @@ pub mod saltyrtc_chunk;
 pub mod iter;
 pub mod open_data_channel;
 
-use eyre::{Context, Result, eyre};
+use eyre::{
+    eyre,
+    Context as _,
+    Result,
+};
 use open_data_channel::open_data_channel;
 use serde::{Serialize, Deserialize};
 use teg_machine::machine::messages::GetData;
-use std::{fs, pin::Pin};
+use std::{
+    pin::Pin,
+    sync::Arc,
+};
 use chrono::{
     Duration,
     Utc
@@ -79,6 +86,7 @@ enum GraphQLWSMessage {
 
 pub async fn listen_for_signalling<F, Fut, S>(
     // db: crate::Db,
+    server_keys: &Arc<teg_auth::ServerKeys>,
     machines: &teg_machine::MachineMap,
     handle_data_channel: F,
 ) -> Result<()>
@@ -90,10 +98,6 @@ where
     Fut: Future<Output = Result<S>> + 'static,
     S: Stream<Item = Vec<u8>> + Send + 'static,
 {
-    let identity_private_key = fs::read_to_string("/etc/teg/id_ecdsa")
-        .wrap_err_with(|| format!("Missing identity private key"))?;
-    let identity_public_key = fs::read_to_string("/etc/teg/id_ecdsa.pub")
-        .wrap_err_with(|| format!("Missing identity public key"))?;
     let signalling_url = "https:://signalling.tegapp.com";
 
     let machines = machines.load();
@@ -109,12 +113,14 @@ where
 
     let jwt = frank_jwt::encode(
         jwt_headers,
-        &identity_private_key,
+        &server_keys.identity_private_key,
         &jwt_payload,
         frank_jwt::Algorithm::ES256,
     )?;
 
-    let signalling_server = std::env::var("SIGNALLING_SERVER")?;
+    let signalling_server = std::env::var("SIGNALLING_SERVER")
+        .wrap_err("SIGNALLING_SERVER environment variable missing")?;
+
     let request = Request::builder()
         .uri(signalling_server)
         .body(())?;
@@ -124,7 +130,7 @@ where
     let msg = GraphQLWSMessage::ConnectionInit {
         // TODO: Send an authorization payload
         payload: Some(serde_json::json!({
-            "identityPublicKey": identity_public_key.clone(),
+            "identityPublicKey": server_keys.identity_public_key.clone(),
             "selfSignedJWT": jwt,
         })),
     };
@@ -360,11 +366,11 @@ where
                 //     Result::<()>::Ok(())
                 // };
 
-                async_std::task::spawn(async move {
-                    if let Err(err) = send_ice_candidates.await {
-                        error!("Error sending ICE Candidates: {:?}", err);
-                    };
-                });
+                // async_std::task::spawn(async move {
+                //     if let Err(err) = send_ice_candidates.await {
+                //         error!("Error sending ICE Candidates: {:?}", err);
+                //     };
+                // });
 
                 ()
             }

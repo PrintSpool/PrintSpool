@@ -121,9 +121,12 @@ async fn app() -> Result<()> {
     //     auth_pem_keys_watcher,
     // ) = watch_pem_keys().await?;
 
+    let server_keys = Arc::new(teg_auth::ServerKeys::load_or_create().await?);
+
     let machines_clone = machines.clone();
 
     let signalling_future = teg_data_channel::listen_for_signalling(
+        &server_keys,
         &machines,
         move |signal, message_stream| {
             let schema = schema.clone();

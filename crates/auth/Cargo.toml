@@ -35,6 +35,7 @@ datachannel = { version = "0.2.1", features = [ "static" ] }
 async-tungstenite = { version = "0.11.0", features = ["async-std-runtime", "async-native-tls"] }
 futures-util = "0.3.8"
 nanoid = "0.3.0"
+bs58 = "0.4.0"
 
 [dependencies.serde]
 features = ["derive"]
