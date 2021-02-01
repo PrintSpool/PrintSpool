@@ -55,7 +55,7 @@ impl AuthContext {
 
         if !user.is_authorized {
             Err(
-                eyre!("Unauthorized User. `consumeInvite()` required to authorize this account.")
+                eyre!("Unauthorized. Please log in and try again.")
             )
         } else {
             Ok(user)

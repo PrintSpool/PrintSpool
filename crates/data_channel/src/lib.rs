@@ -97,12 +97,12 @@ where
     let machines = machines.load();
 
     let jwt_headers = serde_json::json!({
-        "sub": signalling_url,
+        "aud": signalling_url,
         "exp": (Utc::now() + Duration::minutes(10)).timestamp(),
     });
 
     let jwt_payload = serde_json::json!({
-        "identity_public_key": identity_public_key,
+        "selfSignature": true,
     });
 
     let jwt = frank_jwt::encode(
@@ -115,13 +115,16 @@ where
     let signalling_server = std::env::var("SIGNALLING_SERVER")?;
     let request = Request::builder()
         .uri(signalling_server)
-        .header("Authorization", jwt)
         .body(())?;
 
     let (mut ws_stream, _) = connect_async(request).await?;
 
     let msg = GraphQLWSMessage::ConnectionInit {
-        payload: None
+        // TODO: Send an authorization payload
+        payload: Some(serde_json::json!({
+            "identityPublicKey": identity_public_key.clone(),
+            "selfSignedJWT": jwt,
+        })),
     };
 
     let msg = serde_json::to_string(&msg)?;
@@ -147,7 +150,7 @@ where
         .map(|machine| async move {
             let data = machine.call(GetData).await??;
             Result::<serde_json::Value>::Ok(serde_json::json!({
-                "id": data.config.id,
+                "slug": data.config.id,
                 "name": data.config.name()?,
             }))
         });
@@ -158,9 +161,9 @@ where
     let msg = GraphQLWSMessage::Subscribe {
         id: NEXT_MESSAGE_ID.fetch_add(1, Ordering::SeqCst).to_string(),
         payload: SubscribeMessagePayload {
-            operation_name: Some("updateNetworkRegistration".to_string()),
+            operation_name: Some("registerMachines".to_string()),
             query: r#"
-                mutation updateNetworkRegistration(
+                mutation registerMachines(
                     machines: RegisterMachinesInput!
                 ) {
                     registerMachines(input: machines)
@@ -207,10 +210,11 @@ where
     let msg = GraphQLWSMessage::Subscribe {
         id: rx_signals_id.clone(),
         payload: SubscribeMessagePayload {
-            operation_name: Some("updateNetworkRegistration".to_string()),
+            operation_name: Some("receiveSignals".to_string()),
             query: r#"
                 subscribe receiveSignals {
                     receiveSignals {
+                        session_id
                         offer
                     }
                 }
@@ -318,12 +322,12 @@ where
                         let msg = GraphQLWSMessage::Subscribe {
                             id: NEXT_MESSAGE_ID.fetch_add(1, Ordering::SeqCst).to_string(),
                             payload: SubscribeMessagePayload {
-                                operation_name: Some("sendIceCandidates".to_string()),
+                                operation_name: Some("sendICECandidatesToClient".to_string()),
                                 query: r#"
-                                    mutation sendIceCandidates(
-                                        input: SendIceCandidatesInput!
+                                    mutation sendICECandidatesToClient(
+                                        input: SendICECandidatesInput!
                                     ) {
-                                        sendIceCandidates(input: input)
+                                        sendICECandidatesToClient(input: input)
                                     }
                                 "#.to_string(),
                                 variables: Some(serde_json::json!({
