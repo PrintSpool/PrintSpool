@@ -30,7 +30,7 @@ use futures_util::{
     },
     select,
 };
-use teg_auth::{AuthContext, watch_pem_keys};
+use teg_auth::AuthContext;
 use teg_machine::{MachineMap, MachineMapLocal, machine::Machine};
 
 const CONFIG_DIR: &'static str = "/etc/teg/";
@@ -116,36 +116,33 @@ async fn app() -> Result<()> {
         async_graphql::EmptySubscription,
     );
 
-    let (
-        auth_pem_keys,
-        auth_pem_keys_watcher,
-    ) = watch_pem_keys().await?;
+    // let (
+    //     auth_pem_keys,
+    //     auth_pem_keys_watcher,
+    // ) = watch_pem_keys().await?;
 
     let machines_clone = machines.clone();
 
     let signalling_future = teg_data_channel::listen_for_signalling(
         &machines,
-        move |message_stream| {
+        move |signal, message_stream| {
             let schema = schema.clone();
             let db = db.clone();
-            let auth_pem_keys = auth_pem_keys.clone();
+            // let auth_pem_keys = auth_pem_keys.clone();
             let machines = machines_clone.clone();
             let initializer = |init_payload| async move {
                 #[derive(Deserialize)]
                 struct InitPayload {
-                    auth_token: String,
                     identity_public_key: Option<String>,
                 }
 
                 let InitPayload {
-                    auth_token,
                     identity_public_key,
                 } = serde_json::from_value(init_payload)?;
 
                 let user = teg_auth::user::User::authenticate(
                     &db,
-                    auth_pem_keys,
-                    auth_token,
+                    signal,
                     &identity_public_key,
                 ).await?;
 
@@ -176,7 +173,7 @@ async fn app() -> Result<()> {
     );
 
     let res = select! {
-        res = auth_pem_keys_watcher.fuse() => res,
+        // res = auth_pem_keys_watcher.fuse() => res,
         res = signalling_future.fuse() => res,
     };
 

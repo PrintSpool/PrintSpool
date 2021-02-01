@@ -18,7 +18,7 @@ pub struct User {
     pub config: UserConfig,
     pub last_logged_in_at: Option<DateTime<Utc>>,
 
-    pub firebase_uid: String,
+    pub signalling_user_id: String,
     pub is_authorized: bool,
     /// # Email
     pub email: Option<String>,
@@ -48,6 +48,7 @@ impl User {
     }
 }
 
+#[async_trait::async_trait]
 impl Record for User {
     const TABLE: &'static str = "users";
 
@@ -61,5 +62,26 @@ impl Record for User {
 
     fn version_mut(&mut self) -> &mut teg_json_store::Version {
         &mut self.version
+    }
+
+    async fn insert_no_rollback<'c>(
+        &self,
+        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+    ) -> Result<()> {
+        let json = serde_json::to_string(&self)?;
+        sqlx::query!(
+            r#"
+                INSERT INTO users
+                (id, version, props, signalling_user_id)
+                VALUES (?, ?, ?, ?)
+            "#,
+            self.id,
+            self.version,
+            json,
+            self.signalling_user_id,
+        )
+            .fetch_one(db)
+            .await?;
+        Ok(())
     }
 }

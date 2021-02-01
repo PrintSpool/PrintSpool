@@ -10,8 +10,12 @@ CREATE TABLE users(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
 
+  signalling_user_id TEXT NOT NULL,
+
   props TEXT NOT NULL
 );
+
+CREATE UNIQUE INDEX users_signalling_user_id ON users(signalling_user_id);
 
 CREATE TABLE invites(
   id TEXT PRIMARY KEY NOT NULL,

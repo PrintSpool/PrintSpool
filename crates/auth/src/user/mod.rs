@@ -3,7 +3,7 @@ use async_graphql::*;
 mod authenticate;
 pub use authenticate::*;
 
-pub mod jwt;
+// pub mod jwt;
 
 mod user;
 pub use user::{

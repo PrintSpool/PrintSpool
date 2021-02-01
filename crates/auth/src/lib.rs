@@ -13,8 +13,11 @@ pub use user::resolvers::{
     query_resolvers::UserQuery,
 };
 
-mod watch_pem_keys;
-pub use watch_pem_keys::watch_pem_keys;
+mod signal;
+pub use signal::Signal;
+
+// mod watch_pem_keys;
+// pub use watch_pem_keys::watch_pem_keys;
 
 mod auth_context;
 pub use auth_context::AuthContext;

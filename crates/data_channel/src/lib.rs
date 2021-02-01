@@ -6,7 +6,6 @@ pub mod iter;
 pub mod open_data_channel;
 
 use eyre::{Context, Result, eyre};
-use datachannel::SessionDescription;
 use open_data_channel::open_data_channel;
 use serde::{Serialize, Deserialize};
 use teg_machine::machine::messages::GetData;
@@ -32,7 +31,7 @@ use futures_util::{
         // TryStreamExt,
     },
 };
-
+use teg_auth::Signal;
 
 pub type Db = sqlx::sqlite::SqlitePool;
 
@@ -84,7 +83,10 @@ pub async fn listen_for_signalling<F, Fut, S>(
     handle_data_channel: F,
 ) -> Result<()>
 where
-    F: Fn(Pin<Box<dyn Stream<Item = Vec<u8>> + 'static + Send + Sync>>) -> Fut + 'static,
+    F: Fn(
+        Signal,
+        Pin<Box<dyn Stream<Item = Vec<u8>> + 'static + Send + Sync>>,
+    ) -> Fut + 'static,
     Fut: Future<Output = Result<S>> + 'static,
     S: Stream<Item = Vec<u8>> + Send + 'static,
 {
@@ -214,6 +216,9 @@ where
             query: r#"
                 subscribe receiveSignals {
                     receiveSignals {
+                        user_id
+                        email
+                        email_verified
                         session_id
                         offer
                     }
@@ -222,13 +227,6 @@ where
             variables: None,
         },
     };
-
-    #[derive(Serialize, Deserialize, Debug)]
-    struct ReceiveSignalsResponse {
-        #[serde(rename = "sessionID")]
-        session_id: async_graphql::ID,
-        offer: SessionDescription,
-    }
 
     let msg = serde_json::to_string(&msg)?;
     println!("Sending: \"{}\"", msg);
@@ -273,14 +271,13 @@ where
                 id,
                 payload: ExecutionResult { data: Some(data), .. },
             } if id == rx_signals_id => {
-                let ReceiveSignalsResponse {
-                    session_id: handshake_session_id,
-                    offer,
-                } = serde_json::from_value(data)?;
+                let response: Signal = serde_json::from_value(data)?;
+                let handshake_session_id = response.session_id.clone();
+
                 let (
                     answer,
                     ice_candidates,
-                 ) = open_data_channel(offer, &handle_data_channel).await?;
+                 ) = open_data_channel(response, &handle_data_channel).await?;
 
                  // Send up to 10 ice candidates at a time if they are available
                  let mut ice_candidates = ice_candidates
@@ -302,7 +299,7 @@ where
                         "#.to_string(),
                         variables: Some(serde_json::json!({
                             "input": {
-                                "sessionID": handshake_session_id.clone(),
+                                "sessionID": handshake_session_id,
                                 "answer": answer,
                                 "iceCandidates": ice_candidates.next().await
                             },

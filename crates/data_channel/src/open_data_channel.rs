@@ -25,6 +25,7 @@ use futures_util::{
         TryStreamExt,
     },
 };
+use teg_auth::Signal;
 
 static NEXT_ID: AtomicU64 = AtomicU64::new(0);
 
@@ -121,14 +122,19 @@ impl PeerConnection for Conn {
 }
 
 pub async fn open_data_channel<F, Fut, S>(
-    remote_description: SessionDescription,
+    signal: Signal,
+    // remote_description: SessionDescription,
+    // signalling_user_id: String,
     handle_data_channel: &F,
 ) -> Result<(
     SessionDescription,
     impl Stream<Item = IceCandidate>,
 )>
 where
-    F: Fn(Pin<Box<dyn Stream<Item = Vec<u8>> + 'static + Send + Sync>>) -> Fut + 'static,
+    F: Fn(
+        Signal,
+        Pin<Box<dyn Stream<Item = Vec<u8>> + 'static + Send + Sync>>,
+    ) -> Fut + 'static,
     Fut: Future<Output = Result<S>> + 'static,
     S: Stream<Item = Vec<u8>> + Send + 'static,
 {
@@ -190,9 +196,10 @@ where
 
     let mut dc = pc.create_data_channel("graphql", channel)?;
 
-    pc.set_remote_description(&remote_description)?;
+    pc.set_remote_description(&signal.offer)?;
 
     let dc_input_msgs = handle_data_channel(
+        signal,
         Box::pin(dc_output_receiver)
     )
         .await?;
