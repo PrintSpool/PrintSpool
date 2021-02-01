@@ -6,6 +6,7 @@ use teg_auth::{
 use teg_machine::{
     ConfigMutation,
     MachineMutation,
+    VideoMutation,
 };
 
 use teg_material::MaterialMutation;
@@ -19,6 +20,7 @@ pub struct Mutation(
     // machine
     ConfigMutation,
     MachineMutation,
+    VideoMutation,
     // material
     MaterialMutation,
     // print queue

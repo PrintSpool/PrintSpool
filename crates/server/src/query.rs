@@ -10,6 +10,7 @@ use teg_material::MaterialQuery;
 use teg_machine::{
     ConfigQuery,
     MachineQuery,
+    VideoQuery,
 };
 
 use teg_print_queue::PrintQueueQuery;
@@ -26,6 +27,7 @@ pub struct Query(
     // machine
     ConfigQuery,
     MachineQuery,
+    VideoQuery,
     // material
     MaterialQuery,
     // print queue
