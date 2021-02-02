@@ -5,9 +5,9 @@ import React, {
   useState,
   useContext,
 } from 'react'
-import { ApolloProvider } from 'react-apollo'
+import { ApolloProvider } from '@apollo/client'
 import useReactRouter from 'use-react-router'
-import { ApolloProvider as ApolloHooksProvider } from 'react-apollo-hooks'
+import { ApolloProvider as ApolloHooksProvider } from '@apollo/client'
 
 import { ApolloClient } from 'apollo-client'
 import { InMemoryCache } from 'apollo-cache-inmemory'

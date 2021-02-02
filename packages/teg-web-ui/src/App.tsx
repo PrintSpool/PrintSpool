@@ -14,7 +14,7 @@ import { GraphQL, GraphQLProvider } from 'graphql-react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import useRouter from 'use-react-router'
 
-import TegApolloProvider from './TegApolloProvider'
+import TegApolloProvider from './webrtc/TegApolloProvider'
 import { AuthProvider } from './common/auth'
 
 import PrintFilesContext from './printer/printDialog/PrintFilesContext'
@@ -36,7 +36,7 @@ const RouterErrorBoundary = ({ children }) => {
 
   return (
     <ErrorBoundary
-      FallbackComponent={ErrorFallback}
+      FallbackComponent={ErrorFallback as any}
       resetKeys={[location.pathname]}
     >
       {children}

@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { Link } from 'react-router-dom'
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 
 import Divider from '@material-ui/core/Divider'
 import List from '@material-ui/core/List'

@@ -2,8 +2,8 @@
 const userProfileServerFetchOptions = idToken => (options) => {
   let url
 
-  // const useDevUserProfileServer = true
-  const useDevUserProfileServer = false
+  const useDevUserProfileServer = true
+  // const useDevUserProfileServer = false
 
   if (
     process.env.NODE_ENV === 'production'

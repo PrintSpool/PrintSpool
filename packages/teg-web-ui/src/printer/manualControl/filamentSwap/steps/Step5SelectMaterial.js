@@ -5,10 +5,10 @@ import TextField from '@material-ui/core/TextField'
 import MenuItem from '@material-ui/core/MenuItem'
 import MUILink from '@material-ui/core/Link'
 
-import { useMutation } from 'react-apollo-hooks'
+import { useMutation } from '@apollo/client'
 import { useAsync } from 'react-async'
 import { useTranslation } from 'react-i18next'
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 import { Link } from 'react-router-dom'
 
 

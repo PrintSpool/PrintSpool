@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { useGraphQL, GraphQL } from 'graphql-react'
-import { useApolloClient } from 'react-apollo-hooks'
-import gql from 'graphql-tag'
+import { useApolloClient } from '@apollo/client'
 import { useAsync } from 'react-async'
 
 import {
@@ -23,14 +22,12 @@ import { useAuth } from '../../common/auth'
 import LoadingOverlay from '../../common/LoadingOverlay'
 
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
-import TegApolloProvider from '../../TegApolloProvider'
 
 const DeleteDialog = ({
   machine,
   onClose,
 }) => {
   const { fetchOptions } = useAuth()
-  const apollo = useApolloClient()
 
   const deleteMachine = useAsync({
     deferFn: async () => {
@@ -41,23 +38,14 @@ const DeleteDialog = ({
         fetchOptionsOverride: fetchOptions,
         operation: {
           query: `
-            mutation($machineID: String!) {
-              removeMachine(machineId: $machineID)
+            mutation($hostID: String!) {
+              removeHostFromUser(hostID: $hostID)
             }
           `,
           variables: {
-            machineID: machine && machine.id.toString(),
+            hostID: machine && machine.id.toString(),
           },
         },
-      })
-
-      // remove the user from the machine
-      await apollo.mutate({
-        mutation: gql`
-          mutation {
-            deleteCurrentUser
-          }
-        `,
       })
 
       await onClose()
@@ -150,7 +138,7 @@ const UserAccount = ({ auth0Token }) => {
   const machines = Object.values(cacheValue.data.my.machines)
 
   return (
-    <TegApolloProvider slug={deletionMachine && deletionMachine.slug}>
+    <>
       <StaticTopNavigation />
       <Typography variant="h5" component="h1">
         Account Settings
@@ -191,7 +179,7 @@ const UserAccount = ({ auth0Token }) => {
           }}
         />
       )}
-    </TegApolloProvider>
+    </>
   )
 }
 

@@ -1,10 +1,10 @@
 // TODO: work in progress
 import React, { useState, useContext } from 'react'
-import { useQuery, useMutation } from 'react-apollo-hooks'
+import { useQuery, useMutation } from '@apollo/client'
 import { useHistory } from 'react-router-dom'
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 import { Formik, Form } from 'formik'
-import { createInvite } from 'graphql-things'
+// import { createInvite } from 'graphql-things'
 import QRCode from 'qrcode.react'
 import base64url from 'base64url'
 import {
@@ -22,7 +22,7 @@ import {
 
 // import Page2 from './Page2'
 
-import { TegApolloContext } from '../../../../TegApolloProvider'
+import { TegApolloContext } from '../../../../webrtc/TegApolloProvider'
 
 import FormikSchemaForm from '../../components/FormikSchemaForm/index'
 import { useValidate } from '../../components/FormikSchemaForm/withValidate'
@@ -110,38 +110,40 @@ const enhance = Component => ({
   }
 
   const onSubmit = async (values, bag) => {
-    const nextInvite = await createInvite({
-      identityKeys: {
-        publicKey: tegApolloContext.peerIdentityPublicKey,
-      },
-    })
+    // TODO: update to server-side invite creation
 
-    const slug = base64url.fromBase64(nextInvite.code)
+    // const nextInvite = await createInvite({
+    //   identityKeys: {
+    //     publicKey: tegApolloContext.peerIdentityPublicKey,
+    //   },
+    // })
 
-    const webAppURL = `${window.location.protocol}//${window.location.host}`
-    const nextInviteURL = `${webAppURL}/i/${slug}`
+    // const slug = base64url.fromBase64(nextInvite.code)
 
-    if (wizard.activeStep === 0) {
-      await addInviteMutation({
-        variables: {
-          input: {
-            publicKey: nextInvite.keys.publicKey,
-            ...values.model,
-          },
-        },
-      })
+    // const webAppURL = `${window.location.protocol}//${window.location.host}`
+    // const nextInviteURL = `${webAppURL}/i/${slug}`
 
-      updateWizard({
-        ...wizard,
-        activeStep: wizard.activeStep + 1,
-        invite: nextInvite,
-        inviteURL: nextInviteURL,
-      })
+    // if (wizard.activeStep === 0) {
+    //   await addInviteMutation({
+    //     variables: {
+    //       input: {
+    //         publicKey: nextInvite.keys.publicKey,
+    //         ...values.model,
+    //       },
+    //     },
+    //   })
 
-      bag.setSubmitting(false)
-    } else {
-      close(bag)
-    }
+    //   updateWizard({
+    //     ...wizard,
+    //     activeStep: wizard.activeStep + 1,
+    //     invite: nextInvite,
+    //     inviteURL: nextInviteURL,
+    //   })
+
+    //   bag.setSubmitting(false)
+    // } else {
+    //   close(bag)
+    // }
   }
 
   if (error != null) {

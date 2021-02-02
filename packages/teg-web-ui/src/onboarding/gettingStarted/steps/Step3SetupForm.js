@@ -6,8 +6,8 @@ import { Formik, Form } from 'formik'
 import { animated, useSpring } from 'react-spring'
 import Measure from 'react-measure'
 import classNames from 'classnames'
-import gql from 'graphql-tag'
-import { useApolloClient } from 'react-apollo-hooks'
+import { gql } from '@apollo/client'
+import { useApolloClient } from '@apollo/client'
 import { useAsync } from 'react-async'
 
 import {
@@ -61,7 +61,6 @@ const Step3SetupForm = ({
   schemaForm,
   history,
   location,
-  saveToUserProfile,
 }) => {
   const apollo = useApolloClient()
   // const machineDefName = useMemo(() => {
@@ -105,9 +104,6 @@ const Step3SetupForm = ({
     deferFn: async ([values, { setSubmitting }]) => {
       try {
         console.log({ values })
-
-        // Save the machine to the user's profile
-        await saveToUserProfile(values)
 
         // Create the machine's configuration
         const { data: { createMachine } } = await apollo.mutate({

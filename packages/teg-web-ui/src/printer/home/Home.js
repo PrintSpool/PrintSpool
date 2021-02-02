@@ -35,11 +35,14 @@ const Home = () => {
             picture
           }
           my {
-            machines {
+            hosts {
               id
-              publicKey
-              name
               slug
+              machines {
+                id
+                name
+                slug
+              }
             }
           }
         }
@@ -80,12 +83,12 @@ const Home = () => {
     return <div />
   }
 
-  const machines = Object.values(cacheValue.data.my.machines)
+  const hosts = Object.values(cacheValue.data.my.hosts)
 
   return (
     <>
       <StaticTopNavigation avatar={avatar} />
-      { machines.length > 0 && (
+      { hosts.length > 0 && (
         <Card className={classes.card} raised>
           <Typography
             variant="h6"
@@ -112,26 +115,28 @@ const Home = () => {
           </Typography>
 
           <List>
-            { machines.map(machine => (
-              <ListItem
-                key={machine.slug}
-                button
-                component={React.forwardRef((props, ref) => (
-                  <Link
-                    to={`/q/${machine.slug}/`}
-                    // className={classes.manage}
-                    innerRef={ref}
-                    {...props}
-                  />
-                ))}
-              >
-                <ListItemText primary={machine.name} />
-              </ListItem>
+            { hosts.map(host => (
+              host.machines.map(machine => (
+                <ListItem
+                  key={machine.slug}
+                  button
+                  component={React.forwardRef((props, ref) => (
+                    <Link
+                      to={`/q/${host.slug}/${machine.slug}`}
+                      // className={classes.manage}
+                      innerRef={ref}
+                      {...props}
+                    />
+                  ))}
+                >
+                  <ListItemText primary={machine.name} />
+                </ListItem>
+              ))
             ))}
           </List>
         </Card>
       )}
-      { machines.length === 0 && (
+      { hosts.length === 0 && (
         <div className={classes.emptyListMessage}>
           <Typography variant="h6" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
             It looks like you do not have any 3D printers setup yet.

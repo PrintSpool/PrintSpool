@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 
 import { LiveSubscription } from '../../../common/LiveSubscription'
 import Loading from '../../../common/Loading'

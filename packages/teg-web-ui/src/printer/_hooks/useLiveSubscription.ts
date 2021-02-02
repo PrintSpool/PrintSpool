@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-import { useSubscription } from 'react-apollo-hooks'
+import { useSubscription } from '@apollo/client'
 import jsonpatch from 'json-patch'
 import { useAsync } from 'react-async'
 

@@ -5,8 +5,6 @@ import {
   Button,
 } from '@material-ui/core'
 
-import { CONNECTION_TIMEOUT } from 'graphql-things'
-
 import ErrorFallbackStyles from './ErrorFallback.styles'
 
 // gql`
@@ -19,16 +17,16 @@ import ErrorFallbackStyles from './ErrorFallback.styles'
 const ErrorFallback = ({ error }) => {
   const classes = ErrorFallbackStyles()
 
-  if (error.code === CONNECTION_TIMEOUT) {
-    return (
-      <div>
-        Connection Timed Out
-        <Button onClick={() => null}>
-          Reconnect
-        </Button>
-      </div>
-    )
-  }
+  // if (error.code === CONNECTION_TIMEOUT) {
+  //   return (
+  //     <div>
+  //       Connection Timed Out
+  //       <Button onClick={() => null}>
+  //         Reconnect
+  //       </Button>
+  //     </div>
+  //   )
+  // }
 
   // GraphQL Errors use error.location and JS Errors use error.stack
   const stack = error.stack == null ? error.location : error.stack.split('\n')

@@ -16,7 +16,7 @@ import Settings from '@material-ui/icons/Settings'
 import Home from '@material-ui/icons/Home'
 
 import { Link } from 'react-router-dom'
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 import useStyles from './Drawer.styles'
 import useRouter from 'use-react-router'
 

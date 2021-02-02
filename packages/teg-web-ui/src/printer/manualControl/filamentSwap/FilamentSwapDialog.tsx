@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'
@@ -23,7 +23,7 @@ import Step7LoadFilament from './steps/Step7LoadFilament'
 import Step8AdjustNewFilament from './steps/Step8AdjustNewFilament'
 
 import useStyles from './FilamentSwapDialogStyles'
-import { useMutation } from 'react-apollo-hooks'
+import { useMutation } from '@apollo/client'
 
 const FILAMENT_SWAP_SUBSCRIPTION = gql`
   subscription MaterialsSubscription($machineID: ID, $componentID: ID) {

@@ -1,8 +1,8 @@
 import React from 'react'
 import { compose, withProps } from 'recompose'
 import { withRouter } from 'react-router'
-import gql from 'graphql-tag'
-import { Query, Mutation } from 'react-apollo'
+import { gql } from '@apollo/client'
+import { Query, Mutation } from '@apollo/client'
 import { Link } from 'react-router-dom'
 import { Formik, Form } from 'formik'
 

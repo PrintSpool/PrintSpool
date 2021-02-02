@@ -2,8 +2,8 @@ import React from 'react'
 import { useHistory } from 'react-router-dom'
 import { useAsync } from 'react-async'
 
-import { useQuery, useApolloClient } from 'react-apollo-hooks'
-import gql from 'graphql-tag'
+import { useQuery, useApolloClient } from '@apollo/client'
+import { gql } from '@apollo/client'
 
 import { useDelete } from '../components/useDeleteConfig'
 import Loading from '../../../common/Loading'

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import gql from 'graphql-tag'
-import { useMutation } from 'react-apollo-hooks'
+import { gql } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 
 const viewMachine = ({ machine }) => {
   const CONTINUE_VIEWING = gql`

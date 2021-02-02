@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 
-import { useMutation } from 'react-apollo-hooks'
+import { useMutation } from '@apollo/client'
 import useRouter from 'use-react-router'
 
 import useConfirm from '../../../common/_hooks/useConfirm'

@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 
-import { useMutation, MutationResult } from 'react-apollo-hooks'
-import gql from 'graphql-tag'
+import { useMutation, MutationResult } from '@apollo/client'
+import { gql } from '@apollo/client'
 
 const createJobGraphQL = gql`
   mutation createJob($input: CreateJobInput!) {
@@ -25,28 +25,28 @@ const useCreateJobMutation = (
       name: files.map(f => f.name).join(', '),
       files: [],
     }
-  
+
     // read each file into memory
     await Promise.all(
       files.map(async (file) => {
         const { name } = file
-  
+
         /* read the file */
         // eslint-disable-next-line no-undef
         const fileReader = new FileReader()
         fileReader.readAsText(file)
-  
+
         await new Promise((resolve) => {
           fileReader.onload = resolve
         })
-  
+
         mutationInput.files.push({
           name,
           content: fileReader.result,
         })
       }),
     )
-  
+
     /* execute the mutation */
     return mutation({
       variables: {

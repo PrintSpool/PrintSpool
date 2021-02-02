@@ -1,10 +1,10 @@
 import React from 'react'
 import useReactRouter from 'use-react-router'
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 
 import useLiveSubscription from '../../_hooks/useLiveSubscription'
 import PrinterComponentsView from './PrinterComponents.view'
-import { useMutation } from 'react-apollo-hooks'
+import { useMutation } from '@apollo/client'
 
 const COMPONENTS_SUBSCRIPTION = gql`
   subscription ConfigSubscription($machineID: ID!) {

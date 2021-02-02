@@ -10,8 +10,8 @@ import {
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 
-import { useQuery, useApolloClient } from 'react-apollo-hooks'
-import gql from 'graphql-tag'
+import { useQuery, useApolloClient } from '@apollo/client'
+import { gql } from '@apollo/client'
 
 import UpdateDialog from '../components/UpdateDialog/Index'
 import { useDelete } from '../components/useDeleteConfig'

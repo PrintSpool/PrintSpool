@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 
-import { useApolloClient } from 'react-apollo-hooks'
+import { useApolloClient } from '@apollo/client'
 import { Provider } from 'react-redux'
 import { Playground, store } from 'graphql-playground-react'
 

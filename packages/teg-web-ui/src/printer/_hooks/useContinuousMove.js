@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useMutation } from 'react-apollo-hooks'
+import { useMutation } from '@apollo/client'
 import { EXEC_GCODES } from './useExecGCodes'
 
 const useContinuousMove = ({

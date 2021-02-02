@@ -1,6 +1,6 @@
 import React from 'react'
-import gql from 'graphql-tag'
-import { useMutation, useQuery } from 'react-apollo-hooks'
+import { gql } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client'
 
 import JobQueueView from './JobQueue.view'
 

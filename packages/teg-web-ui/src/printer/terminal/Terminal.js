@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import Link from '@material-ui/core/Link'
 
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 
 import useExecGCodes from '../_hooks/useExecGCodes'
 import useLiveSubscription from '../_hooks/useLiveSubscription'

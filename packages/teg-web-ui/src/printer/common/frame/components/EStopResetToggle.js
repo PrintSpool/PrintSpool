@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import classNames from 'classnames'
-import { useMutation } from 'react-apollo-hooks'
-import gql from 'graphql-tag'
+import { useMutation } from '@apollo/client'
+import { gql } from '@apollo/client'
 
 import Button from '@material-ui/core/Button'
 import { makeStyles } from '@material-ui/core/styles'

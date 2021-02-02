@@ -8,7 +8,7 @@ import {
 import Step4BackupStyles from './Step4BackupStyles'
 
 import ButtonsFooter from '../ButtonsFooter'
-import { TegApolloContext } from '../../../TegApolloProvider'
+import { TegApolloContext } from '../../../webrtc/TegApolloProvider'
 
 const Step4Backup = ({
   className,

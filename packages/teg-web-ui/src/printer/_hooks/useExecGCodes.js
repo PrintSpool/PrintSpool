@@ -1,8 +1,8 @@
 import { useCallback } from 'react'
-import { useMutation } from 'react-apollo-hooks'
+import { useMutation } from '@apollo/client'
 import { useAsync } from 'react-async'
 
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 
 export const EXEC_GCODES = gql`
   mutation execGCodes($input: ExecGCodesInput!) {

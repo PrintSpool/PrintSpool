@@ -1,8 +1,8 @@
 import React from 'react'
 import { compose, withState, withProps } from 'recompose'
 import { withRouter } from 'react-router'
-import gql from 'graphql-tag'
-import { Mutation } from 'react-apollo'
+import { gql } from '@apollo/client'
+import { Mutation } from '@apollo/client'
 import { Formik, Form } from 'formik'
 
 import Dialog from '@material-ui/core/Dialog'

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 import { useAsync } from 'react-async'
 
 import Button from '@material-ui/core/Button'
@@ -12,7 +12,7 @@ import PrintDialogContent from './PrintDialogContent'
 import useCreateJobMutation from './useCreateJobMutation'
 
 import useLiveSubscription from '../_hooks/useLiveSubscription'
-import { useMutation } from 'react-apollo-hooks'
+import { useMutation } from '@apollo/client'
 
 const PRINT_DIALOG_SUBSCRIPTION = gql`
   subscription PrintDialogSubscription {

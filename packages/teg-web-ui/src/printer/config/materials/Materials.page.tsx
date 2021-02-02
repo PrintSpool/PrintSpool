@@ -14,7 +14,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import Style from '@material-ui/icons/Style'
 import Add from '@material-ui/icons/Add'
 
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 
 import withLiveData from '../../common/higherOrderComponents/withLiveData'
 

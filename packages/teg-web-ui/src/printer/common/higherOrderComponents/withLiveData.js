@@ -3,7 +3,7 @@ import Loader from 'react-loader-advanced'
 
 import { makeStyles } from '@material-ui/core/styles'
 
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 
 import { LiveSubscription } from '../../../common/LiveSubscription'
 

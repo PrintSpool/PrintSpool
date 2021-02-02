@@ -13,7 +13,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import PersonOutline from '@material-ui/icons/PersonOutline'
 import Add from '@material-ui/icons/Add'
 
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 
 import UpdateDialog from '../components/UpdateDialog/Index'
 import CreateInviteDialog from './create/CreateInviteDialog'

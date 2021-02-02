@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
-import { Query } from 'react-apollo'
-import gql from 'graphql-tag'
+import { Query } from '@apollo/client'
+import { gql } from '@apollo/client'
 
 import {
   Stepper,
@@ -10,8 +10,8 @@ import {
 } from '@material-ui/core'
 
 // import { parseInviteCode } from 'graphql-things/client'
-import { parseInviteCode } from 'graphql-things'
-import base64url from 'base64url'
+// import { parseInviteCode } from 'graphql-things'
+// import base64url from 'base64url'
 
 import { LiveSubscription } from '../../common/LiveSubscription'
 
@@ -61,15 +61,7 @@ const GettingStarted = ({
   const invite = useMemo(() => {
     const params = new URLSearchParams(location.search)
 
-    let inviteCode = params.get('invite')
-
-    if (inviteCode == null) {
-      return null
-    }
-
-    inviteCode = base64url.toBase64(inviteCode)
-
-    return parseInviteCode(inviteCode)
+    return params.get('invite')
   })
 
   return (

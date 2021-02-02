@@ -2,7 +2,7 @@ import React from 'react'
 import { compose, withProps } from 'recompose'
 import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
-import gql from 'graphql-tag'
+import { gql } from '@apollo/client'
 
 import {
   List,

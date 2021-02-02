@@ -8,12 +8,12 @@ import React, {
 import { makeStyles } from '@material-ui/core/styles'
 import { useAsync } from 'react-async'
 
-import { useApolloClient } from 'react-apollo-hooks'
-import gql from 'graphql-tag'
+import { useApolloClient } from '@apollo/client'
+import { gql } from '@apollo/client'
 
 import SimplePeer from 'simple-peer'
 
-import { TegApolloContext } from '../../../TegApolloProvider'
+import { TegApolloContext } from '../../../webrtc/TegApolloProvider'
 import LoadingOverlay from '../../../common/LoadingOverlay'
 import ErrorFallback from '../../../common/ErrorFallback'
 

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { Query } from 'react-apollo'
-import gql from 'graphql-tag'
+import { Query } from '@apollo/client'
+import { gql } from '@apollo/client'
 import { GraphQL } from 'graphql-react'
-import { useMutation } from 'react-apollo-hooks'
+import { useMutation } from '@apollo/client'
 import { useAsync } from 'react-async'
 import { Link } from 'react-router-dom'
 
@@ -44,41 +44,12 @@ const Step3Setup = ({
   history,
   location,
   setSkippedStep3,
-  invite,
 }) => {
   const classes = useStyles()
   const [machineDefinitionURL, setMachineDefinitionURL] = useState('placeholder')
   const { fetchOptions } = useAuth()
 
   const [consumeInvite] = useMutation(CONSUME_INVITE)
-
-  const saveToUserProfile = async (values) => {
-    const graphql = new GraphQL()
-
-    const { cacheValuePromise } = graphql.operate({
-      fetchOptionsOverride: fetchOptions,
-      operation: {
-        query: `
-          mutation($input: CreateMachineInput!) {
-            createMachine(input: $input) { id }
-          }
-        `,
-        variables: {
-          input: {
-            publicKey: invite.peerIdentityPublicKey,
-            name: values.name,
-            slug: getID(invite),
-          },
-        },
-      },
-    })
-
-    const { data: userProfileData, ...errors } = await cacheValuePromise
-
-    if (userProfileData == null) {
-      throw new Error(JSON.stringify(errors))
-    }
-  }
 
   // const {
   //   suggestions,
@@ -90,10 +61,7 @@ const Step3Setup = ({
   // skip step 3 for configured 3D printers
   const skipStep3Async = useAsync({
     deferFn: async () => {
-      await saveToUserProfile({
-        name: data.jobQueue.name,
-      })
-      await consumeInvite()
+      // await consumeInvite()
       setSkippedStep3(true)
       history.push(`/get-started/4${location.search}`)
     },
@@ -185,7 +153,6 @@ const Step3Setup = ({
           loadingMachineSettings={loadingMachineSettings}
           machineSettingsError={machineSettingsError}
           schemaForm={settingsData && settingsData.schemaForm}
-          saveToUserProfile={saveToUserProfile}
         />
       )}
     </Query>
