@@ -1,4 +1,4 @@
-#![type_length_limit="15941749"]
+// #![type_length_limit="15941749"]
 // #[macro_use] extern crate tracing;
 // #[macro_use] extern crate derive_new;
 
@@ -40,6 +40,11 @@ pub type DbId = teg_json_store::DbId;
 #[derive(Deserialize)]
 struct IdFromConfig {
     id: crate::DbId,
+}
+
+#[derive(Deserialize)]
+struct InitPayload {
+    identity_public_key: Option<String>,
 }
 
 fn main() -> Result<()> {
@@ -91,15 +96,15 @@ async fn app() -> Result<()> {
         .filter_map(|result| result.transpose())
         .collect::<Result<_>>()?;
 
-    let db_clone = db.clone();
     let machines = machine_ids
         .into_iter()
         .map(|machine_id| {
-            let db_clone = db_clone.clone();
+            let db = db.clone();
             async move {
-                let machine = Machine::start(db_clone, &machine_id)
-                    .await?;
-                Result::<_>::Ok((async_graphql::ID::from(machine_id), machine))
+                let machine = Machine::start(db, &machine_id).await?;
+                let id: async_graphql::ID = machine_id.into();
+
+                Result::<_>::Ok((id, machine))
             }
         });
 
@@ -110,12 +115,6 @@ async fn app() -> Result<()> {
 
     let machines: MachineMap = Arc::new(ArcSwap::new(Arc::new(machines)));
 
-    let schema = async_graphql::Schema::new(
-        <query::Query>::default(),
-        <mutation::Mutation>::default(),
-        async_graphql::EmptySubscription,
-    );
-
     // let (
     //     auth_pem_keys,
     //     auth_pem_keys_watcher,
@@ -123,7 +122,17 @@ async fn app() -> Result<()> {
 
     let server_keys = Arc::new(teg_auth::ServerKeys::load_or_create().await?);
 
-    let machines_clone = machines.clone();
+    // Build the server
+    let schema = async_graphql::Schema::build(
+        query::Query::default(),
+        mutation::Mutation::default(),
+        async_graphql::EmptySubscription,
+    )
+        .extension(async_graphql::extensions::Tracing::default())
+        .data(db.clone())
+        .data(machines.clone())
+        .data(server_keys.clone())
+        .finish();
 
     let signalling_future = teg_data_channel::listen_for_signalling(
         &server_keys,
@@ -132,13 +141,7 @@ async fn app() -> Result<()> {
             let schema = schema.clone();
             let db = db.clone();
             // let auth_pem_keys = auth_pem_keys.clone();
-            let machines = machines_clone.clone();
             let initializer = |init_payload| async move {
-                #[derive(Deserialize)]
-                struct InitPayload {
-                    identity_public_key: Option<String>,
-                }
-
                 let InitPayload {
                     identity_public_key,
                 } = serde_json::from_value(init_payload)?;
@@ -156,9 +159,7 @@ async fn app() -> Result<()> {
 
                 let mut data = async_graphql::Data::default();
 
-                data.insert(db.clone());
                 data.insert(auth_context);
-                data.insert(machines);
 
                 Ok(data)
             };

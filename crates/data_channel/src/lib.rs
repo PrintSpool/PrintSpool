@@ -67,10 +67,14 @@ enum GraphQLWSMessage {
     ConnectionAck {
         payload: Option<serde_json::Value>,
     },
+    ConnectionError {
+        payload: Option<serde_json::Value>,
+    },
     Subscribe {
         id: String,
         payload: SubscribeMessagePayload,
     },
+    #[serde(alias = "data")]
     Next {
         id: String,
         payload: ExecutionResult,
@@ -103,11 +107,12 @@ where
     let machines = machines.load();
 
     let jwt_headers = serde_json::json!({
-        "aud": signalling_url,
-        "exp": (Utc::now() + Duration::minutes(10)).timestamp(),
     });
 
     let jwt_payload = serde_json::json!({
+        "sub": "self",
+        "aud": signalling_url,
+        "exp": (Utc::now() + Duration::minutes(10)).timestamp(),
         "selfSignature": true,
     });
 
@@ -136,7 +141,6 @@ where
     };
 
     let msg = serde_json::to_string(&msg)?;
-    println!("Sending: \"{}\"", msg);
     ws_stream.send(Message::Text(msg)).await?;
 
     let msg = ws_stream
@@ -145,7 +149,8 @@ where
         .ok_or_else(|| eyre!("didn't receive anything"))??
         .into_text()?;
 
-    let msg: GraphQLWSMessage = serde_json::from_str(&msg)?;
+    let msg: GraphQLWSMessage = serde_json::from_str(&msg)
+        .wrap_err_with(|| format!("Error parsing GraphQL WS Message:\n{:?}", msg))?;
     if let GraphQLWSMessage::ConnectionAck {..} = msg {
     } else {
         Err(eyre!("Expected ConnectionAck, received: {:?}", msg))?;
@@ -169,23 +174,25 @@ where
     let msg = GraphQLWSMessage::Subscribe {
         id: NEXT_MESSAGE_ID.fetch_add(1, Ordering::SeqCst).to_string(),
         payload: SubscribeMessagePayload {
-            operation_name: Some("registerMachines".to_string()),
+            operation_name: Some("registerMachinesFromHost".to_string()),
             query: r#"
-                mutation registerMachines(
-                    machines: RegisterMachinesInput!
+                mutation registerMachinesFromHost(
+                    $input: RegisterMachinesInput!
                 ) {
-                    registerMachines(input: machines)
+                    registerMachinesFromHost(input: $input) {
+                        id
+                    }
                 }
             "#.to_string(),
             variables: Some(serde_json::json!({
-                // TODO: list the machine IDs here
-                "machines": machines_json,
+                "input": {
+                    "machines": machines_json,
+                },
             })),
         },
     };
 
     let msg = serde_json::to_string(&msg)?;
-    println!("Sending: \"{}\"", msg);
     ws_stream.send(Message::Text(msg)).await?;
 
     let msg = ws_stream
@@ -194,10 +201,14 @@ where
         .ok_or_else(|| eyre!("didn't receive anything"))??
         .into_text()?;
 
-    let msg: GraphQLWSMessage = serde_json::from_str(&msg)?;
-    if let GraphQLWSMessage::Next {..} = msg {
+    let msg: GraphQLWSMessage = serde_json::from_str(&msg)
+        .wrap_err_with(|| format!("Error parsing GraphQL WS Message:\n{:?}", msg))?;
+    if let GraphQLWSMessage::Next {
+        payload: ExecutionResult { data: Some(_), errors: None },
+        ..
+    } = msg {
     } else {
-        Err(eyre!("Expected Next, received: {:?}", msg))?;
+        Err(eyre!("Expected Next with data, received: {:?}", msg))?;
     }
 
     let msg = ws_stream
@@ -218,14 +229,14 @@ where
     let msg = GraphQLWSMessage::Subscribe {
         id: rx_signals_id.clone(),
         payload: SubscribeMessagePayload {
-            operation_name: Some("receiveSignals".to_string()),
+            operation_name: Some("connectionRequested".to_string()),
             query: r#"
-                subscribe receiveSignals {
-                    receiveSignals {
-                        user_id
+                subscription connectionRequested {
+                    connectionRequested {
+                        userID
                         email
-                        email_verified
-                        session_id
+                        emailVerified
+                        sessionID
                         offer
                     }
                 }
@@ -235,7 +246,6 @@ where
     };
 
     let msg = serde_json::to_string(&msg)?;
-    println!("Sending: \"{}\"", msg);
     ws_stream.send(Message::Text(msg)).await?;
 
     // Listen to the incoming stream of signals and open WebRTC data channels
@@ -260,6 +270,8 @@ where
             };
         }
     });
+
+    info!("Listening for WebRTC Connections from {}", signalling_url);
 
     while let Some(msg) = ws_read.next().await {
         let msg = msg?.into_text()?;
@@ -309,12 +321,14 @@ where
                 let msg = GraphQLWSMessage::Subscribe {
                     id: NEXT_MESSAGE_ID.fetch_add(1, Ordering::SeqCst).to_string(),
                     payload: SubscribeMessagePayload {
-                        operation_name: Some("answerSignal".to_string()),
+                        operation_name: Some("respondToConnectionRequest".to_string()),
                         query: r#"
-                            mutation answerSignal(
-                                input: AnswerSignalInput!
+                            mutation respondToConnectionRequest(
+                                $input: RespondToConnectionRequestInput!
                             ) {
-                                answerSignal(input: input)
+                                respondToConnectionRequest(input: $input) {
+                                    id
+                                }
                             }
                         "#.to_string(),
                         variables: Some(serde_json::json!({
@@ -328,7 +342,6 @@ where
                 };
 
                 let msg = serde_json::to_string(&msg)?;
-                println!("Sending: \"{}\"", msg);
                 ws_write.send(Message::Text(msg)).await?;
 
                 // Commented out: trickle ICE candidates were previously considered but have been
@@ -345,9 +358,9 @@ where
                 //                 operation_name: Some("sendICECandidatesToClient".to_string()),
                 //                 query: r#"
                 //                     mutation sendICECandidatesToClient(
-                //                         input: SendICECandidatesInput!
+                //                         $input: SendICECandidatesInput!
                 //                     ) {
-                //                         sendICECandidatesToClient(input: input)
+                //                         sendICECandidatesToClient(input: $input)
                 //                     }
                 //                 "#.to_string(),
                 //                 variables: Some(serde_json::json!({
@@ -360,7 +373,6 @@ where
                 //         };
 
                 //         let msg = serde_json::to_string(&msg)?;
-                //         println!("Sending: \"{}\"", msg);
                 //         ws_clone.send(Message::Text(msg)).await?;
                 //     }
                 //     Result::<()>::Ok(())
