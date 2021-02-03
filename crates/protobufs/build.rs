@@ -5,10 +5,6 @@ use std::env;
 fn main() {
     let cargo_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let mut protos_path = cargo_path.clone();
-    // protos_path.pop();
-    // protos_path.push("teg-protobufs");
-    protos_path.pop();
-    protos_path.pop();
     protos_path.push("protos");
 
     if !protos_path.as_path().exists() {
@@ -24,6 +20,7 @@ fn main() {
     config.compile_protos(
         &[
             protos_path.join("CombinatorMessage.proto").to_owned().to_str().unwrap(),
+            protos_path.join("InviteCode.proto").to_owned().to_str().unwrap(),
             protos_path.join("MachineMessage.proto").to_owned().to_str().unwrap(),
         ],
         &includes

@@ -6,8 +6,12 @@ edition = "2018"
 build = "build.rs"
 
 [[bin]]
-name = "teg_server"
+name = "teg-server"
 path = "src/main.rs"
+
+[[bin]]
+name = "teg-invite"
+path = "src/bin/invite.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

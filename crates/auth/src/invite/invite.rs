@@ -1,3 +1,5 @@
+use std::sync::Arc;
+use sha2::{Sha512, Digest};
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use eyre::{
@@ -7,7 +9,7 @@ use eyre::{
 };
 use teg_json_store::Record;
 
-use crate::user::User;
+use crate::ServerKeys;
 use super::InviteConfig;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -18,77 +20,67 @@ pub struct Invite {
 
     pub config: InviteConfig,
 
-    pub public_key: String,
-    pub private_key: Option<String>,
-    pub slug: Option<String>,
+    pub secret_hash: String,
 }
 
 impl Invite {
     pub async fn generate_and_display(
         db: &crate::Db,
+        server_keys: &Arc<ServerKeys>,
         is_admin: bool,
     ) -> Result<Self> {
-        let invite = Self::new(db, is_admin).await?;
-        invite.print_welcome_text()?;
+        let (slug, invite) = Self::new(db, server_keys, is_admin).await?;
+        invite.print_welcome_text(slug)?;
 
         Ok(invite)
     }
 
-    pub async fn generate_or_display_initial_invite(
-        db: &crate::Db,
-    ) -> Result<()> {
-        let have_any_admins = User::get_all(db).await?
-            .iter()
-            .any(|user| user.config.is_admin);
+    // pub async fn generate_or_display_initial_invite(
+    //     db: &crate::Db,
+    //     server_keys: &Arc<ServerKeys>,
+    // ) -> Result<()> {
+    //     let have_any_admins = User::get_all(db).await?
+    //         .iter()
+    //         .any(|user| user.config.is_admin);
 
-        if !have_any_admins {
-            let initial_invite = Self::get_all(db).await?
-                .into_iter()
-                .find(|invite| {
-                    invite.config.is_admin && invite.slug.is_some()
-                });
+    //     if !have_any_admins {
+    //         let initial_invite = Self::get_all(db).await?
+    //             .into_iter()
+    //             .find(|invite| {
+    //                 invite.config.is_admin && invite.slug.is_some()
+    //             });
 
-            let initial_invite = match initial_invite {
-                Some(invite) => invite,
-                None => Self::new(db, true).await?,
-            };
+    //         let initial_invite = match initial_invite {
+    //             Some(invite) => invite,
+    //             None => Self::new(db, server_keys, true).await?,
+    //         };
 
-            initial_invite.print_welcome_text()?;
-        };
+    //         initial_invite.print_welcome_text()?;
+    //     };
 
-        Ok(())
-    }
+    //     Ok(())
+    // }
 
     pub async fn new(
         db: &crate::Db,
+        server_keys: &Arc<ServerKeys>,
         is_admin: bool,
-    ) -> Result<Self> {
-        use secp256k1::{
-            rand::rngs::OsRng,
-            Secp256k1,
-        };
+    ) -> Result<(String, Self)> {
+        use rand_core::{RngCore, OsRng};
 
-        let secp = Secp256k1::new();
-        let mut rng = OsRng::new().expect("OsRng");
-        let (binary_private_key, binary_public_key) = secp.generate_keypair(&mut rng);
+        // 128 Bit Secrets
+        let mut secret = [0u8; 128 / 8];
+        OsRng.fill_bytes(&mut secret);
 
-        use hex::ToHex;
+        let slug = Self::generate_slug(server_keys, secret.to_vec())?;
 
-        let private_key = format!("{:x}", binary_private_key);
-        let public_key = binary_public_key
-            .serialize_uncompressed()
-            .to_vec()
-            .encode_hex::<String>();
-
-        let slug = Self::generate_slug(private_key.clone())?;
+        let secret_hash = format!("{:x}", Sha512::digest(&secret));
 
         let invite = Invite {
             id: nanoid!(11),
             version: 0,
             created_at: Utc::now(),
-            private_key: Some(private_key),
-            public_key,
-            slug: Some(slug),
+            secret_hash,
             config: InviteConfig {
                 is_admin,
             },
@@ -96,21 +88,22 @@ impl Invite {
 
         invite.insert(db).await?;
 
-        Ok(invite)
+        Ok((slug, invite))
     }
 }
 
 impl Invite {
+    // TODO: rename this function
     pub async fn get_by_pk<'e, 'c, E>(
         db: E,
-        public_key: &str,
+        secret_hash: &str,
     ) -> Result<Self>
     where
         E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
     {
         let row = sqlx::query!(
-            "SELECT props FROM invites WHERE public_key = ?",
-            public_key,
+            "SELECT props FROM invites WHERE secret_hash = ?",
+            secret_hash,
         )
             .fetch_one(db)
             .await?;
@@ -144,15 +137,15 @@ impl Record for Invite {
         sqlx::query!(
             r#"
                 INSERT INTO invites
-                (id, version, props, public_key)
+                (id, version, props, secret_hash)
                 VALUES (?, ?, ?, ?)
             "#,
             self.id,
             self.version,
             json,
-            self.public_key,
+            self.secret_hash,
         )
-            .fetch_one(db)
+            .fetch_optional(db)
             .await?;
         Ok(())
     }

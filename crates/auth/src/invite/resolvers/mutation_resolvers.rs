@@ -1,4 +1,4 @@
-use chrono::prelude::*;
+use std::sync::Arc;
 use async_graphql::{
     FieldResult,
     ID,
@@ -11,7 +11,7 @@ use eyre::{
 };
 use teg_json_store::Record as _;
 
-use crate::{AuthContext, invite::consume_invite, user::User};
+use crate::{AuthContext, ServerKeys, invite::consume_invite, user::User};
 use crate::invite::{
     Invite,
     InviteConfig,
@@ -24,6 +24,13 @@ use crate::invite::{
 pub struct CreateInviteInput {
     pub public_key: String,
     pub is_admin: Option<bool>,
+}
+
+#[derive(async_graphql::SimpleObject)]
+pub struct CreateInvite {
+    pub invite: Invite,
+    /// Link to consume the invite. Only generated once for each invite.
+    pub invite_link: String,
 }
 
 #[derive(async_graphql::InputObject)]
@@ -52,27 +59,23 @@ impl InviteMutation {
         &self,
         ctx: &'ctx Context<'_>,
         input: CreateInviteInput,
-    ) -> FieldResult<Invite> {
+    ) -> FieldResult<CreateInvite> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
+        let server_keys: &Arc<ServerKeys> = ctx.data()?;
 
         auth.authorize_admins_only()?;
 
-        let invite = Invite {
-            id: nanoid!(11),
-            version: 0,
-            created_at: Utc::now(),
-            config: InviteConfig {
-                is_admin: input.is_admin.unwrap_or(false),
-            },
-            public_key: input.public_key,
-            private_key: None,
-            slug: None,
-        };
+        let (invite_link, invite) = Invite::new(
+            db,
+            server_keys,
+            input.is_admin.unwrap_or(false),
+        ).await?;
 
-        invite.insert(db).await?;
-
-        Ok(invite)
+        Ok(CreateInvite {
+            invite_link,
+            invite,
+        })
     }
 
     async fn update_invite<'ctx>(&self, ctx: &'ctx Context<'_>, input: UpdateInvite) -> FieldResult<Invite> {

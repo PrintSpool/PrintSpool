@@ -48,11 +48,11 @@ struct InitPayload {
 }
 
 fn main() -> Result<()> {
-    dotenv::dotenv().ok();
     async_std::task::block_on(app())
 }
 
 async fn app() -> Result<()> {
+    dotenv::dotenv().ok();
     tracing_subscriber::fmt::init();
     color_eyre::install()?;
 

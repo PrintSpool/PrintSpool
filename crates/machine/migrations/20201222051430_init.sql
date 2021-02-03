@@ -21,14 +21,12 @@ CREATE TABLE invites(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
 
-  public_key TEXT NOT NULL,
-  slug TEXT NOT NULL,
+  secret_hash TEXT NOT NULL,
 
   props TEXT NOT NULL
 );
 
-CREATE UNIQUE INDEX invites_pk ON invites(public_key);
-CREATE UNIQUE INDEX invites_slug ON invites(slug);
+CREATE UNIQUE INDEX invites_secret_hash ON invites(secret_hash);
 
 CREATE TABLE machine_viewers(
   id TEXT PRIMARY KEY NOT NULL,

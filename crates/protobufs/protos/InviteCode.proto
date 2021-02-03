@@ -1,0 +1,8 @@
+syntax = "proto3";
+package teg_protobufs;
+
+// Combinators send CombinatorMessages
+message InviteCode {
+  bytes secret = 1;
+  bytes host_public_key = 2;
+}
