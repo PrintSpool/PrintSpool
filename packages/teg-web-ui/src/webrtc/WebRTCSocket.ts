@@ -30,14 +30,14 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
 
   private async init() {
     const {
-      iceServers,
+      // iceServers,
       connectToPeer,
     } = options
 
-    // const iceServers = [
-    //   { urls: 'stun:stun.l.google.com:19302' },
-    //   { urls: 'stun:global.stun.twilio.com:3478?transport=udp' },
-    // ]
+    const iceServers = [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:global.stun.twilio.com:3478?transport=udp' },
+    ]
     console.log({ iceServers })
 
     this.peer = new SimplePeer({

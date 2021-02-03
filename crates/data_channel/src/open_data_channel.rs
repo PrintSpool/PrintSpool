@@ -151,32 +151,32 @@ where
     let id = NEXT_ID.fetch_add(1, Ordering::SeqCst);
     let mode = ReliabilityMode::ReliableOrdered;
 
-    let ice_servers: Vec<String> = signal.ice_servers
-        .iter()
-        .map(|ice_server| {
-            ice_server.urls.iter().map(move |url| {
-                let url = match (&ice_server.username, &ice_server.credential) {
-                    (Some(username), Some(credential)) => {
-                       url.replacen(":", &format!(":{}:{}@", username, credential), 1)
-                    },
-                    (Some(username), None) => {
-                        url.replacen(":", &format!(":{}@", username), 1)
-                     },
-                     (None, None) => {
-                        url.clone()
-                     },
-                     _ => Err(eyre!("credential received without username"))?,
-                 };
-                 Ok(url)
-            })
-        })
-        .flatten()
-        .collect::<Result<_>>()?;
+    // let ice_servers: Vec<String> = signal.ice_servers
+    //     .iter()
+    //     .map(|ice_server| {
+    //         ice_server.urls.iter().map(move |url| {
+    //             let url = match (&ice_server.username, &ice_server.credential) {
+    //                 (Some(username), Some(credential)) => {
+    //                    url.replacen(":", &format!(":{}:{}@", username, credential), 1)
+    //                 },
+    //                 (Some(username), None) => {
+    //                     url.replacen(":", &format!(":{}@", username), 1)
+    //                  },
+    //                  (None, None) => {
+    //                     url.clone()
+    //                  },
+    //                  _ => Err(eyre!("credential received without username"))?,
+    //              };
+    //              Ok(url)
+    //         })
+    //     })
+    //     .flatten()
+    //     .collect::<Result<_>>()?;
 
-    // let ice_servers = vec![
-    //     "stun:stun.l.google.com:19302".to_string(),
-    //     "stun:global.stun.twilio.com:3478?transport=udp".to_string(),
-    // ];
+    let ice_servers = vec![
+        "stun:stun.l.google.com:19302".to_string(),
+        "stun:global.stun.twilio.com:3478?transport=udp".to_string(),
+    ];
     debug!("ice servers: {:?}", ice_servers);
 
     let conf = RtcConfig::new(&ice_servers[..]);
