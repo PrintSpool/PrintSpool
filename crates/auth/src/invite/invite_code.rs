@@ -12,8 +12,9 @@ use super::Invite;
 
 impl Invite {
     pub fn generate_slug(server_keys: &Arc<ServerKeys>, secret: Vec<u8>) -> Result<String>  {
-        info!("PK length: {:?}", bs58::decode(&server_keys.b58_fingerprint).into_vec()?.len());
-        info!("SECRET length: {:?}", secret.len());
+        // info!("PK length: {:?}", bs58::decode(&server_keys.b58_fingerprint).into_vec()?.len());
+        // info!("SECRET length: {:?}", secret.len());
+
         let code = InviteCode {
             secret,
             host_public_key: bs58::decode(&server_keys.b58_fingerprint).into_vec()?,
