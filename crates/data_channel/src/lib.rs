@@ -287,8 +287,10 @@ where
             // Signal Received => Open a Data Channel
             GraphQLWSMessage::Next {
                 id,
-                payload: ExecutionResult { data: Some(data), .. },
+                payload: ExecutionResult { data: Some(mut data), .. },
             } if id == rx_signals_id => {
+                let data = data["connectionRequested"].take();
+                // info!("signal {:?}", data);
                 let response: Signal = serde_json::from_value(data)?;
                 let handshake_session_id = response.session_id.clone();
 

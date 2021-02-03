@@ -10,6 +10,7 @@ export default class WebRTCLink extends ApolloLink {
 
   public constructor(options: WebRTCOptions) {
     super()
+
     this.client = createClient({
       // The URL is unused but it is required by ClientOptions
       url: 'webrtc://',

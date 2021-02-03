@@ -9,7 +9,7 @@ import useReactRouter from 'use-react-router'
 import DetectRTC from 'detectrtc'
 // import { ApolloLink } from 'apollo-link'
 // import { onError } from 'apollo-link-error'
-import { GraphQL, GraphQLContext } from 'graphql-react'
+import { GraphQLContext } from 'graphql-react'
 import UnsupportedBrowser from '../UnsupportedBrowser'
 import ConnectionStatus from '../common/ConnectionStatus'
 import { useAuth } from '../common/auth'
@@ -28,7 +28,9 @@ const TegApolloProvider = ({
 }) => {
   const { location, match } = useReactRouter()
   const { isSignedIn, fetchOptions } = useAuth()
-  const [link, setLink] = useState(null) as any
+
+  const [link, setLink] = useState(null as any)
+  const [iceServers, setIceServers] = useState(null as any)
 
   const params = new URLSearchParams(location.search)
   const invite = params.get('invite')
@@ -60,13 +62,11 @@ const TegApolloProvider = ({
     return data
   }
 
-  const iceServersAsync = useAsync({
+  const client = useAsync({
     deferFn: async () => {
-      if (!shouldConnect || unsupportedBrowser) {
-        return
-      }
+      console.log({ shouldConnect, invite, hostSlug, isSignedIn })
 
-      const { iceServers } = await querySignalling({
+      const { iceServers: nextIceServers } = await querySignalling({
         query: `
           {
             iceServers {
@@ -79,19 +79,10 @@ const TegApolloProvider = ({
         `,
       })
 
-      return iceServers
-    }
-  })
-
-  const client = useAsync({
-    deferFn: async () => {
-      console.log({ shouldConnect, invite, hostSlug, isSignedIn })
-
-      iceServersAsync.run()
-      const iceServers = await iceServersAsync.promise
+      setIceServers(nextIceServers)
 
       const nextLink = new WebRTCLink({
-        iceServers,
+        iceServers: nextIceServers,
         connectToPeer: async (offer) => {
           const { connectToHost } = await querySignalling({
             query: `
@@ -117,9 +108,10 @@ const TegApolloProvider = ({
         }
       })
 
-      link.dispose()
+      link?.dispose()
       setLink(nextLink)
-      new ApolloClient({
+
+      return new ApolloClient({
         cache: new InMemoryCache(),
         link: nextLink,
       })
@@ -144,15 +136,16 @@ const TegApolloProvider = ({
     return <>{ children }</>
   }
 
-  if (client.isPending) {
+  if (!client.isResolved) {
     return <div />
   }
+  console.log(client)
 
   return (
     <ApolloProvider client={client.data as any}>
       <TegApolloContext.Provider
         value={{
-          iceServers: iceServersAsync.data,
+          iceServers,
         }}
       >
         <ConnectionStatus>

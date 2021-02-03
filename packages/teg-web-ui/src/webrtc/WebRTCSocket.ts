@@ -11,10 +11,10 @@ export type WebRTCOptions = {
 }
 
 const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
-  static CLOSED: 'CLOSED'
-  static CLOSING: 'CLOSING'
-  static CONNECTING: 'CONNECTING'
-  static OPEN: 'OPEN'
+  static CLOSED: string = 'CLOSED'
+  static CLOSING: string = 'CLOSING'
+  static CONNECTING: string = 'CONNECTING'
+  static OPEN: string = 'OPEN'
 
   readyState: string
   private listeners: any

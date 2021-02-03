@@ -2,8 +2,9 @@ use serde::{Deserialize, Serialize};
 use datachannel::SessionDescription;
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde( rename_all = "camelCase" )]
 pub struct Signal {
-    #[serde(rename = "user_id")]
+    #[serde(rename = "userID")]
     pub user_id: async_graphql::ID,
     pub email: Option<String>,
     pub email_verified: bool,
