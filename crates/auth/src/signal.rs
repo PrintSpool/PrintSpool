@@ -11,4 +11,13 @@ pub struct Signal {
     #[serde(rename = "sessionID")]
     pub session_id: async_graphql::ID,
     pub offer: SessionDescription,
+    pub ice_servers: Vec<IceServer>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct IceServer {
+    pub url: Option<String>,
+    pub urls:  Vec<String>,
+    pub username: Option<String>,
+    pub credential: Option<String>,
 }

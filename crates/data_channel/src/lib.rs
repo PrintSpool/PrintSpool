@@ -238,6 +238,12 @@ where
                         emailVerified
                         sessionID
                         offer
+                        iceServers {
+                            url
+                            urls
+                            username
+                            credential
+                        }
                     }
                 }
             "#.to_string(),

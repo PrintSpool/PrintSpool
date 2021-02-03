@@ -104,7 +104,7 @@ const TegApolloProvider = ({
             },
           })
 
-          connectToHost.response
+          return connectToHost.response
         }
       })
 

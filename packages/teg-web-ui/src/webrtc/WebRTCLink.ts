@@ -5,6 +5,16 @@ import { createClient, Client } from 'graphql-ws'
 import WebRTCSocket from './WebRTCSocket'
 import type { WebRTCOptions } from './WebRTCSocket'
 
+const randomisedExponentialBackoff = async (retries) => {
+  let retryDelay = 60_000; // start with 3s delay
+  for (let i = 0; i < retries; i++) {
+      retryDelay *= 2;
+  }
+  await new Promise((resolve) => setTimeout(resolve, retryDelay +
+      // add random timeout from 300ms to 3s
+      Math.floor(Math.random() * (3000 - 300) + 300)));
+}
+
 export default class WebRTCLink extends ApolloLink {
   private client: Client
 
@@ -16,6 +26,7 @@ export default class WebRTCLink extends ApolloLink {
       url: 'webrtc://',
       // WebRTC connections are expensive to create
       keepAlive: Number.MAX_SAFE_INTEGER,
+      retryWait: randomisedExponentialBackoff,
       webSocketImpl: WebRTCSocket(options),
     })
   }

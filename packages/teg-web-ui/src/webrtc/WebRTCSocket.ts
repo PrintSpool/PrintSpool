@@ -34,6 +34,12 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
       connectToPeer,
     } = options
 
+    // const iceServers = [
+    //   { urls: 'stun:stun.l.google.com:19302' },
+    //   { urls: 'stun:global.stun.twilio.com:3478?transport=udp' },
+    // ]
+    console.log({ iceServers })
+
     this.peer = new SimplePeer({
       initiator: true,
       trickle: false,
@@ -45,6 +51,8 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
       this.onopen()
         .catch(this.innerClose)
     })
+
+    // Register event listeners
 
     this.peer.on('close', () => {
       this.innerClose({ message: 'WebRTC peer connection closed'}, 1000)
@@ -60,16 +68,20 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
 
     this.peer.on('error', this.innerClose)
 
+    // Connect to the Peer
+
     const offer = await new Promise((resolve, reject) => {
       this.peer.on('error', reject)
       this.peer.on('signal', resolve)
     })
+    console.log("sending", { offer })
 
     const {
       answer,
       iceCandidates
     } = await connectToPeer(offer)
 
+    console.log('received', { answer, iceCandidates })
     this.peer.signal(answer)
 
     iceCandidates.forEach((candidate) => {
