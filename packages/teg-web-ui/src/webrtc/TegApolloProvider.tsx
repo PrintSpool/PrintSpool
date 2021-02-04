@@ -15,7 +15,7 @@ import ConnectionStatus from '../common/ConnectionStatus'
 import { useAuth } from '../common/auth'
 import { useAsync } from 'react-async'
 
-import WebRTCLink from './WebRTCLink'
+import WebRTCLink, { INSECURE_LOCAL_CONNECTION } from './WebRTCLink'
 
 export const TegApolloContext = React.createContext(null)
 
@@ -39,7 +39,7 @@ const TegApolloProvider = ({
 
   const shouldConnect = isSignedIn && (invite != null || hostSlug != null)
 
-  const unsupportedBrowser = shouldConnect && (
+  const unsupportedBrowser = shouldConnect && !INSECURE_LOCAL_CONNECTION && (
     RTCPeerConnection.prototype.createDataChannel == null
     || DetectRTC.browser.name.includes('FB_IAB')
   )
@@ -62,51 +62,65 @@ const TegApolloProvider = ({
     return data
   }
 
+  const createWebRTCLink = async () => {
+    const { iceServers: nextIceServers } = await querySignalling({
+      query: `
+        {
+          iceServers {
+            url
+            urls
+            username
+            credential
+          }
+        }
+      `,
+    })
+
+    setIceServers(nextIceServers)
+
+    const nextLink = new WebRTCLink({
+      iceServers: nextIceServers,
+      connectToPeer: async (offer) => {
+        const { connectToHost } = await querySignalling({
+          query: `
+            mutation($input: ConnectToHostInput!) {
+              connectToHost(input: $input) {
+                response {
+                  answer
+                  iceCandidates
+                }
+              }
+            }
+          `,
+          variables: {
+            input: {
+              hostSlug,
+              invite,
+              offer,
+            },
+          },
+        })
+
+        return connectToHost.response
+      }
+    })
+
+    return nextLink
+  }
+
   const client = useAsync({
     deferFn: async () => {
       console.log({ shouldConnect, invite, hostSlug, isSignedIn })
 
-      const { iceServers: nextIceServers } = await querySignalling({
-        query: `
-          {
-            iceServers {
-              url
-              urls
-              username
-              credential
-            }
-          }
-        `,
-      })
-
-      setIceServers(nextIceServers)
-
-      const nextLink = new WebRTCLink({
-        iceServers: nextIceServers,
-        connectToPeer: async (offer) => {
-          const { connectToHost } = await querySignalling({
-            query: `
-              mutation($input: ConnectToHostInput!) {
-                connectToHost(input: $input) {
-                  response {
-                    answer
-                    iceCandidates
-                  }
-                }
-              }
-            `,
-            variables: {
-              input: {
-                hostSlug,
-                invite,
-                offer,
-              },
-            },
-          })
-
-          return connectToHost.response
-        }
-      })
+      let nextLink
+      if (INSECURE_LOCAL_CONNECTION) {
+        // Open a Websocket connection to the server.
+        //
+        // WebRTCLink internally switches to WebSockets when INSECURE_LOCAL_CONNECTION is true.
+        nextLink = new WebRTCLink()
+      } else {
+        nextLink = createWebRTCLink()
+      }
 
       link?.dispose()
       setLink(nextLink)

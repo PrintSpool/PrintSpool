@@ -10,12 +10,14 @@ CREATE TABLE users(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
 
-  signalling_user_id TEXT NOT NULL,
+  signalling_user_id TEXT,
+  is_local_http_user BOOLEAN NOT NULL,
 
   props TEXT NOT NULL
 );
 
 CREATE UNIQUE INDEX users_signalling_user_id ON users(signalling_user_id);
+CREATE INDEX users_is_local_http_user ON users(is_local_http_user);
 
 CREATE TABLE invites(
   id TEXT PRIMARY KEY NOT NULL,

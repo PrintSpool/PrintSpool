@@ -1,5 +1,5 @@
 // #![type_length_limit="15941749"]
-// #[macro_use] extern crate tracing;
+#[macro_use] extern crate tracing;
 // #[macro_use] extern crate derive_new;
 
 // The file `built.rs` was placed there by cargo and `build.rs`
@@ -11,6 +11,7 @@ mod built_info {
 mod mutation;
 mod query;
 mod server_query;
+mod local_http_server;
 
 use std::{env, sync::Arc};
 use serde::Deserialize;
@@ -35,7 +36,20 @@ use teg_machine::{MachineMap, MachineMapLocal, machine::Machine};
 
 const CONFIG_DIR: &'static str = "/etc/teg/";
 
+pub type Db = sqlx::sqlite::SqlitePool;
 pub type DbId = teg_json_store::DbId;
+
+type AppSchemaBuilder = async_graphql::SchemaBuilder<
+    query::Query,
+    mutation::Mutation,
+    async_graphql::EmptySubscription
+>;
+
+type AppSchema = async_graphql::Schema<
+    query::Query,
+    mutation::Mutation,
+    async_graphql::EmptySubscription
+>;
 
 #[derive(Deserialize)]
 struct IdFromConfig {
@@ -52,6 +66,14 @@ async fn app() -> Result<()> {
     color_eyre::install()?;
 
     let db = SqlitePool::connect(&env::var("DATABASE_URL")?).await?;
+
+    // // Database migrations
+    // sqlx::migrate::Migrator::new(
+    //     std::path::Path::new("./migrations")
+    // )
+    //     .await?
+    //     .run(&db)
+    //     .await?;
 
     let machine_ids: Vec<crate::DbId> = std::fs::read_dir(CONFIG_DIR)?
         .map(|entry| {
@@ -118,23 +140,33 @@ async fn app() -> Result<()> {
     let server_keys = Arc::new(teg_auth::ServerKeys::load_or_create().await?);
 
     // Build the server
-    let schema = async_graphql::Schema::build(
-        query::Query::default(),
-        mutation::Mutation::default(),
-        async_graphql::EmptySubscription,
-    )
-        .extension(async_graphql::extensions::Tracing::default())
-        .data(db.clone())
-        .data(machines.clone())
-        .data(server_keys.clone())
-        .finish();
+    let db_clone = db.clone();
+    let machines_clone = machines.clone();
+    let server_keys_clone = server_keys.clone();
+
+    let schema_builder = || {
+            async_graphql::Schema::build(
+            query::Query::default(),
+            mutation::Mutation::default(),
+            async_graphql::EmptySubscription,
+        )
+            .extension(async_graphql::extensions::Tracing::default())
+            .data(db_clone.clone())
+            .data(machines_clone.clone())
+            .data(server_keys_clone.clone())
+    };
+
+    let schema = schema_builder().finish();
+
+    let schema_clone = schema.clone();
+    let db_clone = db.clone();
 
     let signalling_future = teg_data_channel::listen_for_signalling(
         &server_keys,
         &machines,
         move |signal, message_stream| {
-            let schema = schema.clone();
-            let db = db.clone();
+            let schema = schema_clone.clone();
+            let db = db_clone.clone();
             // let auth_pem_keys = auth_pem_keys.clone();
             let initializer = |_| async move {
                 let user = teg_auth::user::User::authenticate(
@@ -165,9 +197,15 @@ async fn app() -> Result<()> {
         },
     );
 
+    let http_server = local_http_server::start(
+        &db,
+        schema_builder(),
+    );
+
     let res = select! {
         // res = auth_pem_keys_watcher.fuse() => res,
         res = signalling_future.fuse() => res,
+        res = http_server.fuse() => res,
     };
 
     res?;

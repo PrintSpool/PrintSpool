@@ -118,7 +118,7 @@ impl Record for Task {
             self.part_id,
             status,
         )
-            .fetch_one(db)
+            .fetch_optional(db)
             .await?;
         Ok(())
     }

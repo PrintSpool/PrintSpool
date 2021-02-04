@@ -24,6 +24,16 @@ impl AuthContext {
         }
     }
 
+    pub async fn local_http_auth(
+        db: &crate::Db,
+    ) -> Result<Self> {
+        let user = User::get_local_http_user(db).await?;
+
+        let auth = Self::new(Some(user));
+
+        Ok(auth)
+    }
+
     pub fn is_admin(&self) -> bool {
         self.current_user
             .as_ref()

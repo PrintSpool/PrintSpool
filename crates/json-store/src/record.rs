@@ -58,7 +58,7 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
             .bind(self.version())
             .bind(serde_json::to_string(&self)?)
 
-            .fetch_one(db)
+            .fetch_optional(db)
             .await?;
 
         Ok(())

@@ -5,7 +5,7 @@ use async_graphql::{
 };
 use eyre::{
     Context as _,
-    // eyre,
+    eyre,
     // Result
 };
 use teg_json_store::Record as _;
@@ -75,12 +75,18 @@ impl UserMutation {
         let mut tx = db.begin().await?;
         // Verify that there will be at least one admin in the database after this user is
         // removed.
-        User::verify_other_admins_exist(db, &input.user_id)
+        User::verify_other_admins_exist(&mut tx, &input.user_id)
             .await
             .with_context(|| r#"
                 Cannot delete only admin user.
                 Please add another administrator before deleting this user.
             "#)?;
+
+        let user = User::get(&mut tx, &input.user_id.to_string()).await?;
+
+        if user.is_local_http_user {
+            Err(eyre!("This account is required to run the server"))?;
+        }
 
         User::remove(&mut tx, &input.user_id).await?;
         tx.commit().await?;

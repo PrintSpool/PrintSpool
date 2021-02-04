@@ -59,12 +59,13 @@ impl User {
                 id: nanoid!(11),
                 version: 0,
                 created_at: Utc::now(),
-                signalling_user_id,
+                signalling_user_id: Some(signalling_user_id),
                 email: None,
                 email_verified: false,
                 last_logged_in_at: None,
                 config: Default::default(),
                 is_authorized: false,
+                is_local_http_user: false,
             }
         });
 

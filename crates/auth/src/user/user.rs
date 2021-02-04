@@ -5,7 +5,7 @@ use eyre::{
     Result,
     // Context as _,
 };
-use teg_json_store::Record;
+use teg_json_store::{ Record, JsonRow };
 
 use super::UserConfig;
 
@@ -18,8 +18,9 @@ pub struct User {
     pub config: UserConfig,
     pub last_logged_in_at: Option<DateTime<Utc>>,
 
-    pub signalling_user_id: String,
+    pub signalling_user_id: Option<String>,
     pub is_authorized: bool,
+    pub is_local_http_user: bool,
     /// # Email
     pub email: Option<String>,
     /// # Email Verified
@@ -27,6 +28,42 @@ pub struct User {
 }
 
 impl User {
+    pub async fn get_local_http_user(
+        db: &crate::Db,
+    ) -> Result<Self> {
+        let user = sqlx::query_as!(
+            JsonRow,
+            r#"
+                SELECT props FROM users where is_local_http_user
+            "#,
+        )
+            .fetch_optional(db)
+            .await?;
+
+        let user = if let Some(user) = user {
+            Self::from_row(user)?
+        } else {
+            // Create the local http user if it doesn't exist
+            let user = User {
+                id: nanoid!(11),
+                version: 0,
+                created_at: Utc::now(),
+                signalling_user_id: None,
+                email: None,
+                email_verified: false,
+                last_logged_in_at: None,
+                config: Default::default(),
+                is_authorized: true,
+                is_local_http_user: true,
+            };
+
+            user.insert(db).await?;
+            user
+        };
+
+        Ok(user)
+    }
+
     pub async fn verify_other_admins_exist<'e, 'c, E>(
         db: E,
         id: &crate::DbId,
@@ -72,15 +109,16 @@ impl Record for User {
         sqlx::query!(
             r#"
                 INSERT INTO users
-                (id, version, props, signalling_user_id)
-                VALUES (?, ?, ?, ?)
+                (id, version, props, signalling_user_id, is_local_http_user)
+                VALUES (?, ?, ?, ?, ?)
             "#,
             self.id,
             self.version,
             json,
             self.signalling_user_id,
+            self.is_local_http_user,
         )
-            .fetch_one(db)
+            .fetch_optional(db)
             .await?;
         Ok(())
     }

@@ -205,7 +205,7 @@ impl Record for Package {
             self.print_queue_id,
             self.quantity,
         )
-            .fetch_one(db)
+            .fetch_optional(db)
             .await?;
         Ok(())
     }

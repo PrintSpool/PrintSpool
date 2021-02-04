@@ -176,7 +176,7 @@ impl Record for Part {
             self.quantity,
             position,
         )
-            .fetch_one(db)
+            .fetch_optional(db)
             .await?;
         Ok(())
     }

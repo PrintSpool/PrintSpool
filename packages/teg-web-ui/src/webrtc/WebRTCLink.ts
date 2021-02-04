@@ -5,6 +5,8 @@ import { createClient, Client } from 'graphql-ws'
 import WebRTCSocket from './WebRTCSocket'
 import type { WebRTCOptions } from './WebRTCSocket'
 
+export const INSECURE_LOCAL_CONNECTION = process.env.INSECURE_LOCAL_CONNECTION === '1'
+
 const randomisedExponentialBackoff = async (retries) => {
   let retryDelay = 60_000; // start with 3s delay
   for (let i = 0; i < retries; i++) {
@@ -18,17 +20,23 @@ const randomisedExponentialBackoff = async (retries) => {
 export default class WebRTCLink extends ApolloLink {
   private client: Client
 
-  public constructor(options: WebRTCOptions) {
+  public constructor(options?: WebRTCOptions) {
     super()
 
-    this.client = createClient({
-      // The URL is unused but it is required by ClientOptions
-      url: 'webrtc://',
-      // WebRTC connections are expensive to create
-      keepAlive: Number.MAX_SAFE_INTEGER,
-      retryWait: randomisedExponentialBackoff,
-      webSocketImpl: WebRTCSocket(options),
-    })
+    if (INSECURE_LOCAL_CONNECTION) {
+      this.client = createClient({
+        url: process.env.INSECURE_LOCAL_WS_URL,
+      })
+    } else {
+      this.client = createClient({
+        // The URL is unused but it is required by ClientOptions
+        url: 'webrtc://',
+        // WebRTC connections are expensive to create
+        keepAlive: Number.MAX_SAFE_INTEGER,
+        retryWait: randomisedExponentialBackoff,
+        webSocketImpl: WebRTCSocket(options as any),
+      })
+    }
   }
 
   request(operation: Operation): Observable<FetchResult> {
