@@ -30,14 +30,14 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
 
   private async init() {
     const {
-      // iceServers,
+      iceServers,
       connectToPeer,
     } = options
 
-    const iceServers = [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:global.stun.twilio.com:3478?transport=udp' },
-    ]
+    // const iceServers = [
+    //   { urls: 'stun:stun.l.google.com:19302' },
+    //   { urls: 'stun:global.stun.twilio.com:3478?transport=udp' },
+    // ]
     console.log({ iceServers })
 
     this.peer = new SimplePeer({
@@ -55,6 +55,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     // Register event listeners
 
     this.peer.on('close', () => {
+      console.log('CLOSED')
       this.innerClose({ message: 'WebRTC peer connection closed'}, 1000)
     })
 
@@ -85,8 +86,11 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     this.peer.signal(answer)
 
     iceCandidates.forEach((candidate) => {
+      console.log('ADD', { candidate })
       this.peer.signal({ candidate })
     })
+    console.log('END 2??')
+    // this.peer.signal({ candidate: '' })
   }
 
   send(message: string) {
@@ -94,6 +98,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
   }
 
   private innerClose(error: any, code: number = 4000) {
+    console.log("INNER CLOSE")
     if (this.readyState == WebRTCSocket.CLOSED) {
       return
     }
@@ -108,6 +113,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
   }
 
   close(code: number, message: string) {
+    console.log("cloess but why??")
     if (code !== 1000) {
       console.warn(`WebRTCSocket closed with code: ${code}, message: ${message}`)
     }

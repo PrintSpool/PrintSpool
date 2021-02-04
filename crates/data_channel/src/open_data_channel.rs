@@ -30,12 +30,12 @@ use teg_auth::Signal;
 static NEXT_ID: AtomicU64 = AtomicU64::new(0);
 
 #[derive(Clone)]
-struct OutgoingChannel {
+pub struct OutgoingChannel {
     output: async_std::channel::Sender<Vec<u8>>,
 }
 
 #[derive(Clone)]
-enum Channel {
+pub enum Channel {
     Outgoing(OutgoingChannel),
     Incoming,
 }
@@ -52,7 +52,6 @@ impl DataChannelHandler for Channel {
 
     fn on_message(&mut self, msg: &[u8]) {
         if let Channel::Outgoing(channel) = self {
-            // let msg = String::from_utf8_lossy(msg).to_string();
             let msg = msg.to_vec();
             let output = channel.output.clone();
             block_on(async move {
@@ -64,11 +63,11 @@ impl DataChannelHandler for Channel {
     }
 }
 
-struct Conn {
+pub struct Conn {
     id: u64,
     dc: Option<Box<RtcDataChannel<Channel>>>,
     sdp_answer_sender: async_std::channel::Sender<SessionDescription>,
-    ice_candidate_sender: async_std::channel::Sender<IceCandidate>,
+    ice_candidate_sender: Option<async_std::channel::Sender<IceCandidate>>,
 }
 
 impl PeerConnectionHandler for Conn {
@@ -91,7 +90,15 @@ impl PeerConnectionHandler for Conn {
     fn on_candidate(&mut self, cand: IceCandidate) {
         info!("Candidate {}: {} {}", self.id, &cand.candidate, &cand.mid);
 
-        let ice_candidate_sender = self.ice_candidate_sender.clone();
+        let ice_candidate_sender = if let
+            Some(sender) = &self.ice_candidate_sender
+        {
+            sender.clone()
+        } else {
+            warn!("Ice Candidate received after gathering ended: {:?}", cand);
+            return
+        };
+
         block_on(async move {
             ice_candidate_sender
                 .send(cand)
@@ -106,6 +113,10 @@ impl PeerConnectionHandler for Conn {
 
     fn on_gathering_state_change(&mut self, state: GatheringState) {
         info!("Gathering state {}: {:?}", self.id, state);
+        if let GatheringState::Complete = state {
+            // drop the ice candidate sender once the ice candidates have been gathered
+            self.ice_candidate_sender = None;
+        }
     }
 
     fn on_data_channel(&mut self, dc: Box<RtcDataChannel<Channel>>) {
@@ -131,6 +142,8 @@ pub async fn open_data_channel<F, Fut, S>(
     // signalling_user_id: String,
     handle_data_channel: &F,
 ) -> Result<(
+    u64,
+    Box<RtcPeerConnection<Conn>>,
     SessionDescription,
     impl Stream<Item = IceCandidate>,
 )>
@@ -151,32 +164,32 @@ where
     let id = NEXT_ID.fetch_add(1, Ordering::SeqCst);
     let mode = ReliabilityMode::ReliableOrdered;
 
-    // let ice_servers: Vec<String> = signal.ice_servers
-    //     .iter()
-    //     .map(|ice_server| {
-    //         ice_server.urls.iter().map(move |url| {
-    //             let url = match (&ice_server.username, &ice_server.credential) {
-    //                 (Some(username), Some(credential)) => {
-    //                    url.replacen(":", &format!(":{}:{}@", username, credential), 1)
-    //                 },
-    //                 (Some(username), None) => {
-    //                     url.replacen(":", &format!(":{}@", username), 1)
-    //                  },
-    //                  (None, None) => {
-    //                     url.clone()
-    //                  },
-    //                  _ => Err(eyre!("credential received without username"))?,
-    //              };
-    //              Ok(url)
-    //         })
-    //     })
-    //     .flatten()
-    //     .collect::<Result<_>>()?;
+    let ice_servers: Vec<String> = signal.ice_servers
+        .iter()
+        .map(|ice_server| {
+            ice_server.urls.iter().map(move |url| {
+                let url = match (&ice_server.username, &ice_server.credential) {
+                    (Some(username), Some(credential)) => {
+                       url.replacen(":", &format!(":{}:{}@", username, credential), 1)
+                    },
+                    (Some(username), None) => {
+                        url.replacen(":", &format!(":{}@", username), 1)
+                     },
+                     (None, None) => {
+                        url.clone()
+                     },
+                     _ => Err(eyre!("credential received without username"))?,
+                 };
+                 Ok(url)
+            })
+        })
+        .flatten()
+        .collect::<Result<_>>()?;
 
-    let ice_servers = vec![
-        "stun:stun.l.google.com:19302".to_string(),
-        "stun:global.stun.twilio.com:3478?transport=udp".to_string(),
-    ];
+    // let ice_servers = vec![
+    //     "stun:stun.l.google.com:19302".to_string(),
+    //     "stun:global.stun.twilio.com:3478?transport=udp".to_string(),
+    // ];
     debug!("ice servers: {:?}", ice_servers);
 
     let conf = RtcConfig::new(&ice_servers[..]);
@@ -212,7 +225,7 @@ where
         id,
         dc: None,
         sdp_answer_sender,
-        ice_candidate_sender,
+        ice_candidate_sender: Some(ice_candidate_sender),
     };
 
     let channel = Channel::Outgoing(OutgoingChannel {
@@ -254,6 +267,8 @@ where
         .ok_or_else(|| eyre!("SDP answer not received"))?;
 
     Ok((
+        id,
+        pc,
         sdp_answer,
         ice_candidate_receiver,
     ))

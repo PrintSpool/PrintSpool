@@ -38,6 +38,7 @@ use futures_util::{
         // TryStreamExt,
     },
 };
+use dashmap::DashMap;
 use teg_auth::Signal;
 
 pub type Db = sqlx::sqlite::SqlitePool;
@@ -279,6 +280,8 @@ where
 
     info!("Listening for WebRTC Connections from {}", signalling_url);
 
+    let peer_connections = Arc::new(DashMap::new());
+
     while let Some(msg) = ws_read.next().await {
         let msg = msg?.into_text()?;
         let msg: GraphQLWSMessage = serde_json::from_str(&msg)?;
@@ -297,13 +300,17 @@ where
             } if id == rx_signals_id => {
                 let data = data["connectionRequested"].take();
                 // info!("signal {:?}", data);
-                let response: Signal = serde_json::from_value(data)?;
-                let handshake_session_id = response.session_id.clone();
+                let signal: Signal = serde_json::from_value(data)?;
+                let handshake_session_id = signal.session_id.clone();
 
                 let (
+                    id,
+                    pc,
                     answer,
                     mut ice_candidates_stream,
-                ) = open_data_channel(response, &handle_data_channel).await?;
+                ) = open_data_channel(signal, &handle_data_channel).await?;
+                // TODO: Remember to remove peer connections once they are closed!
+                peer_connections.insert(id, pc);
 
                 // Commented out: trickle ICE candidates were previously considered but have been
                 // replaced by sending all ICE candidates at once for implementation simplicity.
@@ -318,6 +325,7 @@ where
                 // Take all ice candidates up to and including the final empty string candidate
                 while let Some(ic) = ice_candidates_stream.next().await {
                     let last_candidate = ic.candidate.is_empty();
+                    trace!("Ice Candidate: {:?}", ic);
                     ice_candidates.push(ic);
                     if last_candidate {
                         break
