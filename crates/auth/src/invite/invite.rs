@@ -20,6 +20,7 @@ pub struct Invite {
 
     pub config: InviteConfig,
 
+    pub consumed_by_user_id: Option<crate::DbId>,
     pub secret_hash: String,
 }
 
@@ -80,10 +81,11 @@ impl Invite {
             id: nanoid!(11),
             version: 0,
             created_at: Utc::now(),
-            secret_hash,
             config: InviteConfig {
                 is_admin,
             },
+            secret_hash,
+            consumed_by_user_id: None,
         };
 
         invite.insert(db).await?;
@@ -92,26 +94,26 @@ impl Invite {
     }
 }
 
-impl Invite {
-    // TODO: rename this function
-    pub async fn get_by_pk<'e, 'c, E>(
-        db: E,
-        secret_hash: &str,
-    ) -> Result<Self>
-    where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
-    {
-        let row = sqlx::query!(
-            "SELECT props FROM invites WHERE secret_hash = ?",
-            secret_hash,
-        )
-            .fetch_one(db)
-            .await?;
+// impl Invite {
+//     // TODO: rename this function
+//     pub async fn get_by_pk<'e, 'c, E>(
+//         db: E,
+//         secret_hash: &str,
+//     ) -> Result<Self>
+//     where
+//         E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+//     {
+//         let row = sqlx::query!(
+//             "SELECT props FROM invites WHERE secret_hash = ?",
+//             secret_hash,
+//         )
+//             .fetch_one(db)
+//             .await?;
 
-        let entry: Self = serde_json::from_str(&row.props)?;
-        Ok(entry)
-    }
-}
+//         let entry: Self = serde_json::from_str(&row.props)?;
+//         Ok(entry)
+//     }
+// }
 
 #[async_trait::async_trait]
 impl Record for Invite {
@@ -134,16 +136,19 @@ impl Record for Invite {
         db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
     ) -> Result<()> {
         let json = serde_json::to_string(&self)?;
+        let consumed = self.consumed_by_user_id.is_some();
+
         sqlx::query!(
             r#"
                 INSERT INTO invites
-                (id, version, props, secret_hash)
-                VALUES (?, ?, ?, ?)
+                (id, version, props, secret_hash, consumed)
+                VALUES (?, ?, ?, ?, ?)
             "#,
             self.id,
             self.version,
             json,
             self.secret_hash,
+            consumed,
         )
             .fetch_optional(db)
             .await?;

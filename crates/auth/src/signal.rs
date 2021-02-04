@@ -8,6 +8,7 @@ pub struct Signal {
     pub user_id: async_graphql::ID,
     pub email: Option<String>,
     pub email_verified: bool,
+    pub invite: Option<String>,
     #[serde(rename = "sessionID")]
     pub session_id: async_graphql::ID,
     pub offer: SessionDescription,

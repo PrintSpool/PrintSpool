@@ -7,6 +7,7 @@ use eyre::{
 };
 // use arc_swap::ArcSwap;
 use teg_json_store::{ Record as _, JsonRow };
+use teg_protobufs::{InviteCode, Message};
 
 use super::{
     User,
@@ -21,12 +22,12 @@ impl User {
         db: &crate::Db,
         // auth_pem_keys: Arc<ArcSwap<Vec<Vec<u8>>>>,
         signal: Signal,
-        identity_public_key: &Option<String>
     ) -> Result<Option<User>> {
         let Signal {
             user_id: signalling_user_id,
             email,
             email_verified,
+            invite: invite_code,
             ..
         } = signal;
         let signalling_user_id = signalling_user_id.to_string();
@@ -52,24 +53,6 @@ impl User {
             .map(|row| User::from_row(row))
             .transpose()?;
 
-        let invite = if let Some(pk) = identity_public_key.as_ref() {
-            let invite = Invite::get_by_pk(&mut tx, &pk)
-                .await
-                .map_err(|err| {
-                    warn!("Invite lookup err ignored: {:?}", err);
-                    eyre!("Invite has already been used")
-                })?;
-            Invite::remove(&mut tx, &invite.id).await?;
-            Some(invite)
-        } else {
-            None
-        };
-
-        // To authenticate the user either must be authorized or include a valid invite
-        if user.is_none() && invite.is_none() {
-            Err(eyre!("Invite identity public key required"))?;
-        }
-
         let is_new_user = user.is_none();
         let mut user = user.unwrap_or_else(|| {
             User {
@@ -84,6 +67,52 @@ impl User {
                 is_authorized: false,
             }
         });
+
+        let invite = if let Some(invite_code) = invite_code.as_ref() {
+            let invite_code = bs58::decode(invite_code).into_vec()?;
+            let invite_code: InviteCode = Message::decode(&invite_code[..])?;
+
+            let invite = sqlx::query_as!(
+                JsonRow,
+                "SELECT props FROM invites WHERE secret_hash = ?",
+                invite_code.secret,
+            )
+                .fetch_one(db)
+                .await
+                .map_err(|err| {
+                    warn!("Invite lookup err ignored: {:?}", err);
+                    eyre!("Invite not found")
+                })?;
+
+            let mut invite = Invite::from_row(invite)?;
+
+            match invite.consumed_by_user_id.as_ref() {
+                None => {
+                    invite.consumed_by_user_id = Some(user.id.clone());
+                    invite.update(&mut tx).await?;
+                }
+                Some(id) if id == &user.id => {
+                    // Idempotent invites: If the invite was already consumed by this user
+                    // treat the invite as a no-op
+                    ()
+                }
+                _ => {
+                    // The invite has been consumed by another user but we do not want to leak
+                    // that information to a potentially malicious client
+                    warn!("Invite already consumed by another user");
+                    Err(eyre!("Invite not found"))?;
+                }
+            };
+
+            Some(invite)
+        } else {
+            None
+        };
+
+        // To authenticate the user either must be authorized or include a valid invite
+        if is_new_user && invite.is_none() {
+            Err(eyre!("Invite identity public key required"))?;
+        }
 
         /*
         * Update the user

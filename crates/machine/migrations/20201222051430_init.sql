@@ -22,11 +22,13 @@ CREATE TABLE invites(
   version INT NOT NULL DEFAULT 0,
 
   secret_hash TEXT NOT NULL,
+  consumed BOOLEAN NOT NULL,
 
   props TEXT NOT NULL
 );
 
 CREATE UNIQUE INDEX invites_secret_hash ON invites(secret_hash);
+CREATE UNIQUE INDEX invites_consumed ON invites(consumed);
 
 CREATE TABLE machine_viewers(
   id TEXT PRIMARY KEY NOT NULL,

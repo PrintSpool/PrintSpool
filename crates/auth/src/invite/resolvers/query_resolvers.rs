@@ -3,7 +3,7 @@ use async_graphql::{
     Context,
     // ID,
 };
-use teg_json_store::Record as _;
+use teg_json_store::{ JsonRow, Record as _ };
 
 use crate::{
     AuthContext,
@@ -24,7 +24,16 @@ impl InviteQuery {
         auth.authorize_admins_only()?;
 
         // TODO: order the invites by their ids
-        let invites = Invite::get_all(db).await?;
+        let invites = sqlx::query_as!(
+            JsonRow,
+            r#"
+                SELECT props FROM invites WHERE consumed = FALSE
+            "#,
+        )
+            .fetch_all(db)
+            .await?;
+
+        let invites = Invite::from_rows(invites)?;
 
         Ok(invites)
     }

@@ -42,11 +42,6 @@ struct IdFromConfig {
     id: crate::DbId,
 }
 
-#[derive(Deserialize)]
-struct InitPayload {
-    identity_public_key: Option<String>,
-}
-
 fn main() -> Result<()> {
     async_std::task::block_on(app())
 }
@@ -141,20 +136,14 @@ async fn app() -> Result<()> {
             let schema = schema.clone();
             let db = db.clone();
             // let auth_pem_keys = auth_pem_keys.clone();
-            let initializer = |init_payload| async move {
-                let InitPayload {
-                    identity_public_key,
-                } = serde_json::from_value(init_payload)?;
-
+            let initializer = |_| async move {
                 let user = teg_auth::user::User::authenticate(
                     &db,
                     signal,
-                    &identity_public_key,
                 ).await?;
 
                 let auth_context = AuthContext::new(
                     user,
-                    identity_public_key,
                 );
 
                 let mut data = async_graphql::Data::default();

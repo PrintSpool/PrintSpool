@@ -11,18 +11,15 @@ static NEXT_ID: AtomicU64 = AtomicU64::new(0);
 
 pub struct AuthContext {
     pub current_user: Option<User>,
-    pub identity_public_key: Option<String>,
     pub session_id: u64,
 }
 
 impl AuthContext {
     pub fn new(
         current_user: Option<User>,
-        identity_public_key: Option<String>,
     ) -> Self {
         Self {
             current_user,
-            identity_public_key,
             session_id: NEXT_ID.fetch_add(1, Ordering::SeqCst),
         }
     }
