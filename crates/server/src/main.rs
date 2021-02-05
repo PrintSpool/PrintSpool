@@ -165,6 +165,7 @@ async fn app() -> Result<()> {
         &server_keys,
         &machines,
         move |signal, message_stream| {
+            info!("Data channel connected");
             let schema = schema_clone.clone();
             let db = db_clone.clone();
             // let auth_pem_keys = auth_pem_keys.clone();

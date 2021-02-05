@@ -119,7 +119,7 @@ const TegApolloProvider = ({
         // WebRTCLink internally switches to WebSockets when INSECURE_LOCAL_CONNECTION is true.
         nextLink = new WebRTCLink()
       } else {
-        nextLink = createWebRTCLink()
+        nextLink = await createWebRTCLink()
       }
 
       link?.dispose()

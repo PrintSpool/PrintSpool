@@ -55,7 +55,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     // Register event listeners
 
     this.peer.on('close', () => {
-      console.log('CLOSED')
+      console.log('PEER CONNECTION CLOSED')
       this.innerClose({ message: 'WebRTC peer connection closed'}, 1000)
     })
 
@@ -94,11 +94,12 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
   }
 
   send(message: string) {
+    console.log(`SEND: ${message}`)
     this.peer.send(message)
   }
 
   private innerClose(error: any, code: number = 4000) {
-    console.log("INNER CLOSE")
+    console.log("INNER CLOSE", error)
     if (this.readyState == WebRTCSocket.CLOSED) {
       return
     }
@@ -106,14 +107,14 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     this.readyState = WebRTCSocket.CLOSED
     this.peer?.destroy()
 
-    this.onclose({
+    this.onclose(new CloseEvent(error.message, {
       code,
       reason: error.message,
-    })
+    }))
   }
 
   close(code: number, message: string) {
-    console.log("cloess but why??")
+    console.log(`APOLLO HAS DECIDED TO CLOSE THE CONNECTION (code: ${code})`)
     if (code !== 1000) {
       console.warn(`WebRTCSocket closed with code: ${code}, message: ${message}`)
     }

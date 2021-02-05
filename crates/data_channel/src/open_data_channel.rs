@@ -1,4 +1,4 @@
-use std::{pin::Pin, sync::atomic::{ AtomicU64, Ordering }};
+use std::{pin::Pin, sync::{Arc, atomic::{ AtomicU64, Ordering }}};
 use eyre::{
     eyre,
     Result,
@@ -19,6 +19,7 @@ use datachannel::{
 use futures_util::{
     future,
     future::Future,
+    FutureExt,
     stream::{
         Stream,
         StreamExt,
@@ -30,17 +31,12 @@ use teg_auth::Signal;
 static NEXT_ID: AtomicU64 = AtomicU64::new(0);
 
 #[derive(Clone)]
-pub struct OutgoingChannel {
+pub struct GraphQLChannel {
     output: async_std::channel::Sender<Vec<u8>>,
 }
 
-#[derive(Clone)]
-pub enum Channel {
-    Outgoing(OutgoingChannel),
-    Incoming,
-}
 
-impl DataChannelHandler for Channel {
+impl DataChannelHandler for GraphQLChannel {
     // fn on_open(&mut self) {
     //     if let Channel::Outgoing(channel) = self {
     //         let ready = channel.ready.clone();
@@ -51,27 +47,27 @@ impl DataChannelHandler for Channel {
     // }
 
     fn on_message(&mut self, msg: &[u8]) {
-        if let Channel::Outgoing(channel) = self {
-            let msg = msg.to_vec();
-            let output = channel.output.clone();
-            block_on(async move {
-                output.send(msg)
-                    .await
-                    .expect("Unable to receive DataChannel message");
-            });
-        }
+        debug!("Received {:?}", msg);
+        let msg = msg.to_vec();
+        let output = self.output.clone();
+        block_on(async move {
+            output.send(msg)
+                .await
+                .expect("Unable to receive DataChannel message");
+        });
     }
 }
 
 pub struct Conn {
     id: u64,
-    dc: Option<Box<RtcDataChannel<Channel>>>,
     sdp_answer_sender: async_std::channel::Sender<SessionDescription>,
     ice_candidate_sender: Option<async_std::channel::Sender<IceCandidate>>,
+    data_channel_sender: async_std::channel::Sender<Box<RtcDataChannel<GraphQLChannel>>>,
+    dc: GraphQLChannel,
 }
 
 impl PeerConnectionHandler for Conn {
-    type DC = Channel;
+    type DC = GraphQLChannel;
 
     fn on_description(&mut self, sess_desc: SessionDescription) {
         // TODO: Send a response via the websocket including our sess_desc answer
@@ -119,7 +115,7 @@ impl PeerConnectionHandler for Conn {
         }
     }
 
-    fn on_data_channel(&mut self, dc: Box<RtcDataChannel<Channel>>) {
+    fn on_data_channel(&mut self, dc: Box<RtcDataChannel<GraphQLChannel>>) {
         info!(
             "Channel {} Received Datachannel with: label={}, protocol={:?}, reliability={:?}",
             self.id,
@@ -128,11 +124,14 @@ impl PeerConnectionHandler for Conn {
             dc.reliability()
         );
 
-        self.dc.replace(dc);
+        block_on(
+            self.data_channel_sender.send(dc),
+        )
+            .expect("Unable to send data channel");
     }
 
     fn data_channel_handler(&mut self) -> Self::DC {
-        Channel::Incoming
+        self.dc.clone()
     }
 }
 
@@ -140,7 +139,7 @@ pub async fn open_data_channel<F, Fut, S>(
     signal: Signal,
     // remote_description: SessionDescription,
     // signalling_user_id: String,
-    handle_data_channel: &F,
+    handle_data_channel: Arc<F>,
 ) -> Result<(
     u64,
     Box<RtcPeerConnection<Conn>>,
@@ -150,9 +149,9 @@ pub async fn open_data_channel<F, Fut, S>(
 where
     F: Fn(
         Signal,
-        Pin<Box<dyn Stream<Item = Vec<u8>> + 'static + Send + Sync>>,
-    ) -> Fut + 'static,
-    Fut: Future<Output = Result<S>> + 'static,
+        Pin<Box<dyn Stream<Item = Vec<u8>> + 'static + Send + Send>>,
+    ) -> Fut + Send + Sync + 'static,
+    Fut: Future<Output = Result<S>> + Send + 'static,
     S: Stream<Item = Vec<u8>> + Send + 'static,
 {
     use crate::saltyrtc_chunk::{
@@ -209,6 +208,11 @@ where
         dc_output_receiver,
     ) = async_std::channel::unbounded::<Vec<u8>>();
 
+    let (
+        data_channel_sender,
+        mut data_channel_receiver,
+    ) = async_std::channel::unbounded::<Box<RtcDataChannel<GraphQLChannel>>>();
+
     let dc_output_receiver = ChunkDecoder::new(mode)
         .decode_stream(dc_output_receiver)
         .inspect_err(|err| {
@@ -221,46 +225,63 @@ where
             result.ok()
         });
 
+    let dc = GraphQLChannel {
+        output: dc_output_sender,
+    };
     let conn = Conn {
         id,
-        dc: None,
         sdp_answer_sender,
         ice_candidate_sender: Some(ice_candidate_sender),
+        data_channel_sender,
+        dc,
     };
 
-    let channel = Channel::Outgoing(OutgoingChannel {
-        output: dc_output_sender,
-    });
+    // let channel = Channel::Outgoing(OutgoingChannel {
+    //     output: dc_output_sender,
+    // });
 
     let mut pc = RtcPeerConnection::new(
         &conf,
         conn,
     )?;
 
-    let mut dc = pc.create_data_channel("graphql", channel)?;
-
     pc.set_remote_description(&signal.offer)?;
 
-    let dc_input_msgs = handle_data_channel(
-        signal,
-        Box::pin(dc_output_receiver)
-    )
-        .await?;
-
-    let mut dc_input_chunks = ChunkEncoder::new(mode)
-        .encode_stream(dc_input_msgs)
-        .boxed();
+    // let mut dc = pc.create_data_channel("graphql", channel)?;
 
     // Run the datachannel in a detached task
     async_std::task::Builder::new()
         .name(format!("data_channel_{}", id))
         .spawn(async move {
+            let mut dc = data_channel_receiver
+                .next()
+                .await
+                .ok_or_else(|| eyre!("Datachannel recevier closed before connection"))?;
+
+            let dc_input_msgs = handle_data_channel(
+                signal,
+                Box::pin(dc_output_receiver)
+            )
+                .await?;
+
+            let mut dc_input_chunks = ChunkEncoder::new(mode)
+                .encode_stream(dc_input_msgs)
+                .boxed();
+
             while let Some(msg) = dc_input_chunks.next().await {
                 if let Err(err) = dc.send(&msg) {
                     error!("Data Channel {} Exited with Error: {:?}", id, err)
                 }
             }
-        })?;
+
+            warn!("Data channel stream ended");
+            eyre::Result::<()>::Ok(())
+        }.then(|result| {
+            if let Err(err) = result {
+                warn!("Data Channel task error: {:?}", err);
+            };
+            future::pending::<()>()
+        }))?;
 
     let sdp_answer = sdp_answer_receiver.next()
         .await

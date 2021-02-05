@@ -98,9 +98,9 @@ pub async fn listen_for_signalling<F, Fut, S>(
 where
     F: Fn(
         Signal,
-        Pin<Box<dyn Stream<Item = Vec<u8>> + 'static + Send + Sync>>,
-    ) -> Fut + 'static,
-    Fut: Future<Output = Result<S>> + 'static,
+        Pin<Box<dyn Stream<Item = Vec<u8>> + 'static + Send + Send>>,
+    ) -> Fut + Send + Sync + 'static,
+    Fut: Future<Output = Result<S>> + Send + 'static,
     S: Stream<Item = Vec<u8>> + Send + 'static,
 {
     let signalling_url = "https:://signalling.tegapp.com";
@@ -281,6 +281,7 @@ where
     info!("Listening for WebRTC Connections from {}", signalling_url);
 
     let peer_connections = Arc::new(DashMap::new());
+    let handle_data_channel = Arc::new(handle_data_channel);
 
     while let Some(msg) = ws_read.next().await {
         let msg = msg?.into_text()?;
@@ -308,7 +309,10 @@ where
                     pc,
                     answer,
                     mut ice_candidates_stream,
-                ) = open_data_channel(signal, &handle_data_channel).await?;
+                ) = open_data_channel(
+                    signal,
+                    Arc::clone(&handle_data_channel),
+                ).await?;
                 // TODO: Remember to remove peer connections once they are closed!
                 peer_connections.insert(id, pc);
 
