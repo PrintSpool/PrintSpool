@@ -1,5 +1,7 @@
 import SimplePeer from 'simple-peer'
 
+import { chunkifier, dechunkifier, RELIABLE_ORDERED } from './saltyRTCChunk'
+
 const EVENT_NAMES = [
   'close',
   'message',
@@ -19,6 +21,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
   readyState: string
   private listeners: any
   private peer: any
+  private chunkifier: any
 
   constructor(url: string, protocol: string) {
     this.listeners = {}
@@ -46,6 +49,13 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
       config: { iceServers },
     })
 
+    this.chunkifier = chunkifier(
+      {
+        mode: RELIABLE_ORDERED,
+      },
+      this.peer.send.bind(this.peer)
+    )
+
     this.peer.on('connect', () => {
       console.log('CONNECT')
       this.onopen()
@@ -59,13 +69,13 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
       this.innerClose({ message: 'WebRTC peer connection closed'}, 1000)
     })
 
-    this.peer.on('data', data => {
+    this.peer.on('data', dechunkifier(data => {
       console.log('DATA', data)
 
       // messages are received both through onmessage and an event listener
-      this.onmessage({ data })
-      this.listeners.message.forEach(listener => listener({ data }))
-    })
+      this.onmessage?.({ data })
+      this.listeners.message?.forEach(listener => listener({ data }))
+    }))
 
     this.peer.on('error', this.innerClose)
 
@@ -95,7 +105,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
 
   send(message: string) {
     console.log(`SEND: ${message}`)
-    this.peer.send(message)
+    this.chunkifier(message)
   }
 
   private innerClose(error: any, code: number = 4000) {

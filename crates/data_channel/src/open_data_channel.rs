@@ -70,10 +70,6 @@ impl PeerConnectionHandler for Conn {
     type DC = GraphQLChannel;
 
     fn on_description(&mut self, sess_desc: SessionDescription) {
-        // TODO: Send a response via the websocket including our sess_desc answer
-        // mutation(input: AnswerConnectionRequestInput) {
-        //     answerConnectionRequest(input: $input)
-        // }
         let sdp_answer_sender = self.sdp_answer_sender.clone();
         block_on(async move {
             sdp_answer_sender

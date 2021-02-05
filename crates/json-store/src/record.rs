@@ -170,7 +170,7 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
             .bind(self.version())
             .bind(self.id())
             .bind(previous_version)
-            .fetch_one(db)
+            .fetch_optional(db)
             .await?;
 
         Ok(())

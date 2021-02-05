@@ -18,19 +18,11 @@ use serde::Deserialize;
 use sqlx::SqlitePool;
 use arc_swap::ArcSwap;
 use eyre::{Context, Result, eyre};
-use futures_util::{
-    future,
-    // future::Future,
-    future::FutureExt,
-    future::join_all,
-    // SinkExt,
-    stream::{
+use futures_util::{TryFutureExt, future, future::FutureExt, future::join_all, select, stream::{
         // Stream,
         StreamExt,
         // TryStreamExt,
-    },
-    select,
-};
+    }};
 use teg_auth::AuthContext;
 use teg_machine::{MachineMap, MachineMapLocal, machine::Machine};
 
@@ -184,7 +176,11 @@ async fn app() -> Result<()> {
                 data.insert(auth_context);
 
                 Ok(data)
-            };
+            }
+                .map_err(|err: eyre::Report| {
+                    warn!("websocket auth error: {:?}", err);
+                    eyre!("Internal Server Error").into()
+                });
 
             let connection = async_graphql::http::WebSocket::with_data(
                 schema,

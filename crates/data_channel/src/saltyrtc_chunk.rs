@@ -40,7 +40,7 @@ impl ReliabilityMode {
             }
         };
 
-        bit_field & end_of_message_bit
+        bit_field | end_of_message_bit
     }
 
     /// The number of bytes in a header in this mode
@@ -107,8 +107,9 @@ impl ChunkDecoder {
         // The remaining bit field after XORing should equal 0 or 1 for the end of message bit
         if end_of_message_bit > 1 {
             Err(eyre!(
-                "Invalid bit field received for SaltyRTC Chunk: {}",
-                actual_bit_field,
+                "Invalid bit field received for SaltyRTC Chunk in {mode:?}: {bit_field}",
+                mode = self.mode,
+                bit_field = actual_bit_field,
             ))?
         }
 

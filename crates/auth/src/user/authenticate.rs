@@ -73,10 +73,12 @@ impl User {
             let invite_code = bs58::decode(invite_code).into_vec()?;
             let invite_code: InviteCode = Message::decode(&invite_code[..])?;
 
+            let secret_hash = Invite::hash_secret(&invite_code.secret[..]);
+
             let invite = sqlx::query_as!(
                 JsonRow,
                 "SELECT props FROM invites WHERE secret_hash = ?",
-                invite_code.secret,
+                secret_hash,
             )
                 .fetch_one(db)
                 .await

@@ -237,6 +237,7 @@ where
                         userID
                         email
                         emailVerified
+                        invite
                         sessionID
                         offer
                         iceServers {
@@ -300,7 +301,6 @@ where
                 payload: ExecutionResult { data: Some(mut data), .. },
             } if id == rx_signals_id => {
                 let data = data["connectionRequested"].take();
-                // info!("signal {:?}", data);
                 let signal: Signal = serde_json::from_value(data)?;
                 let handshake_session_id = signal.session_id.clone();
 

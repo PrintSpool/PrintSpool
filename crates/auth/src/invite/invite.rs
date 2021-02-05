@@ -75,7 +75,7 @@ impl Invite {
 
         let slug = Self::generate_slug(server_keys, secret.to_vec())?;
 
-        let secret_hash = format!("{:x}", Sha512::digest(&secret));
+        let secret_hash = Self::hash_secret(&secret);
 
         let invite = Invite {
             id: nanoid!(11),
@@ -91,6 +91,10 @@ impl Invite {
         invite.insert(db).await?;
 
         Ok((slug, invite))
+    }
+
+    pub fn hash_secret(secret: &[u8]) -> String {
+        format!("{:x}", Sha512::digest(secret))
     }
 }
 
