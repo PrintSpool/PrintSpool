@@ -27,6 +27,18 @@ pub struct MachineQuery;
 #[async_graphql::Object]
 impl MachineQuery {
     #[instrument(skip(self, ctx))]
+    async fn is_configured<'ctx>(
+        &self,
+        ctx: &'ctx Context<'_>,
+        id: Option<ID>,
+    ) -> FieldResult<bool> {
+        let machines: &crate::MachineMap = ctx.data()?;
+        let machines = machines.load();
+
+        Ok(!machines.is_empty())
+    }
+
+    #[instrument(skip(self, ctx))]
     async fn machines<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,

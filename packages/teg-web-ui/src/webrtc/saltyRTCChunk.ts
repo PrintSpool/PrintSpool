@@ -52,7 +52,7 @@ const createChunk = ({
 
   // write the header to the start of the buffer
   buf.writeUInt8(bf, 0)
-  console.log(bf)
+  // console.log(bf)
   if (mode === 'RELIABLE_ORDERED') {
     buf.writeUInt32LE(id, 1)
     buf.writeUInt32LE(serial, 5)

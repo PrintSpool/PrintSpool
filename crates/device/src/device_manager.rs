@@ -10,6 +10,7 @@ use notify::{Watcher, RecommendedWatcher, RecursiveMode};
 
 use crate::{Device, messages::{add_device::AddDevice, remove_device::RemoveDevice}};
 
+#[derive(Default)]
 pub struct DeviceManager {
     pub devices: HashMap<String, Device>,
 }

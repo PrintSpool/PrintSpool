@@ -30,7 +30,7 @@ CREATE TABLE invites(
 );
 
 CREATE UNIQUE INDEX invites_secret_hash ON invites(secret_hash);
-CREATE UNIQUE INDEX invites_consumed ON invites(consumed);
+CREATE INDEX invites_consumed ON invites(consumed);
 
 CREATE TABLE machine_viewers(
   id TEXT PRIMARY KEY NOT NULL,

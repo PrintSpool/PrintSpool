@@ -2,7 +2,7 @@ import useLiveSubscription from '../printer/_hooks/useLiveSubscription'
 
 // eslint-disable-next-line import/prefer-default-export
 export const LiveSubscription = ({
-  subscription,
+  queryFragment,
   children,
   ...options
 }) => {
@@ -14,7 +14,7 @@ export const LiveSubscription = ({
     error,
     loading,
     data,
-  } = useLiveSubscription(subscription, options)
+  } = useLiveSubscription(queryFragment, options)
 
   return children({
     data,

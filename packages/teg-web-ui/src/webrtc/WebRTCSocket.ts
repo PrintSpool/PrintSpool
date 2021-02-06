@@ -41,7 +41,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     //   { urls: 'stun:stun.l.google.com:19302' },
     //   { urls: 'stun:global.stun.twilio.com:3478?transport=udp' },
     // ]
-    console.log({ iceServers })
+    // console.log({ iceServers })
 
     this.peer = new SimplePeer({
       initiator: true,
@@ -57,7 +57,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     )
 
     this.peer.on('connect', () => {
-      console.log('CONNECT')
+      // console.log('CONNECT')
       this.onopen()
         .catch(this.innerClose)
     })
@@ -65,12 +65,12 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     // Register event listeners
 
     this.peer.on('close', () => {
-      console.log('PEER CONNECTION CLOSED')
+      // console.log('PEER CONNECTION CLOSED')
       this.innerClose({ message: 'WebRTC peer connection closed'}, 1000)
     })
 
     this.peer.on('data', dechunkifier(data => {
-      console.log('DATA', data)
+      // console.log('DATA', data)
 
       // messages are received both through onmessage and an event listener
       this.onmessage?.({ data })
@@ -85,31 +85,31 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
       this.peer.on('error', reject)
       this.peer.on('signal', resolve)
     })
-    console.log("sending", { offer })
+    // console.log("sending", { offer })
 
     const {
       answer,
       iceCandidates
     } = await connectToPeer(offer)
 
-    console.log('received', { answer, iceCandidates })
+    // console.log('received', { answer, iceCandidates })
     this.peer.signal(answer)
 
     iceCandidates.forEach((candidate) => {
-      console.log('ADD', { candidate })
+      // console.log('ADD', { candidate })
       this.peer.signal({ candidate })
     })
-    console.log('END 2??')
+    // console.log('END 2??')
     // this.peer.signal({ candidate: '' })
   }
 
   send(message: string) {
-    console.log(`SEND: ${message}`)
+    // console.log(`SEND: ${message}`)
     this.chunkifier(message)
   }
 
   private innerClose(error: any, code: number = 4000) {
-    console.log("INNER CLOSE", error)
+    // console.log("INNER CLOSE", error)
     if (this.readyState == WebRTCSocket.CLOSED) {
       return
     }
@@ -124,7 +124,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
   }
 
   close(code: number, message: string) {
-    console.log(`APOLLO HAS DECIDED TO CLOSE THE CONNECTION (code: ${code})`)
+    // console.log(`APOLLO HAS DECIDED TO CLOSE THE CONNECTION (code: ${code})`)
     if (code !== 1000) {
       console.warn(`WebRTCSocket closed with code: ${code}, message: ${message}`)
     }

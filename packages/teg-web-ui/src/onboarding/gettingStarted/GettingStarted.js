@@ -24,19 +24,11 @@ import Step2Connect from './steps/Step2Connect'
 import Step3Setup from './steps/Step3Setup'
 import Step4Backup from './steps/Step4Backup'
 
-const DEVICES_SUBSCRIPTION = gql`
-  subscription DevicesSubscription {
-    live {
-      patch { op, path, from, value }
-      query {
-        isConfigured
-        jobQueue {
-          name
-        }
-        devices {
-          id
-        }
-      }
+const DEVICES_QUERY = gql`
+  fragment QueryFragment on Query {
+    isConfigured
+    devices {
+      id
     }
   }
 `
@@ -89,7 +81,7 @@ const GettingStarted = ({
       )}
       { step === 3 && (
         <LiveSubscription
-          subscription={DEVICES_SUBSCRIPTION}
+          queryFragment={DEVICES_QUERY}
         >
           {({ data, loading, error }) => {
             if (error) {
@@ -111,36 +103,12 @@ const GettingStarted = ({
         </LiveSubscription>
       )}
       { step === 4 && (
-        <Query
-          query={gql`
-            query {
-              jobQueue {
-                name
-              }
-            }
-          `}
-          fetchPolicy="network-only"
-        >
-          {({
-            data,
-            loading,
-            error,
-          }) => {
-            if (loading) return <div />
-            if (error) {
-              throw error
-            }
-
-            return (
-              <Step4Backup
-                history={history}
-                invite={invite}
-                className={classes.content}
-                data={data}
-              />
-            )
-          }}
-        </Query>
+        <Step4Backup
+          history={history}
+          invite={invite}
+          className={classes.content}
+          data={data}
+        />
       )}
     </div>
   )

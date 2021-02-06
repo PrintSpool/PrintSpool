@@ -57,11 +57,11 @@ pub async fn start(
     let graphql_subscription =
         async_graphql_warp::graphql_subscription(schema);
 
-    let graphql_playground = warp::path::end().and(warp::get()).map(|| {
+    let graphql_playground = warp::path("playground").and(warp::get()).map(|| {
         HttpResponse::builder()
             .header("content-type", "text/html")
             .body(playground_source(
-                GraphQLPlaygroundConfig::new("/playground")
+                GraphQLPlaygroundConfig::new("/graphql")
                     .subscription_endpoint("/"),
             ))
     });

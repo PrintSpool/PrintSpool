@@ -47,7 +47,7 @@ impl DataChannelHandler for GraphQLChannel {
     // }
 
     fn on_message(&mut self, msg: &[u8]) {
-        debug!("Received {:?}", msg);
+        // trace!("Received {:?}", msg);
         let msg = msg.to_vec();
         let output = self.output.clone();
         block_on(async move {
@@ -80,7 +80,7 @@ impl PeerConnectionHandler for Conn {
     }
 
     fn on_candidate(&mut self, cand: IceCandidate) {
-        info!("Candidate {}: {} {}", self.id, &cand.candidate, &cand.mid);
+        trace!("Candidate {}: {} {}", self.id, &cand.candidate, &cand.mid);
 
         let ice_candidate_sender = if let
             Some(sender) = &self.ice_candidate_sender
@@ -100,11 +100,11 @@ impl PeerConnectionHandler for Conn {
     }
 
     fn on_connection_state_change(&mut self, state: ConnectionState) {
-        info!("State {}: {:?}", self.id, state);
+        trace!("State {}: {:?}", self.id, state);
     }
 
     fn on_gathering_state_change(&mut self, state: GatheringState) {
-        info!("Gathering state {}: {:?}", self.id, state);
+        trace!("Gathering state {}: {:?}", self.id, state);
         if let GatheringState::Complete = state {
             // drop the ice candidate sender once the ice candidates have been gathered
             self.ice_candidate_sender = None;
@@ -112,7 +112,7 @@ impl PeerConnectionHandler for Conn {
     }
 
     fn on_data_channel(&mut self, dc: Box<RtcDataChannel<GraphQLChannel>>) {
-        info!(
+        trace!(
             "Channel {} Received Datachannel with: label={}, protocol={:?}, reliability={:?}",
             self.id,
             dc.label(),

@@ -24,6 +24,7 @@ use futures_util::{TryFutureExt, future, future::FutureExt, future::join_all, se
         // TryStreamExt,
     }};
 use teg_auth::AuthContext;
+use teg_device::DeviceManager;
 use teg_machine::{MachineMap, MachineMapLocal, machine::Machine};
 
 const CONFIG_DIR: &'static str = "/etc/teg/";
@@ -52,13 +53,7 @@ fn main() -> Result<()> {
     async_std::task::block_on(app())
 }
 
-async fn app() -> Result<()> {
-    dotenv::dotenv().ok();
-    tracing_subscriber::fmt::init();
-    color_eyre::install()?;
-
-    let db = SqlitePool::connect(&env::var("DATABASE_URL")?).await?;
-
+async fn update_db(_db: &crate::Db) -> Result<()> {
     // // Database migrations
     // sqlx::migrate::Migrator::new(
     //     std::path::Path::new("./migrations")
@@ -66,6 +61,17 @@ async fn app() -> Result<()> {
     //     .await?
     //     .run(&db)
     //     .await?;
+    Ok(())
+}
+
+async fn app() -> Result<()> {
+    dotenv::dotenv().ok();
+    tracing_subscriber::fmt::init();
+    color_eyre::install()?;
+
+    let db = SqlitePool::connect(&env::var("DATABASE_URL")?).await?;
+
+    update_db(&db).await?;
 
     let machine_ids: Vec<crate::DbId> = std::fs::read_dir(CONFIG_DIR)?
         .map(|entry| {
@@ -124,12 +130,12 @@ async fn app() -> Result<()> {
 
     let machines: MachineMap = Arc::new(ArcSwap::new(Arc::new(machines)));
 
-    // let (
-    //     auth_pem_keys,
-    //     auth_pem_keys_watcher,
-    // ) = watch_pem_keys().await?;
-
     let server_keys = Arc::new(teg_auth::ServerKeys::load_or_create().await?);
+
+    let device_manager = xactor::Supervisor::start(move || {
+        info!("Starting device manager");
+        DeviceManager::default()
+    }).await?;
 
     // Build the server
     let db_clone = db.clone();
@@ -146,6 +152,7 @@ async fn app() -> Result<()> {
             .data(db_clone.clone())
             .data(machines_clone.clone())
             .data(server_keys_clone.clone())
+            .data(device_manager.clone())
     };
 
     let schema = schema_builder().finish();

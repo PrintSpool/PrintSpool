@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { Query } from '@apollo/client'
 import { gql } from '@apollo/client'
 import { GraphQL } from 'graphql-react'
-import { useMutation } from '@apollo/client'
+import { useLazyQuery } from '@apollo/client'
 import { useAsync } from 'react-async'
 import { Link } from 'react-router-dom'
 
@@ -20,22 +19,14 @@ import Step3SetupForm from './Step3SetupForm'
 import useStyles from './Step3Setup.styles'
 
 const MACHINE_FORM_QUERY = gql`
-  query($input: SchemaFormQueryInput!) {
-    schemaForm(input: $input) {
+  query {
+    machineSchemaForm {
+      id
       schema
       form
     }
   }
 `
-
-const CONSUME_INVITE = gql`
-  mutation {
-    consumeInvite {
-      id
-    }
-  }
-`
-
 
 const Step3Setup = ({
   connecting,
@@ -49,12 +40,14 @@ const Step3Setup = ({
   const [machineDefinitionURL, setMachineDefinitionURL] = useState('placeholder')
   const { fetchOptions } = useAuth()
 
-  const [consumeInvite] = useMutation(CONSUME_INVITE)
-
   // const {
   //   suggestions,
   //   loading: loadingMachineDefs,
   // } = useMachineDefSuggestions()
+
+  // console.log(loadingMachineDefs, connecting)
+  // const loading = loadingMachineDefs || connecting
+  const loading = connecting
 
   const { isConfigured } = data || {}
 
@@ -76,6 +69,17 @@ const Step3Setup = ({
       console.error('skip 3 error?', skipStep3Async.error.code, skipStep3Async.error.message)
     }
   }, [skipStep3Async.error])
+
+  const [getSchemaForm, schemaForm] = useLazyQuery(MACHINE_FORM_QUERY, {
+    fetchPolicy: 'network-only',
+  });
+
+  useEffect(() => {
+    console.log({ loading, isConfigured })
+    if (!loading && !isConfigured) {
+      getSchemaForm()
+    }
+  }, [loading, isConfigured])
 
   if (skipStep3Async.error) {
     // TODO: error codes instead of error message parsing
@@ -100,11 +104,7 @@ const Step3Setup = ({
     throw skipStep3Async.error
   }
 
-  // console.log(loadingMachineDefs, connecting)
-  // const loading = loadingMachineDefs || connecting
-  const loading = connecting
-
-  if (loading || isConfigured) {
+  if (loading || isConfigured || schemaForm.loading || !schemaForm.called) {
     return (
       <Loading className={classes.loading}>
         Connecting to Raspberry Pi
@@ -121,41 +121,25 @@ const Step3Setup = ({
     ]
   }
 
+  console.log({ schemaForm })
+
   return (
-    <Query
-      query={MACHINE_FORM_QUERY}
-      variables={{
-        input: {
-          collection: 'MACHINE',
-          schemaFormKey: 'PLACEHOLDER', // machineDefinitionURL,
-        },
-      }}
-      // skip={machineDefinitionURL == null}
-      fetchPolicy="network-only"
-    >
-      {({
-        loading: loadingMachineSettings,
-        error: machineSettingsError,
-        data: settingsData,
-      }) => (
-        <Step3SetupForm
-          classes={classes}
-          className={className}
-          history={history}
-          location={location}
-          // suggestions={suggestions}
-          machineDefinitionURL={machineDefinitionURL}
-          setMachineDefinitionURL={setMachineDefinitionURL}
-          devices={
-            // data.devices.filter(device => device.connected)
-            devices
-          }
-          loadingMachineSettings={loadingMachineSettings}
-          machineSettingsError={machineSettingsError}
-          schemaForm={settingsData && settingsData.schemaForm}
-        />
-      )}
-    </Query>
+    <Step3SetupForm
+      classes={classes}
+      className={className}
+      history={history}
+      location={location}
+      // suggestions={suggestions}
+      machineDefinitionURL={machineDefinitionURL}
+      setMachineDefinitionURL={setMachineDefinitionURL}
+      devices={
+        // data.devices.filter(device => device.connected)
+        devices
+      }
+      loadingMachineSettings={schemaForm.loading}
+      machineSettingsError={schemaForm.error}
+      schemaForm={schemaForm.data?.machineSchemaForm}
+    />
   )
 }
 

@@ -12,14 +12,14 @@ pub struct PrintQueueQuery;
 
 #[async_graphql::Object]
 impl PrintQueueQuery {
-    async fn job_queue<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<PrintQueue> {
+    async fn print_queues<'ctx>(
+        &self,
+        ctx: &'ctx Context<'_>,
+    ) -> FieldResult<Vec<PrintQueue>> {
         let db: &crate::Db = ctx.data()?;
 
-        // TODO: Support multiple print queues
-        let print_queue = PrintQueue::get_all(db).await?.first()
-            .unwrap()
-            .clone();
+        let print_queues = PrintQueue::get_all(db).await?;
 
-        Ok(print_queue)
+        Ok(print_queues)
     }
 }
