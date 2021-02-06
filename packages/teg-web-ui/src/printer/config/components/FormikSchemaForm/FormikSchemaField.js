@@ -45,13 +45,22 @@ const TextFieldWrapper = ({
 )
 
 const FormikSchemaField = ({
+  schema,
   name,
-  property,
+  property: propertyNoRefs,
   values = {},
 }) => {
-  if (property == null) {
+  if (propertyNoRefs == null) {
     throw new Error(`JSON schema missing type "${name}"`)
   }
+
+  const refMixins = (propertyNoRefs.allOf || [])
+    .map(r => schema.definitions[r['$ref'].replace('#/definitions/', '')] );
+
+  refMixins.unshift({...propertyNoRefs})
+
+  const property = refMixins.reduce((a, b) => ({ ...a, ...b }))
+
   const sharedFieldProps = {
     name,
     key: name,
@@ -70,6 +79,8 @@ const FormikSchemaField = ({
   const multiline = gcodeHooks.includes(name)
   // console.log({ name, multiline })
 
+  const isEnum = property.enum != null
+
   switch (property.type) {
     case 'number':
     case 'integer':
@@ -86,23 +97,23 @@ const FormikSchemaField = ({
         )
       }
 
-      const FieldComponent = property.enum ? Field : FastField
+      const FieldComponent = isEnum ? Field : FastField
       return (
         <FieldComponent
           {...sharedFieldProps}
           multiline={multiline}
           rows={multiline ? 5 : null}
           type={type}
-          select={property.enum != null}
+          select={isEnum}
           component={TextFieldWrapper}
           fullWidth
         >
-          { property.enum && property.enum.map((option, optionIndex) => (
+          { property.enum?.map((option, optionIndex) => (
             <MenuItem key={option} value={option}>
               {(property.enumNames || [])[optionIndex] || option}
             </MenuItem>
           ))}
-          { property.enum && property.enum.length === 0 && name === 'serialPortID' && (
+          { property.enum?.length === 0 && name === 'serialPortID' && (
             <MenuItem value="">
               No serial devices detected.
               <Hidden smDown>
@@ -115,12 +126,13 @@ const FormikSchemaField = ({
       )
     }
     case 'boolean': {
+      const { helperText, ...booleanFieldProps } = sharedFieldProps
       return (
         <div
           style={{ marginTop: 24 }}
         >
           <Field
-            {...sharedFieldProps}
+            {...booleanFieldProps}
             component={SwitchWithLabel}
           />
         </div>
@@ -167,7 +179,7 @@ const FormikSchemaField = ({
       )
     }
     default: {
-      throw new Error(`Unsupported type: ${property.type}`)
+      throw new Error(`Unsupported type: ${property.type} (on field: ${name})`)
     }
   }
 }

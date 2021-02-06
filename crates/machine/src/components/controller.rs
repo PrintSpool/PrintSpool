@@ -71,18 +71,18 @@ pub type Controller = ComponentInner<ControllerConfig, ()>;
 
 #[derive(Serialize, Deserialize, JsonSchema, Debug, Copy, Clone)]
 pub enum BaudRate {
-    #[serde(rename = "250000")]
+    // #[serde(rename = "250000")]
     Baud250K = 250_000,
-    #[serde(rename = "230400")]
+    // #[serde(rename = "230400")]
     Baud230K = 230_400,
-    #[serde(rename = "115200")]
+    // #[serde(rename = "115200")]
     Baud115K = 115_200,
-    #[serde(rename = "57600")]
+    // #[serde(rename = "57600")]
     Baud057K = 57_600,
-    #[serde(rename = "38400")]
+    // #[serde(rename = "38400")]
     Baud038K = 38_400,
-    #[serde(rename = "19200")]
+    // #[serde(rename = "19200")]
     Baud019K = 19_200,
-    #[serde(rename = "9600")]
+    // #[serde(rename = "9600")]
     Baud009K = 9_600,
 }

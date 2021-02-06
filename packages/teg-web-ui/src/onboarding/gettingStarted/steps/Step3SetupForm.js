@@ -44,6 +44,7 @@ const schemaWithoutDef = ({ schema }) => {
   ))
 
   return {
+    ...schema,
     properties,
     required,
   }

@@ -112,7 +112,7 @@ const Step3Setup = ({
     )
   }
 
-  console.log(data.devices)
+  // console.log(data.devices)
 
   let { devices } = data
   if (devices.length === 0) {
@@ -121,7 +121,7 @@ const Step3Setup = ({
     ]
   }
 
-  console.log({ schemaForm })
+  // console.log({ schemaForm })
 
   return (
     <Step3SetupForm

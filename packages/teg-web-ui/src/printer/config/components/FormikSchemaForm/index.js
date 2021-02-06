@@ -40,6 +40,7 @@ const FormikSchemaForm = ({
       }
       return (
         <FormikSchemaField
+          schema={schema}
           property={property}
           key={name}
           name={`${path}${name}`}

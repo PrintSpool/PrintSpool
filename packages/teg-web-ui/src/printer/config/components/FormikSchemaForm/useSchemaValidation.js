@@ -14,6 +14,7 @@ import Ajv from 'ajv'
 const useSchemaValidation = ({ schema } = {}) => (
   useMemo(() => {
     if (schema == null) return () => ({})
+    // console.log({ schema })
 
     const ajv = new Ajv({
       allErrors: true,
