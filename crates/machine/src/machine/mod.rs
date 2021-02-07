@@ -6,6 +6,8 @@ pub mod resolvers;
 mod machine;
 pub use machine::{ Machine, MachineData };
 
+pub mod machine_hooks;
+
 mod machine_viewer;
 pub use machine_viewer::{
     MachineViewer,

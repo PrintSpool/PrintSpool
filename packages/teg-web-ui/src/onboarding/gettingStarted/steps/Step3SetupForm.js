@@ -29,7 +29,7 @@ const createMachineMutation = gql`
     $input: CreateMachineInput!
   ) {
     createMachine(input: $input) {
-      errors { message }
+      id
     }
   }
 `
@@ -119,17 +119,6 @@ const Step3SetupForm = ({
         if (createMachine.errors != null) {
           throw new Error(JSON.stringify(createMachine.errors, null, 2))
         }
-
-        // Consume the invite token
-        await apollo.mutate({
-          mutation: gql`
-            mutation {
-              consumeInvite {
-                id
-              }
-            }
-          `,
-        })
 
         // Proceed to the next page
         history.push(nextURL)

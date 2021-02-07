@@ -30,3 +30,6 @@ pub type DbId = teg_json_store::DbId;
 /// GraphQL Context containing all the machine xactor addresses for message passing.
 pub type MachineMapLocal = HashMap<async_graphql::ID, xactor::Addr<machine::Machine>>;
 pub type MachineMap = Arc<ArcSwap<MachineMapLocal>>;
+
+pub use machine::machine_hooks::MachineHooks;
+pub type MachineHooksList = Arc<Vec<Box<dyn MachineHooks + Send + Sync>>>;

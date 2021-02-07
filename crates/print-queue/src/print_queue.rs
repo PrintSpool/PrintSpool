@@ -14,6 +14,7 @@ pub struct PrintQueue {
     pub id: crate::DbId,
     pub version: i32,
     pub created_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
     // Foreign Keys
     // Props
     pub name: String,

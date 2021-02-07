@@ -54,7 +54,8 @@ const Step3Setup = ({
 
   // console.log(loadingMachineDefs, connecting)
   // const loading = loadingMachineDefs || connecting
-  const { isConfigured, devices } = data || {}
+  const { isConfigured } = data || {}
+  let { devices } = data || {}
 
   // skip step 3 for configured 3D printers
   const skipStep3Async = useAsync({

@@ -7,7 +7,7 @@ use async_graphql::{
 use eyre::{
     eyre,
     // Result,
-    Context as _,
+    // Context as _,
 };
 use cgt::SetConfigResponse;
 use messages::{GetData, set_materials::SetMaterialsInput};
@@ -16,10 +16,13 @@ use teg_auth::{
 };
 // use teg_json_store::Record as _;
 
-use crate::{config::{
+use crate::{
+    config::{
         CombinedConfigView,
         MachineConfig,
-    }, machine::{Machine, MachineData, messages}};
+    },
+    machine::{Machine, MachineData, messages},
+};
 use super::config_graphql_types as cgt;
 
 #[derive(Default)]
@@ -262,6 +265,7 @@ impl ConfigMutation {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
         let machines_store: &crate::MachineMap = ctx.data()?;
+        let machine_hooks: &crate::MachineHooksList = ctx.data()?;
 
         async move {
             dbg!(&input.model);
@@ -305,8 +309,21 @@ impl ConfigMutation {
 
             build_platform.model.heater = heated_build_platform;
 
-            // TODO: Save the config file
+            // Run before_create hooks in a transaction around saving the config file
+            let mut tx = db.begin().await?;
+
+            for hooks_provider in machine_hooks.iter() {
+                hooks_provider.before_create(
+                    &mut tx,
+                    &mut machine_config,
+                ).await?;
+            }
+
+            // Save the config file
             machine_config.save_config().await?;
+
+            // Commit the transaction
+            tx.commit().await?;
 
             // Give the driver 50ms to startup so the first connection attempt is likely to succeed
             // without having to retry.

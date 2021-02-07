@@ -9,16 +9,20 @@ pub mod package;
 pub mod part;
 pub mod print;
 
+mod insert_print;
+pub use insert_print::insert_print;
+
+pub mod machine_print_queue;
+
 mod print_queue;
 pub use print_queue::PrintQueue;
 
+pub mod print_queue_machine_hooks;
 mod print_queue_resolvers;
 
 mod query_resolvers;
 pub use query_resolvers::PrintQueueQuery;
 
-mod insert_print;
-pub use insert_print::insert_print;
 
 mod task_from_gcodes;
 pub use task_from_gcodes::{

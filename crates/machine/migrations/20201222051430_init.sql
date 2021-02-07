@@ -43,8 +43,8 @@ CREATE TABLE machine_viewers(
   props TEXT NOT NULL
 );
 
-CREATE UNIQUE INDEX machine_viewers_user ON machine_viewers(user_id);
-CREATE UNIQUE INDEX machine_viewers_machine ON machine_viewers(machine_id, expires_at);
+CREATE UNIQUE INDEX machine_viewers_machine_user ON machine_viewers(machine_id, user_id);
+CREATE INDEX machine_viewers_machine ON machine_viewers(machine_id, expires_at);
 
 CREATE TABLE tasks(
   id TEXT PRIMARY KEY NOT NULL,
@@ -66,15 +66,30 @@ CREATE TABLE tasks(
 CREATE TABLE print_queues(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
+  deleted_at TEXT,
 
   props TEXT NOT NULL
 );
 
+CREATE TABLE machine_print_queues(
+  id TEXT PRIMARY KEY NOT NULL,
+  version INT NOT NULL DEFAULT 0,
+  deleted_at TEXT,
+
+  machine_id TEXT NOT NULL,
+  print_queue_id TEXT NOT NULL,
+
+  props TEXT NOT NULL
+);
+
+CREATE UNIQUE INDEX machine_print_queues_ids ON machine_print_queues(machine_id, print_queue_id, deleted_at);
+CREATE INDEX machine_print_queues_machine_id ON machine_print_queues(machine_id);
+CREATE INDEX machine_print_queues_print_queue_id ON machine_print_queues(print_queue_id);
+
 CREATE TABLE packages(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
-
-  deleted_at TEXT NOT NULL,
+  deleted_at TEXT,
 
   print_queue_id TEXT NOT NULL,
   quantity INT NOT NULL,
@@ -85,8 +100,7 @@ CREATE TABLE packages(
 CREATE TABLE parts(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
-
-  deleted_at TEXT NOT NULL,
+  deleted_at TEXT,
 
   package_id TEXT NOT NULL,
   quantity INT NOT NULL,

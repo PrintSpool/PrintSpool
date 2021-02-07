@@ -25,7 +25,8 @@ use futures_util::{TryFutureExt, future, future::FutureExt, future::join_all, se
     }};
 use teg_auth::AuthContext;
 use teg_device::DeviceManager;
-use teg_machine::{MachineMap, MachineMapLocal, machine::Machine};
+use teg_machine::{MachineHooksList, MachineMap, MachineMapLocal, machine::Machine};
+use teg_print_queue::print_queue_machine_hooks::PrintQueueMachineHooks;
 
 const CONFIG_DIR: &'static str = "/etc/teg/";
 
@@ -130,6 +131,10 @@ async fn app() -> Result<()> {
 
     let machines: MachineMap = Arc::new(ArcSwap::new(Arc::new(machines)));
 
+    let machine_hooks: MachineHooksList = Arc::new(vec![
+        Box::new(PrintQueueMachineHooks),
+    ]);
+
     let server_keys = Arc::new(teg_auth::ServerKeys::load_or_create().await?);
 
     let device_manager = xactor::Supervisor::start(move || {
@@ -151,6 +156,7 @@ async fn app() -> Result<()> {
             .extension(async_graphql::extensions::Tracing::default())
             .data(db_clone.clone())
             .data(machines_clone.clone())
+            .data(machine_hooks.clone())
             .data(server_keys_clone.clone())
             .data(device_manager.clone())
     };
