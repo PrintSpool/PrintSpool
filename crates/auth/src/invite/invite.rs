@@ -158,4 +158,40 @@ impl Record for Invite {
             .await?;
         Ok(())
     }
+
+
+    async fn update<'e, 'c, E>(
+        &mut self,
+        db: E,
+    ) -> Result<()>
+    where
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    {
+        let (json, previous_version) = self.prep_for_update()?;
+        let consumed = self.consumed_by_user_id.is_some();
+
+        sqlx::query!(
+            r#"
+                UPDATE invites
+                SET
+                    props=?,
+                    version=?,
+                    consumed=?
+                WHERE
+                    id=?
+                    AND version=?
+            "#,
+            // SET
+            json,
+            self.version,
+            consumed,
+            // WHERE
+            self.id,
+            previous_version,
+        )
+            .fetch_optional(db)
+            .await?;
+
+        Ok(())
+    }
 }

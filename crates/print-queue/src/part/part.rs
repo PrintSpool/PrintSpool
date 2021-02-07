@@ -214,7 +214,7 @@ impl Record for Part {
             self.id,
             previous_version,
         )
-            .fetch_one(db)
+            .fetch_optional(db)
             .await?;
 
         Ok(())

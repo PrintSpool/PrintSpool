@@ -240,7 +240,7 @@ impl Record for Package {
             self.id,
             previous_version,
         )
-            .fetch_one(db)
+            .fetch_optional(db)
             .await?;
 
         Ok(())
