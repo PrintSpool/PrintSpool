@@ -9,6 +9,7 @@ use crate::user::User;
 
 static NEXT_ID: AtomicU64 = AtomicU64::new(0);
 
+#[derive(Debug)]
 pub struct AuthContext {
     pub current_user: Option<User>,
     pub session_id: u64,

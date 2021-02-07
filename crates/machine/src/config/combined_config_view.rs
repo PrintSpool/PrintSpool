@@ -31,6 +31,7 @@ pub struct CombinedConfigView {
     /// Start prints automatically without human interaction.
     /// Requires automation hardware such as an auto-scraper or
     /// conveyor.
+    #[serde(default)]
     pub automatic_printing: bool,
 
     // Controller Component
@@ -42,6 +43,7 @@ pub struct CombinedConfigView {
     pub serial_port_id: String,
 
     /// # Automatic Baud Rate Detection
+    #[serde(default)]
     pub automatic_baud_rate_detection: bool,
     /// # Baud Rate
     pub baud_rate: BaudRate,
@@ -50,5 +52,6 @@ pub struct CombinedConfigView {
     // ----------------------------------
 
     /// # Heated Build Platform
+    #[serde(default)]
     pub heated_build_platform: bool,
 }

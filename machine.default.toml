@@ -6,31 +6,30 @@ id = "1"
 modelVersion = 1
 
   [controllers.model]
-  interface = "SERIAL"
   name = "RAMPS Controller Board"
   serialPortID = "/dev/null/no-serial-port"
   automaticBaudRateDetection = true
-  baudRate = 250_000
+  baudRate = "250000"
   simulate = false
   awaitGreetingFromFirmware = true
-  checksumTickles = false
   gcodeHistoryBufferSize = 20
-  serialConnectionTimeout = 3_000
   delayFromGreetingToReady = 2_000
   pollingInterval = 500
-  responseTimeoutTickleAttempts = 3
   fastCodeTimeout = 30_000
   longRunningCodeTimeout = 60_000
+  serialConnectionTimeout = 3_000
+  responseTimeoutTickleAttempts = 3
   longRunningCodes = [ "G4", "G28", "G29", "G30", "G32", "M226", "M400", "M600" ]
   blockingCodes = [ "M0", "M1", "M21", "M109", "M116", "M190", "M191" ]
+  checksumTickles = false
 
 [[axes]]
 id = "2"
 modelVersion = 1
 
   [axes.model]
-  address = "x"
   name = "X"
+  address = "x"
   feedrate = 150
 
 [[axes]]
@@ -38,8 +37,8 @@ id = "3"
 modelVersion = 1
 
   [axes.model]
-  address = "y"
   name = "Y"
+  address = "y"
   feedrate = 150
 
 [[axes]]
@@ -47,8 +46,8 @@ id = "4"
 modelVersion = 1
 
   [axes.model]
-  address = "z"
   name = "Z"
+  address = "z"
   feedrate = 4
 
 [[toolheads]]
@@ -57,35 +56,35 @@ modelVersion = 1
 type = "TOOLHEAD"
 
   [toolheads.model]
-  address = "e0"
   name = "Extruder 1"
+  address = "e0"
   heater = true
   feedrate = 3
   materialID = "dkdow2"
+  filamentSwapExtrudeDistance = 50
+  filamentSwapFastMoveEnabled = false
   bowdenTubeLength = 0
   filamentSwapFastMoveSpeed = 100
-  filamentSwapFastMoveEnabled = false
-  filamentSwapExtrudeDistance = 50
-  beforeFilamentSwapHook = ""
   filamentSwapContinuousPullEnabled = false
   filamentSwapContinuousPullSpeed = 3
+  beforeFilamentSwapHook = ""
 
-[[fans]]
+[[speedControllers]]
 id = "6"
 modelVersion = 1
 
-  [fans.model]
-  address = "f0"
+  [speedControllers.model]
   name = "Hot End Fan"
+  address = "f0"
 
-[[build_platforms]]
+[[buildPlatforms]]
 id = "7"
 modelVersion = 1
 type = "BUILD_PLATFORM"
 
-  [build_platforms.model]
-  address = "b"
+  [buildPlatforms.model]
   name = "Bed"
+  address = "b"
   heater = true
 
 [[plugins]]
@@ -96,23 +95,8 @@ package = "@tegapp/core"
   [plugins.model]
   name = "New Printer"
   automaticPrinting = false
+  swapXAndYOrientation = false
   beforePrintHook = ""
   afterPrintHook = ""
-  swapXAndYOrientation = false
-  macros = [ "*" ]
-
-[[plugins]]
-id = "2"
-modelVersion = 1
-package = "@tegapp/marlin"
-
-  [plugins.model]
-  macros = [ "*" ]
-
-[[plugins]]
-id = "3"
-modelVersion = 1
-package = "@tegapp/macros-default"
-
-  [plugins.model]
-  macros = [ "*" ]
+  pauseHook = ""
+  resumeHook = ""

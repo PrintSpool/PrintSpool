@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { gql } from '@apollo/client'
 import { GraphQL } from 'graphql-react'
-import { useLazyQuery } from '@apollo/client'
+import { useQuery } from '@apollo/client'
 import { useAsync } from 'react-async'
 import { Link } from 'react-router-dom'
 
@@ -12,14 +12,19 @@ import { getID } from '../../../UserDataProvider'
 import { useAuth } from '../../../common/auth'
 
 import Loading from '../../../common/Loading'
+import useLiveSubscription from '../../../printer/_hooks/useLiveSubscription'
 // import useMachineDefSuggestions from '../../../common/_hooks/useMachineDefSuggestions'
 
 import Step3SetupForm from './Step3SetupForm'
 
 import useStyles from './Step3Setup.styles'
 
-const MACHINE_FORM_QUERY = gql`
-  query {
+const QUERY = gql`
+  fragment QueryFragment on Query {
+    isConfigured
+    devices {
+      id
+    }
     machineSchemaForm {
       id
       schema
@@ -29,8 +34,6 @@ const MACHINE_FORM_QUERY = gql`
 `
 
 const Step3Setup = ({
-  connecting,
-  data,
   className,
   history,
   location,
@@ -40,6 +43,10 @@ const Step3Setup = ({
   const [machineDefinitionURL, setMachineDefinitionURL] = useState('placeholder')
   const { fetchOptions } = useAuth()
 
+  const { data, error, loading } = useLiveSubscription(QUERY, {
+    fetchPolicy: 'network-only',
+  });
+
   // const {
   //   suggestions,
   //   loading: loadingMachineDefs,
@@ -47,9 +54,7 @@ const Step3Setup = ({
 
   // console.log(loadingMachineDefs, connecting)
   // const loading = loadingMachineDefs || connecting
-  const loading = connecting
-
-  const { isConfigured } = data || {}
+  const { isConfigured, devices } = data || {}
 
   // skip step 3 for configured 3D printers
   const skipStep3Async = useAsync({
@@ -70,16 +75,6 @@ const Step3Setup = ({
     }
   }, [skipStep3Async.error])
 
-  const [getSchemaForm, schemaForm] = useLazyQuery(MACHINE_FORM_QUERY, {
-    fetchPolicy: 'network-only',
-  });
-
-  useEffect(() => {
-    console.log({ loading, isConfigured })
-    if (!loading && !isConfigured) {
-      getSchemaForm()
-    }
-  }, [loading, isConfigured])
 
   if (skipStep3Async.error) {
     // TODO: error codes instead of error message parsing
@@ -104,7 +99,7 @@ const Step3Setup = ({
     throw skipStep3Async.error
   }
 
-  if (loading || isConfigured || schemaForm.loading || !schemaForm.called) {
+  if (loading || isConfigured || data == null) {
     return (
       <Loading className={classes.loading}>
         Connecting to Raspberry Pi
@@ -114,7 +109,6 @@ const Step3Setup = ({
 
   // console.log(data.devices)
 
-  let { devices } = data
   if (devices.length === 0) {
     devices = [
       { id: '/dev/null' },
@@ -136,9 +130,9 @@ const Step3Setup = ({
         // data.devices.filter(device => device.connected)
         devices
       }
-      loadingMachineSettings={schemaForm.loading}
-      machineSettingsError={schemaForm.error}
-      schemaForm={schemaForm.data?.machineSchemaForm}
+      loadingMachineSettings={loading}
+      machineSettingsError={error}
+      schemaForm={data?.machineSchemaForm}
     />
   )
 }

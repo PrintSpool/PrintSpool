@@ -28,6 +28,7 @@ pub struct ToolheadConfig {
     pub address: String,
 
     /// Heated Extruder
+    #[serde(default)]
     pub heater: bool,
 
     /// # Feedrate (mm/s)
@@ -46,6 +47,7 @@ pub struct ToolheadConfig {
     /// # Fast Bowden Tube Priming
     /// Adds an extruder movement before the test extrude to quickly move the filament
     /// from the cold end to the hot end.
+    #[serde(default)]
     pub filament_swap_fast_move_enabled: bool,
 
     /// # Bowden Tube Length (mm)
@@ -60,6 +62,7 @@ pub struct ToolheadConfig {
     /// Continuously moves the extruder to catch and pull the new filament when loading
     /// the next material in the filament swap wizard.
     /// This should only be used on extruders which safeguard against filament jams.
+    #[serde(default)]
     pub filament_swap_continuous_pull_enabled: bool,
 
     /// # Continuous Pull Speed (mm/s)

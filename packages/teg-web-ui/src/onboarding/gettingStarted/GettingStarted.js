@@ -1,6 +1,4 @@
 import React, { useMemo, useState } from 'react'
-import { Query } from '@apollo/client'
-import { gql } from '@apollo/client'
 
 import {
   Stepper,
@@ -8,12 +6,6 @@ import {
   StepLabel,
   Typography,
 } from '@material-ui/core'
-
-// import { parseInviteCode } from 'graphql-things/client'
-// import { parseInviteCode } from 'graphql-things'
-// import base64url from 'base64url'
-
-import { LiveSubscription } from '../../common/LiveSubscription'
 
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
 
@@ -23,15 +15,6 @@ import Step1InstallTeg from './steps/Step1InstallTeg'
 import Step2Connect from './steps/Step2Connect'
 import Step3Setup from './steps/Step3Setup'
 import Step4Backup from './steps/Step4Backup'
-
-const DEVICES_QUERY = gql`
-  fragment QueryFragment on Query {
-    isConfigured
-    devices {
-      id
-    }
-  }
-`
 
 const GettingStarted = ({
   location,
@@ -80,34 +63,18 @@ const GettingStarted = ({
         <Step2Connect history={history} className={classes.content} />
       )}
       { step === 3 && (
-        <LiveSubscription
-          queryFragment={DEVICES_QUERY}
-        >
-          {({ data, loading, error }) => {
-            if (error) {
-              throw error
-            }
-
-            return (
-              <Step3Setup
-                connecting={loading}
-                location={location}
-                history={history}
-                setSkippedStep3={setSkippedStep3}
-                className={classes.content}
-                invite={invite}
-                data={data}
-              />
-            )
-          }}
-        </LiveSubscription>
+        <Step3Setup
+          location={location}
+          history={history}
+          setSkippedStep3={setSkippedStep3}
+          className={classes.content}
+          invite={invite}
+        />
       )}
       { step === 4 && (
         <Step4Backup
           history={history}
-          invite={invite}
           className={classes.content}
-          data={data}
         />
       )}
     </div>

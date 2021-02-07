@@ -22,7 +22,7 @@ tempfile = "3.1.0"
 bus_queue = "0.5.3"
 fallible-iterator = "0.2.0"
 chrono = "0.4.9"
-toml = "0.5.3"
+toml = "0.5.8"
 serde = { version = "1.0.101", features = ["derive"] }
 gcode = "0.5.0"
 nom-gcode = "0.1.0"

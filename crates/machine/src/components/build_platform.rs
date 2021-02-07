@@ -17,6 +17,7 @@ pub struct BuildPlatformConfig {
     pub address: String,
 
     /// # Heated Build Platform
+    #[serde(default)]
     pub heater: bool,
 }
 

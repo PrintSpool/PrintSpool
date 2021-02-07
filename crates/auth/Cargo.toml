@@ -45,7 +45,7 @@ rand_core = "0.6.1"
 
 [dependencies.serde]
 features = ["derive"]
-version = "1.0.104"
+version = "1.0.123"
 
 [dependencies.async-std]
 features = ["tokio02", "unstable"]

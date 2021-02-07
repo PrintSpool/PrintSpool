@@ -31,13 +31,16 @@ pub struct ControllerConfig {
     pub serial_port_id: String,
 
     /// # Automatic Baud Rate Detection
+    #[serde(default)]
     pub automatic_baud_rate_detection: bool,
     /// # Baud Rate
     pub baud_rate: BaudRate,
 
     /// # Simulate Attached Controller
+    #[serde(default)]
     pub simulate: bool,
     /// # Await greeting from firmware
+    #[serde(default)]
     pub await_greeting_from_firmware: bool,
     /// # Number of GCodes sent and responses received to keep buffered on the machine service
     pub gcode_history_buffer_size: usize,
@@ -64,6 +67,7 @@ pub struct ControllerConfig {
     /// # Blocking GCodes
     pub blocking_codes: Vec<String>,
     /// # Send checksums with response timeout tickle attempts
+    #[serde(default)]
     pub checksum_tickles: bool,
 }
 
@@ -71,18 +75,33 @@ pub type Controller = ComponentInner<ControllerConfig, ()>;
 
 #[derive(Serialize, Deserialize, JsonSchema, Debug, Copy, Clone)]
 pub enum BaudRate {
-    // #[serde(rename = "250000")]
-    Baud250K = 250_000,
-    // #[serde(rename = "230400")]
-    Baud230K = 230_400,
-    // #[serde(rename = "115200")]
-    Baud115K = 115_200,
-    // #[serde(rename = "57600")]
-    Baud057K = 57_600,
-    // #[serde(rename = "38400")]
-    Baud038K = 38_400,
-    // #[serde(rename = "19200")]
-    Baud019K = 19_200,
-    // #[serde(rename = "9600")]
-    Baud009K = 9_600,
+    #[serde(rename = "250000")]
+    Baud250K,
+    #[serde(rename = "230400")]
+    Baud230K,
+    #[serde(rename = "115200")]
+    Baud115K,
+    #[serde(rename = "57600")]
+    Baud057K,
+    #[serde(rename = "38400")]
+    Baud038K,
+    #[serde(rename = "19200")]
+    Baud019K,
+    #[serde(rename = "9600")]
+    Baud009K,
+}
+
+impl BaudRate {
+    pub fn to_u32(&self) -> u32 {
+        use BaudRate::*;
+        match self {
+            Baud250K => 250_000,
+            Baud230K => 230_400,
+            Baud115K => 115_200,
+            Baud057K => 57_600,
+            Baud038K => 38_400,
+            Baud019K => 19_200,
+            Baud009K => 9_600,
+        }
+    }
 }

@@ -23,4 +23,4 @@ nom-gcode = "0.1.0"
 
 [dependencies.serde]
 features = ["derive"]
-version = "1.0.104"
+version = "1.0.123"

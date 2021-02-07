@@ -15,7 +15,7 @@ const Step4Backup = ({
   history,
 }) => {
   const classes = Step4BackupStyles()
-  const { slug } = useContext(TegApolloContext)
+  // const { slug } = useContext(TegApolloContext)
 
   return (
     <React.Fragment>
@@ -27,7 +27,7 @@ const Step4Backup = ({
           { /* TODO: User / Printer Setup */ }
         </div>
       </div>
-      <ButtonsFooter step={4} nextURL={`/q/${slug}/`} history={history} />
+      <ButtonsFooter step={4} nextURL="/" history={history} />
     </React.Fragment>
   )
 }

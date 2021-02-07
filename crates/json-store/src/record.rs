@@ -7,7 +7,7 @@ use eyre::{
     // Context as _,
 };
 
-#[derive(sqlx::FromRow)]
+#[derive(sqlx::FromRow, Debug)]
 pub struct JsonRow {
     pub props: String,
 }

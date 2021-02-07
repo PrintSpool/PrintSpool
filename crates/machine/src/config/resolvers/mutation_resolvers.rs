@@ -7,26 +7,19 @@ use async_graphql::{
 use eyre::{
     eyre,
     // Result,
-    // Context as _,
+    Context as _,
 };
 use cgt::SetConfigResponse;
-use messages::set_materials::SetMaterialsInput;
+use messages::{GetData, set_materials::SetMaterialsInput};
 use teg_auth::{
     AuthContext,
 };
 // use teg_json_store::Record as _;
 
-use crate::{
-    config::{
+use crate::{config::{
         CombinedConfigView,
         MachineConfig,
-    },
-    machine::{
-        Machine,
-        // MachineData,
-        messages
-    },
-};
+    }, machine::{Machine, MachineData, messages}};
 use super::config_graphql_types as cgt;
 
 #[derive(Default)]
@@ -265,73 +258,84 @@ impl ConfigMutation {
         &self,
         ctx: &'ctx Context<'_>,
         input: cgt::CreateMachineInput,
-    ) -> FieldResult<SetConfigResponse> {
+    ) -> FieldResult<MachineData> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
-
-        auth.authorize_admins_only()?;
-
         let machines_store: &crate::MachineMap = ctx.data()?;
 
-        let default_config = include_str!("../../../../../machine.default.toml");
-        let mut machine_config: MachineConfig = toml::from_str(default_config)?;
+        async move {
+            dbg!(&input.model);
 
-        let machine_id = nanoid!(11);
-        machine_config.id = machine_id.clone();
+            auth.authorize_admins_only()?;
 
-        // Create the Machine by copying fields out of the CombinedConfigView
-        let CombinedConfigView {
-            // Core Plugin
-            name,
-            automatic_printing,
-            // Controller Component
-            serial_port_id,
-            automatic_baud_rate_detection,
-            baud_rate,
-            // Build Platform Component
-            heated_build_platform,
-        } = (*input.model).clone();
+            let default_config = include_str!("../../../../../machine.default.toml");
+            let mut machine_config: MachineConfig = toml::from_str(default_config)
+                .map_err(|err| eyre!(
+                    "Error in default config. Please report this bug to the developers: {:?}", err
+                ))?;
 
-        let core_plugin = machine_config.core_plugin_mut()?;
-        core_plugin.model.name = name;
-        core_plugin.model.automatic_printing = automatic_printing;
+            let machine_id = nanoid!(11);
+            machine_config.id = machine_id.clone();
 
-        let controller = machine_config.get_controller_mut();
-        controller.model.serial_port_id = serial_port_id;
-        controller.model.automatic_baud_rate_detection = automatic_baud_rate_detection;
-        controller.model.baud_rate = baud_rate;
+            // Create the Machine by copying fields out of the CombinedConfigView
+            let CombinedConfigView {
+                // Core Plugin
+                name,
+                automatic_printing,
+                // Controller Component
+                serial_port_id,
+                automatic_baud_rate_detection,
+                baud_rate,
+                // Build Platform Component
+                heated_build_platform,
+            } = (*input.model).clone();
 
-        let build_platform = machine_config.build_platforms
-            .first_mut()
-            .ok_or_else(|| eyre!("Build Platform not found"))?;
+            let core_plugin = machine_config.core_plugin_mut()?;
+            core_plugin.model.name = name;
+            core_plugin.model.automatic_printing = automatic_printing;
 
-        build_platform.model.heater = heated_build_platform;
+            let controller = machine_config.get_controller_mut();
+            controller.model.serial_port_id = serial_port_id;
+            controller.model.automatic_baud_rate_detection = automatic_baud_rate_detection;
+            controller.model.baud_rate = baud_rate;
 
-        // TODO: Save the config file
-        machine_config.save_config().await?;
+            let build_platform = machine_config.build_platforms
+                .first_mut()
+                .ok_or_else(|| eyre!("Build Platform not found"))?;
 
-        // Give the driver 50ms to startup so the first connection attempt is likely to succeed
-        // without having to retry.
-        use std::time::Duration;
-        use async_std::task;
-        task::sleep(Duration::from_millis(50)).await;
+            build_platform.model.heater = heated_build_platform;
 
-        // Start the machine actor
-        let db_clone = db.clone();
-        let machine = Machine::start(db_clone, &machine_id)
-            .await?;
+            // TODO: Save the config file
+            machine_config.save_config().await?;
 
-        let machine_id = machine_id.clone();
-        machines_store.rcu(|machines| {
-            let mut machines = HashMap::clone(&machines);
-            machines.insert(machine_id.clone().into(), machine.clone());
-            machines
-        });
+            // Give the driver 50ms to startup so the first connection attempt is likely to succeed
+            // without having to retry.
+            use std::time::Duration;
+            use async_std::task;
+            task::sleep(Duration::from_millis(50)).await;
 
-        // TODO: Also return the new machine!
-        Ok(SetConfigResponse {
-            errors: vec![],
-        })
+            // Start the machine actor
+            let db_clone = db.clone();
+            let machine = Machine::start(db_clone, &machine_id)
+                .await?;
+
+            let machine_id = machine_id.clone();
+            machines_store.rcu(|machines| {
+                let mut machines = HashMap::clone(&machines);
+                machines.insert(machine_id.clone().into(), machine.clone());
+                machines
+            });
+
+            // return the new machine!
+            let machine_data: MachineData = machine.call(GetData).await??;
+            eyre::Result::<_>::Ok(machine_data)
+        }
+            // log the backtrace which is otherwise lost by FieldResult
+            .await
+            .map_err(|err| {
+                warn!("{:?}", err);
+                err.into()
+            })
     }
 
     #[instrument(skip(self, ctx))]

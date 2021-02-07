@@ -16,4 +16,4 @@ async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }
 
 [dependencies.serde]
 features = ["derive"]
-version = "1.0.104"
+version = "1.0.123"

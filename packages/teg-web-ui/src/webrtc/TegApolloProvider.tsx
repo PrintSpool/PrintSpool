@@ -117,7 +117,11 @@ const TegApolloProvider = ({
         // Open a Websocket connection to the server.
         //
         // WebRTCLink internally switches to WebSockets when INSECURE_LOCAL_CONNECTION is true.
-        nextLink = new WebRTCLink()
+        // nextLink = new WebRTCLink()
+        return new ApolloClient({
+          uri: process.env.INSECURE_LOCAL_HTTP_URL,
+          cache: new InMemoryCache()
+        })
       } else {
         nextLink = await createWebRTCLink()
       }

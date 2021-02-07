@@ -26,6 +26,7 @@ export default class WebRTCLink extends ApolloLink {
     if (INSECURE_LOCAL_CONNECTION) {
       this.client = createClient({
         url: process.env.INSECURE_LOCAL_WS_URL,
+        keepAlive: Number.MAX_SAFE_INTEGER,
       })
     } else {
       this.client = createClient({

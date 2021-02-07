@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use eyre::{
     eyre,
     Result,
-    // Context as _,
+    Context as _,
 };
 
 use crate::components::{
@@ -32,17 +32,25 @@ pub struct MachineConfig {
     pub id: crate::DbId,
     // Set to the name of the snap to connect an external teg-marlin process to the snap's
     // tmp directory and socket. Generally this is only useful for teg-marlin development.
+    #[serde(default)]
     pub debug_snap_name: Option<String>,
 
     // Components
+    #[serde(default, skip_serializing_if="Vec::is_empty")]
     pub controllers: Vec<Controller>,
+    #[serde(default, skip_serializing_if="Vec::is_empty")]
     pub axes: Vec<Axis>,
+    #[serde(default, skip_serializing_if="Vec::is_empty")]
     pub build_platforms: Vec<BuildPlatform>,
+    #[serde(default, skip_serializing_if="Vec::is_empty")]
     pub toolheads: Vec<Toolhead>,
+    #[serde(default, skip_serializing_if="Vec::is_empty")]
     pub speed_controllers: Vec<SpeedController>,
+    #[serde(default, skip_serializing_if="Vec::is_empty")]
     pub videos: Vec<Video>,
 
     // Plugins
+    #[serde(default)]
     pub plugins: Vec<Plugin>,
 }
 
@@ -182,7 +190,8 @@ impl MachineConfig {
     }
 
     pub async fn save_config(&self) -> Result<()> {
-        let config_content = toml::to_string(&self)?;
+        let config_content = toml::to_string(&self)
+            .wrap_err("Error serializing machine config")?;
         async_std::fs::write(
             Self::config_file_path(&self.id),
             config_content,
