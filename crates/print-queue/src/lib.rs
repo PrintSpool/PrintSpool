@@ -18,10 +18,9 @@ mod print_queue;
 pub use print_queue::PrintQueue;
 
 pub mod print_queue_machine_hooks;
-mod print_queue_resolvers;
 
-mod query_resolvers;
-pub use query_resolvers::PrintQueueQuery;
+mod resolvers;
+pub use resolvers::print_queue_query_resolvers::PrintQueueQuery;
 
 
 mod task_from_gcodes;
