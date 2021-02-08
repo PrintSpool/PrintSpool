@@ -6,49 +6,38 @@ import JobQueueView from './JobQueue.view'
 
 import useLiveSubscription from '../_hooks/useLiveSubscription'
 
-const JOBS_SUBSCRIPTION = gql`
-#  subscription JobQueueSubscription {
-#    live {
-#      patch { op, path, from, value }
-      query {
-        machines {
+const PRINT_QUEUES_QUERY = gql`
+  fragment QueryFragment on Query {
+    machines(input: { id: $machineID }) {
+      id
+      status
+    }
+    printQueues(input: { machineID: $machineID }) {
+      name
+      parts {
+        id
+        name
+        quantity
+        printsCompleted
+        totalPrints
+        startedFinalPrint
+        # stoppedAt
+
+        tasks {
           id
+          percentComplete(digits: 1)
+          estimatedPrintTimeMillis
+          startedAt
           status
-        }
-        jobQueue {
-          name
-          jobs {
+          paused
+          machine {
             id
             name
-            quantity
-            printsCompleted
-            totalPrints
-            isDone
-            # stoppedAt
-
-            files {
-              id
-              printsQueued
-            }
-
-            tasks {
-              id
-              name
-              percentComplete(digits: 1)
-              estimatedPrintTimeMillis
-              startedAt
-              status
-              paused
-              machine {
-                id
-                name
-              }
-            }
           }
         }
       }
-#    }
-#  }
+    }
+  }
 `
 
 const ESTOP = gql`
@@ -74,10 +63,16 @@ const DELETE_JOB = gql`
   }
 `
 
-const JobQueuePage = () => {
-  // const { loading, data, error } = useLiveSubscription(JOBS_SUBSCRIPTION)
-  const { loading, data, error } = useQuery(JOBS_SUBSCRIPTION, {
-    pollInterval: 1000,
+const JobQueuePage = ({
+  match,
+}) => {
+  const { machineID } = match.params
+
+  const { loading, data, error } = useLiveSubscription(PRINT_QUEUES_QUERY, {
+    variablesDef: '($machineID: ID)',
+    variables: {
+      machineID,
+    },
   })
 
   const [spoolJobFile] = useMutation(SPOOL_JOB_FILE)
@@ -114,21 +109,20 @@ const JobQueuePage = () => {
 
   const {
     machines,
-    jobQueue: { jobs },
+    printQueues,
   } = data
 
-  const jobFiles = jobs
-    .map(job => job.files)
+  const nextPart = printQueues
+    .map(part => part)
     .flat()
-
-  const nextJobFile = jobFiles.find(jobFile => jobFile.printsQueued > 0)
+    .find(part => !part.startedFinalPrint)
 
   const readyMachine = machines.find(machine => (
     machine.status === 'READY'
   ))
 
   const spoolNextPrint = () => {
-    if (nextJobFile == null) {
+    if (nextPart == null) {
       throw new Error('nothing in the queue to print')
     }
     if (readyMachine == null) {
@@ -139,7 +133,7 @@ const JobQueuePage = () => {
       variables: {
         input: {
           machineID: readyMachine.id,
-          jobFileID: nextJobFile.id,
+          jobFileID: nextPart.id,
         },
       },
     })
@@ -148,8 +142,9 @@ const JobQueuePage = () => {
   return (
     <JobQueueView
       {...{
-        jobs,
+        printQueues,
         machines,
+        nextPart,
         spoolNextPrint,
         deleteJob,
         cancelTask,

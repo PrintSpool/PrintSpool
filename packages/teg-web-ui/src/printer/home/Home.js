@@ -21,6 +21,7 @@ import { useAuth } from '../../common/auth'
 import HomeStyles from './HomeStyles'
 
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
+import { Divider } from '@material-ui/core'
 
 const Home = () => {
   const classes = HomeStyles()
@@ -116,22 +117,32 @@ const Home = () => {
 
           <List>
             { hosts.map(host => (
-              host.machines.map(machine => (
-                <ListItem
-                  key={machine.slug}
-                  button
-                  component={React.forwardRef((props, ref) => (
-                    <Link
-                      to={`/q/${host.slug}/${machine.slug}`}
-                      // className={classes.manage}
-                      innerRef={ref}
-                      {...props}
-                    />
-                  ))}
-                >
-                  <ListItemText primary={machine.name} />
-                </ListItem>
-              ))
+              <div key={host.slug}>
+                { hosts.length > 1 && (
+                  <ListItem>
+                    <ListSubheader disableGutters>
+                      {'Server ID: '}
+                      {`${host.slug.slice(0, 8)}..`}
+                    </ListSubheader>
+                  </ListItem>
+                )}
+                { host.machines.map(machine => (
+                  <ListItem
+                    key={machine.slug}
+                    button
+                    component={React.forwardRef((props, ref) => (
+                      <Link
+                        to={`/m/${host.slug}/${machine.slug}`}
+                        // className={classes.manage}
+                        innerRef={ref}
+                        {...props}
+                      />
+                    ))}
+                  >
+                    <ListItemText primary={machine.name} />
+                  </ListItem>
+                ))}
+              </div>
             ))}
           </List>
         </Card>

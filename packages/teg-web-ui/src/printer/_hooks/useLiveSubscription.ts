@@ -15,6 +15,11 @@ const useLiveSubscription = (
   loading: boolean,
   error: any,
 } => {
+  const {
+    variablesDef = "",
+    ...apolloOptions
+   } = options
+
   // const subscription = gql`
   //   subscription {
   //     live {
@@ -79,14 +84,14 @@ const useLiveSubscription = (
   // })
 
   // const { error } = useSubscription(subscription, {
-  //   ...options,
+  //   ...apolloOptions,
   //   onSubscriptionData: onSubscriptionData.run,
   // })
 
   // const anyError = onSubscriptionData.error || error
 
   const query = gql`
-    query {
+    query${variablesDef} {
       ...QueryFragment
     }
     ${queryFragment}
@@ -94,7 +99,7 @@ const useLiveSubscription = (
 
   const { error, data: state } = useQuery(query, {
     pollInterval: 500,
-    ...options,
+    ...apolloOptions,
   })
   const anyError = error
 

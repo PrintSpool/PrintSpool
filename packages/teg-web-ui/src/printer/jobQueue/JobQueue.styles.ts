@@ -55,7 +55,7 @@ const useStyles = makeStyles(theme => ({
   emptyQueueText: {
     color: 'rgba(0, 0, 0, 0.54)',
   },
-  jobContainer: {
+  partContainer: {
     marginBottom: theme.spacing(3),
   },
   addJobFab: {

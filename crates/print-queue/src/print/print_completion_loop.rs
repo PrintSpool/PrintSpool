@@ -95,7 +95,7 @@ async fn handle_print_completion(
         part.package_id == print.package_id
     })?;
 
-    if package.is_done(&parts) {
+    if package.started_final_print(&parts) {
         Package::remove(&ctx.db, package.id)?;
         for part in parts {
             Part::remove(&ctx.db, part.id)?;

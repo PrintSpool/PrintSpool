@@ -16,21 +16,11 @@ import Settings from '@material-ui/icons/Settings'
 import Home from '@material-ui/icons/Home'
 
 import { Link } from 'react-router-dom'
-import { gql } from '@apollo/client'
 import useStyles from './Drawer.styles'
 import useRouter from 'use-react-router'
 
-export const DrawerFragment = gql`
-  fragment DrawerFragment on Query {
-    machines {
-      id
-      name
-    }
-  }
-`
-
 const Drawer = ({
-  machineSlug,
+  match,
   machines,
   mobileOpen,
   onClose,
@@ -38,6 +28,8 @@ const Drawer = ({
 }) => {
   const classes = useStyles()
   const { location } = useRouter()
+
+  const { hostID, machineID } = match.params
 
   const DrawerLink = useCallback(({
     text,
@@ -83,12 +75,12 @@ const Drawer = ({
         <DrawerLink
           text="Printing"
           icon={<Inbox />}
-          href={`/q/${machineSlug}/`}
+          href={`/m/${hostID}/${machineID}`}
         />
         {
           machines.map(machine => (
             <div
-              key={machine.id}
+              key={machineID}
             >
               { machine.length > 1 && (
                 <ListSubheader>
@@ -98,17 +90,17 @@ const Drawer = ({
               <DrawerLink
                 text="Maintenance"
                 icon={<OpenWith />}
-                href={`/m/${machineSlug}/${machine.id}/manual-control/`}
+                href={`/m/${hostID}/${machineID}/manual-control/`}
               />
               <DrawerLink
                 text="Terminal"
                 icon={<Keyboard />}
-                href={`/m/${machineSlug}/${machine.id}/terminal/`}
+                href={`/m/${hostID}/${machineID}/terminal/`}
               />
               <DrawerLink
                 text="Settings"
                 icon={<Settings />}
-                href={`/m/${machineSlug}/${machine.id}/config/`}
+                href={`/m/${hostID}/${machineID}/config/`}
               />
             </div>
           ))
@@ -117,7 +109,7 @@ const Drawer = ({
         <DrawerLink
           text="GraphQL"
           icon={<Code />}
-          href={`/q/${machineSlug}/graphql-playground/`}
+          href={`/m/${hostID}/${machineID}/graphql-playground/`}
         />
       </List>
     </div>

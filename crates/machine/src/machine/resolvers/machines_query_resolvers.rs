@@ -21,6 +21,11 @@ use crate::machine::{
     // TaskStatus,
 };
 
+#[derive(async_graphql::InputObject, Debug, Default)]
+struct MachinesInput {
+    /// Optional filter: Return the machine by id
+    id: Option<async_graphql::ID>,
+}
 #[derive(Default)]
 pub struct MachineQuery;
 
@@ -42,14 +47,15 @@ impl MachineQuery {
     async fn machines<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
-        id: Option<ID>,
+        #[graphql(default)]
+        input: MachinesInput,
     ) -> FieldResult<Vec<MachineData>> {
         let machines: &crate::MachineMap = ctx.data()?;
         let machines = machines.load();
 
-        let machines: Vec<&Addr<Machine>> = if let Some(id) = id {
+        let machines: Vec<&Addr<Machine>> = if let Some(id) = input.id {
             let addr = machines.get(&id)
-                .ok_or_else(|| eyre!("No machine found ({:?})", id))?;
+                .ok_or_else(|| eyre!("Machine not found ({:?})", id))?;
 
             vec![addr]
         } else {

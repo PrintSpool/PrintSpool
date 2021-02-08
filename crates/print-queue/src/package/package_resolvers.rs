@@ -51,7 +51,7 @@ impl Package {
     async fn is_done_<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<bool> {
         let db: &crate::Db = ctx.data()?;
 
-        Ok(Self::is_done(db, &self.id).await?)
+        Ok(Self::started_final_print(db, &self.id).await?)
     }
 
     // Timestamps

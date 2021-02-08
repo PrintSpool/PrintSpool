@@ -15,8 +15,9 @@ import useStyles from './JobQueue.styles'
 import PrintDialog from '../printDialog/PrintDialog'
 
 const JobQueueView = ({
-  jobs,
+  printQueues,
   machines,
+  nextPart,
   spoolNextPrint,
   deleteJob,
   cancelTask,
@@ -26,11 +27,11 @@ const JobQueueView = ({
 }) => {
   const classes = useStyles()
 
+  console.log({ printQueues })
+  const parts = printQueues.map(q => q.parts).flat()
+
   const statuses = machines.map(machine => machine.status)
-  const disablePrintNextButton = (
-    statuses.includes('READY') === false
-    || jobs.every(job => job.files.every(jobFile => jobFile.printsQueued === 0))
-  )
+  const disablePrintNextButton = nextPart == null
 
   const [printDialogFiles, setPrintDialogFiles] = useState()
   const [isDragging, setDragging] = useState(false)
@@ -39,24 +40,24 @@ const JobQueueView = ({
   const categories = [
     {
       title: 'Done',
-      jobsSubset: jobs.filter(job => job.isDone),
+      partsSubset: parts.filter(part => part.startedFinalPrint),
     },
     {
       title: 'Printing',
-      jobsSubset: jobs.filter((job) => {
-        const currentTasks = job.tasks.filter(task => (
+      partsSubset: parts.filter((part) => {
+        const currentTasks = part.tasks.filter(task => (
           ['CANCELLED', 'ERROR'].includes(task.status) === false
         ))
-        return !job.isDone && currentTasks.length > 0
+        return !part.startedFinalPrint && currentTasks.length > 0
       }),
     },
     {
       title: 'Queued',
-      jobsSubset: jobs.filter((job) => {
-        const currentTasks = job.tasks.filter(task => (
+      partsSubset: parts.filter((part) => {
+        const currentTasks = part.tasks.filter(task => (
           ['CANCELLED', 'ERROR'].includes(task.status) === false
         ))
-        return !job.isDone && currentTasks.length === 0
+        return !part.startedFinalPrint && currentTasks.length === 0
       }),
     },
   ]
@@ -100,7 +101,7 @@ const JobQueueView = ({
     <div
       className={[
         classes.root,
-        (isDragging || jobs.length === 0) ? classes.draggingOrEmpty : '',
+        (isDragging || parts.length === 0) ? classes.draggingOrEmpty : '',
         isDragging ? classes.dragging : '',
       ].join(' ')}
       onDragOver={onDragOver}
@@ -116,7 +117,7 @@ const JobQueueView = ({
         </React.Suspense>
       )}
 
-      { (isDragging || jobs.length === 0) && (
+      { (isDragging || parts.length === 0) && (
         <div className={classes.dragArea}>
           <MoveToInbox className={classes.dragIcon} />
           <Typography variant="body2" className={classes.dragText}>
@@ -136,8 +137,8 @@ const JobQueueView = ({
       )}
 
       {
-        !isDragging && categories.map(({ title, jobsSubset }) => {
-          if (jobsSubset.length === 0) return <div key={title} />
+        !isDragging && categories.map(({ title, partsSubset }) => {
+          if (partsSubset.length === 0) return <div key={title} />
 
           return (
             <div key={title}>
@@ -145,10 +146,10 @@ const JobQueueView = ({
                 { title }
               </Typography>
               {
-                jobsSubset.map(job => (
-                  <div key={job.id} className={classes.jobContainer}>
+                partsSubset.map(part => (
+                  <div key={part.id} className={classes.partContainer}>
                     <JobCard
-                      {...job}
+                      {...part}
                       {...{
                         cancelTask,
                         pausePrint,

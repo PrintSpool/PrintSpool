@@ -33,10 +33,11 @@ impl Part {
         Ok(Self::query_prints_completed(db, &self.id).await?)
     }
 
-    async fn is_done_<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<bool> {
+    #[graphql(name="startedFinalPrint")]
+    async fn started_final_print_<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<bool> {
         let db: &crate::Db = ctx.data()?;
 
-        Ok(Self::is_done(db, &self.id).await?)
+        Ok(Self::started_final_print(db, &self.id).await?)
     }
 
     async fn tasks<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<Task>> {

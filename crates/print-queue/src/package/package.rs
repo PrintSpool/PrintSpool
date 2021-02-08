@@ -89,7 +89,7 @@ impl Package {
         Ok(total)
     }
 
-    pub async fn is_done<'e, 'c, E>(
+    pub async fn started_final_print<'e, 'c, E>(
         db: E,
         package_id: &crate::DbId,
     ) -> Result<bool>
@@ -97,7 +97,7 @@ impl Package {
         E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite> + Copy,
     {
         for part in Self::get_parts(db, package_id).await? {
-            let is_done = Part::is_done(db, &part.id).await?;
+            let is_done = Part::started_final_print(db, &part.id).await?;
             if !is_done {
                 return Ok(false)
             }

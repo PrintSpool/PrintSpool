@@ -6,7 +6,7 @@ const JobMock = attrs => ({
   quantity: 1,
   printsCompleted: 0,
   totalPrints: 1,
-  isDone: false,
+  startedFinalPrint: false,
   // stoppedAt: null,
   tasks: [],
   ...attrs,
@@ -32,7 +32,7 @@ export const drinkingGlass = JobMock({
   quantity: 2,
   printsCompleted: 2,
   totalPrints: 2,
-  isDone: true,
+  startedFinalPrint: true,
 })
 
 export const robot = JobMock({

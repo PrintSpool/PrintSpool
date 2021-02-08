@@ -30,7 +30,7 @@ impl Part {
     //     self.quantity * package.quantity
     // }
 
-    // pub fn is_done(&self, package: &Package) -> bool {
+    // pub fn started_final_print(&self, package: &Package) -> bool {
     //     self.printed >= self.total_prints(package)
     // }
 
@@ -106,7 +106,7 @@ impl Part {
         Ok(total)
     }
 
-    pub async fn is_done<'e, 'c, E>(
+    pub async fn started_final_print<'e, 'c, E>(
         db: E,
         part_id: &crate::DbId,
     ) -> Result<bool>

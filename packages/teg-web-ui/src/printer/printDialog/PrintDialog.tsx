@@ -14,17 +14,12 @@ import useCreateJobMutation from './useCreateJobMutation'
 import useLiveSubscription from '../_hooks/useLiveSubscription'
 import { useMutation } from '@apollo/client'
 
-const PRINT_DIALOG_SUBSCRIPTION = gql`
-  subscription PrintDialogSubscription {
-    live {
-      patch { op, path, from, value }
-      query {
-        machines {
-          id
-          name
-          status
-        }
-      }
+const PRINT_DIALOG_QUERY = gql`
+  fragment QueryFragment on Query {
+    machines {
+      id
+      name
+      status
     }
   }
 `
@@ -39,7 +34,7 @@ const PrintDialog = ({
   files,
   onClose,
 }) => {
-  const subscription = useLiveSubscription(PRINT_DIALOG_SUBSCRIPTION)
+  const subscription = useLiveSubscription(PRINT_DIALOG_QUERY)
   const [ createJob, mutationResult ] = useCreateJobMutation(files, {})
   const [spoolJobFile, spoolMutationResult ] = useMutation(SPOOL_JOB_FILE)
 

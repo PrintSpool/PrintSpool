@@ -30,12 +30,6 @@ const JOB_SUBSCRIPTION = gql`
             printsCompleted
             totalPrints
             # stoppedAt
-
-            files {
-              id
-              printsQueued
-            }
-
             # history {
             #   id
             #   createdAt
@@ -44,7 +38,6 @@ const JOB_SUBSCRIPTION = gql`
 
             tasks {
               id
-              name
               percentComplete(digits: 1)
               estimatedPrintTimeMillis
               estimatedFilamentMeters

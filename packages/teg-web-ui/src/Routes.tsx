@@ -189,11 +189,11 @@ const Routes = () => {
                 <ConnectionFrame match={match}>
                   <Route
                     exact
-                    path="/q/:hostID/"
+                    path="/:m/:hostID/:machineID/"
                     component={QueuePage}
                   />
-                  <Route exact path="/q/:hostID/printing/:jobID/" component={JobPage} />
-                  <Route exact path="/q/:hostID/graphql-playground/" component={GraphQLPlayground} />
+                  <Route exact path="/:m/:hostID/:machineID/printing/:jobID/" component={JobPage} />
+                  <Route exact path="/:m/:hostID/:machineID/graphql-playground/" component={GraphQLPlayground} />
 
                   <Route
                     path="/m/:hostID/:machineID/manual-control/"

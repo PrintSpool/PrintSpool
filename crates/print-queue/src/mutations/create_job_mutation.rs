@@ -30,9 +30,8 @@ pub struct CreateJobMutation;
 #[derive(async_graphql::InputObject)]
 struct CreateJobInput {
     name: String,
+    #[graphql(name="printQueueID")]
     print_queue_id: ID,
-    // TODO: update graphql names to match latest fields
-    #[graphql(name="files")]
     parts: Vec<PartInput>,
 }
 

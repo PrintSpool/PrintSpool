@@ -7,9 +7,10 @@ use teg_json_store::{ Record as _, JsonRow };
 
 use crate::PrintQueue;
 
-#[derive(async_graphql::InputObject, Default)]
+#[derive(async_graphql::InputObject, Debug, Default)]
 struct PrintQueuesInput {
     /// Optional filter: Return only the print queues that are associated with the given machine id
+    #[graphql(name="machineID")]
     machine_id: Option<async_graphql::ID>,
 }
 
@@ -18,6 +19,7 @@ pub struct PrintQueueQuery;
 
 #[async_graphql::Object]
 impl PrintQueueQuery {
+    #[instrument(skip(self, ctx))]
     async fn print_queues<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
