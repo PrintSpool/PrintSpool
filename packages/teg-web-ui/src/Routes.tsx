@@ -182,8 +182,8 @@ const Routes = () => {
             />
             <Route
               path={[
-                '/m/:hostID/',
-                '/q/:hostID/',
+                '/m/:hostID/:machineID/',
+                // '/q/:hostID/',
               ]}
               render={({ match }) => (
                 <ConnectionFrame match={match}>

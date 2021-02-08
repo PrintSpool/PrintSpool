@@ -1,8 +1,8 @@
 const transformComponentSchema = ({
   schema,
-  materials,
-  devices,
-  videoSources,
+  materials = [],
+  devices = [],
+  videoSources = [],
   machineDefSuggestions,
 }) => {
   let nextSchema = schema

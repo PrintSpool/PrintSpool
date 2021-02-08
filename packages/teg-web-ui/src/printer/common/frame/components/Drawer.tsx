@@ -1,4 +1,6 @@
 import React, { useMemo, useCallback } from 'react'
+import { useLocation, useParams } from 'react-router'
+import { Link } from 'react-router-dom'
 
 import MaterialUIDrawer from '@material-ui/core/Drawer'
 import Hidden from '@material-ui/core/Hidden'
@@ -15,9 +17,7 @@ import Keyboard from '@material-ui/icons/Keyboard'
 import Settings from '@material-ui/icons/Settings'
 import Home from '@material-ui/icons/Home'
 
-import { Link } from 'react-router-dom'
 import useStyles from './Drawer.styles'
-import useRouter from 'use-react-router'
 
 const Drawer = ({
   match,
@@ -27,9 +27,8 @@ const Drawer = ({
   className,
 }) => {
   const classes = useStyles()
-  const { location } = useRouter()
-
-  const { hostID, machineID } = match.params
+  const location = useLocation()
+  const { hostID, machineID } = useParams()
 
   const DrawerLink = useCallback(({
     text,
