@@ -1,10 +1,9 @@
 import React, { useState } from 'react'
 import { gql } from '@apollo/client'
 
-import { LiveSubscription } from '../../../common/LiveSubscription'
 import Loading from '../../../common/Loading'
 
-import Drawer, { DrawerFragment } from './components/Drawer'
+import Drawer from './components/Drawer'
 import StaticTopNavigation from '../../../common/topNavigation/StaticTopNavigation'
 
 // import { UserDataContext } from '../../../UserDataProvider'
@@ -67,7 +66,7 @@ const ConnectionFrame = ({
         !loading && (
           <Drawer
             match={match}
-            machines={data.machines}
+            machine={data.machines[0]}
             className={classes.drawer}
             mobileOpen={mobileOpen}
             onClose={() => setMobileOpen(false)}

@@ -12,7 +12,7 @@ use async_graphql::{
     FieldResult,
 };
 use eyre::{
-    eyre,
+    // eyre,
     // Result,
     Context as _,
 };
@@ -75,10 +75,10 @@ impl CreateJobMutation {
             "#,
             print_queue_id
         )
-            .fetch_one(&mut tx)
+            .fetch_optional(&mut tx)
             .await?
-            .position
-            .ok_or_else(|| eyre!("Unable to get max print queue position"))?;
+            .and_then(|row| row.position)
+            .unwrap_or_else(|| { 0u64.to_be_bytes().into() });
 
         let next_position = u64::from_be_bytes(max_position[..].try_into()?) + 1;
 

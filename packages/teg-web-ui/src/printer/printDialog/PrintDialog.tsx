@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react'
 import { gql } from '@apollo/client'
 import { useAsync } from 'react-async'
+import { useMutation } from '@apollo/client'
 
 import Button from '@material-ui/core/Button'
 import Dialog from '@material-ui/core/Dialog'
@@ -10,35 +11,36 @@ import DialogActions from '@material-ui/core/DialogActions'
 
 import PrintDialogContent from './PrintDialogContent'
 import useCreateJobMutation from './useCreateJobMutation'
+// import useLiveSubscription from '../_hooks/useLiveSubscription'
 
-import useLiveSubscription from '../_hooks/useLiveSubscription'
-import { useMutation } from '@apollo/client'
+// const PRINT_DIALOG_QUERY = gql`
+//   fragment QueryFragment on Query {
+//     machines {
+//       id
+//       name
+//       status
+//     }
+//   }
+// `
 
-const PRINT_DIALOG_QUERY = gql`
-  fragment QueryFragment on Query {
-    machines {
-      id
-      name
-      status
-    }
-  }
-`
-
-const SPOOL_JOB_FILE = gql`
-  mutation spoolJobFile($input: SpoolJobFileInput!) {
-    spoolJobFile(input: $input) { id }
+const PRINT_MUTATION = gql`
+  mutation print($input: SpoolJobFileInput!) {
+    print(input: $input) { id }
   }
 `
 
 const PrintDialog = ({
+  printQueues,
+  machines,
   files,
   onClose,
 }) => {
-  const subscription = useLiveSubscription(PRINT_DIALOG_QUERY)
-  const [ createJob, mutationResult ] = useCreateJobMutation(files, {})
-  const [spoolJobFile, spoolMutationResult ] = useMutation(SPOOL_JOB_FILE)
+  const printQueueID = printQueues[0].id
+  // const subscription = useLiveSubscription(PRINT_DIALOG_QUERY)
+  const [ createJob, mutationResult ] = useCreateJobMutation(printQueueID, files, {})
+  const [print, printMutationResult ] = useMutation(PRINT_MUTATION)
 
-  const machine = (subscription as any).data?.machines.find(machine => machine.status === 'READY')
+  const machine = machines.find(machine => machine.status === 'READY')
 
   const [loading, setLoading] = useState(true)
 
@@ -62,17 +64,17 @@ const PrintDialog = ({
       console.log({ createJobResult })
 
       if (printNow) {
-        const spoolJobFileResult = await spoolJobFile({
+        const printResults = await print({
           variables: {
             input: {
               machineID: machine.id,
-              jobFileID: createJobResult.data.createJob.files[0].id,
+              partID: createJobResult.data.createJob.parts[0].id,
             },
           },
         })
 
-        if (spoolJobFileResult.errors != null) {
-          throw new Error(spoolJobFileResult.errors[0].message)
+        if (printResults.errors != null) {
+          throw new Error(printResults.errors[0].message)
         }
       }
 
@@ -87,11 +89,11 @@ const PrintDialog = ({
   const addToQueue = useCallback(() => submit.run({ printNow: false }), [machine, files])
   const printNow = useCallback(() => submit.run({ printNow: true }), [machine, files])
 
-  if (subscription.loading) {
-    return <div />
-  }
+  // if (subscription.loading) {
+  //   return <div />
+  // }
 
-  const error = subscription.error || mutationResult.error || spoolMutationResult.error
+  const error = mutationResult.error || printMutationResult.error
   if (error) {
     throw error
   }

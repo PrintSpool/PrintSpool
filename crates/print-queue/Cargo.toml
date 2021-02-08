@@ -21,7 +21,7 @@ serde_json = { version = "1.0.44", features = ["raw_value"] }
 async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }
 eyre = "0.6.5"
 derive-new = "0.5.8"
-sqlx = { version = "0.4.2", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros" ] }
+sqlx = { version = "0.5.1", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros" ] }
 tracing = "0.1.19"
 tracing-futures = "0.2.4"
 arc-swap = "1.1.0"

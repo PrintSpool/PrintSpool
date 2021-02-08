@@ -77,14 +77,13 @@ impl Package {
                 FROM parts
                 INNER JOIN packages ON parts.package_id = packages.id
                 WHERE packages.id = ?
-                -- GROUP BY packages.id
             "#,
             package_id,
         )
             .fetch_one(db)
             .await?
             .total
-            .ok_or_else(|| eyre!("invalid part or package quantity"))?;
+            .ok_or_else(|| eyre!("invalid part or package quantity for package {:?}", package_id))?;
 
         Ok(total)
     }

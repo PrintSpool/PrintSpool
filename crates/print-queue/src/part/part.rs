@@ -102,7 +102,7 @@ impl Part {
             .fetch_one(db)
             .await?
             .total
-            .ok_or_else(|| eyre!("invalid part or package quantity"))?;
+            .ok_or_else(|| eyre!("invalid part or package quantity for part {:?}", part_id))?;
         Ok(total)
     }
 
@@ -119,7 +119,7 @@ impl Part {
                     COUNT(tasks.id) AS printed,
                     CAST(parts.quantity * packages.quantity AS INT) AS total
                 FROM parts
-                INNER JOIN tasks ON tasks.part_id = parts.id
+                LEFT JOIN tasks ON tasks.part_id = parts.id
                 INNER JOIN packages ON packages.id = parts.package_id
                 WHERE parts.id = ?
             "#,
@@ -129,7 +129,10 @@ impl Part {
             .await?;
 
         let total = part_stats.total
-            .ok_or_else(|| eyre!("invalid part or package quantity"))?;
+            .ok_or_else(|| eyre!(
+                "unabel to determine print status (part id: {:?}) due to sql error",
+                part_id,
+            ))?;
 
         let done = part_stats.printed as i64 >= total;
         Ok(done)

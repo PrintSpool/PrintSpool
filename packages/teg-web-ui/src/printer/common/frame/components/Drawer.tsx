@@ -21,7 +21,7 @@ import useRouter from 'use-react-router'
 
 const Drawer = ({
   match,
-  machines,
+  machine,
   mobileOpen,
   onClose,
   className,
@@ -69,42 +69,32 @@ const Drawer = ({
             href="/"
           />
         </Hidden>
-        { machines[0] && (
-          <ListSubheader>{machines[0].name}</ListSubheader>
-        )}
+        <ListSubheader>{machine.name}</ListSubheader>
         <DrawerLink
           text="Printing"
           icon={<Inbox />}
           href={`/m/${hostID}/${machineID}`}
         />
-        {
-          machines.map(machine => (
-            <div
-              key={machineID}
-            >
-              { machine.length > 1 && (
-                <ListSubheader>
-                  { machine.name }
-                </ListSubheader>
-              )}
-              <DrawerLink
-                text="Maintenance"
-                icon={<OpenWith />}
-                href={`/m/${hostID}/${machineID}/manual-control/`}
-              />
-              <DrawerLink
-                text="Terminal"
-                icon={<Keyboard />}
-                href={`/m/${hostID}/${machineID}/terminal/`}
-              />
-              <DrawerLink
-                text="Settings"
-                icon={<Settings />}
-                href={`/m/${hostID}/${machineID}/config/`}
-              />
-            </div>
-          ))
-        }
+        { machine.length > 1 && (
+          <ListSubheader>
+            { machine.name }
+          </ListSubheader>
+        )}
+        <DrawerLink
+          text="Maintenance"
+          icon={<OpenWith />}
+          href={`/m/${hostID}/${machineID}/manual-control/`}
+        />
+        <DrawerLink
+          text="Terminal"
+          icon={<Keyboard />}
+          href={`/m/${hostID}/${machineID}/terminal/`}
+        />
+        <DrawerLink
+          text="Settings"
+          icon={<Settings />}
+          href={`/m/${hostID}/${machineID}/config/`}
+        />
         <ListSubheader>Dev Tools</ListSubheader>
         <DrawerLink
           text="GraphQL"

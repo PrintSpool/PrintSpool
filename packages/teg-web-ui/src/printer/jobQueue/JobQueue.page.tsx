@@ -13,6 +13,7 @@ const PRINT_QUEUES_QUERY = gql`
       status
     }
     printQueues(input: { machineID: $machineID }) {
+      id
       name
       parts {
         id

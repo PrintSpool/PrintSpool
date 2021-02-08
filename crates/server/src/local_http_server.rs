@@ -38,7 +38,7 @@ pub async fn start(
         .finish();
 
     let graphql_post = async_graphql_warp::graphql(schema.clone())
-        .and(warp::body::content_length_limit(1024 * 1024))
+        .and(warp::body::content_length_limit(1024 * 1024 * 1024))
         .and_then(move |
             graphql_tuple,
         | {

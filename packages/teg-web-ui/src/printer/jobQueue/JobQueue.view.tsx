@@ -111,6 +111,8 @@ const JobQueueView = ({
       { printDialogFiles && (
         <React.Suspense fallback={<div />}>
           <PrintDialog
+            printQueues={printQueues}
+            machines={machines}
             files={printDialogFiles}
             onClose={() => setPrintDialogFiles(null)}
           />

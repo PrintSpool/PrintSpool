@@ -7,7 +7,7 @@ const createJobGraphQL = gql`
   mutation createJob($input: CreateJobInput!) {
     createJob(input: $input) {
       id
-      files {
+      parts {
         id
       }
     }
@@ -15,6 +15,7 @@ const createJobGraphQL = gql`
 `
 
 const useCreateJobMutation = (
+  printQueueID: string,
   files: any,
   options: any,
 ): [() => Promise<any>, MutationResult<unknown>] => {
@@ -22,9 +23,11 @@ const useCreateJobMutation = (
 
   const createJob = useCallback(async () => {
     const mutationInput = {
+      printQueueID,
       name: files.map(f => f.name).join(', '),
-      files: [],
+      parts: [],
     }
+    console.log({ mutationInput })
 
     // read each file into memory
     await Promise.all(
@@ -40,7 +43,7 @@ const useCreateJobMutation = (
           fileReader.onload = resolve
         })
 
-        mutationInput.files.push({
+        mutationInput.parts.push({
           name,
           content: fileReader.result,
         })
