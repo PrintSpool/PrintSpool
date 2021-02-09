@@ -81,11 +81,16 @@ const FormikSchemaField = ({
 
   const isEnum = property.enum != null
 
-  switch (property.type) {
+  let type = property.type
+  if (typeof type == 'object') {
+    type = type[0]
+  }
+
+  switch (type) {
     case 'number':
     case 'integer':
     case 'string': {
-      const type = property.type === 'string' ? 'text' : 'number'
+      const componentType = type === 'string' ? 'text' : 'number'
 
       if (name === 'machineDefinitionURL') {
         return (
@@ -103,7 +108,7 @@ const FormikSchemaField = ({
           {...sharedFieldProps}
           multiline={multiline}
           rows={multiline ? 5 : null}
-          type={type}
+          type={componentType}
           select={isEnum}
           component={TextFieldWrapper}
           fullWidth

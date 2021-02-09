@@ -24,7 +24,7 @@ const useSchemaValidation = ({ schema: originalSchema } = {}) => (
     // Hack: This in-place modification of the schema properties is not ideal but it works.
     const properties = {}
     Object.entries(originalSchema.properties).forEach(([key, property]) => {
-      console.log(property)
+      // console.log(property)
       if (
         [
           'uint64',
@@ -33,6 +33,7 @@ const useSchemaValidation = ({ schema: originalSchema } = {}) => (
           'sint32',
           'uint',
           'sint',
+          'float',
         ].includes(property.format)
       ) {
         const { format: _, ...nextProperty } = property
@@ -46,7 +47,7 @@ const useSchemaValidation = ({ schema: originalSchema } = {}) => (
       ...originalSchema,
       properties,
     }
-    console.log({ schema })
+    // console.log({ schema })
 
     const validateWithAJV = ajv.compile(schema)
 
