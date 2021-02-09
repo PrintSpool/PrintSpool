@@ -90,7 +90,7 @@ type = "BUILD_PLATFORM"
 [[plugins]]
 id = "1"
 modelVersion = 1
-package = "@tegapp/core"
+package = "teg-core"
 
   [plugins.model]
   name = "New Printer"

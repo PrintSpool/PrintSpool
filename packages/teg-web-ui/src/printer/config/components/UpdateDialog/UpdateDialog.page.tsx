@@ -2,7 +2,6 @@ import React from 'react'
 import { useHistory } from 'react-router'
 import { gql, useMutation, useQuery } from '@apollo/client'
 
-import removeReadOnlyFields from '../FormikSchemaForm/removeReadOnlyFields'
 import UpdateDialogView from './UpdateDialog.view'
 
 export const UPDATE_DIALOG_FRAGMENT = gql`
@@ -96,32 +95,27 @@ const UpdateDialogPage = ({
 
   const viewOnSubmit = (model) => {
     if (onSubmit != null) {
-      const filteredModel = removeReadOnlyFields(model, configFormData.schemaForm.schema)
-      return onSubmit(filteredModel)
-    } else {
-      submitUpdateDialog({
-        variables: {
-          input: {
-            ...input,
-            model: removeReadOnlyFields(model, configFormData.schemaForm.schema),
-          },
-        },
-      })
+      return onSubmit(model)
     }
+    submitUpdateDialog({
+      variables: {
+        input: {
+          ...input,
+          model,
+        },
+      },
+    })
   }
 
   const viewProps = {
     title,
-    // name,
-    // id,
     open,
-    history,
     onSubmit: viewOnSubmit,
+    onClose: () => history.push('../'),
     data: configFormData,
     status,
     deleteButton,
     transformSchema,
-    schema: configFormData.schemaForm.schema,
     hasPendingUpdates,
   }
 

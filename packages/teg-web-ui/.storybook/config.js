@@ -20,7 +20,7 @@ addDecorator(story => (
 const loadStories = () => {
   require('../src/pages/connected/queue/components/JobList.story.js')
   require('../src/pages/connected/frame/components/StatusDialog.story.js')
-  require('../src/pages/connected/config/Index.story.js')
+  require('../src/pages/connected/config/Config.story.js')
   require('../src/pages/connected/config/printerComponents/Index.story.js')
   require('../src/pages/connected/config/materials/Index.story.js')
 }

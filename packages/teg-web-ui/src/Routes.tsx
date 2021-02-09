@@ -20,7 +20,7 @@ import ConnectionFrame from './printer/common/frame/ConnectionFrame'
 import QueuePage from './printer/jobQueue/JobQueue.page'
 import JobPage from './printer/job/Job.page'
 
-import ConfigIndexPage from './printer/config/Index.page'
+import ConfigIndexPage from './printer/config/Config.page'
 import ComponentsConfigPage from './printer/config/printerComponents/PrinterComponents.page'
 import MaterialsConfigPage from './printer/config/materials/Materials.page'
 import UsersConfigPage from './printer/config/users/User.page'
@@ -46,7 +46,7 @@ const FilamentSwapDialog = React.lazy(() => (
 ))
 
 // const ConfigIndexPage = React.lazy(() => (
-//  import('./printer/config/Index.page')
+//  import('./printer/config/Config.page')
 // ))
 // const ComponentsConfigPage = React.lazy(() => (
 //  import('./printer/config/printerComponents/PrinterComponents.page')

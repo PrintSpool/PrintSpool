@@ -19,21 +19,20 @@ const UpdateDialogView = ({
   name = null,
   id = null,
   open,
-  history,
+  onClose,
   onSubmit,
   data,
   status,
-  schema,
   hasPendingUpdates = false,
   deleteButton = false,
   transformSchema = schema => schema,
 }) => {
-  const validate = useValidate({ schema })
+  const validate = useValidate({ schema: data.schemaForm.schema })
 
   return (
     <Dialog
       open={open}
-      onClose={() => history.push('../')}
+      onClose={onClose}
       aria-labelledby="form-dialog-title"
       maxWidth="md"
       fullWidth
@@ -83,7 +82,7 @@ const UpdateDialogView = ({
                     </Link>
                   </div>
                 )}
-                <Button onClick={() => history.push('../')}>
+                <Button onClick={onClose}>
                   Cancel
                 </Button>
                 <Button

@@ -65,7 +65,7 @@ impl MachineConfig {
                     // _ => None,
                 }
             })
-            .ok_or_else(|| eyre!("Could not find @tegapp/core plugin config"))?;
+            .ok_or_else(|| eyre!("Could not find teg-core plugin config"))?;
 
         Ok(core_plugin)
     }
@@ -80,7 +80,7 @@ impl MachineConfig {
                     // _ => None,
                 }
             })
-            .ok_or_else(|| eyre!("Could not find @tegapp/core plugin config"))?;
+            .ok_or_else(|| eyre!("Could not find teg-core plugin config"))?;
 
         Ok(core_plugin)
     }

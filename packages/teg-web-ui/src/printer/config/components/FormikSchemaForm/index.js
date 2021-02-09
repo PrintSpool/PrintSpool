@@ -35,9 +35,6 @@ const FormikSchemaForm = ({
   <div className={className}>
     { expandForm({ form, schema }).form.map((name) => {
       const property = schema.properties[name]
-      if (hideReadOnlyFields && property.readOnly) {
-        return null
-      }
       return (
         <FormikSchemaField
           schema={schema}

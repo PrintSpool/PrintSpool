@@ -40,7 +40,7 @@ const ConnectionFrame = ({
     variablesDef: '($input: MachinesInput)',
     variables: {
       input: {
-        id: machineID,
+        machineID,
       },
     },
   })

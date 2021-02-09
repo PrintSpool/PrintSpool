@@ -36,10 +36,8 @@ pub struct CreateMachineInput {
 
 #[derive(async_graphql::InputObject, Debug)]
 pub struct UpdateMachineInput {
-    #[graphql(name: "machineID")]
+    #[graphql(name="machineID")]
     pub machine_id: ID,
-    /// The id of the model to be updated
-    pub config_form_id: ID,
     pub model_version: i32,
     pub model: async_graphql::Json<serde_json::Value>,
 }
@@ -234,7 +232,7 @@ impl MachineMutation {
         &self,
         ctx: &'ctx Context<'_>,
         input: UpdateMachineInput,
-    ) -> FieldResult<crate::Void> {
+    ) -> FieldResult<MachineData> {
         let auth: &AuthContext = ctx.data()?;
 
         auth.require_authorized_user()?;
@@ -247,13 +245,14 @@ impl MachineMutation {
                 .ok_or_else(|| eyre!("Machine ID not found"))?;
 
             let msg = messages::UpdatePlugin {
-                plugin_id: "@tegapp/core".to_string(),
+                plugin_id: "teg-core".to_string(),
                 version: input.model_version,
                 model: input.model.0,
             };
             machine.call(msg).await??;
 
-            eyre::Result::<_>::Ok(crate::Void)
+            let machine_data: MachineData = machine.call(GetData).await??;
+            eyre::Result::<_>::Ok(machine_data)
         }
             // log the backtrace which is otherwise lost by FieldResult
             .await

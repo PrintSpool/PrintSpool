@@ -16,7 +16,7 @@ use super::core::CorePluginConfig;
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(tag = "package")]
 pub enum Plugin {
-    #[serde(rename = "@tegapp/core")]
+    #[serde(rename = "teg-core")]
     Core(PluginContainer<CorePluginConfig>),
     // #[serde(other)]
     // UnknownPlugin,
