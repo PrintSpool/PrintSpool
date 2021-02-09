@@ -120,7 +120,7 @@ const TegApolloProvider = ({
 
   const client = useAsync({
     deferFn: async () => {
-      console.log({ shouldConnect, invite, hostSlug, isSignedIn })
+      console.log('apollo client inputs', { shouldConnect, invite, hostSlug, isSignedIn })
 
       let nextLink
       if (INSECURE_LOCAL_CONNECTION) {
@@ -168,7 +168,7 @@ const TegApolloProvider = ({
   if (!client.isResolved) {
     return <div />
   }
-  console.log(client)
+  console.log('apollo client', client)
 
   return (
     <ApolloProvider client={client.data as any}>

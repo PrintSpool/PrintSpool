@@ -27,6 +27,7 @@ struct MachinesInput {
     #[graphql(name="machineID")]
     machine_id: Option<async_graphql::ID>,
 }
+
 #[derive(Default)]
 pub struct MachineQuery;
 

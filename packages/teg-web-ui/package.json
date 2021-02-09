@@ -24,7 +24,7 @@
     "@material-ui/system": "^4.0.2",
     "@react-hook/window-scroll": "^1.0.7",
     "@react-hook/window-size": "^1.0.12",
-    "ajv": "^6.6.1",
+    "ajv": "^7.0.4",
     "base64url": "^3.0.1",
     "bs58": "^4.0.1",
     "camelcase": "^5.3.1",

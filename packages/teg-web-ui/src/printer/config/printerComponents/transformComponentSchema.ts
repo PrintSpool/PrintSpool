@@ -3,7 +3,7 @@ const transformComponentSchema = ({
   materials = [],
   devices = [],
   videoSources = [],
-  machineDefSuggestions,
+  machineDefSuggestions = [],
 }) => {
   let nextSchema = schema
   if (schema.properties.serialPortID != null) {

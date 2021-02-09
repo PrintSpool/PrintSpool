@@ -110,9 +110,9 @@ const PrinterComponentsView = ({
           })}
           variables={{ machineID, componentID: selectedComponent.id }}
           query={gql`
-            query($machineID: ID!, $componentID: ID) {
-              machines(machineID: $machineID) {
-                components(componentID: $componentID) {
+            query($machineID: ID, $componentID: ID) {
+              machines(input: {machineID: $machineID}) {
+                components(input: {componentID: $componentID}) {
                   configForm {
                     ...UpdateDialogFragment
                   }
@@ -142,7 +142,7 @@ const PrinterComponentsView = ({
               style={{ textDecoration: 'none' }}
               {...props}
             />
-          ))}
+          )) as any}
           className={classes.addFab}
         >
           <Add />
@@ -170,22 +170,21 @@ const PrinterComponentsView = ({
                         to={`${component.id}/`}
                         innerRef={ref}
                         {...props}
-                      />
+                      >
+                        <ListItemIcon>
+                          {
+                            (
+                              Icon && <Icon />
+                            )
+                            || <Widgets />
+                          }
+                        </ListItemIcon>
+                        <ListItemText>
+                          {component.name}
+                        </ListItemText>
+                      </Link>
                     ))}
-                  >
-
-                    <ListItemIcon>
-                      {
-                        (
-                          Icon && <Icon />
-                        )
-                        || <Widgets />
-                      }
-                    </ListItemIcon>
-                    <ListItemText>
-                      {component.name}
-                    </ListItemText>
-                  </ListItem>
+                  />
                 ))
               }
               <Divider />

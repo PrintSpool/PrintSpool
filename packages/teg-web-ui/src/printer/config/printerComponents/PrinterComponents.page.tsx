@@ -6,32 +6,27 @@ import useLiveSubscription from '../../_hooks/useLiveSubscription'
 import PrinterComponentsView from './PrinterComponents.view'
 import { useMutation } from '@apollo/client'
 
-const COMPONENTS_SUBSCRIPTION = gql`
-  subscription ConfigSubscription($machineID: ID!) {
-    live {
-      patch { op, path, from, value }
-      query {
-        hasPendingUpdates
-        devices {
-          id
-        }
-        videoSources {
-          id
-        }
-        materials {
-          id
-          name
-        }
-        machines(machineID: $machineID) {
-          id
-          status
-          fixedListComponentTypes
-          components {
-            id
-            type
-            name
-          }
-        }
+const COMPONENTS_QUERY = gql`
+  fragment QueryFragment on Query {
+    # hasPendingUpdates
+    devices {
+      id
+    }
+    videoSources {
+      id
+    }
+    materials {
+      id
+      name
+    }
+    machines(input: { machineID: $machineID }) {
+      id
+      status
+      fixedListComponentTypes
+      components {
+        id
+        type
+        name
       }
     }
   }
@@ -41,7 +36,8 @@ const PrinterComponentsPage = () => {
   const { match: { params } } = useReactRouter()
   const { componentID, machineID, verb } = params
 
-  const { data, error, loading } = useLiveSubscription(COMPONENTS_SUBSCRIPTION, {
+  const { data, error, loading } = useLiveSubscription(COMPONENTS_QUERY, {
+    variablesDef: '($machineID: ID!)',
     variables: {
       machineID,
     },
@@ -57,6 +53,11 @@ const PrinterComponentsPage = () => {
 
   const { machines } = data
   const { components, fixedListComponentTypes, status } = machines[0]
+
+  console.log(
+    { componentID },
+    components.find(c => c.id === componentID)
+  )
 
   return (
     <PrinterComponentsView

@@ -8,7 +8,7 @@ import useLiveSubscription from '../_hooks/useLiveSubscription'
 
 const PRINT_QUEUES_QUERY = gql`
   fragment QueryFragment on Query {
-    machines(input: { id: $machineID }) {
+    machines(input: { machineID: $machineID }) {
       id
       status
     }

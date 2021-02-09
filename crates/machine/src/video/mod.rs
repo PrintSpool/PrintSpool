@@ -41,11 +41,12 @@ pub async fn get_ice_candidates(
         .recv_json();
 
     let ice_candidates = future::timeout(Duration::from_millis(5_000), req)
-        .await?
+        .await
+        .wrap_err("Getting video ice candidates timed out")?
         .map_err(|err| eyre!(err)) // TODO: Remove me when surf 2.0 is released
-        .with_context(|| "Unable to get ice candidates")?;
+        .wrap_err("Error getting video ice candidates")?;
 
-    info!("ICE: {:?}", ice_candidates);
+    trace!("Video ICE Candidates: {:?}", ice_candidates);
 
     Ok(ice_candidates)
 }

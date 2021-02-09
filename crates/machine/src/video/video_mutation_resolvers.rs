@@ -112,9 +112,10 @@ impl VideoMutation {
             .recv_json();
 
         let answer = future::timeout(std::time::Duration::from_millis(5_000), req)
-            .await?
+            .await
+            .wrap_err("Creating video call timed out")?
             .map_err(|err| eyre!(err)) // TODO: Remove me when surf 2.0 is released
-            .with_context(|| "Unable to create video call")?;
+            .wrap_err("Error creating video call")?;
 
         let ice_candidates = get_ice_candidates(&video_session_id).await?;
 

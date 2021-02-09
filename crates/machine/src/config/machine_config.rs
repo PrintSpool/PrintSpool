@@ -165,16 +165,28 @@ impl MachineConfig {
         self.var_path().join("backups")
     }
 
-    pub fn components(&self) -> Vec<Component> {
+    pub fn components<'a>(&'a self) -> Vec<(&'a crate::DbId, Component)> {
         use Component::*;
 
         std::iter::empty()
-            .chain(self.controllers.iter().map(|c| Controller(c.clone())))
-            .chain(self.axes.iter().map(|c| Axis(c.clone())))
-            .chain(self.toolheads.iter().map(|c| Toolhead(c.clone())))
-            .chain(self.speed_controllers.iter().map(|c| SpeedController(c.clone())))
-            .chain(self.videos.iter().map(|c| Video(c.clone())))
-            .chain(self.build_platforms.iter().map(|c| BuildPlatform(c.clone())))
+            .chain(self.controllers.iter().map(|c|
+                (&c.id, Controller(c.clone()))
+            ))
+            .chain(self.axes.iter().map(|c|
+                (&c.id, Axis(c.clone()))
+            ))
+            .chain(self.toolheads.iter().map(|c|
+                (&c.id, Toolhead(c.clone()))
+            ))
+            .chain(self.speed_controllers.iter().map(|c|
+                (&c.id, SpeedController(c.clone()))
+            ))
+            .chain(self.videos.iter().map(|c|
+                (&c.id, Video(c.clone()))
+            ))
+            .chain(self.build_platforms.iter().map(|c|
+                (&c.id, BuildPlatform(c.clone()))
+            ))
             .collect()
     }
 

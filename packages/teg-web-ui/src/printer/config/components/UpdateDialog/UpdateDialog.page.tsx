@@ -53,12 +53,13 @@ const UpdateDialogPage = ({
     },
   })
 
-  if (!open) return <div />
-  if (loading || !data) return <div />
-
   if (error) {
     throw error
   }
+
+  console.log({ title, open, status, loading, data })
+  if (!open) return <div />
+  if (loading || !data) return <div />
 
   if (mutation.error != null) {
     throw mutation.error

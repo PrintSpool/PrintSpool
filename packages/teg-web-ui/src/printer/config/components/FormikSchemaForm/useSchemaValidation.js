@@ -11,15 +11,42 @@ import Ajv from 'ajv'
 //   return out
 // }
 
-const useSchemaValidation = ({ schema } = {}) => (
+const useSchemaValidation = ({ schema: originalSchema } = {}) => (
   useMemo(() => {
-    if (schema == null) return () => ({})
-    // console.log({ schema })
+    if (originalSchema == null) return () => ({})
+    // console.log({ originalSchema })
 
     const ajv = new Ajv({
       allErrors: true,
       coerceTypes: true,
     })
+
+    // Hack: This in-place modification of the schema properties is not ideal but it works.
+    const properties = {}
+    Object.entries(originalSchema.properties).forEach(([key, property]) => {
+      console.log(property)
+      if (
+        [
+          'uint64',
+          'sint64',
+          'uint32',
+          'sint32',
+          'uint',
+          'sint',
+        ].includes(property.format)
+      ) {
+        const { format: _, ...nextProperty } = property
+        properties[key] = nextProperty
+      } else {
+        properties[key] = property
+      }
+    })
+
+    const schema = {
+      ...originalSchema,
+      properties,
+    }
+    console.log({ schema })
 
     const validateWithAJV = ajv.compile(schema)
 
@@ -41,7 +68,7 @@ const useSchemaValidation = ({ schema } = {}) => (
     }
 
     return validate
-  }, [schema])
+  }, [originalSchema])
 )
 
 export default useSchemaValidation

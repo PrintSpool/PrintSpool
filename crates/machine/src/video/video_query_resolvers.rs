@@ -7,7 +7,7 @@ use async_graphql::{
 use eyre::{
     eyre,
     // Result,
-    // Context as _,
+    Context as _,
 };
 use teg_auth::{
     AuthContext,
@@ -43,7 +43,10 @@ impl VideoQuery {
             .recv_json();
 
         let media_list: Vec<Media> = future::timeout(std::time::Duration::from_millis(5_000), req)
-            .await??;
+            .await
+            .wrap_err("Video sources list timed out")?
+            .map_err(|err| eyre!(err)) // TODO: Remove me when surf 2.0 is released
+            .wrap_err("Error getting video sources list")?;
 
         let video_sources = media_list.into_iter()
             .map(|media| VideoSource {

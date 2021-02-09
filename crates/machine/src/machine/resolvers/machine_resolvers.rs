@@ -5,24 +5,31 @@ use async_graphql::{
     FieldResult,
 };
 use eyre::{
-    // eyre,
+    eyre,
     Result,
     Context as _,
 };
 use teg_config_form::ConfigForm;
 use teg_auth::user::User;
 
-use crate::machine::{
+use crate::{machine::{
     MachineData,
     MachineStatusGQL,
     MachineStatus,
-};
+}};
 use crate::components::{
     Component
 };
 use crate::plugins::Plugin;
 use crate::machine::GCodeHistoryEntry;
 use super::machine_error_resolvers::MachineError;
+
+#[derive(async_graphql::InputObject, Debug, Default)]
+struct MachineComponentsInput {
+    /// Optional filter: Return the machine by id
+    #[graphql(name="componentID")]
+    component_id: Option<async_graphql::ID>,
+}
 
 #[async_graphql::Object]
 impl MachineData {
@@ -43,8 +50,27 @@ impl MachineData {
         Ok(config_form?)
     }
 
-    async fn components(&self) -> Vec<Component> {
-        self.config.components()
+    async fn components(
+        &self,
+        #[graphql(default)]
+        input: MachineComponentsInput,
+    ) -> FieldResult<Vec<Component>> {
+        let mut components = self.config.components().into_iter();
+
+        let components = if let Some(component_id) = input.component_id {
+            let component = components
+                .find(|(id, _)| **id == component_id.to_string())
+                .ok_or_else(|| eyre!("Component ({:?}) not found", component_id))?
+                .1;
+
+            vec![component]
+        } else {
+            components
+                .map(|(_, c)| c)
+                .collect()
+        };
+
+        Ok(components)
     }
 
     async fn fixed_list_component_types(&self) -> FieldResult<Vec<String>> {
