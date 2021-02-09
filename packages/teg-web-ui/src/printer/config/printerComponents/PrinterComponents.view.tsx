@@ -21,7 +21,7 @@ import Waves from '@material-ui/icons/Waves'
 import CompareArrows from '@material-ui/icons/CompareArrows'
 import Add from '@material-ui/icons/Add'
 
-import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog/Index'
+import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog/UpdateDialog.page'
 import useDeleteConfig from '../components/useDeleteConfig'
 import CreateComponentDialog from '../components/CreateComponentDialog/Index'
 

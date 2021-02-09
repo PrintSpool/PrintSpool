@@ -6,7 +6,7 @@ import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 
-import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from './components/UpdateDialog/Index'
+import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from './components/UpdateDialog/UpdateDialog.page'
 import transformComponentSchema from './printerComponents/transformComponentSchema'
 
 const ConfigView = ({
@@ -38,8 +38,8 @@ const ConfigView = ({
             machineDefSuggestions,
           })}
           query={gql`
-            query($machineID: ID!) {
-              machines(machineID: $machineID) {
+            query($machineID: ID) {
+              machines(input: { id: $machineID }) {
                 configForm {
                   ...UpdateDialogFragment
                 }

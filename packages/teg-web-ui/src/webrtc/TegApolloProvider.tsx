@@ -3,7 +3,7 @@ import React, {
   useEffect,
   useState,
 } from 'react'
-import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
+import { ApolloProvider, ApolloClient, InMemoryCache, DefaultOptions } from '@apollo/client';
 
 import useReactRouter from 'use-react-router'
 import DetectRTC from 'detectrtc'
@@ -62,6 +62,15 @@ const TegApolloProvider = ({
     return data
   }
 
+  const clientDefaultOptions: DefaultOptions = {
+    watchQuery: {
+      fetchPolicy: 'network-only',
+    },
+    query: {
+      fetchPolicy: 'network-only',
+    },
+  };
+
   const createWebRTCLink = async () => {
     const { iceServers: nextIceServers } = await querySignalling({
       query: `
@@ -79,6 +88,7 @@ const TegApolloProvider = ({
     setIceServers(nextIceServers)
 
     const nextLink = new WebRTCLink({
+      defaultOption: clientDefaultOptions,
       iceServers: nextIceServers,
       connectToPeer: async (offer) => {
         const { connectToHost } = await querySignalling({
@@ -120,7 +130,8 @@ const TegApolloProvider = ({
         // nextLink = new WebRTCLink()
         return new ApolloClient({
           uri: process.env.INSECURE_LOCAL_HTTP_URL,
-          cache: new InMemoryCache()
+          cache: new InMemoryCache(),
+          defaultOptions: clientDefaultOptions,
         })
       } else {
         nextLink = await createWebRTCLink()

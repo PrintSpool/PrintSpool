@@ -1,4 +1,4 @@
-import { ApolloLink, Operation, FetchResult, Observable } from '@apollo/client'
+import { ApolloLink, Operation, FetchResult, Observable, ApolloClientOptions } from '@apollo/client'
 import { print, GraphQLError } from 'graphql'
 import { createClient, Client } from 'graphql-ws'
 
@@ -20,7 +20,7 @@ const randomisedExponentialBackoff = async (retries) => {
 export default class WebRTCLink extends ApolloLink {
   private client: Client
 
-  public constructor(options?: WebRTCOptions) {
+  public constructor(options?: any) {
     super()
 
     if (INSECURE_LOCAL_CONNECTION) {

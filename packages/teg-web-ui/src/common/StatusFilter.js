@@ -5,8 +5,8 @@ import {
 import Loader from 'react-loader-advanced'
 
 const StatusFilter = ({
-  only,
-  not,
+  only = null,
+  not = null,
   status,
   children,
   title,

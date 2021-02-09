@@ -13,7 +13,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { useQuery, useApolloClient } from '@apollo/client'
 import { gql } from '@apollo/client'
 
-import UpdateDialog from '../components/UpdateDialog/Index'
+import UpdateDialog from '../components/UpdateDialog/UpdateDialog.page'
 import { useDelete } from '../components/useDeleteConfig'
 import Loading from '../../../common/Loading'
 

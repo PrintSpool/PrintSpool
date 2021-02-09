@@ -5,10 +5,10 @@ import Loading from './Loading'
 import useStyles from './LoadingOverlayStyles'
 
 const LoadingOverlay = ({
-  className,
-  children,
+  className = '',
+  children = [],
   loading,
-  loadingText,
+  loadingText = 'Loading...',
   ...props
 }) => {
   const classes = useStyles()
@@ -19,7 +19,7 @@ const LoadingOverlay = ({
           className={classes.loading}
           {...props}
         >
-          {loadingText == null ? 'Loading...' : loadingText}
+          {loadingText}
         </Loading>
       )}
       <div className={classes.content}>

@@ -39,7 +39,7 @@ impl MachineData {
 
     /// The machine configuration for general settings.
     async fn config_form(&self) -> FieldResult<ConfigForm> {
-        let config_form: Result<ConfigForm> = (&self.config).into();
+        let config_form: Result<ConfigForm> = self.config.core_plugin()?.into();
         Ok(config_form?)
     }
 

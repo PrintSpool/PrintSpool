@@ -15,7 +15,7 @@ import Add from '@material-ui/icons/Add'
 
 import { gql } from '@apollo/client'
 
-import UpdateDialog from '../components/UpdateDialog/Index'
+import UpdateDialog from '../components/UpdateDialog/UpdateDialog.page'
 import CreateInviteDialog from './create/CreateInviteDialog'
 
 const useStyles = makeStyles(theme => ({

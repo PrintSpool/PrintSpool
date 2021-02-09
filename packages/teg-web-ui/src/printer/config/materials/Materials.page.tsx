@@ -18,7 +18,7 @@ import { gql } from '@apollo/client'
 
 import withLiveData from '../../common/higherOrderComponents/withLiveData'
 
-import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog/Index'
+import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog/UpdateDialog.page'
 import CreateMaterialDialog from '../components/CreateMaterialDialog/Index'
 import useDeleteConfig from '../components/useDeleteConfig'
 

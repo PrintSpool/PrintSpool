@@ -27,7 +27,7 @@ const FormikSchemaForm = ({
   schema,
   form,
   path = '',
-  className,
+  className = null,
   values,
   hideReadOnlyFields = false,
 }) => (
