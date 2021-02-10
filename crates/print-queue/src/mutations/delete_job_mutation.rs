@@ -45,7 +45,7 @@ impl DeleteJobMutation {
         &self,
         ctx: &'ctx async_graphql::Context<'_>,
         input: DeleteJobInput,
-    ) -> FieldResult<Option<bool>> {
+    ) -> FieldResult<Option<teg_common::Void>> {
         let db: &crate::Db = ctx.data()?;
         let mut tx = db.begin().await?;
 

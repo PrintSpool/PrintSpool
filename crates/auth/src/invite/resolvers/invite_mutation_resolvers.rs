@@ -34,7 +34,7 @@ pub struct CreateInvite {
 }
 
 #[derive(async_graphql::InputObject)]
-pub struct UpdateInvite {
+pub struct UpdateInviteInput {
     #[graphql(name="inviteID")]
     pub invite_id: ID,
     pub model_version: i32,
@@ -42,7 +42,7 @@ pub struct UpdateInvite {
 }
 
 #[derive(async_graphql::InputObject)]
-pub struct DeleteInvite {
+pub struct DeleteInviteInput {
     #[graphql(name="inviteID")]
     pub invite_id: ID,
 }
@@ -78,7 +78,11 @@ impl InviteMutation {
         })
     }
 
-    async fn update_invite<'ctx>(&self, ctx: &'ctx Context<'_>, input: UpdateInvite) -> FieldResult<Invite> {
+    async fn update_invite<'ctx>(
+        &self,
+        ctx: &'ctx Context<'_>,
+        input: UpdateInviteInput,
+    ) -> FieldResult<Invite> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 
@@ -100,17 +104,14 @@ impl InviteMutation {
     async fn delete_invite<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
-        input: DeleteInvite
-    ) -> FieldResult<Option<bool>> {
+        input: DeleteInviteInput,
+    ) -> FieldResult<Option<teg_common::Void>> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 
         auth.authorize_admins_only()?;
 
-        let DeleteInvite { invite_id } = input;
-        let invite_id = invite_id.to_string();
-
-        Invite::remove(db, &invite_id)
+        Invite::remove(db, &input.invite_id.0)
             .await
             .with_context(|| "Error deleting invite")?;
 

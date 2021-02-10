@@ -1,1 +1,1 @@
-pub mod query_resolvers;
+pub mod devices_query_resolvers;

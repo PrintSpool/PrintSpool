@@ -4368,6 +4368,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sqlx",
+ "teg-common",
  "teg-json-store",
  "teg-macros",
  "teg_auth",
@@ -4452,10 +4453,13 @@ dependencies = [
  "sha2",
  "sqlx",
  "surf",
+ "teg-common",
  "teg-json-store",
  "teg-protobufs",
+ "teg_config_form",
  "toml",
  "tracing",
+ "tracing-futures",
  "url 2.2.0",
 ]
 

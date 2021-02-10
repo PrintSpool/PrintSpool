@@ -13,6 +13,8 @@ path = "src/lib.rs"
 [dependencies]
 teg-json-store = { path = "../json-store" }
 teg-protobufs = { path = "../protobufs" }
+teg_config_form = { path = "../config_form" }
+teg-common = { path = "../common" }
 
 serde_json = { version = "1.0.44", features = ["raw_value"] }
 async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }
@@ -22,6 +24,7 @@ frank_jwt = "3.1.2"
 schemars = "0.8.0"
 sqlx = { version = "0.5.1", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros" ] }
 tracing = "0.1.19"
+tracing-futures = "0.2.4"
 rmp = "^0.8"
 hex = "0.4.2"
 data-encoding = "2.3.1"

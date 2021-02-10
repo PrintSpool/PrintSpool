@@ -3,14 +3,14 @@
 
 pub mod invite;
 pub use invite::resolvers::{
-    mutation_resolvers::InviteMutation,
-    query_resolvers::InviteQuery,
+    invite_mutation_resolvers::InviteMutation,
+    invite_query_resolvers::InviteQuery,
 };
 
 pub mod user;
 pub use user::resolvers::{
-    mutation_resolvers::UserMutation,
-    query_resolvers::UserQuery,
+    user_mutation_resolvers::UserMutation,
+    user_query_resolvers::UserQuery,
 };
 
 mod signal;

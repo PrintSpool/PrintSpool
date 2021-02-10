@@ -35,7 +35,7 @@ impl SetPartPositionMutation {
         &self,
         ctx: &'ctx Context<'_>,
         input: SetPartPositionInput,
-    ) -> FieldResult<Option<bool>> {
+    ) -> FieldResult<Option<teg_common::Void>> {
         let db: &crate::Db = ctx.data()?;
         let mut tx = db.begin().await?;
 

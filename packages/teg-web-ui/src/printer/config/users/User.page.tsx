@@ -1,220 +1,105 @@
 import React from 'react'
-import { Link, useHistory } from 'react-router-dom'
-import { useAsync } from 'react-async'
-import {
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Avatar,
-} from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
+import { useParams, useHistory } from 'react-router'
+import { gql, useMutation } from '@apollo/client'
 
-import { useQuery, useApolloClient } from '@apollo/client'
-import { gql } from '@apollo/client'
+import useDeleteConfig from '../components/useDeleteConfig'
+import useLiveSubscription from '../../_hooks/useLiveSubscription'
+import UsersConfigView from './Users.view'
+import { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog/UpdateDialog.page'
 
-import UpdateDialog from '../components/UpdateDialog/UpdateDialog.page'
-import { useDelete } from '../components/useDeleteConfig'
-import Loading from '../../../common/Loading'
-
-const usersQuery = gql`
-  query usersQuery {
-    hasPendingUpdates
+const CONFIG_QUERY = gql`
+  fragment QueryFragment on Query {
+    # hasPendingUpdates
     users {
       id
-      email
+      description
       isAdmin
+      isLocalHTTPUser
       picture
       createdAt
-    }
-  }
-`
-
-const updateUser = gql`
-  mutation updateUser($input: UpdateUserInput!) {
-    updateUser(input: $input) {
-      errors {
-        message
+      configForm {
+        ...UpdateDialogFragment
       }
     }
   }
+  ${UPDATE_DIALOG_FRAGMENT}
 `
 
-const deleteUser = gql`
-  mutation deleteUser($input: DeleteUserInput!) {
-    deleteUser(input: $input)
+const UPDATE_USER = gql`
+  mutation updateUser($input: UpdateUserInput!) {
+    updateUser(input: $input) {
+      id
+    }
   }
 `
 
-const useStyles = makeStyles(theme => ({
-  updateTitleAvatar: {
-    float: 'left',
-    marginTop: '0.2em',
-    marginRight: theme.spacing(1),
-  },
-  root: {
-    overflowY: 'scroll',
-  },
-}))
+const DELETE_USER = gql`
+  mutation deleteUser($input: DeleteUserInput!) {
+    deleteUser(input: $input) {
+      id
+    }
+  }
+`
 
-const enhance = Component => (props) => {
-  const { match } = props
-  // UsersQuery
-  const { userID, verb } = match.params
-
+const UsersConfigIndex = () => {
   const history = useHistory()
-  const apollo = useApolloClient()
-  const { data, loading, error } = useQuery(usersQuery, {
-    pollInterval: 1000,
-  })
+  const { userID, ...params } = useParams()
+  const verb = userID === 'new' ? 'new' : params.verb
 
-  const { users = [] } = data || {}
+  const { data, error, loading } = useLiveSubscription(CONFIG_QUERY)
+  const { users } = data || {}
+  const user = userID && users?.find(m => m.id === userID)
 
-  const selectedUser = users.find(c => c.id === userID)
-
-  const deleteAction = useAsync({
-    deferFn: async () => {
-      await apollo.mutate({
-        mutation: deleteUser,
-        variables: {
-          input: {
-            userID: selectedUser.id,
-          },
-        },
-      })
-      history.push('../')
+  const [updateUser, updateUserMutation] = useMutation(UPDATE_USER, {
+    update: (mutationResult: any) => {
+      if (mutationResult.data != null) {
+        history.push('../')
+      }
     },
   })
 
-  if (deleteAction.error) {
-    throw deleteAction.error
-  }
-
-  if (loading) {
-    return <Loading />
-  }
-
-  if (error) {
-    throw new Error(JSON.stringify(error))
-  }
-
-  if (userID != null && selectedUser == null) {
-    return <div>Unable to load User</div>
-  }
-
-  const onUpdate = async (model) => {
-    const { data: { errors } } = await apollo.mutate({
-      mutation: updateUser,
+  const update = (model) => {
+    updateUser({
       variables: {
         input: {
-          userID: selectedUser.id,
-          ...model,
-        },
-      },
+          userID,
+          modelVersion: user.configForm.modelVersion,
+          model,
+        }
+      }
     })
-    if (errors) {
-      throw new Error(JSON.stringify(errors))
-    }
-    history.push('../')
   }
 
-  const nextProps = {
-    ...props,
-    selectedUser,
-    users,
-    userID,
-    verb,
-    onUpdate,
-    deleteAction,
-  }
-
-  return (
-    <Component {...nextProps} />
-  )
-}
-
-const UsersIndex = ({
-  users,
-  selectedUser,
-  verb,
-  hasPendingUpdates,
-  deleteAction,
-  onUpdate,
-}) => {
-  const classes = useStyles()
-
-  useDelete({
-    fn: deleteAction.run,
-    show: selectedUser != null && verb === 'delete',
+  useDeleteConfig(DELETE_USER, {
+    variables: {
+      input: {
+        userID,
+      },
+    },
+    show: userID != null && verb === 'delete',
     type: 'user',
-    title: `Remove ${selectedUser?.email} from this machine?`,
-    fullTitle: true,
+    title: user?.description,
   })
 
+  if (loading) {
+    return <div/>
+  }
+
+  const anyError = error || updateUserMutation.error
+  if (anyError) {
+    throw anyError
+  }
+
   return (
-    <main className={classes.root}>
-      {selectedUser != null && verb == null && (
-        <UpdateDialog
-          title={(
-            <>
-              <Avatar src={selectedUser.picture} className={classes.updateTitleAvatar}>
-                {selectedUser.email[0]}
-              </Avatar>
-              {selectedUser.email}
-            </>
-          )}
-          open={selectedUser != null}
-          deleteButton
-          collection="AUTH"
-          status="READY"
-          hasPendingUpdates={hasPendingUpdates}
-          query={gql`
-            query {
-              schemaForm(input: {
-                collection: AUTH
-                schemaFormKey: "user"
-              }) {
-                id
-                schema
-                form
-              }
-            }
-          `}
-          getConfigForm={(data) => {
-            return {
-              id: selectedUser.id,
-              modelVersion: 1,
-              schemaForm: data.schemaForm,
-              model: selectedUser,
-            }
-          }}
-          onSubmit={onUpdate}
-        />
-      )}
-      <List>
-        {
-          users.map(user => (
-            <ListItem
-              button
-              divider
-              key={user.id}
-              component={React.forwardRef((props, ref) => (
-                <Link to={`${user.id}/`} innerRef={ref} {...props} />
-              ))}
-            >
-              <ListItemIcon>
-                <Avatar src={user.picture}>{user.email[0]}</Avatar>
-              </ListItemIcon>
-              <ListItemText>
-                {user.email}
-              </ListItemText>
-            </ListItem>
-          ))
-        }
-      </List>
-    </main>
+    <UsersConfigView {...{
+      userID,
+      verb,
+      users,
+      user,
+      hasPendingUpdates: false,
+      update,
+    }} />
   )
 }
 
-export const Component = UsersIndex
-export default enhance(UsersIndex)
+export default UsersConfigIndex

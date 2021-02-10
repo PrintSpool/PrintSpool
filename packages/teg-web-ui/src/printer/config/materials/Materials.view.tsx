@@ -40,7 +40,7 @@ const MaterialsConfigView = ({
             variables={{ materialID }}
             query={gql`
               query($materialID: ID) {
-                materials(materialID: $materialID) {
+                materials(input: { materialID: $materialID }) {
                   configForm {
                     ...UpdateDialogFragment
                   }

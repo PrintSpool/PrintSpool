@@ -16,7 +16,7 @@ use crate::{AuthContext, user::{User, UserConfig}};
 // ---------------------------------------------
 
 #[derive(async_graphql::InputObject)]
-pub struct UpdateUser {
+pub struct UpdateUserInput {
     #[graphql(name="userID")]
     pub user_id: ID,
     pub model_version: i32,
@@ -24,7 +24,7 @@ pub struct UpdateUser {
 }
 
 #[derive(async_graphql::InputObject)]
-pub struct DeleteUser {
+pub struct DeleteUserInput {
     #[graphql(name="userID")]
     pub user_id: ID,
 }
@@ -37,7 +37,11 @@ pub struct UserMutation;
 
 #[async_graphql::Object]
 impl UserMutation {
-    async fn update_user<'ctx>(&self, ctx: &'ctx Context<'_>, input: UpdateUser) -> FieldResult<User> {
+    async fn update_user<'ctx>(
+        &self,
+        ctx: &'ctx Context<'_>,
+        input: UpdateUserInput,
+    ) -> FieldResult<User> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 
@@ -45,12 +49,14 @@ impl UserMutation {
 
         let mut tx = db.begin().await?;
 
-        User::verify_other_admins_exist(&mut tx, &input.user_id)
-            .await
-            .with_context(|| r#"
-                Cannot delete only admin user.
-                Please add another administrator before deleting this user.
-            "#)?;
+        if input.model.0.is_admin == false {
+            User::verify_other_admins_exist(&mut tx, &input.user_id)
+                .await
+                .with_context(|| r#"
+                    Cannot remove admin permissions from last admin.
+                    Please add another administrator.
+                "#)?;
+        }
 
         let mut user = User::get_with_version(
             &mut tx,
@@ -66,7 +72,11 @@ impl UserMutation {
         Ok(user)
     }
 
-    async fn delete_user<'ctx>(&self, ctx: &'ctx Context<'_>, input: DeleteUser) -> FieldResult<Option<bool>> {
+    async fn delete_user<'ctx>(
+        &self,
+        ctx: &'ctx Context<'_>,
+        input: DeleteUserInput,
+    ) -> FieldResult<Option<teg_common::Void>> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 

@@ -49,6 +49,10 @@ const UpdateDialogPage = ({
         return data.materials[0].configForm
       }
 
+      if (data.users != null) {
+        return data.users[0].configForm
+      }
+
       const machine = data.machines[0]
 
       if (machine.configForm != null) {

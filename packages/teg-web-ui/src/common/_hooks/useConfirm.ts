@@ -4,12 +4,17 @@ const useConfirm = () => {
   const muiConfirm = muiUseConfirm()
 
   return cb => async () => {
-    const { fn, ...options } = cb()
+    const {
+      fn,
+      onCancel = () => {},
+      ...options
+    } = cb()
 
     try {
       await muiConfirm(options)
     } catch {
       // cancel confirmation dialog is rejected
+      onCancel()
       return
     }
 

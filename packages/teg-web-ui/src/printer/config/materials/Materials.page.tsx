@@ -82,8 +82,9 @@ const MaterialsConfigIndex = () => {
     return <div/>
   }
 
-  if (error) {
-    throw error
+  const anyError = error || updateMaterialMutation.error
+  if (anyError) {
+    throw anyError
   }
 
   return (

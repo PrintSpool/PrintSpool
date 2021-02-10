@@ -3,6 +3,8 @@ use async_graphql::*;
 mod authenticate;
 pub use authenticate::*;
 
+mod into_config_form;
+
 // pub mod jwt;
 
 mod user;

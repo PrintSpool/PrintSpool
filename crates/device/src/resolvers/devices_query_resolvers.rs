@@ -12,6 +12,12 @@ use eyre::{
 
 use crate::{Device, device_manager::DeviceManagerAddr, messages::get_devices::GetDevices};
 
+#[derive(async_graphql::InputObject, Default, Debug)]
+pub struct DevicesInput {
+    #[graphql(name="machineID")]
+    machine_id: Option<ID>,
+}
+
 #[derive(Default)]
 pub struct DeviceQuery;
 
@@ -21,7 +27,8 @@ impl DeviceQuery {
     async fn devices<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
-        machine_id: Option<ID>,
+        #[graphql(default)]
+        input: DevicesInput,
     ) -> FieldResult<Vec<Device>> {
         let machines: &teg_machine::MachineMap = ctx.data()?;
         let machines = machines.load();
@@ -30,7 +37,7 @@ impl DeviceQuery {
 
         let mut devices = device_manager.call(GetDevices).await?;
 
-        if let Some(machine_id) = machine_id {
+        if let Some(machine_id) = input.machine_id {
             let machine = machines.get(&machine_id)
                 .ok_or_else(|| eyre!("Machine not found: {:?}", machine_id))?
                 .call(GetData)

@@ -14,6 +14,7 @@ const deleteConfigMutation = gql`
 
 export const useDelete = ({
   fn,
+  onCancel,
   show,
   type,
   title,
@@ -24,6 +25,7 @@ export const useDelete = ({
   const confirmedDeleteConfig = confirm(() => {
     return {
       fn,
+      onCancel,
       title: fullTitle ? title : `Delete ${title}?`,
       description: (
         `This ${type} will be perminently deleted.`
@@ -59,7 +61,10 @@ export const useDeleteConfig = (mutation, {
       await deleteConfig({ variables })
 
       history.push('../')
-    }
+    },
+    onCancel: () => {
+      history.push('../')
+    },
   })
 }
 
