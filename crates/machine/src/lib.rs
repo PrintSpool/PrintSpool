@@ -8,6 +8,7 @@ use arc_swap::ArcSwap;
 use std::collections::HashMap;
 
 pub mod components;
+pub use components::resolvers::component_mutation_resolvers::ComponentMutation;
 
 pub mod config;
 pub use config::resolvers::query_resolvers::ConfigQuery;

@@ -41,7 +41,7 @@ pub struct ConfigQuery;
 //     pub schema_form_key: String,
 
 //     /// machineID is required for PLUGIN and COMPONENT ConfigCollection config forms
-//     #[graphql(name: "machineID")]
+//     #[graphql(name = "machineID")]
 //     pub machine_id: Option<ID>,
 //     pub model: async_graphql::Json<serde_json::Value>,
 // }

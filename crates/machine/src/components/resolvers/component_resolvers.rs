@@ -9,7 +9,7 @@ use eyre::{
     // Context as _,
 };
 
-use super::{
+use super::super::{
     AxisEphemeral,
     Component,
     HeaterEphemeral,

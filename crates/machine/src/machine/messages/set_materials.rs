@@ -11,7 +11,7 @@ use crate::{components::Toolhead, machine::Machine};
 
 #[derive(async_graphql::InputObject, Debug)]
 pub struct SetMaterialsInput {
-    #[graphql(name: "machineID")]
+    #[graphql(name = "machineID")]
     pub machine_id: ID,
     pub toolheads: Vec<SetMaterialsToolhead>,
 }
@@ -19,7 +19,7 @@ pub struct SetMaterialsInput {
 #[derive(async_graphql::InputObject, Debug)]
 pub struct SetMaterialsToolhead {
     pub id: ID,
-    #[graphql(name: "materialID")]
+    #[graphql(name = "materialID")]
     pub material_id: Option<ID>,
 }
 

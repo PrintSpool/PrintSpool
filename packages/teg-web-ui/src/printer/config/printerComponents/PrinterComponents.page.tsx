@@ -1,10 +1,11 @@
 import React from 'react'
-import useReactRouter from 'use-react-router'
+import { useParams, useHistory } from 'react-router'
 import { gql } from '@apollo/client'
 
 import useLiveSubscription from '../../_hooks/useLiveSubscription'
 import PrinterComponentsView from './PrinterComponents.view'
 import { useMutation } from '@apollo/client'
+import { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog/UpdateDialog.page'
 
 const COMPONENTS_QUERY = gql`
   fragment QueryFragment on Query {
@@ -27,13 +28,26 @@ const COMPONENTS_QUERY = gql`
         id
         type
         name
+        configForm {
+          ...UpdateDialogFragment
+        }
       }
+    }
+  }
+  ${UPDATE_DIALOG_FRAGMENT}
+`
+
+const UPDATE_COMPONENT = gql`
+  mutation updateComponent($input: UpdateComponentInput!) {
+    updateComponent(input: $input) {
+      id
     }
   }
 `
 
 const PrinterComponentsPage = () => {
-  const { match: { params } } = useReactRouter()
+  const history = useHistory()
+  const params = useParams()
   const { componentID, machineID, verb } = params
 
   const { data, error, loading } = useLiveSubscription(COMPONENTS_QUERY, {
@@ -43,21 +57,41 @@ const PrinterComponentsPage = () => {
     },
   })
 
+  const {
+    machines: [
+      machine
+    ],
+  } = data || { machines: [] }
+  const { components, fixedListComponentTypes, status } = machine || {}
+
+  const [updateComponent, mutation] = useMutation(UPDATE_COMPONENT, {
+    update: (mutationResult: any) => {
+      if (mutationResult.data != null) {
+        history.push('../')
+      }
+    },
+  })
+
+  const onSubmit = (model) => {
+    updateComponent({
+      variables: {
+        input: {
+          machineID,
+          componentID,
+          modelVersion: components.find(c => c.id === componentID).configForm.modelVersion,
+          model,
+        }
+      }
+    })
+  }
+
   if (loading) {
     return <div />
   }
 
-  if (error) {
-    throw error
+  if (error || mutation.error) {
+    throw error || mutation.error
   }
-
-  const { machines } = data
-  const { components, fixedListComponentTypes, status } = machines[0]
-
-  console.log(
-    { componentID },
-    components.find(c => c.id === componentID)
-  )
 
   return (
     <PrinterComponentsView
@@ -67,7 +101,8 @@ const PrinterComponentsPage = () => {
         components,
         fixedListComponentTypes,
         status,
-        machineID,
+        machine,
+        onSubmit,
         componentID,
         verb,
       }}

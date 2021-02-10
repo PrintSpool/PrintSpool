@@ -32,7 +32,7 @@ impl xactor::Handler<UpdateComponent> for Machine {
         }
 
         // Controller
-        let mut result: Result<()> = {
+        let mut result: Result<()> = (|| {
             let data = self.get_data()?;
 
             let mut c = find_component_inner(
@@ -42,18 +42,47 @@ impl xactor::Handler<UpdateComponent> for Machine {
             c.model = serde_json::from_value(msg.model.clone())?;
             c.model_version += 1;
             Ok(())
-        };
+        })();
 
-        // Toolhead
+        // Axis
         if result.is_err() {
-            result = {
-                let db = self.db.clone();
+            result = (|| {
                 let data = self.get_data()?;
 
                 let mut c = find_component_inner(
-                    &mut data.config.toolheads,
+                    &mut data.config.axes,
                     &msg,
                 )?;
+                c.model = serde_json::from_value(msg.model.clone())?;
+                c.model_version += 1;
+                Ok(())
+            })()
+        }
+
+        // Build Platform
+        if result.is_err() {
+            result = (|| {
+                let data = self.get_data()?;
+
+                let mut c = find_component_inner(
+                    &mut data.config.build_platforms,
+                    &msg,
+                )?;
+                c.model = serde_json::from_value(msg.model.clone())?;
+                c.model_version += 1;
+                Ok(())
+            })()
+        }
+
+        // Toolhead
+        if result.is_err() {
+            let db = self.db.clone();
+            let data = self.get_data()?;
+
+            if let Ok(mut c) = find_component_inner(
+                &mut data.config.toolheads,
+                &msg,
+            ) {
                 let next_model: ToolheadConfig = serde_json::from_value(msg.model.clone())?;
                 let material_id_changed = next_model.material_id != c.model.material_id;
 
@@ -76,13 +105,13 @@ impl xactor::Handler<UpdateComponent> for Machine {
                     c.model_version += 1;
                 }
 
-                Ok(())
+                return Ok(())
             }
         }
 
         // Speed Controller
         if result.is_err() {
-            result = {
+            result = (|| {
                 let data = self.get_data()?;
                 let mut c = find_component_inner(
                     &mut data.config.speed_controllers,
@@ -91,12 +120,12 @@ impl xactor::Handler<UpdateComponent> for Machine {
                 c.model = serde_json::from_value(msg.model.clone())?;
                 c.model_version += 1;
                 Ok(())
-            }
+            })()
         }
 
         // Video
         if result.is_err() {
-            result = {
+            result = (|| {
                 let data = self.get_data()?;
                 let mut c = find_component_inner(
                     &mut data.config.videos,
@@ -105,7 +134,7 @@ impl xactor::Handler<UpdateComponent> for Machine {
                 c.model = serde_json::from_value(msg.model.clone())?;
                 c.model_version += 1;
                 Ok(())
-            }
+            })()
         }
 
         result?;

@@ -67,11 +67,12 @@ const CATEGORIES = [
 ]
 
 const PrinterComponentsView = ({
-  machineID,
+  machine,
   components,
   fixedListComponentTypes,
   status,
-  hasPendingUpdates,
+  onSubmit,
+  hasPendingUpdates = false,
   componentID,
   selectedComponent,
   devices,
@@ -85,7 +86,7 @@ const PrinterComponentsView = ({
     show: selectedComponent != null && verb === 'delete',
     id: selectedComponent?.id,
     collection: 'COMPONENT',
-    machineID,
+    machineID: machine.id,
     type: selectedComponent?.type.toLowerCase(),
     title: selectedComponent?.name,
   })
@@ -108,7 +109,8 @@ const PrinterComponentsView = ({
             videoSources,
             devices,
           })}
-          variables={{ machineID, componentID: selectedComponent.id }}
+          onSubmit={onSubmit}
+          variables={{ machineID: machine.id, componentID: selectedComponent.id }}
           query={gql`
             query($machineID: ID, $componentID: ID) {
               machines(input: {machineID: $machineID}) {
@@ -125,7 +127,7 @@ const PrinterComponentsView = ({
       )}
       { componentID === 'new' && (
         <CreateComponentDialog
-          machineID={machineID}
+          machineID={machine.id}
           open
           fixedListComponentTypes={fixedListComponentTypes}
           devices={devices}

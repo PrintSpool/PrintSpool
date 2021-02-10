@@ -4,6 +4,7 @@ use teg_auth::{
 };
 
 use teg_machine::{
+    ComponentMutation,
     ConfigMutation,
     MachineMutation,
     VideoMutation,
@@ -18,6 +19,7 @@ pub struct Mutation(
     InviteMutation,
     UserMutation,
     // machine
+    ComponentMutation,
     ConfigMutation,
     MachineMutation,
     VideoMutation,

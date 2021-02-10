@@ -62,13 +62,6 @@ const ConfigPage = () => {
   })
 
   const onSubmit = (model) => {
-    console.log({
-      input: {
-        machineID,
-        modelVersion: machine.configForm.modelVersion,
-        model,
-      }
-    })
     updateMachine({
       variables: {
         input: {

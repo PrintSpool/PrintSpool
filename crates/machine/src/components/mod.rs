@@ -22,7 +22,7 @@ pub use video::*;
 mod controller;
 pub use controller::*;
 
-mod resolvers;
+pub mod resolvers;
 mod into_config_form;
 
 #[derive(new, Serialize, Deserialize, Debug, Clone)]
