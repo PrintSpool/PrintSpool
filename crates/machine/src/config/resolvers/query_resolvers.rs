@@ -1,5 +1,5 @@
 use async_graphql::{
-    // ID,
+    ID,
     FieldResult,
     // Context,
 };
@@ -10,13 +10,14 @@ use schemars::{
 use teg_auth::invite::InviteConfig;
 use teg_config_form::JsonSchemaForm;
 use eyre::{
-    eyre,
+    // eyre,
     Result,
     // Context as _,
 };
 use teg_material::{FdmFilament, MaterialTypeGQL};
 
-use crate::{components::{
+use crate::{
+    components::{
         ComponentTypeGQL,
         ControllerConfig,
         AxisConfig,
@@ -24,7 +25,10 @@ use crate::{components::{
         SpeedControllerConfig,
         VideoConfig,
         BuildPlatformConfig,
-    }, config::CombinedConfigView, plugins::core::CorePluginConfig};
+    },
+    config::CombinedConfigView,
+    // plugins::core::CorePluginConfig
+};
 
 #[derive(Default)]
 pub struct ConfigQuery;
@@ -48,6 +52,9 @@ pub struct ConfigQuery;
 
 #[derive(async_graphql::InputObject, Debug)]
 struct ComponentSchemaFormInput {
+    // Require machine ID so that in future different machines may have different schemas
+    #[graphql(name = "machineID")]
+    pub machine_id: ID,
     r#type: ComponentTypeGQL,
 }
 
@@ -56,10 +63,12 @@ struct MaterialSchemaFormInput {
     r#type: MaterialTypeGQL,
 }
 
-#[derive(async_graphql::InputObject, Debug)]
-struct PluginSchemaFormInput {
-    package: String,
-}
+// #[derive(async_graphql::InputObject, Debug)]
+// struct PluginSchemaFormInput {
+//     #[graphql(name = "machineID")]
+//     pub machine_id: ID,
+//     package: String,
+// }
 
 #[async_graphql::Object]
 impl ConfigQuery {
@@ -106,21 +115,21 @@ impl ConfigQuery {
         Ok(schema_form)
     }
 
-    #[instrument(skip(self))]
-    async fn plugin_schema_form<'ctx>(
-        &self,
-        input: PluginSchemaFormInput,
-    ) -> FieldResult<JsonSchemaForm> {
-        if &input.package[..] != "teg-core" {
-            Err(eyre!("Plugin not found: {}", input.package))?
-        }
+    // #[instrument(skip(self))]
+    // async fn plugin_schema_form<'ctx>(
+    //     &self,
+    //     input: PluginSchemaFormInput,
+    // ) -> FieldResult<JsonSchemaForm> {
+    //     if &input.package[..] != "teg-core" {
+    //         Err(eyre!("Plugin not found: {}", input.package))?
+    //     }
 
-        let schema_form = to_schema_form(schema_for!(
-            CorePluginConfig
-        ))?;
+    //     let schema_form = to_schema_form(schema_for!(
+    //         CorePluginConfig
+    //     ))?;
 
-        Ok(schema_form)
-    }
+    //     Ok(schema_form)
+    // }
 
     #[instrument(skip(self))]
     async fn component_schema_form<'ctx>(

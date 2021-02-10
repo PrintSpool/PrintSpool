@@ -28,7 +28,7 @@ const FormikSchemaForm = ({
   form,
   path = '',
   className = null,
-  values,
+  values = {},
   hideReadOnlyFields = false,
 }) => (
   // <TextField

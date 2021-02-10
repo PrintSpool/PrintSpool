@@ -13,14 +13,12 @@ use teg_auth::{
 };
 // use teg_json_store::Record as _;
 
-use crate::{
-    machine::messages,
-};
+use crate::{components::ComponentTypeGQL, machine::messages};
 
 #[derive(async_graphql::InputObject, Debug)]
 pub struct CreateComponentInput {
     /// eg. \`"CONTROLLER"\`
-    pub component_type: String,
+    pub component_type: ComponentTypeGQL,
     #[graphql(name = "machineID")]
     pub machine_id: ID,
     pub model: async_graphql::Json<serde_json::Value>,
@@ -40,6 +38,7 @@ pub struct UpdateComponentInput {
 pub struct DeleteComponentInput {
     #[graphql(name = "machineID")]
     pub machine_id: ID,
+    #[graphql(name = "componentID")]
     pub component_id: ID,
 }
 
@@ -49,7 +48,7 @@ pub struct ComponentMutation;
 #[async_graphql::Object]
 impl ComponentMutation {
     #[instrument(skip(self, ctx))]
-    async fn create_config<'ctx>(
+    async fn create_component<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
         input: CreateComponentInput,
@@ -66,7 +65,7 @@ impl ComponentMutation {
             .ok_or_else(|| eyre!("Machine ID not found"))?;
 
         let msg = messages::CreateComponent {
-            component_type: input.component_type.to_string(),
+            component_type: input.component_type,
             model: input.model.0,
         };
         machine.call(msg).await??;
@@ -106,7 +105,7 @@ impl ComponentMutation {
         &self,
         ctx: &'ctx Context<'_>,
         input: DeleteComponentInput,
-    ) -> FieldResult<Option<bool>> {
+    ) -> FieldResult<Option<crate::Void>> {
         // let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 

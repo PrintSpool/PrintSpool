@@ -19,6 +19,10 @@ const componentTypeNames = [
     value: 'FAN',
     label: 'Fan',
   },
+  {
+    value: 'VIDEO',
+    label: 'Web Cam',
+  }
 ]
 
 export default componentTypeNames

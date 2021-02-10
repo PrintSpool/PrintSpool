@@ -1,9 +1,6 @@
 import React from 'react'
-import { compose, withState, withProps } from 'recompose'
-import { withRouter } from 'react-router'
-import { gql } from '@apollo/client'
-import { Mutation } from '@apollo/client'
 import { Formik, Form } from 'formik'
+import { gql } from '@apollo/client'
 
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
@@ -20,73 +17,17 @@ import componentTypeNames from './componentTypeNames'
 import Page1 from './Page1'
 
 import FormikSchemaForm from '../FormikSchemaForm/index'
-import withValidate from '../FormikSchemaForm/withValidate'
 import getDefaultValues from '../FormikSchemaForm/getDefaultValues'
 
-const CREATE_COMPONENT = gql`
-  mutation createComponent($input: CreateConfigInput!) {
-    createConfig(input: $input) {
-      errors {
-        dataPath
-        message
-      }
-    }
-  }
-`
-
 const GET_SCHEMA_FORM = gql`
-  query GetSchemaForm($input: SchemaFormQueryInput!) {
-    schemaForm(input: $input) {
+  query GetSchemaForm($input: ComponentSchemaFormInput!) {
+    componentSchemaForm(input: $input) {
       id
       schema
       form
     }
   }
 `
-
-const enhance = compose(
-  withState('wizard', 'updateWizard', {
-    activeStep: 0,
-    schemaForm: { schema: null },
-  }),
-  withRouter,
-  withProps(ownProps => ({ schema: ownProps.wizard.schemaForm.schema })),
-  withValidate,
-  Component => (props) => {
-    const {
-      history,
-    } = props
-
-    return (
-      <Mutation
-        mutation={CREATE_COMPONENT}
-        update={(mutationResult) => {
-          if (mutationResult.data != null) {
-            history.push('../')
-          }
-        }}
-      >
-        {
-          (create, { called, error, client }) => {
-            if (error != null) {
-              throw error
-            }
-
-            if (called) return <div />
-
-            return (
-              <Component
-                create={create}
-                client={client}
-                {...props}
-              />
-            )
-          }
-        }
-      </Mutation>
-    )
-  },
-)
 
 const STEPS = [
   'Select a Type',
@@ -103,6 +44,7 @@ const createComponentDialog = ({
   wizard,
   updateWizard,
   fixedListComponentTypes,
+  videoSources,
   devices,
   materials,
 }) => (
@@ -119,7 +61,7 @@ const createComponentDialog = ({
         model: {},
       }}
       validate={(values) => {
-        const errors = {}
+        const errors: any = {}
 
         if (!values.componentType) {
           errors.componentType = 'Required'
@@ -143,8 +85,7 @@ const createComponentDialog = ({
             variables: {
               input: {
                 machineID,
-                collection: 'COMPONENT',
-                schemaFormKey: values.componentType,
+                componentType: values.componentType,
                 model: values.model,
               },
             },
@@ -156,9 +97,8 @@ const createComponentDialog = ({
           // TODO: move variables to where query is called
           variables: {
             input: {
-              collection: 'COMPONENT',
               machineID,
-              schemaFormKey: values.componentType,
+              type: values.componentType,
             },
           },
         })
@@ -166,11 +106,11 @@ const createComponentDialog = ({
         // bag.setTouched({})
         bag.resetForm({
           ...values,
-          model: getDefaultValues(data.schemaForm),
+          model: getDefaultValues(data.componentSchemaForm),
         })
         updateWizard({
           activeStep: wizard.activeStep + 1,
-          schemaForm: data.schemaForm,
+          schemaForm: data.componentSchemaForm,
         })
         // bag.setSubmitting(false)
       }}
@@ -213,6 +153,7 @@ const createComponentDialog = ({
                     schema,
                     materials,
                     devices,
+                    videoSources,
                   })}
                   form={form}
                   path="model."
@@ -249,5 +190,4 @@ const createComponentDialog = ({
   </Dialog>
 )
 
-export const Component = createComponentDialog
-export default enhance(createComponentDialog)
+export default createComponentDialog

@@ -1,11 +1,11 @@
 import React from 'react'
 import { useParams, useHistory } from 'react-router'
-import { gql } from '@apollo/client'
+import { gql, useMutation } from '@apollo/client'
 
 import useLiveSubscription from '../../_hooks/useLiveSubscription'
 import PrinterComponentsView from './PrinterComponents.view'
-import { useMutation } from '@apollo/client'
 import { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog/UpdateDialog.page'
+import useDeleteConfig from '../components/useDeleteConfig'
 
 const COMPONENTS_QUERY = gql`
   fragment QueryFragment on Query {
@@ -45,6 +45,14 @@ const UPDATE_COMPONENT = gql`
   }
 `
 
+const DELETE_COMPONENT = gql`
+  mutation deleteComponent($input: DeleteComponentInput!) {
+    deleteComponent(input: $input) {
+      id
+    }
+  }
+`
+
 const PrinterComponentsPage = () => {
   const history = useHistory()
   const params = useParams()
@@ -58,13 +66,15 @@ const PrinterComponentsPage = () => {
   })
 
   const {
+    videoSources,
     machines: [
       machine
     ],
   } = data || { machines: [] }
   const { components, fixedListComponentTypes, status } = machine || {}
+  const component = componentID && components?.find(c => c.id === componentID)
 
-  const [updateComponent, mutation] = useMutation(UPDATE_COMPONENT, {
+  const [updateComponent, updateComponentMutation] = useMutation(UPDATE_COMPONENT, {
     update: (mutationResult: any) => {
       if (mutationResult.data != null) {
         history.push('../')
@@ -78,28 +88,42 @@ const PrinterComponentsPage = () => {
         input: {
           machineID,
           componentID,
-          modelVersion: components.find(c => c.id === componentID).configForm.modelVersion,
+          modelVersion: component.configForm.modelVersion,
           model,
         }
       }
     })
   }
 
+  useDeleteConfig(DELETE_COMPONENT, {
+    variables: {
+      input: {
+        machineID: machine?.id,
+        componentID: component?.id,
+      },
+    },
+    show: component != null && verb === 'delete',
+    type: component?.type.toLowerCase(),
+    title: component?.name,
+  })
+
   if (loading) {
     return <div />
   }
 
-  if (error || mutation.error) {
-    throw error || mutation.error
+  const anyError = error || updateComponentMutation.error
+  if (anyError) {
+    throw anyError
   }
 
   return (
     <PrinterComponentsView
       {...{
         ...data,
-        selectedComponent: components.find(c => c.id === componentID),
+        selectedComponent: component,
         components,
         fixedListComponentTypes,
+        videoSources,
         status,
         machine,
         onSubmit,

@@ -36,17 +36,19 @@ export const useDelete = ({
   }, [show])
 }
 
-export const useDeleteConfig = ({
-  id,
-  collection,
-  machineID,
+export const useDeleteConfig = (mutation, {
+  variables,
   show,
   type,
   title,
   fullTitle = false,
 }) => {
   const { history } = useRouter()
-  const [deleteConfig] = useMutation(deleteConfigMutation)
+  const [deleteConfig, { error }] = useMutation(mutation)
+
+  if (error) {
+    throw error
+  }
 
   useDelete({
     show,
@@ -54,13 +56,7 @@ export const useDeleteConfig = ({
     title,
     fullTitle,
     fn: async () => {
-      const input = {
-        configFormID: id,
-        collection,
-        machineID,
-      }
-
-      await deleteConfig({ variables: { input } })
+      await deleteConfig({ variables })
 
       history.push('../')
     }

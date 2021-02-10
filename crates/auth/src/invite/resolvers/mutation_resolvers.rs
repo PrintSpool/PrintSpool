@@ -97,7 +97,11 @@ impl InviteMutation {
         Ok(invite)
     }
 
-    async fn delete_invite<'ctx>(&self, ctx: &'ctx Context<'_>, input: DeleteInvite) -> FieldResult<Option<bool>> {
+    async fn delete_invite<'ctx>(
+        &self,
+        ctx: &'ctx Context<'_>,
+        input: DeleteInvite
+    ) -> FieldResult<Option<bool>> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 

@@ -4,25 +4,13 @@ use eyre::{
     // Context as _,
 };
 
-use crate::{
-    components::{
-        Controller,
-        ControllerConfig,
-        SpeedController,
-        SpeedControllerConfig,
-        Toolhead,
-        ToolheadConfig,
-        Video,
-        VideoConfig
-    },
-    machine::Machine,
-};
+use crate::{components::{ComponentTypeGQL, Controller, ControllerConfig, SpeedController, SpeedControllerConfig, Toolhead, ToolheadConfig, Video, VideoConfig}, machine::Machine};
 
 use super::ResetWhenIdle;
 
 #[xactor::message(result = "Result<()>")]
 pub struct CreateComponent {
-    pub component_type: String,
+    pub component_type: ComponentTypeGQL,
     pub model: serde_json::Value,
 }
 
@@ -33,28 +21,28 @@ impl xactor::Handler<CreateComponent> for Machine {
 
         let model = msg.model;
 
-        match &msg.component_type[..] {
-            "CONTROLLER" => {
+        match msg.component_type {
+            ComponentTypeGQL::Controller => {
                 let config: ControllerConfig = serde_json::from_value(model)?;
                 let component = Controller::new(config);
                 data.config.controllers.push(component)
             }
-            "TOOLHEAD" => {
+            ComponentTypeGQL::Toolhead => {
                 let config: ToolheadConfig = serde_json::from_value(model)?;
                 let component = Toolhead::new(config);
                 data.config.toolheads.push(component);
             }
-            "SPEED_CONTROLLER" => {
+            ComponentTypeGQL::SpeedController => {
                 let config: SpeedControllerConfig = serde_json::from_value(model)?;
                 let component = SpeedController::new(config);
                 data.config.speed_controllers.push(component);
             }
-            "VIDEO" => {
+            ComponentTypeGQL::Video => {
                 let config: VideoConfig = serde_json::from_value(model)?;
                 let component = Video::new(config);
                 data.config.videos.push(component);
             }
-            _ => Err(eyre!("Invalid component type: {}", msg.component_type))?,
+            _ => Err(eyre!("Type not allowed for creation: {:?}", msg.component_type))?,
         };
 
         data.config.save_config().await?;
