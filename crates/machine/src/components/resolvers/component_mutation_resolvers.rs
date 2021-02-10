@@ -52,7 +52,7 @@ impl ComponentMutation {
         &self,
         ctx: &'ctx Context<'_>,
         input: CreateComponentInput,
-    ) -> FieldResult<crate::Void> {
+    ) -> FieldResult<teg_common::Void> {
         // let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 
@@ -70,7 +70,7 @@ impl ComponentMutation {
         };
         machine.call(msg).await??;
 
-        Ok(crate::Void)
+        Ok(teg_common::Void)
     }
 
     #[instrument(skip(self, ctx))]
@@ -78,7 +78,7 @@ impl ComponentMutation {
         &self,
         ctx: &'ctx Context<'_>,
         input: UpdateComponentInput,
-    ) -> FieldResult<crate::Void> {
+    ) -> FieldResult<teg_common::Void> {
         // let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 
@@ -97,7 +97,7 @@ impl ComponentMutation {
         };
         machine.call(msg).await??;
 
-        Ok(crate::Void)
+        Ok(teg_common::Void)
     }
 
     #[instrument(skip(self, ctx))]
@@ -105,7 +105,7 @@ impl ComponentMutation {
         &self,
         ctx: &'ctx Context<'_>,
         input: DeleteComponentInput,
-    ) -> FieldResult<Option<crate::Void>> {
+    ) -> FieldResult<Option<teg_common::Void>> {
         // let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 

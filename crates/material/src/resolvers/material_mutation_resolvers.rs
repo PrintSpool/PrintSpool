@@ -13,29 +13,30 @@ use eyre::{
 
 use teg_auth::AuthContext;
 use teg_json_store::Record;
-use crate::material::{
-    Material,
-    MaterialConfigEnum,
-};
+use crate::{FdmFilament, MaterialTypeGQL, material::{
+        Material,
+        MaterialConfigEnum,
+    }};
 
 // Input Types
 // ---------------------------------------------
 
 #[derive(async_graphql::InputObject)]
 pub struct CreateMaterialInput {
-    pub model: async_graphql::Json<MaterialConfigEnum>,
+    pub material_type: MaterialTypeGQL,
+    pub model: async_graphql::Json<serde_json::Value>,
 }
 
 #[derive(async_graphql::InputObject)]
-pub struct UpdateMaterial {
+pub struct UpdateMaterialInput {
     #[graphql(name="materialID")]
     pub material_id: ID,
     pub model_version: i32,
-    pub model: async_graphql::Json<MaterialConfigEnum>,
+    pub model: async_graphql::Json<serde_json::Value>,
 }
 
 #[derive(async_graphql::InputObject)]
-pub struct DeleteMaterial {
+pub struct DeleteMaterialInput {
     #[graphql(name="materialID")]
     pub material_id: ID,
 }
@@ -58,11 +59,18 @@ impl MaterialMutation {
 
         auth.authorize_admins_only()?;
 
+        let config = match input.material_type {
+            MaterialTypeGQL::FdmFilament => {
+                let config: FdmFilament = serde_json::from_value(input.model.0)?;
+                MaterialConfigEnum::FdmFilament(Box::new(config))
+            }
+        };
+
         let material = Material {
             id: nanoid!(11),
             version: 0,
             created_at: Utc::now(),
-            config: input.model.0,
+            config,
         };
 
         material.insert(db).await?;
@@ -73,7 +81,7 @@ impl MaterialMutation {
     async fn update_material<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
-        input: UpdateMaterial,
+        input: UpdateMaterialInput,
     ) -> FieldResult<Material> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
@@ -86,7 +94,12 @@ impl MaterialMutation {
             input.model_version,
         ).await?;
 
-        material.config = input.model.0;
+        material.config = match material.config {
+            MaterialConfigEnum::FdmFilament(_) => {
+                let config: FdmFilament = serde_json::from_value(input.model.0)?;
+                MaterialConfigEnum::FdmFilament(Box::new(config))
+            }
+        };
 
         material.update(db).await?;
 
@@ -96,14 +109,14 @@ impl MaterialMutation {
     async fn delete_material<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
-        input: DeleteMaterial
-    ) -> FieldResult<Option<bool>> {
+        input: DeleteMaterialInput
+    ) -> FieldResult<Option<teg_common::Void>> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 
         auth.authorize_admins_only()?;
 
-        let DeleteMaterial { material_id } = input;
+        let DeleteMaterialInput { material_id } = input;
         let material_id = material_id.to_string();
 
         Material::remove(db, &material_id)

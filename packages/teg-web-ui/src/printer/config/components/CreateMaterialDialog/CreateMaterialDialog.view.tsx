@@ -1,41 +1,25 @@
 import React from 'react'
-import { compose, withState, withProps } from 'recompose'
-import { withRouter } from 'react-router'
 import { gql } from '@apollo/client'
-import { Mutation } from '@apollo/client'
 import { Formik, Form } from 'formik'
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Stepper,
-  Step,
-  StepLabel,
-} from '@material-ui/core'
+
+import Dialog from '@material-ui/core/Dialog'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogActions from '@material-ui/core/DialogActions'
+import Button from '@material-ui/core/Button'
+import Stepper from '@material-ui/core/Stepper'
+import Step from '@material-ui/core/Step'
+import StepLabel from '@material-ui/core/StepLabel'
 
 import materialTypeNames from './materialTypeNames'
 import Page1 from './Page1'
 
 import FormikSchemaForm from '../FormikSchemaForm/index'
-import withValidate from '../FormikSchemaForm/withValidate'
 import getDefaultValues from '../FormikSchemaForm/getDefaultValues'
 
-const CREATE_MATERIAL = gql`
-  mutation createMaterial($input: CreateConfigInput!) {
-    createConfig(input: $input) {
-      errors {
-        dataPath
-        message
-      }
-    }
-  }
-`
-
 const GET_SCHEMA_FORM = gql`
-  query GetSchemaForm($input: SchemaFormQueryInput!) {
-    schemaForm(input: $input) {
+  query GetSchemaForm($input: MaterialSchemaFormInput!) {
+    materialSchemaForm(input: $input) {
       id
       schema
       form
@@ -43,56 +27,12 @@ const GET_SCHEMA_FORM = gql`
   }
 `
 
-const enhance = compose(
-  withState('wizard', 'updateWizard', {
-    activeStep: 0,
-    schemaForm: { schema: null },
-  }),
-  withRouter,
-  withProps(ownProps => ({ schema: ownProps.wizard.schemaForm.schema })),
-  withValidate,
-  Component => (props) => {
-    const {
-      history,
-    } = props
-
-    return (
-      <Mutation
-        mutation={CREATE_MATERIAL}
-        update={(mutationResult) => {
-          if (mutationResult.data != null) {
-            history.push('../')
-          }
-        }}
-      >
-        {
-          (create, { called, error, client }) => {
-            if (error != null) {
-              throw error
-            }
-
-            if (called) return <div />
-
-            return (
-              <Component
-                create={create}
-                client={client}
-                {...props}
-              />
-            )
-          }
-        }
-      </Mutation>
-    )
-  },
-)
-
 const STEPS = [
   'Select a Type',
   'Configure the Material',
 ]
 
-const createMaterialDialog = ({
+const createMaterialDialogView = ({
   open,
   history,
   create,
@@ -114,7 +54,7 @@ const createMaterialDialog = ({
         model: {},
       }}
       validate={(values) => {
-        const errors = {}
+        const errors: any = {}
 
         if (!values.materialType) {
           errors.materialType = 'Required'
@@ -137,8 +77,7 @@ const createMaterialDialog = ({
           return create({
             variables: {
               input: {
-                collection: 'MATERIAL',
-                schemaFormKey: values.materialType,
+                materialType: values.materialType,
                 model: values.model,
               },
             },
@@ -147,11 +86,9 @@ const createMaterialDialog = ({
 
         const { data } = await client.query({
           query: GET_SCHEMA_FORM,
-          // TODO: move variables to where query is called
           variables: {
             input: {
-              collection: 'MATERIAL',
-              schemaFormKey: values.materialType,
+              type: values.materialType,
             },
           },
         })
@@ -159,11 +96,11 @@ const createMaterialDialog = ({
         // bag.setTouched({})
         bag.resetForm({
           ...values,
-          model: getDefaultValues(data.schemaForm),
+          model: getDefaultValues(data.materialSchemaForm),
         })
         updateWizard({
           activeStep: wizard.activeStep + 1,
-          schemaForm: data.schemaForm,
+          schemaForm: data.materialSchemaForm,
         })
         // bag.setSubmitting(false)
       }}
@@ -236,5 +173,4 @@ const createMaterialDialog = ({
   </Dialog>
 )
 
-export const Component = createMaterialDialog
-export default enhance(createMaterialDialog)
+export default createMaterialDialogView

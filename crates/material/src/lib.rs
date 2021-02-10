@@ -4,8 +4,8 @@ mod material;
 pub use material::*;
 
 pub mod resolvers;
-pub use resolvers::mutation_resolvers::MaterialMutation;
-pub use resolvers::query_resolvers::MaterialQuery;
+pub use resolvers::material_mutation_resolvers::MaterialMutation;
+pub use resolvers::material_query_resolvers::MaterialQuery;
 
 mod into_config_form;
 

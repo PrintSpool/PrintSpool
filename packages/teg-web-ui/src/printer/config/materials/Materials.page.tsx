@@ -1,160 +1,100 @@
 import React from 'react'
-import { compose, withProps } from 'recompose'
-import { Link } from 'react-router-dom'
+import { useParams, useHistory } from 'react-router'
+import { gql, useMutation } from '@apollo/client'
 
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import ListItemText from '@material-ui/core/ListItemText'
-import Tooltip from '@material-ui/core/Tooltip'
-import Fab from '@material-ui/core/Fab'
-
-import { makeStyles } from '@material-ui/core/styles'
-
-import Style from '@material-ui/icons/Style'
-import Add from '@material-ui/icons/Add'
-
-import { gql } from '@apollo/client'
-
-import withLiveData from '../../common/higherOrderComponents/withLiveData'
-
-import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog/UpdateDialog.page'
-import CreateMaterialDialog from '../components/CreateMaterialDialog/Index'
 import useDeleteConfig from '../components/useDeleteConfig'
+import useLiveSubscription from '../../_hooks/useLiveSubscription'
+import MaterialsConfigView from './Materials.view'
+import { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog/UpdateDialog.page'
 
-const CONFIG_SUBSCRIPTION = gql`
-  subscription ConfigSubscription {
-    live {
-      patch { op, path, from, value }
-      query {
-        hasPendingUpdates
-        machines {
-          id
-          status
-        }
-        materials {
-          id
-          name
-          shortSummary
-        }
+const CONFIG_QUERY = gql`
+  fragment QueryFragment on Query {
+    # hasPendingUpdates
+    materials {
+      id
+      name
+      shortSummary
+      configForm {
+        ...UpdateDialogFragment
       }
+    }
+  }
+  ${UPDATE_DIALOG_FRAGMENT}
+`
+
+const UPDATE_MATERIAL = gql`
+  mutation updateMaterial($input: UpdateMaterialInput!) {
+    updateMaterial(input: $input) {
+      id
     }
   }
 `
 
-// eslint-disable-next-line
-const useStyles = makeStyles(theme => ({
-  root: {
-    overflowY: 'scroll',
-  },
-  title: {
-    paddingTop: theme.spacing(3),
-  },
-  addFab: {
-    position: 'fixed',
-    bottom: theme.spacing(4),
-    right: theme.spacing(2),
-  },
-}))
+const DELETE_MATERIAL = gql`
+  mutation deleteMaterial($input: DeleteMaterialInput!) {
+    deleteMaterial(input: $input) {
+      id
+    }
+  }
+`
 
-const enhance = compose(
-  withProps(() => ({
-    subscription: CONFIG_SUBSCRIPTION,
-    variables: {},
-  })),
-  withLiveData,
-  withProps(({ match: { params } }) => ({
-    materialID: params.materialID,
-    verb: params.materialID === 'new' ? 'new' : params.verb,
-  })),
-)
+const MaterialsConfigIndex = () => {
+  const history = useHistory()
+  const { materialID, ...params } = useParams()
+  const verb = materialID === 'new' ? 'new' : params.verb
 
-const MaterialsConfigIndex = ({
-  materials,
-  materialID,
-  verb,
-  machines,
-  hasPendingUpdates,
-}) => {
-  const classes = useStyles()
+  const { data, error, loading } = useLiveSubscription(CONFIG_QUERY)
+  const { materials } = data || {}
+  const material = materialID && materials?.find(m => m.id === materialID)
 
-  useDeleteConfig({
+  const [updateMaterial, updateMaterialMutation] = useMutation(UPDATE_MATERIAL, {
+    update: (mutationResult: any) => {
+      if (mutationResult.data != null) {
+        history.push('../')
+      }
+    },
+  })
+
+  const update = (model) => {
+    updateMaterial({
+      variables: {
+        input: {
+          materialID,
+          modelVersion: material.configForm.modelVersion,
+          model,
+        }
+      }
+    })
+  }
+
+  useDeleteConfig(DELETE_MATERIAL, {
+    variables: {
+      input: {
+        materialID,
+      },
+    },
     show: materialID != null && verb === 'delete',
-    id: materialID,
-    collection: 'MATERIAL',
-    machineID: null,
     type: 'material',
     title: materialID,
   })
 
+  if (loading) {
+    return <div/>
+  }
+
+  if (error) {
+    throw error
+  }
+
   return (
-    <main className={classes.root}>
-      {
-        materialID != null && verb == null && (
-          <UpdateDialog
-            title={(materials.find(m => m.id === materialID) || {}).name}
-            open
-            deleteButton
-            status={machines[0].status}
-            hasPendingUpdates={hasPendingUpdates}
-            collection="MATERIAL"
-            variables={{ materialID }}
-            query={gql`
-              query($materialID: ID) {
-                materials(materialID: $materialID) {
-                  configForm {
-                    ...UpdateDialogFragment
-                  }
-                }
-              }
-              ${UPDATE_DIALOG_FRAGMENT}
-            `}
-          />
-        )
-      }
-      { verb === 'new' && (
-        <CreateMaterialDialog open />
-      )}
-      <Tooltip title="Add Component" placement="left">
-        <Fab
-          disabled={hasPendingUpdates || machines[0].status === 'PRINTING'}
-          component={React.forwardRef((props, ref) => (
-            <Link
-              to={verb === 'new' ? './' : 'new/'}
-              innerRef={ref}
-              style={{ textDecoration: 'none' }}
-              {...props}
-            />
-          ))}
-          className={classes.addFab}
-        >
-          <Add />
-        </Fab>
-      </Tooltip>
-      <List>
-        {
-          materials.map(material => (
-            <ListItem
-              button
-              divider
-              key={material.id}
-              component={React.forwardRef((props, ref) => (
-                <Link to={`${material.id}/`} innerRef={ref} {...props} />
-              ))}
-            >
-              <ListItemIcon>
-                <Style />
-              </ListItemIcon>
-              <ListItemText
-                primary={material.name}
-                secondary={material.shortSummary}
-              />
-            </ListItem>
-          ))
-        }
-      </List>
-    </main>
+    <MaterialsConfigView {...{
+      materialID,
+      verb,
+      materials,
+      hasPendingUpdates: false,
+      update,
+    }} />
   )
 }
 
-export default enhance(MaterialsConfigIndex)
+export default MaterialsConfigIndex

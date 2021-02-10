@@ -16,20 +16,8 @@ export const UPDATE_DIALOG_FRAGMENT = gql`
   }
 `
 
-const SUBMIT_UPDATE_DIALOG = gql`
-  mutation submitUpdateDialog($input: UpdateConfigInput!) {
-    updateConfig(input: $input) {
-      errors {
-        dataPath
-        message
-      }
-    }
-  }
-`
-
 const UpdateDialogPage = ({
   title = null,
-  collection,
   open,
   query,
   variables = {} as any,
@@ -37,7 +25,7 @@ const UpdateDialogPage = ({
   hasPendingUpdates = false,
   transformSchema = schema => schema,
   getConfigForm = null,
-  onSubmit = null,
+  onSubmit,
   deleteButton = false,
 }) => {
   let history = useHistory()
@@ -45,27 +33,13 @@ const UpdateDialogPage = ({
     variables,
   })
 
-  const [submitUpdateDialog, mutation] = useMutation(SUBMIT_UPDATE_DIALOG, {
-    update: (mutationResult: any) => {
-      if (mutationResult.data != null) {
-        history.push('../')
-      }
-    },
-  })
-
   if (error) {
     throw error
   }
 
-  console.log({ title, open, status, loading, data })
+  // console.log({ title, open, status, loading, data })
   if (!open) return <div />
   if (loading || !data) return <div />
-
-  if (mutation.error != null) {
-    throw mutation.error
-  }
-
-  if (mutation.called) return <div />
 
   let configFormData
 
@@ -87,31 +61,10 @@ const UpdateDialogPage = ({
     configFormData = getConfigForm(data)
   }
 
-  const input = {
-    configFormID: data.id,
-    modelVersion: data.modelVersion,
-    machineID: variables.machineID,
-    collection,
-  }
-
-  const viewOnSubmit = (model) => {
-    if (onSubmit != null) {
-      return onSubmit(model)
-    }
-    submitUpdateDialog({
-      variables: {
-        input: {
-          ...input,
-          model,
-        },
-      },
-    })
-  }
-
   const viewProps = {
     title,
     open,
-    onSubmit: viewOnSubmit,
+    onSubmit,
     onClose: () => history.push('../'),
     data: configFormData,
     status,

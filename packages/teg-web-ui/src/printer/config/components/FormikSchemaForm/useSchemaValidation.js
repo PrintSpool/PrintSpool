@@ -11,10 +11,37 @@ import Ajv from 'ajv'
 //   return out
 // }
 
+const normalizeProperty = (property) => {
+  if (
+    [
+      'uint64',
+      'sint64',
+      'uint32',
+      'sint32',
+      'uint',
+      'sint',
+      'float',
+    ].includes(property.format)
+  ) {
+    const { format: _, ...nextProperty } = property
+    return nextProperty
+  } else {
+    return property
+  }
+}
+
+const normalizeAllProperties = (originalProperties = {}) => {
+  const properties = {}
+  Object.entries(originalProperties || {}).forEach(([key, property]) => {
+    // console.log(property)
+    properties[key] = normalizeProperty(property)
+  })
+}
+
 const useSchemaValidation = ({ schema: originalSchema } = {}) => (
   useMemo(() => {
     if (originalSchema == null) return () => ({})
-    // console.log({ originalSchema })
+    console.log({ originalSchema })
 
     const ajv = new Ajv({
       allErrors: true,
@@ -22,30 +49,26 @@ const useSchemaValidation = ({ schema: originalSchema } = {}) => (
     })
 
     // Hack: This in-place modification of the schema properties is not ideal but it works.
-    const properties = {}
-    Object.entries(originalSchema.properties).forEach(([key, property]) => {
-      // console.log(property)
-      if (
-        [
-          'uint64',
-          'sint64',
-          'uint32',
-          'sint32',
-          'uint',
-          'sint',
-          'float',
-        ].includes(property.format)
-      ) {
-        const { format: _, ...nextProperty } = property
-        properties[key] = nextProperty
-      } else {
-        properties[key] = property
+    const properties = normalizeAllProperties(originalSchema.properties)
+
+    const definitions = {}
+
+    Object.entries(originalSchema.definitions || {}).forEach(([key, definition]) => {
+      definitions[key] = {
+        ...definition,
+        properties: normalizeAllProperties(definition.properties),
       }
     })
+    // const properties = {}
+    // Object.entries(originalSchema.properties || {}).forEach(([key, property]) => {
+    //   // console.log(property)
+    //   properties[key] = normalizeProperty(property)
+    // })
 
     const schema = {
       ...originalSchema,
       properties,
+      definitions,
     }
     // console.log({ schema })
 

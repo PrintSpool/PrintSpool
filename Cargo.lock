@@ -4281,6 +4281,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "36474e732d1affd3a6ed582781b3683df3d0563714c59c39591e8ff707cf078e"
 
 [[package]]
+name = "teg-common"
+version = "0.1.0"
+dependencies = [
+ "async-graphql",
+]
+
+[[package]]
 name = "teg-json-store"
 version = "0.1.0"
 dependencies = [
@@ -4535,6 +4542,7 @@ dependencies = [
  "smart-default",
  "sqlx",
  "surf",
+ "teg-common",
  "teg-json-store",
  "teg-protobufs",
  "teg_auth",
@@ -4558,6 +4566,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sqlx",
+ "teg-common",
  "teg-json-store",
  "teg_auth",
  "teg_config_form",

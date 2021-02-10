@@ -52,7 +52,7 @@ impl MachineMutation {
         &self,
         ctx: &'ctx Context<'_>,
         machine_id: ID,
-    ) -> FieldResult<Option<crate::Void>> {
+    ) -> FieldResult<Option<teg_common::Void>> {
         let machines: &crate::MachineMap = ctx.data()?;
         let machines = machines.load();
 
@@ -69,7 +69,7 @@ impl MachineMutation {
         &self,
         ctx: &'ctx Context<'_>,
         machine_id: ID,
-    ) -> FieldResult<Option<crate::Void>> {
+    ) -> FieldResult<Option<teg_common::Void>> {
         let machines: &crate::MachineMap = ctx.data()?;
         let machines = machines.load();
 
@@ -87,7 +87,7 @@ impl MachineMutation {
         ctx: &'ctx async_graphql::Context<'_>,
         #[graphql(name="machineID")]
         machine_id: ID,
-    ) -> FieldResult<Option<crate::Void>> {
+    ) -> FieldResult<Option<teg_common::Void>> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 

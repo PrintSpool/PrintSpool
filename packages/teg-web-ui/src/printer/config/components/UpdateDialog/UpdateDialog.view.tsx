@@ -12,7 +12,7 @@ import FormikSchemaForm from '../FormikSchemaForm/index'
 import StatusFilter from '../../../../common/StatusFilter'
 // import Loading from '../../../../common/Loading'
 import LoadingOverlay from '../../../../common/LoadingOverlay'
-import { useValidate } from '../FormikSchemaForm/withValidate'
+import useSchemaValidation from '../FormikSchemaForm/useSchemaValidation'
 
 const UpdateDialogView = ({
   title,
@@ -27,7 +27,8 @@ const UpdateDialogView = ({
   deleteButton = false,
   transformSchema = schema => schema,
 }) => {
-  const validate = useValidate({ schema: data.schemaForm.schema })
+  console.log({ data }, data.schemaForm.schema)
+  const validate = useSchemaValidation({ schema: data.schemaForm.schema })
 
   return (
     <Dialog

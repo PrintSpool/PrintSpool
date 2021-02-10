@@ -92,7 +92,6 @@ const PrinterComponentsView = ({
           deleteButton={
             fixedListComponentTypes.includes(selectedComponent.type) === false
           }
-          collection="COMPONENT"
           transformSchema={schema => transformComponentSchema({
             schema,
             materials,

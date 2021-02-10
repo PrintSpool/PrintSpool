@@ -1,0 +1,10 @@
+[package]
+name = "teg-common"
+version = "0.1.0"
+authors = ["D1plo1d <thatotherdude@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }

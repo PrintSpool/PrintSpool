@@ -66,11 +66,18 @@ async fn update_db(_db: &crate::Db) -> Result<()> {
 }
 
 async fn app() -> Result<()> {
-    dotenv::dotenv().ok();
+    if env::var("RUST_ENV") != Ok("PRODUCTION".to_string()) {
+        dotenv::dotenv()
+            .wrap_err(".env file not found or failed to load")?;
+    }
+
     tracing_subscriber::fmt::init();
     color_eyre::install()?;
 
-    let db = SqlitePool::connect(&env::var("DATABASE_URL")?).await?;
+    let db_url = env::var("DATABASE_URL")
+        .wrap_err("DATABASE_URL not set")?;
+
+    let db = SqlitePool::connect(&db_url).await?;
 
     update_db(&db).await?;
 

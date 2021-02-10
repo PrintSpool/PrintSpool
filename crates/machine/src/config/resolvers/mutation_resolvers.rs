@@ -28,7 +28,7 @@ impl ConfigMutation {
         &self,
         ctx: &'ctx Context<'_>,
         input: SetMaterialsInput,
-    ) -> FieldResult<Option<crate::Void>> {
+    ) -> FieldResult<Option<teg_common::Void>> {
         // use cgt::ConfigCollection::*;
         // let db: &crate::Db = ctx.data()?;
 
