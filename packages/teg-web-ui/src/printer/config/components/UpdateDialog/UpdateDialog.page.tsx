@@ -53,6 +53,10 @@ const UpdateDialogPage = ({
         return data.users[0].configForm
       }
 
+      if (data.invites != null) {
+        return data.invites[0].configForm
+      }
+
       const machine = data.machines[0]
 
       if (machine.configForm != null) {

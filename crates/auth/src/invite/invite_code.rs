@@ -28,21 +28,7 @@ impl Invite {
         Ok(slug)
     }
 
-    pub fn print_welcome_text(&self, slug: String) -> Result<()> {
-        let is_dev = std::env::var("RUST_ENV") == Ok("development".to_string());
-
-        let web_app_domain = if is_dev {
-            "http://localhost:1234"
-        } else {
-            "https://tegapp.io"
-        };
-
-        let invite_url = format!(
-            "{}/i/{}",
-            web_app_domain,
-            slug,
-        );
-
+    pub fn print_welcome_text(&self, invite_url: String) -> Result<()> {
         let thick_line = std::iter::repeat("=").take(80).collect::<String>();
 
         eprintln!(

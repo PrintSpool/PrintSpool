@@ -14,7 +14,7 @@ use crate::invite::{
 
 #[derive(async_graphql::InputObject, Default, Debug)]
 pub struct InvitesInput {
-    #[graphql(name="invitesID")]
+    #[graphql(name="inviteID")]
     pub invite_id: Option<ID>,
 }
 
@@ -63,7 +63,10 @@ impl InviteQuery {
 
         let mut invites = Invite::from_rows(invites)?;
 
-        invites.sort_by_key(|invite| invite.created_at);
+        invites.sort_by_cached_key(|invite| {
+            let name = &invite.config.name;
+            (name.is_none(), name.clone(), invite.created_at)
+        });
 
         Ok(invites)
     }

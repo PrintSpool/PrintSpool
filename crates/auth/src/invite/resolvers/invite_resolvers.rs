@@ -17,6 +17,13 @@ impl Invite {
     async fn id(&self) -> ID {
         (&self.id).into()
     }
+
+    async fn description(&self) -> String {
+        self.config.name
+            .clone()
+            .unwrap_or_else(|| format!("Invite #{}", self.id).to_string())
+    }
+
     async fn is_admin(&self) -> bool {
         self.config.is_admin
     }

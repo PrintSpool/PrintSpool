@@ -1,120 +1,102 @@
 import React from 'react'
-import { useHistory } from 'react-router-dom'
-import { useAsync } from 'react-async'
+import { useParams, useHistory } from 'react-router'
+import { gql, useMutation } from '@apollo/client'
 
-import { useQuery, useApolloClient } from '@apollo/client'
-import { gql } from '@apollo/client'
+import useDeleteConfig from '../components/useDeleteConfig'
+import useLiveSubscription from '../../_hooks/useLiveSubscription'
+import InvitesConfigView from './Invites.view'
+import { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog/UpdateDialog.page'
 
-import { useDelete } from '../components/useDeleteConfig'
-import Loading from '../../../common/Loading'
-import InvitesView from './Invites.view'
-
-const InvitesQuery = gql`
-  query InvitesQuery {
-    hasPendingUpdates
+const CONFIG_QUERY = gql`
+  fragment QueryFragment on Query {
+    # hasPendingUpdates
     invites {
       id
+      description
       createdAt
       isAdmin
-    }
-  }
-`
-
-const updateInvite = gql`
-  mutation updateInvite($input: UpdateInviteInput!) {
-    updateInvite(input: $input) {
-      errors {
-        message
+      configForm {
+        ...UpdateDialogFragment
       }
     }
   }
+  ${UPDATE_DIALOG_FRAGMENT}
 `
-
-const deleteInviteMutation = gql`
-  mutation deleteInvite($input: DeleteInviteInput!) {
-    deleteInvite(input: $input)
+const UPDATE_INVITE = gql`
+  mutation updateInvite($input: UpdateInviteInput!) {
+    updateInvite(input: $input) {
+      id
+    }
   }
 `
 
-const InvitesPage = ({
-  match,
-}) => {
-  // InvitesQuery
-  const { inviteID, verb } = match.params
+const DELETE_INVITE = gql`
+  mutation deleteInvite($input: DeleteInviteInput!) {
+    deleteInvite(input: $input) {
+      id
+    }
+  }
+`
 
+const InvitesConfigIndex = () => {
   const history = useHistory()
-  const apollo = useApolloClient()
+  const { inviteID, ...params } = useParams()
+  const verb = inviteID === 'new' ? 'new' : params.verb
 
-  const { data, loading, error } = useQuery(InvitesQuery, {
-    pollInterval: 1000,
-  })
+  const { data, error, loading } = useLiveSubscription(CONFIG_QUERY)
+  const { invites } = data || {}
+  const invite = inviteID && invites?.find(m => m.id === inviteID)
 
-  const { hasPendingUpdates, invites = [] } = data || {}
-  const selectedInvite = invites.find(c => c.id === inviteID)
-
-  const deleteInvite = useAsync({
-    deferFn: async () => {
-      await apollo.mutate({
-        mutation: deleteInviteMutation,
-        variables: {
-          input: {
-            inviteID: selectedInvite.id,
-          },
-        },
-      })
-      history.push('../')
+  const [updateInvite, updateInviteMutation] = useMutation(UPDATE_INVITE, {
+    update: (mutationResult: any) => {
+      if (mutationResult.data != null) {
+        history.push('../')
+      }
     },
   })
 
-  if (deleteInvite.error) {
-    throw deleteInvite.error
-  }
-
-  if (error) {
-    throw new Error(JSON.stringify(error))
-  }
-
-  const onUpdate = async (model) => {
-    console.log({ model })
-    const { data: { errors } } = await apollo.mutate({
-      mutation: updateInvite,
+  const update = (model) => {
+    updateInvite({
       variables: {
         input: {
-          inviteID: selectedInvite.id,
-          ...model,
-        },
-      },
+          inviteID,
+          modelVersion: invite.configForm.modelVersion,
+          model,
+        }
+      }
     })
-    if (errors) {
-      throw new Error(JSON.stringify(errors))
-    }
-    history.push('../')
   }
 
-  useDelete({
-    fn: deleteInvite.run,
-    show: selectedInvite != null && verb === 'delete',
+  useDeleteConfig(DELETE_INVITE, {
+    variables: {
+      input: {
+        inviteID,
+      },
+    },
+    show: inviteID != null && verb === 'delete',
     type: 'invite',
-    title: 'Invite',
+    title: inviteID,
   })
 
   if (loading) {
-    return <Loading />
+    return <div/>
+  }
+
+  const anyError = error || updateInviteMutation.error
+  if (anyError) {
+    throw anyError
   }
 
   return (
-    <InvitesView {...{
-      invites,
+    <InvitesConfigView {...{
       inviteID,
-      selectedInvite,
       verb,
-      hasPendingUpdates,
-      onUpdate,
-      deleteInvite,
-    }}
-    />
+      invite,
+      invites,
+      hasPendingUpdates: false,
+      update,
+    }} />
   )
 }
 
-export default InvitesPage
-// export default () => <div>WAT</div>
+export default InvitesConfigIndex

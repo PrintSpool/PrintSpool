@@ -1,38 +1,27 @@
-// TODO: work in progress
 import React, { useState, useContext } from 'react'
 import { useQuery, useMutation } from '@apollo/client'
 import { useHistory } from 'react-router-dom'
 import { gql } from '@apollo/client'
 import { Formik, Form } from 'formik'
-// import { createInvite } from 'graphql-things'
 import QRCode from 'qrcode.react'
-import base64url from 'base64url'
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Stepper,
-  Step,
-  StepLabel,
-  TextField,
-  Typography,
-} from '@material-ui/core'
 
-// import Page2 from './Page2'
+import Dialog from '@material-ui/core/Dialog'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogActions from '@material-ui/core/DialogActions'
+import Button from '@material-ui/core/Button'
+import Stepper from '@material-ui/core/Stepper'
+import Step from '@material-ui/core/Step'
+import StepLabel from '@material-ui/core/StepLabel'
+import TextField from '@material-ui/core/TextField'
+import Typography from '@material-ui/core/Typography'
 
 import { TegApolloContext } from '../../../../webrtc/TegApolloProvider'
-
 import FormikSchemaForm from '../../components/FormikSchemaForm/index'
 import { useValidate } from '../../components/FormikSchemaForm/withValidate'
-// import getDefaultValues from '../../components/FormikSchemaForm/getDefaultValues'
-
 import Loading from '../../../../common/Loading'
 import LoadingOverlay from '../../../../common/LoadingOverlay'
-
-import useStyles from './CreateInviteDialogStyles'
-import { useEffect } from 'react'
+import useStyles from './CreateInviteDialog.styles'
 
 const addInviteGraphQL = gql`
   mutation addInvite($input: CreateInviteInput!) {
@@ -46,8 +35,8 @@ const addInviteGraphQL = gql`
 `
 
 const getSchemaFormGraphQL = gql`
-  query GetSchemaForm($input: SchemaFormQueryInput!) {
-    schemaForm(input: $input) {
+  query GetSchemaForm {
+    inviteSchemaForm {
       id
       schema
       form
@@ -83,8 +72,8 @@ const enhance = Component => ({
     },
   })
 
-  const { schemaForm } = data
-  const { schema } = schemaForm || {}
+  const { inviteSchemaForm } = data
+  const { schema } = inviteSchemaForm || {}
 
   const validateSchemaForm = useValidate({ schema })
 
@@ -166,7 +155,6 @@ const enhance = Component => ({
     validate,
     history,
   }
-
 
   return (
     <Formik
@@ -253,7 +241,7 @@ const createInviteDialog = ({
                   value={wizard.inviteURL}
                   fullWidth
                   multiline
-                  onClick={event => event.target.select()}
+                  onClick={event => (event.target as any).select()}
                 />
                 <Typography variant="body2" paragraph className={classes.shareWarning}>
                   Please share the invite code before you leave this page. For security purposes the invite code will no longer be accessible after you leave this page.

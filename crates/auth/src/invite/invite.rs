@@ -30,8 +30,12 @@ impl Invite {
         server_keys: &Arc<ServerKeys>,
         is_admin: bool,
     ) -> Result<Self> {
-        let (slug, invite) = Self::new(db, server_keys, is_admin).await?;
-        invite.print_welcome_text(slug)?;
+        let config = InviteConfig {
+            is_admin,
+            name: Some("CLI Generated Invite".to_string()),
+        };
+        let (invite_url, invite) = Self::new(db, server_keys, config).await?;
+        invite.print_welcome_text(invite_url)?;
 
         Ok(invite)
     }
@@ -65,7 +69,7 @@ impl Invite {
     pub async fn new(
         db: &crate::Db,
         server_keys: &Arc<ServerKeys>,
-        is_admin: bool,
+        config: InviteConfig,
     ) -> Result<(String, Self)> {
         use rand_core::{RngCore, OsRng};
 
@@ -81,16 +85,28 @@ impl Invite {
             id: nanoid!(11),
             version: 0,
             created_at: Utc::now(),
-            config: InviteConfig {
-                is_admin,
-            },
+            config,
             secret_hash,
             consumed_by_user_id: None,
         };
 
         invite.insert(db).await?;
 
-        Ok((slug, invite))
+        let is_dev = std::env::var("RUST_ENV") == Ok("development".to_string());
+
+        let web_app_domain = if is_dev {
+            "http://localhost:1234"
+        } else {
+            "https://tegapp.io"
+        };
+
+        let invite_url = format!(
+            "{}/i/{}",
+            web_app_domain,
+            slug,
+        );
+
+        Ok((invite_url, invite))
     }
 
     pub fn hash_secret(secret: &[u8]) -> String {

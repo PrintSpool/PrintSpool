@@ -8,92 +8,75 @@ import ListItemText from '@material-ui/core/ListItemText'
 import Tooltip from '@material-ui/core/Tooltip'
 import Fab from '@material-ui/core/Fab'
 
-import { makeStyles } from '@material-ui/core/styles'
-
 import PersonOutline from '@material-ui/icons/PersonOutline'
 import Add from '@material-ui/icons/Add'
 
 import { gql } from '@apollo/client'
 
-import UpdateDialog from '../components/UpdateDialog/UpdateDialog.page'
-import CreateInviteDialog from './create/CreateInviteDialog'
+import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from '../components/UpdateDialog/UpdateDialog.page'
+import CreateInviteDialog from './create/CreateInviteDialog.page'
+import useStyles from './Invites.styles'
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    overflowY: 'scroll',
-  },
-  title: {
-    paddingTop: theme.spacing(3),
-  },
-  addFab: {
-    position: 'fixed',
-    zIndex: 10,
-    bottom: theme.spacing(4),
-    right: theme.spacing(2),
-  },
-}))
-
-const InvitesView = ({
-  invites,
+const InvitesConfigView = ({
   inviteID,
-  selectedInvite,
   verb,
+  invite,
+  invites,
   hasPendingUpdates,
-  onUpdate,
+  update,
 }) => {
   const classes = useStyles()
 
   return (
     <main className={classes.root}>
-      { inviteID !== 'new' && selectedInvite != null && verb == null && (
-        <UpdateDialog
-          title={`Invite #${selectedInvite.id}`}
-          open={selectedInvite != null}
-          deleteButton
-          collection="AUTH"
-          status="READY"
-          hasPendingUpdates={hasPendingUpdates}
-          query={gql`
-            query {
-              schemaForm(input: {
-                collection: AUTH
-                schemaFormKey: "invite"
-              }) {
-                id
-                schema
-                form
+      {
+        inviteID != null && verb == null && (
+          <UpdateDialog
+            title={invite.description}
+            open
+            deleteButton
+            status={'READY'}
+            hasPendingUpdates={hasPendingUpdates}
+            onSubmit={update}
+            variables={{ inviteID }}
+            query={gql`
+              query($inviteID: ID) {
+                invites(input: { inviteID: $inviteID }) {
+                  configForm {
+                    ...UpdateDialogFragment
+                  }
+                }
               }
-            }
-          `}
-          getConfigForm={data => ({
-            id: selectedInvite.id,
-            modelVersion: 1,
-            schemaForm: data.schemaForm,
-            model: selectedInvite,
-          })}
-          onSubmit={onUpdate}
-        />
-      )}
-      { inviteID === 'new' && (
+              ${UPDATE_DIALOG_FRAGMENT}
+            `}
+          />
+        )
+      }
+      { verb === 'new' && (
         <CreateInviteDialog open />
       )}
-      <Tooltip title="Create an Invite Code" placement="left">
+      <Tooltip title="Add Component" placement="left">
         <Fab
           disabled={hasPendingUpdates}
           component={React.forwardRef((props, ref) => (
             <Link
-              to={inviteID === 'new' ? './' : 'new/'}
+              to={verb === 'new' ? './' : 'new/'}
               innerRef={ref}
               style={{ textDecoration: 'none' }}
               {...props}
             />
-          ))}
+          )) as any}
           className={classes.addFab}
         >
           <Add />
         </Fab>
       </Tooltip>
       <List>
+        { invites.length === 0 && (
+          <ListItem>
+            <ListItemText secondary="No Invites Found." />
+          </ListItem>
+        )}
         {
           invites.map(invite => (
             <ListItem
@@ -101,17 +84,16 @@ const InvitesView = ({
               divider
               key={invite.id}
               component={React.forwardRef((props, ref) => (
-                <Link to={`${invite.id}/`} innerRef={ref} {...props} />
+                <Link to={`${invite.id}/`} innerRef={ref} {...props}>
+                  <ListItemIcon>
+                    <PersonOutline />
+                  </ListItemIcon>
+                  <ListItemText>
+                    {invite.description}
+                  </ListItemText>
+                </Link>
               ))}
-            >
-              <ListItemIcon>
-                <PersonOutline />
-              </ListItemIcon>
-              <ListItemText>
-                Invite #
-                {invite.id}
-              </ListItemText>
-            </ListItem>
+            />
           ))
         }
       </List>
@@ -119,4 +101,4 @@ const InvitesView = ({
   )
 }
 
-export default InvitesView
+export default InvitesConfigView

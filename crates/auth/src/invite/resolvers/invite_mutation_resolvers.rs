@@ -22,15 +22,16 @@ use crate::invite::{
 
 #[derive(async_graphql::InputObject)]
 pub struct CreateInviteInput {
-    pub public_key: String,
-    pub is_admin: Option<bool>,
+    pub model: async_graphql::Json<InviteConfig>,
 }
 
 #[derive(async_graphql::SimpleObject)]
 pub struct CreateInvite {
+    pub id: ID,
     pub invite: Invite,
     /// Link to consume the invite. Only generated once for each invite.
-    pub invite_link: String,
+    #[graphql(name = "inviteURL")]
+    pub invite_url: String,
 }
 
 #[derive(async_graphql::InputObject)]
@@ -66,14 +67,15 @@ impl InviteMutation {
 
         auth.authorize_admins_only()?;
 
-        let (invite_link, invite) = Invite::new(
+        let (invite_url, invite) = Invite::new(
             db,
             server_keys,
-            input.is_admin.unwrap_or(false),
+            input.model.0,
         ).await?;
 
         Ok(CreateInvite {
-            invite_link,
+            id: invite.id.clone().into(),
+            invite_url,
             invite,
         })
     }
