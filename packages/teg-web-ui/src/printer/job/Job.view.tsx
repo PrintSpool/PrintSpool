@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom'
 
 import TaskStatusRow from '../jobQueue/components/TaskStatusRow'
 import useStyles from './Job.styles.js'
-import VideoStreamer from '../manualControl/videoStreamer/VideoStreamer'
+import VideoStreamer from '../manualControl/videoStreamer/VideoStreamer.page'
 import ComponentControl from '../manualControl/printerComponents/ComponentControl'
 import ViewingUsersButton from './ViewingUsersButton'
 

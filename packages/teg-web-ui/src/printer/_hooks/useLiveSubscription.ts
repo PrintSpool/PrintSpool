@@ -97,8 +97,17 @@ const useLiveSubscription = (
     ${queryFragment}
   `
 
+  let localStorage
+  try {
+    localStorage = window.localStorage
+  } catch {}
+
+  // Allow developers to override their poll intervals locally
+  const pollInterval = parseInt(localStorage?.getItem('pollInterval') || '500', 0)
+  // console.log({ pollInterval })
+
   const { error, data: state } = useQuery(query, {
-    pollInterval: 500,
+    pollInterval,
     ...apolloOptions,
   })
   const anyError = error

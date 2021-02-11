@@ -9,9 +9,9 @@ const useStyles = makeStyles(theme => ({
   },
   addFab: {
     position: 'fixed',
-    zIndex: 10,
     bottom: theme.spacing(4),
     right: theme.spacing(2),
+    zIndex: 10,
   },
 }))
 

@@ -39,22 +39,31 @@ impl VideoQuery {
 
         let _ = auth.require_authorized_user()?;
 
-        let req = surf::post(&format!("{}/getMediaList", WEBRTC_STREAMER_API))
-            .recv_json();
+        async move {
+            let req = surf::post(&format!("{}/getMediaList", WEBRTC_STREAMER_API))
+                .recv_json();
 
-        let media_list: Vec<Media> = future::timeout(std::time::Duration::from_millis(5_000), req)
-            .await
-            .wrap_err("Video sources list timed out")?
-            .map_err(|err| eyre!(err)) // TODO: Remove me when surf 2.0 is released
-            .wrap_err("Error getting video sources list")?;
+            let media_list: Vec<Media> = future::timeout(std::time::Duration::from_millis(5_000), req)
+                .await
+                .wrap_err("Video sources list timed out")?
+                .map_err(|err| eyre!(err)) // TODO: Remove me when surf 2.0 is released
+                .wrap_err("Error getting video sources list")?;
 
-        let video_sources = media_list.into_iter()
-            .map(|media| VideoSource {
-                id: media.video.into()
-            })
-            .collect();
+            let video_sources = media_list.into_iter()
+                .map(|media| VideoSource {
+                    id: media.video.into()
+                })
+                .collect();
 
-        Ok(video_sources)
+            eyre::Result::<_>::Ok(video_sources)
+        }
+        // log the backtrace which is otherwise lost by FieldResult
+        .await
+        .map_err(|err| {
+            warn!("{:?}", err);
+            err.into()
+        })
+
     }
 
     #[instrument(skip(self, ctx))]
@@ -67,7 +76,7 @@ impl VideoQuery {
 
         let user = auth.require_authorized_user()?;
 
-        if !video_session_id.starts_with(&format!("{}:", user.id)) {
+        if !video_session_id.starts_with(&format!("{}.", user.id)) {
             Err(eyre!("Invalid Video Session ID"))?;
         }
 

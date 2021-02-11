@@ -18,9 +18,9 @@ const useStyles = makeStyles(theme => ({
   videoStreamer: {
     // alignSelf: 'center',
     marginBottom: theme.spacing(2),
-    display: 'grid',
-    alignContent: 'center',
-    overflow: 'hidden',
+    // display: 'grid',
+    // alignContent: 'center',
+    // overflow: 'hidden',
 
     // Vertical Split
     maxHeight: '35vh',

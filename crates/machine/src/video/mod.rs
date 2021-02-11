@@ -30,13 +30,19 @@ pub struct Media {
 
 const WEBRTC_STREAMER_API: &'static str = "http://localhost:8009/api";
 
+#[derive(Serialize, Debug)]
+struct VideoIceCandidatesQueryParams<'a> {
+    peerid: &'a String,
+}
+
 pub async fn get_ice_candidates(
     video_session_id: &String,
 ) -> Result<Vec<IceCandidate>> {
-    let req = surf::get(&format!("{api_url}/getIceCandidate", api_url = WEBRTC_STREAMER_API))
-        .query(&[
-            ("peerid", video_session_id),
-        ])
+    let url = format!("{api_url}/getIceCandidate", api_url = WEBRTC_STREAMER_API);
+    let req = surf::get(&url)
+        .query(&VideoIceCandidatesQueryParams {
+            peerid: video_session_id,
+        })
         .map_err(|err| eyre!(err))? // TODO: Remove me when surf 2.0 is released
         .recv_json();
 

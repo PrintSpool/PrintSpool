@@ -138,8 +138,7 @@ impl MachineMutation {
         let machine_hooks: &crate::MachineHooksList = ctx.data()?;
 
         async move {
-            dbg!(&input.model);
-
+            // dbg!(&input.model);
             auth.authorize_admins_only()?;
 
             let default_config = include_str!("../../../../../machine.default.toml");

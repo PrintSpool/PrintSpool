@@ -6,7 +6,7 @@ import useStyles from './LoadingOverlayStyles'
 
 const LoadingOverlay = ({
   className = '',
-  children = [],
+  children = null,
   loading,
   loadingText = 'Loading...',
   ...props

@@ -137,7 +137,7 @@ const TegApolloProvider = ({
         nextLink = await createWebRTCLink()
       }
 
-      link?.dispose()
+      (link?.client || link)?.dispose()
       setLink(nextLink)
 
       return new ApolloClient({
@@ -168,7 +168,7 @@ const TegApolloProvider = ({
   if (!client.isResolved) {
     return <div />
   }
-  console.log('apollo client', client)
+  console.log('apollo client', client, { iceServers })
 
   return (
     <ApolloProvider client={client.data as any}>

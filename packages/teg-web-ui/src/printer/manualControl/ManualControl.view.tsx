@@ -10,7 +10,7 @@ import MotorsEnabled from './MotorsEnabled'
 import XYJogButtons from './jog/XYJogButtons'
 import ZJogButtons from './jog/ZJogButtons'
 import ComponentControl from './printerComponents/ComponentControl'
-import VideoStreamer from './videoStreamer/VideoStreamer'
+import VideoStreamer from './videoStreamer/VideoStreamer.page'
 
 import useStyles from './ManualControl.styles'
 
@@ -22,16 +22,19 @@ const ManualControlView = ({
 }) => {
   const classes = useStyles()
 
-  const showVideoStreamer = machine.components.some(c => c.type === 'VIDEO')
+  const videos = machine.components.filter(c => c.type === 'VIDEO')
 
   return (
     <div className={classes.root}>
-      {showVideoStreamer && (
-        <div className={classes.videoStreamer}>
-          <VideoStreamer />
-        </div>
-      )}
-
+      <div className={classes.videoStreamer}>
+        { videos.map((video) => (
+          <VideoStreamer
+            key={video.id}
+            machineID={machine.id}
+            videoID={video.id}
+          />
+        ))}
+      </div>
       <div className={classes.controls}>
         <Loader
           show={!isReady}

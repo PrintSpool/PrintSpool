@@ -73,8 +73,13 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
       // console.log('DATA', data)
 
       // messages are received both through onmessage and an event listener
-      this.onmessage?.({ data })
-      this.listeners.message?.forEach(listener => listener({ data }))
+      try {
+        this.onmessage?.({ data })
+        this.listeners.message?.forEach(listener => listener({ data }))
+      } catch (error) {
+        console.error(`Error receiving message: ${error.message}`, { error, data })
+        this.close(4000, `Error receiving message: ${error.message}: ${JSON.stringify(data)}`)
+      }
     }))
 
     this.peer.on('error', this.innerClose)

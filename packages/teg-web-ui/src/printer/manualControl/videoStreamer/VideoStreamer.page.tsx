@@ -5,21 +5,19 @@ import React, {
   useContext,
   useEffect,
 } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
+import { gql, useApolloClient } from '@apollo/client'
+import Typography from '@material-ui/core/Typography'
 import { useAsync } from 'react-async'
-
-import { useApolloClient } from '@apollo/client'
-import { gql } from '@apollo/client'
-
 import SimplePeer from 'simple-peer'
 
 import { TegApolloContext } from '../../../webrtc/TegApolloProvider'
-import LoadingOverlay from '../../../common/LoadingOverlay'
 import ErrorFallback from '../../../common/ErrorFallback'
+import { INSECURE_LOCAL_CONNECTION } from '../../../webrtc/WebRTCLink'
+import VideoStreamerView from './VideoStreamer.view'
 
 const createVideoSDPMutation = gql`
-  mutation createVideoSDPMutation($offer: RTCSignalInput!) {
-    createVideoSDP(offer: $offer) {
+  mutation createVideoSDPMutation($input: CreateVideoSDPInput!) {
+    createVideoSDP(input: $input) {
       id
       answer {
         type
@@ -46,19 +44,12 @@ const queryIceCandidates = gql`
   }
 `
 
-const useStyles = makeStyles(() => ({
-  container: {
-    display: 'flex',
-    justifyContent: 'center',
-    background: 'black',
-  },
-  video: {
-    width: '100%',
-    height: '100%',
-  },
-}))
+const VideoStreamerPage = (props: any) => {
+  const {
+    machineID,
+    videoID,
+  } = props
 
-const enhance = (Component: any) => (props: any) => {
   const apollo = useApolloClient()
   const { iceServers } = useContext(TegApolloContext)
 
@@ -66,6 +57,14 @@ const enhance = (Component: any) => (props: any) => {
   const MAX_RETRY_DELAY = 5000
   const [retryDelay, setRetryDelay] = useState(500)
   const [peerError, setPeerError] = useState()
+
+  if (INSECURE_LOCAL_CONNECTION) {
+    return (
+      <Typography variant="body2">
+        Video only available over secure connections
+      </Typography>
+    )
+  }
 
   const loadVideo = useCallback(async () => {
     const mediaConstraints = {
@@ -88,7 +87,11 @@ const enhance = (Component: any) => (props: any) => {
     const { data } = await apollo.mutate({
       mutation: createVideoSDPMutation,
       variables: {
-        offer,
+        input: {
+          machineID,
+          videoID,
+          offer,
+        }
       },
     })
 
@@ -132,6 +135,7 @@ const enhance = (Component: any) => (props: any) => {
     //   }
     // })
 
+    console.log("wait for stream???")
     const stream = await new Promise(resolve => p.on('stream', resolve))
     console.log({ stream })
 
@@ -183,30 +187,8 @@ const enhance = (Component: any) => (props: any) => {
   }
 
   return (
-    <Component {...nextProps} />
+    <VideoStreamerView {...nextProps} />
   )
 }
 
-const VideoStreamer = ({
-  videoEl,
-  isLoading,
-}) => {
-  const classes = useStyles()
-
-  return (
-    <LoadingOverlay loading={isLoading}>
-      <div className={classes.container}>
-        {/* eslint-disable-next-line */}
-        <video
-          ref={videoEl}
-          className={classes.video}
-          controls
-        >
-        </video>
-      </div>
-    </LoadingOverlay>
-  )
-}
-
-export const Component = VideoStreamer
-export default enhance(VideoStreamer)
+export default VideoStreamerPage

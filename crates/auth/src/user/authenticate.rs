@@ -114,7 +114,10 @@ impl User {
 
         // To authenticate the user either must be authorized or include a valid invite
         if is_new_user && invite.is_none() {
-            Err(eyre!("Invite identity public key required"))?;
+            Err(eyre!(r#"
+                You are not authorized for this 3D printer. Please request an invite from your 3D
+                printer admininistrator.
+            "#))?;
         }
 
         /*
