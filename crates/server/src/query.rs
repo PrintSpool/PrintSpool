@@ -13,7 +13,10 @@ use teg_machine::{
     VideoQuery,
 };
 
-use teg_print_queue::PrintQueueQuery;
+use teg_print_queue::{
+    PartQuery,
+    PrintQueueQuery,
+};
 
 use crate::server_query::ServerQuery;
 
@@ -31,6 +34,7 @@ pub struct Query(
     // material
     MaterialQuery,
     // print queue
+    PartQuery,
     PrintQueueQuery,
     // server
     ServerQuery,

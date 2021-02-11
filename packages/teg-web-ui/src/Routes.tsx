@@ -192,7 +192,7 @@ const Routes = () => {
                     path="/:m/:hostID/:machineID/"
                     component={QueuePage}
                   />
-                  <Route exact path="/:m/:hostID/:machineID/printing/:jobID/" component={JobPage} />
+                  <Route exact path="/:m/:hostID/:machineID/printing/:partID/" component={JobPage} />
                   <Route exact path="/:m/:hostID/:machineID/graphql-playground/" component={GraphQLPlayground} />
 
                   <Route

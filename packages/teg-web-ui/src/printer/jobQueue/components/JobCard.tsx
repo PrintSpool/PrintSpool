@@ -36,8 +36,8 @@ const JobCard = ({
   const confirm = useConfirm()
   const [menuAnchorEl, setMenuAnchorEl] = useState()
 
-  const openMenu = useCallback(event => setMenuAnchorEl(event.target))
-  const closeMenu = useCallback(() => setMenuAnchorEl(null))
+  const openMenu = useCallback(event => setMenuAnchorEl(event.target), [])
+  const closeMenu = useCallback(() => setMenuAnchorEl(null), [])
 
   const shortName = truncate(name, 32)
 

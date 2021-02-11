@@ -6,7 +6,10 @@ pub mod mutations;
 pub use mutations::PrintQueueMutation;
 
 pub mod package;
+
 pub mod part;
+pub use part::part_query_resolvers::PartQuery;
+
 pub mod print;
 
 mod insert_print;

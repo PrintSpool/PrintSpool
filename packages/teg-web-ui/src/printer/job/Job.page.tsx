@@ -1,67 +1,59 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { gql } from '@apollo/client'
-import { useMutation, useQuery } from '@apollo/client'
+import { useMutation } from '@apollo/client'
 import useReactRouter from 'use-react-router'
 
-// import useLiveSubscription from '../_hooks/useLiveSubscription'
+import useLiveSubscription from '../_hooks/useLiveSubscription'
 import { ComponentControlFragment } from '../manualControl/printerComponents/ComponentControl'
 import JobView from './Job.view'
 import useExecGCodes from '../_hooks/useExecGCodes'
 import viewMachine from '../_hooks/viewMachine'
 import PrinterStatusGraphQL from '../common/PrinterStatus.graphql'
 
-const JOB_SUBSCRIPTION = gql`
-#  subscription JobSubscription($jobID: ID!) {
-#    live {
-#      patch { op, path, from, value }
-#      query {
-      query($jobID: ID!) {
-        machines {
-          ...PrinterStatus
-          components {
-            ...ComponentControlFragment
-          }
-        }
-        jobQueue {
-          jobs(id: $jobID) {
-            id
-            name
-            quantity
-            printsCompleted
-            totalPrints
-            # stoppedAt
-            # history {
-            #   id
-            #   createdAt
-            #   type
-            # }
+const JOB_QUERY = gql`
+  fragment QueryFragment on Query {
+    machines(input: { machineID: $machineID }) {
+      ...PrinterStatus
+      components {
+        ...ComponentControlFragment
+      }
+    }
+    parts(input: { partID: $partID }) {
+      id
+      name
+      quantity
+      printsCompleted
+      totalPrints
+      # stoppedAt
+      # history {
+      #   id
+      #   createdAt
+      #   type
+      # }
 
-            tasks {
-              id
-              percentComplete(digits: 1)
-              estimatedPrintTimeMillis
-              estimatedFilamentMeters
-              startedAt
-              status
-              paused
-              machine {
-                id
-                # name
-                viewers {
-                  id
-                  email
-                }
-                components {
-                  id
-                  type
-                }
-              }
-            }
+      tasks {
+        id
+        percentComplete(digits: 1)
+        estimatedPrintTimeMillis
+        estimatedFilamentMeters
+        startedAt
+        status
+        paused
+        machine {
+          id
+          # name
+          viewers {
+            id
+            email
+          }
+          components {
+            id
+            type
           }
         }
       }
-#    }
-#  }
+    }
+  }
 
   # fragments
   ${ComponentControlFragment}
@@ -82,18 +74,13 @@ const SET_JOB_POSITION = gql`
 
 const JobPage = () => {
   const { match: { params } } = useReactRouter()
-  const { jobID } = params
+  const { machineID, partID } = params
 
-  // const { loading, error, data } = useLiveSubscription(JOB_SUBSCRIPTION, {
-  //   variables: {
-  //     jobID,
-  //   },
-  // })
-
-  const { loading, error, data } = useQuery(JOB_SUBSCRIPTION, {
-    pollInterval: 1000,
+  const { loading, error, data } = useLiveSubscription(JOB_QUERY, {
+    variablesDef: '($machineID: ID, $partID: ID)',
     variables: {
-      jobID,
+      machineID,
+      partID,
     },
   })
 
@@ -113,14 +100,14 @@ const JobPage = () => {
   const moveToTopOfQueue = () => setJobPosition({
     variables: {
       input: {
-        jobID,
+        partID,
         position: 0,
       },
     },
   })
 
   const machine = ((data as any)?.machines || [])[0]
-  const job = (data as any)?.jobQueue?.jobs[0]
+  const part = (data as any)?.parts[0]
 
   viewMachine({ machine })
 
@@ -140,7 +127,7 @@ const JobPage = () => {
     <JobView
       {...{
         machine,
-        job,
+        part,
         cancelTask,
         pausePrint,
         resumePrint,

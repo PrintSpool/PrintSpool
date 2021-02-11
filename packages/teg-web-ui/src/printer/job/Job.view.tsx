@@ -20,7 +20,7 @@ const JobView = ({
   resumePrint,
   moveToTopOfQueue,
   machine,
-  job: {
+  part: {
     name,
     tasks,
     printsCompleted,
@@ -46,10 +46,19 @@ const JobView = ({
           </div>
         )}
         <CardContent>
+          <Breadcrumbs>
+            <Link to="../">
+              Print Queue
+            </Link>
+            <Typography color="textPrimary">
+              {name}
+            </Typography>
+          </Breadcrumbs>
+
           { tasks.length === 0 && (
             <>
               <Typography variant="h6" color="textSecondary" paragraph>
-                This job is not currently being printed
+                This part is not currently being printed
               </Typography>
               <Typography variant="subtitle1" paragraph>
                 {
@@ -65,25 +74,17 @@ const JobView = ({
               </Button>
             </>
           )}
+          <Typography variant="subtitle1" paragraph>
+            {
+              `${printsCompleted} / ${totalPrints} prints completed`
+            }
+          </Typography>
           { tasks.map(task => (
             <div key={task.id}>
               <ViewingUsersButton
                 className={classes.viewingUsersButton}
                 machine={task.machine}
               />
-              <Breadcrumbs>
-                <Link to="../">
-                  Print Queue
-                </Link>
-                <Typography color="textPrimary">
-                  {name}
-                </Typography>
-              </Breadcrumbs>
-              <Typography variant="subtitle1" paragraph>
-                {
-                  `${printsCompleted} / ${totalPrints} prints completed`
-                }
-              </Typography>
               <TaskStatusRow
                 key={task.id}
                 {...{
@@ -99,23 +100,23 @@ const JobView = ({
                   {` ${task.estimatedFilamentMeters.toFixed(1)} meters`}
                 </Typography>
               )}
-              {
-                machine.components
-                  .filter(c => ['BUILD_PLATFORM', 'TOOLHEAD', 'FAN'].includes(c.type))
-                  .map(component => (
-                    <ComponentControl
-                      key={component.id}
-                      machine={machine}
-                      component={component}
-                      execGCodes={execGCodes}
-                      isReady={isReady}
-                      isPrinting={isPrinting}
-                      printOverridesOnly
-                    />
-                  ))
-              }
             </div>
           ))}
+          {
+            machine.components
+              .filter(c => ['BUILD_PLATFORM', 'TOOLHEAD', 'FAN'].includes(c.type))
+              .map(component => (
+                <ComponentControl
+                  key={component.id}
+                  machine={machine}
+                  component={component}
+                  execGCodes={execGCodes}
+                  isReady={isReady}
+                  isPrinting={isPrinting}
+                  printOverridesOnly
+                />
+              ))
+          }
         </CardContent>
       </Card>
     </div>

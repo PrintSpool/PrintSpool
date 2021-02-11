@@ -31,7 +31,7 @@ const JobQueueView = ({
   const parts = printQueues.map(q => q.parts).flat()
 
   const statuses = machines.map(machine => machine.status)
-  const disablePrintNextButton = nextPart == null
+  const disablePrintNextButton = nextPart == null || !statuses.includes('READY')
 
   const [printDialogFiles, setPrintDialogFiles] = useState()
   const [isDragging, setDragging] = useState(false)

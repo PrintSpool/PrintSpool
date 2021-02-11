@@ -72,7 +72,7 @@ const Drawer = ({
         <DrawerLink
           text="Printing"
           icon={<Inbox />}
-          href={`/m/${hostID}/${machineID}`}
+          href={`/m/${hostID}/${machineID}/`}
         />
         { machine.length > 1 && (
           <ListSubheader>

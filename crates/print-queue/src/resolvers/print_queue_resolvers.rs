@@ -8,7 +8,7 @@ use async_graphql::{
 //     // Result,
 //     Context as _,
 // };
-use teg_json_store::{ Record, JsonRow };
+// use teg_json_store::{ Record, JsonRow };
 
 use crate::{
     PrintQueue,
@@ -27,35 +27,35 @@ impl PrintQueue {
     async fn parts<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
-        id: Option<ID>,
+        // id: Option<ID>,
     ) -> FieldResult<Vec<Part>> {
         let db: &crate::Db = ctx.data()?;
 
-        let parts = if let Some(id) = id {
-            let id = id.to_string();
+        // let parts = if let Some(id) = id {
+        //     let id = id.to_string();
 
-            let part = sqlx::query_as!(
-                JsonRow,
-                r#"
-                    SELECT parts.props FROM parts
-                    INNER JOIN packages ON packages.id = parts.package_id
-                    WHERE
-                        packages.print_queue_id = ?
-                        AND parts.deleted_at IS NULL
-                        AND parts.id = ?
-                "#,
-                self.id,
-                id,
-            )
-                .fetch_one(db)
-                .await?;
+        //     let part = sqlx::query_as!(
+        //         JsonRow,
+        //         r#"
+        //             SELECT parts.props FROM parts
+        //             INNER JOIN packages ON packages.id = parts.package_id
+        //             WHERE
+        //                 packages.print_queue_id = ?
+        //                 AND parts.deleted_at IS NULL
+        //                 AND parts.id = ?
+        //         "#,
+        //         self.id,
+        //         id,
+        //     )
+        //         .fetch_one(db)
+        //         .await?;
 
-            let part = Part::from_row(part)?;
+        //     let part = Part::from_row(part)?;
 
-            vec![part]
-        } else {
-            PrintQueue::get_parts(db, &self.id).await?
-        };
+        //     vec![part]
+        // } else {
+        let parts = PrintQueue::get_parts(db, &self.id).await?;
+        // };
 
         Ok(parts)
     }
