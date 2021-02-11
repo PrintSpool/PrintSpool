@@ -175,7 +175,6 @@ impl Record for Invite {
         Ok(())
     }
 
-
     async fn update<'e, 'c, E>(
         &mut self,
         db: E,

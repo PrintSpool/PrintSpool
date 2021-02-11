@@ -11,19 +11,14 @@ import useLiveSubscription from '../_hooks/useLiveSubscription'
 import useExecGCodes from '../_hooks/useExecGCodes'
 import viewMachine from '../_hooks/viewMachine'
 
-const MANUAL_CONTROL_SUBSCRIPTION = gql`
-  subscription ManualControlSubscription($machineID: ID!) {
-    live {
-      patch { op, path, from, value }
-      query {
-        singularMachine: machines(machineID: $machineID) {
-          ...PrinterStatus
-          swapXAndYOrientation
-          motorsEnabled
-          components {
-            ...ComponentControlFragment
-          }
-        }
+const MANUAL_CONTROL_QUERY = gql`
+  fragment QueryFragment on Query {
+    singularMachine: machines(input: { machineID: $machineID }) {
+      ...PrinterStatus
+      swapXAndYOrientation
+      motorsEnabled
+      components {
+        ...ComponentControlFragment
       }
     }
   }
@@ -36,7 +31,8 @@ const MANUAL_CONTROL_SUBSCRIPTION = gql`
 const ManualControlPage = () => {
   const { match: { params } } = useReactRouter()
 
-  const { loading, error, data } = useLiveSubscription(MANUAL_CONTROL_SUBSCRIPTION, {
+  const { loading, error, data } = useLiveSubscription(MANUAL_CONTROL_QUERY, {
+    variablesDef: '($machineID: ID)',
     variables: {
       machineID: params.machineID,
     },

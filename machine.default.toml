@@ -60,7 +60,6 @@ type = "TOOLHEAD"
   address = "e0"
   heater = true
   feedrate = 3
-  materialID = "dkdow2"
   filamentSwapExtrudeDistance = 50
   filamentSwapFastMoveEnabled = false
   bowdenTubeLength = 0

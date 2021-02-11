@@ -36,6 +36,7 @@ impl MachineViewer {
     }
 }
 
+#[async_trait::async_trait]
 impl Record for MachineViewer {
     const TABLE: &'static str = "machine_viewers";
 
@@ -49,5 +50,63 @@ impl Record for MachineViewer {
 
     fn version_mut(&mut self) -> &mut teg_json_store::Version {
         &mut self.version
+    }
+
+    async fn insert_no_rollback<'c>(
+        &self,
+        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+    ) -> Result<()> {
+        let json = serde_json::to_string(&self)?;
+        sqlx::query!(
+            r#"
+                INSERT INTO machine_viewers
+                (id, version, props, machine_id, user_id, expires_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+            "#,
+            self.id,
+            self.version,
+            json,
+            self.machine_id,
+            self.user_id,
+            self.expires_at,
+        )
+            .fetch_optional(db)
+            .await?;
+        Ok(())
+    }
+
+
+    async fn update<'e, 'c, E>(
+        &mut self,
+        db: E,
+    ) -> Result<()>
+    where
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    {
+        let (json, previous_version) = self.prep_for_update()?;
+
+        sqlx::query!(
+            r#"
+                UPDATE machine_viewers
+                SET
+                    props=?,
+                    version=?,
+                    expires_at=?
+                WHERE
+                    id=?
+                    AND version=?
+            "#,
+            // SET
+            json,
+            self.version,
+            self.expires_at,
+            // WHERE
+            self.id,
+            previous_version,
+        )
+            .fetch_optional(db)
+            .await?;
+
+        Ok(())
     }
 }

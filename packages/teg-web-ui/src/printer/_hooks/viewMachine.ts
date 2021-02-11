@@ -5,7 +5,9 @@ import { useMutation } from '@apollo/client'
 const viewMachine = ({ machine }) => {
   const CONTINUE_VIEWING = gql`
     mutation continueViewingMachine($machineID: ID!) {
-      continueViewingMachine(machineID: $machineID)
+      continueViewingMachine(machineID: $machineID) {
+        id
+      }
     }
   `
   const continueViewerMutation = useMutation(CONTINUE_VIEWING, {

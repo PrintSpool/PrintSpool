@@ -13,7 +13,7 @@ use crate::machine::MachineData;
 use super::ComponentInner;
 use super::HeaterEphemeral;
 
-mod resolver;
+mod toolhead_resolvers;
 
 /// # Toolhead
 #[derive(Deserialize, Serialize, JsonSchema, Debug, Clone)]

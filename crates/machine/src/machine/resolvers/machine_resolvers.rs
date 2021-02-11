@@ -31,7 +31,7 @@ struct MachineComponentsInput {
     component_id: Option<async_graphql::ID>,
 }
 
-#[async_graphql::Object]
+#[async_graphql::Object(name = "Machine")]
 impl MachineData {
     async fn id(&self) -> ID {
         (&self.config.id).into()
