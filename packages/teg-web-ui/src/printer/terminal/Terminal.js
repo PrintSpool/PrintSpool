@@ -13,21 +13,16 @@ import useLiveSubscription from '../_hooks/useLiveSubscription'
 
 import TerminalStyles from './TerminalStyles'
 
-const GCODE_HISTORY_SUBSCRIPTION = gql`
-  subscription DevicesSubscription($machineID: ID!) {
-    live {
-      patch { op, path, from, value }
-      query {
-        machines(machineID: $machineID) {
-          id
-          status
-          gcodeHistory(limit: 200) {
-            id
-            direction
-            createdAt
-            content
-          }
-        }
+const GCODE_HISTORY_QUERY = gql`
+  fragment QueryFragment on Query {
+    machines(input: { machineID: $machineID }) {
+      id
+      status
+      gcodeHistory(limit: 200) {
+        id
+        direction
+        createdAt
+        content
       }
     }
   }
@@ -61,7 +56,8 @@ const Terminal = ({
     data,
     loading,
     error,
-  } = useLiveSubscription(GCODE_HISTORY_SUBSCRIPTION, {
+  } = useLiveSubscription(GCODE_HISTORY_QUERY, {
+    variablesDef: '($machineID: ID)',
     variables: {
       machineID,
     },
