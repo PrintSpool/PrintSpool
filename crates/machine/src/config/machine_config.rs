@@ -110,7 +110,7 @@ impl MachineConfig {
             .iter_mut()
             .find(|c| &c.model.address == address)
         {
-            Some(&mut toolhead.ephemeral)
+            Some(&mut toolhead.ephemeral.heater)
         } else if let Some(build_platform) = self.build_platforms
             .iter_mut()
             .find(|c| &c.model.address == address)

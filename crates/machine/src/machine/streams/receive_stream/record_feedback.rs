@@ -174,11 +174,19 @@ pub async fn update_heaters(
 
 pub async fn update_axes(machine: &mut MachineData, feedback: &Feedback) -> Result<()> {
     let axes = &mut machine.config.axes;
+    let toolheads = &mut machine.config.toolheads;
 
     for a in feedback.axes.iter() {
         let axis = axes.iter_mut()
             .find(|c| c.model.address == a.address)
             .map(|c| &mut c.ephemeral);
+
+        let axis = axis.or_else(|| {
+            toolheads
+                .iter_mut()
+                .find(|c| c.model.address == a.address)
+                .map(|c| &mut c.ephemeral.axis)
+        });
 
         let axis = if let Some(axis) = axis {
             axis

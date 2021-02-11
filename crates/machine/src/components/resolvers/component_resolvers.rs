@@ -100,7 +100,7 @@ impl Component {
     async fn heater(&self) -> Option<&HeaterEphemeral> {
         if let Component::Toolhead(toolhead) = self {
             if toolhead.model.heater {
-                Some(&toolhead.ephemeral)
+                Some(&toolhead.ephemeral.heater)
             } else {
                 None
             }

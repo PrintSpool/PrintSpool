@@ -4424,6 +4424,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "teg-supervisor"
+version = "0.1.0"
+dependencies = [
+ "async-graphql",
+ "async-std",
+ "dashmap",
+ "dotenv",
+ "eyre",
+ "nix 0.19.1",
+ "notify",
+ "serde_json",
+ "sqlx",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "teg_auth"
 version = "0.1.0"
 dependencies = [
@@ -4574,23 +4591,6 @@ dependencies = [
  "teg-json-store",
  "teg_auth",
  "teg_config_form",
-]
-
-[[package]]
-name = "teg_supervisor"
-version = "0.1.0"
-dependencies = [
- "async-graphql",
- "async-std",
- "dashmap",
- "dotenv",
- "eyre",
- "nix 0.19.1",
- "notify",
- "serde_json",
- "sqlx",
- "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]

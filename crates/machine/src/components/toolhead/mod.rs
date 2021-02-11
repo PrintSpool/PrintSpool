@@ -11,7 +11,10 @@ use teg_material::{Material, MaterialConfigEnum};
 use crate::machine::MachineData;
 
 use super::ComponentInner;
-use super::HeaterEphemeral;
+use super::{
+    HeaterEphemeral,
+    AxisEphemeral,
+};
 
 mod toolhead_resolvers;
 
@@ -74,7 +77,13 @@ pub struct ToolheadConfig {
     pub before_filament_swap_hook: String,
 }
 
-pub type Toolhead = ComponentInner<ToolheadConfig, HeaterEphemeral>;
+#[derive(Default, Debug, Clone)]
+pub struct ToolheadEphemeral {
+    pub heater: HeaterEphemeral,
+    pub axis: AxisEphemeral,
+}
+
+pub type Toolhead = ComponentInner<ToolheadConfig, ToolheadEphemeral>;
 
 impl Toolhead {
     pub async fn set_material(
@@ -110,7 +119,7 @@ impl Toolhead {
 
             // Set the material id and extruder temperature
             toolhead.model.material_id = Some(material_id);
-            toolhead.ephemeral.material_target = Some(material.target_extruder_temperature);
+            toolhead.ephemeral.heater.material_target = Some(material.target_extruder_temperature);
 
             // Set the bed target temperature
             for build_platform in &mut machine.config.build_platforms {
@@ -118,7 +127,7 @@ impl Toolhead {
             }
         } else {
             toolhead.model.material_id = None;
-            toolhead.ephemeral.material_target = None;
+            toolhead.ephemeral.heater.material_target = None;
         }
 
         toolhead.model_version += 1;
