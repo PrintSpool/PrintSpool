@@ -2,6 +2,13 @@
 #[macro_use] extern crate tracing;
 // #[macro_use] extern crate derive_new;
 
+#[cfg(not(target_env = "msvc"))]
+use jemallocator::Jemalloc;
+
+#[cfg(not(target_env = "msvc"))]
+#[global_allocator]
+static ALLOC: Jemalloc = Jemalloc;
+
 // The file `built.rs` was placed there by cargo and `build.rs`
 #[allow(dead_code)]
 mod built_info {
@@ -73,6 +80,25 @@ async fn app() -> Result<()> {
 
     tracing_subscriber::fmt::init();
     color_eyre::install()?;
+
+    // Memory useage profiling
+    async_std::task::spawn(async {
+        use jemalloc_ctl::{stats, epoch};
+
+        loop {
+            // many statistics are cached and only updated when the epoch is advanced.
+            epoch::advance().unwrap();
+
+            let allocated = stats::allocated::read().unwrap() as f32;
+            let resident = stats::resident::read().unwrap() as f32;
+            debug!(
+                "Memory Useage: {:.1} MB allocated / {:.1} MB resident",
+                allocated / 1_000_000.0,
+                resident / 1_000_000.0,
+            );
+            async_std::task::sleep(std::time::Duration::from_secs(10)).await;
+        }
+    });
 
     let db_url = env::var("DATABASE_URL")
         .wrap_err("DATABASE_URL not set")?;
