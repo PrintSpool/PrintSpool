@@ -186,8 +186,7 @@ async fn app() -> Result<()> {
             mutation::Mutation::default(),
             async_graphql::EmptySubscription,
         )
-            .extension(async_graphql::extensions::Tracing::default())
-            .data(db_clone.clone())
+            .extension(async_graphql::extensions::Tracing::default())            .data(db_clone.clone())
             .data(machines_clone.clone())
             .data(machine_hooks.clone())
             .data(server_keys_clone.clone())
@@ -220,6 +219,15 @@ async fn app() -> Result<()> {
                 let mut data = async_graphql::Data::default();
 
                 data.insert(auth_context);
+
+                let root_span = span!(
+                    parent: None,
+                    tracing::Level::INFO,
+                    "span root"
+                );
+                data.insert(
+                    async_graphql::extensions::TracingConfig::default().parent_span(root_span),
+                );
 
                 Ok(data)
             }

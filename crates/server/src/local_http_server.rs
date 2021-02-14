@@ -1,4 +1,5 @@
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
+use async_graphql_warp::graphql_subscription_with_data;
 use teg_auth::AuthContext;
 use warp::{Filter, http::Response as HttpResponse, hyper::Method};
 use eyre::{
@@ -48,6 +49,15 @@ pub async fn start(
             ) = graphql_tuple;
 
             async move {
+                let root_span = span!(
+                    parent: None,
+                    tracing::Level::INFO,
+                    "span root"
+                );
+                let request = request.data(
+                    async_graphql::extensions::TracingConfig::default().parent_span(root_span),
+                );
+
                 Ok::<async_graphql_warp::Response, warp::Rejection>(
                     async_graphql_warp::Response::from(schema.execute(request).await)
                 )
@@ -55,7 +65,20 @@ pub async fn start(
         });
 
     let graphql_subscription =
-        async_graphql_warp::graphql_subscription(schema);
+        async_graphql_warp::graphql_subscription_with_data(schema, |_| async {
+            let mut data = async_graphql::Data::default();
+
+            let root_span = span!(
+                parent: None,
+                tracing::Level::INFO,
+                "span root"
+            );
+            data.insert(
+                async_graphql::extensions::TracingConfig::default().parent_span(root_span),
+            );
+
+            Ok(data)
+        });
 
     let graphql_playground = warp::path("playground").and(warp::get()).map(|| {
         HttpResponse::builder()
