@@ -170,10 +170,7 @@ async fn app() -> Result<()> {
 
     let server_keys = Arc::new(teg_auth::ServerKeys::load_or_create().await?);
 
-    let device_manager = xactor::Supervisor::start(move || {
-        info!("Starting device manager");
-        DeviceManager::default()
-    }).await?;
+    let device_manager = DeviceManager::start().await?;
 
     // Build the server
     let db_clone = db.clone();

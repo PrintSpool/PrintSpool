@@ -1,14 +1,15 @@
-use std::{collections::HashMap, path::PathBuf};
-
+use std::{collections::HashMap};
 use xactor::Actor;
 use eyre::{
-    eyre,
+    // eyre,
     Result,
     // Context as _,
 };
-use notify::{Watcher, RecommendedWatcher, RecursiveMode};
 
-use crate::{Device, messages::{add_device::AddDevice, remove_device::RemoveDevice}};
+use crate::{
+    Device,
+    watchers::{DevSerialWatcher, KlipperWatcher},
+};
 
 #[derive(Default)]
 pub struct DeviceManager {
@@ -19,20 +20,6 @@ pub type DeviceManagerAddr = xactor::Addr<DeviceManager>;
 
 #[async_trait::async_trait]
 impl Actor for DeviceManager {
-}
-
-pub fn device_path(path_buf: PathBuf) -> Result<Option<String>> {
-    let path = path_buf.into_os_string().into_string()
-        .map_err(|_| eyre!("Unable to convert file path to string"))?;
-
-    let is_serial_port = path.starts_with("/dev/serial/by-id/");
-    let is_klipper_printer = path.starts_with("/tmp/printer");
-
-    if is_serial_port || is_klipper_printer {
-        Ok(Some(path))
-    } else {
-        Ok(None)
-    }
 }
 
 impl DeviceManager {
@@ -47,64 +34,23 @@ impl DeviceManager {
             }
         ).await?;
 
+        // Watch /dev/serial/by-id/*
         let addr = device_manager.clone();
-        let mut watcher: RecommendedWatcher = Watcher::new_immediate(move |res| {
-            use notify::EventKind::{ Modify, Create, Remove };
-            use notify::event::CreateKind;
-            use notify::event::RemoveKind;
-            use notify::event::ModifyKind::Name;
-            use notify::event::RenameMode;
-
-            let addr = addr.clone();
-            match res {
-                | Ok(notify::Event { kind: Create(CreateKind::File), paths, .. })
-                | Ok(notify::Event { kind: Modify(Name(RenameMode::To)), paths, .. })
-                => {
-                    let result: Result<Vec<_>> = paths
-                        .into_iter()
-                        .map(|path_buf| {
-                            if let Some(path) = device_path(path_buf)? {
-                                addr.send(AddDevice(path))?;
-                            };
-
-                            Ok(())
-                        })
-                        .collect();
-
-                    if let Err(err) = result {
-                        warn!("Error adding device to device manager: {}", err);
-                    }
-                }
-                | Ok(notify::Event { kind: Remove(RemoveKind::File), paths, .. })
-                | Ok(notify::Event { kind: Modify(Name(RenameMode::From)), paths, .. })
-                => {
-                    let result: Result<Vec<_>> = paths
-                        .into_iter()
-                        .map(|path_buf| {
-                            if let Some(path) = device_path(path_buf)? {
-                                addr.send(RemoveDevice(path))?;
-                            };
-
-                            Ok(())
-                        })
-                        .collect();
-
-                    if let Err(err) = result {
-                        warn!("Error adding device to device manager: {}", err);
-                    }
+        xactor::Supervisor::start(move ||
+            DevSerialWatcher {
+                device_manager: addr.clone(),
             }
-            _ => (),
+        ).await?;
+
+        // Watch /tmp/printer*
+        let addr = device_manager.clone();
+        xactor::Supervisor::start(move ||
+            KlipperWatcher {
+                device_manager: addr.clone(),
             }
-        })?;
+        ).await?;
 
-        // Normally serial ports are created at /dev/serial/by-id/
-        watcher.watch("dev", RecursiveMode::Recursive)?;
-
-        // The Klipper serial port is created in /tmp/printer so it needs a seperate
-        // watcher.
-        // If you are configuring multiple klipper printer (is that's even possible?)
-        // you MUST start each printer's path with /tmp/printer eg. /tmp/printer3
-        watcher.watch("tmp", RecursiveMode::NonRecursive)?;
+        info!("Device Manager Started");
 
         Ok(device_manager)
     }

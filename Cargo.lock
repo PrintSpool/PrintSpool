@@ -2121,8 +2121,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d19f57db1baad9d09e43a3cd76dcf82ebdafd37d75c9498b87762dba77c93f15"
 dependencies = [
  "bitflags",
+ "futures-core",
  "inotify-sys",
  "libc",
+ "tokio 1.1.1",
 ]
 
 [[package]]
@@ -4591,7 +4593,8 @@ dependencies = [
  "async-std",
  "async-trait",
  "eyre",
- "notify",
+ "futures 0.3.12",
+ "inotify",
  "serde_json",
  "teg_machine",
  "tracing",

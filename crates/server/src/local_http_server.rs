@@ -1,5 +1,4 @@
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
-use async_graphql_warp::graphql_subscription_with_data;
 use teg_auth::AuthContext;
 use warp::{Filter, http::Response as HttpResponse, hyper::Method};
 use eyre::{

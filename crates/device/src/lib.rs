@@ -10,3 +10,5 @@ pub use resolvers::devices_query_resolvers::DeviceQuery;
 
 mod device_manager;
 pub use device_manager::{DeviceManager, DeviceManagerAddr};
+
+mod watchers;
