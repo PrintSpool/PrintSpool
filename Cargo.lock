@@ -4397,6 +4397,7 @@ dependencies = [
  "nom-gcode",
  "nom-reprap-response",
  "pretty_env_logger",
+ "rand 0.8.3",
  "serde",
  "serde_json",
  "spin_sleep",

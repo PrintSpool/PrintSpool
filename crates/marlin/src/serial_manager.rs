@@ -1,25 +1,16 @@
 use eyre::{
     eyre,
     // Context as _,
+    Result,
 };
 
 // use futures_core::{ future, Poll };
-use futures::{
-    stream,
-    // stream::SplitSink,
-    TryStreamExt,
-    StreamExt,
-    SinkExt,
-    FutureExt,
-    // TryFutureExt,
-    future:: {
+use futures::{FutureExt, SinkExt, StreamExt, TryStreamExt, channel::mpsc, future:: {
         self,
         Either,
         AbortHandle,
         Future,
-    },
-    channel::mpsc,
-};
+    }, stream};
 
 use tokio::prelude::*;
 // use futures_sink::Sink;
@@ -31,17 +22,13 @@ use tokio::prelude::*;
 //     // sync::oneshot,
 // };
 
-use crate::{
-    state_machine::{
-        Event,
-    },
-    gcode_codec::{
+use crate::{gcode_codec::{
         GCodeCodec,
         // ResponsePayload::Response,
         GCodeLine
-    },
-    // protos::MachineMessage,
-};
+    }, serial_simulator::SerialSimulator, state_machine::{
+        Event,
+    }};
 
 // use futures_util::compat::{
 //     Sink01CompatExt,
@@ -91,7 +78,11 @@ impl SerialManager {
         }
     }
 
-    pub async fn open(&mut self, baud_rate: u32) -> Result<impl Future<Output = ()>, std::io::Error> {
+    pub async fn open(
+        &mut self,
+        baud_rate: u32,
+        simulate: bool,
+    ) -> Result<impl Future<Output = ()>> {
         self.close();
 
         use std::{thread, time};
@@ -101,19 +92,44 @@ impl SerialManager {
 
         self.settings.baud_rate = baud_rate;
 
-        let mut port = tokio_serial::Serial::from_path(
-            self.tty_path.clone(),
-            &self.settings
-        )?;
+        let mut port = if simulate {
+            let (host_port, simulator_port) = tokio_serial::Serial::pair()?;
+
+            // Spawn the simulator
+            let simulator = SerialSimulator::run(
+                simulator_port
+            )
+                .then(|result| {
+                    if let Err(err) = result {
+                        error!("Simulator Error: {}", err);
+                    }
+                    future::ready(())
+                });
+
+            tokio::spawn(simulator);
+
+            host_port
+        } else {
+            tokio_serial::Serial::from_path(
+                self.tty_path.clone(),
+                &self.settings
+            )?
+        };
 
         // #[cfg(unix)]
         port.set_exclusive(false)?;
 
         port.write_all(&[b'\n']).await?;
 
-        let (serial_sender, serial_reader) = GCodeCodec.framed(port).split();
+        let (
+            serial_sender,
+            serial_reader,
+        ) = GCodeCodec.framed(port).split();
 
-        let (gcode_sender, gcode_repeater_inner) = mpsc::channel::<GCodeLine>(100);
+        let (
+            gcode_sender,
+            gcode_repeater_inner,
+        ) = mpsc::channel::<GCodeLine>(100);
         self.gcode_sender = Some(gcode_sender);
 
         let sender_future = gcode_repeater_inner
@@ -155,7 +171,10 @@ impl SerialManager {
             .forward(end_of_stream_event_sender)
             .map(|_| ());
 
-        let (serial_future, abort_handle) = futures::future::abortable(serial_future);
+        let (
+            serial_future,
+            abort_handle,
+        ) = futures::future::abortable(serial_future);
         self.abort_handle = Some(abort_handle);
 
         Ok(serial_future.map(|_| ()))

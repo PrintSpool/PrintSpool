@@ -122,7 +122,10 @@ impl Effect {
             //     }
             // }
             Effect::OpenSerialPort { baud_rate } => {
-                if let Ok(serial_future) = reactor.serial_manager.open(baud_rate).await {
+                if let Ok(serial_future) = reactor.serial_manager.open(
+                    baud_rate,
+                    reactor.context.controller.model.simulate,
+                ).await {
                     tokio::spawn(serial_future);
                 } else {
                     reactor.event_sender.send(Event::SerialPortDisconnected).await

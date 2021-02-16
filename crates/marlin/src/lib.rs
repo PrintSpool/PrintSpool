@@ -18,6 +18,7 @@
 mod protobuf_server;
 pub mod gcode_codec;
 mod serial_manager;
+mod serial_simulator;
 
 pub mod state_machine;
 pub mod gcode_parser;

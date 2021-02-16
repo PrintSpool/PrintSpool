@@ -257,7 +257,10 @@ impl State {
         } else {
             match event {
                 Init { serial_port_available } => {
-                    if serial_port_available {
+                    if context.controller.model.simulate {
+                        info!("Teg Marlin: Started (Simulated serial port)");
+                        self.reconnect_with_next_baud(context)
+                    } else if serial_port_available {
                         info!("Teg Marlin: Started (Serial port found)");
                         self.reconnect_with_next_baud(context)
                     } else {

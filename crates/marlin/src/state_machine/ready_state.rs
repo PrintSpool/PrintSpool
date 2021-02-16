@@ -95,7 +95,7 @@ impl Default for ReadyState {
             mark: None,
             on_ok: OnOK::TransitionToReady,
             last_gcode_sent: None,
-            poll_for: Some(Polling::PollPosition),
+            poll_for: Some(Polling::PollTemperature),
             awaiting_polling_delay: false,
             tickles_attempted: 0,
             next_serial_line_number: 1,

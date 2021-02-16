@@ -40,6 +40,7 @@ impl xactor::Handler<ConnectToSocket> for Machine {
 
             if let Err(err) = machine_data {
                 error!("Unable to load machine config, retrying in 500ms: {:?}", err);
+                self.attempting_to_connect = false;
 
                 ctx.send_later(ConnectToSocket, Duration::from_millis(500));
                 return
@@ -55,11 +56,12 @@ impl xactor::Handler<ConnectToSocket> for Machine {
 
         // let client_id: crate::DbId = 42; // Chosen at random. Very legit.
 
-        info!("Connecting to machine socket: {:?}", socket_path);
         let unix_socket = match UnixStream::connect(&socket_path).await {
             Ok(stream) => stream,
             Err(err) => {
-                error!("Unable to open machine socket, retrying in 500ms: {:?}", err);
+                debug!("Unable to open machine socket, retrying in 500ms");
+                trace!("Machine socket err: {:?}", err);
+                self.attempting_to_connect = false;
 
                 ctx.send_later(ConnectToSocket, Duration::from_millis(500));
                 return
