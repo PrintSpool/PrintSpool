@@ -1,5 +1,5 @@
 use eyre::{
-    // Result,
+    Result,
     eyre,
     // Context as _,
 };
@@ -20,7 +20,7 @@ struct PrintInput {
     machine_id: ID,
     // TODO: update graphql names to match latest struct fields
     // #[field(name="partID")]
-    #[graphql(name="jobFileID")]
+    #[graphql(name="partID")]
     part_id: ID,
 }
 
@@ -28,7 +28,7 @@ struct PrintInput {
 #[async_graphql::Object]
 impl PrintMutation {
     /// Starts a task to print the part.
-    async fn spool_job_file<'ctx>(
+    async fn print<'ctx>(
         &self,
         ctx: &'ctx async_graphql::Context<'_>,
         input: PrintInput,
@@ -37,19 +37,28 @@ impl PrintMutation {
 
         let machines: &MachineMap = ctx.data()?;
         let machines = machines.load();
-        let machine = machines.get(&input.machine_id)
-            .ok_or_else(||
-                eyre!("machine ({:?}) not found for spool job file", input.machine_id)
-            )?;
 
-        let task = insert_print(
-            db,
-            machine.clone(),
-            input.machine_id.to_string(),
-            input.part_id.to_string(),
-            false,
-        ).await?;
+        async move {
+            let machine = machines.get(&input.machine_id)
+                .ok_or_else(||
+                    eyre!("machine ({:?}) not found for spool job file", input.machine_id)
+                )?;
 
-        Ok(task)
+            let task = insert_print(
+                db,
+                machine.clone(),
+                input.machine_id.to_string(),
+                input.part_id.to_string(),
+                false,
+            ).await?;
+
+            Result::<_>::Ok(task)
+        }
+        // log the backtrace which is otherwise lost by FieldResult
+        .await
+        .map_err(|err| {
+            warn!("{:?}", err);
+            err.into()
+        })
     }
 }

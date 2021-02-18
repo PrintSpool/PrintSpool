@@ -145,7 +145,7 @@ impl Part {
 
 #[async_trait::async_trait]
 impl Record for Part {
-    const TABLE: &'static str = "tasks";
+    const TABLE: &'static str = "parts";
 
     fn id(&self) -> &crate::DbId {
         &self.id

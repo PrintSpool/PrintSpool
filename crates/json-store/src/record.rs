@@ -4,7 +4,7 @@ use serde::{Serialize, de::DeserializeOwned};
 use eyre::{
     // eyre,
     Result,
-    // Context as _,
+    Context as _,
 };
 
 #[derive(sqlx::FromRow, Debug)]
@@ -77,7 +77,8 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         ))
             .bind(id)
             .fetch_one(db)
-            .await?;
+            .await
+            .wrap_err_with(|| format!("Could not find {} (id: {})", Self::TABLE, id))?;
 
         let entry: Self = serde_json::from_str(&row.props)?;
         Ok(entry)

@@ -52,9 +52,9 @@ const SET_JOB_POSITION = gql`
   }
 `
 
-const SPOOL_JOB_FILE = gql`
-  mutation spoolJobFile($input: SpoolJobFileInput!) {
-    spoolJobFile(input: $input) { id }
+const PRINT = gql`
+  mutation print($input: PrintInput!) {
+    print(input: $input) { id }
   }
 `
 
@@ -76,7 +76,7 @@ const JobQueuePage = ({
     },
   })
 
-  const [spoolJobFile] = useMutation(SPOOL_JOB_FILE)
+  const [print] = useMutation(PRINT)
   const [deleteJob] = useMutation(DELETE_JOB)
   const [cancelTask] = useMutation(ESTOP)
   const [setJobPosition] = useMutation(SET_JOB_POSITION)
@@ -114,7 +114,7 @@ const JobQueuePage = ({
   } = data
 
   const nextPart = printQueues
-    .map(part => part)
+    .map(printQueue => printQueue.parts)
     .flat()
     .find(part => !part.startedFinalPrint)
 
@@ -130,11 +130,11 @@ const JobQueuePage = ({
       throw new Error('No machine is ready to start a print')
     }
 
-    spoolJobFile({
+    print({
       variables: {
         input: {
           machineID: readyMachine.id,
-          jobFileID: nextPart.id,
+          partID: nextPart.id,
         },
       },
     })
