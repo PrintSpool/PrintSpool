@@ -47,15 +47,23 @@ const JobView = ({
       <Card raised className={classes.card}>
         { videoComponents.length > 0 && (
           <div className={classes.videoStreamer}>
-            { videoComponents.map((c) => {
+            { videoComponents.map((c) => (
               <VideoStreamer
                 machineID={task.machine.id}
                 videoID={c.id}
+                key={c.id}
               />
-            }) }
+            )) }
           </div>
         ) }
         <CardContent>
+          { task && (
+            <ViewingUsersButton
+              className={classes.viewingUsersButton}
+              machine={task.machine}
+            />
+          )}
+
           <Breadcrumbs>
             <Link to="../">
               Print Queue
@@ -91,10 +99,6 @@ const JobView = ({
           </Typography>
           { task && (
             <div key={task.id}>
-              <ViewingUsersButton
-                className={classes.viewingUsersButton}
-                machine={task.machine}
-              />
               <TaskStatusRow
                 key={task.id}
                 {...{
@@ -116,7 +120,7 @@ const JobView = ({
             Print History
           </Typography>
           { settledTasks.map((task) => (
-            <Typography variant="body2">
+            <Typography variant="body2" key={task.id}>
               {`Print ${task.status.toLowerCase()} at `}
               {new Date(Date.parse(task.stoppedAt)).toLocaleString()}
             </Typography>
@@ -127,7 +131,7 @@ const JobView = ({
             </Typography>
           )}
           {
-            machine.components
+            task?.machine.components
               .filter(c => ['BUILD_PLATFORM', 'TOOLHEAD', 'FAN'].includes(c.type))
               .map(component => (
                 <ComponentControl

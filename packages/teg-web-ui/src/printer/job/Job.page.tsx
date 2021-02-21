@@ -14,9 +14,6 @@ const JOB_QUERY = gql`
   fragment QueryFragment on Query {
     machines(input: { machineID: $machineID }) {
       ...PrinterStatus
-      components {
-        ...ComponentControlFragment
-      }
     }
     parts(input: { partID: $partID }) {
       id
@@ -41,8 +38,12 @@ const JOB_QUERY = gql`
         status
         paused
         machine {
+          ...PrinterStatus
+          components {
+            ...ComponentControlFragment
+          }
           id
-          # name
+          name
           viewers {
             id
             email

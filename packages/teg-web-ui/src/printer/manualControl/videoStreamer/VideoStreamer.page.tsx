@@ -67,6 +67,8 @@ const VideoStreamerPage = (props: any) => {
   }
 
   const loadVideo = useCallback(async () => {
+    console.log('Starting Video Streamer')
+
     const mediaConstraints = {
       offerToReceiveAudio: false,
       offerToReceiveVideo: true,

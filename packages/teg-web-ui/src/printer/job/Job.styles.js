@@ -11,11 +11,20 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(2),
   },
   videoStreamer: {
+    // display: 'grid',
+    // alignContent: 'center',
+    // overflow: 'hidden',
+    // maxHeight: '35vh',
+    // width: '100%',
+
+    marginBottom: theme.spacing(2),
     display: 'grid',
     alignContent: 'center',
     overflow: 'hidden',
+
+    // Vertical Split
     maxHeight: '35vh',
-    width: '100%',
+
   },
   viewingUsersButton: {
     float: 'right',
