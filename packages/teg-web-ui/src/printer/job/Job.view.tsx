@@ -73,15 +73,16 @@ const JobView = ({
             </Typography>
           </Breadcrumbs>
 
-          { tasks.length === 0 && (
+          <Typography variant="subtitle1" paragraph>
+            {
+              `${printsCompleted} / ${totalPrints} prints completed`
+            }
+          </Typography>
+
+          { task == null && (
             <>
               <Typography variant="h6" color="textSecondary" paragraph>
                 This part is not currently being printed
-              </Typography>
-              <Typography variant="subtitle1" paragraph>
-                {
-                  `${printsCompleted} / ${totalPrints} prints completed`
-                }
               </Typography>
               <Button
                 onClick={moveToTopOfQueue}
@@ -92,11 +93,6 @@ const JobView = ({
               </Button>
             </>
           )}
-          <Typography variant="subtitle1" paragraph>
-            {
-              `${printsCompleted} / ${totalPrints} prints completed`
-            }
-          </Typography>
           { task && (
             <div key={task.id}>
               <TaskStatusRow
