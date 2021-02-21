@@ -25,7 +25,7 @@ const descriptions = {
     The 3D printer is disconnected. Please verify the printer is plugged in and
     turn it on.
   `,
-  ESTOPPED: () => snl`
+  STOPPED: () => snl`
     The 3D printer has been estopped by a user.
     Please verify that the printer is safe and free of obstructions and then
     reset the machine.
@@ -93,7 +93,7 @@ const StatusDialog = ({
       </DialogContent>
       <DialogActions>
         {
-          (status === 'ERRORED' || status === 'ESTOPPED')
+          (status === 'ERRORED' || status === 'STOPPED')
           && (
           <Button
             onClick={handleReset}

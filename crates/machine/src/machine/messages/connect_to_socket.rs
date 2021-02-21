@@ -1,17 +1,15 @@
 use async_codec::Framed;
 use async_std::os::unix::net::UnixStream;
 use std::time::Duration;
-use async_std::fs;
-use eyre::{
-    // eyre,
-    Result,
-    // Context as _,
-};
+// use eyre::{
+//     // eyre,
+//     Result,
+//     // Context as _,
+// };
 
 use crate::{
-    config::MachineConfig,
-    machine::{Machine,
-        MachineData,
+    machine::{
+        Machine,
         streams::receive_stream::codec::MachineCodec
     },
 };
@@ -29,24 +27,13 @@ impl xactor::Handler<ConnectToSocket> for Machine {
 
         // Load the config file
         if self.data.is_none() {
-            let config_path = format!("/etc/teg/machine-{}.toml", self.id);
-
-            let machine_data = (|| async move {
-                let config = fs::read_to_string(config_path).await?;
-                let config: MachineConfig = toml::from_str(&config)?;
-
-                Result::<_>::Ok(MachineData::new(config))
-            })().await;
-
-            if let Err(err) = machine_data {
+            if let Err(err) = self.reset_data().await {
                 error!("Unable to load machine config, retrying in 500ms: {:?}", err);
                 self.attempting_to_connect = false;
 
                 ctx.send_later(ConnectToSocket, Duration::from_millis(500));
                 return
             }
-
-            self.data = machine_data.ok();
         }
 
         let socket_path = format!(

@@ -21,7 +21,7 @@ use teg_machine::{
         Machine,
         MachineStatus,
         Printing,
-        messages::{GetData, SpoolTask},
+        messages::GetData,
     },
     task::{
         Task,
@@ -189,16 +189,14 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
             automatic_print,
         } = msg;
 
+        let mut tx = self.db.begin().await?;
+
+        let machine = self.get_data()?;
+
         let part_id = task.part_id
             .as_ref()
             .ok_or_else(|| eyre!("New print missing part id"))?;
-        let part = Part::get(&self.db, &part_id).await?;
-
-        /*
-        * Create the task
-        * =========================================================================================
-        */
-        let mut tx = self.db.begin().await?;
+        let part = Part::get(&mut tx, &part_id).await?;
 
         // Get the number of printed parts and the total number of prints
         let total_prints = Part::query_total_prints(&mut tx, &part_id)
@@ -219,35 +217,30 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
 
         task.insert_no_rollback(&mut tx).await?;
 
-        // Atomically set the machine status to printing
-        let task_id = task.id.clone();
-        let mut machine = self.get_data()?;
-        let task_id = task_id.clone();
-
         if machine.paused_task_id.is_some() {
             Err(
                 eyre!("Cannot start a new print when an existing print is paused")
             )?;
         }
-        if !machine.status.can_start_task(&task, automatic_print) {
-            Err(
-                eyre!("Cannot start task when machine is: {:?}", machine.status)
-            )?;
-        };
 
-        if machine.status == MachineStatus::Ready {
-            machine.status = MachineStatus::Printing(
-                Printing { task_id }
-            );
-        };
+        machine.status.verify_can_start(&task, automatic_print)?;
 
         tx.commit().await?;
 
-        // (self as xactor::Handler<SpoolTask>)
-        let task = self.handle(
+        // Spool the task outside the transaction to avoid locking the database on unix socket IO
+        let task = self.spool_task(
             ctx,
-            SpoolTask { task },
+            task,
         ).await?;
+
+        // Atomically set the machine status to printing
+        let mut machine = self.get_data()?;
+
+        if machine.status == MachineStatus::Ready {
+            machine.status = MachineStatus::Printing(
+                Printing { task_id: task.id.clone() }
+            );
+        };
 
         Ok(task)
     }

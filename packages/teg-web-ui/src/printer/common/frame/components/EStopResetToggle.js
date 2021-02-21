@@ -45,13 +45,13 @@ const useStyles = makeStyles(theme => ({
 
 const RESET = gql`
   mutation reset($machineID: ID!) {
-    reset(machineID: $machineID)
+    reset(machineID: $machineID) { id }
   }
 `
 
-const ESTOP = gql`
-  mutation eStop($machineID: ID!) {
-    eStop(machineID: $machineID)
+const STOP = gql`
+  mutation stop($machineID: ID!) {
+    stop(machineID: $machineID) { id }
   }
 `
 
@@ -63,12 +63,12 @@ const EStopResetToggle = ({
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const { status } = machine
-  const showEStop = status !== 'ERRORED' && status !== 'ESTOPPED'
+  const showEStop = status !== 'ERRORED' && status !== 'STOPPED'
   const disabled = status === 'DISCONNECTED'
 
   const variables = { machineID: machine.id }
   const [reset] = useMutation(RESET, { variables })
-  const [eStop] = useMutation(ESTOP, { variables })
+  const [eStop] = useMutation(STOP, { variables })
 
   const confirm = useConfirm()
 

@@ -68,6 +68,8 @@ pub async fn update_tasks(
             &machine.get_data()?.config.id,
         ).await?;
 
+        info!("task progress: {:?}", feedback.task_progress);
+
         for mut task in tasks {
             if !feedback.task_progress.iter().any(|p| p.task_id == task.id) {
                 let message = format!(

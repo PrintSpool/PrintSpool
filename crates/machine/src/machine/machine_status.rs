@@ -1,5 +1,11 @@
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
+use eyre::{
+  eyre,
+  Result,
+  // Context as _,
+};
+
 use crate::task::Task;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -26,7 +32,6 @@ pub enum MachineStatusGQL {
     /// The machine has encountered an error and automatically stopped the print. Send a reset
     /// mutation to change the status to \`CONNECTING\`.
     Errored,
-    #[graphql(name = "ESTOPPED")]
     /// The machine was stopped by the user. Send a reset mutation to change the status to
     /// \`CONNECTING\`.
     Stopped,
@@ -97,15 +102,29 @@ impl MachineStatus {
       }
     }
 
+    pub fn is_stopped(&self) -> bool {
+      self == &MachineStatus::Stopped
+    }
+
     pub fn can_start_task(&self, task: &Task, is_automatic_print: bool) -> bool {
         match self {
             Self::Printing(_) if is_automatic_print || task.machine_override => {
               true
             }
+            // Self::Printing(Printing { task_id }) if task_id == &task.id => {
+            //   true
+            // }
             Self::Ready => {
               true
             }
             _ => false
         }
+    }
+
+    pub fn verify_can_start(&self, task: &Task, is_automatic_print: bool) -> Result<()> {
+      if !self.can_start_task(&task, is_automatic_print) {
+          Err(eyre!("Cannot start task while machine is: {:?}", self))?;
+      };
+      Ok(())
     }
 }

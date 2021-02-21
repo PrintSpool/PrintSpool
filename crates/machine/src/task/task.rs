@@ -152,7 +152,7 @@ impl Record for Task {
             self.id,
             previous_version,
         )
-            .fetch_one(db)
+            .fetch_optional(db)
             .await?;
 
         Ok(())

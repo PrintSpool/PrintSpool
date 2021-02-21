@@ -10,7 +10,11 @@ use teg_protobufs::{
     machine_message,
 };
 
-use crate::machine::Machine;
+use crate::machine::{
+    Machine,
+    MachineStatus,
+};
+use crate::machine::messages::ConnectToSocket;
 
 pub mod codec;
 mod record_feedback;
@@ -68,8 +72,31 @@ impl StreamHandler<RxResult> for Machine
             _ => {}
         };
 
-        // Restart the machine actor & attempt a new socket connection
-        ctx.stop(None);
-        // ctx.address().send(ConnectToSocket());
+        // Reset the machine except for `status = Stopped` and attempt a new socket connection
+        self.attempting_to_connect = false;
+        self.write_stream = None;
+        self.unix_socket = None;
+        self.attempting_to_connect = false;
+        self.has_received_feedback = false;
+
+        let is_stopped = self.data.as_ref()
+            .map(|m| m.status.is_stopped())
+            .unwrap_or(false);
+
+        if let Err(err) = self.reset_data().await {
+            warn!("Error resetting machine data: {:?}", err);
+            ctx.stop(Some(err));
+        };
+
+        if is_stopped {
+            self.data
+                .as_mut()
+                .map(|data| data.status = MachineStatus::Stopped);
+        }
+
+        if let Err(err) = ctx.address().send(ConnectToSocket) {
+            warn!("Error restarting machine: {:?}", err);
+            ctx.stop(Some(err));
+        };
     }
 }

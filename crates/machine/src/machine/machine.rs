@@ -3,7 +3,10 @@ use xactor::Actor;
 // use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 // use std::sync::Arc;
-use async_std::os::unix::net::UnixStream;
+use async_std::{
+    fs,
+    os::unix::net::UnixStream,
+};
 use eyre::{
     // eyre,
     Result,
@@ -72,5 +75,16 @@ impl Machine {
             }
         ).await?;
         Ok(machine)
+    }
+
+    pub async fn reset_data(&mut self) -> Result<()> {
+        let config_path = format!("/etc/teg/machine-{}.toml", self.id);
+
+        let config = fs::read_to_string(config_path).await?;
+        let config: MachineConfig = toml::from_str(&config)?;
+
+        self.data = Some(MachineData::new(config));
+
+        Ok(())
     }
 }

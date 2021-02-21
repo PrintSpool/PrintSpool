@@ -51,6 +51,7 @@ impl MachineMutation {
     async fn stop<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
+        #[graphql(name = "machineID")]
         machine_id: ID,
     ) -> FieldResult<Option<teg_common::Void>> {
         let machines: &crate::MachineMap = ctx.data()?;
@@ -68,6 +69,7 @@ impl MachineMutation {
     async fn reset<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
+        #[graphql(name = "machineID")]
         machine_id: ID,
     ) -> FieldResult<Option<teg_common::Void>> {
         let machines: &crate::MachineMap = ctx.data()?;
