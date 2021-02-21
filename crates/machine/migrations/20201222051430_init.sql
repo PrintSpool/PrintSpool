@@ -59,6 +59,8 @@ CREATE TABLE tasks(
   -- version INT AS (JSON_EXTRACT(props, "$.version")) STORED,
   -- machine_id TEXT AS (JSON_EXTRACT(props, "$.machine_id")) STORED
 );
+CREATE INDEX tasks_part_id ON tasks(status, part_id);
+CREATE INDEX tasks_machine_id ON tasks(status, machine_id);
 
 -- Print Queue
 -- =======================================

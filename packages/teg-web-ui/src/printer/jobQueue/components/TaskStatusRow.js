@@ -88,7 +88,7 @@ const TaskStatusRow = ({
       >
         {
           (() => {
-            const taskOnMachine = `${task.name} on ${task.machine.name}`
+            const taskOnMachine = `on ${task.machine.name}`
             if (['CANCELLED', 'ERROR'].includes(task.status)) {
               const statusWord = (
                 task.status === 'CANCELLED' ? 'Cancelled' : 'Errored'

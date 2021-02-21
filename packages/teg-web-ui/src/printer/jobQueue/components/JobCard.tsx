@@ -18,6 +18,7 @@ import truncate from 'truncate'
 
 import TaskStatusRow from './TaskStatusRow'
 import useConfirm from '../../../common/_hooks/useConfirm'
+import { Typography } from '@material-ui/core'
 
 const JobCard = ({
   id,
@@ -56,7 +57,17 @@ const JobCard = ({
     description: name,
   }))
 
-  const currentTasks = tasks.filter(task => ['CANCELLED', 'ERROR'].includes(task.status) === false)
+  const currentTasks = tasks.filter(task => (
+    !['CANCELLED', 'ERRORED', 'FINISHED'].includes(task.status)
+  ))
+
+  const tasksByStoppedAt = [...tasks]
+  tasksByStoppedAt.sort((a, b) => {
+    const aStoppedAt = a.stoppedAt ? Date.parse(a.stoppedAt) : 0
+    const bStoppedAt = b.stoppedAt ? Date.parse(b.stoppedAt) : 0
+    return aStoppedAt - bStoppedAt
+  })
+  const lastSettledTask = tasksByStoppedAt[tasksByStoppedAt.length - 1]
 
   return (
     <Card>
@@ -110,7 +121,14 @@ const JobCard = ({
           paddingTop: 0,
         }}
       >
-
+        { currentTasks.length === 0 && lastSettledTask && (
+          <Typography
+            color={lastSettledTask.status === 'FINISHED' ? null : 'error'}
+          >
+            {`Last print ${lastSettledTask.status.toLowerCase()} at `}
+            {new Date(Date.parse(lastSettledTask.stoppedAt)).toLocaleString()}
+          </Typography>
+        )}
         {
             /* Task list segment */
             currentTasks.map(task => (

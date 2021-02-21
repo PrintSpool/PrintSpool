@@ -29,6 +29,7 @@ const PRINT_QUEUES_QUERY = gql`
           percentComplete(digits: 1)
           estimatedPrintTimeMillis
           startedAt
+          stoppedAt
           status
           paused
           machine {

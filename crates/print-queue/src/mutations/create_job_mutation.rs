@@ -68,7 +68,7 @@ impl CreateJobMutation {
         let max_position: Vec<u8> = sqlx::query!(
             r#"
                 SELECT CAST(MAX(position) AS BLOB) AS position FROM parts
-                INNER JOIN packages ON packages.id = parts.id
+                INNER JOIN packages ON packages.id = parts.package_id
                 WHERE
                     packages.print_queue_id = ?
                     AND packages.deleted_at IS NULL

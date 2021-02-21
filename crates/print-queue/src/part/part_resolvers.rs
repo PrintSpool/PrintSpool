@@ -3,11 +3,11 @@ use async_graphql::{
     FieldResult,
     Context,
 };
-// use eyre::{
-//     // eyre,
-//     Result,
-//     // Context as _,
-// };
+use eyre::{
+    // eyre,
+    Result,
+    // Context as _,
+};
 use teg_machine::task::Task;
 use teg_json_store::{ Record as _, JsonRow };
 
@@ -37,7 +37,15 @@ impl Part {
     async fn started_final_print_<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<bool> {
         let db: &crate::Db = ctx.data()?;
 
-        Ok(Self::started_final_print(db, &self.id).await?)
+        async move {
+            Result::<_>::Ok(Self::started_final_print(db, &self.id).await?)
+        }
+        // log the backtrace which is otherwise lost by FieldResult
+        .await
+        .map_err(|err| {
+            warn!("{:?}", err);
+            err.into()
+        })
     }
 
     async fn tasks<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<Task>> {

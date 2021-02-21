@@ -54,25 +54,25 @@ pub enum TaskStatusGQL {
     /* Before sending to the driver */
 
     /// The task is enqueued. It will begin printing as soon as the tasks spooled before it finish.
-    #[graphql(name = "SPOOLED_TASK")]
+    #[graphql(name = "SPOOLED")]
     Spooled,
 
     /* After sending to the driver */
 
     /// The task is in the process of being printed.
-    #[graphql(name = "START_TASK")]
+    #[graphql(name = "STARTED")]
     Started,
     /// The task completed its print successfully
-    #[graphql(name = "FINISH_TASK")]
+    #[graphql(name = "FINISHED")]
     Finished,
     /// The task was paused by the user
-    #[graphql(name = "PAUSE_TASK")]
+    #[graphql(name = "PAUSED")]
     Paused,
     /// The task was halted pre-emptively by the user.
     #[graphql(name = "CANCELLED")]
     Cancelled,
     /// An error occurred during the print.
-    #[graphql(name = "ERROR")]
+    #[graphql(name = "ERRORED")]
     Errored,
 }
 

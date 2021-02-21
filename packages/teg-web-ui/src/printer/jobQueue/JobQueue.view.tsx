@@ -40,24 +40,24 @@ const JobQueueView = ({
   const categories = [
     {
       title: 'Done',
-      partsSubset: parts.filter(part => part.startedFinalPrint),
+      partsSubset: parts.filter(part => part.printsCompleted >= part.totalPrints),
     },
     {
       title: 'Printing',
       partsSubset: parts.filter((part) => {
         const currentTasks = part.tasks.filter(task => (
-          ['CANCELLED', 'ERROR'].includes(task.status) === false
+          !['CANCELLED', 'ERRORED', 'FINISHED'].includes(task.status)
         ))
-        return !part.startedFinalPrint && currentTasks.length > 0
+        return !(part.printsCompleted >= part.totalPrints) && currentTasks.length > 0
       }),
     },
     {
       title: 'Queued',
       partsSubset: parts.filter((part) => {
         const currentTasks = part.tasks.filter(task => (
-          ['CANCELLED', 'ERROR'].includes(task.status) === false
+          !['CANCELLED', 'ERRORED', 'FINISHED'].includes(task.status)
         ))
-        return !part.startedFinalPrint && currentTasks.length === 0
+        return !(part.printsCompleted >= part.totalPrints) && currentTasks.length === 0
       }),
     },
   ]

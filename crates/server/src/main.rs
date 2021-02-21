@@ -203,6 +203,7 @@ async fn app() -> Result<()> {
             let schema = schema_clone.clone();
             let db = db_clone.clone();
             // let auth_pem_keys = auth_pem_keys.clone();
+
             let initializer = |_| async move {
                 let user = teg_auth::user::User::authenticate(
                     &db,
@@ -239,7 +240,28 @@ async fn app() -> Result<()> {
                 initializer,
                 async_graphql::http::WebSocketProtocols::GraphQLWS,
             )
-                .map(|msg| msg.into_bytes());
+                .take_while(|msg| {
+                    use async_graphql::http::WsMessage;
+                    match msg {
+                        WsMessage::Text(_) => {
+                            future::ready(true)
+                        }
+                        WsMessage::Close(_code, _msg) => {
+                            future::ready(false)
+                        }
+                    }
+                })
+                .filter_map(|msg| {
+                    use async_graphql::http::WsMessage;
+                    match msg {
+                        WsMessage::Text(msg) => {
+                            future::ready(Some(msg.into_bytes()))
+                        }
+                        WsMessage::Close(_code, _msg) => {
+                            future::ready(None)
+                        }
+                    }
+                });
 
             future::ok(connection)
         },

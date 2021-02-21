@@ -33,18 +33,28 @@ const JobView = ({
 }) => {
   const classes = useStyles()
 
-  const showVideoStreamer = tasks.some(task => (
-    task.machine?.components.some(c => c.type === 'VIDEO')
-  ))
+  const task = tasks.find(t =>
+    !['ERRORED', 'CANCELLED', 'FINISHED'].includes(t.status)
+  )
+  const settledTasks = tasks.filter(t =>
+    ['ERRORED', 'CANCELLED', 'FINISHED'].includes(t.status)
+  )
+
+  const videoComponents = task?.machine.components.filter(c => c.type === 'VIDEO') || []
 
   return (
     <div className={classes.root}>
       <Card raised className={classes.card}>
-        { showVideoStreamer && (
+        { videoComponents.length > 0 && (
           <div className={classes.videoStreamer}>
-            <VideoStreamer />
+            { videoComponents.map((c) => {
+              <VideoStreamer
+                machineID={task.machine.id}
+                videoID={c.id}
+              />
+            }) }
           </div>
-        )}
+        ) }
         <CardContent>
           <Breadcrumbs>
             <Link to="../">
@@ -79,7 +89,7 @@ const JobView = ({
               `${printsCompleted} / ${totalPrints} prints completed`
             }
           </Typography>
-          { tasks.map(task => (
+          { task && (
             <div key={task.id}>
               <ViewingUsersButton
                 className={classes.viewingUsersButton}
@@ -101,7 +111,21 @@ const JobView = ({
                 </Typography>
               )}
             </div>
+          ) }
+          <Typography variant="h5">
+            Print History
+          </Typography>
+          { settledTasks.map((task) => (
+            <Typography variant="body2">
+              {`Print ${task.status.toLowerCase()} at `}
+              {new Date(Date.parse(task.stoppedAt)).toLocaleString()}
+            </Typography>
           ))}
+          { settledTasks.length === 0 && (
+            <Typography variant="body2">
+              No previous prints
+            </Typography>
+          )}
           {
             machine.components
               .filter(c => ['BUILD_PLATFORM', 'TOOLHEAD', 'FAN'].includes(c.type))

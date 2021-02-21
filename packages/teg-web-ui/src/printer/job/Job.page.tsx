@@ -37,6 +37,7 @@ const JOB_QUERY = gql`
         estimatedPrintTimeMillis
         estimatedFilamentMeters
         startedAt
+        stoppedAt
         status
         paused
         machine {

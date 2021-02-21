@@ -119,9 +119,13 @@ impl Part {
                     COUNT(tasks.id) AS printed,
                     CAST(parts.quantity * packages.quantity AS INT) AS total
                 FROM parts
-                LEFT JOIN tasks ON tasks.part_id = parts.id
-                INNER JOIN packages ON packages.id = parts.package_id
-                WHERE parts.id = ?
+                LEFT JOIN tasks ON
+                    tasks.part_id = parts.id
+                    AND tasks.status NOT IN ('errored', 'cancelled')
+                INNER JOIN packages ON
+                    packages.id = parts.package_id
+                WHERE
+                    parts.id = ?
             "#,
             part_id,
         )
@@ -130,7 +134,7 @@ impl Part {
 
         let total = part_stats.total
             .ok_or_else(|| eyre!(
-                "unabel to determine print status (part id: {:?}) due to sql error",
+                "unable to determine print status (part id: {:?}) due to missing total",
                 part_id,
             ))?;
 
