@@ -100,12 +100,12 @@ async fn tick_state_machine(
     event: Event,
     reactor: &mut StateMachineReactor,
 ) -> State {
-    trace!("Received Event:  {:?}", event);
+    trace!("Received Event:  {:#?}", event);
 
     let Loop{ next_state, effects } = state.consume(event, &mut reactor.context);
 
-    trace!("Next State: {:?}", next_state);
-    trace!("Effects: {:?}", effects);
+    trace!("Next State: {:#?}", next_state);
+    trace!("Effects: {:#?}", effects);
 
     for effect in effects.into_iter() {
         effect.exec(reactor).await;

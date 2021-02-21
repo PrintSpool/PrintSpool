@@ -161,7 +161,7 @@ impl State {
     }
 
     pub fn consume(self, event: Event, context: &mut Context) -> Loop {
-        // eprintln!("event received {:?} in state {:?}", event, self);
+        // trace!("event received {:?} in state {:?}", event, self);
 
         if let ProtobufClientConnection = &event {
             return Loop::new(

@@ -46,12 +46,12 @@ impl SerialSimulator {
                     bed = rand::thread_rng().gen_range(20..30),
                 ),
                 "M114" => format!(
-                    "X:{x} Y:{y} Z:{z} E:0.00 Count X: 0.00Y:0.00Z:0.00",
+                    "X:{x} Y:{y} Z:{z} E:0.00 Count X: 0.00Y:0.00Z:0.00\nok",
                     x = 25.0,
                     y = 50.0,
                     z = 100.0,
                 ),
-                _ => "Ok".to_string()
+                _ => "ok".to_string()
             };
 
             info!("Simulator responding to {:?} with {:?}", gcode, response);

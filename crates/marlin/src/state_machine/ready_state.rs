@@ -315,13 +315,13 @@ impl ReadyState {
                 }
             }
             PollFeedback => {
-                self.poll_for = Some(Polling::PollPosition);
+                self.poll_for = Some(Polling::PollTemperature);
 
                 // eprintln!("POLL FEEDBACK!!!!! {:?}", self);
                 if let OnOK::NotAwaitingOk = self.on_ok {
                     let mut effects = vec![];
 
-                    self.poll_feedback(&mut effects, context, Polling::PollPosition);
+                    self.poll_feedback(&mut effects, context, Polling::PollTemperature);
 
                     Loop::new(
                         Ready(self),
@@ -650,8 +650,8 @@ impl ReadyState {
         self.next_serial_line_number += 1;
 
         self.poll_for = match poll_for {
-            Polling::PollPosition => Some(Polling::PollTemperature),
-            Polling::PollTemperature => None,
+            Polling::PollTemperature => Some(Polling::PollPosition),
+            Polling::PollPosition => None,
         };
     }
 
