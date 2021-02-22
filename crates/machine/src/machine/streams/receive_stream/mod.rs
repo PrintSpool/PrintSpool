@@ -83,11 +83,13 @@ impl StreamHandler<RxResult> for Machine
             .map(|m| m.status.is_stopped())
             .unwrap_or(false);
 
+        // Reset the machine data
         if let Err(err) = self.reset_data().await {
             warn!("Error resetting machine data: {:?}", err);
             ctx.stop(Some(err));
         };
 
+        // Set the status of the new machine data if the machine was previously stopped
         if is_stopped {
             self.data
                 .as_mut()
