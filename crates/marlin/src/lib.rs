@@ -2,7 +2,7 @@
 #![crate_name = "teg_marlin"]
 #![type_length_limit="1073741824"]
 
-#[macro_use] extern crate log;
+#[macro_use] extern crate tracing;
 #[macro_use] extern crate error_chain;
 
 // extern crate bytes;
@@ -118,7 +118,9 @@ pub async fn start(
     config_path: Option<String>
 ) -> std::result::Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
-    pretty_env_logger::init();
+
+    tracing_subscriber::fmt::init();
+    color_eyre::install()?;
 
     // Config
     // ----------------------------------------------------

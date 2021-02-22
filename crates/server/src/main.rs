@@ -4,6 +4,7 @@
 
 #[cfg(not(target_env = "msvc"))]
 use jemallocator::Jemalloc;
+use tracing::Instrument;
 
 #[cfg(not(target_env = "msvc"))]
 #[global_allocator]
@@ -92,13 +93,13 @@ async fn app() -> Result<()> {
             let allocated = stats::allocated::read().unwrap() as f32;
             let resident = stats::resident::read().unwrap() as f32;
             debug!(
-                "Memory Useage: {:.1} MB allocated / {:.1} MB resident",
+                "{:.1} MB allocated / {:.1} MB resident",
                 allocated / 1_000_000.0,
                 resident / 1_000_000.0,
             );
             async_std::task::sleep(std::time::Duration::from_secs(10)).await;
         }
-    });
+    }.instrument(tracing::info_span!("memory_useage")));
 
     let db_url = env::var("DATABASE_URL")
         .wrap_err("DATABASE_URL not set")?;
@@ -183,7 +184,8 @@ async fn app() -> Result<()> {
             mutation::Mutation::default(),
             async_graphql::EmptySubscription,
         )
-            .extension(async_graphql::extensions::Tracing::default())            .data(db_clone.clone())
+            .extension(async_graphql::extensions::Tracing::default())
+            .data(db_clone.clone())
             .data(machines_clone.clone())
             .data(machine_hooks.clone())
             .data(server_keys_clone.clone())
@@ -246,7 +248,8 @@ async fn app() -> Result<()> {
                         WsMessage::Text(_) => {
                             future::ready(true)
                         }
-                        WsMessage::Close(_code, _msg) => {
+                        WsMessage::Close(_code, msg) => {
+                            warn!("WS closed with message: {}", msg);
                             future::ready(false)
                         }
                     }

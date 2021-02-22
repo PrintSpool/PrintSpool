@@ -31,7 +31,7 @@ struct SetPartPositionInput {
 #[async_graphql::Object]
 impl SetPartPositionMutation {
     /// Move a job in the print queue
-    async fn set_job_position<'ctx>(
+    async fn set_part_position<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
         input: SetPartPositionInput,

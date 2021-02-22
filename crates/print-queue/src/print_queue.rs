@@ -36,6 +36,7 @@ impl PrintQueue {
                 WHERE
                     packages.print_queue_id = ?
                     AND parts.deleted_at IS NULL
+                ORDER BY parts.position ASC
             "#,
             print_queue_id,
         )

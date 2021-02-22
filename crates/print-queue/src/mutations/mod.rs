@@ -1,8 +1,11 @@
 pub mod create_job_mutation;
 use create_job_mutation::CreateJobMutation;
 
-pub mod delete_job_mutation;
-use delete_job_mutation::DeleteJobMutation;
+pub mod delete_package_mutation;
+use delete_package_mutation::DeletePackageMutation;
+
+pub mod delete_part_mutation;
+use delete_part_mutation::DeletePartMutation;
 
 pub mod exec_gcodes_mutation;
 use exec_gcodes_mutation::ExecGCodesMutation;
@@ -22,7 +25,8 @@ use print_mutation::PrintMutation;
 #[derive(async_graphql::MergedObject, Default)]
 pub struct PrintQueueMutation(
     CreateJobMutation,
-    DeleteJobMutation,
+    DeletePackageMutation,
+    DeletePartMutation,
     ExecGCodesMutation,
     PausePrintMutation,
     ResumePrintMutation,

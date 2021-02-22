@@ -62,15 +62,15 @@ const JOB_QUERY = gql`
   ${PrinterStatusGraphQL}
 `
 
-const ESTOP = gql`
-  mutation eStop($machineID: ID!) {
-    eStop(machineID: $machineID)
+const STOP = gql`
+  mutation stop($machineID: ID!) {
+    stop(machineID: $machineID) { id }
   }
 `
 
 const SET_JOB_POSITION = gql`
-  mutation setJobPosition($input: SetJobPositionInput!) {
-    setJobPosition(input: $input)
+  mutation setPartPosition($input: SetPartPositionInput!) {
+    setPartPosition(input: $input) { id }
   }
 `
 
@@ -86,7 +86,7 @@ const JobPage = () => {
     },
   })
 
-  const [cancelTask] = useMutation(ESTOP)
+  const [cancelTask] = useMutation(STOP)
   const [pausePrint] = useMutation(gql`
     mutation pausePrint($taskID: ID!) {
       pausePrint(taskID: $taskID) { id }
@@ -97,9 +97,9 @@ const JobPage = () => {
       resumePrint(taskID: $taskID) { id }
     }
   `)
-  const [setJobPosition] = useMutation(SET_JOB_POSITION)
+  const [setPartPosition] = useMutation(SET_JOB_POSITION)
 
-  const moveToTopOfQueue = () => setJobPosition({
+  const moveToTopOfQueue = () => setPartPosition({
     variables: {
       input: {
         partID,

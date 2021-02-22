@@ -54,7 +54,7 @@ impl SerialSimulator {
                 _ => "ok".to_string()
             };
 
-            info!("Simulator responding to {:?} with {:?}", gcode, response);
+            trace!("Simulator responding to {:?} with {:?}", gcode, response);
             sender.send(response).await?;
         }
         Ok(())

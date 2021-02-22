@@ -31,10 +31,12 @@ teg-print-queue = { path = "../print-queue" }
 async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }
 async-graphql-warp = { git = "https://github.com/async-graphql/async-graphql.git" }
 serde_json = { version = "1.0.44", features = ["raw_value"] }
-eyre = "0.6.5"
 derive-new = "0.5.8"
 sqlx = { version = "0.5.1", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros" ] }
 tracing = "0.1.19"
+tracing-subscriber = "0.2.15"
+eyre = "0.6.5"
+color-eyre = "0.5.10"
 rmp-serde = "0.15.0"
 toml = "0.5.8"
 url = "2.2.0"
@@ -44,8 +46,6 @@ futures-util = "0.3.8"
 bytes = "0.5.6"
 dotenv = "0.15.0"
 xactor = { git = "https://github.com/D1plo1d/xactor.git", branch = "eyre-feature",  default-features = false, features = ["runtime-async-std", "eyre"] }
-color-eyre = "0.5.10"
-tracing-subscriber = "0.2.15"
 warp = "0.3.0"
 jemallocator = "0.3.2"
 jemalloc-ctl = "0.3.3"

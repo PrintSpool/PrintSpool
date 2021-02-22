@@ -42,14 +42,15 @@ const PRINT_QUEUES_QUERY = gql`
   }
 `
 
-const ESTOP = gql`
-  mutation eStop($machineID: ID!) {
-    eStop(machineID: $machineID)
+const STOP = gql`
+  mutation stop($machineID: ID!) {
+    stop(machineID: $machineID) { id }
   }
 `
+
 const SET_JOB_POSITION = gql`
-  mutation setJobPosition($input: SetJobPositionInput!) {
-    setJobPosition(input: $input)
+  mutation setPartPosition($input: SetPartPositionInput!) {
+    setPartPosition(input: $input) { id }
   }
 `
 
@@ -59,9 +60,9 @@ const PRINT = gql`
   }
 `
 
-const DELETE_JOB = gql`
-  mutation deleteJob($input: DeleteJobInput!) {
-    deleteJob(input: $input)
+const DELETE_PART = gql`
+  mutation deletePart($input: DeletePartInput!) {
+    deletePart(input: $input) { id }
   }
 `
 
@@ -78,9 +79,9 @@ const JobQueuePage = ({
   })
 
   const [print] = useMutation(PRINT)
-  const [deleteJob] = useMutation(DELETE_JOB)
-  const [cancelTask] = useMutation(ESTOP)
-  const [setJobPosition] = useMutation(SET_JOB_POSITION)
+  const [deletePart] = useMutation(DELETE_PART)
+  const [cancelTask] = useMutation(STOP)
+  const [setPartPosition] = useMutation(SET_JOB_POSITION)
   const [pausePrint] = useMutation(gql`
     mutation pausePrint($taskID: ID!) {
       pausePrint(taskID: $taskID) { id }
@@ -92,10 +93,10 @@ const JobQueuePage = ({
     }
   `)
 
-  const moveToTopOfQueue = ({ jobID }) => setJobPosition({
+  const moveToTopOfQueue = ({ partID }) => setPartPosition({
     variables: {
       input: {
-        jobID,
+        partID,
         position: 0,
       },
     },
@@ -148,7 +149,7 @@ const JobQueuePage = ({
         machines,
         nextPart,
         spoolNextPrint,
-        deleteJob,
+        deletePart,
         cancelTask,
         pausePrint,
         resumePrint,

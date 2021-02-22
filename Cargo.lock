@@ -3205,16 +3205,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ac74c624d6b2d21f425f752262f42188365d7b8ff1aff74c82e45136510a4857"
 
 [[package]]
-name = "pretty_env_logger"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "926d36b9553851b8b0005f1275891b392ee4d2d833852c417ed025477350fb9d"
-dependencies = [
- "env_logger",
- "log",
-]
-
-[[package]]
 name = "proc-macro-crate"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4372,6 +4362,7 @@ dependencies = [
  "bus_queue",
  "bytes 0.5.6",
  "chrono",
+ "color-eyre",
  "criterion",
  "dotenv",
  "error-chain",
@@ -4379,12 +4370,10 @@ dependencies = [
  "fallible-iterator",
  "futures 0.3.12",
  "gcode",
- "log",
  "mio 0.6.23",
  "nom 6.1.2",
  "nom-gcode",
  "nom-reprap-response",
- "pretty_env_logger",
  "rand 0.8.3",
  "serde",
  "serde_json",
@@ -4397,6 +4386,8 @@ dependencies = [
  "tokio-serial",
  "tokio-util 0.3.1",
  "toml",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]

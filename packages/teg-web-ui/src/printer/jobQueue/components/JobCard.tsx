@@ -31,7 +31,7 @@ const JobCard = ({
   cancelTask,
   pausePrint,
   resumePrint,
-  deleteJob,
+  deletePart,
   moveToTopOfQueue,
 }) => {
   const confirm = useConfirm()
@@ -42,18 +42,18 @@ const JobCard = ({
 
   const shortName = truncate(name, 32)
 
-  const confirmedDeleteJob = confirm(() => ({
+  const confirmedDeletePart = confirm(() => ({
     fn: () => {
-      deleteJob({
+      deletePart({
         variables: {
           input: {
-            jobID: id,
+            partID: id,
           },
         },
       })
       closeMenu()
     },
-    title: 'Are you sure you want to delete this job?',
+    title: 'Are you sure you want to delete this part?',
     description: name,
   }))
 
@@ -97,15 +97,15 @@ const JobCard = ({
         open={menuAnchorEl != null}
         onClose={closeMenu}
       >
-        <MenuItem onClick={confirmedDeleteJob}>
+        <MenuItem onClick={confirmedDeletePart}>
           <ListItemIcon>
             <Delete />
           </ListItemIcon>
-          <ListItemText primary="Delete Job" />
+          <ListItemText primary="Delete Part" />
         </MenuItem>
         <MenuItem
           onClick={() => {
-            moveToTopOfQueue({ jobID: id })
+            moveToTopOfQueue({ partID: id })
             closeMenu()
           }}
         >
@@ -123,9 +123,9 @@ const JobCard = ({
       >
         { currentTasks.length === 0 && lastSettledTask && (
           <Typography
-            color={lastSettledTask.status === 'FINISHED' ? null : 'error'}
+            color={lastSettledTask.status === 'FINISHED' ? 'initial' : 'error'}
           >
-            {`Last print ${lastSettledTask.status.toLowerCase()} at `}
+            {`Print ${lastSettledTask.status.toLowerCase()} at `}
             {new Date(Date.parse(lastSettledTask.stoppedAt)).toLocaleString()}
           </Typography>
         )}

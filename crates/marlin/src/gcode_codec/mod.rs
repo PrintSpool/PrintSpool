@@ -71,15 +71,18 @@ impl Decoder for GCodeCodec {
             })
             .inspect(|(line, response)| {
                 // Logging
-                let log_level = match response {
+                let span = match response {
                     | Response::Ok(Some(Feedback::ActualTemperatures(_)))
                     | Response::Feedback(Feedback::Positions(_)) => {
-                        log::Level::Trace
+                        span!(tracing::Level::TRACE, "feedback")
                     },
-                    _ => log::Level::Debug,
+                    _ => {
+                        span!(tracing::Level::TRACE, "print")
+                    }
                 };
+                let _enter = span.enter();
 
-                log!(log_level, "RX {:?}", line);
+                trace!("RX {:?}", line);
             })
             .collect::<Vec<_>>();
 
@@ -118,11 +121,12 @@ impl Encoder<GCodeLine> for GCodeCodec {
     fn encode(&mut self, item: GCodeLine, dst: &mut BytesMut) -> Result<(), Self::Error> {
         let GCodeLine { gcode, line_number, checksum } = item;
 
-        let log_level = if gcode.starts_with("M105") || gcode.starts_with("M114") {
-            log::Level::Trace
+        let span = if gcode.starts_with("M105") || gcode.starts_with("M114") {
+            span!(tracing::Level::TRACE, "feedback")
         } else {
-            log::Level::Debug
+            span!(tracing::Level::TRACE, "print")
         };
+        let _enter = span.enter();
 
         let line = if let Some(line_number) = line_number {
             format!("N{:} {:}", line_number, gcode)
@@ -136,7 +140,7 @@ impl Encoder<GCodeLine> for GCodeCodec {
             line + "\n"
         };
 
-        log!(log_level, "TX {:?}", line);
+        trace!("TX {:?}", line);
 
         let line = line.as_bytes();
 

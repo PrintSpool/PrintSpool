@@ -29,22 +29,20 @@ use crate::{
 };
 
 #[derive(Default)]
-pub struct DeleteJobMutation;
+pub struct DeletePackageMutation;
 
 #[derive(async_graphql::InputObject)]
-struct DeleteJobInput {
-    // TODO: update graphql names to match latest Sled fields
-    #[graphql(name="jobID")]
+struct DeletePackageInput {
+    #[graphql(name="packageID")]
     package_id: ID,
 }
 
 #[async_graphql::Object]
-impl DeleteJobMutation {
-    /// create a Job from the content and fileName of a file upload.
-    async fn delete_job<'ctx>(
+impl DeletePackageMutation {
+    async fn delete_package<'ctx>(
         &self,
         ctx: &'ctx async_graphql::Context<'_>,
-        input: DeleteJobInput,
+        input: DeletePackageInput,
     ) -> FieldResult<Option<teg_common::Void>> {
         let db: &crate::Db = ctx.data()?;
         let mut tx = db.begin().await?;
@@ -71,9 +69,9 @@ impl DeleteJobMutation {
             .fetch_all(&mut tx)
             .await?;
 
-        let tasks = Task::from_rows(pending_tasks)?;
+        let mut tasks = Task::from_rows(pending_tasks)?;
 
-        for mut task in tasks.clone() {
+        for mut task in &mut tasks {
             task.status = TaskStatus::Cancelled(Cancelled {
                 cancelled_at: Utc::now(),
             });
@@ -84,13 +82,13 @@ impl DeleteJobMutation {
         // Soft delete the package
         let now= Utc::now();
         package.deleted_at = Some(now.clone());
-        package.insert_no_rollback(&mut tx).await?;
+        package.update(&mut tx).await?;
 
         // Soft delete the parts
         let parts = Package::get_parts(&mut tx, &package.id).await?;
         for mut part in parts {
             part.deleted_at = Some(now.clone());
-            part.insert_no_rollback(&mut tx).await?;
+            part.update(&mut tx).await?;
         }
 
         tx.commit().await?;

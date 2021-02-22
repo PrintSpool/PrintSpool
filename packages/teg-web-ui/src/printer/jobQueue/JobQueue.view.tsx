@@ -19,7 +19,7 @@ const JobQueueView = ({
   machines,
   nextPart,
   spoolNextPrint,
-  deleteJob,
+  deletePart,
   cancelTask,
   pausePrint,
   resumePrint,
@@ -27,7 +27,7 @@ const JobQueueView = ({
 }) => {
   const classes = useStyles()
 
-  console.log({ printQueues })
+  // console.log({ printQueues })
   const parts = printQueues.map(q => q.parts).flat()
 
   const statuses = machines.map(machine => machine.status)
@@ -156,7 +156,7 @@ const JobQueueView = ({
                         cancelTask,
                         pausePrint,
                         resumePrint,
-                        deleteJob,
+                        deletePart,
                         moveToTopOfQueue,
                       }}
                     />
