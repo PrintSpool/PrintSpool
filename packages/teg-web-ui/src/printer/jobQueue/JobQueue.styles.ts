@@ -5,6 +5,9 @@ const useStyles = makeStyles(theme => ({
   root: {
     overflow: 'scroll',
   },
+  endOfListMargin: {
+    paddingBottom: theme.spacing(15),
+  },
   dragging: {
     border: '4px dashed #666',
   },

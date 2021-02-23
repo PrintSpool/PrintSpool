@@ -55,8 +55,13 @@ pub async fn insert_print(
      * =========================================================================================
      */
 
+    const MB: usize = 1024 * 1024;
+
     let part_file = File::open(part_file_path).await?;
-    let gcodes = BufReader::new(part_file).lines();
+    let gcodes = BufReader::with_capacity(
+        10 * MB,
+        part_file,
+    ).lines();
 
     let hook = |hook_gcodes: &String| {
         let iter = hook_gcodes
@@ -76,66 +81,77 @@ pub async fn insert_print(
         .chain(gcodes)
         .chain(after_hook);
 
-    let annotated_gcodes = compile_macros(
+    let mut annotated_gcodes = compile_macros(
         machine.clone(),
         gcodes,
     );
 
     fs::create_dir_all(task_dir).await?;
     let task_file = File::create(&task_file_path).await?;
-    let gcodes_writer = BufWriter::new(task_file);
+    let mut gcodes_writer = BufWriter::with_capacity(
+        10 * MB,
+        task_file,
+    );
 
-    let (
-        mut gcodes_writer,
-        total_lines,
-        annotations,
-        estimated_print_time,
-        estimated_filament_meters,
-    ) = annotated_gcodes
-        .try_fold(
-            (gcodes_writer, 0u64, vec![], None, None),
-            |mut acc, item| {
-                async {
-                    let (
-                        gcodes_writer,
-                        total_lines,
-                        annotations,
-                        estimated_print_time,
-                        estimated_filament_meters,
-                    ) = &mut acc;
+    let start = std::time::Instant::now();
 
-                    match item {
-                        AnnotatedGCode::GCode(mut gcode) => {
-                            // Parse the print time and filament usage estimates
-                            use nom_gcode::{ parse_gcode, GCodeLine, DocComment };
+    let mut total_lines = 0u64;
+    let mut annotations = vec![];
+    let mut estimated_print_time = None;
+    let mut estimated_filament_meters= None;
 
-                            let doc = parse_gcode(&gcode);
-                            if let Ok((_, Some(GCodeLine::DocComment(doc)))) = doc {
-                                match doc {
-                                    DocComment::FilamentUsed { meters } => {
-                                        *estimated_filament_meters = Some(meters);
-                                    }
-                                    DocComment::PrintTime(time) => {
-                                        *estimated_print_time = Some(time);
-                                    }
-                                    _ => {}
-                                };
-                            };
-                            // Add the gcode
-                            *total_lines += 1;
-                            gcode.push('\n');
-                            gcodes_writer.write_all(&gcode.into_bytes()).await?;
+    let mut line_start = std::time::Instant::now();
+
+    while let Some(item) = annotated_gcodes.try_next().await? {
+        let read_in = line_start.elapsed();
+        let parse_start = std::time::Instant::now();
+
+        match item {
+            AnnotatedGCode::GCode(mut gcode) => {
+                // Parse the print time and filament usage estimates
+                use nom_gcode::{ parse_gcode, GCodeLine, DocComment };
+
+                let doc = parse_gcode(&gcode);
+                if let Ok((_, Some(GCodeLine::DocComment(doc)))) = doc {
+                    match doc {
+                        DocComment::FilamentUsed { meters } => {
+                            estimated_filament_meters = Some(meters);
                         }
-                        AnnotatedGCode::Annotation(annotation) => {
-                            annotations.push(annotation);
+                        DocComment::PrintTime(time) => {
+                            estimated_print_time = Some(time);
                         }
+                        _ => {}
                     };
+                };
+                // Add the gcode
+                let parsed_in = parse_start.elapsed();
+                let write_start = std::time::Instant::now();
 
-                    Ok(acc)
+                total_lines += 1;
+                gcode.push('\n');
+                gcodes_writer.write_all(&gcode.into_bytes()).await?;
+
+                let written_in = write_start.elapsed();
+
+                if total_lines % 10_000 == 0 {
+                    println!(
+                        "GCode Read: {:?} / Parse: {:?} / Write: {:?} / Total: {:?}",
+                        read_in,
+                        parsed_in,
+                        written_in,
+                        read_in + parsed_in + written_in,
+                    );
                 }
-            },
-        )
-        .await?;
+            }
+            AnnotatedGCode::Annotation(annotation) => {
+                annotations.push(annotation);
+            }
+        };
+
+        line_start = std::time::Instant::now();
+    };
+
+    println!("Print GCodes Parsed in: {:?}", start.elapsed());
 
     gcodes_writer.flush().await?;
     gcodes_writer.close().await?;
@@ -163,6 +179,7 @@ pub async fn insert_print(
         task,
         automatic_print,
     };
+
     let task = machine.call(msg).await??;
 
     Ok(task)

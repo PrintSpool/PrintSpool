@@ -168,6 +168,8 @@ const JobQueueView = ({
         })
       }
 
+      <div className={classes.endOfListMargin}/>
+
       {/* Add Job Button */}
       <Tooltip title="Add Job" placement="left">
         <Fab

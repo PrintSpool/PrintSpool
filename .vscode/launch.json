@@ -1,0 +1,422 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'teg_auth'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=teg_auth"
+        ],
+        "filter": {
+          "name": "teg_auth",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'teg-common'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=teg-common"
+        ],
+        "filter": {
+          "name": "teg-common",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'teg_json_store'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=teg-json-store"
+        ],
+        "filter": {
+          "name": "teg_json_store",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'teg-protobufs'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=teg-protobufs"
+        ],
+        "filter": {
+          "name": "teg-protobufs",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'teg_config_form'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=teg_config_form"
+        ],
+        "filter": {
+          "name": "teg_config_form",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'teg_data_channel'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=teg_data_channel"
+        ],
+        "filter": {
+          "name": "teg_data_channel",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'teg_machine'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=teg_machine"
+        ],
+        "filter": {
+          "name": "teg_machine",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'teg_material'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=teg_material"
+        ],
+        "filter": {
+          "name": "teg_material",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'teg_device'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=teg_device"
+        ],
+        "filter": {
+          "name": "teg_device",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'teg-macros'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=teg-macros"
+        ],
+        "filter": {
+          "name": "teg-macros",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'teg-marlin'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=teg-marlin"
+        ],
+        "filter": {
+          "name": "teg-marlin",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'teg-marlin'",
+      "cargo": {
+        "args": [
+          "build",
+          "--bin=teg-marlin",
+          "--package=teg-marlin"
+        ],
+        "filter": {
+          "name": "teg-marlin",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'teg-marlin'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=teg-marlin",
+          "--package=teg-marlin"
+        ],
+        "filter": {
+          "name": "teg-marlin",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'nom-reprap-response'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=nom-reprap-response"
+        ],
+        "filter": {
+          "name": "nom-reprap-response",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug benchmark 'parse_response_benchmark'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bench=parse_response_benchmark",
+          "--package=nom-reprap-response"
+        ],
+        "filter": {
+          "name": "parse_response_benchmark",
+          "kind": "bench"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in library 'teg_print_queue'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=teg-print-queue"
+        ],
+        "filter": {
+          "name": "teg_print_queue",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'teg-server'",
+      "cargo": {
+        "args": [
+          "build",
+          "--bin=teg-server",
+          "--package=teg-server"
+        ],
+        "filter": {
+          "name": "teg-server",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'teg-server'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=teg-server",
+          "--package=teg-server"
+        ],
+        "filter": {
+          "name": "teg-server",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'teg-invite'",
+      "cargo": {
+        "args": [
+          "build",
+          "--bin=teg-invite",
+          "--package=teg-server"
+        ],
+        "filter": {
+          "name": "teg-invite",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'teg-invite'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=teg-invite",
+          "--package=teg-server"
+        ],
+        "filter": {
+          "name": "teg-invite",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'teg-supervisor'",
+      "cargo": {
+        "args": [
+          "build",
+          "--bin=teg-supervisor",
+          "--package=teg-supervisor"
+        ],
+        "filter": {
+          "name": "teg-supervisor",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug unit tests in executable 'teg-supervisor'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--bin=teg-supervisor",
+          "--package=teg-supervisor"
+        ],
+        "filter": {
+          "name": "teg-supervisor",
+          "kind": "bin"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

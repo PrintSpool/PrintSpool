@@ -24,7 +24,7 @@ import useCreateJobMutation from './useCreateJobMutation'
 // `
 
 const PRINT_MUTATION = gql`
-  mutation print($input: SpoolJobFileInput!) {
+  mutation print($input: PrintInput!) {
     print(input: $input) { id }
   }
 `
