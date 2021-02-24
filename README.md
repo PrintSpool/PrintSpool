@@ -87,6 +87,10 @@ Note: Pi Bakery may be an easier alternative to the steps bellow Windows and Mac
 
 ## Troubleshooting
 
+### Known Issues
+
+- The print button can take 40 seconds or more to start a print when teg is running in development. This is due to some optimizations Cargo and Rust disable in development that strongly effect the performance of Nom's parsers and async Streams. Running teg in release (eg. `cargo run --release`) solves this issue.
+
 ### Enabling the RaspberryPi Camera
 
 To enable the PiCam on the Raspberry Pi run: `sudo modprobe bcm2835-v4l2`
