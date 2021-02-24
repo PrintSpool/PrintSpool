@@ -134,7 +134,7 @@ pub async fn insert_print(
                 let written_in = write_start.elapsed();
 
                 if total_lines % 10_000 == 0 {
-                    println!(
+                    trace!(
                         "GCode Read: {:?} / Parse: {:?} / Write: {:?} / Total: {:?}",
                         read_in,
                         parsed_in,
@@ -151,7 +151,7 @@ pub async fn insert_print(
         line_start = std::time::Instant::now();
     };
 
-    println!("Print GCodes Parsed in: {:?}", start.elapsed());
+    trace!("Print GCodes Parsed in: {:?}", start.elapsed());
 
     gcodes_writer.flush().await?;
     gcodes_writer.close().await?;
