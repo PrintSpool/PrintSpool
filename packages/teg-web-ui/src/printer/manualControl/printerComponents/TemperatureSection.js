@@ -4,7 +4,7 @@ import Typography from '@material-ui/core/Typography'
 import Switch from '@material-ui/core/Switch'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 
-import useExecGCodes from '../../_hooks/useExecGCodes'
+import { useExecGCodes2 } from '../../_hooks/useExecGCodes'
 
 // import TemperatureSectionStyles from './TemperatureSectionStyles'
 
@@ -25,12 +25,12 @@ const TemperatureSection = ({
 
   // const classes = TemperatureSectionStyles()
 
-  const toggleHeater = useExecGCodes((e, enable) => ({
+  const toggleHeater = useExecGCodes2((e, enable) => ({
     machineID: machine.id,
     gcodes: [
       { toggleHeaters: { heaters: { [address]: enable } } },
     ],
-  }), [id])
+  }), [id], { throwOnError: false })
 
   const isHeating = (targetTemperature || 0) > 0
 
@@ -51,7 +51,7 @@ const TemperatureSection = ({
             control={(
               <Switch
                 checked={isHeating}
-                onChange={toggleHeater}
+                onChange={toggleHeater.run}
                 disabled={disabled}
                 aria-label="heating"
               />

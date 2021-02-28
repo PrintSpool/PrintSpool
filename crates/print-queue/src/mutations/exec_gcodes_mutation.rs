@@ -81,97 +81,106 @@ impl ExecGCodesMutation {
         let machine = machines.get(&input.machine_id)
             .ok_or_else(|| format!("No machine found for ID: {:?}", input.machine_id))?;
 
-        let machine_id = input.machine_id.to_string();
+        async move {
+            let machine_id = input.machine_id.to_string();
 
-        let machine_override = input.r#override.unwrap_or(false);
+            let machine_override = input.r#override.unwrap_or(false);
 
-        /*
-         * Preprocess GCodes
-         * =========================================================================================
-         */
+            /*
+            * Preprocess GCodes
+            * =========================================================================================
+            */
 
-        // Normalize the JSON HashMaps into strings. Later JSON lines will be deserialized
-        // the specific macro's input.
-        let gcodes: Vec<String> = input.gcodes
-            .iter()
-            .flat_map(|line| {
-                match &line.0 {
-                    GCodeLine::String(lines) => {
-                        // Split newlines
-                        lines.split('\n')
-                            .map(|line| Ok(line.to_string()))
-                            .collect()
-                    },
-                    GCodeLine::Json(any_macro) => {
-                        let result = serde_json::to_string(any_macro)
-                            .with_context(|| "Unable to serialize execGCodes json gcode");
+            // Normalize the JSON HashMaps into strings. Later JSON lines will be deserialized
+            // the specific macro's input.
+            let gcodes: Vec<String> = input.gcodes
+                .iter()
+                .flat_map(|line| {
+                    match &line.0 {
+                        GCodeLine::String(lines) => {
+                            // Split newlines
+                            lines.split('\n')
+                                .map(|line| Ok(line.to_string()))
+                                .collect()
+                        },
+                        GCodeLine::Json(any_macro) => {
+                            let result = serde_json::to_string(any_macro)
+                                .with_context(|| "Unable to serialize execGCodes json gcode");
 
-                        vec![result]
-                    },
-                }
-            })
-            .collect::<Result<_>>()?;
+                            vec![result]
+                        },
+                    }
+                })
+                .collect::<Result<_>>()?;
 
-        /*
-         * Insert task and sync task completion
-         * =========================================================================================
-         */
-        let mut tx = db.begin().await?;
+            /*
+            * Insert task and sync task completion
+            * =========================================================================================
+            */
+            let mut tx = db.begin().await?;
 
-        let task = crate::task_from_gcodes(
-            &machine_id,
-            machine.clone(),
-            machine_override,
-            gcodes,
-        ).await?;
-        task.insert_no_rollback(&mut tx).await?;
+            let task = crate::task_from_gcodes(
+                &machine_id,
+                machine.clone(),
+                machine_override,
+                gcodes,
+            ).await?;
+            task.insert_no_rollback(&mut tx).await?;
 
-        // Sync Mode: Initialize a watcher so that it can be used later
-        let watcher = if input.sync.unwrap_or(false) {
-            let watcher = TaskCompletionWatcher {
-                task_id: task.id.clone(),
+            // Sync Mode: Initialize a watcher so that it can be used later
+            let watcher = if input.sync.unwrap_or(false) {
+                let watcher = TaskCompletionWatcher {
+                    task_id: task.id.clone(),
+                };
+                let watcher = watcher
+                    .start()
+                    .await?;
+                Some(watcher)
+            } else {
+                None
             };
-            let watcher = watcher
-                .start()
-                .await?;
-            Some(watcher)
-        } else {
-            None
-        };
 
-        tx.commit().await?;
+            tx.commit().await?;
 
-        let msg = SpoolTask {
-            task,
-        };
-        let task = machine.call(msg).await??;
+            let msg = SpoolTask {
+                task,
+            };
+            let task = machine.call(msg).await??;
 
-        // Sync Mode: Block until the task is settled
-        if let Some(watcher) = watcher {
-            watcher
-                .wait_for_stop()
-                .await;
+            // Sync Mode: Block until the task is settled
+            if let Some(watcher) = watcher {
+                watcher
+                    .wait_for_stop()
+                    .await;
 
-            // Refresh the task
-            let task = Task::get(db, &task.id).await?;
+                // Refresh the task
+                let task = Task::get(db, &task.id).await?;
 
-            match task.status {
-                TaskStatus::Finished(_) => {
-                    Ok(task)
-                },
-                TaskStatus::Cancelled(_) => {
-                    Err(eyre!("Task Cancelled"))?
+                match task.status {
+                    TaskStatus::Finished(_) => {
+                        Ok(task)
+                    },
+                    TaskStatus::Cancelled(_) => {
+                        Err(eyre!("Task Cancelled"))?
+                    }
+                    TaskStatus::Errored(error) => {
+                        Err(eyre!(error.message))?
+                    }
+                    invalid_status => {
+                        Err(eyre!("Task settled with invalid status: {:?}", invalid_status))?
+                    }
                 }
-                TaskStatus::Errored(error) => {
-                    Err(eyre!(error.message))?
-                }
-                invalid_status => {
-                    Err(eyre!("Task settled with invalid status: {:?}", invalid_status))?
-                }
+            } else {
+                Result::<_>::Ok(task)
             }
-        } else {
-            Ok(task)
         }
+        // log the backtrace which is otherwise lost by FieldResult
+        .await
+        .map_err(|err| {
+            warn!("{:?}", err);
+            err.into()
+        })
+
     }
 }
 

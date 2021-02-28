@@ -1,8 +1,9 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useMutation } from '@apollo/client'
 import { useAsync } from 'react-async'
 
 import { gql } from '@apollo/client'
+import { useSnackbar } from 'notistack'
 
 export const EXEC_GCODES = gql`
   mutation execGCodes($input: ExecGCodesInput!) {
@@ -43,7 +44,11 @@ const useExecGCodes = (callback, dependencies) => {
 }
 
 // TODO: transition to this version everywhere for easier react-async workflows
-export const useExecGCodes2 = (callback, dependencies) => {
+export const useExecGCodes2 = (callback, dependencies, {
+  throwOnError = false,
+  snackbarOnError = true,
+} = {}) => {
+  const { enqueueSnackbar } = useSnackbar()
   const [execGCodes] = useMutation(EXEC_GCODES)
 
   const asyncExecGCodes = useAsync({
@@ -79,7 +84,19 @@ export const useExecGCodes2 = (callback, dependencies) => {
     },
   }, dependencies)
 
-  if (asyncExecGCodes.error) {
+  if (snackbarOnError) {
+    useEffect(() => {
+      if (asyncExecGCodes.isSettled && asyncExecGCodes.error) {
+        // // eslint-disable-next-line no-console
+        // console.error(asyncExecGCodes.error)
+        enqueueSnackbar(asyncExecGCodes.error.message, {
+          variant: 'error',
+        })
+      }
+    }, [asyncExecGCodes.error, asyncExecGCodes.isSettled])
+  }
+
+  if (throwOnError && asyncExecGCodes.error) {
     // eslint-disable-next-line no-console
     console.error(asyncExecGCodes.error)
     throw new Error(asyncExecGCodes.error)

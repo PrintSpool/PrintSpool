@@ -5,7 +5,7 @@ use super::ComponentInner;
 
 /// # Video
 #[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct VideoConfig {
     /// # Name
     // TODO: validate: #[schemars(min_length = 1)]

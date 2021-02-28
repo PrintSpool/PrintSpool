@@ -36,12 +36,14 @@ const normalizeAllProperties = (originalProperties = {}) => {
     // console.log(property)
     properties[key] = normalizeProperty(property)
   })
+
+  return properties
 }
 
 const useSchemaValidation = ({ schema: originalSchema } = {}) => (
   useMemo(() => {
     if (originalSchema == null) return () => ({})
-    console.log({ originalSchema })
+    // console.log({ originalSchema })
 
     const ajv = new Ajv({
       allErrors: true,
@@ -70,11 +72,12 @@ const useSchemaValidation = ({ schema: originalSchema } = {}) => (
       properties,
       definitions,
     }
-    // console.log({ schema })
+    // console.log({ schema, originalSchema })
 
     const validateWithAJV = ajv.compile(schema)
 
     const validate = (data) => {
+      // console.log('VALIDATE', data)
       const valid = validateWithAJV(data)
       const errors = {}
 
@@ -84,6 +87,11 @@ const useSchemaValidation = ({ schema: originalSchema } = {}) => (
             error.params.missingProperty
             || error.dataPath.replace('.', '')
           )
+          if (fieldName === '') {
+            // eslint-disable-next-line no-console
+            console.error({ error })
+          }
+
           errors[fieldName] = error.message
         })
       }

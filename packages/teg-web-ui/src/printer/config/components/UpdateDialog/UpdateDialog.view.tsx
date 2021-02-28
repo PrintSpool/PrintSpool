@@ -7,6 +7,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
 import Button from '@material-ui/core/Button'
+import Typography from '@material-ui/core/Typography'
 
 import FormikSchemaForm from '../FormikSchemaForm/index'
 import StatusFilter from '../../../../common/StatusFilter'
@@ -27,7 +28,7 @@ const UpdateDialogView = ({
   deleteButton = false,
   transformSchema = schema => schema,
 }) => {
-  console.log({ data }, data.schemaForm.schema)
+  // console.log({ data }, data.schemaForm.schema)
   const validate = useSchemaValidation({ schema: data.schemaForm.schema })
 
   return (
@@ -68,6 +69,11 @@ const UpdateDialogView = ({
                     form={data.schemaForm.form}
                     values={props.values}
                   />
+                  { props.errors[''] && (
+                    <Typography color="error">
+                      {props.errors['']}
+                    </Typography>
+                  )}
                 </DialogContent>
               </StatusFilter>
               <DialogActions>

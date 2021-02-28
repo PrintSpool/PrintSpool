@@ -1,4 +1,3 @@
--- Add migration script here
 CREATE TABLE materials(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
@@ -51,7 +50,7 @@ CREATE TABLE tasks(
   version INT NOT NULL DEFAULT 0,
 
   machine_id TEXT NOT NULL,
-  part_id TEXT NOT NULL,
+  part_id TEXT,
   status TEXT NOT NULL,
 
   props TEXT NOT NULL

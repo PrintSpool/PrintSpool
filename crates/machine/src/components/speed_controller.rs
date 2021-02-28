@@ -6,7 +6,7 @@ use super::ComponentInner;
 
 /// # Fan
 #[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct SpeedControllerConfig {
     /// # Name
     // TODO: validate: #[schemars(min_length = 1)]
