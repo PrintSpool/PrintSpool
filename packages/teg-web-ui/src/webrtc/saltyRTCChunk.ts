@@ -17,6 +17,13 @@ const splitSlice = (str, len) => {
 export const RELIABLE_ORDERED = 'RELIABLE_ORDERED'
 export const UNORDERED_UNRELIABLE = 'UNORDERED_UNRELIABLE'
 
+// Per https://stackoverflow.com/a/56330726
+const MAX_MESSAGE_SIZE = 256 * 1024 - 1
+
+// Theoretically 1GB messages may be possible in Firefox but I have not had luck with them yet:
+// https://blog.mozilla.org/webrtc/large-data-channel-messages/
+// const MAX_MESSAGE_SIZE = 1024 * 1024 * 1024 - 1
+
 /*
  * 1 byte for S|H|C, 16 bytes for the message's ID, 1 byte for ':'
  * Note: the message ID is repeated in each chunk for that message
@@ -91,7 +98,7 @@ const setImmediate = fn => setTimeout(fn, 0)
 export const chunkifier = (opts, callback) => {
   const {
     mode,
-    maximumMessageSize = 65535,
+    maximumMessageSize = MAX_MESSAGE_SIZE,
   } = opts
 
   const maxPayloadSize = maximumMessageSize - headerBytes[mode]

@@ -109,6 +109,17 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
   }
 
   send(message: string) {
+    if (localStorage.getItem('PRINT_STRINGIFY_TIMES') === '1' && message.length >= 1_000_000) {
+      const json = JSON.parse(message)
+      const startTime = performance.now()
+      const serialized = JSON.stringify(json)
+      const endTime = performance.now()
+      const mb = serialized.length / 1_000_000
+      const millis = endTime - startTime
+      const mbPerSecond = Math.round(mb / (millis / 1000))
+      console.log(`${Math.round(mb)}MB serialized in ${Math.round(millis)}ms = ${mbPerSecond} MB/s`)
+    }
+
     // console.log(`SEND: ${message}`)
     this.chunkifier(message)
   }

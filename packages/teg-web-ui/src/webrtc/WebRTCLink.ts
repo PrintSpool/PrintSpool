@@ -3,9 +3,11 @@ import { print, GraphQLError } from 'graphql'
 import { createClient, Client } from 'graphql-ws'
 
 import WebRTCSocket from './WebRTCSocket'
-import type { WebRTCOptions } from './WebRTCSocket'
 
-export const INSECURE_LOCAL_CONNECTION = process.env.INSECURE_LOCAL_CONNECTION === '1'
+export const INSECURE_LOCAL_CONNECTION = (
+  process.env.INSECURE_LOCAL_CONNECTION === '1'
+  && localStorage.getItem('INSECURE_LOCAL_CONNECTION') === '1'
+)
 
 const randomisedExponentialBackoff = async (retries) => {
   let retryDelay = 60_000; // start with 3s delay

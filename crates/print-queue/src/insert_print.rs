@@ -34,6 +34,7 @@ use crate::{
     part::Part,
 };
 
+#[instrument(skip(db, machine))]
 pub async fn insert_print(
     db: &crate::Db,
     machine: xactor::Addr<Machine>,
@@ -102,27 +103,36 @@ pub async fn insert_print(
 
     let mut line_start = std::time::Instant::now();
 
+    info!("Parsing Print");
+
     while let Some(item) = annotated_gcodes.try_next().await? {
         let read_in = line_start.elapsed();
         let parse_start = std::time::Instant::now();
+
+        let should_parse_line =
+            total_lines < 1000
+            && estimated_filament_meters == None
+            && estimated_print_time == None;
 
         match item {
             AnnotatedGCode::GCode(mut gcode) => {
                 // Parse the print time and filament usage estimates
                 use nom_gcode::{ parse_gcode, GCodeLine, DocComment };
 
-                let doc = parse_gcode(&gcode);
-                if let Ok((_, Some(GCodeLine::DocComment(doc)))) = doc {
-                    match doc {
-                        DocComment::FilamentUsed { meters } => {
-                            estimated_filament_meters = Some(meters);
-                        }
-                        DocComment::PrintTime(time) => {
-                            estimated_print_time = Some(time);
-                        }
-                        _ => {}
+                if should_parse_line {
+                    let doc = parse_gcode(&gcode);
+                    if let Ok((_, Some(GCodeLine::DocComment(doc)))) = doc {
+                        match doc {
+                            DocComment::FilamentUsed { meters } => {
+                                estimated_filament_meters = Some(meters);
+                            }
+                            DocComment::PrintTime(time) => {
+                                estimated_print_time = Some(time);
+                            }
+                            _ => {}
+                        };
                     };
-                };
+                }
                 // Add the gcode
                 let parsed_in = parse_start.elapsed();
                 let write_start = std::time::Instant::now();
@@ -131,9 +141,9 @@ pub async fn insert_print(
                 gcode.push('\n');
                 gcodes_writer.write_all(&gcode.into_bytes()).await?;
 
-                let written_in = write_start.elapsed();
+                if should_parse_line && total_lines % 500 == 0 {
+                    let written_in = write_start.elapsed();
 
-                if total_lines % 10_000 == 0 {
                     trace!(
                         "GCode Read: {:?} / Parse: {:?} / Write: {:?} / Total: {:?}",
                         read_in,
@@ -151,7 +161,7 @@ pub async fn insert_print(
         line_start = std::time::Instant::now();
     };
 
-    trace!("Print GCodes Parsed in: {:?}", start.elapsed());
+    info!("Print GCodes Parsed in: {:?}", start.elapsed());
 
     gcodes_writer.flush().await?;
     gcodes_writer.close().await?;
@@ -207,7 +217,6 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
         } = msg;
 
         let mut tx = self.db.begin().await?;
-
         let machine = self.get_data()?;
 
         let part_id = task.part_id
