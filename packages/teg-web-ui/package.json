@@ -85,7 +85,7 @@
     "simple-peer": "^9.6.0",
     "strip-newlines": "^1.0.1",
     "subscriptions-transport-ws": "^0.9.4",
-    "three": "^0.103.0",
+    "three": "^0.125.0",
     "three-gcode-loader": "^1.0.1",
     "truncate": "^2.1.0",
     "typeface-roboto": "^0.0.54",
