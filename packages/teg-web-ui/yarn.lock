@@ -14812,10 +14812,10 @@ three-gcode-loader@^1.0.1:
   resolved "https://registry.yarnpkg.com/three-gcode-loader/-/three-gcode-loader-1.0.7.tgz#e4c8b7bd81f83fa86311d0fc521f8c51e083fa92"
   integrity sha512-xy/nkfeMzbymwrRXlXYJ/2ssh6AazIGLsmpGHYmaL+YRNzTQdttLkEuSxiE0Z5vc3PYZ7IoG+QZGtJtqo6zC5g==
 
-three@^0.103.0:
-  version "0.103.0"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.103.0.tgz#63b3dbccc861caad93269618061a73dadebae71b"
-  integrity sha512-4WKRHTMt96sp+lX+Hx/eHtN9CWFyejDqr1ikgxZUJIkKEHVglSE7FY8n81NC6yWXqVSjUIQQppaxsoUe26Zi9g==
+three@^0.125.0:
+  version "0.125.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.125.0.tgz#19e922b9dc51ad0b706893aeee888de68e99850a"
+  integrity sha512-qL36qUGsPQ/Ofo/RZdXwHwM7A8wzUSAIyawtjIebJSPvounUQeneSqxI0aBY2iwKpseGy+RUtj3C5f/z4poyXw==
 
 throat@^4.0.0:
   version "4.1.0"
