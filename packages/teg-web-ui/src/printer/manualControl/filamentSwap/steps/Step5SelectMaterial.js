@@ -28,9 +28,11 @@ const Step5SelectMaterial = ({
     component.configForm.model.materialID,
   )
 
+  const hasMaterialLoaded = component.toolhead.material != null
+
   const [setMaterialsMutation] = useMutation(gql`
     mutation setMaterials($input: SetMaterialsInput!) {
-      setMaterials(input: $input)
+      setMaterials(input: $input) { id }
     }
   `)
 
@@ -69,7 +71,7 @@ const Step5SelectMaterial = ({
 
         <TextField
           label={t('selectMaterial.materialWord')}
-          value={materialID}
+          value={materialID||''}
           onChange={useCallback(e => setMaterialID(e.target.value))}
           select
           margin="normal"
@@ -100,7 +102,7 @@ const Step5SelectMaterial = ({
       )}
 
       <ButtonsFooter
-        backTo={-1}
+        backTo={hasMaterialLoaded ? -1 : 0}
         onClickNext={saveAndGoToNext.run}
         disabledNext={saveAndGoToNext.isPending}
       />

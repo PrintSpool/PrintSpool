@@ -26,40 +26,40 @@ import useStyles from './FilamentSwapDialogStyles'
 import { useMutation } from '@apollo/client'
 
 const FILAMENT_SWAP_SUBSCRIPTION = gql`
-  subscription MaterialsSubscription($machineID: ID, $componentID: ID) {
-    live {
-      patch { op, path, from, value }
-      query {
-        machines(machineID: $machineID) {
+  fragment QueryFragment on Query {
+    machines(input: { machineID: $machineID }) {
+      id
+      status
+      components(input: { componentID: $componentID }) {
+        id
+        address
+        name
+        configForm {
           id
-          status
-          components(componentID: $componentID) {
+          model
+        }
+        toolhead {
+          currentMaterial {
             id
-            address
-            name
-            configForm {
-              id
-              model
-            }
-            heater {
-              actualTemperature
-              targetTemperature
-              materialTarget
-              history {
-                id
-                createdAt
-                actualTemperature
-                targetTemperature
-              }
-            }
           }
         }
-        materials {
-          id
-          name
-          shortSummary
+        heater {
+          actualTemperature
+          targetTemperature
+          materialTarget
+          history {
+            id
+            createdAt
+            actualTemperature
+            targetTemperature
+          }
         }
       }
+    }
+    materials {
+      id
+      name
+      shortSummary
     }
   }
 `
@@ -101,8 +101,8 @@ const steps = [
 
 const ESTOP_AND_RESET = gql`
   mutation reset($machineID: ID!) {
-    reset(machineID: $machineID)
-    eStop(machineID: $machineID)
+    stop(machineID: $machineID) { id }
+    reset(machineID: $machineID) { id }
   }
 `
 
@@ -120,6 +120,7 @@ const FilamentSwapDialog = ({
     loading,
     error,
   } = useLiveSubscription(FILAMENT_SWAP_SUBSCRIPTION, {
+    variablesDef: '($machineID: ID, $componentID: ID)',
     variables: {
       componentID,
       machineID,

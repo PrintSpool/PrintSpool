@@ -11,13 +11,18 @@ const filamentSwapEn = {
   // Steps
   intro: {
     content: deline`
-      When you're ready Teg will heat {{name}} to {{materialTarget}}°C and then retract the 
+      When you're ready Teg will heat {{name}} to {{materialTarget}}°C and then retract the
       filament {{distance}}mm to remove it from the extruder.
     `,
     skipContent: deline`
       If you have already removed your filament you can skip this step.
     `,
     skipButton: 'Skip to selecting a new material',
+    noMaterial: deline`
+      Teg is not aware of any filament loaded in your 3D printer. Make sure your 3D printer
+      does not have any filament in it before skipping to selecting a new material or go to
+      Settings/Components to update your printer's settings.
+    `,
   },
   heatExtruder: {
     title: deline`
@@ -49,7 +54,7 @@ const filamentSwapEn = {
       `,
       button: 'Load your new filament',
       details: deline`
-        Your 3D printer will quickly load {{bowdenTubeLength}}mm of filament and then prime the hot 
+        Your 3D printer will quickly load {{bowdenTubeLength}}mm of filament and then prime the hot
         end with a {{filamentSwapExtrudeDistance}}mm test extrusion.
       `,
       warningWord: 'Warning',

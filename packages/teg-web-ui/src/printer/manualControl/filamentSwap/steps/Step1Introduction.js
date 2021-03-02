@@ -25,6 +25,8 @@ const Step1Introduction = ({
     beforeFilamentSwapHook = '',
   } = component.configForm.model
 
+  const hasMaterialLoaded = component.toolhead.material != null
+
   const execBeforeHook = useExecGCodes2(() => ({
     machine,
     gcodes: [beforeFilamentSwapHook],
@@ -41,16 +43,31 @@ const Step1Introduction = ({
         <Typography variant="h6" paragraph id="material-dialog-title">
           {t('title')}
         </Typography>
-        <Typography variant="body1" paragraph>
-          {t('intro.content', {
-            name: component.name,
-            materialTarget: component.heater.materialTarget,
-            distance,
-          })}
-        </Typography>
-        <Typography variant="body1" paragraph>
-          {t('intro.skipContent')}
-        </Typography>
+        { !hasMaterialLoaded && (
+          <>
+            <Typography variant="body1" paragraph color="error">
+              Warning: No Filament
+            </Typography>
+            <Typography variant="body1" paragraph>
+              {t('intro.noMaterial', {
+              })}
+            </Typography>
+          </>
+        )}
+        { hasMaterialLoaded && (
+          <>
+            <Typography variant="body1" paragraph>
+              {t('intro.content', {
+                name: component.name,
+                materialTarget: component.heater.materialTarget,
+                distance,
+              })}
+            </Typography>
+            <Typography variant="body1" paragraph>
+              {t('intro.skipContent')}
+            </Typography>
+          </>
+        )}
         <Button
           variant="outlined"
           onClick={() => setActiveStep(4)}
@@ -60,9 +77,7 @@ const Step1Introduction = ({
       </div>
 
       <ButtonsFooter
-        skipButton={{
-          step: 4,
-        }}
+        disabledNext={!hasMaterialLoaded}
       />
     </React.Fragment>
   )

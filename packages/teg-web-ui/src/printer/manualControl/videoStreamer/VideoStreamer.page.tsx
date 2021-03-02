@@ -67,7 +67,7 @@ const VideoStreamerPage = (props: any) => {
   }
 
   const loadVideo = useCallback(async () => {
-    console.log('Starting Video Streamer')
+    // console.log('Starting Video Streamer')
 
     const mediaConstraints = {
       offerToReceiveAudio: false,
@@ -97,17 +97,17 @@ const VideoStreamerPage = (props: any) => {
       },
     })
 
-    console.log('answer', data.createVideoSDP.answer)
+    // console.log('answer', data.createVideoSDP.answer)
     p.signal(data.createVideoSDP.answer)
 
-    console.log('createVideoSDP ice candidates', data.createVideoSDP.iceCandidates)
+    // console.log('createVideoSDP ice candidates', data.createVideoSDP.iceCandidates)
 
     data.createVideoSDP.iceCandidates.forEach((candidate) => {
       p.signal({ candidate })
     })
 
     const updateIceCandidates = async () => {
-      console.log('querying ice candidates')
+      // console.log('querying ice candidates')
 
       const { data: { iceCandidates } } = await apollo.query({
         query: queryIceCandidates,
@@ -116,7 +116,7 @@ const VideoStreamerPage = (props: any) => {
         },
       })
 
-      console.log({ iceCandidates })
+      // console.log({ iceCandidates })
 
       iceCandidates.forEach((candidate) => {
         p.signal({ candidate })
@@ -125,7 +125,7 @@ const VideoStreamerPage = (props: any) => {
     const iceCandidatePollingInterval = setInterval(updateIceCandidates, 300)
 
     p.on('connect', () => {
-      console.log('CONNECT')
+      // console.log('CONNECT')
       clearInterval(iceCandidatePollingInterval)
     })
 
@@ -137,9 +137,9 @@ const VideoStreamerPage = (props: any) => {
     //   }
     // })
 
-    console.log("wait for stream???")
+    // console.log("wait for stream???")
     const stream = await new Promise(resolve => p.on('stream', resolve))
-    console.log({ stream })
+    // console.log({ stream })
 
     // got remote video stream, now let's show it in a video tag
     if ('srcObject' in videoEl.current) {

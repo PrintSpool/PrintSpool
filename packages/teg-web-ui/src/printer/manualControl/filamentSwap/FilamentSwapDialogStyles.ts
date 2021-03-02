@@ -43,6 +43,6 @@ const useStyles = makeStyles(theme => ({
   loadFilamentRoot: {
     gridArea: '1 / 1',
   },
-}), { useTheme: true })
+}))
 
 export default useStyles
