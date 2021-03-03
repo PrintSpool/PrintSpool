@@ -188,7 +188,13 @@ struct TaskCompletionWatcher {
     pub task_id: crate::DbId,
 }
 
-impl xactor::Actor for TaskCompletionWatcher {}
+#[async_trait::async_trait]
+impl xactor::Actor for TaskCompletionWatcher {
+    async fn started(&mut self, ctx: &mut xactor::Context<Self>) -> Result<()>  {
+        ctx.subscribe::<TaskSettled>().await?;
+        Ok(())
+    }
+}
 
 #[async_trait::async_trait]
 impl xactor::Handler<TaskSettled> for TaskCompletionWatcher {
@@ -197,6 +203,7 @@ impl xactor::Handler<TaskSettled> for TaskCompletionWatcher {
         ctx: &mut xactor::Context<Self>,
         msg: TaskSettled
     ) -> () {
+        // info!("TASK COMPLETED: {:?}", msg);
         if msg.task_id == self.task_id {
             ctx.stop(None);
         }

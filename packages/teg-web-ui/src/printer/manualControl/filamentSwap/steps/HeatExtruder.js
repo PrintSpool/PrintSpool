@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 
 import ButtonsFooter from '../ButtonsFooter'
 import TemperatureChart from '../../TemperatureChart'
-import useExecGCodes from '../../../_hooks/useExecGCodes'
+import { useExecGCodes2 } from '../../../_hooks/useExecGCodes'
 
 import HeatExtruderStyles from './HeatExtruderStyles'
 
@@ -18,7 +18,7 @@ const HeatExtruder = ({
   const classes = HeatExtruderStyles()
   const { t } = useTranslation('filamentSwap')
 
-  const heatExtruder = useExecGCodes(() => ({
+  const heatExtruder = useExecGCodes2(() => ({
     machine,
     gcodes: [
       { toggleHeaters: { heaters: { [component.address]: true }, sync: true } },
@@ -29,7 +29,7 @@ const HeatExtruder = ({
   }))
 
   useEffect(() => {
-    if (active) heatExtruder()
+    if (active) heatExtruder.run()
   }, [active])
 
   const {
