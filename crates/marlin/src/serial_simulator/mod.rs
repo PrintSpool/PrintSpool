@@ -1,13 +1,21 @@
 use eyre::{
-    eyre,
+    // eyre,
     Context as _,
     Result,
 };
 use futures::{SinkExt, StreamExt};
-use std::{io, str};
+use std::{io, str, cmp};
 use tokio_util::codec::{Decoder, Encoder};
 use bytes::{BufMut, BytesMut};
 use rand::Rng;
+use nom_gcode::{
+    GCodeLine,
+    Mnemonic::{
+        // self,
+        Miscellaneous as M,
+        // General as G,
+    },
+};
 
 pub struct SerialSimulator;
 
@@ -21,6 +29,11 @@ impl SerialSimulator {
         let greeting = include_str!("greeting.txt").trim().to_string();
         sender.send(greeting).await?;
 
+        let mut extruder = 22f32;
+        let mut extruder_target = 0f32;
+        let mut bed = 22f32;
+        let mut bed_target = 22f32;
+
         while let Some(line_result) = reader.next().await {
             // let mut rng = rand::thread_rng();
 
@@ -32,20 +45,101 @@ impl SerialSimulator {
                 continue;
             }
 
-            let mut words = line
-                .split_ascii_whitespace()
-                .skip(if line.starts_with('N') { 1 } else { 0 });
+            let (_, gcode) = nom_gcode::parse_gcode(&line)?;
 
-            let gcode = words.next()
-                .ok_or_else(|| eyre!("unable to parse line: {:?}", line))?;
+            let gcode = if let Some(GCodeLine::GCode(gcode)) = gcode {
+                gcode
+            } else {
+                continue;
+            };
 
-            let response = match gcode {
-                "M105" => format!(
-                    "ok T:{extruder} /0.0 B:{bed} /0.0 B@:0 @:0",
-                    extruder = rand::thread_rng().gen_range(70..90),
-                    bed = rand::thread_rng().gen_range(20..30),
-                ),
-                "M114" => format!(
+            let response = match (&gcode.mnemonic, &gcode.major) {
+                // Set Hotend
+                (M, 104) => {
+                    if let Some((_, Some(target))) = gcode.arguments()
+                        .find(|(key, _)| key == &'S')
+                    {
+                        extruder_target = *target;
+                    }
+
+                    while extruder < extruder_target {
+                        tokio::time::delay_for(
+                            std::time::Duration::from_millis(500)
+                        )
+                            .await;
+
+                        extruder += rand::thread_rng().gen_range(20f32..30f32);
+                        bed += rand::thread_rng().gen_range(-2f32..2f32);
+
+                        if (bed as i64) < 0i64 {
+                            bed = 0f32
+                        }
+
+                        let feedback = format!(
+                            "T:{extruder} /0.0 B:{bed} /0.0 B@:0 @:0",
+                            extruder = extruder,
+                            bed = bed,
+                        );
+                        sender.send(feedback.to_string()).await?;
+                    };
+
+                    "ok".to_string()
+                },
+                // Set Bed
+                (M, 140) => {
+                    if let Some((_, Some(target))) = gcode.arguments()
+                        .find(|(key, _)| key == &'S')
+                    {
+                        bed_target = *target;
+                    }
+
+                    while bed < bed_target {
+                        tokio::time::delay_for(
+                            std::time::Duration::from_millis(500)
+                        )
+                            .await;
+
+                        extruder += rand::thread_rng().gen_range(-2f32..2f32);
+                        bed += rand::thread_rng().gen_range(5f32..15f32);
+
+                        if (extruder as i64) < 0i64 {
+                            extruder = 0f32
+                        }
+
+                        let feedback = format!(
+                            "T:{extruder} /0.0 B:{bed} /0.0 B@:0 @:0",
+                            extruder = extruder,
+                            bed = bed,
+                        );
+                        sender.send(feedback.to_string()).await?;
+                    };
+
+                    "ok".to_string()
+                },
+                (M, 105) => {
+                    extruder +=
+                        (cmp::max(extruder_target as i64, 22i64) as f32 - extruder).signum()
+                        * rand::thread_rng().gen_range(0f32..5f32);
+
+                    bed +=
+                        (cmp::max(bed_target as i64, 22i64) as f32 - bed).signum()
+                        * rand::thread_rng().gen_range(0f32..5f32);
+
+                    if (extruder as i64) <= 0i64 {
+                        extruder = 0f32
+                    }
+
+                    if (bed as i64) <= 0i64 {
+                        bed = 0f32
+                    }
+
+                    format!(
+                        "ok T:{extruder} /0.0 B:{bed} /0.0 B@:0 @:0",
+                        extruder = extruder,
+                        bed = bed,
+                    )
+                },
+                (M, 114) => format!(
                     "X:{x} Y:{y} Z:{z} E:0.00 Count X: 0.00Y:0.00Z:0.00\nok",
                     x = 25.0,
                     y = 50.0,
