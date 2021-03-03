@@ -26,6 +26,9 @@ const useStyles = makeStyles(theme => ({
   },
   introRoot: {
   },
+  updateSettingsBeforeSwap: {
+    marginBottom: theme.spacing(2),
+  },
   skipToFilamentSelectionButton: {
     float: 'right',
   },

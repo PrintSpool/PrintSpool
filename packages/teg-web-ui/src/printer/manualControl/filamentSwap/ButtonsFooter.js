@@ -1,9 +1,7 @@
 import React, { useContext, useCallback } from 'react'
 
-import {
-  Button,
-  MobileStepper,
-} from '@material-ui/core'
+import Button from '@material-ui/core/Button'
+import MobileStepper from '@material-ui/core/MobileStepper'
 
 import { useTheme } from '@material-ui/core/styles'
 

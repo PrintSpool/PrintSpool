@@ -28,7 +28,7 @@ const Step5SelectMaterial = ({
     component.configForm.model.materialID,
   )
 
-  const hasMaterialLoaded = component.toolhead.material != null
+  const hasMaterialLoaded = component.toolhead.currentMaterial != null
 
   const [setMaterialsMutation] = useMutation(gql`
     mutation setMaterials($input: SetMaterialsInput!) {

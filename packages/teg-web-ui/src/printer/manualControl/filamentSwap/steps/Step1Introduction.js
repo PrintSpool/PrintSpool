@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react'
-import {
-  Typography,
-  Button,
-} from '@material-ui/core'
 
+import Typography from '@material-ui/core/Typography'
+import Button from '@material-ui/core/Button'
+import MUILink from '@material-ui/core/Link'
+
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import ButtonsFooter from '../ButtonsFooter'
@@ -25,7 +26,7 @@ const Step1Introduction = ({
     beforeFilamentSwapHook = '',
   } = component.configForm.model
 
-  const hasMaterialLoaded = component.toolhead.material != null
+  const hasMaterialLoaded = component.toolhead.currentMaterial != null
 
   const execBeforeHook = useExecGCodes2(() => ({
     machine,
@@ -45,13 +46,35 @@ const Step1Introduction = ({
         </Typography>
         { !hasMaterialLoaded && (
           <>
-            <Typography variant="body1" paragraph color="error">
-              Warning: No Filament
-            </Typography>
             <Typography variant="body1" paragraph>
               {t('intro.noMaterial', {
               })}
+              {' '}
             </Typography>
+            {/* <Typography variant="h6" paragraph>
+              Option 1: My Printer has filament loaded
+            </Typography> */}
+            <Button
+              className={classes.updateSettingsBeforeSwap}
+              fullWidth
+              component={React.forwardRef((props, ref) => (
+                <Link
+                  to={`../../config/components/${component.id}/`}
+                  innerRef={ref}
+                  {...props}
+                />
+              ))}
+              variant="outlined"
+            >
+              My printer has filament loaded and I need to update my settings
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => setActiveStep(4)}
+              fullWidth
+            >
+              My extruder is empty - let's load some filament
+            </Button>
           </>
         )}
         { hasMaterialLoaded && (
@@ -66,14 +89,14 @@ const Step1Introduction = ({
             <Typography variant="body1" paragraph>
               {t('intro.skipContent')}
             </Typography>
+            <Button
+              variant="outlined"
+              onClick={() => setActiveStep(4)}
+            >
+              {t('intro.skipButton')}
+            </Button>
           </>
         )}
-        <Button
-          variant="outlined"
-          onClick={() => setActiveStep(4)}
-        >
-          {t('intro.skipButton')}
-        </Button>
       </div>
 
       <ButtonsFooter

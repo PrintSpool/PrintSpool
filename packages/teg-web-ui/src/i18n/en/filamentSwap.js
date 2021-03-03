@@ -19,9 +19,8 @@ const filamentSwapEn = {
     `,
     skipButton: 'Skip to selecting a new material',
     noMaterial: deline`
-      Teg is not aware of any filament loaded in your 3D printer. Make sure your 3D printer
-      does not have any filament in it before skipping to selecting a new material or go to
-      Settings/Components to update your printer's settings.
+      Teg is not aware of any filament loaded in your 3D printer. Please make sure there is no
+      filament in your extruder or update your settings if there is.
     `,
   },
   heatExtruder: {
