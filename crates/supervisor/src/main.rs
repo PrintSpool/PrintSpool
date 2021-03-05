@@ -155,7 +155,8 @@ async fn spawn_driver(drivers: Arc<DashMap<String, u32>>, config_file: &str) -> 
         let marlin = marlin.to_str()
             .ok_or_else(|| eyre!("Error loading file path to drivers"))?;
 
-        format!("cd {} && cargo watch -s \"cargo run -- {}\"", marlin, config_file)
+        // format!("cd {} && cargo watch -s \"cargo run -- {}\"", marlin, config_file)
+        format!("cd {} && cargo run -- {}", marlin, config_file)
     } else {
         format!("teg-marlin {}", config_file)
     };
