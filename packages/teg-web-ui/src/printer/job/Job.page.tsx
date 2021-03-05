@@ -12,9 +12,6 @@ import PrinterStatusGraphQL from '../common/PrinterStatus.graphql'
 
 const JOB_QUERY = gql`
   fragment QueryFragment on Query {
-    machines(input: { machineID: $machineID }) {
-      ...PrinterStatus
-    }
     parts(input: { partID: $partID }) {
       id
       name
@@ -46,7 +43,8 @@ const JOB_QUERY = gql`
           name
           viewers {
             id
-            email
+            description
+            picture
           }
           components {
             id
@@ -76,12 +74,11 @@ const SET_JOB_POSITION = gql`
 
 const JobPage = () => {
   const { match: { params } } = useReactRouter()
-  const { machineID, partID } = params
+  const { partID } = params
 
   const { loading, error, data } = useLiveSubscription(JOB_QUERY, {
-    variablesDef: '($machineID: ID, $partID: ID)',
+    variablesDef: '($partID: ID)',
     variables: {
-      machineID,
       partID,
     },
   })
@@ -108,8 +105,12 @@ const JobPage = () => {
     },
   })
 
-  const machine = ((data as any)?.machines || [])[0]
   const part = (data as any)?.parts[0]
+  const task = part?.tasks.find(t =>
+    !['ERRORED', 'CANCELLED', 'FINISHED'].includes(t.status)
+  )
+  const machine = task?.machine
+  console.log(machine)
 
   viewMachine({ machine })
 
@@ -128,7 +129,6 @@ const JobPage = () => {
   return (
     <JobView
       {...{
-        machine,
         part,
         cancelTask,
         pausePrint,

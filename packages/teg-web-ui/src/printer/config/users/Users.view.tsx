@@ -6,6 +6,7 @@ import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import Avatar from '@material-ui/core/Avatar'
+import PersonIcon from '@material-ui/icons/Person'
 
 import { gql } from '@apollo/client'
 
@@ -57,7 +58,9 @@ const UsersConfigView = ({
               component={React.forwardRef((props, ref) => (
                 <Link to={`${user.id}/`} innerRef={ref} {...props}>
                   <ListItemIcon>
-                    <Avatar src={user.picture}>{user.description[0]}</Avatar>
+                    <Avatar src={user.picture}>
+                      <PersonIcon />
+                    </Avatar>
                   </ListItemIcon>
                   <ListItemText>
                     {user.description}

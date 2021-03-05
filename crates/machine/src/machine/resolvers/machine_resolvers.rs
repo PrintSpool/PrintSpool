@@ -110,7 +110,7 @@ impl MachineData {
                 INNER JOIN machine_viewers ON machine_viewers.user_id = users.id
                 WHERE
                     machine_viewers.machine_id = ?
-                    AND machine_viewers.expires_at < ?
+                    AND machine_viewers.expires_at >= ?
                 ORDER BY users.id
             "#,
             self.config.id,

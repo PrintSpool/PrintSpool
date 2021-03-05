@@ -146,12 +146,21 @@ async fn app() -> Result<()> {
         .filter_map(|result| result.transpose())
         .collect::<Result<_>>()?;
 
+    let machine_hooks: MachineHooksList = Arc::new(vec![
+        Box::new(PrintQueueMachineHooks),
+    ]);
+
     let machines = machine_ids
         .into_iter()
         .map(|machine_id| {
             let db = db.clone();
+            let hooks = machine_hooks.clone();
             async move {
-                let machine = Machine::start(db, &machine_id).await?;
+                let machine = Machine::start(
+                    db,
+                    hooks,
+                    &machine_id,
+                ).await?;
                 let id: async_graphql::ID = machine_id.into();
 
                 Result::<_>::Ok((id, machine))
@@ -164,10 +173,6 @@ async fn app() -> Result<()> {
         .collect::<Result<_>>()?;
 
     let machines: MachineMap = Arc::new(ArcSwap::new(Arc::new(machines)));
-
-    let machine_hooks: MachineHooksList = Arc::new(vec![
-        Box::new(PrintQueueMachineHooks),
-    ]);
 
     let server_keys = Arc::new(teg_auth::ServerKeys::load_or_create().await?);
 

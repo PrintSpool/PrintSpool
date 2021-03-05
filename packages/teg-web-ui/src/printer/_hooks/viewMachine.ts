@@ -10,7 +10,8 @@ const viewMachine = ({ machine }) => {
       }
     }
   `
-  const continueViewerMutation = useMutation(CONTINUE_VIEWING, {
+
+  const [continueViewing, { error }] = useMutation(CONTINUE_VIEWING, {
     variables: {
       machineID: machine?.id,
     },
@@ -18,14 +19,20 @@ const viewMachine = ({ machine }) => {
 
   const [viewerUpdateCount, setViewerUpdateCount] = useState(0)
 
+  console.log('viewW???', machine)
   useEffect(() => {
     if (machine?.id != null) {
-      continueViewerMutation[0]()
+      console.log('viewW!!!!!')
+      continueViewing()
 
       const timeout = setTimeout(() => setViewerUpdateCount(i => i + 1), 2000)
       return () => clearTimeout(timeout)
     }
   }, [machine?.id, viewerUpdateCount])
+
+  if (error != null) {
+    throw error
+  }
 }
 
 export default viewMachine

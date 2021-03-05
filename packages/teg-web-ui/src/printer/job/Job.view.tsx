@@ -19,7 +19,6 @@ const JobView = ({
   pausePrint,
   resumePrint,
   moveToTopOfQueue,
-  machine,
   part: {
     name,
     tasks,
@@ -132,7 +131,7 @@ const JobView = ({
               .map(component => (
                 <ComponentControl
                   key={component.id}
-                  machine={machine}
+                  machine={task.machine}
                   component={component}
                   execGCodes={execGCodes}
                   isReady={isReady}

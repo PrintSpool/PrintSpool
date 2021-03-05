@@ -90,6 +90,7 @@ impl MachineMutation {
         #[graphql(name="machineID")]
         machine_id: ID,
     ) -> FieldResult<Option<teg_common::Void>> {
+        info!("CONTINUE VIEWING!!!!");
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 
@@ -204,7 +205,11 @@ impl MachineMutation {
 
             // Start the machine actor
             let db_clone = db.clone();
-            let machine = Machine::start(db_clone, &machine_id)
+            let machine = Machine::start(
+                db_clone,
+                machine_hooks.clone(),
+                &machine_id
+            )
                 .await?;
 
             let machine_id = machine_id.clone();

@@ -19,6 +19,7 @@ use crate::config::MachineConfig;
 
 pub struct Machine {
     pub db: crate::Db,
+    pub hooks: crate::MachineHooksList,
     pub id: crate::DbId,
     pub write_stream: Option<Framed<UnixStream, MachineCodec>>,
     pub unix_socket: Option<UnixStream>,
@@ -47,11 +48,30 @@ pub struct MachineData {
 impl Actor for Machine {
     #[instrument(fields(id = &self.id[..]), skip(self, ctx))]
     async fn started(&mut self, ctx: &mut xactor::Context<Self>) -> Result<()> {
-        // Begin attempting to connect to the driver socket
-        if let Err(err) = ctx.address().send(ConnectToSocket) {
+        let result = async {
+            // Run before_create hooks in a transaction around saving the config file
+            let mut tx = self.db.begin().await?;
+
+            for hooks_provider in self.hooks.iter() {
+                tx = hooks_provider.before_start(
+                    tx,
+                    &self.id,
+                ).await?
+            }
+
+            tx.commit().await?;
+
+            // Begin attempting to connect to the driver socket
+            ctx.address().send(ConnectToSocket)?;
+
+            Result::<_>::Ok(())
+        }
+            .await;
+
+        if let Err(err) = result {
             warn!("Error starting machine: {:?}", err);
             ctx.stop(Some(err));
-        };
+        }
 
         Ok(())
     }
@@ -60,12 +80,14 @@ impl Actor for Machine {
 impl Machine {
     pub async fn start(
         db: crate::Db,
+        hooks: crate::MachineHooksList,
         machine_id: &crate::DbId,
     ) -> Result<xactor::Addr<Machine>> {
         let machine_id = machine_id.clone();
         let machine = xactor::Supervisor::start(move ||
             Machine {
                 db: db.clone(),
+                hooks: hooks.clone(),
                 id: machine_id.clone(),
                 write_stream: None,
                 unix_socket: None,

@@ -56,11 +56,11 @@ const ViewingUsersButton = ({
           {users.map((user) => (
             <ListItem key={user.id}>
               <ListItemAvatar>
-                <Avatar className={classes.avatar}>
+                <Avatar className={classes.avatar} src={user.picture}>
                   <PersonIcon />
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText primary={user.email} />
+              <ListItemText primary={user.description} />
             </ListItem>
           ))}
         </List>

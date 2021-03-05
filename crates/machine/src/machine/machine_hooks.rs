@@ -13,4 +13,10 @@ pub trait MachineHooks {
         tx: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
         machine_config: &mut MachineConfig,
     ) -> Result<()>;
+
+    async fn before_start<'c>(
+        &self,
+        tx: sqlx::Transaction<'c, sqlx::Sqlite>,
+        id: &crate::DbId,
+    ) -> Result<sqlx::Transaction<'c, sqlx::Sqlite>>;
 }
