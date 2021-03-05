@@ -20,6 +20,7 @@ use crate::machine::{
     Machine,
     MachineData,
     MachineStatus,
+    Printing,
     events::TaskSettled,
 };
 use crate::task::{
@@ -79,11 +80,17 @@ pub async fn update_tasks(
 
                 task.status = TaskStatus::Errored(Errored {
                     message,
-                    errored_at: now.clone(),
+                    errored_at: *now,
                 });
 
                 task.settle_task().await;
                 task.update(db).await?;
+            }
+
+            if task.status.is_pending() && task.is_print() {
+                machine.get_data()?.status = MachineStatus::Printing(
+                    Printing { task_id: task.id.clone() }
+                );
             }
         }
     }

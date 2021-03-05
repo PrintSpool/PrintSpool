@@ -27,8 +27,6 @@ async fn run() -> Result<()> {
     tracing_subscriber::fmt::init();
 
     info!("Supervisor started");
-    info!("Supervisor started");
-    info!("Supervisor started");
 
     let drivers = Arc::new(DashMap::new());
     let drivers_clone = Arc::clone(&drivers);
