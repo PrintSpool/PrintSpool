@@ -19,9 +19,9 @@ fn main() {
 
     config.compile_protos(
         &[
-            protos_path.join("CombinatorMessage.proto").to_owned().to_str().unwrap(),
-            protos_path.join("InviteCode.proto").to_owned().to_str().unwrap(),
-            protos_path.join("MachineMessage.proto").to_owned().to_str().unwrap(),
+            protos_path.join("CombinatorMessage.proto").to_str().unwrap(),
+            protos_path.join("InviteCode.proto").to_str().unwrap(),
+            protos_path.join("MachineMessage.proto").to_str().unwrap(),
         ],
         &includes
     ).unwrap();
