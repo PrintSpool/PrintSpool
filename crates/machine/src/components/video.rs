@@ -1,18 +1,19 @@
 use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
+use validator::Validate;
 
 use super::ComponentInner;
 
 /// # Video
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct VideoConfig {
     /// # Name
-    // TODO: validate: #[schemars(min_length = 1)]
+    #[validate(length(min = 1))]
     pub name: String,
 
     /// # Source
-    // TODO: validate: #[schemars(min_length = 1)]
+    #[validate(length(min = 1))]
     pub source: String,
 }
 

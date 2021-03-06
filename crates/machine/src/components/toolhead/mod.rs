@@ -5,6 +5,8 @@ use eyre::{
 };
 use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
+use validator::Validate;
+use regex::Regex;
 use teg_json_store::{ Record as _, JsonRow };
 use teg_material::{Material, MaterialConfigEnum};
 
@@ -18,16 +20,23 @@ use super::{
 
 mod toolhead_resolvers;
 
+lazy_static! {
+    static ref EXTRUDER_ADDRESS: Regex = Regex::new(r"^e\d+$").unwrap();
+}
+
 /// # Toolhead
-#[derive(Deserialize, Serialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ToolheadConfig {
     /// # Name
-    // TODO: validate: #[schemars(min_length = 1)]
+    #[validate(length(min = 1))]
     pub name: String,
 
     /// # GCode Address
-    // TODO: validate: #[schemars(min_length = 1)]
+    #[validate(regex(path = "EXTRUDER_ADDRESS", message = r#"\
+        Toolhead address must start with the letter 'e' followed by a number \
+        (eg. e1 or e2)\
+    "#))]
     pub address: String,
 
     /// Heated Extruder

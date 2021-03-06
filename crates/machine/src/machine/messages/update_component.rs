@@ -3,8 +3,21 @@ use eyre::{
     Result,
     // Context as _,
 };
+use validator::Validate;
 
-use crate::{components::{ComponentInner, Toolhead, ToolheadConfig}, machine::Machine};
+use crate::{
+    components::{
+        AxisConfig,
+        ComponentInner,
+        ControllerConfig,
+        Toolhead,
+        ToolheadConfig,
+        BuildPlatformConfig,
+        SpeedControllerConfig,
+        VideoConfig,
+    },
+    machine::Machine
+};
 
 use super::ResetWhenIdle;
 
@@ -39,7 +52,10 @@ impl xactor::Handler<UpdateComponent> for Machine {
                 &mut data.config.controllers,
                 &msg,
             )?;
-            c.model = serde_json::from_value(msg.model.clone())?;
+            let next_model: ControllerConfig = serde_json::from_value(msg.model.clone())?;
+            next_model.validate()?;
+
+            c.model = next_model;
             c.model_version += 1;
             Ok(())
         })();
@@ -53,7 +69,20 @@ impl xactor::Handler<UpdateComponent> for Machine {
                     &mut data.config.axes,
                     &msg,
                 )?;
-                c.model = serde_json::from_value(msg.model.clone())?;
+
+                let next_model: AxisConfig = serde_json::from_value(msg.model.clone())?;
+                next_model.validate().map_err(|err| {
+                    let err_string = err.field_errors()
+                        .values()
+                        .flat_map(|err_list| err_list.into_iter())
+                        .flat_map(|e2| e2.message.as_ref())
+                        .map(|msg| msg.to_string())
+                        .collect::<Vec<String>>()
+                        .join("\n");
+                    eyre!(err_string)
+                })?;
+
+                c.model = next_model;
                 c.model_version += 1;
                 Ok(())
             })()
@@ -68,7 +97,11 @@ impl xactor::Handler<UpdateComponent> for Machine {
                     &mut data.config.build_platforms,
                     &msg,
                 )?;
-                c.model = serde_json::from_value(msg.model.clone())?;
+
+                let next_model: BuildPlatformConfig = serde_json::from_value(msg.model.clone())?;
+                next_model.validate()?;
+
+                c.model = next_model;
                 c.model_version += 1;
                 Ok(())
             })()
@@ -84,6 +117,8 @@ impl xactor::Handler<UpdateComponent> for Machine {
                 &msg,
             ) {
                 let next_model: ToolheadConfig = serde_json::from_value(msg.model.clone())?;
+                next_model.validate()?;
+
                 let material_id_changed = next_model.material_id != c.model.material_id;
 
                 c.model = next_model;
@@ -117,7 +152,11 @@ impl xactor::Handler<UpdateComponent> for Machine {
                     &mut data.config.speed_controllers,
                     &msg,
                 )?;
-                c.model = serde_json::from_value(msg.model.clone())?;
+
+                let next_model: SpeedControllerConfig = serde_json::from_value(msg.model.clone())?;
+                next_model.validate()?;
+
+                c.model = next_model;
                 c.model_version += 1;
                 Ok(())
             })()
@@ -131,7 +170,11 @@ impl xactor::Handler<UpdateComponent> for Machine {
                     &mut data.config.videos,
                     &msg,
                 )?;
-                c.model = serde_json::from_value(msg.model.clone())?;
+
+                let next_model: VideoConfig = serde_json::from_value(msg.model.clone())?;
+                next_model.validate()?;
+
+                c.model = next_model;
                 c.model_version += 1;
                 Ok(())
             })()

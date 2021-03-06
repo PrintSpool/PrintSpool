@@ -1,19 +1,27 @@
 use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
+use validator::Validate;
+use regex::Regex;
 
 use super::ComponentInner;
 use super::HeaterEphemeral;
 
+lazy_static! {
+    static ref BUILD_PLATFORM_ADDRESS: Regex = Regex::new(r"^b$").unwrap();
+}
+
 /// # Build Platform
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct BuildPlatformConfig {
     /// # Name
-    // TODO: validate: #[schemars(min_length = 1)]
+    #[validate(length(min = 1))]
     pub name: String,
 
     /// # GCode Address
-    // TODO: validate: #[schemars(min_length = 1)]
+    #[validate(regex(path = "BUILD_PLATFORM_ADDRESS", message = r#"\
+        Bed address must be 'b'\
+    "#))]
     pub address: String,
 
     /// # Heated Build Platform

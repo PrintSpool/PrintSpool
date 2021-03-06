@@ -1,19 +1,27 @@
 use serde::{Deserialize, Serialize};
 use nanoid::nanoid;
 use schemars::JsonSchema;
+use validator::Validate;
+use regex::Regex;
 
 use super::ComponentInner;
 
+lazy_static! {
+    static ref FAN_ADDRESS: Regex = Regex::new(r"^f\d+$").unwrap();
+}
 /// # Fan
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct SpeedControllerConfig {
     /// # Name
-    // TODO: validate: #[schemars(min_length = 1)]
+    #[validate(length(min = 1))]
     pub name: String,
 
     /// # GCode Address
-    // TODO: validate: #[schemars(min_length = 1)]
+    #[validate(regex(path = "FAN_ADDRESS", message = r#"\
+        Fan address must start with the letter 'f' followed by a number\
+        (eg. f1 or f2)\
+    "#))]
     pub address: String,
 }
 

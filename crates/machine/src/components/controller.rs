@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
+use validator::Validate;
+// use regex::Regex;
 
 use super::ComponentInner;
 
@@ -18,15 +20,15 @@ use super::ComponentInner;
 // }
 
 /// # Controller
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ControllerConfig {
     /// # Name
-    // TODO: validate: #[schemars(min_length = 1)]
+    #[validate(length(min = 1))]
     pub name: String,
 
     /// # Serial Port
-    // TODO: validate: #[schemars(min_length = 1)]
+    #[validate(length(min = 1))]
     #[serde(rename = "serialPortID")]
     pub serial_port_id: String,
 

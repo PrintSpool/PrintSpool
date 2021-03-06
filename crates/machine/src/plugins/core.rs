@@ -1,5 +1,6 @@
 use serde::{Serialize, Deserialize};
 use schemars::JsonSchema;
+use validator::Validate;
 
 // // TODO: Previously these configs were include in the machine config for onboarding:
 // impl MachineForm for ControllerConfig {
@@ -14,11 +15,11 @@ use schemars::JsonSchema;
 //     }
 // }
 
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CorePluginConfig {
     /// # Printer Name
-    // TODO: validate: #[schemars(min_length = 1)]
+    #[validate(length(min = 1))]
     pub name: String,
 
     /// # Automatic Printing
