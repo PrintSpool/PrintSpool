@@ -112,14 +112,13 @@ const PrinterComponentsPage = () => {
   }
 
   const anyError = error || updateComponentMutation.error
-  if (anyError) {
-    throw anyError
-  }
 
   return (
     <PrinterComponentsView
       {...{
         ...data,
+        submitting: updateComponentMutation.loading,
+        error: anyError,
         selectedComponent: component,
         components,
         fixedListComponentTypes,

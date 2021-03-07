@@ -39,17 +39,13 @@ const createComponentDialog = ({
 
   })
 
-  const anyError = mutation.error
-  if (anyError != null) {
-    throw anyError
-  }
-
   if (mutation.called) return <div />
 
   return (
     <CreateComponentDialogView {...{
       machineID,
       open,
+      error: mutation.error,
       history,
       create: createComponent,
       client: mutation.client,

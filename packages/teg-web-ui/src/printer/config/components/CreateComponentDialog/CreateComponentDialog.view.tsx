@@ -37,6 +37,7 @@ const STEPS = [
 const createComponentDialog = ({
   machineID,
   open,
+  error: externalError,
   history,
   create,
   client,
@@ -157,6 +158,7 @@ const createComponentDialog = ({
                   })}
                   form={form}
                   path="model."
+                  error={externalError}
                 />
               )
             })()}

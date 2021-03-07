@@ -1,13 +1,11 @@
 import React from 'react'
 import { FastField, Field, FieldArray } from 'formik'
 import { TextField, Switch } from 'formik-material-ui'
-import {
-  MenuItem,
-  FormControlLabel,
-  Button,
-  Typography,
-  Hidden,
-} from '@material-ui/core'
+import MenuItem from '@material-ui/core/MenuItem'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import Button from '@material-ui/core/Button'
+import Typography from '@material-ui/core/Typography'
+import Hidden from '@material-ui/core/Hidden'
 
 import Typeahead from '../../../../common/Typeahead'
 

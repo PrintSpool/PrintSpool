@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import Typography from '@material-ui/core/Typography'
 
 import FormikSchemaField from './FormikSchemaField'
 
@@ -30,22 +31,35 @@ const FormikSchemaForm = ({
   className = null,
   values = {},
   hideReadOnlyFields = false,
-}) => (
+  error = null,
+}) => {
+  useEffect(() => {
+    if (error != null) {
+      console.warn('Error from server', { error })
+    }
+  }, [error])
+  return (
   // <TextField
-  <div className={className}>
-    { expandForm({ form, schema }).form.map((name) => {
-      const property = schema.properties[name]
-      return (
-        <FormikSchemaField
-          schema={schema}
-          property={property}
-          key={name}
-          name={`${path}${name}`}
-          values={values}
-        />
-      )
-    })}
-  </div>
-)
+    <div className={className}>
+      { expandForm({ form, schema }).form.map((name) => {
+        const property = schema.properties[name]
+        return (
+          <FormikSchemaField
+            schema={schema}
+            property={property}
+            key={name}
+            name={`${path}${name}`}
+            values={values}
+          />
+        )
+      })}
+      { error != null && (
+        <Typography color="error">
+          {error.message || (typeof error === 'string' ? error : 'An unknown error has occured')}
+        </Typography>
+      )}
+    </div>
+  )
+}
 
 export default FormikSchemaForm

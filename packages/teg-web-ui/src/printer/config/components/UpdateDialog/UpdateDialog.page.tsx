@@ -25,6 +25,8 @@ const UpdateDialogPage = ({
   hasPendingUpdates = false,
   transformSchema = schema => schema,
   getConfigForm = null,
+  submitting,
+  error: externalError,
   onSubmit,
   deleteButton = false,
 }) => {
@@ -75,6 +77,8 @@ const UpdateDialogPage = ({
     onSubmit,
     onClose: () => history.push('../'),
     data: configFormData,
+    submitting,
+    error: externalError,
     status,
     deleteButton,
     transformSchema,

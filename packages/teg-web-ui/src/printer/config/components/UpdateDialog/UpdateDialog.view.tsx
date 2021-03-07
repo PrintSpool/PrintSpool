@@ -7,7 +7,6 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
 import Button from '@material-ui/core/Button'
-import Typography from '@material-ui/core/Typography'
 
 import FormikSchemaForm from '../FormikSchemaForm/index'
 import StatusFilter from '../../../../common/StatusFilter'
@@ -22,6 +21,8 @@ const UpdateDialogView = ({
   open,
   onClose,
   onSubmit,
+  submitting,
+  error: externalError,
   data,
   status,
   hasPendingUpdates = false,
@@ -46,7 +47,7 @@ const UpdateDialogView = ({
       >
         {props => (
           <Form>
-            <LoadingOverlay loading={props.isSubmitting}>
+            <LoadingOverlay loading={submitting}>
               <DialogTitle id="form-dialog-title">{title || name || id}</DialogTitle>
               <StatusFilter
                 status={hasPendingUpdates ? 'UPDATES_PENDING' : status}
@@ -68,12 +69,8 @@ const UpdateDialogView = ({
                     schema={transformSchema(data.schemaForm.schema)}
                     form={data.schemaForm.form}
                     values={props.values}
+                    error={props.errors[''] || externalError}
                   />
-                  { props.errors[''] && (
-                    <Typography color="error">
-                      {props.errors['']}
-                    </Typography>
-                  )}
                 </DialogContent>
               </StatusFilter>
               <DialogActions>
