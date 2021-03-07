@@ -24,11 +24,11 @@ use super::ComponentInner;
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ControllerConfig {
     /// # Name
-    #[validate(length(min = 1))]
+    #[validate(length(min = 1, message = "Name cannot be blank"))]
     pub name: String,
 
     /// # Serial Port
-    #[validate(length(min = 1))]
+    #[validate(length(min = 1, message = "Serial port id cannot be blank"))]
     #[serde(rename = "serialPortID")]
     pub serial_port_id: String,
 

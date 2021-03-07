@@ -50,7 +50,8 @@ impl MachineData {
         Ok(config_form?)
     }
 
-    async fn components(
+    #[graphql(name = "components")]
+    async fn _components(
         &self,
         #[graphql(default)]
         input: MachineComponentsInput,

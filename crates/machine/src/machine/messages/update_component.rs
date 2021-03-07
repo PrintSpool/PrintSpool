@@ -3,18 +3,13 @@ use eyre::{
     Result,
     // Context as _,
 };
-use validator::Validate;
+use serde::de::DeserializeOwned;
 
 use crate::{
     components::{
-        AxisConfig,
+        Component,
         ComponentInner,
-        ControllerConfig,
         Toolhead,
-        ToolheadConfig,
-        BuildPlatformConfig,
-        SpeedControllerConfig,
-        VideoConfig,
     },
     machine::Machine
 };
@@ -29,158 +24,121 @@ pub struct UpdateComponent {
     pub model: serde_json::Value,
 }
 
+fn get_component_and_next_model<'a, M: validator::Validate + DeserializeOwned, E: Default>(
+    components: &'a mut Vec<ComponentInner<M, E>>,
+    msg: &UpdateComponent,
+) -> Result<(&'a mut ComponentInner<M, E>, M)> {
+    let component = components
+        .iter_mut()
+        .find(|c|
+            c.id == msg.id && c.model_version == msg.version
+        )
+        .ok_or_else(|| eyre!("Component not found"))?;
+
+    let next_model: M = serde_json::from_value(msg.model.clone())?;
+
+    next_model.validate().map_err(|err| {
+        let err_string = err.field_errors()
+            .into_iter()
+            .flat_map(|(field_name, err_list)| {
+                err_list
+                    .into_iter()
+                    .map(|e2| {
+                        e2.message
+                            .as_ref()
+                            .map(|s| s.to_string())
+                            .unwrap_or_else(|| {
+                                format!("{} is invalid (Error Code: {})", field_name, e2.code)
+                            })
+                    })
+                    .collect::<Vec<_>>()
+            })
+            .map(|msg| msg.to_string())
+            .collect::<Vec<String>>()
+            .join("\n");
+        eyre!(err_string)
+    })?;
+
+    Ok((component, next_model))
+}
+
+fn update_component_inner<'a, M: validator::Validate + DeserializeOwned, E: Default>(
+    components: &mut Vec<ComponentInner<M, E>>,
+    msg: &UpdateComponent,
+) -> Result<()> {
+    let (
+        component,
+        next_model,
+    ) = get_component_and_next_model(components, msg)?;
+
+    component.model = next_model;
+    component.model_version += 1;
+
+    Ok(())
+}
+
 #[async_trait::async_trait]
 impl xactor::Handler<UpdateComponent> for Machine {
     async fn handle(&mut self, ctx: &mut xactor::Context<Self>, msg: UpdateComponent) -> Result<()> {
-        fn find_component_inner<'a, M, E: Default>(
-            components: &'a mut Vec<ComponentInner<M, E>>,
-            msg: &UpdateComponent,
-        ) -> Result<&'a mut ComponentInner<M, E>> {
-            components
-                .iter_mut()
-                .find(|c|
-                    c.id == msg.id && c.model_version == msg.version
-                )
-                .ok_or_else(|| eyre!("Component not found"))
-        }
+        let db = self.db.clone();
+        let machine_config = &mut self.get_data()?.config;
 
-        // Controller
-        let mut result: Result<()> = (|| {
-            let data = self.get_data()?;
+        let component_clone = machine_config.components()
+            .into_iter()
+            .find(|(id, _)| {
+                **id == msg.id
+            })
+            .ok_or_else(|| eyre!("Component not found"))?
+            .1;
 
-            let mut c = find_component_inner(
-                &mut data.config.controllers,
-                &msg,
-            )?;
-            let next_model: ControllerConfig = serde_json::from_value(msg.model.clone())?;
-            next_model.validate()?;
-
-            c.model = next_model;
-            c.model_version += 1;
-            Ok(())
-        })();
-
-        // Axis
-        if result.is_err() {
-            result = (|| {
-                let data = self.get_data()?;
-
-                let mut c = find_component_inner(
-                    &mut data.config.axes,
+        match component_clone {
+            Component::Controller(_) => {
+                update_component_inner(&mut machine_config.controllers, &msg)?
+            }
+            Component::Axis(_) => {
+                update_component_inner(&mut machine_config.axes, &msg)?
+            }
+            Component::Toolhead(_) => {
+                let (
+                    mut component,
+                    next_model,
+                ) = get_component_and_next_model(
+                    &mut machine_config.toolheads,
                     &msg,
                 )?;
 
-                let next_model: AxisConfig = serde_json::from_value(msg.model.clone())?;
-                next_model.validate().map_err(|err| {
-                    let err_string = err.field_errors()
-                        .values()
-                        .flat_map(|err_list| err_list.into_iter())
-                        .flat_map(|e2| e2.message.as_ref())
-                        .map(|msg| msg.to_string())
-                        .collect::<Vec<String>>()
-                        .join("\n");
-                    eyre!(err_string)
-                })?;
-
-                c.model = next_model;
-                c.model_version += 1;
-                Ok(())
-            })()
-        }
-
-        // Build Platform
-        if result.is_err() {
-            result = (|| {
-                let data = self.get_data()?;
-
-                let mut c = find_component_inner(
-                    &mut data.config.build_platforms,
-                    &msg,
-                )?;
-
-                let next_model: BuildPlatformConfig = serde_json::from_value(msg.model.clone())?;
-                next_model.validate()?;
-
-                c.model = next_model;
-                c.model_version += 1;
-                Ok(())
-            })()
-        }
-
-        // Toolhead
-        if result.is_err() {
-            let db = self.db.clone();
-            let data = self.get_data()?;
-
-            if let Ok(mut c) = find_component_inner(
-                &mut data.config.toolheads,
-                &msg,
-            ) {
-                let next_model: ToolheadConfig = serde_json::from_value(msg.model.clone())?;
-                next_model.validate()?;
-
-                let material_id_changed = next_model.material_id != c.model.material_id;
-
-                c.model = next_model;
+                let previous_version = component.model_version;
+                let material_id_changed = next_model.material_id != component.model.material_id;
 
                 // material changes
                 if material_id_changed {
-                    let toolhead_id = c.id.clone();
-                    let material_id = c.model.material_id.clone();
+                    let toolhead_id = component.id.clone();
+                    let material_id = next_model.material_id.clone();
 
-                    Toolhead::set_material(
+                    component = Toolhead::set_material(
                         &db,
-                        data,
+                        machine_config,
                         &toolhead_id,
                         &material_id,
                     )
                         .await?;
-                } else {
-                    // Toolhead::set_materials similarly increments the version number
-                    c.model_version += 1;
+                    // Toolhead::set_materials internally increments the version number
+                    component.model_version = previous_version;
                 }
 
-                return Ok(())
+                component.model = next_model;
+                component.model_version += 1;
+            }
+            Component::SpeedController(_) => {
+                update_component_inner(&mut machine_config.speed_controllers, &msg)?
+            }
+            Component::Video(_) => {
+                update_component_inner(&mut machine_config.videos, &msg)?
+            }
+            Component::BuildPlatform(_) => {
+                update_component_inner(&mut machine_config.build_platforms, &msg)?
             }
         }
-
-        // Speed Controller
-        if result.is_err() {
-            result = (|| {
-                let data = self.get_data()?;
-                let mut c = find_component_inner(
-                    &mut data.config.speed_controllers,
-                    &msg,
-                )?;
-
-                let next_model: SpeedControllerConfig = serde_json::from_value(msg.model.clone())?;
-                next_model.validate()?;
-
-                c.model = next_model;
-                c.model_version += 1;
-                Ok(())
-            })()
-        }
-
-        // Video
-        if result.is_err() {
-            result = (|| {
-                let data = self.get_data()?;
-                let mut c = find_component_inner(
-                    &mut data.config.videos,
-                    &msg,
-                )?;
-
-                let next_model: VideoConfig = serde_json::from_value(msg.model.clone())?;
-                next_model.validate()?;
-
-                c.model = next_model;
-                c.model_version += 1;
-                Ok(())
-            })()
-        }
-
-        result?;
 
         let data = self.get_data()?;
         data.config.save_config().await?;

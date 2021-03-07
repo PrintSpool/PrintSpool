@@ -7,10 +7,10 @@ use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
 use validator::Validate;
 use regex::Regex;
-use teg_json_store::{ Record as _, JsonRow };
+use teg_json_store::{ Record as _ };
 use teg_material::{Material, MaterialConfigEnum};
 
-use crate::machine::MachineData;
+use crate::{config::MachineConfig};
 
 use super::ComponentInner;
 use super::{
@@ -29,13 +29,13 @@ lazy_static! {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ToolheadConfig {
     /// # Name
-    #[validate(length(min = 1))]
+    #[validate(length(min = 1, message = "Name cannot be blank"))]
     pub name: String,
 
     /// # GCode Address
-    #[validate(regex(path = "EXTRUDER_ADDRESS", message = r#"\
-        Toolhead address must start with the letter 'e' followed by a number \
-        (eg. e1 or e2)\
+    #[validate(regex(path = "EXTRUDER_ADDRESS", message = r#"
+        Toolhead address must start with the letter 'e' followed by a number
+        (eg. e1 or e2)
     "#))]
     pub address: String,
 
@@ -46,6 +46,7 @@ pub struct ToolheadConfig {
     /// # Feedrate (mm/s)
     /// The extrude/retract speed for the maintenance panel
     /// as well as the extrude speed for filament swaps.
+    #[validate(range(min = 0, message = "Feedrate must be greater then or equal to 0"))]
     pub feedrate: f32,
 
     /// # Material
@@ -55,6 +56,7 @@ pub struct ToolheadConfig {
     /// # Filament Swap Test Extrude (mm)
     /// Extrudes a small amount of filament to prime the extruder after a filament swap.
     /// Also retracts the filament by this same amount when removing filament.
+    #[validate(range(min = 0, message = "Filament swap extrude distance must be greater then or equal to 0"))]
     pub filament_swap_extrude_distance: f32,
     /// # Fast Bowden Tube Priming
     /// Adds an extruder movement before the test extrude to quickly move the filament
@@ -63,11 +65,13 @@ pub struct ToolheadConfig {
     pub filament_swap_fast_move_enabled: bool,
 
     /// # Bowden Tube Length (mm)
+    #[validate(range(min = 0, message = "Bowden tube length must be greater then or equal to 0"))]
     pub bowden_tube_length: f32,
 
     /// # Bowden Tube Priming Speed (mm/s)
     /// This should be the maximum non-extruding speed that you can move filament
     /// through the bowden cable.
+    #[validate(range(min = 0, message = "Filament swap fast move speed must be greater then or equal to 0"))]
     pub filament_swap_fast_move_speed: Option<f32>,
 
     /// # Continuous Pull
@@ -80,6 +84,7 @@ pub struct ToolheadConfig {
     /// # Continuous Pull Speed (mm/s)
     /// A slow extrude speed is recommended to gradually pull filament in to the cold end
     /// before the user clicks "Load Filament".
+    #[validate(range(min = 0, message = "Filament swap continuous pull speed must be greater then or equal to 0"))]
     pub filament_swap_continuous_pull_speed: Option<f32>,
 
     /// # Before Filament Swap (GCode)
@@ -95,14 +100,14 @@ pub struct ToolheadEphemeral {
 pub type Toolhead = ComponentInner<ToolheadConfig, ToolheadEphemeral>;
 
 impl Toolhead {
-    pub async fn set_material(
+    pub async fn set_material<'a>(
         db: &crate::Db,
-        machine: &mut MachineData,
+        machine_config: &'a mut MachineConfig,
         toolhead_id: &crate::DbId,
         material_id: &Option<crate::DbId>,
-    ) -> Result<()> {
+    ) -> Result<&'a mut Toolhead> {
         // Get the toolhead
-        let toolhead = machine.config.toolheads
+        let toolhead = machine_config.toolheads
             .iter_mut()
             .find(|toolhead| {
                 &toolhead.id == toolhead_id
@@ -110,28 +115,20 @@ impl Toolhead {
             .ok_or_else(|| eyre!("Toolhead not found"))?;
 
         if let Some(material_id) = material_id {
-            let material_id: crate::DbId = material_id.parse()?;
-
-            // Verify that the material id exists
-            let material = sqlx::query_as!(
-                JsonRow,
-                "SELECT props FROM materials WHERE id = ?",
-                material_id,
-            )
-                .fetch_one(db)
+            // Get the material
+            let material = Material::get(db, material_id)
                 .await?;
 
-            let material = Material::from_row(material)?;
             let material = match material.config {
                 MaterialConfigEnum::FdmFilament(filament) => filament,
             };
 
             // Set the material id and extruder temperature
-            toolhead.model.material_id = Some(material_id);
+            toolhead.model.material_id = Some(material_id.clone());
             toolhead.ephemeral.heater.material_target = Some(material.target_extruder_temperature);
 
             // Set the bed target temperature
-            for build_platform in &mut machine.config.build_platforms {
+            for build_platform in &mut machine_config.build_platforms {
                 build_platform.ephemeral.material_target = Some(material.target_bed_temperature);
             }
         } else {
@@ -141,6 +138,6 @@ impl Toolhead {
 
         toolhead.model_version += 1;
 
-        Ok(())
+        Ok(toolhead)
     }
 }

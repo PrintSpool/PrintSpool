@@ -83,6 +83,7 @@ const PrinterComponentsPage = () => {
   })
 
   const onSubmit = (model) => {
+    console.log({model})
     updateComponent({
       variables: {
         input: {

@@ -86,7 +86,7 @@ const UpdateDialogPage = ({
 
   useEffect(() => {
     if (updateMutation.error && !updateMutation.loading) {
-      setError('', {
+      setError('' as never, {
         message: updateMutation.error.message,
       })
     }

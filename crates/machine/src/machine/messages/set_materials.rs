@@ -44,7 +44,7 @@ impl xactor::Handler<SetMaterial> for Machine {
 
             Toolhead::set_material(
                 &db,
-                data,
+                &mut data.config,
                 &toolhead_input.id,
                 &material_id,
             )

@@ -9,11 +9,11 @@ use super::ComponentInner;
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct VideoConfig {
     /// # Name
-    #[validate(length(min = 1))]
+    #[validate(length(min = 1, message = "Name cannot be blank"))]
     pub name: String,
 
     /// # Source
-    #[validate(length(min = 1))]
+    #[validate(length(min = 1, message = "Source cannot be blank"))]
     pub source: String,
 }
 

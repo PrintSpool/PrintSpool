@@ -15,7 +15,7 @@ lazy_static! {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct AxisConfig {
     /// # Name
-    #[validate(length(min = 1))]
+    #[validate(length(min = 1, message = "Name cannot be blank"))]
     pub name: String,
 
     /// # GCode Address
@@ -23,13 +23,13 @@ pub struct AxisConfig {
     //     path = "AXIS_ADDRESS",
     //     message = "Axis address must be a single letter (eg. 'x', 'y', or 'z')"
     // ))]
-    #[validate(regex(path = "AXIS_ADDRESS", message = r#"\
+    #[validate(regex(path = "AXIS_ADDRESS", message = r#"
         Axis address must be a single letter (eg. 'x', 'y', or 'z')
     "#))]
     pub address: String,
 
     /// # Feedrate (mm/s)
-    #[validate(range(min = 0))]
+    #[validate(range(min = 0, message = "Feedrate must be greater then or equal to 0"))]
     pub feedrate: f32,
 
     /// # Reverse direction for move buttons and macros

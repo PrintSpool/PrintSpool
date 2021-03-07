@@ -14,13 +14,13 @@ lazy_static! {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct SpeedControllerConfig {
     /// # Name
-    #[validate(length(min = 1))]
+    #[validate(length(min = 1, message = "Name cannot be blank"))]
     pub name: String,
 
     /// # GCode Address
-    #[validate(regex(path = "FAN_ADDRESS", message = r#"\
-        Fan address must start with the letter 'f' followed by a number\
-        (eg. f1 or f2)\
+    #[validate(regex(path = "FAN_ADDRESS", message = r#"
+        Fan address must start with the letter 'f' followed by a number
+        (eg. f1 or f2)
     "#))]
     pub address: String,
 }

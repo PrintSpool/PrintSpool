@@ -97,7 +97,7 @@ export const createValidate = ({ schema: originalSchema } = {}) => {
 
     // console.log({ errors })
     return {
-      values: {},
+      values: data,
       errors,
     }
   }

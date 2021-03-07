@@ -19,8 +19,8 @@ pub struct BuildPlatformConfig {
     pub name: String,
 
     /// # GCode Address
-    #[validate(regex(path = "BUILD_PLATFORM_ADDRESS", message = r#"\
-        Bed address must be 'b'\
+    #[validate(regex(path = "BUILD_PLATFORM_ADDRESS", message = r#"
+        Bed address must be 'b'
     "#))]
     pub address: String,
 
