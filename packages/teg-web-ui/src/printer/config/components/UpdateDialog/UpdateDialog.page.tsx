@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useHistory } from 'react-router'
 import { gql, useMutation, useQuery } from '@apollo/client'
+import { useForm } from 'react-hook-form'
+import useSchemaValidation, { createValidate } from '../FormikSchemaForm/useSchemaValidation'
 
 import UpdateDialogView from './UpdateDialog.view'
 
@@ -16,6 +18,32 @@ export const UPDATE_DIALOG_FRAGMENT = gql`
   }
 `
 
+const loadConfigForm = ({ getConfigForm, data }) => {
+  if (getConfigForm != null) {
+    return getConfigForm(data)
+  }
+
+  if (data.materials != null) {
+    return data.materials[0].configForm
+  }
+
+  if (data.users != null) {
+    return data.users[0].configForm
+  }
+
+  if (data.invites != null) {
+    return data.invites[0].configForm
+  }
+
+  const machine = data.machines[0]
+
+  if (machine.configForm != null) {
+    return machine.configForm
+  }
+
+  return (machine.plugins || machine.components)[0].configForm
+}
+
 const UpdateDialogPage = ({
   title = null,
   open,
@@ -30,9 +58,24 @@ const UpdateDialogPage = ({
   onSubmit,
   deleteButton = false,
 }) => {
-  let history = useHistory()
+  const history = useHistory()
+  const [validate, setValidate] = useState(null)
+
+  const { register, control, handleSubmit, reset, errors } = useForm({
+    defaultValues: {},
+    context: { validate },
+    resolver: (data, { validate }) => validate(data),
+  })
+
   let { data, loading, error } = useQuery(query, {
     variables,
+    onCompleted: (data) => {
+      const configFormData = loadConfigForm({ getConfigForm, data })
+      const nextValidate = createValidate({ schema: configFormData.schemaForm.schema })
+
+      setValidate(() => nextValidate)
+      reset(configFormData.model)
+    }
   })
 
   if (error) {
@@ -43,38 +86,12 @@ const UpdateDialogPage = ({
   if (!open) return <div />
   if (loading || !data) return <div />
 
-  let configFormData
-
-  if (getConfigForm == null) {
-    configFormData = (() => {
-      if (data.materials != null) {
-        return data.materials[0].configForm
-      }
-
-      if (data.users != null) {
-        return data.users[0].configForm
-      }
-
-      if (data.invites != null) {
-        return data.invites[0].configForm
-      }
-
-      const machine = data.machines[0]
-
-      if (machine.configForm != null) {
-        return machine.configForm
-      }
-
-      return (machine.plugins || machine.components)[0].configForm
-    })()
-  } else {
-    configFormData = getConfigForm(data)
-  }
+  const configFormData = loadConfigForm({ getConfigForm, data })
 
   const viewProps = {
     title,
     open,
-    onSubmit,
+    onSubmit: handleSubmit(onSubmit),
     onClose: () => history.push('../'),
     data: configFormData,
     submitting,
@@ -83,6 +100,9 @@ const UpdateDialogPage = ({
     deleteButton,
     transformSchema,
     hasPendingUpdates,
+    register,
+    control,
+    errors,
   }
 
   return (

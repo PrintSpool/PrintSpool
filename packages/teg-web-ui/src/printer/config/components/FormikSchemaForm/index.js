@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import Typography from '@material-ui/core/Typography'
 
-import FormikSchemaField from './FormikSchemaField'
+import SchemaFieldUI from './SchemaFieldUI'
 
 const expandForm = ({
   form,
@@ -32,24 +32,29 @@ const FormikSchemaForm = ({
   values = {},
   hideReadOnlyFields = false,
   error = null,
+  register,
+  control,
+  errors,
 }) => {
   useEffect(() => {
     if (error != null) {
       console.warn('Error from server', { error })
     }
   }, [error])
+
   return (
-  // <TextField
     <div className={className}>
       { expandForm({ form, schema }).form.map((name) => {
         const property = schema.properties[name]
         return (
-          <FormikSchemaField
+          <SchemaFieldUI
             schema={schema}
             property={property}
             key={name}
             name={`${path}${name}`}
-            values={values}
+            register={register}
+            control={control}
+            errors={errors}
           />
         )
       })}

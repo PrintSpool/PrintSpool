@@ -59,7 +59,7 @@
     "react-css-grid": "^2.0.0-0",
     "react-dom": "^16.13.1",
     "react-error-boundary": "^2.2.2",
-    "react-hook-form": "^5.3.1",
+    "react-hook-form": "^6.15.4",
     "react-i18next": "^10.10.0",
     "react-loader-advanced": "^1.7.1",
     "react-markdown": "^4.0.8",
