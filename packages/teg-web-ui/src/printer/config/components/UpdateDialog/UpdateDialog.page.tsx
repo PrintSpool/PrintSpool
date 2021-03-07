@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { useForm } from 'react-hook-form'
@@ -53,15 +53,21 @@ const UpdateDialogPage = ({
   hasPendingUpdates = false,
   transformSchema = schema => schema,
   getConfigForm = null,
-  submitting,
-  error: externalError,
+  updateMutation,
   onSubmit,
   deleteButton = false,
 }) => {
   const history = useHistory()
   const [validate, setValidate] = useState(null)
 
-  const { register, control, handleSubmit, reset, errors } = useForm({
+  const {
+    register,
+    control,
+    handleSubmit,
+    reset,
+    errors,
+    setError,
+  } = useForm({
     defaultValues: {},
     context: { validate },
     resolver: (data, { validate }) => validate(data),
@@ -77,6 +83,14 @@ const UpdateDialogPage = ({
       reset(configFormData.model)
     }
   })
+
+  useEffect(() => {
+    if (updateMutation.error && !updateMutation.loading) {
+      setError('', {
+        message: updateMutation.error.message,
+      })
+    }
+  }, [updateMutation.loading])
 
   if (error) {
     throw error
@@ -94,8 +108,8 @@ const UpdateDialogPage = ({
     onSubmit: handleSubmit(onSubmit),
     onClose: () => history.push('../'),
     data: configFormData,
-    submitting,
-    error: externalError,
+    submitting: updateMutation.loading,
+    error: updateMutation.error,
     status,
     deleteButton,
     transformSchema,

@@ -29,19 +29,11 @@ const FormikSchemaForm = ({
   form,
   path = '',
   className = null,
-  values = {},
-  hideReadOnlyFields = false,
-  error = null,
+  // hideReadOnlyFields = false,
   register,
   control,
   errors,
 }) => {
-  useEffect(() => {
-    if (error != null) {
-      console.warn('Error from server', { error })
-    }
-  }, [error])
-
   return (
     <div className={className}>
       { expandForm({ form, schema }).form.map((name) => {
@@ -58,9 +50,17 @@ const FormikSchemaForm = ({
           />
         )
       })}
-      { error != null && (
-        <Typography color="error">
-          {error.message || (typeof error === 'string' ? error : 'An unknown error has occured')}
+      { errors[''] != null && (
+        <Typography
+          color="error"
+          variant="body1"
+          style={{ marginTop: 16 }}
+        >
+          {'Error: '}
+          {
+            errors[''].message
+            || (typeof errors[''] === 'string' ? errors[''] : 'An unknown error has occured')
+          }
         </Typography>
       )}
     </div>

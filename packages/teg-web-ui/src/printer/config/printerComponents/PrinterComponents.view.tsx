@@ -71,8 +71,7 @@ const PrinterComponentsView = ({
   fixedListComponentTypes,
   videoSources,
   status,
-  submitting,
-  error,
+  updateMutation,
   onSubmit,
   hasPendingUpdates = false,
   componentID,
@@ -100,8 +99,7 @@ const PrinterComponentsView = ({
             videoSources,
             devices,
           })}
-          submitting={submitting}
-          error={error}
+          updateMutation={updateMutation}
           onSubmit={onSubmit}
           variables={{ machineID: machine.id, componentID: selectedComponent.id }}
           query={gql`
