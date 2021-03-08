@@ -52,7 +52,7 @@ const CreateMaterialStep1 = ({
           }
         </Stepper>
         <Controller
-          rules={{ required: 'A component type is required' }}
+          rules={{ required: 'A material type is required' }}
           render={({ ref, value, onChange, onBlur }) => (
             <TextField
               inputRef={ref}

@@ -20,7 +20,7 @@ const SchemaField = ({
   control,
   errors,
 }) => {
-  const fieldPath = `model[${name}]`
+  const fieldPath = `model.${name}`
   // Apply schema refs to get the final schema property values
   if (propertyNoRefs == null) {
     throw new Error(`JSON schema missing type "${name}"`)
@@ -136,8 +136,6 @@ const SchemaField = ({
       )
     }
     case 'boolean': {
-      console.log(property)
-
       return (
         <div
           style={{
@@ -185,7 +183,7 @@ const SchemaField = ({
         name: fieldPath, // unique name for your Field Array
         // keyName: "id", default to "id", you can change the key name
       })
-      // console.log({ fields })
+      console.log({ name, fieldPath, fields })
 
       return (
         <>

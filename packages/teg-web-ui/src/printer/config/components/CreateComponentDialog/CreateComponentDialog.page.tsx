@@ -57,7 +57,7 @@ const CreateComponentDialog = ({
     throw error
   }
 
-  const { schema, form } = data?.componentSchemaForm
+  const { schema, form } = data?.componentSchemaForm || {}
 
   return (
     <CreateComponentDialogView {...{
@@ -74,7 +74,7 @@ const CreateComponentDialog = ({
       configForm: {
         model: {},
         schemaForm: {
-          schema: transformSchema(schema),
+          schema: schema && transformSchema(schema),
           form,
         },
       },

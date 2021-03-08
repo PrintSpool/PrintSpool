@@ -44,6 +44,7 @@ export const useConfigForm = ({
       ) {
         // console.log({ v })
         model[k] = (v||[] as any).map(value => ({ value }))
+        console.log(k, model[k])
       } else {
         model[k] = v
       }

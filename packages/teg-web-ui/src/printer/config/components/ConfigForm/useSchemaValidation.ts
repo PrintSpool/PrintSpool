@@ -113,7 +113,7 @@ export const createValidate = ({
 
         let fieldName = fieldPath
           .filter(key => key.length > 0)
-          .map(key => `[${key}]`)
+          .map(key => key.match(/[0-9]/) != null ? `[${key}]` : `.${key}`)
           .join('')
 
         // console.log(fieldPath)
