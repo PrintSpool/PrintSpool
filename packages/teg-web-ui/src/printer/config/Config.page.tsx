@@ -5,7 +5,8 @@ import { gql, useMutation } from '@apollo/client'
 import useMachineDefSuggestions from '../../common/_hooks/useMachineDefSuggestions'
 import useLiveSubscription from '../_hooks/useLiveSubscription'
 import ConfigView from './Config.view'
-import { UPDATE_DIALOG_FRAGMENT } from './components/UpdateDialog/UpdateDialog.page'
+import { UPDATE_DIALOG_FRAGMENT, useUpdateDialog } from './components/UpdateDialog/UpdateDialog.page'
+import transformComponentSchema from './printerComponents/transformComponentSchema'
 
 const DEVICE_QUERY = gql`
   fragment QueryFragment on Query {
@@ -29,8 +30,12 @@ const UPDATE_MACHINE = gql`
   mutation updateMachine($input: UpdateMachineInput!) {
     updateMachine(input: $input) {
       id
+      configForm {
+        ...UpdateDialogFragment
+      }
     }
   }
+  ${UPDATE_DIALOG_FRAGMENT}
 `
 
 const ConfigPage = () => {
@@ -53,7 +58,7 @@ const ConfigPage = () => {
     ],
   } = data || { machines: [] }
 
-  const [updateMachine, mutation] = useMutation(UPDATE_MACHINE, {
+  const [updateMachine, updateMachineMutation] = useMutation(UPDATE_MACHINE, {
     update: (mutationResult: any) => {
       if (mutationResult.data != null) {
         history.push('../')
@@ -61,8 +66,8 @@ const ConfigPage = () => {
     },
   })
 
-  const onSubmit = (model) => {
-    updateMachine({
+  const onSubmit = async (model) => {
+    await updateMachine({
       variables: {
         input: {
           machineID,
@@ -78,24 +83,34 @@ const ConfigPage = () => {
     loading: loadingMachineDefs,
   } = useMachineDefSuggestions()
 
+  const updateDialogProps = useUpdateDialog({
+    title: '3D Printer',
+    open: machineDialogOpen,
+    query: gql`query ($input: MachinesInput){ ...QueryFragment } ${DEVICE_QUERY}`,
+    variables: { input: { machineID } },
+    status: machine?.status,
+    transformSchema: schema => transformComponentSchema({
+      schema,
+      materials: [],
+      devices,
+      machineDefSuggestions,
+    }),
+    getConfigForm: (data) => data.machines[0].configForm,
+    updateMutation: updateMachineMutation,
+    onSubmit,
+  })
+
   if (loading || !data) return <div />
 
-  if (error || mutation.error) {
-    throw error || mutation.error
+  if (error) {
+    throw error
   }
 
   return <ConfigView {...{
-    loading,
-    error,
-    machineDialogOpen,
-    onDialogClose: () => history.push('../'),
-    onSubmit,
-    machineDefSuggestions,
-    loadingMachineDefs,
+    // machineDefSuggestions,
+    // loadingMachineDefs,
     serverVersion,
-    // hasPendingUpdates,
-    devices,
-    machine,
+    updateDialogProps,
   }} />
 }
 

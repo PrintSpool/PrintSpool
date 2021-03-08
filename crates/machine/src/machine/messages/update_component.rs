@@ -11,6 +11,7 @@ use crate::{
         ComponentInner,
         Toolhead,
     },
+    config::validate_model,
     machine::Machine
 };
 
@@ -35,30 +36,7 @@ fn get_component_and_next_model<'a, M: validator::Validate + DeserializeOwned, E
         )
         .ok_or_else(|| eyre!("Component not found"))?;
 
-    let next_model: M = serde_json::from_value(msg.model.clone())?;
-
-    next_model.validate().map_err(|err| {
-        let err_string = err.field_errors()
-            .into_iter()
-            .flat_map(|(field_name, err_list)| {
-                err_list
-                    .into_iter()
-                    .map(|e2| {
-                        e2.message
-                            .as_ref()
-                            .map(|s| s.to_string())
-                            .unwrap_or_else(|| {
-                                format!("{} is invalid (Error Code: {})", field_name, e2.code)
-                            })
-                    })
-                    .collect::<Vec<_>>()
-            })
-            .map(|msg| msg.to_string())
-            .collect::<Vec<String>>()
-            .join("\n");
-        eyre!(err_string)
-    })?;
-
+    let next_model: M = validate_model(msg.model.clone())?;
     Ok((component, next_model))
 }
 

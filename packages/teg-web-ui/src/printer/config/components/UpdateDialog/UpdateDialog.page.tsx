@@ -44,7 +44,7 @@ const loadConfigForm = ({ getConfigForm, data }) => {
   return (machine.plugins || machine.components)[0].configForm
 }
 
-const UpdateDialogPage = ({
+export const useUpdateDialog = ({
   title = null,
   open,
   query,
@@ -75,14 +75,37 @@ const UpdateDialogPage = ({
 
   let { data, loading, error } = useQuery(query, {
     variables,
-    onCompleted: (data) => {
-      const configFormData = loadConfigForm({ getConfigForm, data })
-      const nextValidate = createValidate({ schema: configFormData.schemaForm.schema })
-
-      setValidate(() => nextValidate)
-      reset(configFormData.model)
-    }
+    // onCompleted: resetSchemaAndForm
   })
+
+  useEffect(() => {
+    if (loading || !data) return
+
+    const configFormData = loadConfigForm({ getConfigForm, data })
+    const { schema } = configFormData.schemaForm
+
+    // Install the schema validation rules
+    const nextValidate = createValidate({ schema })
+    setValidate(() => nextValidate)
+
+    // Replace flat arrays so react-hook-form can use them
+    const model = {}
+    Object.entries(configFormData.model).forEach(([k, v]) => {
+      const property = schema.properties[k]
+      // console.log({ property })
+      if (
+        property.type === 'array'
+        && property.items.type !== 'object'
+      ) {
+        // console.log({ v })
+        model[k] = (v||[] as any).map(value => ({ value }))
+      } else {
+        model[k] = v
+      }
+    })
+    // console.log({ model })
+    reset(model)
+  }, [loading, data])
 
   useEffect(() => {
     if (updateMutation.error && !updateMutation.loading) {
@@ -97,19 +120,18 @@ const UpdateDialogPage = ({
   }
 
   // console.log({ title, open, status, loading, data })
-  if (!open) return <div />
-  if (loading || !data) return <div />
+  if (!open) return null
+  if (loading || !data || !validate) return null
 
   const configFormData = loadConfigForm({ getConfigForm, data })
 
-  const viewProps = {
+  return {
     title,
     open,
     onSubmit: handleSubmit(onSubmit),
     onClose: () => history.push('../'),
     data: configFormData,
     submitting: updateMutation.loading,
-    error: updateMutation.error,
     status,
     deleteButton,
     transformSchema,
@@ -117,6 +139,14 @@ const UpdateDialogPage = ({
     register,
     control,
     errors,
+  }
+}
+
+const UpdateDialogPage = (props) => {
+  const viewProps = useUpdateDialog(props)
+
+  if (viewProps == null) {
+    return <div/>
   }
 
   return (

@@ -158,7 +158,9 @@ const createComponentDialog = ({
                   })}
                   form={form}
                   path="model."
-                  error={externalError}
+                  register={register}
+                  control={control}
+                  errors={errors}
                 />
               )
             })()}

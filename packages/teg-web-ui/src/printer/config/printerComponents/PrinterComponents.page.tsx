@@ -82,9 +82,8 @@ const PrinterComponentsPage = () => {
     },
   })
 
-  const onSubmit = (model) => {
-    console.log({model})
-    updateComponent({
+  const onSubmit = async (model) => {
+    await updateComponent({
       variables: {
         input: {
           machineID,

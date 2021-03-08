@@ -19,10 +19,8 @@ const viewMachine = ({ machine }) => {
 
   const [viewerUpdateCount, setViewerUpdateCount] = useState(0)
 
-  console.log('viewW???', machine)
   useEffect(() => {
     if (machine?.id != null) {
-      console.log('viewW!!!!!')
       continueViewing()
 
       const timeout = setTimeout(() => setViewerUpdateCount(i => i + 1), 2000)

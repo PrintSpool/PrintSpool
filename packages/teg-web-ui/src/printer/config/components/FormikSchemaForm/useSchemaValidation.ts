@@ -40,7 +40,7 @@ const normalizeAllProperties = (originalProperties = {}) => {
   return properties
 }
 
-export const createValidate = ({ schema: originalSchema } = {}) => {
+export const createValidate = ({ schema: originalSchema = null } = {}) => {
   if (originalSchema == null) return () => ({})
   // console.log({ originalSchema })
 
@@ -54,7 +54,7 @@ export const createValidate = ({ schema: originalSchema } = {}) => {
 
   const definitions = {}
 
-  Object.entries(originalSchema.definitions || {}).forEach(([key, definition]) => {
+  Object.entries(originalSchema.definitions || {}).forEach(([key, definition]: any) => {
     definitions[key] = {
       ...definition,
       properties: normalizeAllProperties(definition.properties),
@@ -76,16 +76,42 @@ export const createValidate = ({ schema: originalSchema } = {}) => {
   const validateWithAJV = ajv.compile(schema)
 
   const validate = (data) => {
-    console.log('VALIDATE', data)
-    const valid = validateWithAJV(data)
+    // console.log('VALIDATE', data)
+    // Replace react-hook-form nested object arrays with flat arrays
+    const model = {}
+    Object.entries(data).forEach(([k, v]) => {
+      const property = originalSchema.properties[k]
+      // console.log({ property })
+      if (
+        property.type === 'array'
+        && property.items.type !== 'object'
+      ) {
+        // console.log({ v })
+        model[k] = (v||[] as any).map(({ value }) => value)
+      } else {
+        model[k] = v
+      }
+    })
+
+    const valid = validateWithAJV(model)
     const errors = {}
 
     if (!valid) {
       validateWithAJV.errors.forEach((error) => {
-        const fieldName = (
+        let fieldName = (
           error.params.missingProperty
           || error.dataPath.replace('.', '')
         )
+          .replace(/([^\/]+)\/([^\/]+)/g, '$1[$2]')
+
+        if (fieldName[0] === '/') {
+          fieldName = fieldName.substring(1)
+        }
+
+        if (fieldName.endsWith(']')) {
+          fieldName = `${fieldName}.value`
+        }
+
         if (fieldName === '') {
           // eslint-disable-next-line no-console
           console.error({ error })
@@ -97,7 +123,7 @@ export const createValidate = ({ schema: originalSchema } = {}) => {
 
     // console.log({ errors })
     return {
-      values: data,
+      values: model,
       errors,
     }
   }
@@ -105,10 +131,10 @@ export const createValidate = ({ schema: originalSchema } = {}) => {
   return validate
 }
 
-const useSchemaValidation = ({ schema } = {}) => (
+const useSchemaValidation = ({ schema = null } = {}) => (
   useMemo(() => {
     createValidate({ schema })
-  }, [originalSchema])
+  }, [schema])
 )
 
 export default useSchemaValidation

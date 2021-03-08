@@ -12,32 +12,15 @@ import { useValidate } from './components/FormikSchemaForm/withValidate'
 import UpdateDialogView from './components/UpdateDialog/UpdateDialog.view'
 
 const ConfigView = ({
-  machineDialogOpen = false,
-  onDialogClose,
-  onSubmit,
   serverVersion,
   // hasPendingUpdates,
-  devices,
-  machine,
-  machineDefSuggestions,
-  loadingMachineDefs,
+  updateDialogProps,
 }) => {
   return (
     <main style={{ overflowY: 'scroll' }}>
-      <UpdateDialogView {...{
-        title: "3D Printer",
-        open: machineDialogOpen,
-        onSubmit,
-        onClose: onDialogClose,
-        data: machine.configForm,
-        status: machine.status,
-        transformSchema: schema => transformComponentSchema({
-          schema,
-          materials: [],
-          devices,
-          machineDefSuggestions,
-        }),
-      }}/>
+      { updateDialogProps != null && (
+        <UpdateDialogView {...updateDialogProps}/>
+      )}
       <List component="nav">
         <ListItem divider>
           <ListItemText

@@ -4,7 +4,21 @@ use eyre::{
     // Context as _,
 };
 
-use crate::{components::{ComponentTypeGQL, Controller, ControllerConfig, SpeedController, SpeedControllerConfig, Toolhead, ToolheadConfig, Video, VideoConfig}, machine::Machine};
+use crate::{
+    components::{
+        ComponentTypeGQL,
+        Controller,
+        ControllerConfig,
+        SpeedController,
+        SpeedControllerConfig,
+        Toolhead,
+        ToolheadConfig,
+        Video,
+        VideoConfig
+    },
+    machine::Machine,
+    config::validate_model,
+};
 
 use super::ResetWhenIdle;
 
@@ -23,22 +37,22 @@ impl xactor::Handler<CreateComponent> for Machine {
 
         match msg.component_type {
             ComponentTypeGQL::Controller => {
-                let config: ControllerConfig = serde_json::from_value(model)?;
+                let config: ControllerConfig = validate_model(model)?;
                 let component = Controller::new(config);
                 data.config.controllers.push(component)
             }
             ComponentTypeGQL::Toolhead => {
-                let config: ToolheadConfig = serde_json::from_value(model)?;
+                let config: ToolheadConfig = validate_model(model)?;
                 let component = Toolhead::new(config);
                 data.config.toolheads.push(component);
             }
             ComponentTypeGQL::SpeedController => {
-                let config: SpeedControllerConfig = serde_json::from_value(model)?;
+                let config: SpeedControllerConfig = validate_model(model)?;
                 let component = SpeedController::new(config);
                 data.config.speed_controllers.push(component);
             }
             ComponentTypeGQL::Video => {
-                let config: VideoConfig = serde_json::from_value(model)?;
+                let config: VideoConfig = validate_model(model)?;
                 let component = Video::new(config);
                 data.config.videos.push(component);
             }

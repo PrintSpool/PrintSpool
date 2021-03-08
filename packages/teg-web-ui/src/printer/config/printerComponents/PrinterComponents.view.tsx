@@ -82,6 +82,8 @@ const PrinterComponentsView = ({
 }) => {
   const classes = useStyles()
 
+  const { serialPortID } = selectedComponent?.configForm.model || {}
+
   return (
     <main className={classes.root}>
       { componentID !== 'new' && selectedComponent != null && verb == null && (
@@ -97,7 +99,11 @@ const PrinterComponentsView = ({
             schema,
             materials,
             videoSources,
-            devices,
+            devices: [
+              ...devices,
+              // Add the current serial port ID to the list of devices even if it is not connected
+              ...(devices.find(device => device.id === serialPortID) ? [] : [{ id: serialPortID }]),
+            ],
           })}
           updateMutation={updateMutation}
           onSubmit={onSubmit}
