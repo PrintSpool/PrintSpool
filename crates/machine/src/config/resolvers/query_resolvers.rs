@@ -76,9 +76,12 @@ impl ConfigQuery {
     async fn machine_schema_form<'ctx>(
         &self,
     ) -> FieldResult<JsonSchemaForm> {
-        let schema_form = to_schema_form(schema_for!(
+        let mut schema_form = to_schema_form(schema_for!(
             CombinedConfigView
         ))?;
+
+        schema_form.id = "machine".into();
+
         Ok(schema_form)
     }
 
@@ -86,9 +89,12 @@ impl ConfigQuery {
     async fn invite_schema_form<'ctx>(
         &self,
     ) -> FieldResult<JsonSchemaForm> {
-        let schema_form = to_schema_form(schema_for!(
+        let mut schema_form = to_schema_form(schema_for!(
             InviteConfig
         ))?;
+
+        schema_form.id = "invite".into();
+
         Ok(schema_form)
     }
 
@@ -96,9 +102,12 @@ impl ConfigQuery {
     async fn user_schema_form<'ctx>(
         &self,
     ) -> FieldResult<JsonSchemaForm> {
-        let schema_form = to_schema_form(schema_for!(
+        let mut schema_form = to_schema_form(schema_for!(
             InviteConfig
         ))?;
+
+        schema_form.id = "user".into();
+
         Ok(schema_form)
     }
 
@@ -111,7 +120,9 @@ impl ConfigQuery {
             MaterialTypeGQL::FdmFilament => schema_for!(FdmFilament),
         };
 
-        let schema_form = to_schema_form(schema)?;
+        let mut schema_form = to_schema_form(schema)?;
+        schema_form.id = "material".into();
+
         Ok(schema_form)
     }
 
@@ -147,7 +158,8 @@ impl ConfigQuery {
             BuildPlatform => schema_for!(BuildPlatformConfig),
         };
 
-        let schema_form = to_schema_form(schema)?;
+        let mut schema_form = to_schema_form(schema)?;
+        schema_form.id = format!("{:?}", input.r#type).into();
         Ok(schema_form)
     }
 }
@@ -159,7 +171,7 @@ pub fn to_schema_form(mut root_schema: RootSchema) -> Result<JsonSchemaForm> {
         .collect();
 
     Ok(JsonSchemaForm {
-        id: "machine".into(),
+        id: "placeholder".into(),
         schema: serde_json::to_value(root_schema)?.into(),
         form,
     })
