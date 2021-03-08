@@ -26,8 +26,14 @@ const UPDATE_MATERIAL = gql`
   mutation updateMaterial($input: UpdateMaterialInput!) {
     updateMaterial(input: $input) {
       id
+      name
+      shortSummary
+      configForm {
+        ...UpdateDialogFragment
+      }
     }
   }
+  ${UPDATE_DIALOG_FRAGMENT}
 `
 
 const DELETE_MATERIAL = gql`
@@ -75,16 +81,15 @@ const MaterialsConfigIndex = () => {
     },
     show: materialID != null && verb === 'delete',
     type: 'material',
-    title: materialID,
+    title: material?.name,
   })
 
   if (loading) {
     return <div/>
   }
 
-  const anyError = error || updateMaterialMutation.error
-  if (anyError) {
-    throw anyError
+  if (error) {
+    throw error
   }
 
   return (
@@ -94,6 +99,7 @@ const MaterialsConfigIndex = () => {
       materials,
       hasPendingUpdates: false,
       update,
+      updateMutation: updateMaterialMutation,
     }} />
   )
 }

@@ -44,6 +44,20 @@ const loadConfigForm = ({ getConfigForm, data }) => {
   return (machine.plugins || machine.components)[0].configForm
 }
 
+type UpdateDialogProps = {
+  title?: string,
+  open: boolean,
+  query: any,
+  variables?: any,
+  status?: any,
+  hasPendingUpdates?: boolean,
+  transformSchema?: any,
+  getConfigForm?: any,
+  updateMutation: any,
+  onSubmit: any,
+  deleteButton?: boolean,
+}
+
 export const useUpdateDialog = ({
   title = null,
   open,
@@ -56,7 +70,7 @@ export const useUpdateDialog = ({
   updateMutation,
   onSubmit,
   deleteButton = false,
-}) => {
+}: UpdateDialogProps) => {
   const history = useHistory()
 
   let { data, loading, error } = useQuery(query, {
@@ -89,7 +103,7 @@ export const useUpdateDialog = ({
   }
 }
 
-const UpdateDialogPage = (props) => {
+const UpdateDialogPage = (props: UpdateDialogProps) => {
   const viewProps = useUpdateDialog(props)
 
   if (viewProps == null) {

@@ -23,6 +23,7 @@ const MaterialsConfigView = ({
   materials,
   hasPendingUpdates,
   update,
+  updateMutation,
 }) => {
   const classes = useStyles()
 
@@ -37,6 +38,7 @@ const MaterialsConfigView = ({
             status={'READY'}
             hasPendingUpdates={hasPendingUpdates}
             onSubmit={update}
+            updateMutation={updateMutation}
             variables={{ materialID }}
             query={gql`
               query($materialID: ID) {

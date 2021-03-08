@@ -76,18 +76,23 @@ export const createValidate = ({
 
   const validateWithAJV = ajv.compile(schema)
 
+  const isFlatArray = (k) => {
+    const property = originalSchema.properties[k]
+    // console.log({ property })
+    return (
+      property.type === 'array'
+      && property.items.type !== 'object'
+    )
+  }
+
   const validate = ({ model, ...values }) => {
     // console.log('VALIDATE', model)
     // Replace react-hook-form nested object arrays with flat arrays
     const normalizedModel = {}
     Object.entries(model).forEach(([k, v]) => {
       console.log(k)
-      const property = originalSchema.properties[k]
-      // console.log({ property })
-      if (
-        property.type === 'array'
-        && property.items.type !== 'object'
-      ) {
+
+      if (isFlatArray(k)) {
         // console.log({ v })
         normalizedModel[k] = (v||[] as any).map(({ value }) => value)
       } else {
@@ -100,13 +105,19 @@ export const createValidate = ({
 
     if (!valid) {
       validateWithAJV.errors.forEach((error) => {
-        let fieldName = (
+        const fieldPath = (
           error.params.missingProperty
           || error.dataPath.replace('.', '')
         )
-          .replace(/\/([^\/]+)/g, '[$1]')
+          .split('/')
 
-        if (fieldName.endsWith(']')) {
+        let fieldName = fieldPath
+          .filter(key => key.length > 0)
+          .map(key => `[${key}]`)
+          .join('')
+
+        // console.log(fieldPath)
+        if (fieldPath.length == 2 && isFlatArray(fieldPath[1])) {
           fieldName = `${fieldName}.value`
         }
 

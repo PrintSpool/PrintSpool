@@ -1,11 +1,20 @@
 import React, { useState } from 'react'
-import { useHistory, useParams } from 'react-router'
-import { gql, useMutation } from '@apollo/client'
+import { useHistory } from 'react-router'
+import { gql, useMutation, useQuery } from '@apollo/client'
 
 import CreateMaterialDialogView from './CreateMaterialDialog.view'
-import useSchemaValidation from '../ConfigForm/useSchemaValidation'
 
-const CREATE_COMPONENT = gql`
+const GET_SCHEMA_FORM = gql`
+  query GetSchemaForm($input: MaterialSchemaFormInput!) {
+    materialSchemaForm(input: $input) {
+      id
+      schema
+      form
+    }
+  }
+`
+
+const CREATE_MATERIAL = gql`
   mutation createMaterial($input: CreateComponentInput!) {
     createMaterial(input: $input) {
       id
@@ -16,17 +25,23 @@ const CREATE_COMPONENT = gql`
 const createMaterialDialog = ({
   open,
 }) => {
-  const { machineID } = useParams()
   const history = useHistory()
 
   const [wizard, updateWizard] = useState({
     activeStep: 0,
-    schemaForm: { schema: null },
+    materialType: null,
   })
-  const { schema } = wizard.schemaForm
-  const validate = useSchemaValidation({ schema })
 
-  const [createMaterial, mutation] = useMutation(CREATE_COMPONENT, {
+  const { data, loading, error } = useQuery(GET_SCHEMA_FORM, {
+    skip: wizard.activeStep < 1,
+    variables: {
+      input: {
+        type: wizard.materialType,
+      }
+    }
+  })
+
+  const [createMaterial, mutation] = useMutation(CREATE_MATERIAL, {
     update: (mutationResult: any) => {
       if (mutationResult.data != null) {
         history.push('../')
@@ -34,23 +49,34 @@ const createMaterialDialog = ({
     }
   })
 
-  const anyError = mutation.error
-  if (anyError != null) {
-    throw anyError
+  if (error) {
+    throw error
   }
-
-  if (mutation.called) return <div />
 
   return (
     <CreateMaterialDialogView {...{
-      machineID,
+      loading,
       open,
       history,
-      create: createMaterial,
-      client: mutation.client,
-      validate,
-      wizard,
+      wizard: {
+        ...wizard,
+        activeStep: loading ? 0 : wizard.activeStep,
+      },
       updateWizard,
+      mutation,
+      configForm: {
+        model: {},
+        schemaForm: data?.materialSchemaForm,
+      },
+      onSubmit: ({ model }) => createMaterial({
+        variables: {
+          input: {
+            materialType: wizard.materialType,
+            model,
+          },
+        },
+      }),
+      onCancel: () => history.push('../'),
     }} />
   )
 }

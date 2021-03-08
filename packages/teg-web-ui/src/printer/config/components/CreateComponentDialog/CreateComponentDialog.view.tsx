@@ -28,7 +28,7 @@ const STEPS = [
   'Configure the Component',
 ]
 
-const createComponentDialog = ({
+const CreateComponentDialogView = ({
   open,
   history,
   loading,
@@ -92,4 +92,4 @@ const createComponentDialog = ({
   )
 }
 
-export default createComponentDialog
+export default CreateComponentDialogView
