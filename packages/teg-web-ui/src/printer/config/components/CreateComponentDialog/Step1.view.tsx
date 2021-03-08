@@ -53,14 +53,19 @@ const CreateComponentStep1 = ({
           }
         </Stepper>
         <Controller
-          as={
+          rules={{ required: 'A component type is required' }}
+          render={({ ref, value, onChange, onBlur }) => (
             <TextField
+              inputRef={ref}
+              onChange={e => onChange(e.target.value)}
+              onBlur={onBlur}
+              value={value}
               type="text"
               label="Please select the type of the component"
               select
               margin="normal"
               error={errors.componentType != null}
-              helperText={errors.componentType}
+              helperText={errors.componentType?.message}
               fullWidth
             >
               {componentTypeNames
@@ -74,7 +79,7 @@ const CreateComponentStep1 = ({
                 ))
               }
             </TextField>
-          }
+          )}
           name="componentType"
           control={control}
         />

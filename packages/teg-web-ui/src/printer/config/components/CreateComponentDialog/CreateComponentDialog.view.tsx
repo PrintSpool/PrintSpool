@@ -29,12 +29,9 @@ const STEPS = [
 ]
 
 const createComponentDialog = ({
-  // machineID,
   open,
   history,
   loading,
-  // create,
-  // client,
   wizard,
   updateWizard,
   fixedListComponentTypes,
@@ -43,72 +40,9 @@ const createComponentDialog = ({
   // materials,
   mutation,
   configForm,
-  // configFormContext,
   onCancel,
   onSubmit,
 }) => {
-  // const firstPageForm = useForm({
-  //   defaultValues: {
-  //     componentType: '',
-  //   },
-  // })
-
-  // const configFormContext = useConfigForm({
-  //   configForm,
-  //   updateMutation,
-  //   defaultValues: {
-  //     componentType: '',
-  //     model: {},
-  //   },
-  //   afterValidate: ({ values, errors }) => {
-  //     if (!values.componentType) {
-  //       errors.componentType = 'Required'
-  //     }
-
-  //     return {
-  //       values,
-  //       errors,
-  //     }
-  //   },
-  // })
-
-  // const onSubmit = async () => {
-  //   const isLastPage = wizard.activeStep === STEPS.length - 1
-  //   if (isLastPage) {
-  //     return create({
-  //       variables: {
-  //         input: {
-  //           machineID,
-  //           componentType: values.componentType,
-  //           model: values.model,
-  //         },
-  //       },
-  //     })
-  //   }
-
-  //   const { data } = await client.query({
-  //     query: GET_SCHEMA_FORM,
-  //     // TODO: move variables to where query is called
-  //     variables: {
-  //       input: {
-  //         machineID,
-  //         type: values.componentType,
-  //       },
-  //     },
-  //   })
-
-  //   // bag.setTouched({})
-  //   bag.resetForm({
-  //     ...values,
-  //     model: getDefaultValues(data.componentSchemaForm),
-  //   })
-  //   updateWizard({
-  //     activeStep: wizard.activeStep + 1,
-  //     schemaForm: data.componentSchemaForm,
-  //   })
-  //   // bag.setSubmitting(false)
-  // }
-
   return (
     <Dialog
       open={open}

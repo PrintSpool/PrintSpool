@@ -13,7 +13,7 @@ export const useConfigForm = ({
 }) => {
   const schema = schemaOverride || configForm?.schemaForm.schema
 
-  const [validate, setValidate] = useState(null)
+  const [validate, setValidate] = useState(() => (values) => ({ errors: {}, values }))
 
   const {
     register,
@@ -22,6 +22,7 @@ export const useConfigForm = ({
     reset,
     errors,
     setError,
+    formState,
   } = useForm({
     defaultValues,
     context: { validate },
@@ -30,14 +31,7 @@ export const useConfigForm = ({
 
   useEffect(() => {
     if (loading || !configForm) return
-
-    // Install the schema validation rules
-    const nextValidate = createValidate({ schema })
-    const validateAndHooks = (values) => {
-      const validationResult = nextValidate(values)
-      return afterValidate(validationResult)
-    }
-    setValidate(() => validateAndHooks)
+    console.log('RESET!!!!!!', { loading, configForm })
 
     // Replace flat arrays so react-hook-form can use them
     const model = {}
@@ -56,15 +50,27 @@ export const useConfigForm = ({
     })
     // console.log({ model })
     reset({ model })
-  }, [loading, configForm])
+  }, [loading, JSON.stringify(configForm?.model)])
 
   useEffect(() => {
-    if (mutation.error && !mutation.loading) {
+    if (loading || !configForm) return
+
+    // Install the schema validation rules
+    const nextValidate = createValidate({ schema })
+    const validateAndHooks = (values) => {
+      const validationResult = nextValidate(values)
+      return afterValidate(validationResult)
+    }
+    setValidate(() => validateAndHooks)
+  }, [loading, JSON.stringify(configForm?.schemaForm)])
+
+  useEffect(() => {
+    if (mutation.error && !mutation.loading && formState.isSubmitted) {
       setError('' as never, {
         message: mutation.error.message,
       })
     }
-  }, [mutation.loading])
+  }, [mutation.loading, formState.isSubmitted])
 
   if (loading || !configForm || !validate) {
     return null
