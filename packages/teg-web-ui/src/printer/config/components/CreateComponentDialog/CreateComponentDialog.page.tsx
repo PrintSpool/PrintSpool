@@ -25,9 +25,7 @@ const CREATE_COMPONENT = gql`
 const CreateComponentDialog = ({
   open,
   fixedListComponentTypes,
-  // videoSources,
-  // devices,
-  // materials,
+  transformSchema,
 }) => {
   const { machineID } = useParams()
   const history = useHistory()
@@ -59,16 +57,13 @@ const CreateComponentDialog = ({
     throw error
   }
 
+  const { schema, form } = data?.componentSchemaForm
+
   return (
     <CreateComponentDialogView {...{
       loading,
-      // machineID,
       open,
-      // error: mutation.error,
       history,
-      // create: createComponent,
-      // client: mutation.client,
-      // validate,
       wizard: {
         ...wizard,
         activeStep: loading ? 0 : wizard.activeStep,
@@ -78,7 +73,10 @@ const CreateComponentDialog = ({
       mutation,
       configForm: {
         model: {},
-        schemaForm: data?.componentSchemaForm,
+        schemaForm: {
+          schema: transformSchema(schema),
+          form,
+        },
       },
       onSubmit: ({ model }) => createComponent({
         variables: {

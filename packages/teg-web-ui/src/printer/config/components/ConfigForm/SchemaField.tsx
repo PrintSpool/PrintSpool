@@ -7,6 +7,7 @@ import Typography from '@material-ui/core/Typography'
 import Hidden from '@material-ui/core/Hidden'
 import Switch from '@material-ui/core/Switch'
 import TextField, { StandardTextFieldProps } from '@material-ui/core/TextField'
+import FormHelperText from '@material-ui/core/FormHelperText'
 
 // import Typeahead from '../../../../common/Typeahead'
 
@@ -43,7 +44,7 @@ const SchemaField = ({
   const multiline = gcodeHooks.includes(name)
   // console.log({ name, multiline })
 
-  const isEnum = property.enum != null
+  const isEnum = property.enum != null || property.oneOf != null
 
   let type = property.type
   if (typeof type == 'object') {
@@ -51,6 +52,7 @@ const SchemaField = ({
   }
 
   const error = errors[fieldPath]
+  const helperText = error?.message || error || property.description
 
   switch (type) {
     case 'number':
@@ -75,7 +77,7 @@ const SchemaField = ({
         disabled: property.readOnly,
         error: error != null,
         fullWidth: true,
-        helperText: error?.message || error || property.description,
+        helperText,
         inputRef: register,
         name: fieldPath,
         label: property.title,
@@ -86,17 +88,28 @@ const SchemaField = ({
       if (isEnum) {
         return (
           <Controller
-            as={
+            defaultValue=""
+            render={({ ref, name, value, onChange, onBlur }) => (
               <TextField
                 {...textFieldProps}
+                inputRef={ref}
+                onChange={e => onChange(e.target.value)}
+                onBlur={onBlur}
+                name={name}
+                value={value || ""}
                 select
               >
-                { property.enum?.map((option, optionIndex) => (
-                  <MenuItem key={option} value={option}>
-                    {(property.enumNames || [])[optionIndex] || option}
+                { property.oneOf?.map((option) => (
+                  <MenuItem key={option.const} value={option.const}>
+                    {option.title}
                   </MenuItem>
                 ))}
-                { property.enum?.length === 0 && name === 'serialPortID' && (
+                { property.enum?.map((option) => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+                { (property.enum || property.oneOf)?.length === 0 && name === 'serialPortID' && (
                   <MenuItem value="">
                     No serial devices detected.
                     <Hidden smDown>
@@ -106,7 +119,7 @@ const SchemaField = ({
                   </MenuItem>
                 )}
               </TextField>
-            }
+            )}
             name={fieldPath}
             control={control}
           />
@@ -123,14 +136,20 @@ const SchemaField = ({
       )
     }
     case 'boolean': {
+      console.log(property)
+
       return (
         <div
-          style={{ marginTop: 24 }}
+          style={{
+            marginTop: 8,
+            marginBottom: 8,
+          }}
         >
           <Controller
             name={fieldPath}
             control={control}
-            render={(props) => (
+            defaultValue={false}
+            render={({ ref, name, value, onChange, onBlur }) => (
               <FormControlLabel
                 label={property.title}
                 control={(
@@ -139,13 +158,24 @@ const SchemaField = ({
                       margin: 'normal',
                       disabled: property.readOnly,
                     }}
-                    onChange={(e) => props.onChange(e.target.checked)}
-                    checked={props.value || false}
+                    size="small"
+                    inputRef={ref}
+                    onChange={(e) => onChange(e.target.checked)}
+                    checked={value || false}
+                    onBlur={onBlur}
+                    name={name}
                   />
                 )}
               />
             )}
           />
+          { helperText && helperText.length > 0 && (
+            <FormHelperText
+              error={ error != null}
+            >
+              {helperText}
+            </FormHelperText>
+          )}
         </div>
       )
     }

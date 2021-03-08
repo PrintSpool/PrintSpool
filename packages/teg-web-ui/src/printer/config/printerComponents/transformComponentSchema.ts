@@ -42,19 +42,20 @@ const transformComponentSchema = ({
   }
   if (schema.properties.materialID != null) {
     // inject the materials list into the schema as an enum
-    const enumValues = materials.map(m => m.id)
-    const enumNames = materials.map(m => m.name)
-
-    const properties = { ...nextSchema.properties }
-    properties.materialID = {
+    const materialID = {
       ...nextSchema.properties.materialID,
-      enum: enumValues,
-      enumNames,
+      oneOf: materials.map(material => ({
+        'const': material.id,
+        title: material.name,
+      })),
     }
 
     nextSchema = {
       ...nextSchema,
-      properties,
+      properties: {
+        ...nextSchema.properties,
+        materialID
+      },
     }
   }
   if (schema.properties.machineDefinitionURL != null) {

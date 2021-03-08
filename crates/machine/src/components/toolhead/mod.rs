@@ -39,7 +39,7 @@ pub struct ToolheadConfig {
     "#))]
     pub address: String,
 
-    /// Heated Extruder
+    /// # Heated Extruder
     #[serde(default)]
     pub heater: bool,
 
