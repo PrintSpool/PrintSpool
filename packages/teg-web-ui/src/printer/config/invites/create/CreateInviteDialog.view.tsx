@@ -14,8 +14,8 @@ import StepLabel from '@material-ui/core/StepLabel'
 import Typography from '@material-ui/core/Typography'
 import TextField from '@material-ui/core/TextField'
 
-import FormikSchemaForm from '../../components/FormikSchemaForm/index'
-import getDefaultValues from '../../components/FormikSchemaForm/getDefaultValues'
+import FormikSchemaForm from '../../components/ConfigForm/ConfigForm'
+import getDefaultValues from '../../components/ConfigForm/getDefaultValues'
 import useStyles from './CreateInviteDialog.styles'
 
 const STEPS = [

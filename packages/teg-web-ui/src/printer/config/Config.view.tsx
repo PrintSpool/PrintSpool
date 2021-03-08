@@ -8,7 +8,7 @@ import ListItemText from '@material-ui/core/ListItemText'
 
 import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from './components/UpdateDialog/UpdateDialog.page'
 import transformComponentSchema from './printerComponents/transformComponentSchema'
-import { useValidate } from './components/FormikSchemaForm/withValidate'
+import { useValidate } from './components/ConfigForm/withValidate'
 import UpdateDialogView from './components/UpdateDialog/UpdateDialog.view'
 
 const ConfigView = ({

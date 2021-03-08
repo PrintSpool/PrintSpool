@@ -3,7 +3,7 @@ import { useHistory, useParams } from 'react-router'
 import { gql, useMutation, useQuery } from '@apollo/client'
 
 import CreateInviteDialogView from './CreateInviteDialog.view'
-import useSchemaValidation from '../../components/FormikSchemaForm/useSchemaValidation'
+import useSchemaValidation from '../../components/ConfigForm/useSchemaValidation'
 
 const SCHEMA_QUERY = gql`
   query schemaQuery {

@@ -19,10 +19,10 @@ import Loading from '../../../common/Loading'
 
 import ButtonsFooter from '../ButtonsFooter'
 
-import FormikSchemaForm from '../../../printer/config/components/FormikSchemaForm/index'
+import FormikSchemaForm from '../../../printer/config/components/ConfigForm/ConfigForm'
 import transformComponentSchema from '../../../printer/config/printerComponents/transformComponentSchema'
 
-import useSchemaValidation from '../../../printer/config/components/FormikSchemaForm/useSchemaValidation'
+import useSchemaValidation from '../../../printer/config/components/ConfigForm/useSchemaValidation'
 
 const createMachineMutation = gql`
   mutation(

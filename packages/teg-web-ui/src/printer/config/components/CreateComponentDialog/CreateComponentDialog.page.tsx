@@ -1,9 +1,18 @@
 import React, { useState } from 'react'
 import { useHistory, useParams } from 'react-router'
-import { gql, useMutation } from '@apollo/client'
+import { gql, useMutation, useQuery } from '@apollo/client'
 
 import CreateComponentDialogView from './CreateComponentDialog.view'
-import useSchemaValidation from '../FormikSchemaForm/useSchemaValidation'
+
+const GET_SCHEMA_FORM = gql`
+  query GetSchemaForm($input: ComponentSchemaFormInput!) {
+    componentSchemaForm(input: $input) {
+      id
+      schema
+      form
+    }
+  }
+`
 
 const CREATE_COMPONENT = gql`
   mutation createComponent($input: CreateComponentInput!) {
@@ -13,22 +22,30 @@ const CREATE_COMPONENT = gql`
   }
 `
 
-const createComponentDialog = ({
+const CreateComponentDialog = ({
   open,
   fixedListComponentTypes,
-  videoSources,
-  devices,
-  materials,
+  // videoSources,
+  // devices,
+  // materials,
 }) => {
   const { machineID } = useParams()
   const history = useHistory()
 
   const [wizard, updateWizard] = useState({
     activeStep: 0,
-    schemaForm: { schema: null },
+    componentType: null,
   })
-  const { schema } = wizard.schemaForm
-  const validate = useSchemaValidation({ schema })
+
+  const { data, loading, error } = useQuery(GET_SCHEMA_FORM, {
+    skip: wizard.activeStep < 1,
+    variables: {
+      input: {
+        machineID,
+        type: wizard.componentType,
+      }
+    }
+  })
 
   const [createComponent, mutation] = useMutation(CREATE_COMPONENT, {
     update: (mutationResult: any) => {
@@ -36,28 +53,45 @@ const createComponentDialog = ({
         history.push('../')
       }
     }
-
   })
 
-  if (mutation.called) return <div />
+  if (error) {
+    throw error
+  }
 
   return (
     <CreateComponentDialogView {...{
-      machineID,
+      loading,
+      // machineID,
       open,
-      error: mutation.error,
+      // error: mutation.error,
       history,
-      create: createComponent,
-      client: mutation.client,
-      validate,
-      wizard,
+      // create: createComponent,
+      // client: mutation.client,
+      // validate,
+      wizard: {
+        ...wizard,
+        activeStep: loading ? 0 : wizard.activeStep,
+      },
       updateWizard,
       fixedListComponentTypes,
-      videoSources,
-      devices,
-      materials,
+      mutation,
+      configForm: {
+        model: {},
+        schemaForm: data?.componentSchemaForm,
+      },
+      onSubmit: ({ model }) => createComponent({
+        variables: {
+          input: {
+            machineID,
+            componentType: wizard.componentType,
+            model,
+          },
+        },
+      }),
+      onCancel: () => history.push('../'),
     }} />
   )
 }
 
-export default createComponentDialog
+export default CreateComponentDialog

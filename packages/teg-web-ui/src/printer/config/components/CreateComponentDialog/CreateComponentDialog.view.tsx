@@ -1,33 +1,27 @@
 import React from 'react'
-import { Formik, Form } from 'formik'
 import { gql } from '@apollo/client'
 
 import Dialog from '@material-ui/core/Dialog'
 import DialogTitle from '@material-ui/core/DialogTitle'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogActions from '@material-ui/core/DialogActions'
-import Button from '@material-ui/core/Button'
-import Stepper from '@material-ui/core/Stepper'
-import Step from '@material-ui/core/Step'
-import StepLabel from '@material-ui/core/StepLabel'
+// import DialogContent from '@material-ui/core/DialogContent'
+// import DialogActions from '@material-ui/core/DialogActions'
+// import Button from '@material-ui/core/Button'
+// import Stepper from '@material-ui/core/Stepper'
+// import Step from '@material-ui/core/Step'
+// import StepLabel from '@material-ui/core/StepLabel'
 
-import transformComponentSchema from '../../printerComponents/transformComponentSchema'
+// import transformComponentSchema from '../../printerComponents/transformComponentSchema'
 
+import LoadingOverlay from '../../../../common/LoadingOverlay'
 import componentTypeNames from './componentTypeNames'
-import Page1 from './Page1'
+// import Page1 from './Page1'
 
-import FormikSchemaForm from '../FormikSchemaForm/index'
-import getDefaultValues from '../FormikSchemaForm/getDefaultValues'
-
-const GET_SCHEMA_FORM = gql`
-  query GetSchemaForm($input: ComponentSchemaFormInput!) {
-    componentSchemaForm(input: $input) {
-      id
-      schema
-      form
-    }
-  }
-`
+// import ConfigForm from '../ConfigForm/ConfigForm'
+// import getDefaultValues from '../ConfigForm/getDefaultValues'
+// import useConfigForm from '../ConfigForm/useConfigForm'
+// import { useForm } from 'react-hook-form'
+import CreateComponentStep1 from './Step1.view'
+import CreateComponentStep2 from './Step2.view'
 
 const STEPS = [
   'Select a Type',
@@ -35,163 +29,133 @@ const STEPS = [
 ]
 
 const createComponentDialog = ({
-  machineID,
+  // machineID,
   open,
-  error: externalError,
   history,
-  create,
-  client,
-  validate: validateSchemaForm,
+  loading,
+  // create,
+  // client,
   wizard,
   updateWizard,
   fixedListComponentTypes,
-  videoSources,
-  devices,
-  materials,
-}) => (
-  <Dialog
-    open={open}
-    onClose={() => history.push('../')}
-    aria-labelledby="create-dialog-title"
-    maxWidth="md"
-    fullWidth
-  >
-    <Formik
-      initialValues={{
-        componentType: '',
-        model: {},
-      }}
-      validate={(values) => {
-        const errors: any = {}
+  // videoSources,
+  // devices,
+  // materials,
+  mutation,
+  configForm,
+  // configFormContext,
+  onCancel,
+  onSubmit,
+}) => {
+  // const firstPageForm = useForm({
+  //   defaultValues: {
+  //     componentType: '',
+  //   },
+  // })
 
-        if (!values.componentType) {
-          errors.componentType = 'Required'
-        }
+  // const configFormContext = useConfigForm({
+  //   configForm,
+  //   updateMutation,
+  //   defaultValues: {
+  //     componentType: '',
+  //     model: {},
+  //   },
+  //   afterValidate: ({ values, errors }) => {
+  //     if (!values.componentType) {
+  //       errors.componentType = 'Required'
+  //     }
 
-        const modelErrors = validateSchemaForm(values.model)
+  //     return {
+  //       values,
+  //       errors,
+  //     }
+  //   },
+  // })
 
-        if (Object.keys(modelErrors).length === 0) {
-          return errors
-        }
+  // const onSubmit = async () => {
+  //   const isLastPage = wizard.activeStep === STEPS.length - 1
+  //   if (isLastPage) {
+  //     return create({
+  //       variables: {
+  //         input: {
+  //           machineID,
+  //           componentType: values.componentType,
+  //           model: values.model,
+  //         },
+  //       },
+  //     })
+  //   }
 
-        return {
-          ...errors,
-          model: modelErrors,
-        }
-      }}
-      onSubmit={async (values, bag) => {
-        const isLastPage = wizard.activeStep === STEPS.length - 1
-        if (isLastPage) {
-          return create({
-            variables: {
-              input: {
-                machineID,
-                componentType: values.componentType,
-                model: values.model,
-              },
-            },
-          })
-        }
+  //   const { data } = await client.query({
+  //     query: GET_SCHEMA_FORM,
+  //     // TODO: move variables to where query is called
+  //     variables: {
+  //       input: {
+  //         machineID,
+  //         type: values.componentType,
+  //       },
+  //     },
+  //   })
 
-        const { data } = await client.query({
-          query: GET_SCHEMA_FORM,
-          // TODO: move variables to where query is called
-          variables: {
-            input: {
-              machineID,
-              type: values.componentType,
-            },
-          },
-        })
+  //   // bag.setTouched({})
+  //   bag.resetForm({
+  //     ...values,
+  //     model: getDefaultValues(data.componentSchemaForm),
+  //   })
+  //   updateWizard({
+  //     activeStep: wizard.activeStep + 1,
+  //     schemaForm: data.componentSchemaForm,
+  //   })
+  //   // bag.setSubmitting(false)
+  // }
 
-        // bag.setTouched({})
-        bag.resetForm({
-          ...values,
-          model: getDefaultValues(data.componentSchemaForm),
-        })
-        updateWizard({
-          activeStep: wizard.activeStep + 1,
-          schemaForm: data.componentSchemaForm,
-        })
-        // bag.setSubmitting(false)
-      }}
+  return (
+    <Dialog
+      open={open}
+      onClose={onCancel}
+      aria-labelledby="create-dialog-title"
+      maxWidth="md"
+      fullWidth
     >
-      {({ values, setTouched }) => (
-        <Form>
-          <DialogTitle id="create-dialog-title">
-            Add a
-            {' '}
-            {
-              values.componentType !== '' && (
-                componentTypeNames
-                  .find(c => c.value === values.componentType)
-                  .label
-              )
-            }
-            { values.componentType === '' && 'Component' }
-          </DialogTitle>
-          <DialogContent style={{ minHeight: '12em' }}>
-            <Stepper activeStep={wizard.activeStep}>
-              {
-                STEPS.map((label, index) => (
-                  <Step key={label} completed={index < wizard.activeStep}>
-                    <StepLabel>{label}</StepLabel>
-                  </Step>
-                ))
-              }
-            </Stepper>
-            {wizard.activeStep === 0 && (
-              <Page1
-                fixedListComponentTypes={fixedListComponentTypes}
-              />
-            )}
-            {wizard.activeStep === 1 && (() => {
-              const { schema, form } = wizard.schemaForm
-
-              return (
-                <FormikSchemaForm
-                  schema={transformComponentSchema({
-                    schema,
-                    materials,
-                    devices,
-                    videoSources,
-                  })}
-                  form={form}
-                  path="model."
-                  register={register}
-                  control={control}
-                  errors={errors}
-                />
-              )
-            })()}
-          </DialogContent>
-          <DialogActions>
-            {wizard.activeStep === 0 && (
-              <Button onClick={() => history.push('../')}>
-                Cancel
-              </Button>
-            )}
-            {wizard.activeStep > 0 && (
-              <Button
-                onClick={() => {
-                  setTouched({})
-                  updateWizard({
-                    activeStep: wizard.activeStep - 1,
-                    schemaForm: { schema: null },
-                  })
-                }}
-              >
-                Back
-              </Button>
-            )}
-            <Button type="submit" color="primary">
-              {wizard.activeStep === STEPS.length - 1 ? 'Finish' : 'Next'}
-            </Button>
-          </DialogActions>
-        </Form>
-      )}
-    </Formik>
-  </Dialog>
-)
+      <LoadingOverlay loading={loading}>
+        <DialogTitle id="create-dialog-title">
+          Add a
+          {' '}
+          {
+            wizard.activeStep !== 0 && (
+              componentTypeNames
+                .find(c => c.value === wizard.componentType)
+                .label
+            )
+          }
+          { wizard.activeStep === 0 && 'Component' }
+        </DialogTitle>
+        <CreateComponentStep1 {...{
+          active: wizard.activeStep === 0,
+          history,
+          wizard,
+          fixedListComponentTypes,
+          onSubmit: ({ componentType }) => updateWizard({
+            componentType,
+            activeStep: 1,
+          }),
+          onCancel,
+        }} />
+        { wizard.activeStep === 1 && (
+          <CreateComponentStep2 {...{
+            configForm,
+            mutation,
+            wizard,
+            onSubmit,
+            onBack: () => updateWizard({
+              ...wizard,
+              activeStep: 0,
+            }),
+          }} />
+        )}
+      </LoadingOverlay>
+    </Dialog>
+  )
+}
 
 export default createComponentDialog

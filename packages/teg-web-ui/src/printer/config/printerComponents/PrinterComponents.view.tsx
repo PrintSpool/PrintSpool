@@ -126,9 +126,9 @@ const PrinterComponentsView = ({
         <CreateComponentDialog
           open
           fixedListComponentTypes={fixedListComponentTypes}
-          videoSources={videoSources}
-          devices={devices}
-          materials={materials}
+          // videoSources={videoSources}
+          // devices={devices}
+          // materials={materials}
         />
       )}
       <Tooltip title="Add Component" placement="left">

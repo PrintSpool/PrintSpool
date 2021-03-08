@@ -3,7 +3,7 @@ import { useHistory, useParams } from 'react-router'
 import { gql, useMutation } from '@apollo/client'
 
 import CreateMaterialDialogView from './CreateMaterialDialog.view'
-import useSchemaValidation from '../FormikSchemaForm/useSchemaValidation'
+import useSchemaValidation from '../ConfigForm/useSchemaValidation'
 
 const CREATE_COMPONENT = gql`
   mutation createMaterial($input: CreateComponentInput!) {

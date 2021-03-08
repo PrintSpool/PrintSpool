@@ -6,11 +6,11 @@ import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import Hidden from '@material-ui/core/Hidden'
 import Switch from '@material-ui/core/Switch'
-import TextField from '@material-ui/core/TextField'
+import TextField, { StandardTextFieldProps } from '@material-ui/core/TextField'
 
 // import Typeahead from '../../../../common/Typeahead'
 
-const SchemaFieldUI = ({
+const SchemaField = ({
   schema,
   name,
   defaultValue = null,
@@ -19,6 +19,7 @@ const SchemaFieldUI = ({
   control,
   errors,
 }) => {
+  const fieldPath = `model[${name}]`
   // Apply schema refs to get the final schema property values
   if (propertyNoRefs == null) {
     throw new Error(`JSON schema missing type "${name}"`)
@@ -32,17 +33,6 @@ const SchemaFieldUI = ({
   const property = refMixins.reduce((a, b) => ({ ...a, ...b }))
 
   // console.log({ name })
-  // Get the common material ui props from the schema property
-  const sharedFieldProps = {
-    inputRef: register,
-    name,
-    defaultValue,
-    key: name,
-    label: property.title,
-    margin: 'normal',
-    disabled: property.readOnly,
-    helperText: property.description,
-  }
 
   const gcodeHooks = [
     'beforePrintHook',
@@ -60,7 +50,7 @@ const SchemaFieldUI = ({
     type = type[0]
   }
 
-  const error = errors[name]
+  const error = errors[fieldPath]
 
   switch (type) {
     case 'number':
@@ -78,16 +68,28 @@ const SchemaFieldUI = ({
       //   )
       // }
 
+      // Get the common material ui props from the schema property
+      const textFieldProps: StandardTextFieldProps = {
+        key: name,
+        defaultValue,
+        disabled: property.readOnly,
+        error: error != null,
+        fullWidth: true,
+        helperText: error?.message || error || property.description,
+        inputRef: register,
+        name: fieldPath,
+        label: property.title,
+        margin: 'normal',
+        variant: 'standard',
+      }
+
       if (isEnum) {
         return (
           <Controller
             as={
               <TextField
-                {...sharedFieldProps}
-                error={error != null}
-                helperText={error?.message || error}
+                {...textFieldProps}
                 select
-                fullWidth
               >
                 { property.enum?.map((option, optionIndex) => (
                   <MenuItem key={option} value={option}>
@@ -105,7 +107,7 @@ const SchemaFieldUI = ({
                 )}
               </TextField>
             }
-            name={name}
+            name={fieldPath}
             control={control}
           />
         )
@@ -113,13 +115,10 @@ const SchemaFieldUI = ({
 
       return (
         <TextField
-          {...sharedFieldProps}
-          error={error != null}
-          helperText={error?.message || error}
+          {...textFieldProps}
           multiline={multiline}
           rows={multiline ? 5 : null}
           type={componentType}
-          fullWidth
         />
       )
     }
@@ -129,11 +128,11 @@ const SchemaFieldUI = ({
           style={{ marginTop: 24 }}
         >
           <Controller
-            name={name}
+            name={fieldPath}
             control={control}
             render={(props) => (
               <FormControlLabel
-                label={console.log(props) || property.title}
+                label={property.title}
                 control={(
                   <Switch
                     {...{
@@ -153,24 +152,25 @@ const SchemaFieldUI = ({
     case 'array': {
       const { fields, append, remove } = useFieldArray({
         control, // control props comes from useForm (optional: if you are using FormContext)
-        name, // unique name for your Field Array
+        name: fieldPath, // unique name for your Field Array
         // keyName: "id", default to "id", you can change the key name
       })
       // console.log({ fields })
 
       return (
         <>
-          <Typography varaint="body1">
+          <Typography variant="body1">
             {property.title}
           </Typography>
           { property.description && (
-            <Typography varaint="body2">
+            <Typography variant="body2">
               {property.description}
             </Typography>
           )}
           {fields.map((field, index) => (
             <div key={field.id}>
-              <SchemaFieldUI
+              <SchemaField
+                schema={schema.properties[name]}
                 property={{
                   title: `${property.title} #${index + 1}`,
                   ...property.items,
@@ -186,7 +186,7 @@ const SchemaFieldUI = ({
               </Button>
             </div>
           ))}
-          <Button onClick={() => append({ [name]: '' })}>
+          <Button onClick={() => append({ value: '' })}>
             Add
             {' '}
             {property.title}
@@ -200,4 +200,4 @@ const SchemaFieldUI = ({
   }
 }
 
-export default SchemaFieldUI
+export default SchemaField

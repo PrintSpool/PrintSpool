@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useHistory } from 'react-router'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { useForm } from 'react-hook-form'
-import useSchemaValidation, { createValidate } from '../FormikSchemaForm/useSchemaValidation'
+import useSchemaValidation, { createValidate } from '../ConfigForm/useSchemaValidation'
 
 import UpdateDialogView from './UpdateDialog.view'
 
@@ -58,62 +58,11 @@ export const useUpdateDialog = ({
   deleteButton = false,
 }) => {
   const history = useHistory()
-  const [validate, setValidate] = useState(null)
-
-  const {
-    register,
-    control,
-    handleSubmit,
-    reset,
-    errors,
-    setError,
-  } = useForm({
-    defaultValues: {},
-    context: { validate },
-    resolver: (data, { validate }) => validate(data),
-  })
 
   let { data, loading, error } = useQuery(query, {
     variables,
     // onCompleted: resetSchemaAndForm
   })
-
-  useEffect(() => {
-    if (loading || !data) return
-
-    const configFormData = loadConfigForm({ getConfigForm, data })
-    const { schema } = configFormData.schemaForm
-
-    // Install the schema validation rules
-    const nextValidate = createValidate({ schema })
-    setValidate(() => nextValidate)
-
-    // Replace flat arrays so react-hook-form can use them
-    const model = {}
-    Object.entries(configFormData.model).forEach(([k, v]) => {
-      const property = schema.properties[k]
-      // console.log({ property })
-      if (
-        property.type === 'array'
-        && property.items.type !== 'object'
-      ) {
-        // console.log({ v })
-        model[k] = (v||[] as any).map(value => ({ value }))
-      } else {
-        model[k] = v
-      }
-    })
-    // console.log({ model })
-    reset(model)
-  }, [loading, data])
-
-  useEffect(() => {
-    if (updateMutation.error && !updateMutation.loading) {
-      setError('' as never, {
-        message: updateMutation.error.message,
-      })
-    }
-  }, [updateMutation.loading])
 
   if (error) {
     throw error
@@ -121,24 +70,22 @@ export const useUpdateDialog = ({
 
   // console.log({ title, open, status, loading, data })
   if (!open) return null
-  if (loading || !data || !validate) return null
+  if (loading || !data) return null
 
   const configFormData = loadConfigForm({ getConfigForm, data })
 
   return {
     title,
     open,
-    onSubmit: handleSubmit(onSubmit),
+    onSubmit: ({model}) => onSubmit(model),
     onClose: () => history.push('../'),
-    data: configFormData,
+    configForm: configFormData,
     submitting: updateMutation.loading,
     status,
     deleteButton,
     transformSchema,
     hasPendingUpdates,
-    register,
-    control,
-    errors,
+    mutation: updateMutation,
   }
 }
 

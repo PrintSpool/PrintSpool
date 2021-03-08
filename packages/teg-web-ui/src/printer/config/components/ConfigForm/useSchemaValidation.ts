@@ -40,9 +40,10 @@ const normalizeAllProperties = (originalProperties = {}) => {
   return properties
 }
 
-export const createValidate = ({ schema: originalSchema = null } = {}) => {
-  if (originalSchema == null) return () => ({})
-  // console.log({ originalSchema })
+export const createValidate = ({
+  schema: originalSchema,
+}): (any) => { values: any, errors: any} => {
+  console.log({ originalSchema })
 
   const ajv = new Ajv({
     allErrors: true,
@@ -75,11 +76,12 @@ export const createValidate = ({ schema: originalSchema = null } = {}) => {
 
   const validateWithAJV = ajv.compile(schema)
 
-  const validate = (data) => {
-    // console.log('VALIDATE', data)
+  const validate = ({ model, ...values }) => {
+    // console.log('VALIDATE', model)
     // Replace react-hook-form nested object arrays with flat arrays
-    const model = {}
-    Object.entries(data).forEach(([k, v]) => {
+    const normalizedModel = {}
+    Object.entries(model).forEach(([k, v]) => {
+      console.log(k)
       const property = originalSchema.properties[k]
       // console.log({ property })
       if (
@@ -87,13 +89,13 @@ export const createValidate = ({ schema: originalSchema = null } = {}) => {
         && property.items.type !== 'object'
       ) {
         // console.log({ v })
-        model[k] = (v||[] as any).map(({ value }) => value)
+        normalizedModel[k] = (v||[] as any).map(({ value }) => value)
       } else {
-        model[k] = v
+        normalizedModel[k] = v
       }
     })
 
-    const valid = validateWithAJV(model)
+    const valid = validateWithAJV(normalizedModel)
     const errors = {}
 
     if (!valid) {
@@ -102,11 +104,7 @@ export const createValidate = ({ schema: originalSchema = null } = {}) => {
           error.params.missingProperty
           || error.dataPath.replace('.', '')
         )
-          .replace(/([^\/]+)\/([^\/]+)/g, '$1[$2]')
-
-        if (fieldName[0] === '/') {
-          fieldName = fieldName.substring(1)
-        }
+          .replace(/\/([^\/]+)/g, '[$1]')
 
         if (fieldName.endsWith(']')) {
           fieldName = `${fieldName}.value`
@@ -117,13 +115,16 @@ export const createValidate = ({ schema: originalSchema = null } = {}) => {
           console.error({ error })
         }
 
-        errors[fieldName] = error.message
+        errors[`model${fieldName}`] = error.message
       })
     }
 
-    // console.log({ errors })
+    console.log({ normalizedModel, errors, ajv: validateWithAJV.errors })
     return {
-      values: model,
+      values: {
+        ...values,
+        model: normalizedModel
+      },
       errors,
     }
   }
@@ -133,7 +134,11 @@ export const createValidate = ({ schema: originalSchema = null } = {}) => {
 
 const useSchemaValidation = ({ schema = null } = {}) => (
   useMemo(() => {
-    createValidate({ schema })
+    if (schema) {
+      return createValidate({ schema })
+    } else {
+      return null
+    }
   }, [schema])
 )
 

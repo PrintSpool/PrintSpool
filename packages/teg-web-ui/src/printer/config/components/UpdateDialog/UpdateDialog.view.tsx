@@ -7,10 +7,11 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
 import Button from '@material-ui/core/Button'
 
-import FormikSchemaForm from '../FormikSchemaForm/index'
+import FormikSchemaForm, { ConfigForm } from '../ConfigForm/ConfigForm'
 import StatusFilter from '../../../../common/StatusFilter'
 // import Loading from '../../../../common/Loading'
 import LoadingOverlay from '../../../../common/LoadingOverlay'
+import ConfigFields from '../ConfigForm/ConfigFields'
 
 const UpdateDialogView = ({
   title,
@@ -19,15 +20,13 @@ const UpdateDialogView = ({
   open,
   onSubmit,
   onClose,
-  data,
+  configForm,
   submitting,
   status,
   deleteButton = false,
   transformSchema = schema => schema,
   hasPendingUpdates = false,
-  register,
-  control,
-  errors,
+  mutation,
 }) => {
   // console.log({ data }, data.schemaForm.schema)
 
@@ -39,7 +38,12 @@ const UpdateDialogView = ({
       maxWidth="md"
       fullWidth
     >
-      <form onSubmit={onSubmit}>
+      <ConfigForm
+        schema={transformSchema(configForm.schemaForm.schema)}
+        configForm={configForm}
+        mutation={mutation}
+        onSubmit={onSubmit}
+      >
         <LoadingOverlay loading={submitting}>
           <DialogTitle id="form-dialog-title">{title || name || id}</DialogTitle>
           <StatusFilter
@@ -58,13 +62,7 @@ const UpdateDialogView = ({
             lighten
           >
             <DialogContent>
-              <FormikSchemaForm
-                schema={transformSchema(data.schemaForm.schema)}
-                form={data.schemaForm.form}
-                register={register}
-                control={control}
-                errors={errors}
-              />
+              <ConfigFields/>
             </DialogContent>
           </StatusFilter>
           <DialogActions>
@@ -92,7 +90,7 @@ const UpdateDialogView = ({
             </Button>
           </DialogActions>
         </LoadingOverlay>
-      </form>
+      </ConfigForm>
     </Dialog>
   )
 }

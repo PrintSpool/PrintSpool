@@ -14,8 +14,8 @@ import StepLabel from '@material-ui/core/StepLabel'
 import materialTypeNames from './materialTypeNames'
 import Page1 from './Page1'
 
-import FormikSchemaForm from '../FormikSchemaForm/index'
-import getDefaultValues from '../FormikSchemaForm/getDefaultValues'
+import FormikSchemaForm from '../ConfigForm/ConfigForm'
+import getDefaultValues from '../ConfigForm/getDefaultValues'
 
 const GET_SCHEMA_FORM = gql`
   query GetSchemaForm($input: MaterialSchemaFormInput!) {
