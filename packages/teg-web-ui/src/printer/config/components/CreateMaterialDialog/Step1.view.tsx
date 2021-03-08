@@ -25,7 +25,7 @@ const CreateMaterialStep1 = ({
   onSubmit,
 }) => {
   const {
-    register,
+    // register,
     handleSubmit,
     errors,
     control,

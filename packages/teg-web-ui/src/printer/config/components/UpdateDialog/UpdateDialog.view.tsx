@@ -7,7 +7,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogActions from '@material-ui/core/DialogActions'
 import Button from '@material-ui/core/Button'
 
-import FormikSchemaForm, { ConfigForm } from '../ConfigForm/ConfigForm'
+import ConfigForm from '../ConfigForm/ConfigForm'
 import StatusFilter from '../../../../common/StatusFilter'
 // import Loading from '../../../../common/Loading'
 import LoadingOverlay from '../../../../common/LoadingOverlay'

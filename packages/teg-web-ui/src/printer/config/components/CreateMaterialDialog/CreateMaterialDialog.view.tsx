@@ -29,7 +29,6 @@ const STEPS = [
 
 const CreateMaterialDialogView = ({
   open,
-  history,
   loading,
   wizard,
   updateWizard,
@@ -61,7 +60,6 @@ const CreateMaterialDialogView = ({
         </DialogTitle>
         <CreateMaterialStep1 {...{
           active: wizard.activeStep === 0,
-          history,
           wizard,
           onSubmit: ({ materialType }) => updateWizard({
             materialType,

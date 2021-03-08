@@ -24,6 +24,7 @@ const InvitesConfigView = ({
   invites,
   hasPendingUpdates,
   update,
+  updateMutation,
 }) => {
   const classes = useStyles()
 
@@ -38,6 +39,7 @@ const InvitesConfigView = ({
             status={'READY'}
             hasPendingUpdates={hasPendingUpdates}
             onSubmit={update}
+            updateMutation={updateMutation}
             variables={{ inviteID }}
             query={gql`
               query($inviteID: ID) {

@@ -27,7 +27,6 @@ const CREATE_COMPONENT = gql`
 const createInviteDialog = ({
   open,
 }) => {
-  const { machineID } = useParams()
   const history = useHistory()
 
   const [wizard, updateWizard] = useState({
@@ -40,30 +39,20 @@ const createInviteDialog = ({
     })
   }, [open])
 
-  const { data, loading, error: queryError } = useQuery(SCHEMA_QUERY, {
-    // TODO: move variables to where query is called
-    variables: {
-      input: {
-        collection: 'AUTH',
-        schemaFormKey: 'invite',
-      },
-    },
-  })
-  const { schema, form } = data?.inviteSchemaForm || {}
-
-  const validate = useSchemaValidation({ schema })
+  const { data, loading, error } = useQuery(SCHEMA_QUERY)
 
   const [createInvite, mutation] = useMutation(CREATE_COMPONENT, {
     update: (mutationResult: any) => {
       if (mutationResult.data != null) {
-        setTimeout(() => updateWizard({ activeStep: 1 }), 0)
+        setTimeout(() => {
+          updateWizard({ activeStep: 1 })
+        }, 0)
       }
     }
   })
 
-  const anyError = queryError || mutation.error
-  if (anyError != null) {
-    throw anyError
+  if (error != null) {
+    throw error
   }
 
   if (loading) return <div />
@@ -71,17 +60,23 @@ const createInviteDialog = ({
   return (
     <CreateInviteDialogView {...{
       loading: mutation.loading,
-      inviteURL: mutation.data?.createInvite.inviteURL,
-      schema,
-      form,
-      machineID,
       open,
-      history,
-      create: createInvite,
-      client: mutation.client,
-      validate,
+      inviteURL: mutation.data?.createInvite.inviteURL,
       wizard,
       updateWizard,
+      mutation,
+      configForm: {
+        model: {},
+        schemaForm: data?.inviteSchemaForm,
+      },
+      onSubmit: ({ model }) => createInvite({
+        variables: {
+          input: {
+            model,
+          },
+        },
+      }),
+      onCancel: () => history.push('../'),
     }} />
   )
 }

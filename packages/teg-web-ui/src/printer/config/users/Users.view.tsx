@@ -20,6 +20,7 @@ const UsersConfigView = ({
   user,
   hasPendingUpdates,
   update,
+  updateMutation
 }) => {
   const classes = useStyles()
 
@@ -34,6 +35,7 @@ const UsersConfigView = ({
             status={'READY'}
             hasPendingUpdates={hasPendingUpdates}
             onSubmit={update}
+            updateMutation={updateMutation}
             variables={{ userID }}
             query={gql`
               query($userID: ID) {

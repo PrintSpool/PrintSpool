@@ -26,7 +26,7 @@ export type ConfigFormContextType = {
 
 export const ConfigFormContext = React.createContext({} as ConfigFormContextType)
 
-export const ConfigForm = ({
+const ConfigForm = ({
   loading = false,
   schema: schemaOverride = null,
   configForm,

@@ -22,6 +22,7 @@ const CONFIG_QUERY = gql`
   }
   ${UPDATE_DIALOG_FRAGMENT}
 `
+
 const UPDATE_INVITE = gql`
   mutation updateInvite($input: UpdateInviteInput!) {
     updateInvite(input: $input) {
@@ -95,6 +96,7 @@ const InvitesConfigIndex = () => {
       invites,
       hasPendingUpdates: false,
       update,
+      updateMutation: updateInviteMutation,
     }} />
   )
 }

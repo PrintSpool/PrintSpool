@@ -85,9 +85,8 @@ const UsersConfigIndex = () => {
     return <div/>
   }
 
-  const anyError = error || updateUserMutation.error
-  if (anyError) {
-    throw anyError
+  if (error) {
+    throw error
   }
 
   return (
@@ -98,6 +97,7 @@ const UsersConfigIndex = () => {
       user,
       hasPendingUpdates: false,
       update,
+      updateMutation: updateUserMutation,
     }} />
   )
 }
