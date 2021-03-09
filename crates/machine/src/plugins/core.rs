@@ -45,3 +45,16 @@ pub struct CorePluginConfig {
 
     // pub macros: Vec<String>,
 }
+
+impl teg_config_form::Model for CorePluginConfig {
+    fn form(_: &Vec<String>) -> Vec<String> {
+        vec![
+            "name",
+            "automaticPrinting",
+            "swapXAndYOrientation",
+        ]
+            .into_iter()
+            .map(Into::into)
+            .collect()
+    }
+}

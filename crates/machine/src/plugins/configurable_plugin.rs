@@ -1,11 +1,8 @@
-use serde::Serialize;
-use schemars::JsonSchema;
-
 use super::PluginContainer;
 
 impl<T> teg_config_form::Configurable<T> for PluginContainer<T>
 where
-    T: JsonSchema + Serialize,
+    T: teg_config_form::Model,
 {
     fn id(&self) -> async_graphql::ID {
         format!("user-{}", self.id).into()
@@ -20,6 +17,6 @@ where
     }
 
     fn form(all_fields: &Vec<String>) -> Vec<String> {
-        all_fields.clone()
+        T::form(all_fields)
     }
 }
