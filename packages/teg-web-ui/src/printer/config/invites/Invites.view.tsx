@@ -7,8 +7,8 @@ import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import Tooltip from '@material-ui/core/Tooltip'
 import Fab from '@material-ui/core/Fab'
+import Avatar from '@material-ui/core/Avatar'
 
-import PersonOutline from '@material-ui/icons/PersonOutline'
 import Add from '@material-ui/icons/Add'
 
 import { gql } from '@apollo/client'
@@ -45,7 +45,7 @@ const InvitesConfigView = ({
               query($inviteID: ID) {
                 invites(input: { inviteID: $inviteID }) {
                   configForm {
-                    ...UpdateDialogFragment
+                    ...ConfigFormFragment
                   }
                 }
               }
@@ -88,7 +88,9 @@ const InvitesConfigView = ({
               component={React.forwardRef((props, ref) => (
                 <Link to={`${invite.id}/`} innerRef={ref} {...props}>
                   <ListItemIcon>
-                    <PersonOutline />
+                    <Avatar>
+                      {invite.description[0]}
+                    </Avatar>
                   </ListItemIcon>
                   <ListItemText>
                     {invite.description}

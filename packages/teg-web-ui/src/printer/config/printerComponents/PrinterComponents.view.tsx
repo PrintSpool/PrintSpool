@@ -116,7 +116,7 @@ const PrinterComponentsView = ({
               machines(input: {machineID: $machineID}) {
                 components(input: {componentID: $componentID}) {
                   configForm {
-                    ...UpdateDialogFragment
+                    ...ConfigFormFragment
                   }
                 }
               }

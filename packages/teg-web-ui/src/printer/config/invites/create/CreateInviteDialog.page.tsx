@@ -3,16 +3,15 @@ import { useHistory, useParams } from 'react-router'
 import { gql, useMutation, useQuery } from '@apollo/client'
 
 import CreateInviteDialogView from './CreateInviteDialog.view'
-import useSchemaValidation from '../../components/ConfigForm/useSchemaValidation'
+import { CONFIG_FORM_FRAGMENT } from '../../components/ConfigForm/ConfigForm'
 
 const SCHEMA_QUERY = gql`
-  query schemaQuery {
-    inviteSchemaForm {
-      id
-      schema
-      form
+  query configFormQuery {
+    inviteConfigForm {
+      ...ConfigFormFragment
     }
   }
+  ${CONFIG_FORM_FRAGMENT}
 `
 
 const CREATE_COMPONENT = gql`
@@ -65,10 +64,7 @@ const createInviteDialog = ({
       wizard,
       updateWizard,
       mutation,
-      configForm: {
-        model: {},
-        schemaForm: data?.inviteSchemaForm,
-      },
+      configForm: data?.inviteConfigForm,
       onSubmit: ({ model }) => createInvite({
         variables: {
           input: {

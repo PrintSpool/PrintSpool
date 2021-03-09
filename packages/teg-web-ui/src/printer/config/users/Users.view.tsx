@@ -41,7 +41,7 @@ const UsersConfigView = ({
               query($userID: ID) {
                 users(input: { userID: $userID }) {
                   configForm {
-                    ...UpdateDialogFragment
+                    ...ConfigFormFragment
                   }
                 }
               }

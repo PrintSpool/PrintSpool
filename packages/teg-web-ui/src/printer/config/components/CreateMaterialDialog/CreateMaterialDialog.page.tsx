@@ -3,15 +3,15 @@ import { useHistory } from 'react-router'
 import { gql, useMutation, useQuery } from '@apollo/client'
 
 import CreateMaterialDialogView from './CreateMaterialDialog.view'
+import { CONFIG_FORM_FRAGMENT } from '../ConfigForm/ConfigForm'
 
 const GET_SCHEMA_FORM = gql`
-  query GetSchemaForm($input: MaterialSchemaFormInput!) {
-    materialSchemaForm(input: $input) {
-      id
-      schema
-      form
+  query GetConfigForm($input: MaterialSchemaFormInput!) {
+    materialConfigForm(input: $input) {
+      ...ConfigFormFragment
     }
   }
+  ${CONFIG_FORM_FRAGMENT}
 `
 
 const CREATE_MATERIAL = gql`
@@ -53,6 +53,8 @@ const createMaterialDialog = ({
     throw error
   }
 
+  const configForm = data?.materialConfigForm
+
   return (
     <CreateMaterialDialogView {...{
       loading,
@@ -64,10 +66,7 @@ const createMaterialDialog = ({
       },
       updateWizard,
       mutation,
-      configForm: {
-        model: {},
-        schemaForm: data?.materialSchemaForm,
-      },
+      configForm,
       onSubmit: ({ model }) => createMaterial({
         variables: {
           input: {

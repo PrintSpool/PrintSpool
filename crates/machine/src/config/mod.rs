@@ -1,7 +1,6 @@
 mod machine_config;
 pub use machine_config::{ MachineConfig };
 
-mod into_config_form;
 pub mod resolvers;
 
 mod combined_config_view;

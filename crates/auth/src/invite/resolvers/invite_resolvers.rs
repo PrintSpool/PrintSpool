@@ -3,11 +3,11 @@ use async_graphql::{
     FieldResult,
     ID,
 };
-use eyre::{
-    // eyre,
-    Result,
-    // Context as _,
-};
+// use eyre::{
+//     // eyre,
+//     Result,
+//     // Context as _,
+// };
 use teg_config_form::ConfigForm;
 
 use crate::invite::Invite;
@@ -21,6 +21,13 @@ impl Invite {
     async fn description(&self) -> String {
         self.config.name
             .clone()
+            .and_then(|s|
+                if s.is_empty() {
+                    None
+                } else {
+                    Some(s)
+                }
+            )
             .unwrap_or_else(|| format!("Invite #{}", self.id).to_string())
     }
 
@@ -32,7 +39,7 @@ impl Invite {
     }
 
     async fn config_form(&self) -> FieldResult<ConfigForm> {
-        let config_form: Result<ConfigForm> = self.into();
-        Ok(config_form?)
+        let config_form = teg_config_form::into_config_form(self)?;
+        Ok(config_form)
     }
 }

@@ -2,11 +2,11 @@ use async_graphql::{
     ID,
     FieldResult,
 };
-use eyre::{
-    // eyre,
-    Result,
-    // Context as _,
-};
+// use eyre::{
+//     // eyre,
+//     Result,
+//     // Context as _,
+// };
 use serde::{Serialize, Deserialize};
 use nanoid::nanoid;
 use teg_config_form::ConfigForm;
@@ -55,12 +55,11 @@ impl Plugin {
 
         match self {
             Core(p) => {
-                let config_form: Result<ConfigForm> = p.into();
-                Ok(config_form?)
+                let config_form = teg_config_form::into_config_form(p)?;
+                Ok(config_form)
             },
         }
     }
-
 
     async fn is_essential(&self) -> bool {
         use Plugin::*;

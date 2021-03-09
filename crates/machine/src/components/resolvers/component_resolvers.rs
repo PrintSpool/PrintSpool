@@ -2,12 +2,11 @@ use async_graphql::{
     FieldResult,
     ID,
 };
-
-use eyre::{
-    // eyre,
-    Result,
-    // Context as _,
-};
+// use eyre::{
+//     // eyre,
+//     Result,
+//     // Context as _,
+// };
 
 use super::super::{
     AxisEphemeral,
@@ -74,17 +73,18 @@ impl Component {
 
     async fn config_form(&self) -> FieldResult<ConfigForm> {
         use Component::*;
+        use teg_config_form::into_config_form;
 
-        let config_form: Result<ConfigForm> = match self {
-            Controller(c) => c.into(),
-            Axis(c) => c.into(),
-            Toolhead(c) => c.into(),
-            SpeedController(c) => c.into(),
-            Video(c) => c.into(),
-            BuildPlatform(c) => c.into(),
-        };
+        let config_form = match self {
+            Controller(c) => into_config_form(c),
+            Axis(c) => into_config_form(c),
+            Toolhead(c) => into_config_form(c),
+            SpeedController(c) => into_config_form(c),
+            Video(c) => into_config_form(c),
+            BuildPlatform(c) => into_config_form(c),
+        }?;
 
-        Ok(config_form?)
+        Ok(config_form)
     }
 
     /// set if this component is an axis. Null for all other components.

@@ -91,6 +91,21 @@ pub struct ToolheadConfig {
     pub before_filament_swap_hook: String,
 }
 
+impl teg_config_form::Model for ToolheadConfig {
+    fn form(_: &Vec<String>) -> Vec<String> {
+        vec![
+            "name",
+            "address",
+            "heater",
+            "feedrate",
+            "materialID",
+        ]
+            .into_iter()
+            .map(Into::into)
+            .collect()
+    }
+}
+
 #[derive(Default, Debug, Clone)]
 pub struct ToolheadEphemeral {
     pub heater: HeaterEphemeral,

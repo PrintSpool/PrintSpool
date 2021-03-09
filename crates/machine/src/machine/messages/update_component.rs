@@ -3,7 +3,6 @@ use eyre::{
     Result,
     // Context as _,
 };
-use serde::de::DeserializeOwned;
 
 use crate::{
     components::{
@@ -25,7 +24,7 @@ pub struct UpdateComponent {
     pub model: serde_json::Value,
 }
 
-fn get_component_and_next_model<'a, M: validator::Validate + DeserializeOwned, E: Default>(
+fn get_component_and_next_model<'a, M: validator::Validate + teg_config_form::Model, E: Default>(
     components: &'a mut Vec<ComponentInner<M, E>>,
     msg: &UpdateComponent,
 ) -> Result<(&'a mut ComponentInner<M, E>, M)> {
@@ -40,7 +39,7 @@ fn get_component_and_next_model<'a, M: validator::Validate + DeserializeOwned, E
     Ok((component, next_model))
 }
 
-fn update_component_inner<'a, M: validator::Validate + DeserializeOwned, E: Default>(
+fn update_component_inner<'a, M: validator::Validate + teg_config_form::Model, E: Default>(
     components: &mut Vec<ComponentInner<M, E>>,
     msg: &UpdateComponent,
 ) -> Result<()> {

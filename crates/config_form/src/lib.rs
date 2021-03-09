@@ -1,18 +1,11 @@
-use async_graphql::SimpleObject;
+mod config_form;
+pub use config_form::ConfigForm;
 
-#[derive(SimpleObject)]
-pub struct ConfigForm {
-    pub id: async_graphql::ID,
-    pub model: async_graphql::Json<serde_json::Value>,
-    pub model_version: i32,
-    pub schema_form: JsonSchemaForm,
-}
+mod configurable;
+pub use configurable::Configurable;
 
-#[derive(SimpleObject)]
-#[graphql(name=JSONSchemaForm)]
-pub struct JsonSchemaForm {
-    pub id: async_graphql::ID,
-    pub schema: async_graphql::Json<serde_json::Value>,
-    pub form: Vec<String>,
-}
+mod model;
+pub use model::Model;
 
+mod into_config_form;
+pub use into_config_form::into_config_form;

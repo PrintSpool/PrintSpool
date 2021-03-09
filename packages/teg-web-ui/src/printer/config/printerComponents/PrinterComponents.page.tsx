@@ -29,7 +29,7 @@ const COMPONENTS_QUERY = gql`
         type
         name
         configForm {
-          ...UpdateDialogFragment
+          ...ConfigFormFragment
         }
       }
     }

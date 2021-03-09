@@ -15,7 +15,7 @@ const CONFIG_QUERY = gql`
       name
       shortSummary
       configForm {
-        ...UpdateDialogFragment
+        ...ConfigFormFragment
       }
     }
   }
@@ -29,7 +29,7 @@ const UPDATE_MATERIAL = gql`
       name
       shortSummary
       configForm {
-        ...UpdateDialogFragment
+        ...ConfigFormFragment
       }
     }
   }

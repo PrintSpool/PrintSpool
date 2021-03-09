@@ -44,7 +44,7 @@ const MaterialsConfigView = ({
               query($materialID: ID) {
                 materials(input: { materialID: $materialID }) {
                   configForm {
-                    ...UpdateDialogFragment
+                    ...ConfigFormFragment
                   }
                 }
               }

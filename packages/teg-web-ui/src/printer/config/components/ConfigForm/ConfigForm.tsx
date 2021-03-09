@@ -4,20 +4,20 @@ import { gql } from '@apollo/client'
 import useConfigForm from './useConfigForm'
 
 export const CONFIG_FORM_FRAGMENT = gql`
-  fragment UpdateDialogFragment on ConfigForm {
+  fragment ConfigFormFragment on ConfigForm {
     id
     model
     modelVersion
-    schemaForm {
-      schema
-      form
-    }
+    schema
+    form
+    advancedForm
   }
 `
 
 export type ConfigFormContextType = {
   schema?: any,
   form?: any,
+  advancedForm?: any,
   register?: any,
   control?: any,
   errors?: any,

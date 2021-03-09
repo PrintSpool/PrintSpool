@@ -28,7 +28,7 @@ const UpdateDialogView = ({
   hasPendingUpdates = false,
   mutation,
 }) => {
-  // console.log({ data }, data.schemaForm.schema)
+  // console.log({ data }, data.schema)
 
   return (
     <Dialog
@@ -39,7 +39,7 @@ const UpdateDialogView = ({
       fullWidth
     >
       <ConfigForm
-        schema={transformSchema(configForm.schemaForm.schema)}
+        schema={transformSchema(configForm.schema)}
         configForm={configForm}
         mutation={mutation}
         onSubmit={onSubmit}

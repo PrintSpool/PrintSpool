@@ -25,6 +25,12 @@ pub struct SpeedControllerConfig {
     pub address: String,
 }
 
+impl teg_config_form::Model for SpeedControllerConfig {
+    fn form(all_fields: &Vec<String>) -> Vec<String> {
+        all_fields.clone()
+    }
+}
+
 #[derive(async_graphql::SimpleObject, Debug, Clone, SmartDefault)]
 pub struct SpeedControllerEphemeral {
     #[default(nanoid!(11).into())]

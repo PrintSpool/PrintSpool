@@ -11,7 +11,7 @@ export const useConfigForm = ({
   defaultValues = {},
   afterValidate = ({ values, errors }) => ({ values, errors }),
 }) => {
-  const schema = schemaOverride || configForm?.schemaForm.schema
+  const schema = schemaOverride || configForm?.schema
 
   const [validate, setValidate] = useState(() => (values) => ({ errors: {}, values }))
 
@@ -63,7 +63,7 @@ export const useConfigForm = ({
       return afterValidate(validationResult)
     }
     setValidate(() => validateAndHooks)
-  }, [loading, JSON.stringify(configForm?.schemaForm)])
+  }, [loading, JSON.stringify(schema)])
 
   useEffect(() => {
     if (mutation.error && !mutation.loading && formState.isSubmitted) {
@@ -77,11 +77,12 @@ export const useConfigForm = ({
     return null
   }
 
-  const { form } = configForm.schemaForm
+  const { form, advancedForm } = configForm
 
   const context: ConfigFormContextType = {
     schema,
     form,
+    advancedForm,
     register,
     control,
     errors,

@@ -19,7 +19,7 @@ const DEVICE_QUERY = gql`
       id
       status
       configForm {
-        ...UpdateDialogFragment
+        ...ConfigFormFragment
       }
     }
   }
@@ -31,7 +31,7 @@ const UPDATE_MACHINE = gql`
     updateMachine(input: $input) {
       id
       configForm {
-        ...UpdateDialogFragment
+        ...ConfigFormFragment
       }
     }
   }

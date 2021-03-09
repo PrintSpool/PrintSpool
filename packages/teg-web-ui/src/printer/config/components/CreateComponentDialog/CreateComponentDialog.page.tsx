@@ -3,15 +3,15 @@ import { useHistory, useParams } from 'react-router'
 import { gql, useMutation, useQuery } from '@apollo/client'
 
 import CreateComponentDialogView from './CreateComponentDialog.view'
+import { CONFIG_FORM_FRAGMENT } from '../ConfigForm/ConfigForm'
 
 const GET_SCHEMA_FORM = gql`
-  query GetSchemaForm($input: ComponentSchemaFormInput!) {
-    componentSchemaForm(input: $input) {
-      id
-      schema
-      form
+  query GetConfigForm($input: ComponentSchemaFormInput!) {
+    componentConfigForm(input: $input) {
+      ...ConfigFormFragment
     }
   }
+  ${CONFIG_FORM_FRAGMENT}
 `
 
 const CREATE_COMPONENT = gql`
@@ -57,7 +57,7 @@ const CreateComponentDialog = ({
     throw error
   }
 
-  const { schema, form } = data?.componentSchemaForm || {}
+  const { schema, ...configForm } = data?.componentConfigForm || {}
 
   return (
     <CreateComponentDialogView {...{
@@ -72,11 +72,8 @@ const CreateComponentDialog = ({
       fixedListComponentTypes,
       mutation,
       configForm: {
-        model: {},
-        schemaForm: {
-          schema: schema && transformSchema(schema),
-          form,
-        },
+        ...configForm,
+        schema: schema && transformSchema(schema),
       },
       onSubmit: ({ model }) => createComponent({
         variables: {

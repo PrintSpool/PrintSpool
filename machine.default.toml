@@ -2,7 +2,7 @@ id = "1"
 modelVersion = 1
 
 [[controllers]]
-id = "1"
+id = "2"
 modelVersion = 1
 
   [controllers.model]
@@ -24,7 +24,7 @@ modelVersion = 1
   checksumTickles = false
 
 [[axes]]
-id = "2"
+id = "3"
 modelVersion = 1
 
   [axes.model]
@@ -33,7 +33,7 @@ modelVersion = 1
   feedrate = 150
 
 [[axes]]
-id = "3"
+id = "4"
 modelVersion = 1
 
   [axes.model]
@@ -42,7 +42,7 @@ modelVersion = 1
   feedrate = 150
 
 [[axes]]
-id = "4"
+id = "5"
 modelVersion = 1
 
   [axes.model]
@@ -51,7 +51,7 @@ modelVersion = 1
   feedrate = 4
 
 [[toolheads]]
-id = "5"
+id = "6"
 modelVersion = 1
 type = "TOOLHEAD"
 
@@ -69,7 +69,7 @@ type = "TOOLHEAD"
   beforeFilamentSwapHook = ""
 
 [[speedControllers]]
-id = "6"
+id = "7"
 modelVersion = 1
 
   [speedControllers.model]
@@ -77,7 +77,7 @@ modelVersion = 1
   address = "f0"
 
 [[buildPlatforms]]
-id = "7"
+id = "8"
 modelVersion = 1
 type = "BUILD_PLATFORM"
 
@@ -87,7 +87,7 @@ type = "BUILD_PLATFORM"
   heater = true
 
 [[plugins]]
-id = "1"
+id = "9"
 modelVersion = 1
 package = "teg-core"
 

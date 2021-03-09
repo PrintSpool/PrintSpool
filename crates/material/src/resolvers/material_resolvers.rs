@@ -1,8 +1,8 @@
-use eyre::{
-    // eyre,
-    Result,
-    // Context as _,
-};
+// use eyre::{
+//     // eyre,
+//     Result,
+//     // Context as _,
+// };
 use async_graphql::{
     ID,
     // Context,
@@ -44,7 +44,7 @@ impl Material {
     }
 
     async fn config_form(&self) -> FieldResult<ConfigForm> {
-        let config_form: Result<ConfigForm> = self.into();
-        Ok(config_form?)
+        let config_form = teg_config_form::into_config_form(self)?;
+        Ok(config_form)
     }
 }

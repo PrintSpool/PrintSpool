@@ -3,11 +3,11 @@ use async_graphql::{
     FieldResult,
     ID,
 };
-use eyre::{
-    // eyre,
-    Result,
-    // Context as _,
-};
+// use eyre::{
+//     // eyre,
+//     Result,
+//     // Context as _,
+// };
 use teg_config_form::ConfigForm;
 
 use crate::user::User;
@@ -67,7 +67,7 @@ impl User {
     }
 
     async fn config_form(&self) -> FieldResult<ConfigForm> {
-        let config_form: Result<ConfigForm> = self.into();
-        Ok(config_form?)
+        let config_form = teg_config_form::into_config_form(self)?;
+        Ok(config_form)
     }
 }

@@ -1,14 +1,10 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { gql } from '@apollo/client'
 
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 
-import UpdateDialog, { UPDATE_DIALOG_FRAGMENT } from './components/UpdateDialog/UpdateDialog.page'
-import transformComponentSchema from './printerComponents/transformComponentSchema'
-import { useValidate } from './components/ConfigForm/withValidate'
 import UpdateDialogView from './components/UpdateDialog/UpdateDialog.view'
 
 const ConfigView = ({

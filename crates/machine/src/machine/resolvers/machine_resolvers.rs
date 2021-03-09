@@ -46,8 +46,9 @@ impl MachineData {
 
     /// The machine configuration for general settings.
     async fn config_form(&self) -> FieldResult<ConfigForm> {
-        let config_form: Result<ConfigForm> = self.config.core_plugin()?.into();
-        Ok(config_form?)
+        let core_plugin = self.config.core_plugin()?;
+        let config_form = teg_config_form::into_config_form(core_plugin)?;
+        Ok(config_form)
     }
 
     #[graphql(name = "components")]

@@ -18,7 +18,7 @@ const CONFIG_QUERY = gql`
       picture
       createdAt
       configForm {
-        ...UpdateDialogFragment
+        ...ConfigFormFragment
       }
     }
   }

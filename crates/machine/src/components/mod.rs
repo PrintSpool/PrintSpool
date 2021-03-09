@@ -1,6 +1,3 @@
-use serde::{Serialize, Deserialize};
-use nanoid::nanoid;
-
 mod axis;
 pub use axis::*;
 
@@ -23,20 +20,10 @@ mod controller;
 pub use controller::*;
 
 pub mod resolvers;
-mod into_config_form;
+mod configurable_component;
 
-#[derive(new, Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
-pub struct ComponentInner<Model, Ephemeral: Default> {
-    #[new(value = "nanoid!(11)")]
-    pub id: String,
-    #[new(default)]
-    pub model_version: teg_json_store::Version,
-    pub model: Model,
-    #[serde(skip)]
-    #[new(default)]
-    pub ephemeral: Ephemeral,
-}
+mod component_inner;
+pub use component_inner::ComponentInner;
 
 // #[derive(Serialize, Deserialize, Debug, Clone)]
 // #[serde(tag = "type", content = "model")]
@@ -72,25 +59,3 @@ pub enum ComponentTypeGQL {
     #[graphql(name = "BUILD_PLATFORM")]
     BuildPlatform,
 }
-
-// impl<T, U> Configurable for ComponentInner<T, U>
-// where
-//     T: JsonSchema + Serialize,
-//     U: Default,
-// {
-
-//     // fn validate(&self, json: &serde_json::Value) -> Result<()> {
-//         // let rootSchema = schemars::schema_for!(T);
-//         // let schema = serde_json::to_value(rootSchema)?;
-//     //     let compiled = JSONSchema::compile(&self.schema()?)?;
-//     //     compiled.validate(&json)?
-
-//     //     Ok(())
-//     // }
-// }
-
-
-// pub trait Configurable {
-//     fn config_form(&self) -> Result<ConfigForm>;
-//     // fn validate(&self, json: &serde_json::Value) -> Result<()>;
-// }

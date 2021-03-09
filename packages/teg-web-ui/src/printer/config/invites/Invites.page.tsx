@@ -16,7 +16,7 @@ const CONFIG_QUERY = gql`
       createdAt
       isAdmin
       configForm {
-        ...UpdateDialogFragment
+        ...ConfigFormFragment
       }
     }
   }

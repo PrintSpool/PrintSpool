@@ -1,22 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useHistory } from 'react-router'
-import { gql, useMutation, useQuery } from '@apollo/client'
-import { useForm } from 'react-hook-form'
-import useSchemaValidation, { createValidate } from '../ConfigForm/useSchemaValidation'
+import { useQuery } from '@apollo/client'
 
 import UpdateDialogView from './UpdateDialog.view'
+import { CONFIG_FORM_FRAGMENT } from '../ConfigForm/ConfigForm'
 
-export const UPDATE_DIALOG_FRAGMENT = gql`
-  fragment UpdateDialogFragment on ConfigForm {
-    id
-    model
-    modelVersion
-    schemaForm {
-      schema
-      form
-    }
-  }
-`
+export const UPDATE_DIALOG_FRAGMENT = CONFIG_FORM_FRAGMENT
 
 const loadConfigForm = ({ getConfigForm, data }) => {
   if (getConfigForm != null) {

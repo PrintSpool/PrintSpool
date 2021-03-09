@@ -73,6 +73,20 @@ pub struct ControllerConfig {
     pub checksum_tickles: bool,
 }
 
+impl teg_config_form::Model for ControllerConfig {
+    fn form(_: &Vec<String>) -> Vec<String> {
+        vec![
+            "name",
+            "serialPortID",
+            "automaticBaudRateDetection",
+            "baudRate",
+        ]
+            .into_iter()
+            .map(Into::into)
+            .collect()
+    }
+}
+
 pub type Controller = ComponentInner<ControllerConfig, ()>;
 
 #[derive(Serialize, Deserialize, JsonSchema, Debug, Copy, Clone)]

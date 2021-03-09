@@ -6,7 +6,7 @@ pub use invite::{
 mod invite_config;
 pub use invite_config::InviteConfig;
 
-mod into_config_form;
+mod configurable_invite;
 
 mod invite_code;
 

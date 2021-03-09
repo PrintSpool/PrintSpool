@@ -4,11 +4,12 @@ use async_graphql::{
     // Context,
 };
 use schemars::{
-    schema::RootSchema,
+    // schema::RootSchema,
     schema_for,
+    JsonSchema,
 };
 use teg_auth::invite::InviteConfig;
-use teg_config_form::JsonSchemaForm;
+use teg_config_form::ConfigForm;
 use eyre::{
     // eyre,
     Result,
@@ -42,7 +43,7 @@ pub struct ConfigQuery;
 //     /// - For collection = **"COMPONENT"** schemaFormKey should be the **component type** (eg. \`"CONTROLLER"\`)
 //     /// - For collection = **"MATERIAL"** schemaFormKey should be the **material type** (eg. \`"FDM_FILAMENT"\`)
 //     /// - For collection = **"PLUGIN"** schemaFormKey should be the **plugin name** (eg. \`"@tegapp/core"\`)
-//     pub schema_form_key: String,
+//     pub config_form_key: String,
 
 //     /// machineID is required for PLUGIN and COMPONENT ConfigCollection config forms
 //     #[graphql(name = "machineID")]
@@ -73,106 +74,97 @@ struct MaterialSchemaFormInput {
 #[async_graphql::Object]
 impl ConfigQuery {
     #[instrument(skip(self))]
-    async fn machine_schema_form<'ctx>(
+    async fn machine_config_form<'ctx>(
         &self,
-    ) -> FieldResult<JsonSchemaForm> {
-        let mut schema_form = to_schema_form(schema_for!(
-            CombinedConfigView
-        ))?;
+    ) -> FieldResult<ConfigForm> {
+        let config_form = to_config_form::<CombinedConfigView>("machine".into())?;
 
-        schema_form.id = "machine".into();
-
-        Ok(schema_form)
+        Ok(config_form)
     }
 
     #[instrument(skip(self))]
-    async fn invite_schema_form<'ctx>(
+    async fn invite_config_form<'ctx>(
         &self,
-    ) -> FieldResult<JsonSchemaForm> {
-        let mut schema_form = to_schema_form(schema_for!(
-            InviteConfig
-        ))?;
+    ) -> FieldResult<ConfigForm> {
+        let config_form = to_config_form::<InviteConfig>("invite".into())?;
 
-        schema_form.id = "invite".into();
-
-        Ok(schema_form)
+        Ok(config_form)
     }
 
     #[instrument(skip(self))]
-    async fn user_schema_form<'ctx>(
+    async fn user_config_form<'ctx>(
         &self,
-    ) -> FieldResult<JsonSchemaForm> {
-        let mut schema_form = to_schema_form(schema_for!(
-            InviteConfig
-        ))?;
+    ) -> FieldResult<ConfigForm> {
+        let config_form = to_config_form::<InviteConfig>("user".into())?;
 
-        schema_form.id = "user".into();
-
-        Ok(schema_form)
+        Ok(config_form)
     }
 
     #[instrument(skip(self))]
-    async fn material_schema_form<'ctx>(
+    async fn material_config_form<'ctx>(
         &self,
         input: MaterialSchemaFormInput,
-    ) -> FieldResult<JsonSchemaForm> {
-        let schema = match input.r#type {
-            MaterialTypeGQL::FdmFilament => schema_for!(FdmFilament),
-        };
+    ) -> FieldResult<ConfigForm> {
+        let config_form = match input.r#type {
+            MaterialTypeGQL::FdmFilament => to_config_form::<FdmFilament>("FdmFilament".into()),
+        }?;
 
-        let mut schema_form = to_schema_form(schema)?;
-        schema_form.id = "material".into();
-
-        Ok(schema_form)
+        Ok(config_form)
     }
 
     // #[instrument(skip(self))]
-    // async fn plugin_schema_form<'ctx>(
+    // async fn plugin_config_form<'ctx>(
     //     &self,
     //     input: PluginSchemaFormInput,
-    // ) -> FieldResult<JsonSchemaForm> {
+    // ) -> FieldResult<ConfigForm> {
     //     if &input.package[..] != "teg-core" {
     //         Err(eyre!("Plugin not found: {}", input.package))?
     //     }
 
-    //     let schema_form = to_schema_form(schema_for!(
+    //     let config_form = to_config_form::<schema_for>(
     //         CorePluginConfig
     //     ))?;
 
-    //     Ok(schema_form)
+    //     Ok(config_form)
     // }
 
     #[instrument(skip(self))]
-    async fn component_schema_form<'ctx>(
+    async fn component_config_form<'ctx>(
         &self,
         input: ComponentSchemaFormInput,
-    ) -> FieldResult<JsonSchemaForm> {
+    ) -> FieldResult<ConfigForm> {
         use ComponentTypeGQL::*;
 
-        let schema = match input.r#type {
-            Controller => schema_for!(ControllerConfig),
-            Axis => schema_for!(AxisConfig),
-            Toolhead => schema_for!(ToolheadConfig),
-            SpeedController => schema_for!(SpeedControllerConfig),
-            Video => schema_for!(VideoConfig),
-            BuildPlatform => schema_for!(BuildPlatformConfig),
-        };
+        let config_form = match input.r#type {
+            Controller => to_config_form::<ControllerConfig>("Controller".into()),
+            Axis => to_config_form::<AxisConfig>("Axis".into()),
+            Toolhead => to_config_form::<ToolheadConfig>("Toolhead".into()),
+            SpeedController => to_config_form::<SpeedControllerConfig>("SpeedController".into()),
+            Video => to_config_form::<VideoConfig>("Video".into()),
+            BuildPlatform => to_config_form::<BuildPlatformConfig>("BuildPlatform".into()),
+        }?;
 
-        let mut schema_form = to_schema_form(schema)?;
-        schema_form.id = format!("{:?}", input.r#type).into();
-        Ok(schema_form)
+        Ok(config_form)
     }
 }
 
-pub fn to_schema_form(mut root_schema: RootSchema) -> Result<JsonSchemaForm> {
+pub fn to_config_form<C: JsonSchema>(
+    id: String,
+) -> Result<ConfigForm> {
+    let mut root_schema = schema_for!(C);
+
     let form = root_schema.schema.object().properties
         .keys()
         .map(|k| k.clone())
         .collect();
 
-    Ok(JsonSchemaForm {
-        id: "placeholder".into(),
+    Ok(ConfigForm {
+        id: id.into(),
         schema: serde_json::to_value(root_schema)?.into(),
+        model: serde_json::json!({}).into(),
+        model_version: 0i32,
         form,
+        advanced_form: vec![],
     })
 }
+
