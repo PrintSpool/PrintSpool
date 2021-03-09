@@ -52,6 +52,10 @@ impl Record for MachineViewer {
         &mut self.version
     }
 
+    fn created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
+
     async fn insert_no_rollback<'c>(
         &self,
         db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
@@ -60,11 +64,12 @@ impl Record for MachineViewer {
         sqlx::query!(
             r#"
                 INSERT INTO machine_viewers
-                (id, version, props, machine_id, user_id, expires_at)
-                VALUES (?, ?, ?, ?, ?, ?)
+                (id, version, created_at, props, machine_id, user_id, expires_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             "#,
             self.id,
             self.version,
+            self.created_at,
             json,
             self.machine_id,
             self.user_id,

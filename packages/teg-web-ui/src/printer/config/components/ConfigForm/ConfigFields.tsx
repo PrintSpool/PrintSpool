@@ -51,20 +51,22 @@ export const ConfigFields = () => {
   return (
     <>
       {formFields(form)}
-      <Accordion style={{ marginTop: 24 }}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1a-content"
-          id="panel1a-header"
-        >
-          <Typography>Advanced</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <div>
-            {formFields(advancedForm)}
-          </div>
-        </AccordionDetails>
-      </Accordion>
+      { advancedForm.length > 0 && (
+        <Accordion style={{ marginTop: 24 }}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1a-content"
+            id="panel1a-header"
+          >
+            <Typography>Advanced</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <div>
+              {formFields(advancedForm)}
+            </div>
+          </AccordionDetails>
+        </Accordion>
+      )}
     </>
   )
 }

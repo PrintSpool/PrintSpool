@@ -163,6 +163,10 @@ impl Record for Part {
         &mut self.version
     }
 
+    fn created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
+
     async fn insert_no_rollback<'c>(
         &self,
         db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,

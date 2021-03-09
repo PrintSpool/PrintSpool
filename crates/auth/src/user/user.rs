@@ -101,6 +101,10 @@ impl Record for User {
         &mut self.version
     }
 
+    fn created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
+
     async fn insert_no_rollback<'c>(
         &self,
         db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
@@ -109,11 +113,12 @@ impl Record for User {
         sqlx::query!(
             r#"
                 INSERT INTO users
-                (id, version, props, signalling_user_id, is_local_http_user)
-                VALUES (?, ?, ?, ?, ?)
+                (id, version, created_at, props, signalling_user_id, is_local_http_user)
+                VALUES (?, ?, ?, ?, ?, ?)
             "#,
             self.id,
             self.version,
+            self.created_at,
             json,
             self.signalling_user_id,
             self.is_local_http_user,

@@ -1,6 +1,7 @@
 CREATE TABLE materials(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL,
 
   props TEXT NOT NULL
 );
@@ -8,6 +9,7 @@ CREATE TABLE materials(
 CREATE TABLE users(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL,
 
   signalling_user_id TEXT,
   is_local_http_user BOOLEAN NOT NULL,
@@ -21,6 +23,7 @@ CREATE INDEX users_is_local_http_user ON users(is_local_http_user);
 CREATE TABLE invites(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL,
 
   secret_hash TEXT NOT NULL,
   consumed BOOLEAN NOT NULL,
@@ -34,6 +37,7 @@ CREATE INDEX invites_consumed ON invites(consumed);
 CREATE TABLE machine_viewers(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL,
 
   machine_id TEXT NOT NULL,
   user_id TEXT NOT NULL,
@@ -48,6 +52,7 @@ CREATE INDEX machine_viewers_machine ON machine_viewers(machine_id, expires_at);
 CREATE TABLE tasks(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL,
 
   machine_id TEXT NOT NULL,
   part_id TEXT,
@@ -67,6 +72,7 @@ CREATE INDEX tasks_machine_id ON tasks(status, machine_id);
 CREATE TABLE print_queues(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL,
   deleted_at TEXT,
 
   props TEXT NOT NULL
@@ -75,6 +81,7 @@ CREATE TABLE print_queues(
 CREATE TABLE machine_print_queues(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL,
   deleted_at TEXT,
 
   machine_id TEXT NOT NULL,
@@ -90,6 +97,7 @@ CREATE INDEX machine_print_queues_print_queue_id ON machine_print_queues(print_q
 CREATE TABLE packages(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL,
   deleted_at TEXT,
 
   print_queue_id TEXT NOT NULL,
@@ -101,6 +109,7 @@ CREATE TABLE packages(
 CREATE TABLE parts(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL,
   deleted_at TEXT,
 
   package_id TEXT NOT NULL,

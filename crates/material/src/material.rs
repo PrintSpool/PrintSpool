@@ -63,4 +63,8 @@ impl Record for Material {
     fn version_mut(&mut self) -> &mut teg_json_store::Version {
         &mut self.version
     }
+
+    fn created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
 }

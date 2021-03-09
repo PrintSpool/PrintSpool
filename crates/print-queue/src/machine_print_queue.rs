@@ -34,6 +34,9 @@ impl Record for MachinePrintQueue {
         &mut self.version
     }
 
+    fn created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
 
     async fn insert_no_rollback<'c>(
         &self,
@@ -44,11 +47,12 @@ impl Record for MachinePrintQueue {
         sqlx::query!(
             r#"
                 INSERT INTO machine_print_queues
-                (id, version, props, deleted_at, machine_id, print_queue_id)
-                VALUES (?, ?, ?, ?, ?, ?)
+                (id, version, created_at, props, deleted_at, machine_id, print_queue_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             "#,
             self.id,
             self.version,
+            self.created_at,
             json,
             self.deleted_at,
             self.machine_id,

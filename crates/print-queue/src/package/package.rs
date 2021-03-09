@@ -185,6 +185,9 @@ impl Record for Package {
         &mut self.version
     }
 
+    fn created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
 
     async fn insert_no_rollback<'c>(
         &self,

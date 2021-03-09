@@ -151,6 +151,10 @@ impl Record for Invite {
         &mut self.version
     }
 
+    fn created_at(&self) -> DateTime<Utc> {
+        self.created_at
+    }
+
     async fn insert_no_rollback<'c>(
         &self,
         db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
@@ -161,11 +165,12 @@ impl Record for Invite {
         sqlx::query!(
             r#"
                 INSERT INTO invites
-                (id, version, props, secret_hash, consumed)
-                VALUES (?, ?, ?, ?, ?)
+                (id, version, created_at, props, secret_hash, consumed)
+                VALUES (?, ?, ?, ?, ?, ?)
             "#,
             self.id,
             self.version,
+            self.created_at,
             json,
             self.secret_hash,
             consumed,

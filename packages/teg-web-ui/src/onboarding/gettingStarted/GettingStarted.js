@@ -13,7 +13,7 @@ import GettingStartedStyles from './GettingStartedStyles'
 
 import Step1InstallTeg from './steps/Step1InstallTeg'
 import Step2Connect from './steps/Step2Connect'
-import Step3Setup from './steps/Step3Setup'
+import Step3Setup from './steps/Step3Setup.page'
 import Step4Backup from './steps/Step4Backup'
 
 const GettingStarted = ({

@@ -9,10 +9,10 @@ import GettingStartedStyles from './GettingStartedStyles'
 
 const ButtonsFooter = ({
   step,
-  disable,
+  disable = false,
   component,
   type = 'button',
-  nextURL,
+  nextURL = null,
   history,
 }) => {
   const classes = GettingStartedStyles()

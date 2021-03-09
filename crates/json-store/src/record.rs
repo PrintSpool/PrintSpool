@@ -1,5 +1,4 @@
-// #[macro_use] extern crate tracing;
-
+use chrono::prelude::*;
 use serde::{Serialize, de::DeserializeOwned};
 use eyre::{
     // eyre,
@@ -19,6 +18,7 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
     fn id(&self) -> &crate::DbId;
     fn version(&self) -> crate::Version;
     fn version_mut(&mut self) -> &mut crate::Version;
+    fn created_at(&self) -> DateTime<Utc>;
 
     // async fn insert<'e, 'c, E>(
     //     &self,
@@ -49,13 +49,14 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         sqlx::query(&format!(
             r#"
                 INSERT INTO {}
-                (id, version, props)
-                VALUES (?, ?, ?)
+                (id, version, created_at, props)
+                VALUES (?, ?, ?, ?)
             "#,
             Self::TABLE,
         ))
             .bind(self.id())
             .bind(self.version())
+            .bind(self.created_at())
             .bind(serde_json::to_string(&self)?)
 
             .fetch_optional(db)

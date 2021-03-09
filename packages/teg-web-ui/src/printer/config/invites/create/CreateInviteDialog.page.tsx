@@ -14,7 +14,7 @@ const SCHEMA_QUERY = gql`
   ${CONFIG_FORM_FRAGMENT}
 `
 
-const CREATE_COMPONENT = gql`
+const CREATE_INVITE = gql`
   mutation createInvite($input: CreateComponentInput!) {
     createInvite(input: $input) {
       id
@@ -40,7 +40,7 @@ const createInviteDialog = ({
 
   const { data, loading, error } = useQuery(SCHEMA_QUERY)
 
-  const [createInvite, mutation] = useMutation(CREATE_COMPONENT, {
+  const [createInvite, mutation] = useMutation(CREATE_INVITE, {
     update: (mutationResult: any) => {
       if (mutationResult.data != null) {
         setTimeout(() => {
