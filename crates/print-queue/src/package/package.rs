@@ -198,11 +198,12 @@ impl Record for Package {
         sqlx::query!(
             r#"
                 INSERT INTO packages
-                (id, version, props, print_queue_id, quantity)
-                VALUES (?, ?, ?, ?, ?)
+                (id, version, created_at, props, print_queue_id, quantity)
+                VALUES (?, ?, ?, ?, ?, ?)
             "#,
             self.id,
             self.version,
+            self.created_at,
             json,
             self.print_queue_id,
             self.quantity,

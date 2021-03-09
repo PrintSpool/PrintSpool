@@ -177,11 +177,12 @@ impl Record for Part {
         sqlx::query!(
             r#"
                 INSERT INTO parts
-                (id, version, props, package_id, quantity, position)
-                VALUES (?, ?, ?, ?, ?, ?)
+                (id, version, created_at, props, package_id, quantity, position)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             "#,
             self.id,
             self.version,
+            self.created_at,
             json,
             self.package_id,
             self.quantity,

@@ -112,11 +112,12 @@ impl Record for Task {
         sqlx::query!(
             r#"
                 INSERT INTO tasks
-                (id, version, props, machine_id, part_id, status)
-                VALUES (?, ?, ?, ?, ?, ?)
+                (id, version, created_at, props, machine_id, part_id, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             "#,
             self.id,
             self.version,
+            self.created_at,
             json,
             self.machine_id,
             self.part_id,
