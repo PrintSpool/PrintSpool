@@ -21,11 +21,11 @@ import useConfirm from '../../../common/_hooks/useConfirm'
 // import { Typography } from '@material-ui/core'
 
 const PrintCard = ({
-  task,
+  print,
   cancelTask,
   pausePrint,
   resumePrint,
-  deletePart,
+  // deletePart,
 }) => {
   // const confirm = useConfirm()
   // const [menuAnchorEl, setMenuAnchorEl] = useState()
@@ -33,7 +33,9 @@ const PrintCard = ({
   // const openMenu = useCallback(event => setMenuAnchorEl(event.target), [])
   // const closeMenu = useCallback(() => setMenuAnchorEl(null), [])
 
-  const shortName = truncate(task.name, 32)
+  const { task, part } = print
+
+  const shortName = truncate(part.name, 32)
   console.log({ task } )
 
   // const confirmedDeletePart = confirm(() => ({
@@ -48,7 +50,7 @@ const PrintCard = ({
   //     closeMenu()
   //   },
   //   title: 'Are you sure you want to delete this part?',
-  //   description: task.name,
+  //   description: part.name,
   // }))
 
   return (

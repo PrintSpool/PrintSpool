@@ -131,34 +131,38 @@ const TaskStatusRow = ({
             value={task.percentComplete}
           />
         </div>
-        <IconButton
-          aria-label={task.paused ? 'resume print' : 'pause print'}
-          disabled={
-            ['CANCELLED', 'ERROR', 'DONE'].includes(task.status)
-          }
-          onClick={togglePause}
-          style={{
-            marginTop: -12,
-            marginBottom: -12,
-          }}
-        >
-          {task.paused ? <Play /> : <Pause />}
-        </IconButton>
-        <IconButton
-          aria-label="cancel"
-          disabled={
-            ['CANCELLED', 'ERROR', 'DONE'].includes(task.status)
-          }
-          onClick={confirmedCancelTask}
-          style={{
-            marginTop: -12,
-            marginBottom: -12,
-            marginRight: -14,
-            textAlign: 'right',
-          }}
-        >
-          <Cancel />
-        </IconButton>
+        { !task.settled && (
+          <>
+            <IconButton
+              aria-label={task.paused ? 'resume print' : 'pause print'}
+              disabled={
+                ['CANCELLED', 'ERROR', 'DONE'].includes(task.status)
+              }
+              onClick={togglePause}
+              style={{
+                marginTop: -12,
+                marginBottom: -12,
+              }}
+            >
+              {task.paused ? <Play /> : <Pause />}
+            </IconButton>
+            <IconButton
+              aria-label="cancel"
+              disabled={
+                ['CANCELLED', 'ERROR', 'DONE'].includes(task.status)
+              }
+              onClick={confirmedCancelTask}
+              style={{
+                marginTop: -12,
+                marginBottom: -12,
+                marginRight: -14,
+                textAlign: 'right',
+              }}
+            >
+              <Cancel />
+            </IconButton>
+          </>
+        )}
       </div>
     </div>
   )

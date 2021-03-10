@@ -34,6 +34,7 @@ const JOB_QUERY = gql`
         stoppedAt
         status
         paused
+        settled
         machine {
           ...PrinterStatus
           components {

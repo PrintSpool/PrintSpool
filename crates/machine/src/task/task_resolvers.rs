@@ -35,13 +35,18 @@ impl Task {
     //     }
     // }
 
-    async fn status(&self) -> TaskStatusGQL { (&self.status).into() }
-    async fn paused(&self) -> bool { self.status.is_paused() }
+    #[graphql(name = "status")]
+    async fn _status(&self) -> TaskStatusGQL { (&self.status).into() }
 
-    // TODO: rename field to match model
-    async fn total_line_numbers(&self) -> u64 { self.total_lines }
-    // TODO: rename field to match model
-    async fn current_line_number(&self) -> &Option<u64> { &self.despooled_line_number }
+    #[graphql(name = "paused")]
+    async fn _paused(&self) -> bool { self.status.is_paused() }
+
+    #[graphql(name = "settled")]
+    async fn _settled(&self) -> bool { self.status.is_settled() }
+
+    async fn total_lines(&self) -> u64 { self.total_lines }
+
+    async fn despooled_line_number(&self) -> &Option<u64> { &self.despooled_line_number }
 
     async fn percent_complete(
         &self,
@@ -79,8 +84,6 @@ impl Task {
         &self.estimated_filament_meters
     }
 
-    async fn created_at(&self) -> &DateTime<Utc> { &self.created_at }
-    // TODO: rename field to match model
     async fn started_at(&self) -> &DateTime<Utc> { &self.created_at }
 
     async fn stopped_at(&self) -> Option<&DateTime<Utc>> {

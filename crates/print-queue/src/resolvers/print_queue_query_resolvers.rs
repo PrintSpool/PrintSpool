@@ -3,10 +3,17 @@ use async_graphql::{
     // ID,
     FieldResult,
 };
+use eyre::{
+    eyre,
+    Result,
+    // Context as _,
+};
 use teg_json_store::{ Record as _, JsonRow };
 use teg_machine::task::Task;
 
 use crate::PrintQueue;
+use crate::part::Part;
+use super::print_resolvers::Print;
 
 #[derive(async_graphql::InputObject, Debug, Default)]
 struct PrintQueuesInput {
@@ -74,7 +81,7 @@ impl PrintQueueQuery {
         // id: Option<ID>,
         #[graphql(default)]
         input: LatestPrintsInput,
-    ) -> FieldResult<Vec<Task>> {
+    ) -> FieldResult<Vec<Print>> {
         let db: &crate::Db = ctx.data()?;
 
         let mut args = vec![];
@@ -134,6 +141,49 @@ impl PrintQueueQuery {
 
         let tasks = Task::from_rows(tasks)?;
 
-        Ok(tasks)
+        let mut part_ids = tasks.iter()
+            .map(|task| &task.part_id)
+            .collect::<Vec<_>>();
+        part_ids.sort();
+        part_ids.dedup();
+
+        let parts_sql = format!(
+            r#"
+                SELECT props FROM parts
+                WHERE
+                    parts.id IN ({})
+            "#,
+            part_ids.iter().map(|_| "?").collect::<Vec<_>>().join(", ")
+        );
+        let mut parts_query = sqlx::query_as(&parts_sql);
+
+        for part_id in part_ids {
+            parts_query = parts_query.bind(part_id)
+        }
+
+        let parts: Vec<JsonRow> = parts_query
+            .fetch_all(db)
+            .await?;
+
+        let parts = Part::from_rows(parts)?;
+
+        let prints = tasks
+            .into_iter()
+            .map(|task| -> Result<Print> {
+                // Part must be cloned because multiple tasks could reference the same part
+                let part = parts
+                    .iter()
+                    .find(|part| Some(&part.id) == task.part_id.as_ref())
+                    .ok_or_else(|| eyre!("part missing for task ({:?}", task.id))?
+                    .clone();
+
+                Ok(Print {
+                    part,
+                    task,
+                })
+            })
+            .collect::<Result<Vec<_>>>()?;
+
+        Ok(prints)
     }
 }

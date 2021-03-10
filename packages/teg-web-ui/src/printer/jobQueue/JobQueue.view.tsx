@@ -122,10 +122,10 @@ const JobQueueView = ({
           <Typography variant="subtitle1" gutterBottom>
             Latest Print
           </Typography>
-          { latestPrints.map(task => (
+          { latestPrints.map(print => (
             <PrintCard {...{
-              key: task.id,
-              task,
+              key: print.id,
+              print,
               cancelTask,
               pausePrint,
               resumePrint,
