@@ -72,6 +72,7 @@ impl PrintQueue {
                         ? IS TRUE
                         AND parts.quantity * packages.quantity <= COUNT(tasks.id)
                     )
+                ORDER BY parts.position
             "#,
             self.id,
             input.include_queued,
