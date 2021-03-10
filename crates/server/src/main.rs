@@ -33,7 +33,8 @@ use futures_util::{TryFutureExt, future, future::FutureExt, future::join_all, se
     }};
 use teg_auth::AuthContext;
 use teg_device::DeviceManager;
-use teg_machine::{MachineHooksList, MachineMap, MachineMapLocal, machine::Machine};
+use teg_machine::{MachineHooksList, MachineMaterialHooks, MachineMap, MachineMapLocal, machine::Machine};
+use teg_material::{MaterialHooksList};
 use teg_print_queue::print_queue_machine_hooks::PrintQueueMachineHooks;
 
 const CONFIG_DIR: &'static str = "/etc/teg/";
@@ -174,6 +175,10 @@ async fn app() -> Result<()> {
 
     let machines: MachineMap = Arc::new(ArcSwap::new(Arc::new(machines)));
 
+    let material_hooks: MaterialHooksList = Arc::new(vec![
+        Box::new(MachineMaterialHooks { machines: machines.clone() }),
+    ]);
+
     let server_keys = Arc::new(teg_auth::ServerKeys::load_or_create().await?);
 
     let device_manager = DeviceManager::start().await?;
@@ -193,6 +198,7 @@ async fn app() -> Result<()> {
             .data(db_clone.clone())
             .data(machines_clone.clone())
             .data(machine_hooks.clone())
+            .data(material_hooks.clone())
             .data(server_keys_clone.clone())
             .data(device_manager.clone())
     };

@@ -42,13 +42,15 @@ impl xactor::Handler<SetMaterial> for Machine {
         for toolhead_input in msg.0.into_iter() {
             let material_id = toolhead_input.material_id.map(Into::into);
 
-            Toolhead::set_material(
+            let toolhead = Toolhead::set_material(
                 &db,
                 &mut data.config,
                 &toolhead_input.id,
                 &material_id,
             )
                 .await?;
+
+            toolhead.model_version += 1;
         }
 
         // Persist the config changes

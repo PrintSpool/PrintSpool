@@ -85,6 +85,7 @@ impl MaterialMutation {
     ) -> FieldResult<Material> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
+        let material_hooks: &crate::MaterialHooksList = ctx.data()?;
 
         auth.authorize_admins_only()?;
 
@@ -102,6 +103,12 @@ impl MaterialMutation {
         };
 
         material.update(db).await?;
+
+        for hooks_provider in material_hooks.iter() {
+            hooks_provider.after_update(
+                &material.id
+            ).await?;
+        }
 
         Ok(material)
     }

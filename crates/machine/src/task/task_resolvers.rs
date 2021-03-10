@@ -18,6 +18,11 @@ use crate::{MachineMap, machine::{
 impl Task {
     async fn id(&self) -> ID { (&self.id).into() }
 
+    #[graphql(name="partID")]
+    async fn part_id(&self) -> Option<ID> {
+        self.part_id.as_ref().map(Into::into)
+    }
+
     // async fn name<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<String> {
     //     let ctx: &Arc<crate::Context> = ctx.data()?;
 

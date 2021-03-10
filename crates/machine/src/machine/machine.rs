@@ -13,9 +13,10 @@ use eyre::{
     // Context as _,
 };
 
-use super::{messages::ConnectToSocket, MachineStatus, streams::receive_stream::codec::MachineCodec};
+use super::{MachineStatus, messages::{ConnectToSocket, ResetMaterialTargets}, streams::receive_stream::codec::MachineCodec};
 use super::GCodeHistoryEntry;
 use crate::config::MachineConfig;
+use crate::components::Toolhead;
 
 pub struct Machine {
     pub db: crate::Db,
@@ -99,6 +100,35 @@ impl Machine {
         Ok(machine)
     }
 
+    pub async fn reset_material_targets(&mut self, msg: ResetMaterialTargets) -> Result<()> {
+        let db = self.db.clone();
+        let data = self.get_data()?;
+
+        let toolhead_materials = data.config.toolheads
+            .iter()
+            .map(|c| {
+                (c.id.clone(), c.model.material_id.clone())
+            })
+            .collect::<Vec<_>>();
+
+        // Reset the ephemeral material targets on reset data
+        for (toolhead_id, material_id) in toolhead_materials.into_iter() {
+            if
+                msg.material_id_filter.is_none()
+                || msg.material_id_filter == material_id
+            {
+                Toolhead::set_material(
+                    &db,
+                    &mut data.config,
+                    &toolhead_id,
+                    &material_id,
+                ).await?;
+            }
+        }
+
+        Ok(())
+    }
+
     pub async fn reset_data(&mut self) -> Result<()> {
         let config_path = format!("/etc/teg/machine-{}.toml", self.id);
 
@@ -106,6 +136,11 @@ impl Machine {
         let config: MachineConfig = toml::from_str(&config)?;
 
         self.data = Some(MachineData::new(config));
+
+        self.reset_material_targets(
+            ResetMaterialTargets { material_id_filter: None },
+        )
+            .await?;
 
         Ok(())
     }

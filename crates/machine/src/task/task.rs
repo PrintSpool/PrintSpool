@@ -71,12 +71,18 @@ impl Task {
     }
 
     pub async fn settle_task(&mut self) {
+        // Move the despooled line number to the end of the file if the print was successful
+        if self.status.was_successful() {
+            self.despooled_line_number = Some(self.total_lines - 1);
+        }
+
         // delete the completed GCode file
         if let TaskContent::FilePath(file_path) = &self.content {
             if let Err(err) = async_std::fs::remove_file(file_path).await {
                 warn!("Unable to remove completed GCode file ({}): {:?}", file_path, err);
             }
         }
+
         // Replace the completed GCodes with an empty vec to save space
         self.content = TaskContent::GCodes(vec![]);
     }

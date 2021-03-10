@@ -27,6 +27,9 @@ pub use reset_machine::ResetMachine;
 mod reset_when_idle;
 pub use reset_when_idle::ResetWhenIdle;
 
+mod reset_material_targets;
+pub use reset_material_targets::ResetMaterialTargets;
+
 mod resume_task;
 pub use resume_task::ResumeTask;
 

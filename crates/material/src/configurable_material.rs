@@ -18,7 +18,14 @@ impl teg_config_form::Configurable<Box<FdmFilament>> for Material
         self.version
     }
 
-    fn form(all_fields: &Vec<String>) -> Vec<String> {
-        all_fields.clone()
+    fn form(_: &Vec<String>) -> Vec<String> {
+        vec![
+            "name",
+            "targetExtruderTemperature",
+            "targetBedTemperature",
+        ]
+            .into_iter()
+            .map(Into::into)
+            .collect()
     }
 }

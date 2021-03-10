@@ -13,8 +13,10 @@ import FloatingPrintNextButton from './components/FloatingPrintNextButton'
 import JobCard from './components/JobCard'
 import useStyles from './JobQueue.styles'
 import PrintDialog from '../printDialog/PrintDialog'
+import PrintCard from './components/PrintCard'
 
 const JobQueueView = ({
+  latestPrints,
   printQueues,
   machines,
   nextPart,
@@ -99,11 +101,7 @@ const JobQueueView = ({
 
   return (
     <div
-      className={[
-        classes.root,
-        (isDragging || parts.length === 0) ? classes.draggingOrEmpty : '',
-        isDragging ? classes.dragging : '',
-      ].join(' ')}
+      className={classes.root}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
@@ -119,56 +117,83 @@ const JobQueueView = ({
         </React.Suspense>
       )}
 
-      { (isDragging || parts.length === 0) && (
-        <div className={classes.dragArea}>
-          <MoveToInbox className={classes.dragIcon} />
-          <Typography variant="body2" className={classes.dragText}>
-            <Button
-              className={classes.chooseAFileButton}
-              component="label"
-            >
-              Choose a file
-              <FileInput
-                accept=".ngc,.gcode"
-                onClick={setPrintDialogFiles}
-              />
-            </Button>
-            or drag it here to print
+      { latestPrints.length > 0 && (
+        <div>
+          <Typography variant="subtitle1" gutterBottom>
+            Latest Print
           </Typography>
+          { latestPrints.map(task => (
+            <PrintCard {...{
+              key: task.id,
+              task,
+              cancelTask,
+              pausePrint,
+              resumePrint,
+              deletePart,
+            }} />
+          ))}
         </div>
       )}
 
-      {
-        !isDragging && categories.map(({ title, partsSubset }) => {
-          if (partsSubset.length === 0) return <div key={title} />
+      <div
+        className={[
+          (isDragging || parts.length === 0) ? classes.draggingOrEmpty : '',
+          isDragging ? classes.dragging : '',
+        ].join(' ')}
+      >
+        { (isDragging || parts.length === 0) && (
+          <div className={classes.dragArea}>
+            <MoveToInbox className={classes.dragIcon} />
+            <Typography variant="body2" className={classes.dragText}>
+              <Button
+                className={classes.chooseAFileButton}
+                component="label"
+              >
+                Choose a file
+                <FileInput
+                  accept=".ngc,.gcode"
+                  onClick={setPrintDialogFiles}
+                />
+              </Button>
+              or drag it here to print
+            </Typography>
+          </div>
+        )}
 
-          return (
-            <div key={title}>
-              <Typography variant="subtitle1" gutterBottom>
-                { title }
-              </Typography>
-              {
-                partsSubset.map(part => (
-                  <div key={part.id} className={classes.partContainer}>
-                    <JobCard
-                      {...part}
-                      {...{
-                        cancelTask,
-                        pausePrint,
-                        resumePrint,
-                        deletePart,
-                        moveToTopOfQueue,
-                      }}
-                    />
-                  </div>
-                ))
-              }
-            </div>
-          )
-        })
-      }
+        {
+          !isDragging && categories.map(({ title, partsSubset }) => {
+            if (partsSubset.length === 0) return <div key={title} />
 
-      <div className={classes.endOfListMargin}/>
+            return (
+              <div key={title}>
+                <Typography variant="subtitle1" gutterBottom>
+                  { title }
+                </Typography>
+                {
+                  partsSubset.map(part => (
+                    <div key={part.id} className={classes.partContainer}>
+                      <JobCard
+                        {...part}
+                        {...{
+                          cancelTask,
+                          pausePrint,
+                          resumePrint,
+                          deletePart,
+                          moveToTopOfQueue,
+                        }}
+                      />
+                    </div>
+                  ))
+                }
+              </div>
+            )
+          })
+        }
+
+        { !(isDragging || parts.length === 0) && (
+          <div className={classes.endOfListMargin}/>
+        )}
+      </div>
 
       {/* Add Job Button */}
       <Tooltip title="Add Job" placement="left">

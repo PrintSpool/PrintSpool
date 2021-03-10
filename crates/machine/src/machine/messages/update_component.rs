@@ -84,7 +84,6 @@ impl xactor::Handler<UpdateComponent> for Machine {
                     &msg,
                 )?;
 
-                let previous_version = component.model_version;
                 let material_id_changed = next_model.material_id != component.model.material_id;
 
                 // material changes
@@ -99,8 +98,6 @@ impl xactor::Handler<UpdateComponent> for Machine {
                         &material_id,
                     )
                         .await?;
-                    // Toolhead::set_materials internally increments the version number
-                    component.model_version = previous_version;
                 }
 
                 component.model = next_model;

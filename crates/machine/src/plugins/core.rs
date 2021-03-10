@@ -16,7 +16,7 @@ use validator::Validate;
 // }
 
 #[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct CorePluginConfig {
     /// # Printer Name
     #[validate(length(min = 1))]

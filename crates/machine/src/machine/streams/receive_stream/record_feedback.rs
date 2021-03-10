@@ -61,9 +61,9 @@ pub async fn update_tasks(
     feedback: &Feedback,
     now: &DateTime<Utc>,
 ) -> Result<()> {
+    // On first feedback error out any previously running tasks that have disapeared from the
+    // driver.
     if !machine.has_received_feedback {
-        // On first feedback error out any previously running tasks that have disapeared from the
-        // driver.
         let tasks = Task::tasks_running_on_machine(
             db,
             &machine.get_data()?.config.id,

@@ -22,6 +22,7 @@ eyre = "0.6.5"
 serde_json = { version = "1.0.44", features = ["raw_value"] }
 async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }
 nanoid = "0.3.0"
+async-trait = "0.1.36"
 
 [dependencies.serde]
 features = ["derive"]

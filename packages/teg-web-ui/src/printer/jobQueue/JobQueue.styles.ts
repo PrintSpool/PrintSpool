@@ -4,6 +4,8 @@ import { makeStyles } from '@material-ui/core/styles'
 const useStyles = makeStyles(theme => ({
   root: {
     overflow: 'scroll',
+    display: 'grid',
+    gridTemplateRows: 'auto 1fr',
   },
   endOfListMargin: {
     paddingBottom: theme.spacing(15),

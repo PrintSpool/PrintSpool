@@ -151,8 +151,6 @@ impl Toolhead {
             toolhead.ephemeral.heater.material_target = None;
         }
 
-        toolhead.model_version += 1;
-
         Ok(toolhead)
     }
 }

@@ -26,6 +26,9 @@ mod video;
 pub use video::video_query_resolvers::VideoQuery;
 pub use video::video_mutation_resolvers::VideoMutation;
 
+mod machine_material_hooks;
+pub use machine_material_hooks::MachineMaterialHooks;
+
 pub type Db = sqlx::sqlite::SqlitePool;
 pub type DbId = teg_json_store::DbId;
 

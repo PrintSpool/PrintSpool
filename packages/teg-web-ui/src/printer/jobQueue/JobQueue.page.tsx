@@ -12,6 +12,20 @@ const PRINT_QUEUES_QUERY = gql`
       id
       status
     }
+    latestPrints(input: { machineIDs: [$machineID] }) {
+      id
+      percentComplete(digits: 1)
+      estimatedPrintTimeMillis
+      startedAt
+      stoppedAt
+      status
+      paused
+      partID
+      machine {
+        id
+        name
+      }
+    }
     printQueues(input: { machineID: $machineID }) {
       id
       name
@@ -113,6 +127,7 @@ const JobQueuePage = ({
   const {
     machines,
     printQueues,
+    latestPrints,
   } = data
 
   const nextPart = printQueues
@@ -145,6 +160,7 @@ const JobQueuePage = ({
   return (
     <JobQueueView
       {...{
+        latestPrints,
         printQueues,
         machines,
         nextPart,

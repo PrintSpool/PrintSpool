@@ -89,14 +89,16 @@ const TaskStatusRow = ({
         {
           (() => {
             const taskOnMachine = `on ${task.machine.name}`
-            if (['CANCELLED', 'ERROR'].includes(task.status)) {
+            console.log(task.status)
+            if (['CANCELLED', 'ERRORED'].includes(task.status)) {
               const statusWord = (
-                task.status === 'CANCELLED' ? 'Cancelled' : 'Errored'
+                task.status === 'cancelled' ? 'Cancelled' : 'Errored'
               )
               return `${statusWord} ${taskOnMachine}`
             }
-            if (task.status === 'DONE') {
-              return `Printed ${taskOnMachine}`
+            if (['FINISHED', 'PAUSED'].includes(task.status)) {
+              const stopptedAtText = new Date(Date.parse(task.stoppedAt)).toLocaleString()
+              return `Print ${task.status.toLowerCase()} ${taskOnMachine} at ${stopptedAtText}`
             }
             return `Printing ${taskOnMachine}`
           })()

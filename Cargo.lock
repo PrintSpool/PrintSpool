@@ -4527,6 +4527,7 @@ name = "teg_material"
 version = "0.1.0"
 dependencies = [
  "async-graphql",
+ "async-trait",
  "chrono",
  "eyre",
  "nanoid",
