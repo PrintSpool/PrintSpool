@@ -103,10 +103,10 @@ const JobQueuePage = ({
   })
 
   const [print] = useMutation(PRINT)
-  const [deleteParts, deleteMutation] = useMutation(DELETE_PART)
-  const [cancelTask, cancelMutation] = useMutation(STOP)
+  const [deleteParts] = useMutation(DELETE_PART)
+  const [cancelTask] = useMutation(STOP)
   const [setPartPositions, setPartPositionsMutation] = useMutation(SET_PART_POSITIONS)
-  const [pausePrint, pauseMutation] = useMutation(gql`
+  const [pausePrint] = useMutation(gql`
     mutation pausePrint($taskID: ID!) {
       pausePrint(taskID: $taskID) { id }
     }
@@ -118,10 +118,7 @@ const JobQueuePage = ({
   `)
 
   const mutationError = (
-    deleteMutation.error
-    || cancelMutation.error
-    || setPartPositionsMutation.error
-    || pauseMutation.error
+    setPartPositionsMutation.error
     || resumeMutation.error
   )
 

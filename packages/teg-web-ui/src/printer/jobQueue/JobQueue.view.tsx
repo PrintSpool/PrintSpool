@@ -110,8 +110,8 @@ const JobQueueView = ({
 
   const confirm = useConfirm()
   const confirmedDeleteParts = confirm(() => ({
-    fn: () => {
-      deleteParts({
+    fn: async () => {
+      await deleteParts({
         variables: {
           input: {
             partIDs: selectedParts,

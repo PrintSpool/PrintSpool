@@ -46,11 +46,7 @@ export const useDeleteConfig = (mutation, {
   fullTitle = false,
 }) => {
   const { history } = useRouter()
-  const [deleteConfig, { error }] = useMutation(mutation)
-
-  if (error) {
-    throw error
-  }
+  const [deleteConfig] = useMutation(mutation)
 
   useDelete({
     show,
