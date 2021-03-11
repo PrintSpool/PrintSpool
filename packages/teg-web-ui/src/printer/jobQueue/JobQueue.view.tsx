@@ -64,13 +64,23 @@ const JobQueueView = ({
   const [printDialogFiles, setPrintDialogFiles] = useState()
   const [isDragging, setDragging] = useState(false)
 
+  const defaultValues = () => ({
+    selectedParts: Object.fromEntries(parts.map(part => ([
+      part.id,
+      false,
+    ])))
+  })
+
   const {
     // register,
     watch,
     reset,
     control,
     getValues,
-  } = useForm()
+    setValue,
+  } = useForm({
+    defaultValues: defaultValues(),
+  })
 
   const selectedPartsObj = watch('selectedParts', {})
   const selectedParts = Object.entries(selectedPartsObj)
@@ -80,14 +90,15 @@ const JobQueueView = ({
   // console.log(selectedParts)
 
   const resetSelection = () => {
+    // console.log('reset selected parts')
     reset({
       ...getValues(),
-      selectedParts: {},
+      selectedParts: defaultValues().selectedParts,
     })
   }
 
   const onSelectAllClick = (e) => {
-    if (e.target.checked) {
+    if (e.target.checked && selectedParts.length === 0) {
       reset({
         ...getValues(),
         selectedParts: Object.fromEntries(parts.map(part => [part.id, true])),
@@ -172,6 +183,7 @@ const JobQueueView = ({
   }, [])
 
   // console.log({ isDragging })
+  // console.log(selectedParts.length)
 
   return (
     <div
@@ -304,8 +316,9 @@ const JobQueueView = ({
                           return (
                             <Controller
                               key={part.id}
-                              name={`selectedParts[${part.id}]`}
+                              name={`selectedParts.${part.id}`}
                               control={control}
+                              defaultValue={false}
                               render={(checkboxProps) => (
                                 <TableRow
                                   hover
@@ -322,12 +335,12 @@ const JobQueueView = ({
                                 >
                                   <TableCell padding="checkbox">
                                     <Checkbox
-                                      {...checkboxProps}
                                       checked={checkboxProps.value || false}
                                       onClick={(e) => {
                                         e.stopPropagation()
                                       }}
                                       onChange={(e) => {
+                                        // console.log('on change', selectedPartsObj)
                                         checkboxProps.onChange(e.target.checked)
                                       }}
                                       // size="small"
