@@ -29,20 +29,20 @@ use crate::{
 };
 
 #[derive(Default)]
-pub struct DeletePartMutation;
+pub struct DeletePartsMutation;
 
 #[derive(async_graphql::InputObject)]
-struct DeletePartInput {
-    #[graphql(name="partID")]
-    part_id: ID,
+struct DeletePartsInput {
+    #[graphql(name="partIDs")]
+    part_ids: Vec<ID>,
 }
 
 #[async_graphql::Object]
-impl DeletePartMutation {
-    async fn delete_part<'ctx>(
+impl DeletePartsMutation {
+    async fn delete_parts<'ctx>(
         &self,
         ctx: &'ctx async_graphql::Context<'_>,
-        input: DeletePartInput,
+        input: DeletePartsInput,
     ) -> FieldResult<Option<teg_common::Void>> {
         let db: &crate::Db = ctx.data()?;
         let machines: &MachineMap = ctx.data()?;
@@ -51,26 +51,38 @@ impl DeletePartMutation {
         async move {
             let mut tx = db.begin().await?;
 
-            let part_id = input.part_id.to_string();
-            // Verify the part exists
-            let mut part = Part::get(&mut tx, &part_id).await?;
+            let part_ids = input.part_ids
+                .into_iter()
+                .map(|id| id.0)
+                .collect::<Vec<_>>();
+
+            // Verify the parts exist
+            let parts = Part::get_by_ids(&mut tx, &part_ids).await?;
 
             // Cancel all the tasks
-            let pending_tasks = sqlx::query_as!(
-                JsonRow,
+            let tasks_sql = format!(
                 r#"
                     SELECT tasks.props FROM tasks
                     INNER JOIN parts ON parts.id = tasks.part_id
                     WHERE
-                        parts.id = ?
+                        parts.id IN ({})
                         AND tasks.status IN ('spooled', 'started', 'paused')
                 "#,
-                part_id,
-            )
+                part_ids.iter().map(|_| "?").collect::<Vec<_>>().join(", "),
+            );
+            let mut tasks_query = sqlx::query_as(
+                &tasks_sql,
+            );
+
+            for id in part_ids {
+                tasks_query = tasks_query.bind(id);
+            }
+
+            let tasks: Vec<JsonRow> = tasks_query
                 .fetch_all(&mut tx)
                 .await?;
 
-            let mut tasks = Task::from_rows(pending_tasks)?;
+            let mut tasks = Task::from_rows(tasks)?;
 
             for mut task in &mut tasks {
                 task.status = TaskStatus::Cancelled(Cancelled {
@@ -82,8 +94,10 @@ impl DeletePartMutation {
 
             // Soft delete the package
             let now= Utc::now();
-            part.deleted_at = Some(now.clone());
-            part.update(&mut tx).await?;
+            for mut part in parts {
+                part.deleted_at = Some(now.clone());
+                part.update(&mut tx).await?;
+            }
 
             tx.commit().await?;
 

@@ -8,12 +8,12 @@ const theme = createMuiTheme({
     },
   },
   overrides: {
-    MuiButton: {
-      label: {
-        fontWeight: 'bold',
-        textTransform: 'none',
-      },
-    },
+  //   MuiButton: {
+  //     label: {
+  //       fontWeight: 'bold',
+  //       textTransform: 'none',
+  //     },
+  //   },
     MuiLink: {
       root: {
         color: 'rgb(0, 0, 238)',
@@ -23,13 +23,13 @@ const theme = createMuiTheme({
   },
   typography: {
     useNextVariants: true,
-    fontSize: 18,
-    h4: {
-      fontSize: '2.1rem',
-      letterSpacing: '0.05em',
-      fontWeight: 600,
-    },
-  },
+  //   fontSize: 18,
+  //   h4: {
+  //     fontSize: '2.1rem',
+  //     letterSpacing: '0.05em',
+  //     fontWeight: 600,
+  //   },
+  }
 })
 
 export default theme

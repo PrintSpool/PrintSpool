@@ -4,8 +4,8 @@ use create_job_mutation::CreateJobMutation;
 pub mod delete_package_mutation;
 use delete_package_mutation::DeletePackageMutation;
 
-pub mod delete_part_mutation;
-use delete_part_mutation::DeletePartMutation;
+pub mod delete_parts_mutation;
+use delete_parts_mutation::DeletePartsMutation;
 
 pub mod exec_gcodes_mutation;
 use exec_gcodes_mutation::ExecGCodesMutation;
@@ -16,8 +16,8 @@ use pause_print_mutation::PausePrintMutation;
 pub mod resume_print_mutation;
 use resume_print_mutation::ResumePrintMutation;
 
-pub mod set_part_position_mutation;
-use set_part_position_mutation::SetPartPositionMutation;
+pub mod set_part_positions_mutation;
+use set_part_positions_mutation::SetPartPositionsMutation;
 
 pub mod print_mutation;
 use print_mutation::PrintMutation;
@@ -26,10 +26,10 @@ use print_mutation::PrintMutation;
 pub struct PrintQueueMutation(
     CreateJobMutation,
     DeletePackageMutation,
-    DeletePartMutation,
+    DeletePartsMutation,
     ExecGCodesMutation,
     PausePrintMutation,
     ResumePrintMutation,
-    SetPartPositionMutation,
+    SetPartPositionsMutation,
     PrintMutation,
 );

@@ -10,6 +10,7 @@ use crate::{
 // a `task.part` field.
 #[derive(async_graphql::SimpleObject)]
 pub struct Print {
+    pub id: async_graphql::ID,
     pub part: Part,
     pub task: Task,
 }

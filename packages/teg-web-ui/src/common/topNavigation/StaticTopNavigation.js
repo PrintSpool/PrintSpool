@@ -52,7 +52,7 @@ const StaticTopNavigation = ({
           </IconButton>
         </Hidden>
         <Typography
-          variant="h5"
+          variant="h4"
           className={classes.title}
           component={React.forwardRef((props, ref) => (
             <Link to="/" innerRef={ref} {...props} />

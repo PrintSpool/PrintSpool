@@ -89,7 +89,8 @@ const TaskStatusRow = ({
         {
           (() => {
             const taskOnMachine = `on ${task.machine.name}`
-            console.log(task.status)
+            // console.log(task.status)
+
             if (['CANCELLED', 'ERRORED'].includes(task.status)) {
               const statusWord = (
                 task.status === 'cancelled' ? 'Cancelled' : 'Errored'
@@ -111,16 +112,18 @@ const TaskStatusRow = ({
           alignItems: 'center',
         }}
       >
-        <Typography
-          variant="body2"
-          style={{
-            marginRight: 12,
-          }}
-        >
-          {task.percentComplete.toFixed(1)}
-          %
-          {etaStr}
-        </Typography>
+        { !task.settled && (
+          <Typography
+            variant="body2"
+            style={{
+              marginRight: 12,
+            }}
+          >
+            {task.percentComplete.toFixed(1)}
+            %
+            {etaStr}
+          </Typography>
+        )}
         <div
           style={{
             flexGrow: 1,

@@ -36,7 +36,7 @@ const PrintCard = ({
   const { task, part } = print
 
   const shortName = truncate(part.name, 32)
-  console.log({ task } )
+  // console.log({ task } )
 
   // const confirmedDeletePart = confirm(() => ({
   //   fn: () => {

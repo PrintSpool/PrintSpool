@@ -178,6 +178,7 @@ impl PrintQueueQuery {
                     .clone();
 
                 Ok(Print {
+                    id: task.id.clone().into(),
                     part,
                     task,
                 })

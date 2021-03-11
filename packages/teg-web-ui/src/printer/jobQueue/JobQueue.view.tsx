@@ -1,16 +1,41 @@
 import React, { useState, useCallback } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import truncate from 'truncate'
 
 import Typography from '@material-ui/core/Typography'
 import Fab from '@material-ui/core/Fab'
 import Tooltip from '@material-ui/core/Tooltip'
 import Button from '@material-ui/core/Button'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import Checkbox from '@material-ui/core/Checkbox'
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TablePagination from '@material-ui/core/TablePagination';
+import TableRow from '@material-ui/core/TableRow';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import Toolbar from '@material-ui/core/Toolbar';
+import Paper from '@material-ui/core/Paper';
+import IconButton from '@material-ui/core/IconButton';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
+import DeleteIcon from '@material-ui/icons/Delete';
+import FilterListIcon from '@material-ui/icons/FilterList';
 
 import Add from '@material-ui/icons/Add'
 import MoveToInbox from '@material-ui/icons/MoveToInbox'
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp'
+import LowPriorityIcon from '@material-ui/icons/LowPriority';
 
+import useConfirm from '../../common/_hooks/useConfirm'
 import FileInput from '../../common/FileInput'
 import FloatingPrintNextButton from './components/FloatingPrintNextButton'
-import JobCard from './components/JobCard'
 import useStyles from './JobQueue.styles'
 import PrintDialog from '../printDialog/PrintDialog'
 import PrintCard from './components/PrintCard'
@@ -21,11 +46,12 @@ const JobQueueView = ({
   machines,
   nextPart,
   spoolNextPrint,
-  deletePart,
+  deleteParts,
   cancelTask,
   pausePrint,
   resumePrint,
-  moveToTopOfQueue,
+  setPartPositions,
+  history,
 }) => {
   const classes = useStyles()
 
@@ -38,32 +64,80 @@ const JobQueueView = ({
   const [printDialogFiles, setPrintDialogFiles] = useState()
   const [isDragging, setDragging] = useState(false)
 
-  // TODO: recreate job status with a more limited scope
-  const categories = [
-    {
-      title: 'Done',
-      partsSubset: parts.filter(part => part.printsCompleted >= part.totalPrints),
-    },
-    {
-      title: 'Printing',
-      partsSubset: parts.filter((part) => {
-        const currentTasks = part.tasks.filter(task => (
-          !['CANCELLED', 'ERRORED', 'FINISHED'].includes(task.status)
-        ))
-        return !(part.printsCompleted >= part.totalPrints) && currentTasks.length > 0
-      }),
-    },
-    {
-      title: 'Queued',
-      partsSubset: parts.filter((part) => {
-        const currentTasks = part.tasks.filter(task => (
-          !['CANCELLED', 'ERRORED', 'FINISHED'].includes(task.status)
-        ))
-        return !(part.printsCompleted >= part.totalPrints) && currentTasks.length === 0
-      }),
-    },
-  ]
+  const {
+    // register,
+    watch,
+    reset,
+    control,
+    getValues,
+  } = useForm()
 
+  const selectedPartsObj = watch('selectedParts', {})
+  const selectedParts = Object.entries(selectedPartsObj)
+    .filter(([, v]) => v)
+    .map(([k]) => k)
+
+  // console.log(selectedParts)
+
+  const resetSelection = () => {
+    reset({
+      ...getValues(),
+      selectedParts: {},
+    })
+  }
+
+  const onSelectAllClick = (e) => {
+    if (e.target.checked) {
+      reset({
+        ...getValues(),
+        selectedParts: Object.fromEntries(parts.map(part => [part.id, true])),
+      })
+    } else {
+      resetSelection()
+    }
+  }
+
+  const confirm = useConfirm()
+  const confirmedDeleteParts = confirm(() => ({
+    fn: () => {
+      deleteParts({
+        variables: {
+          input: {
+            partIDs: selectedParts,
+          },
+        },
+      })
+      resetSelection()
+    },
+    title: (
+      'Are you sure you want to delete '
+      + (selectedParts.length > 1 ? `these ${selectedParts.length} parts?` : 'this part?')
+    ),
+    description: selectedParts.map(id => (
+      <React.Fragment key={id}>
+        {parts.find(p => p.id == id).name}
+        <br/>
+      </React.Fragment>
+    ))
+  }))
+
+  const moveToTopOfQueue = () => {
+    setPartPositions({
+      variables: {
+        input: {
+          // Use the parts list so that they are ordered by their current position.
+          // This matters for bulk moves - without this the order within the moved parts would
+          // not be consistent with their previous visual order.
+          parts: parts
+            .filter(part => selectedPartsObj[part.id])
+            .map((part, index) => ({
+              partID: part.id,
+              position: index,
+            })),
+        },
+      },
+    })
+  }
 
   const onDragOver = useCallback((ev) => {
     setDragging(true)
@@ -118,10 +192,10 @@ const JobQueueView = ({
       )}
 
       { latestPrints.length > 0 && (
-        <div>
-          <Typography variant="subtitle1" gutterBottom>
+        <div className={classes.latestPrints}>
+          {/* <Typography variant="subtitle1" gutterBottom>
             Latest Print
-          </Typography>
+          </Typography> */}
           { latestPrints.map(print => (
             <PrintCard {...{
               key: print.id,
@@ -129,7 +203,7 @@ const JobQueueView = ({
               cancelTask,
               pausePrint,
               resumePrint,
-              deletePart,
+              deleteParts,
             }} />
           ))}
         </div>
@@ -160,39 +234,126 @@ const JobQueueView = ({
           </div>
         )}
 
-        {
-          !isDragging && categories.map(({ title, partsSubset }) => {
-            if (partsSubset.length === 0) return <div key={title} />
+        { !isDragging && printQueues.filter(q => q.parts.length > 0).map(printQueue => (
+            <Paper key={printQueue.id}>
+              <div className={classes.partsList}>
+                <TableContainer>
+                  <Table
+                    size="medium"
+                    aria-label={ printQueue.name }
+                  >
+                    <TableHead>
+                      <TableRow>
+                        <TableCell padding="checkbox" className={classes.headerCheckbox}>
+                          <Checkbox
+                            indeterminate={
+                              selectedParts.length > 0
+                              && selectedParts.length < parts.length
+                            }
+                            checked={
+                              selectedParts.length > 0
+                              && selectedParts.length === parts.length
+                            }
+                            onChange={onSelectAllClick}
+                            inputProps={{ 'aria-label': 'select all parts' }}
+                          />
+                        </TableCell>
+                        <TableCell padding="none">
+                          { selectedParts.length > 0 && (
+                            <>
+                              <Tooltip title="Move to Top of Queue">
+                                <IconButton
+                                  aria-label="move to top of queue"
+                                  onClick={moveToTopOfQueue}
+                                  edge="start"
+                                  style={{ transform: 'scaleX(-1) scaleY(-1)' }}
+                                >
+                                  <LowPriorityIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Delete">
+                                <IconButton
+                                  aria-label="delete"
+                                  onClick={confirmedDeleteParts}
+                                  edge="start"
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell colSpan={2}>
+                          <Typography
+                            variant="h5"
+                            component="div"
+                          >
+                            { printQueue.name }
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {
+                        printQueue.parts.map(part => {
+                          const labelID = `${part.id}-label`
+                          const shortName = truncate(part.name, 32)
 
-            return (
-              <div key={title}>
-                <Typography variant="subtitle1" gutterBottom>
-                  { title }
-                </Typography>
-                {
-                  partsSubset.map(part => (
-                    <div key={part.id} className={classes.partContainer}>
-                      <JobCard
-                        {...part}
-                        {...{
-                          cancelTask,
-                          pausePrint,
-                          resumePrint,
-                          deletePart,
-                          moveToTopOfQueue,
-                        }}
-                      />
-                    </div>
-                  ))
-                }
+                          return (
+                            <Controller
+                              key={part.id}
+                              name={`selectedParts[${part.id}]`}
+                              control={control}
+                              render={(checkboxProps) => (
+                                <TableRow
+                                  hover
+                                  // onClick={(event) => handleClick(event, row.name)}
+                                  // role="checkbox"
+                                  // aria-checked={isItemSelected}
+                                  tabIndex={-1}
+                                  onClick={() => {
+                                    history.push(`./printing/${part.id}`)
+                                  }}
+                                  selected={checkboxProps.value}
+                                  style={{ cursor: 'pointer' }}
+                                  // selected={isItemSelected}
+                                >
+                                  <TableCell padding="checkbox">
+                                    <Checkbox
+                                      {...checkboxProps}
+                                      checked={checkboxProps.value || false}
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                      }}
+                                      onChange={(e) => {
+                                        checkboxProps.onChange(e.target.checked)
+                                      }}
+                                      // size="small"
+                                      // inputProps={{ 'aria-labelledby': labelId }}
+                                    />
+                                  </TableCell>
+                                  <TableCell
+                                    component="th"
+                                    id={labelID}
+                                    scope="row"
+                                    padding="none"
+                                  >
+                                    {shortName}
+                                  </TableCell>
+                                </TableRow>
+                              )}
+                            />
+                          )
+                        })
+                      }
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </div>
-            )
-          })
-        }
-
-        { !(isDragging || parts.length === 0) && (
-          <div className={classes.endOfListMargin}/>
-        )}
+            </Paper>
+        ))}
       </div>
 
       {/* Add Job Button */}

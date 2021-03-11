@@ -81,7 +81,7 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
             .await
             .wrap_err_with(|| format!("Could not find {} (id: {})", Self::TABLE, id))?;
 
-        let entry: Self = serde_json::from_str(&row.props)?;
+        let entry: Self = Self::from_row(row)?;
         Ok(entry)
     }
 
@@ -102,8 +102,35 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
             .fetch_one(db)
             .await?;
 
-        let entry: Self = serde_json::from_str(&row.props)?;
+        let entry: Self = Self::from_row(row)?;
         Ok(entry)
+    }
+
+    async fn get_by_ids<'e, 'c, E>(
+        db: E,
+        ids: &Vec<crate::DbId>,
+    ) -> Result<Vec<Self>>
+    where
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    {
+        let sql = format!(
+            "SELECT props FROM {} WHERE id IN ({})",
+            Self::TABLE,
+            ids.iter().map(|_| "?").collect::<Vec<_>>().join(", ")
+        );
+
+        let mut query = sqlx::query_as(&sql);
+
+        for id in ids {
+            query = query.bind(id);
+        }
+
+        let rows: Vec<JsonRow> = query
+            .fetch_all(db)
+            .await
+            .wrap_err_with(|| format!("Could not get {}", Self::TABLE))?;
+
+        Ok(Self::from_rows(rows)?)
     }
 
     async fn get_all<'e, 'c, E>(

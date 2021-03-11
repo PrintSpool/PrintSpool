@@ -67,9 +67,9 @@ const STOP = gql`
   }
 `
 
-const SET_JOB_POSITION = gql`
-  mutation setPartPosition($input: SetPartPositionInput!) {
-    setPartPosition(input: $input) { id }
+const SET_PART_POSITIONS = gql`
+  mutation setPartPositions($input: SetPartPositionsInput!) {
+    setPartPositions(input: $input) { id }
   }
 `
 
@@ -95,13 +95,15 @@ const JobPage = () => {
       resumePrint(taskID: $taskID) { id }
     }
   `)
-  const [setPartPosition] = useMutation(SET_JOB_POSITION)
+  const [setPartPositions] = useMutation(SET_PART_POSITIONS)
 
-  const moveToTopOfQueue = () => setPartPosition({
+  const moveToTopOfQueue = () => setPartPositions({
     variables: {
       input: {
-        partID,
-        position: 0,
+        parts: [{
+          partID,
+          position: 0,
+        }],
       },
     },
   })

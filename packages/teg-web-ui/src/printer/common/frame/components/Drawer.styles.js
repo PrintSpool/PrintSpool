@@ -18,6 +18,7 @@ const useStyles = makeStyles(theme => ({
   },
   fullHeight: {
     height: '100%',
+    display: 'flex',
   },
   drawerRoot: {
     height: '100%',

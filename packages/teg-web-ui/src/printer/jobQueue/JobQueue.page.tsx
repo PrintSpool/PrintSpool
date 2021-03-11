@@ -1,6 +1,7 @@
 import React from 'react'
 import { gql } from '@apollo/client'
 import { useMutation, useQuery } from '@apollo/client'
+import { useHistory } from 'react-router-dom'
 
 import JobQueueView from './JobQueue.view'
 
@@ -13,7 +14,9 @@ const PRINT_QUEUES_QUERY = gql`
       status
     }
     latestPrints(input: { machineIDs: [$machineID] }) {
+      id
       part {
+        id
         name
       }
       task {
@@ -68,9 +71,9 @@ const STOP = gql`
   }
 `
 
-const SET_JOB_POSITION = gql`
-  mutation setPartPosition($input: SetPartPositionInput!) {
-    setPartPosition(input: $input) { id }
+const SET_PART_POSITIONS = gql`
+  mutation setPartPositions($input: SetPartPositionsInput!) {
+    setPartPositions(input: $input) { id }
   }
 `
 
@@ -81,8 +84,8 @@ const PRINT = gql`
 `
 
 const DELETE_PART = gql`
-  mutation deletePart($input: DeletePartInput!) {
-    deletePart(input: $input) { id }
+  mutation deleteParts($input: DeletePartsInput!) {
+    deleteParts(input: $input) { id }
   }
 `
 
@@ -90,6 +93,7 @@ const JobQueuePage = ({
   match,
 }) => {
   const { machineID } = match.params
+  const history = useHistory()
 
   const { loading, data, error } = useLiveSubscription(PRINT_QUEUES_QUERY, {
     variablesDef: '($machineID: ID)',
@@ -99,28 +103,27 @@ const JobQueuePage = ({
   })
 
   const [print] = useMutation(PRINT)
-  const [deletePart] = useMutation(DELETE_PART)
-  const [cancelTask] = useMutation(STOP)
-  const [setPartPosition] = useMutation(SET_JOB_POSITION)
-  const [pausePrint] = useMutation(gql`
+  const [deleteParts, deleteMutation] = useMutation(DELETE_PART)
+  const [cancelTask, cancelMutation] = useMutation(STOP)
+  const [setPartPositions, setPartPositionsMutation] = useMutation(SET_PART_POSITIONS)
+  const [pausePrint, pauseMutation] = useMutation(gql`
     mutation pausePrint($taskID: ID!) {
       pausePrint(taskID: $taskID) { id }
     }
   `)
-  const [resumePrint] = useMutation(gql`
+  const [resumePrint, resumeMutation] = useMutation(gql`
     mutation resumePrint($taskID: ID!) {
       resumePrint(taskID: $taskID) { id }
     }
   `)
 
-  const moveToTopOfQueue = ({ partID }) => setPartPosition({
-    variables: {
-      input: {
-        partID,
-        position: 0,
-      },
-    },
-  })
+  const mutationError = (
+    deleteMutation.error
+    || cancelMutation.error
+    || setPartPositionsMutation.error
+    || pauseMutation.error
+    || resumeMutation.error
+  )
 
   if (loading) {
     return <div />
@@ -163,6 +166,10 @@ const JobQueuePage = ({
     })
   }
 
+  if (mutationError) {
+    throw mutationError
+  }
+
   return (
     <JobQueueView
       {...{
@@ -171,11 +178,12 @@ const JobQueuePage = ({
         machines,
         nextPart,
         spoolNextPrint,
-        deletePart,
+        deleteParts,
         cancelTask,
         pausePrint,
         resumePrint,
-        moveToTopOfQueue,
+        setPartPositions,
+        history,
       }}
     />
   )
