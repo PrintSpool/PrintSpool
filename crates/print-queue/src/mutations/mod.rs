@@ -19,6 +19,9 @@ use resume_print_mutation::ResumePrintMutation;
 pub mod set_part_positions_mutation;
 use set_part_positions_mutation::SetPartPositionsMutation;
 
+pub mod set_part_quantity_mutation;
+use set_part_quantity_mutation::SetPartQuantityMutation;
+
 pub mod print_mutation;
 use print_mutation::PrintMutation;
 
@@ -31,5 +34,6 @@ pub struct PrintQueueMutation(
     PausePrintMutation,
     ResumePrintMutation,
     SetPartPositionsMutation,
+    SetPartQuantityMutation,
     PrintMutation,
 );

@@ -18,6 +18,10 @@ const useStyles = makeStyles(theme => ({
   partsList: {
     // paddingBottom: theme.spacing(2),
   },
+  qty: {
+    paddingLeft: theme.spacing(2),
+    color: theme.palette.text.hint,
+  },
   dragging: {
     border: '4px dashed #666',
   },

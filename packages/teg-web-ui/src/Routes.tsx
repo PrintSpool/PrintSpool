@@ -18,7 +18,8 @@ import Terminal from './printer/terminal/Terminal'
 
 import ConnectionFrame from './printer/common/frame/ConnectionFrame'
 import QueuePage from './printer/jobQueue/JobQueue.page'
-import JobPage from './printer/job/Job.page'
+import PartPage from './printer/part/Job.page'
+import EditPartPage from './printer/part/edit/EditPart.page'
 
 import ConfigIndexPage from './printer/config/Config.page'
 import ComponentsConfigPage from './printer/config/printerComponents/PrinterComponents.page'
@@ -192,7 +193,9 @@ const Routes = () => {
                     path="/:m/:hostID/:machineID/"
                     component={QueuePage}
                   />
-                  <Route exact path="/:m/:hostID/:machineID/printing/:partID/" component={JobPage} />
+                  <Route exact strict path="/:m/:hostID/:machineID/printing/:partID/" component={PartPage} />
+                  <Route exact strict path="/:m/:hostID/:machineID/printing/:partID/settings" component={EditPartPage} />
+
                   <Route exact path="/:m/:hostID/:machineID/graphql-playground/" component={GraphQLPlayground} />
 
                   <Route

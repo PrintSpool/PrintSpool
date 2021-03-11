@@ -16,7 +16,8 @@ const theme = createMuiTheme({
   //   },
     MuiLink: {
       root: {
-        color: 'rgb(0, 0, 238)',
+        // color: 'rgb(0, 0, 238)',
+        color: '#0366d6',
         cursor: 'pointer',
       },
     },

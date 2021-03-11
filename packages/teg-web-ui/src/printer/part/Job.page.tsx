@@ -67,12 +67,6 @@ const STOP = gql`
   }
 `
 
-const SET_PART_POSITIONS = gql`
-  mutation setPartPositions($input: SetPartPositionsInput!) {
-    setPartPositions(input: $input) { id }
-  }
-`
-
 const JobPage = () => {
   const { match: { params } } = useReactRouter()
   const { partID } = params
@@ -95,18 +89,6 @@ const JobPage = () => {
       resumePrint(taskID: $taskID) { id }
     }
   `)
-  const [setPartPositions] = useMutation(SET_PART_POSITIONS)
-
-  const moveToTopOfQueue = () => setPartPositions({
-    variables: {
-      input: {
-        parts: [{
-          partID,
-          position: 0,
-        }],
-      },
-    },
-  })
 
   const part = (data as any)?.parts[0]
   const task = part?.tasks.find(t =>
@@ -136,7 +118,6 @@ const JobPage = () => {
         cancelTask,
         pausePrint,
         resumePrint,
-        moveToTopOfQueue,
         execGCodes,
         isReady,
         isPrinting,

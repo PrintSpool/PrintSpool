@@ -1,36 +1,42 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 import Typography from '@material-ui/core/Typography'
 import Card from '@material-ui/core/Card'
+import CardHeader from '@material-ui/core/CardHeader'
 import CardContent from '@material-ui/core/CardContent'
 import Breadcrumbs from '@material-ui/core/Breadcrumbs'
 import Button from '@material-ui/core/Button'
+import Tooltip from '@material-ui/core/Tooltip'
 
-import { Link } from 'react-router-dom'
+import EditIcon from '@material-ui/icons/Edit'
 
 import TaskStatusRow from '../jobQueue/components/TaskStatusRow'
 import useStyles from './Job.styles.js'
 import VideoStreamer from '../manualControl/videoStreamer/VideoStreamer.page'
 import ComponentControl from '../manualControl/printerComponents/ComponentControl'
 import ViewingUsersButton from './ViewingUsersButton'
+import PartHeader from './PartHeader'
 
 const JobView = ({
   cancelTask,
   pausePrint,
   resumePrint,
-  moveToTopOfQueue,
-  part: {
-    name,
-    tasks,
-    printsCompleted,
-    totalPrints,
-    // history,
-  },
+  part,
   execGCodes,
   isReady,
   isPrinting,
 }) => {
   const classes = useStyles()
+
+  const  {
+    name,
+    tasks,
+    printsCompleted,
+    totalPrints,
+    startedFinalPrint,
+    // history,
+  } = part
 
   const task = tasks.find(t =>
     !['ERRORED', 'CANCELLED', 'FINISHED'].includes(t.status)
@@ -43,19 +49,25 @@ const JobView = ({
 
   return (
     <div className={classes.root}>
-      <Card raised className={classes.card}>
-        { videoComponents.length > 0 && (
-          <div className={classes.videoStreamer}>
-            { videoComponents.map((c) => (
-              <VideoStreamer
-                machineID={task.machine.id}
-                videoID={c.id}
-                key={c.id}
-              />
-            )) }
-          </div>
-        ) }
+      <PartHeader {...{
+        part,
+        value: 0,
+      }}/>
+
+      <Card>
         <CardContent>
+          { videoComponents.length > 0 && (
+            <div className={classes.videoStreamer}>
+              { videoComponents.map((c) => (
+                <VideoStreamer
+                  machineID={task.machine.id}
+                  videoID={c.id}
+                  key={c.id}
+                />
+              )) }
+            </div>
+          ) }
+
           { task && (
             <ViewingUsersButton
               className={classes.viewingUsersButton}
@@ -63,35 +75,13 @@ const JobView = ({
             />
           )}
 
-          <Breadcrumbs>
-            <Link to="../">
-              Print Queue
-            </Link>
-            <Typography color="textPrimary">
-              {name}
-            </Typography>
-          </Breadcrumbs>
-
-          <Typography variant="subtitle1" paragraph>
+          <Typography variant="body1" paragraph>
             {
-              `${printsCompleted} / ${totalPrints} prints completed`
+              `${printsCompleted} / ${totalPrints} printed`
             }
+            { task == null && '. Not currently printing.' }
           </Typography>
 
-          { task == null && (
-            <>
-              <Typography variant="h6" color="textSecondary" paragraph>
-                This part is not currently being printed
-              </Typography>
-              <Button
-                onClick={moveToTopOfQueue}
-                color="primary"
-                variant="contained"
-              >
-                Move to Top of Queue
-              </Button>
-            </>
-          )}
           { task && (
             <div key={task.id}>
               <TaskStatusRow
