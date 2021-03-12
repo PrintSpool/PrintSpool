@@ -42,6 +42,7 @@ const PRINT_QUEUES_QUERY = gql`
         id
         name
         quantity
+        printsInProgress
         printsCompleted
         totalPrints
         startedFinalPrint

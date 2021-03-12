@@ -37,25 +37,34 @@ impl Part {
     pub async fn query_prints_in_progress<'e, 'c, E>(
         db: E,
         part_id: &crate::DbId,
+        include_finished_prints: bool,
     ) -> Result<i32>
     where
         E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
     {
-        let printed = sqlx::query!(
+        let finished_arg = if include_finished_prints {
+            "finished"
+        } else {
+            // If we are not querying for finished prints just replace it with an invalid status
+            "unused_void"
+        };
+
+        let in_progress = sqlx::query!(
             r#"
                 SELECT
-                    COUNT(id) as printed
+                    COUNT(id) as in_progress
                 FROM tasks
                 WHERE
                     part_id = ?
-                    AND tasks.status IN ('spooled', 'started', 'paused', 'finished')
+                    AND tasks.status IN ('spooled', 'started', 'paused', ?)
                 "#,
             part_id,
+            finished_arg,
         )
             .fetch_one(db)
             .await?
-            .printed;
-        Ok(printed)
+            .in_progress;
+        Ok(in_progress)
     }
 
     pub async fn query_prints_completed<'e, 'c, E>(

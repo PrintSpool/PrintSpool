@@ -341,11 +341,21 @@ const JobQueueView = ({
                                     scope="row"
                                     padding="none"
                                   >
-                                    {shortName}
-                                    <span className={classes.qty}>
+                                    <Typography display="inline">
+                                      {shortName}
+                                    </Typography>
+                                    <Typography
+                                      display="inline"
+                                      className={classes.qty}
+                                    >
                                       {`${part.printsCompleted} / ${part.totalPrints} `}
                                       printed
-                                    </span>
+                                    </Typography>
+                                    { part.printsInProgress > 0 && (
+                                      <Typography color="primary" display="inline">
+                                        {`${part.printsInProgress} printing`}
+                                      </Typography>
+                                    )}
                                   </TableCell>
                                 </TableRow>
                               )}

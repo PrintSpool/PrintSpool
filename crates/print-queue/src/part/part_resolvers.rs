@@ -21,16 +21,30 @@ impl Part {
     async fn name(&self) -> &String { &self.name }
     async fn quantity(&self) -> i32 { self.quantity }
 
-    async fn total_prints_<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<i64> {
+    /// The number of prints running or paused. Specifically this counts the tasks with a status of
+    /// spooled, started, or paused.
+    async fn prints_in_progress<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<i32> {
         let db: &crate::Db = ctx.data()?;
 
-        Ok(Self::query_total_prints(db, &self.id).await?)
+        Ok(Self::query_prints_in_progress(
+            db,
+            &self.id,
+        false,
+        ).await?)
     }
 
+    /// The number of prints that have finished printing successfully.
     async fn prints_completed<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<i32> {
         let db: &crate::Db = ctx.data()?;
 
         Ok(Self::query_prints_completed(db, &self.id).await?)
+    }
+
+    /// The quantity of this part times the quantity of it's containing package.
+    async fn total_prints_<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<i64> {
+        let db: &crate::Db = ctx.data()?;
+
+        Ok(Self::query_total_prints(db, &self.id).await?)
     }
 
     #[graphql(name="startedFinalPrint")]

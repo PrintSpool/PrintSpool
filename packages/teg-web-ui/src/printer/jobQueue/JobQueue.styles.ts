@@ -20,6 +20,7 @@ const useStyles = makeStyles(theme => ({
   },
   qty: {
     paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
     color: theme.palette.text.hint,
   },
   dragging: {

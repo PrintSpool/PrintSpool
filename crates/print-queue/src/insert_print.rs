@@ -227,7 +227,11 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
         // Get the number of printed parts and the total number of prints
         let total_prints = Part::query_total_prints(&mut tx, &part_id)
             .await?;
-        let prints_in_progress = Part::query_prints_in_progress(&mut tx, &part_id)
+        let prints_in_progress = Part::query_prints_in_progress(
+            &mut tx,
+            &part_id,
+        true,
+        )
             .await?;
 
         if prints_in_progress as i64 >= total_prints {
