@@ -57,7 +57,10 @@ const PrintCard = ({
     <Card>
       <CardHeader
         title={(
-          <Link to={`./printing/${task.partID}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Link
+            to={`./printing/${task.partID}/`}
+            style={{ textDecoration: 'none', color: 'inherit' }}
+          >
             {shortName}
           </Link>
         )}
