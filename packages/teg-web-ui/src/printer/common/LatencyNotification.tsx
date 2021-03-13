@@ -9,7 +9,7 @@ const LATENCY_QUERY = gql`
 `
 
 const HIGH_LATENCY_THRESHOLD_MILLIS = 500
-const HIDE_NOTIFICATION_AFTER_MILLIS = 3000
+const HIDE_NOTIFICATION_AFTER_MILLIS = 5000
 const PING_INTERVAL = 500
 
 const LatencyNotification = () => {
@@ -71,6 +71,17 @@ const LatencyNotification = () => {
     }))
   }
 
+  const onFocus = () => setState((state) => {
+    if (state.showTimeout != null) {
+      clearTimeout(state.showTimeout)
+    }
+
+    return {
+      ...state,
+      showTimeout: null,
+    }
+  })
+
   useEffect(() => {
     if (data) {
       // aproximate round trip ping time by measuring the time between ping responses
@@ -102,6 +113,17 @@ const LatencyNotification = () => {
       console.error(error)
     }
   }, [error])
+
+
+  useEffect(() => {
+    window.addEventListener('focus', onFocus)
+    // window.addEventListener('blur', onBlur)
+    // Specify how to clean up after this effect:
+    return () => {
+      window.removeEventListener('focus', onFocus)
+      // window.removeEventListener('blur', onBlur)
+    }
+  }, [])
 
   return <></>
 }
