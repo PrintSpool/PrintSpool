@@ -103,16 +103,17 @@ where
     Fut: Future<Output = Result<S>> + Send + 'static,
     S: Stream<Item = Vec<u8>> + Send + 'static,
 {
-    let signalling_url = "https:://signalling.tegapp.com";
-
     let machines = machines.load();
+
+    let signalling_url = std::env::var("SIGNALLING_SERVER")
+        .wrap_err("SIGNALLING_SERVER environment variable missing")?;
 
     let jwt_headers = serde_json::json!({
     });
 
     let jwt_payload = serde_json::json!({
         "sub": "self",
-        "aud": signalling_url,
+        "aud": signalling_url.clone(),
         "exp": (Utc::now() + Duration::minutes(10)).timestamp(),
         "selfSignature": true,
     });
@@ -124,11 +125,8 @@ where
         frank_jwt::Algorithm::ES256,
     )?;
 
-    let signalling_server = std::env::var("SIGNALLING_SERVER")
-        .wrap_err("SIGNALLING_SERVER environment variable missing")?;
-
     let request = Request::builder()
-        .uri(signalling_server)
+        .uri(&signalling_url)
         .body(())?;
 
     let (mut ws_stream, _) = connect_async(request).await?;
