@@ -26,6 +26,7 @@ import ComponentsConfigPage from './printer/config/printerComponents/PrinterComp
 import MaterialsConfigPage from './printer/config/materials/Materials.page'
 import UsersConfigPage from './printer/config/users/User.page'
 import InvitesConfigPage from './printer/config/invites/Invites.page'
+import LatencyNotification from './printer/common/LatencyNotification'
 
 const GettingStarted = React.lazy(() => (
   import('./onboarding/gettingStarted/GettingStarted')
@@ -188,6 +189,8 @@ const Routes = () => {
               ]}
               render={({ match }) => (
                 <ConnectionFrame match={match}>
+                  <LatencyNotification />
+
                   <Route
                     exact
                     path="/:m/:hostID/:machineID/"

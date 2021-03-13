@@ -1,3 +1,4 @@
+use chrono::prelude::*;
 // use eyre::{
 //     // eyre,
 //     Result,
@@ -28,6 +29,12 @@ impl ServerQuery {
             target = built_info::CFG_TARGET_ARCH,
             os = built_info::CFG_OS,
         )
+    }
+
+    /// Returns the current date time from the server. Useful for determining the connection
+    /// latency.
+    async fn ping(&self) -> DateTime<Utc> {
+        Utc::now()
     }
 
     // TODO: Do we need pending updates still in the new architecture?
