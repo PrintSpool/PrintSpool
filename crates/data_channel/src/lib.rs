@@ -103,10 +103,58 @@ where
     Fut: Future<Output = Result<S>> + Send + 'static,
     S: Stream<Item = Vec<u8>> + Send + 'static,
 {
+    let handle_data_channel = Arc::new(handle_data_channel);
+
+    loop {
+        if let Err(err) = listen_for_signalling_no_reconnect(
+            server_keys,
+            machines,
+            Arc::clone(&handle_data_channel),
+        ).await {
+            trace!("Disconnected from signalling server (will retry). Reason: {:?}", err);
+            // Prevent repeating signalling errors from going into a tight loop
+            async_std::task::sleep(std::time::Duration::from_millis(100)).await;
+        }
+    }
+}
+
+pub async fn listen_for_signalling_no_reconnect<F, Fut, S>(
+    // db: crate::Db,
+    server_keys: &Arc<teg_auth::ServerKeys>,
+    machines: &teg_machine::MachineMap,
+    handle_data_channel: Arc<F>,
+) -> Result<()>
+where
+    F: Fn(
+        Signal,
+        Pin<Box<dyn Stream<Item = Vec<u8>> + 'static + Send + Send>>,
+    ) -> Fut + Send + Sync + 'static,
+    Fut: Future<Output = Result<S>> + Send + 'static,
+    S: Stream<Item = Vec<u8>> + Send + 'static,
+{
     let machines = machines.load();
 
     let signalling_url = std::env::var("SIGNALLING_SERVER")
         .wrap_err("SIGNALLING_SERVER environment variable missing")?;
+
+    // Attempt to connect to the websocket every 500ms until successful
+    let (
+        mut ws_stream,
+        _,
+    ) = loop
+    {
+        let request = Request::builder()
+            .uri(&signalling_url)
+            .body(())?;
+
+        match connect_async(request).await {
+            Ok(ws) => break ws,
+            Err(_) => {
+                warn!("Unable to connect to signalling server, retrying in 500ms");
+                async_std::task::sleep(std::time::Duration::from_millis(500)).await;
+            },
+        }
+    };
 
     let jwt_headers = serde_json::json!({
     });
@@ -124,12 +172,6 @@ where
         &jwt_payload,
         frank_jwt::Algorithm::ES256,
     )?;
-
-    let request = Request::builder()
-        .uri(&signalling_url)
-        .body(())?;
-
-    let (mut ws_stream, _) = connect_async(request).await?;
 
     let msg = GraphQLWSMessage::ConnectionInit {
         // TODO: Send an authorization payload
@@ -280,7 +322,6 @@ where
     info!("Listening for WebRTC Connections from {}", signalling_url);
 
     let peer_connections = Arc::new(DashMap::new());
-    let handle_data_channel = Arc::new(handle_data_channel);
 
     while let Some(msg) = ws_read.next().await {
         let msg = msg?.into_text()?;
