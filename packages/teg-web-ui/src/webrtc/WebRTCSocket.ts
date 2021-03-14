@@ -75,8 +75,17 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
       this.innerClose({ message: 'WebRTC peer connection closed'}, 1000)
     })
 
+    let firstMessage = true
     this.peer.on('data', dechunkifier(data => {
-      // console.log('DATA', data)
+      if (firstMessage) {
+        firstMessage = false
+        const { type, payload } = JSON.parse(data)
+
+        if (type === 'connection_error') {
+          this.innerHandleError(payload)
+          return
+        }
+      }
 
       // messages are received both through onmessage and an event listener
       try {
@@ -132,15 +141,15 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
   }
 
   private beforeCloseOrError() {
-    if (this.readyState == WebRTCSocket.CLOSED) {
-      return
-    }
-
     this.readyState = WebRTCSocket.CLOSED
     this.peer?.destroy()
   }
 
   private innerHandleError(error: any) {
+    if (this.readyState == WebRTCSocket.CLOSED) {
+      return
+    }
+
     this.beforeCloseOrError()
 
     this.listeners.error?.forEach(listener => listener(error))
@@ -153,6 +162,10 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
   }
 
   private innerClose(error: any, code: number = 4000) {
+    if (this.readyState == WebRTCSocket.CLOSED) {
+      return
+    }
+
     // console.log("INNER CLOSE", error)
     this.beforeCloseOrError()
 

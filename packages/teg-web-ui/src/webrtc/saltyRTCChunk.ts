@@ -207,6 +207,7 @@ export const dechunkifier = (callback) => {
     if (endOfMessage) {
       const decodingStartedAt = Date.now()
       const message = Buffer.concat(chunks).toString()
+
       debug("Received Buffer", message)
       // const message = msgpack.decode(buf)
       debug(`Message decoded in ${((Date.now() - decodingStartedAt) / 1000).toFixed(1)} seconds`)

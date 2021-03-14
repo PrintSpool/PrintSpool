@@ -1,6 +1,7 @@
 // #![type_length_limit="15941749"]
 #[macro_use] extern crate tracing;
 // #[macro_use] extern crate derive_new;
+#[macro_use] extern crate nanoid;
 
 #[cfg(not(target_env = "msvc"))]
 use jemallocator::Jemalloc;
@@ -253,26 +254,34 @@ async fn app() -> Result<()> {
                 initializer,
                 async_graphql::http::WebSocketProtocols::GraphQLWS,
             )
-                .take_while(|msg| {
-                    use async_graphql::http::WsMessage;
-                    match msg {
-                        WsMessage::Text(_) => {
-                            future::ready(true)
-                        }
-                        WsMessage::Close(_code, msg) => {
-                            warn!("WS closed with message: {}", msg);
-                            future::ready(false)
-                        }
-                    }
-                })
+                // .take_while(|msg| {
+                //     use async_graphql::http::WsMessage;
+                //     match msg {
+                //         WsMessage::Text(_) => {
+                //             future::ready(true)
+                //         }
+                //         WsMessage::Close(_code, msg) => {
+                //             warn!("WS closed with message: {}", msg);
+                //             future::ready(false)
+                //         }
+                //     }
+                // })
                 .filter_map(|msg| {
                     use async_graphql::http::WsMessage;
                     match msg {
                         WsMessage::Text(msg) => {
                             future::ready(Some(msg.into_bytes()))
                         }
-                        WsMessage::Close(_code, _msg) => {
-                            future::ready(None)
+                        WsMessage::Close(_code, msg) => {
+                            let rtc_msg = serde_json::json!({
+                                "id": nanoid!(),
+                                "type": "connection_error",
+                                "payload": {
+                                    "message": msg,
+                                },
+                            });
+
+                            future::ready(Some(rtc_msg.to_string().into_bytes()))
                         }
                     }
                 });

@@ -34,7 +34,7 @@ export default class WebRTCLink extends ApolloLink {
       this.client = createClient({
         // retryAttempts: 0,
         // lazy: false,
-        // onNonLazyError: () => console.log('wat'),
+        // onNonLazyError: (e) => console.log('wat', e),
         // The URL is unused but it is required by ClientOptions
         url: 'webrtc://',
         // WebRTC connections are expensive to create
@@ -43,6 +43,9 @@ export default class WebRTCLink extends ApolloLink {
         webSocketImpl: WebRTCSocket(options as any),
       })
     }
+    // this.client.on('connected', (socket, payload) => {
+    //   console.log('connected?', { payload })
+    // })
   }
 
   request(operation: Operation): Observable<FetchResult> {
@@ -53,7 +56,6 @@ export default class WebRTCLink extends ApolloLink {
           next: sink.next.bind(sink),
           complete: sink.complete.bind(sink),
           error: (err) => {
-            console.error('ERROR>????')
             if (err instanceof Error) {
               sink.error(err)
             } else if (err instanceof CloseEvent) {
