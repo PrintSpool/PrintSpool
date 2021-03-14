@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { gql, useQuery } from '@apollo/client'
 import { useSnackbar } from 'notistack'
 
@@ -14,7 +14,7 @@ const PING_INTERVAL = 500
 
 const LatencyNotification = () => {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
-  const [state, setState] = useState({
+  const stateRef = useRef({
     show: false,
     showTimeout: null,
     closeTimeout: null,
@@ -27,27 +27,25 @@ const LatencyNotification = () => {
   })
 
   const show = () => {
-    let shouldOpen = false
+    const state = stateRef.current
 
-    setState((state) => {
-      if (state.closeTimeout != null) {
-        clearTimeout(state.closeTimeout)
-      }
+    if (state.closeTimeout != null) {
+      clearTimeout(state.closeTimeout)
+    }
 
-      if (state.show) {
-        console.log('continuing latency issues')
-      }
+    if (state.show) {
+      console.log('continuing latency issues')
+    }
 
-      if (!state.show) {
-        console.log('high latency')
-      }
+    if (!state.show) {
+      console.log('high latency')
+    }
 
-      return {
-        show: true,
-        showTimeout: null,
-        closeTimeout: null,
-      }
-    })
+    stateRef.current = {
+      show: true,
+      showTimeout: null,
+      closeTimeout: null,
+    }
 
     enqueueSnackbar(
       'Connection interupted. 3D printer may receive commands after a delay or not at all',
@@ -64,25 +62,41 @@ const LatencyNotification = () => {
     console.log('latency issues resolved')
     closeSnackbar(key)
 
-    setState((state) => ({
-      ...state,
+    stateRef.current = {
+      ...stateRef.current,
       show: false,
       closeTimeout: null,
-    }))
+    }
   }
 
-  const onFocus = () => setState((state) => {
-    if (state.showTimeout != null) {
-      clearTimeout(state.showTimeout)
+  useEffect(() => (
+    // Cleanup
+    () => {
+      console.log('Unmounting latency component')
+      const { showTimeout } = stateRef.current
+      if (showTimeout != null) {
+        clearTimeout(showTimeout)
+      }
+
+      closeSnackbar(key)
+    }
+  ), [])
+
+  const onFocus = () => {
+    const { showTimeout } = stateRef.current
+    if (showTimeout != null) {
+      clearTimeout(showTimeout)
     }
 
-    return {
-      ...state,
+    stateRef.current = {
+      ...stateRef.current,
       showTimeout: null,
     }
-  })
+  }
 
   useEffect(() => {
+    const state = stateRef.current
+
     if (data) {
       // aproximate round trip ping time by measuring the time between ping responses
       if (state.show && previousData) {
@@ -100,11 +114,11 @@ const LatencyNotification = () => {
         closeTimeout = setTimeout(close, HIDE_NOTIFICATION_AFTER_MILLIS)
       }
 
-      setState({
+      stateRef.current = {
         ...state,
         showTimeout: setTimeout(show, PING_INTERVAL + HIGH_LATENCY_THRESHOLD_MILLIS),
         closeTimeout,
-      })
+      }
     }
   }, [data])
 

@@ -10,6 +10,8 @@ const EVENT_NAMES = [
 export type WebRTCOptions = {
   iceServers: string[],
   connectToPeer: (any) => Promise<any>,
+  onSignallingError: (any) => void,
+  onSignallingSuccess: () => void,
 }
 
 const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
@@ -28,13 +30,17 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     this.innerClose = this.innerClose.bind(this)
 
     this.init()
-      .catch(this.innerClose)
+      .catch((e) => setTimeout(() => {
+        options.onSignallingError(e)
+        this.innerHandleError(e)
+      }, 0))
   }
 
   private async init() {
     const {
       iceServers,
       connectToPeer,
+      onSignallingSuccess,
     } = options
 
     // const iceServers = [
@@ -59,7 +65,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     this.peer.on('connect', () => {
       // console.log('CONNECT')
       this.onopen()
-        .catch(this.innerClose)
+        .catch(this.innerHandleError)
     })
 
     // Register event listeners
@@ -82,7 +88,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
       }
     }))
 
-    this.peer.on('error', this.innerClose)
+    this.peer.on('error', this.innerHandleError)
 
     // Connect to the Peer
 
@@ -106,6 +112,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     })
     // console.log('END 2??')
     // this.peer.signal({ candidate: '' })
+    onSignallingSuccess()
   }
 
   send(message: string) {
@@ -124,16 +131,32 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     this.chunkifier(message)
   }
 
-  private innerClose(error: any, code: number = 4000) {
-    // console.log("INNER CLOSE", error)
+  private beforeCloseOrError() {
     if (this.readyState == WebRTCSocket.CLOSED) {
       return
     }
 
     this.readyState = WebRTCSocket.CLOSED
     this.peer?.destroy()
+  }
 
-    this.onclose(new CloseEvent(error.message, {
+  private innerHandleError(error: any) {
+    this.beforeCloseOrError()
+
+    this.listeners.error?.forEach(listener => listener(error))
+    this.onerror(error)
+
+    this.onclose(new CloseEvent(error?.message, {
+      code: 4400,
+      reason: error.message,
+    }))
+  }
+
+  private innerClose(error: any, code: number = 4000) {
+    // console.log("INNER CLOSE", error)
+    this.beforeCloseOrError()
+
+    this.onclose(new CloseEvent(error?.message, {
       code,
       reason: error.message,
     }))
@@ -159,6 +182,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     this.listeners[eventName] = this.listeners[eventName].filter(lsnr => lsnr != listener)
   }
 
+  onerror(err) {}
   onclose(event) {}
   async onopen() {}
   onmessage(message: { data: string }) {}

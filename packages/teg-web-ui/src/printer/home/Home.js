@@ -3,16 +3,17 @@ import { Link } from 'react-router-dom'
 import { useGraphQL } from 'graphql-react'
 
 import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
+// import CardContent from '@material-ui/core/CardContent'
 import Button from '@material-ui/core/Button'
 import Fab from '@material-ui/core/Fab'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import Typography from '@material-ui/core/Typography'
-import Icon from '@material-ui/core/Icon'
+// import Icon from '@material-ui/core/Icon'
 import Tooltip from '@material-ui/core/Tooltip'
 import ListSubheader from '@material-ui/core/ListSubheader'
+// import Divider from '@material-ui/core/Divider'
 
 import Add from '@material-ui/icons/Add'
 
@@ -21,7 +22,6 @@ import { useAuth } from '../../common/auth'
 import HomeStyles from './HomeStyles'
 
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
-import { Divider } from '@material-ui/core'
 
 const Home = () => {
   const classes = HomeStyles()

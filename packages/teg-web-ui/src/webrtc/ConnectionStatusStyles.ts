@@ -4,9 +4,13 @@ const useStyles = makeStyles(theme => ({
   root: {
     height: '100vh',
     display: 'grid',
-    alignItems: 'center',
+    // alignItems: 'center',
+    // justifyItems: 'center',
+    gridTemplateRows: 'auto 1fr',
   },
   center: {
+    alignSelf: 'center',
+    justifySelf: 'center',
     marginLeft: theme.spacing(4),
     marginRight: theme.spacing(4),
   },
@@ -15,6 +19,6 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
   },
-}), { useTheme: true })
+}))
 
 export default useStyles

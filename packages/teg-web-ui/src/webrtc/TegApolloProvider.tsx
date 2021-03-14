@@ -11,7 +11,7 @@ import DetectRTC from 'detectrtc'
 // import { onError } from 'apollo-link-error'
 import { GraphQLContext } from 'graphql-react'
 import UnsupportedBrowser from '../UnsupportedBrowser'
-import ConnectionStatus from '../common/ConnectionStatus'
+import ConnectionStatus from './ConnectionStatus'
 import { useAuth } from '../common/auth'
 import { useAsync } from 'react-async'
 
@@ -31,6 +31,7 @@ const TegApolloProvider = ({
 
   const [link, setLink] = useState(null as any)
   const [iceServers, setIceServers] = useState(null as any)
+  const [signallingError, setSignallingError] = useState(null as any)
 
   const params = new URLSearchParams(location.search)
   const invite = params.get('invite')
@@ -44,6 +45,10 @@ const TegApolloProvider = ({
     || DetectRTC.browser.name.includes('FB_IAB')
   )
 
+  useEffect(() => {
+    setSignallingError(null)
+  }, [hostSlug])
+
   // console.log({ invite, match, params, slug })
   const graphql: any = useContext(GraphQLContext)
 
@@ -53,10 +58,17 @@ const TegApolloProvider = ({
       operation,
     })
 
-    const { data, errors } = await cacheValuePromise
+    const { data, graphQLErrors, fetchError } = await cacheValuePromise
 
-    if (errors) {
-      throw new Error(JSON.stringify(errors, null, 2))
+    if (graphQLErrors != null) {
+      throw new Error(graphQLErrors[0].message)
+    }
+
+    if (fetchError != null) {
+      console.warn({ fetchError })
+      throw new Error(
+        "Unnable to connect. Please verify that your internet is working."
+      )
     }
 
     return data
@@ -91,6 +103,8 @@ const TegApolloProvider = ({
       defaultOption: clientDefaultOptions,
       iceServers: nextIceServers,
       connectToPeer: async (offer) => {
+        console.log('Connecting to signalling server...')
+
         const { connectToHost } = await querySignalling({
           query: `
             mutation($input: ConnectToHostInput!) {
@@ -111,7 +125,13 @@ const TegApolloProvider = ({
           },
         })
 
+        console.log('Connecting to signalling server... [DONE]')
+
         return connectToHost.response
+      },
+      onSignallingError: setSignallingError,
+      onSignallingSuccess: () => {
+        setSignallingError(null)
       }
     })
 
@@ -153,16 +173,18 @@ const TegApolloProvider = ({
     }
   }, [invite, hostSlug, isSignedIn])
 
-  if (client.error) {
-    throw client.error
-  }
-
   if (unsupportedBrowser) {
     return <UnsupportedBrowser />
   }
 
   if (!shouldConnect) {
     return <>{ children }</>
+  }
+
+  if (signallingError || client.error) {
+    return (
+      <ConnectionStatus error={signallingError || client.error} />
+    )
   }
 
   if (!client.isResolved) {
@@ -177,9 +199,7 @@ const TegApolloProvider = ({
           iceServers,
         }}
       >
-        <ConnectionStatus>
-          { children }
-        </ConnectionStatus>
+        { children }
       </TegApolloContext.Provider>
     </ApolloProvider>
   )
