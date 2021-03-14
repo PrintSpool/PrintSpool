@@ -5,6 +5,7 @@ import { chunkifier, dechunkifier, RELIABLE_ORDERED } from './saltyRTCChunk'
 const EVENT_NAMES = [
   'close',
   'message',
+  'error',
 ]
 
 export type WebRTCOptions = {
@@ -28,6 +29,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
   constructor(url: string, protocol: string) {
     this.listeners = {}
     this.innerClose = this.innerClose.bind(this)
+    this.innerHandleError = this.innerHandleError.bind(this)
 
     this.init()
       .catch((e) => setTimeout(() => {
@@ -98,6 +100,12 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     }))
 
     this.peer.on('error', this.innerHandleError)
+    this.peer.on('iceStateChange', (state) => {
+      if (state === 'disconnected') {
+        console.log('iceState changed to disconnected')
+        this.innerHandleError({ message: 'Connection lost' })
+      }
+    })
 
     // Connect to the Peer
 
@@ -150,10 +158,11 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
       return
     }
 
+    // console.log("WebRTCSocket Error", error)
     this.beforeCloseOrError()
 
     this.listeners.error?.forEach(listener => listener(error))
-    this.onerror(error)
+    this.onerror(new Error(error.message))
 
     this.onclose(new CloseEvent(error?.message, {
       code: 4400,
@@ -166,12 +175,12 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
       return
     }
 
-    // console.log("INNER CLOSE", error)
+    // console.log("WebRTCSocket Close", error)
     this.beforeCloseOrError()
 
     this.onclose(new CloseEvent(error?.message, {
       code,
-      reason: error.message,
+      reason: error?.message,
     }))
   }
 

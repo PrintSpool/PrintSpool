@@ -21,6 +21,7 @@ export const INSECURE_LOCAL_CONNECTION = (
 
 export default class WebRTCLink extends ApolloLink {
   private client: Client
+  // public closed: boolean = false
 
   public constructor(options?: any) {
     super()
@@ -33,8 +34,8 @@ export default class WebRTCLink extends ApolloLink {
     } else {
       this.client = createClient({
         // retryAttempts: 0,
-        // lazy: false,
-        // onNonLazyError: (e) => console.log('wat', e),
+        lazy: false,
+        onNonLazyError: (e) => console.log('wat', e),
         // The URL is unused but it is required by ClientOptions
         url: 'webrtc://',
         // WebRTC connections are expensive to create
@@ -45,6 +46,10 @@ export default class WebRTCLink extends ApolloLink {
     }
     // this.client.on('connected', (socket, payload) => {
     //   console.log('connected?', { payload })
+    // })
+    // this.client.on('closed', (e) => {
+    //   this.closed = true
+    //   options.onClose?.(e)
     // })
   }
 

@@ -32,6 +32,7 @@ const TegApolloProvider = ({
   const [link, setLink] = useState(null as any)
   const [iceServers, setIceServers] = useState(null as any)
   const [signallingError, setSignallingError] = useState(null as any)
+  // const [closedBy, setClosedBy] = useState(null)
 
   const params = new URLSearchParams(location.search)
   const invite = params.get('invite')
@@ -47,7 +48,7 @@ const TegApolloProvider = ({
 
   useEffect(() => {
     setSignallingError(null)
-  }, [hostSlug])
+  }, [hostSlug, invite])
 
   // console.log({ invite, match, params, slug })
   const graphql: any = useContext(GraphQLContext)
@@ -132,7 +133,14 @@ const TegApolloProvider = ({
       onSignallingError: setSignallingError,
       onSignallingSuccess: () => {
         setSignallingError(null)
-      }
+      },
+      // onClose: (e) => {
+      //   setClosedBy({
+      //     timestamp: Date.now(),
+      //     link: nextLink,
+      //     message: e.message,
+      //   })
+      // },
     })
 
     return nextLink
@@ -172,6 +180,12 @@ const TegApolloProvider = ({
       client.run()
     }
   }, [invite, hostSlug, isSignedIn])
+
+  // useEffect(() => {
+  //   if (shouldConnect && !unsupportedBrowser && closedBy != null && closedBy.link === link) {
+  //     client.run()
+  //   }
+  // }, [closedBy?.timestamp])
 
   if (unsupportedBrowser) {
     return <UnsupportedBrowser />
