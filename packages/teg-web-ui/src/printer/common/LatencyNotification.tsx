@@ -59,7 +59,9 @@ const LatencyNotification = () => {
   }
 
   const close = () => {
-    console.log('latency issues resolved')
+    if (stateRef.current.show) {
+      console.log('latency issues resolved')
+    }
     closeSnackbar(key)
 
     stateRef.current = {
@@ -83,14 +85,19 @@ const LatencyNotification = () => {
   ), [])
 
   const onFocus = () => {
-    const { showTimeout } = stateRef.current
+    const { showTimeout, closeTimeout } = stateRef.current
     if (showTimeout != null) {
       clearTimeout(showTimeout)
     }
 
+    if (closeTimeout != null) {
+      clearTimeout(closeTimeout)
+    }
+
     stateRef.current = {
       ...stateRef.current,
-      showTimeout: null,
+      showTimeout: setTimeout(show, PING_INTERVAL + HIGH_LATENCY_THRESHOLD_MILLIS),
+      closeTimeout: null,
     }
   }
 
@@ -98,6 +105,8 @@ const LatencyNotification = () => {
     const state = stateRef.current
 
     if (data) {
+      // console.log(state.show, previousData)
+
       // aproximate round trip ping time by measuring the time between ping responses
       if (state.show && previousData) {
         const ping = Date.parse(data.ping) - Date.parse(previousData.ping) - PING_INTERVAL
@@ -110,7 +119,7 @@ const LatencyNotification = () => {
       }
 
       let closeTimeout = state.closeTimeout
-      if (state.show && !state.closeTimeout) {
+      if (!closeTimeout) {
         closeTimeout = setTimeout(close, HIDE_NOTIFICATION_AFTER_MILLIS)
       }
 
@@ -130,6 +139,7 @@ const LatencyNotification = () => {
 
 
   useEffect(() => {
+    console.log('Starting latency notifications')
     window.addEventListener('focus', onFocus)
     // window.addEventListener('blur', onBlur)
     // Specify how to clean up after this effect:

@@ -33,7 +33,7 @@ export default class WebRTCLink extends ApolloLink {
       })
     } else {
       this.client = createClient({
-        // retryAttempts: 0,
+        retryAttempts: Number.MAX_SAFE_INTEGER,
         lazy: false,
         onNonLazyError: (e) => console.log('wat', e),
         // The URL is unused but it is required by ClientOptions

@@ -165,7 +165,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     this.onerror(new Error(error.message))
 
     this.onclose(new CloseEvent(error?.message, {
-      code: 4400,
+      code: 4000,
       reason: error.message,
     }))
   }
