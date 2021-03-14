@@ -3,7 +3,7 @@ import React from 'react'
 // import { useQuery, useMutation } from '@apollo/client'
 
 import Typography from '@material-ui/core/Typography'
-// import Button from '@material-ui/core/Button'
+import Button from '@material-ui/core/Button'
 
 import ConnectionStatusStyles from './ConnectionStatusStyles'
 import StaticTopNavigation from '../common/topNavigation/StaticTopNavigation'
@@ -49,14 +49,14 @@ const ConnectionStatus = ({
             ? ' Attempting to Reconnect...'
             : ` Reconnecting in ${data.secondsTillNextReconnect} seconds...`
         } */}
-        {/* <Button
-          onClick={tryReconnectNow}
-          variant="contained"
+        <Button
+          onClick={() => window.location.reload()}
+          variant="outlined"
           className={classes.button}
-          disabled={data.isAttemptingReconnect}
+          // disabled={data.isAttemptingReconnect}
         >
           Retry Now
-        </Button> */}
+        </Button>
       </Typography>
     </div>
   )
