@@ -71,6 +71,8 @@ impl Actor for Machine {
 
         if let Err(err) = result {
             warn!("Error starting machine: {:?}", err);
+            // Prevent a tight loop of actor restarts from DOSing the server
+            async_std::time::sleep(std::time::Duration::from_secs(1)).await;
             ctx.stop(Some(err));
         }
 

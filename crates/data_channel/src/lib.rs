@@ -134,8 +134,8 @@ where
 {
     let machines = machines.load();
 
-    let signalling_url = std::env::var("SIGNALLING_SERVER")
-        .wrap_err("SIGNALLING_SERVER environment variable missing")?;
+    let signalling_url = std::env::var("SIGNALLING_SERVER_WS")
+        .wrap_err("SIGNALLING_SERVER_WS environment variable missing")?;
 
     // Attempt to connect to the websocket every 500ms until successful
     let (
