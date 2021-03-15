@@ -68,4 +68,12 @@ impl Record for PrintQueue {
     fn created_at(&self) -> DateTime<Utc> {
         self.created_at
     }
+
+    fn deleted_at(&self) -> Option<DateTime<Utc>> {
+        self.deleted_at
+    }
+
+    fn deleted_at_mut(&mut self) -> &mut Option<DateTime<Utc>> {
+        &mut self.deleted_at
+    }
 }

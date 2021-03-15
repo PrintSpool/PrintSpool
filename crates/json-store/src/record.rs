@@ -19,6 +19,8 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
     fn version(&self) -> crate::Version;
     fn version_mut(&mut self) -> &mut crate::Version;
     fn created_at(&self) -> DateTime<Utc>;
+    fn deleted_at(&self) -> Option<DateTime<Utc>>;
+    fn deleted_at_mut(&mut self) -> &mut Option<DateTime<Utc>>;
 
     // async fn insert<'e, 'c, E>(
     //     &self,
@@ -49,14 +51,15 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         sqlx::query(&format!(
             r#"
                 INSERT INTO {}
-                (id, version, created_at, props)
-                VALUES (?, ?, ?, ?)
+                (id, version, created_at, deleted_at, props)
+                VALUES (?, ?, ?, ?, ?)
             "#,
             Self::TABLE,
         ))
             .bind(self.id())
             .bind(self.version())
             .bind(self.created_at())
+            .bind(self.deleted_at())
             .bind(serde_json::to_string(&self)?)
 
             .fetch_optional(db)
@@ -68,14 +71,24 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
     async fn get<'e, 'c, E>(
         db: E,
         id: &crate::DbId,
+        include_deleted: bool,
     ) -> Result<Self>
     where
         E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
     {
-        let row: JsonRow = sqlx::query_as(&format!(
-            "SELECT props FROM {} WHERE id = ?",
+        let deletion_filter = if include_deleted {
+            ""
+        } else {
+            "AND deleted_at IS NULL"
+        };
+
+        let sql = format!(
+            "SELECT props FROM {} WHERE id = ? {}",
             Self::TABLE,
-        ))
+            deletion_filter,
+        );
+
+        let row: JsonRow = sqlx::query_as(&sql)
             .bind(id)
             .fetch_one(db)
             .await
@@ -89,14 +102,24 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         db: E,
         id: &crate::DbId,
         version: crate::Version,
+        include_deleted: bool,
     ) -> Result<Self>
     where
         E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
     {
-        let row: JsonRow = sqlx::query_as(&format!(
-            "SELECT props FROM {} WHERE id = ? AND version = ?",
+        let deletion_filter = if include_deleted {
+            ""
+        } else {
+            "AND deleted_at IS NULL"
+        };
+
+        let sql = format!(
+            "SELECT props FROM {} WHERE id = ? {} AND version = ?",
             Self::TABLE,
-        ))
+            deletion_filter,
+        );
+
+        let row: JsonRow = sqlx::query_as(&sql)
             .bind(id)
             .bind(version)
             .fetch_one(db)
@@ -109,14 +132,22 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
     async fn get_by_ids<'e, 'c, E>(
         db: E,
         ids: &Vec<crate::DbId>,
+        include_deleted: bool,
     ) -> Result<Vec<Self>>
     where
         E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
     {
+        let deletion_filter = if include_deleted {
+            ""
+        } else {
+            "AND deleted_at IS NULL"
+        };
+
         let sql = format!(
-            "SELECT props FROM {} WHERE id IN ({})",
+            "SELECT props FROM {} WHERE id IN ({}) {}",
             Self::TABLE,
-            ids.iter().map(|_| "?").collect::<Vec<_>>().join(", ")
+            ids.iter().map(|_| "?").collect::<Vec<_>>().join(", "),
+            deletion_filter,
         );
 
         let mut query = sqlx::query_as(&sql);
@@ -135,14 +166,24 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
 
     async fn get_all<'e, 'c, E>(
         db: E,
+        include_deleted: bool,
     ) -> Result<Vec<Self>>
     where
         E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
     {
-        let rows: Vec<JsonRow> = sqlx::query_as(&format!(
-            "SELECT props FROM {}",
+        let deletion_filter = if include_deleted {
+            ""
+        } else {
+            "WHERE deleted_at IS NULL"
+        };
+
+        let sql = format!(
+            "SELECT props FROM {} {}",
             Self::TABLE,
-        ))
+            deletion_filter,
+        );
+
+        let rows: Vec<JsonRow> = sqlx::query_as(&sql)
             .fetch_all(db)
             .await?;
 
@@ -190,13 +231,16 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         sqlx::query(&format!(
             r#"
                 UPDATE {}
-                SET props=?, version=?
+                SET props=?, version=?, deleted_at=?
                 WHERE id=? AND version=?
             "#,
             Self::TABLE,
         ))
+            // set
             .bind(json)
             .bind(self.version())
+            .bind(self.deleted_at())
+            // where
             .bind(self.id())
             .bind(previous_version)
             .fetch_optional(db)
@@ -206,21 +250,27 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
     }
 
     async fn remove<'e, 'c, E>(
+        &mut self,
         db: E,
-        id: &crate::DbId,
+        hard_delete: bool,
     ) -> Result<()>
     where
         E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
     {
-        sqlx::query(&format!(
-            r#"
-                DELETE FROM {} WHERE id=?
-            "#,
-            Self::TABLE,
-        ))
-            .bind(id)
-            .fetch_optional(db)
-            .await?;
+        if hard_delete {
+            sqlx::query(&format!(
+                r#"
+                    UPDATE FROM {} WHERE id=?
+                "#,
+                Self::TABLE,
+            ))
+                .bind(self.id())
+                .fetch_optional(db)
+                .await?;
+        } else {
+            *self.deleted_at_mut() = Some(Utc::now());
+            self.update(db).await?;
+        }
 
         Ok(())
     }

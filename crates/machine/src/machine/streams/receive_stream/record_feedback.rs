@@ -98,7 +98,7 @@ pub async fn update_tasks(
     for progress in feedback.task_progress.iter() {
         let status = TaskStatus::from_task_progress(&progress, &feedback.error)?;
 
-        let mut task = Task::get(db, &progress.task_id).await?;
+        let mut task = Task::get(db, &progress.task_id, true).await?;
 
         trace!("Task #{} status: {:?}", task.id, status);
         task.despooled_line_number = Some(progress.despooled_line_number as u64);

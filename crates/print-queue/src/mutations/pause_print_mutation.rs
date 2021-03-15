@@ -30,7 +30,7 @@ impl PausePrintMutation {
     ) -> FieldResult<Task> {
         let db: &crate::Db = ctx.data()?;
 
-        let task = Task::get(db, &task_id).await?;
+        let task = Task::get(db, &task_id, false).await?;
 
         let machines: &MachineMap = ctx.data()?;
         let machines = machines.load();
@@ -50,7 +50,7 @@ impl PausePrintMutation {
 
         let mut tx = db.begin().await?;
         // Re-fetch the task within the transaction
-        let mut task = Task::get(&mut tx, &task_id).await?;
+        let mut task = Task::get(&mut tx, &task_id, false).await?;
 
         if task.status.is_settled() {
             Err(eyre!("Cannot pause a task that is not running"))?;

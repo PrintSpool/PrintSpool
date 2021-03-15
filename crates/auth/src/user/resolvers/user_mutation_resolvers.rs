@@ -62,6 +62,7 @@ impl UserMutation {
             &mut tx,
             &input.user_id,
             input.model_version,
+            false,
         ).await?;
 
         user.config = input.model.0;
@@ -92,13 +93,17 @@ impl UserMutation {
                 Please add another administrator before deleting this user.
             "#)?;
 
-        let user = User::get(&mut tx, &input.user_id.to_string()).await?;
+        let mut user = User::get(
+            &mut tx,
+            &input.user_id.0,
+            true,
+        ).await?;
 
         if user.is_local_http_user {
             Err(eyre!("This account is required to run the server"))?;
         }
 
-        User::remove(&mut tx, &input.user_id).await?;
+        user.remove(&mut tx, false).await?;
         tx.commit().await?;
 
         Ok(None)

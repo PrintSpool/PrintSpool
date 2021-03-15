@@ -176,6 +176,14 @@ impl Record for Part {
         self.created_at
     }
 
+    fn deleted_at(&self) -> Option<DateTime<Utc>> {
+        self.deleted_at
+    }
+
+    fn deleted_at_mut(&mut self) -> &mut Option<DateTime<Utc>> {
+        &mut self.deleted_at
+    }
+
     async fn insert_no_rollback<'c>(
         &self,
         db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
@@ -186,12 +194,13 @@ impl Record for Part {
         sqlx::query!(
             r#"
                 INSERT INTO parts
-                (id, version, created_at, props, package_id, quantity, position)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                (id, version, created_at, deleted_at, props, package_id, quantity, position)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             "#,
             self.id,
             self.version,
             self.created_at,
+            self.deleted_at,
             json,
             self.package_id,
             self.quantity,

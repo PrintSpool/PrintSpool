@@ -11,7 +11,7 @@ CREATE TABLE users(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
-  -- deleted_at TEXT,
+  deleted_at TEXT,
 
   signalling_user_id TEXT,
   is_local_http_user BOOLEAN NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE invites(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
-  -- deleted_at TEXT,
+  deleted_at TEXT,
 
   secret_hash TEXT NOT NULL,
   consumed BOOLEAN NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE machine_viewers(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
-  -- deleted_at TEXT,
+  deleted_at TEXT,
 
   machine_id TEXT NOT NULL,
   user_id TEXT NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE tasks(
   id TEXT PRIMARY KEY NOT NULL,
   version INT NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
-  -- deleted_at TEXT,
+  deleted_at TEXT,
 
   machine_id TEXT NOT NULL,
   part_id TEXT,

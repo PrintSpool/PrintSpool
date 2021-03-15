@@ -34,10 +34,17 @@ impl UserQuery {
         auth.authorize_admins_only()?;
 
         let mut users = if let Some(user_id) = input.user_id {
-            let user = User::get(db, &user_id.0).await?;
+            let user = User::get(
+                db,
+                &user_id.0,
+                false,
+            ).await?;
             vec![user]
         } else {
-            User::get_all(db).await?
+            User::get_all(
+                db,
+                false
+            ).await?
         };
 
         users.sort_by_cached_key(|user| {

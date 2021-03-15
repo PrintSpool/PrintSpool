@@ -19,7 +19,7 @@ impl Toolhead {
 
         let material_id = self.model.material_id.as_ref();
         let material = if let Some(material_id) = material_id {
-            let material = Material::get(db, material_id).await?;
+            let material = Material::get(db, material_id, true).await?;
 
             Some(material)
         } else {

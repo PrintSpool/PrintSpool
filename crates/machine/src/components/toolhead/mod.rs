@@ -131,7 +131,7 @@ impl Toolhead {
 
         if let Some(material_id) = material_id {
             // Get the material
-            let material = Material::get(db, material_id)
+            let material = Material::get(db, material_id, true)
                 .await?;
 
             let material = match material.config {

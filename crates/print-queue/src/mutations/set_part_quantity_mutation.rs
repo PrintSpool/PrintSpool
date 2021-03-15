@@ -41,7 +41,11 @@ impl SetPartQuantityMutation {
         let db: &crate::Db = ctx.data()?;
         let mut tx = db.begin().await?;
 
-        let mut part = Part::get(&mut tx, &input.part_id.0)
+        let mut part = Part::get(
+            &mut tx,
+            &input.part_id.0,
+            false,
+        )
             .await?;
 
         part.quantity = input.quantity;

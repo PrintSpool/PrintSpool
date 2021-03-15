@@ -17,6 +17,7 @@ pub struct Task {
     pub id: crate::DbId,
     pub version: i32,
     pub created_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
     // Foreign Keys
     pub machine_id: crate::DbId, // machines have many (>=0) tasks
     pub part_id: Option<crate::DbId>, // parts have many (>=0) print tasks
@@ -106,6 +107,14 @@ impl Record for Task {
 
     fn created_at(&self) -> DateTime<Utc> {
         self.created_at
+    }
+
+    fn deleted_at(&self) -> Option<DateTime<Utc>> {
+        self.deleted_at
+    }
+
+    fn deleted_at_mut(&mut self) -> &mut Option<DateTime<Utc>> {
+        &mut self.deleted_at
     }
 
     async fn insert_no_rollback<'c>(

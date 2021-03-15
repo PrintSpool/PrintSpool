@@ -54,7 +54,11 @@ impl CreateJobMutation {
         let part_dir = "/var/lib/teg/parts";
         fs::create_dir_all(part_dir).await?;
 
-        let print_queue = PrintQueue::get(db, &input.print_queue_id).await?;
+        let print_queue = PrintQueue::get(
+            db,
+            &input.print_queue_id,
+            false,
+        ).await?;
         let print_queue_id = print_queue.id;
 
         let package = Package::new(

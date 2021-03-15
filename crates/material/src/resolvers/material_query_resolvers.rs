@@ -35,11 +35,11 @@ impl MaterialQuery {
         let db: &crate::Db = ctx.data()?;
 
         let materials = if let Some(id) = input.material_id {
-            let material = Material::get(db, &id).await?;
+            let material = Material::get(db, &id, false).await?;
 
             vec![material]
         } else {
-            Material::get_all(db).await?
+            Material::get_all(db, false).await?
         };
 
         Ok(materials)

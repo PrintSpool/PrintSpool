@@ -189,6 +189,14 @@ impl Record for Package {
         self.created_at
     }
 
+    fn deleted_at(&self) -> Option<DateTime<Utc>> {
+        self.deleted_at
+    }
+
+    fn deleted_at_mut(&mut self) -> &mut Option<DateTime<Utc>> {
+        &mut self.deleted_at
+    }
+
     async fn insert_no_rollback<'c>(
         &self,
         db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,

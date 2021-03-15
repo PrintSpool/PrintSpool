@@ -17,6 +17,7 @@ pub struct Invite {
     pub id: crate::DbId,
     pub version: i32,
     pub created_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
 
     pub config: InviteConfig,
 
@@ -85,6 +86,7 @@ impl Invite {
             id: nanoid!(11),
             version: 0,
             created_at: Utc::now(),
+            deleted_at: None,
             config,
             secret_hash,
             consumed_by_user_id: None,
@@ -153,6 +155,14 @@ impl Record for Invite {
 
     fn created_at(&self) -> DateTime<Utc> {
         self.created_at
+    }
+
+    fn deleted_at(&self) -> Option<DateTime<Utc>> {
+        self.deleted_at
+    }
+
+    fn deleted_at_mut(&mut self) -> &mut Option<DateTime<Utc>> {
+        &mut self.deleted_at
     }
 
     async fn insert_no_rollback<'c>(

@@ -27,7 +27,7 @@ impl ResumePrintMutation {
     ) -> FieldResult<Task> {
         let db: &crate::Db = ctx.data()?;
 
-        let task = Task::get(db, &task_id).await?;
+        let task = Task::get(db, &task_id, false).await?;
 
         let machines: &MachineMap = ctx.data()?;
         let machines = machines.load();
@@ -47,7 +47,7 @@ impl ResumePrintMutation {
 
         let mut tx = db.begin().await?;
         // Re-fetch the task within the transaction
-        let mut task = Task::get(&mut tx, &task_id).await?;
+        let mut task = Task::get(&mut tx, &task_id, false).await?;
 
         if task.status.is_settled() {
             Err(eyre!("Cannot resume a task that is {}", task.status.to_db_str()))?;

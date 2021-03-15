@@ -59,6 +59,7 @@ impl User {
                 id: nanoid!(11),
                 version: 0,
                 created_at: Utc::now(),
+                deleted_at: None,
                 signalling_user_id: Some(signalling_user_id),
                 email: None,
                 email_verified: false,

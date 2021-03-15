@@ -52,7 +52,11 @@ impl DeletePackageMutation {
 
         let package_id = input.package_id.to_string();
         // Verify the package exists
-        let mut package = Package::get(&mut tx, &package_id).await?;
+        let mut package = Package::get(
+            &mut tx,
+            &package_id,
+        false,
+        ).await?;
 
         // Cancel all the tasks
         let pending_tasks = sqlx::query_as!(

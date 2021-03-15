@@ -74,6 +74,7 @@ pub async fn task_from_gcodes(
         id: nanoid!(11),
         version: 0,
         created_at: Utc::now(),
+        deleted_at: None,
         machine_id: machine_id.clone(),
         part_id: None,
         despooled_line_number: None,

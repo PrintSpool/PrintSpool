@@ -42,7 +42,13 @@ pub async fn insert_print(
     part_id: crate::DbId,
     automatic_print: bool,
 ) -> Result<Task> {
-    let part_file_path = Part::get(db, &part_id).await?.file_path;
+    let part_file_path = Part::get(
+        db,
+        &part_id,
+        false,
+    )
+        .await?
+        .file_path;
 
     let task_id = nanoid!(11);
     let task_dir = "/var/lib/teg/tasks";
@@ -170,6 +176,7 @@ pub async fn insert_print(
         id: task_id.clone(),
         version: 0,
         created_at: Utc::now(),
+        deleted_at: None,
         // Foreign Keys
         machine_id: machine_id.clone(),
         part_id: Some(part_id.clone()),
@@ -222,7 +229,7 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
         let part_id = task.part_id
             .as_ref()
             .ok_or_else(|| eyre!("New print missing part id"))?;
-        let part = Part::get(&mut tx, &part_id).await?;
+        let part = Part::get(&mut tx, &part_id, false).await?;
 
         // Get the number of printed parts and the total number of prints
         let total_prints = Part::query_total_prints(&mut tx, &part_id)

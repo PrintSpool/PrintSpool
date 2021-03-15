@@ -154,7 +154,7 @@ impl ExecGCodesMutation {
                     .await;
 
                 // Refresh the task
-                let task = Task::get(db, &task.id).await?;
+                let task = Task::get(db, &task.id, false).await?;
 
                 match task.status {
                     TaskStatus::Finished(_) => {

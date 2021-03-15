@@ -57,7 +57,11 @@ impl DeletePartsMutation {
                 .collect::<Vec<_>>();
 
             // Verify the parts exist
-            let parts = Part::get_by_ids(&mut tx, &part_ids).await?;
+            let parts = Part::get_by_ids(
+                &mut tx,
+                &part_ids,
+                false,
+            ).await?;
 
             // Cancel all the tasks
             let tasks_sql = format!(

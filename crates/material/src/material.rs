@@ -13,6 +13,7 @@ pub struct Material {
     pub id: crate::DbId,
     pub version: i32,
     pub created_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
     // Props
     pub config: MaterialConfigEnum,
 }
@@ -67,5 +68,13 @@ impl Record for Material {
 
     fn created_at(&self) -> DateTime<Utc> {
         self.created_at
+    }
+
+    fn deleted_at(&self) -> Option<DateTime<Utc>> {
+        self.deleted_at
+    }
+
+    fn deleted_at_mut(&mut self) -> &mut Option<DateTime<Utc>> {
+        &mut self.deleted_at
     }
 }

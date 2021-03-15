@@ -94,6 +94,7 @@ impl InviteMutation {
             db,
             &input.invite_id,
             input.model_version,
+            false,
         ).await?;
 
         invite.config = input.model.0;
@@ -113,7 +114,16 @@ impl InviteMutation {
 
         auth.authorize_admins_only()?;
 
-        Invite::remove(db, &input.invite_id.0)
+        let mut invite = Invite::get(
+            db,
+            &input.invite_id.0,
+            true
+        ).await?;
+
+        invite.remove(
+            db,
+            false,
+        )
             .await
             .with_context(|| "Error deleting invite")?;
 

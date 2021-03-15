@@ -15,6 +15,8 @@ pub struct MachineViewer {
     pub version: i32,
     #[new(value = "Utc::now()")]
     pub created_at: DateTime<Utc>,
+    #[new(value = "None")]
+    pub deleted_at: Option<DateTime<Utc>>,
 
     // Foreign Keys
     pub machine_id: crate::DbId,
@@ -56,6 +58,14 @@ impl Record for MachineViewer {
         self.created_at
     }
 
+    fn deleted_at(&self) -> Option<DateTime<Utc>> {
+        self.deleted_at
+    }
+
+    fn deleted_at_mut(&mut self) -> &mut Option<DateTime<Utc>> {
+        &mut self.deleted_at
+    }
+
     async fn insert_no_rollback<'c>(
         &self,
         db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
@@ -64,12 +74,13 @@ impl Record for MachineViewer {
         sqlx::query!(
             r#"
                 INSERT INTO machine_viewers
-                (id, version, created_at, props, machine_id, user_id, expires_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                (id, version, created_at, deleted_at, props, machine_id, user_id, expires_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             "#,
             self.id,
             self.version,
             self.created_at,
+            self.deleted_at,
             json,
             self.machine_id,
             self.user_id,
@@ -96,6 +107,7 @@ impl Record for MachineViewer {
                 SET
                     props=?,
                     version=?,
+                    deleted_at=?,
                     expires_at=?
                 WHERE
                     id=?
@@ -104,6 +116,7 @@ impl Record for MachineViewer {
             // SET
             json,
             self.version,
+            self.deleted_at,
             self.expires_at,
             // WHERE
             self.id,

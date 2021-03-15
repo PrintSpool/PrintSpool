@@ -66,7 +66,7 @@ impl PrintQueueQuery {
 
                 PrintQueue::from_rows(print_queues)?
             } else {
-                PrintQueue::get_all(db).await?
+                PrintQueue::get_all(db, false).await?
             };
 
             // Alphabetical and consistent ordering

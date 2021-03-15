@@ -70,6 +70,7 @@ impl MaterialMutation {
             id: nanoid!(11),
             version: 0,
             created_at: Utc::now(),
+            deleted_at: None,
             config,
         };
 
@@ -93,6 +94,7 @@ impl MaterialMutation {
             db,
             &input.material_id,
             input.model_version,
+            false,
         ).await?;
 
         material.config = match material.config {
@@ -124,11 +126,12 @@ impl MaterialMutation {
         auth.authorize_admins_only()?;
 
         let DeleteMaterialInput { material_id } = input;
-        let material_id = material_id.to_string();
 
-        Material::remove(db, &material_id)
+        Material::get(db, &material_id.0, true)
+            .await?
+            .remove(db, false)
             .await
-            .with_context(|| "Error deleting material")?;
+            .wrap_err_with(|| "Error deleting material")?;
 
         Ok(None)
     }
