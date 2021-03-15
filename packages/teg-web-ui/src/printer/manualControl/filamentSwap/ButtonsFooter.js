@@ -20,6 +20,7 @@ const ButtonsFooter = ({
   disabledNext,
   // skipButton,
   onClickNext,
+  finish = false,
 }) => {
   const context = useContext(StepperContext)
   const { t } = useTranslation('filamentSwap')
@@ -51,7 +52,7 @@ const ButtonsFooter = ({
           disabled={disabledNext}
           onClick={onClickNext || next}
         >
-          {lastStep ? t('finishWord') : t('nextWord')}
+          {lastStep || finish ? t('finishWord') : t('nextWord')}
           {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
         </Button>
       )}

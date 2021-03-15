@@ -20,12 +20,13 @@ const Step5SelectMaterial = ({
   component,
   materials,
   next,
+  close,
   classes,
 }) => {
   const { t } = useTranslation('filamentSwap')
 
   const [materialID, setMaterialID] = useState(
-    component.configForm.model.materialID,
+    component.configForm.model.materialID || 'NULL',
   )
 
   const hasMaterialLoaded = component.toolhead.currentMaterial != null
@@ -44,12 +45,17 @@ const Step5SelectMaterial = ({
             machineID: machine.id,
             toolheads: {
               id: component.id,
-              materialID,
+              materialID: materialID === 'NULL' ? null : materialID,
             },
           },
         },
       })
-      next()
+
+      if (materialID === 'NULL') {
+        close()
+      } else {
+        next()
+      }
     },
   }, [component, materialID, next])
 
@@ -77,6 +83,9 @@ const Step5SelectMaterial = ({
           margin="normal"
           fullWidth
         >
+          <MenuItem key="none" value="NULL">
+            None
+          </MenuItem>
           { materials.map(material => (
             <MenuItem key={material.id} value={material.id}>
               {`${material.name} - ${material.shortSummary}`}
@@ -105,6 +114,7 @@ const Step5SelectMaterial = ({
         backTo={hasMaterialLoaded ? -1 : 0}
         onClickNext={saveAndGoToNext.run}
         disabledNext={saveAndGoToNext.isPending}
+        finish={materialID === 'NULL'}
       />
     </React.Fragment>
   )

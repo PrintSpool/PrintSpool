@@ -83,13 +83,18 @@ const PrinterComponentsPage = () => {
   })
 
   const onSubmit = async (model) => {
+    const nextModel = { ...model }
+    if (model.materialID === 'NULL') {
+      nextModel.materialID = null
+    }
+
     await updateComponent({
       variables: {
         input: {
           machineID,
           componentID,
           modelVersion: component.configForm.modelVersion,
-          model,
+          model: nextModel,
         }
       }
     })

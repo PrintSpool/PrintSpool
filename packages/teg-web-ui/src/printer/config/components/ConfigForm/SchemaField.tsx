@@ -86,9 +86,10 @@ const SchemaField = ({
       }
 
       if (isEnum) {
+        console.log('DEFAULT?', property.default, property)
         return (
           <Controller
-            defaultValue=""
+            defaultValue={property.default || ''}
             render={({ ref, name, value, onChange, onBlur }) => (
               <TextField
                 {...textFieldProps}
@@ -96,7 +97,7 @@ const SchemaField = ({
                 onChange={e => onChange(e.target.value)}
                 onBlur={onBlur}
                 name={name}
-                value={value || ""}
+                value={(value == '' || value == null) ? property.default : value}
                 select
               >
                 { property.oneOf?.map((option) => (

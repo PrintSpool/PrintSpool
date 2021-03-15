@@ -75,15 +75,22 @@ const CreateComponentDialog = ({
         ...configForm,
         schema: schema && transformSchema(schema),
       },
-      onSubmit: ({ model }) => createComponent({
-        variables: {
-          input: {
-            machineID,
-            componentType: wizard.componentType,
-            model,
+      onSubmit: ({ model }) => {
+        const nextModel = { ...model }
+        if (model.materialID === 'NULL') {
+          nextModel.materialID = null
+        }
+
+        createComponent({
+          variables: {
+            input: {
+              machineID,
+              componentType: wizard.componentType,
+              model: nextModel,
+            },
           },
-        },
-      }),
+        })
+      },
       onCancel: () => history.push('../'),
     }} />
   )

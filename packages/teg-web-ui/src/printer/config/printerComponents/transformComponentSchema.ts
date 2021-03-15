@@ -42,12 +42,20 @@ const transformComponentSchema = ({
   }
   if (schema.properties.materialID != null) {
     // inject the materials list into the schema as an enum
+    const materialIDEnum = materials.map(material => ({
+      'const': material.id,
+      title: material.name,
+    }))
+
+    materialIDEnum.unshift({
+      'const': 'NULL',
+      title: 'None',
+    })
+
     const materialID = {
       ...nextSchema.properties.materialID,
-      oneOf: materials.map(material => ({
-        'const': material.id,
-        title: material.name,
-      })),
+      default: 'NULL',
+      oneOf: materialIDEnum,
     }
 
     nextSchema = {

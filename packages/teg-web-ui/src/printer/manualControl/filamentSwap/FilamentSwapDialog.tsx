@@ -220,6 +220,7 @@ const FilamentSwapDialog = ({
                           next: context.next,
                           setActiveStep: context.setActiveStep,
                           active: index === activeStep,
+                          close,
                           classes,
                         }} />
                       </div>
