@@ -10,7 +10,7 @@ lazy_static! {
     static ref FAN_ADDRESS: Regex = Regex::new(r"^f\d+$").unwrap();
 }
 /// # Fan
-#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Default, Debug, Clone)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct SpeedControllerConfig {
     /// # Name

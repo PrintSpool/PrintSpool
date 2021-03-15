@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
 
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Debug, Default, Clone)]
 pub struct InviteConfig {
     /// # Admin Access Invite
     #[serde(default)]

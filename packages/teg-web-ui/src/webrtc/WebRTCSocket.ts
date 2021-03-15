@@ -84,7 +84,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
         const { type, payload } = JSON.parse(data)
 
         if (type === 'connection_error') {
-          this.innerHandleError(payload)
+          this.innerHandleError(payload, { unrecoverable: true })
           return
         }
       }
@@ -153,7 +153,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     this.peer?.destroy()
   }
 
-  private innerHandleError(error: any) {
+  private innerHandleError(error: any, { unrecoverable = false} = {}) {
     if (this.readyState == WebRTCSocket.CLOSED) {
       return
     }
@@ -165,7 +165,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     this.onerror(new Error(error.message))
 
     this.onclose(new CloseEvent(error?.message, {
-      code: 4000,
+      code: unrecoverable ? 4400 : 4000,
       reason: error.message,
     }))
   }

@@ -191,23 +191,21 @@ const JobQueueView = ({
         </React.Suspense>
       )}
 
-      { latestPrints.length > 0 && (
-        <div className={classes.latestPrints}>
-          {/* <Typography variant="subtitle1" gutterBottom>
-            Latest Print
-          </Typography> */}
-          { latestPrints.map(print => (
-            <PrintCard {...{
-              key: print.id,
-              print,
-              cancelTask,
-              pausePrint,
-              resumePrint,
-              deleteParts,
-            }} />
-          ))}
-        </div>
-      )}
+      <div className={classes.latestPrints}>
+        {/* <Typography variant="subtitle1" gutterBottom>
+          Latest Print
+        </Typography> */}
+        { latestPrints.map(print => (
+          <PrintCard {...{
+            key: print.id,
+            print,
+            cancelTask,
+            pausePrint,
+            resumePrint,
+            deleteParts,
+          }} />
+        ))}
+      </div>
 
       <div
         className={[

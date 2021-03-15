@@ -3,18 +3,13 @@ use async_graphql::{
     FieldResult,
     // Context,
 };
-use schemars::{
-    // schema::RootSchema,
-    schema_for,
-    JsonSchema,
-};
 use teg_auth::invite::InviteConfig;
-use teg_config_form::ConfigForm;
-use eyre::{
-    // eyre,
-    Result,
-    // Context as _,
-};
+use teg_config_form::{ConfigForm, create_form};
+// use eyre::{
+//     // eyre,
+//     Result,
+//     // Context as _,
+// };
 use teg_material::{FdmFilament, MaterialTypeGQL};
 
 use crate::{
@@ -77,7 +72,7 @@ impl ConfigQuery {
     async fn machine_config_form<'ctx>(
         &self,
     ) -> FieldResult<ConfigForm> {
-        let config_form = to_config_form::<CombinedConfigView>("machine".into())?;
+        let config_form = create_form::<CombinedConfigView>("machine".into())?;
 
         Ok(config_form)
     }
@@ -86,7 +81,7 @@ impl ConfigQuery {
     async fn invite_config_form<'ctx>(
         &self,
     ) -> FieldResult<ConfigForm> {
-        let config_form = to_config_form::<InviteConfig>("invite".into())?;
+        let config_form = create_form::<InviteConfig>("invite".into())?;
 
         Ok(config_form)
     }
@@ -95,7 +90,7 @@ impl ConfigQuery {
     async fn user_config_form<'ctx>(
         &self,
     ) -> FieldResult<ConfigForm> {
-        let config_form = to_config_form::<InviteConfig>("user".into())?;
+        let config_form = create_form::<InviteConfig>("user".into())?;
 
         Ok(config_form)
     }
@@ -106,7 +101,9 @@ impl ConfigQuery {
         input: MaterialSchemaFormInput,
     ) -> FieldResult<ConfigForm> {
         let config_form = match input.r#type {
-            MaterialTypeGQL::FdmFilament => to_config_form::<FdmFilament>("FdmFilament".into()),
+            MaterialTypeGQL::FdmFilament => {
+                create_form::<Box<FdmFilament>>("FdmFilament".into())
+            }
         }?;
 
         Ok(config_form)
@@ -121,7 +118,7 @@ impl ConfigQuery {
     //         Err(eyre!("Plugin not found: {}", input.package))?
     //     }
 
-    //     let config_form = to_config_form::<schema_for>(
+    //     let config_form = create_form::<schema_for>(
     //         CorePluginConfig
     //     ))?;
 
@@ -136,35 +133,14 @@ impl ConfigQuery {
         use ComponentTypeGQL::*;
 
         let config_form = match input.r#type {
-            Controller => to_config_form::<ControllerConfig>("Controller".into()),
-            Axis => to_config_form::<AxisConfig>("Axis".into()),
-            Toolhead => to_config_form::<ToolheadConfig>("Toolhead".into()),
-            SpeedController => to_config_form::<SpeedControllerConfig>("SpeedController".into()),
-            Video => to_config_form::<VideoConfig>("Video".into()),
-            BuildPlatform => to_config_form::<BuildPlatformConfig>("BuildPlatform".into()),
+            Controller => create_form::<ControllerConfig>("Controller".into()),
+            Axis => create_form::<AxisConfig>("Axis".into()),
+            Toolhead => create_form::<ToolheadConfig>("Toolhead".into()),
+            SpeedController => create_form::<SpeedControllerConfig>("SpeedController".into()),
+            Video => create_form::<VideoConfig>("Video".into()),
+            BuildPlatform => create_form::<BuildPlatformConfig>("BuildPlatform".into()),
         }?;
 
         Ok(config_form)
     }
 }
-
-pub fn to_config_form<C: JsonSchema>(
-    id: String,
-) -> Result<ConfigForm> {
-    let mut root_schema = schema_for!(C);
-
-    let form = root_schema.schema.object().properties
-        .keys()
-        .map(|k| k.clone())
-        .collect();
-
-    Ok(ConfigForm {
-        id: id.into(),
-        schema: serde_json::to_value(root_schema)?.into(),
-        model: serde_json::json!({}).into(),
-        model_version: 0i32,
-        form,
-        advanced_form: vec![],
-    })
-}
-

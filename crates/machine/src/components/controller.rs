@@ -20,7 +20,7 @@ use super::ComponentInner;
 // }
 
 /// # Controller
-#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Default, Debug, Clone)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ControllerConfig {
     /// # Name
@@ -105,6 +105,10 @@ pub enum BaudRate {
     Baud019K,
     #[serde(rename = "9600")]
     Baud009K,
+}
+
+impl Default for BaudRate {
+    fn default() -> Self { BaudRate::Baud115K }
 }
 
 impl BaudRate {

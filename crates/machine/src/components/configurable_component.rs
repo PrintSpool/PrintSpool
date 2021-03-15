@@ -16,8 +16,4 @@ where
     fn model_version(&self) -> i32 {
         self.model_version
     }
-
-    fn form(all_fields: &Vec<String>) -> Vec<String> {
-        M::form(all_fields)
-    }
 }

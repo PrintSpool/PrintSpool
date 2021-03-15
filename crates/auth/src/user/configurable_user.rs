@@ -17,7 +17,10 @@ impl teg_config_form::Configurable<UserConfig> for User
     fn model_version(&self) -> i32 {
         self.version
     }
+}
 
+impl teg_config_form::Model for UserConfig
+{
     fn form(all_fields: &Vec<String>) -> Vec<String> {
         all_fields.clone()
     }

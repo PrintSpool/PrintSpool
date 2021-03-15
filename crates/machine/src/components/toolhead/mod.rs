@@ -25,7 +25,7 @@ lazy_static! {
 }
 
 /// # Toolhead
-#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Default, Debug, Clone)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ToolheadConfig {
     /// # Name

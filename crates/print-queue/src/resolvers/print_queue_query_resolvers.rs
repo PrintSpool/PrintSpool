@@ -46,32 +46,40 @@ impl PrintQueueQuery {
     ) -> FieldResult<Vec<PrintQueue>> {
         let db: &crate::Db = ctx.data()?;
 
-        let mut print_queues = if let Some(machine_id) = input.machine_id {
-            let machine_id = machine_id.to_string();
+        async move {
+            let mut print_queues = if let Some(machine_id) = input.machine_id {
+                let machine_id = machine_id.to_string();
 
-            let print_queues = sqlx::query_as!(
-                JsonRow,
-                r#"
-                    SELECT print_queues.props FROM print_queues
-                    JOIN machine_print_queues
-                        ON machine_print_queues.print_queue_id = print_queues.id
-                    WHERE
-                        machine_print_queues.machine_id = ?
-                "#,
-                machine_id,
-            )
-                .fetch_all(db)
-                .await?;
+                let print_queues = sqlx::query_as!(
+                    JsonRow,
+                    r#"
+                        SELECT print_queues.props FROM print_queues
+                        JOIN machine_print_queues
+                            ON machine_print_queues.print_queue_id = print_queues.id
+                        WHERE
+                            machine_print_queues.machine_id = ?
+                    "#,
+                    machine_id,
+                )
+                    .fetch_all(db)
+                    .await?;
 
-            PrintQueue::from_rows(print_queues)?
-        } else {
-            PrintQueue::get_all(db).await?
-        };
+                PrintQueue::from_rows(print_queues)?
+            } else {
+                PrintQueue::get_all(db).await?
+            };
 
-        // Alphabetical and consistent ordering
-        print_queues.sort_by_cached_key(|q| (q.name.clone(), q.id.clone()));
+            // Alphabetical and consistent ordering
+            print_queues.sort_by_cached_key(|q| (q.name.clone(), q.id.clone()));
 
-        Ok(print_queues)
+            Result::<_>::Ok(print_queues)
+        }
+            // log the backtrace which is otherwise lost by FieldResult
+            .await
+            .map_err(|err| {
+                warn!("{:?}", err);
+                err.into()
+            })
     }
 
     /// Returns the last print task for each machine that has one.
@@ -84,107 +92,117 @@ impl PrintQueueQuery {
     ) -> FieldResult<Vec<Print>> {
         let db: &crate::Db = ctx.data()?;
 
-        let mut args = vec![];
-        let mut print_queues_sql_join = "".to_string();
-        let mut machine_sql_where_clause = "".to_string();
+        async move {
+            let mut args = vec![];
+            let mut print_queues_sql_join = "".to_string();
+            let mut machine_sql_where_clause = "".to_string();
 
-        if let Some(mut print_queue_ids) = input.print_queue_ids {
-            print_queues_sql_join = format!(
+            if let Some(mut print_queue_ids) = input.print_queue_ids {
+                print_queues_sql_join = format!(
+                    r#"
+                        INNER JOIN parts ON
+                            parts.id = tasks.part_id
+                            AND parts.deleted_at IS NULL
+                        INNER JOIN packages ON
+                            packages.id = parts.package_id
+                            AND packages.print_queue_id IN ({})
+                    "#,
+                    print_queue_ids.iter().map(|_| "?").collect::<Vec<_>>().join(", "),
+                );
+                args.append(&mut print_queue_ids);
+            };
+
+            if let Some(mut machine_ids) = input.machine_ids {
+                machine_sql_where_clause = format!(
+                    r#"
+                        AND machine_id IN ({})
+                    "#,
+                    machine_ids.iter().map(|_| "?").collect::<Vec<_>>().join(", "),
+                );
+                args.append(&mut machine_ids);
+            };
+
+            let sql = format!(
                 r#"
-                    INNER JOIN parts ON
-                        parts.id = tasks.part_id
-                        AND parts.deleted_at IS NULL
-                    INNER JOIN packages ON
-                        packages.id = parts.package_id
-                        AND packages.print_queue_id IN ({})
-                "#,
-                print_queue_ids.iter().map(|_| "?").collect::<Vec<_>>().join(", "),
-            );
-            args.append(&mut print_queue_ids);
-        };
-
-        if let Some(mut machine_ids) = input.machine_ids {
-            machine_sql_where_clause = format!(
-                r#"
-                    AND machine_id IN ({})
-                "#,
-                machine_ids.iter().map(|_| "?").collect::<Vec<_>>().join(", "),
-            );
-            args.append(&mut machine_ids);
-        };
-
-        let sql = format!(
-            r#"
-                SELECT results.props FROM (
-                    SELECT
-                        tasks.props,
-                        MAX(tasks.created_at)
-                    FROM tasks
-                    {}
-                    WHERE
-                        tasks.part_id IS NOT NULL
+                    SELECT results.props FROM (
+                        SELECT
+                            tasks.props,
+                            MAX(tasks.created_at)
+                        FROM tasks
                         {}
-                ) AS results
-            "#,
-            print_queues_sql_join,
-            machine_sql_where_clause,
-        );
-        let mut query = sqlx::query_as(&sql);
+                        WHERE
+                            tasks.part_id IS NOT NULL
+                            {}
+                    ) AS results
+                    WHERE
+                        results.props IS NOT NULL
+                "#,
+                print_queues_sql_join,
+                machine_sql_where_clause,
+            );
+            let mut query = sqlx::query_as(&sql);
 
-        for arg in args {
-            query = query.bind(arg.0)
-        }
+            for arg in args {
+                query = query.bind(arg.0)
+            }
 
-        let tasks: Vec<JsonRow> = query
-            .fetch_all(db)
-            .await?;
+            let tasks: Vec<JsonRow> = query
+                .fetch_all(db)
+                .await?;
 
-        let tasks = Task::from_rows(tasks)?;
+            let tasks = Task::from_rows(tasks)?;
 
-        let mut part_ids = tasks.iter()
-            .map(|task| &task.part_id)
-            .collect::<Vec<_>>();
-        part_ids.sort();
-        part_ids.dedup();
+            let mut part_ids = tasks.iter()
+                .map(|task| &task.part_id)
+                .collect::<Vec<_>>();
+            part_ids.sort();
+            part_ids.dedup();
 
-        let parts_sql = format!(
-            r#"
-                SELECT props FROM parts
-                WHERE
-                    parts.id IN ({})
-            "#,
-            part_ids.iter().map(|_| "?").collect::<Vec<_>>().join(", ")
-        );
-        let mut parts_query = sqlx::query_as(&parts_sql);
+            let parts_sql = format!(
+                r#"
+                    SELECT props FROM parts
+                    WHERE
+                        parts.id IN ({})
+                "#,
+                part_ids.iter().map(|_| "?").collect::<Vec<_>>().join(", ")
+            );
+            let mut parts_query = sqlx::query_as(&parts_sql);
 
-        for part_id in part_ids {
-            parts_query = parts_query.bind(part_id)
-        }
+            for part_id in part_ids {
+                parts_query = parts_query.bind(part_id)
+            }
 
-        let parts: Vec<JsonRow> = parts_query
-            .fetch_all(db)
-            .await?;
+            let parts: Vec<JsonRow> = parts_query
+                .fetch_all(db)
+                .await?;
 
-        let parts = Part::from_rows(parts)?;
+            let parts = Part::from_rows(parts)?;
 
-        let prints = tasks
-            .into_iter()
-            .map(|task| -> Result<Print> {
-                // Part must be cloned because multiple tasks could reference the same part
-                let part = parts
-                    .iter()
-                    .find(|part| Some(&part.id) == task.part_id.as_ref())
-                    .ok_or_else(|| eyre!("part missing for task ({:?}", task.id))?
-                    .clone();
+            let prints = tasks
+                .into_iter()
+                .map(|task| -> Result<Print> {
+                    // Part must be cloned because multiple tasks could reference the same part
+                    let part = parts
+                        .iter()
+                        .find(|part| Some(&part.id) == task.part_id.as_ref())
+                        .ok_or_else(|| eyre!("part missing for task ({:?}", task.id))?
+                        .clone();
 
-                Ok(Print {
-                    id: task.id.clone().into(),
-                    part,
-                    task,
+                    Ok(Print {
+                        id: task.id.clone().into(),
+                        part,
+                        task,
+                    })
                 })
-            })
-            .collect::<Result<Vec<_>>>()?;
+                .collect::<Result<Vec<_>>>()?;
 
-        Ok(prints)
+            Result::<_>::Ok(prints)
+        }
+            // log the backtrace which is otherwise lost by FieldResult
+            .await
+            .map_err(|err| {
+                warn!("{:?}", err);
+                err.into()
+            })
     }
 }

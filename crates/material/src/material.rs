@@ -33,7 +33,7 @@ pub trait MaterialConfig: Serialize + DeserializeOwned {
     fn name(&self) -> &String;
 }
 
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct FdmFilament {
     /// # Name

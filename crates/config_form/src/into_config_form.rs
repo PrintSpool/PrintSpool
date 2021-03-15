@@ -1,5 +1,3 @@
-use serde::Serialize;
-use schemars::JsonSchema;
 use eyre::{
     // eyre,
     Result,
@@ -8,10 +6,13 @@ use eyre::{
 
 use crate::{ ConfigForm, Configurable };
 
-pub fn into_config_form<C, M>(config: &C) -> Result<ConfigForm>
+fn introspect_model<M>() -> Result<(
+    async_graphql::Json<serde_json::Value>,
+    Vec<String>,
+    Vec<String>,
+)>
 where
-    C: Configurable<M>,
-    M: JsonSchema + Serialize,
+    M: crate::Model,
 {
     let mut root_schema = schemars::schema_for!(M);
 
@@ -20,7 +21,7 @@ where
         .map(|k| k.clone())
         .collect::<Vec<_>>();
 
-    let form = C::form(&all_fields)
+    let form = M::form(&all_fields)
         .into_iter()
         .map(|s| s.to_string())
         .collect::<Vec<_>>();
@@ -31,11 +32,51 @@ where
         .filter(|k| form.iter().all(|k2| k2 != k))
         .collect::<Vec<_>>();
 
+    Ok((
+        serde_json::to_value(root_schema)?.into(),
+        form,
+        advanced_form,
+    ))
+}
+
+/// A form for updating the existing instance of model type M
+pub fn into_config_form<C, M>(config: &C) -> Result<ConfigForm>
+where
+    C: Configurable<M>,
+    M: crate::Model,
+{
+    let (
+        schema,
+        form,
+        advanced_form,
+    ) = introspect_model::<M>()?;
+
     Ok(ConfigForm {
         id: config.id(),
         model: serde_json::to_value(config.model())?.into(),
         model_version: config.model_version(),
-        schema: serde_json::to_value(root_schema)?.into(),
+        schema,
+        form,
+        advanced_form,
+    })
+}
+
+/// A form for creating a new instance of model type M
+pub fn create_form<M>(id: String) -> Result<ConfigForm>
+where
+    M: crate::Model,
+{
+    let (
+        schema,
+        form,
+        advanced_form,
+    ) = introspect_model::<M>()?;
+
+    Ok(ConfigForm {
+        id: id.into(),
+        model: serde_json::json!({}).into(),
+        model_version: 0,
+        schema,
         form,
         advanced_form,
     })

@@ -17,7 +17,10 @@ impl teg_config_form::Configurable<Box<FdmFilament>> for Material
     fn model_version(&self) -> i32 {
         self.version
     }
+}
 
+impl teg_config_form::Model for Box<FdmFilament>
+{
     fn form(_: &Vec<String>) -> Vec<String> {
         vec![
             "name",

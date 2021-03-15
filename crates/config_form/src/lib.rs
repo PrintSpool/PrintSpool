@@ -9,3 +9,4 @@ pub use model::Model;
 
 mod into_config_form;
 pub use into_config_form::into_config_form;
+pub use into_config_form::create_form;
