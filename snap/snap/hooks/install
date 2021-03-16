@@ -1,29 +1,2 @@
 #!/bin/bash
 set -e
-
-echo "INSTALL HOOK!"
-ls $SNAP
-
-$SNAP/teg create-config
-
-# USERNAME="root"
-#
-# if [ -z "$USERNAME" ]; then
-#     echo "Username required."
-#     exit 1
-# fi
-
-# add the user that runs the Teg daemon (the snap's root user) to dialout
-# so it can access the serial port.
-# usermod -a -G dialout root
-
-# newgrp -
-
-# echo "$(id)"
-# echo "$(groups root)"
-# exit 1
-
-# # add a log directory for Teg
-# sudo mkdir -p /run/log/teg
-# sudo chmod 700 /run/log/teg
-# sudo chown root: /run/log/teg

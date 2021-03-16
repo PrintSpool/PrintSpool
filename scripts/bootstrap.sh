@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+sudo apt install g++-arm-linux-gnueabihf
+
 rustup target add armv7-unknown-linux-gnueabihf
 
 # cargo install --git https://github.com/launchbadge/sqlx.git cargo-sqlx
