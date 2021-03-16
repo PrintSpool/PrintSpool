@@ -261,7 +261,7 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         if hard_delete {
             sqlx::query(&format!(
                 r#"
-                    UPDATE FROM {} WHERE id=?
+                    DELETE FROM {} WHERE id=?
                 "#,
                 Self::TABLE,
             ))
@@ -287,7 +287,7 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         if hard_delete {
             sqlx::query(&format!(
                 r#"
-                    UPDATE FROM {} WHERE id=? AND version=?
+                    DELETE FROM {} WHERE id=? AND version=?
                 "#,
                 Self::TABLE,
             ))

@@ -12,7 +12,7 @@ use eyre::{
 };
 use open_data_channel::open_data_channel;
 use serde::{Serialize, Deserialize};
-use teg_machine::machine::messages::GetData;
+// use teg_machine::machine::messages::GetData;
 use std::{
     pin::Pin,
     sync::Arc,
@@ -26,7 +26,7 @@ use std::sync::atomic::{ AtomicU64, Ordering };
 use futures_util::{
     future::Future,
     // future::FutureExt,
-    future::try_join_all,
+    // future::try_join_all,
     SinkExt,
     stream::{
         Stream,
@@ -117,7 +117,7 @@ where
 pub async fn listen_for_signalling_no_reconnect<F, Fut, S>(
     // db: crate::Db,
     server_keys: &Arc<teg_auth::ServerKeys>,
-    machines: &teg_machine::MachineMap,
+    _machines: &teg_machine::MachineMap,
     handle_data_channel: Arc<F>,
 ) -> Result<()>
 where
@@ -128,7 +128,7 @@ where
     Fut: Future<Output = Result<S>> + Send + 'static,
     S: Stream<Item = Vec<u8>> + Send + 'static,
 {
-    let machines = machines.load();
+    // let machines = machines.load();
 
     let signalling_url = std::env::var("SIGNALLING_SERVER_WS")
         .wrap_err("SIGNALLING_SERVER_WS environment variable missing")?;
@@ -178,72 +178,72 @@ where
         Err(eyre!("Expected ConnectionAck, received: {:?}", msg))?;
     }
 
-    // Update the signalling servers list of machines
-    // ------------------------------------------------------------
-    let machines_json = machines
-        .values()
-        .map(|machine| async move {
-            let data = machine.call(GetData).await??;
-            Result::<serde_json::Value>::Ok(serde_json::json!({
-                "slug": data.config.id,
-                "name": data.config.name()?,
-            }))
-        });
+    // // Update the signalling servers list of machines
+    // // ------------------------------------------------------------
+    // let machines_json = machines
+    //     .values()
+    //     .map(|machine| async move {
+    //         let data = machine.call(GetData).await??;
+    //         Result::<serde_json::Value>::Ok(serde_json::json!({
+    //             "slug": data.config.id,
+    //             "name": data.config.name()?,
+    //         }))
+    //     });
 
-    let machines_json = try_join_all(machines_json)
-        .await?;
+    // let machines_json = try_join_all(machines_json)
+    //     .await?;
 
-    let msg = GraphQLWSMessage::Subscribe {
-        id: NEXT_MESSAGE_ID.fetch_add(1, Ordering::SeqCst).to_string(),
-        payload: SubscribeMessagePayload {
-            operation_name: Some("registerMachinesFromHost".to_string()),
-            query: r#"
-                mutation registerMachinesFromHost(
-                    $input: RegisterMachinesInput!
-                ) {
-                    registerMachinesFromHost(input: $input) {
-                        id
-                    }
-                }
-            "#.to_string(),
-            variables: Some(serde_json::json!({
-                "input": {
-                    "machines": machines_json,
-                },
-            })),
-        },
-    };
+    // let msg = GraphQLWSMessage::Subscribe {
+    //     id: NEXT_MESSAGE_ID.fetch_add(1, Ordering::SeqCst).to_string(),
+    //     payload: SubscribeMessagePayload {
+    //         operation_name: Some("registerMachinesFromHost".to_string()),
+    //         query: r#"
+    //             mutation registerMachinesFromHost(
+    //                 $input: RegisterMachinesInput!
+    //             ) {
+    //                 registerMachinesFromHost(input: $input) {
+    //                     id
+    //                 }
+    //             }
+    //         "#.to_string(),
+    //         variables: Some(serde_json::json!({
+    //             "input": {
+    //                 "machines": machines_json,
+    //             },
+    //         })),
+    //     },
+    // };
 
-    let msg = serde_json::to_string(&msg)?;
-    ws_stream.send(Message::Text(msg)).await?;
+    // let msg = serde_json::to_string(&msg)?;
+    // ws_stream.send(Message::Text(msg)).await?;
 
-    let msg = ws_stream
-        .next()
-        .await
-        .ok_or_else(|| eyre!("didn't receive anything"))??
-        .into_text()?;
+    // let msg = ws_stream
+    //     .next()
+    //     .await
+    //     .ok_or_else(|| eyre!("didn't receive anything"))??
+    //     .into_text()?;
 
-    let msg: GraphQLWSMessage = serde_json::from_str(&msg)
-        .wrap_err_with(|| format!("Error parsing GraphQL WS Message:\n{:?}", msg))?;
-    if let GraphQLWSMessage::Next {
-        payload: ExecutionResult { data: Some(_), errors: None },
-        ..
-    } = msg {
-    } else {
-        Err(eyre!("Expected Next with data, received: {:?}", msg))?;
-    }
+    // let msg: GraphQLWSMessage = serde_json::from_str(&msg)
+    //     .wrap_err_with(|| format!("Error parsing GraphQL WS Message:\n{:?}", msg))?;
+    // if let GraphQLWSMessage::Next {
+    //     payload: ExecutionResult { data: Some(_), errors: None },
+    //     ..
+    // } = msg {
+    // } else {
+    //     Err(eyre!("Expected Next with data, received: {:?}", msg))?;
+    // }
 
-    let msg = ws_stream
-        .next()
-        .await
-        .ok_or_else(|| eyre!("didn't receive anything"))??
-        .into_text()?;
+    // let msg = ws_stream
+    //     .next()
+    //     .await
+    //     .ok_or_else(|| eyre!("didn't receive anything"))??
+    //     .into_text()?;
 
-    let msg: GraphQLWSMessage = serde_json::from_str(&msg)?;
-    if let GraphQLWSMessage::Complete {..} = msg {
-    } else {
-        Err(eyre!("Expected Complete, received: {:?}", msg))?;
-    }
+    // let msg: GraphQLWSMessage = serde_json::from_str(&msg)?;
+    // if let GraphQLWSMessage::Complete {..} = msg {
+    // } else {
+    //     Err(eyre!("Expected Complete, received: {:?}", msg))?;
+    // }
 
     // Subscribe to receive incoming connection requests
     // ------------------------------------------------------------

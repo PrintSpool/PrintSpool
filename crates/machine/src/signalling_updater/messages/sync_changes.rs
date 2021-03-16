@@ -6,6 +6,7 @@ use eyre::{
 use rand::Rng;
 use async_std::future;
 use serde::{Deserialize, Serialize};
+use surf::http::auth::{AuthenticationScheme, Authorization};
 use teg_json_store::Record as _;
 
 use super::super::{
@@ -95,10 +96,17 @@ impl xactor::Handler<SyncChanges> for SignallingUpdater {
             let jwt = self.server_keys.create_signalling_jwt()?;
             let identity_public_key = &self.server_keys.identity_public_key;
 
+            let scheme = AuthenticationScheme::Bearer;
+            let bearer_auth = Authorization::new(scheme, jwt.into());
+
+            info!("KEY: {:?}", identity_public_key);
             let req = surf::post(url)
                 .body(json)
-                .header("authorization", format!("bearer {}", jwt))
-                .header("x-host-identity-public-key", identity_public_key)
+                .header(bearer_auth.name(), bearer_auth.value())
+                .header(
+                    "X-Host-Identity-Public-Key",
+                    base64::encode(identity_public_key),
+                )
                 // .map_err(|err| eyre!(err))? // TODO: Remove me when surf 2.0 is released
                 .recv_json();
 

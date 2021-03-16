@@ -4495,6 +4495,7 @@ dependencies = [
  "async-graphql",
  "async-std",
  "async-trait",
+ "base64 0.12.3",
  "bytes 0.5.6",
  "chrono",
  "derive-new",
