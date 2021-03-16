@@ -16,6 +16,7 @@ pub use user::resolvers::{
 mod signal;
 pub use signal::Signal;
 
+mod create_signalling_jwt;
 mod server_keys;
 pub use server_keys::ServerKeys;
 

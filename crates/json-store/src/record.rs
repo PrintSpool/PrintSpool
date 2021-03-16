@@ -47,7 +47,8 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
     async fn insert_no_rollback<'c>(
         &self,
         db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
-    ) -> Result<()> {
+    ) -> Result<()>
+    {
         sqlx::query(&format!(
             r#"
                 INSERT INTO {}

@@ -34,7 +34,14 @@ use futures_util::{TryFutureExt, future, future::FutureExt, future::join_all, se
     }};
 use teg_auth::AuthContext;
 use teg_device::DeviceManager;
-use teg_machine::{MachineHooksList, MachineMaterialHooks, MachineMap, MachineMapLocal, machine::Machine};
+use teg_machine::{
+    MachineHooksList,
+    MachineMaterialHooks,
+    MachineMap,
+    MachineMapLocal,
+    machine::Machine,
+    signalling_updater::SignallingUpdater,
+};
 use teg_material::{MaterialHooksList};
 use teg_print_queue::print_queue_machine_hooks::PrintQueueMachineHooks;
 
@@ -182,6 +189,10 @@ async fn app() -> Result<()> {
 
     let server_keys = Arc::new(teg_auth::ServerKeys::load_or_create().await?);
 
+    let signalling_updater = SignallingUpdater::start(
+        db.clone(),
+        server_keys.clone(),
+    ).await?;
     let device_manager = DeviceManager::start().await?;
 
     // Build the server
@@ -201,6 +212,7 @@ async fn app() -> Result<()> {
             .data(machine_hooks.clone())
             .data(material_hooks.clone())
             .data(server_keys_clone.clone())
+            .data(signalling_updater.clone())
             .data(device_manager.clone())
     };
 

@@ -17,10 +17,6 @@ use std::{
     pin::Pin,
     sync::Arc,
 };
-use chrono::{
-    Duration,
-    Utc
-};
 use async_tungstenite::{
     async_std::connect_async,
     tungstenite::Message,
@@ -156,22 +152,7 @@ where
         }
     };
 
-    let jwt_headers = serde_json::json!({
-    });
-
-    let jwt_payload = serde_json::json!({
-        "sub": "self",
-        "aud": signalling_url.clone(),
-        "exp": (Utc::now() + Duration::minutes(10)).timestamp(),
-        "selfSignature": true,
-    });
-
-    let jwt = frank_jwt::encode(
-        jwt_headers,
-        &server_keys.identity_private_key,
-        &jwt_payload,
-        frank_jwt::Algorithm::ES256,
-    )?;
+    let jwt = server_keys.create_signalling_jwt()?;
 
     let msg = GraphQLWSMessage::ConnectionInit {
         // TODO: Send an authorization payload

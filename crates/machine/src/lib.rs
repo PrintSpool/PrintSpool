@@ -20,6 +20,7 @@ pub use machine::resolvers::machines_query_resolvers::MachineQuery;
 pub use machine::resolvers::mutation_resolvers::MachineMutation;
 
 pub mod plugins;
+pub mod signalling_updater;
 pub mod task;
 
 mod video;

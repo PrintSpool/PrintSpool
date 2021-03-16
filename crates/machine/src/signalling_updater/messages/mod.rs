@@ -1,2 +1,2 @@
-mod machine_signalling_update;
-pub use machine_signalling_update::MachineSignallingUpdate;
+mod sync_changes;
+pub use sync_changes::SyncChanges;

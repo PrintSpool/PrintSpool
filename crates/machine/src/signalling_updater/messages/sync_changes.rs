@@ -1,34 +1,50 @@
 use eyre::{
-    // eyre,
+    eyre,
     Result,
-    // Context as _,
-};
-use async_graphql::{
-    ID,
+    Context as _,
 };
 use rand::Rng;
+use async_std::future;
+use serde::{Deserialize, Serialize};
+use teg_json_store::Record as _;
 
-use super::super::SignallingUpdater;
-use super::MachineSignallingUpdateRow;
+use super::super::{
+    SignallingUpdater,
+    MachineSignallingUpdate,
+    MachineUpdateOperation,
+};
 
 #[xactor::message(result = "()")]
+#[derive(Clone)]
 pub struct SyncChanges;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GraphQLResponse {
+    errors: Option<serde_json::Value>,
+    data: serde_json::Value,
+}
 
 #[async_trait::async_trait]
 impl xactor::Handler<SyncChanges> for SignallingUpdater {
     async fn handle(
         &mut self,
         ctx: &mut xactor::Context<Self>,
-        msg: SyncChanges,
-    ) -> Result<()> {
+        _msg: SyncChanges,
+    ) -> () {
+        ctx.abort_intervals();
+
         let result = async move {
-            let updates = MachineSignallingUpdateRow::get_all(&self.db, false)
+            let updates = MachineSignallingUpdate::get_all(&self.db, false)
                 .await?;
+
+            if updates.is_empty() {
+                return Ok(())
+            }
 
             let register_machines_json = updates
                 .iter()
                 .filter_map(|update| {
-                    if let MachineUpdateOperation::Register { name } = update.operation {
+                    if let MachineUpdateOperation::Register { name } = &update.operation {
                         Some(serde_json::json!({
                             "slug": update.machine_id,
                             "name": name,
@@ -42,8 +58,8 @@ impl xactor::Handler<SyncChanges> for SignallingUpdater {
             let delete_slugs_json = updates
                 .iter()
                 .filter_map(|update| {
-                    if let MachineUpdateOperation::Delete = update.operation {
-                        Some(update.machine_id)
+                    if let MachineUpdateOperation::Delete = &update.operation {
+                        Some(&update.machine_id)
                     } else {
                         None
                     }
@@ -76,28 +92,26 @@ impl xactor::Handler<SyncChanges> for SignallingUpdater {
 
             let url = std::env::var("SIGNALLING_SERVER_HTTP")?;
 
-            // let jwt = TODO
-            // let identity_public_key = TODO
+            let jwt = self.server_keys.create_signalling_jwt()?;
+            let identity_public_key = &self.server_keys.identity_public_key;
 
             let req = surf::post(url)
                 .body(json)
                 .header("authorization", format!("bearer {}", jwt))
                 .header("x-host-identity-public-key", identity_public_key)
-                .query(&dbg!(VideoCallQueryParams {
-                    peerid: &video_session_id,
-                    url: &video.model.source,
-                    options: "rtptransport=tcp&timeout=60",
-                }))
-                .map_err(|err| eyre!(err))? // TODO: Remove me when surf 2.0 is released
+                // .map_err(|err| eyre!(err))? // TODO: Remove me when surf 2.0 is released
                 .recv_json();
 
-            let answer = future::timeout(std::time::Duration::from_millis(5_000), req)
+            let res: GraphQLResponse = future::timeout(
+                std::time::Duration::from_millis(5_000),
+                req,
+            )
                 .await
                 .wrap_err("Timed out")?
                 .map_err(|err| eyre!(err))?; // TODO: Remove me when surf 2.0 is released
 
-            if (res.status() != 200) {
-                return Err(eyre!(format!("Received non-200 status code: {:?}", res.status())))
+            if let Some(errors) = res.errors {
+                return Err(eyre!(format!("GraphQL Errors: {:?}", errors)))
             }
 
             Result::<_>::Ok(())
@@ -107,9 +121,10 @@ impl xactor::Handler<SyncChanges> for SignallingUpdater {
             warn!("Unable to synchronize with signalling, may be offline: {:?}", err);
 
             let mut rng = rand::thread_rng();
-            ctx.send_later(SyncChanges, Duration::from_secs(rng.gen_range(5..10)))
-        }
-
-        Ok(())
+            ctx.send_interval(
+                SyncChanges,
+                std::time::Duration::from_secs(rng.gen_range(5, 10)),
+            )
+        };
     }
 }

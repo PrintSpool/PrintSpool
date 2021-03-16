@@ -1,24 +1,27 @@
+use chrono::prelude::*;
 use eyre::{
     // eyre,
     Result,
     // Context as _,
 };
-use async_graphql::{
-    ID,
-};
+use serde::{Deserialize, Serialize};
+use teg_json_store::Record;
 
-use super::super::SignallingUpdater;
+use super::SignallingUpdater;
+use super::SyncChanges;
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MachineSignallingUpdate {
     pub id: crate::DbId,
     pub version: i32,
     pub created_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     // Props
-    machine_id: crate::DbId,
-    operation: MachineUpdateOperation,
+    pub machine_id: crate::DbId,
+    pub operation: MachineUpdateOperation,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum MachineUpdateOperation {
     Register { name: String },
     Delete,
@@ -26,32 +29,32 @@ pub enum MachineUpdateOperation {
 
 
 impl MachineSignallingUpdate {
-    async fn create<'e, 'c, E>(
-        db: E,
+    pub async fn create<'c>(
+        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
         updater: xactor::Addr<SignallingUpdater>,
+        machine_id: crate::DbId,
         operation: MachineUpdateOperation,
     ) -> Result<()>
-    where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
     {
         MachineSignallingUpdate {
             id: nanoid!(11),
             version: 0,
             created_at: Utc::now(),
             deleted_at: None,
+            machine_id,
             operation,
         }
-            .insert(db)
+            .insert_no_rollback(db)
             .await?;
 
-        updater.send(SyncChanges).await?;
+        updater.send(SyncChanges)?;
 
         Ok(())
     }
 }
 
 impl Record for MachineSignallingUpdate {
-    const TABLE: &'static str = "machine_signalling_update";
+    const TABLE: &'static str = "machine_signalling_updates";
 
     fn id(&self) -> &crate::DbId {
         &self.id

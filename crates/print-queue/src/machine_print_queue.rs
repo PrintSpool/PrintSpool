@@ -49,7 +49,8 @@ impl Record for MachinePrintQueue {
     async fn insert_no_rollback<'c>(
         &self,
         db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
-    ) -> Result<()> {
+    ) -> Result<()>
+    {
         let json = serde_json::to_string(&self)?;
 
         sqlx::query!(
