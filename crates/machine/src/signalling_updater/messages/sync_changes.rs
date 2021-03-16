@@ -114,6 +114,10 @@ impl xactor::Handler<SyncChanges> for SignallingUpdater {
                 return Err(eyre!(format!("GraphQL Errors: {:?}", errors)))
             }
 
+            for mut update in updates {
+                update.remove_if_unchanged(&self.db, true).await?;
+            }
+
             Result::<_>::Ok(())
         }.await;
 

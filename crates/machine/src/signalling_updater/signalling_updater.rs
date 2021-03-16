@@ -6,7 +6,9 @@ use eyre::{
     // Context as _,
 };
 
-use super::SyncChanges;
+use crate::{MachineHooks, config::MachineConfig, plugins::Plugin};
+
+use super::{MachineSignallingUpdate, MachineUpdateOperation, SyncChanges};
 
 /// Actor to synchronize machine CRUD changes with the signalling server's cached list of this
 /// host's machines.
@@ -44,5 +46,71 @@ impl SignallingUpdater {
             }
         ).await?;
         Ok(signalling_updater)
+    }
+}
+
+pub struct SignallingUpdaterMachineHooks {
+    pub db: crate::Db,
+    pub signalling_updater: xactor::Addr<SignallingUpdater>,
+}
+
+#[async_trait::async_trait]
+impl MachineHooks for SignallingUpdaterMachineHooks {
+    async fn before_create<'c>(
+        &self,
+        tx: sqlx::Transaction<'c, sqlx::Sqlite>,
+        machine_config: &mut MachineConfig,
+    ) -> Result<sqlx::Transaction<'c, sqlx::Sqlite>> {
+        let name = machine_config.core_plugin()?.model.name.clone();
+        let operation = MachineUpdateOperation::Register { name };
+
+        let (tx, _) = MachineSignallingUpdate::create(
+            tx,
+            machine_config.id.clone(),
+            operation,
+        ).await?;
+
+        Ok(tx)
+    }
+
+    async fn after_create(
+        &self,
+        _machine_id: &crate::DbId,
+    ) -> Result<()> {
+        self.signalling_updater.send(SyncChanges)?;
+        Ok(())
+    }
+
+    async fn before_start<'c>(
+        &self,
+        tx: sqlx::Transaction<'c, sqlx::Sqlite>,
+        _id: &crate::DbId,
+    ) -> Result<sqlx::Transaction<'c, sqlx::Sqlite>> {
+        Ok(tx)
+    }
+
+    // Handle machine name changes
+    async fn after_plugin_update(
+        &self,
+        machine_id: &crate::DbId,
+        plugin: &Plugin,
+    ) -> Result<()> {
+        let Plugin::Core(core_plugin) = plugin;
+
+        let name = core_plugin.model.name.clone();
+        let operation = MachineUpdateOperation::Register { name };
+
+        let tx = self.db.begin().await?;
+
+        let (tx, _) = MachineSignallingUpdate::create(
+            tx,
+            machine_id.clone(),
+            operation,
+        ).await?;
+
+        tx.commit().await?;
+        self.signalling_updater.send(SyncChanges)?;
+
+        Ok(())
     }
 }

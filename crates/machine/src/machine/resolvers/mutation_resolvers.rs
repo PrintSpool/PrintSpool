@@ -185,8 +185,8 @@ impl MachineMutation {
             let mut tx = db.begin().await?;
 
             for hooks_provider in machine_hooks.iter() {
-                hooks_provider.before_create(
-                    &mut tx,
+                tx = hooks_provider.before_create(
+                    tx,
                     &mut machine_config,
                 ).await?;
             }
@@ -218,6 +218,12 @@ impl MachineMutation {
                 machines.insert(machine_id.clone().into(), machine.clone());
                 machines
             });
+
+            for hooks_provider in machine_hooks.iter() {
+                hooks_provider.after_create(
+                    &machine_id,
+                ).await?;
+            }
 
             // return the new machine!
             let machine_data: MachineData = machine.call(GetData).await??;

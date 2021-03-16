@@ -275,4 +275,31 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
 
         Ok(())
     }
+
+    async fn remove_if_unchanged<'e, 'c, E>(
+        &mut self,
+        db: E,
+        hard_delete: bool,
+    ) -> Result<()>
+    where
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    {
+        if hard_delete {
+            sqlx::query(&format!(
+                r#"
+                    UPDATE FROM {} WHERE id=? AND version=?
+                "#,
+                Self::TABLE,
+            ))
+                .bind(self.id())
+                .bind(self.version())
+                .fetch_optional(db)
+                .await?;
+        } else {
+            *self.deleted_at_mut() = Some(Utc::now());
+            self.update(db).await?;
+        }
+
+        Ok(())
+    }
 }

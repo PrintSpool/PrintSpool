@@ -7,9 +7,6 @@ use eyre::{
 use serde::{Deserialize, Serialize};
 use teg_json_store::Record;
 
-use super::SignallingUpdater;
-use super::SyncChanges;
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MachineSignallingUpdate {
     pub id: crate::DbId,
@@ -30,29 +27,39 @@ pub enum MachineUpdateOperation {
 
 impl MachineSignallingUpdate {
     pub async fn create<'c>(
-        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
-        updater: xactor::Addr<SignallingUpdater>,
+        mut tx: sqlx::Transaction<'c, sqlx::Sqlite>,
         machine_id: crate::DbId,
         operation: MachineUpdateOperation,
-    ) -> Result<()>
+    ) -> Result<(sqlx::Transaction<'c, sqlx::Sqlite>, Self)>
     {
-        MachineSignallingUpdate {
+        sqlx::query!(
+            r#"
+                DELETE FROM machine_signalling_updates
+                WHERE machine_id = ?
+            "#,
+            machine_id
+        )
+            .fetch_optional(&mut tx)
+            .await?;
+
+        let update = MachineSignallingUpdate {
             id: nanoid!(11),
             version: 0,
             created_at: Utc::now(),
             deleted_at: None,
             machine_id,
             operation,
-        }
-            .insert_no_rollback(db)
+        };
+
+        update
+            .insert_no_rollback(&mut tx)
             .await?;
 
-        updater.send(SyncChanges)?;
-
-        Ok(())
+        Ok((tx, update))
     }
 }
 
+#[async_trait::async_trait]
 impl Record for MachineSignallingUpdate {
     const TABLE: &'static str = "machine_signalling_updates";
 
@@ -78,5 +85,28 @@ impl Record for MachineSignallingUpdate {
 
     fn deleted_at_mut(&mut self) -> &mut Option<DateTime<Utc>> {
         &mut self.deleted_at
+    }
+
+    async fn insert_no_rollback<'c>(
+        &self,
+        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+    ) -> Result<()>
+    {
+        let json = serde_json::to_string(&self)?;
+        sqlx::query!(
+            r#"
+                INSERT INTO machine_signalling_updates
+                (id, version, created_at, props, machine_id)
+                VALUES (?, ?, ?, ?, ?)
+            "#,
+            self.id,
+            self.version,
+            self.created_at,
+            json,
+            self.machine_id,
+        )
+            .fetch_optional(db)
+            .await?;
+        Ok(())
     }
 }

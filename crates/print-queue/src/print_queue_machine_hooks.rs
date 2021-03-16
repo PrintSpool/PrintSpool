@@ -6,10 +6,7 @@ use eyre::{
 };
 
 use teg_json_store::Record;
-use teg_machine::{
-    config::MachineConfig,
-    MachineHooks,
-};
+use teg_machine::{MachineHooks, config::MachineConfig, plugins::Plugin};
 
 use crate::{PrintQueue, machine_print_queue::MachinePrintQueue};
 
@@ -51,10 +48,18 @@ impl PrintQueueMachineHooks {
 impl MachineHooks for PrintQueueMachineHooks {
     async fn before_create<'c>(
         &self,
-        tx: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        mut tx: sqlx::Transaction<'c, sqlx::Sqlite>,
         machine_config: &mut MachineConfig,
+    ) -> Result<sqlx::Transaction<'c, sqlx::Sqlite>> {
+        self.create_default_print_queue(&mut tx, &machine_config.id).await?;
+        Ok(tx)
+    }
+
+    async fn after_create(
+        &self,
+        _machine_id: &crate::DbId,
     ) -> Result<()> {
-        self.create_default_print_queue(tx, &machine_config.id).await
+        Ok(())
     }
 
     async fn before_start<'c>(
@@ -81,5 +86,13 @@ impl MachineHooks for PrintQueueMachineHooks {
         }
 
         Ok(tx)
+    }
+
+    async fn after_plugin_update(
+        &self,
+        _machine_id: &crate::DbId,
+        _plugin: &Plugin,
+    ) -> Result<()> {
+        Ok(())
     }
 }

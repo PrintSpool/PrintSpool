@@ -4,9 +4,7 @@ use eyre::{
     // Context as _,
 };
 
-use crate::{
-    machine::Machine,
-};
+use crate::{machine::Machine, plugins::Plugin};
 
 use super::ResetWhenIdle;
 
@@ -33,11 +31,34 @@ impl xactor::Handler<UpdatePlugin> for Machine {
             Err(eyre!("Editing conflict, please reload the page and try again."))?
         }
 
-        plugin.model = serde_json::from_value(msg.model)?;
+        let _previous = std::mem::replace(
+            &mut plugin.model,
+            serde_json::from_value(msg.model)?,
+        );
         plugin.model_version += 1;
 
         data.config.save_config().await?;
         ctx.address().send(ResetWhenIdle)?;
+
+        // Need an immutable reference to the containing Plugin enum to send to the machine hooks
+        let data = self.data.as_ref().unwrap();
+        let plugin = data.config.plugins
+            .iter()
+            .find(|plugin| {
+                match plugin {
+                    Plugin::Core(_) => {
+                        true
+                    }
+                }
+            })
+            .ok_or_else(|| eyre!("Could not find teg-core plugin config"))?;
+
+        for hooks_provider in self.hooks.iter() {
+            hooks_provider.after_plugin_update(
+                &data.config.id,
+                plugin,
+            ).await?
+        }
 
         Ok(())
     }
