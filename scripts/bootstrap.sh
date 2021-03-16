@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+rustup target add armv7-unknown-linux-gnueabihf
+
 # cargo install --git https://github.com/launchbadge/sqlx.git cargo-sqlx
 cargo install cargo-watch
 # cargo install cargo-watch cargo-sqlx
@@ -9,11 +11,10 @@ cargo install cargo-watch
 # sqlx db create
 # sqlx migrate run
 
-yarn
-yarn make-dirs
+# yarn
+# yarn make-dirs
 
+pushd
 cd ./packages/teg-web-ui/
 yarn
-
-cd ../teg-host-posix/
-yarn create-config
+popd

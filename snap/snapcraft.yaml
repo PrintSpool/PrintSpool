@@ -5,7 +5,7 @@ description: >
   Teg is an experimental 3D printing software designed from the ground up to streamline your 3D printing experience. Teg features a print queue that enables users to easily queue up prints without managing complicated file systems. To manage prints remotely Teg is built on top of encrypted, distributed web technologies so you can use your 3D printer from anywhere in the world just as easily as from your home. With Teg you can worry less and create more.
 
 base: core20
-build-base: core18
+# build-base: core18
 # confinement: classic
 confinement: devmode
 # confinement: strict
@@ -14,8 +14,10 @@ grade: stable
 architectures:
   - build-on: amd64
     run-on: amd64
-  - build-on: armhf
+  - build-on: amd64
     run-on: armhf
+  # - build-on: armhf
+  #   run-on: armhf
 
     # plugs:
 #   klipper-printers:
@@ -40,62 +42,36 @@ hooks:
 
 # see https://docs.snapcraft.io/node-apps/6747
 parts:
-  # teg:
-  #   plugin: nodejs
-  #   nodejs-version: 12.11.1
-  #   override-build: |
-  #     export PATH=$PATH:$(pwd)/../npm/bin
-  #
-  #     yarn pkg:build
-  #
-  #     rsync -a --include="*.node" --include="*/" --exclude="*" --prune-empty-dirs ./node_modules ./pruned
-  #     rm -rf ./packages
-  #
-  #     cp ./teg ../install/teg
-  #     cp -r ./pruned/node_modules ../install/
-  #   build-packages:
-  #     - rsync
-  #     - python
-  #   source: https://github.com/tegapp/teg.git
-  #   source-type: git
-  #   source-branch: feature/printer-process
-  #   source-depth: 1
-  #   build-attributes: [no-patchelf]
-
-
-  teg:
+  teg-server:
     plugin: dump
     source: .
     source:
-      - to armhf: teg-server-bin/armv7/
-      - to amd64: teg-server-bin/x64/
+      - to armhf: bin/armv7/
+      - to amd64: bin/x64/
     build-attributes: [no-patchelf]
+
+  teg-supervisor:
+    plugin: dump
+    source:
+      - to armhf: bin/armv7/
+      - to amd64: bin/x64/
 
   teg-marlin:
     plugin: dump
     source:
-      - to armhf: teg-marlin-bin/armv7/
-      - to amd64: teg-marlin-bin/x64/
+      - to armhf: bin/armv7/
+      - to amd64: bin/x64/
 
   teg-auth:
     plugin: dump
     source:
-      - to armhf: teg-auth-bin/armv7/
-      - to amd64: teg-auth-bin/x64/
-    # TODO: how do you add apt dependencies
-    # Also you need to set up postgres: https://gist.github.com/p1nox/4953113
-    # Also `diesel db setup`
-    stage-packages:
-      - to armhf:
-          # - "sqlite3:armhf"
-        - postgresql:armhf
-        - libpq-dev:armhf
-        - postgresql-client:armhf
-      - else:
-        # - "sqlite3"
-        - postgresql
-        - libpq-dev
-        - postgresql-client
+      - to armhf: bin/armv7/
+      - to amd64: bin/x64/
+    # stage-packages:
+    #   - to armhf:
+    #       # - "sqlite3:armhf"
+    #   - else:
+    #     # - "sqlite3"
 
   # https://snapcraft.io/blog/the-smart-dump-plugin
   webrtc-streamer:
@@ -119,14 +95,18 @@ parts:
   #   source-subdir: packages/teg-marlin
 
 apps:
-  server:
-    command: teg serve
+  teg-server:
+    command: teg-server
     daemon: simple
     restart-condition: always
-    refresh-mode: endure
-    # stop-mode: sigusr2
     environment:
-      NODE_ENV: production
+      DATABASE_URL: "sqlite:/var/lib/teg/db.sqlite"
+      SIGNALLING_SERVER_WS: "wss://signal.tegapp.io/graphql"
+      SIGNALLING_SERVER_HTTP: "https://signal.tegapp.io/graphql"
+      RUST_LOG: warn,teg_server,teg_data_channel=info,teg_print_queue=debug,teg_machine=debug,async_graphql,teg_marlin=debug,teg_supervisor=debug
+      RUST_ENV: production
+      RUST_BACKTRACE: 1
+      FIREBASE_PROJECT_ID: tegapp-dev
     plugs:
       # - klipper-printers
       - network
@@ -135,16 +115,17 @@ apps:
       - system-observe
       - hardware-observe
       - hardware-random-control
-  marlin:
-    environment:
-      # RUST_LOG: info,teg_marlin=debug,teg_marlin::gcode_codec=trace,teg_marlin::protobuf_server
-      RUST_LOG: info
-      RUST_BACKTRACE: 1
-    command: teg-marlin
+  teg-supervisor:
+    command: teg-supervisor
     daemon: simple
     restart-condition: always
     refresh-mode: endure
     # stop-mode: sigusr2
+    environment:
+      # RUST_LOG: info,teg_marlin=debug,teg_marlin::gcode_codec=trace,teg_marlin::protobuf_server
+      RUST_LOG: info
+      RUST_ENV: production
+      RUST_BACKTRACE: 1
     plugs:
       # - klipper-printers
       - network
@@ -156,40 +137,46 @@ apps:
       - raw-usb
       - gpio
       - gpio-memory-control
-  add-invite:
+  teg-marlin:
+    command: teg-marlin
     environment:
+      # RUST_LOG: info,teg_marlin=debug,teg_marlin::gcode_codec=trace,teg_marlin::protobuf_server
+      RUST_LOG: info
       RUST_ENV: production
       RUST_BACKTRACE: 1
-      SLED_DB_PATH: /var/lib/teg/db.sled
-      FIREBASE_PROJECT_ID: tegapp-dev
-      PORT: 33005
-      RUST_LOG: INFO
-    command: teg-add-invite
-  restore-backup:
-    environment:
-      RUST_ENV: production
-      RUST_BACKTRACE: 1
-      SLED_DB_PATH: /var/lib/teg/db.sled
-      FIREBASE_PROJECT_ID: tegapp-dev
-      PORT: 33005
-      RUST_LOG: INFO
-    command: teg-restore-backup
-  auth:
-    environment:
-      RUST_ENV: production
-      RUST_BACKTRACE: 1
-      SLED_DB_PATH: /var/lib/teg/db.sled
-      FIREBASE_PROJECT_ID: tegapp-dev
-      PORT: 33005
-      RUST_LOG: INFO
-    command: teg-auth
-    daemon: simple
-    restart-condition: always
     plugs:
+      # - klipper-printers
+      - network
       - network-bind
+      - process-control
+      - system-observe
+      - hardware-observe
+      - hardware-random-control
+      - raw-usb
+      - gpio
+      - gpio-memory-control
+  teg-invite:
+    command: teg-invite
+    environment:
+      DATABASE_URL: "sqlite:/var/lib/teg/db.sqlite"
+      SIGNALLING_SERVER_WS: "wss://signal.tegapp.io/graphql"
+      SIGNALLING_SERVER_HTTP: "https://signal.tegapp.io/graphql"
+      RUST_LOG: warn,teg_server,teg_data_channel=info,teg_print_queue=debug,teg_machine=debug,async_graphql,teg_marlin=debug,teg_supervisor=debug
+      RUST_ENV: production
+      RUST_BACKTRACE: 1
+      FIREBASE_PROJECT_ID: tegapp-dev
+  # restore-backup:
+  #   environment:
+  #     RUST_ENV: production
+  #     RUST_BACKTRACE: 1
+  #     SLED_DB_PATH: /var/lib/teg/db.sled
+  #     FIREBASE_PROJECT_ID: tegapp-dev
+  #     PORT: 33005
+  #     RUST_LOG: INFO
+  #   command: teg-restore-backup
   webrtc-streamer:
-    adapter: full
     command: webrtc-streamer -H 127.0.0.1:8009
+    adapter: full
     daemon: simple
     restart-condition: always
     plugs: [network-bind]

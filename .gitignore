@@ -28,7 +28,7 @@ snap/prime/
 snap/stage/
 snap/snap/.snapcraft
 snap/*.tar.bz2
-snap/*-bin/**/teg*
+snap/bin/
 /teg
 /teg-marlin
 snapcraft.login

@@ -4,22 +4,43 @@ set -e
 mkdir -p ./dist
 rm -f ./dist/*.snap
 
-[ ! -d ./armv7/ephemeral-copy ] && git clone -l ./ ./armv7/ephemeral-copy
-
-mkdir -p ./snap/teg-auth-bin/x64
-mkdir -p ./snap/teg-auth-bin/armv7
-mkdir -p ./snap/teg-marlin-bin/x64
-mkdir -p ./snap/teg-marlin-bin/armv7
-
 if [ -z "$SKIP_RUST" ]
 then
-  if [ -z "$SKIP_MARLIN" ]
+
+  cargo build --workspace --release
+  if [ -z "$SKIP_X64" ]
   then
-    echo "Building teg-marlin..."
-    [ -z "$SKIP_X64" ] && yarn tegmarlin:build:x64
-    [ -z "$SKIP_ARMV7" ] && yarn tegmarlin:build:armv7
-    echo "Building teg-marlin... [DONE]"
+    echo "Building rust binaries for X64..."
+    rm -rf ./snap/bin/x64
+    mkdir -p ./snap/bin/x64
+
+    cargo build --workspace
+
+    cp ./target/release/teg-invite ./snap/bin/x64/teg-invite
+    cp ./target/release/teg-marlin ./snap/bin/x64/teg-marlin
+    cp ./target/release/teg-server ./snap/bin/x64/teg-server
+    cp ./target/release/teg-supervisor ./snap/bin/x64/teg-supervisor
+
+    echo "Building rust binaries for X64... [DONE]"
   fi
+
+  if [ -z "$SKIP_ARMV7" ]
+  then
+    echo "Building rust binaries for Arm..."
+    rm -rf ./snap/bin/armv7
+    mkdir -p ./snap/bin/armv7
+
+    cargo build --workspace --target=armv7-unknown-linux-gnueabihf
+
+    # cp ./target/release/teg-invite ./snap/bin/armv7/teg-invite
+    # cp ./target/release/teg-marlin ./snap/bin/armv7/teg-marlin
+    # cp ./target/release/teg-server ./snap/bin/armv7/teg-server
+    # cp ./target/release/teg-supervisor ./snap/bin/armv7/teg-supervisor
+
+    echo "Building rust binaries for Arm... [DONE]"
+  fi
+
+    [ -z "$SKIP_ARMV7" ] && yarn tegmarlin:build:armv7
 
   if [ -z "$SKIP_AUTH" ]
   then
@@ -32,26 +53,6 @@ else
   echo "\n\$SKIP_RUST: Reusing previous rust builds. Rust changes will *not* be included in this build."
 fi
 
-if [ -z "$SKIP_PKG" ]
-then
-  if [ -z "$SKIP_X64" ]
-  then
-    echo "Building local (x64) pkg..."
-    ./scripts/build-pkg.sh
-    echo "Building local (x64) pkg... [DONE]"
-  fi
-
-  if [ -z "$SKIP_ARMV7" ]
-  then
-    echo "Building armv7 pkg..."
-    # ./armv7/build-image.sh
-    podman run -v "$PWD":/usr/src/teg -w /usr/src/teg/ -it teg-armv7 /bin/bash -c ./scripts/build-pkg-ephemeral.sh
-    echo "Building armv7 pkg... [DONE]"
-  fi
-else
-  echo "\n\$SKIP_PKG: Reusing previous pkg builds. NodeJS changes will *not* be included in this build."
-fi
-
 TEG_VERSION=`node -e "console.log(require('./lerna.json').version);"`;
 
 cd ./snap
@@ -62,10 +63,9 @@ sed -i -E "s/^version:[^\n]+/version: $TEG_VERSION/g" ./snapcraft.yaml
 # snapcraft clean teg
 
 # snapcraft --debug
-# [ -z "$SKIP_ARMV7" ] && snapcraft snap --debug --target-arch armhf
-# [ -z "$SKIP_X64" ] && snapcraft snap --debug --target-arch amd64
+[ -z "$SKIP_ARMV7" ] && snapcraft snap --debug --target-arch armhf
+[ -z "$SKIP_X64" ] && snapcraft snap --debug --target-arch amd64
 
-snapcraft remote-build --launchpad-accept-public-upload
+# snapcraft remote-build --launchpad-accept-public-upload
 
 mv ./*.snap ../dist/
-# mv ./armhf/ephemeral-copy/*.snap ../dist/
