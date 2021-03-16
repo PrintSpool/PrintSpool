@@ -1,8 +1,0 @@
-type Query {
-  delayFromGreetingToReady: t.Integer!
-  temperaturePollingInterval: t.Integer!
-  responseTimeoutTickleAttempts: t.Integer!
-  fastCodeTimeout: t.Integer!
-  longRunningCodeTimeout: t.Integer!
-  longRunningCodes: [String!]!
-}

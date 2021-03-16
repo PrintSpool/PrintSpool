@@ -1,9 +1,0 @@
-{
-  "ignore": [
-    "packages/teg-web-ui/",
-    "packages/teg-marlin/",
-    "packages/teg-auth/",
-    "dist/",
-    "dev-dist/"
-  ]
-}
