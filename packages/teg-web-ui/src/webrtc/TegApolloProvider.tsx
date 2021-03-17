@@ -27,7 +27,7 @@ const TegApolloProvider = ({
   slug?: string,
 }) => {
   const { location, match } = useReactRouter()
-  const { isSignedIn, fetchOptions } = useAuth()
+  const { isSignedIn, getFetchOptions } = useAuth()
 
   const [link, setLink] = useState(null as any)
   const [iceServers, setIceServers] = useState(null as any)
@@ -57,7 +57,7 @@ const TegApolloProvider = ({
 
   const querySignalling = async (operation) => {
     const { cacheValuePromise } = await graphql.operate({
-      fetchOptionsOverride: fetchOptions,
+      fetchOptionsOverride: await getFetchOptions(),
       operation,
     })
 

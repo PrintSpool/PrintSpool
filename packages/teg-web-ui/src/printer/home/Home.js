@@ -1,4 +1,8 @@
-import React, { useEffect } from 'react'
+import React, {
+  useCallback,
+  useEffect,
+} from 'react'
+import { useAsync } from 'react-async'
 import { Link } from 'react-router-dom'
 import { useGraphQL } from 'graphql-react'
 
@@ -25,10 +29,24 @@ import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
 
 const Home = () => {
   const classes = HomeStyles()
-  const { fetchOptions } = useAuth()
+  const { user, getFetchOptions } = useAuth()
+
+  // Note: if ever this page requires polling this will need to be re-ran before each request
+  // to update the firebase token
+  const { data: fetchOptionsOverride, error: firebaseError } = useAsync({
+    promiseFn: useCallback(async () => {
+      return user && await getFetchOptions()
+    }, [user]),
+    // promiseFn: useCallback(async () => "wat", []),
+    suspense: true,
+  })
+
+  if (firebaseError) {
+    throw firebaseError
+  }
 
   const { loading, cacheValue = {} } = useGraphQL({
-    fetchOptionsOverride: fetchOptions,
+    fetchOptionsOverride,
     operation: {
       query: `
         {

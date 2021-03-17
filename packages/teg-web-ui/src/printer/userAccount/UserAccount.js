@@ -1,7 +1,10 @@
-import React, { useState } from 'react'
-import { useGraphQL, GraphQL } from 'graphql-react'
-import { useApolloClient } from '@apollo/client'
+import React, {
+  useCallback,
+  useState,
+} from 'react'
 import { useAsync } from 'react-async'
+import { useGraphQL, GraphQL } from 'graphql-react'
+// import { useApolloClient } from '@apollo/client'
 
 import {
   Button,
@@ -27,7 +30,20 @@ const DeleteDialog = ({
   machine,
   onClose,
 }) => {
-  const { fetchOptions } = useAuth()
+  const { user, getFetchOptions } = useAuth()
+
+  // Note: if ever this page requires polling this will need to be re-ran before each request
+  // to update the firebase token
+  const { data: fetchOptionsOverride, error } = useAsync({
+    promiseFn: useCallback(async () => {
+      return user && await getFetchOptions()
+    }, [user]),
+    // promiseFn: useCallback(async () => "wat", []),
+    suspense: true,
+  })
+  if (error) {
+    throw error
+  }
 
   const deleteMachine = useAsync({
     deferFn: async () => {
@@ -35,7 +51,7 @@ const DeleteDialog = ({
       const graphql = new GraphQL()
 
       await graphql.operate({
-        fetchOptionsOverride: fetchOptions,
+        fetchOptionsOverride,
         operation: {
           query: `
             mutation($hostID: String!) {

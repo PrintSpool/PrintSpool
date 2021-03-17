@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 
 // import { getID } from '../../../UserDataProvider'
-import { useAuth } from '../../../common/auth'
+// import { useAuth } from '../../../common/auth'
 
 import Loading from '../../../common/Loading'
 import useLiveSubscription from '../../../printer/_hooks/useLiveSubscription'

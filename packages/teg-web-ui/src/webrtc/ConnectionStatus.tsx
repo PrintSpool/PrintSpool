@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 // import { gql } from '@apollo/client'
 // import { useQuery, useMutation } from '@apollo/client'
 
@@ -36,6 +36,9 @@ const ConnectionStatus = ({
   // if (error) {
   //   throw error
   // }
+  useEffect(() => {
+   console.error(error)
+  }, [error])
 
   // if (!loading && data.isTimedOut) {
   return (

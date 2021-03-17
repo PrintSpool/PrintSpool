@@ -1,10 +1,8 @@
 import React, {
   useContext,
-  useCallback,
   useEffect,
   useState,
 } from 'react'
-import { useAsync } from 'react-async'
 import 'firebase/auth'
 import firebase from 'firebase/app'
 
@@ -67,33 +65,30 @@ export const AuthProvider = ({
     })
   }, [])
 
-  const { data: idToken, error } = useAsync({
-    promiseFn: useCallback(async () => user && user.getIdToken(), [user]),
-    // promiseFn: useCallback(async () => "wat", []),
-    suspense: true,
-  })
+  // if (error) {
+  //   throw error
+  // }
 
-  if (error) {
-    throw error
-  }
-
-  if (loading || (user != null && idToken == null)) {
+  if (loading) {
     return <div />
   }
 
   // console.log({ user, idToken })
+  const getFetchOptions = async () => {
+    return userProfileServerFetchOptions(await user.getIdToken())
+  }
 
   return (
     <AuthContext.Provider
       value={{
-        isSignedIn: idToken != null,
-        idToken,
+        isSignedIn: user != null,
+        getIdToken: () => user.getIdToken(),
         user,
         logInWithGoogle,
         loginWithPassword,
         registerUserWithPassword,
         logOut,
-        fetchOptions: userProfileServerFetchOptions(idToken),
+        getFetchOptions,
       }}
     >
       {children}
