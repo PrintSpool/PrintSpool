@@ -24,7 +24,7 @@ mod local_http_server;
 
 use std::{env, sync::Arc};
 use serde::Deserialize;
-use sqlx::SqlitePool;
+use sqlx::{SqlitePool, migrate::MigrateDatabase};
 use arc_swap::ArcSwap;
 use eyre::{Context, Result, eyre};
 use futures_util::{TryFutureExt, future, future::FutureExt, future::join_all, select, stream::{
@@ -64,10 +64,21 @@ fn main() -> Result<()> {
     async_std::task::block_on(app())
 }
 
-async fn update_db(db: &crate::Db) -> Result<()> {
+async fn create_db() -> Result<SqlitePool> {
     use std::path::Path;
-    // Database migrations
 
+    // Create the database
+    let db_url = env::var("DATABASE_URL")
+        .wrap_err("DATABASE_URL not set")?;
+
+    if !sqlx::Sqlite::database_exists(&db_url).await? {
+        sqlx::Sqlite::create_database(&db_url).await?;
+    }
+
+    // Connect to the database
+    let db = SqlitePool::connect(&db_url).await?;
+
+    // Migrate the database
     let migrations = if env::var("RUST_ENV") == Ok("production".to_string()) {
         // Productions migrations dir
         std::env::current_exe()?.join("./migrations")
@@ -80,10 +91,10 @@ async fn update_db(db: &crate::Db) -> Result<()> {
 
     sqlx::migrate::Migrator::new(migrations)
         .await?
-        .run(db)
+        .run(&db)
         .await?;
 
-    Ok(())
+    Ok(db)
 }
 
 async fn app() -> Result<()> {
@@ -114,12 +125,7 @@ async fn app() -> Result<()> {
         }
     }.instrument(tracing::info_span!("memory_useage")));
 
-    let db_url = env::var("DATABASE_URL")
-        .wrap_err("DATABASE_URL not set")?;
-
-    let db = SqlitePool::connect(&db_url).await?;
-
-    update_db(&db).await?;
+    let db = create_db().await?;
 
     let machine_ids: Vec<crate::DbId> = std::fs::read_dir(CONFIG_DIR)?
         .map(|entry| {
