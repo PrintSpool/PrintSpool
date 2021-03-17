@@ -103,7 +103,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     this.peer.on('iceStateChange', (state) => {
       if (state === 'disconnected') {
         console.log('iceState changed to disconnected')
-        this.innerHandleError({ message: 'Connection lost' })
+        this.innerHandleError({ message: 'Connection lost' }, { code: 4444 })
       }
     })
 
@@ -153,7 +153,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     this.peer?.destroy()
   }
 
-  private innerHandleError(error: any, { unrecoverable = false} = {}) {
+  private innerHandleError(error: any, { unrecoverable = false, code = null } = {}) {
     if (this.readyState == WebRTCSocket.CLOSED) {
       return
     }
@@ -161,13 +161,16 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     // console.log("WebRTCSocket Error", error)
     this.beforeCloseOrError()
 
-    this.listeners.error?.forEach(listener => listener(error))
-    this.onerror(new Error(error.message))
-
-    this.onclose(new CloseEvent(error?.message, {
-      code: unrecoverable ? 4400 : 4000,
+    const socketError = new CloseEvent('error', {
       reason: error.message,
-    }))
+      code: code || (unrecoverable ? 4400 : 4000),
+    })
+    // console.log({ socketError })
+
+    this.listeners.error?.forEach(listener => listener(socketError))
+    this.onerror(socketError)
+
+    this.onclose(socketError)
   }
 
   private innerClose(error: any, code: number = 4000) {
@@ -178,10 +181,12 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     // console.log("WebRTCSocket Close", error)
     this.beforeCloseOrError()
 
-    this.onclose(new CloseEvent(error?.message, {
+    const socketError = {
+      reason: error.message,
       code,
-      reason: error?.message,
-    }))
+    }
+
+    this.onclose(new CloseEvent(error?.message, socketError))
   }
 
   close(code: number, message: string) {

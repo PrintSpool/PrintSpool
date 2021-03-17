@@ -32,7 +32,9 @@ const TegApolloProvider = ({
   const [link, setLink] = useState(null as any)
   const [iceServers, setIceServers] = useState(null as any)
   const [signallingError, setSignallingError] = useState(null as any)
-  // const [closedBy, setClosedBy] = useState(null)
+  // The re-render key is used to force polling queries to restart after a connection
+  // interuption. Without this they stop polling forever.
+  const [rerenderKey, setRerenderKey] = useState(0)
 
   const params = new URLSearchParams(location.search)
   const invite = params.get('invite')
@@ -104,7 +106,7 @@ const TegApolloProvider = ({
       defaultOption: clientDefaultOptions,
       iceServers: nextIceServers,
       connectToPeer: async (offer) => {
-        console.log('Connecting to signalling server...')
+        // console.log('Connecting to signalling server...')
 
         const { connectToHost } = await querySignalling({
           query: `
@@ -126,12 +128,13 @@ const TegApolloProvider = ({
           },
         })
 
-        console.log('Connecting to signalling server... [DONE]')
+        // console.log('Connecting to signalling server... [DONE]')
 
         return connectToHost.response
       },
       onSignallingError: setSignallingError,
       onSignallingSuccess: () => {
+        setRerenderKey(i => i + 1)
         setSignallingError(null)
       },
       // onClose: (e) => {
@@ -148,30 +151,33 @@ const TegApolloProvider = ({
 
   const client = useAsync({
     deferFn: async () => {
-      console.log('apollo client inputs', { shouldConnect, invite, hostSlug, isSignedIn })
+      // console.log('apollo client inputs', { shouldConnect, invite, hostSlug, isSignedIn })
 
-      let nextLink
+      let nextClient = null
       if (INSECURE_LOCAL_CONNECTION) {
         // Open a Websocket connection to the server.
         //
         // WebRTCLink internally switches to WebSockets when INSECURE_LOCAL_CONNECTION is true.
         // nextLink = new WebRTCLink()
-        return new ApolloClient({
+        nextClient = new ApolloClient({
           uri: process.env.INSECURE_LOCAL_HTTP_URL,
           cache: new InMemoryCache(),
           defaultOptions: clientDefaultOptions,
         })
       } else {
-        nextLink = await createWebRTCLink()
+        const previousLink = link?.client || link
+        previousLink?.dispose()
+
+        const nextLink = await createWebRTCLink()
+        setLink(nextLink)
+
+        nextClient =  new ApolloClient({
+          cache: new InMemoryCache(),
+          link: nextLink,
+        })
       }
 
-      (link?.client || link)?.dispose()
-      setLink(nextLink)
-
-      return new ApolloClient({
-        cache: new InMemoryCache(),
-        link: nextLink,
-      })
+      return nextClient
     },
   })
 
@@ -204,10 +210,10 @@ const TegApolloProvider = ({
   if (!client.isResolved) {
     return <div />
   }
-  console.log('apollo client', client, { iceServers })
+  // console.log('apollo client', rerenderKey, client.data, { iceServers })
 
   return (
-    <ApolloProvider client={client.data as any}>
+    <ApolloProvider client={client.data as any} key={rerenderKey.toString()}>
       <TegApolloContext.Provider
         value={{
           iceServers,

@@ -3,7 +3,7 @@ import { gql, useQuery } from '@apollo/client'
 import { useSnackbar } from 'notistack'
 
 const LATENCY_QUERY = gql`
-  query {
+  query Ping {
     ping
   }
 `
@@ -25,6 +25,7 @@ const LatencyNotification = () => {
   const { data, error, previousData } = useQuery(LATENCY_QUERY, {
     pollInterval: PING_INTERVAL,
   })
+  // console.log('PING', { data, error })
 
   const show = () => {
     const state = stateRef.current
@@ -74,7 +75,7 @@ const LatencyNotification = () => {
   useEffect(() => (
     // Cleanup
     () => {
-      console.log('Unmounting latency component')
+      // console.log('Unmounting latency component')
       const { showTimeout } = stateRef.current
       if (showTimeout != null) {
         clearTimeout(showTimeout)
@@ -134,12 +135,19 @@ const LatencyNotification = () => {
   useEffect(() => {
     if (error) {
       console.error(error)
+
+      enqueueSnackbar(
+        `Latency Detection Error: ${error.message}`,
+        {
+          variant: 'error',
+        },
+      )
     }
   }, [error])
 
 
   useEffect(() => {
-    console.log('Starting latency notifications')
+    // console.log('Starting latency notifications')
     window.addEventListener('focus', onFocus)
     // window.addEventListener('blur', onBlur)
     // Specify how to clean up after this effect:

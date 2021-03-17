@@ -35,7 +35,7 @@ export default class WebRTCLink extends ApolloLink {
       this.client = createClient({
         retryAttempts: Number.MAX_SAFE_INTEGER,
         lazy: false,
-        onNonLazyError: (e) => console.log('wat', e),
+        onNonLazyError: (e) => console.log('Non-Lazy Error', e),
         // The URL is unused but it is required by ClientOptions
         url: 'webrtc://',
         // WebRTC connections are expensive to create
@@ -54,13 +54,32 @@ export default class WebRTCLink extends ApolloLink {
   }
 
   request(operation: Operation): Observable<FetchResult> {
+    const name = operation.operationName
+    const logRequests = false
+    if (logRequests && name) {
+      console.log('REQUEST', name)
+    }
+
     return new Observable((sink) => {
       return this.client.subscribe<FetchResult>(
         { ...operation, query: print(operation.query as any) },
         {
-          next: sink.next.bind(sink),
-          complete: sink.complete.bind(sink),
+          next: (...args) => {
+            // if (logRequests && name) {
+            //   console.log('NEXT', name, ...args)
+            // }
+            return sink.next(...args)
+          },
+          complete: (...args) => {
+            if (logRequests && name) {
+              console.log('COMPLETE', name, ...args)
+            }
+            return sink.complete(...args)
+          },
           error: (err) => {
+            if (logRequests && name) {
+              console.log('ERROR!', name)
+            }
             if (err instanceof Error) {
               sink.error(err)
             } else if (err instanceof CloseEvent) {
