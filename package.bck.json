@@ -38,8 +38,8 @@
     "snap:version": "./scripts/releaseConfirmation.sh && lerna version --conventional-commits",
     "snap:publish": "yarn snap:version && yarn snap:upload",
     "snap:debug": "sudo journalctl --output=short --follow --all | sudo snappy-debug",
-    "journalctl": "journalctl -u snap.teg.teg.service -n 100 -f",
-    "journalctl:marlin": "journalctl -u snap.teg.teg-marlin.service -n 100 -f",
+    "journalctl": "journalctl -u snap.tegh.teg.service -n 100 -f",
+    "journalctl:marlin": "journalctl -u snap.tegh.teg-marlin.service -n 100 -f",
     "version": "yarn snap:build"
   },
   "command": {

@@ -14,6 +14,8 @@ then
     rm -rf ./snap/bin/x64
     mkdir -p ./snap/bin/x64
 
+    cp -R ./crates/machine/migrations ./snap/bin/x64/migrations
+
     cargo build --workspace --release
 
     cp ./target/release/teg-invite ./snap/bin/x64/teg-invite
@@ -29,6 +31,8 @@ then
     echo "Building rust binaries for Arm..."
     rm -rf ./snap/bin/armv7
     mkdir -p ./snap/bin/armv7
+
+    cp -R ./crates/machine/migrations ./snap/bin/armv7/migrations
 
     cargo build --workspace --release --target=armv7-unknown-linux-gnueabihf
 

@@ -67,7 +67,7 @@ pub struct Conn {
 }
 
 impl PeerConnectionHandler for Conn {
-    type DC = GraphQLChannel;
+    type DCH = GraphQLChannel;
 
     fn on_description(&mut self, sess_desc: SessionDescription) {
         let sdp_answer_sender = self.sdp_answer_sender.clone();
@@ -126,7 +126,7 @@ impl PeerConnectionHandler for Conn {
             .expect("Unable to send data channel");
     }
 
-    fn data_channel_handler(&mut self) -> Self::DC {
+    fn data_channel_handler(&mut self) -> Self::DCH {
         self.dc.clone()
     }
 }

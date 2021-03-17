@@ -64,19 +64,30 @@ fn main() -> Result<()> {
     async_std::task::block_on(app())
 }
 
-async fn update_db(_db: &crate::Db) -> Result<()> {
-    // // Database migrations
-    // sqlx::migrate::Migrator::new(
-    //     std::path::Path::new("./migrations")
-    // )
-    //     .await?
-    //     .run(&db)
-    //     .await?;
+async fn update_db(db: &crate::Db) -> Result<()> {
+    use std::path::Path;
+    // Database migrations
+
+    let migrations = if env::var("RUST_ENV") == Ok("production".to_string()) {
+        // Productions migrations dir
+        std::env::current_exe()?.join("./migrations")
+    } else {
+        // Development migrations dir
+        let crate_dir = std::env::var("CARGO_MANIFEST_DIR")?;
+        Path::new(&crate_dir)
+            .join("../machine/migrations")
+    };
+
+    sqlx::migrate::Migrator::new(migrations)
+        .await?
+        .run(db)
+        .await?;
+
     Ok(())
 }
 
 async fn app() -> Result<()> {
-    if env::var("RUST_ENV") != Ok("PRODUCTION".to_string()) {
+    if env::var("RUST_ENV") != Ok("production".to_string()) {
         dotenv::dotenv()
             .wrap_err(".env file not found or failed to load")?;
     }

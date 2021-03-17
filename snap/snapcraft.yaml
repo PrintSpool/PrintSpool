@@ -95,7 +95,7 @@ parts:
   #   source-subdir: packages/teg-marlin
 
 apps:
-  teg-server:
+  server:
     command: teg-server
     daemon: simple
     restart-condition: always
@@ -115,7 +115,7 @@ apps:
       - system-observe
       - hardware-observe
       - hardware-random-control
-  teg-supervisor:
+  supervisor:
     command: teg-supervisor
     daemon: simple
     restart-condition: always
@@ -137,7 +137,7 @@ apps:
       - raw-usb
       - gpio
       - gpio-memory-control
-  teg-marlin:
+  marlin:
     command: teg-marlin
     environment:
       # RUST_LOG: info,teg_marlin=debug,teg_marlin::gcode_codec=trace,teg_marlin::protobuf_server
@@ -155,7 +155,7 @@ apps:
       - raw-usb
       - gpio
       - gpio-memory-control
-  teg-invite:
+  invite:
     command: teg-invite
     environment:
       DATABASE_URL: "sqlite:/var/lib/teg/db.sqlite"
