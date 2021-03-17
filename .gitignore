@@ -23,16 +23,16 @@ parcel-bundle-reports
 heaptrack.*
 
 dist/*.snap
-snap/parts/
-snap/prime/
-snap/stage/
-snap/snap/.snapcraft
-snap/*.tar.bz2
-snap/bin/
+snapcraft/parts/
+snapcraft/prime/
+snapcraft/stage/
+snapcraft/snap/.snapcraft
+snapcraft/*.tar.bz2
+snapcraft/bin/
 /teg
 /teg-marlin
 snapcraft.login
-snap/tegh_*.txt
+snapcraft/tegh_*.txt
 
 coverage
 

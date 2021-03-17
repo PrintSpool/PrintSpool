@@ -81,13 +81,20 @@ async fn create_db() -> Result<SqlitePool> {
     // Migrate the database
     let migrations = if env::var("RUST_ENV") == Ok("production".to_string()) {
         // Productions migrations dir
-        std::env::current_exe()?.join("./migrations")
+        std::env::current_exe()?
+            .parent()
+            .unwrap()
+            .join("migrations")
     } else {
         // Development migrations dir
         let crate_dir = std::env::var("CARGO_MANIFEST_DIR")?;
         Path::new(&crate_dir)
-            .join("../machine/migrations")
+            .parent()
+            .unwrap()
+            .join("machine/migrations")
     };
+
+    info!("Running migrations: {:?}", migrations);
 
     sqlx::migrate::Migrator::new(migrations)
         .await?

@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
+
+snap install ./dist/tegh_*_multi.snap --devmode --dangerous

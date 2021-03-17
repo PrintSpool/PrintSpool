@@ -42,7 +42,7 @@ layout:
 
 # see https://docs.snapcraft.io/node-apps/6747
 parts:
-  teg-server:
+  bin:
     plugin: dump
     source: .
     source:
@@ -50,28 +50,23 @@ parts:
       - to amd64: bin/x64/
     # build-attributes: [no-patchelf]
 
-  teg-supervisor:
-    plugin: dump
-    source:
-      - to armhf: bin/armv7/
-      - to amd64: bin/x64/
+  # teg-marlin:
+  #   plugin: dump
+  #   source:
+  #     - to armhf: bin/armv7/
+  #     - to amd64: bin/x64/
 
-  teg-marlin:
-    plugin: dump
-    source:
-      - to armhf: bin/armv7/
-      - to amd64: bin/x64/
+  # teg-auth:
+  #   plugin: dump
+  #   source:
+  #     - to armhf: bin/armv7/
+  #     - to amd64: bin/x64/
 
-  teg-auth:
-    plugin: dump
-    source:
-      - to armhf: bin/armv7/
-      - to amd64: bin/x64/
-    # stage-packages:
-    #   - to armhf:
-    #       # - "sqlite3:armhf"
-    #   - else:
-    #     # - "sqlite3"
+  # stage-packages:
+  #   - to armhf:
+  #       # - "sqlite3:armhf"
+  #   - else:
+  #     # - "sqlite3"
 
   # https://snapcraft.io/blog/the-smart-dump-plugin
   webrtc-streamer:

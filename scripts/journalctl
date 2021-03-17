@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
+
+journalctl -u snap.tegh.server.service -f -n 50

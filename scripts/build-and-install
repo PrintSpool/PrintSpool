@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
+
+# Sudo access only lasts for 5 minutes so this would only be useful if building was done in < 5 min
+# sudo echo "Sudo access enabled for snap installation"
+
+./scripts/build
+
+say "Build complete. Sudo access may be required." || : &
+
+./scripts/install
+
+say "Install complete" || : &
+
+./scripts/journalctl
