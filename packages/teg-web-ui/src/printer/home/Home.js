@@ -35,7 +35,7 @@ const Home = () => {
   // to update the firebase token
   const { data: fetchOptionsOverride, error: firebaseError } = useAsync({
     promiseFn: useCallback(async () => {
-      return user && await getFetchOptions()
+      return user ? await getFetchOptions() : null
     }, [user]),
     // promiseFn: useCallback(async () => "wat", []),
     suspense: true,
@@ -45,7 +45,7 @@ const Home = () => {
     throw firebaseError
   }
 
-  const { loading, cacheValue = {} } = useGraphQL({
+  const { loading, cacheValue = {}, load } = useGraphQL({
     fetchOptionsOverride,
     operation: {
       query: `
@@ -67,20 +67,14 @@ const Home = () => {
         }
       `,
     },
-
-    // Load the query whenever the component mounts. This is desirable for
-    // queries to display content, but not for on demand situations like
-    // pagination view more buttons or forms that submit mutations.
-    loadOnMount: true,
-
-    // Reload the query whenever a global cache reload is signaled.
-    loadOnReload: true,
-
-    // Reload the query whenever the global cache is reset. Resets immediately
-    // delete the cache and are mostly only used when logging out the user.
-    loadOnReset: true,
   })
   console.log({ loading, cacheValue })
+
+  useEffect(() => {
+    if (fetchOptionsOverride) {
+      load()
+    }
+  }, [fetchOptionsOverride])
 
   const error = !loading && (
     cacheValue.fetchError || cacheValue.httpError || cacheValue.graphQLErrors
