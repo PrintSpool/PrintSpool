@@ -16,6 +16,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(4),
     marginRight: theme.spacing(2),
     float: 'left',
+    zIndex: 1,
   },
   card: {
     marginTop: theme.spacing(4),
