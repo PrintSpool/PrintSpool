@@ -94,13 +94,7 @@ impl Invite {
 
         invite.insert(db).await?;
 
-        let is_dev = std::env::var("RUST_ENV") == Ok("development".to_string());
-
-        let web_app_domain = if is_dev {
-            "http://localhost:1234"
-        } else {
-            "https://tegapp.io"
-        };
+        let web_app_domain = std::env::var("CLOUD_HTTP")?;
 
         let invite_url = format!(
             "{}/i/{}",

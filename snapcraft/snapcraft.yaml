@@ -96,8 +96,13 @@ apps:
     restart-condition: always
     environment:
       DATABASE_URL: "sqlite:/var/lib/teg/db.sqlite"
-      SIGNALLING_SERVER_WS: "wss://signal.tegapp.io/graphql"
-      SIGNALLING_SERVER_HTTP: "https://signal.tegapp.io/graphql"
+
+      # SIGNALLING_SERVER_WS: "wss://signal.tegapp.io/graphql"
+      # SIGNALLING_SERVER_HTTP: "https://signal.tegapp.io/graphql"
+      SIGNALLING_SERVER_WS: "wss://signalling.onrender.com/graphql"
+      SIGNALLING_SERVER_HTTP: "https://signalling.onrender.com/graphql"
+
+      CLOUD_HTTP: "https://tegapp.io"
       RUST_LOG: warn,teg_server,teg_data_channel=info,teg_print_queue=debug,teg_machine=debug,async_graphql,teg_marlin=debug,teg_supervisor=debug
       RUST_ENV: production
       RUST_BACKTRACE: 1
