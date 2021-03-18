@@ -1,1 +1,0 @@
-./packages/tegh-host-posix/development.config.js

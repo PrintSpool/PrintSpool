@@ -21,6 +21,7 @@ module.exports = {
     // 'inline-react-svg',
     // TODO: this might only be good to have in the web ui
     '@babel/plugin-transform-runtime',
+    '@babel/plugin-proposal-class-properties',
     'import-graphql',
   ],
 }
