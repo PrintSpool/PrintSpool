@@ -5421,7 +5421,7 @@ checksum = "85e60b0d1b5f99db2556934e21937020776a5d31520bf169e851ac44e6420214"
 [[package]]
 name = "xactor"
 version = "0.7.11"
-source = "git+https://github.com/D1plo1d/xactor.git?branch=eyre-feature#92ef40105e9432b584c72268e6452b9360913d1b"
+source = "git+https://github.com/sunli829/xactor.git?branch=master#8bdc08e3e2cfe7db81894b63d1adf268b8b0697c"
 dependencies = [
  "async-std",
  "async-trait",
@@ -5436,7 +5436,7 @@ dependencies = [
 [[package]]
 name = "xactor-derive"
 version = "0.7.1"
-source = "git+https://github.com/D1plo1d/xactor.git?branch=eyre-feature#92ef40105e9432b584c72268e6452b9360913d1b"
+source = "git+https://github.com/sunli829/xactor.git?branch=master#8bdc08e3e2cfe7db81894b63d1adf268b8b0697c"
 dependencies = [
  "proc-macro2",
  "quote",

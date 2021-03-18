@@ -45,7 +45,7 @@ arc-swap = "1.1.0"
 futures-util = "0.3.8"
 bytes = "0.5.6"
 dotenv = "0.15.0"
-xactor = { git = "https://github.com/D1plo1d/xactor.git", branch = "eyre-feature",  default-features = false, features = ["runtime-async-std", "eyre"] }
+xactor = { git = "https://github.com/sunli829/xactor.git", branch = "master",  default-features = false, features = ["runtime-async-std", "eyre"] }
 warp = "0.3.0"
 nanoid = "0.3.0"
 jemallocator = "0.3.2"

@@ -16,7 +16,7 @@ sqlx = { version = "0.5.1", features = [ "runtime-async-std-native-tls", "sqlite
 eyre = "0.6.5"
 tracing = "0.1.19"
 async-trait = "0.1.36"
-xactor = { git = "https://github.com/D1plo1d/xactor.git", branch = "eyre-feature",  default-features = false, features = ["runtime-async-std", "eyre"] }
+xactor = { git = "https://github.com/sunli829/xactor.git", branch = "master",  default-features = false, features = ["runtime-async-std", "eyre"] }
 futures = "0.3.12"
 nom = "5.1.2"
 nom-gcode = "0.1.0"

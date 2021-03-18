@@ -6,7 +6,7 @@ import React, {
 import 'firebase/auth'
 import firebase from 'firebase/app'
 
-import userProfileServerFetchOptions from './userProfileServerFetchOptions'
+import signallingFetchOptions from './signallingFetchOptions'
 
 let firebaseConfig
 if (process.env.NODE_ENV === 'production') {
@@ -75,7 +75,7 @@ export const AuthProvider = ({
 
   // console.log({ user, idToken })
   const getFetchOptions = async () => {
-    return userProfileServerFetchOptions(await user.getIdToken())
+    return signallingFetchOptions(await user.getIdToken())
   }
 
   return (

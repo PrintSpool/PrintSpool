@@ -68,7 +68,7 @@ const Home = () => {
       `,
     },
   })
-  console.log({ loading, cacheValue })
+  // console.log({ loading, cacheValue })
 
   useEffect(() => {
     if (fetchOptionsOverride) {

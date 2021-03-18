@@ -145,8 +145,12 @@ where
 
         match connect_async(request).await {
             Ok(ws) => break ws,
-            Err(_) => {
-                warn!("Unable to connect to signalling server, retrying in 500ms");
+            Err(err) => {
+                warn!(
+                    "Unable to connect to signalling server ({}) retrying in 500ms (reason: {:?})",
+                    signalling_url,
+                    err,
+                );
                 async_std::task::sleep(std::time::Duration::from_millis(500)).await;
             },
         }
