@@ -8,9 +8,9 @@ A bold new way to 3D print over WiFi.
 
 Get started at [https://tegapp.io]
 
-Note: Teg is an early-access alpha in active development. Please be aware that it may have substantial bugs.
+**Warning:** Teg is in active development and not yet production-ready. It may have substantial bugs.
 
-Last but not least if you find any please me know in the issues! Even if it is a known issue an upvote for the bug helps me prioritize what to work on next.
+If you find any please me know in the issues! Even if it is a known issue an upvote for the bug helps me prioritize what to work on next.
 
 
 ## Dev Environment
@@ -21,25 +21,26 @@ For completeness this documentation lists all the dependencies to get a developm
 
 1. Install [nvm](https://github.com/creationix/nvm)
 2. Install [Rust](https://rustup.rs/)
-3. `sudo apt update && sudo apt install build-essential clang libclang1 pkg-config python tmux qemu qemu-user qemu-user-static binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf fuse-overlayfs`
-<!-- Removed until we need PG again: libssl-dev postgresql libpq-dev -->
-4. Enable Passwordless local logins in Postgres: https://gist.github.com/p1nox/4953113
+3. `sudo apt update && sudo apt install build-essential clang libclang1 pkg-config python tmux qemu qemu-user qemu-user-static binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf fuse-overlayfs g++-arm-linux-gnueabihf`
 5. Allow serial port access via the dialout group and then restart your computer: `sudo gpasswd --add ${USER} dialout`
 6. Increase the max_user_watches: `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`
-7. Bootstrap the dev environment with teg, node 10 and yarn:
-`nvm use && npm i -g yarn && yarn bootstrap`
+7. Install cargo-watch, sqlx, node 10 and yarn with: `./scripts/bootstrap`
 
 
-### Running the Dev Host + Web UI
+### Running the Development Servers
 
-Disable any other copies of teg and run `yarn start`
+Disable any other copies of teg and run `./scripts/start-tmux`
 
 It's recommended you do this in a dev environment with at least 16GB of ram.
 
-This:
-* starts all the services required for a hot reloading development 3D print using your `/etc/teg/` configs
-* starts a hot reloading instance of the web ui
-* echos an invite code to the command line if you haven't connected already.
+start-tmux:
+
+- starts all the services required for a hot reloading development 3D print using your `/etc/teg/` configs
+- starts a hot reloading instance of the web ui
+
+Once you have `start-tmux` running you can create an invite code to access your dev instance by running:
+
+`cd ./crates/ && cargo run --bin teg-invite`
 
 
 ## Building Releases
@@ -57,13 +58,8 @@ Note: These dependencies are only for building snaps - they are not needed for m
 
 ### Building the snap
 
-`yarn snap:build`
-
-
-<!-- ### Running the test suite
-
-Run `yarn test`
- -->
+- **Build:** `./scripts/build`
+- **Build and Install Locally:** `./scripts/build-and-install`
 
 ### Developer Rapsberry Pi Setup
 
@@ -87,10 +83,6 @@ Note: Pi Bakery may be an easier alternative to the steps bellow Windows and Mac
 
 ## Troubleshooting
 
-### Known Issues
-
-- The print button can take 40 seconds or more to start a print when teg is running in development. This is due to some optimizations Cargo and Rust disable in development that strongly effect the performance of Nom's parsers and async Streams. Running teg in release (eg. `cargo run --release`) solves this issue.
-
 ### Enabling the RaspberryPi Camera
 
 To enable the PiCam on the Raspberry Pi run: `sudo modprobe bcm2835-v4l2`
@@ -98,14 +90,6 @@ To enable the PiCam on the Raspberry Pi run: `sudo modprobe bcm2835-v4l2`
 You should not need to do this for a USB webcam.
 
 Source: https://www.raspberrypi.org/forums/viewtopic.php?t=62364
-
-### Restoring from Backup
-
-Teg takes weekly backups so if your database becomes corrupted you should be able to restore from an automatic backup.
-
-To learn how to restore from backup run: `tegh.restore-backup --help`
-
-Backups are stored in `/var/snap/tegh/current/backups`
 
 <!--
   TODO: I think the following information is out of date and no longer necessary to configure Teg:
@@ -122,3 +106,7 @@ Backups are stored in `/var/snap/tegh/current/backups`
 
   https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/
 -->
+
+### Known Issues
+
+- The print button can take 40 seconds or more to start a print when teg is running in development. This is due to some optimizations Cargo and Rust disable in development that strongly effect the performance of Nom's parsers and async Streams. Running teg in release (eg. `cargo run --release`) solves this issue.
