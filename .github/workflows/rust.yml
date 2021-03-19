@@ -17,7 +17,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install Dependencies
-      run: rustup target add armv7-unknown-linux-gnueabihf
+      run: |
+        sudo apt-get install g++-arm-linux-gnueabihf
+        rustup target add armv7-unknown-linux-gnueabihf
     - name: Build Armv7
       run: cargo build --target=armv7-unknown-linux-gnueabihf
 #     - name: Run tests

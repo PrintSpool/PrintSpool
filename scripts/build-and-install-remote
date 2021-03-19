@@ -1,0 +1,19 @@
+#!/bin/bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
+
+# Sudo access only lasts for 5 minutes so this would only be useful if building was done in < 5 min
+# sudo echo "Sudo access enabled for snap installation"
+
+./scripts/build
+
+say "Build complete. Installing on remote raspberry pi" &
+
+ssh $TEG_ARMV7_HOST rm -f ./tegh_*_armhf.snap;
+rsync ./dist/tegh_*_multi.snap $TEG_ARMV7_HOST:~/
+
+ssh $TEG_ARMV7_HOST sudo snap install --devmode --dangerous ./tegh_*_multi.snap
+
+say "Install complete" &
+
+ssh $TEG_ARMV7_HOST -t 'journalctl -u snap.tegh.server.service -f -n 50'
