@@ -351,7 +351,7 @@ impl State {
             Connecting(Connecting { baud_rate_candidates, .. }) => baud_rate_candidates.clone(),
             _ => {
                 let mut new_candidates = vec![
-                    context.controller.model.baud_rate as u32,
+                    context.controller.model.baud_rate.to_u32(),
                 ];
                 // prioritize the set baud rate in auto detection. That way we can cache the previous baud rate using
                 // the baud_rate field. TODO: actually implement saving the previous baud rate

@@ -9,7 +9,6 @@ const signallingFetchOptions = idToken => (options) => {
     process.env.NODE_ENV === 'production'
     || useDevUserProfileServer === false
   ) {
-    // url = 'https://teg-signalling.cleverapps.io/graphql'
     url = 'https://signalling.onrender.com/graphql'
   } else {
     url = 'http://localhost:8080/graphql'
