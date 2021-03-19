@@ -36,8 +36,9 @@ url = "2.2.0"
 surf = "2.1.0"
 arc-swap = "1.1.0"
 
-datachannel = { version = "0.4.2", features = [ "static" ] }
+# datachannel = { version = "0.4.2", features = [ "static" ] }
 # datachannel = { version = "0.4.2" }
+datachannel = { git = "https://github.com/lerouxrgd/datachannel-rs.git", branch = "static-openssl", features = [ "static" ] }
 
 async-tungstenite = { version = "0.11.0", features = ["async-std-runtime", "async-native-tls"] }
 futures-util = "0.3.8"
