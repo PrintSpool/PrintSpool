@@ -26,7 +26,7 @@ jobs:
         cargo install sqlx-cli
     - name: Setup database
       run: |
-        pushd
+        pushd .
         DATABASE_URL=sqlite:`pwd`/db.sqlite
         cd ./crates/machine
         sqlx db setup
