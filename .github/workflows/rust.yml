@@ -23,8 +23,18 @@ jobs:
         sudo apt-get install \
           g++-arm-linux-gnueabihf
         rustup target add armv7-unknown-linux-gnueabihf
+        cargo install sqlx-cli
+    - name: Setup database
+      run: |
+        pushd
+        DATABASE_URL=sqlite:`pwd`/db.sqlite
+        cd ./crates/machine
+        sqlx db setup
+        popd
     - name: Build Armv7
-      run: cargo build --target=armv7-unknown-linux-gnueabihf
+      run: |
+        DATABASE_URL=sqlite:`pwd`/db.sqlite
+        cargo build --target=armv7-unknown-linux-gnueabihf
 #     - name: Run tests
 #       run: cargo test --verbose
 
