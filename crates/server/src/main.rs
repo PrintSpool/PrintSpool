@@ -89,9 +89,7 @@ async fn create_db() -> Result<SqlitePool> {
         // Development migrations dir
         let crate_dir = std::env::var("CARGO_MANIFEST_DIR")?;
         Path::new(&crate_dir)
-            .parent()
-            .unwrap()
-            .join("machine/migrations")
+            .join("migrations")
     };
 
     info!("Running migrations: {:?}", migrations);

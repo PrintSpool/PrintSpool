@@ -43,7 +43,7 @@ then
       rm -rf ./snapcraft/bin/x64
       mkdir -p ./snapcraft/bin/x64
 
-      cp -R ./crates/machine/migrations ./snapcraft/bin/x64/migrations
+      cp -R ./crates/server/migrations ./snapcraft/bin/x64/migrations
 
       cargo build --workspace ${TEG_BUILD_PROFILE_ARG}
 
@@ -61,7 +61,7 @@ then
       rm -rf ./snapcraft/bin/armv7
       mkdir -p ./snapcraft/bin/armv7
 
-      cp -R ./crates/machine/migrations ./snapcraft/bin/armv7/migrations
+      cp -R ./crates/server/migrations ./snapcraft/bin/armv7/migrations
 
       cargo build --workspace ${TEG_BUILD_PROFILE_ARG} --target=armv7-unknown-linux-gnueabihf
 
