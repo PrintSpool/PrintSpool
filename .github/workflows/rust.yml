@@ -19,10 +19,13 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt-get install \
-          libc6-dev-armhf-cross \
-          g++-arm-linux-gnueabihf
+          gcc-multilib \
+          g++-multilib
         rustup target add armv7-unknown-linux-gnueabihf
     - name: Build Armv7
       run: cargo build --target=armv7-unknown-linux-gnueabihf
 #     - name: Run tests
 #       run: cargo test --verbose
+
+# libc6-dev-armhf-cross \
+# g++-arm-linux-gnueabihf
