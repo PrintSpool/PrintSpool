@@ -17,16 +17,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Install Dependencies
-      run: |
-        sudo apt-get install gcc-multilib
-        sudo apt-get remove gcc-multilib
-        sudo apt-get install \
-          g++-arm-linux-gnueabihf
-        rustup target add armv7-unknown-linux-gnueabihf
     - name: Build Armv7
-      run: |
-        cd crates/server && cargo build --target=armv7-unknown-linux-gnueabihf
+      run: ./scripts/ci/build-ci
 #     - name: Run tests
 #       run: cargo test --verbose
 
