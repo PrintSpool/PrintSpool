@@ -2,7 +2,7 @@
 set -e
 # cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
 
-DATABASE_URL=sqlite:`pwd`/db.sqlite
+export DATABASE_URL=sqlite:`pwd`/db.sqlite
 
 # Somehow adding and removing multilib installs something we need. It's weird but builds don't
 # cross-compile without it.
