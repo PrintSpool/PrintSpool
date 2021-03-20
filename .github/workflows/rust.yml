@@ -27,14 +27,14 @@ jobs:
     - name: Setup database
       run: |
         pushd .
-        DATABASE_URL=sqlite:`pwd`/db.sqlite
+        echo sqlite:`pwd`/db.sqlite
         cd ./crates/machine
-        sqlx db setup
+        DATABASE_URL=sqlite:`pwd`/db.sqlite sqlx db setup
         popd
     - name: Build Armv7
       run: |
         DATABASE_URL=sqlite:`pwd`/db.sqlite
-        cargo build --target=armv7-unknown-linux-gnueabihf
+        DATABASE_URL=sqlite:`pwd`/db.sqlite cargo build --target=armv7-unknown-linux-gnueabihf
 #     - name: Run tests
 #       run: cargo test --verbose
 
