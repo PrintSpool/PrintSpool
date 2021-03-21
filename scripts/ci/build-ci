@@ -9,7 +9,6 @@ export DATABASE_URL=sqlite:`pwd`/db.sqlite
 sudo apt-get install gcc-multilib
 sudo apt-get remove gcc-multilib
 sudo snap install snapcraft --classic
-sudo snap install multipass
 
 sudo apt-get install \
   g++-arm-linux-gnueabihf
