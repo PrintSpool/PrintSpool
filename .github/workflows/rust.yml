@@ -16,8 +16,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Install Snapcraft
+    # - name: Install Snapcraft
+    #   uses: samuelmeuli/action-snapcraft@v1
+    - name: Install Snapcraft with LXD
       uses: samuelmeuli/action-snapcraft@v1
+      with:
+        use_lxd: true
     - name: Build Armv7
       run: ./scripts/ci/build-ci
 
