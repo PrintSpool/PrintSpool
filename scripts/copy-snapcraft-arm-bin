@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
+
+ssh $TEG_ARMV7_HOST rm -rf ./teg-armv7;
+scp -r ./snapcraft/bin/armv7 $TEG_ARMV7_HOST:~/teg-armv7
+
+ssh $TEG_ARMV7_HOST
