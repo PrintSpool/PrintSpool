@@ -32,7 +32,7 @@ then
     TEG_TARGET_DIR_ARMV7=./target/armv7-unknown-linux-gnueabihf/release/
   else
     TEG_TARGET_DIR_X64=./target/debug
-    TEG_TARGET_DIR_ARMV7=./target/armv7-unknown-linux-gnueabihf/release/
+    TEG_TARGET_DIR_ARMV7=./target/armv7-unknown-linux-gnueabihf/debug/
   fi
 
   if [ -z "$SKIP_RUST" ]

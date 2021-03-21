@@ -18,6 +18,14 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build Armv7
       run: ./scripts/ci/build-ci
+
+    - name: Upload Armv7 Binaries
+      uses: actions/upload-artifact@v2
+      with:
+        name: armv7-binaries
+        path: |
+          ./target/armv7-unknown-linux-gnueabihf/debug/teg-*
+
 #     - name: Run tests
 #       run: cargo test --verbose
 
