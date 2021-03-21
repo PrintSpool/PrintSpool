@@ -70,8 +70,10 @@ parts:
     plugin: dump
     source: https://github.com/mpromonet/webrtc-streamer/releases/download/v0.2.4/webrtc-streamer-v0.2.4-Linux-armv7l-Release.tar.gz
     stage-packages:
-      - libgtk-3-0:armhf
-      - libasound2:armhf
+      - libgtk-3-0
+      - libasound2
+      # - libgtk-3-0:armhf
+      # - libasound2:armhf
 
   # teg-marlin:
   #   plugin: rust
