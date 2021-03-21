@@ -118,7 +118,7 @@ apps:
       # RUST_LOG: info,teg_marlin=debug,teg_marlin::gcode_codec=trace,teg_marlin::protobuf_server
       RUST_LOG: info
       RUST_ENV: production
-      RUST_BACKTRACE: 1
+      # RUST_BACKTRACE: 1
     plugs:
       # - klipper-printers
       - network
@@ -136,7 +136,7 @@ apps:
       # RUST_LOG: info,teg_marlin=debug,teg_marlin::gcode_codec=trace,teg_marlin::protobuf_server
       RUST_LOG: info
       RUST_ENV: production
-      RUST_BACKTRACE: 1
+      # RUST_BACKTRACE: 1
     plugs:
       # - klipper-printers
       - network
@@ -157,7 +157,7 @@ apps:
       CLOUD_HTTP: "https://tegapp.io"
       RUST_LOG: warn,teg_server,teg_data_channel=info,teg_print_queue=debug,teg_machine=debug,async_graphql,teg_marlin=debug,teg_supervisor=debug
       RUST_ENV: production
-      RUST_BACKTRACE: 1
+      # RUST_BACKTRACE: 1
       FIREBASE_PROJECT_ID: tegapp-dev
   # restore-backup:
   #   environment:
