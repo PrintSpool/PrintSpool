@@ -24,10 +24,8 @@ impl ServerQuery {
 
         // eg. Teg 0.1.0 for linux/x86_64
         format!(
-            "Teg {version_number} for {target} {os}",
+            "Teg {version_number}",
             version_number = version_number,
-            target = built_info::CFG_TARGET_ARCH,
-            os = built_info::CFG_OS,
         )
     }
 
