@@ -1,0 +1,180 @@
+name: tegh
+version: 0.13.1
+summary: A graphql server for 3D printers
+description: >
+  Teg is an experimental 3D printing software designed from the ground up to streamline your 3D printing experience. Teg features a print queue that enables users to easily queue up prints without managing complicated file systems. To manage prints remotely Teg is built on top of encrypted, distributed web technologies so you can use your 3D printer from anywhere in the world just as easily as from your home. With Teg you can worry less and create more.
+
+base: core20
+# build-base: core18
+# confinement: classic
+confinement: devmode
+# confinement: strict
+grade: stable
+
+architectures:
+  # - build-on: amd64
+  #   run-on: amd64
+  - build-on: amd64
+    run-on: armhf
+
+    # plugs:
+#   klipper-printers:
+#     interface: system-files
+#     read:
+#     - /tmp
+#     - /tmp/printer
+#     write:
+#     - /tmp/printer
+
+# passthrough:
+layout:
+  /var/lib/teg:
+    bind: $SNAP_DATA/var
+  /etc/teg:
+    bind: $SNAP_DATA/etc
+
+# hooks:
+#   install:
+#     plugs:
+#       - account-control
+
+# see https://docs.snapcraft.io/node-apps/6747
+parts:
+  bin:
+    plugin: dump
+    source: ./bin/
+    # source:
+    #   - to armhf: ./bin/armv7/
+    #   - to amd64: ./bin/x64/
+
+  # teg-marlin:
+  #   plugin: dump
+  #   source:
+  #     - to armhf: bin/armv7/
+  #     - to amd64: bin/x64/
+
+  # teg-auth:
+  #   plugin: dump
+  #   source:
+  #     - to armhf: bin/armv7/
+  #     - to amd64: bin/x64/
+
+  # stage-packages:
+  #   - to armhf:
+  #       # - "sqlite3:armhf"
+  #   - else:
+  #     # - "sqlite3"
+
+  # https://snapcraft.io/blog/the-smart-dump-plugin
+  webrtc-streamer:
+    plugin: dump
+    source:
+      - to amd64: https://github.com/mpromonet/webrtc-streamer/releases/download/v0.2.4/webrtc-streamer-v0.2.4-Linux-x86_64-Release.tar.gz
+      - to armhf: https://github.com/mpromonet/webrtc-streamer/releases/download/v0.2.4/webrtc-streamer-v0.2.4-Linux-armv7l-Release.tar.gz
+    stage-packages:
+      - to armhf:
+        - libgtk-3-0:armhf
+        - libasound2:armhf
+      - else:
+        - libgtk-3-0
+        - libasound2
+
+  # teg-marlin:
+  #   plugin: rust
+  #   source: https://github.com/tegapp/teg.git
+  #   source-type: git
+  #   source-branch: feature/printer-process
+  #   source-subdir: packages/teg-marlin
+
+apps:
+  server:
+    command: teg-server
+    daemon: simple
+    restart-condition: always
+    environment:
+      DATABASE_URL: "sqlite:/var/lib/teg/db.sqlite"
+
+      # SIGNALLING_SERVER_WS: "wss://signal.tegapp.io/graphql"
+      # SIGNALLING_SERVER_HTTP: "https://signal.tegapp.io/graphql"
+      SIGNALLING_SERVER_WS: "wss://signalling.onrender.com/graphql"
+      SIGNALLING_SERVER_HTTP: "https://signalling.onrender.com/graphql"
+
+      CLOUD_HTTP: "https://tegapp.io"
+      RUST_LOG: warn,teg_server,teg_data_channel=info,teg_print_queue=debug,teg_machine=debug,async_graphql,teg_marlin=debug,teg_supervisor=debug
+      RUST_ENV: production
+      RUST_BACKTRACE: 1
+      FIREBASE_PROJECT_ID: tegapp-dev
+    plugs:
+      # - klipper-printers
+      - network
+      - network-bind
+      - process-control
+      - system-observe
+      - hardware-observe
+      - hardware-random-control
+  supervisor:
+    command: teg-supervisor
+    daemon: simple
+    restart-condition: always
+    refresh-mode: endure
+    # stop-mode: sigusr2
+    environment:
+      # RUST_LOG: info,teg_marlin=debug,teg_marlin::gcode_codec=trace,teg_marlin::protobuf_server
+      RUST_LOG: info
+      RUST_ENV: production
+      RUST_BACKTRACE: 1
+    plugs:
+      # - klipper-printers
+      - network
+      - network-bind
+      - process-control
+      - system-observe
+      - hardware-observe
+      - hardware-random-control
+      - raw-usb
+      - gpio
+      - gpio-memory-control
+  marlin:
+    command: teg-marlin
+    environment:
+      # RUST_LOG: info,teg_marlin=debug,teg_marlin::gcode_codec=trace,teg_marlin::protobuf_server
+      RUST_LOG: info
+      RUST_ENV: production
+      RUST_BACKTRACE: 1
+    plugs:
+      # - klipper-printers
+      - network
+      - network-bind
+      - process-control
+      - system-observe
+      - hardware-observe
+      - hardware-random-control
+      - raw-usb
+      - gpio
+      - gpio-memory-control
+  invite:
+    command: teg-invite
+    environment:
+      DATABASE_URL: "sqlite:/var/lib/teg/db.sqlite"
+      SIGNALLING_SERVER_WS: "wss://signal.tegapp.io/graphql"
+      SIGNALLING_SERVER_HTTP: "https://signal.tegapp.io/graphql"
+      CLOUD_HTTP: "https://tegapp.io"
+      RUST_LOG: warn,teg_server,teg_data_channel=info,teg_print_queue=debug,teg_machine=debug,async_graphql,teg_marlin=debug,teg_supervisor=debug
+      RUST_ENV: production
+      RUST_BACKTRACE: 1
+      FIREBASE_PROJECT_ID: tegapp-dev
+  # restore-backup:
+  #   environment:
+  #     RUST_ENV: production
+  #     RUST_BACKTRACE: 1
+  #     SLED_DB_PATH: /var/lib/teg/db.sled
+  #     FIREBASE_PROJECT_ID: tegapp-dev
+  #     PORT: 33005
+  #     RUST_LOG: INFO
+  #   command: teg-restore-backup
+  webrtc-streamer:
+    command: webrtc-streamer -H 127.0.0.1:8009
+    adapter: full
+    daemon: simple
+    restart-condition: always
+    plugs: [network-bind]

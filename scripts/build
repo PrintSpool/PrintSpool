@@ -4,8 +4,8 @@ cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
 
 if [ -z "$SKIP_BUILD" ]
 then
-  mkdir -p ./dist
-  rm -f ./dist/*.snap
+  mkdir -p ./snapcraft/dist
+  rm -f ./snapcraft/dist/*.snap
 
   if [ -z "$SKIP_CLEAN" ]
   then
@@ -38,17 +38,17 @@ then
     if [ -z "$SKIP_X64" ]
     then
       echo "Building rust binaries for X64 in $TEG_BUILD_PROFILE..."
-      rm -rf ./snapcraft/bin/x64
-      mkdir -p ./snapcraft/bin/x64
+      rm -rf ./snapcraft/x64/bin
+      mkdir -p ./snapcraft/x64/bin
 
-      cp -R ./crates/server/migrations ./snapcraft/bin/x64/migrations
+      cp -R ./crates/server/migrations ./snapcraft/x64/bin/migrations
 
       cargo build --workspace ${TEG_BUILD_PROFILE_ARG}
 
-      cp ${TEG_TARGET_DIR_X64}/teg-invite ./snapcraft/bin/x64/teg-invite
-      cp ${TEG_TARGET_DIR_X64}/teg-marlin ./snapcraft/bin/x64/teg-marlin
-      cp ${TEG_TARGET_DIR_X64}/teg-server ./snapcraft/bin/x64/teg-server
-      cp ${TEG_TARGET_DIR_X64}/teg-supervisor ./snapcraft/bin/x64/teg-supervisor
+      cp ${TEG_TARGET_DIR_X64}/teg-invite ./snapcraft/x64/bin/teg-invite
+      cp ${TEG_TARGET_DIR_X64}/teg-marlin ./snapcraft/x64/bin/teg-marlin
+      cp ${TEG_TARGET_DIR_X64}/teg-server ./snapcraft/x64/bin/teg-server
+      cp ${TEG_TARGET_DIR_X64}/teg-supervisor ./snapcraft/x64/bin/teg-supervisor
 
       echo "Building rust binaries for X64 in $TEG_BUILD_PROFILE... [DONE]"
     fi
@@ -56,51 +56,83 @@ then
     if [ -z "$SKIP_ARMV7" ]
     then
       echo "Building rust binaries for Arm in $TEG_BUILD_PROFILE..."
-      rm -rf ./snapcraft/bin/armv7
-      mkdir -p ./snapcraft/bin/armv7
+      rm -rf ./snapcraft/armv7/bin
+      mkdir -p ./snapcraft/armv7/bin
 
-      cp -R ./crates/server/migrations ./snapcraft/bin/armv7/migrations
+      cp -R ./crates/server/migrations ./snapcraft/armv7/bin/migrations
 
       cargo build --workspace ${TEG_BUILD_PROFILE_ARG} --target=armv7-unknown-linux-gnueabihf
 
-      cp ${TEG_TARGET_DIR_ARMV7}/teg-invite ./snapcraft/bin/armv7/teg-invite
-      cp ${TEG_TARGET_DIR_ARMV7}/teg-marlin ./snapcraft/bin/armv7/teg-marlin
-      cp ${TEG_TARGET_DIR_ARMV7}/teg-server ./snapcraft/bin/armv7/teg-server
-      cp ${TEG_TARGET_DIR_ARMV7}/teg-supervisor ./snapcraft/bin/armv7/teg-supervisor
+      cp ${TEG_TARGET_DIR_ARMV7}/teg-invite ./snapcraft/armv7/bin/teg-invite
+      cp ${TEG_TARGET_DIR_ARMV7}/teg-marlin ./snapcraft/armv7/bin/teg-marlin
+      cp ${TEG_TARGET_DIR_ARMV7}/teg-server ./snapcraft/armv7/bin/teg-server
+      cp ${TEG_TARGET_DIR_ARMV7}/teg-supervisor ./snapcraft/armv7/bin/teg-supervisor
 
       echo "Building rust binaries for Arm in $TEG_BUILD_PROFILE... [DONE]"
     fi
   else
-    echo "\n\$SKIP_RUST: Reusing previous rust builds. Rust changes will *not* be included in this build."
+    echo "\$SKIP_RUST: Reusing previous rust builds. Rust changes will *not* be included in this build."
   fi
 
   # TEG_VERSION=`node -e "console.log(require('./lerna.json').version);"`;
   if [ -z "$SKIP_SNAPCRAFT" ]
   then
-    cd ./snapcraft
-
     # sed -i -E "s/^version:[^\n]+/version: $TEG_VERSION/g" ./snapcraft.yaml
-
-    if [ -z "$SKIP_CLEAN" ]
+    if [ -z "$SKIP_X64" ]
     then
-      snapcraft clean
-      # snapcraft clean tegh
+      echo "Building snap for X64 in $TEG_BUILD_PROFILE..."
+      pushd .
+      cd ./snapcraft/x64
+
+      if [ -z "$SKIP_CLEAN" ]
+      then
+        snapcraft clean
+        # snapcraft clean tegh
+      fi
+
+      if [ -z "$CI" ]
+      then
+        # Non CI
+        snapcraft snap --debug
+      else
+        # CI
+        sg lxd -c 'snapcraft snap --debug --use-lxd'
+      fi
+
+      mv ./*.snap ../dist/
+      popd
+      echo "Building snap for X64 in $TEG_BUILD_PROFILE... [DONE]"
     fi
 
-    if [ -z "$CI" ]
+    if [ -z "$SKIP_ARMV7" ]
     then
-      # Non CI
-      snapcraft snap --debug
-    else
-      # CI
-      sg lxd -c 'snapcraft snap --debug --use-lxd'
+      echo "Building snap for Arm in $TEG_BUILD_PROFILE..."
+      pushd .
+      cd ./snapcraft/armv7
+
+      if [ -z "$SKIP_CLEAN" ]
+      then
+        snapcraft clean
+        # snapcraft clean tegh
+      fi
+
+      if [ -z "$CI" ]
+      then
+        # Non CI
+        snapcraft snap --debug
+      else
+        # CI
+        sg lxd -c 'snapcraft snap --debug --use-lxd'
+      fi
+
+      mv ./*.snap ../dist/
+      popd
+      echo "Building snap for Arm in $TEG_BUILD_PROFILE... [DONE]"
     fi
 
     # [ -z "$SKIP_ARMV7" ] && snapcraft snap --debug --target-arch armhf
     # [ -z "$SKIP_X64" ] && snapcraft snap --debug --target-arch amd64
 
     # snapcraft remote-build --launchpad-accept-public-upload
-
-    mv ./*.snap ../dist/
   fi
 fi

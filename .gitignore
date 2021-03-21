@@ -22,7 +22,8 @@ packages/teg-web-ui/out
 parcel-bundle-reports
 heaptrack.*
 
-dist/*.snap
+/snapcraft/dist/*.snap
+/snapcraft/*/bin
 snapcraft/parts/
 snapcraft/prime/
 snapcraft/stage/

@@ -12,12 +12,8 @@ confinement: devmode
 grade: stable
 
 architectures:
-  # - build-on: amd64
-  #   run-on: amd64
   - build-on: amd64
-    run-on: [amd64, armhf]
-  # - build-on: armhf
-  #   run-on: armhf
+    run-on: amd64
 
     # plugs:
 #   klipper-printers:
@@ -45,9 +41,7 @@ parts:
   bin:
     plugin: dump
     # source: ./bin/armv7/
-    source:
-      - to armhf: ./bin/armv7/
-      - to amd64: ./bin/x64/
+    source: ./bin/
     # build-attributes: [no-patchelf]
 
   # teg-marlin:
@@ -161,6 +155,7 @@ apps:
       DATABASE_URL: "sqlite:/var/lib/teg/db.sqlite"
       SIGNALLING_SERVER_WS: "wss://signal.tegapp.io/graphql"
       SIGNALLING_SERVER_HTTP: "https://signal.tegapp.io/graphql"
+      CLOUD_HTTP: "https://tegapp.io"
       RUST_LOG: warn,teg_server,teg_data_channel=info,teg_print_queue=debug,teg_machine=debug,async_graphql,teg_marlin=debug,teg_supervisor=debug
       RUST_ENV: production
       RUST_BACKTRACE: 1

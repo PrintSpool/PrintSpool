@@ -9,10 +9,10 @@ cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
 
 say "Build complete. Installing on remote raspberry pi" &
 
-ssh $TEG_ARMV7_HOST rm -f ./tegh_*_armhf.snap;
-rsync ./dist/tegh_*_multi.snap $TEG_ARMV7_HOST:~/
+ssh $TEG_ARMV7_HOST rm -f ./tegh_*.snap;
+rsync ./snapcraft/dist/tegh_*_armhf.snap $TEG_ARMV7_HOST:~/
 
-ssh $TEG_ARMV7_HOST sudo snap install --devmode --dangerous ./tegh_*_multi.snap
+ssh $TEG_ARMV7_HOST sudo snap install --devmode --dangerous ./tegh_*.snap
 
 say "Install complete" &
 
