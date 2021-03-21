@@ -7,8 +7,6 @@ then
   mkdir -p ./dist
   rm -f ./dist/*.snap
 
-  rm -rf ./snapcraft/snap/migrations
-
   if [ -z "$SKIP_CLEAN" ]
   then
     echo "You can speed builds up by running them with: SKIP_CLEAN=1 TEG_BUILD_PROFILE=dev"

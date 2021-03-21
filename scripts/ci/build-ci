@@ -23,7 +23,7 @@ sqlx db setup
 popd
 
 # Build
-SKIP_CLEAN=1 SKIP_X64=1 ./scripts/build
+SKIP_CLEAN=1 ./scripts/build
 
 # cd ./crates
 # cargo build --workspace --target=armv7-unknown-linux-gnueabihf
