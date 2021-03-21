@@ -24,7 +24,10 @@ jobs:
       with:
         name: armv7-binaries
         path: |
-          ./target/armv7-unknown-linux-gnueabihf/debug/teg-*
+          ./target/armv7-unknown-linux-gnueabihf/debug/teg-invite
+          ./target/armv7-unknown-linux-gnueabihf/debug/teg-marlin
+          ./target/armv7-unknown-linux-gnueabihf/debug/teg-server
+          ./target/armv7-unknown-linux-gnueabihf/debug/teg-supervisor
 
 #     - name: Run tests
 #       run: cargo test --verbose
