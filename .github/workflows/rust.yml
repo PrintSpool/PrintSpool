@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Install Snapcraft
+      uses: samuelmeuli/action-snapcraft@v1
     - name: Build Armv7
       run: ./scripts/ci/build-ci
 
