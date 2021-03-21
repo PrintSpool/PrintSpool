@@ -8,6 +8,7 @@ export DATABASE_URL=sqlite:`pwd`/db.sqlite
 # cross-compile without it.
 sudo apt-get install gcc-multilib
 sudo apt-get remove gcc-multilib
+sudo snap install snapcraft --classic
 
 sudo apt-get install \
   g++-arm-linux-gnueabihf
@@ -22,5 +23,7 @@ sqlx db setup
 popd
 
 # Build
-cd ./crates
-cargo build --workspace --target=armv7-unknown-linux-gnueabihf
+SKIP_CLEAN=1 SKIP_X64=1 ./scripts/build
+
+# cd ./crates
+# cargo build --workspace --target=armv7-unknown-linux-gnueabihf

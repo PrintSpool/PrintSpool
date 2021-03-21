@@ -89,8 +89,13 @@ then
       # snapcraft clean tegh
     fi
 
-    # snapcraft --debug
-    snapcraft snap --debug
+    if [ -z "$CI" ]
+      snapcraft snap --debug
+    then
+      # If this is a CI build then run the build directly in the CI container
+      snapcraft snap --debug --destructive-mode
+    fi
+
     # [ -z "$SKIP_ARMV7" ] && snapcraft snap --debug --target-arch armhf
     # [ -z "$SKIP_X64" ] && snapcraft snap --debug --target-arch amd64
 

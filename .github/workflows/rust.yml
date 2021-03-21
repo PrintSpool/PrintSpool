@@ -28,6 +28,12 @@ jobs:
           ./target/armv7-unknown-linux-gnueabihf/debug/teg-marlin
           ./target/armv7-unknown-linux-gnueabihf/debug/teg-server
           ./target/armv7-unknown-linux-gnueabihf/debug/teg-supervisor
+    - name: Upload Armv7 Snap
+      uses: actions/upload-artifact@v2
+      with:
+        name: armv7-snap
+        path: |
+          ./dist/*
 
 #     - name: Run tests
 #       run: cargo test --verbose
