@@ -68,16 +68,10 @@ parts:
   # https://snapcraft.io/blog/the-smart-dump-plugin
   webrtc-streamer:
     plugin: dump
-    source:
-      - to amd64: https://github.com/mpromonet/webrtc-streamer/releases/download/v0.2.4/webrtc-streamer-v0.2.4-Linux-x86_64-Release.tar.gz
-      - to armhf: https://github.com/mpromonet/webrtc-streamer/releases/download/v0.2.4/webrtc-streamer-v0.2.4-Linux-armv7l-Release.tar.gz
+    source: https://github.com/mpromonet/webrtc-streamer/releases/download/v0.2.4/webrtc-streamer-v0.2.4-Linux-armv7l-Release.tar.gz
     stage-packages:
-      - to armhf:
-        - libgtk-3-0:armhf
-        - libasound2:armhf
-      - else:
-        - libgtk-3-0
-        - libasound2
+      - libgtk-3-0:armhf
+      - libasound2:armhf
 
   # teg-marlin:
   #   plugin: rust
