@@ -108,7 +108,7 @@ apps:
     command: teg-supervisor
     daemon: simple
     restart-condition: always
-    refresh-mode: endure
+    # refresh-mode: endure
     # stop-mode: sigusr2
     environment:
       # RUST_LOG: info,teg_marlin=debug,teg_marlin::gcode_codec=trace,teg_marlin::protobuf_server
