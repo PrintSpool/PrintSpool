@@ -57,19 +57,19 @@ impl VideoQuery {
 
             eyre::Result::<_>::Ok(video_sources)
         }
-        // log the backtrace which is otherwise lost by FieldResult
-        .await
-        .map_err(|err| {
-            warn!("{:?}", err);
-            err.into()
-        })
-
+            // log the backtrace which is otherwise lost by FieldResult
+            .await
+            .map_err(|err| {
+                warn!("{:?}", err);
+                err.into()
+            })
     }
 
     #[instrument(skip(self, ctx))]
     async fn ice_candidates<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
+        #[graphql(name = "videoSessionID")]
         video_session_id: ID,
     ) -> FieldResult<Vec<IceCandidate>> {
         let auth: &AuthContext = ctx.data()?;

@@ -34,9 +34,9 @@ const createVideoSDPMutation = gql`
 
 const queryIceCandidates = gql`
   query(
-    $id: ID!
+    $videoSessionID: ID!
   ) {
-    iceCandidates(id: $id) {
+    iceCandidates(videoSessionID: $videoSessionID) {
       candidate
       sdpMLineIndex
       sdpMid
@@ -112,7 +112,7 @@ const VideoStreamerPage = (props: any) => {
       const { data: { iceCandidates } } = await apollo.query({
         query: queryIceCandidates,
         variables: {
-          id: data.createVideoSDP.id,
+          videoSessionID: data.createVideoSDP.id,
         },
       })
 
