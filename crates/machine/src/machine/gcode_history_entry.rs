@@ -17,8 +17,10 @@ pub struct GCodeHistoryEntry {
 
 #[derive(async_graphql::Enum, Debug, Copy, Clone, Eq, PartialEq)]
 pub enum GCodeHistoryDirection {
+    /// A response from the 3D printer/CNC
     #[graphql(name="RX")]
     Rx,
+    /// A GCode sent to the 3D printer/CNC
     #[graphql(name="TX")]
     Tx,
 }

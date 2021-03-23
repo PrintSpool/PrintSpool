@@ -291,10 +291,12 @@ pub async fn update_machine(
     let history = &mut machine.gcode_history;
 
     for entry in feedback.gcode_history.iter() {
-        let direction = if entry.direction == 0 {
-            GCodeHistoryDirection::Tx
-        } else {
+        let direction = if
+            entry.direction == machine_message::GCodeHistoryDirection::Rx as i32
+        {
             GCodeHistoryDirection::Rx
+        } else {
+            GCodeHistoryDirection::Tx
         };
 
         history.push_back(
