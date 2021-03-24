@@ -39,7 +39,7 @@ const TerminalView = ({
         </Button>
       </form>
       <Typography
-        variant="body2"
+        variant="body1"
         className={classes.reference}
         component="div"
       >
@@ -70,11 +70,9 @@ const TerminalView = ({
               ].join(' ')}
             >
               {
-                /*
                 <span className={classes.createdAt}>
-                  {entry.createdAt}
+                  {entry.createdAt?.replace(/.\d+\+/, '+')}
                 </span>
-                */
               }
               <span className={classes.direction}>
                 {` ${entry.direction} `}

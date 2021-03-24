@@ -43,6 +43,7 @@ const useStyles = makeStyles(theme => ({
   content: {},
   createdAt: {
     color: '#666',
+    marginRight: theme.spacing(1),
   },
   message: {
   },
