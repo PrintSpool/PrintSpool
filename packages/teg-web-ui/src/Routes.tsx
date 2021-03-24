@@ -14,7 +14,7 @@ import LoginRegister from './onboarding/loginRegister/LoginRegister'
 
 import Home from './printer/home/Home'
 import UserAccount from './printer/userAccount/UserAccount'
-import Terminal from './printer/terminal/Terminal'
+import Terminal from './printer/terminal/Terminal.page'
 
 import ConnectionFrame from './printer/common/frame/ConnectionFrame'
 import QueuePage from './printer/jobQueue/JobQueue.page'

@@ -8,6 +8,7 @@ const useStyles = makeStyles(theme => ({
     padding: theme.spacing(2),
   },
   reference: {
+    marginTop: theme.spacing(2),
     flexGrow: 0,
   },
   terminalHistory: {
@@ -24,6 +25,7 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
     marginRight: theme.spacing(2),
   },
+  terminalEntry: {},
   tx: {
     '& $direction': {
       color: '#DD25C4',
@@ -38,6 +40,7 @@ const useStyles = makeStyles(theme => ({
   direction: {
     marginRight: theme.spacing(1),
   },
+  content: {},
   createdAt: {
     color: '#666',
   },

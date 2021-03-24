@@ -1,6 +1,5 @@
 import React from 'react'
 
-// import { TextField } from 'formik-material-ui'
 import { animated, useSpring } from 'react-spring'
 import Measure from 'react-measure'
 import classNames from 'classnames'

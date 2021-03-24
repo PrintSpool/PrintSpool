@@ -1,89 +1,34 @@
 import React from 'react'
-import { withFormik, Form, Field } from 'formik'
-import { TextField } from 'formik-material-ui'
 
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import Link from '@material-ui/core/Link'
+import TextField from '@material-ui/core/TextField'
 
-import { gql } from '@apollo/client'
+import useStyles from './Terminal.styles'
 
-import useExecGCodes from '../_hooks/useExecGCodes'
-import useLiveSubscription from '../_hooks/useLiveSubscription'
-
-import TerminalStyles from './TerminalStyles'
-
-const GCODE_HISTORY_QUERY = gql`
-  fragment QueryFragment on Query {
-    machines(input: { machineID: $machineID }) {
-      id
-      status
-      gcodeHistory(limit: 200) {
-        id
-        direction
-        createdAt
-        content
-      }
-    }
-  }
-`
-
-const enhance = withFormik({
-  mapPropsToValues: () => ({
-    gcode: '',
-  }),
-})
-
-const Terminal = ({
-  match,
-  values,
-  resetForm,
+const TerminalView = ({
+  onSubmit,
+  register,
+  isReady,
+  gcodeHistory,
+  errors,
 }) => {
-  const classes = TerminalStyles()
-  const { machineID } = match.params
-
-  const onSubmit = useExecGCodes((e) => {
-    e.preventDefault()
-    resetForm()
-
-    return {
-      machineID,
-      gcodes: [values.gcode],
-    }
-  })
-
-  const {
-    data,
-    loading,
-    error,
-  } = useLiveSubscription(GCODE_HISTORY_QUERY, {
-    variablesDef: '($machineID: ID)',
-    variables: {
-      machineID,
-    },
-  })
-
-  if (loading) {
-    return <div />
-  }
-
-  if (error) {
-    throw error
-  }
-
-  const { status, gcodeHistory } = data.machines[0]
-  const isReady = ['READY'].includes(status)
-  // const isReady = ['READY', 'PRINTING'].includes(status)
+  const classes = useStyles()
 
   return (
     <div className={classes.root}>
-      <Form className={classes.inputRow} onSubmit={onSubmit}>
-        <Field
+      <form className={classes.inputRow} onSubmit={onSubmit}>
+        <TextField
           className={classes.input}
           label="GCode"
           name="gcode"
-          component={TextField}
           disabled={!isReady}
+          inputRef={register({
+            required: 'Required',
+          })}
+          error={errors.gcode != null}
+          helperText={errors.gcode?.message}
         />
         <Button
           variant="contained"
@@ -92,7 +37,7 @@ const Terminal = ({
         >
           Send
         </Button>
-      </Form>
+      </form>
       <Typography
         variant="body2"
         className={classes.reference}
@@ -145,4 +90,4 @@ const Terminal = ({
   )
 }
 
-export default enhance(Terminal)
+export default TerminalView
