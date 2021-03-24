@@ -49,14 +49,14 @@ const XYJogButtons = ({ machine }) => {
           />
           <JogButton
             xs={12}
-            onClick={jog('y', -1)}
+            onClick={jog(axes[1], -1)}
             onMouseDown={startContinuous({ [axes[1]]: { forward: false } })}
           >
             <ArrowUpward />
           </JogButton>
           <JogButton
             xs={4}
-            onClick={jog('x', -1)}
+            onClick={jog(axes[0], -1)}
             onMouseDown={startContinuous({ [axes[0]]: { forward: false } })}
           >
             <ArrowBack />
@@ -66,14 +66,14 @@ const XYJogButtons = ({ machine }) => {
           </JogButton>
           <JogButton
             xs={4}
-            onClick={jog('x', 1)}
+            onClick={jog(axes[0], 1)}
             onMouseDown={startContinuous({ [axes[0]]: { forward: true } })}
           >
             <ArrowForward />
           </JogButton>
           <JogButton
             xs={12}
-            onClick={jog('y', 1)}
+            onClick={jog(axes[1], 1)}
             onMouseDown={startContinuous({ [axes[1]]: { forward: true } })}
           >
             <ArrowDownward />
