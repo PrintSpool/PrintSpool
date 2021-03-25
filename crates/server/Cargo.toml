@@ -28,12 +28,12 @@ teg_device = { path = "../device" }
 teg-json-store = { path = "../json-store" }
 teg-print-queue = { path = "../print-queue" }
 
-async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }
-async-graphql-warp = { git = "https://github.com/async-graphql/async-graphql.git" }
+async-graphql = { version = "2.6.5", features = ["tracing",  "chrono", "url"] }
+async-graphql-warp = { version = "2.6.5" }
 serde_json = { version = "1.0.44", features = ["raw_value"] }
 derive-new = "0.5.8"
 sqlx = { version = "0.5.1", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros" ] }
-tracing = "0.1.19"
+tracing = "0.1.25"
 tracing-subscriber = "0.2.15"
 eyre = "0.6.5"
 color-eyre = "0.5.10"

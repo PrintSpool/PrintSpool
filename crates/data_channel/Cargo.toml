@@ -15,13 +15,13 @@ teg_machine = { path = "../machine" }
 teg_auth = { path = "../auth" }
 
 serde_json = { version = "1.0.44", features = ["raw_value"] }
-async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }
+async-graphql = { version = "2.6.5", features = ["tracing",  "chrono", "url"] }
 eyre = "0.6.5"
 derive-new = "0.5.8"
 frank_jwt = "3.1.2"
 schemars = "0.8.0"
 sqlx = { version = "0.5.1", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros" ] }
-tracing = "0.1.19"
+tracing = "0.1.25"
 rmp = "^0.8"
 hex = "0.4.2"
 data-encoding = "2.3.1"

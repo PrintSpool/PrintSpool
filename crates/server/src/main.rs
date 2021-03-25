@@ -263,14 +263,14 @@ async fn app() -> Result<()> {
 
                 data.insert(auth_context);
 
-                let root_span = span!(
-                    parent: None,
-                    tracing::Level::INFO,
-                    "span root"
-                );
-                data.insert(
-                    async_graphql::extensions::TracingConfig::default().parent_span(root_span),
-                );
+                // let root_span = span!(
+                //     parent: None,
+                //     tracing::Level::INFO,
+                //     "span root"
+                // );
+                // data.insert(
+                //     async_graphql::extensions::TracingConfig::default().parent_span(root_span),
+                // );
 
                 Ok(data)
             }

@@ -16,7 +16,7 @@ teg-json-store = { path = "../json-store" }
 teg-common = { path = "../common"}
 
 eyre = "0.6.5"
-async-graphql = { git = "https://github.com/async-graphql/async-graphql.git" }
+async-graphql = { version = "2.6.5", features = ["tracing",  "chrono", "url"] }
 # async-graphql-warp = { path = "../../../async-graphql/async-graphql-warp" }
 # async-graphql = { path = "../../../async-graphql" }
 futures = "0.3.5"
@@ -28,7 +28,7 @@ teg-protobufs = { path= "../protobufs" }
 bytes = "0.5.6"
 base64 = "0.12.3"
 arc-swap = "1.1.0"
-tracing = "0.1.19"
+tracing = "0.1.25"
 tracing-futures = "0.2.4"
 xactor = { git = "https://github.com/sunli829/xactor.git", branch = "master",  default-features = false, features = ["runtime-async-std", "eyre"] }
 async-codec = "0.4.0"
