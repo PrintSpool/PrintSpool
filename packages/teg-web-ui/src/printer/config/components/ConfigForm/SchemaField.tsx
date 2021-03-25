@@ -86,7 +86,7 @@ const SchemaField = ({
       }
 
       if (isEnum) {
-        console.log('DEFAULT?', property.default, property)
+        // console.log('DEFAULT?', property.default, property)
         const defaultValue = property.default || ''
         return (
           <Controller
@@ -101,16 +101,15 @@ const SchemaField = ({
                 value={(value === '' || value == null) ? defaultValue : value}
                 select
               >
-                { property.oneOf?.map((option) => (
-                  <MenuItem key={option.const} value={option.const}>
-                    {option.title}
+                { (property.enum || property.oneOf || [])[0] === '' && name === 'model.source' && (
+                  <MenuItem value="test">
+                    No Video Source detected.
+                    <Hidden smDown>
+                      {' '}
+                      Please connect your webcam or enable the raspberry pi camera
+                    </Hidden>
                   </MenuItem>
-                ))}
-                { property.enum?.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
+                )}
                 { (property.enum || property.oneOf)?.length === 0 && name === 'serialPortID' && (
                   <MenuItem value="">
                     No serial devices detected.
@@ -120,6 +119,21 @@ const SchemaField = ({
                     </Hidden>
                   </MenuItem>
                 )}
+                { property.oneOf?.map((option) => (
+                  <MenuItem key={option.const} value={option.const}>
+                    {option.title}
+                  </MenuItem>
+                ))}
+                {
+                  property.enum
+                    // An empty option is required for the schema validation
+                    ?.filter(option => option !== '')
+                    .map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))
+                }
               </TextField>
             )}
             name={fieldPath}
@@ -185,7 +199,7 @@ const SchemaField = ({
         name: fieldPath, // unique name for your Field Array
         // keyName: "id", default to "id", you can change the key name
       })
-      console.log({ name, fieldPath, fields })
+      // console.log({ name, fieldPath, fields })
 
       return (
         <>

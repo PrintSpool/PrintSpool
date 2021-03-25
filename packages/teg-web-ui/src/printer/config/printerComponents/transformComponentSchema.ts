@@ -29,6 +29,10 @@ const transformComponentSchema = ({
       // .filter(d => d.type === 'SERIAL_PORT')
       .map(d => d.id)
 
+    if (enumValues.length === 0) {
+      enumValues.push('')
+    }
+
     const properties = { ...nextSchema.properties }
     properties.source = {
       ...nextSchema.properties.source,

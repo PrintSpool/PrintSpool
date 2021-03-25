@@ -85,10 +85,17 @@ const PrinterComponentsView = ({
   const { serialPortID } = selectedComponent?.configForm.model || {}
   const addSerialPortDevice = serialPortID && devices.every(device => device.id !== serialPortID)
 
+  const { source } = selectedComponent?.configForm.model || {}
+  const addVideoSource = source && videoSources.every(videoSource => videoSource.id !== source)
+
   const transformSchema = schema => transformComponentSchema({
     schema,
     materials,
-    videoSources,
+    videoSources: [
+      ...videoSources,
+      // Add the current video source to the list of devices even if it is not connected
+      ...(addVideoSource ? [{ id: source }] : []),
+    ],
     devices: [
       ...devices,
       // Add the current serial port ID to the list of devices even if it is not connected
