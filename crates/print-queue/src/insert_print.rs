@@ -254,12 +254,6 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
 
         task.insert_no_rollback(&mut tx).await?;
 
-        if machine.paused_task_id.is_some() {
-            Err(
-                eyre!("Cannot start a new print when an existing print is paused")
-            )?;
-        }
-
         machine.status.verify_can_start(&task, automatic_print)?;
 
         tx.commit().await?;
@@ -270,14 +264,17 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
             task,
         ).await?;
 
-        // Atomically set the machine status to printing
+        // Set the machine status to printing
         let mut machine = self.get_data()?;
 
-        if machine.status == MachineStatus::Ready {
-            machine.status = MachineStatus::Printing(
-                Printing { task_id: task.id.clone() }
-            );
-        };
+        machine.status = MachineStatus::Printing(
+            Printing {
+                task_id: task.id.clone(),
+                paused: false,
+            }
+        );
+
+        info!("Starting Print #{} on Machine #{}", task.id, self.id);
 
         Ok(task)
     }

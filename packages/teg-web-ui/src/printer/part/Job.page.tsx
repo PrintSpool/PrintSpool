@@ -119,7 +119,7 @@ const JobPage = () => {
   viewMachine({ machine })
 
   const execGCodes = useExecGCodes(args => ({ machine, ...args }), [machine])
-  const isReady = machine?.status === 'READY'
+  const isReady = ['READY', 'PAUSED'].includes(machine?.status)
   const isPrinting = machine?.status === 'PRINTING'
 
   const mutationError = (

@@ -27,8 +27,10 @@ pub enum MachineStatusGQL {
     Connecting,
     /// The machine is connected and able to exececute gcodes and start prints.
     Ready,
-    /// The machine is printing a job.
+    /// The machine is printing a part.
     Printing,
+    /// The machine has been paused mid-print.
+    Paused,
     /// The machine has encountered an error and automatically stopped the print. Send a reset
     /// mutation to change the status to \`CONNECTING\`.
     Errored,
@@ -43,7 +45,8 @@ impl From<MachineStatus> for MachineStatusGQL {
           MachineStatus::Disconnected => MachineStatusGQL::Disconnected,
           MachineStatus::Connecting => MachineStatusGQL::Connecting,
           MachineStatus::Ready => MachineStatusGQL::Ready,
-          MachineStatus::Printing(_) => MachineStatusGQL::Printing,
+          MachineStatus::Printing(Printing { paused: false, .. }) => MachineStatusGQL::Printing,
+          MachineStatus::Printing(Printing { paused: true, .. }) => MachineStatusGQL::Paused,
           MachineStatus::Errored(_) => MachineStatusGQL::Errored,
           MachineStatus::Stopped => MachineStatusGQL::Stopped,
         }
@@ -53,6 +56,7 @@ impl From<MachineStatus> for MachineStatusGQL {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Printing {
     pub task_id: crate::DbId,
+    pub paused: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -102,6 +106,14 @@ impl MachineStatus {
       }
     }
 
+    pub fn is_paused(&self) -> bool {
+      if let MachineStatus::Printing(Printing { paused: true, .. }) = self {
+        true
+      } else {
+        false
+      }
+    }
+
     pub fn is_stopped(&self) -> bool {
       self == &MachineStatus::Stopped
     }
@@ -111,9 +123,10 @@ impl MachineStatus {
             Self::Printing(_) if is_automatic_print || task.machine_override => {
               true
             }
-            // Self::Printing(Printing { task_id }) if task_id == &task.id => {
-            //   true
-            // }
+            // Allow paused tasks to be resumed and be pre-empted by manual controls
+            Self::Printing(Printing { paused: true, task_id }) => {
+              !task.is_print() || &task.id == task_id
+            }
             Self::Ready => {
               true
             }

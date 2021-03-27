@@ -39,7 +39,7 @@ const ManualControlPage = () => {
   })
 
   const machine = (data as any)?.singularMachine[0]
-  const isReady = machine?.status === 'READY'
+  const isReady = ['READY', 'PAUSED'].includes(machine?.status)
   const isPrinting = machine?.status === 'PRINTING'
 
   viewMachine({ machine })

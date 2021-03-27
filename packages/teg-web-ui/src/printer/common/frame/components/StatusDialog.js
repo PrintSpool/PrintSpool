@@ -21,6 +21,9 @@ const descriptions = {
   PRINTING: () => snl`
     The 3D printer is printing.
   `,
+  PAUSED: () => snl`
+    The 3D printer is paused. You can resume the print when your ready to continue.
+  `,
   DISCONNECTED: () => snl`
     The 3D printer is disconnected. Please verify the printer is plugged in and
     turn it on.

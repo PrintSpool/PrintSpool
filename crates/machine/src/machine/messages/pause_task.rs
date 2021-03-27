@@ -8,7 +8,7 @@ use eyre::{
     // Context as _,
 };
 
-use crate::{machine::Machine, task::Task};
+use crate::{machine::{Machine, MachineStatus, Printing}, task::Task};
 
 use super::SpoolTask;
 
@@ -21,7 +21,10 @@ pub struct PauseTask {
 #[async_trait::async_trait]
 impl xactor::Handler<PauseTask> for Machine {
     async fn handle(&mut self, ctx: &mut xactor::Context<Self>, msg: PauseTask) -> Result<()> {
-        self.get_data()?.paused_task_id = Some(msg.task_id.clone());
+        self.get_data()?.status = MachineStatus::Printing(Printing {
+            task_id: msg.task_id.clone(),
+            paused: true,
+        });
 
         let protobuf_msg = CombinatorMessage {
             payload: Some(
@@ -40,6 +43,8 @@ impl xactor::Handler<PauseTask> for Machine {
             ctx,
             SpoolTask { task: msg.pause_hook },
         ).await?;
+
+        info!("Paused Print #{}", msg.task_id);
 
         Ok(())
     }

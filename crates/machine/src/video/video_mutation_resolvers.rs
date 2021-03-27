@@ -73,7 +73,7 @@ struct VideoCallQueryParams<'a> {
 impl VideoMutation {
     // Video
     #[graphql(name = "createVideoSDP")]
-    #[instrument(skip(self, ctx))]
+    #[instrument(skip(self, input, ctx))]
     async fn create_video_sdp<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,

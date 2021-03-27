@@ -37,7 +37,7 @@ impl Machine {
             _ => (),
         };
 
-        info!("Sent Protobuf");
+        // info!("Sent Protobuf");
 
         Ok(())
     }

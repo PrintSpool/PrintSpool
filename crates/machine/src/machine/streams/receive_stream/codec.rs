@@ -65,7 +65,7 @@ impl Encode for MachineCodec {
         }
 
         // buf[..needed - 1].copy_from_slice(&item_bytes[..]);
-        info!("Sending Protobuf (Len: {} {})", buf.len(), buf.len() as u32);
+        trace!("Sending Protobuf (Len: {} {})", buf.len(), buf.len() as u32);
 
         Ok(needed).into()
     }

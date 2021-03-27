@@ -42,7 +42,7 @@ impl MachineData {
     }
 
     async fn status(&self) -> MachineStatusGQL { self.status.clone().into() }
-    async fn paused(&self) -> bool { self.paused_task_id.is_some() }
+    async fn paused(&self) -> bool { self.status.is_paused() }
 
     /// The machine configuration for general settings.
     async fn config_form(&self) -> FieldResult<ConfigForm> {

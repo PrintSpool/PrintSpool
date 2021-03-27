@@ -41,8 +41,6 @@ pub struct MachineData {
     pub motors_enabled: bool,
     #[new(default)]
     pub gcode_history: VecDeque<GCodeHistoryEntry>,
-    #[new(default)]
-    pub paused_task_id: Option<crate::DbId>,
 }
 
 #[async_trait::async_trait]

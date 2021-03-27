@@ -71,7 +71,12 @@ pub async fn update_tasks(
         ).await?;
 
         for mut task in tasks {
-            if !feedback.task_progress.iter().any(|p| p.task_id == task.id) {
+            // If the task is missing after reconnection then mark it as errored
+            if
+                !feedback.task_progress
+                    .iter()
+                    .any(|p| p.task_id == task.id)
+            {
                 let message = format!(
                     "Task (#{}) missing from driver, possibly due to driver crash.",
                     task.id
@@ -88,9 +93,17 @@ pub async fn update_tasks(
                 task.update(db).await?;
             }
 
-            if task.status.is_pending() && task.is_print() {
+            // If the task is still present upon reconnection then update the printer status
+            if
+                task.status.is_pending()
+                && task.is_print()
+            {
+                info!("Reconnected and continuing Print #{}", task.id);
                 machine.get_data()?.status = MachineStatus::Printing(
-                    Printing { task_id: task.id.clone() }
+                    Printing {
+                        task_id: task.id.clone(),
+                        paused: false,
+                    }
                 );
             }
         }
@@ -116,12 +129,28 @@ pub async fn update_tasks(
             false
         };
 
+        // When a task is settled
         if status_changed && task.status.is_settled() {
+            // Update the machine's status
+            match &machine.get_data()?.status {
+                MachineStatus::Printing(Printing {
+                    task_id,
+                    paused: false,
+                }) if task_id == &task.id => {
+                    info!("Print #{} Completed!", task.id);
+                    machine.get_data()?.status = MachineStatus::Ready;
+                }
+                _ => ()
+            };
+
+            // Update the task and delete any temporary files
             task.settle_task().await;
         }
 
+        // Save the task
         task.update(db).await?;
 
+        // Notify listeners
         if status_changed && task.status.is_settled() {
             // publish TaskSettled event
             let mut broker = xactor::Broker::from_registry().await?;
@@ -270,7 +299,11 @@ pub async fn update_machine(
         i => Err(eyre!("Invalid machine status: {:?}", i))?,
     };
 
-    if next_status != machine.status && !next_status.is_driver_ready() {
+    // If the machine has been stopped, disconnected, or encountered an error
+    if
+        next_status != machine.status
+        && !next_status.is_driver_ready()
+    {
         // Error any tasks not explicitly stopped by task-level Feedback
         //
         // The driver was not aware of these tasks when it sent the feedback so they are moved
@@ -297,7 +330,14 @@ pub async fn update_machine(
         }
     }
 
-    machine.status = next_status;
+    // Do not reset the machine status to ready while it is printing
+    if
+        machine.status != next_status &&
+        !(machine.status.is_printing() && next_status == MachineStatus::Ready)
+    {
+        info!("Printer status changed from {:?} to {:?}", machine.status, next_status);
+        machine.status = next_status;
+    }
 
     machine.motors_enabled = feedback.motors_enabled;
 

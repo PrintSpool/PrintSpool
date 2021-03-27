@@ -90,7 +90,6 @@ impl MachineMutation {
         #[graphql(name="machineID")]
         machine_id: ID,
     ) -> FieldResult<Option<teg_common::Void>> {
-        info!("CONTINUE VIEWING!!!!");
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 
