@@ -64,7 +64,7 @@ impl ResumePrintMutation {
 
         task.status = TaskStatus::Spooled;
 
-        task.insert_no_rollback(&mut tx).await?;
+        task.update(&mut tx).await?;
         resume_hook.insert_no_rollback(&mut tx).await?;
 
         tx.commit().await?;

@@ -103,17 +103,22 @@ pub async fn update_tasks(
         trace!("Task #{} status: {:?}", task.id, status);
         task.despooled_line_number = Some(progress.despooled_line_number as u64);
 
-        if !task.status.is_settled() {
+        let has_just_settled = if !task.status.is_settled() {
+            // Update the task status if it has not previously settled
             task.status = status;
-        }
 
-        if task.status.is_settled() {
+            task.status.is_settled()
+        } else {
+            false
+        };
+
+        if has_just_settled {
             task.settle_task().await;
         }
 
         task.update(db).await?;
 
-        if task.status.is_settled() {
+        if has_just_settled {
             // publish TaskSettled event
             let mut broker = xactor::Broker::from_registry().await?;
             broker.publish(TaskSettled {

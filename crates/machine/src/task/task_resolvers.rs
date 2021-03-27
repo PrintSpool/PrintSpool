@@ -60,9 +60,17 @@ impl Task {
     ) -> FieldResult<f32> {
         let printed_lines = self.despooled_line_number
             .map(|n| n + 1)
-            .unwrap_or(0);
+            .unwrap_or(0) as f32;
 
-        let percent = 100.0 * (printed_lines as f32) / (self.total_lines as f32);
+        let percent = if self.status.was_successful() {
+            // Empty tasks need to denote success somehow
+            100.0
+        } else {
+            // Empty tasks need to not divide by zero
+            let total_lines = std::cmp::max(self.total_lines, 1) as f32;
+
+            100.0 * printed_lines / total_lines
+        };
 
         if let Some(digits) = digits {
             let scale = 10f32.powi(digits as i32);

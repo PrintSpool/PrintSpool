@@ -9,6 +9,7 @@ import JobView from './Job.view'
 import useExecGCodes from '../_hooks/useExecGCodes'
 import viewMachine from '../_hooks/viewMachine'
 import PrinterStatusGraphQL from '../common/PrinterStatus.graphql'
+import { useSnackbar } from 'notistack'
 
 const JOB_QUERY = gql`
   fragment QueryFragment on Query {
@@ -68,6 +69,7 @@ const STOP = gql`
 `
 
 const JobPage = () => {
+  const { enqueueSnackbar } = useSnackbar()
   const { match: { params } } = useReactRouter()
   const { partID } = params
 
@@ -78,17 +80,34 @@ const JobPage = () => {
     },
   })
 
-  const [cancelTask] = useMutation(STOP)
-  const [pausePrint] = useMutation(gql`
-    mutation pausePrint($taskID: ID!) {
-      pausePrint(taskID: $taskID) { id }
+  const SuccessMutationOpts = (msg) => ({
+    onCompleted: () => {
+      enqueueSnackbar(msg, {
+        variant: 'success',
+      })
     }
-  `)
-  const [resumePrint] = useMutation(gql`
-    mutation resumePrint($taskID: ID!) {
-      resumePrint(taskID: $taskID) { id }
-    }
-  `)
+  })
+
+  const [cancelTask, cancelTaskMutation] = useMutation(
+    STOP,
+    SuccessMutationOpts('Print cancelled!'),
+  )
+  const [pausePrint, pausePrintMutation] = useMutation(
+    gql`
+      mutation pausePrint($taskID: ID!) {
+        pausePrint(taskID: $taskID) { id }
+      }
+    `,
+    SuccessMutationOpts('Print paused!'),
+  )
+  const [resumePrint, resumeMutation] = useMutation(
+    gql`
+      mutation resumePrint($taskID: ID!) {
+        resumePrint(taskID: $taskID) { id }
+      }
+    `,
+    SuccessMutationOpts('Print resumed!'),
+  )
 
   const part = (data as any)?.parts[0]
   const task = part?.tasks.find(t =>
@@ -103,8 +122,19 @@ const JobPage = () => {
   const isReady = machine?.status === 'READY'
   const isPrinting = machine?.status === 'PRINTING'
 
+  const mutationError = (
+    null
+    || cancelTaskMutation.error
+    || pausePrintMutation.error
+    || resumeMutation.error
+  )
+
   if (error) {
     throw error
+  }
+
+  if (mutationError) {
+    throw mutationError
   }
 
   if (loading || !data) {

@@ -173,7 +173,6 @@ impl ReadyState {
                         }
                     }
                     combinator_message::Payload::PauseTask(combinator_message::PauseTask { task_id }) => {
-                        self.loading_gcode = true;
                         let task = self.tasks
                             .iter()
                             .position(|task| task.id == task_id)

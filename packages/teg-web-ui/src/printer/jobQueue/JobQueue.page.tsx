@@ -2,6 +2,7 @@ import React from 'react'
 import { gql } from '@apollo/client'
 import { useMutation, useQuery } from '@apollo/client'
 import { useHistory } from 'react-router-dom'
+import { useSnackbar } from 'notistack'
 
 import JobQueueView from './JobQueue.view'
 
@@ -93,6 +94,8 @@ const DELETE_PART = gql`
 const JobQueuePage = ({
   match,
 }) => {
+  const { enqueueSnackbar } = useSnackbar()
+
   const { machineID } = match.params
   const history = useHistory()
 
@@ -103,23 +106,48 @@ const JobQueuePage = ({
     },
   })
 
-  const [print] = useMutation(PRINT)
-  const [deleteParts] = useMutation(DELETE_PART)
-  const [cancelTask] = useMutation(STOP)
+  const SuccessMutationOpts = (msg) => ({
+    onCompleted: () => {
+      enqueueSnackbar(msg, {
+        variant: 'success',
+      })
+    }
+  })
+
+  const [print, printMutation] = useMutation(
+    PRINT,
+    SuccessMutationOpts('Print started!'),
+  )
+  const [deleteParts, deletePartsMutation] = useMutation(DELETE_PART)
+  const [cancelTask, cancelTaskMutation] = useMutation(
+    STOP,
+    SuccessMutationOpts('Print cancelled!'),
+  )
   const [setPartPositions, setPartPositionsMutation] = useMutation(SET_PART_POSITIONS)
-  const [pausePrint] = useMutation(gql`
-    mutation pausePrint($taskID: ID!) {
-      pausePrint(taskID: $taskID) { id }
-    }
-  `)
-  const [resumePrint, resumeMutation] = useMutation(gql`
-    mutation resumePrint($taskID: ID!) {
-      resumePrint(taskID: $taskID) { id }
-    }
-  `)
+  const [pausePrint, pausePrintMutation] = useMutation(
+    gql`
+      mutation pausePrint($taskID: ID!) {
+        pausePrint(taskID: $taskID) { id }
+      }
+    `,
+    SuccessMutationOpts('Print paused!'),
+  )
+  const [resumePrint, resumeMutation] = useMutation(
+    gql`
+      mutation resumePrint($taskID: ID!) {
+        resumePrint(taskID: $taskID) { id }
+      }
+    `,
+    SuccessMutationOpts('Print resumed!'),
+  )
 
   const mutationError = (
-    setPartPositionsMutation.error
+    null
+    || printMutation.error
+    || deletePartsMutation.error
+    || cancelTaskMutation.error
+    || pausePrintMutation.error
+    || setPartPositionsMutation.error
     || resumeMutation.error
   )
 

@@ -60,7 +60,7 @@ impl Task {
                 SELECT props FROM tasks
                 WHERE
                     tasks.machine_id = ?
-                    AND tasks.status IN ('spooled', 'started')
+                    AND tasks.status IN ('spooled', 'started', 'paused')
             "#,
             machine_id,
         )
@@ -74,7 +74,10 @@ impl Task {
     pub async fn settle_task(&mut self) {
         // Move the despooled line number to the end of the file if the print was successful
         if self.status.was_successful() {
-            self.despooled_line_number = Some(self.total_lines - 1);
+            // Accounting for zero length tasks
+            let total_lines = std::cmp::max(self.total_lines, 1);
+
+            self.despooled_line_number = Some(total_lines - 1);
         }
 
         // delete the completed GCode file
