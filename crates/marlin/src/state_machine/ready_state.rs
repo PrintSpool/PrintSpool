@@ -210,7 +210,14 @@ impl ReadyState {
             SerialPortDisconnected => {
                 disconnect(&Ready(self), context)
             }
-            GCodeLoaded ( task ) => {
+            GCodeLoaded ( mut task ) => {
+                // Skip to through the despooled lines in a print is being resumed
+                if let Some(despooled_line_number) = task.despooled_line_number {
+                    for _ in 0..despooled_line_number {
+                        task.gcode_lines.next();
+                    }
+                }
+
                 if task.machine_override {
                     let first_non_override = self.tasks.iter()
                         .position(|t| !t.machine_override)

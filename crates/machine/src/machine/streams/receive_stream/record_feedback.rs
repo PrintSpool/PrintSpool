@@ -104,29 +104,37 @@ pub async fn update_tasks(
         trace!("Task #{} status: {:?}", task.id, status);
         task.despooled_line_number = Some(progress.despooled_line_number as u64);
 
-        let has_just_settled = if !task.status.is_settled() {
-            // Update the task status if it has not previously settled
+        let status_changed = if
+            !task.status.is_settled()
+            // Prevent re-setting paused_at
+            && !(task.status.is_paused() && status.is_paused())
+        {
+            // Update the task status if it has changed and was not previously settled
             task.status = status;
-
-            task.status.is_settled()
+            true
         } else {
             false
         };
 
-        if has_just_settled {
+        if status_changed && task.status.is_settled() {
             task.settle_task().await;
         }
 
         task.update(db).await?;
 
-        if has_just_settled {
+        if status_changed && task.status.is_settled() {
             // publish TaskSettled event
             let mut broker = xactor::Broker::from_registry().await?;
             broker.publish(TaskSettled {
                 task_id: task.id.clone(),
                 task_status: task.status.clone(),
             })?;
+        }
 
+        if
+            status_changed
+            && (task.status.is_settled() || task.status.is_paused())
+        {
             machine.send_message(DeleteTaskHistory {
                 task_id: task.id,
             }.into()).await?;
