@@ -212,6 +212,7 @@ const JobQueuePage = ({
             },
           },
         }),
+        printMutation,
         deleteParts,
         cancelTask,
         pausePrint,
