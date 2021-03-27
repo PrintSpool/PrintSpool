@@ -27,7 +27,5 @@ impl xactor::Handler<StopMachine> for Machine {
             error!("Error stopping machine #{}: {:?}", self.id, err);
             ctx.stop(Some(err));
         };
-
-        self.was_stopped = true;
     }
 }

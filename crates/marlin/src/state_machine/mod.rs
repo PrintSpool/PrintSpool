@@ -80,11 +80,13 @@ impl Loop {
 use State::*;
 use Event::*;
 
-pub fn cancel_all_tasks(state: &State, context: &mut Context) {
-    if let Ready( ReadyState { tasks, .. }) = state {
-        tasks
+pub fn cancel_all_tasks(state: &mut State, context: &mut Context) {
+    if let Ready( ready_state ) = state {
+        ready_state.tasks
             .iter()
             .for_each(|task| context.push_cancel_task(&task));
+
+        ready_state.tasks.truncate(0);
     };
 }
 
@@ -160,7 +162,7 @@ impl State {
         errored(message, &self, context)
     }
 
-    pub fn consume(self, event: Event, context: &mut Context) -> Loop {
+    pub fn consume(mut self, event: Event, context: &mut Context) -> Loop {
         // trace!("event received {:?} in state {:?}", event, self);
 
         if let ProtobufClientConnection = &event {
@@ -206,7 +208,7 @@ impl State {
                 Some(Payload::Estop(_)) => {
                     info!("ESTOP");
 
-                    cancel_all_tasks(&self, context);
+                    cancel_all_tasks(&mut self, context);
 
                     context.handle_state_change(&State::EStopped);
 

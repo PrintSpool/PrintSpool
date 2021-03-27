@@ -94,7 +94,7 @@ const TaskStatusRow = ({
             if (['CANCELLED', 'ERRORED'].includes(task.status)) {
               const stopptedAtText = new Date(Date.parse(task.stoppedAt)).toLocaleString()
               const statusWord = (
-                task.status === 'cancelled' ? 'Cancelled' : 'Errored'
+                task.status === 'CANCELLED' ? 'Cancelled' : 'Errored'
               )
               return `${statusWord} ${taskOnMachine} at ${stopptedAtText}`
             }

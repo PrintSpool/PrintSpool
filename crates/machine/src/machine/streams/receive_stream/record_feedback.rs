@@ -26,6 +26,7 @@ use crate::machine::{
 use crate::task::{
     Task,
     TaskStatus,
+    self,
 };
 use crate::components::{
     // HeaterEphemeral,
@@ -78,7 +79,7 @@ pub async fn update_tasks(
 
                 warn!("{}", message);
 
-                task.status = TaskStatus::Errored(Errored {
+                task.status = TaskStatus::Errored(task::Errored {
                     message,
                     errored_at: *now,
                 });
