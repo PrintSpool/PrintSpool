@@ -14,6 +14,9 @@ const useStyles = makeStyles(theme => ({
     bottom: theme.spacing(2),
     right: theme.spacing(2),
   },
+  extendedIcon: {
+    marginRight: theme.spacing(1),
+  }
 }))
 
 const Wrapper = ({ children, disabled }) => {
@@ -33,10 +36,12 @@ const FloatingPrintNextButton = ({ disabled, onClick }) => {
       <Fab
         className={classes.fab}
         color="primary"
+        variant="extended"
         disabled={disabled}
         onClick={onClick}
       >
-        <PlayArrow />
+        <PlayArrow className={classes.extendedIcon} />
+        Print Next
       </Fab>
     </Wrapper>
   )

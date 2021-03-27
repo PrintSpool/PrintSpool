@@ -174,7 +174,7 @@ const JobQueuePage = ({
     machine.status === 'READY'
   ))
 
-  const spoolNextPrint = () => {
+  const printNext = () => {
     if (nextPart == null) {
       throw new Error('nothing in the queue to print')
     }
@@ -203,7 +203,15 @@ const JobQueuePage = ({
         printQueues,
         machines,
         nextPart,
-        spoolNextPrint,
+        printNext,
+        print: (part) => print({
+          variables: {
+            input: {
+              machineID: readyMachine.id,
+              partID: part.id,
+            },
+          },
+        }),
         deleteParts,
         cancelTask,
         pausePrint,

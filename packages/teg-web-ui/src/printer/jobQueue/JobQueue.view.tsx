@@ -3,7 +3,7 @@ import { Controller, useForm } from 'react-hook-form'
 import truncate from 'truncate'
 
 import Typography from '@material-ui/core/Typography'
-import Fab from '@material-ui/core/Fab'
+// import Fab from '@material-ui/core/Fab'
 import Tooltip from '@material-ui/core/Tooltip'
 import Button from '@material-ui/core/Button'
 import Checkbox from '@material-ui/core/Checkbox'
@@ -18,12 +18,13 @@ import IconButton from '@material-ui/core/IconButton'
 import DeleteIcon from '@material-ui/icons/Delete'
 
 import Add from '@material-ui/icons/Add'
+import PlayArrow from '@material-ui/icons/PlayArrow'
 import MoveToInbox from '@material-ui/icons/MoveToInbox'
 import LowPriorityIcon from '@material-ui/icons/LowPriority'
 
 import useConfirm from '../../common/_hooks/useConfirm'
 import FileInput from '../../common/FileInput'
-import FloatingPrintNextButton from './components/FloatingPrintNextButton'
+// import FloatingPrintNextButton from './components/FloatingPrintNextButton'
 import useStyles from './JobQueue.styles'
 import PrintDialog from '../printDialog/PrintDialog'
 import PrintCard from './components/PrintCard'
@@ -33,7 +34,8 @@ const JobQueueView = ({
   printQueues,
   machines,
   nextPart,
-  spoolNextPrint,
+  print,
+  printNext,
   deleteParts,
   cancelTask,
   pausePrint,
@@ -232,6 +234,36 @@ const JobQueueView = ({
           </div>
         )}
 
+        {/* Actions Row */}
+        { (!isDragging && parts.length > 0) && (
+          <div>
+            <Button
+              component="label"
+              variant="outlined"
+              className={classes.actionsRowButton}
+              color="default"
+              startIcon={<Add/>}
+            >
+              <FileInput
+                accept=".ngc,.gcode"
+                onClick={setPrintDialogFiles}
+              />
+              Add
+            </Button>
+            <Button
+              component="label"
+              variant="contained"
+              className={classes.actionsRowButton}
+              color="primary"
+              disabled={disablePrintNextButton}
+              onClick={printNext}
+              startIcon={<PlayArrow/>}
+            >
+              Print Next
+            </Button>
+          </div>
+        )}
+
         { !isDragging && printQueues.filter(q => q.parts.length > 0).map(printQueue => (
             <Paper key={printQueue.id}>
               <div className={classes.partsList}>
@@ -259,6 +291,18 @@ const JobQueueView = ({
                         <TableCell padding="none">
                           { selectedParts.length > 0 && (
                             <>
+                              <Tooltip title="Print Selected">
+                                <IconButton
+                                  aria-label="print-selected"
+                                  onClick={() => {
+                                    print({ id: selectedParts[0] })
+                                  }}
+                                  edge="start"
+                                  disabled={ disablePrintNextButton || selectedParts.length !== 1}
+                                >
+                                  <PlayArrow />
+                                </IconButton>
+                              </Tooltip>
                               <Tooltip title="Move to Top of Queue">
                                 <IconButton
                                   aria-label="move to top of queue"
@@ -327,6 +371,7 @@ const JobQueueView = ({
                                       }}
                                       onChange={(e) => {
                                         // console.log('on change', selectedPartsObj)
+                                        // @ts-ignore
                                         checkboxProps.onChange(e.target.checked)
                                       }}
                                       // size="small"
@@ -369,27 +414,35 @@ const JobQueueView = ({
         ))}
       </div>
 
-      {/* Add Job Button */}
-      <Tooltip title="Add Job" placement="left">
-        <Fab
-          component="label"
-          className={classes.addJobFab}
-          color="default"
-        >
-          <FileInput
-            accept=".ngc,.gcode"
-            onClick={setPrintDialogFiles}
-          />
-          <Add />
-        </Fab>
-      </Tooltip>
-      {/* Print Next Button */}
-      <FloatingPrintNextButton
-        disabled={disablePrintNextButton}
-        onClick={spoolNextPrint}
-      />
+      {/* <MobileButtons /> */}
     </div>
   )
 }
+
+// const MobileButtons = (
+//   <>
+//     {/* Add Job Button */}
+//     <Tooltip title="Add Job" placement="left">
+//       <Fab
+//         component="label"
+//         variant="extended"
+//         className={classes.addJobFab}
+//         color="default"
+//       >
+//         <FileInput
+//           accept=".ngc,.gcode"
+//           onClick={setPrintDialogFiles}
+//         />
+//         <Add className={ classes.fabIconExtended }/>
+//         Add
+//       </Fab>
+//     </Tooltip>
+//     {/* Print Next Button */}
+//     <FloatingPrintNextButton
+//       disabled={disablePrintNextButton}
+//       onClick={printNext}
+//     />
+//   </>
+// )
 
 export default JobQueueView

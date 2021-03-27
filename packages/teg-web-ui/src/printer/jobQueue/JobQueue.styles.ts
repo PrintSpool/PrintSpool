@@ -73,11 +73,20 @@ const useStyles = makeStyles(theme => ({
   emptyQueueText: {
     color: 'rgba(0, 0, 0, 0.54)',
   },
-  addJobFab: {
-    position: 'fixed',
-    bottom: theme.spacing(4) + 56,
-    right: theme.spacing(2),
+  // Add and Print Next buttons
+  actionsRowButton: {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(2),
+    marginRight: theme.spacing(1),
   },
+  // addJobFab: {
+  //   position: 'fixed',
+  //   bottom: theme.spacing(3) + 56,
+  //   right: theme.spacing(2),
+  // },
+  // fabIconExtended: {
+  //   marginRight: theme.spacing(1),
+  // },
 }))
 
 export default useStyles
