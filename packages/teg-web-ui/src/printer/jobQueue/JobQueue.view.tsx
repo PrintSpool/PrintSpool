@@ -19,7 +19,7 @@ import DeleteIcon from '@material-ui/icons/Delete'
 
 import Add from '@material-ui/icons/Add'
 import PlayArrow from '@material-ui/icons/PlayArrow'
-import MoveToInbox from '@material-ui/icons/MoveToInbox'
+import CloudUpload from '@material-ui/icons/CloudUpload'
 import LowPriorityIcon from '@material-ui/icons/LowPriority'
 
 import useConfirm from '../../common/_hooks/useConfirm'
@@ -214,6 +214,34 @@ const JobQueueView = ({
         ))}
       </div>
 
+      {/* Actions Row */}
+      <div>
+        <Button
+          component="label"
+          variant="outlined"
+          className={classes.actionsRowButton}
+          color="default"
+          startIcon={<Add/>}
+        >
+          <FileInput
+            accept=".ngc,.gcode"
+            onClick={setPrintDialogFiles}
+          />
+          Add
+        </Button>
+        <Button
+          component="label"
+          variant="contained"
+          className={classes.actionsRowButton}
+          color="primary"
+          disabled={disablePrintNextButton}
+          onClick={printNext}
+          startIcon={<PlayArrow/>}
+        >
+          Print Next
+        </Button>
+      </div>
+
       <div
         className={[
           (isDragging || parts.length === 0) ? classes.draggingOrEmpty : '',
@@ -222,50 +250,50 @@ const JobQueueView = ({
       >
         { (isDragging || parts.length === 0) && (
           <div className={classes.dragArea}>
-            <MoveToInbox className={classes.dragIcon} />
-            <Typography variant="body2" className={classes.dragText}>
+            {/* <CloudUpload className={classes.dragIcon} /> */}
+            <label
+              className={classes.dragLabel}
+            >
+              <CloudUpload className={classes.dragIcon}/>
+              <Typography
+                variant="h6"
+                className={classes.dragText}
+                component="div"
+              >
+                {!isDragging && (
+                  <>
+                    Your print queue is empty. Drag and drop a gcode file here to get started!
+                    <FileInput
+                      accept=".ngc,.gcode"
+                      onClick={setPrintDialogFiles}
+                    />
+                  </>
+                )}
+                {isDragging && (
+                  'Drop your gcode file here!'
+                )}
+              </Typography>
+              {/* <Typography
+                variant="h6"
+                component="div"
+                // className={classes.dragText}
+                paragraph
+              >
+                Or
+              </Typography>
               <Button
                 className={classes.chooseAFileButton}
                 component="label"
+                variant="contained"
+                color="primary"
               >
-                Choose a file
+                Select Files
                 <FileInput
                   accept=".ngc,.gcode"
                   onClick={setPrintDialogFiles}
                 />
-              </Button>
-              or drag it here to print
-            </Typography>
-          </div>
-        )}
-
-        {/* Actions Row */}
-        { (!isDragging && parts.length > 0) && (
-          <div>
-            <Button
-              component="label"
-              variant="outlined"
-              className={classes.actionsRowButton}
-              color="default"
-              startIcon={<Add/>}
-            >
-              <FileInput
-                accept=".ngc,.gcode"
-                onClick={setPrintDialogFiles}
-              />
-              Add
-            </Button>
-            <Button
-              component="label"
-              variant="contained"
-              className={classes.actionsRowButton}
-              color="primary"
-              disabled={disablePrintNextButton}
-              onClick={printNext}
-              startIcon={<PlayArrow/>}
-            >
-              Print Next
-            </Button>
+              </Button> */}
+            </label>
           </div>
         )}
 

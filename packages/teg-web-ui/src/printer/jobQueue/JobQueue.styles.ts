@@ -5,7 +5,7 @@ const useStyles = makeStyles(theme => ({
   root: {
     overflow: 'scroll',
     display: 'grid',
-    gridTemplateRows: 'auto 1fr',
+    gridTemplateRows: 'auto auto 1fr',
     padding: theme.spacing(2),
   },
   headerCheckbox: {
@@ -24,43 +24,41 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.text.hint,
   },
   dragging: {
-    border: '4px dashed #666',
+    background: '#EEE',
   },
   draggingOrEmpty: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    border: '2px dashed #666',
   },
   dragArea: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    flexDirection: 'row',
+    flexDirection: 'column',
     [theme.breakpoints.down('xs')]: {
       flexDirection: 'column',
     },
   },
-  dragText: {
-    color: '#444',
+  dragLabel: {
     display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    fontSize: '1.5rem',
-    [theme.breakpoints.down('xs')]: {
-      fontSize: '1rem',
-    },
+    cursor: 'pointer',
   },
-  chooseAFileButton: {
-    fontSize: '1.5rem',
-    [theme.breakpoints.down('xs')]: {
-      fontSize: '1rem',
-    },
-  },
-  dragIcon: {
-    fontSize: '3rem',
-    marginRight: '0.5rem',
+  dragText: {
+    cursor: 'pointer',
     color: '#444',
+    textAlign: 'center',
+    [theme.breakpoints.down('xs')]: {
+      fontSize: '1rem',
+    },
+  },
+ dragIcon: {
+    color: '#444',
+    width: theme.spacing(9),
+    height: theme.spacing(9),
   },
   emptyQueueContainer: {
     position: 'relative',
