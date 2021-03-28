@@ -145,6 +145,8 @@ impl Effect {
                 };
                 let empty_feedback: Feedback = Feedback::default();
 
+                reactor.context.add_gcode_history_to_feedback();
+
                 let feedback = std::mem::replace(
                     &mut reactor.context.feedback,
                     empty_feedback,
@@ -170,8 +172,6 @@ impl Effect {
 
                 // eprintln!("Protobuf TX ({:?} Bytes)", message.encoded_len());
                 // eprintln!("Protobuf TX ({:?} Bytes): {:#?}", message.encoded_len(), message.payload);
-
-                reactor.context.after_protobuf();
 
                 reactor.protobuf_broadcast
                     .send(Bytes::from(buf))

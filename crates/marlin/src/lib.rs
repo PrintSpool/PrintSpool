@@ -148,7 +148,7 @@ pub async fn start(
 
     // Protobuf Server
     // ----------------------------------------------------
-    let (protobuf_broadcast, protobuf_recv) = bus_queue::flavors::arc_swap::bounded(1);
+    let (protobuf_broadcast, protobuf_recv) = bus_queue::flavors::arc_swap::bounded(10);
 
     let protobuf_sender = mpsc::Sender::clone(&event_sender);
 

@@ -82,7 +82,8 @@ impl Context {
         }
     }
 
-    pub fn after_protobuf(&mut self) -> () {
+    pub fn add_gcode_history_to_feedback(&mut self) -> () {
+        // println!("History Buffer: {:?}", self.gcode_history_buffer);
         self.feedback.gcode_history = self.gcode_history_buffer.drain(..).collect();
     }
 
@@ -174,6 +175,7 @@ impl Context {
         if is_polling {
             return
         }
+
         let direction = machine_message::GCodeHistoryDirection::Rx as i32;
         self.push_gcode_history_entry(raw_src, direction)
     }
@@ -183,6 +185,7 @@ impl Context {
         if is_polling {
             return
         }
+
         let direction = machine_message::GCodeHistoryDirection::Tx as i32;
         self.push_gcode_history_entry(raw_src, direction)
     }
