@@ -97,6 +97,8 @@ const VideoStreamerPage = (props: any) => {
       },
     })
 
+    // console.log(data)
+
     // console.log('answer', data.createVideoSDP.answer)
     p.signal(data.createVideoSDP.answer)
 
@@ -107,7 +109,7 @@ const VideoStreamerPage = (props: any) => {
     })
 
     const updateIceCandidates = async () => {
-      // console.log('querying ice candidates')
+      // console.log(`querying ice candidates (session id: ${data.createVideoSDP.id})`)
 
       const { data: { iceCandidates } } = await apollo.query({
         query: queryIceCandidates,
@@ -125,7 +127,7 @@ const VideoStreamerPage = (props: any) => {
     const iceCandidatePollingInterval = setInterval(updateIceCandidates, 300)
 
     p.on('connect', () => {
-      // console.log('CONNECT')
+      // console.log(`video connected (session id: ${data.createVideoSDP.id})`)
       clearInterval(iceCandidatePollingInterval)
     })
 
@@ -137,44 +139,70 @@ const VideoStreamerPage = (props: any) => {
     //   }
     // })
 
-    // console.log("wait for stream???")
-    const stream = await new Promise(resolve => p.on('stream', resolve))
-    // console.log({ stream })
+    // Wait for stream. Timeout is here because some times webrtc streamer fails to start a stream.
+    let stream
+    let streamTimeout
+    try {
+      stream = await new Promise((resolve, reject) => {
+        p.on('stream', resolve)
+        streamTimeout = setTimeout(() => reject(new Error('Starting stream timed out')), 1000)
+      })
+    } catch (e) {
+      setPeerError(e)
+      return
+    }
+    clearTimeout(streamTimeout)
+    // console.log(`video streaming (session id: ${data.createVideoSDP.id})`)
 
     // got remote video stream, now let's show it in a video tag
     if ('srcObject' in videoEl.current) {
       videoEl.current.srcObject = stream
     } else {
+      // @ts-ignore
       videoEl.current.src = window.URL.createObjectURL(stream) // for older browsers
     }
 
-    videoEl.current.play()
+    try {
+      videoEl.current.play()
+    } catch (e) {
+      console.warn('Unable to autoplay video')
+    }
   }, [])
 
-  const { isLoading, error, run: runLoadVideo } = useAsync({
-    deferFn: loadVideo,
+  // Load the video stream on startup
+  const { isLoading, error, run: runLoadVideo, reload } = useAsync({
+    promiseFn: loadVideo,
   })
 
   // console.log({ error, isLoading })
 
-  // Load the video stream on startup
-  useEffect(() => {
-    runLoadVideo()
-  }, [])
+  // useEffect(() => {
+  //   runLoadVideo()
+  // }, [])
+
+  const retryTimeout = useRef(null as any)
 
   // Re-try the video stream after a delay if there is a connection error
   useEffect(() => {
-    if (peerError == null) return () => {}
+    if (peerError == null || retryTimeout.current != null) return () => {}
 
-    console.error('Video Streaming Error', peerError)
+    console.error(
+      `Video Streaming Error (retrying in ${retryDelay}ms)`,
+      (peerError as any)?.message || peerError
+    )
 
-    const timeout = setTimeout(runLoadVideo, retryDelay)
+    retryTimeout.current = setTimeout(() => {
+      console.log('Retrying video connection')
+      retryTimeout.current = null
+      reload()
+    }, retryDelay)
 
     setPeerError(null)
     setRetryDelay(Math.min(retryDelay * 1.5, MAX_RETRY_DELAY))
-
-    return () => clearTimeout(timeout)
   }, [peerError])
+
+  // Clear the retry timeout only on unmount
+  useEffect(() => () => clearTimeout(retryTimeout.current), [])
 
   if (error) {
     return (

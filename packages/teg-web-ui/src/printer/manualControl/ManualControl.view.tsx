@@ -10,7 +10,7 @@ import MotorsEnabled from './MotorsEnabled'
 import XYJogButtons from './jog/XYJogButtons'
 import ZJogButtons from './jog/ZJogButtons'
 import ComponentControl from './printerComponents/ComponentControl'
-import VideoStreamer from './videoStreamer/VideoStreamer.page'
+import MultiVideoStreamer from './videoStreamer/MultiVideoStreamer.page'
 
 import useStyles from './ManualControl.styles'
 
@@ -26,15 +26,10 @@ const ManualControlView = ({
 
   return (
     <div className={classes.root}>
-      <div className={classes.videoStreamer}>
-        { videos.map((video) => (
-          <VideoStreamer
-            key={video.id}
-            machineID={machine.id}
-            videoID={video.id}
-          />
-        ))}
-      </div>
+      <MultiVideoStreamer
+        machineID={machine.id}
+        videos={videos}
+      />
       <div className={classes.controls}>
         <Loader
           show={!isReady}

@@ -9,18 +9,15 @@ const VideoStreamerView = ({
   const classes = useStyles()
 
   return (
-    <LoadingOverlay loading={false}>
-      <div className={classes.container}>
-        {/* eslint-disable-next-line */}
-        <video
-          ref={videoEl}
-          className={classes.video}
-          controls
-          autoPlay
-        >
-        </video>
-      </div>
-    </LoadingOverlay>
+    // <LoadingOverlay loading={isLoading} loadingText="">
+    <video
+      ref={videoEl}
+      className={classes.video}
+      controls={!isLoading}
+      autoPlay
+    >
+    </video>
+    // {/* </LoadingOverlay> */}
   )
 }
 

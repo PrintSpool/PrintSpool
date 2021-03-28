@@ -49,9 +49,15 @@ impl VideoQuery {
                 .map_err(|err| eyre!(err)) // TODO: Remove me when surf 2.0 is released
                 .wrap_err("Error getting video sources list")?;
 
-            let video_sources = media_list.into_iter()
-                .map(|media| VideoSource {
-                    id: media.video.into()
+            let video_sources = media_list
+                .iter()
+                .enumerate()
+                // deduplicate without changing video source ordering
+                .filter(|(i, m1)| {
+                    media_list.iter().position(|m2| m2.video == m1.video) == Some(*i)
+                })
+                .map(|(_, media)| VideoSource {
+                    id: media.video.clone().into()
                 })
                 .collect();
 

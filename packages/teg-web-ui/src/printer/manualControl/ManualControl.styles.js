@@ -15,22 +15,23 @@ const useStyles = makeStyles(theme => ({
     // },
     overflow: 'hidden',
   },
-  videoStreamer: {
-    // alignSelf: 'center',
-    marginBottom: theme.spacing(2),
-    display: 'grid',
-    alignContent: 'center',
-    overflow: 'hidden',
+  // videoStreamer: {
+  //   // // alignSelf: 'center',
+  //   // marginBottom: theme.spacing(2),
+  //   // // display: 'grid',
+  //   // alignContent: 'center',
+  //   // // overflow: 'hidden',
 
-    // Vertical Split
-    maxHeight: '35vh',
-    // // Horizontal Split
-    // [theme.breakpoints.up('md')]: {
-    //   maxHeight: '100vh',
-    //   width: '25vw',
-    //   height: '100%',
-    // },
-  },
+  //   // // Vertical Split
+  //   // maxHeight: '35vh',
+  //   // // // Horizontal Split
+  //   // // [theme.breakpoints.up('md')]: {
+  //   // //   maxHeight: '100vh',
+  //   // //   width: '25vw',
+  //   // //   height: '100%',
+  //   // // },
+  //   overflow: 'visible',
+  // },
   controls: {
     overflow: 'scroll',
     scrollbarWidth: 'none',
