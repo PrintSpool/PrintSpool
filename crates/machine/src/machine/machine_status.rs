@@ -8,6 +8,8 @@ use eyre::{
 
 use crate::task::Task;
 
+use super::MachineData;
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum MachineStatus {
     Disconnected,
@@ -53,10 +55,18 @@ impl From<MachineStatus> for MachineStatusGQL {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct Printing {
     pub task_id: crate::DbId,
     pub paused: bool,
+    /// The state of the machine at the time the print was paused
+    pub paused_state: Option<Box<MachineData>>,
+}
+
+impl PartialEq for Printing {
+  fn eq(&self, other: &Self) -> bool {
+      self.task_id == other.task_id
+  }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -124,7 +134,7 @@ impl MachineStatus {
               true
             }
             // Allow paused tasks to be resumed and be pre-empted by manual controls
-            Self::Printing(Printing { paused: true, task_id }) => {
+            Self::Printing(Printing { paused: true, task_id, .. }) => {
               !task.is_print() || &task.id == task_id
             }
             Self::Ready => {

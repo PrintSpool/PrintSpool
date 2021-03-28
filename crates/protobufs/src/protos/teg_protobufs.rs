@@ -78,12 +78,10 @@ pub mod server_message {
     }
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Payload {
-        /// TODO: maybe the machine service should just listen to it's config file for changes?
         #[prost(message, tag="9")]
         SetConfig(SetConfig),
         #[prost(message, tag="10")]
         SpoolTask(SpoolTask),
-        /// TODO: task pausing
         #[prost(message, tag="11")]
         PauseTask(PauseTask),
         /// immediately stop the machine

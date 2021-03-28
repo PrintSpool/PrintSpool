@@ -105,6 +105,7 @@ pub async fn update_tasks(
                     Printing {
                         task_id: task.id.clone(),
                         paused: false,
+                        paused_state: None,
                     }
                 );
             }
@@ -138,6 +139,7 @@ pub async fn update_tasks(
                 MachineStatus::Printing(Printing {
                     task_id,
                     paused: false,
+                    ..
                 }) if task_id == &task.id => {
                     info!("Print #{} Completed!", task.id);
                     machine.get_data()?.status = MachineStatus::Ready;
@@ -355,6 +357,25 @@ pub async fn update_machine(
         };
 
         machine.motors_enabled = flags.contains(MachineFlags::MOTORS_ENABLED);
+
+        // After pausing a print the driver will send the PAUSED_STATE flag to indicate the state
+        // of the machine at the time the print was paused.
+        if flags.contains(MachineFlags::PAUSED_STATE) {
+            let paused_state = MachineData {
+                gcode_history: Default::default(),
+                ..machine.clone()
+            };
+
+            if let MachineStatus::Printing(
+                printing @ Printing { paused: true, paused_state: None, .. }
+            ) = &mut machine.status {
+                info!("Paused state set");
+                // Copy the machine data to the paused state
+                printing.paused_state = Some(Box::new(paused_state))
+            } else {
+                warn!("PAUSED_STATE flag received but machine is not waiting to set paused_state");
+            }
+        }
     } else {
         warn!("Unable to parse machine flags: {:#b}", feedback.machine_flags);
     }

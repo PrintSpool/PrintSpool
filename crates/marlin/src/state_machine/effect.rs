@@ -32,7 +32,7 @@ use fallible_iterator::{
     FallibleIterator,
 };
 
-use teg_protobufs::Message;
+use teg_protobufs::{MachineFlags, Message};
 use bytes::Bytes;
 
 use super::{
@@ -179,6 +179,9 @@ impl Effect {
                     .send(Bytes::from(buf))
                     .await
                     .expect("machine message send failed");
+
+                // Reset the PAUSED_STATE flag after the protobuf has been sent
+                reactor.context.machine_flags.set(MachineFlags::PAUSED_STATE, false);
             }
             Effect::LoadGCode {
                 file_path,

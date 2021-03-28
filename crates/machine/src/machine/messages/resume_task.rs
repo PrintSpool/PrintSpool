@@ -46,6 +46,7 @@ impl xactor::Handler<ResumeTask> for Machine {
         self.get_data()?.status = MachineStatus::Printing(Printing {
             task_id: task.id.clone(),
             paused: false,
+            paused_state: None,
         });
 
         info!("Resumed Print #{}", task.id);

@@ -51,38 +51,12 @@ impl PausePrintMutation {
                 &core_plugin.model.pause_hook,
             ).await?;
 
-            let mut tx = db.begin().await?;
-            // Re-fetch the task within the transaction
-            let mut task = Task::get(&mut tx, &task_id, false).await?;
-
-            if task.status.is_settled() {
-                Err(eyre!("Cannot pause a task that is not running"))?;
-            }
-
-            if !task.is_print() {
-                Err(eyre!("Cannot pause task because task is not a print"))?;
-            }
-
-            if task.status.is_paused() {
-                // handle redundant calls as a no-op to pause idempotently
-                return Ok(task);
-            }
-
-            task.status = TaskStatus::Paused(Paused {
-                paused_at: Utc::now(),
-            });
-
-            task.update(&mut tx).await?;
-            pause_hook.insert_no_rollback(&mut tx).await?;
-
-            tx.commit().await?;
-
             // Pause the task and spool the pause hook
             let msg = PauseTask {
                 task_id: task.id.clone(),
                 pause_hook,
             };
-            machine.call(msg).await??;
+            let task = machine.call(msg).await??;
 
             Result::<_>::Ok(task)
         }

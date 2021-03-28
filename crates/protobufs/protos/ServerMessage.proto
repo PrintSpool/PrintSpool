@@ -7,10 +7,8 @@ message ServerMessage {
   // uint32 message_id = 2;
 
   oneof payload {
-    // TODO: maybe the machine service should just listen to it's config file for changes?
     SetConfig set_config = 9;
     SpoolTask spool_task = 10;
-    // TODO: task pausing
     PauseTask pause_task = 11;
 
     // immediately stop the machine

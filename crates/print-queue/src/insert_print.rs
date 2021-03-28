@@ -271,6 +271,7 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
             Printing {
                 task_id: task.id.clone(),
                 paused: false,
+                paused_state: None,
             }
         );
 

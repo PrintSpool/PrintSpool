@@ -124,6 +124,7 @@ impl Context {
     }
 
     pub fn push_pause_task(&mut self, task: &Task) {
+        self.machine_flags.set(MachineFlags::PAUSED_STATE, true);
         self.push_task_progress(task, TaskStatus::TaskPaused);
     }
 
