@@ -33,6 +33,7 @@ const PRINT_QUEUES_QUERY = gql`
         machine {
           id
           name
+          status
         }
       }
     }
@@ -48,20 +49,6 @@ const PRINT_QUEUES_QUERY = gql`
         totalPrints
         startedFinalPrint
         # stoppedAt
-
-        tasks {
-          id
-          percentComplete(digits: 1)
-          estimatedPrintTimeMillis
-          startedAt
-          stoppedAt
-          status
-          paused
-          machine {
-            id
-            name
-          }
-        }
       }
     }
   }

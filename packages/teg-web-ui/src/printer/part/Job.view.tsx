@@ -26,6 +26,7 @@ const JobView = ({
   execGCodes,
   isReady,
   isPrinting,
+  machineStatus,
 }) => {
   const classes = useStyles()
 
@@ -91,6 +92,7 @@ const JobView = ({
                   cancelTask,
                   pausePrint,
                   resumePrint,
+                  machineStatus,
                 }}
               />
               { task.estimatedFilamentMeters != null && (

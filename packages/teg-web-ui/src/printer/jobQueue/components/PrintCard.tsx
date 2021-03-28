@@ -92,6 +92,7 @@ const PrintCard = ({
             cancelTask,
             pausePrint,
             resumePrint,
+            machineStatus: task.machine.status,
           }}
         />
       </CardContent>

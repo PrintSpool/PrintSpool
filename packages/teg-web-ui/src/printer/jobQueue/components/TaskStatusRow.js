@@ -24,6 +24,7 @@ import useConfirm from '../../../common/_hooks/useConfirm'
 const TaskStatusRow = ({
   task,
   cancelTask,
+  machineStatus,
   pausePrint,
   resumePrint,
 }) => {
@@ -76,6 +77,8 @@ const TaskStatusRow = ({
       return ` (${timeStr} remaining)`
     })()
   }
+
+  const disabled = !['READY', 'PRINTING', 'PAUSED'].includes(machineStatus)
 
   return (
     <div>
@@ -140,7 +143,7 @@ const TaskStatusRow = ({
             <IconButton
               aria-label={task.paused ? 'resume print' : 'pause print'}
               disabled={
-                ['CANCELLED', 'ERROR', 'DONE'].includes(task.status)
+                ['CANCELLED', 'ERROR', 'DONE'].includes(task.status) || disabled
               }
               onClick={togglePause}
               style={{
@@ -153,7 +156,7 @@ const TaskStatusRow = ({
             <IconButton
               aria-label="cancel"
               disabled={
-                ['CANCELLED', 'ERROR', 'DONE'].includes(task.status)
+                ['CANCELLED', 'ERROR', 'DONE'].includes(task.status) || disabled
               }
               onClick={confirmedCancelTask}
               style={{
