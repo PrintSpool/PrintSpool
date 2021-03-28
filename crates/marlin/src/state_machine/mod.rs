@@ -284,7 +284,7 @@ impl State {
                 }
                 /* Echo, Debug and Error function the same in all states */
                 SerialRec((src, response)) => {
-                    context.push_gcode_rx(src.clone());
+                    context.push_gcode_rx(src.clone(), false);
 
                     match (self, response) {
                         /* Errors */
@@ -457,6 +457,7 @@ impl State {
                 checksum: true,
             },
             context,
+            false,
         );
 
         let mut ready = ReadyState::default();

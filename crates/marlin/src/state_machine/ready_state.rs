@@ -80,6 +80,7 @@ pub struct ReadyState {
     mark: Option<Mark>,
     poll_for: Option<Polling>,
     awaiting_polling_delay: bool,
+    awaiting_polling_feedback: bool,
     tickles_attempted: u32,
     pub last_gcode_sent: Option<String>,
     on_ok: OnOK,
@@ -97,6 +98,7 @@ impl Default for ReadyState {
             last_gcode_sent: None,
             poll_for: Some(Polling::PollTemperature),
             awaiting_polling_delay: false,
+            awaiting_polling_feedback: false,
             tickles_attempted: 0,
             next_serial_line_number: 1,
             // spool
@@ -251,16 +253,20 @@ impl ReadyState {
             SerialRec((src, response)) => {
                 // eprintln!("RX: {:?}", response.raw_src);
 
-                // if let Some(_) = &self.task {
-                context.push_gcode_rx(src);
-                // }
+                let is_polling_feedback = match response {
+                    | Response::Ok(_)
+                    | Response::Feedback(_) => self.awaiting_polling_feedback,
+                    _ => false
+                };
+
+                context.push_gcode_rx(src, is_polling_feedback);
 
                 match response {
                     /* No ops */
-                    Response::Unknown |
-                    Response::Echo(_) |
-                    Response::Debug(_) |
-                    Response::Warning { .. } => {
+                    | Response::Unknown
+                    | Response::Echo(_)
+                    | Response::Debug(_)
+                    | Response::Warning { .. } => {
                         self.and_no_effects()
                     }
                     /* Errors */
@@ -474,6 +480,7 @@ impl ReadyState {
                         checksum: true,
                     },
                     context,
+                    false,
                 );
 
                 self.on_ok = OnOK::IgnoreOK;
@@ -510,6 +517,8 @@ impl ReadyState {
     }
 
     fn despool_task(&mut self, effects: &mut Vec<Effect>, context: &mut Context) -> eyre::Result<()> {
+        self.awaiting_polling_feedback = false;
+
         if let Some(Mark::WaitingToReachMark(_)) = self.mark {
             self.on_ok = OnOK::NotAwaitingOk;
             return Ok(());
@@ -549,6 +558,7 @@ impl ReadyState {
                             checksum: true,
                         },
                         context,
+                        false,
                     );
 
                     self.on_ok = OnOK::Despool;
@@ -642,6 +652,8 @@ impl ReadyState {
 
         trace!("Despool: Polling ({:})", gcode);
 
+        self.awaiting_polling_feedback = true;
+
         send_serial(
             effects,
             GCodeLine {
@@ -650,6 +662,7 @@ impl ReadyState {
                 checksum: true,
             },
             context,
+            true,
         );
 
         self.on_ok = OnOK::Despool;
@@ -689,6 +702,7 @@ impl ReadyState {
                     checksum: checksum_tickles,
                 },
                 context,
+                false,
             );
 
             self.tickles_attempted += 1;

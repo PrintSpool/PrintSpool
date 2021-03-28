@@ -3,7 +3,12 @@ use teg_machine::components::ControllerConfig;
 use super::*;
 use crate::gcode_parser::parse_gcode;
 
-pub fn send_serial(effects: &mut Vec<Effect>, gcode_line: GCodeLine, context: &mut Context) {
+pub fn send_serial(
+    effects: &mut Vec<Effect>,
+    gcode_line: GCodeLine,
+    context: &mut Context,
+    is_polling: bool,
+) {
     // Allow for a byte of spacing between receiving and sending over the serial port
     // The choice of 1 byte was arbitrary but sending without a spin lock seems to
     // loose GCodes.
@@ -12,7 +17,7 @@ pub fn send_serial(effects: &mut Vec<Effect>, gcode_line: GCodeLine, context: &m
 
     // eprintln!("TX: {:?}", gcode_line.gcode);
 
-    context.push_gcode_tx(gcode_line.gcode.clone());
+    context.push_gcode_tx(gcode_line.gcode.clone(), is_polling);
 
     let parser_result = parse_gcode(&gcode_line.gcode, context)
         .map_err(|err| warn!("{}", err));

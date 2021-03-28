@@ -169,12 +169,20 @@ impl Context {
         }
     }
 
-    pub fn push_gcode_rx(&mut self, raw_src: String) {
+    pub fn push_gcode_rx(&mut self, raw_src: String, is_polling: bool) {
+        // Placeholder: Some day we might allow a toggle to display polling gcodes
+        if is_polling {
+            return
+        }
         let direction = machine_message::GCodeHistoryDirection::Rx as i32;
         self.push_gcode_history_entry(raw_src, direction)
     }
 
-    pub fn push_gcode_tx(&mut self, raw_src: String) {
+    pub fn push_gcode_tx(&mut self, raw_src: String, is_polling: bool) {
+        // Placeholder: Some day we might allow a toggle to display polling gcodes
+        if is_polling {
+            return
+        }
         let direction = machine_message::GCodeHistoryDirection::Tx as i32;
         self.push_gcode_history_entry(raw_src, direction)
     }
