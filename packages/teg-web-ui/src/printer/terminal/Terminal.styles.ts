@@ -2,18 +2,12 @@ import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
   root: {
-    // Scrolling needs an absolute height for it's container to work. Setting the root's position
-    // to absolute gives an absolute height. Removing this will break the terminal scrolling.
-    position: 'absolute',
-    top: 80 + 53,
-    bottom: 0,
-    // End of scrolling hack
-
     display: 'grid',
     gridTemplateRows: 'auto auto 1fr',
     // width: '100%',
     padding: theme.spacing(2),
     paddingBottom: 0,
+    overflow: 'hidden',
   },
   reference: {
     marginTop: theme.spacing(2),
