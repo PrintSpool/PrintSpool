@@ -54,20 +54,19 @@ const TerminalView = ({
           Marlin GCode Index.
         </Link>
       </Typography>
-      <Typography
-        variant="body2"
-        className={classes.terminalHistory}
-        component="div"
-      >
-        {
-          [...gcodeHistory].reverse().map(entry => (
-            // eslint-disable-next-line react/no-array-index-key
-            <div
-              key={entry.id}
-              className={[
-                classes.terminalEntry,
-                classes[entry.direction === 'TX' ? 'tx' : 'rx'],
-              ].join(' ')}
+      <div className={classes.terminalHistory}>
+        { [...gcodeHistory].reverse().map(entry => (
+          // eslint-disable-next-line react/no-array-index-key
+          <div
+            key={entry.id}
+            className={[
+              classes.terminalEntry,
+              classes[entry.direction === 'TX' ? 'tx' : 'rx'],
+            ].join(' ')}
+          >
+            <Typography
+              variant="body2"
+              component="div"
             >
               {
                 <span className={classes.createdAt}>
@@ -80,10 +79,10 @@ const TerminalView = ({
               <span className={classes.content}>
                 {entry.content}
               </span>
-            </div>
-          ))
-        }
-      </Typography>
+            </Typography>
+          </div>
+        )) }
+      </div>
     </div>
   )
 }

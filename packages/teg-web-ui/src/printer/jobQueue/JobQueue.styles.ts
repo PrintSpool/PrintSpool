@@ -3,10 +3,11 @@ import { lighten, makeStyles } from '@material-ui/core/styles'
 // eslint-disable-next-line
 const useStyles = makeStyles(theme => ({
   root: {
-    overflow: 'scroll',
+    // overflow: 'scroll',
     display: 'grid',
     gridTemplateRows: 'auto auto 1fr',
     padding: theme.spacing(2),
+    overflow: 'hidden',
   },
   headerCheckbox: {
     paddingTop: 3,

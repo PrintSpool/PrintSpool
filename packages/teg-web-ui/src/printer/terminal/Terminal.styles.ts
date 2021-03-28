@@ -2,20 +2,28 @@ import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
   root: {
-    display: 'flex',
-    flexDirection: 'column',
-    width: '100%',
+    // Scrolling needs an absolute height for it's container to work. Setting the root's position
+    // to absolute gives an absolute height. Removing this will break the terminal scrolling.
+    position: 'absolute',
+    top: 80 + 53,
+    bottom: 0,
+    // End of scrolling hack
+
+    display: 'grid',
+    gridTemplateRows: 'auto auto 1fr',
+    // width: '100%',
     padding: theme.spacing(2),
+    paddingBottom: 0,
   },
   reference: {
     marginTop: theme.spacing(2),
-    flexGrow: 0,
+    marginBottom: theme.spacing(1),
   },
   terminalHistory: {
-    flexGrow: 1,
-    marginTop: theme.spacing(2),
-    maxHeight: 'calc(100vh - 200px)',
+    // maxHeight: 'calc(100vh - 200px)',
     overflowY: 'scroll',
+    /* for Firefox */
+    minHeight: 0,
   },
   inputRow: {
     display: 'flex',
@@ -25,7 +33,8 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 1,
     marginRight: theme.spacing(2),
   },
-  terminalEntry: {},
+  terminalEntry: {
+  },
   tx: {
     '& $direction': {
       color: '#DD25C4',
