@@ -2,7 +2,6 @@ use eyre::{
     // eyre,
     Context as _,
 };
-
 use nom_gcode::{
     GCodeLine,
     Mnemonic::{
@@ -11,6 +10,7 @@ use nom_gcode::{
         General as G,
     },
 };
+use teg_protobufs::MachineFlags;
 
 use crate::state_machine::Context;
 
@@ -32,8 +32,6 @@ use super::{
         Blocking,
         NonBlocking,
     },
-    PositionMode,
-    PositionUnits,
 };
 
 const M104_SET_HOTEND: u32 = 104;
@@ -88,19 +86,32 @@ pub fn parse_gcode(
             parse_home(&gcode, context)
         }
         (G, &G20_INCH_UNITS) => {
-            context.position_units = PositionUnits::Inches;
+            context.machine_flags.set(
+                MachineFlags::MILLIMETERS,
+                false,
+            );
             Ok(())
         }
         (G, &G21_MM_UNITS) => {
-            context.position_units = PositionUnits::Millimetre;
+            context.machine_flags.set(
+                MachineFlags::MILLIMETERS,
+                true,
+            );
+
             Ok(())
         }
         (G, &G90_ABSOLUTE_POSITIONING) => {
-            context.position_mode = PositionMode::Absolute;
+            context.machine_flags.set(
+                MachineFlags::ABSOLUTE_POSITIONING,
+                true,
+            );
             Ok(())
         }
         (G, &G91_RELATIVE_POSITIONING) => {
-            context.position_mode = PositionMode::Relative;
+            context.machine_flags.set(
+                MachineFlags::ABSOLUTE_POSITIONING,
+                false,
+            );
             Ok(())
         }
         (M, &M104_SET_HOTEND) => {
@@ -131,13 +142,13 @@ pub fn parse_gcode(
             parse_fan_off(&gcode, context)
         }
         | (M, &M17_ENABLE_STEPPERS) => {
-            context.feedback.motors_enabled = true;
+            context.machine_flags.set(MachineFlags::MOTORS_ENABLED, true);
             Ok(())
         }
         // disable steppers
         | (M, 18)
         | (M, 84) => {
-            context.feedback.motors_enabled = false;
+            context.machine_flags.set(MachineFlags::MOTORS_ENABLED, false);
             Ok(())
         }
         _ => Ok(())

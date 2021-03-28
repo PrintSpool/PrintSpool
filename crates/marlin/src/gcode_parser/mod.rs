@@ -18,15 +18,3 @@ pub enum GCodeSynchronicity {
     Blocking,
     NonBlocking,
 }
-
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub enum PositionUnits {
-    Inches,
-    Millimetre,
-}
-
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub enum PositionMode {
-    Relative,
-    Absolute,
-}

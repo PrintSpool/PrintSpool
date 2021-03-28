@@ -1,6 +1,6 @@
 use teg_protobufs::{
-    CombinatorMessage,
-    combinator_message,
+    ServerMessage,
+    server_message,
 };
 
 #[xactor::message(result = "()")]
@@ -8,12 +8,12 @@ pub struct DeleteTaskHistory {
     pub task_id: crate::DbId,
 }
 
-impl From<DeleteTaskHistory> for CombinatorMessage {
-    fn from(msg: DeleteTaskHistory) -> CombinatorMessage {
-        CombinatorMessage {
+impl From<DeleteTaskHistory> for ServerMessage {
+    fn from(msg: DeleteTaskHistory) -> ServerMessage {
+        ServerMessage {
             payload: Some(
-                combinator_message::Payload::DeleteTaskHistory(
-                    combinator_message::DeleteTaskHistory {
+                server_message::Payload::DeleteTaskHistory(
+                    server_message::DeleteTaskHistory {
                         task_ids: vec![msg.task_id],
                     }
                 )

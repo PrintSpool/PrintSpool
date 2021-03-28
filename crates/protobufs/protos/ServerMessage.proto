@@ -1,8 +1,8 @@
 syntax = "proto3";
 package teg_protobufs;
 
-// Combinators send CombinatorMessages
-message CombinatorMessage {
+// Combinators send ServerMessages
+message ServerMessage {
   // repeated uint32 ack_message_ids = 1;
   // uint32 message_id = 2;
 

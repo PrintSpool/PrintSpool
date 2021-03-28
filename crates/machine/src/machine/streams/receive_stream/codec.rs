@@ -8,7 +8,7 @@ use async_codec::*;
 use bytes::BufMut;
 
 
-use teg_protobufs::{CombinatorMessage, MachineMessage, Message};
+use teg_protobufs::{ServerMessage, MachineMessage, Message};
 
 #[derive(Debug, Clone)]
 pub struct MachineCodec;
@@ -45,10 +45,10 @@ impl Decode for MachineCodec {
 }
 
 impl Encode for MachineCodec {
-    type Item = CombinatorMessage;
+    type Item = ServerMessage;
     type Error = Error;
 
-    fn encode(&mut self, item: &CombinatorMessage, mut buf: &mut [u8]) -> EncodeResult<Error> {
+    fn encode(&mut self, item: &ServerMessage, mut buf: &mut [u8]) -> EncodeResult<Error> {
         const SIZE_DELIMETER_BYTES: usize = 4;
         let needed = item.encoded_len() + SIZE_DELIMETER_BYTES;
         if buf.len() < needed {

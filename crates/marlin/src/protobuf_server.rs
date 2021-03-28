@@ -33,8 +33,8 @@ use bytes::Bytes;
 
 use crate::protos::{
     // MachineMessage,
-    CombinatorMessage,
-    // combinator_message,
+    ServerMessage,
+    // server_message,
 };
 
 use crate::state_machine::Event;
@@ -73,7 +73,7 @@ async fn handle_connection(
             ()
         })
         .and_then(move |buf| -> future::Ready<Result<Event, ()>> {
-            let decoded_result = CombinatorMessage::decode(buf);
+            let decoded_result = ServerMessage::decode(buf);
 
             if let Ok(message) = decoded_result {
                 future::ok(Event::ProtobufRec( message ))

@@ -1,6 +1,6 @@
 use teg_protobufs::{
-    CombinatorMessage,
-    combinator_message,
+    ServerMessage,
+    server_message,
 };
 use eyre::{
     // eyre,
@@ -26,10 +26,10 @@ impl xactor::Handler<PauseTask> for Machine {
             paused: true,
         });
 
-        let protobuf_msg = CombinatorMessage {
+        let protobuf_msg = ServerMessage {
             payload: Some(
-                combinator_message::Payload::PauseTask(
-                    combinator_message::PauseTask { task_id: msg.task_id.clone() }
+                server_message::Payload::PauseTask(
+                    server_message::PauseTask { task_id: msg.task_id.clone() }
                 )
             ),
         };

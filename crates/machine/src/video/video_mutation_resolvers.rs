@@ -114,11 +114,11 @@ impl VideoMutation {
             let url = &format!("{api_url}/call", api_url = WEBRTC_STREAMER_API);
             let req = surf::post(url)
                 .body(serde_json::to_value(&input.offer)?)
-                .query(&dbg!(VideoCallQueryParams {
+                .query(&VideoCallQueryParams {
                     peerid: &video_session_id,
                     url: &video.model.source,
                     options: "rtptransport=tcp&timeout=60",
-                }))
+                })
                 .map_err(|err| eyre!(err))? // TODO: Remove me when surf 2.0 is released
                 .recv_json();
 

@@ -1,6 +1,6 @@
 use teg_protobufs::{
-    CombinatorMessage,
-    combinator_message,
+    ServerMessage,
+    server_message,
 };
 use eyre::{
     eyre,
@@ -53,11 +53,11 @@ impl Machine {
 
         let content = match &task.content {
             TaskContent::FilePath(file_path) => {
-                combinator_message::spool_task::Content::FilePath(file_path.clone())
+                server_message::spool_task::Content::FilePath(file_path.clone())
             }
             TaskContent::GCodes(gcodes) => {
-                combinator_message::spool_task::Content::Inline(
-                    combinator_message::InlineContent {
+                server_message::spool_task::Content::Inline(
+                    server_message::InlineContent {
                         commands: gcodes.clone(),
                     },
                 )
@@ -68,10 +68,10 @@ impl Machine {
             .map(|n| n + 1)
             .unwrap_or(0);
 
-        let message = CombinatorMessage {
+        let message = ServerMessage {
             payload: Some(
-                combinator_message::Payload::SpoolTask(
-                    combinator_message::SpoolTask {
+                server_message::Payload::SpoolTask(
+                    server_message::SpoolTask {
                         task_id: task.id.clone(),
                         client_id,
                         start_at_line_number,

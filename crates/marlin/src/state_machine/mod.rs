@@ -11,8 +11,8 @@ use nom_reprap_response::{
 use crate::protos::{
     // machine_message,
     // MachineMessage,
-    combinator_message,
-    CombinatorMessage,
+    server_message,
+    ServerMessage,
 };
 
 mod ready_state;
@@ -39,7 +39,7 @@ pub enum Event {
     GreetingTimerCompleted,
     SerialRec ((String, Response)),
     ProtobufClientConnection,
-    ProtobufRec ( CombinatorMessage ),
+    ProtobufRec ( ServerMessage ),
     PollFeedback,
     TickleSerialPort,
     SerialPortDisconnected,
@@ -178,8 +178,8 @@ impl State {
         }
 
 
-        if let ProtobufRec( CombinatorMessage { payload } ) = &event {
-            use combinator_message::*;
+        if let ProtobufRec( ServerMessage { payload } ) = &event {
+            use server_message::*;
 
             match payload {
                 Some(Payload::DeviceDiscovered(_)) => {

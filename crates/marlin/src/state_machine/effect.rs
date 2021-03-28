@@ -48,8 +48,8 @@ use crate::{
     // protos::{
     //     // machine_message,
     //     // MachineMessage,
-    //     combinator_message,
-    //     // CombinatorMessage,
+    //     server_message,
+    //     // ServerMessage,
     // },
     StateMachineReactor,
 };
@@ -147,10 +147,12 @@ impl Effect {
 
                 reactor.context.add_gcode_history_to_feedback();
 
-                let feedback = std::mem::replace(
+                let mut feedback = std::mem::replace(
                     &mut reactor.context.feedback,
                     empty_feedback,
                 );
+
+                feedback.machine_flags = reactor.context.machine_flags.bits();
 
                 let message = MachineMessage {
                     payload: Some(Payload::Feedback (

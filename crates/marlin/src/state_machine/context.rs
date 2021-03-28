@@ -1,6 +1,7 @@
 use machine_message::TaskStatus;
 use super::Task;
 use std::collections::vec_deque::VecDeque;
+use teg_protobufs::MachineFlags;
 use crate::protos::{
     machine_message::{
         self,
@@ -13,17 +14,11 @@ use teg_machine::{
     components::Controller,
 };
 
-use crate::gcode_parser::{
-    PositionUnits,
-    PositionMode,
-};
-
 #[derive(Clone, Debug)]
 pub struct Context {
     pub baud_rate: u32,
     pub current_hotend_index: u32,
-    pub position_mode: PositionMode,
-    pub position_units: PositionUnits,
+    pub machine_flags: MachineFlags,
 
     pub config: MachineConfig,
     pub controller: Controller,
@@ -46,8 +41,7 @@ impl Context {
         Self {
             baud_rate: 115_200,
             current_hotend_index: 0,
-            position_mode: PositionMode::Absolute,
-            position_units: PositionUnits::Millimetre,
+            machine_flags: MachineFlags::default(),
             reset_when_idle: false,
             feedback,
             config,

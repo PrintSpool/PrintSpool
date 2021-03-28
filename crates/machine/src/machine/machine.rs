@@ -39,8 +39,18 @@ pub struct MachineData {
     pub status: MachineStatus,
     #[new(default)]
     pub motors_enabled: bool,
+    #[new(value = "true")]
+    pub absolute_positioning: bool,
+    #[new(value = "PositioningUnits::Millimeters")]
+    pub positioning_units: PositioningUnits,
     #[new(default)]
     pub gcode_history: VecDeque<GCodeHistoryEntry>,
+}
+
+#[derive(Debug, Clone)]
+pub enum PositioningUnits {
+    Millimeters,
+    Inches,
 }
 
 #[async_trait::async_trait]

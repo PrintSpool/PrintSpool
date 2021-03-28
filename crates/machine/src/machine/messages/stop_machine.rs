@@ -1,6 +1,6 @@
 use teg_protobufs::{
-    CombinatorMessage,
-    combinator_message,
+    ServerMessage,
+    server_message,
 };
 
 use crate::machine::Machine;
@@ -8,12 +8,12 @@ use crate::machine::Machine;
 #[xactor::message(result = "()")]
 pub struct StopMachine;
 
-impl From<StopMachine> for CombinatorMessage {
-    fn from(_msg: StopMachine) -> CombinatorMessage {
-        CombinatorMessage {
+impl From<StopMachine> for ServerMessage {
+    fn from(_msg: StopMachine) -> ServerMessage {
+        ServerMessage {
             payload: Some(
-                combinator_message::Payload::Estop(
-                    combinator_message::EStop {}
+                server_message::Payload::Estop(
+                    server_message::EStop {}
                 )
             ),
         }

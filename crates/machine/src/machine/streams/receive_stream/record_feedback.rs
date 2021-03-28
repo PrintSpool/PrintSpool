@@ -7,6 +7,7 @@ use eyre::{
     // Context as _,
 };
 use teg_protobufs::{
+    MachineFlags,
     machine_message::{self, Status},
 };
 use teg_json_store::{ Record as _ };
@@ -14,6 +15,7 @@ use teg_json_store::{ Record as _ };
 use machine_message::Feedback;
 use crate::machine::{
     self,
+    PositioningUnits,
     Errored,
     GCodeHistoryDirection,
     GCodeHistoryEntry,
@@ -328,6 +330,8 @@ pub async fn update_machine(
             task.settle_task().await;
             task.update(&mut tx).await?;
         }
+
+        tx.commit().await?;
     }
 
     // Do not reset the machine status to ready while it is printing
@@ -339,7 +343,21 @@ pub async fn update_machine(
         machine.status = next_status;
     }
 
-    machine.motors_enabled = feedback.motors_enabled;
+    // Parse the machine flags bitfield
+    if let Some(flags) = MachineFlags::from_bits(feedback.machine_flags) {
+        // trace!("Machine flags: {:#b}", flags);
+        machine.absolute_positioning = flags.contains(MachineFlags::ABSOLUTE_POSITIONING);
+
+        machine.positioning_units = if flags.contains(MachineFlags::MILLIMETERS) {
+            PositioningUnits::Millimeters
+        } else {
+            PositioningUnits::Inches
+        };
+
+        machine.motors_enabled = flags.contains(MachineFlags::MOTORS_ENABLED);
+    } else {
+        warn!("Unable to parse machine flags: {:#b}", feedback.machine_flags);
+    }
 
     // Update GCode History
     let history = &mut machine.gcode_history;

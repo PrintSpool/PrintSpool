@@ -4,7 +4,11 @@ pub mod streams;
 pub mod resolvers;
 
 mod machine;
-pub use machine::{ Machine, MachineData };
+pub use machine::{
+    Machine,
+    MachineData,
+    PositioningUnits,
+};
 
 pub mod machine_hooks;
 

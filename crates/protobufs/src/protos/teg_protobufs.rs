@@ -1,13 +1,13 @@
-/// Combinators send CombinatorMessages
+/// Combinators send ServerMessages
 ///
 /// repeated uint32 ack_message_ids = 1;
 /// uint32 message_id = 2;
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct CombinatorMessage {
-    #[prost(oneof="combinator_message::Payload", tags="9, 10, 11, 15, 16, 17, 100, 110, 111")]
-    pub payload: ::std::option::Option<combinator_message::Payload>,
+pub struct ServerMessage {
+    #[prost(oneof="server_message::Payload", tags="9, 10, 11, 15, 16, 17, 100, 110, 111")]
+    pub payload: ::std::option::Option<server_message::Payload>,
 }
-pub mod combinator_message {
+pub mod server_message {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct SetConfig {
         /// JSON encoded machine configuration
@@ -106,7 +106,7 @@ pub mod combinator_message {
         DeviceDisconnected(DeviceDisconnected),
     }
 }
-/// Combinators send CombinatorMessages
+/// Combinators send ServerMessages
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct InviteCode {
     #[prost(bytes, tag="1")]
@@ -115,50 +115,47 @@ pub struct InviteCode {
     pub host_public_key: std::vec::Vec<u8>,
 }
 /// Machines send MachineMessages
-///
-/// repeated uint32 ack_message_ids = 1;
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MachineMessage {
-    #[prost(oneof="machine_message::Payload", tags="9")]
+    /// 1-8: Payloads
+    #[prost(oneof="machine_message::Payload", tags="1")]
     pub payload: ::std::option::Option<machine_message::Payload>,
 }
 pub mod machine_message {
+    /// Note: Feedback is a seperate message from MachineMessage so it's indexing is namespaced and
+    /// do not need to avoid collisions with payload indexes.
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Feedback {
-        #[prost(enumeration="Status", tag="2")]
+        /// 1-5: Frequently set scalars
+        #[prost(enumeration="Status", tag="1")]
         pub status: i32,
-        /// 3-7: Frequently used sub-messages
+        /// variable length bitfield. Lower bits use less space.
+        #[prost(uint64, tag="2")]
+        pub machine_flags: u64,
+        /// 6-15: Frequently set sub-messages
         /// Events may be duplicated and sent more then once.
-        #[prost(message, repeated, tag="4")]
-        pub axes: ::std::vec::Vec<Axis>,
-        #[prost(message, repeated, tag="5")]
-        pub heaters: ::std::vec::Vec<Heater>,
         #[prost(message, repeated, tag="6")]
+        pub task_progress: ::std::vec::Vec<TaskProgress>,
+        #[prost(message, repeated, tag="7")]
+        pub axes: ::std::vec::Vec<Axis>,
+        #[prost(message, repeated, tag="8")]
+        pub heaters: ::std::vec::Vec<Heater>,
+        #[prost(message, repeated, tag="9")]
         pub speed_controllers: ::std::vec::Vec<SpeedController>,
-        /// Raw response strings from the device.No guarentee is made that all
+        /// Raw response strings from the device. No guarentee is made that all
         /// responses received will be relayed to the combinator. A best effort
         /// attempt will be made to relay responses within a performance constraint.
         ///
-        /// Responses will not be duplicated and will be sent at most once to each
+        /// History entries will not be duplicated and will be sent at most once to each
         /// client.
-        #[prost(message, repeated, tag="7")]
+        #[prost(message, repeated, tag="10")]
         pub gcode_history: ::std::vec::Vec<GCodeHistoryEntry>,
-        // // 8-15: Frequently used bools
-        // bool sets_target_temperatures = 8;
-        // bool sets_actual_temperatures = 9;
-        // bool sets_target_position = 10;
-        // bool sets_actual_position = 11;
+        // 16-99:  [Reserved for Future Use]
 
-        #[prost(message, repeated, tag="15")]
-        pub task_progress: ::std::vec::Vec<TaskProgress>,
-        // Less frequently set fields (field numbers 16 through 2047 take 2 bytes)
-
+        /// Note: field numbers 16 through 2047 take 2 bytes
         /// 100-999 Less frequently set sub-messages
         #[prost(message, optional, tag="100")]
         pub error: ::std::option::Option<Error>,
-        /// 1000-2047: Less frequently set bools start
-        #[prost(bool, tag="1000")]
-        pub motors_enabled: bool,
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Error {
@@ -250,9 +247,10 @@ pub mod machine_message {
         Rx = 0,
         Tx = 1,
     }
+    /// 1-8: Payloads
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Payload {
-        #[prost(message, tag="9")]
+        #[prost(message, tag="1")]
         Feedback(Feedback),
     }
 }

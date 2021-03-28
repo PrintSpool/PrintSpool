@@ -3,47 +3,44 @@ package teg_protobufs;
 
 // Machines send MachineMessages
 message MachineMessage {
-  // repeated uint32 ack_message_ids = 1;
-
+  // 1-8: Payloads
   oneof payload {
-    Feedback feedback = 9;
+    Feedback feedback = 1;
   }
 
+  // Note: Feedback is a seperate message from MachineMessage so it's indexing is namespaced and
+  // do not need to avoid collisions with payload indexes.
   message Feedback {
-    Status status = 2;
+    // 1-5: Frequently set scalars
+    Status status = 1;
+    uint64 machine_flags = 2; // variable length bitfield. Lower bits use less space.
 
-    // 3-7: Frequently used sub-messages
+    // 6-15: Frequently set sub-messages
     // Events may be duplicated and sent more then once.
-    repeated Axis axes = 4;
-    repeated Heater heaters = 5;
-    repeated SpeedController speed_controllers = 6;
+    repeated TaskProgress task_progress = 6;
+    repeated Axis axes = 7;
+    repeated Heater heaters = 8;
+    repeated SpeedController speed_controllers = 9;
 
-    // Raw response strings from the device.No guarentee is made that all
+    // Raw response strings from the device. No guarentee is made that all
     // responses received will be relayed to the combinator. A best effort
     // attempt will be made to relay responses within a performance constraint.
     //
-    // Responses will not be duplicated and will be sent at most once to each
+    // History entries will not be duplicated and will be sent at most once to each
     // client.
-    repeated GCodeHistoryEntry gcode_history = 7;
+    repeated GCodeHistoryEntry gcode_history = 10;
 
-    // // 8-15: Frequently used bools
-    // bool sets_target_temperatures = 8;
-    // bool sets_actual_temperatures = 9;
-    // bool sets_target_position = 10;
-    // bool sets_actual_position = 11;
+    // 16-99:  [Reserved for Future Use]
 
-    repeated TaskProgress task_progress = 15;
-
-    // Less frequently set fields (field numbers 16 through 2047 take 2 bytes)
-
+    // Note: field numbers 16 through 2047 take 2 bytes
     // 100-999 Less frequently set sub-messages
     Error error = 100;
 
-    // 1000-2047: Less frequently set bools start
-    bool motors_enabled = 1000;
+    // 1000-1999: Less frequently set scalars
+    // [Reserved for Future Use]
+
+    // 2000-2047:  [Reserved for Future Use]
   }
-
-
 
   enum Status {
     ERRORED = 0;

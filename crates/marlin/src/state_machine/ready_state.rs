@@ -25,8 +25,8 @@ use super::{
 };
 
 use crate::protos::{
-    CombinatorMessage,
-    combinator_message,
+    ServerMessage,
+    server_message,
 };
 
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -115,22 +115,22 @@ impl ReadyState {
 
     pub fn consume(mut self, event: Event, context: &mut Context) -> Loop {
         match event {
-            ProtobufRec( msg@CombinatorMessage { payload: None } ) => {
-                warn!("Warning: CombinatorMessage received without a payload. Ignoring: {:?}", msg);
+            ProtobufRec( msg@ServerMessage { payload: None } ) => {
+                warn!("Warning: ServerMessage received without a payload. Ignoring: {:?}", msg);
                 self.and_no_effects()
             }
-            ProtobufRec( CombinatorMessage { payload: Some(message) } ) => {
+            ProtobufRec( ServerMessage { payload: Some(message) } ) => {
                 // eprintln!("PROTOBUF RECEIVED WHEN READY {:?}", message);
                 match message {
-                    combinator_message::Payload::SpoolTask(spool_task) => {
-                        use combinator_message::{
+                    server_message::Payload::SpoolTask(spool_task) => {
+                        use server_message::{
                             spool_task::Content,
                             InlineContent,
                         };
 
                         self.loading_gcode = true;
 
-                        let combinator_message::SpoolTask {
+                        let server_message::SpoolTask {
                             task_id,
                             client_id,
                             start_at_line_number,
@@ -174,7 +174,7 @@ impl ReadyState {
                             }
                         }
                     }
-                    combinator_message::Payload::PauseTask(combinator_message::PauseTask { task_id }) => {
+                    server_message::Payload::PauseTask(server_message::PauseTask { task_id }) => {
                         let task = self.tasks
                             .iter()
                             .position(|task| task.id == task_id)

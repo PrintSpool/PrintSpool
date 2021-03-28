@@ -1,13 +1,12 @@
 // TODO: Movement GCode parsing
 use nom_gcode::GCode;
+use teg_protobufs::MachineFlags;
 
 use crate::state_machine::Context;
 
 use super::{
     allow_list_args,
     find_u32_arg,
-    PositionMode,
-    PositionUnits,
 };
 
 pub fn parse_linear_move(
@@ -20,9 +19,15 @@ pub fn parse_linear_move(
     // let feedrate = find_u32_arg(cmd, "E");
     // context.feedback.feedrate = feedrate;
 
-    let Context { position_mode, position_units, .. } = context;
+    context.machine_flags.set(MachineFlags::MOTORS_ENABLED, true);
 
-    context.feedback.motors_enabled = true;
+    let absolute_positioning = context.machine_flags.contains(
+        MachineFlags::ABSOLUTE_POSITIONING
+    );
+
+    let millimeters = context.machine_flags.contains(
+        MachineFlags::MILLIMETERS
+    );
 
     context.feedback.axes.iter_mut().for_each(|axis| {
         let address = axis.address
@@ -30,19 +35,20 @@ pub fn parse_linear_move(
             .chars()
             .next();
 
-        if axis.homed || *position_mode == PositionMode::Absolute {
+        if axis.homed || absolute_positioning {
             let value = address.and_then(|address| find_u32_arg(cmd, address));
 
             if let Some(value) = value {
                 let value = value as f32;
 
-                let value = if *position_units == PositionUnits::Inches {
-                    value * 25.4
-                } else {
+                let value = if millimeters {
                     value
+                } else {
+                    // inches
+                    value * 25.4
                 };
 
-                if *position_mode == PositionMode::Absolute {
+                if absolute_positioning {
                     axis.target_position = value;
                 } else {
                     axis.target_position += value;
@@ -60,7 +66,7 @@ pub fn parse_home(
 ) -> eyre::Result<()> {
     allow_list_args(&cmd, &['O', 'R', 'X', 'Y', 'Z'])?;
 
-    context.feedback.motors_enabled = true;
+    context.machine_flags.set(MachineFlags::MOTORS_ENABLED, true);
 
     const AXES: [char; 3] = ['X', 'Y', 'Z'];
     let home_all = cmd.arguments().any(|(k, _)| AXES.contains(k)) == false;

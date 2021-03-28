@@ -19,7 +19,7 @@ fn main() {
 
     config.compile_protos(
         &[
-            protos_path.join("CombinatorMessage.proto").to_str().unwrap(),
+            protos_path.join("ServerMessage.proto").to_str().unwrap(),
             protos_path.join("InviteCode.proto").to_str().unwrap(),
             protos_path.join("MachineMessage.proto").to_str().unwrap(),
         ],
@@ -36,7 +36,7 @@ fn main() {
 //     eprintln!("PATH {:?}", path);
 
 //     let input = [
-//         "CombinatorMessage.proto",
+//         "ServerMessage.proto",
 //         "MachineMessage.proto",
 //     ];
 

@@ -4264,6 +4264,7 @@ dependencies = [
 name = "teg-protobufs"
 version = "0.1.0"
 dependencies = [
+ "bitflags",
  "prost",
  "prost-build",
 ]
