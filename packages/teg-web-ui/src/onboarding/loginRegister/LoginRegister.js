@@ -12,7 +12,7 @@ import Card from '@material-ui/core/Card'
 import TextField from '@material-ui/core/TextField'
 
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
-// import { useAuth } from '../../common/auth'
+import { useAuth } from '../../common/auth'
 
 import useStyles from './LoginRegisterStyles'
 
