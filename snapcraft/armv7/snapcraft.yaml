@@ -68,7 +68,7 @@ parts:
   # https://snapcraft.io/blog/the-smart-dump-plugin
   webrtc-streamer:
     plugin: dump
-    source: https://github.com/mpromonet/webrtc-streamer/releases/download/v0.2.4/webrtc-streamer-v0.2.4-Linux-armv7l-Release.tar.gz
+    source: https://github.com/mpromonet/webrtc-streamer/releases/download/v0.5.2/webrtc-streamer-v0.5.2-Linux-armv7l-Release.tar.gz
     stage-packages:
       - libgtk-3-0
       - libasound2
