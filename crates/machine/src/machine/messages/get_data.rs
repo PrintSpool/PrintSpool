@@ -22,6 +22,16 @@ impl Machine {
                 Check that your /etc/teg/machine-{id}.toml config file is valid!
             "#, id = id))
     }
+
+    pub fn data_ref(&mut self) -> Result<&MachineData> {
+        let id = &self.id;
+        self.data
+            .as_ref()
+            .ok_or_else(|| eyre!(r#"
+                Attempted to read machine data but machine-{id}.toml has not yet been parsed.
+                Check that your /etc/teg/machine-{id}.toml config file is valid!
+            "#, id = id))
+    }
 }
 
 #[async_trait::async_trait]

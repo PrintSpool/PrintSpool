@@ -222,6 +222,7 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
             task,
             automatic_print,
         } = msg;
+        let task_id = task.id.clone();
 
         let mut tx = self.db.begin().await?;
         let machine = self.get_data()?;
@@ -259,10 +260,14 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
         tx.commit().await?;
 
         // Spool the task outside the transaction to avoid locking the database on unix socket IO
-        let task = self.spool_task(
-            ctx,
-            task,
-        ).await?;
+        let (_, task) = self.spool_task(task)
+            .await
+            .map_err(|err| {
+                error!("Error spooling print #{}: {:?}", task_id, err);
+                ctx.stop(Some(err));
+
+                eyre!("Unable to spool print")
+            })?;
 
         // Set the machine status to printing
         let mut machine = self.get_data()?;

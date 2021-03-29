@@ -1,4 +1,3 @@
-use chrono::prelude::*;
 use eyre::{
     Result,
     eyre,
@@ -11,7 +10,7 @@ use async_graphql::{
 };
 use machine::messages::{GetData, PauseTask};
 use teg_json_store::Record;
-use teg_machine::{MachineMap, machine, task::{Paused, Task, TaskStatus}};
+use teg_machine::{MachineMap, machine, task::Task};
 
 use crate::{
     task_from_hook,

@@ -15,7 +15,7 @@ use teg_protobufs::{
 use super::Machine;
 
 impl Machine {
-    pub async fn send_message(&mut self, message: ServerMessage) -> Result<()> {
+    pub async fn send_message(&mut self, message: ServerMessage) -> Result<&mut Self> {
         let stream = self.write_stream
             .as_mut()
             .ok_or_else(|| eyre!("Machine write stream not initialized"))?;
@@ -39,6 +39,6 @@ impl Machine {
 
         // info!("Sent Protobuf");
 
-        Ok(())
+        Ok(self)
     }
 }

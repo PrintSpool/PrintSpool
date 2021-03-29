@@ -26,13 +26,23 @@ impl xactor::Handler<SpoolTask> for Machine {
         ctx: &mut xactor::Context<Self>,
         msg: SpoolTask
     ) -> Result<Task> {
+
         let SpoolTask {
             task
         } = msg;
 
+        let task_id = task.id.clone();
+
         self.get_data()?.status.verify_can_start(&task, false)?;
 
-        let task = self.spool_task(ctx, task).await?;
+        let (_, task) = self.spool_task(task)
+            .await
+            .map_err(|err| {
+                error!("Error spooling task #{}: {:?}", task_id, err);
+                ctx.stop(Some(err));
+
+                eyre!("Unable to spool task")
+            })?;
 
         Ok(task)
     }
@@ -41,9 +51,8 @@ impl xactor::Handler<SpoolTask> for Machine {
 impl Machine {
     pub async fn spool_task(
         &mut self,
-        ctx: &mut xactor::Context<Self>,
         task: Task,
-    ) -> Result<Task> {
+    ) -> Result<(&mut Self, Task)> {
         // client_id is a placeholder for now. It could allow multiple servers to connect
         // to a single machine driver process in future if that is needed but for now it does
         // nothing.
@@ -82,12 +91,8 @@ impl Machine {
             ),
         };
 
-        if let Err(err) = self.send_message(message).await {
-            error!("Error sending message #{}: {:?}", self.id, err);
-            ctx.stop(Some(err));
-            Err(eyre!("Unable to spool task"))?
-        };
+        let this = self.send_message(message).await?;
 
-        Ok(task)
+        Ok((this, task))
     }
 }
