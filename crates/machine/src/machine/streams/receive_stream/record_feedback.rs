@@ -115,7 +115,17 @@ pub async fn update_tasks(
     for progress in feedback.task_progress.iter() {
         let status = TaskStatus::from_task_progress(&progress, &feedback.error)?;
 
-        let mut task = Task::get(db, &progress.task_id, true).await?;
+        let mut task = if let
+            Ok(task) = Task::get(db, &progress.task_id, true).await
+        {
+            task
+        } else {
+            warn!(
+                "Task #{} received in driver feedback but missing from server database",
+                progress.task_id,
+            );
+            continue
+        };
 
         trace!("Task #{} status: {:?}", task.id, status);
         task.despooled_line_number = Some(progress.despooled_line_number as u64);

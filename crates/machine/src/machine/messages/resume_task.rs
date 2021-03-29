@@ -4,6 +4,7 @@ use eyre::{
     Result,
     // Context as _,
 };
+use teg_json_store::Record as _;
 
 use crate::{
     machine::{Machine, MachineStatus, Printing, PositioningUnits},
@@ -108,7 +109,7 @@ impl xactor::Handler<ResumeTask> for Machine {
                     .chain(enable_fans)
                     .collect();
 
-                Task {
+                let task = Task {
                     id: nanoid!(11),
                     version: 0,
                     created_at: Utc::now(),
@@ -123,7 +124,11 @@ impl xactor::Handler<ResumeTask> for Machine {
                     estimated_filament_meters: None,
                     estimated_print_time: None,
                     status: Default::default(),
-                }
+                };
+
+                task.insert(&self.db).await?;
+
+                task
             };
 
             let (self, _) = self.spool_task(
@@ -189,7 +194,7 @@ impl xactor::Handler<ResumeTask> for Machine {
                     }.to_string()
                 );
 
-                Task {
+                let task = Task {
                     id: nanoid!(11),
                     version: 0,
                     created_at: Utc::now(),
@@ -204,7 +209,11 @@ impl xactor::Handler<ResumeTask> for Machine {
                     estimated_filament_meters: None,
                     estimated_print_time: None,
                     status: Default::default(),
-                }
+                };
+
+                task.insert(&self.db).await?;
+
+                task
             };
 
             let (self, _) = self.spool_task(
