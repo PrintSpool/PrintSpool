@@ -9,10 +9,11 @@ const useStyles = makeStyles(theme => ({
     justifySelf: 'center',
     background: 'black',
     height: '35vh',
+    width: '100%'
   },
   video: {
     flex: '1',
-    // maxWidth: '100%',
+    maxWidth: '100%',
     // width: '200px',
     // height: '200px',
     maxHeight: '35vh',
