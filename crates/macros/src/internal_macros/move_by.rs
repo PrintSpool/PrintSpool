@@ -11,6 +11,7 @@ use super::MoveMacro;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MoveByMacro {
+    /// Relative move distances keyed by axis addresses
     pub distances: HashMap<String, f32>,
     #[serde(default)]
     pub feedrate: Option<f32>,

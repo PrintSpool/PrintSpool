@@ -97,5 +97,13 @@ package = "teg-core"
   swapXAndYOrientation = false
   beforePrintHook = ""
   afterPrintHook = ""
-  pauseHook = ""
-  resumeHook = ""
+  pauseHook = """
+  { "moveBy": {"z": 10} }
+  { "moveTo": {"x": 0, "y": 0} }
+  """
+  resumeHook = """
+  ; Run test extrusion to prime the nozzel
+  { "moveBy": {"e1": 10}}
+  ; Wait a second for the user to clear the test extrusion
+  G4 S1
+  """
