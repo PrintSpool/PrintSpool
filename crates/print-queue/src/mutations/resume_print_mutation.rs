@@ -67,13 +67,15 @@ impl ResumePrintMutation {
         let core_plugin = config.core_plugin()?;
 
         // Move the machine back to the last position of the paused print
-        let paused_position = paused_state.config.axes
+        let move_to_paused_positions = paused_state.config.axes
             .iter()
             .flat_map(|axis| {
                 if let Some(target) = axis.ephemeral.target_position {
                     Some(serde_json::json!({
-                        axis.model.address.clone(): target
-                    }))
+                        "moveTo": {
+                            "positions": { axis.model.address.clone(): target },
+                        },
+                    }).to_string())
                 } else {
                     None
                 }
@@ -96,32 +98,33 @@ impl ResumePrintMutation {
             .collect::<Vec<_>>();
 
         let gcodes = vec![
-            core_plugin.model.resume_hook.clone(),
-            "G90".to_string(),
-            "G21".to_string(),
-            serde_json::json!({
-                "moveTo": {
-                    "position": paused_position,
-                },
-            }).to_string(),
-            // Reset motors enabled, absolute positioning, and inches/millimeters
-            if paused_state.motors_enabled {
-                "M17"
-            } else {
-                "M18"
-            }.to_string(),
-            if paused_state.absolute_positioning {
-                "G90"
-            } else {
-                "G91"
-            }.to_string(),
-            match paused_state.positioning_units {
-                PositioningUnits::Millimeters => "G21",
-                PositioningUnits::Inches => "G20",
-            }.to_string(),
+            vec![
+                core_plugin.model.resume_hook.clone(),
+                "G90".to_string(),
+                "G21".to_string(),
+            ],
+            move_to_paused_positions,
+            vec![
+                // Reset motors enabled, absolute positioning, and inches/millimeters
+                if paused_state.motors_enabled {
+                    "M17"
+                } else {
+                    "M18"
+                }.to_string(),
+                if paused_state.absolute_positioning {
+                    "G90"
+                } else {
+                    "G91"
+                }.to_string(),
+                match paused_state.positioning_units {
+                    PositioningUnits::Millimeters => "G21",
+                    PositioningUnits::Inches => "G20",
+                }.to_string(),
+            ],
+            reprime_extruders,
         ]
             .into_iter()
-            .chain(reprime_extruders)
+            .flatten()
             .collect::<Vec<_>>()
             .join("\n");
 

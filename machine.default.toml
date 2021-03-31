@@ -61,6 +61,7 @@ type = "TOOLHEAD"
   heater = true
   feedrate = 3
   retractionSpeed = 50
+  pauseRetractionDistance = 25
   filamentSwapExtrudeDistance = 50
   filamentSwapFastMoveEnabled = false
   bowdenTubeLength = 0
