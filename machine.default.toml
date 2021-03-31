@@ -60,6 +60,7 @@ type = "TOOLHEAD"
   address = "e0"
   heater = true
   feedrate = 3
+  retractionSpeed = 50
   filamentSwapExtrudeDistance = 50
   filamentSwapFastMoveEnabled = false
   bowdenTubeLength = 0
@@ -96,18 +97,19 @@ package = "teg-core"
   automaticPrinting = false
   swapXAndYOrientation = false
   beforePrintHook = ""
-  afterPrintHook = ""
+  afterPrintHook = """
+  ; Play a jingle to let you know the print is done
+  M300 S2093 P100
+  G04 P100
+  M300 S2093 P100
+  M300 S2349 P100
+  M300 S2093 P150
+  """
   pauseHook = """
-  ; Fast retraction to avoid drooling
-  { "moveBy": { "distances": {"e1": -10}, "feedrate": 30 } }
-  ; Move up and away from the print
-  { "moveBy": { "distances": {"z": 10} } }
-  ; Move to the origin point
+  ; Move away from the print
   { "moveTo": { "positions": {"x": 0, "y": 0} } }
+  ; Disable the extruder heater in case the print is paused for a while
+  M140 S0
   """
   resumeHook = """
-  ; Run test extrusion to prime the nozzel
-  { "moveBy": { "distances": {"e1": 15} } }
-  ; Wait a second for the user to clear the test extrusion
-  G4 S1
   """

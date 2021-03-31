@@ -9,7 +9,7 @@ use async_graphql::{
 };
 use machine::messages::{GetData, ResumeTask};
 use teg_json_store::Record;
-use teg_machine::{MachineMap, machine, task::{Task, TaskStatus}};
+use teg_machine::{MachineMap, machine::{self, MachineStatus, PositioningUnits, Printing}, task::{Task, TaskStatus}};
 
 use crate::task_from_hook;
 
@@ -36,13 +36,99 @@ impl ResumePrintMutation {
                 eyre!("machine (ID: {}) not found for print pause", task.machine_id)
             )?;
 
+        let machine_data = machine.call(GetData).await??;
+
+        // Verify this task was paused
+        let paused_state = match &machine_data.status {
+            MachineStatus::Printing(Printing {
+                paused: true,
+                paused_state: None,
+                ..
+            }) => {
+                return Err(eyre!(
+                    "Paused state not set properly. Machine may need to be reset."
+                ).into())
+            }
+            MachineStatus::Printing(Printing {
+                paused: true,
+                paused_state: paused_state@Some(_),
+                task_id: printing_task_id,
+            }) if *printing_task_id == task_id.0 => {
+                paused_state.as_ref().unwrap()
+            }
+            _ => {
+                return Err(eyre!(
+                    "Cannot resume. This print is not paused."
+                ).into())
+            }
+        };
+
         let config = machine.call(GetData).await??.config;
         let core_plugin = config.core_plugin()?;
+
+        // Move the machine back to the last position of the paused print
+        let paused_position = paused_state.config.axes
+            .iter()
+            .flat_map(|axis| {
+                if let Some(target) = axis.ephemeral.target_position {
+                    Some(serde_json::json!({
+                        axis.model.address.clone(): target
+                    }))
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
+
+        let reprime_extruders = config.toolheads
+            .iter()
+            .map(|toolhead| {
+                serde_json::json!({
+                    "moveBy": {
+                        "distances": { "e0": toolhead.model.pause_retraction_distance },
+                        "feedrate": toolhead.model.retraction_speed,
+                    },
+                }).to_string()
+            })
+            .chain(vec![
+                core_plugin.model.resume_hook.clone()
+            ])
+            .collect::<Vec<_>>();
+
+        let gcodes = vec![
+            core_plugin.model.resume_hook.clone(),
+            "G90".to_string(),
+            "G21".to_string(),
+            serde_json::json!({
+                "moveTo": {
+                    "position": paused_position,
+                },
+            }).to_string(),
+            // Reset motors enabled, absolute positioning, and inches/millimeters
+            if paused_state.motors_enabled {
+                "M17"
+            } else {
+                "M18"
+            }.to_string(),
+            if paused_state.absolute_positioning {
+                "G90"
+            } else {
+                "G91"
+            }.to_string(),
+            match paused_state.positioning_units {
+                PositioningUnits::Millimeters => "G21",
+                PositioningUnits::Inches => "G20",
+            }.to_string(),
+        ]
+            .into_iter()
+            .chain(reprime_extruders)
+            .collect::<Vec<_>>()
+            .join("\n");
 
         let resume_hook = task_from_hook(
             &task.machine_id,
             machine.clone(),
-            &core_plugin.model.resume_hook,
+            &gcodes,
         ).await?;
 
         let mut tx = db.begin().await?;

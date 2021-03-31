@@ -7,7 +7,7 @@ use eyre::{
 use teg_json_store::Record as _;
 
 use crate::{
-    machine::{Machine, MachineStatus, Printing, PositioningUnits},
+    machine::{Machine, MachineStatus, Printing},
     task::{Task, TaskContent},
 };
 
@@ -143,81 +143,6 @@ impl xactor::Handler<ResumeTask> for Machine {
 
             let (self, _) = self.spool_task(
                 resume_hook,
-            ).await?;
-
-            // Move the machine back into position
-            let move_back_to_position = {
-                // Move the machine back to the last position of the paused print
-                let g1_axes = paused_state.config.axes
-                    .iter()
-                    .flat_map(|axis| {
-                        if let Some(target) = axis.ephemeral.target_position {
-                            Some(format!(
-                                "{address}{target}",
-                                address = axis.model.address.to_ascii_uppercase(),
-                                target = target,
-                            ))
-                        } else {
-                            None
-                        }
-                    })
-                    .collect::<Vec<_>>()
-                    .join(" ");
-
-                let mut gcodes = vec![
-                    "G90".to_string(),
-                    "G21".to_string(),
-                    format!("G1 {}", g1_axes),
-                ];
-
-                // Reset motors enabled, absolute positioning, and inches/millimeters
-                gcodes.push(
-                    if paused_state.motors_enabled {
-                        "M17"
-                    } else {
-                        "M18"
-                    }.to_string()
-                );
-
-                gcodes.push(
-                    if paused_state.absolute_positioning {
-                        "G90"
-                    } else {
-                        "G91"
-                    }.to_string()
-                );
-
-                gcodes.push(
-                    match paused_state.positioning_units {
-                        PositioningUnits::Millimeters => "G21",
-                        PositioningUnits::Inches => "G20",
-                    }.to_string()
-                );
-
-                let task = Task {
-                    id: nanoid!(11),
-                    version: 0,
-                    created_at: Utc::now(),
-                    deleted_at: None,
-                    machine_id: self.id.clone(),
-                    part_id: None,
-                    despooled_line_number: None,
-                    machine_override: false,
-                    total_lines: gcodes.len() as u64,
-                    content: TaskContent::GCodes(gcodes),
-                    annotations: vec![],
-                    estimated_filament_meters: None,
-                    estimated_print_time: None,
-                    status: Default::default(),
-                };
-
-                task.insert(&self.db).await?;
-
-                task
-            };
-
-            let (self, _) = self.spool_task(
-                move_back_to_position,
             ).await?;
 
             // Begin printing the task again from the point it was paused at

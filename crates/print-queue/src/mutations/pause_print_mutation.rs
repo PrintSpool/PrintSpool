@@ -44,10 +44,26 @@ impl PausePrintMutation {
             let config = machine.call(GetData).await??.config;
             let core_plugin = config.core_plugin()?;
 
+            let gcodes = config.toolheads
+                .iter()
+                .map(|toolhead| {
+                    serde_json::json!({
+                        "moveBy": {
+                            "distances": {"e0": -toolhead.model.pause_retraction_distance},
+                            "feedrate": toolhead.model.retraction_speed,
+                        },
+                    }).to_string()
+                })
+                .chain(vec![
+                    core_plugin.model.pause_hook.clone()
+                ])
+                .collect::<Vec<_>>()
+                .join("\n");
+
             let pause_hook = task_from_hook(
                 &task.machine_id,
                 machine.clone(),
-                &core_plugin.model.pause_hook,
+                &gcodes,
             ).await?;
 
             // Pause the task and spool the pause hook

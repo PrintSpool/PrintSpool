@@ -44,10 +44,24 @@ pub struct ToolheadConfig {
     pub heater: bool,
 
     /// # Feedrate (mm/s)
-    /// The extrude/retract speed for the maintenance panel
-    /// as well as the extrude speed for filament swaps.
-    #[validate(range(min = 0, message = "Feedrate must be greater then or equal to 0"))]
+    /// The extrude speed for the maintenance panel as well for filament swaps.
+    #[validate(range(min = 0, message = "Feedrate cannot be less then 0"))]
     pub feedrate: f32,
+
+    /// # Retraction and Re-priming Speed (mm/s)
+    /// To prevent dooling during print pausing and resuming set this to a higher feedrate
+    /// (eg. 50mm/s) and it will pull the filament away from the hotend on pause and move it back
+    /// into the hot end on resume.
+    #[serde(default)]
+    #[validate(range(min = 0, message = "Retraction speed cannot be less then 0"))]
+    pub retraction_speed: f32,
+
+    /// # Pause Retraction Distance (mm)
+    /// The distance to retract the filament when pausing a print to prevent drooling.
+    /// Before resuming the printer will move the filament back out to it's original position.
+    #[serde(default)]
+    #[validate(range(min = 0, message = "Pause retraction distance cannot be less then 0"))]
+    pub pause_retraction_distance: f32,
 
     /// # Material
     #[serde(rename = "materialID")]
@@ -56,8 +70,9 @@ pub struct ToolheadConfig {
     /// # Filament Swap Test Extrude (mm)
     /// Extrudes a small amount of filament to prime the extruder after a filament swap.
     /// Also retracts the filament by this same amount when removing filament.
-    #[validate(range(min = 0, message = "Filament swap extrude distance must be greater then or equal to 0"))]
+    #[validate(range(min = 0, message = "Filament swap extrude distance cannot be less then 0"))]
     pub filament_swap_extrude_distance: f32,
+
     /// # Fast Bowden Tube Priming
     /// Adds an extruder movement before the test extrude to quickly move the filament
     /// from the cold end to the hot end.
@@ -65,13 +80,13 @@ pub struct ToolheadConfig {
     pub filament_swap_fast_move_enabled: bool,
 
     /// # Bowden Tube Length (mm)
-    #[validate(range(min = 0, message = "Bowden tube length must be greater then or equal to 0"))]
+    #[validate(range(min = 0, message = "Bowden tube length cannot be less then 0"))]
     pub bowden_tube_length: f32,
 
     /// # Bowden Tube Priming Speed (mm/s)
     /// This should be the maximum non-extruding speed that you can move filament
     /// through the bowden cable.
-    #[validate(range(min = 0, message = "Filament swap fast move speed must be greater then or equal to 0"))]
+    #[validate(range(min = 0, message = "Filament swap fast move speed cannot be less then 0"))]
     pub filament_swap_fast_move_speed: Option<f32>,
 
     /// # Continuous Pull
@@ -84,7 +99,7 @@ pub struct ToolheadConfig {
     /// # Continuous Pull Speed (mm/s)
     /// A slow extrude speed is recommended to gradually pull filament in to the cold end
     /// before the user clicks "Load Filament".
-    #[validate(range(min = 0, message = "Filament swap continuous pull speed must be greater then or equal to 0"))]
+    #[validate(range(min = 0, message = "Filament swap continuous pull speed cannot be less then 0"))]
     pub filament_swap_continuous_pull_speed: Option<f32>,
 
     /// # Before Filament Swap (GCode)
@@ -98,6 +113,7 @@ impl teg_config_form::Model for ToolheadConfig {
             "address",
             "heater",
             "feedrate",
+            "retractionSpeed",
             "materialID",
         ]
             .into_iter()

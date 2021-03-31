@@ -39,6 +39,8 @@ const SchemaField = ({
     'beforePrintHook',
     'afterPrintHook',
     'beforeFilamentSwapHook',
+    'pauseHook',
+    'resumeHook',
   ]
 
   const multiline = gcodeHooks.includes(name)
