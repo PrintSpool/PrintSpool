@@ -24,16 +24,27 @@ pub struct PauseTask {
 #[async_trait::async_trait]
 impl xactor::Handler<PauseTask> for Machine {
     async fn handle(&mut self, ctx: &mut xactor::Context<Self>, msg: PauseTask) -> Result<Task> {
+        if self.get_data()?.config.axes
+            .iter()
+            .any(|axis| !axis.ephemeral.homed)
+        {
+            return Err(eyre!((r#"
+                Prints cannot be paused when axes are not homed. When un-homed the machine does not
+                know the position of each axis so it would not know where to resume from after the
+                pause.
+            "#).to_string()))
+        }
+
         let mut tx = self.db.begin().await?;
         // Re-fetch the task within the transaction
         let mut task = Task::get(&mut tx, &msg.task_id, false).await?;
 
         if task.status.is_settled() {
-            Err(eyre!("Cannot pause a task that is not running"))?;
+            return Err(eyre!("Cannot pause a task that is not running"));
         }
 
         if !task.is_print() {
-            Err(eyre!("Cannot pause task because task is not a print"))?;
+            return Err(eyre!("Cannot pause task because task is not a print"));
         }
 
         if task.status.is_paused() {
