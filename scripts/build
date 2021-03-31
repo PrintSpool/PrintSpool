@@ -14,7 +14,8 @@ then
     echo "Skipping clean!"
   fi
 
-  if [ -z "$TEG_BUILD_PROFILE" ]
+  if [ -z "$TEG_DEBUG_BUILD" ]
+    TEG_BUILD_PROFILE=debug
   then
     TEG_BUILD_PROFILE=release
   fi
