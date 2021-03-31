@@ -126,7 +126,7 @@ async fn app() -> Result<()> {
                 allocated / 1_000_000.0,
                 resident / 1_000_000.0,
             );
-            async_std::task::sleep(std::time::Duration::from_secs(10)).await;
+            async_std::task::sleep(std::time::Duration::from_secs(5 * 60)).await;
         }
     }.instrument(tracing::info_span!("memory_useage")));
 
