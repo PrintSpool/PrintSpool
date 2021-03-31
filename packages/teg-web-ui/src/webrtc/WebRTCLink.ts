@@ -6,6 +6,7 @@ import WebRTCSocket from './WebRTCSocket'
 
 export const INSECURE_LOCAL_CONNECTION = (
   process.env.INSECURE_LOCAL_CONNECTION === '1'
+  // @ts-ignore
   && localStorage.getItem('INSECURE_LOCAL_CONNECTION') === '1'
 )
 

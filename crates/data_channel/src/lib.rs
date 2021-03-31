@@ -39,6 +39,9 @@ use teg_auth::Signal;
 
 pub type Db = sqlx::sqlite::SqlitePool;
 
+const PING_INTERVAL_MILLIS: u64 = 10_000;
+// const PING_INTERVAL_MILLIS: u64 = 1_000;
+
 static NEXT_MESSAGE_ID: AtomicU64 = AtomicU64::new(0);
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -107,7 +110,7 @@ where
             machines,
             Arc::clone(&handle_data_channel),
         ).await {
-            trace!("Disconnected from signalling server (will retry). Reason: {:?}", err);
+            warn!("Disconnected from signalling server (will retry). Reason: {:?}", err);
             // Prevent repeating signalling errors from going into a tight loop
             async_std::task::sleep(std::time::Duration::from_millis(100)).await;
         }
@@ -308,9 +311,43 @@ where
 
     let peer_connections = Arc::new(DashMap::new());
 
-    while let Some(msg) = ws_read.next().await {
-        let msg = msg?.into_text()?;
-        let msg: GraphQLWSMessage = serde_json::from_str(&msg)?;
+    while let Some(msg) = async_std::future::timeout(
+        std::time::Duration::from_millis(PING_INTERVAL_MILLIS),
+        ws_read.next()
+    )
+        .await
+        .transpose()
+    {
+        // Pings: If no data is sent within the timeout then send a PING to the server in order to
+        // keep the connection open.
+        let msg = match msg {
+            Ok(msg) => msg?,
+            Err(_) => {
+                ws_write.send(Message::Ping(vec![])).await?;
+                continue;
+            }
+        };
+
+        let msg = match msg {
+            Message::Text(msg) => {
+                msg
+            }
+            | Message::Ping(_)
+            | Message::Pong(_)
+            => {
+                continue;
+            }
+            Message::Binary(_) => {
+                return Err(eyre!("Received an unexpected binary message from {}", signalling_url));
+            }
+            Message::Close(msg) => {
+                warn!("Websocket closed by other side ({}), received: {:?}", signalling_url, msg);
+                return Ok(());
+            }
+        };
+
+        let msg: GraphQLWSMessage = serde_json::from_str(&msg)
+            .wrap_err_with(|| eyre!("Error parsing websocket message: {:?}", msg))?;
 
         match msg {
             GraphQLWSMessage::Next {
