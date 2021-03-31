@@ -117,7 +117,7 @@ const JobQueuePage = ({
         pausePrint(taskID: $taskID) { id }
       }
     `,
-    SuccessMutationOpts('Print paused!'),
+    SuccessMutationOpts('Print pausing...'),
   )
   const [resumePrint, resumeMutation] = useMutation(
     gql`

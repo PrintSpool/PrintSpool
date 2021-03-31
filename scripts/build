@@ -7,17 +7,16 @@ then
   mkdir -p ./snapcraft/dist
   rm -f ./snapcraft/dist/*.snap
 
-  if [ -z "$SKIP_CLEAN" ]
+  if [ "$SKIP_CLEAN" == "1" ]
   then
-    echo "You can speed builds up by running them with: SKIP_CLEAN=1 TEG_BUILD_PROFILE=dev"
-  else
     echo "Skipping clean!"
   fi
 
   if [ -z "$TEG_DEBUG_BUILD" ]
-    TEG_BUILD_PROFILE=debug
   then
     TEG_BUILD_PROFILE=release
+  else
+    TEG_BUILD_PROFILE=debug
   fi
 
   if [ "$TEG_BUILD_PROFILE" == "release" ]
@@ -52,6 +51,8 @@ then
       cp ${TEG_TARGET_DIR_X64}/teg-supervisor ./snapcraft/x64/bin/teg-supervisor
 
       echo "Building rust binaries for X64 in $TEG_BUILD_PROFILE... [DONE]"
+    else
+      echo "Skipping x64!"
     fi
 
     if [ -z "$SKIP_ARMV7" ]
@@ -70,6 +71,8 @@ then
       cp ${TEG_TARGET_DIR_ARMV7}/teg-supervisor ./snapcraft/armv7/bin/teg-supervisor
 
       echo "Building rust binaries for Arm in $TEG_BUILD_PROFILE... [DONE]"
+    else
+      echo "Skipping Arm!"
     fi
   else
     echo "\$SKIP_RUST: Reusing previous rust builds. Rust changes will *not* be included in this build."

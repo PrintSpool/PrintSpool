@@ -31,6 +31,7 @@ impl User {
             ..
         } = signal;
         let signalling_user_id = signalling_user_id.to_string();
+        let now = Utc::now();
 
         let mut tx = db.begin().await?;
 
@@ -58,7 +59,7 @@ impl User {
             User {
                 id: nanoid!(11),
                 version: 0,
-                created_at: Utc::now(),
+                created_at: now,
                 deleted_at: None,
                 signalling_user_id: Some(signalling_user_id),
                 email: None,
@@ -90,12 +91,16 @@ impl User {
 
             let mut invite = Invite::from_row(invite)?;
 
-            match invite.consumed_by_user_id.as_ref() {
-                None => {
+            match (
+                invite.deleted_at.as_ref(),
+                invite.consumed_by_user_id.as_ref(),
+            ) {
+                (None, None) => {
                     invite.consumed_by_user_id = Some(user.id.clone());
+                    invite.deleted_at = Some(now);
                     invite.update(&mut tx).await?;
                 }
-                Some(id) if id == &user.id => {
+                (_, Some(id)) if id == &user.id => {
                     // Idempotent invites: If the invite was already consumed by this user
                     // treat the invite as a no-op
                     ()
@@ -104,7 +109,7 @@ impl User {
                     // The invite has been consumed by another user but we do not want to leak
                     // that information to a potentially malicious client
                     warn!("Invite already consumed by another user");
-                    Err(eyre!("Invite not found"))?;
+                    return Err(eyre!("Invite not found"));
                 }
             };
 
@@ -131,7 +136,7 @@ impl User {
 
         user.email = email;
         user.email_verified = email_verified;
-        user.last_logged_in_at = Some(Utc::now());
+        user.last_logged_in_at = Some(now);
 
         if is_new_user {
             user.insert_no_rollback(&mut tx).await?;

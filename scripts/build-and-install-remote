@@ -5,7 +5,7 @@ cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
 # Sudo access only lasts for 5 minutes so this would only be useful if building was done in < 5 min
 # sudo echo "Sudo access enabled for snap installation"
 
-./scripts/build
+SKIP_X64=1 ./scripts/build
 
 say "Build complete. Installing on remote raspberry pi" &
 

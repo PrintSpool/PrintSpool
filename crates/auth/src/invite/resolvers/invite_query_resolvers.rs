@@ -42,6 +42,7 @@ impl InviteQuery {
                     SELECT props FROM invites
                     WHERE
                         consumed = FALSE
+                        AND deleted_at IS NULL
                         AND id = ?
                 "#,
                 invite_id.0,
@@ -54,8 +55,11 @@ impl InviteQuery {
             sqlx::query_as!(
                 JsonRow,
                 r#"
-                    SELECT props FROM invites WHERE consumed = FALSE
-                "#,
+                    SELECT props FROM invites
+                    WHERE
+                        consumed = FALSE
+                        AND deleted_at IS NULL
+            "#,
             )
                 .fetch_all(db)
                 .await?

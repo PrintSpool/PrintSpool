@@ -201,7 +201,8 @@ impl Record for Invite {
                 SET
                     props=?,
                     version=?,
-                    consumed=?
+                    consumed=?,
+                    deleted_at=?
                 WHERE
                     id=?
                     AND version=?
@@ -210,6 +211,7 @@ impl Record for Invite {
             json,
             self.version,
             consumed,
+            self.deleted_at,
             // WHERE
             self.id,
             previous_version,
