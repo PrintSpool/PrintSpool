@@ -109,7 +109,8 @@ package = "teg-core"
   pauseHook = """
   ; Move away from the print
   { "moveTo": { "positions": {"x": 0, "y": 0} } }
-  ; Disable the extruder heater in case the print is paused for a while
+  ; Disable the heaters in case the print is paused for a while
+  M104 S0
   M140 S0
   """
   resumeHook = """

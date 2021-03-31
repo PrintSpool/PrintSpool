@@ -52,7 +52,7 @@ impl xactor::Handler<ResumeTask> for Machine {
                     })
                     .map(|target| {
                         format!(
-                            "M140 S{target}",
+                            "M190 S{target}",
                             target = target,
                         )
                     });
@@ -68,7 +68,7 @@ impl xactor::Handler<ResumeTask> for Machine {
                         // Note: Invalid extruder addresses are silently dropped here.
                         if let (Ok(extruder_index), Some(target)) = (extruder_index, target) {
                             Some(format!(
-                                "M104 S{target} T{index}",
+                                "M109 S{target} T{index}",
                                 target = target,
                                 index = extruder_index,
                             ))
