@@ -9,6 +9,7 @@ import useStyles from './Terminal.styles'
 
 const TerminalView = ({
   onSubmit,
+  isSubmitting,
   register,
   isReady,
   gcodeHistory,
@@ -33,7 +34,7 @@ const TerminalView = ({
         <Button
           variant="contained"
           type="submit"
-          disabled={!isReady}
+          disabled={!isReady || isSubmitting}
         >
           Send
         </Button>

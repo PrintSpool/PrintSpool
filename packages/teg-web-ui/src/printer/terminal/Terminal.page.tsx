@@ -54,7 +54,7 @@ const Terminal = () => {
   }
 
   useEffect(() => {
-    console.log(execGCode)
+    // console.log(execGCode)
     if (execGCode.error) {
       setError('gcode', {
         type: 'serverError',
@@ -92,6 +92,7 @@ const Terminal = () => {
   return (
     <TerminalView {...{
       onSubmit: handleSubmit(onSubmit),
+      isSubmitting: execGCode.isLoading,
       errors,
       register,
       isReady,
