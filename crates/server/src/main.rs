@@ -24,7 +24,7 @@ mod local_http_server;
 
 use std::{env, sync::Arc};
 use serde::Deserialize;
-use sqlx::{SqlitePool, migrate::MigrateDatabase};
+use sqlx::{SqlitePool, migrate::MigrateDatabase, sqlite::{SqliteConnectOptions}};
 use arc_swap::ArcSwap;
 use eyre::{Context, Result, eyre};
 use futures_util::{TryFutureExt, future, future::FutureExt, future::join_all, select, stream::{
@@ -76,7 +76,10 @@ async fn create_db() -> Result<SqlitePool> {
     }
 
     // Connect to the database
-    let db = SqlitePool::connect(&db_url).await?;
+    let db_options = db_url.parse::<SqliteConnectOptions>()?
+        .synchronous(sqlx::sqlite::SqliteSynchronous::Normal);
+
+    let db = SqlitePool::connect_with(db_options).await?;
 
     // Migrate the database
     let migrations = if env::var("RUST_ENV") == Ok("production".to_string()) {
