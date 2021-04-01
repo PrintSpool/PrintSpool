@@ -44,13 +44,15 @@ impl DeletePackageMutation {
         ctx: &'ctx async_graphql::Context<'_>,
         input: DeletePackageInput,
     ) -> FieldResult<Option<teg_common::Void>> {
-        let db: &crate::Db = ctx.data()?;
-        let mut tx = db.begin().await?;
-
         let machines: &MachineMap = ctx.data()?;
         let machines = machines.load();
 
-        let package_id = input.package_id.to_string();
+        let now= Utc::now();
+        let package_id = input.package_id.0;
+
+        let db: &crate::Db = ctx.data()?;
+        let mut tx = db.begin().await?;
+
         // Verify the package exists
         let mut package = Package::get(
             &mut tx,
@@ -77,21 +79,20 @@ impl DeletePackageMutation {
 
         for mut task in &mut tasks {
             task.status = TaskStatus::Cancelled(Cancelled {
-                cancelled_at: Utc::now(),
+                cancelled_at: now,
             });
             task.settle_task().await;
             task.update(&mut tx).await?;
         }
 
         // Soft delete the package
-        let now= Utc::now();
-        package.deleted_at = Some(now.clone());
+        package.deleted_at = Some(now);
         package.update(&mut tx).await?;
 
         // Soft delete the parts
         let parts = Package::get_parts(&mut tx, &package.id).await?;
         for mut part in parts {
-            part.deleted_at = Some(now.clone());
+            part.deleted_at = Some(now);
             part.update(&mut tx).await?;
         }
 

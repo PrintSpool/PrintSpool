@@ -68,24 +68,6 @@ impl CreateJobMutation {
         );
         let package_id = package.id.clone();
 
-        let mut tx = db.begin().await?;
-        let max_position: Vec<u8> = sqlx::query!(
-            r#"
-                SELECT CAST(MAX(position) AS BLOB) AS position FROM parts
-                INNER JOIN packages ON packages.id = parts.package_id
-                WHERE
-                    packages.print_queue_id = ?
-                    AND packages.deleted_at IS NULL
-            "#,
-            print_queue_id
-        )
-            .fetch_optional(&mut tx)
-            .await?
-            .and_then(|row| row.position)
-            .unwrap_or_else(|| { 0u64.to_be_bytes().into() });
-
-        let next_position = u64::from_be_bytes(max_position[..].try_into()?) + 1;
-
         let parts = input.parts
             .into_iter()
             .enumerate()
@@ -108,7 +90,7 @@ impl CreateJobMutation {
                         deleted_at: None,
                         package_id,
                         name: part_input.name,
-                        position: next_position + (index as u64),
+                        position: index as u64,
                         quantity: 1,
                         file_path,
                     };
@@ -119,8 +101,27 @@ impl CreateJobMutation {
 
         let parts = try_join_all(parts).await?;
 
+        let mut tx = db.begin().await?;
+        let max_position: Vec<u8> = sqlx::query!(
+            r#"
+                SELECT CAST(MAX(position) AS BLOB) AS position FROM parts
+                INNER JOIN packages ON packages.id = parts.package_id
+                WHERE
+                    packages.print_queue_id = ?
+                    AND packages.deleted_at IS NULL
+            "#,
+            print_queue_id
+        )
+            .fetch_optional(&mut tx)
+            .await?
+            .and_then(|row| row.position)
+            .unwrap_or_else(|| { 0u64.to_be_bytes().into() });
+
+        let first_available_position = u64::from_be_bytes(max_position[..].try_into()?) + 1;
+
         package.insert_no_rollback(&mut tx).await?;
-        for part in parts.iter() {
+        for mut part in parts {
+            part.position += first_available_position;
             part.insert_no_rollback(&mut tx).await?;
         }
         tx.commit().await?;

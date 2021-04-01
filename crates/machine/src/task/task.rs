@@ -80,15 +80,24 @@ impl Task {
             self.despooled_line_number = Some(total_lines - 1);
         }
 
-        // delete the completed GCode file
-        if let TaskContent::FilePath(file_path) = &self.content {
-            if let Err(err) = async_std::fs::remove_file(file_path).await {
-                warn!("Unable to remove completed GCode file ({}): {:?}", file_path, err);
-            }
+        // Replace the completed GCodes with an empty vec to save space
+        let content = std::mem::replace(
+            &mut self.content,
+            TaskContent::GCodes(vec![]),
+        );
+
+        // Delete the completed GCode file in a seperate task to prevent blocking the database on
+        // disk IO
+        if let TaskContent::FilePath(file_path) = content {
+            let _ = async_std::task::spawn(async move {
+                use async_std::fs::remove_file;
+
+                if let Err(err) = remove_file(&file_path).await {
+                    warn!("Unable to remove completed GCode file ({}): {:?}", file_path, err);
+                }
+            });
         }
 
-        // Replace the completed GCodes with an empty vec to save space
-        self.content = TaskContent::GCodes(vec![]);
     }
 }
 

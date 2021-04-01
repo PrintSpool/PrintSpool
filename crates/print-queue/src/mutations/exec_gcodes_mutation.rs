@@ -117,15 +117,12 @@ impl ExecGCodesMutation {
             * Insert task and sync task completion
             * =========================================================================================
             */
-            let mut tx = db.begin().await?;
-
             let task = crate::task_from_gcodes(
                 &machine_id,
                 machine.clone(),
                 machine_override,
                 gcodes,
             ).await?;
-            task.insert_no_rollback(&mut tx).await?;
 
             // Sync Mode: Initialize a watcher so that it can be used later
             let watcher = if input.sync.unwrap_or(false) {
@@ -140,7 +137,7 @@ impl ExecGCodesMutation {
                 None
             };
 
-            tx.commit().await?;
+            task.insert(&db).await?;
 
             let msg = SpoolTask {
                 task,
