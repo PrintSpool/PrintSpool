@@ -111,9 +111,11 @@ where
             Arc::clone(&handle_data_channel),
         ).await {
             warn!("Disconnected from signalling server (will retry). Reason: {:?}", err);
-            // Prevent repeating signalling errors from going into a tight loop
-            async_std::task::sleep(std::time::Duration::from_millis(100)).await;
+        } else {
+            warn!("Signalling server connection closed (will retry).");
         }
+        // Prevent repeating signalling errors from going into a tight loop
+        async_std::task::sleep(std::time::Duration::from_millis(100)).await;
     }
 }
 
@@ -323,6 +325,7 @@ where
         let msg = match msg {
             Ok(msg) => msg?,
             Err(_) => {
+                trace!("Pinging signalling server");
                 ws_write.send(Message::Ping(vec![])).await?;
                 continue;
             }
