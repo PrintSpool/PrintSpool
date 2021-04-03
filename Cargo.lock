@@ -243,7 +243,7 @@ dependencies = [
  "num_cpus",
  "once_cell",
  "tokio 0.2.25",
- "tokio 1.2.0",
+ "tokio 1.4.0",
 ]
 
 [[package]]
@@ -1811,8 +1811,8 @@ dependencies = [
  "http",
  "indexmap",
  "slab",
- "tokio 1.2.0",
- "tokio-util 0.6.3",
+ "tokio 1.4.0",
+ "tokio-util 0.6.5",
  "tracing",
  "tracing-futures",
 ]
@@ -2004,7 +2004,7 @@ dependencies = [
  "itoa",
  "pin-project",
  "socket2",
- "tokio 1.2.0",
+ "tokio 1.4.0",
  "tower-service",
  "tracing",
  "want",
@@ -2076,7 +2076,7 @@ dependencies = [
  "futures-core",
  "inotify-sys",
  "libc",
- "tokio 1.2.0",
+ "tokio 1.4.0",
 ]
 
 [[package]]
@@ -2683,6 +2683,18 @@ name = "nix"
 version = "0.19.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b2ccba0cfe4fdf15982d1674c69b1fd80bad427d293849982668dfe454bd61f2"
+dependencies = [
+ "bitflags",
+ "cc",
+ "cfg-if 1.0.0",
+ "libc",
+]
+
+[[package]]
+name = "nix"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fa9b4819da1bc61c0ea48b63b7bc8604064dd43013e7cc325df098d49cd7c18a"
 dependencies = [
  "bitflags",
  "cc",
@@ -4213,6 +4225,7 @@ dependencies = [
  "futures 0.3.12",
  "gcode",
  "mio 0.6.23",
+ "nix 0.20.0",
  "nom 6.1.2",
  "nom-gcode",
  "nom-reprap-response",
@@ -4664,9 +4677,9 @@ dependencies = [
 
 [[package]]
 name = "tokio"
-version = "1.2.0"
+version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8190d04c665ea9e6b6a0dc45523ade572c088d2e6566244c1122671dbf4ae3a"
+checksum = "134af885d758d645f0f0505c9a8b3f9bf8a348fd822e112ab5248138348f1722"
 dependencies = [
  "autocfg 1.0.1",
  "bytes 1.0.1",
@@ -4706,7 +4719,7 @@ checksum = "1981ad97df782ab506a1f43bf82c967326960d278acf3bf8279809648c3ff3ea"
 dependencies = [
  "futures-core",
  "pin-project-lite 0.2.6",
- "tokio 1.2.0",
+ "tokio 1.4.0",
 ]
 
 [[package]]
@@ -4718,7 +4731,7 @@ dependencies = [
  "futures-util",
  "log",
  "pin-project",
- "tokio 1.2.0",
+ "tokio 1.4.0",
  "tungstenite 0.12.0",
 ]
 
@@ -4738,16 +4751,16 @@ dependencies = [
 
 [[package]]
 name = "tokio-util"
-version = "0.6.3"
+version = "0.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ebb7cb2f00c5ae8df755b252306272cd1790d39728363936e01827e11f0b017b"
+checksum = "5143d049e85af7fbc36f5454d990e62c2df705b3589f123b71f441b6b59f443f"
 dependencies = [
  "bytes 1.0.1",
  "futures-core",
  "futures-sink",
  "log",
  "pin-project-lite 0.2.6",
- "tokio 1.2.0",
+ "tokio 1.4.0",
 ]
 
 [[package]]
@@ -5159,10 +5172,10 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_urlencoded",
- "tokio 1.2.0",
+ "tokio 1.4.0",
  "tokio-stream",
  "tokio-tungstenite",
- "tokio-util 0.6.3",
+ "tokio-util 0.6.5",
  "tower-service",
  "tracing",
  "tracing-futures",

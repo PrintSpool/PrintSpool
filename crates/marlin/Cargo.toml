@@ -12,8 +12,8 @@ teg-json-store = { path = "../json-store" }
 teg_machine = { path = "../machine" }
 
 bytes = "0.5.4"
-tokio = { version = "0.2.21", features = ["full"] }
-tokio-util = { version = "0.3.1", 	features=["codec"] }
+tokio = { version = "0.2.25", features = ["full"] }
+tokio-util = { version = "0.3.1", features=["codec"] }
 tokio-serial = { version = "4.3.3", default-features = false }
 # tokio-serial = { path = "../../../tokio-serial"}
 futures = { version = "0.3.5", features=["compat"] }
@@ -38,3 +38,4 @@ dotenv = "0.15.0"
 nom = "6.0.0-alpha.1"
 serde_json = "1.0.57"
 rand = "0.8.3"
+nix = "0.20.0"
