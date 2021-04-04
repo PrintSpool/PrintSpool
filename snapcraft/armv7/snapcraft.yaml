@@ -88,6 +88,7 @@ apps:
     command: teg-server
     daemon: simple
     restart-condition: always
+    refresh-mode: endure
     environment:
       DATABASE_URL: "sqlite:/var/lib/teg/db.sqlite"
 
@@ -109,28 +110,28 @@ apps:
       - system-observe
       - hardware-observe
       - hardware-random-control
-  supervisor:
-    command: teg-supervisor
-    daemon: simple
-    restart-condition: always
-    # refresh-mode: endure
-    # stop-mode: sigusr2
-    environment:
-      # RUST_LOG: info,teg_marlin=debug,teg_marlin::gcode_codec=trace,teg_marlin::protobuf_server
-      RUST_LOG: info
-      RUST_ENV: production
-      # RUST_BACKTRACE: 1
-    plugs:
-      # - klipper-printers
-      - network
-      - network-bind
-      - process-control
-      - system-observe
-      - hardware-observe
-      - hardware-random-control
-      - raw-usb
-      - gpio
-      - gpio-memory-control
+  # supervisor:
+  #   command: teg-supervisor
+  #   daemon: simple
+  #   restart-condition: always
+  #   # refresh-mode: endure
+  #   # stop-mode: sigusr2
+  #   environment:
+  #     # RUST_LOG: info,teg_marlin=debug,teg_marlin::gcode_codec=trace,teg_marlin::protobuf_server
+  #     RUST_LOG: info
+  #     RUST_ENV: production
+  #     # RUST_BACKTRACE: 1
+  #   plugs:
+  #     # - klipper-printers
+  #     - network
+  #     - network-bind
+  #     - process-control
+  #     - system-observe
+  #     - hardware-observe
+  #     - hardware-random-control
+  #     - raw-usb
+  #     - gpio
+  #     - gpio-memory-control
   marlin:
     command: teg-marlin
     environment:

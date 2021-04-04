@@ -22,7 +22,7 @@ mod query;
 mod server_query;
 mod local_http_server;
 
-use std::{env, sync::Arc};
+use std::{env, str::FromStr, sync::Arc};
 use serde::Deserialize;
 use sqlx::{SqlitePool, migrate::MigrateDatabase, sqlite::{SqliteConnectOptions}};
 use arc_swap::ArcSwap;
@@ -33,6 +33,8 @@ use futures_util::{TryFutureExt, future, future::FutureExt, future::join_all, se
     StreamExt,
     // TryStreamExt,
 }};
+use std::os::unix::fs::PermissionsExt;
+use pidfile_rs::Pidfile;
 
 use teg_auth::AuthContext;
 use teg_device::DeviceManager;
@@ -63,6 +65,13 @@ struct IdFromConfig {
 }
 
 fn main() -> Result<()> {
+    let pidfile_path = std::path::PathBuf::from_str("/var/tmp/teg.pid")?;
+    let pidfile = Pidfile::new(
+        &pidfile_path,
+        std::fs::Permissions::from_mode(0o600),
+    )?;
+    pidfile.write()?;
+
     async_std::task::block_on(app())
 }
 
