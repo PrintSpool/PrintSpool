@@ -21,7 +21,7 @@ For completeness this documentation lists all the dependencies to get a developm
 
 1. Install [nvm](https://github.com/creationix/nvm)
 2. Install [Rust](https://rustup.rs/)
-3. `sudo apt update && sudo apt install build-essential clang libclang1 pkg-config python tmux qemu qemu-user qemu-user-static binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf fuse-overlayfs g++-arm-linux-gnueabihf libutil-freebsd-dev`
+3. `sudo apt update && sudo apt install build-essential clang libclang1 pkg-config python tmux qemu qemu-user qemu-user-static binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf fuse-overlayfs g++-arm-linux-gnueabihf libbsd-dev`
 5. Allow serial port access via the dialout group and then restart your computer: `sudo gpasswd --add ${USER} dialout`
 6. Increase the max_user_watches: `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`
 7. Install cargo-watch, sqlx, node 10 and yarn with: `./scripts/bootstrap`

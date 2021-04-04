@@ -57,7 +57,7 @@ parts:
   #     - to amd64: bin/x64/
 
   stage-packages:
-    - libutil-freebsd-dev
+    - libbsd-dev
   #   - to armhf:
   #       # - "sqlite3:armhf"
   #   - else:
