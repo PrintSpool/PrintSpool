@@ -389,7 +389,7 @@ dependencies = [
  "event-listener",
  "futures-lite",
  "once_cell",
- "signal-hook 0.3.4",
+ "signal-hook 0.3.8",
  "winapi 0.3.9",
 ]
 
@@ -3013,6 +3013,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "pidfile-rs"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5bf50ad3f0e69aab8d669bb31a314baea3f35e4e441c0b07af883c06eacd3496"
+dependencies = [
+ "libc",
+ "log",
+ "pkg-config",
+ "thiserror",
+]
+
+[[package]]
 name = "pin-project"
 version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3851,9 +3863,9 @@ dependencies = [
 
 [[package]]
 name = "signal-hook"
-version = "0.3.4"
+version = "0.3.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "780f5e3fe0c66f67197236097d89de1e86216f1f6fdeaf47c442f854ab46c240"
+checksum = "ef33d6d0cd06e0840fba9985aab098c147e67e05cee14d412d3345ed14ff30ac"
 dependencies = [
  "libc",
  "signal-hook-registry",
@@ -4229,6 +4241,7 @@ dependencies = [
  "nom 6.1.2",
  "nom-gcode",
  "nom-reprap-response",
+ "pidfile-rs",
  "rand 0.8.3",
  "serde",
  "serde_json",
@@ -4304,6 +4317,7 @@ dependencies = [
  "rmp-serde",
  "serde",
  "serde_json",
+ "signal-hook 0.3.8",
  "sqlx",
  "surf",
  "teg-json-store",

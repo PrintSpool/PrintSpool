@@ -27,11 +27,13 @@ use serde::Deserialize;
 use sqlx::{SqlitePool, migrate::MigrateDatabase, sqlite::{SqliteConnectOptions}};
 use arc_swap::ArcSwap;
 use eyre::{Context, Result, eyre};
+use signal_hook::{iterator::Signals, consts::signal::SIGUSR2};
 use futures_util::{TryFutureExt, future, future::FutureExt, future::join_all, select, stream::{
-        // Stream,
-        StreamExt,
-        // TryStreamExt,
-    }};
+    // Stream,
+    StreamExt,
+    // TryStreamExt,
+}};
+
 use teg_auth::AuthContext;
 use teg_device::DeviceManager;
 use teg_machine::{MachineHooksList, MachineMap, MachineMapLocal, MachineMaterialHooks, machine::Machine, signalling_updater::{SignallingUpdater, SignallingUpdaterMachineHooks}};
@@ -113,6 +115,17 @@ async fn app() -> Result<()> {
 
     tracing_subscriber::fmt::init();
     color_eyre::install()?;
+
+    // USR2 Signals handling
+    let mut signals = Signals::new(&[SIGUSR2])?;
+
+    std::thread::spawn(move || {
+        for sig in signals.forever() {
+            println!("Received signal {:?}", sig);
+            std::process::exit(0);
+        }
+    });
+
 
     // Memory useage profiling
     async_std::task::spawn(async {

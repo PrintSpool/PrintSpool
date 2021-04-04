@@ -29,9 +29,8 @@ pub mod protos {
 
 pub use serial_manager::SerialManager;
 use teg_machine::config::MachineConfig;
-use tokio::io::AsyncWriteExt;
 
-use std::collections::HashMap;
+use std::{collections::HashMap};
 // use std::sync::{Arc, Mutex};
 
 // use futures_core::{ future, Poll };
@@ -116,8 +115,8 @@ async fn tick_state_machine(
 }
 
 pub async fn start(
-    config_path: Option<String>
-) -> std::result::Result<String, Box<dyn std::error::Error>> {
+    config_path: String,
+) -> std::result::Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
 
     tracing_subscriber::fmt::init();
@@ -125,62 +124,11 @@ pub async fn start(
 
     // Config
     // ----------------------------------------------------
-    let config_path = config_path.unwrap_or("/etc/teg/machine.toml".to_string());
-
     let config_file_content = std::fs::read_to_string(config_path.clone())
         .expect(&format!("Unabled to open config (file: {:?})", config_path));
 
     let config: MachineConfig = toml::from_str(&config_file_content)
         .expect(&format!("Invalid config format (file: {:?})", config_path));
-
-    // Pid File
-    // ----------------------------------------------------
-    let pid_file = format!("/var/tmp/teg-machine-{}.pid", config.id);
-    let pid = format!("{}", std::process::id());
-
-    {
-        let mut f = std::fs::File::create(&pid_file)?;
-        std::io::Write::write_all(&mut f, &pid.as_bytes())?;
-
-        f.sync_all()?;
-    }
-
-    let pid_file_clone = pid_file.clone();
-
-    // Systemd's tmpfile daemon may remove temp files that haven't been modified in 10 days.
-    // In order to prevent pid file deletion we regularly update the last modified timestamp.
-    //
-    // Source: https://docs.rs/tempfile/3.2.0/tempfile/struct.NamedTempFile.html#linux
-    tokio::spawn(async move {
-        use tokio::fs::OpenOptions;
-
-        loop {
-            let pid_file_clone = pid_file_clone.clone();
-            let pid = pid.clone();
-
-            let result = (|| async move {
-                tokio::time::delay_for(
-                    tokio::time::Duration::from_secs(60 * 60),
-                ).await;
-
-                let mut file = OpenOptions::new()
-                    .write(true)
-                    .truncate(true)
-                    .open(pid_file_clone)
-                    .await?;
-
-                file.write_all(pid.as_bytes()).await?;
-
-                eyre::Result::<_>::Ok(())
-            })().await;
-
-            if let Err(err) = result {
-                warn!("Error in pid file update: {:?}", err);
-            } else {
-                info!("Updated pidfile timestamp to prevent cleanup");
-            };
-        }
-    });
 
     // Channels
     // ----------------------------------------------------
@@ -238,5 +186,5 @@ pub async fn start(
         })
         .await;
 
-    Ok(pid_file)
+    Ok(())
 }

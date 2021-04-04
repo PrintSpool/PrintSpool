@@ -1,18 +1,97 @@
-use async_codec::Framed;
-use async_std::os::unix::net::UnixStream;
+use std::env;
 use std::time::Duration;
-// use eyre::{
-//     // eyre,
-//     Result,
-//     // Context as _,
-// };
+use async_codec::Framed;
+use async_std::{
+    // fs,
+    os::unix::net::UnixStream,
+    // path::Path,
+    process::Command,
+};
+use eyre::{
+    eyre,
+    Result,
+    // Context as _,
+};
 
 use crate::{
+    config::MachineConfig,
     machine::{
         Machine,
         streams::receive_stream::codec::MachineCodec
     },
 };
+
+async fn spawn_driver(machine: &Machine) -> Result<()> {
+    // let machine_config = &machine.get_data()?.config;
+    // let pid_file = MachineConfig::pid_file_path();
+    let config_file = MachineConfig::config_file_path(&machine.id);
+
+    // let driver_is_running = if Path::new(&pid_file).exists().await {
+    //     let pid = fs::read(pid_file)
+    //         .await
+    //         .map(String::from_utf8)??
+    //         .parse::<u64>()?;
+
+    //     let proc = format!("/proc/{}", pid);
+    //     Path::new(&proc).exists().await
+    // } else {
+    //     false
+    // };
+
+    // if driver_is_running {
+    //     return Ok(())
+    // }
+
+    let is_dev = env::var("RUST_ENV")
+        .map(|v| &v == "development")
+        .unwrap_or(true);
+
+    let cmd = if is_dev {
+        let mut marlin = env::current_exe()?;
+        marlin.pop();
+        marlin.pop();
+        marlin.pop();
+        marlin.push("crates/marlin");
+
+        let marlin = marlin.to_str()
+            .ok_or_else(|| eyre!("Error loading file path to drivers"))?;
+
+        let release_flag = if
+            env::var("RUN_MARLIN_IN_RELEASE")
+                .map(|v| &v == "1")
+                .unwrap_or(false)
+        {
+            " --release"
+        } else {
+            ""
+        };
+
+        // format!("cd {} && cargo watch -s \"cargo run -- {}\"", marlin, config_file)
+        format!("cd {} && cargo run{} -- {}", marlin, release_flag, machine.id)
+    } else {
+        let mut marlin = env::current_exe()?;
+        marlin.pop();
+        marlin.push("teg-marlin");
+
+        let marlin = marlin.to_str()
+            .ok_or_else(|| eyre!("Error loading file path to drivers"))?;
+
+        format!("{} {}", marlin, machine.id)
+    };
+
+    info!("Spawning driver for {}: {}", config_file, cmd);
+    Command::new("sh")
+        .arg("-c")
+        .arg(cmd)
+        .status()
+        .await?;
+        // .spawn()?;
+
+    // Wait 50 milliseconds for the socket to open
+    async_std::task::sleep(Duration::from_millis(50)).await;
+
+    Ok(())
+}
 
 #[xactor::message(result = "()")]
 pub struct ConnectToSocket;
@@ -35,11 +114,19 @@ impl xactor::Handler<ConnectToSocket> for Machine {
                 return
             }
         }
-
         let socket_path = format!(
             "/var/lib/teg/machine-{}.sock",
             self.id,
         );
+
+        // Start the driver if one is not already running
+        if let Err(err) = spawn_driver(&self).await {
+            error!("Unable to spawn driver, retrying in 500ms: {:?}", err);
+            self.attempting_to_connect = false;
+
+            ctx.send_later(ConnectToSocket, Duration::from_millis(500));
+            return
+        }
 
         // let client_id: crate::DbId = 42; // Chosen at random. Very legit.
 

@@ -223,4 +223,8 @@ impl MachineConfig {
     pub fn config_file_path(id: &crate::DbId) -> String {
         format!("/etc/teg/machine-{}.toml", id)
     }
+
+    pub fn pid_file_path(id: &crate::DbId) -> String {
+        format!("/var/tmp/teg-machine-{}.pid", id)
+    }
 }

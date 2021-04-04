@@ -50,6 +50,7 @@ warp = "0.3.0"
 nanoid = "0.3.0"
 jemallocator = "0.3.2"
 jemalloc-ctl = "0.3.3"
+signal-hook = "0.3.8"
 
 [dependencies.serde]
 features = ["derive"]
