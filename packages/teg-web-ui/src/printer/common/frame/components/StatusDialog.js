@@ -96,7 +96,7 @@ const StatusDialog = ({
       </DialogContent>
       <DialogActions>
         {
-          (status === 'ERRORED' || status === 'STOPPED')
+          (status === 'ERRORED' || status === 'STOPPED' || status === 'DISCONNECTED')
           && (
           <Button
             onClick={handleReset}
