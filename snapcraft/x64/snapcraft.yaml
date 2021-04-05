@@ -86,7 +86,14 @@ apps:
     command: teg-server
     daemon: simple
     restart-condition: always
-    refresh-mode: endure
+    # Setting stop-mode changes the SystemD KillMode from killing all the drivers through their
+    # cgroup to just killing the server (via KillMode=process)
+    #
+    # See Also: https://forum.snapcraft.io/t/process-lifecycle-on-snap-refresh/140/37
+    stop-mode: sigterm
+    # refresh-mode: endure
+    # refresh-mode: restart
+    stop-mode: sigterm
     environment:
       DATABASE_URL: "sqlite:/var/lib/teg/db.sqlite"
 

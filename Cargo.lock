@@ -4315,7 +4315,6 @@ dependencies = [
  "jemalloc-ctl",
  "jemallocator",
  "nanoid",
- "pidfile-rs",
  "rmp-serde",
  "serde",
  "serde_json",
