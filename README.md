@@ -49,6 +49,10 @@ Once you have `start-tmux` running you can create an invite code to access your 
 
 Note: These dependencies are only for building snaps - they are not needed for most development.
 
+<!--
+Note: These instructions may not be necessary any longer. If you can build for armhf without doing
+the following please remove the following:
+
 First setup armhf packages in ubuntu. See:
 - https://stackoverflow.com/a/39316855
 - https://wiki.debian.org/Multiarch/HOWTO
@@ -59,16 +63,12 @@ Essentially setting up armhf packages boils down to adding the following to `/et
   deb [arch=armhf] http://bg.ports.ubuntu.com/ focal-updates main restricted
 ```
 
-And then running `sudo apt-get update && sudo dpkg --add-architecture armhf`
+And then running `sudo apt-get update && sudo dpkg --add-architecture armhf && sudo apt-get install libbsd-dev:armhf`
 
-Once you have armhf set up then you can install the rest of the dependencies:
+Once you have armhf set up then you can install the rest of the dependencies: -->
 
 1. Install Podman: https://podman.io/getting-started/installation.html
-2. `sudo apt-get install libbsd-dev:armhf`
-3. `sudo snap install snapcraft --classic`
-<!-- 3. `pushd . && cd ./packages/teg-auth/ && rustup target add armv7-unknown-linux-gnueabihf && popd`
-4. `pushd . && cd ./packages/teg-marlin/ && rustup target add armv7-unknown-linux-gnueabihf && popd`
-4. Build the docker image: `./armv7/build-image.sh` -->
+2. `sudo snap install snapcraft --classic`
 
 
 ### Building the snap
