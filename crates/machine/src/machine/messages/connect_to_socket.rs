@@ -114,10 +114,8 @@ impl xactor::Handler<ConnectToSocket> for Machine {
                 return
             }
         }
-        let socket_path = format!(
-            "/var/lib/teg/machine-{}.sock",
-            self.id,
-        );
+
+        let socket_path = self.data.as_ref().unwrap().config.socket_path();
 
         // Start the driver if one is not already running
         if let Err(err) = spawn_driver(&self).await {

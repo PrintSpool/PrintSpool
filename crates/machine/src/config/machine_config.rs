@@ -155,10 +155,22 @@ impl MachineConfig {
         PathBuf::from(path)
     }
 
+    /// Data in var-common is shared across Snap refresh versions. This is useful for machine
+    /// sockets when a new server needs to connect to a previous version of the driver.
+    pub fn var_common_path(&self) -> PathBuf {
+        let path = if let Some(snap_name) = &self.debug_snap_name {
+            format!("/var/snap/{}/common/var", snap_name)
+        } else {
+            "/var/lib/teg-common".to_string()
+        };
+
+        PathBuf::from(path)
+    }
+
     pub fn socket_path(&self) -> PathBuf {
         let file_name = format!("machine-{}.sock", self.id.to_string());
 
-        self.var_path().join(file_name)
+        self.var_common_path().join(file_name)
     }
 
     pub fn backups_dir(&self) -> PathBuf {

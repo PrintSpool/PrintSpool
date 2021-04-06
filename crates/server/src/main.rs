@@ -22,7 +22,7 @@ mod query;
 mod server_query;
 mod local_http_server;
 
-use std::{env, str::FromStr, sync::Arc};
+use std::{env, sync::Arc};
 use serde::Deserialize;
 use sqlx::{SqlitePool, migrate::MigrateDatabase, sqlite::{SqliteConnectOptions}};
 use arc_swap::ArcSwap;

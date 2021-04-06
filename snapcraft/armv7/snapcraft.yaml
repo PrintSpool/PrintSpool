@@ -32,6 +32,8 @@ layout:
     bind: $SNAP_DATA/var
   /etc/teg:
     bind: $SNAP_DATA/etc
+  /var/lib/teg-common:
+    bind: $SNAP_COMMON/var
 
 # hooks:
 #   install:

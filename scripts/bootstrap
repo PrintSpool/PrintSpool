@@ -9,6 +9,15 @@ cargo install cargo-watch sqlx-cli
 # yarn
 # yarn make-dirs
 
+USER=`whoami`
+
+sudo mkdir -p /var/lib/teg/
+sudo mkdir -p /var/lib/teg-common/
+
+sudo chown ${USER}:${USER} /var/lib/teg/
+sudo chown ${USER}:${USER} /var/lib/teg-common/
+
+
 pushd
 cd ./packages/teg-web-ui/
 nvm install
