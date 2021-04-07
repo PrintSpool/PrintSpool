@@ -4,4 +4,4 @@ cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../../
 
 VERSION=`node -p "require('./package.json').version"`
 
-replace "version: .*" "version: $VERSION" ./snapcraft/*/snapcraft.yaml
+npx --no-install replace "version: .*" "version: $VERSION" ./snapcraft/*/snapcraft.yaml
