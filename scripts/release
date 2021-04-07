@@ -34,3 +34,11 @@ snapcraft upload --release=beta ./dist/*_amd64.snap
 snapcraft upload --release=beta ./dist/*_armhf.snap
 
 echo "Uploading builds... [DONE]"
+
+echo "Publishing tags to Github..."
+git push --follow-tags origin develop
+echo "Publishing tags to Github... [DONE]"
+
+echo ""
+echo "🎉 Congratulations! You did it! 🎉"
+echo ""
