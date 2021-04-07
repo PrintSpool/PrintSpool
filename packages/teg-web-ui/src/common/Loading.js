@@ -1,11 +1,9 @@
 import React from 'react'
 import classNames from 'classnames'
 
-import {
-  Typography,
-  Fade,
-  CircularProgress,
-} from '@material-ui/core'
+import Typography from '@material-ui/core/Typography'
+import Fade from '@material-ui/core/Fade'
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 import LoadingStyles from './LoadingStyles'
 

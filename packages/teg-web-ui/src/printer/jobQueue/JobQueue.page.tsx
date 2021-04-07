@@ -34,6 +34,16 @@ const PRINT_QUEUES_QUERY = gql`
           id
           name
           status
+          components {
+            id
+            name
+            heater {
+              id
+              blocking
+              actualTemperature
+              targetTemperature
+            }
+          }
         }
       }
     }

@@ -51,6 +51,13 @@ const JOB_QUERY = gql`
           components {
             id
             type
+            name
+            heater {
+              id
+              blocking
+              actualTemperature
+              targetTemperature
+            }
           }
         }
       }

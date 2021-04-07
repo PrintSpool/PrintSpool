@@ -1,23 +1,22 @@
 import React, { useState, useCallback } from 'react'
+import { Link } from 'react-router-dom'
+import truncate from 'truncate'
 
 import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
 import CardContent from '@material-ui/core/CardContent'
-import IconButton from '@material-ui/core/IconButton'
-import Menu from '@material-ui/core/Menu'
-import MenuItem from '@material-ui/core/MenuItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import ListItemText from '@material-ui/core/ListItemText'
+// import IconButton from '@material-ui/core/IconButton'
+// import Menu from '@material-ui/core/Menu'
+// import MenuItem from '@material-ui/core/MenuItem'
+// import ListItemIcon from '@material-ui/core/ListItemIcon'
+// import ListItemText from '@material-ui/core/ListItemText'
 
-import MoreVert from '@material-ui/icons/MoreVert'
-import Delete from '@material-ui/icons/Delete'
+// import MoreVert from '@material-ui/icons/MoreVert'
+// import Delete from '@material-ui/icons/Delete'
 // import Reorder from '@material-ui/icons/Reorder'
 
-import { Link } from 'react-router-dom'
-import truncate from 'truncate'
-
 import TaskStatusRow from './TaskStatusRow'
-import useConfirm from '../../../common/_hooks/useConfirm'
+// import useConfirm from '../../../common/_hooks/useConfirm'
 // import { Typography } from '@material-ui/core'
 
 const PrintCard = ({
