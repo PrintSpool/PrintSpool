@@ -4,12 +4,9 @@
   "repository": "git@github.com:tegapp/teg.git",
   "author": "D1plo1d",
   "license": "AGPL-3.0",
-  "scripts": {
-    "release": "standard-version -a"
-  },
   "standard-version": {
     "scripts": {
-      "postchangelog": "VERSION=`node -p \"require('./package.json').version\"` replace 'version: .*' 'version: ${VERSION}' ./snapcraft/armv7/snapcraft.yaml"
+      "postchangelog": "VERSION=`node -p \"require('./package.json').version\"` replace 'version: .*' 'version: $VERSION' ./snapcraft/*/snapcraft.yaml"
     }
   },
   "devDependencies": {

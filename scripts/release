@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
+
+yarn release
+npx --no-install standard-version -a
+
+snapcraft upload --release=beta ./dist/*_amd64.snap
+snapcraft upload --release=beta ./dist/*_armhf.snap
