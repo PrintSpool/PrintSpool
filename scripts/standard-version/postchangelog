@@ -5,3 +5,5 @@ cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../../
 VERSION=`node -p "require('./package.json').version"`
 
 npx --no-install replace "version: .*" "version: $VERSION" ./snapcraft/*/snapcraft.yaml
+
+git add ./snapcraft/*/snapcraft.yaml
