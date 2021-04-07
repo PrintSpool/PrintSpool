@@ -2,15 +2,28 @@
 set -e
 cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
 
-echo "Are you sure you want to release a new Beta for Teg?"
+echo ""
+echo "Teg Release Preview"
+echo "---------------------------------------------------------------------------------------------"
+
+npx --no-install standard-version -a --dry-run
+
+echo ""
+echo ""
+echo "Are you sure you want to release this new version of Teg?"
+echo "---------------------------------------------------------------------------------------------"
+echo ""
 select yn in "Yes" "No"; do
     case $yn in
-        Yes ) echo "Let's do this!";;
+        Yes ) break;;
         No ) exit 1;;
     esac
 done
 
-yarn release
+echo ""
+echo "🎉 Yay! It's Release Day! 🎉"
+echo ""
+
 npx --no-install standard-version -a
 
 ./scripts/build
