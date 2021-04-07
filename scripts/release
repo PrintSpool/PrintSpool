@@ -2,8 +2,22 @@
 set -e
 cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
 
+echo "Are you sure you want to release a new Beta for Teg?"
+select yn in "Yes" "No"; do
+    case $yn in
+        Yes ) echo "Let's do this!";;
+        No ) exit 1;;
+    esac
+done
+
 yarn release
 npx --no-install standard-version -a
 
+./scripts/build
+
+echo "Uploading builds..."
+
 snapcraft upload --release=beta ./dist/*_amd64.snap
 snapcraft upload --release=beta ./dist/*_armhf.snap
+
+echo "Uploading builds... [DONE]"
