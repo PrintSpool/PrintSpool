@@ -460,6 +460,10 @@ impl ReadyState {
     }
 
     fn receive_ok(&mut self, effects: &mut Vec<Effect>, context: &mut Context) -> eyre::Result<()> {
+        for heater in context.feedback.heaters.iter_mut() {
+            heater.blocking = false;
+        }
+
         match self.on_ok {
             OnOK::NotAwaitingOk => {
                 // Ignore erroneous OKs

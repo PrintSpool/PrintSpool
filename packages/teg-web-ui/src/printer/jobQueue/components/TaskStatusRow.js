@@ -64,6 +64,7 @@ const TaskStatusRow = ({
   const blockingHeater = task.machine.components
     // .find(c => c.heater)
     .find(c => c.heater?.blocking)
+
   // console.log({blockingHeater}, task.machine.components)
 
   let etaStr = ''
@@ -93,6 +94,11 @@ const TaskStatusRow = ({
   if (isPrinting && blockingHeater != null) {
     const { actualTemperature, targetTemperature } = blockingHeater.heater
 
+    // console.log(
+    //   100 * actualTemperature / targetTemperature,
+    //   actualTemperature,
+    //   targetTemperature,
+    // )
     const temperaturePercent = Math.min((
       100 * actualTemperature / targetTemperature
     ) || 0, 100)
