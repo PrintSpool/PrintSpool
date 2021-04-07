@@ -6,7 +6,7 @@
   "license": "AGPL-3.0",
   "standard-version": {
     "scripts": {
-      "postchangelog": "VERSION=`node -p \"require('./package.json').version\"` replace \"version: .*\" \"version: $VERSION\" ./snapcraft/*/snapcraft.yaml"
+      "postchangelog": "./scripts/standard-version/postchangelog"
     }
   },
   "devDependencies": {
