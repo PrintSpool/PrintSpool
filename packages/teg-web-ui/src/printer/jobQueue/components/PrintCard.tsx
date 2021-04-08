@@ -74,7 +74,7 @@ const PrintCard = ({
             to={`./printing/${task.partID}/`}
             style={{ textDecoration: 'none', color: 'inherit' }}
           >
-            {isPrinting && 'Printing ' || capitalizedStatus + ' '}
+            {isPrinting && 'Printing ' || 'Latest Print: '}
             {shortName}
             {/* {!isPrinting && ` ${task.status.toLowerCase()}`} */}
           </Link>
