@@ -16,6 +16,7 @@ import CardContent from '@material-ui/core/CardContent'
 // import Reorder from '@material-ui/icons/Reorder'
 
 import TaskStatusRow from './TaskStatusRow'
+import { Typography } from '@material-ui/core'
 // import useConfirm from '../../../common/_hooks/useConfirm'
 // import { Typography } from '@material-ui/core'
 
@@ -33,6 +34,7 @@ const PrintCard = ({
   // const closeMenu = useCallback(() => setMenuAnchorEl(null), [])
 
   const { task, part } = print
+  const machineStatus = task.machine.status
 
   const shortName = truncate(part.name, 32)
   // console.log({ task } )
@@ -51,6 +53,18 @@ const PrintCard = ({
   //   title: 'Are you sure you want to delete this part?',
   //   description: part.name,
   // }))
+  let statusSetAt = new Date(Date.parse(task.stoppedAt || task.startedAt))
+    .toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    .replace(' a.m.', 'am')
+    .replace(' p.m.', 'pm')
+
+  const isPrinting = ['SPOOLED', 'STARTED'].includes(task.status)
+  const capitalizedStatus = task.status.charAt(0) + task.status.toLowerCase().slice(1)
+
+  let abortInfo = ''
+  if (task.settled && task.status != 'FINISHED') {
+    abortInfo = ` (at ${task.percentComplete.toFixed(1)}% complete)`
+  }
 
   return (
     <Card>
@@ -60,9 +74,14 @@ const PrintCard = ({
             to={`./printing/${task.partID}/`}
             style={{ textDecoration: 'none', color: 'inherit' }}
           >
+            {isPrinting && 'Printing ' || capitalizedStatus + ' '}
             {shortName}
+            {/* {!isPrinting && ` ${task.status.toLowerCase()}`} */}
           </Link>
         )}
+        subheader={
+          `${task.stoppedAt ? capitalizedStatus : 'Started'}${abortInfo} at ${statusSetAt}`
+          + ` on ${task.machine.name}`}
       />
 
       {/* <Menu
@@ -79,22 +98,24 @@ const PrintCard = ({
         </MenuItem>
       </Menu> */}
 
-      <CardContent
-        style={{
-          paddingTop: 0,
-        }}
-      >
-        <TaskStatusRow
-          task={task}
-          key={task.id}
-          {...{
-            cancelTask,
-            pausePrint,
-            resumePrint,
-            machineStatus: task.machine.status,
+      {!task.settled && (
+        <CardContent
+          style={{
+            paddingTop: 0,
           }}
-        />
-      </CardContent>
+        >
+          <TaskStatusRow
+            task={task}
+            key={task.id}
+            {...{
+              cancelTask,
+              pausePrint,
+              resumePrint,
+              machineStatus,
+            }}
+          />
+        </CardContent>
+      )}
     </Card>
   )
 }

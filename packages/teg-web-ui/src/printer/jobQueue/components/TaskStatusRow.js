@@ -5,7 +5,8 @@ import Typography from '@material-ui/core/Typography'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import CircularProgress from '@material-ui/core/CircularProgress'
 // import Box from '@material-ui/core/Box'
-import Fade from '@material-ui/core/Fade'
+import Grow from '@material-ui/core/Grow'
+import Slide from '@material-ui/core/Slide'
 import Cancel from '@material-ui/icons/Cancel'
 import Play from '@material-ui/icons/PlayArrow'
 import Pause from '@material-ui/icons/Pause'
@@ -90,67 +91,65 @@ const TaskStatusRow = ({
 
   const disabled = !['READY', 'PRINTING', 'PAUSED'].includes(machineStatus)
 
-  let heaterOverlay = <div/>
-  if (isPrinting && blockingHeater != null) {
-    const { actualTemperature, targetTemperature } = blockingHeater.heater
+  const { actualTemperature = 0, targetTemperature = 0 } = blockingHeater?.heater || {}
 
-    // console.log(
-    //   100 * actualTemperature / targetTemperature,
-    //   actualTemperature,
-    //   targetTemperature,
-    // )
-    const temperaturePercent = Math.min((
-      100 * actualTemperature / targetTemperature
-    ) || 0, 100)
+  // console.log(
+  //   100 * actualTemperature / targetTemperature,
+  //   actualTemperature,
+  //   targetTemperature,
+  // )
+  const temperaturePercent = Math.min((
+    100 * actualTemperature / targetTemperature
+  ) || 0, 100)
 
-    heaterOverlay = (
-      <div
+  const heaterOverlay = (
+    <div
+      style={{
+        display: 'flex',
+        // flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        // position: 'relative',
+        // marginTop: 'calc(-1rem - 16px)',
+        // marginTop: -16,
+        // background: 'white',
+        // background: 'rgba(255, 255, 255, .8)',
+        // zIndex: 1,
+      }}
+    >
+      <CircularProgress
+        variant="determinate"
+        value={temperaturePercent}
+        size={16*3}
+      />
+      {/* <Box
+        top={0}
+        left={0}
+        bottom={0}
+        right={0}
+        position="absolute"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+      </Box> */}
+      <Typography
+        variant="h6"
+        component="div"
+        color="textSecondary"
         style={{
-          display: 'flex',
-          // flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          // position: 'relative',
-          // marginTop: 'calc(-1rem - 16px)',
-          marginTop: -16,
-          background: 'white',
-          // background: 'rgba(255, 255, 255, .8)',
-          zIndex: 1,
+          // marginTop: 8,
+          marginLeft: 16,
         }}
       >
-        <CircularProgress
-          variant="determinate"
-          value={temperaturePercent}
-          size={16*3}
-        />
-        {/* <Box
-          top={0}
-          left={0}
-          bottom={0}
-          right={0}
-          position="absolute"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-        </Box> */}
-        <Typography
-          variant="h6"
-          component="div"
-          color="textSecondary"
-          style={{
-            // marginTop: 8,
-            marginLeft: 16,
-          }}
-        >
-          {`Heating ${blockingHeater.name} `}
-          {/* {`(${Math.round(actualTemperature)} / ${Math.round(targetTemperature*10)/10}°C)`} */}
-          {`to ${Math.round(targetTemperature*10)/10}°C`}
-        </Typography>
-      </div>
-    )
-  }
+        {`Heating ${blockingHeater?.name} `}
+        {/* {`(${Math.round(actualTemperature)} / ${Math.round(targetTemperature*10)/10}°C)`} */}
+        {`to ${Math.round(targetTemperature*10)/10}°C`}
+      </Typography>
+    </div>
+  )
 
+  const showHeater = isPrinting && blockingHeater != null
   return (
     <div
       style={{
@@ -159,109 +158,128 @@ const TaskStatusRow = ({
         gridTemplateAreas: '"a"',
       }}
     >
-      <Fade
+      <Grow
         style={{
           transitionDelay: `0ms`,
           gridArea: 'a',
         }}
         timeout={ 800 }
-        in={isPrinting && blockingHeater != null}
+        in={showHeater}
+        mountOnEnter
+        unmountOnExit
       >
         { heaterOverlay }
-      </Fade>
-      <div style={{
-        gridArea: 'a',
-      }}>
-        <Typography
-          variant="body2"
-          gutterBottom
-          style={{
-            marginBottom: 0,
-          }}
-        >
-          {
-            (() => {
-              const taskOnMachine = `on ${task.machine.name}`
-              // console.log(task.status)
-
-              if (['CANCELLED', 'ERRORED'].includes(task.status)) {
-                const stopptedAtText = new Date(Date.parse(task.stoppedAt)).toLocaleString()
-                const statusWord = (
-                  task.status === 'CANCELLED' ? 'Cancelled' : 'Errored'
-                )
-                return `${statusWord} ${taskOnMachine} at ${stopptedAtText}`
-              }
-              if (['FINISHED', 'PAUSED'].includes(task.status)) {
-                const stopptedAtText = new Date(Date.parse(task.stoppedAt)).toLocaleString()
-                return `Print ${task.status.toLowerCase()} ${taskOnMachine} at ${stopptedAtText}`
-              }
-              return `Printing ${taskOnMachine}`
-            })()
-          }
-        </Typography>
-
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          { !task.settled && (
-            <Typography
-              variant="body2"
-              style={{
-                marginRight: 12,
-              }}
-            >
-              {task.percentComplete.toFixed(1)}
-              %
-              {etaStr}
-            </Typography>
-          )}
-          <div
+      </Grow>
+      <Slide
+        style={{
+          gridArea: 'a',
+        }}
+        timeout={ 800 }
+        in={!showHeater}
+        direction="up"
+        // mountOnEnter
+        // unmountOnExit
+        // timeout={ 800 }
+        // timeout={{
+        //   // appear: 500,
+        //   enter: 1000,
+        //   exit: 2000000,
+        //  }}
+      >
+        <div>
+          {/* <Typography
+            variant="body2"
+            gutterBottom
             style={{
-              flexGrow: 1,
+              marginBottom: 0,
             }}
           >
-            <LinearProgress
-              variant="determinate"
-              value={task.percentComplete}
-            />
+            {
+              (() => {
+                const taskOnMachine = `on ${task.machine.name}`
+                // console.log(task.status)
+
+                if (['CANCELLED', 'ERRORED'].includes(task.status)) {
+                  const stoppedAtText = new Date(Date.parse(task.stoppedAt)).toLocaleString()
+                  const statusWord = (
+                    task.status === 'CANCELLED' ? 'Cancelled' : 'Errored'
+                  )
+                  return `${statusWord} ${taskOnMachine} at ${stoppedAtText}`
+                }
+                if (['FINISHED', 'PAUSED'].includes(task.status)) {
+                  const stoppedAtText = new Date(Date.parse(task.stoppedAt)).toLocaleString()
+                  return `Print ${task.status.toLowerCase()} ${taskOnMachine} at ${stoppedAtText}`
+                }
+                return `Printing ${taskOnMachine}`
+              })()
+            }
+          </Typography> */}
+
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            { !task.settled && (
+              <Typography
+                variant="body2"
+                style={{
+                  marginRight: 12,
+                }}
+              >
+                {task.percentComplete.toFixed(1)}
+                %
+                {etaStr}
+              </Typography>
+            )}
+            <div
+              style={{
+                flexGrow: 1,
+              }}
+            >
+              { !task.settled && (
+                <LinearProgress
+                  variant="determinate"
+                  value={task.percentComplete}
+                />
+              )}
+            </div>
+            { !task.settled && (
+              <>
+                <IconButton
+                  aria-label={task.paused ? 'resume print' : 'pause print'}
+                  disabled={
+                    ['CANCELLED', 'ERROR', 'FINISHED'].includes(task.status) || disabled
+                  }
+                  onClick={togglePause}
+                  style={{
+                    marginTop: -12,
+                    marginBottom: -12,
+                  }}
+                >
+                  {task.paused ? <Play /> : <Pause />}
+                </IconButton>
+                <IconButton
+                  aria-label="cancel"
+                  disabled={
+                    ['CANCELLED', 'ERROR', 'FINISHED'].includes(task.status) || disabled
+                  }
+                  onClick={confirmedCancelTask}
+                  style={{
+                    marginTop: -12,
+                    marginBottom: -12,
+                    marginRight: -14,
+                    textAlign: 'right',
+                  }}
+                >
+                  <Cancel />
+                </IconButton>
+              </>
+            )}
           </div>
-          { !task.settled && (
-            <>
-              <IconButton
-                aria-label={task.paused ? 'resume print' : 'pause print'}
-                disabled={
-                  ['CANCELLED', 'ERROR', 'DONE'].includes(task.status) || disabled
-                }
-                onClick={togglePause}
-                style={{
-                  marginTop: -12,
-                  marginBottom: -12,
-                }}
-              >
-                {task.paused ? <Play /> : <Pause />}
-              </IconButton>
-              <IconButton
-                aria-label="cancel"
-                disabled={
-                  ['CANCELLED', 'ERROR', 'DONE'].includes(task.status) || disabled
-                }
-                onClick={confirmedCancelTask}
-                style={{
-                  marginTop: -12,
-                  marginBottom: -12,
-                  marginRight: -14,
-                  textAlign: 'right',
-                }}
-              >
-                <Cancel />
-              </IconButton>
-            </>
-          )}
         </div>
-      </div>
+      </Slide>
     </div>
   )
 }
