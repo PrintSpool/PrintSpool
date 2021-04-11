@@ -1,0 +1,27 @@
+#!/bin/bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
+
+if [ "$SKIP_BUILD_AND_INSTALL" == "1" ]
+then
+  echo "Skipping teg build and install"
+else
+  SKIP_JOURNALCTL=1 ./scripts/build-and-install-remote
+fi
+
+# say "Build complete. Installing benchmarks on raspberry pi." &
+
+ssh $TEG_ARMV7_HOST rm -f ./gcode_stress_test-*;
+
+rsync -a --exclude 'target' ./crates/pi-benchmarks $TEG_ARMV7_HOST:~/
+
+ssh $TEG_ARMV7_HOST sudo snap stop tegh || echo "Stopped teg-server"
+ssh $TEG_ARMV7_HOST sudo pkill teg-marlin || echo "Killed teg-marlin"
+
+say "Ready to start benchmarks on raspberry pi!" &
+ssh $TEG_ARMV7_HOST "cd pi-benchmarks && ~/.cargo/bin/cargo bench"
+rsync -a $TEG_ARMV7_HOST:~/pi-benchmarks/target/criterion ./crates/pi-benchmarks/target/
+
+say "Benchmark complete" &
+
+firefox ./crates/pi-benchmarks/target/criterion/report/index.html

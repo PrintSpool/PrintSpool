@@ -3,6 +3,10 @@
 members = [
     "crates/*",
 ]
+exclude = [
+    "crates/pi-benchmarks"
+]
+
 
 [profile.release]
 # opt-level = "z"

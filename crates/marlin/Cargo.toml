@@ -5,9 +5,6 @@ authors = ["D1plo1d <thatotherdude@gmail.com>"]
 edition = "2018"
 description = "Teg serial driver for RepRaps and Marlin-compatible firmware"
 
-[dev-dependencies]
-criterion = "0.3.3"
-
 [dependencies]
 teg-json-store = { path = "../json-store" }
 teg_machine = { path = "../machine" }
@@ -25,7 +22,6 @@ fallible-iterator = "0.2.0"
 chrono = "0.4.9"
 toml = "0.5.8"
 serde = { version = "1.0.101", features = ["derive"] }
-gcode = "0.5.0"
 nom-gcode = "0.1.0"
 nom-reprap-response = { path= "../nom-reprap-response" }
 teg-protobufs = { path= "../protobufs" }

@@ -30,10 +30,6 @@ use super::{
 #[serde(rename_all = "camelCase")]
 pub struct MachineConfig {
     pub id: crate::DbId,
-    // Set to the name of the snap to connect an external teg-marlin process to the snap's
-    // tmp directory and socket. Generally this is only useful for teg-marlin development.
-    #[serde(default)]
-    pub debug_snap_name: Option<String>,
 
     // Components
     #[serde(default, skip_serializing_if="Vec::is_empty")]
@@ -55,6 +51,12 @@ pub struct MachineConfig {
 }
 
 impl MachineConfig {
+    // Set to the name of the snap to connect an external teg-marlin process to the snap's
+    // tmp directory and socket. Generally this is only useful for teg-marlin development.
+    pub fn debug_snap_name() -> Option<String> {
+        std::env::var("DEBUG_TEG_SNAP").ok()
+    }
+
     pub fn core_plugin<'a>(&'a self) -> Result<&'a PluginContainer<CorePluginConfig>> {
         let core_plugin = self.plugins.iter()
             .find_map(|plugin| {
@@ -102,7 +104,15 @@ impl MachineConfig {
     }
 
     pub fn tty_path(&self) -> &String {
-        &self.get_controller().model.serial_port_id
+        lazy_static! {
+            pub static ref TTY_OVERRIDE: Option<String> = std::env::var("TEG_TTY_OVERRIDE").ok();
+        }
+
+        if let Some(tty_override) = TTY_OVERRIDE.as_ref() {
+            tty_override
+        } else {
+            &self.get_controller().model.serial_port_id
+        }
     }
 
     pub fn get_heater_mut(&mut self, address: &String) -> Option<&mut HeaterEphemeral> {
@@ -146,7 +156,7 @@ impl MachineConfig {
     }
 
     pub fn var_path(&self) -> PathBuf {
-        let path = if let Some(snap_name) = &self.debug_snap_name {
+        let path = if let Some(snap_name) = &Self::debug_snap_name() {
             format!("/var/snap/{}/current/var", snap_name)
         } else {
             "/var/lib/teg".to_string()
@@ -158,7 +168,7 @@ impl MachineConfig {
     /// Data in var-common is shared across Snap refresh versions. This is useful for machine
     /// sockets when a new server needs to connect to a previous version of the driver.
     pub fn var_common_path(&self) -> PathBuf {
-        let path = if let Some(snap_name) = &self.debug_snap_name {
+        let path = if let Some(snap_name) = &Self::debug_snap_name() {
             format!("/var/snap/{}/common/var", snap_name)
         } else {
             "/var/lib/teg-common".to_string()
@@ -225,15 +235,25 @@ impl MachineConfig {
     }
 
     pub fn transform_gcode_file_path(&self, file_path: String) -> String {
-        if let Some(snap_name) = &self.debug_snap_name {
-            format!("/tmp/snap.{}{}", snap_name, file_path)
+        use std::path::Path;
+
+        if let Some(snap_name) = &Self::debug_snap_name() {
+            format!(
+                "/var/snap/{}/current/var/tasks/{}",
+                snap_name,
+                Path::new(&file_path).file_name().unwrap().to_str().unwrap(),
+            )
         } else {
             file_path
         }
     }
 
     pub fn config_file_path(id: &crate::DbId) -> String {
-        format!("/etc/teg/machine-{}.toml", id)
+        if let Some(snap_name) = &Self::debug_snap_name() {
+            format!("/var/snap/{}/current/etc/machine-{}.toml", snap_name, id)
+        } else {
+            format!("/etc/teg/machine-{}.toml", id)
+        }
     }
 
     pub fn pid_file_path(id: &crate::DbId) -> String {

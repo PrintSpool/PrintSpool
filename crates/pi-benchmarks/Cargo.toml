@@ -1,0 +1,20 @@
+[package]
+name = "pi-benchmarks"
+version = "0.1.0"
+authors = ["D1plo1d <thatotherdude@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[bench]]
+name = "gcode_stress_test"
+harness = false
+
+[dependencies]
+criterion = "0.3.3"
+serialport = { version = "4.0.0", default-features = false }
+nom-gcode = "0.1.0"
+nix = "0.20.0"
+
+# https://github.com/japaric/cast.rs/pull/27
+cast = { version = "=0.2.3", default-features = false }

@@ -16,4 +16,11 @@ ssh $TEG_ARMV7_HOST sudo snap install --devmode --dangerous ./tegh_*.snap
 
 say "Install complete" &
 
-ssh $TEG_ARMV7_HOST -t 'journalctl -u snap.tegh.server.service -f -n 50'
+if [ "$SKIP_JOURNALCTL" == "1" ]
+then
+  echo "Skipping journalctl"
+else
+  ssh $TEG_ARMV7_HOST -t 'journalctl -u snap.tegh.server.service -f -n 50'
+fi
+
+
