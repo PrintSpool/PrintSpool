@@ -17,6 +17,8 @@ pub struct MoveContinuousMacro {
     pub feedrate: Option<f32>,
     pub feedrate_multiplier: Option<f32>,
     pub axes: HashMap<String, MoveContinuousAxis>,
+    #[serde(default)]
+    pub use_visual_axes_transform: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -107,7 +109,7 @@ impl MoveContinuousMacro {
                     eyre!("Invaraint: Continuous move axis not found in feedrates list")
                 )?;
 
-            if feedrate_info.reverse_direction {
+            if self.use_visual_axes_transform && feedrate_info.reverse_direction {
                 axis.1.forward = !axis.1.forward
             };
         };

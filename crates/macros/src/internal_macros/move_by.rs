@@ -19,6 +19,8 @@ pub struct MoveByMacro {
     pub feedrate_multiplier: Option<f32>,
     #[serde(default)]
     pub sync: bool,
+    #[serde(default)]
+    pub use_visual_axes_transform: bool,
 }
 
 impl MoveByMacro {
@@ -53,6 +55,7 @@ impl MoveByMacro {
             sync: self.sync,
             allow_extruder_axes: true,
             relative_movement: true,
+            use_visual_axes_transform: self.use_visual_axes_transform,
         };
 
         move_macro.compile(config).await

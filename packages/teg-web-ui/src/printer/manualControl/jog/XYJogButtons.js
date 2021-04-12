@@ -30,9 +30,7 @@ const XYJogButtons = ({ machine }) => {
   const continuousMove = useContinuousMove({ machine })
   const startContinuous = isContinuous ? continuousMove.start : () => null
 
-  const { swapXAndYOrientation } = machine
-
-  const axes = swapXAndYOrientation ? ['y', 'x'] : ['x', 'y']
+  const axes = ['x', 'y']
 
   return (
     <Card>

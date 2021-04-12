@@ -4,7 +4,7 @@ const useJog = ({ machine, distance }) => {
   const jog = useExecGCodes2((axis, direction) => ({
     machineID: machine.id,
     gcodes: [
-      { moveBy: { distances: { [axis]: direction * distance } } },
+      { moveBy: { distances: { [axis]: direction * distance }, useVisualAxesTransform: true } },
     ],
   }), [])
 

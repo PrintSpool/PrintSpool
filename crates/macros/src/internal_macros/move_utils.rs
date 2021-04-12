@@ -15,6 +15,7 @@ pub struct MoveMacro {
     pub sync: bool,
     pub allow_extruder_axes: bool,
     pub relative_movement: bool,
+    pub use_visual_axes_transform: bool,
 }
 
 impl MoveMacro {
@@ -70,9 +71,25 @@ impl MoveMacro {
             }
         }
 
+        let swap_x_and_y =
+            self.use_visual_axes_transform
+            && config.core_plugin()?.model.swap_x_and_y_orientation;
+
+        let axes = self.axes.keys()
+            .map(|k| {
+                if swap_x_and_y && k == "x" {
+                    "y".into()
+                } else if swap_x_and_y && k == "y" {
+                    "x".into()
+                } else {
+                    k.clone()
+                }
+            })
+            .collect();
+
         let feedrates = Self::get_feedrates(
             &config,
-            self.axes.keys().map(|k| k.clone()).collect(),
+            axes,
             self.allow_extruder_axes,
         )
             .await?;
@@ -86,7 +103,12 @@ impl MoveMacro {
                 feedrate_info.address.to_ascii_uppercase()
             };
 
-            let reverse = self.relative_movement && feedrate_info.reverse_direction;
+            let mut reverse = self.relative_movement;
+
+            if self.use_visual_axes_transform {
+                reverse = reverse && feedrate_info.reverse_direction;
+            }
+
             let direction_sign = if reverse {
                 -1.0
             } else {

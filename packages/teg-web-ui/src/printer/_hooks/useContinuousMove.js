@@ -61,6 +61,7 @@ const useContinuousMove = ({
                   feedrateMultiplier
                   || Object.keys(state.axes).every(k => k === 'z') ? 1 : 0.25
                 ),
+                useVisualAxesTransform: true,
               },
             },
           ],
