@@ -28,13 +28,17 @@ pub mod protos {
 }
 
 pub use serial_manager::SerialManager;
-use teg_machine::config::MachineConfig;
+pub use teg_machine::config::MachineConfig;
 
 use std::{collections::HashMap};
 // use std::sync::{Arc, Mutex};
 
 // use futures_core::{ future, Poll };
-
+// use eyre::{
+//     // eyre,
+//     // Context as _,
+//     Result,
+// };
 use futures::{
     // stream::SplitSink,
     StreamExt,
@@ -116,7 +120,7 @@ async fn tick_state_machine(
 
 pub async fn start(
     config_path: String,
-) -> std::result::Result<(), Box<dyn std::error::Error>> {
+) -> eyre::Result<()> {
     dotenv::dotenv().ok();
 
     tracing_subscriber::fmt::init();

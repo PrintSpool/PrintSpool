@@ -51,6 +51,8 @@ nanoid = "0.3.0"
 jemallocator = "0.3.2"
 jemalloc-ctl = "0.3.3"
 signal-hook = "0.3.8"
+nix = "0.20.0"
+num_cpus = "1.13.0"
 
 [dependencies.serde]
 features = ["derive"]

@@ -3,8 +3,10 @@ extern crate teg_marlin;
 use std::env;
 use std::os::unix::fs::PermissionsExt;
 use pidfile_rs::Pidfile;
+use nix::sched::{CpuSet, sched_setaffinity};
+use nix::unistd::Pid;
 
-use teg_machine::config::MachineConfig;
+use teg_marlin::MachineConfig;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut args = env::args();
@@ -22,22 +24,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     )?;
 
     // Must run daemonize before starting tokio!
-    // if
-    //     std::env::var("RUST_ENV").map(|v| &v == "production")
-    //         .or(std::env::var("DAEMONIZE_MARLIN").map(|v| &v == "1"))
-    //         .unwrap_or(false)
-
-    // {
     nix::unistd::daemon(true, true)
         .expect("Error daemonizing marlin driver process");
-    // }
 
     // After daemonizing the process write the pid to the pidfile
     pidfile.write()?;
 
-    let mut rt = tokio::runtime::Runtime::new()?;
+    // All other teg processes are prevented from running on cpu 0 so that it can be dedicated
+    // to the driver processes (eg. teg-marlin).
+    let mut cpu_set = CpuSet::new();
+    cpu_set.set(0)?;
+    sched_setaffinity(Pid::from_raw(0), &cpu_set)?;
 
-    // Spawn the root task
+    // Create single-threaded runtime that will run teg-marlin only on the dedicated CPU
+    let mut rt = tokio::runtime::Builder::new()
+        .basic_scheduler()
+        .enable_all()
+        .build()?;
+
     rt.block_on(teg_marlin::start(config_path))?;
 
     Ok(())

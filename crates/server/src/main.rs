@@ -63,6 +63,26 @@ struct IdFromConfig {
 }
 
 fn main() -> Result<()> {
+    use nix::sched::{CpuSet, sched_setaffinity};
+    use nix::unistd::Pid;
+
+    let logical_cpus = num_cpus::get();
+
+    // Restrict the server to any logical CPU except for the one that is reserved for
+    // the printer driver processes (eg. teg-marlin).
+    let mut cpu_set = CpuSet::new();
+    for cpu_index in 1..logical_cpus {
+        cpu_set.set(cpu_index)?;
+    }
+    sched_setaffinity(Pid::from_raw(0), &cpu_set)?;
+
+    // Run one async-std thread for each logical CPU except for the one that is reserved for
+    // the printer driver processes (eg. teg-marlin).
+    let threads = std::cmp::max(logical_cpus.saturating_sub(1), 1);
+    dbg!((logical_cpus, threads));
+    std::env::set_var("ASYNC_STD_THREAD_COUNT", threads.to_string());
+
+    // Start the runtime
     async_std::task::block_on(app())
 }
 

@@ -4281,6 +4281,8 @@ dependencies = [
  "jemalloc-ctl",
  "jemallocator",
  "nanoid",
+ "nix 0.20.0",
+ "num_cpus",
  "rmp-serde",
  "serde",
  "serde_json",
