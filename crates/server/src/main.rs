@@ -79,7 +79,6 @@ fn main() -> Result<()> {
     // Run one async-std thread for each logical CPU except for the one that is reserved for
     // the printer driver processes (eg. teg-marlin).
     let threads = std::cmp::max(logical_cpus.saturating_sub(1), 1);
-    dbg!((logical_cpus, threads));
     std::env::set_var("ASYNC_STD_THREAD_COUNT", threads.to_string());
 
     // Start the runtime

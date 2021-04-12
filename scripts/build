@@ -48,7 +48,7 @@ then
       cp ${TEG_TARGET_DIR_X64}/teg-invite ./snapcraft/x64/bin/teg-invite
       cp ${TEG_TARGET_DIR_X64}/teg-marlin ./snapcraft/x64/bin/teg-marlin
       cp ${TEG_TARGET_DIR_X64}/teg-server ./snapcraft/x64/bin/teg-server
-      cp ${TEG_TARGET_DIR_X64}/teg-supervisor ./snapcraft/x64/bin/teg-supervisor
+      cp ./snapcraft/webrtc-server ./snapcraft/x64/bin/webrtc-server
 
       echo "Building rust binaries for X64 in $TEG_BUILD_PROFILE... [DONE]"
     else
@@ -68,7 +68,7 @@ then
       cp ${TEG_TARGET_DIR_ARMV7}/teg-invite ./snapcraft/armv7/bin/teg-invite
       cp ${TEG_TARGET_DIR_ARMV7}/teg-marlin ./snapcraft/armv7/bin/teg-marlin
       cp ${TEG_TARGET_DIR_ARMV7}/teg-server ./snapcraft/armv7/bin/teg-server
-      cp ${TEG_TARGET_DIR_ARMV7}/teg-supervisor ./snapcraft/armv7/bin/teg-supervisor
+      cp ./snapcraft/webrtc-server ./snapcraft/armv7/bin/webrtc-server
 
       echo "Building rust binaries for Arm in $TEG_BUILD_PROFILE... [DONE]"
     else
