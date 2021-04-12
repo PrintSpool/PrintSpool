@@ -3,9 +3,9 @@ import React, { useCallback } from 'react'
 import { useMutation, MutationResult } from '@apollo/client'
 import { gql } from '@apollo/client'
 
-const createJobGraphQL = gql`
-  mutation createJob($input: CreateJobInput!) {
-    createJob(input: $input) {
+const addPartsToPrintQueueGraphQL = gql`
+  mutation addPartsToPrintQueue($input: AddPartsToPrintQueueInput!) {
+    addPartsToPrintQueue(input: $input) {
       id
       parts {
         id
@@ -19,9 +19,9 @@ const useCreateJobMutation = (
   files: any,
   options: any,
 ): [() => Promise<any>, MutationResult<unknown>] => {
-  const [mutation, mutationResult] = useMutation(createJobGraphQL, options)
+  const [mutation, mutationResult] = useMutation(addPartsToPrintQueueGraphQL, options)
 
-  const createJob = useCallback(async () => {
+  const addPartsToPrintQueue = useCallback(async () => {
     const mutationInput = {
       printQueueID,
       name: files.map(f => f.name).join(', '),
@@ -58,7 +58,7 @@ const useCreateJobMutation = (
     })
   }, [files])
 
-  return [createJob, mutationResult]
+  return [addPartsToPrintQueue, mutationResult]
 }
 
 export default useCreateJobMutation

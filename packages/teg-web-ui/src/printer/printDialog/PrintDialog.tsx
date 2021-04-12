@@ -37,7 +37,7 @@ const PrintDialog = ({
 }) => {
   const printQueueID = printQueues[0].id
   // const subscription = useLiveSubscription(PRINT_DIALOG_QUERY)
-  const [ createJob, mutationResult ] = useCreateJobMutation(printQueueID, files, {})
+  const [ addPartsToPrintQueue, mutationResult ] = useCreateJobMutation(printQueueID, files, {})
   const [print, printMutationResult ] = useMutation(PRINT_MUTATION)
 
   const machine = machines.find(machine => machine.status === 'READY')
@@ -49,7 +49,7 @@ const PrintDialog = ({
       const MB = 1000 * 1000
       const fileMBs = files[0].size / MB
       const uploadStartedAt = Date.now()
-      const createJobResult = await createJob()
+      const addPartsToPrintQueueResult = await addPartsToPrintQueue()
 
       const uploadSeconds = (Date.now() - uploadStartedAt) / 1000
       console.log(
@@ -58,17 +58,17 @@ const PrintDialog = ({
         + `${(fileMBs / uploadSeconds).toFixed(1)} MB/s`
       )
 
-      if (createJobResult.errors != null) {
-        throw new Error(createJobResult.errors[0].message)
+      if (addPartsToPrintQueueResult.errors != null) {
+        throw new Error(addPartsToPrintQueueResult.errors[0].message)
       }
-      console.log({ createJobResult })
+      console.log({ addPartsToPrintQueueResult })
 
       if (printNow) {
         const printResults = await print({
           variables: {
             input: {
               machineID: machine.id,
-              partID: createJobResult.data.createJob.parts[0].id,
+              partID: addPartsToPrintQueueResult.data.addPartsToPrintQueue.parts[0].id,
             },
           },
         })

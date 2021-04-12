@@ -28,26 +28,26 @@ use crate::{
 pub struct CreateJobMutation;
 
 #[derive(async_graphql::InputObject)]
-struct CreateJobInput {
+struct AddPartsToPrintQueueInput {
     name: String,
     #[graphql(name="printQueueID")]
     print_queue_id: ID,
-    parts: Vec<PartInput>,
+    parts: Vec<AddPartsToPrintQueuePartInput>,
 }
 
 #[derive(async_graphql::InputObject)]
-struct PartInput {
+struct AddPartsToPrintQueuePartInput {
     name: String,
     content: String,
 }
 
 #[async_graphql::Object]
 impl CreateJobMutation {
-    /// create a Job from the content and fileName of a file upload.
-    async fn create_job<'ctx>(
+    /// create a Package of parts for printing from the content and fileName of a file upload.
+    async fn add_parts_to_print_queue<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
-        input: CreateJobInput,
+        input: AddPartsToPrintQueueInput,
     ) -> FieldResult<Package> {
         let db: &crate::Db = ctx.data()?;
 
