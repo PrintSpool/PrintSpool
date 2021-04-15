@@ -13,7 +13,7 @@ use teg_machine::{
         Task,
     },
 };
-use teg_macros::{AnnotatedGCode, compile_macros};
+use teg_macros::{AnnotatedGCode, compile_macros, CompileInternalMacro};
 
 pub async fn task_from_hook<'ctx>(
     machine_id: &crate::DbId,
@@ -43,9 +43,17 @@ pub async fn task_from_gcodes(
         .map(|gcode| Ok(gcode));
 
     // Add annotations
+    let machine_clone = machine.clone();
+    let compile_internal_macro = move |internal_macro| {
+        let machine = machine_clone.clone();
+        async move {
+            machine.call(CompileInternalMacro(internal_macro)).await?
+        }
+    };
+
     let mut annotated_gcodes = compile_macros(
-        machine,
         gcodes,
+        compile_internal_macro,
     );
     // let annotated_gcodes = Box::pin(annotated_gcodes);
 

@@ -13,7 +13,10 @@ pub use part::part_query_resolvers::PartQuery;
 pub mod print;
 
 mod insert_print;
-pub use insert_print::insert_print;
+pub use insert_print::{
+    insert_print,
+    compile_print_file,
+};
 
 pub mod machine_print_queue;
 

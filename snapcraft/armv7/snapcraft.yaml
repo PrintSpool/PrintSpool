@@ -108,7 +108,7 @@ apps:
       SIGNALLING_SERVER_HTTP: "https://signalling.onrender.com/graphql"
 
       CLOUD_HTTP: "https://tegapp.io"
-      RUST_LOG: warn,teg_server,teg_data_channel=info,teg_print_queue=debug,teg_machine=debug,async_graphql,teg_marlin=debug,teg_supervisor=debug
+      RUST_LOG: warn,teg_server,teg_data_channel=info,teg_print_queue=debug,teg_machine=debug,async_graphql,teg_marlin=debug,teg_print_queue::insert_print=trace
       RUST_ENV: production
       RUST_BACKTRACE: 1
       FIREBASE_PROJECT_ID: tegapp-dev

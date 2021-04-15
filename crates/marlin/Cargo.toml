@@ -5,6 +5,11 @@ authors = ["D1plo1d <thatotherdude@gmail.com>"]
 edition = "2018"
 description = "Teg serial driver for RepRaps and Marlin-compatible firmware"
 
+[profile.release]
+# Enabling debugging symbols for perf.
+# See: https://cesarvr.io/post/rust-performance/
+debug=true
+
 [dependencies]
 teg-json-store = { path = "../json-store" }
 teg_machine = { path = "../machine" }

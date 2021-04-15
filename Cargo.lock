@@ -1006,11 +1006,13 @@ version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab327ed7354547cc2ef43cbe20ef68b988e70b4b593cbd66a2a61733123a3d23"
 dependencies = [
+ "async-std",
  "atty",
  "cast",
  "clap",
  "criterion-plot",
  "csv",
+ "futures 0.3.12",
  "itertools 0.10.0",
  "lazy_static",
  "num-traits",
@@ -2995,18 +2997,18 @@ dependencies = [
 
 [[package]]
 name = "pin-project"
-version = "1.0.5"
+version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "96fa8ebb90271c4477f144354485b8068bd8f6b78b428b01ba892ca26caf0b63"
+checksum = "bc174859768806e91ae575187ada95c91a29e96a98dc5d2cd9a1fed039501ba6"
 dependencies = [
  "pin-project-internal",
 ]
 
 [[package]]
 name = "pin-project-internal"
-version = "1.0.5"
+version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "758669ae3558c6f74bd2a18b41f7ac0b5a195aea6639d6a9b5e5d1ad5ba24c0b"
+checksum = "a490329918e856ed1b083f244e3bfe2d8c4f336407e4ea9e1a9f479ff09049e5"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4180,6 +4182,7 @@ dependencies = [
  "futures 0.3.12",
  "nom 5.1.2",
  "nom-gcode",
+ "pin-project",
  "serde",
  "serde_json",
  "sqlx",
@@ -4234,6 +4237,7 @@ dependencies = [
  "async-std",
  "async-trait",
  "chrono",
+ "criterion",
  "derive-new",
  "eyre",
  "futures 0.3.12",
@@ -4248,6 +4252,7 @@ dependencies = [
  "teg_auth",
  "teg_data_channel",
  "teg_machine",
+ "tempfile",
  "tracing",
  "tracing-futures",
  "xactor",
