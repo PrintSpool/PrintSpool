@@ -1254,8 +1254,9 @@ checksum = "3ee2393c4a91429dffb4bedf19f4d6abf27d8a732c8ce4980305d782e5426d57"
 
 [[package]]
 name = "datachannel"
-version = "0.4.2"
-source = "git+https://github.com/lerouxrgd/datachannel-rs.git?branch=static-openssl#1d7eb2830979dd1abf001851a697fe4bda873943"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8a6a4177c1246d2a08372061be6162d8e27711651e515942bca3a46925d6398d"
 dependencies = [
  "datachannel-sys",
  "derivative",
@@ -1268,8 +1269,9 @@ dependencies = [
 
 [[package]]
 name = "datachannel-sys"
-version = "0.11.10"
-source = "git+https://github.com/lerouxrgd/datachannel-rs.git?branch=static-openssl#1d7eb2830979dd1abf001851a697fe4bda873943"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "338c8e00dca6ac89acb2b661178c29e7561aa8676fb076be3b41199483135396"
 dependencies = [
  "bindgen",
  "cmake",

@@ -3,11 +3,14 @@
 members = [
     "crates/*",
 ]
+
 exclude = [
     "crates/pi-benchmarks"
 ]
 
-
 [profile.release]
 # opt-level = "z"
 lto = true
+# Enabling debugging symbols for perf.
+# See: https://cesarvr.io/post/rust-performance/
+debug=true
