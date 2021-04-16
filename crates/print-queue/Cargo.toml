@@ -9,7 +9,7 @@ name = "teg_print_queue"
 path = "src/lib.rs"
 
 [[bench]]
-name = "compile_print_file"
+name = "compile_print_file_bench"
 harness = false
 
 [dev-dependencies]

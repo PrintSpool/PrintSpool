@@ -1,6 +1,6 @@
 use chrono::prelude::*;
-use futures::prelude::*;
-use futures::stream::{StreamExt, TryStreamExt};
+// use futures::prelude::*;
+// use futures::stream::{StreamExt, TryStreamExt};
 use eyre::{
     Result,
     // eyre,
@@ -39,43 +39,50 @@ pub async fn task_from_gcodes(
     * Preprocess GCodes
     * =========================================================================================
     */
-    let gcodes = stream::iter(gcodes)
-        .map(|gcode| Ok(gcode));
-
-    // Add annotations
     let machine_clone = machine.clone();
-    let compile_internal_macro = move |internal_macro| {
-        let machine = machine_clone.clone();
-        async move {
-            machine.call(CompileInternalMacro(internal_macro)).await?
-        }
-    };
 
-    let mut annotated_gcodes = compile_macros(
+    let (
         gcodes,
-        compile_internal_macro,
-    );
-    // let annotated_gcodes = Box::pin(annotated_gcodes);
+        annotations,
+    ) = async_std::task::spawn_blocking(move || {
+        let gcodes = gcodes
+            .into_iter()
+            .map(|gcode| Ok(gcode));
 
-    let mut gcodes = vec![];
-    let mut annotations = vec![];
-
-    while let Some(item) = annotated_gcodes.try_next().await? {
-        match item {
-            AnnotatedGCode::GCode(gcode) => {
-                gcodes.push(gcode);
-            }
-            AnnotatedGCode::Annotation(annotation) => {
-                annotations.push(annotation);
-            }
+        // Add annotations
+        let compile_internal_macro = move |internal_macro| {
+            let machine = machine_clone.clone();
+            async_std::task::block_on(
+                machine.call(CompileInternalMacro(internal_macro))
+            )?
         };
-    };
+
+        let annotated_gcodes = compile_macros(
+            gcodes,
+            compile_internal_macro,
+        );
+
+        let mut gcodes = vec![];
+        let mut annotations = vec![];
+
+        for item in annotated_gcodes {
+            match item? {
+                AnnotatedGCode::GCode(gcode) => {
+                    gcodes.push(gcode);
+                }
+                AnnotatedGCode::Annotation(annotation) => {
+                    annotations.push(annotation);
+                }
+            };
+        };
+
+        Result::<_>::Ok((gcodes, annotations))
+    }).await?;
 
     /*
     * Create the task
     * =========================================================================================
     */
-    let gcodes = gcodes;
     let total_lines = gcodes.len() as u64;
 
     let task = Task {

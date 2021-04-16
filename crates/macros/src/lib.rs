@@ -1,15 +1,11 @@
 #[macro_use] extern crate tracing;
 
-use std::{pin::Pin, task::{Context, Poll}};
-
 use serde::{Deserialize, Serialize};
-use futures::prelude::*;
 use eyre::{
     // eyre,
     Result,
     Context as _,
 };
-use pin_project::pin_project;
 
 // Re-export
 pub use teg_machine::task::GCodeAnnotation;
@@ -67,29 +63,20 @@ pub enum AnnotatedGCode {
 //     }
 // }
 
-#[pin_project]
-struct MacrosCompiler<S, C, F> {
-    #[pin]
-    gcode_lines: S,
+struct MacrosCompiler<I, C> {
+    gcode_lines: I,
     compile_internal_macro: C,
-    #[pin]
-    future: Option<F>,
     annotated_gcodes: Vec<AnnotatedGCode>,
 }
 
-impl<S, C, F> Stream for MacrosCompiler<S, C, F>
+impl<I, C> Iterator for MacrosCompiler<I, C>
 where
-    S: Stream<Item = std::io::Result<String>>,
-    C: Fn(InternalMacro) -> F + 'static,
-    F: Future<Output = Result<Vec<AnnotatedGCode>>>,
+    I: Iterator<Item = std::io::Result<String>>,
+    C: Fn(InternalMacro) ->  Result<Vec<AnnotatedGCode>> + 'static,
 {
     type Item = Result<AnnotatedGCode>;
 
-    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
-        use futures::ready;
-        use Poll::*;
-        let mut this = self.project();
-
+    fn next(&mut self) -> std::option::Option<<Self as Iterator>::Item> {
         // Order of operations:
         // 1. Check if annotated gcodes have been produced previously and send those.
         // 2. Run a macro compilation future if one was created last time. If a gcode is returned
@@ -97,24 +84,12 @@ where
         // 3. Take the next gcode line off the stream and create a macro compilation future. If the
         // stream is not complete then go to step 2 to run the compilation future.
         loop {
-            if let Some(gcode) = this.annotated_gcodes.pop() {
-                return Ready(Some(Ok(gcode)))
+            if let Some(gcode) = self.annotated_gcodes.pop() {
+                return Some(Ok(gcode))
             }
 
-            if let Some(fut) = this.future.as_mut().as_pin_mut() {
-                return match ready!(fut.poll(cx)) {
-                    Ok(annotated_gcodes) => {
-                        *this.annotated_gcodes = annotated_gcodes;
-                        continue;
-                    }
-                    Err(err) => {
-                        Ready(Some(Err(err)))
-                    }
-                }
-            }
-
-            return match ready!(this.gcode_lines.as_mut().poll_next(cx)) {
-                Some(Ok(line)) => {
+            return match self.gcode_lines.next()? {
+                Ok(line) => {
                     let is_json = line.chars().next() == Some('{');
 
                     if is_json {
@@ -125,35 +100,42 @@ where
                                 let err = Err(err)
                                     .with_context(|| format!("Invalid JSON GCode: {:?}", line));
 
-                                return Ready(Some(err))
+                                return Some(err)
                             }
                         };
 
                         match parsed_line {
                             AnyMacro::InternalMacro(internal_macro) => {
-                                let f = (this.compile_internal_macro)(internal_macro);
-                                this.future.set(Some(f));
+                                // Use the `compile_internal_macro closure` to generate annotated
+                                // gcode from the macro.
+                                let compile = &self.compile_internal_macro;
 
-                                continue;
+                                match compile(internal_macro) {
+                                    Ok(annotated_gcodes) => {
+                                        self.annotated_gcodes = annotated_gcodes;
+                                        continue;
+                                    }
+                                    Err(err) => {
+                                        Some(Err(err))
+                                    }
+                                }
                             }
                             AnyMacro::JsonGCode(json_gcode) => {
-                                let gcode = json_gcode.try_to_string(&line)?;
-                                Ready(Some(Ok(AnnotatedGCode::GCode(gcode))))
+                                let gcode = json_gcode.try_to_string(&line)
+                                    .map(|gcode| AnnotatedGCode::GCode(gcode));
+                                Some(gcode)
                             }
                         }
                     } else {
                         // handle internal string GCodes lines
-                        Ready(Some(Ok(AnnotatedGCode::GCode(line))))
+                        Some(Ok(AnnotatedGCode::GCode(line)))
                     }
                 }
-                Some(Err(err)) => {
+                Err(err) => {
                     let err = Err(err)
                         .with_context(|| "Error reading gcodes");
 
-                    Ready(Some(err))
-                }
-                None => {
-                    Ready(None)
+                    Some(err)
                 }
             }
         }
@@ -164,15 +146,13 @@ where
     }
 }
 
-pub fn compile_macros<'a, C, F>(
-    gcode_lines: impl Stream<Item = std::io::Result<String>>,
+pub fn compile_macros<'a, C>(
+    gcode_lines: impl Iterator<Item = std::io::Result<String>>,
     compile_internal_macro: C,
-) -> impl Stream<Item = Result<AnnotatedGCode>> + Unpin
+) -> impl Iterator<Item = Result<AnnotatedGCode>>
 where
-    C: Fn(InternalMacro) -> F + 'static,
-    F: Future<Output = Result<Vec<AnnotatedGCode>>>,
+    C: Fn(InternalMacro) ->  Result<Vec<AnnotatedGCode>> + 'static,
 {
-
     // let stream = gcode_lines
     //     .zip(stream::unfold(compile_internal_macro, )
     //     // Process macros and generate annotations
@@ -204,10 +184,9 @@ where
     // .try_flatten()
     // Add line numbers to annotations
 
-    let stream = MacrosCompiler {
+    MacrosCompiler {
         gcode_lines,
         compile_internal_macro,
-        future: None,
         annotated_gcodes: vec![],
     }
         .scan(0, |next_line_number, item| {
@@ -218,13 +197,12 @@ where
                 },
                 Ok(AnnotatedGCode::Annotation((_, annotation))) => {
                     Ok(AnnotatedGCode::Annotation(
-                        (next_line_number.clone(), annotation)
+                        (*next_line_number, annotation)
                     ))
                 },
                 Err(err) => Err(err),
             };
 
-            future::ready(Some(result))
-        });
-    Box::pin(stream)
+            Some(result)
+        })
 }

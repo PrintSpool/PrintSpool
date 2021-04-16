@@ -167,7 +167,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         );
 
         group.bench_with_input(id, &input, |b, &_s| {
-            b.to_async(AsyncStdExecutor).iter_with_large_drop(|| async {
+            b.iter_with_large_drop(|| {
                 let task_file_path = tempfile::NamedTempFile::new()
                     .unwrap()
                     .into_temp_path();
@@ -186,7 +186,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     write_buffer_size,
                 );
 
-                annotated_gcode_stream.await.unwrap();
+                annotated_gcode_stream.unwrap();
 
                 task_file_path
             })

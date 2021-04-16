@@ -2,9 +2,13 @@ use chrono::prelude::*;
 // use async_std::prelude::*;
 use futures::prelude::*;
 use async_std::{
-    fs::{ self, File },
-    io::{ BufReader, BufWriter },
-    stream,
+    fs::{ self },
+    // io::{ BufReader, BufWriter },
+    // stream,
+};
+use std::{
+    fs::{ File },
+    io::{ BufReader, BufWriter, BufRead, Write, Cursor, Lines },
 };
 use eyre::{
     eyre,
@@ -49,11 +53,12 @@ pub async fn insert_print(
 
     let task_id = nanoid!(11);
     let task_dir = "/var/lib/teg/tasks";
-    let task_file_path = format!("{}/task_{}.gcode", task_dir, task_id.to_string());
+    let task_file_path = std::sync::Arc::new(
+        format!("{}/task_{}.gcode", task_dir, task_id.to_string())
+    );
     fs::create_dir_all(task_dir).await?;
 
     let config = machine.call(GetData).await??.config;
-    let core_plugin = config.core_plugin()?;
 
     /*
      * Preprocess GCodes (part file => task file)
@@ -73,20 +78,27 @@ pub async fn insert_print(
     let read_buffer_size = 1024 * 1024; // 1 MB
     let write_buffer_size = read_buffer_size;
 
+    // Compiling the print file is a slow and CPU intensive task so we run it in a blocking thread
+    // to prevent it from blocking other async tasks.
+    let task_file_path_clone = task_file_path.clone();
     let PrintMetaData {
         annotations,
         total_lines,
         estimated_print_time,
         estimated_filament_meters,
-    } = compile_print_file(
-        &part_file_path,
-        &task_file_path,
-        &core_plugin.model.before_print_hook,
-        &core_plugin.model.after_print_hook,
-        compile_internal_macro,
-        read_buffer_size,
-        write_buffer_size,
-    ).await?;
+    } = async_std::task::spawn_blocking(move || {
+        let core_plugin = config.core_plugin()?;
+
+        compile_print_file(
+            &part_file_path,
+            &task_file_path_clone,
+            &core_plugin.model.before_print_hook,
+            &core_plugin.model.after_print_hook,
+            compile_internal_macro,
+            read_buffer_size,
+            write_buffer_size,
+        )
+    }).await?;
 
     let task = Task {
         id: task_id.clone(),
@@ -97,7 +109,7 @@ pub async fn insert_print(
         machine_id: machine_id.clone(),
         part_id: Some(part_id.clone()),
         // Content
-        content: TaskContent::FilePath(task_file_path.clone()),
+        content: TaskContent::FilePath(task_file_path.to_string()),
         // Props
         annotations: annotations.clone(),
         total_lines,
@@ -125,8 +137,12 @@ pub struct PrintMetaData {
     pub estimated_filament_meters: Option<f64>,
 }
 
+fn hook<'a>(hook_gcodes: &'a str) -> Lines<Cursor<&'a str>> {
+    Cursor::new(hook_gcodes).lines()
+}
+
 // Minimal core of insert_print - reused in benchmarks.
-pub async fn compile_print_file<C, F>(
+pub fn compile_print_file<C, F>(
     part_file_path: &str,
     task_file_path: &str,
     before_print_hook: &str,
@@ -139,22 +155,14 @@ where
     C: Fn(InternalMacro) -> F + 'static,
     F: Future<Output = Result<Vec<AnnotatedGCode>>>,
 {
-    let hook = |hook_gcodes: &str| {
-        let iter = hook_gcodes
-            .lines()
-            .map(|gcode| Ok(gcode.to_string()))
-            .collect::<Vec<_>>()
-            .into_iter();
-        stream::from_iter(iter)
-    };
+    // use simple_lines::ReadExt;
 
     // info!("before hook: {:#?}", core_plugin.model.before_print_hook);
     // info!("after hook: {:#?}", core_plugin.model.after_print_hook);
     let before_hook = hook(before_print_hook);
     let after_hook = hook(after_print_hook);
 
-
-    let part_file = File::open(part_file_path).await?;
+    let part_file = File::open(part_file_path)?;
     let gcodes = BufReader::with_capacity(
         read_buffer_size,
         part_file,
@@ -164,12 +172,20 @@ where
         .chain(gcodes)
         .chain(after_hook);
 
-    let mut annotated_gcodes = compile_macros(
+    // Blocking wrapper around compile_internal_macro
+    let compile_internal_macro = move |internal_macro| {
+        async_std::task::block_on(
+            compile_internal_macro(internal_macro)
+        )
+    };
+
+    // Run the entire file + the hooks through the GCode compiler
+    let annotated_gcodes = compile_macros(
         gcodes,
         compile_internal_macro,
     );
 
-    let task_file = File::create(&task_file_path).await?;
+    let task_file = File::create(&task_file_path)?;
     let mut gcodes_writer = BufWriter::with_capacity(
         write_buffer_size,
         task_file,
@@ -186,7 +202,8 @@ where
 
     info!("Parsing Print");
 
-    while let Some(item) = annotated_gcodes.try_next().await? {
+    for item in annotated_gcodes {
+        let item = item?;
         let read_in = line_start.elapsed();
         let parse_start = std::time::Instant::now();
 
@@ -219,7 +236,7 @@ where
 
                 total_lines += 1;
                 gcode.push('\n');
-                gcodes_writer.write_all(&gcode.into_bytes()).await?;
+                gcodes_writer.write_all(&gcode.into_bytes())?;
 
                 if should_parse_line || total_lines % 1000 == 0 {
                     let written_in = write_start.elapsed();
@@ -243,8 +260,7 @@ where
 
     info!("Print GCodes Parsed in: {:?}", start.elapsed());
 
-    gcodes_writer.flush().await?;
-    gcodes_writer.close().await?;
+    gcodes_writer.flush()?;
 
     Ok(PrintMetaData {
         annotations,
