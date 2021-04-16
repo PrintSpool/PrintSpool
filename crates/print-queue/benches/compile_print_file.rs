@@ -28,98 +28,104 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     // A single sample may take over 5 seconds
     group.sample_size(10);
 
-    // This baseline has performance not too far from Linux's `cp`.
-    // As a first aproximation on an x64 Intel I see then fn taking 1.6x the wall time of `cp`.
-    group.bench_function("Baseline: Synchronous Copy / All at Once", |b| {
-        b.iter(|| {
-            use std::fs::File;
-            use std::io::{
-                Read,
-                // BufWriter,
-                Write,
-            };
+    if
+        std::env::var("BASELINE_CP_BENCHES")
+            .map(|v| v ==  "1")
+            .unwrap_or(false)
+    {
+        // This baseline has performance not too far from Linux's `cp`.
+        // As a first aproximation on an x64 Intel I see then fn taking 1.6x the wall time of `cp`.
+        group.bench_function("Baseline: Synchronous Copy / All at Once", |b| {
+            b.iter(|| {
+                use std::fs::File;
+                use std::io::{
+                    Read,
+                    // BufWriter,
+                    Write,
+                };
 
-            let task_file_path = tempfile::NamedTempFile::new()
-                .unwrap()
-                .into_temp_path();
+                let task_file_path = tempfile::NamedTempFile::new()
+                    .unwrap()
+                    .into_temp_path();
 
-            let mut f = File::open(&part_file_path)
-                .expect("Unable to open file");
-            let mut gcodes = Vec::with_capacity(16 * 1024 * 1024);
+                let mut f = File::open(&part_file_path)
+                    .expect("Unable to open file");
+                let mut gcodes = Vec::with_capacity(16 * 1024 * 1024);
 
-            f.read_to_end(&mut gcodes).unwrap();
+                f.read_to_end(&mut gcodes).unwrap();
 
-            let mut f = File::create(task_file_path)
-                .expect("Unable to create file");
-            // let mut f = BufWriter::new(f);
+                let mut f = File::create(task_file_path)
+                    .expect("Unable to create file");
+                // let mut f = BufWriter::new(f);
 
-            f.write_all(&gcodes[..])
-                .expect("Unable to write data");
-            f.flush().unwrap();
-        })
-    });
-
-    group.bench_function("Baseline: Synchronous Copy / By Line", |b| {
-        b.iter(|| {
-            use std::fs::File;
-            use std::io::{
-                BufReader,
-                BufRead,
-                BufWriter,
-                Write,
-            };
-
-            let task_file_path = tempfile::NamedTempFile::new()
-                .unwrap()
-                .into_temp_path();
-
-            let f = File::open(&part_file_path)
-                .expect("Unable to open file");
-            let gcodes = BufReader::new(f).lines();
-
-            let f = File::create(task_file_path)
-                .expect("Unable to create file");
-            let mut f = BufWriter::new(f);
-
-            for gcode in gcodes {
-                f.write_all(gcode.unwrap().as_bytes())
+                f.write_all(&gcodes[..])
                     .expect("Unable to write data");
-            }
-            f.flush().unwrap();
-        })
-    });
+                f.flush().unwrap();
+            })
+        });
 
-    group.bench_function("Baseline: Async Copy / By Line", |b| {
-        b.to_async(AsyncStdExecutor).iter(|| async {
-            use async_std::fs::File;
-            use async_std::io::{
-                BufReader,
-                BufWriter,
-            };
-            use futures::prelude::*;
+        group.bench_function("Baseline: Synchronous Copy / By Line", |b| {
+            b.iter(|| {
+                use std::fs::File;
+                use std::io::{
+                    BufReader,
+                    BufRead,
+                    BufWriter,
+                    Write,
+                };
 
-            let task_file_path = tempfile::NamedTempFile::new()
-                .unwrap()
-                .into_temp_path();
+                let task_file_path = tempfile::NamedTempFile::new()
+                    .unwrap()
+                    .into_temp_path();
 
-            let f = File::open(&part_file_path)
-                .await
-                .expect("Unable to open file");
-            let mut gcodes = BufReader::new(f).lines();
+                let f = File::open(&part_file_path)
+                    .expect("Unable to open file");
+                let gcodes = BufReader::new(f).lines();
 
-            let f = File::create(task_file_path.to_str().unwrap())
-                .await
-                .expect("Unable to create file");
-            let mut f = BufWriter::new(f);
+                let f = File::create(task_file_path)
+                    .expect("Unable to create file");
+                let mut f = BufWriter::new(f);
 
-            while let Some(gcode) = gcodes.next().await {
-                f.write_all(gcode.unwrap().as_bytes())
+                for gcode in gcodes {
+                    f.write_all(gcode.unwrap().as_bytes())
+                        .expect("Unable to write data");
+                }
+                f.flush().unwrap();
+            })
+        });
+
+        group.bench_function("Baseline: Async Copy / By Line", |b| {
+            b.to_async(AsyncStdExecutor).iter(|| async {
+                use async_std::fs::File;
+                use async_std::io::{
+                    BufReader,
+                    BufWriter,
+                };
+                use futures::prelude::*;
+
+                let task_file_path = tempfile::NamedTempFile::new()
+                    .unwrap()
+                    .into_temp_path();
+
+                let f = File::open(&part_file_path)
                     .await
-                    .expect("Unable to write data");
-            }
-            f.flush().await.unwrap();
-        })
-    });
+                    .expect("Unable to open file");
+                let mut gcodes = BufReader::new(f).lines();
+
+                let f = File::create(task_file_path.to_str().unwrap())
+                    .await
+                    .expect("Unable to create file");
+                let mut f = BufWriter::new(f);
+
+                while let Some(gcode) = gcodes.next().await {
+                    f.write_all(gcode.unwrap().as_bytes())
+                        .await
+                        .expect("Unable to write data");
+                }
+                f.flush().await.unwrap();
+            })
+        });
+    }
 
     // 1 MB buffers seem to be the best performing size on the Pi
     let buffer_sizes: Vec<usize> = vec![
