@@ -155,10 +155,11 @@ where
     C: Fn(InternalMacro) -> F + 'static,
     F: Future<Output = Result<Vec<AnnotatedGCode>>>,
 {
-    // use simple_lines::ReadExt;
+    let start = std::time::Instant::now();
+    info!("Parsing GCodes...");
 
-    // info!("before hook: {:#?}", core_plugin.model.before_print_hook);
-    // info!("after hook: {:#?}", core_plugin.model.after_print_hook);
+    // info!("before hook: {:#?}", before_print_hook);
+    // info!("after hook: {:#?}", after_print_hook);
     let before_hook = hook(before_print_hook);
     let after_hook = hook(after_print_hook);
 
@@ -191,21 +192,13 @@ where
         task_file,
     );
 
-    let start = std::time::Instant::now();
-
     let mut total_lines = 0u64;
     let mut annotations = vec![];
     let mut estimated_print_time = None;
     let mut estimated_filament_meters= None;
 
-    // let mut line_start = std::time::Instant::now();
-
-    info!("Parsing Print");
-
     for item in annotated_gcodes {
         let item = item?;
-        // let read_in = line_start.elapsed();
-        // let parse_start = std::time::Instant::now();
 
         let should_parse_line =
             total_lines < 100
@@ -230,25 +223,11 @@ where
                         };
                     };
                 }
-                // Add the gcode
-                // let parsed_in = parse_start.elapsed();
-                // let write_start = std::time::Instant::now();
 
+                // Add the gcode
                 total_lines += 1;
                 gcode.push('\n');
                 gcodes_writer.write_all(&gcode.into_bytes())?;
-
-                // if should_parse_line || total_lines % 1000 == 0 {
-                //     let written_in = write_start.elapsed();
-
-                //     trace!(
-                //         "Read + Compile Macros: {:?} / Parse: {:?} / Write: {:?} / Total: {:?}",
-                //         read_in,
-                //         parsed_in,
-                //         written_in,
-                //         read_in + parsed_in + written_in,
-                //     );
-                // }
             }
             AnnotatedGCode::Annotation(annotation) => {
                 annotations.push(annotation);
@@ -258,9 +237,9 @@ where
         // line_start = std::time::Instant::now();
     };
 
-    info!("Print GCodes Parsed in: {:?}", start.elapsed());
-
     gcodes_writer.flush()?;
+
+    info!("Parsed {} lines of GCode in: {:?}", total_lines, start.elapsed());
 
     Ok(PrintMetaData {
         annotations,
