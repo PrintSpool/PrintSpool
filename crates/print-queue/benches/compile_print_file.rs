@@ -34,7 +34,10 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .unwrap_or(false)
     {
         // This baseline has performance not too far from Linux's `cp`.
-        // On an x64 Intel I see then fn taking 1.3x the wall time of `cp`.
+        //
+        // Some rough performance numbers:
+        // - On an x64 Intel this fn takes ~1.3x the wall time of `cp`.
+        // - On the Raspberry Pi 4 this fn takes ~1.85x as long as the wall time of `cp`.
         group.bench_function("Baseline: Synchronous Copy / All at Once", |b| {
             b.iter_with_large_drop(|| {
                 use std::fs::File;
