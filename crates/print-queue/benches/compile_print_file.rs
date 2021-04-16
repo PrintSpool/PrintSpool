@@ -34,9 +34,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .unwrap_or(false)
     {
         // This baseline has performance not too far from Linux's `cp`.
-        // As a first aproximation on an x64 Intel I see then fn taking 1.6x the wall time of `cp`.
+        // On an x64 Intel I see then fn taking 1.3x the wall time of `cp`.
         group.bench_function("Baseline: Synchronous Copy / All at Once", |b| {
-            b.iter(|| {
+            b.iter_with_large_drop(|| {
                 use std::fs::File;
                 use std::io::{
                     Read,
@@ -54,18 +54,20 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
                 f.read_to_end(&mut gcodes).unwrap();
 
-                let mut f = File::create(task_file_path)
+                let mut f = File::create(&task_file_path)
                     .expect("Unable to create file");
                 // let mut f = BufWriter::new(f);
 
                 f.write_all(&gcodes[..])
                     .expect("Unable to write data");
                 f.flush().unwrap();
+
+                task_file_path
             })
         });
 
         group.bench_function("Baseline: Synchronous Copy / By Line", |b| {
-            b.iter(|| {
+            b.iter_with_large_drop(|| {
                 use std::fs::File;
                 use std::io::{
                     BufReader,
@@ -82,7 +84,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     .expect("Unable to open file");
                 let gcodes = BufReader::new(f).lines();
 
-                let f = File::create(task_file_path)
+                let f = File::create(&task_file_path)
                     .expect("Unable to create file");
                 let mut f = BufWriter::new(f);
 
@@ -91,11 +93,13 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                         .expect("Unable to write data");
                 }
                 f.flush().unwrap();
+
+                task_file_path
             })
         });
 
         group.bench_function("Baseline: Async Copy / By Line", |b| {
-            b.to_async(AsyncStdExecutor).iter(|| async {
+            b.to_async(AsyncStdExecutor).iter_with_large_drop(|| async {
                 use async_std::fs::File;
                 use async_std::io::{
                     BufReader,
@@ -123,6 +127,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                         .expect("Unable to write data");
                 }
                 f.flush().await.unwrap();
+
+                task_file_path
             })
         });
     }
@@ -158,7 +164,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         );
 
         group.bench_with_input(id, &input, |b, &_s| {
-            b.to_async(AsyncStdExecutor).iter(|| async {
+            b.to_async(AsyncStdExecutor).iter_with_large_drop(|| async {
                 let task_file_path = tempfile::NamedTempFile::new()
                     .unwrap()
                     .into_temp_path();
@@ -177,7 +183,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     write_buffer_size,
                 );
 
-                annotated_gcode_stream.await.unwrap()
+                annotated_gcode_stream.await.unwrap();
+
+                task_file_path
             })
         });
     }
