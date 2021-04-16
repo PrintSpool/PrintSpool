@@ -79,10 +79,8 @@ where
     fn next(&mut self) -> std::option::Option<<Self as Iterator>::Item> {
         // Order of operations:
         // 1. Check if annotated gcodes have been produced previously and send those.
-        // 2. Run a macro compilation future if one was created last time. If a gcode is returned
-        // go to step 1.
-        // 3. Take the next gcode line off the stream and create a macro compilation future. If the
-        // stream is not complete then go to step 2 to run the compilation future.
+        // 2. Take the next gcode line off the iterator and if it is a macro compile it into
+        //    annotatied gcodes and then go to step 1.
         loop {
             if let Some(gcode) = self.annotated_gcodes.pop() {
                 return Some(Ok(gcode))
