@@ -233,8 +233,6 @@ where
                 annotations.push(annotation);
             }
         };
-
-        // line_start = std::time::Instant::now();
     };
 
     gcodes_writer.flush()?;
