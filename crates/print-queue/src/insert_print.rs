@@ -70,7 +70,7 @@ pub async fn insert_print(
         }
     };
 
-    let read_buffer_size = 10*1024*1024;
+    let read_buffer_size = 1024 * 1024; // 1 MB
     let write_buffer_size = read_buffer_size;
 
     let PrintMetaData {

@@ -25,6 +25,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .expect("Please set the BENCHMARK_GCODE_FILE environment variable");
 
     let mut group = c.benchmark_group("compile_print_files");
+    // A single sample may take over 5 seconds
+    group.sample_size(10);
 
     // This baseline has performance not too far from Linux's `cp`.
     // As a first aproximation on an x64 Intel I see then fn taking 1.6x the wall time of `cp`.
@@ -119,8 +121,10 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         })
     });
 
+    // 1 MB buffers seem to be the best performing size on the Pi
     let buffer_sizes: Vec<usize> = vec![
-        1 * 1024 * 1024, // 1 MB
+        // 10 * 1024 * 1024, // 10 MB
+        1024 * 1024, // 1 MB
         // 128 * 1024, // 128 KB
         // 8 * 1024, // 8 KB - Rust default buffer size
         // 4 * 1024, // SSD 4K Advanced Format Sector Size
