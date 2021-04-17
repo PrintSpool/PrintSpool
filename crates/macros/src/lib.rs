@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 use eyre::{
-    // eyre,
+    eyre,
     Result,
     Context as _,
 };
@@ -91,7 +91,16 @@ where
 
             return match self.gcode_lines.next()? {
                 Ok(line) => {
-                    let is_json = line.chars().next() == Some('{');
+                    let first_char = line.chars().next();
+                    let is_driver_macro = first_char == Some('!');
+                    let is_json = first_char == Some('{');
+
+                    if is_driver_macro {
+                        return Some(Err(eyre!(
+                            "Driver macros (staring with '!') are for internal use only: {:?}",
+                            line,
+                        )));
+                    }
 
                     if is_json {
                         // handle internal macros and JSON formatted GCodes
