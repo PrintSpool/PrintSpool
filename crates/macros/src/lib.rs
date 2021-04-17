@@ -66,7 +66,7 @@ pub enum AnnotatedGCode {
 struct MacrosCompiler<I, C> {
     gcode_lines: I,
     compile_internal_macro: C,
-    annotated_gcodes: Vec<AnnotatedGCode>,
+    annotated_gcodes: Option<std::vec::IntoIter<AnnotatedGCode>>,
 }
 
 impl<I, C> Iterator for MacrosCompiler<I, C>
@@ -82,7 +82,10 @@ where
         // 2. Take the next gcode line off the iterator and if it is a macro compile it into
         //    annotatied gcodes and then go to step 1.
         loop {
-            if let Some(gcode) = self.annotated_gcodes.pop() {
+            if let Some(gcode) = self.annotated_gcodes
+                .as_mut()
+                .and_then(Iterator::next)
+            {
                 return Some(Ok(gcode))
             }
 
@@ -110,7 +113,7 @@ where
 
                                 match compile(internal_macro) {
                                     Ok(annotated_gcodes) => {
-                                        self.annotated_gcodes = annotated_gcodes;
+                                        self.annotated_gcodes = Some(annotated_gcodes.into_iter());
                                         continue;
                                     }
                                     Err(err) => {
@@ -185,7 +188,7 @@ where
     MacrosCompiler {
         gcode_lines,
         compile_internal_macro,
-        annotated_gcodes: vec![],
+        annotated_gcodes: None,
     }
         .scan(0, |next_line_number, item| {
             let result = match item {
