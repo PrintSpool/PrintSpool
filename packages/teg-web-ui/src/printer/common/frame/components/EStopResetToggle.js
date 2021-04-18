@@ -114,7 +114,10 @@ const EStopResetToggle = ({
       <Backdrop
         style={{ zIndex: 1300 }}
         open={loading}
-        transitionDuration={{ enter: 500 }}
+        transitionDuration={{
+          appear: 300,
+          enter: 700,
+        }}
       >
         <CircularProgress color="inherit" />
       </Backdrop>

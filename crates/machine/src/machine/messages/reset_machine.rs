@@ -94,7 +94,7 @@ impl xactor::Handler<ResetMachine> for Machine {
                 }
             };
 
-            async_std::task::sleep(std::time::Duration::from_millis(50)).await;
+            async_std::task::sleep(std::time::Duration::from_millis(10)).await;
         }
 
         ctx.stop(Some(eyre!("Unable to reset machine ID: {}. Restarting actor.", self.id)));
