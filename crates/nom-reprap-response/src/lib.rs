@@ -65,7 +65,7 @@ pub fn parse_response<'r>(src: &'r str) -> IResult<&'r str, (String, Response)> 
 
     let matched_len = src.len() - remaining.len();
     let matched_string = src[..matched_len].to_string();
-    
+
     Ok((remaining, (matched_string, response)))
 }
 
@@ -241,13 +241,14 @@ pub fn unknown_resp<'r>(input: &'r str) ->  IResult<&'r str, Response> {
 
 pub fn f32_str<'r>() -> impl FnMut (&'r str) ->  IResult<&'r str, f32> {
     map_res(
-        recognize(pair(
+        recognize(tuple((
+            opt(char('-')),
             digit1,
             opt(pair(
                 char('.'),
                 digit1,
             ))
-        )),
+        ))),
         |s: &str| s.parse(),
     )
 }
