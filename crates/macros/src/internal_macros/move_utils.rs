@@ -65,9 +65,15 @@ impl MoveMacro {
     }
 
     pub async fn g1_and_feedrate(&self, config: &MachineConfig) -> Result<(String, f32, Vec<Feedrate>)> {
+        if self.use_visual_axes_transform && !self.relative_movement {
+            return Err(eyre!(
+                "useVisualAxesTransform is only supported when relativeMovement is true for now"
+            ))
+        }
+
         if let Some(feedrate) = self.feedrate {
             if feedrate < 0.0 {
-                Err(eyre!("feedrate must be greater then zero if set. Got: {}", feedrate))?;
+                return Err(eyre!("feedrate must be greater then zero if set. Got: {}", feedrate));
             }
         }
 
@@ -103,11 +109,12 @@ impl MoveMacro {
                 feedrate_info.address.to_ascii_uppercase()
             };
 
-            let mut reverse = self.relative_movement;
-
-            if self.use_visual_axes_transform {
-                reverse = reverse && feedrate_info.reverse_direction;
-            }
+            // TODO: absolute moves are not reversed because that would require us to know the
+            // dimensions of the machine. This may be added in future.
+            let reverse =
+                self.use_visual_axes_transform
+                && self.relative_movement
+                && feedrate_info.reverse_direction;
 
             let direction_sign = if reverse {
                 -1.0
