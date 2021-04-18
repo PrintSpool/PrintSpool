@@ -50,6 +50,11 @@ message MachineMessage {
     READY = 4;
   }
 
+  enum DirectionOfMovement {
+    REVERSE = 0;
+    FORWARD = 1;
+  }
+
   message Error {
     string message = 1;
     // 2: reserved for future error codes implementation
@@ -79,7 +84,8 @@ message MachineMessage {
     // Positions are in mm
     float target_position = 2;
     float actual_position = 3;
-    bool homed = 4;
+    DirectionOfMovement direction = 4;
+    bool homed = 8;
   }
 
   message Heater {

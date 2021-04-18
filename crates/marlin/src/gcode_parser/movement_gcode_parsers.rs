@@ -1,6 +1,6 @@
 // TODO: Movement GCode parsing
 use nom_gcode::GCode;
-use teg_protobufs::MachineFlags;
+use teg_protobufs::{MachineFlags, machine_message::DirectionOfMovement};
 
 use crate::state_machine::Context;
 
@@ -48,11 +48,18 @@ pub fn parse_linear_move(
                     value * 25.4
                 };
 
+                let previous_target = axis.target_position;
                 if absolute_positioning {
                     axis.target_position = value;
                 } else {
                     axis.target_position += value;
                 }
+
+                axis.direction = if axis.target_position >= previous_target {
+                    DirectionOfMovement::Forward as i32
+                } else {
+                    DirectionOfMovement::Reverse as i32
+                };
             };
         };
     });

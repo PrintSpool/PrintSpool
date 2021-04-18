@@ -180,7 +180,9 @@ pub mod machine_message {
         pub target_position: f32,
         #[prost(float, tag="3")]
         pub actual_position: f32,
-        #[prost(bool, tag="4")]
+        #[prost(enumeration="DirectionOfMovement", tag="4")]
+        pub direction: i32,
+        #[prost(bool, tag="8")]
         pub homed: bool,
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
@@ -226,6 +228,12 @@ pub mod machine_message {
         Disconnected = 2,
         Connecting = 3,
         Ready = 4,
+    }
+    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+    #[repr(i32)]
+    pub enum DirectionOfMovement {
+        Reverse = 0,
+        Forward = 1,
     }
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
     #[repr(i32)]

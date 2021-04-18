@@ -617,6 +617,18 @@ impl ReadyState {
                 if let Some(Mark::MarkSet(axes)) = &self.mark {
                     let mark = axes
                         .into_iter()
+                        // Wait to reach mark cannot reliably catch direction changes due to
+                        // the fact that it may reach it's mark and then return away from it
+                        // between polling. The solution for now is to treat axes with direction
+                        // changes as no-ops and remove them from the mark.
+                        .filter(|mark_axis| {
+                            context.feedback.axes
+                                .iter()
+                                .find(|a| a.address == mark_axis.address)
+                                .map(|a| a.direction == mark_axis.direction)
+                                .unwrap_or(false)
+                        })
+                        // Filter down to only the axes requested in the mark command
                         .filter_map(|axis| {
                             args.axes.remove(&axis.address).map(|direction|
                                 MarkAxis {
