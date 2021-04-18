@@ -142,9 +142,11 @@ const TaskStatusRow = ({
           marginLeft: 16,
         }}
       >
-        {`Heating ${blockingHeater?.name} `}
-        {/* {`(${Math.round(actualTemperature)} / ${Math.round(targetTemperature*10)/10}°C)`} */}
-        {`to ${Math.round(targetTemperature*10)/10}°C`}
+        { blockingHeater != null && (
+          `Heating ${blockingHeater?.name} `
+          /* {`(${Math.round(actualTemperature)} / ${Math.round(targetTemperature*10)/10}°C)`} */
+          + `to ${Math.round(targetTemperature*10)/10}°C`
+        )}
       </Typography>
     </div>
   )
