@@ -9,7 +9,9 @@ const LATENCY_QUERY = gql`
 `
 
 const HIGH_LATENCY_THRESHOLD_MILLIS = 500
-const HIDE_NOTIFICATION_AFTER_MILLIS = 5000
+// Delay in milliseconds from receiving a successfull ping response to hiding the latency
+// notification
+const HIDE_NOTIFICATION_AFTER_MILLIS = 0
 const PING_INTERVAL = 500
 
 const LatencyNotification = () => {
