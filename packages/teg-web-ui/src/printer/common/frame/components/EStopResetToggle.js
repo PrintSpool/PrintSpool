@@ -1,15 +1,18 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import classNames from 'classnames'
 import { useMutation } from '@apollo/client'
 import { gql } from '@apollo/client'
 
 import Button from '@material-ui/core/Button'
+import Backdrop from '@material-ui/core/Backdrop'
+import CircularProgress from '@material-ui/core/CircularProgress'
 import { makeStyles } from '@material-ui/core/styles'
 
 import Report from '@material-ui/icons/Report'
 
 import StatusDialog from './StatusDialog'
 import useConfirm from '../../../../common/_hooks/useConfirm'
+import { useSnackbar } from 'notistack'
 
 const useStyles = makeStyles(theme => ({
   leftIcon: {
@@ -45,13 +48,19 @@ const useStyles = makeStyles(theme => ({
 
 const RESET = gql`
   mutation reset($machineID: ID!) {
-    reset(machineID: $machineID) { id }
+    reset(machineID: $machineID) {
+      id
+      status
+    }
   }
 `
 
 const STOP = gql`
   mutation stop($machineID: ID!) {
-    stop(machineID: $machineID) { id }
+    stop(machineID: $machineID) {
+      id
+      status
+    }
   }
 `
 
@@ -60,15 +69,15 @@ const EStopResetToggle = ({
   buttonClass,
 }) => {
   const classes = useStyles()
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const { status } = machine
   const showEStop = status !== 'ERRORED' && status !== 'STOPPED'
-  const disabled = status === 'DISCONNECTED'
 
   const variables = { machineID: machine.id }
-  const [reset] = useMutation(RESET, { variables })
-  const [eStop] = useMutation(STOP, { variables })
+  const [reset, resetMutation] = useMutation(RESET, { variables })
+  const [eStop, stopMutation] = useMutation(STOP, { variables })
 
   const confirm = useConfirm()
 
@@ -83,13 +92,40 @@ const EStopResetToggle = ({
 
   const toggle = showEStop ? confirmedEStop : reset
 
+  const error = resetMutation.error || stopMutation.error
+  useEffect(() => {
+    if (error == null) {
+      return
+    }
+
+    enqueueSnackbar(
+      `Error ${resetMutation.error ? 'resetting' : 'stopping'} machine: ${error.message}`,
+      {
+        variant: 'error',
+      },
+    )
+  }, [error])
+
+  const loading = resetMutation.loading || stopMutation.loading
+  const disabled = status === 'DISCONNECTED' || loading
+
   return (
     <div>
+      <Backdrop
+        style={{ zIndex: 1300 }}
+        open={loading}
+        transitionDuration={{ enter: 500 }}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
       <StatusDialog
         open={dialogOpen}
         machine={machine}
         handleClose={() => { setDialogOpen(false) }}
-        handleReset={reset}
+        handleReset={() => {
+          reset()
+          setDialogOpen(false)
+        }}
       />
       <Button
         className={classNames(buttonClass, classes.status)}

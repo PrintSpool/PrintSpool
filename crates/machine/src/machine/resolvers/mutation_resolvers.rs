@@ -53,7 +53,7 @@ impl MachineMutation {
         ctx: &'ctx Context<'_>,
         #[graphql(name = "machineID")]
         machine_id: ID,
-    ) -> FieldResult<Option<teg_common::Void>> {
+    ) -> FieldResult<MachineData> {
         let machines: &crate::MachineMap = ctx.data()?;
         let machines = machines.load();
 
@@ -62,7 +62,9 @@ impl MachineMutation {
 
         machine.call(messages::StopMachine).await?;
 
-        Ok(None)
+        let machine_data = machine.call(messages::GetData).await??;
+
+        Ok(machine_data)
     }
 
     #[instrument(skip(self, ctx))]
@@ -71,7 +73,7 @@ impl MachineMutation {
         ctx: &'ctx Context<'_>,
         #[graphql(name = "machineID")]
         machine_id: ID,
-    ) -> FieldResult<Option<teg_common::Void>> {
+    ) -> FieldResult<MachineData> {
         let machines: &crate::MachineMap = ctx.data()?;
         let machines = machines.load();
 
@@ -79,8 +81,9 @@ impl MachineMutation {
             .ok_or_else(|| eyre!("Machine #{:?} not found", machine_id))?;
 
         machine.call(messages::ResetMachine).await?;
+        let machine_data = machine.call(messages::GetData).await??;
 
-        Ok(None)
+        Ok(machine_data)
     }
 
     #[instrument(skip(self, ctx))]
