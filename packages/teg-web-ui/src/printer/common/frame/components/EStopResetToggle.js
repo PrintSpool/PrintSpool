@@ -73,7 +73,7 @@ const EStopResetToggle = ({
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const { status } = machine
-  const showEStop = status !== 'ERRORED' && status !== 'STOPPED'
+  const showEStop = !['ERRORED', 'STOPPED', 'DISCONNECTED'].includes(status)
 
   const variables = { machineID: machine.id }
   const [reset, resetMutation] = useMutation(RESET, { variables })
@@ -107,7 +107,6 @@ const EStopResetToggle = ({
   }, [error])
 
   const loading = resetMutation.loading || stopMutation.loading
-  const disabled = status === 'DISCONNECTED' || loading
 
   return (
     <div>
@@ -141,7 +140,7 @@ const EStopResetToggle = ({
           classNames(classes.toggleEStopReset, showEStop && classes.eStop)
         }
         variant="contained"
-        disabled={disabled}
+        disabled={loading}
         onClick={toggle}
       >
         {
