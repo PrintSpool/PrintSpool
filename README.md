@@ -75,6 +75,7 @@ Once you have armhf set up then you can install the rest of the dependencies: --
 
 - **Build:** `./scripts/build`
 - **Build and Install Locally:** `./scripts/build-and-install`
+- **Build and Publish to the Snap Store:** `yarn release`
 
 ### Developer Rapsberry Pi Setup
 
