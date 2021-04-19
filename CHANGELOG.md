@@ -1,7 +1,47 @@
-# Change Log
+# Changelog
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [0.14.0](https://github.com/tegapp/teg/compare/v0.13.1...v0.14.0) (2021-04-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* Rewrote the server in Rust and replaced the database with SQLite
+
+### Features
+
+* Added a benchmark to compare Octoprint's and Teg's performance critical print loop. See: crates/pi-benchmarks ([cefacd4](https://github.com/tegapp/teg/commit/cefacd42e194a3117bd33f5f783b1c87d8e5b1ac))
+* Added a high latency notification when the user has a slow ping to their printer ([6c866fb](https://github.com/tegapp/teg/commit/6c866fbd40b3b90acc869e311da5355f6136f1ba))
+* Added an option to moveBy and moveTo based on the visual orientation of a machine's axes ([aa20581](https://github.com/tegapp/teg/commit/aa20581d98a3f7fadcc7ac076ce4eaa6c6be5dda))
+* Added an option to reset disconnected printers in case their driver has crashed in weird ways ([7397a07](https://github.com/tegapp/teg/commit/7397a074efc41303e67a56987b488b99d0775416))
+* Added bulk operations to the print queue ([65a2920](https://github.com/tegapp/teg/commit/65a29203db66efd0bf84df8b2d64ac250c0cdf1d))
+* Added offline 3D printing via the INSECURE_LOCAL_CONNECTIONS env variable (disabled by default) ([6bb5dfd](https://github.com/tegapp/teg/commit/6bb5dfdbaa914ed81b598f6d581bc87518810e24))
+* Added option to query print queues by machine id ([cf1bf0c](https://github.com/tegapp/teg/commit/cf1bf0c4a820835ef8631621684b601d89dca58e))
+* Clicking stop or reset now displays a spinner so the user is aware that action is being taken ([7e06883](https://github.com/tegapp/teg/commit/7e0688302fd3f2c1fe210481f62f45e8256602d7))
+* Made invites idempotent to simplify reconnection authentication ([070fe1c](https://github.com/tegapp/teg/commit/070fe1caed31d115067a7ccde9fcd63fb0cb4b20))
+* Moved advanced settings to a seperate collapsible section ([5416a7e](https://github.com/tegapp/teg/commit/5416a7e82d18b86b165353275a99f9965cced0ff))
+* Moved the performance-critical print loop to a dedicated CPU to reduce gcode response time variability ([7ab0a3d](https://github.com/tegapp/teg/commit/7ab0a3d2acc6befbb6bd5b5816c148755573795c))
+* Moved the print next button for quicker visual recognition in left to right scanning and added a print selected button. ([0573cfd](https://github.com/tegapp/teg/commit/0573cfdd24d570e467d6e391ee5fd15b0e64e402))
+* Part quantity and position can now be configured from a dedicated settings tab ([e1aa70d](https://github.com/tegapp/teg/commit/e1aa70dd59e751d8355db63dc8f21df2e048d505))
+* Rewrote the server in Rust and replaced the database with SQLite ([1e0026e](https://github.com/tegapp/teg/commit/1e0026ea9a7b0c7aef17ce56a49fda4bb6e1d6a2))
+* Shortened invite slugs by 50% by using protobufs and 128 bit secrets ([d6a0ded](https://github.com/tegapp/teg/commit/d6a0ded1986522babb0a4b6e58d8e7afa2077a68))
+* Terminal now skips polling gcodes and responses in the gcode history ([42c8cb7](https://github.com/tegapp/teg/commit/42c8cb7c8dec9b41f37e686610f11da8fdc7b54e))
+
+
+### Bug Fixes
+
+* Added support for negative values to the response parser ([d92fe64](https://github.com/tegapp/teg/commit/d92fe64e56b993dbfae5b677ea3840b667993ba0))
+* Fixed jog by distance buttons for swapped X and Y axis printers ([37b8af1](https://github.com/tegapp/teg/commit/37b8af183acdc3c7887ce0bc5f094e6c64e683bc))
+* Fixed pause and resume and related task settling and despooled line number bugs ([39244aa](https://github.com/tegapp/teg/commit/39244aa24b4e35aa528f91c441a876ff3c4fdd5c))
+* Fixed video config screens when no video sources are present or a configured source has been disconnected (eg. a USB webcam was unplugged) ([ca44a23](https://github.com/tegapp/teg/commit/ca44a2301a2d83a596232ac965997821ae2afe31))
+* Increased bus_queue size to prevent GCode history from being dropped silently ([dcf64d8](https://github.com/tegapp/teg/commit/dcf64d8103a9d3144308c6e4722394c3c6ec491a))
+* Moved add host button z-index above list ([9f20b34](https://github.com/tegapp/teg/commit/9f20b345e946a10bee71196560e3faa4fd28c522))
+* Polling queries now resume on reconnection to the printer ([00a57d6](https://github.com/tegapp/teg/commit/00a57d6d06140708d59d4760f1a52c7dbae38c6b))
+* Prevent users from submitting driver macros directly ([4a0ad81](https://github.com/tegapp/teg/commit/4a0ad8164f558ad056c06a1565de1bd7920132e1))
+* Quickly changing directions when using continuous move no longer causes the driver to stop accepting GCodes ([a2e9c5a](https://github.com/tegapp/teg/commit/a2e9c5ac1ab571a8dd4b0caba8655b4a0b97ac74))
+* Refreshing the firebase token before using it ([9d20e4d](https://github.com/tegapp/teg/commit/9d20e4d7c975473d88adbdf1c8ea464935dd28d6))
+* Showing cancelled tasks correctly in the UI ([f59cda5](https://github.com/tegapp/teg/commit/f59cda5c584f1b3aaf4e9d2f4a66e46f4094f8ba))
 
 ## [0.13.1](https://github.com/tegapp/teg/compare/v0.13.0...v0.13.1) (2020-09-09)
 
