@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 
 import IconButton from '@material-ui/core/IconButton'
 import Typography from '@material-ui/core/Typography'
@@ -66,7 +66,10 @@ const TaskStatusRow = ({
     // .find(c => c.heater)
     .find(c => c.heater?.blocking)
 
-  // console.log({blockingHeater}, task.machine.components)
+  let initialTemperature = useMemo(() => (
+    blockingHeater?.heater.actualTemperature || 0
+  ), [blockingHeater?.id])
+  // console.log({blockingHeater, initialTemperature}, task.machine.components)
 
   let etaStr = ''
 
@@ -98,9 +101,16 @@ const TaskStatusRow = ({
   //   actualTemperature,
   //   targetTemperature,
   // )
-  const temperaturePercent = Math.min((
-    100 * actualTemperature / targetTemperature
-  ) || 0, 100)
+  const temperaturePercent = Math.min(
+    Math.max(
+      (
+        100 * (actualTemperature - initialTemperature) / (targetTemperature - initialTemperature)
+      ) || 0,
+      0,
+    ),
+    100,
+  )
+  // console.log({ temperaturePercent, actualTemperature, initialTemperature})
 
   const heaterOverlay = (
     <div
@@ -143,9 +153,9 @@ const TaskStatusRow = ({
         }}
       >
         { blockingHeater != null && (
-          `Heating ${blockingHeater?.name} `
-          /* {`(${Math.round(actualTemperature)} / ${Math.round(targetTemperature*10)/10}°C)`} */
-          + `to ${Math.round(targetTemperature*10)/10}°C`
+          `Heating ${blockingHeater?.name}: `
+          + `${Math.round(actualTemperature*10)/10} / ${Math.round(targetTemperature*10)/10}°C`
+          // + `to ${Math.round(targetTemperature*10)/10}°C`
         )}
       </Typography>
     </div>
