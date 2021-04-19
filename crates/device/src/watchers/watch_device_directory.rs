@@ -8,11 +8,11 @@ use eyre::{
     Result,
     Context as _,
 };
-
+use xactor::Service;
+use teg_machine::machine::messages::AddDevice;
 
 use crate::{
     messages::{
-        add_device::AddDevice,
         remove_device::RemoveDevice,
         remove_device_directory::RemoveDeviceDirectory,
     },
@@ -47,8 +47,10 @@ pub fn device_path(
 pub async fn watch_device_directory(
     path: &'static str,
     pattern: Option<&'static str>,
-    addr: crate::DeviceManagerAddr
+    addr: crate::DeviceManagerAddr,
 ) -> Result<()> {
+    let mut broker = xactor::Broker::from_registry().await?;
+
     let mut inotify = Inotify::init()
         .expect("Error while initializing inotify instance");
 
@@ -78,7 +80,7 @@ pub async fn watch_device_directory(
         if !file.file_type().await?.is_dir() {
             let file_name = Some(file.file_name());
             if let Some(path) = device_path(path, pattern, &file_name)? {
-                addr.send(AddDevice(path))?;
+                broker.publish(AddDevice(path))?;
             }
         }
     }
@@ -95,7 +97,7 @@ pub async fn watch_device_directory(
             // dbg!(&event);
 
             if let Some(path) = device_path(path, pattern, file_name)? {
-                addr.send(AddDevice(path))?;
+                broker.publish(AddDevice(path))?;
             };
         }
         if mask.intersects(EventMask::DELETE | EventMask::MOVED_FROM) {

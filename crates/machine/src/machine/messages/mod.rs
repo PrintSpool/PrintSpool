@@ -1,3 +1,6 @@
+mod add_device;
+pub use add_device::AddDevice;
+
 mod connect_to_socket;
 pub use connect_to_socket::ConnectToSocket;
 

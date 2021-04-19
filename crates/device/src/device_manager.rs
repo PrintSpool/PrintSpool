@@ -6,6 +6,8 @@ use eyre::{
     // Context as _,
 };
 
+use teg_machine::machine::messages::AddDevice;
+
 use crate::{
     Device,
     watchers::{DevSerialWatcher, KlipperWatcher},
@@ -20,6 +22,10 @@ pub type DeviceManagerAddr = xactor::Addr<DeviceManager>;
 
 #[async_trait::async_trait]
 impl Actor for DeviceManager {
+    async fn started(&mut self, ctx: &mut xactor::Context<Self>) -> Result<()>  {
+        ctx.subscribe::<AddDevice>().await?;
+        Ok(())
+    }
 }
 
 impl DeviceManager {

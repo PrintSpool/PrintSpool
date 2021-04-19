@@ -13,7 +13,7 @@ use eyre::{
     // Context as _,
 };
 
-use super::{MachineStatus, messages::{ConnectToSocket, ResetMaterialTargets}, streams::receive_stream::codec::MachineCodec};
+use super::{MachineStatus, messages::{AddDevice, ConnectToSocket, ResetMaterialTargets}, streams::receive_stream::codec::MachineCodec};
 use super::GCodeHistoryEntry;
 use crate::config::MachineConfig;
 use crate::components::Toolhead;
@@ -76,6 +76,9 @@ impl Actor for Machine {
             Result::<_>::Ok(())
         }
             .await;
+
+
+        ctx.subscribe::<AddDevice>().await?;
 
         if let Err(err) = result {
             warn!("Error starting machine: {:?}", err);
