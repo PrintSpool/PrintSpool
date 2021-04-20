@@ -111,7 +111,6 @@ package = "teg-core"
   { "moveTo": { "positions": {"x": 0, "y": 0} } }
   ; Disable the heaters in case the print is paused for a while
   M104 S0
-  M140 S0
   """
   resumeHook = """
   """
