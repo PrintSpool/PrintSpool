@@ -48,13 +48,23 @@ impl DataChannelHandler for GraphQLChannel {
 
     fn on_message(&mut self, msg: &[u8]) {
         // trace!("Received {:?}", msg);
+        // let start = std::time::Instant::now();
         let msg = msg.to_vec();
+        // let length = msg.len();
         let output = self.output.clone();
         block_on(async move {
             output.send(msg)
                 .await
                 .expect("Unable to receive DataChannel message");
         });
+
+        // let elapsed = start.elapsed();
+        // info!(
+        //     "Processed {:.1} KB message in: {:?} ({:.1} MB/s)",
+        //     length as f32 / 1024f32,
+        //     elapsed,
+        //     (length as f32 / elapsed.as_secs_f32()) / (1024f32 * 1024f32),
+        // );
     }
 }
 

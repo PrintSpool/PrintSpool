@@ -49,6 +49,8 @@ impl CreateJobMutation {
         ctx: &'ctx Context<'_>,
         input: AddPartsToPrintQueueInput,
     ) -> FieldResult<Package> {
+        let start = std::time::Instant::now();
+
         let db: &crate::Db = ctx.data()?;
 
         let part_dir = "/var/lib/teg/parts";
@@ -125,6 +127,11 @@ impl CreateJobMutation {
             part.insert_no_rollback(&mut tx).await?;
         }
         tx.commit().await?;
+
+        info!(
+            "Saved new parts to database and file system in: {:?}",
+            start.elapsed(),
+        );
 
         Ok(package)
     }
