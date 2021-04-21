@@ -46,17 +46,7 @@ const PrintDialog = ({
 
   const submit = useAsync({
     deferFn: async ([{ printNow }]) => {
-      const MB = 1000 * 1000
-      const fileMBs = files[0].size / MB
-      const uploadStartedAt = Date.now()
       const addPartsToPrintQueueResult = await addPartsToPrintQueue()
-
-      const uploadSeconds = (Date.now() - uploadStartedAt) / 1000
-      console.log(
-        'Upload Complete: '
-        + `${fileMBs.toFixed(1)}MB uploaded in ${uploadSeconds.toFixed(1)} seconds = `
-        + `${(fileMBs / uploadSeconds).toFixed(1)} MB/s`
-      )
 
       if (addPartsToPrintQueueResult.errors != null) {
         throw new Error(addPartsToPrintQueueResult.errors[0].message)

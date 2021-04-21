@@ -22,6 +22,10 @@ const useCreateJobMutation = (
   const [mutation, mutationResult] = useMutation(addPartsToPrintQueueGraphQL, options)
 
   const addPartsToPrintQueue = useCallback(async () => {
+    const MB = 1000 * 1000
+    const fileMBs = files[0].size / MB
+    const startedAt = Date.now()
+
     const mutationInput = {
       printQueueID,
       name: files.map(f => f.name).join(', '),
@@ -50,12 +54,25 @@ const useCreateJobMutation = (
       }),
     )
 
+    const filesReadAt = Date.now()
+
     /* execute the mutation */
-    return mutation({
+    const result = await mutation({
       variables: {
         input: mutationInput,
       },
     })
+
+    const readSeconds = (filesReadAt - startedAt) / 1000
+    const totalSeconds = (Date.now() - startedAt) / 1000
+    console.log(
+      'Upload Complete: '
+      + `${fileMBs.toFixed(1)}MB uploaded in ${totalSeconds.toFixed(1)}s `
+      + `(read time: ${readSeconds.toFixed(2)}s) = `
+      + `${(fileMBs / totalSeconds).toFixed(1)} MB/s`
+    )
+
+    return result
   }, [files])
 
   return [addPartsToPrintQueue, mutationResult]

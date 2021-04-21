@@ -18,7 +18,8 @@ export const RELIABLE_ORDERED = 'RELIABLE_ORDERED'
 export const UNORDERED_UNRELIABLE = 'UNORDERED_UNRELIABLE'
 
 // Per https://stackoverflow.com/a/56330726
-const MAX_MESSAGE_SIZE = 256 * 1024 - 1
+export const MAX_MESSAGE_SIZE = 256 * 1024
+export const BUFFER_HIGH = MAX_MESSAGE_SIZE * 10
 
 // Theoretically 1GB messages may be possible in Firefox but I have not had luck with them yet:
 // https://blog.mozilla.org/webrtc/large-data-channel-messages/
@@ -95,7 +96,7 @@ const setImmediate = fn => setTimeout(fn, 0)
 /*
  * for asynchronusly encoding messages into an array of chunks
  */
-export const chunkifier = (opts, callback) => {
+export const chunkifier = (opts, peer) => {
   const {
     mode,
     maximumMessageSize = MAX_MESSAGE_SIZE,
@@ -112,6 +113,8 @@ export const chunkifier = (opts, callback) => {
   // let timeout
 
   const sendNextChunks = () => {
+    peer._channel.removeEventListener('bufferedamountlow', sendNextChunks)
+
     // timeout = null
     // let { bufferedAmount } = channel
 
@@ -121,7 +124,13 @@ export const chunkifier = (opts, callback) => {
     ) {
       // if (bufferedAmount < highWaterMark) {
       const chunk = chunks.shift()
-      callback(chunk)
+      const readyToSend = peer.send(chunk)
+
+      if (peer._channel.bufferedAmount > BUFFER_HIGH) {
+        // console.log('Teg RTC Buffer Full')
+        peer._channel.addEventListener('bufferedamountlow', sendNextChunks)
+        return
+      }
       // bufferedAmount += chunk.length
       // } else {
       //   timeout = setTimeout(sendNextChunks, 0)

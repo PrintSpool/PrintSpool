@@ -1,6 +1,11 @@
 import SimplePeer from 'simple-peer'
 
-import { chunkifier, dechunkifier, RELIABLE_ORDERED } from './saltyRTCChunk'
+import {
+  chunkifier,
+  dechunkifier,
+  RELIABLE_ORDERED,
+  MAX_MESSAGE_SIZE,
+} from './saltyRTCChunk'
 
 const EVENT_NAMES = [
   'close',
@@ -57,11 +62,20 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
       config: { iceServers },
     })
 
+    // Change the bufferedAmountLowThreshold to the chunk size
+    const originalSetupData = this.peer._setupData.bind(this.peer)
+    this.peer._setupData = function (event) {
+      originalSetupData(event)
+      if (typeof this._channel.bufferedAmountLowThreshold === 'number') {
+        this._channel.bufferedAmountLowThreshold = MAX_MESSAGE_SIZE
+      }
+    }
+
     this.chunkifier = chunkifier(
       {
         mode: RELIABLE_ORDERED,
       },
-      this.peer.send.bind(this.peer)
+      this.peer,
     )
 
     this.peer.on('connect', () => {
