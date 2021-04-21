@@ -5,6 +5,7 @@ import {
   dechunkifier,
   RELIABLE_ORDERED,
   MAX_MESSAGE_SIZE,
+  UNORDERED_UNRELIABLE,
 } from './saltyRTCChunk'
 
 const EVENT_NAMES = [
@@ -12,6 +13,9 @@ const EVENT_NAMES = [
   'message',
   'error',
 ]
+
+// Set to true for messages to be delivered in order
+const ORDERED = false
 
 export type WebRTCOptions = {
   iceServers: string[],
@@ -60,6 +64,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
       initiator: true,
       trickle: false,
       config: { iceServers },
+      channelConfig: { ordered: ORDERED },
     })
 
     // Change the bufferedAmountLowThreshold to the chunk size
@@ -73,7 +78,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
 
     this.chunkifier = chunkifier(
       {
-        mode: RELIABLE_ORDERED,
+        mode: ORDERED ? RELIABLE_ORDERED : UNORDERED_UNRELIABLE,
       },
       this.peer,
     )

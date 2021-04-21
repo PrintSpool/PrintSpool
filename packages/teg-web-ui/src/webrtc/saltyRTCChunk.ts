@@ -29,6 +29,7 @@ export const BUFFER_HIGH = MAX_MESSAGE_SIZE * 10
  * 1 byte for S|H|C, 16 bytes for the message's ID, 1 byte for ':'
  * Note: the message ID is repeated in each chunk for that message
  */
+const MODE_BITMASK = 6
 const bitfield = {
   RELIABLE_ORDERED: 6,
   UNORDERED_UNRELIABLE: 0,
@@ -61,13 +62,14 @@ const createChunk = ({
   // write the header to the start of the buffer
   buf.writeUInt8(bf, 0)
   // console.log(bf)
-  if (mode === 'RELIABLE_ORDERED') {
-    buf.writeUInt32LE(id, 1)
-    buf.writeUInt32LE(serial, 5)
+  if (mode === 'UNORDERED_UNRELIABLE') {
+    buf.writeUInt32BE(id, 1)
+    buf.writeUInt32BE(serial, 5)
   }
 
   // write the payload to the buffer after the header
   buf.write(payload, headerBytes[mode])
+  // console.log('WRITING BUFFER:', buf)
 
   return buf
 }
@@ -124,7 +126,7 @@ export const chunkifier = (opts, peer) => {
     ) {
       // if (bufferedAmount < highWaterMark) {
       const chunk = chunks.shift()
-      const readyToSend = peer.send(chunk)
+      peer.send(chunk)
 
       if (peer._channel.bufferedAmount > BUFFER_HIGH) {
         // console.log('Teg RTC Buffer Full')
@@ -179,41 +181,62 @@ export const dechunkifier = (callback) => {
   const incommingMessages = {}
 
   return (data) => {
+    // console.log('RECEIVING BUFFER:', data)
     const bf = data.readUInt8(0)
 
     // eslint-disable-next-line no-bitwise
     const endOfMessage = bf & bitfield.END_OF_MESSAGE
+    const modeBF = bf & MODE_BITMASK
 
     let id
     let payload
-    // let serial
+    let serial
 
     // eslint-disable-next-line no-bitwise
-    if (bf & bitfield.RELIABLE_ORDERED) {
+    if (modeBF === bitfield.RELIABLE_ORDERED) {
       id = 0 // ID is not used for RELIABLE_ORDERED messages
       payload = data.slice(headerBytes.RELIABLE_ORDERED)
     // eslint-disable-next-line no-bitwise
-    } else if (bf & bitfield.UNORDERED_UNRELIABLE) {
-      // id = data.readUInt32(1)
-      // payload = data.slice(9)
-      // const serial = data.readUInt32(5)
-      throw new Error('Unreliable unorder not yet implemented')
+    } else if (modeBF === bitfield.UNORDERED_UNRELIABLE) {
+      id = data.readUInt32BE(1)
+      payload = data.slice(9)
+      serial = data.readUInt32BE(5)
     } else {
-      throw new Error(`Invalid bitfield value ${bf}`)
+      throw new Error(`Invalid SaltyRTC mode for bitfield ${bf}`)
     }
 
     if (incommingMessages[id] == null) {
       incommingMessages[id] = {
         expectedChunksCount: null,
         chunks: [],
+        lastSerial: null,
       }
     }
 
-    const { chunks } = incommingMessages[id]
+    const incommingMessage = incommingMessages[id]
+    const { chunks } = incommingMessage
 
-    chunks.push(payload)
+    let receivedAllChunks
 
-    if (endOfMessage) {
+    if (serial != null) {
+      // UNORDERED_UNRELIABLE
+      chunks[serial] = payload
+
+      if (endOfMessage) {
+        incommingMessage.lastSerial = serial
+      }
+
+      receivedAllChunks = (
+        incommingMessage.lastSerial != null
+        && chunks.length === incommingMessage.lastSerial + 1
+      )
+    } else {
+      // RELIABLE_ORDERED
+      chunks.push(payload)
+      receivedAllChunks = endOfMessage
+    }
+
+    if (receivedAllChunks) {
       const decodingStartedAt = Date.now()
       const message = Buffer.concat(chunks).toString()
 

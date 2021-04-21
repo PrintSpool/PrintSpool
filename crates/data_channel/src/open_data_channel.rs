@@ -30,6 +30,10 @@ use teg_auth::Signal;
 
 static NEXT_ID: AtomicU64 = AtomicU64::new(0);
 
+// Enable verbose per-chunk performance logging - not enabled by default because measuring
+// performance on every chunk received could itself lead to performance problems.
+const LOG_CHUNK_TIMINGS: bool = false;
+
 #[derive(Clone)]
 pub struct GraphQLChannel {
     output: async_std::channel::Sender<Vec<u8>>,
@@ -48,9 +52,14 @@ impl DataChannelHandler for GraphQLChannel {
 
     fn on_message(&mut self, msg: &[u8]) {
         // trace!("Received {:?}", msg);
-        // let start = std::time::Instant::now();
+        let start = if LOG_CHUNK_TIMINGS {
+            Some(std::time::Instant::now())
+        } else {
+            None
+        };
+
         let msg = msg.to_vec();
-        // let length = msg.len();
+        let length = msg.len();
         let output = self.output.clone();
         block_on(async move {
             output.send(msg)
@@ -58,13 +67,15 @@ impl DataChannelHandler for GraphQLChannel {
                 .expect("Unable to receive DataChannel message");
         });
 
-        // let elapsed = start.elapsed();
-        // info!(
-        //     "Processed {:.1} KB message in: {:?} ({:.1} MB/s)",
-        //     length as f32 / 1024f32,
-        //     elapsed,
-        //     (length as f32 / elapsed.as_secs_f32()) / (1024f32 * 1024f32),
-        // );
+        if let Some(start) = start {
+            let elapsed = start.elapsed();
+            info!(
+                "Processed {:.1} KB message in: {:?} ({:.1} MB/s)",
+                length as f32 / 1024f32,
+                elapsed,
+                (length as f32 / elapsed.as_secs_f32()) / (1024f32 * 1024f32),
+            );
+        }
     }
 }
 
@@ -167,7 +178,7 @@ where
     };
 
     let id = NEXT_ID.fetch_add(1, Ordering::SeqCst);
-    let mode = ReliabilityMode::ReliableOrdered;
+    let mode = ReliabilityMode::UnreliableUnordered;
 
     let ice_servers: Vec<String> = signal.ice_servers
         .iter()
