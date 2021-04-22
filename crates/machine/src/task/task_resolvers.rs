@@ -109,7 +109,9 @@ impl Task {
         if let TaskStatus::Paused(paused_status) = &self.status {
             duration += (Utc::now() - paused_status.paused_at).to_std()?;
         } else if let Some(blocked_at) = machine_data.blocked_at {
-            duration += (Utc::now() - blocked_at).to_std()?;
+            if self.status.is_pending() {
+                duration += (Utc::now() - blocked_at).to_std()?;
+            }
         }
 
         let eta= self.created_at + ::chrono::Duration::from_std(duration)?;
