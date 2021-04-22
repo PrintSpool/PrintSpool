@@ -3,6 +3,12 @@ use async_graphql::{
     ID,
     FieldResult,
 };
+use eyre::{
+    // eyre,
+    Result,
+    // Context as _,
+};
+
 use teg_json_store::{ Record as _, JsonRow };
 
 use crate::part::Part;
@@ -28,39 +34,46 @@ impl PartQuery {
     ) -> FieldResult<Vec<Part>> {
         let db: &crate::Db = ctx.data()?;
 
-        let mut parts = if let Some(part_id) = input.part_id {
-            let part = sqlx::query_as!(
-                JsonRow,
-                r#"
-                    SELECT parts.props FROM parts
-                    WHERE
-                        parts.deleted_at IS NULL
-                        AND parts.id = ?
-                "#,
-                part_id.0,
-            )
-                .fetch_one(db)
-                .await?;
+        async move {
+            let mut parts = if let Some(part_id) = input.part_id {
+                let part = sqlx::query_as!(
+                    JsonRow,
+                    r#"
+                        SELECT parts.props FROM parts
+                        WHERE
+                            parts.id = ?
+                    "#,
+                    part_id.0,
+                )
+                    .fetch_one(db)
+                    .await?;
 
-            vec![Part::from_row(part)?]
-        } else {
-            let parts = sqlx::query_as!(
-                JsonRow,
-                r#"
-                    SELECT parts.props FROM parts
-                    WHERE
-                        parts.deleted_at IS NULL
-                "#,
-            )
-                .fetch_all(db)
-                .await?;
+                vec![Part::from_row(part)?]
+            } else {
+                let parts = sqlx::query_as!(
+                    JsonRow,
+                    r#"
+                        SELECT parts.props FROM parts
+                        WHERE
+                            parts.deleted_at IS NULL
+                    "#,
+                )
+                    .fetch_all(db)
+                    .await?;
 
-            Part::from_rows(parts)?
-        };
+                Part::from_rows(parts)?
+            };
 
-        // Consistent ordering
-        parts.sort_by_cached_key(|p| p.id.clone());
+            // Consistent ordering
+            parts.sort_by_cached_key(|p| p.id.clone());
 
-        Ok(parts)
+            Result::<_>::Ok(parts)
+        }
+        // log the backtrace which is otherwise lost by FieldResult
+        .await
+        .map_err(|err| {
+            warn!("{:?}", err);
+            err.into()
+        })
     }
 }
