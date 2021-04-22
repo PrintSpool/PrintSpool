@@ -99,6 +99,8 @@ pub async fn task_from_gcodes(
         total_lines,
         estimated_filament_meters: None,
         estimated_print_time: None,
+        time_blocked: Default::default(),
+        time_paused: Default::default(),
         status: Default::default(),
     };
 

@@ -123,6 +123,8 @@ impl xactor::Handler<ResumeTask> for Machine {
                     annotations: vec![],
                     estimated_filament_meters: None,
                     estimated_print_time: None,
+                    time_blocked: Default::default(),
+                    time_paused: Default::default(),
                     status: Default::default(),
                 };
 

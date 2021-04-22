@@ -184,6 +184,35 @@ pub async fn update_tasks(
         }
     }
 
+    let is_blocking = feedback.heaters.iter().any(|h| h.blocking);
+
+    // Update the amount of time the pending tasks has been blocked for
+    if let Some(blocked_at) = machine.data
+        .as_ref()
+        .and_then(|m| m.blocked_at)
+    {
+        if !is_blocking {
+            let pending_tasks = Task::tasks_running_on_machine(db, &machine.id)
+                .await?;
+
+            for mut task in pending_tasks.into_iter() {
+                if task.status.is_paused() {
+                    continue
+                }
+                task.time_blocked += (Utc::now() - blocked_at).to_std()?;
+                task.update(db).await?;
+            }
+        }
+    }
+
+    // Update the time at which the machine started the current blocking GCode
+    if is_blocking && machine.get_data()?.blocked_at == None {
+        machine.get_data()?.blocked_at = Some(Utc::now());
+    }
+    if !is_blocking && machine.get_data()?.blocked_at.is_some() {
+        machine.get_data()?.blocked_at = None;
+    }
+
     Ok(())
 }
 

@@ -21,7 +21,7 @@ impl xactor::Handler<AddDevice> for Machine {
         } else {
             return ()
         };
-        dbg!(&msg, data.config.tty_path(), self.unix_socket.is_some(), &data.status);
+        // dbg!(&msg, data.config.tty_path(), self.unix_socket.is_some(), &data.status);
 
         if &msg.0 != data.config.tty_path() {
             return ()

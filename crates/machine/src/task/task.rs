@@ -29,6 +29,15 @@ pub struct Task {
     pub despooled_line_number: Option<u64>,
     pub machine_override: bool,
     pub estimated_print_time: Option<std::time::Duration>,
+
+    #[serde(default)]
+    /// The amount of time the task spent waiting on blocking GCodes eg. heating up the extruder.
+    pub time_blocked: std::time::Duration,
+    /// The amount of time the task was previously paused for. If the task is currently paused this
+    /// excludes the current pause.
+    #[serde(default)]
+    pub time_paused: std::time::Duration,
+
     pub estimated_filament_meters: Option<f64>,
     // #[new(default)]
     // pub sent_to_machine: bool,

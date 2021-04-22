@@ -1,4 +1,5 @@
 use async_codec::Framed;
+use chrono::prelude::*;
 use xactor::Actor;
 // use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
@@ -43,6 +44,8 @@ pub struct MachineData {
     pub absolute_positioning: bool,
     #[new(value = "PositioningUnits::Millimeters")]
     pub positioning_units: PositioningUnits,
+    #[new(default)]
+    pub blocked_at: Option<DateTime<Utc>>,
     #[new(default)]
     pub gcode_history: VecDeque<GCodeHistoryEntry>,
 }

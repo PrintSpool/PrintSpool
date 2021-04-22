@@ -29,7 +29,7 @@ const JOB_QUERY = gql`
       tasks {
         id
         percentComplete(digits: 1)
-        estimatedPrintTimeMillis
+        eta
         estimatedFilamentMeters
         startedAt
         stoppedAt

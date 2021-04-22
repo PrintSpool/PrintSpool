@@ -1,3 +1,4 @@
+use chrono::prelude::*;
 use eyre::{
     eyre,
     // Context as _,
@@ -51,10 +52,10 @@ impl ResumePrintMutation {
             }
             MachineStatus::Printing(Printing {
                 paused: true,
-                paused_state: paused_state@Some(_),
+                paused_state: Some(paused_state),
                 task_id: printing_task_id,
             }) if *printing_task_id == task_id.0 => {
-                paused_state.as_ref().unwrap()
+                paused_state
             }
             _ => {
                 return Err(eyre!(
@@ -150,6 +151,13 @@ impl ResumePrintMutation {
             // handle redundant calls as a no-op to pause idempotently
             return Ok(task);
         }
+
+        // Update the amount of time the task has been paused
+        task.time_paused += if let TaskStatus::Paused(paused_status) = task.status {
+            (Utc::now() - paused_status.paused_at).to_std()?
+        } else {
+            return Err(eyre!("Cannot resume task be task is not paused").into())
+        };
 
         task.status = TaskStatus::Spooled;
 

@@ -23,7 +23,7 @@ const PRINT_QUEUES_QUERY = gql`
       task {
         id
         percentComplete(digits: 1)
-        estimatedPrintTimeMillis
+        eta
         startedAt
         stoppedAt
         status

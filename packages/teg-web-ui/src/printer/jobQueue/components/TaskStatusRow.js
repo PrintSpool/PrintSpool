@@ -61,7 +61,7 @@ const TaskStatusRow = ({
     return () => clearInterval(interval)
   }, [])
 
-  const isPrinting = ['SPOOLED', 'STARTED'].includes(task.status)
+  const isPending = ['SPOOLED', 'STARTED', 'PAUSED'].includes(task.status)
   const blockingHeater = task.machine.components
     // .find(c => c.heater)
     .find(c => c.heater?.blocking)
@@ -73,23 +73,25 @@ const TaskStatusRow = ({
 
   let etaStr = ''
 
-  if (task.startedAt != null && task.estimatedPrintTimeMillis != null) {
-    const etaMS = Date.parse(task.startedAt) + task.estimatedPrintTimeMillis - Date.now()
-    const eta = new Date(Math.abs(etaMS))
-    const hours = Math.floor(Math.abs(etaMS) / 1000 / 3600)
+  if (task.eta != null) {
+    const msTillComplete = Date.parse(task.eta) - Date.now()
+    const minutesTillComplete = new Date(Math.abs(msTillComplete)).getMinutes()
+    const hours = Math.floor(Math.abs(msTillComplete) / 1000 / 3600)
     // const hoursStr = hours > 0 ? `${hours}:` : ''
     const hoursStr = hours > 0 ? `${hours}hr${hours > 1 ? 's ' : ' '}` : ''
 
     // const twoDigits = n => `${n >= 10 ? '' : '0'}${n}`
 
     etaStr = (() => {
-      // const timeStr = `${hoursStr}${twoDigits(eta.getMinutes())}:${twoDigits(eta.getSeconds())}`
-      const timeStr = `${hoursStr}${eta.getMinutes()}m`
-      if (etaMS < 0) {
+      // const timeStr = `${hoursStr}${twoDigits(minutesTillComplete)}:${twoDigits(eta.getSeconds())}`
+      const timeStr = `${hoursStr}${minutesTillComplete}m`
+      if (msTillComplete < 0) {
         return ` (${timeStr} over time estimate)`
       }
       return ` (${timeStr} remaining)`
     })()
+
+    console.log(etaStr, task.eta, Date.parse(task.eta)/1000, msTillComplete/1000)
   }
 
   const disabled = !['READY', 'PRINTING', 'PAUSED'].includes(machineStatus)
@@ -161,7 +163,7 @@ const TaskStatusRow = ({
     </div>
   )
 
-  const showHeater = isPrinting && blockingHeater != null
+  const showHeater = isPending && blockingHeater != null
   return (
     <div
       style={{

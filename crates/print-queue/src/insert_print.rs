@@ -116,6 +116,8 @@ pub async fn insert_print(
         despooled_line_number: None,
         machine_override: false,
         estimated_print_time,
+        time_blocked: Default::default(),
+        time_paused: Default::default(),
         estimated_filament_meters,
         status: Default::default(),
     };
