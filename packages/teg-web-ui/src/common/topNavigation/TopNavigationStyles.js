@@ -27,7 +27,7 @@ const useStyles = makeStyles(theme => ({
     textDecoration: 'none',
   },
   userProfileMenu: {
-    justifySelf: 'end',
+    justifySelf: 'flex-end',
     display: 'flex',
   },
   buttonClass: {

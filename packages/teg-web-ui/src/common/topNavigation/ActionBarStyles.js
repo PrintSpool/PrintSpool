@@ -4,7 +4,7 @@ const useStyles = makeStyles(theme => ({
   root: {
     background: 'white',
     borderBottom: '1px solid #CCC',
-    justifyContent: 'end',
+    justifyContent: 'flex-end',
     display: 'flex',
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
