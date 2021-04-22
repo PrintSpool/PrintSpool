@@ -44,7 +44,7 @@ const PrintDialogContent = ({
           className={classes.largeFileMessage}
         >
           GCode preview disabled for large file (
-          {(files[0].size / (1 * MB)).toPrecision(2)}
+          {(files[0].size / (1 * MB)).toFixed(1)}
           MB)
           <Button
             variant="contained"
