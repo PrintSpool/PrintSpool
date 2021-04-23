@@ -121,14 +121,14 @@ const JobPage = () => {
     !['ERRORED', 'CANCELLED', 'FINISHED'].includes(t.status)
   )
   const machine = task?.machine
-  console.log(machine)
+  // console.log({task, machine})
 
   viewMachine({ machine })
 
   const execGCodes = useExecGCodes(args => ({ machine, ...args }), [machine])
   const { status } = machine || {}
   const isReady = ['READY', 'PAUSED'].includes(status)
-  const isPrinting = machine?.status === 'PRINTING'
+  const isPrinting = status === 'PRINTING'
 
   const mutationError = (
     null

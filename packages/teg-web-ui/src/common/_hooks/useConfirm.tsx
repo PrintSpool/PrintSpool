@@ -26,7 +26,7 @@ const useConfirm = () => {
       return await fn(...args)
     } catch (e) {
       enqueueSnackbar(
-        `Error: ${e.message}`,
+        `Error: ${e?.message}`,
         {
           variant: 'error',
           persist: true,

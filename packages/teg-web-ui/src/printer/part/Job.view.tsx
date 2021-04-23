@@ -57,7 +57,7 @@ const JobView = ({
 
       <Card>
         <CardContent>
-          { videoComponents.length > 0 && (
+          { task && videoComponents.length > 0 && (
             <MultiVideoStreamer
               machineID={task.machine.id}
               videos={videoComponents}

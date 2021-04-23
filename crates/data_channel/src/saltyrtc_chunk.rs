@@ -207,7 +207,7 @@ impl ChunkEncoder {
     fn encode_single_message(&mut self, msg: Vec<u8>) -> Vec<Vec<u8>> {
         let chunk_payload_size = u16::MAX as usize - self.mode.header_bytes_size();
 
-        let msg_id = self.next_messsage_id.to_le_bytes();
+        let msg_id = self.next_messsage_id.to_be_bytes();
         self.next_messsage_id += 1;
 
         let chunks: Vec<Vec<u8>> = msg
@@ -222,7 +222,7 @@ impl ChunkEncoder {
                 // Long Headers
                 if let ReliabilityMode::UnreliableUnordered = self.mode {
                     chunk.extend_from_slice(&msg_id);
-                    chunk.extend_from_slice(&(chunk_serial as u32).to_le_bytes());
+                    chunk.extend_from_slice(&(chunk_serial as u32).to_be_bytes());
                 };
 
                 // Payload

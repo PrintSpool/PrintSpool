@@ -180,6 +180,16 @@ export const chunkifier = (opts, peer) => {
 export const dechunkifier = (callback) => {
   const incommingMessages = {}
 
+  // setInterval(() => {
+  //   const pending = Object.entries(incommingMessages) as [[string, any]]
+  //   if (pending.length > 0) {
+  //     console.log(`${pending.length} Pending Messages`)
+  //   }
+  //   for (const [id, msg] of pending) {
+  //     console.log(`${id}: ${msg.chunksReceived} / ${msg.lastSerial}`, msg)
+  //   }
+  // }, 1000)
+
   return (data) => {
     // console.log('RECEIVING BUFFER:', data)
     const bf = data.readUInt8(0)
@@ -207,8 +217,8 @@ export const dechunkifier = (callback) => {
 
     if (incommingMessages[id] == null) {
       incommingMessages[id] = {
-        expectedChunksCount: null,
         chunks: [],
+        chunksReceived: 0,
         lastSerial: null,
       }
     }
@@ -220,7 +230,10 @@ export const dechunkifier = (callback) => {
 
     if (serial != null) {
       // UNORDERED_UNRELIABLE
-      chunks[serial] = payload
+      if (chunks[serial] == null) {
+        chunks[serial] = payload
+        incommingMessage.chunksReceived += 1
+      }
 
       if (endOfMessage) {
         incommingMessage.lastSerial = serial
@@ -228,7 +241,7 @@ export const dechunkifier = (callback) => {
 
       receivedAllChunks = (
         incommingMessage.lastSerial != null
-        && chunks.length === incommingMessage.lastSerial + 1
+        && incommingMessage.chunksReceived === incommingMessage.lastSerial + 1
       )
     } else {
       // RELIABLE_ORDERED
