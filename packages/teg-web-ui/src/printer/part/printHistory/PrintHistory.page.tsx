@@ -15,7 +15,7 @@ const PART_QUERY = gql`
       printsCompleted
       totalPrints
 
-      tasks {
+      tasks(input: { pending: false, settled: true } ) {
         id
         percentComplete(digits: 1)
         eta

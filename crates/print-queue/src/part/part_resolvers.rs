@@ -15,6 +15,26 @@ use crate::{
     part::Part,
 };
 
+
+#[derive(async_graphql::InputObject, Debug)]
+pub struct PartTasksInput {
+    /// Include pending tasks in the result (default: true)
+    #[graphql(default=true)]
+    pending: bool,
+    /// Include settled tasks in the result (default: false)
+    #[graphql(default)]
+    settled: bool,
+}
+
+impl Default for PartTasksInput {
+    fn default() -> Self {
+        Self {
+            pending: true,
+            settled: false,
+        }
+    }
+}
+
 #[async_graphql::Object]
 impl Part {
     async fn id(&self) -> ID { (&self.id).into() }
@@ -77,7 +97,12 @@ impl Part {
         })
     }
 
-    async fn tasks<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<Task>> {
+    async fn tasks<'ctx>(
+        &self,
+        ctx: &'ctx Context<'_>,
+        #[graphql(default)]
+        input: PartTasksInput,
+    ) -> FieldResult<Vec<Task>> {
         let db: &crate::Db = ctx.data()?;
 
         async move {
@@ -87,8 +112,12 @@ impl Part {
                     SELECT props FROM tasks
                     WHERE
                         part_id = ?
+                        AND (? IS TRUE OR tasks.status NOT IN ('spooled', 'started', 'paused'))
+                        AND (? IS TRUE OR tasks.status IN ('spooled', 'started', 'paused'))
                 "#,
                 self.id,
+                input.pending,
+                input.settled,
             )
                 .fetch_all(db)
                 .await?;
