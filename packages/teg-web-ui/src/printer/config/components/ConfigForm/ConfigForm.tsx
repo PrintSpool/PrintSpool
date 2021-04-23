@@ -52,8 +52,20 @@ const ConfigForm = ({
     return <div/>
   }
 
+  const normalizedOnSubmit = (data) => {
+    const model = { ...data.model }
+    if (model.materialID === 'NULL') {
+      model.materialID = null
+    }
+
+    onSubmit({
+      ...data,
+      model,
+    })
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(normalizedOnSubmit)}>
       <ConfigFormContext.Provider value={context} >
         { children }
       </ConfigFormContext.Provider>

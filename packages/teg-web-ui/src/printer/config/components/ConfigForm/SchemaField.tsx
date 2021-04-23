@@ -90,7 +90,6 @@ const SchemaField = ({
       }
 
       if (isEnum) {
-        // console.log('DEFAULT?', property.default, property)
         return (
           <Controller
             defaultValue={defaultValue}

@@ -76,17 +76,12 @@ const CreateComponentDialog = ({
         schema: schema && transformSchema(schema),
       },
       onSubmit: ({ model }) => {
-        const nextModel = { ...model }
-        if (model.materialID === 'NULL') {
-          nextModel.materialID = null
-        }
-
         createComponent({
           variables: {
             input: {
               machineID,
               componentType: wizard.componentType,
-              model: nextModel,
+              model,
             },
           },
         })

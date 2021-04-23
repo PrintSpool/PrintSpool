@@ -90,9 +90,11 @@ export const createValidate = ({
     // Replace react-hook-form nested object arrays with flat arrays
     const normalizedModel = {}
     Object.entries(model).forEach(([k, v]) => {
-      console.log(k)
+      // console.log(k)
 
-      if (isFlatArray(k)) {
+      if (k === "materialID") {
+        normalizedModel[k] = v || 'NULL'
+      } else if (isFlatArray(k)) {
         // console.log({ v })
         normalizedModel[k] = (v||[] as any).map(({ value }) => value)
       } else {
