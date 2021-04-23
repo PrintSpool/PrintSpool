@@ -14,7 +14,7 @@ import FormHelperText from '@material-ui/core/FormHelperText'
 const SchemaField = ({
   schema,
   name,
-  defaultValue = null,
+  defaultValue: defaultValueOverride = null,
   property: propertyNoRefs,
   register,
   control,
@@ -55,12 +55,14 @@ const SchemaField = ({
 
   const error = errors[fieldPath]
   const helperText = error?.message || error || property.description
+  const defaultValue = defaultValueOverride?.toString() || property.default?.toString() || ''
 
   switch (type) {
     case 'number':
     case 'integer':
     case 'string': {
       const componentType = type === 'string' ? 'text' : 'number'
+      // console.log({ name, defaultValue, property })
 
       // if (name === 'machineDefinitionURL') {
       //   return (
@@ -89,7 +91,6 @@ const SchemaField = ({
 
       if (isEnum) {
         // console.log('DEFAULT?', property.default, property)
-        const defaultValue = property.default || ''
         return (
           <Controller
             defaultValue={defaultValue}

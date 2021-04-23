@@ -49,10 +49,9 @@ pub struct ToolheadConfig {
     pub feedrate: f32,
 
     /// # Retraction and Re-priming Speed (mm/s)
-    /// To prevent dooling during print pausing and resuming set this to a higher feedrate
+    /// To prevent drooling during print pausing and resuming set this to a higher feedrate
     /// (eg. 50mm/s) and it will pull the filament away from the hotend on pause and move it back
     /// into the hot end on resume.
-    #[serde(default)]
     #[validate(range(min = 0, message = "Retraction speed cannot be less then 0"))]
     pub retraction_speed: f32,
 
@@ -64,12 +63,14 @@ pub struct ToolheadConfig {
     pub pause_retraction_distance: f32,
 
     /// # Material
+    #[serde(default)]
     #[serde(rename = "materialID")]
     pub material_id: Option<crate::DbId>,
 
     /// # Filament Swap Test Extrude (mm)
     /// Extrudes a small amount of filament to prime the extruder after a filament swap.
     /// Also retracts the filament by this same amount when removing filament.
+    #[serde(default)]
     #[validate(range(min = 0, message = "Filament swap extrude distance cannot be less then 0"))]
     pub filament_swap_extrude_distance: f32,
 
@@ -80,12 +81,14 @@ pub struct ToolheadConfig {
     pub filament_swap_fast_move_enabled: bool,
 
     /// # Bowden Tube Length (mm)
+    #[serde(default)]
     #[validate(range(min = 0, message = "Bowden tube length cannot be less then 0"))]
     pub bowden_tube_length: f32,
 
     /// # Bowden Tube Priming Speed (mm/s)
     /// This should be the maximum non-extruding speed that you can move filament
     /// through the bowden cable.
+    #[serde(default)]
     #[validate(range(min = 0, message = "Filament swap fast move speed cannot be less then 0"))]
     pub filament_swap_fast_move_speed: Option<f32>,
 
@@ -99,10 +102,12 @@ pub struct ToolheadConfig {
     /// # Continuous Pull Speed (mm/s)
     /// A slow extrude speed is recommended to gradually pull filament in to the cold end
     /// before the user clicks "Load Filament".
+    #[serde(default)]
     #[validate(range(min = 0, message = "Filament swap continuous pull speed cannot be less then 0"))]
     pub filament_swap_continuous_pull_speed: Option<f32>,
 
     /// # Before Filament Swap (GCode)
+    #[serde(default)]
     pub before_filament_swap_hook: String,
 }
 
