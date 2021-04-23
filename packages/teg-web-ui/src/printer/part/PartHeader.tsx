@@ -55,9 +55,14 @@ const PartHeader = ({
         centered
       >
         <Tab
-          label="Part"
+          label="Current Prints"
           component={RouterLink}
           to="./"
+        />
+        <Tab
+          label="Print History"
+          component={RouterLink}
+          to="./print-history"
         />
         <Tab
           label="Settings"

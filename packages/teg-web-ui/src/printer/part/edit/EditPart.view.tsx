@@ -45,7 +45,7 @@ const EditPartView = ({
     <div className={classes.root}>
       <PartHeader {...{
         part,
-        value: 1,
+        value: 2,
       }}/>
 
       <Card>

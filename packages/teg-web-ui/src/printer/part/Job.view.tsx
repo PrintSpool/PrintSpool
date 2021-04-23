@@ -42,9 +42,6 @@ const JobView = ({
   const task = tasks.find(t =>
     !['ERRORED', 'CANCELLED', 'FINISHED'].includes(t.status)
   )
-  const settledTasks = tasks.filter(t =>
-    ['ERRORED', 'CANCELLED', 'FINISHED'].includes(t.status)
-  )
 
   const videoComponents = task?.machine.components.filter(c => c.type === 'VIDEO') || []
 
@@ -98,20 +95,6 @@ const JobView = ({
               )}
             </div>
           ) }
-          <Typography variant="h5">
-            Print History
-          </Typography>
-          { settledTasks.map((task) => (
-            <Typography variant="body2" key={task.id}>
-              {`Print ${task.status.toLowerCase()} at `}
-              {new Date(Date.parse(task.stoppedAt)).toLocaleString()}
-            </Typography>
-          ))}
-          { settledTasks.length === 0 && (
-            <Typography variant="body2">
-              No previous prints
-            </Typography>
-          )}
           {
             task?.machine.components
               .filter(c => ['BUILD_PLATFORM', 'TOOLHEAD', 'FAN'].includes(c.type))
