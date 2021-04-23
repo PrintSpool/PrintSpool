@@ -13,6 +13,7 @@ import Report from '@material-ui/icons/Report'
 import StatusDialog from './StatusDialog'
 import useConfirm from '../../../../common/_hooks/useConfirm'
 import { useSnackbar } from 'notistack'
+import PrinterStatusGraphQL from '../../PrinterStatus.graphql'
 
 const useStyles = makeStyles(theme => ({
   leftIcon: {
@@ -50,18 +51,21 @@ const RESET = gql`
   mutation reset($machineID: ID!) {
     reset(machineID: $machineID) {
       id
-      status
+      ...PrinterStatus
     }
   }
+
+  ${PrinterStatusGraphQL}
 `
 
 const STOP = gql`
   mutation stop($machineID: ID!) {
     stop(machineID: $machineID) {
       id
-      status
+      ...PrinterStatus
     }
   }
+  ${PrinterStatusGraphQL}
 `
 
 const EStopResetToggle = ({

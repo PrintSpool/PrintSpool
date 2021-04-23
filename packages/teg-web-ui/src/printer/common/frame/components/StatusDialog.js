@@ -66,9 +66,9 @@ const StatusDialog = ({
             && (
             <div>
               <h3>Error Message</h3>
-              <p>{ error.message }</p>
+              <p>{ error?.message }</p>
               <h3>Error Code</h3>
-              <p>{ error.code }</p>
+              <p>{ error?.code }</p>
               <h3>Next Steps</h3>
               <p>
                 Please write down the error message and error code for

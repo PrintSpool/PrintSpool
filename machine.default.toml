@@ -99,18 +99,18 @@ package = "teg-core"
   swapXAndYOrientation = false
   beforePrintHook = ""
   afterPrintHook = """
-  ; Play a jingle to let you know the print is done
-  M300 S2093 P100
-  G04 P100
-  M300 S2093 P100
-  M300 S2349 P100
-  M300 S2093 P150
+; Play a jingle to let you know the print is done
+M300 S2093 P100
+G04 P100
+M300 S2093 P100
+M300 S2349 P100
+M300 S2093 P150
   """
   pauseHook = """
-  ; Move away from the print
-  { "moveTo": { "positions": {"x": 0, "y": 0} } }
-  ; Disable the heaters in case the print is paused for a while
-  M104 S0
+; Move away from the print
+{ "moveTo": { "positions": {"x": 0, "y": 0} } }
+; Disable the heaters in case the print is paused for a while
+M104 S0
   """
   resumeHook = """
   """
