@@ -170,6 +170,7 @@ const TaskStatusRow = ({
         display: 'grid',
         gridTemplateRows: '1fr',
         gridTemplateAreas: '"a"',
+        overflow: 'hidden',
       }}
     >
       <Grow
