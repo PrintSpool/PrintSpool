@@ -34,9 +34,10 @@ const Drawer = ({
     text,
     href,
     icon,
+    newTab,
   }) => {
     const linkComponent = useMemo(() => React.forwardRef((props, ref) => (
-      <Link to={href} innerRef={ref} {...props} />
+      <Link to={href} target="_blank" innerRef={ref} {...props} />
     )), [href])
 
     return (
@@ -99,6 +100,7 @@ const Drawer = ({
           text="GraphQL"
           icon={<Code />}
           href={`/m/${hostID}/${machineID}/graphql-playground/`}
+          newTab
         />
       </List>
     </div>

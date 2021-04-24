@@ -131,6 +131,9 @@ const Routes = () => {
         </Route>
       )}
       { isSignedIn && (
+        <Route exact path="/:m/:hostID/:machineID/graphql-playground/" component={GraphQLPlayground} />
+      )}
+      { isSignedIn && (
         <Route>
           <Switch>
             <Route
@@ -200,8 +203,6 @@ const Routes = () => {
                   <Route exact strict path="/:m/:hostID/:machineID/printing/:partID/" component={PartPage} />
                   <Route exact strict path="/:m/:hostID/:machineID/printing/:partID/print-history" component={PrintHistoryPage} />
                   <Route exact strict path="/:m/:hostID/:machineID/printing/:partID/settings" component={EditPartPage} />
-
-                  <Route exact path="/:m/:hostID/:machineID/graphql-playground/" component={GraphQLPlayground} />
 
                   <Route
                     path="/m/:hostID/:machineID/manual-control/"
