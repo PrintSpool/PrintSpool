@@ -29,42 +29,43 @@ const ZJogButtons = ({ machine }) => {
   const startContinuous = isContinuous ? continuousMove.start : () => null
 
   return (
-    <Card>
-      <CardContent>
-        <Grid
-          container
-          spacing={3}
-        >
-          <JogDistanceButtons
-            distanceOptions={distanceOptions}
-            input={{
-              value: distance,
-              onChange,
-            }}
-          />
-          <JogButton
-            xs={12}
-            onClick={jog('z', 1)}
-            onMouseDown={startContinuous({ z: { forward: true } })}
-          >
-            <ArrowUpward />
-          </JogButton>
-          <JogButton
-            xs={12}
-            disabled
-          >
-            Z
-          </JogButton>
-          <JogButton
-            xs={12}
-            onClick={jog('z', -1)}
-            onMouseDown={startContinuous({ z: { forward: false } })}
-          >
-            <ArrowDownward />
-          </JogButton>
-        </Grid>
-      </CardContent>
-    </Card>
+    <Grid
+      container
+      style={{
+        flex: 1,
+      }}
+    >
+      <JogButton
+        xs={12}
+        onClick={jog('z', 1)}
+        onMouseDown={startContinuous({ z: { forward: true } })}
+      >
+        <ArrowUpward />
+      </JogButton>
+      <JogButton
+        xs={12}
+        disabled
+      >
+        Z
+      </JogButton>
+      <JogButton
+        xs={12}
+        onClick={jog('z', -1)}
+        onMouseDown={startContinuous({ z: { forward: false } })}
+      >
+        <ArrowDownward />
+      </JogButton>
+      <JogDistanceButtons
+        style={{
+          marginTop: 8,
+        }}
+        distanceOptions={distanceOptions}
+        input={{
+          value: distance,
+          onChange,
+        }}
+      />
+    </Grid>
   )
 }
 

@@ -52,7 +52,7 @@ const ExtruderButton = ({
         <Button
           key={key}
           variant="outlined"
-          color={key === 'extrude' ? 'primary' : 'default'}
+          // color={key === 'extrude' ? 'primary' : 'default'}
           disabled={!isReady || coldExtrude}
           onClick={jog(component.address, key === 'extrude' ? 1 : -1)}
           onMouseDown={startContinuous({ [component.address]: { forward: key === 'extrude' } })}

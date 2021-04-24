@@ -1,10 +1,8 @@
 import React from 'react'
-import {
-  Card,
-  CardContent,
-  Button,
-  Typography,
-} from '@material-ui/core'
+import Button from '@material-ui/core/Button'
+import Typography from '@material-ui/core/Typography'
+import ButtonGroup from '@material-ui/core/ButtonGroup'
+import FormGroup from '@material-ui/core/FormGroup'
 
 import useExecGCodes from '../../_hooks/useExecGCodes'
 
@@ -19,40 +17,46 @@ const Home = ({
   }))
 
   return (
-    <Card>
-      <CardContent style={{ paddingBottom: 16 }}>
-        <Typography variant="subtitle1">
-          <div style={{ float: 'right', marginTop: -4 }}>
-            <Button
-              onClick={home(['x'])}
-            >
-              X
-            </Button>
-            <Button
-              onClick={home(['y'])}
-            >
-              Y
-            </Button>
-            <Button
-              onClick={home(['z'])}
-            >
-              Z
-            </Button>
-            <Button
-              onClick={home(['x', 'y'])}
-            >
-              X&Y
-            </Button>
-            <Button
-              onClick={home('all')}
-            >
-              All
-            </Button>
-          </div>
+    <FormGroup row style={{
+      marginBottom: 16,
+    }}>
+        <Typography
+          variant="body1"
+          style={{
+            alignSelf: 'center',
+            marginRight: 8,
+          }}
+        >
           Home
         </Typography>
-      </CardContent>
-    </Card>
+        <ButtonGroup aria-label="home">
+          <Button
+              onClick={home('all')}
+            >
+            All
+          </Button>
+          <Button
+            onClick={home(['x', 'y'])}
+          >
+            {'X&Y'}
+          </Button>
+          <Button
+            onClick={home(['x'])}
+          >
+            X
+          </Button>
+          <Button
+            onClick={home(['y'])}
+          >
+            Y
+          </Button>
+          <Button
+            onClick={home(['z'])}
+          >
+            Z
+          </Button>
+        </ButtonGroup>
+    </FormGroup>
   )
 }
 

@@ -24,7 +24,9 @@ const FanSection = ({
   }), [address])
 
   return (
-    <div>
+    <div style={{
+      textAlign: 'right',
+    }}>
       <Typography variant="h4" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
         {targetSpeed == null ? 'OFF' : `${targetSpeed.toFixed(1)}%`}
       </Typography>

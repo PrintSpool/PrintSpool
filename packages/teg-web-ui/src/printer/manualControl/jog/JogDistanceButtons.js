@@ -8,13 +8,14 @@ import useStyle from './JogButtonDistanceButtons.styles'
 
 const JogDistanceButtons = ({
   className,
+  style,
   distanceOptions,
   input,
 }) => {
   const classes = useStyle()
 
   return (
-    <Grid item xs={12} className={`${classes.root} ${className}`}>
+    <Grid item xs={12} className={`${classes.root} ${className}`} style={style}>
       { distanceOptions.map(value => (
         <Button
           key={value.toString()}

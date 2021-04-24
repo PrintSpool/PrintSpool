@@ -1,10 +1,7 @@
 import React from 'react'
-import {
-  Card,
-  CardContent,
-  Typography,
-  Switch,
-} from '@material-ui/core'
+
+import Switch from '@material-ui/core/Switch'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
 
 import useExecGCodes from '../_hooks/useExecGCodes'
 
@@ -19,20 +16,19 @@ const MotorsEnabled = ({
   }))
 
   return (
-    <Card>
-      <CardContent style={{ paddingBottom: 16 }}>
-        <Typography variant="subtitle1">
-          <div style={{ float: 'right', marginTop: -4 }}>
-            <Switch
-              checked={machine.motorsEnabled}
-              onChange={toggleMotorsEnabled}
-              aria-label="motor-power"
-            />
-          </div>
-          Motors Enabled
-        </Typography>
-      </CardContent>
-    </Card>
+    <FormControlLabel
+      style={{
+        marginBottom: 16,
+      }}
+      control={
+        <Switch
+          checked={machine.motorsEnabled}
+          onChange={toggleMotorsEnabled}
+          aria-label="motor-power"
+        />
+      }
+      label="Enable Motors"
+    />
   )
 }
 

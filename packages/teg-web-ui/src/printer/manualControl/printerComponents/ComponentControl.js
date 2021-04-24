@@ -79,7 +79,7 @@ const ComponentControl = ({
           container
         >
           <Grid item xs={12} md={component.fan ? 12 : 4}>
-            <Typography variant="subtitle1">
+            <Typography variant="body1">
               {component.name}
               {' '}
               {toolhead && (

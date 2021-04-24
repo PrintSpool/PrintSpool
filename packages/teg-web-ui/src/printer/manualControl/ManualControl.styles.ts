@@ -40,6 +40,41 @@ const useStyles = makeStyles(theme => ({
     //   paddingRight: theme.spacing(2),
     // },
   },
+  generalControls: {
+    display: 'flex',
+    justifyContent: 'space-between',
+
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+    },
+    [theme.breakpoints.up('md')]: {
+      flexDirection: 'row',
+    },
+  },
+  generalAndJogDivider: {
+    marginBottom: theme.spacing(2),
+  },
+  jogButtons: {
+    display: 'flex',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+    },
+    [theme.breakpoints.up('md')]: {
+      flexDirection: 'row',
+    },
+  },
+  jogDivider: {
+    display: 'flex',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+      marginTop: theme.spacing(2),
+      marginBottom: theme.spacing(2),
+    },
+    [theme.breakpoints.up('md')]: {
+      marginLeft: theme.spacing(4),
+      marginRight: theme.spacing(4),
+    },
+  },
   fansAndHeatersContainer: {
     // margin: 0,
     // width: '100%',

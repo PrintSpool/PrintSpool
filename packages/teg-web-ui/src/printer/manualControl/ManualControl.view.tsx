@@ -1,9 +1,12 @@
 import React from 'react'
-import {
-  Grid,
-  Typography,
-} from '@material-ui/core'
 import Loader from 'react-loader-advanced'
+
+import Grid from '@material-ui/core/Grid'
+import Typography from '@material-ui/core/Typography'
+import Divider from '@material-ui/core/Divider'
+import Hidden from '@material-ui/core/Hidden'
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
 
 import Home from './home/Home'
 import MotorsEnabled from './MotorsEnabled'
@@ -23,6 +26,15 @@ const ManualControlView = ({
   const classes = useStyles()
 
   const videos = machine.components.filter(c => c.type === 'VIDEO')
+
+  const components = machine.components
+    .filter(c => ['BUILD_PLATFORM', 'TOOLHEAD', 'FAN'].includes(c.type))
+
+  components.sort((a, b) => {
+    if (a.heater && !b.heater) return -1
+    if (b.heater && !a.heater) return 1
+    return (a.address || '').localeCompare(b.address || '')
+  })
 
   return (
     <div className={classes.root}>
@@ -61,23 +73,37 @@ const ManualControlView = ({
               width: '100%',
             }}
           >
-            <Grid item xs={12} lg={6}>
-              <Home machine={machine} />
-            </Grid>
-            <Grid item xs={12} lg={6}>
-              <MotorsEnabled machine={machine} />
-            </Grid>
-            <Grid item xs={12} sm={8}>
-              <XYJogButtons machine={machine} />
-            </Grid>
-            <Grid item xs={12} sm={4}>
-              <ZJogButtons machine={machine} />
+            <Grid item xs={12} sm={12}>
+              <Card style={{
+                marginBottom: 16,
+              }}>
+                <CardContent style={{ paddingBottom: 16 }}>
+                  <div className={classes.generalControls}>
+                    <Home machine={machine} />
+                    <MotorsEnabled machine={machine} />
+                  </div>
+                  <Hidden mdUp>
+                    <Divider className={classes.generalAndJogDivider}/>
+                  </Hidden>
+                  <div className={classes.jogButtons}>
+                    <XYJogButtons machine={machine} />
+                    <div className={classes.jogDivider}>
+                      <Hidden smDown>
+                        <Divider orientation="vertical" flexItem />
+                      </Hidden>
+                      <Hidden mdUp>
+                        <Divider />
+                      </Hidden>
+                    </div>
+                    <ZJogButtons machine={machine} />
+                  </div>
+                </CardContent>
+              </Card>
             </Grid>
           </Grid>
         </Loader>
         {
-          machine.components
-            .filter(c => ['BUILD_PLATFORM', 'TOOLHEAD', 'FAN'].includes(c.type))
+          components
             .map(component => (
               <ComponentControl
                 key={component.id}

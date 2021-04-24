@@ -33,52 +33,54 @@ const XYJogButtons = ({ machine }) => {
   const axes = ['x', 'y']
 
   return (
-    <Card>
-      <CardContent>
-        <Grid
-          container
-        >
-          <JogDistanceButtons
-            distanceOptions={distanceOptions}
-            input={{
-              value: distance,
-              onChange,
-            }}
-          />
-          <JogButton
-            xs={12}
-            onClick={jog(axes[1], -1)}
-            onMouseDown={startContinuous({ [axes[1]]: { forward: false } })}
-          >
-            <ArrowUpward />
-          </JogButton>
-          <JogButton
-            xs={4}
-            onClick={jog(axes[0], -1)}
-            onMouseDown={startContinuous({ [axes[0]]: { forward: false } })}
-          >
-            <ArrowBack />
-          </JogButton>
-          <JogButton xs={4} disabled>
-            XY
-          </JogButton>
-          <JogButton
-            xs={4}
-            onClick={jog(axes[0], 1)}
-            onMouseDown={startContinuous({ [axes[0]]: { forward: true } })}
-          >
-            <ArrowForward />
-          </JogButton>
-          <JogButton
-            xs={12}
-            onClick={jog(axes[1], 1)}
-            onMouseDown={startContinuous({ [axes[1]]: { forward: true } })}
-          >
-            <ArrowDownward />
-          </JogButton>
-        </Grid>
-      </CardContent>
-    </Card>
+    <Grid
+      container
+      style={{
+        flex: 1,
+      }}
+    >
+      <JogButton
+        xs={12}
+        onClick={jog(axes[1], -1)}
+        onMouseDown={startContinuous({ [axes[1]]: { forward: false } })}
+      >
+        <ArrowUpward />
+      </JogButton>
+      <JogButton
+        xs={4}
+        onClick={jog(axes[0], -1)}
+        onMouseDown={startContinuous({ [axes[0]]: { forward: false } })}
+      >
+        <ArrowBack />
+      </JogButton>
+      <JogButton xs={4} disabled>
+        XY
+      </JogButton>
+      <JogButton
+        xs={4}
+        onClick={jog(axes[0], 1)}
+        onMouseDown={startContinuous({ [axes[0]]: { forward: true } })}
+      >
+        <ArrowForward />
+      </JogButton>
+      <JogButton
+        xs={12}
+        onClick={jog(axes[1], 1)}
+        onMouseDown={startContinuous({ [axes[1]]: { forward: true } })}
+      >
+        <ArrowDownward />
+      </JogButton>
+      <JogDistanceButtons
+        style={{
+          marginTop: 8,
+        }}
+        distanceOptions={distanceOptions}
+        input={{
+          value: distance,
+          onChange,
+        }}
+      />
+    </Grid>
   )
 }
 
