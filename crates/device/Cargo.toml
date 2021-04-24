@@ -15,7 +15,7 @@ teg_machine = { path = "../machine" }
 
 eyre = "0.6.5"
 serde_json = { version = "1.0.44", features = ["raw_value"] }
-async-graphql = { version = "2.6.5", features = ["tracing",  "chrono", "url"] }
+async-graphql = { version = "2.6.5", features = ["apollo_tracing", "tracing",  "chrono", "url"] }
 xactor = { git = "https://github.com/sunli829/xactor.git", branch = "master",  default-features = false, features = ["runtime-async-std", "eyre"] }
 async-trait = "0.1.36"
 tracing = "0.1.25"

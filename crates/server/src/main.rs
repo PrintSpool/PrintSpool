@@ -261,6 +261,7 @@ async fn app() -> Result<()> {
             async_graphql::EmptySubscription,
         )
             .extension(async_graphql::extensions::Tracing::default())
+            .extension(async_graphql::extensions::ApolloTracing)
             .data(db_clone.clone())
             .data(server_keys_clone.clone())
             .data(signalling_updater.clone())

@@ -28,7 +28,7 @@ teg_device = { path = "../device" }
 teg-json-store = { path = "../json-store" }
 teg-print-queue = { path = "../print-queue" }
 
-async-graphql = { version = "2.6.5", features = ["tracing",  "chrono", "url"] }
+async-graphql = { version = "2.6.5", features = ["apollo_tracing", "tracing",  "chrono", "url"] }
 async-graphql-warp = { version = "2.6.5" }
 serde_json = { version = "1.0.44", features = ["raw_value"] }
 derive-new = "0.5.8"
