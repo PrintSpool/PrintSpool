@@ -37,7 +37,12 @@ const Drawer = ({
     newTab,
   }) => {
     const linkComponent = useMemo(() => React.forwardRef((props, ref) => (
-      <Link to={href} target="_blank" innerRef={ref} {...props} />
+      <Link
+        to={href}
+        target={newTab ? '_blank' : null}
+        innerRef={ref}
+        {...props}
+      />
     )), [href])
 
     return (
