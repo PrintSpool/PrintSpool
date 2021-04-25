@@ -188,7 +188,7 @@ impl ReadyState {
                                     return Loop::new(
                                         Ready(self),
                                         vec![
-                                            Effect::ProtobufSend,
+                                            Effect::SendFeedbackProtobuf,
                                             Effect::ExitProcessAfterDelay,
                                         ],
                                     )
@@ -196,7 +196,7 @@ impl ReadyState {
 
                                 Loop::new(
                                     Ready(self),
-                                    vec![Effect::ProtobufSend],
+                                    vec![Effect::SendFeedbackProtobuf],
                                 )
                             }
                             _ => {
@@ -390,7 +390,7 @@ impl ReadyState {
                     event: PollFeedback,
                 };
 
-                Ok(vec![delay, Effect::ProtobufSend])
+                Ok(vec![delay, Effect::SendFeedbackProtobuf])
             },
             Feedback::Positions(positions) => {
                 // set actual_positions
@@ -498,7 +498,7 @@ impl ReadyState {
                 context.handle_state_change(&Ready( self.clone() ));
 
                 // let the protobuf clients know that the machine is ready
-                effects.push(Effect::ProtobufSend);
+                effects.push(Effect::SendFeedbackProtobuf);
 
                 self.on_ok = OnOK::Despool;
                 self.receive_ok(effects, context)?;
@@ -537,7 +537,7 @@ impl ReadyState {
                     task.started = true;
 
                     effects.push(
-                        Effect::ProtobufSend,
+                        Effect::SendFeedbackProtobuf,
                     );
                 };
 
@@ -575,7 +575,7 @@ impl ReadyState {
                 context.push_finish_task(&task);
 
                 effects.push(
-                    Effect::ProtobufSend,
+                    Effect::SendFeedbackProtobuf,
                 );
 
                 let _ = self.tasks.pop_front();

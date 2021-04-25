@@ -4,16 +4,7 @@
 
 #[macro_use] extern crate tracing;
 #[macro_use] extern crate error_chain;
-
-// extern crate bytes;
-// extern crate futures;
-// extern crate tokio;
-// extern crate tokio_serial;
-// // extern crate combine;
-// extern crate bus_queue;
-// extern crate serde;
-// extern crate toml;
-// extern crate gcode;
+#[macro_use] extern crate lazy_static;
 
 mod protobuf_server;
 pub mod gcode_codec;
@@ -31,6 +22,7 @@ pub use serial_manager::SerialManager;
 pub use teg_machine::config::MachineConfig;
 
 use std::{collections::HashMap};
+use chrono::prelude::*;
 // use std::sync::{Arc, Mutex};
 
 // use futures_core::{ future, Poll };
@@ -91,6 +83,11 @@ error_chain! {}
 // type SerialSender = Arc<Mutex<SplitSink<tokio::codec::Framed<tokio_serial::Serial, GCodeCodec>, GCodeLine>>>;
 // type SerialSender = mpsc::Sender<GCodeLine>;
 
+
+lazy_static! {
+    pub static ref PROCESS_STARTED_AT: DateTime<Utc> = Utc::now();
+}
+
 pub struct StateMachineReactor {
     pub event_sender: mpsc::Sender<Event>,
     pub protobuf_broadcast: bus_queue::flavors::arc_swap::Publisher<Bytes>,
@@ -121,6 +118,7 @@ async fn tick_state_machine(
 pub async fn start(
     config_path: String,
 ) -> eyre::Result<()> {
+    lazy_static::initialize(&PROCESS_STARTED_AT);
     dotenv::dotenv().ok();
 
     tracing_subscriber::fmt::init();

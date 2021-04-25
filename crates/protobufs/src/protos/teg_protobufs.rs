@@ -116,10 +116,15 @@ pub struct InviteCode {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MachineMessage {
     /// 1-8: Payloads
-    #[prost(oneof="machine_message::Payload", tags="1")]
+    #[prost(oneof="machine_message::Payload", tags="1, 2")]
     pub payload: ::std::option::Option<machine_message::Payload>,
 }
 pub mod machine_message {
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct Init {
+        #[prost(int64, tag="1")]
+        pub process_started_at_nanos: i64,
+    }
     /// Note: Feedback is a seperate message from MachineMessage so it's indexing is namespaced and
     /// do not need to avoid collisions with payload indexes.
     #[derive(Clone, PartialEq, ::prost::Message)]
@@ -257,6 +262,8 @@ pub mod machine_message {
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Payload {
         #[prost(message, tag="1")]
+        Init(Init),
+        #[prost(message, tag="2")]
         Feedback(Feedback),
     }
 }

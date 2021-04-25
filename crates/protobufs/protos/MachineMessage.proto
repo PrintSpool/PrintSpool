@@ -5,7 +5,12 @@ package teg_protobufs;
 message MachineMessage {
   // 1-8: Payloads
   oneof payload {
-    Feedback feedback = 1;
+    Init init = 1;
+    Feedback feedback = 2;
+  }
+
+  message Init {
+    int64 process_started_at_nanos = 1;
   }
 
   // Note: Feedback is a seperate message from MachineMessage so it's indexing is namespaced and

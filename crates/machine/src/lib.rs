@@ -39,3 +39,13 @@ pub type MachineMap = Arc<ArcSwap<MachineMapLocal>>;
 
 pub use machine::machine_hooks::MachineHooks;
 pub type MachineHooksList = Arc<Vec<Box<dyn MachineHooks + Send + Sync>>>;
+
+use chrono::prelude::*;
+
+lazy_static! {
+    pub static ref PROCESS_STARTED_AT: DateTime<Utc> = Utc::now();
+}
+
+pub fn initialize_statics() {
+    lazy_static::initialize(&PROCESS_STARTED_AT);
+}

@@ -21,7 +21,7 @@ pub fn disconnect(state: &State, context: &mut Context) -> Loop {
     let effects = vec![
         Effect::CancelAllDelays,
         Effect::CloseSerialPort,
-        Effect::ProtobufSend,
+        Effect::SendFeedbackProtobuf,
         // TODO: try to re-open the serial port immediately in case a new port is already available
         // Effect::DetectSerialPort,
     ];

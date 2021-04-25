@@ -1,7 +1,4 @@
-use std::{fs, path::PathBuf, time::{
-        Duration,
-        // Instant,
-    }};
+use std::{fs, path::PathBuf};
 
 // use futures::compat::{
 //     Stream01CompatExt,
@@ -90,17 +87,19 @@ async fn handle_connection(
     // NodeJS sometimes needs a delay after opening the unix socket to prevent it from dropping the first message
     // See: https://github.com/nodejs/help/issues/521
     tokio::spawn(async move {
-        debug!("New connection received. Waiting 100ms.");
+        // debug!("New connection received. Waiting 100ms.");
 
-        tokio::time::delay_for(Duration::from_millis(100)).await;
+        // tokio::time::delay_for(Duration::from_millis(100)).await;
 
-        connection_event_sender.send(Event::ProtobufClientConnection).await
-            .expect("Unable to send connection event");
-
-        tokio::time::delay_for(Duration::from_millis(500)).await;
+        debug!("New protobuf socket connection received");
 
         connection_event_sender.send(Event::ProtobufClientConnection).await
             .expect("Unable to send connection event");
+
+        // tokio::time::delay_for(Duration::from_millis(500)).await;
+
+        // connection_event_sender.send(Event::ProtobufClientConnection).await
+        //     .expect("Unable to send connection event");
 
         info!("Socket Ready");
     });

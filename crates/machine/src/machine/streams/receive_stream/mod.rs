@@ -17,8 +17,12 @@ use crate::machine::{
 use crate::machine::messages::ConnectToSocket;
 
 pub mod codec;
+
 mod record_feedback;
 use record_feedback::record_feedback;
+
+mod record_init;
+use record_init::record_init;
 
 type RxResult = std::result::Result<MachineMessage, ReadFrameError<eyre::Error>>;
 
@@ -40,14 +44,19 @@ impl StreamHandler<RxResult> for Machine
 
         trace!("Socket Message Received");
 
-        let feedback = match msg.payload {
-            Some(
-                machine_message::Payload::Feedback(feedback)
-            ) => feedback,
+        use machine_message::Payload::{Init, Feedback};
+
+        let result = match msg.payload {
+            Some(Init(init)) => {
+                record_init(self, init, ctx).await
+            }
+            Some(Feedback(feedback)) => {
+                record_feedback(self, feedback).await
+            },
             _ => return,
         };
 
-        if let Err(err) = record_feedback(self, feedback).await {
+        if let Err(err) = result {
             error!("Restarting machine #{} due to rx error: {:?}", self.id, err);
             ctx.stop(Some(err));
         };

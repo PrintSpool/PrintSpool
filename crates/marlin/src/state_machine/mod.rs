@@ -106,7 +106,7 @@ fn errored(message: String, state: &State, context: &mut Context) -> Loop {
 
     let effects = vec![
         Effect::CancelAllDelays,
-        Effect::ProtobufSend,
+        Effect::SendFeedbackProtobuf,
     ];
 
     Loop::new(next_state, effects)
@@ -115,7 +115,7 @@ fn errored(message: String, state: &State, context: &mut Context) -> Loop {
 fn append_to_error(message: String, next_line: &String, context: &mut Context) -> Loop {
     let effects = vec![
         Effect::CancelAllDelays,
-        Effect::ProtobufSend,
+        Effect::SendFeedbackProtobuf,
     ];
 
     let message = format!("{}\n{}", message, next_line);
@@ -168,7 +168,7 @@ impl State {
         if let ProtobufClientConnection = &event {
             return Loop::new(
                 self,
-                vec![Effect::ProtobufSend],
+                vec![Effect::SendInitProtobuf, Effect::SendFeedbackProtobuf],
             )
         }
 
@@ -218,7 +218,7 @@ impl State {
                             Effect::CloseSerialPort,
                             Effect::OpenSerialPort { baud_rate: 19_200 },
                             Effect::CancelAllDelays,
-                            Effect::ProtobufSend,
+                            Effect::SendFeedbackProtobuf,
                         ],
                     )
                 }
@@ -402,7 +402,7 @@ impl State {
             if new_connection {
                 info!("Connecting to serial device...");
                 context.handle_state_change(&next_state);
-                effects.push(Effect::ProtobufSend);
+                effects.push(Effect::SendFeedbackProtobuf);
             }
 
             Loop::new(

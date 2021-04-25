@@ -4208,6 +4208,7 @@ dependencies = [
  "eyre",
  "fallible-iterator",
  "futures 0.3.12",
+ "lazy_static",
  "mio 0.6.23",
  "nix 0.20.0",
  "nom 6.1.2",

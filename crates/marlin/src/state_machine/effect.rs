@@ -62,7 +62,8 @@ pub enum Effect {
     SendSerial ( GCodeLine ),
     OpenSerialPort { baud_rate: u32 },
     // ResetSerial
-    ProtobufSend,
+    SendInitProtobuf,
+    SendFeedbackProtobuf,
     LoadGCode {
         file_path: String,
         task_id: crate::DbId,
@@ -138,22 +139,45 @@ impl Effect {
                     .await
                     .unwrap();
             }
-            Effect::ProtobufSend => {
+            Effect::SendInitProtobuf => {
+                use teg_protobufs::{
+                    MachineMessage,
+                    machine_message::{ Payload, Init },
+                };
+
+                // Create a protobuf init message
+                let message = MachineMessage {
+                    payload: Some(Payload::Init (Init {
+                        process_started_at_nanos: crate::PROCESS_STARTED_AT.timestamp_nanos(),
+                    })),
+                };
+
+                let mut buf = Vec::with_capacity(message.encoded_len());
+                message.encode(&mut buf).expect("machine message encoding failed");
+
+                reactor.protobuf_broadcast
+                    .send(Bytes::from(buf))
+                    .await
+                    .expect("machine message send failed");
+            }
+            Effect::SendFeedbackProtobuf => {
                 use teg_protobufs::{
                     MachineMessage,
                     machine_message::{ Feedback, Payload },
                 };
-                let empty_feedback: Feedback = Feedback::default();
 
+                // Update the feedback
                 reactor.context.add_gcode_history_to_feedback();
 
+                // take the feedback from reactor.context
                 let mut feedback = std::mem::replace(
                     &mut reactor.context.feedback,
-                    empty_feedback,
+                    Feedback::default(),
                 );
 
                 feedback.machine_flags = reactor.context.machine_flags.bits();
 
+                // Create a protobuf message around the feedback
                 let message = MachineMessage {
                     payload: Some(Payload::Feedback (
                         feedback,
@@ -163,14 +187,12 @@ impl Effect {
                 let mut buf = Vec::with_capacity(message.encoded_len());
                 message.encode(&mut buf).expect("machine message encoding failed");
 
-                reactor.context.feedback = message.payload
-                    .map(|payload| {
-                        match payload {
-                            Payload::Feedback (feedback) => Some(feedback)
-                        }
-                    })
-                    .flatten()
-                    .expect("Missing message payload in ProtobufSend");
+                // re-store the feedback in reactor.context
+                if let Some(Payload::Feedback(feedback)) = message.payload {
+                    reactor.context.feedback = feedback;
+                } else {
+                    panic!("Feedback protobuf did not contain the expected payload");
+                }
 
                 // eprintln!("Protobuf TX ({:?} Bytes)", message.encoded_len());
                 // eprintln!("Protobuf TX ({:?} Bytes): {:#?}", message.encoded_len(), message.payload);
