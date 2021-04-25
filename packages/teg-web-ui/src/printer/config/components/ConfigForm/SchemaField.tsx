@@ -232,6 +232,7 @@ const SchemaField = ({
           )}
           {fields.length === 0 && (
             <Typography variant="body1" style={{
+              marginTop: 16,
               marginBottom: 16,
               color: '#999',
               textAlign: 'center',
