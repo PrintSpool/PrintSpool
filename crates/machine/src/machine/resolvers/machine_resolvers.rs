@@ -80,6 +80,7 @@ impl MachineData {
             "CONTROLLER".into(),
             "AXIS".into(),
             "BUILD_PLATFORM".into(),
+            "TOOLHEAD".into(),
         ])
     }
 
