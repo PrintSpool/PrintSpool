@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { gql } from '@apollo/client'
 import { useMutation } from '@apollo/client'
 import useReactRouter from 'use-react-router'
@@ -137,12 +137,21 @@ const JobPage = () => {
     || resumeMutation.error
   )
 
+  useEffect(() => {
+    if (mutationError == null) {
+      return
+    }
+
+    enqueueSnackbar(
+      `Error: ${mutationError?.message || mutationError}`,
+      {
+        variant: 'error',
+      },
+    )
+  }, [mutationError])
+
   if (error) {
     throw error
-  }
-
-  if (mutationError) {
-    throw mutationError
   }
 
   if (loading || !data) {

@@ -13,6 +13,7 @@ import { Route } from 'react-router'
 import { GraphQL, GraphQLProvider } from 'graphql-react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import useRouter from 'use-react-router'
+import Button from '@material-ui/core/Button'
 
 import TegApolloProvider from './webrtc/TegApolloProvider'
 import { AuthProvider } from './common/auth'
@@ -44,42 +45,60 @@ const RouterErrorBoundary = ({ children }) => {
   )
 }
 
-const App = () => (
-  <CssBaseline>
-    <ThemeProvider theme={theme}>
-      <GraphQLProvider graphql={graphql}>
-        <SnackbarProvider maxSnack={3}>
-          <ConfirmProvider>
-            <PrintFilesContext.Provider value={useState()}>
-              <React.Suspense fallback={<Loading fullScreen />}>
-                <BrowserRouter>
-                  <RouterErrorBoundary>
-                    <AuthProvider>
-                      <Route
-                        path={[
-                          '/m/:hostID/',
-                          '/q/:hostID/',
-                          '/',
-                        ]}
-                        render={() => (
-                          <TegApolloProvider>
-                            <Routes />
-                          </TegApolloProvider>
-                        )}
-                      />
-                    </AuthProvider>
-                  </RouterErrorBoundary>
-                </BrowserRouter>
-              </React.Suspense>
-              {
-                // <ReduxSnackbar />
-              }
-            </PrintFilesContext.Provider>
-          </ConfirmProvider>
-        </SnackbarProvider>
-      </GraphQLProvider>
-    </ThemeProvider>
-  </CssBaseline>
-)
+const App = () => {
+  const notistackRef: any = React.createRef();
+  const onClickDismiss = key => () => {
+      notistackRef.current.closeSnackbar(key)
+  }
+
+  return (
+    <CssBaseline>
+      <ThemeProvider theme={theme}>
+        <GraphQLProvider graphql={graphql}>
+          <SnackbarProvider
+            ref={notistackRef}
+            maxSnack={3}
+            action={(key) => (
+              <Button
+                onClick={onClickDismiss(key)}
+                style={{ color: 'white' }}
+              >
+                  Dismiss
+              </Button>
+            )}
+          >
+            <ConfirmProvider>
+              <PrintFilesContext.Provider value={useState()}>
+                <React.Suspense fallback={<Loading fullScreen />}>
+                  <BrowserRouter>
+                    <RouterErrorBoundary>
+                      <AuthProvider>
+                        <Route
+                          path={[
+                            '/m/:hostID/',
+                            '/q/:hostID/',
+                            '/',
+                          ]}
+                          render={() => (
+                            <TegApolloProvider>
+                              <Routes />
+                            </TegApolloProvider>
+                          )}
+                        />
+                      </AuthProvider>
+                    </RouterErrorBoundary>
+                  </BrowserRouter>
+                </React.Suspense>
+                {
+                  // <ReduxSnackbar />
+                }
+              </PrintFilesContext.Provider>
+            </ConfirmProvider>
+          </SnackbarProvider>
+        </GraphQLProvider>
+      </ThemeProvider>
+    </CssBaseline>
+  )
+}
 
 export default App

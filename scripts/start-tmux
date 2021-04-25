@@ -9,6 +9,6 @@ tmux new-session -s "teg" -n "server" -d \
 # tmux new-window -n "supervisor" \
 #   '$SHELL --rcfile <(echo ". ~/.bashrc; cd ./crates/ && history -s \"cargo watch -x \\\"run --bin teg-supervisor\\\"\" && cargo watch -x \"run --bin teg-supervisor\"")'
 tmux new-window -n "web-ui" \
-  '$SHELL --rcfile <(echo ". ~/.bashrc; cd ./packages/teg-web-ui/ && history -s \"yarn start\" && yarn start")'
+  '$SHELL --rcfile <(echo ". ~/.bashrc; cd ./packages/teg-web-ui/ && nvm use && history -s \"yarn start\" && yarn start")'
 
 tmux -2 attach-session -d
