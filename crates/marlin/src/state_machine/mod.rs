@@ -386,6 +386,17 @@ impl State {
 
             // If the controller does not send a greeting then skip waiting for it
             if !context.controller.model.await_greeting_from_firmware {
+                if context.controller.model.automatic_baud_rate_detection {
+                    return errored(
+                        r#"
+                            Cannot use automatic baud rate detection when await greeting
+                            from firmware is disabled
+                        "#.into(),
+                        &self,
+                        context
+                    );
+                }
+
                 if let Connecting(connecting) = next_state {
                     let Loop {
                         next_state: after_greeting,
