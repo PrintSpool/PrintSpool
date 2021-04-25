@@ -48,7 +48,7 @@ const UpdateDialogView = ({
           <DialogTitle id="form-dialog-title">{title || name || id}</DialogTitle>
           <StatusFilter
             status={hasPendingUpdates ? 'UPDATES_PENDING' : status}
-            not={['PRINTING', 'UPDATES_PENDING']}
+            not={['UPDATES_PENDING']}
             title={() => {
               if (hasPendingUpdates) {
                 return (
@@ -71,7 +71,7 @@ const UpdateDialogView = ({
                 <Link to="delete" style={{ textDecoration: 'none' }}>
                   <Button
                     color="secondary"
-                    disabled={hasPendingUpdates || status === 'PRINTING'}
+                    disabled={hasPendingUpdates}
                   >
                     Delete
                   </Button>
@@ -84,7 +84,7 @@ const UpdateDialogView = ({
             <Button
               type="submit"
               color="primary"
-              disabled={hasPendingUpdates || status === 'PRINTING'}
+              disabled={hasPendingUpdates}
             >
               Save
             </Button>
