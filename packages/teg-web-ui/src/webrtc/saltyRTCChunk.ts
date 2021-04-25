@@ -115,7 +115,7 @@ export const chunkifier = (opts, peer) => {
   // let timeout
 
   const sendNextChunks = () => {
-    peer._channel.removeEventListener('bufferedamountlow', sendNextChunks)
+    peer._channel?.removeEventListener('bufferedamountlow', sendNextChunks)
 
     // timeout = null
     // let { bufferedAmount } = channel
@@ -128,7 +128,7 @@ export const chunkifier = (opts, peer) => {
       const chunk = chunks.shift()
       peer.send(chunk)
 
-      if (peer._channel.bufferedAmount > BUFFER_HIGH) {
+      if (peer._channel != null && peer._channel.bufferedAmount > BUFFER_HIGH) {
         // console.log('Teg RTC Buffer Full')
         peer._channel.addEventListener('bufferedamountlow', sendNextChunks)
         return
