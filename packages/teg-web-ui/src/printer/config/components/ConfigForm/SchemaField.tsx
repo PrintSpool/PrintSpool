@@ -1,17 +1,24 @@
 import React from 'react'
 import { useFieldArray, Controller } from 'react-hook-form'
+
 import MenuItem from '@material-ui/core/MenuItem'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
+import IconButton from '@material-ui/core/IconButton'
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import Hidden from '@material-ui/core/Hidden'
 import Switch from '@material-ui/core/Switch'
 import TextField, { StandardTextFieldProps } from '@material-ui/core/TextField'
 import FormHelperText from '@material-ui/core/FormHelperText'
+import Divider from '@material-ui/core/Divider'
+import AddIcon from '@material-ui/icons/Add'
+import DeleteIcon from '@material-ui/icons/Delete'
 
 // import Typeahead from '../../../../common/Typeahead'
 
 const SchemaField = ({
+  showLabel = true,
+  dense = false,
   schema,
   name,
   defaultValue: defaultValueOverride = null,
@@ -84,8 +91,8 @@ const SchemaField = ({
         helperText,
         inputRef: register,
         name: fieldPath,
-        label: property.title,
-        margin: 'normal',
+        label: showLabel ? property.title : null,
+        margin: dense ? 'dense' : 'normal',
         variant: 'standard',
       }
 
@@ -97,12 +104,14 @@ const SchemaField = ({
               <TextField
                 {...textFieldProps}
                 inputRef={ref}
+                // @ts-ignore
                 onChange={e => onChange(e.target.value)}
                 onBlur={onBlur}
                 name={name}
                 value={(value === '' || value == null) ? defaultValue : value}
                 select
               >
+                {/* @ts-ignore */}
                 { (property.enum || property.oneOf || [])[0] === '' && name === 'model.source' && (
                   <MenuItem value="test">
                     No Video Source detected.
@@ -112,6 +121,7 @@ const SchemaField = ({
                     </Hidden>
                   </MenuItem>
                 )}
+                {/* @ts-ignore */}
                 { (property.enum || property.oneOf)?.length === 0 && name === 'serialPortID' && (
                   <MenuItem value="">
                     No serial devices detected.
@@ -167,15 +177,16 @@ const SchemaField = ({
             defaultValue={false}
             render={({ ref, name, value, onChange, onBlur }) => (
               <FormControlLabel
-                label={property.title}
+                label={showLabel ? property.title : ''}
                 control={(
                   <Switch
                     {...{
-                      margin: 'normal',
+                      margin: dense ? 'dense' : 'normal',
                       disabled: property.readOnly,
                     }}
                     size="small"
                     inputRef={ref}
+                    // @ts-ignore
                     onChange={(e) => onChange(e.target.checked)}
                     checked={value || false}
                     onBlur={onBlur}
@@ -205,17 +216,41 @@ const SchemaField = ({
 
       return (
         <>
-          <Typography variant="body1">
+          {/* <Divider style={{
+            marginTop: 16,
+            marginBottom: 24,
+          }} /> */}
+          <Typography variant="body2" style={{
+            marginTop: 16,
+          }}>
             {property.title}
           </Typography>
           { property.description && (
-            <Typography variant="body2">
+            <Typography variant="subtitle1">
               {property.description}
             </Typography>
           )}
+          {fields.length === 0 && (
+            <Typography variant="body1" style={{
+              marginBottom: 16,
+              color: '#999',
+              textAlign: 'center',
+            }}>
+              {`No ${property.title}`}
+            </Typography>
+          )}
           {fields.map((field, index) => (
-            <div key={field.id}>
+            <div
+              key={field.id}
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignContent: 'center',
+              }}
+            >
               <SchemaField
+                showLabel={false}
+                dense
                 schema={schema.properties[name]}
                 property={{
                   title: `${property.title} #${index + 1}`,
@@ -227,16 +262,26 @@ const SchemaField = ({
                 control={control}
                 errors={errors}
               />
-              <Button onClick={() => remove(index)}>
-                {`Remove ${property.title} #${index + 1}`}
-              </Button>
+              <IconButton onClick={() => remove(index)}>
+                <DeleteIcon/>
+              </IconButton>
             </div>
           ))}
-          <Button onClick={() => append({ value: '' })}>
+          <Button
+            startIcon={<AddIcon/>}
+            variant="outlined"
+            size="small"
+            onClick={() => append({ value: '' })}
+            style={{
+              marginBottom: 16,
+            }}
+          >
             Add
-            {' '}
-            {property.title}
           </Button>
+          {/* <Divider style={{
+            marginTop: 24,
+            marginBottom: 16,
+          }} /> */}
         </>
       )
     }
