@@ -18,6 +18,7 @@ const DEVICE_QUERY = gql`
     machines(input: $input) {
       id
       status
+      developerMode
       configForm {
         ...ConfigFormFragment
       }
@@ -30,6 +31,8 @@ const UPDATE_MACHINE = gql`
   mutation updateMachine($input: UpdateMachineInput!) {
     updateMachine(input: $input) {
       id
+      status
+      developerMode
       configForm {
         ...ConfigFormFragment
       }

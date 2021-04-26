@@ -84,6 +84,10 @@ impl MachineData {
         ])
     }
 
+    async fn developer_mode(&self) -> FieldResult<bool> {
+        Ok(self.config.core_plugin()?.model.developer_mode)
+    }
+
     async fn plugins(&self, plugin_id: Option<String>) -> Vec<&Plugin> {
         if plugin_id.is_some() && plugin_id != Some("teg-core".into()) {
             return vec![]

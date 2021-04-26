@@ -8,5 +8,6 @@ pub struct ConfigForm {
     pub schema: async_graphql::Json<serde_json::Value>,
     pub form: Vec<String>,
     pub advanced_form: Vec<String>,
+    pub developer_form: Vec<String>,
 }
 

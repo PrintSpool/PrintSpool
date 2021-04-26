@@ -21,6 +21,7 @@ const UpdateDialogView = ({
   onSubmit,
   onClose,
   configForm,
+  developerMode,
   submitting,
   status,
   deleteButton = false,
@@ -41,6 +42,7 @@ const UpdateDialogView = ({
       <ConfigForm
         schema={transformSchema(configForm.schema)}
         configForm={configForm}
+        developerMode={developerMode}
         mutation={mutation}
         onSubmit={onSubmit}
       >

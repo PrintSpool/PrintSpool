@@ -24,6 +24,7 @@ const CREATE_COMPONENT = gql`
 
 const CreateComponentDialog = ({
   open,
+  developerMode,
   fixedListComponentTypes,
   transformSchema,
 }) => {
@@ -75,6 +76,7 @@ const CreateComponentDialog = ({
         ...configForm,
         schema: schema && transformSchema(schema),
       },
+      developerMode,
       onSubmit: ({ model }) => {
         createComponent({
           variables: {

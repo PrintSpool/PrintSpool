@@ -121,6 +121,8 @@ const PrinterComponentsView = ({
           query={gql`
             query($machineID: ID, $componentID: ID) {
               machines(input: {machineID: $machineID}) {
+                developerMode
+
                 components(input: {componentID: $componentID}) {
                   configForm {
                     ...ConfigFormFragment
@@ -135,6 +137,7 @@ const PrinterComponentsView = ({
       { componentID === 'new' && (
         <CreateComponentDialog
           open
+          developerMode={machine.developerMode}
           fixedListComponentTypes={fixedListComponentTypes}
           transformSchema={transformSchema}
         />

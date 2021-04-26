@@ -14,24 +14,74 @@ export const ConfigFields = () => {
     schema,
     form,
     advancedForm,
+    developerMode,
+    developerForm,
     register,
     control,
     errors,
   } = useContext(ConfigFormContext)
 
-  const formFields = (form) => (
+  console.log('form errors', errors)
+
+  const formFields = (form) => form.map((name) => (
+    <SchemaField
+      schema={schema}
+      property={schema.properties[name]}
+      key={name}
+      name={name}
+      register={register}
+      control={control}
+      errors={errors}
+    />
+  ))
+
+  const showDeveloperForm = developerMode && developerForm.length > 0
+  const showAdvancedForm = advancedForm.length > 0 || showDeveloperForm
+  console.log({ showAdvancedForm, developerMode, developerForm })
+
+  return (
     <>
-      { form.map((name) => (
-        <SchemaField
-          schema={schema}
-          property={schema.properties[name]}
-          key={name}
-          name={name}
-          register={register}
-          control={control}
-          errors={errors}
-        />
-      ))}
+      {formFields(form)}
+      <Accordion style={{
+        marginTop: 24,
+        display: showAdvancedForm ? null : 'none',
+      }}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="advanced-form-content"
+          id="advanced-form-header"
+        >
+          <Typography>Advanced</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <div>
+            {formFields(advancedForm)}
+            <div style={{
+              borderRadius: 2,
+              boxShadow: '#e53e3e 0px 0px 0pt 1pt',
+              paddingLeft: 16,
+              paddingRight: 16,
+              paddingBottom: 16,
+              display: showDeveloperForm ? null : 'none',
+            }}>
+              <div style={{
+                color: '#e53e3e',
+                position: 'relative',
+                top: '-0.7rem',
+                background: 'white',
+                display: 'block',
+                width: 'max-content',
+                paddingLeft: 10,
+                paddingRight: 10,
+                zIndex: 1000,
+              }}>
+                Developer Settings
+              </div>
+              {formFields(developerForm)}
+            </div>
+          </div>
+        </AccordionDetails>
+      </Accordion>
       { errors[''] != null && (
         <Typography
           color="error"
@@ -44,28 +94,6 @@ export const ConfigFields = () => {
             || (typeof errors[''] === 'string' ? errors[''] : 'An unknown error has occured')
           }
         </Typography>
-      )}
-    </>
-  )
-
-  return (
-    <>
-      {formFields(form)}
-      { advancedForm.length > 0 && (
-        <Accordion style={{ marginTop: 24 }}>
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls="panel1a-content"
-            id="panel1a-header"
-          >
-            <Typography>Advanced</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <div>
-              {formFields(advancedForm)}
-            </div>
-          </AccordionDetails>
-        </Accordion>
       )}
     </>
   )

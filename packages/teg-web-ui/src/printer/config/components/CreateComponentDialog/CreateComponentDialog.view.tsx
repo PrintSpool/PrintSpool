@@ -40,6 +40,7 @@ const CreateComponentDialogView = ({
   // materials,
   mutation,
   configForm,
+  developerMode,
   onCancel,
   onSubmit,
 }) => {
@@ -78,6 +79,7 @@ const CreateComponentDialogView = ({
         { wizard.activeStep === 1 && (
           <CreateComponentStep2 {...{
             configForm,
+            developerMode,
             mutation,
             wizard,
             onSubmit,

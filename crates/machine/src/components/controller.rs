@@ -74,16 +74,18 @@ pub struct ControllerConfig {
 }
 
 impl teg_config_form::Model for ControllerConfig {
-    fn form(_: &Vec<String>) -> Vec<String> {
-        vec![
+    fn static_form() -> Option<Vec<&'static str>> {
+        Some(vec![
             "name",
             "serialPortID",
             "automaticBaudRateDetection",
             "baudRate",
-        ]
-            .into_iter()
-            .map(Into::into)
-            .collect()
+        ])
+    }
+
+    fn static_advanced_form() -> Option<Vec<&'static str>> {
+        Some(vec![
+        ])
     }
 }
 

@@ -100,13 +100,17 @@ const Drawer = ({
           icon={<Settings />}
           href={`/m/${hostID}/${machineID}/config/`}
         />
-        <ListSubheader>Dev Tools</ListSubheader>
-        <DrawerLink
-          text="GraphQL"
-          icon={<Code />}
-          href={`/m/${hostID}/${machineID}/graphql-playground/`}
-          newTab
-        />
+        {machine.developerMode && (
+          <>
+            <ListSubheader>Dev Tools</ListSubheader>
+            <DrawerLink
+              text="GraphQL"
+              icon={<Code />}
+              href={`/m/${hostID}/${machineID}/graphql-playground/`}
+              newTab
+            />
+          </>
+        )}
       </List>
     </div>
   )

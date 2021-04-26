@@ -25,6 +25,7 @@ const CreateInviteStep1 = ({
   return (
     <ConfigForm {...{
       configForm,
+      developerMode: false,
       mutation,
       onSubmit,
     }} >

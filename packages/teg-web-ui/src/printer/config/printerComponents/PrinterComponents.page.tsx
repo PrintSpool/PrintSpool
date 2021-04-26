@@ -23,6 +23,7 @@ const COMPONENTS_QUERY = gql`
     machines(input: { machineID: $machineID }) {
       id
       status
+      developerMode
       fixedListComponentTypes
       components {
         id

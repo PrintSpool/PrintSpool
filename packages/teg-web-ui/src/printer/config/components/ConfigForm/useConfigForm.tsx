@@ -7,6 +7,7 @@ export const useConfigForm = ({
   loading = false,
   schema: schemaOverride = null,
   configForm,
+  developerMode,
   mutation,
   defaultValues = {},
   afterValidate = ({ values, errors }) => ({ values, errors }),
@@ -77,12 +78,18 @@ export const useConfigForm = ({
     return null
   }
 
-  const { form, advancedForm } = configForm
+  const {
+    form,
+    advancedForm,
+    developerForm,
+  } = configForm
 
   const context: ConfigFormContextType = {
     schema,
     form,
     advancedForm,
+    developerForm,
+    developerMode,
     register,
     control,
     errors,

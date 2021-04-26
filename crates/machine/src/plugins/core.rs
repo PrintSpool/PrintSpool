@@ -43,18 +43,30 @@ pub struct CorePluginConfig {
     /// # Before Resume (GCode)
     pub resume_hook: String,
 
+    /// # Developer Mode
+    /// Show settings & debugging tools intended for developers.
+    #[serde(default)]
+    pub developer_mode: bool,
+
     // pub macros: Vec<String>,
 }
 
 impl teg_config_form::Model for CorePluginConfig {
-    fn form(_: &Vec<String>) -> Vec<String> {
-        vec![
+    fn static_form() -> Option<Vec<&'static str>> {
+        Some(vec![
             "name",
             "automaticPrinting",
             "swapXAndYOrientation",
-        ]
-            .into_iter()
-            .map(Into::into)
-            .collect()
+        ])
+    }
+
+    fn static_advanced_form() -> Option<Vec<&'static str>> {
+        Some(vec![
+            "beforePrintHook",
+            "afterPrintHook",
+            "pauseHook",
+            "resumeHook",
+            "developerMode",
+        ])
     }
 }

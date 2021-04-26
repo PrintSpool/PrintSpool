@@ -6,11 +6,14 @@ use eyre::{
 
 use crate::{ ConfigForm, Configurable };
 
-fn introspect_model<M>() -> Result<(
-    async_graphql::Json<serde_json::Value>,
-    Vec<String>,
-    Vec<String>,
-)>
+struct FormIntrospection {
+    schema: async_graphql::Json<serde_json::Value>,
+    form: Vec<String>,
+    advanced_form: Vec<String>,
+    developer_form: Vec<String>,
+}
+
+fn introspect_model<M>() -> Result<FormIntrospection>
 where
     M: crate::Model,
 {
@@ -21,22 +24,19 @@ where
         .map(|k| k.clone())
         .collect::<Vec<_>>();
 
-    let form = M::form(&all_fields)
-        .into_iter()
-        .map(|s| s.to_string())
-        .collect::<Vec<_>>();
+    let form = M::form(&all_fields);
 
     // The `advanced_form` is generated from all fields not in the `form`
-    let advanced_form = all_fields
-        .into_iter()
-        .filter(|k| form.iter().all(|k2| k2 != k))
-        .collect::<Vec<_>>();
+    let advanced_form = M::advanced_form(&all_fields, &form);
 
-    Ok((
-        serde_json::to_value(root_schema)?.into(),
+    let developer_form = M::developer_form(&all_fields, &form, &advanced_form);
+
+    Ok(FormIntrospection {
+        schema: serde_json::to_value(root_schema)?.into(),
         form,
         advanced_form,
-    ))
+        developer_form
+    })
 }
 
 /// A form for updating the existing instance of model type M
@@ -45,11 +45,12 @@ where
     C: Configurable<M>,
     M: crate::Model,
 {
-    let (
+    let FormIntrospection {
         schema,
         form,
         advanced_form,
-    ) = introspect_model::<M>()?;
+        developer_form,
+     } = introspect_model::<M>()?;
 
     Ok(ConfigForm {
         id: config.id(),
@@ -58,6 +59,7 @@ where
         schema,
         form,
         advanced_form,
+        developer_form,
     })
 }
 
@@ -66,11 +68,12 @@ pub fn create_form<M>(id: String) -> Result<ConfigForm>
 where
     M: crate::Model,
 {
-    let (
+    let FormIntrospection {
         schema,
         form,
         advanced_form,
-    ) = introspect_model::<M>()?;
+        developer_form,
+     } = introspect_model::<M>()?;
 
     Ok(ConfigForm {
         id: id.into(),
@@ -79,5 +82,6 @@ where
         schema,
         form,
         advanced_form,
+        developer_form,
     })
 }

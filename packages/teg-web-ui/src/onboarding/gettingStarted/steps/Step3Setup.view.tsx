@@ -50,6 +50,7 @@ const Step3SetupView = ({
   return (
     <ConfigForm {...{
       configForm,
+      developerMode: false,
       mutation,
       onSubmit,
     }} >

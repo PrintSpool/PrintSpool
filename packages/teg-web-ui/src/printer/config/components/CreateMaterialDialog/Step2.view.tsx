@@ -17,6 +17,7 @@ const STEPS = [
 
 const CreateMaterialStep2 = ({
   configForm,
+  developerMode,
   mutation,
   wizard,
   onSubmit,
@@ -25,6 +26,7 @@ const CreateMaterialStep2 = ({
   return (
     <ConfigForm {...{
       configForm,
+      developerMode,
       mutation,
       onSubmit,
     }} >

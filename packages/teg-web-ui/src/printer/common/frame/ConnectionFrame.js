@@ -17,6 +17,7 @@ const FRAME_QUERY = gql`
     machines(input: $input) {
       id
       name
+      developerMode
       status
       error {
         code
