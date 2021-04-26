@@ -37,7 +37,7 @@ const TaskStatusRow = ({
   const confirmedCancelTask = confirm(() => ({
     fn: async () => {
       await cancelTask({
-        variables: { machineID: task.machine.id.replace('rust-', '') },
+        variables: { machineID: task.machine.id },
       })
     },
     title: 'Are you sure you want to cancel this print?',

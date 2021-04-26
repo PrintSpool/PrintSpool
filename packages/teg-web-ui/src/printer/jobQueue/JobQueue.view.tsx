@@ -180,6 +180,17 @@ const JobQueueView = ({
   // console.log({ isDragging })
   // console.log(selectedParts.length)
 
+  let printButtonTooltip = ''
+  if (nextPart == null) {
+    printButtonTooltip = 'Cannot print if print queue is empty'
+  } else if (!statuses.includes('READY')) {
+    printButtonTooltip = `Cannot print when machine is ${statuses[0].toLowerCase()}`
+  } else if (printMutation.loading) {
+    printButtonTooltip = "Starting print..."
+  } else if (selectedParts.length > 1) {
+    printButtonTooltip = "Cannot print more then 1 part at a time"
+  }
+
   return (
     <div
       className={classes.root}
@@ -202,14 +213,16 @@ const JobQueueView = ({
         {/* <Typography variant="subtitle1" gutterBottom>
           Latest Print
         </Typography> */}
-        { latestPrints.map(print => (
+        { latestPrints.map(latestPrint => (
           <PrintCard {...{
-            key: print.id,
-            print,
+            key: latestPrint.id,
+            print: latestPrint,
             cancelTask,
             pausePrint,
             resumePrint,
             deleteParts,
+            retryPrint: () => print({ id: latestPrint.part.id }),
+            retryPrintMutation: printMutation,
           }} />
         ))}
       </div>
@@ -229,17 +242,28 @@ const JobQueueView = ({
           />
           Add
         </Button>
-        <Button
-          component="label"
-          variant="contained"
-          className={classes.actionsRowButton}
-          color="primary"
-          disabled={disablePrintNextButton}
-          onClick={printNext}
-          startIcon={<PlayArrow/>}
-        >
-          Print Next
-        </Button>
+        <Tooltip title={printButtonTooltip}>
+          <Button
+            style={{
+              pointerEvents: "auto",
+            }}
+            component="div"
+            variant="contained"
+            className={classes.actionsRowButton}
+            color="primary"
+            disabled={disablePrintNextButton || selectedParts.length > 1}
+            onClick={() => {
+              if (selectedParts.length === 1) {
+                print({ id: selectedParts[0] })
+              } else {
+                printNext()
+              }
+            }}
+            startIcon={<PlayArrow/>}
+          >
+            {`Print ${selectedParts.length > 0 ? `Selected (${selectedParts.length})` : 'Next'}`}
+          </Button>
+        </Tooltip>
       </div>
 
       <div
@@ -324,7 +348,7 @@ const JobQueueView = ({
                         <TableCell padding="none">
                           { selectedParts.length > 0 && (
                             <>
-                              <Tooltip title="Print Selected">
+                              {/* <Tooltip title="Print Selected">
                                 <IconButton
                                   aria-label="print-selected"
                                   onClick={() => {
@@ -335,7 +359,7 @@ const JobQueueView = ({
                                 >
                                   <PlayArrow />
                                 </IconButton>
-                              </Tooltip>
+                              </Tooltip> */}
                               <Tooltip title="Move to Top of Queue">
                                 <IconButton
                                   aria-label="move to top of queue"

@@ -5,7 +5,8 @@ import truncate from 'truncate'
 import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
 import CardContent from '@material-ui/core/CardContent'
-// import Typography from '@material-ui/core/Typography'
+import Button from '@material-ui/core/Button'
+import Tooltip from '@material-ui/core/Tooltip'
 // import IconButton from '@material-ui/core/IconButton'
 // import Menu from '@material-ui/core/Menu'
 // import MenuItem from '@material-ui/core/MenuItem'
@@ -15,10 +16,18 @@ import CardContent from '@material-ui/core/CardContent'
 // import MoreVert from '@material-ui/icons/MoreVert'
 // import Delete from '@material-ui/icons/Delete'
 // import Reorder from '@material-ui/icons/Reorder'
+import { makeStyles } from '@material-ui/core/styles'
 
 import TaskStatusRow from './TaskStatusRow'
 // import useConfirm from '../../../common/_hooks/useConfirm'
-// import { Typography } from '@material-ui/core'
+
+const useStyles = makeStyles(theme => ({
+  retryPrintButton: {
+    color: theme.palette.error.main,
+    borderColor: theme.palette.error.main,
+    marginRight: theme.spacing(2),
+  },
+}))
 
 const PrintCard = ({
   print,
@@ -26,7 +35,10 @@ const PrintCard = ({
   pausePrint,
   resumePrint,
   // deletePart,
+  retryPrint,
+  retryPrintMutation,
 }) => {
+  const classes = useStyles()
   // const confirm = useConfirm()
   // const [menuAnchorEl, setMenuAnchorEl] = useState()
 
@@ -61,60 +73,96 @@ const PrintCard = ({
   const isPrinting = ['SPOOLED', 'STARTED'].includes(task.status)
   const capitalizedStatus = task.status.charAt(0) + task.status.toLowerCase().slice(1)
 
+  const aborted = task.settled && task.status != 'FINISHED'
   let abortInfo = ''
-  if (task.settled && task.status != 'FINISHED') {
+  if (aborted) {
     abortInfo = ` (at ${task.percentComplete.toFixed(1)}% complete)`
   }
 
+  let retryButtonTooltip = ''
+  if (machineStatus !== 'READY') {
+    retryButtonTooltip = `Cannot print when machine is ${machineStatus.toLowerCase()}`
+  } else if (retryPrintMutation.loading) {
+    retryButtonTooltip = "Starting print.."
+  }
+
   return (
-    <Card>
-      <CardHeader
-        title={(
-          <Link
-            to={`./printing/${task.partID}/`}
-            style={{ textDecoration: 'none', color: 'inherit' }}
-          >
-            {isPrinting && 'Printing ' || 'Latest Print: '}
-            {shortName}
-            {/* {!isPrinting && ` ${task.status.toLowerCase()}`} */}
-          </Link>
-        )}
-        subheader={
-          `${task.stoppedAt ? capitalizedStatus : 'Started'}${abortInfo} at ${statusSetAt}`
-          + ` on ${task.machine.name}`}
-      />
+    <Card style={{
+      display: 'grid',
+      gridTemplateColumns: '1fr auto',
+      alignItems: 'center',
+    }} >
+      <div>
+        <CardHeader
+          title={(
+            <Link
+              to={`./printing/${task.partID}/`}
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              {
+                (isPrinting && 'Printing')
+                || (aborted && `${capitalizedStatus} Print:`)
+                || (task.status === 'FINISHED' && 'Completed')
+                || capitalizedStatus
+              }
+              {' '}
+              {shortName}
+              {/* {!isPrinting && ` ${task.status.toLowerCase()}`} */}
+            </Link>
+          )}
+          subheader={
+            `${task.stoppedAt ? `${capitalizedStatus} at ` : 'Started at'} ${statusSetAt}${abortInfo}`
+            + ` on ${task.machine.name}`}
+        />
 
-      {/* <Menu
-        id="long-menu"
-        anchorEl={menuAnchorEl}
-        open={menuAnchorEl != null}
-        onClose={closeMenu}
-      >
-        <MenuItem onClick={confirmedDeletePart}>
-          <ListItemIcon>
-            <Delete />
-          </ListItemIcon>
-          <ListItemText primary="Delete Part" />
-        </MenuItem>
-      </Menu> */}
-
-      {!task.settled && (
-        <CardContent
-          style={{
-            paddingTop: 0,
-          }}
+        {/* <Menu
+          id="long-menu"
+          anchorEl={menuAnchorEl}
+          open={menuAnchorEl != null}
+          onClose={closeMenu}
         >
-          <TaskStatusRow
-            task={task}
-            key={task.id}
-            {...{
-              cancelTask,
-              pausePrint,
-              resumePrint,
-              machineStatus,
+          <MenuItem onClick={confirmedDeletePart}>
+            <ListItemIcon>
+              <Delete />
+            </ListItemIcon>
+            <ListItemText primary="Delete Part" />
+          </MenuItem>
+        </Menu> */}
+
+        {!task.settled && (
+          <CardContent
+            style={{
+              paddingTop: 0,
             }}
-          />
-        </CardContent>
+          >
+            <TaskStatusRow
+              task={task}
+              key={task.id}
+              {...{
+                cancelTask,
+                pausePrint,
+                resumePrint,
+                machineStatus,
+              }}
+            />
+          </CardContent>
+        )}
+      </div>
+      { aborted && (
+        <Tooltip title={retryButtonTooltip}>
+          <Button
+            variant="outlined"
+            className={classes.retryPrintButton}
+            style={{
+              pointerEvents: "auto",
+            }}
+            component="div"
+            onClick={retryPrint}
+            disabled={retryPrintMutation.loading || machineStatus !== 'READY'}
+          >
+            Retry Print
+          </Button>
+        </Tooltip>
       )}
     </Card>
   )
