@@ -2,24 +2,51 @@ import React, { useCallback } from 'react'
 
 import { useMutation, MutationResult } from '@apollo/client'
 import { gql } from '@apollo/client'
+import { PRINT_QUEUE_PART_FRAGMENT } from '../jobQueue/JobQueue.graphql'
 
 const addPartsToPrintQueueGraphQL = gql`
   mutation addPartsToPrintQueue($input: AddPartsToPrintQueueInput!) {
     addPartsToPrintQueue(input: $input) {
       id
+      printQueueID
       parts {
-        id
+        ...PrintQueuePartFragment
       }
     }
   }
+  ${PRINT_QUEUE_PART_FRAGMENT}
 `
 
 const useCreateJobMutation = (
   printQueueID: string,
   files: any,
-  options: any,
 ): [() => Promise<any>, MutationResult<unknown>] => {
-  const [mutation, mutationResult] = useMutation(addPartsToPrintQueueGraphQL, options)
+  // Update the print queue immediately upon adding a part
+  const [mutation, mutationResult] = useMutation(addPartsToPrintQueueGraphQL, {
+    update: (cache, { data: { addPartsToPrintQueue: newPackage } }) => {
+      cache.modify({
+        id: cache.identify({
+          __typename: 'PrintQueue',
+          id: newPackage.printQueueID,
+        }),
+        fields: {
+          parts: (cachedPartRefs) => {
+            const newPartRefs = newPackage.parts.map(part => (
+              cache.writeFragment({
+                data: part,
+                fragment: PRINT_QUEUE_PART_FRAGMENT,
+              })
+            ))
+
+            return [
+              ...cachedPartRefs,
+              ...newPartRefs,
+            ]
+          },
+        },
+      })
+    },
+  })
 
   const addPartsToPrintQueue = useCallback(async () => {
     const MB = 1000 * 1000
@@ -31,7 +58,7 @@ const useCreateJobMutation = (
       name: files.map(f => f.name).join(', '),
       parts: [],
     }
-    console.log({ mutationInput })
+    // console.log({ mutationInput })
 
     // read each file into memory
     await Promise.all(
@@ -40,6 +67,7 @@ const useCreateJobMutation = (
 
         /* read the file */
         // eslint-disable-next-line no-undef
+        // @ts-ignore
         const fileReader = new FileReader()
         fileReader.readAsText(file)
 

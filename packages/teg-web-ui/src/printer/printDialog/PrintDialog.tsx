@@ -11,6 +11,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 
 import PrintDialogContent from './PrintDialogContent'
 import useCreateJobMutation from './useCreateJobMutation'
+import { usePrintMutation } from '../jobQueue/JobQueue.graphql'
 // import useLiveSubscription from '../_hooks/useLiveSubscription'
 
 // const PRINT_DIALOG_QUERY = gql`
@@ -23,12 +24,6 @@ import useCreateJobMutation from './useCreateJobMutation'
 //   }
 // `
 
-const PRINT_MUTATION = gql`
-  mutation print($input: PrintInput!) {
-    print(input: $input) { id }
-  }
-`
-
 const PrintDialog = ({
   printQueues,
   machines,
@@ -37,8 +32,8 @@ const PrintDialog = ({
 }) => {
   const printQueueID = printQueues[0].id
   // const subscription = useLiveSubscription(PRINT_DIALOG_QUERY)
-  const [ addPartsToPrintQueue, mutationResult ] = useCreateJobMutation(printQueueID, files, {})
-  const [print, printMutationResult ] = useMutation(PRINT_MUTATION)
+  const [ addPartsToPrintQueue, mutationResult ] = useCreateJobMutation(printQueueID, files)
+  const [print, printMutationResult ] = usePrintMutation()
 
   const machine = machines.find(machine => machine.status === 'READY')
 
@@ -51,7 +46,7 @@ const PrintDialog = ({
       if (addPartsToPrintQueueResult.errors != null) {
         throw new Error(addPartsToPrintQueueResult.errors[0].message)
       }
-      console.log({ addPartsToPrintQueueResult })
+      // console.log({ addPartsToPrintQueueResult })
 
       if (printNow) {
         const printResults = await print({
@@ -87,6 +82,8 @@ const PrintDialog = ({
   if (error) {
     throw error
   }
+
+  const open = true
 
   return (
     <Dialog

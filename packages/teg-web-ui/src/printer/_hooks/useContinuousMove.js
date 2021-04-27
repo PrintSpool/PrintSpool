@@ -44,7 +44,7 @@ const useContinuousMove = ({
 
   const tickMovement = async () => {
     // console.log("start!")
-    console.log(Object.keys(state.axes), Object.keys(state.axes) === ['z'], feedrateMultiplier)
+    // console.log(Object.keys(state.axes), Object.keys(state.axes) === ['z'], feedrateMultiplier)
 
     const { error } = await execGCodes({
       variables: {

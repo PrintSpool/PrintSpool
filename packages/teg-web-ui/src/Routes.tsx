@@ -68,9 +68,9 @@ const AuthRedirect = () => {
   const urlWithToken = new URL(document.location.origin + document.location.hash.replace(/#/, '?'))
   const params = Object.fromEntries(urlWithToken.searchParams)
 
-  const googleJWT = params.id_token
+  // const googleJWT = params.id_token
 
-  console.log({ googleJWT, params })
+  // console.log({ googleJWT, params })
 
   // TODO: log the user in here
 

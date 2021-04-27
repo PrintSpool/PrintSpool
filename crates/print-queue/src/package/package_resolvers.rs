@@ -21,6 +21,7 @@ impl Package {
     async fn id(&self) -> ID { (&self.id).into() }
     async fn name(&self) -> &String { &self.name }
     async fn quantity(&self) -> i32 { self.quantity }
+    async fn printQueueID(&self) -> ID { (&self.print_queue_id).into() }
 
     async fn parts<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<Part>> {
         let db: &crate::Db = ctx.data()?;

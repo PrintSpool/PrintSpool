@@ -37,13 +37,20 @@ struct DeletePartsInput {
     part_ids: Vec<ID>,
 }
 
+#[derive(async_graphql::SimpleObject)]
+struct DeletedParts {
+    #[graphql(name="partIDs")]
+    part_ids: Vec<ID>,
+}
+
+
 #[async_graphql::Object]
 impl DeletePartsMutation {
     async fn delete_parts<'ctx>(
         &self,
         ctx: &'ctx async_graphql::Context<'_>,
         input: DeletePartsInput,
-    ) -> FieldResult<Option<teg_common::Void>> {
+    ) -> FieldResult<DeletedParts> {
         let db: &crate::Db = ctx.data()?;
         let machines: &MachineMap = ctx.data()?;
         let machines = machines.load();
@@ -52,8 +59,8 @@ impl DeletePartsMutation {
             let mut tx = db.begin().await?;
 
             let part_ids = input.part_ids
-                .into_iter()
-                .map(|id| id.0)
+                .iter()
+                .map(|id| id.0.clone())
                 .collect::<Vec<_>>();
 
             // Verify the parts exist
@@ -115,7 +122,9 @@ impl DeletePartsMutation {
                 machine.call(StopMachine).await?
             }
 
-            Result::<_>::Ok(None)
+            Result::<_>::Ok(DeletedParts {
+                part_ids: input.part_ids,
+            })
         }
         // log the backtrace which is otherwise lost by FieldResult
         .await

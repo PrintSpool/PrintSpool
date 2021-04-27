@@ -7,127 +7,14 @@ import { useSnackbar } from 'notistack'
 import JobQueueView from './JobQueue.view'
 
 import useLiveSubscription from '../_hooks/useLiveSubscription'
-
-const LATEST_PRINT_FRAGMENT = gql`
-  fragment LatestPrintFragment on Print {
-    id
-    part {
-      id
-      name
-    }
-    task {
-      id
-      percentComplete(digits: 1)
-      eta
-      startedAt
-      stoppedAt
-      status
-      paused
-      settled
-      partID
-      machine {
-        id
-        name
-        status
-        components {
-          id
-          name
-          heater {
-            id
-            blocking
-            actualTemperature
-            targetTemperature
-          }
-        }
-      }
-    }
-  }
-`
-
-const PRINT_QUEUE_PART_FRAGMENT = gql`
-  fragment PrintQueuePartFragment on Part {
-    id
-    name
-    quantity
-    position
-    printsInProgress
-    printsCompleted
-    totalPrints
-    startedFinalPrint
-    # stoppedAt
-  }
-`
-
-const PRINT_QUEUES_QUERY = gql`
-  fragment QueryFragment on Query {
-    machines(input: { machineID: $machineID }) {
-      id
-      status
-    }
-    latestPrints(input: { machineIDs: [$machineID] }) {
-      ...LatestPrintFragment
-    }
-    printQueues(input: { machineID: $machineID }) {
-      id
-      name
-      parts {
-        ...PrintQueuePartFragment
-      }
-    }
-  }
-  ${LATEST_PRINT_FRAGMENT}
-  ${PRINT_QUEUE_PART_FRAGMENT}
-`
-
-const STOP = gql`
-  mutation stop($machineID: ID!) {
-    stop(machineID: $machineID) {
-      id
-      status
-    }
-  }
-`
-
-const SET_PART_POSITIONS = gql`
-  mutation setPartPositions($input: SetPartPositionsInput!) {
-    setPartPositions(input: $input) {
-      id
-      position
-    }
-  }
-`
-
-const PRINT_FRAGMENT = gql`
-  fragment PrintFragment on Print {
-    ...LatestPrintFragment
-    part {
-      ...PrintQueuePartFragment
-    }
-  }
-  ${LATEST_PRINT_FRAGMENT}
-  ${PRINT_QUEUE_PART_FRAGMENT}
-`
-
-const PRINT = gql`
-  mutation print($input: PrintInput!) {
-    print(input: $input) {
-      ...PrintFragment
-      task {
-        machine {
-          id
-          status
-        }
-      }
-    }
-  }
-  ${PRINT_FRAGMENT}
-`
-
-const DELETE_PART = gql`
-  mutation deleteParts($input: DeletePartsInput!) {
-    deleteParts(input: $input) { id }
-  }
-`
+import {
+  DELETE_PART,
+  PRINT_FRAGMENT,
+  PRINT_QUEUES_QUERY,
+  SET_PART_POSITIONS,
+  STOP,
+  usePrintMutation,
+} from './JobQueue.graphql'
 
 const JobQueuePage = ({
   match,
@@ -152,41 +39,25 @@ const JobQueuePage = ({
     }
   })
 
-  const [print, printMutation] = useMutation(
-    PRINT,
-    {
-      ...SuccessMutationOpts('Print started!'),
-      // Add the print to the latest prints cache so the UI updates immediately instead of waiting
-      // on the next query polling
-      update: (cache, { data: { print: newPrint } }) => {
+  const [print, printMutation] = usePrintMutation()
+
+  const [deleteParts, deletePartsMutation] = useMutation(DELETE_PART, {
+    // Remove the parts from the print queues as soon as the delete part mutation completes
+    update: (cache, { data: { deleteParts: { partIDs } } }) => {
+      data.printQueues.forEach((printQueue) => {
         cache.modify({
+          id: cache.identify(printQueue),
           fields: {
-            latestPrints: (previousPrints = [], { readField }) => {
-              const newPrintRef = cache.writeFragment({
-                data: newPrint,
-                fragment: LATEST_PRINT_FRAGMENT,
-              });
-
-              // There can only be one active print per machine so remove the previous print.
-              const nextPrints = previousPrints.filter((printRef) => {
-                let taskRef: any = readField('task', printRef)
-                let machineRef: any = readField('machine', taskRef)
-                let taskMachineID: any = readField('id', machineRef)
-
-                return taskMachineID !== newPrint.task.machine.id
-              })
-
-              // console.log({ newPrintRef, previousPrints }, [...nextPrints, newPrintRef])
-
-              return [...nextPrints, newPrintRef]
-            }
-          }
+            parts: (cachedPartRefs, { readField }) => {
+              return cachedPartRefs
+                .filter(partRef => !partIDs.includes(readField('id', partRef)))
+            },
+          },
         })
-      }
+      })
     },
-  )
+  })
 
-  const [deleteParts, deletePartsMutation] = useMutation(DELETE_PART)
   const [cancelTask, cancelTaskMutation] = useMutation(
     STOP,
     SuccessMutationOpts('Print cancelled!'),
