@@ -131,7 +131,7 @@ const Home = () => {
             { hosts.map(host => (
               <div key={host.slug}>
                 { hosts.length > 1 && (
-                  <ListItem>
+                  <ListItem component="div">
                     <ListSubheader disableGutters>
                       {'Server ID: '}
                       {`${host.slug.slice(0, 8)}..`}
