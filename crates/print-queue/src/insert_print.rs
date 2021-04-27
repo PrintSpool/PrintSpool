@@ -33,6 +33,7 @@ use teg_machine::{
 
 use crate::{
     part::Part,
+    resolvers::print_resolvers::Print,
 };
 
 #[instrument(skip(db, machine))]
@@ -42,14 +43,14 @@ pub async fn insert_print(
     machine_id: crate::DbId,
     part_id: crate::DbId,
     automatic_print: bool,
-) -> Result<Task> {
-    let part_file_path = Part::get(
+) -> Result<Print> {
+    let part = Part::get(
         db,
         &part_id,
         false,
     )
-        .await?
-        .file_path;
+        .await?;
+    let part_file_path = part.file_path.clone();
 
     let task_id = nanoid!(11);
     let task_dir = "/var/lib/teg/tasks";
@@ -129,7 +130,11 @@ pub async fn insert_print(
 
     let task = machine.call(msg).await??;
 
-    Ok(task)
+    Ok(Print {
+        id: task.id.clone().into(),
+        task,
+        part,
+    })
 }
 
 pub struct PrintMetaData {

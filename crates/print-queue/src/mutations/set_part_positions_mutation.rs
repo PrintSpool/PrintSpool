@@ -34,23 +34,35 @@ struct SetPartPositionsInputPart {
 
 #[async_graphql::Object]
 impl SetPartPositionsMutation {
-    /// Move a job in the print queue
+    /// Move a part in the print queue. Returns a list of parts who's position has changed which
+    /// may be longer then the input list of parts.
     async fn set_part_positions<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
         input: SetPartPositionsInput,
-    ) -> FieldResult<Option<teg_common::Void>> {
+    ) -> FieldResult<Vec<Part>> {
         let db: &crate::Db = ctx.data()?;
         let mut tx = db.begin().await?;
 
         let parts = sqlx::query_as!(
             JsonRow,
             r#"
-                SELECT props FROM parts
+                SELECT
+                    parts.props
+                FROM parts
+                INNER JOIN packages ON
+                    packages.id = parts.package_id
+                OUTER LEFT JOIN tasks ON
+                    tasks.part_id = parts.id
+                    AND tasks.status = 'finished'
                 WHERE
-                    deleted_at IS NULL
-                ORDER BY
-                    position
+                    parts.deleted_at IS NULL
+                    AND (tasks.id IS NULL OR tasks.status IS NOT NULL)
+                GROUP BY
+                    parts.id
+                HAVING
+                    parts.quantity * packages.quantity > COUNT(tasks.id)
+                ORDER BY parts.position
             "#,
         )
             .fetch_all(&mut tx)
@@ -89,15 +101,17 @@ impl SetPartPositionsMutation {
             }
         }
 
+        let mut moved_parts = vec![];
         for (mut part, original_position) in parts.into_iter().zip(original_positions) {
             // Update the database
             if part.position != original_position {
                 part.update(&mut tx).await?;
+                moved_parts.push(part);
             }
         }
 
         tx.commit().await?;
 
-        Ok(None)
+        Ok(moved_parts)
     }
 }

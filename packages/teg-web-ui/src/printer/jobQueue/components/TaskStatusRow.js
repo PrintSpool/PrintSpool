@@ -91,7 +91,7 @@ const TaskStatusRow = ({
       return ` (${timeStr} remaining)`
     })()
 
-    console.log(etaStr, task.eta, Date.parse(task.eta)/1000, msTillComplete/1000)
+    // console.log(etaStr, task.eta, Date.parse(task.eta)/1000, msTillComplete/1000)
   }
 
   const disabled = !['READY', 'PRINTING', 'PAUSED'].includes(machineStatus)

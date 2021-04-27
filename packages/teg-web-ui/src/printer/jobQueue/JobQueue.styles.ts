@@ -7,7 +7,7 @@ const useStyles = makeStyles(theme => ({
     display: 'grid',
     gridTemplateRows: 'auto auto 1fr',
     padding: theme.spacing(2),
-    overflow: 'hidden',
+    overflowX: 'hidden',
   },
   headerCheckbox: {
     paddingTop: 3,

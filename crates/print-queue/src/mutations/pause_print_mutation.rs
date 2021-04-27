@@ -12,9 +12,7 @@ use machine::messages::{GetData, PauseTask};
 use teg_json_store::Record;
 use teg_machine::{MachineMap, machine, task::Task};
 
-use crate::{
-    task_from_hook,
-};
+use crate::{part::Part, resolvers::print_resolvers::Print, task_from_hook};
 
 #[derive(Default)]
 pub struct PausePrintMutation;
@@ -27,7 +25,7 @@ impl PausePrintMutation {
         ctx: &'ctx Context<'_>,
         #[graphql(name="taskID")]
         task_id: ID,
-    ) -> FieldResult<Task> {
+    ) -> FieldResult<Print> {
         let db: &crate::Db = ctx.data()?;
 
         let machines: &MachineMap = ctx.data()?;
@@ -35,6 +33,10 @@ impl PausePrintMutation {
 
         async move {
             let task = Task::get(db, &task_id, false).await?;
+            let part_id = task.part_id
+                .as_ref()
+                .ok_or_else(|| eyre!("Task is not a print"))?
+                .into();
 
             let machine = machines.get(&(&task.machine_id).into())
                 .ok_or_else(||
@@ -73,7 +75,13 @@ impl PausePrintMutation {
             };
             let task = machine.call(msg).await??;
 
-            Result::<_>::Ok(task)
+            let part = Part::get(db, &part_id, true).await?;
+
+            Result::<_>::Ok(Print {
+                id: (&task.id).into(),
+                task,
+                part,
+            })
         }
         // log the backtrace which is otherwise lost by FieldResult
         .await

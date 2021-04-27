@@ -7,7 +7,8 @@ use async_graphql::{
     ID,
     FieldResult,
 };
-use teg_machine::{MachineMap, task::Task};
+use teg_machine::MachineMap;
+use crate::resolvers::print_resolvers::Print;
 
 use crate::insert_print;
 
@@ -32,7 +33,7 @@ impl PrintMutation {
         &self,
         ctx: &'ctx async_graphql::Context<'_>,
         input: PrintInput,
-    ) -> FieldResult<Task> {
+    ) -> FieldResult<Print> {
         let db: &crate::Db = ctx.data()?;
 
         let machines: &MachineMap = ctx.data()?;
@@ -44,7 +45,7 @@ impl PrintMutation {
                     eyre!("machine ({:?}) not found for spool job file", input.machine_id)
                 )?;
 
-            let task = insert_print(
+            let print = insert_print(
                 db,
                 machine.clone(),
                 input.machine_id.to_string(),
@@ -52,7 +53,7 @@ impl PrintMutation {
                 false,
             ).await?;
 
-            Result::<_>::Ok(task)
+            Result::<_>::Ok(print)
         }
         // log the backtrace which is otherwise lost by FieldResult
         .await

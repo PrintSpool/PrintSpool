@@ -40,6 +40,7 @@ impl Part {
     async fn id(&self) -> ID { (&self.id).into() }
     async fn name(&self) -> &String { &self.name }
     async fn quantity(&self) -> i32 { self.quantity }
+    async fn position(&self) -> u64 { self.position }
 
     /// The number of prints running or paused. Specifically this counts the tasks with a status of
     /// spooled, started, or paused.

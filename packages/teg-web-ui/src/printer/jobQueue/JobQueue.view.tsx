@@ -72,7 +72,7 @@ const JobQueueView = ({
     reset,
     control,
     getValues,
-    setValue,
+    // setValue,
   } = useForm({
     defaultValues: defaultValues(),
   })
