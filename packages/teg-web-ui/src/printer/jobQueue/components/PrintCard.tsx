@@ -16,6 +16,9 @@ import Tooltip from '@material-ui/core/Tooltip'
 // import MoreVert from '@material-ui/icons/MoreVert'
 // import Delete from '@material-ui/icons/Delete'
 // import Reorder from '@material-ui/icons/Reorder'
+import CloseIcon from '@material-ui/icons/Close'
+import DoneIcon from '@material-ui/icons/Done'
+import ErrorIcon from '@material-ui/icons/Error'
 import { makeStyles } from '@material-ui/core/styles'
 
 import TaskStatusRow from './TaskStatusRow'
@@ -23,9 +26,19 @@ import TaskStatusRow from './TaskStatusRow'
 
 const useStyles = makeStyles(theme => ({
   retryPrintButton: {
-    color: theme.palette.error.main,
-    borderColor: theme.palette.error.main,
+    // color: theme.palette.error.main,
+    // borderColor: theme.palette.error.main,
     marginRight: theme.spacing(2),
+  },
+  statusIcon: {
+    fontSize: 48,
+    marginLeft: 16,
+  },
+  doneIcon: {
+    color: theme.palette.success.main,
+  },
+  abortedIcon: {
+    color: theme.palette.error.dark,
   },
 }))
 
@@ -89,9 +102,16 @@ const PrintCard = ({
   return (
     <Card style={{
       display: 'grid',
-      gridTemplateColumns: '1fr auto',
+      gridTemplateColumns: task.settled ? 'auto 1fr auto' : null,
       alignItems: 'center',
     }} >
+      { task.status === 'FINISHED' && (
+          <DoneIcon className={`${classes.statusIcon} ${classes.doneIcon}`} />
+      )}
+      { aborted && (
+          <ErrorIcon className={`${classes.statusIcon} ${classes.abortedIcon}`} />
+      )}
+
       <div>
         <CardHeader
           title={(
@@ -100,19 +120,22 @@ const PrintCard = ({
               style={{ textDecoration: 'none', color: 'inherit' }}
             >
               {
-                (isPrinting && 'Printing')
+                ((isPrinting || task.status === 'PAUSED') && 'Printing')
                 || (aborted && `${capitalizedStatus} Print:`)
                 || (task.status === 'FINISHED' && 'Completed')
                 || capitalizedStatus
               }
               {' '}
               {shortName}
+              { task.status === 'PAUSED' && ' (Paused)'}
               {/* {!isPrinting && ` ${task.status.toLowerCase()}`} */}
             </Link>
           )}
           subheader={
-            `${task.stoppedAt ? `${capitalizedStatus} at ` : 'Started at'} ${statusSetAt}${abortInfo}`
-            + ` on ${task.machine.name}`}
+            `${task.stoppedAt ? `${capitalizedStatus} at` : 'Started at'}`
+            + ` ${statusSetAt}${abortInfo}`
+            + ` on ${task.machine.name}`
+          }
         />
 
         {/* <Menu
