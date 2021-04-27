@@ -67,7 +67,11 @@ const App = () => {
               </Button>
             )}
           >
-            <ConfirmProvider>
+            <ConfirmProvider
+              defaultOptions={{
+                confirmationButtonProps: { autoFocus: true }
+              }}
+            >
               <PrintFilesContext.Provider value={useState()}>
                 <React.Suspense fallback={<Loading fullScreen />}>
                   <BrowserRouter>
