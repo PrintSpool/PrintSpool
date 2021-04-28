@@ -20,19 +20,15 @@ import DeleteIcon from '@material-ui/icons/Delete'
 import Add from '@material-ui/icons/Add'
 import PlayArrow from '@material-ui/icons/PlayArrow'
 import CloudUpload from '@material-ui/icons/CloudUpload'
-import LowPriorityIcon from '@material-ui/icons/LowPriority'
+// import LowPriority from '@material-ui/icons/LowPriority'
 import Star from '@material-ui/icons/Star'
 import StarOutline from '@material-ui/icons/StarOutline'
 
 import useConfirm from '../../common/_hooks/useConfirm'
-import FileInput from '../../common/FileInput'
 // import FloatingPrintNextButton from './components/FloatingPrintNextButton'
-import useStyles from './JobQueue.styles'
-import PrintDialog from '../printDialog/PrintDialog'
-import PrintCard from './components/PrintCard'
+import useStyles from './Starred.styles'
 
 const JobQueueView = ({
-  latestPrints,
   printQueues,
   machines,
   nextPart,
@@ -40,10 +36,6 @@ const JobQueueView = ({
   printNext,
   printMutation,
   deleteParts,
-  cancelTask,
-  pausePrint,
-  resumePrint,
-  setPartPositions,
   history,
 }) => {
   const classes = useStyles()
@@ -129,62 +121,9 @@ const JobQueueView = ({
     ))
   }))
 
-  const moveToTopOfQueue = () => {
-    setPartPositions({
-      variables: {
-        input: {
-          // Use the parts list so that they are ordered by their current position.
-          // This matters for bulk moves - without this the order within the moved parts would
-          // not be consistent with their previous visual order.
-          parts: parts
-            .filter(part => selectedPartsObj[part.id])
-            .map((part, index) => ({
-              partID: part.id,
-              position: index,
-            })),
-        },
-      },
-    })
-  }
-
-  const onDragOver = useCallback((ev) => {
-    setDragging(true)
-
-    // Prevent default behavior (Prevent file from being opened)
-    ev.preventDefault()
-  }, [])
-
-  const onDragLeave = useCallback((ev) => {
-    setDragging(false)
-  }, [])
-
-  const onDrop = useCallback((ev) => {
-    setDragging(false)
-
-    // Prevent default behavior (Prevent file from being opened)
-    ev.preventDefault()
-
-    let files
-    if (ev.dataTransfer.items) {
-      // Use DataTransferItemList interface to access the file(s)
-      files = [...ev.dataTransfer.items]
-        .map((item) => item.getAsFile())
-        .filter(item => item != null)
-    } else {
-      files = [...ev.dataTransfer.files]
-    }
-
-    if (files.length > 0) {
-      setPrintDialogFiles(files)
-    }
-  }, [])
-
-  // console.log({ isDragging })
-  // console.log(selectedParts.length)
-
   let printButtonTooltip = ''
-  if (nextPart == null) {
-    printButtonTooltip = 'Cannot print if print queue is empty'
+  if (selectedParts.length === 0) {
+    printButtonTooltip = 'Select a part to print'
   } else if (!statuses.includes('READY')) {
     printButtonTooltip = `Cannot print when machine is ${statuses[0].toLowerCase()}`
   } else if (printMutation.loading) {
@@ -193,57 +132,29 @@ const JobQueueView = ({
     printButtonTooltip = "Cannot print more then 1 part at a time"
   }
 
+
   return (
     <div
       className={classes.root}
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={onDrop}
     >
-      { printDialogFiles && (
-        <React.Suspense fallback={<div />}>
-          <PrintDialog
-            printQueues={printQueues}
-            machines={machines}
-            files={printDialogFiles}
-            onClose={() => setPrintDialogFiles(null)}
-          />
-        </React.Suspense>
-      )}
-
-      <div className={classes.latestPrints}>
-        {/* <Typography variant="subtitle1" gutterBottom>
-          Latest Print
-        </Typography> */}
-        { latestPrints.map(latestPrint => (
-          <PrintCard {...{
-            key: latestPrint.id,
-            print: latestPrint,
-            cancelTask,
-            pausePrint,
-            resumePrint,
-            deleteParts,
-            retryPrint: () => print({ id: latestPrint.part.id }),
-            retryPrintMutation: printMutation,
-          }} />
-        ))}
-      </div>
 
       {/* Actions Row */}
       <div>
-        <Button
-          component="label"
-          variant="outlined"
-          className={classes.actionsRowButton}
-          color="default"
-          startIcon={<Add/>}
-        >
-          <FileInput
-            accept=".ngc,.gcode"
-            onClick={setPrintDialogFiles}
-          />
-          Add
-        </Button>
+        <Tooltip title={selectedParts.length === 0 ? 'Select a part' : ''}>
+          <Button
+            style={{
+              pointerEvents: "auto",
+            }}
+            component="label"
+            variant="outlined"
+            className={classes.actionsRowButton}
+            color="default"
+            disabled={selectedParts.length === 0}
+            startIcon={<Add/>}
+          >
+            {`Add to Queue (${selectedParts.length})`}
+          </Button>
+        </Tooltip>
         <Tooltip title={printButtonTooltip}>
           <Button
             style={{
@@ -253,7 +164,7 @@ const JobQueueView = ({
             variant="contained"
             className={classes.actionsRowButton}
             color="primary"
-            disabled={disablePrintNextButton || selectedParts.length > 1}
+            disabled={disablePrintNextButton || selectedParts.length !== 1}
             onClick={() => {
               if (selectedParts.length === 1) {
                 print({ id: selectedParts[0] })
@@ -263,18 +174,17 @@ const JobQueueView = ({
             }}
             startIcon={<PlayArrow/>}
           >
-            {`Print ${selectedParts.length > 0 ? `Selected (${selectedParts.length})` : 'Next'}`}
+            {`Print Selected (${selectedParts.length})`}
           </Button>
         </Tooltip>
       </div>
 
       <div
         className={[
-          (isDragging || parts.length === 0) ? classes.draggingOrEmpty : '',
-          isDragging ? classes.dragging : '',
+          parts.length === 0 ? classes.draggingOrEmpty : '',
         ].join(' ')}
       >
-        { (isDragging || parts.length === 0) && (
+        { parts.length === 0 && (
           <div className={classes.dragArea}>
             {/* <CloudUpload className={classes.dragIcon} /> */}
             <label
@@ -286,39 +196,8 @@ const JobQueueView = ({
                 className={classes.dragText}
                 component="div"
               >
-                {!isDragging && (
-                  <>
-                    Your print queue is empty. Drag and drop a gcode file here to get started!
-                    <FileInput
-                      accept=".ngc,.gcode"
-                      onClick={setPrintDialogFiles}
-                    />
-                  </>
-                )}
-                {isDragging && (
-                  'Drop your gcode file here!'
-                )}
+                You have no starred parts. Add a star to a print to save it for later reprinting.
               </Typography>
-              {/* <Typography
-                variant="h6"
-                component="div"
-                // className={classes.dragText}
-                paragraph
-              >
-                Or
-              </Typography>
-              <Button
-                className={classes.chooseAFileButton}
-                component="label"
-                variant="contained"
-                color="primary"
-              >
-                Select Files
-                <FileInput
-                  accept=".ngc,.gcode"
-                  onClick={setPrintDialogFiles}
-                />
-              </Button> */}
             </label>
           </div>
         )}
@@ -329,7 +208,7 @@ const JobQueueView = ({
                 <TableContainer>
                   <Table
                     size="medium"
-                    aria-label={ printQueue.name }
+                    aria-label="Starred Parts"
                   >
                     <TableHead>
                       <TableRow>
@@ -350,28 +229,6 @@ const JobQueueView = ({
                         <TableCell padding="none" colSpan={2}>
                           { selectedParts.length > 0 && (
                             <>
-                              {/* <Tooltip title="Print Selected">
-                                <IconButton
-                                  aria-label="print-selected"
-                                  onClick={() => {
-                                    print({ id: selectedParts[0] })
-                                  }}
-                                  edge="start"
-                                  disabled={ disablePrintNextButton || selectedParts.length !== 1}
-                                >
-                                  <PlayArrow />
-                                </IconButton>
-                              </Tooltip> */}
-                              <Tooltip title="Move to Top of Queue">
-                                <IconButton
-                                  aria-label="move to top of queue"
-                                  onClick={moveToTopOfQueue}
-                                  edge="start"
-                                  style={{ transform: 'scaleX(-1) scaleY(-1)' }}
-                                >
-                                  <LowPriorityIcon />
-                                </IconButton>
-                              </Tooltip>
                               <Tooltip title="Delete">
                                 <IconButton
                                   aria-label="delete"
@@ -391,7 +248,7 @@ const JobQueueView = ({
                             variant="h5"
                             component="div"
                           >
-                            { printQueue.name }
+                            Starred Parts
                           </Typography>
                         </TableCell>
                       </TableRow>
@@ -415,11 +272,12 @@ const JobQueueView = ({
                                   // role="checkbox"
                                   // aria-checked={isItemSelected}
                                   tabIndex={-1}
-                                  onClick={() => {
-                                    history.push(`./printing/${part.id}/`)
-                                  }}
+                                  // onClick={() => {
+                                  //   history.push(`./printing/${part.id}/`)
+                                  // }}
                                   selected={checkboxProps.value}
-                                  style={{ cursor: 'pointer' }}
+                                  // style={{ cursor: 'pointer' }}
+                                  style={{ cursor: 'default' }}
                                   // selected={isItemSelected}
                                 >
                                   <TableCell padding="checkbox">
@@ -468,18 +326,6 @@ const JobQueueView = ({
                                     <Typography display="inline">
                                       {shortName}
                                     </Typography>
-                                    <Typography
-                                      display="inline"
-                                      className={classes.qty}
-                                    >
-                                      {`${part.printsCompleted} / ${part.totalPrints} `}
-                                      printed
-                                    </Typography>
-                                    { part.printsInProgress > 0 && (
-                                      <Typography color="primary" display="inline">
-                                        {`${part.printsInProgress} printing`}
-                                      </Typography>
-                                    )}
                                   </TableCell>
                                 </TableRow>
                               )}

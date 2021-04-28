@@ -11,6 +11,7 @@ import ListItemText from '@material-ui/core/ListItemText'
 import ListSubheader from '@material-ui/core/ListSubheader'
 
 import Inbox from '@material-ui/icons/Inbox'
+import Star from '@material-ui/icons/Star'
 import OpenWith from '@material-ui/icons/OpenWith'
 import Code from '@material-ui/icons/Code'
 import Keyboard from '@material-ui/icons/Keyboard'
@@ -79,6 +80,11 @@ const Drawer = ({
           text="Printing"
           icon={<Inbox />}
           href={`/m/${hostID}/${machineID}/`}
+        />
+        <DrawerLink
+          text="Starred"
+          icon={<Star />}
+          href={`/m/${hostID}/${machineID}/starred/`}
         />
         { machine.length > 1 && (
           <ListSubheader>
