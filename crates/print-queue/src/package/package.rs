@@ -23,13 +23,17 @@ pub struct Package {
     pub created_at: DateTime<Utc>,
     #[new(default)]
     pub deleted_at: Option<DateTime<Utc>>,
+
     // Foreign Keys
     pub print_queue_id: crate::DbId, // print queues have many (>=0) packages queued for printing
+    /// The starred package that this package is based on
+    pub package_template_id: Option<crate::DbId>,
+
     // Props
     pub name: String,
     pub quantity: i32,
-    // #[new(value = "true")]
-    // pub delete_files_after_print: bool,
+    #[new(default)]
+    pub starred: bool,
 }
 
 impl Package {
@@ -238,6 +242,7 @@ impl Record for Package {
                     props=?,
                     version=?,
                     quantity=?,
+                    starred=?,
                     deleted_at=?
                 WHERE
                     id=?
@@ -247,6 +252,7 @@ impl Record for Package {
             json,
             self.version,
             self.quantity,
+            self.starred,
             self.deleted_at,
             // WHERE
             self.id,

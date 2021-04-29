@@ -18,11 +18,16 @@ use crate::{
 
 #[derive(async_graphql::InputObject, Default)]
 struct PrintQueuePartsInput {
+    /// Include the prints that are currently in the queue or actively printing (default: true)
     #[graphql(default = true)]
     include_queued: bool,
-    // Include the print history of parts that have completed all of their prints (default: false)
+    /// Include the print history of parts that have completed all of their prints (default: false)
     #[graphql(default = false)]
     include_finished: bool,
+    /// Include starred prints regardless of whether they are in the queue or finished
+    /// (default: false)
+    #[graphql(default = false)]
+    include_starred: bool,
 }
 
 #[async_graphql::Object]
@@ -44,6 +49,7 @@ impl PrintQueue {
         let input = input.unwrap_or(PrintQueuePartsInput {
             include_queued: true,
             include_finished: false,
+            include_starred: false,
         });
 
         let parts = sqlx::query_as!(
@@ -73,11 +79,17 @@ impl PrintQueue {
                         ? IS TRUE
                         AND parts.quantity * packages.quantity <= COUNT(tasks.id)
                     )
+                    OR
+                    (
+                        ? IS TRUE
+                        AND packages.starred
+                    )
                 ORDER BY parts.position
             "#,
             self.id,
             input.include_queued,
             input.include_finished,
+            input.include_starred,
         )
             .fetch_all(db)
             .await?;

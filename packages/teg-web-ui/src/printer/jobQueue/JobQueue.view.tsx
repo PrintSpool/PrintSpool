@@ -438,7 +438,7 @@ const JobQueueView = ({
                                     />
                                   </TableCell>
                                   <TableCell padding="checkbox" className={classes.savedCell}>
-                                    { part.saved || true && (
+                                    { part.starred && (
                                       <IconButton aria-label="Unsave" edge="start">
                                         <Star
                                           className={classes.savedStar}
@@ -448,7 +448,7 @@ const JobQueueView = ({
                                         />
                                       </IconButton>
                                     )}
-                                    { !part.saved && false && (
+                                    { !part.starred && (
                                       <IconButton aria-label="Save" edge="start">
                                         <StarOutline
                                           className={classes.UnsavedStarOutline}

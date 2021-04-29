@@ -9,12 +9,9 @@ import JobQueueView from './Starred.view'
 import useLiveSubscription from '../_hooks/useLiveSubscription'
 import {
   DELETE_PART,
-  PRINT_FRAGMENT,
   PRINT_QUEUES_QUERY,
-  SET_PART_POSITIONS,
-  STOP,
-  usePrintMutation,
 } from './Starred.graphql'
+import { usePrintMutation } from '../jobQueue/JobQueue.graphql'
 
 const JobQueuePage = ({
   match,
@@ -58,44 +55,10 @@ const JobQueuePage = ({
     },
   })
 
-  const [cancelTask, cancelTaskMutation] = useMutation(
-    STOP,
-    SuccessMutationOpts('Print cancelled!'),
-  )
-
-  const [setPartPositions, setPartPositionsMutation] = useMutation(SET_PART_POSITIONS)
-
-  const [pausePrint, pausePrintMutation] = useMutation(
-    gql`
-      mutation pausePrint($taskID: ID!) {
-        pausePrint(taskID: $taskID) {
-          ...PrintFragment
-        }
-      }
-      ${PRINT_FRAGMENT}
-    `,
-    SuccessMutationOpts('Print pausing...'),
-  )
-  const [resumePrint, resumeMutation] = useMutation(
-    gql`
-      mutation resumePrint($taskID: ID!) {
-        resumePrint(taskID: $taskID) {
-          ...PrintFragment
-        }
-      }
-      ${PRINT_FRAGMENT}
-    `,
-    SuccessMutationOpts('Print resumed!'),
-  )
-
   const mutationError = (
     null
     || printMutation.error
     || deletePartsMutation.error
-    || cancelTaskMutation.error
-    || pausePrintMutation.error
-    || setPartPositionsMutation.error
-    || resumeMutation.error
   )
 
   useEffect(() => {
@@ -189,11 +152,6 @@ const JobQueuePage = ({
         }),
         printMutation,
         deleteParts,
-        cancelTask,
-        pausePrint,
-        resumePrint,
-        setPartPositions,
-        history,
       }}
     />
   )

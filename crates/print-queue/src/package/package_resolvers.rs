@@ -21,7 +21,11 @@ impl Package {
     async fn id(&self) -> ID { (&self.id).into() }
     async fn name(&self) -> &String { &self.name }
     async fn quantity(&self) -> i32 { self.quantity }
-    async fn printQueueID(&self) -> ID { (&self.print_queue_id).into() }
+
+    async fn starred(&self) -> bool { self.starred || self.package_template_id.is_some() }
+
+    #[graphql(name="printQueueID")]
+    async fn print_queue_id(&self) -> ID { (&self.print_queue_id).into() }
 
     async fn parts<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<Part>> {
         let db: &crate::Db = ctx.data()?;

@@ -5,16 +5,13 @@ const useStyles = makeStyles(theme => ({
   root: {
     // overflow: 'scroll',
     display: 'grid',
-    gridTemplateRows: 'auto auto 1fr',
+    gridTemplateRows: 'auto 1fr',
     padding: theme.spacing(2),
     overflowX: 'hidden',
   },
   headerCheckbox: {
     paddingTop: 3,
     paddingBottom: 3,
-  },
-  latestPrints: {
-    paddingBottom: theme.spacing(2),
   },
   partsList: {
     // paddingBottom: theme.spacing(2),
@@ -33,21 +30,7 @@ const useStyles = makeStyles(theme => ({
     // marginTop: 5,
     color: theme.palette.text.hint,
   },
-  qty: {
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-    color: theme.palette.text.hint,
-  },
-  dragging: {
-    background: '#EEE',
-  },
-  draggingOrEmpty: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    border: '2px dashed #666',
-  },
-  dragArea: {
+  noStars: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -56,35 +39,13 @@ const useStyles = makeStyles(theme => ({
       flexDirection: 'column',
     },
   },
-  dragLabel: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    cursor: 'pointer',
-  },
-  dragText: {
+  noStarsText: {
     cursor: 'pointer',
     color: '#444',
     textAlign: 'center',
     [theme.breakpoints.down('xs')]: {
       fontSize: '1rem',
     },
-  },
- dragIcon: {
-    color: '#444',
-    width: theme.spacing(9),
-    height: theme.spacing(9),
-  },
-  emptyQueueContainer: {
-    position: 'relative',
-    top: '12vh',
-    height: '50vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyQueueText: {
-    color: 'rgba(0, 0, 0, 0.54)',
   },
   // Add and Print Next buttons
   actionsRowButton: {

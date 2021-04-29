@@ -10,16 +10,25 @@ use teg_json_store::Record;
 // use crate::package::Package;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PartTemplate {
+    pub part_id: crate::DbId,
+    pub package_id: crate::DbId,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Part {
     pub id: crate::DbId,
     pub version: i32,
     pub created_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
+
     // Foreign Keys
     pub package_id: crate::DbId, // packages have many (>=1) parts
+    /// The starred package and part that this part is based on
+    #[serde(default)]
+    pub based_on: Option<PartTemplate>,
     // Props
     pub name: String,
-
     pub quantity: i32,
     pub position: u64,
     pub file_path: String,

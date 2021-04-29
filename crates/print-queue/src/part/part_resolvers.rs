@@ -42,6 +42,39 @@ impl Part {
     async fn quantity(&self) -> i32 { self.quantity }
     async fn position(&self) -> u64 { self.position }
 
+    async fn starred<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<bool> {
+        let db: &crate::Db = ctx.data()?;
+
+        async move {
+            let root_package_id = self.based_on
+                .as_ref()
+                .map(|t| &t.package_id)
+                .unwrap_or(&self.package_id);
+
+            let starred = sqlx::query!(
+                r#"
+                    SELECT id FROM packages
+                    WHERE
+                        id = ?
+                        AND starred IS TRUE
+                        AND deleted_at IS NULL
+                "#,
+                root_package_id,
+            )
+                .fetch_optional(db)
+                .await?
+                .is_some();
+
+            Result::<_>::Ok(starred)
+        }
+        // log the backtrace which is otherwise lost by FieldResult
+        .await
+        .map_err(|err| {
+            warn!("{:?}", err);
+            err.into()
+        })
+    }
+
     /// The number of prints running or paused. Specifically this counts the tasks with a status of
     /// spooled, started, or paused.
     async fn prints_in_progress<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<i32> {

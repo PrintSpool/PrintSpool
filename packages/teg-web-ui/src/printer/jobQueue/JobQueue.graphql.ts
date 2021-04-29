@@ -48,7 +48,7 @@ export const PRINT_QUEUE_PART_FRAGMENT = gql`
     printsCompleted
     totalPrints
     startedFinalPrint
-    # stoppedAt
+    starred
   }
 `
 
