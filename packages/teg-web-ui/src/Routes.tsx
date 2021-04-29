@@ -66,8 +66,8 @@ const FilamentSwapDialog = React.lazy(() => (
 // ))
 
 const AuthRedirect = () => {
-  const urlWithToken = new URL(document.location.origin + document.location.hash.replace(/#/, '?'))
-  const params = Object.fromEntries(urlWithToken.searchParams)
+  // const urlWithToken = new URL(document.location.origin + document.location.hash.replace(/#/, '?'))
+  // const params = Object.fromEntries(urlWithToken.searchParams)
 
   // const googleJWT = params.id_token
 
