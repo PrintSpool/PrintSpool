@@ -192,7 +192,7 @@ const JobQueueView = ({
             // className={classes.noStarsSubtitle}
             component="div"
           >
-            You can star a part in the print queue to save it for printing later
+            Star a part in a print queue to save it for printing later.
           </Typography>
         </div>
       )}
