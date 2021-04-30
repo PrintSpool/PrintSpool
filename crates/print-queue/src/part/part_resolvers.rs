@@ -3,6 +3,7 @@ use async_graphql::{
     FieldResult,
     Context,
 };
+use chrono::prelude::*;
 use eyre::{
     // eyre,
     Result,
@@ -38,9 +39,13 @@ impl Default for PartTasksInput {
 #[async_graphql::Object]
 impl Part {
     async fn id(&self) -> ID { (&self.id).into() }
+    #[graphql(name="packageID")]
+    async fn _package_id(&self) -> ID { (&self.package_id).into() }
+
     async fn name(&self) -> &String { &self.name }
     async fn quantity(&self) -> i32 { self.quantity }
     async fn position(&self) -> u64 { self.position }
+    async fn created_at(&self) -> DateTime<Utc> { self.created_at }
 
     async fn starred<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<bool> {
         let db: &crate::Db = ctx.data()?;

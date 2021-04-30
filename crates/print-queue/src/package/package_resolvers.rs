@@ -22,7 +22,7 @@ impl Package {
     async fn name(&self) -> &String { &self.name }
     async fn quantity(&self) -> i32 { self.quantity }
 
-    async fn starred(&self) -> bool { self.starred || self.package_template_id.is_some() }
+    async fn starred(&self) -> bool { self.starred || self.based_on_package_id.is_some() }
 
     #[graphql(name="printQueueID")]
     async fn print_queue_id(&self) -> ID { (&self.print_queue_id).into() }

@@ -41,6 +41,7 @@ export const LATEST_PRINT_FRAGMENT = gql`
 export const PRINT_QUEUE_PART_FRAGMENT = gql`
   fragment PrintQueuePartFragment on Part {
     id
+    packageID
     name
     quantity
     position

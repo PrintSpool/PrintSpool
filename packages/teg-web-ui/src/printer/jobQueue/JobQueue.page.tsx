@@ -11,6 +11,7 @@ import {
   DELETE_PART,
   PRINT_FRAGMENT,
   PRINT_QUEUES_QUERY,
+  PRINT_QUEUE_PART_FRAGMENT,
   SET_PART_POSITIONS,
   STOP,
   usePrintMutation,
@@ -29,6 +30,7 @@ const JobQueuePage = ({
     variables: {
       machineID,
     },
+    fetchPolicy: 'network-only',
   })
 
   const SuccessMutationOpts = (msg) => ({
@@ -76,6 +78,7 @@ const JobQueuePage = ({
     `,
     SuccessMutationOpts('Print pausing...'),
   )
+
   const [resumePrint, resumeMutation] = useMutation(
     gql`
       mutation resumePrint($taskID: ID!) {
@@ -88,6 +91,20 @@ const JobQueuePage = ({
     SuccessMutationOpts('Print resumed!'),
   )
 
+  const [setStarred, setStarredMutation] = useMutation(
+    gql`
+      mutation setStarred($input: SetStarredInput!) {
+        setStarred(input: $input) {
+          id
+          parts {
+            ...PrintQueuePartFragment
+          }
+        }
+      }
+      ${PRINT_QUEUE_PART_FRAGMENT}
+    `,
+  )
+
   const mutationError = (
     null
     || printMutation.error
@@ -96,6 +113,7 @@ const JobQueuePage = ({
     || pausePrintMutation.error
     || setPartPositionsMutation.error
     || resumeMutation.error
+    || setStarredMutation.error
   )
 
   useEffect(() => {
@@ -192,6 +210,7 @@ const JobQueuePage = ({
         cancelTask,
         pausePrint,
         resumePrint,
+        setStarred,
         setPartPositions,
         history,
       }}

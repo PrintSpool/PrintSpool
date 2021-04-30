@@ -10,6 +10,7 @@ import useLiveSubscription from '../_hooks/useLiveSubscription'
 import {
   DELETE_PART,
   PRINT_QUEUES_QUERY,
+  PRINT_QUEUE_PART_FRAGMENT,
 } from './Starred.graphql'
 import { usePrintMutation } from '../jobQueue/JobQueue.graphql'
 
@@ -26,6 +27,7 @@ const JobQueuePage = ({
     variables: {
       machineID,
     },
+    fetchPolicy: 'network-only',
   })
 
   const SuccessMutationOpts = (msg) => ({
@@ -55,10 +57,25 @@ const JobQueuePage = ({
     },
   })
 
+  const [setStarred, setStarredMutation] = useMutation(
+    gql`
+      mutation setStarred($input: SetStarredInput!) {
+        setStarred(input: $input) {
+          id
+          parts {
+            ...PrintQueuePartFragment
+          }
+        }
+      }
+      ${PRINT_QUEUE_PART_FRAGMENT}
+    `,
+  )
+
   const mutationError = (
     null
     || printMutation.error
     || deletePartsMutation.error
+    || setStarredMutation.error
   )
 
   useEffect(() => {
@@ -152,6 +169,7 @@ const JobQueuePage = ({
         }),
         printMutation,
         deleteParts,
+        setStarred,
       }}
     />
   )

@@ -25,6 +25,9 @@ use set_part_quantity_mutation::SetPartQuantityMutation;
 pub mod print_mutation;
 use print_mutation::PrintMutation;
 
+pub mod star_mutations;
+use star_mutations::StarMutations;
+
 #[derive(async_graphql::MergedObject, Default)]
 pub struct PrintQueueMutation(
     AddPartsToPrintQueueMutation,
@@ -36,4 +39,5 @@ pub struct PrintQueueMutation(
     SetPartPositionsMutation,
     SetPartQuantityMutation,
     PrintMutation,
+    StarMutations,
 );

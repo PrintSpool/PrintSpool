@@ -44,6 +44,7 @@ const JobQueueView = ({
   pausePrint,
   resumePrint,
   setPartPositions,
+  setStarred,
   history,
 }) => {
   const classes = useStyles()
@@ -438,26 +439,36 @@ const JobQueueView = ({
                                     />
                                   </TableCell>
                                   <TableCell padding="checkbox" className={classes.savedCell}>
-                                    { part.starred && (
-                                      <IconButton aria-label="Unsave" edge="start">
-                                        <Star
-                                          className={classes.savedStar}
-                                          onClick={(e) => {
-                                            e.stopPropagation()
-                                          }}
-                                        />
-                                      </IconButton>
-                                    )}
-                                    { !part.starred && (
-                                      <IconButton aria-label="Save" edge="start">
-                                        <StarOutline
-                                          className={classes.UnsavedStarOutline}
-                                          onClick={(e) => {
-                                            e.stopPropagation()
-                                          }}
-                                        />
-                                      </IconButton>
-                                    )}
+                                    <IconButton
+                                      aria-label={part.starred ? 'Unsave' : 'Save'}
+                                      edge="start"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        console.log({
+                                          variables: {
+                                            input: {
+                                              packageID: part.packageID,
+                                              starred: !part.starred,
+                                            },
+                                          },
+                                        })
+                                        setStarred({
+                                          variables: {
+                                            input: {
+                                              packageID: part.packageID,
+                                              starred: !part.starred,
+                                            },
+                                          },
+                                        })
+                                      }}
+                                    >
+                                      { part.starred && (
+                                        <Star className={classes.savedStar} />
+                                      )}
+                                      { !part.starred && (
+                                        <StarOutline className={classes.UnsavedStarOutline} />
+                                      )}
+                                    </IconButton>
                                   </TableCell>
                                   <TableCell
                                     component="th"

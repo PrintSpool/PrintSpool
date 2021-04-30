@@ -27,12 +27,13 @@ pub struct Package {
     // Foreign Keys
     pub print_queue_id: crate::DbId, // print queues have many (>=0) packages queued for printing
     /// The starred package that this package is based on
-    pub package_template_id: Option<crate::DbId>,
+    pub based_on_package_id: Option<crate::DbId>,
 
     // Props
     pub name: String,
     pub quantity: i32,
     #[new(default)]
+    #[serde(default)]
     pub starred: bool,
 }
 

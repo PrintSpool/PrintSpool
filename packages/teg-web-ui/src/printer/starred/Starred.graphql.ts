@@ -3,6 +3,7 @@ import { gql } from '@apollo/client'
 export const PRINT_QUEUE_PART_FRAGMENT = gql`
   fragment PrintQueuePartFragment on Part {
     id
+    packageID
     name
     quantity
     position
@@ -11,6 +12,7 @@ export const PRINT_QUEUE_PART_FRAGMENT = gql`
     totalPrints
     startedFinalPrint
     starred
+    createdAt
   }
 `
 

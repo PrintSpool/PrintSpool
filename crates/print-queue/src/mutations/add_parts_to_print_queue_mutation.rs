@@ -236,12 +236,11 @@ impl AddPartsToPrintQueueMutation {
 
             add_to_print_queue(db, start, package, parts).await
         }
-        // log the backtrace which is otherwise lost by FieldResult
-        .await
-        .map_err(|err| {
-            warn!("{:?}", err);
-            err.into()
-        })
-
+            // log the backtrace which is otherwise lost by FieldResult
+            .await
+            .map_err(|err| {
+                warn!("{:?}", err);
+                err.into()
+            })
     }
 }
