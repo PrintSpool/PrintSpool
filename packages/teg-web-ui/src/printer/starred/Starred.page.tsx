@@ -8,6 +8,7 @@ import JobQueueView from './Starred.view'
 
 import useLiveSubscription from '../_hooks/useLiveSubscription'
 import {
+  ADD_STARRED_PACKAGES_TO_PRINT_QUEUE,
   DELETE_PART,
   PRINT_QUEUES_QUERY,
   PRINT_QUEUE_PART_FRAGMENT,
@@ -57,6 +58,8 @@ const JobQueuePage = ({
     },
   })
 
+  const [addToQueue, addToQueueMutation] = useMutation(ADD_STARRED_PACKAGES_TO_PRINT_QUEUE)
+
   const [setStarred, setStarredMutation] = useMutation(
     gql`
       mutation setStarred($input: SetStarredInput!) {
@@ -75,6 +78,7 @@ const JobQueuePage = ({
     null
     || printMutation.error
     || deletePartsMutation.error
+    || addToQueueMutation.error
     || setStarredMutation.error
   )
 
@@ -125,24 +129,6 @@ const JobQueuePage = ({
     machine.status === 'READY'
   ))
 
-  const printNext = useCallback(() => {
-    if (nextPart == null) {
-      throw new Error('nothing in the queue to print')
-    }
-    if (readyMachine == null) {
-      throw new Error('No machine is ready to start a print')
-    }
-
-    print({
-      variables: {
-        input: {
-          machineID: readyMachine.id,
-          partID: nextPart.id,
-        },
-      },
-    })
-  }, [nextPart, readyMachine])
-
   if (loading) {
     return <div />
   }
@@ -158,16 +144,36 @@ const JobQueuePage = ({
         printQueues,
         machines,
         nextPart,
-        printNext,
-        print: (part) => print({
-          variables: {
-            input: {
-              machineID: readyMachine.id,
-              partID: part.id,
+        print: async (part) => {
+          const addToQueueResult = await addToQueue({
+            variables: {
+              input: {
+                packageIDs: [part.packageID],
+              },
             },
-          },
-        }),
+          })
+
+          if (addToQueueResult.errors != null) {
+            return
+          }
+
+          const partID = addToQueueResult
+            .data
+            .addStarredPackagesToPrintQueue[0]
+            .parts[0]
+            .id
+
+          await print({
+            variables: {
+              input: {
+                machineID: readyMachine.id,
+                partID,
+              },
+            },
+          })
+        },
         printMutation,
+        addToQueue,
         deleteParts,
         setStarred,
       }}

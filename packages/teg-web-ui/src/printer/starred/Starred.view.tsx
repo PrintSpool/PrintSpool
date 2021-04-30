@@ -31,12 +31,11 @@ import useStyles from './Starred.styles'
 const JobQueueView = ({
   printQueues,
   machines,
-  nextPart,
   print,
-  printNext,
   printMutation,
   deleteParts,
   setStarred,
+  addToQueue,
 }) => {
   const classes = useStyles()
 
@@ -54,15 +53,6 @@ const JobQueueView = ({
       return 1
     }
   })
-
-  const statuses = machines.map(machine => machine.status)
-  const disablePrintNextButton = (
-    nextPart == null
-    || !statuses.includes('READY')
-    || printMutation.loading
-  )
-
-  const [printDialogFiles, setPrintDialogFiles] = useState()
 
   const defaultValues = () => ({
     selectedParts: Object.fromEntries(parts.map(part => ([
@@ -89,6 +79,13 @@ const JobQueueView = ({
 
   // console.log(selectedParts)
 
+  const statuses = machines.map(machine => machine.status)
+  const disablePrintButton = (
+    !statuses.includes('READY')
+    || printMutation.loading
+    || selectedParts.length !== 1
+  )
+
   const resetSelection = () => {
     // console.log('reset selected parts')
     reset({
@@ -108,29 +105,29 @@ const JobQueueView = ({
     }
   }
 
-  const confirm = useConfirm()
-  const confirmedDeleteParts = confirm(() => ({
-    fn: async () => {
-      await deleteParts({
-        variables: {
-          input: {
-            partIDs: selectedParts,
-          },
-        },
-      })
-      resetSelection()
-    },
-    title: (
-      'Are you sure you want to delete '
-      + (selectedParts.length > 1 ? `these ${selectedParts.length} parts?` : 'this part?')
-    ),
-    description: selectedParts.map(id => (
-      <React.Fragment key={id}>
-        {parts.find(p => p.id == id).name}
-        <br/>
-      </React.Fragment>
-    ))
-  }))
+  // const confirm = useConfirm()
+  // const confirmedDeleteParts = confirm(() => ({
+  //   fn: async () => {
+  //     await deleteParts({
+  //       variables: {
+  //         input: {
+  //           partIDs: selectedParts,
+  //         },
+  //       },
+  //     })
+  //     resetSelection()
+  //   },
+  //   title: (
+  //     'Are you sure you want to delete '
+  //     + (selectedParts.length > 1 ? `these ${selectedParts.length} parts?` : 'this part?')
+  //   ),
+  //   description: selectedParts.map(id => (
+  //     <React.Fragment key={id}>
+  //       {parts.find(p => p.id == id).name}
+  //       <br/>
+  //     </React.Fragment>
+  //   ))
+  // }))
 
   let printButtonTooltip = ''
   if (selectedParts.length === 0) {
@@ -160,6 +157,17 @@ const JobQueueView = ({
             variant="outlined"
             className={classes.actionsRowButton}
             color="default"
+            onClick={() => {
+              addToQueue({
+                variables: {
+                  input: {
+                    packageIDs: parts
+                      .filter(part => selectedPartsObj[part.id])
+                      .map((part) => part.packageID),
+                  },
+                },
+              })
+            }}
             disabled={selectedParts.length === 0}
             startIcon={<Add/>}
           >
@@ -175,13 +183,9 @@ const JobQueueView = ({
             variant="contained"
             className={classes.actionsRowButton}
             color="primary"
-            disabled={disablePrintNextButton || selectedParts.length !== 1}
+            disabled={disablePrintButton}
             onClick={() => {
-              if (selectedParts.length === 1) {
-                print({ id: selectedParts[0] })
-              } else {
-                printNext()
-              }
+                print(parts.find(part => part.id === selectedParts[0]))
             }}
             startIcon={<PlayArrow/>}
           >
@@ -209,153 +213,155 @@ const JobQueueView = ({
         </div>
       )}
 
-      <div>
-        <Paper>
-          <div className={classes.partsList}>
-            <TableContainer>
-              <Table
-                size="medium"
-                aria-label="Starred Parts"
-              >
-                <TableHead>
-                  <TableRow>
-                    <TableCell padding="checkbox" className={classes.headerCheckbox}>
-                      <Checkbox
-                        indeterminate={
-                          selectedParts.length > 0
-                          && selectedParts.length < parts.length
-                        }
-                        checked={
-                          selectedParts.length > 0
-                          && selectedParts.length === parts.length
-                        }
-                        onChange={onSelectAllClick}
-                        inputProps={{ 'aria-label': 'select all parts' }}
-                      />
-                    </TableCell>
-                    <TableCell padding="none" colSpan={2}>
-                      { selectedParts.length > 0 && (
-                        <>
-                          <Tooltip title="Delete">
-                            <IconButton
-                              aria-label="delete"
-                              onClick={confirmedDeleteParts}
-                              edge="start"
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                          </Tooltip>
-                        </>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell colSpan={3}>
-                      <Typography
-                        variant="h5"
-                        component="div"
-                      >
-                        Starred Parts
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {
-                    parts.map(part => {
-                      const labelID = `${part.id}-label`
-                      const shortName = truncate(part.name, 32)
-
-                      return (
-                        <Controller
-                          key={part.id}
-                          name={`selectedParts.${part.id}`}
-                          control={control}
-                          defaultValue={false}
-                          render={(checkboxProps) => (
-                            <TableRow
-                              hover
-                              // onClick={(event) => handleClick(event, row.name)}
-                              // role="checkbox"
-                              // aria-checked={isItemSelected}
-                              tabIndex={-1}
-                              // onClick={() => {
-                              //   history.push(`./printing/${part.id}/`)
-                              // }}
-                              selected={checkboxProps.value}
-                              // style={{ cursor: 'pointer' }}
-                              style={{ cursor: 'default' }}
-                              // selected={isItemSelected}
-                            >
-                              <TableCell padding="checkbox">
-                                <Checkbox
-                                  checked={checkboxProps.value || false}
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                  }}
-                                  onChange={(e) => {
-                                    // console.log('on change', selectedPartsObj)
-                                    // @ts-ignore
-                                    checkboxProps.onChange(e.target.checked)
-                                  }}
-                                  // size="small"
-                                  // inputProps={{ 'aria-labelledby': labelId }}
-                                />
-                              </TableCell>
-                              <TableCell padding="checkbox" className={classes.savedCell}>
-                                <IconButton
-                                  aria-label={part.starred ? 'Unsave' : 'Save'}
-                                  edge="start"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    console.log({
-                                      variables: {
-                                        input: {
-                                          packageID: part.packageID,
-                                          starred: !part.starred,
-                                        },
-                                      },
-                                    })
-                                    setStarred({
-                                      variables: {
-                                        input: {
-                                          packageID: part.packageID,
-                                          starred: !part.starred,
-                                        },
-                                      },
-                                    })
-                                  }}
-                                >
-                                  { part.starred && (
-                                    <Star className={classes.savedStar} />
-                                  )}
-                                  { !part.starred && (
-                                    <StarOutline className={classes.UnsavedStarOutline} />
-                                  )}
-                                </IconButton>
-                              </TableCell>
-                              <TableCell
-                                component="th"
-                                id={labelID}
-                                scope="row"
-                                padding="none"
-                              >
-                                <Typography display="inline">
-                                  {shortName}
-                                </Typography>
-                              </TableCell>
-                            </TableRow>
-                          )}
+      { parts.length > 0 && (
+        <div>
+          <Paper>
+            <div className={classes.partsList}>
+              <TableContainer>
+                <Table
+                  size="medium"
+                  aria-label="Starred Parts"
+                >
+                  <TableHead>
+                    <TableRow>
+                      <TableCell padding="checkbox" className={classes.headerCheckbox}>
+                        <Checkbox
+                          indeterminate={
+                            selectedParts.length > 0
+                            && selectedParts.length < parts.length
+                          }
+                          checked={
+                            selectedParts.length > 0
+                            && selectedParts.length === parts.length
+                          }
+                          onChange={onSelectAllClick}
+                          inputProps={{ 'aria-label': 'select all parts' }}
                         />
-                      )
-                    })
-                  }
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </div>
-        </Paper>
-      </div>
+                      </TableCell>
+                      <TableCell padding="none" colSpan={2}>
+                        {/* { selectedParts.length > 0 && (
+                          <>
+                            <Tooltip title="Delete">
+                              <IconButton
+                                aria-label="delete"
+                                onClick={confirmedDeleteParts}
+                                edge="start"
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </Tooltip>
+                          </>
+                        )} */}
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell colSpan={3}>
+                        <Typography
+                          variant="h5"
+                          component="div"
+                        >
+                          Starred Parts
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {
+                      parts.map(part => {
+                        const labelID = `${part.id}-label`
+                        const shortName = truncate(part.name, 32)
+
+                        return (
+                          <Controller
+                            key={part.id}
+                            name={`selectedParts.${part.id}`}
+                            control={control}
+                            defaultValue={false}
+                            render={(checkboxProps) => (
+                              <TableRow
+                                hover
+                                // onClick={(event) => handleClick(event, row.name)}
+                                // role="checkbox"
+                                // aria-checked={isItemSelected}
+                                tabIndex={-1}
+                                // onClick={() => {
+                                //   history.push(`./printing/${part.id}/`)
+                                // }}
+                                selected={checkboxProps.value}
+                                // style={{ cursor: 'pointer' }}
+                                style={{ cursor: 'default' }}
+                                // selected={isItemSelected}
+                              >
+                                <TableCell padding="checkbox">
+                                  <Checkbox
+                                    checked={checkboxProps.value || false}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                    }}
+                                    onChange={(e) => {
+                                      // console.log('on change', selectedPartsObj)
+                                      // @ts-ignore
+                                      checkboxProps.onChange(e.target.checked)
+                                    }}
+                                    // size="small"
+                                    // inputProps={{ 'aria-labelledby': labelId }}
+                                  />
+                                </TableCell>
+                                <TableCell padding="checkbox" className={classes.savedCell}>
+                                  <IconButton
+                                    aria-label={part.starred ? 'Unsave' : 'Save'}
+                                    edge="start"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      console.log({
+                                        variables: {
+                                          input: {
+                                            packageID: part.packageID,
+                                            starred: !part.starred,
+                                          },
+                                        },
+                                      })
+                                      setStarred({
+                                        variables: {
+                                          input: {
+                                            packageID: part.packageID,
+                                            starred: !part.starred,
+                                          },
+                                        },
+                                      })
+                                    }}
+                                  >
+                                    { part.starred && (
+                                      <Star className={classes.savedStar} />
+                                    )}
+                                    { !part.starred && (
+                                      <StarOutline className={classes.UnsavedStarOutline} />
+                                    )}
+                                  </IconButton>
+                                </TableCell>
+                                <TableCell
+                                  component="th"
+                                  id={labelID}
+                                  scope="row"
+                                  padding="none"
+                                >
+                                  <Typography display="inline">
+                                    {shortName}
+                                  </Typography>
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          />
+                        )
+                      })
+                    }
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </div>
+          </Paper>
+        </div>
+      )}
     </div>
   )
 }

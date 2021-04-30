@@ -40,3 +40,16 @@ export const DELETE_PART = gql`
     }
   }
 `
+
+export const ADD_STARRED_PACKAGES_TO_PRINT_QUEUE = gql`
+  mutation addStarredPackagesToPrintQueue($input: AddStarredPackagesToPrintQueueInput!) {
+    addStarredPackagesToPrintQueue(input: $input) {
+      id
+      printQueueID
+      parts {
+        ...PrintQueuePartFragment
+      }
+    }
+  }
+  ${PRINT_QUEUE_PART_FRAGMENT}
+`

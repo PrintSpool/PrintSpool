@@ -44,9 +44,9 @@ struct AddPartsToPrintQueuePartInput {
 
 #[derive(async_graphql::InputObject)]
 /// Adds a clone of the starred package's parts to the print queue
-struct AddStarredPackageToPrintQueueInput {
-    #[graphql(name="packageID")]
-    package_id: ID,
+struct AddStarredPackagesToPrintQueueInput {
+    #[graphql(name="packageIDs")]
+    package_ids: Vec<ID>,
 }
 
 async fn add_to_print_queue(
@@ -169,11 +169,11 @@ impl AddPartsToPrintQueueMutation {
     }
 
     /// Copy the parts from a starred package into a new package in the print queue
-    async fn add_starred_package_to_print_queue<'ctx>(
+    async fn add_starred_packages_to_print_queue<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
-        input: AddStarredPackageToPrintQueueInput,
-    ) -> FieldResult<Package> {
+        input: AddStarredPackagesToPrintQueueInput,
+    ) -> FieldResult<Vec<Package>> {
         let start = std::time::Instant::now();
 
         let db: &crate::Db = ctx.data()?;
@@ -182,59 +182,71 @@ impl AddPartsToPrintQueueMutation {
             let part_dir = "/var/lib/teg/parts";
             fs::create_dir_all(part_dir).await?;
 
-            let pkg_template = Package::get(
-                db,
-                &input.package_id,
-                false,
-            ).await?;
-
-            if !pkg_template.starred {
-                return Err(eyre!("Package must be starred"));
-            }
-
-            let print_queue = PrintQueue::get(
-                db,
-                &pkg_template.print_queue_id,
-                false,
-            ).await?;
-
-            let package = Package::new(
-                print_queue.id.clone(),
-                Some(pkg_template.id.clone()),
-                pkg_template.name.clone(),
-                1,
-            );
-            let package_id = package.id.clone();
-
-            let part_templates = Package::get_parts(
-                db,
-                &pkg_template.id
-            ).await?;
-
-            let parts = part_templates
+            let pkg_template_ids = input.package_ids
                 .into_iter()
-                .enumerate()
-                .map(|(index, part_template)| {
-                    let package_id = package_id.clone();
-                    Part {
-                        id: nanoid!(11),
-                        version: 0,
-                        created_at: Utc::now(),
-                        deleted_at: None,
-                        package_id,
-                        name: part_template.name,
-                        position: index as u64,
-                        quantity: part_template.quantity,
-                        file_path: part_template.file_path,
-                        based_on: Some(PartTemplate {
-                            part_id: part_template.id,
-                            package_id: pkg_template.id.clone(),
-                        }),
-                    }
-                })
+                .map(|id| id.0)
                 .collect::<Vec<_>>();
 
-            add_to_print_queue(db, start, package, parts).await
+            let pkg_templates = Package::get_by_ids(
+                db,
+                &pkg_template_ids,
+                false,
+            ).await?;
+
+            let packages = pkg_templates
+                .into_iter()
+                .map(|pkg_template| async move {
+                    let db = db.clone();
+                    if !pkg_template.starred {
+                        return Err(eyre!("Package must be starred"));
+                    }
+
+                    let print_queue = PrintQueue::get(
+                        &db,
+                        &pkg_template.print_queue_id,
+                        false,
+                    ).await?;
+
+                    let package = Package::new(
+                        print_queue.id.clone(),
+                        Some(pkg_template.id.clone()),
+                        pkg_template.name.clone(),
+                        1,
+                    );
+                    let package_id = package.id.clone();
+
+                    let part_templates = Package::get_parts(
+                        &db,
+                        &pkg_template.id
+                    ).await?;
+
+                    let parts = part_templates
+                        .into_iter()
+                        .enumerate()
+                        .map(|(index, part_template)| {
+                            let package_id = package_id.clone();
+                            Part {
+                                id: nanoid!(11),
+                                version: 0,
+                                created_at: Utc::now(),
+                                deleted_at: None,
+                                package_id,
+                                name: part_template.name,
+                                position: index as u64,
+                                quantity: part_template.quantity,
+                                file_path: part_template.file_path,
+                                based_on: Some(PartTemplate {
+                                    part_id: part_template.id,
+                                    package_id: pkg_template.id.clone(),
+                                }),
+                            }
+                        })
+                        .collect::<Vec<_>>();
+
+                    add_to_print_queue(&db, start, package, parts).await
+                });
+
+                Result::<_>::Ok(try_join_all(packages).await?)
         }
             // log the backtrace which is otherwise lost by FieldResult
             .await
