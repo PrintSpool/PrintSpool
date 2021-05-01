@@ -119,15 +119,20 @@ const JobQueueView = ({
       resetSelection()
     },
     title: (
-      'Are you sure you want to delete '
-      + (selectedParts.length > 1 ? `these ${selectedParts.length} parts?` : 'this part?')
+      'Are you sure you want to remove '
+      + (selectedParts.length > 1 ? `these ${selectedParts.length} parts` : 'this part')
+      + ` from the queue?`
     ),
-    description: selectedParts.map(id => (
-      <React.Fragment key={id}>
-        {parts.find(p => p.id == id).name}
-        <br/>
-      </React.Fragment>
-    ))
+    description: (
+      <>
+        { selectedParts.map(id => (
+          <React.Fragment key={id}>
+            {parts.find(p => p.id == id).name}
+            <br/>
+          </React.Fragment>
+        ))}
+      </>
+    )
   }))
 
   const moveToTopOfQueue = () => {

@@ -53,7 +53,7 @@ impl Part {
         async move {
             let root_package_id = self.based_on
                 .as_ref()
-                .map(|t| &t.package_id)
+                .map(|based_on| &based_on.package_id)
                 .unwrap_or(&self.package_id);
 
             let starred = sqlx::query!(

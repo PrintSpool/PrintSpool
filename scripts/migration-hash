@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
+
+# Get the hash of a sqlx migration. Useful for when you want to modify a migration during
+# development without dropping and resetting the database.
+
+cat $1 | openssl dgst -sha384 | cut -d ' ' -f 2

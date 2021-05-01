@@ -1,7 +1,7 @@
 use chrono::prelude::*;
 use serde::{Serialize, de::DeserializeOwned};
 use eyre::{
-    // eyre,
+    eyre,
     Result,
     Context as _,
 };
@@ -69,11 +69,11 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         Ok(())
     }
 
-    async fn get<'e, 'c, E>(
+    async fn get_optional<'e, 'c, E>(
         db: E,
         id: &crate::DbId,
         include_deleted: bool,
-    ) -> Result<Self>
+    ) -> Result<Option<Self>>
     where
         E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
     {
@@ -89,13 +89,31 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
             deletion_filter,
         );
 
-        let row: JsonRow = sqlx::query_as(&sql)
+        let row: Option<JsonRow> = sqlx::query_as(&sql)
             .bind(id)
-            .fetch_one(db)
-            .await
-            .wrap_err_with(|| format!("Could not find {} (id: {})", Self::TABLE, id))?;
+            .fetch_optional(db)
+            .await?;
 
-        let entry: Self = Self::from_row(row)?;
+        let entry: Option<Self> = row.map(|row| Self::from_row(row)).transpose()?;
+        Ok(entry)
+    }
+
+    async fn get<'e, 'c, E>(
+        db: E,
+        id: &crate::DbId,
+        include_deleted: bool,
+    ) -> Result<Self>
+    where
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    {
+        let entry = Self::get_optional(
+            db,
+            id,
+            include_deleted,
+        )
+            .await?
+            .ok_or_else(|| eyre!("Could not find {} (id: {})", Self::TABLE, id))?;
+
         Ok(entry)
     }
 

@@ -3,6 +3,7 @@ use async_graphql::{
     Context,
     FieldResult,
 };
+use chrono::prelude::*;
 use eyre::{
     // eyre,
     Result,
@@ -12,9 +13,7 @@ use teg_json_store::{
     Record as _,
 };
 
-use crate::{
-    package::Package,
-};
+use crate::{package::Package, part::{Part, PartTemplate}};
 
 #[derive(Default)]
 pub struct StarMutations;
@@ -48,22 +47,85 @@ impl StarMutations {
             let mut parent_pkg = if let
                 Some(parent_id) = original_pkg.based_on_package_id.as_ref()
             {
-                let parent_pkg = Package::get(
+                Package::get_optional(
                     &mut tx,
                     &parent_id,
                     false,
                 )
-                    .await?;
-
-                Some(parent_pkg)
+                    .await?
             } else {
                 None
             };
-            let root_pkg = parent_pkg.as_mut().unwrap_or(&mut original_pkg);
 
-            root_pkg.starred = input.starred;
+            let root_pkg = parent_pkg
+                .as_mut()
+                .or_else(|| {
+                    if original_pkg.starred {
+                        Some(&mut original_pkg)
+                    } else {
+                        None
+                    }
+                });
 
-            root_pkg.update(&mut tx).await?;
+            match root_pkg {
+                Some(mut root_pkg) if !input.starred => {
+                    root_pkg.starred = false;
+
+                    root_pkg.update(&mut tx).await?;
+                }
+                None | Some(Package { starred: false, .. }) if input.starred => {
+                    // Copy the package properties to a new starred package
+                    let mut starred_package = Package::new(
+                        original_pkg.print_queue_id.clone(),
+                        None,
+                        original_pkg.name.clone(),
+                        // A quantity of 0 prevents this starred copy from showing up in
+                        // the print queue
+                        0,
+                    );
+                    starred_package.starred = true;
+                    starred_package.insert_no_rollback(&mut tx).await?;
+ 
+                    // Update the original package parent
+                    original_pkg.based_on_package_id = Some(starred_package.id.clone());
+                    original_pkg.update(&mut tx).await?;
+
+                    let original_parts = Package::get_parts(
+                        &mut tx,
+                        &original_pkg.id
+                    ).await?;
+
+                    for (index, mut original_part) in original_parts
+                        .into_iter()
+                        .enumerate()
+                    {
+                        // copy the original part's properties to a new starred part
+                        let starred_part = Part {
+                            id: nanoid!(11),
+                            version: 0,
+                            created_at: Utc::now(),
+                            deleted_at: None,
+                            package_id: starred_package.id.clone(),
+                            name: original_part.name.clone(),
+                            position: index as u64,
+                            quantity: original_part.quantity,
+                            file_path: original_part.file_path.clone(),
+                            based_on: None,
+                        };
+
+                        starred_part.insert_no_rollback(&mut tx).await?;
+
+                        // set the original part parent ids to the starred part and package
+                        original_part.based_on = Some(PartTemplate {
+                            part_id: starred_part.id,
+                            package_id: starred_package.id.clone(),
+                        });
+                        original_part.update(&mut tx).await?;
+                    }
+                }
+                // Idempotent - already starred or unstarred packages are left unchanged
+                _ => {}
+            }
 
             tx.commit().await?;
 
@@ -76,46 +138,4 @@ impl StarMutations {
                 err.into()
             })
     }
-
-    // /// Un-star a package.
-    // // TODO: /// This will delete the associated GCode files once the last print is completed.
-    // async fn unstar_package<'ctx>(
-    //     &self,
-    //     ctx: &'ctx Context<'_>,
-    //     input: UnstarPackageInput,
-    // ) -> FieldResult<Package> {
-    //     let db: &crate::Db = ctx.data()?;
-    //     let mut tx = db.begin().await?;
-
-    //     let mut original_pkg = Package::get(
-    //         &mut tx,
-    //         &input.package_id.0,
-    //         false,
-    //     )
-    //         .await?;
-
-    //     let mut parent_pkg = if let
-    //         Some(parent_id) = original_pkg.based_on_package_id.as_ref()
-    //     {
-    //         let parent_pkg = Package::get(
-    //             &mut tx,
-    //             &parent_id,
-    //             false,
-    //         )
-    //             .await?;
-
-    //         Some(parent_pkg)
-    //     } else {
-    //         None
-    //     };
-    //     let root_pkg = parent_pkg.as_mut().unwrap_or(&mut original_pkg);
-
-    //     root_pkg.starred = false;
-
-    //     root_pkg.update(&mut tx).await?;
-
-    //     tx.commit().await?;
-
-    //     Ok(original_pkg)
-    // }
 }

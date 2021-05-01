@@ -33,9 +33,9 @@ export const PRINT_QUEUES_QUERY = gql`
   ${PRINT_QUEUE_PART_FRAGMENT}
 `
 
-export const DELETE_PART = gql`
-  mutation deleteParts($input: DeletePartsInput!) {
-    deleteParts(input: $input) {
+export const DELETE_PACKAGES = gql`
+  mutation deletePackages($input: DeletePackagesInput!) {
+    deletePackages(input: $input) {
       partIDs
     }
   }

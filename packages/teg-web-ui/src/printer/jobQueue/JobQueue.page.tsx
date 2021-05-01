@@ -76,7 +76,7 @@ const JobQueuePage = ({
       }
       ${PRINT_FRAGMENT}
     `,
-    SuccessMutationOpts('Print pausing...'),
+    SuccessMutationOpts('Pausing print!'),
   )
 
   const [resumePrint, resumeMutation] = useMutation(

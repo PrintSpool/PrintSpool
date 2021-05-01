@@ -142,6 +142,8 @@ impl Package {
                 WHERE
                     deleted_at IS NULL
                     AND package_id = ?
+                ORDER BY
+                    parts.position
             "#,
             package_id,
         )
@@ -212,8 +214,18 @@ impl Record for Package {
         sqlx::query!(
             r#"
                 INSERT INTO packages
-                (id, version, created_at, props, print_queue_id, quantity)
-                VALUES (?, ?, ?, ?, ?, ?)
+                (
+                    id,
+                    version,
+                    created_at,
+                    props,
+                    print_queue_id,
+                    quantity,
+                    starred,
+                    based_on_package_id,
+                    deleted_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             "#,
             self.id,
             self.version,
@@ -221,6 +233,9 @@ impl Record for Package {
             json,
             self.print_queue_id,
             self.quantity,
+            self.starred,
+            self.based_on_package_id,
+            self.deleted_at,
         )
             .fetch_optional(db)
             .await?;
@@ -244,6 +259,7 @@ impl Record for Package {
                     version=?,
                     quantity=?,
                     starred=?,
+                    based_on_package_id=?,
                     deleted_at=?
                 WHERE
                     id=?
@@ -254,6 +270,7 @@ impl Record for Package {
             self.version,
             self.quantity,
             self.starred,
+            self.based_on_package_id,
             self.deleted_at,
             // WHERE
             self.id,

@@ -9,7 +9,7 @@ import JobQueueView from './Starred.view'
 import useLiveSubscription from '../_hooks/useLiveSubscription'
 import {
   ADD_STARRED_PACKAGES_TO_PRINT_QUEUE,
-  DELETE_PART,
+  DELETE_PACKAGES,
   PRINT_QUEUES_QUERY,
   PRINT_QUEUE_PART_FRAGMENT,
 } from './Starred.graphql'
@@ -41,9 +41,9 @@ const JobQueuePage = ({
 
   const [print, printMutation] = usePrintMutation()
 
-  const [deleteParts, deletePartsMutation] = useMutation(DELETE_PART, {
+  const [deletePackages, deletePackagesMutation] = useMutation(DELETE_PACKAGES, {
     // Remove the parts from the print queues as soon as the delete part mutation completes
-    update: (cache, { data: { deleteParts: { partIDs } } }) => {
+    update: (cache, { data: { deletePackages: { partIDs } } }) => {
       data.printQueues.forEach((printQueue) => {
         cache.modify({
           id: cache.identify(printQueue),
@@ -58,7 +58,10 @@ const JobQueuePage = ({
     },
   })
 
-  const [addToQueue, addToQueueMutation] = useMutation(ADD_STARRED_PACKAGES_TO_PRINT_QUEUE)
+  const [addToQueue, addToQueueMutation] = useMutation(ADD_STARRED_PACKAGES_TO_PRINT_QUEUE,
+    SuccessMutationOpts('Added to queue!')
+  )
+  const [addToQueueForPrint, addToQueueMutation2] = useMutation(ADD_STARRED_PACKAGES_TO_PRINT_QUEUE)
 
   const [setStarred, setStarredMutation] = useMutation(
     gql`
@@ -77,8 +80,9 @@ const JobQueuePage = ({
   const mutationError = (
     null
     || printMutation.error
-    || deletePartsMutation.error
+    || deletePackagesMutation.error
     || addToQueueMutation.error
+    || addToQueueMutation2.error
     || setStarredMutation.error
   )
 
@@ -145,7 +149,7 @@ const JobQueuePage = ({
         machines,
         nextPart,
         print: async (part) => {
-          const addToQueueResult = await addToQueue({
+          const addToQueueResult = await addToQueueForPrint({
             variables: {
               input: {
                 packageIDs: [part.packageID],
@@ -174,7 +178,7 @@ const JobQueuePage = ({
         },
         printMutation,
         addToQueue,
-        deleteParts,
+        deletePackages,
         setStarred,
       }}
     />

@@ -201,11 +201,30 @@ impl Record for Part {
         let json = serde_json::to_string(&self)?;
         let position = self.position_db_blob();
 
+        let based_on_package_id = self.based_on
+            .as_ref()
+            .map(|based_on| &based_on.package_id);
+
+        let based_on_part_id = self.based_on
+            .as_ref()
+            .map(|based_on| &based_on.part_id);
+
         sqlx::query!(
             r#"
                 INSERT INTO parts
-                (id, version, created_at, deleted_at, props, package_id, quantity, position)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                (
+                    id,
+                    version,
+                    created_at,
+                    deleted_at,
+                    props,
+                    package_id,
+                    based_on_package_id,
+                    based_on_part_id,
+                    quantity,
+                    position
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             "#,
             self.id,
             self.version,
@@ -213,6 +232,8 @@ impl Record for Part {
             self.deleted_at,
             json,
             self.package_id,
+            based_on_package_id,
+            based_on_part_id,
             self.quantity,
             position,
         )
@@ -231,12 +252,22 @@ impl Record for Part {
         let (json, previous_version) = self.prep_for_update()?;
         let position = self.position_db_blob();
 
+        let based_on_package_id = self.based_on
+            .as_ref()
+            .map(|based_on| &based_on.package_id);
+
+        let based_on_part_id = self.based_on
+            .as_ref()
+            .map(|based_on| &based_on.part_id);
+
         sqlx::query!(
             r#"
                 UPDATE parts
                 SET
                     props=?,
                     version=?,
+                    based_on_package_id=?,
+                    based_on_part_id=?,
                     quantity=?,
                     position=?,
                     deleted_at=?
@@ -247,6 +278,8 @@ impl Record for Part {
             // SET
             json,
             self.version,
+            based_on_package_id,
+            based_on_part_id,
             self.quantity,
             position,
             self.deleted_at,

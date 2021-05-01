@@ -27,13 +27,14 @@ import StarOutline from '@material-ui/icons/StarOutline'
 import useConfirm from '../../common/_hooks/useConfirm'
 // import FloatingPrintNextButton from './components/FloatingPrintNextButton'
 import useStyles from './Starred.styles'
+import { parseMessage } from 'graphql-ws'
 
 const JobQueueView = ({
   printQueues,
   machines,
   print,
   printMutation,
-  deleteParts,
+  deletePackages,
   setStarred,
   addToQueue,
 }) => {
@@ -105,29 +106,36 @@ const JobQueueView = ({
     }
   }
 
-  // const confirm = useConfirm()
-  // const confirmedDeleteParts = confirm(() => ({
-  //   fn: async () => {
-  //     await deleteParts({
-  //       variables: {
-  //         input: {
-  //           partIDs: selectedParts,
-  //         },
-  //       },
-  //     })
-  //     resetSelection()
-  //   },
-  //   title: (
-  //     'Are you sure you want to delete '
-  //     + (selectedParts.length > 1 ? `these ${selectedParts.length} parts?` : 'this part?')
-  //   ),
-  //   description: selectedParts.map(id => (
-  //     <React.Fragment key={id}>
-  //       {parts.find(p => p.id == id).name}
-  //       <br/>
-  //     </React.Fragment>
-  //   ))
-  // }))
+  const confirm = useConfirm()
+  const confirmedDeletePackages = confirm(() => ({
+    fn: async () => {
+      await deletePackages({
+        variables: {
+          input: {
+            packageIDs: parts
+              .filter(part => selectedParts.includes(part.id))
+              .map(part => part.packageID),
+          },
+        },
+      })
+      resetSelection()
+    },
+    title: (
+      'Are you sure you want to delete '
+      + (
+          selectedParts.length > 1 ?
+          `these ${selectedParts.length} starred parts?`
+          :
+          'this starred part?'
+        )
+    ),
+    description: selectedParts.map(id => (
+      <React.Fragment key={id}>
+        {parts.find(p => p.id == id).name}
+        <br/>
+      </React.Fragment>
+    ))
+  }))
 
   let printButtonTooltip = ''
   if (selectedParts.length === 0) {
@@ -239,19 +247,19 @@ const JobQueueView = ({
                         />
                       </TableCell>
                       <TableCell padding="none" colSpan={2}>
-                        {/* { selectedParts.length > 0 && (
+                        { selectedParts.length > 0 && (
                           <>
                             <Tooltip title="Delete">
                               <IconButton
                                 aria-label="delete"
-                                onClick={confirmedDeleteParts}
+                                onClick={confirmedDeletePackages}
                                 edge="start"
                               >
                                 <DeleteIcon />
                               </IconButton>
                             </Tooltip>
                           </>
-                        )} */}
+                        )}
                       </TableCell>
                     </TableRow>
                     <TableRow>

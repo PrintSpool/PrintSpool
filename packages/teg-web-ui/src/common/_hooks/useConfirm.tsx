@@ -1,11 +1,9 @@
-import React from 'react'
 import { useConfirm as muiUseConfirm } from 'material-ui-confirm'
 import { useSnackbar } from 'notistack'
-import ButtonBase from '@material-ui/core/ButtonBase'
 
 const useConfirm = () => {
   const muiConfirm = muiUseConfirm()
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar()
+  const { enqueueSnackbar } = useSnackbar()
 
   return cb => async (...args) => {
     const {
@@ -30,14 +28,6 @@ const useConfirm = () => {
         {
           variant: 'error',
           persist: true,
-          action: (key) => (
-            <ButtonBase
-              onClick={() => closeSnackbar(key)}
-              style={{ marginRight: 16 }}
-            >
-                Dismiss
-            </ButtonBase>
-          ),
         }
       )
       onCancel()

@@ -1,8 +1,8 @@
 pub mod add_parts_to_print_queue_mutation;
 use add_parts_to_print_queue_mutation::AddPartsToPrintQueueMutation;
 
-pub mod delete_package_mutation;
-use delete_package_mutation::DeletePackageMutation;
+pub mod delete_packages_mutation;
+use delete_packages_mutation::DeletePackagesMutation;
 
 pub mod delete_parts_mutation;
 use delete_parts_mutation::DeletePartsMutation;
@@ -31,7 +31,7 @@ use star_mutations::StarMutations;
 #[derive(async_graphql::MergedObject, Default)]
 pub struct PrintQueueMutation(
     AddPartsToPrintQueueMutation,
-    DeletePackageMutation,
+    DeletePackagesMutation,
     DeletePartsMutation,
     ExecGCodesMutation,
     PausePrintMutation,
