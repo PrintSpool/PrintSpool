@@ -110,9 +110,9 @@ checksum = "739f4a8db6605981345c5654f3a85b056ce52f37a39d34da03f25bf2151ea16e"
 
 [[package]]
 name = "ahash"
-version = "0.7.2"
+version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f200cbb1e856866d9eade941cf3aa0c5d7dd36f74311c4273b494f4ef036957"
+checksum = "796540673305a66d127804eef19ad696f1f204b8c1025aaca4958c17eab32877"
 dependencies = [
  "getrandom 0.2.2",
  "once_cell",
@@ -2322,9 +2322,9 @@ dependencies = [
 
 [[package]]
 name = "libsqlite3-sys"
-version = "0.22.1"
+version = "0.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19cb1effde5f834799ac5e5ef0e40d45027cd74f271b1de786ba8abb30e2164d"
+checksum = "64d31059f22935e6c31830db5249ba2b7ecd54fd73a9909286f0a67aa55c2fbd"
 dependencies = [
  "cc",
  "pkg-config",
@@ -3928,9 +3928,9 @@ dependencies = [
 
 [[package]]
 name = "sqlx"
-version = "0.5.2"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d582b9bc04ec6c03084196efc42c2226b018e9941f03ee62bd88921d500917c0"
+checksum = "c2739d54a2ae9fdd0f545cb4e4b5574efb95e2ec71b7f921678e246fb20dcaaf"
 dependencies = [
  "sqlx-core",
  "sqlx-macros",
@@ -3938,11 +3938,11 @@ dependencies = [
 
 [[package]]
 name = "sqlx-core"
-version = "0.5.2"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de52d1d473cebb2abb79c886ef6a8023e965e34c0676a99cfeac2cc7f0fde4c1"
+checksum = "b1cad9cae4ca8947eba1a90e8ec7d3c59e7a768e2f120dc9013b669c34a90711"
 dependencies = [
- "ahash 0.7.2",
+ "ahash 0.6.3",
  "atoi",
  "bitflags",
  "byteorder",
@@ -3980,9 +3980,9 @@ dependencies = [
 
 [[package]]
 name = "sqlx-macros"
-version = "0.5.2"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a40f0be97e704d3fbf059e7e3333c3735639146a72d586c5534c70e79da88a4"
+checksum = "01caee2b3935b4efe152f3262afbe51546ce3b1fc27ad61014e1b3cf5f55366e"
 dependencies = [
  "dotenv",
  "either",
@@ -4003,9 +4003,9 @@ dependencies = [
 
 [[package]]
 name = "sqlx-rt"
-version = "0.5.2"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6ae97ab05063ed515cdc23d90253213aa24dda0a288c5ec079af3d10f9771bc"
+checksum = "4ce2e16b6774c671cc183e1d202386fdf9cde1e8468c1894a7f2a63eb671c4f4"
 dependencies = [
  "async-native-tls",
  "async-std",
@@ -4283,6 +4283,8 @@ dependencies = [
  "serde_json",
  "signal-hook 0.3.8",
  "sqlx",
+ "sqlx-core",
+ "sqlx-macros",
  "surf",
  "teg-json-store",
  "teg-print-queue",
