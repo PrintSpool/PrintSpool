@@ -265,7 +265,7 @@ async fn app() -> Result<()> {
             mutation::Mutation::default(),
             async_graphql::EmptySubscription,
         )
-            .extension(async_graphql::extensions::Tracing::default())
+            .extension(async_graphql::extensions::Tracing)
             .extension(async_graphql::extensions::ApolloTracing)
             .data(db_clone.clone())
             .data(server_keys_clone.clone())

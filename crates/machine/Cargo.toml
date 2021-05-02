@@ -16,7 +16,7 @@ teg-json-store = { path = "../json-store" }
 teg-common = { path = "../common"}
 
 eyre = "0.6.5"
-async-graphql = { version = "2.6.5", features = ["apollo_tracing", "tracing",  "chrono", "url"] }
+async-graphql = { version = "2.8.4", features = ["apollo_tracing", "tracing",  "chrono", "url"] }
 # async-graphql-warp = { path = "../../../async-graphql/async-graphql-warp" }
 # async-graphql = { path = "../../../async-graphql" }
 futures = "0.3.5"

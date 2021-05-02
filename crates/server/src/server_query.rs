@@ -22,10 +22,17 @@ impl ServerQuery {
         // See https://docs.rs/built/0.4.4/built/
         let version_number = built_info::GIT_VERSION.unwrap_or("DEV");
 
+        let dirty_string = if built_info::GIT_DIRTY.unwrap_or(false) {
+            " + Uncommitted Changes"
+        } else {
+            ""
+        };
+
         // eg. Teg 0.1.0 for linux/x86_64
         format!(
-            "Teg {version_number}",
+            "Teg {version_number}{dirty_string}",
             version_number = version_number,
+            dirty_string = dirty_string,
         )
     }
 

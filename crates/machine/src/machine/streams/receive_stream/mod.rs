@@ -29,7 +29,7 @@ type RxResult = std::result::Result<MachineMessage, ReadFrameError<eyre::Error>>
 #[async_trait::async_trait]
 impl StreamHandler<RxResult> for Machine
 {
-    #[instrument(fields(id = &self.id[..]), skip(self, ctx))]
+    #[instrument(fields(id = &self.id[..]), skip(self, ctx, msg))]
     async fn handle(&mut self, ctx: &mut XContext<Self>, msg: RxResult) {
         // Handle invalid byte streams
         let msg = match msg {

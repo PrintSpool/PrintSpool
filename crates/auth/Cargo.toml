@@ -17,12 +17,12 @@ teg_config_form = { path = "../config_form" }
 teg-common = { path = "../common" }
 
 serde_json = { version = "1.0.44", features = ["raw_value"] }
-async-graphql = { version = "2.6.5", features = ["apollo_tracing", "tracing",  "chrono", "url"] }
+async-graphql = { version = "2.8.4", features = ["apollo_tracing", "tracing",  "chrono", "url"] }
 async-trait = "0.1.36"
 eyre = "0.6.5"
 frank_jwt = "3.1.2"
 schemars = "0.8.0"
-sqlx = { version = "0.5.1", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros" ] }
+sqlx = { version = "0.5.2", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros" ] }
 tracing = "0.1.25"
 tracing-futures = "0.2.4"
 rmp = "^0.8"
