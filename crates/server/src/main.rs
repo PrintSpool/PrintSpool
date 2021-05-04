@@ -320,6 +320,11 @@ async fn app() -> Result<()> {
                     eyre!("Internal Server Error").into()
                 });
 
+            let message_stream = message_stream
+                .inspect(|_| {
+                    info!("GraphQL Message Received");
+                });
+
             let connection = async_graphql::http::WebSocket::with_data(
                 schema,
                 message_stream,

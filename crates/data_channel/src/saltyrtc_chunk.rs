@@ -20,6 +20,10 @@ use bytes::Buf;
 
 use crate::iter::IdentifyFirstLast;
 
+// Enables timestampping and logging of the timing of each message. This causes slow down so it
+// is disabled by default.
+static PROFILE_CHUNK_DECODE: bool = false;
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ReliabilityMode {
     ReliableOrdered,
@@ -60,6 +64,7 @@ struct PartialMessage {
     chunks: Vec<(u32, Vec<u8>)>,
     #[new(default)]
     final_serial_number: Option<u32>,
+    started_at: Option<std::time::Instant>,
 }
 
 #[derive(new, Debug, Clone)]
@@ -77,6 +82,7 @@ impl ChunkDecoder {
         stream
             .scan(self, |chunk_decoder, chunk| {
                 let msg = chunk_decoder.decode_single_message(chunk);
+
                 future::ready(Some(msg))
             })
             .try_filter_map(|msg| {
@@ -129,7 +135,13 @@ impl ChunkDecoder {
         let partial_message = self.partial_messages
             .entry(msg_id)
             .or_insert_with(|| {
-                PartialMessage::new()
+                let started_at = if PROFILE_CHUNK_DECODE {
+                    Some(std::time::Instant::now())
+                } else {
+                    None
+                };
+
+                PartialMessage::new(started_at)
             });
 
         let is_duplicate = !reliable_mode && partial_message.chunks
@@ -170,14 +182,21 @@ impl ChunkDecoder {
 
     /// This function assumes the chunks are already sorted by their serial number
     fn complete_message(&mut self, msg_id: u32) -> Result<Option<Vec<u8>>> {
-        let partial_message = self.partial_messages
+        let mut partial_message = self.partial_messages
             .remove(&msg_id)
             .ok_or_else(|| eyre!("SaltyRTC parial message not found"))?;
+
+        let started_at =  partial_message.started_at.take();
+        let chunks_len = partial_message.chunks.len();
 
         let msg = partial_message.chunks
             .into_iter()
             .flat_map(|(_, chunk)| chunk)
             .collect();
+
+        if let Some(started_at) = started_at {
+            info!("Decoded {} chunk in {:?}", chunks_len, started_at.elapsed());
+        }
 
         return Ok(Some(msg));
     }
