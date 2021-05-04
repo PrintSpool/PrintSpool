@@ -68,16 +68,18 @@ const useCreateJobMutation = (
         /* read the file */
         // eslint-disable-next-line no-undef
         // @ts-ignore
-        const fileReader = new FileReader()
-        fileReader.readAsText(file)
+        // const fileReader = new FileReader()
+        // fileReader.readAsText(file)
 
-        await new Promise((resolve) => {
-          fileReader.onload = resolve
-        })
+        // await new Promise((resolve) => {
+        //   fileReader.onload = resolve
+        // })
 
         mutationInput.parts.push({
           name,
-          content: fileReader.result,
+          // content: fileReader.result,
+          content: 'G1 X10\n',
+          file,
         })
       }),
     )

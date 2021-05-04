@@ -40,6 +40,7 @@ struct AddPartsToPrintQueueInput {
 struct AddPartsToPrintQueuePartInput {
     name: String,
     content: String,
+    file: async_graphql::Upload,
 }
 
 #[derive(async_graphql::InputObject)]
