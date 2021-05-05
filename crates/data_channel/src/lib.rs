@@ -11,6 +11,7 @@ use eyre::{
     Result,
 };
 use open_data_channel::open_data_channel;
+use saltyrtc_chunk::InMemoryMessage;
 use serde::{Serialize, Deserialize};
 // use teg_machine::machine::messages::GetData;
 use std::{
@@ -97,7 +98,7 @@ pub async fn listen_for_signalling<F, Fut, S>(
 where
     F: Fn(
         Signal,
-        Pin<Box<dyn Stream<Item = Vec<u8>> + 'static + Send + Send>>,
+        Pin<Box<dyn Stream<Item = InMemoryMessage> + 'static + Send + Send>>,
     ) -> Fut + Send + Sync + 'static,
     Fut: Future<Output = Result<S>> + Send + 'static,
     S: Stream<Item = Vec<u8>> + Send + 'static,
@@ -128,7 +129,7 @@ pub async fn listen_for_signalling_no_reconnect<F, Fut, S>(
 where
     F: Fn(
         Signal,
-        Pin<Box<dyn Stream<Item = Vec<u8>> + 'static + Send + Send>>,
+        Pin<Box<dyn Stream<Item = InMemoryMessage> + 'static + Send + Send>>,
     ) -> Fut + Send + Sync + 'static,
     Fut: Future<Output = Result<S>> + Send + 'static,
     S: Stream<Item = Vec<u8>> + Send + 'static,

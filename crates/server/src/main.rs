@@ -323,7 +323,9 @@ async fn app() -> Result<()> {
             let message_stream = message_stream
                 .inspect(|_| {
                     info!("GraphQL Message Received");
-                });
+                })
+                // TODO: replace this and handle file uploads in async graphql
+                .map(|msg| msg.payload);
 
             let connection = async_graphql::http::WebSocket::with_data(
                 schema,

@@ -28,6 +28,8 @@ use futures_util::{
 };
 use teg_auth::Signal;
 
+use crate::saltyrtc_chunk::InMemoryMessage;
+
 static NEXT_ID: AtomicU64 = AtomicU64::new(0);
 
 // Enable verbose per-chunk performance logging - not enabled by default because measuring
@@ -166,7 +168,7 @@ pub async fn open_data_channel<F, Fut, S>(
 where
     F: Fn(
         Signal,
-        Pin<Box<dyn Stream<Item = Vec<u8>> + 'static + Send + Send>>,
+        Pin<Box<dyn Stream<Item = InMemoryMessage> + 'static + Send + Send>>,
     ) -> Fut + Send + Sync + 'static,
     Fut: Future<Output = Result<S>> + Send + 'static,
     S: Stream<Item = Vec<u8>> + Send + 'static,
