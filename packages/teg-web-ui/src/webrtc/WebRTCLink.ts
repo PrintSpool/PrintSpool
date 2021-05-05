@@ -43,6 +43,7 @@ export default class WebRTCLink extends ApolloLink {
         keepAlive: Number.MAX_SAFE_INTEGER,
         // retryWait: randomisedExponentialBackoff,
         webSocketImpl: WebRTCSocket(options as any),
+        sendMessage: (socket: any, message, files) => socket.sendMessageAndFiles(message, files)
       })
     }
     // this.client.on('connected', (socket, payload) => {

@@ -144,12 +144,13 @@ export const chunkifier = (opts, peer) => {
   // // eslint-disable-next-line no-param-reassign
   // channel.onbufferedamountlow = sendNextChunks
 
-  return message => setImmediate(() => {
+  return (message, files) => setImmediate(() => {
     // console.log('SEND', message)
     const encodingStartedAt = Date.now()
     // const buf = msgpack.encode(message)
     // const buf = JSON.stringify(message)
-    debug('Sending', message)
+    debug('Sending', { message, files })
+    console.log('Sending', { message, files })
     debug(`Message encoded in ${((Date.now() - encodingStartedAt) / 1000).toFixed(1)} seconds`)
 
     const previouslyEmptyChunks = chunks.length === 0

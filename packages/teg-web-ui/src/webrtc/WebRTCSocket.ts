@@ -1,4 +1,5 @@
 import SimplePeer from 'simple-peer'
+import { FileLike } from 'graphql-ws'
 
 import {
   chunkifier,
@@ -151,7 +152,7 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     onSignallingSuccess()
   }
 
-  send(message: string) {
+  sendMessageAndFiles(message: string, files: FileLike[]) {
     if (localStorage.getItem('PRINT_STRINGIFY_TIMES') === '1' && message.length >= 1_000_000) {
       const json = JSON.parse(message)
       const startTime = performance.now()
@@ -164,7 +165,11 @@ const socketFactory = (options: WebRTCOptions) => class WebRTCSocket {
     }
 
     // console.log(`SEND: ${message}`)
-    this.chunkifier(message)
+    this.chunkifier(message, files)
+  }
+
+  send(message: string) {
+    this.sendMessageAndFiles(message, [])
   }
 
   private beforeCloseOrError() {
