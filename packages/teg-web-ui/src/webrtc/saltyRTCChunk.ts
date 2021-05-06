@@ -90,7 +90,7 @@ const createChunk = ({
   }
 
   // write the payload to the buffer after the header
-  buf.write(payload, headerSize)
+  buf.write(payload, headerSize, 'binary')
   // console.log('WRITING BUFFER:', buf)
 
   return buf

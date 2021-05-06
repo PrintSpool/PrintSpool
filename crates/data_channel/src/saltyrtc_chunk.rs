@@ -2,6 +2,8 @@
 // See https://github.com/saltyrtc/saltyrtc-meta/blob/master/Chunking.md
 
 use std::{collections::{BTreeMap, BTreeSet}, time::Duration};
+use async_std::fs::File;
+use async_std::prelude::*;
 use eyre::{
     Result,
     // Context as _,
@@ -96,13 +98,18 @@ pub struct ChunkDecoder {
     partial_messages: BTreeMap<u32, PartialMessage>,
 }
 
-pub struct InMemoryMessage {
+struct InMemoryMessage {
+    payload: Vec<u8>,
+    files: Vec<Vec<u8>>,
+}
+
+pub struct Message {
     pub payload: Vec<u8>,
-    pub files: Vec<Vec<u8>>,
+    pub files: Vec<File>,
 }
 
 impl ChunkDecoder {
-    pub fn decode_stream<S>(self, stream: S) -> impl Stream<Item = Result<InMemoryMessage>>
+    pub fn decode_stream<S>(self, stream: S) -> impl Stream<Item = Result<Message>>
     where
         S: Stream<Item = Vec<u8>>,
     {
@@ -114,6 +121,28 @@ impl ChunkDecoder {
             })
             .try_filter_map(|msg| {
                 future::ok(msg)
+            })
+            .then(|msg| async {
+                let InMemoryMessage {
+                    payload,
+                    files,
+                } = msg?;
+
+                let files: Vec<_> = stream::iter(files)
+                    .then(|file_content| async move {
+                        let mut file: async_std::fs::File = tempfile::tempfile()?.into();
+                        file.write_all(&file_content).await?;
+                        file.flush().await?;
+
+                        Result::<_>::Ok(file)
+                    })
+                    .try_collect::<Vec<_>>()
+                    .await?;
+
+                Ok(Message {
+                    payload,
+                    files,
+                })
             })
     }
 
