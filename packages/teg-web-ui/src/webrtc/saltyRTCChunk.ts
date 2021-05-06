@@ -210,6 +210,11 @@ export const chunkifier = (opts, peer) => {
     nextID += 1
     if (nextID > MAX_ID) nextID = 1
 
+    let startedAt
+    if (files.length > 0) {
+      startedAt = Date.now()
+    }
+
     // Load the file content
     const fileContentPromises = files
       .map(async (file) => {
@@ -228,6 +233,11 @@ export const chunkifier = (opts, peer) => {
 
     let fileContents = await Promise.all(fileContentPromises)
 
+    let filesReadAt
+    if (files.length > 0) {
+      filesReadAt = Date.now()
+    }
+
     // Chunk the message
     const msgChunks = splitMessageIntoChunks({
       maxPayloadSize,
@@ -238,6 +248,16 @@ export const chunkifier = (opts, peer) => {
       ],
       mode,
     })
+
+    if (files.length > 0) {
+      const readSeconds = (filesReadAt - startedAt) / 1000
+      const totalSeconds = (Date.now() - startedAt) / 1000
+      console.log(
+        'Files split into chunks for upload in '
+        + `${totalSeconds.toFixed(1)}s `
+        + `(read time: ${readSeconds.toFixed(2)}s)`
+      )
+    }
 
     // console.log(msgChunks)
     chunks = chunks.concat(msgChunks)

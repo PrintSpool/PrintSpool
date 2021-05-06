@@ -84,7 +84,7 @@ const useCreateJobMutation = (
       }),
     )
 
-    const filesReadAt = Date.now()
+    // const filesReadAt = Date.now()
 
     /* execute the mutation */
     const result = await mutation({
@@ -93,12 +93,12 @@ const useCreateJobMutation = (
       },
     })
 
-    const readSeconds = (filesReadAt - startedAt) / 1000
+    // const readSeconds = (filesReadAt - startedAt) / 1000
     const totalSeconds = (Date.now() - startedAt) / 1000
     console.log(
       'Upload Complete: '
       + `${fileMBs.toFixed(1)}MB uploaded in ${totalSeconds.toFixed(1)}s `
-      + `(read time: ${readSeconds.toFixed(2)}s) = `
+      // + `(read time: ${readSeconds.toFixed(2)}s) = `
       + `${(fileMBs / totalSeconds).toFixed(1)} MB/s`
     )
 
