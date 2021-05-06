@@ -31,6 +31,7 @@ export const BUFFER_HIGH = MAX_MESSAGE_SIZE * 10
  */
 const MODE_BITMASK = 6
 const bitfield = {
+  MULTIPART_FILE: 8,
   RELIABLE_ORDERED: 6,
   UNORDERED_UNRELIABLE: 0,
   END_OF_MESSAGE: 1,
@@ -48,8 +49,17 @@ const createChunk = ({
   serial,
   payload,
   endOfMessage = false,
-  mode
+  mode,
+  fileStart,
 }) => {
+  // console.log({
+  //   id,
+  //   serial,
+  //   payload,
+  //   endOfMessage,
+  //   mode,
+  //   fileStart,
+  // })
   let bf = bitfield[mode]
 
   if (endOfMessage) {
@@ -57,7 +67,14 @@ const createChunk = ({
     bf |= bitfield.END_OF_MESSAGE
   }
 
-  const buf = Buffer.alloc(payload.length + headerBytes[mode])
+  if (fileStart != null) {
+    bf |= bitfield.MULTIPART_FILE
+  }
+
+  // File chunks headers need an extra 32bits for the file start
+  let headerSize = headerBytes[mode] + (fileStart == null ? 0 : 4)
+
+  const buf = Buffer.alloc(payload.length + headerSize)
 
   // write the header to the start of the buffer
   buf.writeUInt8(bf, 0)
@@ -67,8 +84,13 @@ const createChunk = ({
     buf.writeUInt32BE(serial, 5)
   }
 
+  if (fileStart != null) {
+    // File chunks headers reserve an extra 32bits for the file start
+    buf.writeUInt32BE(fileStart, headerSize - 4)
+  }
+
   // write the payload to the buffer after the header
-  buf.write(payload, headerBytes[mode])
+  buf.write(payload, headerSize)
   // console.log('WRITING BUFFER:', buf)
 
   return buf
@@ -77,20 +99,49 @@ const createChunk = ({
 const splitMessageIntoChunks = ({
   maxPayloadSize,
   id,
-  buf,
+  sections,
   mode,
 }) => {
-  const slices = splitSlice(buf, maxPayloadSize)
+  // console.log({
+  //   maxPayloadSize,
+  //   id,
+  //   sections,
+  //   mode,
+  // })
+  let serialOffset = 0
+  return sections
+    .map((section, sectionIndex) => {
+      const fileStartHeaderSize = sectionIndex === 0 ? 0 : 4
 
-  return slices.map((chunkPayload, i) => (
-    createChunk({
-      id,
-      serial: i,
-      payload: chunkPayload,
-      endOfMessage: i === slices.length - 1,
-      mode,
+      const slices = splitSlice(section, maxPayloadSize - fileStartHeaderSize)
+      // let nextFileStart = msgChunks.length
+      // const fileChunks = splitMessageIntoChunks({
+      //   // File chunks headers need an extra 32bits for the file start
+      //   maxPayloadSize: maxPayloadSize - 4,
+      //   id,
+      //   buf: fileReader.result,
+      //   mode,
+      //   fileStart: nextFileStart,
+      // })
+
+      // nextFileStart += fileChunks.length
+
+      const sectionChunks = slices.map((chunkPayload, i) => (
+        createChunk({
+          id,
+          fileStart: serialOffset > 0 ? serialOffset : null,
+          serial: i + serialOffset,
+          payload: chunkPayload,
+          endOfMessage: sectionIndex === sections.length -1 && i === slices.length - 1,
+          mode,
+        })
+      ))
+
+      serialOffset += slices.length
+
+      return sectionChunks
     })
-  ))
+    .flat(1)
 }
 
 const setImmediate = fn => setTimeout(fn, 0)
@@ -144,26 +195,52 @@ export const chunkifier = (opts, peer) => {
   // // eslint-disable-next-line no-param-reassign
   // channel.onbufferedamountlow = sendNextChunks
 
-  return (message, files) => setImmediate(() => {
+  return (message, files) => setImmediate(async () => {
     // console.log('SEND', message)
     const encodingStartedAt = Date.now()
     // const buf = msgpack.encode(message)
     // const buf = JSON.stringify(message)
     debug('Sending', { message, files })
-    console.log('Sending', { message, files })
+    // console.log('Sending', { message, files })
     debug(`Message encoded in ${((Date.now() - encodingStartedAt) / 1000).toFixed(1)} seconds`)
 
     const previouslyEmptyChunks = chunks.length === 0
 
-    chunks = chunks.concat(splitMessageIntoChunks({
-      maxPayloadSize,
-      id: nextID,
-      buf: message,
-      mode,
-    }))
-
+    let id = nextID
     nextID += 1
     if (nextID > MAX_ID) nextID = 1
+
+    // Load the file content
+    const fileContentPromises = files
+      .map(async (file) => {
+        /* read the file */
+        // eslint-disable-next-line no-undef
+        // @ts-ignore
+        const fileReader = new FileReader()
+        fileReader.readAsText(file)
+
+        await new Promise((resolve) => {
+          fileReader.onload = resolve
+        })
+
+        return fileReader.result
+      })
+
+    let fileContents = await Promise.all(fileContentPromises)
+
+    // Chunk the message
+    const msgChunks = splitMessageIntoChunks({
+      maxPayloadSize,
+      id,
+      sections: [
+        message,
+        ...fileContents,
+      ],
+      mode,
+    })
+
+    // console.log(msgChunks)
+    chunks = chunks.concat(msgChunks)
 
     if (
       previouslyEmptyChunks

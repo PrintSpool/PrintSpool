@@ -321,8 +321,10 @@ async fn app() -> Result<()> {
                 });
 
             let message_stream = message_stream
-                .inspect(|_| {
-                    info!("GraphQL Message Received");
+                .inspect(|msg| {
+                    if msg.files.len() > 0 {
+                        info!("GraphQL message received with {} files", msg.files.len());
+                    }
                 })
                 // TODO: replace this and handle file uploads in async graphql
                 .map(|msg| msg.payload);

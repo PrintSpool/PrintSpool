@@ -1,7 +1,7 @@
 // SaltyRTC Chunking Protocol
 // See https://github.com/saltyrtc/saltyrtc-meta/blob/master/Chunking.md
 
-use std::{collections::{BTreeMap, BTreeSet}};
+use std::{collections::{BTreeMap, BTreeSet}, time::Duration};
 use eyre::{
     Result,
     // Context as _,
@@ -19,7 +19,7 @@ use crate::iter::IdentifyFirstLast;
 
 // Enables timestampping and logging of the timing of each message. This causes slow down so it
 // is disabled by default.
-static PROFILE_CHUNK_DECODE: bool = false;
+static PROFILE_CHUNK_DECODE: bool = true;
 static MULTIPART_FILE_FLAG: u8 = 0b00001000;
 static END_OF_MESSAGE_FLAG: u8 = 0b00000001;
 static MODE_MASK: u8 = 0b00000110;
@@ -170,6 +170,17 @@ impl ChunkDecoder {
             0
         };
 
+        // if multipart_file {
+        //     info!(
+        //         "ID {} SERIAL {} IS A MULTIPART FILE STARTING AT {}",
+        //         msg_id,
+        //         serial,
+        //         section_start
+        //     );
+        // } else {
+        //     info!("NORMAL. ID {} SERIAL {}", msg_id, serial);
+        // };
+
         // Getting the payload of the chunk
         let payload = buf[buf.len() - buf.remaining()..].to_vec();
 
@@ -249,7 +260,10 @@ impl ChunkDecoder {
         let files = sections.collect();
 
         if let Some(started_at) = started_at {
-            info!("Decoded {} chunk in {:?}", chunks_len, started_at.elapsed());
+            let elapsed = started_at.elapsed();
+            if elapsed >= Duration::from_millis(100) {
+                info!("Decoded {} chunks in {:?}", chunks_len, elapsed);
+            }
         }
 
         return Ok(Some(InMemoryMessage {
