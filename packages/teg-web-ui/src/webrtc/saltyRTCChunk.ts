@@ -6,11 +6,14 @@ const debug = Debug('teg:webrtc:SaltyRTCChunk')
 // SaltyRTC Chunking Protocol
 // See https://github.com/saltyrtc/saltyrtc-meta/blob/master/Chunking.md
 
-const splitSlice = (str, len) => {
+const splitSlice = (section, chunkSize) => {
   const ret = []
-  for (let offset = 0, strLen = str.length; offset < strLen; offset += len) {
-    ret.push(str.slice(offset, len + offset))
+  const sectionLength = section.length || section.byteLength || section.size
+
+  for (let offset = 0; offset < sectionLength; offset += chunkSize) {
+    ret.push(section.slice(offset, Math.min(sectionLength, chunkSize + offset)))
   }
+
   return ret
 }
 
@@ -44,7 +47,8 @@ const headerBytes = {
 }
 
 const MAX_ID = Number.MAX_SAFE_INTEGER
-const createChunk = ({
+let textEncoder
+const createChunk = async ({
   id,
   serial,
   payload,
@@ -74,29 +78,68 @@ const createChunk = ({
   // File chunks headers need an extra 32bits for the file start
   let headerSize = headerBytes[mode] + (fileStart == null ? 0 : 4)
 
-  const buf = Buffer.alloc(payload.length + headerSize)
+  const payloadLength = payload.length || payload.size || payload.byteLength
+
+  const buf = new ArrayBuffer(payloadLength + headerSize)
+  const view = new DataView(buf)
 
   // write the header to the start of the buffer
-  buf.writeUInt8(bf, 0)
+  view.setUint8(0, bf)
   // console.log(bf)
   if (mode === 'UNORDERED_UNRELIABLE') {
-    buf.writeUInt32BE(id, 1)
-    buf.writeUInt32BE(serial, 5)
+    view.setUint32(1, id)
+    view.setUint32(5, serial)
   }
 
   if (fileStart != null) {
     // File chunks headers reserve an extra 32bits for the file start
-    buf.writeUInt32BE(fileStart, headerSize - 4)
+    view.setUint32(headerSize - 4, fileStart)
   }
 
   // write the payload to the buffer after the header
-  buf.write(payload, headerSize, 'binary')
-  // console.log('WRITING BUFFER:', buf)
+  let payloadBuf
+  if (payload.arrayBuffer != null) {
+    // Blobs (not available on all platforms)
+    payloadBuf = await payload.arrayBuffer()
+  } else {
+    // Array buffers (fallback for Blob .size and .arrayBuffer support)
+    payloadBuf = payload
+  }
+
+  new Uint8Array(buf).set(payloadBuf, headerSize)
 
   return buf
 }
 
-const splitMessageIntoChunks = ({
+const splitSectionIntoChunks = ({
+  id,
+  section,
+  sections,
+  sectionIndex,
+  maxPayloadSize,
+  state,
+  mode,
+}) => {
+  const fileStartHeaderSize = sectionIndex === 0 ? 0 : 4
+
+  const slices = splitSlice(section, maxPayloadSize - fileStartHeaderSize)
+
+  const firstSectionSerial = state.serialOffset
+  state.serialOffset += slices.length
+
+  return slices.map((chunkPayload, i) => () => (
+    createChunk({
+      id,
+      fileStart: firstSectionSerial > 0 ? firstSectionSerial : null,
+      serial: i + firstSectionSerial,
+      payload: chunkPayload,
+      endOfMessage: sectionIndex === sections.length -1 && i === slices.length - 1,
+      mode,
+    })
+  ))
+}
+
+const splitMessageIntoChunks = async ({
   maxPayloadSize,
   id,
   sections,
@@ -108,40 +151,22 @@ const splitMessageIntoChunks = ({
   //   sections,
   //   mode,
   // })
-  let serialOffset = 0
+  let state = { serialOffset: 0 }
   return sections
-    .map((section, sectionIndex) => {
-      const fileStartHeaderSize = sectionIndex === 0 ? 0 : 4
-
-      const slices = splitSlice(section, maxPayloadSize - fileStartHeaderSize)
-      // let nextFileStart = msgChunks.length
-      // const fileChunks = splitMessageIntoChunks({
-      //   // File chunks headers need an extra 32bits for the file start
-      //   maxPayloadSize: maxPayloadSize - 4,
-      //   id,
-      //   buf: fileReader.result,
-      //   mode,
-      //   fileStart: nextFileStart,
-      // })
-
-      // nextFileStart += fileChunks.length
-
-      const sectionChunks = slices.map((chunkPayload, i) => (
-        createChunk({
-          id,
-          fileStart: serialOffset > 0 ? serialOffset : null,
-          serial: i + serialOffset,
-          payload: chunkPayload,
-          endOfMessage: sectionIndex === sections.length -1 && i === slices.length - 1,
-          mode,
-        })
-      ))
-
-      serialOffset += slices.length
-
-      return sectionChunks
-    })
+    .map((section, sectionIndex) => splitSectionIntoChunks({
+      id,
+      section,
+      sections,
+      sectionIndex,
+      maxPayloadSize,
+      state,
+      mode,
+    }))
     .flat(1)
+
+  // const allSectionChunks = await Promise.all(sectionPromises)
+
+  // return allSectionChunks.flat(1)
 }
 
 const setImmediate = fn => setTimeout(fn, 0)
@@ -165,7 +190,7 @@ export const chunkifier = (opts, peer) => {
   // Based on https://github.com/webrtc/samples/blob/gh-pages/src/content/datachannel/datatransfer/js/main.js
   // let timeout
 
-  const sendNextChunks = () => {
+  const sendNextChunks = async () => {
     peer._channel?.removeEventListener('bufferedamountlow', sendNextChunks)
 
     // timeout = null
@@ -177,7 +202,8 @@ export const chunkifier = (opts, peer) => {
     ) {
       // if (bufferedAmount < highWaterMark) {
       const chunk = chunks.shift()
-      peer.send(chunk)
+      // Chunks are stored as async functions
+      peer.send(await chunk())
 
       if (peer._channel != null && peer._channel.bufferedAmount > BUFFER_HIGH) {
         // console.log('Teg RTC Buffer Full')
@@ -215,23 +241,37 @@ export const chunkifier = (opts, peer) => {
       startedAt = Date.now()
     }
 
-    // Load the file content
-    const fileContentPromises = files
-      .map(async (file) => {
-        /* read the file */
-        // eslint-disable-next-line no-undef
-        // @ts-ignore
-        const fileReader = new FileReader()
-        fileReader.readAsText(file)
+    // lazy initialize the text encoder
+    textEncoder ||= new TextEncoder()
+    const messageByteArray = textEncoder.encode(message)
 
-        await new Promise((resolve) => {
-          fileReader.onload = resolve
+    // Load the file content
+    let fileContents
+    if (files.length === 0) {
+      fileContents = files
+    // If Blob.arrayBuffer is unsupported fallback to FileReader
+    } else if (Blob.prototype.arrayBuffer == null) {
+      console.log('Using file reader fallback')
+      const fileContentPromises = files
+        .map(async (file) => {
+          /* read the file */
+          // eslint-disable-next-line no-undef
+          // @ts-ignore
+          const fileReader = new FileReader()
+          fileReader.readAsArrayBuffer(file)
+
+          await new Promise((resolve) => {
+            fileReader.onload = resolve
+          })
+
+          return fileReader.result
         })
 
-        return fileReader.result
-      })
-
-    let fileContents = await Promise.all(fileContentPromises)
+      fileContents = await Promise.all(fileContentPromises)
+    } else {
+      console.log('Using File.arrayBuffer API')
+      fileContents = files
+    }
 
     let filesReadAt
     if (files.length > 0) {
@@ -239,22 +279,29 @@ export const chunkifier = (opts, peer) => {
     }
 
     // Chunk the message
-    const msgChunks = splitMessageIntoChunks({
-      maxPayloadSize,
-      id,
-      sections: [
-        message,
-        ...fileContents,
-      ],
-      mode,
-    })
+    let msgChunks
+    try {
+      msgChunks = await splitMessageIntoChunks({
+        maxPayloadSize,
+        id,
+        sections: [
+          messageByteArray,
+          ...fileContents,
+        ],
+        mode,
+      })
+    } catch(e) {
+      console.error(e)
+      throw e
+    }
+    // console.log({ msgChunks }, headerBytes[mode])
 
     if (files.length > 0) {
       const readSeconds = (filesReadAt - startedAt) / 1000
       const totalSeconds = (Date.now() - startedAt) / 1000
       console.log(
         'Files split into chunks for upload in '
-        + `${totalSeconds.toFixed(1)}s `
+        + `${totalSeconds.toFixed(2)}s `
         + `(read time: ${readSeconds.toFixed(2)}s)`
       )
     }
