@@ -110,9 +110,9 @@ checksum = "739f4a8db6605981345c5654f3a85b056ce52f37a39d34da03f25bf2151ea16e"
 
 [[package]]
 name = "ahash"
-version = "0.6.3"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "796540673305a66d127804eef19ad696f1f204b8c1025aaca4958c17eab32877"
+checksum = "7f200cbb1e856866d9eade941cf3aa0c5d7dd36f74311c4273b494f4ef036957"
 dependencies = [
  "getrandom 0.2.2",
  "once_cell",
@@ -2318,9 +2318,9 @@ dependencies = [
 
 [[package]]
 name = "libsqlite3-sys"
-version = "0.20.1"
+version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64d31059f22935e6c31830db5249ba2b7ecd54fd73a9909286f0a67aa55c2fbd"
+checksum = "19cb1effde5f834799ac5e5ef0e40d45027cd74f271b1de786ba8abb30e2164d"
 dependencies = [
  "cc",
  "pkg-config",
@@ -3928,17 +3928,25 @@ version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2739d54a2ae9fdd0f545cb4e4b5574efb95e2ec71b7f921678e246fb20dcaaf"
 dependencies = [
- "sqlx-core",
- "sqlx-macros",
+ "sqlx-core 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sqlx-macros 0.5.1",
+]
+
+[[package]]
+name = "sqlx"
+version = "0.5.2"
+source = "git+https://github.com/launchbadge/sqlx.git?branch=ab/more-pool-fixes#0847a04b7afabc47b9a8b40aa0365cd275e24dd9"
+dependencies = [
+ "sqlx-core 0.5.2 (git+https://github.com/launchbadge/sqlx.git?branch=ab/more-pool-fixes)",
+ "sqlx-macros 0.5.2",
 ]
 
 [[package]]
 name = "sqlx-core"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1cad9cae4ca8947eba1a90e8ec7d3c59e7a768e2f120dc9013b669c34a90711"
+version = "0.5.2"
+source = "git+https://github.com/launchbadge/sqlx.git?branch=ab/more-pool-fixes#0847a04b7afabc47b9a8b40aa0365cd275e24dd9"
 dependencies = [
- "ahash 0.6.3",
+ "ahash 0.7.2",
  "atoi",
  "bitflags",
  "byteorder",
@@ -3967,7 +3975,49 @@ dependencies = [
  "sha2",
  "smallvec",
  "sqlformat",
- "sqlx-rt",
+ "sqlx-rt 0.5.2 (git+https://github.com/launchbadge/sqlx.git?branch=ab/more-pool-fixes)",
+ "stringprep",
+ "thiserror",
+ "url 2.2.1",
+ "whoami",
+]
+
+[[package]]
+name = "sqlx-core"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "de52d1d473cebb2abb79c886ef6a8023e965e34c0676a99cfeac2cc7f0fde4c1"
+dependencies = [
+ "ahash 0.7.2",
+ "atoi",
+ "bitflags",
+ "byteorder",
+ "bytes 1.0.1",
+ "chrono",
+ "crc",
+ "crossbeam-channel",
+ "crossbeam-queue",
+ "crossbeam-utils",
+ "either",
+ "futures-channel",
+ "futures-core",
+ "futures-util",
+ "hashlink",
+ "hex",
+ "itoa",
+ "libc",
+ "libsqlite3-sys",
+ "log",
+ "memchr",
+ "once_cell",
+ "parking_lot",
+ "percent-encoding 2.1.0",
+ "serde",
+ "serde_json",
+ "sha2",
+ "smallvec",
+ "sqlformat",
+ "sqlx-rt 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "stringprep",
  "thiserror",
  "url 2.2.1",
@@ -3991,8 +4041,30 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
- "sqlx-core",
- "sqlx-rt",
+ "sqlx-core 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sqlx-rt 0.3.0",
+ "syn",
+ "url 2.2.1",
+]
+
+[[package]]
+name = "sqlx-macros"
+version = "0.5.2"
+source = "git+https://github.com/launchbadge/sqlx.git?branch=ab/more-pool-fixes#0847a04b7afabc47b9a8b40aa0365cd275e24dd9"
+dependencies = [
+ "dotenv",
+ "either",
+ "futures 0.3.14",
+ "heck",
+ "hex",
+ "once_cell",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "serde_json",
+ "sha2",
+ "sqlx-core 0.5.2 (git+https://github.com/launchbadge/sqlx.git?branch=ab/more-pool-fixes)",
+ "sqlx-rt 0.5.2 (git+https://github.com/launchbadge/sqlx.git?branch=ab/more-pool-fixes)",
  "syn",
  "url 2.2.1",
 ]
@@ -4002,6 +4074,27 @@ name = "sqlx-rt"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4ce2e16b6774c671cc183e1d202386fdf9cde1e8468c1894a7f2a63eb671c4f4"
+dependencies = [
+ "async-native-tls",
+ "async-std",
+ "native-tls",
+]
+
+[[package]]
+name = "sqlx-rt"
+version = "0.5.2"
+source = "git+https://github.com/launchbadge/sqlx.git?branch=ab/more-pool-fixes#0847a04b7afabc47b9a8b40aa0365cd275e24dd9"
+dependencies = [
+ "async-native-tls",
+ "async-std",
+ "native-tls",
+]
+
+[[package]]
+name = "sqlx-rt"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b6ae97ab05063ed515cdc23d90253213aa24dda0a288c5ec079af3d10f9771bc"
 dependencies = [
  "async-native-tls",
  "async-std",
@@ -4155,7 +4248,7 @@ dependencies = [
  "eyre",
  "serde",
  "serde_json",
- "sqlx",
+ "sqlx 0.5.1",
 ]
 
 [[package]]
@@ -4170,7 +4263,7 @@ dependencies = [
  "pin-project",
  "serde",
  "serde_json",
- "sqlx",
+ "sqlx 0.5.1",
  "teg-json-store",
  "teg_machine",
  "teg_material",
@@ -4232,7 +4325,7 @@ dependencies = [
  "nom-gcode",
  "serde",
  "serde_json",
- "sqlx",
+ "sqlx 0.5.2",
  "teg-common",
  "teg-json-store",
  "teg-macros",
@@ -4279,9 +4372,7 @@ dependencies = [
  "serde",
  "serde_json",
  "signal-hook 0.3.8",
- "sqlx",
- "sqlx-core",
- "sqlx-macros",
+ "sqlx 0.5.2",
  "surf",
  "teg-json-store",
  "teg-print-queue",
@@ -4310,7 +4401,7 @@ dependencies = [
  "nix 0.19.1",
  "notify",
  "serde_json",
- "sqlx",
+ "sqlx 0.5.2",
  "tracing",
  "tracing-subscriber",
 ]
@@ -4343,7 +4434,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
- "sqlx",
+ "sqlx 0.5.2",
  "surf",
  "teg-common",
  "teg-json-store",
@@ -4393,7 +4484,7 @@ dependencies = [
  "schemars",
  "serde",
  "serde_json",
- "sqlx",
+ "sqlx 0.5.2",
  "surf",
  "teg_auth",
  "teg_machine",
@@ -4445,7 +4536,7 @@ dependencies = [
  "serde",
  "serde_json",
  "smart-default",
- "sqlx",
+ "sqlx 0.5.1",
  "surf",
  "teg-common",
  "teg-json-store",
@@ -4472,7 +4563,7 @@ dependencies = [
  "schemars",
  "serde",
  "serde_json",
- "sqlx",
+ "sqlx 0.5.2",
  "teg-common",
  "teg-json-store",
  "teg_auth",
