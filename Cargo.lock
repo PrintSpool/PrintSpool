@@ -242,14 +242,14 @@ dependencies = [
 [[package]]
 name = "async-graphql"
 version = "2.8.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c11be6c0007e57ddc3ccfaaec854063ef975e800d376277ae0854925074bd74"
+source = "git+https://github.com/D1plo1d/async-graphql.git?branch=feature/websocket-file-uploads#820751d12676367a98dbc86ba16c09ecec7bb0dc"
 dependencies = [
  "async-graphql-derive",
  "async-graphql-parser",
  "async-graphql-value",
  "async-stream",
  "async-trait",
+ "blocking",
  "chrono",
  "fnv",
  "futures-util",
@@ -272,8 +272,7 @@ dependencies = [
 [[package]]
 name = "async-graphql-derive"
 version = "2.8.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74a7a23428b13e2f950e3fa04de4978184cd133f193f63c838d70ed38c543747"
+source = "git+https://github.com/D1plo1d/async-graphql.git?branch=feature/websocket-file-uploads#820751d12676367a98dbc86ba16c09ecec7bb0dc"
 dependencies = [
  "Inflector",
  "async-graphql-parser",
@@ -288,8 +287,7 @@ dependencies = [
 [[package]]
 name = "async-graphql-parser"
 version = "2.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2a8d8116f3015b7686ef98ffb70a74183c3c17bf45135993d3f095812e09e786"
+source = "git+https://github.com/D1plo1d/async-graphql.git?branch=feature/websocket-file-uploads#820751d12676367a98dbc86ba16c09ecec7bb0dc"
 dependencies = [
  "async-graphql-value",
  "pest",
@@ -301,8 +299,7 @@ dependencies = [
 [[package]]
 name = "async-graphql-value"
 version = "2.6.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8342ada84efe4b3d59e1313d1d2740a8ccfc76ddb57ccf55e45a6464dd7d0d3"
+source = "git+https://github.com/D1plo1d/async-graphql.git?branch=feature/websocket-file-uploads#820751d12676367a98dbc86ba16c09ecec7bb0dc"
 dependencies = [
  "serde",
  "serde_json",
@@ -311,8 +308,7 @@ dependencies = [
 [[package]]
 name = "async-graphql-warp"
 version = "2.8.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7c66660fc96612efa390c0e243f81933dd1a9fc6b6452ea26af2fdfc527f0fef"
+source = "git+https://github.com/D1plo1d/async-graphql.git?branch=feature/websocket-file-uploads#820751d12676367a98dbc86ba16c09ecec7bb0dc"
 dependencies = [
  "async-graphql",
  "futures-util",
@@ -4232,6 +4228,7 @@ dependencies = [
  "eyre",
  "futures 0.3.14",
  "nanoid",
+ "nix 0.20.0",
  "nom-gcode",
  "serde",
  "serde_json",

@@ -3,7 +3,8 @@
 // #[macro_use] extern crate derive_new;
 #[macro_use] extern crate nanoid;
 
-use async_std::io::prelude::WriteExt;
+use async_graphql::{UploadValue};
+use async_graphql::http::ClientMessage;
 #[cfg(not(target_env = "msvc"))]
 use jemallocator::Jemalloc;
 use tracing::Instrument;
@@ -329,10 +330,28 @@ async fn app() -> Result<()> {
                 })
                 // TODO: replace this and handle file uploads in async graphql
                 .map(|msg| {
-                    msg.payload
+                    let uploads = msg.files
+                        .into_iter()
+                        .map(|content| UploadValue {
+                            filename: "upload".to_string(),
+                            content_type: None,
+                            content,
+                        })
+                        .collect();
+
+                    let mut client_message = ClientMessage::from_bytes(msg.payload)?;
+
+                    if let ClientMessage::Start {
+                        payload: request,
+                        ..
+                    } = &mut client_message {
+                        request.uploads = uploads;
+                    }
+
+                    Ok(client_message)
                 });
 
-            let connection = async_graphql::http::WebSocket::with_data(
+            let connection = async_graphql::http::WebSocket::with_message_stream(
                 schema,
                 message_stream,
                 initializer,

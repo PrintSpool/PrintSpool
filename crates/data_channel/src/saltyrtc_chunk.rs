@@ -2,8 +2,7 @@
 // See https://github.com/saltyrtc/saltyrtc-meta/blob/master/Chunking.md
 
 use std::{collections::{BTreeMap, BTreeSet}, time::Duration};
-use async_std::fs::File;
-use async_std::prelude::*;
+// use async_std::prelude::*;
 use eyre::{
     Result,
     // Context as _,
@@ -105,7 +104,7 @@ struct InMemoryMessage {
 
 pub struct Message {
     pub payload: Vec<u8>,
-    pub files: Vec<File>,
+    pub files: Vec<std::fs::File>,
 }
 
 impl ChunkDecoder {
@@ -130,9 +129,22 @@ impl ChunkDecoder {
 
                 let files: Vec<_> = stream::iter(files)
                     .then(|file_content| async move {
-                        let mut file: async_std::fs::File = tempfile::tempfile()?.into();
-                        file.write_all(&file_content).await?;
-                        file.flush().await?;
+                        // let mut file: async_std::fs::File = tempfile::tempfile()?.into();
+                        // file.write_all(&file_content).await?;
+                        // file.flush().await?;
+
+                        // use std::os::unix::io::{ FromRawFd, IntoRawFd };
+                        // // SAFETY: no other functions should call `from_raw_fd`, so there
+                        // // is only one owner for the file descriptor.
+                        // let file = unsafe {
+                        //     std::fs::File::from_raw_fd(file.into_raw_fd())
+                        // };
+
+                        use std::io::{ Write, Seek, SeekFrom };
+                        let mut file: std::fs::File = tempfile::tempfile()?;
+                        file.write_all(&file_content)?;
+                        file.flush()?;
+                        file.seek(SeekFrom::Start(0))?;
 
                         Result::<_>::Ok(file)
                     })

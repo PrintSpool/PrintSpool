@@ -1,7 +1,7 @@
 use std::convert::TryInto;
 
 use chrono::prelude::*;
-use futures::future::try_join_all;
+use futures::{future::try_join_all};
 use async_std::prelude::*;
 use async_std::{
     fs::{ self, File },
@@ -39,8 +39,8 @@ struct AddPartsToPrintQueueInput {
 #[derive(async_graphql::InputObject)]
 struct AddPartsToPrintQueuePartInput {
     name: String,
-    content: String,
-    file: Option<async_graphql::Upload>,
+    // content: String,
+    file: async_graphql::Upload,
 }
 
 #[derive(async_graphql::InputObject)]
@@ -134,10 +134,30 @@ impl AddPartsToPrintQueueMutation {
                             part_id.to_string(),
                         );
 
+                        // let mut tmp_file: File = part_input.file.value(&ctx)?.content.into();
+                        let mut tmp_file = part_input.file.value(&ctx)?.content;
+                        // From open(2) a tempfile can be persisted using:
+                        // linkat(fd, NULL, AT_FDCWD, "/path/for/file", AT_EMPTY_PATH);
+                        //
+                        // nix linkat does not yet support this but some day this may be able to be
+                        // rewritten as:
+                        // use std::os::unix::io::{ IntoRawFd };
+                        // nix::unistd::linkat(
+                        //     Some(tmp_file.into_raw_fd()),
+                        //     "",
+                        //     nix::unistd::LinkatFlags::AT_FDCWD,
+                        //     &file_path,
+                        //     nix::unistd::LinkatFlags::AT_EMPTY_PATH,
+                        // );
+
+                        let mut buf = vec![];
+                        use std::io::Read;
+                        tmp_file.read_to_end(&mut buf)?;
+
                         let mut file = File::create(&file_path).await.with_context(||
                             "Could not create file for gcode. May be out of disk space",
                         )?;
-                        file.write_all(&part_input.content.as_bytes()).await?;
+                        file.write_all(&buf).await?;
                         file.flush().await?;
 
                         let part = Part {

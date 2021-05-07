@@ -78,7 +78,6 @@ const useCreateJobMutation = (
         mutationInput.parts.push({
           name,
           // content: fileReader.result,
-          content: 'G1 X10\n',
           file,
         })
       }),
