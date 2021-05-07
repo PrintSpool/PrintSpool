@@ -1,5 +1,7 @@
 ALTER TABLE packages
-ADD COLUMN starred INT NOT NULL DEFAULT 0
+ADD COLUMN starred INT NOT NULL DEFAULT 0;
+
+ALTER TABLE packages
 ADD COLUMN based_on_package_id TEXT;
 
 CREATE INDEX packages_starred_deleted        ON packages(deleted_at IS NULL, starred);
