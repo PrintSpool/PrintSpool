@@ -328,7 +328,6 @@ async fn app() -> Result<()> {
                         info!("GraphQL message received with {} files", msg.files.len());
                     }
                 })
-                // TODO: replace this and handle file uploads in async graphql
                 .map(|msg| {
                     let uploads = msg.files
                         .into_iter()
