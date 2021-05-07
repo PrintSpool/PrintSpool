@@ -1,5 +1,6 @@
 // import msgpack from 'msgpack-lite'
 import Debug from 'debug'
+import { FileLike } from 'graphql-ws'
 
 const debug = Debug('teg:webrtc:SaltyRTCChunk')
 
@@ -98,12 +99,14 @@ const createChunk = async ({
 
   // write the payload to the buffer after the header
   let payloadBuf
-  if (payload.arrayBuffer != null) {
-    // Blobs (not available on all platforms)
-    payloadBuf = await payload.arrayBuffer()
-  } else {
-    // Array buffers (fallback for Blob .size and .arrayBuffer support)
+
+  if (payload instanceof Uint8Array) {
     payloadBuf = payload
+  } else if (payload.arrayBuffer != null) {
+    // Blobs (not available on all platforms)
+    payloadBuf = new Uint8Array(await payload.arrayBuffer())
+  } else {
+    throw new Error('Payload must either be a Uint8Array or a Blob with .arrayBuffer() support')
   }
 
   new Uint8Array(buf).set(payloadBuf, headerSize)
@@ -246,7 +249,7 @@ export const chunkifier = (opts, peer) => {
     const messageByteArray = textEncoder.encode(message)
 
     // Load the file content
-    let fileContents
+    let fileContents: (Uint8Array | FileLike)[]
     if (files.length === 0) {
       fileContents = files
     // If Blob.arrayBuffer is unsupported fallback to FileReader
@@ -264,7 +267,7 @@ export const chunkifier = (opts, peer) => {
             fileReader.onload = resolve
           })
 
-          return fileReader.result
+          return new Uint8Array(fileReader.result as ArrayBuffer)
         })
 
       fileContents = await Promise.all(fileContentPromises)

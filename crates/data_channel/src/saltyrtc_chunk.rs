@@ -98,6 +98,8 @@ pub struct ChunkDecoder {
 }
 
 struct InMemoryMessage {
+    chunks_len: usize,
+    started_at: Option<std::time::Instant>,
     payload: Vec<u8>,
     files: Vec<Vec<u8>>,
 }
@@ -123,9 +125,17 @@ impl ChunkDecoder {
             })
             .then(|msg| async {
                 let InMemoryMessage {
+                    chunks_len,
+                    started_at,
                     payload,
                     files,
                 } = msg?;
+
+                let file_write_at = if started_at.is_some() {
+                    Some(std::time::Instant::now())
+                } else {
+                    None
+                };
 
                 let files: Vec<_> = stream::iter(files)
                     .then(|file_content| async move {
@@ -150,6 +160,21 @@ impl ChunkDecoder {
                     })
                     .try_collect::<Vec<_>>()
                     .await?;
+
+                if let (
+                    Some(started_at),
+                    Some(file_write_at),
+                ) = (started_at, file_write_at) {
+                    let elapsed = started_at.elapsed();
+                    if elapsed >= Duration::from_millis(100) {
+                        info!(
+                            "Decoded {} chunks in {:?} (file writes in {:?})",
+                            chunks_len,
+                            elapsed,
+                            file_write_at,
+                        );
+                    }
+                }
 
                 Ok(Message {
                     payload,
@@ -300,14 +325,9 @@ impl ChunkDecoder {
         // The following sections are the file uploads
         let files = sections.collect();
 
-        if let Some(started_at) = started_at {
-            let elapsed = started_at.elapsed();
-            if elapsed >= Duration::from_millis(100) {
-                info!("Decoded {} chunks in {:?}", chunks_len, elapsed);
-            }
-        }
-
         return Ok(Some(InMemoryMessage {
+            chunks_len,
+            started_at,
             payload,
             files,
         }));
