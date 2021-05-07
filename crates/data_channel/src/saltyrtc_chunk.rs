@@ -171,7 +171,7 @@ impl ChunkDecoder {
                             "Decoded {} chunks in {:?} (file writes in {:?})",
                             chunks_len,
                             elapsed,
-                            file_write_at,
+                            file_write_at.elapsed(),
                         );
                     }
                 }
