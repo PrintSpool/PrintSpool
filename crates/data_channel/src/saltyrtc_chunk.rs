@@ -155,12 +155,13 @@ impl ChunkDecoder {
                         use std::io::{ Write, Seek, SeekFrom };
                         use std::os::unix::fs::OpenOptionsExt as _;
                         // let mut file: std::fs::File = tempfile::tempfile()?;
+                        let tmp_dir = "/var/lib/teg/tmp/";
 
                         let mut file = std::fs::OpenOptions::new()
                             .read(true)
                             .write(true)
                             .custom_flags(libc::O_TMPFILE) // do not mix with `create_new(true)`
-                            .open(&std::env::temp_dir())?;
+                            .open(&tmp_dir)?;
 
                         file.write_all(&file_content)?;
                         file.flush()?;

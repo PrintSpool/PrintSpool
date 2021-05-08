@@ -172,6 +172,12 @@ async fn app() -> Result<()> {
         }
     }.instrument(tracing::info_span!("memory_useage")));
 
+    // Wipe the tmp directory. This is used to store file uploads before they are linked to a more
+    // perminent location in the file system.
+    let tmp_dir = "/var/lib/teg/tmp/";
+    let _ = std::fs::remove_dir(&tmp_dir);
+    std::fs::create_dir_all(&tmp_dir)?;
+
     let db = create_db().await?;
 
     let machine_ids: Vec<crate::DbId> = std::fs::read_dir(CONFIG_DIR)?
