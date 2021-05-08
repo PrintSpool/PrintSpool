@@ -1,10 +1,10 @@
 use std::convert::TryInto;
-
+use std::os::unix::io::AsRawFd;
 use chrono::prelude::*;
 use futures::{future::try_join_all};
-use async_std::prelude::*;
+// use async_std::prelude::*;
 use async_std::{
-    fs::{ self, File },
+    fs,
 };
 use async_graphql::{
     ID,
@@ -14,7 +14,7 @@ use async_graphql::{
 use eyre::{
     eyre,
     Result,
-    Context as _,
+    // Context as _,
 };
 use teg_json_store::Record;
 
@@ -134,31 +134,22 @@ impl AddPartsToPrintQueueMutation {
                             part_id.to_string(),
                         );
 
-                        // let mut tmp_file: File = part_input.file.value(&ctx)?.content.into();
-                        let mut tmp_file = part_input.file.value(&ctx)?.content;
+                        let tmp_file = part_input.file.value(&ctx)?.content;
+
                         // From open(2) a tempfile can be persisted using:
-                        // linkat(fd, NULL, AT_FDCWD, "/path/for/file", AT_EMPTY_PATH);
                         //
-                        // nix linkat does not yet support this but some day this may be able to be
-                        // rewritten as:
-                        // use std::os::unix::io::{ IntoRawFd };
-                        // nix::unistd::linkat(
-                        //     Some(tmp_file.into_raw_fd()),
-                        //     "",
-                        //     nix::unistd::LinkatFlags::AT_FDCWD,
-                        //     &file_path,
-                        //     nix::unistd::LinkatFlags::AT_EMPTY_PATH,
-                        // );
+                        // snprintf(path, PATH_MAX,  "/proc/self/fd/%d", fd);
+                        // linkat(AT_FDCWD, path, AT_FDCWD, "/path/for/file", AT_SYMLINK_FOLLOW);
 
-                        let mut buf = vec![];
-                        use std::io::Read;
-                        tmp_file.read_to_end(&mut buf)?;
+                        let tmp_file_path = format!("/proc/self/fd/{}", tmp_file.as_raw_fd());
 
-                        let mut file = File::create(&file_path).await.with_context(||
-                            "Could not create file for gcode. May be out of disk space",
+                        nix::unistd::linkat(
+                            None,
+                            &tmp_file_path[..],
+                            None,
+                            &file_path[..],
+                            nix::unistd::LinkatFlags::SymlinkFollow,
                         )?;
-                        file.write_all(&buf).await?;
-                        file.flush().await?;
 
                         let part = Part {
                             id: part_id,

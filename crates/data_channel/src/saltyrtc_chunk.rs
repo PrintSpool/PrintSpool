@@ -150,8 +150,18 @@ impl ChunkDecoder {
                         //     std::fs::File::from_raw_fd(file.into_raw_fd())
                         // };
 
+                        // Create a *persistable* tmpfile that is automatically cleaned up if
+                        // it's file descriptor is dropped via O_TMPFILE
                         use std::io::{ Write, Seek, SeekFrom };
-                        let mut file: std::fs::File = tempfile::tempfile()?;
+                        use std::os::unix::fs::OpenOptionsExt as _;
+                        // let mut file: std::fs::File = tempfile::tempfile()?;
+
+                        let mut file = std::fs::OpenOptions::new()
+                            .read(true)
+                            .write(true)
+                            .custom_flags(libc::O_TMPFILE) // do not mix with `create_new(true)`
+                            .open(&std::env::temp_dir())?;
+
                         file.write_all(&file_content)?;
                         file.flush()?;
                         file.seek(SeekFrom::Start(0))?;

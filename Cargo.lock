@@ -4380,6 +4380,7 @@ dependencies = [
  "futures-util",
  "gravatar",
  "hex",
+ "libc",
  "pin-project",
  "qr2term",
  "rmp",
