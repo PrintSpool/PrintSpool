@@ -102,50 +102,6 @@
 //         }
 //     }
 
-//     // Automatic Printing
-//     let next_part = if automatic_printing {
-//         // Get the next part. Yeeaah it's a mess.
-//         Part::scan(&ctx.db)
-//             .filter(|part| {
-//                 part
-//                     .as_ref()
-//                     .map(|part| {
-//                         Package::get(
-//                             &ctx.db,
-//                             part.package_id
-//                         ).map(|package|
-//                             // TODO: which parts can be printed on this machine?
-//                             // part.print_queue_id == print_queue_id
-//                             part.printed < part.total_prints(&package)
-//                         ).unwrap_or(true)
-//                     })
-//                     .unwrap_or(true)
-//             })
-//             .collect::<Result<Vec<Part>>>()?
-//             .into_iter()
-//             .min_by_key(|part| part.position)
-//     } else {
-//         None
-//     };
-
-//     if let Some(next_part) = next_part {
-//         // Start the print
-//         Task::insert_print(
-//             &ctx,
-//             task.machine_id,
-//             next_part.id,
-//             true,
-//         ).await?;
-//     } else {
-//         // Reset the machine status to ready if there are no more parts to print
-//         Machine::set_status(&ctx.db, task.machine_id, |machine| {
-//             if machine.status.is_printing_task(task.id) {
-//                 MachineStatus::Ready
-//             } else {
-//                 machine.status.clone()
-//             }
-//         })?;
-//     }
 
 //     Ok(())
 // }

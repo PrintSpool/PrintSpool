@@ -6,11 +6,11 @@ use eyre::{
     // Context as _,
 };
 
-use crate::{MachineHooks, config::MachineConfig, plugins::Plugin};
+use crate::{task::Task, machine::Machine, machine::MachineData, MachineHooks, config::MachineConfig, plugins::Plugin};
 
 use super::{MachineSignallingUpdate, MachineUpdateOperation, SyncChanges};
 
-/// Actor to synchronize machine CRUD changes with the signalling server's cached list of this
+/// Actor to synchronize machine CRUD changes with the signalling server's cached list of each
 /// host's machines.
 pub struct SignallingUpdater {
     pub db: crate::Db,
@@ -117,7 +117,9 @@ impl MachineHooks for SignallingUpdaterMachineHooks {
     async fn before_task_settle<'c>(
         &self,
         _tx: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
-        _id: &crate::DbId,
+        _machine_data: &MachineData,
+        _machine_addr: xactor::Addr<Machine>,
+        _task: &mut Task,
     ) -> Result<()> {
         Ok(())
     }

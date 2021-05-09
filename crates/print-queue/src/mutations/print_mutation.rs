@@ -7,8 +7,9 @@ use async_graphql::{
     ID,
     FieldResult,
 };
+use teg_json_store::Record as _;
 use teg_machine::MachineMap;
-use crate::resolvers::print_resolvers::Print;
+use crate::{part::Part, resolvers::print_resolvers::Print};
 
 use crate::insert_print;
 
@@ -45,13 +46,27 @@ impl PrintMutation {
                     eyre!("machine ({:?}) not found for spool job file", input.machine_id)
                 )?;
 
-            let print = insert_print(
-                db,
-                machine.clone(),
-                input.machine_id.to_string(),
-                input.part_id.to_string(),
+            let mut tx = db.begin().await?;
+
+            let part = Part::get(
+                &mut tx,
+                &input.part_id.0,
                 false,
             ).await?;
+
+            let (_, print) = insert_print(
+                &mut tx,
+                &input.machine_id.0,
+                machine.clone(),
+                part,
+                false,
+            ).await?;
+
+            // First the new task is added to the database
+            tx.commit().await?;
+
+            // Then the task is parsed and spooled to the machine (and the database updated)
+            let print = print.await?;
 
             Result::<_>::Ok(print)
         }

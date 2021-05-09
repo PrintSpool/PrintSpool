@@ -36,20 +36,41 @@ use crate::{
     resolvers::print_resolvers::Print,
 };
 
-#[instrument(skip(db, machine))]
-pub async fn insert_print(
-    db: &crate::Db,
+// enum MachineOrAddr {
+//     Machine(&mut Machine),
+//     Addr(xactor::Addr<Machine>),
+// }
+
+// impl MachineOrAddr {
+//     pub async fn call<T: xactor::Message>(&self, msg: T) -> Result<T::Result>
+//     where
+//         A: xactor::Handler<T>,
+//     {
+//             match self {
+//                 Machine(machine) => {
+
+//                 }
+//                 Addr(addr) => {
+
+//                 }
+//             }
+//     }
+// }
+
+/// Returns the next task ID and a future that will return once the task has been parsed and spooled
+///
+/// Note: Awaiting this future inside the Machine actor will result in a deadlock - to avoid this
+/// run it in a detached task using `spawn`.
+///
+/// If an error is encountered while compiling the task it's status will be changed to `Errored`.
+#[instrument(skip(tx, machine))]
+pub async fn insert_print<'c>(
+    tx: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+    machine_id: &crate::DbId,
     machine: xactor::Addr<Machine>,
-    machine_id: crate::DbId,
-    part_id: crate::DbId,
+    part: Part,
     automatic_print: bool,
-) -> Result<Print> {
-    let part = Part::get(
-        db,
-        &part_id,
-        false,
-    )
-        .await?;
+) -> Result<(crate::DbId, impl Future<Output = Result<Print>>)> {
     let part_file_path = part.file_path.clone();
 
     let task_id = nanoid!(11);
@@ -59,48 +80,6 @@ pub async fn insert_print(
     );
     fs::create_dir_all(task_dir).await?;
 
-    let config = machine.call(GetData).await??.config;
-
-    /*
-     * Preprocess GCodes (part file => task file)
-     * =========================================================================================
-     */
-
-    use teg_macros::CompileInternalMacro;
-
-    let machine_clone = machine.clone();
-    let compile_internal_macro = move |internal_macro| {
-        let machine = machine_clone.clone();
-        async move {
-            machine.call(CompileInternalMacro(internal_macro)).await?
-        }
-    };
-
-    let read_buffer_size = 1024 * 1024; // 1 MB
-    let write_buffer_size = read_buffer_size;
-
-    // Compiling the print file is a slow and CPU intensive task so we run it in a blocking thread
-    // to prevent it from blocking other async tasks.
-    let task_file_path_clone = task_file_path.clone();
-    let PrintMetaData {
-        annotations,
-        total_lines,
-        estimated_print_time,
-        estimated_filament_meters,
-    } = async_std::task::spawn_blocking(move || {
-        let core_plugin = config.core_plugin()?;
-
-        compile_print_file(
-            &part_file_path,
-            &task_file_path_clone,
-            &core_plugin.model.before_print_hook,
-            &core_plugin.model.after_print_hook,
-            compile_internal_macro,
-            read_buffer_size,
-            write_buffer_size,
-        )
-    }).await?;
-
     let task = Task {
         id: task_id.clone(),
         version: 0,
@@ -108,33 +87,94 @@ pub async fn insert_print(
         deleted_at: None,
         // Foreign Keys
         machine_id: machine_id.clone(),
-        part_id: Some(part_id.clone()),
+        part_id: Some(part.id.clone()),
         // Content
         content: TaskContent::FilePath(task_file_path.to_string()),
         // Props
-        annotations: annotations.clone(),
-        total_lines,
+        annotations: Default::default(),
+        total_lines: Default::default(),
         despooled_line_number: None,
         machine_override: false,
-        estimated_print_time,
+        estimated_print_time: Default::default(),
         time_blocked: Default::default(),
         time_paused: Default::default(),
-        estimated_filament_meters,
+        estimated_filament_meters: Default::default(),
         status: Default::default(),
     };
 
-    let msg = SpoolPrintTask {
-        task,
-        automatic_print,
+    task.insert_no_rollback(tx).await?;
+
+    let parse_and_spool = async move {
+        let config = machine.call(GetData).await??.config;
+
+        /*
+        * Preprocess GCodes (part file => task file)
+        * =========================================================================================
+        */
+
+        use teg_macros::CompileInternalMacro;
+
+        let machine_clone = machine.clone();
+        let compile_internal_macro = move |internal_macro| {
+            let machine = machine_clone.clone();
+            async move {
+                machine.call(CompileInternalMacro(internal_macro)).await?
+            }
+        };
+
+        let read_buffer_size = 1024 * 1024; // 1 MB
+        let write_buffer_size = read_buffer_size;
+
+        // Compiling the print file is a slow and CPU intensive task so we run it in a blocking thread
+        // to prevent it from blocking other async tasks.
+        let task_file_path_clone = task_file_path.clone();
+        let PrintMetaData {
+            annotations,
+            total_lines,
+            estimated_print_time,
+            estimated_filament_meters,
+        } = async_std::task::spawn_blocking(move || {
+            let core_plugin = config.core_plugin()?;
+
+            compile_print_file(
+                &part_file_path,
+                &task_file_path_clone,
+                &core_plugin.model.before_print_hook,
+                &core_plugin.model.after_print_hook,
+                compile_internal_macro,
+                read_buffer_size,
+                write_buffer_size,
+            )
+        }).await?;
+
+        let task = Task {
+            // Content
+            content: TaskContent::FilePath(task_file_path.to_string()),
+            // Props
+            annotations: annotations.clone(),
+            total_lines,
+            despooled_line_number: None,
+            machine_override: false,
+            estimated_print_time,
+            estimated_filament_meters,
+            ..task
+        };
+
+        let msg = SpoolPrintTask {
+            task,
+            automatic_print,
+        };
+
+        let task = machine.call(msg).await??;
+
+        Ok(Print {
+            id: task.id.clone().into(),
+            task,
+            part,
+        })
     };
 
-    let task = machine.call(msg).await??;
-
-    Ok(Print {
-        id: task.id.clone().into(),
-        task,
-        part,
-    })
+    Ok((task_id, parse_and_spool))
 }
 
 pub struct PrintMetaData {

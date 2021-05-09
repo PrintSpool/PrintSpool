@@ -12,9 +12,7 @@ use teg_json_store::{
     Record,
     JsonRow,
 };
-use teg_machine::{MachineHooksList, MachineMap, machine::messages::{
-        StopMachine,
-    }, task::{
+use teg_machine::{MachineHooksList, MachineMap, machine::messages::{GetData, StopMachine}, task::{
         Task,
         TaskStatus,
         Cancelled,
@@ -94,10 +92,26 @@ impl DeletePartsMutation {
             let mut tasks = Task::from_rows(tasks)?;
 
             for mut task in &mut tasks {
+                let machine = machines.get(&(&task.machine_id).into())
+                    .ok_or_else(||
+                        eyre!(
+                            "machine ({:?}) not found for task ({:?})",
+                            task.machine_id,
+                            task.id,
+                        )
+                    )?;
+
                 task.status = TaskStatus::Cancelled(Cancelled {
                     cancelled_at: Utc::now(),
                 });
-                tx = task.settle_task(tx, machine_hooks).await?;
+
+                let machine_data = machine.call(GetData).await??;
+                tx = task.settle_task(
+                    tx,
+                    machine_hooks,
+                    &machine_data,
+                    &machine,
+                ).await?;
                 task.update(&mut tx).await?;
             }
 

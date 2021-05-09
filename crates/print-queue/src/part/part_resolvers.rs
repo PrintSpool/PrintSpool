@@ -128,12 +128,12 @@ impl Part {
         async move {
             Result::<_>::Ok(Self::started_final_print(db, &self.id).await?)
         }
-        // log the backtrace which is otherwise lost by FieldResult
-        .await
-        .map_err(|err| {
-            warn!("{:?}", err);
-            err.into()
-        })
+            // log the backtrace which is otherwise lost by FieldResult
+            .await
+            .map_err(|err| {
+                warn!("{:?}", err);
+                err.into()
+            })
     }
 
     async fn tasks<'ctx>(

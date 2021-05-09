@@ -6,9 +6,9 @@ use eyre::{
 };
 
 use teg_json_store::Record;
-use teg_machine::{MachineHooks, config::MachineConfig, plugins::Plugin};
+use teg_machine::{MachineHooks, machine::MachineData, config::MachineConfig, machine::Machine, plugins::Plugin, task::Task};
 
-use crate::{PrintQueue, machine_print_queue::MachinePrintQueue};
+use crate::{PrintQueue, insert_print, machine_print_queue::MachinePrintQueue, part::Part};
 
 pub struct PrintQueueMachineHooks;
 
@@ -98,9 +98,35 @@ impl MachineHooks for PrintQueueMachineHooks {
 
     async fn before_task_settle<'c>(
         &self,
-        _tx: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
-        _id: &teg_machine::DbId,
+        tx: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        machine_data: &MachineData,
+        machine_addr: xactor::Addr<Machine>,
+        task: &mut Task,
     ) -> Result<()> {
+        if
+            machine_data.config.core_plugin()?.model.automatic_printing
+            && task.status.was_successful()
+            && task.is_print()
+        {
+            let next_part = Part::fetch_next_part(
+                &mut *tx,
+                &task.machine_id,
+            ).await?;
+
+            if let Some(next_part) = next_part {
+                // Start the print
+                let (_, fut) = insert_print(
+                    &mut *tx,
+                    &task.machine_id,
+                    machine_addr,
+                    next_part,
+                    true,
+                ).await?;
+
+                let _ = async_std::task::spawn(fut);
+            }
+        }
+
         Ok(())
     }
 }

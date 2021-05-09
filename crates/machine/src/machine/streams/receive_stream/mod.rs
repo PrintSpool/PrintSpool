@@ -51,7 +51,7 @@ impl StreamHandler<RxResult> for Machine
                 record_init(self, init, ctx).await
             }
             Some(Feedback(feedback)) => {
-                record_feedback(self, feedback).await
+                record_feedback(self, feedback, ctx).await
             },
             _ => return,
         };

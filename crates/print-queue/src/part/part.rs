@@ -5,7 +5,7 @@ use eyre::{
     Result,
     // Context as _,
 };
-use teg_json_store::Record;
+use teg_json_store::{JsonRow, Record};
 
 // use crate::package::Package;
 
@@ -158,6 +158,45 @@ impl Part {
 
         let done = part_stats.printed as i64 >= total;
         Ok(done)
+    }
+
+    pub async fn fetch_next_part<'e, 'c, E>(
+        db: E,
+        machine_id: &crate::DbId,
+    ) -> Result<Option<Part>>
+    where
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    {
+        let part = sqlx::query_as!(
+            JsonRow,
+            r#"
+                SELECT
+                    parts.props
+                FROM parts
+                LEFT JOIN tasks ON
+                    tasks.part_id = parts.id
+                    AND tasks.status NOT IN ('errored', 'cancelled')
+                INNER JOIN packages ON
+                    packages.id = parts.package_id
+                INNER JOIN machine_print_queues ON
+                    machine_print_queues.print_queue_id = packages.print_queue_id
+                GROUP BY
+                    parts.id
+                HAVING
+                    COUNT(tasks.id) < (parts.quantity * packages.quantity)
+                    AND machine_print_queues.machine_id = ?
+                ORDER BY
+                    parts.position
+                LIMIT 1
+            "#,
+            machine_id,
+        )
+            .fetch_optional(db)
+            .await?
+            .map(|row| Part::from_row(row))
+            .transpose()?;
+
+        Ok(part)
     }
 
     pub fn position_db_blob(&self) -> Vec<u8> {

@@ -4,7 +4,9 @@ use eyre::{
     // Context as _,
 };
 
-use crate::{config::MachineConfig, plugins::Plugin};
+use crate::{config::MachineConfig, plugins::Plugin, task::Task};
+
+use super::{Machine, MachineData};
 
 #[async_trait::async_trait]
 pub trait MachineHooks {
@@ -28,7 +30,9 @@ pub trait MachineHooks {
     async fn before_task_settle<'c>(
         &self,
         tx: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
-        id: &crate::DbId,
+        machine_data: &MachineData,
+        machine_addr: xactor::Addr<Machine>,
+        task: &mut Task,
     ) -> Result<()>;
 
     async fn after_plugin_update(

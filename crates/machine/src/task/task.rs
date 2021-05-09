@@ -7,7 +7,7 @@ use eyre::{
 };
 use teg_json_store::{ Record, JsonRow };
 
-use crate::MachineHooksList;
+use crate::{MachineHooksList, machine::Machine, machine::MachineData};
 
 use super::{
     GCodeAnnotation,
@@ -86,6 +86,8 @@ impl Task {
         &mut self,
         mut tx: sqlx::Transaction<'c, sqlx::Sqlite>,
         machine_hooks: &MachineHooksList,
+        machine_data: &MachineData,
+        machine_addr: &xactor::Addr<Machine>,
     ) -> Result<sqlx::Transaction<'c, sqlx::Sqlite>> {
         // Move the despooled line number to the end of the file if the print was successful
         if self.status.was_successful() {
@@ -101,6 +103,15 @@ impl Task {
             TaskContent::GCodes(vec![]),
         );
 
+        for machine_hook in machine_hooks.iter() {
+            machine_hook.before_task_settle(
+                &mut tx,
+                machine_data,
+                machine_addr.clone(),
+                &mut *self,
+            ).await?;
+        }
+
         // Delete the completed GCode file in a seperate task to prevent blocking the database on
         // disk IO
         if let TaskContent::FilePath(file_path) = content {
@@ -112,12 +123,6 @@ impl Task {
                 }
             });
         }
-
-        for machine_hook in (&*machine_hooks).iter() {
-            machine_hook.before_task_settle(&mut tx, &self.id).await?;
-        }
-
-        self.update(&mut tx).await?;
 
         Ok(tx)
     }

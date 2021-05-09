@@ -13,7 +13,7 @@ use teg_protobufs::{
 use teg_json_store::{ Record as _ };
 
 use machine_message::Feedback;
-use crate::{MachineHooksList, machine::{
+use crate::machine::{
     self,
     PositioningUnits,
     Errored,
@@ -24,7 +24,7 @@ use crate::{MachineHooksList, machine::{
     MachineStatus,
     Printing,
     events::TaskSettled,
-}};
+};
 use crate::task::{
     Task,
     TaskStatus,
@@ -40,20 +40,20 @@ use crate::components::{
 pub async fn record_feedback(
     machine: &mut Machine,
     feedback: Feedback,
+    ctx: &mut xactor::Context<Machine>,
 ) -> Result<()> {
     let db = machine.db.clone();
     let now = Utc::now();
 
-    update_tasks(machine, &db, &feedback, &now).await?;
+    update_tasks(machine, &db, &feedback, &now, ctx).await?;
 
-    let machine_hooks = machine.hooks.clone();
     let machine_data = machine.get_data()?;
 
     update_heaters(machine_data, &feedback, &now).await?;
     update_axes(machine_data, &feedback).await?;
     update_speed_controllers(machine_data, &feedback).await?;
 
-    update_machine(&db, machine_data, &machine_hooks, &feedback, &now).await?;
+    update_machine(&db, machine, &feedback, &now, ctx).await?;
 
     machine.has_received_feedback = true;
     Ok(())
@@ -64,6 +64,7 @@ pub async fn update_tasks(
     db: &crate::Db,
     feedback: &Feedback,
     now: &DateTime<Utc>,
+    ctx: &mut xactor::Context<Machine>,
 ) -> Result<()> {
     // On first feedback error out any previously running tasks that have disapeared from the
     // driver.
@@ -93,7 +94,14 @@ pub async fn update_tasks(
                     errored_at: *now,
                 });
 
-                tx = task.settle_task(tx, &machine.hooks).await?;
+                let machine_hooks = machine.hooks.clone();
+                tx = task.settle_task(
+                    tx,
+                    &machine_hooks,
+                    machine.data_ref()?,
+                    &ctx.address(),
+                ).await?;
+
                 task.update(&mut tx).await?;
             } else if
                 // If the task is still present upon reconnection then update the printer status
@@ -149,6 +157,17 @@ pub async fn update_tasks(
 
         // When a task is settled
         if status_changed && task.status.is_settled() {
+            // Update the task and delete any temporary files
+            let machine_hooks = machine.hooks.clone();
+            tx = task.settle_task(
+                tx,
+                &machine_hooks,
+                machine.data_ref()?,
+                &ctx.address(),
+            ).await?;
+
+            // Check if a new task was started (eg. by automatic printing)
+            // TODO
             // Update the machine's status
             match &machine.get_data()?.status {
                 MachineStatus::Printing(Printing {
@@ -161,9 +180,6 @@ pub async fn update_tasks(
                 }
                 _ => ()
             };
-
-            // Update the task and delete any temporary files
-            tx = task.settle_task(tx, &machine.hooks).await?;
         }
 
         // Save the task
@@ -326,10 +342,10 @@ pub async fn update_speed_controllers(machine: &mut MachineData, feedback: &Feed
 
 pub async fn update_machine(
     db: &crate::Db,
-    machine: &mut MachineData,
-    machine_hooks: &MachineHooksList,
+    machine: &mut Machine,
     feedback: &Feedback,
     now: &DateTime<Utc>,
+    ctx: &mut xactor::Context<Machine>,
 ) -> Result<()> {
     trace!("Feedback status: {:?}", feedback.status);
     // Update machine status
@@ -348,9 +364,11 @@ pub async fn update_machine(
         i => Err(eyre!("Invalid machine status: {:?}", i))?,
     };
 
+    let machine_data = machine.get_data()?;
+
     // If the machine has been stopped, disconnected, or encountered an error
     if
-        next_status != machine.status
+        next_status != machine_data.status
         && !next_status.is_driver_ready()
     {
         // Error any tasks not explicitly stopped by task-level Feedback
@@ -361,7 +379,7 @@ pub async fn update_machine(
 
         let tasks = Task::tasks_running_on_machine(
             &mut tx,
-            &machine.config.id,
+            &machine_data.config.id,
         ).await?;
 
         let err = match &next_status {
@@ -374,46 +392,56 @@ pub async fn update_machine(
 
         for mut task in tasks {
             task.status = TaskStatus::Errored(err.clone());
-            tx = task.settle_task(tx, &machine_hooks).await?;
+
+            let machine_hooks = machine.hooks.clone();
+            tx = task.settle_task(
+                tx,
+                &machine_hooks,
+                machine.data_ref()?,
+                &ctx.address(),
+            ).await?;
+
             task.update(&mut tx).await?;
         }
 
         tx.commit().await?;
     }
 
+    let machine_data = machine.get_data()?;
+
     // Do not reset the machine status to ready while it is printing
     if
-        machine.status != next_status &&
-        !(machine.status.is_printing() && next_status == MachineStatus::Ready)
+        machine_data.status != next_status &&
+        !(machine_data.status.is_printing() && next_status == MachineStatus::Ready)
     {
-        info!("Printer status changed from {:?} to {:?}", machine.status, next_status);
-        machine.status = next_status;
+        info!("Printer status changed from {:?} to {:?}", machine_data.status, next_status);
+        machine_data.status = next_status;
     }
 
     // Parse the machine flags bitfield
     if let Some(flags) = MachineFlags::from_bits(feedback.machine_flags) {
         // trace!("Machine flags: {:#b}", flags);
-        machine.absolute_positioning = flags.contains(MachineFlags::ABSOLUTE_POSITIONING);
+        machine_data.absolute_positioning = flags.contains(MachineFlags::ABSOLUTE_POSITIONING);
 
-        machine.positioning_units = if flags.contains(MachineFlags::MILLIMETERS) {
+        machine_data.positioning_units = if flags.contains(MachineFlags::MILLIMETERS) {
             PositioningUnits::Millimeters
         } else {
             PositioningUnits::Inches
         };
 
-        machine.motors_enabled = flags.contains(MachineFlags::MOTORS_ENABLED);
+        machine_data.motors_enabled = flags.contains(MachineFlags::MOTORS_ENABLED);
 
         // After pausing a print the driver will send the PAUSED_STATE flag to indicate the state
         // of the machine at the time the print was paused.
         if flags.contains(MachineFlags::PAUSED_STATE) {
             let paused_state = MachineData {
                 gcode_history: Default::default(),
-                ..machine.clone()
+                ..machine_data.clone()
             };
 
             if let MachineStatus::Printing(
                 printing @ Printing { paused: true, paused_state: None, .. }
-            ) = &mut machine.status {
+            ) = &mut machine_data.status {
                 info!("Paused state set");
                 // Copy the machine data to the paused state
                 printing.paused_state = Some(Box::new(paused_state))
@@ -426,7 +454,7 @@ pub async fn update_machine(
     }
 
     // Update GCode History
-    let history = &mut machine.gcode_history;
+    let history = &mut machine.get_data()?.gcode_history;
 
     for entry in feedback.gcode_history.iter() {
         let direction = if
