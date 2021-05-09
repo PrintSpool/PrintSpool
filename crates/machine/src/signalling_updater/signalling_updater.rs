@@ -113,4 +113,12 @@ impl MachineHooks for SignallingUpdaterMachineHooks {
 
         Ok(())
     }
+
+    async fn before_task_settle<'c>(
+        &self,
+        _tx: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        _id: &crate::DbId,
+    ) -> Result<()> {
+        Ok(())
+    }
 }

@@ -25,6 +25,12 @@ pub trait MachineHooks {
         id: &crate::DbId,
     ) -> Result<sqlx::Transaction<'c, sqlx::Sqlite>>;
 
+    async fn before_task_settle<'c>(
+        &self,
+        tx: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        id: &crate::DbId,
+    ) -> Result<()>;
+
     async fn after_plugin_update(
         &self,
         machine_id: &crate::DbId,

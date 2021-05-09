@@ -12,17 +12,13 @@ use teg_json_store::{
     Record,
     JsonRow,
 };
-use teg_machine::{
-    MachineMap,
-    task::{
+use teg_machine::{MachineHooksList, MachineMap, machine::messages::{
+        StopMachine,
+    }, task::{
         Task,
         TaskStatus,
         Cancelled,
-    },
-    machine::messages::{
-        StopMachine,
-    },
-};
+    }};
 
 use crate::{
     part::Part,
@@ -52,6 +48,8 @@ impl DeletePartsMutation {
         input: DeletePartsInput,
     ) -> FieldResult<DeletedParts> {
         let db: &crate::Db = ctx.data()?;
+        let machine_hooks: &MachineHooksList = ctx.data()?;
+
         let machines: &MachineMap = ctx.data()?;
         let machines = machines.load();
 
@@ -99,7 +97,7 @@ impl DeletePartsMutation {
                 task.status = TaskStatus::Cancelled(Cancelled {
                     cancelled_at: Utc::now(),
                 });
-                task.settle_task().await;
+                tx = task.settle_task(tx, machine_hooks).await?;
                 task.update(&mut tx).await?;
             }
 

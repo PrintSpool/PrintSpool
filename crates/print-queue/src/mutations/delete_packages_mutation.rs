@@ -12,17 +12,13 @@ use teg_json_store::{
     Record,
     JsonRow,
 };
-use teg_machine::{
-    MachineMap,
-    task::{
+use teg_machine::{MachineHooksList, MachineMap, machine::messages::{
+        StopMachine,
+    }, task::{
         Task,
         TaskStatus,
         Cancelled,
-    },
-    machine::messages::{
-        StopMachine,
-    },
-};
+    }};
 
 use crate::{
     package::Package,
@@ -53,10 +49,11 @@ impl DeletePackagesMutation {
         ctx: &'ctx async_graphql::Context<'_>,
         input: DeletePackagesInput,
     ) -> FieldResult<DeletedPackages> {
+        let db: &crate::Db = ctx.data()?;
+        let machine_hooks: &MachineHooksList = ctx.data()?;
+
         let machines: &MachineMap = ctx.data()?;
         let machines = machines.load();
-
-        let db: &crate::Db = ctx.data()?;
 
         async move {
             let now= Utc::now();
@@ -93,7 +90,7 @@ impl DeletePackagesMutation {
                     task.status = TaskStatus::Cancelled(Cancelled {
                         cancelled_at: now,
                     });
-                    task.settle_task().await;
+                    tx = task.settle_task(tx, machine_hooks).await?;
                     task.update(&mut tx).await?;
                 }
                 all_packages_tasks.append(&mut tasks);

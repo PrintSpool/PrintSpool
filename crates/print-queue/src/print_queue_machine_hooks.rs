@@ -95,4 +95,12 @@ impl MachineHooks for PrintQueueMachineHooks {
     ) -> Result<()> {
         Ok(())
     }
+
+    async fn before_task_settle<'c>(
+        &self,
+        _tx: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        _id: &teg_machine::DbId,
+    ) -> Result<()> {
+        Ok(())
+    }
 }

@@ -13,7 +13,7 @@ use teg_protobufs::{
 use teg_json_store::{ Record as _ };
 
 use machine_message::Feedback;
-use crate::machine::{
+use crate::{MachineHooksList, machine::{
     self,
     PositioningUnits,
     Errored,
@@ -24,7 +24,7 @@ use crate::machine::{
     MachineStatus,
     Printing,
     events::TaskSettled,
-};
+}};
 use crate::task::{
     Task,
     TaskStatus,
@@ -46,13 +46,14 @@ pub async fn record_feedback(
 
     update_tasks(machine, &db, &feedback, &now).await?;
 
+    let machine_hooks = machine.hooks.clone();
     let machine_data = machine.get_data()?;
 
     update_heaters(machine_data, &feedback, &now).await?;
     update_axes(machine_data, &feedback).await?;
     update_speed_controllers(machine_data, &feedback).await?;
 
-    update_machine(&db, machine_data, &feedback, &now).await?;
+    update_machine(&db, machine_data, &machine_hooks, &feedback, &now).await?;
 
     machine.has_received_feedback = true;
     Ok(())
@@ -67,36 +68,35 @@ pub async fn update_tasks(
     // On first feedback error out any previously running tasks that have disapeared from the
     // driver.
     if !machine.has_received_feedback {
-        let tasks = Task::tasks_running_on_machine(
+        let mut tasks = Task::tasks_running_on_machine(
             db,
             &machine.get_data()?.config.id,
         ).await?;
 
-        for mut task in tasks {
+        let mut tx = db.begin().await?;
+        for mut task in tasks.iter_mut() {
             // If the task is missing after reconnection then mark it as errored
             if
                 !feedback.task_progress
                     .iter()
                     .any(|p| p.task_id == task.id)
             {
-                let message = format!(
+                let error_message = format!(
                     "Task (#{}) missing from driver, possibly due to driver crash.",
                     task.id
                 );
 
-                warn!("{}", message);
+                warn!("{}", error_message);
 
                 task.status = TaskStatus::Errored(task::Errored {
-                    message,
+                    message: error_message,
                     errored_at: *now,
                 });
 
-                task.settle_task().await;
-                task.update(db).await?;
-            }
-
-            // If the task is still present upon reconnection then update the printer status
-            if
+                tx = task.settle_task(tx, &machine.hooks).await?;
+                task.update(&mut tx).await?;
+            } else if
+                // If the task is still present upon reconnection then update the printer status
                 task.status.is_pending()
                 && task.is_print()
             {
@@ -110,6 +110,9 @@ pub async fn update_tasks(
                 );
             }
         }
+
+        tx.commit().await?;
+        drop(tasks);
     }
 
     for progress in feedback.task_progress.iter() {
@@ -142,6 +145,8 @@ pub async fn update_tasks(
             false
         };
 
+        let mut tx = db.begin().await?;
+
         // When a task is settled
         if status_changed && task.status.is_settled() {
             // Update the machine's status
@@ -158,11 +163,11 @@ pub async fn update_tasks(
             };
 
             // Update the task and delete any temporary files
-            task.settle_task().await;
+            tx = task.settle_task(tx, &machine.hooks).await?;
         }
 
         // Save the task
-        task.update(db).await?;
+        task.update(&mut tx).await?;
 
         // Notify listeners
         if status_changed && task.status.is_settled() {
@@ -322,6 +327,7 @@ pub async fn update_speed_controllers(machine: &mut MachineData, feedback: &Feed
 pub async fn update_machine(
     db: &crate::Db,
     machine: &mut MachineData,
+    machine_hooks: &MachineHooksList,
     feedback: &Feedback,
     now: &DateTime<Utc>,
 ) -> Result<()> {
@@ -368,7 +374,7 @@ pub async fn update_machine(
 
         for mut task in tasks {
             task.status = TaskStatus::Errored(err.clone());
-            task.settle_task().await;
+            tx = task.settle_task(tx, &machine_hooks).await?;
             task.update(&mut tx).await?;
         }
 

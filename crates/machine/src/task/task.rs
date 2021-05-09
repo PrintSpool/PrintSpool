@@ -7,6 +7,8 @@ use eyre::{
 };
 use teg_json_store::{ Record, JsonRow };
 
+use crate::MachineHooksList;
+
 use super::{
     GCodeAnnotation,
     TaskStatus,
@@ -80,7 +82,11 @@ impl Task {
         Ok(tasks)
     }
 
-    pub async fn settle_task(&mut self) {
+    pub async fn settle_task<'c>(
+        &mut self,
+        mut tx: sqlx::Transaction<'c, sqlx::Sqlite>,
+        machine_hooks: &MachineHooksList,
+    ) -> Result<sqlx::Transaction<'c, sqlx::Sqlite>> {
         // Move the despooled line number to the end of the file if the print was successful
         if self.status.was_successful() {
             // Accounting for zero length tasks
@@ -107,6 +113,13 @@ impl Task {
             });
         }
 
+        for machine_hook in (&*machine_hooks).iter() {
+            machine_hook.before_task_settle(&mut tx, &self.id).await?;
+        }
+
+        self.update(&mut tx).await?;
+
+        Ok(tx)
     }
 }
 
