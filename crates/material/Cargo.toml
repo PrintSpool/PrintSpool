@@ -16,8 +16,8 @@ teg_auth = { path = "../auth" }
 teg-json-store = { path = "../json-store" }
 teg-common = { path = "../common"}
 
-sqlx = { version = "=0.5.1", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros", "chrono" ] }
-# sqlx = { git = "https://github.com/launchbadge/sqlx.git", branch = "ab/more-pool-fixes", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros" , "chrono"] }
+# sqlx = { version = "=0.5.2", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros", "chrono" ] }
+sqlx = { git = "https://github.com/launchbadge/sqlx.git", branch = "ab/more-pool-fixes", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros" , "chrono"] }
 
 schemars = "0.8.0"
 eyre = "0.6.5"
