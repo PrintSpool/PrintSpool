@@ -16,7 +16,8 @@ tokio-serial = { version = "4.3.3", default-features = false }
 # tokio-serial = { path = "../../../tokio-serial"}
 futures = { version = "0.3.5", features=["compat"] }
 mio = "0.6.22"
-tempfile = "3.1.0"
+# tempfile = "3.2.0"
+tempfile = { git = "https://github.com/D1plo1d/tempfile.git", branch = "feature/linux-persistence" }
 bus_queue = "0.5.3"
 fallible-iterator = "0.2.0"
 chrono = "0.4.9"

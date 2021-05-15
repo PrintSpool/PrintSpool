@@ -35,7 +35,8 @@ url = "2.2.0"
 surf = "2.1.0"
 arc-swap = "1.1.0"
 pin-project = "1.0.6"
-tempfile = "3.2.0"
+# tempfile = "3.2.0"
+tempfile = { git = "https://github.com/D1plo1d/tempfile.git", branch = "feature/linux-persistence" }
 
 datachannel = { version = "0.5.1", features = [ "static" ] }
 # datachannel = { git = "https://github.com/lerouxrgd/datachannel-rs.git", branch = "static-openssl", features = [ "static" ] }

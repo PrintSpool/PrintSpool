@@ -262,7 +262,7 @@ dependencies = [
  "serde",
  "serde_json",
  "static_assertions",
- "tempfile",
+ "tempfile 3.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "thiserror",
  "tracing",
  "tracing-futures",
@@ -2583,7 +2583,7 @@ dependencies = [
  "quick-error",
  "rand 0.7.3",
  "safemem",
- "tempfile",
+ "tempfile 3.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "twoway 0.1.8",
 ]
 
@@ -2611,7 +2611,7 @@ dependencies = [
  "schannel",
  "security-framework",
  "security-framework-sys",
- "tempfile",
+ "tempfile 3.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -3171,7 +3171,7 @@ dependencies = [
  "petgraph",
  "prost",
  "prost-types",
- "tempfile",
+ "tempfile 3.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "which",
 ]
 
@@ -4201,7 +4201,7 @@ dependencies = [
  "teg-json-store",
  "teg-protobufs",
  "teg_machine",
- "tempfile",
+ "tempfile 3.2.0 (git+https://github.com/D1plo1d/tempfile.git?branch=feature/linux-persistence)",
  "tokio 0.2.25",
  "tokio-serial",
  "tokio-util 0.3.1",
@@ -4235,7 +4235,7 @@ dependencies = [
  "teg_auth",
  "teg_data_channel",
  "teg_machine",
- "tempfile",
+ "tempfile 3.2.0 (git+https://github.com/D1plo1d/tempfile.git?branch=feature/linux-persistence)",
  "tracing",
  "tracing-futures",
  "xactor",
@@ -4394,7 +4394,7 @@ dependencies = [
  "surf",
  "teg_auth",
  "teg_machine",
- "tempfile",
+ "tempfile 3.2.0 (git+https://github.com/D1plo1d/tempfile.git?branch=feature/linux-persistence)",
  "toml",
  "tracing",
  "url 2.2.1",
@@ -4474,6 +4474,19 @@ dependencies = [
  "teg-json-store",
  "teg_auth",
  "teg_config_form",
+]
+
+[[package]]
+name = "tempfile"
+version = "3.2.0"
+source = "git+https://github.com/D1plo1d/tempfile.git?branch=feature/linux-persistence#48ccbeb354ed6d92c97e2516da2d8c668dda2e2f"
+dependencies = [
+ "cfg-if 1.0.0",
+ "libc",
+ "rand 0.8.3",
+ "redox_syscall",
+ "remove_dir_all",
+ "winapi 0.3.9",
 ]
 
 [[package]]
