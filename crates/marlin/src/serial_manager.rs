@@ -177,6 +177,8 @@ impl SerialManager {
         ) = futures::future::abortable(serial_future);
         self.abort_handle = Some(abort_handle);
 
+        self.event_sender.send(Event::SerialPortOpened).await?;
+
         Ok(serial_future.map(|_| ()))
     }
 

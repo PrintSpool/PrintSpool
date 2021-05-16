@@ -37,6 +37,7 @@ pub enum Event {
     Init { serial_port_available: bool },
     ConnectionTimeout,
     GreetingTimerCompleted,
+    SerialPortOpened,
     SerialRec ((String, Response)),
     ProtobufClientConnection,
     ProtobufRec ( ServerMessage ),
@@ -270,6 +271,16 @@ impl State {
                         self.and_no_effects()
                     }
                 }
+                SerialPortOpened => {
+                    match self {
+                        Connecting(conn) => {
+                            Self::reset_line_number(conn, context)
+                        }
+                        _ => {
+                            self.invalid_transition_warning(&event)
+                        }
+                    }
+                }
                 SerialPortDisconnected => {
                     disconnect(&self, context)
                     // eprintln!("Disconnected");
@@ -296,9 +307,14 @@ impl State {
                             errored(error.to_string(), &state, context)
                         }
                         /* New socket */
-                        (Connecting(conn @ Connecting { received_greeting: false, .. }), Response::Greeting) |
-                        (Connecting(conn @ Connecting { received_greeting: false, .. }), Response::Ok {..}) => {
-                            Self::receive_greeting(conn, &context)
+                        (Connecting(conn @ Connecting { received_greeting: false, .. }), Response::Greeting) => {
+                            Self::reset_line_number(conn, context)
+                        }
+                        (Connecting(Connecting {..}), response @ Response::Ok {..}) => {
+                            Self::receive_ok(
+                                SerialRec((src, response)),
+                                context,
+                            )
                         }
                         /* Invalid transitions */
                         (state, response @ Response::Resend { .. }) => {
@@ -314,11 +330,11 @@ impl State {
                 }
                 /* Awaiting Greeting Timer: After Delay */
                 GreetingTimerCompleted => {
-                    if let Connecting(Connecting { received_greeting: true, .. }) = self {
-                        self.greeting_timer_completed(context)
-                    } else {
-                        self.invalid_transition_error(&event, context)
-                    }
+                    // if let Connecting(Connecting { received_greeting: true, .. }) = self {
+                    //     self.greeting_timer_completed(context)
+                    // } else {
+                    self.invalid_transition_error(&event, context)
+                    // }
                 },
                 /* Warnings */
                 PollFeedback |
@@ -382,33 +398,44 @@ impl State {
                 },
             ]);
 
-            let mut next_state = Self::new_connection(baud_rate_candidates);
+            let next_state = Self::new_connection(baud_rate_candidates);
 
-            // If the controller does not send a greeting then skip waiting for it
-            if !context.controller.model.await_greeting_from_firmware {
-                if context.controller.model.automatic_baud_rate_detection {
-                    return errored(
-                        r#"
-                            Cannot use automatic baud rate detection when await greeting
-                            from firmware is disabled
-                        "#.into(),
-                        &self,
-                        context
-                    );
-                }
+            // if context.controller.model.automatic_baud_rate_detection {
+            //     return errored(
+            //         r#"
+            //             Cannot use automatic baud rate detection when await greeting
+            //             from firmware is disabled
+            //         "#.into(),
+            //         &self,
+            //         context
+            //     );
+            // }
 
-                if let Connecting(connecting) = next_state {
-                    let Loop {
-                        next_state: after_greeting,
-                        effects: mut greeting_effects,
-                    } = Self::receive_greeting(connecting, &context);
+            // // If the controller does not send a greeting then skip waiting for it
+            // if !context.controller.model.await_greeting_from_firmware {
+            //     if context.controller.model.automatic_baud_rate_detection {
+            //         return errored(
+            //             r#"
+            //                 Cannot use automatic baud rate detection when await greeting
+            //                 from firmware is disabled
+            //             "#.into(),
+            //             &self,
+            //             context
+            //         );
+            //     }
 
-                    next_state = after_greeting;
-                    effects.append(&mut greeting_effects);
-                } else {
-                    panic!("Invariant: Connecting state not matched for new_connection")
-                }
-            }
+            //     if let Connecting(connecting) = next_state {
+            //         let Loop {
+            //             next_state: after_greeting,
+            //             effects: mut greeting_effects,
+            //         } = Self::receive_greeting(connecting, &context);
+
+            //         next_state = after_greeting;
+            //         effects.append(&mut greeting_effects);
+            //     } else {
+            //         panic!("Invariant: Connecting state not matched for new_connection")
+            //     }
+            // }
 
             if new_connection {
                 info!("Connecting to serial device...");
@@ -435,30 +462,27 @@ impl State {
         }
     }
 
-    fn receive_greeting(mut connecting: Connecting, context: &Context) -> Loop {
-        let delay = context.controller.model.delay_from_greeting_to_ready;
-        info!("Greeting Received, waiting {}ms for firmware to finish startup", delay);
-
-        let delay = Effect::Delay {
-            key: "greeting_delay".to_string(),
-            duration: Duration::from_millis(delay),
-            event: GreetingTimerCompleted,
-        };
-
-        connecting.received_greeting = true;
-
-        Loop::new(
-            State::Connecting(connecting),
-            vec![delay],
-        )
-    }
-
-    fn greeting_timer_completed(self, context: &mut Context) -> Loop {
-        let gcode = "M110 N0".to_string();
+    fn receive_ok(event: Event, context: &mut Context) -> Loop {
+        info!("Greeting Received");
 
         let mut effects = vec![
             Effect::CancelAllDelays,
         ];
+
+        let ready = ReadyState::default();
+
+        let next_state = Ready( ready );
+        let mut next_loop = next_state.consume(event, context);
+
+        effects.append(&mut next_loop.effects);
+        next_loop.effects = effects;
+
+        next_loop
+    }
+
+    fn reset_line_number(connecting: Connecting, context: &mut Context) -> Loop {
+        let gcode = "M110 N0".to_string();
+        let mut effects = vec![];
 
         send_serial(
             &mut effects,
@@ -471,13 +495,8 @@ impl State {
             false,
         );
 
-        let mut ready = ReadyState::default();
-        ready.last_gcode_sent = Some(gcode);
-
-        let next_state = Ready( ready );
-
         Loop::new(
-            next_state,
+            State::Connecting(connecting),
             effects,
         )
     }
