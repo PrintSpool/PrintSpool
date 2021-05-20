@@ -13,7 +13,7 @@ use teg_protobufs::{
 use teg_json_store::{ Record as _ };
 
 use machine_message::Feedback;
-use crate::machine::{
+use crate::{machine::{
     self,
     PositioningUnits,
     Errored,
@@ -24,7 +24,7 @@ use crate::machine::{
     MachineStatus,
     Printing,
     events::TaskSettled,
-};
+}, task::Created};
 use crate::task::{
     Task,
     TaskStatus,
@@ -74,9 +74,12 @@ pub async fn update_tasks(
             &machine.get_data()?.config.id,
         ).await?;
 
-        let mut tx = db.begin().await?;
         for mut task in tasks.iter_mut() {
             // If the task is missing after reconnection then mark it as errored
+            if task.status == TaskStatus::Created(Created { sent_to_driver: false }) {
+                continue;
+            }
+
             if
                 !feedback.task_progress
                     .iter()
@@ -95,14 +98,13 @@ pub async fn update_tasks(
                 });
 
                 let machine_hooks = machine.hooks.clone();
-                tx = task.settle_task(
+                let tx = db.begin().await?;
+                task.settle_task(
                     tx,
                     &machine_hooks,
                     machine.data_ref()?,
                     &ctx.address(),
                 ).await?;
-
-                task.update(&mut tx).await?;
             } else if
                 // If the task is still present upon reconnection then update the printer status
                 task.status.is_pending()
@@ -119,7 +121,6 @@ pub async fn update_tasks(
             }
         }
 
-        tx.commit().await?;
         drop(tasks);
     }
 
@@ -153,21 +154,19 @@ pub async fn update_tasks(
             false
         };
 
-        let mut tx = db.begin().await?;
-
         // When a task is settled
         if status_changed && task.status.is_settled() {
             // Update the task and delete any temporary files
+            let tx = db.begin().await?;
             let machine_hooks = machine.hooks.clone();
-            tx = task.settle_task(
+
+            task.settle_task(
                 tx,
                 &machine_hooks,
                 machine.data_ref()?,
                 &ctx.address(),
             ).await?;
 
-            // Check if a new task was started (eg. by automatic printing)
-            // TODO
             // Update the machine's status
             match &machine.get_data()?.status {
                 MachineStatus::Printing(Printing {
@@ -176,14 +175,31 @@ pub async fn update_tasks(
                     ..
                 }) if task_id == &task.id => {
                     info!("Print #{} Completed!", task.id);
-                    machine.get_data()?.status = MachineStatus::Ready;
+                    // Check if a new task was started (eg. by automatic printing)
+                    let next_task = Task::tasks_running_on_machine(
+                        db,
+                        &machine.id
+                    )
+                        .await?
+                        .into_iter()
+                        .filter(|t| t.is_print())
+                        .next();
+
+                    machine.get_data()?.status = if let Some(next_task) = next_task {
+                        MachineStatus::Printing(Printing {
+                            task_id: next_task.id,
+                            paused: next_task.status.is_paused(),
+                            paused_state: None,
+                        })
+                    } else {
+                        MachineStatus::Ready
+                    }
                 }
                 _ => ()
             };
+        } else {
+            task.update(db).await?;
         }
-
-        // Save the task
-        task.update(&mut tx).await?;
 
         // Notify listeners
         if status_changed && task.status.is_settled() {
@@ -375,10 +391,8 @@ pub async fn update_machine(
         //
         // The driver was not aware of these tasks when it sent the feedback so they are moved
         // to an errored state.
-        let mut tx = db.begin().await?;
-
         let tasks = Task::tasks_running_on_machine(
-            &mut tx,
+            db,
             &machine_data.config.id,
         ).await?;
 
@@ -393,18 +407,16 @@ pub async fn update_machine(
         for mut task in tasks {
             task.status = TaskStatus::Errored(err.clone());
 
+            let tx = db.begin().await?;
             let machine_hooks = machine.hooks.clone();
-            tx = task.settle_task(
+
+            task.settle_task(
                 tx,
                 &machine_hooks,
                 machine.data_ref()?,
                 &ctx.address(),
             ).await?;
-
-            task.update(&mut tx).await?;
         }
-
-        tx.commit().await?;
     }
 
     let machine_data = machine.get_data()?;

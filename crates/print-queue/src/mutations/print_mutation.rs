@@ -8,7 +8,7 @@ use async_graphql::{
     FieldResult,
 };
 use teg_json_store::Record as _;
-use teg_machine::MachineMap;
+use teg_machine::{MachineHooksList, MachineMap};
 use crate::{part::Part, resolvers::print_resolvers::Print};
 
 use crate::insert_print;
@@ -30,6 +30,7 @@ struct PrintInput {
 #[async_graphql::Object]
 impl PrintMutation {
     /// Starts a task to print the part.
+    #[instrument(skip(self, ctx))]
     async fn print<'ctx>(
         &self,
         ctx: &'ctx async_graphql::Context<'_>,
@@ -39,6 +40,7 @@ impl PrintMutation {
 
         let machines: &MachineMap = ctx.data()?;
         let machines = machines.load();
+        let machine_hooks: &MachineHooksList = ctx.data()?;
 
         async move {
             let machine = machines.get(&input.machine_id)
@@ -55,7 +57,9 @@ impl PrintMutation {
             ).await?;
 
             let (_, print) = insert_print(
+                db.clone(),
                 &mut tx,
+                machine_hooks,
                 &input.machine_id.0,
                 machine.clone(),
                 part,

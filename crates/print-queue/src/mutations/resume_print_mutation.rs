@@ -163,7 +163,7 @@ impl ResumePrintMutation {
                     return Err(eyre!("Cannot resume task be task is not paused").into())
                 };
 
-                task.status = TaskStatus::Spooled;
+                task.status = TaskStatus::Created(Default::default());
 
                 task.update(&mut tx).await?;
                 resume_hook.insert_no_rollback(&mut tx).await?;

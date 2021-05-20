@@ -13,8 +13,9 @@ pub use crate::machine::Errored;
 pub enum TaskStatus {
     /* Before sending to the driver */
 
-    /// The task is enqueued. It will begin printing as soon as the tasks spooled before it finish.
-    Spooled,
+    /// The task may be enqueued or pre-processing it's gcode. It will begin printing as soon as
+    /// pre-processing is completed and the tasks before it in the driver finish.
+    Created(Created),
 
     /* After sending to the driver */
 
@@ -31,6 +32,12 @@ pub enum TaskStatus {
     /// Re-uses the MachineStatus::Errored type for easier cloning of the MachineStatus into the
     /// TaskStatus.
     Errored(Errored),
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Default)]
+pub struct Created {
+    /// Set once the server sends the tasks to the driver
+    pub sent_to_driver: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -79,7 +86,7 @@ pub enum TaskStatusGQL {
 impl From<&TaskStatus> for TaskStatusGQL {
     fn from(status: &TaskStatus) -> Self {
         match status {
-          TaskStatus::Spooled => TaskStatusGQL::Spooled,
+          TaskStatus::Created(_) => TaskStatusGQL::Spooled,
           TaskStatus::Started => TaskStatusGQL::Started,
           TaskStatus::Finished(_) => TaskStatusGQL::Finished,
           TaskStatus::Paused(_) => TaskStatusGQL::Paused,
@@ -90,7 +97,7 @@ impl From<&TaskStatus> for TaskStatusGQL {
 }
 
 impl Default for TaskStatus {
-    fn default() -> Self { TaskStatus::Spooled }
+    fn default() -> Self { TaskStatus::Created(Default::default()) }
 }
 
 impl TaskStatus {
@@ -137,7 +144,7 @@ impl TaskStatus {
     pub fn to_db_str(&self) -> &'static str {
         use TaskStatus::*;
         match self {
-            Spooled => "spooled",
+            Created(_) => "spooled",
             Started => "started",
             Finished(_) => "finished",
             Paused(_) =>"paused",

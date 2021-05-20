@@ -4288,6 +4288,7 @@ dependencies = [
  "teg_material",
  "toml",
  "tracing",
+ "tracing-error",
  "tracing-subscriber",
  "url 2.2.1",
  "warp",

@@ -1,3 +1,4 @@
+use teg_json_store::Record;
 use teg_protobufs::{
     ServerMessage,
     server_message,
@@ -8,7 +9,7 @@ use eyre::{
     // Context as _,
 };
 
-use crate::{machine::Machine, task::{Task, TaskContent}};
+use crate::{machine::Machine, task::{Created, Task, TaskContent, TaskStatus}};
 
 // use crate::machine::Machine;
 
@@ -51,7 +52,7 @@ impl xactor::Handler<SpoolTask> for Machine {
 impl Machine {
     pub async fn spool_task(
         &mut self,
-        task: Task,
+        mut task: Task,
     ) -> Result<(&mut Self, Task)> {
         // client_id is a placeholder for now. It could allow multiple servers to connect
         // to a single machine driver process in future if that is needed but for now it does
@@ -92,6 +93,9 @@ impl Machine {
         };
 
         let this = self.send_message(message).await?;
+
+        task.status = TaskStatus::Created(Created { sent_to_driver: true });
+        task.update(&this.db).await?;
 
         Ok((this, task))
     }

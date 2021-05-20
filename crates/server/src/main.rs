@@ -139,6 +139,10 @@ async fn app() -> Result<()> {
             .wrap_err(".env file not found or failed to load")?;
     }
 
+    // use tracing_error::ErrorLayer;
+    // use tracing_subscriber::{prelude::*, registry::Registry};
+
+    // Registry::default().with(ErrorLayer::default()).init();
     tracing_subscriber::fmt::init();
     color_eyre::install()?;
 
@@ -227,7 +231,9 @@ async fn app() -> Result<()> {
     let device_manager = DeviceManager::start().await?;
 
     let machine_hooks: MachineHooksList = Arc::new(vec![
-        Box::new(PrintQueueMachineHooks),
+        Box::new(PrintQueueMachineHooks {
+            db: db.clone(),
+        }),
         Box::new(SignallingUpdaterMachineHooks {
             signalling_updater: signalling_updater.clone(),
             db: db.clone(),

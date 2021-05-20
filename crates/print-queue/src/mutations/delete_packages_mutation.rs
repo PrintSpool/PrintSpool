@@ -82,32 +82,9 @@ impl DeletePackagesMutation {
                     .fetch_all(&mut tx)
                     .await?;
 
-                let mut tasks = Task::from_rows(pending_tasks)?;
+                let mut pending_tasks = Task::from_rows(pending_tasks)?;
 
-                for mut task in &mut tasks {
-                    let machine = machines.get(&(&task.machine_id).into())
-                        .ok_or_else(||
-                            eyre!(
-                                "machine ({:?}) not found for task ({:?})",
-                                task.machine_id,
-                                task.id,
-                            )
-                        )?;
-
-                    task.status = TaskStatus::Cancelled(Cancelled {
-                        cancelled_at: now,
-                    });
-
-                    let machine_data = machine.call(GetData).await??;
-                    tx = task.settle_task(
-                        tx,
-                        machine_hooks,
-                        &machine_data,
-                        machine,
-                    ).await?;
-                    task.update(&mut tx).await?;
-                }
-                all_packages_tasks.append(&mut tasks);
+                all_packages_tasks.append(&mut pending_tasks);
 
                 // Soft delete the package
                 package.deleted_at = Some(now);
@@ -129,11 +106,25 @@ impl DeletePackagesMutation {
             tx.commit().await?;
 
             // Stop any prints (including paused prints)
-            for task in all_packages_tasks {
+            for mut task in all_packages_tasks {
                 let machine = machines.get(&(&task.machine_id).into())
                     .ok_or_else(||
                         eyre!("machine (ID: {}) not found for package deletion", task.machine_id)
                     )?;
+
+                task.status = TaskStatus::Cancelled(Cancelled {
+                    cancelled_at: now,
+                });
+
+                let tx = db.begin().await?;
+                let machine_data = machine.call(GetData).await??;
+
+                task.settle_task(
+                    tx,
+                    machine_hooks,
+                    &machine_data,
+                    machine,
+                ).await?;
 
                 machine.call(StopMachine).await?
             }

@@ -88,7 +88,7 @@ impl Task {
         machine_hooks: &MachineHooksList,
         machine_data: &MachineData,
         machine_addr: &xactor::Addr<Machine>,
-    ) -> Result<sqlx::Transaction<'c, sqlx::Sqlite>> {
+    ) -> Result<()> {
         // Move the despooled line number to the end of the file if the print was successful
         if self.status.was_successful() {
             // Accounting for zero length tasks
@@ -103,13 +103,19 @@ impl Task {
             TaskContent::GCodes(vec![]),
         );
 
+        let mut after_task_settle_cbs = vec![];
         for machine_hook in machine_hooks.iter() {
-            machine_hook.before_task_settle(
+            let after_settle_cb = machine_hook.before_task_settle(
                 &mut tx,
+                machine_hooks,
                 machine_data,
                 machine_addr.clone(),
                 &mut *self,
             ).await?;
+
+            if let Some(after_settle_cb) = after_settle_cb {
+                after_task_settle_cbs.push(after_settle_cb);
+            }
         }
 
         // Delete the completed GCode file in a seperate task to prevent blocking the database on
@@ -124,7 +130,14 @@ impl Task {
             });
         }
 
-        Ok(tx)
+        self.update(&mut tx).await?;
+        tx.commit().await?;
+
+        for after_settle_cb in after_task_settle_cbs {
+            after_settle_cb.await;
+        }
+
+        Ok(())
     }
 }
 

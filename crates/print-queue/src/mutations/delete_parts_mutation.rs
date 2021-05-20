@@ -91,6 +91,15 @@ impl DeletePartsMutation {
 
             let mut tasks = Task::from_rows(tasks)?;
 
+            // Soft delete the package
+            let now= Utc::now();
+            for mut part in parts {
+                part.deleted_at = Some(now.clone());
+                part.update(&mut tx).await?;
+            }
+
+            tx.commit().await?;
+
             for mut task in &mut tasks {
                 let machine = machines.get(&(&task.machine_id).into())
                     .ok_or_else(||
@@ -105,24 +114,16 @@ impl DeletePartsMutation {
                     cancelled_at: Utc::now(),
                 });
 
+                let tx = db.begin().await?;
                 let machine_data = machine.call(GetData).await??;
-                tx = task.settle_task(
+
+                task.settle_task(
                     tx,
                     machine_hooks,
                     &machine_data,
                     &machine,
                 ).await?;
-                task.update(&mut tx).await?;
             }
-
-            // Soft delete the package
-            let now= Utc::now();
-            for mut part in parts {
-                part.deleted_at = Some(now.clone());
-                part.update(&mut tx).await?;
-            }
-
-            tx.commit().await?;
 
             // Stop any prints (including paused prints)
             for task in tasks {

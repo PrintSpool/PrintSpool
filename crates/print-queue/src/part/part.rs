@@ -185,6 +185,7 @@ impl Part {
                 HAVING
                     COUNT(tasks.id) < (parts.quantity * packages.quantity)
                     AND machine_print_queues.machine_id = ?
+                    AND parts.deleted_at IS NULL
                 ORDER BY
                     parts.position
                 LIMIT 1

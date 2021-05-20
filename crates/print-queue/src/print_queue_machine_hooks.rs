@@ -1,3 +1,5 @@
+use std::pin::Pin;
+
 use chrono::prelude::*;
 use eyre::{
     // eyre,
@@ -5,12 +7,15 @@ use eyre::{
     // Context as _,
 };
 
+use futures::{Future, FutureExt};
 use teg_json_store::Record;
-use teg_machine::{MachineHooks, machine::MachineData, config::MachineConfig, machine::Machine, plugins::Plugin, task::Task};
+use teg_machine::{MachineHooks, MachineHooksList, config::MachineConfig, machine::Machine, machine::MachineData, plugins::Plugin, task::Task};
 
 use crate::{PrintQueue, insert_print, machine_print_queue::MachinePrintQueue, part::Part};
 
-pub struct PrintQueueMachineHooks;
+pub struct PrintQueueMachineHooks {
+    pub db: crate::Db,
+}
 
 impl PrintQueueMachineHooks {
     pub async fn create_default_print_queue<'c>(
@@ -99,10 +104,11 @@ impl MachineHooks for PrintQueueMachineHooks {
     async fn before_task_settle<'c>(
         &self,
         tx: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        machine_hooks: &MachineHooksList,
         machine_data: &MachineData,
         machine_addr: xactor::Addr<Machine>,
         task: &mut Task,
-    ) -> Result<()> {
+    ) -> Result<Option<Pin<Box<dyn Future<Output = ()> + Send>>>> {
         if
             machine_data.config.core_plugin()?.model.automatic_printing
             && task.status.was_successful()
@@ -114,19 +120,40 @@ impl MachineHooks for PrintQueueMachineHooks {
             ).await?;
 
             if let Some(next_part) = next_part {
+                info!("Automatic Printing: Spooling next print");
+
                 // Start the print
-                let (_, fut) = insert_print(
+                let (next_task_id, parse_and_spool) = insert_print(
+                    self.db.clone(),
                     &mut *tx,
+                    machine_hooks,
                     &task.machine_id,
                     machine_addr,
                     next_part,
                     true,
                 ).await?;
 
-                let _ = async_std::task::spawn(fut);
+                let parse_and_spool = parse_and_spool.then(|res| async move {
+                    if let Err(err) = res {
+                        error!(
+                            "Error parsing and spooling automatic print (ID: {:?}): {:?}",
+                            next_task_id,
+                            err,
+                        );
+                    };
+                });
+
+                // Spawn the parse and spool future asynchronously after the task is settled so
+                // that it does not deadlock with the caller of this hook while attempting to call
+                // the Machine actor.
+                return Ok(Some(async move {
+                    async_std::task::spawn(parse_and_spool);
+                }.boxed()))
             }
+        } else {
+            info!("Automatic Printing: All prints completed!");
         }
 
-        Ok(())
+        Ok(None)
     }
 }

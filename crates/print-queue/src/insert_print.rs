@@ -17,19 +17,7 @@ use eyre::{
 };
 use teg_json_store::Record;
 use teg_macros::{AnnotatedGCode, GCodeAnnotation, InternalMacro, compile_macros};
-use teg_machine::{
-    machine::{
-        Machine,
-        MachineStatus,
-        Printing,
-        messages::GetData,
-    },
-    task::{
-        Task,
-        // TaskStatus,
-        TaskContent,
-    },
-};
+use teg_machine::{MachineHooksList, machine::{Errored, Machine, MachineStatus, Printing, messages::GetData}, task::{Task, TaskContent, TaskStatus}};
 
 use crate::{
     part::Part,
@@ -63,9 +51,11 @@ use crate::{
 /// run it in a detached task using `spawn`.
 ///
 /// If an error is encountered while compiling the task it's status will be changed to `Errored`.
-#[instrument(skip(tx, machine))]
+#[instrument(skip(db, tx, machine, machine_hooks))]
 pub async fn insert_print<'c>(
+    db: crate::Db,
     tx: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+    machine_hooks: &MachineHooksList,
     machine_id: &crate::DbId,
     machine: xactor::Addr<Machine>,
     part: Part,
@@ -104,6 +94,7 @@ pub async fn insert_print<'c>(
 
     task.insert_no_rollback(tx).await?;
 
+    let machine_clone = machine.clone();
     let parse_and_spool = async move {
         let config = machine.call(GetData).await??.config;
 
@@ -114,9 +105,9 @@ pub async fn insert_print<'c>(
 
         use teg_macros::CompileInternalMacro;
 
-        let machine_clone = machine.clone();
+        let machine_clone2 = machine.clone();
         let compile_internal_macro = move |internal_macro| {
-            let machine = machine_clone.clone();
+            let machine = machine_clone2.clone();
             async move {
                 machine.call(CompileInternalMacro(internal_macro)).await?
             }
@@ -167,12 +158,51 @@ pub async fn insert_print<'c>(
 
         let task = machine.call(msg).await??;
 
-        Ok(Print {
+        Result::<_>::Ok(Print {
             id: task.id.clone().into(),
             task,
             part,
         })
     };
+
+    let task_id_clone = task_id.clone();
+    let machine_hooks = machine_hooks.clone();
+
+    let parse_and_spool = parse_and_spool
+        .then(|res| async move {
+            if let Err(err) = res {
+                let mut tx = db.begin().await?;
+
+                let mut task = Task::get(
+                    &mut tx,
+                    &task_id_clone,
+                    false,
+                ).await?;
+                task.status = TaskStatus::Errored(Errored {
+                    errored_at: Utc::now(),
+                    message: format!(
+                        "Error parsing and spooling print (ID: {:?}): {:?}",
+                        task_id_clone,
+                        err,
+                    ),
+                });
+
+                let machine_data = machine_clone
+                    .call(GetData)
+                    .await??;
+
+                task.settle_task(
+                    tx,
+                    &machine_hooks.clone(),
+                    &machine_data,
+                    &machine_clone,
+                ).await?;
+
+                Err(err)
+            } else {
+                res
+            }
+        });
 
     Ok((task_id, parse_and_spool))
 }
@@ -311,7 +341,7 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
         msg: SpoolPrintTask
     ) -> Result<Task> {
         let SpoolPrintTask {
-            task,
+            mut task,
             automatic_print,
         } = msg;
         let task_id = task.id.clone();
@@ -345,7 +375,7 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
             )?;
         }
 
-        task.insert_no_rollback(&mut tx).await?;
+        task.update(&mut tx).await?;
 
         machine.status.verify_can_start(&task, automatic_print)?;
 

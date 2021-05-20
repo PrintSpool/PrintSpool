@@ -1,10 +1,13 @@
+use std::pin::Pin;
+
 use eyre::{
     // eyre,
     Result,
     // Context as _,
 };
+use futures::Future;
 
-use crate::{config::MachineConfig, plugins::Plugin, task::Task};
+use crate::{MachineHooksList, config::MachineConfig, plugins::Plugin, task::Task};
 
 use super::{Machine, MachineData};
 
@@ -30,10 +33,11 @@ pub trait MachineHooks {
     async fn before_task_settle<'c>(
         &self,
         tx: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        machine_hooks: &MachineHooksList,
         machine_data: &MachineData,
         machine_addr: xactor::Addr<Machine>,
         task: &mut Task,
-    ) -> Result<()>;
+    ) -> Result<Option<Pin<Box<dyn Future<Output = ()> + Send>>>>;
 
     async fn after_plugin_update(
         &self,
