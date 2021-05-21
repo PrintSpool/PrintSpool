@@ -208,7 +208,11 @@ pub mod machine_message {
     pub struct SpeedController {
         #[prost(string, tag="1")]
         pub address: std::string::String,
-        /// Speeds are is in RPM. > 0: clockwise, < 0: counterclockwise.
+        /// Speeds are in the range 0% to 100% where 100% is full speed.
+        ///
+        /// Note: in future this may be ammended to go from -100% to 100% in which case:
+        /// > 0: clockwise,
+        /// < 0: counterclockwise.
         #[prost(float, tag="2")]
         pub target_speed: f32,
         #[prost(float, tag="3")]

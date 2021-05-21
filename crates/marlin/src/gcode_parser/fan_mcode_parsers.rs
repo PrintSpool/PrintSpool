@@ -22,9 +22,9 @@ pub fn parse_set_fan_speed(
         .find(|sc| sc.address == address)
         .map(|sc| {
             sc.enabled = true;
-            sc.target_speed = target_speed as f32;
+            sc.target_speed = target_speed as f32 / 2.55; // Scaled to 0 to 100
             // repraps have no fan speed sensors
-            sc.actual_speed = target_speed as f32;
+            sc.actual_speed = target_speed as f32 / 2.55; // Scaled to 0 to 100
         });
 
     Ok(())

@@ -35,9 +35,10 @@ impl teg_config_form::Model for SpeedControllerConfig {
 pub struct SpeedControllerEphemeral {
     #[default(nanoid!(11).into())]
     pub id: async_graphql::ID,
-    /// The expected speed of the SpeedController when it is enabled (in RPM).
+    /// The expected speed of the fan when it is enabled as a 0-100% percentage of it's
+    /// max speed.
     pub target_speed: Option<f32>,
-    /// The current speed of the SpeedController in RPM.
+    /// The current speed of the fan as a 0-100% percentage of it's max speed.
     pub actual_speed: Option<f32>,
     /// True if the SpeedController is on.
     pub enabled: bool,
