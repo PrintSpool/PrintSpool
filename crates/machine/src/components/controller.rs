@@ -41,17 +41,11 @@ pub struct ControllerConfig {
     /// # Simulate Attached Controller
     #[serde(default)]
     pub simulate: bool,
-    /// # Await greeting from firmware
-    #[serde(default)]
-    pub await_greeting_from_firmware: bool,
     /// # Number of GCodes sent and responses received to keep buffered on the machine service
     pub gcode_history_buffer_size: usize,
 
     // delays
 
-    /// # Serial connnection timeout (ms)
-    /// # Delay from greeting to ready (ms)
-    pub delay_from_greeting_to_ready: u64,
     /// # Temperature polling interval (ms)
     pub polling_interval: u64,
     /// # Fast code timeout (ms)

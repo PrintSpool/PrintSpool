@@ -53,7 +53,6 @@ pub enum Event {
 #[derive(Clone, Debug)]
 pub struct Connecting {
     baud_rate_candidates: Vec<u32>,
-    received_greeting: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -142,7 +141,7 @@ impl State {
     }
 
     pub fn new_connection(baud_rate_candidates: Vec<u32>) -> Self {
-        State::Connecting( Connecting { baud_rate_candidates, received_greeting: false })
+        State::Connecting( Connecting { baud_rate_candidates })
     }
 
     fn and_no_effects(self) -> Loop {
@@ -308,7 +307,7 @@ impl State {
                             errored(error.to_string(), &state, context)
                         }
                         /* New socket */
-                        (Connecting(conn @ Connecting { received_greeting: false, .. }), Response::Greeting) => {
+                        (Connecting(conn), Response::Greeting) => {
                             Self::reset_line_number(conn, context)
                         }
                         (Connecting(Connecting {..}), response @ Response::Ok {..}) => {
@@ -400,43 +399,6 @@ impl State {
             ]);
 
             let next_state = Self::new_connection(baud_rate_candidates);
-
-            // if context.controller.model.automatic_baud_rate_detection {
-            //     return errored(
-            //         r#"
-            //             Cannot use automatic baud rate detection when await greeting
-            //             from firmware is disabled
-            //         "#.into(),
-            //         &self,
-            //         context
-            //     );
-            // }
-
-            // // If the controller does not send a greeting then skip waiting for it
-            // if !context.controller.model.await_greeting_from_firmware {
-            //     if context.controller.model.automatic_baud_rate_detection {
-            //         return errored(
-            //             r#"
-            //                 Cannot use automatic baud rate detection when await greeting
-            //                 from firmware is disabled
-            //             "#.into(),
-            //             &self,
-            //             context
-            //         );
-            //     }
-
-            //     if let Connecting(connecting) = next_state {
-            //         let Loop {
-            //             next_state: after_greeting,
-            //             effects: mut greeting_effects,
-            //         } = Self::receive_greeting(connecting, &context);
-
-            //         next_state = after_greeting;
-            //         effects.append(&mut greeting_effects);
-            //     } else {
-            //         panic!("Invariant: Connecting state not matched for new_connection")
-            //     }
-            // }
 
             if new_connection {
                 info!("Connecting to serial device...");
