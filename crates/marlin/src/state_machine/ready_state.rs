@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{collections::BTreeSet, time::Duration};
 use std::collections::VecDeque;
 use std::collections::HashMap;
 use std::convert::identity;
@@ -73,6 +73,7 @@ struct MarkAxis {
 enum Mark {
     MarkSet(Vec<crate::protos::machine_message::Axis>),
     WaitingToReachMark(Vec<MarkAxis>),
+    WaitingToSendFallbackGCode,
 }
 
 #[derive(Clone, Debug)]
@@ -88,6 +89,7 @@ pub struct ReadyState {
     // spool
     loading_gcode: bool,
     pub tasks: VecDeque<Task>,
+    pub actual_positions_received: BTreeSet<String>,
 }
 
 impl Default for ReadyState {
@@ -104,6 +106,7 @@ impl Default for ReadyState {
             // spool
             loading_gcode: false,
             tasks: VecDeque::new(),
+            actual_positions_received: Default::default(),
         }
     }
 }
@@ -395,6 +398,8 @@ impl ReadyState {
             Feedback::Positions(positions) => {
                 // set actual_positions
                 positions.actual_positions.iter().for_each(|(address, val)| {
+                    self.actual_positions_received.insert(address.clone());
+
                     let axis = context.feedback.axes
                         .iter_mut()
                         .find(|a| a.address.to_ascii_lowercase() == *address);
@@ -402,7 +407,9 @@ impl ReadyState {
                     if let Some(axis) = axis {
                         axis.actual_position = *val;
                     }
-                    else {
+                    // A and B are send by Marlin CoreXY machines. I think C may be used on
+                    // Deltabots but that is unconfirmed atm as I don't have one to test with.
+                    else if address != "a" && address != "b" && address != "c" {
                         warn!("Warning: unknown actual_position axis: {:?} = {:?}", address, val);
                     }
                 });
@@ -423,6 +430,25 @@ impl ReadyState {
 
                 // Check if the mark has been reached
                 if let Some(Mark::WaitingToReachMark(mark)) = &self.mark {
+                    // In Marlin, CoreXY machine do not report their position in terms of X and Y -
+                    // instead they send back A and B positions which we can't use here. So if
+                    // we do not receive X and Y positions we fall back to starting and stopping
+                    // between continuous move segments.
+                    let all_axes_received = mark
+                        .iter()
+                        .all(|mark| {
+                            self.actual_positions_received.contains(&mark.address)
+                        });
+
+                    if !all_axes_received {
+                        debug!(r#"
+                            Macro: Wait to Reach Mark: Non-cartesian printer detected.
+                            Falling back to start/stop jogs.
+                        "#);
+                        self.mark = Some(Mark::WaitingToSendFallbackGCode);
+                        return Ok(vec![]);
+                    }
+
                     // true if all the axes have reached or passed the mark in the direction they
                     // were traveling
                     let reached_mark = mark
@@ -512,7 +538,23 @@ impl ReadyState {
     }
 
     fn despool(&mut self, effects: &mut Vec<Effect>, context: &mut Context) -> eyre::Result<()> {
-        if let Some(poll_for) = self.poll_for {
+        if let Some(Mark::WaitingToSendFallbackGCode) = self.mark {
+            debug!("Sending Mark Start & Stop Fallback GCode (M400)");
+            send_serial(
+                effects,
+                GCodeLine {
+                    gcode: "M400".to_string(),
+                    line_number: Some(self.next_serial_line_number),
+                    checksum: true,
+                },
+                context,
+                true,
+            );
+
+            self.mark = None;
+            self.on_ok = OnOK::Despool;
+            self.next_serial_line_number += 1;
+        } else if let Some(poll_for) = self.poll_for {
             self.poll_feedback(effects, context, poll_for);
         } else {
             self.despool_task(effects, context)?;
