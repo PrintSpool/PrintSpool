@@ -36,7 +36,8 @@ use ready_state::ReadyState;
 pub enum Event {
     Init { serial_port_available: bool },
     ConnectionTimeout,
-    GreetingTimerCompleted,
+    /// Send another M110 line number reset to try and initiate communication with the firmware
+    RetryResetLineNumber,
     SerialPortOpened,
     SerialRec ((String, Response)),
     ProtobufClientConnection,
@@ -329,12 +330,12 @@ impl State {
                     self.connection_timeout(event, context)
                 }
                 /* Awaiting Greeting Timer: After Delay */
-                GreetingTimerCompleted => {
-                    // if let Connecting(Connecting { received_greeting: true, .. }) = self {
-                    //     self.greeting_timer_completed(context)
-                    // } else {
-                    self.invalid_transition_error(&event, context)
-                    // }
+                RetryResetLineNumber => {
+                    if let Connecting(conn) = self {
+                        Self::reset_line_number(conn, context)
+                    } else {
+                        self.invalid_transition_error(&event, context)
+                    }
                 },
                 /* Warnings */
                 PollFeedback |
@@ -482,12 +483,21 @@ impl State {
 
     fn reset_line_number(connecting: Connecting, context: &mut Context) -> Loop {
         let gcode = "M110 N0".to_string();
-        let mut effects = vec![];
+
+        let retry_key = "reset_line_number";
+        let mut effects = vec![
+            Effect::CancelDelay { key: retry_key.to_string() },
+            Effect::Delay {
+                key: retry_key.to_string(),
+                duration: Duration::from_millis(100),
+                event: Event::RetryResetLineNumber,
+            }
+        ];
 
         send_serial(
             &mut effects,
             GCodeLine {
-                gcode: gcode.clone(),
+                gcode,
                 line_number: None,
                 checksum: true,
             },
