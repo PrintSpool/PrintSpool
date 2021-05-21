@@ -21,7 +21,7 @@ use super::ComponentInner;
 
 /// # Controller
 #[derive(Serialize, Deserialize, JsonSchema, Validate, Default, Debug, Clone)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 pub struct ControllerConfig {
     /// # Name
     #[validate(length(min = 1, message = "Name cannot be blank"))]
