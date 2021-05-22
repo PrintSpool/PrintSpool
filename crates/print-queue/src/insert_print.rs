@@ -61,6 +61,27 @@ pub async fn insert_print<'c>(
     part: Part,
     automatic_print: bool,
 ) -> Result<(crate::DbId, impl Future<Output = Result<Print>>)> {
+    // Get the number of printed parts and the total number of prints
+    let total_prints = Part::query_total_prints(&mut *tx, &part.id)
+        .await?;
+    let prints_in_progress = Part::query_prints_in_progress(
+        &mut *tx,
+        &part.id,
+    true,
+    )
+        .await?;
+
+    if prints_in_progress as i64 >= total_prints {
+        Err(
+            eyre!(
+                "Already printing {} / {} of {}",
+                prints_in_progress,
+                total_prints,
+                part.name,
+            )
+        )?;
+    }
+
     let part_file_path = part.file_path.clone();
 
     let task_id = nanoid!(11);
@@ -353,27 +374,6 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
             .as_ref()
             .ok_or_else(|| eyre!("New print missing part id"))?;
         let part = Part::get(&mut tx, &part_id, false).await?;
-
-        // Get the number of printed parts and the total number of prints
-        let total_prints = Part::query_total_prints(&mut tx, &part_id)
-            .await?;
-        let prints_in_progress = Part::query_prints_in_progress(
-            &mut tx,
-            &part_id,
-        true,
-        )
-            .await?;
-
-        if prints_in_progress as i64 >= total_prints {
-            Err(
-                eyre!(
-                    "Already printing {} / {} of {}",
-                    prints_in_progress,
-                    total_prints,
-                    part.name,
-                )
-            )?;
-        }
 
         task.update(&mut tx).await?;
 
