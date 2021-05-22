@@ -446,14 +446,16 @@ impl State {
     fn reset_line_number(connecting: Connecting, context: &mut Context) -> Loop {
         let gcode = "M110 N0".to_string();
 
-        let retry_key = "reset_line_number";
+        // // Retries disabled for now because it breaks the Ender 3's printer startup. If it proves
+        // // useful it can be re-added as an option.
+        // let retry_key = "reset_line_number";
         let mut effects = vec![
-            Effect::CancelDelay { key: retry_key.to_string() },
-            Effect::Delay {
-                key: retry_key.to_string(),
-                duration: Duration::from_millis(100),
-                event: Event::RetryResetLineNumber,
-            }
+            // Effect::CancelDelay { key: retry_key.to_string() },
+            // Effect::Delay {
+            //     key: retry_key.to_string(),
+            //     duration: Duration::from_millis(100),
+            //     event: Event::RetryResetLineNumber,
+            // }
         ];
 
         send_serial(
