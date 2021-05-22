@@ -33,8 +33,7 @@ tracing-futures = "0.2.4"
 xactor = { git = "https://github.com/sunli829/xactor.git", branch = "master",  default-features = false, features = ["runtime-async-std", "eyre"] }
 async-codec = "0.4.0"
 
-# sqlx = { version = "=0.5.2", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros", "chrono" ] }
-sqlx = { git = "https://github.com/launchbadge/sqlx.git", branch = "ab/more-pool-fixes", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros" , "chrono"] }
+sqlx = { version = "=0.5.3", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros" , "chrono"] }
 
 rand = "0.7.3"
 smart-default = "0.6.0"
