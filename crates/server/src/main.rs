@@ -104,6 +104,8 @@ async fn create_db() -> Result<SqlitePool> {
 
     let db = SqlitePoolOptions::new()
         .max_connections(1)
+        // Temporary increased connect_timeout to 1 hour to test a sqlx issue
+        .connect_timeout(std::time::Duration::from_secs(60*60))
         .connect_with(db_options)
         .await?;
 
