@@ -108,6 +108,12 @@ pub fn greeting<'r>(input: &'r str) ->  IResult<&'r str, Response> {
 pub fn debug<'r>(input: &'r str) ->  IResult<&'r str, Response> {
     map(
         alt((
+            // Klipper
+            preceded(
+                tag("// "),
+                not_line_ending,
+            ),
+            // Marlin
             preceded(
                 pair(
                     alt((
@@ -188,7 +194,12 @@ pub fn err_resp<'r>(input: &'r str) ->  IResult<&'r str, Response> {
     map(
         preceded(
             pair(
-                tag_no_case("error:"),
+                    alt((
+                        // Marlin
+                        tag_no_case("error:"),
+                        // Klipper
+                        tag("!!"),
+                    )),
                 space0,
             ),
             not_line_ending,
