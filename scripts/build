@@ -69,7 +69,7 @@ then
       cp ${TEG_TARGET_DIR_ARMV7}/teg-invite ./snapcraft/armv7/bin/teg-invite
       cp ${TEG_TARGET_DIR_ARMV7}/teg-marlin ./snapcraft/armv7/bin/teg-marlin
       cp ${TEG_TARGET_DIR_ARMV7}/teg-server ./snapcraft/armv7/bin/teg-server
-      cp ${TEG_TARGET_DIR_ARMV7}/teg-health-monitor ./snapcraft/x64/bin/teg-health-monitor
+      cp ${TEG_TARGET_DIR_ARMV7}/teg-health-monitor ./snapcraft/armv7/bin/teg-health-monitor
       cp ./snapcraft/webrtc-server ./snapcraft/armv7/bin/webrtc-server
 
       echo "Building rust binaries for Arm in $TEG_BUILD_PROFILE... [DONE]"
