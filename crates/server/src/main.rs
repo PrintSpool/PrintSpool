@@ -24,6 +24,9 @@ mod query;
 mod server_query;
 mod local_http_server;
 
+mod health_check_socket;
+use health_check_socket::health_check_socket;
+
 use std::{env, sync::Arc};
 use serde::Deserialize;
 use sqlx::{SqlitePool, migrate::MigrateDatabase, sqlite::{SqliteConnectOptions, SqlitePoolOptions}};
@@ -68,6 +71,25 @@ fn main() -> Result<()> {
     use nix::sched::{CpuSet, sched_setaffinity};
     use nix::unistd::Pid;
 
+    // Attempt to lock the pidfile
+    use std::os::unix::fs::PermissionsExt;
+    use pidfile_rs::{
+        Pidfile,
+    };
+
+    let pid_file_path = "/var/tmp/teg-server.pid";
+
+    // This pid file is not used for locking - it only exists to give the health monitor a PID
+    // to kill in case the server becomes non-responsive.
+    let _ = std::fs::remove_file(pid_file_path);
+    let pid_file = Pidfile::new(
+        &pid_file_path.into(),
+        std::fs::Permissions::from_mode(0o600),
+    )?;
+
+    pid_file.write()?;
+
+    // Get the number of CPUs
     let logical_cpus = num_cpus::get();
 
     // Restrict the server to any logical CPU except for the one that is reserved for
@@ -186,6 +208,13 @@ async fn app() -> Result<()> {
     std::fs::create_dir_all(&tmp_dir)?;
 
     let db = create_db().await?;
+
+    // Spawn the health check socket
+    async_std::task::spawn(
+        health_check_socket(db.clone()).instrument(
+            tracing::info_span!("health_check_socket")
+        )
+    );
 
     let machine_ids: Vec<crate::DbId> = std::fs::read_dir(CONFIG_DIR)?
         .map(|entry| {

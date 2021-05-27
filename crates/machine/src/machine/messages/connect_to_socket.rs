@@ -147,10 +147,10 @@ impl xactor::Handler<ConnectToSocket> for Machine {
             )
         };
 
-        ctx.add_stream(socket_stream());
         self.write_stream = Some(socket_stream());
+        self.unix_socket = Some(unix_socket.clone());
 
-        self.unix_socket = Some(unix_socket);
+        ctx.add_stream(socket_stream());
 
         info!("Connected to machine socket: {:?}", socket_path);
     }

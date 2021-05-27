@@ -11,6 +11,10 @@ name = "teg-server"
 path = "src/main.rs"
 
 [[bin]]
+name = "teg-health-monitor"
+path = "src/bin/health_monitor.rs"
+
+[[bin]]
 name = "teg-invite"
 path = "src/bin/invite.rs"
 
@@ -61,6 +65,7 @@ jemalloc-ctl = "0.3.3"
 signal-hook = "0.3.8"
 nix = "0.20.0"
 num_cpus = "1.13.0"
+pidfile-rs = { git = "https://github.com/D1plo1d/bsd-pidfile-rs.git", branch = "fix/cross-compilation" }
 
 [dependencies.serde]
 features = ["derive"]
