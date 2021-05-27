@@ -373,7 +373,8 @@ impl xactor::Handler<SpoolPrintTask> for Machine {
         let part_id = task.part_id
             .as_ref()
             .ok_or_else(|| eyre!("New print missing part id"))?;
-        let part = Part::get(&mut tx, &part_id, false).await?;
+        // Verify the part exists
+        let _part = Part::get(&mut tx, &part_id, false).await?;
 
         task.update(&mut tx).await?;
 
