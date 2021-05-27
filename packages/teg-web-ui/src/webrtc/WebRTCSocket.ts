@@ -1,5 +1,5 @@
 import SimplePeer from 'simple-peer'
-import { FileLike } from 'graphql-ws'
+import { FileLike } from 'graphql-ws/src/index.ts'
 
 import {
   chunkifier,

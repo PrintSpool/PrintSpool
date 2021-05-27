@@ -27,7 +27,7 @@ import StarOutline from '@material-ui/icons/StarOutline'
 import useConfirm from '../../common/_hooks/useConfirm'
 // import FloatingPrintNextButton from './components/FloatingPrintNextButton'
 import useStyles from './Starred.styles'
-import { parseMessage } from 'graphql-ws'
+import { parseMessage } from 'graphql-ws/src/index.ts'
 
 const JobQueueView = ({
   printQueues,
