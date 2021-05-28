@@ -8216,7 +8216,7 @@ graphql-tag@^2.12.0:
 
 graphql-ws@D1plo1d/graphql-ws#feature/file-uploads:
   version "4.5.0"
-  resolved "https://codeload.github.com/D1plo1d/graphql-ws/tar.gz/ad842882a45c2116816656b4caa00e9fed01149a"
+  resolved "https://codeload.github.com/D1plo1d/graphql-ws/tar.gz/e730f0c6ac2e3e59b41d681e504158c54481c622"
 
 graphql@^14.0.2, graphql@^15.3.0:
   version "14.7.0"
