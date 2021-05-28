@@ -82,7 +82,7 @@ impl User {
                 "SELECT props FROM invites WHERE secret_hash = ?",
                 secret_hash,
             )
-                .fetch_one(db)
+                .fetch_one(&mut tx)
                 .await
                 .map_err(|err| {
                     warn!("Invite lookup err ignored: {:?}", err);
