@@ -1,6 +1,6 @@
 // import msgpack from 'msgpack-lite'
 import Debug from 'debug'
-import { FileLike } from 'graphql-ws/src/index.ts'
+import { FileLike } from 'graphql-ws/src/index'
 
 const debug = Debug('teg:webrtc:SaltyRTCChunk')
 

@@ -1,6 +1,6 @@
 import { ApolloLink, Operation, FetchResult, Observable, ApolloClientOptions } from '@apollo/client'
 import { print, GraphQLError } from 'graphql'
-import { createClient, Client } from 'graphql-ws/src/index.ts'
+import { createClient, Client } from 'graphql-ws/src/index'
 
 import WebRTCSocket from './WebRTCSocket'
 
