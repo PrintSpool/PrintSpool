@@ -128,7 +128,7 @@ impl PrintQueueQuery {
                         SELECT
                             tasks.id,
                             tasks.props,
-                            MAX(tasks.created_at)
+                            tasks.created_at
                         FROM tasks
                         {}
                         WHERE
@@ -138,6 +138,9 @@ impl PrintQueueQuery {
                             tasks.id,
                             tasks.props,
                             tasks.created_at
+                        ORDER BY
+                            tasks.created_at DESC
+                        LIMIT 1
                     ) AS results
                     WHERE
                         results.props IS NOT NULL

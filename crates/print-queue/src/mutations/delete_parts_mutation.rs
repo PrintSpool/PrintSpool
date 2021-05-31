@@ -67,25 +67,17 @@ impl DeletePartsMutation {
             ).await?;
 
             // Cancel all the tasks
-            let tasks_sql = format!(
+            let tasks = sqlx::query_as!(
+                JsonRow,
                 r#"
-                    SELECT tasks.props FROM tasks
+                    SELECT tasks.props as "props!" FROM tasks
                     INNER JOIN parts ON parts.id = tasks.part_id
                     WHERE
-                        parts.id IN ({})
+                        parts.id = ANY($1)
                         AND tasks.status IN ('spooled', 'started', 'paused')
                 "#,
-                part_ids.iter().map(|_| "?").collect::<Vec<_>>().join(", "),
-            );
-            let mut tasks_query = sqlx::query_as(
-                &tasks_sql,
-            );
-
-            for id in part_ids {
-                tasks_query = tasks_query.bind(id);
-            }
-
-            let tasks: Vec<JsonRow> = tasks_query
+                &part_ids,
+            )
                 .fetch_all(&mut tx)
                 .await?;
 

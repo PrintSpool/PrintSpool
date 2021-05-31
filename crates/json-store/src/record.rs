@@ -163,17 +163,14 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         };
 
         let sql = format!(
-            "SELECT props FROM {} WHERE id IN ({}) {}",
+            "SELECT props FROM {} WHERE id = ANY($1) {}",
             Self::TABLE,
-            ids.iter().map(|_| "?").collect::<Vec<_>>().join(", "),
             deletion_filter,
         );
 
         let mut query = sqlx::query_as(&sql);
 
-        for id in ids {
-            query = query.bind(id);
-        }
+        query = query.bind(ids);
 
         let rows: Vec<JsonRow> = query
             .fetch_all(db)

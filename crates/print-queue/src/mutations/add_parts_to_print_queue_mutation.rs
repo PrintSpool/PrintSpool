@@ -58,17 +58,19 @@ async fn add_to_print_queue(
     let mut tx = db.begin().await?;
     let max_position = sqlx::query!(
         r#"
-            SELECT MAX(position) AS position FROM parts
+            SELECT position FROM parts
             INNER JOIN packages ON packages.id = parts.package_id
             WHERE
                 packages.print_queue_id = $1
                 AND packages.deleted_at IS NULL
+            ORDER BY position DESC
+            LIMIT 1
         "#,
         package.print_queue_id
     )
         .fetch_optional(&mut tx)
         .await?
-        .and_then(|row| row.position);
+        .map(|row| row.position);
 
     let first_available_position = max_position.unwrap_or(-1i64) + 1;
 
