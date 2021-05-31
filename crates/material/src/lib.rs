@@ -14,7 +14,7 @@ mod configurable_material;
 mod material_hooks;
 pub use material_hooks::MaterialHooks;
 
-pub type Db = sqlx::sqlite::SqlitePool;
+pub type Db = sqlx::PgPool;
 pub type DbId = teg_json_store::DbId;
 
 pub type MaterialHooksList = Arc<Vec<Box<dyn MaterialHooks + Send + Sync>>>;

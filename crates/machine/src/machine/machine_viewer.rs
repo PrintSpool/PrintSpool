@@ -68,15 +68,15 @@ impl Record for MachineViewer {
 
     async fn insert_no_rollback<'c>(
         &self,
-        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        db: &mut sqlx::Transaction<'c, sqlx::Postgres>,
     ) -> Result<()>
     {
-        let json = serde_json::to_string(&self)?;
+        let json = serde_json::to_value(&self)?;
         sqlx::query!(
             r#"
                 INSERT INTO machine_viewers
                 (id, version, created_at, deleted_at, props, machine_id, user_id, expires_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             "#,
             self.id,
             self.version,
@@ -98,7 +98,7 @@ impl Record for MachineViewer {
         db: E,
     ) -> Result<()>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let (json, previous_version) = self.prep_for_update()?;
 
@@ -106,13 +106,13 @@ impl Record for MachineViewer {
             r#"
                 UPDATE machine_viewers
                 SET
-                    props=?,
-                    version=?,
-                    deleted_at=?,
-                    expires_at=?
+                    props=$1,
+                    version=$2,
+                    deleted_at=$3,
+                    expires_at=$4
                 WHERE
-                    id=?
-                    AND version=?
+                    id=$5
+                    AND version=$6
             "#,
             // SET
             json,

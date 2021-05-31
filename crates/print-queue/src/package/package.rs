@@ -45,9 +45,9 @@ impl Package {
     pub async fn query_prints_completed<'e, 'c, E>(
         db: E,
         package_id: &crate::DbId,
-    ) -> Result<i32>
+    ) -> Result<i64>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let printed = sqlx::query!(
             r#"
@@ -56,14 +56,15 @@ impl Package {
                 FROM tasks
                 INNER JOIN parts ON parts.id = tasks.part_id
                 WHERE
-                    parts.package_id = ?
+                    parts.package_id = $1
                     AND tasks.status = 'finished'
             "#,
             package_id,
         )
             .fetch_one(db)
             .await?
-            .printed;
+            .printed
+            .unwrap_or(0i64);
 
         Ok(printed)
     }
@@ -73,15 +74,15 @@ impl Package {
         package_id: &crate::DbId,
     ) -> Result<i64>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let total = sqlx::query!(
             r#"
                 SELECT
-                    CAST(parts.quantity * packages.quantity AS INT) AS total
+                    CAST(parts.quantity * packages.quantity AS BIGINT) AS total
                 FROM parts
                 INNER JOIN packages ON parts.package_id = packages.id
-                WHERE packages.id = ?
+                WHERE packages.id = $1
             "#,
             package_id,
         )
@@ -98,7 +99,7 @@ impl Package {
         package_id: &crate::DbId,
     ) -> Result<bool>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite> + Copy,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres> + Copy,
     {
         for part in Self::get_parts(db, package_id).await? {
             let is_done = Part::started_final_print(db, &part.id).await?;
@@ -116,7 +117,7 @@ impl Package {
         //             FROM parts
         //             LEFT JOIN tasks ON tasks.part_id = parts.id
         //             INNER JOIN packages ON parts.package_id = packages.id
-        //             WHERE packages.id = ?
+        //             WHERE packages.id = $1
         //         "#,
         //         package_id,
         //     )
@@ -133,7 +134,7 @@ impl Package {
         package_id: &crate::DbId,
     ) -> Result<Vec<Part>>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let parts = sqlx::query_as!(
             JsonRow,
@@ -141,7 +142,7 @@ impl Package {
                 SELECT props FROM parts
                 WHERE
                     deleted_at IS NULL
-                    AND package_id = ?
+                    AND package_id = $1
                 ORDER BY
                     parts.position
             "#,
@@ -163,7 +164,7 @@ impl Package {
                 INNER JOIN parts ON parts.id = tasks.part_id
                 WHERE
                     parts.deleted_at IS NULL
-                    AND parts.package_id = ?
+                    AND parts.package_id = $1
             "#,
             package_id,
         )
@@ -206,10 +207,10 @@ impl Record for Package {
 
     async fn insert_no_rollback<'c>(
         &self,
-        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        db: &mut sqlx::Transaction<'c, sqlx::Postgres>,
     ) -> Result<()>
     {
-        let json = serde_json::to_string(&self)?;
+        let json = serde_json::to_value(&self)?;
 
         sqlx::query!(
             r#"
@@ -225,7 +226,7 @@ impl Record for Package {
                     based_on_package_id,
                     deleted_at
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             "#,
             self.id,
             self.version,
@@ -247,7 +248,7 @@ impl Record for Package {
         db: E,
     ) -> Result<()>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let (json, previous_version) = self.prep_for_update()?;
 
@@ -255,15 +256,15 @@ impl Record for Package {
             r#"
                 UPDATE packages
                 SET
-                    props=?,
-                    version=?,
-                    quantity=?,
-                    starred=?,
-                    based_on_package_id=?,
-                    deleted_at=?
+                    props=$1,
+                    version=$2,
+                    quantity=$3,
+                    starred=$4,
+                    based_on_package_id=$5,
+                    deleted_at=$6
                 WHERE
-                    id=?
-                    AND version=?
+                    id=$7
+                    AND version=$8
             "#,
             // SET
             json,

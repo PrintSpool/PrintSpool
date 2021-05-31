@@ -8,7 +8,7 @@ use eyre::{
 
 #[derive(sqlx::FromRow, Debug)]
 pub struct JsonRow {
-    pub props: String,
+    pub props: serde_json::Value,
 }
 
 #[async_trait::async_trait]
@@ -27,7 +27,7 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
     //     db: E,
     // ) -> Result<Self>
     // where
-    //     E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+    //     E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     // {
     async fn insert(
         &self,
@@ -46,14 +46,14 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
     /// own transactions.
     async fn insert_no_rollback<'c>(
         &self,
-        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        db: &mut sqlx::Transaction<'c, sqlx::Postgres>,
     ) -> Result<()>
     {
         sqlx::query(&format!(
             r#"
                 INSERT INTO {}
                 (id, version, created_at, deleted_at, props)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES ($1, $2, $3, $4, $5)
             "#,
             Self::TABLE,
         ))
@@ -61,7 +61,7 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
             .bind(self.version())
             .bind(self.created_at())
             .bind(self.deleted_at())
-            .bind(serde_json::to_string(&self)?)
+            .bind(serde_json::to_value(&self)?)
 
             .fetch_optional(db)
             .await?;
@@ -75,7 +75,7 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         include_deleted: bool,
     ) -> Result<Option<Self>>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let deletion_filter = if include_deleted {
             ""
@@ -84,7 +84,7 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         };
 
         let sql = format!(
-            "SELECT props FROM {} WHERE id = ? {}",
+            "SELECT props FROM {} WHERE id = $1 {}",
             Self::TABLE,
             deletion_filter,
         );
@@ -104,7 +104,7 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         include_deleted: bool,
     ) -> Result<Self>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let entry = Self::get_optional(
             db,
@@ -124,7 +124,7 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         include_deleted: bool,
     ) -> Result<Self>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let deletion_filter = if include_deleted {
             ""
@@ -133,7 +133,7 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         };
 
         let sql = format!(
-            "SELECT props FROM {} WHERE id = ? {} AND version = ?",
+            "SELECT props FROM {} WHERE id = $1 {} AND version = $2",
             Self::TABLE,
             deletion_filter,
         );
@@ -154,7 +154,7 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         include_deleted: bool,
     ) -> Result<Vec<Self>>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let deletion_filter = if include_deleted {
             ""
@@ -188,7 +188,7 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         include_deleted: bool,
     ) -> Result<Vec<Self>>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let deletion_filter = if include_deleted {
             ""
@@ -224,16 +224,16 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         row: JsonRow
     ) -> Result<Self>
     {
-        let record = serde_json::from_str(&row.props)?;
+        let record = serde_json::from_value(row.props)?;
         Ok(record)
     }
 
-    fn prep_for_update(&mut self) -> Result<(String, crate::Version)> {
+    fn prep_for_update(&mut self) -> Result<(serde_json::Value, crate::Version)> {
         let previous_version = self.version();
         let version_mut = self.version_mut();
         *version_mut = previous_version + 1;
 
-        let json = serde_json::to_string(self)?;
+        let json = serde_json::to_value(self)?;
 
         Ok((json, previous_version))
     }
@@ -243,15 +243,20 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         db: E,
     ) -> Result<()>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let (json, previous_version) = self.prep_for_update()?;
 
         sqlx::query(&format!(
             r#"
                 UPDATE {}
-                SET props=?, version=?, deleted_at=?
-                WHERE id=? AND version=?
+                SET
+                    props=$1,
+                    version=$2,
+                    deleted_at=$3
+                WHERE
+                    id=$4
+                    AND version=$5
             "#,
             Self::TABLE,
         ))
@@ -274,12 +279,12 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         hard_delete: bool,
     ) -> Result<()>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         if hard_delete {
             sqlx::query(&format!(
                 r#"
-                    DELETE FROM {} WHERE id=?
+                    DELETE FROM {} WHERE id=$1
                 "#,
                 Self::TABLE,
             ))
@@ -300,12 +305,12 @@ pub trait Record: Sync + Send + Serialize + DeserializeOwned + 'static {
         hard_delete: bool,
     ) -> Result<()>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         if hard_delete {
             sqlx::query(&format!(
                 r#"
-                    DELETE FROM {} WHERE id=? AND version=?
+                    DELETE FROM {} WHERE id=$1 AND version=$2
                 "#,
                 Self::TABLE,
             ))

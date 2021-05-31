@@ -27,15 +27,15 @@ pub enum MachineUpdateOperation {
 
 impl MachineSignallingUpdate {
     pub async fn create<'c>(
-        mut tx: sqlx::Transaction<'c, sqlx::Sqlite>,
+        mut tx: sqlx::Transaction<'c, sqlx::Postgres>,
         machine_id: crate::DbId,
         operation: MachineUpdateOperation,
-    ) -> Result<(sqlx::Transaction<'c, sqlx::Sqlite>, Self)>
+    ) -> Result<(sqlx::Transaction<'c, sqlx::Postgres>, Self)>
     {
         sqlx::query!(
             r#"
                 DELETE FROM machine_signalling_updates
-                WHERE machine_id = ?
+                WHERE machine_id = $1
             "#,
             machine_id
         )
@@ -89,15 +89,15 @@ impl Record for MachineSignallingUpdate {
 
     async fn insert_no_rollback<'c>(
         &self,
-        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        db: &mut sqlx::Transaction<'c, sqlx::Postgres>,
     ) -> Result<()>
     {
-        let json = serde_json::to_string(&self)?;
+        let json = serde_json::to_value(&self)?;
         sqlx::query!(
             r#"
                 INSERT INTO machine_signalling_updates
                 (id, version, created_at, props, machine_id)
-                VALUES (?, ?, ?, ?, ?)
+                VALUES ($1, $2, $3, $4, $5)
             "#,
             self.id,
             self.version,

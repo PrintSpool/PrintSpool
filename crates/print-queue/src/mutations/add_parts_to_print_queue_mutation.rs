@@ -1,4 +1,3 @@
-use std::convert::TryInto;
 use std::os::unix::io::AsRawFd;
 use chrono::prelude::*;
 use futures::{future::try_join_all};
@@ -57,22 +56,21 @@ async fn add_to_print_queue(
     parts: Vec<Part>,
 ) -> Result<Package> {
     let mut tx = db.begin().await?;
-    let max_position: Vec<u8> = sqlx::query!(
+    let max_position = sqlx::query!(
         r#"
-            SELECT CAST(MAX(position) AS BLOB) AS position FROM parts
+            SELECT MAX(position) AS position FROM parts
             INNER JOIN packages ON packages.id = parts.package_id
             WHERE
-                packages.print_queue_id = ?
+                packages.print_queue_id = $1
                 AND packages.deleted_at IS NULL
         "#,
         package.print_queue_id
     )
         .fetch_optional(&mut tx)
         .await?
-        .and_then(|row| row.position)
-        .unwrap_or_else(|| { 0u64.to_be_bytes().into() });
+        .and_then(|row| row.position);
 
-    let first_available_position = u64::from_be_bytes(max_position[..].try_into()?) + 1;
+    let first_available_position = max_position.unwrap_or(-1i64) + 1;
 
     package.insert_no_rollback(&mut tx).await?;
     for mut part in parts {
@@ -158,7 +156,7 @@ impl AddPartsToPrintQueueMutation {
                             deleted_at: None,
                             package_id,
                             name: part_input.name,
-                            position: index as u64,
+                            position: index as i64,
                             quantity: 1,
                             file_path,
                             based_on: None,
@@ -244,7 +242,7 @@ impl AddPartsToPrintQueueMutation {
                                 deleted_at: None,
                                 package_id,
                                 name: part_template.name,
-                                position: index as u64,
+                                position: index as i64,
                                 quantity: part_template.quantity,
                                 file_path: part_template.file_path,
                                 based_on: Some(PartTemplate {

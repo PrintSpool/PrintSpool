@@ -45,7 +45,7 @@ impl User {
         let user = sqlx::query_as!(
             JsonRow,
             r#"
-                SELECT props FROM users WHERE signalling_user_id = ?
+                SELECT props FROM users WHERE signalling_user_id = $1
             "#,
             signalling_user_id,
         )
@@ -79,7 +79,7 @@ impl User {
 
             let invite = sqlx::query_as!(
                 JsonRow,
-                "SELECT props FROM invites WHERE secret_hash = ?",
+                "SELECT props FROM invites WHERE secret_hash = $1",
                 secret_hash,
             )
                 .fetch_one(&mut tx)

@@ -26,5 +26,5 @@ pub use server_keys::ServerKeys;
 mod auth_context;
 pub use auth_context::AuthContext;
 
-pub type Db = sqlx::sqlite::SqlitePool;
+pub type Db = sqlx::PgPool;
 pub type DbId = teg_json_store::DbId;

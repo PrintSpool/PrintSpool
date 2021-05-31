@@ -59,9 +59,9 @@ pub struct SignallingUpdaterMachineHooks {
 impl MachineHooks for SignallingUpdaterMachineHooks {
     async fn before_create<'c>(
         &self,
-        tx: sqlx::Transaction<'c, sqlx::Sqlite>,
+        tx: sqlx::Transaction<'c, sqlx::Postgres>,
         machine_config: &mut MachineConfig,
-    ) -> Result<sqlx::Transaction<'c, sqlx::Sqlite>> {
+    ) -> Result<sqlx::Transaction<'c, sqlx::Postgres>> {
         let name = machine_config.core_plugin()?.model.name.clone();
         let operation = MachineUpdateOperation::Register { name };
 
@@ -84,9 +84,9 @@ impl MachineHooks for SignallingUpdaterMachineHooks {
 
     async fn before_start<'c>(
         &self,
-        tx: sqlx::Transaction<'c, sqlx::Sqlite>,
+        tx: sqlx::Transaction<'c, sqlx::Postgres>,
         _id: &crate::DbId,
-    ) -> Result<sqlx::Transaction<'c, sqlx::Sqlite>> {
+    ) -> Result<sqlx::Transaction<'c, sqlx::Postgres>> {
         Ok(tx)
     }
 
@@ -117,7 +117,7 @@ impl MachineHooks for SignallingUpdaterMachineHooks {
 
     async fn before_task_settle<'c>(
         &self,
-        _tx: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        _tx: &mut sqlx::Transaction<'c, sqlx::Postgres>,
         _machine_hooks: &MachineHooksList,
         _machine_data: &MachineData,
         _machine_addr: xactor::Addr<Machine>,

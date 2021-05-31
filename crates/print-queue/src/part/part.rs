@@ -30,7 +30,7 @@ pub struct Part {
     // Props
     pub name: String,
     pub quantity: i32,
-    pub position: u64,
+    pub position: i64,
     pub file_path: String,
 }
 
@@ -47,9 +47,9 @@ impl Part {
         db: E,
         part_id: &crate::DbId,
         include_finished_prints: bool,
-    ) -> Result<i32>
+    ) -> Result<i64>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let finished_arg = if include_finished_prints {
             "finished"
@@ -64,24 +64,26 @@ impl Part {
                     COUNT(id) as in_progress
                 FROM tasks
                 WHERE
-                    part_id = ?
-                    AND tasks.status IN ('spooled', 'started', 'paused', ?)
+                    part_id = $1
+                    AND tasks.status IN ('spooled', 'started', 'paused', $2)
                 "#,
             part_id,
             finished_arg,
         )
             .fetch_one(db)
             .await?
-            .in_progress;
+            .in_progress
+            .unwrap_or(0i64);
+
         Ok(in_progress)
     }
 
     pub async fn query_prints_completed<'e, 'c, E>(
         db: E,
         part_id: &crate::DbId,
-    ) -> Result<i32>
+    ) -> Result<i64>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let printed = sqlx::query!(
             r#"
@@ -89,14 +91,16 @@ impl Part {
                     COUNT(id) as printed
                 FROM tasks
                 WHERE
-                    part_id = ?
+                    part_id = $1
                     AND tasks.status = 'finished'
                 "#,
             part_id,
         )
             .fetch_one(db)
             .await?
-            .printed;
+            .printed
+            .unwrap_or(0i64);
+
         Ok(printed)
     }
 
@@ -105,15 +109,15 @@ impl Part {
         part_id: &crate::DbId,
     ) -> Result<i64>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let total = sqlx::query!(
             r#"
                 SELECT
-                    CAST(parts.quantity * packages.quantity AS INT) AS total
+                    CAST(parts.quantity * packages.quantity AS BIGINT) AS total
                 FROM parts
                 INNER JOIN packages ON packages.id = parts.package_id
-                WHERE parts.id = ?
+                WHERE parts.id = $1
             "#,
             part_id,
         )
@@ -121,6 +125,7 @@ impl Part {
             .await?
             .total
             .ok_or_else(|| eyre!("invalid part or package quantity for part {:?}", part_id))?;
+
         Ok(total)
     }
 
@@ -129,13 +134,13 @@ impl Part {
         part_id: &crate::DbId,
     ) -> Result<bool>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let part_stats = sqlx::query!(
             r#"
                 SELECT
                     COUNT(tasks.id) AS printed,
-                    CAST(parts.quantity * packages.quantity AS INT) AS total
+                    CAST(parts.quantity * packages.quantity AS BIGINT) AS total
                 FROM parts
                 LEFT JOIN tasks ON
                     tasks.part_id = parts.id
@@ -143,7 +148,11 @@ impl Part {
                 INNER JOIN packages ON
                     packages.id = parts.package_id
                 WHERE
-                    parts.id = ?
+                    parts.id = $1
+                GROUP BY
+                    parts.id,
+                    parts.quantity,
+                    packages.quantity
             "#,
             part_id,
         )
@@ -156,7 +165,7 @@ impl Part {
                 part_id,
             ))?;
 
-        let done = part_stats.printed as i64 >= total;
+        let done = part_stats.printed.unwrap_or(0) >= total;
         Ok(done)
     }
 
@@ -165,7 +174,7 @@ impl Part {
         machine_id: &crate::DbId,
     ) -> Result<Option<Part>>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let part = sqlx::query_as!(
             JsonRow,
@@ -180,11 +189,13 @@ impl Part {
                     packages.id = parts.package_id
                 INNER JOIN machine_print_queues ON
                     machine_print_queues.print_queue_id = packages.print_queue_id
+                    AND machine_print_queues.machine_id = $1
                 GROUP BY
-                    parts.id
+                    parts.id,
+                    parts.quantity,
+                    packages.quantity
                 HAVING
                     COUNT(tasks.id) < (parts.quantity * packages.quantity)
-                    AND machine_print_queues.machine_id = ?
                     AND parts.deleted_at IS NULL
                 ORDER BY
                     parts.position
@@ -198,10 +209,6 @@ impl Part {
             .transpose()?;
 
         Ok(part)
-    }
-
-    pub fn position_db_blob(&self) -> Vec<u8> {
-        self.position.to_be_bytes().to_vec()
     }
 }
 
@@ -235,11 +242,10 @@ impl Record for Part {
 
     async fn insert_no_rollback<'c>(
         &self,
-        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        db: &mut sqlx::Transaction<'c, sqlx::Postgres>,
     ) -> Result<()>
     {
-        let json = serde_json::to_string(&self)?;
-        let position = self.position_db_blob();
+        let json = serde_json::to_value(&self)?;
 
         let based_on_package_id = self.based_on
             .as_ref()
@@ -264,7 +270,7 @@ impl Record for Part {
                     quantity,
                     position
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
             "#,
             self.id,
             self.version,
@@ -275,7 +281,7 @@ impl Record for Part {
             based_on_package_id,
             based_on_part_id,
             self.quantity,
-            position,
+            self.position,
         )
             .fetch_optional(db)
             .await?;
@@ -287,10 +293,9 @@ impl Record for Part {
         db: E,
     ) -> Result<()>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let (json, previous_version) = self.prep_for_update()?;
-        let position = self.position_db_blob();
 
         let based_on_package_id = self.based_on
             .as_ref()
@@ -304,16 +309,16 @@ impl Record for Part {
             r#"
                 UPDATE parts
                 SET
-                    props=?,
-                    version=?,
-                    based_on_package_id=?,
-                    based_on_part_id=?,
-                    quantity=?,
-                    position=?,
-                    deleted_at=?
+                    props=$1,
+                    version=$2,
+                    based_on_package_id=$3,
+                    based_on_part_id=$4,
+                    quantity=$5,
+                    position=$6,
+                    deleted_at=$7
                 WHERE
-                    id=?
-                    AND version=?
+                    id=$8
+                    AND version=$9
             "#,
             // SET
             json,
@@ -321,7 +326,7 @@ impl Record for Part {
             based_on_package_id,
             based_on_part_id,
             self.quantity,
-            position,
+            self.position,
             self.deleted_at,
             // WHERE
             self.id,

@@ -11,6 +11,7 @@ use eyre::{
 };
 use teg_config_form::ConfigForm;
 use teg_auth::user::User;
+use teg_json_store::{JsonRow, Record as _};
 
 use crate::{machine::{
     MachineData,
@@ -100,25 +101,22 @@ impl MachineData {
         Ok(vec![])
     }
 
-    // TODO: Viewers
     async fn viewers<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<User>> {
         let db: &crate::Db = ctx.data()?;
-
-        struct JsonRow {
-            pub props: String,
-        }
 
         let now = Utc::now();
 
         let users: Vec<User> = sqlx::query_as!(
             JsonRow,
             r#"
-                SELECT DISTINCT users.props FROM users
-                INNER JOIN machine_viewers ON machine_viewers.user_id = users.id
-                WHERE
-                    machine_viewers.machine_id = ?
-                    AND machine_viewers.expires_at >= ?
-                ORDER BY users.id
+                SELECT result.props FROM (
+                    SELECT DISTINCT users.id, users.props FROM users
+                    INNER JOIN machine_viewers ON machine_viewers.user_id = users.id
+                    WHERE
+                        machine_viewers.machine_id = $1
+                        AND machine_viewers.expires_at >= $2
+                    ORDER BY users.id
+                ) as result
             "#,
             self.config.id,
             now,
@@ -127,7 +125,7 @@ impl MachineData {
             .await?
             .into_iter()
             .map(|row| {
-                serde_json::from_str(&row.props)
+                User::from_row(row)
                     .with_context(|| "Corrupted user data found during machineViewers query")
             })
             .collect::<Result<_>>()?;

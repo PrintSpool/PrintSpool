@@ -41,7 +41,7 @@ impl Package {
         Ok(tasks)
     }
 
-    async fn prints_completed<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<i32> {
+    async fn prints_completed<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<i64> {
         let db: &crate::Db = ctx.data()?;
 
         Ok(Self::query_prints_completed(db, &self.id).await?)

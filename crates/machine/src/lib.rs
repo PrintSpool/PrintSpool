@@ -30,7 +30,7 @@ pub use video::video_mutation_resolvers::VideoMutation;
 mod machine_material_hooks;
 pub use machine_material_hooks::MachineMaterialHooks;
 
-pub type Db = sqlx::sqlite::SqlitePool;
+pub type Db = sqlx::PgPool;
 pub type DbId = teg_json_store::DbId;
 
 /// GraphQL Context containing all the machine xactor addresses for message passing.

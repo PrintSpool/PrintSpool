@@ -19,7 +19,7 @@ pub use json_gcode::JsonGCode;
 mod compile_internal_macro;
 pub use compile_internal_macro::CompileInternalMacro;
 
-pub type Db = sqlx::sqlite::SqlitePool;
+pub type Db = sqlx::PgPool;
 pub type DbId = teg_json_store::DbId;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

@@ -43,7 +43,7 @@ impl InviteQuery {
                     WHERE
                         consumed = FALSE
                         AND deleted_at IS NULL
-                        AND id = ?
+                        AND id = $1
                 "#,
                 invite_id.0,
             )

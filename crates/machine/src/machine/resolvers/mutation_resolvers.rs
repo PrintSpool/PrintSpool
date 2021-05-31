@@ -12,7 +12,7 @@ use eyre::{
 use teg_auth::{
     AuthContext,
 };
-use teg_json_store::Record;
+use teg_json_store::{JsonRow, Record as _};
 
 use crate::machine::{
     MachineViewer,
@@ -101,19 +101,20 @@ impl MachineMutation {
         let machine_id = machine_id.parse::<crate::DbId>()
             .with_context(|| format!("Invalid machine id: {:?}", machine_id))?;
 
-        let viewer: Option<MachineViewer> = sqlx::query!(
+        let viewer: Option<MachineViewer> = sqlx::query_as!(
+            JsonRow,
             r#"
                 SELECT props FROM machine_viewers
                 WHERE
-                    machine_id = ? AND
-                    user_id = ?
+                    machine_id = $1 AND
+                    user_id = $2
             "#,
             machine_id,
             user.id,
         )
             .fetch_optional(db)
             .await?
-            .map(|row| serde_json::from_str(&row.props))
+            .map(|row| MachineViewer::from_row(row))
             .transpose()?;
 
         if let Some(mut viewer) = viewer {

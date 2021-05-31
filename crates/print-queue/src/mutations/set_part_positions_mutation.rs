@@ -29,7 +29,7 @@ struct SetPartPositionsInput {
 struct SetPartPositionsInputPart {
     #[graphql(name="partID")]
     part_id: ID,
-    position: u64,
+    position: i64,
 }
 
 #[async_graphql::Object]
@@ -52,14 +52,16 @@ impl SetPartPositionsMutation {
                 FROM parts
                 INNER JOIN packages ON
                     packages.id = parts.package_id
-                OUTER LEFT JOIN tasks ON
+                LEFT OUTER JOIN tasks ON
                     tasks.part_id = parts.id
                     AND tasks.status = 'finished'
                 WHERE
                     parts.deleted_at IS NULL
                     AND (tasks.id IS NULL OR tasks.status IS NOT NULL)
                 GROUP BY
-                    parts.id
+                    parts.id,
+                    parts.quantity,
+                    packages.quantity
                 HAVING
                     parts.quantity * packages.quantity > COUNT(tasks.id)
                 ORDER BY parts.position

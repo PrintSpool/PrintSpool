@@ -74,7 +74,7 @@ impl DeletePackagesMutation {
                         SELECT tasks.props FROM tasks
                         INNER JOIN parts ON parts.id = tasks.part_id
                         WHERE
-                            parts.package_id = ?
+                            parts.package_id = $1
                             AND tasks.status IN ('spooled', 'started', 'paused')
                     "#,
                     package.id,

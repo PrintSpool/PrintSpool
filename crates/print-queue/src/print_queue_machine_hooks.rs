@@ -20,7 +20,7 @@ pub struct PrintQueueMachineHooks {
 impl PrintQueueMachineHooks {
     pub async fn create_default_print_queue<'c>(
         &self,
-        tx: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        tx: &mut sqlx::Transaction<'c, sqlx::Postgres>,
         id: &crate::DbId,
     ) -> Result<()> {
         let now = Utc::now();
@@ -53,9 +53,9 @@ impl PrintQueueMachineHooks {
 impl MachineHooks for PrintQueueMachineHooks {
     async fn before_create<'c>(
         &self,
-        mut tx: sqlx::Transaction<'c, sqlx::Sqlite>,
+        mut tx: sqlx::Transaction<'c, sqlx::Postgres>,
         machine_config: &mut MachineConfig,
-    ) -> Result<sqlx::Transaction<'c, sqlx::Sqlite>> {
+    ) -> Result<sqlx::Transaction<'c, sqlx::Postgres>> {
         self.create_default_print_queue(&mut tx, &machine_config.id).await?;
         Ok(tx)
     }
@@ -69,16 +69,16 @@ impl MachineHooks for PrintQueueMachineHooks {
 
     async fn before_start<'c>(
         &self,
-        mut tx: sqlx::Transaction<'c, sqlx::Sqlite>,
+        mut tx: sqlx::Transaction<'c, sqlx::Postgres>,
         id: &crate::DbId,
-    ) -> Result<sqlx::Transaction<'c, sqlx::Sqlite>> {
+    ) -> Result<sqlx::Transaction<'c, sqlx::Postgres>> {
         // This handles the scenario in which a machine is added by copying a config file
         // into the machines directory. It's not the normal way machines are created but it is
         // supported here to make resetting the development database easier.
         let has_print_queue = sqlx::query!(
             r#"
                 SELECT id from machine_print_queues
-                WHERE machine_id = ?
+                WHERE machine_id = $1
             "#,
             id,
         )
@@ -103,7 +103,7 @@ impl MachineHooks for PrintQueueMachineHooks {
 
     async fn before_task_settle<'c>(
         &self,
-        tx: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        tx: &mut sqlx::Transaction<'c, sqlx::Postgres>,
         machine_hooks: &MachineHooksList,
         machine_data: &MachineData,
         machine_addr: xactor::Addr<Machine>,

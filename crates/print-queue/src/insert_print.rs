@@ -54,7 +54,7 @@ use crate::{
 #[instrument(skip(db, tx, machine, machine_hooks))]
 pub async fn insert_print<'c>(
     db: crate::Db,
-    tx: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+    tx: &mut sqlx::Transaction<'c, sqlx::Postgres>,
     machine_hooks: &MachineHooksList,
     machine_id: &crate::DbId,
     machine: xactor::Addr<Machine>,

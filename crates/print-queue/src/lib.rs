@@ -35,5 +35,5 @@ pub use task_from_gcodes::{
     task_from_hook,
 };
 
-pub type Db = sqlx::sqlite::SqlitePool;
+pub type Db = sqlx::PgPool;
 pub type DbId = teg_json_store::DbId;

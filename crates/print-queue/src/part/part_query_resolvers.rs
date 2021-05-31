@@ -41,7 +41,7 @@ impl PartQuery {
                     r#"
                         SELECT parts.props FROM parts
                         WHERE
-                            parts.id = ?
+                            parts.id = $1
                     "#,
                     part_id.0,
                 )

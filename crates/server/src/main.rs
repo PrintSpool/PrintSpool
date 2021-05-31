@@ -29,7 +29,7 @@ use health_check_socket::health_check_socket;
 
 use std::{env, sync::Arc};
 use serde::Deserialize;
-use sqlx::{SqlitePool, migrate::MigrateDatabase, sqlite::{SqliteConnectOptions, SqlitePoolOptions}};
+use sqlx::{PgPool, migrate::MigrateDatabase, postgres::{PgConnectOptions, PgPoolOptions}};
 use arc_swap::ArcSwap;
 use eyre::{Context, Result, eyre};
 use signal_hook::{iterator::Signals, consts::signal::SIGUSR2};
@@ -47,7 +47,7 @@ use teg_print_queue::print_queue_machine_hooks::PrintQueueMachineHooks;
 
 const CONFIG_DIR: &'static str = "/etc/teg/";
 
-pub type Db = sqlx::sqlite::SqlitePool;
+pub type Db = sqlx::PgPool;
 pub type DbId = teg_json_store::DbId;
 
 type AppSchemaBuilder = async_graphql::SchemaBuilder<
@@ -109,26 +109,25 @@ fn main() -> Result<()> {
     async_std::task::block_on(app())
 }
 
-async fn create_db() -> Result<SqlitePool> {
+async fn create_db() -> Result<PgPool> {
     use std::path::Path;
 
     // Create the database
     let db_url = env::var("DATABASE_URL")
         .wrap_err("DATABASE_URL not set")?;
 
-    if !sqlx::Sqlite::database_exists(&db_url).await? {
-        sqlx::Sqlite::create_database(&db_url).await?;
+    if !sqlx::Postgres::database_exists(&db_url).await? {
+        sqlx::Postgres::create_database(&db_url).await?;
     }
 
     // Connect to the database
-    let db_options = db_url.parse::<SqliteConnectOptions>()?
-        .synchronous(sqlx::sqlite::SqliteSynchronous::Normal);
+    let db_options = db_url.parse::<PgConnectOptions>()?;
 
-    let db = SqlitePoolOptions::new()
-        .max_connections(1)
-        // SQL querires are normally expected to complete within 100ms. 10 seconds should be a long
+    let db = PgPoolOptions::new()
+        // .max_connections(20)
+        // SQL querires are normally expected to complete within 100ms. 5 seconds should be a long
         // enough timeout for our useage.
-        .connect_timeout(std::time::Duration::from_secs(10))
+        .connect_timeout(std::time::Duration::from_secs(5))
         .connect_with(db_options)
         .await?;
 

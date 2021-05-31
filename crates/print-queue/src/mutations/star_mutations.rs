@@ -85,7 +85,7 @@ impl StarMutations {
                     );
                     starred_package.starred = true;
                     starred_package.insert_no_rollback(&mut tx).await?;
- 
+
                     // Update the original package parent
                     original_pkg.based_on_package_id = Some(starred_package.id.clone());
                     original_pkg.update(&mut tx).await?;
@@ -107,7 +107,7 @@ impl StarMutations {
                             deleted_at: None,
                             package_id: starred_package.id.clone(),
                             name: original_part.name.clone(),
-                            position: index as u64,
+                            position: index as i64,
                             quantity: original_part.quantity,
                             file_path: original_part.file_path.clone(),
                             based_on: None,

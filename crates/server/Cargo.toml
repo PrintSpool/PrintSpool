@@ -39,7 +39,7 @@ async-graphql-warp =  { git = "https://github.com/D1plo1d/async-graphql.git", br
 
 serde_json = { version = "1.0.44", features = ["raw_value"] }
 derive-new = "0.5.8"
-sqlx = { version = "=0.5.1", features = [ "runtime-async-std-native-tls", "sqlite", "offline", "json", "macros" , "chrono"] }
+sqlx = { version = "=0.5.1", features = [ "runtime-async-std-native-tls", "postgres", "offline", "json", "macros" , "chrono"] }
 sqlx-core = "=0.5.1"
 sqlx-macros = "=0.5.1"
 sqlx-rt = "=0.3.0"

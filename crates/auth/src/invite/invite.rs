@@ -117,10 +117,10 @@ impl Invite {
 //         secret_hash: &str,
 //     ) -> Result<Self>
 //     where
-//         E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+//         E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
 //     {
 //         let row = sqlx::query!(
-//             "SELECT props FROM invites WHERE secret_hash = ?",
+//             "SELECT props FROM invites WHERE secret_hash = $1",
 //             secret_hash,
 //         )
 //             .fetch_one(db)
@@ -161,17 +161,17 @@ impl Record for Invite {
 
     async fn insert_no_rollback<'c>(
         &self,
-        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        db: &mut sqlx::Transaction<'c, sqlx::Postgres>,
     ) -> Result<()>
     {
-        let json = serde_json::to_string(&self)?;
+        let json = serde_json::to_value(&self)?;
         let consumed = self.consumed_by_user_id.is_some();
 
         sqlx::query!(
             r#"
                 INSERT INTO invites
                 (id, version, created_at, props, secret_hash, consumed)
-                VALUES (?, ?, ?, ?, ?, ?)
+                VALUES ($1, $2, $3, $4, $5, $6)
             "#,
             self.id,
             self.version,
@@ -190,7 +190,7 @@ impl Record for Invite {
         db: E,
     ) -> Result<()>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let (json, previous_version) = self.prep_for_update()?;
         let consumed = self.consumed_by_user_id.is_some();
@@ -199,13 +199,13 @@ impl Record for Invite {
             r#"
                 UPDATE invites
                 SET
-                    props=?,
-                    version=?,
-                    consumed=?,
-                    deleted_at=?
+                    props=$1,
+                    version=$2,
+                    consumed=$3,
+                    deleted_at=$4
                 WHERE
-                    id=?
-                    AND version=?
+                    id=$5
+                    AND version=$6
             "#,
             // SET
             json,

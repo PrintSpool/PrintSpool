@@ -37,7 +37,7 @@ use futures_util::{
 use dashmap::DashMap;
 use teg_auth::Signal;
 
-pub type Db = sqlx::sqlite::SqlitePool;
+pub type Db = sqlx::PgPool;
 
 const PING_INTERVAL_MILLIS: u64 = 10_000;
 // const PING_INTERVAL_MILLIS: u64 = 1_000;

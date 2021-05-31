@@ -26,7 +26,7 @@ impl PrintQueue {
         print_queue_id: &crate::DbId,
     ) -> Result<Vec<Part>>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let parts = sqlx::query_as!(
             JsonRow,
@@ -34,7 +34,7 @@ impl PrintQueue {
                 SELECT parts.props FROM parts
                 INNER JOIN packages ON packages.id = parts.package_id
                 WHERE
-                    packages.print_queue_id = ?
+                    packages.print_queue_id = $1
                     AND parts.deleted_at IS NULL
                 ORDER BY parts.position ASC
             "#,

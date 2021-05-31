@@ -44,7 +44,7 @@ impl Part {
 
     async fn name(&self) -> &String { &self.name }
     async fn quantity(&self) -> i32 { self.quantity }
-    async fn position(&self) -> u64 { self.position }
+    async fn position(&self) -> i64 { self.position }
     async fn created_at(&self) -> DateTime<Utc> { self.created_at }
 
     async fn starred<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<bool> {
@@ -60,7 +60,7 @@ impl Part {
                 r#"
                     SELECT id FROM packages
                     WHERE
-                        id = ?
+                        id = $1
                         AND starred IS TRUE
                         AND deleted_at IS NULL
                 "#,
@@ -82,7 +82,7 @@ impl Part {
 
     /// The number of prints running or paused. Specifically this counts the tasks with a status of
     /// spooled, started, or paused.
-    async fn prints_in_progress<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<i32> {
+    async fn prints_in_progress<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<i64> {
         let db: &crate::Db = ctx.data()?;
 
         Self::query_prints_in_progress(
@@ -98,7 +98,7 @@ impl Part {
     }
 
     /// The number of prints that have finished printing successfully.
-    async fn prints_completed<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<i32> {
+    async fn prints_completed<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<i64> {
         let db: &crate::Db = ctx.data()?;
 
         Self::query_prints_completed(db, &self.id)
@@ -150,9 +150,9 @@ impl Part {
                 r#"
                     SELECT props FROM tasks
                     WHERE
-                        part_id = ?
-                        AND (? IS TRUE OR tasks.status NOT IN ('spooled', 'started', 'paused'))
-                        AND (? IS TRUE OR tasks.status IN ('spooled', 'started', 'paused'))
+                        part_id = $1
+                        AND ($2 IS TRUE OR tasks.status NOT IN ('spooled', 'started', 'paused'))
+                        AND ($3 IS TRUE OR tasks.status IN ('spooled', 'started', 'paused'))
                 "#,
                 self.id,
                 input.pending,

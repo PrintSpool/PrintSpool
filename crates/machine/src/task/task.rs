@@ -63,14 +63,14 @@ impl Task {
         machine_id: &crate::DbId,
     ) -> Result<Vec<Self>>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let tasks = sqlx::query_as!(
             JsonRow,
             r#"
                 SELECT props FROM tasks
                 WHERE
-                    tasks.machine_id = ?
+                    tasks.machine_id = $1
                     AND tasks.status IN ('spooled', 'started', 'paused')
             "#,
             machine_id,
@@ -84,7 +84,7 @@ impl Task {
 
     pub async fn settle_task<'c>(
         &mut self,
-        mut tx: sqlx::Transaction<'c, sqlx::Sqlite>,
+        mut tx: sqlx::Transaction<'c, sqlx::Postgres>,
         machine_hooks: &MachineHooksList,
         machine_data: &MachineData,
         machine_addr: &xactor::Addr<Machine>,
@@ -171,17 +171,17 @@ impl Record for Task {
 
     async fn insert_no_rollback<'c>(
         &self,
-        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        db: &mut sqlx::Transaction<'c, sqlx::Postgres>,
     ) -> Result<()>
     {
-        let json = serde_json::to_string(&self)?;
+        let json = serde_json::to_value(&self)?;
         let status = self.status.to_db_str();
 
         sqlx::query!(
             r#"
                 INSERT INTO tasks
                 (id, version, created_at, props, machine_id, part_id, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
             "#,
             self.id,
             self.version,
@@ -201,7 +201,7 @@ impl Record for Task {
         db: E,
     ) -> Result<()>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let (json, previous_version) = self.prep_for_update()?;
         let status = self.status.to_db_str();
@@ -210,12 +210,12 @@ impl Record for Task {
             r#"
                 UPDATE tasks
                 SET
-                    props=?,
-                    version=?,
-                    status=?
+                    props=$1,
+                    version=$2,
+                    status=$3
                 WHERE
-                    id=?
-                    AND version=?
+                    id=$4
+                    AND version=$5
             "#,
             // SET
             json,

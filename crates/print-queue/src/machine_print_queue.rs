@@ -48,16 +48,16 @@ impl Record for MachinePrintQueue {
 
     async fn insert_no_rollback<'c>(
         &self,
-        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        db: &mut sqlx::Transaction<'c, sqlx::Postgres>,
     ) -> Result<()>
     {
-        let json = serde_json::to_string(&self)?;
+        let json = serde_json::to_value(&self)?;
 
         sqlx::query!(
             r#"
                 INSERT INTO machine_print_queues
                 (id, version, created_at, props, deleted_at, machine_id, print_queue_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
             "#,
             self.id,
             self.version,
@@ -77,7 +77,7 @@ impl Record for MachinePrintQueue {
         db: E,
     ) -> Result<()>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         let (json, previous_version) = self.prep_for_update()?;
 
@@ -85,14 +85,14 @@ impl Record for MachinePrintQueue {
             r#"
                 UPDATE machine_print_queues
                 SET
-                    props=?,
-                    version=?,
-                    deleted_at=?,
-                    machine_id=?,
-                    print_queue_id=?
+                    props = $1,
+                    version = $2,
+                    deleted_at = $3,
+                    machine_id = $4,
+                    print_queue_id = $5
                 WHERE
-                    id=?
-                    AND version=?
+                    id=$6
+                    AND version=$7
             "#,
             // SET
             json,

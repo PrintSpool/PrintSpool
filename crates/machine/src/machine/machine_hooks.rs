@@ -15,9 +15,9 @@ use super::{Machine, MachineData};
 pub trait MachineHooks {
     async fn before_create<'c>(
         &self,
-        tx: sqlx::Transaction<'c, sqlx::Sqlite>,
+        tx: sqlx::Transaction<'c, sqlx::Postgres>,
         machine_config: &mut MachineConfig,
-    ) -> Result<sqlx::Transaction<'c, sqlx::Sqlite>>;
+    ) -> Result<sqlx::Transaction<'c, sqlx::Postgres>>;
 
     async fn after_create(
         &self,
@@ -26,13 +26,13 @@ pub trait MachineHooks {
 
     async fn before_start<'c>(
         &self,
-        tx: sqlx::Transaction<'c, sqlx::Sqlite>,
+        tx: sqlx::Transaction<'c, sqlx::Postgres>,
         id: &crate::DbId,
-    ) -> Result<sqlx::Transaction<'c, sqlx::Sqlite>>;
+    ) -> Result<sqlx::Transaction<'c, sqlx::Postgres>>;
 
     async fn before_task_settle<'c>(
         &self,
-        tx: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        tx: &mut sqlx::Transaction<'c, sqlx::Postgres>,
         machine_hooks: &MachineHooksList,
         machine_data: &MachineData,
         machine_addr: xactor::Addr<Machine>,

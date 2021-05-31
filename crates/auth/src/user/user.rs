@@ -71,12 +71,12 @@ impl User {
         id: &crate::DbId,
     ) -> Result<()>
     where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Sqlite>,
+        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
         sqlx::query!(
             r#"
                 SELECT id FROM users
-                WHERE id != ? AND json_extract(props, '$.config.is_admin')
+                WHERE id != $1 AND CAST (props -> 'config' ->> 'is_admin' AS BOOLEAN)
             "#,
             id,
         )
@@ -117,15 +117,15 @@ impl Record for User {
 
     async fn insert_no_rollback<'c>(
         &self,
-        db: &mut sqlx::Transaction<'c, sqlx::Sqlite>,
+        db: &mut sqlx::Transaction<'c, sqlx::Postgres>,
     ) -> Result<()>
     {
-        let json = serde_json::to_string(&self)?;
+        let json = serde_json::to_value(&self)?;
         sqlx::query!(
             r#"
                 INSERT INTO users
                 (id, version, created_at, props, signalling_user_id, is_local_http_user)
-                VALUES (?, ?, ?, ?, ?, ?)
+                VALUES ($1, $2, $3, $4, $5, $6)
             "#,
             self.id,
             self.version,

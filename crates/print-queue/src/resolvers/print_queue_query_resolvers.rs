@@ -57,7 +57,7 @@ impl PrintQueueQuery {
                         JOIN machine_print_queues
                             ON machine_print_queues.print_queue_id = print_queues.id
                         WHERE
-                            machine_print_queues.machine_id = ?
+                            machine_print_queues.machine_id = $1
                     "#,
                     machine_id,
                 )
@@ -97,7 +97,7 @@ impl PrintQueueQuery {
             let mut print_queues_sql_join = "".to_string();
             let mut machine_sql_where_clause = "".to_string();
 
-            if let Some(mut print_queue_ids) = input.print_queue_ids {
+            if let Some(print_queue_ids) = input.print_queue_ids {
                 print_queues_sql_join = format!(
                     r#"
                         INNER JOIN parts ON
@@ -105,27 +105,28 @@ impl PrintQueueQuery {
                             AND parts.deleted_at IS NULL
                         INNER JOIN packages ON
                             packages.id = parts.package_id
-                            AND packages.print_queue_id IN ({})
+                            AND packages.print_queue_id = ANY(${})
                     "#,
-                    print_queue_ids.iter().map(|_| "?").collect::<Vec<_>>().join(", "),
+                    args.len() + 1,
                 );
-                args.append(&mut print_queue_ids);
+                args.push(print_queue_ids);
             };
 
-            if let Some(mut machine_ids) = input.machine_ids {
+            if let Some(machine_ids) = input.machine_ids {
                 machine_sql_where_clause = format!(
                     r#"
-                        AND machine_id IN ({})
+                        AND machine_id = ANY(${})
                     "#,
-                    machine_ids.iter().map(|_| "?").collect::<Vec<_>>().join(", "),
+                    args.len() + 1,
                 );
-                args.append(&mut machine_ids);
+                args.push(machine_ids);
             };
 
             let sql = format!(
                 r#"
                     SELECT results.props FROM (
                         SELECT
+                            tasks.id,
                             tasks.props,
                             MAX(tasks.created_at)
                         FROM tasks
@@ -133,6 +134,10 @@ impl PrintQueueQuery {
                         WHERE
                             tasks.part_id IS NOT NULL
                             {}
+                        GROUP BY
+                            tasks.id,
+                            tasks.props,
+                            tasks.created_at
                     ) AS results
                     WHERE
                         results.props IS NOT NULL
@@ -143,7 +148,9 @@ impl PrintQueueQuery {
             let mut query = sqlx::query_as(&sql);
 
             for arg in args {
-                query = query.bind(arg.0)
+                query = query.bind(
+                    arg.into_iter().map(|id| id.0.clone()).collect::<Vec<_>>()
+                )
             }
 
             let tasks: Vec<JsonRow> = query
@@ -153,28 +160,31 @@ impl PrintQueueQuery {
             let tasks = Task::from_rows(tasks)?;
 
             let mut part_ids = tasks.iter()
-                .map(|task| &task.part_id)
-                .collect::<Vec<_>>();
+                .filter_map(|task| task.part_id.clone())
+                .collect::<Vec<String>>();
             part_ids.sort();
             part_ids.dedup();
 
-            let parts_sql = format!(
+            let parts = sqlx::query_as!(
+                JsonRow,
                 r#"
                     SELECT props FROM parts
                     WHERE
-                        parts.id IN ({})
+                        parts.id = ANY($1)
                 "#,
-                part_ids.iter().map(|_| "?").collect::<Vec<_>>().join(", ")
-            );
-            let mut parts_query = sqlx::query_as(&parts_sql);
-
-            for part_id in part_ids {
-                parts_query = parts_query.bind(part_id)
-            }
-
-            let parts: Vec<JsonRow> = parts_query
+                &part_ids,
+            )
                 .fetch_all(db)
                 .await?;
+            // let mut parts_query = sqlx::query_as(&parts_sql);
+
+            // for part_id in part_ids {
+            //     parts_query = parts_query.bind(part_id)
+            // }
+
+            // let parts: Vec<JsonRow> = parts_query
+            //     .fetch_all(db)
+            //     .await?;
 
             let parts = Part::from_rows(parts)?;
 

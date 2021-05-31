@@ -60,28 +60,31 @@ impl PrintQueue {
                 FROM parts
                 INNER JOIN packages ON
                     packages.id = parts.package_id
-                    AND packages.print_queue_id = ?
-                OUTER LEFT JOIN tasks ON
+                    AND packages.print_queue_id = $1
+                LEFT OUTER JOIN tasks ON
                     tasks.part_id = parts.id
                     AND tasks.status = 'finished'
                 WHERE
                     parts.deleted_at IS NULL
                     AND (tasks.id IS NULL OR tasks.status IS NOT NULL)
                 GROUP BY
-                    parts.id
+                    parts.id,
+                    parts.quantity,
+                    packages.quantity,
+                    packages.starred
                 HAVING
                     (
-                        ? IS TRUE
+                        $2 IS TRUE
                         AND parts.quantity * packages.quantity > COUNT(tasks.id)
                     )
                     OR
                     (
-                        ? IS TRUE
+                        $3 IS TRUE
                         AND parts.quantity * packages.quantity <= COUNT(tasks.id)
                     )
                     OR
                     (
-                        ? IS TRUE
+                        $4 IS TRUE
                         AND packages.starred
                     )
                 ORDER BY parts.position
