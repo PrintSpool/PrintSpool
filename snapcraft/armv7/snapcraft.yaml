@@ -50,6 +50,8 @@ parts:
     #   - to amd64: ./bin/x64/
     stage-packages:
       - libbsd-dev
+      - postgresql
+      - postgresql-contrib
 
   # teg-marlin:
   #   plugin: dump
@@ -100,7 +102,7 @@ apps:
     # refresh-mode: endure
     # refresh-mode: restart
     environment:
-      DATABASE_URL: "sqlite:/var/lib/teg/db.sqlite"
+      DATABASE_URL: "postgres:/var/run/postgresql"
 
       # SIGNALLING_SERVER_WS: "wss://signal.tegapp.io/graphql"
       # SIGNALLING_SERVER_HTTP: "https://signal.tegapp.io/graphql"
@@ -154,7 +156,7 @@ apps:
   invite:
     command: teg-invite
     environment:
-      DATABASE_URL: "sqlite:/var/lib/teg/db.sqlite"
+      DATABASE_URL: "postgres:/var/run/postgresql"
       SIGNALLING_SERVER_WS: "wss://signal.tegapp.io/graphql"
       SIGNALLING_SERVER_HTTP: "https://signal.tegapp.io/graphql"
       CLOUD_HTTP: "https://tegapp.io"
