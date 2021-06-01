@@ -153,12 +153,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28b2cd92db5cbd74e8e5028f7e27dd7aa3090e89e4f2a197cc7c8dfb69c7063b"
 
 [[package]]
-name = "anymap"
-version = "0.12.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33954243bd79057c2de7338850b85983a44588021f8a5fee574a8888c6de4344"
-
-[[package]]
 name = "arc-swap"
 version = "0.4.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1450,18 +1444,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "filetime"
-version = "0.2.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d34cfa13a63ae058bfa601fe9e313bbdb3746427c1459185464ce0fcf62e1e8"
-dependencies = [
- "cfg-if 1.0.0",
- "libc",
- "redox_syscall",
- "winapi 0.3.9",
-]
-
-[[package]]
 name = "fixedbitset"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1526,25 +1508,6 @@ name = "fs_extra"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2022715d62ab30faffd124d40b76f4134a550a87792276512b18d63272333394"
-
-[[package]]
-name = "fsevent"
-version = "2.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97f347202c95c98805c216f9e1df210e8ebaec9fdb2365700a43c10797a35e63"
-dependencies = [
- "bitflags",
- "fsevent-sys",
-]
-
-[[package]]
-name = "fsevent-sys"
-version = "3.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77a29c77f1ca394c3e73a9a5d24cfcabb734682d9634fc398f2204a63c994120"
-dependencies = [
- "libc",
-]
 
 [[package]]
 name = "fuchsia-cprng"
@@ -2653,18 +2616,6 @@ dependencies = [
 
 [[package]]
 name = "nix"
-version = "0.19.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b2ccba0cfe4fdf15982d1674c69b1fd80bad427d293849982668dfe454bd61f2"
-dependencies = [
- "bitflags",
- "cc",
- "cfg-if 1.0.0",
- "libc",
-]
-
-[[package]]
-name = "nix"
 version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fa9b4819da1bc61c0ea48b63b7bc8604064dd43013e7cc325df098d49cd7c18a"
@@ -2720,25 +2671,6 @@ dependencies = [
  "log",
  "nom 6.1.2",
  "toml",
-]
-
-[[package]]
-name = "notify"
-version = "5.0.0-pre.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ebe7699a0f8c5759450716ee03d231685c22b4fe8f406c42c22e0ad94d40ce7"
-dependencies = [
- "anymap",
- "bitflags",
- "crossbeam-channel",
- "filetime",
- "fsevent",
- "fsevent-sys",
- "inotify",
- "libc",
- "mio 0.7.11",
- "walkdir",
- "winapi 0.3.9",
 ]
 
 [[package]]
@@ -4303,23 +4235,6 @@ dependencies = [
  "url 2.2.1",
  "warp",
  "xactor",
-]
-
-[[package]]
-name = "teg-supervisor"
-version = "0.1.0"
-dependencies = [
- "async-graphql",
- "async-std",
- "dashmap",
- "dotenv",
- "eyre",
- "nix 0.19.1",
- "notify",
- "serde_json",
- "sqlx",
- "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]
