@@ -28,7 +28,7 @@ teg-protobufs = { path= "../protobufs" }
 bytes = "0.5.6"
 base64 = "0.12.3"
 arc-swap = "1.1.0"
-tracing = "0.1.25"
+tracing = "0.1.28"
 tracing-futures = "0.2.4"
 xactor = { git = "https://github.com/sunli829/xactor.git", branch = "master",  default-features = false, features = ["runtime-async-std", "eyre"] }
 async-codec = "0.4.0"

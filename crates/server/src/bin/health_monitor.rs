@@ -4,6 +4,7 @@ use eyre::{
     Result,
     // Context as _,
 };
+use tracing_subscriber::prelude::*;
 use std::{thread::sleep, time::Duration};
 use std::os::unix::net::UnixStream;
 use std::io::prelude::*;
@@ -17,7 +18,12 @@ use pidfile_rs::{
 /// not receive an "ack\n" health check confirmation.
 fn main() -> Result<()> {
     dotenv::dotenv().ok();
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::Registry::default()
+        // any number of other subscriber layers may be added before or
+        // after the `ErrorLayer`...
+        .with(tracing_error::ErrorLayer::default())
+        .init();
+    // tracing_subscriber::fmt::init();
     color_eyre::install()?;
 
     if std::env::var("DISABLE_TEG_HEALTH_MONITOR").map(|v| v == "1") == Ok(true) {

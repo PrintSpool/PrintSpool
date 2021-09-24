@@ -16,7 +16,7 @@ serde_json = { version = "1.0.44", features = ["raw_value"] }
 sqlx = { version = "=0.5.5", features = [ "runtime-async-std-native-tls", "postgres", "offline", "json", "macros" , "chrono"] }
 
 eyre = "0.6.5"
-tracing = "0.1.25"
+tracing = "0.1.28"
 async-trait = "0.1.36"
 xactor = { git = "https://github.com/sunli829/xactor.git", branch = "master",  default-features = false, features = ["runtime-async-std", "eyre"] }
 futures = "0.3.12"

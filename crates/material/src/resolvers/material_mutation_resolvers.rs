@@ -21,13 +21,13 @@ use crate::{FdmFilament, MaterialTypeGQL, material::{
 // Input Types
 // ---------------------------------------------
 
-#[derive(async_graphql::InputObject)]
+#[derive(async_graphql::InputObject, Debug)]
 pub struct CreateMaterialInput {
     pub material_type: MaterialTypeGQL,
     pub model: async_graphql::Json<serde_json::Value>,
 }
 
-#[derive(async_graphql::InputObject)]
+#[derive(async_graphql::InputObject, Debug)]
 pub struct UpdateMaterialInput {
     #[graphql(name="materialID")]
     pub material_id: ID,
@@ -79,6 +79,7 @@ impl MaterialMutation {
         Ok(material)
     }
 
+    #[instrument(skip(self, ctx))]
     async fn update_material<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
@@ -90,29 +91,37 @@ impl MaterialMutation {
 
         auth.authorize_admins_only()?;
 
-        let mut material = Material::get_with_version(
-            db,
-            &input.material_id,
-            input.model_version,
-            false,
-        ).await?;
-
-        material.config = match material.config {
-            MaterialConfigEnum::FdmFilament(_) => {
-                let config: FdmFilament = serde_json::from_value(input.model.0)?;
-                MaterialConfigEnum::FdmFilament(Box::new(config))
-            }
-        };
-
-        material.update(db).await?;
-
-        for hooks_provider in material_hooks.iter() {
-            hooks_provider.after_update(
-                &material.id
+        async move {
+            let mut material = Material::get_with_version(
+                db,
+                &input.material_id,
+                input.model_version,
+                false,
             ).await?;
-        }
 
-        Ok(material)
+            material.config = match material.config {
+                MaterialConfigEnum::FdmFilament(_) => {
+                    let config: FdmFilament = serde_json::from_value(input.model.0)?;
+                    MaterialConfigEnum::FdmFilament(Box::new(config))
+                }
+            };
+
+            material.update(db).await?;
+
+            for hooks_provider in material_hooks.iter() {
+                hooks_provider.after_update(
+                    &material.id
+                ).await?;
+            }
+
+            Ok(material)
+        }
+        // log the backtrace which is otherwise lost by FieldResult
+        .await
+        .map_err(|err: eyre::Error| {
+            warn!("{:?}", err);
+            err.into()
+        })
     }
 
     async fn delete_material<'ctx>(

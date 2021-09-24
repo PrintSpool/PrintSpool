@@ -1,4 +1,5 @@
 #[macro_use] extern crate nanoid;
+#[macro_use] extern crate tracing;
 
 mod material;
 use std::sync::Arc;

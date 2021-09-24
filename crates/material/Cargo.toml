@@ -24,6 +24,7 @@ serde_json = { version = "1.0.44", features = ["raw_value"] }
 async-graphql = { git = "https://github.com/D1plo1d/async-graphql.git", branch="feature/websocket-file-uploads", features = ["apollo_tracing", "tracing",  "chrono", "url", "unblock"] }
 nanoid = "0.3.0"
 async-trait = "0.1.36"
+tracing = "0.1.28"
 
 [dependencies.serde]
 features = ["derive"]

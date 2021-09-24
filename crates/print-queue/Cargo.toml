@@ -33,7 +33,7 @@ eyre = "0.6.5"
 derive-new = "0.5.8"
 sqlx = { version = "=0.5.5", features = [ "runtime-async-std-native-tls", "postgres", "offline", "json", "macros" , "chrono"] }
 
-tracing = "0.1.25"
+tracing = "0.1.28"
 tracing-futures = "0.2.4"
 arc-swap = "1.1.0"
 xactor = { git = "https://github.com/sunli829/xactor.git", branch = "master",  default-features = false, features = ["runtime-async-std", "eyre"] }

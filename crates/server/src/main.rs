@@ -30,6 +30,7 @@ use health_check_socket::health_check_socket;
 mod create_db;
 use create_db::create_db;
 
+use tracing_subscriber::prelude::*;
 use std::{env, sync::Arc};
 use serde::Deserialize;
 use arc_swap::ArcSwap;
@@ -123,7 +124,15 @@ async fn app() -> Result<()> {
     // use tracing_subscriber::{prelude::*, registry::Registry};
 
     // Registry::default().with(ErrorLayer::default()).init();
-    tracing_subscriber::fmt::init();
+    // tracing_subscriber::fmt::init();
+    tracing_subscriber::Registry::default()
+        // any number of other subscriber layers may be added before or
+        // after the `ErrorLayer`...
+        .with(tracing_error::ErrorLayer::default())
+        .with(tracing_subscriber::EnvFilter::try_from_default_env()?)
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
     color_eyre::install()?;
 
     // USR2 Signals handling

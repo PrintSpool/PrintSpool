@@ -28,8 +28,8 @@ nom-reprap-response = { path= "../nom-reprap-response" }
 teg-protobufs = { path= "../protobufs" }
 spin_sleep = "0.3.7"
 error-chain = "0.12.2"
-tracing = "0.1.25"
-tracing-subscriber = "0.2.15"
+tracing = "0.1.28"
+tracing-subscriber = "0.2.24"
 eyre = "0.6.5"
 color-eyre = "0.5.10"
 dotenv = "0.15.0"

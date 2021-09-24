@@ -24,7 +24,7 @@ frank_jwt = "3.1.2"
 schemars = "0.8.0"
 sqlx = { version = "=0.5.5", features = [ "runtime-async-std-native-tls", "postgres", "offline", "json", "macros" , "chrono"] }
 
-tracing = "0.1.25"
+tracing = "0.1.28"
 tracing-futures = "0.2.4"
 rmp = "^0.8"
 hex = "0.4.2"

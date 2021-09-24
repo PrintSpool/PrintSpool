@@ -18,7 +18,7 @@ serde_json = { version = "1.0.44", features = ["raw_value"] }
 async-graphql = { git = "https://github.com/D1plo1d/async-graphql.git", branch="feature/websocket-file-uploads", features = ["apollo_tracing", "tracing",  "chrono", "url", "unblock"] }
 xactor = { git = "https://github.com/sunli829/xactor.git", branch = "master",  default-features = false, features = ["runtime-async-std", "eyre"] }
 async-trait = "0.1.36"
-tracing = "0.1.25"
+tracing = "0.1.28"
 tracing-futures = "0.2.4"
 futures = "0.3.12"
 inotify = "0.9.2"
