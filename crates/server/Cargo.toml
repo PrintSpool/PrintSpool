@@ -46,7 +46,7 @@ sqlx = { version = "=0.5.5", features = [ "runtime-async-std-native-tls", "postg
 # sqlx-rt = "=0.3.0"
 # pg-embed = { version = "0.6.1", features = ["tokio", "reqwest", "sqlx_async_std"], default-features = false }
 # pg-embed = {  git = "https://github.com/D1plo1d/pg-embed.git", branch = "feature/tls-and-async-std", features = ["rt_async_std"], default-features = false }
-pg-embed = { path = "../../../pg-embed", features = ["rt_async_std"], default-features = false }
+# pg-embed = { path = "../../../pg-embed", features = ["rt_async_std"], default-features = false }
 
 tracing = "0.1.28"
 tracing-error = "0.1.2"
