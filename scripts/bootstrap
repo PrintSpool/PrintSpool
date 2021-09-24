@@ -31,3 +31,9 @@ nvm use
 npm i -g yarn
 yarn
 popd
+
+pushd
+cd ./crages/server
+sqlx database create
+sqlx migrate run
+popd

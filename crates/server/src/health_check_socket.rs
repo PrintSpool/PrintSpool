@@ -11,15 +11,15 @@ use eyre::{
 /// server is able to query it's database.
 ///
 /// This is essentially to prevent sql deadlocks from locking up the system until it is rebooted
-pub async fn health_check_socket(db: crate::Db) {
+pub async fn health_check_socket() {
     loop {
-        if let Err(err) = try_health_check_socket(&db).await {
+        if let Err(err) = try_health_check_socket().await {
             panic!("Error in health check socket provider: {:?}", err);
         }
     }
 }
 
-async fn try_health_check_socket(db: &crate::Db) -> Result<()> {
+async fn try_health_check_socket() -> Result<()> {
     let socket_path = "/var/lib/teg/health-check.sock";
     let _ = std::fs::remove_file(socket_path);
     let listener = UnixListener::bind(socket_path).await?;
@@ -27,13 +27,13 @@ async fn try_health_check_socket(db: &crate::Db) -> Result<()> {
 
     while let Some(stream) = incoming.next().await {
         let mut stream = stream?;
-        sqlx::query!(
-            r#"
-                SELECT COUNT(id) as count FROM print_queues
-            "#,
-        )
-            .fetch_one(db)
-            .await?;
+        // sqlx::query!(
+        //     r#"
+        //         SELECT COUNT(id) as count FROM print_queues
+        //     "#,
+        // )
+        //     .fetch_one(db)
+        //     .await?;
 
         stream.write_all(b"ack\n").await?;
     }

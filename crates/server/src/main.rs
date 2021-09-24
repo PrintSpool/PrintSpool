@@ -27,9 +27,11 @@ mod local_http_server;
 mod health_check_socket;
 use health_check_socket::health_check_socket;
 
+mod create_db;
+use create_db::create_db;
+
 use std::{env, sync::Arc};
 use serde::Deserialize;
-use sqlx::{PgPool, migrate::MigrateDatabase, postgres::{PgConnectOptions, PgPoolOptions}};
 use arc_swap::ArcSwap;
 use eyre::{Context, Result, eyre};
 use signal_hook::{iterator::Signals, consts::signal::SIGUSR2};
@@ -109,52 +111,6 @@ fn main() -> Result<()> {
     async_std::task::block_on(app())
 }
 
-async fn create_db() -> Result<PgPool> {
-    use std::path::Path;
-
-    // Create the database
-    let db_url = env::var("DATABASE_URL")
-        .wrap_err("DATABASE_URL not set")?;
-
-    if !sqlx::Postgres::database_exists(&db_url).await? {
-        sqlx::Postgres::create_database(&db_url).await?;
-    }
-
-    // Connect to the database
-    let db_options = db_url.parse::<PgConnectOptions>()?;
-
-    let db = PgPoolOptions::new()
-        // .max_connections(20)
-        // SQL querires are normally expected to complete within 100ms. 5 seconds should be a long
-        // enough timeout for our useage.
-        .connect_timeout(std::time::Duration::from_secs(5))
-        .connect_with(db_options)
-        .await?;
-
-    // Migrate the database
-    let migrations = if env::var("RUST_ENV") == Ok("production".to_string()) {
-        // Productions migrations dir
-        std::env::current_exe()?
-            .parent()
-            .unwrap()
-            .join("migrations")
-    } else {
-        // Development migrations dir
-        let crate_dir = std::env::var("CARGO_MANIFEST_DIR")?;
-        Path::new(&crate_dir)
-            .join("migrations")
-    };
-
-    info!("Running migrations: {:?}", migrations);
-
-    sqlx::migrate::Migrator::new(migrations)
-        .await?
-        .run(&db)
-        .await?;
-
-    Ok(db)
-}
-
 async fn app() -> Result<()> {
     teg_machine::initialize_statics();
 
@@ -206,14 +162,14 @@ async fn app() -> Result<()> {
     let _ = std::fs::remove_dir(&tmp_dir);
     std::fs::create_dir_all(&tmp_dir)?;
 
-    let db = create_db().await?;
-
     // Spawn the health check socket
     async_std::task::spawn(
-        health_check_socket(db.clone()).instrument(
+        health_check_socket().instrument(
             tracing::info_span!("health_check_socket")
         )
     );
+
+    let (_pg_embed, db) = create_db(true).await?;
 
     let machine_ids: Vec<crate::DbId> = std::fs::read_dir(CONFIG_DIR)?
         .map(|entry| {

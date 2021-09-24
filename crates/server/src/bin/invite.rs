@@ -1,11 +1,16 @@
+#[macro_use] extern crate tracing;
+
 use eyre::{
     // eyre,
     Result,
     // Context as _,
 };
-use sqlx::PgPool;
-use std::{env, sync::Arc};
+use std::sync::Arc;
 use teg_auth::invite::Invite;
+
+#[path = "../create_db.rs"]
+mod create_db;
+use create_db::create_db;
 
 fn main() -> Result<()> {
     async_std::task::block_on(invite())
@@ -16,7 +21,7 @@ async fn invite() -> Result<()> {
     tracing_subscriber::fmt::init();
     color_eyre::install()?;
 
-    let db = PgPool::connect(&env::var("DATABASE_URL")?).await?;
+    let (_pg_embed, db) = create_db(false).await?;
     let server_keys = Arc::new(teg_auth::ServerKeys::load_or_create().await?);
 
     Invite::generate_and_display(&db, &server_keys, true).await?;

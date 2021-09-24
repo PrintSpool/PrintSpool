@@ -1,19 +1,30 @@
 #!/bin/bash
 set -e
 
-# This is only needed for upgrading 0.14.0 closed beta users. Once 0.15 is fully deployed
-# this can be removed because it is done for new users in the install hook.
+# # This is only needed for upgrading 0.14.0 closed beta users. Once 0.15 is fully deployed
+# # this can be removed because it is done for new users in the install hook.
 
-PG_AUTHORIZED=1
+# PG_AUTHORIZED=1
 
-psql -l >> /dev/null 2>&1 || export PG_AUTHORIZED=0
+# psql -l >> /dev/null 2>&1 || export PG_AUTHORIZED=0
 
-if [ "$PG_AUTHORIZED" == "0" ]
-then
-  echo "Setting up Postgres authorization"
-  # Add the snap's root user to Postgres to give the daemon access to the database
-  sudo -u postgres createuser -s root
-  # Add a default database for the root user
-  sudo createdb -O root root
-  echo "Setting up Postgres authorization  [DONE]"
-fi
+# if [ "$PG_AUTHORIZED" == "0" ]
+# then
+#   echo "Setting up Postgres authorization"
+#   # sudo useradd postgres -m -s /usr/sbin/nologin
+#   postgresql10.initialize initdb
+#   postgresql10.pgctl -D /root/snap/postgresql10/common/data -l /root/snap/postgresql10/common/logs start
+
+#   postgresql10.createuser postgres -s
+
+#   # mkdir -p /var/lib/teg-common/postgresql10/common/data
+#   # mkdir -p /var/lib/teg-common/postgresql10/common/logs
+
+#   # Add the snap's root user to Postgres to give the daemon access to the database
+#   # sudo -u postgres createuser -s root
+#   # Add a default database for the snap's Postgres user
+#   # postgresql10.createdb -O root root
+
+#   postgresql10.pgctl -D /home/root/snap/postgresql10/common/data -l /home/root/postgresql10/common/logs stop
+#   echo "Setting up Postgres authorization  [DONE]"
+# fi

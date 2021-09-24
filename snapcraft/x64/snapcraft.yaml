@@ -15,6 +15,9 @@ architectures:
   - build-on: amd64
     run-on: amd64
 
+system-usernames:
+  snap_daemon: shared
+
     # plugs:
 #   klipper-printers:
 #     interface: system-files
@@ -45,10 +48,8 @@ parts:
     # source: ./bin/armv7/
     source: ./bin/
     # build-attributes: [no-patchelf]
-    stage-packages:
-      - libbsd-dev
-      - postgresql
-      - postgresql-contrib
+    # stage-packages:
+    #   - libbsd-dev
 
   # teg-marlin:
   #   plugin: dump
@@ -75,8 +76,14 @@ parts:
 
     source: https://github.com/mpromonet/webrtc-streamer/releases/download/v0.5.2/webrtc-streamer-v0.5.2-Linux-x86_64-Release.tar.gz
     stage-packages:
+      # webrtc packages
       - libgtk-3-0
       - libasound2
+      # - libgtk-3-0:armhf
+      # - libasound2:armhf
+      #
+      # Teg Packages
+      - libbsd-dev
 
   # teg-marlin:
   #   plugin: rust
@@ -98,7 +105,9 @@ apps:
     # refresh-mode: endure
     # refresh-mode: restart
     environment:
-      DATABASE_URL: "postgres:/var/run/postgresql"
+      DATABASE_URL: "postgres://postgres@localhost/teg"
+      DATABASE_NAME: "teg"
+      PG_EMBED: 1
 
       # SIGNALLING_SERVER_WS: "wss://signal.tegapp.io/graphql"
       # SIGNALLING_SERVER_HTTP: "https://signal.tegapp.io/graphql"
@@ -152,7 +161,10 @@ apps:
   invite:
     command: teg-invite
     environment:
-      DATABASE_URL: "postgres:/var/run/postgresql"
+      DATABASE_URL: "postgres://postgres@localhost/teg"
+      DATABASE_NAME: "teg"
+      PG_EMBED: 1
+
       SIGNALLING_SERVER_WS: "wss://signal.tegapp.io/graphql"
       SIGNALLING_SERVER_HTTP: "https://signal.tegapp.io/graphql"
       CLOUD_HTTP: "https://tegapp.io"

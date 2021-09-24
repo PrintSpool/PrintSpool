@@ -11,7 +11,7 @@ path = "src/lib.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-sqlx = { version = "=0.5.1", features = [ "runtime-async-std-native-tls", "postgres", "offline", "json", "macros" , "chrono"] }
+sqlx = { version = "=0.5.5", features = [ "runtime-async-std-native-tls", "postgres", "offline", "json", "macros" , "chrono"] }
 
 eyre = "0.6.5"
 async-trait = "0.1.36"

@@ -17,6 +17,9 @@ architectures:
   - build-on: amd64
     run-on: armhf
 
+system-usernames:
+  snap_daemon: shared
+
     # plugs:
 #   klipper-printers:
 #     interface: system-files
@@ -48,10 +51,6 @@ parts:
     # source:
     #   - to armhf: ./bin/armv7/
     #   - to amd64: ./bin/x64/
-    stage-packages:
-      - libbsd-dev
-      - postgresql
-      - postgresql-contrib
 
   # teg-marlin:
   #   plugin: dump
@@ -77,10 +76,14 @@ parts:
     plugin: dump
     source: https://github.com/mpromonet/webrtc-streamer/releases/download/v0.5.2/webrtc-streamer-v0.5.2-Linux-armv7l-Release.tar.gz
     stage-packages:
+      # webrtc packages
       - libgtk-3-0
       - libasound2
       # - libgtk-3-0:armhf
       # - libasound2:armhf
+      #
+      # Teg Packages
+      - libbsd-dev
 
   # teg-marlin:
   #   plugin: rust
@@ -90,9 +93,15 @@ parts:
   #   source-subdir: packages/teg-marlin
 
 apps:
+  # postgres:
+  #   command: command.pgctl -D /root/snap/postgresql10/common/data -l /root/snap/postgresql10/common/logs start
+  #   # pgctl or command-pgctl?
+  #   daemon: oneshot
   server:
     command: teg-server
     daemon: simple
+    # after:
+    #   - postgres
     restart-condition: always
     # Setting stop-mode changes the SystemD KillMode from killing all the drivers through their
     # cgroup to just killing the server (via KillMode=process)
@@ -102,7 +111,9 @@ apps:
     # refresh-mode: endure
     # refresh-mode: restart
     environment:
-      DATABASE_URL: "postgres:/var/run/postgresql"
+      DATABASE_URL: "postgres://postgres@localhost/teg"
+      DATABASE_NAME: "teg"
+      PG_EMBED: 1
 
       # SIGNALLING_SERVER_WS: "wss://signal.tegapp.io/graphql"
       # SIGNALLING_SERVER_HTTP: "https://signal.tegapp.io/graphql"
@@ -156,7 +167,9 @@ apps:
   invite:
     command: teg-invite
     environment:
-      DATABASE_URL: "postgres:/var/run/postgresql"
+      DATABASE_URL: "postgres://postgres@localhost/teg"
+      DATABASE_NAME: "teg"
+      PG_EMBED: 1
       SIGNALLING_SERVER_WS: "wss://signal.tegapp.io/graphql"
       SIGNALLING_SERVER_HTTP: "https://signal.tegapp.io/graphql"
       CLOUD_HTTP: "https://tegapp.io"

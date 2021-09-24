@@ -22,6 +22,7 @@ path = "src/bin/invite.rs"
 
 [build-dependencies]
 built = { version = "0.4.4", features = ["git2"] }
+git2 = "0.13.20"
 
 [dependencies]
 teg_machine = { path = "../machine" }
@@ -39,10 +40,13 @@ async-graphql-warp =  { git = "https://github.com/D1plo1d/async-graphql.git", br
 
 serde_json = { version = "1.0.44", features = ["raw_value"] }
 derive-new = "0.5.8"
-sqlx = { version = "=0.5.1", features = [ "runtime-async-std-native-tls", "postgres", "offline", "json", "macros" , "chrono"] }
-sqlx-core = "=0.5.1"
-sqlx-macros = "=0.5.1"
-sqlx-rt = "=0.3.0"
+sqlx = { version = "=0.5.5", features = [ "runtime-async-std-native-tls", "postgres", "offline", "json", "macros" , "chrono"] }
+# sqlx-core = "=0.5.1"
+# sqlx-macros = "=0.5.1"
+# sqlx-rt = "=0.3.0"
+# pg-embed = { version = "0.6.1", features = ["tokio", "reqwest", "sqlx_async_std"], default-features = false }
+# pg-embed = {  git = "https://github.com/D1plo1d/pg-embed.git", branch = "feature/tls-and-async-std", features = ["rt_async_std"], default-features = false }
+pg-embed = { path = "../../../pg-embed", features = ["rt_async_std"], default-features = false }
 
 tracing = "0.1.25"
 tracing-error = "0.1.2"
@@ -66,6 +70,7 @@ signal-hook = "0.3.8"
 nix = "0.20.0"
 num_cpus = "1.13.0"
 pidfile-rs = { git = "https://github.com/D1plo1d/bsd-pidfile-rs.git", branch = "fix/cross-compilation" }
+rand = "0.8.4"
 
 [dependencies.serde]
 features = ["derive"]
