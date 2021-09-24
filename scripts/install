@@ -2,4 +2,5 @@
 set -e
 cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
 
-snap install ./snapcraft/dist/tegh_*_amd64.snap --devmode --dangerous
+# snap install ./snapcraft/dist/tegh_*_amd64.snap --devmode --dangerous
+
