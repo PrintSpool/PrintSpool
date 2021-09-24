@@ -6,11 +6,14 @@ jobs:
   build_and_test:
     name: Build Rust Binaries
     runs-on: ubuntu-18.04
+    env:
+      SQLX_OFFLINE: "true"
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+      - run: sudo apt-get install lld
       - uses: actions-rs/cargo@v1
         with:
           command: build
