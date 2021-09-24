@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
+
+pushd .
+cd ./crates/server
+pwd
+cargo sqlx prepare -- --bin teg-server
+popd
+
+pushd .
+cd ./crates/auth
+pwd
+cargo sqlx prepare
+popd
