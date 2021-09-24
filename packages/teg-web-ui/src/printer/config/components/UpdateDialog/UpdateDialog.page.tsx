@@ -83,7 +83,7 @@ export const useUpdateDialog = ({
     onSubmit: ({model}) => onSubmit(model),
     onClose: () => history.push('../'),
     configForm: configFormData,
-    developerMode: data?.machines[0]?.developerMode,
+    developerMode: (data?.machines || [])[0]?.developerMode,
     submitting: updateMutation.loading,
     status,
     deleteButton,
