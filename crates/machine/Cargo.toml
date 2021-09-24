@@ -25,13 +25,14 @@ toml = "0.5.8"
 async-trait = "0.1.36"
 derive-new = "0.5.8"
 teg-protobufs = { path= "../protobufs" }
-bytes = "0.5.6"
+bytes = "1.1.0"
 base64 = "0.12.3"
 arc-swap = "1.1.0"
 tracing = "0.1.28"
 tracing-futures = "0.2.4"
 xactor = { git = "https://github.com/sunli829/xactor.git", branch = "master",  default-features = false, features = ["runtime-async-std", "eyre"] }
-async-codec = "0.4.0"
+# async-codec = "0.4.0"
+async-codec = { git = "https://gitlab.com/d1plo1d/async-codec.git", branch = "feature/bytes_1_x_x" }
 
 sqlx = { version = "=0.5.5", features = [ "runtime-async-std-native-tls", "postgres", "offline", "json", "macros" , "chrono"] }
 

@@ -12,7 +12,6 @@ use futures::{FutureExt, SinkExt, StreamExt, TryStreamExt, channel::mpsc, future
         Future,
     }, stream};
 
-use tokio::prelude::*;
 // use futures_sink::Sink;
 // use tokio::{
 //     // prelude::*,
@@ -51,8 +50,7 @@ use tokio_util::codec::Decoder;
 use crate::ResultExt;
 
 pub struct SerialManager {
-    settings: tokio_serial::SerialPortSettings,
-    tty_path: String,
+    settings: tokio_serial::SerialPortBuilder,
 
     event_sender: mpsc::Sender<Event>,
     gcode_sender: Option<mpsc::Sender<GCodeLine>>,
@@ -66,10 +64,9 @@ impl SerialManager {
     ) -> Self {
         info!("tty: {}", tty_path);
 
-        let settings = tokio_serial::SerialPortSettings::default();
+        let settings = tokio_serial::new(tty_path, 9600);
 
         Self {
-            tty_path,
             settings,
 
             event_sender,
@@ -90,10 +87,15 @@ impl SerialManager {
         // the serial port needs a moment to reset when reconnecting
         thread::sleep(time::Duration::from_millis(100));
 
-        self.settings.baud_rate = baud_rate;
+        let settings = self.settings
+            .clone()
+            .baud_rate(baud_rate);
 
         let mut port = if simulate {
-            let (host_port, simulator_port) = tokio_serial::Serial::pair()?;
+            let (
+                host_port,
+                simulator_port,
+            ) = tokio_serial::SerialStream::pair()?;
 
             // Spawn the simulator
             let simulator = SerialSimulator::run(
@@ -110,15 +112,13 @@ impl SerialManager {
 
             host_port
         } else {
-            tokio_serial::Serial::from_path(
-                self.tty_path.clone(),
-                &self.settings
-            )?
+            tokio_serial::SerialStream::open(&settings)?
         };
 
         // #[cfg(unix)]
         port.set_exclusive(false)?;
 
+        use tokio::io::AsyncWriteExt;
         port.write_all(&[b'\n']).await?;
 
         let (

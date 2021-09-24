@@ -9,10 +9,10 @@ description = "Teg serial driver for RepRaps and Marlin-compatible firmware"
 teg-json-store = { path = "../json-store" }
 teg_machine = { path = "../machine" }
 
-bytes = "0.5.4"
-tokio = { version = "0.2.25", features = ["full"] }
-tokio-util = { version = "0.3.1", features=["codec"] }
-tokio-serial = { version = "4.3.3", default-features = false }
+bytes = "1.1.0"
+tokio = { version = "1.12.0", features = ["full"] }
+tokio-util = { version = "0.6.8", features=["codec"] }
+tokio-serial = { version = "5.4.1", default-features = false }
 # tokio-serial = { path = "../../../tokio-serial"}
 futures = { version = "0.3.5", features=["compat"] }
 mio = "0.6.22"

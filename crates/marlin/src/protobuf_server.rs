@@ -126,23 +126,24 @@ pub async fn serve(
     let listener = UnixListener::bind(&socket_path)
         .expect("Unable to create unix socket");
 
-    let initial_channel_sender = mpsc::Sender::clone(channel_sender);
+    let channel_sender_clone = channel_sender.clone();
 
-    tokio::spawn(listener.fold(
-        initial_channel_sender,
-        move |next_channel_sender, result| {
-            let connection_channel_sender = mpsc::Sender::clone(&next_channel_sender);
+    tokio::spawn(async move {
+        loop {
+            let connection = listener.accept().await.unwrap().0;
+            let connection_channel_sender = channel_sender_clone.clone();
 
             let broadcast_clone = broadcast_subscriber.clone();
-            let connection = result.unwrap();
 
             tokio::spawn(async move {
-                handle_connection(connection_channel_sender, broadcast_clone, connection).await;
+                handle_connection(
+                    connection_channel_sender,
+                    broadcast_clone,
+                    connection,
+                ).await;
             });
-
-            future::ready(next_channel_sender)
         }
-    ).map(|_| ()));
+    });
 
     Ok(())
 }

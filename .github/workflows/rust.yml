@@ -13,7 +13,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - run: sudo apt-get install lld
+      - run: sudo apt-get install lld protobuf-compiler
       - uses: actions-rs/cargo@v1
         with:
           command: build

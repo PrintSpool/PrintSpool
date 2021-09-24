@@ -26,7 +26,7 @@ struct Position {
 }
 
 impl SerialSimulator {
-    pub async fn run(serial: tokio_serial::Serial) -> Result<()> {
+    pub async fn run(serial: tokio_serial::SerialStream) -> Result<()> {
         let (
             mut sender,
             mut reader,
@@ -77,7 +77,7 @@ impl SerialSimulator {
                     }
 
                     while extruder < extruder_target {
-                        tokio::time::delay_for(
+                        tokio::time::sleep(
                             std::time::Duration::from_millis(500)
                         )
                             .await;
@@ -108,7 +108,7 @@ impl SerialSimulator {
                     }
 
                     while bed < bed_target {
-                        tokio::time::delay_for(
+                        tokio::time::sleep(
                             std::time::Duration::from_millis(500)
                         )
                             .await;

@@ -93,7 +93,7 @@ impl Effect {
 
                 tokio::spawn(async move {
                     let abortable_delay = Abortable::new(
-                        tokio::time::delay_for(duration),
+                        tokio::time::sleep(duration),
                         abort_registration,
                     );
 
@@ -253,7 +253,7 @@ impl Effect {
                 std::process::exit(0);
             }
             Effect::ExitProcessAfterDelay => {
-                tokio::time::delay_for(Duration::from_millis(500)).await;
+                tokio::time::sleep(Duration::from_millis(500)).await;
 
                 reactor.serial_manager.close();
                 std::process::exit(0);

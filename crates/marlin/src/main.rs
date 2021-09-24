@@ -37,8 +37,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     sched_setaffinity(Pid::from_raw(0), &cpu_set)?;
 
     // Create single-threaded runtime that will run teg-marlin only on the dedicated CPU
-    let mut rt = tokio::runtime::Builder::new()
-        .basic_scheduler()
+    let rt = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()?;
 

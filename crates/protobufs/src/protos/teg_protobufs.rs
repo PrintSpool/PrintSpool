@@ -5,21 +5,22 @@
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ServerMessage {
     #[prost(oneof="server_message::Payload", tags="9, 10, 11, 15, 16, 17, 100, 110, 111")]
-    pub payload: ::std::option::Option<server_message::Payload>,
+    pub payload: ::core::option::Option<server_message::Payload>,
 }
+/// Nested message and enum types in `ServerMessage`.
 pub mod server_message {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct SetConfig {
         /// JSON encoded machine configuration
         #[prost(string, tag="1")]
-        pub file_path: std::string::String,
+        pub file_path: ::prost::alloc::string::String,
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct SpoolTask {
         #[prost(string, tag="1")]
-        pub task_id: std::string::String,
+        pub task_id: ::prost::alloc::string::String,
         #[prost(string, tag="2")]
-        pub client_id: std::string::String,
+        pub client_id: ::prost::alloc::string::String,
         /// Starting at a line number other then zero allows for prints to be resumed from a mid-print
         /// pause.
         #[prost(uint64, tag="8")]
@@ -33,14 +34,15 @@ pub mod server_message {
         pub machine_override: bool,
         /// 4-7: task file is sent as either a file path or array of GCode commands
         #[prost(oneof="spool_task::Content", tags="4, 5")]
-        pub content: ::std::option::Option<spool_task::Content>,
+        pub content: ::core::option::Option<spool_task::Content>,
     }
+    /// Nested message and enum types in `SpoolTask`.
     pub mod spool_task {
         /// 4-7: task file is sent as either a file path or array of GCode commands
         #[derive(Clone, PartialEq, ::prost::Oneof)]
         pub enum Content {
             #[prost(string, tag="4")]
-            FilePath(std::string::String),
+            FilePath(::prost::alloc::string::String),
             #[prost(message, tag="5")]
             Inline(super::InlineContent),
         }
@@ -48,22 +50,22 @@ pub mod server_message {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct InlineContent {
         #[prost(string, repeated, tag="3")]
-        pub commands: ::std::vec::Vec<std::string::String>,
+        pub commands: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct PauseTask {
         #[prost(string, tag="1")]
-        pub task_id: std::string::String,
+        pub task_id: ::prost::alloc::string::String,
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct DeviceDiscovered {
         #[prost(string, tag="1")]
-        pub device_path: std::string::String,
+        pub device_path: ::prost::alloc::string::String,
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct DeviceDisconnected {
         #[prost(string, tag="1")]
-        pub device_path: std::string::String,
+        pub device_path: ::prost::alloc::string::String,
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct EStop {
@@ -74,7 +76,7 @@ pub mod server_message {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct DeleteTaskHistory {
         #[prost(string, repeated, tag="1")]
-        pub task_ids: ::std::vec::Vec<std::string::String>,
+        pub task_ids: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     }
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Payload {
@@ -107,18 +109,19 @@ pub mod server_message {
 /// Combinators send ServerMessages
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct InviteCode {
-    #[prost(bytes, tag="1")]
-    pub secret: std::vec::Vec<u8>,
-    #[prost(bytes, tag="2")]
-    pub host_public_key: std::vec::Vec<u8>,
+    #[prost(bytes="vec", tag="1")]
+    pub secret: ::prost::alloc::vec::Vec<u8>,
+    #[prost(bytes="vec", tag="2")]
+    pub host_public_key: ::prost::alloc::vec::Vec<u8>,
 }
 /// Machines send MachineMessages
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MachineMessage {
     /// 1-8: Payloads
     #[prost(oneof="machine_message::Payload", tags="1, 2")]
-    pub payload: ::std::option::Option<machine_message::Payload>,
+    pub payload: ::core::option::Option<machine_message::Payload>,
 }
+/// Nested message and enum types in `MachineMessage`.
 pub mod machine_message {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Init {
@@ -138,13 +141,13 @@ pub mod machine_message {
         /// 6-15: Frequently set sub-messages
         /// Events may be duplicated and sent more then once.
         #[prost(message, repeated, tag="6")]
-        pub task_progress: ::std::vec::Vec<TaskProgress>,
+        pub task_progress: ::prost::alloc::vec::Vec<TaskProgress>,
         #[prost(message, repeated, tag="7")]
-        pub axes: ::std::vec::Vec<Axis>,
+        pub axes: ::prost::alloc::vec::Vec<Axis>,
         #[prost(message, repeated, tag="8")]
-        pub heaters: ::std::vec::Vec<Heater>,
+        pub heaters: ::prost::alloc::vec::Vec<Heater>,
         #[prost(message, repeated, tag="9")]
-        pub speed_controllers: ::std::vec::Vec<SpeedController>,
+        pub speed_controllers: ::prost::alloc::vec::Vec<SpeedController>,
         /// Raw response strings from the device. No guarentee is made that all
         /// responses received will be relayed to the combinator. A best effort
         /// attempt will be made to relay responses within a performance constraint.
@@ -152,25 +155,25 @@ pub mod machine_message {
         /// History entries will not be duplicated and will be sent at most once to each
         /// client.
         #[prost(message, repeated, tag="10")]
-        pub gcode_history: ::std::vec::Vec<GCodeHistoryEntry>,
+        pub gcode_history: ::prost::alloc::vec::Vec<GCodeHistoryEntry>,
         // 16-99:  [Reserved for Future Use]
 
         /// Note: field numbers 16 through 2047 take 2 bytes
         /// 100-999 Less frequently set sub-messages
         #[prost(message, optional, tag="100")]
-        pub error: ::std::option::Option<Error>,
+        pub error: ::core::option::Option<Error>,
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Error {
         /// 2: reserved for future error codes implementation
         /// string code = 2;
         #[prost(string, tag="1")]
-        pub message: std::string::String,
+        pub message: ::prost::alloc::string::String,
     }
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct TaskProgress {
         #[prost(string, tag="1")]
-        pub task_id: std::string::String,
+        pub task_id: ::prost::alloc::string::String,
         #[prost(uint32, tag="2")]
         pub despooled_line_number: u32,
         #[prost(enumeration="TaskStatus", tag="3")]
@@ -179,7 +182,7 @@ pub mod machine_message {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Axis {
         #[prost(string, tag="1")]
-        pub address: std::string::String,
+        pub address: ::prost::alloc::string::String,
         /// Positions are in mm
         #[prost(float, tag="2")]
         pub target_position: f32,
@@ -193,7 +196,7 @@ pub mod machine_message {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Heater {
         #[prost(string, tag="1")]
-        pub address: std::string::String,
+        pub address: ::prost::alloc::string::String,
         /// Temperatures are in celsius
         #[prost(float, tag="2")]
         pub target_temperature: f32,
@@ -207,7 +210,7 @@ pub mod machine_message {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct SpeedController {
         #[prost(string, tag="1")]
-        pub address: std::string::String,
+        pub address: ::prost::alloc::string::String,
         /// Speeds are in the range 0% to 100% where 100% is full speed.
         ///
         /// Note: in future this may be ammended to go from -100% to 100% in which case:
@@ -227,7 +230,7 @@ pub mod machine_message {
         #[prost(enumeration="GCodeHistoryDirection", tag="3")]
         pub direction: i32,
         #[prost(string, tag="4")]
-        pub content: std::string::String,
+        pub content: ::prost::alloc::string::String,
     }
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
     #[repr(i32)]
