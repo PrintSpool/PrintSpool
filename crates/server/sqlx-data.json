@@ -1,5 +1,42 @@
 {
   "db": "PostgreSQL",
+  "03cdc0f9562c361ee512970c8101f1670db32e0aeedf0c230cae52d4a0da098f": {
+    "query": "\n                INSERT INTO machine_signalling_updates\n                (id, version, created_at, props, machine_id)\n                VALUES ($1, $2, $3, $4, $5)\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int4",
+          "Timestamptz",
+          "Jsonb",
+          "Text"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "07468e71f2b8b5be641a11543d00c226a0e284f59a6daf10474ac3987528bbd0": {
+    "query": "\n                SELECT props FROM machine_viewers\n                WHERE\n                    machine_id = $1 AND\n                    user_id = $2\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "props",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
   "0b639950fdb1001bf5b665de27c9677aa5a918c46a7b4a9376ba433069bc68f4": {
     "query": "\n                UPDATE invites\n                SET\n                    props=$1,\n                    version=$2,\n                    consumed=$3,\n                    deleted_at=$4\n                WHERE\n                    id=$5\n                    AND version=$6\n            ",
     "describe": {
@@ -35,6 +72,64 @@
       "nullable": [
         false
       ]
+    }
+  },
+  "0fdc973c79e094b95fb687a678d9609fafc5cc57dc49eea9e2ad99ea9ebe3e42": {
+    "query": "\n                SELECT\n                    COUNT(tasks.id) AS printed,\n                    CAST(parts.quantity * packages.quantity AS BIGINT) AS total\n                FROM parts\n                LEFT JOIN tasks ON\n                    tasks.part_id = parts.id\n                    AND tasks.status NOT IN ('errored', 'cancelled')\n                INNER JOIN packages ON\n                    packages.id = parts.package_id\n                WHERE\n                    parts.id = $1\n                GROUP BY\n                    parts.id,\n                    parts.quantity,\n                    packages.quantity\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "printed",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "total",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        null,
+        null
+      ]
+    }
+  },
+  "1201b8c274d70ef1eea5cc44797999d53e83a7c1a76567c3e68870aa7da677b2": {
+    "query": "\n                UPDATE parts\n                SET\n                    props=$1,\n                    version=$2,\n                    based_on_package_id=$3,\n                    based_on_part_id=$4,\n                    quantity=$5,\n                    position=$6,\n                    deleted_at=$7\n                WHERE\n                    id=$8\n                    AND version=$9\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Jsonb",
+          "Int4",
+          "Text",
+          "Text",
+          "Int4",
+          "Int8",
+          "Timestamptz",
+          "Text",
+          "Int4"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "131560d16ff722e38f5c5a56c5d4d849502bae91d97c64b6f4408e76cc961518": {
+    "query": "\n                DELETE FROM machine_signalling_updates\n                WHERE machine_id = $1\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": []
     }
   },
   "15aaf8f71e007155f2c8fe4123e64d9db0c8b919f1f45d7568fe6f967592ef7b": {
@@ -77,6 +172,222 @@
       ]
     }
   },
+  "27caa052176d75623148fe6e3fa4298bdb6e806e0d2a596059ad54b24722ad1a": {
+    "query": "\n                INSERT INTO machine_viewers\n                (id, version, created_at, deleted_at, props, machine_id, user_id, expires_at)\n                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int4",
+          "Timestamptz",
+          "Timestamptz",
+          "Jsonb",
+          "Text",
+          "Text",
+          "Timestamptz"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "39563d14c8e009692d4f9dd6cb2a5ca0271ef4f757ad38b1e7685c766cca23ff": {
+    "query": "\n                SELECT\n                    COUNT(tasks.id) AS printed\n                FROM tasks\n                INNER JOIN parts ON parts.id = tasks.part_id\n                WHERE\n                    parts.package_id = $1\n                    AND tasks.status = 'finished'\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "printed",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        null
+      ]
+    }
+  },
+  "39e810067a070c8498d7bb38269d81e2cf4444893270a882b35006e7fbe232d9": {
+    "query": "\n            SELECT position FROM parts\n            INNER JOIN packages ON packages.id = parts.package_id\n            WHERE\n                packages.print_queue_id = $1\n                AND packages.deleted_at IS NULL\n            ORDER BY position DESC\n            LIMIT 1\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "position",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "3ae95fd49c91d3b1b419ff391f762b3448c8c7c05a98ab3bc23383a2244fc3ef": {
+    "query": "\n                SELECT tasks.props FROM tasks\n                INNER JOIN parts ON parts.id = tasks.part_id\n                WHERE\n                    parts.deleted_at IS NULL\n                    AND parts.package_id = $1\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "props",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "3dd5f063abe03331e3e648d30c37d9e6087b63d1dc16deb66f933e657c135705": {
+    "query": "\n                SELECT id from machine_print_queues\n                WHERE machine_id = $1\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Text"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "54c3da17a500f3347bc99d3de338cfb29664ed709a3daa1180743ab80592bb66": {
+    "query": "\n                SELECT props FROM tasks\n                WHERE\n                    tasks.machine_id = $1\n                    AND tasks.status IN ('spooled', 'started', 'paused')\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "props",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "5f26b1ebe3821bd05689822dd64ef27f591a28617b511639cef3fdd3fca88af6": {
+    "query": "\n                SELECT\n                    CAST(parts.quantity * packages.quantity AS BIGINT) AS total\n                FROM parts\n                INNER JOIN packages ON packages.id = parts.package_id\n                WHERE parts.id = $1\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "total",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        null
+      ]
+    }
+  },
+  "678ff865f5bab1da460c696021b589d8f1d18aa95473f7b4b9db9bbce1c066d3": {
+    "query": "\n                UPDATE tasks\n                SET\n                    props=$1,\n                    version=$2,\n                    status=$3\n                WHERE\n                    id=$4\n                    AND version=$5\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Jsonb",
+          "Int4",
+          "Text",
+          "Text",
+          "Int4"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "70ee6f3b8aadd80180f680b83ea1d56bd38091bbb7e6f772e95fdaa9c59ac606": {
+    "query": "\n                        SELECT print_queues.props FROM print_queues\n                        JOIN machine_print_queues\n                            ON machine_print_queues.print_queue_id = print_queues.id\n                        WHERE\n                            machine_print_queues.machine_id = $1\n                    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "props",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "7cc36fde2be5338ae7902c7caec9ec738528a1c606b39b496efa414ccd48df8e": {
+    "query": "\n                UPDATE packages\n                SET\n                    props=$1,\n                    version=$2,\n                    quantity=$3,\n                    starred=$4,\n                    based_on_package_id=$5,\n                    deleted_at=$6\n                WHERE\n                    id=$7\n                    AND version=$8\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Jsonb",
+          "Int4",
+          "Int4",
+          "Bool",
+          "Text",
+          "Timestamptz",
+          "Text",
+          "Int4"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "804aa315b87d7e1eb6aee4a8e8897f95747212c481bd566c91425cb69f80cc1a": {
+    "query": "\n                    SELECT props FROM tasks\n                    WHERE\n                        part_id = $1\n                        AND ($2 IS TRUE OR tasks.status NOT IN ('spooled', 'started', 'paused'))\n                        AND ($3 IS TRUE OR tasks.status IN ('spooled', 'started', 'paused'))\n                ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "props",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Bool",
+          "Bool"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
   "82d4e893eb0fd46ba72bb209708a672ad8ae29a38f40c4d7c20415ffcd79a511": {
     "query": "\n                SELECT id FROM users\n                WHERE id != $1 AND CAST (props -> 'config' ->> 'is_admin' AS BOOLEAN)\n            ",
     "describe": {
@@ -97,6 +408,178 @@
       ]
     }
   },
+  "89b8c75b91a77388af58fa4fffcb37a658448031e6e9648d6220d361b87be658": {
+    "query": "\n                        SELECT parts.props FROM parts\n                        WHERE\n                            parts.id = $1\n                    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "props",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "8a69dae7f9078f230ac008ae3d1782609b4d6e6a4240259504e4078be40fe6df": {
+    "query": "\n                    SELECT tasks.props as \"props!\" FROM tasks\n                    INNER JOIN parts ON parts.id = tasks.part_id\n                    WHERE\n                        parts.id = ANY($1)\n                        AND tasks.status IN ('spooled', 'started', 'paused')\n                ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "props!",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "TextArray"
+        ]
+      },
+      "nullable": [
+        true
+      ]
+    }
+  },
+  "985fe82d8846ac69f6f922b7c4d6f1e3e8feba6693f76fcea7da6d801bf85c51": {
+    "query": "\n                SELECT\n                    COUNT(id) as in_progress\n                FROM tasks\n                WHERE\n                    part_id = $1\n                    AND tasks.status IN ('spooled', 'started', 'paused', $2)\n                ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "in_progress",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text"
+        ]
+      },
+      "nullable": [
+        null
+      ]
+    }
+  },
+  "98ea1623bcf82159e10974841bfc9cf891b49fbaadb17ee97b78b9816097f17e": {
+    "query": "\n                UPDATE machine_print_queues\n                SET\n                    props = $1,\n                    version = $2,\n                    deleted_at = $3,\n                    machine_id = $4,\n                    print_queue_id = $5\n                WHERE\n                    id=$6\n                    AND version=$7\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Jsonb",
+          "Int4",
+          "Timestamptz",
+          "Text",
+          "Text",
+          "Text",
+          "Int4"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "a56922c3f47ed3dffc1c7e3fb2493aa0156204dca0ab5257082f78b47b136e54": {
+    "query": "\n                SELECT\n                    parts.props\n                FROM parts\n                INNER JOIN packages ON\n                    packages.id = parts.package_id\n                LEFT OUTER JOIN tasks ON\n                    tasks.part_id = parts.id\n                    AND tasks.status = 'finished'\n                WHERE\n                    parts.deleted_at IS NULL\n                    AND (tasks.id IS NULL OR tasks.status IS NOT NULL)\n                GROUP BY\n                    parts.id,\n                    parts.quantity,\n                    packages.quantity\n                HAVING\n                    parts.quantity * packages.quantity > COUNT(tasks.id)\n                ORDER BY parts.position\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "props",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "a6429332258cc21b5bebb456a08f9b501e6d1352dabc855bcc0b21b73d8bcb0a": {
+    "query": "\n                    SELECT props FROM parts\n                    WHERE\n                        parts.id = ANY($1)\n                ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "props",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "TextArray"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "a97420d9c0efa59bb1d92947ea426e00dd39bf66cdb0a13109e9d8e44ce91044": {
+    "query": "\n                SELECT\n                    parts.props\n                FROM parts\n                LEFT JOIN tasks ON\n                    tasks.part_id = parts.id\n                    AND tasks.status NOT IN ('errored', 'cancelled')\n                INNER JOIN packages ON\n                    packages.id = parts.package_id\n                INNER JOIN machine_print_queues ON\n                    machine_print_queues.print_queue_id = packages.print_queue_id\n                    AND machine_print_queues.machine_id = $1\n                GROUP BY\n                    parts.id,\n                    parts.quantity,\n                    packages.quantity\n                HAVING\n                    COUNT(tasks.id) < (parts.quantity * packages.quantity)\n                    AND parts.deleted_at IS NULL\n                ORDER BY\n                    parts.position\n                LIMIT 1\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "props",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "aa90d19c61cf2202df229ea8da91fb1ef3f3e27657ad62665db9dbf90d4d3dd2": {
+    "query": "\n                INSERT INTO tasks\n                (id, version, created_at, props, machine_id, part_id, status)\n                VALUES ($1, $2, $3, $4, $5, $6, $7)\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int4",
+          "Timestamptz",
+          "Jsonb",
+          "Text",
+          "Text",
+          "Text"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "b0fca41825b6f180a145fd62aac76ebd040b3364e0cd5827a89181a8592c3090": {
+    "query": "\n                UPDATE machine_viewers\n                SET\n                    props=$1,\n                    version=$2,\n                    deleted_at=$3,\n                    expires_at=$4\n                WHERE\n                    id=$5\n                    AND version=$6\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Jsonb",
+          "Int4",
+          "Timestamptz",
+          "Timestamptz",
+          "Text",
+          "Int4"
+        ]
+      },
+      "nullable": []
+    }
+  },
   "b383ac5b1c5133910f42b2820c4fb1f28a85fee9c1bae9c5d536f5fcab271b5f": {
     "query": "\n                INSERT INTO invites\n                (id, version, created_at, props, secret_hash, consumed)\n                VALUES ($1, $2, $3, $4, $5, $6)\n            ",
     "describe": {
@@ -114,6 +597,64 @@
       "nullable": []
     }
   },
+  "b57d0d44b58b811b7e201dff91c93c63a0c3852ee4dea6861d08d0fab485512c": {
+    "query": "\n                        SELECT parts.props FROM parts\n                        WHERE\n                            parts.deleted_at IS NULL\n                    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "props",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "b68808d5331d3dee5b71d3c09f9664884c0c4f78869c3c623bceb74683469ea1": {
+    "query": "\n                INSERT INTO packages\n                (\n                    id,\n                    version,\n                    created_at,\n                    props,\n                    print_queue_id,\n                    quantity,\n                    starred,\n                    based_on_package_id,\n                    deleted_at\n                )\n                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int4",
+          "Timestamptz",
+          "Jsonb",
+          "Text",
+          "Int4",
+          "Bool",
+          "Text",
+          "Timestamptz"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "bdcc58c45bac849b57756bc1069747ead5afb1804d4cfd5f279407c3748fa295": {
+    "query": "\n                SELECT props FROM parts\n                WHERE\n                    deleted_at IS NULL\n                    AND package_id = $1\n                ORDER BY\n                    parts.position\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "props",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
   "c0f7e78b5b91498267cacf45c7da97979b572dbbd7f7a745071b85d53c4eaccd": {
     "query": "\n                INSERT INTO users\n                (id, version, created_at, props, signalling_user_id, is_local_http_user)\n                VALUES ($1, $2, $3, $4, $5, $6)\n            ",
     "describe": {
@@ -126,6 +667,65 @@
           "Jsonb",
           "Text",
           "Bool"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "c3e231033ee05e40fa99669fd6b52700fb4a66083413fa5048c74b5d56449720": {
+    "query": "\n                SELECT parts.props FROM parts\n                INNER JOIN packages ON packages.id = parts.package_id\n                WHERE\n                    packages.print_queue_id = $1\n                    AND parts.deleted_at IS NULL\n                ORDER BY parts.position ASC\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "props",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "c40f01bada240312568b3a98fc71ce750231f6d3722c4077e9c38513e02ccc7c": {
+    "query": "\n                SELECT result.props FROM (\n                    SELECT DISTINCT users.id, users.props FROM users\n                    INNER JOIN machine_viewers ON machine_viewers.user_id = users.id\n                    WHERE\n                        machine_viewers.machine_id = $1\n                        AND machine_viewers.expires_at >= $2\n                    ORDER BY users.id\n                ) as result\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "props",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Timestamptz"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "d04f449d2376b6f33db4453cab20a33271c2cd12e819a16c934ca6ebd4d6dd6b": {
+    "query": "\n                INSERT INTO machine_print_queues\n                (id, version, created_at, props, deleted_at, machine_id, print_queue_id)\n                VALUES ($1, $2, $3, $4, $5, $6, $7)\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int4",
+          "Timestamptz",
+          "Jsonb",
+          "Timestamptz",
+          "Text",
+          "Text"
         ]
       },
       "nullable": []
@@ -149,6 +749,26 @@
       ]
     }
   },
+  "da737c0579ed98ef48bce9151e9c87113b0ce9a167a000101517725f80ac7c8f": {
+    "query": "\n                    SELECT id FROM packages\n                    WHERE\n                        id = $1\n                        AND starred IS TRUE\n                        AND deleted_at IS NULL\n                ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Text"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
   "db0c5f50c35cf32baf037e501cfb7a993a31676cc98e7d4a68a152b8772310d3": {
     "query": "\n                SELECT props FROM users where is_local_http_user\n            ",
     "describe": {
@@ -164,6 +784,110 @@
       },
       "nullable": [
         false
+      ]
+    }
+  },
+  "db8820bca2793ad3090d8cbfedfb64d34a24dee20fd41366ff1a22436bf43f02": {
+    "query": "\n                        SELECT tasks.props FROM tasks\n                        INNER JOIN parts ON parts.id = tasks.part_id\n                        WHERE\n                            parts.package_id = $1\n                            AND tasks.status IN ('spooled', 'started', 'paused')\n                    ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "props",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "f6a7f27dd3558500252b9de34b5efcfc8ef3fa404cae1a6644c9e2d0d4a4bf31": {
+    "query": "\n                INSERT INTO parts\n                (\n                    id,\n                    version,\n                    created_at,\n                    deleted_at,\n                    props,\n                    package_id,\n                    based_on_package_id,\n                    based_on_part_id,\n                    quantity,\n                    position\n                )\n                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int4",
+          "Timestamptz",
+          "Timestamptz",
+          "Jsonb",
+          "Text",
+          "Text",
+          "Text",
+          "Int4",
+          "Int8"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "f6ea9c9df350efd3be5e237cd05f3bed81771e357539b8c90c3cad6fd6d3698d": {
+    "query": "\n                SELECT\n                    parts.props\n                FROM parts\n                INNER JOIN packages ON\n                    packages.id = parts.package_id\n                    AND packages.print_queue_id = $1\n                LEFT OUTER JOIN tasks ON\n                    tasks.part_id = parts.id\n                    AND tasks.status = 'finished'\n                WHERE\n                    parts.deleted_at IS NULL\n                    AND (tasks.id IS NULL OR tasks.status IS NOT NULL)\n                GROUP BY\n                    parts.id,\n                    parts.quantity,\n                    packages.quantity,\n                    packages.starred\n                HAVING\n                    (\n                        $2 IS TRUE\n                        AND parts.quantity * packages.quantity > COUNT(tasks.id)\n                    )\n                    OR\n                    (\n                        $3 IS TRUE\n                        AND parts.quantity * packages.quantity <= COUNT(tasks.id)\n                    )\n                    OR\n                    (\n                        $4 IS TRUE\n                        AND packages.starred\n                    )\n                ORDER BY parts.position\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "props",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Bool",
+          "Bool",
+          "Bool"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "f7002327f7671cf6435d6c993402c129d10117668206df69ea5113bad02da41b": {
+    "query": "\n                SELECT\n                    COUNT(id) as printed\n                FROM tasks\n                WHERE\n                    part_id = $1\n                    AND tasks.status = 'finished'\n                ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "printed",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        null
+      ]
+    }
+  },
+  "fec25ff0dc3c4b2432d8c62fbe4c9ab55a0717b74832772d03a391bed5f12cfa": {
+    "query": "\n                SELECT\n                    CAST(parts.quantity * packages.quantity AS BIGINT) AS total\n                FROM parts\n                INNER JOIN packages ON parts.package_id = packages.id\n                WHERE packages.id = $1\n            ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "total",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        null
       ]
     }
   }

@@ -13,3 +13,15 @@ cd ./crates/auth
 pwd
 cargo sqlx prepare
 popd
+
+pushd .
+cd ./crates/machine
+pwd
+cargo sqlx prepare
+popd
+
+pushd .
+cd ./crates/print-queue
+pwd
+cargo sqlx prepare
+popd
