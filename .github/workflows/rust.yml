@@ -1,48 +1,59 @@
 on: [push]
 
-name: CI
+name: Build Release Artifacts
 
 jobs:
-  build-example:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        run: echo ${{ github.sha }} > Release.txt
-      - name: Test
-        run: cat Release.txt
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: Release.txt
-  x64_build:
-    name: Build x64 Rust Binaries
-    runs-on: ubuntu-18.04
-    if: startsWith(github.ref, 'refs/tags/')
-    env:
-      SQLX_OFFLINE: "true"
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-      - run: sudo apt-get install lld libbsd-dev protobuf-compiler
-      - name: x64 Build
-        uses: actions-rs/cargo@v1
-        # if: startsWith(github.ref, 'refs/tags/')
-        with:
-          command: build
-          # args: --release
-      - name: x64 Release
-        uses: softprops/action-gh-release@v1
-        # if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: |
-            ./target/debug/teg-invite
-            ./target/debug/teg-marlin
-            ./target/debug/teg-server
-            ./target/debug/teg-health-monitor
-          # cp ./snapcraft/webrtc-server
+  # build-example:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
+  #     - name: Build
+  #       run: echo ${{ github.sha }} > Release.txt
+  #     - name: Test
+  #       run: cat Release.txt
+  #     - name: Release
+  #       uses: softprops/action-gh-release@v1
+  #       if: startsWith(github.ref, 'refs/tags/')
+  #       with:
+  #         files: Release.txt
+
+  # x64_build:
+  #   name: Build x64 Rust Binaries
+  #   runs-on: ubuntu-18.04
+  #   if: startsWith(github.ref, 'refs/tags/')
+  #   env:
+  #     SQLX_OFFLINE: "true"
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: actions-rs/toolchain@v1
+  #     - run: >-
+  #       sudo apt-get install
+  #       lld
+  #       libbsd-dev
+  #       protobuf-compiler
+  #       zip
+  #       unzip
+  #     - name: x64 Build
+  #       uses: actions-rs/cargo@v1
+  #       # if: startsWith(github.ref, 'refs/tags/')
+  #       with:
+  #         command: build
+  #         # args: --release
+  #     - run: >-
+  #       cd ./target/debug && zip teg-x64.zip
+  #       teg-invite
+  #       teg-marlin
+  #       teg-server
+  #       teg-health-monitor
+  #     - name: x64 Release
+  #       uses: softprops/action-gh-release@v1
+  #       # if: startsWith(github.ref, 'refs/tags/')
+  #       with:
+  #         files: |
+  #           ./target/debug/teg-x64.zip
+  #         # cp ./snapcraft/webrtc-server
+
   arm_v7_build:
     name: Build ARMv7 Rust Binaries
     runs-on: ubuntu-18.04
@@ -55,20 +66,31 @@ jobs:
         with:
           toolchain: beta
           target: armv7-unknown-linux-gnueabihf
-      - run: sudo apt-get install lld libbsd-dev protobuf-compiler
+      - run: >-
+        sudo apt-get install
+        lld
+        libbsd-dev
+        protobuf-compiler
+        zip
+        unzip
+        binutils-arm-linux-gnueabihf
+        gcc-arm-linux-gnueabihf
       - name: ARMv7 Build
         uses: actions-rs/cargo@v1
         # if: startsWith(github.ref, 'refs/tags/')
         with:
           command: build
           args: --release --target=armv7-unknown-linux-gnueabihf
+      - run: >-
+        cd ./target/armv7-unknown-linux-gnueabihf/release && zip teg-armv7.zip
+        teg-invite
+        teg-marlin
+        teg-server
+        teg-health-monitor
       - name: ARMv7 Release
         uses: softprops/action-gh-release@v1
         # if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            ./target/armv7-unknown-linux-gnueabihf/release/teg-invite
-            ./target/armv7-unknown-linux-gnueabihf/release/teg-marlin
-            ./target/armv7-unknown-linux-gnueabihf/release/teg-server
-            ./target/armv7-unknown-linux-gnueabihf/release/teg-health-monitor
+            ./target/armv7-unknown-linux-gnueabihf/release/teg-armv7
           # cp ./snapcraft/webrtc-server
