@@ -26,8 +26,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
       - run: sudo apt-get install lld libbsd-dev protobuf-compiler
       - name: x64 Build
         uses: actions-rs/cargo@v1
@@ -55,7 +53,6 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
           target: armv7-unknown-linux-gnueabihf
       - run: sudo apt-get install lld libbsd-dev protobuf-compiler
       - name: ARMv7 Build
