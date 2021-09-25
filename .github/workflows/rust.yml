@@ -78,6 +78,8 @@ jobs:
           gcc-arm-linux-gnueabihf
           g++-arm-linux-gnueabihf
           libc6-dev-armhf-cross
+          gcc-7-multilib-arm-linux-gnueabihf
+          g++-7-multilib-arm-linux-gnueabihf
       - name: ARMv7 Build
         uses: actions-rs/cargo@v1
         # if: startsWith(github.ref, 'refs/tags/')
