@@ -66,7 +66,7 @@ jobs:
         with:
           toolchain: beta
           target: armv7-unknown-linux-gnueabihf
-      - run: >-
+      - run: >
         sudo apt-get install
         lld
         libbsd-dev
@@ -81,7 +81,7 @@ jobs:
         with:
           command: build
           args: --release --target=armv7-unknown-linux-gnueabihf
-      - run: >-
+      - run: >
         cd ./target/armv7-unknown-linux-gnueabihf/release && zip teg-armv7.zip
         teg-invite
         teg-marlin
