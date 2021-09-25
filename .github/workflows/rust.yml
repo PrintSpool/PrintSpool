@@ -77,6 +77,7 @@ jobs:
           binutils-arm-linux-gnueabihf
           gcc-arm-linux-gnueabihf
           g++-arm-linux-gnueabihf
+          libc6-dev-armhf-cross
       - name: ARMv7 Build
         uses: actions-rs/cargo@v1
         # if: startsWith(github.ref, 'refs/tags/')
