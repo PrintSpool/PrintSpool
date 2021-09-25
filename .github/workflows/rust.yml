@@ -76,6 +76,7 @@ jobs:
           unzip
           binutils-arm-linux-gnueabihf
           gcc-arm-linux-gnueabihf
+          g++-arm-linux-gnueabihf
       - name: ARMv7 Build
         uses: actions-rs/cargo@v1
         # if: startsWith(github.ref, 'refs/tags/')
