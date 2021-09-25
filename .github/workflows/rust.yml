@@ -66,27 +66,29 @@ jobs:
         with:
           toolchain: beta
           target: armv7-unknown-linux-gnueabihf
-      - run: >
-        sudo apt-get install
-        lld
-        libbsd-dev
-        protobuf-compiler
-        zip
-        unzip
-        binutils-arm-linux-gnueabihf
-        gcc-arm-linux-gnueabihf
+      - name: apt-get
+        run: >
+          sudo apt-get install
+          lld
+          libbsd-dev
+          protobuf-compiler
+          zip
+          unzip
+          binutils-arm-linux-gnueabihf
+          gcc-arm-linux-gnueabihf
       - name: ARMv7 Build
         uses: actions-rs/cargo@v1
         # if: startsWith(github.ref, 'refs/tags/')
         with:
           command: build
           args: --release --target=armv7-unknown-linux-gnueabihf
-      - run: >
-        cd ./target/armv7-unknown-linux-gnueabihf/release && zip teg-armv7.zip
-        teg-invite
-        teg-marlin
-        teg-server
-        teg-health-monitor
+      - name: zip
+        run: >
+          cd ./target/armv7-unknown-linux-gnueabihf/release && zip teg-armv7.zip
+          teg-invite
+          teg-marlin
+          teg-server
+          teg-health-monitor
       - name: ARMv7 Release
         uses: softprops/action-gh-release@v1
         # if: startsWith(github.ref, 'refs/tags/')
