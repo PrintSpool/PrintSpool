@@ -80,6 +80,13 @@ jobs:
           libc6-dev-armhf-cross
           gcc-7-multilib-arm-linux-gnueabihf
           g++-7-multilib-arm-linux-gnueabihf
+          libc6-armel-cross
+          libc6-dev-armel-cross
+          build-essential
+          cmake
+          pkg-config
+          libssl-dev
+          clang
       - name: ARMv7 Build
         uses: actions-rs/cargo@v1
         # if: startsWith(github.ref, 'refs/tags/')
