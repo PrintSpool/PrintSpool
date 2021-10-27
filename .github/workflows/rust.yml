@@ -78,6 +78,7 @@ jobs:
           binutils-arm-linux-gnueabihf
           gcc-arm-linux-gnueabihf
           g++-arm-linux-gnueabihf
+          libc6-dev
           libc6-dev-armhf-cross
           gcc-7-multilib-arm-linux-gnueabihf
           g++-7-multilib-arm-linux-gnueabihf
