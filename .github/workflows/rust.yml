@@ -68,6 +68,7 @@ jobs:
           target: armv7-unknown-linux-gnueabihf
       - name: apt-get
         run: >
+          sudo apt-get update &&
           sudo apt-get install
           lld
           libbsd-dev
