@@ -57,7 +57,7 @@ jobs:
   arm_v7_build:
     name: Build ARMv7 Rust Binaries
     runs-on: ubuntu-18.04
-    if: startsWith(github.ref, 'refs/tags/')
+    # if: startsWith(github.ref, 'refs/tags/')
     env:
       SQLX_OFFLINE: "true"
     steps:
