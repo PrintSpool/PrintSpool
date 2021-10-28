@@ -72,10 +72,11 @@ jobs:
           echo "deb [arch=armhf] http://bg.ports.ubuntu.com/ bionic-updates main restricted" | sudo tee -a /etc/apt/sources.list
 
           sudo dpkg --add-architecture armhf
-          sudo apt update || true
+          sudo apt-get update || true
       - name: Install Dependencies
         run: >
-          sudo apt install
+          sudo apt-get install
+          gcc-multilib
           g++-multilib
           g++-multilib-arm-linux-gnueabihf
           gcc-multilib-arm-linux-gnueabihf
