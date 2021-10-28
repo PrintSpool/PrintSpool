@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
-      - run: >-
+      - run: >
         sudo apt-get install
         lld
         libbsd-dev
@@ -24,7 +24,7 @@ jobs:
         with:
           command: build
           # args: --release
-      - run: >-
+      - run: >
         cd ./target/debug && zip teg-x64.zip
         teg-health-monitor
         teg-invite
