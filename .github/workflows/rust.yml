@@ -88,21 +88,17 @@ jobs:
         with:
           command: build
           args: --target=armv7-unknown-linux-gnueabihf
-      - name: Zip Debug Binaries
-        if: "!startsWith(github.ref, 'refs/tags/')"
-        run: >
-          cd ./target/armv7-unknown-linux-gnueabihf/debug && zip teg-armv7-debug.zip
-          teg-health-monitor
-          teg-invite
-          teg-marlin
-          teg-server
       - name: Archive Debug Artifacts
         if: "!startsWith(github.ref, 'refs/tags/')"
         uses: actions/upload-artifact@v2
         with:
           name: teg-armv7-debug
           path: |
-            ./target/armv7-unknown-linux-gnueabihf/debug/teg-armv7-debug.zip
+            ./target/armv7-unknown-linux-gnueabihf/debug/teg-health-monitor
+            ./target/armv7-unknown-linux-gnueabihf/debug/teg-invite
+            ./target/armv7-unknown-linux-gnueabihf/debug/teg-marlin
+            ./target/armv7-unknown-linux-gnueabihf/debug/teg-server
+
 
       # Armv7 Release Builds
       - name: Build ARMv7 (Release)
