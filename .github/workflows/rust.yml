@@ -27,11 +27,11 @@ jobs:
           args: --release
       - name: Zip Release Binaries
         run: >
-        cd ./target/debug && zip teg-x64.zip
-        teg-health-monitor
-        teg-invite
-        teg-marlin
-        teg-server
+          cd ./target/debug && zip teg-x64.zip
+          teg-health-monitor
+          teg-invite
+          teg-marlin
+          teg-server
       - name: Upload X64 Release
         uses: softprops/action-gh-release@v1
         with:
