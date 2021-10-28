@@ -34,7 +34,7 @@ jobs:
   #       protobuf-compiler
   #       zip
   #       unzip
-  #     - name: x64 Build
+  #     - name: Build X64 Release
   #       uses: actions-rs/cargo@v1
   #       # if: startsWith(github.ref, 'refs/tags/')
   #       with:
@@ -46,7 +46,7 @@ jobs:
   #       teg-marlin
   #       teg-server
   #       teg-health-monitor
-  #     - name: x64 Release
+  #     - name: Upload X64 Release
   #       uses: softprops/action-gh-release@v1
   #       # if: startsWith(github.ref, 'refs/tags/')
   #       with:
@@ -66,30 +66,32 @@ jobs:
         with:
           toolchain: beta
           target: armv7-unknown-linux-gnueabihf
-      - name: apt-get
+      - name: Install multiarch support
+        run: |
+          echo "deb [arch=armhf] http://bg.ports.ubuntu.com/ bionic main restricted" | sudo tee -a /etc/apt/sources.list
+          echo "deb [arch=armhf] http://bg.ports.ubuntu.com/ bionic-updates main restricted" | sudo tee -a /etc/apt/sources.list
+
+          sudo dpkg --add-architecture armhf
+          sudo apt update
+      - name: Install Dependencies
         run: >
-          sudo apt-get update &&
-          sudo apt-get install
+          sudo apt install
+
+          g++-multilib
+          g++-multilib-arm-linux-gnueabihf
+          gcc-multilib-arm-linux-gnueabihf
           lld
           libbsd-dev
+          libbsd-dev:armhf
           protobuf-compiler
           zip
           unzip
-          binutils-arm-linux-gnueabihf
-          gcc-arm-linux-gnueabihf
-          g++-arm-linux-gnueabihf
-          libc6-dev
-          libc6-dev-armhf-cross
-          gcc-7-multilib-arm-linux-gnueabihf
-          g++-7-multilib-arm-linux-gnueabihf
-          libc6-armel-cross
-          libc6-dev-armel-cross
           build-essential
           cmake
           pkg-config
           libssl-dev
           clang
-      - name: ARMv7 Build
+      - name: Build ARMv7 Release
         uses: actions-rs/cargo@v1
         # if: startsWith(github.ref, 'refs/tags/')
         with:
@@ -102,7 +104,7 @@ jobs:
           teg-marlin
           teg-server
           teg-health-monitor
-      - name: ARMv7 Release
+      - name: Upload ARMv7 Release
         uses: softprops/action-gh-release@v1
         # if: startsWith(github.ref, 'refs/tags/')
         with:
