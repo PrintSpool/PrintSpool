@@ -76,6 +76,7 @@ jobs:
       - name: Install Dependencies
         run: >
           ! sudo apt-get install
+          gcc-arm-linux-gnueabihf
           g++-multilib-arm-linux-gnueabihf
           gcc-multilib-arm-linux-gnueabihf
           lld
