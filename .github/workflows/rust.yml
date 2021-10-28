@@ -72,7 +72,7 @@ jobs:
           echo "deb [arch=armhf] http://bg.ports.ubuntu.com/ bionic-updates main restricted" | sudo tee -a /etc/apt/sources.list
 
           sudo dpkg --add-architecture armhf
-          sudo apt update
+          sudo apt update || true
       - name: Install Dependencies
         run: >
           sudo apt install
