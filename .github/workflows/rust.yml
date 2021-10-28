@@ -74,6 +74,7 @@ jobs:
 
           sudo dpkg --add-architecture armhf
           sudo apt-get update
+          sudo apt --fix-broken install
           sudo apt-get install gcc-multilib g++-multilib
       - name: Install Dependencies
         run: >
