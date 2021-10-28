@@ -68,15 +68,16 @@ jobs:
           target: armv7-unknown-linux-gnueabihf
       - name: Install multiarch support
         run: |
+          sudo sed -i 's/deb http/deb [arch=i386,amd64] http/g' /etc/apt/sources.list
           echo "deb [arch=armhf] http://bg.ports.ubuntu.com/ bionic main restricted" | sudo tee -a /etc/apt/sources.list
           echo "deb [arch=armhf] http://bg.ports.ubuntu.com/ bionic-updates main restricted" | sudo tee -a /etc/apt/sources.list
 
           sudo dpkg --add-architecture armhf
-          ! sudo apt-get update
-          ! sudo apt-get install gcc-multilib g++-multilib
+          sudo apt-get update
+          sudo apt-get install gcc-multilib g++-multilib
       - name: Install Dependencies
         run: >
-          ! sudo apt-get install
+          sudo apt-get install
           gcc-arm-linux-gnueabihf
           g++-arm-linux-gnueabihf
           g++-multilib-arm-linux-gnueabihf
@@ -92,6 +93,8 @@ jobs:
           pkg-config
           libssl-dev
           clang
+      - name: Check install
+        run: dpkg -S arm-linux-gnueabihf-gcc
       - name: Build ARMv7 Release
         uses: actions-rs/cargo@v1
         # if: startsWith(github.ref, 'refs/tags/')
