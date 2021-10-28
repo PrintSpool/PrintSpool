@@ -96,7 +96,8 @@ jobs:
         # if: startsWith(github.ref, 'refs/tags/')
         with:
           command: build
-          args: --release --target=armv7-unknown-linux-gnueabihf
+          # args: --release --target=armv7-unknown-linux-gnueabihf
+          args: --target=armv7-unknown-linux-gnueabihf
       - name: zip
         run: >
           cd ./target/armv7-unknown-linux-gnueabihf/release && zip teg-armv7.zip
