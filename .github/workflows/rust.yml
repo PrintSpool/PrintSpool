@@ -102,7 +102,7 @@ jobs:
         with:
           name: teg-armv7-debug
           path: |
-            ./target/armv7-unknown-linux-gnueabihf/release/teg-armv7-debug.zip
+            ./target/armv7-unknown-linux-gnueabihf/debug/teg-armv7-debug.zip
 
       # Armv7 Release Builds
       - name: Build ARMv7 (Release)
