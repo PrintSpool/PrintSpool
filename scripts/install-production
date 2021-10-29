@@ -1,6 +1,15 @@
 #!/bin/bash
 set -e
 
+FRESH_INSTALL=0
+if [ -d "/usr/bin/teg" ]; then
+    echo "Updating previous Teg install..."
+else
+    echo "Installing Teg..."
+    FRESH_INSTALL=1
+fi
+
+
 # Install dependencies
 sudo apt install \
   libgtk-3-0 \
@@ -76,3 +85,11 @@ sudo cp ./services/* /lib/systemd/system/
 
 sudo systemctl start teg-server teg-health-check
 sudo systemctl enable teg-server teg-health-check
+
+# TODO: Instead of waiting for 1 second this should wait for the database to be migrated
+sleep 1s
+
+# Generate an invite key for the user
+if [ $FRESH_INSTALL = "1" ]; then
+  teg-invite
+fi
