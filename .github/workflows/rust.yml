@@ -26,8 +26,7 @@ jobs:
           command: build
           args: --release
       # X86 Debug/Release folder structure
-      - &create_artifacts
-        name: Create artifact folder structure
+      - name: Create artifact folder structure
         run: |
           # Copy services
           cp -r ./services artifact-working-dir/services
@@ -113,7 +112,15 @@ jobs:
           args: --release --target=armv7-unknown-linux-gnueabihf
 
       # Armv7 Debug/Release folder structure
-      - *create_artifacts
+      - name: Create artifact folder structure
+        run: |
+          # Copy services
+          cp -r ./services artifact-working-dir/services
+          # Copy binaries
+          mkdir -p artifact-working-dir/bin
+          mv ./target/*/teg-* ./artifact-working-dir/bin
+          mv ./target/armv7-unknown-linux-gnueabihf/*/teg-* ./artifact-working-dir/bin
+          rm ./artifact-working-dir/bin/*.d
       # Upload the Debug Artifact
       - name: Archive Debug Artifacts
         if: "!startsWith(github.ref, 'refs/tags/')"
