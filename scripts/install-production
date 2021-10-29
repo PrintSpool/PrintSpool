@@ -1,0 +1,78 @@
+#!/bin/bash
+set -e
+
+# Install dependencies
+sudo apt install \
+  libgtk-3-0 \
+  libasound2 \
+  libbsd-dev
+
+# create a tmp dir
+WORK_DIR=$(mktemp -d)
+ARCH=$(arch)
+
+# check if tmp dir was created
+if [[ ! "$WORK_DIR" || ! -d "$WORK_DIR" ]]; then
+  echo "Could not create temp dir"
+  exit 1
+fi
+
+# deletes the temp directory
+function cleanup {
+  rm -rf "$WORK_DIR"
+  echo "Deleted temp working directory $WORK_DIR"
+}
+
+# register the cleanup function to be called on the EXIT signal
+trap cleanup EXIT
+
+# Change to the tmp dir
+cd $WORK_DIR
+
+# Download the latest release
+GITHUB_REPO="tegapp/teg"
+GITHUB_REPO="esp-rs/rust-build"
+
+ARTIFACT_NAME="teg-$ARCH.zip"
+ARTIFACT_NAME="rust-esp32-std-demo-xtensa-esp32-espidf.zip"
+
+LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/$GITHUB_REPO/releases/latest)
+
+# The releases are returned in the format {"id":3622206,"tag_name":"hello-1.0.0.11",...},
+# we have to extract the tag_name.
+LATEST_VERSION=$(echo $LATEST_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
+
+ARTIFACT_URL="https://github.com/$GITHUB_REPO/releases/download/$LATEST_VERSION/$ARTIFACT_NAME"
+
+wget $ARTIFACT_URL
+unzip $ARTIFACT_NAME
+rm $ARTIFACT_NAME
+
+# Download the latest webrtc-streamer release
+GITHUB_REPO="mpromonet/webrtc-streamer"
+
+ARTIFACT_DIR="webrtc-streamer-v0.6.4-Linux-$(uname -m)-Release"
+ARTIFACT_NAME="$ARTIFACT_DIR.tar.gz"
+
+LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/$GITHUB_REPO/releases/latest)
+
+# The releases are returned in the format {"id":3622206,"tag_name":"hello-1.0.0.11",...},
+# we have to extract the tag_name.
+LATEST_VERSION=$(echo $LATEST_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
+
+ARTIFACT_URL="https://github.com/$GITHUB_REPO/releases/download/$LATEST_VERSION/$ARTIFACT_NAME"
+
+wget $ARTIFACT_URL
+unzip $ARTIFACT_NAME
+rm $ARTIFACT_NAME
+mv -r $ARTIFACT_DIR /usr/local/etc/webrtc-streamer
+
+# Install binaries
+sudo cp ./bin/* /usr/local/bin/
+
+# Install System D service files
+sudo chmod 644 ./services/*
+sudo cp ./services/* /lib/systemd/system/
+
+sudo systemctl start teg-server teg-health-check
+sudo systemctl enable teg-server teg-health-check

@@ -1,0 +1,19 @@
+[Unit]
+Description=Teg Server
+Wants=network.target
+After=network.target
+
+[Service]
+# EnvironmentFile=-/etc/environment
+ExecStart=/usr/local/bin/teg-server
+SyslogIdentifier=teg-server
+Restart=always
+TimeoutStopSec=30
+Type=simple
+# Setting the SystemD KillMode to change stop behavior from killing all the drivers through their
+# cgroup to just killing the server (via KillMode=process)
+KillMode=process
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target

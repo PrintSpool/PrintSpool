@@ -1,6 +1,10 @@
-#!/bin/bash
-set -e
-cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
+# #!/bin/bash
+# set -e
+# cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
 
-# snap install ./snapcraft/dist/tegh_*_amd64.snap --devmode --dangerous
+# sudo apt install \
+#   libgtk-3-0 \
+#   libasound2 \
+#   libbsd-dev
 
+echo "TODO: Re-implement installer without Snapcraft"

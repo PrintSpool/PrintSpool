@@ -25,19 +25,34 @@ jobs:
         with:
           command: build
           args: --release
+      # X86 Debug/Release folder structure
+      - &create_artifacts
+        name: Create artifact folder structure
+        run: |
+          # Copy services
+          cp -r ./services artifact-working-dir/services
+          # Copy binaries
+          mkdir -p artifact-working-dir/bin
+          mv ./target/*/teg-* ./artifact-working-dir/bin
+          mv ./target/armv7-unknown-linux-gnueabihf/*/teg-* ./artifact-working-dir/bin
+          rm ./artifact-working-dir/bin/*.d
+      # # Upload the Debug Artifact
+      # - name: Archive Debug Artifacts
+      #   if: "!startsWith(github.ref, 'refs/tags/')"
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: teg-x86_64
+      #     path: ./artifact-working-dir
+      # Upload the Release Artifact
       - name: Zip Release Binaries
-        run: >
-          cd ./target/debug && zip teg-x64.zip
-          teg-health-monitor
-          teg-invite
-          teg-marlin
-          teg-server
-      - name: Upload X64 Release
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          zip -r teg-x86_64.zip ./artifact-working-dir
+      - name: Upload X86 Release
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            ./target/debug/teg-x64.zip
-          # cp ./snapcraft/webrtc-server
+          files: ./teg-x86_64.zip
 
   arm_v7_build:
     name: Build ARMv7 Rust Binaries
@@ -88,17 +103,6 @@ jobs:
         with:
           command: build
           args: --target=armv7-unknown-linux-gnueabihf
-      - name: Archive Debug Artifacts
-        if: "!startsWith(github.ref, 'refs/tags/')"
-        uses: actions/upload-artifact@v2
-        with:
-          name: teg-armv7-debug
-          path: |
-            ./target/armv7-unknown-linux-gnueabihf/debug/teg-health-monitor
-            ./target/armv7-unknown-linux-gnueabihf/debug/teg-invite
-            ./target/armv7-unknown-linux-gnueabihf/debug/teg-marlin
-            ./target/armv7-unknown-linux-gnueabihf/debug/teg-server
-
 
       # Armv7 Release Builds
       - name: Build ARMv7 (Release)
@@ -107,18 +111,23 @@ jobs:
         with:
           command: build
           args: --release --target=armv7-unknown-linux-gnueabihf
+
+      # Armv7 Debug/Release folder structure
+      - *create_artifacts
+      # Upload the Debug Artifact
+      - name: Archive Debug Artifacts
+        if: "!startsWith(github.ref, 'refs/tags/')"
+        uses: actions/upload-artifact@v2
+        with:
+          name: teg-arm
+          path: ./artifact-working-dir
+      # Upload the Release Artifact
       - name: Zip Release Binaries
         if: startsWith(github.ref, 'refs/tags/')
-        run: >
-          cd ./target/armv7-unknown-linux-gnueabihf/release && zip teg-armv7.zip
-          teg-health-monitor
-          teg-invite
-          teg-marlin
-          teg-server
+        run: |
+          zip -r teg-arm.zip ./artifact-working-dir
       - name: Upload ARMv7 Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            ./target/armv7-unknown-linux-gnueabihf/release/teg-armv7.zip
-          # cp ./snapcraft/webrtc-server
+          files: ./teg-arm.zip
