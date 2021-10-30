@@ -14,7 +14,8 @@ fi
 sudo apt install \
   libgtk-3-0 \
   libasound2 \
-  libbsd-dev
+  libbsd-dev \
+  rsync
 
 # create a tmp dir
 WORK_DIR=$(mktemp -d)
@@ -71,7 +72,7 @@ ARTIFACT_URL="https://github.com/$GITHUB_REPO/releases/download/$LATEST_VERSION/
 wget $ARTIFACT_URL
 tar -xf $ARTIFACT_NAME
 rm $ARTIFACT_NAME
-sudo mv $ARTIFACT_DIR /usr/local/etc/webrtc-streamer
+sudo rsync -a --delete $ARTIFACT_DIR /usr/local/etc/webrtc-streamer
 
 # Install binaries
 sudo mv ./bin/* /usr/local/bin/
@@ -80,10 +81,14 @@ sudo mv ./bin/* /usr/local/bin/
 sudo chmod 644 ./services/*
 sudo mv ./services/* /lib/systemd/system/
 
+systemctl daemon-reload
 sudo systemctl start teg-server teg-health-monitor
 sudo systemctl enable teg-server teg-health-monitor
 
 # TODO: Instead of waiting for 1 second this should wait for the database to be migrated
+echo ""
+echo "Migrating database..."
+echo ""
 sleep 1s
 
 # Generate an invite key for the user
