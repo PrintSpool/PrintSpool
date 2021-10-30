@@ -28,6 +28,7 @@ jobs:
       # X86 Debug/Release folder structure
       - name: Create artifact folder structure
         run: |
+          mkdir artifact-working-dir
           # Copy services
           cp -r ./services artifact-working-dir/services
           # Copy binaries
@@ -113,8 +114,8 @@ jobs:
       # Armv7 Debug/Release folder structure
       - name: Create artifact folder structure
         run: |
-          # Copy services
           mkdir artifact-working-dir
+          # Copy services
           cp -r ./services artifact-working-dir/services
           # Copy binaries
           mkdir -p artifact-working-dir/bin
