@@ -5,7 +5,8 @@ After=network.target
 
 [Service]
 # EnvironmentFile=-/etc/environment
-ExecStart=/usr/local/bin/teg-server
+ExecStart=/usr/local/etc/teg/teg-server
+WorkingDirectory=/usr/local/etc/teg/
 SyslogIdentifier=teg-server
 Restart=always
 TimeoutStopSec=30

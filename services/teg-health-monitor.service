@@ -5,7 +5,8 @@ After=network.target teg-server.service
 
 [Service]
 # EnvironmentFile=-/etc/environment
-ExecStart=teg-health-monitor
+ExecStart=/usr/local/etc/teg/teg-health-monitor
+WorkingDirectory=/usr/local/etc/teg/
 SyslogIdentifier=teg-health-monitor
 Restart=always
 TimeoutStopSec=30

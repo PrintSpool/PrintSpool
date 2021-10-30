@@ -15,6 +15,8 @@ sudo apt install \
   libgtk-3-0 \
   libasound2 \
   libbsd-dev \
+  postgresql \
+  postgresql-contrib \
   rsync
 
 # create a tmp dir
@@ -72,10 +74,13 @@ ARTIFACT_URL="https://github.com/$GITHUB_REPO/releases/download/$LATEST_VERSION/
 wget $ARTIFACT_URL
 tar -xf $ARTIFACT_NAME
 rm $ARTIFACT_NAME
-sudo rsync -a --delete $ARTIFACT_DIR /usr/local/etc/webrtc-streamer
+mv $ARTIFACT_DIR ./etc/$ARTIFACT_DIR
 
-# Install binaries
+# Install path binaries
 sudo mv ./bin/* /usr/local/bin/
+
+# Install etc (daemon binaries and webrtc-streamer)
+sudo rsync -a --delete ./etc/ /usr/local/etc/teg
 
 # Install System D service files
 sudo chmod 644 ./services/*

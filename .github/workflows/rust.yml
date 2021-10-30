@@ -39,6 +39,11 @@ jobs:
           mkdir -p artifact-working-dir/bin
           mv ./target/*/teg-* ./artifact-working-dir/bin
           rm ./artifact-working-dir/bin/*.d
+          # Copy .env
+          mkdir -p artifact-working-dir/etc
+          cp ./.env.production ./artifact-working-dir/etc/.env
+          mv ./bin/teg-server ./etc/
+          mv ./bin/teg-health-monitor ./etc/
       - name: Upload the Artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -126,6 +131,11 @@ jobs:
           mkdir -p artifact-working-dir/bin
           mv ./target/armv7-unknown-linux-gnueabihf/*/teg-* ./artifact-working-dir/bin
           rm ./artifact-working-dir/bin/*.d
+          # Create .env
+          mkdir -p artifact-working-dir/etc
+          cp ./.env.production ./artifact-working-dir/etc/.env
+          mv ./bin/teg-server ./etc/
+          mv ./bin/teg-health-monitor ./etc/
       - name: Upload the Artifacts
         uses: actions/upload-artifact@v2
         with:
