@@ -9,6 +9,8 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     env:
       SQLX_OFFLINE: "true"
+      CARGO_INCREMENTAL: 0
+      RUSTFLAGS: "-C debuginfo=0"
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -59,6 +61,8 @@ jobs:
     runs-on: ubuntu-18.04
     env:
       SQLX_OFFLINE: "true"
+      CARGO_INCREMENTAL: 0
+      RUSTFLAGS: "-C debuginfo=0"
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
