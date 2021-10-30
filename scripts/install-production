@@ -18,7 +18,7 @@ sudo apt install \
 
 # create a tmp dir
 WORK_DIR=$(mktemp -d)
-ARCH=$(arch)
+ARCH=$(uname -m)
 
 # check if tmp dir was created
 if [[ ! "$WORK_DIR" || ! -d "$WORK_DIR" ]]; then
@@ -60,7 +60,7 @@ rm $ARTIFACT_NAME
 # Download the latest webrtc-streamer release
 GITHUB_REPO="mpromonet/webrtc-streamer"
 
-ARTIFACT_DIR="webrtc-streamer-v0.6.4-Linux-$(uname -m)-Release"
+ARTIFACT_DIR="webrtc-streamer-v0.6.4-Linux-$ARCH-Release"
 ARTIFACT_NAME="$ARTIFACT_DIR.tar.gz"
 
 LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/$GITHUB_REPO/releases/latest)
