@@ -33,7 +33,6 @@ jobs:
           # Copy binaries
           mkdir -p artifact-working-dir/bin
           mv ./target/*/teg-* ./artifact-working-dir/bin
-          mv ./target/armv7-unknown-linux-gnueabihf/*/teg-* ./artifact-working-dir/bin
           rm ./artifact-working-dir/bin/*.d
       # # Upload the Debug Artifact
       # - name: Archive Debug Artifacts
@@ -119,7 +118,6 @@ jobs:
           cp -r ./services artifact-working-dir/services
           # Copy binaries
           mkdir -p artifact-working-dir/bin
-          mv ./target/*/teg-* ./artifact-working-dir/bin
           mv ./target/armv7-unknown-linux-gnueabihf/*/teg-* ./artifact-working-dir/bin
           rm ./artifact-working-dir/bin/*.d
       # Upload the Debug Artifact
