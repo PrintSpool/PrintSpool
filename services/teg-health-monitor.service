@@ -1,12 +1,12 @@
 [Unit]
 Description=Teg Health Monitor
 Wants=network.target
-After=network.target tegh-server.service
+After=network.target teg-server.service
 
 [Service]
 # EnvironmentFile=-/etc/environment
-ExecStart=tegh-health-monitor
-SyslogIdentifier=tegh-health-monitor
+ExecStart=teg-health-monitor
+SyslogIdentifier=teg-health-monitor
 Restart=always
 TimeoutStopSec=30
 Type=simple

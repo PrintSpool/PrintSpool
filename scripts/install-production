@@ -1,14 +1,14 @@
 #!/bin/bash
 set -e
 
+ARCH=$(uname -m)
 FRESH_INSTALL=0
 if [ -d "/usr/bin/teg" ]; then
-    echo "Updating previous Teg install..."
+    echo "Updating previous Teg for $ARCH install..."
 else
-    echo "Installing Teg..."
+    echo "Installing Teg for $ARCH..."
     FRESH_INSTALL=1
 fi
-
 
 # Install dependencies
 sudo apt install \
@@ -18,7 +18,6 @@ sudo apt install \
 
 # create a tmp dir
 WORK_DIR=$(mktemp -d)
-ARCH=$(uname -m)
 
 # check if tmp dir was created
 if [[ ! "$WORK_DIR" || ! -d "$WORK_DIR" ]]; then
@@ -40,10 +39,8 @@ cd $WORK_DIR
 
 # Download the latest release
 GITHUB_REPO="tegapp/teg"
-GITHUB_REPO="esp-rs/rust-build"
 
 ARTIFACT_NAME="teg-$ARCH.zip"
-ARTIFACT_NAME="rust-esp32-std-demo-xtensa-esp32-espidf.zip"
 
 LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/$GITHUB_REPO/releases/latest)
 
@@ -72,19 +69,19 @@ LATEST_VERSION=$(echo $LATEST_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/
 ARTIFACT_URL="https://github.com/$GITHUB_REPO/releases/download/$LATEST_VERSION/$ARTIFACT_NAME"
 
 wget $ARTIFACT_URL
-unzip $ARTIFACT_NAME
+tar -xf $ARTIFACT_NAME
 rm $ARTIFACT_NAME
-mv -r $ARTIFACT_DIR /usr/local/etc/webrtc-streamer
+sudo mv $ARTIFACT_DIR /usr/local/etc/webrtc-streamer
 
 # Install binaries
-sudo cp ./bin/* /usr/local/bin/
+sudo mv ./bin/* /usr/local/bin/
 
 # Install System D service files
 sudo chmod 644 ./services/*
-sudo cp ./services/* /lib/systemd/system/
+sudo mv ./services/* /lib/systemd/system/
 
-sudo systemctl start teg-server teg-health-check
-sudo systemctl enable teg-server teg-health-check
+sudo systemctl start teg-server teg-health-monitor
+sudo systemctl enable teg-server teg-health-monitor
 
 # TODO: Instead of waiting for 1 second this should wait for the database to be migrated
 sleep 1s
