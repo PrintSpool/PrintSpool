@@ -42,8 +42,8 @@ jobs:
           # Copy .env
           mkdir -p artifact-working-dir/etc
           cp ./.env.production ./artifact-working-dir/etc/.env
-          mv ./bin/teg-server ./etc/
-          mv ./bin/teg-health-monitor ./etc/
+          mv ./artifact-working-dir/bin/teg-server ./artifact-working-dir/etc/
+          mv ./artifact-working-dir/bin/teg-health-monitor ./artifact-working-dir/etc/
       - name: Upload the Artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -134,8 +134,8 @@ jobs:
           # Create .env
           mkdir -p artifact-working-dir/etc
           cp ./.env.production ./artifact-working-dir/etc/.env
-          mv ./bin/teg-server ./etc/
-          mv ./bin/teg-health-monitor ./etc/
+          mv ./artifact-working-dir/bin/teg-server ./artifact-working-dir/etc/
+          mv ./artifact-working-dir/bin/teg-health-monitor ./artifact-working-dir/etc/
       - name: Upload the Artifacts
         uses: actions/upload-artifact@v2
         with:
