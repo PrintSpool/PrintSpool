@@ -76,11 +76,12 @@ tar -xf $ARTIFACT_NAME
 rm $ARTIFACT_NAME
 mv $ARTIFACT_DIR ./etc/$ARTIFACT_DIR
 
-# Install path binaries
-sudo mv ./bin/* /usr/local/bin/
-
 # Install etc (daemon binaries and webrtc-streamer)
+mv ./bin ./etc/bin
 sudo rsync -a --delete ./etc/ /usr/local/etc/teg
+
+# Install binaries on path
+find /usr/local/etc/teg/bin/* -exec sudo ln -vsf "{}" /usr/local/bin/ ';'
 
 # Install System D service files
 sudo chmod 644 ./services/*
