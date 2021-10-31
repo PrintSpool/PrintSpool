@@ -31,7 +31,7 @@ jobs:
           args: --release
       # X86 Debug/Release folder structure
       - name: Create artifact folder structure
-        run: ./scripts/ci/create-artifact
+        run: TEG_ARCH=x86_64 ./scripts/ci/create-artifact
       - name: Upload the Artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -111,7 +111,7 @@ jobs:
 
       # Armv7 Debug/Release folder structure
       - name: Create artifact folder structure
-        run: ./scripts/ci/create-artifact
+        run: TEG_ARCH=armv7l ./scripts/ci/create-artifact
       - name: Upload the Artifacts
         uses: actions/upload-artifact@v2
         with:
