@@ -131,7 +131,7 @@ impl xactor::Handler<ConnectToSocket> for Machine {
         let unix_socket = match UnixStream::connect(&socket_path).await {
             Ok(stream) => stream,
             Err(err) => {
-                debug!("Unable to open machine socket, retrying in 500ms");
+                debug!("Unable to open machine socket, retrying in 500ms ({:?})", socket_path);
                 trace!("Machine socket err: {:?}", err);
                 self.attempting_to_connect = false;
 

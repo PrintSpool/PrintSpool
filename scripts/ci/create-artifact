@@ -9,20 +9,20 @@ mkdir artifact-working-dir
 # Copy services
 cp -r ./services artifact-working-dir/services
 # Copy binaries
-mkdir -p artifact-working-dir/etc/bin
+mkdir -p artifact-working-dir/etc/
 
 if [ "$TEG_ARCH" == "armv7l" ]
 then
-  cp ./target/armv7-unknown-linux-gnueabihf/*/teg-* ./artifact-working-dir/etc/bin
+  cp ./target/armv7-unknown-linux-gnueabihf/*/teg-* ./artifact-working-dir/etc/
 elif [ "$TEG_ARCH" == "x86_64" ]
 then
-  cp ./target/*/teg-* ./artifact-working-dir/etc/bin
+  cp ./target/*/teg-* ./artifact-working-dir/etc/
 else
   echo "Invalid TEG_ARCH: \"$TEG_ARCH\". Expected armv7l or x86_64"
   exit 1
 fi
 
-rm ./artifact-working-dir/etc/bin/*.d
+rm ./artifact-working-dir/etc/*.d
 # Create .env
 mkdir -p artifact-working-dir/etc
 cp ./.env.production ./artifact-working-dir/etc/.env

@@ -5,7 +5,7 @@ After=network.target
 
 [Service]
 # EnvironmentFile=-/etc/environment
-ExecStart=/usr/local/etc/teg/webrtc-streamer/webrtc-streamer
+ExecStart=/usr/local/etc/teg/webrtc-streamer/webrtc-streamer -H 127.0.0.1:8009
 SyslogIdentifier=teg-webrtc-streamer
 Restart=always
 TimeoutStopSec=30

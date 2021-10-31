@@ -7,6 +7,7 @@ After=network.target
 EnvironmentFile=/usr/local/etc/teg/.env
 ExecStart=/usr/local/etc/teg/teg-server
 WorkingDirectory=/usr/local/etc/teg/
+Group=dialout
 SyslogIdentifier=teg-server
 Restart=always
 TimeoutStopSec=30
