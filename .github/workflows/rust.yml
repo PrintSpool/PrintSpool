@@ -31,20 +31,7 @@ jobs:
           args: --release
       # X86 Debug/Release folder structure
       - name: Create artifact folder structure
-        run: |
-          mkdir artifact-working-dir
-          # Copy services
-          cp -r ./services artifact-working-dir/services
-          # Copy binaries
-          mkdir -p artifact-working-dir/bin
-          mv ./target/*/teg-* ./artifact-working-dir/bin
-          rm ./artifact-working-dir/bin/*.d
-          # Copy .env
-          mkdir -p artifact-working-dir/etc
-          cp ./.env.production ./artifact-working-dir/etc/.env
-          cp -r ./crates/server/migrations ./artifact-working-dir/etc/
-          mv ./artifact-working-dir/bin/teg-server ./artifact-working-dir/etc/
-          mv ./artifact-working-dir/bin/teg-health-monitor ./artifact-working-dir/etc/
+        run: ./scripts/ci/create-artifact
       - name: Upload the Artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -124,20 +111,7 @@ jobs:
 
       # Armv7 Debug/Release folder structure
       - name: Create artifact folder structure
-        run: |
-          mkdir artifact-working-dir
-          # Copy services
-          cp -r ./services artifact-working-dir/services
-          # Copy binaries
-          mkdir -p artifact-working-dir/bin
-          mv ./target/armv7-unknown-linux-gnueabihf/*/teg-* ./artifact-working-dir/bin
-          rm ./artifact-working-dir/bin/*.d
-          # Create .env
-          mkdir -p artifact-working-dir/etc
-          cp ./.env.production ./artifact-working-dir/etc/.env
-          cp -r ./crates/server/migrations ./artifact-working-dir/etc/
-          mv ./artifact-working-dir/bin/teg-server ./artifact-working-dir/etc/
-          mv ./artifact-working-dir/bin/teg-health-monitor ./artifact-working-dir/etc/
+        run: ./scripts/ci/create-artifact
       - name: Upload the Artifacts
         uses: actions/upload-artifact@v2
         with:

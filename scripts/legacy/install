@@ -1,0 +1,10 @@
+# #!/bin/bash
+# set -e
+# cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
+
+# sudo apt install \
+#   libgtk-3-0 \
+#   libasound2 \
+#   libbsd-dev
+
+echo "TODO: Re-implement installer without Snapcraft"

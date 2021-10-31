@@ -1,0 +1,29 @@
+#!/bin/bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../../
+
+# Reset the artifact working directory
+rm -rf artifact-working-dir
+mkdir artifact-working-dir
+
+# Copy services
+cp -r ./services artifact-working-dir/services
+# Copy binaries
+mkdir -p artifact-working-dir/etc/bin
+
+if [ "$TEG_ARCH" == "armv7l" ]
+then
+  cp ./target/armv7-unknown-linux-gnueabihf/*/teg-* ./artifact-working-dir/etc/bin
+elif [ "$TEG_ARCH" == "x86_64" ]
+then
+  cp ./target/*/teg-* ./artifact-working-dir/etc/bin
+else
+  echo "Invalid TEG_ARCH: \"$TEG_ARCH\". Expected armv7l or x86_64"
+  exit 1
+fi
+
+rm ./artifact-working-dir/etc/bin/*.d
+# Create .env
+mkdir -p artifact-working-dir/etc
+cp ./.env.production ./artifact-working-dir/etc/.env
+cp -r ./crates/server/migrations ./artifact-working-dir/etc/

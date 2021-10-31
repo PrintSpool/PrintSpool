@@ -1,10 +1,113 @@
-# #!/bin/bash
-# set -e
-# cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
+#!/bin/bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )"
 
-# sudo apt install \
-#   libgtk-3-0 \
-#   libasound2 \
-#   libbsd-dev
+ARCH=$(uname -m)
+FRESH_INSTALL=0
+if [ -d "/usr/bin/teg" ]; then
+    echo "Updating previous Teg for $ARCH install..."
+else
+    echo "Installing Teg for $ARCH..."
+    FRESH_INSTALL=1
+fi
 
-echo "TODO: Re-implement installer without Snapcraft"
+# Install dependencies
+sudo apt install \
+  libgtk-3-0 \
+  libasound2 \
+  libbsd-dev \
+  postgresql \
+  postgresql-contrib \
+  rsync
+
+# create a tmp dir
+SCRIPT_DIR=$(pwd)
+WORK_DIR=$(mktemp -d)
+
+# check if tmp dir was created
+if [[ ! "$WORK_DIR" || ! -d "$WORK_DIR" ]]; then
+  echo "Could not create temp dir"
+  exit 1
+fi
+
+# deletes the temp directory
+function cleanup {
+  rm -rf "$WORK_DIR"
+  echo "Deleted temp working directory $WORK_DIR"
+}
+
+# register the cleanup function to be called on the EXIT signal
+trap cleanup EXIT
+
+# Change to the tmp dir
+cd $WORK_DIR
+
+if [ "${LOCAL_ARTIFACT}" == "1" ]; then
+  echo ""
+  echo "Installing local development version of Teg"
+  echo ""
+
+  TEG_ARCH=$ARCH $SCRIPT_DIR/ci/create-artifact
+  cp -r $SCRIPT_DIR/../artifact-working-dir/* ./
+else
+  # Download the latest release
+  GITHUB_REPO="tegapp/teg"
+
+  ARTIFACT_NAME="teg-$ARCH.zip"
+
+  LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/$GITHUB_REPO/releases/latest)
+
+  # The releases are returned in the format {"id":3622206,"tag_name":"hello-1.0.0.11",...},
+  # we have to extract the tag_name.
+  LATEST_VERSION=$(echo $LATEST_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
+
+  ARTIFACT_URL="https://github.com/$GITHUB_REPO/releases/download/$LATEST_VERSION/$ARTIFACT_NAME"
+
+  wget $ARTIFACT_URL
+  unzip $ARTIFACT_NAME
+  rm $ARTIFACT_NAME
+fi
+
+# Download the latest webrtc-streamer release
+GITHUB_REPO="mpromonet/webrtc-streamer"
+
+ARTIFACT_DIR="webrtc-streamer-v0.6.4-Linux-$ARCH-Release"
+ARTIFACT_NAME="$ARTIFACT_DIR.tar.gz"
+
+LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/$GITHUB_REPO/releases/latest)
+
+# The releases are returned in the format {"id":3622206,"tag_name":"hello-1.0.0.11",...},
+# we have to extract the tag_name.
+LATEST_VERSION=$(echo $LATEST_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
+
+ARTIFACT_URL="https://github.com/$GITHUB_REPO/releases/download/$LATEST_VERSION/$ARTIFACT_NAME"
+
+wget $ARTIFACT_URL
+tar -xf $ARTIFACT_NAME
+rm $ARTIFACT_NAME
+mv $ARTIFACT_DIR ./etc/$ARTIFACT_DIR
+
+# Install etc (migrations, binaries, configs and webrtc-streamer)
+sudo rsync -a --delete ./etc/ /usr/local/etc/teg
+
+# Install binaries on path
+sudo ln -vsf "/usr/local/etc/teg/bin/teg-invite" /usr/local/bin
+
+# Install System D service files
+sudo chmod 644 ./services/*
+sudo mv ./services/* /lib/systemd/system/
+
+systemctl daemon-reload
+sudo systemctl start teg-server teg-health-monitor
+sudo systemctl enable teg-server teg-health-monitor
+
+# TODO: Instead of waiting for 1 second this should wait for the database to be migrated
+echo ""
+echo "Migrating database..."
+echo ""
+sleep 1s
+
+# Generate an invite key for the user
+if [ $FRESH_INSTALL = "1" ]; then
+  teg-invite
+fi

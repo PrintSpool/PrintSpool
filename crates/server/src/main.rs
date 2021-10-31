@@ -115,10 +115,8 @@ fn main() -> Result<()> {
 async fn app() -> Result<()> {
     teg_machine::initialize_statics();
 
-    if env::var("RUST_ENV") != Ok("production".to_string()) {
-        dotenv::dotenv()
-            .wrap_err(".env file not found or failed to load")?;
-    }
+    dotenv::dotenv()
+        .wrap_err(".env file not found or failed to load")?;
 
     // use tracing_error::ErrorLayer;
     // use tracing_subscriber::{prelude::*, registry::Registry};

@@ -4,7 +4,7 @@ Wants=network.target
 After=network.target
 
 [Service]
-# EnvironmentFile=-/etc/environment
+EnvironmentFile=/usr/local/etc/teg/.env
 ExecStart=/usr/local/etc/teg/teg-server
 WorkingDirectory=/usr/local/etc/teg/
 SyslogIdentifier=teg-server
