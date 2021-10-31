@@ -165,10 +165,10 @@ pub async fn create_db(start_pg: bool) -> Result<(Option<i32>, PgPool)> {
 
     // Migrate the database
     let migrations = if env::var("RUST_ENV") == Ok("production".to_string()) {
+        let etc = std::env::var("TEG_ETC")
+            .unwrap_or("/usr/local/etc/teg/".into());
         // Productions migrations dir
-        std::env::current_exe()?
-            .parent()
-            .unwrap()
+        Path::new(&etc)
             .join("migrations")
     } else {
         // Development migrations dir
