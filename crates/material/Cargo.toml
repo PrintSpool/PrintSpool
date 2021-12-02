@@ -16,7 +16,7 @@ teg_auth = { path = "../auth" }
 teg-json-store = { path = "../json-store" }
 teg-common = { path = "../common"}
 
-sqlx = { version = "=0.5.5", features = [ "runtime-async-std-native-tls", "postgres", "offline", "json", "macros" , "chrono"] }
+sqlx = { version = "=0.5.9", features = [ "runtime-async-std-native-tls", "postgres", "offline", "json", "macros" , "chrono"], git="https://github.com/D1plo1d/sqlx.git", branch="fix/pgpass" }
 
 schemars = "0.8.0"
 eyre = "0.6.5"

@@ -2,4 +2,4 @@
 set -e
 cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
 
-journalctl -u teg-server -f -n 50
+journalctl -u teg-server -f -n 100

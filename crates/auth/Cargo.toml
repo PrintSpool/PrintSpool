@@ -22,7 +22,7 @@ async-trait = "0.1.36"
 eyre = "0.6.5"
 frank_jwt = "3.1.2"
 schemars = "0.8.0"
-sqlx = { version = "=0.5.5", features = [ "runtime-async-std-native-tls", "postgres", "offline", "json", "macros" , "chrono"] }
+sqlx = { version = "=0.5.9", features = [ "runtime-async-std-native-tls", "postgres", "offline", "json", "macros" , "chrono"], git="https://github.com/D1plo1d/sqlx.git", branch="fix/pgpass" }
 
 tracing = "0.1.28"
 tracing-futures = "0.2.4"

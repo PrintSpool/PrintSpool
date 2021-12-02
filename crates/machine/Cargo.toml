@@ -34,7 +34,7 @@ xactor = { git = "https://github.com/sunli829/xactor.git", branch = "master",  d
 # async-codec = "0.4.0"
 async-codec = { git = "https://gitlab.com/d1plo1d/async-codec.git", branch = "feature/bytes_1_x_x" }
 
-sqlx = { version = "=0.5.5", features = [ "runtime-async-std-native-tls", "postgres", "offline", "json", "macros" , "chrono"] }
+sqlx = { version = "=0.5.9", features = [ "runtime-async-std-native-tls", "postgres", "offline", "json", "macros" , "chrono"], git="https://github.com/D1plo1d/sqlx.git", branch="fix/pgpass" }
 
 rand = "0.7.3"
 smart-default = "0.6.0"

@@ -165,9 +165,13 @@ async fn app() -> Result<()> {
 
     // Wipe the tmp directory. This is used to store file uploads before they are linked to a more
     // perminent location in the file system.
-    let tmp_dir = "/var/lib/teg/tmp/";
+    let tmp_dir = std::env::var("TEG_TMP").unwrap_or("/var/lib/teg/tmp/".into());
+
     let _ = std::fs::remove_dir(&tmp_dir);
-    std::fs::create_dir_all(&tmp_dir)?;
+    std::fs::create_dir_all(&tmp_dir)
+        .wrap_err(
+            format!("failed to create tmp directory - check permissions on {:?}", tmp_dir)
+        )?;
 
     // Spawn the health check socket
     async_std::task::spawn(

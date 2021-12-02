@@ -6,6 +6,9 @@ rustup target add armv7-unknown-linux-gnueabihf
 
 cargo install cargo-watch sqlx-cli
 
+sudo mkdir /var/lib/teg-dev/
+sudo chown `whoami`:`whoami` /var/lib/teg-dev/
+
 # yarn
 # yarn make-dirs
 
