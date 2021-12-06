@@ -113,6 +113,7 @@ fn main() -> Result<()> {
 }
 
 async fn app() -> Result<()> {
+    dbg!("wat");
     teg_machine::initialize_statics();
 
     dotenv::dotenv()

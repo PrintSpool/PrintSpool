@@ -4,8 +4,14 @@ set -e
 
 tmux start-server
 
-tmux new-session -s "teg" -n "server" -d \
-  '$SHELL --rcfile <(echo ". ~/.bashrc; cd ./crates/ && history -s \"cargo watch -x run\" && cargo watch -x run")'
+if ! command -v mold &> /dev/null
+then
+  tmux new-session -s "teg" -n "server" -d \
+    '$SHELL --rcfile <(echo ". ~/.bashrc; cd ./crates/ && history -s \"cargo watch -s \\\"mold -run cargo run\\\"\" && cargo watch -s \"mold -run cargo run\"")'
+else
+  tmux new-session -s "teg" -n "server" -d \
+    '$SHELL --rcfile <(echo ". ~/.bashrc; cd ./crates/ && history -s \"cargo watch -x run\" && cargo watch -x run")'
+fi
 tmux new-window -n "web-ui" \
   '$SHELL --rcfile <(echo ". ~/.bashrc; cd ./packages/teg-web-ui/ && nvm use && history -s \"yarn start\" && yarn start")'
 
