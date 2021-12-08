@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use eyre::{
@@ -49,7 +51,7 @@ pub struct Task {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum TaskContent {
-    FilePath(String),
+    FilePath(PathBuf),
     GCodes(Vec<String>),
 }
 
@@ -125,7 +127,7 @@ impl Task {
                 use async_std::fs::remove_file;
 
                 if let Err(err) = remove_file(&file_path).await {
-                    warn!("Unable to remove completed GCode file ({}): {:?}", file_path, err);
+                    warn!("Unable to remove completed GCode file ({:?}): {:?}", file_path, err);
                 }
             });
         }

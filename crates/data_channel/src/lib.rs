@@ -37,6 +37,8 @@ use futures_util::{
 use dashmap::DashMap;
 use teg_auth::Signal;
 
+pub use teg_machine::paths;
+
 pub type Db = sqlx::PgPool;
 
 const PING_INTERVAL_MILLIS: u64 = 10_000;

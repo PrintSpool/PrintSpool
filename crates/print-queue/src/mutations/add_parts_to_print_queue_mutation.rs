@@ -102,8 +102,8 @@ impl AddPartsToPrintQueueMutation {
         let db: &crate::Db = ctx.data()?;
 
         async move {
-            let part_dir = "/var/lib/teg/parts";
-            fs::create_dir_all(part_dir).await?;
+            let part_dir = crate::paths::var().join("parts");
+            fs::create_dir_all(&part_dir).await?;
 
             let print_queue = PrintQueue::get(
                 db,
@@ -125,14 +125,14 @@ impl AddPartsToPrintQueueMutation {
                 .enumerate()
                 .map(move |(index, part_input)| {
                     let package_id = package_id.clone();
+                    let part_dir = part_dir.clone();
 
                     async move {
                         let part_id = nanoid!(11);
-                        let file_path = format!(
-                            "{}/part_{}.gcode",
-                            part_dir,
+                        let file_path = part_dir.clone().join(format!(
+                            "part_{}.gcode",
                             part_id.to_string(),
-                        );
+                        )).into_os_string().into_string().unwrap();
 
                         let tmp_file = part_input.file.value(&ctx)?.content;
 
@@ -191,7 +191,7 @@ impl AddPartsToPrintQueueMutation {
         let db: &crate::Db = ctx.data()?;
 
         async move {
-            let part_dir = "/var/lib/teg/parts";
+            let part_dir = crate::paths::var().join("parts");
             fs::create_dir_all(part_dir).await?;
 
             let pkg_template_ids = input.package_ids

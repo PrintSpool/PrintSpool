@@ -2,26 +2,60 @@
 set -e
 cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
 
+export NVM_DIR=$HOME/.nvm;
+source $NVM_DIR/nvm.sh;
+
+FRESH_INSTALL=0
+if [ -d "/usr/local/etc/teg-dev/" ]; then
+    echo "Updating previous teg dev environment, postgres database will not be reset"
+else
+    FRESH_INSTALL=1
+fi
+
 rustup target add armv7-unknown-linux-gnueabihf
 
 cargo install cargo-watch sqlx-cli
 
-sudo mkdir /var/lib/teg-dev/
-sudo chown `whoami`:`whoami` /var/lib/teg-dev/
+sudo mkdir -p /var/local/teg-dev/
+sudo chown `whoami`:`whoami` /var/local/teg-dev/
+
+sudo mkdir -p /usr/local/etc/teg-dev/
+sudo chown `whoami`:`whoami` /usr/local/etc/teg-dev/
+
+# Configure postgres
+if [ $FRESH_INSTALL = "1" ]; then
+  DB_USER="teg-dev"
+  DB=$DB_USER
+  DB_PASSWORD=`apg -n 1 -m 64 -M NCL -E \:\'\"\\`
+
+  sudo -u postgres createuser -d $DB_USER || true
+  sudo -u postgres createdb -O $DB_USER $DB || true
+  sudo -u postgres psql -c "ALTER USER \"$DB_USER\" WITH PASSWORD '$DB_PASSWORD';"
+
+  # Remove old pgpass entries
+  sed -i "/localhost\:\*\:$DB\:$DB_USER/d" ~/.pgpass
+
+  # Add new pgpass entry
+  PG_PASS_LINE="localhost:*:$DB:$DB_USER:$DB_PASSWORD"
+
+  touch ~/.pgpass
+  chmod 0600 ~/.pgpass
+  echo "$PG_PASS_LINE" >> ~/.pgpass
+fi
+
+pushd .
+cd ./crates/server
+PGPASSWORD=$DB_PASSWORD sqlx database create
+PGPASSWORD=$DB_PASSWORD sqlx migrate run
+popd
 
 # yarn
 # yarn make-dirs
 
-pushd
+pushd .
 cd ./packages/teg-web-ui/
 nvm install
 nvm use
 npm i -g yarn
 yarn
-popd
-
-pushd
-cd ./crages/server
-sqlx database create
-sqlx migrate run
 popd

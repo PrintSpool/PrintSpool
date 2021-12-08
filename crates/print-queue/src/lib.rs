@@ -11,6 +11,7 @@ pub mod part;
 pub use part::part_query_resolvers::PartQuery;
 
 pub mod print;
+pub use teg_common::paths;
 
 mod insert_print;
 pub use insert_print::{

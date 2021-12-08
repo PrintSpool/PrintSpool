@@ -20,6 +20,8 @@ mod create_signalling_jwt;
 mod server_keys;
 pub use server_keys::ServerKeys;
 
+pub use teg_common::paths;
+
 // mod watch_pem_keys;
 // pub use watch_pem_keys::watch_pem_keys;
 

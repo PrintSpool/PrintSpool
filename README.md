@@ -37,7 +37,7 @@ It's recommended you do this in a dev environment with at least 16GB of ram.
 
 start-tmux:
 
-- starts all the services required for a hot reloading development 3D print using your `/etc/teg/` configs
+- starts all the services required for a hot reloading development 3D print using your `/etc/teg-dev/` configs
 - starts a hot reloading instance of the web ui
 
 Once you have `start-tmux` running you can create an invite code to access your dev instance by running:

@@ -19,10 +19,7 @@ fn main() -> Result<()> {
 async fn invite() -> Result<()> {
     // Load dot env from teg's etc directory in production
     if std::env::var("RUST_ENV") != Ok("development".into()) {
-        let etc = std::env::var("TEG_ETC")
-            .unwrap_or("/usr/local/etc/teg/".into());
-
-        std::env::set_current_dir(etc)?;
+        std::env::set_current_dir(crate::paths::etc())?;
     }
 
     dotenv::dotenv().ok();

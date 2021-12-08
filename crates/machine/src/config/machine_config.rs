@@ -156,25 +156,25 @@ impl MachineConfig {
     }
 
     pub fn var_path(&self) -> PathBuf {
-        let path = if let Some(snap_name) = &Self::debug_snap_name() {
-            format!("/var/snap/{}/current/var", snap_name)
-        } else {
-            "/var/lib/teg".to_string()
-        };
+        // let path = if let Some(snap_name) = &Self::debug_snap_name() {
+        //     format!("/var/snap/{}/current/var", snap_name)
+        // } else {
+        //     format!("/var/lib/teg{}", dev_suffix())
+        // };
 
-        PathBuf::from(path)
+        crate::paths::var()
     }
 
     /// Data in var-common is shared across Snap refresh versions. This is useful for machine
     /// sockets when a new server needs to connect to a previous version of the driver.
     pub fn var_common_path(&self) -> PathBuf {
-        let path = if let Some(snap_name) = &Self::debug_snap_name() {
-            format!("/var/snap/{}/common/var", snap_name)
-        } else {
-            "/var/lib/teg-common".to_string()
-        };
+        // let path = if let Some(snap_name) = &Self::debug_snap_name() {
+        //     format!("/var/snap/{}/common/var", snap_name)
+        // } else {
+        //     format!("/var/lib/teg{}-common", dev_suffix())
+        // };
 
-        PathBuf::from(path)
+        crate::paths::var()
     }
 
     pub fn socket_path(&self) -> PathBuf {
@@ -235,28 +235,28 @@ impl MachineConfig {
     }
 
     pub fn transform_gcode_file_path(&self, file_path: String) -> String {
-        use std::path::Path;
+        // use std::path::Path;
 
-        if let Some(snap_name) = &Self::debug_snap_name() {
-            format!(
-                "/var/snap/{}/current/var/tasks/{}",
-                snap_name,
-                Path::new(&file_path).file_name().unwrap().to_str().unwrap(),
-            )
-        } else {
-            file_path
-        }
+        // if let Some(snap_name) = &Self::debug_snap_name() {
+        //     format!(
+        //         "/var/snap/{}/current/var/tasks/{}",
+        //         snap_name,
+        //         Path::new(&file_path).file_name().unwrap().to_str().unwrap(),
+        //     )
+        // } else {
+        // }
+        file_path
     }
 
-    pub fn config_file_path(id: &crate::DbId) -> String {
-        if let Some(snap_name) = &Self::debug_snap_name() {
-            format!("/var/snap/{}/current/etc/machine-{}.toml", snap_name, id)
-        } else {
-            format!("/etc/teg/machine-{}.toml", id)
-        }
+    pub fn config_file_path(id: &crate::DbId) -> PathBuf {
+        // if let Some(snap_name) = &Self::debug_snap_name() {
+        //     format!("/var/snap/{}/current/etc/machine-{}.toml", snap_name, id)
+        // } else {
+        // }
+        crate::paths::etc().join(format!("machine-{}.toml", id))
     }
 
     pub fn pid_file_path(id: &crate::DbId) -> String {
-        format!("/var/tmp/teg-machine-{}.pid", id)
+        format!("/var/tmp/teg{}-machine-{}.pid", crate::paths::dev_suffix(), id)
     }
 }

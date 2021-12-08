@@ -63,7 +63,9 @@ impl Machine {
 
         let content = match &task.content {
             TaskContent::FilePath(file_path) => {
-                server_message::spool_task::Content::FilePath(file_path.clone())
+                server_message::spool_task::Content::FilePath(
+                    file_path.clone().into_os_string().into_string().unwrap(),
+                )
             }
             TaskContent::GCodes(gcodes) => {
                 server_message::spool_task::Content::Inline(

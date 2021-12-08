@@ -10,7 +10,7 @@ use eyre::{
     Result,
     Context as _,
 };
-use async_std::{fs, io::prelude::WriteExt, path::Path};
+use async_std::{fs, io::prelude::WriteExt};
 
 pub struct ServerKeys {
     pub identity_private_key: String,
@@ -20,31 +20,31 @@ pub struct ServerKeys {
 
 impl ServerKeys {
     pub async fn load_or_create() -> Result<Self> {
-        let private_key_path = Path::new("/etc/teg/id_ecdsa");
-        let public_key_path = Path::new("/etc/teg/id_ecdsa.pub");
+        let private_key_path = crate::paths::etc().join("id_ecdsa");
+        let public_key_path = crate::paths::etc().join("id_ecdsa.pub");
 
         let group = EcGroup::from_curve_name(Nid::X9_62_PRIME256V1)?;
         let mut ctx = openssl::bn::BigNumContext::new().unwrap();
 
-        if !private_key_path.exists().await {
+        if !private_key_path.exists() {
             let key = EcKey::generate(&group)?;
 
             // write the private key
             let private_key = key.private_key_to_pem()?;
-            let mut file = fs::File::create(private_key_path).await?;
+            let mut file = fs::File::create(&private_key_path).await?;
             file.write_all(&private_key[..]).await?;
 
             // write the public key
             let public_key = key.public_key_to_pem()?;
-            let mut file = fs::File::create(public_key_path).await?;
+            let mut file = fs::File::create(&public_key_path).await?;
             file.write_all(&public_key[..]).await?;
         }
 
-        let identity_private_key = fs::read_to_string(private_key_path)
+        let identity_private_key = fs::read_to_string(&private_key_path)
             .await
             .wrap_err_with(|| format!("Missing identity private key"))?;
 
-        let identity_public_key = fs::read_to_string(public_key_path)
+        let identity_public_key = fs::read_to_string(&public_key_path)
             .await
             .wrap_err_with(|| format!("Missing identity public key"))?;
 

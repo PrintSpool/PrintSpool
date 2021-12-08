@@ -34,7 +34,7 @@ fn main() -> Result<()> {
     info!("Server health monitor started");
     sleep(Duration::from_secs(1));
 
-    let socket_path = "/var/lib/teg/health-check.sock";
+    let socket_path = crate::paths::var_lib().join("health-check.sock");
 
     loop {
         let mut unix_socket = match UnixStream::connect(&socket_path) {

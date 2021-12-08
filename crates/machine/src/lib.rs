@@ -23,6 +23,8 @@ pub mod plugins;
 pub mod signalling_updater;
 pub mod task;
 
+pub use teg_common::paths;
+
 mod video;
 pub use video::video_query_resolvers::VideoQuery;
 pub use video::video_mutation_resolvers::VideoMutation;

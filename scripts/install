@@ -3,14 +3,13 @@ set -e
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 
 ARCH=$(uname -m)
-# FRESH_INSTALL=0
-# if [ -d "/usr/local/etc/teg/" ]; then
-#     echo "Updating previous Teg for $ARCH install..."
-# else
-#     echo "Installing Teg for $ARCH..."
-#     FRESH_INSTALL=1
-# fi
-FRESH_INSTALL=1
+FRESH_INSTALL=0
+if [ -d "/usr/local/etc/teg/" ]; then
+    echo "Updating previous Teg for $ARCH install..."
+else
+    echo "Installing Teg for $ARCH..."
+    FRESH_INSTALL=1
+fi
 
 # Install dependencies
 sudo apt install \
@@ -57,22 +56,20 @@ if [ $FRESH_INSTALL = "1" ]; then
 fi
 
 # create directories
-sudo mkdir -p /etc/teg/
-sudo mkdir -p /var/lib/teg/
-sudo mkdir -p /var/lib/teg-common/
+sudo mkdir -p /usr/local/etc/teg/
+sudo mkdir -p /var/local/teg/
 
-sudo chmod 700 /etc/teg/
-sudo chmod 700 /var/lib/teg/
-sudo chmod 700 /var/lib/teg-common/
+sudo chmod 700 /usr/local/etc/teg/
+sudo chmod 700 /var/local/teg/
 
 if [ "${TEG_DEV}" == "1" ]; then
-  sudo chown -R `whoami`:`whoami` /etc/teg/
-  sudo chown -R `whoami`:`whoami` /var/lib/teg/
-  sudo chown -R `whoami`:`whoami` /var/lib/teg-common/
+  sudo chown -R `whoami`:`whoami` /usr/local/etc/teg/
+  sudo chown -R `whoami`:`whoami` /var/local/teg/
+  sudo chown -R `whoami`:`whoami` /var/local/teg-common/
 else
-  sudo chown -R ${TEG_USER}:${TEG_USER} /etc/teg/
-  sudo chown -R ${TEG_USER}:${TEG_USER} /var/lib/teg/
-  sudo chown -R ${TEG_USER}:${TEG_USER} /var/lib/teg-common/
+  sudo chown -R ${TEG_USER}:${TEG_USER} /usr/local/etc/teg/
+  sudo chown -R ${TEG_USER}:${TEG_USER} /var/local/teg/
+  sudo chown -R ${TEG_USER}:${TEG_USER} /var/local/teg-common/
 fi
 
 

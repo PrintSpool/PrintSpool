@@ -19,6 +19,8 @@ mod built_info {
     include!(concat!(env!("OUT_DIR"), "/built.rs"));
 }
 
+pub use teg_machine::paths;
+
 mod mutation;
 mod query;
 mod server_query;
@@ -47,8 +49,6 @@ use teg_device::DeviceManager;
 use teg_machine::{MachineHooksList, MachineMap, MachineMapLocal, MachineMaterialHooks, machine::Machine, signalling_updater::{SignallingUpdater, SignallingUpdaterMachineHooks}};
 use teg_material::{MaterialHooksList};
 use teg_print_queue::print_queue_machine_hooks::PrintQueueMachineHooks;
-
-const CONFIG_DIR: &'static str = "/etc/teg/";
 
 pub type Db = sqlx::PgPool;
 pub type DbId = teg_json_store::DbId;
@@ -80,15 +80,24 @@ fn main() -> Result<()> {
         Pidfile,
     };
 
-    let pid_file_path = "/var/tmp/teg-server.pid";
+    dotenv::dotenv()
+        .wrap_err(".env file not found or failed to load")?;
+
+    let is_dev = env::var("RUST_ENV")
+        .map(|v| &v == "development")
+        .unwrap_or(true);
+
+    let dev_suffix = if is_dev { "-dev" } else { "" };
+
+    let pid_file_path = format!("/var/tmp/teg{}-server.pid", dev_suffix).into();
 
     // This pid file is not used for locking - it only exists to give the health monitor a PID
     // to kill in case the server becomes non-responsive.
-    let _ = std::fs::remove_file(pid_file_path);
+    let _ = std::fs::remove_file(&pid_file_path);
     let pid_file = Pidfile::new(
-        &pid_file_path.into(),
+        &pid_file_path,
         std::fs::Permissions::from_mode(0o600),
-    )?;
+    ).context(format!("Unable to open pid file: {:?}", pid_file_path))?;
 
     pid_file.write()?;
 
@@ -114,9 +123,6 @@ fn main() -> Result<()> {
 
 async fn app() -> Result<()> {
     teg_machine::initialize_statics();
-
-    dotenv::dotenv()
-        .wrap_err(".env file not found or failed to load")?;
 
     // use tracing_error::ErrorLayer;
     // use tracing_subscriber::{prelude::*, registry::Registry};
@@ -165,7 +171,7 @@ async fn app() -> Result<()> {
 
     // Wipe the tmp directory. This is used to store file uploads before they are linked to a more
     // perminent location in the file system.
-    let tmp_dir = std::env::var("TEG_TMP").unwrap_or("/var/lib/teg/tmp/".into());
+    let tmp_dir = crate::paths::var().join("tmp");
 
     let _ = std::fs::remove_dir(&tmp_dir);
     std::fs::create_dir_all(&tmp_dir)
@@ -182,7 +188,7 @@ async fn app() -> Result<()> {
 
     let (_pg_embed, db) = create_db(true).await?;
 
-    let machine_ids: Vec<crate::DbId> = std::fs::read_dir(CONFIG_DIR)?
+    let machine_ids: Vec<crate::DbId> = std::fs::read_dir(crate::paths::etc())?
         .map(|entry| {
             let entry = entry?;
             let file_name = entry.file_name().to_str()
@@ -195,7 +201,7 @@ async fn app() -> Result<()> {
                 && file_name.ends_with(".toml")
             {
                 let config_file = std::fs::read_to_string(
-                    format!("{}{}", CONFIG_DIR, file_name)
+                    crate::paths::etc().join(&file_name)
                 )
                     .wrap_err(format!("Unable to read machine config file: {}", file_name))?;
 

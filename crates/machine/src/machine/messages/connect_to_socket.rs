@@ -67,19 +67,16 @@ async fn spawn_driver(machine: &Machine) -> Result<()> {
         };
 
         // format!("cd {} && cargo watch -s \"cargo run -- {}\"", marlin, config_file)
-        format!("cd {} && cargo run{} -- {}", marlin, release_flag, machine.id)
+        format!("RUST_BACKTRACE=1 cd {} && cargo run{} -- {}", marlin, release_flag, machine.id)
     } else {
-        let etc = std::env::var("TEG_ETC")
-            .unwrap_or("/usr/local/etc/teg/".into());
-
-        let marlin = std::path::Path::new(&etc).join("teg-marlin");
+        let marlin = crate::paths::etc().join("teg-marlin");
         let marlin = marlin.to_str()
             .ok_or_else(|| eyre!("Error loading file path to drivers"))?;
 
         format!("{} {}", marlin, machine.id)
     };
 
-    info!("Spawning driver for {}: {}", config_file, cmd);
+    info!("Spawning driver for {:?}: {}", config_file, cmd);
     Command::new("sh")
         .arg("-c")
         .arg(cmd)

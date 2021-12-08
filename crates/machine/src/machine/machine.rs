@@ -146,7 +146,7 @@ impl Machine {
     }
 
     pub async fn reset_data(&mut self) -> Result<()> {
-        let config_path = format!("/etc/teg/machine-{}.toml", self.id);
+        let config_path = crate::paths::etc().join(format!("machine-{}.toml", self.id));
 
         let config = fs::read_to_string(config_path).await?;
         let config: MachineConfig = toml::from_str(&config)?;

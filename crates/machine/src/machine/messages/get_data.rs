@@ -19,7 +19,7 @@ impl Machine {
             .as_mut()
             .ok_or_else(|| eyre!(r#"
                 Attempted to read machine data but machine-{id}.toml has not yet been parsed.
-                Check that your /etc/teg/machine-{id}.toml config file is valid!
+                Check that your /usr/local/etc/teg/machine-{id}.toml config file is valid!
             "#, id = id))
     }
 
@@ -29,7 +29,7 @@ impl Machine {
             .as_ref()
             .ok_or_else(|| eyre!(r#"
                 Attempted to read machine data but machine-{id}.toml has not yet been parsed.
-                Check that your /etc/teg/machine-{id}.toml config file is valid!
+                Check that your /usr/local/etc/teg/machine-{id}.toml config file is valid!
             "#, id = id))
     }
 }

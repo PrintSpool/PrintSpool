@@ -20,9 +20,10 @@ pub async fn health_check_socket() {
 }
 
 async fn try_health_check_socket() -> Result<()> {
-    let socket_path = "/var/lib/teg/health-check.sock";
-    let _ = std::fs::remove_file(socket_path);
-    let listener = UnixListener::bind(socket_path).await?;
+    let socket_path = crate::paths::var().join("health-check.sock");
+
+    let _ = std::fs::remove_file(&socket_path);
+    let listener = UnixListener::bind(&socket_path).await?;
     let mut incoming = listener.incoming();
 
     while let Some(stream) = incoming.next().await {

@@ -1,13 +1,13 @@
-use std::{env, os::unix::prelude::PermissionsExt};
-use async_std::{fs::{self, File}, io::prelude::WriteExt, path::Path};
-use nix::unistd::setuid;
+use std::{env, path::PathBuf, str::FromStr};
+// use async_std::{fs::{self, File}, io::prelude::WriteExt, path::Path};
+// use nix::unistd::setuid;
 use sqlx::{PgPool, migrate::MigrateDatabase, postgres::{PgConnectOptions, PgPoolOptions}};
-use eyre::{eyre, Context, Result};
-// use pg_embed::postgres::{PgEmbed, PgSettings};
-// use pg_embed::pg_enums::PgAuthMethod;
-// use pg_embed::pg_fetch::{PgFetchSettings, PG_V13};
-use std::time::Duration;
-use std::path::PathBuf;
+use eyre::{Context, Result};
+// // use pg_embed::postgres::{PgEmbed, PgSettings};
+// // use pg_embed::pg_enums::PgAuthMethod;
+// // use pg_embed::pg_fetch::{PgFetchSettings, PG_V13};
+// use std::time::Duration;
+// use std::path::PathBuf;
 
 // use teg_auth::AuthContext;
 // use teg_device::DeviceManager;
@@ -121,9 +121,7 @@ use std::path::PathBuf;
 //     Ok((Some(pg), embedded_db_uri))
 // }
 
-pub async fn create_db(start_pg: bool) -> Result<(Option<i32>, PgPool)> {
-    use std::path::Path;
-
+pub async fn create_db(_start_pg: bool) -> Result<(Option<i32>, PgPool)> {
     // Create the database
     // let pg_embed = env::var("PG_EMBED").unwrap_or("0".to_owned()) == "1";
 
@@ -165,16 +163,12 @@ pub async fn create_db(start_pg: bool) -> Result<(Option<i32>, PgPool)> {
 
     // Migrate the database
     let migrations = if env::var("RUST_ENV") == Ok("production".to_string()) {
-        let etc = std::env::var("TEG_ETC")
-            .unwrap_or("/usr/local/etc/teg/".into());
         // Productions migrations dir
-        Path::new(&etc)
-            .join("migrations")
+        crate::paths::etc().join("migrations")
     } else {
         // Development migrations dir
         let crate_dir = std::env::var("CARGO_MANIFEST_DIR")?;
-        Path::new(&crate_dir)
-            .join("migrations")
+        PathBuf::from_str(&crate_dir)?.join("migrations")
     };
 
     info!("Running migrations: {:?}", migrations);

@@ -8,7 +8,7 @@ use async_std::{
 };
 use std::{
     fs::{ File },
-    io::{ BufReader, BufWriter, BufRead, Write, Cursor, Lines },
+    io::{ BufReader, BufWriter, BufRead, Write, Cursor, Lines }, path::Path,
 };
 use eyre::{
     eyre,
@@ -85,9 +85,9 @@ pub async fn insert_print<'c>(
     let part_file_path = part.file_path.clone();
 
     let task_id = nanoid!(11);
-    let task_dir = "/var/lib/teg/tasks";
+    let task_dir = crate::paths::var().join("tasks");
     let task_file_path = std::sync::Arc::new(
-        format!("{}/task_{}.gcode", task_dir, task_id.to_string())
+        task_dir.join(format!("task_{}.gcode", task_id))
     );
     fs::create_dir_all(task_dir).await?;
 
@@ -100,7 +100,7 @@ pub async fn insert_print<'c>(
         machine_id: machine_id.clone(),
         part_id: Some(part.id.clone()),
         // Content
-        content: TaskContent::FilePath(task_file_path.to_string()),
+        content: TaskContent::FilePath((*task_file_path).clone()),
         // Props
         annotations: Default::default(),
         total_lines: Default::default(),
@@ -150,7 +150,7 @@ pub async fn insert_print<'c>(
 
             compile_print_file(
                 &part_file_path,
-                &task_file_path_clone,
+                (*task_file_path_clone).clone(),
                 &core_plugin.model.before_print_hook,
                 &core_plugin.model.after_print_hook,
                 compile_internal_macro,
@@ -161,7 +161,7 @@ pub async fn insert_print<'c>(
 
         let task = Task {
             // Content
-            content: TaskContent::FilePath(task_file_path.to_string()),
+            content: TaskContent::FilePath((*task_file_path).clone()),
             // Props
             annotations: annotations.clone(),
             total_lines,
@@ -240,9 +240,9 @@ fn hook<'a>(hook_gcodes: &'a str) -> Lines<Cursor<&'a str>> {
 }
 
 // Minimal core of insert_print - reused in benchmarks.
-pub fn compile_print_file<C, F>(
-    part_file_path: &str,
-    task_file_path: &str,
+pub fn compile_print_file<C, F, P1, P2>(
+    part_file_path: P1,
+    task_file_path: P2,
     before_print_hook: &str,
     after_print_hook: &str,
     compile_internal_macro: C,
@@ -252,6 +252,8 @@ pub fn compile_print_file<C, F>(
 where
     C: Fn(InternalMacro) -> F + 'static,
     F: Future<Output = Result<Vec<AnnotatedGCode>>>,
+    P1: AsRef<Path>,
+    P2: AsRef<Path>,
 {
     let start = std::time::Instant::now();
     info!("Parsing GCodes...");
