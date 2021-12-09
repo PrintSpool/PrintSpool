@@ -2,7 +2,8 @@ import { ApolloLink, Operation, FetchResult, Observable, ApolloClientOptions } f
 import { print, GraphQLError } from 'graphql'
 import { createClient, Client } from 'graphql-ws'
 
-import WebRTCSocket, { FileLike } from './WebRTCSocket'
+import { FileLike } from './saltyRTCChunk'
+import WebRTCSocket from './WebRTCSocket'
 
 export const INSECURE_LOCAL_CONNECTION = (
   process.env.INSECURE_LOCAL_CONNECTION === '1'

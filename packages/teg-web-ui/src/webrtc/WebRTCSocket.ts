@@ -6,9 +6,8 @@ import {
   RELIABLE_ORDERED,
   MAX_MESSAGE_SIZE,
   UNORDERED_UNRELIABLE,
+  FileLike,
 } from './saltyRTCChunk'
-
-export type FileLike = File | Blob | FileList;
 
 const EVENT_NAMES = [
   'close',
@@ -211,7 +210,6 @@ const socketFactory = (options: WebRTCOptions) => {
 
         if (files.length > 0) {
           console.log(`Uploading ${files.length} files, ${options.files.size} remain unsent`)
-          console.log(files)
         }
       }
 

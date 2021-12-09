@@ -1,8 +1,9 @@
 // import msgpack from 'msgpack-lite'
 import Debug from 'debug'
-import { FileLike } from 'graphql-ws/src/index'
 
 const debug = Debug('teg:webrtc:SaltyRTCChunk')
+
+export type FileLike = File | Blob | FileList;
 
 // SaltyRTC Chunking Protocol
 // See https://github.com/saltyrtc/saltyrtc-meta/blob/master/Chunking.md
@@ -188,6 +189,7 @@ export const chunkifier = (opts, peer) => {
 
   let nextID = 1
   let chunks = []
+  let roundRobbinIndex = 0;
   // const bufferedAmountLowThreshold = channel.bufferedAmountLowThreshold || 0
 
   // Based on https://github.com/webrtc/samples/blob/gh-pages/src/content/datachannel/datatransfer/js/main.js
@@ -203,21 +205,29 @@ export const chunkifier = (opts, peer) => {
       chunks.length > 0
       // && bufferedAmountLowThreshold >= channel.bufferedAmount
     ) {
-      // if (bufferedAmount < highWaterMark) {
-      const chunk = chunks.shift()
-      // Chunks are stored as async functions
-      peer.send(await chunk())
+      roundRobbinIndex += 1
+      const index = chunks.length === 1 ? 0 : (roundRobbinIndex % (chunks.length - 1));
+      // console.log({ roundRobbinIndex, index }, chunks.length, chunks)
+      const msgChunks = chunks[index];
 
-      if (peer._channel != null && peer._channel.bufferedAmount > BUFFER_HIGH) {
-        // console.log('Teg RTC Buffer Full')
-        peer._channel.addEventListener('bufferedamountlow', sendNextChunks)
-        return
+      const chunk = msgChunks.shift()
+      if (chunk == null) {
+        chunks.splice(index, 1);
+      } else {
+        // Chunks are stored as async functions
+        peer.send(await chunk())
+
+        if (peer._channel != null && peer._channel.bufferedAmount > BUFFER_HIGH) {
+          // console.log('Teg RTC Buffer Full')
+          peer._channel.addEventListener('bufferedamountlow', sendNextChunks)
+          return
+        }
+        // bufferedAmount += chunk.length
+        // } else {
+        //   timeout = setTimeout(sendNextChunks, 0)
+        //   return
+        // }
       }
-      // bufferedAmount += chunk.length
-      // } else {
-      //   timeout = setTimeout(sendNextChunks, 0)
-      //   return
-      // }
     }
   }
 
@@ -310,7 +320,7 @@ export const chunkifier = (opts, peer) => {
     }
 
     // console.log(msgChunks)
-    chunks = chunks.concat(msgChunks)
+    chunks = [...chunks, msgChunks]
 
     if (
       previouslyEmptyChunks
