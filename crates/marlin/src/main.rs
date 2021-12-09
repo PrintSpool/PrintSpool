@@ -8,6 +8,8 @@ use nix::unistd::Pid;
 
 use teg_marlin::MachineConfig;
 
+pub use teg_machine::paths;
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut args = env::args();
     let machine_id = args.nth(1)

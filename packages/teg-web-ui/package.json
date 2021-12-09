@@ -42,7 +42,7 @@
     "graphql": "^15.5.0",
     "graphql-playground-react": "^1.7.27",
     "graphql-react": "^12.0.1",
-    "graphql-ws": "D1plo1d/graphql-ws#feature/file-uploads",
+    "graphql-ws": "5.5.5",
     "history": "^4.7.2",
     "i18next": "^15.1.2",
     "isomorphic-fetch": "^2.2.1",

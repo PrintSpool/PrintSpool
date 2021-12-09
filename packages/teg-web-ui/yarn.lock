@@ -8214,9 +8214,10 @@ graphql-tag@^2.12.0:
   dependencies:
     tslib "^1.14.1"
 
-graphql-ws@D1plo1d/graphql-ws#feature/file-uploads:
-  version "4.5.0"
-  resolved "https://codeload.github.com/D1plo1d/graphql-ws/tar.gz/e730f0c6ac2e3e59b41d681e504158c54481c622"
+graphql-ws@5.5.5:
+  version "5.5.5"
+  resolved "https://registry.yarnpkg.com/graphql-ws/-/graphql-ws-5.5.5.tgz#f375486d3f196e2a2527b503644693ae3a8670a9"
+  integrity sha512-hvyIS71vs4Tu/yUYHPvGXsTgo0t3arU820+lT5VjZS2go0ewp2LqyCgxEN56CzOG7Iys52eRhHBiD1gGRdiQtw==
 
 graphql@^14.0.2, graphql@^15.3.0:
   version "14.7.0"

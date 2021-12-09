@@ -6,7 +6,7 @@ use std::{fs, path::PathBuf};
 
 use futures::{
     future,
-    FutureExt,
+    // FutureExt,
     StreamExt,
     SinkExt,
     TryStreamExt,

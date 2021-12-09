@@ -1,5 +1,4 @@
 import SimplePeer from 'simple-peer'
-import { FileLike } from 'graphql-ws/src/index'
 
 import {
   chunkifier,
@@ -8,6 +7,8 @@ import {
   MAX_MESSAGE_SIZE,
   UNORDERED_UNRELIABLE,
 } from './saltyRTCChunk'
+
+export type FileLike = File | Blob | FileList;
 
 const EVENT_NAMES = [
   'close',
@@ -20,6 +21,7 @@ const ORDERED = false
 
 export type WebRTCOptions = {
   iceServers: string[],
+  files: Map<string, FileLike>,
   connectToPeer: (any) => Promise<any>,
   onSignallingError: (any) => void,
   onSignallingSuccess: () => void,
@@ -153,7 +155,7 @@ const socketFactory = (options: WebRTCOptions) => {
       onSignallingSuccess()
     }
 
-    sendMessageAndFiles(message: string, files: FileLike[]) {
+    send(message: string) {
       if (localStorage.getItem('PRINT_STRINGIFY_TIMES') === '1' && message.length >= 1_000_000) {
         const json = JSON.parse(message)
         const startTime = performance.now()
@@ -165,12 +167,56 @@ const socketFactory = (options: WebRTCOptions) => {
         console.log(`${Math.round(mb)}MB serialized in ${Math.round(millis)}ms = ${mbPerSecond} MB/s`)
       }
 
-      // console.log(`SEND: ${message}`)
-      this.chunkifier(message, files)
-    }
+      let files = []
+      const parsedMessage = JSON.parse(message);
 
-    send(message: string) {
-      this.sendMessageAndFiles(message, [])
+      let normalizedMessage = message;
+      if (parsedMessage.payload?.variables != null) {
+        let fileIndex = 0;
+        const normalizeVariables = (varsWithFiles) => (
+          Object.fromEntries(Object.entries(varsWithFiles).map(([key, val]) => {
+            if (typeof val === 'string' && val.startsWith('#__graphql_file__:')) {
+              const file = options.files.get(val)
+              options.files.delete(val)
+
+              if (file == null) {
+                throw new Error(`File pointer missing for file upload: ${val}`)
+              }
+
+              files.push(file)
+
+              const pointer = `#__graphql_file__:${fileIndex}`
+              fileIndex += 1;
+              return [key, pointer];
+            } else if (val instanceof Array) {
+              return [key, val.map(normalizeVariables)]
+            } else if (typeof val === 'object' && val != null) {
+              return [key, normalizeVariables(val)]
+            } else {
+              // not a file, just pass the value through
+              return [key, val];
+            }
+          }))
+        );
+
+        const normalizedVariables = normalizeVariables(parsedMessage.payload.variables);
+
+        normalizedMessage = JSON.stringify({
+          ...parsedMessage,
+          payload: {
+            ...parsedMessage.payload,
+            variables: normalizedVariables,
+          },
+        })
+
+        if (files.length > 0) {
+          console.log(`Uploading ${files.length} files, ${options.files.size} remain unsent`)
+          console.log(files)
+        }
+      }
+
+      // console.log(`SEND: ${message}`)
+      this.chunkifier(normalizedMessage, files)
     }
 
     private beforeCloseOrError() {

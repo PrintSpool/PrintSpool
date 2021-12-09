@@ -1,8 +1,8 @@
 import { ApolloLink, Operation, FetchResult, Observable, ApolloClientOptions } from '@apollo/client'
 import { print, GraphQLError } from 'graphql'
-import { createClient, Client } from 'graphql-ws/src/index'
+import { createClient, Client } from 'graphql-ws'
 
-import WebRTCSocket from './WebRTCSocket'
+import WebRTCSocket, { FileLike } from './WebRTCSocket'
 
 export const INSECURE_LOCAL_CONNECTION = (
   process.env.INSECURE_LOCAL_CONNECTION === '1'
@@ -23,10 +23,14 @@ export const INSECURE_LOCAL_CONNECTION = (
 export default class WebRTCLink extends ApolloLink {
   private client: Client
   // public closed: boolean = false
+  private files: Map<string, FileLike>
+  private nextID: number
 
   public constructor(options?: any) {
     super()
 
+    this.files = new Map();
+    this.nextID = 1;
     if (INSECURE_LOCAL_CONNECTION) {
       this.client = createClient({
         url: process.env.INSECURE_LOCAL_WS_URL,
@@ -42,10 +46,10 @@ export default class WebRTCLink extends ApolloLink {
         // WebRTC connections are expensive to create
         keepAlive: Number.MAX_SAFE_INTEGER,
         // retryWait: randomisedExponentialBackoff,
-        webSocketImpl: WebRTCSocket(options as any),
-        sendMessage: (socket: any, message, files) => {
-          socket.sendMessageAndFiles(message, files)
-        }
+        webSocketImpl: WebRTCSocket({
+          ...options,
+          files: this.files,
+        }),
       })
     }
     // this.client.on('connected', (socket, payload) => {
@@ -64,9 +68,44 @@ export default class WebRTCLink extends ApolloLink {
       console.log('REQUEST', name)
     }
 
+    let { variables } = operation;
+
+    if (variables != null) {
+      // if variables are supplied, construct new by uploading any files and replacing the values by pointer IDs
+      const normalizeVariables = (varsWithFiles) => (
+        Object.fromEntries(Object.entries(varsWithFiles).map(([key, val]) => {
+          if (
+            val instanceof File ||
+            val instanceof Blob ||
+            val instanceof FileList
+          ) {
+            // value is a file, create a file pointer
+            const filePointer = `#__graphql_file__:${this.nextID}`;
+            this.files.set(filePointer, val);
+            this.nextID += 1;
+            return [key, filePointer];
+          } else if (val instanceof Array) {
+            return [key, val.map(normalizeVariables)]
+          } else if (typeof val === 'object' && val != null) {
+            return [key, normalizeVariables(val)]
+          } else {
+            // not a file, just pass the value through
+            return [key, val];
+          }
+        }))
+      );
+
+      variables = normalizeVariables(variables);
+    }
+
+    let normalizedOperation = {
+      ...operation,
+      ...(variables == null ? {} : { variables }),
+    }
+
     return new Observable((sink) => {
       return this.client.subscribe<FetchResult>(
-        { ...operation, query: print(operation.query as any) },
+        { ...normalizedOperation, query: print(operation.query as any) },
         {
           next: (...args) => {
             // if (logRequests && name) {

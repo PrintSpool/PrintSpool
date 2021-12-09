@@ -21,7 +21,7 @@ pub mod protos {
 pub use serial_manager::SerialManager;
 pub use teg_machine::config::MachineConfig;
 
-use std::{collections::HashMap};
+use std::{collections::HashMap, path::PathBuf};
 use chrono::prelude::*;
 // use std::sync::{Arc, Mutex};
 
@@ -116,7 +116,7 @@ async fn tick_state_machine(
 }
 
 pub async fn start(
-    config_path: String,
+    config_path: PathBuf,
 ) -> eyre::Result<()> {
     lazy_static::initialize(&PROCESS_STARTED_AT);
     dotenv::dotenv().ok();
