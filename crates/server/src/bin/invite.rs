@@ -8,6 +8,8 @@ use eyre::{
 use std::sync::Arc;
 use teg_auth::invite::Invite;
 
+pub use teg_auth::paths;
+
 #[path = "../create_db.rs"]
 mod create_db;
 use create_db::create_db;

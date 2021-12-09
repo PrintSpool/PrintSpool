@@ -14,6 +14,8 @@ use pidfile_rs::{
     PidfileError,
 };
 
+pub use teg_auth::paths;
+
 /// Connects to the server's health check socket periodically and restarts the server if it does
 /// not receive an "ack\n" health check confirmation.
 fn main() -> Result<()> {
@@ -34,7 +36,7 @@ fn main() -> Result<()> {
     info!("Server health monitor started");
     sleep(Duration::from_secs(1));
 
-    let socket_path = crate::paths::var_lib().join("health-check.sock");
+    let socket_path = crate::paths::var().join("health-check.sock");
 
     loop {
         let mut unix_socket = match UnixStream::connect(&socket_path) {
