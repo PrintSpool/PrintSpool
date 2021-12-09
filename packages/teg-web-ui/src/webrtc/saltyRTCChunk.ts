@@ -320,7 +320,7 @@ export const chunkifier = (opts, peer) => {
     }
 
     // console.log(msgChunks)
-    chunks = [...chunks, msgChunks]
+    chunks.push(msgChunks)
 
     if (
       previouslyEmptyChunks
