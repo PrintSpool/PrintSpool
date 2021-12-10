@@ -42,6 +42,8 @@ pub enum Response {
     Error(String),
     Warning(String),
     Resend(Resend),
+    Capability(String, bool),
+    FirmwareVersion(String),
     Unknown,
 }
 
@@ -85,6 +87,8 @@ pub fn response<'r>() -> impl FnMut(&'r str) -> IResult<&'r str, Response> {
             sd_responses::file_deleted_resp,
             file_list,
             delete_file_resp,
+            firmware_version,
+            capability,
             unknown_resp
         )),
         pair(space0, line_ending),
@@ -229,6 +233,44 @@ pub fn resend<'r>(input: &'r str) ->  IResult<&'r str, Response> {
             space0,
         ),
         |line_number| Response::Resend(Resend { line_number }),
+    )(input)
+}
+
+// Response to M115
+pub fn firmware_version<'r>(input: &'r str) ->  IResult<&'r str, Response> {
+    map(
+        preceded(
+            alt((
+                tag_no_case("name:"),
+                tag_no_case("name."),
+            )),
+            not_line_ending,
+        ),
+        |s: &str| {
+            Response::FirmwareVersion(s.to_string())
+        },
+    )(input)
+}
+
+// Response to M115
+pub fn capability<'r>(input: &'r str) ->  IResult<&'r str, Response> {
+    map(
+        preceded(
+            tag_no_case("cap:"),
+            separated_pair(
+                recognize(many1(
+                    verify(
+                        anychar,
+                        |c| c.is_ascii_alphanumeric() || c == &'_',
+                    ),
+                )),
+                tag(":"),
+                one_of("01"),
+            ),
+        ),
+        |(capability, enabled): (&str, char)| {
+            Response::Capability(capability.to_string(), enabled == '1')
+        },
     )(input)
 }
 

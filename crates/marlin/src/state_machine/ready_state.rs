@@ -90,10 +90,21 @@ pub struct ReadyState {
     loading_gcode: bool,
     pub tasks: VecDeque<Task>,
     pub actual_positions_received: BTreeSet<String>,
+    pub capabilities: BTreeSet<String>,
 }
 
 impl Default for ReadyState {
     fn default() -> Self {
+        let mut tasks = VecDeque::new();
+        tasks.push_front(Task {
+            id: "FIRMWARE_INFO".into(),
+            client_id: "INTERNAL".into(),
+            gcode_lines: vec!["M115".to_string()].into_iter(),
+            despooled_line_number: None,
+            machine_override: true,
+            started: false,
+        });
+
         Self {
             mark: None,
             on_ok: OnOK::TransitionToReady,
@@ -105,8 +116,9 @@ impl Default for ReadyState {
             next_serial_line_number: 1,
             // spool
             loading_gcode: false,
-            tasks: VecDeque::new(),
+            tasks,
             actual_positions_received: Default::default(),
+            capabilities: Default::default(),
         }
     }
 }
@@ -284,6 +296,27 @@ impl ReadyState {
 
                         errored(message, &Ready(self), context)
                     }
+                    Response::FirmwareVersion(firmware_version) => {
+                        info!("Firmware version: {:?}", firmware_version);
+                        self.and_no_effects()
+                    },
+                    Response::Capability(capability, enabled) => {
+                        if capability == "AUTOREPORT_TEMP" && enabled {
+                            self.tasks.push_front(Task {
+                                id: "AUTOREPORT_TEMP".into(),
+                                client_id: "INTERNAL".into(),
+                                gcode_lines: vec!["M155 S1".to_string()].into_iter(),
+                                despooled_line_number: None,
+                                machine_override: true,
+                                started: false,
+                            });
+                        }
+
+                        if enabled {
+                            self.capabilities.insert(capability);
+                        }
+                        self.and_no_effects()
+                    },
                     Response::Ok( feedback ) => {
                         let result = feedback
                             .map(|feedback| self.receive_feedback( &feedback, context ))
@@ -703,6 +736,14 @@ impl ReadyState {
         context: &mut Context,
         poll_for: Polling,
     ) {
+        if
+            poll_for == Polling::PollTemperature
+            && self.capabilities.contains("AUTOREPORT_TEMP")
+        {
+            // Skip temperature polling if auto report temp is enabled
+            return self.poll_feedback(effects, context, Polling::PollPosition)
+        }
+
         let gcode = match poll_for {
             Polling::PollTemperature => "M105",
             Polling::PollPosition => "M114",
