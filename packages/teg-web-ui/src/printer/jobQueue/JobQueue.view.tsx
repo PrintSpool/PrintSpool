@@ -29,7 +29,10 @@ import FileInput from '../../common/FileInput'
 // import FloatingPrintNextButton from './components/FloatingPrintNextButton'
 import useStyles from './JobQueue.styles'
 import PrintDialog from '../printDialog/PrintDialog'
+import { allFileExtensions } from '../printDialog/gcodeRenderer/renderGCode'
 import PrintCard from './components/PrintCard'
+
+console.log('wat', { allFileExtensions });
 
 const JobQueueView = ({
   latestPrints,
@@ -236,6 +239,7 @@ const JobQueueView = ({
       </div>
 
       {/* Actions Row */}
+      { console.log({ allFileExtensions }) }
       <div>
         <Button
           component="label"
@@ -245,7 +249,7 @@ const JobQueueView = ({
           startIcon={<Add/>}
         >
           <FileInput
-            accept=".ngc,.gcode"
+            accept={allFileExtensions}
             onClick={setPrintDialogFiles}
           />
           Add
@@ -296,7 +300,7 @@ const JobQueueView = ({
                   <>
                     Your print queue is empty. Drag and drop a gcode file here to get started!
                     <FileInput
-                      accept=".ngc,.gcode"
+                      accept={allFileExtensions}
                       onClick={setPrintDialogFiles}
                     />
                   </>

@@ -30,6 +30,8 @@
     "bs58": "^4.0.1",
     "camelcase": "^5.3.1",
     "classnames": "^2.2.6",
+    "cura-wasm": "^1.5.2",
+    "cura-wasm-definitions": "^1.5.1",
     "deline": "^1.0.4",
     "detectrtc": "^1.4.0",
     "downshift": "^3.2.10",
@@ -82,6 +84,7 @@
     "three-gcode-loader": "^1.0.1",
     "truncate": "^2.1.0",
     "typeface-roboto": "^0.0.54",
+    "unified-3d-loader": "^1.1.4",
     "use-react-router": "^1.0.5",
     "webrtc-adapter": "D1plo1d/adapter#getStats-length",
     "yup": "^0.27.0"
