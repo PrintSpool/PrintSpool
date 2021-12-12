@@ -13,6 +13,6 @@ else
     '$SHELL --rcfile <(echo ". ~/.bashrc; cd ./crates/ && history -s \"cargo watch -x run\" && cargo watch -x run")'
 fi
 tmux new-window -n "web-ui" \
-  '$SHELL --rcfile <(echo ". ~/.bashrc; cd ./packages/teg-web-ui/ && nvm use && history -s \"yarn start\" && yarn start")'
+  '$SHELL --rcfile <(echo ". ~/.bashrc; cd ./frontend/teg-web-ui/ && nvm use && history -s \"yarn start\" && yarn start")'
 
 tmux -2 attach-session -d

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import 'typeface-roboto'
 
-import '../node_modules/react-vis/dist/style.css'
+import 'react-vis/dist/style.css'
 
 import CssBaseline from '@material-ui/core/CssBaseline'
 import { ThemeProvider } from '@material-ui/core/styles'

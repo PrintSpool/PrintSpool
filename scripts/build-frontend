@@ -2,4 +2,4 @@
 set -e
 cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
 
-cd packages/teg-web-ui && yarn && yarn build:http
+cd frontend/teg-web-ui && yarn && yarn build:http

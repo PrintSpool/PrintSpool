@@ -12,7 +12,7 @@ import CardContent from '@material-ui/core/CardContent'
 // import EditIcon from '@material-ui/icons/Edit'
 
 import TaskStatusRow from '../jobQueue/components/TaskStatusRow'
-import useStyles from './Job.styles.js'
+import useStyles from './Job.styles.js.js'
 import MultiVideoStreamer from '../manualControl/videoStreamer/MultiVideoStreamer.page'
 import ComponentControl from '../manualControl/printerComponents/ComponentControl'
 import ViewingUsersButton from './ViewingUsersButton'

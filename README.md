@@ -1,5 +1,5 @@
 <div align="center">
-<img src="./packages/teg-web-ui/src/onboarding/landingPage/tegLogo.svg" alt="Teg" width="200"/>
+<img src="./frontend/teg-web-ui/src/onboarding/landingPage/tegLogo.svg" alt="Teg" width="200"/>
 </div>
 
 ## Teg

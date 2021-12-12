@@ -53,7 +53,7 @@ popd
 # yarn make-dirs
 
 pushd .
-cd ./packages/teg-web-ui/
+cd ./frontend/teg-web-ui/
 nvm install
 nvm use
 npm i -g yarn

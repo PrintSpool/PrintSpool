@@ -15,7 +15,7 @@ import Tab from '@material-ui/core/Tab'
 import TextField from '@material-ui/core/TextField'
 import MuiLink from '@material-ui/core/Link'
 
-import useStyles from './edit/EditPart.styles.js'
+import useStyles from './edit/EditPart.styles.js.js'
 
 const BreadcrumbLink = (props) => (
   <MuiLink

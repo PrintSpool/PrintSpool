@@ -17,8 +17,8 @@ tmp
 .vagrant
 .next
 /package-lock.json
-packages/*/package-lock.json
-packages/teg-web-ui/out
+frontend/*/package-lock.json
+frontend/teg-web-ui/out
 parcel-bundle-reports
 heaptrack.*
 
@@ -46,12 +46,12 @@ node_modules
 sftp-config.json
 yarn-error.log
 ubuntu-xenial-16.04-cloudimg-console.log
-packages/teg-host-posix/log
-packages/*/build
-packages/*/dist
+frontend/teg-host-posix/log
+frontend/*/build
+frontend/*/dist
 dist
 
-packages/*/android/app/build
+frontend/*/android/app/build
 
 # Android/IntelliJ
 #
