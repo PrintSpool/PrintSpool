@@ -15,7 +15,7 @@ import Tab from '@material-ui/core/Tab'
 import TextField from '@material-ui/core/TextField'
 import MuiLink from '@material-ui/core/Link'
 
-import useStyles from './EditPart.styles.js.js'
+import useStyles from './EditPart.styles.js'
 import PartHeader from '../PartHeader'
 
 const EditPartView = ({

@@ -1,0 +1,13 @@
+[package]
+name = "slicer-render"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+itertools = "0.10.3"
+nom-gcode = "0.1.0"
+three-d = "0.9.1"
