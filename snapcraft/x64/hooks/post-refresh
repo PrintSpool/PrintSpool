@@ -1,8 +1,0 @@
-#!/bin/bash
-set -e
-
-# PIDFILE=/var/tmp/teg.pid
-
-# if test -f "$PIDFILE"; then
-#   kill -USR2 $(cat $PIDFILE) || echo "Process was not running."
-# fi

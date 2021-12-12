@@ -1,9 +1,0 @@
-# #!/bin/bash
-# set -e
-
-# echo "Setting up Postgres authorization"
-# # Add the snap's root user to Postgres to give the daemon access to the database
-# sudo -u postgres createuser -s root
-# # Add a default database for the root user
-# sudo createdb -O root root
-# echo "Setting up Postgres authorization  [DONE]"

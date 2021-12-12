@@ -5,7 +5,10 @@ After=network.target
 
 [Service]
 # EnvironmentFile=-/etc/environment
-ExecStart=/usr/local/etc/teg/webrtc-streamer/webrtc-streamer -H 127.0.0.1:8009
+# Using taskset to reserve CPU #0 for print drivers such as teg-marlin
+# Note: This will not work on single cored servers. Generally teg is only intended to be used
+# on multi-core devices.
+ExecStart=taskset --cpu-list 1-1024 /usr/local/etc/teg/webrtc-streamer/webrtc-streamer -H 127.0.0.1:8009
 SyslogIdentifier=teg-webrtc-streamer
 Restart=always
 TimeoutStopSec=30
