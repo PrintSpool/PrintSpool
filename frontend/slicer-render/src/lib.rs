@@ -38,13 +38,13 @@ pub fn render_string(
     let machine_dimensions = Vec3::new(200f32, 100f32, 200f32);
     let mut lines = file_content
         .lines()
-        .map(|line| line.to_string());
+        .map(|line| line);
 
     render(&mut lines, file_content.len(), machine_dimensions)
 }
 
 pub fn render(
-    lines: &mut dyn Iterator<Item = String>,
+    lines: &mut dyn Iterator<Item = &str>,
     gcode_bytes: usize,
     // Y is vertical in order to align with the orientation of the rendering engine
     machine_dimensions: Vec3,
