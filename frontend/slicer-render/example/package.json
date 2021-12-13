@@ -1,0 +1,11 @@
+{
+  "name": "slicer-render-example",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@parcel/transformer-inline-string": "^2.0.1",
+    "parcel": "^2.0.1",
+    "slicer-render": "link:../pkg/"
+  }
+}

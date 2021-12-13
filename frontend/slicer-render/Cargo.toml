@@ -2,12 +2,27 @@
 name = "slicer-render"
 version = "0.1.0"
 edition = "2021"
+default-run = "slicer-render"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "slicer-render"
+path = "src/main.rs"
 
 [workspace]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+console_error_panic_hook = "0.1.7"
+instant = { version = "0.1", features = [ "wasm-bindgen" ] }
 itertools = "0.10.3"
 nom-gcode = "0.1.0"
 three-d = "0.9.1"
+wasm-bindgen = "0.2.78"
+log = "0.4"
+console_log = { version = "0.2", features = ["color"] }
+env_logger = "0.9.0"
+wee_alloc = "0.4.5"
