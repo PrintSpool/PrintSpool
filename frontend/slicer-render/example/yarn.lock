@@ -221,6 +221,10 @@
     "@babel/helper-validator-identifier" "^7.15.7"
     to-fast-properties "^2.0.0"
 
+"@d1plo1d/slicer-render@link:../pkg":
+  version "0.0.0"
+  uid ""
+
 "@iarna/toml@^2.2.0":
   version "2.2.5"
   resolved "https://registry.yarnpkg.com/@iarna/toml/-/toml-2.2.5.tgz#b32366c89b43c6f8cefbdefac778b9c828e3ba8c"
@@ -3969,10 +3973,6 @@ slice-ansi@^4.0.0:
     ansi-styles "^4.0.0"
     astral-regex "^2.0.0"
     is-fullwidth-code-point "^3.0.0"
-
-"slicer-render@link:../pkg":
-  version "0.0.0"
-  uid ""
 
 source-map-js@^1.0.1:
   version "1.0.1"

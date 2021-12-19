@@ -6,6 +6,6 @@
   "devDependencies": {
     "@parcel/transformer-inline-string": "^2.0.1",
     "parcel": "^2.0.1",
-    "slicer-render": "link:../pkg/"
+    "@d1plo1d/slicer-render": "link:../pkg/"
   }
 }

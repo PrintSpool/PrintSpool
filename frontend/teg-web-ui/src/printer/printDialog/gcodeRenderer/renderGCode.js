@@ -1,16 +1,17 @@
 import ReactDOM from 'react-dom'
+import initSlicerRender, { render_string as renderString } from '@d1plo1d/slicer-render';
 
-import {
-  PerspectiveCamera,
-  Scene,
-  WebGLRenderer,
-} from 'three'
+// import {
+//   PerspectiveCamera,
+//   Scene,
+//   WebGLRenderer,
+// } from 'three'
 import {FileFormats, Unified3dLoader} from 'unified-3d-loader';
 import {CuraWASM} from 'cura-wasm';
 import {resolveDefinition} from 'cura-wasm-definitions';
 
-import GCodeLoader from './GCodeLoader'
-import OrbitControls from './OrbitControls'
+// import GCodeLoader from './GCodeLoader'
+// import OrbitControls from './OrbitControls'
 
 import readFile from '../../../common/readFile'
 
@@ -32,54 +33,59 @@ const renderGCode = (files, containerRef, setLoading) => {
   // eslint-disable-next-line react/no-find-dom-node
   const containerElement = ReactDOM.findDOMNode(containerRef.current)
 
-  const getSize = () => {
-    const width = containerElement.offsetWidth
-    const height = containerElement.offsetHeight
-    return {
-      width,
-      height,
-      aspect: width / height,
-    }
-  }
+  // const getSize = () => {
+  //   const width = containerElement.offsetWidth
+  //   const height = containerElement.offsetHeight
+  //   return {
+  //     width,
+  //     height,
+  //     aspect: width / height,
+  //   }
+  // }
 
-  const initialSize = getSize()
-  const camera = new PerspectiveCamera(90, initialSize.aspect, 0.1, 10000)
+  // const initialSize = getSize()
+  // const camera = new PerspectiveCamera(90, initialSize.aspect, 0.1, 10000)
 
-  // eslint-disable-next-line no-new
-  const controls = new OrbitControls(camera)
-  camera.position.set(0, 0, 80)
-  controls.update()
-
+  // // eslint-disable-next-line no-new
   // const controls = new OrbitControls(camera)
-  const scene = new Scene()
+  // camera.position.set(0, 0, 80)
+  // controls.update()
 
-  const renderer = new WebGLRenderer()
-  renderer.setPixelRatio(window.devicePixelRatio)
-  renderer.setSize(initialSize.width, initialSize.height)
+  // // const controls = new OrbitControls(camera)
+  // const scene = new Scene()
 
-  const resize = () => {
-    const { aspect, width, height } = getSize()
-    camera.aspect = aspect
-    camera.updateProjectionMatrix()
-    renderer.setSize(width, height)
-  }
+  // const renderer = new WebGLRenderer()
+  // renderer.setPixelRatio(window.devicePixelRatio)
+  // renderer.setSize(initialSize.width, initialSize.height)
 
-  window.addEventListener('resize', resize, false)
+  // const resize = () => {
+  //   const { aspect, width, height } = getSize()
+  //   camera.aspect = aspect
+  //   camera.updateProjectionMatrix()
+  //   renderer.setSize(width, height)
+  // }
 
-  let continueAnimation = true
+  // window.addEventListener('resize', resize, false)
 
-  const animate = () => {
-    if (!continueAnimation) return
+  // let continueAnimation = true
 
-    renderer.render(scene, camera)
-    requestAnimationFrame(animate)
-  }
+  // const animate = () => {
+  //   if (!continueAnimation) return
+
+  //   renderer.render(scene, camera)
+  //   requestAnimationFrame(animate)
+  // }
 
   const asyncSetup = async () => {
+    const machineDimensions = [235, 235, 255]
+
     const fileExt = files[0].name.split('.').pop()
+    let gcodeText;
+    let modelByteArray;
 
     if (meshFileExtensions.has(fileExt)) {
-      const fileContent = await files[0].arrayBuffer();
+      const modelArrayBuffer = await files[0].arrayBuffer();
+      modelByteArray = new Uint8Array(modelArrayBuffer.slice());
 
       //Create a new slicer
       const slicer = new CuraWASM({
@@ -120,6 +126,22 @@ const renderGCode = (files, containerRef, setLoading) => {
           //   //The override's value
           //   value: -10
           // }
+          {
+            key: 'center_object',
+            value: true,
+          },
+          {
+            key: 'machine_width',
+            value: machineDimensions[0],
+          },
+          {
+            key: 'machine_depth',
+            value: machineDimensions[1],
+          },
+          {
+            key: 'machine_height',
+            value: machineDimensions[2],
+          },
         ],
 
         /**
@@ -146,7 +168,9 @@ const renderGCode = (files, containerRef, setLoading) => {
       // });
 
       // console.log(meshFileExtensions.get(fileExt))
-      // const { vertices } = await loader.load(fileContent, meshFileExtensions.get(fileExt), false);
+
+      // const result = await loader.load(modelArrayBuffer, meshFileExtensions.get(fileExt), false);
+      // modelVerticies = result.vertices
 
       // const material = new THREE.MeshLambertMaterial( { color: 0xF5F5F5 } );
 
@@ -163,40 +187,57 @@ const renderGCode = (files, containerRef, setLoading) => {
       });
 
       //Slice (This can take multiple minutes to resolve!)
-      const { gcode, metadata } = await slicer.slice(fileContent, 'stl');
+      const { gcode, metadata } = await slicer.slice(modelArrayBuffer, 'stl');
 
       console.log('file sliced!', { metadata })
 
       // //Dispose (Reccomended but not necessary to call/intended for SPAs)
       // slicer.dispose();
 
-      const gcodeText = new TextDecoder("utf-8").decode(gcode)
-      const gcodeObject = new GCodeLoader().parse(gcodeText)
-      gcodeObject.position.set(-100, -20, 100)
-      scene.add(gcodeObject)
+      gcodeText = new TextDecoder("utf-8").decode(gcode)
+      // const gcodeObject = new GCodeLoader().parse(gcodeText)
+      // gcodeObject.position.set(-100, -20, 100)
+      // scene.add(gcodeObject)
     } else {
-      const gcodeText = await readFile(files[0])
-      const gcodeObject = new GCodeLoader().parse(gcodeText)
-      gcodeObject.position.set(-100, -20, 100)
-      scene.add(gcodeObject)
+      modelByteArray = new Uint8Array([]);
+      gcodeText = await readFile(files[0])
+      // const gcodeObject = new GCodeLoader().parse(gcodeText)
+      // gcodeObject.position.set(-100, -20, 100)
+      // scene.add(gcodeObject)
     }
 
-    containerElement.appendChild(renderer.domElement)
+    let start = performance.now()
+    console.log('Starting JS Execution')
+    await initSlicerRender();
+    // TODO: pass model verticies in here
+    // renderString('example.stl', null, gcodeText);
+    console.log({ name: files[0].name, modelByteArray, gcodeText })
 
-    animate()
+    renderString(
+      files[0].name,
+      modelByteArray,
+      gcodeText,
+      machineDimensions,
+    );
+
+    console.log(`Done JS Execution in ${performance.now() - start}ms`)
+
+    // containerElement.appendChild(renderer.domElement)
+
+    // animate()
     setLoading(false)
   }
 
   asyncSetup()
 
-  const cleanup = () => {
-    continueAnimation = false
-    renderer.dispose()
-    scene.dispose()
-    controls.dispose()
-  }
+  // const cleanup = () => {
+  //   continueAnimation = false
+  //   renderer.dispose()
+  //   scene.dispose()
+  //   controls.dispose()
+  // }
 
-  return cleanup
+  // return cleanup
 }
 
 export default renderGCode

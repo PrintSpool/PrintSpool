@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 
 import {
   Typography,
@@ -20,12 +20,12 @@ const PrintDialogContent = ({
 }) => {
   const classes = PrintDialogContentStyles()
 
-  const largeFile = files[0].size > 5 * MB
+  const largeFile = files[0].size > 80 * MB
 
   const [shouldLoad, setShouldLoad] = useState(!largeFile)
   const webGLContainer = useRef()
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (shouldLoad === false) {
       setLoading(false)
       return
@@ -33,6 +33,7 @@ const PrintDialogContent = ({
     if (loading === false) {
       setLoading(true)
     }
+    console.log('LOADING RENDER?')
     return renderGCode(files, webGLContainer, setLoading)
   }, [shouldLoad])
 
@@ -62,7 +63,7 @@ const PrintDialogContent = ({
         transitionDelay={300}
         noSpinner={!submitting}
       >
-        <div
+        <canvas
           className={classes.webGLContainer}
           ref={webGLContainer}
         />

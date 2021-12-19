@@ -11,8 +11,8 @@ use cad_bounding_box::CadBoundingBox;
 use wasm_bindgen::prelude::*;
 
 extern crate console_error_panic_hook;
-use std::panic;
-use log::info;
+use std::{panic, io::Cursor};
+use log::{ info, warn };
 
 #[cfg(target_arch = "wasm32")]
 extern crate wee_alloc;
@@ -29,32 +29,198 @@ struct GCodeParserState {
 
 #[wasm_bindgen]
 pub fn render_string(
-    file_content: String,
+    model_file_name: String,
+    model: &[u8],
+    gcode: String,
+    machine_dimensions: Vec<f32>,
 ) {
     console_log::init_with_level(log::Level::Debug)
         .expect("Error initializing logging");
     panic::set_hook(Box::new(console_error_panic_hook::hook));
 
-    let machine_dimensions = Vec3::new(200f32, 100f32, 200f32);
-    let mut lines = file_content
+    // let machine_dimensions = Vec3::new(235f32, 100f32, 235f32);
+    let d = machine_dimensions;
+    let machine_dimensions = Vec3::new(d[0], d[2], d[1]);
+
+    let mut lines = gcode
         .lines()
         .map(|line| line);
 
-    render(&mut lines, file_content.len(), machine_dimensions)
+    render(
+        Some(model_file_name),
+        Some(model),
+        &mut lines,
+        gcode.len(),
+        machine_dimensions,
+    )
 }
 
 pub fn render(
-    lines: &mut dyn Iterator<Item = &str>,
+    // models: &dyn Iterator<Item = (String, String)>,
+    model_file_name: Option<String>,
+    model: Option<&[u8]>,
+    gcode_lines: &mut dyn Iterator<Item = &str>,
     gcode_bytes: usize,
     // Y is vertical in order to align with the orientation of the rendering engine
     machine_dimensions: Vec3,
 ) {
-    let now = instant::Instant::now();
+    // let now = instant::Instant::now();
 
     let mut bed_center = machine_dimensions / 2.0;
     // The center of the bed is at Z = 0
     bed_center[1] = 0.0;
 
+    let window = Window::new(WindowSettings {
+        title: "Slicer Render".to_string(),
+        max_size: Some((1280, 500)),
+        // max_size: Some((1280, 720)),
+        ..Default::default()
+    })
+        .expect("Error creating rendering window");
+
+    let context = window.gl().expect("Error creating GL context");
+
+    let pipeline = ForwardPipeline::new(&context)
+        .expect("Forward pipeline error");
+
+    let max_dim = machine_dimensions[0]
+        .max(machine_dimensions[1])
+        .max(machine_dimensions[2]);
+
+    let mut camera = Camera::new_perspective(
+        &context,
+        window.viewport().expect("Viewport error"),
+        vec3(max_dim * 2.0, max_dim * 2.0, max_dim * 2.5),
+        vec3(0.0, 0.0, 0.0),
+        vec3(0.0, 1.0, 0.0),
+        degrees(45.0),
+        0.1,
+        100000.0,
+    )
+        .expect("camera error");
+
+    let mut control = CadOrbitControl::new(*camera.target(), 1.0, max_dim * 20.0);
+
+    // Load Models
+    // ----------------------------------------------------------------------------------
+    let now = instant::Instant::now();
+
+    let model_bytes = model.as_ref().map(|m| m.len()).unwrap_or(0);
+
+    let model = model.and_then(|model| {
+        if model.is_empty() {
+            return None;
+        }
+
+        let file_name = model_file_name
+            .expect("model_file_name cannot be null if model is set");
+
+        info!("Model ({:?}) Size: {:?}MB", file_name, model_bytes / 1_000_000);
+        info!("GCode Size: {:?}MB", gcode_bytes / 1_000_000);
+
+        let (cpu_mesh, _center) = if file_name.ends_with(".stl") {
+            let mut reader = Cursor::new(model);
+            // stl_io implementation
+            // let mesh = stl_io::read_stl(&mut reader).unwrap();
+            // let positions = mesh.vertices
+            //     .into_iter()
+            //     // Y is vertical in rendering
+            //     .map(|v| [v[0], v[2], v[1]])
+            //     .flatten()
+            //     .collect::<Vec<f32>>();
+
+            // nom_stl implmenetation
+            let mesh = nom_stl::parse_stl(&mut reader).unwrap();
+            let verticies = mesh.vertices_ref().collect::<Vec<_>>();
+
+            // Getting the bounds of the model
+            let mut min = [f32::MAX; 2];
+            let mut max = [f32::MIN; 2];
+            for v in &verticies {
+                for (val, min) in v[0..2].iter().zip(min.iter_mut()) {
+                    if val < min {
+                        *min = *val
+                    }
+                }
+                for (val, max) in v[0..2].iter().zip(max.iter_mut()) {
+                    if val > max {
+                        *max = *val
+                    }
+                }
+            }
+
+            let center = min.iter()
+                .zip(max.iter())
+                .map(|(min, max)| (min + max) / 2f32)
+                .collect::<Vec<_>>();
+
+            info!("GCode Min: {:?} Max: {:?} Center {:?}", min, max, center);
+
+            let positions = verticies
+                .into_iter()
+                // Centering the model on x = 0, y = 0 (in CAD coordinates)
+                .map(|v| [v[0] - center[0], v[1] - center[1], v[2]])
+                // .map(|v| [v[0], v[1], v[2]])
+                .flatten()
+                .collect::<Vec<f32>>();
+
+            let normals = mesh.triangles()
+                .into_iter()
+                .map(|t| [t.normal(), t.normal(), t.normal()])
+                .flatten()
+                // .map(|t| t.normal())
+                .map(|v| [v[0], v[1], v[2]])
+                .flatten()
+                .collect::<Vec<f32>>();
+
+            let cpu_mesh = CPUMesh {
+                positions,
+                normals: Some(normals),
+                ..Default::default()
+            };
+
+            (cpu_mesh, center)
+        } else {
+            panic!("Only .stl files are supported for now");
+        };
+
+        // let model = Model::new(&context, &cpu_mesh).unwrap();
+        let model_material = PhysicalMaterial {
+            name: "cad-model".to_string(),
+            albedo: Color::new_opaque(255, 255, 255),
+            roughness: 0.7,
+            metallic: 0.9,
+            opaque_render_states: RenderStates {
+                cull: Cull::Back,
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        let mut model = Model::new_with_material(
+            &context,
+            &cpu_mesh,
+            model_material,
+        )
+        .unwrap();
+
+        // Rotate about the center of the object
+        model.set_transformation(
+            // 1.0
+            // Mat4::from_translation(Vec3::new(center[0], 0f32, -center[1]))
+            Mat4::from_angle_x(degrees(270.0))
+            // * Mat4::from_translation(Vec3::new(-center[0], -center[1], 0f32))
+        );
+
+        info!("Parsed STL model ({:.1}MB) in {}ms", (model_bytes as f64 / 1_000_000f64), now.elapsed().as_millis());
+
+        Some(model)
+    });
+
+    // Load GCode
+    // ----------------------------------------------------------------------------------
+
+    let now = instant::Instant::now();
     let mut gcode_count = 0;
 
     let mut state: GCodeParserState = GCodeParserState {
@@ -62,7 +228,7 @@ pub fn render(
         relative_movement: false,
     };
 
-    let positions = lines.flat_map(|line| {
+    let positions = gcode_lines.flat_map(|line| {
         gcode_count += 1;
 
         let (_, gcode) = nom_gcode::parse_gcode(&line)
@@ -96,6 +262,63 @@ pub fn render(
                 ..
             })) => {
                 state.relative_movement = true;
+                return None
+            }
+            // G28 HOME
+            Some(GCodeLine::GCode(gcode @ GCode {
+                mnemonic: Mnemonic::General,
+                major: 28,
+                minor: 0,
+                ..
+            })) => {
+                info!("G28:  {:?}", gcode.to_string());
+                if gcode.arguments().next() == None {
+                    state.position = Vec3::new(0.0, 0.0, 0.0);
+                } else {
+                    for (axis, _) in gcode.arguments() {
+                        let index = match axis {
+                            'X' => 0,
+                            'Y' => 1,
+                            'Z' => 2,
+                            'E' => continue,
+                            _ => {
+                                warn!("Invalid G28 Axis: {:?}", axis);
+                                continue;
+                            }
+                        };
+                        state.position[index] = 0.0;
+                    }
+                }
+                return None
+            }
+            // G92 SET POSITION
+            Some(GCodeLine::GCode(gcode @ GCode {
+                mnemonic: Mnemonic::General,
+                major: 92,
+                minor: 0,
+                ..
+            })) => {
+                for (axis, val) in gcode.arguments() {
+                    info!("G92:  {:?}", gcode.to_string());
+                    let val = if let Some(val) = val {
+                        val
+                    } else {
+                        warn!("G92 missing position value");
+                        continue
+                    };
+
+                    let index = match axis {
+                        'X' => 0,
+                        'Y' => 1,
+                        'Z' => 2,
+                        'E' => continue,
+                        _ => {
+                            warn!("Invalid G28 Axis: {:?}", axis);
+                            continue;
+                        }
+                    };
+                    state.position[index] = *val;
+                }
                 return None
             }
             _ => return None,
@@ -141,64 +364,40 @@ pub fn render(
         })
         .collect::<Vec<Mat4>>();
 
-    if edges.is_empty() {
-        panic!("No GCodes found!");
-    }
+    let edges = if edges.is_empty() {
+        warn!("No GCodes found!");
+        None
+    } else {
+        info!("{} GCodes ({:.1}MB) sliced in {}ms", gcode_count, (gcode_bytes as f64 / 1_000_000f64), now.elapsed().as_millis());
 
-    info!("{} GCodes ({:.1}MB) sliced in {}ms", gcode_count, (gcode_bytes as f64 / 1_000_000f64), now.elapsed().as_millis());
+        let mut cylinder = CPUMesh::cylinder(3);
+        cylinder.transform(&Mat4::from_nonuniform_scale(1.0, 0.07, 0.07));
 
-    let window = Window::new(WindowSettings {
-        title: "Slicer Render".to_string(),
-        max_size: Some((1280, 720)),
-        ..Default::default()
-    })
-        .expect("Error creating rendering window");
-
-    let context = window.gl().expect("Error creating GL context");
-
-    let pipeline = ForwardPipeline::new(&context)
-        .expect("Forward pipeline error");
-
-    let max_dim = machine_dimensions[0]
-        .max(machine_dimensions[1])
-        .max(machine_dimensions[2]);
-
-    let mut camera = Camera::new_perspective(
-        &context,
-        window.viewport().expect("Viewport error"),
-        vec3(max_dim * 2.0, max_dim * 2.0, max_dim * 2.5),
-        vec3(0.0, 0.0, 0.0),
-        vec3(0.0, 1.0, 0.0),
-        degrees(45.0),
-        0.1,
-        100000.0,
-    )
-        .expect("camera error");
-
-    let mut control = CadOrbitControl::new(*camera.target(), 1.0, max_dim * 20.0);
-
-    let mut cylinder = CPUMesh::cylinder(3);
-    cylinder.transform(&Mat4::from_nonuniform_scale(1.0, 0.07, 0.07));
-
-    let wireframe_material = PhysicalMaterial {
-        name: "wireframe".to_string(),
-        albedo: Color::new_opaque(50, 100, 50),
-        roughness: 0.7,
-        metallic: 0.8,
-        opaque_render_states: RenderStates {
-            cull: Cull::Back,
+        let wireframe_material = PhysicalMaterial {
+            name: "wireframe".to_string(),
+            albedo: Color::new_opaque(50, 100, 50),
+            roughness: 0.7,
+            metallic: 0.8,
+            opaque_render_states: RenderStates {
+                cull: Cull::Back,
+                ..Default::default()
+            },
             ..Default::default()
-        },
-        ..Default::default()
+        };
+
+        let edges = InstancedModel::new_with_material(
+            &context,
+            &edges,
+            &cylinder,
+            wireframe_material.clone(),
+        )
+        .unwrap();
+
+        Some(edges)
     };
 
-    let edges = InstancedModel::new_with_material(
-        &context,
-        &edges,
-        &cylinder,
-        wireframe_material.clone(),
-    )
-    .unwrap();
+    // Initialize Rendering
+    // ----------------------------------------------------------------------------------
 
     let mut bed = Model::new_with_material(
         &context,
@@ -304,6 +503,14 @@ pub fn render(
             let mut change = frame_input.first_frame;
             change |= camera.set_viewport(frame_input.viewport).unwrap();
 
+            let mut scene_objects: Vec<&dyn Object> = Vec::with_capacity(5);
+
+            model.as_ref().map(|model| scene_objects.push(model));
+            edges.as_ref().map(|edges| scene_objects.push(edges));
+
+            scene_objects.push(&bed);
+            scene_objects.push(&bounding_cube);
+
             // for event in frame_input.events.iter() {
             //     match event {
             //         Event::MousePress {
@@ -337,12 +544,7 @@ pub fn render(
                     ClearState::color_and_depth(1.0, 1.0, 1.0, 1.0, 1.0),
                     || pipeline.render_pass(
                         &camera,
-                        &[
-                            // &monkey,
-                            &edges,
-                            &bed,
-                            &bounding_cube,
-                        ],
+                        scene_objects.as_slice(),
                         &lights,
                     ),
                 )

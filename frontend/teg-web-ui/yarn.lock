@@ -1250,6 +1250,10 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@d1plo1d/slicer-render@link:../slicer-render/pkg":
+  version "0.0.0"
+  uid ""
+
 "@emotion/cache@^10.0.27":
   version "10.0.29"
   resolved "https://registry.yarnpkg.com/@emotion/cache/-/cache-10.0.29.tgz#87e7e64f412c060102d589fe7c6dc042e6f9d1e0"

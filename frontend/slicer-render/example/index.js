@@ -1,11 +1,34 @@
-import initSlicerRender, { render_string as renderString } from 'slicer-render';
+import initSlicerRender, { render_string as renderString } from '@d1plo1d/slicer-render';
+import modelURL from 'url:./example.stl';
 import gcodeText from 'bundle-text:./example.gcode';
 
 const run = async () => {
+  console.log({ modelURL })
+  const machineDimensions = [235, 235, 255]
+
+  const req = await fetch(modelURL)
+  const modelBytes = await req.arrayBuffer()
+  // console.log('Starting JS Execution')
+  // let modelBytes = [];
+  // for(var i = 0; i < modelText.length; i++) {
+  //     var char = modelText.charCodeAt(i);
+  //     modelBytes.push(char >>> 8);
+  //     modelBytes.push(char & 0xFF);
+  // }
+  const modelByteArray = new Uint8Array(modelBytes);
+  console.log(modelByteArray)
+
   let start = performance.now()
-  console.log('Starting JS Execution')
   await initSlicerRender();
-  renderString(gcodeText);
+
+  renderString(
+    'example.stl',
+    modelByteArray,
+    gcodeText,
+    machineDimensions,
+  );
+
+  // renderString(null, null, gcodeText);
   console.log(`Done JS Execution in ${performance.now() - start}ms`)
 }
 

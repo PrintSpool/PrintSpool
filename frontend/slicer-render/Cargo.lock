@@ -609,6 +609,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "float-cmp"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e1267f4ac4f343772758f7b1bdcbe767c218bbab93bb432acbf5162bbf85a6c4"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1340,6 +1349,17 @@ dependencies = [
 
 [[package]]
 name = "nom"
+version = "5.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ffb4262d26ed83a1c0a33a38fe2bb15797329c85770da05e6b828ddb782627af"
+dependencies = [
+ "lexical-core",
+ "memchr",
+ "version_check",
+]
+
+[[package]]
+name = "nom"
 version = "6.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e7413f999671bd4745a7b624bd370a569fb6bc574b23c83a3c5ed2e453f3d5e2"
@@ -1370,6 +1390,15 @@ checksum = "5dfa906eb148663eb1bb5cb2b732f23924a4daa5ee807dc02aefb45e7787fd35"
 dependencies = [
  "nom 6.1.2",
  "thiserror",
+]
+
+[[package]]
+name = "nom_stl"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ded25cbaa1b48f644f6a5635bfe017150aaa7a4d3a970aa6b2258c18fdfd4b87"
+dependencies = [
+ "nom 5.1.2",
 ]
 
 [[package]]
@@ -1933,8 +1962,11 @@ dependencies = [
  "itertools",
  "log",
  "nom-gcode",
+ "nom_stl",
+ "stl_io",
  "three-d",
  "wasm-bindgen",
+ "web-sys",
  "wee_alloc",
 ]
 
@@ -1978,6 +2010,15 @@ name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
+
+[[package]]
+name = "stl_io"
+version = "0.6.0"
+source = "git+https://github.com/hmeyer/stl_io.git#07f6a1d39e12cb6e5580d6d00f62b7e100738b6b"
+dependencies = [
+ "byteorder",
+ "float-cmp",
+]
 
 [[package]]
 name = "strsim"
