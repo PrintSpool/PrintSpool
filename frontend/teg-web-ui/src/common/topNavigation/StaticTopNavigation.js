@@ -16,7 +16,12 @@ import tegLogoNoTextSVG from 'url:./images/tegLogoNoText.svg'
 import UserProfileMenu from './UserProfileMenu'
 
 const StaticTopNavigation = ({
-  title = () => 'Teg',
+  title = () => (
+    <span style={{ letterSpacing: 2 }}>
+      <span style={{ fontWeight: 'lighter' }}>Print</span>
+      <span>Spool</span>
+    </span>
+  ),
   onMenuButtonClick,
   className,
   avatar = localStorage.getItem('avatar'),
@@ -35,11 +40,11 @@ const StaticTopNavigation = ({
       >
         <Hidden smDown={hasMenu}>
           <Link to="/">
-            <img
+            {/* <img
               alt="Teg"
               src={tegLogoNoTextSVG}
               className={classes.logo}
-            />
+            /> */}
           </Link>
         </Hidden>
         <Hidden smDown={!hasMenu} mdUp>

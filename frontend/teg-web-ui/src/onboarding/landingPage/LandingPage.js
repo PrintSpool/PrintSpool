@@ -1,15 +1,13 @@
 import React, { useCallback, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 
-import {
-  Grid,
-  Hidden,
-  Typography,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-} from '@material-ui/core'
+import Grid from '@material-ui/core/Grid'
+import Hidden from '@material-ui/core/Hidden'
+import Typography from '@material-ui/core/Typography'
+import Button from '@material-ui/core/Button'
+import Dialog from '@material-ui/core/Dialog'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import DialogContent from '@material-ui/core/DialogContent'
 
 import { useTranslation, Trans } from 'react-i18next'
 import { useSnackbar } from 'notistack'

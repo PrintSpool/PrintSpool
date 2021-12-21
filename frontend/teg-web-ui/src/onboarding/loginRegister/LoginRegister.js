@@ -78,7 +78,7 @@ const LoginRegister = ({ t }) => {
               variant="h6"
               color="inherit"
             >
-              Welcome to Teg
+              Print Spool
             </Typography>
           </AppBar>
           <Tabs

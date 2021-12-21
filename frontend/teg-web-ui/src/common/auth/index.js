@@ -5,6 +5,7 @@ import React, {
 } from 'react'
 import 'firebase/auth'
 import firebase from 'firebase/app'
+import { useHistory } from 'react-router'
 
 import signallingFetchOptions from './signallingFetchOptions'
 
@@ -51,6 +52,7 @@ export const useAuth = () => useContext(AuthContext)
 export const AuthProvider = ({
   children,
 }) => {
+  const history = useHistory()
   const [{ user, loading }, setState] = useState({
     loading: true,
     user: null,
@@ -58,10 +60,19 @@ export const AuthProvider = ({
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged((nextUser) => {
-      setState({
-        loading: false,
-        user: nextUser,
-      })
+      setState((state) => {
+        console.log({ nextUser })
+        if (state.user != null && nextUser == null) {
+          console.log('logout!')
+          // On logout return to the home page
+          history.push('/')
+        }
+
+        return {
+          loading: false,
+          user: nextUser,
+        }
+      });
     })
   }, [])
 
