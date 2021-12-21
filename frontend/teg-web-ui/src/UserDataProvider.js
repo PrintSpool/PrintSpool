@@ -2,8 +2,6 @@ import React, { useState, useMemo } from 'react'
 
 import bs58 from 'bs58'
 
-import readFile from './common/readFile'
-
 export const UserDataContext = React.createContext({
   name: 'UserDataContext',
 })
@@ -56,7 +54,7 @@ const UserDataProvider = ({
     ...userData,
     isAuthorized: Object.keys(userData.hosts).length > 0,
     importUserData: async (files) => {
-      const text = await readFile(files[0])
+      const text = await files[0].text()
       const nextData = JSON.parse(text)
 
       setUserData(() => {

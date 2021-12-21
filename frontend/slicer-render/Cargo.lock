@@ -221,6 +221,7 @@ checksum = "1a98d30140e3296250832bbaaff83b27dcd6fa3cc70fb6f1f3e5c9c0023b5317"
 dependencies = [
  "approx",
  "num-traits",
+ "serde",
 ]
 
 [[package]]
@@ -1955,6 +1956,7 @@ checksum = "9def91fd1e018fe007022791f865d0ccc9b3a0d5001e01aabb8b40e46000afb5"
 name = "slicer-render"
 version = "0.1.0"
 dependencies = [
+ "cgmath",
  "console_error_panic_hook",
  "console_log",
  "env_logger",
@@ -1963,6 +1965,7 @@ dependencies = [
  "log",
  "nom-gcode",
  "nom_stl",
+ "serde",
  "stl_io",
  "three-d",
  "wasm-bindgen",

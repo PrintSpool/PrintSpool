@@ -29,10 +29,8 @@ import FileInput from '../../common/FileInput'
 // import FloatingPrintNextButton from './components/FloatingPrintNextButton'
 import useStyles from './JobQueue.styles'
 import PrintDialog from '../printDialog/PrintDialog'
-import { allFileExtensions } from '../printDialog/gcodeRenderer/renderGCode'
+import { allFileExtensions } from '../printDialog/PrintDialogContent'
 import PrintCard from './components/PrintCard'
-
-console.log('wat', { allFileExtensions });
 
 const JobQueueView = ({
   latestPrints,

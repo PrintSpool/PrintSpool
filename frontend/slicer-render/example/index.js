@@ -22,10 +22,12 @@ const run = async () => {
   await initSlicerRender();
 
   renderString(
-    'example.stl',
     modelByteArray,
     gcodeText,
-    machineDimensions,
+    {
+      fileNames: ['example.stl'],
+      machineDimensions,
+    }
   );
 
   // renderString(null, null, gcodeText);
