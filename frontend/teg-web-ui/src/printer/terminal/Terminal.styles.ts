@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles'
 const useStyles = makeStyles(theme => ({
   root: {
     display: 'grid',
-    gridTemplateRows: 'auto auto 1fr',
+    gridTemplateRows: 'auto auto auto 1fr',
     // width: '100%',
     padding: theme.spacing(2),
     paddingBottom: 0,
@@ -25,6 +25,7 @@ const useStyles = makeStyles(theme => ({
   },
   input: {
     flexGrow: 1,
+    marginTop: theme.spacing(2),
     marginRight: theme.spacing(2),
   },
   terminalEntry: {

@@ -5,7 +5,7 @@ const useStyles = makeStyles(theme => ({
   root: {
     // overflow: 'scroll',
     display: 'grid',
-    gridTemplateRows: 'auto 1fr',
+    gridTemplateRows: 'auto auto 1fr',
     padding: theme.spacing(2),
     overflowX: 'hidden',
   },
@@ -50,7 +50,7 @@ const useStyles = makeStyles(theme => ({
   },
   // Add and Print Next buttons
   actionsRowButton: {
-    marginTop: theme.spacing(1),
+    marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
     marginRight: theme.spacing(1),
   },

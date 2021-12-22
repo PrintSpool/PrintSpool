@@ -6,8 +6,10 @@ import Link from '@material-ui/core/Link'
 import TextField from '@material-ui/core/TextField'
 
 import useStyles from './Terminal.styles'
+import ServerBreadcrumbs from '../common/ServerBreadcrumbs'
 
 const TerminalView = ({
+  machineName,
   onSubmit,
   isSubmitting,
   register,
@@ -19,6 +21,10 @@ const TerminalView = ({
 
   return (
     <div className={classes.root}>
+      <ServerBreadcrumbs machineName={machineName}>
+        <Typography color="textPrimary">Starred Prints</Typography>
+      </ServerBreadcrumbs>
+
       <form className={classes.inputRow} onSubmit={onSubmit}>
         <TextField
           className={classes.input}

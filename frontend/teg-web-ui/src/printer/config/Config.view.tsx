@@ -4,11 +4,14 @@ import { Link } from 'react-router-dom'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
+import Typography from '@material-ui/core/Typography'
 
 import UpdateDialogView from './components/UpdateDialog/UpdateDialog.view'
+import ServerBreadcrumbs from '../common/ServerBreadcrumbs'
 
 const ConfigView = ({
   serverVersion,
+  machine,
   // hasPendingUpdates,
   updateDialogProps,
 }) => {
@@ -17,10 +20,22 @@ const ConfigView = ({
       { updateDialogProps != null && (
         <UpdateDialogView {...updateDialogProps}/>
       )}
+
+      <div style={{ marginTop: 16, marginLeft: 16, marginRight: 16}}>
+        <ServerBreadcrumbs machineName={machine.name}>
+          <Typography color="textPrimary">Settings</Typography>
+        </ServerBreadcrumbs>
+      </div>
+
       <List component="nav">
-        <ListItem divider>
+        <ListItem>
           <ListItemText
-            primary={serverVersion}
+            primary={(
+              <span>
+                {'Server Version: '}
+                <i>{serverVersion}</i>
+              </span>
+            )}
             // secondary={
             //   (
             //     hasPendingUpdates

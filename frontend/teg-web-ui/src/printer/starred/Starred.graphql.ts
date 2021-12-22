@@ -20,6 +20,7 @@ export const PRINT_QUEUES_QUERY = gql`
   fragment QueryFragment on Query {
     machines(input: { machineID: $machineID }) {
       id
+      name
       status
     }
     printQueues(input: { machineID: $machineID }) {

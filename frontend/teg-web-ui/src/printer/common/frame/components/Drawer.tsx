@@ -36,7 +36,15 @@ const Drawer = ({
     href,
     icon,
     newTab,
+    exact = false,
+    altPrefix = null,
   }) => {
+    let isActive = exact ? location.pathname === href : location.pathname.startsWith(href)
+
+    if (altPrefix != null) {
+      isActive ||= location.pathname.startsWith(altPrefix)
+    }
+
     const linkComponent = useMemo(() => React.forwardRef((props, ref) => (
       <Link
         to={href}
@@ -51,7 +59,7 @@ const Drawer = ({
         button
         component={linkComponent as any}
         onClick={onClose}
-        className={location.pathname === href ? classes.activeLink : ''}
+        className={isActive ? classes.activeLink : ''}
       >
         {
           icon && (
@@ -73,6 +81,7 @@ const Drawer = ({
             text="Home"
             icon={<Home />}
             href="/"
+            exact
           />
         </Hidden>
         <ListSubheader>{machine.name}</ListSubheader>
@@ -80,6 +89,8 @@ const Drawer = ({
           text="Printing"
           icon={<Inbox />}
           href={`/m/${hostID}/${machineID}/`}
+          altPrefix={`/m/${hostID}/${machineID}/printing/`}
+          exact
         />
         <DrawerLink
           text="Starred"

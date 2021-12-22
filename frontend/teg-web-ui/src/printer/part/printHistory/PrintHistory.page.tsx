@@ -8,6 +8,10 @@ import { useSnackbar } from 'notistack'
 
 const PART_QUERY = gql`
   fragment QueryFragment on Query {
+    machines(input: { machineID: $machineID }) {
+      id
+      name
+    }
     parts(input: { partID: $partID }) {
       id
       name
@@ -31,11 +35,12 @@ const PART_QUERY = gql`
 `
 
 const PrintHistoryPage = () => {
-  const { partID } = useParams()
+  const { machineID, partID } = useParams()
 
   const { loading, error, data } = useLiveSubscription(PART_QUERY, {
-    variablesDef: '($partID: ID)',
+    variablesDef: '($machineID: ID, $partID: ID)',
     variables: {
+      machineID,
       partID,
     },
   })
@@ -52,7 +57,8 @@ const PrintHistoryPage = () => {
 
   return (
     <PrintHistoryView {...{
-        part,
+      machineName: data.machines[0].name,
+      part,
     }} />
   )
 }

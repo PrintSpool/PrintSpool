@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { gql } from '@apollo/client'
 
 import Divider from '@material-ui/core/Divider'
@@ -11,6 +11,8 @@ import ListItemText from '@material-ui/core/ListItemText'
 import ListSubheader from '@material-ui/core/ListSubheader'
 import Tooltip from '@material-ui/core/Tooltip'
 import Fab from '@material-ui/core/Fab'
+import Typography from '@material-ui/core/Typography'
+import MUILink from '@material-ui/core/Link'
 
 // import Usb from '@material-ui/icons/Usb'
 // import Toys from '@material-ui/icons/Toys'
@@ -27,6 +29,7 @@ import CreateComponentDialog from '../components/CreateComponentDialog/CreateCom
 import transformComponentSchema from './transformComponentSchema'
 
 import useStyles from './PrinterComponents.styles'
+import ServerBreadcrumbs from '../../common/ServerBreadcrumbs'
 
 const componentsOfType = (components, ofType) => (
   components.filter(component => component.type === ofType)
@@ -81,6 +84,7 @@ const PrinterComponentsView = ({
   verb,
 }) => {
   const classes = useStyles()
+  const { hostID, machineID } = useParams()
 
   const { serialPortID } = selectedComponent?.configForm.model || {}
   const addSerialPortDevice = serialPortID && devices.every(device => device.id !== serialPortID)
@@ -158,6 +162,15 @@ const PrinterComponentsView = ({
           <Add />
         </Fab>
       </Tooltip>
+
+      <div style={{ marginTop: 16, marginLeft: 16, marginRight: 16 }}>
+        <ServerBreadcrumbs machineName={machine.name}>
+          <MUILink color="inherit" component={Link} to={`/m/${hostID}/${machineID}/config`}>
+            Config
+          </MUILink>
+          <Typography color="textPrimary">Print Components</Typography>
+        </ServerBreadcrumbs>
+      </div>
       <List>
         {
           CATEGORIES.map(({

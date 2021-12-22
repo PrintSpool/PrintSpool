@@ -4,7 +4,7 @@ const useStyles = makeStyles(theme => ({
   root: {
     display: 'grid',
     // Vertical Split
-    gridTemplateRows: 'auto 1fr',
+    gridTemplateRows: 'auto auto 1fr',
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
     // // Horizontal Split
@@ -14,6 +14,10 @@ const useStyles = makeStyles(theme => ({
     //   paddingRight: 0,
     // },
     overflow: 'hidden',
+  },
+  breadcrumbs: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
   },
   // videoStreamer: {
   //   // // alignSelf: 'center',

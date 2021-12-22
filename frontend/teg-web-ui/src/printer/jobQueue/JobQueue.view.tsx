@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { useParams } from 'react-router-dom'
 import truncate from 'truncate'
 
 import Typography from '@material-ui/core/Typography'
@@ -31,6 +32,7 @@ import useStyles from './JobQueue.styles'
 import PrintDialog from '../printDialog/PrintDialog'
 import { allFileExtensions } from '../printDialog/PrintDialogContent'
 import PrintCard from './components/PrintCard'
+import ServerBreadcrumbs from '../common/ServerBreadcrumbs'
 
 const JobQueueView = ({
   latestPrints,
@@ -49,6 +51,7 @@ const JobQueueView = ({
   history,
 }) => {
   const classes = useStyles()
+  const { machineID } = useParams()
 
   // console.log({ printQueues })
   const parts = printQueues.map(q => q.parts).flat()
@@ -217,6 +220,10 @@ const JobQueueView = ({
           />
         </React.Suspense>
       )}
+
+      <ServerBreadcrumbs>
+        <Typography color="textPrimary">{machines[0].name}</Typography>
+      </ServerBreadcrumbs>
 
       <div className={classes.latestPrints}>
         {/* <Typography variant="subtitle1" gutterBottom>

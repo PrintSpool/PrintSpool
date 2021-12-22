@@ -16,6 +16,7 @@ import ComponentControl from './printerComponents/ComponentControl'
 import MultiVideoStreamer from './videoStreamer/MultiVideoStreamer.page'
 
 import useStyles from './ManualControl.styles'
+import ServerBreadcrumbs from '../common/ServerBreadcrumbs'
 
 const ManualControlView = ({
   machine,
@@ -38,6 +39,12 @@ const ManualControlView = ({
 
   return (
     <div className={classes.root}>
+      <div className={classes.breadcrumbs}>
+        <ServerBreadcrumbs machineName={machine.name}>
+          <Typography color="textPrimary">Maintenance</Typography>
+        </ServerBreadcrumbs>
+      </div>
+
       <MultiVideoStreamer
         machineID={machine.id}
         videos={videos}

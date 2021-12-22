@@ -13,6 +13,10 @@ import { useSnackbar } from 'notistack'
 
 const JOB_QUERY = gql`
   fragment QueryFragment on Query {
+    machines(input: { machineID: $machineID }) {
+      id
+      name
+    }
     parts(input: { partID: $partID }) {
       id
       name
@@ -78,11 +82,12 @@ const STOP = gql`
 const JobPage = () => {
   const { enqueueSnackbar } = useSnackbar()
   const { match: { params } } = useReactRouter()
-  const { partID } = params
+  const { machineID, partID } = params
 
   const { loading, error, data } = useLiveSubscription(JOB_QUERY, {
-    variablesDef: '($partID: ID)',
+    variablesDef: '($machineID: ID, $partID: ID)',
     variables: {
+      machineID,
       partID,
     },
   })
@@ -161,6 +166,7 @@ const JobPage = () => {
   return (
     <JobView
       {...{
+        machineName: data.machines[0].name,
         part,
         cancelTask,
         pausePrint,

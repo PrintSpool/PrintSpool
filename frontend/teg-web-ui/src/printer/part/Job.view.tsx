@@ -19,6 +19,7 @@ import ViewingUsersButton from './ViewingUsersButton'
 import PartHeader from './PartHeader'
 
 const JobView = ({
+  machineName,
   cancelTask,
   pausePrint,
   resumePrint,
@@ -48,6 +49,7 @@ const JobView = ({
   return (
     <div className={classes.root}>
       <PartHeader {...{
+        machineName,
         part,
         value: 0,
       }}/>

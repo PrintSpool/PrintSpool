@@ -7,13 +7,12 @@ import Button from '@material-ui/core/Button'
 import { Link, useParams } from 'react-router-dom'
 
 // import Typeahead from '../../../common/Typeahead'
+import ServerBreadcrumbs from '../common/ServerBreadcrumbs'
 import Loading from '../../common/Loading'
 import ConfigForm from '../config/components/ConfigForm/ConfigForm'
 import ConfigFields from '../config/components/ConfigForm/ConfigFields'
 import AddPrinterStyles from './AddPrinter.styles'
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
-import Breadcrumbs from '@material-ui/core/Breadcrumbs'
-import MUILink from '@material-ui/core/Link'
 
 const AddPrinterView = ({
   // machineDefinitionURL,
@@ -59,15 +58,9 @@ const AddPrinterView = ({
     }} >
       <StaticTopNavigation />
       <div className={classes.form}>
-        <Breadcrumbs aria-label="breadcrumb">
-          <MUILink color="inherit" component={Link} to="/">
-            Servers
-          </MUILink>
-          <MUILink color="inherit" component={Link} to="../">
-            {hostID.slice(0, 8)}...
-          </MUILink>
+        <ServerBreadcrumbs>
           <Typography color="textPrimary">Add Printer</Typography>
-        </Breadcrumbs>
+        </ServerBreadcrumbs>
 
         { mutation.loading && <Loading /> }
 
@@ -144,7 +137,7 @@ const AddPrinterView = ({
 
                     return (
                       <>
-                        <Typography variant="h1">
+                        <Typography variant="h1" className={classes.title}>
                           Add Printer
                         </Typography>
                         {/*

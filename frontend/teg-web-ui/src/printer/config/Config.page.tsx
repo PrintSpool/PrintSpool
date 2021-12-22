@@ -17,6 +17,7 @@ const DEVICE_QUERY = gql`
     }
     machines(input: $input) {
       id
+      name
       status
       developerMode
       configForm {
@@ -112,6 +113,7 @@ const ConfigPage = () => {
   return <ConfigView {...{
     // machineDefSuggestions,
     // loadingMachineDefs,
+    machine,
     serverVersion,
     updateDialogProps,
   }} />

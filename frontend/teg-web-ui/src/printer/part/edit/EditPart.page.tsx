@@ -9,6 +9,10 @@ import { useSnackbar } from 'notistack'
 
 const PART_QUERY = gql`
   fragment QueryFragment on Query {
+    machines(input: { machineID: $machineID }) {
+      id
+      name
+    }
     parts(input: { partID: $partID }) {
       id
       name
@@ -34,13 +38,14 @@ const SET_PART_POSITIONS = gql`
 `
 
 const EditPartPage = () => {
-  const { partID } = useParams()
+  const { machineID, partID } = useParams()
   const history = useHistory()
   const { enqueueSnackbar } = useSnackbar()
 
   const { loading, error, data } = useLiveSubscription(PART_QUERY, {
-    variablesDef: '($partID: ID)',
+    variablesDef: '($machineID: ID, $partID: ID)',
     variables: {
+      machineID,
       partID,
     },
   })
@@ -100,6 +105,7 @@ const EditPartPage = () => {
 
   return (
     <EditPartView {...{
+        machineName: data.machines[0].name,
         part,
         setQuantity,
         setQuantityMutation,

@@ -33,7 +33,6 @@ const CREATE_MACHINE = gql`
 const AddPrinterPage = () => {
   const { hostID } = useParams()
   const history = useHistory()
-  console.log('add printer????')
 
   const [createMachine, mutation] = useMutation(CREATE_MACHINE)
 

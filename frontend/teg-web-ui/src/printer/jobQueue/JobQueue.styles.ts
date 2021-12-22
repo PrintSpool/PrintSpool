@@ -5,7 +5,7 @@ const useStyles = makeStyles(theme => ({
   root: {
     // overflow: 'scroll',
     display: 'grid',
-    gridTemplateRows: 'auto auto 1fr',
+    gridTemplateRows: 'auto auto auto 1fr',
     padding: theme.spacing(2),
     overflowX: 'hidden',
   },

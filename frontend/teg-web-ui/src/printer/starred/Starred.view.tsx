@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import truncate from 'truncate'
 
@@ -19,7 +19,6 @@ import DeleteIcon from '@material-ui/icons/Delete'
 
 import Add from '@material-ui/icons/Add'
 import PlayArrow from '@material-ui/icons/PlayArrow'
-import CloudUpload from '@material-ui/icons/CloudUpload'
 // import LowPriority from '@material-ui/icons/LowPriority'
 import Star from '@material-ui/icons/Star'
 import StarOutline from '@material-ui/icons/StarOutline'
@@ -27,7 +26,7 @@ import StarOutline from '@material-ui/icons/StarOutline'
 import useConfirm from '../../common/_hooks/useConfirm'
 // import FloatingPrintNextButton from './components/FloatingPrintNextButton'
 import useStyles from './Starred.styles'
-import { parseMessage } from 'graphql-ws/src/index'
+import ServerBreadcrumbs from '../common/ServerBreadcrumbs'
 
 const JobQueueView = ({
   printQueues,
@@ -153,6 +152,9 @@ const JobQueueView = ({
     <div
       className={classes.root}
     >
+      <ServerBreadcrumbs machineName={machines[0].name}>
+        <Typography color="textPrimary">Starred Prints</Typography>
+      </ServerBreadcrumbs>
 
       {/* Actions Row */}
       <div>

@@ -14,6 +14,7 @@ import useStyles from './PrintHistory.styles'
 import PartHeader from '../PartHeader'
 
 const PrintHistoryView = ({
+  machineName,
   part,
 }) => {
   const classes = useStyles()
@@ -25,6 +26,7 @@ const PrintHistoryView = ({
   return (
     <div className={classes.root}>
       <PartHeader {...{
+        machineName,
         part,
         value: 1,
       }}/>

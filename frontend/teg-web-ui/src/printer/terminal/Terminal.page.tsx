@@ -13,6 +13,7 @@ const GCODE_HISTORY_QUERY = gql`
   fragment QueryFragment on Query {
     machines(input: { machineID: $machineID }) {
       id
+      name
       status
       gcodeHistory(limit: 200) {
         id
@@ -85,12 +86,13 @@ const Terminal = () => {
     throw error
   }
 
-  const { status, gcodeHistory } = data.machines[0]
+  const { status, gcodeHistory, name: machineName } = data.machines[0]
   const isReady = ['READY'].includes(status)
   // const isReady = ['READY', 'PRINTING'].includes(status)
 
   return (
     <TerminalView {...{
+      machineName,
       onSubmit: handleSubmit(onSubmit),
       isSubmitting: execGCode.isLoading,
       errors,

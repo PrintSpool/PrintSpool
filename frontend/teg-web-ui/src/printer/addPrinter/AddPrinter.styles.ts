@@ -4,6 +4,10 @@ const useStyles = makeStyles((theme) => ({
   loading: {
     minHeight: '60vh',
   },
+  title: {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(2),
+  },
   loadingPart2: {},
   part1: {
     display: 'flex',
@@ -30,8 +34,7 @@ const useStyles = makeStyles((theme) => ({
     // display: 'flex',
     // flexDirection: 'column',
     // flex: 1,
-    marginLeft: theme.spacing(2),
-    marginRight: theme.spacing(2),
+    margin: theme.spacing(2),
   },
   submit: {
     marginTop: theme.spacing(2),
