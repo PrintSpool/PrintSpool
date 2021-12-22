@@ -25,6 +25,7 @@ mod mutation;
 mod query;
 mod server_query;
 mod local_http_server;
+mod server;
 
 mod health_check_socket;
 use health_check_socket::health_check_socket;

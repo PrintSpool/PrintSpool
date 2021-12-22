@@ -16,6 +16,24 @@
       "nullable": []
     }
   },
+  "0493c6aa83f6a8ed5df74b7e9954b63e3cc4b47f9980074cef90b0f485430631": {
+    "query": "\n                    SELECT servers.props FROM servers\n                    WHERE\n                        (servers.props->'is_self')::boolean IS TRUE\n                ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "props",
+          "type_info": "Jsonb"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
   "07468e71f2b8b5be641a11543d00c226a0e284f59a6daf10474ac3987528bbd0": {
     "query": "\n                SELECT props FROM machine_viewers\n                WHERE\n                    machine_id = $1 AND\n                    user_id = $2\n            ",
     "describe": {

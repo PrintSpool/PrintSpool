@@ -4236,6 +4236,7 @@ dependencies = [
  "async-graphql",
  "async-graphql-warp",
  "async-std",
+ "async-trait",
  "built",
  "bytes 1.1.0",
  "chrono",

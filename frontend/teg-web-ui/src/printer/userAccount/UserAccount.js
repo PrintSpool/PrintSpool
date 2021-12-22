@@ -106,20 +106,30 @@ const DeleteDialog = ({
 }
 
 const UserAccount = ({ auth0Token }) => {
-  const { fetchOptions } = useAuth()
+  const { user, getFetchOptions } = useAuth()
+
+  const { data: fetchOptionsOverride, error: firebaseError } = useAsync({
+    promiseFn: useCallback(async () => {
+      return user ? await getFetchOptions() : null
+    }, [user]),
+    // promiseFn: useCallback(async () => "wat", []),
+    suspense: true,
+  })
+
   const [deletionMachine, setDeletionMachine] = useState()
 
   const { loading, cacheValue = {}, load } = useGraphQL({
-    fetchOptionsOverride: fetchOptions,
+    fetchOptionsOverride,
     operation: {
       query: `
         {
           my {
-            machines {
-              id
-              publicKey
-              name
-              slug
+            hosts {
+              machines {
+                id
+                name
+                slug
+              }
             }
           }
         }
@@ -151,7 +161,7 @@ const UserAccount = ({ auth0Token }) => {
     return <div />
   }
 
-  const machines = Object.values(cacheValue.data.my.machines)
+  const machines = cacheValue.data.my.hosts.map(host => Object.values(host.machines)).flat()
 
   return (
     <>

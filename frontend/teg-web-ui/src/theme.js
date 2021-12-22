@@ -17,13 +17,19 @@ const theme = createMuiTheme({
     MuiLink: {
       root: {
         // color: 'rgb(0, 0, 238)',
-        color: '#0366d6',
+        // color: '#0366d6',
         cursor: 'pointer',
       },
     },
   },
   typography: {
     useNextVariants: true,
+    h1: {
+      fontSize: '2rem',
+    },
+    h2: {
+      fontSize: '1.7rem',
+    },
   //   fontSize: 18,
   //   h4: {
   //     fontSize: '2.1rem',

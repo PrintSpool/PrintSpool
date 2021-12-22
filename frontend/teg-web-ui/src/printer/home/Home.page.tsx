@@ -16,14 +16,14 @@ import ListItemText from '@material-ui/core/ListItemText'
 import Typography from '@material-ui/core/Typography'
 // import Icon from '@material-ui/core/Icon'
 import Tooltip from '@material-ui/core/Tooltip'
-import ListSubheader from '@material-ui/core/ListSubheader'
+// import ListSubheader from '@material-ui/core/ListSubheader'
 // import Divider from '@material-ui/core/Divider'
 
 import Add from '@material-ui/icons/Add'
 
 import { useAuth } from '../../common/auth'
 
-import HomeStyles from './HomeStyles'
+import HomeStyles from './Home.style'
 
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
 
@@ -96,7 +96,7 @@ const Home = () => {
     return <div />
   }
 
-  const hosts = Object.values(cacheValue.data.my.hosts)
+  const hosts: any = Object.values(cacheValue.data.my.hosts)
 
   return (
     <>
@@ -108,7 +108,7 @@ const Home = () => {
             component="h2"
             className={classes.header}
           >
-            3D Printers
+            Servers
             <Tooltip title="Add 3D Printer" placement="left">
               <Fab
                 className={classes.addButton}
@@ -130,30 +130,30 @@ const Home = () => {
           <List>
             { hosts.map(host => (
               <div key={host.slug}>
-                { hosts.length > 1 && (
+                {/* { hosts.length > 1 && (
                   <ListItem component="div">
                     <ListSubheader disableGutters>
                       {'Server ID: '}
                       {`${host.slug.slice(0, 8)}..`}
                     </ListSubheader>
                   </ListItem>
-                )}
-                { host.machines.map(machine => (
-                  <ListItem
-                    key={machine.slug}
-                    button
-                    component={React.forwardRef((props, ref) => (
-                      <Link
-                        to={`/m/${host.slug}/${machine.slug}/`}
-                        // className={classes.manage}
-                        innerRef={ref}
-                        {...props}
-                      />
-                    ))}
-                  >
-                    <ListItemText primary={machine.name} />
+                )} */}
+                {/* { host.machines.map(machine => ( */}
+                <ListItem
+                  key={host.slug}
+                  button
+                  component={React.forwardRef((props, ref) => (
+                    <Link
+                      to={`/m/${host.slug}/`}
+                      // className={classes.manage}
+                      innerRef={ref}
+                      {...props}
+                    />
+                  ))}
+                >
+                  <ListItemText primary={host.slug} />
                   </ListItem>
-                ))}
+                {/* ))} */}
               </div>
             ))}
           </List>

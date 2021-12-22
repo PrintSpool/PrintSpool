@@ -82,7 +82,6 @@ const UserProfileMenu = ({ avatar }) => {
           onClick={() => {
             handleClose()
             logOut()
-            // history.push('../')
           }}
         >
             Log out

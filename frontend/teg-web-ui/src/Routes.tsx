@@ -12,7 +12,8 @@ import LandingPage from './onboarding/landingPage/LandingPage'
 import PrivacyPolicy from './onboarding/privacyPolicy/PrivacyPolicy'
 import LoginRegister from './onboarding/loginRegister/LoginRegister'
 
-import Home from './printer/home/Home'
+import Home from './printer/home/Home.page'
+import Host from './printer/host/Host.page'
 import UserAccount from './printer/userAccount/UserAccount'
 import Terminal from './printer/terminal/Terminal.page'
 
@@ -29,6 +30,7 @@ import MaterialsConfigPage from './printer/config/materials/Materials.page'
 import UsersConfigPage from './printer/config/users/User.page'
 import InvitesConfigPage from './printer/config/invites/Invites.page'
 import LatencyNotification from './printer/common/LatencyNotification'
+import AddPrinterPage from './printer/addPrinter/AddPrinter.page'
 
 const GettingStarted = React.lazy(() => (
   import('./onboarding/gettingStarted/GettingStarted')
@@ -188,10 +190,19 @@ const Routes = () => {
               )}
             />
             <Route
-              path={[
-                '/m/:hostID/:machineID/',
-                // '/q/:hostID/',
-              ]}
+              path="/m/:hostID/"
+              exact
+            >
+              <Host/>
+            </Route>
+            <Route
+              path="/m/:hostID/add-printer"
+              exact
+            >
+              <AddPrinterPage/>
+            </Route>
+            <Route
+              path="/m/:hostID/:machineID/"
               render={({ match }) => (
                 <ConnectionFrame match={match}>
                   <LatencyNotification />

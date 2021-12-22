@@ -1,9 +1,11 @@
+use async_graphql::{Context, FieldResult};
 use chrono::prelude::*;
-// use eyre::{
-//     // eyre,
-//     Result,
-//     // Context as _,
-// };
+use eyre::{
+    // eyre,
+    Result,
+    // Context as _,
+};
+use teg_json_store::{JsonRow, Record};
 // use async_graphql::{
 //     // ID,
 //     // Context,
@@ -11,7 +13,7 @@ use chrono::prelude::*;
 // };
 // use teg_json_store::Record as _;
 
-use crate::built_info;
+use crate::{built_info, server::Server};
 
 #[derive(Default)]
 pub struct ServerQuery;
@@ -44,4 +46,37 @@ impl ServerQuery {
 
     // TODO: Do we need pending updates still in the new architecture?
     // hasPendingUpdates
+
+    #[instrument(skip(self, ctx))]
+    async fn server_name<'ctx>(
+        &self,
+        ctx: &'ctx Context<'_>,
+    ) -> FieldResult<Option<String>> {
+        let db: &crate::Db = ctx.data()?;
+
+        async move {
+            let servers = sqlx::query_as!(
+                JsonRow,
+                r#"
+                    SELECT servers.props FROM servers
+                    WHERE
+                        (servers.props->'is_self')::boolean IS TRUE
+                "#,
+            )
+                .fetch_all(db)
+                .await?;
+
+            let servers = Server::from_rows(servers)?;
+
+            let name = servers.into_iter().next().map(|server| server.name);
+
+            Result::<_>::Ok(name)
+        }
+            // log the backtrace which is otherwise lost by FieldResult
+            .await
+            .map_err(|err| {
+                warn!("{:?}", err);
+                err.into()
+            })
+    }
 }
