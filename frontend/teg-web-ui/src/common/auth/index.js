@@ -75,10 +75,6 @@ export const AuthProvider = ({
     })
   }, [])
 
-  // if (error) {
-  //   throw error
-  // }
-
   if (loading) {
     return <div />
   }

@@ -8,29 +8,69 @@ import {
 
 import { useAuth } from './common/auth'
 
-import LandingPage from './onboarding/landingPage/LandingPage'
-import PrivacyPolicy from './onboarding/privacyPolicy/PrivacyPolicy'
-import LoginRegister from './onboarding/loginRegister/LoginRegister'
+const LandingPage = React.lazy(() => (
+  import('./onboarding/landingPage/LandingPage')
+))
+const PrivacyPolicy = React.lazy(() => (
+  import('./onboarding/privacyPolicy/PrivacyPolicy')
+))
+const LoginRegister = React.lazy(() => (
+  import('./onboarding/loginRegister/LoginRegister')
+))
 
-import Home from './printer/home/Home.page'
-import Host from './printer/host/Host.page'
-import UserAccount from './printer/userAccount/UserAccount'
-import Terminal from './printer/terminal/Terminal.page'
+const Home = React.lazy(() => (
+  import('./printer/home/Home.page')
+))
+const Host = React.lazy(() => (
+  import('./printer/host/Host.page')
+))
+const UserAccount = React.lazy(() => (
+  import('./printer/userAccount/UserAccount')
+))
+const Terminal = React.lazy(() => (
+  import('./printer/terminal/Terminal.page')
+))
 
-import ConnectionFrame from './printer/common/frame/ConnectionFrame'
-import QueuePage from './printer/jobQueue/JobQueue.page'
-import PartPage from './printer/part/Job.page'
-import EditPartPage from './printer/part/edit/EditPart.page'
-import PrintHistoryPage from './printer/part/printHistory/PrintHistory.page'
-import StarredPage from './printer/starred/Starred.page'
+const ConnectionFrame = React.lazy(() => (
+  import('./printer/common/frame/ConnectionFrame')
+))
+const QueuePage = React.lazy(() => (
+  import('./printer/jobQueue/JobQueue.page')
+))
+const PartPage = React.lazy(() => (
+  import('./printer/part/Job.page')
+))
+const EditPartPage = React.lazy(() => (
+  import('./printer/part/edit/EditPart.page')
+))
+const PrintHistoryPage = React.lazy(() => (
+  import('./printer/part/printHistory/PrintHistory.page')
+))
+const StarredPage = React.lazy(() => (
+  import('./printer/starred/Starred.page')
+))
 
-import ConfigIndexPage from './printer/config/Config.page'
-import ComponentsConfigPage from './printer/config/printerComponents/PrinterComponents.page'
-import MaterialsConfigPage from './printer/config/materials/Materials.page'
-import UsersConfigPage from './printer/config/users/User.page'
-import InvitesConfigPage from './printer/config/invites/Invites.page'
-import LatencyNotification from './printer/common/LatencyNotification'
-import AddPrinterPage from './printer/addPrinter/AddPrinter.page'
+const ConfigIndexPage = React.lazy(() => (
+  import('./printer/config/Config.page')
+))
+const ComponentsConfigPage = React.lazy(() => (
+  import('./printer/config/printerComponents/PrinterComponents.page')
+))
+const MaterialsConfigPage = React.lazy(() => (
+  import('./printer/config/materials/Materials.page')
+))
+const UsersConfigPage = React.lazy(() => (
+  import('./printer/config/users/User.page')
+))
+const InvitesConfigPage = React.lazy(() => (
+  import('./printer/config/invites/Invites.page')
+))
+const LatencyNotification = React.lazy(() => (
+  import('./printer/common/LatencyNotification')
+))
+const AddPrinterPage = React.lazy(() => (
+  import('./printer/addPrinter/AddPrinter.page')
+))
 
 const GettingStarted = React.lazy(() => (
   import('./onboarding/gettingStarted/GettingStarted')
@@ -40,9 +80,9 @@ const GraphQLPlayground = React.lazy(() => (
   import('./printer/graphqlPlayground/GraphQLPlayground')
 ))
 
-const PrintDialog = React.lazy(() => (
-  import('./printer/printDialog/PrintDialog')
-))
+// const PrintDialog = React.lazy(() => (
+//   import('./printer/printDialog/PrintDialog')
+// ))
 
 const ManualControlPage = React.lazy(() => (
   import('./printer/manualControl/ManualControl.page')

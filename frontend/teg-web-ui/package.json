@@ -12,14 +12,14 @@
     "clean": "cd dist && ls | grep -v dat.json | xargs rm -rf",
     "build:dat": "yarn clean && NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/dat.html",
     "build:http": "NODE_ENV=production NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/index.html --no-scope-hoist",
-    "build:analyze": "PARCEL_BUNDLE_ANALYZER=1 yarn build:http && xdg-open ./parcel-bundle-reports/default.html",
+    "build:analyze": "yarn build:http  --reporter @parcel/reporter-bundle-analyzer && xdg-open ./parcel-bundle-reports/default.html",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
   "dependencies": {
-    "@d1plo1d/slicer-render": "link:../slicer-render/pkg",
     "@apollo/client": "^3.3.7",
     "@auth0/auth0-spa-js": "^1.3.2",
+    "@d1plo1d/slicer-render": "link:../slicer-render/pkg",
     "@material-ui/core": "^4.11.3",
     "@material-ui/icons": "^4.11.2",
     "@material-ui/styles": "^4.11.3",
@@ -92,6 +92,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.13.15",
+    "@parcel/reporter-bundle-analyzer": "^2.0.1",
+    "@parcel/reporter-bundle-buddy": "^2.0.1",
     "@parcel/transformer-image": "2.0.1",
     "@storybook/addon-actions": "^6.2.5",
     "@storybook/addon-essentials": "^6.2.5",
