@@ -67,9 +67,11 @@ fi
 # create directories
 sudo mkdir -p /usr/local/etc/teg/
 sudo mkdir -p /var/local/teg/
+sudo mkdir -p /var/local/teg-common/
 
 sudo chmod 700 /usr/local/etc/teg/
 sudo chmod 700 /var/local/teg/
+sudo chmod 700 /var/local/teg-common/
 
 if [ "${TEG_DEV}" == "1" ]; then
   sudo chown -R `whoami`:`whoami` /usr/local/etc/teg/
