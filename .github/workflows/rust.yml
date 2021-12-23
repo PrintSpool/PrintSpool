@@ -11,7 +11,7 @@ jobs:
       # SQLX_OFFLINE: "true"
       CARGO_INCREMENTAL: 0
       RUSTFLAGS: "-C debuginfo=0"
-      DATABASE_URL: "postgres://postgres:postgres@postgres/postgres"
+      DATABASE_URL: "postgres://postgres:postgres@localhost/postgres"
     services:
       # Label used to access the service container
       postgres:
@@ -26,6 +26,8 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 5432:5432
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -75,7 +77,7 @@ jobs:
       # SQLX_OFFLINE: "true"
       CARGO_INCREMENTAL: 0
       RUSTFLAGS: "-C debuginfo=0"
-      DATABASE_URL: "postgres://postgres:postgres@postgres/postgres"
+      DATABASE_URL: "postgres://postgres:postgres@localhost/postgres"
     services:
       # Label used to access the service container
       postgres:
@@ -90,6 +92,8 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 5432:5432
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
