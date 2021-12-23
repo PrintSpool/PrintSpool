@@ -54,7 +54,6 @@ To update the changelog and create a release tag run: `./scripts/release`
 
   `git tag -d tag-test; git tag -a tag-test -m "CI Testing / Do not Use" && git push fork -f tag-test`
 
-
 ### Developer Rapsberry Pi Setup
 
 Note: Teg is in Limited Closed Beta testing at the moment. These instructions are for my own personal use and will very likely not work on your computer.
@@ -69,12 +68,12 @@ Note: Pi Bakery may be an easier alternative to the steps bellow Windows and Mac
 4. *Optional* Add a ssh file to the boot partition to enable SSH ( See: https://www.raspberrypi.org/documentation/remote-access/ssh/README.md )
 5. *Optional* Set a host name: https://raspberrypi.stackexchange.com/a/44963
 
-<!-- #### Part 2: Installing Teg
+#### Part 2: Installing Teg
 TODO: Teg no longer uses the Snapstore, update these docs.
 
 1. Start your Raspbery Pi
-2. On the Raspberry Pi (via SSH or with a monitor and keyboard) install Teg from the snap store using: `sudo apt update && sudo apt install -y snapd && sudo snap install tegh --devmode`
-3. Generate an invite code using: `tegh.add-invite` -->
+2. On the Raspberry Pi (via SSH or with a monitor and keyboard) install Teg using:
+  `bash <(curl -s https://raw.githubusercontent.com/tegapp/teg/develop/scripts/install)`
 
 ## Troubleshooting
 

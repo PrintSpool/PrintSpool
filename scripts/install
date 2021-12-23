@@ -1,6 +1,13 @@
 #!/bin/bash
-set -e
+set -eE -o functrace
 cd "$( dirname "${BASH_SOURCE[0]}" )"
+
+failure() {
+  local lineno=$1
+  local msg=$2
+  echo "Failed at $lineno: $msg"
+}
+trap 'failure ${LINENO} "$BASH_COMMAND"' ERR
 
 ARCH=$(uname -m)
 FRESH_INSTALL=0
@@ -18,7 +25,8 @@ sudo apt install \
   libbsd-dev \
   postgresql \
   postgresql-contrib \
-  rsync
+  rsync \
+  apg
 
 # TEG_USER="teg"
 # sudo useradd $TEG_USER || true
