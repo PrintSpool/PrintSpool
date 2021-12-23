@@ -11,7 +11,7 @@ jobs:
       # SQLX_OFFLINE: "true"
       CARGO_INCREMENTAL: 0
       RUSTFLAGS: "-C debuginfo=0"
-      DATABASE_URL: "postgres://postgres:postgres@postgres/teg-dev"
+      DATABASE_URL: "postgres://postgres:postgres@postgres/postgres"
     services:
       # Label used to access the service container
       postgres:
@@ -75,7 +75,7 @@ jobs:
       # SQLX_OFFLINE: "true"
       CARGO_INCREMENTAL: 0
       RUSTFLAGS: "-C debuginfo=0"
-      DATABASE_URL: "postgres://postgres:postgres@postgres/teg-dev"
+      DATABASE_URL: "postgres://postgres:postgres@postgres/postgres"
     services:
       # Label used to access the service container
       postgres:
