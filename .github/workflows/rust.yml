@@ -44,7 +44,7 @@ jobs:
       - name: Database Setup
         run: |
           cargo install sqlx-cli --no-default-features --features postgres
-          sqlx database setup
+          cd ./crates/server && sqlx database setup
       - name: Build X64 Release
         uses: actions-rs/cargo@v1
         with:

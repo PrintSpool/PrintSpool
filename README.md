@@ -1,8 +1,4 @@
-<div align="center">
-<img src="./frontend/teg-web-ui/src/onboarding/landingPage/tegLogo.svg" alt="Teg" width="200"/>
-</div>
-
-## Teg
+# Teg
 
 A bold new way to 3D print over WiFi.
 
@@ -35,7 +31,7 @@ Disable any other copies of teg and run `./scripts/start-tmux`
 
 It's recommended you do this in a dev environment with at least 16GB of ram.
 
-start-tmux:
+`./scripts/start-tmux`:
 
 - starts all the services required for a hot reloading development 3D print using your `/etc/teg-dev/` configs
 - starts a hot reloading instance of the web ui
@@ -45,39 +41,19 @@ Once you have `start-tmux` running you can create an invite code to access your 
 `cd ./crates/ && cargo run --bin teg-invite`
 
 
-## Building Releases
+### Building Releases
 
-### Build Environment Setup
+Releases are built through Github Actions CI
 
-Note: These dependencies are only for building snaps - they are not needed for most development.
+To update the changelog and create a release tag run: `./scripts/release`
 
-<!--
-Note: These instructions may not be necessary any longer. If you can build for armhf without doing
-the following please remove the following:
+#### Test Releases
 
-First setup armhf packages in ubuntu. See:
-- https://stackoverflow.com/a/39316855
-- https://wiki.debian.org/Multiarch/HOWTO
+- Alternatively, you can compile release builds locally using `cargo build --release`
+- To build a test release via CI first fork this repo and then push an annotated tag to your fork:
 
-Essentially setting up armhf packages boils down to adding the following to `/etc/apt/sources.list`:
-```
-  deb [arch=armhf] http://bg.ports.ubuntu.com/ focal main restricted
-  deb [arch=armhf] http://bg.ports.ubuntu.com/ focal-updates main restricted
-```
+  `git tag -d tag-test; git tag -a tag-test -m "CI Testing / Do not Use" && git push fork -f tag-test`
 
-And then running `sudo apt-get update && sudo dpkg --add-architecture armhf && sudo apt-get install libbsd-dev:armhf`
-
-Once you have armhf set up then you can install the rest of the dependencies: -->
-
-1. Install Podman: https://podman.io/getting-started/installation.html
-2. `sudo snap install snapcraft --classic`
-
-
-### Building the snap
-
-- **Build:** `./scripts/build`
-- **Build and Install Locally:** `./scripts/build-and-install`
-- **Build and Publish to the Snap Store:** `./scripts/release`
 
 ### Developer Rapsberry Pi Setup
 
@@ -93,11 +69,12 @@ Note: Pi Bakery may be an easier alternative to the steps bellow Windows and Mac
 4. *Optional* Add a ssh file to the boot partition to enable SSH ( See: https://www.raspberrypi.org/documentation/remote-access/ssh/README.md )
 5. *Optional* Set a host name: https://raspberrypi.stackexchange.com/a/44963
 
-#### Part 2: Installing Teg
+<!-- #### Part 2: Installing Teg
+TODO: Teg no longer uses the Snapstore, update these docs.
 
 1. Start your Raspbery Pi
 2. On the Raspberry Pi (via SSH or with a monitor and keyboard) install Teg from the snap store using: `sudo apt update && sudo apt install -y snapd && sudo snap install tegh --devmode`
-<!-- 3. Generate an invite code using: `tegh.add-invite` -->
+3. Generate an invite code using: `tegh.add-invite` -->
 
 ## Troubleshooting
 
