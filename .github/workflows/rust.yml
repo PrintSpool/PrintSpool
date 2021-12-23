@@ -39,10 +39,10 @@ jobs:
           protobuf-compiler
           zip
           unzip
-      - name: Cargo sqlx
+      - name: Database Setup
         run: |
-          cargo install sqlx
-          cargo sqlx database setup
+          cargo install sqlx-cli --no-default-features --features postgres
+          sqlx database setup
       - name: Build X64 Release
         uses: actions-rs/cargo@v1
         with:
@@ -126,10 +126,10 @@ jobs:
           clang
       # - name: Check install
       #   run: dpkg -S arm-linux-gnueabihf-gcc
-      - name: Cargo sqlx
+      - name: Database Setup
         run: |
-          cargo install sqlx
-          cargo sqlx database setup
+          cargo install sqlx-cli --no-default-features --features postgres
+          sqlx database setup
       # Armv7 Debug Builds
       - name: Build ARMv7 (Debug)
         if: "!startsWith(github.ref, 'refs/tags/')"
