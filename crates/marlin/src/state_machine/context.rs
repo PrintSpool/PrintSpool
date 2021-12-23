@@ -141,6 +141,10 @@ impl Context {
         task: &Task,
         status: TaskStatus,
     ) {
+        if task.client_id == "INTERNAL" {
+            return
+        };
+
         // trace!("Pusing {:?} for #{:?}", status, task.id);
         let despooled_line_number = task.despooled_line_number
             .unwrap_or(0);

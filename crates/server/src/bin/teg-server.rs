@@ -5,33 +5,17 @@
 
 use async_graphql::{UploadValue};
 use async_graphql::http::ClientMessage;
-#[cfg(not(target_env = "msvc"))]
-use jemallocator::Jemalloc;
 use tracing::Instrument;
-
-#[cfg(not(target_env = "msvc"))]
-#[global_allocator]
-static ALLOC: Jemalloc = Jemalloc;
-
-// The file `built.rs` was placed there by cargo and `build.rs`
-#[allow(dead_code)]
-mod built_info {
-    include!(concat!(env!("OUT_DIR"), "/built.rs"));
-}
 
 pub use teg_machine::paths;
 
-mod mutation;
-mod query;
-mod server_query;
-mod local_http_server;
-mod server;
+use teg_server::mutation;
+use teg_server::query;
+use teg_server::local_http_server;
 
-mod health_check_socket;
-use health_check_socket::health_check_socket;
+use teg_server::health_check_socket;
 
-mod create_db;
-use create_db::create_db;
+use teg_server::create_db;
 
 use tracing_subscriber::prelude::*;
 use std::{env, sync::Arc};
@@ -45,26 +29,13 @@ use futures_util::{TryFutureExt, future, future::FutureExt, future::join_all, se
     // TryStreamExt,
 }};
 
-use teg_auth::AuthContext;
-use teg_device::DeviceManager;
-use teg_machine::{MachineHooksList, MachineMap, MachineMapLocal, MachineMaterialHooks, machine::Machine, signalling_updater::{SignallingUpdater, SignallingUpdaterMachineHooks}};
-use teg_material::{MaterialHooksList};
-use teg_print_queue::print_queue_machine_hooks::PrintQueueMachineHooks;
+use teg_server::teg_auth::AuthContext;
+use teg_server::teg_device::DeviceManager;
+use teg_server::teg_machine::{MachineHooksList, MachineMap, MachineMapLocal, MachineMaterialHooks, machine::Machine, signalling_updater::{SignallingUpdater, SignallingUpdaterMachineHooks}};
+use teg_server::teg_material::{MaterialHooksList};
+use teg_server::teg_print_queue::print_queue_machine_hooks::PrintQueueMachineHooks;
 
-pub type Db = sqlx::PgPool;
-pub type DbId = teg_json_store::DbId;
-
-type AppSchemaBuilder = async_graphql::SchemaBuilder<
-    query::Query,
-    mutation::Mutation,
-    async_graphql::EmptySubscription
->;
-
-type AppSchema = async_graphql::Schema<
-    query::Query,
-    mutation::Mutation,
-    async_graphql::EmptySubscription
->;
+use teg_server::DbId;
 
 #[derive(Deserialize)]
 struct IdFromConfig {

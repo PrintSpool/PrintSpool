@@ -6,9 +6,11 @@ edition = "2018"
 build = "build.rs"
 default-run = "teg-server"
 
+[lib]
+
 [[bin]]
 name = "teg-server"
-path = "src/main.rs"
+path = "src/bin/teg-server.rs"
 
 [[bin]]
 name = "teg-health-monitor"

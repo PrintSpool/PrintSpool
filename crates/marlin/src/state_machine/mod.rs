@@ -387,6 +387,7 @@ impl State {
         ];
 
         if let Some(baud_rate) = baud_rate {
+            info!("Attempting to connect with baud rate: {:?}", baud_rate);
             context.baud_rate = baud_rate;
 
             effects.append(&mut vec![

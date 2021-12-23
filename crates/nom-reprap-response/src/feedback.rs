@@ -48,10 +48,13 @@ pub fn feedback_resp<'r>(input: &'r str) ->  IResult<&'r str, Response> {
 }
 
 pub fn feedback<'r>(input: &'r str) ->  IResult<&'r str, Feedback> {
-    alt((
-        temperature_feedback,
-        position_feedback,
-    ))(input)
+    preceded(
+        space0,
+        alt((
+            temperature_feedback,
+            position_feedback,
+        )),
+    )(input)
 }
 
 pub fn key_value<'r>(input: &'r str) -> IResult<&'r str, (String, Option<f32>)> {

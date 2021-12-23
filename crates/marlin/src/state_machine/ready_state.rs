@@ -305,7 +305,9 @@ impl ReadyState {
                             self.tasks.push_front(Task {
                                 id: "AUTOREPORT_TEMP".into(),
                                 client_id: "INTERNAL".into(),
-                                gcode_lines: vec!["M155 S1".to_string()].into_iter(),
+                                gcode_lines: vec![
+                                    "M155 S1".to_string(),
+                                ].into_iter(),
                                 despooled_line_number: None,
                                 machine_override: true,
                                 started: false,
@@ -345,6 +347,9 @@ impl ReadyState {
                             Ok(mut effects) => {
                                 effects.push(
                                     Effect::CancelDelay { key: "tickle_delay".to_string() }
+                                );
+                                effects.push(
+                                    Effect::SendFeedbackProtobuf,
                                 );
 
                                 Loop::new(
