@@ -133,7 +133,7 @@ jobs:
       - name: Database Setup
         run: |
           cargo install sqlx-cli --no-default-features --features postgres
-          sqlx database setup
+          cd ./crates/server && sqlx database setup
       # Armv7 Debug Builds
       - name: Build ARMv7 (Debug)
         if: "!startsWith(github.ref, 'refs/tags/')"
