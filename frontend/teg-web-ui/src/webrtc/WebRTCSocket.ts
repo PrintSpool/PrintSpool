@@ -168,35 +168,36 @@ const socketFactory = (options: WebRTCOptions) => {
 
       let files = []
       const parsedMessage = JSON.parse(message);
+      // console.log('TX', parsedMessage);
 
       let normalizedMessage = message;
       if (parsedMessage.payload?.variables != null) {
         let fileIndex = 0;
-        const normalizeVariables = (varsWithFiles) => (
-          Object.fromEntries(Object.entries(varsWithFiles).map(([key, val]) => {
-            if (typeof val === 'string' && val.startsWith('#__graphql_file__:')) {
-              const file = options.files.get(val)
-              options.files.delete(val)
+        const normalizeVariables = (val) => {
+          if (typeof val === 'string' && val.startsWith('#__graphql_file__:')) {
+            const file = options.files.get(val)
+            options.files.delete(val)
 
-              if (file == null) {
-                throw new Error(`File pointer missing for file upload: ${val}`)
-              }
-
-              files.push(file)
-
-              const pointer = `#__graphql_file__:${fileIndex}`
-              fileIndex += 1;
-              return [key, pointer];
-            } else if (val instanceof Array) {
-              return [key, val.map(normalizeVariables)]
-            } else if (typeof val === 'object' && val != null) {
-              return [key, normalizeVariables(val)]
-            } else {
-              // not a file, just pass the value through
-              return [key, val];
+            if (file == null) {
+              throw new Error(`File pointer missing for file upload: ${val}`)
             }
-          }))
-        );
+
+            files.push(file)
+
+            const pointer = `#__graphql_file__:${fileIndex}`
+            fileIndex += 1;
+            return pointer;
+          } else if (val instanceof Array && typeof val !== 'string') {
+            return val.map(normalizeVariables)
+          } else if (typeof val === 'object' && val != null) {
+            return Object.fromEntries(Object.entries(val).map(
+              ([k2, v2]) => [k2, normalizeVariables(v2)],
+            ))
+          } else {
+            // not a file, just pass the value through
+            return val;
+          }
+        };
 
         const normalizedVariables = normalizeVariables(parsedMessage.payload.variables);
 

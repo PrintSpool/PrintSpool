@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import List from '@material-ui/core/List'
@@ -8,13 +8,26 @@ import Typography from '@material-ui/core/Typography'
 
 import UpdateDialogView from './components/UpdateDialog/UpdateDialog.view'
 import ServerBreadcrumbs from '../common/ServerBreadcrumbs'
+import Button from '@material-ui/core/Button'
+import { useDelete } from './components/useDeleteConfig'
 
 const ConfigView = ({
   serverVersion,
   machine,
   // hasPendingUpdates,
   updateDialogProps,
+  deleteMachine,
 }) => {
+  const [ isDeleteDialogOpen, setDeleteDialogOpen ] = useState(false)
+
+  useDelete({
+    fn: deleteMachine,
+    onCancel: () => setDeleteDialogOpen(false),
+    show: isDeleteDialogOpen,
+    type: 'printer',
+    title: 'Printer',
+  })
+
   return (
     <main style={{ overflowY: 'scroll' }}>
       { updateDialogProps != null && (
@@ -79,6 +92,7 @@ const ConfigView = ({
         />
         <ListItem
           button
+          divider
           component={React.forwardRef((props, ref) => (
             <Link to="invites/" innerRef={ref} {...props}>
               <ListItemText primary="Invite Keys" />
@@ -86,6 +100,21 @@ const ConfigView = ({
           ))}
         />
       </List>
+      <div style={{ margin: 16 }}>
+        <Typography variant="h5" color="secondary" style={{ marginBottom: 8 }}>
+          Danger Zone
+        </Typography>
+        <Typography variant="body1" style={{ marginBottom: 16 }}>
+          Warning: These actions cannot be undone
+        </Typography>
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={() => setDeleteDialogOpen(true)}
+        >
+          Delete Printer
+        </Button>
+      </div>
     </main>
   )
 }

@@ -7,6 +7,9 @@ pub use connect_to_socket::ConnectToSocket;
 mod create_component;
 pub use create_component::CreateComponent;
 
+mod delete_machine;
+pub use delete_machine::DeleteMachine;
+
 mod delete_task_history;
 pub use delete_task_history::DeleteTaskHistory;
 

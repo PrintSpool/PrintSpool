@@ -86,6 +86,7 @@ const PrinterComponentsPage = () => {
 
   const onSubmit = async (model) => {
     const nextModel = { ...model }
+    console.log({ nextModel })
     if (model.materialID === 'NULL') {
       nextModel.materialID = null
     }

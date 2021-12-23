@@ -73,28 +73,28 @@ export default class WebRTCLink extends ApolloLink {
 
     if (variables != null) {
       // if variables are supplied, construct new by uploading any files and replacing the values by pointer IDs
-      const normalizeVariables = (varsWithFiles) => (
-        Object.fromEntries(Object.entries(varsWithFiles).map(([key, val]) => {
-          if (
-            val instanceof File ||
-            val instanceof Blob ||
-            val instanceof FileList
-          ) {
-            // value is a file, create a file pointer
-            const filePointer = `#__graphql_file__:${this.nextID}`;
-            this.files.set(filePointer, val);
-            this.nextID += 1;
-            return [key, filePointer];
-          } else if (val instanceof Array) {
-            return [key, val.map(normalizeVariables)]
-          } else if (typeof val === 'object' && val != null) {
-            return [key, normalizeVariables(val)]
-          } else {
-            // not a file, just pass the value through
-            return [key, val];
-          }
-        }))
-      );
+      const normalizeVariables = (val) => {
+        if (
+          val instanceof File ||
+          val instanceof Blob ||
+          val instanceof FileList
+        ) {
+          // value is a file, create a file pointer
+          const filePointer = `#__graphql_file__:${this.nextID}`;
+          this.files.set(filePointer, val);
+          this.nextID += 1;
+          return filePointer;
+        } else if (val instanceof Array && typeof val !== 'string') {
+          return val.map(normalizeVariables)
+        } else if (typeof val === 'object' && val != null) {
+          return Object.fromEntries(Object.entries(val).map(
+            ([k2, v2]) => [k2, normalizeVariables(v2)],
+          ))
+        } else {
+          // not a file, just pass the value through
+          return val;
+        }
+      };
 
       variables = normalizeVariables(variables);
     }

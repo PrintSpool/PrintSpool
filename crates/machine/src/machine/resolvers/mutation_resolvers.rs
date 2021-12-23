@@ -12,6 +12,7 @@ use eyre::{
 use teg_auth::{
     AuthContext,
 };
+use teg_common::Void;
 use teg_json_store::{JsonRow, Record as _};
 
 use crate::machine::{
@@ -240,8 +241,6 @@ impl MachineMutation {
             })
     }
 
-
-
     #[instrument(skip(self, ctx))]
     async fn update_machine<'ctx>(
         &self,
@@ -268,6 +267,43 @@ impl MachineMutation {
 
             let machine_data: MachineData = machine.call(GetData).await??;
             eyre::Result::<_>::Ok(machine_data)
+        }
+            // log the backtrace which is otherwise lost by FieldResult
+            .await
+            .map_err(|err| {
+                warn!("{:?}", err);
+                err.into()
+            })
+    }
+
+
+    #[instrument(skip(self, ctx))]
+    async fn delete_machine<'ctx>(
+        &self,
+        ctx: &'ctx Context<'_>,
+        #[graphql(name = "machineID")]
+        machine_id: ID,
+    ) -> FieldResult<Option<Void>> {
+        let auth: &AuthContext = ctx.data()?;
+
+        auth.require_authorized_user()?;
+
+        let machines_store: &crate::MachineMap = ctx.data()?;
+        let machines = machines_store.load();
+
+        async move {
+            let machine = machines.get(&machine_id)
+                .ok_or_else(|| eyre!("Machine ID not found"))?;
+
+            machine.call(messages::DeleteMachine).await??;
+
+            machines_store.rcu(|machines| {
+                let mut machines = HashMap::clone(&machines);
+                machines.remove(&machine_id);
+                machines
+            });
+
+            eyre::Result::<_>::Ok(None)
         }
             // log the backtrace which is otherwise lost by FieldResult
             .await

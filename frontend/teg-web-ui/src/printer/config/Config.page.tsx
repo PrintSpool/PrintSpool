@@ -1,6 +1,7 @@
-import React from 'react'
-import { useRouteMatch, useHistory } from 'react-router'
+import React, { useEffect } from 'react'
+import { useRouteMatch, useParams, useHistory } from 'react-router'
 import { gql, useMutation } from '@apollo/client'
+import { useSnackbar } from 'notistack'
 
 import useMachineDefSuggestions from '../../common/_hooks/useMachineDefSuggestions'
 import useLiveSubscription from '../_hooks/useLiveSubscription'
@@ -28,6 +29,13 @@ const DEVICE_QUERY = gql`
   ${UPDATE_DIALOG_FRAGMENT}
 `
 
+const DELETE_MACHINE = gql`
+  mutation deleteMachine($machineID: ID!) {
+    deleteMachine(machineID: $machineID) {
+      id
+    }
+  }
+`
 const UPDATE_MACHINE = gql`
   mutation updateMachine($input: UpdateMachineInput!) {
     updateMachine(input: $input) {
@@ -44,9 +52,10 @@ const UPDATE_MACHINE = gql`
 
 const ConfigPage = () => {
   const match = useRouteMatch()
+  const { hostID, machineID } = useParams();
   const history = useHistory()
+  const { enqueueSnackbar } = useSnackbar()
 
-  const { machineID } = match.params
   const machineDialogOpen = match.path === '/m/:hostID/:machineID/config/machine/'
 
   const { loading, data, error } = useLiveSubscription(DEVICE_QUERY, {
@@ -61,6 +70,17 @@ const ConfigPage = () => {
       machine
     ],
   } = data || { machines: [] }
+
+  const [deleteMachine, deleteMachineMutation] = useMutation(DELETE_MACHINE, {
+    variables: { machineID: machine?.id },
+  })
+
+  useEffect(() => {
+    if (deleteMachineMutation.data != null) {
+      enqueueSnackbar('Printer deleted')
+      history.push(`/m/${hostID}`)
+    }
+  }, [ deleteMachineMutation.data ])
 
   const [updateMachine, updateMachineMutation] = useMutation(UPDATE_MACHINE, {
     update: (mutationResult: any) => {
@@ -116,6 +136,7 @@ const ConfigPage = () => {
     machine,
     serverVersion,
     updateDialogProps,
+    deleteMachine,
   }} />
 }
 

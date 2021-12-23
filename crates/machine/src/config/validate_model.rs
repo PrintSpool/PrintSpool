@@ -1,6 +1,6 @@
 use eyre::{
     eyre,
-    Result,
+    Result, Context,
     // Context as _,
 };
 use serde::de::DeserializeOwned;
@@ -8,7 +8,8 @@ use serde::de::DeserializeOwned;
 pub fn validate_model<M: validator::Validate + DeserializeOwned>(
     json: serde_json::Value,
 ) -> Result<M> {
-    let next_model: M = serde_json::from_value(json)?;
+    let next_model: M = serde_json::from_value(json)
+        .context("Invalid component JSON")?;
 
     next_model.validate().map_err(|err| {
         let err_string = err.field_errors()
@@ -19,7 +20,9 @@ pub fn validate_model<M: validator::Validate + DeserializeOwned>(
                     .map(|e2| {
                         e2.message
                             .as_ref()
-                            .map(|s| s.to_string())
+                            .map(|s|
+                                format!("Invalid {:?} value: {}", field_name, s.to_string())
+                            )
                             .unwrap_or_else(|| {
                                 format!("{} is invalid (Error Code: {})", field_name, e2.code)
                             })

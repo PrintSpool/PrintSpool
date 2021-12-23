@@ -60,6 +60,16 @@ pub enum PositioningUnits {
 impl Actor for Machine {
     #[instrument(fields(id = &self.id[..]), skip(self, ctx))]
     async fn started(&mut self, ctx: &mut xactor::Context<Self>) -> Result<()> {
+        let config_path = crate::paths::etc().join(format!("machine-{}.toml", self.id));
+
+        if !config_path.is_file() {
+            // Currently there is no way to kill supervisors in xactor so deleted machines will
+            // get restarted. For now we just prevent them from doing anything.
+            info!("Config file for Machine has been deleted, actor started treated as no-op");
+
+            return Ok(());
+        }
+
         let result = async {
             // Run before_create hooks in a transaction around saving the config file
             let mut tx = self.db.begin().await?;

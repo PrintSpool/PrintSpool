@@ -55,43 +55,6 @@
       ]
     }
   },
-  "0b639950fdb1001bf5b665de27c9677aa5a918c46a7b4a9376ba433069bc68f4": {
-    "query": "\n                UPDATE invites\n                SET\n                    props=$1,\n                    version=$2,\n                    consumed=$3,\n                    deleted_at=$4\n                WHERE\n                    id=$5\n                    AND version=$6\n            ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Jsonb",
-          "Int4",
-          "Bool",
-          "Timestamptz",
-          "Text",
-          "Int4"
-        ]
-      },
-      "nullable": []
-    }
-  },
-  "0d472bba210cb1cfa06c63e62d41f44f09b7eacdae59239f1e9047308705f4d7": {
-    "query": "\n                SELECT props FROM users WHERE signalling_user_id = $1\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "props",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Text"
-        ]
-      },
-      "nullable": [
-        false
-      ]
-    }
-  },
   "0fdc973c79e094b95fb687a678d9609fafc5cc57dc49eea9e2ad99ea9ebe3e42": {
     "query": "\n                SELECT\n                    COUNT(tasks.id) AS printed,\n                    CAST(parts.quantity * packages.quantity AS BIGINT) AS total\n                FROM parts\n                LEFT JOIN tasks ON\n                    tasks.part_id = parts.id\n                    AND tasks.status NOT IN ('errored', 'cancelled')\n                INNER JOIN packages ON\n                    packages.id = parts.package_id\n                WHERE\n                    parts.id = $1\n                GROUP BY\n                    parts.id,\n                    parts.quantity,\n                    packages.quantity\n            ",
     "describe": {
@@ -148,46 +111,6 @@
         ]
       },
       "nullable": []
-    }
-  },
-  "15aaf8f71e007155f2c8fe4123e64d9db0c8b919f1f45d7568fe6f967592ef7b": {
-    "query": "SELECT props FROM invites WHERE secret_hash = $1",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "props",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Text"
-        ]
-      },
-      "nullable": [
-        false
-      ]
-    }
-  },
-  "18d94aacadb985caf693786d360c5d8d75f474bbe9e4298a4558a138cd156f95": {
-    "query": "\n                    SELECT props FROM invites\n                    WHERE\n                        consumed = FALSE\n                        AND deleted_at IS NULL\n                        AND id = $1\n                ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "props",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Text"
-        ]
-      },
-      "nullable": [
-        false
-      ]
     }
   },
   "27caa052176d75623148fe6e3fa4298bdb6e806e0d2a596059ad54b24722ad1a": {
@@ -406,26 +329,6 @@
       ]
     }
   },
-  "82d4e893eb0fd46ba72bb209708a672ad8ae29a38f40c4d7c20415ffcd79a511": {
-    "query": "\n                SELECT id FROM users\n                WHERE id != $1 AND CAST (props -> 'config' ->> 'is_admin' AS BOOLEAN)\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Text"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Text"
-        ]
-      },
-      "nullable": [
-        false
-      ]
-    }
-  },
   "89b8c75b91a77388af58fa4fffcb37a658448031e6e9648d6220d361b87be658": {
     "query": "\n                        SELECT parts.props FROM parts\n                        WHERE\n                            parts.id = $1\n                    ",
     "describe": {
@@ -500,6 +403,18 @@
           "Text",
           "Text",
           "Int4"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "9c1bb303d6edbf66a3a65bfbfad01e82f8742a11a637a8de116b2276c528e023": {
+    "query": "\n                DELETE FROM machine_print_queues\n                WHERE machine_id = $1\n            ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text"
         ]
       },
       "nullable": []
@@ -598,23 +513,6 @@
       "nullable": []
     }
   },
-  "b383ac5b1c5133910f42b2820c4fb1f28a85fee9c1bae9c5d536f5fcab271b5f": {
-    "query": "\n                INSERT INTO invites\n                (id, version, created_at, props, secret_hash, consumed)\n                VALUES ($1, $2, $3, $4, $5, $6)\n            ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Text",
-          "Int4",
-          "Timestamptz",
-          "Jsonb",
-          "Text",
-          "Bool"
-        ]
-      },
-      "nullable": []
-    }
-  },
   "b57d0d44b58b811b7e201dff91c93c63a0c3852ee4dea6861d08d0fab485512c": {
     "query": "\n                        SELECT parts.props FROM parts\n                        WHERE\n                            parts.deleted_at IS NULL\n                    ",
     "describe": {
@@ -671,23 +569,6 @@
       "nullable": [
         false
       ]
-    }
-  },
-  "c0f7e78b5b91498267cacf45c7da97979b572dbbd7f7a745071b85d53c4eaccd": {
-    "query": "\n                INSERT INTO users\n                (id, version, created_at, props, signalling_user_id, is_local_http_user)\n                VALUES ($1, $2, $3, $4, $5, $6)\n            ",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Text",
-          "Int4",
-          "Timestamptz",
-          "Jsonb",
-          "Text",
-          "Bool"
-        ]
-      },
-      "nullable": []
     }
   },
   "c3e231033ee05e40fa99669fd6b52700fb4a66083413fa5048c74b5d56449720": {
@@ -749,24 +630,6 @@
       "nullable": []
     }
   },
-  "d3071d5c723352a505ea6427f9506911fa76c22b1311b615ac6f05efe0197992": {
-    "query": "\n                    SELECT props FROM invites\n                    WHERE\n                        consumed = FALSE\n                        AND deleted_at IS NULL\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "props",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": []
-      },
-      "nullable": [
-        false
-      ]
-    }
-  },
   "da737c0579ed98ef48bce9151e9c87113b0ce9a167a000101517725f80ac7c8f": {
     "query": "\n                    SELECT id FROM packages\n                    WHERE\n                        id = $1\n                        AND starred IS TRUE\n                        AND deleted_at IS NULL\n                ",
     "describe": {
@@ -781,24 +644,6 @@
         "Left": [
           "Text"
         ]
-      },
-      "nullable": [
-        false
-      ]
-    }
-  },
-  "db0c5f50c35cf32baf037e501cfb7a993a31676cc98e7d4a68a152b8772310d3": {
-    "query": "\n                SELECT props FROM users where is_local_http_user\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "props",
-          "type_info": "Jsonb"
-        }
-      ],
-      "parameters": {
-        "Left": []
       },
       "nullable": [
         false

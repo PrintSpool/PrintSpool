@@ -82,20 +82,30 @@ impl ComponentMutation {
         // let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 
-        auth.authorize_admins_only()?;
-
         let machines: &crate::MachineMap = ctx.data()?;
         let machines = machines.load();
 
-        let machine = machines.get(&input.machine_id)
-            .ok_or_else(|| eyre!("Machine ID not found"))?;
+        async move {
+            auth.authorize_admins_only()?;
 
-        let msg = messages::UpdateComponent {
-            id: input.component_id.to_string(),
-            version: input.model_version,
-            model: input.model.0,
-        };
-        machine.call(msg).await??;
+            let machine = machines.get(&input.machine_id)
+                .ok_or_else(|| eyre!("Machine ID not found"))?;
+
+            let msg = messages::UpdateComponent {
+                id: input.component_id.to_string(),
+                version: input.model_version,
+                model: input.model.0,
+            };
+            machine.call(msg).await??;
+
+            eyre::Result::<_>::Ok(())
+        }
+            // log the backtrace which is otherwise lost by FieldResult
+            .await
+            .map_err(|err| {
+                warn!("{:?}", err);
+                err
+            })?;
 
         Ok(teg_common::Void)
     }

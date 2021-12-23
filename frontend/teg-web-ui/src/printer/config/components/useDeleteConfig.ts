@@ -6,12 +6,6 @@ import useRouter from 'use-react-router'
 
 import useConfirm from '../../../common/_hooks/useConfirm'
 
-const deleteConfigMutation = gql`
-  mutation deleteConfig($input: DeleteConfigInput!) {
-    deleteConfig(input: $input)
-  }
-`
-
 export const useDelete = ({
   fn,
   onCancel,
