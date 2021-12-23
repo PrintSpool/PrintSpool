@@ -19,6 +19,7 @@ else
 fi
 
 # Install dependencies
+sudo apt update
 sudo apt install \
   libgtk-3-0 \
   libasound2 \
@@ -50,7 +51,6 @@ if [ $FRESH_INSTALL = "1" ]; then
 
   # Remove old pgpass entries
   sudo -u $TEG_USER sed -i "/localhost\:\*\:$DB\:$DB_USER/d" $TEG_USER_HOME/.pgpass
-  sed -i "/localhost\:\*\:$DB\:$DB_USER/d" ~/.pgpass
 
   # Add new pgpass entry
   PG_PASS_LINE="localhost:*:$DB:$DB_USER:$DB_PASSWORD"
@@ -59,6 +59,7 @@ if [ $FRESH_INSTALL = "1" ]; then
   if [ "${TEG_DEV}" == "1" ]; then
     touch ~/.pgpass
     chmod 0600 ~/.pgpass
+    sed -i "/localhost\:\*\:$DB\:$DB_USER/d" ~/.pgpass
     echo "$PG_PASS_LINE" >> ~/.pgpass
   fi
 fi
