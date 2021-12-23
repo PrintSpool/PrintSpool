@@ -73,7 +73,7 @@ TODO: Teg no longer uses the Snapstore, update these docs.
 
 1. Start your Raspbery Pi
 2. On the Raspberry Pi (via SSH or with a monitor and keyboard) install Teg using:
-  `bash <(curl -s https://raw.githubusercontent.com/tegapp/teg/develop/scripts/install)`
+  `bash <(curl -sH "Cache-Control: no-cache" https://raw.githubusercontent.com/tegapp/teg/develop/scripts/install)`
 
 ## Troubleshooting
 

@@ -27,7 +27,8 @@ sudo apt install \
   postgresql \
   postgresql-contrib \
   rsync \
-  apg
+  apg \
+  unzip
 
 # TEG_USER="teg"
 # sudo useradd $TEG_USER || true
