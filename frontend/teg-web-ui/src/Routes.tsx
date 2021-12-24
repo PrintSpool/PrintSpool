@@ -21,8 +21,11 @@ const LoginRegister = React.lazy(() => (
 const Home = React.lazy(() => (
   import('./printer/home/Home.page')
 ))
-const Host = React.lazy(() => (
+const HostPage = React.lazy(() => (
   import('./printer/host/Host.page')
+))
+const HostSettingsPage = React.lazy(() => (
+  import('./printer/host/settings/HostSettings.page')
 ))
 const UserAccount = React.lazy(() => (
   import('./printer/userAccount/UserAccount')
@@ -233,7 +236,13 @@ const Routes = () => {
               path="/m/:hostID/"
               exact
             >
-              <Host/>
+              <HostPage/>
+            </Route>
+            <Route
+              path="/m/:hostID/settings"
+              exact
+            >
+              <HostSettingsPage/>
             </Route>
             <Route
               path="/m/:hostID/add-printer"

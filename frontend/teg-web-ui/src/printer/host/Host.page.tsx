@@ -16,6 +16,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 // import Divider from '@material-ui/core/Divider'
 
 import Add from '@material-ui/icons/Add'
+import Settings from '@material-ui/icons/Settings'
 
 import HostStyles from './Host.style'
 
@@ -56,6 +57,15 @@ const HostPage = () => {
     <>
       <StaticTopNavigation />
       <div className={classes.root}>
+        <Button
+          startIcon={<Settings />}
+          className={classes.settingsButton}
+          variant="outlined"
+          component={Link}
+          to="settings"
+        >
+          Settings
+        </Button>
         <Typography
           variant="h1"
           className={classes.title}
