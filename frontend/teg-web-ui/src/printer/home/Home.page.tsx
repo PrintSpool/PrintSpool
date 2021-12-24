@@ -108,7 +108,7 @@ const Home = () => {
             component="h2"
             className={classes.header}
           >
-            Servers
+            Organizations
             <Tooltip title="Add 3D Printer" placement="left">
               <Fab
                 className={classes.addButton}

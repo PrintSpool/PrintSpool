@@ -70,7 +70,7 @@ const HostPage = () => {
           variant="h1"
           className={classes.title}
         >
-          {data.serverName || `Unnamed Server (ID: ${hostID.slice(0, 8)}...)`}
+          {data.serverName || `Unnamed Organization (ID: ${hostID.slice(0, 8)}...)`}
         </Typography>
         { machines.length > 0 && (
           <Card className={classes.card} raised>
