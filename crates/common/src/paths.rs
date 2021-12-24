@@ -11,7 +11,7 @@ pub fn etc() -> PathBuf {
 pub fn dev_suffix() -> &'static str {
     let is_dev = std::env::var("RUST_ENV")
         .map(|v| &v == "development")
-        .unwrap_or(true);
+        .unwrap_or(false);
 
     if is_dev { "-dev" } else { "" }
 }

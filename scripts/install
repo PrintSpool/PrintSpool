@@ -161,7 +161,7 @@ sudo ln -vsf "/usr/local/etc/teg/teg-invite" /usr/local/bin
 sudo chmod 644 ./services/*
 sudo mv ./services/* /lib/systemd/system/
 
-systemctl daemon-reload
+sudo systemctl daemon-reload
 sudo systemctl restart teg-server teg-health-monitor teg-webrtc-streamer
 sudo systemctl enable teg-server teg-health-monitor teg-webrtc-streamer
 
@@ -169,6 +169,8 @@ sudo systemctl enable teg-server teg-health-monitor teg-webrtc-streamer
 echo ""
 echo "Migrating database..."
 sleep 1s
+
+echo "Teg Installation Complete"
 
 # Generate an invite key for the user
 if [ $FRESH_INSTALL = "1" ]; then
