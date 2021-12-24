@@ -4,7 +4,6 @@ import React, {
 } from 'react'
 import { useAsync } from 'react-async'
 import { Link } from 'react-router-dom'
-import { useGraphQL } from 'graphql-react'
 
 import Card from '@material-ui/core/Card'
 // import CardContent from '@material-ui/core/CardContent'
@@ -26,10 +25,12 @@ import { useAuth } from '../../common/auth'
 import HomeStyles from './Home.style'
 
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
+import useSignallingGraphQL from '../../common/auth/useSignallingGraphQL'
 
 const Home = () => {
   const classes = HomeStyles()
   const { user, getFetchOptions } = useAuth()
+  const { useQuery } = useSignallingGraphQL()
 
   // Note: if ever this page requires polling this will need to be re-ran before each request
   // to update the firebase token
@@ -45,42 +46,29 @@ const Home = () => {
     throw firebaseError
   }
 
-  const { loading, cacheValue = {}, load } = useGraphQL({
-    fetchOptionsOverride,
-    operation: {
-      query: `
-        {
-          currentUser {
-            picture
-          }
-          my {
-            hosts {
+  const { loading, error, data }: any = useQuery({
+    query: `
+      {
+        currentUser {
+          picture
+        }
+        my {
+          hosts(onlyOrgs: true) {
+            id
+            slug
+            machines {
               id
+              name
               slug
-              machines {
-                id
-                name
-                slug
-              }
             }
           }
         }
-      `,
-    },
+      }
+    `,
   })
-  // console.log({ loading, cacheValue })
+  // console.log({ loading, data })
 
-  useEffect(() => {
-    if (fetchOptionsOverride) {
-      load()
-    }
-  }, [fetchOptionsOverride])
-
-  const error = !loading && (
-    cacheValue.fetchError || cacheValue.httpError || cacheValue.graphQLErrors
-  )
-
-  const avatar = cacheValue.data && cacheValue.data.currentUser.picture
+  const avatar = data?.currentUser.picture
 
   useEffect(() => {
     if (avatar) {
@@ -89,14 +77,14 @@ const Home = () => {
   }, [avatar])
 
   if (error) {
-    throw new Error(JSON.stringify(error, null, 2))
+    throw error
   }
 
-  if (loading || cacheValue.data == null) {
+  if (loading) {
     return <div />
   }
 
-  const hosts: any = Object.values(cacheValue.data.my.hosts)
+  const hosts: any = Object.values(data.my.hosts)
 
   return (
     <>

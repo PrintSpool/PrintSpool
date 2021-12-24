@@ -10,7 +10,6 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { SnackbarProvider } from 'notistack'
 import { BrowserRouter } from 'react-router-dom'
 import { Route } from 'react-router'
-import { GraphQL, GraphQLProvider } from 'graphql-react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import useRouter from 'use-react-router'
 import Button from '@material-ui/core/Button'
@@ -26,9 +25,6 @@ import ErrorFallback from './common/ErrorFallback'
 
 import theme from './theme'
 import './i18n'
-
-// Zero config GraphQL client that manages the cache.
-const graphql = new GraphQL()
 
 // console.log(process.env.NODE_ENV)
 
@@ -54,52 +50,50 @@ const App = () => {
   return (
     <CssBaseline>
       <ThemeProvider theme={theme}>
-        <GraphQLProvider graphql={graphql}>
-          <SnackbarProvider
-            ref={notistackRef}
-            maxSnack={3}
-            action={(key) => (
-              <Button
-                onClick={onClickDismiss(key)}
-                style={{ color: 'white' }}
-              >
-                  Dismiss
-              </Button>
-            )}
-          >
-            <ConfirmProvider
-              defaultOptions={{
-                confirmationButtonProps: { autoFocus: true }
-              }}
+        <SnackbarProvider
+          ref={notistackRef}
+          maxSnack={3}
+          action={(key) => (
+            <Button
+              onClick={onClickDismiss(key)}
+              style={{ color: 'white' }}
             >
-              <PrintFilesContext.Provider value={useState()}>
-                <React.Suspense fallback={<Loading fullScreen />}>
-                  <BrowserRouter>
-                    <RouterErrorBoundary>
-                      <AuthProvider>
-                        <Route
-                          path={[
-                            '/m/:hostID/',
-                            '/q/:hostID/',
-                            '/',
-                          ]}
-                          render={() => (
-                            <TegApolloProvider>
-                              <Routes />
-                            </TegApolloProvider>
-                          )}
-                        />
-                      </AuthProvider>
-                    </RouterErrorBoundary>
-                  </BrowserRouter>
-                </React.Suspense>
-                {
-                  // <ReduxSnackbar />
-                }
-              </PrintFilesContext.Provider>
-            </ConfirmProvider>
-          </SnackbarProvider>
-        </GraphQLProvider>
+                Dismiss
+            </Button>
+          )}
+        >
+          <ConfirmProvider
+            defaultOptions={{
+              confirmationButtonProps: { autoFocus: true }
+            }}
+          >
+            <PrintFilesContext.Provider value={useState()}>
+              <React.Suspense fallback={<Loading fullScreen />}>
+                <BrowserRouter>
+                  <RouterErrorBoundary>
+                    <AuthProvider>
+                      <Route
+                        path={[
+                          '/m/:hostID/',
+                          '/q/:hostID/',
+                          '/',
+                        ]}
+                        render={() => (
+                          <TegApolloProvider>
+                            <Routes />
+                          </TegApolloProvider>
+                        )}
+                      />
+                    </AuthProvider>
+                  </RouterErrorBoundary>
+                </BrowserRouter>
+              </React.Suspense>
+              {
+                // <ReduxSnackbar />
+              }
+            </PrintFilesContext.Provider>
+          </ConfirmProvider>
+        </SnackbarProvider>
       </ThemeProvider>
     </CssBaseline>
   )

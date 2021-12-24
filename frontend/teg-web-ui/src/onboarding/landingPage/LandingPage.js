@@ -196,26 +196,11 @@ const LandingPage = () => {
           </Grid>
         ))}
 
-        {/*
-        <Grid item xs={12}>
-          <Header variant="orange" title="How it Works" />
-        </Grid>
-        */}
-        <Grid item xs={12}>
+        {/* <Grid item xs={12}>
           <Header variant="orange" name="donate" title={t('support.title')} />
         </Grid>
 
         <Grid item xs={12}>
-          {/*
-          <Header variant="orange" title={t('contribute.title')} />
-          <ReactMarkdown
-            source={t('contribute.content')}
-            renderers={{
-              heading,
-              paragraph,
-            }}
-          />
-          */}
           <ReactMarkdown
             source={t('support.content')}
             renderers={{
@@ -235,18 +220,6 @@ const LandingPage = () => {
             />
             {t('contribute.kofiButton')}
           </Button>
-
-          {/* {Object.entries(currencies).map(([key, buttonCurrency]) => (
-            <Button
-              key={key}
-              className={classes.donateButton}
-              onClick={onCryptoDonationClick(buttonCurrency)}
-            >
-              {buttonCurrency.icon(classes[`${key}Logo`])}
-
-              {t('contribute.cryptoDonationButton', buttonCurrency)}
-            </Button>
-          ))} */}
 
           <Dialog
             open={cryptoDialogOpen}
@@ -273,7 +246,7 @@ const LandingPage = () => {
               </Typography>
             </DialogContent>
           </Dialog>
-        </Grid>
+        </Grid> */}
       </Grid>
 
       <Footer t={t} />

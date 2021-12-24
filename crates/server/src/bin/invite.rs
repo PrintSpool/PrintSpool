@@ -16,7 +16,12 @@ fn main() -> Result<()> {
 
 async fn invite() -> Result<()> {
     // Load dot env from teg's etc directory in production
-    if std::env::var("RUST_ENV") != Ok("development".into()) {
+    if
+        // Default to development when running inside a cargo command
+        std::env::var("CARGO_MANIFEST_DIR").is_err()
+        // Default to production when running as a distributed binary (ie. outside of cargo)
+        && std::env::var("RUST_ENV") != Ok("development".into())
+    {
         let etc = crate::paths::etc();
         std::env::set_current_dir(&etc)
             .expect(&format!("Set current directory to {:?}", &etc));

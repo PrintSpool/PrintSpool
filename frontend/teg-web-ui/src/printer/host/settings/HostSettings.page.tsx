@@ -1,16 +1,10 @@
 import React from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useHistory } from 'react-router-dom'
 import { gql } from '@apollo/client'
 import { useForm } from 'react-hook-form'
+import { useSnackbar } from 'notistack'
 
-import ListItemText from '@material-ui/core/ListItemText'
 import Typography from '@material-ui/core/Typography'
-// import Icon from '@material-ui/core/Icon'
-// import ListSubheader from '@material-ui/core/ListSubheader'
-// import Divider from '@material-ui/core/Divider'
-
-import Add from '@material-ui/icons/Add'
-import Settings from '@material-ui/icons/Settings'
 
 import HostStyles from './HostSettings.style'
 
@@ -20,6 +14,8 @@ import Loading from '../../../common/Loading'
 import ServerBreadcrumbs from '../../common/ServerBreadcrumbs'
 import TextField from '@material-ui/core/TextField'
 import { Button } from '@material-ui/core'
+import useSignallingGraphQL from '../../../common/auth/useSignallingGraphQL'
+import { useAsync } from 'react-async-hook'
 
 const HOST_QUERY = gql`
   fragment QueryFragment on Query {
@@ -35,13 +31,36 @@ const HOST_QUERY = gql`
 const HostPage = () => {
   const classes = HostStyles()
   const { hostID } = useParams()
+  const { query, useMutation } = useSignallingGraphQL()
+  const { enqueueSnackbar } = useSnackbar()
+  const history = useHistory()
 
-  const { loading, data, error } = useLiveSubscription(HOST_QUERY, {
-    fetchPolicy: 'network-only',
-  })
+  const {
+    handleSubmit,
+    register,
+    errors,
+    reset,
+    watch,
+    getValues,
+  } = useForm()
 
-  const { handleSubmit, register, errors, reset, watch } = useForm()
-  const onSubmit = (args) => console.log(args)
+  const { loading, error, result }: any = useAsync(async () => {
+    const data = await query({
+      query: `
+        query($hostID: ID) {
+          my {
+            hosts(hostID: $hostID) {
+              id
+              orgName
+            }
+          }
+        }
+      `,
+    })
+
+    reset({ name: data.my.hosts[0].name })
+  }, null)
+
 
   let slug = watch('name')
     ?.replace(/[_ ]/g, '-')
@@ -52,15 +71,35 @@ const HostPage = () => {
     slug = hostID
   }
 
+  const setNameMutation: any = useMutation({
+    query: `
+      mutation($input: SetOrganizationNameInput){
+        setOrganizationName(input: $input) {
+          id
+        }
+      }
+    `,
+    variables: (values) => ({
+      input: {
+        hostID,
+        ...values,
+      },
+    }),
+    onComplete: async () => {
+      enqueueSnackbar('Org name saved', {
+        variant: 'success',
+      })
+      history.replace(`/m/${slug}/settings`)
+    }
+  })
+
   if (error) {
-    throw new Error(JSON.stringify(error, null, 2))
+    throw error
   }
 
   if (loading) {
     return <Loading fullScreen />
   }
-
-  const { machines } = data
 
   return (
     <>
@@ -77,7 +116,7 @@ const HostPage = () => {
         </Typography>
         <form
           // className={classes.form}
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(setNameMutation.execute)}
         >
           <Typography
             variant="h3"

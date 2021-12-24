@@ -1,5 +1,4 @@
 import React, {
-  useContext,
   useEffect,
   useState,
 } from 'react'
@@ -9,13 +8,13 @@ import useReactRouter from 'use-react-router'
 import DetectRTC from 'detectrtc'
 // import { ApolloLink } from 'apollo-link'
 // import { onError } from 'apollo-link-error'
-import { GraphQLContext } from 'graphql-react'
 import UnsupportedBrowser from '../UnsupportedBrowser'
 import ConnectionStatus from './ConnectionStatus'
 import { useAuth } from '../common/auth'
 import { useAsync } from 'react-async'
 
 import WebRTCLink, { INSECURE_LOCAL_CONNECTION } from './WebRTCLink'
+import useSignallingGraphQL from '../common/auth/useSignallingGraphQL';
 
 export const TegApolloContext = React.createContext(null)
 
@@ -28,6 +27,7 @@ const TegApolloProvider = ({
 }) => {
   const { location, match } = useReactRouter()
   const { isSignedIn, getFetchOptions } = useAuth()
+  const { query: querySignalling } = useSignallingGraphQL();
 
   const [link, setLink] = useState(null as any)
   const [iceServers, setIceServers] = useState(null as any)
@@ -53,29 +53,6 @@ const TegApolloProvider = ({
   }, [hostSlug, invite])
 
   // console.log({ invite, match, params, slug })
-  const graphql: any = useContext(GraphQLContext)
-
-  const querySignalling = async (operation) => {
-    const { cacheValuePromise } = await graphql.operate({
-      fetchOptionsOverride: await getFetchOptions(),
-      operation,
-    })
-
-    const { data, graphQLErrors, fetchError } = await cacheValuePromise
-
-    if (graphQLErrors != null) {
-      throw new Error(graphQLErrors[0].message)
-    }
-
-    if (fetchError != null) {
-      console.warn({ fetchError })
-      throw new Error(
-        "Unnable to connect. Please verify that your internet is working."
-      )
-    }
-
-    return data
-  }
 
   const clientDefaultOptions: DefaultOptions = {
     watchQuery: {

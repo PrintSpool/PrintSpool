@@ -2,8 +2,8 @@
 const signallingFetchOptions = idToken => (options) => {
   let url
 
-  // const useDevUserProfileServer = true
-  const useDevUserProfileServer = false
+  const useDevUserProfileServer = true
+  // const useDevUserProfileServer = false
 
   if (
     process.env.NODE_ENV === 'production'
@@ -24,6 +24,8 @@ const signallingFetchOptions = idToken => (options) => {
     mode: 'cors',
     headers,
   })
+
+  return options
 }
 
 export default signallingFetchOptions
