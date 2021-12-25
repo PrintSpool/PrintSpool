@@ -132,7 +132,7 @@ const Home = () => {
                   button
                   component={React.forwardRef((props, ref) => (
                     <Link
-                      to={`/m/${host.slug}/`}
+                      to={`/${host.slug}/`}
                       // className={classes.manage}
                       innerRef={ref}
                       {...props}

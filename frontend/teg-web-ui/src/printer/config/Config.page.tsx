@@ -56,7 +56,7 @@ const ConfigPage = () => {
   const history = useHistory()
   const { enqueueSnackbar } = useSnackbar()
 
-  const machineDialogOpen = match.path === '/m/:hostID/:machineID/config/machine/'
+  const machineDialogOpen = match.path === '/:hostID/:machineID/config/machine/'
 
   const { loading, data, error } = useLiveSubscription(DEVICE_QUERY, {
     variablesDef: '($input: MachinesInput)',
@@ -78,7 +78,7 @@ const ConfigPage = () => {
   useEffect(() => {
     if (deleteMachineMutation.data != null) {
       enqueueSnackbar('Printer deleted')
-      history.push(`/m/${hostID}`)
+      history.push(`/${hostID}`)
     }
   }, [ deleteMachineMutation.data ])
 

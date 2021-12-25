@@ -23,6 +23,7 @@ import HostStyles from './Host.style'
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
 import useLiveSubscription from '../_hooks/useLiveSubscription'
 import Loading from '../../common/Loading'
+import useSignallingGraphQL from '../../common/auth/useSignallingGraphQL'
 
 const HOST_QUERY = gql`
   fragment QueryFragment on Query {
@@ -38,20 +39,40 @@ const HOST_QUERY = gql`
 const HostPage = () => {
   const classes = HostStyles()
   const { hostID } = useParams()
+  const { useQuery } = useSignallingGraphQL()
+
+  const signallingRes: any = useQuery({
+    query: `
+      query($hostID: ID) {
+        my {
+          hosts(hostID: $hostID) {
+            id
+            orgName
+          }
+        }
+      }
+    `,
+    variables: { hostID },
+  })
 
   const { loading, data, error } = useLiveSubscription(HOST_QUERY, {
     fetchPolicy: 'network-only',
   })
 
+  if (signallingRes.error) {
+    throw signallingRes.error
+  }
+
   if (error) {
     throw new Error(JSON.stringify(error, null, 2))
   }
 
-  if (loading) {
+  if (loading || signallingRes.loading) {
     return <Loading fullScreen />
   }
 
   const { machines } = data
+  const { orgName } = signallingRes.data.my.hosts[0]
 
   return (
     <>
@@ -70,7 +91,7 @@ const HostPage = () => {
           variant="h1"
           className={classes.title}
         >
-          {data.serverName || `Unnamed Organization (ID: ${hostID.slice(0, 8)}...)`}
+          {orgName || `Unnamed Organization (ID: ${hostID.slice(0, 8)}...)`}
         </Typography>
         { machines.length > 0 && (
           <Card className={classes.card} raised>
@@ -86,7 +107,7 @@ const HostPage = () => {
                   size="small"
                   component={React.forwardRef((props, ref) => (
                     <Link
-                      to={`/m/${hostID}/add-printer`}
+                      to={`/${hostID}/add-printer`}
                       innerRef={ref}
                       {...props}
                     />
@@ -106,7 +127,7 @@ const HostPage = () => {
                     button
                     component={React.forwardRef((props, ref) => (
                       <Link
-                        to={`/m/${hostID}/${machine.id}/`}
+                        to={`/${hostID}/${machine.id}/`}
                         // className={classes.manage}
                         innerRef={ref}
                         {...props}
@@ -131,7 +152,7 @@ const HostPage = () => {
               color="primary"
               component={React.forwardRef((props, ref) => (
                 <Link
-                  to={`/m/${hostID}/add-printer`}
+                  to={`/${hostID}/add-printer`}
                   innerRef={ref}
                   {...props}
                 />

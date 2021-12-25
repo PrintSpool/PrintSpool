@@ -88,14 +88,14 @@ const Drawer = ({
         <DrawerLink
           text="Printing"
           icon={<Inbox />}
-          href={`/m/${hostID}/${machineID}/`}
-          altPrefix={`/m/${hostID}/${machineID}/printing/`}
+          href={`/${hostID}/${machineID}/`}
+          altPrefix={`/${hostID}/${machineID}/printing/`}
           exact
         />
         <DrawerLink
           text="Starred"
           icon={<Star />}
-          href={`/m/${hostID}/${machineID}/starred/`}
+          href={`/${hostID}/${machineID}/starred/`}
         />
         { machine.length > 1 && (
           <ListSubheader>
@@ -105,17 +105,17 @@ const Drawer = ({
         <DrawerLink
           text="Maintenance"
           icon={<OpenWith />}
-          href={`/m/${hostID}/${machineID}/manual-control/`}
+          href={`/${hostID}/${machineID}/manual-control/`}
         />
         <DrawerLink
           text="Terminal"
           icon={<Keyboard />}
-          href={`/m/${hostID}/${machineID}/terminal/`}
+          href={`/${hostID}/${machineID}/terminal/`}
         />
         <DrawerLink
           text="Settings"
           icon={<Settings />}
-          href={`/m/${hostID}/${machineID}/config/`}
+          href={`/${hostID}/${machineID}/config/`}
         />
         {machine.developerMode && (
           <>
@@ -123,7 +123,7 @@ const Drawer = ({
             <DrawerLink
               text="GraphQL"
               icon={<Code />}
-              href={`/m/${hostID}/${machineID}/graphql-playground/`}
+              href={`/${hostID}/${machineID}/graphql-playground/`}
               newTab
             />
           </>

@@ -41,7 +41,7 @@ const AddPrinterPage = () => {
       return
     }
 
-    history.push(`/m/${hostID}/${mutation.data.createMachine.id}/`)
+    history.push(`/${hostID}/${mutation.data.createMachine.id}/`)
   }, [mutation.data])
 
   const { data, error, loading } = useLiveSubscription(QUERY, {

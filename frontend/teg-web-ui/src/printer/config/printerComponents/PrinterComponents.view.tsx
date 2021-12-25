@@ -165,7 +165,7 @@ const PrinterComponentsView = ({
 
       <div style={{ marginTop: 16, marginLeft: 16, marginRight: 16 }}>
         <ServerBreadcrumbs machineName={machine.name}>
-          <MUILink color="inherit" component={Link} to={`/m/${hostID}/${machineID}/config`}>
+          <MUILink color="inherit" component={Link} to={`/${hostID}/${machineID}/config`}>
             Config
           </MUILink>
           <Typography color="textPrimary">Print Components</Typography>

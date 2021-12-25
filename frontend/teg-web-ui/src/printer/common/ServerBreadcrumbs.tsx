@@ -17,13 +17,13 @@ const ServerBreadcrumbs = ({
         Servers
       </MUILink> */}
       { !skipServer && (
-        <MUILink color="inherit" component={Link} to={`/m/${hostID}/`}>
-          {hostID.slice(0, 8)}...
+        <MUILink color="inherit" component={Link} to={`/${hostID}/`}>
+          {hostID.length > 15 ? `${hostID.slice(0, 12)}...` : hostID}
         </MUILink>
       )}
 
       { machineName != null && (
-        <MUILink color="inherit" component={Link} to={`/m/${hostID}/${machineID}/`}>
+        <MUILink color="inherit" component={Link} to={`/${hostID}/${machineID}/`}>
           {machineName}
         </MUILink>
       )}

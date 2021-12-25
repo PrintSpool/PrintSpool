@@ -233,96 +233,96 @@ const Routes = () => {
               )}
             />
             <Route
-              path="/m/:hostID/"
+              path="/:hostID/"
               exact
             >
               <HostPage/>
             </Route>
             <Route
-              path="/m/:hostID/settings"
+              path="/:hostID/settings"
               exact
             >
               <HostSettingsPage/>
             </Route>
             <Route
-              path="/m/:hostID/add-printer"
+              path="/:hostID/add-printer"
               exact
             >
               <AddPrinterPage/>
             </Route>
             <Route
-              path="/m/:hostID/:machineID/"
+              path="/:hostID/:machineID/"
               render={({ match }) => (
                 <ConnectionFrame match={match}>
                   <LatencyNotification />
 
                   <Route
                     exact
-                    path="/:m/:hostID/:machineID/"
+                    path="/:hostID/:machineID/"
                     component={QueuePage}
                   />
-                  <Route exact strict path="/:m/:hostID/:machineID/printing/:partID/" component={PartPage} />
-                  <Route exact strict path="/:m/:hostID/:machineID/printing/:partID/print-history" component={PrintHistoryPage} />
-                  <Route exact strict path="/:m/:hostID/:machineID/printing/:partID/settings" component={EditPartPage} />
+                  <Route exact strict path="/:hostID/:machineID/printing/:partID/" component={PartPage} />
+                  <Route exact strict path="/:hostID/:machineID/printing/:partID/print-history" component={PrintHistoryPage} />
+                  <Route exact strict path="/:hostID/:machineID/printing/:partID/settings" component={EditPartPage} />
 
-                  <Route exact strict path="/:m/:hostID/:machineID/starred/" component={StarredPage} />
+                  <Route exact strict path="/:hostID/:machineID/starred/" component={StarredPage} />
 
                   <Route
-                    path="/m/:hostID/:machineID/manual-control/"
+                    path="/:hostID/:machineID/manual-control/"
                     component={ManualControlPage}
                   />
 
                   <React.Suspense fallback={<div />}>
                     <Route
                       exact
-                      path="/m/:hostID/:machineID/manual-control/swap-filament/:componentID"
+                      path="/:hostID/:machineID/manual-control/swap-filament/:componentID"
                       component={FilamentSwapDialog}
                     />
                   </React.Suspense>
 
-                  <Route exact path="/m/:hostID/:machineID/terminal/" component={Terminal} />
+                  <Route exact path="/:hostID/:machineID/terminal/" component={Terminal} />
 
                   <Route
                     exact
                     path={[
-                      '/m/:hostID/:machineID/config/',
-                      '/m/:hostID/:machineID/config/machine/',
+                      '/:hostID/:machineID/config/',
+                      '/:hostID/:machineID/config/machine/',
                     ]}
                     component={ConfigIndexPage}
                   />
                   <Route
                     exact
                     path={[
-                      '/m/:hostID/:machineID/config/components/',
-                      '/m/:hostID/:machineID/config/components/:componentID/',
-                      '/m/:hostID/:machineID/config/components/:componentID/:verb',
+                      '/:hostID/:machineID/config/components/',
+                      '/:hostID/:machineID/config/components/:componentID/',
+                      '/:hostID/:machineID/config/components/:componentID/:verb',
                     ]}
                     component={ComponentsConfigPage}
                   />
                   <Route
                     exact
                     path={[
-                      '/m/:hostID/:machineID/config/materials/',
-                      '/m/:hostID/:machineID/config/materials/:materialID/',
-                      '/m/:hostID/:machineID/config/materials/:materialID/:verb',
+                      '/:hostID/:machineID/config/materials/',
+                      '/:hostID/:machineID/config/materials/:materialID/',
+                      '/:hostID/:machineID/config/materials/:materialID/:verb',
                     ]}
                     component={MaterialsConfigPage}
                   />
                   <Route
                     exact
                     path={[
-                      '/m/:hostID/:machineID/config/users/',
-                      '/m/:hostID/:machineID/config/users/:userID/',
-                      '/m/:hostID/:machineID/config/users/:userID/:verb',
+                      '/:hostID/:machineID/config/users/',
+                      '/:hostID/:machineID/config/users/:userID/',
+                      '/:hostID/:machineID/config/users/:userID/:verb',
                     ]}
                     component={UsersConfigPage}
                   />
                   <Route
                     exact
                     path={[
-                      '/m/:hostID/:machineID/config/invites/',
-                      '/m/:hostID/:machineID/config/invites/:inviteID/',
-                      '/m/:hostID/:machineID/config/invites/:inviteID/:verb',
+                      '/:hostID/:machineID/config/invites/',
+                      '/:hostID/:machineID/config/invites/:inviteID/',
+                      '/:hostID/:machineID/config/invites/:inviteID/:verb',
                     ]}
                     component={InvitesConfigPage}
                   />

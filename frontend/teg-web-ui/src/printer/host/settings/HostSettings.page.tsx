@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link, useParams, useHistory } from 'react-router-dom'
 import { gql } from '@apollo/client'
 import { useForm } from 'react-hook-form'
@@ -44,7 +44,7 @@ const HostPage = () => {
     getValues,
   } = useForm()
 
-  const { loading, error, result }: any = useAsync(async () => {
+  const { loading, error }: any = useAsync(async () => {
     const data = await query({
       query: `
         query($hostID: ID) {
@@ -58,7 +58,7 @@ const HostPage = () => {
       `,
     })
 
-    reset({ name: data.my.hosts[0].name })
+    reset({ name: data.my.hosts[0].orgName })
   }, null)
 
 
@@ -89,9 +89,17 @@ const HostPage = () => {
       enqueueSnackbar('Org name saved', {
         variant: 'success',
       })
-      history.replace(`/m/${slug}/settings`)
+      history.replace(`/${slug}/settings`)
     }
   })
+
+  useEffect(() => {
+    if (setNameMutation.error) {
+      enqueueSnackbar(setNameMutation.error.message, {
+        variant: 'error',
+      })
+    }
+  }, [setNameMutation.error])
 
   if (error) {
     throw error
@@ -137,7 +145,7 @@ const HostPage = () => {
           <div
             style={{ marginTop: 16 }}
           >
-            https://printspool.io/m/<b>{slug}</b>/
+            https://printspool.io/<b>{slug}</b>/
           </div>
           <Button
             type="submit"

@@ -74,7 +74,7 @@ const App = () => {
                     <AuthProvider>
                       <Route
                         path={[
-                          '/m/:hostID/',
+                          '/:hostID/',
                           '/q/:hostID/',
                           '/',
                         ]}
