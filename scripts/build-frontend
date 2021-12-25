@@ -3,12 +3,6 @@ set -e
 cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
 
 pushd .
-cd ./frontend/slicer-render/
-curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-wasm-pack build --target web --out-name web --out-dir ./pkg
-popd
-
-pushd .
 cd ./frontend/teg-web-ui/
 yarn
 yarn build:http

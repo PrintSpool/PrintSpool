@@ -1250,10 +1250,6 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@d1plo1d/slicer-render@link:../slicer-render/pkg":
-  version "0.0.0"
-  uid ""
-
 "@emotion/cache@^10.0.27":
   version "10.0.29"
   resolved "https://registry.yarnpkg.com/@emotion/cache/-/cache-10.0.29.tgz#87e7e64f412c060102d589fe7c6dc042e6f9d1e0"
@@ -13999,6 +13995,11 @@ slice-ansi@^4.0.0:
     ansi-styles "^4.0.0"
     astral-regex "^2.0.0"
     is-fullwidth-code-point "^3.0.0"
+
+slicer-render@0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/slicer-render/-/slicer-render-0.1.0.tgz#912e1cb7729387d160ded5f5987358b3e2696e3a"
+  integrity sha512-lycHQIt33c18v8EhFvn989KGuQBlWALc8719hy/4GX9cmjS5FPQ9Z0fUOiwGWKOv3VA3dqEs4Ewj7AzR88w5VA==
 
 snapdragon-node@^2.0.1:
   version "2.1.1"

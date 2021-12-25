@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useRef, useState } from 'react'
-import initSlicerRender, { render_string as renderString } from '@d1plo1d/slicer-render';
+import initSlicerRender, { render_string as renderString } from 'slicer-render';
 
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
