@@ -28,7 +28,7 @@ const HostSettingsPage = React.lazy(() => (
   import('./printer/host/settings/HostSettings.page')
 ))
 const UserAccount = React.lazy(() => (
-  import('./printer/userAccount/UserAccount')
+  import('./printer/userAccount/UserAccount.page')
 ))
 const Terminal = React.lazy(() => (
   import('./printer/terminal/Terminal.page')
@@ -177,7 +177,7 @@ const Routes = () => {
         </Route>
       )}
       { isSignedIn && (
-        <Route exact path="/:m/:hostID/:machineID/graphql-playground/" component={GraphQLPlayground} />
+        <Route exact path="/:hostID/:machineID/graphql-playground/" component={GraphQLPlayground} />
       )}
       { isSignedIn && (
         <Route>

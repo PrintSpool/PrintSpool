@@ -39,9 +39,24 @@ const TegApolloProvider = ({
   const params = new URLSearchParams(location.search)
   const invite = params.get('invite')
 
-  const hostSlug = slugParam || (match as any).params.hostID || params.get('q')
+  let hostSlug = slugParam || (match as any).params.hostID || params.get('q')
 
-  const shouldConnect = isSignedIn && (invite != null || hostSlug != null)
+  if (hostSlug == 'get-started') {
+    hostSlug = null
+  }
+
+  const reservedRoutes = [
+    'privacy-policy',
+    'login',
+    'i',
+    'account',
+  ]
+
+  const shouldConnect = (
+    isSignedIn
+    && (invite != null || hostSlug != null)
+    && !reservedRoutes.includes(hostSlug)
+  )
 
   const unsupportedBrowser = shouldConnect && !INSECURE_LOCAL_CONNECTION && (
     RTCPeerConnection.prototype.createDataChannel == null
