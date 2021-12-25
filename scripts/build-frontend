@@ -2,4 +2,13 @@
 set -e
 cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
 
-cd frontend/teg-web-ui && yarn && yarn build:http
+pushd .
+cd ./frontend/slicer-render/
+wasm-pack build --target web --out-name web --out-dir ./pkg
+popd
+
+pushd .
+cd ./frontend/teg-web-ui/
+yarn
+yarn build:http
+popd
