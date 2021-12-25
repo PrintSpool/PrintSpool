@@ -236,7 +236,6 @@ impl SlicerRenderer {
 
         let now = instant::Instant::now();
         let mut gcode_count = 0;
-        let mut gcode_transforms = Vec::new();
         let mut gcode_model: Option<InstancedModel<PhysicalMaterial>> = None;
 
         let mut gcode_layer_indexes = Vec::with_capacity(100);
@@ -389,7 +388,7 @@ impl SlicerRenderer {
             ..Default::default()
         };
 
-        gcode_transforms = positions
+        let gcode_transforms = positions
             .enumerate()
             .tuple_windows()
             .map(|((_i1, (l1, p1)), (i2, (l2, p2)))| {
@@ -599,18 +598,17 @@ impl SlicerRenderer {
                         // .map(|(_, transform)| *transform)
                         // .collect::<Vec<_>>();
 
-                    gcode_model = if transforms.is_empty() {
-                        None
-                    } else if let Some(gcode_model) = gcode_model {
+                    if transforms.is_empty() {
+                        gcode_model = None;
+                    } else if let Some(gcode_model) = gcode_model.as_mut() {
                         gcode_model.update_transformations(transforms);
-                        Some(gcode_model)
                     } else {
-                        Some(InstancedModel::new_with_material(
+                        gcode_model = Some(InstancedModel::new_with_material(
                             &context,
                             transforms,
                             &cylinder,
                             wireframe_material.clone(),
-                        ).unwrap())
+                        ).unwrap());
                     };
                 }
 

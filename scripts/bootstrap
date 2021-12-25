@@ -49,13 +49,17 @@ PGPASSWORD=$DB_PASSWORD sqlx database create
 PGPASSWORD=$DB_PASSWORD sqlx migrate run
 popd
 
-# yarn
-# yarn make-dirs
-
-pushd .
-cd ./frontend/teg-web-ui/
+# Frontend
 nvm install
 nvm use
 npm i -g yarn
+
+pushd .
+cd ./frontend/slicer-render/
+wasm-pack build --target web --out-name web --out-dir ./pkg
+popd
+
+pushd .
+cd ./frontend/teg-web-ui/
 yarn
 popd
