@@ -50,7 +50,7 @@
     "i18next": "^15.1.2",
     "isomorphic-fetch": "^2.2.1",
     "json-patch": "^0.7.0",
-    "keypair": "^1.0.1",
+    "keypair": "^1.0.4",
     "koa-static": "^4.0.2",
     "material-ui-confirm": "^2.0.5",
     "msgpack-lite": "^0.1.26",
