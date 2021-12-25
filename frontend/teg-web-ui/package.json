@@ -43,7 +43,7 @@
     "formik-material-ui": "^1.0.0",
     "fuse.js": "^3.4.4",
     "graphql": "^15.5.0",
-    "graphql-playground-react": "^1.7.27",
+    "graphql-playground-react": "^1.7.28",
     "graphql-react": "^12.0.1",
     "graphql-ws": "5.5.5",
     "history": "^4.7.2",
