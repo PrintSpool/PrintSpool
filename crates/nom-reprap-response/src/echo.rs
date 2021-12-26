@@ -128,11 +128,18 @@ fn m23_m28_fresh_file<'r>(input: &'r str) ->  IResult<&'r str, Response> {
     )(input)
 }
 
-// Heating the extruder, remove filament from the sensor and send an `M75` on the PrintMill results
-// in the next GCode receiving a response of:
+// On a PrintMill:
+// Heating the extruder, removing the filament from the runout sensor and sending an `M75`:
+//
+// TX "N100 M75*16\n"
+// RX "ok\n"
+//
+// After a delay of a few (2?) seconds:
 // RX "echo:busy: processing\n"
 //
-// After repeating the processing message several times it sends a more specific echo but only once:
+// Repeats the processing message several times at 2(?) second intervals
+//
+// Then it sends a more specific echo but only once:
 // RX "echo:Insert filament and press button\n"
 //
 // And finally it begins repeating:
