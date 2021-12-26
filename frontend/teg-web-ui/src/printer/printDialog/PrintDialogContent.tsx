@@ -3,11 +3,10 @@ import initSlicerRender, { render_string as renderString } from 'slicer-render';
 
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
+import Slider from '@material-ui/core/Slider';
 
 import LoadingOverlay from '../../common/LoadingOverlay'
 import PrintDialogContentStyles from './PrintDialogContentStyles'
-import createSlicer from './createSlicer';
-import Slider from '@material-ui/core/Slider';
 
 const meshFileExtensions = [
   // 'amf',
@@ -46,6 +45,10 @@ const PrintDialogContent = ({
     if (meshFileExtensions.includes(fileExt)) {
       const modelArrayBuffer = await files[0].arrayBuffer();
       modelByteArray = new Uint8Array(modelArrayBuffer.slice());
+
+      // Dynamically load the slicer to improve page load times when it is not needed
+      const { default: createSlicer } = await import('./createSlicer');
+
       slice = createSlicer({ modelArrayBuffer, machineDimensions })
     } else {
       modelByteArray = new Uint8Array([]);
