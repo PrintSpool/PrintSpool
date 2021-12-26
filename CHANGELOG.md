@@ -242,7 +242,7 @@ All notable changes to this project will be documented in this file. See [standa
 * Fixed edge cases in the terminal RX logs ([0e407b3](https://github.com/tegapp/teg/commit/0e407b3))
 * Fixed intermittent bug where the printer would move to the extremes of each axis and extrude quickly. Turns out some gcode files don't reset movement to absolute so if a print started after a relative move it's movements would be mistakenly interpretted as relative. ([143ab70](https://github.com/tegapp/teg/commit/143ab70))
 * Fixed teg-auth armv7 build script ([0eb33d7](https://github.com/tegapp/teg/commit/0eb33d7))
-* Force all domains to redirect to tegapp.io ([00b3bec](https://github.com/tegapp/teg/commit/00b3bec))
+* Force all domains to redirect to printspool.io ([00b3bec](https://github.com/tegapp/teg/commit/00b3bec))
 * gcodeHistoryBufferSize change ([b41c725](https://github.com/tegapp/teg/commit/b41c725))
 * Google Analytics was not loading ([6635afd](https://github.com/tegapp/teg/commit/6635afd))
 * graphql-things security patch ([a203d5a](https://github.com/tegapp/teg/commit/a203d5a))

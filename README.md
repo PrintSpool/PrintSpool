@@ -2,7 +2,7 @@
 
 A bold new way to 3D print over WiFi.
 
-Get started at [https://tegapp.io]
+Get started at [https://printspool.io]
 
 **Warning:** Teg is in active development and not yet production-ready. It may have substantial bugs.
 

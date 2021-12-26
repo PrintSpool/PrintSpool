@@ -11,7 +11,7 @@
 
 A hypothetical future maker space has many networked CNC devices; Mills, Lathes, 3D Printers, Laser Cutters, and so on. The hypothetical maker space uses various future versions of Teg with different plugins to control each of these machines. The maker space has an additional combinator Teg host that combines the other Teg instances and allows makers to securely control and configure all of the machines through a single WebRTC connection to a single GraphQL schema.
 
-What would the configuration API of Teg look like to accomodate all the different machines/teg version/teg plugin variations in that hypothetical future makerspace with one GraphQL Schema accessed by users from a statically hosted tegapp.io GUI?
+What would the configuration API of Teg look like to accomodate all the different machines/teg version/teg plugin variations in that hypothetical future makerspace with one GraphQL Schema accessed by users from a statically hosted printspool.io GUI?
 
 ## Decision Drivers
 
