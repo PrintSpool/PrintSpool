@@ -10,6 +10,7 @@ use crate::AnnotatedGCode;
 use super::MoveMacro;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MoveByMacro {
     /// Relative move distances keyed by axis addresses
     pub distances: HashMap<String, f32>,

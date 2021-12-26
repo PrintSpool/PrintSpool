@@ -10,6 +10,7 @@ use crate::AnnotatedGCode;
 use super::MoveMacro;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MoveToMacro {
     pub positions: HashMap<String, f32>,
     #[serde(default)]

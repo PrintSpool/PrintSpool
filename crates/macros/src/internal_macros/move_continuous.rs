@@ -66,6 +66,7 @@ impl MoveContinuousMacro {
             feedrate: self.feedrate,
             allow_extruder_axes: true,
             relative_movement: true,
+            use_visual_axes_transform: self.use_visual_axes_transform,
             ..Default::default()
         };
 
