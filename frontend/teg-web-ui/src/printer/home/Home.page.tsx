@@ -56,11 +56,6 @@ const Home = () => {
           hosts(onlyOrgs: true) {
             id
             slug
-            machines {
-              id
-              name
-              slug
-            }
           }
         }
       }
@@ -84,7 +79,7 @@ const Home = () => {
     return <div />
   }
 
-  const hosts: any = Object.values(data.my.hosts)
+  const { hosts }: any = data.my
 
   return (
     <>
@@ -96,7 +91,8 @@ const Home = () => {
             component="h2"
             className={classes.header}
           >
-            Organizations
+            Servers
+            {/* Organizations */}
             <Tooltip title="Add 3D Printer" placement="left">
               <Fab
                 className={classes.addButton}

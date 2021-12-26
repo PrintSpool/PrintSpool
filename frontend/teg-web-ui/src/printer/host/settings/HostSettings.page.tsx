@@ -130,7 +130,8 @@ const HostPage = () => {
             variant="h3"
             style={{ marginTop: 16 }}
           >
-            Organization Name
+            Server Name
+            {/* Organization Name */}
           </Typography>
           <TextField
             label="Name"
