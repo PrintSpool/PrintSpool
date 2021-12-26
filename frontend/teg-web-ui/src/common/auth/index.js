@@ -9,21 +9,10 @@ import { useHistory } from 'react-router'
 
 import signallingFetchOptions from './signallingFetchOptions'
 
-let firebaseConfig
-if (process.env.NODE_ENV === 'production') {
-  firebaseConfig = {
-    apiKey: 'AIzaSyAdg0EKI4KQDTb0JYBos-EB775oNPzRpcE',
-    projectId: 'tegapp-dev',
-    // databaseURL: 'DATABASE_URL',
-    authDomain: 'tegapp-dev.firebaseapp.com',
-  }
-} else {
-  firebaseConfig = {
-    apiKey: 'AIzaSyAdg0EKI4KQDTb0JYBos-EB775oNPzRpcE',
-    projectId: 'tegapp-dev',
-    // databaseURL: 'DATABASE_URL',
-    authDomain: 'tegapp-dev.firebaseapp.com',
-  }
+const firebaseConfig = {
+  apiKey: 'AIzaSyAMOxwDIhjjGHjsmRIMCn52MmBUt2AFT2s',
+  projectId: 'printspool-io',
+  authDomain: 'printspool-io.firebaseapp.com',
 }
 
 if (firebase.apps.length === 0) {
