@@ -225,7 +225,7 @@ const JobQueueView = ({
         <Typography color="textPrimary">{machines[0].name}</Typography>
       </ServerBreadcrumbs>
 
-      <div className={classes.latestPrints}>
+      <div className={latestPrints.length > 0 ? classes.latestPrints : null}>
         {/* <Typography variant="subtitle1" gutterBottom>
           Latest Print
         </Typography> */}
@@ -244,8 +244,7 @@ const JobQueueView = ({
       </div>
 
       {/* Actions Row */}
-      { console.log({ allFileExtensions }) }
-      <div>
+      <div className={classes.actionsRow}>
         <Button
           component="label"
           variant="outlined"

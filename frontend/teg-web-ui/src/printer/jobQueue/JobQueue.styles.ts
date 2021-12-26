@@ -14,7 +14,10 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: 3,
   },
   latestPrints: {
-    paddingBottom: theme.spacing(2),
+    marginTop: theme.spacing(2),
+  },
+  actionsRow: {
+    marginTop: theme.spacing(2),
   },
   partsList: {
     // paddingBottom: theme.spacing(2),
