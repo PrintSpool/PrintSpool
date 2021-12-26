@@ -41,7 +41,7 @@ const HostPage = () => {
     errors,
     reset,
     watch,
-    getValues,
+    // getValues,
   } = useForm()
 
   const { loading, error }: any = useAsync(async () => {
@@ -56,6 +56,9 @@ const HostPage = () => {
           }
         }
       `,
+      variables: {
+        hostID,
+      },
     })
 
     reset({ name: data.my.hosts[0].orgName })
