@@ -397,6 +397,11 @@ impl ReadyState {
         context: &mut Context
     ) -> eyre::Result<Vec<Effect>> {
         match feedback {
+            Feedback::Busy(_) => {
+                // Marlin sends an extra OK after filament swaps so make sure to ignore those
+                self.on_ok = OnOK::IgnoreOK;
+                Ok(vec![])
+            }
             Feedback::ActualTemperatures(temperatures) => {
                 // set actual_temperatures
                 temperatures.iter().for_each(|(address, val)| {

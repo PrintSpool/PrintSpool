@@ -14,6 +14,13 @@ use super::{
 };
 
 #[derive(Clone, Debug, PartialEq)]
+pub enum Busy {
+    Processing,
+    PausedForUser,
+    Other(String),
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub enum Feedback {
     SDCard(SDCard),
     ActualTemperatures(Vec<(String, f32)>),
@@ -21,6 +28,8 @@ pub enum Feedback {
     StartSDWrite(StartSDWrite),
     SDWriteComplete,
     SDPrintComplete,
+    Busy(Busy),
+    PausedForUser,
 }
 
 #[derive(Clone, Debug, PartialEq)]

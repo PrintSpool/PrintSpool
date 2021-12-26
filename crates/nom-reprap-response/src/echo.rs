@@ -8,6 +8,8 @@ use nom::combinator::*;
 use nom::sequence::*;
 // use nom::multi::*;
 
+use crate::Busy;
+
 use super::{
     Response,
     SDCard,
@@ -23,6 +25,7 @@ pub fn echo<'r>(input: &'r str) ->  IResult<&'r str, Response> {
             space0,
         ),
         alt((
+            busy,
             m21_sd_card_ok,
             m23_m28_fresh_file,
             normal_echo_content,
@@ -122,5 +125,37 @@ fn m23_m28_fresh_file<'r>(input: &'r str) ->  IResult<&'r str, Response> {
                 },
             ),
         )),
+    )(input)
+}
+
+// Heating the extruder, remove filament from the sensor and send an `M75` on the PrintMill results
+// in the next GCode receiving a response of:
+// RX "echo:busy: processing\n"
+//
+// After repeating the processing message several times it sends a more specific echo but only once:
+// RX "echo:Insert filament and press button\n"
+//
+// And finally it begins repeating:
+// RX "echo:busy: paused for user\n"
+fn busy<'r>(input: &'r str) ->  IResult<&'r str, Response> {
+    preceded(
+        pair(
+            tag_no_case("busy:"),
+            space0,
+        ),
+        alt((
+            value(
+                Response::Feedback(Feedback::Busy(Busy::Processing)),
+                tag_no_case("processing"),
+            ),
+            value(
+                Response::Feedback(Feedback::Busy(Busy::PausedForUser)),
+                tag_no_case("paused for user"),
+            ),
+            map(
+                not_line_ending,
+                |s: &str| Response::Feedback(Feedback::Busy(Busy::Other(s.to_string()))),
+            ),
+        ))
     )(input)
 }
