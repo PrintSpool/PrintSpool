@@ -64,6 +64,7 @@ impl teg_config_form::Model for CorePluginConfig {
         Some(vec![
             "name",
             "automaticPrinting",
+            "infiniteZ",
             "swapXAndYOrientation",
         ])
     }

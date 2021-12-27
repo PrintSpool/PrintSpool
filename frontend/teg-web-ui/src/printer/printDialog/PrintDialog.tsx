@@ -35,7 +35,7 @@ const PrintDialog = ({
   const [ addPartsToPrintQueue, mutationResult ] = useCreateJobMutation(printQueueID, files)
   const [print, printMutationResult ] = usePrintMutation()
 
-  const machine = machines.find(machine => machine.status === 'READY')
+  const machine = machines[0]
 
   const [loading, setLoading] = useState(true)
 
@@ -121,7 +121,7 @@ const PrintDialog = ({
           onClick={printNow}
           color="primary"
           variant="contained"
-          disabled={machine == null || loading || submit.isPending}
+          disabled={machine?.status !== 'READY' || loading || submit.isPending}
         >
           Print Now
         </Button>

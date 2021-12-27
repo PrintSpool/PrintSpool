@@ -108,7 +108,7 @@ impl SlicerRenderer {
         let mut camera = Camera::new_perspective(
             &context,
             window.viewport().expect("Viewport error"),
-            vec3(max_dim * 2.0, max_dim * 2.0, max_dim * 2.5),
+            vec3(-max_dim * 2.0, max_dim * 2.0, -max_dim * 2.5),
             vec3(0.0, 0.0, 0.0),
             vec3(0.0, 1.0, 0.0),
             degrees(45.0),

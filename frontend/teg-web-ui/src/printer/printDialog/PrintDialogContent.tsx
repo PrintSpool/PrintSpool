@@ -68,6 +68,7 @@ const PrintDialogContent = ({
 
     console.log({ name: files[0].name, modelByteArray, gcodeText })
 
+    console.log({ infiniteZ, machine })
     const renderOptions = {
       machineDimensions,
       infiniteZ,
