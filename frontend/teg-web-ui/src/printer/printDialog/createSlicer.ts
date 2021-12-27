@@ -1,7 +1,10 @@
 import {CuraWASM} from 'cura-wasm';
 import {resolveDefinition} from 'cura-wasm-definitions';
 
-const createSlicer = ({ modelArrayBuffer, machineDimensions }) => async () => {
+const createSlicer = ({
+  modelArrayBuffer,
+  machineDimensions,
+}) => async () => {
   //Create a new slicer
   const slicer = new CuraWASM({
     /**

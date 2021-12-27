@@ -33,6 +33,10 @@ struct GCodeParserState {
 struct RenderOptions {
     file_names: Vec<String>,
     machine_dimensions: Vec3,
+    #[serde(rename="infiniteZ")]
+    infinite_z: bool,
+    #[serde(default)]
+    always_show_model: bool,
 }
 
 struct SlicerRenderer {
@@ -148,11 +152,21 @@ impl SlicerRenderer {
                 let verticies = mesh.vertices_ref().collect::<Vec<_>>();
 
                 // Getting the bounds of the model
+                let min_z = verticies.iter().map(|v| v[2]).reduce(f32::min).unwrap_or(0f32);
+
                 let mut min = [f32::MAX; 2];
                 let mut max = [f32::MIN; 2];
                 for v in &verticies {
-                    for (val, min) in v[0..2].iter().zip(min.iter_mut()) {
-                        if val < min {
+                    for (i, (val, min)) in v[0..2].iter().zip(min.iter_mut()).enumerate() {
+                        if
+                            val < min
+                            // Center Infinite Z models only on the y depth of their bottom layer
+                            && (
+                                !self.options.infinite_z
+                                || v[2] == min_z
+                                || i != 1
+                            )
+                        {
                             *min = *val
                         }
                     }
@@ -172,8 +186,21 @@ impl SlicerRenderer {
 
                 let positions = verticies
                     .into_iter()
-                    // Centering the model on x = 0, y = 0 (in CAD coordinates)
-                    .map(|v| [v[0] - center[0], v[1] - center[1], v[2]])
+                    // Non-Infinite Z: Centering the model on x = 0, y = 0 (in CAD coordinates)
+                    // Infinite Z: Positioning at [X: center, Y: min]
+                    .map(|v| {
+                        let y_offset = if self.options.infinite_z {
+                            min[1]
+                        } else {
+                            -center[1]
+                        };
+
+                        return [
+                            v[0] - center[0],
+                            v[1] + y_offset,
+                            v[2],
+                        ]
+                    })
                     // .map(|v| [v[0], v[1], v[2]])
                     .flatten()
                     .collect::<Vec<f32>>();
@@ -370,7 +397,21 @@ impl SlicerRenderer {
                 };
             });
 
-            Some((top_layer, state.position.clone()))
+            let gcode_position = if self.options.infinite_z {
+                let y_angle = 45_f32.to_radians();
+                // state.position ordering: (X, Z, Y)
+                // Y and Z need to be swapped again and Y needs to rotated forward
+                // by 45 degrees to render infinite z printer gcodes correctly.
+                Vec3::new(
+                    state.position[0],
+                    y_angle.cos() * state.position[2],
+                    state.position[1] - y_angle.sin() * state.position[2],
+                )
+            } else {
+                state.position.clone()
+            };
+
+            Some((top_layer, gcode_position))
         });
 
         let mut cylinder = CPUMesh::cylinder(3);
@@ -388,6 +429,12 @@ impl SlicerRenderer {
             ..Default::default()
         };
 
+        let gcode_bed_center = if self.options.infinite_z {
+            Vec3::new(bed_center.x, 0f32, 0f32)
+        } else {
+            bed_center.clone()
+        };
+
         let gcode_transforms = positions
             .enumerate()
             .tuple_windows()
@@ -401,7 +448,7 @@ impl SlicerRenderer {
                     vec3(1.0, 0.0, 0.0),
                     (p2 - p1).normalize(),
                 );
-                let translation = Mat4::from_translation(p1 - bed_center);
+                let translation = Mat4::from_translation(p1 - gcode_bed_center);
 
                 // Store the layer indexes seperately so that this vec can be sliced and used
                 // without allocation on layer selection to update the model
@@ -463,8 +510,15 @@ impl SlicerRenderer {
         )
         .unwrap();
 
+        let infinite_z_bed_offset = if self.options.infinite_z {
+            machine_dim[2]
+        } else {
+            0f32
+        };
+
         bed.set_transformation(
-            Mat4::from_nonuniform_scale(machine_dim[0], machine_dim[1], machine_dim[2])
+            Mat4::from_translation(vec3(0f32, 0f32, infinite_z_bed_offset))
+            * Mat4::from_nonuniform_scale(machine_dim[0], machine_dim[1], machine_dim[2])
             * Mat4::from_angle_x(degrees(90.0))
         );
 
@@ -483,7 +537,7 @@ impl SlicerRenderer {
         )
         .unwrap();
         cube.set_transformation(
-            Mat4::from_translation(vec3(0f32, machine_dim[1], 0f32))
+            Mat4::from_translation(vec3(0f32, machine_dim[1], infinite_z_bed_offset))
             * Mat4::from_nonuniform_scale(machine_dim[0], machine_dim[1], machine_dim[2])
         );
 
@@ -619,7 +673,7 @@ impl SlicerRenderer {
                     if let Some(gcode_model) = gcode_model.as_ref() {
                         scene_objects.push(gcode_model);
                     }
-                    if gcode_transforms.is_empty() {
+                    if self.options.always_show_model || gcode_transforms.is_empty() {
                         model.as_ref().map(|model| scene_objects.push(model));
                     }
 

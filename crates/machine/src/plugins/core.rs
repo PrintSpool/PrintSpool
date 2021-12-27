@@ -31,6 +31,14 @@ pub struct CorePluginConfig {
     /// # Swap visual orientation of X and Y axes
     pub swap_x_and_y_orientation: bool,
 
+    /// # Infinite Z Printer
+    /// Renders GCode layers at a 45 degree angle relative to the build platform and positions
+    /// prints at the start of the build conveyor.
+    ///
+    /// Only needed for infinite Z 3D printers with angled X/Y axes.
+    #[serde(default)]
+    pub infinite_z: bool,
+
     /// # Before Print (GCode)
     pub before_print_hook: String,
 

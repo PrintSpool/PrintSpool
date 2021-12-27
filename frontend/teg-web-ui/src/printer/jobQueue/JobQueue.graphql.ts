@@ -59,6 +59,7 @@ export const PRINT_QUEUES_QUERY = gql`
       id
       name
       status
+      infiniteZ
     }
     latestPrints(input: { machineIDs: [$machineID] }) {
       ...LatestPrintFragment

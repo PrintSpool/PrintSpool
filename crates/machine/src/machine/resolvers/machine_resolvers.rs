@@ -138,6 +138,12 @@ impl MachineData {
         Ok(val)
     }
 
+    #[graphql(name = "infiniteZ")]
+    async fn infinite_z(&self) -> FieldResult<bool> {
+        let val = self.config.core_plugin()?.model.infinite_z;
+        Ok(val)
+    }
+
     async fn motors_enabled(&self) -> bool { self.motors_enabled }
 
     async fn error(&self) -> Option<MachineError> {

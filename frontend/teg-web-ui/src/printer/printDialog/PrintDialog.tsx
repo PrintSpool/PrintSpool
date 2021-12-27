@@ -101,6 +101,7 @@ const PrintDialog = ({
       <DialogContent>
         { open && (
           <PrintDialogContent
+            machine={machine}
             files={files}
             submitting={submit.isPending}
             loading={loading}

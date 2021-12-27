@@ -23,6 +23,7 @@ const MB = 1000 * 1000
 
 const PrintDialogContent = ({
   submitting,
+  machine,
   files,
   loading,
   setLoading,
@@ -36,6 +37,9 @@ const PrintDialogContent = ({
 
   const asyncSetup = async () => {
     const machineDimensions = [235, 235, 255]
+    const {
+      infiniteZ
+    } = machine
 
     const fileExt = files[0].name.split('.').pop()
     let gcodeText = '';
@@ -49,7 +53,10 @@ const PrintDialogContent = ({
       // Dynamically load the slicer to improve page load times when it is not needed
       const { default: createSlicer } = await import('./createSlicer');
 
-      slice = createSlicer({ modelArrayBuffer, machineDimensions })
+      slice = createSlicer({
+        modelArrayBuffer,
+        machineDimensions,
+      })
     } else {
       modelByteArray = new Uint8Array([]);
       gcodeText = await files[0].text()
@@ -63,6 +70,7 @@ const PrintDialogContent = ({
 
     const renderOptions = {
       machineDimensions,
+      infiniteZ,
       fileNames: files.map((f) => f.name),
     }
 

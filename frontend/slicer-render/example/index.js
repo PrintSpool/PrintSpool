@@ -4,7 +4,8 @@ import gcodeText from 'bundle-text:./example.gcode';
 
 const run = async () => {
   console.log({ modelURL })
-  const machineDimensions = [235, 235, 255]
+  // const machineDimensions = [235, 235, 255]
+  const machineDimensions = [200, 235, 255]
 
   const req = await fetch(modelURL)
   const modelBytes = await req.arrayBuffer()
@@ -27,6 +28,8 @@ const run = async () => {
     {
       fileNames: ['example.stl'],
       machineDimensions,
+      // alwaysShowModel: true,
+      infiniteZ: true,
     }
   );
 
