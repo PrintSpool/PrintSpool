@@ -4,11 +4,6 @@
   "repository": "git@github.com:tegapp/teg.git",
   "author": "D1plo1d",
   "license": "AGPL-3.0",
-  "standard-version": {
-    "scripts": {
-      "postchangelog": "./scripts/standard-version/postchangelog"
-    }
-  },
   "devDependencies": {
     "replace": "^1.2.1",
     "standard-version": "^9.2.0"
