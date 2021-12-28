@@ -1,10 +1,10 @@
-# Teg
+# Print Spool
 
 A bold new way to 3D print over WiFi.
 
 Get started at [https://printspool.io]
 
-**Warning:** Teg is in active development and not yet production-ready. It may have substantial bugs.
+**Warning:** Print Spool is in active development and not yet production-ready. It may have substantial bugs.
 
 If you find any please me know in the issues! Even if it is a known issue an upvote for the bug helps me prioritize what to work on next.
 
@@ -56,7 +56,7 @@ To update the changelog and create a release tag run: `./scripts/release`
 
 ### Developer Rapsberry Pi Setup
 
-Note: Teg is in Limited Closed Beta testing at the moment. These instructions are for my own personal use and will very likely not work on your computer.
+Note: Print Spool is in Limited Closed Beta testing at the moment. These instructions are for my own personal use and will very likely not work on your computer.
 
 #### Part 1: Setting up a Rapsberry Pi
 
@@ -68,11 +68,11 @@ Note: Pi Bakery may be an easier alternative to the steps bellow Windows and Mac
 4. *Optional* Add a ssh file to the boot partition to enable SSH ( See: https://www.raspberrypi.org/documentation/remote-access/ssh/README.md )
 5. *Optional* Set a host name: https://raspberrypi.stackexchange.com/a/44963
 
-#### Part 2: Installing Teg
-TODO: Teg no longer uses the Snapstore, update these docs.
+#### Part 2: Installing Print Spool
+TODO: Print Spool no longer uses the Snapstore, update these docs.
 
 1. Start your Raspbery Pi
-2. On the Raspberry Pi (via SSH or with a monitor and keyboard) install Teg using:
+2. On the Raspberry Pi (via SSH or with a monitor and keyboard) install Print Spool using:
   `bash <(curl -s https://raw.githubusercontent.com/tegapp/teg/develop/scripts/install)`
 
 ## Troubleshooting
@@ -86,7 +86,7 @@ You should not need to do this for a USB webcam.
 Source: https://www.raspberrypi.org/forums/viewtopic.php?t=62364
 
 <!--
-  TODO: I think the following information is out of date and no longer necessary to configure Teg:
+  TODO: I think the following information is out of date and no longer necessary to configure Print Spool:
 
   This will default the camera to 128x96px
 
@@ -96,7 +96,7 @@ Source: https://www.raspberrypi.org/forums/viewtopic.php?t=62364
 
   ### Raspian
 
-  Teg requires Raspbian Buster. To upgrade to Raspbian Buster see:
+  Print Spool requires Raspbian Buster. To upgrade to Raspbian Buster see:
 
   https://www.raspberrypi.org/blog/buster-the-new-version-of-raspbian/
 -->

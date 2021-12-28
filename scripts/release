@@ -3,14 +3,14 @@ set -e
 cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
 
 echo ""
-echo "Teg Release Preview"
+echo "PrintSpool Release Preview"
 echo "---------------------------------------------------------------------------------------------"
 
 npx --no-install standard-version -a --dry-run
 
 echo ""
 echo ""
-echo "Are you sure you want to release this new version of Teg?"
+echo "Are you sure you want to release this new version of PrintSpool?"
 echo "---------------------------------------------------------------------------------------------"
 echo ""
 select yn in "Yes" "No"; do
