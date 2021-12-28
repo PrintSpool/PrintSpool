@@ -2,6 +2,68 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.15.0](https://github.com/tegapp/teg/compare/v0.14.0...v0.15.0) (2021-12-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* Switched from Sqlite to Postgres to enable concurrent writes and eliminate a whole class of deadlocks
+* New multipart file uploads dramatically reduces upload times
+* Added out of order messaging for faster print uploads in Firefox and Chrome
+
+### Features
+
+* A health check process now regularly checks that the server is responsive and automatically restarts the server process if it is not ([6633a40](https://github.com/tegapp/teg/commit/6633a40661b6c288db93413425950936ec346445))
+* Added a delete printer button ([4a70af3](https://github.com/tegapp/teg/commit/4a70af3b05d4be30896fa9cb9a6e1188df5f39d7))
+* Added a developer mode option ([6c945a3](https://github.com/tegapp/teg/commit/6c945a3980ccd326f6fc64c10bcfce7a79a08647))
+* Added Apollo Tracing for live GraphQL performance inspection ([97827c4](https://github.com/tegapp/teg/commit/97827c497feb7e9027f97ee3488a94c45f10fb6d))
+* Added breadcrumbs to make navigation more consistent ([fd9874f](https://github.com/tegapp/teg/commit/fd9874f4aed3a35e48099749f3f8dcf2a6e9cc00))
+* Added color coded icons to communicate whether a print was successful or not ([fe7a38b](https://github.com/tegapp/teg/commit/fe7a38b1ba337c7934dba2f1f85dd2fea097fc49))
+* Added Marlin temperature auto-reporting support ([ea728dd](https://github.com/tegapp/teg/commit/ea728ddc79db4396a2df2859f38f380d32a8b0a5))
+* Added out of order messaging for faster print uploads in Firefox and Chrome ([4cd5e77](https://github.com/tegapp/teg/commit/4cd5e77af7997459c3e7e896bccbb991d75f4a2a))
+* Added support for Klipper errors and debug messages to the response parser ([eb16694](https://github.com/tegapp/teg/commit/eb1669480195d72d156e61d87db18842d660a302))
+* Added user-configurable vanity URLs ([d7d93cb](https://github.com/tegapp/teg/commit/d7d93cba8b53b55aa7166b7ece3bb0d2c18a8b87))
+* Faster and more responsive UI with mutation cache updates ([ea6e661](https://github.com/tegapp/teg/commit/ea6e66180aa568492a9b456358b0399e70f2d4bf))
+* Faster uploads on large files (ie > 200MB) via the HTML5 Blob and ArrayBuffer APIs ([c2f8845](https://github.com/tegapp/teg/commit/c2f8845fd0b3f8ea0dc5634b0d4974153a328278))
+* Moved print history to it's own tab ([45b9b30](https://github.com/tegapp/teg/commit/45b9b30ac0be1badeff0df0454f567a9b607202c))
+* New multipart file uploads dramatically reduces upload times ([cbaea83](https://github.com/tegapp/teg/commit/cbaea83836ce4e2384fdd4447ff1d49db9d8e5b6))
+* New serial port connection algorithm based on the latest Octoprint implementation ([b4954b5](https://github.com/tegapp/teg/commit/b4954b5af2f2fa8db437425b3397682e17c976c0))
+* Print Next button is now contextual - doubling as Print Selected when parts are selected. Also added a Retry Print button now to make restarting cancelled and errored prints more ergonomic. ([62e9190](https://github.com/tegapp/teg/commit/62e9190d7c4c6870831d3e4889bf883d786c944b))
+* Renamed to PrintSpool.io ([b6b2a43](https://github.com/tegapp/teg/commit/b6b2a439457e319fbc9a9e6503b8ab5aa6d1494b))
+* Settings can now be modified durring prints with the changes taking effect once the print has completed ([6bb83e4](https://github.com/tegapp/teg/commit/6bb83e45b2e9fa23168bab82833b961378d5b619))
+* Simplified and condensed the UI for list settings such as Blocking GCodes ([1034186](https://github.com/tegapp/teg/commit/1034186d7560d8147f86246d3dedc2833c5b3c95))
+* Starred Parts - Parts can now be saved to the printer for later re-printing ([6253811](https://github.com/tegapp/teg/commit/62538110f66a164ec24e1f28dec6e479daff6bbe))
+* Switched from Sqlite to Postgres to enable concurrent writes and eliminate a whole class of deadlocks ([7a10aa8](https://github.com/tegapp/teg/commit/7a10aa8c02e70b6de4e377ee92439e732bbfab1d))
+* Upgraded to a new WASM-based rendering engine for much faster gcode previews ([bf7f955](https://github.com/tegapp/teg/commit/bf7f955e62f80d419c104fb95c24ebb413b96b98))
+* Users can now add multiple printers to a server ([b5b7a0d](https://github.com/tegapp/teg/commit/b5b7a0d0c0dd4cd549598d76cbc18b29d51ca73f))
+
+
+### Bug Fixes
+
+* Changing toolhead settings no longer errors when no material is selected ([7752476](https://github.com/tegapp/teg/commit/7752476efecf61a4e76e3c913efa0a6598de0ffe))
+* Clicking on a deleted print at the top of the Printing Page no longer results in an error ([62ef616](https://github.com/tegapp/teg/commit/62ef616197c4bd27709912e8a32d4e92986c773a))
+* Confirmation dialogs autofocus OK so the user can hit enter to confirm them ([10f98b3](https://github.com/tegapp/teg/commit/10f98b39feb3d8c8c0215db45df5345def9e6284))
+* Error on incompatible combinations of automatic baud rate detection and await greeting from firmware ([8b2ee93](https://github.com/tegapp/teg/commit/8b2ee932371690e6dc4cab373ee554f44ccb8b08))
+* ETAs are now account for time spent paused and awaiting blocking GCodes ([f18d146](https://github.com/tegapp/teg/commit/f18d146d9e9512a5a668299254523c924cdef58f))
+* Fixed broken whitespacing in default GCode hooks. ([aa0c164](https://github.com/tegapp/teg/commit/aa0c1641c4cc1dbfd47c2dd7a297719346c7287c))
+* Fixed default values for numeric fields in Settings ([14225c8](https://github.com/tegapp/teg/commit/14225c88b0a31b01e201bc5256bf69acb12bc957))
+* Fixed fan speeds so they no longer report 255% when full speed ([dc57c56](https://github.com/tegapp/teg/commit/dc57c564645da404ece4f7d761545c6e527f5ba5))
+* Fixed filament runout handling - marlin driver now correctly handles the print resuming "ok" send by the firmware after the filament is reloaded ([45b9b25](https://github.com/tegapp/teg/commit/45b9b2515fc734352f574b9a4ef026092024eaf9))
+* Fixed HTML illegal element nesting ([249e258](https://github.com/tegapp/teg/commit/249e2589e8a469355b8893896f9d4882b1b36e5a))
+* Fixed large file uploads in Chrome ([406a26c](https://github.com/tegapp/teg/commit/406a26c72df7a7643a9633579411df5eadb100bb))
+* Fixed paths ([5b030c4](https://github.com/tegapp/teg/commit/5b030c41488904f1bce91b30e19431f4061ecb11))
+* Fixed webrtc download url ([fa00aa3](https://github.com/tegapp/teg/commit/fa00aa35627eca8673b83d5da9076ac58af23bf4))
+* Hid option to add multiple extruders. Multi-extruder support is pending on access to a multi-extruder printer to test with. ([6ce978e](https://github.com/tegapp/teg/commit/6ce978e9e88f6b6d88b5207cf3d1fd69086ddcb4))
+* License text is now correctly AGPL3 ([1e5ca62](https://github.com/tegapp/teg/commit/1e5ca623f02b905947cd03fc8d5fc6217adb1a93))
+* Moved GraphQL Playground to it's own tab to prevent the bottom of the page from being cut off due to Playground CSS issues ([b79c983](https://github.com/tegapp/teg/commit/b79c983243a505090c3e391ff92118eb34efef39))
+* Pause errors display a less obtrusive notification instead of a full screen stack trace ([fced41e](https://github.com/tegapp/teg/commit/fced41e8a605ed93cec2645df45f43ee44073de3))
+* Prevented infinite loops on CoreXY by providing a start and stop fallback for continuous moves ([821bf53](https://github.com/tegapp/teg/commit/821bf53b6ed6b998837da87b41a4bc028fbb4ee9))
+* Prevented SQLite "database is locked" deadlocks by setting max_connection to 1 ([9c182d8](https://github.com/tegapp/teg/commit/9c182d80b654c50d70e4ba3e64c7c943c6ca57f6))
+* Revert to stable to fix ci ([8ba910e](https://github.com/tegapp/teg/commit/8ba910edc738f7275a49cc00c2c6bb427a5b7367))
+* Server now detects and resets old driver processes once they are idle ([22d2588](https://github.com/tegapp/teg/commit/22d2588811bb9ed16c7f842156332b2cfbfc2e06))
+* The print progress bar was animating across the entire screen on the JobPage ([03d830e](https://github.com/tegapp/teg/commit/03d830e9369431a05e6e198d62de7b9e068404a5))
+* Using round robbin message sending to avoid head of line blocking ([be6c9d0](https://github.com/tegapp/teg/commit/be6c9d0ff0b191b26c55cd7d8249a196f182be1a))
+
 ## [0.14.0](https://github.com/tegapp/teg/compare/v0.13.1...v0.14.0) (2021-04-19)
 
 
