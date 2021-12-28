@@ -1,10 +1,7 @@
-import SimplePeer from 'simple-peer'
-
 import {
   chunkifier,
   dechunkifier,
   RELIABLE_ORDERED,
-  MAX_MESSAGE_SIZE,
   UNORDERED_UNRELIABLE,
   FileLike,
 } from './saltyRTCChunk'
@@ -19,11 +16,9 @@ const EVENT_NAMES = [
 const ORDERED = false
 
 export type WebRTCOptions = {
-  iceServers: string[],
   files: Map<string, FileLike>,
-  connectToPeer: (any) => Promise<any>,
-  onSignallingError: (any) => void,
   onSignallingSuccess: () => void,
+  onSignallingError: (err: any) => void,
 }
 
 const socketFactory = (options: WebRTCOptions) => {
@@ -35,13 +30,16 @@ const socketFactory = (options: WebRTCOptions) => {
 
     readyState: string
     private listeners: any
-    private peer: any
+    private inner: any
     private chunkifier: any
 
     constructor(url: string, protocol: string) {
       this.listeners = {}
       this.innerClose = this.innerClose.bind(this)
       this.innerHandleError = this.innerHandleError.bind(this)
+
+      this.inner = new WebSocket(url, protocol);
+      this.inner.onerror = this.innerHandleError
 
       this.init()
         .catch((e) => setTimeout(() => {
@@ -52,56 +50,43 @@ const socketFactory = (options: WebRTCOptions) => {
 
     private async init() {
       const {
-        iceServers,
-        connectToPeer,
         onSignallingSuccess,
       } = options
 
-      // const iceServers = [
-      //   { urls: 'stun:stun.l.google.com:19302' },
-      //   { urls: 'stun:global.stun.twilio.com:3478?transport=udp' },
-      // ]
-      // console.log({ iceServers })
-
-      this.peer = new SimplePeer({
-        initiator: true,
-        trickle: false,
-        config: { iceServers },
-        channelConfig: { ordered: ORDERED },
-      })
-
-      // Change the bufferedAmountLowThreshold to the chunk size
-      const originalSetupData = this.peer._setupData.bind(this.peer)
-      this.peer._setupData = function (event) {
-        originalSetupData(event)
-        if (typeof this._channel.bufferedAmountLowThreshold === 'number') {
-          this._channel.bufferedAmountLowThreshold = MAX_MESSAGE_SIZE
-        }
-      }
+      // // Change the bufferedAmountLowThreshold to the chunk size
+      // const originalSetupData = this.inner._setupData.bind(this.inner)
+      // this.inner._setupData = function (event) {
+      //   originalSetupData(event)
+      //   if (typeof this._channel.bufferedAmountLowThreshold === 'number') {
+      //     this._channel.bufferedAmountLowThreshold = MAX_MESSAGE_SIZE
+      //   }
+      // }
 
       this.chunkifier = chunkifier(
         {
           mode: ORDERED ? RELIABLE_ORDERED : UNORDERED_UNRELIABLE,
         },
-        this.peer,
+        this.inner,
       )
 
-      this.peer.on('connect', () => {
+      this.inner.onopen = () => {
         // console.log('CONNECT')
         this.onopen()
           .catch(this.innerHandleError)
-      })
+      }
 
       // Register event listeners
 
-      this.peer.on('close', () => {
+      this.inner.onclose = () => {
         // console.log('PEER CONNECTION CLOSED')
-        this.innerClose({ message: 'WebRTC peer connection closed'}, 1000)
-      })
+        this.innerClose({ message: 'WebRTC inner connection closed'}, 1000)
+      }
 
       let firstMessage = true
-      this.peer.on('data', dechunkifier(data => {
+      this.onmessage = dechunkifier(data => {
         if (firstMessage) {
+          onSignallingSuccess()
+
           firstMessage = false
           const { type, payload } = JSON.parse(data)
 
@@ -119,39 +104,7 @@ const socketFactory = (options: WebRTCOptions) => {
           console.error(`Error receiving message: ${error.message}`, { error, data })
           this.close(4000, `Error receiving message: ${error.message}: ${JSON.stringify(data)}`)
         }
-      }))
-
-      this.peer.on('error', this.innerHandleError)
-      this.peer.on('iceStateChange', (state) => {
-        if (state === 'disconnected') {
-          console.log('iceState changed to disconnected')
-          this.innerHandleError({ message: 'Connection lost' }, { code: 4444 })
-        }
       })
-
-      // Connect to the Peer
-
-      const offer = await new Promise((resolve, reject) => {
-        this.peer.on('error', reject)
-        this.peer.on('signal', resolve)
-      })
-      // console.log("sending", { offer })
-
-      const {
-        answer,
-        iceCandidates
-      } = await connectToPeer(offer)
-
-      // console.log('received', { answer, iceCandidates })
-      this.peer.signal(answer)
-
-      iceCandidates.forEach((candidate) => {
-        // console.log('ADD', { candidate })
-        this.peer.signal({ candidate })
-      })
-      // console.log('END 2??')
-      // this.peer.signal({ candidate: '' })
-      onSignallingSuccess()
     }
 
     send(message: string) {
@@ -220,7 +173,7 @@ const socketFactory = (options: WebRTCOptions) => {
 
     private beforeCloseOrError() {
       this.readyState = WebRTCSocket.CLOSED
-      this.peer?.destroy()
+      this.inner?.close()
     }
 
     private innerHandleError(error: any, { unrecoverable = false, code = null } = {}) {

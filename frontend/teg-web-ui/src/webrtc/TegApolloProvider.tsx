@@ -14,9 +14,7 @@ import { useAuth } from '../common/auth'
 import { useAsync } from 'react-async'
 
 import WebRTCLink, { INSECURE_LOCAL_CONNECTION } from './WebRTCLink'
-import useSignallingGraphQL from '../common/auth/useSignallingGraphQL';
-
-export const TegApolloContext = React.createContext(null)
+import { wsBridgeURL } from '../common/auth/signallingFetchOptions';
 
 const TegApolloProvider = ({
   children,
@@ -26,11 +24,9 @@ const TegApolloProvider = ({
   slug?: string,
 }) => {
   const { location, match } = useReactRouter()
-  const { isSignedIn, getFetchOptions } = useAuth()
-  const { query: querySignalling } = useSignallingGraphQL();
+  const { isSignedIn, getIdToken } = useAuth()
 
   const [link, setLink] = useState(null as any)
-  const [iceServers, setIceServers] = useState(null as any)
   const [signallingError, setSignallingError] = useState(null as any)
   // The re-render key is used to force polling queries to restart after a connection
   // interuption. Without this they stop polling forever.
@@ -78,69 +74,6 @@ const TegApolloProvider = ({
     },
   };
 
-  const createWebRTCLink = async () => {
-    const { iceServers: nextIceServers } = await querySignalling({
-      query: `
-        {
-          iceServers {
-            url
-            urls
-            username
-            credential
-          }
-        }
-      `,
-    })
-
-    setIceServers(nextIceServers)
-
-    const nextLink = new WebRTCLink({
-      defaultOption: clientDefaultOptions,
-      iceServers: nextIceServers,
-      connectToPeer: async (offer) => {
-        // console.log('Connecting to signalling server...')
-
-        const { connectToHost } = await querySignalling({
-          query: `
-            mutation($input: ConnectToHostInput!) {
-              connectToHost(input: $input) {
-                response {
-                  answer
-                  iceCandidates
-                }
-              }
-            }
-          `,
-          variables: {
-            input: {
-              hostSlug,
-              invite,
-              offer,
-            },
-          },
-        })
-
-        // console.log('Connecting to signalling server... [DONE]')
-
-        return connectToHost.response
-      },
-      onSignallingError: setSignallingError,
-      onSignallingSuccess: () => {
-        setRerenderKey(i => i + 1)
-        setSignallingError(null)
-      },
-      // onClose: (e) => {
-      //   setClosedBy({
-      //     timestamp: Date.now(),
-      //     link: nextLink,
-      //     message: e.message,
-      //   })
-      // },
-    })
-
-    return nextLink
-  }
-
   const client = useAsync({
     deferFn: async () => {
       // console.log('apollo client inputs', { shouldConnect, invite, hostSlug, isSignedIn })
@@ -160,7 +93,20 @@ const TegApolloProvider = ({
         const previousLink = link?.client || link
         previousLink?.dispose()
 
-        const nextLink = await createWebRTCLink()
+        const nextLink = new WebRTCLink({
+          defaultOption: clientDefaultOptions,
+          url: wsBridgeURL({
+            hostSlug,
+            invite,
+            authorization: await getIdToken(),
+          }),
+          onSignallingSuccess: () => {
+            setRerenderKey(i => i + 1)
+            setSignallingError(null)
+          },
+          onSignallingError: setSignallingError,
+        })
+
         setLink(nextLink)
 
         nextClient =  new ApolloClient({
@@ -206,13 +152,7 @@ const TegApolloProvider = ({
 
   return (
     <ApolloProvider client={client.data as any} key={rerenderKey.toString()}>
-      <TegApolloContext.Provider
-        value={{
-          iceServers,
-        }}
-      >
-        { children }
-      </TegApolloContext.Provider>
+      { children }
     </ApolloProvider>
   )
 }

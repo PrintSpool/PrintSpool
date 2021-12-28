@@ -42,8 +42,7 @@ export default class WebRTCLink extends ApolloLink {
         retryAttempts: Number.MAX_SAFE_INTEGER,
         lazy: false,
         onNonLazyError: (e) => console.log('Non-Lazy Error', e),
-        // The URL is unused but it is required by ClientOptions
-        url: 'webrtc://',
+        url: options.url,
         // WebRTC connections are expensive to create
         keepAlive: Number.MAX_SAFE_INTEGER,
         // retryWait: randomisedExponentialBackoff,

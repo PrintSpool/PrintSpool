@@ -1,18 +1,32 @@
-
-const signallingFetchOptions = idToken => (options) => {
-  let url
-
-  // const useDevUserProfileServer = true
-  const useDevUserProfileServer = false
+export const signallingServer = ({ ws = false } = {}) => {
+  const useDevUserProfileServer = true
+  // const useDevUserProfileServer = false
 
   if (
     process.env.NODE_ENV === 'production'
     || useDevUserProfileServer === false
   ) {
-    url = 'https://signalling.onrender.com/graphql'
+    return `${ws ? 'wss://' : 'https://'}signalling.onrender.com`
   } else {
-    url = 'http://localhost:8080/graphql'
+    return `${ws ? 'ws://' : 'http://'}localhost:8080`
   }
+}
+
+export const wsBridgeURL = ({ hostSlug, invite, authorization }) => {
+  const params = new URLSearchParams({ authorization });
+  if (hostSlug != null) {
+    params.set('hostSlug', hostSlug)
+  }
+
+  if (authorization != null) {
+    params.set('authorization', authorization)
+  }
+
+  return `${signallingServer({ ws: true })}/bridge/from-client?${params}`
+}
+
+const signallingFetchOptions = idToken => (options) => {
+  const url = `${signallingServer()}/graphql`
 
   const headers = new Headers({
     Authorization: `Bearer ${idToken}`,

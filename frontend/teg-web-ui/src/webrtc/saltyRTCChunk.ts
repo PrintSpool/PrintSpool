@@ -178,7 +178,7 @@ const setImmediate = fn => setTimeout(fn, 0)
 /*
  * for asynchronusly encoding messages into an array of chunks
  */
-export const chunkifier = (opts, peer) => {
+export const chunkifier = (opts, websocket) => {
   const {
     mode,
     maximumMessageSize = MAX_MESSAGE_SIZE,
@@ -196,7 +196,7 @@ export const chunkifier = (opts, peer) => {
   // let timeout
 
   const sendNextChunks = async () => {
-    peer._channel?.removeEventListener('bufferedamountlow', sendNextChunks)
+    // peer._channel?.removeEventListener('bufferedamountlow', sendNextChunks)
 
     // timeout = null
     // let { bufferedAmount } = channel
@@ -215,13 +215,13 @@ export const chunkifier = (opts, peer) => {
         chunks.splice(index, 1);
       } else {
         // Chunks are stored as async functions
-        peer.send(await chunk())
+        websocket.send(await chunk())
 
-        if (peer._channel != null && peer._channel.bufferedAmount > BUFFER_HIGH) {
-          // console.log('Teg RTC Buffer Full')
-          peer._channel.addEventListener('bufferedamountlow', sendNextChunks)
-          return
-        }
+        // if (peer._channel != null && peer._channel.bufferedAmount > BUFFER_HIGH) {
+        //   // console.log('Teg RTC Buffer Full')
+        //   peer._channel.addEventListener('bufferedamountlow', sendNextChunks)
+        //   return
+        // }
         // bufferedAmount += chunk.length
         // } else {
         //   timeout = setTimeout(sendNextChunks, 0)
