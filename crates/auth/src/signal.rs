@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use datachannel::SessionDescription;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde( rename_all = "camelCase" )]
@@ -11,8 +10,6 @@ pub struct Signal {
     pub invite: Option<String>,
     #[serde(rename = "sessionID")]
     pub session_id: async_graphql::ID,
-    pub offer: SessionDescription,
-    pub ice_servers: Vec<IceServer>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

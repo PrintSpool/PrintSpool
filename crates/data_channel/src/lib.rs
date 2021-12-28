@@ -3,14 +3,14 @@
 
 pub mod saltyrtc_chunk;
 pub mod iter;
-pub mod open_data_channel;
+pub mod client_ws;
 
 use eyre::{
     eyre,
     Context as _,
     Result,
 };
-use open_data_channel::open_data_channel;
+use client_ws::connect_to_client_ws;
 use serde::{Serialize, Deserialize};
 // use teg_machine::machine::messages::GetData;
 use std::{
@@ -34,7 +34,6 @@ use futures_util::{
         // TryStreamExt,
     },
 };
-use dashmap::DashMap;
 use teg_auth::Signal;
 
 pub use teg_machine::paths;
@@ -137,8 +136,9 @@ where
 {
     // let machines = machines.load();
 
-    let signalling_url = std::env::var("SIGNALLING_SERVER_WS")
+    let signalling_server_ws = std::env::var("SIGNALLING_SERVER_WS")
         .wrap_err("SIGNALLING_SERVER_WS environment variable missing")?;
+    let graphql_ws_url = format!("{}/graphql", signalling_server_ws);
 
     // Attempt to connect to the websocket every 500ms until successful
     let (
@@ -147,7 +147,7 @@ where
     ) = loop
     {
         let request = Request::builder()
-            .uri(&signalling_url)
+            .uri(&graphql_ws_url)
             .body(())?;
 
         match connect_async(request).await {
@@ -155,7 +155,7 @@ where
             Err(err) => {
                 warn!(
                     "Unable to connect to signalling server ({}) retrying in 500ms (reason: {:?})",
-                    signalling_url,
+                    graphql_ws_url,
                     err,
                 );
                 async_std::task::sleep(std::time::Duration::from_millis(500)).await;
@@ -163,7 +163,7 @@ where
         }
     };
 
-    let jwt = server_keys.create_signalling_jwt()?;
+    let jwt = server_keys.create_signalling_jwt(&graphql_ws_url)?;
 
     let msg = GraphQLWSMessage::ConnectionInit {
         // TODO: Send an authorization payload
@@ -189,73 +189,6 @@ where
         Err(eyre!("Expected ConnectionAck, received: {:?}", msg))?;
     }
 
-    // // Update the signalling servers list of machines
-    // // ------------------------------------------------------------
-    // let machines_json = machines
-    //     .values()
-    //     .map(|machine| async move {
-    //         let data = machine.call(GetData).await??;
-    //         Result::<serde_json::Value>::Ok(serde_json::json!({
-    //             "slug": data.config.id,
-    //             "name": data.config.name()?,
-    //         }))
-    //     });
-
-    // let machines_json = try_join_all(machines_json)
-    //     .await?;
-
-    // let msg = GraphQLWSMessage::Subscribe {
-    //     id: NEXT_MESSAGE_ID.fetch_add(1, Ordering::SeqCst).to_string(),
-    //     payload: SubscribeMessagePayload {
-    //         operation_name: Some("registerMachinesFromHost".to_string()),
-    //         query: r#"
-    //             mutation registerMachinesFromHost(
-    //                 $input: RegisterMachinesInput!
-    //             ) {
-    //                 registerMachinesFromHost(input: $input) {
-    //                     id
-    //                 }
-    //             }
-    //         "#.to_string(),
-    //         variables: Some(serde_json::json!({
-    //             "input": {
-    //                 "machines": machines_json,
-    //             },
-    //         })),
-    //     },
-    // };
-
-    // let msg = serde_json::to_string(&msg)?;
-    // ws_stream.send(Message::Text(msg)).await?;
-
-    // let msg = ws_stream
-    //     .next()
-    //     .await
-    //     .ok_or_else(|| eyre!("didn't receive anything"))??
-    //     .into_text()?;
-
-    // let msg: GraphQLWSMessage = serde_json::from_str(&msg)
-    //     .wrap_err_with(|| format!("Error parsing GraphQL WS Message:\n{:?}", msg))?;
-    // if let GraphQLWSMessage::Next {
-    //     payload: ExecutionResult { data: Some(_), errors: None },
-    //     ..
-    // } = msg {
-    // } else {
-    //     Err(eyre!("Expected Next with data, received: {:?}", msg))?;
-    // }
-
-    // let msg = ws_stream
-    //     .next()
-    //     .await
-    //     .ok_or_else(|| eyre!("didn't receive anything"))??
-    //     .into_text()?;
-
-    // let msg: GraphQLWSMessage = serde_json::from_str(&msg)?;
-    // if let GraphQLWSMessage::Complete {..} = msg {
-    // } else {
-    //     Err(eyre!("Expected Complete, received: {:?}", msg))?;
-    // }
-
     // Subscribe to receive incoming connection requests
     // ------------------------------------------------------------
     let rx_signals_id = NEXT_MESSAGE_ID.fetch_add(1, Ordering::SeqCst).to_string();
@@ -271,13 +204,6 @@ where
                         emailVerified
                         invite
                         sessionID
-                        offer
-                        iceServers {
-                            url
-                            urls
-                            username
-                            credential
-                        }
                     }
                 }
             "#.to_string(),
@@ -311,9 +237,7 @@ where
         }
     });
 
-    info!("Listening for WebRTC Connections from {}", signalling_url);
-
-    let peer_connections = Arc::new(DashMap::new());
+    info!("Listening for new connections from {}", graphql_ws_url);
 
     while let Some(msg) = async_std::future::timeout(
         std::time::Duration::from_millis(PING_INTERVAL_MILLIS),
@@ -343,10 +267,10 @@ where
                 continue;
             }
             Message::Binary(_) => {
-                return Err(eyre!("Received an unexpected binary message from {}", signalling_url));
+                return Err(eyre!("Received an unexpected binary message from {}", graphql_ws_url));
             }
             Message::Close(msg) => {
-                warn!("Websocket closed by other side ({}), received: {:?}", signalling_url, msg);
+                warn!("Websocket closed by other side ({}), received: {:?}", graphql_ws_url, msg);
                 return Ok(());
             }
         };
@@ -359,7 +283,7 @@ where
                 payload: ExecutionResult { errors: Some(errors), .. },
                 ..
             } => {
-                Err(eyre!("Signalling GraphQL Errors: {:?}", errors))?;
+                return Err(eyre!("Signalling GraphQL Errors: {:?}", errors));
             }
             // Signal Received => Open a Data Channel
             GraphQLWSMessage::Next {
@@ -368,109 +292,14 @@ where
             } if id == rx_signals_id => {
                 let data = data["connectionRequested"].take();
                 let signal: Signal = serde_json::from_value(data)?;
-                let handshake_session_id = signal.session_id.clone();
 
-                let (
-                    id,
-                    pc,
-                    answer,
-                    mut ice_candidates_stream,
-                ) = open_data_channel(
+                connect_to_client_ws(
                     signal,
+                    format!("{}/bridge/from-server", signalling_server_ws),
+                    &graphql_ws_url,
+                    server_keys,
                     Arc::clone(&handle_data_channel),
                 ).await?;
-                // TODO: Remember to remove peer connections once they are closed!
-                peer_connections.insert(id, pc);
-
-                // Commented out: trickle ICE candidates were previously considered but have been
-                // replaced by sending all ICE candidates at once for implementation simplicity.
-                //
-                // // Send up to 10 ice candidates at a time if they are available
-                // let mut ice_candidates = ice_candidates
-                //     .ready_chunks(10)
-                //     .boxed();
-
-                let mut ice_candidates = vec![];
-
-                // Take all ice candidates up to and including the final empty string candidate
-                while let Some(ic) = ice_candidates_stream.next().await {
-                    let last_candidate = ic.candidate.is_empty();
-                    trace!("Ice Candidate: {:?}", ic);
-                    ice_candidates.push(ic);
-                    if last_candidate {
-                        break
-                    };
-                }
-
-                // Send a mutation containing the answer and initial ice candidates back to the
-                // signalling server
-                let msg = GraphQLWSMessage::Subscribe {
-                    id: NEXT_MESSAGE_ID.fetch_add(1, Ordering::SeqCst).to_string(),
-                    payload: SubscribeMessagePayload {
-                        operation_name: Some("respondToConnectionRequest".to_string()),
-                        query: r#"
-                            mutation respondToConnectionRequest(
-                                $input: RespondToConnectionRequestInput!
-                            ) {
-                                respondToConnectionRequest(input: $input) {
-                                    id
-                                }
-                            }
-                        "#.to_string(),
-                        variables: Some(serde_json::json!({
-                            "input": {
-                                "sessionID": handshake_session_id,
-                                "answer": answer,
-                                "iceCandidates": ice_candidates,
-                            },
-                        })),
-                    },
-                };
-
-                let msg = serde_json::to_string(&msg)?;
-                ws_write.send(Message::Text(msg)).await?;
-
-                // Commented out: trickle ICE candidates were previously considered but have been
-                // replaced by sending all ICE candidates at once for implementation simplicity.
-                //
-                // // Send the ice candidates back to the signalling server in a detached task
-                // let ws_clone = ws_write.clone();
-                // let send_ice_candidates = async move {
-                //     while let Some(ic) = ice_candidates_stream.next().await {
-                //         // Send the ice candidates back to the signalling server
-                //         let msg = GraphQLWSMessage::Subscribe {
-                //             id: NEXT_MESSAGE_ID.fetch_add(1, Ordering::SeqCst).to_string(),
-                //             payload: SubscribeMessagePayload {
-                //                 operation_name: Some("sendICECandidatesToClient".to_string()),
-                //                 query: r#"
-                //                     mutation sendICECandidatesToClient(
-                //                         $input: SendICECandidatesInput!
-                //                     ) {
-                //                         sendICECandidatesToClient(input: $input)
-                //                     }
-                //                 "#.to_string(),
-                //                 variables: Some(serde_json::json!({
-                //                     "input": {
-                //                         "sessionID": handshake_session_id,
-                //                         "iceCandidates": ic,
-                //                     },
-                //                 })),
-                //             },
-                //         };
-
-                //         let msg = serde_json::to_string(&msg)?;
-                //         ws_clone.send(Message::Text(msg)).await?;
-                //     }
-                //     Result::<()>::Ok(())
-                // };
-
-                // async_std::task::spawn(async move {
-                //     if let Err(err) = send_ice_candidates.await {
-                //         error!("Error sending ICE Candidates: {:?}", err);
-                //     };
-                // });
-
-                ()
             }
             // Ignore sucessful mutation responses
             | GraphQLWSMessage::Next {
@@ -481,7 +310,9 @@ where
             if id != rx_signals_id => {
                 ()
             }
-            msg => Err(eyre!("Unexpected Signalling Message: {:?}", msg))?,
+            msg => {
+                return Err(eyre!("Unexpected Signalling Message: {:?}", msg));
+            },
         }
     }
     Ok(())

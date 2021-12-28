@@ -83,7 +83,7 @@ const socketFactory = (options: WebRTCOptions) => {
       }
 
       let firstMessage = true
-      this.onmessage = dechunkifier(data => {
+      this.inner.onmessage = dechunkifier(data => {
         if (firstMessage) {
           onSignallingSuccess()
 

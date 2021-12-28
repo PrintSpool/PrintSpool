@@ -18,8 +18,8 @@ export const wsBridgeURL = ({ hostSlug, invite, authorization }) => {
     params.set('hostSlug', hostSlug)
   }
 
-  if (authorization != null) {
-    params.set('authorization', authorization)
+  if (invite != null) {
+    params.set('invite', invite)
   }
 
   return `${signallingServer({ ws: true })}/bridge/from-client?${params}`

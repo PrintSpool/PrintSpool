@@ -22,9 +22,9 @@ const splitSlice = (section, chunkSize) => {
 export const RELIABLE_ORDERED = 'RELIABLE_ORDERED'
 export const UNORDERED_UNRELIABLE = 'UNORDERED_UNRELIABLE'
 
-// Per https://stackoverflow.com/a/56330726
+// // Per https://stackoverflow.com/a/56330726
 export const MAX_MESSAGE_SIZE = 256 * 1024
-export const BUFFER_HIGH = MAX_MESSAGE_SIZE * 10
+// export const BUFFER_HIGH = MAX_MESSAGE_SIZE * 10
 
 // Theoretically 1GB messages may be possible in Firefox but I have not had luck with them yet:
 // https://blog.mozilla.org/webrtc/large-data-channel-messages/
@@ -215,7 +215,9 @@ export const chunkifier = (opts, websocket) => {
         chunks.splice(index, 1);
       } else {
         // Chunks are stored as async functions
-        websocket.send(await chunk())
+        const chunkVal = await chunk();
+        // console.log('send chunk', new TextDecoder('utf8').decode(chunkVal))
+        websocket.send(chunkVal)
 
         // if (peer._channel != null && peer._channel.bufferedAmount > BUFFER_HIGH) {
         //   // console.log('Teg RTC Buffer Full')
@@ -348,8 +350,9 @@ export const dechunkifier = (callback) => {
   //   }
   // }, 1000)
 
-  return (data) => {
-    // console.log('RECEIVING BUFFER:', data)
+  return async (event) => {
+    const data = Buffer.from(await event.data.arrayBuffer())
+
     const bf = data.readUInt8(0)
 
     // eslint-disable-next-line no-bitwise
