@@ -351,6 +351,10 @@ export const dechunkifier = (callback) => {
   // }, 1000)
 
   return async (event) => {
+    if (typeof event.data === 'string') {
+      return callback(event.data)
+    }
+
     const data = Buffer.from(await event.data.arrayBuffer())
 
     const bf = data.readUInt8(0)
