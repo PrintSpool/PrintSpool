@@ -10,6 +10,7 @@ import ManualControlView from './ManualControl.view'
 import useLiveSubscription from '../_hooks/useLiveSubscription'
 import useExecGCodes from '../_hooks/useExecGCodes'
 import viewMachine from '../_hooks/viewMachine'
+import useSignallingGraphQL from '../../common/auth/useSignallingGraphQL'
 
 const MANUAL_CONTROL_QUERY = gql`
   fragment QueryFragment on Query {
@@ -30,6 +31,20 @@ const MANUAL_CONTROL_QUERY = gql`
 
 const ManualControlPage = () => {
   const { match: { params } } = useReactRouter()
+  const { useQuery: useSignallingQuery } = useSignallingGraphQL()
+
+  const signallingQuery: any = useSignallingQuery({
+    query: `
+      {
+        iceServers {
+          url
+          urls
+          username
+          credential
+        }
+      }
+    `,
+  })
 
   const { loading, error, data } = useLiveSubscription(MANUAL_CONTROL_QUERY, {
     variablesDef: '($machineID: ID)',
@@ -49,12 +64,12 @@ const ManualControlPage = () => {
   //   await execGCodesAsync.promise
   // }, [machine])
 
-  if (loading) {
+  if (loading || signallingQuery.loading) {
     return <div />
   }
 
-  if (error) {
-    throw error
+  if (error || signallingQuery.error) {
+    throw error || signallingQuery.error
   }
 
   return (
@@ -64,6 +79,7 @@ const ManualControlPage = () => {
         isReady,
         isPrinting,
         execGCodes,
+        iceServers: signallingQuery.data.iceServers
       }}
     />
   )

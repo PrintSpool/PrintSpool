@@ -4,7 +4,8 @@ import useStyles from './VideoStreamer.styles'
 
 const MultiVideoStreamer = ({
   machineID,
-  videos
+  videos,
+  iceServers,
 }) => {
   const classes = useStyles()
 
@@ -17,6 +18,7 @@ const MultiVideoStreamer = ({
           key={video.id}
           machineID={machineID}
           videoID={video.id}
+          iceServers={iceServers}
         />
       ))}
     </div>

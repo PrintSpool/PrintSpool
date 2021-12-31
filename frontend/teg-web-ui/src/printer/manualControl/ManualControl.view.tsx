@@ -23,6 +23,7 @@ const ManualControlView = ({
   isReady,
   isPrinting,
   execGCodes,
+  iceServers,
 }) => {
   const classes = useStyles()
 
@@ -48,6 +49,7 @@ const ManualControlView = ({
       <MultiVideoStreamer
         machineID={machine.id}
         videos={videos}
+        iceServers={iceServers}
       />
       <div className={classes.controls}>
         <Loader

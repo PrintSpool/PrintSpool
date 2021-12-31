@@ -2,7 +2,6 @@ import React, {
   useState,
   useRef,
   useCallback,
-  useContext,
   useEffect,
 } from 'react'
 import { gql, useApolloClient } from '@apollo/client'
@@ -10,7 +9,6 @@ import Typography from '@material-ui/core/Typography'
 import { useAsync } from 'react-async'
 import SimplePeer from 'simple-peer'
 
-import { TegApolloContext } from '../../../webrtc/TegApolloProvider'
 import ErrorFallback from '../../../common/ErrorFallback'
 import { INSECURE_LOCAL_CONNECTION } from '../../../webrtc/WebRTCLink'
 import VideoStreamerView from './VideoStreamer.view'
@@ -48,10 +46,10 @@ const VideoStreamerPage = (props: any) => {
   const {
     machineID,
     videoID,
+    iceServers,
   } = props
 
   const apollo = useApolloClient()
-  const { iceServers } = useContext(TegApolloContext)
 
   const videoEl = useRef(null)
   const MAX_RETRY_DELAY = 5000

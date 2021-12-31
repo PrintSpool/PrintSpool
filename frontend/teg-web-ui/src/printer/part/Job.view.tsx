@@ -28,6 +28,7 @@ const JobView = ({
   isReady,
   isPrinting,
   machineStatus,
+  iceServers,
 }) => {
   const classes = useStyles()
 
@@ -60,6 +61,7 @@ const JobView = ({
             <MultiVideoStreamer
               machineID={task.machine.id}
               videos={videoComponents}
+              iceServers={iceServers}
             />
           ) }
 
