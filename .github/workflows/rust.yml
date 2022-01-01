@@ -43,7 +43,7 @@ jobs:
           unzip
       - name: Database Setup
         run: |
-          cargo install sqlx-cli --no-default-features --features postgres
+          cargo install sqlx-cli --no-default-features --features postgres runtime-async-std-rustls
           cd ./crates/server && sqlx database setup
       - name: Build X64 Release
         uses: actions-rs/cargo@v1
@@ -132,7 +132,7 @@ jobs:
       #   run: dpkg -S arm-linux-gnueabihf-gcc
       - name: Database Setup
         run: |
-          cargo install sqlx-cli --no-default-features --features postgres
+          cargo install sqlx-cli --no-default-features --features postgres runtime-async-std-rustls
           cd ./crates/server && sqlx database setup
       # Armv7 Debug Builds
       - name: Build ARMv7 (Debug)
