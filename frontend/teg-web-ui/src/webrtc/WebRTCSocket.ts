@@ -41,16 +41,9 @@ const socketFactory = (options: WebRTCOptions) => {
       this.inner = new WebSocket(url, protocol);
       this.inner.onerror = this.innerHandleError
 
-      this.init()
-        .catch((e) => setTimeout(() => {
-          options.onSignallingError(e)
-          this.innerHandleError(e)
-        }, 0))
-    }
-
-    private async init() {
       const {
         onSignallingSuccess,
+        onSignallingError,
       } = options
 
       // // Change the bufferedAmountLowThreshold to the chunk size
@@ -85,15 +78,15 @@ const socketFactory = (options: WebRTCOptions) => {
       let firstMessage = true
       this.inner.onmessage = dechunkifier(data => {
         if (firstMessage) {
-          onSignallingSuccess()
-
           firstMessage = false
           const { type, payload } = JSON.parse(data)
 
           if (type === 'connection_error') {
-            this.innerHandleError(payload, { unrecoverable: true })
+            onSignallingError(payload)
             return
           }
+
+          onSignallingSuccess()
         }
 
         // messages are received both through onmessage and an event listener
