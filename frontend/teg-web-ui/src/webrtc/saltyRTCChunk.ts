@@ -350,17 +350,16 @@ export const dechunkifier = (callback) => {
   //   }
   // }, 1000)
 
-  return async (event) => {
-    if (typeof event.data === 'string') {
-      return callback(event.data)
-    }
+  let processingEvent = false
+  const eventProcessors = []
 
+  const processEvent = async (event) => {
     const data = Buffer.from(await event.data.arrayBuffer())
 
     const bf = data.readUInt8(0)
 
     // eslint-disable-next-line no-bitwise
-    const endOfMessage = bf & bitfield.END_OF_MESSAGE
+    const endOfMessage = (bf & bitfield.END_OF_MESSAGE) !== 0
     const modeBF = bf & MODE_BITMASK
 
     let id
@@ -379,6 +378,9 @@ export const dechunkifier = (callback) => {
     } else {
       throw new Error(`Invalid SaltyRTC mode for bitfield ${bf}`)
     }
+
+    // console.log('Chunk', { id, serial, endOfMessage })
+
 
     if (incommingMessages[id] == null) {
       incommingMessages[id] = {
@@ -418,6 +420,7 @@ export const dechunkifier = (callback) => {
       const decodingStartedAt = Date.now()
       const message = Buffer.concat(chunks).toString()
 
+      // console.log(`End of Message: ${id}`, JSON.parse(message))
       debug("Received Buffer", message)
       // const message = msgpack.decode(buf)
       debug(`Message decoded in ${((Date.now() - decodingStartedAt) / 1000).toFixed(1)} seconds`)
@@ -425,7 +428,48 @@ export const dechunkifier = (callback) => {
       delete incommingMessages[id]
 
       // console.log('RECEIVE', message)
-      callback(message)
+      return message
     }
+
+    return null
+  }
+
+  // Relay the messages as if they were deserialized in the same order they were received
+  const processingLoop = async () => {
+    let nextEventProcessor = eventProcessors.shift();
+
+    while (nextEventProcessor != null) {
+      const message = await nextEventProcessor
+
+      if (message != null) {
+        callback(message)
+      }
+
+      nextEventProcessor = eventProcessors.shift();
+    }
+
+    processingEvent = false
+  }
+
+  return (event) => {
+    // console.log('RX')
+    if (typeof event.data === 'string') {
+      return callback(event.data)
+    }
+
+    // Handle event IO in parallel (we start the promise here) but await them in series in
+    // processingLoop()
+    const processor = processEvent(event)
+    eventProcessors.push(processor)
+
+    // The order of incoming messages must be preserved for graphql-ws - specifically NEXT messages
+    // must be received before COMPLETE messages.
+    if (!processingEvent) {
+      processingEvent = true
+
+      return processingLoop()
+    }
+
+    return null
   }
 }
