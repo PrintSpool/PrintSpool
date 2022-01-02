@@ -18,7 +18,7 @@ For completeness this documentation lists all the dependencies to get a developm
 1. Install [nvm](https://github.com/creationix/nvm)
 2. Install [Rust](https://rustup.rs/)
 3. [OPTIONAL] Install the [mold linker](https://github.com/rui314/mold) for faster builds
-3. `sudo apt update && sudo apt install build-essential clang libclang1 cmake pkg-config python tmux qemu qemu-user qemu-user-static binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf fuse-overlayfs g++-arm-linux-gnueabihf libbsd-dev protobuf-compiler postgresql postgresql-contrib`
+3. `sudo apt update && sudo apt install build-essential clang libclang1 cmake pkg-config python tmux qemu qemu-user qemu-user-static binutils-arm-linux-gnueabihf gcc-arm-linux-gnueabihf fuse-overlayfs g++-arm-linux-gnueabihf libbsd-dev protobuf-compiler postgresql postgresql-contrib libgeos-dev`
 5. Allow serial port access via the dialout group and then restart your computer: `sudo gpasswd --add ${USER} dialout`
 6. Increase the max_user_watches: `echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p`
 8. Set up Postgres for passwordless local development: https://gist.github.com/p1nox/4953113
@@ -50,9 +50,19 @@ To update the changelog and create a release tag run: `./scripts/release`
 #### Test Releases
 
 - Alternatively, you can compile release builds locally using `cargo build --release`
-- To build a test release via CI first fork this repo and then push an annotated tag to your fork:
-
-  `git tag -d tag-test; git tag -a tag-test -m "CI Testing / Do not Use" && git push fork -f tag-test`
+- Make sure to enable Github Actions in the repo settings for your fork
+- Then to build a test release via CI first fork this repo and then push an annotated tag to your fork:
+  ```bash
+    git tag -d tag-test; git tag -a tag-test -m "CI Testing / Do not Use" && git push fork -f tag-test
+  ```
+- Once the build is complete you can install it by setting the PRINTSPOOL_GITHUB envirnoment variable too point to your fork. Eg:
+  ```bash
+    export PRINTSPOOL_GITHUB="D1plo1d/print-spool-release-test"
+  ```
+- Then you can install PrintSpool from your fork just like a normal install:
+  ```bash
+    bash <(curl -s https://raw.githubusercontent.com/tegapp/teg/develop/scripts/install)
+  ```
 
 ### Developer Rapsberry Pi Setup
 
