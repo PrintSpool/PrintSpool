@@ -116,17 +116,19 @@ if [ "${LOCAL_ARTIFACT}" == "1" ]; then
   cp -r $SCRIPT_DIR/../artifact-working-dir/* ./
 else
   # Download the latest release
-  GITHUB_REPO="tegapp/teg"
+
+  # Use the provided github repo or default to "PrintSpool/PrintSpool"
+  PRINTSPOOL_GITHUB="${PRINTSPOOL_GITHUB:-PrintSpool/PrintSpool}"
 
   ARTIFACT_NAME="teg-$ARCH.zip"
 
-  LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/$GITHUB_REPO/releases/latest)
+  LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/$PRINTSPOOL_GITHUB/releases/latest)
 
   # The releases are returned in the format {"id":3622206,"tag_name":"hello-1.0.0.11",...},
   # we have to extract the tag_name.
   LATEST_VERSION=$(echo $LATEST_RELEASE | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/')
 
-  ARTIFACT_URL="https://github.com/$GITHUB_REPO/releases/download/$LATEST_VERSION/$ARTIFACT_NAME"
+  ARTIFACT_URL="https://github.com/$PRINTSPOOL_GITHUB/releases/download/$LATEST_VERSION/$ARTIFACT_NAME"
 
   wget $ARTIFACT_URL
   unzip $ARTIFACT_NAME
