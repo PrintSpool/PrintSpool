@@ -1,4 +1,5 @@
 import React, { useLayoutEffect, useRef, useState } from 'react'
+import { gql, useMutation } from '@apollo/client'
 import initSlicerRender, { render_string as renderString } from 'slicer-render';
 
 import Typography from '@material-ui/core/Typography'
@@ -29,6 +30,11 @@ const PrintDialogContent = ({
   setLoading,
 }) => {
   const classes = PrintDialogContentStyles()
+  const [slice, sliceMutation] = useMutation(gql`
+    mutation($input: SliceInput!) {
+      slice(input: $input)
+    }
+  `)
 
   const largeFile = files[0].size > 80 * MB
 
@@ -44,23 +50,39 @@ const PrintDialogContent = ({
     const fileExt = files[0].name.split('.').pop()
     let gcodeText = '';
     let modelByteArray;
-    let slice = () => {}
+    // let slice = () => {}
 
     if (meshFileExtensions.includes(fileExt)) {
       const modelArrayBuffer = await files[0].arrayBuffer();
       modelByteArray = new Uint8Array(modelArrayBuffer.slice());
 
-      // Dynamically load the slicer to improve page load times when it is not needed
-      const { default: createSlicer } = await import('./createSlicer');
+      // // Dynamically load the slicer to improve page load times when it is not needed
+      // const { default: createSlicer } = await import('./createSlicer');
 
-      slice = createSlicer({
-        modelArrayBuffer,
-        machineDimensions,
+      // slice = createSlicer({
+      //   modelArrayBuffer,
+      //   machineDimensions,
+      // })
+
+      console.log('Slicing....')
+      const { data }: any = await slice({
+        variables: {
+          input: {
+            file: files[0],
+            name: files[0].name,
+          },
+        }
       })
+      console.log('Slicing... [DONE]')
+
+      // Disable 3D model rendering after slicing
+      modelByteArray = new Uint8Array([]);
+      gcodeText = data.slice
     } else {
       modelByteArray = new Uint8Array([]);
       gcodeText = await files[0].text()
     }
+    console.log({ gcodeText })
 
     let start = performance.now()
     console.log('Starting JS Execution')

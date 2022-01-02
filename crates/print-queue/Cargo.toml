@@ -14,8 +14,6 @@ harness = false
 
 [dev-dependencies]
 criterion = { version = "0.3.3", features = ["async_std"] }
-# tempfile = "3.2.0"
-tempfile = { git = "https://github.com/D1plo1d/tempfile.git", branch = "feature/linux-persistence" }
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -42,6 +40,8 @@ futures = "0.3.12"
 nanoid = "0.3.0"
 nom-gcode = "0.1.0"
 nix = "0.20.0"
+# tempfile = "3.2.0"
+tempfile = { git = "https://github.com/D1plo1d/tempfile.git", branch = "feature/linux-persistence" }
 
 [dependencies.serde]
 features = ["derive"]

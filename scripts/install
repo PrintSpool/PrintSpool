@@ -133,6 +133,15 @@ else
   rm $ARTIFACT_NAME
 fi
 
+# Download and install belt-engine
+wget https://github.com/Autodrop3d/BeltEngine/raw/main/dist/belt-engine-0.1.3.tar.gz
+pip3 install ./belt-engine-0.1.3.tar.gz
+
+pushd .
+cd ./etc
+wget https://raw.githubusercontent.com/Autodrop3d/BeltEngine/main/belt_engine/settings/CR30.cfg.ini
+popd
+
 # Download the latest webrtc-streamer release
 GITHUB_REPO="mpromonet/webrtc-streamer"
 LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/$GITHUB_REPO/releases/latest)
