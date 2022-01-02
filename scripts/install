@@ -28,7 +28,16 @@ sudo apt install \
   postgresql-contrib \
   rsync \
   apg \
-  unzip
+  unzip \
+  `# Belt Engine Dependencies` \
+  libgeos-dev \
+  libblas-dev \
+  liblapack-dev \
+  gfortran \
+  libxslt1-dev \
+  libxml2-dev \
+  libjpeg-dev \
+  zlib1g-dev
 
 # TEG_USER="teg"
 # sudo useradd $TEG_USER || true
