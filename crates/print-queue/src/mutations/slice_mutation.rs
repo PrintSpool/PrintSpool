@@ -101,12 +101,16 @@ impl SliceMutation {
             info!("Slicing...");
             info!("Running slicing command: {:?}", script);
 
-            let _output = async_std::process::Command::new("sh")
+            let mut slicer_proc = async_std::process::Command::new("sh")
                 .arg("-c")
                 .arg(script)
-                .output()
-                .await
+                .stdout(std::process::Stdio::piped())
+                .spawn()
                 .wrap_err("Slicer error")?;
+
+            if !slicer_proc.status().await?.success() {
+                return Err(eyre!("Slicing failed"));
+            }
 
             let gcode = fs::read_to_string(&gcode_path).await?;
 
