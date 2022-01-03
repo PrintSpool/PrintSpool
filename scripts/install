@@ -146,7 +146,7 @@ fi
 
 # Download and install belt-engine
 wget https://github.com/Autodrop3d/BeltEngine/raw/main/dist/belt-engine-0.1.3.tar.gz
-pip3 install ./belt-engine-0.1.3.tar.gz
+sudo pip3 install ./belt-engine-0.1.3.tar.gz
 
 pushd .
 cd ./etc
