@@ -5,7 +5,7 @@ use std::convert::identity;
 
 use nom_reprap_response::{
     Response,
-    Feedback,
+    Feedback, Busy,
 };
 
 use crate::gcode_codec::{
@@ -397,7 +397,7 @@ impl ReadyState {
         context: &mut Context
     ) -> eyre::Result<Vec<Effect>> {
         match feedback {
-            Feedback::Busy(_) => {
+            Feedback::Busy(Busy::PausedForUser) => {
                 // Marlin sends an extra OK after filament swaps so make sure to ignore those
                 self.on_ok = OnOK::IgnoreOK;
                 Ok(vec![])

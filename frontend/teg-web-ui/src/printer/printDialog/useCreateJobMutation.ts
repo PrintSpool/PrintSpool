@@ -18,11 +18,11 @@ const addPartsToPrintQueueGraphQL = gql`
 `
 
 const useCreateJobMutation = (
-  printQueueID: string,
-  files: any,
+  mutationOpts,
 ): [() => Promise<any>, MutationResult<unknown>] => {
   // Update the print queue immediately upon adding a part
   const [mutation, mutationResult] = useMutation(addPartsToPrintQueueGraphQL, {
+    ...mutationOpts,
     update: (cache, { data: { addPartsToPrintQueue: newPackage } }) => {
       cache.modify({
         id: cache.identify({
@@ -49,48 +49,14 @@ const useCreateJobMutation = (
   })
 
   const addPartsToPrintQueue = useCallback(async () => {
+    const { parts } = mutationOpts.variables.input
+
     const MB = 1000 * 1000
-    const fileMBs = files[0].size / MB
+    const fileMBs = parts[0].file.size / MB
     const startedAt = Date.now()
 
-    const mutationInput = {
-      printQueueID,
-      name: files.map(f => f.name).join(', '),
-      parts: [],
-    }
-    // console.log({ mutationInput })
-
-    // read each file into memory
-    await Promise.all(
-      files.map(async (file) => {
-        const { name } = file
-
-        /* read the file */
-        // eslint-disable-next-line no-undef
-        // @ts-ignore
-        // const fileReader = new FileReader()
-        // fileReader.readAsText(file)
-
-        // await new Promise((resolve) => {
-        //   fileReader.onload = resolve
-        // })
-
-        mutationInput.parts.push({
-          name,
-          // content: fileReader.result,
-          file,
-        })
-      }),
-    )
-
-    // const filesReadAt = Date.now()
-
     /* execute the mutation */
-    const result = await mutation({
-      variables: {
-        input: mutationInput,
-      },
-    })
+    const result = await mutation()
 
     // const readSeconds = (filesReadAt - startedAt) / 1000
     const totalSeconds = (Date.now() - startedAt) / 1000
@@ -102,7 +68,7 @@ const useCreateJobMutation = (
     )
 
     return result
-  }, [files])
+  }, [mutationOpts])
 
   return [addPartsToPrintQueue, mutationResult]
 }

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 // import { gql } from '@apollo/client'
 import { useAsync } from 'react-async'
 // import { useMutation } from '@apollo/client'
@@ -31,13 +31,39 @@ const PrintDialog = ({
   onClose,
 }) => {
   const printQueueID = printQueues[0].id
+
+  const [loading, setLoading] = useState(true)
+  const [gcodeText, setGCodeText] = useState()
+
+  const gcodeFiles = useMemo(() => {
+    if (gcodeText == null) {
+      return null
+    }
+
+    return [{
+      file: new Blob([gcodeText]),
+      name: `${files[0].name}.gcode`,
+    }]
+  }, [gcodeText])
+
+  // console.log({ files, gcodeFiles })
+
   // const subscription = useLiveSubscription(PRINT_DIALOG_QUERY)
-  const [ addPartsToPrintQueue, mutationResult ] = useCreateJobMutation(printQueueID, files)
+  const [ addPartsToPrintQueue, mutationResult ] = useCreateJobMutation({
+    variables: {
+      input: {
+        printQueueID,
+        name: files.map(f => f.name).join(', '),
+        parts: gcodeFiles ?? files.map((file) => ({
+          name: file.name,
+          file,
+        })),
+      },
+    },
+  })
   const [print, printMutationResult ] = usePrintMutation()
 
   const machine = machines[0]
-
-  const [loading, setLoading] = useState(true)
 
   const submit = useAsync({
     deferFn: async ([{ printNow }]) => {
@@ -106,6 +132,7 @@ const PrintDialog = ({
             submitting={submit.isPending}
             loading={loading}
             setLoading={setLoading}
+            setGCodeText={setGCodeText}
           />
         )}
       </DialogContent>

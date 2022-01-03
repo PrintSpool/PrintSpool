@@ -1,6 +1,6 @@
 export const signallingServer = ({ ws = false } = {}) => {
-  const useDevUserProfileServer = true
-  // const useDevUserProfileServer = false
+  // const useDevUserProfileServer = true
+  const useDevUserProfileServer = false
 
   if (
     process.env.NODE_ENV === 'production'

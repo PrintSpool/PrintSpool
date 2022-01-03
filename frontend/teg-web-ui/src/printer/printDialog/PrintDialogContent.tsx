@@ -28,6 +28,7 @@ const PrintDialogContent = ({
   files,
   loading,
   setLoading,
+  setGCodeText,
 }) => {
   const classes = PrintDialogContentStyles()
   const [slice, sliceMutation] = useMutation(gql`
@@ -82,7 +83,9 @@ const PrintDialogContent = ({
       modelByteArray = new Uint8Array([]);
       gcodeText = await files[0].text()
     }
-    console.log({ gcodeText })
+
+    // console.log({ gcodeText })
+    setGCodeText(gcodeText)
 
     let start = performance.now()
     console.log('Starting JS Execution')
