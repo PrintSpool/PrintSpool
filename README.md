@@ -92,7 +92,7 @@ To update the changelog and create a release tag run: `./scripts/release`
   ```
 - Then you can install PrintSpool from your fork just like a normal install:
   ```bash
-    bash <(curl -s https://raw.githubusercontent.com/tegapp/teg/develop/scripts/install)
+    bash <(curl -s https://raw.githubusercontent.com/PrintSpool/PrintSpool/develop/scripts/install)
   ```
 
 ### Developer Rapsberry Pi Setup
@@ -110,11 +110,10 @@ Note: Pi Bakery may be an easier alternative to the steps bellow Windows and Mac
 5. *Optional* Set a host name: https://raspberrypi.stackexchange.com/a/44963
 
 #### Part 2: Installing Print Spool
-TODO: Print Spool no longer uses the Snapstore, update these docs.
 
 1. Start your Raspbery Pi
 2. On the Raspberry Pi (via SSH or with a monitor and keyboard) install Print Spool using:
-  `bash <(curl -s https://raw.githubusercontent.com/tegapp/teg/develop/scripts/install)`
+  `bash <(curl -s https://raw.githubusercontent.com/PrintSpool/PrintSpool/develop/scripts/install)`
 
 ## Troubleshooting
 
