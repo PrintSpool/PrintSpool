@@ -10,6 +10,7 @@ import useExecGCodes from '../_hooks/useExecGCodes'
 import viewMachine from '../_hooks/viewMachine'
 import PrinterStatusGraphQL from '../common/PrinterStatus.graphql'
 import { useSnackbar } from 'notistack'
+import useSignallingGraphQL from '../../common/auth/useSignallingGraphQL'
 
 const JOB_QUERY = gql`
   fragment QueryFragment on Query {
@@ -83,6 +84,20 @@ const JobPage = () => {
   const { enqueueSnackbar } = useSnackbar()
   const { match: { params } } = useReactRouter()
   const { machineID, partID } = params
+  const { useQuery: useSignallingQuery } = useSignallingGraphQL()
+
+  const signallingQuery: any = useSignallingQuery({
+    query: `
+      {
+        iceServers {
+          url
+          urls
+          username
+          credential
+        }
+      }
+    `,
+  })
 
   const { loading, error, data } = useLiveSubscription(JOB_QUERY, {
     variablesDef: '($machineID: ID, $partID: ID)',
@@ -140,6 +155,7 @@ const JobPage = () => {
     || cancelTaskMutation.error
     || pausePrintMutation.error
     || resumeMutation.error
+    || signallingQuery.error
   )
 
   useEffect(() => {
@@ -159,7 +175,7 @@ const JobPage = () => {
     throw error
   }
 
-  if (loading || !data) {
+  if (loading || signallingQuery.loading || !data) {
     return <div />
   }
 
@@ -175,6 +191,7 @@ const JobPage = () => {
         isReady,
         isPrinting,
         machineStatus: status,
+        iceServers: signallingQuery.data.iceServers,
       }}
     />
   )
