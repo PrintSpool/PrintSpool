@@ -33,6 +33,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+      - uses: Swatinem/rust-cache@v1
       - name: Install Dependencies
         run: >
           sudo apt-get install
@@ -100,6 +101,7 @@ jobs:
         with:
           toolchain: stable
           target: armv7-unknown-linux-gnueabihf
+      - uses: Swatinem/rust-cache@v1
       - name: Install multiarch support
         run: |
           sudo sed -i 's/deb http/deb [arch=i386,amd64] http/g' /etc/apt/sources.list
