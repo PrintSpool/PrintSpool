@@ -24,7 +24,7 @@ chrono = "0.4.9"
 toml = "0.5.8"
 serde = { version = "1.0.101", features = ["derive"] }
 nom-gcode = "0.1.0"
-nom-reprap-response = { path= "../nom-reprap-response" }
+nom-reprap-response = "0.1.0"
 teg-protobufs = { path= "../protobufs" }
 spin_sleep = "0.3.7"
 error-chain = "0.12.2"
