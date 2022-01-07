@@ -144,7 +144,7 @@ else
   rm $ARTIFACT_NAME
 fi
 
-if [ $SKIP_BELT_ENGINE = "1" ]; then
+if [ $EXPERIMENTAL_BELT_ENGINE = "1" ]; then
 else
   # Download and install belt-engine
   wget https://github.com/Autodrop3d/BeltEngine/raw/main/dist/belt-engine-0.1.3.tar.gz
