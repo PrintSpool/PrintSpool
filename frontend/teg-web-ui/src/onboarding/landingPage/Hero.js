@@ -28,7 +28,7 @@ const Hero = ({ t }) => {
           <Button
             className={classes.topButton}
             component="a"
-            href="https://github.com/tegapp/teg"
+            href="https://github.com/PrintSpool/PrintSpool"
           >
             Github
           </Button>
