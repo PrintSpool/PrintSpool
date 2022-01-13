@@ -9,7 +9,7 @@ import { ThemeProvider } from '@material-ui/core/styles'
 import { ErrorBoundary } from 'react-error-boundary'
 import { SnackbarProvider } from 'notistack'
 import { BrowserRouter } from 'react-router-dom'
-import { Route } from 'react-router'
+import { Switch, Route } from 'react-router'
 import { ConfirmProvider } from 'material-ui-confirm'
 import useRouter from 'use-react-router'
 import Button from '@material-ui/core/Button'
@@ -72,18 +72,22 @@ const App = () => {
                 <BrowserRouter>
                   <RouterErrorBoundary>
                     <AuthProvider>
-                      <Route
-                        path={[
-                          '/:hostID/',
-                          '/q/:hostID/',
-                          '/',
-                        ]}
-                        render={() => (
+                      <Switch>
+                        <Route
+                          path={[
+                            '/:hostID/',
+                            '/q/:hostID/',
+                            '/',
+                          ]}
+                        >
                           <TegApolloProvider>
                             <Routes />
                           </TegApolloProvider>
-                        )}
-                      />
+                        </Route>
+                        <Route>
+                          <Routes />
+                        </Route>
+                      </Switch>
                     </AuthProvider>
                   </RouterErrorBoundary>
                 </BrowserRouter>

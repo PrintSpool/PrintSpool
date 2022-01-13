@@ -8,6 +8,7 @@ import {
 
 import { useAuth } from './common/auth'
 
+// Onboarding
 const LandingPage = React.lazy(() => (
   import('./onboarding/landingPage/LandingPage')
 ))
@@ -17,7 +18,14 @@ const PrivacyPolicy = React.lazy(() => (
 const LoginRegister = React.lazy(() => (
   import('./onboarding/loginRegister/LoginRegister')
 ))
+const GettingStarted = React.lazy(() => (
+  import('./onboarding/gettingStarted/GettingStarted.page')
+))
+const AcceptInvitePage = React.lazy(() => (
+  import('./onboarding/invite/AcceptInvite.page')
+))
 
+// Server & Printers
 const Home = React.lazy(() => (
   import('./printer/home/Home.page')
 ))
@@ -75,10 +83,6 @@ const AddPrinterPage = React.lazy(() => (
   import('./printer/addPrinter/AddPrinter.page')
 ))
 
-const GettingStarted = React.lazy(() => (
-  import('./onboarding/gettingStarted/GettingStarted')
-))
-
 const GraphQLPlayground = React.lazy(() => (
   import('./printer/graphqlPlayground/GraphQLPlayground')
 ))
@@ -111,15 +115,6 @@ const FilamentSwapDialog = React.lazy(() => (
 // ))
 
 const AuthRedirect = () => {
-  // const urlWithToken = new URL(document.location.origin + document.location.hash.replace(/#/, '?'))
-  // const params = Object.fromEntries(urlWithToken.searchParams)
-
-  // const googleJWT = params.id_token
-
-  // console.log({ googleJWT, params })
-
-  // TODO: log the user in here
-
   const redirectURL = useMemo(() => {
     const url = localStorage.getItem('redirectURL') || '/'
     localStorage.removeItem('redirectURL')
@@ -170,6 +165,13 @@ const Routes = () => {
             >
               <LandingPage />
             </Route>
+            <Route
+              exact
+              path="/get-started"
+            >
+              <GettingStarted/>
+            </Route>
+            {/* Catch All Login Page */}
             <Route>
               <LoginRegister />
             </Route>
@@ -177,11 +179,12 @@ const Routes = () => {
         </Route>
       )}
       { isSignedIn && (
-        <Route exact path="/:hostID/:machineID/graphql-playground/" component={GraphQLPlayground} />
-      )}
-      { isSignedIn && (
         <Route>
           <Switch>
+            <Route exact path="/:hostID/:machineID/graphql-playground/">
+              <GraphQLPlayground/>
+            </Route>
+
             <Route
               exact
               path="/login"
@@ -190,16 +193,10 @@ const Routes = () => {
             </Route>
             <Route
               exact
-              path="/i/:inviteURLCode"
-              render={({ match }) => (
-                <Redirect to={`/get-started/3?invite=${match.params.inviteURLCode}`} />
-              )}
-            />
-            <Route
-              exact
-              path="/get-started/:step?"
-              component={GettingStarted}
-            />
+              path="/i/:invite"
+            >
+              <AcceptInvitePage/>
+            </Route>
             <Route
               exact
               path="/account"

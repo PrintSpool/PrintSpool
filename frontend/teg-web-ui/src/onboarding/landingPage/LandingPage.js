@@ -29,21 +29,6 @@ import Footer from './Footer'
 
 import LandingPageStyles from './LandingPageStyles'
 
-const currencies = {
-  nano: {
-    icon: className => <NanoIcon className={className} />,
-    shortName: 'Nano',
-    longName: 'Nano',
-    address: 'nano_1cpesa6ushct9zieue8uo981cbz8rbfbjb7h9dw1a3nmibwysyzpipjhfufa',
-  },
-  ethereum: {
-    icon: className => <EthereumIcon className={className} />,
-    shortName: 'Ethereum',
-    longName: 'Ethereum/ERC20',
-    address: '0xcfa4ebcac84e806199864b70dcc6a3a463ab62aa',
-  },
-}
-
 const NO_CURRENCY = {}
 
 const LandingPage = () => {

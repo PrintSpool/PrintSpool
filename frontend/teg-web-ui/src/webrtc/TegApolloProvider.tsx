@@ -18,10 +18,8 @@ import { wsBridgeURL } from '../common/auth/signallingFetchOptions';
 
 const TegApolloProvider = ({
   children,
-  slug: slugParam,
-}: {
-  children: any,
-  slug?: string,
+  slug: slugParam = null,
+  invite = null,
 }) => {
   const { location, match } = useReactRouter()
   const { isSignedIn, getIdToken } = useAuth()
@@ -33,7 +31,6 @@ const TegApolloProvider = ({
   const [rerenderKey, setRerenderKey] = useState(0)
 
   const params = new URLSearchParams(location.search)
-  const invite = params.get('invite')
 
   let hostSlug = slugParam || (match as any).params.hostID || params.get('q')
 
@@ -148,7 +145,8 @@ const TegApolloProvider = ({
   if (!client.isResolved) {
     return <div />
   }
-  // console.log('apollo client', rerenderKey, client.data, { iceServers })
+
+  // console.log('apollo client', rerenderKey, client.data)
 
   return (
     <ApolloProvider client={client.data as any} key={rerenderKey.toString()}>
