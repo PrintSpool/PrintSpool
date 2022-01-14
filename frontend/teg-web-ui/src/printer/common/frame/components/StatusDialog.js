@@ -1,39 +1,38 @@
 import React from 'react'
-import {
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-} from '@material-ui/core'
-import snl from 'strip-newlines'
+import deline from 'deline'
+
+import Button from '@material-ui/core/Button'
+import Dialog from '@material-ui/core/Dialog'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogContentText from '@material-ui/core/DialogContentText'
+import DialogActions from '@material-ui/core/DialogActions'
 
 const descriptions = {
-  CONNECTING: () => snl`
+  CONNECTING: () => deline`
     The 3D printer has been detected and is attempting to connect.
     This should not take more then a few seconds.
     If it is not connecting please make sure the printer is turned on.
   `,
-  READY: () => snl`
+  READY: () => deline`
     The 3D printer is connected and ready to print.
   `,
-  PRINTING: () => snl`
+  PRINTING: () => deline`
     The 3D printer is printing.
   `,
-  PAUSED: () => snl`
+  PAUSED: () => deline`
     The 3D printer is paused. You can resume the print when your ready to continue.
   `,
-  DISCONNECTED: () => snl`
+  DISCONNECTED: () => deline`
     The 3D printer is disconnected. Please verify the printer is plugged in and
     turn it on.
   `,
-  STOPPED: () => snl`
+  STOPPED: () => deline`
     The 3D printer has been estopped by a user.
     Please verify that the printer is safe and free of obstructions and then
     reset the machine.
   `,
-  ERRORED: () => snl`
+  ERRORED: () => deline`
     The 3D printer has encountered an error.
     This may indicate an issue with your 3D printer itself, it's
     firmware or Teg.
