@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import classNames from 'classnames'
 import { useMutation } from '@apollo/client'
 import { gql } from '@apollo/client'
 
 import Button from '@mui/material/Button'
 import Backdrop from '@mui/material/Backdrop'
 import CircularProgress from '@mui/material/CircularProgress'
-import makeStyles from '@mui/styles/makeStyles';
 
 import Report from '@mui/icons-material/Report'
 
@@ -14,38 +12,6 @@ import StatusDialog from './StatusDialog'
 import useConfirm from '../../../../common/_hooks/useConfirm'
 import { useSnackbar } from 'notistack'
 import PrinterStatusGraphQL from '../../PrinterStatus.graphql'
-
-const useStyles = makeStyles(theme => ({
-  leftIcon: {
-    marginRight: theme.spacing(1),
-  },
-  rightIcon: {
-    marginLeft: theme.spacing(1),
-  },
-  status: {
-    marginRight: theme.spacing(1),
-  },
-  toggleEStopReset: {
-    backgroundColor: theme.palette.background.default,
-    boxShadow: 'none',
-  },
-  eStop: {
-    color: theme.palette.error.main,
-  },
-}))
-
-// const statusColor = (status) => {
-//   switch(status) {
-//     case 'READY':
-//     case 'PRINTING':
-//       return '#1B5E20'
-//     case 'ERRORED':
-//     case 'ESTOPPED':
-//       return '#D50000'
-//     default:
-//       return '#FF5722'
-//   }
-// }
 
 const RESET = gql`
   mutation reset($machineID: ID!) {
@@ -72,8 +38,7 @@ const EStopResetToggle = ({
   machine,
   buttonClass,
 }) => {
-  const classes = useStyles()
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar()
+  const { enqueueSnackbar } = useSnackbar()
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const { status } = machine
@@ -114,16 +79,6 @@ const EStopResetToggle = ({
 
   return (
     <div>
-      <Backdrop
-        style={{ zIndex: 1300 }}
-        open={loading}
-        transitionDuration={{
-          appear: 300,
-          enter: 700,
-        }}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
       <StatusDialog
         open={dialogOpen}
         machine={machine}
@@ -134,22 +89,23 @@ const EStopResetToggle = ({
         }}
       />
       <Button
-        className={classNames(buttonClass, classes.status)}
+        className={buttonClass}
         onClick={() => { setDialogOpen(true) }}
       >
         { status }
       </Button>
       <Button
-        className={
-          classNames(classes.toggleEStopReset, showEStop && classes.eStop)
-        }
-        variant="contained"
+        color={showEStop ? 'error' : undefined}
+        variant="outlined"
         disabled={loading}
         onClick={toggle}
+        sx={{
+          ml: 1
+        }}
       >
         {
           showEStop
-          && <Report className={classes.leftIcon} />
+          && <Report sx={{ mr: 1 }} />
         }
         {showEStop ? 'Stop' : 'Reset'}
       </Button>

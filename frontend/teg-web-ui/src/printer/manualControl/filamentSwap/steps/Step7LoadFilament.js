@@ -96,7 +96,6 @@ const Step3Retract = ({
               {t('loadFilament.instructions.warningContent')}
             </Typography>
             <Button
-              color="primary"
               variant="contained"
               onClick={runLoadFilament}
             >

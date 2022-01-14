@@ -7,8 +7,8 @@ import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 
-import useStyles from './EditPart.styles.js'
 import PartHeader from '../PartHeader'
+import Box from '@mui/material/Box'
 
 const EditPartView = ({
   machineName,
@@ -17,8 +17,6 @@ const EditPartView = ({
   setQuantityMutation,
   moveToTopOfQueue,
 }) => {
-  const classes = useStyles()
-
   const {
     register,
     handleSubmit,
@@ -35,7 +33,7 @@ const EditPartView = ({
   }, [setQuantityMutation.loading, setQuantityMutation.error])
 
   return (
-    <div className={classes.root}>
+    <Box sx={{ ml: 2, mr: 2 }}>
       <PartHeader {...{
         machineName,
         part,
@@ -48,10 +46,10 @@ const EditPartView = ({
         />
         <CardContent>
           <Button
-            className={classes.moveToTopOfQueue}
             variant="outlined"
             onClick={moveToTopOfQueue}
             disabled={part.startedFinalPrint}
+            sx={{ mb: 4 }}
           >
             Move to Top of Queue
           </Button>
@@ -71,17 +69,17 @@ const EditPartView = ({
               helperText={errors.quantity?.message}
             />
             <Button
-              className={classes.quantityButton}
               type="submit"
               variant="outlined"
               disabled={setQuantityMutation.loading}
+              sx={{ mt: 2, display: 'block' }}
             >
               Set Quanity
             </Button>
           </form>
         </CardContent>
       </Card>
-    </div>
+    </Box>
   )
 }
 

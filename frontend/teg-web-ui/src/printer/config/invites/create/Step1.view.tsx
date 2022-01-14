@@ -30,7 +30,7 @@ const CreateInviteStep1 = ({
       onSubmit,
     }} >
       <DialogContent style={{ minHeight: '12em' }}>
-        <Stepper activeStep={wizard.activeStep}>
+        <Stepper activeStep={wizard.activeStep} sx={{ mb: 2 }}>
           {
             STEPS.map((label, index) => (
               <Step key={label} completed={index < wizard.activeStep}>
@@ -45,7 +45,7 @@ const CreateInviteStep1 = ({
         <Button onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" color="primary">
+        <Button type="submit" variant="contained">
           Finish
         </Button>
       </DialogActions>

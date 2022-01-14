@@ -22,17 +22,17 @@ const useStyles = makeStyles(theme => ({
   inputRow: {
     display: 'flex',
     width: '100%',
+    marginTop: theme.spacing(2),
   },
   input: {
     flexGrow: 1,
-    marginTop: theme.spacing(2),
     marginRight: theme.spacing(2),
   },
   terminalEntry: {
   },
   tx: {
     '& $direction': {
-      color: '#DD25C4',
+      color: '#9602A7',
     },
     background: '#EEE',
   },

@@ -8,7 +8,7 @@ const useStyles = makeStyles(theme => ({
     paddingBottom: theme.spacing(2),
     // [theme.breakpoints.up('md')]: {
     color: '#FFF',
-    background: '#dd25c4',
+    background: '#DD25C4',
     // },
     // background: '#ff7a00', //theme.palette.secondary.main,
   },

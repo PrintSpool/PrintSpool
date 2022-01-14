@@ -46,7 +46,7 @@ const CreateMaterialStep2 = ({
         <Button onClick={onBack}>
           Back
         </Button>
-        <Button type="submit" color="primary">
+        <Button type="submit" variant="contained">
           Finish
         </Button>
       </DialogActions>

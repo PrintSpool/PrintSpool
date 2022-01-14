@@ -146,12 +146,11 @@ const Home = () => {
       { hosts.length === 0 && (
         <div className={classes.emptyListMessage}>
           <Typography variant="h6" style={{ color: 'rgba(0, 0, 0, 0.54)' }}>
-            It looks like you do not have any 3D printers setup yet.
+            It looks like you do not have a 3D printer network setup yet.
           </Typography>
           <Button
             className={classes.addFirstPrinterButton}
             variant="contained"
-            color="primary"
             component={React.forwardRef((props, ref) => (
               <Link
                 to="/get-started"
@@ -160,7 +159,7 @@ const Home = () => {
               />
             ))}
           >
-            Add your first printer
+            Set up a Print Server
           </Button>
         </div>
       )}

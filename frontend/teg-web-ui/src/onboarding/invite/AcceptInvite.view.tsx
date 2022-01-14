@@ -38,7 +38,7 @@ const AcceptInviteView = ({
             </Typography>
             <Button
               variant="contained"
-              color="primary"
+              color="success"
               component={Link}
               to="/"
             >
@@ -53,7 +53,7 @@ const AcceptInviteView = ({
             </Typography>
             <Button
               variant="contained"
-              color="primary"
+              color="success"
               onClick={consumeInvite}
             >
               Heck yes. Accept that Invite!

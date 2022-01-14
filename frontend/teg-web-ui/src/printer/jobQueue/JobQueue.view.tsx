@@ -264,7 +264,6 @@ const JobQueueView = ({
             component="div"
             variant="contained"
             className={classes.actionsRowButton}
-            color="primary"
             disabled={disablePrintNextButton || selectedParts.length > 1}
             onClick={() => {
               if (selectedParts.length === 1) {

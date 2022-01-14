@@ -149,7 +149,6 @@ const HostPage = () => {
             <Button
               className={classes.addFirstPrinterButton}
               variant="contained"
-              color="primary"
               component={React.forwardRef((props, ref) => (
                 <Link
                   to={`/${hostID}/add-printer`}

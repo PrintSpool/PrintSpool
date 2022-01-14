@@ -100,7 +100,7 @@ const OverrideTempButton = ({
               <Button onClick={toggle}>
                 Cancel
               </Button>
-              <Button type="submit" color="primary">
+              <Button type="submit" variant="contained">
                 Submit
               </Button>
             </DialogActions>

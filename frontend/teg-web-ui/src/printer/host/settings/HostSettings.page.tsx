@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Link, useParams, useHistory } from 'react-router-dom'
+import { useParams, useHistory } from 'react-router-dom'
 import { gql } from '@apollo/client'
 import { useForm } from 'react-hook-form'
 import { useSnackbar } from 'notistack'
@@ -9,24 +9,13 @@ import Typography from '@mui/material/Typography'
 import HostStyles from './HostSettings.style'
 
 import StaticTopNavigation from '../../../common/topNavigation/StaticTopNavigation'
-import useLiveSubscription from '../../_hooks/useLiveSubscription'
 import Loading from '../../../common/Loading'
 import ServerBreadcrumbs from '../../common/ServerBreadcrumbs'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import useSignallingGraphQL from '../../../common/auth/useSignallingGraphQL'
 import { useAsync } from 'react-async-hook'
-
-const HOST_QUERY = gql`
-  fragment QueryFragment on Query {
-    serverName
-    machines {
-      id
-      name
-      status
-    }
-  }
-`
+import Box from '@mui/material/Box'
 
 const HostPage = () => {
   const classes = HostStyles()
@@ -120,7 +109,7 @@ const HostPage = () => {
       </ServerBreadcrumbs>
       <Typography
         variant="h1"
-        style={{ marginTop: 16 }}
+        sx={{ mt: 2 }}
       >
         Settings
       </Typography>
@@ -128,15 +117,8 @@ const HostPage = () => {
         // className={classes.form}
         onSubmit={handleSubmit(setNameMutation.execute)}
       >
-        <Typography
-          variant="h3"
-          style={{ marginTop: 16 }}
-        >
-          Server Name
-          {/* Organization Name */}
-        </Typography>
         <TextField
-          label="Name"
+          label="Server Name"
           name="name"
           error={errors.name != null}
           helperText={errors.name && errors.name.message}
@@ -144,17 +126,17 @@ const HostPage = () => {
             required: "Required",
             pattern: /^[a-z0-9_\- ']+$/
           })}
+          sx={{ mt: 2 }}
         />
-        <div
-          style={{ marginTop: 16 }}
+        <Box
+          sx={{ mt: 2 }}
         >
           https://printspool.io/<b>{slug}</b>/
-        </div>
+        </Box>
         <Button
           type="submit"
           variant="contained"
-          color="primary"
-          style={{ marginTop: 16 }}
+          sx={{ mt: 2 }}
         >
           Save
         </Button>

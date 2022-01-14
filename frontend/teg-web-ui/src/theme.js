@@ -1,29 +1,24 @@
-import { createTheme, adaptV4Theme } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles';
 
-const theme = createTheme(adaptV4Theme({
-  palette: {
-    primary: {
-      main: '#05CB0D',
-      contrastText: '#FFF',
-    },
-  },
-  overrides: {
-  //   MuiButton: {
-  //     label: {
-  //       fontWeight: 'bold',
-  //       textTransform: 'none',
+const theme = createTheme({
+  // palette: {
+  //   primary: {
+  //     main: '#c420b9',
+  //   },
+  //   secondary: {
+  //     main: '#90caf9',
+  //   },
+  // },
+  // overrides: {
+  //   MuiLink: {
+  //     root: {
+  //       // color: 'rgb(0, 0, 238)',
+  //       // color: '#0366d6',
+  //       cursor: 'pointer',
   //     },
   //   },
-    MuiLink: {
-      root: {
-        // color: 'rgb(0, 0, 238)',
-        // color: '#0366d6',
-        cursor: 'pointer',
-      },
-    },
-  },
+  // },
   typography: {
-    useNextVariants: true,
     h1: {
       fontSize: '2rem',
     },
@@ -34,13 +29,7 @@ const theme = createTheme(adaptV4Theme({
       fontSize: '1.3rem',
       fontWeight: 'normal',
     },
-  //   fontSize: 18,
-  //   h4: {
-  //     fontSize: '2.1rem',
-  //     letterSpacing: '0.05em',
-  //     fontWeight: 600,
-  //   },
-  }
-}))
+  },
+})
 
 export default theme

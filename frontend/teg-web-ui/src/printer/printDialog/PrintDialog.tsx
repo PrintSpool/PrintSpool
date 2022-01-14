@@ -146,7 +146,6 @@ const PrintDialog = ({
         </Button>
         <Button
           onClick={printNow}
-          color="primary"
           variant="contained"
           disabled={machine?.status !== 'READY' || loading || submit.isPending}
         >

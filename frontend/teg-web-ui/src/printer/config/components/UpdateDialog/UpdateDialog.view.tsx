@@ -72,7 +72,8 @@ const UpdateDialogView = ({
               <div style={{ flex: 1 }}>
                 <Link to="delete" style={{ textDecoration: 'none' }}>
                   <Button
-                    color="secondary"
+                    color="error"
+                    variant="outlined"
                     disabled={hasPendingUpdates}
                   >
                     Delete
@@ -85,7 +86,7 @@ const UpdateDialogView = ({
             </Button>
             <Button
               type="submit"
-              color="primary"
+              variant="contained"
               disabled={hasPendingUpdates}
             >
               Save

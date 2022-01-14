@@ -190,7 +190,6 @@ const JobQueueView = ({
             component="div"
             variant="contained"
             className={classes.actionsRowButton}
-            color="primary"
             disabled={disablePrintButton}
             onClick={() => {
                 print(parts.find(part => part.id === selectedParts[0]))

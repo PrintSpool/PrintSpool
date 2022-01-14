@@ -101,7 +101,7 @@ const ConfigView = ({
         />
       </List>
       <div style={{ margin: 16 }}>
-        <Typography variant="h5" color="secondary" style={{ marginBottom: 8 }}>
+        <Typography variant="h5" color="error" style={{ marginBottom: 8 }}>
           Danger Zone
         </Typography>
         <Typography variant="body1" style={{ marginBottom: 16 }}>
@@ -109,7 +109,7 @@ const ConfigView = ({
         </Typography>
         <Button
           variant="outlined"
-          color="secondary"
+          color="error"
           onClick={() => setDeleteDialogOpen(true)}
         >
           Delete Printer
