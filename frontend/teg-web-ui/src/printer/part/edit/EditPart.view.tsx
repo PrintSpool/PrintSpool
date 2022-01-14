@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
-import Card from '@material-ui/core/Card'
-import CardHeader from '@material-ui/core/CardHeader'
-import CardContent from '@material-ui/core/CardContent'
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
+import Card from '@mui/material/Card'
+import CardHeader from '@mui/material/CardHeader'
+import CardContent from '@mui/material/CardContent'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
 
 import useStyles from './EditPart.styles.js'
 import PartHeader from '../PartHeader'

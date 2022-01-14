@@ -2,21 +2,21 @@ import React, { useMemo, useCallback } from 'react'
 import { useLocation, useParams } from 'react-router'
 import { Link } from 'react-router-dom'
 
-import MaterialUIDrawer from '@material-ui/core/Drawer'
-import Hidden from '@material-ui/core/Hidden'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import ListItemText from '@material-ui/core/ListItemText'
-import ListSubheader from '@material-ui/core/ListSubheader'
+import MaterialUIDrawer from '@mui/material/Drawer'
+import Hidden from '@mui/material/Hidden'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import ListSubheader from '@mui/material/ListSubheader'
 
-import Inbox from '@material-ui/icons/Inbox'
-import Star from '@material-ui/icons/Star'
-import OpenWith from '@material-ui/icons/OpenWith'
-import Code from '@material-ui/icons/Code'
-import Keyboard from '@material-ui/icons/Keyboard'
-import Settings from '@material-ui/icons/Settings'
-import Home from '@material-ui/icons/Home'
+import Inbox from '@mui/icons-material/Inbox'
+import Star from '@mui/icons-material/Star'
+import OpenWith from '@mui/icons-material/OpenWith'
+import Code from '@mui/icons-material/Code'
+import Keyboard from '@mui/icons-material/Keyboard'
+import Settings from '@mui/icons-material/Settings'
+import Home from '@mui/icons-material/Home'
 
 import useStyles from './Drawer.styles'
 
@@ -151,7 +151,7 @@ const Drawer = ({
           { drawerContent() }
         </MaterialUIDrawer>
       </Hidden>
-      <Hidden smDown implementation="css">
+      <Hidden mdDown implementation="css">
         <MaterialUIDrawer
           variant="persistent"
           open
@@ -164,7 +164,7 @@ const Drawer = ({
         </MaterialUIDrawer>
       </Hidden>
     </div>
-  )
+  );
 }
 
 export default Drawer

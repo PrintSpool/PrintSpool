@@ -1,14 +1,14 @@
 import React from 'react'
 import QRCode from 'qrcode.react'
 
-import TextField from '@material-ui/core/TextField'
-import Typography from '@material-ui/core/Typography'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogActions from '@material-ui/core/DialogActions'
-import Button from '@material-ui/core/Button'
-import Stepper from '@material-ui/core/Stepper'
-import Step from '@material-ui/core/Step'
-import StepLabel from '@material-ui/core/StepLabel'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import Button from '@mui/material/Button'
+import Stepper from '@mui/material/Stepper'
+import Step from '@mui/material/Step'
+import StepLabel from '@mui/material/StepLabel'
 
 const STEPS = [
   'Configure your Invite',

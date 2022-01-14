@@ -1,10 +1,10 @@
 import React from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 
-import Typography from '@material-ui/core/Typography'
-import Tabs from '@material-ui/core/Tabs'
-import Tab from '@material-ui/core/Tab'
-import MuiLink from '@material-ui/core/Link'
+import Typography from '@mui/material/Typography'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
+import MuiLink from '@mui/material/Link'
 
 import ServerBreadcrumbs from '../common/ServerBreadcrumbs'
 

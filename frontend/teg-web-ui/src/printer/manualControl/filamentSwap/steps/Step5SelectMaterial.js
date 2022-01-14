@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react'
 
-import Typography from '@material-ui/core/Typography'
-import TextField from '@material-ui/core/TextField'
-import MenuItem from '@material-ui/core/MenuItem'
-import MUILink from '@material-ui/core/Link'
+import Typography from '@mui/material/Typography'
+import TextField from '@mui/material/TextField'
+import MenuItem from '@mui/material/MenuItem'
+import MUILink from '@mui/material/Link'
 
 import { useMutation } from '@apollo/client'
 import { useAsync } from 'react-async'

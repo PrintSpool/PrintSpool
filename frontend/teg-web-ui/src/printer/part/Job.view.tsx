@@ -1,15 +1,15 @@
 import React from 'react'
 // import { Link } from 'react-router-dom'
 
-import Typography from '@material-ui/core/Typography'
-import Card from '@material-ui/core/Card'
-// import CardHeader from '@material-ui/core/CardHeader'
-import CardContent from '@material-ui/core/CardContent'
-// import Breadcrumbs from '@material-ui/core/Breadcrumbs'
-// import Button from '@material-ui/core/Button'
-// import Tooltip from '@material-ui/core/Tooltip'
+import Typography from '@mui/material/Typography'
+import Card from '@mui/material/Card'
+// import CardHeader from '@mui/material/CardHeader'
+import CardContent from '@mui/material/CardContent'
+// import Breadcrumbs from '@mui/material/Breadcrumbs'
+// import Button from '@mui/material/Button'
+// import Tooltip from '@mui/material/Tooltip'
 
-// import EditIcon from '@material-ui/icons/Edit'
+// import EditIcon from '@mui/icons-material/Edit'
 
 import TaskStatusRow from '../jobQueue/components/TaskStatusRow'
 import useStyles from './Job.styles.js'

@@ -2,9 +2,9 @@ import React, { useLayoutEffect, useRef, useState } from 'react'
 import { gql, useMutation } from '@apollo/client'
 import initSlicerRender, { render_string as renderString } from 'slicer-render';
 
-import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
-import Slider from '@material-ui/core/Slider';
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import Slider from '@mui/material/Slider';
 
 import LoadingOverlay from '../../common/LoadingOverlay'
 import PrintDialogContentStyles from './PrintDialogContentStyles'

@@ -2,8 +2,8 @@ import React from 'react'
 
 import { animated, useSpring } from 'react-spring'
 import Measure from 'react-measure'
-import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
 import { Link, useParams } from 'react-router-dom'
 
 // import Typeahead from '../../../common/Typeahead'

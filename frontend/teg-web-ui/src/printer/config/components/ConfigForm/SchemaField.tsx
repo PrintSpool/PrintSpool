@@ -1,18 +1,18 @@
 import React from 'react'
 import { useFieldArray, Controller } from 'react-hook-form'
 
-import MenuItem from '@material-ui/core/MenuItem'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import IconButton from '@material-ui/core/IconButton'
-import Button from '@material-ui/core/Button'
-import Typography from '@material-ui/core/Typography'
-import Hidden from '@material-ui/core/Hidden'
-import Switch from '@material-ui/core/Switch'
-import TextField, { StandardTextFieldProps } from '@material-ui/core/TextField'
-import FormHelperText from '@material-ui/core/FormHelperText'
-import Divider from '@material-ui/core/Divider'
-import AddIcon from '@material-ui/icons/Add'
-import DeleteIcon from '@material-ui/icons/Delete'
+import MenuItem from '@mui/material/MenuItem'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import IconButton from '@mui/material/IconButton'
+import Button from '@mui/material/Button'
+import Typography from '@mui/material/Typography'
+import Hidden from '@mui/material/Hidden'
+import Switch from '@mui/material/Switch'
+import TextField, { StandardTextFieldProps } from '@mui/material/TextField'
+import FormHelperText from '@mui/material/FormHelperText'
+import Divider from '@mui/material/Divider'
+import AddIcon from '@mui/icons-material/Add'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 // import Typeahead from '../../../../common/Typeahead'
 
@@ -115,7 +115,7 @@ const SchemaField = ({
                 { (property.enum || property.oneOf || [])[0] === '' && name === 'model.source' && (
                   <MenuItem value="test">
                     No Video Source detected.
-                    <Hidden smDown>
+                    <Hidden mdDown>
                       {' '}
                       Please connect your webcam or enable the raspberry pi camera
                     </Hidden>
@@ -125,7 +125,7 @@ const SchemaField = ({
                 { (property.enum || property.oneOf)?.length === 0 && name === 'serialPortID' && (
                   <MenuItem value="">
                     No serial devices detected.
-                    <Hidden smDown>
+                    <Hidden mdDown>
                       {' '}
                       Please attach your 3D printer's USB cable.
                     </Hidden>
@@ -151,7 +151,7 @@ const SchemaField = ({
             name={fieldPath}
             control={control}
           />
-        )
+        );
       }
 
       return (
@@ -214,77 +214,75 @@ const SchemaField = ({
       })
       // console.log({ name, fieldPath, fields })
 
-      return (
-        <>
-          {/* <Divider style={{
-            marginTop: 16,
-            marginBottom: 24,
-          }} /> */}
-          <Typography variant="body2" style={{
-            marginTop: 16,
-          }}>
-            {property.title}
+      return <>
+        {/* <Divider style={{
+          marginTop: 16,
+          marginBottom: 24,
+        }} /> */}
+        <Typography variant="body2" style={{
+          marginTop: 16,
+        }}>
+          {property.title}
+        </Typography>
+        { property.description && (
+          <Typography variant="subtitle1">
+            {property.description}
           </Typography>
-          { property.description && (
-            <Typography variant="subtitle1">
-              {property.description}
-            </Typography>
-          )}
-          {fields.length === 0 && (
-            <Typography variant="body1" style={{
-              marginTop: 16,
-              marginBottom: 16,
-              color: '#999',
-              textAlign: 'center',
-            }}>
-              {`No ${property.title}`}
-            </Typography>
-          )}
-          {fields.map((field, index) => (
-            <div
-              key={field.id}
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignContent: 'center',
-              }}
-            >
-              <SchemaField
-                showLabel={false}
-                dense
-                schema={schema.properties[name]}
-                property={{
-                  title: `${property.title} #${index + 1}`,
-                  ...property.items,
-                }}
-                name={`${name}[${index}].value`}
-                defaultValue={field.value}
-                register={register}
-                control={control}
-                errors={errors}
-              />
-              <IconButton onClick={() => remove(index)}>
-                <DeleteIcon/>
-              </IconButton>
-            </div>
-          ))}
-          <Button
-            startIcon={<AddIcon/>}
-            variant="outlined"
-            size="small"
-            onClick={() => append({ value: '' })}
+        )}
+        {fields.length === 0 && (
+          <Typography variant="body1" style={{
+            marginTop: 16,
+            marginBottom: 16,
+            color: '#999',
+            textAlign: 'center',
+          }}>
+            {`No ${property.title}`}
+          </Typography>
+        )}
+        {fields.map((field, index) => (
+          <div
+            key={field.id}
             style={{
-              marginBottom: 16,
+              display: 'flex',
+              flexDirection: 'row',
+              alignContent: 'center',
             }}
           >
-            Add
-          </Button>
-          {/* <Divider style={{
-            marginTop: 24,
+            <SchemaField
+              showLabel={false}
+              dense
+              schema={schema.properties[name]}
+              property={{
+                title: `${property.title} #${index + 1}`,
+                ...property.items,
+              }}
+              name={`${name}[${index}].value`}
+              defaultValue={field.value}
+              register={register}
+              control={control}
+              errors={errors}
+            />
+            <IconButton onClick={() => remove(index)} size="large">
+              <DeleteIcon/>
+            </IconButton>
+          </div>
+        ))}
+        <Button
+          startIcon={<AddIcon/>}
+          variant="outlined"
+          size="small"
+          onClick={() => append({ value: '' })}
+          style={{
             marginBottom: 16,
-          }} /> */}
-        </>
-      )
+          }}
+        >
+          Add
+        </Button>
+        {/* <Divider style={{
+          marginTop: 24,
+          marginBottom: 16,
+        }} /> */}
+      </>;
     }
     default: {
       throw new Error(`Unsupported type: ${property.type} (on field: ${name})`)

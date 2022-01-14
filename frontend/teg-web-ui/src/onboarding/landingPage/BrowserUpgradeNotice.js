@@ -1,13 +1,11 @@
 import React from 'react'
 
-import {
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  Typography,
-  Grid,
-} from '@material-ui/core'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import Typography from '@mui/material/Typography'
+import Grid from '@mui/material/Grid'
 
 // import beakerSVG from 'url:./images/beaker.svg'
 

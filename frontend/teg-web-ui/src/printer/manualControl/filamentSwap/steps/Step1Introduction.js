@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 
-import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
-import MUILink from '@material-ui/core/Link'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import MUILink from '@mui/material/Link'
 
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'

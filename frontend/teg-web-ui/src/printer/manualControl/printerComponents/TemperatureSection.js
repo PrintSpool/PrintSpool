@@ -1,8 +1,8 @@
 import React from 'react'
 
-import Typography from '@material-ui/core/Typography'
-import Switch from '@material-ui/core/Switch'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
+import Typography from '@mui/material/Typography'
+import Switch from '@mui/material/Switch'
+import FormControlLabel from '@mui/material/FormControlLabel'
 
 import { useExecGCodes2 } from '../../_hooks/useExecGCodes'
 

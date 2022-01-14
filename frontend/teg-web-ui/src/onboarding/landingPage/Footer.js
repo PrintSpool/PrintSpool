@@ -1,10 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import {
-  Button,
-  Typography,
-  Link as MUILink,
-} from '@material-ui/core'
+import Button from '@mui/material/Button'
+import Typography from '@mui/material/Typography'
+import MUILink from '@mui/material/Link'
 
 import tegLogoSVG from 'url:./images/tegLogo.svg'
 

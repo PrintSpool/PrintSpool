@@ -156,6 +156,13 @@ const Routes = () => {
       >
         <AuthRedirect />
       </Route>
+      <Route
+        exact
+        path="/get-started"
+      >
+        <GettingStarted/>
+      </Route>
+
       { !isSignedIn && (
         <Route>
           <Switch>
@@ -164,12 +171,6 @@ const Routes = () => {
               path="/"
             >
               <LandingPage />
-            </Route>
-            <Route
-              exact
-              path="/get-started"
-            >
-              <GettingStarted/>
             </Route>
             {/* Catch All Login Page */}
             <Route>

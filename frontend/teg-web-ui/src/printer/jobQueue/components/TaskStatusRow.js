@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 
-import IconButton from '@material-ui/core/IconButton'
-import Typography from '@material-ui/core/Typography'
-import LinearProgress from '@material-ui/core/LinearProgress'
-import CircularProgress from '@material-ui/core/CircularProgress'
-// import Box from '@material-ui/core/Box'
-import Grow from '@material-ui/core/Grow'
-import Slide from '@material-ui/core/Slide'
-import Cancel from '@material-ui/icons/Cancel'
-import Play from '@material-ui/icons/PlayArrow'
-import Pause from '@material-ui/icons/Pause'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
+import LinearProgress from '@mui/material/LinearProgress'
+import CircularProgress from '@mui/material/CircularProgress'
+// import Box from '@mui/material/Box'
+import Grow from '@mui/material/Grow'
+import Slide from '@mui/material/Slide'
+import Cancel from '@mui/icons-material/Cancel'
+import Play from '@mui/icons-material/PlayArrow'
+import Pause from '@mui/icons-material/Pause'
 
 import useConfirm from '../../../common/_hooks/useConfirm'
 
@@ -272,7 +272,7 @@ const TaskStatusRow = ({
                     marginTop: -12,
                     marginBottom: -12,
                   }}
-                >
+                  size="large">
                   {task.paused ? <Play /> : <Pause />}
                 </IconButton>
                 <IconButton
@@ -287,7 +287,7 @@ const TaskStatusRow = ({
                     marginRight: -14,
                     textAlign: 'right',
                   }}
-                >
+                  size="large">
                   <Cancel />
                 </IconButton>
               </>
@@ -296,7 +296,7 @@ const TaskStatusRow = ({
         </div>
       </Slide>
     </div>
-  )
+  );
 }
 
 export default TaskStatusRow

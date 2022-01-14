@@ -1,9 +1,9 @@
 import React from 'react'
 
-import Button from '@material-ui/core/Button'
-import Typography from '@material-ui/core/Typography'
-import Link from '@material-ui/core/Link'
-import TextField from '@material-ui/core/TextField'
+import Button from '@mui/material/Button'
+import Typography from '@mui/material/Typography'
+import Link from '@mui/material/Link'
+import TextField from '@mui/material/TextField'
 
 import useStyles from './Terminal.styles'
 import ServerBreadcrumbs from '../common/ServerBreadcrumbs'
@@ -91,7 +91,7 @@ const TerminalView = ({
         )) }
       </div>
     </div>
-  )
+  );
 }
 
 export default TerminalView

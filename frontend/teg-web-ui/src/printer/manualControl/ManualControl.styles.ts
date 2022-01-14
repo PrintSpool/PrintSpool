@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core/styles'
+import makeStyles from '@mui/styles/makeStyles';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -48,7 +48,7 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     justifyContent: 'space-between',
 
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       flexDirection: 'column',
     },
     [theme.breakpoints.up('md')]: {
@@ -60,7 +60,7 @@ const useStyles = makeStyles(theme => ({
   },
   jogButtons: {
     display: 'flex',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       flexDirection: 'column',
     },
     [theme.breakpoints.up('md')]: {
@@ -69,7 +69,7 @@ const useStyles = makeStyles(theme => ({
   },
   jogDivider: {
     display: 'flex',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       flexDirection: 'column',
       marginTop: theme.spacing(2),
       marginBottom: theme.spacing(2),

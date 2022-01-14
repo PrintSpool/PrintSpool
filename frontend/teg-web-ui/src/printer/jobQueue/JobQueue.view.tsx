@@ -3,27 +3,27 @@ import { Controller, useForm } from 'react-hook-form'
 import { useParams } from 'react-router-dom'
 import truncate from 'truncate'
 
-import Typography from '@material-ui/core/Typography'
-// import Fab from '@material-ui/core/Fab'
-import Tooltip from '@material-ui/core/Tooltip'
-import Button from '@material-ui/core/Button'
-import Checkbox from '@material-ui/core/Checkbox'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Paper from '@material-ui/core/Paper'
-import IconButton from '@material-ui/core/IconButton'
-import DeleteIcon from '@material-ui/icons/Delete'
+import Typography from '@mui/material/Typography'
+// import Fab from '@mui/material/Fab'
+import Tooltip from '@mui/material/Tooltip'
+import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import Paper from '@mui/material/Paper'
+import IconButton from '@mui/material/IconButton'
+import DeleteIcon from '@mui/icons-material/Delete'
 
-import Add from '@material-ui/icons/Add'
-import PlayArrow from '@material-ui/icons/PlayArrow'
-import CloudUpload from '@material-ui/icons/CloudUpload'
-import LowPriorityIcon from '@material-ui/icons/LowPriority'
-import Star from '@material-ui/icons/Star'
-import StarOutline from '@material-ui/icons/StarOutline'
+import Add from '@mui/icons-material/Add'
+import PlayArrow from '@mui/icons-material/PlayArrow'
+import CloudUpload from '@mui/icons-material/CloudUpload'
+import LowPriorityIcon from '@mui/icons-material/LowPriority'
+import Star from '@mui/icons-material/Star'
+import StarOutline from '@mui/icons-material/StarOutline'
 
 import useConfirm from '../../common/_hooks/useConfirm'
 import FileInput from '../../common/FileInput'
@@ -249,9 +249,7 @@ const JobQueueView = ({
           component="label"
           variant="outlined"
           className={classes.actionsRowButton}
-          color="default"
-          startIcon={<Add/>}
-        >
+          startIcon={<Add/>}>
           <FileInput
             accept={allFileExtensions}
             onClick={setPrintDialogFiles}
@@ -382,7 +380,7 @@ const JobQueueView = ({
                                   onClick={moveToTopOfQueue}
                                   edge="start"
                                   style={{ transform: 'scaleX(-1) scaleY(-1)' }}
-                                >
+                                  size="large">
                                   <LowPriorityIcon />
                                 </IconButton>
                               </Tooltip>
@@ -391,7 +389,7 @@ const JobQueueView = ({
                                   aria-label="delete"
                                   onClick={confirmedDeleteParts}
                                   edge="start"
-                                >
+                                  size="large">
                                   <DeleteIcon />
                                 </IconButton>
                               </Tooltip>
@@ -474,7 +472,7 @@ const JobQueueView = ({
                                           },
                                         })
                                       }}
-                                    >
+                                      size="large">
                                       { part.starred && (
                                         <Star className={classes.savedStar} />
                                       )}
@@ -508,7 +506,7 @@ const JobQueueView = ({
                                 </TableRow>
                               )}
                             />
-                          )
+                          );
                         })
                       }
                     </TableBody>
@@ -521,7 +519,7 @@ const JobQueueView = ({
 
       {/* <MobileButtons /> */}
     </div>
-  )
+  );
 }
 
 // const MobileButtons = (

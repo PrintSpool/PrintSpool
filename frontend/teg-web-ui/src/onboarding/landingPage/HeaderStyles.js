@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core/styles'
+import makeStyles from '@mui/styles/makeStyles';
 
 import greenPathSVG from 'url:./images/greenPath.svg'
 import orangePathSVG from 'url:./images/orangePath.svg'
@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: 50,
     height: 116,
     overflow: 'visible',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       fontSize: '2rem',
       height: 50,
       gridTemplateColumns: 'auto',
@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundRepeat: 'no-repeat',
     width: pathWidth,
     height: 156,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       display: 'none',
     },
   },
@@ -59,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'uppercase',
     fontSize: '3rem',
     fontWeight: 100,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       fontSize: '1.5rem',
       lineHeight: '60px',
       fontWeight: 500,

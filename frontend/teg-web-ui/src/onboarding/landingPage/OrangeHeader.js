@@ -1,8 +1,6 @@
 import React from 'react'
 
-import {
-  Typography,
-} from '@material-ui/core'
+import Typography from '@mui/material/Typography'
 
 import orangePathSVG from 'url:./images/orangePath.svg'
 

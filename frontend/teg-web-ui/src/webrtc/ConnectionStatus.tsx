@@ -2,8 +2,8 @@ import React, { useEffect } from 'react'
 // import { gql } from '@apollo/client'
 // import { useQuery, useMutation } from '@apollo/client'
 
-import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
 
 import ConnectionStatusStyles from './ConnectionStatusStyles'
 import StaticTopNavigation from '../common/topNavigation/StaticTopNavigation'

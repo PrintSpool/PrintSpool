@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core/styles'
+import makeStyles from '@mui/styles/makeStyles';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -9,7 +9,7 @@ const useStyles = makeStyles(theme => ({
     right: 0,
   },
   chip: {
-    margin: `${theme.spacing(1 / 2)}px ${theme.spacing(1 / 4)}px`,
+    margin: `${theme.spacing(1 / 2)} ${theme.spacing(1 / 4)}`,
   },
   inputRoot: {
     flexWrap: 'wrap',

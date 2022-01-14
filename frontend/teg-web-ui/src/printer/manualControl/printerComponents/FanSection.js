@@ -1,9 +1,8 @@
 import React, { useCallback } from 'react'
-import {
-  Typography,
-  Switch,
-  FormControlLabel,
-} from '@material-ui/core'
+
+import Typography from '@mui/material/Typography'
+import Switch from '@mui/material/Switch'
+import FormControlLabel from '@mui/material/FormControlLabel'
 
 const FanSection = ({
   component: {

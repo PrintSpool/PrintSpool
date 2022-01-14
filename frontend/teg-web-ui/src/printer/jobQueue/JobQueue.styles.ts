@@ -1,4 +1,6 @@
-import { lighten, makeStyles } from '@material-ui/core/styles'
+import { lighten } from '@mui/material/styles';
+
+import makeStyles from '@mui/styles/makeStyles';
 
 // eslint-disable-next-line
 const useStyles = makeStyles(theme => ({
@@ -55,7 +57,7 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'column',
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       flexDirection: 'column',
     },
   },
@@ -69,7 +71,7 @@ const useStyles = makeStyles(theme => ({
     cursor: 'pointer',
     color: '#444',
     textAlign: 'center',
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       fontSize: '1rem',
     },
   },

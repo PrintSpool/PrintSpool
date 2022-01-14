@@ -1,7 +1,7 @@
 import React from 'react'
 
-import Typography from '@material-ui/core/Typography'
-import MUILink from '@material-ui/core/Link'
+import Typography from '@mui/material/Typography'
+import MUILink from '@mui/material/Link'
 
 import StaticTopNavigation from '../../common/topNavigation/StaticTopNavigation'
 

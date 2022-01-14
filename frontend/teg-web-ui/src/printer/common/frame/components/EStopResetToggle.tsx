@@ -3,12 +3,12 @@ import classNames from 'classnames'
 import { useMutation } from '@apollo/client'
 import { gql } from '@apollo/client'
 
-import Button from '@material-ui/core/Button'
-import Backdrop from '@material-ui/core/Backdrop'
-import CircularProgress from '@material-ui/core/CircularProgress'
-import { makeStyles } from '@material-ui/core/styles'
+import Button from '@mui/material/Button'
+import Backdrop from '@mui/material/Backdrop'
+import CircularProgress from '@mui/material/CircularProgress'
+import makeStyles from '@mui/styles/makeStyles';
 
-import Report from '@material-ui/icons/Report'
+import Report from '@mui/icons-material/Report'
 
 import StatusDialog from './StatusDialog'
 import useConfirm from '../../../../common/_hooks/useConfirm'

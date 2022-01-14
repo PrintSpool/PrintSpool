@@ -1,8 +1,7 @@
-import React, { useCallback } from 'react'
-import {
-  Grid,
-  Button,
-} from '@material-ui/core'
+import React from 'react'
+
+import Grid from '@mui/material/Grid'
+import Button from '@mui/material/Button'
 
 import useStyle from './JogButtonDistanceButtons.styles'
 
@@ -20,7 +19,7 @@ const JogDistanceButtons = ({
         <Button
           key={value.toString()}
           className={classes.button}
-          color={value === input.value ? 'primary' : 'default'}
+          color={value === input.value ? 'primary' : undefined}
           onClick={() => input.onChange(value)}
         >
           {typeof value === 'number' ? `${value}mm` : value}

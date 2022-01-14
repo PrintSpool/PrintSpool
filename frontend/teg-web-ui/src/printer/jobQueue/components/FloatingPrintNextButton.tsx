@@ -1,11 +1,11 @@
 import React from 'react'
 
-import Tooltip from '@material-ui/core/Tooltip'
-import Fab from '@material-ui/core/Fab'
+import Tooltip from '@mui/material/Tooltip'
+import Fab from '@mui/material/Fab'
 
-import { makeStyles } from '@material-ui/core/styles'
+import makeStyles from '@mui/styles/makeStyles';
 
-import PlayArrow from '@material-ui/icons/PlayArrow'
+import PlayArrow from '@mui/icons-material/PlayArrow'
 
 // eslint-disable-next-line
 const useStyles = makeStyles(theme => ({

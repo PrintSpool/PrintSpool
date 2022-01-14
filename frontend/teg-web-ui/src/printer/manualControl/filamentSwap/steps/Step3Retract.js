@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
-import Typography from '@material-ui/core/Typography'
-import LinearProgress from '@material-ui/core/LinearProgress'
+import Typography from '@mui/material/Typography'
+import LinearProgress from '@mui/material/LinearProgress'
 
 import { useTranslation } from 'react-i18next'
 

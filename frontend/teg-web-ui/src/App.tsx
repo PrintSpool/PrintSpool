@@ -3,8 +3,8 @@ import 'typeface-roboto'
 
 import 'react-vis/dist/style.css'
 
-import CssBaseline from '@material-ui/core/CssBaseline'
-import { ThemeProvider } from '@material-ui/core/styles'
+import CssBaseline from '@mui/material/CssBaseline'
+import { ThemeProvider, Theme, StyledEngineProvider } from '@mui/material/styles';
 
 import { ErrorBoundary } from 'react-error-boundary'
 import { SnackbarProvider } from 'notistack'
@@ -12,7 +12,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { Switch, Route } from 'react-router'
 import { ConfirmProvider } from 'material-ui-confirm'
 import useRouter from 'use-react-router'
-import Button from '@material-ui/core/Button'
+import Button from '@mui/material/Button'
 
 import TegApolloProvider from './webrtc/TegApolloProvider'
 import { AuthProvider } from './common/auth'
@@ -25,6 +25,13 @@ import ErrorFallback from './common/ErrorFallback'
 
 import theme from './theme'
 import './i18n'
+
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
+
 
 // console.log(process.env.NODE_ENV)
 
@@ -49,58 +56,60 @@ const App = () => {
 
   return (
     <CssBaseline>
-      <ThemeProvider theme={theme}>
-        <SnackbarProvider
-          ref={notistackRef}
-          maxSnack={3}
-          action={(key) => (
-            <Button
-              onClick={onClickDismiss(key)}
-              style={{ color: 'white' }}
-            >
-                Dismiss
-            </Button>
-          )}
-        >
-          <ConfirmProvider
-            defaultOptions={{
-              confirmationButtonProps: { autoFocus: true }
-            }}
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <SnackbarProvider
+            ref={notistackRef}
+            maxSnack={3}
+            action={(key) => (
+              <Button
+                onClick={onClickDismiss(key)}
+                style={{ color: 'white' }}
+              >
+                  Dismiss
+              </Button>
+            )}
           >
-            <PrintFilesContext.Provider value={useState()}>
-              <React.Suspense fallback={<Loading fullScreen />}>
-                <BrowserRouter>
-                  <RouterErrorBoundary>
-                    <AuthProvider>
-                      <Switch>
-                        <Route
-                          path={[
-                            '/:hostID/',
-                            '/q/:hostID/',
-                            '/',
-                          ]}
-                        >
-                          <TegApolloProvider>
+            <ConfirmProvider
+              defaultOptions={{
+                confirmationButtonProps: { autoFocus: true }
+              }}
+            >
+              <PrintFilesContext.Provider value={useState()}>
+                <React.Suspense fallback={<Loading fullScreen />}>
+                  <BrowserRouter>
+                    <RouterErrorBoundary>
+                      <AuthProvider>
+                        <Switch>
+                          <Route
+                            path={[
+                              '/:hostID/',
+                              '/q/:hostID/',
+                              '/',
+                            ]}
+                          >
+                            <TegApolloProvider>
+                              <Routes />
+                            </TegApolloProvider>
+                          </Route>
+                          <Route>
                             <Routes />
-                          </TegApolloProvider>
-                        </Route>
-                        <Route>
-                          <Routes />
-                        </Route>
-                      </Switch>
-                    </AuthProvider>
-                  </RouterErrorBoundary>
-                </BrowserRouter>
-              </React.Suspense>
-              {
-                // <ReduxSnackbar />
-              }
-            </PrintFilesContext.Provider>
-          </ConfirmProvider>
-        </SnackbarProvider>
-      </ThemeProvider>
+                          </Route>
+                        </Switch>
+                      </AuthProvider>
+                    </RouterErrorBoundary>
+                  </BrowserRouter>
+                </React.Suspense>
+                {
+                  // <ReduxSnackbar />
+                }
+              </PrintFilesContext.Provider>
+            </ConfirmProvider>
+          </SnackbarProvider>
+        </ThemeProvider>
+      </StyledEngineProvider>
     </CssBaseline>
-  )
+  );
 }
 
 export default App

@@ -1,13 +1,9 @@
 import React, { useCallback, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 
-import Grid from '@material-ui/core/Grid'
-import Hidden from '@material-ui/core/Hidden'
-import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import DialogContent from '@material-ui/core/DialogContent'
+import Grid from '@mui/material/Grid'
+import Hidden from '@mui/material/Hidden'
+import Typography from '@mui/material/Typography'
 
 import { useTranslation, Trans } from 'react-i18next'
 import { useSnackbar } from 'notistack'
@@ -19,8 +15,6 @@ import Hero from './Hero'
 import Header from './Header'
 
 import KofiCupLogoSVG from 'url:./images/kofiCupLogo.svg'
-import NanoIcon from './currencyIcons/NanoIcon'
-import EthereumIcon from './currencyIcons/EthereumIcon'
 
 import automaticPrintingGIF from 'url:./images/automaticPrinting.gif'
 import printQueueingGIF from 'url:./images/printQueueing.gif'
@@ -106,7 +100,7 @@ const LandingPage = () => {
           />
         </Grid>
 
-        <Hidden smDown>
+        <Hidden mdDown>
           <Grid item xs={12} md={6}>
             <img
               async
@@ -237,7 +231,7 @@ const LandingPage = () => {
       <Footer t={t} />
 
     </div>
-  )
+  );
 }
 
 export default LandingPage

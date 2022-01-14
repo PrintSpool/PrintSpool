@@ -1,9 +1,6 @@
 import React from 'react'
 
-import {
-  Typography,
-  Button,
-} from '@material-ui/core'
+import Typography from '@mui/material/Typography'
 
 import ErrorFallbackStyles from './ErrorFallback.styles'
 

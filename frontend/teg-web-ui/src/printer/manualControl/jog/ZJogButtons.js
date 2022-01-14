@@ -1,12 +1,9 @@
 import React, { useState } from 'react'
-import {
-  Card,
-  CardContent,
-  Grid,
-} from '@material-ui/core'
 
-import ArrowUpward from '@material-ui/icons/ArrowUpward'
-import ArrowDownward from '@material-ui/icons/ArrowDownward'
+import Grid from '@mui/material/Grid'
+
+import ArrowUpward from '@mui/icons-material/ArrowUpward'
+import ArrowDownward from '@mui/icons-material/ArrowDownward'
 
 import useJog from '../../_hooks/useJog'
 

@@ -1,12 +1,12 @@
 import React from 'react'
 import Loader from 'react-loader-advanced'
 
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
-import Divider from '@material-ui/core/Divider'
-import Hidden from '@material-ui/core/Hidden'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import Divider from '@mui/material/Divider'
+import Hidden from '@mui/material/Hidden'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
 
 import Home from './home/Home'
 import MotorsEnabled from './MotorsEnabled'
@@ -97,7 +97,7 @@ const ManualControlView = ({
                   <div className={classes.jogButtons}>
                     <XYJogButtons machine={machine} />
                     <div className={classes.jogDivider}>
-                      <Hidden smDown>
+                      <Hidden mdDown>
                         <Divider orientation="vertical" flexItem />
                       </Hidden>
                       <Hidden mdUp>
@@ -126,7 +126,7 @@ const ManualControlView = ({
         }
       </div>
     </div>
-  )
+  );
 }
 
 export default ManualControlView

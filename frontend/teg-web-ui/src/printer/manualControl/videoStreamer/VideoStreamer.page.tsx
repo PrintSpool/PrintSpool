@@ -5,7 +5,7 @@ import React, {
   useEffect,
 } from 'react'
 import { gql, useApolloClient } from '@apollo/client'
-import Typography from '@material-ui/core/Typography'
+import Typography from '@mui/material/Typography'
 import { useAsync } from 'react-async'
 import SimplePeer from 'simple-peer'
 

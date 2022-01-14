@@ -2,13 +2,10 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import classnames from 'classnames'
 
-import {
-  Typography,
-  Hidden,
-  IconButton,
-  // Button,
-} from '@material-ui/core'
-import MenuIcon from '@material-ui/icons/Menu'
+import Typography from '@mui/material/Typography'
+import Hidden from '@mui/material/Hidden'
+import IconButton from '@mui/material/IconButton'
+import MenuIcon from '@mui/icons-material/Menu'
 
 import useStyle from './TopNavigationStyles'
 import tegLogoNoTextSVG from 'url:./images/tegLogoNoText.svg'
@@ -38,7 +35,7 @@ const StaticTopNavigation = ({
           hasMenu && classes.withMenu,
         )}
       >
-        <Hidden smDown={hasMenu}>
+        <Hidden mdDown={hasMenu}>
           <Link to="/">
             {/* <img
               alt="Teg"
@@ -47,12 +44,12 @@ const StaticTopNavigation = ({
             /> */}
           </Link>
         </Hidden>
-        <Hidden smDown={!hasMenu} mdUp>
+        <Hidden mdDown={!hasMenu} mdUp>
           <IconButton
             className={classes.buttonClass}
             aria-label="Menu"
             onClick={onMenuButtonClick}
-          >
+            size="large">
             <MenuIcon />
           </IconButton>
         </Hidden>
@@ -72,7 +69,7 @@ const StaticTopNavigation = ({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default StaticTopNavigation

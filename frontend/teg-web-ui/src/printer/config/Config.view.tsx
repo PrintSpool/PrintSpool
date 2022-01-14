@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemText from '@material-ui/core/ListItemText'
-import Typography from '@material-ui/core/Typography'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemText from '@mui/material/ListItemText'
+import Typography from '@mui/material/Typography'
 
 import UpdateDialogView from './components/UpdateDialog/UpdateDialog.view'
 import ServerBreadcrumbs from '../common/ServerBreadcrumbs'
-import Button from '@material-ui/core/Button'
+import Button from '@mui/material/Button'
 import { useDelete } from './components/useDeleteConfig'
 
 const ConfigView = ({

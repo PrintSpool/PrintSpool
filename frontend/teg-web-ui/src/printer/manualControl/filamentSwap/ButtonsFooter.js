@@ -1,12 +1,12 @@
 import React, { useContext, useCallback } from 'react'
 
-import Button from '@material-ui/core/Button'
-import MobileStepper from '@material-ui/core/MobileStepper'
+import Button from '@mui/material/Button'
+import MobileStepper from '@mui/material/MobileStepper'
 
-import { useTheme } from '@material-ui/core/styles'
+import { useTheme } from '@mui/material/styles'
 
-import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft'
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
+import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft'
+import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
 
 import { useTranslation } from 'react-i18next'
 

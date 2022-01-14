@@ -1,8 +1,7 @@
 import React from 'react'
-import {
-  Grid,
-  IconButton,
-} from '@material-ui/core'
+
+import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
 
 const JogButton = ({
   textAlign,
@@ -17,7 +16,7 @@ const JogButton = ({
         onMouseDown={onMouseDown}
         onTouchStart={onMouseDown}
         {...props}
-      >
+        size="large">
         {children}
       </IconButton>
     </div>

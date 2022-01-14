@@ -1,6 +1,6 @@
 import React from 'react'
-import Typography from '@material-ui/core/Typography'
-import Paper from '@material-ui/core/Paper'
+import Typography from '@mui/material/Typography'
+import Paper from '@mui/material/Paper'
 import DetectRTC from 'detectrtc'
 
 import useStyles from './UnsupportedBrowser.style'

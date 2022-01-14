@@ -1,8 +1,8 @@
 import React from 'react'
 
 import { Link, useParams } from 'react-router-dom'
-import Breadcrumbs from '@material-ui/core/Breadcrumbs'
-import MUILink from '@material-ui/core/Link'
+import Breadcrumbs from '@mui/material/Breadcrumbs'
+import MUILink from '@mui/material/Link'
 
 const ServerBreadcrumbs = ({
   children,

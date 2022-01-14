@@ -1,15 +1,15 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import ListItemText from '@material-ui/core/ListItemText'
-import Tooltip from '@material-ui/core/Tooltip'
-import Fab from '@material-ui/core/Fab'
-import Avatar from '@material-ui/core/Avatar'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import Tooltip from '@mui/material/Tooltip'
+import Fab from '@mui/material/Fab'
+import Avatar from '@mui/material/Avatar'
 
-import Add from '@material-ui/icons/Add'
+import Add from '@mui/icons-material/Add'
 
 import { gql } from '@apollo/client'
 

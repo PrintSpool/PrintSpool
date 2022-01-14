@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core/styles'
+import makeStyles from '@mui/styles/makeStyles';
 import cubesSVG from 'url:./images/cubes.svg'
 
 const CUBES_BOTTOM_WHITESPACE = '20px'
@@ -23,14 +23,14 @@ const useStyles = makeStyles(theme => ({
     width: '100vw',
     display: 'flex',
     alignItems: 'center',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       flexDirection: 'column-reverse',
     },
   },
   wordmark: {
     flex: 1,
     fontSize: 50,
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       fontSize: 30,
     },
     color: 'white',
@@ -47,7 +47,7 @@ const useStyles = makeStyles(theme => ({
     marginBottom: theme.spacing(2),
     marginLeft: theme.spacing(4),
     marginRight: theme.spacing(4),
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       alignSelf: 'end',
       marginRight: theme.spacing(2),
       marginTop: theme.spacing(1),
@@ -81,7 +81,7 @@ const useStyles = makeStyles(theme => ({
   taglinePart1: {
     color: 'white',
     fontSize: '2.7rem',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       fontSize: '1.8rem',
     },
   },

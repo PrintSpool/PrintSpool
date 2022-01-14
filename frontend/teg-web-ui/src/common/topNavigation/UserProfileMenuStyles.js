@@ -1,4 +1,4 @@
-import { makeStyles } from '@material-ui/core/styles'
+import makeStyles from '@mui/styles/makeStyles';
 
 const useStyles = makeStyles(theme => ({
   buttonClass: {
@@ -14,7 +14,7 @@ const useStyles = makeStyles(theme => ({
     marginLeft: 'auto',
     marginRight: 'auto',
     marginTop: theme.spacing(2),
-    lineHeight: `${theme.spacing(12)}px`,
+    lineHeight: theme.spacing(12),
     textAlign: 'center',
     fontSize: '48px',
   },

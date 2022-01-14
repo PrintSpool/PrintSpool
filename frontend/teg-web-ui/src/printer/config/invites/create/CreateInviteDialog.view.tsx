@@ -1,7 +1,7 @@
 import React from 'react'
 
-import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
 
 import useStyles from './CreateInviteDialog.styles'
 import CreateInviteStep1 from './Step1.view'

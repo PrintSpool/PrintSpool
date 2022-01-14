@@ -1,8 +1,8 @@
 import React, { useEffect, useCallback } from 'react'
 
-import Typography from '@material-ui/core/Typography'
-import LinearProgress from '@material-ui/core/LinearProgress'
-import Button from '@material-ui/core/Button'
+import Typography from '@mui/material/Typography'
+import LinearProgress from '@mui/material/LinearProgress'
+import Button from '@mui/material/Button'
 
 import { useTranslation } from 'react-i18next'
 
