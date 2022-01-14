@@ -43,10 +43,10 @@
     "notistack": "^1.0.6",
     "parcel": "v2.0.1",
     "qrcode.react": "^1.0.0",
-    "react": "^16.13.1",
+    "react": "^17.0.2",
     "react-async": "^10.0.1",
     "react-async-hook": "^4.0.0",
-    "react-dom": "^16.13.1",
+    "react-dom": "^17.0.2",
     "react-error-boundary": "^2.2.2",
     "react-hook-form": "^6.15.4",
     "react-i18next": "^10.10.0",
@@ -96,8 +96,8 @@
   },
   "resolutions": {
     "graphql": "^14.0.2",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "caniuse-lite": "^1.0.30000974",
     "webrtc-adapter": "D1plo1d/adapter#getStats-length"
   }
