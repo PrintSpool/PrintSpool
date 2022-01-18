@@ -1,5 +1,3 @@
-use itertools::Itertools;
-use nom_gcode::{GCode, GCodeLine, Mnemonic};
 use serde::Deserialize;
 use three_d::*;
 
@@ -13,7 +11,7 @@ use wasm_bindgen::{prelude::*, JsCast};
 
 extern crate console_error_panic_hook;
 use std::{panic, io::Cursor};
-use log::{ info, warn };
+use log::info;
 
 #[cfg(target_arch = "wasm32")]
 extern crate wee_alloc;
@@ -23,24 +21,32 @@ extern crate wee_alloc;
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-struct GCodeParserState {
-    position: Vec3,
-    relative_movement: bool,
-}
+mod gcode_preview;
+use gcode_preview::GCodePreview;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-struct RenderOptions {
-    file_names: Vec<String>,
-    machine_dimensions: Vec3,
+pub struct RenderOptions {
+    pub file_names: Vec<String>,
+    pub machine_dimensions: Vec3,
     #[serde(rename="infiniteZ")]
-    infinite_z: bool,
+    pub infinite_z: bool,
     #[serde(default)]
-    always_show_model: bool,
+    pub always_show_model: bool,
 }
 
-struct SlicerRenderer {
-    gcode_bytes: usize,
+impl RenderOptions {
+    pub fn bed_center(&self) -> Vec3 {
+        let mut bed_center = self.machine_dimensions / 2.0;
+        // The center of the bed is at Z = 0
+        bed_center[1] = 0.0;
+
+        bed_center
+    }
+}
+
+#[wasm_bindgen]
+pub struct Renderer {
     options: RenderOptions,
 }
 
@@ -49,7 +55,7 @@ pub fn render_string(
     model: &[u8],
     gcode: Option<String>,
     options: &JsValue,
-) {
+) -> Renderer {
     console_log::init_with_level(log::Level::Debug)
         .expect("Error initializing logging");
     panic::set_hook(Box::new(console_error_panic_hook::hook));
@@ -67,26 +73,37 @@ pub fn render_string(
         .lines()
         .map(|line| line);
 
-    SlicerRenderer {
-        gcode_bytes: gcode.len(),
-        options,
-    }.render(
+    let mut renderer = Renderer::new(options);
+
+    renderer.start(
         Some(model),
         &mut lines,
+        gcode.len(),
     );
+
+    renderer
 }
 
-impl SlicerRenderer {
-    pub fn render(
-        self,
+#[wasm_bindgen]
+impl Renderer {
+    pub fn set_gcode(&mut self, gcode: Option<String>) {
+
+    }
+}
+
+impl Renderer {
+    pub fn new(options: RenderOptions) -> Self {
+        Self { options }
+    }
+
+    pub fn start(
+        &mut self,
         model: Option<&[u8]>,
         gcode_lines: &mut dyn Iterator<Item = &str>,
+        gcode_byte_size: usize,
     ) {
         // let now = instant::Instant::now();
         let machine_dim = self.options.machine_dimensions;
-        let mut bed_center = machine_dim / 2.0;
-        // The center of the bed is at Z = 0
-        bed_center[1] = 0.0;
 
         let window = Window::new(WindowSettings {
             title: "Slicer Render".to_string(),
@@ -134,7 +151,7 @@ impl SlicerRenderer {
                 .expect("model_file_name cannot be null if model is set");
 
             info!("Model ({:?}) Size: {:?}MB", file_name, model_bytes / 1_000_000);
-            info!("GCode Size: {:?}MB", self.gcode_bytes / 1_000_000);
+            info!("GCode Size: {:?}MB", gcode_byte_size / 1_000_000);
 
             let (cpu_mesh, _center) = if file_name.ends_with(".stl") {
                 let mut reader = Cursor::new(model);
@@ -258,239 +275,40 @@ impl SlicerRenderer {
             Some(model)
         });
 
-        // Load GCode
+        // Load GCodes
         // ----------------------------------------------------------------------------------
-
-        let now = instant::Instant::now();
-        let mut gcode_count = 0;
-        let mut gcode_model: Option<InstancedModel<PhysicalMaterial>> = None;
-
-        let mut gcode_layer_indexes = Vec::with_capacity(100);
-        gcode_layer_indexes.push(0usize);
-
-        let mut state: GCodeParserState = GCodeParserState {
-            position: Vec3::new(0.0, 0.0, 0.0),
-            relative_movement: false,
-        };
-
-        let mut previous_layer_z = 0f32;
-        let mut top_layer = 0usize;
-
-        let positions = gcode_lines.flat_map(|line| {
-            gcode_count += 1;
-
-            let (_, gcode) = nom_gcode::parse_gcode(&line)
-                .expect("Error parsing gcode");
-
-            let gcode = match gcode {
-                // G0, G1 Move
-                Some(GCodeLine::GCode(gcode @ GCode {
-                    mnemonic: Mnemonic::General,
-                    major,
-                    minor: 0,
-                    ..
-                })) if major < 2 => {
-                    gcode
-                }
-                // G90 Absolute Positioning
-                Some(GCodeLine::GCode(GCode {
-                    mnemonic: Mnemonic::General,
-                    major: 90,
-                    minor: 0,
-                    ..
-                })) => {
-                    state.relative_movement = false;
-                    return None
-                }
-                // G91 Relative Positioning
-                Some(GCodeLine::GCode(GCode {
-                    mnemonic: Mnemonic::General,
-                    major: 91,
-                    minor: 0,
-                    ..
-                })) => {
-                    state.relative_movement = true;
-                    return None
-                }
-                // G28 HOME
-                Some(GCodeLine::GCode(gcode @ GCode {
-                    mnemonic: Mnemonic::General,
-                    major: 28,
-                    minor: 0,
-                    ..
-                })) => {
-                    info!("G28:  {:?}", gcode.to_string());
-                    if gcode.arguments().next() == None {
-                        state.position = Vec3::new(0.0, 0.0, 0.0);
-                    } else {
-                        for (axis, _) in gcode.arguments() {
-                            let index = match axis {
-                                'X' => 0,
-                                'Y' => 1,
-                                'Z' => 2,
-                                'E' => continue,
-                                _ => {
-                                    warn!("Invalid G28 Axis: {:?}", axis);
-                                    continue;
-                                }
-                            };
-                            state.position[index] = 0.0;
-                        }
-                    }
-                    return None
-                }
-                // G92 SET POSITION
-                Some(GCodeLine::GCode(gcode @ GCode {
-                    mnemonic: Mnemonic::General,
-                    major: 92,
-                    minor: 0,
-                    ..
-                })) => {
-                    for (axis, val) in gcode.arguments() {
-                        info!("G92:  {:?}", gcode.to_string());
-                        let val = if let Some(val) = val {
-                            val
-                        } else {
-                            warn!("G92 missing position value");
-                            continue
-                        };
-
-                        let index = match axis {
-                            'X' => 0,
-                            'Y' => 1,
-                            'Z' => 2,
-                            'E' => continue,
-                            _ => {
-                                warn!("Invalid G28 Axis: {:?}", axis);
-                                continue;
-                            }
-                        };
-                        state.position[index] = *val;
-                    }
-                    return None
-                }
-                _ => return None,
-            };
-
-            gcode.arguments().for_each(|(k, v)| {
-                let index = match k {
-                    'X' => 0,
-                    'Z' => 1,
-                    'Y' => 2,
-                    // Incrementing the layer when an extruder is done on a new z-plane
-                    'E' if previous_layer_z != state.position[1] => {
-                        previous_layer_z = state.position[1];
-                        top_layer += 1;
-                        return ()
-                    }
-                    _ => return (),
-                };
-                let v = match v {
-                    Some(v) => v,
-                    None => return (),
-                };
-
-                state.position[index] = if state.relative_movement {
-                    state.position[index] + v
-                } else {
-                    *v
-                };
-            });
-
-            let gcode_position = if self.options.infinite_z {
-                let y_angle = 45_f32.to_radians();
-                // state.position ordering: (X, Z, Y)
-                // Y and Z need to be swapped again and Y needs to rotated forward
-                // by 45 degrees to render infinite z printer gcodes correctly.
-                Vec3::new(
-                    state.position[0],
-                    y_angle.cos() * state.position[2],
-                    state.position[1] - y_angle.sin() * state.position[2],
-                )
-            } else {
-                state.position.clone()
-            };
-
-            Some((top_layer, gcode_position))
-        });
-
-        let mut cylinder = CPUMesh::cylinder(3);
-        cylinder.transform(&Mat4::from_nonuniform_scale(1.0, 0.07, 0.07));
-
-        let wireframe_material = PhysicalMaterial {
-            name: "wireframe".to_string(),
-            albedo: Color::new_opaque(50, 100, 50),
-            roughness: 0.7,
-            metallic: 0.8,
-            opaque_render_states: RenderStates {
-                cull: Cull::Back,
-                ..Default::default()
-            },
-            ..Default::default()
-        };
-
-        let gcode_bed_center = if self.options.infinite_z {
-            Vec3::new(bed_center.x, 0f32, 0f32)
-        } else {
-            bed_center.clone()
-        };
-
-        let gcode_transforms = positions
-            .enumerate()
-            .tuple_windows()
-            .map(|((_i1, (l1, p1)), (i2, (l2, p2)))| {
-                let scale = Mat4::from_nonuniform_scale(
-                    (p1 - p2).magnitude(),
-                    1.0,
-                    1.0
-                );
-                let rotation = rotation_matrix_from_dir_to_dir(
-                    vec3(1.0, 0.0, 0.0),
-                    (p2 - p1).normalize(),
-                );
-                let translation = Mat4::from_translation(p1 - gcode_bed_center);
-
-                // Store the layer indexes seperately so that this vec can be sliced and used
-                // without allocation on layer selection to update the model
-                if l1 != l2 {
-                    gcode_layer_indexes.push(i2)
-                }
-
-                translation * rotation * scale
-            })
-            .collect::<Vec<_>>();
-            // .group_by(|(layer, _)| *layer)
-
-        if gcode_transforms.is_empty() {
-            warn!("No printable GCode layers found!");
-        } else {
-            info!(
-                "{} GCodes ({:.1}MB) sliced in {}ms",
-                gcode_count,
-                (self.gcode_bytes as f64 / 1_000_000f64),
-                now.elapsed().as_millis(),
-            );
-        };
+        let options = self.options.clone();
+        let mut gcode_preview = GCodePreview::parse_gcodes(
+            gcode_lines,
+            gcode_byte_size,
+            &options,
+            &context,
+        );
 
         // DOM Inputs
         // ----------------------------------------------------------------------------------
-        let websys_window = web_sys::window().unwrap();
-        let document = websys_window
-            .document()
-            .unwrap();
+        #[cfg(target_arch = "wasm32")]
+        let gcode_layer_slider = {
+            let websys_window = web_sys::window().unwrap();
+            let document = websys_window
+                .document()
+                .unwrap();
 
-        let mut previous_gcode_layer_slider_val = 0;
-        let gcode_layer_slider = document.get_elements_by_name("gcode-layer-slider")
-            .item(0)
-            .unwrap()
-            .dyn_into::<web_sys::HtmlInputElement>()
-            .unwrap();
+            let mut previous_gcode_layer_slider_val = 0;
+            let gcode_layer_slider = document.get_elements_by_name("gcode-layer-slider")
+                .item(0)
+                .unwrap()
+                .dyn_into::<web_sys::HtmlInputElement>()
+                .unwrap();
 
-        gcode_layer_slider.set_min("0.0");
-        gcode_layer_slider.set_max(&top_layer.to_string());
-        gcode_layer_slider.set_value_as_number(top_layer as f64);
+            gcode_layer_slider.set_min("0.0");
+            gcode_layer_slider.set_max(&gcode_preview.top_layer.to_string());
+            gcode_layer_slider.set_value_as_number(gcode_preview.top_layer as f64);
 
-        info!("gcode layer slider value: {:?}", gcode_layer_slider.value_as_number());
+            info!("gcode layer slider value: {:?}", gcode_layer_slider.value_as_number());
+
+            gcode_layer_slider
+        };
 
         // Initialize Rendering
         // ----------------------------------------------------------------------------------
@@ -632,48 +450,33 @@ impl SlicerRenderer {
                     .handle_events(&mut camera, &mut frame_input.events)
                     .unwrap();
 
-                let gcode_layer_slider_val = gcode_layer_slider.value_as_number()
-                    .round()
-                    .max(0.0)
-                    .min(gcode_transforms.len() as f64);
+                #[cfg(target_arch = "wasm32")]
+                {
+                    let gcode_layer_slider_val = gcode_layer_slider.value_as_number()
+                        .round()
+                        .max(0.0)
+                        .min(gcode_preview.transforms.len() as f64);
 
-                let gcode_layer_slider_val = gcode_layer_slider_val as usize;
+                    let gcode_layer_slider_val = gcode_layer_slider_val as usize;
 
-                if gcode_layer_slider_val != previous_gcode_layer_slider_val {
-                    previous_gcode_layer_slider_val = gcode_layer_slider_val;
-                    change = true;
+                    if gcode_layer_slider_val != previous_gcode_layer_slider_val {
+                        previous_gcode_layer_slider_val = gcode_layer_slider_val;
+                        change = true;
 
-                    info!("Layer: {:?}", gcode_layer_slider_val);
+                        info!("Layer: {:?}", gcode_layer_slider_val);
 
-                    let layer_index = gcode_layer_indexes[gcode_layer_slider_val];
-                    let transforms = &gcode_transforms[0..layer_index];
-                        // .iter()
-                        // .take_while(|(layer, _)| *layer < gcode_layer_slider_val)
-                        // .map(|(_, transform)| *transform)
-                        // .collect::<Vec<_>>();
-
-                    if transforms.is_empty() {
-                        gcode_model = None;
-                    } else if let Some(gcode_model) = gcode_model.as_mut() {
-                        gcode_model.update_transformations(transforms);
-                    } else {
-                        gcode_model = Some(InstancedModel::new_with_material(
-                            &context,
-                            transforms,
-                            &cylinder,
-                            wireframe_material.clone(),
-                        ).unwrap());
-                    };
+                        gcode_preview.set_layer(gcode_layer_slider_val, &context);
+                    }
                 }
 
                 // draw
                 if change {
                     let mut scene_objects: Vec<&dyn Object> = Vec::with_capacity(5);
 
-                    if let Some(gcode_model) = gcode_model.as_ref() {
+                    if let Some(gcode_model) = gcode_preview.model.as_ref() {
                         scene_objects.push(gcode_model);
                     }
-                    if self.options.always_show_model || gcode_transforms.is_empty() {
+                    if options.always_show_model || gcode_preview.transforms.is_empty() {
                         model.as_ref().map(|model| scene_objects.push(model));
                     }
 
@@ -700,5 +503,6 @@ impl SlicerRenderer {
             .unwrap();
         //     },
         // );
+
     }
 }

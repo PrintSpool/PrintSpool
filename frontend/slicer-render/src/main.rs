@@ -1,5 +1,6 @@
 use std::{fs, time::Instant};
 
+use slicer_render::{RenderOptions, Renderer};
 use three_d::Vec3;
 use env_logger::Env;
 use log::info;
@@ -23,5 +24,14 @@ fn main() {
 
     let gcode_bytes = fs::metadata(filename).unwrap().len().try_into().unwrap();
 
-    slicer_render::render(&mut lines, gcode_bytes, machine_dimensions)
+    let options = RenderOptions {
+        file_names: vec![filename.clone()],
+        machine_dimensions,
+        infinite_z: false,
+        always_show_model: false,
+    };
+
+    let mut renderer = Renderer::new(options);
+
+    renderer.start(None, &mut lines, gcode_bytes)
 }
