@@ -1,6 +1,6 @@
 use std::{fs, time::Instant};
 
-use slicer_render::{RenderOptions, Renderer, Command, SetRotation};
+use slicer_render::{RenderOptions, Renderer, Command};
 use three_d::Vec3;
 use env_logger::Env;
 use log::info;
@@ -54,18 +54,31 @@ fn main() {
     //     }
     // });
 
-    // std::thread::spawn(move || {
-    //     loop {
-    //         for rotation in  0..360 {
-    //             tx.send(Command::SetRotation(SetRotation {
-    //                 x: 0.0,
-    //                 y: 0.0,
-    //                 z: rotation as f32,
-    //             })).unwrap();
-    //             std::thread::sleep(std::time::Duration::from_millis(30));
-    //         }
-    //     }
-    // });
+    std::thread::spawn(move || {
+        loop {
+            // for position in  (-50..50).step_by(5) {
+            //     tx.send(Command::SetPosition(Vec3 {
+            //         x: position as f32,
+            //         y: 0.0,
+            //         z: 0.0,
+            //     })).unwrap();
+            //     std::thread::sleep(std::time::Duration::from_millis(30));
+            // }
+            // tx.send(Command::SetPosition(Vec3 {
+            //     x: 50.0,
+            //     y: 0.0,
+            //     z: 0.0,
+            // })).unwrap();
+            for rotation in  (0..360).step_by(5) {
+                tx.send(Command::SetRotation(Vec3 {
+                    x: 0.0,
+                    y: 0.0,
+                    z: rotation as f32,
+                })).unwrap();
+                std::thread::sleep(std::time::Duration::from_millis(30));
+            }
+        }
+    });
 
 
     // renderer.send(Command::SetGCode(Some(file)));

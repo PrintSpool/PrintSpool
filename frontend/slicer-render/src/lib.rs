@@ -8,7 +8,7 @@ use cad_orbit_control::CadOrbitControl;
 mod cad_bounding_box;
 use cad_bounding_box::CadBoundingBox;
 
-use wasm_bindgen::{prelude::*, JsCast};
+use wasm_bindgen::prelude::*;
 
 extern crate console_error_panic_hook;
 use std::{panic};
@@ -50,11 +50,8 @@ impl RenderOptions {
     }
 }
 
-#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn render_string(
-    model: &[u8],
-    gcode: Option<String>,
     options: &JsValue,
 ) -> Renderer {
     console_log::init_with_level(log::Level::Debug)
@@ -68,36 +65,35 @@ pub fn render_string(
     options.machine_dimensions = Vec3::new(d[0], d[2], d[1]);
 
     // let machine_dimensions = Vec3::new(235f32, 100f32, 235f32);
-    let gcode = gcode.unwrap_or("".into());
+    // let gcode = gcode.unwrap_or("".into());
 
     // let mut lines = gcode
     //     .lines()
     //     .map(|line| line);
 
-    let renderer = Renderer::new();
+    let mut renderer = Renderer::new();
 
     renderer.render_loop(options);
 
     renderer
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum Command {
     SetLayer(usize),
     SetGCode(Option<String>),
     AddModel(AddModel),
-    SetRotation(SetRotation),
+    SetRotation(Vec3),
+    SetPosition(Vec3),
     Reset,
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AddModel {
     pub file_name: String,
     pub content: Vec<u8>,
-}
-
-pub struct SetRotation {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
 }
 
 #[wasm_bindgen]
@@ -328,10 +324,11 @@ impl Renderer {
                         .into_iter()
                         .unique_by(|command| {
                             match command {
-                                Command::SetLayer(_) => 1,
-                                Command::SetGCode(_) => 2,
-                                Command::SetRotation(_) => 3,
-                                Command::Reset => 4,
+                                Command::SetLayer(_) => 101,
+                                Command::SetGCode(_) => 102,
+                                Command::SetRotation(_) => 201,
+                                Command::SetPosition(_) => 202,
+                                Command::Reset => 301,
                                 Command::AddModel(_) => {
                                     next_add_model_key += 1;
                                     next_add_model_key
@@ -373,9 +370,16 @@ impl Renderer {
                                 )
                             });
                         }
-                        Command::SetRotation(command) => {
+                        Command::SetPosition(position) => {
                             model_preview.as_mut().map(|mp| {
-                                mp.set_rotation(command);
+                                mp.position = position;
+                                mp.update_transform();
+                            });
+                        }
+                        Command::SetRotation(rotation) => {
+                            model_preview.as_mut().map(|mp| {
+                                mp.rotation = rotation;
+                                mp.update_transform();
                             });
                         }
                         Command::Reset => {

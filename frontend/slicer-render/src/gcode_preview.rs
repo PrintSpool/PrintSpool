@@ -11,7 +11,6 @@ pub struct GCodePreview {
     pub transforms: Vec<Mat4>,
     pub model: InstancedModel<PhysicalMaterial>,
     pub is_empty: bool,
-    cylinder: CPUMesh,
 }
 
 struct GCodeParserState {
@@ -251,7 +250,6 @@ impl GCodePreview {
             transforms,
             model,
             is_empty: false,
-            cylinder,
         };
 
         gcode_preview
