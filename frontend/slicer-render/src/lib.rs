@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use serde::Deserialize;
 use three_d::*;
 
@@ -10,7 +11,8 @@ use cad_bounding_box::CadBoundingBox;
 use wasm_bindgen::{prelude::*, JsCast};
 
 extern crate console_error_panic_hook;
-use std::{panic, io::Cursor};
+use std::{panic};
+use std::sync::mpsc;
 use log::info;
 
 #[cfg(target_arch = "wasm32")]
@@ -23,6 +25,9 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 mod gcode_preview;
 use gcode_preview::GCodePreview;
+
+mod model_preview;
+use model_preview::ModelPreview;
 
 #[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -45,11 +50,7 @@ impl RenderOptions {
     }
 }
 
-#[wasm_bindgen]
-pub struct Renderer {
-    options: RenderOptions,
-}
-
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn render_string(
     model: &[u8],
@@ -69,41 +70,77 @@ pub fn render_string(
     // let machine_dimensions = Vec3::new(235f32, 100f32, 235f32);
     let gcode = gcode.unwrap_or("".into());
 
-    let mut lines = gcode
-        .lines()
-        .map(|line| line);
+    // let mut lines = gcode
+    //     .lines()
+    //     .map(|line| line);
 
-    let mut renderer = Renderer::new(options);
+    let renderer = Renderer::new();
 
-    renderer.start(
-        Some(model),
-        &mut lines,
-        gcode.len(),
-    );
+    renderer.render_loop(options);
 
     renderer
 }
 
+#[derive(Debug)]
+pub enum Command {
+    SetLayer(usize),
+    SetGCode(Option<String>),
+    AddModel(AddModel),
+    Reset,
+}
+
+#[derive(Debug)]
+pub struct AddModel {
+    pub file_name: String,
+    pub content: Vec<u8>,
+}
+
+#[wasm_bindgen]
+pub struct Renderer {
+    tx: mpsc::Sender<Command>,
+    rx: Option<mpsc::Receiver<Command>>,
+}
+
 #[wasm_bindgen]
 impl Renderer {
-    pub fn set_gcode(&mut self, gcode: Option<String>) {
+    #[cfg(target_arch = "wasm32")]
+    pub fn send(&mut self, command: &JsValue) {
+        let mut command: Command = command.into_serde().expect("Invalid Renderer Command");
 
+        self.tx.send(command).unwrap();
     }
 }
 
 impl Renderer {
-    pub fn new(options: RenderOptions) -> Self {
-        Self { options }
+    pub fn tx(&self) -> mpsc::Sender<Command> {
+        self.tx.clone()
     }
 
-    pub fn start(
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn send(&self, command: Command) {
+        info!("Send!!");
+        self.tx.send(command).unwrap();
+    }
+
+    pub fn new() -> Self {
+        let (tx, rx) = mpsc::channel();
+
+        let renderer = Self {
+            tx,
+            rx: Some(rx),
+        };
+
+        renderer
+    }
+
+    pub fn render_loop(
         &mut self,
-        model: Option<&[u8]>,
-        gcode_lines: &mut dyn Iterator<Item = &str>,
-        gcode_byte_size: usize,
+        options: RenderOptions,
     ) {
+        let rx = self.rx.take().expect("Render loop must only be called once");
+
         // let now = instant::Instant::now();
-        let machine_dim = self.options.machine_dimensions;
+        let machine_dim = options.machine_dimensions;
 
         let window = Window::new(WindowSettings {
             title: "Slicer Render".to_string(),
@@ -136,154 +173,10 @@ impl Renderer {
 
         let mut control = CadOrbitControl::new(*camera.target(), 1.0, max_dim * 20.0);
 
-        // Load Models
+        // Models and GCodes
         // ----------------------------------------------------------------------------------
-        let now = instant::Instant::now();
-
-        let model_bytes = model.as_ref().map(|m| m.len()).unwrap_or(0);
-
-        let model = model.and_then(|model| {
-            if model.is_empty() {
-                return None;
-            }
-
-            let file_name = self.options.file_names.iter().next()
-                .expect("model_file_name cannot be null if model is set");
-
-            info!("Model ({:?}) Size: {:?}MB", file_name, model_bytes / 1_000_000);
-            info!("GCode Size: {:?}MB", gcode_byte_size / 1_000_000);
-
-            let (cpu_mesh, _center) = if file_name.ends_with(".stl") {
-                let mut reader = Cursor::new(model);
-                // stl_io implementation
-                // let mesh = stl_io::read_stl(&mut reader).unwrap();
-                // let positions = mesh.vertices
-                //     .into_iter()
-                //     // Y is vertical in rendering
-                //     .map(|v| [v[0], v[2], v[1]])
-                //     .flatten()
-                //     .collect::<Vec<f32>>();
-
-                // nom_stl implmenetation
-                let mesh = nom_stl::parse_stl(&mut reader).unwrap();
-                let verticies = mesh.vertices_ref().collect::<Vec<_>>();
-
-                // Getting the bounds of the model
-                let min_z = verticies.iter().map(|v| v[2]).reduce(f32::min).unwrap_or(0f32);
-
-                let mut min = [f32::MAX; 2];
-                let mut max = [f32::MIN; 2];
-                for v in &verticies {
-                    for (i, (val, min)) in v[0..2].iter().zip(min.iter_mut()).enumerate() {
-                        if
-                            val < min
-                            // Center Infinite Z models only on the y depth of their bottom layer
-                            && (
-                                !self.options.infinite_z
-                                || v[2] == min_z
-                                || i != 1
-                            )
-                        {
-                            *min = *val
-                        }
-                    }
-                    for (val, max) in v[0..2].iter().zip(max.iter_mut()) {
-                        if val > max {
-                            *max = *val
-                        }
-                    }
-                }
-
-                let center = min.iter()
-                    .zip(max.iter())
-                    .map(|(min, max)| (min + max) / 2f32)
-                    .collect::<Vec<_>>();
-
-                info!("GCode Min: {:?} Max: {:?} Center {:?}", min, max, center);
-
-                let positions = verticies
-                    .into_iter()
-                    // Non-Infinite Z: Centering the model on x = 0, y = 0 (in CAD coordinates)
-                    // Infinite Z: Positioning at [X: center, Y: min]
-                    .map(|v| {
-                        let y_offset = if self.options.infinite_z {
-                            min[1]
-                        } else {
-                            -center[1]
-                        };
-
-                        return [
-                            v[0] - center[0],
-                            v[1] + y_offset,
-                            v[2],
-                        ]
-                    })
-                    // .map(|v| [v[0], v[1], v[2]])
-                    .flatten()
-                    .collect::<Vec<f32>>();
-
-                let normals = mesh.triangles()
-                    .into_iter()
-                    .map(|t| [t.normal(), t.normal(), t.normal()])
-                    .flatten()
-                    // .map(|t| t.normal())
-                    .map(|v| [v[0], v[1], v[2]])
-                    .flatten()
-                    .collect::<Vec<f32>>();
-
-                let cpu_mesh = CPUMesh {
-                    positions,
-                    normals: Some(normals),
-                    ..Default::default()
-                };
-
-                (cpu_mesh, center)
-            } else {
-                panic!("Only .stl files are supported for now");
-            };
-
-            // let model = Model::new(&context, &cpu_mesh).unwrap();
-            let model_material = PhysicalMaterial {
-                name: "cad-model".to_string(),
-                albedo: Color::new_opaque(255, 255, 255),
-                roughness: 0.7,
-                metallic: 0.9,
-                opaque_render_states: RenderStates {
-                    cull: Cull::Back,
-                    ..Default::default()
-                },
-                ..Default::default()
-            };
-
-            let mut model = Model::new_with_material(
-                &context,
-                &cpu_mesh,
-                model_material,
-            )
-            .unwrap();
-
-            // Rotate about the center of the object
-            model.set_transformation(
-                // 1.0
-                // Mat4::from_translation(Vec3::new(center[0], 0f32, -center[1]))
-                Mat4::from_angle_x(degrees(270.0))
-                // * Mat4::from_translation(Vec3::new(-center[0], -center[1], 0f32))
-            );
-
-            info!("Parsed STL model ({:.1}MB) in {}ms", (model_bytes as f64 / 1_000_000f64), now.elapsed().as_millis());
-
-            Some(model)
-        });
-
-        // Load GCodes
-        // ----------------------------------------------------------------------------------
-        let options = self.options.clone();
-        let mut gcode_preview = GCodePreview::parse_gcodes(
-            gcode_lines,
-            gcode_byte_size,
-            &options,
-            &context,
-        );
+        let mut model_preview: Option<ModelPreview> = None;
+        let mut gcode_preview: Option<GCodePreview> = None;
 
         // DOM Inputs
         // ----------------------------------------------------------------------------------
@@ -328,7 +221,7 @@ impl Renderer {
         )
         .unwrap();
 
-        let infinite_z_bed_offset = if self.options.infinite_z {
+        let infinite_z_bed_offset = if options.infinite_z {
             machine_dim[2]
         } else {
             0f32
@@ -375,18 +268,6 @@ impl Renderer {
         )
         .unwrap();
 
-        // Loader::load(
-        //     &["suzanne.obj", "suzanne.mtl"],
-        //     move |mut loaded| {
-        //         let (meshes, materials) = loaded.obj("suzanne.obj").unwrap();
-                // let mut monkey = Model::new_with_material(
-                //     &context,
-                //     &meshes[0],
-                //     PhysicalMaterial::new(&context, &materials[0]).unwrap(),
-                // )
-                // .unwrap();
-                // monkey.material.opaque_render_states.cull = Cull::Back;
-
         let lights = Lights {
             ambient: Some(AmbientLight {
                 intensity: 0.4,
@@ -423,6 +304,75 @@ impl Renderer {
             .render_loop(move |mut frame_input| {
                 let mut change = frame_input.first_frame;
                 change |= camera.set_viewport(frame_input.viewport).unwrap();
+
+                // Get the most recent de-duplicated commands - this allows the renderer
+                // to skip redundant commands if it cannot keep up with the rate that commands are
+                // sent.
+                let deduplicated_commands = {
+                    let mut commands = rx.try_iter()
+                        .collect::<Vec<_>>();
+                    // Reverse the commands so that `unique_by` returns only the latest command for
+                    // each variant
+                    commands.reverse();
+
+                    // To prevent AddModel commands from being de-duplicated each command is given a
+                    // unique key.
+                    let mut next_add_model_key = 1024;
+
+                    commands = commands
+                        .into_iter()
+                        .unique_by(|command| {
+                            match command {
+                                Command::SetLayer(_) => 1,
+                                Command::AddModel(_) => {
+                                    next_add_model_key += 1;
+                                    next_add_model_key
+                                },
+                                Command::SetGCode(_) => 3,
+                                Command::Reset => 4,
+                            }
+                        })
+                        .collect::<Vec<_>>();
+
+                    commands.reverse();
+                    commands
+                };
+
+                for command in deduplicated_commands.into_iter() {
+                    change = true;
+
+                    match command {
+                        Command::SetLayer(layer) => {
+                            gcode_preview.as_mut().map(|gp| {
+                                gp.set_layer(layer, &context);
+                            });
+                        }
+                        Command::AddModel(command) => {
+                            model_preview = ModelPreview::parse_model(
+                                command,
+                                &options,
+                                &context,
+                            );
+                        }
+                        Command::SetGCode(gcode) => {
+                            gcode_preview = gcode.map(|gcode| {
+                                let gcode_byte_size = gcode.len();
+                                let mut gcode_lines = gcode.lines();
+
+                                GCodePreview::parse_gcodes(
+                                    &mut gcode_lines,
+                                    gcode_byte_size,
+                                    &options,
+                                    &context,
+                                )
+                            });
+                        }
+                        Command::Reset => {
+                            model_preview = None;
+                            gcode_preview = None;
+                        }
+                    }
+                }
 
                 // for event in frame_input.events.iter() {
                 //     match event {
@@ -473,11 +423,15 @@ impl Renderer {
                 if change {
                     let mut scene_objects: Vec<&dyn Object> = Vec::with_capacity(5);
 
-                    if let Some(gcode_model) = gcode_preview.model.as_ref() {
-                        scene_objects.push(gcode_model);
+                    if let Some(gcode_preview) = gcode_preview.as_ref() {
+                        if !gcode_preview.is_empty {
+                            scene_objects.push(&gcode_preview.model);
+                        }
                     }
-                    if options.always_show_model || gcode_preview.transforms.is_empty() {
-                        model.as_ref().map(|model| scene_objects.push(model));
+                    if options.always_show_model || gcode_preview.is_none() {
+                        model_preview.as_ref().map(|model_preview| {
+                            scene_objects.push(&model_preview.model)
+                        });
                     }
 
                     scene_objects.push(&bed);
@@ -501,8 +455,5 @@ impl Renderer {
                 }
             })
             .unwrap();
-        //     },
-        // );
-
     }
 }

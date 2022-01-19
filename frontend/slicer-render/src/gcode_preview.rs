@@ -9,7 +9,8 @@ pub struct GCodePreview {
     pub top_layer: usize,
     pub layer_indexes: Vec<usize>,
     pub transforms: Vec<Mat4>,
-    pub model: Option<InstancedModel<PhysicalMaterial>>,
+    pub model: InstancedModel<PhysicalMaterial>,
+    pub is_empty: bool,
     cylinder: CPUMesh,
 }
 
@@ -27,6 +28,8 @@ impl GCodePreview {
     ) -> Self {
         let now = instant::Instant::now();
         let mut gcode_count = 0;
+
+        info!("GCode Size: {:?}MB", gcode_byte_size / 1_000_000);
 
         let mut layer_indexes = Vec::with_capacity(100);
         layer_indexes.push(0usize);
@@ -178,7 +181,7 @@ impl GCodePreview {
         });
 
         let mut cylinder = CPUMesh::cylinder(3);
-        cylinder.transform(&Mat4::from_nonuniform_scale(1.0, 0.07, 0.07));
+        cylinder.transform(&Mat4::from_nonuniform_scale(1.0, 0.3, 0.3));
 
         let gcode_bed_center = if options.infinite_z {
             Vec3::new(options.bed_center().x, 0f32, 0f32)
@@ -223,14 +226,33 @@ impl GCodePreview {
             );
         };
 
-        let mut gcode_preview = Self {
+        let wireframe_material = PhysicalMaterial {
+            name: "wireframe".to_string(),
+            albedo: Color::new_opaque(50, 100, 50),
+            roughness: 0.7,
+            metallic: 0.8,
+            opaque_render_states: RenderStates {
+                cull: Cull::Back,
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        let model = InstancedModel::new_with_material(
+            &context,
+            &transforms,
+            &cylinder,
+            wireframe_material.clone(),
+        ).unwrap();
+
+        let gcode_preview = Self {
             top_layer,
             layer_indexes,
             transforms,
-            model: None,
+            model,
+            is_empty: false,
             cylinder,
         };
-        gcode_preview.set_layer(top_layer, context);
 
         gcode_preview
     }
@@ -243,29 +265,10 @@ impl GCodePreview {
             // .map(|(_, transform)| *transform)
             // .collect::<Vec<_>>();
 
-        if transforms.is_empty() {
-            self.model = None;
-        } else if let Some(model) = self.model.as_mut() {
-            model.update_transformations(transforms);
-        } else {
-            let wireframe_material = PhysicalMaterial {
-                name: "wireframe".to_string(),
-                albedo: Color::new_opaque(50, 100, 50),
-                roughness: 0.7,
-                metallic: 0.8,
-                opaque_render_states: RenderStates {
-                    cull: Cull::Back,
-                    ..Default::default()
-                },
-                ..Default::default()
-            };
+        self.is_empty = transforms.is_empty();
 
-            self.model = Some(InstancedModel::new_with_material(
-                &context,
-                transforms,
-                &self.cylinder,
-                wireframe_material.clone(),
-            ).unwrap());
+        if !transforms.is_empty() {
+            self.model.update_transformations(transforms);
         };
     }
 }

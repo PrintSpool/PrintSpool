@@ -1,6 +1,6 @@
 use std::{fs, time::Instant};
 
-use slicer_render::{RenderOptions, Renderer};
+use slicer_render::{RenderOptions, Renderer, Command};
 use three_d::Vec3;
 use env_logger::Env;
 use log::info;
@@ -17,12 +17,12 @@ fn main() {
         .expect("Failed to open 3d model or gcode file");
 
     info!("File loaded to memory in {}ms", now.elapsed().as_millis());
-    let mut lines = file.lines();
+    // let mut lines = file.lines();
 
     // Y is vertical in order to align with the orientation of the rendering engine
     let machine_dimensions = Vec3::new(200f32, 100f32, 200f32);
 
-    let gcode_bytes = fs::metadata(filename).unwrap().len().try_into().unwrap();
+    // let gcode_bytes: usize = fs::metadata(filename).unwrap().len().try_into().unwrap();
 
     let options = RenderOptions {
         file_names: vec![filename.clone()],
@@ -31,7 +31,27 @@ fn main() {
         always_show_model: false,
     };
 
-    let mut renderer = Renderer::new(options);
+    let mut renderer = Renderer::new();
 
-    renderer.start(None, &mut lines, gcode_bytes)
+    // let tx = renderer.tx();
+    // std::thread::spawn(move || {
+    //     loop {
+    //         info!("up");
+    //         let start = 5;
+    //         let end = 59;
+    //         for layer in  5..end {
+    //             tx.send(Command::SetLayer(layer)).unwrap();
+    //             std::thread::sleep(std::time::Duration::from_millis(30));
+    //         }
+    //         info!("down");
+    //         for layer in  1..(end - start) {
+    //             tx.send(Command::SetLayer(end - layer)).unwrap();
+    //             std::thread::sleep(std::time::Duration::from_millis(30));
+    //         }
+    //     }
+    // });
+
+    renderer.send(Command::SetGCode(Some(file)));
+
+    renderer.render_loop(options);
 }
