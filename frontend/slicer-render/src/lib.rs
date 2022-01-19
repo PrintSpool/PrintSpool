@@ -81,18 +81,23 @@ pub fn render_string(
     renderer
 }
 
-#[derive(Debug)]
 pub enum Command {
     SetLayer(usize),
     SetGCode(Option<String>),
     AddModel(AddModel),
+    SetRotation(SetRotation),
     Reset,
 }
 
-#[derive(Debug)]
 pub struct AddModel {
     pub file_name: String,
     pub content: Vec<u8>,
+}
+
+pub struct SetRotation {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
 }
 
 #[wasm_bindgen]
@@ -324,12 +329,13 @@ impl Renderer {
                         .unique_by(|command| {
                             match command {
                                 Command::SetLayer(_) => 1,
+                                Command::SetGCode(_) => 2,
+                                Command::SetRotation(_) => 3,
+                                Command::Reset => 4,
                                 Command::AddModel(_) => {
                                     next_add_model_key += 1;
                                     next_add_model_key
                                 },
-                                Command::SetGCode(_) => 3,
-                                Command::Reset => 4,
                             }
                         })
                         .collect::<Vec<_>>();
@@ -344,7 +350,7 @@ impl Renderer {
                     match command {
                         Command::SetLayer(layer) => {
                             gcode_preview.as_mut().map(|gp| {
-                                gp.set_layer(layer, &context);
+                                gp.set_layer(layer);
                             });
                         }
                         Command::AddModel(command) => {
@@ -365,6 +371,11 @@ impl Renderer {
                                     &options,
                                     &context,
                                 )
+                            });
+                        }
+                        Command::SetRotation(command) => {
+                            model_preview.as_mut().map(|mp| {
+                                mp.set_rotation(command);
                             });
                         }
                         Command::Reset => {

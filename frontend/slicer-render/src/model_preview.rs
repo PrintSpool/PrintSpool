@@ -1,13 +1,15 @@
-use itertools::Itertools;
-use nom_gcode::{GCode, GCodeLine, Mnemonic};
-use log::{warn, info, trace};
+use log::{info};
 use three_d::*;
 use std::{panic, io::Cursor};
 use crate::AddModel;
 use crate::RenderOptions;
+use crate::SetRotation;
 
 pub struct ModelPreview {
     pub model: Model<PhysicalMaterial>,
+    pub position: Vec3,
+    pub rotation: Vec3,
+    pub scale: Vec3,
 }
 
 impl ModelPreview {
@@ -31,7 +33,7 @@ impl ModelPreview {
 
         info!("Model ({:?}) Size: {:?}MB", file_name, model_bytes / 1_000_000);
 
-        let (cpu_mesh, _center) = if file_name.ends_with(".stl") {
+        let (cpu_mesh, _center) = if file_name.to_ascii_lowercase().ends_with(".stl") {
             let mut reader = Cursor::new(&content[..]);
             // stl_io implementation
             // let mesh = stl_io::read_stl(&mut reader).unwrap();
@@ -133,25 +135,40 @@ impl ModelPreview {
             ..Default::default()
         };
 
-        let mut model = Model::new_with_material(
+        let model = Model::new_with_material(
             &context,
             &cpu_mesh,
             model_material,
         )
-        .unwrap();
-
-        // Rotate about the center of the object
-        model.set_transformation(
-            // 1.0
-            // Mat4::from_translation(Vec3::new(center[0], 0f32, -center[1]))
-            Mat4::from_angle_x(degrees(270.0))
-            // * Mat4::from_translation(Vec3::new(-center[0], -center[1], 0f32))
-        );
+            .unwrap();
 
         info!("Parsed STL model ({:.1}MB) in {}ms", (model_bytes as f64 / 1_000_000f64), now.elapsed().as_millis());
 
-        Some(Self {
+        let mut model_preview = Self {
             model,
-        })
+            position: Vec3::zero(),
+            rotation: Vec3::zero(),
+            scale: Vec3::zero(),
+        };
+
+        model_preview.update_transform();
+
+        Some(model_preview)
+    }
+
+    pub fn set_rotation(&mut self, command: SetRotation) {
+        self.rotation = Vec3::new(command.x, command.y, command.z);
+        self.update_transform();
+    }
+
+    fn update_transform(&mut self) {
+        // Rotate about the center of the object
+        self.model.set_transformation(1.0
+            // Mat4::from_translation(Vec3::new(center[0], 0f32, -center[1]))
+            * Mat4::from_angle_x(degrees(270.0 + self.rotation.x))
+            * Mat4::from_angle_y(degrees(self.rotation.y))
+            * Mat4::from_angle_z(degrees(self.rotation.z))
+            // * Mat4::from_translation(Vec3::new(-center[0], -center[1], 0f32)));
+        );
     }
 }

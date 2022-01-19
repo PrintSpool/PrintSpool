@@ -1,6 +1,6 @@
 use std::{fs, time::Instant};
 
-use slicer_render::{RenderOptions, Renderer, Command};
+use slicer_render::{RenderOptions, Renderer, Command, SetRotation};
 use three_d::Vec3;
 use env_logger::Env;
 use log::info;
@@ -13,7 +13,10 @@ fn main() {
         .expect("USEAGE: cargo run --release /path/to/file.gcode");
 
     let now = Instant::now();
-    let file = fs::read_to_string(filename)
+    // let file = fs::read_to_string(filename)
+    //     .expect("Failed to open 3d model or gcode file");
+
+    let file = fs::read(filename)
         .expect("Failed to open 3d model or gcode file");
 
     info!("File loaded to memory in {}ms", now.elapsed().as_millis());
@@ -33,7 +36,7 @@ fn main() {
 
     let mut renderer = Renderer::new();
 
-    // let tx = renderer.tx();
+    let tx = renderer.tx();
     // std::thread::spawn(move || {
     //     loop {
     //         info!("up");
@@ -51,7 +54,26 @@ fn main() {
     //     }
     // });
 
-    renderer.send(Command::SetGCode(Some(file)));
+    // std::thread::spawn(move || {
+    //     loop {
+    //         for rotation in  0..360 {
+    //             tx.send(Command::SetRotation(SetRotation {
+    //                 x: 0.0,
+    //                 y: 0.0,
+    //                 z: rotation as f32,
+    //             })).unwrap();
+    //             std::thread::sleep(std::time::Duration::from_millis(30));
+    //         }
+    //     }
+    // });
+
+
+    // renderer.send(Command::SetGCode(Some(file)));
+
+    renderer.send(Command::AddModel(slicer_render::AddModel {
+        file_name: filename.clone(),
+        content: file,
+    }));
 
     renderer.render_loop(options);
 }

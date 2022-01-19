@@ -257,7 +257,7 @@ impl GCodePreview {
         gcode_preview
     }
 
-    pub fn set_layer(&mut self, layer: usize, context: &Context) {
+    pub fn set_layer(&mut self, layer: usize) {
         let layer_index = self.layer_indexes[layer];
         let transforms = &self.transforms[0..layer_index];
             // .iter()
