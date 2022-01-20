@@ -213,6 +213,11 @@ impl ModelPreviewWithModel {
         };
     }
 
+    pub fn get_center(&self) -> Vec3 {
+        Vec3::new(self.center.x, self.center.z, self.center.y)
+        // &self.center
+    }
+
     pub fn move_to_bed(&mut self) {
         self.position.z = -self.min[2]
     }

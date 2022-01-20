@@ -30,7 +30,7 @@ impl CadOrbitControl {
         events: &mut [Event],
     ) -> ThreeDResult<bool> {
         if let CameraAction::Zoom { speed, target, .. } = &mut self.control.scroll_horizontal {
-            *speed = 0.1 / target.distance(*camera.position());
+            *speed = 0.1 * target.distance(*camera.position());
         }
         self.control.handle_events(camera, events)
     }

@@ -13,7 +13,6 @@ use wasm_bindgen::prelude::*;
 extern crate console_error_panic_hook;
 use std::{panic};
 use std::sync::mpsc;
-use log::info;
 
 #[cfg(target_arch = "wasm32")]
 extern crate wee_alloc;
@@ -22,6 +21,9 @@ extern crate wee_alloc;
 #[cfg(target_arch = "wasm32")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
+mod camera_position;
+pub use camera_position::CameraPosition;
 
 mod gcode_preview;
 use gcode_preview::{GCodePreview, GCodeSummary, GCodePreviewWithModel};
@@ -83,8 +85,9 @@ pub enum Command {
     SetGCode(Option<GCodePreview>),
     #[serde(skip)]
     AddModel(ModelPreview),
-    SetRotation(Vec3),
-    SetPosition(Vec3),
+    SetModelRotation(Vec3),
+    SetModelPosition(Vec3),
+    SetCameraPosition(CameraPosition),
     Reset,
 }
 
@@ -141,7 +144,6 @@ impl Renderer {
     }
 
     pub fn send(&self, command: Command) {
-        info!("Send!!");
         self.tx.send(command).unwrap();
     }
 
@@ -185,14 +187,16 @@ impl Renderer {
         let mut camera = Camera::new_perspective(
             &context,
             window.viewport().expect("Viewport error"),
-            vec3(-max_dim * 2.0, max_dim * 2.0, -max_dim * 2.5),
-            vec3(0.0, 0.0, 0.0),
+            vec3(1.0, 0.0, 0.0),
+            Vec3::zero(),
             vec3(0.0, 1.0, 0.0),
             degrees(45.0),
             0.1,
             100000.0,
         )
             .expect("camera error");
+
+        CameraPosition::Isometric.set_view(&mut camera, machine_dim / 2.0, max_dim);
 
         let mut control = CadOrbitControl::new(*camera.target(), 1.0, max_dim * 20.0);
 
@@ -220,14 +224,14 @@ impl Renderer {
         .unwrap();
 
         let infinite_z_bed_offset = if self.options.infinite_z {
-            machine_dim[2]
+            machine_dim[2] / 2.0
         } else {
             0f32
         };
 
         bed.set_transformation(
             Mat4::from_translation(vec3(0f32, 0f32, infinite_z_bed_offset))
-            * Mat4::from_nonuniform_scale(machine_dim[0], machine_dim[1], machine_dim[2])
+            * Mat4::from_nonuniform_scale(machine_dim[0] / 2.0, machine_dim[1] / 2.0, machine_dim[2] / 2.0)
             * Mat4::from_angle_x(degrees(90.0))
         );
 
@@ -246,8 +250,8 @@ impl Renderer {
         )
         .unwrap();
         cube.set_transformation(
-            Mat4::from_translation(vec3(0f32, machine_dim[1], infinite_z_bed_offset))
-            * Mat4::from_nonuniform_scale(machine_dim[0], machine_dim[1], machine_dim[2])
+            Mat4::from_translation(vec3(0f32, machine_dim[1] / 2.0, infinite_z_bed_offset))
+            * Mat4::from_nonuniform_scale(machine_dim[0] / 2.0, machine_dim[1] / 2.0, machine_dim[2] / 2.0)
         );
 
         let bounding_cube = CadBoundingBox::new_with_material(
@@ -323,9 +327,10 @@ impl Renderer {
                             match command {
                                 Command::SetLayer(_) => 101,
                                 Command::SetGCode(_) => 102,
-                                Command::SetRotation(_) => 201,
-                                Command::SetPosition(_) => 202,
-                                Command::Reset => 301,
+                                Command::SetModelRotation(_) => 201,
+                                Command::SetModelPosition(_) => 202,
+                                Command::SetCameraPosition(_) => 301,
+                                Command::Reset => 401,
                                 Command::AddModel(_) => {
                                     next_add_model_key += 1;
                                     next_add_model_key
@@ -355,17 +360,21 @@ impl Renderer {
                                 p.with_model(&context)
                             });
                         }
-                        Command::SetPosition(position) => {
+                        Command::SetModelPosition(position) => {
                             model_preview.as_mut().map(|mp| {
                                 mp.position = position;
                                 mp.update_transform();
                             });
                         }
-                        Command::SetRotation(rotation) => {
+                        Command::SetModelRotation(rotation) => {
                             model_preview.as_mut().map(|mp| {
                                 mp.rotation = rotation;
                                 mp.update_transform();
                             });
+                        }
+                        Command::SetCameraPosition(camera_position) => {
+                            let center = machine_dim / 2.0;
+                            camera_position.set_view(&mut camera, center, max_dim);
                         }
                         Command::Reset => {
                             model_preview = None;
