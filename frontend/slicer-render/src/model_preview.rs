@@ -1,11 +1,10 @@
 use log::{info};
 use three_d::*;
-use std::{panic, io::Cursor};
-use crate::AddModel;
+use std::{panic, io::Cursor, ops::{Deref, DerefMut}};
 use crate::RenderOptions;
 
 pub struct ModelPreview {
-    pub model: Model<PhysicalMaterial>,
+    cpu_mesh: Option<CPUMesh>,
     pub position: Vec3,
     pub rotation: Vec3,
     pub scale: Vec3,
@@ -15,23 +14,23 @@ pub struct ModelPreview {
     infinite_z: bool,
 }
 
+pub struct ModelPreviewWithModel {
+    inner: ModelPreview,
+    pub model: Model<PhysicalMaterial>,
+}
+
 impl ModelPreview {
     pub fn parse_model(
-        command: AddModel,
+        file_name: String,
+        content: Vec<u8>,
         options: &RenderOptions,
-        context: &Context,
-    ) -> Option<Self> {
+    ) -> Self {
         let now = instant::Instant::now();
-
-        let AddModel {
-            file_name,
-            content,
-        } = command;
 
         let model_bytes = content.len();
 
         if content.is_empty() {
-            return None;
+            panic!("Nothing to display")
         }
 
         info!("Model ({:?}) Size: {:?}MB", file_name, model_bytes / 1_000_000);
@@ -134,7 +133,28 @@ impl ModelPreview {
             panic!("Only .stl files are supported for now");
         };
 
-        // let model = Model::new(&context, &cpu_mesh).unwrap();
+        info!("Parsed STL model ({:.1}MB) in {}ms", (model_bytes as f64 / 1_000_000f64), now.elapsed().as_millis());
+
+        let model_preview = Self {
+            cpu_mesh: Some(cpu_mesh),
+            position: Vec3::zero(),
+            rotation: Vec3::zero(),
+            scale: Vec3::zero(),
+            min,
+            // max,
+            center,
+            infinite_z: options.infinite_z,
+        };
+
+        model_preview
+    }
+
+    pub fn with_model(
+        mut self,
+        context: &Context,
+    ) -> ModelPreviewWithModel {
+        let cpu_mesh = self.cpu_mesh.take().unwrap();
+
         let model_material = PhysicalMaterial {
             name: "cad-model".to_string(),
             albedo: Color::new_opaque(255, 255, 255),
@@ -154,26 +174,34 @@ impl ModelPreview {
         )
             .unwrap();
 
-        info!("Parsed STL model ({:.1}MB) in {}ms", (model_bytes as f64 / 1_000_000f64), now.elapsed().as_millis());
-
-        let mut model_preview = Self {
+        let mut model_preview = ModelPreviewWithModel {
+            inner: self,
             model,
-            position: Vec3::zero(),
-            rotation: Vec3::zero(),
-            scale: Vec3::zero(),
-            min,
-            // max,
-            center,
-            infinite_z: options.infinite_z,
         };
 
         model_preview.center();
         model_preview.move_to_bed();
         model_preview.update_transform();
 
-        Some(model_preview)
+        model_preview
     }
+}
 
+impl Deref for ModelPreviewWithModel {
+    type Target = ModelPreview;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl DerefMut for ModelPreviewWithModel {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
+}
+
+impl ModelPreviewWithModel {
     pub fn center(&mut self) {
         self.position.x = -self.center[0];
         // Non-Infinite Z: Centering the model on x = 0, y = 0 (in CAD coordinates)
@@ -203,7 +231,7 @@ impl ModelPreview {
             * Mat4::from_angle_y(degrees(self.rotation.y))
             * Mat4::from_angle_z(degrees(self.rotation.z))
             // 1. Center the model
-            * Mat4::from_translation(self.center)
+            * Mat4::from_translation(-self.center)
         );
     }
 }

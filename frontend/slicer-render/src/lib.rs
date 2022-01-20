@@ -24,20 +24,17 @@ extern crate wee_alloc;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 mod gcode_preview;
-use gcode_preview::GCodePreview;
+use gcode_preview::{GCodePreview, GCodeSummary, GCodePreviewWithModel};
 
 mod model_preview;
-use model_preview::ModelPreview;
+use model_preview::{ModelPreview, ModelPreviewWithModel};
 
 #[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct RenderOptions {
-    pub file_names: Vec<String>,
     pub machine_dimensions: Vec3,
     #[serde(rename="infiniteZ")]
     pub infinite_z: bool,
-    #[serde(default)]
-    pub always_show_model: bool,
 }
 
 impl RenderOptions {
@@ -51,7 +48,7 @@ impl RenderOptions {
 }
 
 #[wasm_bindgen]
-pub fn render_string(
+pub fn start(
     options: &JsValue,
 ) -> Renderer {
     console_log::init_with_level(log::Level::Debug)
@@ -71,9 +68,9 @@ pub fn render_string(
     //     .lines()
     //     .map(|line| line);
 
-    let mut renderer = Renderer::new();
+    let mut renderer = Renderer::new(options);
 
-    renderer.render_loop(options);
+    renderer.render_loop();
 
     renderer
 }
@@ -82,33 +79,59 @@ pub fn render_string(
 #[serde(rename_all = "camelCase")]
 pub enum Command {
     SetLayer(usize),
-    SetGCode(Option<String>),
-    AddModel(AddModel),
+    #[serde(skip)]
+    SetGCode(Option<GCodePreview>),
+    #[serde(skip)]
+    AddModel(ModelPreview),
     SetRotation(Vec3),
     SetPosition(Vec3),
     Reset,
-}
-
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct AddModel {
-    pub file_name: String,
-    pub content: Vec<u8>,
 }
 
 #[wasm_bindgen]
 pub struct Renderer {
     tx: mpsc::Sender<Command>,
     rx: Option<mpsc::Receiver<Command>>,
+    options: RenderOptions,
 }
 
 #[wasm_bindgen]
 impl Renderer {
-    #[cfg(target_arch = "wasm32")]
-    pub fn send(&mut self, command: &JsValue) {
-        let mut command: Command = command.into_serde().expect("Invalid Renderer Command");
+    #[wasm_bindgen(js_name = addModel)]
+    pub fn add_model(
+        &mut self,
+        file_name: String,
+        content: Vec<u8>,
+    ) {
+        let model_preview = ModelPreview::parse_model(
+            file_name,
+            content,
+            &self.options,
+        );
 
-        self.tx.send(command).unwrap();
+        self.send(Command::AddModel(model_preview));
+    }
+
+    #[wasm_bindgen(js_name = setGCode)]
+    pub fn set_gcode(&mut self, gcode: String) -> GCodeSummary {
+        let (
+            gcode_summary,
+            gcode_preview,
+        ) = GCodePreview::parse_gcodes(&gcode, &self.options);
+
+        self.send(Command::SetGCode(Some(gcode_preview)));
+
+        gcode_summary
+    }
+
+    #[wasm_bindgen(js_name = clearGCode)]
+    pub fn clear_gcode(&mut self) {
+        self.send(Command::SetGCode(None));
+    }
+
+    #[wasm_bindgen(js_name = send)]
+    pub fn send_wasm(&mut self, command: &JsValue) {
+        self.send(command.into_serde().expect("Invalid Renderer Command"));
     }
 }
 
@@ -117,18 +140,18 @@ impl Renderer {
         self.tx.clone()
     }
 
-    #[cfg(not(target_arch = "wasm32"))]
     pub fn send(&self, command: Command) {
         info!("Send!!");
         self.tx.send(command).unwrap();
     }
 
-    pub fn new() -> Self {
+    pub fn new(options: RenderOptions) -> Self {
         let (tx, rx) = mpsc::channel();
 
         let renderer = Self {
             tx,
             rx: Some(rx),
+            options,
         };
 
         renderer
@@ -136,12 +159,11 @@ impl Renderer {
 
     pub fn render_loop(
         &mut self,
-        options: RenderOptions,
     ) {
         let rx = self.rx.take().expect("Render loop must only be called once");
 
         // let now = instant::Instant::now();
-        let machine_dim = options.machine_dimensions;
+        let machine_dim = self.options.machine_dimensions;
 
         let window = Window::new(WindowSettings {
             title: "Slicer Render".to_string(),
@@ -176,33 +198,8 @@ impl Renderer {
 
         // Models and GCodes
         // ----------------------------------------------------------------------------------
-        let mut model_preview: Option<ModelPreview> = None;
-        let mut gcode_preview: Option<GCodePreview> = None;
-
-        // DOM Inputs
-        // ----------------------------------------------------------------------------------
-        #[cfg(target_arch = "wasm32")]
-        let gcode_layer_slider = {
-            let websys_window = web_sys::window().unwrap();
-            let document = websys_window
-                .document()
-                .unwrap();
-
-            let mut previous_gcode_layer_slider_val = 0;
-            let gcode_layer_slider = document.get_elements_by_name("gcode-layer-slider")
-                .item(0)
-                .unwrap()
-                .dyn_into::<web_sys::HtmlInputElement>()
-                .unwrap();
-
-            gcode_layer_slider.set_min("0.0");
-            gcode_layer_slider.set_max(&gcode_preview.top_layer.to_string());
-            gcode_layer_slider.set_value_as_number(gcode_preview.top_layer as f64);
-
-            info!("gcode layer slider value: {:?}", gcode_layer_slider.value_as_number());
-
-            gcode_layer_slider
-        };
+        let mut model_preview: Option<ModelPreviewWithModel> = None;
+        let mut gcode_preview: Option<GCodePreviewWithModel> = None;
 
         // Initialize Rendering
         // ----------------------------------------------------------------------------------
@@ -222,7 +219,7 @@ impl Renderer {
         )
         .unwrap();
 
-        let infinite_z_bed_offset = if options.infinite_z {
+        let infinite_z_bed_offset = if self.options.infinite_z {
             machine_dim[2]
         } else {
             0f32
@@ -350,24 +347,12 @@ impl Renderer {
                                 gp.set_layer(layer);
                             });
                         }
-                        Command::AddModel(command) => {
-                            model_preview = ModelPreview::parse_model(
-                                command,
-                                &options,
-                                &context,
-                            );
+                        Command::AddModel(next_model_preview) => {
+                            model_preview = Some(next_model_preview.with_model(&context));
                         }
-                        Command::SetGCode(gcode) => {
-                            gcode_preview = gcode.map(|gcode| {
-                                let gcode_byte_size = gcode.len();
-                                let mut gcode_lines = gcode.lines();
-
-                                GCodePreview::parse_gcodes(
-                                    &mut gcode_lines,
-                                    gcode_byte_size,
-                                    &options,
-                                    &context,
-                                )
+                        Command::SetGCode(next_gcode_preview) => {
+                            gcode_preview = next_gcode_preview.map(|p| {
+                                p.with_model(&context)
                             });
                         }
                         Command::SetPosition(position) => {
@@ -415,25 +400,6 @@ impl Renderer {
                     .handle_events(&mut camera, &mut frame_input.events)
                     .unwrap();
 
-                #[cfg(target_arch = "wasm32")]
-                {
-                    let gcode_layer_slider_val = gcode_layer_slider.value_as_number()
-                        .round()
-                        .max(0.0)
-                        .min(gcode_preview.transforms.len() as f64);
-
-                    let gcode_layer_slider_val = gcode_layer_slider_val as usize;
-
-                    if gcode_layer_slider_val != previous_gcode_layer_slider_val {
-                        previous_gcode_layer_slider_val = gcode_layer_slider_val;
-                        change = true;
-
-                        info!("Layer: {:?}", gcode_layer_slider_val);
-
-                        gcode_preview.set_layer(gcode_layer_slider_val, &context);
-                    }
-                }
-
                 // draw
                 if change {
                     let mut scene_objects: Vec<&dyn Object> = Vec::with_capacity(5);
@@ -443,7 +409,7 @@ impl Renderer {
                             scene_objects.push(&gcode_preview.model);
                         }
                     }
-                    if options.always_show_model || gcode_preview.is_none() {
+                    if gcode_preview.is_none() {
                         model_preview.as_ref().map(|model_preview| {
                             scene_objects.push(&model_preview.model)
                         });

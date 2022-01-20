@@ -9,14 +9,14 @@ fn main() {
     env_logger::Builder::from_env(Env::default().default_filter_or("debug")).init();
 
     let args: Vec<String> = std::env::args().collect();
-    let filename = args.get(1)
+    let file_name = args.get(1)
         .expect("USEAGE: cargo run --release /path/to/file.gcode");
 
     let now = Instant::now();
-    // let file = fs::read_to_string(filename)
+    // let file = fs::read_to_string(file_name)
     //     .expect("Failed to open 3d model or gcode file");
 
-    let file = fs::read(filename)
+    let file_content = fs::read(file_name)
         .expect("Failed to open 3d model or gcode file");
 
     info!("File loaded to memory in {}ms", now.elapsed().as_millis());
@@ -25,16 +25,14 @@ fn main() {
     // Y is vertical in order to align with the orientation of the rendering engine
     let machine_dimensions = Vec3::new(200f32, 100f32, 200f32);
 
-    // let gcode_bytes: usize = fs::metadata(filename).unwrap().len().try_into().unwrap();
+    // let gcode_bytes: usize = fs::metadata(file_name).unwrap().len().try_into().unwrap();
 
     let options = RenderOptions {
-        file_names: vec![filename.clone()],
         machine_dimensions,
         infinite_z: false,
-        always_show_model: false,
     };
 
-    let mut renderer = Renderer::new();
+    let mut renderer = Renderer::new(options);
 
     let tx = renderer.tx();
     // std::thread::spawn(move || {
@@ -81,12 +79,12 @@ fn main() {
     });
 
 
-    // renderer.send(Command::SetGCode(Some(file)));
+    // renderer.set_gcode(Some(file));
 
-    renderer.send(Command::AddModel(slicer_render::AddModel {
-        file_name: filename.clone(),
-        content: file,
-    }));
+    renderer.add_model(
+        file_name.clone(),
+        file_content,
+    );
 
-    renderer.render_loop(options);
+    renderer.render_loop();
 }

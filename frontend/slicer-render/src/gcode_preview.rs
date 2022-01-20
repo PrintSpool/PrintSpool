@@ -1,7 +1,10 @@
+use std::{ops::{Deref, DerefMut}, mem};
+
 use itertools::Itertools;
 use nom_gcode::{GCode, GCodeLine, Mnemonic};
 use log::{warn, info, trace};
 use three_d::*;
+use wasm_bindgen::prelude::*;
 
 use crate::RenderOptions;
 
@@ -9,8 +12,12 @@ pub struct GCodePreview {
     pub top_layer: usize,
     pub layer_indexes: Vec<usize>,
     pub transforms: Vec<Mat4>,
-    pub model: InstancedModel<PhysicalMaterial>,
     pub is_empty: bool,
+}
+
+pub struct GCodePreviewWithModel {
+    inner: GCodePreview,
+    pub model: InstancedModel<PhysicalMaterial>,
 }
 
 struct GCodeParserState {
@@ -18,15 +25,23 @@ struct GCodeParserState {
     relative_movement: bool,
 }
 
+#[wasm_bindgen]
+pub struct GCodeSummary {
+    #[wasm_bindgen(js_name = topLayer)]
+    pub top_layer: usize,
+}
+
 impl GCodePreview {
     pub fn parse_gcodes(
-        gcode_lines: &mut dyn Iterator<Item = &str>,
-        gcode_byte_size: usize,
+        gcode: &str,
         options: &RenderOptions,
-        context: &Context,
-    ) -> Self {
+    ) -> (GCodeSummary, Self) {
+
         let now = instant::Instant::now();
         let mut gcode_count = 0;
+
+        let gcode_byte_size = gcode.len();
+        let gcode_lines = gcode.lines();
 
         info!("GCode Size: {:?}MB", gcode_byte_size / 1_000_000);
 
@@ -179,9 +194,6 @@ impl GCodePreview {
             Some((top_layer, gcode_position))
         });
 
-        let mut cylinder = CPUMesh::cylinder(3);
-        cylinder.transform(&Mat4::from_nonuniform_scale(1.0, 0.3, 0.3));
-
         let gcode_bed_center = if options.infinite_z {
             Vec3::new(options.bed_center().x, 0f32, 0f32)
         } else {
@@ -225,6 +237,27 @@ impl GCodePreview {
             );
         };
 
+        let gcode_preview = Self {
+            top_layer,
+            layer_indexes,
+            transforms,
+            is_empty: false,
+        };
+
+        let gcode_summary = GCodeSummary {
+            top_layer,
+        };
+
+        (gcode_summary, gcode_preview)
+    }
+
+    pub fn with_model(
+        self,
+        context: &Context,
+    ) -> GCodePreviewWithModel {
+        let mut cylinder = CPUMesh::cylinder(3);
+        cylinder.transform(&Mat4::from_nonuniform_scale(1.0, 0.3, 0.3));
+
         let wireframe_material = PhysicalMaterial {
             name: "wireframe".to_string(),
             albedo: Color::new_opaque(50, 100, 50),
@@ -239,34 +272,56 @@ impl GCodePreview {
 
         let model = InstancedModel::new_with_material(
             &context,
-            &transforms,
+            &self.transforms,
             &cylinder,
             wireframe_material.clone(),
         ).unwrap();
 
-        let gcode_preview = Self {
-            top_layer,
-            layer_indexes,
-            transforms,
+        GCodePreviewWithModel {
+            inner: self,
             model,
-            is_empty: false,
-        };
-
-        gcode_preview
+        }
     }
+}
 
-    pub fn set_layer(&mut self, layer: usize) {
-        let layer_index = self.layer_indexes[layer];
-        let transforms = &self.transforms[0..layer_index];
-            // .iter()
-            // .take_while(|(layer, _)| *layer < layer)
-            // .map(|(_, transform)| *transform)
-            // .collect::<Vec<_>>();
+impl Deref for GCodePreviewWithModel {
+    type Target = GCodePreview;
 
-        self.is_empty = transforms.is_empty();
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
 
-        if !transforms.is_empty() {
-            self.model.update_transformations(transforms);
+impl DerefMut for GCodePreviewWithModel {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
+}
+
+impl GCodePreviewWithModel {
+    pub fn set_layer(&mut self, mut layer: usize) {
+        let top_layer = self.layer_indexes.len();
+        if layer < 1 {
+            warn!("Layer ({}) cannot be less then 1. Defaulting to bottom layer", layer);
+            layer = 1;
         };
+
+        if layer >= top_layer {
+            warn!("Layer {} does not exist. Defaulting to top layer ({})", layer, top_layer);
+            layer = top_layer;
+        };
+
+        let layer_index = self.layer_indexes[layer];
+        self.is_empty = layer_index <= 1;
+
+        if self.is_empty {
+            return
+        }
+
+        let transforms = mem::take(&mut self.transforms);
+
+        self.model.update_transformations(&transforms[0..layer_index]);
+
+        self.transforms = transforms;
     }
 }
