@@ -1,6 +1,6 @@
 import makeStyles from '@mui/styles/makeStyles';
 
-const drawerWidth = 280
+const drawerWidth = 230
 
 // eslint-disable-next-line
 const useStyles = makeStyles(theme => ({
@@ -24,7 +24,7 @@ const useStyles = makeStyles(theme => ({
     height: '100%',
   },
   drawerPaper: {
-    width: 280,
+    width: drawerWidth,
     height: '100%',
     [theme.breakpoints.up('md')]: {
       width: drawerWidth,

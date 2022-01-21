@@ -1,6 +1,7 @@
-import React, { useLayoutEffect, useRef, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gql, useMutation } from '@apollo/client'
-import initSlicerRender, { render_string as renderString } from 'slicer-render';
+import { useAsync } from 'react-async-hook';
+import initSlicerRender, { start } from 'slicer-render';
 
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -31,42 +32,68 @@ const PrintDialogContent = ({
   setGCodeText,
 }) => {
   const classes = PrintDialogContentStyles()
-  const [slice, sliceMutation] = useMutation(gql`
-    mutation($input: SliceInput!) {
-      slice(input: $input)
-    }
-  `)
 
   const largeFile = files[0].size > 80 * MB
 
   const [shouldLoad, setShouldLoad] = useState(!largeFile)
   const webGLContainer = useRef()
 
-  const asyncSetup = async () => {
+  const fileExt = files[0].name.split('.').pop()
+  const isMesh = meshFileExtensions.includes(fileExt)
+
+  const renderer = useAsync(async () => {
     const machineDimensions = [235, 235, 255]
     const {
       infiniteZ
     } = machine
 
-    const fileExt = files[0].name.split('.').pop()
     let gcodeText = '';
     let modelByteArray;
     // let slice = () => {}
 
-    if (meshFileExtensions.includes(fileExt)) {
+    await initSlicerRender();
+
+    const nextRenderer = start({
+      machineDimensions,
+      infiniteZ,
+    });
+
+    if (isMesh) {
       const modelArrayBuffer = await files[0].arrayBuffer();
       modelByteArray = new Uint8Array(modelArrayBuffer.slice());
 
-      // // Dynamically load the slicer to improve page load times when it is not needed
-      // const { default: createSlicer } = await import('./createSlicer');
 
-      // slice = createSlicer({
-      //   modelArrayBuffer,
-      //   machineDimensions,
-      // })
+      console.log({ infiniteZ, machine })
 
+      nextRenderer.addModel(
+        files[0].name,
+        modelByteArray,
+      );
+
+    //   // Disable 3D model rendering after slicing
+    //   modelByteArray = new Uint8Array([]);
+    //   gcodeText = data.slice
+    } else {
+      modelByteArray = new Uint8Array([]);
+      gcodeText = await files[0].text()
+
+      nextRenderer.setGCode(
+        gcodeText,
+      );
+    }
+
+    return nextRenderer;
+  },[])
+
+  const [sendSliceMutation, sliceMutation] = useMutation(gql`
+    mutation($input: SliceInput!) {
+      slice(input: $input)
+    }
+  `)
+
+  const slice = () => {
       console.log('Slicing....')
-      const { data }: any = await slice({
+      sendSliceMutation({
         variables: {
           input: {
             file: files[0],
@@ -74,39 +101,28 @@ const PrintDialogContent = ({
           },
         }
       })
+  }
+
+  useEffect(() => {
+    if (sliceMutation.data != null) {
       console.log('Slicing... [DONE]')
-
-      // Disable 3D model rendering after slicing
-      modelByteArray = new Uint8Array([]);
-      gcodeText = data.slice
-    } else {
-      modelByteArray = new Uint8Array([]);
-      gcodeText = await files[0].text()
+      renderer.result.setGCode(sliceMutation.data.slice)
     }
+  }, [sliceMutation.data]);
 
-    // console.log({ gcodeText })
-    setGCodeText(gcodeText)
+  const asyncSetup = async () => {
 
-    let start = performance.now()
-    console.log('Starting JS Execution')
-    await initSlicerRender();
+    // // console.log({ gcodeText })
+    // setGCodeText(gcodeText)
 
-    console.log({ name: files[0].name, modelByteArray, gcodeText })
+    // let startMillis = performance.now()
+    // console.log('Starting JS Execution')
 
-    console.log({ infiniteZ, machine })
-    const renderOptions = {
-      machineDimensions,
-      infiniteZ,
-      fileNames: files.map((f) => f.name),
-    }
+    // console.log({ name: files[0].name, modelByteArray, gcodeText })
 
-    renderString(
-      modelByteArray,
-      gcodeText,
-      renderOptions,
-    );
+    // gcodeText,
 
-    console.log(`Done JS Execution in ${performance.now() - start}ms`)
+    // console.log(`Done JS Execution in ${performance.now() - startMillis}ms`)
 
     setLoading(false)
   }
@@ -169,6 +185,23 @@ const PrintDialogContent = ({
               orientation="vertical"
               aria-labelledby="gcode-layer-slider"
             /> */}
+            <Button
+              variant="contained"
+              onClick={slice}
+              disabled={!isMesh || sliceMutation.loading}
+            >
+              Slice GCode
+            </Button>
+            {sliceMutation.loading && (
+              <Typography>
+                Slicing...
+              </Typography>
+            )}
+            {sliceMutation.error && (
+              <Typography color="error">
+                {sliceMutation.error.message}
+              </Typography>
+            )}
           </div>
           <canvas
             className={classes.webGLContainer}
