@@ -180,9 +180,11 @@ impl Renderer {
         let pipeline = ForwardPipeline::new(&context)
             .expect("Forward pipeline error");
 
-        let max_dim = machine_dim[0]
-            .max(machine_dim[1])
-            .max(machine_dim[2]);
+        let mut sorted_dimensions = vec![machine_dim[0], machine_dim[1], machine_dim[2]];
+        sorted_dimensions.sort_by(|a, b| a.partial_cmp(b).unwrap());
+
+        let median_dim = sorted_dimensions[1];
+        let max_dim = sorted_dimensions[2];
 
         let mut camera = Camera::new_perspective(
             &context,
@@ -196,7 +198,7 @@ impl Renderer {
         )
             .expect("camera error");
 
-        CameraPosition::Isometric.set_view(&mut camera, machine_dim / 2.0, max_dim);
+        CameraPosition::Isometric.set_view(&mut camera, machine_dim / 2.0, median_dim);
 
         let mut control = CadOrbitControl::new(*camera.target(), 1.0, max_dim * 20.0);
 
@@ -374,7 +376,7 @@ impl Renderer {
                         }
                         Command::SetCameraPosition(camera_position) => {
                             let center = machine_dim / 2.0;
-                            camera_position.set_view(&mut camera, center, max_dim);
+                            camera_position.set_view(&mut camera, center, median_dim);
                         }
                         Command::Reset => {
                             model_preview = None;

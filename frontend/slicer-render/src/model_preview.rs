@@ -9,7 +9,7 @@ pub struct ModelPreview {
     pub rotation: Vec3,
     pub scale: Vec3,
     min: [f32; 3],
-    // max: [f32; 3],
+    max: [f32; 3],
     center: Vec3,
     infinite_z: bool,
 }
@@ -38,7 +38,7 @@ impl ModelPreview {
         let (
             cpu_mesh,
             min,
-            _max,
+            max,
             center
         ) = if file_name.to_ascii_lowercase().ends_with(".stl") {
             let mut reader = Cursor::new(&content[..]);
@@ -76,8 +76,16 @@ impl ModelPreview {
                         *min = *val
                     }
                 }
-                for (val, max) in v[0..3].iter().zip(max.iter_mut()) {
-                    if val > max {
+                for (i, (val, max)) in v[0..3].iter().zip(max.iter_mut()).enumerate() {
+                    if
+                        val > max
+                        // Center Infinite Z models only on the y depth of their bottom layer
+                        && (
+                            !options.infinite_z
+                            || v[2] == min_z
+                            || i != 1
+                        )
+                    {
                         *max = *val
                     }
                 }
@@ -141,7 +149,7 @@ impl ModelPreview {
             rotation: Vec3::zero(),
             scale: Vec3::zero(),
             min,
-            // max,
+            max,
             center,
             infinite_z: options.infinite_z,
         };
@@ -207,7 +215,7 @@ impl ModelPreviewWithModel {
         // Non-Infinite Z: Centering the model on x = 0, y = 0 (in CAD coordinates)
         // Infinite Z: Positioning at [X: center, Y: min]
         self.position.y = if self.infinite_z {
-            self.min[1]
+            -self.max[1]
         } else {
             -self.center[1]
         };
@@ -226,7 +234,7 @@ impl ModelPreviewWithModel {
         // Rotate about the center of the object
         self.model.set_transformation(1.0
             // 5. Rotate into WebGL coordinates
-            * Mat4::from_angle_x(degrees(270.0))
+            * Mat4::from_angle_x(degrees(-90.0))
             // 4. Translate into position
             * Mat4::from_translation(self.position)
             // 3. Move back to original offset from center

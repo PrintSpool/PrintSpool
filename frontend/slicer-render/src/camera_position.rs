@@ -19,7 +19,7 @@ impl CameraPosition {
         &self,
         camera: &mut Camera,
         center: Vec3,
-        max_dim: f32,
+        median_dim: f32,
     ) {
         use CameraPosition::*;
 
@@ -27,13 +27,13 @@ impl CameraPosition {
         let vertical_x_offset = 15.0;
 
         let position = match self {
-            Isometric => Vec3::new(-(max_dim + 150.0), max_dim + 150.0, -(max_dim + 200.0)),
-            Front => Vec3::new(max_dim + 300.0, center.y, 0.0),
-            Back => Vec3::new(-(max_dim + 300.0), center.y, 0.0),
-            Top => Vec3::new(vertical_x_offset, max_dim + 300.0, 0.0),
-            Bottom => Vec3::new(vertical_x_offset, -(max_dim + 300.0), 0.0),
-            Left => Vec3::new(0.0, 0.0, max_dim + 300.0),
-            Right => Vec3::new(0.0, 0.0, -(max_dim + 300.0)),
+            Isometric => Vec3::new(-(median_dim + 150.0), median_dim + 150.0, -(median_dim + 200.0)),
+            Front => Vec3::new(median_dim + 300.0, center.y, 0.0),
+            Back => Vec3::new(-(median_dim + 300.0), center.y, 0.0),
+            Top => Vec3::new(vertical_x_offset, median_dim + 300.0, 0.0),
+            Bottom => Vec3::new(vertical_x_offset, -(median_dim + 300.0), 0.0),
+            Left => Vec3::new(0.0, 0.0, median_dim + 300.0),
+            Right => Vec3::new(0.0, 0.0, -(median_dim + 300.0)),
         };
 
         camera.set_view(
