@@ -53,9 +53,8 @@ const MB = 1000 * 1000
 const PrintView = ({
   isMutationPending,
   machine,
-  userInputFile,
+  printFile,
   loading,
-  setGCodeText,
   addToQueue,
   printNow,
   slice,
@@ -80,10 +79,6 @@ const PrintView = ({
       infiniteZ
     } = machine
 
-    let gcodeText = '';
-    let modelByteArray;
-    // let slice = () => {}
-
     await initSlicerRender();
 
     const nextRenderer = start({
@@ -93,13 +88,32 @@ const PrintView = ({
 
     let res
     try {
-      res = await fetch(userInputFile.url)
+      res = await fetch(printFile.url)
     } catch (e) {
       console.warn('Unable to load user input file. Most likely a page reload, rendering nothing.');
       return nextRenderer
     }
 
-    if (userInputFile.name.endsWith('.ngc') || userInputFile.name.endsWith('.gcode')) {
+    if (printFile.isMesh) {
+      const modelArrayBuffer = await res.arrayBuffer();
+
+      setData({
+        size: modelArrayBuffer.byteLength,
+      })
+
+      if (!forceLoad && modelArrayBuffer.byteLength > 80 * MB) {
+        return;
+      }
+
+      const modelByteArray = new Uint8Array(modelArrayBuffer.slice(0));
+
+      // console.log({ infiniteZ, machine }, modelArrayBuffer.byteLength)
+
+      nextRenderer.addModel(
+        printFile.name,
+        modelByteArray,
+      );
+    } else {
       const gcode = await res.text();
 
       setData({
@@ -111,42 +125,23 @@ const PrintView = ({
       }
 
       nextRenderer.setGCode(gcode);
-    } else {
-      const modelArrayBuffer = await res.arrayBuffer();
-
-      setData({
-        size: modelArrayBuffer.byteLength,
-      })
-
-      if (!forceLoad && modelArrayBuffer.byteLength > 80 * MB) {
-        return;
-      }
-
-      modelByteArray = new Uint8Array(modelArrayBuffer.slice(0));
-
-      console.log({ infiniteZ, machine }, modelArrayBuffer.byteLength)
-
-      nextRenderer.addModel(
-        userInputFile.name,
-        modelByteArray,
-      );
     }
 
     return nextRenderer;
   }, [])
 
-  if (rendererAsync.error != null) {
-    throw rendererAsync.error;
-  }
-
   const { result: renderer } = rendererAsync;
 
   useEffect(() => {
-    if (sliceMutation.data != null) {
+    if (printFile.gcodeText != null && renderer != null) {
       console.log('Slicing... [DONE]')
-      renderer.setGCode(sliceMutation.data.slice)
+      renderer.setGCode(printFile.gcodeText)
     }
-  }, [sliceMutation.data]);
+  }, [printFile.gcodeVersion, renderer]);
+
+  if (rendererAsync.error != null) {
+    throw rendererAsync.error;
+  }
 
   return (
     <Box sx={{
@@ -181,6 +176,7 @@ const PrintView = ({
 
       {/* Canvas + Button & Inputs Grid */}
       <Box sx={{
+        opacity: loading || rendererAsync.loading ? 0 : 1,
         display: 'grid',
       }}>
         {/* Buttons & Inputs */}
@@ -213,7 +209,7 @@ const PrintView = ({
                 position: 'relative',
               }}
             >
-              {userInputFile.name}
+              {printFile.name}
             </Typography>
             <TextField
               label="Qty"
@@ -398,16 +394,10 @@ const PrintView = ({
             </Box>
             <Button
               variant="outlined"
-              onClick={async () => {
-                const res = await fetch(userInputFile.url);
-                const file = await res.blob();
-
-                slice({
-                  name: userInputFile.name,
-                  file,
-                })
-              }}
-              disabled={userInputFile.isGCode || sliceMutation.loading}
+              onClick={() => slice(printFile)}
+              disabled={
+                loading || printFile.meshVersion === printFile.gcodeVersion || isMutationPending
+              }
               sx={{
                 mr: 1,
               }}

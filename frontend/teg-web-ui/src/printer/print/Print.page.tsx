@@ -1,22 +1,43 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import { useAsync, useAsyncCallback } from 'react-async-hook';
+import React, { useState } from 'react'
+import { useAsyncCallback } from 'react-async-hook';
 import { useHistory, useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client'
 import { useMutation } from '@apollo/client'
 
 import PrintView from './Print.view'
 import { usePrintMutation } from '../jobQueue/JobQueue.graphql'
-import useLiveSubscription from '../_hooks/useLiveSubscription';
+
+interface PrintFile {
+  id: number,
+  name: string,
+  url: string,
+  isMesh: boolean,
+  meshVersion: number,
+  gcodeVersion: number,
+  gcodeBlob: null | Blob,
+  gcodeText: null | string,
+}
 
 const PrintPage = () => {
   const history = useHistory();
-  const { machineID, printQueueID } = useParams();
+  const { machineID } = useParams();
 
-  const [userInputFiles] = useState(() => (
-    JSON.parse(window.sessionStorage.getItem('printFiles'))
+  const [printFiles, setPrintFiles] = useState(() => (
+    JSON.parse(window.sessionStorage.getItem('printFiles')).map((printFile, id) => {
+      const isMesh = !(printFile.name.endsWith('.ngc') || printFile.name.endsWith('.gcode'));
+
+      return {
+        ...printFile,
+        id,
+        isMesh,
+        meshVersion: 1,
+        gcodeVersion: isMesh ? null : 1,
+        gcodeBlob: null,
+        gcodeText: null,
+      } as PrintFile
+    })
   ));
 
-  const [loading, setLoading] = useState(true)
   const [gcodeText, setGCodeText] = useState()
 
   const { data, ...query } = useQuery(
@@ -28,6 +49,10 @@ const PrintPage = () => {
           status
           infiniteZ
         }
+        printQueues(input: { machineID: $machineID }) {
+          id
+          name
+        }
       }
     `,
     {
@@ -36,20 +61,11 @@ const PrintPage = () => {
     },
   );
 
-  const [sendSliceMutation, sliceMutation] = useMutation(gql`
+  const [slice, sliceMutation] = useMutation(gql`
     mutation($input: SliceInput!) {
       slice(input: $input)
     }
   `)
-
-  const slice = (input) => {
-      console.log('Slicing....')
-      sendSliceMutation({
-        variables: {
-          input,
-        }
-      })
-  }
 
   const [ addPartsToPrintQueue, addPartsMutation ] = useMutation(gql`
     mutation addPartsToPrintQueue($input: AddPartsToPrintQueueInput!) {
@@ -61,36 +77,73 @@ const PrintPage = () => {
 
   const [print, printMutationResult ] = usePrintMutation()
 
-  const submit = useAsyncCallback(async ([{ printNow }]) => {
-    const partPromises = userInputFiles
-      .filter(file => file.isGCode)
-      .map(async (file) => {
-        const res = await fetch(file.url);
+  const submit = useAsyncCallback(async ({ printNow }) => {
+    const printFilePromises = printFiles
+      .map((printFile: PrintFile) => async (): Promise<PrintFile> => {
+        if (
+          printFile.gcodeVersion === printFile.meshVersion
+          && printFile.gcodeBlob != null
+        ) {
+          // GCode is up to date and gcodeBlob is loaded
+          return printFile
+        }
+
+        const res = await fetch(printFile.url);
+        const blob = await res.blob();
+
+        if (!printFile.isMesh && printFile.gcodeBlob == null) {
+          // GCode blob just hadn't been loaded yet
+          return {
+            ...printFile,
+            gcodeBlob: blob,
+          }
+        }
+
+        // Otherwise the mesh needs to be sliced
+        console.log('Slicing....')
+        const { data: { slice: gcodeText } } = await slice({
+          variables: {
+            input: {
+              name: printFile.name,
+              file: blob,
+            },
+          }
+        })
 
         return {
-          name: file.name,
-          file: res.blob(),
+          ...printFile,
+          gcodeVersion: printFile.meshVersion,
+          gcodeBlob: new Blob([gcodeText]),
+          gcodeText,
         }
       });
 
-    let parts = await Promise.all(partPromises)
+    // Slice parts sequentially to prevent thrashing via parallel slicing on the Pi
+    const nextPrintFiles = await printFilePromises.reduce(
+      (a, b) => a.then(async (vals) => [...vals, await b()]),
+      Promise.resolve([]),
+    );
 
-    if (gcodeText != null) {
-      parts.push({
-        file: new Blob([gcodeText]),
-        name: `${userInputFiles[0].name}.gcode`,
-      });
-    }
+    // TODO: This will have to become a merge operation once mesh manipulation is supported
+    setPrintFiles(nextPrintFiles);
+
+    const parts = nextPrintFiles.map((printFile: PrintFile) => ({
+      name: printFile.name,
+      file: printFile.gcodeBlob,
+    }));
 
     const MB = 1000 * 1000
-    const fileMBs = parts[0].file.size / MB
+    const fileMBs = nextPrintFiles
+      .map(printFile => printFile.gcodeBlob.size / MB)
+      .reduce((a, b) => a + b)
     const startedAt = Date.now()
 
     const addPartsToPrintQueueResult = await addPartsToPrintQueue({
       variables: {
         input: {
-          printQueueID,
-          name: userInputFiles.map(f => f.name).join(', '),
+          // TODO: Multi-print queues: the print queue should be selectable by the user
+          printQueueID: data.printQueues[0].id,
+          name: nextPrintFiles.map(f => f.name).join(', '),
           parts,
         },
       },
@@ -134,6 +187,13 @@ const PrintPage = () => {
     ?? sliceMutation.error
   );
 
+  const isMutationPending = (
+    submit.loading
+    ?? addPartsMutation.loading
+    ?? printMutationResult.loading
+    ?? sliceMutation.loading
+  );
+
   if (error) {
     throw error
   }
@@ -145,15 +205,39 @@ const PrintPage = () => {
   return (
     <PrintView {...{
       machine: data?.machines[0],
-      userInputFile: userInputFiles[0],
-      loading,
-      isMutationPending: submit.loading,
-      setLoading,
-      setGCodeText,
+      printFile: printFiles[0],
+      loading: query.loading,
+      isMutationPending,
       addToQueue: () => submit.execute({ printNow: false }),
       printNow: () => submit.execute({ printNow: true }),
-      slice,
       sliceMutation,
+      slice: async (printFile: PrintFile) => {
+        const res = await fetch(printFile.url);
+        const file = await res.blob();
+
+        console.log('Slicing....')
+        const { data: { slice: gcodeText } } = await slice({
+          variables: {
+            input: {
+              name: printFile.name,
+              file,
+            }
+          }
+        })
+
+        setPrintFiles(printFiles => printFiles.map((p) => {
+          if (p.id === printFile.id) {
+            return {
+              ...p,
+              gcodeVersion: printFile.meshVersion,
+              gcodeBlob: new Blob([gcodeText]),
+              gcodeText,
+            }
+          } else {
+            return p
+          }
+        }));
+      },
     }} />
   )
 }
