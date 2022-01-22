@@ -29,8 +29,8 @@ import useConfirm from '../../common/_hooks/useConfirm'
 import FileInput from '../../common/FileInput'
 // import FloatingPrintNextButton from './components/FloatingPrintNextButton'
 import useStyles from './JobQueue.styles'
-import PrintDialog from '../printDialog/PrintDialog'
-import { allFileExtensions } from '../printDialog/PrintDialogContent'
+import PrintPage from '../print/Print.page'
+import { allFileExtensions } from '../print/Print.view'
 import PrintCard from './components/PrintCard'
 import ServerBreadcrumbs from '../common/ServerBreadcrumbs'
 
@@ -49,6 +49,7 @@ const JobQueueView = ({
   setPartPositions,
   setStarred,
   history,
+  openPrintPage,
 }) => {
   const classes = useStyles()
   const { machineID } = useParams()
@@ -63,7 +64,7 @@ const JobQueueView = ({
     || printMutation.loading
   )
 
-  const [printDialogFiles, setPrintDialogFiles] = useState()
+  // const [printDialogFiles, setPrintDialogFiles] = useState()
   const [isDragging, setDragging] = useState(false)
 
   const defaultValues = () => ({
@@ -185,7 +186,7 @@ const JobQueueView = ({
     }
 
     if (files.length > 0) {
-      setPrintDialogFiles(files)
+      openPrintPage({ files })
     }
   }, [])
 
@@ -210,17 +211,6 @@ const JobQueueView = ({
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
-      { printDialogFiles && (
-        <React.Suspense fallback={<div />}>
-          <PrintDialog
-            printQueues={printQueues}
-            machines={machines}
-            files={printDialogFiles}
-            onClose={() => setPrintDialogFiles(null)}
-          />
-        </React.Suspense>
-      )}
-
       <ServerBreadcrumbs>
         <Typography color="textPrimary">{machines[0].name}</Typography>
       </ServerBreadcrumbs>
@@ -252,7 +242,7 @@ const JobQueueView = ({
           startIcon={<Add/>}>
           <FileInput
             accept={allFileExtensions}
-            onClick={setPrintDialogFiles}
+            onClick={(files) => openPrintPage({ files })}
           />
           Add
         </Button>
@@ -302,7 +292,7 @@ const JobQueueView = ({
                     Your print queue is empty. Drag and drop a gcode file here to get started!
                     <FileInput
                       accept={allFileExtensions}
-                      onClick={setPrintDialogFiles}
+                      onClick={(files) => openPrintPage({ files })}
                     />
                   </>
                 )}

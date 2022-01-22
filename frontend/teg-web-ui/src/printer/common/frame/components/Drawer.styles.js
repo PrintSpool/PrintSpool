@@ -1,6 +1,6 @@
 import makeStyles from '@mui/styles/makeStyles';
 
-const drawerWidth = 230
+export const drawerWidth = 230
 
 // eslint-disable-next-line
 const useStyles = makeStyles(theme => ({

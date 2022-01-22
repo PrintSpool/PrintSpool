@@ -181,6 +181,16 @@ const JobQueuePage = ({
     })
   }, [nextPart, readyMachine])
 
+
+  const openPrintPage = useCallback(({ files, printQueueID } ) => {
+    const printFiles = files.map(file => ({
+      name: file.name,
+      url: URL.createObjectURL(file),
+    }));
+    window.sessionStorage.setItem('printFiles', JSON.stringify(printFiles))
+    history.push('./print/')
+  }, [])
+
   if (loading) {
     return <div />
   }
@@ -212,6 +222,7 @@ const JobQueuePage = ({
         resumePrint,
         setStarred,
         setPartPositions,
+        openPrintPage,
         history,
       }}
     />

@@ -8,11 +8,12 @@ const ServerBreadcrumbs = ({
   children,
   skipServer = false,
   machineName = null,
+  sx = null,
 }) => {
   const { hostID, machineID } = useParams()
 
   return (
-    <Breadcrumbs aria-label="breadcrumb">
+    <Breadcrumbs aria-label="breadcrumb" sx={sx}>
       {/* <MUILink color="inherit" component={Link} to="/">
         Servers
       </MUILink> */}

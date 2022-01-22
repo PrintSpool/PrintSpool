@@ -48,6 +48,9 @@ const ConnectionFrame = React.lazy(() => (
 const QueuePage = React.lazy(() => (
   import('./printer/jobQueue/JobQueue.page')
 ))
+const PrintPage = React.lazy(() => (
+  import('./printer/print/Print.page')
+))
 const PartPage = React.lazy(() => (
   import('./printer/part/Job.page')
 ))
@@ -206,30 +209,10 @@ const Routes = () => {
             </Route>
             <Route
               exact
-              path={['/', '/print/']}
-              render={() => (
-                <React.Fragment>
-                  <Home />
-                  {/* <Route
-                    exact
-                    path="/print/"
-                    render={({ history, location }) => {
-                      const hostID = new URLSearchParams(location.search).get('q')
-                      const machineID = new URLSearchParams(location.search).get('m')
-
-                      return (
-                        <React.Suspense fallback={<div />}>
-                          <PrintDialog
-                            history={history}
-                            match={{ params: { hostID, machineID } }}
-                          />
-                        </React.Suspense>
-                      )
-                    }}
-                  /> */}
-                </React.Fragment>
-              )}
-            />
+              path="/"
+            >
+                <Home />
+            </Route>
             <Route
               path="/:hostID/"
               exact
@@ -259,6 +242,9 @@ const Routes = () => {
                     path="/:hostID/:machineID/"
                     component={QueuePage}
                   />
+                  <Route exact strict path="/:hostID/:machineID/print/">
+                    <PrintPage />
+                  </Route>
                   <Route exact strict path="/:hostID/:machineID/printing/:partID/" component={PartPage} />
                   <Route exact strict path="/:hostID/:machineID/printing/:partID/print-history" component={PrintHistoryPage} />
                   <Route exact strict path="/:hostID/:machineID/printing/:partID/settings" component={EditPartPage} />

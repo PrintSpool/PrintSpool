@@ -13,7 +13,7 @@ const LoadingOverlay = ({
 }) => {
   const classes = useStyles()
   return (
-    <div className={`${classes.root} ${className}`}>
+    <Box className={`${classes.root} ${className}`}>
       { loading && (
         <Loading
           className={classes.loading}
@@ -22,10 +22,10 @@ const LoadingOverlay = ({
           {loadingText}
         </Loading>
       )}
-      <div className={classes.content}>
+      <Box className={classes.content}>
         {children}
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
 

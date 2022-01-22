@@ -17,7 +17,7 @@ import Button from '@mui/material/Button'
 import TegApolloProvider from './webrtc/TegApolloProvider'
 import { AuthProvider } from './common/auth'
 
-import PrintFilesContext from './printer/printDialog/PrintFilesContext'
+import PrintFilesContext from './printer/print/PrintFilesContext'
 // import Loading from './common/Loading'
 import Routes from './Routes'
 import Loading from './common/Loading'

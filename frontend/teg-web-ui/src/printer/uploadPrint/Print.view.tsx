@@ -1,5 +1,4 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { gql, useMutation } from '@apollo/client'
 import { useAsync } from 'react-async-hook';
 import initSlicerRender, { start } from 'slicer-render';
 
@@ -23,25 +22,29 @@ export const allFileExtensions = [
 
 const MB = 1000 * 1000
 
-const PrintDialogContent = ({
-  submitting,
+const PrintView = ({
+  isMutationPending,
   machine,
-  files,
+  userInputFile,
   loading,
   setLoading,
   setGCodeText,
+  addToQueue,
+  printNow,
+  slice,
+  sliceMutation,
 }) => {
+
+  console.log({ machine })
+  return <Box/>
   const classes = PrintDialogContentStyles()
 
-  const largeFile = files[0].size > 80 * MB
 
-  const [shouldLoad, setShouldLoad] = useState(!largeFile)
+  const [size, setSize] = useState(0)
   const webGLContainer = useRef()
 
-  const fileExt = files[0].name.split('.').pop()
-  const isMesh = meshFileExtensions.includes(fileExt)
 
-  const renderer = useAsync(async () => {
+  const renderer = useAsync(async (forceLoad = false) => {
     const machineDimensions = [235, 235, 255]
     const {
       infiniteZ
@@ -58,50 +61,42 @@ const PrintDialogContent = ({
       infiniteZ,
     });
 
-    if (isMesh) {
-      const modelArrayBuffer = await files[0].arrayBuffer();
-      modelByteArray = new Uint8Array(modelArrayBuffer.slice());
+      const res = await fetch(userInputFile.url)
+      if (userInputFile.name.endsWith('.ngc') || userInputFile.name.endsWith('.gcode')) {
+        const gcode = await res.text();
 
+        setSize(gcode.length)
+        if (!forceLoad && gcode.length > 80 * MB) {
+          return;
+        }
+
+        nextRenderer.setGCode(
+          userInputFile.text,
+        );
+    } else {
+      const modelArrayBuffer = await res.arrayBuffer();
+
+      setSize(modelArrayBuffer.byteLength)
+      if (!forceLoad && modelArrayBuffer.byteLength > 80 * MB) {
+        return;
+      }
+
+      modelByteArray = new Uint8Array(modelArrayBuffer.slice(0));
 
       console.log({ infiniteZ, machine })
 
       nextRenderer.addModel(
-        files[0].name,
+        userInputFile.name,
         modelByteArray,
       );
 
     //   // Disable 3D model rendering after slicing
     //   modelByteArray = new Uint8Array([]);
     //   gcodeText = data.slice
-    } else {
-      modelByteArray = new Uint8Array([]);
-      gcodeText = await files[0].text()
-
-      nextRenderer.setGCode(
-        gcodeText,
-      );
     }
 
     return nextRenderer;
-  },[])
-
-  const [sendSliceMutation, sliceMutation] = useMutation(gql`
-    mutation($input: SliceInput!) {
-      slice(input: $input)
-    }
-  `)
-
-  const slice = () => {
-      console.log('Slicing....')
-      sendSliceMutation({
-        variables: {
-          input: {
-            file: files[0],
-            name: files[0].name,
-          },
-        }
-      })
-  }
+  }, [])
 
   useEffect(() => {
     if (sliceMutation.data != null) {
@@ -128,30 +123,22 @@ const PrintDialogContent = ({
   }
 
   useLayoutEffect(() => {
-    if (shouldLoad === false) {
-      setLoading(false)
-      return
-    }
-    if (loading === false) {
-      setLoading(true)
-    }
-
-    asyncSetup()
-  }, [shouldLoad])
+    setLoading(true)
+  }, [])
 
   return (
-    <div>
-      {!shouldLoad && !submitting && (
+    <Box>
+      { size > 80 * MB && !isMutationPending && (
         <Typography
           variant="h5"
           className={classes.largeFileMessage}
         >
           GCode preview disabled for large file (
-          {(files[0].size / (1 * MB)).toFixed(1)}
+          {(size / (1 * MB)).toFixed(1)}
           MB)
           <Button
             variant="contained"
-            onClick={() => setShouldLoad(true)}
+            onClick={() => renderer.execute(true)}
             className={classes.enableButton}
           >
             Enable Preview
@@ -160,14 +147,14 @@ const PrintDialogContent = ({
       )}
       {/* <LoadingOverlay
         className={classes.webGLLoadingOverlay}
-        loading={submitting || (shouldLoad && loading)}
-        loadingText={submitting ? ('Uploading') : 'Loading Preview...'}
+        loading={isMutationPending || (shouldLoad && loading)}
+        loadingText={isMutationPending ? ('Uploading') : 'Loading Preview...'}
         transitionDelay={300}
-        noSpinner={!submitting}
+        noSpinner={!isMutationPending}
       > */}
-      <div style={{ opacity: shouldLoad && loading ? 0 : 1 }}>
-        <div style={{ display: 'flex'}}>
-          <div style={{ padding: 8 }}>
+      <Box style={{ opacity: loading ? 0 : 1 }}>
+        <Box style={{ display: 'flex'}}>
+          <Box style={{ padding: 8 }}>
             <input
               type="range"
               min="1"
@@ -188,7 +175,7 @@ const PrintDialogContent = ({
             <Button
               variant="contained"
               onClick={slice}
-              disabled={!isMesh || sliceMutation.loading}
+              disabled={userInputFile.isGCode || sliceMutation.loading}
             >
               Slice GCode
             </Button>
@@ -202,15 +189,29 @@ const PrintDialogContent = ({
                 {sliceMutation.error.message}
               </Typography>
             )}
-          </div>
+          </Box>
           <canvas
             className={classes.webGLContainer}
             ref={webGLContainer}
           />
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+      <Button
+          onClick={addToQueue}
+          variant="outlined"
+          disabled={loading || isMutationPending}
+        >
+          Add to Queue
+        </Button>
+        <Button
+          onClick={printNow}
+          variant="contained"
+          disabled={machine?.status !== 'READY' || loading || isMutationPending}
+        >
+          Print Now
+        </Button>
+    </Box>
   )
 }
 
-export default PrintDialogContent
+export default PrintView
