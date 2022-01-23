@@ -1,15 +1,34 @@
 use crate::renderer::*;
 
-pub struct CadBoundingBox<M: ForwardMaterial> {
+pub struct CadBoundingBox<M: Material> {
     model: InstancedModel<M>,
     aabb: AxisAlignedBoundingBox,
 }
 
-impl<M: ForwardMaterial> CadBoundingBox<M> {
+impl<M: Material> CadBoundingBox<M> {
     ///
     /// Creates a bounding box object from an axis aligned bounding box.
     ///
     pub fn new_with_material(
+        context: &Context,
+        aabb: AxisAlignedBoundingBox,
+        material: M,
+    ) -> ThreeDResult<Self> {
+        let size = aabb.size();
+        let thickness = 0.02 * size.x.max(size.y).max(size.z);
+
+        Self::new_with_line_thickness(
+            context,
+            aabb,
+            material,
+            thickness,
+        )
+    }
+
+    ///
+    /// Creates a bounding box object from an axis aligned bounding box with a given line thickness.
+    ///
+    pub fn new_with_line_thickness(
         context: &Context,
         aabb: AxisAlignedBoundingBox,
         material: M,
@@ -53,7 +72,13 @@ impl<M: ForwardMaterial> CadBoundingBox<M> {
         ];
         let model = InstancedModel::new_with_material(
             context,
-            &transformations,
+            &transformations
+                .iter()
+                .map(|t| ModelInstance {
+                    geometry_transform: *t,
+                    ..Default::default()
+                })
+                .collect::<Vec<_>>(),
             &CPUMesh::cylinder(16),
             material,
         )?;
@@ -61,19 +86,29 @@ impl<M: ForwardMaterial> CadBoundingBox<M> {
     }
 }
 
-impl<M: ForwardMaterial> Shadable for CadBoundingBox<M> {
-    fn render_forward(
+impl<M: Material> Shadable for CadBoundingBox<M> {
+    fn render_with_material(
         &self,
-        material: &dyn ForwardMaterial,
+        material: &dyn Material,
         camera: &Camera,
         lights: &Lights,
     ) -> ThreeDResult<()> {
-        self.model.render_forward(material, camera, lights)
+        self.model.render_with_material(material, camera, lights)
     }
 
+    fn render_forward(
+        &self,
+        material: &dyn Material,
+        camera: &Camera,
+        lights: &Lights,
+    ) -> ThreeDResult<()> {
+        self.render_with_material(material, camera, lights)
+    }
+
+    #[allow(deprecated)]
     fn render_deferred(
         &self,
-        material: &dyn DeferredMaterial,
+        material: &DeferredPhysicalMaterial,
         camera: &Camera,
         viewport: Viewport,
     ) -> ThreeDResult<()> {
@@ -81,7 +116,7 @@ impl<M: ForwardMaterial> Shadable for CadBoundingBox<M> {
     }
 }
 
-impl<M: ForwardMaterial> Geometry for CadBoundingBox<M> {
+impl<M: Material> Geometry for CadBoundingBox<M> {
     fn aabb(&self) -> AxisAlignedBoundingBox {
         self.aabb
     }
@@ -91,7 +126,7 @@ impl<M: ForwardMaterial> Geometry for CadBoundingBox<M> {
     }
 }
 
-impl<M: ForwardMaterial> Object for CadBoundingBox<M> {
+impl<M: Material> Object for CadBoundingBox<M> {
     fn render(&self, camera: &Camera, lights: &Lights) -> ThreeDResult<()> {
         self.model.render(camera, lights)
     }

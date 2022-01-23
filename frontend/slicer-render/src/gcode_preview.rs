@@ -11,7 +11,7 @@ use crate::RenderOptions;
 pub struct GCodePreview {
     pub top_layer: usize,
     pub layer_indexes: Vec<usize>,
-    pub transforms: Vec<Mat4>,
+    pub model_instances: Vec<ModelInstance>,
     pub is_empty: bool,
 }
 
@@ -200,7 +200,7 @@ impl GCodePreview {
             options.bed_center()
         };
 
-        let transforms = positions
+        let model_instances = positions
             .enumerate()
             .tuple_windows()
             .map(|((_i1, (l1, p1)), (i2, (l2, p2)))| {
@@ -221,12 +221,15 @@ impl GCodePreview {
                     layer_indexes.push(i2)
                 }
 
-                translation * rotation * scale
+                ModelInstance {
+                    geometry_transform: translation * rotation * scale,
+                    ..Default::default()
+                }
             })
             .collect::<Vec<_>>();
             // .group_by(|(layer, _)| *layer)
 
-        if transforms.is_empty() {
+        if model_instances.is_empty() {
             warn!("No printable GCode layers found!");
         } else {
             info!(
@@ -240,7 +243,7 @@ impl GCodePreview {
         let gcode_preview = Self {
             top_layer,
             layer_indexes,
-            transforms,
+            model_instances,
             is_empty: false,
         };
 
@@ -272,7 +275,7 @@ impl GCodePreview {
 
         let model = InstancedModel::new_with_material(
             &context,
-            &self.transforms,
+            &self.model_instances,
             &cylinder,
             wireframe_material.clone(),
         ).unwrap();
@@ -318,10 +321,10 @@ impl GCodePreviewWithModel {
             return
         }
 
-        let transforms = mem::take(&mut self.transforms);
+        let model_instances = mem::take(&mut self.model_instances);
 
-        self.model.update_transformations(&transforms[0..layer_index]);
+        self.model.set_instances(&model_instances[0..layer_index]);
 
-        self.transforms = transforms;
+        self.model_instances = model_instances;
     }
 }

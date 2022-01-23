@@ -256,7 +256,7 @@ impl Renderer {
             * Mat4::from_nonuniform_scale(machine_dim[0] / 2.0, machine_dim[1] / 2.0, machine_dim[2] / 2.0)
         );
 
-        let bounding_cube = CadBoundingBox::new_with_material(
+        let bounding_cube = CadBoundingBox::new_with_line_thickness(
             &context,
             cube.aabb(),
             ColorMaterial {
@@ -276,6 +276,7 @@ impl Renderer {
             ambient: Some(AmbientLight {
                 intensity: 0.4,
                 color: Color::WHITE,
+                ..Default::default()
             }),
             directional: vec![
                 DirectionalLight::new(

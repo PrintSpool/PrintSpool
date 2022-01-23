@@ -881,6 +881,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "half"
+version = "1.8.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eabb4a44450da02c90444cf74558da904edde8fb4e9035a9a6a4e15445af0bd7"
+
+[[package]]
 name = "hashbrown"
 version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2098,9 +2104,9 @@ dependencies = [
 
 [[package]]
 name = "three-d"
-version = "0.9.1"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9bbf033df82c9602e916e50892b9a1531f27d5a474cf237aa22e65d9badd259"
+checksum = "5b63ca54121ae48aa43e8d1b4d69713c94fa737f0ce115c273f16b0bd3681fe7"
 dependencies = [
  "bincode",
  "cgmath",
@@ -2109,6 +2115,7 @@ dependencies = [
  "gloo-timers",
  "gltf",
  "glutin",
+ "half",
  "image",
  "js-sys",
  "log",
