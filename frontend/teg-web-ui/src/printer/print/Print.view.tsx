@@ -36,6 +36,10 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
+import Popover from '@mui/material/Popover';
+import InputAdornment from '@mui/material/InputAdornment';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 
 const hideFeatureStubs = true;
 
@@ -56,8 +60,10 @@ const PrintView = ({
   isMutationPending,
   machine,
   printQueues,
+  printFiles,
   printFile,
   loading,
+  setQuantity,
   addToQueue,
   printNow,
   slice,
@@ -69,6 +75,10 @@ const PrintView = ({
     size: 0,
     topLayer: 100,
     layer: 100,
+  });
+  const [popover, setPopover] = useState({
+    mode: null, // One of rotate, scale, move or mirror
+    el: null,
   });
 
   const {
@@ -256,7 +266,12 @@ const PrintView = ({
             <TextField
               label="Qty"
               size="small"
-              defaultValue="1"
+              type="number"
+              inputProps={{
+                min: 1,
+              }}
+              value={printFile.quantity}
+              onChange={e => setQuantity(parseInt(e.target.value, 10))}
               sx={{
                 mt: 2,
                 zIndex: 2,
@@ -333,6 +348,7 @@ const PrintView = ({
             <ButtonGroup
               variant="outlined"
               orientation="vertical"
+              disabled={!printFile.isMesh}
               aria-label="3d model manipulation"
               sx={{
                 ml: -4,
@@ -342,18 +358,212 @@ const PrintView = ({
                 },
               }}
             >
-              <Button aria-label="rotate" size="large">
+              <Button
+                aria-label="rotate"
+                size="large"
+                aria-describedby="rotatePopover"
+                onClick={(e) => setPopover({ mode: 'rotate', el: e.currentTarget })}
+              >
                 <ThreeSixtyIcon/>
               </Button>
-              <Button aria-label="scale" size="large">
+              <Popover
+                id="rotatePopover"
+                open={popover.mode === 'rotate'}
+                anchorEl={popover.el}
+                onClose={() => setPopover((p) =>
+                  p.mode === 'rotate' ? { mode: null, el: null } : p
+                )}
+                anchorOrigin={{
+                  horizontal: 'right',
+                  vertical: 'center',
+                }}
+                transformOrigin={{
+                  horizontal: 'left',
+                  vertical: 'center',
+                }}
+              >
+                <Box sx={{
+                  m: 2,
+                }}>
+                  {['x', 'y', 'z'].map((axis) => (
+                    <TextField
+                      label={`Rotation about ${axis.toUpperCase()}`}
+                      size="small"
+                      type="number"
+                      defaultValue={0}
+                      sx={{
+                        display: 'block',
+                        width: 200,
+                        mt: 2,
+                      }}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            Degrees
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  ))}
+                </Box>
+              </Popover>
+              <Button
+                aria-label="scale"
+                size="large"
+                aria-describedby="scalePopover"
+                onClick={(e) => setPopover({ mode: 'scale', el: e.currentTarget })}
+              >
                 <PhotoSizeSelectSmallIcon/>
               </Button>
-              <Button aria-label="flip" size="large">
+              <Popover
+                id="scalePopover"
+                open={popover.mode === 'scale'}
+                anchorEl={popover.el}
+                onClose={() => setPopover((p) =>
+                  p.mode === 'scale' ? { mode: null, el: null } : p
+                )}
+                anchorOrigin={{
+                  horizontal: 'right',
+                  vertical: 'center',
+                }}
+                transformOrigin={{
+                  horizontal: 'left',
+                  vertical: 'center',
+                }}
+              >
+                <Box sx={{
+                  m: 2,
+                }}>
+                  {['x', 'y', 'z'].map((axis) => (
+                    <Box key={axis} sx={{ mt: 2 }}>
+                      <TextField
+                        label={axis.toUpperCase()}
+                        size="small"
+                        type="number"
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              mm
+                            </InputAdornment>
+                          ),
+                        }}
+                        sx={{
+                          width: 150,
+                          mr: 2,
+                        }}
+                      />
+                      <TextField
+                        label={axis.toUpperCase()}
+                        size="small"
+                        type="number"
+                        defaultValue={100}
+                        InputProps={{
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              %
+                            </InputAdornment>
+                          ),
+                        }}
+                        sx={{
+                          width: 150,
+                        }}
+                      />
+                    </Box>
+                  ))}
+                  <FormControlLabel
+                    control={<Switch defaultChecked />}
+                    label="Scale All Axes Together"
+                  />
+                </Box>
+              </Popover>
+              <Button
+                aria-label="mirror"
+                size="large"
+                aria-describedby="mirrorPopover"
+                onClick={(e) => setPopover({ mode: 'mirror', el: e.currentTarget })}
+              >
                 <FlipIcon/>
               </Button>
-              <Button aria-label="move" size="large">
+              <Popover
+                id="mirrorPopover"
+                open={popover.mode === 'mirror'}
+                anchorEl={popover.el}
+                onClose={() => setPopover((p) =>
+                  p.mode === 'mirror' ? { mode: null, el: null } : p
+                )}
+                anchorOrigin={{
+                  horizontal: 'right',
+                  vertical: 'center',
+                }}
+                transformOrigin={{
+                  horizontal: 'left',
+                  vertical: 'center',
+                }}
+              >
+                <Box sx={{
+                  m: 2,
+                }}>
+                  <ButtonGroup orientation="vertical">
+                    {['x', 'y', 'z'].map((axis) => (
+                      <Button
+                        key={axis}
+                      >
+                        Flip on {axis.toUpperCase()}
+                      </Button>
+                    ))}
+                  </ButtonGroup>
+                </Box>
+              </Popover>
+              <Button
+                aria-label="move"
+                size="large"
+                aria-describedby="movePopover"
+                onClick={(e) => setPopover({ mode: 'move', el: e.currentTarget })}
+              >
                 <Moving/>
               </Button>
+              <Popover
+                id="movePopover"
+                open={popover.mode === 'move'}
+                anchorEl={popover.el}
+                onClose={() => setPopover((p) =>
+                  p.mode === 'move' ? { mode: null, el: null } : p
+                )}
+                anchorOrigin={{
+                  horizontal: 'right',
+                  vertical: 'center',
+                }}
+                transformOrigin={{
+                  horizontal: 'left',
+                  vertical: 'center',
+                }}
+              >
+                <Box sx={{
+                  m: 2,
+                }}>
+                  {['x', 'y', 'z'].map((axis) => (
+                    <TextField
+                      key={axis}
+                      label={axis.toUpperCase()}
+                      size="small"
+                      type="number"
+                      defaultValue={0}
+                      sx={{
+                        display: 'block',
+                        width: 150,
+                        mt: 2,
+                      }}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            mm
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  ))}
+                </Box>
+              </Popover>
             </ButtonGroup>
           </Box>
 
@@ -454,7 +664,7 @@ const PrintView = ({
                 mr: 1,
               }}
             >
-              Add to Queue
+              Add ({printFiles.length}) to Queue
             </Button>
             <Button
               onClick={printNow}

@@ -16,6 +16,7 @@ interface PrintFile {
   gcodeVersion: number,
   gcodeBlob: null | Blob,
   gcodeText: null | string,
+  quantity: number,
 }
 
 const PrintPage = () => {
@@ -34,6 +35,7 @@ const PrintPage = () => {
         gcodeVersion: isMesh ? null : 1,
         gcodeBlob: null,
         gcodeText: null,
+        quantity: 1,
       } as PrintFile
     })
   ));
@@ -71,6 +73,9 @@ const PrintPage = () => {
     mutation addPartsToPrintQueue($input: AddPartsToPrintQueueInput!) {
       addPartsToPrintQueue(input: $input) {
         id
+        parts {
+          id
+        }
       }
     }
   `);
@@ -130,6 +135,7 @@ const PrintPage = () => {
     const parts = nextPrintFiles.map((printFile: PrintFile) => ({
       name: printFile.name,
       file: printFile.gcodeBlob,
+      quantity: printFile.quantity,
     }));
 
     const MB = 1000 * 1000
@@ -152,6 +158,7 @@ const PrintPage = () => {
     if (addPartsToPrintQueueResult.errors != null) {
       throw new Error(addPartsToPrintQueueResult.errors[0].message)
     }
+    console.log({ addPartsToPrintQueueResult })
 
     const totalSeconds = (Date.now() - startedAt) / 1000
     console.log(
@@ -202,13 +209,21 @@ const PrintPage = () => {
     return <div/>
   }
 
+  const printFile = printFiles[0];
+
   return (
     <PrintView {...{
       machine: data?.machines[0],
       printQueues: data.printQueues,
-      printFile: printFiles[0],
+      printFiles,
+      printFile,
       loading: query.loading,
       isMutationPending,
+      setQuantity: (quantity) => {
+        setPrintFiles(printFiles => printFiles.map(p => (
+          p.id === printFile.id ? { ...p, quantity } : p
+        )))
+      },
       addToQueue: () => submit.execute({ printNow: false }),
       printNow: () => submit.execute({ printNow: true }),
       sliceMutation,

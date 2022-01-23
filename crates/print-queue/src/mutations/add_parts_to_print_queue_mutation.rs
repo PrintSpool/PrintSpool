@@ -40,6 +40,7 @@ struct AddPartsToPrintQueuePartInput {
     name: String,
     // content: String,
     file: async_graphql::Upload,
+    quantity: u32,
 }
 
 #[derive(async_graphql::InputObject)]
@@ -159,7 +160,7 @@ impl AddPartsToPrintQueueMutation {
                             package_id,
                             name: part_input.name,
                             position: index as i64,
-                            quantity: 1,
+                            quantity: part_input.quantity as i32,
                             file_path,
                             based_on: None,
                         };
