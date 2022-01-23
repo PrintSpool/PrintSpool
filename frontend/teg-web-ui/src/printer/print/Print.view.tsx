@@ -128,6 +128,7 @@ const PrintView = ({
       return renderer
     }
 
+    renderer.send('reset');
     if (printFile.isMesh) {
       const modelArrayBuffer = await res.arrayBuffer();
 
