@@ -67,7 +67,6 @@ const PrintView = ({
   printFiles,
   printFile,
   setPrintFileIndex,
-  setPrintFile,
   loading: externalLoading,
   setQuantity,
   addToQueue,

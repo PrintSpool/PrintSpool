@@ -3,7 +3,6 @@ import React from 'react'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 
-import useStyles from './CreateInviteDialog.styles'
 import CreateInviteStep1 from './Step1.view'
 import CreateInviteStep2 from './Step2.view'
 import LoadingOverlay from '../../../../common/LoadingOverlay'
@@ -23,8 +22,6 @@ const createInviteDialogView = ({
   onCancel,
   onSubmit,
 }) => {
-  const classes = useStyles()
-
   return (
     <Dialog
       open={open}
@@ -46,10 +43,9 @@ const createInviteDialogView = ({
             onCancel,
           }} />
         )}
-        { wizard.activeStep === 1 && (
+        { wizard.activeStep === 1 && !loading && (
           <CreateInviteStep2 {...{
             wizard,
-            classes,
             inviteURL,
             onClose: onCancel,
           }} />

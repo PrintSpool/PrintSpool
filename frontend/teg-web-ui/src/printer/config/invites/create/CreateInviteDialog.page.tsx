@@ -50,8 +50,8 @@ const createInviteDialog = ({
     }
   })
 
-  if (error != null) {
-    throw error
+  if (error != null || mutation.error != null) {
+    throw error ?? mutation.error
   }
 
   if (loading) return <div />

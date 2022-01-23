@@ -6,9 +6,9 @@ import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
+import Box from '@mui/material/Box'
 
 import PartHeader from '../PartHeader'
-import Box from '@mui/material/Box'
 
 const EditPartView = ({
   machineName,

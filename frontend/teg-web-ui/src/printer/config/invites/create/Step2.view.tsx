@@ -1,5 +1,6 @@
 import React from 'react'
 import QRCode from 'qrcode.react'
+import { useSnackbar } from 'notistack'
 
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
@@ -9,6 +10,7 @@ import Button from '@mui/material/Button'
 import Stepper from '@mui/material/Stepper'
 import Step from '@mui/material/Step'
 import StepLabel from '@mui/material/StepLabel'
+import Box from '@mui/material/Box'
 
 const STEPS = [
   'Configure your Invite',
@@ -17,10 +19,11 @@ const STEPS = [
 
 const CreateInviteStep2 = ({
   wizard,
-  classes,
   inviteURL,
   onClose,
 }) => {
+  const { enqueueSnackbar } = useSnackbar()
+
   return (
     <>
       <DialogContent style={{ minHeight: '12em' }}>
@@ -34,24 +37,46 @@ const CreateInviteStep2 = ({
           }
         </Stepper>
         <div>
-          <Typography variant="body1" paragraph className={classes.shareTitle}>
+          <Typography variant="body1" sx={{
+            textAlign: 'center',
+            mt: 4,
+          }}>
             Scan this QR code or use the link bellow it to share access to your 3D printer.
           </Typography>
-          <div className={classes.qrCode}>
+          <Box sx={{
+            textAlign: 'center',
+            mt: 2,
+          }}>
             <QRCode
               value={inviteURL}
               size={300}
             />
-          </div>
+          </Box>
           <TextField
             label="Invite URL"
-            InputProps={{ classes: { input: classes.inviteURLField } }}
             value={inviteURL}
             fullWidth
-            multiline
-            onClick={event => (event.target as any).select()}
+            onClick={(e) => {
+              const input = e.target as any;
+              input.focus()
+              input.select()
+
+              if (navigator.clipboard?.writeText) {
+                navigator.clipboard.writeText(inviteURL)
+                enqueueSnackbar('Invite Copied to Clipboard!', { variant: 'success' })
+              }
+            }}
+            sx={{
+              '& input': {
+                fontSize: '0.8rem',
+                lineHeight: '1rem',
+              },
+              mt: 2,
+            }}
           />
-          <Typography variant="body2" paragraph className={classes.shareWarning}>
+          <Typography variant="body2" sx={{
+            mt: 2,
+          }}>
             Please share the invite code before you leave this page. For security purposes
             the invite code will no longer be accessible after you leave this page.
           </Typography>
