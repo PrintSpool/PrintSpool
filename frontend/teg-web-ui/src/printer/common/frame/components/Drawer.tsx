@@ -37,13 +37,11 @@ const Drawer = ({
     icon,
     newTab,
     exact = false,
-    altPrefix = null,
+    altPrefixes = [],
   }) => {
     let isActive = exact ? location.pathname === href : location.pathname.startsWith(href)
 
-    if (altPrefix != null) {
-      isActive ||= location.pathname.startsWith(altPrefix)
-    }
+    isActive ||= altPrefixes.some(altPrefix => location.pathname.startsWith(altPrefix))
 
     const linkComponent = useMemo(() => React.forwardRef((props, ref) => (
       <Link
@@ -89,7 +87,10 @@ const Drawer = ({
           text="Printing"
           icon={<Inbox />}
           href={`/${hostID}/${machineID}/`}
-          altPrefix={`/${hostID}/${machineID}/printing/`}
+          altPrefixes={[
+            `/${hostID}/${machineID}/printing/`,
+            `/${hostID}/${machineID}/print/`,
+          ]}
           exact
         />
         <DrawerLink
