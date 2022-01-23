@@ -16,6 +16,8 @@ import ThreeSixtyIcon from '@mui/icons-material/ThreeSixty';
 import PhotoSizeSelectSmallIcon from '@mui/icons-material/PhotoSizeSelectSmall';
 import FlipIcon from '@mui/icons-material/Flip';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 
 // @ts-ignore
 import View3D from './icons/View3D.svg';
@@ -40,6 +42,7 @@ import Popover from '@mui/material/Popover';
 import InputAdornment from '@mui/material/InputAdornment';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
+import LinearProgress from '@mui/material/LinearProgress';
 
 const hideFeatureStubs = true;
 
@@ -62,7 +65,9 @@ const PrintView = ({
   printQueues,
   printFiles,
   printFile,
-  loading,
+  setPrintFileIndex,
+  setPrintFile,
+  loading: externalLoading,
   setQuantity,
   addToQueue,
   printNow,
@@ -70,6 +75,8 @@ const PrintView = ({
   sliceMutation,
 }) => {
   const classes = PrintDialogContentStyles()
+
+  const printFileIndex = printFiles.indexOf(printFile);
 
   const [data, setData] = useState({
     size: 0,
@@ -89,7 +96,7 @@ const PrintView = ({
   const webGLContainer = useRef()
 
 
-  const rendererAsync = useAsync(async (forceLoad = false) => {
+  const rendererAsync = useAsync(async () => {
     const machineDimensions = [235, 235, 255]
     const {
       infiniteZ
@@ -102,12 +109,23 @@ const PrintView = ({
       infiniteZ,
     });
 
+    return nextRenderer;
+  }, [])
+
+  const { result: renderer } = rendererAsync;
+
+  const printFileLoader = useAsync(async (forceLoad = false) => {
+    // Update renderer on page load, printFile change and user-requested force large file render
+    if (renderer == null) {
+      return
+    }
+
     let res
     try {
       res = await fetch(printFile.url)
     } catch (e) {
       console.warn('Unable to load user input file. Most likely a page reload, rendering nothing.');
-      return nextRenderer
+      return renderer
     }
 
     if (printFile.isMesh) {
@@ -126,7 +144,7 @@ const PrintView = ({
 
       // console.log({ infiniteZ, machine }, modelArrayBuffer.byteLength)
 
-      nextRenderer.addModel(
+      renderer.addModel(
         printFile.name,
         modelByteArray,
       );
@@ -142,7 +160,7 @@ const PrintView = ({
         return;
       }
 
-      const { topLayer } = nextRenderer.setGCode(gcode);
+      const { topLayer } = renderer.setGCode(gcode);
 
       setData({
         size: gcode.length,
@@ -150,13 +168,10 @@ const PrintView = ({
         layer: topLayer,
       })
     }
-
-    return nextRenderer;
-  }, [])
-
-  const { result: renderer } = rendererAsync;
+  }, [printFileIndex, renderer])
 
   useEffect(() => {
+    // Update renderer after server-side slicing returns new GCode
     if (printFile.gcodeText != null && renderer != null) {
       console.log('Slicing... [DONE]')
       const { topLayer } = renderer.setGCode(printFile.gcodeText)
@@ -168,8 +183,17 @@ const PrintView = ({
     }
   }, [printFile.gcodeVersion, renderer]);
 
-  if (rendererAsync.error != null) {
-    throw rendererAsync.error;
+  const error =
+    rendererAsync.error
+    ?? printFileLoader.error
+
+  const loading =
+    externalLoading
+    || rendererAsync.loading
+    || printFileLoader.loading
+
+  if (error != null) {
+    throw error;
   }
 
   return (
@@ -188,7 +212,7 @@ const PrintView = ({
           MB)
           <Button
             variant="contained"
-            onClick={() => rendererAsync.execute(true)}
+            onClick={() => printFileLoader.execute(true)}
             className={classes.enableButton}
           >
             Enable Preview
@@ -205,7 +229,7 @@ const PrintView = ({
 
       {/* Canvas + Button & Inputs Grid */}
       <Box sx={{
-        opacity: loading || rendererAsync.loading ? 0 : 1,
+        opacity: externalLoading ? 0 : 1,
         display: 'grid',
       }}>
         {/* Buttons & Inputs */}
@@ -240,6 +264,40 @@ const PrintView = ({
             >
               {printFile.name}
             </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                mb: 2,
+                zIndex: 2,
+                position: 'relative',
+              }}
+            >
+              Part
+              <IconButton
+                disabled={printFileIndex <= 0}
+                onClick={() => setPrintFileIndex(printFileIndex - 1)}
+              >
+                <KeyboardArrowLeftIcon />
+              </IconButton>
+              {`${printFileIndex + 1} of ${printFiles.length}`}
+              <IconButton
+                disabled={printFileIndex >= printFiles.length - 1}
+                onClick={() => setPrintFileIndex(printFileIndex + 1)}
+              >
+                <KeyboardArrowRightIcon />
+              </IconButton>
+            </Typography>
+            <TextField
+              label="Print Queue"
+              size="small"
+              defaultValue={printQueues[0].name}
+              sx={{
+                mt: 2,
+                zIndex: 2,
+                position: 'relative',
+                display: hideFeatureStubs ? 'none' : null,
+              }}
+            />
             <TextField
               label="Printer"
               size="small"
@@ -247,17 +305,6 @@ const PrintView = ({
               sx={{
                 mt: 2,
                 mr: 2,
-                zIndex: 2,
-                position: 'relative',
-                display: hideFeatureStubs ? 'none' : null,
-              }}
-            />
-            <TextField
-              label="Print Queue"
-              size="small"
-              defaultValue={printQueues[0].name}
-              sx={{
-                mt: 2,
                 zIndex: 2,
                 position: 'relative',
                 display: hideFeatureStubs ? 'none' : null,
@@ -635,9 +682,12 @@ const PrintView = ({
           }}>
             <Box>
               {sliceMutation.loading && (
-                <Typography sx={{ mb: 2 }}>
-                  Slicing...
-                </Typography>
+                <>
+                  <Typography sx={{ mb: 1 }}>
+                    Slicing...
+                  </Typography>
+                  <LinearProgress sx={{ mb: 2 }} />
+                </>
               )}
               {sliceMutation.error && (
                 <Typography color="error" sx={{ mb: 2 }}>
@@ -681,6 +731,7 @@ const PrintView = ({
           display: 'grid',
           overflow: 'hidden',
           gridArea: '1 / 1',
+          opacity: loading ? 0 : 1,
         }}>
           <Box
             component="canvas"

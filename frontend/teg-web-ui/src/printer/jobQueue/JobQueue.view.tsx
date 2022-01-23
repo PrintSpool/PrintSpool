@@ -242,6 +242,7 @@ const JobQueueView = ({
           startIcon={<Add/>}>
           <FileInput
             accept={allFileExtensions}
+            multiple
             onClick={(files) => openPrintPage({ files })}
           />
           Add
@@ -292,6 +293,7 @@ const JobQueueView = ({
                     Your print queue is empty. Drag and drop a gcode file here to get started!
                     <FileInput
                       accept={allFileExtensions}
+                      multiple
                       onClick={(files) => openPrintPage({ files })}
                     />
                   </>

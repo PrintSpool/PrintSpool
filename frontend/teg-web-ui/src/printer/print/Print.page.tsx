@@ -40,6 +40,8 @@ const PrintPage = () => {
     })
   ));
 
+  const [printFileIndex, setPrintFileIndex] = useState(0)
+
   const [gcodeText, setGCodeText] = useState()
 
   const { data, ...query } = useQuery(
@@ -209,7 +211,7 @@ const PrintPage = () => {
     return <div/>
   }
 
-  const printFile = printFiles[0];
+  const printFile = printFiles[printFileIndex];
 
   return (
     <PrintView {...{
@@ -219,6 +221,7 @@ const PrintPage = () => {
       printFile,
       loading: query.loading,
       isMutationPending,
+      setPrintFileIndex,
       setQuantity: (quantity) => {
         setPrintFiles(printFiles => printFiles.map(p => (
           p.id === printFile.id ? { ...p, quantity } : p
