@@ -387,6 +387,7 @@ const PrintView = ({
                 }}>
                   {['x', 'y', 'z'].map((axis) => (
                     <TextField
+                      key={axis}
                       label={`Rotation about ${axis.toUpperCase()}`}
                       size="small"
                       type="number"

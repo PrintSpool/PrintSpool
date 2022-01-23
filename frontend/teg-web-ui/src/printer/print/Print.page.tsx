@@ -196,9 +196,9 @@ const PrintPage = () => {
 
   const isMutationPending = (
     submit.loading
-    ?? addPartsMutation.loading
-    ?? printMutationResult.loading
-    ?? sliceMutation.loading
+    || addPartsMutation.loading
+    || printMutationResult.loading
+    || sliceMutation.loading
   );
 
   if (error) {
