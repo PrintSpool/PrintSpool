@@ -61,6 +61,7 @@ const MB = 1000 * 1000
 
 const PrintView = ({
   isMutationPending,
+  isUploading,
   machine,
   printQueues,
   printFiles,
@@ -682,10 +683,10 @@ const PrintView = ({
             justifySelf: 'end',
           }}>
             <Box>
-              {sliceMutation.loading && (
+              {(sliceMutation.loading || isUploading) && (
                 <>
                   <Typography sx={{ mb: 1 }}>
-                    Slicing...
+                    { sliceMutation.loading ? 'Slicing...' : 'Uploading...'}
                   </Typography>
                   <LinearProgress sx={{ mb: 2 }} />
                 </>

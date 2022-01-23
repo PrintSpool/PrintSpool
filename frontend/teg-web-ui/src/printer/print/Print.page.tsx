@@ -221,6 +221,7 @@ const PrintPage = () => {
       printFile,
       loading: query.loading,
       isMutationPending,
+      isUploading: submit.loading,
       setPrintFileIndex,
       setQuantity: (quantity) => {
         setPrintFiles(printFiles => printFiles.map(p => (
