@@ -67,7 +67,6 @@
   },
   "devDependencies": {
     "@babel/core": "^7.13.15",
-    "parcel": "v2.2.1",
     "@parcel/reporter-bundle-analyzer": "^2.2.1",
     "@parcel/reporter-bundle-buddy": "^2.2.1",
     "@parcel/transformer-image": "2.2.1",
@@ -81,7 +80,6 @@
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@typescript-eslint/parser": "^4.14.2",
     "babel-loader": "^8.2.2",
-    "caniuse-lite": "^1.0.30000974",
     "eslint": "^7.19.0",
     "eslint-config-airbnb": "17.1.0",
     "eslint-plugin-babel": "^5.3.0",
@@ -89,6 +87,7 @@
     "eslint-plugin-jsx-a11y": "^6.1.1",
     "eslint-plugin-monorepo": "^0.2.0",
     "eslint-plugin-react": "^7.11.0",
+    "parcel": "v2.2.1",
     "static-server": "^2.2.1",
     "storybook-addon-material-ui": "^0.9.0-alpha.24",
     "storybook-react-router": "^1.0.8",
