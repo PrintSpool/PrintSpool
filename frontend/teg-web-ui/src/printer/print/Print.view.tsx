@@ -37,6 +37,8 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 
+const hideFeatureStubs = true;
+
 const meshFileExtensions = [
   // 'amf',
   'stl',
@@ -53,6 +55,7 @@ const MB = 1000 * 1000
 const PrintView = ({
   isMutationPending,
   machine,
+  printQueues,
   printFile,
   loading,
   addToQueue,
@@ -62,12 +65,15 @@ const PrintView = ({
 }) => {
   const classes = PrintDialogContentStyles()
 
-
   const [data, setData] = useState({
     size: 0,
+    topLayer: 100,
+    layer: 100,
   });
+
   const {
     size,
+    layer,
   } = data;
 
   const webGLContainer = useRef()
@@ -97,9 +103,10 @@ const PrintView = ({
     if (printFile.isMesh) {
       const modelArrayBuffer = await res.arrayBuffer();
 
-      setData({
+      setData((data) => ({
+        ...data,
         size: modelArrayBuffer.byteLength,
-      })
+      }))
 
       if (!forceLoad && modelArrayBuffer.byteLength > 80 * MB) {
         return;
@@ -116,15 +123,22 @@ const PrintView = ({
     } else {
       const gcode = await res.text();
 
-      setData({
-        size: gcode.length,
-      })
-
       if (!forceLoad && gcode.length > 80 * MB) {
+        setData((data) => ({
+          ...data,
+          size: gcode.length,
+        }))
+
         return;
       }
 
-      nextRenderer.setGCode(gcode);
+      const { topLayer } = nextRenderer.setGCode(gcode);
+
+      setData({
+        size: gcode.length,
+        topLayer,
+        layer: topLayer,
+      })
     }
 
     return nextRenderer;
@@ -135,7 +149,12 @@ const PrintView = ({
   useEffect(() => {
     if (printFile.gcodeText != null && renderer != null) {
       console.log('Slicing... [DONE]')
-      renderer.setGCode(printFile.gcodeText)
+      const { topLayer } = renderer.setGCode(printFile.gcodeText)
+      setData((data) => ({
+        ...data,
+        topLayer,
+        layer: topLayer,
+      }));
     }
   }, [printFile.gcodeVersion, renderer]);
 
@@ -212,6 +231,29 @@ const PrintView = ({
               {printFile.name}
             </Typography>
             <TextField
+              label="Printer"
+              size="small"
+              defaultValue={machine.name}
+              sx={{
+                mt: 2,
+                mr: 2,
+                zIndex: 2,
+                position: 'relative',
+                display: hideFeatureStubs ? 'none' : null,
+              }}
+            />
+            <TextField
+              label="Print Queue"
+              size="small"
+              defaultValue={printQueues[0].name}
+              sx={{
+                mt: 2,
+                zIndex: 2,
+                position: 'relative',
+                display: hideFeatureStubs ? 'none' : null,
+              }}
+            />
+            <TextField
               label="Qty"
               size="small"
               defaultValue="1"
@@ -219,16 +261,7 @@ const PrintView = ({
                 mt: 2,
                 zIndex: 2,
                 position: 'relative',
-              }}
-            />
-            <TextField
-              label="Printer"
-              size="small"
-              defaultValue={machine.name}
-              sx={{
-                mt: 2,
-                zIndex: 2,
-                position: 'relative',
+                display: 'block',
               }}
             />
           </Box>
@@ -240,6 +273,7 @@ const PrintView = ({
             ml: 2,
             mr: 2,
             maxWidth: '60%',
+            display: hideFeatureStubs ? 'none' : null,
           }}>
             <Accordion sx={{
               zIndex: 2,
@@ -268,8 +302,17 @@ const PrintView = ({
             gridArea: 'layer',
           }}>
             <Slider
-              // name="gcode-layer-slider"
               orientation="vertical"
+              max={data.topLayer}
+              disabled={printFile.gcodeVersion == null}
+              value={layer}
+              onChange={(e, val: number) => {
+                setData((data) => ({
+                  ...data,
+                  layer: val,
+                }));
+                renderer.send({ setLayer: val });
+              }}
             />
           </Box>
 
@@ -313,7 +356,6 @@ const PrintView = ({
               </Button>
             </ButtonGroup>
           </Box>
-
 
           {/* Camera Positions */}
           <Box

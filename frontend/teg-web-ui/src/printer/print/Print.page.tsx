@@ -205,6 +205,7 @@ const PrintPage = () => {
   return (
     <PrintView {...{
       machine: data?.machines[0],
+      printQueues: data.printQueues,
       printFile: printFiles[0],
       loading: query.loading,
       isMutationPending,
