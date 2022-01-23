@@ -9,7 +9,6 @@
   "private": true,
   "scripts": {
     "start": "parcel serve ./src/index.html",
-    "clean": "cd dist && ls | grep -v dat.json | xargs rm -rf",
     "build": "NODE_ENV=production NODE_OPTIONS=\"--max-old-space-size=4096\" parcel build ./src/index.html --no-scope-hoist",
     "build:analyze": "yarn build  --reporter @parcel/reporter-bundle-analyzer && xdg-open ./parcel-bundle-reports/default.html",
     "storybook": "start-storybook -p 6006",
