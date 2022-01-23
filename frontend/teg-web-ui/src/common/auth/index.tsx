@@ -3,8 +3,16 @@ import React, {
   useEffect,
   useState,
 } from 'react'
-import 'firebase/auth'
-import firebase from 'firebase/app'
+import {
+  getAuth,
+  signInWithRedirect,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+} from "firebase/auth";
+import { initializeApp } from 'firebase/app'
 import { useHistory } from 'react-router'
 
 import signallingFetchOptions from './signallingFetchOptions'
@@ -15,26 +23,25 @@ const firebaseConfig = {
   authDomain: 'printspool-io.firebaseapp.com',
 }
 
-if (firebase.apps.length === 0) {
-  firebase.initializeApp(firebaseConfig)
-}
+initializeApp(firebaseConfig);
+const auth = getAuth();
 
 const logInWithGoogle = () => {
-  const googleAuthProvider = new firebase.auth.GoogleAuthProvider()
-  firebase.auth().signInWithRedirect(googleAuthProvider)
+  const googleAuthProvider = new GoogleAuthProvider()
+  signInWithRedirect(auth, googleAuthProvider)
 }
 
 const registerUserWithPassword = async ({ email, password }) => {
-  await firebase.auth().createUserWithEmailAndPassword(email, password)
+  await createUserWithEmailAndPassword(auth, email, password)
 }
 
 const loginWithPassword = async ({ email, password }) => {
-  await firebase.auth().signInWithEmailAndPassword(email, password)
+  await signInWithEmailAndPassword(auth, email, password)
 }
 
-const logOut = () => firebase.auth().signOut()
+const logOut = () => signOut(auth)
 
-export const AuthContext = React.createContext()
+export const AuthContext = React.createContext({ isSignedIn: false } as any)
 
 export const useAuth = () => useContext(AuthContext)
 
@@ -48,7 +55,7 @@ export const AuthProvider = ({
   })
 
   useEffect(() => {
-    firebase.auth().onAuthStateChanged((nextUser) => {
+    onAuthStateChanged(auth, (nextUser) => {
       setState((state) => {
         if (state.user != null && nextUser == null) {
           console.log('logout!')
