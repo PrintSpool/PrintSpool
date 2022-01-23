@@ -2104,9 +2104,8 @@ dependencies = [
 
 [[package]]
 name = "three-d"
-version = "0.10.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b63ca54121ae48aa43e8d1b4d69713c94fa737f0ce115c273f16b0bd3681fe7"
+version = "0.10.0"
+source = "git+https://github.com/D1plo1d/three-d.git?branch=hack/disable-keyboard-inputs#a131833e9d3567eb56bcf43ab6e803bdf0c9e757"
 dependencies = [
  "bincode",
  "cgmath",

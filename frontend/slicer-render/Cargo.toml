@@ -21,7 +21,8 @@ instant = { version = "0.1", features = [ "wasm-bindgen" ] }
 itertools = "0.10.3"
 nom-gcode = "0.1.0"
 cgmath = { version = "0.18", features = ["serde"] }
-three-d = "0.10.0"
+# three-d = "0.10.0"
+three-d = { git = "https://github.com/D1plo1d/three-d.git", branch = "hack/disable-keyboard-inputs" }
 serde = { version = "1.0", features = ["derive"] }
 wasm-bindgen = { version = "0.2.78", features = ["serde-serialize"] }
 log = "0.4"

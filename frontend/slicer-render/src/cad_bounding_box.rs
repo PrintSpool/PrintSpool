@@ -7,25 +7,6 @@ pub struct CadBoundingBox<M: Material> {
 
 impl<M: Material> CadBoundingBox<M> {
     ///
-    /// Creates a bounding box object from an axis aligned bounding box.
-    ///
-    pub fn new_with_material(
-        context: &Context,
-        aabb: AxisAlignedBoundingBox,
-        material: M,
-    ) -> ThreeDResult<Self> {
-        let size = aabb.size();
-        let thickness = 0.02 * size.x.max(size.y).max(size.z);
-
-        Self::new_with_line_thickness(
-            context,
-            aabb,
-            material,
-            thickness,
-        )
-    }
-
-    ///
     /// Creates a bounding box object from an axis aligned bounding box with a given line thickness.
     ///
     pub fn new_with_line_thickness(
