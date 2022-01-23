@@ -37,15 +37,15 @@ const CreateInviteStep2 = ({
           }
         </Stepper>
         <div>
-          <Typography variant="body1" sx={{
+          <Typography variant="h1" sx={{
             textAlign: 'center',
-            mt: 4,
+            mt: 2,
           }}>
-            Scan this QR code or use the link bellow it to share access to your 3D printer.
+            Share the QR code or the link bellow to invite a friend
           </Typography>
           <Box sx={{
             textAlign: 'center',
-            mt: 2,
+            mt: 4,
           }}>
             <QRCode
               value={inviteURL}
@@ -71,13 +71,13 @@ const CreateInviteStep2 = ({
                 fontSize: '0.8rem',
                 lineHeight: '1rem',
               },
-              mt: 2,
+              mt: 4,
             }}
           />
           <Typography variant="body2" sx={{
             mt: 2,
           }}>
-            Please share the invite code before you leave this page. For security purposes
+            Please copy the invite code before you leave this page. For security purposes
             the invite code will no longer be accessible after you leave this page.
           </Typography>
         </div>
