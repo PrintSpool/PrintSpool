@@ -2105,7 +2105,7 @@ dependencies = [
 [[package]]
 name = "three-d"
 version = "0.10.0"
-source = "git+https://github.com/D1plo1d/three-d.git?branch=hack/disable-keyboard-inputs#a131833e9d3567eb56bcf43ab6e803bdf0c9e757"
+source = "git+https://github.com/asny/three-d.git#478c330646361d881882b7476718a06c895f44bd"
 dependencies = [
  "bincode",
  "cgmath",

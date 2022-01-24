@@ -5,9 +5,6 @@ use three_d::*;
 mod cad_orbit_control;
 use cad_orbit_control::CadOrbitControl;
 
-mod cad_bounding_box;
-use cad_bounding_box::CadBoundingBox;
-
 use wasm_bindgen::prelude::*;
 
 extern crate console_error_panic_hook;
@@ -89,6 +86,7 @@ pub enum Command {
     SetModelPosition(Vec3),
     SetCameraPosition(CameraPosition),
     Reset,
+    Exit,
 }
 
 #[wasm_bindgen]
@@ -256,7 +254,7 @@ impl Renderer {
             * Mat4::from_nonuniform_scale(machine_dim[0] / 2.0, machine_dim[1] / 2.0, machine_dim[2] / 2.0)
         );
 
-        let bounding_cube = CadBoundingBox::new_with_line_thickness(
+        let bounding_cube = BoundingBox::new_with_material_and_thickness(
             &context,
             cube.aabb(),
             ColorMaterial {
@@ -334,6 +332,7 @@ impl Renderer {
                                 Command::SetModelPosition(_) => 202,
                                 Command::SetCameraPosition(_) => 301,
                                 Command::Reset => 401,
+                                Command::Exit => 402,
                                 Command::AddModel(_) => {
                                     next_add_model_key += 1;
                                     next_add_model_key
@@ -381,6 +380,12 @@ impl Renderer {
                         Command::Reset => {
                             model_preview = None;
                             gcode_preview = None;
+                        }
+                        Command::Exit => {
+                            return FrameOutput {
+                                exit: true,
+                                ..Default::default()
+                            };
                         }
                     }
                 }

@@ -43,6 +43,17 @@ const run = async () => {
     false,
   );
 
+  const exitButton = document.getElementById('exit');
+  exitButton.addEventListener(
+    'click',
+    () => {
+      // console.log(layerSliderEl.value)
+      renderer.send('exit');
+    },
+    false,
+  );
+
+
   // renderString(null, null, gcodeText);
   console.log(`Done JS Execution in ${performance.now() - startTime}ms`)
 }
