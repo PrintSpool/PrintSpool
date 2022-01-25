@@ -2,22 +2,12 @@ import initSlicerRender, { start } from '@d1plo1d/slicer-render';
 import modelURL from 'url:./example.stl';
 import gcodeText from 'bundle-text:./example.gcode';
 
+const showGCode = true;
+
 const run = async () => {
   console.log({ modelURL })
   // const machineDimensions = [235, 235, 255]
   const machineDimensions = [200, 235, 255]
-
-  const req = await fetch(modelURL)
-  const modelBytes = await req.arrayBuffer()
-  // console.log('Starting JS Execution')
-  // let modelBytes = [];
-  // for(var i = 0; i < modelText.length; i++) {
-  //     var char = modelText.charCodeAt(i);
-  //     modelBytes.push(char >>> 8);
-  //     modelBytes.push(char & 0xFF);
-  // }
-  const modelByteArray = new Uint8Array(modelBytes);
-  console.log(modelByteArray)
 
   let startTime = performance.now()
   await initSlicerRender();
@@ -29,19 +19,27 @@ const run = async () => {
     infiniteZ: true,
   });
 
-  const { topLayer } = renderer.setGCode(gcodeText);
+  if (showGCode) {
+    const { topLayer } = renderer.setGCode(gcodeText);
 
-  const [layerSliderEl] = document.getElementsByName('gcode-layer-slider');
-  layerSliderEl.max = topLayer;
-  layerSliderEl.value = topLayer;
-  layerSliderEl.addEventListener(
-    'input',
-    () => {
-      // console.log(layerSliderEl.value)
-      renderer.send({ setLayer: parseInt(layerSliderEl.value, 10) });
-    },
-    false,
-  );
+    const [layerSliderEl] = document.getElementsByName('gcode-layer-slider');
+    layerSliderEl.max = topLayer;
+    layerSliderEl.value = topLayer;
+    layerSliderEl.addEventListener(
+      'input',
+      () => {
+        // console.log(layerSliderEl.value)
+        renderer.send({ setLayer: parseInt(layerSliderEl.value, 10) });
+      },
+      false,
+    );
+  } else {
+    const res = await fetch(modelURL)
+    const modelArrayBuffer = await res.arrayBuffer();
+    const modelByteArray = new Uint8Array(modelArrayBuffer.slice(0));
+    const { size } = renderer.addModel('example.stl', modelByteArray)
+    console.log({ size });
+  }
 
   const exitButton = document.getElementById('exit');
   exitButton.addEventListener(

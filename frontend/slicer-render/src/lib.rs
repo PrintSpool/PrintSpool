@@ -26,7 +26,7 @@ mod gcode_preview;
 use gcode_preview::{GCodePreview, GCodeSummary, GCodePreviewWithModel};
 
 mod model_preview;
-use model_preview::{ModelPreview, ModelPreviewWithModel};
+use model_preview::{ModelPreview, ModelPreviewWithModel, ModelSummary};
 
 #[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -46,8 +46,8 @@ impl RenderOptions {
     }
 }
 
-#[wasm_bindgen]
-pub fn start(
+#[wasm_bindgen(js_name = start)]
+pub fn start_wasm(
     options: &JsValue,
 ) -> Renderer {
     console_log::init_with_level(log::Level::Debug)
@@ -99,18 +99,14 @@ pub struct Renderer {
 #[wasm_bindgen]
 impl Renderer {
     #[wasm_bindgen(js_name = addModel)]
-    pub fn add_model(
+    pub fn add_model_wasm(
         &mut self,
         file_name: String,
         content: Vec<u8>,
-    ) {
-        let model_preview = ModelPreview::parse_model(
-            file_name,
-            content,
-            &self.options,
-        );
+    ) -> JsValue {
+        let model_summary = self.add_model(file_name, content);
 
-        self.send(Command::AddModel(model_preview));
+        JsValue::from_serde(&model_summary).unwrap()
     }
 
     #[wasm_bindgen(js_name = setGCode)]
@@ -143,6 +139,24 @@ impl Renderer {
 
     pub fn send(&self, command: Command) {
         self.tx.send(command).unwrap();
+    }
+
+    pub fn add_model(
+        &mut self,
+        file_name: String,
+        content: Vec<u8>,
+    ) -> ModelSummary {
+        let model_preview = ModelPreview::parse_model(
+            file_name,
+            content,
+            &self.options,
+        );
+
+        let summary = model_preview.summary();
+
+        self.send(Command::AddModel(model_preview));
+
+        summary
     }
 
     pub fn new(options: RenderOptions) -> Self {

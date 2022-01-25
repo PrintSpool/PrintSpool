@@ -1,4 +1,5 @@
 use log::{info};
+use serde::Serialize;
 use three_d::*;
 use std::{panic, io::Cursor, ops::{Deref, DerefMut}};
 use crate::RenderOptions;
@@ -12,6 +13,11 @@ pub struct ModelPreview {
     max: [f32; 3],
     center: Vec3,
     infinite_z: bool,
+}
+
+#[derive(Serialize)]
+pub struct ModelSummary {
+    pub size: Vec3,
 }
 
 pub struct ModelPreviewWithModel {
@@ -192,6 +198,18 @@ impl ModelPreview {
         model_preview.update_transform();
 
         model_preview
+    }
+
+    pub fn summary(&self) -> ModelSummary {
+        let size = self.max
+            .iter()
+            .zip(self.min.iter())
+            .map(|(max, min)| (max - min).abs())
+            .collect::<Vec<_>>();
+
+        ModelSummary {
+            size: Vec3::new(size[0], size[1], size[2]),
+        }
     }
 }
 
