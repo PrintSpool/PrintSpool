@@ -59,7 +59,7 @@
     "react-vis": "^1.11.7",
     "regenerator-runtime": "^0.13.5",
     "simple-peer": "^9.6.0",
-    "slicer-render": "^0.5.1",
+    "slicer-render": "^0.6.0",
     "truncate": "^2.1.0",
     "typeface-roboto": "^0.0.54",
     "use-react-router": "^1.0.5",

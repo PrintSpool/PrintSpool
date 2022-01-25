@@ -14098,10 +14098,10 @@ slice-ansi@^4.0.0:
     astral-regex "^2.0.0"
     is-fullwidth-code-point "^3.0.0"
 
-slicer-render@^0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/slicer-render/-/slicer-render-0.5.1.tgz#e061c3278806afdeb0b6370df743c5e11f2a7ce8"
-  integrity sha512-E5dyp0gey5IGpS1Vc1nijUQoP7K5TspBPFk0KYl/bBFGVq33eGtqQuW+jkseaDKVRoq52t/xE7G/toCZ1eSnJA==
+slicer-render@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/slicer-render/-/slicer-render-0.6.0.tgz#13670f641b2118a0bfb0e5d597ece43f73bbbd40"
+  integrity sha512-ZNTd83G5YggFc7FgNR79503zrWlkU19tIQhB7v3dYj0PTyxRZ8h0G9FRdVC+W87q6GOl/ZGzQ6r5W78/E7AYeg==
 
 snapdragon-node@^2.0.1:
   version "2.1.1"
