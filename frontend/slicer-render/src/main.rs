@@ -27,7 +27,7 @@ fn main() {
 
     let mut renderer = Renderer::new(options);
 
-    // let tx = renderer.tx();
+    let tx = renderer.tx();
     // std::thread::spawn(move || {
     //     loop {
     //         info!("up");
@@ -45,31 +45,58 @@ fn main() {
     //     }
     // });
 
-    // std::thread::spawn(move || {
-    //     loop {
-    //         // for position in  (-50..50).step_by(5) {
-    //         //     tx.send(Command::SetPosition(Vec3 {
-    //         //         x: position as f32,
-    //         //         y: 0.0,
-    //         //         z: 0.0,
-    //         //     })).unwrap();
-    //         //     std::thread::sleep(std::time::Duration::from_millis(30));
-    //         // }
-    //         // tx.send(Command::SetPosition(Vec3 {
-    //         //     x: 50.0,
-    //         //     y: 0.0,
-    //         //     z: 0.0,
-    //         // })).unwrap();
-    //         for rotation in  (0..360).step_by(5) {
-    //             tx.send(Command::SetModelRotation(Vec3 {
-    //                 x: 0.0,
-    //                 y: 0.0,
-    //                 z: rotation as f32,
-    //             })).unwrap();
-    //             std::thread::sleep(std::time::Duration::from_millis(30));
-    //         }
-    //     }
-    // });
+    #[allow(dead_code)]
+    enum DemoMode {
+        None,
+        Spin,
+        Grow,
+    }
+    let mode  = DemoMode::Spin;
+
+    std::thread::spawn(move || {
+        loop {
+            // for position in  (-50..50).step_by(5) {
+            //     tx.send(Command::SetPosition(Vec3 {
+            //         x: position as f32,
+            //         y: 0.0,
+            //         z: 0.0,
+            //     })).unwrap();
+            //     std::thread::sleep(std::time::Duration::from_millis(30));
+            // }
+            // tx.send(Command::SetPosition(Vec3 {
+            //     x: 50.0,
+            //     y: 0.0,
+            //     z: 0.0,
+            // })).unwrap();
+            // tx.send(slicer_render::Command::SetModelScale(
+            //     Vec3::new(3.0, 3.0, 3.0),
+            // )).unwrap();
+
+            match mode {
+                DemoMode::None => break,
+                DemoMode::Spin => {
+                    for rotation in  (0..360).step_by(5) {
+                        tx.send(slicer_render::Command::SetModelRotation(Vec3 {
+                            x: 0.0,
+                            y: 0.0,
+                            z: rotation as f32,
+                        })).unwrap();
+                        std::thread::sleep(std::time::Duration::from_millis(30));
+                    }
+                }
+                DemoMode::Grow => {
+                    for scale in  (10..50).step_by(1) {
+                        tx.send(slicer_render::Command::SetModelScale(Vec3 {
+                            x: scale as f32 / 10.0,
+                            y: scale as f32 / 10.0,
+                            z: scale as f32 / 10.0,
+                        })).unwrap();
+                        std::thread::sleep(std::time::Duration::from_millis(100));
+                    }
+                }
+            }
+        }
+    });
     let now = Instant::now();
 
     if file_name.to_ascii_lowercase().ends_with(".stl") {

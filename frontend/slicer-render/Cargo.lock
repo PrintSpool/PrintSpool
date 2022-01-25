@@ -2105,7 +2105,7 @@ dependencies = [
 [[package]]
 name = "three-d"
 version = "0.10.0"
-source = "git+https://github.com/asny/three-d.git#478c330646361d881882b7476718a06c895f44bd"
+source = "git+https://github.com/asny/three-d.git#fb95448de7144898230954324612cc45bd3c2a1e"
 dependencies = [
  "bincode",
  "cgmath",

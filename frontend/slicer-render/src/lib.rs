@@ -84,6 +84,7 @@ pub enum Command {
     AddModel(ModelPreview),
     SetModelRotation(Vec3),
     SetModelPosition(Vec3),
+    SetModelScale(Vec3),
     SetCameraPosition(CameraPosition),
     Reset,
     Exit,
@@ -344,6 +345,7 @@ impl Renderer {
                                 Command::SetGCode(_) => 102,
                                 Command::SetModelRotation(_) => 201,
                                 Command::SetModelPosition(_) => 202,
+                                Command::SetModelScale(_) => 203,
                                 Command::SetCameraPosition(_) => 301,
                                 Command::Reset => 401,
                                 Command::Exit => 402,
@@ -385,6 +387,13 @@ impl Renderer {
                         Command::SetModelRotation(rotation) => {
                             model_preview.as_mut().map(|mp| {
                                 mp.rotation = rotation;
+                                mp.update_transform();
+                            });
+                        }
+                        Command::SetModelScale(scale) => {
+                            model_preview.as_mut().map(|mp| {
+                                mp.scale = scale;
+                                mp.center();
                                 mp.update_transform();
                             });
                         }

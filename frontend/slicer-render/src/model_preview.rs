@@ -64,6 +64,7 @@ impl ModelPreview {
             // Getting the bounds of the model
             let mut min = [f32::MAX; 3];
             let mut max = [f32::MIN; 3];
+            const ROUNDING: f32 = 0.01;
 
             let min_z = verticies.iter().map(|v| v[2]).reduce(f32::min).unwrap_or(0f32);
             min[2] = min_z;
@@ -75,7 +76,7 @@ impl ModelPreview {
                         // Center Infinite Z models only on the y depth of their bottom layer
                         && (
                             !options.infinite_z
-                            || v[2] == min_z
+                            || v[2] < min_z + ROUNDING
                             || i != 1
                         )
                     {
@@ -88,7 +89,7 @@ impl ModelPreview {
                         // Center Infinite Z models only on the y depth of their bottom layer
                         && (
                             !options.infinite_z
-                            || v[2] == min_z
+                            || v[2] < min_z + ROUNDING
                             || i != 1
                         )
                     {
@@ -153,7 +154,7 @@ impl ModelPreview {
             cpu_mesh: Some(cpu_mesh),
             position: Vec3::zero(),
             rotation: Vec3::zero(),
-            scale: Vec3::zero(),
+            scale: Vec3::new(1.0, 1.0, 1.0),
             min,
             max,
             center,
@@ -194,21 +195,24 @@ impl ModelPreview {
         };
 
         model_preview.center();
-        model_preview.move_to_bed();
         model_preview.update_transform();
 
         model_preview
     }
 
-    pub fn summary(&self) -> ModelSummary {
+    pub fn size(&self) -> Vec3 {
         let size = self.max
             .iter()
             .zip(self.min.iter())
             .map(|(max, min)| (max - min).abs())
             .collect::<Vec<_>>();
 
+        Vec3::new(size[0], size[1], size[2])
+    }
+
+    pub fn summary(&self) -> ModelSummary {
         ModelSummary {
-            size: Vec3::new(size[0], size[1], size[2]),
+            size: self.size(),
         }
     }
 }
@@ -229,23 +233,15 @@ impl DerefMut for ModelPreviewWithModel {
 
 impl ModelPreviewWithModel {
     pub fn center(&mut self) {
-        self.position.x = -self.center[0];
         // Non-Infinite Z: Centering the model on x = 0, y = 0 (in CAD coordinates)
         // Infinite Z: Positioning at [X: center, Y: min]
-        self.position.y = if self.infinite_z {
-            -self.max[1]
-        } else {
-            -self.center[1]
-        };
+        if self.infinite_z {
+            self.position.y = - self.size().y / 2.0 * self.scale.y
+        }
     }
 
     pub fn get_center(&self) -> Vec3 {
         Vec3::new(self.center.x, self.center.z, self.center.y)
-        // &self.center
-    }
-
-    pub fn move_to_bed(&mut self) {
-        self.position.z = -self.min[2]
     }
 
     pub fn update_transform(&mut self) {
@@ -254,13 +250,16 @@ impl ModelPreviewWithModel {
             // 5. Rotate into WebGL coordinates
             * Mat4::from_angle_x(degrees(-90.0))
             // 4. Translate into position
+            // 4.b) Position
             * Mat4::from_translation(self.position)
-            // 3. Move back to original offset from center
-            * Mat4::from_translation(self.center)
-            // 2. Rotate about the center of the object
+            // 4.a) Bed Offset
+            * Mat4::from_translation(Vec3::new(0.0, 0.0, self.size().z / 2.0 * self.scale.z))
+            // 3. Rotate about the center of the object
             * Mat4::from_angle_x(degrees(self.rotation.x))
             * Mat4::from_angle_y(degrees(self.rotation.y))
             * Mat4::from_angle_z(degrees(self.rotation.z))
+            // 2. Scale the model
+            * Mat4::from_nonuniform_scale(self.scale.x, self.scale.y, self.scale.z)
             // 1. Center the model
             * Mat4::from_translation(-self.center)
         );
