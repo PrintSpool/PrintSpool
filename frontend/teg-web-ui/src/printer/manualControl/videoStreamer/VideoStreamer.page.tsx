@@ -6,7 +6,7 @@ import React, {
 } from 'react'
 import { gql, useApolloClient } from '@apollo/client'
 import Typography from '@mui/material/Typography'
-import { useAsync } from 'react-async'
+import { useAsync } from 'react-async-hook'
 import SimplePeer from 'simple-peer'
 
 import ErrorFallback from '../../../common/ErrorFallback'
@@ -64,7 +64,7 @@ const VideoStreamerPage = (props: any) => {
     )
   }
 
-  const loadVideo = useCallback(async () => {
+  const loadVideo = useCallback(async ({ reset = false } = {}) => {
     // console.log('Starting Video Streamer')
 
     const mediaConstraints = {
@@ -81,6 +81,8 @@ const VideoStreamerPage = (props: any) => {
 
     p.on('error', err => setPeerError(err))
 
+    console.log('breakpoint!')
+
     const offer = await new Promise(resolve => p.on('signal', resolve))
     // console.log('offer', offer)
 
@@ -91,6 +93,7 @@ const VideoStreamerPage = (props: any) => {
           machineID,
           videoID,
           offer,
+          reset,
         }
       },
     })
@@ -168,21 +171,19 @@ const VideoStreamerPage = (props: any) => {
   }, [])
 
   // Load the video stream on startup
-  const { isLoading, error, run: runLoadVideo, reload } = useAsync({
-    promiseFn: loadVideo,
-  })
+  const { loading, error, execute: reload } = useAsync(loadVideo, [])
 
   // console.log({ error, isLoading })
 
-  // useEffect(() => {
-  //   runLoadVideo()
-  // }, [])
-
+  const lastRetryAt = useRef(null as any)
   const retryTimeout = useRef(null as any)
 
   // Re-try the video stream after a delay if there is a connection error
   useEffect(() => {
-    if (peerError == null || retryTimeout.current != null) return () => {}
+    if ((error ?? peerError) == null || retryTimeout.current != null) return () => {}
+
+    // Reset the server if this is the second reconnect attempt in less then 5 seconds
+    const reset = lastRetryAt.current != null && lastRetryAt.current + 5_000 > Date.now();
 
     console.error(
       `Video Streaming Error (retrying in ${retryDelay}ms)`,
@@ -191,13 +192,15 @@ const VideoStreamerPage = (props: any) => {
 
     retryTimeout.current = setTimeout(() => {
       console.log('Retrying video connection')
+      lastRetryAt.current = Date.now()
       retryTimeout.current = null
-      reload()
+
+      reload({ reset })
     }, retryDelay)
 
     setPeerError(null)
     setRetryDelay(Math.min(retryDelay * 1.5, MAX_RETRY_DELAY))
-  }, [peerError])
+  }, [error, peerError])
 
   // Clear the retry timeout only on unmount
   useEffect(() => () => clearTimeout(retryTimeout.current), [])
@@ -211,7 +214,7 @@ const VideoStreamerPage = (props: any) => {
   const nextProps = {
     ...props,
     videoEl,
-    isLoading: isLoading || peerError,
+    isLoading: loading || peerError,
   }
 
   return (

@@ -1,3 +1,5 @@
+use std::{sync::Arc, time::{SystemTime, UNIX_EPOCH, Duration}};
+
 use async_graphql::{
     Context,
     FieldResult,
@@ -8,7 +10,7 @@ use eyre::{
     // Result,
     Context as _,
 };
-use async_std::future;
+use async_std::{future, sync::Mutex, process::Command};
 use serde::{
     Serialize,
     Deserialize,
@@ -46,6 +48,7 @@ pub struct CreateVideoSdpInput {
     #[graphql(name = "videoID")]
     pub video_id: ID,
     pub offer: RtcSignalInput,
+    pub reset: bool,
 }
 
 #[derive(async_graphql::SimpleObject, Debug, Deserialize, Clone)]
@@ -69,6 +72,12 @@ struct VideoCallQueryParams<'a> {
     options: &'static str,
 }
 
+lazy_static! {
+    static ref LAST_RESET: Arc<Mutex<SystemTime>> = Arc::new(Mutex::new(UNIX_EPOCH));
+}
+
+const RESET_TIMEOUT: Duration = Duration::from_secs(30);
+
 #[async_graphql::Object]
 impl VideoMutation {
     // Video
@@ -90,6 +99,30 @@ impl VideoMutation {
             .ok_or_else(|| eyre!("Machine ({:?}) not found", input.machine_id))?;
 
         let machine = machine.call(messages::GetData).await??;
+
+        // WebRTC streamer some times stops connecting to WebRTC peers. In that case a client
+        // can request a reset of the server at most once every 30 seconds.
+        if input.reset {
+            let now = SystemTime::now();
+            let mut previous_reset = LAST_RESET.lock().await;
+
+            let time_since = now
+                .duration_since(*previous_reset)
+                .expect("Time went backwards");
+
+            if time_since > RESET_TIMEOUT {
+                *previous_reset = now;
+
+                Command::new("systemctl")
+                    .args(["restart", "teg-webrtc-streamer"])
+                    .output()
+                    .await
+                    .expect("failed to execute webrtc_streamer reset");
+
+                // Wait for the webrtc streamer to restart
+                async_std::task::sleep(Duration::from_millis(500)).await;
+            }
+        }
 
         async move {
             let video_session_id = format!(

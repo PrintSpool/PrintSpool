@@ -12,7 +12,6 @@ const MultiVideoStreamer = ({
   return (
     <>
     <div className={classes.container}>
-      {/* { [videos[0]].map((video) => ( */}
       { videos.map((video) => (
         <VideoStreamerPage
           key={video.id}
