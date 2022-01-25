@@ -440,7 +440,14 @@ const PrintView = ({
                       size="small"
                       type="number"
                       defaultValue={0}
-                      onChange={(e) => renderer.send({ setModelRotation: { }})}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value, 10);
+                        if (!isNaN(val)) {
+                          renderer.send({
+                            setModelRotation: { [axis]: val },
+                          });
+                        }
+                      }}
                       sx={{
                         display: 'block',
                         width: 200,
@@ -497,6 +504,14 @@ const PrintView = ({
                             </InputAdornment>
                           ),
                         }}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          if (!isNaN(val)) {
+                            renderer.send({
+                              setModelScale: { [axis]: val },
+                            });
+                          }
+                        }}
                         sx={{
                           width: 150,
                           mr: 2,
@@ -520,20 +535,20 @@ const PrintView = ({
                       />
                     </Box>
                   ))}
-                  <FormControlLabel
+                  {/* <FormControlLabel
                     control={<Switch defaultChecked />}
                     label="Scale All Axes Together"
-                  />
+                  /> */}
                 </Box>
               </Popover>
-              <Button
+              {/* <Button
                 aria-label="mirror"
                 size="large"
                 aria-describedby="mirrorPopover"
                 onClick={(e) => setPopover({ mode: 'mirror', el: e.currentTarget })}
               >
                 <FlipIcon/>
-              </Button>
+              </Button> */}
               <Popover
                 id="mirrorPopover"
                 open={popover.mode === 'mirror'}
@@ -602,6 +617,14 @@ const PrintView = ({
                         display: 'block',
                         width: 150,
                         mt: 2,
+                      }}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value, 10);
+                        if (!isNaN(val)) {
+                          renderer.send({
+                            setModelPosition: { [axis]: val },
+                          });
+                        }
                       }}
                       InputProps={{
                         endAdornment: (
