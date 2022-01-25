@@ -82,12 +82,29 @@ pub enum Command {
     SetGCode(Option<GCodePreview>),
     #[serde(skip)]
     AddModel(ModelPreview),
-    SetModelRotation(Vec3),
-    SetModelPosition(Vec3),
-    SetModelScale(Vec3),
+    SetModelRotation(AxesInput),
+    SetModelPosition(AxesInput),
+    SetModelScale(AxesInput),
     SetCameraPosition(CameraPosition),
     Reset,
     Exit,
+}
+
+#[derive(Deserialize, Default)]
+pub struct AxesInput {
+    pub x: Option<f32>,
+    pub y: Option<f32>,
+    pub z: Option<f32>,
+}
+
+impl AxesInput {
+    pub fn override_vec3(&self, v: Vec3) -> Vec3 {
+        Vec3::new(
+            self.x.unwrap_or(v.x),
+            self.y.unwrap_or(v.y),
+            self.z.unwrap_or(v.z),
+        )
+    }
 }
 
 #[wasm_bindgen]
@@ -380,19 +397,19 @@ impl Renderer {
                         }
                         Command::SetModelPosition(position) => {
                             model_preview.as_mut().map(|mp| {
-                                mp.position = position;
+                                mp.position = position.override_vec3(mp.position);
                                 mp.update_transform();
                             });
                         }
                         Command::SetModelRotation(rotation) => {
                             model_preview.as_mut().map(|mp| {
-                                mp.rotation = rotation;
+                                mp.rotation = rotation.override_vec3(mp.rotation);
                                 mp.update_transform();
                             });
                         }
                         Command::SetModelScale(scale) => {
                             model_preview.as_mut().map(|mp| {
-                                mp.scale = scale;
+                                mp.scale = scale.override_vec3(mp.scale);
                                 mp.center();
                                 mp.update_transform();
                             });

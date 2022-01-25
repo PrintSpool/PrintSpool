@@ -440,6 +440,7 @@ const PrintView = ({
                       size="small"
                       type="number"
                       defaultValue={0}
+                      onChange={(e) => renderer.send({ setModelRotation: { }})}
                       sx={{
                         display: 'block',
                         width: 200,

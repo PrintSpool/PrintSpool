@@ -157,9 +157,6 @@ const PrintPage = () => {
       },
     })
 
-    if (addPartsToPrintQueueResult.errors != null) {
-      throw new Error(addPartsToPrintQueueResult.errors[0].message)
-    }
     console.log({ addPartsToPrintQueueResult })
 
     const totalSeconds = (Date.now() - startedAt) / 1000
@@ -171,7 +168,7 @@ const PrintPage = () => {
     )
 
     if (printNow) {
-      const printResults = await print({
+      await print({
         variables: {
           input: {
             machineID: machineID,
@@ -179,10 +176,6 @@ const PrintPage = () => {
           },
         },
       })
-
-      if (printResults.errors != null) {
-        throw new Error(printResults.errors[0].message)
-      }
     }
 
     history.push('../');

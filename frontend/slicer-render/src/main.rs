@@ -1,6 +1,6 @@
 use std::{fs, time::Instant};
 
-use slicer_render::{RenderOptions, Renderer};
+use slicer_render::{RenderOptions, Renderer, AxesInput, Command};
 use three_d::Vec3;
 use env_logger::Env;
 use log::info;
@@ -76,20 +76,19 @@ fn main() {
                 DemoMode::None => break,
                 DemoMode::Spin => {
                     for rotation in  (0..360).step_by(5) {
-                        tx.send(slicer_render::Command::SetModelRotation(Vec3 {
-                            x: 0.0,
-                            y: 0.0,
-                            z: rotation as f32,
+                        tx.send(Command::SetModelRotation(AxesInput {
+                            z: Some(rotation as f32),
+                            ..Default::default()
                         })).unwrap();
                         std::thread::sleep(std::time::Duration::from_millis(30));
                     }
                 }
                 DemoMode::Grow => {
                     for scale in  (10..50).step_by(1) {
-                        tx.send(slicer_render::Command::SetModelScale(Vec3 {
-                            x: scale as f32 / 10.0,
-                            y: scale as f32 / 10.0,
-                            z: scale as f32 / 10.0,
+                        tx.send(Command::SetModelScale(AxesInput {
+                            x: Some(scale as f32 / 10.0),
+                            y: Some(scale as f32 / 10.0),
+                            z: Some(scale as f32 / 10.0),
                         })).unwrap();
                         std::thread::sleep(std::time::Duration::from_millis(100));
                     }
