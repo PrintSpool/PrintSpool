@@ -82,7 +82,20 @@ const PrintView = ({
     size: 0,
     topLayer: 100,
     layer: 100,
+    modelDimensions: {
+      x: 0,
+      y: 0,
+      z: 0,
+    },
   });
+
+  const [modelScale, setModelScale] = useState({
+    x: 1,
+    y: 1,
+    z: 1,
+  })
+  const [scaleAxesTogether, setScaleAxesTogether] = useState(true)
+
   const [popover, setPopover] = useState({
     mode: null, // One of rotate, scale, move or mirror
     el: null,
@@ -145,10 +158,23 @@ const PrintView = ({
 
       // console.log({ infiniteZ, machine }, modelArrayBuffer.byteLength)
 
-      renderer.addModel(
+      const { size: modelDimensions } = renderer.addModel(
         printFile.name,
         modelByteArray,
       );
+
+      setModelScale({
+        x: 1,
+        y: 1,
+        z: 1,
+      });
+
+      setData({
+        size: 0,
+        topLayer: 100,
+        layer: 100,
+        modelDimensions,
+      })
     } else {
       const gcode = await res.text();
 
@@ -167,6 +193,7 @@ const PrintView = ({
         size: gcode.length,
         topLayer,
         layer: topLayer,
+        modelDimensions: { x: 0, y: 0, z: 0 },
       })
     }
   }, [printFileIndex, renderer])
@@ -183,6 +210,12 @@ const PrintView = ({
       }));
     }
   }, [printFile.gcodeVersion, renderer]);
+
+  useEffect(() => {
+    if (renderer != null) {
+      renderer.send({ setModelScale: modelScale });
+    }
+  }, [modelScale])
 
   const error =
     rendererAsync.error
@@ -438,7 +471,6 @@ const PrintView = ({
                       key={axis}
                       label={`Rotation about ${axis.toUpperCase()}`}
                       size="small"
-                      type="number"
                       defaultValue={0}
                       onChange={(e) => {
                         const val = parseInt(e.target.value, 10);
@@ -496,7 +528,23 @@ const PrintView = ({
                       <TextField
                         label={axis.toUpperCase()}
                         size="small"
-                        type="number"
+                        value={modelScale[axis] * data.modelDimensions[axis] || 0}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          if (!isNaN(val) && val > 0) {
+                            const nextScale = val / data.modelDimensions[axis];
+                            const allAxisMultiplier = nextScale / modelScale[axis]
+
+                            setModelScale({
+                              ...Object.fromEntries(
+                                Object.entries(modelScale).map(([k, v]) =>
+                                  [k, scaleAxesTogether ? v * allAxisMultiplier : v ]
+                                ),
+                              ),
+                              [axis]: nextScale,
+                            } as any)
+                          }
+                        }}
                         InputProps={{
                           endAdornment: (
                             <InputAdornment position="end">
@@ -504,24 +552,31 @@ const PrintView = ({
                             </InputAdornment>
                           ),
                         }}
-                        onChange={(e) => {
-                          const val = parseInt(e.target.value, 10);
-                          if (!isNaN(val)) {
-                            renderer.send({
-                              setModelScale: { [axis]: val },
-                            });
-                          }
-                        }}
                         sx={{
                           width: 150,
-                          mr: 2,
+                          display: 'block',
                         }}
                       />
                       <TextField
                         label={axis.toUpperCase()}
                         size="small"
-                        type="number"
-                        defaultValue={100}
+                        value={modelScale[axis] * 100}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          if (!isNaN(val) && val > 0) {
+                            const nextScale = val / 100;
+                            const allAxisMultiplier = nextScale / modelScale[axis]
+
+                            setModelScale({
+                              ...Object.fromEntries(
+                                Object.entries(modelScale).map(([k, v]) =>
+                                  [k, scaleAxesTogether ? v * allAxisMultiplier : v ]
+                                ),
+                              ),
+                              [axis]: nextScale,
+                            } as any)
+                          }
+                        }}
                         InputProps={{
                           endAdornment: (
                             <InputAdornment position="end">
@@ -531,14 +586,34 @@ const PrintView = ({
                         }}
                         sx={{
                           width: 150,
+                          mt: 2,
+                          mb: 4,
+                          display: 'block',
                         }}
                       />
                     </Box>
                   ))}
-                  {/* <FormControlLabel
+                  <FormControlLabel
                     control={<Switch defaultChecked />}
                     label="Scale All Axes Together"
-                  /> */}
+                    onChange={(e, checked) => setScaleAxesTogether(checked)}
+                    sx={{
+                      display: 'block',
+                    }}
+                  />
+                  <Button
+                    onClick={() => setModelScale({
+                      x: 25.4,
+                      y: 25.4,
+                      z: 25.4,
+                    })}
+                    sx={{
+                      display: 'block',
+                      mt: 2,
+                    }}
+                  >
+                    Inches to MM
+                  </Button>
                 </Box>
               </Popover>
               {/* <Button
@@ -611,7 +686,6 @@ const PrintView = ({
                       key={axis}
                       label={axis.toUpperCase()}
                       size="small"
-                      type="number"
                       defaultValue={0}
                       sx={{
                         display: 'block',
