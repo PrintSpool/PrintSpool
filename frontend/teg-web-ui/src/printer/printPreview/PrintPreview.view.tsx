@@ -397,6 +397,7 @@ const PrintView = ({
 
           {/* Editing Buttons (eg. Rotate) */}
           <EditButtonsDesktopView {...{
+            key: printFile.id,
             printFile,
             renderer,
             modelDimensions: data.modelDimensions,
