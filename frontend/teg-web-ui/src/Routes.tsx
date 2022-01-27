@@ -49,7 +49,7 @@ const QueuePage = React.lazy(() => (
   import('./printer/jobQueue/JobQueue.page')
 ))
 const PrintPage = React.lazy(() => (
-  import('./printer/print/Print.page')
+  import('./printer/printPreview/PrintPreview.page')
 ))
 const PartPage = React.lazy(() => (
   import('./printer/part/Job.page')

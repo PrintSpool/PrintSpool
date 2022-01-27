@@ -4,7 +4,7 @@ import { useHistory, useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client'
 import { useMutation } from '@apollo/client'
 
-import PrintView from './Print.view'
+import PrintView from './PrintPreview.view'
 import { usePrintMutation } from '../jobQueue/JobQueue.graphql'
 
 interface PrintFile {
