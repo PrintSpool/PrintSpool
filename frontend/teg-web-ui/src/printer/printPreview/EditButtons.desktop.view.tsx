@@ -5,7 +5,7 @@ import Button from '@mui/material/Button'
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 
-import Moving from '@mui/icons-material/Moving';
+import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import ThreeSixtyIcon from '@mui/icons-material/ThreeSixty';
 import PhotoSizeSelectSmallIcon from '@mui/icons-material/PhotoSizeSelectSmall';
 import FlipIcon from '@mui/icons-material/Flip';
@@ -296,7 +296,7 @@ const EditButtonsDesktopView = ({
           aria-describedby="movePopover"
           onClick={(e) => setPopover({ mode: 'move', el: e.currentTarget })}
         >
-          <Moving/>
+          <ArrowRightAltIcon/>
         </Button>
         <Popover
           id="movePopover"
