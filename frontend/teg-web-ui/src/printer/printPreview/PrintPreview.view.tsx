@@ -33,6 +33,7 @@ import ViewRight from './icons/ViewRight.svg';
 import ServerBreadcrumbs from '../common/ServerBreadcrumbs';
 import { drawerWidth } from '../common/frame/components/Drawer.styles'
 import EditButtonsDesktopView from './EditButtons.desktop.view';
+import { useForm } from 'react-hook-form';
 
 const hideFeatureStubs = true;
 
@@ -71,17 +72,11 @@ const PrintView = ({
     topLayer: 100,
     layer: 100,
     modelDimensions: {
-      x: 0,
-      y: 0,
-      z: 0,
+      x: 1,
+      y: 1,
+      z: 1,
     },
   });
-
-  const [modelScale, setModelScale] = useState({
-    x: 1,
-    y: 1,
-    z: 1,
-  })
 
   const {
     size,
@@ -150,12 +145,6 @@ const PrintView = ({
         modelByteArray,
       );
 
-      setModelScale({
-        x: 1,
-        y: 1,
-        z: 1,
-      });
-
       setData({
         size: 0,
         topLayer: 100,
@@ -197,12 +186,6 @@ const PrintView = ({
       }));
     }
   }, [printFile.gcodeVersion, renderer]);
-
-  useEffect(() => {
-    if (renderer != null) {
-      renderer.send({ setModelScale: modelScale });
-    }
-  }, [modelScale])
 
   const error =
     rendererAsync.error
@@ -416,8 +399,6 @@ const PrintView = ({
           <EditButtonsDesktopView {...{
             printFile,
             renderer,
-            modelScale,
-            setModelScale,
             modelDimensions: data.modelDimensions,
           }} />
 

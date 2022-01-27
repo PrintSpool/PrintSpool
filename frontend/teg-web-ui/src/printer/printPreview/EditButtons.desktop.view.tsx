@@ -1,4 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form';
 
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box';
@@ -18,10 +19,7 @@ import Switch from '@mui/material/Switch';
 const EditButtonsDesktopView = ({
   printFile,
   renderer,
-  modelScale,
-  setModelScale,
   modelDimensions,
-  // form,
 }) => {
   const [scaleAxesTogether, setScaleAxesTogether] = useState(true)
 
@@ -29,6 +27,33 @@ const EditButtonsDesktopView = ({
     mode: null, // One of rotate, scale, move or mirror
     el: null,
   });
+
+  const {
+    register,
+    errors,
+    watch,
+    reset,
+  } = useForm({
+    mode: 'onChange',
+    defaultValues: {
+      scale: { x: 100, y: 100, z: 100, },
+    },
+  })
+
+  const scale = watch('scale');
+
+  const scaleAllBy = (scaleVal) => {
+    reset({
+      scale: Object.fromEntries(
+        Object.entries(scale).map(([k, v]) => (
+          [k, scaleVal]
+        ))
+      ),
+    });
+    renderer.send({
+      setModelScale: { x: scaleVal / 100, y: scaleVal / 100, z: scaleVal / 100 }
+    });
+  };
 
   return (
     <Box
@@ -57,6 +82,7 @@ const EditButtonsDesktopView = ({
           },
         }}
       >
+        {/* Rotate */}
         <Button
           aria-label="rotate"
           size="large"
@@ -89,14 +115,18 @@ const EditButtonsDesktopView = ({
                 key={axis}
                 label={`Rotation about ${axis.toUpperCase()}`}
                 size="small"
+                type="number"
                 defaultValue={0}
                 onChange={(e) => {
-                  const val = parseInt(e.target.value, 10);
+                  const val = parseFloat(e.target.value);
                   if (!isNaN(val)) {
                     renderer.send({
                       setModelRotation: { [axis]: val },
                     });
                   }
+                }}
+                inputProps={{
+                  step: 45
                 }}
                 sx={{
                   display: 'block',
@@ -114,6 +144,7 @@ const EditButtonsDesktopView = ({
             ))}
           </Box>
         </Popover>
+        {/* Scale */}
         <Button
           aria-label="scale"
           size="large"
@@ -125,6 +156,7 @@ const EditButtonsDesktopView = ({
         <Popover
           id="scalePopover"
           open={popover.mode === 'scale'}
+          keepMounted
           anchorEl={popover.el}
           onClose={() => setPopover((p) =>
             p.mode === 'scale' ? { mode: null, el: null } : p
@@ -144,57 +176,33 @@ const EditButtonsDesktopView = ({
             {['x', 'y', 'z'].map((axis) => (
               <Box key={axis} sx={{ mt: 2 }}>
                 <TextField
-                  label={axis.toUpperCase()}
+                  name={`scale[${axis}]`}
+                  label={`${axis.toUpperCase()} Scale`}
                   size="small"
-                  value={modelScale[axis] * modelDimensions[axis] || 0}
+                  type="number"
+                  fullWidth
+                  inputRef={register({
+                    required: 'Required',
+                    validate: {
+                      number: v => !isNaN(parseFloat(v)) || 'Must be a number',
+                      positive: v => parseFloat(v) > 0 || 'should be greater than 0',
+                    },
+                    valueAsNumber: true,
+                  })}
                   onChange={(e) => {
-                    const val = parseInt(e.target.value, 10);
-                    if (!isNaN(val) && val > 0) {
-                      const nextScale = val / modelDimensions[axis];
-                      const allAxisMultiplier = nextScale / modelScale[axis]
+                    const val = parseFloat(e.target.value);
+                    if (isNaN(val) || val === scale[axis] || val <= 0) {
+                      return
+                    }
 
-                      setModelScale({
-                        ...Object.fromEntries(
-                          Object.entries(modelScale).map(([k, v]: [string, number]) =>
-                            [k, scaleAxesTogether ? v * allAxisMultiplier : v ]
-                          ),
-                        ),
-                        [axis]: nextScale,
-                      } as any)
+                    if (scaleAxesTogether) {
+                      scaleAllBy(val)
+                    } else {
+                      renderer.send({ setModelScale: { [axis]: val / 100 } });
                     }
                   }}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        mm
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{
-                    width: 150,
-                    display: 'block',
-                  }}
-                />
-                <TextField
-                  label={axis.toUpperCase()}
-                  size="small"
-                  value={modelScale[axis] * 100}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value, 10);
-                    if (!isNaN(val) && val > 0) {
-                      const nextScale = val / 100;
-                      const allAxisMultiplier = nextScale / modelScale[axis]
-
-                      setModelScale({
-                        ...Object.fromEntries(
-                          Object.entries(modelScale).map(([k, v]: [string, number]) =>
-                            [k, scaleAxesTogether ? v * allAxisMultiplier : v ]
-                          ),
-                        ),
-                        [axis]: nextScale,
-                      } as any)
-                    }
-                  }}
+                  error={errors.scale?.[axis] != null}
+                  helperText={errors.scale?.[axis]?.message}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
@@ -203,9 +211,7 @@ const EditButtonsDesktopView = ({
                     ),
                   }}
                   sx={{
-                    width: 150,
-                    mt: 2,
-                    mb: 4,
+                    // width: 150,
                     display: 'block',
                   }}
                 />
@@ -217,23 +223,34 @@ const EditButtonsDesktopView = ({
               onChange={(e, checked) => setScaleAxesTogether(checked)}
               sx={{
                 display: 'block',
+                mt: 2,
               }}
             />
             <Button
-              onClick={() => setModelScale({
-                x: 25.4,
-                y: 25.4,
-                z: 25.4,
-              })}
+              onClick={() => {
+                scaleAllBy(25.4 * 100)
+              }}
               sx={{
-                display: 'block',
                 mt: 2,
+                mr: 2,
               }}
             >
               Inches to MM
             </Button>
+            <Button
+              onClick={() => {
+                scaleAllBy(100)
+              }}
+              sx={{
+                mt: 2,
+                float: 'right',
+              }}
+            >
+              Reset
+            </Button>
           </Box>
         </Popover>
+        {/* Mirror */}
         {/* <Button
           aria-label="mirror"
           size="large"
@@ -272,6 +289,7 @@ const EditButtonsDesktopView = ({
             </ButtonGroup>
           </Box>
         </Popover>
+        {/* Move */}
         <Button
           aria-label="move"
           size="large"
@@ -311,7 +329,7 @@ const EditButtonsDesktopView = ({
                   mt: 2,
                 }}
                 onChange={(e) => {
-                  const val = parseInt(e.target.value, 10);
+                  const val = parseFloat(e.target.value);
                   if (!isNaN(val)) {
                     renderer.send({
                       setModelPosition: { [axis]: val },
