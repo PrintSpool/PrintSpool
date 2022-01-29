@@ -95,6 +95,7 @@ const EditButtonsDesktopView = ({
           id="rotatePopover"
           open={popover.mode === 'rotate'}
           anchorEl={popover.el}
+          keepMounted
           onClose={() => setPopover((p) =>
             p.mode === 'rotate' ? { mode: null, el: null } : p
           )}
@@ -263,6 +264,7 @@ const EditButtonsDesktopView = ({
           id="mirrorPopover"
           open={popover.mode === 'mirror'}
           anchorEl={popover.el}
+          keepMounted
           onClose={() => setPopover((p) =>
             p.mode === 'mirror' ? { mode: null, el: null } : p
           )}
@@ -302,6 +304,7 @@ const EditButtonsDesktopView = ({
           id="movePopover"
           open={popover.mode === 'move'}
           anchorEl={popover.el}
+          keepMounted
           onClose={() => setPopover((p) =>
             p.mode === 'move' ? { mode: null, el: null } : p
           )}
@@ -322,7 +325,11 @@ const EditButtonsDesktopView = ({
                 key={axis}
                 label={axis.toUpperCase()}
                 size="small"
+                type="number"
                 defaultValue={0}
+                inputProps={{
+                  step: 10
+                }}
                 sx={{
                   display: 'block',
                   width: 150,

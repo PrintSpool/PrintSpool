@@ -7,6 +7,7 @@ use crate::RenderOptions;
 pub struct ModelPreview {
     cpu_mesh: Option<CPUMesh>,
     pub position: Vec3,
+    position_offset: Vec3,
     pub rotation: Vec3,
     pub scale: Vec3,
     min: [f32; 3],
@@ -153,6 +154,7 @@ impl ModelPreview {
         let model_preview = Self {
             cpu_mesh: Some(cpu_mesh),
             position: Vec3::zero(),
+            position_offset: Vec3::zero(),
             rotation: Vec3::zero(),
             scale: Vec3::new(1.0, 1.0, 1.0),
             min,
@@ -236,8 +238,12 @@ impl ModelPreviewWithModel {
         // Non-Infinite Z: Centering the model on x = 0, y = 0 (in CAD coordinates)
         // Infinite Z: Positioning at [X: center, Y: min]
         if self.infinite_z {
-            self.position.y = - self.size().y / 2.0 * self.scale.y
+            self.position_offset.y = - self.size().y / 2.0 * self.scale.y
         }
+    }
+
+    pub fn position_with_offset(&self) -> Vec3 {
+        self.position + self.position_offset
     }
 
     pub fn get_center(&self) -> Vec3 {
@@ -260,7 +266,7 @@ impl ModelPreviewWithModel {
             * Mat4::from_angle_x(degrees(-90.0))
             // 4. Translate into position
             // 4.b) Position
-            * Mat4::from_translation(self.position)
+            * Mat4::from_translation(self.position_with_offset())
             // 4.a) Bed Offset
             * Mat4::from_translation(Vec3::new(0.0, 0.0, self.size().z / 2.0 * self.scale.z))
             // 3. Rotate about the center of the object

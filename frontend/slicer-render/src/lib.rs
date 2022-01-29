@@ -117,6 +117,7 @@ pub enum TransfromationEventSource {
 pub struct TransformChangeEvent {
     pub source: TransfromationEventSource,
     pub rotation_mat3: Mat3,
+    pub position_with_offset: Vec3,
     pub position: Vec3,
     pub scale: Vec3,
 }
@@ -462,12 +463,14 @@ impl Renderer {
                 }
 
                 if external_model_transformation {
+                    gcode_preview = None;
                     model_preview.as_mut().map(|mp| {
                         mp.update_transform();
 
                         on_change(TransformChangeEvent {
                             source: TransfromationEventSource::ExternalInput,
                             rotation_mat3: mp.rotation_mat3(),
+                            position_with_offset: mp.position_with_offset(),
                             position: mp.position,
                             scale: mp.scale,
                         });

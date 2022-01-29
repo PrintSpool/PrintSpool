@@ -100,15 +100,24 @@ impl SliceMutation {
             // Run the script
             info!("Slicing...");
 
-            async_std::process::Command::new("taskset")
+            let slicer_engine = std::env::var("SLICER_ENGINE")?;
+            let is_belt_slicer = slicer_engine == "belt-slicer";
+
+            let mut cmd = async_std::process::Command::new("taskset");
+
+            cmd
                 .arg("--cpu-list")
                 .arg("1-1024")
-                .arg("belt-engine")
-                // gcode output
-                .arg("-o")
-                .arg(gcode_path.clone())
-                // model
-                .arg(model_path)
+                .arg(slicer_engine);
+
+            if (!is_belt_slicer) {
+                // CuraEngine needs the slice sub-command.
+                // ie. `CuraEngine slice ...` vs `belt-slicer ...`
+                cmd.arg("slice");
+            }
+
+
+            cmd
                 // slicing profile
                 .arg("-c")
                 .arg(slicing_profile_path)
@@ -135,11 +144,27 @@ impl SliceMutation {
                 .arg(format!("mesh_position_z={}", input.position.z))
                 // etc
                 .arg("-s")
-                .arg("support_enable=True")
+                .arg("support_enable=True");
+
+                if (!is_belt_slicer) {
+                    // CuraEngine -l loads the model
+                    // ie. `CuraEngine slice -l <model_file>...` vs `belt-slicer <model_file>...`
+                    cmd.arg("-l");
+                }
+
+                cmd
+                    // model
+                    .arg(model_path)
+                    // gcode output
+                    .arg("-o")
+                    .arg(gcode_path.clone());
+
+            let output = cmd
                 .output()
                 .await
                 .wrap_err("Slicer error")?;
 
+            dbg!(output);
             let gcode = fs::read_to_string(&gcode_path).await?;
 
             info!("Slicing... [DONE]");

@@ -23,8 +23,9 @@ interface PrintFile {
   gcodeBlob: null | Blob
   gcodeText: null | string
   quantity: number
-  rotationMat3: [Vec3, Vec3, Vec3]
+  rotationMat3: { x: Vec3, y: Vec3, z: Vec3 }
   position: Vec3
+  positionWithOffset: Vec3
   scale: Vec3
 }
 
@@ -45,13 +46,14 @@ const PrintPage = () => {
         gcodeBlob: null,
         gcodeText: null,
         quantity: 1,
-        rotationMat3: [
-          [1, 0, 0],
-          [0, 1, 0],
-          [0, 0, 1],
-        ],
-        position: [0, 0, 0],
-        scale: [1, 1, 1],
+        rotationMat3: {
+          x: { x: 1, y: 0, z: 0 },
+          y: { x: 0, y: 1, z: 0 },
+          z: { x: 0, y: 0, z: 1 },
+        },
+        position: { x: 0, y: 0, z: 0 },
+        positionWithOffset: { x: 0, y: 0, z: 0 },
+        scale: { x: 1, y: 1, z: 1 },
       }
     })
   ));
@@ -94,26 +96,29 @@ const PrintPage = () => {
     printFile: PrintFile,
     blob: Blob,
   }) => {
-    console.log('Slicing....')
+    console.log('Slicing...')
 
     const {
       name,
-      rotationMat3,
-      position,
+      rotationMat3: r,
+      positionWithOffset,
       scale,
     } = printFile;
+    console.log({ printFile })
 
     const { data: { slice: gcodeText } } = await slice({
       variables: {
         input: {
           name,
-          rotationMat3,
-          position,
+          rotationMat3: [r.x, r.y, r.z],
+          position: positionWithOffset,
           scale,
           file: blob,
         }
       }
     })
+
+    console.log(`Slicing... [DONE] (${(gcodeText.length / 1_000_000).toFixed(2)}MB)`)
 
     return {
       gcodeVersion: printFile.meshVersion,
@@ -245,6 +250,17 @@ const PrintPage = () => {
 
   const currentPrintFile = printFiles[printFileIndex];
 
+  const updatePrintFileAttrs = (attrs) => setPrintFiles(printFiles => printFiles.map(p => {
+    if (p.id === currentPrintFile.id) {
+      return {
+        ...p,
+        ...attrs,
+      }
+    } else {
+      return p
+    }
+  }))
+
   return (
     <PrintView {...{
       machine: data?.machines[0],
@@ -260,15 +276,22 @@ const PrintPage = () => {
           source,
           ...attrs
         } = event;
+
+        // Update the print file and invalidate the GCode when the user modifies the model transform
+        updatePrintFileAttrs({
+          ...attrs,
+          gcodeVersion: null,
+          gcodeBlob: null,
+          gcodeText: null,
+        })
+
         setPrintFiles(printFiles => printFiles.map(p => (
           p.id === currentPrintFile.id ? { ...p, ...attrs } : p
         )))
         console.log({ event })
       },
       setQuantity: (quantity) => {
-        setPrintFiles(printFiles => printFiles.map(p => (
-          p.id === currentPrintFile.id ? { ...p, quantity } : p
-        )))
+        updatePrintFileAttrs({ quantity })
       },
       addToQueue: () => submit.execute({ printNow: false }),
       printNow: () => submit.execute({ printNow: true }),
@@ -277,18 +300,9 @@ const PrintPage = () => {
         const res = await fetch(currentPrintFile.url);
         const blob = await res.blob();
 
-        const printFileAttrs = slicePrintFile({ printFile: currentPrintFile, blob })
+        const attrs = await slicePrintFile({ printFile: currentPrintFile, blob })
 
-        setPrintFiles(printFiles => printFiles.map((p) => {
-          if (p.id === currentPrintFile.id) {
-            return {
-              ...p,
-              ...printFileAttrs,
-            }
-          } else {
-            return p
-          }
-        }));
+        updatePrintFileAttrs(attrs)
       },
     }} />
   )
