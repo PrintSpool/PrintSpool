@@ -64,6 +64,7 @@ const PrintView = ({
   printNow,
   slice,
   sliceMutation,
+  onTransformationChange,
 }) => {
   const printFileIndex = printFiles.indexOf(printFile);
 
@@ -97,7 +98,7 @@ const PrintView = ({
     const nextRenderer = start({
       machineDimensions,
       infiniteZ,
-    });
+    }, onTransformationChange);
 
     return nextRenderer;
   });

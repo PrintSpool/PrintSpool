@@ -17,6 +17,13 @@ use async_graphql::{
 pub struct SliceMutation;
 
 #[derive(async_graphql::InputObject)]
+struct Vec3Input {
+    x: f64,
+    y: f64,
+    z: f64,
+}
+
+#[derive(async_graphql::InputObject)]
 struct SliceInput {
     // #[graphql(name="machineID")]
     // machine_id: ID,
@@ -25,9 +32,11 @@ struct SliceInput {
     // #[graphql(name="partID")]
     // part_id: ID,
     name: String,
+    rotation_mat3: Vec<Vec3Input>,
+    position: Vec3Input,
+    scale: Vec3Input,
     file: async_graphql::Upload,
 }
-
 
 #[async_graphql::Object]
 impl SliceMutation {
@@ -45,6 +54,10 @@ impl SliceMutation {
         // let machine_hooks: &MachineHooksList = ctx.data()?;
 
         async move {
+            if input.rotation_mat3.len() != 3 {
+                return Err(eyre!("rotationMat3 must contain 3 elements"));
+            }
+
             // let machine = machines.get(&input.machine_id)
             //     .ok_or_else(||
             //         eyre!("machine ({:?}) not found for spool job file", input.machine_id)
@@ -85,32 +98,47 @@ impl SliceMutation {
             let slicing_profile_path = crate::paths::etc().join("CR30.cfg.ini");
 
             // Run the script
-            let script = format!(
-                "\
-                    taskset --cpu-list 1-1024 belt-engine \
-                        -o {} \
-                        {} \
-                        -c {} \
-                        -s support_enable=True \
-                ",
-                &gcode_path.to_str().ok_or_else(|| eyre!("Non-utf8 file path"))?,
-                &model_path,
-                &slicing_profile_path.to_str().ok_or_else(|| eyre!("Non-utf8 file path"))?,
-            );
-
             info!("Slicing...");
-            info!("Running slicing command: {:?}", script);
 
-            let mut slicer_proc = async_std::process::Command::new("sh")
+            async_std::process::Command::new("taskset")
+                .arg("--cpu-list")
+                .arg("1-1024")
+                .arg("belt-engine")
+                // gcode output
+                .arg("-o")
+                .arg(gcode_path.clone())
+                // model
+                .arg(model_path)
+                // slicing profile
                 .arg("-c")
-                .arg(script)
-                .stdout(std::process::Stdio::piped())
-                .spawn()
+                .arg(slicing_profile_path)
+                // rotation & scale
+                .arg("-s")
+                .arg(format!(
+                    "mesh_rotation_matrix=\"[[{},{},{}],[{},{},{}],[{},{},{}]]\"",
+                    input.rotation_mat3[0].x,
+                    input.rotation_mat3[0].y,
+                    input.rotation_mat3[0].z,
+                    input.rotation_mat3[1].x,
+                    input.rotation_mat3[1].y,
+                    input.rotation_mat3[1].z,
+                    input.rotation_mat3[2].x,
+                    input.rotation_mat3[2].y,
+                    input.rotation_mat3[2].z,
+                ))
+                // position
+                .arg("-s")
+                .arg(format!("mesh_position_x={}", input.position.x))
+                .arg("-s")
+                .arg(format!("mesh_position_y={}", input.position.y))
+                .arg("-s")
+                .arg(format!("mesh_position_z={}", input.position.z))
+                // etc
+                .arg("-s")
+                .arg("support_enable=True")
+                .output()
+                .await
                 .wrap_err("Slicer error")?;
-
-            if !slicer_proc.status().await?.success() {
-                return Err(eyre!("Slicing failed"));
-            }
 
             let gcode = fs::read_to_string(&gcode_path).await?;
 

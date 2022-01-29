@@ -2,22 +2,24 @@ import initSlicerRender, { start } from '@d1plo1d/slicer-render';
 import modelURL from 'url:./example.stl';
 import gcodeText from 'bundle-text:./example.gcode';
 
-const showGCode = true;
+const showGCode = false;
+const demoMode = null // 'spin' || null
 
 const run = async () => {
-  console.log({ modelURL })
   // const machineDimensions = [235, 235, 255]
   const machineDimensions = [200, 235, 255]
 
   let startTime = performance.now()
   await initSlicerRender();
 
-  const renderer = start({
+  const opts = {
     fileNames: ['example.stl'],
     machineDimensions,
     // alwaysShowModel: true,
     infiniteZ: true,
-  });
+  };
+
+  const renderer = start(opts, (event) => console.log({ event }));
 
   if (showGCode) {
     const { topLayer } = renderer.setGCode(gcodeText);
@@ -39,6 +41,15 @@ const run = async () => {
     const modelByteArray = new Uint8Array(modelArrayBuffer.slice(0));
     const { size } = renderer.addModel('example.stl', modelByteArray)
     console.log({ size });
+
+    if (demoMode === 'spin') {
+      let rotation = 0;
+
+      setInterval(() => {
+        rotation += 10;
+        renderer.send({ setModelRotation: { z: rotation }})
+      }, 50)
+    }
   }
 
   const exitButton = document.getElementById('exit');

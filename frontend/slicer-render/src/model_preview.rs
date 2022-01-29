@@ -244,6 +244,15 @@ impl ModelPreviewWithModel {
         Vec3::new(self.center.x, self.center.z, self.center.y)
     }
 
+    pub fn rotation_mat3(&self) -> Mat3 {
+        1.0
+            * Mat3::from_angle_x(degrees(self.rotation.x))
+            * Mat3::from_angle_y(degrees(self.rotation.y))
+            * Mat3::from_angle_z(degrees(self.rotation.z))
+    }
+
+    /// Updates the model's WebGL transformation matrix and returns a transformation matrix suitable
+    /// for use in slicer engines.
     pub fn update_transform(&mut self) {
         // Rotate about the center of the object
         self.model.set_transformation(1.0
@@ -255,9 +264,7 @@ impl ModelPreviewWithModel {
             // 4.a) Bed Offset
             * Mat4::from_translation(Vec3::new(0.0, 0.0, self.size().z / 2.0 * self.scale.z))
             // 3. Rotate about the center of the object
-            * Mat4::from_angle_x(degrees(self.rotation.x))
-            * Mat4::from_angle_y(degrees(self.rotation.y))
-            * Mat4::from_angle_z(degrees(self.rotation.z))
+            * Mat4::from(self.rotation_mat3())
             // 2. Scale the model
             * Mat4::from_nonuniform_scale(self.scale.x, self.scale.y, self.scale.z)
             // 1. Center the model

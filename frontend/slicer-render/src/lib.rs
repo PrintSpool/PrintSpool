@@ -1,5 +1,6 @@
 use itertools::Itertools;
-use serde::Deserialize;
+use log::warn;
+use serde::{Deserialize, Serialize};
 use three_d::*;
 
 mod cad_orbit_control;
@@ -49,6 +50,7 @@ impl RenderOptions {
 #[wasm_bindgen(js_name = start)]
 pub fn start_wasm(
     options: &JsValue,
+    on_change: js_sys::Function,
 ) -> Renderer {
     console_log::init_with_level(log::Level::Debug)
         .expect("Error initializing logging");
@@ -69,7 +71,13 @@ pub fn start_wasm(
 
     let mut renderer = Renderer::new(options);
 
-    renderer.render_loop();
+    renderer.render_loop(move |event| {
+        // Relay model transformation changes to JS
+        let _ = on_change.call1(
+            &JsValue::UNDEFINED,
+            &JsValue::from_serde(&event).unwrap(),
+        ).map_err(|err| warn!("Error in onChange Callback: {:?}", err));
+    });
 
     renderer
 }
@@ -95,6 +103,22 @@ pub struct AxesInput {
     pub x: Option<f32>,
     pub y: Option<f32>,
     pub z: Option<f32>,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub enum TransfromationEventSource {
+    WebGLInput,
+    ExternalInput,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct TransformChangeEvent {
+    pub source: TransfromationEventSource,
+    pub rotation_mat3: Mat3,
+    pub position: Vec3,
+    pub scale: Vec3,
 }
 
 impl AxesInput {
@@ -177,7 +201,9 @@ impl Renderer {
         summary
     }
 
-    pub fn new(options: RenderOptions) -> Self {
+    pub fn new(
+        options: RenderOptions,
+    ) -> Self {
         let (tx, rx) = mpsc::channel();
 
         let renderer = Self {
@@ -189,9 +215,13 @@ impl Renderer {
         renderer
     }
 
-    pub fn render_loop(
+    pub fn render_loop<F>(
         &mut self,
-    ) {
+        on_change: F,
+    )
+    where
+        F: Fn(TransformChangeEvent) + 'static,
+    {
         let rx = self.rx.take().expect("Render loop must only be called once");
 
         // let now = instant::Instant::now();
@@ -378,6 +408,7 @@ impl Renderer {
                     commands
                 };
 
+                let mut external_model_transformation = false;
                 for command in deduplicated_commands.into_iter() {
                     change = true;
 
@@ -398,20 +429,20 @@ impl Renderer {
                         Command::SetModelPosition(position) => {
                             model_preview.as_mut().map(|mp| {
                                 mp.position = position.override_vec3(mp.position);
-                                mp.update_transform();
+                                external_model_transformation = true;
                             });
                         }
                         Command::SetModelRotation(rotation) => {
                             model_preview.as_mut().map(|mp| {
                                 mp.rotation = rotation.override_vec3(mp.rotation);
-                                mp.update_transform();
+                                external_model_transformation = true;
                             });
                         }
                         Command::SetModelScale(scale) => {
                             model_preview.as_mut().map(|mp| {
                                 mp.scale = scale.override_vec3(mp.scale);
                                 mp.center();
-                                mp.update_transform();
+                                external_model_transformation = true;
                             });
                         }
                         Command::SetCameraPosition(camera_position) => {
@@ -428,6 +459,19 @@ impl Renderer {
                             };
                         }
                     }
+                }
+
+                if external_model_transformation {
+                    model_preview.as_mut().map(|mp| {
+                        mp.update_transform();
+
+                        on_change(TransformChangeEvent {
+                            source: TransfromationEventSource::ExternalInput,
+                            rotation_mat3: mp.rotation_mat3(),
+                            position: mp.position,
+                            scale: mp.scale,
+                        });
+                    });
                 }
 
                 // for event in frame_input.events.iter() {

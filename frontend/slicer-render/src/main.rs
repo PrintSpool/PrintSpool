@@ -115,5 +115,7 @@ fn main() {
 
     // renderer.send(Command::SetCameraPosition(CameraPosition::Right));
 
-    renderer.render_loop();
+    renderer.render_loop(|event| {
+        info!("Model Transform Change: {:?}", event);
+    });
 }

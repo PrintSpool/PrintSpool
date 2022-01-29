@@ -7,16 +7,25 @@ import { useMutation } from '@apollo/client'
 import PrintView from './PrintPreview.view'
 import { usePrintMutation } from '../jobQueue/JobQueue.graphql'
 
+interface Vec3 {
+  x: number
+  y: number
+  z: number
+}
+
 interface PrintFile {
-  id: number,
-  name: string,
-  url: string,
-  isMesh: boolean,
-  meshVersion: number,
-  gcodeVersion: number,
-  gcodeBlob: null | Blob,
-  gcodeText: null | string,
-  quantity: number,
+  id: number
+  name: string
+  url: string
+  isMesh: boolean
+  meshVersion: number
+  gcodeVersion: number
+  gcodeBlob: null | Blob
+  gcodeText: null | string
+  quantity: number
+  rotationMat3: [Vec3, Vec3, Vec3]
+  position: Vec3
+  scale: Vec3
 }
 
 const PrintPage = () => {
@@ -24,7 +33,7 @@ const PrintPage = () => {
   const { machineID } = useParams();
 
   const [printFiles, setPrintFiles] = useState(() => (
-    JSON.parse(window.sessionStorage.getItem('printFiles')).map((printFile, id) => {
+    JSON.parse(window.sessionStorage.getItem('printFiles')).map((printFile, id): PrintFile => {
       const isMesh = !(printFile.name.endsWith('.ngc') || printFile.name.endsWith('.gcode'));
 
       return {
@@ -36,7 +45,14 @@ const PrintPage = () => {
         gcodeBlob: null,
         gcodeText: null,
         quantity: 1,
-      } as PrintFile
+        rotationMat3: [
+          [1, 0, 0],
+          [0, 1, 0],
+          [0, 0, 1],
+        ],
+        position: [0, 0, 0],
+        scale: [1, 1, 1],
+      }
     })
   ));
 
@@ -70,6 +86,41 @@ const PrintPage = () => {
       slice(input: $input)
     }
   `)
+
+  const slicePrintFile = async ({
+    printFile,
+    blob,
+  }: {
+    printFile: PrintFile,
+    blob: Blob,
+  }) => {
+    console.log('Slicing....')
+
+    const {
+      name,
+      rotationMat3,
+      position,
+      scale,
+    } = printFile;
+
+    const { data: { slice: gcodeText } } = await slice({
+      variables: {
+        input: {
+          name,
+          rotationMat3,
+          position,
+          scale,
+          file: blob,
+        }
+      }
+    })
+
+    return {
+      gcodeVersion: printFile.meshVersion,
+      gcodeBlob: new Blob([gcodeText]),
+      gcodeText,
+    };
+  }
 
   const [ addPartsToPrintQueue, addPartsMutation ] = useMutation(gql`
     mutation addPartsToPrintQueue($input: AddPartsToPrintQueueInput!) {
@@ -107,21 +158,9 @@ const PrintPage = () => {
         }
 
         // Otherwise the mesh needs to be sliced
-        console.log('Slicing....')
-        const { data: { slice: gcodeText } } = await slice({
-          variables: {
-            input: {
-              name: printFile.name,
-              file: blob,
-            },
-          }
-        })
-
         return {
           ...printFile,
-          gcodeVersion: printFile.meshVersion,
-          gcodeBlob: new Blob([gcodeText]),
-          gcodeText,
+          ...await slicePrintFile({ printFile, blob })
         }
       });
 
@@ -204,47 +243,47 @@ const PrintPage = () => {
     return <div/>
   }
 
-  const printFile = printFiles[printFileIndex];
+  const currentPrintFile = printFiles[printFileIndex];
 
   return (
     <PrintView {...{
       machine: data?.machines[0],
       printQueues: data.printQueues,
       printFiles,
-      printFile,
+      printFile: currentPrintFile,
       loading: query.loading,
       isMutationPending,
       isUploading: submit.loading,
       setPrintFileIndex,
+      onTransformationChange: (event) => {
+        const {
+          source,
+          ...attrs
+        } = event;
+        setPrintFiles(printFiles => printFiles.map(p => (
+          p.id === currentPrintFile.id ? { ...p, ...attrs } : p
+        )))
+        console.log({ event })
+      },
       setQuantity: (quantity) => {
         setPrintFiles(printFiles => printFiles.map(p => (
-          p.id === printFile.id ? { ...p, quantity } : p
+          p.id === currentPrintFile.id ? { ...p, quantity } : p
         )))
       },
       addToQueue: () => submit.execute({ printNow: false }),
       printNow: () => submit.execute({ printNow: true }),
       sliceMutation,
-      slice: async (printFile: PrintFile) => {
-        const res = await fetch(printFile.url);
-        const file = await res.blob();
+      slice: async () => {
+        const res = await fetch(currentPrintFile.url);
+        const blob = await res.blob();
 
-        console.log('Slicing....')
-        const { data: { slice: gcodeText } } = await slice({
-          variables: {
-            input: {
-              name: printFile.name,
-              file,
-            }
-          }
-        })
+        const printFileAttrs = slicePrintFile({ printFile: currentPrintFile, blob })
 
         setPrintFiles(printFiles => printFiles.map((p) => {
-          if (p.id === printFile.id) {
+          if (p.id === currentPrintFile.id) {
             return {
               ...p,
-              gcodeVersion: printFile.meshVersion,
-              gcodeBlob: new Blob([gcodeText]),
-              gcodeText,
+              ...printFileAttrs,
             }
           } else {
             return p
