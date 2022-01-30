@@ -13,6 +13,7 @@ pub struct GCodePreview {
     pub layer_indexes: Vec<usize>,
     pub model_instances: Vec<ModelInstance>,
     pub is_empty: bool,
+    options: RenderOptions,
 }
 
 pub struct GCodePreviewWithModel {
@@ -155,8 +156,8 @@ impl GCodePreview {
             gcode.arguments().for_each(|(k, v)| {
                 let index = match k {
                     'X' => 0,
-                    'Z' => 1,
-                    'Y' => 2,
+                    'Y' => 1,
+                    'Z' => 2,
                     // Incrementing the layer when an extruder is done on a new z-plane
                     'E' if previous_layer_z != state.position[1] => {
                         previous_layer_z = state.position[1];
@@ -179,13 +180,13 @@ impl GCodePreview {
 
             let gcode_position = if options.infinite_z {
                 let y_angle = 45_f32.to_radians();
-                // state.position ordering: (X, Z, Y)
-                // Y and Z need to be swapped again and Y needs to rotated forward
+                // state.position ordering: (X, Y, Z)
+                // Y and Z need to be swapped and Y needs to rotated forward
                 // by 45 degrees to render infinite z printer gcodes correctly.
                 Vec3::new(
                     state.position[0],
-                    y_angle.cos() * state.position[2],
-                    state.position[1] - y_angle.sin() * state.position[2],
+                    state.position[2] - y_angle.sin() * state.position[1],
+                    y_angle.cos() * state.position[1],
                 )
             } else {
                 state.position.clone()
@@ -245,6 +246,7 @@ impl GCodePreview {
             layer_indexes,
             model_instances,
             is_empty: false,
+            options: options.clone(),
         };
 
         let gcode_summary = GCodeSummary {
@@ -273,12 +275,26 @@ impl GCodePreview {
             ..Default::default()
         };
 
-        let model = InstancedModel::new_with_material(
+        let mut model = InstancedModel::new_with_material(
             &context,
             &self.model_instances,
             &cylinder,
             wireframe_material.clone(),
         ).unwrap();
+
+        // let center = model.aabb().center();
+        // let center = self.options.machine_dimensions / 2.0;
+        // let mut center = Vec3::zero();
+        // center.y = self.options.machine_dimensions.y / 2.0;
+
+        // model.set_transformation(1.0
+        //     // Rotate into WebGL coordinates
+        //     * Mat4::from_translation(center)
+        //     // * Mat4::from_angle_z(degrees(-90.0))
+        //     // * Mat4::from_angle_y(degrees(-90.0))
+        //     * Mat4::from_angle_x(degrees(-90.0))
+        //     * Mat4::from_translation(-center)
+        // );
 
         GCodePreviewWithModel {
             inner: self,

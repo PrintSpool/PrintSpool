@@ -41,7 +41,7 @@ impl RenderOptions {
     pub fn bed_center(&self) -> Vec3 {
         let mut bed_center = self.machine_dimensions / 2.0;
         // The center of the bed is at Z = 0
-        bed_center[1] = 0.0;
+        bed_center.z = 0.0;
 
         bed_center
     }
@@ -56,18 +56,7 @@ pub fn start_wasm(
         .expect("Error initializing logging");
     panic::set_hook(Box::new(console_error_panic_hook::hook));
 
-    let mut options: RenderOptions = options.into_serde().expect("Invalid RenderOptions");
-
-    // Y is vertical in order to align with the orientation of the rendering engine
-    let d = &options.machine_dimensions;
-    options.machine_dimensions = Vec3::new(d[0], d[2], d[1]);
-
-    // let machine_dimensions = Vec3::new(235f32, 100f32, 235f32);
-    // let gcode = gcode.unwrap_or("".into());
-
-    // let mut lines = gcode
-    //     .lines()
-    //     .map(|line| line);
+    let options: RenderOptions = options.into_serde().expect("Invalid RenderOptions");
 
     let mut renderer = Renderer::new(options);
 
@@ -271,7 +260,7 @@ impl Renderer {
             window.viewport().expect("Viewport error"),
             vec3(1.0, 0.0, 0.0),
             Vec3::zero(),
-            vec3(0.0, 1.0, 0.0),
+            vec3(0.0, 0.0, 1.0),
             degrees(45.0),
             0.1,
             100000.0,
@@ -289,6 +278,33 @@ impl Renderer {
 
         // Initialize Rendering
         // ----------------------------------------------------------------------------------
+
+        let axis_indicator_length = 10.0;
+        let mut x_axis_indicator = Model::new_with_material(
+            &context,
+            &CPUMesh::cube(),
+            PhysicalMaterial {
+                albedo: Color {
+                    r: 255,
+                    g: 0,
+                    b: 0,
+                    a: 100,
+                },
+                ..Default::default()
+            },
+        )
+        .unwrap();
+
+
+        x_axis_indicator.set_transformation(1.0
+            * Mat4::from_translation(vec3(
+                -machine_dim.x/2.0 + axis_indicator_length,
+                -machine_dim.y/2.0,
+                0.0,
+            ))
+            * Mat4::from_nonuniform_scale(axis_indicator_length, 1.0, 1.0)
+        );
+
 
         let mut bed = Model::new_with_material(
             &context,
@@ -311,10 +327,9 @@ impl Renderer {
             0f32
         };
 
-        bed.set_transformation(
-            Mat4::from_translation(vec3(0f32, 0f32, infinite_z_bed_offset))
+        bed.set_transformation(1.0
+            * Mat4::from_translation(vec3(0f32, infinite_z_bed_offset, 0.0))
             * Mat4::from_nonuniform_scale(machine_dim[0] / 2.0, machine_dim[1] / 2.0, machine_dim[2] / 2.0)
-            * Mat4::from_angle_x(degrees(90.0))
         );
 
         let mut cube = Model::new_with_material(
@@ -332,7 +347,7 @@ impl Renderer {
         )
         .unwrap();
         cube.set_transformation(
-            Mat4::from_translation(vec3(0f32, machine_dim[1] / 2.0, infinite_z_bed_offset))
+            Mat4::from_translation(vec3(0f32, infinite_z_bed_offset, machine_dim[2] / 2.0))
             * Mat4::from_nonuniform_scale(machine_dim[0] / 2.0, machine_dim[1] / 2.0, machine_dim[2] / 2.0)
         );
 
@@ -370,14 +385,14 @@ impl Renderer {
                     &context,
                     2.0,
                     Color::WHITE,
-                    &vec3(1.0, -1.0, 1.0),
+                    &vec3(1.0, 1.0, -1.0),
                 )
                 .unwrap(),
                 DirectionalLight::new(
                     &context,
                     1.0,
                     Color::WHITE,
-                    &vec3(0.0, 1.0, 0.0),
+                    &vec3(0.0, 0.0, 1.0),
                 )
                 .unwrap(),
             ],
@@ -556,6 +571,7 @@ impl Renderer {
                         _ => {}
                     }
 
+                    scene_objects.push(&x_axis_indicator);
                     scene_objects.push(&bed);
                     scene_objects.push(&bounding_cube);
 

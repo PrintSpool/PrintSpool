@@ -1,13 +1,15 @@
 import initSlicerRender, { start } from '@d1plo1d/slicer-render';
 import modelURL from 'url:./example.stl';
 import gcodeText from 'bundle-text:./example.gcode';
+import gcodeTextInfiniteZ from 'bundle-text:/example-infinite-z.gcode'
 
 const showGCode = false;
 const demoMode = null // 'spin' || null
+const infiniteZ = false
 
 const run = async () => {
   // const machineDimensions = [235, 235, 255]
-  const machineDimensions = [200, 235, 255]
+  const machineDimensions = [235, 235, 255]
 
   let startTime = performance.now()
   await initSlicerRender();
@@ -16,13 +18,13 @@ const run = async () => {
     fileNames: ['example.stl'],
     machineDimensions,
     // alwaysShowModel: true,
-    infiniteZ: true,
+    infiniteZ,
   };
 
   const renderer = start(opts, (event) => console.log({ event }));
 
   if (showGCode) {
-    const { topLayer } = renderer.setGCode(gcodeText);
+    const { topLayer } = renderer.setGCode(infiniteZ ? gcodeTextInfiniteZ : gcodeText);
 
     const [layerSliderEl] = document.getElementsByName('gcode-layer-slider');
     layerSliderEl.max = topLayer;
@@ -51,6 +53,8 @@ const run = async () => {
       }, 50)
     }
   }
+
+  // renderer.send({ setCameraPosition: 'back' });
 
   const exitButton = document.getElementById('exit');
   exitButton.addEventListener(

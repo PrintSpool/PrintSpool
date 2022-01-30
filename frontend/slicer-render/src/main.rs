@@ -15,8 +15,8 @@ fn main() {
     // let mut lines = file.lines();
 
     // Y is vertical in order to align with the orientation of the rendering engine
-    // let machine_dimensions = Vec3::new(235f32, 250f32, 235f32);
-    let machine_dimensions = Vec3::new(200f32, 250f32, 1000f32);
+    // let machine_dimensions = Vec3::new(235f32, 235f32, 250f32);
+    let machine_dimensions = Vec3::new(200f32, 1000f32, 250f32);
 
     // let gcode_bytes: usize = fs::metadata(file_name).unwrap().len().try_into().unwrap();
 

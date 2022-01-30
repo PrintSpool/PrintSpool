@@ -1,3 +1,4 @@
 pkg
 example/example.gcode
+example/example-infinite-z.gcode
 example/example.stl

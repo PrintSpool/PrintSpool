@@ -275,8 +275,6 @@ impl ModelPreviewWithModel {
     pub fn update_transform(&mut self) {
         // Rotate about the center of the object
         self.model.set_transformation(1.0
-            // 5. Rotate into WebGL coordinates
-            * Mat4::from_angle_x(degrees(-90.0))
             // 4. Translate into position
             // 4.b) Position
             * Mat4::from_translation(self.position_with_offset())
