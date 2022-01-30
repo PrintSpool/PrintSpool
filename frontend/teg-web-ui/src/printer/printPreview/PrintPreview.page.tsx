@@ -271,24 +271,26 @@ const PrintPage = () => {
       isMutationPending,
       isUploading: submit.loading,
       setPrintFileIndex,
-      onTransformationChange: (event) => {
-        const {
-          source,
-          ...attrs
-        } = event;
+      onEvent: (event) => {
+        if (event.type === 'transform') {
+          const {
+            source,
+            ...attrs
+          } = event;
 
-        // Update the print file and invalidate the GCode when the user modifies the model transform
-        updatePrintFileAttrs({
-          ...attrs,
-          gcodeVersion: null,
-          gcodeBlob: null,
-          gcodeText: null,
-        })
+          // Update the print file and invalidate the GCode when the user modifies the model transform
+          updatePrintFileAttrs({
+            ...attrs,
+            gcodeVersion: null,
+            gcodeBlob: null,
+            gcodeText: null,
+          })
 
-        setPrintFiles(printFiles => printFiles.map(p => (
-          p.id === currentPrintFile.id ? { ...p, ...attrs } : p
-        )))
-        console.log({ event })
+          setPrintFiles(printFiles => printFiles.map(p => (
+            p.id === currentPrintFile.id ? { ...p, ...attrs } : p
+          )))
+          console.log('transform!', event);
+        }
       },
       setQuantity: (quantity) => {
         updatePrintFileAttrs({ quantity })

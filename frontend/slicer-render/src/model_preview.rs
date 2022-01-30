@@ -238,8 +238,10 @@ impl ModelPreviewWithModel {
         // Non-Infinite Z: Centering the model on x = 0, y = 0 (in CAD coordinates)
         // Infinite Z: Positioning at [X: center, Y: min]
         if self.infinite_z {
-            self.position_offset.y = - self.size().y / 2.0 * self.scale.y
+            self.position_offset.y = -self.size().y / 2.0 * self.scale.y
         }
+        self.position_offset.x = -self.center.x;
+        self.position_offset.y = -self.center.y;
     }
 
     pub fn position_with_offset(&self) -> Vec3 {
@@ -268,7 +270,11 @@ impl ModelPreviewWithModel {
             // 4.b) Position
             * Mat4::from_translation(self.position_with_offset())
             // 4.a) Bed Offset
-            * Mat4::from_translation(Vec3::new(0.0, 0.0, self.size().z / 2.0 * self.scale.z))
+            * Mat4::from_translation(Vec3::new(
+                self.center.x,
+                self.center.y,
+                self.size().z / 2.0 * self.scale.z,
+            ))
             // 3. Rotate about the center of the object
             * Mat4::from(self.rotation_mat3())
             // 2. Scale the model
@@ -276,5 +282,17 @@ impl ModelPreviewWithModel {
             // 1. Center the model
             * Mat4::from_translation(-self.center)
         );
+    }
+
+    pub fn transform_event(&self, source: crate::TransformSource) -> crate::Event {
+        crate::Event::Transform(
+            crate::Transform {
+                source,
+                rotation_mat3: self.rotation_mat3(),
+                position_with_offset: self.position_with_offset(),
+                position: self.position,
+                scale: self.scale,
+            }
+        )
     }
 }

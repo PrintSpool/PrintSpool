@@ -106,20 +106,28 @@ pub struct AxesInput {
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub enum TransfromationEventSource {
-    WebGLInput,
-    ExternalInput,
+#[serde(rename_all = "camelCase", tag = "type")]
+pub enum Event {
+    Transform(Transform),
+    GCodeLoaded,
 }
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct TransformChangeEvent {
-    pub source: TransfromationEventSource,
+pub struct Transform {
+    pub source: TransformSource,
     pub rotation_mat3: Mat3,
     pub position_with_offset: Vec3,
     pub position: Vec3,
     pub scale: Vec3,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub enum TransformSource {
+    ModelLoaded,
+    WebGLInput,
+    ExternalInput,
 }
 
 impl AxesInput {
@@ -218,10 +226,10 @@ impl Renderer {
 
     pub fn render_loop<F>(
         &mut self,
-        on_change: F,
+        event_listener: F,
     )
     where
-        F: Fn(TransformChangeEvent) + 'static,
+        F: Fn(Event) + 'static,
     {
         let rx = self.rx.take().expect("Render loop must only be called once");
 
@@ -420,12 +428,17 @@ impl Renderer {
                             });
                         }
                         Command::AddModel(next_model_preview) => {
-                            model_preview = Some(next_model_preview.with_model(&context));
+                            let mp = next_model_preview.with_model(&context);
+                            event_listener(mp.transform_event(
+                                TransformSource::ModelLoaded
+                            ));
+                            model_preview = Some(mp);
                         }
                         Command::SetGCode(next_gcode_preview) => {
                             gcode_preview = next_gcode_preview.map(|p| {
                                 p.with_model(&context)
                             });
+                            event_listener(Event::GCodeLoaded);
                         }
                         Command::SetModelPosition(position) => {
                             model_preview.as_mut().map(|mp| {
@@ -467,13 +480,9 @@ impl Renderer {
                     model_preview.as_mut().map(|mp| {
                         mp.update_transform();
 
-                        on_change(TransformChangeEvent {
-                            source: TransfromationEventSource::ExternalInput,
-                            rotation_mat3: mp.rotation_mat3(),
-                            position_with_offset: mp.position_with_offset(),
-                            position: mp.position,
-                            scale: mp.scale,
-                        });
+                        event_listener(mp.transform_event(
+                            TransformSource::ExternalInput
+                        ));
                     });
                 }
 
