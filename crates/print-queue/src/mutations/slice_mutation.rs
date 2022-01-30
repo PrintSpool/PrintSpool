@@ -131,7 +131,7 @@ impl SliceMutation {
                 // rotation & scale
                 .arg("-s")
                 .arg(format!(
-                    "mesh_rotation_matrix=\"[[{},{},{}],[{},{},{}],[{},{},{}]]\"",
+                    "mesh_rotation_matrix=[[{},{},{}],[{},{},{}],[{},{},{}]]",
                     input.rotation_mat3[0].x,
                     input.rotation_mat3[0].y,
                     input.rotation_mat3[0].z,
@@ -149,9 +149,6 @@ impl SliceMutation {
                 .arg(format!("mesh_position_y={}", input.position.y))
                 .arg("-s")
                 .arg(format!("mesh_position_z={}", input.position.z))
-                // etc
-                .arg("-s")
-                .arg("support_enable=True")
                 // gcode output
                 .arg("-o")
                 .arg(gcode_path.clone());
@@ -174,8 +171,6 @@ impl SliceMutation {
                 .output()
                 .await
                 .wrap_err("Slicer error")?;
-
-            dbg!(&output);
 
             if !output.status.success() {
                 let stderr = String::from_utf8_lossy(&output.stderr).to_string();

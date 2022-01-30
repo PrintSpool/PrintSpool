@@ -244,8 +244,19 @@ impl ModelPreviewWithModel {
         self.position_offset.y = -self.center.y;
     }
 
+    pub fn slicer_coordinates_position_with_offset(&self) -> Vec3 {
+        let mut offset = self.position_offset.clone();
+        offset.y = -offset.y;
+
+        self.position + offset
+    }
+
     pub fn position_with_offset(&self) -> Vec3 {
-        self.position + self.position_offset
+        // WebGL position coordinates are flipped but only on the Y axis. Not sure why.
+        let mut position = self.position;
+        position.y = -position.y;
+
+        position + self.position_offset
     }
 
     pub fn get_center(&self) -> Vec3 {
@@ -289,7 +300,7 @@ impl ModelPreviewWithModel {
             crate::Transform {
                 source,
                 rotation_mat3: self.rotation_mat3(),
-                position_with_offset: self.position_with_offset(),
+                position_with_offset: self.slicer_coordinates_position_with_offset(),
                 position: self.position,
                 scale: self.scale,
             }
