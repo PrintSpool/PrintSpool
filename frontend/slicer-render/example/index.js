@@ -54,6 +54,7 @@ const run = async () => {
     }
   }
 
+  renderer.send('updateCameraTarget');
   renderer.send({ setCameraPosition: 'isometric' });
 
   const exitButton = document.getElementById('exit');

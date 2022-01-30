@@ -1,4 +1,4 @@
-use std::os::unix::prelude::AsRawFd;
+use std::{os::unix::prelude::AsRawFd, path::PathBuf};
 
 use async_std::fs;
 use eyre::{
@@ -36,6 +36,7 @@ struct SliceInput {
     position: Vec3Input,
     scale: Vec3Input,
     file: async_graphql::Upload,
+    slicer_engine: String,
 }
 
 #[async_graphql::Object]
@@ -94,28 +95,40 @@ impl SliceMutation {
             let gcode_dir = tempfile::TempDir::new()?;
             let gcode_path = gcode_dir.path().join("output.gcode");
 
-            // TODO: Load the slicing profile path
-            // let slicing_profile_path = crate::paths::etc().join("CR30.cfg.ini");
-            let slicing_profile_path = std::env::var("SLICING_PROFILE")?;
-
             // Run the script
             info!("Slicing...");
 
-            let slicer_engine = std::env::var("SLICER_ENGINE")?;
-            let is_belt_slicer = slicer_engine == "belt-slicer";
+            let slicer_engine = match &input.slicer_engine[..] {
+                "curaEngine" => std::env::var("CURA_ENGINE")?,
+                "beltEngine" => std::env::var("BELT_ENGINE")?,
+                engine => {
+                    return Err(eyre!("Slicer engine not supported: {:?}", engine))
+                }
+            };
+
+            // TODO: Load the slicing profile path
+            let slicer_profile_path = match &input.slicer_engine[..] {
+                "curaEngine" => PathBuf::from(std::env::var("SLICING_PROFILE")?),
+                "beltEngine" => crate::paths::etc().join("CR30.cfg.ini"),
+                engine => {
+                    return Err(eyre!("Slicer engine not supported: {:?}", engine))
+                }
+            };
+
+            let is_belt_slicer = input.slicer_engine == "beltEngine";
 
             let mut cmd = async_std::process::Command::new("taskset");
 
             cmd
                 .arg("--cpu-list")
                 .arg("1-1024")
-                .arg(slicer_engine);
+                .arg(&slicer_engine);
 
             if is_belt_slicer {
                 cmd
                     // slicing profile
                     .arg("-c")
-                    .arg(slicing_profile_path);
+                    .arg(slicer_profile_path);
             } else {
                 cmd
                     // CuraEngine needs the slice sub-command.
@@ -124,7 +137,7 @@ impl SliceMutation {
                     .arg("-p")
                     // slicing profile
                     .arg("-j")
-                    .arg(slicing_profile_path);
+                    .arg(slicer_profile_path);
             }
 
             cmd
@@ -173,12 +186,14 @@ impl SliceMutation {
                 .wrap_err("Slicer error")?;
 
             if !output.status.success() {
-                let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-                let stderr = stderr
-                    .lines()
-                    .filter(|line| line.starts_with("[ERROR]"))
-                    .collect::<Vec<_>>()
-                    .join("\n");
+                let mut stderr = String::from_utf8_lossy(&output.stderr).to_string();
+                if slicer_engine == "curaEngine" {
+                    stderr = stderr
+                        .lines()
+                        .filter(|line| line.starts_with("[ERROR]"))
+                        .collect::<Vec<_>>()
+                        .join("\n");
+                }
 
                 return Err(eyre!(stderr));
             }

@@ -112,6 +112,7 @@ const PrintPage = () => {
           position: positionWithOffset,
           scale,
           file: blob,
+          slicerEngine: data?.machines[0].infiniteZ ? 'beltEngine' : 'curaEngine',
         }
       }
     })

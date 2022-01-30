@@ -182,6 +182,8 @@ const PrintView = ({
         modelDimensions: { x: 0, y: 0, z: 0 },
       })
     }
+
+    renderer.send('updateCameraTarget');
   }, [printFileIndex, renderer])
 
   useEffect(() => {

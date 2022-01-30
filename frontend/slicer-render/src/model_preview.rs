@@ -278,17 +278,19 @@ impl ModelPreviewWithModel {
     }
 
     pub fn rotation_mat3(&self, webgl_coords: bool) -> Mat3 {
+        let signum = if webgl_coords { -1.0 } else { 1.0 };
+
         1.0
-        * Mat3::from_angle_x(degrees(self.rotation.x))
+        * Mat3::from_angle_x(degrees(signum * self.rotation.x))
         * if self.infinite_z && webgl_coords && false {
             1.0
             // Y and Z axes are swapped in infinite Z printers
-            * Mat3::from_angle_z(degrees(self.rotation.y))
-            * Mat3::from_angle_y(degrees(self.rotation.z))
+            * Mat3::from_angle_z(degrees(signum * self.rotation.y))
+            * Mat3::from_angle_y(degrees(signum * self.rotation.z))
         } else {
             1.0
-            * Mat3::from_angle_y(degrees(self.rotation.y))
-            * Mat3::from_angle_z(degrees(self.rotation.z))
+            * Mat3::from_angle_y(degrees(signum * self.rotation.y))
+            * Mat3::from_angle_z(degrees(signum * self.rotation.z))
         }
     }
 

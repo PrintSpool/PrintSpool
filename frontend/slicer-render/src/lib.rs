@@ -80,6 +80,7 @@ pub enum Command {
     SetModelPosition(AxesInput),
     SetModelScale(AxesInput),
     SetCameraPosition(CameraPosition),
+    UpdateCameraTarget,
     SetViewMode(ViewMode),
     Reset,
     Exit,
@@ -431,7 +432,8 @@ impl Renderer {
                                 Command::SetModelPosition(_) => 202,
                                 Command::SetModelScale(_) => 203,
                                 Command::SetCameraPosition(_) => 301,
-                                Command::SetViewMode(_) => 302,
+                                Command::UpdateCameraTarget => 302,
+                                Command::SetViewMode(_) => 303,
                                 Command::Reset => 401,
                                 Command::Exit => 402,
                                 Command::AddModel(_) => {
@@ -477,12 +479,6 @@ impl Renderer {
                                 gp
                             });
 
-                            // Update the camera target
-                            let target_aabb = None
-                                .or(gcode_preview.as_ref().map(|gp| gp.model.aabb()))
-                                .or(model_preview.as_ref().map(|mp| mp.model.aabb()));
-                            camera_control.set_target(target_aabb);
-
                             // Set the view mode to GCode or if the GCode is being cleared set the
                             // view mode to Model
                             view_mode = gcode_preview
@@ -513,6 +509,13 @@ impl Renderer {
                         }
                         Command::SetCameraPosition(camera_position) => {
                             camera_control.apply_position(camera_position);
+                        }
+                        Command::UpdateCameraTarget => {
+                            // Update the camera target
+                            let target_aabb = None
+                                .or(gcode_preview.as_ref().map(|gp| gp.model.aabb()))
+                                .or(model_preview.as_ref().map(|mp| mp.model.aabb()));
+                            camera_control.set_target(target_aabb);
                         }
                         Command::SetViewMode(next_view_mode) => {
                             view_mode = next_view_mode;
