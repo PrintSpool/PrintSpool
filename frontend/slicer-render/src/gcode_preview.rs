@@ -13,7 +13,6 @@ pub struct GCodePreview {
     pub layer_indexes: Vec<usize>,
     pub model_instances: Vec<ModelInstance>,
     pub is_empty: bool,
-    options: RenderOptions,
 }
 
 pub struct GCodePreviewWithModel {
@@ -246,7 +245,6 @@ impl GCodePreview {
             layer_indexes,
             model_instances,
             is_empty: false,
-            options: options.clone(),
         };
 
         let gcode_summary = GCodeSummary {
@@ -275,26 +273,12 @@ impl GCodePreview {
             ..Default::default()
         };
 
-        let mut model = InstancedModel::new_with_material(
+        let model = InstancedModel::new_with_material(
             &context,
             &self.model_instances,
             &cylinder,
             wireframe_material.clone(),
         ).unwrap();
-
-        // let center = model.aabb().center();
-        // let center = self.options.machine_dimensions / 2.0;
-        // let mut center = Vec3::zero();
-        // center.y = self.options.machine_dimensions.y / 2.0;
-
-        // model.set_transformation(1.0
-        //     // Rotate into WebGL coordinates
-        //     * Mat4::from_translation(center)
-        //     // * Mat4::from_angle_z(degrees(-90.0))
-        //     // * Mat4::from_angle_y(degrees(-90.0))
-        //     * Mat4::from_angle_x(degrees(-90.0))
-        //     * Mat4::from_translation(-center)
-        // );
 
         GCodePreviewWithModel {
             inner: self,

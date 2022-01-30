@@ -3,9 +3,6 @@ use log::warn;
 use serde::{Deserialize, Serialize};
 use three_d::*;
 
-mod cad_orbit_control;
-use cad_orbit_control::CadOrbitControl;
-
 use wasm_bindgen::prelude::*;
 
 extern crate console_error_panic_hook;
@@ -20,8 +17,8 @@ extern crate wee_alloc;
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-mod camera_position;
-pub use camera_position::CameraPosition;
+mod camera_control;
+pub use camera_control::CameraPosition;
 
 mod gcode_preview;
 use gcode_preview::{GCodePreview, GCodeSummary, GCodePreviewWithModel};
@@ -211,9 +208,15 @@ impl Renderer {
     }
 
     pub fn new(
-        options: RenderOptions,
+        mut options: RenderOptions,
     ) -> Self {
         let (tx, rx) = mpsc::channel();
+
+        if options.infinite_z {
+            // Y and Z axes are swapped in infinite Z printers
+            let dim = options.machine_dimensions;
+            options.machine_dimensions = Vec3::new(dim.x, dim.z, dim.y);
+        }
 
         let renderer = Self {
             tx,
@@ -232,6 +235,7 @@ impl Renderer {
         F: Fn(Event) + 'static,
     {
         let rx = self.rx.take().expect("Render loop must only be called once");
+        let options = self.options.clone();
 
         // let now = instant::Instant::now();
         let machine_dim = self.options.machine_dimensions;
@@ -255,21 +259,14 @@ impl Renderer {
         let median_dim = sorted_dimensions[1];
         let max_dim = sorted_dimensions[2];
 
-        let mut camera = Camera::new_perspective(
+        let mut camera_control = camera_control::CameraPositionControl::new(
+            options.clone(),
+            median_dim,
+            1.0,
+        max_dim * 20.0,
+            &window,
             &context,
-            window.viewport().expect("Viewport error"),
-            vec3(1.0, 0.0, 0.0),
-            Vec3::zero(),
-            vec3(0.0, 0.0, 1.0),
-            degrees(45.0),
-            0.1,
-            100000.0,
-        )
-            .expect("camera error");
-
-        CameraPosition::Isometric.set_view(&mut camera, machine_dim, median_dim);
-
-        let mut control = CadOrbitControl::new(*camera.target(), 1.0, max_dim * 20.0);
+        );
 
         // Models and GCodes
         // ----------------------------------------------------------------------------------
@@ -299,7 +296,7 @@ impl Renderer {
         x_axis_indicator.set_transformation(1.0
             * Mat4::from_translation(vec3(
                 -machine_dim.x/2.0 + axis_indicator_length,
-                -machine_dim.y/2.0,
+                if options.infinite_z { 0.0 } else { -machine_dim.y/2.0 },
                 0.0,
             ))
             * Mat4::from_nonuniform_scale(axis_indicator_length, 1.0, 1.0)
@@ -321,16 +318,19 @@ impl Renderer {
         )
         .unwrap();
 
-        let infinite_z_bed_offset = if self.options.infinite_z {
-            machine_dim[2] / 2.0
-        } else {
-            0f32
-        };
-
-        bed.set_transformation(1.0
-            * Mat4::from_translation(vec3(0f32, infinite_z_bed_offset, 0.0))
-            * Mat4::from_nonuniform_scale(machine_dim[0] / 2.0, machine_dim[1] / 2.0, machine_dim[2] / 2.0)
+        let mut bed_transform = Mat4::from_nonuniform_scale(
+            machine_dim.x / 2.0,
+            machine_dim.y / 2.0,
+            machine_dim.z / 2.0,
         );
+
+        if options.infinite_z {
+            bed_transform = 1.0
+                * Mat4::from_translation(vec3(0.0, machine_dim.y / 2.0, 0.0))
+                * bed_transform;
+        }
+
+        bed.set_transformation(bed_transform);
 
         let mut cube = Model::new_with_material(
             &context,
@@ -346,9 +346,9 @@ impl Renderer {
             },
         )
         .unwrap();
-        cube.set_transformation(
-            Mat4::from_translation(vec3(0f32, infinite_z_bed_offset, machine_dim[2] / 2.0))
-            * Mat4::from_nonuniform_scale(machine_dim[0] / 2.0, machine_dim[1] / 2.0, machine_dim[2] / 2.0)
+        cube.set_transformation(1.0
+            * Mat4::from_translation(vec3(0.0, 0.0, machine_dim[2] / 2.0))
+            * bed_transform
         );
 
         let bounding_cube = BoundingBox::new_with_material_and_thickness(
@@ -405,7 +405,7 @@ impl Renderer {
         window
             .render_loop(move |mut frame_input| {
                 let mut change = frame_input.first_frame;
-                change |= camera.set_viewport(frame_input.viewport).unwrap();
+                change |= camera_control.camera.set_viewport(frame_input.viewport).unwrap();
 
                 // Get the most recent de-duplicated commands - this allows the renderer
                 // to skip redundant commands if it cannot keep up with the rate that commands are
@@ -458,6 +458,9 @@ impl Renderer {
                         }
                         Command::AddModel(next_model_preview) => {
                             let mp = next_model_preview.with_model(&context);
+                            // Update the camera target
+                            camera_control.set_target(Some(mp.model.aabb()));
+                            // Notify event listeners
                             event_listener(mp.transform_event(
                                 TransformSource::ModelLoaded
                             ));
@@ -466,11 +469,27 @@ impl Renderer {
                             event_listener(Event::ViewModeChange { value: view_mode.clone() })
                         }
                         Command::SetGCode(next_gcode_preview) => {
-                            gcode_preview = next_gcode_preview.map(|p| {
-                                p.with_model(&context)
+                            // Load the gcode
+                            gcode_preview = next_gcode_preview.map(|gp| {
+                                let gp = gp.with_model(&context);
+                                // Notify event listeners
+                                event_listener(Event::GCodeLoaded);
+                                gp
                             });
-                            event_listener(Event::GCodeLoaded);
-                            view_mode = ViewMode::GCode;
+
+                            // Update the camera target
+                            let target_aabb = None
+                                .or(gcode_preview.as_ref().map(|gp| gp.model.aabb()))
+                                .or(model_preview.as_ref().map(|mp| mp.model.aabb()));
+                            camera_control.set_target(target_aabb);
+
+                            // Set the view mode to GCode or if the GCode is being cleared set the
+                            // view mode to Model
+                            view_mode = gcode_preview
+                                .as_ref()
+                                .map(|_| ViewMode::GCode)
+                                .unwrap_or(ViewMode::Model);
+
                             event_listener(Event::ViewModeChange { value: view_mode.clone() })
                         }
                         Command::SetModelPosition(position) => {
@@ -493,7 +512,7 @@ impl Renderer {
                             });
                         }
                         Command::SetCameraPosition(camera_position) => {
-                            camera_position.set_view(&mut camera, machine_dim, median_dim);
+                            camera_control.apply_position(camera_position);
                         }
                         Command::SetViewMode(next_view_mode) => {
                             view_mode = next_view_mode;
@@ -516,6 +535,7 @@ impl Renderer {
                     gcode_preview = None;
                     model_preview.as_mut().map(|mp| {
                         mp.update_transform();
+                        camera_control.set_target(Some(mp.model.aabb()));
 
                         event_listener(mp.transform_event(
                             TransformSource::ExternalInput
@@ -545,8 +565,8 @@ impl Renderer {
                 //     }
                 // }
 
-                change |= control
-                    .handle_events(&mut camera, &mut frame_input.events)
+                change |= camera_control
+                    .handle_events(&mut frame_input.events)
                     .unwrap();
 
                 // draw
@@ -579,7 +599,7 @@ impl Renderer {
                         &context,
                         ClearState::color_and_depth(1.0, 1.0, 1.0, 1.0, 1.0),
                         || pipeline.render_pass(
-                            &camera,
+                            &camera_control.camera,
                             scene_objects.as_slice(),
                             &lights,
                         ),

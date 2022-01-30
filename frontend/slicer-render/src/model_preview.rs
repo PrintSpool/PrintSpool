@@ -237,11 +237,13 @@ impl ModelPreviewWithModel {
     pub fn center(&mut self) {
         // Non-Infinite Z: Centering the model on x = 0, y = 0 (in CAD coordinates)
         // Infinite Z: Positioning at [X: center, Y: min]
-        if self.infinite_z {
-            self.position_offset.y = -self.size().y / 2.0 * self.scale.y
-        }
         self.position_offset.x = -self.center.x;
-        self.position_offset.y = -self.center.y;
+
+        if self.infinite_z {
+            self.position_offset.z = -self.center.y + self.size().y * self.scale.y * 0.5;
+        } else {
+            self.position_offset.y = -self.center.y;
+        }
     }
 
     pub fn slicer_coordinates_position_with_offset(&self) -> Vec3 {
@@ -253,21 +255,41 @@ impl ModelPreviewWithModel {
 
     pub fn position_with_offset(&self) -> Vec3 {
         // WebGL position coordinates are flipped but only on the Y axis. Not sure why.
-        let mut position = self.position;
+        let mut position = self.position.clone();
+
         position.y = -position.y;
 
-        position + self.position_offset
+        position = position + self.position_offset;
+
+        if self.infinite_z {
+            // Y and Z axes are swapped in infinite Z printers
+            Vec3::new(
+                position.x,
+                position.z,
+                position.y,
+            )
+        } else {
+            position
+        }
     }
 
     pub fn get_center(&self) -> Vec3 {
         Vec3::new(self.center.x, self.center.z, self.center.y)
     }
 
-    pub fn rotation_mat3(&self) -> Mat3 {
+    pub fn rotation_mat3(&self, webgl_coords: bool) -> Mat3 {
         1.0
-            * Mat3::from_angle_x(degrees(self.rotation.x))
+        * Mat3::from_angle_x(degrees(self.rotation.x))
+        * if self.infinite_z && webgl_coords && false {
+            1.0
+            // Y and Z axes are swapped in infinite Z printers
+            * Mat3::from_angle_z(degrees(self.rotation.y))
+            * Mat3::from_angle_y(degrees(self.rotation.z))
+        } else {
+            1.0
             * Mat3::from_angle_y(degrees(self.rotation.y))
             * Mat3::from_angle_z(degrees(self.rotation.z))
+        }
     }
 
     /// Updates the model's WebGL transformation matrix and returns a transformation matrix suitable
@@ -285,7 +307,7 @@ impl ModelPreviewWithModel {
                 self.size().z / 2.0 * self.scale.z,
             ))
             // 3. Rotate about the center of the object
-            * Mat4::from(self.rotation_mat3())
+            * Mat4::from(self.rotation_mat3(true))
             // 2. Scale the model
             * Mat4::from_nonuniform_scale(self.scale.x, self.scale.y, self.scale.z)
             // 1. Center the model
@@ -297,7 +319,7 @@ impl ModelPreviewWithModel {
         crate::Event::Transform(
             crate::Transform {
                 source,
-                rotation_mat3: self.rotation_mat3(),
+                rotation_mat3: self.rotation_mat3(false),
                 position_with_offset: self.slicer_coordinates_position_with_offset(),
                 position: self.position,
                 scale: self.scale,
