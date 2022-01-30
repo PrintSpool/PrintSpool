@@ -254,10 +254,7 @@ impl ModelPreviewWithModel {
     }
 
     pub fn position_with_offset(&self) -> Vec3 {
-        // WebGL position coordinates are flipped but only on the Y axis. Not sure why.
         let mut position = self.position.clone();
-
-        position.y = -position.y;
 
         position = position + self.position_offset;
 
