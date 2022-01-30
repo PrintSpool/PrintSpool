@@ -95,7 +95,8 @@ impl SliceMutation {
             let gcode_path = gcode_dir.path().join("output.gcode");
 
             // TODO: Load the slicing profile path
-            let slicing_profile_path = crate::paths::etc().join("CR30.cfg.ini");
+            // let slicing_profile_path = crate::paths::etc().join("CR30.cfg.ini");
+            let slicing_profile_path = std::env::var("SLICING_PROFILE")?;
 
             // Run the script
             info!("Slicing...");
@@ -110,17 +111,23 @@ impl SliceMutation {
                 .arg("1-1024")
                 .arg(slicer_engine);
 
-            if (!is_belt_slicer) {
-                // CuraEngine needs the slice sub-command.
-                // ie. `CuraEngine slice ...` vs `belt-slicer ...`
-                cmd.arg("slice");
+            if is_belt_slicer {
+                cmd
+                    // slicing profile
+                    .arg("-c")
+                    .arg(slicing_profile_path);
+            } else {
+                cmd
+                    // CuraEngine needs the slice sub-command.
+                    // ie. `CuraEngine slice ...` vs `belt-slicer ...`
+                    .arg("slice")
+                    .arg("-p")
+                    // slicing profile
+                    .arg("-j")
+                    .arg(slicing_profile_path);
             }
 
-
             cmd
-                // slicing profile
-                .arg("-c")
-                .arg(slicing_profile_path)
                 // rotation & scale
                 .arg("-s")
                 .arg(format!(
@@ -144,27 +151,43 @@ impl SliceMutation {
                 .arg(format!("mesh_position_z={}", input.position.z))
                 // etc
                 .arg("-s")
-                .arg("support_enable=True");
+                .arg("support_enable=True")
+                // gcode output
+                .arg("-o")
+                .arg(gcode_path.clone());
 
-                if (!is_belt_slicer) {
-                    // CuraEngine -l loads the model
-                    // ie. `CuraEngine slice -l <model_file>...` vs `belt-slicer <model_file>...`
-                    cmd.arg("-l");
-                }
-
+            if is_belt_slicer {
+                // load model
+                cmd.arg(model_path);
+            } else {
+                // CuraEngine -l loads the model
+                // ie. `CuraEngine slice -l <model_file>...` vs `belt-slicer <model_file>...`
                 cmd
-                    // model
-                    .arg(model_path)
-                    // gcode output
-                    .arg("-o")
-                    .arg(gcode_path.clone());
+                    // load model
+                    .arg("-l")
+                    .arg(model_path);
+            }
+
+            info!("Slicer command: {:?}", cmd);
 
             let output = cmd
                 .output()
                 .await
                 .wrap_err("Slicer error")?;
 
-            dbg!(output);
+            dbg!(&output);
+
+            if !output.status.success() {
+                let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+                let stderr = stderr
+                    .lines()
+                    .filter(|line| line.starts_with("[ERROR]"))
+                    .collect::<Vec<_>>()
+                    .join("\n");
+
+                return Err(eyre!(stderr));
+            }
+
             let gcode = fs::read_to_string(&gcode_path).await?;
 
             info!("Slicing... [DONE]");
