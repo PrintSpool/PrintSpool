@@ -94,6 +94,7 @@ pub enum Command {
     SetModelPosition(AxesInput),
     SetModelScale(AxesInput),
     SetCameraPosition(CameraPosition),
+    SetViewMode(ViewMode),
     Reset,
     Exit,
 }
@@ -105,11 +106,21 @@ pub struct AxesInput {
     pub z: Option<f32>,
 }
 
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+#[serde(rename_all = "camelCase")]
+pub enum ViewMode {
+    #[serde(rename = "gcode")]
+    GCode,
+    Model,
+}
+
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase", tag = "type")]
 pub enum Event {
     Transform(Transform),
     GCodeLoaded,
+    ViewModeChange { value: ViewMode },
 }
 
 #[derive(Serialize, Debug)]
@@ -373,6 +384,8 @@ impl Renderer {
             ..Default::default()
         };
 
+        let mut view_mode = ViewMode::Model;
+
         // main loop
         window
             .render_loop(move |mut frame_input| {
@@ -403,6 +416,7 @@ impl Renderer {
                                 Command::SetModelPosition(_) => 202,
                                 Command::SetModelScale(_) => 203,
                                 Command::SetCameraPosition(_) => 301,
+                                Command::SetViewMode(_) => 302,
                                 Command::Reset => 401,
                                 Command::Exit => 402,
                                 Command::AddModel(_) => {
@@ -433,12 +447,16 @@ impl Renderer {
                                 TransformSource::ModelLoaded
                             ));
                             model_preview = Some(mp);
+                            view_mode = ViewMode::Model;
+                            event_listener(Event::ViewModeChange { value: view_mode.clone() })
                         }
                         Command::SetGCode(next_gcode_preview) => {
                             gcode_preview = next_gcode_preview.map(|p| {
                                 p.with_model(&context)
                             });
                             event_listener(Event::GCodeLoaded);
+                            view_mode = ViewMode::GCode;
+                            event_listener(Event::ViewModeChange { value: view_mode.clone() })
                         }
                         Command::SetModelPosition(position) => {
                             model_preview.as_mut().map(|mp| {
@@ -462,6 +480,10 @@ impl Renderer {
                         Command::SetCameraPosition(camera_position) => {
                             camera_position.set_view(&mut camera, machine_dim, median_dim);
                         }
+                        Command::SetViewMode(next_view_mode) => {
+                            view_mode = next_view_mode;
+                            event_listener(Event::ViewModeChange { value: view_mode.clone() })
+                        },
                         Command::Reset => {
                             model_preview = None;
                             gcode_preview = None;
@@ -516,15 +538,22 @@ impl Renderer {
                 if change {
                     let mut scene_objects: Vec<&dyn Object> = Vec::with_capacity(5);
 
-                    if let Some(gcode_preview) = gcode_preview.as_ref() {
-                        if !gcode_preview.is_empty {
-                            scene_objects.push(&gcode_preview.model);
+                    match (
+                        &view_mode,
+                        gcode_preview.as_ref().filter(|gp| !gp.is_empty),
+                        model_preview.as_ref(),
+                    ) {
+                        | (ViewMode::GCode, Some(gcode_preview), _)
+                        | (ViewMode::Model, Some(gcode_preview), None)
+                        => {
+                                scene_objects.push(&gcode_preview.model)
                         }
-                    }
-                    if gcode_preview.is_none() {
-                        model_preview.as_ref().map(|model_preview| {
+                        | (ViewMode::Model, _, Some(model_preview))
+                        | (ViewMode::GCode, None, Some(model_preview))
+                        => {
                             scene_objects.push(&model_preview.model)
-                        });
+                        },
+                        _ => {}
                     }
 
                     scene_objects.push(&bed);

@@ -245,10 +245,10 @@ impl ModelPreviewWithModel {
     }
 
     pub fn slicer_coordinates_position_with_offset(&self) -> Vec3 {
-        let mut offset = self.position_offset.clone();
-        offset.y = -offset.y;
+        // let mut offset = self.position_offset.clone();
+        // offset.y = -offset.y;
 
-        self.position + offset
+        self.position + self.position_offset
     }
 
     pub fn position_with_offset(&self) -> Vec3 {

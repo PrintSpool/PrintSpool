@@ -14,6 +14,8 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import LinearProgress from '@mui/material/LinearProgress';
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
@@ -68,6 +70,8 @@ const PrintView = ({
 }) => {
   const printFileIndex = printFiles.indexOf(printFile);
 
+  const [viewMode, setViewMode] = useState('model')
+
   const [data, setData] = useState({
     size: 0,
     topLayer: 100,
@@ -98,7 +102,12 @@ const PrintView = ({
     const nextRenderer = start({
       machineDimensions,
       infiniteZ,
-    }, onEvent);
+    }, (event) => {
+      if (event.type === 'viewModeChange') {
+        setViewMode(event.value)
+      }
+      onEvent(event);
+    });
 
     return nextRenderer;
   });
@@ -484,11 +493,25 @@ const PrintView = ({
                 </Typography>
               )}
             </Box>
+            { printFile.meshVersion === printFile.gcodeVersion &&
+              <FormControlLabel
+                control={<Switch defaultChecked />}
+                label="View GCode"
+                value={viewMode === 'gcode'}
+                onChange={(e, checked) => {
+                  renderer.send({ setViewMode: checked ? 'gcode' : 'model' })
+                }}
+                sx={{
+                  display: 'block',
+                  mb: 2,
+                }}
+              />
+            }
             <Button
               variant="outlined"
               onClick={() => slice(printFile)}
               disabled={
-                loading || printFile.meshVersion === printFile.gcodeVersion || isMutationPending
+                loading || isMutationPending || printFile.meshVersion === printFile.gcodeVersion
               }
               sx={{
                 mr: 1,

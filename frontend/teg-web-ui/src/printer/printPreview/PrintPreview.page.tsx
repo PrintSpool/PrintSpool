@@ -60,8 +60,6 @@ const PrintPage = () => {
 
   const [printFileIndex, setPrintFileIndex] = useState(0)
 
-  const [gcodeText, setGCodeText] = useState()
-
   const { data, ...query } = useQuery(
     gql`
       query($machineID: ID) {
