@@ -252,14 +252,14 @@ const EditButtonsDesktopView = ({
           </Box>
         </Popover>
         {/* Mirror */}
-        {/* <Button
+        <Button
           aria-label="mirror"
           size="large"
           aria-describedby="mirrorPopover"
           onClick={(e) => setPopover({ mode: 'mirror', el: e.currentTarget })}
         >
           <FlipIcon/>
-        </Button> */}
+        </Button>
         <Popover
           id="mirrorPopover"
           open={popover.mode === 'mirror'}
@@ -280,15 +280,19 @@ const EditButtonsDesktopView = ({
           <Box sx={{
             m: 2,
           }}>
-            <ButtonGroup orientation="vertical">
-              {['x', 'y', 'z'].map((axis) => (
-                <Button
-                  key={axis}
-                >
-                  Flip on {axis.toUpperCase()}
-                </Button>
-              ))}
-            </ButtonGroup>
+            {['x', 'y', 'z'].map((axis) => (
+              <FormControlLabel
+                control={<Switch/>}
+                label={`Flip ${axis.toUpperCase()}`}
+                onChange={(e, checked) => {
+                  renderer.send({ setModelMirroring: { [axis]: checked}})
+                }}
+                sx={{
+                  display: 'block',
+                  mt: 1,
+                }}
+              />
+            ))}
           </Box>
         </Popover>
         {/* Move */}

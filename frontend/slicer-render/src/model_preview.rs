@@ -10,10 +10,28 @@ pub struct ModelPreview {
     position_offset: Vec3,
     pub rotation: Vec3,
     pub scale: Vec3,
+    pub mirror: Mirror,
     min: [f32; 3],
     max: [f32; 3],
     center: Vec3,
     infinite_z: bool,
+}
+
+#[derive(Default)]
+pub struct Mirror {
+    pub x: bool,
+    pub y: bool,
+    pub z: bool,
+}
+
+impl Mirror {
+    pub fn to_vec3(&self) -> Vec3 {
+        Vec3::new(
+            if self.x { -1.0 } else { 1.0 },
+            if self.y { -1.0 } else { 1.0 },
+            if self.z { -1.0 } else { 1.0 },
+        )
+    }
 }
 
 #[derive(Serialize)]
@@ -157,6 +175,7 @@ impl ModelPreview {
             position_offset: Vec3::zero(),
             rotation: Vec3::zero(),
             scale: Vec3::new(1.0, 1.0, 1.0),
+            mirror: Default::default(),
             min,
             max,
             center,
@@ -294,6 +313,8 @@ impl ModelPreviewWithModel {
     /// Updates the model's WebGL transformation matrix and returns a transformation matrix suitable
     /// for use in slicer engines.
     pub fn update_transform(&mut self) {
+        let scale = self.mirror.to_vec3().mul_element_wise(self.scale);
+
         // Rotate about the center of the object
         self.model.set_transformation(1.0
             // 4. Translate into position
@@ -308,16 +329,18 @@ impl ModelPreviewWithModel {
             // 3. Rotate about the center of the object
             * Mat4::from(self.rotation_mat3(true))
             // 2. Scale the model
-            * Mat4::from_nonuniform_scale(self.scale.x, self.scale.y, self.scale.z)
+            * Mat4::from_nonuniform_scale(scale.x, scale.y, scale.z)
             // 1. Center the model
             * Mat4::from_translation(-self.center)
         );
     }
 
     pub fn transform_event(&self, source: crate::TransformSource) -> crate::Event {
+        let scale = self.mirror.to_vec3().mul_element_wise(self.scale);
+
         let r =  1.0
             * Mat4::from(self.rotation_mat3(false))
-            * Mat4::from_nonuniform_scale(self.scale.x, self.scale.y, self.scale.z);
+            * Mat4::from_nonuniform_scale(scale.x, scale.y, scale.z);
 
         let rotation_mat3 = Mat3::new(
             r.x.x, r.x.y, r.x.z,

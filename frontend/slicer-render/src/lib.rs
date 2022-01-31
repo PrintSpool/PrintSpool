@@ -79,6 +79,7 @@ pub enum Command {
     SetModelRotation(AxesInput),
     SetModelPosition(AxesInput),
     SetModelScale(AxesInput),
+    SetModelMirroring(SetModelMirroring),
     SetCameraPosition(CameraPosition),
     UpdateCameraTarget,
     SetViewMode(ViewMode),
@@ -93,6 +94,12 @@ pub struct AxesInput {
     pub z: Option<f32>,
 }
 
+#[derive(Deserialize, Default)]
+pub struct SetModelMirroring {
+    pub x: Option<bool>,
+    pub y: Option<bool>,
+    pub z: Option<bool>,
+}
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -431,6 +438,7 @@ impl Renderer {
                                 Command::SetModelRotation(_) => 201,
                                 Command::SetModelPosition(_) => 202,
                                 Command::SetModelScale(_) => 203,
+                                Command::SetModelMirroring(_) => 204,
                                 Command::SetCameraPosition(_) => 301,
                                 Command::UpdateCameraTarget => 302,
                                 Command::SetViewMode(_) => 303,
@@ -504,6 +512,14 @@ impl Renderer {
                             model_preview.as_mut().map(|mp| {
                                 mp.scale = scale.override_vec3(mp.scale);
                                 mp.center();
+                                external_model_transformation = true;
+                            });
+                        }
+                        Command::SetModelMirroring(mirror) => {
+                            model_preview.as_mut().map(|mp| {
+                                mirror.x.map(|b| mp.mirror.x = b);
+                                mirror.y.map(|b| mp.mirror.y = b);
+                                mirror.z.map(|b| mp.mirror.z = b);
                                 external_model_transformation = true;
                             });
                         }
