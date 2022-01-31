@@ -5,7 +5,7 @@ use std::{panic, io::Cursor, ops::{Deref, DerefMut}};
 use crate::RenderOptions;
 
 pub struct ModelPreview {
-    cpu_mesh: Option<CPUMesh>,
+    cpu_mesh: CPUMesh,
     pub position: Vec3,
     position_offset: Vec3,
     pub rotation: Vec3,
@@ -156,11 +156,18 @@ impl ModelPreview {
                 .flatten()
                 .collect::<Vec<f32>>();
 
-            let cpu_mesh = CPUMesh {
+            let mut cpu_mesh = CPUMesh {
                 positions,
                 normals: Some(normals),
                 ..Default::default()
             };
+
+            let transform = 1.0
+                // 1. Center the model
+                * Mat4::from_translation(-center);
+
+            cpu_mesh.transform(&transform);
+
 
             (cpu_mesh, min, max, center)
         } else {
@@ -170,7 +177,7 @@ impl ModelPreview {
         info!("Parsed STL model ({:.1}MB) in {}ms", (model_bytes as f64 / 1_000_000f64), now.elapsed().as_millis());
 
         let model_preview = Self {
-            cpu_mesh: Some(cpu_mesh),
+            cpu_mesh,
             position: Vec3::zero(),
             position_offset: Vec3::zero(),
             rotation: Vec3::zero(),
@@ -185,19 +192,18 @@ impl ModelPreview {
         model_preview
     }
 
-    pub fn with_model(
-        mut self,
+    pub fn create_model(
+        &self,
         context: &Context,
-    ) -> ModelPreviewWithModel {
-        let cpu_mesh = self.cpu_mesh.take().unwrap();
-
+    ) -> Model<PhysicalMaterial> {
         let model_material = PhysicalMaterial {
             name: "cad-model".to_string(),
             albedo: Color::new_opaque(255, 255, 255),
             roughness: 0.7,
             metallic: 0.9,
             opaque_render_states: RenderStates {
-                cull: Cull::Back,
+                // Cull none allow users to flip the model without having to invert the normals
+                cull: Cull::None,
                 ..Default::default()
             },
             ..Default::default()
@@ -205,10 +211,19 @@ impl ModelPreview {
 
         let model = Model::new_with_material(
             &context,
-            &cpu_mesh,
+            &self.cpu_mesh,
             model_material,
         )
             .unwrap();
+
+        model
+    }
+
+    pub fn with_model(
+        self,
+        context: &Context,
+    ) -> ModelPreviewWithModel {
+        let model =  self.create_model(&context);
 
         let mut model_preview = ModelPreviewWithModel {
             inner: self,
@@ -310,10 +325,44 @@ impl ModelPreviewWithModel {
         }
     }
 
+    pub fn set_mirror(
+        &mut self,
+        changes: crate::SetModelMirroring,
+        context: &Context,
+    ) {
+        let next_mirror = Mirror {
+            x: changes.x.unwrap_or(self.mirror.x),
+            y: changes.y.unwrap_or(self.mirror.y),
+            z: changes.z.unwrap_or(self.mirror.z),
+        };
+
+        // 1. Re-apply the previous mirror transform to undo it (-1 * -1 = 1)
+        // 2. Apply the new mirror transform
+        let m1 = self.mirror.to_vec3();
+        let m2 = next_mirror.to_vec3();
+        let m = m1.mul_element_wise(m2);
+
+        // Update the transform
+        let transform = 1.0
+            // 2. Apply the mirror transform
+            * Mat4::from_nonuniform_scale(m.x, m.y, m.z);
+            // 1. The model is already centered
+
+        self.cpu_mesh.transform(&transform);
+
+        // Re-compute the normals (mirroring can flip them so the object glitches - turning dark and
+        // reflecting no light)
+        self.cpu_mesh.compute_normals();
+
+        self.model = self.create_model(&context);
+        self.mirror = next_mirror;
+    }
+
     /// Updates the model's WebGL transformation matrix and returns a transformation matrix suitable
     /// for use in slicer engines.
     pub fn update_transform(&mut self) {
-        let scale = self.mirror.to_vec3().mul_element_wise(self.scale);
+        // let scale = self.mirror.to_vec3().mul_element_wise(self.scale);
+        let scale = self.scale;
 
         // Rotate about the center of the object
         self.model.set_transformation(1.0
@@ -330,8 +379,7 @@ impl ModelPreviewWithModel {
             * Mat4::from(self.rotation_mat3(true))
             // 2. Scale the model
             * Mat4::from_nonuniform_scale(scale.x, scale.y, scale.z)
-            // 1. Center the model
-            * Mat4::from_translation(-self.center)
+            // 1. The model is already centered and mirrored
         );
     }
 

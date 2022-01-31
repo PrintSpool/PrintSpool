@@ -517,9 +517,7 @@ impl Renderer {
                         }
                         Command::SetModelMirroring(mirror) => {
                             model_preview.as_mut().map(|mp| {
-                                mirror.x.map(|b| mp.mirror.x = b);
-                                mirror.y.map(|b| mp.mirror.y = b);
-                                mirror.z.map(|b| mp.mirror.z = b);
+                                mp.set_mirror(mirror, &context);
                                 external_model_transformation = true;
                             });
                         }

@@ -3,7 +3,7 @@ import modelURL from 'url:./example.stl';
 import gcodeText from 'bundle-text:./example.gcode';
 import gcodeTextInfiniteZ from 'bundle-text:/example-infinite-z.gcode'
 
-const showGCode = true;
+const showGCode = false;
 const demoMode = null // 'spin' || null
 const infiniteZ = true
 
@@ -56,6 +56,7 @@ const run = async () => {
 
   renderer.send('updateCameraTarget');
   renderer.send({ setCameraPosition: 'isometric' });
+  // renderer.send({ setModelMirroring: { x: true } });
 
   const exitButton = document.getElementById('exit');
   exitButton.addEventListener(
