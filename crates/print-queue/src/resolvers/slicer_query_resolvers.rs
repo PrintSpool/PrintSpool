@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use async_graphql::{
     // Context,
     // ID,
-    FieldResult,
+    FieldResult, SimpleObject,
 };
 // use eyre::{
 //     eyre,
@@ -41,6 +41,15 @@ pub struct Slicer {
     transform_mat4: Matrix4<f32>,
     /// True if the slicer allows parts to be positioned on the print bed
     allows_positioning: bool,
+    /// True for each axis about which the rotation direction should be reversed
+    invert_rotation: InvertRotation,
+}
+
+#[derive(Default, async_graphql::SimpleObject)]
+pub struct InvertRotation {
+    x: bool,
+    y: bool,
+    z: bool,
 }
 
 lazy_static! {
@@ -52,6 +61,7 @@ lazy_static! {
             name: "Cura Engine".into(),
             transform_mat4: Matrix4::from_scale(1.0),
             allows_positioning: true,
+            invert_rotation: Default::default(),
         });
 
         m.insert("beltEngine".into(), Slicer {
@@ -63,6 +73,11 @@ lazy_static! {
                 1.0,
             ),
             allows_positioning: false,
+            invert_rotation: InvertRotation {
+                x: false,
+                y: false,
+                z: true,
+            },
         });
 
         m
@@ -84,6 +99,7 @@ impl Slicer {
     async fn id(&self) -> &async_graphql::ID { &self.id }
     async fn name(&self) -> &String { &self.name }
     async fn allows_positioning(&self) -> bool { self.allows_positioning }
+    async fn invert_rotation(&self) -> &InvertRotation { &self.invert_rotation }
 
     async fn transform_mat4(&self) -> Vec<Vec<f32>> {
         let mat4: &[[f32; 4]; 4] = self.transform_mat4.as_ref();

@@ -35,6 +35,25 @@ pub struct RenderOptions {
     pub machine_dimensions: Vec3,
     #[serde(rename="infiniteZ")]
     pub infinite_z: bool,
+    pub invert_rotation: AxisBools,
+}
+
+
+#[derive(Default, Deserialize, Clone)]
+pub struct AxisBools {
+    pub x: bool,
+    pub y: bool,
+    pub z: bool,
+}
+
+impl AxisBools {
+    pub fn to_vec3(&self) -> Vec3 {
+        Vec3::new(
+            if self.x { -1.0 } else { 1.0 },
+            if self.y { -1.0 } else { 1.0 },
+            if self.z { -1.0 } else { 1.0 },
+        )
+    }
 }
 
 impl RenderOptions {
@@ -125,8 +144,6 @@ pub enum Event {
 pub struct Transform {
     pub source: TransformSource,
     pub mat4: Mat4,
-    pub rotation_mat3: Mat3,
-    pub position_with_offset: Vec3,
     pub position: Vec3,
     pub scale: Vec3,
 }

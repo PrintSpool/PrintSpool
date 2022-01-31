@@ -2,7 +2,7 @@ use log::{info};
 use serde::{Serialize};
 use three_d::*;
 use std::{panic, io::Cursor, ops::{Deref, DerefMut}};
-use crate::RenderOptions;
+use crate::{RenderOptions, AxisBools};
 
 pub struct ModelPreview {
     cpu_mesh: CPUMesh,
@@ -10,28 +10,11 @@ pub struct ModelPreview {
     position_offset: Vec3,
     pub rotation: Vec3,
     pub scale: Vec3,
-    pub mirror: Mirror,
+    pub mirror: AxisBools,
     min: [f32; 3],
     max: [f32; 3],
     center: Vec3,
-    infinite_z: bool,
-}
-
-#[derive(Default)]
-pub struct Mirror {
-    pub x: bool,
-    pub y: bool,
-    pub z: bool,
-}
-
-impl Mirror {
-    pub fn to_vec3(&self) -> Vec3 {
-        Vec3::new(
-            if self.x { -1.0 } else { 1.0 },
-            if self.y { -1.0 } else { 1.0 },
-            if self.z { -1.0 } else { 1.0 },
-        )
-    }
+    options: RenderOptions,
 }
 
 #[derive(Serialize)]
@@ -186,7 +169,7 @@ impl ModelPreview {
             min,
             max,
             center,
-            infinite_z: options.infinite_z,
+            options: options.clone(),
         };
 
         model_preview
@@ -273,7 +256,7 @@ impl ModelPreviewWithModel {
         // Infinite Z: Positioning at [X: center, Y: min]
         self.position_offset.x = -self.center.x;
 
-        if self.infinite_z {
+        if self.options.infinite_z {
             self.position_offset.z = -self.center.y + self.size().y * self.scale.y * 0.5;
         } else {
             self.position_offset.y = -self.center.y;
@@ -292,7 +275,7 @@ impl ModelPreviewWithModel {
 
         position = position + self.position_offset;
 
-        if self.infinite_z {
+        if self.options.infinite_z {
             // Y and Z axes are swapped in infinite Z printers
             Vec3::new(
                 position.x,
@@ -309,20 +292,24 @@ impl ModelPreviewWithModel {
     }
 
     pub fn rotation_mat3(&self, webgl_coords: bool) -> Mat3 {
-        let signum = if webgl_coords { -1.0 } else { 1.0 };
+        let invert = if webgl_coords {
+            Default::default()
+        } else {
+            self.options.invert_rotation.clone()
+        }.to_vec3();
 
         1.0
-        * Mat3::from_angle_x(degrees(signum * self.rotation.x))
-        * if self.infinite_z && webgl_coords {
-            1.0
-            // Y and Z axes are swapped in infinite Z printers
-            * Mat3::from_angle_z(degrees(signum * self.rotation.y))
-            * Mat3::from_angle_y(degrees(signum * self.rotation.z))
-        } else {
-            1.0
-            * Mat3::from_angle_y(degrees(signum * self.rotation.y))
-            * Mat3::from_angle_z(degrees(signum * self.rotation.z))
-        }
+            * Mat3::from_angle_x(degrees(self.rotation.x))
+            // * if self.infinite_z && webgl_coords && false {
+            //     1.0
+            //     // Y and Z axes are swapped in infinite Z printers
+            //     * Mat3::from_angle_z(degrees(signum * self.rotation.y))
+            //     * Mat3::from_angle_y(degrees(signum * self.rotation.z))
+            // } else {
+            //     1.0
+            * Mat3::from_angle_y(degrees(invert.y * self.rotation.y))
+            * Mat3::from_angle_z(degrees(invert.z * self.rotation.z))
+            // }
     }
 
     pub fn set_mirror(
@@ -330,7 +317,7 @@ impl ModelPreviewWithModel {
         changes: crate::SetModelMirroring,
         context: &Context,
     ) {
-        let next_mirror = Mirror {
+        let next_mirror = AxisBools {
             x: changes.x.unwrap_or(self.mirror.x),
             y: changes.y.unwrap_or(self.mirror.y),
             z: changes.z.unwrap_or(self.mirror.z),
@@ -386,20 +373,10 @@ impl ModelPreviewWithModel {
     pub fn transform_event(&self, source: crate::TransformSource) -> crate::Event {
         let scale = self.mirror.to_vec3().mul_element_wise(self.scale);
 
-        let r =  1.0
-            * Mat4::from(self.rotation_mat3(false))
-            * Mat4::from_nonuniform_scale(scale.x, scale.y, scale.z);
-
-        let rotation_mat3 = Mat3::new(
-            r.x.x, r.x.y, r.x.z,
-            r.y.x, r.y.y, r.y.z,
-            r.z.x, r.z.y, r.z.z,
-        );
-
         let mat4 = 1.0
             * Mat4::from_translation(self.slicer_coordinates_position_with_offset())
             * Mat4::from_translation(self.center)
-            * Mat4::from(self.rotation_mat3(true))
+            * Mat4::from(self.rotation_mat3(false))
             * Mat4::from_nonuniform_scale(scale.x, scale.y, scale.z)
             * Mat4::from_translation(-self.center);
 
@@ -407,8 +384,6 @@ impl ModelPreviewWithModel {
             crate::Transform {
                 source,
                 mat4,
-                rotation_mat3,
-                position_with_offset: self.slicer_coordinates_position_with_offset(),
                 position: self.position,
                 scale: self.scale,
             }

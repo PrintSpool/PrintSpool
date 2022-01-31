@@ -102,6 +102,7 @@ const PrintView = ({
     const nextRenderer = start({
       machineDimensions,
       infiniteZ,
+      invertRotation: slicerEngine.invertRotation,
     }, (event) => {
       if (event.type === 'viewModeChange') {
         setViewMode(event.value)

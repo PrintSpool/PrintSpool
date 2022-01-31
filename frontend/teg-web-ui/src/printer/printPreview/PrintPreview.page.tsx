@@ -76,6 +76,7 @@ const PrintPage = () => {
           name
           transformMat4
           allowsPositioning
+          invertRotation { x, y, z }
         }
         printQueues(input: { machineID: $machineID }) {
           id
