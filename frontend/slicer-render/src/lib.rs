@@ -17,6 +17,9 @@ extern crate wee_alloc;
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
+mod export_stl;
+pub use export_stl::*;
+
 mod camera_control;
 pub use camera_control::CameraPosition;
 
@@ -121,6 +124,7 @@ pub enum Event {
 #[serde(rename_all = "camelCase")]
 pub struct Transform {
     pub source: TransformSource,
+    pub mat4: Mat4,
     pub rotation_mat3: Mat3,
     pub position_with_offset: Vec3,
     pub position: Vec3,

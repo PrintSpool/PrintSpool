@@ -108,6 +108,7 @@ const PrintView = ({
       }
       onEvent(event);
     });
+    window.renderer = nextRenderer;
 
     return nextRenderer;
   });

@@ -1,5 +1,5 @@
 use log::{info};
-use serde::Serialize;
+use serde::{Serialize};
 use three_d::*;
 use std::{panic, io::Cursor, ops::{Deref, DerefMut}};
 use crate::RenderOptions;
@@ -58,7 +58,7 @@ impl ModelPreview {
             panic!("Nothing to display")
         }
 
-        info!("Model ({:?}) Size: {:?}MB", file_name, model_bytes / 1_000_000);
+        info!("Model ({:?}) Size: {:.2}MB", file_name, (model_bytes as f64) / 1_000_000.0);
 
         let (
             cpu_mesh,
@@ -396,9 +396,16 @@ impl ModelPreviewWithModel {
             r.z.x, r.z.y, r.z.z,
         );
 
+        let mat4 = 1.0
+            * Mat4::from_translation(self.slicer_coordinates_position_with_offset())
+            * Mat4::from_translation(self.center)
+            * r
+            * Mat4::from_translation(-self.center);
+
         crate::Event::Transform(
             crate::Transform {
                 source,
+                mat4,
                 rotation_mat3,
                 position_with_offset: self.slicer_coordinates_position_with_offset(),
                 position: self.position,

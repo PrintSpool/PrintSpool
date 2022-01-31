@@ -117,12 +117,15 @@ impl SliceMutation {
 
             let is_belt_slicer = input.slicer_engine == "beltEngine";
 
-            let mut cmd = async_std::process::Command::new("taskset");
+            // // I think this is redundant since we are already in a process with CPU affinity
+            // let mut cmd = async_std::process::Command::new("taskset");
 
-            cmd
-                .arg("--cpu-list")
-                .arg("1-1024")
-                .arg(&slicer_engine);
+            // cmd
+            //     .arg("--cpu-list")
+            //     .arg("1-1024")
+            //     .arg(&slicer_engine);
+
+            let mut cmd = async_std::process::Command::new(&slicer_engine);
 
             if is_belt_slicer {
                 cmd

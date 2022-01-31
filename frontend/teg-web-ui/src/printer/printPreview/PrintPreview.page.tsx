@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { useAsyncCallback } from 'react-async-hook';
 import { useHistory, useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client'
 import { useMutation } from '@apollo/client'
+import { exportSTL } from 'slicer-render';
 
 import PrintView from './PrintPreview.view'
 import { usePrintMutation } from '../jobQueue/JobQueue.graphql'
@@ -23,6 +24,7 @@ interface PrintFile {
   gcodeBlob: null | Blob
   gcodeText: null | string
   quantity: number
+  mat4: { x: Vec3, y: Vec3, z: Vec3, w: Vec3 }
   rotationMat3: { x: Vec3, y: Vec3, z: Vec3 }
   position: Vec3
   positionWithOffset: Vec3
@@ -59,6 +61,7 @@ const PrintPage = () => {
   ));
 
   const [printFileIndex, setPrintFileIndex] = useState(0)
+  const exportSTLResolveFn = useRef();
 
   const { data, ...query } = useQuery(
     gql`
@@ -94,24 +97,53 @@ const PrintPage = () => {
     printFile: PrintFile,
     blob: Blob,
   }) => {
-    console.log('Slicing...')
-
+    console.log('Exporting STL...')
     const {
       name,
-      rotationMat3: r,
-      positionWithOffset,
-      scale,
+      // rotationMat3: r,
+      // positionWithOffset,
+      // scale,
+      mat4,
     } = printFile;
     console.log({ printFile })
+
+    const modelArrayBuffer = await blob.arrayBuffer();
+    const originalU8Array = new Uint8Array(modelArrayBuffer.slice(0));
+    const transformedU8Array = await exportSTL(originalU8Array, {
+      transform: mat4,
+    });
+    console.log(transformedU8Array)
+    const transformedArrayBuffer = transformedU8Array.buffer.slice(
+      transformedU8Array.byteOffset,
+      transformedU8Array.byteLength + transformedU8Array.byteOffset,
+    );
+
+    console.log(`Exporting STL... [DONE] (${(transformedU8Array.length / 1_000_000).toFixed(2)}MB)`)
+    console.log('Slicing...')
+
+    // // @ts-ignore
+    // window.renderer.addModel(
+    //   'test.stl',
+    //   // originalU8Array,
+    //   transformedU8Array,
+    // );
+    // throw new Error('thing');
 
     const { data: { slice: gcodeText } } = await slice({
       variables: {
         input: {
           name,
-          rotationMat3: [r.x, r.y, r.z],
-          position: positionWithOffset,
-          scale,
-          file: blob,
+          // rotationMat3: [r.x, r.y, r.z],
+          // position: positionWithOffset,
+          // scale,
+          rotationMat3: [
+            { x: 1, y: 0, z: 0 },
+            { x: 0, y: 1, z: 0 },
+            { x: 0, y: 0, z: 1 },
+          ],
+          position: { x: 0, y: 0, z: 0 },
+          scale: { x: 1, y: 1, z: 1 },
+          file: new Blob([transformedArrayBuffer]),
           slicerEngine: data?.machines[0].infiniteZ ? 'beltEngine' : 'curaEngine',
         }
       }
@@ -279,7 +311,7 @@ const PrintPage = () => {
 
           // Update the print file and invalidate the GCode when the user modifies the model transform
           updatePrintFileAttrs({
-            ...attrs,
+            // ...attrs,
             gcodeVersion: null,
             gcodeBlob: null,
             gcodeText: null,

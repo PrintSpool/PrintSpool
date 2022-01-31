@@ -282,6 +282,7 @@ const EditButtonsDesktopView = ({
           }}>
             {['x', 'y', 'z'].map((axis) => (
               <FormControlLabel
+                key={axis}
                 control={<Switch/>}
                 label={`Flip ${axis.toUpperCase()}`}
                 onChange={(e, checked) => {
