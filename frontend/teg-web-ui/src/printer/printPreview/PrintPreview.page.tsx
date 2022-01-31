@@ -61,7 +61,6 @@ const PrintPage = () => {
   ));
 
   const [printFileIndex, setPrintFileIndex] = useState(0)
-  const exportSTLResolveFn = useRef();
 
   const { data, ...query } = useQuery(
     gql`
@@ -71,6 +70,12 @@ const PrintPage = () => {
           name
           status
           infiniteZ
+        }
+        slicerEngines {
+          id
+          name
+          transformMat4
+          allowsPositioning
         }
         printQueues(input: { machineID: $machineID }) {
           id
@@ -89,6 +94,9 @@ const PrintPage = () => {
       slice(input: $input)
     }
   `)
+
+  const slicerEngineID = data?.machines[0].infiniteZ ? 'beltEngine' : 'curaEngine'
+  const slicerEngine = data?.slicerEngines.find(engine => engine.id === slicerEngineID);
 
   const slicePrintFile = async ({
     printFile,
@@ -110,7 +118,8 @@ const PrintPage = () => {
     const modelArrayBuffer = await blob.arrayBuffer();
     const originalU8Array = new Uint8Array(modelArrayBuffer.slice(0));
     const transformedU8Array = await exportSTL(originalU8Array, {
-      transform: mat4,
+      slicerEngineTransform: slicerEngine.transformMat4,
+      modelTransform: mat4,
     });
     console.log(transformedU8Array)
     const transformedArrayBuffer = transformedU8Array.buffer.slice(
@@ -120,14 +129,6 @@ const PrintPage = () => {
 
     console.log(`Exporting STL... [DONE] (${(transformedU8Array.length / 1_000_000).toFixed(2)}MB)`)
     console.log('Slicing...')
-
-    // // @ts-ignore
-    // window.renderer.addModel(
-    //   'test.stl',
-    //   // originalU8Array,
-    //   transformedU8Array,
-    // );
-    // throw new Error('thing');
 
     const { data: { slice: gcodeText } } = await slice({
       variables: {
@@ -144,7 +145,7 @@ const PrintPage = () => {
           position: { x: 0, y: 0, z: 0 },
           scale: { x: 1, y: 1, z: 1 },
           file: new Blob([transformedArrayBuffer]),
-          slicerEngine: data?.machines[0].infiniteZ ? 'beltEngine' : 'curaEngine',
+          slicerEngineID,
         }
       }
     })
@@ -295,6 +296,7 @@ const PrintPage = () => {
   return (
     <PrintView {...{
       machine: data?.machines[0],
+      slicerEngine,
       printQueues: data.printQueues,
       printFiles,
       printFile: currentPrintFile,

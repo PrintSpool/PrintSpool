@@ -42,6 +42,8 @@ nom-gcode = "0.1.0"
 nix = "0.20.0"
 # tempfile = "3.2.0"
 tempfile = { git = "https://github.com/D1plo1d/tempfile.git", branch = "feature/linux-persistence" }
+cgmath = "0.18.0"
+lazy_static = "1.4.0"
 
 [dependencies.serde]
 features = ["derive"]

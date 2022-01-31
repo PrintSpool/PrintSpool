@@ -16,6 +16,7 @@ use teg_machine::{
 use teg_print_queue::{
     PartQuery,
     PrintQueueQuery,
+    SlicersQuery,
 };
 
 use crate::server_query::ServerQuery;
@@ -36,6 +37,7 @@ pub struct Query(
     // print queue
     PartQuery,
     PrintQueueQuery,
+    SlicersQuery,
     // server
     ServerQuery,
 );

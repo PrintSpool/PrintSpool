@@ -35,7 +35,6 @@ import ViewRight from './icons/ViewRight.svg';
 import ServerBreadcrumbs from '../common/ServerBreadcrumbs';
 import { drawerWidth } from '../common/frame/components/Drawer.styles'
 import EditButtonsDesktopView from './EditButtons.desktop.view';
-import { useForm } from 'react-hook-form';
 
 const hideFeatureStubs = true;
 
@@ -56,6 +55,7 @@ const PrintView = ({
   isMutationPending,
   isUploading,
   machine,
+  slicerEngine,
   printQueues,
   printFiles,
   printFile,
@@ -108,7 +108,6 @@ const PrintView = ({
       }
       onEvent(event);
     });
-    window.renderer = nextRenderer;
 
     return nextRenderer;
   });
@@ -412,8 +411,8 @@ const PrintView = ({
           <EditButtonsDesktopView {...{
             key: printFile.id,
             printFile,
+            slicerEngine,
             renderer,
-            modelDimensions: data.modelDimensions,
           }} />
 
           {/* Camera Positions */}
@@ -496,7 +495,7 @@ const PrintView = ({
                 </Typography>
               )}
             </Box>
-            { printFile.meshVersion === printFile.gcodeVersion &&
+            { printFile.meshVersion === printFile.gcodeVersion && printFile.isMesh &&
               <FormControlLabel
                 control={<Switch defaultChecked />}
                 label="View GCode"

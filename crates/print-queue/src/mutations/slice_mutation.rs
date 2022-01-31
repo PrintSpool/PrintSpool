@@ -36,7 +36,8 @@ struct SliceInput {
     position: Vec3Input,
     scale: Vec3Input,
     file: async_graphql::Upload,
-    slicer_engine: String,
+    #[graphql(name = "slicerEngineID")]
+    slicer_engine_id: String,
 }
 
 #[async_graphql::Object]
@@ -98,7 +99,7 @@ impl SliceMutation {
             // Run the script
             info!("Slicing...");
 
-            let slicer_engine = match &input.slicer_engine[..] {
+            let slicer_engine = match &input.slicer_engine_id[..] {
                 "curaEngine" => std::env::var("CURA_ENGINE")?,
                 "beltEngine" => std::env::var("BELT_ENGINE")?,
                 engine => {
@@ -107,7 +108,7 @@ impl SliceMutation {
             };
 
             // TODO: Load the slicing profile path
-            let slicer_profile_path = match &input.slicer_engine[..] {
+            let slicer_profile_path = match &input.slicer_engine_id[..] {
                 "curaEngine" => PathBuf::from(std::env::var("SLICING_PROFILE")?),
                 "beltEngine" => crate::paths::etc().join("CR30.cfg.ini"),
                 engine => {
@@ -115,7 +116,7 @@ impl SliceMutation {
                 }
             };
 
-            let is_belt_slicer = input.slicer_engine == "beltEngine";
+            let is_belt_slicer = input.slicer_engine_id == "beltEngine";
 
             // // I think this is redundant since we are already in a process with CPU affinity
             // let mut cmd = async_std::process::Command::new("taskset");

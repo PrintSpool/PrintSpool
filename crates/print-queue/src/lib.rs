@@ -27,7 +27,10 @@ pub use print_queue::PrintQueue;
 pub mod print_queue_machine_hooks;
 
 mod resolvers;
-pub use resolvers::print_queue_query_resolvers::PrintQueueQuery;
+pub use resolvers::{
+    print_queue_query_resolvers::PrintQueueQuery,
+    slicer_query_resolvers::SlicersQuery,
+};
 
 
 mod task_from_gcodes;

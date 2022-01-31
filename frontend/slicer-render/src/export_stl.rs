@@ -5,7 +5,8 @@ use std::io::Cursor;
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct ExportSTLOptions {
-    pub transform: Mat4,
+    pub slicer_engine_transform: Mat4,
+    pub model_transform: Mat4,
 }
 
 use wasm_bindgen::prelude::*;
@@ -18,18 +19,13 @@ pub fn export_stl_wasm(original_stl: Vec<u8>, options: &JsValue) -> Vec<u8> {
 }
 
 pub fn export_stl(original_stl: Vec<u8>, options: ExportSTLOptions) -> Vec<u8> {
-    let ExportSTLOptions {
-        transform,
-    } = options;
+    let transform =  1.0
+        * options.model_transform
+        * options.slicer_engine_transform;
 
     let mut reader = Cursor::new(&original_stl[..]);
     let mesh = nom_stl::parse_stl(&mut reader).unwrap();
     let vertices: Vec<_> = mesh.vertices_ref().collect();
-
-    // let transform =  1.0
-    //     * Mat4::from_translation(self.position_with_offset())
-    //     * Mat4::from(self.rotation_mat3(false))
-    //     * Mat4::from_nonuniform_scale(self.scale.x, self.scale.y, self.scale.z);
 
     let triangle_count = vertices.len() / 3;
     let mut content: Vec<u8> = Vec::with_capacity(triangle_count * 50 + 84);

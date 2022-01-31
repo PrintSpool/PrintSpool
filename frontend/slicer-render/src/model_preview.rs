@@ -313,7 +313,7 @@ impl ModelPreviewWithModel {
 
         1.0
         * Mat3::from_angle_x(degrees(signum * self.rotation.x))
-        * if self.infinite_z && webgl_coords && false {
+        * if self.infinite_z && webgl_coords {
             1.0
             // Y and Z axes are swapped in infinite Z printers
             * Mat3::from_angle_z(degrees(signum * self.rotation.y))
@@ -399,7 +399,8 @@ impl ModelPreviewWithModel {
         let mat4 = 1.0
             * Mat4::from_translation(self.slicer_coordinates_position_with_offset())
             * Mat4::from_translation(self.center)
-            * r
+            * Mat4::from(self.rotation_mat3(true))
+            * Mat4::from_nonuniform_scale(scale.x, scale.y, scale.z)
             * Mat4::from_translation(-self.center);
 
         crate::Event::Transform(

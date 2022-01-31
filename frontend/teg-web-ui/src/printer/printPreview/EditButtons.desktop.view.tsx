@@ -18,8 +18,8 @@ import Switch from '@mui/material/Switch';
 
 const EditButtonsDesktopView = ({
   printFile,
+  slicerEngine,
   renderer,
-  modelDimensions,
 }) => {
   const [scaleAxesTogether, setScaleAxesTogether] = useState(true)
 
@@ -297,14 +297,16 @@ const EditButtonsDesktopView = ({
           </Box>
         </Popover>
         {/* Move */}
-        <Button
-          aria-label="move"
-          size="large"
-          aria-describedby="movePopover"
-          onClick={(e) => setPopover({ mode: 'move', el: e.currentTarget })}
-        >
-          <ArrowRightAltIcon/>
-        </Button>
+        { slicerEngine.allowsPositioning &&
+          <Button
+            aria-label="move"
+            size="large"
+            aria-describedby="movePopover"
+            onClick={(e) => setPopover({ mode: 'move', el: e.currentTarget })}
+          >
+            <ArrowRightAltIcon/>
+          </Button>
+        }
         <Popover
           id="movePopover"
           open={popover.mode === 'move'}
