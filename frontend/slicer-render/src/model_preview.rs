@@ -315,10 +315,20 @@ impl ModelPreviewWithModel {
     }
 
     pub fn transform_event(&self, source: crate::TransformSource) -> crate::Event {
+        let r =  1.0
+            * Mat4::from(self.rotation_mat3(false))
+            * Mat4::from_nonuniform_scale(self.scale.x, self.scale.y, self.scale.z);
+
+        let rotation_mat3 = Mat3::new(
+            r.x.x, r.x.y, r.x.z,
+            r.y.x, r.y.y, r.y.z,
+            r.z.x, r.z.y, r.z.z,
+        );
+
         crate::Event::Transform(
             crate::Transform {
                 source,
-                rotation_mat3: self.rotation_mat3(false),
+                rotation_mat3,
                 position_with_offset: self.slicer_coordinates_position_with_offset(),
                 position: self.position,
                 scale: self.scale,
