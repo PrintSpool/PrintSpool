@@ -1,3 +1,5 @@
+on: [push]
+
 name: "Build Pi Image"
 
 jobs:
