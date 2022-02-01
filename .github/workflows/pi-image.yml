@@ -9,14 +9,16 @@ jobs:
     steps:
     - name: "⬇ Checkout"
       uses: actions/checkout@v2
-    - name: "⬇ Download Ubuntu Server"
+    - name: "⬇ Download Raspberry Pi OS Lite"
       id: ubuntu_download
       run: |
         # Download and extract the ubuntu-server image to the build directory
         mkdir custopizer/build
         cd custopizer/build
-        wget -q https://cdimage.ubuntu.com/releases/21.10/release/ubuntu-21.10-preinstalled-server-arm64+raspi.img.xz -O input.img.xz
-        unxz input.img.xz
+        wget -q https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-01-28/2022-01-28-raspios-bullseye-armhf-lite.zip -O input.zip
+        unzip input.zip
+        rm input.zip
+        mv 2022-01-28-raspios-bullseye-armhf-lite.img input.img
     - name: "🏗 Run CustoPiZer"
       uses: OctoPrint/CustoPiZer@main
       with:
