@@ -15,8 +15,8 @@ jobs:
         # Download and extract the ubuntu-server image to the build directory
         mkdir custopizer/build
         cd custopizer/build
-        wget https://cdimage.ubuntu.com/releases/21.10/release/ubuntu-21.10-preinstalled-server-arm64+raspi.img.xz -O input.img.xz
-        tar -xf input.img.xz
+        wget -q https://cdimage.ubuntu.com/releases/21.10/release/ubuntu-21.10-preinstalled-server-arm64+raspi.img.xz -O input.img.xz
+        tar -xJf input.img.xz
         rm input.img.xz
     - name: "🏗 Run CustoPiZer"
       uses: OctoPrint/CustoPiZer@main
