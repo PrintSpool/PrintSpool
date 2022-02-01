@@ -16,8 +16,7 @@ jobs:
         mkdir custopizer/build
         cd custopizer/build
         wget -q https://cdimage.ubuntu.com/releases/21.10/release/ubuntu-21.10-preinstalled-server-arm64+raspi.img.xz -O input.img.xz
-        tar -xJf input.img.xz
-        rm input.img.xz
+        unxz input.img.xz
     - name: "🏗 Run CustoPiZer"
       uses: OctoPrint/CustoPiZer@main
       with:
