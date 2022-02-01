@@ -3,8 +3,8 @@ on: [push]
 name: "Build Pi Image"
 
 jobs:
-  build:
-    name: "Build"
+  pi_image:
+    name: Build Pi Arm64 Image
     runs-on: ubuntu-latest
     steps:
     - name: "⬇ Checkout"
