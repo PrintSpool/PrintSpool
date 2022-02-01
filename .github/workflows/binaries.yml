@@ -1,6 +1,6 @@
 on: [push]
 
-name: Build Release Artifacts
+name: Build Binaries
 
 jobs:
   x64_build:

@@ -1,0 +1,67 @@
+name: "Build Pi Image"
+
+jobs:
+  build:
+    name: "Build"
+    runs-on: ubuntu-latest
+    steps:
+    - name: "⬇ Checkout"
+      uses: actions/checkout@v2
+    - name: "⬇ Download Ubuntu Server"
+      id: ubuntu_download
+      run: |
+        # Download and extract the ubuntu-server image to the build directory
+        mkdir custopizer/build
+        cd custopizer/build
+        wget https://cdimage.ubuntu.com/releases/21.10/release/ubuntu-21.10-preinstalled-server-arm64+raspi.img.xz -O input.img.xz
+        tar -xf input.img.xz
+        rm input.img.xz
+    - name: "🏗 Run CustoPiZer"
+      uses: OctoPrint/CustoPiZer@main
+      with:
+        workspace: "${{ github.workspace }}/custopizer/build"
+        scripts:  "${{ github.workspace }}/scripts"
+        config: "${{ github.workspace }}/custopizer/config.local"
+
+    - name: "✏ Rename image"
+      run: |
+        IMAGE="printspool.img"
+        echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+
+        cd custopizer/build
+        mv output.img $IMAGE
+
+    - name: "📦 Package the image"
+      id: package-image
+      uses: OctoPrint/actions/package-rpi-image@main
+      with:
+        image_path: "custopizer/build/${{ env.IMAGE }}"
+
+    # - name: "🆕 Generate rpi-imager.json snippet"
+    #   uses: OctoPrint/actions/rpi-imager-snippet@main
+    #   with:
+    #     name: "${{ env.RELEASE_NAME }}"
+    #     description: "PrintSpool 3D printer control for Raspberry Pi"
+    #     icon: "https://octopi.octoprint.org/rpi-imager.png"
+    #     url: "https://github.com/OctoPrint/OctoPi-UpToDate/releases/download/${{ env.RELEASE_TAG }}/${{ steps.package-image.outputs.zip_name }}"
+    #     output: "build/rpi-imager.json"
+    #     image_sha256: ${{ steps.package-image.outputs.image_sha256 }}
+    #     image_size: ${{ steps.package-image.outputs.image_size }}
+    #     zip_sha256: ${{ steps.package-image.outputs.zip_sha256 }}
+    #     zip_size: ${{ steps.package-image.outputs.zip_size }}
+
+    - name: "🔖 Create release & attach assets"
+      uses: softprops/action-gh-release@v1
+      with:
+        # name: "${{ env.RELEASE_NAME }}"
+        # tag_name: "${{ env.RELEASE_TAG }}"
+        # body_path: "build/release.md"
+        # prerelease: ${{ contains(env.OCTOPRINT_VERSION, 'rc') }}
+        # fail_on_unmatched_files: true
+        files: |
+          custopizer/build/${{ steps.package-image.outputs.zip_name }}
+          custopizer/build/${{ steps.package-image.outputs.zip_name }}.md5
+          custopizer/build/${{ steps.package-image.outputs.zip_name }}.sha256
+        # custopizer/build/rpi-imager.json
+      # env:
+      #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
