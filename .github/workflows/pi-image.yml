@@ -22,7 +22,7 @@ jobs:
       uses: OctoPrint/CustoPiZer@main
       with:
         workspace: "${{ github.workspace }}/custopizer/build"
-        scripts:  "${{ github.workspace }}/scripts"
+        scripts:  "${{ github.workspace }}/custopizer/scripts"
         config: "${{ github.workspace }}/custopizer/config.local"
 
     - name: "✏ Rename image"
