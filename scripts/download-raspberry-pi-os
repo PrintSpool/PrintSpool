@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
+
+# Download and extract the ubuntu-server image to the build directory
+mkdir -p custopizer/build
+cd custopizer/build
+echo "Downloading OS..."
+wget -q https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-01-28/2022-01-28-raspios-bullseye-armhf-lite.zip -O input.zip
+echo "Downloading OS... [DONE]"
+echo "Extracting OS..."
+unzip input.zip
+rm input.zip
+mv 2022-01-28-raspios-bullseye-armhf-lite.img input.img
+echo "Extracting OS... [DONE]"

@@ -1,0 +1,30 @@
+#!/bin/bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
+
+# Initial One-Time Postgres Setup
+
+DB_USER="teg"
+DB=$DB_USER
+DB_PASSWORD=`apg -n 1 -m 64 -M NCL -E \:\'\"\\`
+
+sudo -u postgres createuser -d $DB_USER || true
+sudo -u postgres createdb -O $DB_USER $DB || true
+sudo -u postgres psql -c "ALTER USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
+
+sudo -u $TEG_USER touch $TEG_USER_HOME/.pgpass
+sudo -u $TEG_USER chmod 0600 $TEG_USER_HOME/.pgpass
+
+# Remove old pgpass entries
+sudo -u $TEG_USER sed -i "/localhost\:\*\:$DB\:$DB_USER/d" $TEG_USER_HOME/.pgpass
+
+# Add new pgpass entry
+PG_PASS_LINE="localhost:*:$DB:$DB_USER:$DB_PASSWORD"
+sudo -u $TEG_USER sh -c "echo \"$PG_PASS_LINE\" >> $TEG_USER_HOME/.pgpass"
+
+if [ "${TEG_DEV}" == "1" ]; then
+  touch ~/.pgpass
+  chmod 0600 ~/.pgpass
+  sed -i "/localhost\:\*\:$DB\:$DB_USER/d" ~/.pgpass
+  echo "$PG_PASS_LINE" >> ~/.pgpass
+fi

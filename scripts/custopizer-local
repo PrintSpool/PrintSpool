@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
+
+cd ./custopizer
+
+rsync -avh ./scripts ./build/ --delete
+rsync -avh ./config.local ./build/ --delete
+
+mkdir -p ./scripts/files/
+rsync -avh ../scripts/install ./scripts/files/
+
+sudo docker run --rm --privileged \
+  -v $(pwd)/build:/CustoPiZer/workspace \
+  -v $(pwd)/config.local:/CustoPiZer/config.local \
+  ghcr.io/octoprint/custopizer:latest
