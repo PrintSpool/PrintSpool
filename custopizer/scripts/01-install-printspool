@@ -6,4 +6,6 @@ export LC_ALL=C
 source /common.sh
 install_cleanup_trap
 
+apt install bash
+
 bash <(curl -s https://raw.githubusercontent.com/PrintSpool/PrintSpool/develop/scripts/install)
