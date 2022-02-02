@@ -75,16 +75,16 @@ const StatusDialog = ({
                 obstructions and reset the machine.
               </p>
               <p>
-                If you belive this is an issue with Teg you can file a bug
+                If you belive this is an issue with PrintSpool you can file a bug
                 report at
                 {' '}
                 {' '}
                 <a
-                  href="https://github.com/teg/teg/issues"
+                  href="https://github.com/PrintSpool/PrintSpool/issues"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  https://github.com/teg/teg/issues
+                  https://github.com/PrintSpool/PrintSpool/issues
                 </a>
                 .
               </p>

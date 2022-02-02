@@ -4,6 +4,9 @@ cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
 
 # Initial One-Time Postgres Setup
 
+TEG_USER="root"
+TEG_USER_HOME=$( getent passwd "$TEG_USER" | cut -d: -f6 )
+
 DB_USER="teg"
 DB=$DB_USER
 DB_PASSWORD=`apg -n 1 -m 64 -M NCL -E \:\'\"\\`

@@ -2,6 +2,7 @@
 set -eE -o functrace
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 
+
 failure() {
   local lineno=$1
   local msg=$2
@@ -11,10 +12,10 @@ trap 'failure ${LINENO} "$BASH_COMMAND"' ERR
 
 ARCH=$(uname -m)
 FRESH_INSTALL=0
-if [ -d "/usr/local/etc/teg/" ]; then
-    echo "Updating previous Teg for $ARCH install..."
+if [ -d "/usr/local/etc/printspool/" ]; then
+    echo "Updating previous PrintSpool for $ARCH install..."
 else
-    echo "Installing Teg for $ARCH..."
+    echo "Installing PrintSpool for $ARCH..."
     FRESH_INSTALL=1
 fi
 
@@ -40,7 +41,7 @@ sudo apt-get install \
   libjpeg-dev \
   zlib1g-dev
 
-# TEG_USER="teg"
+# TEG_USER="printspool"
 # sudo useradd $TEG_USER || true
 # sudo usermod -a -G dialout $TEG_USER || true
 
@@ -48,22 +49,24 @@ TEG_USER="root"
 TEG_USER_HOME=$( getent passwd "$TEG_USER" | cut -d: -f6 )
 
 # create directories
-sudo mkdir -p /usr/local/etc/teg/
-sudo mkdir -p /var/local/teg/
-sudo mkdir -p /var/local/teg-common/
+sudo mkdir -p /usr/local/etc/printspool/
+sudo mkdir -p /var/local/printspool/
+sudo mkdir -p /var/local/printspool-common/
 
-sudo chmod 700 /usr/local/etc/teg/
-sudo chmod 700 /var/local/teg/
-sudo chmod 700 /var/local/teg-common/
+sudo chmod 700 /usr/local/etc/printspool/
+sudo chmod 700 /var/local/printspool/
+sudo chmod 700 /var/local/printspool-common/
 
 if [ "${TEG_DEV}" == "1" ]; then
-  sudo chown -R `whoami`:`whoami` /usr/local/etc/teg/
-  sudo chown -R `whoami`:`whoami` /var/local/teg/
-  sudo chown -R `whoami`:`whoami` /var/local/teg-common/
+  sudo chown -R `whoami`:`whoami` /usr/local/etc/printspool/
+  sudo chown -R `whoami`:`whoami` /var/local/printspool/
+  sudo chown -R `whoami`:`whoami` /var/local/printspool-common/
+
+  ./setup-postgres
 else
-  sudo chown -R ${TEG_USER}:${TEG_USER} /usr/local/etc/teg/
-  sudo chown -R ${TEG_USER}:${TEG_USER} /var/local/teg/
-  sudo chown -R ${TEG_USER}:${TEG_USER} /var/local/teg-common/
+  sudo chown -R ${TEG_USER}:${TEG_USER} /usr/local/etc/printspool/
+  sudo chown -R ${TEG_USER}:${TEG_USER} /var/local/printspool/
+  sudo chown -R ${TEG_USER}:${TEG_USER} /var/local/printspool-common/
 fi
 
 # create a tmp dir
@@ -90,7 +93,7 @@ cd $WORK_DIR
 
 if [ "${LOCAL_ARTIFACT}" == "1" ]; then
   echo ""
-  echo "Installing local development version of Teg"
+  echo "Installing local development version of PrintSpool"
   echo ""
 
   TEG_ARCH=$ARCH $SCRIPT_DIR/ci/create-artifact
@@ -101,7 +104,7 @@ else
   # Use the provided github repo or default to "PrintSpool/PrintSpool"
   PRINTSPOOL_GITHUB="${PRINTSPOOL_GITHUB:-PrintSpool/PrintSpool}"
 
-  ARTIFACT_NAME="teg-$ARCH.zip"
+  ARTIFACT_NAME="printspool-$ARCH.zip"
 
   LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/$PRINTSPOOL_GITHUB/releases/latest)
 
@@ -151,10 +154,10 @@ rm $ARTIFACT_NAME
 mv $ARTIFACT_DIR ./etc/webrtc-streamer
 
 # Install etc (migrations, binaries, configs and webrtc-streamer)
-sudo rsync --chown=$TEG_USER:$TEG_USER -a --delete ./etc/ /usr/local/etc/teg
+sudo rsync --chown=$TEG_USER:$TEG_USER -a --delete ./etc/ /usr/local/etc/printspool
 
 # Install binaries on path
-sudo ln -vsf "/usr/local/etc/teg/teg-invite" /usr/local/bin
+sudo ln -vsf "/usr/local/etc/printspool/printspool-invite" /usr/local/bin
 
 # Install System D service files
 sudo chmod 644 ./services/*
@@ -162,8 +165,8 @@ sudo mv ./services/* /lib/systemd/system/
 
 if [ "$CI" != "true" ]; then
   sudo systemctl daemon-reload
-  sudo systemctl restart teg-server teg-health-monitor teg-webrtc-streamer
-  sudo systemctl enable teg-server teg-health-monitor teg-webrtc-streamer
+  sudo systemctl restart printspool-server printspool-health-monitor printspool-webrtc-streamer
+  sudo systemctl enable printspool-server printspool-health-monitor printspool-webrtc-streamer
 
   # TODO: Instead of waiting for 1 second this should wait for the database to be migrated
   echo ""
@@ -174,6 +177,6 @@ if [ "$CI" != "true" ]; then
 
   # Generate an invite key for the user
   if [ $FRESH_INSTALL = "1" ]; then
-    sudo teg-invite
+    sudo printspool-invite
   fi
 fi

@@ -256,7 +256,7 @@ impl MachineConfig {
         crate::paths::etc().join(format!("machine-{}.toml", id))
     }
 
-    pub fn pid_file_path(id: &crate::DbId) -> String {
-        format!("/var/tmp/teg{}-machine-{}.pid", crate::paths::dev_suffix(), id)
+    pub fn pid_file_path(id: &crate::DbId) -> PathBuf {
+        crate::paths::pid_file(&format!("machine-{}", id)[..])
     }
 }

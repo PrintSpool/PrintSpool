@@ -8,7 +8,7 @@ install_cleanup_trap
 
 cd /home/pi
 
-# curl -s https://raw.githubusercontent.com/PrintSpool/PrintSpool/develop/scripts/install | bash
 export CI=true
+export EXPERIMENTAL_BELT_ENGINE=1
 
 yes | /files/install

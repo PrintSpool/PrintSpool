@@ -27,6 +27,7 @@ built = { version = "0.4.4", features = ["git2"] }
 git2 = "0.13.20"
 
 [dependencies]
+teg-common = { path = "../common"}
 teg_machine = { path = "../machine" }
 teg_material = { path = "../material" }
 teg_auth = { path = "../auth" }

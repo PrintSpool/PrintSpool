@@ -55,13 +55,7 @@ fn main() -> Result<()> {
     dotenv::dotenv()
         .wrap_err(".env file not found or failed to load")?;
 
-    let is_dev = env::var("RUST_ENV")
-        .map(|v| &v == "development")
-        .unwrap_or(true);
-
-    let dev_suffix = if is_dev { "-dev" } else { "" };
-
-    let pid_file_path = format!("/var/tmp/teg{}-server.pid", dev_suffix).into();
+    let pid_file_path = paths::pid_file("server");
 
     // This pid file is not used for locking - it only exists to give the health monitor a PID
     // to kill in case the server becomes non-responsive.
