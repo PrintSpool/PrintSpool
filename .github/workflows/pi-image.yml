@@ -41,7 +41,9 @@ jobs:
     - name: 'Unzip artifact'
       run: |
         cd ./custopizer/scripts/files
-        unzip printspool.zip
+        mkdir printspool
+        unzip printspool.zip -d printspool
+        ls -la ./printspool/
 
     - name: "⬇ Download Raspberry Pi OS Lite"
       id: download_os
