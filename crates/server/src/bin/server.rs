@@ -156,6 +156,19 @@ async fn app() -> Result<()> {
         )
     );
 
+    let fresh_install_flag = paths::etc_common().join(".is-fresh-install");
+    if fresh_install_flag.exists() {
+        // Setup Postgres users on first run
+        let setup_postgres = include_str!("../../../../scripts/setup-postgres");
+        std::process::Command::new("sh")
+            .arg("-c")
+            .arg(setup_postgres)
+            .output()
+            .expect("setup postgres users");
+
+        std::fs::remove_file(fresh_install_flag).expect("delete .is-fresh-install");
+    }
+
     let (_pg_embed, db) = create_db(true).await?;
 
     let machine_ids: Vec<crate::DbId> = std::fs::read_dir(crate::paths::etc_common())?
