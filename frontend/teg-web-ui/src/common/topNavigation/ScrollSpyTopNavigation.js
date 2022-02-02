@@ -4,9 +4,8 @@ import useWindowScroll from '@react-hook/window-scroll'
 import useWindowSize from '@react-hook/window-size'
 import { animated } from 'react-spring'
 
-import tegLogoNoTextSVG from 'url:./images/tegLogoNoText.svg'
-
 const TopNavigation = () => {
+  return <span/>
   // const [props, set, stop] = useSpring(() => ({ opacity: 0 }))
   const windowSize = useWindowSize()
   const scrollY = useWindowScroll(60)
@@ -23,7 +22,6 @@ const TopNavigation = () => {
     >
       <img
         alt="Teg"
-        src={tegLogoNoTextSVG}
         style={{
           height: 50,
         }}

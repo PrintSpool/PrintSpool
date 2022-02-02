@@ -8,17 +8,12 @@ import IconButton from '@mui/material/IconButton'
 import MenuIcon from '@mui/icons-material/Menu'
 
 import useStyle from './TopNavigationStyles'
-import tegLogoNoTextSVG from 'url:./images/tegLogoNoText.svg'
+import WordMark from '../WordMark'
 
 import UserProfileMenu from './UserProfileMenu'
 
 const StaticTopNavigation = ({
-  title = () => (
-    <span style={{ letterSpacing: 2 }}>
-      <span style={{ fontWeight: 'lighter' }}>Print</span>
-      <span>Spool</span>
-    </span>
-  ),
+  title = () => <WordMark/>,
   onMenuButtonClick,
   className,
   avatar = localStorage.getItem('avatar'),
@@ -35,15 +30,6 @@ const StaticTopNavigation = ({
           hasMenu && classes.withMenu,
         )}
       >
-        <Hidden mdDown={hasMenu}>
-          <Link to="/">
-            {/* <img
-              alt="Teg"
-              src={tegLogoNoTextSVG}
-              className={classes.logo}
-            /> */}
-          </Link>
-        </Hidden>
         <Hidden mdDown={!hasMenu} mdUp>
           <IconButton
             className={classes.buttonClass}
