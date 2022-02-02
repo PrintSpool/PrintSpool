@@ -33,6 +33,7 @@ jobs:
               archive_format: 'zip',
           });
           let fs = require('fs');
+          fs.mkdirSync(`${process.env.GITHUB_WORKSPACE}/custopizer/scripts/files`);
           fs.writeFileSync(
             `${process.env.GITHUB_WORKSPACE}/custopizer/scripts/files/printspool.zip`,
             Buffer.from(download.data),
@@ -46,7 +47,6 @@ jobs:
       id: download_os
       run: |
         ./scripts/download-raspberry-pi-os
-        mkdir -p ./custopizer/scripts/files
         cp ./scripts/install ./custopizer/scripts/files/
     - name: "🏗 Run CustoPiZer"
       uses: OctoPrint/CustoPiZer@main
