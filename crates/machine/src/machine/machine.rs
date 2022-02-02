@@ -60,7 +60,7 @@ pub enum PositioningUnits {
 impl Actor for Machine {
     #[instrument(fields(id = &self.id[..]), skip(self, ctx))]
     async fn started(&mut self, ctx: &mut xactor::Context<Self>) -> Result<()> {
-        let config_path = crate::paths::etc().join(format!("machine-{}.toml", self.id));
+        let config_path = crate::paths::etc_common().join(format!("machine-{}.toml", self.id));
 
         if !config_path.is_file() {
             // Currently there is no way to kill supervisors in xactor so deleted machines will
@@ -156,7 +156,7 @@ impl Machine {
     }
 
     pub async fn reset_data(&mut self) -> Result<()> {
-        let config_path = crate::paths::etc().join(format!("machine-{}.toml", self.id));
+        let config_path = crate::paths::etc_common().join(format!("machine-{}.toml", self.id));
 
         let config = fs::read_to_string(config_path).await?;
         let config: MachineConfig = toml::from_str(&config)?;

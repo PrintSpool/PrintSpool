@@ -1,0 +1,20 @@
+#!/bin/bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
+
+cargo build --workspace --target=armv7-unknown-linux-gnueabihf
+PRINTSPOOL_ARCH=armv7l ./scripts/ci/create-artifact
+
+cd ./custopizer
+
+rsync -avh ./scripts ./build/ --delete
+rsync -avh ./config.local ./build/ --delete
+
+mkdir -p ./build/scripts/files/
+rsync -avh ../scripts/install ./build/scripts/files/
+rsync -avh ../artifact-working-dir/ ./build/scripts/files/printspool
+
+sudo docker run --rm --privileged \
+  -v $(pwd)/build:/CustoPiZer/workspace \
+  -v $(pwd)/config.local:/CustoPiZer/config.local \
+  ghcr.io/octoprint/custopizer:latest

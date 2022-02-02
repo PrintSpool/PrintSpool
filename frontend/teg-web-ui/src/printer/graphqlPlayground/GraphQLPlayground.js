@@ -19,7 +19,7 @@ const GraphQLPlayground = () => {
     >
       <div className={classes.root}>
         <Playground
-          endpoint="teg://"
+          endpoint="PrintSpool://"
           fixedEndpoint
           createApolloLink={createLink}
           settings={{

@@ -20,8 +20,8 @@ pub struct ServerKeys {
 
 impl ServerKeys {
     pub async fn load_or_create() -> Result<Self> {
-        let private_key_path = crate::paths::etc().join("id_ecdsa");
-        let public_key_path = crate::paths::etc().join("id_ecdsa.pub");
+        let private_key_path = crate::paths::etc_common().join("id_ecdsa");
+        let public_key_path = crate::paths::etc_common().join("id_ecdsa.pub");
 
         let group = EcGroup::from_curve_name(Nid::X9_62_PRIME256V1)?;
         let mut ctx = openssl::bn::BigNumContext::new().unwrap();

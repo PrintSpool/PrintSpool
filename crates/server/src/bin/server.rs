@@ -18,7 +18,7 @@ use teg_server::health_check_socket;
 use teg_server::create_db;
 
 use tracing_subscriber::prelude::*;
-use std::{env, sync::Arc};
+use std::{sync::Arc};
 use serde::Deserialize;
 use arc_swap::ArcSwap;
 use eyre::{Context, Result, eyre};
@@ -42,7 +42,11 @@ struct IdFromConfig {
     id: crate::DbId,
 }
 
-fn main() -> Result<()> {
+fn main() -> std::result::Result<(), ()> {
+    server().map_err(|err| println!("{:?}", err))
+}
+
+fn server() -> Result<()> {
     use nix::sched::{CpuSet, sched_setaffinity};
     use nix::unistd::Pid;
 
@@ -55,13 +59,7 @@ fn main() -> Result<()> {
     dotenv::dotenv()
         .wrap_err(".env file not found or failed to load")?;
 
-    let is_dev = env::var("RUST_ENV")
-        .map(|v| &v == "development")
-        .unwrap_or(true);
-
-    let dev_suffix = if is_dev { "-dev" } else { "" };
-
-    let pid_file_path = format!("/var/tmp/teg{}-server.pid", dev_suffix).into();
+    let pid_file_path = paths::pid_file("server");
 
     // This pid file is not used for locking - it only exists to give the health monitor a PID
     // to kill in case the server becomes non-responsive.
@@ -160,7 +158,7 @@ async fn app() -> Result<()> {
 
     let (_pg_embed, db) = create_db(true).await?;
 
-    let machine_ids: Vec<crate::DbId> = std::fs::read_dir(crate::paths::etc())?
+    let machine_ids: Vec<crate::DbId> = std::fs::read_dir(crate::paths::etc_common())?
         .map(|entry| {
             let entry = entry?;
             let file_name = entry.file_name().to_str()
@@ -173,7 +171,7 @@ async fn app() -> Result<()> {
                 && file_name.ends_with(".toml")
             {
                 let config_file = std::fs::read_to_string(
-                    crate::paths::etc().join(&file_name)
+                    crate::paths::etc_common().join(&file_name)
                 )
                     .wrap_err(format!("Unable to read machine config file: {}", file_name))?;
 

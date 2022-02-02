@@ -4,20 +4,20 @@ version = "0.1.0"
 authors = ["D1plo1d <thatotherdude@gmail.com>"]
 edition = "2018"
 build = "build.rs"
-default-run = "teg-server"
+default-run = "printspool-server"
 
 [lib]
 
 [[bin]]
-name = "teg-server"
-path = "src/bin/teg-server.rs"
+name = "printspool-server"
+path = "src/bin/server.rs"
 
 [[bin]]
-name = "teg-health-monitor"
+name = "printspool-health-monitor"
 path = "src/bin/health_monitor.rs"
 
 [[bin]]
-name = "teg-invite"
+name = "printspool-invite"
 path = "src/bin/invite.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -27,6 +27,7 @@ built = { version = "0.4.4", features = ["git2"] }
 git2 = "0.13.20"
 
 [dependencies]
+teg-common = { path = "../common"}
 teg_machine = { path = "../machine" }
 teg_material = { path = "../material" }
 teg_auth = { path = "../auth" }

@@ -114,7 +114,7 @@ impl VideoMutation {
                 *previous_reset = now;
 
                 Command::new("systemctl")
-                    .args(["restart", "teg-webrtc-streamer"])
+                    .args(["restart", "printspool-webrtc-streamer"])
                     .output()
                     .await
                     .expect("failed to execute webrtc_streamer reset");

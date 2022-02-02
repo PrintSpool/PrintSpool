@@ -4,9 +4,8 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import MUILink from '@mui/material/Link'
 
-import tegLogoSVG from 'url:./images/tegLogo.svg'
-
 import FooterStyles from './FooterStyles'
+import WordMark from '../../common/WordMark'
 
 const Footer = ({ t }) => {
   const classes = FooterStyles()
@@ -18,11 +17,9 @@ const Footer = ({ t }) => {
       className={classes.root}
     >
       <div className={classes.gradient}>
-        <img
-          alt="Teg"
-          src={tegLogoSVG}
-          className={classes.logo}
-        />
+        <Typography variant="h2">
+          <WordMark/>
+        </Typography>
         <div className={classes.logoAdjacent}>
           <Button
             variant="contained"

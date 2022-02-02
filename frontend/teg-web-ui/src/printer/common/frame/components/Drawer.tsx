@@ -21,7 +21,6 @@ import Home from '@mui/icons-material/Home'
 import useStyles from './Drawer.styles'
 
 const Drawer = ({
-  match,
   machine,
   mobileOpen,
   onClose,
@@ -74,14 +73,6 @@ const Drawer = ({
   const drawerContent = () => (
     <div>
       <List className={classes.drawerContents}>
-        <Hidden mdUp>
-          <DrawerLink
-            text="Home"
-            icon={<Home />}
-            href="/"
-            exact
-          />
-        </Hidden>
         <ListSubheader>{machine.name}</ListSubheader>
         <DrawerLink
           text="Printing"

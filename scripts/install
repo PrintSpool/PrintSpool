@@ -2,6 +2,7 @@
 set -eE -o functrace
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 
+
 failure() {
   local lineno=$1
   local msg=$2
@@ -11,16 +12,16 @@ trap 'failure ${LINENO} "$BASH_COMMAND"' ERR
 
 ARCH=$(uname -m)
 FRESH_INSTALL=0
-if [ -d "/usr/local/etc/teg/" ]; then
-    echo "Updating previous Teg for $ARCH install..."
+if [ -d "/usr/local/etc/printspool/" ]; then
+    echo "Updating previous PrintSpool for $ARCH install..."
 else
-    echo "Installing Teg for $ARCH..."
+    echo "Installing PrintSpool for $ARCH..."
     FRESH_INSTALL=1
 fi
 
 # Install dependencies
 sudo apt update
-sudo apt install \
+sudo apt-get install \
   libgtk-3-0 \
   libasound2 \
   libbsd-dev \
@@ -29,7 +30,8 @@ sudo apt install \
   rsync \
   apg \
   unzip \
-  `# Belt Engine Dependencies` \
+  `# Belt Engine & Cura Engine Dependencies` \
+  python3-pip \
   libgeos-dev \
   libblas-dev \
   liblapack-dev \
@@ -39,60 +41,51 @@ sudo apt install \
   libjpeg-dev \
   zlib1g-dev
 
-# TEG_USER="teg"
+# TEG_USER="printspool"
 # sudo useradd $TEG_USER || true
 # sudo usermod -a -G dialout $TEG_USER || true
 
 TEG_USER="root"
 TEG_USER_HOME=$( getent passwd "$TEG_USER" | cut -d: -f6 )
 
-# Configure postgres
-if [ $FRESH_INSTALL = "1" ]; then
-  DB_USER="teg"
-  DB=$DB_USER
-  DB_PASSWORD=`apg -n 1 -m 64 -M NCL -E \:\'\"\\`
-
-  sudo -u postgres createuser -d $DB_USER || true
-  sudo -u postgres createdb -O $DB_USER $DB || true
-  sudo -u postgres psql -c "ALTER USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
-
-  sudo -u $TEG_USER touch $TEG_USER_HOME/.pgpass
-  sudo -u $TEG_USER chmod 0600 $TEG_USER_HOME/.pgpass
-
-  # Remove old pgpass entries
-  sudo -u $TEG_USER sed -i "/localhost\:\*\:$DB\:$DB_USER/d" $TEG_USER_HOME/.pgpass
-
-  # Add new pgpass entry
-  PG_PASS_LINE="localhost:*:$DB:$DB_USER:$DB_PASSWORD"
-  sudo -u $TEG_USER sh -c "echo \"$PG_PASS_LINE\" >> $TEG_USER_HOME/.pgpass"
-
-  if [ "${TEG_DEV}" == "1" ]; then
-    touch ~/.pgpass
-    chmod 0600 ~/.pgpass
-    sed -i "/localhost\:\*\:$DB\:$DB_USER/d" ~/.pgpass
-    echo "$PG_PASS_LINE" >> ~/.pgpass
-  fi
-fi
-
 # create directories
-sudo mkdir -p /usr/local/etc/teg/
-sudo mkdir -p /var/local/teg/
-sudo mkdir -p /var/local/teg-common/
+sudo mkdir -p /usr/local/etc/printspool/
+sudo chmod 700 /usr/local/etc/printspool/
 
-sudo chmod 700 /usr/local/etc/teg/
-sudo chmod 700 /var/local/teg/
-sudo chmod 700 /var/local/teg-common/
+sudo mkdir -p /usr/local/etc/printspool/common/
+sudo chmod 700 /usr/local/etc/printspool/common/
+
+sudo mkdir -p /var/local/printspool/
+sudo chmod 700 /var/local/printspool/
+
+PREV_PRINTSPOOL_INDEX=`find /usr/local/etc/printspool/ -maxdepth 1 \
+  -not -name 'common' \
+  -not -name '.' \
+  -printf '%f\n' | sort -V | tail -1`
+
+# PRINTSPOOL_INDEX defaults to 1 if PREV_PRINTSPOOL_INDEX is ""
+PRINTSPOOL_INDEX=$(( $PREV_PRINTSPOOL_INDEX + 1 ))
+
+sudo mkdir /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/
+sudo chmod 700 /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/
+
+if [ $FRESH_INSTALL = "1" ]; then
+  sudo touch /usr/local/etc/printspool/common/.is-fresh-install
+fi
 
 if [ "${TEG_DEV}" == "1" ]; then
-  sudo chown -R `whoami`:`whoami` /usr/local/etc/teg/
-  sudo chown -R `whoami`:`whoami` /var/local/teg/
-  sudo chown -R `whoami`:`whoami` /var/local/teg-common/
-else
-  sudo chown -R ${TEG_USER}:${TEG_USER} /usr/local/etc/teg/
-  sudo chown -R ${TEG_USER}:${TEG_USER} /var/local/teg/
-  sudo chown -R ${TEG_USER}:${TEG_USER} /var/local/teg-common/
-fi
+  sudo chown -R `whoami`:`whoami` /usr/local/etc/printspool/
+  sudo chown -R `whoami`:`whoami` /usr/local/etc/printspool/common/
+  sudo chown -R `whoami`:`whoami` /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/
+  sudo chown -R `whoami`:`whoami` /var/local/printspool/
 
+  ./setup-postgres
+else
+  sudo chown -R ${TEG_USER}:${TEG_USER} /usr/local/etc/printspool/
+  sudo chown -R ${TEG_USER}:${TEG_USER} /usr/local/etc/printspool/common/
+  sudo chown -R ${TEG_USER}:${TEG_USER} /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/
+  sudo chown -R ${TEG_USER}:${TEG_USER} /var/local/printspool/
+fi
 
 # create a tmp dir
 SCRIPT_DIR=$(pwd)
@@ -118,18 +111,26 @@ cd $WORK_DIR
 
 if [ "${LOCAL_ARTIFACT}" == "1" ]; then
   echo ""
-  echo "Installing local development version of Teg"
+  echo "Installing PrintSpool from local artifact"
   echo ""
 
-  TEG_ARCH=$ARCH $SCRIPT_DIR/ci/create-artifact
-  cp -r $SCRIPT_DIR/../artifact-working-dir/* ./
+  if [ "${CI}" == "true" ]; then
+    echo "CI Detected: Copying pre-built binaries"
+    cp -r /files/printspool/* ./
+    ls -la
+  else
+    echo "Creating dev artifacts..."
+    TEG_ARCH=$ARCH $SCRIPT_DIR/ci/create-artifact
+    cp -r $SCRIPT_DIR/../artifact-working-dir/* ./
+    echo "Creating dev artifacts... [DONE]"
+  fi
 else
   # Download the latest release
 
   # Use the provided github repo or default to "PrintSpool/PrintSpool"
   PRINTSPOOL_GITHUB="${PRINTSPOOL_GITHUB:-PrintSpool/PrintSpool}"
 
-  ARTIFACT_NAME="teg-$ARCH.zip"
+  ARTIFACT_NAME="printspool-$ARCH.zip"
 
   LATEST_RELEASE=$(curl -L -s -H 'Accept: application/json' https://github.com/$PRINTSPOOL_GITHUB/releases/latest)
 
@@ -144,8 +145,8 @@ else
   rm $ARTIFACT_NAME
 fi
 
+# Download and install belt-engine
 if [ $EXPERIMENTAL_BELT_ENGINE = "1" ]; then
-  # Download and install belt-engine
   wget https://github.com/Autodrop3d/BeltEngine/raw/main/dist/belt-engine-0.1.3.tar.gz
   sudo pip3 install ./belt-engine-0.1.3.tar.gz
 
@@ -154,6 +155,11 @@ if [ $EXPERIMENTAL_BELT_ENGINE = "1" ]; then
   wget https://raw.githubusercontent.com/Autodrop3d/BeltEngine/main/belt_engine/settings/CR30.cfg.ini
   popd
 fi
+
+# Download and install cura-engine
+wget https://github.com/Autodrop3d/autodrop3dClient/raw/master/CuraEngine
+chmod 777 CuraEngine
+mv CuraEngine /usr/local/bin/CuraEngine
 
 # Download the latest webrtc-streamer release
 GITHUB_REPO="mpromonet/webrtc-streamer"
@@ -174,27 +180,37 @@ rm $ARTIFACT_NAME
 mv $ARTIFACT_DIR ./etc/webrtc-streamer
 
 # Install etc (migrations, binaries, configs and webrtc-streamer)
-sudo rsync --chown=$TEG_USER:$TEG_USER -a --delete ./etc/ /usr/local/etc/teg
+sudo rsync --chown=$TEG_USER:$TEG_USER -a --delete ./etc/ /usr/local/etc/printspool/${PRINTSPOOL_INDEX}
+
+# Update the current directory symlink
+ln -vsf "/usr/local/etc/printspool/${PRINTSPOOL_INDEX}" /usr/local/etc/printspool/current
 
 # Install binaries on path
-sudo ln -vsf "/usr/local/etc/teg/teg-invite" /usr/local/bin
+sudo ln -vsf "/usr/local/etc/printspool/current/printspool-invite" /usr/local/bin
 
 # Install System D service files
 sudo chmod 644 ./services/*
 sudo mv ./services/* /lib/systemd/system/
 
-sudo systemctl daemon-reload
-sudo systemctl restart teg-server teg-health-monitor teg-webrtc-streamer
-sudo systemctl enable teg-server teg-health-monitor teg-webrtc-streamer
+if [ "$CI" != "true" ]; then
+  sudo systemctl daemon-reload
+  sudo systemctl restart printspool-server printspool-health-monitor printspool-webrtc-streamer
+  sudo systemctl enable printspool-server printspool-health-monitor printspool-webrtc-streamer
 
-# TODO: Instead of waiting for 1 second this should wait for the database to be migrated
-echo ""
-echo "Migrating database..."
-sleep 1s
+  # TODO: Instead of waiting for 1 second this should wait for the database to be migrated
+  echo ""
+  echo "Migrating database..."
+  sleep 1s
 
-echo "Teg Installation Complete"
+  echo "PrintSpool Installed"
 
-# Generate an invite key for the user
-if [ $FRESH_INSTALL = "1" ]; then
-  sudo teg-invite
+  # Generate an invite key for the user
+  if [ $FRESH_INSTALL = "1" ]; then
+    sudo printspool-invite
+  fi
+fi
+
+# Clean up: delete the previous version
+if [ "$PREV_PRINTSPOOL_INDEX" != ""]; then
+  rm -rf /usr/local/etc/printspool/$(PREV_PRINTSPOOL_INDEX)/
 fi

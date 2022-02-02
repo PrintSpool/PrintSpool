@@ -1,14 +1,14 @@
 [Unit]
-Description=Teg Server
+Description=PrintSpool Server
 Wants=network.target
 After=network.target
 
 [Service]
-EnvironmentFile=/usr/local/etc/teg/.env
-ExecStart=/usr/local/etc/teg/teg-server
-WorkingDirectory=/usr/local/etc/teg/
+EnvironmentFile=/usr/local/etc/printspool/current/.env
+ExecStart=/usr/local/etc/printspool/current/printspool-server
+WorkingDirectory=/usr/local/etc/printspool/current/
 Group=dialout
-SyslogIdentifier=teg-server
+SyslogIdentifier=printspool-server
 Restart=always
 TimeoutStopSec=30
 Type=simple

@@ -47,7 +47,7 @@ impl xactor::Handler<ResetMachine> for Machine {
             let pid_file = MachineConfig::pid_file_path(&self.id);
 
             let lock_result = Pidfile::new(
-                &pid_file.into(),
+                &pid_file,
                 std::fs::Permissions::from_mode(0o600),
             )
                 // Drop the pidfile lock immediately to prevent blocking the driver from starting

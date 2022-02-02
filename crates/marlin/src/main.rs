@@ -21,7 +21,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Create and lock the pidfile
     // See: https://yakking.branchable.com/posts/procrun-2-pidfiles/
     let pidfile = Pidfile::new(
-        &pid_file.into(),
+        &pid_file,
         std::fs::Permissions::from_mode(0o600),
     )?;
 

@@ -4022,6 +4022,7 @@ dependencies = [
  "signal-hook 0.3.8",
  "sqlx",
  "surf",
+ "teg-common",
  "teg-json-store",
  "teg-print-queue",
  "teg_auth",
