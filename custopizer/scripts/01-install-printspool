@@ -9,6 +9,9 @@ install_cleanup_trap
 cd /home/pi
 
 export CI=true
+export LOCAL_ARTIFACT=1
 export EXPERIMENTAL_BELT_ENGINE=1
 
 yes | /files/install
+
+sudo touch /usr/local/etc/printspool/common/.enable-wifi-ap

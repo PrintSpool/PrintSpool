@@ -69,6 +69,10 @@ PRINTSPOOL_INDEX=$(( $PREV_PRINTSPOOL_INDEX + 1 ))
 sudo mkdir /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/
 sudo chmod 700 /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/
 
+if [ $FRESH_INSTALL = "1" ]; then
+  sudo touch /usr/local/etc/printspool/common/.is-fresh-install
+fi
+
 if [ "${TEG_DEV}" == "1" ]; then
   sudo chown -R `whoami`:`whoami` /usr/local/etc/printspool/
   sudo chown -R `whoami`:`whoami` /usr/local/etc/printspool/common/
@@ -107,11 +111,19 @@ cd $WORK_DIR
 
 if [ "${LOCAL_ARTIFACT}" == "1" ]; then
   echo ""
-  echo "Installing local development version of PrintSpool"
+  echo "Installing PrintSpool from local artifact"
   echo ""
 
-  TEG_ARCH=$ARCH $SCRIPT_DIR/ci/create-artifact
-  cp -r $SCRIPT_DIR/../artifact-working-dir/* ./
+  if [ "${CI}" == "true" ]; then
+    echo "CI Detected: Copying pre-built binaries"
+    cp -r /files/printspool/* ./
+    ls -la
+  else
+    echo "Creating dev artifacts..."
+    TEG_ARCH=$ARCH $SCRIPT_DIR/ci/create-artifact
+    cp -r $SCRIPT_DIR/../artifact-working-dir/* ./
+    echo "Creating dev artifacts... [DONE]"
+  fi
 else
   # Download the latest release
 
