@@ -3,7 +3,7 @@ import makeStyles from '@mui/styles/makeStyles';
 const useStyles = makeStyles(theme => ({
   mainMenu: {
     display: 'grid',
-    gridTemplateColumns: 'min-content max-content 1fr auto',
+    gridTemplateColumns: 'max-content 1fr auto',
     gridTemplateRows: 'auto',
     alignItems: 'center',
     // background: 'linear-gradient(#DD25C4, #9602A7)',
