@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use async_graphql::{
     // Context,
     // ID,
-    FieldResult, SimpleObject,
+    FieldResult,
 };
 // use eyre::{
 //     eyre,

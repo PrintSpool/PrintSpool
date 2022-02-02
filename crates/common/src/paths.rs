@@ -13,7 +13,11 @@ pub fn var() -> PathBuf {
 }
 
 pub fn etc() -> PathBuf {
-    format!("/usr/local/etc/printspool{}", dev_suffix()).into()
+    format!("/usr/local/etc/printspool{}/current", dev_suffix()).into()
+}
+
+pub fn etc_common() -> PathBuf {
+    format!("/usr/local/etc/printspool{}/common", dev_suffix()).into()
 }
 
 pub fn pid_file(name: &str) -> PathBuf {

@@ -11,14 +11,14 @@ cp -r ./services artifact-working-dir/services
 # Copy binaries
 mkdir -p artifact-working-dir/etc/
 
-if [ "$TEG_ARCH" == "armv7l" ]
+if [ "$PRINTSPOOL_ARCH" == "armv7l" ]
 then
-  cp ./target/armv7-unknown-linux-gnueabihf/*/teg-* ./artifact-working-dir/etc/
-elif [ "$TEG_ARCH" == "x86_64" ]
+  cp ./target/armv7-unknown-linux-gnueabihf/*/printspool-* ./artifact-working-dir/etc/
+elif [ "$PRINTSPOOL_ARCH" == "x86_64" ]
 then
-  cp ./target/*/teg-* ./artifact-working-dir/etc/
+  cp ./target/*/printspool-* ./artifact-working-dir/etc/
 else
-  echo "Invalid TEG_ARCH: \"$TEG_ARCH\". Expected armv7l or x86_64"
+  echo "Invalid PRINTSPOOL_ARCH: \"$PRINTSPOOL_ARCH\". Expected armv7l or x86_64"
   exit 1
 fi
 

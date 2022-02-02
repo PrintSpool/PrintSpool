@@ -50,23 +50,37 @@ TEG_USER_HOME=$( getent passwd "$TEG_USER" | cut -d: -f6 )
 
 # create directories
 sudo mkdir -p /usr/local/etc/printspool/
-sudo mkdir -p /var/local/printspool/
-sudo mkdir -p /var/local/printspool-common/
-
 sudo chmod 700 /usr/local/etc/printspool/
+
+sudo mkdir -p /usr/local/etc/printspool/common/
+sudo chmod 700 /usr/local/etc/printspool/common/
+
+sudo mkdir -p /var/local/printspool/
 sudo chmod 700 /var/local/printspool/
-sudo chmod 700 /var/local/printspool-common/
+
+PREV_PRINTSPOOL_INDEX=`find /usr/local/etc/printspool/ -maxdepth 1 \
+  -not -name 'common' \
+  -not -name '.' \
+  -printf '%f\n' | sort -V | tail -1`
+
+# PRINTSPOOL_INDEX defaults to 1 if PREV_PRINTSPOOL_INDEX is ""
+PRINTSPOOL_INDEX=$(( $PREV_PRINTSPOOL_INDEX + 1 ))
+
+sudo mkdir /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/
+sudo chmod 700 /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/
 
 if [ "${TEG_DEV}" == "1" ]; then
   sudo chown -R `whoami`:`whoami` /usr/local/etc/printspool/
+  sudo chown -R `whoami`:`whoami` /usr/local/etc/printspool/common/
+  sudo chown -R `whoami`:`whoami` /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/
   sudo chown -R `whoami`:`whoami` /var/local/printspool/
-  sudo chown -R `whoami`:`whoami` /var/local/printspool-common/
 
   ./setup-postgres
 else
   sudo chown -R ${TEG_USER}:${TEG_USER} /usr/local/etc/printspool/
+  sudo chown -R ${TEG_USER}:${TEG_USER} /usr/local/etc/printspool/common/
+  sudo chown -R ${TEG_USER}:${TEG_USER} /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/
   sudo chown -R ${TEG_USER}:${TEG_USER} /var/local/printspool/
-  sudo chown -R ${TEG_USER}:${TEG_USER} /var/local/printspool-common/
 fi
 
 # create a tmp dir
@@ -154,10 +168,13 @@ rm $ARTIFACT_NAME
 mv $ARTIFACT_DIR ./etc/webrtc-streamer
 
 # Install etc (migrations, binaries, configs and webrtc-streamer)
-sudo rsync --chown=$TEG_USER:$TEG_USER -a --delete ./etc/ /usr/local/etc/printspool
+sudo rsync --chown=$TEG_USER:$TEG_USER -a --delete ./etc/ /usr/local/etc/printspool/${PRINTSPOOL_INDEX}
+
+# Update the current directory symlink
+ln -vsf "/usr/local/etc/printspool/${PRINTSPOOL_INDEX}" /usr/local/etc/printspool/current
 
 # Install binaries on path
-sudo ln -vsf "/usr/local/etc/printspool/printspool-invite" /usr/local/bin
+sudo ln -vsf "/usr/local/etc/printspool/current/printspool-invite" /usr/local/bin
 
 # Install System D service files
 sudo chmod 644 ./services/*
@@ -179,4 +196,9 @@ if [ "$CI" != "true" ]; then
   if [ $FRESH_INSTALL = "1" ]; then
     sudo printspool-invite
   fi
+fi
+
+# Clean up: delete the previous version
+if [ "$PREV_PRINTSPOOL_INDEX" != ""]; then
+  rm -rf /usr/local/etc/printspool/$(PREV_PRINTSPOOL_INDEX)/
 fi

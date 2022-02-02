@@ -1,0 +1,17 @@
+[Unit]
+Description=Teg Health Monitor
+Wants=network.target
+After=network.target printspool-server.service
+
+[Service]
+# EnvironmentFile=-/etc/environment
+ExecStart=/usr/local/etc/printspool/current/printspool-health-monitor
+WorkingDirectory=/usr/local/etc/printspool/current/
+Group=dialout
+SyslogIdentifier=printspool-health-monitor
+Restart=always
+TimeoutStopSec=30
+Type=simple
+
+[Install]
+WantedBy=multi-user.target

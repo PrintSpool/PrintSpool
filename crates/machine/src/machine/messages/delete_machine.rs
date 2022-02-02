@@ -30,7 +30,7 @@ impl xactor::Handler<DeleteMachine> for Machine {
             .await?;
 
         // Delete the machine config
-        let config_path = crate::paths::etc().join(format!("machine-{}.toml", self.id));
+        let config_path = crate::paths::etc_common().join(format!("machine-{}.toml", self.id));
         let _ = std::fs::remove_file(config_path);
 
         let mut attempted_sig_int = false;

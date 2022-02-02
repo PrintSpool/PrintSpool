@@ -253,7 +253,7 @@ impl MachineConfig {
         //     format!("/var/snap/{}/current/etc/machine-{}.toml", snap_name, id)
         // } else {
         // }
-        crate::paths::etc().join(format!("machine-{}.toml", id))
+        crate::paths::etc_common().join(format!("machine-{}.toml", id))
     }
 
     pub fn pid_file_path(id: &crate::DbId) -> PathBuf {

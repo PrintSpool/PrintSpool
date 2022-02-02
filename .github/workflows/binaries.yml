@@ -53,23 +53,23 @@ jobs:
           args: --release
       # X86 Debug/Release folder structure
       - name: Create artifact folder structure
-        run: TEG_ARCH=x86_64 ./scripts/ci/create-artifact
+        run: PRINTSPOOL_ARCH=x86_64 ./scripts/ci/create-artifact
       - name: Upload the Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: teg-x86_64
+          name: printspool-x86_64
           path: ./artifact-working-dir
       # Upload the Release Artifact
       - name: Zip Release Binaries
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           cd ./artifact-working-dir
-          zip -r ../teg-x86_64.zip ./
+          zip -r ../printspool-x86_64.zip ./
       - name: Upload X86 Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: ./teg-x86_64.zip
+          files: ./printspool-x86_64.zip
 
   arm_v7_build:
     name: Build ARMv7 Rust Binaries
@@ -154,20 +154,20 @@ jobs:
 
       # Armv7 Debug/Release folder structure
       - name: Create artifact folder structure
-        run: TEG_ARCH=armv7l ./scripts/ci/create-artifact
+        run: PRINTSPOOL_ARCH=armv7l ./scripts/ci/create-artifact
       - name: Upload the Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: teg-armv7l
+          name: printspool-armv7l
           path: ./artifact-working-dir
       # Upload the Release Artifact
       - name: Zip Release Binaries
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           cd ./artifact-working-dir
-          zip -r ../teg-armv7l.zip ./
+          zip -r ../printspool-armv7l.zip ./
       - name: Upload ARMv7 Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: ./teg-armv7l.zip
+          files: ./printspool-armv7l.zip
