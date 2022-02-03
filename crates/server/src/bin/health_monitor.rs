@@ -34,7 +34,7 @@ fn main() -> Result<()> {
     info!("Server health monitor started");
     sleep(Duration::from_secs(1));
 
-    let socket_path = teg_server::paths::var().join("health-check.sock");
+    let socket_path = printspool_server::paths::var().join("health-check.sock");
 
     loop {
         let mut unix_socket = match UnixStream::connect(&socket_path) {

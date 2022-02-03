@@ -9,13 +9,13 @@ use tracing::Instrument;
 
 pub use teg_machine::paths;
 
-use teg_server::mutation;
-use teg_server::query;
-use teg_server::local_http_server;
+use printspool_server::mutation;
+use printspool_server::query;
+use printspool_server::local_http_server;
 
-use teg_server::health_check_socket;
+use printspool_server::health_check_socket;
 
-use teg_server::create_db;
+use printspool_server::create_db;
 
 use tracing_subscriber::prelude::*;
 use std::{sync::Arc};
@@ -29,13 +29,13 @@ use futures_util::{TryFutureExt, future, future::FutureExt, future::join_all, se
     // TryStreamExt,
 }};
 
-use teg_server::teg_auth::AuthContext;
-use teg_server::teg_device::DeviceManager;
-use teg_server::teg_machine::{MachineHooksList, MachineMap, MachineMapLocal, MachineMaterialHooks, machine::Machine, signalling_updater::{SignallingUpdater, SignallingUpdaterMachineHooks}};
-use teg_server::teg_material::{MaterialHooksList};
-use teg_server::teg_print_queue::print_queue_machine_hooks::PrintQueueMachineHooks;
+use printspool_server::teg_auth::AuthContext;
+use printspool_server::teg_device::DeviceManager;
+use printspool_server::teg_machine::{MachineHooksList, MachineMap, MachineMapLocal, MachineMaterialHooks, machine::Machine, signalling_updater::{SignallingUpdater, SignallingUpdaterMachineHooks}};
+use printspool_server::teg_material::{MaterialHooksList};
+use printspool_server::teg_print_queue::print_queue_machine_hooks::PrintQueueMachineHooks;
 
-use teg_server::DbId;
+use printspool_server::DbId;
 
 #[derive(Deserialize)]
 struct IdFromConfig {

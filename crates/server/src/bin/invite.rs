@@ -4,11 +4,11 @@ use eyre::{
     // Context as _,
 };
 use std::sync::Arc;
-use teg_server::teg_auth::invite::Invite;
+use printspool_server::teg_auth::invite::Invite;
 
-use teg_server::paths;
+use printspool_server::paths;
 
-use teg_server::create_db;
+use printspool_server::create_db;
 
 fn main() -> Result<()> {
     async_std::task::block_on(invite())
@@ -35,7 +35,7 @@ async fn invite() -> Result<()> {
         .await
         .expect("Connect to database");
 
-    let server_keys = teg_server::teg_auth::ServerKeys::load_or_create()
+    let server_keys = printspool_server::teg_auth::ServerKeys::load_or_create()
         .await
         .expect("load/create server keys");
     let server_keys = Arc::new(server_keys);
