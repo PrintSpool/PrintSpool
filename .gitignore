@@ -24,20 +24,6 @@ heaptrack.*
 
 /artifact-working-dir
 
-/data
-/snapcraft/*/*.snap
-/snapcraft/*/bin
-snapcraft/parts/
-snapcraft/prime/
-snapcraft/stage/
-snapcraft/snap/.snapcraft
-snapcraft/*.tar.bz2
-snapcraft/bin/
-/teg
-/teg-marlin
-snapcraft.login
-snapcraft/tegh_*.txt
-
 coverage
 
 lerna-debug.log

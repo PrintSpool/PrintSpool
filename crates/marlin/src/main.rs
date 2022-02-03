@@ -1,4 +1,4 @@
-extern crate teg_marlin;
+extern crate printspool_marlin;
 
 use std::env;
 use std::os::unix::fs::PermissionsExt;
@@ -6,7 +6,7 @@ use pidfile_rs::Pidfile;
 use nix::sched::{CpuSet, sched_setaffinity};
 use nix::unistd::Pid;
 
-use teg_marlin::MachineConfig;
+use printspool_marlin::MachineConfig;
 
 pub use teg_machine::paths;
 
@@ -43,7 +43,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .enable_all()
         .build()?;
 
-    rt.block_on(teg_marlin::start(config_path))?;
+    rt.block_on(printspool_marlin::start(config_path))?;
 
     Ok(())
 }

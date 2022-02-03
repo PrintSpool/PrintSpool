@@ -1,5 +1,5 @@
 #![crate_type = "lib"]
-#![crate_name = "teg_marlin"]
+#![crate_name = "printspool_marlin"]
 #![type_length_limit="1073741824"]
 
 #[macro_use] extern crate tracing;
