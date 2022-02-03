@@ -13,13 +13,20 @@ mkdir -p artifact-working-dir/etc/
 
 if [ "$PRINTSPOOL_ARCH" == "armv7l" ]
 then
-  cp ./target/armv7-unknown-linux-gnueabihf/*/printspool-* ./artifact-working-dir/etc/
+  ARCH_DIR="./target/armv7-unknown-linux-gnueabihf"
 elif [ "$PRINTSPOOL_ARCH" == "x86_64" ]
 then
-  cp ./target/*/printspool-* ./artifact-working-dir/etc/
+  ARCH_DIR="./target"
 else
   echo "Invalid PRINTSPOOL_ARCH: \"$PRINTSPOOL_ARCH\". Expected armv7l or x86_64"
   exit 1
+fi
+
+if [ -e "${ARCH_DIR}/release" ]
+then
+  rsync -rv ${ARCH_DIR}/release/printspool-* --exclude=*.d ./artifact-working-dir/etc/
+else
+  rsync -rv ${ARCH_DIR}/debug/printspool-* --exclude=*.d ./artifact-working-dir/etc/
 fi
 
 rm ./artifact-working-dir/etc/*.d

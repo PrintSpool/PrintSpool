@@ -156,6 +156,23 @@ jobs:
       - name: Create artifact folder structure
         run: PRINTSPOOL_ARCH=armv7l ./scripts/ci/create-artifact
 
+      # Upload the Release Artifact
+      - name: Upload the Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: printspool-armv7l
+          path: ./artifact-working-dir
+      - name: Zip Release Binaries
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          cd ./artifact-working-dir
+          zip -r ../printspool-armv7l.zip ./
+      - name: Upload ARMv7 Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./printspool-armv7l.zip
+
       # Raspbian SD Card Image
       - name: 'Copy the artifact into Custopizer'
         run: |
@@ -177,7 +194,7 @@ jobs:
 
       - name: "✏ Rename image"
         run: |
-          IMAGE="printspool.img"
+          IMAGE="printspool-pi-img.img"
           echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
           cd custopizer/build
@@ -222,20 +239,3 @@ jobs:
           # custopizer/build/rpi-imager.json
         # env:
         #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Upload the Release Artifact
-      - name: Upload the Artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: printspool-armv7l
-          path: ./artifact-working-dir
-      - name: Zip Release Binaries
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          cd ./artifact-working-dir
-          zip -r ../printspool-armv7l.zip ./
-      - name: Upload ARMv7 Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v1
-        with:
-          files: ./printspool-armv7l.zip
