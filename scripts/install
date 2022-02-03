@@ -105,14 +105,14 @@ function cleanup {
 # register the cleanup function to be called on the EXIT signal
 trap cleanup EXIT
 
-if [ -z "${PRINTSPOOL_ZIP}" ]; then
+if [[ ! -z "${PRINTSPOOL_ZIP}" ]]; then
   unzip "${PRINTSPOOL_ZIP}" $WORK_DIR/
 fi
 
 # Change to the tmp dir
 cd $WORK_DIR
 
-if [ -z "${PRINTSPOOL_ZIP}" ]; then
+if [[ ! -z "${PRINTSPOOL_ZIP}" ]]; then
   echo ""
   echo "Installing PrintSpool from zip file"
   echo ""
