@@ -197,10 +197,17 @@ sudo ln -vsf "/usr/local/etc/printspool/current/printspool-invite" /usr/local/bi
 sudo chmod 644 ./services/*
 sudo mv ./services/* /lib/systemd/system/
 
-sudo systemctl daemon-reload
-sudo systemctl enable printspool-server printspool-health-monitor printspool-webrtc-streamer
+if [ "$CI" == "true" ]; then
+  # See: https://unix.stackexchange.com/questions/369017/enable-systemd-services-without-systemctl
+  sudo apt-get install tmux
+  tmux new-session -d -s mysession "systemd-nspawn --boot --machine=machine_name -D /install/directory"
 
-if [ "$CI" != "true" ]; then
+  systemctl --machine=machine_name enable printspool-server printspool-health-monitor printspool-webrtc-streamer
+
+  machinectl poweroff machine_name
+else
+  sudo systemctl daemon-reload
+  sudo systemctl enable printspool-server printspool-health-monitor printspool-webrtc-streamer
   sudo systemctl restart printspool-server printspool-health-monitor printspool-webrtc-streamer
 
   # TODO: Instead of waiting for 1 second this should wait for the database to be migrated
