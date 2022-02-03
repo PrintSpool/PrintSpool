@@ -51,8 +51,8 @@ pub struct MachineConfig {
 }
 
 impl MachineConfig {
-    // Set to the name of the snap to connect an external teg-marlin process to the snap's
-    // tmp directory and socket. Generally this is only useful for teg-marlin development.
+    // Set to the name of the snap to connect an external printspool-marlin process to the snap's
+    // tmp directory and socket. Generally this is only useful for printspool-marlin development.
     pub fn debug_snap_name() -> Option<String> {
         std::env::var("DEBUG_TEG_SNAP").ok()
     }

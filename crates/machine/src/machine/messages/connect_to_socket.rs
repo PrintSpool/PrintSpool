@@ -69,7 +69,7 @@ async fn spawn_driver(machine: &Machine) -> Result<()> {
         // format!("cd {} && cargo watch -s \"cargo run -- {}\"", marlin, config_file)
         format!("RUST_BACKTRACE=1 cd {} && cargo run{} -- {}", marlin, release_flag, machine.id)
     } else {
-        let marlin = crate::paths::etc().join("teg-marlin");
+        let marlin = crate::paths::etc().join("printspool-marlin");
         let marlin = marlin.to_str()
             .ok_or_else(|| eyre!("Error loading file path to drivers"))?;
 

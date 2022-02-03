@@ -33,12 +33,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     pidfile.write()?;
 
     // All other teg processes are prevented from running on cpu 0 so that it can be dedicated
-    // to the driver processes (eg. teg-marlin).
+    // to the driver processes (eg. printspool-marlin).
     let mut cpu_set = CpuSet::new();
     cpu_set.set(0)?;
     sched_setaffinity(Pid::from_raw(0), &cpu_set)?;
 
-    // Create single-threaded runtime that will run teg-marlin only on the dedicated CPU
+    // Create single-threaded runtime that will run printspool-marlin only on the dedicated CPU
     let rt = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()?;

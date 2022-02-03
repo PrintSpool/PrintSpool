@@ -63,7 +63,7 @@ PREV_PRINTSPOOL_INDEX=`find /usr/local/etc/printspool/ -maxdepth 1 \
   -not -name '.' \
   -printf '%f\n' | sort -V | tail -1`
 
-# PRINTSPOOL_INDEX defaults to 1 if PREV_PRINTSPOOL_INDEX is ""
+# PRINTSPOOL_INDEX defaults to 0 if PREV_PRINTSPOOL_INDEX is ""
 PRINTSPOOL_INDEX=$(( $PREV_PRINTSPOOL_INDEX + 1 ))
 
 sudo mkdir /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/
@@ -182,6 +182,11 @@ mv $ARTIFACT_DIR ./etc/webrtc-streamer
 # Install etc (migrations, binaries, configs and webrtc-streamer)
 sudo rsync --chown=$TEG_USER:$TEG_USER -a --delete ./etc/ /usr/local/etc/printspool/${PRINTSPOOL_INDEX}
 
+# Set permissions
+sudo chmod 744 /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/printspool-health-monitor
+sudo chmod 744 /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/printspool-server
+sudo chmod 744 /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/printspool-invite
+
 # Update the current directory symlink
 ln -vsf "/usr/local/etc/printspool/${PRINTSPOOL_INDEX}" /usr/local/etc/printspool/current
 
@@ -192,10 +197,11 @@ sudo ln -vsf "/usr/local/etc/printspool/current/printspool-invite" /usr/local/bi
 sudo chmod 644 ./services/*
 sudo mv ./services/* /lib/systemd/system/
 
+sudo systemctl daemon-reload
+sudo systemctl enable printspool-server printspool-health-monitor printspool-webrtc-streamer
+
 if [ "$CI" != "true" ]; then
-  sudo systemctl daemon-reload
   sudo systemctl restart printspool-server printspool-health-monitor printspool-webrtc-streamer
-  sudo systemctl enable printspool-server printspool-health-monitor printspool-webrtc-streamer
 
   # TODO: Instead of waiting for 1 second this should wait for the database to be migrated
   echo ""

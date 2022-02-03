@@ -75,24 +75,12 @@ fn server() -> Result<()> {
     let logical_cpus = num_cpus::get();
 
     // Restrict the server to any logical CPU except for the one that is reserved for
-    // the printer driver processes (eg. teg-marlin).
+    // the printer driver processes (eg. printspool-marlin).
     let mut cpu_set = CpuSet::new();
     for cpu_index in 1..logical_cpus {
         cpu_set.set(cpu_index)?;
     }
     sched_setaffinity(Pid::from_raw(0), &cpu_set)?;
-
-    // Run one async-std thread for each logical CPU except for the one that is reserved for
-    // the printer driver processes (eg. teg-marlin).
-    let threads = std::cmp::max(logical_cpus.saturating_sub(1), 1);
-    std::env::set_var("ASYNC_STD_THREAD_COUNT", threads.to_string());
-
-    // Start the runtime
-    async_std::task::block_on(app())
-}
-
-async fn app() -> Result<()> {
-    teg_machine::initialize_statics();
 
     // use tracing_error::ErrorLayer;
     // use tracing_subscriber::{prelude::*, registry::Registry};
@@ -108,6 +96,20 @@ async fn app() -> Result<()> {
         .init();
 
     color_eyre::install()?;
+
+    // Run one async-std thread for each logical CPU except for the one that is reserved for
+    // the printer driver processes (eg. printspool-marlin).
+    let threads = std::cmp::max(logical_cpus.saturating_sub(1), 1);
+    std::env::set_var("ASYNC_STD_THREAD_COUNT", threads.to_string());
+
+    teg_machine::initialize_statics();
+
+    // Start the runtime
+    async_std::task::block_on(app())
+}
+
+async fn app() -> Result<()> {
+    info!("Starting Print Spool");
 
     // USR2 Signals handling
     let mut signals = Signals::new(&[SIGUSR2])?;
@@ -159,6 +161,7 @@ async fn app() -> Result<()> {
     let fresh_install_flag = paths::etc_common().join(".is-fresh-install");
     if fresh_install_flag.exists() {
         // Setup Postgres users on first run
+        info!("Fresh Install Detected: Setting up Postgres...");
         let setup_postgres = include_str!("../../../../scripts/setup-postgres");
         std::process::Command::new("sh")
             .arg("-c")
@@ -167,6 +170,28 @@ async fn app() -> Result<()> {
             .expect("setup postgres users");
 
         std::fs::remove_file(fresh_install_flag).expect("delete .is-fresh-install");
+        info!("Fresh Install Detected: Setting up Postgres... [DONE]");
+    }
+
+    let wifi_ap_flag = paths::etc_common().join(".enable-wifi-ap");
+    if wifi_ap_flag.exists() {
+        // Setup Postgres users on first run
+        info!("Enabling Wifi Access Point (Wifi Config Captive Portal)...");
+        async_std::task::spawn(async {
+            let _ = async_std::process::Command::new("sh")
+                .arg("-c")
+                .arg("wifi-connect -s \"PrintSpool 3D Printer\"")
+                .status()
+                .await;
+
+            async_std::fs::remove_file(wifi_ap_flag)
+                .await
+                .expect("delete .enable-wifi-ap");
+
+            info!("Wifi configuration complete! Print Spool should now be connected to your wifi.");
+            // Restart the server
+            std::process::exit(0);
+        });
     }
 
     let (_pg_embed, db) = create_db(true).await?;
