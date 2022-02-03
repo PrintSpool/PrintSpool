@@ -1,7 +1,5 @@
 #!/bin/bash
 set -eE -o functrace
-cd "$( dirname "${BASH_SOURCE[0]}" )"
-
 
 failure() {
   local lineno=$1
@@ -87,7 +85,7 @@ else
 fi
 
 # create a tmp dir
-SCRIPT_DIR=$(pwd)
+SCRIPT_DIR=$( dirname "${BASH_SOURCE[0]}" )
 WORK_DIR=$(mktemp -d)
 
 # check if tmp dir was created
@@ -128,6 +126,8 @@ elif [ "${LOCAL_ARTIFACT}" == "1" ]; then
     ls -la
   else
     echo "Creating dev artifacts..."
+    cd "$( dirname "${BASH_SOURCE[0]}" )"
+
     TEG_ARCH=$ARCH $SCRIPT_DIR/ci/create-artifact
     cp -r $SCRIPT_DIR/../artifact-working-dir/* ./
     echo "Creating dev artifacts... [DONE]"
