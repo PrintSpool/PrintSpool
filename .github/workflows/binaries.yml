@@ -155,12 +155,79 @@ jobs:
       # Armv7 Debug/Release folder structure
       - name: Create artifact folder structure
         run: PRINTSPOOL_ARCH=armv7l ./scripts/ci/create-artifact
+
+      # Raspbian SD Card Image
+      - name: 'Copy the artifact into Custopizer'
+        run: |
+          cp -R ./artifact-working-dir/ ./custopizer/scripts/files/printspool
+          ls -la ./custopizer/scripts/files/printspool
+
+      - name: "⬇ Download Raspberry Pi OS Lite"
+        id: download_os
+        run: |
+          ./scripts/download-raspberry-pi-os
+          cp ./scripts/install ./custopizer/scripts/files/
+      - name: "🏗 Run CustoPiZer"
+        uses: OctoPrint/CustoPiZer@main
+        with:
+          workspace: "${{ github.workspace }}/custopizer/build"
+          scripts:  "${{ github.workspace }}/custopizer/scripts"
+          config: "${{ github.workspace }}/custopizer/config.local"
+
+      - name: "✏ Rename image"
+        run: |
+          IMAGE="printspool.img"
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+
+          cd custopizer/build
+          mv output.img $IMAGE
+
+      - name: "📦 Package the image"
+        id: package-image
+        uses: OctoPrint/actions/package-rpi-image@main
+        with:
+          image_path: "custopizer/build/${{ env.IMAGE }}"
+
+      # - name: "🆕 Generate rpi-imager.json snippet"
+      #   uses: OctoPrint/actions/rpi-imager-snippet@main
+      #   with:
+      #     name: "${{ env.RELEASE_NAME }}"
+      #     description: "PrintSpool 3D printer control for Raspberry Pi"
+      #     icon: "https://octopi.octoprint.org/rpi-imager.png"
+      #     url: "https://github.com/OctoPrint/OctoPi-UpToDate/releases/download/${{ env.RELEASE_TAG }}/${{ steps.package-image.outputs.zip_name }}"
+      #     output: "build/rpi-imager.json"
+      #     image_sha256: ${{ steps.package-image.outputs.image_sha256 }}
+      #     image_size: ${{ steps.package-image.outputs.image_size }}
+      #     zip_sha256: ${{ steps.package-image.outputs.zip_sha256 }}
+      #     zip_size: ${{ steps.package-image.outputs.zip_size }}
+      - name: Upload the Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.package-image.outputs.zip_name }}
+          path: custopizer/build/${{ steps.package-image.outputs.zip_name }}
+      - name: "🔖 Create release & attach assets"
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          # name: "${{ env.RELEASE_NAME }}"
+          # tag_name: "${{ env.RELEASE_TAG }}"
+          # body_path: "build/release.md"
+          # prerelease: ${{ contains(env.OCTOPRINT_VERSION, 'rc') }}
+          # fail_on_unmatched_files: true
+          files: |
+            custopizer/build/${{ steps.package-image.outputs.zip_name }}
+            custopizer/build/${{ steps.package-image.outputs.zip_name }}.md5
+            custopizer/build/${{ steps.package-image.outputs.zip_name }}.sha256
+          # custopizer/build/rpi-imager.json
+        # env:
+        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Upload the Release Artifact
       - name: Upload the Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: printspool-armv7l
           path: ./artifact-working-dir
-      # Upload the Release Artifact
       - name: Zip Release Binaries
         if: startsWith(github.ref, 'refs/tags/')
         run: |
