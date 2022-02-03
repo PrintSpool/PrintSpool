@@ -58,9 +58,8 @@ sudo chmod 700 /usr/local/etc/printspool/common/
 sudo mkdir -p /var/local/printspool/
 sudo chmod 700 /var/local/printspool/
 
-PREV_PRINTSPOOL_INDEX=`find /usr/local/etc/printspool/ -maxdepth 1 \
-  -not -name 'common' \
-  -not -name '.' \
+PREV_PRINTSPOOL_INDEX=`sudo find /usr/local/etc/printspool/ -maxdepth 1 \
+  -regex '/usr/local/etc/printspool/[0-9]+' \
   -printf '%f\n' | sort -V | tail -1`
 
 # PRINTSPOOL_INDEX defaults to 0 if PREV_PRINTSPOOL_INDEX is ""
