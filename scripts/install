@@ -199,7 +199,7 @@ sudo mv ./services/* /lib/systemd/system/
 
 if [ "$CI" == "true" ]; then
   # See: https://unix.stackexchange.com/questions/369017/enable-systemd-services-without-systemctl
-  sudo apt-get install tmux
+  sudo apt-get install tmux systemd-container
   tmux new-session -d -s mysession "systemd-nspawn --boot --machine=machine_name -D /install/directory"
 
   systemctl --machine=machine_name enable printspool-server printspool-health-monitor printspool-webrtc-streamer
