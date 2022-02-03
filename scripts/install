@@ -113,7 +113,9 @@ fi
 cd $WORK_DIR
 
 if [ -z "${PRINTSPOOL_ZIP}" ]; then
+  echo ""
   echo "Installing PrintSpool from zip file"
+  echo ""
   ls -la
 elif [ "${LOCAL_ARTIFACT}" == "1" ]; then
   echo ""
@@ -132,6 +134,9 @@ elif [ "${LOCAL_ARTIFACT}" == "1" ]; then
   fi
 else
   # Download the latest release
+  echo ""
+  echo "Downloading the latest release of PrintSpool"
+  echo ""
 
   # Use the provided github repo or default to "PrintSpool/PrintSpool"
   PRINTSPOOL_GITHUB="${PRINTSPOOL_GITHUB:-PrintSpool/PrintSpool}"
