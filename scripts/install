@@ -204,7 +204,7 @@ if [ "$CI" == "true" ]; then
 
   systemctl --machine=machine_name enable printspool-server printspool-health-monitor printspool-webrtc-streamer
 
-  machinectl poweroff machine_name
+  # machinectl poweroff machine_name
 else
   sudo systemctl daemon-reload
   sudo systemctl enable printspool-server printspool-health-monitor printspool-webrtc-streamer
