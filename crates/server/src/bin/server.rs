@@ -217,10 +217,11 @@ async fn app() -> Result<()> {
             // Gpio uses BCM pin numbering. BCM GPIO 15 is tied to physical pin 10.
             // See: https://pinout.xyz/pinout/pin10_gpio15#
             // Also: https://raspberrypihq.com/use-a-push-button-with-raspberry-pi-gpio/
-            let mut pin = gpio.get(15)?.into_input_pullup();
+            let mut pin = gpio.get(15)?.into_input_pulldown();
 
             let wifi_ap_flag = wifi_ap_flag.clone();
             pin.set_async_interrupt(Trigger::RisingEdge, move |level| {
+                info!("Interrupt triggered on Wifi AP pin. Level: {:?}", level);
                 if level != Level::High {
                     return
                 }
