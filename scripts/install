@@ -189,19 +189,21 @@ tar -xf $ARTIFACT_NAME
 rm $ARTIFACT_NAME
 mv $ARTIFACT_DIR ./etc/webrtc-streamer
 
+echo "Installing PrintSpool binaries..."
 # Install etc (migrations, binaries, configs and webrtc-streamer)
 sudo rsync --chown=$TEG_USER:$TEG_USER -a --delete ./etc/ /usr/local/etc/printspool/${PRINTSPOOL_INDEX}
 
 # Set permissions
 sudo chmod 744 /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/printspool-health-monitor
 sudo chmod 744 /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/printspool-server
+sudo chmod 744 /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/printspool-marlin
 sudo chmod 744 /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/printspool-invite
 
 # Update the current directory symlink
-sudo ln -vsf "/usr/local/etc/printspool/${PRINTSPOOL_INDEX}" /usr/local/etc/printspool/current
+sudo ln -vnsf "/usr/local/etc/printspool/${PRINTSPOOL_INDEX}/" /usr/local/etc/printspool/current
 
 # Install binaries on path
-sudo ln -vsf "/usr/local/etc/printspool/current/printspool-invite" /usr/local/bin
+sudo ln -vnsf "/usr/local/etc/printspool/current/printspool-invite" /usr/local/bin
 
 # Install System D service files
 sudo chmod 644 ./services/*
