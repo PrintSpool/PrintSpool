@@ -75,6 +75,7 @@ nix = "0.20.0"
 num_cpus = "1.13.0"
 pidfile-rs = { git = "https://github.com/D1plo1d/bsd-pidfile-rs.git", branch = "fix/cross-compilation" }
 rand = "0.8.4"
+rppal = "0.13.1"
 
 [dependencies.serde]
 features = ["derive"]

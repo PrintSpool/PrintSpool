@@ -150,6 +150,7 @@ const JobQueuePage = ({
   const {
     machines = [],
     latestPrints = [],
+    featureFlags = [],
   } = data || {}
 
   const nextPart = useMemo(() => (
@@ -205,6 +206,7 @@ const JobQueuePage = ({
         latestPrints,
         printQueues,
         machines,
+        featureFlags,
         nextPart,
         printNext,
         print: (part) => print({

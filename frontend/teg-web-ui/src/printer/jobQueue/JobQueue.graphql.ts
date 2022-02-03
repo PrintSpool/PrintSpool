@@ -71,6 +71,7 @@ export const PRINT_QUEUES_QUERY = gql`
         ...PrintQueuePartFragment
       }
     }
+    featureFlags(input: { filter: ["slicer"] })
   }
   ${LATEST_PRINT_FRAGMENT}
   ${PRINT_QUEUE_PART_FRAGMENT}

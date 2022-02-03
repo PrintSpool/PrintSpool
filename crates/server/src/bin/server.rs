@@ -173,32 +173,64 @@ async fn app() -> Result<()> {
         info!("Fresh Install Detected: Setting up Postgres... [DONE]");
     }
 
+    let is_raspi = rppal::system::DeviceInfo::new().is_ok();
     let wifi_ap_flag = paths::etc_common().join(".enable-wifi-ap");
-    if wifi_ap_flag.exists() {
-        // Setup Postgres users on first run
-        info!("Enabling Wifi Access Point (Wifi Config Captive Portal)...");
-        async_std::task::spawn(async {
-            let _ = async_std::process::Command::new("sh")
-                .arg("-c")
-                .arg(r#"
-                    # Disable power management of wlan0 to fix network manager
-                    # https://github.com/balena-os/wifi-connect/issues/366#issuecomment-744141171
-                    iwconfig wlan0 power off
+    let has_wifi_connect = std::process::Command::new("wifi-connect")
+        .arg("-V")
+        .output()
+        .is_ok();
 
-                    wifi-connect -s \"PrintSpool 3D Printer\"
-                "#)
-                .status()
-                .await;
+    if is_raspi && has_wifi_connect {
+        if wifi_ap_flag.exists() {
+            // Setup Postgres users on first run
+            info!("Enabling Wifi Access Point (Wifi Config Captive Portal)...");
+            async_std::task::spawn(async {
+                let _ = async_std::process::Command::new("sh")
+                    .arg("-c")
+                    .arg(r#"
+                        # Disable power management of wlan0 to fix network manager
+                        # https://github.com/balena-os/wifi-connect/issues/366#issuecomment-744141171
+                        iwconfig wlan0 power off
 
-            async_std::fs::remove_file(wifi_ap_flag)
-                .await
-                .expect("delete .enable-wifi-ap");
+                        wifi-connect -s \"PrintSpool 3D Printer\"
+                    "#)
+                    .status()
+                    .await;
 
-            info!("Wifi configuration complete! Print Spool should now be connected to your wifi.");
-            // Restart the server
-            std::process::exit(0);
-        });
+                async_std::fs::remove_file(wifi_ap_flag)
+                    .await
+                    .expect("delete .enable-wifi-ap");
+
+                info!("Wifi configuration complete! Print Spool should now be connected to your wifi.");
+                // Restart the server
+                std::process::exit(0);
+            });
+        } else {
+            // if the wifi ap flag doesn't exist on startup then listen on GPIO to reset
+            // `.enable-wifi-ap` when the user connects the 3.3v pin to GPIO 15.
+            use rppal::gpio::{ Gpio, Trigger, Level };
+
+            let gpio = Gpio::new()?;
+            // Gpio uses BCM pin numbering. BCM GPIO 15 is tied to physical pin 10.
+            // See: https://pinout.xyz/pinout/pin10_gpio15#
+            // Also: https://raspberrypihq.com/use-a-push-button-with-raspberry-pi-gpio/
+            let mut pin = gpio.get(10)?.into_input_pullup();
+
+            let wifi_ap_flag = wifi_ap_flag.clone();
+            pin.set_async_interrupt(Trigger::RisingEdge, move |level| {
+                if level != Level::High {
+                    return
+                }
+
+                std::fs::write(wifi_ap_flag.clone(), "")
+                    .expect("set .enable-wifi-ap flag");
+                // Restart the server
+                std::process::exit(0);
+            })
+                .expect("set wifi AP GPIO interrupt");
+        }
     }
+
 
     let (_pg_embed, db) = create_db(true).await?;
 

@@ -29,7 +29,6 @@ import useConfirm from '../../common/_hooks/useConfirm'
 import FileInput from '../../common/FileInput'
 // import FloatingPrintNextButton from './components/FloatingPrintNextButton'
 import useStyles from './JobQueue.styles'
-import PrintPage from '../printPreview/PrintPreview.page'
 import { allFileExtensions } from '../printPreview/PrintPreview.view'
 import PrintCard from './components/PrintCard'
 import ServerBreadcrumbs from '../common/ServerBreadcrumbs'
@@ -38,6 +37,7 @@ const JobQueueView = ({
   latestPrints,
   printQueues,
   machines,
+  featureFlags,
   nextPart,
   print,
   printNext,
@@ -241,7 +241,7 @@ const JobQueueView = ({
           className={classes.actionsRowButton}
           startIcon={<Add/>}>
           <FileInput
-            accept={allFileExtensions}
+            accept={allFileExtensions({ featureFlags })}
             multiple
             onClick={(files) => openPrintPage({ files })}
           />
@@ -292,7 +292,7 @@ const JobQueueView = ({
                   <>
                     Your print queue is empty. Drag and drop a gcode file here to get started!
                     <FileInput
-                      accept={allFileExtensions}
+                      accept={allFileExtensions({ featureFlags })}
                       multiple
                       onClick={(files) => openPrintPage({ files })}
                     />

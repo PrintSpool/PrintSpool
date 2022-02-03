@@ -43,8 +43,8 @@ const meshFileExtensions = [
   'stl',
 ]
 
-export const allFileExtensions = [
-  ...meshFileExtensions,
+export const allFileExtensions = ({ featureFlags }) => [
+  ...(featureFlags.includes('slicer') ? meshFileExtensions : []),
   'gcode',
   'ngc',
 ].map(v => `.${v}`).join(',')

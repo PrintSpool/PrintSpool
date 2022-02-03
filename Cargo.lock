@@ -2907,6 +2907,7 @@ dependencies = [
  "pidfile-rs",
  "rand 0.8.4",
  "rmp-serde",
+ "rppal",
  "serde",
  "serde_json",
  "signal-hook 0.3.8",
@@ -3370,6 +3371,16 @@ dependencies = [
  "byteorder",
  "rmp",
  "serde",
+]
+
+[[package]]
+name = "rppal"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c88c9c6248de4d337747b619d8f671055ef48a87dc21b97998833f189a0bbd4f"
+dependencies = [
+ "lazy_static",
+ "libc",
 ]
 
 [[package]]

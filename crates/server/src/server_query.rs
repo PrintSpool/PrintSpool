@@ -18,6 +18,11 @@ use crate::{built_info, server::Server};
 #[derive(Default)]
 pub struct ServerQuery;
 
+#[derive(async_graphql::InputObject, Default, Debug)]
+pub struct FeatureFlagsInput {
+    filter: Option<Vec<String>>,
+}
+
 #[async_graphql::Object]
 impl ServerQuery {
     async fn server_version(&self) -> String {
@@ -78,5 +83,26 @@ impl ServerQuery {
                 warn!("{:?}", err);
                 err.into()
             })
+    }
+
+    #[instrument(skip(self))]
+    async fn feature_flags(
+        &self,
+        #[graphql(default)]
+        input: FeatureFlagsInput,
+    ) -> FieldResult<Vec<String>> {
+        let mut flags = vec![
+            // Feature Flags Go Here!
+            // "slicer".to_string(),
+        ];
+
+        if let Some(filter) = input.filter {
+            flags = flags
+                .into_iter()
+                .filter(|flag| filter.contains(flag))
+                .collect();
+        }
+
+        Ok(flags)
     }
 }
