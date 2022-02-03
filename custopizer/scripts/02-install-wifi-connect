@@ -95,7 +95,7 @@ activate_network_manager() {
 disable_dhcpcd() {
     say 'Deactivating and disabling dhcpcd...'
 
-    ensure sudo systemctl disable dhcpcd
+    ensure sudo systemctl --machine=machine_name disable dhcpcd
     say 'dhcpcd successfully disabled'
 }
 
