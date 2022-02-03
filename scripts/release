@@ -27,7 +27,9 @@ echo ""
 npx --no-install standard-version -a
 
 echo "Publishing tags to Github..."
-git push --follow-tags origin main
+VERSION=$(jq -r .version package.json)
+git push origin v${VERSION}:v${VERSION}
+git push
 echo "Publishing tags to Github... [DONE]"
 
 echo ""
