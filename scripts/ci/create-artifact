@@ -29,7 +29,6 @@ else
   rsync -rv ${ARCH_DIR}/debug/printspool-* --exclude=*.d ./artifact-working-dir/etc/
 fi
 
-rm ./artifact-working-dir/etc/*.d
 # Create .env
 mkdir -p artifact-working-dir/etc
 cp ./.env.production ./artifact-working-dir/etc/.env
