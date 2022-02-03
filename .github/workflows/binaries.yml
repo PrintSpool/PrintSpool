@@ -159,6 +159,7 @@ jobs:
       # Raspbian SD Card Image
       - name: 'Copy the artifact into Custopizer'
         run: |
+          mkdir -p ./custopizer/scripts/files
           cp -R ./artifact-working-dir/ ./custopizer/scripts/files/printspool
           ls -la ./custopizer/scripts/files/printspool
 
