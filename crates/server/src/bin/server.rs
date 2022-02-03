@@ -180,6 +180,8 @@ async fn app() -> Result<()> {
         .output()
         .is_ok();
 
+    let mut wifi_enable_pin = None;
+
     if is_raspi && has_wifi_connect {
         if wifi_ap_flag.exists() {
             // Setup Postgres users on first run
@@ -192,7 +194,7 @@ async fn app() -> Result<()> {
                         # https://github.com/balena-os/wifi-connect/issues/366#issuecomment-744141171
                         iwconfig wlan0 power off
 
-                        wifi-connect -s \"PrintSpool 3D Printer\"
+                        wifi-connect -s "PrintSpool 3D Printer"
                     "#)
                     .status()
                     .await;
@@ -232,6 +234,8 @@ async fn app() -> Result<()> {
                 std::process::exit(0);
             })
                 .expect("set wifi AP GPIO interrupt");
+
+            wifi_enable_pin = Some(pin);
         }
     } else {
         info!("Not running on a raspberry pi with wifi-connect. Wifi access point disabled.")
@@ -470,6 +474,8 @@ async fn app() -> Result<()> {
         res = signalling_future.fuse() => res,
         res = http_server.fuse() => res,
     };
+
+    drop(wifi_enable_pin);
 
     res?;
     Ok(())
