@@ -168,8 +168,8 @@ fi
 
 # Download and install cura-engine
 wget https://github.com/Autodrop3d/autodrop3dClient/raw/master/CuraEngine
-chmod 777 CuraEngine
-mv CuraEngine /usr/local/bin/CuraEngine
+chmod 777 ./CuraEngine
+sudo mv ./CuraEngine /usr/local/bin/CuraEngine
 
 # Download the latest webrtc-streamer release
 GITHUB_REPO="mpromonet/webrtc-streamer"
@@ -198,7 +198,7 @@ sudo chmod 744 /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/printspool-server
 sudo chmod 744 /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/printspool-invite
 
 # Update the current directory symlink
-ln -vsf "/usr/local/etc/printspool/${PRINTSPOOL_INDEX}" /usr/local/etc/printspool/current
+sudo ln -vsf "/usr/local/etc/printspool/${PRINTSPOOL_INDEX}" /usr/local/etc/printspool/current
 
 # Install binaries on path
 sudo ln -vsf "/usr/local/etc/printspool/current/printspool-invite" /usr/local/bin
@@ -231,5 +231,5 @@ fi
 
 # Clean up: delete the previous version
 if [ "$PRINTSPOOL_INDEX" != "0" ]; then
-  rm -rf /usr/local/etc/printspool/$(PREV_PRINTSPOOL_INDEX)/
+  sudo rm -rf /usr/local/etc/printspool/$(PREV_PRINTSPOOL_INDEX)/
 fi
