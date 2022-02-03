@@ -2846,6 +2846,90 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ac74c624d6b2d21f425f752262f42188365d7b8ff1aff74c82e45136510a4857"
 
 [[package]]
+name = "printspool-marlin"
+version = "0.1.0"
+dependencies = [
+ "bus_queue",
+ "bytes 1.1.0",
+ "chrono",
+ "color-eyre",
+ "dotenv",
+ "error-chain",
+ "eyre",
+ "fallible-iterator",
+ "futures 0.3.14",
+ "lazy_static",
+ "mio 0.6.23",
+ "nix 0.20.0",
+ "nom 6.1.2",
+ "nom-gcode",
+ "nom-reprap-response",
+ "pidfile-rs",
+ "rand 0.8.4",
+ "serde",
+ "serde_json",
+ "spin_sleep",
+ "teg-json-store",
+ "teg-protobufs",
+ "teg_machine",
+ "tempfile 3.2.0 (git+https://github.com/D1plo1d/tempfile.git?branch=feature/linux-persistence)",
+ "tokio 1.12.0",
+ "tokio-serial",
+ "tokio-util",
+ "toml",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "printspool-server"
+version = "0.1.0"
+dependencies = [
+ "arc-swap 1.2.0",
+ "async-graphql",
+ "async-graphql-warp",
+ "async-std",
+ "async-trait",
+ "built",
+ "bytes 1.1.0",
+ "chrono",
+ "color-eyre",
+ "derive-new",
+ "dotenv",
+ "eyre",
+ "futures-util",
+ "git2",
+ "jemalloc-ctl",
+ "jemallocator",
+ "nanoid",
+ "nix 0.20.0",
+ "num_cpus",
+ "pidfile-rs",
+ "rand 0.8.4",
+ "rmp-serde",
+ "serde",
+ "serde_json",
+ "signal-hook 0.3.8",
+ "sqlx",
+ "surf",
+ "teg-common",
+ "teg-json-store",
+ "teg-print-queue",
+ "teg_auth",
+ "teg_data_channel",
+ "teg_device",
+ "teg_machine",
+ "teg_material",
+ "toml",
+ "tracing",
+ "tracing-error",
+ "tracing-subscriber",
+ "url 2.2.1",
+ "warp",
+ "xactor",
+]
+
+[[package]]
 name = "proc-macro-crate"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3914,42 +3998,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "teg-marlin"
-version = "0.1.0"
-dependencies = [
- "bus_queue",
- "bytes 1.1.0",
- "chrono",
- "color-eyre",
- "dotenv",
- "error-chain",
- "eyre",
- "fallible-iterator",
- "futures 0.3.14",
- "lazy_static",
- "mio 0.6.23",
- "nix 0.20.0",
- "nom 6.1.2",
- "nom-gcode",
- "nom-reprap-response",
- "pidfile-rs",
- "rand 0.8.4",
- "serde",
- "serde_json",
- "spin_sleep",
- "teg-json-store",
- "teg-protobufs",
- "teg_machine",
- "tempfile 3.2.0 (git+https://github.com/D1plo1d/tempfile.git?branch=feature/linux-persistence)",
- "tokio 1.12.0",
- "tokio-serial",
- "tokio-util",
- "toml",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "teg-print-queue"
 version = "0.1.0"
 dependencies = [
@@ -3989,54 +4037,6 @@ dependencies = [
  "bitflags",
  "prost",
  "prost-build",
-]
-
-[[package]]
-name = "teg-server"
-version = "0.1.0"
-dependencies = [
- "arc-swap 1.2.0",
- "async-graphql",
- "async-graphql-warp",
- "async-std",
- "async-trait",
- "built",
- "bytes 1.1.0",
- "chrono",
- "color-eyre",
- "derive-new",
- "dotenv",
- "eyre",
- "futures-util",
- "git2",
- "jemalloc-ctl",
- "jemallocator",
- "nanoid",
- "nix 0.20.0",
- "num_cpus",
- "pidfile-rs",
- "rand 0.8.4",
- "rmp-serde",
- "serde",
- "serde_json",
- "signal-hook 0.3.8",
- "sqlx",
- "surf",
- "teg-common",
- "teg-json-store",
- "teg-print-queue",
- "teg_auth",
- "teg_data_channel",
- "teg_device",
- "teg_machine",
- "teg_material",
- "toml",
- "tracing",
- "tracing-error",
- "tracing-subscriber",
- "url 2.2.1",
- "warp",
- "xactor",
 ]
 
 [[package]]
