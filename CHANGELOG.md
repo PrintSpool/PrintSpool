@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.16.0](https://github.com/tegapp/teg/compare/v0.15.0...v0.16.0) (2022-02-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* Upgraded from WebRTC to a Websocket bridge enabling faster print server connections
+
+### Features
+
+* Added a Wifi captive portal for zero config wifi setup. Just look for the "PrintSpool 3D Printer" network. ([7bae6d6](https://github.com/tegapp/teg/commit/7bae6d667e4522696559ea677d557467f83a1ab2))
+* Added option to upload multiple prints at once ([5959f77](https://github.com/tegapp/teg/commit/5959f77dc82299655740e122a8024263923c745d))
+* Added Raspberry Pi SD Card builds to CI ([e83f2a5](https://github.com/tegapp/teg/commit/e83f2a5ebc06e2a717a236f86345c28f58fb9abe))
+* Updated onboarding flow ([6fa9a0f](https://github.com/tegapp/teg/commit/6fa9a0fb655ec54d1ddc6defde8c052e0b4c2a04))
+* Upgraded from WebRTC to a Websocket bridge enabling faster print server connections ([2b8099b](https://github.com/tegapp/teg/commit/2b8099b7ea4b8ef50d7afd020d749c235ffaee07))
+
+
+### Bug Fixes
+
+* Prevent async IO from causing messages to be received out of order causing the UI to hang ([8b4fc94](https://github.com/tegapp/teg/commit/8b4fc94948e65eb229fe32dbb273497e64e43d4b))
+
 ## [0.15.0](https://github.com/tegapp/teg/compare/v0.14.0...v0.15.0) (2021-12-28)
 
 
