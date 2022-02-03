@@ -220,6 +220,6 @@ else
 fi
 
 # Clean up: delete the previous version
-if [ "$PREV_PRINTSPOOL_INDEX" != ""]; then
+if [ "$PRINTSPOOL_INDEX" != "0" ]; then
   rm -rf /usr/local/etc/printspool/$(PREV_PRINTSPOOL_INDEX)/
 fi
