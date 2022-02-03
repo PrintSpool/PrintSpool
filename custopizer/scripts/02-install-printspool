@@ -16,7 +16,3 @@ yes | /files/install
 
 # Tell PrintSpool to enable the Wifi Connect portal on startup
 sudo touch /usr/local/etc/printspool/common/.enable-wifi-ap
-
-# Disable power management of wlan0 to fix network manager
-# https://github.com/balena-os/wifi-connect/issues/366#issuecomment-744141171
-sudo iwconfig wlan0 power off

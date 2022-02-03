@@ -180,7 +180,13 @@ async fn app() -> Result<()> {
         async_std::task::spawn(async {
             let _ = async_std::process::Command::new("sh")
                 .arg("-c")
-                .arg("wifi-connect -s \"PrintSpool 3D Printer\"")
+                .arg(r#"
+                    # Disable power management of wlan0 to fix network manager
+                    # https://github.com/balena-os/wifi-connect/issues/366#issuecomment-744141171
+                    iwconfig wlan0 power off
+
+                    wifi-connect -s \"PrintSpool 3D Printer\"
+                "#)
                 .status()
                 .await;
 
