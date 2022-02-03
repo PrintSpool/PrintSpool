@@ -104,7 +104,7 @@ function cleanup {
 trap cleanup EXIT
 
 if [[ ! -z "${PRINTSPOOL_ZIP}" ]]; then
-  unzip "${PRINTSPOOL_ZIP}" $WORK_DIR/
+  unzip "${PRINTSPOOL_ZIP}" -d $WORK_DIR/
 fi
 
 # Change to the tmp dir
