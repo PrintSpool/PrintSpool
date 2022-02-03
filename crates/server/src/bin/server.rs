@@ -206,6 +206,9 @@ async fn app() -> Result<()> {
                 std::process::exit(0);
             });
         } else {
+            info!(
+                "Wifi access point can be enabled by connecting 3.3V to GPIO15 (Physical Pin 10)"
+            );
             // if the wifi ap flag doesn't exist on startup then listen on GPIO to reset
             // `.enable-wifi-ap` when the user connects the 3.3v pin to GPIO 15.
             use rppal::gpio::{ Gpio, Trigger, Level };
@@ -214,7 +217,7 @@ async fn app() -> Result<()> {
             // Gpio uses BCM pin numbering. BCM GPIO 15 is tied to physical pin 10.
             // See: https://pinout.xyz/pinout/pin10_gpio15#
             // Also: https://raspberrypihq.com/use-a-push-button-with-raspberry-pi-gpio/
-            let mut pin = gpio.get(10)?.into_input_pullup();
+            let mut pin = gpio.get(15)?.into_input_pullup();
 
             let wifi_ap_flag = wifi_ap_flag.clone();
             pin.set_async_interrupt(Trigger::RisingEdge, move |level| {
@@ -229,6 +232,8 @@ async fn app() -> Result<()> {
             })
                 .expect("set wifi AP GPIO interrupt");
         }
+    } else {
+        info!("Not running on a raspberry pi with wifi-connect. Wifi access point disabled.")
     }
 
 
