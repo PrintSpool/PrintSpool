@@ -216,6 +216,11 @@ else
   sudo systemctl enable printspool-server printspool-health-monitor printspool-webrtc-streamer
   sudo systemctl restart printspool-server printspool-health-monitor printspool-webrtc-streamer
 
+  # Clean up: delete the previous version
+  if [ "$PRINTSPOOL_INDEX" != "0" ]; then
+    sudo rm -rf /usr/local/etc/printspool/${PREV_PRINTSPOOL_INDEX}/
+  fi
+
   # TODO: Instead of waiting for 1 second this should wait for the database to be migrated
   echo ""
   echo "Migrating database..."
@@ -227,9 +232,4 @@ else
   if [ $FRESH_INSTALL = "1" ]; then
     sudo printspool-invite
   fi
-fi
-
-# Clean up: delete the previous version
-if [ "$PRINTSPOOL_INDEX" != "0" ]; then
-  sudo rm -rf /usr/local/etc/printspool/$(PREV_PRINTSPOOL_INDEX)/
 fi
