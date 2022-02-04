@@ -38,7 +38,11 @@ const socketFactory = (options: WebRTCOptions) => {
       this.innerClose = this.innerClose.bind(this)
       this.innerHandleError = this.innerHandleError.bind(this)
 
-      this.inner = new WebSocket(url, protocol);
+      this.inner = new WebSocket(
+        url,
+        // Sending the protocol errors the Websocket in Chrome as of Feb 4, 2022. Reason unknown.
+        // protocol,
+      );
       this.inner.onerror = this.innerHandleError
 
       const {
