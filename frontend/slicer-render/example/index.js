@@ -3,7 +3,7 @@ import modelURL from 'url:./example.stl';
 import gcodeText from 'bundle-text:./example.gcode';
 import gcodeTextInfiniteZ from 'bundle-text:/example-infinite-z.gcode'
 
-const showGCode = false;
+const showGCode = true;
 const demoMode = null // 'spin' || null
 const infiniteZ = true
 

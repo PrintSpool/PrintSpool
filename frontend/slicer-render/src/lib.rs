@@ -33,8 +33,9 @@ use model_preview::{ModelPreview, ModelPreviewWithModel, ModelSummary};
 #[serde(rename_all = "camelCase")]
 pub struct RenderOptions {
     pub machine_dimensions: Vec3,
-    #[serde(rename="infiniteZ")]
+    #[serde(rename="infiniteZ", default)]
     pub infinite_z: bool,
+    #[serde(default)]
     pub invert_rotation: AxisBools,
 }
 
