@@ -13,42 +13,52 @@ const VERIFY_CONNECTION = gql`
 
 // This component needs to be nested inside the TegApolloProvider to query the server
 const AcceptInviteQueryWrapper = ({
-  isConnecting,
-  consumeInvite,
+  onComplete,
 }) => {
   const [verifyConnection, query] = useLazyQuery(VERIFY_CONNECTION)
 
   useEffect(() => {
-    if (isConnecting) {
-      verifyConnection()
-    }
-  }, [isConnecting])
+    verifyConnection()
+  }, [])
 
   if (query.error != null) {
     throw query.error;
   }
+  console.log({ data: query.data})
 
-  return (
-    <AcceptInviteView {...{
-      consumeInvite,
-      isPending: query.loading,
-      isDone: query.data != null,
-    }}/>
-  )
+  useEffect(() => {
+    if (query.data != null) {
+      onComplete()
+    }
+  }, [query.data != null])
+
+  return <div/>
 }
 
 const AcceptInvitePage = () => {
   const { invite } = useParams();
   const [isConnecting, setConnecting] = useState(false)
+  const [isDone, setDone] = useState(false)
 
   return (
     <TegApolloProvider
       invite={isConnecting ? invite : null}
     >
-      <AcceptInviteQueryWrapper {...{
-        isConnecting,
-        consumeInvite: () => setConnecting(true),
-      }} />
+      <div>
+        {isConnecting &&
+          <AcceptInviteQueryWrapper {...{
+            onComplete: () => {
+              setDone(true);
+              setConnecting(false);
+            }
+          }} />
+        }
+        <AcceptInviteView {...{
+          consumeInvite: () => setConnecting(true),
+          isPending: isConnecting,
+          isDone,
+        }}/>
+      </div>
     </TegApolloProvider>
   )
 }
