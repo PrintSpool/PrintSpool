@@ -397,37 +397,34 @@ impl Renderer {
         )
         .unwrap();
 
-        let lights = Lights {
-            ambient: Some(AmbientLight {
-                intensity: 0.4,
-                color: Color::WHITE,
-                ..Default::default()
-            }),
-            directional: vec![
-                DirectionalLight::new(
-                    &context,
-                    2.0,
-                    Color::WHITE,
-                    &vec3(-1.0, -1.0, -1.0),
-                )
-                .unwrap(),
-                DirectionalLight::new(
-                    &context,
-                    2.0,
-                    Color::WHITE,
-                    &vec3(1.0, 1.0, -1.0),
-                )
-                .unwrap(),
-                DirectionalLight::new(
-                    &context,
-                    1.0,
-                    Color::WHITE,
-                    &vec3(0.0, 0.0, 1.0),
-                )
-                .unwrap(),
-            ],
+        let ambient_light = AmbientLight {
+            intensity: 0.4,
+            color: Color::WHITE,
             ..Default::default()
         };
+        let directional_lights = vec![
+            DirectionalLight::new(
+                &context,
+                2.0,
+                Color::WHITE,
+                &vec3(-1.0, -1.0, -1.0),
+            )
+            .unwrap(),
+            DirectionalLight::new(
+                &context,
+                2.0,
+                Color::WHITE,
+                &vec3(1.0, 1.0, -1.0),
+            )
+            .unwrap(),
+            DirectionalLight::new(
+                &context,
+                1.0,
+                Color::WHITE,
+                &vec3(0.0, 0.0, 1.0),
+            )
+            .unwrap(),
+        ];
 
         let mut view_mode = ViewMode::Model;
 
@@ -633,6 +630,13 @@ impl Renderer {
                     scene_objects.push(&x_axis_indicator);
                     scene_objects.push(&bed);
                     scene_objects.push(&bounding_cube);
+
+
+                    let mut lights: Vec<&dyn Light> = directional_lights
+                        .iter()
+                        .map(|light| light as &dyn Light)
+                        .collect::<Vec<_>>();
+                    lights.push(&ambient_light);
 
                     Screen::write(
                         &context,

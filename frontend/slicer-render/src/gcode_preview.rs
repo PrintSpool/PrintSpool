@@ -398,7 +398,8 @@ impl GCodePreviewWithModel {
 
         let model_instances = mem::take(&mut self.model_instances);
 
-        self.model.set_instances(&model_instances[0..model_instance_index]);
+        // self.model.set_instances(&model_instances[0..model_instance_index]);
+        self.model.show_instances(model_instance_index);
 
         self.update_z_offset(layer_index);
 
@@ -412,7 +413,6 @@ impl GCodePreviewWithModel {
                 ..
             } = self.layers[layer_index];
 
-            info!("Position Offset: {:?}", min_y);
             self.model.set_transformation(
                 Mat4::from_translation(-Vec3::unit_y() * min_y),
             );

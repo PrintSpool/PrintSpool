@@ -33,7 +33,11 @@ const run = async () => {
       'input',
       () => {
         // console.log(layerSliderEl.value)
-        renderer.send({ setLayer: parseInt(layerSliderEl.value, 10) });
+        try {
+          renderer.send({ setLayer: parseInt(layerSliderEl.value, 10) });
+        } catch (e) {
+          console.error('Error sending setLayer to renderer', e);
+        }
       },
       false,
     );

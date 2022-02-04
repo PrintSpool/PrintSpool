@@ -21,8 +21,12 @@ instant = { version = "0.1", features = [ "wasm-bindgen" ] }
 itertools = "0.10.3"
 nom-gcode = "0.1.1"
 cgmath = { version = "0.18", features = ["serde"] }
+
 # three-d = "0.10.0"
-three-d = { git = "https://github.com/asny/three-d.git" }
+# three-d = { git = "https://github.com/asny/three-d.git" }
+# three-d = { path = "../../../three-d" }
+three-d = { git = "https://github.com/D1plo1d/three-d.git", branch = "feature/show_instances" }
+
 serde = { version = "1.0", features = ["derive"] }
 wasm-bindgen = { version = "0.2.79", features = ["serde-serialize"] }
 log = "0.4"

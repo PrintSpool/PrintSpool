@@ -23,6 +23,7 @@ fn main() {
     let options = RenderOptions {
         machine_dimensions,
         infinite_z: true,
+        invert_rotation: Default::default(),
     };
 
     let mut renderer = Renderer::new(options);
