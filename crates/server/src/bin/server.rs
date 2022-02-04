@@ -182,7 +182,7 @@ async fn app() -> Result<()> {
 
     let mut wifi_enable_pin = None;
 
-    if is_raspi && has_wifi_connect {
+    if std::env::var("MANAGE_WIFI_AP") == Ok("1".to_string()) && is_raspi && has_wifi_connect {
         if wifi_ap_flag.exists() {
             // Setup Postgres users on first run
             info!("Enabling Wifi Access Point (Wifi Config Captive Portal)...");
@@ -238,7 +238,10 @@ async fn app() -> Result<()> {
             wifi_enable_pin = Some(pin);
         }
     } else {
-        info!("Not running on a raspberry pi with wifi-connect. Wifi access point disabled.")
+        info!(r#"
+            Not running on a raspberry pi with wifi-connect or MANAGE_WIFI_AP is not set to "1".\
+            Wifi access point disabled.
+        "#)
     }
 
 
