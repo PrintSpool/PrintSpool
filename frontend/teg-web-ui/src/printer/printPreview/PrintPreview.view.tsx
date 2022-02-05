@@ -97,6 +97,8 @@ const PrintView = ({
       infiniteZ
     } = machine
 
+    console.log('Starting Slicer-Render')
+
     await initSlicerRender();
 
     const nextRenderer = start({
@@ -394,15 +396,12 @@ const PrintView = ({
             gridArea: 'layer',
           }}>
             <Slider
+              key={data.topLayer}
               orientation="vertical"
+              defaultValue={data.topLayer}
               max={data.topLayer}
               disabled={printFile.gcodeVersion == null}
-              value={layer}
               onChange={(e, val: number) => {
-                setData((data) => ({
-                  ...data,
-                  layer: val,
-                }));
                 renderer.send({ setLayer: val });
               }}
             />

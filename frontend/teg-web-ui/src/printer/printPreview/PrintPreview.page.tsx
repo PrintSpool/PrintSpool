@@ -296,6 +296,7 @@ const PrintPage = () => {
 
   return (
     <PrintView {...{
+      key: printFileIndex,
       machine: data?.machines[0],
       slicerEngine,
       printQueues: data.printQueues,
