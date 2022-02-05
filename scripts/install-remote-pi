@@ -1,0 +1,36 @@
+#!/bin/bash
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )"
+cd ..
+
+if [[ -z "$PI" ]]; then
+    echo "PI environment variable is required" 1>&2
+    exit 1
+fi
+
+echo "Building in release and installing remotely via SSH on to $PI"
+
+cargo build --workspace --release --target=armv7-unknown-linux-gnueabihf
+
+PRINTSPOOL_ARCH="armv7l" ./scripts/ci/create-artifact
+
+
+echo "Zipping PrintSpool Build..."
+echo ""
+pushd .
+cd ./artifact-working-dir
+rm -rf ../target/printspool-armv7l.zip
+zip ../target/printspool-armv7l.zip -r ./*
+popd
+echo "Zipping PrintSpool Build... [DONE]"
+
+echo "Uploading PrintSpool to Pi..."
+echo ""
+scp ./target/printspool-armv7l.zip $PI:~/
+scp ./scripts/install $PI:~/
+echo "Uploading PrintSpool to Pi... [DONE]"
+
+echo "Installing PrintSpool on Pi..."
+echo ""
+ssh $PI PRINTSPOOL_ZIP="./printspool-armv7l.zip" ./install
+echo "Installing PrintSpool on Pi... [DONE]"
