@@ -110,11 +110,60 @@ fi
 # Change to the tmp dir
 cd $WORK_DIR
 
+
+# Download the latest build artifact from the develop branch on Github
+#
+# WARNING:
+#
+# PRINTSPOOL_UNSTABLE_HEAD will install a dev build not intended for real world use. At the very
+# least it will run 10x slower then the normal version of PrintSpool but it may also cause much
+# more serious problems for you and your printer.
+#
+# **Never** use this option unless you are a developer and know exactly what you are doing.
+if [[ "${PRINTSPOOL_UNSTABLE_HEAD}" == "1" ]]; then
+  if [[ -z "$GITHUB_USER" ]]; then
+      echo "GITHUB_USER environment variable is required for PRINTSPOOL_UNSTABLE_HEAD=1" 1>&2
+      exit 1
+  fi
+
+  if [[ -z "$GITHUB_TOKEN" ]]; then
+      echo "GITHUB_TOKEN environment variable is required for PRINTSPOOL_UNSTABLE_HEAD=1" 1>&2
+      exit 1
+  fi
+
+  sudo apt-get install jq
+
+  ARTIFACTS_LIST_URL=$(curl \
+    -u "$GITHUB_USER:$GITHUB_TOKEN" \
+    -qH "Accept: application/vnd.github.v3+json" \
+    https://api.github.com/repos/PrintSpool/PrintSpool/actions/runs \
+    | jq -r '.workflow_runs | sort_by(.created_at |= fromdate) | map(select(.head_branch=="develop") | select(.fork==null) | select(.conclusion=="success")) | last.artifacts_url')
+
+  ARTIFACT_DOWNLOAD_URL=$(curl \
+    -u "$GITHUB_USER:$GITHUB_TOKEN" \
+    -qH "Accept: application/vnd.github.v3+json" \
+    ${ARTIFACTS_LIST_URL} \
+    | jq -r '.artifacts[] | select(.name == "printspool-armv7l").archive_download_url')
+
+  echo "Downloading PrintSpool dev from $ARTIFACT_DOWNLOAD_URL"
+
+  PRINTSPOOL_ZIP=./printspool-armv7l.zip
+
+  curl \
+    -u "$GITHUB_USER:$GITHUB_TOKEN" \
+    -LH "Accept: application/vnd.github.v3+json" \
+    --output $PRINTSPOOL_ZIP\
+    $ARTIFACT_DOWNLOAD_URL
+fi
+
+# Install from a zip
 if [[ ! -z "${PRINTSPOOL_ZIP}" ]]; then
   echo ""
   echo "Installing PrintSpool from zip file"
   echo ""
   ls -la
+
+# Install from a local artifact (meaning a local run of cargo build)
 elif [[ "${LOCAL_ARTIFACT}" == "1" ]]; then
   echo ""
   echo "Installing PrintSpool from local artifact"
@@ -131,6 +180,8 @@ elif [[ "${LOCAL_ARTIFACT}" == "1" ]]; then
     cp -r $SCRIPT_DIR/../artifact-working-dir/* ./
     echo "Creating dev artifacts... [DONE]"
   fi
+
+# Standard install
 else
   # Download the latest release
   echo ""
