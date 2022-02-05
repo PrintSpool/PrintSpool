@@ -189,9 +189,9 @@ tar -xf $ARTIFACT_NAME
 rm $ARTIFACT_NAME
 mv $ARTIFACT_DIR ./etc/webrtc-streamer
 
-echo "Installing PrintSpool binaries..."
+echo "Installing PrintSpool binaries to /usr/local/etc/printspool/${PRINTSPOOL_INDEX}"
 # Install etc (migrations, binaries, configs and webrtc-streamer)
-sudo rsync --chown=$TEG_USER:$TEG_USER -a --delete ./etc/ /usr/local/etc/printspool/${PRINTSPOOL_INDEX}
+sudo rsync --chown=$TEG_USER:$TEG_USER -av --delete ./etc/ /usr/local/etc/printspool/${PRINTSPOOL_INDEX}
 
 # Set permissions
 sudo chmod 744 /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/printspool-health-monitor
@@ -206,8 +206,11 @@ sudo ln -vnsf "/usr/local/etc/printspool/${PRINTSPOOL_INDEX}/" /usr/local/etc/pr
 sudo ln -vnsf "/usr/local/etc/printspool/current/printspool-invite" /usr/local/bin
 
 # Install System D service files
+echo "Installing PrintSpool services to /lib/systemd/system/"
+
+sudo ls -la ./services/
 sudo chmod 644 ./services/*
-sudo mv ./services/* /lib/systemd/system/
+sudo rsync --chown=$TEG_USER:$TEG_USER -av ./services/ /lib/systemd/system/
 
 if [[ "$CI" == "true" ]]; then
   systemctl --machine=machine_name enable printspool-server printspool-health-monitor printspool-webrtc-streamer
