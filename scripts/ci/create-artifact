@@ -31,5 +31,11 @@ fi
 
 # Create .env
 mkdir -p artifact-working-dir/etc
-cp ./.env.production ./artifact-working-dir/etc/.env
+if [[ "$CI" == "true" ]]
+then
+  cp ./.env.production ./artifact-working-dir/etc/.env
+else
+  cp ./.env.local-build ./artifact-working-dir/etc/.env
+fi
+
 cp -r ./crates/server/migrations ./artifact-working-dir/etc/

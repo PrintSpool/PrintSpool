@@ -96,7 +96,7 @@ impl ServerQuery {
             // "slicer".to_string(),
         ];
 
-        if crate::paths::is_dev() || built_info::GIT_VERSION.is_none() {
+        if std::env::var("ENABLE_SLICER") == Ok("1".to_string()) {
             flags.push("slicer".to_string());
         }
 
