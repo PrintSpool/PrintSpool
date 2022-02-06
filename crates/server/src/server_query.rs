@@ -91,13 +91,13 @@ impl ServerQuery {
         #[graphql(default)]
         input: FeatureFlagsInput,
     ) -> FieldResult<Vec<String>> {
-        let mut flags = vec![
+        let mut flags: Vec<String> = vec![
             // Feature Flags Go Here!
             // "slicer".to_string(),
         ];
 
         if crate::paths::is_dev() || built_info::GIT_VERSION.is_none() {
-            flags.push("slicer")
+            flags.push("slicer".to_string());
         }
 
         if let Some(filter) = input.filter {
