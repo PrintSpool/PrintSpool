@@ -96,7 +96,7 @@ impl ServerQuery {
             // "slicer".to_string(),
         ];
 
-        if crate::paths::is_dev() {
+        if crate::paths::is_dev() || built_info::GIT_VERSION.unwrap_or("DEV") == "DEV" {
             flags.push("slicer")
         }
 
