@@ -1,11 +1,13 @@
 use std::path::PathBuf;
 
-pub fn dev_suffix() -> &'static str {
+pub fn is_dev() -> bool {
     let is_dev = std::env::var("RUST_ENV")
         .map(|v| &v == "development")
         .unwrap_or(false);
+}
 
-    if is_dev { "-dev" } else { "" }
+pub fn dev_suffix() -> &'static str {
+    if is_dev() { "-dev" } else { "" }
 }
 
 pub fn var() -> PathBuf {

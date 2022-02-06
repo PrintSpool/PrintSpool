@@ -96,6 +96,10 @@ impl ServerQuery {
             // "slicer".to_string(),
         ];
 
+        if crate::paths::is_dev() {
+            flags.push("slicer")
+        }
+
         if let Some(filter) = input.filter {
             flags = flags
                 .into_iter()
