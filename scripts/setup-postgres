@@ -4,30 +4,44 @@ cd "$( dirname "${BASH_SOURCE[0]}" )" && cd ../
 
 # Initial One-Time Postgres Setup
 
-TEG_USER="root"
-TEG_USER_HOME=$( getent passwd "$TEG_USER" | cut -d: -f6 )
+PS_USER="root"
+PS_USER_HOME=$( getent passwd "$PS_USER" | cut -d: -f6 )
 
-DB_USER="teg"
+DB_USER="printspool"
+
+if [[ "$RUST_ENV" == "development" ]]; then
+  DB_USER="printspool-dev"
+fi
+
 DB=$DB_USER
 DB_PASSWORD=`apg -n 1 -m 64 -M NCL -E \:\'\"\\`
 
-sudo -u postgres createuser -d $DB_USER || true
-sudo -u postgres createdb -O $DB_USER $DB || true
+# Renaming v0.16.2 User and Database
+if [ -f /usr/local/etc/printspool/common/.needs_0_16_2_pg_patch ]; then
+  ALTER USER teg RENAME TO $DB_USER || true
+  ALTER DATABASE teg RENAME TO $DB || true
+else
+  sudo -u postgres createuser -d $DB_USER || true
+  sudo -u postgres createdb -O $DB_USER $DB || true
+fi
+
 sudo -u postgres psql -c "ALTER USER $DB_USER WITH PASSWORD '$DB_PASSWORD';"
 
-sudo -u $TEG_USER touch $TEG_USER_HOME/.pgpass
-sudo -u $TEG_USER chmod 0600 $TEG_USER_HOME/.pgpass
+sudo -u $PS_USER touch $PS_USER_HOME/.pgpass
+sudo -u $PS_USER chmod 0600 $PS_USER_HOME/.pgpass
 
 # Remove old pgpass entries
-sudo -u $TEG_USER sed -i "/localhost\:\*\:$DB\:$DB_USER/d" $TEG_USER_HOME/.pgpass
+sudo -u $PS_USER sed -i "/localhost\:\*\:$DB\:$DB_USER/d" $PS_USER_HOME/.pgpass
 
 # Add new pgpass entry
 PG_PASS_LINE="localhost:*:$DB:$DB_USER:$DB_PASSWORD"
-sudo -u $TEG_USER sh -c "echo \"$PG_PASS_LINE\" >> $TEG_USER_HOME/.pgpass"
+sudo -u $PS_USER sh -c "echo \"$PG_PASS_LINE\" >> $PS_USER_HOME/.pgpass"
 
-if [ "${TEG_DEV}" == "1" ]; then
+if [[ "$RUST_ENV" == "development" ]]; then
   touch ~/.pgpass
   chmod 0600 ~/.pgpass
+  # Remove old pgpass entries
   sed -i "/localhost\:\*\:$DB\:$DB_USER/d" ~/.pgpass
+  # Add new pgpass entry
   echo "$PG_PASS_LINE" >> ~/.pgpass
 fi

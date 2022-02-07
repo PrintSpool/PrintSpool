@@ -28,6 +28,7 @@ sudo apt-get install \
   rsync \
   apg \
   unzip \
+  jq \
   `# Belt Engine & Cura Engine Dependencies` \
   python3-pip \
   libgeos-dev \
@@ -39,12 +40,12 @@ sudo apt-get install \
   libjpeg-dev \
   zlib1g-dev
 
-# TEG_USER="printspool"
-# sudo useradd $TEG_USER || true
-# sudo usermod -a -G dialout $TEG_USER || true
+# PS_USER="printspool"
+# sudo useradd $PS_USER || true
+# sudo usermod -a -G dialout $PS_USER || true
 
-TEG_USER="root"
-TEG_USER_HOME=$( getent passwd "$TEG_USER" | cut -d: -f6 )
+PS_USER="root"
+PS_USER_HOME=$( getent passwd "$PS_USER" | cut -d: -f6 )
 
 # create directories
 sudo mkdir -vp /usr/local/etc/printspool/
@@ -56,6 +57,16 @@ sudo chmod 700 /usr/local/etc/printspool/common/
 sudo mkdir -vp /var/local/printspool/
 sudo chmod 700 /var/local/printspool/
 
+if [ ! -f /usr/local/etc/printspool/current/VERSION ]; then
+  PREVIOUS_VERSION="0.16.2"
+else
+  PREVIOUS_VERSION=$(cat /usr/local/etc/printspool/current/VERSION)
+fi
+
+if [[ "$PREVIOUS_VERSION" == "0.16.2" ]]; then
+  sudo touch /usr/local/etc/printspool/common/.needs_0_16_2_pg_patch
+fi
+
 PREV_PRINTSPOOL_INDEX=`sudo find /usr/local/etc/printspool/ -maxdepth 1 \
   -regex '/usr/local/etc/printspool/[0-9]+' \
   -printf '%f\n' | sort -V | tail -1`
@@ -63,25 +74,20 @@ PREV_PRINTSPOOL_INDEX=`sudo find /usr/local/etc/printspool/ -maxdepth 1 \
 # PRINTSPOOL_INDEX defaults to 0 if PREV_PRINTSPOOL_INDEX is ""
 PRINTSPOOL_INDEX=$(( $PREV_PRINTSPOOL_INDEX + 1 ))
 
-sudo mkdir /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/
-sudo chmod 700 /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/
-
-if [[ $FRESH_INSTALL = "1" ]]; then
+if [[ $FRESH_INSTALL == "1" ]]; then
   sudo touch /usr/local/etc/printspool/common/.is-fresh-install
 fi
 
 if [[ "${TEG_DEV}" == "1" ]]; then
   sudo chown -R `whoami`:`whoami` /usr/local/etc/printspool/
   sudo chown -R `whoami`:`whoami` /usr/local/etc/printspool/common/
-  sudo chown -R `whoami`:`whoami` /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/
   sudo chown -R `whoami`:`whoami` /var/local/printspool/
 
   ./setup-postgres
 else
-  sudo chown -R ${TEG_USER}:${TEG_USER} /usr/local/etc/printspool/
-  sudo chown -R ${TEG_USER}:${TEG_USER} /usr/local/etc/printspool/common/
-  sudo chown -R ${TEG_USER}:${TEG_USER} /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/
-  sudo chown -R ${TEG_USER}:${TEG_USER} /var/local/printspool/
+  sudo chown -R ${PS_USER}:${PS_USER} /usr/local/etc/printspool/
+  sudo chown -R ${PS_USER}:${PS_USER} /usr/local/etc/printspool/common/
+  sudo chown -R ${PS_USER}:${PS_USER} /var/local/printspool/
 fi
 
 # create a tmp dir
@@ -245,7 +251,8 @@ mv $ARTIFACT_DIR ./etc/webrtc-streamer
 
 echo "Installing PrintSpool binaries to /usr/local/etc/printspool/${PRINTSPOOL_INDEX}"
 # Install etc (migrations, binaries, configs and webrtc-streamer)
-sudo rsync --chown=$TEG_USER:$TEG_USER -av --delete ./etc/ /usr/local/etc/printspool/${PRINTSPOOL_INDEX}
+sudo mv ./etc /usr/local/etc/printspool/${PRINTSPOOL_INDEX}
+sudo chown -R $PS_USER:$PS_USER /usr/local/etc/printspool/${PRINTSPOOL_INDEX}
 
 # Set permissions
 sudo chmod 744 /usr/local/etc/printspool/${PRINTSPOOL_INDEX}/printspool-health-monitor
@@ -264,7 +271,7 @@ echo "Installing PrintSpool services to /lib/systemd/system/"
 
 sudo ls -la ./services/
 sudo chmod 644 ./services/*
-sudo rsync --chown=$TEG_USER:$TEG_USER -av ./services/ /lib/systemd/system/
+sudo rsync --chown=$PS_USER:$PS_USER -av ./services/ /lib/systemd/system/
 
 if [[ "$CI" == "true" ]]; then
   systemctl --machine=machine_name enable printspool-server printspool-health-monitor printspool-webrtc-streamer

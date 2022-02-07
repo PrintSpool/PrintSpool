@@ -8,12 +8,16 @@ if [[ -z "$PI" ]]; then
     exit 1
 fi
 
-echo "Building in release and installing remotely via SSH on to $PI"
+echo "Building in release and installing remotely via SSH"
+echo ""
+echo "Targetting: $PI"
+echo ""
 
 cargo build --workspace --release --target=armv7-unknown-linux-gnueabihf
 
+echo "Creating the PrintSpool build artifact..."
 PRINTSPOOL_ARCH="armv7l" ./scripts/ci/create-artifact
-
+echo "Creating the PrintSpool build artifact... [DONE]"
 
 echo "Zipping PrintSpool Build..."
 echo ""

@@ -159,7 +159,9 @@ async fn app() -> Result<()> {
     );
 
     let fresh_install_flag = paths::etc_common().join(".is-fresh-install");
-    if fresh_install_flag.exists() {
+    let pg_patch_flag = paths::etc_common().join(".needs_0_16_2_pg_patch");
+
+    if fresh_install_flag.exists() || pg_patch_flag.exists() {
         // Setup Postgres users on first run
         info!("Fresh Install Detected: Setting up Postgres...");
         let setup_postgres = include_str!("../../../../scripts/setup-postgres");
@@ -168,8 +170,15 @@ async fn app() -> Result<()> {
             .arg(setup_postgres)
             .output()
             .expect("setup postgres users");
+    }
 
-        std::fs::remove_file(fresh_install_flag).expect("delete .is-fresh-install");
+    if pg_patch_flag.exists() {
+        std::fs::remove_file(&pg_patch_flag).expect("delete .is-fresh-install");
+        info!("Postgres User Updated");
+    }
+
+    if fresh_install_flag.exists() {
+        std::fs::remove_file(&fresh_install_flag).expect("delete .is-fresh-install");
         info!("Fresh Install Detected: Setting up Postgres... [DONE]");
     }
 

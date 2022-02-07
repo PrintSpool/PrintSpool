@@ -38,4 +38,9 @@ else
   cp ./.env.local-build ./artifact-working-dir/etc/.env
 fi
 
+# Migrations
 cp -r ./crates/server/migrations ./artifact-working-dir/etc/
+
+# Version Number
+jq -r .version package.json &> ./artifact-working-dir/etc/VERSION
+

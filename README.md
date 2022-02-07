@@ -40,6 +40,7 @@ For completeness this documentation lists all the dependencies to get a developm
       protobuf-compiler \
       postgresql \
       postgresql-contrib \
+      jq \
       `# Belt Engine Dependencies` \
       libgeos-dev \
       libblas-dev \
