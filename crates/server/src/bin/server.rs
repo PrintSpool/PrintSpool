@@ -182,6 +182,73 @@ async fn app() -> Result<()> {
         info!("Fresh Install Detected: Setting up Postgres... [DONE]");
     }
 
+    // Auto-Updates
+    #[derive(serde::Deserialize)]
+    struct GithubRelease {
+        tag_name: String,
+    }
+
+    const REPO: &'static str = "PrintSpool/PrintSpool";
+
+    async fn is_update_available() -> Result<bool> {
+        let latest_release_url = format!(
+            "https://api.github.com/repos/{}/releases/latest",
+            REPO,
+        );
+
+        let req = surf::get(&latest_release_url)
+            .recv_json()
+            .map_err(|err| eyre!(err));
+
+        let release: GithubRelease = async_std::future::timeout(std::time::Duration::from_millis(5_000), req)
+            .await
+            .wrap_err("Polling for update timed out")?
+            .wrap_err("Error checking for updates")?;
+
+        // tag names start with "v" eg. "v0.99.0"
+        use versions::Versioning;
+
+        let latest_version = Versioning::new(&release.tag_name[1..])
+            .ok_or_else(|| eyre!("Error parsing lates PrintSpool release version"))?;
+
+        let current_version = async_std::fs::read_to_string(
+            paths::etc().join("VERSION"),
+        )
+            .await
+            .map(|v| Versioning::new(&v))
+            .wrap_err("Error reading PrintSpool VERSION file")?
+            .ok_or_else(|| eyre!("Error parsing PrintSpool VERSION file"))?;
+
+        Ok(latest_version > current_version)
+    }
+
+    async_std::task::spawn(async {
+        if paths::is_dev() {
+            info!("Auto updates disabled in development");
+            return
+        }
+
+        let install_url = format!(
+            "https://raw.githubusercontent.com/{}/develop/scripts/install",
+            REPO,
+        );
+
+        loop {
+            if let Ok(true) = is_update_available()
+                .await
+                .map_err(|err| warn!("{:?}", err))
+            {
+                let _ = std::process::Command::new("sh")
+                    .arg("-c")
+                    .arg(format!("bash <(curl -s {})", install_url))
+                    .spawn()
+                    .map_err(|err| warn!("{:?}", err));
+            }
+            async_std::task::sleep(std::time::Duration::from_secs(60 * 60)).await;
+        }
+    }.instrument(tracing::info_span!("auto_updates")));
+
+    // Wifi Acess Point
     let is_raspi = rppal::system::DeviceInfo::new().is_ok();
     let wifi_ap_flag = paths::etc_common().join(".enable-wifi-ap");
     let has_wifi_connect = std::process::Command::new("wifi-connect")
