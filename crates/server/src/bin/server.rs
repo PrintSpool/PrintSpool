@@ -215,11 +215,23 @@ async fn app() -> Result<()> {
             paths::etc().join("VERSION"),
         )
             .await
-            .map(|v| Versioning::new(&v))
+            .map(|v| Versioning::new(&v.replace("\n", "")))
             .wrap_err("Error reading PrintSpool VERSION file")?
             .ok_or_else(|| eyre!("Error parsing PrintSpool VERSION file"))?;
 
-        Ok(latest_version > current_version)
+        let needs_update = latest_version > current_version;
+
+        if needs_update {
+            info!(
+                "New PrintSpool version available ({}). You are running: {}",
+                latest_version,
+                current_version,
+            )
+        } else {
+            info!("You are running the latest version of PrintSpool ({})", current_version)
+        }
+
+        Ok(needs_update)
     }
 
     async_std::task::spawn(async {
