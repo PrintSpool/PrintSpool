@@ -3,7 +3,7 @@ use pidfile_rs::{
     Pidfile,
     PidfileError,
 };
-// use teg_protobufs::{
+// use printspool_protobufs::{
 //     ServerMessage,
 //     server_message,
 // };

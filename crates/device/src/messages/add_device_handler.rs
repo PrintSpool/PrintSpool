@@ -9,7 +9,7 @@ use crate::{
     device_manager::DeviceManager,
 };
 
-use teg_machine::machine::messages::AddDevice;
+use printspool_machine::machine::messages::AddDevice;
 
 #[async_trait::async_trait]
 impl xactor::Handler<AddDevice> for DeviceManager {

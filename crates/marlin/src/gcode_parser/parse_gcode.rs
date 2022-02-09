@@ -10,7 +10,7 @@ use nom_gcode::{
         General as G,
     },
 };
-use teg_protobufs::MachineFlags;
+use printspool_protobufs::MachineFlags;
 
 use crate::state_machine::Context;
 

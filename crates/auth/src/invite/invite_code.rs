@@ -4,7 +4,7 @@ use eyre::{
     Context as _,
     Result,
 };
-use teg_protobufs::{ InviteCode, Message };
+use printspool_protobufs::{ InviteCode, Message };
 
 use crate::ServerKeys;
 

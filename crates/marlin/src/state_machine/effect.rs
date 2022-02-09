@@ -32,7 +32,7 @@ use fallible_iterator::{
     FallibleIterator,
 };
 
-use teg_protobufs::{MachineFlags, Message};
+use printspool_protobufs::{MachineFlags, Message};
 use bytes::Bytes;
 
 use super::{
@@ -140,7 +140,7 @@ impl Effect {
                     .unwrap();
             }
             Effect::SendInitProtobuf => {
-                use teg_protobufs::{
+                use printspool_protobufs::{
                     MachineMessage,
                     machine_message::{ Payload, Init },
                 };
@@ -161,7 +161,7 @@ impl Effect {
                     .expect("machine message send failed");
             }
             Effect::SendFeedbackProtobuf => {
-                use teg_protobufs::{
+                use printspool_protobufs::{
                     MachineMessage,
                     machine_message::{ Feedback, Payload },
                 };

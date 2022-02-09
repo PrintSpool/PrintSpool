@@ -3,7 +3,7 @@ use super::{
     InviteConfig,
 };
 
-impl teg_config_form::Configurable<InviteConfig> for Invite
+impl printspool_config_form::Configurable<InviteConfig> for Invite
 {
     fn id(&self) -> async_graphql::ID {
         format!("invite-{}", self.id).into()
@@ -18,7 +18,7 @@ impl teg_config_form::Configurable<InviteConfig> for Invite
     }
 }
 
-impl teg_config_form::Model for InviteConfig
+impl printspool_config_form::Model for InviteConfig
 {
     fn form(all_fields: &Vec<String>) -> Vec<String> {
         all_fields.clone()

@@ -6,7 +6,7 @@ use schemars::JsonSchema;
 //     Result,
 //     // Context as _,
 // };
-use teg_json_store::Record;
+use printspool_json_store::Record;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Material {
@@ -58,11 +58,11 @@ impl Record for Material {
         &self.id
     }
 
-    fn version(&self) -> teg_json_store::Version {
+    fn version(&self) -> printspool_json_store::Version {
         self.version
     }
 
-    fn version_mut(&mut self) -> &mut teg_json_store::Version {
+    fn version_mut(&mut self) -> &mut printspool_json_store::Version {
         &mut self.version
     }
 

@@ -8,7 +8,7 @@ use eyre::{
     // Context as _,
 };
 
-use teg_protobufs::{
+use printspool_protobufs::{
     ServerMessage,
 };
 

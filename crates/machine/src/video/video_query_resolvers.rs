@@ -9,7 +9,7 @@ use eyre::{
     // Result,
     Context as _,
 };
-use teg_auth::{
+use printspool_auth::{
     AuthContext,
 };
 

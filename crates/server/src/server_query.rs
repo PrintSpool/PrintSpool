@@ -5,13 +5,13 @@ use eyre::{
     Result,
     // Context as _,
 };
-use teg_json_store::{JsonRow, Record};
+use printspool_json_store::{JsonRow, Record};
 // use async_graphql::{
 //     // ID,
 //     // Context,
 //     FieldResult,
 // };
-// use teg_json_store::Record as _;
+// use printspool_json_store::Record as _;
 
 use crate::{built_info, server::Server};
 

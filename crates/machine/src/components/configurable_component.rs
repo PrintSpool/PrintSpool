@@ -1,8 +1,8 @@
 use crate::components::ComponentInner;
 
-impl<M, E> teg_config_form::Configurable<M> for ComponentInner<M, E>
+impl<M, E> printspool_config_form::Configurable<M> for ComponentInner<M, E>
 where
-    M: teg_config_form::Model,
+    M: printspool_config_form::Model,
     E: Default,
 {
     fn id(&self) -> async_graphql::ID {

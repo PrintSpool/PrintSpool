@@ -6,11 +6,11 @@ use eyre::{
 };
 use async_graphql::{ID, Context, FieldResult};
 use xactor::Actor as _;
-use teg_json_store::Record;
+use printspool_json_store::Record;
 
-use teg_auth::AuthContext;
-use teg_machine::{MachineMap, machine::{events::TaskSettled, messages::SpoolTask}, task::{Task, TaskStatus}};
-use teg_macros::AnyMacro;
+use printspool_auth::AuthContext;
+use printspool_machine::{MachineMap, machine::{events::TaskSettled, messages::SpoolTask}, task::{Task, TaskStatus}};
+use printspool_macros::AnyMacro;
 
 #[derive(async_graphql::InputObject, Debug)]
 struct ExecGCodesInput {

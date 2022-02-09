@@ -6,11 +6,11 @@ use eyre::{
     Result,
     // Context as _,
 };
-use teg_protobufs::{
+use printspool_protobufs::{
     MachineFlags,
     machine_message::{self, Status},
 };
-use teg_json_store::{ Record as _ };
+use printspool_json_store::{ Record as _ };
 
 use machine_message::Feedback;
 use crate::{machine::{

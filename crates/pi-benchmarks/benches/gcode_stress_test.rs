@@ -218,7 +218,7 @@ fn gcode_stress_test(c: &mut Criterion) {
     let mut group = c.benchmark_group("gcode_stress_test");
     group.sample_size(1000);
 
-    let _teg_tty = benchmark_marlin_driver(
+    let _printspool_tty = benchmark_marlin_driver(
         &mut group,
         "teg".into(),
     );

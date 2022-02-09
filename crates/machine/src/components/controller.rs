@@ -67,7 +67,7 @@ pub struct ControllerConfig {
     pub checksum_tickles: bool,
 }
 
-impl teg_config_form::Model for ControllerConfig {
+impl printspool_config_form::Model for ControllerConfig {
     fn static_form() -> Option<Vec<&'static str>> {
         Some(vec![
             "name",

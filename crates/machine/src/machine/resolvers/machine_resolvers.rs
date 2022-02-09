@@ -9,9 +9,9 @@ use eyre::{
     Result,
     Context as _,
 };
-use teg_config_form::ConfigForm;
-use teg_auth::user::User;
-use teg_json_store::{JsonRow, Record as _};
+use printspool_config_form::ConfigForm;
+use printspool_auth::user::User;
+use printspool_json_store::{JsonRow, Record as _};
 
 use crate::{machine::{
     MachineData,
@@ -48,7 +48,7 @@ impl MachineData {
     /// The machine configuration for general settings.
     async fn config_form(&self) -> FieldResult<ConfigForm> {
         let core_plugin = self.config.core_plugin()?;
-        let config_form = teg_config_form::into_config_form(core_plugin)?;
+        let config_form = printspool_config_form::into_config_form(core_plugin)?;
         Ok(config_form)
     }
 

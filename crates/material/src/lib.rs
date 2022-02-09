@@ -16,6 +16,6 @@ mod material_hooks;
 pub use material_hooks::MaterialHooks;
 
 pub type Db = sqlx::PgPool;
-pub type DbId = teg_json_store::DbId;
+pub type DbId = printspool_json_store::DbId;
 
 pub type MaterialHooksList = Arc<Vec<Box<dyn MaterialHooks + Send + Sync>>>;

@@ -4,7 +4,7 @@ use eyre::{
     // Context as _,
 };
 
-use teg_machine::machine::Machine;
+use printspool_machine::machine::Machine;
 use crate::{AnnotatedGCode, InternalMacro};
 
 #[xactor::message(result = "Result<Vec<AnnotatedGCode>>")]

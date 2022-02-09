@@ -15,7 +15,7 @@ use super::super::{
     SpeedControllerEphemeral,
     Toolhead,
 };
-use teg_config_form::ConfigForm;
+use printspool_config_form::ConfigForm;
 
 #[async_graphql::Object]
 impl Component {
@@ -73,7 +73,7 @@ impl Component {
 
     async fn config_form(&self) -> FieldResult<ConfigForm> {
         use Component::*;
-        use teg_config_form::into_config_form;
+        use printspool_config_form::into_config_form;
 
         let config_form = match self {
             Controller(c) => into_config_form(c),

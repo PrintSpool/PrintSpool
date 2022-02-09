@@ -1,5 +1,5 @@
 syntax = "proto3";
-package teg_protobufs;
+package printspool_protobufs;
 
 // Combinators send ServerMessages
 message InviteCode {

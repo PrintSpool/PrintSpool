@@ -9,8 +9,8 @@ use async_graphql::{
     FieldResult,
 };
 use machine::messages::{GetData, PauseTask};
-use teg_json_store::Record;
-use teg_machine::{MachineMap, machine, task::Task};
+use printspool_json_store::Record;
+use printspool_machine::{MachineMap, machine, task::Task};
 
 use crate::{part::Part, resolvers::print_resolvers::Print, task_from_hook};
 

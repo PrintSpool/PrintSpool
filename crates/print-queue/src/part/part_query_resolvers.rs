@@ -9,7 +9,7 @@ use eyre::{
     // Context as _,
 };
 
-use teg_json_store::{ Record as _, JsonRow };
+use printspool_json_store::{ Record as _, JsonRow };
 
 use crate::part::Part;
 

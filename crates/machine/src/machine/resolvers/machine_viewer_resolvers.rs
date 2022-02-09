@@ -10,7 +10,7 @@ use eyre::{
     // Context as _,
 };
 use std::collections::VecDeque;
-use teg_config_form::ConfigForm;
+use printspool_config_form::ConfigForm;
 
 use crate::machine::{
     MachineData,

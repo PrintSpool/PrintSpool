@@ -1,17 +1,17 @@
-use teg_auth::{
+use printspool_auth::{
     InviteMutation,
     UserMutation,
 };
 
-use teg_machine::{
+use printspool_machine::{
     ComponentMutation,
     ConfigMutation,
     MachineMutation,
     VideoMutation,
 };
 
-use teg_material::MaterialMutation;
-use teg_print_queue::PrintQueueMutation;
+use printspool_material::MaterialMutation;
+use printspool_print_queue::PrintQueueMutation;
 
 #[derive(async_graphql::MergedObject, Default)]
 pub struct Mutation(

@@ -3,7 +3,7 @@ use async_graphql::{
     Context,
     ID,
 };
-use teg_json_store::{ JsonRow, Record as _ };
+use printspool_json_store::{ JsonRow, Record as _ };
 
 use crate::{
     AuthContext,

@@ -1,5 +1,5 @@
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
-use teg_auth::AuthContext;
+use printspool_auth::AuthContext;
 use tracing::Instrument;
 use warp::{Filter, http::Response as HttpResponse, hyper::Method};
 use eyre::{

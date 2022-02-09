@@ -27,14 +27,14 @@ built = { version = "0.4.4", features = ["git2"] }
 git2 = "0.13.20"
 
 [dependencies]
-teg-common = { path = "../common"}
-teg_machine = { path = "../machine" }
-teg_material = { path = "../material" }
-teg_auth = { path = "../auth" }
-teg_data_channel = { path = "../data_channel" }
-teg_device = { path = "../device" }
-teg-json-store = { path = "../json-store" }
-teg-print-queue = { path = "../print-queue" }
+printspool-common = { path = "../common"}
+printspool_machine = { path = "../machine" }
+printspool_material = { path = "../material" }
+printspool_auth = { path = "../auth" }
+printspool_data_channel = { path = "../data_channel" }
+printspool_device = { path = "../device" }
+printspool-json-store = { path = "../json-store" }
+printspool-print-queue = { path = "../print-queue" }
 
 # async-graphql = { version ="2.8.4", features = ["apollo_tracing", "tracing",  "chrono", "url"] }
 async-graphql = { git = "https://github.com/D1plo1d/async-graphql.git", branch="feature/websocket-file-uploads", features = ["apollo_tracing", "tracing",  "chrono", "url", "unblock"] }

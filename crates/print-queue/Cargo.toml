@@ -1,11 +1,11 @@
 [package]
-name = "teg-print-queue"
+name = "printspool-print-queue"
 version = "0.1.0"
 authors = ["D1plo1d <thatotherdude@gmail.com>"]
 edition = "2018"
 
 [lib]
-name = "teg_print_queue"
+name = "printspool_print_queue"
 path = "src/lib.rs"
 
 [[bench]]
@@ -18,12 +18,12 @@ criterion = { version = "0.3.3", features = ["async_std"] }
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-teg_machine = { path = "../machine" }
-teg-macros = { path = "../macros" }
-teg_auth = { path = "../auth" }
-teg_data_channel = { path = "../data_channel" }
-teg-json-store = { path = "../json-store" }
-teg-common = { path = "../common" }
+printspool_machine = { path = "../machine" }
+printspool-macros = { path = "../macros" }
+printspool_auth = { path = "../auth" }
+printspool_data_channel = { path = "../data_channel" }
+printspool-json-store = { path = "../json-store" }
+printspool-common = { path = "../common" }
 
 serde_json = { version = "1.0.44", features = ["raw_value"] }
 async-graphql = { git = "https://github.com/D1plo1d/async-graphql.git", branch="feature/websocket-file-uploads", features = ["apollo_tracing", "tracing",  "chrono", "url", "unblock"] }

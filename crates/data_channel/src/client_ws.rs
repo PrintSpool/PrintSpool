@@ -17,7 +17,7 @@ use futures_util::{
         TryStreamExt,
     },
 };
-use teg_auth::Signal;
+use printspool_auth::Signal;
 
 use crate::saltyrtc_chunk::Message;
 
@@ -25,7 +25,7 @@ pub async fn connect_to_client_ws<F, Fut, S>(
     signal: Signal,
     url: String,
     aud: &str,
-    server_keys: &Arc<teg_auth::ServerKeys>,
+    server_keys: &Arc<printspool_auth::ServerKeys>,
     handle_data_channel: Arc<F>,
 ) -> Result<()>
 where
@@ -83,12 +83,16 @@ where
     ) = ws_stream.split();
 
     let ws_read = ws_read
-        .map(|res| res.wrap_err("websocket read error"))
+        .map(|res| res.wrap_err("Websocket read error"))
         .and_then(|ws_msg| {
             use async_tungstenite::tungstenite::Message;
 
             match ws_msg {
-                Message::Binary(msg) => future::ok(msg),
+                Message::Binary(msg) => future::ok(Some(msg)),
+                Message::Close(_) => {
+                    debug!("Client websocket closed");
+                    future::ok(None)
+                },
                 msg => future::err(eyre!("Unsupported message type: {:?}", msg))
             }
         })
@@ -96,10 +100,14 @@ where
             warn!("Client websocket read error: {:?}", err);
         })
         .take_while(|result| {
-            future::ready(result.is_ok())
+            if let Ok(Some(_)) = result.as_ref() {
+                future::ready(true)
+            } else {
+                future::ready(false)
+            }
         })
-        .filter_map(|result| async move {
-            result.ok()
+        .filter_map(|result| {
+            future::ready(result.ok().flatten())
         });
 
     let dechunked_read = ChunkDecoder::new(mode)

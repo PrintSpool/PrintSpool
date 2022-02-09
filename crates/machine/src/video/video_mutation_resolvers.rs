@@ -15,10 +15,10 @@ use serde::{
     Serialize,
     Deserialize,
 };
-use teg_auth::{
+use printspool_auth::{
     AuthContext,
 };
-// use teg_json_store::Record;
+// use printspool_json_store::Record;
 
 use crate::machine::{
     // MachineViewer,

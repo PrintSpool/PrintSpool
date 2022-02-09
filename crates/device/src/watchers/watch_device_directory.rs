@@ -9,7 +9,7 @@ use eyre::{
     Context as _,
 };
 use xactor::Service;
-use teg_machine::machine::messages::AddDevice;
+use printspool_machine::machine::messages::AddDevice;
 
 use crate::{
     messages::{

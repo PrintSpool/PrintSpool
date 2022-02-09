@@ -29,7 +29,7 @@ pub struct BuildPlatformConfig {
     pub heater: bool,
 }
 
-impl teg_config_form::Model for BuildPlatformConfig {
+impl printspool_config_form::Model for BuildPlatformConfig {
     fn form(all_fields: &Vec<String>) -> Vec<String> {
         all_fields.clone()
     }

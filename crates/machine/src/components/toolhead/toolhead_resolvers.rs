@@ -3,8 +3,8 @@ use async_graphql::{
     FieldResult,
     ID,
 };
-use teg_material::Material;
-use teg_json_store::Record as _;
+use printspool_material::Material;
+use printspool_json_store::Record as _;
 
 use super::Toolhead;
 

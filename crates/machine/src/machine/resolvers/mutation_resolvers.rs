@@ -9,18 +9,18 @@ use eyre::{
     // Result,
     Context as _,
 };
-use teg_auth::{
+use printspool_auth::{
     AuthContext,
 };
-use teg_common::Void;
-use teg_json_store::{JsonRow, Record as _};
+use printspool_common::Void;
+use printspool_json_store::{JsonRow, Record as _};
 
 use crate::machine::{
     MachineViewer,
     messages::{self, GetData},
 };
 
-// use teg_json_store::Record as _;
+// use printspool_json_store::Record as _;
 
 use crate::{
     config::{
@@ -93,7 +93,7 @@ impl MachineMutation {
         ctx: &'ctx async_graphql::Context<'_>,
         #[graphql(name="machineID")]
         machine_id: ID,
-    ) -> FieldResult<Option<teg_common::Void>> {
+    ) -> FieldResult<Option<printspool_common::Void>> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 

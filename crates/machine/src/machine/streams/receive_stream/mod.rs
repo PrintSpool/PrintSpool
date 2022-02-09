@@ -4,7 +4,7 @@ use xactor::{
     Context as XContext,
 };
 
-use teg_protobufs::{
+use printspool_protobufs::{
     MachineMessage,
     // Message,
     machine_message,

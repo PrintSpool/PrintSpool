@@ -1,6 +1,6 @@
 use crate::{FdmFilament, Material, MaterialConfigEnum};
 
-impl teg_config_form::Configurable<Box<FdmFilament>> for Material
+impl printspool_config_form::Configurable<Box<FdmFilament>> for Material
 {
     fn id(&self) -> async_graphql::ID {
         format!("material-{}", self.id).into()
@@ -19,7 +19,7 @@ impl teg_config_form::Configurable<Box<FdmFilament>> for Material
     }
 }
 
-impl teg_config_form::Model for Box<FdmFilament>
+impl printspool_config_form::Model for Box<FdmFilament>
 {
     fn form(_: &Vec<String>) -> Vec<String> {
         vec![

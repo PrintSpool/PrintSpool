@@ -5,7 +5,7 @@ use eyre::{
     Result,
     // Context as _,
 };
-use teg_machine::config::MachineConfig;
+use printspool_machine::config::MachineConfig;
 use crate::AnnotatedGCode;
 use super::MoveMacro;
 

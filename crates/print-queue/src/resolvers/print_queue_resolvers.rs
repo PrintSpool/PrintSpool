@@ -8,7 +8,7 @@ use async_graphql::{
 //     // Result,
 //     Context as _,
 // };
-use teg_json_store::{ Record, JsonRow };
+use printspool_json_store::{ Record, JsonRow };
 
 use crate::{
     PrintQueue,

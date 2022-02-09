@@ -9,7 +9,7 @@ use async_graphql::{
 //     Result,
 //     // Context as _,
 // };
-use teg_machine::task::Task;
+use printspool_machine::task::Task;
 
 use crate::{
     package::Package,

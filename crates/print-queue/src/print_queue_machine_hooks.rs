@@ -8,8 +8,8 @@ use eyre::{
 };
 
 use futures::{Future, FutureExt};
-use teg_json_store::Record;
-use teg_machine::{MachineHooks, MachineHooksList, config::MachineConfig, machine::Machine, machine::MachineData, plugins::Plugin, task::Task};
+use printspool_json_store::Record;
+use printspool_machine::{MachineHooks, MachineHooksList, config::MachineConfig, machine::Machine, machine::MachineData, plugins::Plugin, task::Task};
 
 use crate::{PrintQueue, insert_print, machine_print_queue::MachinePrintQueue, part::Part};
 

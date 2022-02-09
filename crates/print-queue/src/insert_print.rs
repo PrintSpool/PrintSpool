@@ -15,9 +15,9 @@ use eyre::{
     Result,
     // Context as _,
 };
-use teg_json_store::Record;
-use teg_macros::{AnnotatedGCode, GCodeAnnotation, InternalMacro, compile_macros};
-use teg_machine::{MachineHooksList, machine::{Errored, Machine, MachineStatus, Printing, messages::GetData}, task::{Task, TaskContent, TaskStatus}};
+use printspool_json_store::Record;
+use printspool_macros::{AnnotatedGCode, GCodeAnnotation, InternalMacro, compile_macros};
+use printspool_machine::{MachineHooksList, machine::{Errored, Machine, MachineStatus, Printing, messages::GetData}, task::{Task, TaskContent, TaskStatus}};
 
 use crate::{
     part::Part,
@@ -124,7 +124,7 @@ pub async fn insert_print<'c>(
         * =========================================================================================
         */
 
-        use teg_macros::CompileInternalMacro;
+        use printspool_macros::CompileInternalMacro;
 
         let machine_clone2 = machine.clone();
         let compile_internal_macro = move |internal_macro| {

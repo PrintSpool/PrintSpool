@@ -25,7 +25,7 @@ pub struct SpeedControllerConfig {
     pub address: String,
 }
 
-impl teg_config_form::Model for SpeedControllerConfig {
+impl printspool_config_form::Model for SpeedControllerConfig {
     fn form(all_fields: &Vec<String>) -> Vec<String> {
         all_fields.clone()
     }

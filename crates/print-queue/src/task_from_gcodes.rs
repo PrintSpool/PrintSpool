@@ -6,14 +6,14 @@ use eyre::{
     // eyre,
     // Context as _,
 };
-use teg_machine::{
+use printspool_machine::{
     machine::Machine,
     task::{
         TaskContent,
         Task,
     },
 };
-use teg_macros::{AnnotatedGCode, compile_macros, CompileInternalMacro};
+use printspool_macros::{AnnotatedGCode, compile_macros, CompileInternalMacro};
 
 pub async fn task_from_hook<'ctx>(
     machine_id: &crate::DbId,

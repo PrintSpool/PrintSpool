@@ -24,7 +24,7 @@ pub struct UpdateComponent {
     pub model: serde_json::Value,
 }
 
-fn get_component_and_next_model<'a, M: validator::Validate + teg_config_form::Model, E: Default>(
+fn get_component_and_next_model<'a, M: validator::Validate + printspool_config_form::Model, E: Default>(
     components: &'a mut Vec<ComponentInner<M, E>>,
     msg: &UpdateComponent,
 ) -> Result<(&'a mut ComponentInner<M, E>, M)> {
@@ -39,7 +39,7 @@ fn get_component_and_next_model<'a, M: validator::Validate + teg_config_form::Mo
     Ok((component, next_model))
 }
 
-fn update_component_inner<'a, M: validator::Validate + teg_config_form::Model, E: Default>(
+fn update_component_inner<'a, M: validator::Validate + printspool_config_form::Model, E: Default>(
     components: &mut Vec<ComponentInner<M, E>>,
     msg: &UpdateComponent,
 ) -> Result<()> {

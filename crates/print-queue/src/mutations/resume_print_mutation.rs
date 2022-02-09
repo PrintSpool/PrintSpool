@@ -10,8 +10,8 @@ use async_graphql::{
     FieldResult,
 };
 use machine::messages::{GetData, ResumeTask};
-use teg_json_store::Record;
-use teg_machine::{MachineMap, machine::{self, MachineStatus, PositioningUnits, Printing}, task::{Task, TaskStatus}};
+use printspool_json_store::Record;
+use printspool_machine::{MachineMap, machine::{self, MachineStatus, PositioningUnits, Printing}, task::{Task, TaskStatus}};
 
 use crate::{part::Part, resolvers::print_resolvers::Print, task_from_hook};
 

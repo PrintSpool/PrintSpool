@@ -11,7 +11,7 @@ pub mod part;
 pub use part::part_query_resolvers::PartQuery;
 
 pub mod print;
-pub use teg_common::paths;
+pub use printspool_common::paths;
 
 mod insert_print;
 pub use insert_print::{
@@ -40,4 +40,4 @@ pub use task_from_gcodes::{
 };
 
 pub type Db = sqlx::PgPool;
-pub type DbId = teg_json_store::DbId;
+pub type DbId = printspool_json_store::DbId;

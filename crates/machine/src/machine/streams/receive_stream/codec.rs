@@ -8,7 +8,7 @@ use async_codec::*;
 use bytes::BufMut;
 
 
-use teg_protobufs::{ServerMessage, MachineMessage, Message};
+use printspool_protobufs::{ServerMessage, MachineMessage, Message};
 
 #[derive(Debug, Clone)]
 pub struct MachineCodec;

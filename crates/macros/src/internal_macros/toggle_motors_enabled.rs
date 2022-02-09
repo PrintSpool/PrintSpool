@@ -4,7 +4,7 @@ use eyre::{
     Result,
     // Context as _,
 };
-use teg_machine::config::MachineConfig;
+use printspool_machine::config::MachineConfig;
 use crate::AnnotatedGCode;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

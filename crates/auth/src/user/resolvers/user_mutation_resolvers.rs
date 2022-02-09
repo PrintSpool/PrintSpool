@@ -8,7 +8,7 @@ use eyre::{
     eyre,
     // Result
 };
-use teg_json_store::Record as _;
+use printspool_json_store::Record as _;
 
 use crate::{AuthContext, user::{User, UserConfig}};
 
@@ -77,7 +77,7 @@ impl UserMutation {
         &self,
         ctx: &'ctx Context<'_>,
         input: DeleteUserInput,
-    ) -> FieldResult<Option<teg_common::Void>> {
+    ) -> FieldResult<Option<printspool_common::Void>> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 

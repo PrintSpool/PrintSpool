@@ -9,11 +9,11 @@ use eyre::{Context, Result};
 // use std::time::Duration;
 // use std::path::PathBuf;
 
-// use teg_auth::AuthContext;
-// use teg_device::DeviceManager;
-// use teg_machine::{MachineHooksList, MachineMap, MachineMapLocal, MachineMaterialHooks, machine::Machine, signalling_updater::{SignallingUpdater, SignallingUpdaterMachineHooks}};
-// use teg_material::{MaterialHooksList};
-// use teg_print_queue::print_queue_machine_hooks::PrintQueueMachineHooks;
+// use printspool_auth::AuthContext;
+// use printspool_device::DeviceManager;
+// use printspool_machine::{MachineHooksList, MachineMap, MachineMapLocal, MachineMaterialHooks, machine::Machine, signalling_updater::{SignallingUpdater, SignallingUpdaterMachineHooks}};
+// use printspool_material::{MaterialHooksList};
+// use printspool_print_queue::print_queue_machine_hooks::PrintQueueMachineHooks;
 
 // async fn start_pg_embed_db(start_pg: bool) -> Result<(Option<PgEmbed>, String)> {
 //     let db_name = env::var("DATABASE_NAME")

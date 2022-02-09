@@ -12,7 +12,7 @@ use eyre::{
 };
 use client_ws::connect_to_client_ws;
 use serde::{Serialize, Deserialize};
-// use teg_machine::machine::messages::GetData;
+// use printspool_machine::machine::messages::GetData;
 use std::{
     pin::Pin,
     sync::Arc,
@@ -34,9 +34,9 @@ use futures_util::{
         // TryStreamExt,
     },
 };
-use teg_auth::Signal;
+use printspool_auth::Signal;
 
-pub use teg_machine::paths;
+pub use printspool_machine::paths;
 
 pub type Db = sqlx::PgPool;
 
@@ -91,8 +91,8 @@ enum GraphQLWSMessage {
 
 pub async fn listen_for_signalling<F, Fut, S>(
     // db: crate::Db,
-    server_keys: &Arc<teg_auth::ServerKeys>,
-    machines: &teg_machine::MachineMap,
+    server_keys: &Arc<printspool_auth::ServerKeys>,
+    machines: &printspool_machine::MachineMap,
     handle_data_channel: F,
 ) -> Result<()>
 where
@@ -122,8 +122,8 @@ where
 
 pub async fn listen_for_signalling_no_reconnect<F, Fut, S>(
     // db: crate::Db,
-    server_keys: &Arc<teg_auth::ServerKeys>,
-    _machines: &teg_machine::MachineMap,
+    server_keys: &Arc<printspool_auth::ServerKeys>,
+    _machines: &printspool_machine::MachineMap,
     handle_data_channel: Arc<F>,
 ) -> Result<()>
 where

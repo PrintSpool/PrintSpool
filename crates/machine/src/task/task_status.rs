@@ -5,7 +5,7 @@ use eyre::{
     Result,
     // Context as _,
 };
-use teg_protobufs::machine_message::TaskProgress;
+use printspool_protobufs::machine_message::TaskProgress;
 
 pub use crate::machine::Errored;
 
@@ -103,9 +103,9 @@ impl Default for TaskStatus {
 impl TaskStatus {
     pub fn from_task_progress(
         progress: &TaskProgress,
-        error: &Option<teg_protobufs::machine_message::Error>,
+        error: &Option<printspool_protobufs::machine_message::Error>,
     ) -> Result<Self> {
-        use teg_protobufs::machine_message::TaskStatus as TS;
+        use printspool_protobufs::machine_message::TaskStatus as TS;
 
         let status = match progress.status {
             i if i == TS::TaskStarted as i32 => TaskStatus::Started,

@@ -3,7 +3,7 @@ use eyre::{
     Result,
     // Context as _,
 };
-use teg_protobufs::machine_message::Init;
+use printspool_protobufs::machine_message::Init;
 use crate::machine::{Machine, messages::ResetWhenIdle};
 
 pub async fn record_init(

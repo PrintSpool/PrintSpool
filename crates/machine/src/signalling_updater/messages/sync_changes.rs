@@ -7,7 +7,7 @@
 // use async_std::future;
 use serde::{Deserialize, Serialize};
 // use surf::http::auth::{AuthenticationScheme, Authorization};
-// use teg_json_store::Record as _;
+// use printspool_json_store::Record as _;
 
 use super::super::{
     SignallingUpdater,

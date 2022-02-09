@@ -16,7 +16,7 @@ mod built_info {
     include!(concat!(env!("OUT_DIR"), "/built.rs"));
 }
 
-pub use teg_machine::paths;
+pub use printspool_machine::paths;
 
 pub mod mutation;
 pub mod query;
@@ -30,14 +30,14 @@ pub use create_db::create_db;
 pub mod health_check_socket;
 pub use health_check_socket::health_check_socket;
 
-pub use teg_auth;
-pub use teg_device;
-pub use teg_machine;
-pub use teg_material;
-pub use teg_print_queue;
+pub use printspool_auth;
+pub use printspool_device;
+pub use printspool_machine;
+pub use printspool_material;
+pub use printspool_print_queue;
 
 pub type Db = sqlx::PgPool;
-pub type DbId = teg_json_store::DbId;
+pub type DbId = printspool_json_store::DbId;
 
 pub type AppSchemaBuilder = async_graphql::SchemaBuilder<
     query::Query,

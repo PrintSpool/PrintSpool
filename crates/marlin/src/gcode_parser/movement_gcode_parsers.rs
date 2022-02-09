@@ -1,6 +1,6 @@
 // TODO: Movement GCode parsing
 use nom_gcode::GCode;
-use teg_protobufs::{MachineFlags, machine_message::DirectionOfMovement};
+use printspool_protobufs::{MachineFlags, machine_message::DirectionOfMovement};
 
 use crate::state_machine::Context;
 

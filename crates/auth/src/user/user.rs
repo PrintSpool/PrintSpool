@@ -5,7 +5,7 @@ use eyre::{
     Result,
     // Context as _,
 };
-use teg_json_store::{ Record, JsonRow };
+use printspool_json_store::{ Record, JsonRow };
 
 use super::UserConfig;
 
@@ -95,11 +95,11 @@ impl Record for User {
         &self.id
     }
 
-    fn version(&self) -> teg_json_store::Version {
+    fn version(&self) -> printspool_json_store::Version {
         self.version
     }
 
-    fn version_mut(&mut self) -> &mut teg_json_store::Version {
+    fn version_mut(&mut self) -> &mut printspool_json_store::Version {
         &mut self.version
     }
 

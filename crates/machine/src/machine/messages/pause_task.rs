@@ -1,6 +1,6 @@
 use chrono::prelude::*;
-use teg_json_store::Record as _;
-use teg_protobufs::{
+use printspool_json_store::Record as _;
+use printspool_protobufs::{
     ServerMessage,
     server_message,
 };

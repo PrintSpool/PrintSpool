@@ -8,10 +8,10 @@ use eyre::{
     // Result,
     // Context as _,
 };
-use teg_auth::{
+use printspool_auth::{
     AuthContext,
 };
-// use teg_json_store::Record as _;
+// use printspool_json_store::Record as _;
 
 use crate::{components::ComponentTypeGQL, machine::messages};
 
@@ -52,7 +52,7 @@ impl ComponentMutation {
         &self,
         ctx: &'ctx Context<'_>,
         input: CreateComponentInput,
-    ) -> FieldResult<teg_common::Void> {
+    ) -> FieldResult<printspool_common::Void> {
         // let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 
@@ -70,7 +70,7 @@ impl ComponentMutation {
         };
         machine.call(msg).await??;
 
-        Ok(teg_common::Void)
+        Ok(printspool_common::Void)
     }
 
     #[instrument(skip(self, ctx))]
@@ -78,7 +78,7 @@ impl ComponentMutation {
         &self,
         ctx: &'ctx Context<'_>,
         input: UpdateComponentInput,
-    ) -> FieldResult<teg_common::Void> {
+    ) -> FieldResult<printspool_common::Void> {
         // let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 
@@ -107,7 +107,7 @@ impl ComponentMutation {
                 err
             })?;
 
-        Ok(teg_common::Void)
+        Ok(printspool_common::Void)
     }
 
     #[instrument(skip(self, ctx))]
@@ -115,7 +115,7 @@ impl ComponentMutation {
         &self,
         ctx: &'ctx Context<'_>,
         input: DeleteComponentInput,
-    ) -> FieldResult<Option<teg_common::Void>> {
+    ) -> FieldResult<Option<printspool_common::Void>> {
         // let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 

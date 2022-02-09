@@ -2863,6 +2863,45 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ac74c624d6b2d21f425f752262f42188365d7b8ff1aff74c82e45136510a4857"
 
 [[package]]
+name = "printspool-common"
+version = "0.1.0"
+dependencies = [
+ "async-graphql",
+]
+
+[[package]]
+name = "printspool-json-store"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "eyre",
+ "serde",
+ "serde_json",
+ "sqlx",
+]
+
+[[package]]
+name = "printspool-macros"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "eyre",
+ "futures 0.3.14",
+ "nom 5.1.2",
+ "nom-gcode",
+ "pin-project",
+ "printspool-json-store",
+ "printspool_machine",
+ "printspool_material",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "tracing",
+ "xactor",
+]
+
+[[package]]
 name = "printspool-marlin"
 version = "0.1.0"
 dependencies = [
@@ -2882,13 +2921,13 @@ dependencies = [
  "nom-gcode",
  "nom-reprap-response",
  "pidfile-rs",
+ "printspool-json-store",
+ "printspool-protobufs",
+ "printspool_machine",
  "rand 0.8.4",
  "serde",
  "serde_json",
  "spin_sleep",
- "teg-json-store",
- "teg-protobufs",
- "teg_machine",
  "tempfile 3.2.0 (git+https://github.com/D1plo1d/tempfile.git?branch=feature/linux-persistence)",
  "tokio 1.12.0",
  "tokio-serial",
@@ -2896,6 +2935,48 @@ dependencies = [
  "toml",
  "tracing",
  "tracing-subscriber",
+]
+
+[[package]]
+name = "printspool-print-queue"
+version = "0.1.0"
+dependencies = [
+ "arc-swap 1.2.0",
+ "async-graphql",
+ "async-std",
+ "async-trait",
+ "cgmath",
+ "chrono",
+ "criterion",
+ "derive-new",
+ "eyre",
+ "futures 0.3.14",
+ "lazy_static",
+ "nanoid",
+ "nix 0.20.0",
+ "nom-gcode",
+ "printspool-common",
+ "printspool-json-store",
+ "printspool-macros",
+ "printspool_auth",
+ "printspool_data_channel",
+ "printspool_machine",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "tempfile 3.2.0 (git+https://github.com/D1plo1d/tempfile.git?branch=feature/linux-persistence)",
+ "tracing",
+ "tracing-futures",
+ "xactor",
+]
+
+[[package]]
+name = "printspool-protobufs"
+version = "0.1.0"
+dependencies = [
+ "bitflags",
+ "prost",
+ "prost-build",
 ]
 
 [[package]]
@@ -2922,6 +3003,14 @@ dependencies = [
  "nix 0.20.0",
  "num_cpus",
  "pidfile-rs",
+ "printspool-common",
+ "printspool-json-store",
+ "printspool-print-queue",
+ "printspool_auth",
+ "printspool_data_channel",
+ "printspool_device",
+ "printspool_machine",
+ "printspool_material",
  "rand 0.8.4",
  "rmp-serde",
  "rppal",
@@ -2930,14 +3019,6 @@ dependencies = [
  "signal-hook 0.3.8",
  "sqlx",
  "surf",
- "teg-common",
- "teg-json-store",
- "teg-print-queue",
- "teg_auth",
- "teg_data_channel",
- "teg_device",
- "teg_machine",
- "teg_material",
  "toml",
  "tracing",
  "tracing-error",
@@ -2946,6 +3027,171 @@ dependencies = [
  "versions",
  "warp",
  "xactor",
+]
+
+[[package]]
+name = "printspool_auth"
+version = "0.1.0"
+dependencies = [
+ "arc-swap 1.2.0",
+ "async-graphql",
+ "async-std",
+ "async-trait",
+ "async-tungstenite",
+ "bs58",
+ "chrono",
+ "data-encoding",
+ "eyre",
+ "frank_jwt",
+ "futures-util",
+ "gravatar",
+ "hex",
+ "nanoid",
+ "openssl",
+ "printspool-common",
+ "printspool-json-store",
+ "printspool-protobufs",
+ "printspool_config_form",
+ "qr2term",
+ "rand_core 0.6.2",
+ "rmp",
+ "rmp-serde",
+ "schemars",
+ "serde",
+ "serde_json",
+ "sha2",
+ "sqlx",
+ "surf",
+ "toml",
+ "tracing",
+ "tracing-futures",
+ "url 2.2.1",
+]
+
+[[package]]
+name = "printspool_config_form"
+version = "0.1.0"
+dependencies = [
+ "async-graphql",
+ "eyre",
+ "schemars",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "printspool_data_channel"
+version = "0.1.0"
+dependencies = [
+ "arc-swap 1.2.0",
+ "async-codec",
+ "async-graphql",
+ "async-std",
+ "async-tungstenite",
+ "base64 0.12.3",
+ "bytes 1.1.0",
+ "chrono",
+ "dashmap",
+ "data-encoding",
+ "derive-new",
+ "eyre",
+ "frank_jwt",
+ "futures-util",
+ "gravatar",
+ "hex",
+ "libc",
+ "pin-project",
+ "printspool_auth",
+ "printspool_machine",
+ "qr2term",
+ "rmp",
+ "rmp-serde",
+ "schemars",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "surf",
+ "tempfile 3.2.0 (git+https://github.com/D1plo1d/tempfile.git?branch=feature/linux-persistence)",
+ "toml",
+ "tracing",
+ "url 2.2.1",
+]
+
+[[package]]
+name = "printspool_device"
+version = "0.1.0"
+dependencies = [
+ "async-graphql",
+ "async-std",
+ "async-trait",
+ "eyre",
+ "futures 0.3.14",
+ "inotify",
+ "printspool_machine",
+ "serde_json",
+ "tracing",
+ "tracing-futures",
+ "xactor",
+]
+
+[[package]]
+name = "printspool_machine"
+version = "0.1.0"
+dependencies = [
+ "arc-swap 1.2.0",
+ "async-codec",
+ "async-graphql",
+ "async-std",
+ "async-trait",
+ "base64 0.12.3",
+ "bytes 1.1.0",
+ "chrono",
+ "derive-new",
+ "eyre",
+ "futures 0.3.14",
+ "lazy_static",
+ "nanoid",
+ "nix 0.20.0",
+ "pidfile-rs",
+ "printspool-common",
+ "printspool-json-store",
+ "printspool-protobufs",
+ "printspool_auth",
+ "printspool_config_form",
+ "printspool_material",
+ "rand 0.7.3",
+ "regex",
+ "schemars",
+ "serde",
+ "serde_json",
+ "smart-default",
+ "sqlx",
+ "surf",
+ "toml",
+ "tracing",
+ "tracing-futures",
+ "validator",
+ "xactor",
+]
+
+[[package]]
+name = "printspool_material"
+version = "0.1.0"
+dependencies = [
+ "async-graphql",
+ "async-trait",
+ "chrono",
+ "eyre",
+ "nanoid",
+ "printspool-common",
+ "printspool-json-store",
+ "printspool_auth",
+ "printspool_config_form",
+ "schemars",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "tracing",
 ]
 
 [[package]]
@@ -3986,252 +4232,6 @@ name = "tap"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "55937e1799185b12863d447f42597ed69d9928686b8d88a1df17376a097d8369"
-
-[[package]]
-name = "teg-common"
-version = "0.1.0"
-dependencies = [
- "async-graphql",
-]
-
-[[package]]
-name = "teg-json-store"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "chrono",
- "eyre",
- "serde",
- "serde_json",
- "sqlx",
-]
-
-[[package]]
-name = "teg-macros"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "eyre",
- "futures 0.3.14",
- "nom 5.1.2",
- "nom-gcode",
- "pin-project",
- "serde",
- "serde_json",
- "sqlx",
- "teg-json-store",
- "teg_machine",
- "teg_material",
- "tracing",
- "xactor",
-]
-
-[[package]]
-name = "teg-print-queue"
-version = "0.1.0"
-dependencies = [
- "arc-swap 1.2.0",
- "async-graphql",
- "async-std",
- "async-trait",
- "cgmath",
- "chrono",
- "criterion",
- "derive-new",
- "eyre",
- "futures 0.3.14",
- "lazy_static",
- "nanoid",
- "nix 0.20.0",
- "nom-gcode",
- "serde",
- "serde_json",
- "sqlx",
- "teg-common",
- "teg-json-store",
- "teg-macros",
- "teg_auth",
- "teg_data_channel",
- "teg_machine",
- "tempfile 3.2.0 (git+https://github.com/D1plo1d/tempfile.git?branch=feature/linux-persistence)",
- "tracing",
- "tracing-futures",
- "xactor",
-]
-
-[[package]]
-name = "teg-protobufs"
-version = "0.1.0"
-dependencies = [
- "bitflags",
- "prost",
- "prost-build",
-]
-
-[[package]]
-name = "teg_auth"
-version = "0.1.0"
-dependencies = [
- "arc-swap 1.2.0",
- "async-graphql",
- "async-std",
- "async-trait",
- "async-tungstenite",
- "bs58",
- "chrono",
- "data-encoding",
- "eyre",
- "frank_jwt",
- "futures-util",
- "gravatar",
- "hex",
- "nanoid",
- "openssl",
- "qr2term",
- "rand_core 0.6.2",
- "rmp",
- "rmp-serde",
- "schemars",
- "serde",
- "serde_json",
- "sha2",
- "sqlx",
- "surf",
- "teg-common",
- "teg-json-store",
- "teg-protobufs",
- "teg_config_form",
- "toml",
- "tracing",
- "tracing-futures",
- "url 2.2.1",
-]
-
-[[package]]
-name = "teg_config_form"
-version = "0.1.0"
-dependencies = [
- "async-graphql",
- "eyre",
- "schemars",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "teg_data_channel"
-version = "0.1.0"
-dependencies = [
- "arc-swap 1.2.0",
- "async-codec",
- "async-graphql",
- "async-std",
- "async-tungstenite",
- "base64 0.12.3",
- "bytes 1.1.0",
- "chrono",
- "dashmap",
- "data-encoding",
- "derive-new",
- "eyre",
- "frank_jwt",
- "futures-util",
- "gravatar",
- "hex",
- "libc",
- "pin-project",
- "qr2term",
- "rmp",
- "rmp-serde",
- "schemars",
- "serde",
- "serde_json",
- "sqlx",
- "surf",
- "teg_auth",
- "teg_machine",
- "tempfile 3.2.0 (git+https://github.com/D1plo1d/tempfile.git?branch=feature/linux-persistence)",
- "toml",
- "tracing",
- "url 2.2.1",
-]
-
-[[package]]
-name = "teg_device"
-version = "0.1.0"
-dependencies = [
- "async-graphql",
- "async-std",
- "async-trait",
- "eyre",
- "futures 0.3.14",
- "inotify",
- "serde_json",
- "teg_machine",
- "tracing",
- "tracing-futures",
- "xactor",
-]
-
-[[package]]
-name = "teg_machine"
-version = "0.1.0"
-dependencies = [
- "arc-swap 1.2.0",
- "async-codec",
- "async-graphql",
- "async-std",
- "async-trait",
- "base64 0.12.3",
- "bytes 1.1.0",
- "chrono",
- "derive-new",
- "eyre",
- "futures 0.3.14",
- "lazy_static",
- "nanoid",
- "nix 0.20.0",
- "pidfile-rs",
- "rand 0.7.3",
- "regex",
- "schemars",
- "serde",
- "serde_json",
- "smart-default",
- "sqlx",
- "surf",
- "teg-common",
- "teg-json-store",
- "teg-protobufs",
- "teg_auth",
- "teg_config_form",
- "teg_material",
- "toml",
- "tracing",
- "tracing-futures",
- "validator",
- "xactor",
-]
-
-[[package]]
-name = "teg_material"
-version = "0.1.0"
-dependencies = [
- "async-graphql",
- "async-trait",
- "chrono",
- "eyre",
- "nanoid",
- "schemars",
- "serde",
- "serde_json",
- "sqlx",
- "teg-common",
- "teg-json-store",
- "teg_auth",
- "teg_config_form",
- "tracing",
-]
 
 [[package]]
 name = "tempfile"

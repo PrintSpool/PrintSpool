@@ -1,17 +1,17 @@
 [package]
-name = "teg_device"
+name = "printspool_device"
 version = "0.1.0"
 authors = ["D1plo1d <thatotherdude@gmail.com>"]
 edition = "2018"
 
 [lib]
-name = "teg_device"
+name = "printspool_device"
 path = "src/lib.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-teg_machine = { path = "../machine" }
+printspool_machine = { path = "../machine" }
 
 eyre = "0.6.5"
 serde_json = { version = "1.0.44", features = ["raw_value"] }

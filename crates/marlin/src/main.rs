@@ -8,7 +8,7 @@ use nix::unistd::Pid;
 
 use printspool_marlin::MachineConfig;
 
-pub use teg_machine::paths;
+pub use printspool_machine::paths;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut args = env::args();

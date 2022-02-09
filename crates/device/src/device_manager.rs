@@ -6,7 +6,7 @@ use eyre::{
     // Context as _,
 };
 
-use teg_machine::machine::messages::AddDevice;
+use printspool_machine::machine::messages::AddDevice;
 
 use crate::{
     Device,

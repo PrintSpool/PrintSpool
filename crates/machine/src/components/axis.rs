@@ -37,7 +37,7 @@ pub struct AxisConfig {
     pub reverse_direction: bool,
 }
 
-impl teg_config_form::Model for AxisConfig {
+impl printspool_config_form::Model for AxisConfig {
     fn form(all_fields: &Vec<String>) -> Vec<String> {
         all_fields.clone()
     }

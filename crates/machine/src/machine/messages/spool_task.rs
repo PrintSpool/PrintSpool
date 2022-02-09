@@ -1,5 +1,5 @@
-use teg_json_store::Record;
-use teg_protobufs::{
+use printspool_json_store::Record;
+use printspool_protobufs::{
     ServerMessage,
     server_message,
 };

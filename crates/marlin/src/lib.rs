@@ -15,11 +15,11 @@ pub mod state_machine;
 pub mod gcode_parser;
 
 pub mod protos {
-    pub use teg_protobufs::*;
+    pub use printspool_protobufs::*;
 }
 
 pub use serial_manager::SerialManager;
-pub use teg_machine::config::MachineConfig;
+pub use printspool_machine::config::MachineConfig;
 
 use std::{collections::HashMap, path::PathBuf};
 use chrono::prelude::*;
@@ -75,7 +75,7 @@ use {
 
 // use bus_queue::async_::Publisher;
 
-pub type DbId = teg_json_store::DbId;
+pub type DbId = printspool_json_store::DbId;
 
 // Create the Error, ErrorKind, ResultExt, and Result types
 error_chain! {}

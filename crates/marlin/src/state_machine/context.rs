@@ -1,7 +1,7 @@
 use machine_message::TaskStatus;
 use super::Task;
 use std::collections::vec_deque::VecDeque;
-use teg_protobufs::MachineFlags;
+use printspool_protobufs::MachineFlags;
 use crate::protos::{
     machine_message::{
         self,
@@ -9,7 +9,7 @@ use crate::protos::{
     // MachineMessage,
 };
 use crate::state_machine;
-use teg_machine::{
+use printspool_machine::{
     config::MachineConfig,
     components::Controller,
 };

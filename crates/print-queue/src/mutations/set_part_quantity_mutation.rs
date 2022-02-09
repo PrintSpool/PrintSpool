@@ -9,7 +9,7 @@ use async_graphql::validators::{IntGreaterThan};
 //     // Result,
 //     // Context as _,
 // };
-use teg_json_store::{
+use printspool_json_store::{
     Record,
 };
 

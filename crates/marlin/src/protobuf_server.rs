@@ -25,7 +25,7 @@ use tokio::{
     // sync::mpsc,
 };
 
-use teg_protobufs::Message;
+use printspool_protobufs::Message;
 use bytes::Bytes;
 
 use crate::protos::{

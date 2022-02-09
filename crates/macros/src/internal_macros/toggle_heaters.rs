@@ -7,12 +7,12 @@ use eyre::{
     Result,
     Context as _,
 };
-use teg_machine::config::MachineConfig;
-use teg_material::{
+use printspool_machine::config::MachineConfig;
+use printspool_material::{
     Material,
     MaterialConfigEnum::FdmFilament,
 };
-use teg_json_store::Record;
+use printspool_json_store::Record;
 
 use crate::AnnotatedGCode;
 use super::SetTargetTemperaturesMacro;

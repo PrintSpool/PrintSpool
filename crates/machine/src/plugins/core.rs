@@ -59,7 +59,7 @@ pub struct CorePluginConfig {
     // pub macros: Vec<String>,
 }
 
-impl teg_config_form::Model for CorePluginConfig {
+impl printspool_config_form::Model for CorePluginConfig {
     fn static_form() -> Option<Vec<&'static str>> {
         Some(vec![
             "name",

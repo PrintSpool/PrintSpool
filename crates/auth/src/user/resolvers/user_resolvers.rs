@@ -8,7 +8,7 @@ use async_graphql::{
 //     Result,
 //     // Context as _,
 // };
-use teg_config_form::ConfigForm;
+use printspool_config_form::ConfigForm;
 
 use crate::user::User;
 
@@ -67,7 +67,7 @@ impl User {
     }
 
     async fn config_form(&self) -> FieldResult<ConfigForm> {
-        let config_form = teg_config_form::into_config_form(self)?;
+        let config_form = printspool_config_form::into_config_form(self)?;
         Ok(config_form)
     }
 }

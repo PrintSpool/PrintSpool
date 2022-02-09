@@ -1,5 +1,5 @@
 [package]
-name = "teg-protobufs"
+name = "printspool-protobufs"
 version = "0.1.0"
 authors = ["D1plo1d <thatotherdude@gmail.com>"]
 edition = "2018"

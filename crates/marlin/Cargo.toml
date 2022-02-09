@@ -6,8 +6,8 @@ edition = "2018"
 description = "Teg serial driver for RepRaps and Marlin-compatible firmware"
 
 [dependencies]
-teg-json-store = { path = "../json-store" }
-teg_machine = { path = "../machine" }
+printspool-json-store = { path = "../json-store" }
+printspool_machine = { path = "../machine" }
 
 bytes = "1.1.0"
 tokio = { version = "1.12.0", features = ["full"] }
@@ -25,7 +25,7 @@ toml = "0.5.8"
 serde = { version = "1.0.101", features = ["derive"] }
 nom-gcode = "0.1.0"
 nom-reprap-response = "0.1.0"
-teg-protobufs = { path= "../protobufs" }
+printspool-protobufs = { path= "../protobufs" }
 spin_sleep = "0.3.7"
 error-chain = "0.12.2"
 tracing = "0.1.28"

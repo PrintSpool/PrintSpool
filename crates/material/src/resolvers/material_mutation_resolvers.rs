@@ -9,10 +9,10 @@ use eyre::{
     // eyre,
     // Result
 };
-// use teg_json_store::Record as _;
+// use printspool_json_store::Record as _;
 
-use teg_auth::AuthContext;
-use teg_json_store::Record;
+use printspool_auth::AuthContext;
+use printspool_json_store::Record;
 use crate::{FdmFilament, MaterialTypeGQL, material::{
         Material,
         MaterialConfigEnum,
@@ -128,7 +128,7 @@ impl MaterialMutation {
         &self,
         ctx: &'ctx Context<'_>,
         input: DeleteMaterialInput
-    ) -> FieldResult<Option<teg_common::Void>> {
+    ) -> FieldResult<Option<printspool_common::Void>> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
 

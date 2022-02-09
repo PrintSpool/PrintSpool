@@ -8,7 +8,7 @@ use eyre::{
 };
 
 // Re-export
-pub use teg_machine::task::GCodeAnnotation;
+pub use printspool_machine::task::GCodeAnnotation;
 
 mod internal_macros;
 pub use internal_macros::InternalMacro;
@@ -20,7 +20,7 @@ mod compile_internal_macro;
 pub use compile_internal_macro::CompileInternalMacro;
 
 pub type Db = sqlx::PgPool;
-pub type DbId = teg_json_store::DbId;
+pub type DbId = printspool_json_store::DbId;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -49,7 +49,7 @@ pub enum AnnotatedGCode {
 
 //         match parsed_line {
 //             AnyMacro::InternalMacro(internal_macro) => {
-//                 // use teg_machine::machine::Machine;
+//                 // use printspool_machine::machine::Machine;
 //                 // use compile_internal_macro::CompileInternalMacro;
 
 //                 // machine.call(CompileInternalMacro(internal_macro)).await?

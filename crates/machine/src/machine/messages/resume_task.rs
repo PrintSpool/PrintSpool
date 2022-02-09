@@ -4,7 +4,7 @@ use eyre::{
     Result,
     // Context as _,
 };
-use teg_json_store::Record as _;
+use printspool_json_store::Record as _;
 
 use crate::{
     machine::{Machine, MachineStatus, Printing},

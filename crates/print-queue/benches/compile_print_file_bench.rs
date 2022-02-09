@@ -1,6 +1,6 @@
 use criterion::BenchmarkId;
 use criterion::{criterion_group, criterion_main, Criterion};
-use teg_print_queue::compile_print_file;
+use printspool_print_queue::compile_print_file;
 
 // This is a struct that tells Criterion.rs to use the "futures" crate's current-thread executor
 use criterion::async_executor::AsyncStdExecutor;

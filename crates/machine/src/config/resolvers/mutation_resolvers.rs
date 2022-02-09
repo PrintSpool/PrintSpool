@@ -9,10 +9,10 @@ use eyre::{
     // Context as _,
 };
 use messages::set_materials::SetMaterialsInput;
-// use teg_auth::{
+// use printspool_auth::{
 //     AuthContext,
 // };
-// use teg_json_store::Record as _;
+// use printspool_json_store::Record as _;
 
 use crate::{
     machine::messages,
@@ -28,7 +28,7 @@ impl ConfigMutation {
         &self,
         ctx: &'ctx Context<'_>,
         input: SetMaterialsInput,
-    ) -> FieldResult<Option<teg_common::Void>> {
+    ) -> FieldResult<Option<printspool_common::Void>> {
         // use cgt::ConfigCollection::*;
         // let db: &crate::Db = ctx.data()?;
 

@@ -7,7 +7,7 @@ pub struct ComponentInner<M, E: Default> {
     #[new(value = "nanoid!(11)")]
     pub id: String,
     #[new(default)]
-    pub model_version: teg_json_store::Version,
+    pub model_version: printspool_json_store::Version,
     pub model: M,
     #[serde(skip)]
     #[new(default)]

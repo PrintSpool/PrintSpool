@@ -1,18 +1,18 @@
 [package]
-name = "teg_data_channel"
+name = "printspool_data_channel"
 version = "0.1.0"
 authors = ["D1plo1d <thatotherdude@gmail.com>"]
 edition = "2018"
 
 [lib]
-name = "teg_data_channel"
+name = "printspool_data_channel"
 path = "src/lib.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-teg_machine = { path = "../machine" }
-teg_auth = { path = "../auth" }
+printspool_machine = { path = "../machine" }
+printspool_auth = { path = "../auth" }
 
 serde_json = { version = "1.0.44", features = ["raw_value"] }
 async-graphql = { git = "https://github.com/D1plo1d/async-graphql.git", branch="feature/websocket-file-uploads", features = ["apollo_tracing", "tracing",  "chrono", "url", "unblock"] }

@@ -9,7 +9,7 @@ use async_graphql::{
 // };
 use serde::{Serialize, Deserialize};
 use nanoid::nanoid;
-use teg_config_form::ConfigForm;
+use printspool_config_form::ConfigForm;
 
 use super::core::CorePluginConfig;
 
@@ -28,7 +28,7 @@ pub struct PluginContainer<Model = toml::Value> {
     #[new(value = "nanoid!(11)")]
     pub id: String,
     #[new(default)]
-    pub model_version: teg_json_store::Version,
+    pub model_version: printspool_json_store::Version,
     pub model: Model,
 }
 
@@ -55,7 +55,7 @@ impl Plugin {
 
         match self {
             Core(p) => {
-                let config_form = teg_config_form::into_config_form(p)?;
+                let config_form = printspool_config_form::into_config_form(p)?;
                 Ok(config_form)
             },
         }

@@ -7,7 +7,7 @@ use async_graphql::{UploadValue};
 use async_graphql::http::ClientMessage;
 use tracing::Instrument;
 
-pub use teg_machine::paths;
+pub use printspool_machine::paths;
 
 use printspool_server::mutation;
 use printspool_server::query;
@@ -29,11 +29,11 @@ use futures_util::{TryFutureExt, future, future::FutureExt, future::join_all, se
     // TryStreamExt,
 }};
 
-use printspool_server::teg_auth::AuthContext;
-use printspool_server::teg_device::DeviceManager;
-use printspool_server::teg_machine::{MachineHooksList, MachineMap, MachineMapLocal, MachineMaterialHooks, machine::Machine, signalling_updater::{SignallingUpdater, SignallingUpdaterMachineHooks}};
-use printspool_server::teg_material::{MaterialHooksList};
-use printspool_server::teg_print_queue::print_queue_machine_hooks::PrintQueueMachineHooks;
+use printspool_server::printspool_auth::AuthContext;
+use printspool_server::printspool_device::DeviceManager;
+use printspool_server::printspool_machine::{MachineHooksList, MachineMap, MachineMapLocal, MachineMaterialHooks, machine::Machine, signalling_updater::{SignallingUpdater, SignallingUpdaterMachineHooks}};
+use printspool_server::printspool_material::{MaterialHooksList};
+use printspool_server::printspool_print_queue::print_queue_machine_hooks::PrintQueueMachineHooks;
 
 use printspool_server::DbId;
 
@@ -102,7 +102,7 @@ fn server() -> Result<()> {
     let threads = std::cmp::max(logical_cpus.saturating_sub(1), 1);
     std::env::set_var("ASYNC_STD_THREAD_COUNT", threads.to_string());
 
-    teg_machine::initialize_statics();
+    printspool_machine::initialize_statics();
 
     // Start the runtime
     async_std::task::block_on(app())
@@ -373,7 +373,7 @@ async fn app() -> Result<()> {
         .filter_map(|result| result.transpose())
         .collect::<Result<_>>()?;
 
-    let server_keys = Arc::new(teg_auth::ServerKeys::load_or_create().await?);
+    let server_keys = Arc::new(printspool_auth::ServerKeys::load_or_create().await?);
 
     let signalling_updater = SignallingUpdater::start(
         db.clone(),
@@ -446,7 +446,7 @@ async fn app() -> Result<()> {
     let schema_clone = schema.clone();
     let db_clone = db.clone();
 
-    let signalling_future = teg_data_channel::listen_for_signalling(
+    let signalling_future = printspool_data_channel::listen_for_signalling(
         &server_keys,
         &machines,
         move |signal, message_stream| {
@@ -456,7 +456,7 @@ async fn app() -> Result<()> {
             // let auth_pem_keys = auth_pem_keys.clone();
 
             let initializer = |_| async move {
-                let user = teg_auth::user::User::authenticate(
+                let user = printspool_auth::user::User::authenticate(
                     &db,
                     signal,
                 ).await?;

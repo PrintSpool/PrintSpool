@@ -20,7 +20,7 @@ mod create_signalling_jwt;
 mod server_keys;
 pub use server_keys::ServerKeys;
 
-pub use teg_common::paths;
+pub use printspool_common::paths;
 
 // mod watch_pem_keys;
 // pub use watch_pem_keys::watch_pem_keys;
@@ -29,4 +29,4 @@ mod auth_context;
 pub use auth_context::AuthContext;
 
 pub type Db = sqlx::PgPool;
-pub type DbId = teg_json_store::DbId;
+pub type DbId = printspool_json_store::DbId;

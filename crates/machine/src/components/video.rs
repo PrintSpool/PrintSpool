@@ -17,7 +17,7 @@ pub struct VideoConfig {
     pub source: String,
 }
 
-impl teg_config_form::Model for VideoConfig {
+impl printspool_config_form::Model for VideoConfig {
     fn form(all_fields: &Vec<String>) -> Vec<String> {
         all_fields.clone()
     }

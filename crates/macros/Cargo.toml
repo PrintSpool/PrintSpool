@@ -1,5 +1,5 @@
 [package]
-name = "teg-macros"
+name = "printspool-macros"
 version = "0.1.0"
 authors = ["D1plo1d <thatotherdude@gmail.com>"]
 edition = "2018"
@@ -7,9 +7,9 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-teg_machine = { path = "../machine" }
-teg_material = { path = "../material" }
-teg-json-store = { path = "../json-store" }
+printspool_machine = { path = "../machine" }
+printspool_material = { path = "../material" }
+printspool-json-store = { path = "../json-store" }
 
 serde_json = { version = "1.0.44", features = ["raw_value"] }
 

@@ -6,8 +6,8 @@ use eyre::{
     Result,
 };
 // use arc_swap::ArcSwap;
-use teg_json_store::{ Record as _, JsonRow };
-use teg_protobufs::{InviteCode, Message};
+use printspool_json_store::{ Record as _, JsonRow };
+use printspool_protobufs::{InviteCode, Message};
 
 use super::{
     User,

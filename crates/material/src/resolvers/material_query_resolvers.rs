@@ -8,7 +8,7 @@ use async_graphql::{
     Context,
     FieldResult,
 };
-use teg_json_store::Record as _;
+use printspool_json_store::Record as _;
 
 use crate::{
     Material,

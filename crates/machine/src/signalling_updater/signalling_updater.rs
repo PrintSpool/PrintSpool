@@ -15,7 +15,7 @@ use super::{MachineSignallingUpdate, MachineUpdateOperation, SyncChanges};
 /// host's machines.
 pub struct SignallingUpdater {
     pub db: crate::Db,
-    pub server_keys: Arc<teg_auth::ServerKeys>,
+    pub server_keys: Arc<printspool_auth::ServerKeys>,
 }
 
 #[async_trait::async_trait]
@@ -38,7 +38,7 @@ impl Actor for SignallingUpdater {
 impl SignallingUpdater {
     pub async fn start(
         db: crate::Db,
-        server_keys: Arc<teg_auth::ServerKeys>,
+        server_keys: Arc<printspool_auth::ServerKeys>,
     ) -> Result<xactor::Addr<SignallingUpdater>> {
         let signalling_updater = xactor::Supervisor::start(move ||
             SignallingUpdater {

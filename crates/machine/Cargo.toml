@@ -1,19 +1,19 @@
 [package]
 authors = ["D1plo1d <thatotherdude@gmail.com>"]
 edition = "2018"
-name = "teg_machine"
+name = "printspool_machine"
 version = "0.1.0"
 
 [lib]
-name = "teg_machine"
+name = "printspool_machine"
 path = "src/lib.rs"
 
 [dependencies]
-teg_config_form = { path = "../config_form" }
-teg_material = { path = "../material" }
-teg_auth = { path = "../auth" }
-teg-json-store = { path = "../json-store" }
-teg-common = { path = "../common"}
+printspool_config_form = { path = "../config_form" }
+printspool_material = { path = "../material" }
+printspool_auth = { path = "../auth" }
+printspool-json-store = { path = "../json-store" }
+printspool-common = { path = "../common"}
 
 eyre = "0.6.5"
 async-graphql = { git = "https://github.com/D1plo1d/async-graphql.git", branch="feature/websocket-file-uploads", features = ["apollo_tracing", "tracing",  "chrono", "url", "unblock"] }
@@ -24,7 +24,7 @@ serde_json = { version = "1.0.44", features = ["raw_value"] }
 toml = "0.5.8"
 async-trait = "0.1.36"
 derive-new = "0.5.8"
-teg-protobufs = { path= "../protobufs" }
+printspool-protobufs = { path= "../protobufs" }
 bytes = "1.1.0"
 base64 = "0.12.3"
 arc-swap = "1.1.0"

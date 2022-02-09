@@ -71,7 +71,7 @@ fn kill_server() -> Result<()> {
     warn!("Killing the server");
 
     // Attempt to lock the pidfile
-    let pid_file = teg_common::paths::pid_file("server");
+    let pid_file = printspool_common::paths::pid_file("server");
 
     let lock_result = Pidfile::new(
         &pid_file.into(),

@@ -7,7 +7,7 @@ use eyre::{
     Result,
     // Context as _,
 };
-use teg_json_store::{ Record, JsonRow };
+use printspool_json_store::{ Record, JsonRow };
 
 use crate::{MachineHooksList, machine::Machine, machine::MachineData};
 
@@ -151,11 +151,11 @@ impl Record for Task {
         &self.id
     }
 
-    fn version(&self) -> teg_json_store::Version {
+    fn version(&self) -> printspool_json_store::Version {
         self.version
     }
 
-    fn version_mut(&mut self) -> &mut teg_json_store::Version {
+    fn version_mut(&mut self) -> &mut printspool_json_store::Version {
         &mut self.version
     }
 

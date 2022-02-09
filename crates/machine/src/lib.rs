@@ -23,7 +23,7 @@ pub mod plugins;
 pub mod signalling_updater;
 pub mod task;
 
-pub use teg_common::paths;
+pub use printspool_common::paths;
 
 mod video;
 pub use video::video_query_resolvers::VideoQuery;
@@ -33,7 +33,7 @@ mod machine_material_hooks;
 pub use machine_material_hooks::MachineMaterialHooks;
 
 pub type Db = sqlx::PgPool;
-pub type DbId = teg_json_store::DbId;
+pub type DbId = printspool_json_store::DbId;
 
 /// GraphQL Context containing all the machine xactor addresses for message passing.
 pub type MachineMapLocal = HashMap<async_graphql::ID, xactor::Addr<machine::Machine>>;

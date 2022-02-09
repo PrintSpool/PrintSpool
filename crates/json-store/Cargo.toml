@@ -1,11 +1,11 @@
 [package]
-name = "teg-json-store"
+name = "printspool-json-store"
 version = "0.1.0"
 authors = ["D1plo1d <thatotherdude@gmail.com>"]
 edition = "2018"
 
 [lib]
-name = "teg_json_store"
+name = "printspool_json_store"
 path = "src/lib.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

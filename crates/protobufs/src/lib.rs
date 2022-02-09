@@ -1,10 +1,10 @@
 #[macro_use]
 extern crate bitflags;
 
-#[path = "protos/teg_protobufs.rs"]
-mod teg_protobufs;
+#[path = "protos/printspool_protobufs.rs"]
+mod printspool_protobufs;
 
-pub use teg_protobufs::*;
+pub use printspool_protobufs::*;
 
 mod machine_flags;
 pub use machine_flags::MachineFlags;

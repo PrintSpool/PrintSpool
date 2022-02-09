@@ -8,11 +8,11 @@ use eyre::{
     Result,
     // Context as _,
 };
-use teg_json_store::{
+use printspool_json_store::{
     Record,
     JsonRow,
 };
-use teg_machine::{MachineHooksList, MachineMap, machine::messages::{GetData, StopMachine}, task::{
+use printspool_machine::{MachineHooksList, MachineMap, machine::messages::{GetData, StopMachine}, task::{
         Task,
         TaskStatus,
         Cancelled,

@@ -10,8 +10,8 @@ use async_graphql::{
     // ID,
     FieldResult,
 };
-// use teg_json_store::Record as _;
-// use teg_machine::{MachineHooksList, MachineMap};
+// use printspool_json_store::Record as _;
+// use printspool_machine::{MachineHooksList, MachineMap};
 
 #[derive(Default)]
 pub struct SliceMutation;

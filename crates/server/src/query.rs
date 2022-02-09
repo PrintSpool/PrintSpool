@@ -1,19 +1,19 @@
-use teg_auth::{
+use printspool_auth::{
     InviteQuery,
     UserQuery,
 };
 
-use teg_device::DeviceQuery;
+use printspool_device::DeviceQuery;
 
-use teg_material::MaterialQuery;
+use printspool_material::MaterialQuery;
 
-use teg_machine::{
+use printspool_machine::{
     ConfigQuery,
     MachineQuery,
     VideoQuery,
 };
 
-use teg_print_queue::{
+use printspool_print_queue::{
     PartQuery,
     PrintQueueQuery,
     SlicersQuery,

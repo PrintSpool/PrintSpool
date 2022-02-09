@@ -3,7 +3,7 @@ use eyre::{
     Result,
     // Context as _,
 };
-use teg_material::MaterialHooks;
+use printspool_material::MaterialHooks;
 use crate::machine::messages::ResetMaterialTargets;
 
 pub struct MachineMaterialHooks {

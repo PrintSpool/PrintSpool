@@ -1,4 +1,4 @@
-use teg_machine::task::Task;
+use printspool_machine::task::Task;
 
 use crate::{
     part::Part,

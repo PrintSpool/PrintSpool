@@ -3,7 +3,7 @@ use async_graphql::{
     FieldResult,
     Context,
 };
-use teg_machine::machine::messages::GetData;
+use printspool_machine::machine::messages::GetData;
 use eyre::{
     eyre,
     // Result,
@@ -30,7 +30,7 @@ impl DeviceQuery {
         #[graphql(default)]
         input: DevicesInput,
     ) -> FieldResult<Vec<Device>> {
-        let machines: &teg_machine::MachineMap = ctx.data()?;
+        let machines: &printspool_machine::MachineMap = ctx.data()?;
         let machines = machines.load();
 
         let device_manager: &DeviceManagerAddr = ctx.data()?;

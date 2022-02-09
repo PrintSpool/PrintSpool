@@ -1,4 +1,4 @@
-use teg_machine::components::ControllerConfig;
+use printspool_machine::components::ControllerConfig;
 
 use super::*;
 use crate::gcode_parser::parse_gcode;

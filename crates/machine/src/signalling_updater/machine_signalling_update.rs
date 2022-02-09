@@ -5,7 +5,7 @@ use eyre::{
     // Context as _,
 };
 use serde::{Deserialize, Serialize};
-use teg_json_store::Record;
+use printspool_json_store::Record;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MachineSignallingUpdate {
@@ -67,11 +67,11 @@ impl Record for MachineSignallingUpdate {
         &self.id
     }
 
-    fn version(&self) -> teg_json_store::Version {
+    fn version(&self) -> printspool_json_store::Version {
         self.version
     }
 
-    fn version_mut(&mut self) -> &mut teg_json_store::Version {
+    fn version_mut(&mut self) -> &mut printspool_json_store::Version {
         &mut self.version
     }
 

@@ -1,8 +1,8 @@
 use super::PluginContainer;
 
-impl<T> teg_config_form::Configurable<T> for PluginContainer<T>
+impl<T> printspool_config_form::Configurable<T> for PluginContainer<T>
 where
-    T: teg_config_form::Model,
+    T: printspool_config_form::Model,
 {
     fn id(&self) -> async_graphql::ID {
         format!("user-{}", self.id).into()

@@ -3,14 +3,14 @@ use async_graphql::{
     FieldResult,
     // Context,
 };
-use teg_auth::invite::InviteConfig;
-use teg_config_form::{ConfigForm, create_form};
+use printspool_auth::invite::InviteConfig;
+use printspool_config_form::{ConfigForm, create_form};
 // use eyre::{
 //     // eyre,
 //     Result,
 //     // Context as _,
 // };
-use teg_material::{FdmFilament, MaterialTypeGQL};
+use printspool_material::{FdmFilament, MaterialTypeGQL};
 
 use crate::{
     components::{

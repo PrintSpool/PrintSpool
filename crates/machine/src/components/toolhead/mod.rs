@@ -7,8 +7,8 @@ use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
 use validator::Validate;
 use regex::Regex;
-use teg_json_store::{ Record as _ };
-use teg_material::{Material, MaterialConfigEnum};
+use printspool_json_store::{ Record as _ };
+use printspool_material::{Material, MaterialConfigEnum};
 
 use crate::{config::MachineConfig};
 
@@ -111,7 +111,7 @@ pub struct ToolheadConfig {
     pub before_filament_swap_hook: String,
 }
 
-impl teg_config_form::Model for ToolheadConfig {
+impl printspool_config_form::Model for ToolheadConfig {
     fn static_form() -> Option<Vec<&'static str>> {
         Some(vec![
             "name",

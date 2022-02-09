@@ -57,7 +57,7 @@ pub struct CombinedConfigView {
     pub heated_build_platform: bool,
 }
 
-impl teg_config_form::Model for CombinedConfigView {
+impl printspool_config_form::Model for CombinedConfigView {
     fn form(all_fields: &Vec<String>) -> Vec<String> {
         all_fields.clone()
     }
