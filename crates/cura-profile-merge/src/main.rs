@@ -1,4 +1,4 @@
-use std::{fs, path::{Path, PathBuf}, collections::HashMap};
+use std::{fs, path::{Path, PathBuf}, collections::BTreeMap};
 
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, Map};
@@ -12,14 +12,14 @@ struct CuraDef {
     #[serde(default)]
     metadata: Map<String, Value>,
     #[serde(default)]
-    settings: HashMap<String, CuraSettingsCategory>,
+    settings: BTreeMap<String, CuraSettingsCategory>,
     #[serde(default)]
-    overrides: HashMap<String, CuraSetting>,
+    overrides: BTreeMap<String, CuraSetting>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 struct CuraSettingsCategory {
-    children: HashMap<String, CuraSetting>,
+    children: BTreeMap<String, CuraSetting>,
     #[serde(flatten)]
     extra: Map<String, Value>,
 }
@@ -36,6 +36,7 @@ fn main() {
 
     let input_path = PathBuf::from(args.next().unwrap());
     let output_path = PathBuf::from(args.next().unwrap());
+    std::fs::create_dir_all(&output_path).expect("Unable to create output directory");
 
     let resources_dir = input_path
         .ancestors()
@@ -56,7 +57,7 @@ fn main() {
 
     // Create merged defs for each extruder
     let extruders = printer_def.metadata["machine_extruder_trains"].clone();
-    let extruders: HashMap<String, String> = serde_json::from_value(extruders).unwrap();
+    let extruders: BTreeMap<String, String> = serde_json::from_value(extruders).unwrap();
 
     for (_, extruder) in extruders {
         eprintln!("\nCreating Extruder Def: {:?}", extruder);
@@ -92,6 +93,8 @@ fn create_merged_cura_def<P1: AsRef<Path>, P2: AsRef<Path>>(
     for def in defs {
         eprintln!("Applying Override: {:?}", def.name);
         // Merge metadata
+        working_copy.name = def.name.clone();
+        working_copy.version = def.version.clone();
         merge_json(&mut working_copy.metadata, &def.metadata);
         // Apply overrides
         for (k, setting_override) in def.overrides {
