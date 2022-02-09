@@ -135,6 +135,10 @@ impl SliceMutation {
                     .arg(slicer_profile_path);
             } else {
                 cmd
+                    .env(
+                        "LD_LIBRARY_PATH",
+                        crate::paths::etc().join("cura-engine/lib/"),
+                    )
                     // CuraEngine needs the slice sub-command.
                     // ie. `CuraEngine slice ...` vs `belt-slicer ...`
                     .arg("slice")

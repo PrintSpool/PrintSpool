@@ -227,9 +227,17 @@ if [[ $EXPERIMENTAL_BELT_ENGINE == "1" ]]; then
 fi
 
 # Download and install cura-engine
-wget https://github.com/Autodrop3d/BeltEngine/raw/main/belt_engine/bin/armLinux/CuraEngine
-chmod 777 ./CuraEngine
-sudo mv ./CuraEngine /usr/local/bin/CuraEngine
+wget https://github.com/D1plo1d/BeltEngine/raw/main/dist/belt-engine-0.1.3.tar.gz
+tar -xf belt-engine-0.1.3.tar.gz
+rm belt-engine-0.1.3.tar.gz
+
+if [[ "$ARCH" == "x86_64" ]]; then
+  mv belt-engine-0.1.3/belt_engine/bin/linux/ ./etc/cura-engine
+else
+  mv belt-engine-0.1.3/belt_engine/bin/armLinux/ ./etc/cura-engine
+fi
+
+chmod 744 ./etc/cura-engine/CuraEngine
 
 # Download the latest webrtc-streamer release
 GITHUB_REPO="mpromonet/webrtc-streamer"
@@ -265,6 +273,7 @@ sudo ln -vnsf "/usr/local/etc/printspool/${PRINTSPOOL_INDEX}/" /usr/local/etc/pr
 
 # Install binaries on path
 sudo ln -vnsf "/usr/local/etc/printspool/current/printspool-invite" /usr/local/bin
+sudo ln -vnsf "/usr/local/etc/printspool/current/cura-engine/CuraEngine" /usr/local/bin
 
 # Install System D service files
 echo "Installing PrintSpool services to /lib/systemd/system/"
