@@ -227,7 +227,7 @@ if [[ $EXPERIMENTAL_BELT_ENGINE == "1" ]]; then
 fi
 
 # Download and install cura-engine
-wget https://github.com/Autodrop3d/autodrop3dClient/raw/master/CuraEngine
+wget https://github.com/Autodrop3d/BeltEngine/raw/main/belt_engine/bin/armLinux/CuraEngine
 chmod 777 ./CuraEngine
 sudo mv ./CuraEngine /usr/local/bin/CuraEngine
 

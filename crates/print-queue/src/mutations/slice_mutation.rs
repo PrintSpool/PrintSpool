@@ -189,8 +189,11 @@ impl SliceMutation {
                 .await
                 .wrap_err("Slicer error")?;
 
-            if !output.status.success() {
-                let mut stderr = String::from_utf8_lossy(&output.stderr).to_string();
+            let mut stderr = String::from_utf8_lossy(&output.stderr).to_string();
+
+            if output.status.success() {
+                info!("{}", stderr);
+            } else {
                 if slicer_engine == "curaEngine" {
                     stderr = stderr
                         .lines()
