@@ -79,6 +79,7 @@ jobs:
       CARGO_INCREMENTAL: 0
       RUSTFLAGS: "-C debuginfo=0"
       DATABASE_URL: "postgres://postgres:postgres@localhost/postgres"
+      PYO3_CROSS_LIB_DIR: "/usr/lib/arm-linux-gnueabihf"
     services:
       # Label used to access the service container
       postgres:
@@ -130,6 +131,7 @@ jobs:
           pkg-config
           libssl-dev
           clang
+          libpython3.6-dev:armhf
       # - name: Check install
       #   run: dpkg -S arm-linux-gnueabihf-gcc
       - name: Database Setup
