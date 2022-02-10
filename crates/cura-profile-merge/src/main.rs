@@ -1,4 +1,4 @@
-use std::{fs, path::{Path, PathBuf}, collections::{BTreeMap, HashMap}};
+use std::{fs, path::{Path, PathBuf}, collections::{BTreeMap, HashMap, HashSet}};
 
 use linked_hash_map::LinkedHashMap;
 use pyo3::{types::IntoPyDict, PyObject};
@@ -32,27 +32,45 @@ struct CuraDef {
     metadata: Map<String, Value>,
     #[serde(default)]
     settings: LinkedHashMap<String, CuraSetting>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
     overrides: HashMap<String, CuraSetting>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
 struct CuraSetting {
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     value: Option<Value>,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     default_value: Option<Value>,
-    #[serde(default, rename="type")]
+    #[serde(default, rename="type", skip_serializing_if = "Option::is_none")]
     value_type: Option<CuraType>,
+
     /// Either a bool or an eval string is used to determine whether the setting should be enabled
+    #[serde(skip_serializing_if = "Option::is_none")]
     enabled: Option<Value>,
-    #[serde(default)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    resolve: Option<Value>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    minimum_value: Option<Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    minimum_value_warning: Option<Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    maximum_value: Option<Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    maximum_value_warning: Option<Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    warning_value: Option<Value>,
+
+    #[serde(default, skip_serializing_if = "LinkedHashMap::is_empty")]
+    options: LinkedHashMap<String, String>,
+    #[serde(default, skip_serializing_if = "LinkedHashMap::is_empty")]
     children: LinkedHashMap<String, CuraSetting>,
     #[serde(flatten)]
     extra: Map<String, Value>,
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 #[serde(rename_all="snake_case")]
 enum CuraType {
     Category,
@@ -318,7 +336,7 @@ where
                 .unwrap();
         }
 
-        let mut settings_to_eval = 0;
+        let mut settings_to_eval = HashSet::new();
 
         eprintln!("SETTING LENGTH: {:?}", working_copy.settings.len());
         eprintln!("ALL SETTING LENGTH: {:?}", all_settings(&working_copy.settings).len());
@@ -329,15 +347,17 @@ where
             .into_iter()
             .filter_map(|(k,s)| {
                 eprintln!("{:?}", &k);
-                if let Some(serde_json::Value::String(_expr)) = &s.value {
-                    settings_to_eval += 1;
+                if let Some(serde_json::Value::String(expr)) = &s.value {
+                    if !s.options.contains_key(expr) {
+                        settings_to_eval.insert(k.to_string());
 
-                    None
-                } else {
-                    s.value.clone()
-                        .or(s.default_value.clone())
-                        .map(|v| (k, v))
+                        return None
+                    }
                 }
+
+                s.value.clone()
+                    .or(s.default_value.clone())
+                    .map(|v| (k, v))
             })
             .for_each(|(k, v)| {
                 let v= match v {
@@ -366,32 +386,59 @@ where
 
         // Evalutate Value Expressions eg. "value": "layer_height * 4"
         let mut i = 0;
-        let mut previous_settings_to_eval = usize::MAX;
-        while settings_to_eval > 0 {
+        let mut previous_settings_to_eval_len = usize::MAX;
+        while settings_to_eval.len() > 0 {
             i += 1;
             if i > 10 {
                 panic!("Too much settings eval recursion. Exiting to prevent infinite loop.");
             }
 
-            if settings_to_eval == previous_settings_to_eval {
+            if settings_to_eval.len() == previous_settings_to_eval_len {
                 panic!(
-                    "Unable to resolve {} settings. Defs may contain cyclic value logic",
-                    settings_to_eval,
+                    "Unable to resolve settings. Defs may contain cyclic value logic. \
+                    Unresolved settings: {:?}",
+                    settings_to_eval.iter().collect::<Vec<_>>(),
                 );
             }
 
-            previous_settings_to_eval = settings_to_eval;
+            previous_settings_to_eval_len = settings_to_eval.len();
 
-            eprintln!("\nLoop #{}. Settings remaining: {}\n\n", i, settings_to_eval);
+            eprintln!("\nLoop #{}. Settings remaining: {}\n\n", i, settings_to_eval.len());
 
             all_settings_mut(&mut working_copy.settings, &mut |k, setting| {
+                let eval_replace_field = |field: &mut Option<serde_json::Value>| {
+                    if let Some(serde_json::Value::String(expr)) = field.as_ref() {
+                        let value = py.eval(expr, None, Some(&locals));
+                        match value {
+                            Err(err) => eprintln!(
+                                "Error evaluating {:?} expression: {:?}\n  {}\n",
+                                &k,
+                                &expr,
+                                err,
+                            ),
+                            Ok(val) => {
+                                *field = Some(to_json::to_json(py, &val.to_object(py)));
+                            },
+                        }
+                    }
+                };
+
+                eval_replace_field(&mut setting.enabled);
+                eval_replace_field(&mut setting.resolve);
+                eval_replace_field(&mut setting.minimum_value);
+                eval_replace_field(&mut setting.minimum_value_warning);
+                eval_replace_field(&mut setting.maximum_value);
+                eval_replace_field(&mut setting.maximum_value_warning);
+                eval_replace_field(&mut setting.warning_value);
+
                 if let Some(serde_json::Value::String(expr)) = setting.value.as_ref() {
-                    // eprintln!("expr: {:?}", expr);
+                    if !settings_to_eval.contains(k) {
+                        return setting
+                    }
 
                     let value = py.eval(expr, None, Some(&locals));
                         // .expect(&format!("Executing expression for setting: {:?}", &k2));
-                        // .extract()
-                        // .expect(&format!("Parsing evaluated value for setting: {:?}", &k2));
+
                     if let Err(err) = value {
                         eprintln!("Error evaluating {:?}:\n  {}\n", &k, err);
                     } else {
@@ -399,10 +446,9 @@ where
 
                         let json_val = to_json::to_json(py, &value.to_object(py));
 
-                        setting.default_value = Some(json_val);
-                        setting.value = None;
+                        setting.value = Some(json_val);
 
-                        settings_to_eval -= 1;
+                        settings_to_eval.remove(k);
 
                         eprintln!("Setting evaluated: {:?} = {:?}", &k, &value);
 
@@ -416,14 +462,21 @@ where
                         settings_values_guard.insert(k.to_string(), value.to_object(py));
                         drop(settings_values_guard);
                     }
-                } else if setting.value.is_some() {
-                    setting.default_value = std::mem::take(&mut setting.value);
                 }
 
                 setting
             });
         }
     });
+
+    // Flatten the settings for CuraEngine
+    working_copy.settings = all_settings(&working_copy.settings)
+        .into_iter()
+        .map(|(k, v)| (k.to_owned(), CuraSetting {
+            children: Default::default(),
+            ..v.clone()
+        }))
+        .collect();
 
     let json = serde_json::to_string_pretty(&working_copy).unwrap();
     fs::write(output_path, json).unwrap();
