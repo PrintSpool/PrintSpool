@@ -396,53 +396,8 @@ where
                         eprintln!("Error evaluating {:?}:\n  {}\n", &k, err);
                     } else {
                         let value = value.unwrap();
-                        // dbg!(&value);
-                        // let extract_err = format!(
-                        //     "Parsing setting {:?} value: {:?}",
-                        //     &k,
-                        //     &value
-                        // );
 
                         let json_val = to_json::to_json(py, &value.to_object(py));
-
-                        // let json_val = match setting.value_type
-                        //     .as_ref()
-                        //     .expect("Cura Setting type")
-                        // {
-                        //     CuraType::Bool => {
-                        //         let val: bool = value.extract().expect(&extract_err);
-                        //         serde_json::to_value(val).expect(&extract_err)
-                        //     }
-                        //     | CuraType::Float
-                        //     | CuraType::Int
-                        //     => {
-                        //         let val: f32 = value.extract().expect(&extract_err);
-                        //         serde_json::to_value(val).expect(&extract_err)
-                        //     }
-                        //     | CuraType::IntArray
-                        //     | CuraType::Str
-                        //     | CuraType::OptionalExtruder
-                        //     | CuraType::Extruder
-                        //     | CuraType::Enum
-                        //     => {
-                        //         let val: String = value.extract().expect(&extract_err);
-                        //         serde_json::to_value(val).expect(&extract_err)
-                        //     }
-                        //     CuraType::Polygon => {
-                        //         let val: Vec<Vec<f32>> = value.extract().expect(&extract_err);
-                        //         serde_json::to_value(val).expect(&extract_err)
-                        //     }
-                        //     CuraType::Polygons => {
-                        //         let val: Vec<Vec<Vec<f32>>> = value.extract().expect(&extract_err);
-                        //         serde_json::to_value(val).expect(&extract_err)
-                        //     }
-                        //     CuraType::Category => {
-                        //         panic!("Cura categories should not have values: {:?}", k);
-                        //     }
-                        //     // value_type => {
-                        //     //     panic!("Cura type not yet supported for {:?}: {:?}", k, value_type);
-                        //     // }
-                        // };
 
                         setting.default_value = Some(json_val);
                         setting.value = None;
