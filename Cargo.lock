@@ -1071,6 +1071,7 @@ dependencies = [
 name = "cura-profile-merge"
 version = "0.1.0"
 dependencies = [
+ "lazy_static",
  "linked-hash-map",
  "pyo3",
  "serde",

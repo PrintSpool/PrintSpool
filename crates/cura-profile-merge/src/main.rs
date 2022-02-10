@@ -1,9 +1,26 @@
 use std::{fs, path::{Path, PathBuf}, collections::{BTreeMap, HashMap}};
 
 use linked_hash_map::LinkedHashMap;
-use pyo3::types::{PyDict, IntoPyDict};
+use pyo3::{types::IntoPyDict, PyObject};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, Map};
+
+use lazy_static::lazy_static; // 1.4.0
+use std::sync::Mutex;
+
+type SettingsValueMap = Mutex<HashMap<String, PyObject>>;
+
+lazy_static! {
+    // Setting Key => Value
+    static ref SETTING_VALUES: SettingsValueMap = Mutex::new(HashMap::new());
+
+    // Extruder ID => Extruder Setting Key => Value
+    static ref EXTRUDER_VALUES: Mutex<HashMap<String, SettingsValueMap>> = Mutex::new(
+        HashMap::new()
+    );
+}
+
+mod to_json;
 
 #[derive(Deserialize, Serialize, Debug)]
 struct CuraDef {
@@ -75,28 +92,49 @@ fn main() {
     eprintln!("\nCreating Printer Def");
     eprintln!("==============================================================");
 
-    let printer_def = create_merged_cura_def(
+    create_merged_cura_def(
         &resources_dir,
         &input_path,
         &output_path.join("merged.def.json"),
+        &SETTING_VALUES,
+        // Once metadata is available create the extruder def so it can be used in resolving
+        // extruder-dependent fields
+        |metadata| {
+            // Create merged defs for each extruder
+            let extruders = metadata["machine_extruder_trains"].clone();
+            let extruders: BTreeMap<String, String> = serde_json::from_value(extruders).unwrap();
+
+            for (id, extruder) in extruders {
+                eprintln!("\nCreating Extruder Def: {:?}", extruder);
+                eprintln!("==============================================================");
+
+                let extruder_filename = format!("{}.def.json", extruder);
+
+                let extruder_values = Mutex::new(HashMap::new());
+
+                create_merged_cura_def(
+                    &resources_dir,
+                    &resources_dir.join("extruders").join(&extruder_filename),
+                    &output_path.join(extruder_filename),
+                    &extruder_values,
+                    |_| {},
+                );
+
+                let mut extruder_values_guard = EXTRUDER_VALUES.lock()
+                    .unwrap();
+
+                extruder_values_guard.insert(dbg!(id), extruder_values);
+
+                eprintln!("\nCreating Extruder Def: {:?} [DONE]", extruder);
+                eprintln!("==============================================================\n\n");
+            }
+        }
     );
 
-    // Create merged defs for each extruder
-    let extruders = printer_def.metadata["machine_extruder_trains"].clone();
-    let extruders: BTreeMap<String, String> = serde_json::from_value(extruders).unwrap();
+    eprintln!("\nCreating Printer Def [DONE]");
+    eprintln!("==============================================================");
 
-    for (_, extruder) in extruders {
-        eprintln!("\nCreating Extruder Def: {:?}", extruder);
-        eprintln!("==============================================================");
-
-        let extruder_filename = format!("{}.def.json", extruder);
-
-        create_merged_cura_def(
-            &resources_dir,
-            &resources_dir.join("extruders").join(&extruder_filename),
-            &output_path.join(extruder_filename),
-        );
-    }
+    eprintln!("\nMerged Defs Written to: {:?}", &output_path);
 }
 
 fn find_setting_mut<'a>(settings: &'a mut LinkedHashMap<String, CuraSetting>, key: &str) -> Option<&'a mut CuraSetting> {
@@ -135,30 +173,80 @@ where
 }
 
 
+/// See getDefaultValueInExtruder in Cura's CuraFormulaFunctions.py
 #[pyo3::pyfunction]
 #[pyo3(name = "extruderValue")]
-fn extruder_value(x: String) {
-    panic!("Called extruderValue with: {:?}", x);
+fn extruder_value(extruder_position: u32, k: String) -> Option<PyObject> {
+    eprintln!("Called extruderValue with: {:?}, {:?}", extruder_position, k);
+
+    let extruder_values_guard = EXTRUDER_VALUES.lock()
+        .unwrap();
+
+    let extruder_values_guard_inner = extruder_values_guard
+        .get(&extruder_position.to_string())
+        .unwrap()
+        .lock()
+        .unwrap();
+
+    dbg!(extruder_values_guard_inner.get(&k)
+        .map(|v| v.to_owned())
+        .or_else(|| resolve_or_value(k)))
 }
 
+/// See getDefaultValuesInAllExtruders in Cura's CuraFormulaFunctions.py
 #[pyo3::pyfunction]
 #[pyo3(name = "extruderValues")]
-fn extruder_values(x: String) {
-    panic!("Called extruderValues with: {:?}", x);
+fn extruder_values(k: String) -> Vec<PyObject> {
+    eprintln!("Called extruderValues with: {:?}", k);
+
+    let mut extruder_values_guard = EXTRUDER_VALUES.lock()
+        .unwrap();
+
+    extruder_values_guard.iter_mut()
+        .flat_map(|(_, mutex)| {
+            let extruder_values_guard_inner = mutex
+                .lock()
+                .unwrap();
+
+            dbg!(extruder_values_guard_inner.get(&k)
+                .map(|v| v.to_owned())
+                .or_else(|| resolve_or_value(k.clone())))
+        })
+        .collect()
 }
 
+/// See getDefaultResolveOrValue in Cura's CuraFormulaFunctions.py
 #[pyo3::pyfunction]
 #[pyo3(name = "resolveOrValue")]
-fn resolve_or_value(x: String) {
-    panic!("Called resolveOrValue with: {:?}", x);
+fn resolve_or_value(k: String) -> Option<PyObject> {
+    eprintln!("Called resolveOrValue with: {:?}", k);
+
+    let settings_values_guard = SETTING_VALUES
+        .lock()
+        .unwrap();
+
+    settings_values_guard.get(&k).map(|v| v.to_owned())
 }
 
+/// See Cura's CuraFormulaFunctions.py
+#[pyo3::pyfunction]
+#[pyo3(name = "defaultExtruderPosition")]
+fn default_extruder_position() -> String {
+    eprintln!("Called defaultExtruderPosition");
 
-fn create_merged_cura_def<P1: AsRef<Path>, P2: AsRef<Path>>(
+    "0".into()
+}
+
+fn create_merged_cura_def<P1: AsRef<Path>, P2: AsRef<Path>, F>(
     resources_dir: P1,
     input_path: P2,
     output_path: P2,
-) -> CuraDef {
+    settings_values: &Mutex<HashMap<String, PyObject>>,
+    mut metadata_cb: F,
+) -> CuraDef
+where
+    F: FnMut(&Map<String, Value>),
+{
     let mut defs = load_parent_defs(
         resources_dir,
         input_path,
@@ -197,6 +285,7 @@ fn create_merged_cura_def<P1: AsRef<Path>, P2: AsRef<Path>>(
             merge_setting(setting, &setting_override)
         }
     }
+    metadata_cb(&working_copy.metadata);
 
     // Create a list of all settings that do not require evaluation for use in evalutating
     // python expressions
@@ -214,14 +303,16 @@ fn create_merged_cura_def<P1: AsRef<Path>, P2: AsRef<Path>>(
             "cura_formula_functions",
         ).expect("Define cura formula functions");
 
-        cura_ctx.add_function(pyo3::wrap_pyfunction!(extruder_value, cura_ctx).unwrap()).unwrap();
-        cura_ctx.add_function(pyo3::wrap_pyfunction!(extruder_values, cura_ctx).unwrap()).unwrap();
-        cura_ctx.add_function(pyo3::wrap_pyfunction!(resolve_or_value, cura_ctx).unwrap()).unwrap();
+        cura_ctx.add_function(wrap_pyfunction!(extruder_value, cura_ctx).unwrap()).unwrap();
+        cura_ctx.add_function(wrap_pyfunction!(extruder_values, cura_ctx).unwrap()).unwrap();
+        cura_ctx.add_function(wrap_pyfunction!(resolve_or_value, cura_ctx).unwrap()).unwrap();
+        cura_ctx.add_function(wrap_pyfunction!(default_extruder_position, cura_ctx).unwrap()).unwrap();
 
         for symbol in [
             "extruderValue",
             "extruderValues",
             "resolveOrValue",
+            "defaultExtruderPosition",
         ] {
             locals.set_item(symbol, cura_ctx.getattr(symbol).unwrap())
                 .unwrap();
@@ -231,6 +322,8 @@ fn create_merged_cura_def<P1: AsRef<Path>, P2: AsRef<Path>>(
 
         eprintln!("SETTING LENGTH: {:?}", working_copy.settings.len());
         eprintln!("ALL SETTING LENGTH: {:?}", all_settings(&working_copy.settings).len());
+
+        let mut settings_values_guard = settings_values.lock().unwrap();
 
         all_settings(&working_copy.settings)
             .into_iter()
@@ -265,16 +358,29 @@ fn create_merged_cura_def<P1: AsRef<Path>, P2: AsRef<Path>>(
                     },
                 };
 
-                locals.set_item(k, v).expect("Set cura settings eval locals");
+                locals.set_item(k, v.clone()).expect("Set cura settings eval locals");
+                settings_values_guard.insert(k.to_string(), v);
             });
+
+        drop(settings_values_guard);
 
         // Evalutate Value Expressions eg. "value": "layer_height * 4"
         let mut i = 0;
+        let mut previous_settings_to_eval = usize::MAX;
         while settings_to_eval > 0 {
             i += 1;
             if i > 10 {
                 panic!("Too much settings eval recursion. Exiting to prevent infinite loop.");
             }
+
+            if settings_to_eval == previous_settings_to_eval {
+                panic!(
+                    "Unable to resolve {} settings. Defs may contain cyclic value logic",
+                    settings_to_eval,
+                );
+            }
+
+            previous_settings_to_eval = settings_to_eval;
 
             eprintln!("\nLoop #{}. Settings remaining: {}\n\n", i, settings_to_eval);
 
@@ -291,50 +397,52 @@ fn create_merged_cura_def<P1: AsRef<Path>, P2: AsRef<Path>>(
                     } else {
                         let value = value.unwrap();
                         // dbg!(&value);
-                        let extract_err = format!(
-                            "Parsing setting {:?} value: {:?}",
-                            &k,
-                            &value
-                        );
+                        // let extract_err = format!(
+                        //     "Parsing setting {:?} value: {:?}",
+                        //     &k,
+                        //     &value
+                        // );
 
-                        let json_val = match setting.value_type
-                            .as_ref()
-                            .expect("Cura Setting type")
-                        {
-                            CuraType::Bool => {
-                                let val: bool = value.extract().expect(&extract_err);
-                                serde_json::to_value(val).expect(&extract_err)
-                            }
-                            | CuraType::Float
-                            | CuraType::Int
-                            => {
-                                let val: f32 = value.extract().expect(&extract_err);
-                                serde_json::to_value(val).expect(&extract_err)
-                            }
-                            | CuraType::IntArray
-                            | CuraType::Str
-                            | CuraType::OptionalExtruder
-                            | CuraType::Extruder
-                            | CuraType::Enum
-                            => {
-                                let val: String = value.extract().expect(&extract_err);
-                                serde_json::to_value(val).expect(&extract_err)
-                            }
-                            CuraType::Polygon => {
-                                let val: Vec<Vec<f32>> = value.extract().expect(&extract_err);
-                                serde_json::to_value(val).expect(&extract_err)
-                            }
-                            CuraType::Polygons => {
-                                let val: Vec<Vec<Vec<f32>>> = value.extract().expect(&extract_err);
-                                serde_json::to_value(val).expect(&extract_err)
-                            }
-                            CuraType::Category => {
-                                panic!("Cura categories should not have values: {:?}", k);
-                            }
-                            // value_type => {
-                            //     panic!("Cura type not yet supported for {:?}: {:?}", k, value_type);
-                            // }
-                        };
+                        let json_val = to_json::to_json(py, &value.to_object(py));
+
+                        // let json_val = match setting.value_type
+                        //     .as_ref()
+                        //     .expect("Cura Setting type")
+                        // {
+                        //     CuraType::Bool => {
+                        //         let val: bool = value.extract().expect(&extract_err);
+                        //         serde_json::to_value(val).expect(&extract_err)
+                        //     }
+                        //     | CuraType::Float
+                        //     | CuraType::Int
+                        //     => {
+                        //         let val: f32 = value.extract().expect(&extract_err);
+                        //         serde_json::to_value(val).expect(&extract_err)
+                        //     }
+                        //     | CuraType::IntArray
+                        //     | CuraType::Str
+                        //     | CuraType::OptionalExtruder
+                        //     | CuraType::Extruder
+                        //     | CuraType::Enum
+                        //     => {
+                        //         let val: String = value.extract().expect(&extract_err);
+                        //         serde_json::to_value(val).expect(&extract_err)
+                        //     }
+                        //     CuraType::Polygon => {
+                        //         let val: Vec<Vec<f32>> = value.extract().expect(&extract_err);
+                        //         serde_json::to_value(val).expect(&extract_err)
+                        //     }
+                        //     CuraType::Polygons => {
+                        //         let val: Vec<Vec<Vec<f32>>> = value.extract().expect(&extract_err);
+                        //         serde_json::to_value(val).expect(&extract_err)
+                        //     }
+                        //     CuraType::Category => {
+                        //         panic!("Cura categories should not have values: {:?}", k);
+                        //     }
+                        //     // value_type => {
+                        //     //     panic!("Cura type not yet supported for {:?}: {:?}", k, value_type);
+                        //     // }
+                        // };
 
                         setting.default_value = Some(json_val);
                         setting.value = None;
@@ -342,7 +450,16 @@ fn create_merged_cura_def<P1: AsRef<Path>, P2: AsRef<Path>>(
                         settings_to_eval -= 1;
 
                         eprintln!("Setting evaluated: {:?} = {:?}", &k, &value);
-                        locals.set_item(k, value).expect("Set cura settings locals");
+
+                        locals.set_item(k, value.clone())
+                            .expect("Set cura settings locals");
+
+                        let mut settings_values_guard = settings_values
+                            .lock()
+                            .unwrap();
+
+                        settings_values_guard.insert(k.to_string(), value.to_object(py));
+                        drop(settings_values_guard);
                     }
                 } else if setting.value.is_some() {
                     setting.default_value = std::mem::take(&mut setting.value);
