@@ -8,3 +8,8 @@ edition = "2021"
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.78"
+linked-hash-map = { version = "0.5.4", features = ["serde_impl"] }
+
+[dependencies.pyo3]
+version = "0.15.1"
+features = ["auto-initialize"]
