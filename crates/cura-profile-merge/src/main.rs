@@ -134,6 +134,26 @@ where
         });
 }
 
+
+#[pyo3::pyfunction]
+#[pyo3(name = "extruderValue")]
+fn extruder_value(x: String) {
+    panic!("Called extruderValue with: {:?}", x);
+}
+
+#[pyo3::pyfunction]
+#[pyo3(name = "extruderValues")]
+fn extruder_values(x: String) {
+    panic!("Called extruderValues with: {:?}", x);
+}
+
+#[pyo3::pyfunction]
+#[pyo3(name = "resolveOrValue")]
+fn resolve_or_value(x: String) {
+    panic!("Called resolveOrValue with: {:?}", x);
+}
+
+
 fn create_merged_cura_def<P1: AsRef<Path>, P2: AsRef<Path>>(
     resources_dir: P1,
     input_path: P2,
@@ -186,6 +206,26 @@ fn create_merged_cura_def<P1: AsRef<Path>, P2: AsRef<Path>>(
         let locals = [
             ("math", py.import("math").expect("Import 'math' into python")),
         ].into_py_dict(py);
+
+        let cura_ctx = PyModule::from_code(
+            py,
+            "",
+            "cura_formula_functions.py",
+            "cura_formula_functions",
+        ).expect("Define cura formula functions");
+
+        cura_ctx.add_function(pyo3::wrap_pyfunction!(extruder_value, cura_ctx).unwrap()).unwrap();
+        cura_ctx.add_function(pyo3::wrap_pyfunction!(extruder_values, cura_ctx).unwrap()).unwrap();
+        cura_ctx.add_function(pyo3::wrap_pyfunction!(resolve_or_value, cura_ctx).unwrap()).unwrap();
+
+        for symbol in [
+            "extruderValue",
+            "extruderValues",
+            "resolveOrValue",
+        ] {
+            locals.set_item(symbol, cura_ctx.getattr(symbol).unwrap())
+                .unwrap();
+        }
 
         let mut settings_to_eval = 0;
 
@@ -302,8 +342,7 @@ fn create_merged_cura_def<P1: AsRef<Path>, P2: AsRef<Path>>(
                         settings_to_eval -= 1;
 
                         eprintln!("Setting evaluated: {:?} = {:?}", &k, &value);
-                        locals.set_item(k, value)
-                            .expect("Set cura settings eval locals");
+                        locals.set_item(k, value).expect("Set cura settings locals");
                     }
                 } else if setting.value.is_some() {
                     setting.default_value = std::mem::take(&mut setting.value);
