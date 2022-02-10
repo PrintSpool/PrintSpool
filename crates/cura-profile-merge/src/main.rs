@@ -473,6 +473,8 @@ where
     working_copy.settings = all_settings(&working_copy.settings)
         .into_iter()
         .map(|(k, v)| (k.to_owned(), CuraSetting {
+            default_value: v.value.clone().or(v.default_value.clone()),
+            value: None,
             children: Default::default(),
             ..v.clone()
         }))
