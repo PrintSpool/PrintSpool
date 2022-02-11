@@ -20,6 +20,7 @@ lazy_static! {
     );
 }
 
+mod quality_config;
 mod to_json;
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -89,13 +90,18 @@ enum CuraType {
 
 fn main() {
     let mut args = std::env::args().skip(1);
-    if args.len() != 2 {
+    if args.len() != 3 {
         panic!(
-            "Expected useage: cura-profile-merge /path/to/settings.def.json /output/path.def.json"
+            "Expected useage: cura-profile-merge \\
+                /path/to/settings.def.json \\
+                /path/to/qualities/ \\
+                /output/path.def.json \\
+            "
         );
     }
 
     let input_path = PathBuf::from(args.next().unwrap());
+    let qualities_dir = PathBuf::from(args.next().unwrap());
     let output_path = PathBuf::from(args.next().unwrap());
     std::fs::create_dir_all(&output_path).expect("Unable to create output directory");
 
@@ -105,6 +111,17 @@ fn main() {
         .next()
         .unwrap()
         .to_owned();
+
+    // Load the quality configs
+    eprintln!("\nLoading Quality Configs");
+    eprintln!("==============================================================");
+
+    quality_config::get_quality(qualities_dir, quality_config::QualityCriteria {
+        quality_type: "low".to_string(),
+        material: "generic_pla".to_string(),
+        variant: "0.3mm Nozzle".to_string(),
+    });
+
 
     // Create the merged printer def
     eprintln!("\nCreating Printer Def");
@@ -141,7 +158,7 @@ fn main() {
                 let mut extruder_values_guard = EXTRUDER_VALUES.lock()
                     .unwrap();
 
-                extruder_values_guard.insert(dbg!(id), extruder_values);
+                extruder_values_guard.insert(id, extruder_values);
 
                 eprintln!("\nCreating Extruder Def: {:?} [DONE]", extruder);
                 eprintln!("==============================================================\n\n");
@@ -206,9 +223,9 @@ fn extruder_value(extruder_position: u32, k: String) -> Option<PyObject> {
         .lock()
         .unwrap();
 
-    dbg!(extruder_values_guard_inner.get(&k)
+    extruder_values_guard_inner.get(&k)
         .map(|v| v.to_owned())
-        .or_else(|| resolve_or_value(k)))
+        .or_else(|| resolve_or_value(k))
 }
 
 /// See getDefaultValuesInAllExtruders in Cura's CuraFormulaFunctions.py
@@ -226,9 +243,9 @@ fn extruder_values(k: String) -> Vec<PyObject> {
                 .lock()
                 .unwrap();
 
-            dbg!(extruder_values_guard_inner.get(&k)
+            extruder_values_guard_inner.get(&k)
                 .map(|v| v.to_owned())
-                .or_else(|| resolve_or_value(k.clone())))
+                .or_else(|| resolve_or_value(k.clone()))
         })
         .collect()
 }
