@@ -4,10 +4,10 @@ use linked_hash_map::LinkedHashMap;
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug)]
-pub struct Quality {
+pub struct InstConfig {
     pub general: General,
     pub metadata: Metadata,
-    pub values: LinkedHashMap<String, serde_json::Value>,
+    pub values: LinkedHashMap<String, String>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -16,7 +16,7 @@ pub struct General {
     pub name: String,
     pub definition: String,
     #[serde(flatten)]
-    pub extra: LinkedHashMap<String, serde_json::Value>,
+    pub extra: LinkedHashMap<String, String>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -36,13 +36,14 @@ pub struct Metadata {
     pub variant: Option<String>,
 
     #[serde(flatten)]
-    pub extra: LinkedHashMap<String, serde_json::Value>,
+    pub extra: LinkedHashMap<String, String>,
 }
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub enum ConfigType {
     Quality,
+    Variant,
 }
 
 pub struct QualityCriteria {
@@ -51,14 +52,23 @@ pub struct QualityCriteria {
     pub variant: String,
 }
 
-pub fn get_quality<P: AsRef<Path>>(qualities_dir: P, criteria: QualityCriteria) {
+pub fn get_quality<P: AsRef<Path>>(qualities_dir: P, criteria: QualityCriteria) -> InstConfig {
     let mut qualities = load_qualities(qualities_dir.as_ref(), &criteria);
     qualities.sort_by_key(|q| q.metadata.weight);
 
-    dbg!(qualities);
+    // Merge the inerited InstConfigs into the top level one
+    let mut quality = qualities.pop().unwrap();
+
+    for (k, v) in qualities.into_iter().flat_map(|q| q.values.into_iter()) {
+        quality.values.insert(k, v);
+    }
+
+    dbg!(&quality);
+
+    quality
 }
 
-fn load_qualities(dir: &Path, criteria: &QualityCriteria) -> Vec<Quality> {
+fn load_qualities(dir: &Path, criteria: &QualityCriteria) -> Vec<InstConfig> {
     let mut qualities = Vec::new();
 
     if dir.is_dir() {
@@ -73,7 +83,7 @@ fn load_qualities(dir: &Path, criteria: &QualityCriteria) -> Vec<Quality> {
                 let quality_str = fs::read_to_string(&path)
                     .expect(&format!("load quality file: {:?}", &path));
 
-                let quality: Quality = config::Config::builder()
+                let quality: InstConfig = config::Config::builder()
                     .add_source(
                         config::File::from_str(&quality_str, config::FileFormat::Ini)
                     )
