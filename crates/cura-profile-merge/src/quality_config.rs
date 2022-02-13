@@ -3,14 +3,14 @@ use std::{path::Path, fs};
 use linked_hash_map::LinkedHashMap;
 use serde::Deserialize;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct InstConfig {
     pub general: General,
     pub metadata: Metadata,
     pub values: LinkedHashMap<String, String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct General {
     pub version: u32,
     pub name: String,
@@ -19,7 +19,7 @@ pub struct General {
     pub extra: LinkedHashMap<String, String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Metadata {
     pub setting_version: u32,
     #[serde(rename = "type")]
@@ -39,7 +39,7 @@ pub struct Metadata {
     pub extra: LinkedHashMap<String, String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub enum ConfigType {
     Quality,
@@ -57,7 +57,7 @@ pub fn get_quality<P: AsRef<Path>>(qualities_dir: P, criteria: QualityCriteria) 
     qualities.sort_by_key(|q| q.metadata.weight);
 
     // Merge the inerited InstConfigs into the top level one
-    let mut quality = qualities.pop().unwrap();
+    let mut quality = qualities.last().unwrap().clone();
 
     for (k, v) in qualities.into_iter().flat_map(|q| q.values.into_iter()) {
         quality.values.insert(k, v);

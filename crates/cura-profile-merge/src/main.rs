@@ -2,6 +2,7 @@ use std::{fs, path::{Path, PathBuf}, collections::{BTreeMap, HashMap, HashSet}};
 
 use linked_hash_map::LinkedHashMap;
 use pyo3::{types::IntoPyDict, PyObject};
+use quality_config::InstConfig;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, Map};
 
@@ -116,12 +117,11 @@ fn main() {
     eprintln!("\nLoading Quality Configs");
     eprintln!("==============================================================");
 
-    quality_config::get_quality(qualities_dir, quality_config::QualityCriteria {
+    let inst_config = quality_config::get_quality(qualities_dir, quality_config::QualityCriteria {
         quality_type: "low".to_string(),
         material: "generic_pla".to_string(),
         variant: "0.3mm Nozzle".to_string(),
     });
-
 
     // Create the merged printer def
     eprintln!("\nCreating Printer Def");
@@ -132,6 +132,7 @@ fn main() {
         &input_path,
         &output_path.join("merged.def.json"),
         &SETTING_VALUES,
+        &inst_config,
         // Once metadata is available create the extruder def so it can be used in resolving
         // extruder-dependent fields
         |metadata| {
@@ -152,6 +153,7 @@ fn main() {
                     &resources_dir.join("extruders").join(&extruder_filename),
                     &output_path.join(extruder_filename),
                     &extruder_values,
+                    &inst_config,
                     |_| {},
                 );
 
@@ -272,11 +274,26 @@ fn default_extruder_position() -> String {
     "0".into()
 }
 
+fn py_eval_as_json(
+    py: pyo3::Python,
+    expr: &str,
+    locals: &pyo3::types::PyDict,
+) -> pyo3::PyResult<serde_json::Value> {
+    use pyo3::prelude::*;
+
+    let value = py.eval(expr, None, Some(locals))?;
+
+    let json_val = to_json::to_json(py, &value.to_object(py));
+
+    Ok(json_val)
+}
+
 fn create_merged_cura_def<P1: AsRef<Path>, P2: AsRef<Path>, F>(
     resources_dir: P1,
     input_path: P2,
     output_path: P2,
     settings_values: &Mutex<HashMap<String, PyObject>>,
+    inst_config: &InstConfig,
     mut metadata_cb: F,
 ) -> CuraDef
 where
@@ -371,6 +388,11 @@ where
                         return None
                     }
                 }
+                if inst_config.values.contains_key(k) {
+                    settings_to_eval.insert(k.to_string());
+
+                    return None
+                }
 
                 s.value.clone()
                     .or(s.default_value.clone())
@@ -448,37 +470,111 @@ where
                 eval_replace_field(&mut setting.maximum_value_warning);
                 eval_replace_field(&mut setting.warning_value);
 
-                if let Some(serde_json::Value::String(expr)) = setting.value.as_ref() {
-                    if !settings_to_eval.contains(k) {
-                        return setting
-                    }
+                if settings_to_eval.contains(k) {
+                    let json_val = if let Some(quality_val) = inst_config.values.get(k) {
+                        if quality_val.starts_with("=") {
+                            // InstConfig Value expression
+                            let value = py_eval_as_json(
+                                py,
+                                &quality_val[1..],
+                                &locals,
+                            );
 
-                    let value = py.eval(expr, None, Some(&locals));
-                        // .expect(&format!("Executing expression for setting: {:?}", &k2));
+                            match value {
+                                Err(err) => {
+                                    eprintln!("Error evaluating inst config {:?}:\n  {}\n", &k, err);
+                                    return setting;
+                                }
+                                Ok(value) => value
+                            }
+                        } else {
+                            // InstConfig Value Literal
+                            match setting.value_type.as_ref().unwrap() {
+                                CuraType::Bool => {
+                                    if
+                                        quality_val == "1"
+                                        || quality_val == "t"
+                                    {
+                                        serde_json::Value::Bool(true)
+                                    } else if
+                                        quality_val == "0"
+                                        || quality_val == "f"
+                                    {
+                                        serde_json::Value::Bool(false)
+                                    } else {
+                                        panic!("Invalid inst config bool: {:?}", quality_val)
+                                    }
+                                }
+                                CuraType::Float => {
+                                    let f = quality_val.parse::<f32>()
+                                        .expect("Invalid inst config float");
 
-                    if let Err(err) = value {
-                        eprintln!("Error evaluating {:?}:\n  {}\n", &k, err);
+                                    serde_json::json!(f)
+                                }
+                                CuraType::Int => {
+                                    let i = quality_val.parse::<i32>()
+                                        .expect("Invalid inst config int");
+
+                                    serde_json::json!(i)
+                                }
+                                _ => {
+                                    serde_json::Value::String(quality_val.to_string())
+                                }
+                            }
+                        }
+                    } else if let Some(serde_json::Value::String(expr)) = setting.value.as_ref() {
+                        // Def.JSON Value expression
+                        let value = py_eval_as_json(
+                            py,
+                            expr,
+                            &locals,
+                        );
+
+                        match value {
+                            Err(err) => {
+                                eprintln!("Error evaluating def.json {:?}:\n  {}\n", &k, err);
+                                return setting;
+                            }
+                            Ok(value) => value
+                        }
                     } else {
-                        let value = value.unwrap();
+                        panic!("Value needing evaluation missing expression: {:?}", &k)
+                    };
 
-                        let json_val = to_json::to_json(py, &value.to_object(py));
+                    let py_object = match &json_val {
+                        serde_json::Value::Bool(b) => b.to_object(py),
+                        serde_json::Value::Number(n) => {
+                            let n = n.as_f64().expect("Valid json number");
 
-                        setting.value = Some(json_val);
+                            if n.fract() == 0.0 {
+                                (n as i32).to_object(py)
+                            } else {
+                                n.to_object(py)
+                            }
+                        }
+                        serde_json::Value::String(s) => s.to_object(py),
+                        serde_json::Value::Null => Option::<i32>::None.to_object(py),
+                        other => panic!(
+                            "Conversion of json type to python not supported for {:?}",
+                            other,
+                        ),
+                    };
 
-                        settings_to_eval.remove(k);
+                    setting.value = Some(json_val);
 
-                        eprintln!("Setting evaluated: {:?} = {:?}", &k, &value);
+                    settings_to_eval.remove(k);
 
-                        locals.set_item(k, value.clone())
-                            .expect("Set cura settings locals");
+                    eprintln!("Setting evaluated: {:?} = {:?}", &k, &py_object);
 
-                        let mut settings_values_guard = settings_values
-                            .lock()
-                            .unwrap();
+                    locals.set_item(k, py_object.clone())
+                        .expect("Set cura settings locals");
 
-                        settings_values_guard.insert(k.to_string(), value.to_object(py));
-                        drop(settings_values_guard);
-                    }
+                    let mut settings_values_guard = settings_values
+                        .lock()
+                        .unwrap();
+
+                    settings_values_guard.insert(k.to_string(), py_object);
+                    drop(settings_values_guard);
                 }
 
                 setting
