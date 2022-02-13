@@ -35,6 +35,7 @@ import ViewRight from './icons/ViewRight.svg';
 import ServerBreadcrumbs from '../common/ServerBreadcrumbs';
 import { drawerWidth } from '../common/frame/components/Drawer.styles'
 import EditButtonsDesktopView from './EditButtons.desktop.view';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const hideFeatureStubs = true;
 
@@ -145,9 +146,9 @@ const PrintView = ({
         size: modelArrayBuffer.byteLength,
       }))
 
-      if (!forceLoad && modelArrayBuffer.byteLength > 80 * MB) {
-        return;
-      }
+      // if (!forceLoad && modelArrayBuffer.byteLength > 80 * MB) {
+      //   return;
+      // }
 
       const modelByteArray = new Uint8Array(modelArrayBuffer.slice(0));
 
@@ -558,6 +559,17 @@ const PrintView = ({
             }}
           />
         </Box>
+        { printFileLoader.loading && (
+          <Box sx={{
+            display: 'grid',
+            overflow: 'hidden',
+            gridArea: '1 / 1',
+            justifyItems: 'center',
+            alignItems: 'center',
+          }}>
+            <CircularProgress disableShrink />
+          </Box>
+        )}
       </Box>
     </Box>
   )
