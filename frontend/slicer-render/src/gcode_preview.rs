@@ -1,7 +1,7 @@
 use std::{ops::{Deref, DerefMut}, mem};
 
 use itertools::Itertools;
-use nom_gcode::{GCode, GCodeLine, Mnemonic, Comment};
+use nom_gcode::{GCode, GCodeLine, Mnemonic, Comment, DocComment};
 use log::{warn, info, trace};
 use three_d::*;
 use wasm_bindgen::prelude::*;
@@ -80,6 +80,11 @@ impl GCodePreview {
                 .expect("Error parsing gcode");
 
             let gcode = match gcode {
+                // Doc Comments
+                Some(GCodeLine::DocComment(doc_comment)) => {
+                    info!("GCode Doc Comment: {:?}", doc_comment);
+                    return None
+                }
                 // G0, G1 Move
                 Some(GCodeLine::GCode(gcode @ GCode {
                     mnemonic: Mnemonic::General,
