@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 // import { Link } from 'react-router-dom'
+import initSlicerRender, { start } from 'slicer-render';
 
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
@@ -17,9 +18,12 @@ import MultiVideoStreamer from '../manualControl/videoStreamer/MultiVideoStreame
 import ComponentControl from '../manualControl/printerComponents/ComponentControl'
 import ViewingUsersButton from './ViewingUsersButton'
 import PartHeader from './PartHeader'
+import { useAsyncCallback } from 'react-async-hook'
+import { render } from 'react-dom';
+import Button from '@mui/material/Button';
 
 const JobView = ({
-  machineName,
+  machine,
   cancelTask,
   pausePrint,
   resumePrint,
@@ -29,6 +33,8 @@ const JobView = ({
   isPrinting,
   machineStatus,
   iceServers,
+  gcodeQuery,
+  enableGCodeRendering,
 }) => {
   const classes = useStyles()
 
@@ -47,10 +53,47 @@ const JobView = ({
 
   const videoComponents = task?.machine.components.filter(c => c.type === 'VIDEO') || []
 
+
+  const rendererAsync = useAsyncCallback(async () => {
+    if (!enableGCodeRendering) {
+      return
+    }
+
+    const machineDimensions = [235, 235, 255]
+    const {
+      infiniteZ
+    } = machine
+
+    console.log('Starting Slicer-Render')
+
+    await initSlicerRender();
+
+    return start({
+      machineDimensions,
+      infiniteZ,
+    }, (_event) => {});
+  });
+
+  // Load the renderer after the canvas is added to the DOM
+  useLayoutEffect(() => {
+    rendererAsync.execute()
+  }, []);
+
+  const [gcodeBlob, setGCodeBlob] = useState(null as string || null)
+
+  useEffect(() => {
+    const renderer = rendererAsync.result;
+    if (renderer != null && gcodeQuery.data != null) {
+      const { gcode } = gcodeQuery.data.parts[0]
+      renderer.setGCode(gcode)
+      setGCodeBlob(URL.createObjectURL(new Blob([gcode])))
+    }
+  }, [rendererAsync.result != null, gcodeQuery.loading])
+
   return (
     <div className={classes.root}>
       <PartHeader {...{
-        machineName,
+        machineName: machine.name,
         part,
         value: 0,
       }}/>
@@ -71,6 +114,20 @@ const JobView = ({
               machine={task.machine}
             />
           )}
+
+          { enableGCodeRendering && <>
+            <canvas />
+
+            <Button
+              component="a"
+              href={gcodeBlob}
+              download={`${part.name}.gcode`}
+              disabled={gcodeBlob == null}
+              variant="outlined"
+            >
+              Download GCode
+            </Button>
+          </>}
 
           <Typography variant="body1" paragraph>
             {

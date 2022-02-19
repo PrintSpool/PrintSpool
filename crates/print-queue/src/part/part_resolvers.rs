@@ -136,6 +136,21 @@ impl Part {
             })
     }
 
+    async fn gcode<'ctx>(
+        &self,
+    ) -> FieldResult<String> {
+        async move {
+            let gcode = async_std::fs::read_to_string(&self.file_path).await?;
+            Result::<_>::Ok(gcode)
+        }
+        // log the backtrace which is otherwise lost by FieldResult
+        .await
+        .map_err(|err| {
+            warn!("{:?}", err);
+            err.into()
+        })
+    }
+
     async fn tasks<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,

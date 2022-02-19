@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { gql } from '@apollo/client'
+import { gql, useQuery } from '@apollo/client'
 import { useMutation } from '@apollo/client'
 import useReactRouter from 'use-react-router'
 
@@ -12,11 +12,16 @@ import PrinterStatusGraphQL from '../common/PrinterStatus.graphql'
 import { useSnackbar } from 'notistack'
 import useSignallingGraphQL from '../../common/auth/useSignallingGraphQL'
 
+// GCode rendering slows down page loads dramatically due to it being downloaded on the websocket
+// until the page load issue is fixed this should stay false.
+const enableGCodeRendering = false
+
 const JOB_QUERY = gql`
   fragment QueryFragment on Query {
     machines(input: { machineID: $machineID }) {
       id
       name
+      infiniteZ
     }
     parts(input: { partID: $partID }) {
       id
@@ -107,6 +112,26 @@ const JobPage = () => {
     },
   })
 
+
+  let gcodeQuery = {}
+  if (enableGCodeRendering) {
+    gcodeQuery = useQuery(
+      gql`
+        query($partID: ID) {
+          parts(input: { partID: $partID }) {
+            gcode @ifdef
+          }
+        }
+      `,
+      {
+        variables: {
+          machineID,
+          partID,
+        },
+      },
+    )
+  }
+
   const SuccessMutationOpts = (msg) => ({
     onCompleted: () => {
       enqueueSnackbar(msg, {
@@ -156,6 +181,7 @@ const JobPage = () => {
     || pausePrintMutation.error
     || resumeMutation.error
     || signallingQuery.error
+    || gcodeQuery.error
   )
 
   useEffect(() => {
@@ -182,7 +208,7 @@ const JobPage = () => {
   return (
     <JobView
       {...{
-        machineName: data.machines[0].name,
+        machine: data.machines[0],
         part,
         cancelTask,
         pausePrint,
@@ -192,6 +218,8 @@ const JobPage = () => {
         isPrinting,
         machineStatus: status,
         iceServers: signallingQuery.data.iceServers,
+        gcodeQuery,
+        enableGCodeRendering,
       }}
     />
   )
