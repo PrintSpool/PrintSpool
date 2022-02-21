@@ -114,7 +114,7 @@ const PrintPreview = ({
               position: 'relative',
               display: {
                 xs:  printFileIndex == -1 ? 'block' : 'none',
-                md: 'none',
+                md: 'block',
               },
             }}
           >
