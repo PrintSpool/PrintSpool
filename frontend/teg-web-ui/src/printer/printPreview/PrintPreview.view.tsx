@@ -11,11 +11,8 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import LinearProgress from '@mui/material/LinearProgress';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { DataGrid } from '@mui/x-data-grid';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import AddIcon from '@mui/icons-material/Add'
-import DeleteIcon from '@mui/icons-material/Delete'
 
 import ServerBreadcrumbs from '../common/ServerBreadcrumbs';
 import EditButtonsDesktopView from './EditButtons.desktop.view';
@@ -23,7 +20,6 @@ import Pagination from '@mui/material/Pagination';
 import PaginationItem from '@mui/material/PaginationItem';
 
 import CameraPositionButtons from './CameraPositionButtons.view';
-import FileInput from '../../common/FileInput'
 import AllPartsView from './AllParts.view';
 
 const hideFeatureStubs = true;
@@ -117,8 +113,8 @@ const PrintPreview = ({
               zIndex: 2,
               position: 'relative',
               display: {
-                xs: 'none',
-                md: printFileIndex == -1 ? 'block' : 'none',
+                xs:  printFileIndex == -1 ? 'block' : 'none',
+                md: 'none',
               },
             }}
           >
