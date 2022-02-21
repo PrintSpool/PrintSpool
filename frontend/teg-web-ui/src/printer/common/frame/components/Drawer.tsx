@@ -16,7 +16,6 @@ import OpenWith from '@mui/icons-material/OpenWith'
 import Code from '@mui/icons-material/Code'
 import Keyboard from '@mui/icons-material/Keyboard'
 import Settings from '@mui/icons-material/Settings'
-import Home from '@mui/icons-material/Home'
 
 import useStyles from './Drawer.styles'
 
@@ -75,7 +74,7 @@ const Drawer = ({
       <List className={classes.drawerContents}>
         <ListSubheader>{machine.name}</ListSubheader>
         <DrawerLink
-          text="Printing"
+          text="Prints"
           icon={<Inbox />}
           href={`/${hostID}/${machineID}/`}
           altPrefixes={[

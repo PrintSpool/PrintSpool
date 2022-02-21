@@ -113,7 +113,7 @@ const JobPage = () => {
   })
 
 
-  let gcodeQuery = {}
+  let gcodeQuery = {} as any
   if (enableGCodeRendering) {
     gcodeQuery = useQuery(
       gql`

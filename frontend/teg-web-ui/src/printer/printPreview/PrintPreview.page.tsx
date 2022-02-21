@@ -5,31 +5,12 @@ import { gql, useQuery } from '@apollo/client'
 import { useMutation } from '@apollo/client'
 import { exportSTL } from 'slicer-render';
 
-import PrintView from './PrintPreview.view'
+import PrintPreview from './PrintPreview.view'
 import { usePrintMutation } from '../jobQueue/JobQueue.graphql'
+import PrintViewerCore, { PrintFile, Vec3 } from './PrintViewerCore.view';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
-interface Vec3 {
-  x: number
-  y: number
-  z: number
-}
-
-interface PrintFile {
-  id: number
-  name: string
-  url: string
-  isMesh: boolean
-  meshVersion: number
-  gcodeVersion: number
-  gcodeBlob: null | Blob
-  gcodeText: null | string
-  quantity: number
-  mat4: { x: Vec3, y: Vec3, z: Vec3, w: Vec3 }
-  rotationMat3: { x: Vec3, y: Vec3, z: Vec3 }
-  position: Vec3
-  positionWithOffset: Vec3
-  scale: Vec3
-}
+const isMeshFileExt = (name) => !(name.endsWith('.ngc') || name.endsWith('.gcode'));
 
 const PrintPage = () => {
   const history = useHistory();
@@ -37,7 +18,7 @@ const PrintPage = () => {
 
   const [printFiles, setPrintFiles] = useState(() => (
     JSON.parse(window.sessionStorage.getItem('printFiles')).map((printFile, id): PrintFile => {
-      const isMesh = !(printFile.name.endsWith('.ngc') || printFile.name.endsWith('.gcode'));
+      const isMesh = isMeshFileExt(printFile.name);
 
       return {
         ...printFile,
@@ -59,6 +40,46 @@ const PrintPage = () => {
       }
     })
   ));
+
+  const addFiles = (files) => {
+    const addedPrintFiles = files.map((file, i) => {
+      console.log(file)
+      const isMesh = isMeshFileExt(file.name);
+
+      const printFile: PrintFile = {
+        id: printFiles.length + i,
+        name: file.name,
+        url: URL.createObjectURL(file),
+        isMesh,
+        meshVersion: 1,
+        gcodeVersion: isMesh ? null : 1,
+        gcodeBlob: null,
+        gcodeText: null,
+        quantity: 1,
+        mat4: {
+          x: { x: 1, y: 0, z: 0, w: 0 },
+          y: { x: 0, y: 1, z: 0, w: 0 },
+          z: { x: 0, y: 0, z: 1, w: 0 },
+          w: { x: 0, y: 0, z: 0, w: 1 },
+        },
+        rotationMat3: {
+          x: { x: 1, y: 0, z: 0 },
+          y: { x: 0, y: 1, z: 0 },
+          z: { x: 0, y: 0, z: 1 },
+        },
+        position: { x: 0, y: 0, z: 0 },
+        positionWithOffset: { x: 0, y: 0, z: 0 },
+        scale: { x: 1, y: 1, z: 1 },
+      }
+
+      return printFile
+    })
+
+    setPrintFiles([
+      ...printFiles,
+      ...addedPrintFiles,
+    ])
+  }
 
   const [printFileIndex, setPrintFileIndex] = useState(0)
 
@@ -82,6 +103,7 @@ const PrintPage = () => {
           id
           name
         }
+        featureFlags(input: { filter: ["slicer"] })
       }
     `,
     {
@@ -281,7 +303,7 @@ const PrintPage = () => {
     return <div/>
   }
 
-  const currentPrintFile = printFiles[printFileIndex];
+  const currentPrintFile = printFileIndex >= 0 ? printFiles[printFileIndex] : null;
 
   const updatePrintFileAttrs = (attrs) => setPrintFiles(printFiles => printFiles.map(p => {
     if (p.id === currentPrintFile.id) {
@@ -294,54 +316,75 @@ const PrintPage = () => {
     }
   }))
 
+  const onEvent = (event) => {
+    if (event.type === 'transform') {
+      const {
+        source,
+        ...attrs
+      } = event;
+
+      // Update the print file and invalidate the GCode when the user modifies the model transform
+      updatePrintFileAttrs({
+        // ...attrs,
+        gcodeVersion: null,
+        gcodeBlob: null,
+        gcodeText: null,
+      })
+
+      setPrintFiles(printFiles => printFiles.map(p => (
+        p.id === currentPrintFile.id ? { ...p, ...attrs } : p
+      )))
+      console.log('transform!', event);
+    }
+  }
+
+  const machine = data?.machines[0];
+
   return (
-    <PrintView {...{
-      key: printFileIndex,
-      machine: data?.machines[0],
+    <PrintViewerCore {...{
+      machine,
       slicerEngine,
-      printQueues: data.printQueues,
-      printFiles,
       printFile: currentPrintFile,
-      loading: query.loading,
-      isMutationPending,
-      isUploading: submit.loading,
-      setPrintFileIndex,
-      onEvent: (event) => {
-        if (event.type === 'transform') {
-          const {
-            source,
-            ...attrs
-          } = event;
+      onEvent,
+      hideCanvas: printFileIndex === -1,
+      render: ({
+        renderer,
+        viewMode,
+      }) => (
+        <PrintPreview {...{
+          key: printFileIndex,
+          renderer,
+          viewMode,
+          machine,
+          featureFlags: data.featureFlags ?? [],
+          slicerEngine,
+          printQueues: data.printQueues,
+          printFiles,
+          setPrintFiles,
+          printFile: currentPrintFile,
+          printFileIndex,
+          setPrintFileIndex,
+          addFiles,
+          loading: query.loading,
+          isMutationPending,
+          isUploading: submit.loading,
+          setQuantity: (quantity) => {
+            updatePrintFileAttrs({ quantity })
+          },
+          addToQueue: () => submit.execute({ printNow: false }),
+          printNow: () => submit.execute({ printNow: true }),
+          sliceMutation,
+          slice: async () => {
+            const res = await fetch(currentPrintFile.url);
+            const blob = await res.blob();
 
-          // Update the print file and invalidate the GCode when the user modifies the model transform
-          updatePrintFileAttrs({
-            // ...attrs,
-            gcodeVersion: null,
-            gcodeBlob: null,
-            gcodeText: null,
-          })
+            const attrs = await slicePrintFile({ printFile: currentPrintFile, blob })
 
-          setPrintFiles(printFiles => printFiles.map(p => (
-            p.id === currentPrintFile.id ? { ...p, ...attrs } : p
-          )))
-          console.log('transform!', event);
-        }
-      },
-      setQuantity: (quantity) => {
-        updatePrintFileAttrs({ quantity })
-      },
-      addToQueue: () => submit.execute({ printNow: false }),
-      printNow: () => submit.execute({ printNow: true }),
-      sliceMutation,
-      slice: async () => {
-        const res = await fetch(currentPrintFile.url);
-        const blob = await res.blob();
-
-        const attrs = await slicePrintFile({ printFile: currentPrintFile, blob })
-
-        updatePrintFileAttrs(attrs)
-      },
-    }} />
+            updatePrintFileAttrs(attrs)
+          },
+        }} />
+      )
+    }}/>
   )
 }
 

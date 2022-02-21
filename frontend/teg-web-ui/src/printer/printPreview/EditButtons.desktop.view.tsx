@@ -65,7 +65,10 @@ const EditButtonsDesktopView = ({
         gridArea: 'main',
         justifySelf: 'left',
         alignSelf: 'center',
-        display: 'flex',
+        display: {
+          xs: 'none',
+          md: 'flex',
+        },
         flexDirection: 'column',
       }}
     >

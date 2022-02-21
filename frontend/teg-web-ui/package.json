@@ -23,6 +23,7 @@
     "@mui/icons-material": "^5.2.5",
     "@mui/material": "^5.2.8",
     "@mui/styles": "^5.2.3",
+    "@mui/x-data-grid": "^5.5.1",
     "@react-hook/window-scroll": "^1.0.7",
     "@react-hook/window-size": "^1.0.12",
     "ajv": "^7.0.4",
