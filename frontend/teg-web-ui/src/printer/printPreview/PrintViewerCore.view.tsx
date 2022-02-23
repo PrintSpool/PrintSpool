@@ -259,7 +259,7 @@ const PrintViewerCore = ({
 
           {/* GCode Layer Slider */}
           <Box sx={{
-            zIndex: 2,
+            zIndex: 10,
             height: '100%',
             pt: 1,
             pb: 3,

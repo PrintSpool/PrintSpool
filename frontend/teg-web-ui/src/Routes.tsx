@@ -242,7 +242,7 @@ const Routes = () => {
                     path="/:hostID/:machineID/"
                     component={QueuePage}
                   />
-                  <Route exact strict path="/:hostID/:machineID/print/">
+                  <Route strict path="/:hostID/:machineID/print/">
                     <PrintPage />
                   </Route>
                   <Route exact strict path="/:hostID/:machineID/printing/:partID/" component={PartPage} />
