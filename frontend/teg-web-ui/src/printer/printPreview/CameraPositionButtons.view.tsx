@@ -17,6 +17,7 @@ import ViewRight from './icons/ViewRight.svg';
 
 const CameraPositionButtons = ({
   renderer,
+  sx = {},
 }) => {
   const cameraPositions = [
     {
@@ -55,10 +56,7 @@ const CameraPositionButtons = ({
         gridColumn: 'hd',
         gridRow: 'print',
         alignSelf: 'end',
-        display: {
-          xs: 'none',
-          md: 'block',
-        },
+        ...sx,
       }}
     >
       {

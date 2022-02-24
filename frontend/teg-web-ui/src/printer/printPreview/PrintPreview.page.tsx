@@ -1,6 +1,6 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useAsyncCallback } from 'react-async-hook';
-import { useHistory, useParams } from 'react-router-dom';
+import { useHistory, useParams, useRouteMatch } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client'
 import { useMutation } from '@apollo/client'
 import { exportSTL } from 'slicer-render';
@@ -8,13 +8,12 @@ import { exportSTL } from 'slicer-render';
 import PrintPreview from './PrintPreview.view'
 import { usePrintMutation } from '../jobQueue/JobQueue.graphql'
 import PrintViewerCore, { PrintFile, Vec3 } from './PrintViewerCore.view';
-import useMediaQuery from '@mui/material/useMediaQuery';
 
 const isMeshFileExt = (name) => !(name.endsWith('.ngc') || name.endsWith('.gcode'));
 
 const PrintPage = () => {
   const history = useHistory();
-  const { machineID } = useParams();
+  const { hostID, machineID } = useParams();
 
   const [printFiles, setPrintFiles] = useState(() => (
     JSON.parse(window.sessionStorage.getItem('printFiles')).map((printFile, id): PrintFile => {
@@ -22,7 +21,7 @@ const PrintPage = () => {
 
       return {
         ...printFile,
-        id,
+        id: `${id}-${printFile.name.replace(/[^a-zA-Z0-9]+/g, '-')}`,
         isMesh,
         meshVersion: 1,
         gcodeVersion: isMesh ? null : 1,
@@ -47,7 +46,7 @@ const PrintPage = () => {
       const isMesh = isMeshFileExt(file.name);
 
       const printFile: PrintFile = {
-        id: printFiles.length + i,
+        id: `${printFiles.length + i}-${file.name.replace(/[^a-zA-Z0-9]+/g, '-')}`,
         name: file.name,
         url: URL.createObjectURL(file),
         isMesh,
@@ -277,7 +276,7 @@ const PrintPage = () => {
       })
     }
 
-    history.push('../');
+    history.push(`/${hostID}/${machineID}/`);
   });
 
   const error = (
@@ -350,10 +349,12 @@ const PrintPage = () => {
       render: ({
         renderer,
         viewMode,
+        data: { topLayer },
       }) => (
         <PrintPreview {...{
           key: printFileIndex,
           renderer,
+          topLayer,
           viewMode,
           machine,
           featureFlags: data.featureFlags ?? [],

@@ -26,7 +26,7 @@ export interface Vec4 {
 }
 
 export interface PrintFile {
-  id: number
+  id: string
   name: string
   url: string
   isMesh: boolean
@@ -247,9 +247,8 @@ const PrintViewerCore = ({
           display: 'grid',
           justifyContent: 'space-between',
           gridTemplateColumns: '[main-start hd-start] 1fr [hd-end quality-start] auto [quality-end layer-start] auto [layer-end main-end]',
-          gridTemplateRows: '[main-start hd-start layer-start] auto [hd-end] 1fr [layer-end print-start] auto [print-end main-end]',
+          gridTemplateRows: '[main-start hd-start layer-start] auto [hd-end] 1fr [layer-end print-start] auto [print-end main-end ft-start] auto [ft-end]',
         }}>
-
           {renderOverlay({
             renderer,
             setData,
@@ -257,48 +256,25 @@ const PrintViewerCore = ({
             viewMode,
           })}
 
-          {/* GCode Layer Slider */}
+          {/* 3D Preview Canvas */}
           <Box sx={{
-            zIndex: 10,
-            height: '100%',
-            pt: 1,
-            pb: 3,
-            gridArea: 'layer',
-            display: {
-              xs: 'none',
-              md: hideCanvas ? 'none' : 'block',
-            },
+            display: hideCanvas ? 'none' : 'grid',
+            overflow: 'hidden',
+            gridArea: 'main',
+            opacity: loading ? 0 : 1,
           }}>
-            <Slider
-              key={data.topLayer}
-              orientation="vertical"
-              defaultValue={data.topLayer}
-              max={data.topLayer}
-              disabled={printFile?.gcodeVersion == null}
-              onChange={(e, val: number) => {
-                renderer.send({ setLayer: val });
+            <Box
+              component="canvas"
+              ref={webGLContainer}
+              sx={{
+                marginLeft: { md: `${-drawerWidth / 2}px` },
+                // Offset for top navigation
+                marginTop: `${(80+53) / 2}px`,
+                zIndex: 1,
+                marginBottom: -500,
               }}
             />
           </Box>
-        </Box>
-
-        {/* 3D Preview Canvas */}
-        <Box sx={{
-          display: hideCanvas ? 'none' : 'grid',
-          overflow: 'hidden',
-          gridArea: '1 / 1',
-          opacity: loading ? 0 : 1,
-        }}>
-          <Box
-            component="canvas"
-            ref={webGLContainer}
-            sx={{
-              marginLeft: { md: `${-drawerWidth / 2}px` },
-              // Offset for top navigation
-              marginTop: `${(80+53) / 2}px`,
-              zIndex: 1,
-            }}
-          />
         </Box>
 
         {/* Loading Spinner */}

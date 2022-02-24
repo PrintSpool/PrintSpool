@@ -1,5 +1,5 @@
-import React from 'react'
-import { Route, Link, useRouteMatch, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import { Route, Link, useRouteMatch, useParams, useHistory } from 'react-router-dom';
 
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -12,6 +12,12 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import LinearProgress from '@mui/material/LinearProgress';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import Pagination from '@mui/material/Pagination';
+import PaginationItem from '@mui/material/PaginationItem';
+import BottomNavigationAction from '@mui/material/BottomNavigationAction';
+import BottomNavigation from '@mui/material/BottomNavigation';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LayersIcon from '@mui/icons-material/Layers';
@@ -19,18 +25,19 @@ import LayersClearIcon from '@mui/icons-material/LayersClear';
 import EditIcon from '@mui/icons-material/CropRotate';
 import SettingsIcon from '@mui/icons-material/Tune';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import ServerBreadcrumbs from '../common/ServerBreadcrumbs';
 import EditButtonsDesktopView from './EditButtons.desktop.view';
-import Pagination from '@mui/material/Pagination';
-import PaginationItem from '@mui/material/PaginationItem';
-
 import CameraPositionButtons from './CameraPositionButtons.view';
 import AllPartsView from './AllParts.view';
-import BottomNavigationAction from '@mui/material/BottomNavigationAction';
-import BottomNavigation from '@mui/material/BottomNavigation';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
+import useConfirm from '../../common/_hooks/useConfirm';
+import IconButton from '@mui/material/IconButton';
+import GCodeLayerSlider from './GCodeLayerSlider.view';
+import RotateButtons from './RotateButtons.view';
+import ScaleButtons from './ScaleButtons.view';
+import MirrorButtons from './MirrorButtons.view';
+import MoveButtons from './MoveButtons.view';
 
 const hideFeatureStubs = true;
 
@@ -47,6 +54,7 @@ export const allFileExtensions = ({ featureFlags }) => [
 
 const PrintPreview = ({
   renderer,
+  topLayer,
   viewMode,
   isMutationPending,
   isUploading,
@@ -68,6 +76,8 @@ const PrintPreview = ({
   sliceMutation,
 }) => {
   const { path, url } = useRouteMatch();
+  const history = useHistory();
+
   // Remove the trainling slashes
   const baseURL = url.slice(0, -1);
   const basePath = path.slice(0, -1);
@@ -95,11 +105,29 @@ const PrintPreview = ({
         return (
           <PaginationItem
             {...item}
-            page={item.page < 2 ? 'All Parts' : item.page - 1}
+            page={item.page < 2 ? 'All' : item.page - 1}
           />
         )
       }}
     />
+  )
+
+  const slicingFeedback = (
+    <Box>
+      {(sliceMutation.loading || isUploading) && (
+        <>
+          <Typography sx={{ mb: 1 }}>
+            { sliceMutation.loading ? 'Slicing...' : 'Uploading...'}
+          </Typography>
+          <LinearProgress sx={{ mb: 2 }} />
+        </>
+      )}
+      {sliceMutation.error && (
+        <Typography color="error" sx={{ mb: 2 }}>
+          {sliceMutation.error.message}
+        </Typography>
+      )}
+    </Box>
   )
 
   return (
@@ -113,10 +141,33 @@ const PrintPreview = ({
           sx={{
             zIndex: 10,
             position: 'relative',
+            display: {
+              xs:  'none',
+              md: 'block',
+            },
           }}
         >
           <Typography color="textPrimary">Print Preview</Typography>
         </ServerBreadcrumbs>
+
+        <Box
+          sx={{
+            zIndex: 10,
+            position: 'relative',
+            display: {
+              xs: 'block',
+              md:  'none',
+            },
+          }}
+        >
+          <IconButton
+            component={Link}
+            to="../"
+          >
+            <ArrowBackIcon/>
+          </IconButton>
+        </Box>
+
         <Box
           sx={{
           }}
@@ -135,7 +186,7 @@ const PrintPreview = ({
           >
             { printFileIndex >= 0 && printFile.name }
             { printFileIndex == -1 &&
-              `Previewing ${printFiles.length} Part${printFiles.length === 1 ? '' : 's'}`
+              `Previewing ${printFiles.length} Part${printFiles.length === 1 ? '' : 's'} for Upload`
             }
           </Typography>
 
@@ -265,7 +316,15 @@ const PrintPreview = ({
 
       {/* Camera Positions */}
       { printFile != null && (
-        <CameraPositionButtons renderer={renderer} />
+        <CameraPositionButtons
+          renderer={renderer}
+          sx={{
+            display: {
+              xs: 'none',
+              md: 'block',
+            },
+          }}
+        />
       )}
 
       {/* Mobile Index & Desktop Interface */}
@@ -303,9 +362,22 @@ const PrintPreview = ({
                 justifySelf: 'stretch',
               }}
               component={Link}
-              to={`${baseURL}/${printFile?.name}/`}
+              to={`${baseURL}/${printFile?.id}/`}
             />
           )}
+
+          {/* Desktop: GCode Layer Slider */}
+          <GCodeLayerSlider {...{
+            topLayer,
+            renderer,
+            printFile,
+            sx: {
+              display: {
+                xs: 'none',
+                md: 'block',
+              },
+            }
+          }} />
 
           {/* Preview / Print Buttons */}
           <Paper sx={{
@@ -322,22 +394,12 @@ const PrintPreview = ({
               md: 'end',
             },
           }}>
-            <Box>
-              {(sliceMutation.loading || isUploading) && (
-                <>
-                  <Typography sx={{ mb: 1 }}>
-                    { sliceMutation.loading ? 'Slicing...' : 'Uploading...'}
-                  </Typography>
-                  <LinearProgress sx={{ mb: 2 }} />
-                </>
-              )}
-              {sliceMutation.error && (
-                <Typography color="error" sx={{ mb: 2 }}>
-                  {sliceMutation.error.message}
-                </Typography>
-              )}
-            </Box>
-            { printFile != null && printFile.meshVersion === printFile.gcodeVersion && printFile.isMesh &&
+            { slicingFeedback }
+            { (
+              printFile != null
+              && printFile.meshVersion === printFile.gcodeVersion
+              && printFile.isMesh
+            ) &&
               <FormControlLabel
                 control={<Switch defaultChecked />}
                 label="View GCode"
@@ -372,7 +434,7 @@ const PrintPreview = ({
             <Button
               onClick={addToQueue}
               variant="outlined"
-              disabled={loading || isMutationPending}
+              disabled={loading || isMutationPending || printFiles.length === 0}
               sx={{
                 mr: 1,
                 mb: {
@@ -404,60 +466,128 @@ const PrintPreview = ({
         </>
       </Route>
 
-      {/* Mobile: Preview model*/}
-      <Route exact path={`${basePath}/:filename/:action?`} component={() => {
-        const { action } = useParams();
 
+      {/* Mobile: Preview: GCode Layer Slider and Camera Position Buttons*/}
+      <Route path={`${basePath}/:printFileID/`}>
+        <>
+          <GCodeLayerSlider {...{
+            topLayer,
+            renderer,
+            printFile,
+          }} />
+          <CameraPositionButtons renderer={renderer} />
+        </>
+      </Route>
+
+      {/* Mobile: Preview model*/}
+      <Route exact path={`${basePath}/:printFileID/:tab?`} component={() => {
+        const { printFileID, tab } = useParams();
+
+        useEffect(() => {
+          if (printFileID !== printFile.id) {
+            setPrintFileIndex(printFiles.findIndex(p => p.id === printFileID))
+          }
+        }, [printFileID])
+
+        // The /:printFileID/ route is context dependent showing GGode or the model depending on if
+        // the file is a mesh or not (if it's not a mesh there isn't any model to show)
         const tabsOrder = [
           undefined,
           'gcode',
           'edit',
           'settings',
-          'delete'
         ]
 
+        console.log(tab, tabsOrder.indexOf(tab))
+
+        // Set the view mode and trigger slicing depending on the tab
+        useEffect(() => {
+          if (tab === undefined && renderer != null) {
+            renderer.send({ setViewMode: 'model' })
+          }
+
+          if (tab === 'gcode' && renderer != null) {
+            if (isMutationPending || printFile.meshVersion === printFile.gcodeVersion) {
+              renderer.send({ setViewMode: 'gcode' })
+            } else {
+              slice(printFile)
+            }
+          }
+        }, [
+          tab,
+          printFile.meshVersion,
+          printFile.gcodeVersion,
+          isMutationPending,
+          renderer == null,
+        ])
+
+        const confirm = useConfirm()
+
+        const confirmedDelete = confirm(() => {
+          return {
+            fn: () => {
+              history.push(`../`)
+              setPrintFileIndex(printFiles.length > 1 ? 0 : -1)
+              setPrintFiles(printFiles.filter((p) => p.id !== printFile.id))
+            },
+            title: `Remove from upload?`,
+            description: printFile.name,
+          }
+        })
+
         return (
-          <BottomNavigation
+          <Box
             sx={{
               zIndex: 10,
-              gridRow: 'print',
+              gridRow: 'ft',
               gridColumn: 'main',
               alignSelf: 'end',
             }}
-            // showLabels
-            value={tabsOrder.indexOf(action)}
           >
-            <BottomNavigationAction
-              label="Model"
-              icon={<LayersClearIcon />}
-              component={Link}
-              to={`${baseURL}/${printFile?.name}/`}
-            />
-            <BottomNavigationAction
-              label="GCode"
-              icon={<LayersIcon />}
-              component={Link}
-              to={`${baseURL}/${printFile?.name}/gcode`}
-            />
-            <BottomNavigationAction
-              label="Edit"
-              icon={<EditIcon />}
-              component={Link}
-              to={`${baseURL}/${printFile?.name}/edit/rotate`}
-            />
-            <BottomNavigationAction
-              label="Profile"
-              icon={<SettingsIcon />}
-              component={Link}
-              to={`${baseURL}/${printFile?.name}/profile/`}
-            />
-            <BottomNavigationAction
-              label="Delete"
-              icon={<DeleteIcon />}
-              component={Link}
-              to={`${baseURL}/${printFile?.name}/delete`}
-            />
-          </BottomNavigation>
+            { slicingFeedback }
+            <BottomNavigation
+              // showLabels
+              value={printFile.isMesh ? tabsOrder.indexOf(tab) : 1}
+            >
+              {printFile.isMesh && (
+                <BottomNavigationAction
+                  label="Model"
+                  icon={<LayersClearIcon />}
+                  component={Link}
+                  to={`${baseURL}/${printFile?.id}/`}
+                />
+              )}
+              <BottomNavigationAction
+                label="GCode"
+                icon={<LayersIcon />}
+                component={Link}
+                to={`${baseURL}/${printFile?.id}/${printFile.isMesh ? 'gcode' : ''}`}
+              />
+              {printFile.isMesh && (
+                <BottomNavigationAction
+                  key="edit"
+                  label="Edit"
+                  icon={<EditIcon />}
+                  component={Link}
+                  to={`${baseURL}/${printFile?.id}/edit/rotate`}
+                />
+              )}
+              {false && printFile.isMesh && (
+                <BottomNavigationAction
+                  key="profile"
+                  label="Profile"
+                  icon={<SettingsIcon />}
+                  component={Link}
+                  to={`${baseURL}/${printFile?.id}/profile/`}
+                />
+              )}
+              <BottomNavigationAction
+                label="Delete"
+                icon={<DeleteIcon />}
+                onClick={confirmedDelete}
+              />
+            </BottomNavigation>
+          </Box>
         )
       }} />
 
@@ -477,18 +607,22 @@ const PrintPreview = ({
           <Box
             sx={{
               zIndex: 10,
-              gridRow: 'print',
+              gridRow: 'ft',
               gridColumn: 'main',
               alignSelf: 'end',
             }}
           >
             <Route exact path={`${editPath}/rotate`}>
+              <RotateButtons renderer={renderer} />
             </Route>
             <Route exact path={`${editPath}/scale`}>
+              <ScaleButtons renderer={renderer} />
             </Route>
             <Route exact path={`${editPath}/flip`}>
+              <MirrorButtons renderer={renderer} />
             </Route>
             <Route exact path={`${editPath}/move`}>
+              <MoveButtons renderer={renderer} />
             </Route>
 
             <Tabs
@@ -505,7 +639,7 @@ const PrintPreview = ({
                 />
               ))}
             </Tabs>
-            <Box
+            {/* <Box
               sx={{ mt: 2 }}
             >
               <Button
@@ -515,7 +649,7 @@ const PrintPreview = ({
               >
                 Back
               </Button>
-            </Box>
+            </Box> */}
           </Box>
         )
       }} />
