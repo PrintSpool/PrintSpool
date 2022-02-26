@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
 
 import OpenWithIcon from '@mui/icons-material/OpenWith';
 import ThreeSixtyIcon from '@mui/icons-material/ThreeSixty';
@@ -11,9 +10,6 @@ import FlipIcon from '@mui/icons-material/Flip';
 
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Popover from '@mui/material/Popover';
-import InputAdornment from '@mui/material/InputAdornment';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
 import RotateButtons from './RotateButtons.view';
 import ScaleButtons from './ScaleButtons.view';
 import MirrorButtons from './MirrorButtons.view';

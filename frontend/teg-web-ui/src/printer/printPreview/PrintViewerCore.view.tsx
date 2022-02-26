@@ -256,6 +256,20 @@ const PrintViewerCore = ({
             viewMode,
           })}
 
+          {/* Loading Spinner */}
+          { loading && (
+            <Box sx={{
+              display: 'grid',
+              overflow: 'hidden',
+              gridArea: 'main',
+              justifyItems: 'center',
+              alignItems: 'center',
+              marginBottom: '100px',
+            }}>
+              <CircularProgress disableShrink />
+            </Box>
+          )}
+
           {/* 3D Preview Canvas */}
           <Box sx={{
             display: hideCanvas ? 'none' : 'grid',
@@ -267,28 +281,19 @@ const PrintViewerCore = ({
               component="canvas"
               ref={webGLContainer}
               sx={{
-                marginLeft: { md: `${-drawerWidth / 2}px` },
+                margin: -2,
+                marginLeft: { md: `${-drawerWidth / 2 - 16}px` },
                 // Offset for top navigation
-                marginTop: `${(80+53) / 2}px`,
+                marginTop: {
+                  md: `${(80+53) / 2 - 16}px`,
+                  xs: -2,
+                },
                 zIndex: 1,
                 marginBottom: -500,
               }}
             />
           </Box>
         </Box>
-
-        {/* Loading Spinner */}
-        { loading && (
-          <Box sx={{
-            display: 'grid',
-            overflow: 'hidden',
-            gridArea: '1 / 1',
-            justifyItems: 'center',
-            alignItems: 'center',
-          }}>
-            <CircularProgress disableShrink />
-          </Box>
-        )}
       </Box>
     </Box>
   )

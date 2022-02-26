@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { Route, Link, useRouteMatch, useParams, useHistory } from 'react-router-dom';
+import React, { useEffect } from 'react'
+import { Route, Link, useRouteMatch, useHistory } from 'react-router-dom';
 
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -14,30 +14,20 @@ import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Pagination from '@mui/material/Pagination';
 import PaginationItem from '@mui/material/PaginationItem';
-import BottomNavigationAction from '@mui/material/BottomNavigationAction';
-import BottomNavigation from '@mui/material/BottomNavigation';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
+import IconButton from '@mui/material/IconButton';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import LayersIcon from '@mui/icons-material/Layers';
-import LayersClearIcon from '@mui/icons-material/LayersClear';
-import EditIcon from '@mui/icons-material/CropRotate';
-import SettingsIcon from '@mui/icons-material/Tune';
-import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import ServerBreadcrumbs from '../common/ServerBreadcrumbs';
-import EditButtonsDesktopView from './EditButtons.desktop.view';
+import EditButtonsDesktopView from './edit/EditButtons.desktop.view';
+import EditTabsMobileView from './edit/EditTabs.mobile.view';
 import CameraPositionButtons from './CameraPositionButtons.view';
 import AllPartsView from './AllParts.view';
-import useConfirm from '../../common/_hooks/useConfirm';
-import IconButton from '@mui/material/IconButton';
 import GCodeLayerSlider from './GCodeLayerSlider.view';
-import RotateButtons from './RotateButtons.view';
-import ScaleButtons from './ScaleButtons.view';
-import MirrorButtons from './MirrorButtons.view';
-import MoveButtons from './MoveButtons.view';
+import BottomNavigationMobileView from './BottomNavigation.mobile.view';
 
 const hideFeatureStubs = true;
 
@@ -51,6 +41,21 @@ export const allFileExtensions = ({ featureFlags }) => [
   'gcode',
   'ngc',
 ].map(v => `.${v}`).join(',')
+
+const ShowPrintSpinner = ({
+  renderer,
+}) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  useEffect(() => {
+    if (isMobile && renderer != null) {
+      renderer.send({ setSpinMode: true });
+    }
+  }, [renderer == null, isMobile]);
+
+  return <></>
+}
 
 const PrintPreview = ({
   renderer,
@@ -132,6 +137,10 @@ const PrintPreview = ({
 
   return (
     <>
+      <Route exact path={`${basePath}/`}>
+        <ShowPrintSpinner renderer={renderer} />
+      </Route>
+
       {/* Headers */}
       <Box sx={{
         gridArea: 'hd',
@@ -367,17 +376,19 @@ const PrintPreview = ({
           )}
 
           {/* Desktop: GCode Layer Slider */}
-          <GCodeLayerSlider {...{
-            topLayer,
-            renderer,
-            printFile,
-            sx: {
-              display: {
-                xs: 'none',
-                md: 'block',
-              },
-            }
-          }} />
+          { printFile != null && (
+            <GCodeLayerSlider {...{
+              topLayer,
+              renderer,
+              printFile,
+              sx: {
+                display: {
+                  xs: 'none',
+                  md: 'block',
+                },
+              }
+            }} />
+          )}
 
           {/* Preview / Print Buttons */}
           <Paper sx={{
@@ -479,180 +490,28 @@ const PrintPreview = ({
         </>
       </Route>
 
-      {/* Mobile: Preview model*/}
-      <Route exact path={`${basePath}/:printFileID/:tab?`} component={() => {
-        const { printFileID, tab } = useParams();
-
-        useEffect(() => {
-          if (printFileID !== printFile.id) {
-            setPrintFileIndex(printFiles.findIndex(p => p.id === printFileID))
-          }
-        }, [printFileID])
-
-        // The /:printFileID/ route is context dependent showing GGode or the model depending on if
-        // the file is a mesh or not (if it's not a mesh there isn't any model to show)
-        const tabsOrder = [
-          undefined,
-          'gcode',
-          'edit',
-          'settings',
-        ]
-
-        console.log(tab, tabsOrder.indexOf(tab))
-
-        // Set the view mode and trigger slicing depending on the tab
-        useEffect(() => {
-          if (tab === undefined && renderer != null) {
-            renderer.send({ setViewMode: 'model' })
-          }
-
-          if (tab === 'gcode' && renderer != null) {
-            if (isMutationPending || printFile.meshVersion === printFile.gcodeVersion) {
-              renderer.send({ setViewMode: 'gcode' })
-            } else {
-              slice(printFile)
-            }
-          }
-        }, [
-          tab,
-          printFile.meshVersion,
-          printFile.gcodeVersion,
+      {/* Mobile: Preview Bottom Navigation */}
+      <Route exact path={`${basePath}/:printFileID/:tab?`}>
+        <BottomNavigationMobileView {...{
+          renderer,
+          printFiles,
+          printFile,
+          setPrintFileIndex,
+          setPrintFiles,
+          slice,
           isMutationPending,
-          renderer == null,
-        ])
-
-        const confirm = useConfirm()
-
-        const confirmedDelete = confirm(() => {
-          return {
-            fn: () => {
-              history.push(`../`)
-              setPrintFileIndex(printFiles.length > 1 ? 0 : -1)
-              setPrintFiles(printFiles.filter((p) => p.id !== printFile.id))
-            },
-            title: `Remove from upload?`,
-            description: printFile.name,
-          }
-        })
-
-        return (
-          <Box
-            sx={{
-              zIndex: 10,
-              gridRow: 'ft',
-              gridColumn: 'main',
-              alignSelf: 'end',
-            }}
-          >
-            { slicingFeedback }
-            <BottomNavigation
-              // showLabels
-              value={printFile.isMesh ? tabsOrder.indexOf(tab) : 1}
-            >
-              {printFile.isMesh && (
-                <BottomNavigationAction
-                  label="Model"
-                  icon={<LayersClearIcon />}
-                  component={Link}
-                  to={`${baseURL}/${printFile?.id}/`}
-                />
-              )}
-              <BottomNavigationAction
-                label="GCode"
-                icon={<LayersIcon />}
-                component={Link}
-                to={`${baseURL}/${printFile?.id}/${printFile.isMesh ? 'gcode' : ''}`}
-              />
-              {printFile.isMesh && (
-                <BottomNavigationAction
-                  key="edit"
-                  label="Edit"
-                  icon={<EditIcon />}
-                  component={Link}
-                  to={`${baseURL}/${printFile?.id}/edit/rotate`}
-                />
-              )}
-              {false && printFile.isMesh && (
-                <BottomNavigationAction
-                  key="profile"
-                  label="Profile"
-                  icon={<SettingsIcon />}
-                  component={Link}
-                  to={`${baseURL}/${printFile?.id}/profile/`}
-                />
-              )}
-              <BottomNavigationAction
-                label="Delete"
-                icon={<DeleteIcon />}
-                onClick={confirmedDelete}
-              />
-            </BottomNavigation>
-          </Box>
-        )
-      }} />
+          baseURL,
+          slicingFeedback,
+        }} />
+      </Route>
 
       {/* Mobile: Edit model*/}
-      <Route path={`${basePath}/:filename/edit/:action`} component={() => {
-        const { action } = useParams();
-        const editPath = `${basePath}/:filename/edit`
-
-        const actions = [
-          { slug: 'rotate', label: 'Rotate' },
-          { slug: 'scale', label: 'Scale' },
-          { slug: 'flip', label: 'Flip' },
-          { slug: 'move', label: 'Move' },
-        ]
-
-        return (
-          <Box
-            sx={{
-              zIndex: 10,
-              gridRow: 'ft',
-              gridColumn: 'main',
-              alignSelf: 'end',
-            }}
-          >
-            <Route exact path={`${editPath}/rotate`}>
-              <RotateButtons renderer={renderer} />
-            </Route>
-            <Route exact path={`${editPath}/scale`}>
-              <ScaleButtons renderer={renderer} />
-            </Route>
-            <Route exact path={`${editPath}/flip`}>
-              <MirrorButtons renderer={renderer} />
-            </Route>
-            <Route exact path={`${editPath}/move`}>
-              <MoveButtons renderer={renderer} />
-            </Route>
-
-            <Tabs
-              value={actions.findIndex(a => a.slug === action)}
-              variant="scrollable"
-              scrollButtons="auto"
-            >
-              { actions.map(({ slug, label }) => (
-                <Tab
-                  key={slug}
-                  label={label}
-                  component={Link}
-                  to={`./${slug || ''}`}
-                />
-              ))}
-            </Tabs>
-            {/* <Box
-              sx={{ mt: 2 }}
-            >
-              <Button
-                variant="outlined"
-                component={Link}
-                to="../"
-              >
-                Back
-              </Button>
-            </Box> */}
-          </Box>
-        )
-      }} />
+      <Route path={`${basePath}/:filename/edit/:action`}>
+        <EditTabsMobileView {...{
+          basePath,
+          renderer,
+        }} />
+      </Route>
     </>
   )
 }

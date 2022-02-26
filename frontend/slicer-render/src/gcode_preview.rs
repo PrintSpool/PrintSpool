@@ -1,7 +1,7 @@
 use std::{ops::{Deref, DerefMut}, mem};
 
 use itertools::Itertools;
-use nom_gcode::{GCode, GCodeLine, Mnemonic, Comment, DocComment};
+use nom_gcode::{GCode, GCodeLine, Mnemonic, Comment};
 use log::{warn, info, trace};
 use three_d::*;
 use wasm_bindgen::prelude::*;

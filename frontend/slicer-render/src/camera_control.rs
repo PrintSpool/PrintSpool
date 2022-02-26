@@ -86,6 +86,38 @@ impl CameraPositionControl {
         self.control.handle_events(&mut self.camera, events)
     }
 
+    fn dim(&self) -> Vec3 {
+        let mut default_dim = self.options.machine_dimensions.clone();
+
+        if self.options.infinite_z {
+            default_dim.y = 200.0;
+        }
+
+        self.target_aabb
+            .map(|aabb| aabb.size())
+            .unwrap_or(default_dim)
+    }
+
+    pub fn set_spin_start_position(&mut self) {
+        let dim = self.dim();
+
+        self.set_view_inner(
+            Vec3::new(-dim.x, -(dim.y + 100.0), dim.z + 100.0)
+        );
+    }
+
+    pub fn increment_spin(&mut self, elapsed_millis: f64) -> ThreeDResult<()> {
+        let target = &self.target_aabb
+            .map(|t| t.center())
+            .unwrap_or(Vec3::zero());
+
+        self.camera.rotate_around_with_fixed_up(
+            &target,
+            (0.3f64 * elapsed_millis) as f32,
+            0.0,
+        )
+    }
+
     pub fn apply_position(
         &mut self,
         camera_position: CameraPosition,
@@ -94,15 +126,7 @@ impl CameraPositionControl {
 
         // let machine_dim = self.options.machine_dimensions;
         // let median_dim = self.median_dim;
-        let mut default_dim = self.options.machine_dimensions.clone();
-
-        if self.options.infinite_z {
-            default_dim.y = 200.0;
-        }
-
-        let dim = self.target_aabb
-            .map(|aabb| aabb.size())
-            .unwrap_or(default_dim);
+        let dim = self.dim();
 
         let center = dim / 2.0;
         // For reasons unknown this fixes the camera when facing Up/Down

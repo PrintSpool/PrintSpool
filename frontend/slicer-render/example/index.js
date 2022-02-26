@@ -3,13 +3,13 @@ import modelURL from 'url:./example.stl';
 import gcodeText from 'bundle-text:./example.gcode';
 import gcodeTextInfiniteZ from 'bundle-text:/example-infinite-z.gcode'
 
-const showGCode = true;
-const demoMode = null // 'spin' || null
+const showGCode = false;
+const demoMode = 'spin' // 'spin' || null
 const infiniteZ = true
 
 const run = async () => {
   const machineDimensions = [235, 235, infiniteZ ? 10_000 : 255]
-  console.log(machineDimensions)
+  // console.log(machineDimensions)
 
   let startTime = performance.now()
   await initSlicerRender();
@@ -47,20 +47,23 @@ const run = async () => {
     const modelByteArray = new Uint8Array(modelArrayBuffer.slice(0));
     const { size } = renderer.addModel('example.stl', modelByteArray)
     console.log({ size });
-
-    if (demoMode === 'spin') {
-      let rotation = 0;
-
-      setInterval(() => {
-        rotation += 10;
-        renderer.send({ setModelRotation: { z: rotation }})
-      }, 50)
-    }
   }
 
   renderer.send('updateCameraTarget');
   renderer.send({ setCameraPosition: 'isometric' });
   // renderer.send({ setModelMirroring: { x: true } });
+
+  console.log('wat')
+  if (demoMode === 'spin') {
+    renderer.send({ setSpinMode: true });
+    console.log('SPIN MODE: enabled')
+    // let rotation = 0;
+
+    // setInterval(() => {
+    //   rotation += 10;
+    //   renderer.send({ setModelRotation: { z: rotation }})
+    // }, 50)
+  }
 
   const exitButton = document.getElementById('exit');
   exitButton.addEventListener(

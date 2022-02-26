@@ -14140,10 +14140,9 @@ slice-ansi@^4.0.0:
     astral-regex "^2.0.0"
     is-fullwidth-code-point "^3.0.0"
 
-slicer-render@0.9.0:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/slicer-render/-/slicer-render-0.9.0.tgz#cc457319a041e4af2327845693a6aeeb0f349237"
-  integrity sha512-i43Q2toJAPkIFxkEPd4ZvC8WXb+XAq/CONCE1zUN+WZDZenWUGErn1dc/9raDo396xBaMBYDgIQ9cHjKhpjjxg==
+"slicer-render@link:../slicer-render/pkg":
+  version "0.0.0"
+  uid ""
 
 snapdragon-node@^2.0.1:
   version "2.1.1"

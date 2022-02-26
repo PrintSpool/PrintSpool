@@ -104,6 +104,7 @@ pub enum Command {
     SetModelScale(AxesInput),
     SetModelMirroring(SetModelMirroring),
     SetCameraPosition(CameraPosition),
+    SetSpinMode(bool),
     UpdateCameraTarget,
     SetViewMode(ViewMode),
     Reset,
@@ -302,6 +303,7 @@ impl Renderer {
         // ----------------------------------------------------------------------------------
         let mut model_preview: Option<ModelPreviewWithModel> = None;
         let mut gcode_preview: Option<GCodePreviewWithModel> = None;
+        let mut spin_mode_enabled = false;
 
         // Initialize Rendering
         // ----------------------------------------------------------------------------------
@@ -461,6 +463,7 @@ impl Renderer {
                                 Command::SetCameraPosition(_) => 301,
                                 Command::UpdateCameraTarget => 302,
                                 Command::SetViewMode(_) => 303,
+                                Command::SetSpinMode(_) => 304,
                                 Command::Reset => 401,
                                 Command::Exit => 402,
                                 Command::AddModel(_) => {
@@ -549,8 +552,16 @@ impl Renderer {
                                 .or(gcode_preview.as_ref().map(|gp| gp.model.aabb()))
                                 .or(model_preview.as_ref().map(|mp| mp.model.aabb()));
                             camera_control.set_target(target_aabb);
+                            if spin_mode_enabled {
+                                camera_control.set_spin_start_position();
+                            }
                         }
+                        Command::SetSpinMode(enable) => {
+                            spin_mode_enabled = enable;
+                            camera_control.set_spin_start_position();
+                        },
                         Command::SetViewMode(next_view_mode) => {
+                            spin_mode_enabled = false;
                             view_mode = next_view_mode;
                             event_listener(Event::ViewModeChange { value: view_mode.clone() })
                         },
@@ -605,6 +616,12 @@ impl Renderer {
                     .handle_events(&mut frame_input.events)
                     .unwrap();
 
+                change |= spin_mode_enabled;
+
+                if spin_mode_enabled {
+                    camera_control.increment_spin(frame_input.elapsed_time).unwrap();
+                }
+
                 // draw
                 if change {
                     let mut scene_objects: Vec<&dyn Object> = Vec::with_capacity(5);
@@ -627,10 +644,11 @@ impl Renderer {
                         _ => {}
                     }
 
-                    scene_objects.push(&x_axis_indicator);
-                    scene_objects.push(&bed);
-                    scene_objects.push(&bounding_cube);
-
+                    if !spin_mode_enabled {
+                        scene_objects.push(&x_axis_indicator);
+                        scene_objects.push(&bed);
+                        scene_objects.push(&bounding_cube);
+                    }
 
                     let mut lights: Vec<&dyn Light> = directional_lights
                         .iter()
