@@ -120,7 +120,7 @@ const PrintPage = () => {
   const slicerEngineID = data?.machines[0].infiniteZ ? 'beltEngine' : 'curaEngine'
   const slicerEngine = data?.slicerEngines.find(engine => engine.id === slicerEngineID);
 
-  const slicePrintFile = async ({
+  const slicePrintFile = useAsyncCallback(async ({
     printFile,
     blob,
   }: {
@@ -174,12 +174,16 @@ const PrintPage = () => {
 
     console.log(`Slicing... [DONE] (${(gcodeText.length / 1_000_000).toFixed(2)}MB)`)
 
-    return {
+    const attrs = {
       gcodeVersion: printFile.meshVersion,
       gcodeBlob: new Blob([gcodeText]),
       gcodeText,
     };
-  }
+
+    updatePrintFileAttrs(attrs)
+
+    return attrs;
+  })
 
   const [ addPartsToPrintQueue, addPartsMutation ] = useMutation(gql`
     mutation addPartsToPrintQueue($input: AddPartsToPrintQueueInput!) {
@@ -219,7 +223,7 @@ const PrintPage = () => {
         // Otherwise the mesh needs to be sliced
         return {
           ...printFile,
-          ...await slicePrintFile({ printFile, blob })
+          ...await slicePrintFile.execute({ printFile, blob })
         }
       });
 
@@ -285,6 +289,7 @@ const PrintPage = () => {
     ?? addPartsMutation.error
     ?? printMutationResult.error
     ?? sliceMutation.error
+    ?? slicePrintFile.error
   );
 
   const isMutationPending = (
@@ -292,6 +297,7 @@ const PrintPage = () => {
     || addPartsMutation.loading
     || printMutationResult.loading
     || sliceMutation.loading
+    || slicePrintFile.loading
   );
 
   if (error) {
@@ -379,9 +385,7 @@ const PrintPage = () => {
             const res = await fetch(currentPrintFile.url);
             const blob = await res.blob();
 
-            const attrs = await slicePrintFile({ printFile: currentPrintFile, blob })
-
-            updatePrintFileAttrs(attrs)
+            const attrs = await slicePrintFile.execute({ printFile: currentPrintFile, blob })
           },
         }} />
       )

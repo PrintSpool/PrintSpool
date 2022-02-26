@@ -8,7 +8,7 @@ const useStyles = makeStyles(theme => ({
     gridTemplateColumns: 'auto 1fr',
     gridTemplateRows: 'auto 1fr',
     width: '100vw',
-    height: '100vh',
+    height: '100%',
     // minHeight: '100vh',
     overflow: 'hidden',
   },
