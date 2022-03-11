@@ -404,7 +404,7 @@ impl GCodePreviewWithModel {
         let model_instances = mem::take(&mut self.model_instances);
 
         // self.model.set_instances(&model_instances[0..model_instance_index]);
-        self.model.show_instances(model_instance_index);
+        self.model.set_instance_count(model_instance_index as u32);
 
         self.update_z_offset(layer_index);
 

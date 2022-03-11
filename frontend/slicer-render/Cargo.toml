@@ -22,7 +22,7 @@ itertools = "0.10.3"
 nom-gcode = "0.1.1"
 cgmath = { version = "0.18", features = ["serde"] }
 
-# three-d = "0.10.0"
+# three-d = "0.10.2"
 # three-d = { git = "https://github.com/asny/three-d.git" }
 # three-d = { path = "../../../three-d" }
 three-d = { git = "https://github.com/D1plo1d/three-d.git", branch = "feature/show_instances" }
