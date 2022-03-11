@@ -136,7 +136,7 @@ jobs:
           libpython3.6-dev:armhf
       - name: Symlink Python
         run: |
-          sudo ln -s /usr/lib/arm-linux-gnueabihf/libpython3.6m.so /usr/lib/arm-linux-gnueabihf/libpython3.6.so
+          sudo ln -s /usr/lib/arm-linux-gnueabihf/libpython3.6m.so /usr/lib/arm-linux-gnueabihf/libpython.so
       # - name: Check install
       #   run: dpkg -S arm-linux-gnueabihf-gcc
       - name: Database Setup
