@@ -80,8 +80,10 @@ jobs:
       RUSTFLAGS: "-C debuginfo=0"
       DATABASE_URL: "postgres://postgres:postgres@localhost/postgres"
       PYO3_CROSS: 1
-      PYO3_CROSS_LIB_DIR: "/usr/lib/arm-linux-gnueabihf"
-      PYO3_CROSS_PYTHON_VERSION: "3.6"
+      PYO3_CROSS_LIB_DIR: "/usr/lib/python3.7/"
+      PYO3_CROSS_PYTHON_VERSION: "3.7"
+      # PYO3_CROSS_LIB_DIR: "/usr/lib/arm-linux-gnueabihf"
+      # PYO3_CROSS_PYTHON_VERSION: "3.6"
     services:
       # Label used to access the service container
       postgres:
@@ -133,10 +135,11 @@ jobs:
           pkg-config
           libssl-dev
           clang
-          libpython3.6-dev:armhf
-      - name: Symlink Python
-        run: |
-          sudo ln -s /usr/lib/arm-linux-gnueabihf/libpython3.6m.so /usr/lib/arm-linux-gnueabihf/libpython.so
+          libpython3.7-minimal:armhf
+      # libpython3.6-dev:armhf
+      # - name: Symlink Python
+      #   run: |
+      #     sudo cp /usr/lib/arm-linux-gnueabihf/libpython3.6m.so /usr/lib/arm-linux-gnueabihf/libpython3.6.so
       # - name: Check install
       #   run: dpkg -S arm-linux-gnueabihf-gcc
       - name: Database Setup
