@@ -136,6 +136,7 @@ jobs:
           pkg-config
           libssl-dev
           clang
+          libpython3.6-dev:armhf
           libpython3.6-dbg:armhf
       # libpython3.6-dev:armhf
       # - name: Symlink Python
