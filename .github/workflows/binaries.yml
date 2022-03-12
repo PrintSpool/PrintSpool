@@ -82,6 +82,7 @@ jobs:
       PYO3_CROSS: 1
       PYO3_CROSS_LIB_DIR: "/usr/lib/python3.6/"
       PYO3_CROSS_PYTHON_VERSION: "3.6"
+      _PYTHON_SYSCONFIGDATA_NAME: "_sysconfigdata_m_linux_arm-linux-gnueabihf"
       # PYO3_CROSS_LIB_DIR: "/usr/lib/arm-linux-gnueabihf"
       # PYO3_CROSS_PYTHON_VERSION: "3.6"
     services:
