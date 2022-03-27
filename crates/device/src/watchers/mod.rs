@@ -4,6 +4,7 @@ pub use block_on_serial_directory_create::block_on_serial_directory_create;
 mod watch_device_directory;
 pub use watch_device_directory::watch_device_directory;
 
+use futures::try_join;
 use xactor::Actor;
 use eyre::{
     // eyre,
@@ -25,11 +26,18 @@ impl DevSerialWatcher {
             // /dev/serial is only created when a serial port is connected to the computer
             block_on_serial_directory_create().await?;
             // Once /dev/serial exists watch for new device files in it
-            watch_device_directory(
-                "/dev/serial/by-id/",
-            None,
-            self.device_manager.clone(),
-            ).await?
+            try_join!(
+                watch_device_directory(
+                    "/dev/serial/by-id/",
+                    None,
+                    self.device_manager.clone(),
+                ),
+                watch_device_directory(
+                    "/dev/serial/by-path/",
+                    None,
+                    self.device_manager.clone(),
+                ),
+            )?;
         }
     }
 }

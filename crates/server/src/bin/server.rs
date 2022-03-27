@@ -158,6 +158,7 @@ async fn app() -> Result<()> {
         )
     );
 
+    // Migrations
     let fresh_install_flag = paths::etc_common().join(".is-fresh-install");
     let pg_patch_flag = paths::etc_common().join(".needs_0_16_2_pg_patch");
 
@@ -180,6 +181,19 @@ async fn app() -> Result<()> {
     if fresh_install_flag.exists() {
         std::fs::remove_file(&fresh_install_flag).expect("delete .is-fresh-install");
         info!("Fresh Install Detected: Setting up Postgres... [DONE]");
+    }
+
+    if let Ok(legacy_parts) = std::fs::read_dir("/var/local/teg/parts/") {
+        for dir_entry in legacy_parts {
+            let dir_entry = dir_entry?;
+
+            std::fs::rename(
+                dir_entry.path(),
+                paths::var().join("parts").join(dir_entry.file_name()),
+            )?;
+        };
+
+        std::fs::remove_dir("/var/local/teg/parts/")?;
     }
 
     // Auto-Updates
