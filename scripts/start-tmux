@@ -7,7 +7,7 @@ tmux start-server
 if ! command -v mold &> /dev/null
 then
   tmux new-session -s "teg" -n "server" -d \
-    '$SHELL --rcfile <(echo ". ~/.bashrc; cd ./crates/ && history -s \"cargo watch -s \\\"mold -run cargo run\\\"\" && cargo watch -s \"mold -run cargo run\"")'
+    '$SHELL --rcfile <(echo ". ~/.bashrc; cd ./crates/ && history -s \"cargo watch -s \\\"mold -run \$cg_clif_dir/build/cargo-clif run\\\"\" && cargo watch -s \"mold -run \$cg_clif_dir/build/cargo-clif run\"")'
 else
   tmux new-session -s "teg" -n "server" -d \
     '$SHELL --rcfile <(echo ". ~/.bashrc; cd ./crates/ && history -s \"cargo watch -x run\" && cargo watch -x run")'

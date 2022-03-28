@@ -17,7 +17,6 @@ For completeness this documentation lists all the dependencies to get a developm
 
 1. Install [nvm](https://github.com/creationix/nvm)
 2. Install [Rust](https://rustup.rs/)
-3. [OPTIONAL] Install the [mold linker](https://github.com/rui314/mold) for faster builds
 3. Install the development dependencies:
   ```bash
     sudo apt update
@@ -56,7 +55,6 @@ For completeness this documentation lists all the dependencies to get a developm
 8. Set up Postgres for passwordless local development: https://gist.github.com/p1nox/4953113
 7. Install cargo-watch, sqlx, node 10 and yarn with: `./scripts/bootstrap`
 
-
 ### Running the Development Servers
 
 Disable any other copies of teg and run `./scripts/start-tmux`
@@ -71,6 +69,16 @@ It's recommended you do this in a dev environment with at least 16GB of ram.
 Once you have `start-tmux` running you can create an invite code to access your dev instance by running:
 
 `cd ./crates/ && cargo run --bin teg-invite`
+
+#### Recommendation: Faster Incremental Builds
+
+The start-tmux script also supports using mold and cg-clif. This can substantially improve build times (more then 10x faster in some cases) but you need to install a couple more dependencies to enable it:
+
+1. Install the [mold linker](https://github.com/rui314/mold)
+2. Install [cg_clif](https://github.com/bjorn3/rustc_codegen_cranelift) - the simplest way is to download their latest Github Actions build, all you need to do is untar it.
+3. Add an environment variable to your `.bashrc` pointing to the directory you untar'd cg_clif:
+`export cg_clif_dir=/path/to/cg_clif`
+4. reload your terminal or `source ~/.bashrc`) and re-run `./scripts/start-tmux`
 
 
 ### Building Releases

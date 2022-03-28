@@ -67,7 +67,11 @@ async fn spawn_driver(machine: &Machine) -> Result<()> {
         };
 
         // format!("cd {} && cargo watch -s \"cargo run -- {}\"", marlin, config_file)
-        format!("RUST_BACKTRACE=1 cd {} && cargo run{} -- {}", marlin, release_flag, machine.id)
+        let mut cargo = "cargo";
+        if std::env::var_os("cg_clif_dir").is_some() {
+            cargo = "mold -run $cg_clif_dir/build/cargo-clif";
+        }
+        format!("RUST_BACKTRACE=1 cd {} && {} run{} -- {}", marlin, cargo, release_flag, machine.id)
     } else {
         let marlin = crate::paths::etc().join("printspool-marlin");
         let marlin = marlin.to_str()
