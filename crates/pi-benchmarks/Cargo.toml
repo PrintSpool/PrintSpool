@@ -14,7 +14,7 @@ harness = false
 criterion = "0.3.3"
 serialport = { version = "4.0.0", default-features = false }
 nom-gcode = "0.1.0"
-nix = "0.20.0"
+nix = "0.20.2"
 
 # https://github.com/japaric/cast.rs/pull/27
 cast = { version = "=0.2.3", default-features = false }
