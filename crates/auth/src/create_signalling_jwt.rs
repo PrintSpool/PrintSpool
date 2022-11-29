@@ -1,19 +1,10 @@
 use chrono::prelude::*;
 use chrono::Duration;
-use eyre::{
-    // eyre,
-    // Context as _,
-    Result,
-};
+use eyre::Result;
 
 impl super::ServerKeys {
-    pub fn create_signalling_jwt(
-        &self,
-        graphql_ws_url: &str,
-    ) -> Result<String> {
-
-        let jwt_headers = serde_json::json!({
-        });
+    pub fn create_signalling_jwt(&self, graphql_ws_url: &str) -> Result<String> {
+        let jwt_headers = serde_json::json!({});
 
         let jwt_payload = serde_json::json!({
             "sub": "self",

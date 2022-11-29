@@ -1,33 +1,18 @@
-use std::{sync::Arc, time::{SystemTime, UNIX_EPOCH, Duration}};
-
-use async_graphql::{
-    Context,
-    FieldResult,
-    ID,
-};
+use super::{get_ice_candidates, video_capture_stream, IceCandidate, WEBRTC_STREAMER_API};
+use crate::machine::messages;
+use async_graphql::{Context, FieldResult, ID};
+use async_std::{future, process::Command, sync::Mutex};
 use eyre::{
     eyre,
     // Result,
     Context as _,
 };
-use async_std::{future, sync::Mutex, process::Command};
-use serde::{
-    Serialize,
-    Deserialize,
-};
-use printspool_auth::{
-    AuthContext,
-};
-// use printspool_json_store::Record;
-
-use crate::machine::{
-    // MachineViewer,
-    messages,
-};
-use super::{
-    IceCandidate,
-    WEBRTC_STREAMER_API,
-    get_ice_candidates,
+use nanoid::nanoid;
+use printspool_auth::AuthContext;
+use serde::{Deserialize, Serialize};
+use std::{
+    sync::Arc,
+    time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
 #[derive(Default)]
@@ -48,10 +33,9 @@ pub struct CreateVideoSdpInput {
     #[graphql(name = "videoID")]
     pub video_id: ID,
     pub offer: RtcSignalInput,
-    pub reset: bool,
 }
 
-#[derive(async_graphql::SimpleObject, Debug, Deserialize, Clone)]
+#[derive(async_graphql::SimpleObject, Debug, Serialize, Deserialize, Clone)]
 pub struct RTCSignal {
     pub r#type: String,
     pub sdp: String,
@@ -61,8 +45,6 @@ pub struct RTCSignal {
 pub struct VideoSession {
     pub id: ID,
     pub answer: RTCSignal,
-    #[graphql(name = "iceCandidates")]
-    pub ice_candidates: Vec<IceCandidate>,
 }
 
 #[derive(Serialize, Debug)]
@@ -71,12 +53,6 @@ struct VideoCallQueryParams<'a> {
     url: &'a String,
     options: &'static str,
 }
-
-lazy_static! {
-    static ref LAST_RESET: Arc<Mutex<SystemTime>> = Arc::new(Mutex::new(UNIX_EPOCH));
-}
-
-const RESET_TIMEOUT: Duration = Duration::from_secs(30);
 
 #[async_graphql::Object]
 impl VideoMutation {
@@ -92,46 +68,21 @@ impl VideoMutation {
 
         let user = auth.require_authorized_user()?;
 
+        let video_capture_streams: &crate::VideoCaptureStreamMap = ctx.data()?;
+        let webrtc_sessions: &crate::WebRTCSessionSet = ctx.data()?;
+
         let machines: &crate::MachineMap = ctx.data()?;
         let machines = machines.load();
 
-        let machine = machines.get(&input.machine_id)
+        let machine = machines
+            .get(&input.machine_id)
             .ok_or_else(|| eyre!("Machine ({:?}) not found", input.machine_id))?;
 
         let machine = machine.call(messages::GetData).await??;
 
-        // WebRTC streamer some times stops connecting to WebRTC peers. In that case a client
-        // can request a reset of the server at most once every 30 seconds.
-        if input.reset {
-            let now = SystemTime::now();
-            let mut previous_reset = LAST_RESET.lock().await;
-
-            let time_since = now
-                .duration_since(*previous_reset)
-                .expect("Time went backwards");
-
-            if time_since > RESET_TIMEOUT {
-                *previous_reset = now;
-
-                Command::new("systemctl")
-                    .args(["restart", "printspool-webrtc-streamer"])
-                    .output()
-                    .await
-                    .expect("failed to execute webrtc_streamer reset");
-
-                // Wait for the webrtc streamer to restart
-                async_std::task::sleep(Duration::from_millis(500)).await;
-            }
-        }
-
         async move {
-            let video_session_id = format!(
-                "{user_id}.{id}",
-                user_id = user.id,
-                id = nanoid!(11),
-            );
-
             let video_id = input.video_id.to_string();
+
             let video = machine
                 .config
                 .videos
@@ -141,32 +92,30 @@ impl VideoMutation {
 
             info!("creating video sdp for: {}", video.model.source);
 
-            /*
-            * Query the webrtc-streamer
-            */
-            let url = &format!("{api_url}/call", api_url = WEBRTC_STREAMER_API);
-            let req = surf::post(url)
-                .body(serde_json::to_value(&input.offer)?)
-                .query(&VideoCallQueryParams {
-                    peerid: &video_session_id,
-                    url: &video.model.source,
-                    options: "rtptransport=tcp&timeout=60",
-                })
-                .map_err(|err| eyre!(err))? // TODO: Remove me when surf 2.0 is released
-                .recv_json();
+            // Get or create the video capture stream
+            let device_path: PathBuf = video.model.source.into();
 
-            let answer = future::timeout(std::time::Duration::from_millis(5_000), req)
-                .await
-                .wrap_err("Creating video call timed out")?
-                .map_err(|err| eyre!(err)) // TODO: Remove me when surf 2.0 is released
-                .wrap_err("Error relaying call to video streaming server")?;
+            let video_capture_stream = video_capture_streams
+                .entry(&device_path)
+                .or_try_insert_with(|| VideoCaptureStream::new(device_path))?;
 
-            let ice_candidates = get_ice_candidates(&video_session_id).await?;
+            // Create the webrtc session
+            let mut ephemeral_udp = EphemeralUDP::default();
+            ephemeral_udp.set_ports(4300, 4500)?;
+
+            let video_tracks = vec![video_capture_stream.track];
+
+            let offer = serde_json::from_value::<RTCSessionDescription>(&serde_json::to_value(
+                input.offer,
+            )?)?;
+
+            let (_, answer) = WebRTCSession::new(video_tracks, ephemeral_udp).await?;
+
+            let answer = serde_json::from_value(&serde_json::to_value(answer)?)?;
 
             eyre::Result::<_>::Ok(VideoSession {
-                id: video_session_id.into(),
+                id: nanoid!(),
                 answer,
-                ice_candidates,
             })
         }
         // log the backtrace which is otherwise lost by FieldResult

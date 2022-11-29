@@ -77,6 +77,7 @@ pidfile-rs = { git = "https://github.com/D1plo1d/bsd-pidfile-rs.git", branch = "
 rand = "0.8.4"
 rppal = "0.13.1"
 versions = "4.0.0"
+dashmap = "4.0.2"
 
 [dependencies.serde]
 features = ["derive"]

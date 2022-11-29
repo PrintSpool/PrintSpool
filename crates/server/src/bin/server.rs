@@ -1,38 +1,43 @@
 // #![type_length_limit="15941749"]
-#[macro_use] extern crate tracing;
+#[macro_use]
+extern crate tracing;
 // #[macro_use] extern crate derive_new;
-#[macro_use] extern crate nanoid;
+#[macro_use]
+extern crate nanoid;
 
-use async_graphql::{UploadValue};
 use async_graphql::http::ClientMessage;
+use async_graphql::UploadValue;
+use dashmap::DashMap;
 use tracing::Instrument;
 
 pub use printspool_machine::paths;
 
+use printspool_server::local_http_server;
 use printspool_server::mutation;
 use printspool_server::query;
-use printspool_server::local_http_server;
 
 use printspool_server::health_check_socket;
 
 use printspool_server::create_db;
 
-use tracing_subscriber::prelude::*;
-use std::{sync::Arc};
-use serde::Deserialize;
 use arc_swap::ArcSwap;
-use eyre::{Context, Result, eyre};
-use signal_hook::{iterator::Signals, consts::signal::SIGUSR2};
-use futures_util::{TryFutureExt, future, future::FutureExt, future::join_all, select, stream::{
-    // Stream,
-    StreamExt,
-    // TryStreamExt,
-}};
+use eyre::{eyre, Context, Result};
+use futures_util::{
+    future, future::join_all, future::FutureExt, select, stream::StreamExt, TryFutureExt,
+};
+use serde::Deserialize;
+use signal_hook::{consts::signal::SIGUSR2, iterator::Signals};
+use std::sync::Arc;
+use tracing_subscriber::prelude::*;
 
 use printspool_server::printspool_auth::AuthContext;
 use printspool_server::printspool_device::DeviceManager;
-use printspool_server::printspool_machine::{MachineHooksList, MachineMap, MachineMapLocal, MachineMaterialHooks, machine::Machine, signalling_updater::{SignallingUpdater, SignallingUpdaterMachineHooks}};
-use printspool_server::printspool_material::{MaterialHooksList};
+use printspool_server::printspool_machine::{
+    machine::Machine,
+    signalling_updater::{SignallingUpdater, SignallingUpdaterMachineHooks},
+    MachineHooksList, MachineMap, MachineMapLocal, MachineMaterialHooks,
+};
+use printspool_server::printspool_material::MaterialHooksList;
 use printspool_server::printspool_print_queue::print_queue_machine_hooks::PrintQueueMachineHooks;
 
 use printspool_server::DbId;
@@ -47,27 +52,22 @@ fn main() -> std::result::Result<(), ()> {
 }
 
 fn server() -> Result<()> {
-    use nix::sched::{CpuSet, sched_setaffinity};
+    use nix::sched::{sched_setaffinity, CpuSet};
     use nix::unistd::Pid;
 
     // Attempt to lock the pidfile
+    use pidfile_rs::Pidfile;
     use std::os::unix::fs::PermissionsExt;
-    use pidfile_rs::{
-        Pidfile,
-    };
 
-    dotenv::dotenv()
-        .wrap_err(".env file not found or failed to load")?;
+    dotenv::dotenv().wrap_err(".env file not found or failed to load")?;
 
     let pid_file_path = paths::pid_file("server");
 
     // This pid file is not used for locking - it only exists to give the health monitor a PID
     // to kill in case the server becomes non-responsive.
     let _ = std::fs::remove_file(&pid_file_path);
-    let pid_file = Pidfile::new(
-        &pid_file_path,
-        std::fs::Permissions::from_mode(0o600),
-    ).context(format!("Unable to open pid file: {:?}", pid_file_path))?;
+    let pid_file = Pidfile::new(&pid_file_path, std::fs::Permissions::from_mode(0o600))
+        .context(format!("Unable to open pid file: {:?}", pid_file_path))?;
 
     pid_file.write()?;
 
@@ -121,41 +121,41 @@ async fn app() -> Result<()> {
         }
     });
 
-
     // Memory useage profiling
-    async_std::task::spawn(async {
-        use jemalloc_ctl::{stats, epoch};
+    async_std::task::spawn(
+        async {
+            use jemalloc_ctl::{epoch, stats};
 
-        loop {
-            // many statistics are cached and only updated when the epoch is advanced.
-            epoch::advance().unwrap();
+            loop {
+                // many statistics are cached and only updated when the epoch is advanced.
+                epoch::advance().unwrap();
 
-            let allocated = stats::allocated::read().unwrap() as f32;
-            let resident = stats::resident::read().unwrap() as f32;
-            debug!(
-                "{:.1} MB allocated / {:.1} MB resident",
-                allocated / 1_000_000.0,
-                resident / 1_000_000.0,
-            );
-            async_std::task::sleep(std::time::Duration::from_secs(5 * 60)).await;
+                let allocated = stats::allocated::read().unwrap() as f32;
+                let resident = stats::resident::read().unwrap() as f32;
+                debug!(
+                    "{:.1} MB allocated / {:.1} MB resident",
+                    allocated / 1_000_000.0,
+                    resident / 1_000_000.0,
+                );
+                async_std::task::sleep(std::time::Duration::from_secs(5 * 60)).await;
+            }
         }
-    }.instrument(tracing::info_span!("memory_useage")));
+        .instrument(tracing::info_span!("memory_useage")),
+    );
 
     // Wipe the tmp directory. This is used to store file uploads before they are linked to a more
     // perminent location in the file system.
     let tmp_dir = crate::paths::var().join("tmp");
 
     let _ = std::fs::remove_dir(&tmp_dir);
-    std::fs::create_dir_all(&tmp_dir)
-        .wrap_err(
-            format!("failed to create tmp directory - check permissions on {:?}", tmp_dir)
-        )?;
+    std::fs::create_dir_all(&tmp_dir).wrap_err(format!(
+        "failed to create tmp directory - check permissions on {:?}",
+        tmp_dir
+    ))?;
 
     // Spawn the health check socket
     async_std::task::spawn(
-        health_check_socket().instrument(
-            tracing::info_span!("health_check_socket")
-        )
+        health_check_socket().instrument(tracing::info_span!("health_check_socket")),
     );
 
     // Migrations
@@ -191,7 +191,7 @@ async fn app() -> Result<()> {
                 dir_entry.path(),
                 paths::var().join("parts").join(dir_entry.file_name()),
             )?;
-        };
+        }
 
         std::fs::remove_dir("/var/local/teg/parts/")?;
     }
@@ -205,19 +205,17 @@ async fn app() -> Result<()> {
     const REPO: &'static str = "PrintSpool/PrintSpool";
 
     async fn is_update_available() -> Result<bool> {
-        let latest_release_url = format!(
-            "https://api.github.com/repos/{}/releases/latest",
-            REPO,
-        );
+        let latest_release_url = format!("https://api.github.com/repos/{}/releases/latest", REPO,);
 
         let req = surf::get(&latest_release_url)
             .recv_json()
             .map_err(|err| eyre!(err));
 
-        let release: GithubRelease = async_std::future::timeout(std::time::Duration::from_millis(5_000), req)
-            .await
-            .wrap_err("Polling for update timed out")?
-            .wrap_err("Error checking for updates")?;
+        let release: GithubRelease =
+            async_std::future::timeout(std::time::Duration::from_millis(5_000), req)
+                .await
+                .wrap_err("Polling for update timed out")?
+                .wrap_err("Error checking for updates")?;
 
         // tag names start with "v" eg. "v0.99.0"
         use versions::Versioning;
@@ -225,9 +223,7 @@ async fn app() -> Result<()> {
         let latest_version = Versioning::new(&release.tag_name[1..])
             .ok_or_else(|| eyre!("Error parsing lates PrintSpool release version"))?;
 
-        let current_version = async_std::fs::read_to_string(
-            paths::etc().join("VERSION"),
-        )
+        let current_version = async_std::fs::read_to_string(paths::etc().join("VERSION"))
             .await
             .map(|v| Versioning::new(&v.replace("\n", "")))
             .wrap_err("Error reading PrintSpool VERSION file")?
@@ -238,41 +234,46 @@ async fn app() -> Result<()> {
         if needs_update {
             info!(
                 "New PrintSpool version available ({}). You are running: {}",
-                latest_version,
-                current_version,
+                latest_version, current_version,
             )
         } else {
-            info!("You are running the latest version of PrintSpool ({})", current_version)
+            info!(
+                "You are running the latest version of PrintSpool ({})",
+                current_version
+            )
         }
 
         Ok(needs_update)
     }
 
-    async_std::task::spawn(async {
-        if paths::is_dev() {
-            info!("Auto updates disabled in development");
-            return
-        }
-
-        let install_url = format!(
-            "https://raw.githubusercontent.com/{}/develop/scripts/install",
-            REPO,
-        );
-
-        loop {
-            if let Ok(true) = is_update_available()
-                .await
-                .map_err(|err| warn!("{:?}", err))
-            {
-                let _ = std::process::Command::new("sh")
-                    .arg("-c")
-                    .arg(format!("bash <(curl -s {})", install_url))
-                    .spawn()
-                    .map_err(|err| warn!("{:?}", err));
+    async_std::task::spawn(
+        async {
+            if paths::is_dev() {
+                info!("Auto updates disabled in development");
+                return;
             }
-            async_std::task::sleep(std::time::Duration::from_secs(60 * 60)).await;
+
+            let install_url = format!(
+                "https://raw.githubusercontent.com/{}/develop/scripts/install",
+                REPO,
+            );
+
+            loop {
+                if let Ok(true) = is_update_available()
+                    .await
+                    .map_err(|err| warn!("{:?}", err))
+                {
+                    let _ = std::process::Command::new("sh")
+                        .arg("-c")
+                        .arg(format!("bash <(curl -s {})", install_url))
+                        .spawn()
+                        .map_err(|err| warn!("{:?}", err));
+                }
+                async_std::task::sleep(std::time::Duration::from_secs(60 * 60)).await;
+            }
         }
-    }.instrument(tracing::info_span!("auto_updates")));
+        .instrument(tracing::info_span!("auto_updates")),
+    );
 
     // Wifi Acess Point
     let is_raspi = rppal::system::DeviceInfo::new().is_ok();
@@ -315,7 +316,7 @@ async fn app() -> Result<()> {
             );
             // if the wifi ap flag doesn't exist on startup then listen on GPIO to reset
             // `.enable-wifi-ap` when the user connects the 3.3v pin to GPIO 15.
-            use rppal::gpio::{ Gpio, Trigger, Level };
+            use rppal::gpio::{Gpio, Level, Trigger};
 
             let gpio = Gpio::new()?;
             // Gpio uses BCM pin numbering. BCM GPIO 15 is tied to physical pin 10.
@@ -327,49 +328,46 @@ async fn app() -> Result<()> {
             pin.set_async_interrupt(Trigger::RisingEdge, move |level| {
                 info!("Interrupt triggered on Wifi AP pin. Level: {:?}", level);
                 if level != Level::High {
-                    return
+                    return;
                 }
 
-                std::fs::write(wifi_ap_flag.clone(), "")
-                    .expect("set .enable-wifi-ap flag");
+                std::fs::write(wifi_ap_flag.clone(), "").expect("set .enable-wifi-ap flag");
                 // Restart the server
                 std::process::exit(0);
             })
-                .expect("set wifi AP GPIO interrupt");
+            .expect("set wifi AP GPIO interrupt");
 
             wifi_enable_pin = Some(pin);
         }
     } else {
-        info!(r#"
+        info!(
+            r#"
             Not running on a raspberry pi with wifi-connect or MANAGE_WIFI_AP is not set to "1".\
             Wifi access point disabled.
-        "#)
+        "#
+        )
     }
-
 
     let (_pg_embed, db) = create_db(true).await?;
 
     let machine_ids: Vec<crate::DbId> = std::fs::read_dir(crate::paths::etc_common())?
         .map(|entry| {
             let entry = entry?;
-            let file_name = entry.file_name().to_str()
+            let file_name = entry
+                .file_name()
+                .to_str()
                 .ok_or_else(|| eyre!("Invalid file name in config dir"))?
                 .to_string();
 
-            if
-                entry.file_type()?.is_file()
+            if entry.file_type()?.is_file()
                 && file_name.starts_with("machine-")
                 && file_name.ends_with(".toml")
             {
-                let config_file = std::fs::read_to_string(
-                    crate::paths::etc_common().join(&file_name)
-                )
-                    .wrap_err(format!("Unable to read machine config file: {}", file_name))?;
+                let config_file =
+                    std::fs::read_to_string(crate::paths::etc_common().join(&file_name))
+                        .wrap_err(format!("Unable to read machine config file: {}", file_name))?;
 
-                let IdFromConfig {
-                    id,
-                    ..
-                } = toml::from_str(&config_file)
+                let IdFromConfig { id, .. } = toml::from_str(&config_file)
                     .wrap_err(format!("Bad machine config file: {}", file_name))?;
 
                 if !file_name.ends_with(&format!("machine-{}.toml", id)) {
@@ -389,38 +387,27 @@ async fn app() -> Result<()> {
 
     let server_keys = Arc::new(printspool_auth::ServerKeys::load_or_create().await?);
 
-    let signalling_updater = SignallingUpdater::start(
-        db.clone(),
-        server_keys.clone(),
-    ).await?;
+    let signalling_updater = SignallingUpdater::start(db.clone(), server_keys.clone()).await?;
     let device_manager = DeviceManager::start().await?;
 
     let machine_hooks: MachineHooksList = Arc::new(vec![
-        Box::new(PrintQueueMachineHooks {
-            db: db.clone(),
-        }),
+        Box::new(PrintQueueMachineHooks { db: db.clone() }),
         Box::new(SignallingUpdaterMachineHooks {
             signalling_updater: signalling_updater.clone(),
             db: db.clone(),
         }),
     ]);
 
-    let machines = machine_ids
-        .into_iter()
-        .map(|machine_id| {
-            let db = db.clone();
-            let hooks = machine_hooks.clone();
-            async move {
-                let machine = Machine::start(
-                    db,
-                    hooks,
-                    &machine_id,
-                ).await?;
-                let id: async_graphql::ID = machine_id.into();
+    let machines = machine_ids.into_iter().map(|machine_id| {
+        let db = db.clone();
+        let hooks = machine_hooks.clone();
+        async move {
+            let machine = Machine::start(db, hooks, &machine_id).await?;
+            let id: async_graphql::ID = machine_id.into();
 
-                Result::<_>::Ok((id, machine))
-            }
-        });
+            Result::<_>::Ok((id, machine))
+        }
+    });
 
     let machines: MachineMapLocal = join_all(machines)
         .await
@@ -429,9 +416,11 @@ async fn app() -> Result<()> {
 
     let machines: MachineMap = Arc::new(ArcSwap::new(Arc::new(machines)));
 
-    let material_hooks: MaterialHooksList = Arc::new(vec![
-        Box::new(MachineMaterialHooks { machines: machines.clone() }),
-    ]);
+    let material_hooks: MaterialHooksList = Arc::new(vec![Box::new(MachineMaterialHooks {
+        machines: machines.clone(),
+    })]);
+
+    let video_capture_streams: machine::VideoCaptureStreamMap = Arc::new(DashMap::new());
 
     // Build the server
     let db_clone = db.clone();
@@ -439,20 +428,21 @@ async fn app() -> Result<()> {
     let server_keys_clone = server_keys.clone();
 
     let schema_builder = || {
-            async_graphql::Schema::build(
+        async_graphql::Schema::build(
             query::Query::default(),
             mutation::Mutation::default(),
             async_graphql::EmptySubscription,
         )
-            .extension(async_graphql::extensions::Tracing)
-            .extension(async_graphql::extensions::ApolloTracing)
-            .data(db_clone.clone())
-            .data(server_keys_clone.clone())
-            .data(signalling_updater.clone())
-            .data(machines_clone.clone())
-            .data(machine_hooks.clone())
-            .data(material_hooks.clone())
-            .data(device_manager.clone())
+        .extension(async_graphql::extensions::Tracing)
+        .extension(async_graphql::extensions::ApolloTracing)
+        .data(db_clone.clone())
+        .data(server_keys_clone.clone())
+        .data(signalling_updater.clone())
+        .data(machines_clone.clone())
+        .data(machine_hooks.clone())
+        .data(material_hooks.clone())
+        .data(device_manager.clone())
+        .data(video_capture_streams.clone())
     };
 
     let schema = schema_builder().finish();
@@ -469,35 +459,32 @@ async fn app() -> Result<()> {
             let db = db_clone.clone();
             // let auth_pem_keys = auth_pem_keys.clone();
 
-            let initializer = |_| async move {
-                let user = printspool_auth::user::User::authenticate(
-                    &db,
-                    signal,
-                ).await?;
+            let initializer = |_| {
+                async move {
+                    let user = printspool_auth::user::User::authenticate(&db, signal).await?;
 
-                let auth_context = AuthContext::new(
-                    user,
-                );
+                    let auth_context = AuthContext::new(user);
 
-                let mut data = async_graphql::Data::default();
+                    let mut data = async_graphql::Data::default();
 
-                data.insert(auth_context);
+                    data.insert(auth_context);
 
-                // let root_span = span!(
-                //     parent: None,
-                //     tracing::Level::INFO,
-                //     "span root"
-                // );
-                // data.insert(
-                //     async_graphql::extensions::TracingConfig::default().parent_span(root_span),
-                // );
+                    // let root_span = span!(
+                    //     parent: None,
+                    //     tracing::Level::INFO,
+                    //     "span root"
+                    // );
+                    // data.insert(
+                    //     async_graphql::extensions::TracingConfig::default().parent_span(root_span),
+                    // );
 
-                Ok(data)
-            }
+                    Ok(data)
+                }
                 .map_err(|err: eyre::Report| {
                     warn!("websocket auth error: {:?}", err);
                     eyre!("Internal Server Error").into()
-                });
+                })
+            };
 
             let message_stream = message_stream
                 .inspect(|msg| {
@@ -506,7 +493,8 @@ async fn app() -> Result<()> {
                     }
                 })
                 .map(|msg| {
-                    let uploads = msg.files
+                    let uploads = msg
+                        .files
                         .into_iter()
                         .map(|content| UploadValue {
                             filename: "upload".to_string(),
@@ -518,9 +506,9 @@ async fn app() -> Result<()> {
                     let mut client_message = ClientMessage::from_bytes(msg.payload)?;
 
                     if let ClientMessage::Start {
-                        payload: request,
-                        ..
-                    } = &mut client_message {
+                        payload: request, ..
+                    } = &mut client_message
+                    {
                         request.uploads = uploads;
                     }
 
@@ -533,46 +521,41 @@ async fn app() -> Result<()> {
                 initializer,
                 async_graphql::http::WebSocketProtocols::GraphQLWS,
             )
-                // .take_while(|msg| {
-                //     use async_graphql::http::WsMessage;
-                //     match msg {
-                //         WsMessage::Text(_) => {
-                //             future::ready(true)
-                //         }
-                //         WsMessage::Close(_code, msg) => {
-                //             warn!("WS closed with message: {}", msg);
-                //             future::ready(false)
-                //         }
-                //     }
-                // })
-                .filter_map(|msg| {
-                    use async_graphql::http::WsMessage;
-                    match msg {
-                        WsMessage::Text(msg) => {
-                            future::ready(Some(msg.into_bytes()))
-                        }
-                        WsMessage::Close(_code, msg) => {
-                            let rtc_msg = serde_json::json!({
-                                "id": nanoid!(),
-                                "type": "connection_error",
-                                "payload": {
-                                    "message": msg,
-                                },
-                            });
+            // .take_while(|msg| {
+            //     use async_graphql::http::WsMessage;
+            //     match msg {
+            //         WsMessage::Text(_) => {
+            //             future::ready(true)
+            //         }
+            //         WsMessage::Close(_code, msg) => {
+            //             warn!("WS closed with message: {}", msg);
+            //             future::ready(false)
+            //         }
+            //     }
+            // })
+            .filter_map(|msg| {
+                use async_graphql::http::WsMessage;
+                match msg {
+                    WsMessage::Text(msg) => future::ready(Some(msg.into_bytes())),
+                    WsMessage::Close(_code, msg) => {
+                        let rtc_msg = serde_json::json!({
+                            "id": nanoid!(),
+                            "type": "connection_error",
+                            "payload": {
+                                "message": msg,
+                            },
+                        });
 
-                            future::ready(Some(rtc_msg.to_string().into_bytes()))
-                        }
+                        future::ready(Some(rtc_msg.to_string().into_bytes()))
                     }
-                });
+                }
+            });
 
             future::ok(connection)
         },
     );
 
-    let http_server = local_http_server::start(
-        &db,
-        schema_builder(),
-    );
+    let http_server = local_http_server::start(&db, schema_builder());
 
     let res = select! {
         // res = auth_pem_keys_watcher.fuse() => res,

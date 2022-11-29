@@ -1,24 +1,10 @@
-use async_std::future;
-use async_graphql::{
-    ID,
-    FieldResult,
-    Context,
-};
+use async_graphql::{Context, FieldResult, ID};
 use eyre::{
     eyre,
     // Result,
     Context as _,
 };
-use printspool_auth::{
-    AuthContext,
-};
-
-use super::{
-    WEBRTC_STREAMER_API,
-    IceCandidate,
-    Media,
-    get_ice_candidates,
-};
+use printspool_auth::AuthContext;
 
 #[derive(async_graphql::SimpleObject, Debug)]
 pub struct VideoSource {
@@ -31,62 +17,20 @@ pub struct VideoQuery;
 #[async_graphql::Object]
 impl VideoQuery {
     #[instrument(skip(self, ctx))]
-    async fn video_sources<'ctx>(
-        &self,
-        ctx: &'ctx Context<'_>,
-    ) -> FieldResult<Vec<VideoSource>> {
+    async fn video_sources<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Vec<VideoSource>> {
         let auth: &AuthContext = ctx.data()?;
 
         let _ = auth.require_authorized_user()?;
 
-        async move {
-            let req = surf::post(&format!("{}/getMediaList", WEBRTC_STREAMER_API))
-                .recv_json();
-
-            let media_list: Vec<Media> = future::timeout(std::time::Duration::from_millis(5_000), req)
-                .await
-                .wrap_err("Video sources list timed out")?
-                .map_err(|err| eyre!(err)) // TODO: Remove me when surf 2.0 is released
-                .wrap_err("Error getting video sources list")?;
-
-            let video_sources = media_list
-                .iter()
-                .enumerate()
-                // deduplicate without changing video source ordering
-                .filter(|(i, m1)| {
-                    media_list.iter().position(|m2| m2.video == m1.video) == Some(*i)
+        // Skip video capture devices that return an error
+        let video_sources = h264_webcam_stream::list_devices()
+            .map(|path_buf| {
+                Ok(VideoSource {
+                    id: path_buf.as_path().to_string(),
                 })
-                .map(|(_, media)| VideoSource {
-                    id: media.video.clone().into()
-                })
-                .collect();
-
-            eyre::Result::<_>::Ok(video_sources)
-        }
-            // log the backtrace which is otherwise lost by FieldResult
-            .await
-            .map_err(|err| {
-                warn!("{:?}", err);
-                err.into()
             })
-    }
+            .collect::<Result<Vec<_>>>()?;
 
-    #[instrument(skip(self, ctx))]
-    async fn ice_candidates<'ctx>(
-        &self,
-        ctx: &'ctx Context<'_>,
-        #[graphql(name = "videoSessionID")]
-        video_session_id: ID,
-    ) -> FieldResult<Vec<IceCandidate>> {
-        let auth: &AuthContext = ctx.data()?;
-
-        let user = auth.require_authorized_user()?;
-
-        if !video_session_id.starts_with(&format!("{}.", user.id)) {
-            Err(eyre!("Invalid Video Session ID"))?;
-        }
-
-        let ice_candidates = get_ice_candidates(&video_session_id).await?;
-        Ok(ice_candidates)
+        Ok(video_sources)
     }
 }
