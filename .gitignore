@@ -68,22 +68,12 @@ buck-out/
 */fastlane/report.xml
 */fastlane/Preview.html
 
-.dat-data
-
-defs/sources
-defs/staging/*
-!defs/staging/.datignore
-!defs/staging/dat.json
-
 # Rust
 target
 # End  Rust
 
 .cache
 .parcel-cache
-
-!.well-known/dat
-!dat.json
 
 !.gitkeep
 
