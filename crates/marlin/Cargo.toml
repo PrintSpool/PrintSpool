@@ -10,7 +10,7 @@ printspool-json-store = { path = "../json-store" }
 printspool_machine = { path = "../machine" }
 
 bytes = "1.1.0"
-tokio = { version = "1.12.0", features = ["full"] }
+tokio = { version = "1.16.1", features = ["full"] }
 tokio-util = { version = "0.6.8", features=["codec"] }
 tokio-serial = { version = "5.4.1", default-features = false }
 # tokio-serial = { path = "../../../tokio-serial"}
