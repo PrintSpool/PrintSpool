@@ -2,10 +2,12 @@
 
 members = [
     "crates/*",
+    "drivers/*",
 ]
 
 exclude = [
-    "crates/pi-benchmarks"
+    "crates/pi-benchmarks",
+    "drivers/klipper-code-gen",
 ]
 
 [profile.release]
