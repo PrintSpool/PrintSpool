@@ -1,0 +1,16 @@
+[package]
+name = "config"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+printspool-klipper-plugin = { version = "0.1.0", path = "../../drivers/klipper-plugin" }
+printspool-marlin-plugin = { version = "0.1.0", path = "../../drivers/marlin-plugin" }
+schemars = "0.8.0"
+validator = { version = "0.12.0", features = ["derive"] }
+
+[dependencies.serde]
+features = ["derive"]
+version = "1.0.123"

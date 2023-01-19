@@ -817,6 +817,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "config"
+version = "0.1.0"
+dependencies = [
+ "printspool-klipper-plugin",
+ "printspool-marlin-plugin",
+ "schemars",
+ "serde",
+ "validator",
+]
+
+[[package]]
 name = "const_fn"
 version = "0.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2874,11 +2885,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "printspool-klipper-driver"
+name = "printspool-klipper-plugin"
 version = "0.1.0"
 dependencies = [
  "schemars",
  "serde",
+ "validator",
 ]
 
 [[package]]
@@ -2938,7 +2950,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "printspool-marlin-driver"
+name = "printspool-marlin-plugin"
 version = "0.1.0"
 
 [[package]]

@@ -1,7 +1,8 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
 pub struct PrinterBaselineConfig {
     pub klipper_id: String,
     /// Maximum velocity (in mm/s) of the toolhead (relative to the

@@ -2,6 +2,7 @@ use super::Fan;
 use crate::HeaterBaseline;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 
 /// Temperature-triggered cooling fans (one may define any number of
 /// sections with a "temperature_fan" prefix). A "temperature fan" is a
@@ -11,7 +12,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// See the [command reference](https://github.com/Klipper3d/klipper/blob/master/docs/G-Codes.md#temperature_fan)
 /// for additional information.
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
 pub struct TemperatureFan {
     pub klipper_id: String,
 

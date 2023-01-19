@@ -1,5 +1,6 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 
 use self::{cartesian_printer::CartesianPrinter, delta_printer::DeltaPrinter};
 
@@ -17,4 +18,13 @@ pub use printer_baseline::PrinterBaselineConfig;
 pub enum Printer {
     Cartesian(CartesianPrinter),
     Delta(DeltaPrinter),
+}
+
+impl Validate for Printer {
+    fn validate(&self) -> Result<(), validator::ValidationErrors> {
+        match self {
+            Self::Cartesian(c) => c.validate(),
+            Self::Delta(c) => c.validate(),
+        }
+    }
 }

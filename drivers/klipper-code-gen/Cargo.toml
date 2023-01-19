@@ -1,5 +1,5 @@
 [package]
-name = "klipper-code-gen"
+name = "printspool-klipper-code-gen"
 version = "0.1.0"
 edition = "2021"
 

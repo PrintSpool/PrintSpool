@@ -1,7 +1,8 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
 pub struct StepperBaselineConfig {
     /// Step GPIO pin (triggered high). This parameter must be provided.
     pub step_pin: crate::KlipperPin,
@@ -40,8 +41,9 @@ pub struct StepperBaselineConfig {
     pub step_pulse_duration: Option<f64>,
 }
 
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
 pub struct PositionedStepperBaselineConfig {
+    #[validate]
     #[serde(flatten)]
     pub baseline_config: StepperBaselineConfig,
 
@@ -70,10 +72,11 @@ pub struct PositionedStepperBaselineConfig {
     pub homing_positive_dir: Option<bool>,
 }
 
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
 pub struct GenericStepper {
     pub klipper_id: String,
 
+    #[validate]
     #[serde(flatten)]
     pub baseline_config: PositionedStepperBaselineConfig,
 

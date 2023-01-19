@@ -1,13 +1,15 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 
 use crate::{
     printer::PrinterBaselineConfig, GenericStepper, KlipperPin, PositionedStepperBaselineConfig,
 };
 
 /// Linear Delta Kinematics
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
 pub struct DeltaPrinter {
+    #[validate]
     #[serde(flatten)]
     pub baseline_config: PrinterBaselineConfig,
     /// For delta printers this limits the maximum velocity (in mm/s) of
@@ -52,8 +54,9 @@ pub struct DeltaPrinter {
     pub delta_calibrate: Option<DeltaCalibrate>,
 }
 
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
 pub struct DeltaStepperA {
+    #[validate]
     #[serde(flatten)]
     pub baseline_config: PositionedStepperBaselineConfig,
     /// Endstop switch detection pin. If this endstop pin is on a
@@ -83,7 +86,7 @@ pub struct DeltaStepperA {
 }
 
 /// Linear Delta Kinematics
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
 pub struct DeltaCalibrate {
     /// Radius (in mm) of the area that may be probed. This is the radius
     /// of nozzle coordinates to be probed; if using an automatic probe

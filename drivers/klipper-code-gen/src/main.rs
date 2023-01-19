@@ -36,7 +36,7 @@ fn main() {
 
     let mut klipper_src = std::env::current_dir().unwrap();
     klipper_src.pop();
-    klipper_src.push("klipper");
+    klipper_src.push("klipper-plugin");
     klipper_src.push("src");
 
     for (name, section) in sections {
@@ -86,8 +86,9 @@ fn main() {
             #(#includes)*
             use schemars::JsonSchema;
             use serde::{Deserialize, Serialize};
+            use validator::Validate;
 
-            #[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+            #[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
             pub struct #struct_name_ident {
 
                 #id_variable

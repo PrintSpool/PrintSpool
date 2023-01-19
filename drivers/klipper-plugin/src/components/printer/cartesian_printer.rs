@@ -1,11 +1,13 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 
 use crate::{printer::PrinterBaselineConfig, KlipperPin, PositionedStepperBaselineConfig};
 
 /// Cartesian Kinematics
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
 pub struct CartesianPrinter {
+    #[validate]
     #[serde(flatten)]
     pub baseline_config: PrinterBaselineConfig,
     /// This sets the maximum velocity (in mm/s) of movement along the z
@@ -20,19 +22,23 @@ pub struct CartesianPrinter {
 
     /// e stepper_x section is used to describe the stepper controlling
     /// e X axis in a cartesian robot.
+    #[validate]
     pub stepper_x: CartesianStepper,
 
     /// e stepper_y section is used to describe the stepper controlling
     /// e Y axis in a cartesian robot.
+    #[validate]
     pub stepper_y: CartesianStepper,
 
     /// e stepper_z section is used to describe the stepper controlling
     /// e Z axis in a cartesian robot.
+    #[validate]
     pub stepper_z: CartesianStepper,
 }
 
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
 pub struct CartesianStepper {
+    #[validate]
     #[serde(flatten)]
     pub baseline_config: PositionedStepperBaselineConfig,
     /// Endstop switch detection pin. If this endstop pin is on a
