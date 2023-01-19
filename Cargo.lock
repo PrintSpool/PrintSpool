@@ -154,9 +154,9 @@ checksum = "dabe5a181f83789739c194cbe5a897dde195078fac08568d09221fd6137a7ba8"
 
 [[package]]
 name = "arc-swap"
-version = "1.2.0"
+version = "1.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d4d7d63395147b81a9e570bcc6243aaf71c017bd666d4909cfef0085bdda8d73"
+checksum = "bddcadddf5e9015d310179a59bb28c4d4b9920ad0f11e8e14dbadf654890c9a6"
 
 [[package]]
 name = "arrayvec"
@@ -814,17 +814,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "30ed07550be01594c6026cff2a1d7fe9c8f683caa798e12b68694ac9e88286a3"
 dependencies = [
  "cache-padded",
-]
-
-[[package]]
-name = "config"
-version = "0.1.0"
-dependencies = [
- "printspool-klipper-plugin",
- "printspool-marlin-plugin",
- "schemars",
- "serde",
- "validator",
 ]
 
 [[package]]
@@ -2873,6 +2862,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "printspool-driver-interface"
+version = "0.1.0"
+dependencies = [
+ "arc-swap 1.6.0",
+ "lazy_static",
+ "schemars",
+ "serde",
+ "validator",
+]
+
+[[package]]
 name = "printspool-json-store"
 version = "0.1.0"
 dependencies = [
@@ -2885,9 +2885,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "printspool-klipper-plugin"
+name = "printspool-klipper-driver"
 version = "0.1.0"
 dependencies = [
+ "printspool-driver-interface",
  "schemars",
  "serde",
  "validator",
@@ -2950,14 +2951,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "printspool-marlin-plugin"
+name = "printspool-marlin-driver"
 version = "0.1.0"
 
 [[package]]
 name = "printspool-print-queue"
 version = "0.1.0"
 dependencies = [
- "arc-swap 1.2.0",
+ "arc-swap 1.6.0",
  "async-graphql",
  "async-std",
  "async-trait",
@@ -2999,7 +3000,7 @@ dependencies = [
 name = "printspool-server"
 version = "0.1.0"
 dependencies = [
- "arc-swap 1.2.0",
+ "arc-swap 1.6.0",
  "async-graphql",
  "async-graphql-warp",
  "async-std",
@@ -3050,7 +3051,7 @@ dependencies = [
 name = "printspool_auth"
 version = "0.1.0"
 dependencies = [
- "arc-swap 1.2.0",
+ "arc-swap 1.6.0",
  "async-graphql",
  "async-std",
  "async-trait",
@@ -3100,7 +3101,7 @@ dependencies = [
 name = "printspool_data_channel"
 version = "0.1.0"
 dependencies = [
- "arc-swap 1.2.0",
+ "arc-swap 1.6.0",
  "async-codec",
  "async-graphql",
  "async-std",
@@ -3155,7 +3156,7 @@ dependencies = [
 name = "printspool_machine"
 version = "0.1.0"
 dependencies = [
- "arc-swap 1.2.0",
+ "arc-swap 1.6.0",
  "async-codec",
  "async-graphql",
  "async-std",

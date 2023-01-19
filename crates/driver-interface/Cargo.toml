@@ -1,5 +1,5 @@
 [package]
-name = "printspool-klipper-plugin"
+name = "printspool-driver-interface"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,6 +8,8 @@ edition = "2021"
 [dependencies]
 schemars = "0.8.0"
 validator = { version = "0.12.0", features = ["derive"] }
+lazy_static = "1.4.0"
+arc-swap = "1.6.0"
 
 [dependencies.serde]
 features = ["derive"]

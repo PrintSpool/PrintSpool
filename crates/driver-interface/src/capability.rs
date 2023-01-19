@@ -12,11 +12,11 @@
 ///         - Laser Cutter:
 ///             `vec![C::Toolhead, C::Laser]`
 ///         - FDM Extruder:
-///             `vec![C::Toolhead, C::Extruder, C::Heater(..), C::Fan(..)]`
+///             `vec![C::Toolhead, C::Extruder, C::Heater(..), C::TemperatureSensor(..), C::Fan(..)]`
 ///         - FDM Extruder with independent hotend fan and print cooling fans:
-///             `vec![C::Toolhead, C::Extruder, C::Heater(..), C::Fan(GCodeAlias { name: "hotend", "f0" }), C::Fan(GCodeAlias { name: "print-cooling", "f0" })]`
+///             `vec![C::Toolhead, C::Extruder, C::Heater(..), C::TemperatureSensor(..), C::Fan(GCodeAlias { name: "hotend", "f0" }), C::Fan(GCodeAlias { name: "print-cooling", "f0" })]`
 ///         - Independent-Carrage FDM extruders:
-///             `vec![C::Toolhead, C::Extruder, C::Heater, C::TemperatureSensor, C::Fan, C::Movement { axis: Axis::LinearX, .. })]`
+///             `vec![C::Toolhead, C::Extruder, C::Heater(..), C::TemperatureSensor(..), C::Fan, C::Movement { axis: Axis::LinearX, .. })]`
 ///     - beds
 ///         - Unheated bed:
 ///             `vec![C::Bed]`
@@ -45,15 +45,15 @@
 pub enum Capability {
     Toolhead,
     Extruder,
-    SpindleSpeed,
-    Laser,
-    ToolSelect,
+    // SpindleSpeed,
+    // Laser,
+    // ToolSelect,
     Fan(GCodeAlias),
     Heater(GCodeAlias),
     TemperatureSensor(GCodeAlias),
     Movement(Movement),
-    Bed,
-    Camera,
+    // Bed,
+    // Camera,
 }
 
 pub type C = Capability;
@@ -72,13 +72,13 @@ pub struct Movement {
 }
 
 pub enum AxisOrientation {
-    NonCartesian,
+    // NonCartesian,
     LinearX,
     LinearY,
     LinearZ,
-    RotationX,
-    RotationY,
-    RotationZ,
+    // RotationX,
+    // RotationY,
+    // RotationZ,
 }
 
 pub trait HasCapabilities {

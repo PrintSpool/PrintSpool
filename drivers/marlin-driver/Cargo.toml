@@ -1,5 +1,5 @@
 [package]
-name = "printspool-marlin-plugin"
+name = "printspool-marlin-driver"
 version = "0.1.0"
 edition = "2021"
 

@@ -34,3 +34,9 @@ impl Validate for KlipperComponent {
         }
     }
 }
+
+impl printspool_driver_interface::component::DriverComponent for KlipperComponent {
+    fn driver_name() -> &'static str {
+        "klipper"
+    }
+}

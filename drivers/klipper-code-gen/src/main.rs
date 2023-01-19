@@ -36,7 +36,7 @@ fn main() {
 
     let mut klipper_src = std::env::current_dir().unwrap();
     klipper_src.pop();
-    klipper_src.push("klipper-plugin");
+    klipper_src.push("klipper-driver");
     klipper_src.push("src");
 
     for (name, section) in sections {
