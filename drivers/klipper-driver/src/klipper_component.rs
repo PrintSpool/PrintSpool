@@ -1,6 +1,11 @@
 use crate::{
     components::{printer::Printer, stepper::GenericStepper},
     fan::{ControllerFan, Fan, FanGeneric, HeaterFan, TemperatureFan},
+    KlipperDriver,
+};
+use printspool_driver_interface::{
+    capability::{GCodeAlias, C},
+    driver::Driver,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -36,7 +41,26 @@ impl Validate for KlipperComponent {
 }
 
 impl printspool_driver_interface::component::DriverComponent for KlipperComponent {
-    fn driver_name() -> &'static str {
-        "klipper"
+    fn driver(&self) -> &'static dyn Driver {
+        &KlipperDriver
+    }
+
+    fn capabilities(&self) -> Vec<printspool_driver_interface::capability::Capability> {
+        match self {
+            Self::Fan(c) => vec![C::Fan(GCodeAlias {
+                name: "Fan".into(),
+                address: "0".into(),
+            })],
+            // Self::ControllerFan(c) => vec![C::Fan(GCodeAlias {
+            //     name: "Controller Fan".into(),
+            //     // address: "0".into(),
+            // })],
+            // Self::FanGeneric(c) => c.validate(),
+            // Self::HeaterFan(c) => c.validate(),
+            // Self::TemperatureFan(c) => c.validate(),
+            // Self::Printer(c) => c.validate(),
+            // Self::Stepper(c) => c.validate(),
+            _ => todo!(),
+        }
     }
 }
