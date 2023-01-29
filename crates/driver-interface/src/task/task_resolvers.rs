@@ -1,24 +1,22 @@
-use chrono::{prelude::*};
 use async_graphql::{Context, FieldResult, ID};
-use eyre::{
-    eyre,
-    // Result,
-    // Context as _,
+use chrono::prelude::*;
+use eyre::eyre;
+
+use super::{task_status::TaskStatusGQL, Task, TaskStatus};
+
+use crate::{
+    driver_instance::{messages::GetData, MachineData},
+    MachineMap,
 };
-
-use super::{Task, TaskStatus, task_status::TaskStatusGQL};
-
-use crate::{MachineMap, machine::{
-    MachineData,
-    messages::GetData,
-}};
 
 /// A spooled set of gcodes to be executed by the machine
 #[async_graphql::Object]
 impl Task {
-    async fn id(&self) -> ID { (&self.id).into() }
+    async fn id(&self) -> ID {
+        (&self.id).into()
+    }
 
-    #[graphql(name="partID")]
+    #[graphql(name = "partID")]
     async fn part_id(&self) -> Option<ID> {
         self.part_id.as_ref().map(Into::into)
     }
@@ -36,17 +34,27 @@ impl Task {
     // }
 
     #[graphql(name = "status")]
-    async fn _status(&self) -> TaskStatusGQL { (&self.status).into() }
+    async fn _status(&self) -> TaskStatusGQL {
+        (&self.status).into()
+    }
 
     #[graphql(name = "paused")]
-    async fn _paused(&self) -> bool { self.status.is_paused() }
+    async fn _paused(&self) -> bool {
+        self.status.is_paused()
+    }
 
     #[graphql(name = "settled")]
-    async fn _settled(&self) -> bool { self.status.is_settled() }
+    async fn _settled(&self) -> bool {
+        self.status.is_settled()
+    }
 
-    async fn total_lines(&self) -> u64 { self.total_lines }
+    async fn total_lines(&self) -> u64 {
+        self.total_lines
+    }
 
-    async fn despooled_line_number(&self) -> &Option<u64> { &self.despooled_line_number }
+    async fn despooled_line_number(&self) -> &Option<u64> {
+        &self.despooled_line_number
+    }
 
     async fn percent_complete(
         &self,
@@ -58,9 +66,7 @@ impl Task {
         "#)]
         digits: Option<u8>,
     ) -> FieldResult<f32> {
-        let printed_lines = self.despooled_line_number
-            .map(|n| n + 1)
-            .unwrap_or(0) as f32;
+        let printed_lines = self.despooled_line_number.map(|n| n + 1).unwrap_or(0) as f32;
 
         let percent = if self.status.was_successful() {
             // Empty tasks need to denote success somehow
@@ -93,7 +99,8 @@ impl Task {
         let machines = machines.load();
         let machine_id = (&self.machine_id).into();
 
-        let addr = machines.get(&machine_id)
+        let addr = machines
+            .get(&machine_id)
             .ok_or_else(|| eyre!("Unable to get machine ({:?}) for task", machine_id))?;
 
         let machine_data = addr.call(GetData).await??;
@@ -101,7 +108,7 @@ impl Task {
         let print_time = if let Some(print_time) = self.estimated_print_time {
             print_time
         } else {
-            return Ok(None)
+            return Ok(None);
         };
 
         let mut duration = print_time + self.time_paused + self.time_blocked;
@@ -114,7 +121,7 @@ impl Task {
             }
         }
 
-        let eta= self.created_at + ::chrono::Duration::from_std(duration)?;
+        let eta = self.created_at + ::chrono::Duration::from_std(duration)?;
         Ok(Some(eta))
     }
 
@@ -122,17 +129,18 @@ impl Task {
         &self.estimated_filament_meters
     }
 
-    async fn started_at(&self) -> &DateTime<Utc> { &self.created_at }
+    async fn started_at(&self) -> &DateTime<Utc> {
+        &self.created_at
+    }
 
     async fn stopped_at(&self) -> Option<&DateTime<Utc>> {
         use super::*;
 
         match &self.status {
-            | TaskStatus::Finished(Finished { finished_at: t })
+            TaskStatus::Finished(Finished { finished_at: t })
             | TaskStatus::Paused(Paused { paused_at: t })
             | TaskStatus::Cancelled(Cancelled { cancelled_at: t })
-            | TaskStatus::Errored(Errored { errored_at: t, .. })
-            => Some(t),
+            | TaskStatus::Errored(Errored { errored_at: t, .. }) => Some(t),
             _ => None,
         }
     }
@@ -142,7 +150,8 @@ impl Task {
         let machines = machines.load();
         let machine_id = (&self.machine_id).into();
 
-        let addr = machines.get(&machine_id)
+        let addr = machines
+            .get(&machine_id)
             .ok_or_else(|| eyre!("Unable to get machine ({:?}) for task", machine_id))?;
 
         let machine_data = addr.call(GetData).await??;

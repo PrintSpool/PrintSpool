@@ -1,7 +1,7 @@
 use crate::{
     components::{printer::Printer, stepper::GenericStepper},
     fan::{ControllerFan, Fan, FanGeneric, HeaterFan, TemperatureFan},
-    KlipperDriver,
+    KlipperDriverFactory,
 };
 use printspool_driver_interface::{
     capability::{GCodeAlias, C},
@@ -42,7 +42,7 @@ impl Validate for KlipperComponent {
 
 impl printspool_driver_interface::component::DriverComponent for KlipperComponent {
     fn driver(&self) -> &'static dyn Driver {
-        &KlipperDriver
+        &KlipperDriverFactory
     }
 
     fn capabilities(&self) -> Vec<printspool_driver_interface::capability::Capability> {

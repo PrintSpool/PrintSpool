@@ -1,20 +1,17 @@
+use crate::{
+    driver_instance::LocalHostDriverInstance, driver_instance::MachineData, MachineHooksList,
+};
+use chrono::prelude::*;
+use eyre::Result;
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-use chrono::prelude::*;
-use serde::{Deserialize, Serialize};
-use eyre::{
-    // eyre,
-    Result,
-    // Context as _,
-};
-use printspool_json_store::{ Record, JsonRow };
+mod gcode_annotation;
+mod task_resolvers;
+mod task_status;
 
-use crate::{MachineHooksList, machine::Machine, machine::MachineData};
-
-use super::{
-    GCodeAnnotation,
-    TaskStatus,
-};
+pub use gcode_annotation::GCodeAnnotation;
+pub use task_status::{Cancelled, Created, Errored, Finished, Paused, TaskStatus};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Task {
@@ -23,7 +20,7 @@ pub struct Task {
     pub created_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     // Foreign Keys
-    pub machine_id: crate::DbId, // machines have many (>=0) tasks
+    pub machine_id: crate::DbId,      // machines have many (>=0) tasks
     pub part_id: Option<crate::DbId>, // parts have many (>=0) print tasks
     // Content
     pub content: TaskContent,
@@ -77,8 +74,8 @@ impl Task {
             "#,
             machine_id,
         )
-            .fetch_all(db)
-            .await?;
+        .fetch_all(db)
+        .await?;
 
         let tasks = Task::from_rows(tasks)?;
         Ok(tasks)
@@ -89,7 +86,7 @@ impl Task {
         mut tx: sqlx::Transaction<'c, sqlx::Postgres>,
         machine_hooks: &MachineHooksList,
         machine_data: &MachineData,
-        machine_addr: &xactor::Addr<Machine>,
+        machine_addr: &xactor::Addr<LocalHostDriverInstance>,
     ) -> Result<()> {
         // Move the despooled line number to the end of the file if the print was successful
         if self.status.was_successful() {
@@ -100,20 +97,19 @@ impl Task {
         }
 
         // Replace the completed GCodes with an empty vec to save space
-        let content = std::mem::replace(
-            &mut self.content,
-            TaskContent::GCodes(vec![]),
-        );
+        let content = std::mem::replace(&mut self.content, TaskContent::GCodes(vec![]));
 
         let mut after_task_settle_cbs = vec![];
         for machine_hook in machine_hooks.iter() {
-            let after_settle_cb = machine_hook.before_task_settle(
-                &mut tx,
-                machine_hooks,
-                machine_data,
-                machine_addr.clone(),
-                &mut *self,
-            ).await?;
+            let after_settle_cb = machine_hook
+                .before_task_settle(
+                    &mut tx,
+                    machine_hooks,
+                    machine_data,
+                    machine_addr.clone(),
+                    &mut *self,
+                )
+                .await?;
 
             if let Some(after_settle_cb) = after_settle_cb {
                 after_task_settle_cbs.push(after_settle_cb);
@@ -127,7 +123,10 @@ impl Task {
                 use async_std::fs::remove_file;
 
                 if let Err(err) = remove_file(&file_path).await {
-                    warn!("Unable to remove completed GCode file ({:?}): {:?}", file_path, err);
+                    warn!(
+                        "Unable to remove completed GCode file ({:?}): {:?}",
+                        file_path, err
+                    );
                 }
             });
         }
@@ -174,8 +173,7 @@ impl Record for Task {
     async fn insert_no_rollback<'c>(
         &self,
         db: &mut sqlx::Transaction<'c, sqlx::Postgres>,
-    ) -> Result<()>
-    {
+    ) -> Result<()> {
         let json = serde_json::to_value(&self)?;
         let status = self.status.to_db_str();
 
@@ -193,15 +191,12 @@ impl Record for Task {
             self.part_id,
             status,
         )
-            .fetch_optional(db)
-            .await?;
+        .fetch_optional(db)
+        .await?;
         Ok(())
     }
 
-    async fn update<'e, 'c, E>(
-        &mut self,
-        db: E,
-    ) -> Result<()>
+    async fn update<'e, 'c, E>(&mut self, db: E) -> Result<()>
     where
         E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
     {
@@ -227,8 +222,8 @@ impl Record for Task {
             self.id,
             previous_version,
         )
-            .fetch_optional(db)
-            .await?;
+        .fetch_optional(db)
+        .await?;
 
         Ok(())
     }

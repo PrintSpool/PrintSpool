@@ -1,32 +1,21 @@
-mod components;
-pub use components::*;
-
-mod klipper_component;
-pub use klipper_component::KlipperComponent;
-use printspool_driver_interface::{component::DriverComponent, driver::Driver, serde_json};
+use async_trait::async_trait;
+use printspool_driver_interface::{component::DriverComponent, driver::Driver, serde_json, DbId};
 use schemars::JsonSchema;
+
+pub mod components;
+mod klipper_component;
+mod klipper_driver;
+mod klipper_driver_instance;
+mod klipper_machine;
+mod klipper_socket;
+
+pub use klipper_component::KlipperComponent;
+pub use klipper_driver::KlipperDriver;
+pub use klipper_machine::KlipperDriverInstance;
 
 // These types are used to document the purpose of configs
 pub type KlipperId = String;
 pub type KlipperIdList = String;
 pub type KlipperPin = String;
 
-pub struct KlipperDriver;
-
-impl Driver for KlipperDriver {
-    fn component_from_value(
-        &self,
-        value: serde_json::Value,
-    ) -> Result<Box<dyn DriverComponent>, serde_json::Error> {
-        Ok(Box::new(serde_json::from_value::<KlipperComponent>(value)?))
-    }
-
-    // Necessary for Object Safety (schemars::JsonSchema is not object safe but schemars::Schema is)
-    fn json_schema(&self, gen: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
-        KlipperComponent::json_schema(gen)
-    }
-
-    fn name(&self) -> &'static str {
-        "klippper"
-    }
-}
+pub const driver: KlipperDriver = KlipperDriver;
