@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use bonsaidb::core::{define_basic_unique_mapped_view, schema::Collection};
 use chrono::{DateTime, Utc};
 use futures_util::{future::Either, stream::StreamExt};
-use printspool_driver_interface::{driver_instance::LocalDriverInstance, task::Task, DbId, DB};
+use printspool_driver_interface::{driver_instance::LocalDriverInstance, task::Task, Db, DbId};
 use serde_json::json;
 use tokio::{
     net::unix::{OwnedWriteHalf, WriteHalf},
@@ -17,12 +17,12 @@ use crate::klipper_socket::Req;
 pub struct KlipperDriverInstance {
     pub id: DbId,
     tx: KlipperSocket,
-    db: DB,
+    db: Db,
     reset_when_idle_requested: bool,
 }
 
 impl KlipperDriverInstance {
-    pub async fn start(id: DbId, db: DB) -> Result<Self> {
+    pub async fn start(id: DbId, db: Db) -> Result<Self> {
         todo!("Regenerate the klipper config file from the database");
 
         todo!("Start the klipper process");

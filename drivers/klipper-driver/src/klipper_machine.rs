@@ -17,3 +17,8 @@ pub struct KlipperMachine {
     #[serde(skip, default = "KlipperMachineTemplate::Custom")]
     pub template: KlipperMachineTemplate,
 }
+
+pub enum KlipperMachineTemplate {
+    BuiltIn(String),
+    Custom,
+}

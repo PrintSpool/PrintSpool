@@ -2,17 +2,17 @@
 // (Don't expect these examples to work, it's just a loose idea of what I'd like things to look like in the future)
 //     - toolheads:
 //         - Mill or Lathe:
-//             `vec![C::Toolhead, C::SpindleSpeed, C::ToolSelect]`
+//             `vec![C::SpindleSpeed, C::ToolSelect]`
 //         - Syringe Paste Extruder:
-//             `vec![C::Toolhead, C::Extruder]`
+//             `vec![C::Extruder]`
 //         - Laser Cutter:
-//             `vec![C::Toolhead, C::Laser]`
+//             `vec![C::Laser]`
 //         - FDM Extruder:
-//             `vec![C::Toolhead, C::Extruder, C::Heater(..), C::TemperatureSensor(..), C::Fan(..)]`
+//             `vec![C::Extruder, C::Heater(..), C::TemperatureSensor(..), C::Fan(..)]`
 //         - FDM Extruder with independent hotend fan and print cooling fans:
-//             `vec![C::Toolhead, C::Extruder, C::Heater(..), C::TemperatureSensor(..), C::Fan(GCodeAlias { name: "hotend", "f0" }), C::Fan(GCodeAlias { name: "print-cooling", "f0" })]`
+//             `vec![C::Extruder, C::Heater(..), C::TemperatureSensor(..), C::Fan(GCodeAlias { name: "hotend", "f0" }), C::Fan(GCodeAlias { name: "print-cooling", "f1" })]`
 //         - Independent-Carrage FDM extruders:
-//             `vec![C::Toolhead, C::Extruder, C::Heater(..), C::TemperatureSensor(..), C::Fan, C::Movement { axis: Axis::LinearX, .. })]`
+//             `vec![C::Extruder, C::Heater(..), C::TemperatureSensor(..), C::Fan, C::Movement { axis: Axis::LinearX, .. })]`
 //     - beds
 //         - Unheated bed:
 //             `vec![C::Bed]`
@@ -44,8 +44,7 @@
 /// These can be used to procedurally render component-appropriate UIs through composition instead of having to define
 /// exponentially more UIs for each permutation of capabilities.
 pub enum Capability {
-    Toolhead,
-    Extruder,
+    Extruder(GCodeAlias),
     // SpindleSpeed,
     // Laser,
     // ToolSelect,

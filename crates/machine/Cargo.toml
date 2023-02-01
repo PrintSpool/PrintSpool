@@ -47,6 +47,7 @@ lazy_static = "1.4.0"
 regex = "1.4.3"
 pidfile-rs = { git = "https://github.com/D1plo1d/bsd-pidfile-rs.git", branch = "fix/cross-compilation" }
 nix = "0.20.0"
+bonsaidb = "0.4.1"
 
 [dependencies.async-std]
 features = ["tokio02", "unstable"]

@@ -1,13 +1,12 @@
-use std::{pin::Pin, sync::Arc};
+use eyre::Result;
 use futures::Future;
+use std::{pin::Pin, sync::Arc};
 use xactor::Actor;
-use eyre::{
-    // eyre,
-    Result,
-    // Context as _,
-};
 
-use crate::{MachineHooks, MachineHooksList, config::MachineConfig, machine::Machine, machine::MachineData, plugins::Plugin, task::Task};
+use crate::{
+    config::MachineConfig, machine::Machine, machine::Machine, plugins::Plugin, task::Task,
+    MachineHooks, MachineHooksList,
+};
 
 use super::{MachineSignallingUpdate, MachineUpdateOperation, SyncChanges};
 
@@ -40,12 +39,11 @@ impl SignallingUpdater {
         db: crate::Db,
         server_keys: Arc<printspool_auth::ServerKeys>,
     ) -> Result<xactor::Addr<SignallingUpdater>> {
-        let signalling_updater = xactor::Supervisor::start(move ||
-            SignallingUpdater {
-                db: db.clone(),
-                server_keys: server_keys.clone(),
-            }
-        ).await?;
+        let signalling_updater = xactor::Supervisor::start(move || SignallingUpdater {
+            db: db.clone(),
+            server_keys: server_keys.clone(),
+        })
+        .await?;
         Ok(signalling_updater)
     }
 }
@@ -65,19 +63,13 @@ impl MachineHooks for SignallingUpdaterMachineHooks {
         let name = machine_config.core_plugin()?.model.name.clone();
         let operation = MachineUpdateOperation::Register { name };
 
-        let (tx, _) = MachineSignallingUpdate::create(
-            tx,
-            machine_config.id.clone(),
-            operation,
-        ).await?;
+        let (tx, _) =
+            MachineSignallingUpdate::create(tx, machine_config.id.clone(), operation).await?;
 
         Ok(tx)
     }
 
-    async fn after_create(
-        &self,
-        _machine_id: &crate::DbId,
-    ) -> Result<()> {
+    async fn after_create(&self, _machine_id: &crate::DbId) -> Result<()> {
         self.signalling_updater.send(SyncChanges)?;
         Ok(())
     }
@@ -91,11 +83,7 @@ impl MachineHooks for SignallingUpdaterMachineHooks {
     }
 
     // Handle machine name changes
-    async fn after_plugin_update(
-        &self,
-        machine_id: &crate::DbId,
-        plugin: &Plugin,
-    ) -> Result<()> {
+    async fn after_plugin_update(&self, machine_id: &crate::DbId, plugin: &Plugin) -> Result<()> {
         let Plugin::Core(core_plugin) = plugin;
 
         let name = core_plugin.model.name.clone();
@@ -103,11 +91,7 @@ impl MachineHooks for SignallingUpdaterMachineHooks {
 
         let tx = self.db.begin().await?;
 
-        let (tx, _) = MachineSignallingUpdate::create(
-            tx,
-            machine_id.clone(),
-            operation,
-        ).await?;
+        let (tx, _) = MachineSignallingUpdate::create(tx, machine_id.clone(), operation).await?;
 
         tx.commit().await?;
         self.signalling_updater.send(SyncChanges)?;
@@ -119,7 +103,7 @@ impl MachineHooks for SignallingUpdaterMachineHooks {
         &self,
         _tx: &mut sqlx::Transaction<'c, sqlx::Postgres>,
         _machine_hooks: &MachineHooksList,
-        _machine_data: &MachineData,
+        _machine_data: &Machine,
         _machine_addr: xactor::Addr<Machine>,
         _task: &mut Task,
     ) -> Result<Option<Pin<Box<dyn Future<Output = ()> + Send>>>> {

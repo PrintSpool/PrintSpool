@@ -1,17 +1,16 @@
 use std::pin::Pin;
 
 use chrono::prelude::*;
-use eyre::{
-    // eyre,
-    Result,
-    // Context as _,
-};
+use eyre::Result;
 
 use futures::{Future, FutureExt};
 use printspool_json_store::Record;
-use printspool_machine::{MachineHooks, MachineHooksList, config::MachineConfig, machine::Machine, machine::MachineData, plugins::Plugin, task::Task};
+use printspool_machine::{
+    config::MachineConfig, machine::Machine, machine::Machine, plugins::Plugin, task::Task,
+    MachineHooks, MachineHooksList,
+};
 
-use crate::{PrintQueue, insert_print, machine_print_queue::MachinePrintQueue, part::Part};
+use crate::{insert_print, machine_print_queue::MachinePrintQueue, part::Part, PrintQueue};
 
 pub struct PrintQueueMachineHooks {
     pub db: crate::Db,
@@ -42,8 +41,8 @@ impl PrintQueueMachineHooks {
             machine_id: id.clone(),
             print_queue_id: print_queue.id.clone(),
         }
-            .insert_no_rollback(tx)
-            .await?;
+        .insert_no_rollback(tx)
+        .await?;
 
         Ok(())
     }
@@ -56,14 +55,12 @@ impl MachineHooks for PrintQueueMachineHooks {
         mut tx: sqlx::Transaction<'c, sqlx::Postgres>,
         machine_config: &mut MachineConfig,
     ) -> Result<sqlx::Transaction<'c, sqlx::Postgres>> {
-        self.create_default_print_queue(&mut tx, &machine_config.id).await?;
+        self.create_default_print_queue(&mut tx, &machine_config.id)
+            .await?;
         Ok(tx)
     }
 
-    async fn after_create(
-        &self,
-        _machine_id: &crate::DbId,
-    ) -> Result<()> {
+    async fn after_create(&self, _machine_id: &crate::DbId) -> Result<()> {
         Ok(())
     }
 
@@ -82,9 +79,9 @@ impl MachineHooks for PrintQueueMachineHooks {
             "#,
             id,
         )
-            .fetch_optional(&mut tx)
-            .await?
-            .is_some();
+        .fetch_optional(&mut tx)
+        .await?
+        .is_some();
 
         if !has_print_queue {
             self.create_default_print_queue(&mut tx, &id).await?
@@ -93,11 +90,7 @@ impl MachineHooks for PrintQueueMachineHooks {
         Ok(tx)
     }
 
-    async fn after_plugin_update(
-        &self,
-        _machine_id: &crate::DbId,
-        _plugin: &Plugin,
-    ) -> Result<()> {
+    async fn after_plugin_update(&self, _machine_id: &crate::DbId, _plugin: &Plugin) -> Result<()> {
         Ok(())
     }
 
@@ -105,19 +98,15 @@ impl MachineHooks for PrintQueueMachineHooks {
         &self,
         tx: &mut sqlx::Transaction<'c, sqlx::Postgres>,
         machine_hooks: &MachineHooksList,
-        machine_data: &MachineData,
+        machine_data: &Machine,
         machine_addr: xactor::Addr<Machine>,
         task: &mut Task,
     ) -> Result<Option<Pin<Box<dyn Future<Output = ()> + Send>>>> {
-        if
-            machine_data.config.core_plugin()?.model.automatic_printing
+        if machine_data.config.core_plugin()?.model.automatic_printing
             && task.status.was_successful()
             && task.is_print()
         {
-            let next_part = Part::fetch_next_part(
-                &mut *tx,
-                &task.machine_id,
-            ).await?;
+            let next_part = Part::fetch_next_part(&mut *tx, &task.machine_id).await?;
 
             if let Some(next_part) = next_part {
                 info!("Automatic Printing: Spooling next print");
@@ -131,14 +120,14 @@ impl MachineHooks for PrintQueueMachineHooks {
                     machine_addr,
                     next_part,
                     true,
-                ).await?;
+                )
+                .await?;
 
                 let parse_and_spool = parse_and_spool.then(|res| async move {
                     if let Err(err) = res {
                         error!(
                             "Error parsing and spooling automatic print (ID: {:?}): {:?}",
-                            next_task_id,
-                            err,
+                            next_task_id, err,
                         );
                     };
                 });
@@ -146,9 +135,12 @@ impl MachineHooks for PrintQueueMachineHooks {
                 // Spawn the parse and spool future asynchronously after the task is settled so
                 // that it does not deadlock with the caller of this hook while attempting to call
                 // the Machine actor.
-                return Ok(Some(async move {
-                    async_std::task::spawn(parse_and_spool);
-                }.boxed()))
+                return Ok(Some(
+                    async move {
+                        async_std::task::spawn(parse_and_spool);
+                    }
+                    .boxed(),
+                ));
             }
         } else {
             info!("Automatic Printing: All prints completed!");
