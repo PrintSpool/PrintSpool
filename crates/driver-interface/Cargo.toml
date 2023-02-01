@@ -20,6 +20,7 @@ rand = "0.8.5"
 derive-new = "0.5.9"
 async-graphql = { version = "5.0.5", features = ["dataloader"] }
 derive_more = "0.99.17"
+bs58 = "0.4.0"
 
 [dependencies.serde]
 features = ["derive"]

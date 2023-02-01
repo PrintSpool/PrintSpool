@@ -19,9 +19,22 @@ impl<C> DbId<C> {
     }
 }
 
-impl<C> From<&async_graphql::ID> for DbId<C> {
-    fn from(value: &async_graphql::ID) -> Self {
-        Self(value.0)
+impl<C> TryFrom<&async_graphql::ID> for DbId<C> {
+    fn try_from(value: &async_graphql::ID) -> Self {
+        let mut buf = [0u8; 8];
+
+        bs58::decode(value.0).into(&mut buf)?;
+        let id = Self(u64::from_be_bytes(buf));
+
+        Ok(id)
+    }
+
+    type Error = eyre::Error;
+}
+
+impl<C> From<&DbId<C>> for async_graphql::ID {
+    fn from(value: &DbId<C>) -> Self {
+        Self(bs58::encode(value.0.to_be_bytes()).into_string())
     }
 }
 

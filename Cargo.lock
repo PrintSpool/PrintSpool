@@ -3778,6 +3778,7 @@ dependencies = [
  "async-graphql 5.0.5",
  "async-trait",
  "bonsaidb",
+ "bs58",
  "chrono",
  "derive-new",
  "derive_more",

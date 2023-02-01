@@ -3,7 +3,7 @@ use crate::component::Component;
 use crate::component::ComponentsByMachine;
 use crate::machine::GCodeHistoryEntry;
 use crate::machine::{Machine, MachineStatus, MachineStatusGQL};
-use crate::plugins::Plugin;
+// use crate::plugins::Plugin;
 use crate::{Db, DbId, Deletion};
 use async_graphql::{Context, FieldResult, ID};
 use chrono::prelude::*;
@@ -47,7 +47,7 @@ impl Machine {
             .with_key_range((
                 Deletion::None,
                 self.id,
-                input.component_id.into().or_any_id(),
+                input.component_id.try_into()?.or_any_id(),
             ))
             .query_with_collection_docs()
             .await?
