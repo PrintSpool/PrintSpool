@@ -1,6 +1,4 @@
-use crate::{
-    driver_instance::LocalHostDriverInstance, driver_instance::MachineData, MachineHooksList,
-};
+use crate::{driver_instance::LocalDriverInstance, driver_instance::MachineData, MachineHooksList};
 use chrono::prelude::*;
 use eyre::Result;
 use serde::{Deserialize, Serialize};
@@ -86,7 +84,7 @@ impl Task {
         mut tx: sqlx::Transaction<'c, sqlx::Postgres>,
         machine_hooks: &MachineHooksList,
         machine_data: &MachineData,
-        machine_addr: &xactor::Addr<LocalHostDriverInstance>,
+        machine_addr: &xactor::Addr<LocalDriverInstance>,
     ) -> Result<()> {
         // Move the despooled line number to the end of the file if the print was successful
         if self.status.was_successful() {

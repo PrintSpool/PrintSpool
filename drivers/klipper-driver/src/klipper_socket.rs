@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use bonsaidb::core::{define_basic_unique_mapped_view, schema::Collection};
 use chrono::{DateTime, Utc};
 use futures_util::{future::Either, stream::StreamExt};
-use printspool_driver_interface::{driver_instance::LocalHostDriverInstance, DbId};
+use printspool_driver_interface::{driver_instance::LocalDriverInstance, DbId};
 use tokio::{
     net::unix::{OwnedWriteHalf, WriteHalf},
     sync::mpsc,

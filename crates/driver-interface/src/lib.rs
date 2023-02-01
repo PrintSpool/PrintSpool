@@ -9,3 +9,4 @@ pub use erased_serde;
 pub use serde_json;
 
 pub type DbId = u64;
+pub type DB = bonsaidb::AnyDatabase;

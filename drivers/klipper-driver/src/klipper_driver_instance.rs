@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use bonsaidb::core::{define_basic_unique_mapped_view, schema::Collection};
 use chrono::{DateTime, Utc};
 use futures_util::{future::Either, stream::StreamExt};
-use printspool_driver_interface::{driver_instance::LocalHostDriverInstance, DbId};
+use printspool_driver_interface::{driver_instance::LocalDriverInstance, task::Task, DbId, DB};
 use serde_json::json;
 use tokio::{
     net::unix::{OwnedWriteHalf, WriteHalf},
@@ -16,13 +16,15 @@ use crate::klipper_socket::Req;
 #[derive(Serialize, Deserialize, Debug)]
 pub struct KlipperDriverInstance {
     pub id: DbId,
-    reset_when_idle_requested: bool,
     tx: KlipperSocket,
+    db: DB,
+    reset_when_idle_requested: bool,
 }
 
 impl KlipperDriverInstance {
-    pub async fn start(id: DbId) -> Result<Self> {
-        todo!("Generate the klipper config file");
+    pub async fn start(id: DbId, db: DB) -> Result<Self> {
+        todo!("Regenerate the klipper config file from the database");
+
         todo!("Start the klipper process");
 
         let on_socket_shutdown = |res| todo!("Change the state to errored");
@@ -32,6 +34,7 @@ impl KlipperDriverInstance {
         Ok(Self {
             id,
             tx,
+            db,
             reset_when_idle_requested: false,
         })
     }
@@ -68,7 +71,7 @@ impl AnyHostDriverInstance for KlipperDriverInstance {
 }
 
 #[async_trait]
-impl LocalHostDriverInstance for KlipperDriverInstance {
+impl LocalDriverInstance for KlipperDriverInstance {
     /// Triggered when a new serial device is connected to the host
     async fn on_add_device(&mut self, device_path: String) -> Result<()> {
         Ok(())

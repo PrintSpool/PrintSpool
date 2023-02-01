@@ -18,7 +18,7 @@ pub trait AnyHostDriverInstance: Sync + Send {
 
 /// A CNC Machine or 3D printer directly connected to and controlled by this host
 #[async_trait]
-pub trait LocalHostDriverInstance: Sync + Send + AnyHostDriverInstance {
+pub trait LocalDriverInstance: Sync + Send + AnyHostDriverInstance {
     /// Triggered when a new serial device is connected to the host
     async fn on_add_device(&mut self, device_path: String) -> Result<()>;
 

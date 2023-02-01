@@ -5,7 +5,11 @@ use crate::{
 use async_trait::async_trait;
 use bonsaidb::core::transaction::Transaction;
 use chrono::Utc;
-use printspool_driver_interface::driver::{Driver, MachineLayout};
+use printspool_driver_interface::{
+    driver::{Driver, MachineLayout},
+    driver_instance::LocalDriverInstance,
+    DB,
+};
 
 pub struct KlipperDriver;
 
@@ -66,8 +70,8 @@ impl Driver for KlipperDriver {
         })
     }
 
-    async fn load_instance(&self, id: DbId) -> Result<Box<dyn Machine>> {
-        let driver_instance = KlipperDriverInstance::start(id).await?;
+    async fn load_instance(&self, id: DbId, db: DB) -> Result<Box<dyn LocalDriverInstance>> {
+        let driver_instance = KlipperDriverInstance::start(id, db).await?;
     }
 
     // Necessary for Object Safety (schemars::JsonSchema is not object safe but schemars::Schema is)

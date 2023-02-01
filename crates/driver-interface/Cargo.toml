@@ -16,6 +16,7 @@ serde_json = "1.0.91"
 eyre = "0.6.8"
 chrono = "0.4.23"
 async-trait = "0.1.63"
+bonsaidb = { version = "0.4.1", features = ["client", "server"] }
 
 [dependencies.serde]
 features = ["derive"]

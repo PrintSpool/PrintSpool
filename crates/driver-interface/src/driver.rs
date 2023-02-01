@@ -1,8 +1,8 @@
 use crate::{
     component::DriverComponent,
-    driver_instance::LocalHostDriverInstance,
+    driver_instance::LocalDriverInstance,
     machine::{DriverMachine, MachineLayout},
-    DbId,
+    DbId, DB,
 };
 use async_trait::async_trait;
 use eyre::Result;
@@ -43,7 +43,7 @@ pub trait Driver: Sync + Send {
         content: String,
     ) -> Result<MachineLayout>;
 
-    async fn load_instance(&self, id: DbId) -> Result<Box<dyn LocalHostDriverInstance>>;
+    async fn load_instance(&self, id: DbId, db: DB) -> Result<Box<dyn LocalDriverInstance>>;
 }
 
 pub static DRIVER_REGISTRY: OnceCell<HashMap<String, &'static dyn Driver>> = OnceCell::new();
