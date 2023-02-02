@@ -1,9 +1,14 @@
 use chrono::prelude::*;
+use eyre::eyre;
+use eyre::Result;
+use printspool_protobufs::machine_message::TaskProgress;
 use serde::{Deserialize, Serialize};
 
 pub use crate::machine::status::Errored;
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+use super::TaskStatusKey;
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum TaskStatus {
     /* Before sending to the driver */
     /// The task may be enqueued or pre-processing it's gcode. It will begin printing as soon as
@@ -26,64 +31,25 @@ pub enum TaskStatus {
     Errored(Errored),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Default)]
+#[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub struct Created {
     /// Set once the server sends the tasks to the driver
     pub sent_to_driver: bool,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Finished {
     pub finished_at: DateTime<Utc>,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Paused {
     pub paused_at: DateTime<Utc>,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Cancelled {
     pub cancelled_at: DateTime<Utc>,
-}
-
-#[derive(async_graphql::Enum, Debug, Serialize, Deserialize, Copy, Clone, PartialEq, Eq)]
-#[graphql(name = "TaskStatus")]
-pub enum TaskStatusGQL {
-    /* Before sending to the driver */
-    /// The task is enqueued. It will begin printing as soon as the tasks spooled before it finish.
-    #[graphql(name = "SPOOLED")]
-    Spooled,
-
-    /* After sending to the driver */
-    /// The task is in the process of being printed.
-    #[graphql(name = "STARTED")]
-    Started,
-    /// The task completed its print successfully
-    #[graphql(name = "FINISHED")]
-    Finished,
-    /// The task was paused by the user
-    #[graphql(name = "PAUSED")]
-    Paused,
-    /// The task was halted pre-emptively by the user.
-    #[graphql(name = "CANCELLED")]
-    Cancelled,
-    /// An error occurred during the print.
-    #[graphql(name = "ERRORED")]
-    Errored,
-}
-
-impl From<&TaskStatus> for TaskStatusGQL {
-    fn from(status: &TaskStatus) -> Self {
-        match status {
-            TaskStatus::Created(_) => TaskStatusGQL::Spooled,
-            TaskStatus::Started => TaskStatusGQL::Started,
-            TaskStatus::Finished(_) => TaskStatusGQL::Finished,
-            TaskStatus::Paused(_) => TaskStatusGQL::Paused,
-            TaskStatus::Cancelled(_) => TaskStatusGQL::Cancelled,
-            TaskStatus::Errored(_) => TaskStatusGQL::Errored,
-        }
-    }
 }
 
 impl Default for TaskStatus {
@@ -127,47 +93,23 @@ impl TaskStatus {
         Ok(status)
     }
 
-    pub fn to_db_str(&self) -> &'static str {
-        use TaskStatus::*;
-        match self {
-            Created(_) => "spooled",
-            Started => "started",
-            Finished(_) => "finished",
-            Paused(_) => "paused",
-            Cancelled(_) => "cancelled",
-            Errored(_) => "errored",
-        }
-    }
-
     pub fn is_paused(&self) -> bool {
-        match self {
-            TaskStatus::Paused(_) => true,
-            _ => false,
-        }
+        matches!(self, TaskStatus::Paused(_))
     }
 
     pub fn is_pending(&self) -> bool {
-        !self.is_settled()
+        TaskStatusKey::PENDING.contains(self.into())
     }
 
     pub fn is_settled(&self) -> bool {
-        match self {
-            TaskStatus::Finished(_) | TaskStatus::Cancelled(_) | TaskStatus::Errored(_) => true,
-            _ => false,
-        }
+        TaskStatusKey::SETTLED.contains(self.into())
     }
 
     pub fn was_successful(&self) -> bool {
-        match self {
-            TaskStatus::Finished(_) => true,
-            _ => false,
-        }
+        matches!(self, TaskStatus::Finished(_))
     }
 
     pub fn was_aborted(&self) -> bool {
-        match self {
-            TaskStatus::Cancelled(_) | TaskStatus::Errored(_) => true,
-            _ => false,
-        }
+        TaskStatusKey::ABORTED.contains(self.into())
     }
 }

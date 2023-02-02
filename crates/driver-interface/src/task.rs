@@ -1,25 +1,38 @@
-use crate::{driver_instance::LocalDriverInstance, driver_instance::MachineData, MachineHooksList};
+use crate::{
+    machine::{Machine, MachineHooksList},
+    Db, DbId, Deletion,
+};
+use async_graphql::futures_util::future::try_join_all;
+use bonsaidb::core::schema::Collection;
 use chrono::prelude::*;
 use eyre::Result;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+use tracing::warn;
 
 mod gcode_annotation;
+mod task_indexes;
 mod task_resolvers;
 mod task_status;
+mod task_status_key;
 
+pub use self::task_status_key::TaskStatusKey;
 pub use gcode_annotation::GCodeAnnotation;
+pub use task_indexes::*;
 pub use task_status::{Cancelled, Created, Errored, Finished, Paused, TaskStatus};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Collection)]
+#[collection(name = "tasks", views = [TasksById, TasksByMachine, TasksByPart, TasksByPackage, TasksByPrintQueue])]
 pub struct Task {
-    pub id: crate::DbId,
+    pub id: DbId<Self>,
     pub version: i32,
     pub created_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     // Foreign Keys
-    pub machine_id: crate::DbId,      // machines have many (>=0) tasks
-    pub part_id: Option<crate::DbId>, // parts have many (>=0) print tasks
+    pub machine_id: DbId<Machine>, // machines have many (>=0) tasks
+    pub part_id: Option<DbId<TaskPartFk>>, // parts have many (>=0) print tasks
+    pub package_id: Option<DbId<TaskPackageFk>>, // print queues have many (>=0) print tasks
+    pub print_queue_id: Option<DbId<TaskPrintQueueFk>>, // print queues have many (>=0) print tasks
     // Content
     pub content: TaskContent,
     // Props
@@ -44,6 +57,15 @@ pub struct Task {
     pub status: TaskStatus,
 }
 
+/// Task.part_id foreign key
+pub struct TaskPartFk;
+
+/// Task.print_queue_id foreign key
+pub struct TaskPackageFk;
+
+/// Task.print_queue_id foreign key
+pub struct TaskPrintQueueFk;
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum TaskContent {
     FilePath(PathBuf),
@@ -55,36 +77,30 @@ impl Task {
         self.part_id.is_some()
     }
 
-    pub async fn tasks_running_on_machine<'e, 'c, E>(
-        db: E,
-        machine_id: &crate::DbId,
-    ) -> Result<Vec<Self>>
-    where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
-    {
-        let tasks = sqlx::query_as!(
-            JsonRow,
-            r#"
-                SELECT props FROM tasks
-                WHERE
-                    tasks.machine_id = $1
-                    AND tasks.status IN ('spooled', 'started', 'paused')
-            "#,
-            machine_id,
-        )
-        .fetch_all(db)
-        .await?;
+    pub async fn tasks_running_on_machine(
+        db: &Db,
+        machine_id: &DbId<Machine>,
+    ) -> Result<Vec<Self>> {
+        let tasks = TasksByMachine::entries(&db)
+            .with_keys(
+                TaskStatusKey::PENDING
+                    .iter()
+                    .map(|status| (Deletion::None, machine_id, status)),
+            )
+            .query_with_collection_docs()
+            .await?
+            .into_iter()
+            .map(|m| m.document.contents)
+            .collect();
 
-        let tasks = Task::from_rows(tasks)?;
         Ok(tasks)
     }
 
     pub async fn settle_task<'c>(
         &mut self,
-        mut tx: sqlx::Transaction<'c, sqlx::Postgres>,
+        db: &Db,
+        machine: &mut Machine,
         machine_hooks: &MachineHooksList,
-        machine_data: &MachineData,
-        machine_addr: &xactor::Addr<LocalDriverInstance>,
     ) -> Result<()> {
         // Move the despooled line number to the end of the file if the print was successful
         if self.status.was_successful() {
@@ -97,130 +113,31 @@ impl Task {
         // Replace the completed GCodes with an empty vec to save space
         let content = std::mem::replace(&mut self.content, TaskContent::GCodes(vec![]));
 
-        let mut after_task_settle_cbs = vec![];
-        for machine_hook in machine_hooks.iter() {
-            let after_settle_cb = machine_hook
-                .before_task_settle(
-                    &mut tx,
-                    machine_hooks,
-                    machine_data,
-                    machine_addr.clone(),
-                    &mut *self,
-                )
-                .await?;
+        // Run hooks
+        try_join_all(machine_hooks.iter().map(|machine_hook| async move {
+            machine_hook
+                .before_task_settle(db, &mut machine, machine_hooks, &mut self)
+                .await
+        }))
+        .await?;
 
-            if let Some(after_settle_cb) = after_settle_cb {
-                after_task_settle_cbs.push(after_settle_cb);
+        if let TaskContent::FilePath(file_path) = content {
+            if let Err(err) = tokio::fs::remove_file(&file_path).await {
+                warn!(
+                    "Unable to remove completed GCode file ({:?}): {:?}",
+                    file_path, err
+                );
             }
         }
 
-        // Delete the completed GCode file in a seperate task to prevent blocking the database on
-        // disk IO
-        if let TaskContent::FilePath(file_path) = content {
-            let _ = async_std::task::spawn(async move {
-                use async_std::fs::remove_file;
+        self.update(&db).await?;
 
-                if let Err(err) = remove_file(&file_path).await {
-                    warn!(
-                        "Unable to remove completed GCode file ({:?}): {:?}",
-                        file_path, err
-                    );
-                }
-            });
-        }
-
-        self.update(&mut tx).await?;
-        tx.commit().await?;
-
-        for after_settle_cb in after_task_settle_cbs {
-            after_settle_cb.await;
-        }
-
-        Ok(())
-    }
-}
-
-#[async_trait::async_trait]
-impl Record for Task {
-    const TABLE: &'static str = "tasks";
-
-    fn id(&self) -> &crate::DbId {
-        &self.id
-    }
-
-    fn version(&self) -> printspool_json_store::Version {
-        self.version
-    }
-
-    fn version_mut(&mut self) -> &mut printspool_json_store::Version {
-        &mut self.version
-    }
-
-    fn created_at(&self) -> DateTime<Utc> {
-        self.created_at
-    }
-
-    fn deleted_at(&self) -> Option<DateTime<Utc>> {
-        self.deleted_at
-    }
-
-    fn deleted_at_mut(&mut self) -> &mut Option<DateTime<Utc>> {
-        &mut self.deleted_at
-    }
-
-    async fn insert_no_rollback<'c>(
-        &self,
-        db: &mut sqlx::Transaction<'c, sqlx::Postgres>,
-    ) -> Result<()> {
-        let json = serde_json::to_value(&self)?;
-        let status = self.status.to_db_str();
-
-        sqlx::query!(
-            r#"
-                INSERT INTO tasks
-                (id, version, created_at, props, machine_id, part_id, status)
-                VALUES ($1, $2, $3, $4, $5, $6, $7)
-            "#,
-            self.id,
-            self.version,
-            self.created_at,
-            json,
-            self.machine_id,
-            self.part_id,
-            status,
-        )
-        .fetch_optional(db)
-        .await?;
-        Ok(())
-    }
-
-    async fn update<'e, 'c, E>(&mut self, db: E) -> Result<()>
-    where
-        E: 'e + sqlx::Executor<'c, Database = sqlx::Postgres>,
-    {
-        let (json, previous_version) = self.prep_for_update()?;
-        let status = self.status.to_db_str();
-
-        sqlx::query!(
-            r#"
-                UPDATE tasks
-                SET
-                    props=$1,
-                    version=$2,
-                    status=$3
-                WHERE
-                    id=$4
-                    AND version=$5
-            "#,
-            // SET
-            json,
-            self.version,
-            status,
-            // WHERE
-            self.id,
-            previous_version,
-        )
-        .fetch_optional(db)
+        // Run hooks
+        try_join_all(machine_hooks.iter().map(|machine_hook| async move {
+            machine_hook
+                .after_task_settle(db, &mut machine, machine_hooks, &mut self)
+                .await
+        }))
         .await?;
 
         Ok(())

@@ -35,12 +35,12 @@ define_basic_mapped_view!(
     Component,
     0,
     "by-machine",
-    (Deletion, DbId<Machine>, DbId<Component>),
+    (Deletion, DbId<Machine>),
     |document: CollectionDocument<Component>| {
         let c = document.contents;
         document
             .header
-            .emit_key((c.deleted_at.into(), c.machine_id, c.id))
+            .emit_key((c.deleted_at.into(), c.machine_id))
     }
 );
 

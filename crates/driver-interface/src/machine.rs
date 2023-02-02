@@ -1,15 +1,15 @@
 use self::core_config::MachineCoreConfig;
+use self::machine_hooks::MachineHooks;
 use crate::DbId;
-use crate::{capability::Capability, component::DriverComponent, driver::Driver};
+use crate::{component::DriverComponent, driver::Driver};
+use async_graphql::Context;
 use bonsaidb::core::schema::Collection;
-use chrono::prelude::*;
 use chrono::{DateTime, Utc};
 use derive_more::{Deref, DerefMut};
 use derive_new::new;
 use eyre::Result;
-use schemars::schema::Schema;
 use serde::{Deserialize, Serialize};
-use std::collections::VecDeque;
+use std::sync::Arc;
 use validator::Validate;
 
 pub mod core_config;
@@ -25,6 +25,8 @@ pub use gcode_history_entry::{GCodeHistoryDirection, GCodeHistoryEntry};
 pub use positioning_units::PositioningUnits;
 pub use state::MachineState;
 pub use status::{Errored, MachineStatus, MachineStatusGQL, Printing};
+
+pub type MachineHooksList = Arc<Vec<Box<dyn MachineHooks>>>;
 
 #[derive(Debug, Serialize, Deserialize, Collection, Clone, new)]
 #[collection(name = "machines", views = [], natural_id = |entry: Self| entry.id)]
@@ -51,4 +53,10 @@ pub trait DriverMachine: Clone + std::fmt::Debug + erased_serde::Serialize + Val
 pub struct MachineLayout {
     machine: Box<dyn DriverMachine>,
     components: Vec<Box<dyn DriverComponent>>,
+}
+
+impl Machine {
+    pub async fn load_state(&self, ctx: &Context<'_>) -> Result<MachineState> {
+        MachineState::load(self.deleted_at.into(), self.id, ctx).await
+    }
 }

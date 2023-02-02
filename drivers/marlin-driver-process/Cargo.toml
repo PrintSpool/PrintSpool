@@ -3,12 +3,9 @@ name = "printspool-marlin-driver-process"
 version = "0.1.0"
 authors = ["D1plo1d <thatotherdude@gmail.com>"]
 edition = "2018"
-description = "Teg serial driver for RepRaps and Marlin-compatible firmware"
+description = "PrintSpool serial driver process for RepRaps and Marlin-compatible firmware"
 
 [dependencies]
-printspool-json-store = { path = "../json-store" }
-printspool_machine = { path = "../machine" }
-
 bytes = "1.1.0"
 tokio = { version = "1.12.0", features = ["full"] }
 tokio-util = { version = "0.6.8", features=["codec"] }
@@ -25,7 +22,7 @@ toml = "0.5.8"
 serde = { version = "1.0.101", features = ["derive"] }
 nom-gcode = "0.1.0"
 nom-reprap-response = "0.1.0"
-printspool-protobufs = { path= "../protobufs" }
+printspool-protobufs = { path= "../../crates/protobufs" }
 spin_sleep = "0.3.7"
 error-chain = "0.12.2"
 tracing = "0.1.28"

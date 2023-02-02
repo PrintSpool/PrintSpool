@@ -1,22 +1,12 @@
+use crate::{
+    material::{Material, MaterialConfigEnum},
+    DriverMap, FdmFilament, MaterialTypeGQL,
+};
+use async_graphql::{futures_util::future::try_join_all, Context, FieldResult, ID};
 use chrono::prelude::*;
-use async_graphql::{
-    FieldResult,
-    ID,
-    Context,
-};
-use eyre::{
-    Context as _,
-    // eyre,
-    // Result
-};
-// use printspool_json_store::Record as _;
-
+use eyre::Context as _;
 use printspool_auth::AuthContext;
-use printspool_json_store::Record;
-use crate::{FdmFilament, MaterialTypeGQL, material::{
-        Material,
-        MaterialConfigEnum,
-    }};
+use tracing::warn;
 
 // Input Types
 // ---------------------------------------------
@@ -29,7 +19,7 @@ pub struct CreateMaterialInput {
 
 #[derive(async_graphql::InputObject, Debug)]
 pub struct UpdateMaterialInput {
-    #[graphql(name="materialID")]
+    #[graphql(name = "materialID")]
     pub material_id: ID,
     pub model_version: i32,
     pub model: async_graphql::Json<serde_json::Value>,
@@ -37,7 +27,7 @@ pub struct UpdateMaterialInput {
 
 #[derive(async_graphql::InputObject)]
 pub struct DeleteMaterialInput {
-    #[graphql(name="materialID")]
+    #[graphql(name = "materialID")]
     pub material_id: ID,
 }
 
@@ -87,17 +77,14 @@ impl MaterialMutation {
     ) -> FieldResult<Material> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;
-        let material_hooks: &crate::MaterialHooksList = ctx.data()?;
+        let drivers: &DriverMap = ctx.data()?;
 
         auth.authorize_admins_only()?;
 
         async move {
-            let mut material = Material::get_with_version(
-                db,
-                &input.material_id,
-                input.model_version,
-                false,
-            ).await?;
+            let mut material =
+                Material::get_with_version(db, &input.material_id, input.model_version, false)
+                    .await?;
 
             material.config = match material.config {
                 MaterialConfigEnum::FdmFilament(_) => {
@@ -108,11 +95,10 @@ impl MaterialMutation {
 
             material.update(db).await?;
 
-            for hooks_provider in material_hooks.iter() {
-                hooks_provider.after_update(
-                    &material.id
-                ).await?;
-            }
+            try_join_all(drivers.values().map(|driver| async move {
+                driver.reset_material_targets(db, Some(&material)).await
+            }))
+            .await?;
 
             Ok(material)
         }
@@ -127,7 +113,7 @@ impl MaterialMutation {
     async fn delete_material<'ctx>(
         &self,
         ctx: &'ctx Context<'_>,
-        input: DeleteMaterialInput
+        input: DeleteMaterialInput,
     ) -> FieldResult<Option<printspool_common::Void>> {
         let db: &crate::Db = ctx.data()?;
         let auth: &AuthContext = ctx.data()?;

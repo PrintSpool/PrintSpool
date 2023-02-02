@@ -274,7 +274,7 @@ dependencies = [
  "futures-lite",
  "once_cell",
  "tokio 0.2.25",
- "tokio 1.24.2",
+ "tokio 1.25.0",
 ]
 
 [[package]]
@@ -796,7 +796,7 @@ dependencies = [
  "pot",
  "serde",
  "thiserror",
- "tokio 1.24.2",
+ "tokio 1.25.0",
  "url 2.3.1",
  "wasm-bindgen",
  "wasm-bindgen-futures",
@@ -853,7 +853,7 @@ dependencies = [
  "serde",
  "sysinfo",
  "thiserror",
- "tokio 1.24.2",
+ "tokio 1.25.0",
  "transmog-versions",
  "watchable",
 ]
@@ -897,7 +897,7 @@ dependencies = [
  "serde",
  "signal-hook",
  "thiserror",
- "tokio 1.24.2",
+ "tokio 1.25.0",
  "tokio-rustls",
 ]
 
@@ -1644,6 +1644,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "dashmap"
+version = "5.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "907076dfda823b0b36d2a1bb5f90c96660a5bbcd7729e10727f07858f22c4edc"
+dependencies = [
+ "cfg-if 1.0.0",
+ "hashbrown 0.12.3",
+ "lock_api",
+ "once_cell",
+ "parking_lot_core 0.9.6",
+]
+
+[[package]]
 name = "data-encoding"
 version = "2.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1916,7 +1929,7 @@ dependencies = [
  "serde",
  "thiserror",
  "time 0.3.17",
- "tokio 1.24.2",
+ "tokio 1.25.0",
  "url 2.3.1",
  "webpki",
  "webpki-roots",
@@ -2328,7 +2341,7 @@ dependencies = [
  "http",
  "indexmap",
  "slab",
- "tokio 1.24.2",
+ "tokio 1.25.0",
  "tokio-util 0.7.4",
  "tracing",
 ]
@@ -2556,7 +2569,7 @@ dependencies = [
  "itoa 1.0.5",
  "pin-project-lite 0.2.9",
  "socket2",
- "tokio 1.24.2",
+ "tokio 1.25.0",
  "tower-service",
  "tracing",
  "want",
@@ -2663,7 +2676,7 @@ dependencies = [
  "futures-core",
  "inotify-sys",
  "libc",
- "tokio 1.24.2",
+ "tokio 1.25.0",
 ]
 
 [[package]]
@@ -3780,17 +3793,22 @@ dependencies = [
  "bonsaidb",
  "bs58",
  "chrono",
+ "dashmap 5.4.0",
  "derive-new",
  "derive_more",
  "dyn-clonable",
  "erased-serde",
  "eyre",
  "once_cell",
+ "printspool-protobufs",
  "printspool_config_form",
  "rand 0.8.5",
  "schemars",
  "serde",
  "serde_json",
+ "tokio 1.25.0",
+ "tracing",
+ "tracing-futures",
  "validator",
 ]
 
@@ -3819,7 +3837,7 @@ dependencies = [
  "schemars",
  "serde",
  "serde_json",
- "tokio 1.24.2",
+ "tokio 1.25.0",
  "tokio-util 0.7.4",
  "validator",
 ]
@@ -3845,7 +3863,24 @@ dependencies = [
 ]
 
 [[package]]
-name = "printspool-marlin"
+name = "printspool-marlin-driver"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "bonsaidb",
+ "chrono",
+ "futures-util",
+ "printspool-driver-interface",
+ "rand 0.8.5",
+ "schemars",
+ "serde_json",
+ "tokio 1.25.0",
+ "tokio-util 0.7.4",
+ "validator",
+]
+
+[[package]]
+name = "printspool-marlin-driver-process"
 version = "0.1.0"
 dependencies = [
  "bus_queue",
@@ -3864,37 +3899,18 @@ dependencies = [
  "nom-gcode",
  "nom-reprap-response",
  "pidfile-rs",
- "printspool-json-store",
  "printspool-protobufs",
- "printspool_machine",
  "rand 0.8.5",
  "serde",
  "serde_json",
  "spin_sleep",
  "tempfile 3.2.0",
- "tokio 1.24.2",
+ "tokio 1.25.0",
  "tokio-serial",
  "tokio-util 0.6.10",
  "toml",
  "tracing",
  "tracing-subscriber",
-]
-
-[[package]]
-name = "printspool-marlin-driver"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "bonsaidb",
- "chrono",
- "futures-util",
- "printspool-driver-interface",
- "rand 0.8.5",
- "schemars",
- "serde_json",
- "tokio 1.24.2",
- "tokio-util 0.7.4",
- "validator",
 ]
 
 [[package]]
@@ -3952,7 +3968,7 @@ dependencies = [
  "bytes 1.3.0",
  "chrono",
  "color-eyre",
- "dashmap",
+ "dashmap 4.0.2",
  "derive-new",
  "derive_more",
  "dotenv",
@@ -4054,7 +4070,7 @@ dependencies = [
  "base64 0.12.3",
  "bytes 1.3.0",
  "chrono",
- "dashmap",
+ "dashmap 4.0.2",
  "data-encoding",
  "derive-new",
  "eyre",
@@ -4297,7 +4313,7 @@ dependencies = [
  "quinn-udp",
  "rustls",
  "thiserror",
- "tokio 1.24.2",
+ "tokio 1.25.0",
  "tracing",
  "webpki",
 ]
@@ -4332,7 +4348,7 @@ dependencies = [
  "libc",
  "quinn-proto",
  "socket2",
- "tokio 1.24.2",
+ "tokio 1.25.0",
  "tracing",
 ]
 
@@ -5607,9 +5623,9 @@ dependencies = [
 
 [[package]]
 name = "tokio"
-version = "1.24.2"
+version = "1.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "597a12a59981d9e3c38d216785b0c37399f6e415e8d0712047620f189371b0bb"
+checksum = "c8e00990ebabbe4c14c08aca901caed183ecd5c09562a12c824bb53d3c3fd3af"
 dependencies = [
  "autocfg 1.1.0",
  "bytes 1.3.0",
@@ -5643,7 +5659,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c43ee83903113e03984cb9e5cebe6c04a5116269e900e3ddba8f068a62adda59"
 dependencies = [
  "rustls",
- "tokio 1.24.2",
+ "tokio 1.25.0",
  "webpki",
 ]
 
@@ -5657,7 +5673,7 @@ dependencies = [
  "futures 0.3.25",
  "log",
  "mio-serial",
- "tokio 1.24.2",
+ "tokio 1.25.0",
 ]
 
 [[package]]
@@ -5668,7 +5684,7 @@ checksum = "d660770404473ccd7bc9f8b28494a811bc18542b915c0855c51e8f419d5223ce"
 dependencies = [
  "futures-core",
  "pin-project-lite 0.2.9",
- "tokio 1.24.2",
+ "tokio 1.25.0",
 ]
 
 [[package]]
@@ -5679,7 +5695,7 @@ checksum = "f714dd15bead90401d77e04243611caec13726c2408afd5b31901dfcdcb3b181"
 dependencies = [
  "futures-util",
  "log",
- "tokio 1.24.2",
+ "tokio 1.25.0",
  "tungstenite 0.17.3",
 ]
 
@@ -5694,7 +5710,7 @@ dependencies = [
  "futures-sink",
  "log",
  "pin-project-lite 0.2.9",
- "tokio 1.24.2",
+ "tokio 1.25.0",
 ]
 
 [[package]]
@@ -5707,7 +5723,7 @@ dependencies = [
  "futures-core",
  "futures-sink",
  "pin-project-lite 0.2.9",
- "tokio 1.24.2",
+ "tokio 1.25.0",
  "tracing",
 ]
 
@@ -6192,7 +6208,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_urlencoded",
- "tokio 1.24.2",
+ "tokio 1.25.0",
  "tokio-stream",
  "tokio-tungstenite",
  "tokio-util 0.7.4",

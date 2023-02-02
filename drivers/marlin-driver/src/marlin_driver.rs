@@ -12,6 +12,7 @@ use printspool_driver_interface::{
     DB,
 };
 
+#[derive(Clone, Copy)]
 pub struct MarlinDriver;
 
 #[async_trait]

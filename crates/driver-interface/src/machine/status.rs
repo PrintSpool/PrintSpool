@@ -1,3 +1,5 @@
+use super::Machine;
+use crate::{task::Task, DbId};
 use chrono::prelude::*;
 use eyre::{
     eyre,
@@ -5,10 +7,6 @@ use eyre::{
     // Context as _,
 };
 use serde::{Deserialize, Serialize};
-
-use crate::{task::Task, DbId};
-
-use super::Machine;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum MachineStatus {
@@ -102,7 +100,7 @@ impl MachineStatus {
         }
     }
 
-    pub fn is_printing_task(&self, task_id: &crate::DbId) -> bool {
+    pub fn is_printing_task(&self, task_id: &DbId<Task>) -> bool {
         if let MachineStatus::Printing(printing) = self {
             &printing.task_id == task_id
         } else {

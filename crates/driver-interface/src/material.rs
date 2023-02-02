@@ -1,16 +1,13 @@
+use crate::DbId;
 use chrono::prelude::*;
-use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use schemars::JsonSchema;
-// use eyre::{
-//     // eyre,
-//     Result,
-//     // Context as _,
-// };
-use printspool_json_store::Record;
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
+
+mod configurable_material;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Material {
-    pub id: crate::DbId,
+    pub id: DbId<Material>,
     pub version: i32,
     pub created_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -27,7 +24,7 @@ pub enum MaterialConfigEnum {
 #[graphql(name = "MaterialType")]
 pub enum MaterialTypeGQL {
     #[graphql(name = "FDM_FILAMENT")]
-    FdmFilament
+    FdmFilament,
 }
 
 pub trait MaterialConfig: Serialize + DeserializeOwned {
@@ -48,33 +45,5 @@ pub struct FdmFilament {
 impl MaterialConfig for FdmFilament {
     fn name(&self) -> &String {
         &self.name
-    }
-}
-
-impl Record for Material {
-    const TABLE: &'static str = "materials";
-
-    fn id(&self) -> &crate::DbId {
-        &self.id
-    }
-
-    fn version(&self) -> printspool_json_store::Version {
-        self.version
-    }
-
-    fn version_mut(&mut self) -> &mut printspool_json_store::Version {
-        &mut self.version
-    }
-
-    fn created_at(&self) -> DateTime<Utc> {
-        self.created_at
-    }
-
-    fn deleted_at(&self) -> Option<DateTime<Utc>> {
-        self.deleted_at
-    }
-
-    fn deleted_at_mut(&mut self) -> &mut Option<DateTime<Utc>> {
-        &mut self.deleted_at
     }
 }

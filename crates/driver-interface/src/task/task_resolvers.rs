@@ -1,13 +1,10 @@
+use super::{Task, TaskStatus, TaskStatusKey};
+use crate::{
+    machine::{Machine, MachineState},
+    Deletion,
+};
 use async_graphql::{Context, FieldResult, ID};
 use chrono::prelude::*;
-use eyre::eyre;
-
-use super::{task_status::TaskStatusGQL, Task, TaskStatus};
-
-use crate::{
-    driver_instance::{messages::GetData, MachineData},
-    MachineMap,
-};
 
 /// A spooled set of gcodes to be executed by the machine
 #[async_graphql::Object]
@@ -34,7 +31,7 @@ impl Task {
     // }
 
     #[graphql(name = "status")]
-    async fn _status(&self) -> TaskStatusGQL {
+    async fn _status(&self) -> TaskStatusKey {
         (&self.status).into()
     }
 
@@ -95,16 +92,6 @@ impl Task {
     }
 
     async fn eta<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Option<DateTime<Utc>>> {
-        let machines: &MachineMap = ctx.data()?;
-        let machines = machines.load();
-        let machine_id = (&self.machine_id).into();
-
-        let addr = machines
-            .get(&machine_id)
-            .ok_or_else(|| eyre!("Unable to get machine ({:?}) for task", machine_id))?;
-
-        let machine_data = addr.call(GetData).await??;
-
         let print_time = if let Some(print_time) = self.estimated_print_time {
             print_time
         } else {
@@ -113,9 +100,11 @@ impl Task {
 
         let mut duration = print_time + self.time_paused + self.time_blocked;
 
+        let machine_state = MachineState::load(Deletion::None, self.machine_id, ctx).await?;
+
         if let TaskStatus::Paused(paused_status) = &self.status {
             duration += (Utc::now() - paused_status.paused_at).to_std()?;
-        } else if let Some(blocked_at) = machine_data.blocked_at {
+        } else if let Some(blocked_at) = machine_state.blocked_at {
             if self.status.is_pending() {
                 duration += (Utc::now() - blocked_at).to_std()?;
             }
@@ -145,17 +134,9 @@ impl Task {
         }
     }
 
-    async fn machine<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<MachineData> {
-        let machines: &MachineMap = ctx.data()?;
-        let machines = machines.load();
-        let machine_id = (&self.machine_id).into();
+    async fn machine<'ctx>(&self, ctx: &'ctx Context<'_>) -> FieldResult<Machine> {
+        let machine = Machine::load(Deletion::None, self.machine_id, ctx).await?;
 
-        let addr = machines
-            .get(&machine_id)
-            .ok_or_else(|| eyre!("Unable to get machine ({:?}) for task", machine_id))?;
-
-        let machine_data = addr.call(GetData).await??;
-
-        Ok(machine_data)
+        Ok(machine)
     }
 }

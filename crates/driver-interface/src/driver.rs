@@ -1,7 +1,8 @@
 use crate::{
-    component::DriverComponent,
+    component::{Component, ComponentTypeDescriptor, DriverComponent},
     driver_instance::LocalDriverInstance,
     machine::{Machine, MachineLayout},
+    material::Material,
     Db, DbId,
 };
 use async_trait::async_trait;
@@ -10,7 +11,7 @@ use once_cell::sync::OnceCell;
 use std::{collections::HashMap, pin::Pin};
 
 #[async_trait]
-pub trait Driver: Sync + Send {
+pub trait Driver: Copy + Clone + Sync + Send {
     fn name(&self) -> &'static str;
     fn display_name(&self) -> &'static str;
 
@@ -50,15 +51,15 @@ pub trait Driver: Sync + Send {
         db: &Db,
     ) -> Result<Pin<Box<dyn LocalDriverInstance>>>;
 
-    pub async fn reset_material_targets(
+    /// material_filter optionally filters the reset to only update the components currently using the given material.
+    /// Otherwise, if this is None it reset all material target temperatures.
+    async fn reset_material_targets(
         &self,
         db: &Db,
-        /// Optional filter to only update the components currently using the given material.
-        /// Otherwise, if this is None it reset all material target temperatures.
         material_filter: Option<&Material>,
     ) -> Result<()>;
 
-    pub async fn set_material(
+    async fn set_material(
         &self,
         db: &Db,
         extruder: &mut Component,

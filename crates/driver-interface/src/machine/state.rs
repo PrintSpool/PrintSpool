@@ -8,6 +8,7 @@ use bonsaidb::core::schema::Collection;
 use chrono::prelude::*;
 use chrono::{DateTime, Utc};
 use derive_new::new;
+use eyre::eyre;
 use eyre::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
@@ -44,7 +45,7 @@ define_basic_mapped_view!(
     MachineState,
     0,
     "by-machine",
-    (Deletion, DbId<Machine>, DbId<MachineState>),
+    (Deletion, DbId<Machine>),
     |document: CollectionDocument<MachineState>| {
         let c = document.contents;
         document
@@ -52,6 +53,19 @@ define_basic_mapped_view!(
             .emit_key((c.deleted_at.into(), c.machine_id))
     }
 );
+
+impl MachineState {
+    pub async fn load(
+        deletion: Deletion,
+        machine_id: DbId<Machine>,
+        ctx: &Context<'_>,
+    ) -> Result<MachineState> {
+        let loader = ctx.data_unchecked::<DataLoader<MachineStateLoader>>();
+        let state = loader.load_one((deletion, machine_id)).await?;
+
+        state.ok_or_else(|| eyre!("Machine state not found"))
+    }
+}
 
 pub struct MachineStateLoader {
     pub db: Db,
@@ -65,23 +79,21 @@ impl Loader<(Deletion, DbId<Machine>)> for MachineStateLoader {
     async fn load(
         &self,
         keys: &[(Deletion, DbId<Machine>)],
-    ) -> Result<HashMap<u64, Self::Value>, Self::Error> {
+    ) -> Result<HashMap<(Deletion, DbId<Machine>), Self::Value>, Self::Error> {
         let components = MachineStateByMachine::entries(&self.db)
             .with_keys(keys.clone())
             .query_with_collection_docs()
             .await?
             .into_iter()
-            .map(|m| (m.document.id, m.document.contents))
+            .map(|m| m.document.contents)
+            .map(|machine_state| {
+                (
+                    (machine_state.deleted_at.into(), machine_state.id), // key
+                    machine_state,                                       // value
+                )
+            })
             .collect();
 
         Ok(components)
-    }
-}
-
-impl Machine {
-    pub async fn load_state(&self, ctx: &Context<'_>) -> Result<MachineState> {
-        let loader = ctx.data_unchecked::<DataLoader<MachineStateLoader>>();
-        let state = loader.load_one((self.deleted_at.into(), self.id)).await?;
-        Ok(state)
     }
 }

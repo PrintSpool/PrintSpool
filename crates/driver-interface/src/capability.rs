@@ -1,15 +1,13 @@
 mod actuator;
 mod camera;
+mod extruder;
 mod fan;
 mod heater;
 
 pub use actuator::*;
-pub use build_platform::*;
 pub use camera::*;
-pub use component_inner::ComponentInner;
 pub use fan::*;
 pub use heater::*;
-pub use toolhead::*;
 
 // Conceptual Future Examples
 // (Don't expect these examples to work, it's just a loose idea of what I'd like things to look like in the future)

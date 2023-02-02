@@ -22,7 +22,11 @@ async-graphql = { version = "5.0.5", features = ["dataloader"] }
 derive_more = "0.99.17"
 bs58 = "0.4.0"
 printspool_config_form = { path = "../config_form" }
-printspool_protobufs = { path = "../protobufs" }
+printspool-protobufs = { path = "../protobufs" }
+dashmap = "5.4.0"
+tracing = "0.1.37"
+tracing-futures = "0.2.5"
+tokio = "1.25.0"
 
 [dependencies.serde]
 features = ["derive"]

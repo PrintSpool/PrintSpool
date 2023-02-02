@@ -40,13 +40,6 @@ pub use machine_material_hooks::MachineMaterialHooks;
 pub type Db = sqlx::PgPool;
 pub type DbId = printspool_json_store::DbId;
 
-/// GraphQL Context containing all the machine xactor addresses for message passing.
-pub type MachineMapLocal = HashMap<async_graphql::ID, xactor::Addr<machine::Machine>>;
-pub type MachineMap = Arc<ArcSwap<MachineMapLocal>>;
-
-pub use machine::machine_hooks::MachineHooks;
-pub type MachineHooksList = Arc<Vec<Box<dyn MachineHooks + Send + Sync>>>;
-
 pub type VideoCaptureStreamMap = Arc<DashMap<PathBuf, machine::video::VideoCaptureStream>>;
 
 pub type WebRTCSessionSet = Arc<DashSet::new<machine::video::WebRTCSession>>;

@@ -11,6 +11,7 @@ use printspool_driver_interface::{
     Db,
 };
 
+#[derive(Clone, Copy)]
 pub struct KlipperDriver;
 
 #[async_trait]
