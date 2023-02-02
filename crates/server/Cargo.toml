@@ -35,6 +35,7 @@ printspool_data_channel = { path = "../data_channel" }
 printspool_device = { path = "../device" }
 printspool-json-store = { path = "../json-store" }
 printspool-print-queue = { path = "../print-queue" }
+printspool-driver-interface = { version = "0.1.0", path = "../../crates/driver-interface" }
 
 # async-graphql = { version ="2.8.4", features = ["apollo_tracing", "tracing",  "chrono", "url"] }
 async-graphql = { git = "https://github.com/D1plo1d/async-graphql.git", branch="feature/websocket-file-uploads", features = ["apollo_tracing", "tracing",  "chrono", "url", "unblock"] }
@@ -78,6 +79,7 @@ rand = "0.8.4"
 rppal = "0.13.1"
 versions = "4.0.0"
 dashmap = "4.0.2"
+derive_more = "0.99.17"
 
 [dependencies.serde]
 features = ["derive"]

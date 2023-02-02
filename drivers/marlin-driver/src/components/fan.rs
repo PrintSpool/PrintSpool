@@ -28,6 +28,16 @@ pub struct Fan {
     pub address: String,
 }
 
+impl Axis {
+    pub fn type_descriptor() -> ComponentTypeDescriptor {
+        ComponentTypeDescriptor {
+            name: "MARLIN_FAN",
+            display_name: "Fan",
+            fixed_list: false,
+        }
+    }
+}
+
 impl printspool_config_form::Model for Fan {
     fn form(all_fields: &Vec<String>) -> Vec<String> {
         all_fields.clone()

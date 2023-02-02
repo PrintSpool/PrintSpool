@@ -1,4 +1,5 @@
 use nanoid::nanoid;
+use printspool_driver_interface::component::ComponentTypeDescriptor;
 use regex::Regex;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -38,6 +39,16 @@ pub struct Axis {
     /// # Reverse direction for move buttons and macros
     #[serde(default)]
     pub reverse_direction: bool,
+}
+
+impl Axis {
+    pub fn type_descriptor() -> ComponentTypeDescriptor {
+        ComponentTypeDescriptor {
+            name: "MARLIN_AXIS",
+            display_name: "axis",
+            fixed_list: true,
+        }
+    }
 }
 
 impl printspool_config_form::Model for Axis {

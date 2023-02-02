@@ -5,7 +5,7 @@ use futures::Future;
 
 use crate::{config::MachineConfig, plugins::Plugin, task::Task, MachineHooksList};
 
-use super::{Machine, Machine};
+use super::Machine;
 
 #[async_trait::async_trait]
 pub trait MachineHooks {

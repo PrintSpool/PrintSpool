@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
 use validator::Validate;
 
 use super::ComponentInner;
@@ -7,7 +7,7 @@ use super::ComponentInner;
 /// # Video
 #[derive(Serialize, Deserialize, JsonSchema, Validate, Default, Debug, Clone)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct VideoConfig {
+pub struct CameraConfig {
     /// # Name
     #[validate(length(min = 1, message = "Name cannot be blank"))]
     pub name: String,
@@ -17,10 +17,8 @@ pub struct VideoConfig {
     pub source: String,
 }
 
-impl printspool_config_form::Model for VideoConfig {
+impl printspool_config_form::Model for CameraConfig {
     fn form(all_fields: &Vec<String>) -> Vec<String> {
         all_fields.clone()
     }
 }
-
-pub type Video = ComponentInner<VideoConfig, ()>;

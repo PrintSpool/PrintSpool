@@ -1,4 +1,5 @@
 use crate::driver::Driver;
+use crate::machine::Machine;
 use crate::task::Task;
 use crate::DbId;
 use async_trait::async_trait;
@@ -7,7 +8,7 @@ use eyre::Result;
 /// A CNC Machine or 3D Printer on any host in the network (ie. local to this host or a machine connected to a remote host)
 #[async_trait]
 pub trait AnyHostDriverInstance: Sync + Send {
-    fn id(&self) -> DbId;
+    fn id(&self) -> DbId<Machine>;
     fn driver(&self) -> &'static dyn Driver;
 
     async fn reset(&mut self) -> Result<()>;
@@ -24,7 +25,7 @@ pub trait LocalDriverInstance: Sync + Send + AnyHostDriverInstance {
 
     // These should be triggered by hooks on the host
     async fn spool_task(&mut self, task: Task) -> Result<()>;
-    async fn pause_task(&mut self, task_id: DbId, pause_hook: Task) -> Result<()>;
+    async fn pause_task(&mut self, task_id: DbId<Task>, pause_hook: Task) -> Result<()>;
     async fn resume_task(&mut self, task: Task, resume_hook: Task) -> Result<()>;
 }
 

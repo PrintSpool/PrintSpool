@@ -4,10 +4,11 @@ use async_graphql::{dataloader::*, Context};
 use bonsaidb::core::define_basic_mapped_view;
 use bonsaidb::core::document::CollectionDocument;
 use bonsaidb::core::schema::Collection;
+#[allow(unused)]
 use chrono::prelude::*;
 use chrono::{DateTime, Utc};
 use derive_new::new;
-use eyre::{eyre, Context as _, Result};
+use eyre::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
@@ -70,8 +71,10 @@ impl Loader<(Deletion, DbId<Machine>)> for MachineStateLoader {
             .query_with_collection_docs()
             .await?
             .into_iter()
-            .map(|m| m.document.contents)
-            .collect::<Vec<_>>();
+            .map(|m| (m.document.id, m.document.contents))
+            .collect();
+
+        Ok(components)
     }
 }
 

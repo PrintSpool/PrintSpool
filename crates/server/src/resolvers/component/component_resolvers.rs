@@ -8,8 +8,11 @@ use async_graphql::{FieldResult, ID};
 use super::super::{AxisEphemeral, Component, FanEphemeral, HeaterEphemeral, Toolhead};
 use printspool_config_form::ConfigForm;
 
+#[derive(Deref, DerefMut)]
+pub struct ComponentResolvers(Component);
+
 #[async_graphql::Object]
-impl Component {
+impl ComponentResolvers {
     async fn id(&self) -> ID {
         use Component::*;
 

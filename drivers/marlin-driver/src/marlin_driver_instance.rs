@@ -1,7 +1,10 @@
 use async_codec::Framed;
 use chrono::prelude::*;
+use printspool_driver_interface::capability::HeaterState;
+use printspool_driver_interface::component::{Component, ComponentsByType};
 use printspool_driver_interface::driver_instance::{AnyHostDriverInstance, LocalDriverInstance};
-use printspool_driver_interface::Db;
+use printspool_driver_interface::machine::Machine;
+use printspool_driver_interface::{Db, DbId};
 use xactor::Actor;
 // use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
@@ -15,13 +18,14 @@ use super::{
     receive_stream::receive_stream::codec::MachineCodec,
     MachineStatus,
 };
+use crate::components::extruder::Extruder;
 use crate::components::Toolhead;
 use crate::config::MachineConfig;
 
 pub struct MarlinDriverInstance {
     pub db: crate::Db,
     pub hooks: crate::MachineHooksList,
-    pub id: crate::DbId,
+    pub id: DbId<Machine>,
     pub write_stream: Option<Framed<UnixStream, MachineCodec>>,
     pub unix_socket: Option<UnixStream>,
     pub attempting_to_connect: bool,
@@ -75,12 +79,12 @@ impl MarlinDriverInstance {
 
 impl MarlinDriverInstance {
     pub async fn start(
-        db: crate::Db,
+        db: Db,
         hooks: crate::MachineHooksList,
-        machine_id: &crate::DbId,
-    ) -> Result<xactor::Addr<Machine>> {
+        machine_id: &DbId<Machine>,
+    ) -> Result<Self> {
         let machine_id = machine_id.clone();
-        let machine = xactor::Supervisor::start(move || Machine {
+        let driver_instance = Self {
             db: db.clone(),
             hooks: hooks.clone(),
             id: machine_id.clone(),
@@ -89,30 +93,8 @@ impl MarlinDriverInstance {
             data: None,
             attempting_to_connect: false,
             has_received_feedback: false,
-        })
-        .await?;
+        };
         Ok(machine)
-    }
-
-    pub async fn reset_material_targets(&mut self, msg: ResetMaterialTargets) -> Result<()> {
-        let db = self.db.clone();
-        let data = self.get_data()?;
-
-        let toolhead_materials = data
-            .config
-            .toolheads
-            .iter()
-            .map(|c| (c.id.clone(), c.model.material_id.clone()))
-            .collect::<Vec<_>>();
-
-        // Reset the ephemeral material targets on reset data
-        for (toolhead_id, material_id) in toolhead_materials.into_iter() {
-            if msg.material_id_filter.is_none() || msg.material_id_filter == material_id {
-                Toolhead::set_material(&db, &mut data.config, &toolhead_id, &material_id).await?;
-            }
-        }
-
-        Ok(())
     }
 }
 

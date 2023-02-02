@@ -10,7 +10,9 @@ use chrono::prelude::*;
 use eyre::{eyre, Context as _, Result};
 use printspool_auth::user::User;
 use printspool_config_form::ConfigForm;
-use printspool_json_store::{JsonRow, Record as _};
+
+#[derive(Deref, DerefMut)]
+pub struct MachineResolvers(Machine);
 
 #[derive(async_graphql::InputObject, Debug, Default)]
 struct MachineComponentsInput {
@@ -20,7 +22,7 @@ struct MachineComponentsInput {
 }
 
 #[async_graphql::Object(name = "Machine")]
-impl Machine {
+impl MachineResolvers {
     async fn id(&self) -> ID {
         (&self.config.id).into()
     }
@@ -36,8 +38,7 @@ impl Machine {
         Ok(config_form)
     }
 
-    #[graphql(name = "components")]
-    async fn gql_components(
+    async fn components(
         &self,
         ctx: &Context<'_>,
         #[graphql(default)] input: MachineComponentsInput,

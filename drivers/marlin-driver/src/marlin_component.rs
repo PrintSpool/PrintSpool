@@ -1,7 +1,12 @@
-use printspool_driver_interface::capability::{AxisOrientation, GCodeAlias, Movement, C};
+use printspool_driver_interface::{
+    capability::{Actuator, AxisOrientation, GCodeAlias, C},
+    component::ComponentTypeDescriptor,
+};
 
 use crate::components::{axis::Axis, build_platform::BuildPlatform, extruder::Extruder};
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub enum MarlinComponent {
     Axis(Axis),
     BuildPlatform(BuildPlatform),
@@ -16,7 +21,7 @@ impl printspool_driver_interface::component::DriverComponent for MarlinComponent
 
     fn capabilities(&self) -> Vec<printspool_driver_interface::capability::Capability> {
         match self {
-            Self::Axis(c) => vec![C::Movement(Movement {
+            Self::Axis(c) => vec![C::Actuator(Actuator {
                 axis: match &c.address.to_lowercase() {
                     "x" => AxisOrientation::LinearX,
                     "y" => AxisOrientation::LinearY,
@@ -48,6 +53,15 @@ impl printspool_driver_interface::component::DriverComponent for MarlinComponent
                 }),
             ],
             _ => todo!(),
+        }
+    }
+
+    fn type_descriptor(&self) -> ComponentTypeDescriptor {
+        match self {
+            MarlinComponent::Axis(_) => Axis::type_descriptor(),
+            MarlinComponent::BuildPlatform(_) => BuildPlatform::type_descriptor(),
+            MarlinComponent::Fan(_) => Fan::type_descriptor(),
+            MarlinComponent::Extruder(_) => Extruder::type_descriptor(),
         }
     }
 }

@@ -1,5 +1,6 @@
 // #![type_length_limit="15941749"]
-#[macro_use] extern crate tracing;
+#[macro_use]
+extern crate tracing;
 // #[macro_use] extern crate derive_new;
 // #[macro_use] extern crate nanoid;
 
@@ -18,11 +19,12 @@ mod built_info {
 
 pub use printspool_machine::paths;
 
+pub mod local_http_server;
 pub mod mutation;
 pub mod query;
-pub mod server_query;
-pub mod local_http_server;
+mod resolvers;
 pub mod server;
+pub mod server_query;
 
 mod create_db;
 pub use create_db::create_db;
@@ -42,11 +44,8 @@ pub type DbId = printspool_json_store::DbId;
 pub type AppSchemaBuilder = async_graphql::SchemaBuilder<
     query::Query,
     mutation::Mutation,
-    async_graphql::EmptySubscription
+    async_graphql::EmptySubscription,
 >;
 
-pub type AppSchema = async_graphql::Schema<
-    query::Query,
-    mutation::Mutation,
-    async_graphql::EmptySubscription
->;
+pub type AppSchema =
+    async_graphql::Schema<query::Query, mutation::Mutation, async_graphql::EmptySubscription>;

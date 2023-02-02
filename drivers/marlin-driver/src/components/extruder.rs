@@ -118,6 +118,16 @@ pub struct Extruder {
     pub before_filament_swap_hook: String,
 }
 
+impl Extruder {
+    pub fn type_descriptor() -> ComponentTypeDescriptor {
+        ComponentTypeDescriptor {
+            name: "MARLIN_EXTRUDER",
+            display_name: "extruder",
+            fixed_list: true,
+        }
+    }
+}
+
 impl printspool_config_form::Model for Extruder {
     fn static_form() -> Option<Vec<&'static str>> {
         Some(vec![

@@ -39,6 +39,14 @@ impl Driver for KlipperDriver {
     }
 
     // Necessary for Object Safety (schemars::JsonSchema is not object safe but schemars::Schema is)
+    fn component_schema(
+        &self,
+        gen: &mut schemars::gen::SchemaGenerator,
+    ) -> schemars::schema::Schema {
+        KlipperComponent::json_schema(gen)
+    }
+
+    // Necessary for Object Safety (schemars::JsonSchema is not object safe but schemars::Schema is)
     fn machine_schema(&self, gen: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
         KlipperMachine::json_schema(gen)
     }
@@ -84,11 +92,22 @@ impl Driver for KlipperDriver {
         Ok(Pin::new(Box::new(driver_instance)))
     }
 
-    // Necessary for Object Safety (schemars::JsonSchema is not object safe but schemars::Schema is)
-    fn component_schema(
+    pub async fn reset_material_targets(
         &self,
-        gen: &mut schemars::gen::SchemaGenerator,
-    ) -> schemars::schema::Schema {
-        KlipperComponent::json_schema(gen)
+        db: &Db,
+        /// Optional filter to only update the components currently using the given material.
+        /// Otherwise, if this is None it reset all material target temperatures.
+        material_filter: Option<&Material>,
+    ) -> Result<()> {
+        todo!()
+    }
+
+    pub async fn set_material(
+        &self,
+        db: &Db,
+        extruder: &mut Component,
+        material: Option<&Material>,
+    ) -> Result<()> {
+        todo!()
     }
 }

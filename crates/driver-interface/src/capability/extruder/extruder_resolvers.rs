@@ -1,20 +1,19 @@
-use async_graphql::{
-    Context,
-    FieldResult,
-    ID,
-};
-use printspool_material::Material;
+use async_graphql::{Context, FieldResult, ID};
 use printspool_json_store::Record as _;
+use printspool_material::Material;
 
-use super::Toolhead;
+use super::Extruder;
 
 #[async_graphql::Object]
-impl Toolhead {
+impl Extruder {
     async fn id(&self) -> ID {
         (&self.id).into()
     }
 
-    async fn current_material<'ctx>(&self, ctx: &'ctx Context<'_>,) -> FieldResult<Option<Material>> {
+    async fn current_material<'ctx>(
+        &self,
+        ctx: &'ctx Context<'_>,
+    ) -> FieldResult<Option<Material>> {
         let db: &crate::Db = ctx.data()?;
 
         let material_id = self.model.material_id.as_ref();

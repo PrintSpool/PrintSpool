@@ -1,7 +1,7 @@
 use crate::{
     component::DriverComponent,
     driver_instance::LocalDriverInstance,
-    machine::{DriverMachine, MachineLayout},
+    machine::{Machine, MachineLayout},
     Db, DbId,
 };
 use async_trait::async_trait;
@@ -17,8 +17,7 @@ pub trait Driver: Sync + Send {
     /// Accepted file extensions for importing a machine
     fn import_file_extensions(&self) -> Vec<String>;
 
-    /// Component types which cannot be added or removed after a driver instance is created
-    fn fixed_list_component_types(&self) -> Vec<String>;
+    fn component_types(&self) -> Vec<ComponentTypeDescriptor>;
 
     /// Deserialize a component defined in this driver from a json value
     fn component_from_value(
@@ -27,7 +26,7 @@ pub trait Driver: Sync + Send {
     ) -> Result<Box<dyn DriverComponent>, serde_json::Error>;
 
     /// Gets the JSON Schema for the component types defined in the driver
-    fn component_json_schema(
+    fn component_schema(
         &self,
         gen: &mut schemars::gen::SchemaGenerator,
     ) -> schemars::schema::Schema;
@@ -47,9 +46,24 @@ pub trait Driver: Sync + Send {
     /// Starts a driver instance with the given machine ID
     async fn load_instance(
         &self,
-        machine_id: DbId,
+        machine_id: DbId<Machine>,
         db: &Db,
     ) -> Result<Pin<Box<dyn LocalDriverInstance>>>;
+
+    pub async fn reset_material_targets(
+        &self,
+        db: &Db,
+        /// Optional filter to only update the components currently using the given material.
+        /// Otherwise, if this is None it reset all material target temperatures.
+        material_filter: Option<&Material>,
+    ) -> Result<()>;
+
+    pub async fn set_material(
+        &self,
+        db: &Db,
+        extruder: &mut Component,
+        material: Option<&Material>,
+    ) -> Result<()>;
 }
 
 pub static DRIVER_REGISTRY: OnceCell<HashMap<String, &'static dyn Driver>> = OnceCell::new();

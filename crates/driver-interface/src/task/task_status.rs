@@ -1,13 +1,7 @@
 use chrono::prelude::*;
-use eyre::{
-    eyre,
-    Result,
-    // Context as _,
-};
-use printspool_protobufs::machine_message::TaskProgress;
 use serde::{Deserialize, Serialize};
 
-pub use crate::driver_instance::Errored;
+pub use crate::machine::status::Errored;
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub enum TaskStatus {

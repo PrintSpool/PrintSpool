@@ -32,6 +32,16 @@ pub struct BuildPlatform {
     pub heater: bool,
 }
 
+impl BuildPlatform {
+    pub fn type_descriptor() -> ComponentTypeDescriptor {
+        ComponentTypeDescriptor {
+            name: "MARLIN_BUILD_PLATFORM",
+            display_name: "Build Platform",
+            fixed_list: true,
+        }
+    }
+}
+
 impl printspool_config_form::Model for BuildPlatform {
     fn form(all_fields: &Vec<String>) -> Vec<String> {
         all_fields.clone()

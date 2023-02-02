@@ -6,7 +6,7 @@ use eyre::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::task::Task;
+use crate::{task::Task, DbId};
 
 use super::Machine;
 
@@ -57,7 +57,7 @@ impl From<MachineStatus> for MachineStatusGQL {
 
 #[derive(Clone, Debug)]
 pub struct Printing {
-    pub task_id: crate::DbId,
+    pub task_id: DbId<Task>,
     pub paused: bool,
     /// The state of the machine at the time the print was paused
     pub paused_state: Option<Box<Machine>>,

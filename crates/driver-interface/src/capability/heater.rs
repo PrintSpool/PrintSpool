@@ -9,8 +9,8 @@ use crate::DbId;
 #[derive(
     async_graphql::SimpleObject, Debug, Serialize, Deserialize, Collection, Clone, SmartDefault,
 )]
-#[collection(name = "heaters", views = [], natural_id = |entry: HeaterEphemeral| entry.id)]
-pub struct HeaterEphemeral {
+#[collection(name = "heaters", views = [], natural_id = |entry: Self| entry.id)]
+pub struct HeaterState {
     #[default(defaultDbId)]
     pub id: DbId,
 
@@ -20,21 +20,22 @@ pub struct HeaterEphemeral {
     /// The current temperature in °C recorded by the heater’s thermocouple or
     /// thermister.
     pub actual_temperature: Option<f32>,
-    /// The current material's configured temperature in °C for this heater.
-    ///
-    /// For build platforms if multiple toolhead materials are loaded but then the
-    /// material_target is set to their average.
-    ///
-    /// When the Heater is enabled the toolhead target_temperature will normally be set to the
-    /// material_target.
-    pub material_target: Option<f32>,
-
     pub enabled: bool,
     /// True if the machine is waiting on this heater to reach it’s targetTemp and
     /// preventing any more gcodes from executing until it does.
     pub blocking: bool,
     // pub history: VecDeque<TemperatureHistoryEntry>,
 }
+
+// todo: material_target should be looked up based on the component's configured material at query time
+// /// The current material's configured temperature in °C for this heater.
+// ///
+// /// For build platforms if multiple toolhead materials are loaded but then the
+// /// material_target is set to their average.
+// ///
+// /// When the Heater is enabled the toolhead target_temperature will normally be set to the
+// /// material_target.
+// pub material_target: Option<f32>,
 
 // static NEXT_TEMPERATURE_ID: AtomicU64 = AtomicU64::new(0);
 

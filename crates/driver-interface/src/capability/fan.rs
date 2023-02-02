@@ -7,7 +7,7 @@ use validator::Validate;
 use super::ComponentInner;
 
 #[derive(async_graphql::SimpleObject, Debug, Clone, SmartDefault)]
-pub struct FanEphemeral {
+pub struct FanState {
     #[default(nanoid!(11).into())]
     pub id: async_graphql::ID,
     /// The expected speed of the fan when it is enabled as a 0-100% percentage of it's
@@ -18,5 +18,3 @@ pub struct FanEphemeral {
     /// True if the SpeedController is on.
     pub enabled: bool,
 }
-
-pub type SpeedController = ComponentInner<SpeedControllerConfig, FanEphemeral>;
