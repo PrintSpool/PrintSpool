@@ -104,7 +104,8 @@ pub fn impl_printspool_collection(args: TokenStream, item: TokenStream) -> Token
             };
 
             // Remove the #[printspool] attr
-            let attr = field.attrs.remove(attr_index);
+            // let attr = field.attrs.remove(attr_index);
+            let attr = field.attrs.get(attr_index).unwrap();
 
             // Generate the #[printspool] attr's tokenstream additions
             let attr_meta = attr.parse_meta().expect("Parsing printspool attr");

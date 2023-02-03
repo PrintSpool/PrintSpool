@@ -1,17 +1,11 @@
-use crate::DbId;
-use chrono::prelude::*;
+use printspool_proc_macros::printspool_collection;
 use schemars::JsonSchema;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 mod configurable_material;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[printspool_collection]
 pub struct Material {
-    pub id: DbId<Material>,
-    pub version: i32,
-    pub created_at: DateTime<Utc>,
-    pub deleted_at: Option<DateTime<Utc>>,
-    // Props
     pub config: MaterialConfigEnum,
 }
 

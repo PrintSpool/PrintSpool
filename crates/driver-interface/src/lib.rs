@@ -4,7 +4,7 @@ pub use erased_serde;
 pub use serde_json;
 
 use dashmap::DashMap;
-use driver::Driver;
+use driver_instance::LocalDriverInstance;
 use machine::Machine;
 use std::pin::Pin;
 
@@ -19,5 +19,5 @@ pub mod material;
 pub mod task;
 
 pub type Db = bonsaidb::AnyDatabase;
-pub type BoxedDriver = Box<Pin<dyn Driver>>;
-pub type DriverMap = DashMap<DbId<Machine>, BoxedDriver>;
+pub type BoxedDriverInstance = Box<Pin<dyn LocalDriverInstance>>;
+pub type DriverMapInstance = DashMap<DbId<Machine>, BoxedDriverInstance>;

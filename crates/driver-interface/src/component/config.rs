@@ -1,6 +1,3 @@
-mod machine_config;
-pub use machine_config::{ MachineConfig };
-
 pub mod resolvers;
 
 mod combined_config_view;

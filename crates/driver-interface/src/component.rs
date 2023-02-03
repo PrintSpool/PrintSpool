@@ -1,48 +1,25 @@
 use std::any::Any;
 
 use crate::{capability::Capability, driver::Driver, machine::Machine, DbId, Deletion};
-use bonsaidb::core::{define_basic_mapped_view, document::CollectionDocument, schema::Collection};
-use chrono::{DateTime, Utc};
+use bonsaidb::core::{define_basic_mapped_view, document::CollectionDocument};
 use derive_more::{Deref, DerefMut};
-use derive_new::new;
-use serde::{Deserialize, Serialize};
-use validator::Validate;
+use printspool_proc_macros::printspool_collection;
 
 pub mod config;
 mod serialization;
 mod type_descriptor;
 
 pub use type_descriptor::ComponentTypeDescriptor;
+use validator::Validate;
 
-#[derive(Debug, Serialize, Deserialize, Collection, Clone, new)]
-#[collection(name = "components", views = [], natural_id = |c: Component| Some(c.id))]
+#[printspool_collection]
 pub struct Component {
-    #[new(default = defaultDbId)]
-    pub id: DbId<Self>,
-    #[new(value = "Utc::now()")]
-    pub created_at: DateTime<Utc>,
-    #[new(default)]
-    pub deleted_at: Option<DateTime<Utc>>,
-
     // Foreign keys
+    #[printspool(foreign_key)]
     pub machine_id: DbId<Machine>,
 
     pub driver_config: DynDriverComponent,
 }
-
-define_basic_mapped_view!(
-    ComponentsByMachine,
-    Component,
-    0,
-    "by-machine",
-    (Deletion, DbId<Machine>),
-    |document: CollectionDocument<Component>| {
-        let c = document.contents;
-        document
-            .header
-            .emit_key((c.deleted_at.into(), c.machine_id))
-    }
-);
 
 define_basic_mapped_view!(
     ComponentsByType,

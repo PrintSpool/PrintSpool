@@ -1,19 +1,8 @@
-use chrono::prelude::*;
-use nanoid::nanoid;
-use serde::{Deserialize, Serialize};
-use std::collections::VecDeque;
-use std::sync::atomic::{AtomicU64, Ordering};
+use printspool_proc_macros::printspool_collection;
 
-use crate::DbId;
-
-#[derive(
-    async_graphql::SimpleObject, Debug, Serialize, Deserialize, Collection, Clone, SmartDefault,
-)]
-#[collection(name = "heaters", views = [], natural_id = |entry: Self| entry.id)]
+#[derive(async_graphql::SimpleObject)]
+#[printspool_collection]
 pub struct HeaterState {
-    #[default(defaultDbId)]
-    pub id: DbId,
-
     /// The target temperature in °C for this heater. The heater will attempt to make
     /// the actualTemperature equal to this temperature.
     pub target_temperature: Option<f32>,

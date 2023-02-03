@@ -1,12 +1,7 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-use validator::Validate;
-
-use super::ComponentInner;
+use printspool_proc_macros::printspool_collection;
 
 /// # Video
-#[derive(Serialize, Deserialize, JsonSchema, Validate, Default, Debug, Clone)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[printspool_collection]
 pub struct CameraConfig {
     /// # Name
     #[validate(length(min = 1, message = "Name cannot be blank"))]

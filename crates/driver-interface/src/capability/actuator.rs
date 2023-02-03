@@ -1,12 +1,5 @@
-use nanoid::nanoid;
-use regex::Regex;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-use validator::Validate;
-
-use crate::DbId;
-
-use super::ComponentInner;
+use super::GCodeAlias;
+use printspool_proc_macros::printspool_collection;
 
 pub struct Actuator {
     /// visual orientation of the axis of Actuator with respect to the other axes of Actuator within this component.
@@ -26,13 +19,8 @@ pub enum AxisOrientation {
     // NonCartesian(String),
 }
 
-#[derive(
-    async_graphql::SimpleObject, Debug, Serialize, Deserialize, Collection, Clone, SmartDefault,
-)]
-#[collection(name = "actuator_state", views = [], natural_id = |entry: ActuatorState| entry.id)]
+#[printspool_collection]
 pub struct ActuatorState {
-    pub id: DbId<Self>,
-
     /// The target position in mm.
     pub target_position: Option<f32>,
     /// The current position in mm.

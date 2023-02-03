@@ -23,6 +23,7 @@ pub fn foreign_key(
 
     let loader_ident = format_ident!("{}Loader", view_ident);
     let load_fn_ident = format_ident!("load_by_{}", key_ident);
+    let loader_fn_ident = format_ident!("loader_by_{}", key_ident);
 
     let not_found_error = format!("{} not found", struct_ident);
 
@@ -82,11 +83,18 @@ pub fn foreign_key(
                 deletion: crate::Deletion,
                 #key_ident: #key_ty,
                 ctx: &async_graphql::Context<'_>,
-            ) -> Result<#struct_ident> {
-                let loader = ctx.data_unchecked::<async_graphql::dataloader::DataLoader<#loader_ident>>();
+            ) -> eyre::Result<#struct_ident> {
+                let loader = Self::#loader_fn_ident()?;
                 let state = loader.load_one((deletion, #key_ident)).await?;
 
                 state.ok_or_else(|| eyre::eyre!(#not_found_error))
+            }
+
+            pub fn #loader_fn_ident(
+                ctx: &async_graphql::Context<'_>,
+            ) -> eyre::Result<#struct_ident> {
+                let loader = ctx.data_unchecked::<async_graphql::dataloader::DataLoader<#loader_ident>>();
+                Ok(loader)
             }
         }
 
