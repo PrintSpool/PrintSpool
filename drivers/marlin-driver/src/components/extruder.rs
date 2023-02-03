@@ -1,12 +1,9 @@
-use super::ComponentInner;
 use super::{AxisEphemeral, HeaterEphemeral};
-use crate::config::MachineConfig;
 use eyre::{
     eyre,
     Result,
     // Context as _,
 };
-use printspool_json_store::Record as _;
 use printspool_material::{Material, MaterialConfigEnum};
 use printspool_proc_macros::define_component;
 use regex::Regex;
@@ -16,7 +13,7 @@ lazy_static! {
 }
 
 /// # Toolhead
-#[define_component]
+#[define_component(override_model = true)]
 pub struct Extruder {
     /// # Name
     #[validate(length(min = 1, message = "Name cannot be blank"))]

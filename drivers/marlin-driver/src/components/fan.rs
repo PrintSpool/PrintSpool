@@ -1,10 +1,5 @@
-use super::ComponentInner;
-use nanoid::nanoid;
 use printspool_proc_macros::define_component;
 use regex::Regex;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-use validator::Validate;
 
 lazy_static! {
     static ref FAN_ADDRESS: Regex = Regex::new(r"^f\d+$").unwrap();
@@ -26,20 +21,4 @@ pub struct Fan {
     "#
     ))]
     pub address: String,
-}
-
-impl Axis {
-    pub fn type_descriptor() -> ComponentTypeDescriptor {
-        ComponentTypeDescriptor {
-            name: "MARLIN_FAN",
-            display_name: "Fan",
-            fixed_list: false,
-        }
-    }
-}
-
-impl printspool_config_form::Model for Fan {
-    fn form(all_fields: &Vec<String>) -> Vec<String> {
-        all_fields.clone()
-    }
 }

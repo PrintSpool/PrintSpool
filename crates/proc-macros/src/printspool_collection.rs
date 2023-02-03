@@ -1,6 +1,8 @@
-use crate::foreign_key::foreign_key;
+mod foreign_key;
+
 use crate::inline_compiler_error::inline_compile_error;
 use attribute_derive::Attribute;
+use foreign_key::foreign_key;
 use inflector::cases::snakecase::to_snake_case;
 use inflector::string::pluralize::to_plural;
 use proc_macro::{self, TokenStream};

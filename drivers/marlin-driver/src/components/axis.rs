@@ -1,6 +1,4 @@
-use super::ComponentInner;
 use nanoid::nanoid;
-use printspool_driver_interface::component::ComponentTypeDescriptor;
 use printspool_proc_macros::define_component;
 use regex::Regex;
 
@@ -10,7 +8,7 @@ lazy_static! {
 
 /// # Axis
 
-#[define_component]
+#[define_component(fixed_list = true)]
 pub struct Axis {
     /// # Name
     #[validate(length(min = 1, message = "Name cannot be blank"))]
@@ -36,20 +34,4 @@ pub struct Axis {
     /// # Reverse direction for move buttons and macros
     #[serde(default)]
     pub reverse_direction: bool,
-}
-
-impl Axis {
-    pub fn type_descriptor() -> ComponentTypeDescriptor {
-        ComponentTypeDescriptor {
-            name: "MARLIN_AXIS",
-            display_name: "axis",
-            fixed_list: true,
-        }
-    }
-}
-
-impl printspool_config_form::Model for Axis {
-    fn form(all_fields: &Vec<String>) -> Vec<String> {
-        all_fields.clone()
-    }
 }

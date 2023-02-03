@@ -1,5 +1,4 @@
 mod define_component;
-mod foreign_key;
 mod inline_compiler_error;
 mod printspool_collection;
 
