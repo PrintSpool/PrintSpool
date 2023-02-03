@@ -3,9 +3,8 @@ use crate::{
     Db, DbId, Deletion,
 };
 use async_graphql::futures_util::future::try_join_all;
-use bonsaidb::core::schema::Collection;
-use chrono::prelude::*;
 use eyre::Result;
+use printspool_proc_macros::printspool_collection;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use tracing::warn;
@@ -21,17 +20,16 @@ pub use gcode_annotation::GCodeAnnotation;
 pub use task_indexes::*;
 pub use task_status::{Cancelled, Created, Errored, Finished, Paused, TaskStatus};
 
-#[derive(Debug, Serialize, Deserialize, Clone, Collection)]
-#[collection(name = "tasks", views = [TasksById, TasksByMachine, TasksByPart, TasksByPackage, TasksByPrintQueue])]
+#[printspool_collection(sort_key = |t| -> TaskStatusKey { t.status.into() })]
 pub struct Task {
-    pub id: DbId<Self>,
-    pub version: i32,
-    pub created_at: DateTime<Utc>,
-    pub deleted_at: Option<DateTime<Utc>>,
     // Foreign Keys
+    #[printspool(foreign_key)]
     pub machine_id: DbId<Machine>, // machines have many (>=0) tasks
+    #[printspool(foreign_key)]
     pub part_id: Option<DbId<TaskPartFk>>, // parts have many (>=0) print tasks
+    #[printspool(foreign_key)]
     pub package_id: Option<DbId<TaskPackageFk>>, // print queues have many (>=0) print tasks
+    #[printspool(foreign_key)]
     pub print_queue_id: Option<DbId<TaskPrintQueueFk>>, // print queues have many (>=0) print tasks
     // Content
     pub content: TaskContent,

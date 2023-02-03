@@ -10,7 +10,7 @@ define_basic_unique_mapped_view!(
     TasksById,
     Task,
     0,
-    "by:id",
+    "by-id",
     (Deletion, DbId<Task>, TaskStatusKey),
     |document: CollectionDocument<Task>| {
         let c = document.contents;

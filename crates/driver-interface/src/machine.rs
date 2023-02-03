@@ -8,6 +8,7 @@ use chrono::{DateTime, Utc};
 use derive_more::{Deref, DerefMut};
 use derive_new::new;
 use eyre::Result;
+use printspool_proc_macros::printspool_collection;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use validator::Validate;
@@ -28,16 +29,8 @@ pub use status::{Errored, MachineStatus, MachineStatusGQL, Printing};
 
 pub type MachineHooksList = Arc<Vec<Box<dyn MachineHooks>>>;
 
-#[derive(Debug, Serialize, Deserialize, Collection, Clone, new)]
-#[collection(name = "machines", views = [], natural_id = |entry: Self| entry.id)]
+#[printspool_collection]
 pub struct Machine {
-    #[new(default)]
-    pub id: DbId<Self>,
-    #[new(value = "Utc::now()")]
-    pub created_at: DateTime<Utc>,
-    #[new(default)]
-    pub deleted_at: Option<DateTime<Utc>>,
-
     pub core_config: MachineCoreConfig,
     pub driver_config: DynDriverMachine,
 }
@@ -57,6 +50,6 @@ pub struct MachineLayout {
 
 impl Machine {
     pub async fn load_state(&self, ctx: &Context<'_>) -> Result<MachineState> {
-        MachineState::load(self.deleted_at.into(), self.id, ctx).await
+        MachineState::load_by_id(self.deleted_at.into(), self.id, ctx).await
     }
 }

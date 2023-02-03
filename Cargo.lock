@@ -592,8 +592,20 @@ version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "292171aaf2a1b90189daf26e835f6a498b865896b93e67290fe3ed79d773e1b8"
 dependencies = [
- "attribute-derive-macro",
+ "attribute-derive-macro 0.2.0",
  "proc-macro2",
+ "syn",
+]
+
+[[package]]
+name = "attribute-derive"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e5d7e40762ffd53f741608a7516f628d2d7beb119a53141cb4107d962edb60db"
+dependencies = [
+ "attribute-derive-macro 0.3.1",
+ "proc-macro2",
+ "quote",
  "syn",
 ]
 
@@ -606,6 +618,19 @@ dependencies = [
  "proc-macro-error",
  "proc-macro2",
  "quote",
+ "syn",
+]
+
+[[package]]
+name = "attribute-derive-macro"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5172263fd8862e2fedc2fe3e11535d39d839e5d78c49de698d1ed68b261fb67e"
+dependencies = [
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "quote-use",
  "syn",
 ]
 
@@ -864,7 +889,7 @@ version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "169440da529437be1f1b1289da58196088ca118ac64ab43982ca757c957bf9a2"
 dependencies = [
- "attribute-derive",
+ "attribute-derive 0.2.2",
  "proc-macro-crate",
  "proc-macro-error",
  "proc-macro2",
@@ -3800,6 +3825,7 @@ dependencies = [
  "erased-serde",
  "eyre",
  "once_cell",
+ "printspool-proc-macros",
  "printspool-protobufs",
  "printspool_config_form",
  "rand 0.8.5",
@@ -3944,6 +3970,17 @@ dependencies = [
  "tracing",
  "tracing-futures",
  "xactor",
+]
+
+[[package]]
+name = "printspool-proc-macros"
+version = "0.1.0"
+dependencies = [
+ "Inflector",
+ "attribute-derive 0.3.1",
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -4359,6 +4396,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8856d8364d252a14d474036ea1358d63c9e6965c8e5c1885c18f73d70bff9c7b"
 dependencies = [
  "proc-macro2",
+]
+
+[[package]]
+name = "quote-use"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "825c64c14fa0cf7b2bba3c086edbb1d2f4aab69e96253dfa99b8c58a3ecf893a"
+dependencies = [
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]

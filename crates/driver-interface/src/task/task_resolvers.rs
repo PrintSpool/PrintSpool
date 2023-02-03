@@ -100,7 +100,7 @@ impl Task {
 
         let mut duration = print_time + self.time_paused + self.time_blocked;
 
-        let machine_state = MachineState::load(Deletion::None, self.machine_id, ctx).await?;
+        let machine_state = MachineState::load_by_id(Deletion::None, self.machine_id, ctx).await?;
 
         if let TaskStatus::Paused(paused_status) = &self.status {
             duration += (Utc::now() - paused_status.paused_at).to_std()?;
