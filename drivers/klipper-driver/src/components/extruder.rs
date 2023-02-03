@@ -1,8 +1,7 @@
 use crate::{KlipperId, KlipperPin, StepperBaselineConfig};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use printspool_proc_macros::define_component;
 
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[define_component]
 pub struct Extruder {
     pub klipper_id: KlipperId,
 

@@ -1,7 +1,6 @@
 use crate::KlipperId;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct DelayedGcode {
     pub klipper_id: KlipperId,
     /// A list of G-Code commands to execute when the delay duration has

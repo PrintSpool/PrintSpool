@@ -1,6 +1,5 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct BedMesh {
     /// The speed (in mm/s) of non-probing moves during the calibration.
     /// The default is 50.

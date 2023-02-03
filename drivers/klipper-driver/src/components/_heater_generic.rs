@@ -1,8 +1,7 @@
 use crate::KlipperId;
 use crate::KlipperPin;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct HeaterGeneric {
     pub klipper_id: KlipperId,
     /// The id to use when reporting the temperature in the M105 command.

@@ -1,8 +1,7 @@
 use crate::KlipperId;
 use crate::KlipperPin;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct Ad5206 {
     pub klipper_id: KlipperId,
     /// The pin corresponding to the AD5206 chip select line. This pin

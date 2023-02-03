@@ -1,7 +1,6 @@
 use crate::KlipperPin;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct Probe {
     /// Probe detection pin. If the pin is on a different microcontroller
     /// than the Z steppers then it enables "multi-mcu homing". This

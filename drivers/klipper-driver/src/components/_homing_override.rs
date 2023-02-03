@@ -1,6 +1,5 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct HomingOverride {
     /// A list of G-Code commands to execute in place of G28 commands
     /// found in the normal g-code input. See docs/Command_Templates.md

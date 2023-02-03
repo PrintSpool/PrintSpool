@@ -1,6 +1,5 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct BedTilt {
     /// The amount to add to each move's Z height for each mm on the X
     /// axis. The default is 0.

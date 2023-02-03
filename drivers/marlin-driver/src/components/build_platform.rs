@@ -1,18 +1,14 @@
-use regex::Regex;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-use validator::Validate;
-
 use super::ComponentInner;
 use super::HeaterEphemeral;
+use printspool_proc_macros::define_component;
+use regex::Regex;
 
 lazy_static! {
     static ref BUILD_PLATFORM_ADDRESS: Regex = Regex::new(r"^b$").unwrap();
 }
 
 /// # Build Platform
-#[derive(Serialize, Deserialize, JsonSchema, Validate, Default, Debug, Clone)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[define_component]
 pub struct BuildPlatform {
     /// # Name
     #[validate(length(min = 1))]

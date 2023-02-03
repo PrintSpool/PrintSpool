@@ -1,8 +1,7 @@
 use crate::KlipperPin;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use printspool_proc_macros::define_component;
 
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+#[define_component]
 pub struct Servo {
     /// PWM output pin controlling the servo. This parameter must be
     /// provided.

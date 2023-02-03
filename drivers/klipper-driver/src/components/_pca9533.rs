@@ -1,7 +1,6 @@
 use crate::KlipperId;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct Pca9533 {
     pub klipper_id: KlipperId,
     /// The i2c address that the chip is using on the i2c bus. Use 98 for

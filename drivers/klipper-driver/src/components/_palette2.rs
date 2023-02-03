@@ -1,6 +1,5 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct Palette2 {
     /// The serial port to connect to the Palette 2.
     pub serial: f64,

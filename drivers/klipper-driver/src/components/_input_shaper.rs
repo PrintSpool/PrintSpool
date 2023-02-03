@@ -1,6 +1,5 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct InputShaper {
     /// A frequency (in Hz) of the input shaper for X axis. This is
     /// usually a resonance frequency of X axis that the input shaper

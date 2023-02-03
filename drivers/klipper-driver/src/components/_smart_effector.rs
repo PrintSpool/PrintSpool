@@ -1,7 +1,6 @@
 use crate::KlipperPin;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct SmartEffector {
     /// Pin connected to the Smart Effector Z Probe output pin (pin 5). Note that
     /// pullup resistor on the board is generally not required. However, if the

@@ -1,10 +1,8 @@
 use crate::KlipperPin;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-use validator::Validate;
+use printspool_proc_macros::define_component;
 
 /// Print Cooling Fan (0 or 1 per printer)
-#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
+#[define_component]
 pub struct Fan {
     /// Output pin controlling the fan. This parameter must be provided.
     pub pin: KlipperPin,

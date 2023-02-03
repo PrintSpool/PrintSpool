@@ -1,7 +1,9 @@
+mod define_component;
 mod foreign_key;
 mod inline_compiler_error;
 mod printspool_collection;
 
+use define_component::impl_define_component;
 use printspool_collection::impl_printspool_collection;
 use proc_macro::TokenStream;
 
@@ -42,7 +44,6 @@ use proc_macro::TokenStream;
 /// let tasks = Task::load_by_id(Deletion::None, task_id, TaskStatusKey::Spooled).await?
 /// ```
 /// ```
-
 #[proc_macro_attribute]
 pub fn printspool_collection(args: TokenStream, item: TokenStream) -> TokenStream {
     impl_printspool_collection(args, item)
@@ -51,4 +52,9 @@ pub fn printspool_collection(args: TokenStream, item: TokenStream) -> TokenStrea
 #[proc_macro_derive(PrintSpoolCollection, attributes(printspool))]
 pub fn derive_helper_attr(_item: TokenStream) -> TokenStream {
     TokenStream::new()
+}
+
+#[proc_macro_attribute]
+pub fn define_component(args: TokenStream, item: TokenStream) -> TokenStream {
+    impl_define_component(args, item)
 }

@@ -1,3 +1,6 @@
+use super::ComponentInner;
+use super::{AxisEphemeral, HeaterEphemeral};
+use crate::config::MachineConfig;
 use eyre::{
     eyre,
     Result,
@@ -5,23 +8,15 @@ use eyre::{
 };
 use printspool_json_store::Record as _;
 use printspool_material::{Material, MaterialConfigEnum};
+use printspool_proc_macros::define_component;
 use regex::Regex;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-use validator::Validate;
-
-use crate::config::MachineConfig;
-
-use super::ComponentInner;
-use super::{AxisEphemeral, HeaterEphemeral};
 
 lazy_static! {
     static ref EXTRUDER_ADDRESS: Regex = Regex::new(r"^e\d+$").unwrap();
 }
 
 /// # Toolhead
-#[derive(Serialize, Deserialize, JsonSchema, Validate, Default, Debug, Clone)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[define_component]
 pub struct Extruder {
     /// # Name
     #[validate(length(min = 1, message = "Name cannot be blank"))]

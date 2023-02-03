@@ -1,6 +1,5 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct GcodeArcs {
     /// An arc will be split into segments. Each segment's length will
     /// equal the resolution in mm set above. Lower values will produce a

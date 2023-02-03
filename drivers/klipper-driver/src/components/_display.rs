@@ -1,7 +1,6 @@
 use crate::KlipperPin;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct Display {
     /// The type of LCD chip in use. This may be "hd44780", "hd44780_spi",
     /// "st7920", "emulated_st7920", "uc1701", "ssd1306", or "sh1106".

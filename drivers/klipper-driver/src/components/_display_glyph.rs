@@ -1,7 +1,6 @@
 use crate::KlipperId;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct DisplayGlyph {
     pub klipper_id: KlipperId,
     /// The display data, stored as 16 lines consisting of 16 bits (1 per

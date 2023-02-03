@@ -1,7 +1,6 @@
 use crate::KlipperPin;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct Bltouch {
     /// Pin connected to the BLTouch sensor pin. Most BLTouch devices
     /// require a pullup on the sensor pin (prefix the pin name with "^").

@@ -1,7 +1,6 @@
 use crate::KlipperId;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct Sx1509 {
     pub klipper_id: KlipperId,
     /// I2C address used by this expander. Depending on the hardware

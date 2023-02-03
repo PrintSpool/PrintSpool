@@ -1,7 +1,6 @@
 use crate::KlipperPin;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct DualCarriage {
     /// The axis this extra carriage is on (either x or y). This parameter
     /// must be provided.

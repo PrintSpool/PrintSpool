@@ -1,8 +1,6 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-use validator::Validate;
+use printspool_proc_macros::define_component;
 
-#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
+#[define_component]
 pub struct StepperBaselineConfig {
     /// Step GPIO pin (triggered high). This parameter must be provided.
     pub step_pin: crate::KlipperPin,

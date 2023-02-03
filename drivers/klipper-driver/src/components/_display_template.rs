@@ -1,7 +1,6 @@
 use crate::KlipperId;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct DisplayTemplate {
     pub klipper_id: KlipperId,
     /// The text to return when the this template is rendered. This field

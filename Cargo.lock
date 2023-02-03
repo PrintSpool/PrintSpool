@@ -3859,6 +3859,7 @@ dependencies = [
  "chrono",
  "futures-util",
  "printspool-driver-interface",
+ "printspool-proc-macros",
  "rand 0.8.5",
  "schemars",
  "serde",

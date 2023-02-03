@@ -1,8 +1,6 @@
 use super::Fan;
 use crate::{KlipperId, KlipperIdList};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-use validator::Validate;
+use printspool_proc_macros::define_component;
 
 /// Controller cooling fan (one may define any number of sections with a
 /// "controller_fan" prefix). A "controller fan" is a fan that will be
@@ -10,7 +8,7 @@ use validator::Validate;
 /// driver is active. The fan will stop whenever an idle_timeout is
 /// reached to ensure no overheating will occur after deactivating a
 /// watched component.
-#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
+#[define_component]
 pub struct ControllerFan {
     pub klipper_id: KlipperId,
 

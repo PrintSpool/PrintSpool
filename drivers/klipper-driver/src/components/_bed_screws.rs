@@ -1,6 +1,5 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct BedScrews {
     /// The X, Y coordinate of the first bed leveling screw. This is a
     /// position to command the nozzle to that is directly above the bed

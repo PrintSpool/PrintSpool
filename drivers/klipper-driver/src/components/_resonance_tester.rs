@@ -1,6 +1,5 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct ResonanceTester {
     /// A list of X, Y, Z coordinates of points (one point per line) to test
     /// resonances at. At least one point is required. Make sure that all

@@ -1,14 +1,12 @@
 use super::Fan;
 use crate::{KlipperId, KlipperIdList};
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-use validator::Validate;
+use printspool_proc_macros::define_component;
 
 /// Heater cooling fans (one may define any number of sections with a
 /// "heater_fan" prefix). A "heater fan" is a fan that will be enabled
 /// whenever its associated heater is active. By default, a heater_fan has
 /// a shutdown_speed equal to max_power.
-#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
+#[define_component]
 pub struct HeaterFan {
     pub klipper_id: KlipperId,
 

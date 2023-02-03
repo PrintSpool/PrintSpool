@@ -84,11 +84,9 @@ fn main() {
 
         let src = quote! {
             #(#includes)*
-            use schemars::JsonSchema;
-            use serde::{Deserialize, Serialize};
-            use validator::Validate;
+            use printspool_proc_macros::define_component;
 
-            #[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
+            #[define_component]
             pub struct #struct_name_ident {
 
                 #id_variable

@@ -1,6 +1,5 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct VirtualSdcard {
     /// The path of the local directory on the host machine to look for
     /// g-code files. This is a read-only directory (sdcard file writes

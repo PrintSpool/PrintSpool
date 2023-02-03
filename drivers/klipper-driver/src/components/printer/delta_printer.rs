@@ -1,13 +1,10 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-use validator::Validate;
-
 use crate::{
     printer::PrinterBaselineConfig, GenericStepper, KlipperPin, PositionedStepperBaselineConfig,
 };
+use printspool_proc_macros::define_component;
 
 /// Linear Delta Kinematics
-#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
+#[define_component]
 pub struct DeltaPrinter {
     #[validate]
     #[serde(flatten)]

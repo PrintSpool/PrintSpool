@@ -1,6 +1,5 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct IdleTimeout {
     /// A list of G-Code commands to execute on an idle timeout. See
     /// docs/Command_Templates.md for G-Code format. The default is to run

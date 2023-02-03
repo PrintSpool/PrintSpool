@@ -1,17 +1,17 @@
+use super::ComponentInner;
 use nanoid::nanoid;
+use printspool_proc_macros::define_component;
 use regex::Regex;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use super::ComponentInner;
-
 lazy_static! {
     static ref FAN_ADDRESS: Regex = Regex::new(r"^f\d+$").unwrap();
 }
+
 /// # Fan
-#[derive(Serialize, Deserialize, JsonSchema, Validate, Default, Debug, Clone)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[define_component]
 pub struct Fan {
     /// # Name
     #[validate(length(min = 1, message = "Name cannot be blank"))]

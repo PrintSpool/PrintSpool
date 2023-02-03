@@ -8,7 +8,8 @@ edition = "2021"
 [dependencies]
 schemars = "0.8.0"
 validator = { version = "0.12.0", features = ["derive"] }
-printspool-driver-interface = { version = "0.1.0", path = "../../crates/driver-interface" }
+printspool-driver-interface = { path = "../../crates/driver-interface" }
+printspool-proc-macros = { path = "../../crates/proc-macros" }
 async-trait = "0.1.63"
 bonsaidb = "0.4.1"
 chrono = "0.4.23"

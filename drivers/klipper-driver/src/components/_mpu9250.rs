@@ -1,7 +1,6 @@
 use crate::KlipperId;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct Mpu9250 {
     pub klipper_id: KlipperId,
     /// Default is 104 (0x68). If AD0 is high, it would be 0x69 instead.

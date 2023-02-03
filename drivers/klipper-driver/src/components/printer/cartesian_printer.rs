@@ -1,11 +1,8 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-use validator::Validate;
-
 use crate::{printer::PrinterBaselineConfig, KlipperPin, PositionedStepperBaselineConfig};
+use printspool_proc_macros::define_component;
 
 /// Cartesian Kinematics
-#[derive(Serialize, Deserialize, JsonSchema, Validate, Debug, Clone)]
+#[define_component]
 pub struct CartesianPrinter {
     #[validate]
     #[serde(flatten)]

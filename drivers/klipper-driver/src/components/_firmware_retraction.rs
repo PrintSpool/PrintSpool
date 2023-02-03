@@ -1,6 +1,5 @@
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, JsonSchema, Debug, Clone)]
+use printspool_proc_macros::define_component;
+#[define_component]
 pub struct FirmwareRetraction {
     /// The length of filament (in mm) to retract when G10 is activated,
     /// and to unretract when G11 is activated (but see
