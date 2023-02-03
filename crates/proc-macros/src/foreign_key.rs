@@ -31,7 +31,7 @@ pub fn foreign_key(
     let mut key_tuple = vec![quote! { crate::Deletion }, quote! { #key_ty}];
 
     let mut loader_key = quote! {
-        (c.deleted_at.into(), c.id, sort_key(c))
+        (c.deleted_at.into(), c.id)
     };
 
     if let Some(sort_key) = sort_key {
