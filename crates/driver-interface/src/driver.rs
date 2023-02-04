@@ -11,7 +11,7 @@ use once_cell::sync::OnceCell;
 use std::{collections::HashMap, pin::Pin};
 
 #[async_trait]
-pub trait Driver: Copy + Clone + Sync + Send {
+pub trait Driver: Sync + Send {
     fn name(&self) -> &'static str;
     fn display_name(&self) -> &'static str;
 

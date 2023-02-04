@@ -1,10 +1,10 @@
 use bonsaidb::core::{
-    key::EnumKey,
+    key::{EnumKey, Key},
     num_traits::{FromPrimitive, ToPrimitive},
 };
-use chrono::DateTime;
+use chrono::{DateTime, TimeZone};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Key)]
 pub enum Deletion {
     None,
     Deleted,
@@ -46,7 +46,7 @@ impl FromPrimitive for Deletion {
     }
 }
 
-impl<T> From<Option<DateTime<T>>> for Deletion {
+impl<T: TimeZone> From<Option<DateTime<T>>> for Deletion {
     fn from(value: Option<DateTime<T>>) -> Self {
         if value.is_some() {
             Deletion::Deleted

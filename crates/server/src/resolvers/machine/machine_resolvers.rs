@@ -48,7 +48,7 @@ impl MachineResolvers {
             .with_key_range((
                 Deletion::None,
                 self.id,
-                input.component_id.try_into()?.or_any_id(),
+                DbId::or_any(input.component_id.try_into()?),
             ))
             .query_with_collection_docs()
             .await?

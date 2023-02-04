@@ -42,7 +42,7 @@ pub struct DynDriverComponent(Box<dyn DriverComponent>);
 
 #[dyn_clonable::clonable]
 pub trait DriverComponent:
-    Clone + std::fmt::Debug + erased_serde::Serialize + Validate + Any
+    Clone + Sync + Send + std::fmt::Debug + erased_serde::Serialize + Validate + Any
 {
     fn driver(&self) -> &'static dyn Driver;
     // fn driver_name(&self) -> &'static str;

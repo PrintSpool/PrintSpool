@@ -1,20 +1,30 @@
-use std::ops::Range;
+use bonsaidb::core::key::Key;
+use derive_new::new;
+use std::{marker::PhantomData, ops::Range};
 
 /// A database key for collection C (zero-sized wrapper for a u64 identifier)
-#[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
-pub struct DbId<C>(pub u64);
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Key, Debug, new)]
+pub struct DbId<C>(pub u64, #[new(default)] PhantomData<fn() -> C>);
 
 impl<C> Default for DbId<C> {
     fn default() -> Self {
-        Self(rand::random())
+        Self(rand::random(), Default::default())
     }
 }
 
 impl<C> DbId<C> {
     pub fn any() -> Range<Self> {
         Range {
-            start: Self(u64::MIN),
-            end: Self(u64::MAX),
+            start: Self::new(u64::MIN),
+            end: Self::new(u64::MAX),
+        }
+    }
+
+    pub fn or_any(db_id: Option<Self>) -> Range<Self> {
+        if let Some(id) = db_id {
+            Range { start: id, end: id }
+        } else {
+            DbId::any()
         }
     }
 }
@@ -24,7 +34,7 @@ impl<C> TryFrom<&async_graphql::ID> for DbId<C> {
         let mut buf = [0u8; 8];
 
         bs58::decode(value.0).into(&mut buf)?;
-        let id = Self(u64::from_be_bytes(buf));
+        let id = Self::new(u64::from_be_bytes(buf));
 
         Ok(id)
     }
@@ -35,15 +45,5 @@ impl<C> TryFrom<&async_graphql::ID> for DbId<C> {
 impl<C> From<&DbId<C>> for async_graphql::ID {
     fn from(value: &DbId<C>) -> Self {
         Self(bs58::encode(value.0.to_be_bytes()).into_string())
-    }
-}
-
-impl<C> Option<DbId<C>> {
-    pub fn or_any_id(&self) -> Range<DbId<C>> {
-        if let Some(id) = self {
-            Range { start: id, end: id }
-        } else {
-            DbId::any()
-        }
     }
 }

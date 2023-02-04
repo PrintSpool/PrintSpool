@@ -39,7 +39,9 @@ pub struct Machine {
 pub struct DynDriverMachine(Box<dyn DriverMachine>);
 
 #[dyn_clonable::clonable]
-pub trait DriverMachine: Clone + std::fmt::Debug + erased_serde::Serialize + Validate {
+pub trait DriverMachine:
+    Clone + Sync + Send + std::fmt::Debug + erased_serde::Serialize + Validate
+{
     fn driver(&self) -> &'static dyn Driver;
 }
 

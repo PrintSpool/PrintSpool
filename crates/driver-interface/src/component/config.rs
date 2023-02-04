@@ -1,6 +1,3 @@
-pub mod resolvers;
-
-mod combined_config_view;
 pub use combined_config_view::CombinedConfigView;
 
 mod validate_model;

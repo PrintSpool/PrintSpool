@@ -23,19 +23,9 @@ pub fn foreign_key(
 
     let loader_ident = format_ident!("{}Loader", view_ident);
     let load_fn_ident = format_ident!("load_by_{}", key_ident);
-    let loader_fn_ident = format_ident!("loader_by_{}", key_ident);
+    let loader_fn_ident = format_ident!("by_{}_loader", key_ident);
 
-    let not_found_error = format!("{} not found", struct_ident);
-
-    let key_ty = &field.ty;
-
-    let mut key_tuple = vec![quote! { crate::Deletion }, quote! { #key_ty}];
-
-    let mut loader_key = quote! {
-        (c.deleted_at.into(), c.id)
-    };
-
-    if let Some(sort_key) = sort_key {
+    let sort_type = if let Some(sort_key) = sort_key {
         let sort_type = match &sort_key.output {
             ReturnType::Type(_, ty) => match **ty {
                 Type::Path(ref type_path) => type_path.path.get_ident(),
@@ -51,16 +41,46 @@ pub fn foreign_key(
             );
         };
 
-        key_tuple.push(quote! { #sort_type });
-
-        loader_key = quote! {
-            let sort_key = #sort_key;
-            (c.deleted_at.into(), c.id, sort_key(c))
-        };
+        Some(sort_type)
+    } else {
+        None
     };
+
+    let load_fn_sort_arg_def = if let Some(sort_type) = sort_type {
+        quote! {sort: #sort_type,}
+    } else {
+        quote! {}
+    };
+
+    let load_fn_sort_arg = if let Some(_) = sort_type {
+        quote! {sort }
+    } else {
+        quote! {}
+    };
+
+    let not_found_error = format!("{} not found", struct_ident);
+
+    let key_ty = &field.ty;
+
+    let mut key_tuple = vec![quote! { crate::Deletion }, quote! { #key_ty}];
+
+    if let Some(sort_type) = sort_type {
+        key_tuple.push(quote! { #sort_type });
+    }
 
     let key_tuple = quote! {
         (#(#key_tuple),*)
+    };
+
+    let loader_key = if let Some(sort_key) = sort_key {
+        quote! {
+            let sort_key = #sort_key;
+            (c.deleted_at.into(), c.id, sort_key(c))
+        }
+    } else {
+        quote! {
+            (c.deleted_at.into(), c.id)
+        }
     };
 
     let output = quote! {
@@ -82,17 +102,18 @@ pub fn foreign_key(
             pub async fn #load_fn_ident(
                 deletion: crate::Deletion,
                 #key_ident: #key_ty,
+                #load_fn_sort_arg_def
                 ctx: &async_graphql::Context<'_>,
             ) -> eyre::Result<#struct_ident> {
-                let loader = Self::#loader_fn_ident()?;
-                let state = loader.load_one((deletion, #key_ident)).await?;
+                let loader = Self::#loader_fn_ident(ctx)?;
+                let state = loader.load_one((deletion, #key_ident, #load_fn_sort_arg)).await?;
 
                 state.ok_or_else(|| eyre::eyre!(#not_found_error))
             }
 
             pub fn #loader_fn_ident(
                 ctx: &async_graphql::Context<'_>,
-            ) -> eyre::Result<#struct_ident> {
+            ) -> eyre::Result<async_graphql::dataloader::DataLoader<#loader_ident>> {
                 let loader = ctx.data_unchecked::<async_graphql::dataloader::DataLoader<#loader_ident>>();
                 Ok(loader)
             }
@@ -111,7 +132,7 @@ pub fn foreign_key(
                 &self,
                 keys: &[#key_tuple],
             ) -> Result<std::collections::HashMap<#key_tuple, Self::Value>, Self::Error> {
-                let components = #view_ident::entries(&self.db)
+                let hash_table = #view_ident::entries(&self.db)
                     .with_keys(keys.clone())
                     .query_with_collection_docs()
                     .await?
@@ -128,7 +149,7 @@ pub fn foreign_key(
                     })
                     .collect();
 
-                Ok(components)
+                Ok(hash_table)
             }
         }
     };
