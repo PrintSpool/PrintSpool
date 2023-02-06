@@ -13,13 +13,13 @@ dyn-clonable = "0.9.0"
 once_cell = "1.17.0"
 serde_json = "1.0.91"
 eyre = "0.6.8"
-chrono = "0.4.23"
+chrono = { version = "0.4.23", features = ["serde"] }
 async-trait = "0.1.63"
 # bonsaidb = { git = "https://github.com/khonsulabs/bonsaidb.git", features = ["client", "server"] }
 bonsaidb = { version = "0.4.1", features = ["client", "server"] }
 rand = "0.8.5"
 derive-new = "0.5.9"
-async-graphql = { version = "5.0.5", features = ["dataloader"] }
+async-graphql = { version = "5.0.5", features = ["dataloader", "chrono"] }
 derive_more = "0.99.17"
 bs58 = "0.4.0"
 printspool_config_form = { path = "../config_form" }

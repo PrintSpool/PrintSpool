@@ -21,7 +21,7 @@ pub mod status;
 pub use gcode_history_entry::{GCodeHistoryDirection, GCodeHistoryEntry};
 pub use positioning_units::PositioningUnits;
 pub use state::MachineState;
-pub use status::{Errored, MachineStatus, MachineStatusGQL, Printing};
+pub use status::{Errored, MachineStatus, MachineStatusKey, Printing};
 
 pub type MachineHooksList = Arc<Vec<&'static dyn MachineHooks>>;
 
@@ -31,7 +31,7 @@ pub struct Machine {
     pub driver_config: DynDriverMachine,
 }
 
-#[derive(Deref, DerefMut)]
+#[derive(Deref, DerefMut, Debug, Clone)]
 pub struct DynDriverMachine(Box<dyn DriverMachine>);
 
 #[dyn_clonable::clonable]

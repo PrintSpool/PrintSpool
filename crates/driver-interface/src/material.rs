@@ -2,7 +2,7 @@ use printspool_proc_macros::printspool_collection;
 use schemars::JsonSchema;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
-mod configurable_material;
+// mod configurable_material;
 
 #[printspool_collection]
 pub struct Material {

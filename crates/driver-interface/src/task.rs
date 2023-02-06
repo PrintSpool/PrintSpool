@@ -3,6 +3,7 @@ use crate::{
     Db, DbId, Deletion,
 };
 use async_graphql::futures_util::future::try_join_all;
+use bonsaidb::core::connection::AsyncConnection;
 use eyre::Result;
 use printspool_proc_macros::printspool_collection;
 use serde::{Deserialize, Serialize};
@@ -18,7 +19,7 @@ pub use self::task_status_key::TaskStatusKey;
 pub use gcode_annotation::GCodeAnnotation;
 pub use task_status::{Cancelled, Created, Errored, Finished, Paused, TaskStatus};
 
-#[printspool_collection(sort_key = |t| -> TaskStatusKey { t.status.into() })]
+#[printspool_collection(sort_key = |t: &Task| -> TaskStatusKey { t.status.into() })]
 pub struct Task {
     // Foreign Keys
     #[printspool(foreign_key)]
@@ -112,7 +113,7 @@ impl Task {
         // Run hooks
         try_join_all(machine_hooks.iter().map(|machine_hook| async move {
             machine_hook
-                .before_task_settle(db, &mut machine, &mut self)
+                .before_task_settle(&db, &mut machine, &mut self)
                 .await
         }))
         .await?;
@@ -126,12 +127,14 @@ impl Task {
             }
         }
 
-        self.update(&db).await?;
+        // TODO: An update method might need to get added:
+        // self.update(&db).await?;
+        db.collection::<Self>().update(self).await?;
 
         // Run hooks
         try_join_all(machine_hooks.iter().map(|machine_hook| async move {
             machine_hook
-                .after_task_settle(db, &mut machine, &mut self)
+                .after_task_settle(&db, &mut machine, &mut self)
                 .await
         }))
         .await?;

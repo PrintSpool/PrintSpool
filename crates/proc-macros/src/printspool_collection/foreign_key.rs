@@ -4,6 +4,7 @@ use proc_macro2::Ident;
 use quote::{format_ident, quote};
 use syn::{ExprClosure, ReturnType, Type};
 
+/// Known Issue: Self references in foreign key types will result in compile errors. Instead of Self use the actual type name (eg. Task)
 pub fn foreign_key(
     struct_ident: &Ident,
     field: &syn::Field,
@@ -37,7 +38,7 @@ pub fn foreign_key(
         let Some(sort_type) = sort_type else {
             return (
                 view_ident,
-                inline_compile_error("sort_key requires an explicit return type eg. `sort_key: |t: Task| -> u32 { 42 }`")
+                inline_compile_error("sort_key requires an explicit return type eg. `sort_key: |t: &Task| -> u32 { 42 }`")
             );
         };
 
@@ -106,42 +107,68 @@ pub fn foreign_key(
             })
     };
 
-    // Optional foreign keys only get entries added in the view if they are not None
-    let get_key_ident = if let Some(optional_inner_type) = optional_inner_type {
+    if let Some(optional_inner_type) = optional_inner_type {
         key_ty = optional_inner_type;
-        quote! {
-            use bonsaidb::core::schema::view::map::Mappings;
-
-            if let Some(val) = c.#key_ident {
-                val
-            } else {
-                return Mappings::none();
-            }
-        }
-    } else {
-        quote! { c.#key_ident }
-    };
-
-    let mut key_tuple = vec![quote! { crate::Deletion }, quote! { #key_ty}];
-
-    if let Some(sort_type) = sort_type {
-        key_tuple.push(quote! { #sort_type });
     }
 
-    let key_tuple = quote! {
-        (#(#key_tuple),*)
+    let mut key_tuple_def = vec![quote! { crate::Deletion }, quote! { #key_ty}];
+
+    if let Some(sort_type) = sort_type {
+        key_tuple_def.push(quote! { #sort_type });
+    }
+
+    let key_tuple_def = quote! {
+        (#(#key_tuple_def),*)
     };
 
-    let loader_key = if let Some(sort_key) = sort_key {
-        quote! {
-            let sort_key = #sort_key;
-            (c.deleted_at.into(), c.id, sort_key(c))
-        }
-    } else {
-        quote! {
-            (c.deleted_at.into(), c.id)
+    // Optional foreign keys only get entries added in the view if they are not None
+    let gen_get_key_ident = |if_none: proc_macro2::TokenStream| {
+        if let Some(_) = optional_inner_type {
+            quote! {
+                if let Some(val) = c.#key_ident {
+                    val
+                } else {
+                    #if_none
+                }
+            }
+        } else {
+            quote! { c.#key_ident }
         }
     };
+
+    let gen_key_tuple = |if_none: proc_macro2::TokenStream| {
+        let get_key_ident = gen_get_key_ident(if_none);
+
+        if let Some(sort_key) = sort_key {
+            quote! {
+                let #key_ident = {
+                    #get_key_ident
+                };
+
+                let sort_key = #sort_key;
+
+                (c.deleted_at.into(), #key_ident, sort_key(&c))
+            }
+        } else {
+            quote! {
+                let #key_ident = {
+                    #get_key_ident
+                };
+
+                (c.deleted_at.into(), #key_ident)
+            }
+        }
+    };
+
+    let mapping_key_tuple = gen_key_tuple(quote! {
+        use bonsaidb::core::schema::view::map::Mappings;
+
+        return Ok(Mappings::none());
+    });
+
+    let loader_key_tuple = gen_key_tuple(quote! {
+        return None;
+    });
 
     let output = quote! {
         bonsaidb::core::define_basic_mapped_view!(
@@ -149,16 +176,19 @@ pub fn foreign_key(
             #struct_ident,
             0,
             #view_name_str,
-            #key_tuple,
+            #key_tuple_def,
             |document: bonsaidb::core::document::CollectionDocument<#struct_ident>| {
-                let c = document.contents;
-                let #key_ident = {
-                    #get_key_ident
-                };
+                todo!()
+                // use bonsaidb::core::document::{CollectionDocument, Emit};
+                // let c = document.contents;
 
-                document
-                    .header
-                    .emit_key((c.deleted_at.into(), #key_ident))
+                // let key = {
+                //     #mapping_key_tuple
+                // };
+
+                // document
+                //     .header
+                //     .emit_key(key)
             }
         );
 
@@ -169,17 +199,19 @@ pub fn foreign_key(
                 #load_fn_sort_arg_def
                 ctx: &async_graphql::Context<'_>,
             ) -> eyre::Result<#struct_ident> {
-                let loader = Self::#loader_fn_ident(ctx)?;
-                let state = loader.load_one((deletion, #key_ident, #load_fn_sort_arg)).await?;
+                todo!()
+                // let loader = Self::#loader_fn_ident(ctx)?;
+                // let state = loader.load_one((deletion, #key_ident, #load_fn_sort_arg)).await?;
 
-                state.ok_or_else(|| eyre::eyre!(#not_found_error))
+                // state.ok_or_else(|| eyre::eyre!(#not_found_error))
             }
 
             pub fn #loader_fn_ident(
                 ctx: &async_graphql::Context<'_>,
-            ) -> eyre::Result<async_graphql::dataloader::DataLoader<#loader_ident>> {
-                let loader = ctx.data_unchecked::<async_graphql::dataloader::DataLoader<#loader_ident>>();
-                Ok(loader)
+            ) -> eyre::Result<&async_graphql::dataloader::DataLoader<#loader_ident>> {
+                todo!()
+                // let loader = ctx.data_unchecked::<async_graphql::dataloader::DataLoader<#loader_ident>>();
+                // Ok(loader)
             }
         }
 
@@ -188,32 +220,30 @@ pub fn foreign_key(
         }
 
         #[async_trait::async_trait]
-        impl async_graphql::dataloader::Loader<#key_tuple> for #loader_ident {
+        impl async_graphql::dataloader::Loader<#key_tuple_def> for #loader_ident {
             type Value = #struct_ident;
-            type Error = std::sync::Arc<eyre::Error>;
+            type Error = std::sync::Arc<bonsaidb::core::Error>;
 
             async fn load(
                 &self,
-                keys: &[#key_tuple],
-            ) -> Result<std::collections::HashMap<#key_tuple, Self::Value>, Self::Error> {
-                let hash_table = #view_ident::entries(&self.db)
-                    .with_keys(keys.clone())
-                    .query_with_collection_docs()
-                    .await?
-                    .into_iter()
-                    .map(|m| m.document.contents)
-                    .map(|c| {
-                        let key = { #loader_key };
-                        (
-                            // key
-                            key,
-                            // value
-                            c,
-                        )
-                    })
-                    .collect();
+                keys: &[#key_tuple_def],
+            ) -> Result<std::collections::HashMap<#key_tuple_def, Self::Value>, Self::Error> {
+                todo!()
 
-                Ok(hash_table)
+                // let hash_table = db.view::<#view_ident>()
+                //     .with_keys(keys.clone())
+                //     .query_with_collection_docs()
+                //     .await?
+                //     .into_iter()
+                //     .map(|m| m.document.contents)
+                //     .filter_map(|c| {
+                //         let key = { #loader_key_tuple };
+
+                //         Some((key, c))
+                //     })
+                //     .collect();
+
+                // Ok(hash_table)
             }
         }
     };

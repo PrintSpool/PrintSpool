@@ -53,7 +53,7 @@ impl<'de> Deserialize<'de> for DynDriverMachine {
 
         // Deserialize the boxed dyn struct from the Machine's json value
         let boxed_driver_machine = driver
-            .Machine_from_value(content)
+            .machine_from_value(content)
             .map_err(|e| D::Error::custom(e))?;
 
         // Retun the boxed struct wrapped in an instance of this struct

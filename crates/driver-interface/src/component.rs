@@ -37,7 +37,7 @@ define_basic_mapped_view!(
     }
 );
 
-#[derive(Deref, DerefMut)]
+#[derive(Debug, Deref, DerefMut, Clone)]
 pub struct DynDriverComponent(Box<dyn DriverComponent>);
 
 #[dyn_clonable::clonable]

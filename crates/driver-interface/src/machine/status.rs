@@ -1,4 +1,3 @@
-use super::Machine;
 use crate::{task::Task, DbId};
 use chrono::prelude::*;
 use eyre::{
@@ -8,7 +7,7 @@ use eyre::{
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum MachineStatus {
     Disconnected,
     Connecting,
@@ -20,7 +19,7 @@ pub enum MachineStatus {
 
 #[derive(async_graphql::Enum, Debug, Copy, Clone, Eq, PartialEq)]
 #[graphql(name = "MachineStatus")]
-pub enum MachineStatusGQL {
+pub enum MachineStatusKey {
     /// The machine is disconnected or turned off.
     Disconnected,
     /// The machine is being initialized.
@@ -39,26 +38,26 @@ pub enum MachineStatusGQL {
     Stopped,
 }
 
-impl From<MachineStatus> for MachineStatusGQL {
+impl From<MachineStatus> for MachineStatusKey {
     fn from(status: MachineStatus) -> Self {
         match status {
-            MachineStatus::Disconnected => MachineStatusGQL::Disconnected,
-            MachineStatus::Connecting => MachineStatusGQL::Connecting,
-            MachineStatus::Ready => MachineStatusGQL::Ready,
-            MachineStatus::Printing(Printing { paused: false, .. }) => MachineStatusGQL::Printing,
-            MachineStatus::Printing(Printing { paused: true, .. }) => MachineStatusGQL::Paused,
-            MachineStatus::Errored(_) => MachineStatusGQL::Errored,
-            MachineStatus::Stopped => MachineStatusGQL::Stopped,
+            MachineStatus::Disconnected => MachineStatusKey::Disconnected,
+            MachineStatus::Connecting => MachineStatusKey::Connecting,
+            MachineStatus::Ready => MachineStatusKey::Ready,
+            MachineStatus::Printing(Printing { paused: false, .. }) => MachineStatusKey::Printing,
+            MachineStatus::Printing(Printing { paused: true, .. }) => MachineStatusKey::Paused,
+            MachineStatus::Errored(_) => MachineStatusKey::Errored,
+            MachineStatus::Stopped => MachineStatusKey::Stopped,
         }
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Printing {
     pub task_id: DbId<Task>,
     pub paused: bool,
-    /// The state of the machine at the time the print was paused
-    pub paused_state: Option<Box<Machine>>,
+    // /// The state of the machine at the time the print was paused
+    // pub paused_state: Option<Box<Machine>>,
 }
 
 impl PartialEq for Printing {

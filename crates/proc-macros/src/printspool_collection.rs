@@ -60,7 +60,7 @@ pub fn impl_printspool_collection(args: TokenStream, item: TokenStream) -> Token
             quote! {
                 #[printspool(foreign_key)]
                 #[new(default)]
-                pub id: crate::DbId<Self>,
+                pub id: crate::DbId<#struct_ident>,
             }
         } else {
             quote! {}
@@ -149,7 +149,8 @@ pub fn impl_printspool_collection(args: TokenStream, item: TokenStream) -> Token
     let output = {
         let natural_id = if include_id {
             quote! {
-                , natural_id = |entry: Self| entry.id
+                , primary_key = Some(crate::DbId<#struct_ident>)
+                , natural_id = |entry: &#struct_ident| entry.id
             }
         } else {
             quote! {}
@@ -158,11 +159,11 @@ pub fn impl_printspool_collection(args: TokenStream, item: TokenStream) -> Token
         quote! {
             #[derive(
                 Debug,
+                Clone,
                 serde::Serialize,
                 serde::Deserialize,
                 bonsaidb::core::schema::Collection,
                 printspool_proc_macros::PrintSpoolCollection,
-                Clone,
                 derive_new::new
             )]
             #[collection(name = #collection_name, views = [#(#view_idents),*] #natural_id)]

@@ -1,7 +1,7 @@
 use crate::{
     component::{Component, ComponentTypeDescriptor, DriverComponent},
     driver_instance::LocalDriverInstance,
-    machine::{Machine, MachineLayout},
+    machine::{DriverMachine, Machine, MachineLayout},
     material::Material,
     Db, DbId,
 };
@@ -43,6 +43,12 @@ pub trait Driver: Sync + Send {
         filename: String,
         content: String,
     ) -> Result<MachineLayout>;
+
+    /// Deserialize the machine type defined by this driver from a json value
+    fn machine_from_value(
+        &self,
+        value: serde_json::Value,
+    ) -> Result<Box<dyn DriverMachine>, serde_json::Error>;
 
     /// Starts a driver instance with the given machine ID
     async fn load_instance(
