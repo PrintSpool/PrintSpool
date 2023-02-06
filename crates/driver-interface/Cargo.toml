@@ -15,7 +15,8 @@ serde_json = "1.0.91"
 eyre = "0.6.8"
 chrono = "0.4.23"
 async-trait = "0.1.63"
-bonsaidb = { git="https://github.com/khonsulabs/bonsaidb.git", features = ["client", "server"] }
+# bonsaidb = { git = "https://github.com/khonsulabs/bonsaidb.git", features = ["client", "server"] }
+bonsaidb = { version = "0.4.1", features = ["client", "server"] }
 rand = "0.8.5"
 derive-new = "0.5.9"
 async-graphql = { version = "5.0.5", features = ["dataloader"] }
@@ -28,6 +29,8 @@ dashmap = "5.4.0"
 tracing = "0.1.37"
 tracing-futures = "0.2.5"
 tokio = "1.25.0"
+impl-tools = "0.6.2"
+int-enum = "0.5.0"
 
 [dependencies.serde]
 features = ["derive"]

@@ -1,4 +1,3 @@
-use nanoid::nanoid;
 use printspool_proc_macros::printspool_collection;
 
 #[derive(async_graphql::SimpleObject)]

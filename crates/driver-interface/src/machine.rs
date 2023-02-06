@@ -1,15 +1,11 @@
 use self::core_config::MachineCoreConfig;
 use self::machine_hooks::MachineHooks;
-use crate::DbId;
 use crate::{component::DriverComponent, driver::Driver};
 use async_graphql::Context;
-use bonsaidb::core::schema::Collection;
-use chrono::{DateTime, Utc};
 use derive_more::{Deref, DerefMut};
 use derive_new::new;
 use eyre::Result;
 use printspool_proc_macros::printspool_collection;
-use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use validator::Validate;
 
@@ -27,7 +23,7 @@ pub use positioning_units::PositioningUnits;
 pub use state::MachineState;
 pub use status::{Errored, MachineStatus, MachineStatusGQL, Printing};
 
-pub type MachineHooksList = Arc<Vec<Box<dyn MachineHooks>>>;
+pub type MachineHooksList = Arc<Vec<&'static dyn MachineHooks>>;
 
 #[printspool_collection]
 pub struct Machine {

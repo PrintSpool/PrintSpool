@@ -1,49 +1,62 @@
-use serde::{Deserialize, Serialize};
-
 use super::TaskStatus;
+use bonsaidb::core::key::{Key, KeyEncoding};
+use int_enum::IntEnum;
+use serde::{Deserialize, Serialize};
+use tracing::warn;
 
-#[derive(async_graphql::Enum, Debug, Serialize, Deserialize, Copy, Clone, PartialEq, Eq)]
+#[repr(u8)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Hash,
+    IntEnum,
+    async_graphql::Enum,
+    Serialize,
+    Deserialize,
+)]
 #[graphql(name = "TaskStatus")]
 pub enum TaskStatusKey {
     /* Before sending to the driver */
     /// The task is enqueued. It will begin printing as soon as the tasks spooled before it finish.
     #[graphql(name = "SPOOLED")]
-    Spooled,
+    Spooled = 10,
 
     /* After sending to the driver */
     /// The task is in the process of being printed.
     #[graphql(name = "STARTED")]
-    Started,
+    Started = 20,
     /// The task completed its print successfully
     #[graphql(name = "FINISHED")]
-    Finished,
+    Finished = 30,
     /// The task was paused by the user
     #[graphql(name = "PAUSED")]
-    Paused,
+    Paused = 40,
     /// The task was halted pre-emptively by the user.
     #[graphql(name = "CANCELLED")]
-    Cancelled,
+    Cancelled = 50,
     /// An error occurred during the print.
     #[graphql(name = "ERRORED")]
-    Errored,
+    Errored = 60,
 }
 
 impl TaskStatusKey {
-    pub const PENDING: &'static [Self] = &[
-        TaskStatusKey::Spooled,
-        TaskStatusKey::Started,
-        TaskStatusKey::Paused,
-    ];
+    pub const PENDING: &'static [Self] = &[Self::Spooled, Self::Started, Self::Paused];
 
-    pub const SETTLED: &'static [Self] = &[
-        TaskStatusKey::Finished,
-        TaskStatusKey::Cancelled,
-        TaskStatusKey::Errored,
-    ];
+    pub const SETTLED: &'static [Self] = &[Self::Finished, Self::Cancelled, Self::Errored];
 
-    pub const ALL: &'static [Self] = &[..Self::PENDING, ..Self::SETTLED];
+    // pub static ALL: &'static [Self] =
+    //     constcat::concat_slices!([TaskStatusKey]: TaskStatusKey::PENDING);
 
-    pub const ABORTED: &'static [Self] = &[TaskStatusKey::Cancelled, TaskStatusKey::Errored];
+    pub const ABORTED: &'static [Self] = &[Self::Cancelled, Self::Errored];
+
+    pub fn all() -> Vec<Self> {
+        [TaskStatusKey::PENDING, TaskStatusKey::SETTLED].concat()
+    }
 }
 
 impl From<&TaskStatus> for TaskStatusKey {
@@ -56,5 +69,28 @@ impl From<&TaskStatus> for TaskStatusKey {
             TaskStatus::Cancelled(_) => Self::Cancelled,
             TaskStatus::Errored(_) => Self::Errored,
         }
+    }
+}
+
+impl<'k> Key<'k> for TaskStatusKey {
+    fn from_ord_bytes(bytes: &'k [u8]) -> Result<Self, Self::Error> {
+        let byte = u8::from_ord_bytes(bytes)?;
+
+        TaskStatusKey::from_int(byte).map_err(|err| {
+            // This error type does not properly convey the reason for the error so a warning is added as a workaround for now.
+            // Ideally a error type would be defined for TaskStatusKey en/decoding.
+            warn!("TaskStatusKey had invalid serialization: {:?}", err);
+            bonsaidb::core::key::IncorrectByteLength
+        })
+    }
+}
+
+impl<'k> KeyEncoding<'k, Self> for TaskStatusKey {
+    type Error = <u8 as KeyEncoding<'k, u8>>::Error;
+
+    const LENGTH: Option<usize> = Some(1);
+
+    fn as_ord_bytes(&'k self) -> Result<std::borrow::Cow<'k, [u8]>, Self::Error> {
+        (*self as u8).as_ord_bytes()
     }
 }

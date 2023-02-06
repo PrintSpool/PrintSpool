@@ -1,16 +1,6 @@
-use async_graphql::{
-    ID,
-    FieldResult,
-    Context,
-};
-use eyre::{
-    eyre,
-    // Result,
-    // Context as _,
-};
-use printspool_auth::{
-    AuthContext,
-};
+use async_graphql::{Context, FieldResult, ID};
+use eyre::eyre;
+use printspool_auth::AuthContext;
 // use printspool_json_store::Record as _;
 
 use crate::{components::ComponentTypeGQL, machine::messages};
@@ -61,7 +51,8 @@ impl ComponentMutation {
         let machines: &crate::MachineMap = ctx.data()?;
         let machines = machines.load();
 
-        let machine = machines.get(&input.machine_id)
+        let machine = machines
+            .get(&input.machine_id)
             .ok_or_else(|| eyre!("Machine ID not found"))?;
 
         let msg = messages::CreateComponent {
@@ -88,7 +79,8 @@ impl ComponentMutation {
         async move {
             auth.authorize_admins_only()?;
 
-            let machine = machines.get(&input.machine_id)
+            let machine = machines
+                .get(&input.machine_id)
                 .ok_or_else(|| eyre!("Machine ID not found"))?;
 
             let msg = messages::UpdateComponent {
@@ -100,12 +92,12 @@ impl ComponentMutation {
 
             eyre::Result::<_>::Ok(())
         }
-            // log the backtrace which is otherwise lost by FieldResult
-            .await
-            .map_err(|err| {
-                warn!("{:?}", err);
-                err
-            })?;
+        // log the backtrace which is otherwise lost by FieldResult
+        .await
+        .map_err(|err| {
+            warn!("{:?}", err);
+            err
+        })?;
 
         Ok(printspool_common::Void)
     }
@@ -124,7 +116,8 @@ impl ComponentMutation {
         let machines: &crate::MachineMap = ctx.data()?;
         let machines = machines.load();
 
-        let machine = machines.get(&input.machine_id)
+        let machine = machines
+            .get(&input.machine_id)
             .ok_or_else(|| eyre!("Machine ID not found"))?;
 
         let id = input.component_id.into();

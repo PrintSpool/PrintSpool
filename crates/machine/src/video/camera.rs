@@ -1,7 +1,7 @@
-use printspool_proc_macros::printspool_collection;
+use printspool_proc_macros::define_component;
 
 /// # Video
-#[printspool_collection]
+#[define_component]
 pub struct CameraConfig {
     /// # Name
     #[validate(length(min = 1, message = "Name cannot be blank"))]
@@ -10,10 +10,4 @@ pub struct CameraConfig {
     /// # Source
     #[validate(length(min = 1, message = "Source cannot be blank"))]
     pub source: String,
-}
-
-impl printspool_config_form::Model for CameraConfig {
-    fn form(all_fields: &Vec<String>) -> Vec<String> {
-        all_fields.clone()
-    }
 }

@@ -790,34 +790,25 @@ dependencies = [
 
 [[package]]
 name = "bonsaidb"
-version = "0.4.0"
-source = "git+https://github.com/khonsulabs/bonsaidb.git#eee7882816303de9b13999b3a593a45d4b87fe85"
-dependencies = [
- "bonsaidb-client",
- "bonsaidb-core 0.4.0",
- "bonsaidb-files",
- "bonsaidb-local",
- "bonsaidb-server",
- "derive-where",
-]
-
-[[package]]
-name = "bonsaidb"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf40b65182c9d0f66b6584d77fc1476a8b00de8b63dfaf3c24faf813e9938bea"
 dependencies = [
- "bonsaidb-core 0.4.1",
+ "bonsaidb-client",
+ "bonsaidb-core",
+ "bonsaidb-local",
+ "bonsaidb-server",
 ]
 
 [[package]]
 name = "bonsaidb-client"
-version = "0.4.0"
-source = "git+https://github.com/khonsulabs/bonsaidb.git#eee7882816303de9b13999b3a593a45d4b87fe85"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f7940e083812e281c180c4d577a62848cecf1562f95b2b53c086ce5a62cb9361"
 dependencies = [
  "async-lock",
  "async-trait",
- "bonsaidb-core 0.4.0",
+ "bonsaidb-core",
  "bonsaidb-utils",
  "derive-where",
  "fabruic",
@@ -839,31 +830,6 @@ dependencies = [
 
 [[package]]
 name = "bonsaidb-core"
-version = "0.4.0"
-source = "git+https://github.com/khonsulabs/bonsaidb.git#eee7882816303de9b13999b3a593a45d4b87fe85"
-dependencies = [
- "actionable",
- "arc-bytes",
- "async-trait",
- "bonsaidb-macros 0.4.0",
- "circulate",
- "derive-where",
- "futures 0.3.25",
- "itertools",
- "num-traits",
- "ordered-varint",
- "pot",
- "serde",
- "sha2 0.10.6",
- "thiserror",
- "tinyvec",
- "transmog",
- "transmog-pot",
- "zeroize",
-]
-
-[[package]]
-name = "bonsaidb-core"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aab2c1698d1300b1a5ebc92f4a8587e4ba1dfdf2a0bb10ea70b03f8d8efbec22"
@@ -871,7 +837,7 @@ dependencies = [
  "actionable",
  "arc-bytes",
  "async-trait",
- "bonsaidb-macros 0.4.1",
+ "bonsaidb-macros",
  "circulate",
  "derive-where",
  "futures 0.3.25",
@@ -888,36 +854,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "bonsaidb-files"
-version = "0.1.0"
-source = "git+https://github.com/khonsulabs/bonsaidb.git#eee7882816303de9b13999b3a593a45d4b87fe85"
-dependencies = [
- "bonsaidb-core 0.4.0",
- "bonsaidb-macros 0.4.0",
- "bonsaidb-utils",
- "derive-where",
- "futures 0.3.25",
- "lru",
- "parking_lot 0.12.1",
- "serde",
- "thiserror",
- "tokio 1.25.0",
-]
-
-[[package]]
 name = "bonsaidb-local"
-version = "0.4.0"
-source = "git+https://github.com/khonsulabs/bonsaidb.git#eee7882816303de9b13999b3a593a45d4b87fe85"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ecb37006ff9a83ab73d7831591278df20ee1a9fd2b3d829fbcb7d4953c230ccd"
 dependencies = [
  "async-trait",
  "bincode",
- "bonsaidb-core 0.4.0",
+ "bonsaidb-core",
  "bonsaidb-utils",
  "byteorder",
  "derive-where",
  "easy-parallel",
  "flume 0.10.14",
- "fs2",
  "futures 0.3.25",
  "itertools",
  "log",
@@ -932,21 +881,6 @@ dependencies = [
  "tokio 1.25.0",
  "transmog-versions",
  "watchable",
-]
-
-[[package]]
-name = "bonsaidb-macros"
-version = "0.4.0"
-source = "git+https://github.com/khonsulabs/bonsaidb.git#eee7882816303de9b13999b3a593a45d4b87fe85"
-dependencies = [
- "attribute-derive 0.3.1",
- "proc-macro-crate",
- "proc-macro-error",
- "proc-macro2",
- "quote",
- "quote-use",
- "syn",
- "trybuild",
 ]
 
 [[package]]
@@ -966,12 +900,13 @@ dependencies = [
 
 [[package]]
 name = "bonsaidb-server"
-version = "0.4.0"
-source = "git+https://github.com/khonsulabs/bonsaidb.git#eee7882816303de9b13999b3a593a45d4b87fe85"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cb1a843097b30e4f2e25e075619a4d65fec6bfe68867042f3e77cef9801e8777"
 dependencies = [
  "async-lock",
  "async-trait",
- "bonsaidb-core 0.4.0",
+ "bonsaidb-core",
  "bonsaidb-local",
  "bonsaidb-utils",
  "cfg-if 1.0.0",
@@ -993,8 +928,9 @@ dependencies = [
 
 [[package]]
 name = "bonsaidb-utils"
-version = "0.4.0"
-source = "git+https://github.com/khonsulabs/bonsaidb.git#eee7882816303de9b13999b3a593a45d4b87fe85"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "13bfb6c69dae109f5a0fff86716929b431da4c79ae813c44938e3c03332ad89f"
 
 [[package]]
 name = "bs58"
@@ -2133,16 +2069,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fs2"
-version = "0.4.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9564fc758e15025b46aa6643b1b77d047d1a56a1aea6e01002ac0c7026876213"
-dependencies = [
- "libc",
- "winapi 0.3.9",
-]
-
-[[package]]
 name = "fs_extra"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2743,6 +2669,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cb56e1aa765b4b4f3aadfab769793b7087bb03a4ea4920644a6d238e2df5b9ed"
 
 [[package]]
+name = "impl-tools"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b38b9422e043c070fb8f1de132599768b8057328fc6d7587d770ec27181f504a"
+dependencies = [
+ "autocfg 1.1.0",
+ "impl-tools-lib",
+ "proc-macro-error",
+ "syn",
+]
+
+[[package]]
+name = "impl-tools-lib"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d872c7f79f16a8acfe1e99d16ed1a126dea85d9d9eb895fd4922f88a4a75a0c0"
+dependencies = [
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "indenter"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2803,6 +2753,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a5bbe824c507c5da5956355e86a746d82e0e1464f65d862cc5e71da70e94b2c"
 dependencies = [
  "cfg-if 1.0.0",
+]
+
+[[package]]
+name = "int-enum"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cff87d3cc4b79b4559e3c75068d64247284aceb6a038bd4bb38387f3f164476d"
+dependencies = [
+ "int-enum-impl",
+]
+
+[[package]]
+name = "int-enum-impl"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df1f2f068675add1a3fc77f5f5ab2e29290c841ee34d151abc007bce902e5d34"
+dependencies = [
+ "proc-macro-crate",
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -3889,7 +3860,7 @@ version = "0.1.0"
 dependencies = [
  "async-graphql 5.0.5",
  "async-trait",
- "bonsaidb 0.4.0",
+ "bonsaidb",
  "bs58",
  "chrono",
  "dashmap 5.4.0",
@@ -3898,6 +3869,8 @@ dependencies = [
  "dyn-clonable",
  "erased-serde",
  "eyre",
+ "impl-tools",
+ "int-enum",
  "once_cell",
  "printspool-proc-macros",
  "printspool-protobufs",
@@ -3929,7 +3902,7 @@ name = "printspool-klipper-driver"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "bonsaidb 0.4.1",
+ "bonsaidb",
  "chrono",
  "futures-util",
  "printspool-driver-interface",
@@ -3968,7 +3941,7 @@ name = "printspool-marlin-driver"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "bonsaidb 0.4.1",
+ "bonsaidb",
  "chrono",
  "futures-util",
  "printspool-driver-interface",
@@ -4235,7 +4208,7 @@ dependencies = [
  "async-std",
  "async-trait",
  "base64 0.12.3",
- "bonsaidb 0.4.1",
+ "bonsaidb",
  "bytes 1.3.0",
  "chrono",
  "derive-new",

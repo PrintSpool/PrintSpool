@@ -10,14 +10,12 @@ use std::path::PathBuf;
 use tracing::warn;
 
 mod gcode_annotation;
-mod task_indexes;
 mod task_resolvers;
 mod task_status;
 mod task_status_key;
 
 pub use self::task_status_key::TaskStatusKey;
 pub use gcode_annotation::GCodeAnnotation;
-pub use task_indexes::*;
 pub use task_status::{Cancelled, Created, Errored, Finished, Paused, TaskStatus};
 
 #[printspool_collection(sort_key = |t| -> TaskStatusKey { t.status.into() })]
@@ -79,7 +77,7 @@ impl Task {
         db: &Db,
         machine_id: &DbId<Machine>,
     ) -> Result<Vec<Self>> {
-        let tasks = TasksByMachine::entries(&db)
+        let tasks = TaskByMachineId
             .with_keys(
                 TaskStatusKey::PENDING
                     .iter()
@@ -114,7 +112,7 @@ impl Task {
         // Run hooks
         try_join_all(machine_hooks.iter().map(|machine_hook| async move {
             machine_hook
-                .before_task_settle(db, &mut machine, machine_hooks, &mut self)
+                .before_task_settle(db, &mut machine, &mut self)
                 .await
         }))
         .await?;
@@ -133,7 +131,7 @@ impl Task {
         // Run hooks
         try_join_all(machine_hooks.iter().map(|machine_hook| async move {
             machine_hook
-                .after_task_settle(db, &mut machine, machine_hooks, &mut self)
+                .after_task_settle(db, &mut machine, &mut self)
                 .await
         }))
         .await?;

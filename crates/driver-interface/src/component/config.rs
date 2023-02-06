@@ -1,5 +1,3 @@
-pub use combined_config_view::CombinedConfigView;
-
 mod validate_model;
 pub use validate_model::validate_model;
 

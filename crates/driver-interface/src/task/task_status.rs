@@ -98,11 +98,11 @@ impl TaskStatus {
     }
 
     pub fn is_pending(&self) -> bool {
-        TaskStatusKey::PENDING.contains(self.into())
+        TaskStatusKey::PENDING.contains(&self.into())
     }
 
     pub fn is_settled(&self) -> bool {
-        TaskStatusKey::SETTLED.contains(self.into())
+        TaskStatusKey::SETTLED.contains(&self.into())
     }
 
     pub fn was_successful(&self) -> bool {
@@ -110,6 +110,6 @@ impl TaskStatus {
     }
 
     pub fn was_aborted(&self) -> bool {
-        TaskStatusKey::ABORTED.contains(self.into())
+        TaskStatusKey::ABORTED.contains(&self.into())
     }
 }

@@ -60,7 +60,67 @@ pub fn foreign_key(
 
     let not_found_error = format!("{} not found", struct_ident);
 
-    let key_ty = &field.ty;
+    let mut key_ty = &field.ty;
+
+    let optional_inner_type = {
+        use syn::{GenericArgument, Path, PathArguments, PathSegment};
+
+        fn extract_type_path(ty: &syn::Type) -> Option<&Path> {
+            match *ty {
+                syn::Type::Path(ref typepath) if typepath.qself.is_none() => Some(&typepath.path),
+                _ => None,
+            }
+        }
+
+        // TODO store (with lazy static) the vec of string
+        // TODO maybe optimization, reverse the order of segments
+        fn extract_option_segment(path: &Path) -> Option<&PathSegment> {
+            let idents_of_path =
+                path.segments
+                    .iter()
+                    .into_iter()
+                    .fold(String::new(), |mut acc, v| {
+                        acc.push_str(&v.ident.to_string());
+                        acc.push('|');
+                        acc
+                    });
+            vec!["Option|", "std|option|Option|", "core|option|Option|"]
+                .into_iter()
+                .find(|s| &idents_of_path == *s)
+                .and_then(|_| path.segments.last())
+        }
+
+        extract_type_path(key_ty)
+            .and_then(|path| extract_option_segment(path))
+            .and_then(|path_seg| {
+                let type_params = &path_seg.arguments;
+                // It should have only on angle-bracketed param ("<String>"):
+                match *type_params {
+                    PathArguments::AngleBracketed(ref params) => params.args.first(),
+                    _ => None,
+                }
+            })
+            .and_then(|generic_arg| match *generic_arg {
+                GenericArgument::Type(ref ty) => Some(ty),
+                _ => None,
+            })
+    };
+
+    // Optional foreign keys only get entries added in the view if they are not None
+    let get_key_ident = if let Some(optional_inner_type) = optional_inner_type {
+        key_ty = optional_inner_type;
+        quote! {
+            use bonsaidb::core::schema::view::map::Mappings;
+
+            if let Some(val) = c.#key_ident {
+                val
+            } else {
+                return Mappings::none();
+            }
+        }
+    } else {
+        quote! { c.#key_ident }
+    };
 
     let mut key_tuple = vec![quote! { crate::Deletion }, quote! { #key_ty}];
 
@@ -92,9 +152,13 @@ pub fn foreign_key(
             #key_tuple,
             |document: bonsaidb::core::document::CollectionDocument<#struct_ident>| {
                 let c = document.contents;
+                let #key_ident = {
+                    #get_key_ident
+                };
+
                 document
                     .header
-                    .emit_key((c.deleted_at.into(), c.#key_ident))
+                    .emit_key((c.deleted_at.into(), #key_ident))
             }
         );
 

@@ -1,11 +1,9 @@
 mod actuator;
-mod camera;
 mod extruder;
 mod fan;
 mod heater;
 
 pub use actuator::*;
-pub use camera::*;
 pub use fan::*;
 pub use heater::*;
 
