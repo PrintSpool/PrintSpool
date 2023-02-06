@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use bonsaidb::core::{
     key::{Key, KeyEncoding},
     num_traits::{FromPrimitive, ToPrimitive},
@@ -25,8 +27,12 @@ impl<'k> KeyEncoding<'k, Self> for Deletion {
 
     const LENGTH: Option<usize> = <bool as KeyEncoding<'k, bool>>::LENGTH;
 
-    fn as_ord_bytes(&'k self) -> Result<std::borrow::Cow<'k, [u8]>, Self::Error> {
-        matches!(self, Self::Deleted).as_ord_bytes()
+    fn as_ord_bytes(&'k self) -> Result<Cow<'k, [u8]>, Self::Error> {
+        if matches!(self, Self::Deleted) {
+            Ok(Cow::Borrowed(&[1_u8]))
+        } else {
+            Ok(Cow::Borrowed(&[0_u8]))
+        }
     }
 }
 

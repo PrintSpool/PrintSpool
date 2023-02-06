@@ -2,8 +2,7 @@ use crate::{
     machine::{Machine, MachineHooksList},
     Db, DbId, Deletion,
 };
-use async_graphql::futures_util::future::try_join_all;
-use bonsaidb::core::connection::AsyncConnection;
+use bonsaidb::core::{connection::AsyncConnection, schema::SerializedCollection};
 use eyre::Result;
 use printspool_proc_macros::printspool_collection;
 use serde::{Deserialize, Serialize};
@@ -11,7 +10,6 @@ use std::path::PathBuf;
 use tracing::warn;
 
 mod gcode_annotation;
-mod task_resolvers;
 mod task_status;
 mod task_status_key;
 
@@ -19,7 +17,7 @@ pub use self::task_status_key::TaskStatusKey;
 pub use gcode_annotation::GCodeAnnotation;
 pub use task_status::{Cancelled, Created, Errored, Finished, Paused, TaskStatus};
 
-#[printspool_collection(sort_key = |t: &Task| -> TaskStatusKey { t.status.into() })]
+#[printspool_collection(sort_key = |t: &Task| -> TaskStatusKey { (&t.status).into() })]
 pub struct Task {
     // Foreign Keys
     #[printspool(foreign_key)]
@@ -78,16 +76,17 @@ impl Task {
         db: &Db,
         machine_id: &DbId<Machine>,
     ) -> Result<Vec<Self>> {
-        let tasks = TaskByMachineId
+        let tasks = db
+            .view::<TaskByMachineId>()
             .with_keys(
                 TaskStatusKey::PENDING
                     .iter()
-                    .map(|status| (Deletion::None, machine_id, status)),
+                    .map(|status| (Deletion::None, *machine_id, *status)),
             )
             .query_with_collection_docs()
             .await?
             .into_iter()
-            .map(|m| m.document.contents)
+            .map(|m| m.document.contents.to_owned())
             .collect();
 
         Ok(tasks)
@@ -111,12 +110,9 @@ impl Task {
         let content = std::mem::replace(&mut self.content, TaskContent::GCodes(vec![]));
 
         // Run hooks
-        try_join_all(machine_hooks.iter().map(|machine_hook| async move {
-            machine_hook
-                .before_task_settle(&db, &mut machine, &mut self)
-                .await
-        }))
-        .await?;
+        for machine_hook in machine_hooks.iter() {
+            machine_hook.before_task_settle(db, machine, self).await?;
+        }
 
         if let TaskContent::FilePath(file_path) = content {
             if let Err(err) = tokio::fs::remove_file(&file_path).await {
@@ -127,17 +123,12 @@ impl Task {
             }
         }
 
-        // TODO: An update method might need to get added:
-        // self.update(&db).await?;
-        db.collection::<Self>().update(self).await?;
+        Task::overwrite_async(self.id, self.clone(), db).await?;
 
         // Run hooks
-        try_join_all(machine_hooks.iter().map(|machine_hook| async move {
-            machine_hook
-                .after_task_settle(&db, &mut machine, &mut self)
-                .await
-        }))
-        .await?;
+        for machine_hook in machine_hooks.iter() {
+            machine_hook.after_task_settle(db, machine, self).await?;
+        }
 
         Ok(())
     }

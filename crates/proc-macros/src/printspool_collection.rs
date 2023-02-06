@@ -149,8 +149,8 @@ pub fn impl_printspool_collection(args: TokenStream, item: TokenStream) -> Token
     let output = {
         let natural_id = if include_id {
             quote! {
-                , primary_key = Some(crate::DbId<#struct_ident>)
-                , natural_id = |entry: &#struct_ident| entry.id
+                , primary_key = crate::DbId<#struct_ident>
+                , natural_id = |entry: &#struct_ident| Some(entry.id)
             }
         } else {
             quote! {}

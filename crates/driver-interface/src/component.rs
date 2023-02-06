@@ -1,15 +1,17 @@
-use std::any::Any;
-
-use crate::{capability::Capability, driver::Driver, machine::Machine, DbId, Deletion};
-use bonsaidb::core::{define_basic_mapped_view, document::CollectionDocument};
-use derive_more::{Deref, DerefMut};
-use printspool_proc_macros::printspool_collection;
-
 pub mod config;
 mod serialization;
 mod type_descriptor;
 
 pub use type_descriptor::ComponentTypeDescriptor;
+
+use crate::{capability::Capability, driver::Driver, machine::Machine, DbId, Deletion};
+use bonsaidb::core::{
+    define_basic_mapped_view,
+    document::{CollectionDocument, Emit},
+};
+use derive_more::{Deref, DerefMut};
+use printspool_proc_macros::printspool_collection;
+use std::any::Any;
 use validator::Validate;
 
 #[printspool_collection]
@@ -32,7 +34,7 @@ define_basic_mapped_view!(
         document.header.emit_key((
             c.deleted_at.into(),
             c.machine_id,
-            c.driver_config.type_descriptor().name,
+            c.driver_config.type_descriptor().name.into(),
         ))
     }
 );

@@ -55,7 +55,7 @@ impl<C> TryFrom<&async_graphql::ID> for DbId<C> {
     fn try_from(value: &async_graphql::ID) -> Result<Self, Self::Error> {
         let mut buf = [0u8; 8];
 
-        bs58::decode(value.0).into(&mut buf)?;
+        bs58::decode(&value.0).into(&mut buf)?;
         let id = Self::new(u64::from_be_bytes(buf));
 
         Ok(id)

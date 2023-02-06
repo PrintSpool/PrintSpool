@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use super::TaskStatus;
 use bonsaidb::core::key::{Key, KeyEncoding};
 use int_enum::IntEnum;
@@ -90,7 +92,8 @@ impl<'k> KeyEncoding<'k, Self> for TaskStatusKey {
 
     const LENGTH: Option<usize> = Some(1);
 
-    fn as_ord_bytes(&'k self) -> Result<std::borrow::Cow<'k, [u8]>, Self::Error> {
-        (*self as u8).as_ord_bytes()
+    fn as_ord_bytes(&'k self) -> Result<Cow<'k, [u8]>, Self::Error> {
+        let val = *self as u8;
+        Ok(Cow::from(val.to_be_bytes().to_vec()))
     }
 }

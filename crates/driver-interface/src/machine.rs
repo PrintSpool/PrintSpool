@@ -42,12 +42,12 @@ pub trait DriverMachine:
 }
 
 pub struct MachineLayout {
-    machine: Box<dyn DriverMachine>,
-    components: Vec<Box<dyn DriverComponent>>,
+    pub machine: Box<dyn DriverMachine>,
+    pub components: Vec<Box<dyn DriverComponent>>,
 }
 
 impl Machine {
     pub async fn load_state(&self, ctx: &Context<'_>) -> Result<MachineState> {
-        MachineState::load_by_id(self.deleted_at.into(), self.id, ctx).await
+        MachineState::load_by_machine_id(self.deleted_at.into(), self.id, ctx).await
     }
 }

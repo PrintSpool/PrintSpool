@@ -50,8 +50,8 @@ pub trait LocalDriverInstance: Sync + Send + AnyHostDriverInstance {
 // Placeholder. In the future an implementation of AnyHostMachine may be added to allow for access to machiens on
 // other hosts in a network.
 pub struct RemoteDriverInstance {
-    host_id: String,
-    machine_id: String,
+    pub host_id: String,
+    pub machine_id: String,
 }
 
 // impl AnyHostMachine for RemoteDriverInstance {

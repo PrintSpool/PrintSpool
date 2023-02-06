@@ -147,7 +147,7 @@ pub fn foreign_key(
 
                 let sort_key = #sort_key;
 
-                (c.deleted_at.into(), #key_ident, sort_key(&c))
+                (c.deleted_at.into(), #key_ident.to_owned(), sort_key(&c))
             }
         } else {
             quote! {
@@ -155,7 +155,7 @@ pub fn foreign_key(
                     #get_key_ident
                 };
 
-                (c.deleted_at.into(), #key_ident)
+                (c.deleted_at.into(), #key_ident.to_owned())
             }
         }
     };
@@ -178,40 +178,37 @@ pub fn foreign_key(
             #view_name_str,
             #key_tuple_def,
             |document: bonsaidb::core::document::CollectionDocument<#struct_ident>| {
-                todo!()
-                // use bonsaidb::core::document::{CollectionDocument, Emit};
-                // let c = document.contents;
+                use bonsaidb::core::document::{CollectionDocument, Emit};
+                let c = document.contents;
 
-                // let key = {
-                //     #mapping_key_tuple
-                // };
+                let key = {
+                    #mapping_key_tuple
+                };
 
-                // document
-                //     .header
-                //     .emit_key(key)
+                document
+                    .header
+                    .emit_key(key)
             }
         );
 
         impl #struct_ident {
-            pub async fn #load_fn_ident(
+            pub async fn #load_fn_ident<'ctx>(
                 deletion: crate::Deletion,
                 #key_ident: #key_ty,
                 #load_fn_sort_arg_def
-                ctx: &async_graphql::Context<'_>,
+                ctx: &async_graphql::Context<'ctx>,
             ) -> eyre::Result<#struct_ident> {
-                todo!()
-                // let loader = Self::#loader_fn_ident(ctx)?;
-                // let state = loader.load_one((deletion, #key_ident, #load_fn_sort_arg)).await?;
+                let loader = Self::#loader_fn_ident(ctx)?;
+                let state = loader.load_one((deletion, #key_ident, #load_fn_sort_arg)).await?;
 
-                // state.ok_or_else(|| eyre::eyre!(#not_found_error))
+                state.ok_or_else(|| eyre::eyre!(#not_found_error))
             }
 
-            pub fn #loader_fn_ident(
-                ctx: &async_graphql::Context<'_>,
-            ) -> eyre::Result<&async_graphql::dataloader::DataLoader<#loader_ident>> {
-                todo!()
-                // let loader = ctx.data_unchecked::<async_graphql::dataloader::DataLoader<#loader_ident>>();
-                // Ok(loader)
+            pub fn #loader_fn_ident<'ctx>(
+                ctx: &async_graphql::Context<'ctx>,
+            ) -> eyre::Result<&'ctx async_graphql::dataloader::DataLoader<#loader_ident>> {
+                let loader = ctx.data_unchecked::<async_graphql::dataloader::DataLoader<#loader_ident>>();
+                Ok(loader)
             }
         }
 
@@ -228,22 +225,22 @@ pub fn foreign_key(
                 &self,
                 keys: &[#key_tuple_def],
             ) -> Result<std::collections::HashMap<#key_tuple_def, Self::Value>, Self::Error> {
-                todo!()
+                use bonsaidb::core::{connection::AsyncConnection, schema::SerializedCollection};
 
-                // let hash_table = db.view::<#view_ident>()
-                //     .with_keys(keys.clone())
-                //     .query_with_collection_docs()
-                //     .await?
-                //     .into_iter()
-                //     .map(|m| m.document.contents)
-                //     .filter_map(|c| {
-                //         let key = { #loader_key_tuple };
+                let hash_table = self.db.view::<#view_ident>()
+                    .with_keys(keys.to_owned().into_iter())
+                    .query_with_collection_docs()
+                    .await?
+                    .into_iter()
+                    .map(|m| m.document.contents.to_owned())
+                    .filter_map(|c| {
+                        let key = { #loader_key_tuple };
 
-                //         Some((key, c))
-                //     })
-                //     .collect();
+                        Some((key, c))
+                    })
+                    .collect();
 
-                // Ok(hash_table)
+                Ok(hash_table)
             }
         }
     };
